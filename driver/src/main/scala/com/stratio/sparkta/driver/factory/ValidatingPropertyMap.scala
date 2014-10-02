@@ -17,13 +17,20 @@ package com.stratio.sparkta.driver.factory
 
 import com.stratio.sparkta.driver.exception.DriverException
 
-/**
- * Created by ajnavarro on 2/10/14.
- */
-object PropertyValidationHandler {
-  def validateProperty(property: String, configuration: Map[String, String],
-                       errorMessage: String = "%s property is mandatory."): String = {
-    assert(configuration.contains(property), throw new DriverException(errorMessage.format(property)))
-    configuration.get(property).get
-  }
+class ValidatingPropertyMap[K,V](val m : Map[K,V]) {
+
+  def getMandatory(key : K) : V =
+    m.get(key) match {
+      case Some(value) => value
+      case None =>
+        throw new DriverException(s"$key is mandatory")
+    }
+
+}
+
+object ValidatingPropertyMap {
+
+  implicit def map2ValidatingPropertyMap[K,V](m: Map[K, V]): ValidatingPropertyMap[K, V] =
+    new ValidatingPropertyMap[K,V](m)
+
 }

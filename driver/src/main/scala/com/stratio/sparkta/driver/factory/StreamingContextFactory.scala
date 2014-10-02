@@ -17,12 +17,12 @@ package com.stratio.sparkta.driver.factory
 
 import com.stratio.sparkta.driver.configuration.{AggregationPoliciesConfiguration, GeneralConfiguration}
 import com.stratio.sparkta.driver.exception.DriverException
-import com.stratio.sparkta.driver.factory.PropertyValidationHandler._
 import com.stratio.sparkta.driver.factory.SparkConfHandler._
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.flume.FlumeUtils
 import org.apache.spark.streaming.kafka.KafkaUtils
+import ValidatingPropertyMap._
 
 /**
  * Builder used to transform a configuration file into a initialized StreamingContext.
@@ -40,25 +40,25 @@ object StreamingContextFactory {
     val properties = aggregationPoliciesConfiguration.receiverConfiguration
     val receiver = aggregationPoliciesConfiguration.receiver match {
       case "kafka" =>
-        KafkaUtils.createStream(ssc,
-          validateProperty("zkQuorum", properties),
-          validateProperty("groupId", properties),
-          validateProperty("topics", properties)
+        KafkaUtils.createStream(ssc = ssc,
+          zkQuorum = properties.getMandatory("zkQuorum"),
+          groupId = properties.getMandatory("groupId"),
+          topics = properties.getMandatory("topics")
             .split(",")
-            .map(s => (s.trim, validateProperty("partitions", properties).toInt))
+            .map(s => (s.trim, properties.getMandatory("partitions").toInt))
             .toMap,
-          StorageLevel.fromString(validateProperty("storageLevel", properties))
+          storageLevel = StorageLevel.fromString(properties.getMandatory("storageLevel"))
         )
       case "flume" =>
         FlumeUtils.createPollingStream(
-          ssc, validateProperty("hostname", properties),
-          validateProperty("port", properties).toInt
+          ssc, properties.getMandatory("hostname"),
+          properties.getMandatory("port").toInt
         )
       case "socket" =>
         ssc.socketTextStream(
-          validateProperty("hostname", properties),
-          validateProperty("port", properties).toInt,
-          StorageLevel.fromString(validateProperty("storageLevel", properties)))
+          properties.getMandatory("hostname"),
+          properties.getMandatory("port").toInt,
+          StorageLevel.fromString(properties.getMandatory("storageLevel")))
       case _ =>
         throw new DriverException("Receiver " + aggregationPoliciesConfiguration.receiver + " not supported.")
     }
