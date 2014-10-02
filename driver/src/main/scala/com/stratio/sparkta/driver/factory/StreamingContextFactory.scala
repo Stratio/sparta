@@ -39,7 +39,7 @@ object StreamingContextFactory {
     )
     val properties = aggregationPoliciesConfiguration.receiverConfiguration
     val receiver = aggregationPoliciesConfiguration.receiver match {
-      case "kafka" => {
+      case "kafka" =>
         KafkaUtils.createStream(ssc,
           validateProperty("zkQuorum", properties),
           validateProperty("groupId", properties),
@@ -49,22 +49,18 @@ object StreamingContextFactory {
             .toMap,
           StorageLevel.fromString(validateProperty("storageLevel", properties))
         )
-      }
-      case "flume" => {
+      case "flume" =>
         FlumeUtils.createPollingStream(
           ssc, validateProperty("hostname", properties),
           validateProperty("port", properties).toInt
         )
-      }
-      case "socket" => {
+      case "socket" =>
         ssc.socketTextStream(
           validateProperty("hostname", properties),
           validateProperty("port", properties).toInt,
           StorageLevel.fromString(validateProperty("storageLevel", properties)))
-      }
-      case _ => {
+      case _ =>
         throw new DriverException("Receiver " + aggregationPoliciesConfiguration.receiver + " not supported.")
-      }
     }
     //TODO add transformations and actions to dstream
     receiver.print()
