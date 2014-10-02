@@ -30,20 +30,31 @@ import org.apache.spark.streaming.kafka.KafkaUtils
  */
 object StreamingContextFactory {
 
-  def getStreamingContext(aggregationPoliciesConfiguration: AggregationPoliciesConfiguration, generalConfiguration: GeneralConfiguration): StreamingContext = {
-    val ssc = new StreamingContext(configToSparkConf(generalConfiguration, aggregationPoliciesConfiguration.name), new Duration(generalConfiguration.duration))
+  def getStreamingContext(aggregationPoliciesConfiguration: AggregationPoliciesConfiguration,
+                          generalConfiguration: GeneralConfiguration): StreamingContext = {
+
+    val ssc = new StreamingContext(
+      configToSparkConf(generalConfiguration, aggregationPoliciesConfiguration.name),
+      new Duration(generalConfiguration.duration)
+    )
     val properties = aggregationPoliciesConfiguration.receiverConfiguration
     val receiver = aggregationPoliciesConfiguration.receiver match {
       case "kafka" => {
         KafkaUtils.createStream(ssc,
           validateProperty("zkQuorum", properties),
           validateProperty("groupId", properties),
-          validateProperty("topics", properties).split(",").map(s => (s.trim, validateProperty("partitions", properties).toInt)).toMap,
+          validateProperty("topics", properties)
+            .split(",")
+            .map(s => (s.trim, validateProperty("partitions", properties).toInt))
+            .toMap,
           StorageLevel.fromString(validateProperty("storageLevel", properties))
         )
       }
       case "flume" => {
-        FlumeUtils.createPollingStream(ssc, validateProperty("hostname", properties), validateProperty("port", properties).toInt)
+        FlumeUtils.createPollingStream(
+          ssc, validateProperty("hostname", properties),
+          validateProperty("port", properties).toInt
+        )
       }
       case "socket" => {
         ssc.socketTextStream(
