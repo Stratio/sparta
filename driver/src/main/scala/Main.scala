@@ -15,7 +15,8 @@
  */
 import java.io.File
 
-import com.stratio.sparkta.driver.configuration.{AggregationPoliciesConfiguration, GeneralConfiguration}
+import com.stratio.sparkta.driver.configuration.GeneralConfiguration
+import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory.StreamingContextFactory
 import org.json4s._
@@ -36,21 +37,22 @@ object Main {
     }
 
     // convert jsons to objects
-    val files = new File(args(0)).listFiles.filter(_.getName.endsWith(".json"))
-    val aggregationPolicies: Seq[AggregationPoliciesConfiguration] = files.map(f =>
+    val basePath = new File(args(0))
+    val policiesFiles = new File(basePath, "policies").listFiles.filter(_.getName.endsWith(".json"))
+    val aggregationPolicies: Seq[AggregationPoliciesDto] = policiesFiles.map(f =>
       parse(Source.fromFile(f).getLines().mkString)
-        .extract[AggregationPoliciesConfiguration]
+        .extract[AggregationPoliciesDto]
     )
 
-    //TODO read general configuration
-    val generalConfiguration = new GeneralConfiguration("local[2]", "")
+    val configurationFile = new File(basePath, "configuration.json")
+    val generalConfiguration = parse(Source.fromFile(configurationFile).getLines().mkString).extract[GeneralConfiguration]
 
-    //TODO generate each context
+    // generate each context
     val contexts = aggregationPolicies.map(policy => {
       StreamingContextFactory.getStreamingContext(policy, generalConfiguration)
     })
 
-    //TODO start all context
+    // start all context
     contexts.foreach(_.start())
   }
 }

@@ -15,7 +15,8 @@
  */
 package com.stratio.sparkta.driver.factory
 
-import com.stratio.sparkta.driver.configuration.{AggregationPoliciesConfiguration, GeneralConfiguration}
+import com.stratio.sparkta.driver.configuration.GeneralConfiguration
+import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory.SparkConfHandler._
 import org.apache.spark.storage.StorageLevel
@@ -25,12 +26,12 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 import ValidatingPropertyMap._
 
 /**
- * Builder used to transform a configuration file into a initialized StreamingContext.
+ * Builder used to transform a configuration file into a StreamingContext.
  * It also can be used programatically.
  */
 object StreamingContextFactory {
 
-  def getStreamingContext(aggregationPoliciesConfiguration: AggregationPoliciesConfiguration,
+  def getStreamingContext(aggregationPoliciesConfiguration: AggregationPoliciesDto,
                           generalConfiguration: GeneralConfiguration): StreamingContext = {
 
     val ssc = new StreamingContext(
