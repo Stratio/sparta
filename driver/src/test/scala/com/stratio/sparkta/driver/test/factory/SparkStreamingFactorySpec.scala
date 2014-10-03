@@ -26,17 +26,28 @@ import org.scalatest.{FlatSpec, Matchers}
  */
 class SparkStreamingFactorySpec extends FlatSpec with Matchers {
   var defaultAggregationPolicies = new AggregationPoliciesDto("test1", "socket", Map("hostname" -> "localhost", "port" -> "9999", "storageLevel" -> "MEMORY_ONLY"), null, null)
-  var defailtGeneralConfiguration = new GeneralConfiguration("local[2]", "")
+  var defaultGeneralConfiguration = new GeneralConfiguration("local[2]", "")
+
+  var socketConfigurationTest = ("socket", Map("hostname" -> "localhost", "port" -> "9999", "storageLevel" -> "MEMORY_ONLY"))
+  var flumeConfigurationTest = ("flume", Map("hostname" -> "localhost", "port" -> "9999"))
+  var kafkaConfigurationTest = ("kafka", Map("zkQuorum" -> "localhost:2181", "groupId" -> "test_group_id", "topics" -> "topic_test_1,topic_test_2", "partitions" -> "2", "storageLevel" -> "MEMORY_ONLY"))
 
   behavior of "StreamingContextFactory"
 
   it should "throw DriverException if wrong property is added" in {
     a[DriverException] should be thrownBy {
-      StreamingContextFactory.getStreamingContext(defaultAggregationPolicies.copy(receiverConfiguration = Map("wrong" -> "bad")), defailtGeneralConfiguration)
-    }
+      StreamingContextFactory.getStreamingContext(defaultAggregationPolicies.copy(receiverConfiguration = Map("wrong" -> "bad")), defaultGeneralConfiguration)
+    }  }
+
+  it should "be ok if socket configuration is ok" in {
+    StreamingContextFactory.getStreamingContext(defaultAggregationPolicies.copy(receiver = socketConfigurationTest._1, receiverConfiguration = socketConfigurationTest._2), defaultGeneralConfiguration)
   }
 
-  it should "be ok if all configuration is ok" in {
-    StreamingContextFactory.getStreamingContext(defaultAggregationPolicies, defailtGeneralConfiguration)
+  it should "be ok if flume configuration is ok" in {
+    StreamingContextFactory.getStreamingContext(defaultAggregationPolicies.copy(receiver = flumeConfigurationTest._1, receiverConfiguration = flumeConfigurationTest._2), defaultGeneralConfiguration)
+  }
+
+  it should "be ok if kafka configuration is ok" in {
+    StreamingContextFactory.getStreamingContext(defaultAggregationPolicies.copy(receiver = kafkaConfigurationTest._1, receiverConfiguration = kafkaConfigurationTest._2), defaultGeneralConfiguration)
   }
 }
