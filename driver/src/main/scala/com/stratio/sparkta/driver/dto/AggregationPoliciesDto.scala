@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.driver.configuration
+package com.stratio.sparkta.driver.dto
 
 /**
  * Created by ajnavarro on 2/10/14.
  */
-case class AggregationPoliciesConfiguration(name: String = "default",
+case class AggregationPoliciesDto(name: String = "default",
                                             receiver: String = "kafka",
                                             receiverConfiguration: Map[String, String],
                                             eventParser: Option[String],
