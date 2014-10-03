@@ -1,0 +1,6 @@
+{
+    "master": "local[2]",
+    "sparkHome": "",
+    "cpus": 2,
+    "memory": "512m"
+}

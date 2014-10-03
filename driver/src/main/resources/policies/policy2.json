@@ -1,0 +1,9 @@
+{
+    "name": "policy-2",
+    "receiver": "socket",
+    "receiverConfiguration": {
+        "hostname": "localhost",
+        "port": "8888",
+        "storageLevel": "MEMORY_ONLY"
+    }
+}
