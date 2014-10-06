@@ -19,11 +19,11 @@ import com.stratio.sparkta.driver.configuration.GeneralConfiguration
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory.SparkConfHandler._
+import com.stratio.sparkta.driver.factory.ValidatingPropertyMap._
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.flume.FlumeUtils
 import org.apache.spark.streaming.kafka.KafkaUtils
-import ValidatingPropertyMap._
 
 /**
  * Builder used to transform a configuration file into a StreamingContext.
@@ -64,8 +64,14 @@ object StreamingContextFactory {
         throw new DriverException("Receiver " + aggregationPoliciesConfiguration.receiver + " not supported.")
     }
     //TODO add transformations and actions to dstream
+
     receiver.print()
 
+//    val persistence = aggregationPoliciesConfiguration.persistence match {
+//      case "mongo" =>
+//
+//      case "cassandra" =>
+//    }
     ssc
   }
 

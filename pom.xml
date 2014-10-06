@@ -83,20 +83,47 @@
                 <version>${spark.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.stratio.deep</groupId>
+                <artifactId>deep-mongodb</artifactId>
+                <version>0.4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stratio.deep</groupId>
+                <artifactId>deep-cassandra</artifactId>
+                <version>0.4.0</version>
+            </dependency>
+            <dependency>
                 <groupId>org.json4s</groupId>
                 <artifactId>json4s-native_${scala.binary.version}</artifactId>
                 <version>3.2.10</version>
             </dependency>
-            <!-- Test -->
-            <dependency>
-                <groupId>org.scalatest</groupId>
-                <artifactId>scalatest_${scala.binary.version}</artifactId>
-                <version>2.2.2</version>
-                <scope>test</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
-
+    <dependencies>
+        <!-- Test -->
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_${scala.binary.version}</artifactId>
+            <version>2.2.2</version>
+            <scope>test</scope>
+        </dependency>
+        <!--Logging-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.clapper</groupId>
+            <artifactId>grizzled-slf4j_2.10</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+    </dependencies>
     <build>
         <sourceDirectory>src/main/scala</sourceDirectory>
         <testSourceDirectory>src/test/scala</testSourceDirectory>
