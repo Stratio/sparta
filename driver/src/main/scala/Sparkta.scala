@@ -16,22 +16,27 @@
 
 import java.io.File
 
-import akka.actor.{ActorSystem, Props}
-import com.stratio.sparkta.driver.actor.{Print, SupervisorActor}
+import akka.actor.{ActorSystem, PoisonPill, Props}
+import akka.event.slf4j.SLF4JLogging
+import akka.pattern.ask
+import akka.util.Timeout
+import com.stratio.sparkta.driver.actor.{CreateContext, GetAllContextStatus, SupervisorActor}
 import com.stratio.sparkta.driver.configuration.GeneralConfiguration
-import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
+import com.stratio.sparkta.driver.dto.{AggregationPoliciesDto, StreamingContextStatusDto}
 import com.stratio.sparkta.driver.exception.DriverException
+import com.stratio.sparkta.driver.service.StreamingContextService
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationDouble
 import scala.io.Source
+import scala.util.{Failure, Success}
 
 /**
  * Created by ajnavarro on 2/10/14.
  */
-object Sparkta extends App {
+object Sparkta extends App with SLF4JLogging {
 
   sys addShutdownHook (shutdown)
 
@@ -47,18 +52,34 @@ object Sparkta extends App {
     parse(Source.fromFile(f).getLines().mkString)
       .extract[AggregationPoliciesDto]
   )
-
   val configurationFile = new File(basePath, "configuration.json")
   val generalConfiguration = parse(Source.fromFile(configurationFile).getLines().mkString).extract[GeneralConfiguration]
 
   val system = ActorSystem("sparkta")
+  val streamingContextService = new StreamingContextService(generalConfiguration)
+  val supervisor = system.actorOf(Props(new SupervisorActor(streamingContextService)), "supervisor")
+  aggregationPolicies.foreach(policy => supervisor ! new CreateContext(policy))
 
-  val supervisor = system.actorOf(Props(new SupervisorActor), "supervisor")
-  aggregationPolicies.foreach(policy => supervisor !(policy, generalConfiguration))
+  system.scheduler.schedule(1 seconds, 5 seconds) {
+    (supervisor ? GetAllContextStatus)(Timeout(10 seconds)).onComplete {
+      case Success(statuses) =>
+        statuses match {
+          case s: Map[String, StreamingContextStatusDto] =>
+            s.foreach(status =>
+              log.info("Context name: " + status._1 + ", status: " + status._2.status + ", description: " + status._2.description))
+          case x =>
+            log.warn("Unrecognized type getting status info", x)
+        }
+      case Failure(e: Exception) =>
+        log.error("Error getting all contexts statuses", e)
+      case x =>
+        log.warn("Unrecognized type getting context info", x)
+    }
+  }
 
-  system.scheduler.schedule(1 seconds, 5 seconds, supervisor, Print)
-
-  private def shutdown {
+  private def shutdown() = {
+    if (supervisor != null)
+      supervisor ! PoisonPill
     if (system != null)
       system.shutdown()
   }

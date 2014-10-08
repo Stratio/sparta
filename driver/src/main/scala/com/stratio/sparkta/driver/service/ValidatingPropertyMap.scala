@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.driver.factory
+package com.stratio.sparkta.driver.service
 
 import com.stratio.sparkta.driver.exception.DriverException
 

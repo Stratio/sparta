@@ -14,13 +14,21 @@
     ],
     "operators": [
         {
-            "name": "job1",
-            "elementType": "count",
+            "name": "rollup1",
+            "elementType": "rollup",
             "configuration": {
+                "dimensions": [
+                    {
+                        "name": "ts",
+                        "type": "datetime"
+                    },
+                    {
+                        "name": "domains",
+                        "type": "s"
+                    }
+                ],
+                "sliders": ["1h", "1d"],
                 "receiverName": "in-socket",
-                "key": "item-1",
-                "window": 2,
-                "slideWindow": 10,
                 "output": "out-print"
             }
         }

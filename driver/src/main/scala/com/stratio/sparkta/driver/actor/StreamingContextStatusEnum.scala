@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.driver.dto
+package com.stratio.sparkta.driver.actor
 
 /**
- * Created by ajnavarro on 2/10/14.
+ * Created by ajnavarro on 7/10/14.
  */
-case class AggregationPoliciesDto(name: String = "default",
-                                  receivers: Seq[PolicyElementDto],
-                                  operators: Seq[PolicyElementDto],
-                                  outputs: Seq[PolicyElementDto])
+object StreamingContextStatusEnum extends Enumeration {
+  type Status = Value
+  val Initializing, Initialized, Error, ConfigurationError, Stopped, Removed = Value
+}

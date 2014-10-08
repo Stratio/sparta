@@ -15,10 +15,9 @@
  */
 package com.stratio.sparkta.driver.dto
 
+import com.stratio.sparkta.driver.actor.StreamingContextStatusEnum
+
 /**
- * Created by ajnavarro on 2/10/14.
+ * Created by ajnavarro on 7/10/14.
  */
-case class AggregationPoliciesDto(name: String = "default",
-                                  receivers: Seq[PolicyElementDto],
-                                  operators: Seq[PolicyElementDto],
-                                  outputs: Seq[PolicyElementDto])
+case class StreamingContextStatusDto(status: StreamingContextStatusEnum.Status, description: String)

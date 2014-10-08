@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.driver.dto
+package com.stratio.sparkta.driver.configuration.aggregation
 
 /**
- * Created by ajnavarro on 2/10/14.
+ * Created by ajnavarro on 6/10/14.
  */
-case class AggregationPoliciesDto(name: String = "default",
-                                  receivers: Seq[PolicyElementDto],
-                                  operators: Seq[PolicyElementDto],
-                                  outputs: Seq[PolicyElementDto])
+class BaseConfiguration(name: String, window: Option[Long], slideWindow: Option[Long], key: String, output: String) extends Serializable {
+
+}

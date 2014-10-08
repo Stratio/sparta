@@ -1,9 +1,15 @@
 {
     "name": "policy-2",
-    "receiver": "socket",
-    "receiverConfiguration": {
-        "hostname": "localhost",
-        "port": "8888",
-        "storageLevel": "MEMORY_ONLY"
-    }
+    "receivers": [
+        {
+            "name": "in-socket",
+            "elementType": "socketa",
+            "configuration": {
+                "hostname": "localhost",
+                "port": "9999",
+                "storageLevel": "MEMORY_ONLY",
+                "parser": "keyValueParser"
+            }
+        }
+    ]
 }

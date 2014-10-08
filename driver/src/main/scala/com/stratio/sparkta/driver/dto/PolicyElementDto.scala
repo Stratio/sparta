@@ -16,9 +16,6 @@
 package com.stratio.sparkta.driver.dto
 
 /**
- * Created by ajnavarro on 2/10/14.
+ * Created by ajnavarro on 6/10/14.
  */
-case class AggregationPoliciesDto(name: String = "default",
-                                  receivers: Seq[PolicyElementDto],
-                                  operators: Seq[PolicyElementDto],
-                                  outputs: Seq[PolicyElementDto])
+case class PolicyElementDto(name: String, elementType: String, configuration: Map[String, String])
