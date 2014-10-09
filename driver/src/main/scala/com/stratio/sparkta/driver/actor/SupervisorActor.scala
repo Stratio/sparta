@@ -36,7 +36,7 @@ case class CreateContext(policy: AggregationPoliciesDto)
 
 case class GetContextStatus(contextName: String)
 
-case class GetAllContextStatus()
+case class GetAllContextStatus
 
 case class DeleteContext(contextName: String)
 
