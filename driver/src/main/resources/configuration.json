@@ -2,5 +2,6 @@
     "master": "local[2]",
     "sparkHome": "",
     "cpus": 2,
-    "memory": "512m"
+    "memory": "512m",
+    "duration": 10000
 }

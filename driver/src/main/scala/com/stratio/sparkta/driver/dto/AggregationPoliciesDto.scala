@@ -20,5 +20,6 @@ package com.stratio.sparkta.driver.dto
  */
 case class AggregationPoliciesDto(name: String = "default",
                                   receivers: Seq[PolicyElementDto],
-                                  operators: Seq[PolicyElementDto],
+                                  dimensions: Seq[DimensionDto],
+                                  rollups: Seq[RollupDto],
                                   outputs: Seq[PolicyElementDto])

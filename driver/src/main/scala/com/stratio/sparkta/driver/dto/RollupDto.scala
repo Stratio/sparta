@@ -13,20 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.aggregator.parser
-
-import java.io
-
-import com.stratio.sparkta.aggregator.domain.{Event, InputEvent}
+package com.stratio.sparkta.driver.dto
 
 /**
- * Created by ajnavarro on 6/10/14.
+ * Created by ajnavarro on 13/10/14.
  */
-case class KeyValueParser() extends Parser {
-  override def parse(data: InputEvent): Event = {
-    new Event(new String(data.payload).split(",").map(kv => {
-      val kvArray = kv.split(":")
-      kvArray(0) -> kvArray(1).asInstanceOf[io.Serializable]
-    }).toMap)
-  }
-}
+case class RollupDto(dimensionAndBucketTypes: Seq[DimensionAndBucketTypeDto])
+
+case class DimensionAndBucketTypeDto(dimensionName: String, bucketType: String)

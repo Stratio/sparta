@@ -21,7 +21,7 @@ import org.apache.spark.streaming.dstream.DStream
 /**
  * Created by ajnavarro on 6/10/14.
  */
-trait Parser extends Serializable {
+trait Parser {
   def parse(data: InputEvent): Event
 
   def map(dstream: DStream[InputEvent]) =

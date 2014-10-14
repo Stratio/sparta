@@ -15,10 +15,12 @@
  */
 package com.stratio.sparkta.aggregator.domain
 
+import java.io
+
 /**
  * Created by ajnavarro on 6/10/14.
  */
-class Event(val keyMap: Map[String, String]) extends Serializable {
+case class Event(keyMap: Map[String, io.Serializable]) {
   override def toString: String = {
     "[Event, Properties=" + keyMap + "]"
   }

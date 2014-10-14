@@ -15,15 +15,21 @@
  */
 package com.stratio.sparkta.aggregator.operator
 
-import com.stratio.sparkta.aggregator.domain.Event
-import org.apache.spark.streaming.dstream.DStream
+import java.io
+
+import com.stratio.sparkta.aggregator.Dimension
+import com.stratio.sparkta.aggregator.bucket.BucketType
 
 /**
  * Created by ajnavarro on 6/10/14.
  */
-class CountOperator(window: Option[Long], slideWindow: Option[Long], key: String) extends AbstractOperator {
+case class CountOperator() extends Operator {
 
-  override def process(stream: DStream[Event]): DStream[_] = {
-    stream
+  override val key: String = "COUNT"
+
+  override def process(streamData: Seq[((Dimension, BucketType, Seq[io.Serializable]))])
+  : (Seq[(Dimension, BucketType, Seq[io.Serializable])], (String, Long)) = {
+    (streamData, (key, 1))
   }
+
 }

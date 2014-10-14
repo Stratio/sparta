@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,10 +15,11 @@
  */
 package com.stratio.sparkta.driver.service
 
+import com.stratio.sparkta.aggregator.bucket.{BucketType, DateTimeBucketer, StringBucketer}
 import com.stratio.sparkta.aggregator.domain.{Event, InputEvent}
-import com.stratio.sparkta.aggregator.operator.CountOperator
 import com.stratio.sparkta.aggregator.output.{AbstractOutput, PrintOutput}
 import com.stratio.sparkta.aggregator.parser.KeyValueParser
+import com.stratio.sparkta.aggregator.{DataCube, Dimension, Rollup}
 import com.stratio.sparkta.driver.configuration.GeneralConfiguration
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.exception.DriverException
@@ -89,31 +90,40 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
       outputs += (element.name -> output)
     })
 
-    aggregationPoliciesConfiguration.operators.foreach(element => {
-      val config = element.configuration
-      val operator = element.elementType match {
-        case "count" =>
-          new CountOperator(
-            Option(config.getMandatory("window").toLong),
-            Option(config.getMandatory("slideWindow").toLong),
-            config.getMandatory("key")
-          )
-        case _ =>
-          throw new DriverException("Operator " + element.elementType + " not supported")
+    val dimensions: Map[String, Dimension] = aggregationPoliciesConfiguration.dimensions.map(element => {
+      val dimension: Dimension = element.dimensionType match {
+        case "string" => new Dimension(element.name, new StringBucketer())
+        case "date" => new Dimension(element.name, new DateTimeBucketer())
+        case x => throw new DriverException("Dimension type " + x + " not supported.")
       }
-      val dstreamProcessed = receivers.get(config.getMandatory("receiverName")) match {
-        case Some(receiver) =>
-          operator.process(receiver)
-        case _ =>
-          throw new DriverException("No receiver found with name  " + config.getMandatory("receiverName"))
+      (element.name -> dimension)
+    }).toMap
+
+    //TODO workaround to obtain seq
+    val dimensionsSeq: Seq[Dimension] = aggregationPoliciesConfiguration.dimensions.map(element => {
+      val dimension: Dimension = element.dimensionType match {
+        case "string" => new Dimension(element.name, new StringBucketer())
+        case "date" => new Dimension(element.name, new DateTimeBucketer())
+        case x => throw new DriverException("Dimension type " + x + " not supported.")
       }
-      outputs.get(config.getMandatory("output")) match {
-        case Some(output) =>
-          output.save(dstreamProcessed)
-        case _ =>
-          throw new DriverException("No output found with name  " + config.getMandatory("output"))
-      }
+      dimension
     })
+
+    val rollups = aggregationPoliciesConfiguration.rollups.map(element => {
+      val dimAndTypes: Seq[(Dimension, BucketType)] = element.dimensionAndBucketTypes.map(dabt => {
+        dimensions.get(dabt.dimensionName) match {
+          case Some(x: Dimension) => x.bucketTypes.contains(new BucketType(dabt.bucketType)) match {
+            case true => (x, new BucketType(dabt.bucketType))
+            case _ => throw new DriverException("Bucket type " + dabt.bucketType + " not supported in dimension " + dabt.dimensionName)
+          }
+        }
+      }).seq
+      new Rollup(dimAndTypes)
+    })
+    val datacube = new DataCube(dimensionsSeq, rollups)
+
+    //TODO implement multiple outputs and inputs
+    outputs.head._2.persist(datacube.setUp(receivers.head._2))
 
     ssc
   }

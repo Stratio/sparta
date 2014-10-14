@@ -13,25 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.aggregator.operator
+package com.stratio.sparkta.aggregator.bucket
 
-import com.stratio.sparkta.aggregator.domain.Event
-import org.apache.spark.streaming.Seconds
-import org.apache.spark.streaming.dstream.DStream
+import java.io
 
 /**
- * Created by ajnavarro on 6/10/14.
+ * Created by ajnavarro on 9/10/14.
  */
-abstract class AbstractOperator extends Serializable {
+case class StringBucketer() extends Bucketer {
 
-  def process(stream: DStream[Event]): DStream[_]
-
-  def windowStream[U](stream: DStream[U], window: (Option[Long], Option[Long])) = {
-    window match {
-      case (Some(a), Some(b)) => stream.window(Seconds(a), Seconds(b))
-      case (Some(a), None) => stream.window(Seconds(a))
-      case _ => stream
-    }
+  override def bucketForWrite(value: io.Serializable): Map[BucketType, Seq[io.Serializable]] = {
+    Map(Bucketer.identity -> Seq(value))
   }
 
+  override lazy val bucketTypes: Seq[BucketType] = Seq(Bucketer.identity)
 }

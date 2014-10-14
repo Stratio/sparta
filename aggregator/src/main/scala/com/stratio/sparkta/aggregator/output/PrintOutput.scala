@@ -15,13 +15,19 @@
  */
 package com.stratio.sparkta.aggregator.output
 
+import com.stratio.sparkta.aggregator.UpdateMetricOperation
 import org.apache.spark.streaming.dstream.DStream
 
 /**
  * Created by ajnavarro on 6/10/14.
  */
 class PrintOutput extends AbstractOutput {
-  override def save(stream: DStream[_]): Unit = {
+
+  override def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
+    streams.foreach(persist(_))
+  }
+
+  override def persist(stream: DStream[UpdateMetricOperation]): Unit = {
     stream.print()
   }
 }

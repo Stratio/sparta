@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.aggregator.parser
+package com.stratio.sparkta.aggregator.operator
 
 import java.io
 
-import com.stratio.sparkta.aggregator.domain.{Event, InputEvent}
+import com.stratio.sparkta.aggregator.Dimension
+import com.stratio.sparkta.aggregator.bucket.BucketType
 
 /**
  * Created by ajnavarro on 6/10/14.
  */
-case class KeyValueParser() extends Parser {
-  override def parse(data: InputEvent): Event = {
-    new Event(new String(data.payload).split(",").map(kv => {
-      val kvArray = kv.split(":")
-      kvArray(0) -> kvArray(1).asInstanceOf[io.Serializable]
-    }).toMap)
-  }
+trait Operator {
+
+  val key: String
+
+  def process(stream:
+              Seq[((Dimension, BucketType, Seq[io.Serializable]))]):
+  (Seq[(Dimension, BucketType, Seq[io.Serializable])], (String, Long))
 }
+

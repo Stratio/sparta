@@ -59,6 +59,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.5</version>
+            </dependency>
+            <dependency>
                 <groupId>com.stratio.sparkta</groupId>
                 <artifactId>aggregator</artifactId>
                 <version>${project.version}</version>

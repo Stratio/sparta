@@ -12,17 +12,36 @@
             }
         }
     ],
-    "operators": [
+    "dimensions": [
         {
-            "name": "job1",
-            "elementType": "count",
-            "configuration": {
-                "receiverName": "in-socket",
-                "key": "item-1",
-                "window": 2,
-                "slideWindow": 10,
-                "output": "out-print"
-            }
+            "dimensionType": "string",
+            "name": "col1"
+        },
+        {
+            "dimensionType": "string",
+            "name": "col2"
+        }
+    ],
+    "rollups": [
+        {
+            "dimensionAndBucketTypes": [
+                {
+                    "dimensionName": "col1",
+                    "bucketType": "identity"
+                }
+            ]
+        },
+        {
+            "dimensionAndBucketTypes": [
+                {
+                    "dimensionName": "col1",
+                    "bucketType": "identity"
+                },
+                {
+                    "dimensionName": "col2",
+                    "bucketType": "identity"
+                }
+            ]
         }
     ],
     "outputs": [

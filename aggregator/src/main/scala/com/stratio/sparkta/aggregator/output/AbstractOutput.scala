@@ -15,11 +15,14 @@
  */
 package com.stratio.sparkta.aggregator.output
 
+import com.stratio.sparkta.aggregator.UpdateMetricOperation
 import org.apache.spark.streaming.dstream.DStream
 
 /**
  * Created by ajnavarro on 6/10/14.
  */
-abstract class AbstractOutput  {
-  def save(stream: DStream[_])
+abstract class AbstractOutput {
+  def persist(stream: DStream[UpdateMetricOperation])
+
+  def persist(streams: Seq[DStream[UpdateMetricOperation]])
 }
