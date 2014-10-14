@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,17 +28,6 @@ case class DataCube(dimensions: Seq[Dimension], rollups: Seq[Rollup]) {
 
   def setUp(inputStream: DStream[Event]): Seq[DStream[UpdateMetricOperation]] = {
     //TODO: add event values
-
-    // Extract dimensions
-    // TODO too complicated
-    //    val extractedDimensionsStream: DStream[Map[Dimension[_], Map[BucketType, Set[_]]]] =
-    //      inputStream.map((e: Event) =>
-    //        dimensions
-    //          .flatMap((dim: Dimension[_]) => e.keyMap.get(dim.name).map((value: Serializable) => (dim, value)))
-    //          .map((x: (Dimension[_], Any)) =>
-    //          (x._1, x._1.bucketer.bucketForWrite(x._2))
-    //          ).toMap
-    //      )
     val extractedDimensionsStream: DStream[Map[Dimension, Map[BucketType, Seq[io.Serializable]]]] =
       inputStream.map((e: Event) =>
         (
