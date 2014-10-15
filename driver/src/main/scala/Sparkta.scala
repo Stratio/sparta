@@ -65,7 +65,8 @@ object Sparkta extends App with SLF4JLogging {
         statuses match {
           case s: Map[String, StreamingContextStatusDto] =>
             s.foreach(status =>
-              log.info("Context name: " + status._1 + ", status: " + status._2.status + ", description: " + status._2.description))
+              log.info("Context name: " +
+                status._1 + ", status: " + status._2.status + ", description: " + status._2.description))
           case x =>
             log.warn("Unrecognized type getting status info", x)
         }
@@ -77,9 +78,11 @@ object Sparkta extends App with SLF4JLogging {
   }
 
   private def shutdown() = {
-    if (supervisor != null)
+    if (supervisor != null) {
       supervisor ! PoisonPill
-    if (system != null)
+    }
+    if (system != null) {
       system.shutdown()
+    }
   }
 }

@@ -27,6 +27,7 @@
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
     </root>
-    <logger name="org.apache" level="info"/>
-    <logger name="org.eclipse" level="info"/>
+    <logger name="org.apache" level="ERROR"/>
+    <logger name="org.apache.spark" level="ERROR"/>
+    <logger name="org.eclipse" level="ERROR"/>
 </configuration>

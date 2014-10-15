@@ -18,7 +18,9 @@ package com.stratio.sparkta.driver.dto
 /**
  * Created by ajnavarro on 2/10/14.
  */
-case class AggregationPoliciesDto(name: String = "default",
+case class AggregationPoliciesDto(jarPaths: Seq[String],
+                                  name: String = "default",
+                                  duration: Int = 2000,
                                   receivers: Seq[PolicyElementDto],
                                   dimensions: Seq[DimensionDto],
                                   rollups: Seq[RollupDto],

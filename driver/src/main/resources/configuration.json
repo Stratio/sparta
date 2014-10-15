@@ -1,7 +1,7 @@
 {
-    "master": "local[2]",
+    "master": "spark://localhost:7077",
     "sparkHome": "",
-    "cpus": 2,
+    "cpus": 8,
     "memory": "512m",
-    "duration": 10000
+    "name": "SPARKTA-context"
 }

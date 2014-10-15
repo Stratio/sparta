@@ -24,12 +24,12 @@ import com.stratio.sparkta.driver.configuration.GeneralConfiguration
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.service.ValidatingPropertyMap._
-import org.apache.spark.SparkConf
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.flume.FlumeUtils
 import org.apache.spark.streaming.kafka.KafkaUtils
 import org.apache.spark.streaming.{Duration, StreamingContext}
+import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.util.Try
 
@@ -40,9 +40,13 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
 
   def createStreamingContext(aggregationPoliciesConfiguration: AggregationPoliciesDto): StreamingContext = {
     val ssc = new StreamingContext(
-      configToSparkConf(generalConfiguration, aggregationPoliciesConfiguration.name),
-      new Duration(generalConfiguration.duration)
-    )
+      new SparkContext(configToSparkConf(generalConfiguration, aggregationPoliciesConfiguration.name)),
+      //TODO one spark context to all streaming contexts is not working
+      //SparkContextFactory.sparkContextInstance(generalConfiguration),
+      new Duration(aggregationPoliciesConfiguration.duration))
+
+    aggregationPoliciesConfiguration.jarPaths.foreach(j => ssc.sparkContext.addJar(j))
+
     var receivers: Map[String, DStream[Event]] = Map()
     aggregationPoliciesConfiguration.receivers.foreach(element => {
       val config = element.configuration
@@ -67,7 +71,8 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
           ssc.socketTextStream(
             config.getMandatory("hostname"),
             config.getMandatory("port").toInt,
-            StorageLevel.fromString(config.getMandatory("storageLevel"))).map(data => new InputEvent(null, data.getBytes))
+            StorageLevel.fromString(config.getMandatory("storageLevel")))
+            .map(data => new InputEvent(null, data.getBytes))
         case _ =>
           throw new DriverException("Receiver " + element.elementType + " not supported in receiver " + element.name)
       }
@@ -114,7 +119,9 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
         dimensions.get(dabt.dimensionName) match {
           case Some(x: Dimension) => x.bucketTypes.contains(new BucketType(dabt.bucketType)) match {
             case true => (x, new BucketType(dabt.bucketType))
-            case _ => throw new DriverException("Bucket type " + dabt.bucketType + " not supported in dimension " + dabt.dimensionName)
+            case _ =>
+              throw new DriverException(
+                "Bucket type " + dabt.bucketType + " not supported in dimension " + dabt.dimensionName)
           }
         }
       }).seq
@@ -128,10 +135,10 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
     ssc
   }
 
-  private def configToSparkConf(generalConfiguration: GeneralConfiguration, appName: String): SparkConf = {
+  private def configToSparkConf(generalConfiguration: GeneralConfiguration, name: String): SparkConf = {
     val conf = new SparkConf()
     conf.setMaster(generalConfiguration.master)
-      .setAppName(appName)
+      .setAppName(name)
 
     conf.set("spark.cores.max", generalConfiguration.cpus.toString)
 

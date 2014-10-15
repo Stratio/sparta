@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -55,7 +55,9 @@ class SupervisorActor(streamingContextservice: StreamingContextService) extends 
 
   override def receive = {
     case CreateContext(policy) =>
-      val streamingContextActor = context.actorOf(Props(new StreamingContextActor(policy, streamingContextservice)), "context-actor-".concat(policy.name))
+      val streamingContextActor =
+        context.actorOf(
+          Props(new StreamingContextActor(policy, streamingContextservice)), "context-actor-".concat(policy.name))
       contextActors += (policy.name -> new ContextActorStatus(streamingContextActor, Initializing, null))
       (streamingContextActor ? Init)(Timeout(10 minutes)).onComplete {
         case Success(Initialized) =>
@@ -68,7 +70,8 @@ class SupervisorActor(streamingContextservice: StreamingContextService) extends 
           log.warn("Configuration error! in context with name: " + policy.name)
           contextActors.get(policy.name) match {
             case Some(contextActorStatus) =>
-              contextActors += (policy.name -> new ContextActorStatus(contextActorStatus.actor, ConfigurationError, e.getMessage))
+              contextActors +=
+                (policy.name -> new ContextActorStatus(contextActorStatus.actor, ConfigurationError, e.getMessage))
               contextActorStatus.actor ! PoisonPill
           }
         case Success(InitError(e)) =>

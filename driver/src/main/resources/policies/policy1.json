@@ -1,5 +1,8 @@
 {
     "name": "policy-1",
+    "duration": 10000,
+    "jarPaths": ["/home/ajnavarro/workspace-sparkrta/sparkta/aggregator/target/aggregator-0.0.1-SNAPSHOT.jar",
+        "/home/ajnavarro/workspace-sparkrta/sparkta/driver/target/driver-0.0.1-SNAPSHOT.jar"],
     "receivers": [
         {
             "name": "in-socket",
