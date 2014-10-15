@@ -38,10 +38,6 @@ class StreamingContextActor
 
   override def receive = {
     case Init =>
-      if (policy.name.equals("policy-2")) {
-        println("SLEEEEEEPPPINNNGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG")
-        Thread.sleep(10000)
-      }
       log.debug("Init new streamingContext with name " + policy.name)
       ssc = Try(streamingContextService.createStreamingContext(policy)) match {
         case Success(_ssc) =>
