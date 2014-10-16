@@ -28,6 +28,11 @@
     <artifactId>aggregator</artifactId>
     <dependencies>
         <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>casbah-core_${scala.binary.version}</artifactId>
+            <version>2.6.5</version>
+        </dependency>
+        <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
