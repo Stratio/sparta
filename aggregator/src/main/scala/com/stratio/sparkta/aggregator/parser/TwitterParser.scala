@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.aggregator.output
+package com.stratio.sparkta.aggregator.parser
 
-import com.stratio.sparkta.aggregator.UpdateMetricOperation
-import org.apache.spark.streaming.dstream.DStream
+import java.io.Serializable
+
+import com.stratio.sparkta.aggregator.domain.{Event, InputEvent}
 
 /**
- * Created by ajnavarro on 6/10/14.
+ * Created by ajnavarro on 15/10/14.
  */
-class PrintOutput extends AbstractOutput {
-
-  override def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
-    streams.foreach(persist)
-  }
-
-  override def persist(stream: DStream[UpdateMetricOperation]): Unit = {
-    stream.print()
+case class TwitterParser() extends Parser {
+  override def parse(data: InputEvent): Event = {
+    new Event(data.headers.map(m => (m._1, m._2.asInstanceOf[Serializable])))
   }
 }

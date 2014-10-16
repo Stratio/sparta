@@ -1,35 +1,37 @@
 {
-    "name": "policy-1",
-    "duration": 10000,
+    "name": "policy-demo",
+    "duration": 6000,
     "jarPaths": ["/home/ajnavarro/workspace-sparkrta/sparkta/aggregator/target/aggregator-0.0.1-SNAPSHOT.jar",
         "/home/ajnavarro/workspace-sparkrta/sparkta/driver/target/driver-0.0.1-SNAPSHOT.jar"],
     "receivers": [
         {
-            "name": "in-socket",
-            "elementType": "socket",
+            "name": "in",
+            "elementType": "twitter",
             "configuration": {
-                "hostname": "localhost",
-                "port": "9999",
-                "storageLevel": "MEMORY_ONLY",
-                "parser": "keyValueParser"
+                "parser": "twitterParser"
             }
         }
     ],
     "dimensions": [
         {
             "dimensionType": "string",
-            "name": "col1"
+            "name": "userId"
+        },
+        {
+            "dimensionType": "date",
+            "name": "createdAt"
         },
         {
             "dimensionType": "string",
-            "name": "col2"
+            "name": "lang"
+
         }
     ],
     "rollups": [
         {
             "dimensionAndBucketTypes": [
                 {
-                    "dimensionName": "col1",
+                    "dimensionName": "userId",
                     "bucketType": "identity"
                 }
             ]
@@ -37,20 +39,44 @@
         {
             "dimensionAndBucketTypes": [
                 {
-                    "dimensionName": "col1",
+                    "dimensionName": "lang",
                     "bucketType": "identity"
+                }
+            ]
+        },
+        {
+            "dimensionAndBucketTypes": [
+                {
+                    "dimensionName": "createdAt",
+                    "bucketType": "minute"
                 },
                 {
-                    "dimensionName": "col2",
+                    "dimensionName": "lang",
                     "bucketType": "identity"
+                }
+            ]
+        },
+        {
+            "dimensionAndBucketTypes": [
+                {
+                    "dimensionName": "createdAt",
+                    "bucketType": "minute"
+                }
+            ]
+        },
+        {
+            "dimensionAndBucketTypes": [
+                {
+                    "dimensionName": "createdAt",
+                    "bucketType": "hour"
                 }
             ]
         }
     ],
     "outputs": [
         {
-            "name": "out-print",
-            "elementType": "print",
+            "name": "out-mongo",
+            "elementType": "mongo",
             "configuration": {}
         }
     ]

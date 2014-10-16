@@ -43,6 +43,10 @@ case class UpdateMetricOperation(
       }
     }) mkString (SEPARATOR)
   }
+
+  override def toString: String = {
+    this.keyString + " DATA: " + rollupKey.flatMap(_._3) + " AGGREGATIONS: " + aggregations
+  }
 }
 
 //TODO add operators

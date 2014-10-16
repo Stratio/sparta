@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,20 +17,26 @@ package com.stratio.sparkta.driver.service
 
 import com.stratio.sparkta.aggregator.bucket.{BucketType, DateTimeBucketer, StringBucketer}
 import com.stratio.sparkta.aggregator.domain.{Event, InputEvent}
-import com.stratio.sparkta.aggregator.output.{AbstractOutput, PrintOutput}
-import com.stratio.sparkta.aggregator.parser.KeyValueParser
+import com.stratio.sparkta.aggregator.output.{AbstractOutput, MongoDbOutput, PrintOutput}
+import com.stratio.sparkta.aggregator.parser.{KeyValueParser, TwitterParser}
 import com.stratio.sparkta.aggregator.{DataCube, Dimension, Rollup}
 import com.stratio.sparkta.driver.configuration.GeneralConfiguration
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.service.ValidatingPropertyMap._
+import com.typesafe.config.ConfigFactory
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.flume.FlumeUtils
 import org.apache.spark.streaming.kafka.KafkaUtils
+import org.apache.spark.streaming.twitter.TwitterUtils
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
+import twitter4j.Status
+import twitter4j.auth.AuthorizationFactory
+import twitter4j.conf.ConfigurationBuilder
 
+import scala.collection.JavaConverters._
 import scala.util.Try
 
 /**
@@ -60,7 +66,8 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
               .map(s => (s.trim, config.getMandatory("partitions").toInt))
               .toMap,
             storageLevel = StorageLevel.fromString(config.getMandatory("storageLevel"))
-          ).map(data => new InputEvent(data._1.getBytes, data._2.getBytes))
+            //TODO add headers
+          ).map(data => new InputEvent(null, data._2.getBytes))
         case "flume" =>
           FlumeUtils.createPollingStream(
             ssc, config.getMandatory("hostname"),
@@ -73,12 +80,34 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
             config.getMandatory("port").toInt,
             StorageLevel.fromString(config.getMandatory("storageLevel")))
             .map(data => new InputEvent(null, data.getBytes))
+        case "twitter" =>
+          val config = new ConfigurationBuilder()
+            .setDebugEnabled(false)
+            .setOAuthConsumerKey("jqjbh5egthtW7B0k9Sb3A")
+            .setOAuthConsumerSecret("ipxSCbLxKfzfVXRfUFnVqZ2JJkS4ddaEG5oKUexk")
+            .setOAuthAccessToken("308647659-iYqwCEJgt0pajby3BlVinj93ljlN1tYXZFUSQzir")
+            .setOAuthAccessTokenSecret("lxSuzxPLu7PJO2Bii74IRiVFE1fwUPREpaySLvz9k")
+            .build()
+          val auth = AuthorizationFactory.getInstance(config)
+
+          TwitterUtils.createStream(ssc, Some(auth), Seq[String](), StorageLevel.MEMORY_ONLY)
+            .map((t: Status) => {
+            val map: Map[String, Any] = Map(
+              "userId" -> t.getUser.getId,
+              "createdAt" -> t.getCreatedAt,
+              "lang" -> t.getUser.getLang,
+              "hashtags" -> t.getHashtagEntities.map(_.getText)
+
+            )
+            new InputEvent(map, null)
+          })
         case _ =>
           throw new DriverException("Receiver " + element.elementType + " not supported in receiver " + element.name)
       }
 
       val parser = config.getMandatory("parser") match {
         case "keyValueParser" => new KeyValueParser
+        case "twitterParser" => new TwitterParser
       }
 
       receivers += (element.name -> parser.map(receiver))
@@ -86,9 +115,13 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
 
     var outputs: Map[String, AbstractOutput] = Map()
     aggregationPoliciesConfiguration.outputs.foreach(element => {
-      //val config = element.configuration
+      //TODO val config = element.configuration
       val output = element.elementType match {
         case "print" => new PrintOutput()
+
+        case "mongo" =>
+          val mapConfig = Map("client_uri" -> "mongodb://localhost", "dbName" -> "SPARKTA")
+          new MongoDbOutput(ConfigFactory.parseMap(mapConfig.asJava))
         case _ =>
           throw new DriverException("Output " + element.elementType + " not supported")
       }

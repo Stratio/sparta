@@ -18,4 +18,4 @@ package com.stratio.sparkta.aggregator.domain
 /**
  * Created by ajnavarro on 6/10/14.
  */
-case class InputEvent(headers: Array[Byte], payload: Array[Byte])
+case class InputEvent(headers: Map[String, Any], payload: Array[Byte])
