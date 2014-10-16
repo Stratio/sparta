@@ -30,4 +30,5 @@
     <logger name="org.apache" level="ERROR"/>
     <logger name="org.apache.spark" level="ERROR"/>
     <logger name="org.eclipse" level="ERROR"/>
+    <logger name="twitter4j" level="info"/>
 </configuration>
