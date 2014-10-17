@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,9 +32,9 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 import org.apache.spark.streaming.twitter.TwitterUtils
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
-import twitter4j.Status
 import twitter4j.auth.AuthorizationFactory
 import twitter4j.conf.ConfigurationBuilder
+import twitter4j.{HashtagEntity, Status}
 
 import scala.collection.JavaConverters._
 import scala.util.Try
@@ -92,12 +92,18 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
 
           TwitterUtils.createStream(ssc, Some(auth), Seq[String](), StorageLevel.MEMORY_ONLY)
             .map((t: Status) => {
+            val firstHashTag = t.getHashtagEntities.headOption match {
+              case Some(h: HashtagEntity) => h.getText
+              case _ => "NONE"
+            }
             val map: Map[String, Any] = Map(
               "userId" -> t.getUser.getId,
               "createdAt" -> t.getCreatedAt,
               "lang" -> t.getUser.getLang,
-              "hashtags" -> t.getHashtagEntities.map(_.getText)
-
+              "hashTagsCount" -> t.getHashtagEntities.size,
+              "urlsCount" -> t.getURLEntities.size,
+              "userMentionCount" -> t.getUserMentionEntities.size,
+              "firstHashtag" -> firstHashTag
             )
             new InputEvent(map, null)
           })
@@ -156,6 +162,7 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
               throw new DriverException(
                 "Bucket type " + dabt.bucketType + " not supported in dimension " + dabt.dimensionName)
           }
+          case None => throw new DriverException("Dimension name " + dabt.dimensionName + " not found.")
         }
       }).seq
       new Rollup(dimAndTypes)
@@ -182,6 +189,8 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
 
     // Set the Jetty port to 0 to find a random port
     conf.set("spark.ui.port", "0")
+
+    conf.set("spark.streaming.concurrentJobs", "20")
 
     conf
   }
