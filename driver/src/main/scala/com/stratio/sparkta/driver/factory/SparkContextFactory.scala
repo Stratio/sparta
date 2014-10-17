@@ -50,6 +50,9 @@ object SparkContextFactory {
     // Set the Jetty port to 0 to find a random port
     conf.set("spark.ui.port", "0")
 
+    // Change by default one concurrent jobs.
+    conf.set("spark.streaming.concurrentJobs", "20")
+
     conf
   }
 }
