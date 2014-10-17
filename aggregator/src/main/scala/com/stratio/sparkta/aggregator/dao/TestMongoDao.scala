@@ -28,19 +28,14 @@ case class TestMongoDao(private val config: Config) extends AbstractMongoDAO(con
 
   def upsert(metricOp: UpdateMetricOperation): Unit = {
     val collection = db.getCollection(metricOp.keyString)
-    //    collection.update(
-    //      MongoDBObject("_id" -> metricOp.rollupKey.flatMap(_._3).mkString("__")),
-    //      MongoDBObject(metricOp.aggregations.map(a => $inc(a._1, a._2)).toList),
-    //      true, false
-    //    )
-
-    metricOp.aggregations.foreach(
-      field =>
-        collection.update(
-          MongoDBObject(
-            "_id" -> metricOp.rollupKey.flatMap(_._3).mkString("__")),
-          $inc(field._1 -> field._2),
-          true, false)
-    )
+    metricOp.aggregations.foreach(field => {
+      val builder = MongoDBObject.newBuilder
+      metricOp.rollupKey.foreach(k => builder += k._1.name -> k._3.head)
+      builder += "_id" -> metricOp.rollupKey.flatMap(_._3).mkString("__")
+      collection.update(
+        builder.result,
+        $inc(field._1 -> field._2),
+        true, false)
+    })
   }
 }
