@@ -17,10 +17,10 @@ package com.stratio.sparkta.driver.service
 
 import com.stratio.sparkta.aggregator.bucket.{BucketType, DateTimeBucketer, StringBucketer}
 import com.stratio.sparkta.aggregator.domain.{Event, InputEvent}
-import com.stratio.sparkta.aggregator.output.{Output, AbstractOutput, MongoDbOutput, PrintOutput}
+import com.stratio.sparkta.aggregator.output.{MongoDbOutput, Output, PrintOutput}
 import com.stratio.sparkta.aggregator.parser.{KeyValueParser, TwitterParser}
 import com.stratio.sparkta.aggregator.{DataCube, Dimension, Rollup}
-import com.stratio.sparkta.driver.configuration.GeneralConfiguration
+import com.stratio.sparkta.driver.configuration._
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.service.ValidatingPropertyMap._
