@@ -17,7 +17,7 @@ package com.stratio.sparkta.driver.service
 
 import com.stratio.sparkta.aggregator.bucket.{BucketType, DateTimeBucketer, StringBucketer}
 import com.stratio.sparkta.aggregator.domain.{Event, InputEvent}
-import com.stratio.sparkta.aggregator.output.{AbstractOutput, MongoDbOutput, PrintOutput}
+import com.stratio.sparkta.aggregator.output.{Output, AbstractOutput, MongoDbOutput, PrintOutput}
 import com.stratio.sparkta.aggregator.parser.{KeyValueParser, TwitterParser}
 import com.stratio.sparkta.aggregator.{DataCube, Dimension, Rollup}
 import com.stratio.sparkta.driver.configuration.GeneralConfiguration
@@ -119,7 +119,7 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
       receivers += (element.name -> parser.map(receiver))
     })
 
-    var outputs: Map[String, AbstractOutput] = Map()
+    var outputs: Map[String, Output] = Map()
     aggregationPoliciesConfiguration.outputs.foreach(element => {
       //TODO val config = element.configuration
       val output = element.elementType match {
