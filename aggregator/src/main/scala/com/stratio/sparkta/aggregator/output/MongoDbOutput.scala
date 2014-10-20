@@ -23,7 +23,7 @@ import org.apache.spark.streaming.dstream.DStream
 /**
  * Created by ajnavarro on 15/10/14.
  */
-case class MongoDbOutput(config: Config) extends AbstractOutput {
+case class MongoDbOutput(config: Config) extends Output {
 
   private val dao = new TestMongoDao(config)
 
