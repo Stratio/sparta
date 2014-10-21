@@ -5,7 +5,7 @@
 ### Driver
 - Akka actors (Supervisor and StreamingContextActor)
 - Json parser
-- First approach streaming context generation
+- First approach streaming context generator
 
 ### Aggregator
 - Dimensions
