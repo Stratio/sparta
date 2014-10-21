@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,7 @@
  */
 package com.stratio.sparkta.driver.service
 
-import com.stratio.sparkta.aggregator.bucket.{BucketType, DateTimeBucketer, StringBucketer}
+import com.stratio.sparkta.aggregator.bucket.{BucketType, DateTimeBucketer, GeoHashBucketer, StringBucketer}
 import com.stratio.sparkta.aggregator.domain.{Event, InputEvent}
 import com.stratio.sparkta.aggregator.output.{MongoDbOutput, Output, PrintOutput}
 import com.stratio.sparkta.aggregator.parser.{KeyValueParser, TwitterParser}
@@ -34,7 +34,7 @@ import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 import twitter4j.auth.AuthorizationFactory
 import twitter4j.conf.ConfigurationBuilder
-import twitter4j.{HashtagEntity, Status}
+import twitter4j.{URLEntity, HashtagEntity, Status}
 
 import scala.collection.JavaConverters._
 import scala.util.Try
@@ -96,6 +96,18 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
               case Some(h: HashtagEntity) => h.getText
               case _ => "NONE"
             }
+
+            val firstUrl = t.getURLEntities.headOption match {
+              case Some(h: URLEntity) => h.getExpandedURL
+              case _ => "NONE.COM"
+            }
+
+            val coordinates = t.getGeoLocation match {
+              case g if g != null => g.getLatitude + "__" + g.getLongitude
+              //TODO null treatment
+              case _ => "38.897833__-77.036498"
+            }
+
             val map: Map[String, Any] = Map(
               "userId" -> t.getUser.getId,
               "createdAt" -> t.getCreatedAt,
@@ -103,7 +115,9 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
               "hashTagsCount" -> t.getHashtagEntities.size,
               "urlsCount" -> t.getURLEntities.size,
               "userMentionCount" -> t.getUserMentionEntities.size,
-              "firstHashtag" -> firstHashTag
+              "firstHashtag" -> firstHashTag,
+              "latLong" -> coordinates,
+              "firstUrl" -> firstUrl
             )
             new InputEvent(map, null)
           })
@@ -138,6 +152,7 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
       val dimension: Dimension = element.dimensionType match {
         case "string" => new Dimension(element.name, new StringBucketer())
         case "date" => new Dimension(element.name, new DateTimeBucketer())
+        case "geo" => new Dimension(element.name, new GeoHashBucketer())
         case x => throw new DriverException("Dimension type " + x + " not supported.")
       }
       (element.name -> dimension)
@@ -148,6 +163,7 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
       val dimension: Dimension = element.dimensionType match {
         case "string" => new Dimension(element.name, new StringBucketer())
         case "date" => new Dimension(element.name, new DateTimeBucketer())
+        case "geo" => new Dimension(element.name, new GeoHashBucketer())
         case x => throw new DriverException("Dimension type " + x + " not supported.")
       }
       dimension

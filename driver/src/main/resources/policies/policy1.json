@@ -15,6 +15,14 @@
     "dimensions": [
         {
             "dimensionType": "string",
+            "name": "firstUrl"
+        },
+        {
+            "dimensionType": "geo",
+            "name": "latLong"
+        },
+        {
+            "dimensionType": "string",
             "name": "userId"
         },
         {
@@ -47,6 +55,26 @@
         }
     ],
     "rollups": [
+        {
+            "dimensionAndBucketTypes": [
+                {
+                    "dimensionName": "lang",
+                    "bucketType": "identity"
+                },
+                {
+                    "dimensionName": "latLong",
+                    "bucketType": "precision3"
+                }
+            ]
+        },
+        {
+            "dimensionAndBucketTypes": [
+                {
+                    "dimensionName": "firstUrl",
+                    "bucketType": "identity"
+                }
+            ]
+        },
         {
             "dimensionAndBucketTypes": [
                 {
