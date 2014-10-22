@@ -27,6 +27,11 @@
     <modules>
         <module>driver</module>
         <module>aggregator</module>
+        <module>serving-core</module>
+        <module>serving-api</module>
+        <module>sdk</module>
+        <module>doc</module>
+        <module>plugins</module>
     </modules>
 
     <name>SpaRkTA</name>
@@ -59,19 +64,19 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>joda-time</groupId>
-                <artifactId>joda-time</artifactId>
-                <version>2.5</version>
-            </dependency>
-            <dependency>
                 <groupId>com.stratio.sparkta</groupId>
                 <artifactId>aggregator</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.scala-lang</groupId>
-                <artifactId>scala-library</artifactId>
-                <version>${scala.version}</version>
+                <groupId>com.stratio.sparkta</groupId>
+                <artifactId>sdk</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.5</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.spark</groupId>
@@ -188,7 +193,7 @@
                     <failOnWarning>false</failOnWarning>
                     <sourceDirectory>${basedir}/src/main/scala</sourceDirectory>
                     <testSourceDirectory>${basedir}/src/test/scala</testSourceDirectory>
-                    <configLocation>scalastyle-config.xml</configLocation>
+                    <configLocation>${project.basedir}/scalastyle-config.xml</configLocation>
                     <outputFile>target/scalastyle-output-${project.artifactId}.xml</outputFile>
                     <outputEncoding>UTF-8</outputEncoding>
                 </configuration>
@@ -224,35 +229,14 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.3</version>
-                <configuration>
-                    <filters>
-                        <filter>
-                            <artifact>*:*</artifact>
-                            <excludes>
-                                <exclude>META-INF/*.SF</exclude>
-                                <exclude>META-INF/*.DSA</exclude>
-                                <exclude>META-INF/*.RSA</exclude>
-                            </excludes>
-                        </filter>
-                    </filters>
-                    <!-- put your configurations here -->
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+         </plugins>
     </build>
     <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
         <!-- Log-->
         <dependency>
             <groupId>org.slf4j</groupId>

@@ -16,9 +16,7 @@
 package com.stratio.sparkta.aggregator
 
 import java.io
-
-import com.stratio.sparkta.aggregator.bucket.BucketType
-import com.stratio.sparkta.aggregator.domain.Event
+import com.stratio.sparkta.sdk.{Event, UpdateMetricOperation, Dimension, BucketType}
 import org.apache.spark.streaming.dstream.DStream
 
 /**

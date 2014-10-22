@@ -18,3 +18,11 @@
 - KeyValue parser
 - Temporal TwitterParser (demo purposes)
 
+## v0.2
+
+- Created new maven modules:
+    - doc: Documentation module.
+    - serving-core: Simple library to read aggregation data.
+    - serving-api: REST api implementing serving-core.
+    - plugins: Now, the platform is **pluggable**. This module contains all *official* plugins.
+    - sdk: This library can be used to develop new plugins to adapt sparkta to your necessities.

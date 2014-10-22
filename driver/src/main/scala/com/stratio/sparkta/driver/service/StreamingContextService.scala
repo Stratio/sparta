@@ -15,15 +15,18 @@
  */
 package com.stratio.sparkta.driver.service
 
-import com.stratio.sparkta.aggregator.bucket.{BucketType, DateTimeBucketer, GeoHashBucketer, StringBucketer}
-import com.stratio.sparkta.aggregator.domain.{Event, InputEvent}
-import com.stratio.sparkta.aggregator.output.{MongoDbOutput, Output, PrintOutput}
-import com.stratio.sparkta.aggregator.parser.{KeyValueParser, TwitterParser}
-import com.stratio.sparkta.aggregator.{DataCube, Dimension, Rollup}
+import com.stratio.sparkta.aggregator.{DataCube, Rollup}
 import com.stratio.sparkta.driver.configuration._
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.service.ValidatingPropertyMap._
+import com.stratio.sparkta.plugin.bucketer.datetime.DateTimeBucketer
+import com.stratio.sparkta.plugin.bucketer.geohash.GeoHashBucketer
+import com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer
+import com.stratio.sparkta.plugin.operator.count.CountOperator
+import com.stratio.sparkta.plugin.output.mongodb.MongoDbOutput
+import com.stratio.sparkta.plugin.output.print.PrintOutput
+import com.stratio.sparkta.sdk._
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.dstream.DStream
@@ -34,7 +37,7 @@ import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 import twitter4j.auth.AuthorizationFactory
 import twitter4j.conf.ConfigurationBuilder
-import twitter4j.{URLEntity, HashtagEntity, Status}
+import twitter4j.{HashtagEntity, Status, URLEntity}
 
 import scala.collection.JavaConverters._
 import scala.util.Try
@@ -125,12 +128,14 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
           throw new DriverException("Receiver " + element.elementType + " not supported in receiver " + element.name)
       }
 
+      //TODO
       val parser = config.getMandatory("parser") match {
-        case "keyValueParser" => new KeyValueParser
-        case "twitterParser" => new TwitterParser
+        //        case "keyValueParser" => new KeyValueParser
+        //        case "twitterParser" => new TwitterParser
+        case _ => throw new DriverException("Parser not supported")
       }
-
-      receivers += (element.name -> parser.map(receiver))
+      //TODO
+      //receivers += (element.name -> parser.map(receiver))
     })
 
     var outputs: Map[String, Output] = Map()
@@ -150,7 +155,7 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
 
     val dimensions: Map[String, Dimension] = aggregationPoliciesConfiguration.dimensions.map(element => {
       val dimension: Dimension = element.dimensionType match {
-        case "string" => new Dimension(element.name, new StringBucketer())
+        case "string" => new Dimension(element.name, new PassthroughBucketer())
         case "date" => new Dimension(element.name, new DateTimeBucketer())
         case "geo" => new Dimension(element.name, new GeoHashBucketer())
         case x => throw new DriverException("Dimension type " + x + " not supported.")
@@ -161,7 +166,7 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
     //TODO workaround to obtain seq
     val dimensionsSeq: Seq[Dimension] = aggregationPoliciesConfiguration.dimensions.map(element => {
       val dimension: Dimension = element.dimensionType match {
-        case "string" => new Dimension(element.name, new StringBucketer())
+        case "string" => new Dimension(element.name, new PassthroughBucketer())
         case "date" => new Dimension(element.name, new DateTimeBucketer())
         case "geo" => new Dimension(element.name, new GeoHashBucketer())
         case x => throw new DriverException("Dimension type " + x + " not supported.")
@@ -181,7 +186,8 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
           case None => throw new DriverException("Dimension name " + dabt.dimensionName + " not found.")
         }
       }).seq
-      new Rollup(dimAndTypes)
+
+      new Rollup(dimAndTypes, Seq[Operator](new CountOperator))
     })
     val datacube = new DataCube(dimensionsSeq, rollups)
 

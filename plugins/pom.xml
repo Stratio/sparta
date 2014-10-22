@@ -25,15 +25,23 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>aggregator</artifactId>
+    <artifactId>plugins</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>bucketer-dateTime</module>
+        <module>bucketer-passthrough</module>
+        <module>bucketer-geoHash</module>
+        <module>parser-csv</module>
+        <module>output-mongodb</module>
+        <module>output-print</module>
+        <module>operator-count</module>
+    </modules>
+
     <dependencies>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
             <artifactId>sdk</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
     <build>

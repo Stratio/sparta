@@ -70,7 +70,7 @@ class SupervisorActorSpec
         expectNoMsg
       }
 
-      within(500 millis) {
+      within(5000 millis) {
         supervisorRef ! new GetContextStatus("test-1")
         expectMsg(new StreamingContextStatusDto(ConfigurationError, errorMessage))
       }

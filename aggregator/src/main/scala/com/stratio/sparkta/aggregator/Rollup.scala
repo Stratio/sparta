@@ -17,8 +17,7 @@ package com.stratio.sparkta.aggregator
 
 import java.io
 
-import com.stratio.sparkta.aggregator.bucket.{BucketType, Bucketer}
-import com.stratio.sparkta.aggregator.operator.{CountOperator, Operator}
+import com.stratio.sparkta.sdk._
 import org.apache.spark.streaming.StreamingContext._
 import org.apache.spark.streaming.dstream.DStream
 
@@ -28,38 +27,15 @@ import org.apache.spark.streaming.dstream.DStream
  * For example, if you're counting events with the dimensions (color, size, flavor) and you
  * want to keep a total count for all (color, size) combinations, you'd specify that using a Rollup.
  */
-
-case class UpdateMetricOperation(
-                                  rollupKey:
-                                  Seq[(Dimension, BucketType, Seq[io.Serializable])],
-                                  var aggregations: Map[String, Long]) {
-  private def SEPARATOR = "__"
-
-  def keyString: String = {
-    rollupKey.map(tuple => {
-      tuple._2 match {
-        case x if x == Bucketer.identity => tuple._1.name
-        case _ => tuple._1.name + SEPARATOR + tuple._2.id
-      }
-    }) mkString (SEPARATOR)
-  }
-
-  override def toString: String = {
-    this.keyString + " DATA: " + rollupKey.flatMap(_._3) + " AGGREGATIONS: " + aggregations
-  }
-}
-
 //TODO add operators
-case class Rollup(components: Seq[(Dimension, BucketType)]) {
+case class Rollup(components: Seq[(Dimension, BucketType)], private val operators: Seq[Operator]) {
 
-  private val operators: Seq[Operator] = Seq(new CountOperator)
-
-  def this(dimension: Dimension, bucketType: BucketType) {
-    this(Seq((dimension, bucketType)))
+  def this(dimension: Dimension, bucketType: BucketType, operators: Seq[Operator]) {
+    this(Seq((dimension, bucketType)), operators)
   }
 
-  def this(dimension: Dimension) {
-    this(Seq((dimension, Bucketer.identity)))
+  def this(dimension: Dimension, operators: Seq[Operator]) {
+    this(Seq((dimension, Bucketer.identity)), operators)
   }
 
   def aggregate(extractedDimensionsDstream:
