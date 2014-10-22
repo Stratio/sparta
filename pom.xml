@@ -193,7 +193,7 @@
                     <failOnWarning>false</failOnWarning>
                     <sourceDirectory>${basedir}/src/main/scala</sourceDirectory>
                     <testSourceDirectory>${basedir}/src/test/scala</testSourceDirectory>
-                    <configLocation>${project.basedir}/scalastyle-config.xml</configLocation>
+                    <configLocation>scalastyle-config.xml</configLocation>
                     <outputFile>target/scalastyle-output-${project.artifactId}.xml</outputFile>
                     <outputEncoding>UTF-8</outputEncoding>
                 </configuration>
@@ -229,7 +229,7 @@
                     </execution>
                 </executions>
             </plugin>
-         </plugins>
+        </plugins>
     </build>
     <dependencies>
         <dependency>
