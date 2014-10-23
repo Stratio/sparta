@@ -36,6 +36,7 @@ case class DataCube(dimensions: Seq[Dimension], rollups: Seq[Rollup]) {
           ).toMap
 
       )
+
     val cachedExtractedDimensionsStream = extractedDimensionsStream.cache()
 
     // Create rollups

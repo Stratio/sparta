@@ -15,13 +15,15 @@
  */
 package com.stratio.sparkta.plugin.output.print
 
+import java.io.Serializable
+
 import com.stratio.sparkta.sdk.{Output, UpdateMetricOperation}
 import org.apache.spark.streaming.dstream.DStream
 
 /**
  * Created by ajnavarro on 6/10/14.
  */
-class PrintOutput extends Output {
+class PrintOutput(properties: Map[String, Serializable]) extends Output(properties) {
 
   override def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
     streams.foreach(persist)
@@ -30,4 +32,5 @@ class PrintOutput extends Output {
   override def persist(stream: DStream[UpdateMetricOperation]): Unit = {
     stream.print()
   }
+
 }

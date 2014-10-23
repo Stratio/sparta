@@ -17,14 +17,7 @@ package com.stratio.sparkta.sdk
 
 import java.io.Serializable
 
-import org.apache.spark.streaming.dstream.DStream
-
 /**
- * Created by ajnavarro on 6/10/14.
+ * Created by ajnavarro on 23/10/14.
  */
-abstract class Parser(properties: Map[String, Serializable]) extends Parameterizable(properties) {
-  def parse(data: Event): Event
-
-  def map(dstream: DStream[Event]) =
-    dstream.map(parse)
-}
+abstract case class Parameterizable(properties: Map[String, Serializable])

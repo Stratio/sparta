@@ -58,8 +58,17 @@
             <artifactId>bucketer-passthrough</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.stratio.sparkta</groupId>
+            <artifactId>output-print</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.sparkta</groupId>
+            <artifactId>input-socket</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- TEMPORAL -->
-
 
         <dependency>
             <groupId>com.typesafe.akka</groupId>
@@ -88,24 +97,9 @@
             <artifactId>spark-streaming_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-streaming-kafka_${scala.binary.version}</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-streaming-flume_${scala.binary.version}</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-streaming-twitter_${scala.binary.version}</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.json4s</groupId>
             <artifactId>json4s-native_${scala.binary.version}</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.json4s</groupId>
-            <artifactId>json4s-native_${scala.binary.version}</artifactId>
+            <version>3.2.10</version>
         </dependency>
     </dependencies>
 </project>

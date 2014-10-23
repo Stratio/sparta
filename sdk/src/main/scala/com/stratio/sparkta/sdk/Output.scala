@@ -15,12 +15,14 @@
  */
 package com.stratio.sparkta.sdk
 
+import java.io.Serializable
+
 import org.apache.spark.streaming.dstream.DStream
 
 /**
  * Created by ajnavarro on 6/10/14.
  */
-trait Output {
+abstract class Output(properties: Map[String, Serializable]) extends Parameterizable(properties) {
   def persist(stream: DStream[UpdateMetricOperation])
 
   def persist(streams: Seq[DStream[UpdateMetricOperation]])

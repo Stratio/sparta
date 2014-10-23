@@ -15,31 +15,17 @@
  */
 package com.stratio.sparkta.driver.service
 
+import java.io.Serializable
+
 import com.stratio.sparkta.aggregator.{DataCube, Rollup}
 import com.stratio.sparkta.driver.configuration._
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.exception.DriverException
-import com.stratio.sparkta.driver.service.ValidatingPropertyMap._
-import com.stratio.sparkta.plugin.bucketer.datetime.DateTimeBucketer
-import com.stratio.sparkta.plugin.bucketer.geohash.GeoHashBucketer
-import com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer
-import com.stratio.sparkta.plugin.operator.count.CountOperator
-import com.stratio.sparkta.plugin.output.mongodb.MongoDbOutput
-import com.stratio.sparkta.plugin.output.print.PrintOutput
 import com.stratio.sparkta.sdk._
-import com.typesafe.config.ConfigFactory
-import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.streaming.flume.FlumeUtils
-import org.apache.spark.streaming.kafka.KafkaUtils
-import org.apache.spark.streaming.twitter.TwitterUtils
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
-import twitter4j.auth.AuthorizationFactory
-import twitter4j.conf.ConfigurationBuilder
-import twitter4j.{HashtagEntity, Status, URLEntity}
 
-import scala.collection.JavaConverters._
 import scala.util.Try
 
 /**
@@ -47,155 +33,89 @@ import scala.util.Try
  */
 class StreamingContextService(generalConfiguration: GeneralConfiguration) {
 
-  def createStreamingContext(aggregationPoliciesConfiguration: AggregationPoliciesDto): StreamingContext = {
+  def createStreamingContext(apConfig: AggregationPoliciesDto): StreamingContext = {
     val ssc = new StreamingContext(
-      new SparkContext(configToSparkConf(generalConfiguration, aggregationPoliciesConfiguration.name)),
+      new SparkContext(configToSparkConf(generalConfiguration, apConfig.name)),
       //TODO one spark context to all streaming contexts is not working
       //SparkContextFactory.sparkContextInstance(generalConfiguration),
-      new Duration(aggregationPoliciesConfiguration.duration))
+      new Duration(apConfig.duration))
 
-    aggregationPoliciesConfiguration.jarPaths.foreach(j => ssc.sparkContext.addJar(j))
+    apConfig.jarPaths.foreach(j => ssc.sparkContext.addJar(j))
 
-    var receivers: Map[String, DStream[Event]] = Map()
-    aggregationPoliciesConfiguration.receivers.foreach(element => {
-      val config = element.configuration
-      val receiver: DStream[InputEvent] = element.elementType match {
-        case "kafka" =>
-          KafkaUtils.createStream(ssc = ssc,
-            zkQuorum = config.getMandatory("zkQuorum"),
-            groupId = config.getMandatory("groupId"),
-            topics = config.getMandatory("topics")
-              .split(",")
-              .map(s => (s.trim, config.getMandatory("partitions").toInt))
-              .toMap,
-            storageLevel = StorageLevel.fromString(config.getMandatory("storageLevel"))
-            //TODO add headers
-          ).map(data => new InputEvent(null, data._2.getBytes))
-        case "flume" =>
-          FlumeUtils.createPollingStream(
-            ssc, config.getMandatory("hostname"),
-            config.getMandatory("port").toInt
-            //TODO add headers
-          ).map(data => new InputEvent(null, data.event.getBody.array()))
-        case "socket" =>
-          ssc.socketTextStream(
-            config.getMandatory("hostname"),
-            config.getMandatory("port").toInt,
-            StorageLevel.fromString(config.getMandatory("storageLevel")))
-            .map(data => new InputEvent(null, data.getBytes))
-        case "twitter" =>
-          val config = new ConfigurationBuilder()
-            .setDebugEnabled(false)
-            .setOAuthConsumerKey("jqjbh5egthtW7B0k9Sb3A")
-            .setOAuthConsumerSecret("ipxSCbLxKfzfVXRfUFnVqZ2JJkS4ddaEG5oKUexk")
-            .setOAuthAccessToken("308647659-iYqwCEJgt0pajby3BlVinj93ljlN1tYXZFUSQzir")
-            .setOAuthAccessTokenSecret("lxSuzxPLu7PJO2Bii74IRiVFE1fwUPREpaySLvz9k")
-            .build()
-          val auth = AuthorizationFactory.getInstance(config)
+    val inputs: Map[String, DStream[Event]] = apConfig.inputs.map(i =>
+      (i.name, tryToInstantiate[Input](i.elementType, (c) =>
+        instantiateParametrizable[Input](c, i.configuration)).setUp(ssc))).toMap
 
-          TwitterUtils.createStream(ssc, Some(auth), Seq[String](), StorageLevel.MEMORY_ONLY)
-            .map((t: Status) => {
-            val firstHashTag = t.getHashtagEntities.headOption match {
-              case Some(h: HashtagEntity) => h.getText
-              case _ => "NONE"
-            }
+    val outputs = apConfig.outputs.map(o =>
+      (o.name, tryToInstantiate[Output](o.elementType, (c) =>
+        instantiateParametrizable[Output](c, o.configuration)))).toMap
 
-            val firstUrl = t.getURLEntities.headOption match {
-              case Some(h: URLEntity) => h.getExpandedURL
-              case _ => "NONE.COM"
-            }
+    val parsers: Seq[Parser] = apConfig.parsers.map(p =>
+      tryToInstantiate[Parser](p.elementType, (c) =>
+        instantiateParametrizable[Parser](c, p.configuration)))
 
-            val coordinates = t.getGeoLocation match {
-              case g if g != null => g.getLatitude + "__" + g.getLongitude
-              //TODO null treatment
-              case _ => "38.897833__-77.036498"
-            }
+    val operators: Seq[Operator] = apConfig.operators.map(op =>
+      tryToInstantiate[Operator](op.elementType, (c) =>
+        instantiateParametrizable[Operator](c, op.configuration)))
 
-            val map: Map[String, Any] = Map(
-              "userId" -> t.getUser.getId,
-              "createdAt" -> t.getCreatedAt,
-              "lang" -> t.getUser.getLang,
-              "hashTagsCount" -> t.getHashtagEntities.size,
-              "urlsCount" -> t.getURLEntities.size,
-              "userMentionCount" -> t.getUserMentionEntities.size,
-              "firstHashtag" -> firstHashTag,
-              "latLong" -> coordinates,
-              "firstUrl" -> firstUrl
-            )
-            new InputEvent(map, null)
-          })
-        case _ =>
-          throw new DriverException("Receiver " + element.elementType + " not supported in receiver " + element.name)
-      }
+    val dimensionsMap = apConfig.dimensions.map(d => (d.name,
+      new Dimension(d.name, tryToInstantiate[Bucketer](d.dimensionType, (c) =>
+        c.newInstance().asInstanceOf[Bucketer])))).toMap
 
-      //TODO
-      val parser = config.getMandatory("parser") match {
-        //        case "keyValueParser" => new KeyValueParser
-        //        case "twitterParser" => new TwitterParser
-        case _ => throw new DriverException("Parser not supported")
-      }
-      //TODO
-      //receivers += (element.name -> parser.map(receiver))
-    })
+    val dimensionsSeq = apConfig.dimensions.map(d =>
+      new Dimension(d.name, tryToInstantiate[Bucketer](d.dimensionType, (c) =>
+        c.newInstance().asInstanceOf[Bucketer])))
 
-    var outputs: Map[String, Output] = Map()
-    aggregationPoliciesConfiguration.outputs.foreach(element => {
-      //TODO val config = element.configuration
-      val output = element.elementType match {
-        case "print" => new PrintOutput()
-
-        case "mongo" =>
-          val mapConfig = Map("client_uri" -> "mongodb://localhost", "dbName" -> "SPARKTA")
-          new MongoDbOutput(ConfigFactory.parseMap(mapConfig.asJava))
-        case _ =>
-          throw new DriverException("Output " + element.elementType + " not supported")
-      }
-      outputs += (element.name -> output)
-    })
-
-    val dimensions: Map[String, Dimension] = aggregationPoliciesConfiguration.dimensions.map(element => {
-      val dimension: Dimension = element.dimensionType match {
-        case "string" => new Dimension(element.name, new PassthroughBucketer())
-        case "date" => new Dimension(element.name, new DateTimeBucketer())
-        case "geo" => new Dimension(element.name, new GeoHashBucketer())
-        case x => throw new DriverException("Dimension type " + x + " not supported.")
-      }
-      (element.name -> dimension)
-    }).toMap
-
-    //TODO workaround to obtain seq
-    val dimensionsSeq: Seq[Dimension] = aggregationPoliciesConfiguration.dimensions.map(element => {
-      val dimension: Dimension = element.dimensionType match {
-        case "string" => new Dimension(element.name, new PassthroughBucketer())
-        case "date" => new Dimension(element.name, new DateTimeBucketer())
-        case "geo" => new Dimension(element.name, new GeoHashBucketer())
-        case x => throw new DriverException("Dimension type " + x + " not supported.")
-      }
-      dimension
-    })
-
-    val rollups = aggregationPoliciesConfiguration.rollups.map(element => {
-      val dimAndTypes: Seq[(Dimension, BucketType)] = element.dimensionAndBucketTypes.map(dabt => {
-        dimensions.get(dabt.dimensionName) match {
-          case Some(x: Dimension) => x.bucketTypes.contains(new BucketType(dabt.bucketType)) match {
-            case true => (x, new BucketType(dabt.bucketType))
+    val rollups: Seq[Rollup] = apConfig.rollups.map(r => {
+      val components = r.dimensionAndBucketTypes.map(dab => {
+        dimensionsMap.get(dab.dimensionName) match {
+          case Some(x: Dimension) => x.bucketTypes.contains(new BucketType(dab.bucketType)) match {
+            case true => (x, new BucketType(dab.bucketType))
             case _ =>
               throw new DriverException(
-                "Bucket type " + dabt.bucketType + " not supported in dimension " + dabt.dimensionName)
+                "Bucket type " + dab.bucketType + " not supported in dimension " + dab.dimensionName)
           }
-          case None => throw new DriverException("Dimension name " + dabt.dimensionName + " not found.")
+          case None => throw new DriverException("Dimension name " + dab.dimensionName + " not found.")
         }
-      }).seq
-
-      new Rollup(dimAndTypes, Seq[Operator](new CountOperator))
+      })
+      new Rollup(components, operators)
     })
-    val datacube = new DataCube(dimensionsSeq, rollups)
 
-    //TODO implement multiple outputs and inputs
-    outputs.head._2.persist(datacube.setUp(receivers.head._2))
+    //TODO only support one input
+    val input: DStream[Event] = inputs.head._2
+    //TODO only support one output
+    val output = outputs.head._2
+
+    var parsed = input
+    for (parser <- parsers) {
+      parsed = parser.map(parsed)
+    }
+
+    output.persist(new DataCube(dimensionsSeq, rollups).setUp(parsed))
 
     ssc
   }
+
+  private def tryToInstantiate[C](classAndPackage: String, block: Class[_] => C): C = {
+    try {
+      val clazz = Class.forName(classAndPackage)
+      block(clazz)
+    } catch {
+      case cnfe: ClassNotFoundException =>
+        throw DriverException.create("Class with name " + classAndPackage + " Cannot be found in the classpath.", cnfe)
+      case ie: InstantiationException =>
+        throw DriverException.create(
+          "Class with name " + classAndPackage + " cannot be instantiated", ie)
+      case e: Exception => throw DriverException.create(
+        "Generic error trying to instantiate " + classAndPackage, e)
+    }
+
+  }
+
+  private def instantiateParametrizable[C](clazz: Class[_], properties: Map[String, Serializable]): C = {
+    clazz.getDeclaredConstructor(classOf[Map[String, Serializable]]).newInstance(properties).asInstanceOf[C]
+  }
+
 
   private def configToSparkConf(generalConfiguration: GeneralConfiguration, name: String): SparkConf = {
     val conf = new SparkConf()

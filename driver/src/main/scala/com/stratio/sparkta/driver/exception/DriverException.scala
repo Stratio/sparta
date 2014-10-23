@@ -19,3 +19,9 @@ package com.stratio.sparkta.driver.exception
  * Created by ajnavarro on 2/10/14.
  */
 class DriverException(msg: String) extends RuntimeException(msg)
+
+object DriverException {
+  def create(msg: String): DriverException = new DriverException(msg)
+
+  def create(msg: String, cause: Throwable) = new DriverException(msg).initCause(cause)
+}

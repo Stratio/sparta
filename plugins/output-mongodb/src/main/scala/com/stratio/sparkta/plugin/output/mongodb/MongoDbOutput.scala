@@ -15,17 +15,19 @@
  */
 package com.stratio.sparkta.plugin.output.mongodb
 
+import java.io.Serializable
+
 import com.stratio.sparkta.plugin.output.mongodb.dao.TestMongoDao
 import com.stratio.sparkta.sdk.{Output, UpdateMetricOperation}
-import com.typesafe.config.Config
 import org.apache.spark.streaming.dstream.DStream
 
 /**
  * Created by ajnavarro on 15/10/14.
  */
-case class MongoDbOutput(config: Config) extends Output {
+class MongoDbOutput(properties: Map[String, Serializable]) extends Output(properties) {
 
-  private val dao = new TestMongoDao(config)
+  //TODO refactor
+  private val dao: TestMongoDao = /* new TestMongoDao(config)*/ null
 
   override def persist(stream: DStream[UpdateMetricOperation]): Unit = {
     stream.foreachRDD(rdd =>

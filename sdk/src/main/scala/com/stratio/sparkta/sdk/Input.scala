@@ -15,7 +15,20 @@
  */
 package com.stratio.sparkta.sdk
 
+import java.io.Serializable
+
+import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.streaming.dstream.DStream
+
 /**
- * Created by ajnavarro on 6/10/14.
+ * Created by ajnavarro on 22/10/14.
  */
-case class InputEvent(headers: Map[String, Any], payload: Array[Byte])
+abstract class Input(properties: Map[String, Serializable]) extends Parameterizable(properties) {
+
+  def setUp(ssc: StreamingContext): DStream[Event]
+}
+
+object Input {
+  val RAW_DATA_KEY = "RAW"
+}
+

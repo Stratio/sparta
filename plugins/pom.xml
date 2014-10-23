@@ -35,6 +35,9 @@
         <module>output-mongodb</module>
         <module>output-print</module>
         <module>operator-count</module>
+        <module>input-kafka</module>
+        <module>input-flume</module>
+        <module>input-socket</module>
     </modules>
 
     <dependencies>

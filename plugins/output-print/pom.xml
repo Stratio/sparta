@@ -27,11 +27,4 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>output-print</artifactId>
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-streaming_${scala.binary.version}</artifactId>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
 </project>

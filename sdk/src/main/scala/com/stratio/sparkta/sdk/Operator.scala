@@ -16,11 +16,12 @@
 package com.stratio.sparkta.sdk
 
 import java.io
+import java.io.Serializable
 
 /**
  * Created by ajnavarro on 6/10/14.
  */
-trait Operator {
+abstract class Operator(properties: Map[String, Serializable]) extends Parameterizable(properties) {
 
   val key: String
 

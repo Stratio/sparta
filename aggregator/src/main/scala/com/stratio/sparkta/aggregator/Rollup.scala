@@ -41,7 +41,7 @@ case class Rollup(components: Seq[(Dimension, BucketType)], private val operator
   def aggregate(extractedDimensionsDstream:
                 DStream[Map[Dimension, Map[BucketType, Seq[io.Serializable]]]]): DStream[UpdateMetricOperation] = {
 
-    //TODO catch errors
+    //TODO catch errors and null elements control
     val filteredDimensionsDstream: DStream[Seq[(Dimension, BucketType, Seq[io.Serializable])]] =
       extractedDimensionsDstream.map(m =>
         components.map(c => (c._1, c._2, m.get(c._1).get.get(c._2).get))

@@ -16,13 +16,14 @@
 package com.stratio.sparkta.plugin.operator.count
 
 import java.io
+import java.io.Serializable
 
 import com.stratio.sparkta.sdk.{BucketType, Dimension, Operator}
 
 /**
  * Created by ajnavarro on 6/10/14.
  */
-case class CountOperator() extends Operator {
+class CountOperator(properties: Map[String, Serializable]) extends Operator(properties) {
 
   override val key: String = "COUNT"
 

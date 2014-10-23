@@ -13,24 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.driver.service
+package com.stratio.sparkta.sdk
 
-import com.stratio.sparkta.driver.exception.DriverException
+class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
 
-class ValidatingPropertyMap[K,V](val m : Map[K,V]) {
-
-  def getMandatory(key : K) : V =
+  def getMandatory(key: K): V =
     m.get(key) match {
       case Some(value) => value
       case None =>
-        throw new DriverException(s"$key is mandatory")
+        throw new Exception(s"$key is mandatory")
+    }
+
+  def getString(key: K): String =
+    m.get(key) match {
+      case Some(value) => value.asInstanceOf[String]
+      case None =>
+        throw new Exception(s"$key is mandatory")
+    }
+
+  def getInt(key: K): Int =
+    m.get(key) match {
+      case Some(value) => value.asInstanceOf[Int]
+      case None =>
+        throw new Exception(s"$key is mandatory")
     }
 
 }
 
 object ValidatingPropertyMap {
 
-  implicit def map2ValidatingPropertyMap[K,V](m: Map[K, V]): ValidatingPropertyMap[K, V] =
-    new ValidatingPropertyMap[K,V](m)
+  implicit def map2ValidatingPropertyMap[K, V](m: Map[K, V]): ValidatingPropertyMap[K, V] =
+    new ValidatingPropertyMap[K, V](m)
 
 }

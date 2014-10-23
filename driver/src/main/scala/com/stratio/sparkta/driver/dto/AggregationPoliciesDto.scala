@@ -21,7 +21,9 @@ package com.stratio.sparkta.driver.dto
 case class AggregationPoliciesDto(jarPaths: Seq[String],
                                   name: String = "default",
                                   duration: Int = 2000,
-                                  receivers: Seq[PolicyElementDto],
                                   dimensions: Seq[DimensionDto],
                                   rollups: Seq[RollupDto],
+                                  operators: Seq[PolicyElementDto],
+                                  inputs: Seq[PolicyElementDto],
+                                  parsers: Seq[PolicyElementDto],
                                   outputs: Seq[PolicyElementDto])
