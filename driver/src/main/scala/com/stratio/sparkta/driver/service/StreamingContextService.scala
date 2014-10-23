@@ -44,19 +44,19 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
 
     val inputs: Map[String, DStream[Event]] = apConfig.inputs.map(i =>
       (i.name, tryToInstantiate[Input](i.elementType, (c) =>
-        instantiateParametrizable[Input](c, i.configuration)).setUp(ssc))).toMap
+        instantiateParameterizable[Input](c, i.configuration)).setUp(ssc))).toMap
 
     val outputs = apConfig.outputs.map(o =>
       (o.name, tryToInstantiate[Output](o.elementType, (c) =>
-        instantiateParametrizable[Output](c, o.configuration)))).toMap
+        instantiateParameterizable[Output](c, o.configuration)))).toMap
 
     val parsers: Seq[Parser] = apConfig.parsers.map(p =>
       tryToInstantiate[Parser](p.elementType, (c) =>
-        instantiateParametrizable[Parser](c, p.configuration)))
+        instantiateParameterizable[Parser](c, p.configuration)))
 
     val operators: Seq[Operator] = apConfig.operators.map(op =>
       tryToInstantiate[Operator](op.elementType, (c) =>
-        instantiateParametrizable[Operator](c, op.configuration)))
+        instantiateParameterizable[Operator](c, op.configuration)))
 
     val dimensionsMap = apConfig.dimensions.map(d => (d.name,
       new Dimension(d.name, tryToInstantiate[Bucketer](d.dimensionType, (c) =>
@@ -112,7 +112,7 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
 
   }
 
-  private def instantiateParametrizable[C](clazz: Class[_], properties: Map[String, Serializable]): C = {
+  private def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C = {
     clazz.getDeclaredConstructor(classOf[Map[String, Serializable]]).newInstance(properties).asInstanceOf[C]
   }
 
