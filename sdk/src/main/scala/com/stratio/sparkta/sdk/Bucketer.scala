@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,9 +29,17 @@ trait Bucketer {
    * dimension in the cube, for example (time: 348524388, location: portland). For each
    * dimension, for each bucket type within that dimension, the bucketer must transform the
    * input data into the bucket that should be used to store the data.
+   *
+   * @param value Used to generate the different bucketTypes
+   * @return Map with all generated bucketTypes and a sequence with all values
    */
   def bucketForWrite(value: io.Serializable): Map[BucketType, Seq[io.Serializable]]
 
+  /**
+   * All buckets supported into this bucketer
+   *
+   * @return Sequence of BucketTypes
+   */
   def bucketTypes(): Seq[BucketType]
 
 }
