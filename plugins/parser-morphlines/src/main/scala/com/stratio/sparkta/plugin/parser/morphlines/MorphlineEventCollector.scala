@@ -13,23 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.plugin.parser.morphlines
 
-import java.io.Serializable
+import com.google.common.base.Preconditions
+import org.kitesdk.morphline.api.{Command, Record}
 
-import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
+import scala.collection.mutable
 
 /**
- * Created by ajnavarro on 22/10/14.
+ * Created by ajnavarro on 24/10/14.
  */
-abstract class Input(properties: Map[String, Serializable]) extends Parameterizable(properties) {
+class MorphlineEventCollector extends Command {
 
-  def setUp(ssc: StreamingContext): DStream[Event]
+  val records = new mutable.MutableList[Record]
+
+  override def notify(p1: Record): Unit = {
+    //Nothing to do
+  }
+
+  def reset() = {
+    records.clear()
+  }
+
+  override def getParent: Command = null
+
+  override def process(p1: Record): Boolean = {
+    Preconditions.checkNotNull(p1)
+    records += p1
+    true
+  }
 }
-
-object Input {
-  //TODO it´s ok?
-  val RAW_DATA_KEY = "_attachment_body"
-}
-

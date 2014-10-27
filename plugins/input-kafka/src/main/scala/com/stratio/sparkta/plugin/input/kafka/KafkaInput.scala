@@ -34,6 +34,6 @@ class KafkaInput(properties: Map[String, Serializable]) extends Input(properties
       properties.getString("topics")
         .split(",")
         .map(s => (s.trim, properties.getInt("partitions"))).toMap)
-      .map(data => new Event(Map(RAW_DATA_KEY -> data._2)))
+      .map(data => new Event(Map(RAW_DATA_KEY -> data._2.getBytes("UTF-8").asInstanceOf[Serializable])))
   }
 }

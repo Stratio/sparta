@@ -32,6 +32,6 @@ class SocketInput(properties: Map[String, Serializable]) extends Input(propertie
       properties.getString("hostname"),
       properties.getString("port").toInt,
       StorageLevel.fromString(properties.getString("storageLevel")))
-      .map(data => new Event(Map(RAW_DATA_KEY -> data)))
+      .map(data => new Event(Map(RAW_DATA_KEY -> data.getBytes("UTF-8").asInstanceOf[Serializable])))
   }
 }

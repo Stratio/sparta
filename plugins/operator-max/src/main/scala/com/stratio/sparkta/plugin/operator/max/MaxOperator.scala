@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.plugin.operator.max
 
+import java.io
 import java.io.Serializable
 
-import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
+import com.stratio.sparkta.sdk.{BucketType, Dimension, Operator}
 
 /**
- * Created by ajnavarro on 22/10/14.
+ * Created by ajnavarro on 23/10/14.
  */
-abstract class Input(properties: Map[String, Serializable]) extends Parameterizable(properties) {
+class MaxOperator(properties: Map[String, Serializable]) extends Operator(properties) {
+  override val key: String = "MAX"
 
-  def setUp(ssc: StreamingContext): DStream[Event]
+  override def process(stream: Seq[(Dimension, BucketType, Seq[io.Serializable])])
+  : (Seq[(Dimension, BucketType, Seq[io.Serializable])], (String, Long)) = {
+    null
+  }
 }
-
-object Input {
-  //TODO it´s ok?
-  val RAW_DATA_KEY = "_attachment_body"
-}
-

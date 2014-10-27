@@ -31,13 +31,14 @@
         <module>bucketer-dateTime</module>
         <module>bucketer-passthrough</module>
         <module>bucketer-geoHash</module>
-        <module>parser-csv</module>
         <module>output-mongodb</module>
         <module>output-print</module>
         <module>operator-count</module>
         <module>input-kafka</module>
         <module>input-flume</module>
         <module>input-socket</module>
+        <module>operator-max</module>
+        <module>parser-morphlines</module>
     </modules>
 
     <dependencies>
