@@ -58,13 +58,9 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
       tryToInstantiate[Operator](op.elementType, (c) =>
         instantiateParameterizable[Operator](c, op.configuration)))
 
-    val dimensionsMap = apConfig.dimensions.map(d => (d.name,
-      new Dimension(d.name, tryToInstantiate[Bucketer](d.dimensionType, (c) =>
-        c.newInstance().asInstanceOf[Bucketer])))).toMap
-
-    val dimensionsSeq = apConfig.dimensions.map(d =>
-      new Dimension(d.name, tryToInstantiate[Bucketer](d.dimensionType, (c) =>
-        c.newInstance().asInstanceOf[Bucketer])))
+    //TODO workaround this instantiateDimensions(apConfig).toMap.map(_._2) is not serializable.
+    val dimensionsMap: Map[String, Dimension] = instantiateDimensions(apConfig).toMap
+    val dimensionsSeq: Seq[Dimension] = instantiateDimensions(apConfig).map(_._2)
 
     val rollups: Seq[Rollup] = apConfig.rollups.map(r => {
       val components = r.dimensionAndBucketTypes.map(dab => {
@@ -94,6 +90,17 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
     output.persist(new DataCube(dimensionsSeq, rollups).setUp(parsed))
 
     ssc
+  }
+
+  private def instantiateDimensions(apConfig: AggregationPoliciesDto) = {
+    apConfig.dimensions.map(d => (d.name,
+      new Dimension(d.name, tryToInstantiate[Bucketer](d.dimensionType, (c) => {
+        d.configuration match {
+          case Some(conf) => c.getDeclaredConstructor(classOf[Map[String, Serializable]])
+            .newInstance(conf).asInstanceOf[Bucketer]
+          case None => c.newInstance().asInstanceOf[Bucketer]
+        }
+      }))))
   }
 
   private def tryToInstantiate[C](classAndPackage: String, block: Class[_] => C): C = {

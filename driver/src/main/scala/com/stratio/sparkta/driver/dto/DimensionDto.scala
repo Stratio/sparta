@@ -18,4 +18,4 @@ package com.stratio.sparkta.driver.dto
 /**
  * Created by ajnavarro on 13/10/14.
  */
-case class DimensionDto(dimensionType: String, name: String)
+case class DimensionDto(dimensionType: String, name: String, configuration: Option[Map[String, String]])
