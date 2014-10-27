@@ -40,6 +40,7 @@
         <module>operator-max</module>
         <module>parser-morphlines</module>
         <module>bucketer-tag</module>
+        <module>bucketer-hierarchy</module>
     </modules>
 
     <dependencies>
