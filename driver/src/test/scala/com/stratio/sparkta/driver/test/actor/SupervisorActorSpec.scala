@@ -65,7 +65,7 @@ class SupervisorActorSpec
       when(streamingContextService.createStreamingContext(any[AggregationPoliciesDto]))
         .thenThrow(new DriverException(errorMessage))
 
-      within(500 millis) {
+      within(5000 millis) {
         supervisorRef ! new CreateContext(createPolicyConfiguration("test-1"))
         expectNoMsg
       }
@@ -81,12 +81,12 @@ class SupervisorActorSpec
 
       when(streamingContextService.createStreamingContext(any[AggregationPoliciesDto]))
         .thenThrow(new NullPointerException)
-      within(500 millis) {
+      within(5000 millis) {
         supervisorRef ! new CreateContext(createPolicyConfiguration("test-1"))
         expectNoMsg
       }
 
-      within(500 millis) {
+      within(5000 millis) {
         supervisorRef ! new GetContextStatus("test-1")
         expectMsg(new StreamingContextStatusDto(Error, null))
       }
@@ -96,12 +96,12 @@ class SupervisorActorSpec
 
       val supervisorRef = createSupervisorActor
 
-      within(500 millis) {
+      within(5000 millis) {
         supervisorRef ! new CreateContext(createPolicyConfiguration("test-1"))
         expectNoMsg
       }
 
-      within(500 millis) {
+      within(5000 millis) {
         supervisorRef ! new GetContextStatus("test-1")
         expectMsg(new StreamingContextStatusDto(Initialized, null))
       }
@@ -110,12 +110,12 @@ class SupervisorActorSpec
     "Get a context status for a created context" in {
       val supervisorRef = createSupervisorActor
 
-      within(500 millis) {
+      within(5000 millis) {
         supervisorRef ! new CreateContext(createPolicyConfiguration("test-1"))
         expectNoMsg
       }
 
-      within(500 millis) {
+      within(5000 millis) {
         supervisorRef ! new GetContextStatus("test-1")
         expectMsg(new StreamingContextStatusDto(Initialized, null))
       }
@@ -124,12 +124,12 @@ class SupervisorActorSpec
 
       val supervisorRef = createSupervisorActor
 
-      within(500 millis) {
+      within(5000 millis) {
         supervisorRef ! new CreateContext(createPolicyConfiguration("test-1"))
         expectNoMsg
       }
 
-      within(500 millis) {
+      within(5000 millis) {
         supervisorRef ! new DeleteContext("test-1")
         expectMsg(new StreamingContextStatusDto(Removed, null))
       }
