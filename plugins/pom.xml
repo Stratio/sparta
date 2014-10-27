@@ -39,6 +39,7 @@
         <module>input-socket</module>
         <module>operator-max</module>
         <module>parser-morphlines</module>
+        <module>bucketer-tag</module>
     </modules>
 
     <dependencies>
