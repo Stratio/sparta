@@ -17,7 +17,10 @@ package com.stratio.sparkta.sdk
 
 import java.io.Serializable
 
-/**
- * Created by ajnavarro on 23/10/14.
- */
-abstract case class Parameterizable(properties: Map[String, Serializable])
+abstract case class Parameterizable(properties: Map[String, Serializable]) {
+
+  if (properties == null) {
+    throw new NullPointerException("properties")
+  }
+
+}

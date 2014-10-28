@@ -15,18 +15,13 @@
  */
 package com.stratio.sparkta.sdk
 
-import java.io
 import java.io.Serializable
 
-/**
- * Created by ajnavarro on 6/10/14.
- */
+import com.stratio.sparkta.sdk.WriteOp.WriteOp
+
 abstract class Operator(properties: Map[String, Serializable]) extends Parameterizable(properties) {
-
-  val key: String
-
-  def process(stream:
-              Seq[((Dimension, BucketType, Seq[io.Serializable]))]):
-  (Seq[(Dimension, BucketType, Seq[io.Serializable])], (String, Long))
+  def key : String
+  def writeOperation : WriteOp
+  def processMap(inputFields: Map[String,Serializable]) : Option[Long]
+  def processReduce(values : Iterable[Long]) : Long
 }
-

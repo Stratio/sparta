@@ -34,7 +34,7 @@ trait Bucketer {
    * @param value Used to generate the different bucketTypes
    * @return Map with all generated bucketTypes and a sequence with all values
    */
-  def bucketForWrite(value: io.Serializable): Map[BucketType, Seq[io.Serializable]]
+  def bucket(value: io.Serializable): Map[BucketType, io.Serializable]
 
   /**
    * All buckets supported into this bucketer

@@ -15,21 +15,32 @@
  */
 package com.stratio.sparkta.sdk
 
+import scala.util.{Failure, Success, Try}
+
 class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
 
   def getMandatory(key: K): V =
     m.get(key) match {
       case Some(value) => value
       case None =>
-        throw new Exception(s"$key is mandatory")
+        throw new IllegalStateException(s"$key is mandatory")
     }
 
   def getString(key: K): String =
     m.get(key) match {
-      case Some(value) => value.asInstanceOf[String]
+      case Some(value : String) => value
+      case Some(value) => value.toString
       case None =>
-        throw new Exception(s"$key is mandatory")
+        throw new IllegalStateException(s"$key is mandatory")
     }
+
+  def getString(key: K, default: String): String = {
+    m.get(key) match {
+      case Some(value : String) => value
+      case Some(value) => value.toString
+      case None => default
+    }
+  }
 
   def getBoolean(key: K): Boolean =
     m.get(key) match {
@@ -41,10 +52,32 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
 
   def getInt(key: K): Int =
     m.get(key) match {
-      case Some(value: String) => value.toInt
-      case Some(value: Int) => value
+      case Some(value : String) =>
+        Try(value.toInt) match {
+          case Success(v) => v
+          case Failure(ex) => throw new IllegalStateException(s"Bad value for $key", ex)
+        }
+      case Some(value : Int) => value
+      case Some(value : Long) => value.toInt
+      case Some(value) =>
+        throw new IllegalStateException(s"Invalid value for $key: $value")
       case None =>
-        throw new Exception(s"$key is mandatory")
+        throw new IllegalStateException(s"$key is mandatory")
+    }
+
+  def getLong(key: K): Long =
+    m.get(key) match {
+      case Some(value : String) =>
+        Try(value.toLong) match {
+          case Success(v) => v
+          case Failure(ex) => throw new IllegalStateException(s"Bad value for $key", ex)
+        }
+      case Some(value : Long) => value
+      case Some(value : Int) => value.toLong
+      case Some(value) =>
+        throw new IllegalStateException(s"Invalid value for $key: $value")
+      case None =>
+        throw new IllegalStateException(s"$key is mandatory")
     }
 
   def getMap(prefix: String): Option[Map[String, V]] = {

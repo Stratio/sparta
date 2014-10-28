@@ -22,15 +22,13 @@ import com.stratio.sparkta.aggregator.{DataCube, Rollup}
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory.SparkContextFactory
+import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 import com.typesafe.config.Config
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 
 
-/**
- * Created by ajnavarro on 8/10/14.
- */
 class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging{
 
   def createStreamingContext(apConfig: AggregationPoliciesDto): StreamingContext = {
@@ -52,10 +50,6 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       (i.name, tryToInstantiate[Input](i.elementType, (c) =>
         instantiateParameterizable[Input](c, i.configuration)).setUp(ssc))).toMap
 
-    val outputs = apConfig.outputs.map(o =>
-      (o.name, tryToInstantiate[Output](o.elementType, (c) =>
-        instantiateParameterizable[Output](c, o.configuration)))).toMap
-
     val parsers: Seq[Parser] = apConfig.parsers.map(p =>
       tryToInstantiate[Parser](p.elementType, (c) =>
         instantiateParameterizable[Parser](c, p.configuration)))
@@ -67,6 +61,13 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     //TODO workaround this instantiateDimensions(apConfig).toMap.map(_._2) is not serializable.
     val dimensionsMap: Map[String, Dimension] = instantiateDimensions(apConfig).toMap
     val dimensionsSeq: Seq[Dimension] = instantiateDimensions(apConfig).map(_._2)
+
+    val outputSchema = operators.map(op => op.key -> op.writeOperation).toMap
+
+    val outputs = apConfig.outputs.map(o =>
+      (o.name, tryToInstantiate[Output](o.elementType, (c) =>
+        c.getDeclaredConstructor(classOf[Map[String, Serializable]], classOf[Map[String,WriteOp]]).newInstance(o.configuration, outputSchema).asInstanceOf[Output]
+      )))
 
     val rollups: Seq[Rollup] = apConfig.rollups.map(r => {
       val components = r.dimensionAndBucketTypes.map(dab => {

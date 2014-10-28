@@ -15,21 +15,22 @@
  */
 package com.stratio.sparkta.plugin.operator.count
 
-import java.io
-import java.io.Serializable
+import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{BucketType, Dimension, Operator}
+import com.stratio.sparkta.sdk._
 
-/**
- * Created by ajnavarro on 6/10/14.
- */
-class CountOperator(properties: Map[String, Serializable]) extends Operator(properties) {
+class CountOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
   override val key: String = "COUNT"
 
-  override def process(streamData: Seq[((Dimension, BucketType, Seq[io.Serializable]))])
-  : (Seq[(Dimension, BucketType, Seq[io.Serializable])], (String, Long)) = {
-    (streamData, (key, 1))
-  }
+  override val writeOperation = WriteOp.Inc
 
+  override def processMap(inputFields: Map[String, JSerializable]): Option[Long] = CountOperator.SOME_ONE
+
+  override def processReduce(values: Iterable[Long]): Long = values.reduce(_ + _)
+
+}
+
+private object CountOperator {
+  val SOME_ONE = Some(1L)
 }

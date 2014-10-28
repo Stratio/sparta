@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.plugin.bucketer.passthrough
+package com.stratio.sparkta.plugin.operator.count
 
 import java.io
+import java.io.Serializable
 
-import com.stratio.sparkta.sdk.{BucketType, Bucketer}
+import com.stratio.sparkta.sdk.{BucketType, Dimension, Operator}
+import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 
-/**
- * Created by ajnavarro on 9/10/14.
- */
-case class PassthroughBucketer() extends Bucketer {
+class SumOperator(properties: Map[String, Serializable]) extends Operator(properties) {
 
-  override def bucket(value: io.Serializable): Map[BucketType, io.Serializable] = {
-    Map(Bucketer.identity -> value)
+  override val key: String = "SUM"
+
+  private val field = properties.getString("field")
+
+  override def process(streamData: Seq[(Dimension, BucketType, Seq[io.Serializable])])
+  : (Seq[(Dimension, BucketType, Seq[io.Serializable])], (String, Long)) = {
+    (streamData, (key, 1))
   }
 
-  override lazy val bucketTypes: Seq[BucketType] = Seq(Bucketer.identity)
 }

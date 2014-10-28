@@ -20,17 +20,13 @@ import java.io.Closeable
 import com.mongodb.casbah.{MongoClient, MongoClientURI, MongoDB}
 import com.mongodb.{DBObject, MongoClientOptions, WriteConcern, casbah, MongoClientURI => JMongoClientURI}
 import com.stratio.sparkta.plugin.output.mongodb.dao.AbstractMongoDAO._
-import com.typesafe.config.Config
 
 import scala.collection.mutable
 
-abstract class AbstractMongoDAO(@transient private val config: Config)
-  extends Serializable with Closeable {
+trait AbstractMongoDAO extends Closeable {
 
-  def KEYSPACE: String
-
-  protected val mongoClientUri = config.getString(CONFIG_KEY_CLIENT_URI)
-  protected val dbName = config.getString(CONFIG_KEY_DB_NAME)
+  def mongoClientUri : String
+  def dbName : String
 
   protected def client: MongoClient = AbstractMongoDAO.client(mongoClientUri)
 
@@ -58,9 +54,6 @@ abstract class AbstractMongoDAO(@transient private val config: Config)
 }
 
 private object AbstractMongoDAO {
-
-  private val CONFIG_KEY_CLIENT_URI = "client_uri"
-  private val CONFIG_KEY_DB_NAME = "dbName"
 
   /**
    * Too many insertions in same batch lead to the following error:

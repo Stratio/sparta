@@ -15,19 +15,26 @@
  */
 package com.stratio.sparkta.plugin.operator.max
 
-import java.io
-import java.io.Serializable
+import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{BucketType, Dimension, Operator}
+import com.stratio.sparkta.sdk._
+import ValidatingPropertyMap._
 
-/**
- * Created by ajnavarro on 23/10/14.
- */
-class MaxOperator(properties: Map[String, Serializable]) extends Operator(properties) {
-  override val key: String = "MAX"
+class MaxOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  override def process(stream: Seq[(Dimension, BucketType, Seq[io.Serializable])])
-  : (Seq[(Dimension, BucketType, Seq[io.Serializable])], (String, Long)) = {
-    null
-  }
+  private val inputField = properties.getString("inputField")
+
+  override val key : String = "max_" + inputField
+
+  override val writeOperation = WriteOp.Inc
+
+  override def processMap(inputFields: Map[String, JSerializable]): Option[Long] =
+    inputFields.contains(inputField) match {
+      case false => None
+      case true => Some(inputFields.getLong(inputField))
+    }
+
+  override def processReduce(values: Iterable[Long]): Long =
+    values.max
+
 }

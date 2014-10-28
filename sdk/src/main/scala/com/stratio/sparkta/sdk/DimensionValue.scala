@@ -13,20 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.plugin.bucketer.passthrough
+package com.stratio.sparkta.sdk
 
-import java.io
+import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{BucketType, Bucketer}
-
-/**
- * Created by ajnavarro on 9/10/14.
- */
-case class PassthroughBucketer() extends Bucketer {
-
-  override def bucket(value: io.Serializable): Map[BucketType, io.Serializable] = {
-    Map(Bucketer.identity -> value)
-  }
-
-  override lazy val bucketTypes: Seq[BucketType] = Seq(Bucketer.identity)
-}
+case class DimensionValue(dimension: Dimension, bucketType: BucketType, value: JSerializable)

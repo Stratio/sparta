@@ -43,7 +43,7 @@ with TableDrivenPropertyChecks {
   "A TagBucketer" should {
     "In default implementation, every proposed combination should be ok" in {
       val data = Table(
-        ("i", "rz"),
+        ("s", "rz"),
         (Seq("a", "b", "c"), 3),
         (Seq("a", "b", "c", "a"), 4),
         (Seq("a", 45, 3, "a"), 4),
@@ -51,8 +51,9 @@ with TableDrivenPropertyChecks {
       )
 
       forAll(data) { (s: Seq[Any], rz: Int) =>
-        val result = tagBucketer.bucketForWrite(s.toIterable.asInstanceOf[Serializable])
-        result.get(allTags).get.size should be(rz)
+        val result = tagBucketer.bucket(s.map(_.asInstanceOf[Serializable]).toList.asInstanceOf[Serializable])
+        val allTags = result(TagBucketer.allTags).asInstanceOf[Seq[String]]
+        allTags.size should be(rz)
       }
     }
   }

@@ -45,52 +45,52 @@ with TableDrivenPropertyChecks {
     "In default implementation, every proposed combination should be ok" in {
       val data = Table(
         ("i", "o"),
-        ("google.com", Seq("*.com", "google.com", "*"))
+        ("google.com", Seq("google.com", "*.com", "*"))
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.bucketForWrite(i.asInstanceOf[Serializable])
-        o.map(r => result.get(leftToRightWithWildCard).get should contain(r))
-        result.get(leftToRightWithWildCard).get.size should be(o.size)
+        val result = hbs.bucket(i)
+        val value = result(leftToRightWithWildCard)
+        assertResult(o)(value)
       }
     }
     "In reverse implementation, every proposed combination should be ok" in {
       hbs = new HierarchyBucketer(Seq(rightToLeftWithWildCard))
       val data = Table(
         ("i", "o"),
-        ("com.stratio.sparkta", Seq("*", "com.*", "com.stratio.*", "com.stratio.sparkta"))
+        ("com.stratio.sparkta", Seq("com.stratio.sparkta", "com.stratio.*", "com.*", "*"))
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.bucketForWrite(i.asInstanceOf[Serializable])
-        o.map(r => result.get(rightToLeftWithWildCard).get should contain(r))
-        result.get(rightToLeftWithWildCard).get.size should be(o.size)
+        val result = hbs.bucket(i.asInstanceOf[Serializable])
+        val value = result(rightToLeftWithWildCard)
+        assertResult(o)(value)
       }
     }
     "In reverse implementation without wildcards, every proposed combination should be ok" in {
       hbs = new HierarchyBucketer(Seq(rightToLeft))
       val data = Table(
         ("i", "o"),
-        ("com.stratio.sparkta", Seq("*", "com", "com.stratio", "com.stratio.sparkta"))
+        ("com.stratio.sparkta", Seq("com.stratio.sparkta", "com.stratio", "com", "*"))
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.bucketForWrite(i.asInstanceOf[Serializable])
-        o.map(r => result.get(rightToLeft).get should contain(r))
-        result.get(rightToLeft).get.size should be(o.size)
+        val result = hbs.bucket(i.asInstanceOf[Serializable])
+        val value = result(rightToLeft)
+        assertResult(o)(value)
       }
     }
     "In non-reverse implementation without wildcards, every proposed combination should be ok" in {
       hbs = new HierarchyBucketer(Seq(leftToRight))
       val data = Table(
         ("i", "o"),
-        ("google.com", Seq("*", "com", "google.com"))
+        ("google.com", Seq("google.com", "com", "*"))
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.bucketForWrite(i.asInstanceOf[Serializable])
-        o.map(r => result.get(leftToRight).get should contain(r))
-        result.get(leftToRight).get.size should be(o.size)
+        val result = hbs.bucket(i.asInstanceOf[Serializable])
+        val value = result(leftToRight)
+        assertResult(o)(value)
       }
     }
   }

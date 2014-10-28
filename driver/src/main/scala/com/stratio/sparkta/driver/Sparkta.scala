@@ -47,10 +47,11 @@ import spray.can.Http
  */
 object Sparkta extends App with SLF4JLogging {
 
-  val sparktaHome = System.getenv("SPARKTA_HOME")
+  var sparktaHome = System.getenv("SPARKTA_HOME")
 
   if (sparktaHome == null) {
-    throw new RuntimeException("SPARKTA_HOME environment variable is not set.")
+    sparktaHome = System.getProperty("user.dir", "./")
+    log.warn("SPARKTA_HOME environment variable is not set, defaulting to {}", sparktaHome)
   }
   val jarsPath = new File(sparktaHome, "plugins")
   log.info("Loading jars from " + jarsPath.getAbsolutePath)

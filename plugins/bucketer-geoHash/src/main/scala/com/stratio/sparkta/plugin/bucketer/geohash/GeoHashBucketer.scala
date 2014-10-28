@@ -56,7 +56,7 @@ case class GeoHashBucketer(override val bucketTypes: Seq[BucketType] =
                              precision11,
                              precision12)) extends Bucketer {
 
-  override def bucketForWrite(value: io.Serializable): Map[BucketType, Seq[io.Serializable]] = {
+  override def bucket(value: io.Serializable): Map[BucketType, io.Serializable] =
     //TODO temporal data treatment
     if (value != null) {
       bucketTypes.map(bucketType => {
@@ -64,12 +64,12 @@ case class GeoHashBucketer(override val bucketTypes: Seq[BucketType] =
         val latLongString = value.asInstanceOf[String].split("__")
         val latDouble = latLongString(0).toDouble
         val longDouble = latLongString(1).toDouble
-        (bucketType -> Seq(bucket(latDouble, longDouble, bucketType)))
+        bucketType -> GeoHashBucketer.bucket(latDouble, longDouble, bucketType)
       }).toMap
     } else {
       Map()
     }
-  }
+
 }
 
 object GeoHashBucketer {

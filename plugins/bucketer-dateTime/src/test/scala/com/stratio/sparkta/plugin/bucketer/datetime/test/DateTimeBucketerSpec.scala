@@ -37,7 +37,7 @@ class DateTimeBucketerSpec extends WordSpecLike with Matchers with BeforeAndAfte
   "A DateTimeBucketer" should {
     "In default implementation, get 5 buckets for a specific time" in {
       val newDate = new Date()
-      val buckets = dateTimeBucketer.bucketForWrite(newDate.asInstanceOf[io.Serializable])
+      val buckets = dateTimeBucketer.bucket(newDate.asInstanceOf[io.Serializable])
 
       buckets.size should be(5)
 

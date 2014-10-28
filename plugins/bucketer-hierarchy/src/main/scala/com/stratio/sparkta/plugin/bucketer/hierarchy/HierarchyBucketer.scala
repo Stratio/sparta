@@ -37,9 +37,11 @@ class HierarchyBucketer(override val bucketTypes:
   val splitter = properties.getString(SPLITTER_PROPERTY_NAME)
   val wildcard = properties.getString(WILDCARD_PROPERTY_NAME)
 
-  override def bucketForWrite(value: io.Serializable): Map[BucketType, Seq[io.Serializable]] = {
-    bucketTypes.map(bt => (bt, bucket(value.asInstanceOf[String], bt))).toMap
-  }
+  override def bucket(value: io.Serializable): Map[BucketType, io.Serializable] =
+    bucketTypes.map(bt =>
+      (bt, bucket(value.asInstanceOf[String], bt)
+        .asInstanceOf[Serializable])
+    ).toMap
 
   private def bucket(value: String, bucketType: BucketType): Seq[Serializable] = {
     (bucketType match {

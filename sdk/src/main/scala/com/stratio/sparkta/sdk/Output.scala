@@ -17,13 +17,26 @@ package com.stratio.sparkta.sdk
 
 import java.io.Serializable
 
+import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import org.apache.spark.streaming.dstream.DStream
 
-/**
- * Created by ajnavarro on 6/10/14.
- */
-abstract class Output(properties: Map[String, Serializable]) extends Parameterizable(properties) {
-  def persist(stream: DStream[UpdateMetricOperation])
+abstract class Output(properties: Map[String, Serializable], val schema : Map[String,WriteOp]) extends Parameterizable(properties) {
 
-  def persist(streams: Seq[DStream[UpdateMetricOperation]])
+  if (schema == null) {
+    throw new NullPointerException("schema")
+  }
+
+  /*TODO: This produces a NPE
+  schema.values.toSet.diff(supportedWriteOps.toSet).toSeq match {
+    case Nil =>
+    case badWriteOps =>
+      throw new Exception(s"The following write operations are not supported by this output: ${badWriteOps.mkString(", ")}")
+  }*/
+
+  def supportedWriteOps : Seq[WriteOp]
+
+  def persist(stream: DStream[UpdateMetricOperation]) : Unit
+
+  def persist(streams: Seq[DStream[UpdateMetricOperation]]) : Unit =
+    streams.foreach(persist)
 }

@@ -15,11 +15,10 @@
  */
 package com.stratio.sparkta.aggregator
 
-import java.io
-
 import com.stratio.sparkta.sdk._
 import org.apache.spark.streaming.StreamingContext._
 import org.apache.spark.streaming.dstream.DStream
+import java.io.{Serializable => JSerializable}
 
 /**
  * Use this class to describe a rollup that you want the datacube to keep.
@@ -28,7 +27,9 @@ import org.apache.spark.streaming.dstream.DStream
  * want to keep a total count for all (color, size) combinations, you'd specify that using a Rollup.
  */
 //TODO add operators
-case class Rollup(components: Seq[(Dimension, BucketType)], private val operators: Seq[Operator]) {
+case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Operator]) {
+
+  private lazy val operatorsMap = operators.map(_.key).zip(operators).toMap
 
   def this(dimension: Dimension, bucketType: BucketType, operators: Seq[Operator]) {
     this(Seq((dimension, bucketType)), operators)
@@ -38,24 +39,33 @@ case class Rollup(components: Seq[(Dimension, BucketType)], private val operator
     this(Seq((dimension, Bucketer.identity)), operators)
   }
 
-  def aggregate(extractedDimensionsDstream:
-                DStream[Map[Dimension, Map[BucketType, Seq[io.Serializable]]]]): DStream[UpdateMetricOperation] = {
-
+  def aggregate(extractedDimensionsDstream : DStream[(Seq[DimensionValue], Map[String,JSerializable])]) : DStream[UpdateMetricOperation] = {
     //TODO catch errors and null elements control
-    val filteredDimensionsDstream: DStream[Seq[(Dimension, BucketType, Seq[io.Serializable])]] =
-      extractedDimensionsDstream.map(m =>
-        components.map(c => (c._1, c._2, m.get(c._1).get.get(c._2).get))
-      )
-    val dstreamProcessedList =
-      filteredDimensionsDstream
-        .flatMap((l: Seq[(Dimension, BucketType, Seq[io.Serializable])]) => operators.map(o => o.process(l)))
-        .groupByKey()
+
+    val filteredDimensionsDstream : DStream[(Seq[DimensionValue], Map[String,JSerializable])] =
+      extractedDimensionsDstream
         .map(x => {
-        // TODO only support counts. Implement max and min
-        val values: Map[String, Long] = x._2.groupBy(_._1).map(kv => (kv._1, kv._2.map(_._2).sum)).toMap
-        (x._1, values)
+          val dimVals : Seq[DimensionValue] = x._1.filter(dimVal => components.contains(dimVal.dimension -> dimVal.bucketType))
+          (dimVals, x._2)
+        })
+        .filter(_._1.nonEmpty)
+
+    filteredDimensionsDstream
+      .mapValues(inputFields =>
+        operators.flatMap(op => op.processMap(inputFields).map(op.key -> _)).toMap
+      )
+      .groupByKey()
+      .map(x => {
+        val dimVals = x._1
+        val reducedMetricMap = x._2.flatten.groupBy(_._1).map(x => {
+          val name = x._1
+          val op = operatorsMap(name)
+          val values = x._2.map(_._2)
+          val reducedValue = op.processReduce(values)
+          (name, reducedValue)
+        })
+        UpdateMetricOperation(dimVals, reducedMetricMap)
       })
-    dstreamProcessedList.map(m => new UpdateMetricOperation(m._1, m._2))
   }
 
   override def toString: String = {

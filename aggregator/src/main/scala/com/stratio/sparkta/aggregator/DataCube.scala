@@ -15,34 +15,27 @@
  */
 package com.stratio.sparkta.aggregator
 
-import java.io
-import com.stratio.sparkta.sdk.{Event, UpdateMetricOperation, Dimension, BucketType}
+import com.stratio.sparkta.sdk._
 import org.apache.spark.streaming.dstream.DStream
+import java.io.{Serializable => JSerializable}
 
-/**
- * Created by ajnavarro on 9/10/14.
- */
 case class DataCube(dimensions: Seq[Dimension], rollups: Seq[Rollup]) {
 
   def setUp(inputStream: DStream[Event]): Seq[DStream[UpdateMetricOperation]] = {
     //TODO: add event values
-    val extractedDimensionsStream: DStream[Map[Dimension, Map[BucketType, Seq[io.Serializable]]]] =
-      inputStream.map((e: Event) =>
-        (
-          for {
-            dimension: Dimension <- dimensions
-            value: io.Serializable <- e.keyMap.get(dimension.name)
-          } yield (dimension, dimension.bucketer.bucketForWrite(value))
-          ).toMap
-
-      )
-
-    val cachedExtractedDimensionsStream = extractedDimensionsStream.cache()
+    val extractedDimensionsStream: DStream[(Seq[DimensionValue], Map[String, JSerializable])] = inputStream
+      .map((e: Event) => {
+        val dimVals = for {
+          dimension: Dimension <- dimensions
+          value <- e.keyMap.get(dimension.name).toSeq
+          (bucketType, bucketedValue) <- dimension.bucketer.bucket(value)
+        } yield DimensionValue(dimension, bucketType, bucketedValue)
+        (dimVals, e.keyMap)
+      })
+      .cache()
 
     // Create rollups
-    rollups.map(rollup => {
-      rollup.aggregate(cachedExtractedDimensionsStream)
-    })
+    rollups.map(_.aggregate(extractedDimensionsStream))
   }
 
 }

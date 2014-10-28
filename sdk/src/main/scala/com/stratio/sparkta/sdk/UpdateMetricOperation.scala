@@ -15,27 +15,31 @@
  */
 package com.stratio.sparkta.sdk
 
-import java.io
-
-/**
- * Created by ajnavarro on 22/10/14.
- */
 case class UpdateMetricOperation(
-                                  rollupKey:
-                                  Seq[(Dimension, BucketType, Seq[io.Serializable])],
+                                  rollupKey: Seq[DimensionValue],
                                   var aggregations: Map[String, Long]) {
+
+  if (rollupKey == null) {
+    throw new NullPointerException("rollupKey")
+  }
+  if (aggregations == null) {
+    throw new NullPointerException("aggregations")
+  }
+
   private def SEPARATOR = "__"
 
+  // TODO: This should be refactored out of here
   def keyString: String = {
-    rollupKey.map(tuple => {
-      tuple._2 match {
-        case x if x == Bucketer.identity => tuple._1.name
-        case _ => tuple._1.name + SEPARATOR + tuple._2.id
+    rollupKey.map(dimVal => {
+      dimVal.bucketType match {
+        case x if x == Bucketer.identity => dimVal.dimension.name
+        case _ => dimVal.dimension.name + SEPARATOR + dimVal.bucketType.id
       }
-    }) mkString (SEPARATOR)
+    }) mkString SEPARATOR
   }
 
   override def toString: String = {
-    this.keyString + " DATA: " + rollupKey.flatMap(_._3) + " AGGREGATIONS: " + aggregations
+    this.keyString + " DATA: " + rollupKey.mkString("|") + " AGGREGATIONS: " + aggregations
   }
+
 }

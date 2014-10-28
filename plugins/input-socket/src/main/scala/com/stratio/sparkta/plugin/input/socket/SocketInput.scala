@@ -15,6 +15,7 @@
  */
 package com.stratio.sparkta.plugin.input.socket
 
+import java.io.{Serializable => JSerializable}
 import com.stratio.sparkta.sdk.Input._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.{Event, Input}
@@ -25,13 +26,17 @@ import org.apache.spark.streaming.dstream.DStream
 /**
  * Created by ajnavarro on 22/10/14.
  */
-class SocketInput(properties: Map[String, Serializable]) extends Input(properties) {
+class SocketInput(properties: Map[String, JSerializable]) extends Input(properties) {
+
+  private val hostname : String = properties.getString("hostname")
+  private val port : Int = properties.getInt("port")
+  private val storageLevel : StorageLevel = StorageLevel.fromString(properties.getString("storageLevel", "MEMORY_AND_DISK_SER_2"))
 
   override def setUp(ssc: StreamingContext): DStream[Event] = {
     ssc.socketTextStream(
-      properties.getString("hostname"),
-      properties.getString("port").toInt,
-      StorageLevel.fromString(properties.getString("storageLevel")))
-      .map(data => new Event(Map(RAW_DATA_KEY -> data.getBytes("UTF-8").asInstanceOf[Serializable])))
+      hostname,
+      port,
+      storageLevel)
+      .map(data => new Event(Map(RAW_DATA_KEY -> data)))
   }
 }

@@ -43,13 +43,16 @@ class StreamingContextActor
         case Success(_ssc) =>
           Try(_ssc.start()) match {
             case Failure(e: Exception) =>
+              log.error(s"Exception starting up SparkStreamingContext for policy ${policy.name}", e)
               sender ! InitError(e)
-            case x => log.debug("StreamingContext started successfully.")
+            case x =>
+              log.debug("StreamingContext started successfully.")
           }
           sender ! Initialized
           log.debug("StreamingContext initialized with name " + policy.name)
           Some(_ssc)
         case Failure(e: Exception) =>
+          log.error(s"Exception instantiating policy ${policy.name}", e)
           sender ! InitError(e)
           None
       }
