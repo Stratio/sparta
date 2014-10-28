@@ -18,22 +18,48 @@ package com.stratio.sparkta.plugin.input.kafka
 import com.stratio.sparkta.sdk.Input._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.{Event, Input}
+import kafka.serializer.StringDecoder
+import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.kafka.KafkaUtils
 
-/**
- * Created by ajnavarro on 22/10/14.
- */
+
 class KafkaInput(properties: Map[String, Serializable]) extends Input(properties) {
   override def setUp(ssc: StreamingContext): DStream[Event] = {
-    KafkaUtils.createStream(
-      ssc,
-      properties.getString("zkQuorum"),
-      properties.getString("groupId"),
-      properties.getString("topics")
-        .split(",")
-        .map(s => (s.trim, properties.getInt("partitions"))).toMap)
-      .map(data => new Event(Map(RAW_DATA_KEY -> data._2.getBytes("UTF-8").asInstanceOf[Serializable])))
+
+    val submap: Option[Map[String, Serializable]] = properties.getMap("kafkaParams")
+    if (submap.isEmpty) {
+
+      KafkaUtils.createStream(
+        ssc,
+        properties.getString("zkQuorum"),
+        properties.getString("groupId"),
+        extractTopicsMap(properties.getString("topics")),
+        StorageLevel.fromString(properties.getString("storageLevel")))
+        .map(data => new Event(Map(RAW_DATA_KEY -> data._2.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
+
+    } else {
+
+      val kafkaParams = submap.get.map(entry => (entry._1, entry._2.asInstanceOf[String]))
+      KafkaUtils.createStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams,
+        extractTopicsMap(properties.getString("topics")),
+        StorageLevel.fromString(properties.getString("storageLevel")))
+        .map(data => new Event(Map(RAW_DATA_KEY -> data._2.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
+
+    }
   }
+
+  private def extractTopicsMap(str: String): Map[String, Int] = {
+    var topics : Map[String,Int] = Map()
+    str.split(",").toSeq.map(
+      str => str.split(":").toSeq match {
+          case Seq(topic) => topics += topic -> 1
+          case Seq(topic, partitions) => topics += topic -> partitions.toInt
+          case _ =>
+         }
+    )
+    topics
+  }
+
 }
