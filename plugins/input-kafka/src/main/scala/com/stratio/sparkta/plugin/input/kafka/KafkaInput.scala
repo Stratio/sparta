@@ -26,6 +26,9 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 
 
 class KafkaInput(properties: Map[String, Serializable]) extends Input(properties) {
+
+  val DEFAULT_STORAGE_LEVEL = "MEMORY_AND_DISK_SER_2"
+
   override def setUp(ssc: StreamingContext): DStream[Event] = {
 
     val submap: Option[Map[String, Serializable]] = properties.getMap("kafkaParams")
@@ -35,31 +38,37 @@ class KafkaInput(properties: Map[String, Serializable]) extends Input(properties
         ssc,
         properties.getString("zkQuorum"),
         properties.getString("groupId"),
-        extractTopicsMap(properties.getString("topics")),
-        StorageLevel.fromString(properties.getString("storageLevel")))
+        extractTopicsMap,
+        storageLevel)
         .map(data => new Event(Map(RAW_DATA_KEY -> data._2.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
 
     } else {
 
       val kafkaParams = submap.get.map(entry => (entry._1, entry._2.asInstanceOf[String]))
       KafkaUtils.createStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams,
-        extractTopicsMap(properties.getString("topics")),
-        StorageLevel.fromString(properties.getString("storageLevel")))
+        extractTopicsMap,
+        storageLevel)
         .map(data => new Event(Map(RAW_DATA_KEY -> data._2.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
 
     }
   }
 
-  private def extractTopicsMap(str: String): Map[String, Int] = {
+  private def extractTopicsMap(): Map[String, Int] = {
     var topics : Map[String,Int] = Map()
-    str.split(",").toSeq.map(
+    properties.getString("topics").split(",").toSeq.map(
       str => str.split(":").toSeq match {
           case Seq(topic) => topics += topic -> 1
           case Seq(topic, partitions) => topics += topic -> partitions.toInt
-          case _ =>
+          case _ => throw new IllegalStateException(s"Invalid conf value for topics : $str")
          }
     )
     topics
   }
+
+  private def storageLevel(): StorageLevel =
+    properties.hasKey("storageLevel") match {
+      case true => StorageLevel.fromString(properties.getString("storageLevel"))
+      case false => StorageLevel.fromString(DEFAULT_STORAGE_LEVEL)
+    }
 
 }

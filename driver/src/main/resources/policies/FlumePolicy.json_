@@ -1,0 +1,55 @@
+{
+    "name": "policy-flume",
+    "duration": 2000,
+    "jarPaths": [],
+    "inputs": [
+        {
+            "name": "in",
+            "elementType": "com.stratio.sparkta.plugin.input.flume.FlumeInput",
+            "configuration": {
+                "type" : "pull",
+                "addresses": "localhost:10999",
+                "storageLevel" : "MEMORY_AND_DISK_SER_2"
+            }
+        }
+    ],
+    "dimensions": [
+        {
+            "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+            "name": "message"
+        }
+    ],
+    "rollups": [
+        {
+            "dimensionAndBucketTypes": [
+                {
+                    "dimensionName": "message",
+                    "bucketType": "identity"
+                }
+            ]
+        }
+    ],
+    "outputs": [
+        {
+            "name": "out-print",
+            "elementType": "com.stratio.sparkta.plugin.output.print.PrintOutput",
+            "configuration": {}
+        }
+    ],
+    "operators": [
+        {
+            "name": "count-operator",
+            "elementType": "com.stratio.sparkta.plugin.operator.count.CountOperator",
+            "configuration": {}
+        }
+    ],
+    "parsers": [
+        {
+            "name": "morphline",
+            "elementType": "com.stratio.sparkta.plugin.parser.morphlines.MorphlinesParser",
+            "configuration": {
+                "morphlineConfiguration": "id : test1\n   importCommands : [\"org.kitesdk.**\"]\n   commands: [\n   {\n   readLine { charset : UTF-8 }\n   }\n   ]"
+            }
+        }
+    ]
+}
