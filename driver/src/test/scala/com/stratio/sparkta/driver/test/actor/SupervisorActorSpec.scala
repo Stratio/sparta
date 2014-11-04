@@ -72,7 +72,7 @@ class SupervisorActorSpec
 
       within(5000 millis) {
         supervisorRef ! new GetContextStatus("test-1")
-        expectMsg(new StreamingContextStatusDto(ConfigurationError, errorMessage))
+        expectMsg(new StreamingContextStatusDto("test-1", ConfigurationError, errorMessage))
       }
 
     }
@@ -88,7 +88,7 @@ class SupervisorActorSpec
 
       within(5000 millis) {
         supervisorRef ! new GetContextStatus("test-1")
-        expectMsg(new StreamingContextStatusDto(Error, null))
+        expectMsg(new StreamingContextStatusDto("test-1", Error, null))
       }
     }
     //TODO test when creating a streamingContextActor unexpected error occurs
@@ -103,7 +103,7 @@ class SupervisorActorSpec
 
       within(5000 millis) {
         supervisorRef ! new GetContextStatus("test-1")
-        expectMsg(new StreamingContextStatusDto(Initialized, null))
+        expectMsg(new StreamingContextStatusDto("test-1", Initialized, null))
       }
 
     }
@@ -117,7 +117,7 @@ class SupervisorActorSpec
 
       within(5000 millis) {
         supervisorRef ! new GetContextStatus("test-1")
-        expectMsg(new StreamingContextStatusDto(Initialized, null))
+        expectMsg(new StreamingContextStatusDto("test-1", Initialized, null))
       }
     }
     "Delete a previously created context" in {
@@ -131,7 +131,7 @@ class SupervisorActorSpec
 
       within(5000 millis) {
         supervisorRef ! new DeleteContext("test-1")
-        expectMsg(new StreamingContextStatusDto(Removed, null))
+        expectMsg(new StreamingContextStatusDto("test-1", Removed, null))
       }
     }
     "Get all context statuses" in {
@@ -151,16 +151,17 @@ class SupervisorActorSpec
 
         supervisorRef ! GetAllContextStatus
         val contextData = receiveWhile(5000 millis) {
-          case msg: Map[String, StreamingContextStatusDto] =>
+          case msg: List[StreamingContextStatusDto] =>
             msg
         }
         contextData.size should be(1)
 
         contextData.map(d => {
           d.size should be(3)
-          d.keys should contain("test-1")
-          d.keys should contain("test-2")
-          d.keys should contain("test-3")
+          val names = d.map(_.name)
+          names should contain("test-1")
+          names should contain("test-2")
+          names should contain("test-3")
         })
       }
     }

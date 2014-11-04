@@ -36,7 +36,9 @@ case class CreateContext(policy: AggregationPoliciesDto)
 
 case class GetContextStatus(contextName: String)
 
-case class GetAllContextStatus
+case class GetAllContextStatus()
+
+case class StopContext(contextName: String)
 
 case class DeleteContext(contextName: String)
 
@@ -94,7 +96,7 @@ class SupervisorActor(streamingContextservice: StreamingContextService) extends 
     case GetContextStatus(contextName) =>
       contextActors.get(contextName) match {
         case Some(contextActorStatus) =>
-          sender ! new StreamingContextStatusDto(contextActorStatus.status, contextActorStatus.description)
+          sender ! new StreamingContextStatusDto(contextName, contextActorStatus.status, contextActorStatus.description)
         case None =>
           throw new DriverException("Context with name " + contextName + " does not exists.")
       }
@@ -103,12 +105,12 @@ class SupervisorActor(streamingContextservice: StreamingContextService) extends 
         case Some(contextActorStatus) =>
           contextActorStatus.actor ! PoisonPill
           contextActors -= contextName
-          sender ! new StreamingContextStatusDto(Removed, null)
+          sender ! new StreamingContextStatusDto(contextName, Removed, null)
         case None =>
           throw new DriverException("Context with name " + contextName + " does not exists.")
       }
     case GetAllContextStatus =>
-      sender ! contextActors.map(cas => (cas._1, new StreamingContextStatusDto(cas._2.status, cas._2.description)))
+      sender ! contextActors.map(cas => new StreamingContextStatusDto(cas._1, cas._2.status, cas._2.description)).toList
   }
 
   override def postStop(): Unit = {

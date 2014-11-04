@@ -13,12 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.driver.dto
+package com.stratio.sparkta.driver.actor
 
-import com.stratio.sparkta.driver.actor.StreamingContextStatusEnum
+import akka.actor.{ActorRef, Actor, ActorContext}
+import com.stratio.sparkta.driver.route.PolicyRoutes
 
 /**
- * Created by ajnavarro on 7/10/14.
+ * Created by ajnavarro on 29/10/14.
  */
+class PolicyControllerActor(override val supervisor: ActorRef) extends Actor with PolicyRoutes {
 
-case class StreamingContextStatusDto(name: String, status: StreamingContextStatusEnum.Status, description: String)
+  def actorRefFactory: ActorContext = context
+
+  def receive: Receive = runRoute(policyRoutes)
+
+}
