@@ -20,4 +20,5 @@ import com.stratio.sparkta.driver.actor.StreamingContextStatusEnum
 /**
  * Created by ajnavarro on 7/10/14.
  */
-case class StreamingContextStatusDto(status: StreamingContextStatusEnum.Status, description: String)
+
+case class StreamingContextStatusDto(name: String, status: StreamingContextStatusEnum.Status, description: String)
