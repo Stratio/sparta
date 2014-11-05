@@ -21,10 +21,11 @@ import com.stratio.sparkta.aggregator.{DataCube, Rollup}
 import com.stratio.sparkta.driver.configuration._
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.exception.DriverException
+import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.sdk._
+import org.apache.spark.SparkConf
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
-import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.util.Try
 
@@ -35,9 +36,17 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
 
   def createStreamingContext(apConfig: AggregationPoliciesDto): StreamingContext = {
     val ssc = new StreamingContext(
-      new SparkContext(configToSparkConf(generalConfiguration, apConfig.name)),
-      //TODO one spark context to all streaming contexts is not working
-      //SparkContextFactory.sparkContextInstance(generalConfiguration),
+      /*
+      Spark doesn't support multiple active SparkContexts in the same JVM,
+      although this isn't well-documented and there's no error-checking for this
+      (PySpark has checks for this, though). This isn't to say that we
+      can't / won't eventually support multiple contexts per JVM (see SPARK-2243),
+      but that could be somewhat difficult in the very short term because there
+      may be several baked-in assumptions that we'll have to address
+      (the (effectively) global SparkEnv, for example).
+       */
+      //new SparkContext(configToSparkConf(generalConfiguration, apConfig.name)),
+      SparkContextFactory.sparkContextInstance(generalConfiguration),
       new Duration(apConfig.duration))
 
     apConfig.jarPaths.foreach(j => ssc.sparkContext.addJar(j))
