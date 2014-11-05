@@ -67,7 +67,27 @@
                             </excludes>
                         </filter>
                     </filters>
-                    <!-- put your configurations here -->
+                    <artifactSet>
+                        <excludes>
+                            <exclude>classworlds:classworlds</exclude>
+                            <exclude>junit:junit</exclude>
+                            <exclude>jmock:*</exclude>
+                            <exclude>*:xml-apis</exclude>
+                            <exclude>org.apache.maven:lib:tests</exclude>
+                        </excludes>
+                    </artifactSet>
+                    <transformers>
+                        <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                        <!--
+                        Some care is required:
+                        http://doc.akka.io/docs/akka/snapshot/general/configuration.html
+                        -->
+                        <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                            <resource>reference.conf</resource>
+                        </transformer>
+                    </transformers>
                 </configuration>
                 <executions>
                     <execution>

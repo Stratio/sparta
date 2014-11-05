@@ -18,21 +18,19 @@ package com.stratio.sparkta.driver.service
 import java.io.Serializable
 
 import com.stratio.sparkta.aggregator.{DataCube, Rollup}
-import com.stratio.sparkta.driver.configuration._
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.sdk._
-import org.apache.spark.SparkConf
+import com.typesafe.config.Config
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 
-import scala.util.Try
 
 /**
  * Created by ajnavarro on 8/10/14.
  */
-class StreamingContextService(generalConfiguration: GeneralConfiguration) {
+class StreamingContextService(generalConfig: Config) {
 
   def createStreamingContext(apConfig: AggregationPoliciesDto): StreamingContext = {
     val ssc = new StreamingContext(
@@ -46,7 +44,7 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
       (the (effectively) global SparkEnv, for example).
        */
       //new SparkContext(configToSparkConf(generalConfiguration, apConfig.name)),
-      SparkContextFactory.sparkContextInstance(generalConfiguration),
+      SparkContextFactory.sparkContextInstance(generalConfig),
       new Duration(apConfig.duration))
 
     apConfig.jarPaths.foreach(j => ssc.sparkContext.addJar(j))
@@ -132,24 +130,4 @@ class StreamingContextService(generalConfiguration: GeneralConfiguration) {
     clazz.getDeclaredConstructor(classOf[Map[String, Serializable]]).newInstance(properties).asInstanceOf[C]
   }
 
-
-  private def configToSparkConf(generalConfiguration: GeneralConfiguration, name: String): SparkConf = {
-    val conf = new SparkConf()
-    conf.setMaster(generalConfiguration.master)
-      .setAppName(name)
-
-    conf.set("spark.cores.max", generalConfiguration.cpus.toString)
-
-    // Should be a -Xmx style string eg "512m", "1G"
-    conf.set("spark.executor.memory", generalConfiguration.memory)
-
-    Try(generalConfiguration.sparkHome).foreach { home => conf.setSparkHome(generalConfiguration.sparkHome)}
-
-    // Set the Jetty port to 0 to find a random port
-    conf.set("spark.ui.port", "0")
-
-    conf.set("spark.streaming.concurrentJobs", "20")
-
-    conf
-  }
 }

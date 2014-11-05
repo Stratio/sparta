@@ -15,10 +15,10 @@
  */
 package com.stratio.sparkta.driver.factory
 
-import com.stratio.sparkta.driver.configuration.GeneralConfiguration
+import com.typesafe.config.Config
 import org.apache.spark.{SparkConf, SparkContext}
 
-import scala.util.Try
+import scala.collection.JavaConversions._
 
 /**
  * Created by ajnavarro on 14/10/14.
@@ -26,32 +26,23 @@ import scala.util.Try
 object SparkContextFactory {
   private var sc: SparkContext = null
 
-  def sparkContextInstance(generalConfiguration: GeneralConfiguration): SparkContext = {
+  def sparkContextInstance(generalConfig: Config): SparkContext = {
     synchronized {
       if (sc == null) {
-        sc = new SparkContext(configToSparkConf(generalConfiguration))
+        sc = new SparkContext(configToSparkConf(generalConfig))
       }
       sc
     }
   }
 
-  private def configToSparkConf(generalConfiguration: GeneralConfiguration): SparkConf = {
+  private def configToSparkConf(generalConfig: Config): SparkConf = {
+    val c = generalConfig.getConfig("spark")
+    val properties = c.entrySet()
     val conf = new SparkConf()
-    conf.setMaster(generalConfiguration.master)
-      .setAppName(generalConfiguration.name)
 
-    conf.set("spark.cores.max", generalConfiguration.cpus.toString)
+    properties.foreach(e => conf.set(e.getKey, c.getString(e.getKey)))
 
-    // Should be a -Xmx style string eg "512m", "1G"
-    conf.set("spark.executor.memory", generalConfiguration.memory)
-
-    Try(generalConfiguration.sparkHome).foreach { home => conf.setSparkHome(generalConfiguration.sparkHome)}
-
-    // Set the Jetty port to 0 to find a random port
-    conf.set("spark.ui.port", "0")
-
-    // Change by default one concurrent jobs.
-    conf.set("spark.streaming.concurrentJobs", "20")
+    conf.setIfMissing("spark.streaming.concurrentJobs", "20")
 
     conf
   }

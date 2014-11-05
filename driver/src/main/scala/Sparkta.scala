@@ -13,45 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import java.io.File
-
-import akka.actor.{Props, ActorRef, ActorSystem}
+import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
-import com.stratio.sparkta.driver.actor.{SupervisorActor, PolicyControllerActor}
-import com.stratio.sparkta.driver.configuration.GeneralConfiguration
-import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
-import com.stratio.sparkta.driver.exception.DriverException
+import com.stratio.sparkta.driver.actor.{PolicyControllerActor, SupervisorActor}
 import com.stratio.sparkta.driver.service.StreamingContextService
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
+import com.typesafe.config.ConfigFactory
 import spray.can.Http
-
-import scala.io.Source
 
 /**
  * Created by ajnavarro on 2/10/14.
  */
 object Sparkta extends App with SLF4JLogging {
 
-  implicit val formats = DefaultFormats
-
-  if (args.size != 1) {
-    throw new DriverException("Usage: \n - param 1: Path with configuration files.")
-  }
-
-  val basePath = new File(args(0))
-  val configurationFile = new File(basePath, "configuration.json")
-  val generalConfiguration = parse(Source.fromFile(configurationFile).getLines().mkString).extract[GeneralConfiguration]
+  val sparktaConfig = ConfigFactory.load().getConfig("sparkta")
 
   implicit val system = ActorSystem("sparkta")
-  val streamingContextService = new StreamingContextService(generalConfiguration)
+
+  val streamingContextService = new StreamingContextService(sparktaConfig)
 
   val supervisor: ActorRef = system.actorOf(Props(new SupervisorActor(streamingContextService)), "supervisor")
 
   val controller = system.actorOf(Props(
     new PolicyControllerActor(supervisor)), "workflowController")
 
-  IO(Http) ! Http.Bind(controller, interface = "localhost", port = 8080)
+  val apiConfig = sparktaConfig.getConfig("api")
+
+  IO(Http) ! Http.Bind(controller, interface = apiConfig.getString("host"), port = apiConfig.getInt("port"))
 
 }

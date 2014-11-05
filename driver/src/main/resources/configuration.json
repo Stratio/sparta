@@ -1,7 +1,0 @@
-{
-    "master": "local[4]",
-    "sparkHome": "",
-    "cpus": 8,
-    "memory": "512m",
-    "name": "SPARKTA-context"
-}
