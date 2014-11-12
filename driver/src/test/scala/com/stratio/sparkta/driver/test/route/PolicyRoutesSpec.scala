@@ -74,7 +74,7 @@ with Matchers {
     }
     "Create policy" in {
       val POLICY_NAME = "p-1"
-      val apd = new AggregationPoliciesDto(Seq(), POLICY_NAME, 0, Seq(), Seq(), Seq(), Seq(), Seq(), Seq())
+      val apd = new AggregationPoliciesDto(POLICY_NAME, 0, Seq(), Seq(), Seq(), Seq(), Seq(), Seq())
       val test = Post("/policy", apd) ~> policyRoutes
       supervisorProbe.expectMsg(new CreateContext(apd))
       supervisorProbe.reply(Unit)

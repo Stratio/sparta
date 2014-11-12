@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2014 Stratio (http://stratio.com)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<assembly xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+    <id>app</id>
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <dependencySets>
+        <dependencySet>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>${binary.name}/${classpath.directory}</outputDirectory>
+            <unpack>false</unpack>
+        </dependencySet>
+    </dependencySets>
+    <fileSets>
+        <fileSet>
+            <filtered>true</filtered>
+            <directory>${scripts.directory}</directory>
+            <outputDirectory>${binary.name}/${scripts.directory}</outputDirectory>
+            <includes>
+                <include>**</include>
+            </includes>
+            <fileMode>0755</fileMode>
+            <directoryMode>0755</directoryMode>
+        </fileSet>
+        <fileSet>
+            <filtered>true</filtered>
+            <directory>${config.directory}</directory>
+            <outputDirectory>${binary.name}/${config.directory}</outputDirectory>
+        </fileSet>
+    </fileSets>
+    <moduleSets>
+        <moduleSet>
+            <includes>
+                <include>com.stratio.sparkta:bucketer-*</include>
+                <include>com.stratio.sparkta:input-*</include>
+                <include>com.stratio.sparkta:operator-*</include>
+                <include>com.stratio.sparkta:output-*</include>
+                <include>com.stratio.sparkta:parser-*</include>
+            </includes>
+            <sources>
+                <includeModuleDirectory>false</includeModuleDirectory>
+                <fileSets>
+                    <fileSet>
+                        <directory>target</directory>
+                        <outputDirectory>${binary.name}/${plugins.directory}</outputDirectory>
+                        <includes>
+                            <include>*-plugin.jar</include>
+                        </includes>
+                    </fileSet>
+                </fileSets>
+            </sources>
+            <useAllReactorProjects>true</useAllReactorProjects>
+        </moduleSet>
+    </moduleSets>
+</assembly>

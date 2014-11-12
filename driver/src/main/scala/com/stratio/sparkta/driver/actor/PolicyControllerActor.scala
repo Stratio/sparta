@@ -15,13 +15,13 @@
  */
 package com.stratio.sparkta.driver.actor
 
-import akka.actor.{ActorRef, Actor, ActorContext}
+import akka.actor.{ActorContext, ActorRef}
 import com.stratio.sparkta.driver.route.PolicyRoutes
 
 /**
  * Created by ajnavarro on 29/10/14.
  */
-class PolicyControllerActor(override val supervisor: ActorRef) extends Actor with PolicyRoutes {
+class PolicyControllerActor(override val supervisor: ActorRef) extends InstrumentedActor with PolicyRoutes {
 
   def actorRefFactory: ActorContext = context
 
