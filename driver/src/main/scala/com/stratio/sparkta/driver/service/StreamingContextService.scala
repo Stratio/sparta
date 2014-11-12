@@ -15,8 +15,9 @@
  */
 package com.stratio.sparkta.driver.service
 
-import java.io.Serializable
+import java.io.{File, Serializable}
 
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.aggregator.{DataCube, Rollup}
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.exception.DriverException
@@ -30,7 +31,7 @@ import org.apache.spark.streaming.{Duration, StreamingContext}
 /**
  * Created by ajnavarro on 8/10/14.
  */
-class StreamingContextService(generalConfig: Config) {
+class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging{
 
   def createStreamingContext(apConfig: AggregationPoliciesDto): StreamingContext = {
     val ssc = new StreamingContext(
@@ -44,10 +45,8 @@ class StreamingContextService(generalConfig: Config) {
       (the (effectively) global SparkEnv, for example).
        */
       //new SparkContext(configToSparkConf(generalConfiguration, apConfig.name)),
-      SparkContextFactory.sparkContextInstance(generalConfig),
+      SparkContextFactory.sparkContextInstance(generalConfig, jars),
       new Duration(apConfig.duration))
-
-    apConfig.jarPaths.foreach(j => ssc.sparkContext.addJar(j))
 
     val inputs: Map[String, DStream[Event]] = apConfig.inputs.map(i =>
       (i.name, tryToInstantiate[Input](i.elementType, (c) =>

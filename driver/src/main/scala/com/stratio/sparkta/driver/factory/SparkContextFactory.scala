@@ -15,6 +15,9 @@
  */
 package com.stratio.sparkta.driver.factory
 
+import java.io.File
+
+import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.Config
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -23,13 +26,15 @@ import scala.collection.JavaConversions._
 /**
  * Created by ajnavarro on 14/10/14.
  */
-object SparkContextFactory {
+object SparkContextFactory extends SLF4JLogging {
   private var sc: SparkContext = null
 
-  def sparkContextInstance(generalConfig: Config): SparkContext = {
+  def sparkContextInstance(generalConfig: Config, jars: Seq[File]): SparkContext = {
     synchronized {
       if (sc == null) {
         sc = new SparkContext(configToSparkConf(generalConfig))
+        jars.foreach(f => sc.addJar(f.getAbsolutePath))
+
       }
       sc
     }

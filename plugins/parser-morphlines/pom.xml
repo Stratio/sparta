@@ -31,9 +31,58 @@
     <dependencies>
         <dependency>
             <groupId>org.kitesdk</groupId>
-            <artifactId>kite-morphlines-all</artifactId>
+            <artifactId>kite-morphlines-useragent</artifactId>
             <version>0.17.0</version>
-            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.kitesdk</groupId>
+            <artifactId>kite-morphlines-avro</artifactId>
+            <version>0.17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kitesdk</groupId>
+            <artifactId>kite-morphlines-solr-core</artifactId>
+            <version>0.17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kitesdk</groupId>
+            <artifactId>kite-morphlines-saxon</artifactId>
+            <version>0.17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kitesdk</groupId>
+            <artifactId>kite-morphlines-maxmind</artifactId>
+            <version>0.17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kitesdk</groupId>
+            <artifactId>kite-morphlines-twitter</artifactId>
+            <version>0.17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kitesdk</groupId>
+            <artifactId>kite-morphlines-tika-core</artifactId>
+            <version>0.17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kitesdk</groupId>
+            <artifactId>kite-morphlines-protobuf</artifactId>
+            <version>0.17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kitesdk</groupId>
+            <artifactId>kite-morphlines-solr-cell</artifactId>
+            <version>0.17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kitesdk</groupId>
+            <artifactId>kite-morphlines-tika-decompress</artifactId>
+            <version>0.17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kitesdk</groupId>
+            <artifactId>kite-morphlines-json</artifactId>
+            <version>0.17.0</version>
         </dependency>
     </dependencies>
 </project>

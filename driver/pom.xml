@@ -31,48 +31,6 @@
         <akka.version>2.3.4-spark</akka.version>
     </properties>
     <dependencies>
-        <!--TODO TEMPORAL -->
-        <dependency>
-            <groupId>com.stratio.sparkta</groupId>
-            <artifactId>output-mongodb</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.sparkta</groupId>
-            <artifactId>output-print</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.sparkta</groupId>
-            <artifactId>operator-count</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.sparkta</groupId>
-            <artifactId>bucketer-dateTime</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.sparkta</groupId>
-            <artifactId>bucketer-geoHash</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.sparkta</groupId>
-            <artifactId>bucketer-passthrough</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.sparkta</groupId>
-            <artifactId>output-print</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.sparkta</groupId>
-            <artifactId>input-socket</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <!-- TEMPORAL -->
         <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-can_${scala.binary.version}</artifactId>
