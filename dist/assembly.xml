@@ -16,8 +16,8 @@
     limitations under the License.
 
 -->
-<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<assembly xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
           xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
     <id>app</id>
     <formats>
@@ -33,15 +33,17 @@
     </dependencySets>
     <fileSets>
         <fileSet>
+            <filtered>true</filtered>
             <directory>${scripts.directory}</directory>
             <outputDirectory>${binary.name}/${scripts.directory}</outputDirectory>
             <includes>
-                <include>*</include>
+                <include>**</include>
             </includes>
             <fileMode>0755</fileMode>
             <directoryMode>0755</directoryMode>
         </fileSet>
         <fileSet>
+            <filtered>true</filtered>
             <directory>${config.directory}</directory>
             <outputDirectory>${binary.name}/${config.directory}</outputDirectory>
         </fileSet>
@@ -68,10 +70,6 @@
                 </fileSets>
             </sources>
             <useAllReactorProjects>true</useAllReactorProjects>
-            <!--<binaries>-->
-            <!--<outputDirectory>${binary.name}/plugins</outputDirectory>-->
-            <!--<unpack>false</unpack>-->
-            <!--</binaries>-->
         </moduleSet>
     </moduleSets>
 </assembly>

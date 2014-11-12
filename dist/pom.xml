@@ -16,8 +16,8 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>parent</artifactId>
@@ -28,7 +28,7 @@
     <artifactId>dist</artifactId>
     <properties>
         <classpath.directory>lib</classpath.directory>
-        <plugins.directory>lib</plugins.directory>
+        <plugins.directory>plugins</plugins.directory>
         <scripts.directory>bin</scripts.directory>
         <config.directory>config</config.directory>
         <binary.name>sparkta-${project.version}</binary.name>
@@ -62,6 +62,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.5.1</version>
                 <configuration>
                     <descriptors>
                         <descriptor>assembly.xml</descriptor>
@@ -74,6 +75,15 @@
                         <goals>
                             <goal>single</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.scalastyle</groupId>
+                <artifactId>scalastyle-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>none</phase>
                     </execution>
                 </executions>
             </plugin>
