@@ -1,0 +1,24 @@
+#!/bin/bash
+
+DIR=$(dirname $0)/../
+
+SPARKTA_HOME=${SPARKTA_HOME:-$DIR}
+
+CONF_DIR=${config.directory}
+CLASSPATH_DIR=${classpath.directory}
+
+cd $DIR
+
+exec $SPARKTA_HOME -Xms128m -Xmx128m \
+  -classpath "$CLASSPATH_DIR" \
+  -Dapp.name="driver-run" \
+  -Dapp.pid="$$" \
+  -Dapp.repo="$REPO" \
+  -Dapp.home="$BASEDIR" \
+  -Dbasedir="$BASEDIR" \
+  com.stratio.sparkta.driver.Sparkta \
+  "$@"
+
+
+exec $SPARKTA_HOME/bin/flume-ng agent --conf $DIR/$CONF_DIR --conf-file $DIR/$CONF_DIR/flume-conf.properties --name a $@
+
