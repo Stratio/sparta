@@ -15,7 +15,4 @@
  */
 package com.stratio.sparkta.driver.dto
 
-/**
- * Created by ajnavarro on 6/10/14.
- */
-case class PolicyElementDto(name: String, elementType: String, configuration: Map[String, String])
+case class PolicyElementDto(name: String, elementType: String, configuration: Map[String, JsoneyString])

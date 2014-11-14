@@ -19,21 +19,19 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import com.stratio.sparkta.driver.actor._
-import com.stratio.sparkta.driver.dto.{AggregationPoliciesDto, StreamingContextStatusDto}
+import com.stratio.sparkta.driver.dto.{JsoneyStringSerializer, AggregationPoliciesDto, StreamingContextStatusDto}
 import com.stratio.sparkta.driver.exception.DriverException
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
+import org.json4s.jackson.Serialization
 import spray.httpx.Json4sJacksonSupport
 import spray.routing.{ExceptionHandler, HttpService}
 import spray.util.LoggingContext
 
 import scala.concurrent.duration.DurationDouble
 
-/**
- * Created by ajnavarro on 28/10/14.
- */
 trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
-  implicit val json4sJacksonFormats = DefaultFormats + new EnumNameSerializer(StreamingContextStatusEnum)
+  implicit val json4sJacksonFormats = DefaultFormats + new EnumNameSerializer(StreamingContextStatusEnum) + new JsoneyStringSerializer()
   implicit val timeout: Timeout = 15 seconds
 
   implicit def executionContext = actorRefFactory.dispatcher

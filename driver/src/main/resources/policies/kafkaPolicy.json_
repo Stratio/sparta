@@ -49,7 +49,17 @@
             "name": "morphline",
             "elementType": "com.stratio.sparkta.plugin.parser.morphlines.MorphlinesParser",
             "configuration": {
-                "morphlineConfiguration": "id : test1\n   importCommands : [\"org.kitesdk.**\"]\n   commands: [\n   {\n   readLine { charset : UTF-8 }\n   }\n   ]"
+                "morphline": {
+                    "id": "test1",
+                    "importCommands": ["org.kitesdk.**"],
+                    "commands": [
+                        {
+                            "readLine": {
+                                "charset": "UTF-8"
+                            }
+                        }
+                    ]
+                }
             }
         }
     ]

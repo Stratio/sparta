@@ -26,19 +26,17 @@ import org.kitesdk.morphline.base.Compiler
 
 import scala.collection.JavaConverters._
 
-/**
- * Created by ajnavarro on 23/10/14.
- */
 class MorphlinesParser(properties: Map[String, Serializable]) extends Parser(properties) {
 
-  private val config: String = properties.getString("morphlineConfiguration")
+  private val config: String = properties.getString("morphline")
 
   override def parse(data: Event): Event = {
     collectorInstance.reset
     val record = new Record()
     data.keyMap.foreach(e => {
       if (Input.RAW_DATA_KEY.equals(e._1)) {
-        record.put(e._1, new ByteArrayInputStream(e._2.asInstanceOf[Array[Byte]]))
+        //TODO: This actually needs getting raw bytes from the origin
+        record.put(e._1, new ByteArrayInputStream(e._2.asInstanceOf[String].getBytes("UTF-8")))
       } else {
         record.put(e._1, e._2)
       }

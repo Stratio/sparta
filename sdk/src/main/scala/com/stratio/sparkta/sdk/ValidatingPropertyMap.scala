@@ -60,7 +60,10 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
       case Some(value : Int) => value
       case Some(value : Long) => value.toInt
       case Some(value) =>
-        throw new IllegalStateException(s"Invalid value for $key: $value")
+        Try(value.toString.toInt) match {
+          case Success(v) => v
+          case Failure(ex) => throw new IllegalStateException(s"Bad value for $key", ex)
+        }
       case None =>
         throw new IllegalStateException(s"$key is mandatory")
     }
@@ -75,7 +78,10 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
       case Some(value : Long) => value
       case Some(value : Int) => value.toLong
       case Some(value) =>
-        throw new IllegalStateException(s"Invalid value for $key: $value")
+        Try(value.toString.toLong) match {
+          case Success(v) => v
+          case Failure(ex) => throw new IllegalStateException(s"Bad value for $key", ex)
+        }
       case None =>
         throw new IllegalStateException(s"$key is mandatory")
     }

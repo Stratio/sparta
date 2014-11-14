@@ -19,6 +19,7 @@ import java.io.Serializable
 
 import com.stratio.sparkta.plugin.parser.morphlines.MorphlinesParser
 import com.stratio.sparkta.sdk.{Event, Input}
+import com.typesafe.config.ConfigRenderOptions
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
 
 /**
@@ -50,7 +51,7 @@ class MorphlinesParserSpec extends WordSpecLike with Matchers with BeforeAndAfte
           }
           ]
                           """
-    val props: Map[String, Serializable] = Map("morphlineConfiguration" -> morphlineConfig)
+    val props: Map[String, Serializable] = Map("morphline" -> morphlineConfig)
     parser = new MorphlinesParser(props)
   }
 
