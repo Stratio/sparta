@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.plugin.test.parser.morphlines
+package com.stratio.sparkta.plugin.test.parser.datetime
 
 import java.io.Serializable
 
-import com.stratio.sparkta.plugin.parser.morphlines.MorphlinesParser
+import com.stratio.sparkta.plugin.parser.datetime.MorphlinesParser
 import com.stratio.sparkta.sdk.{Event, Input}
 import com.typesafe.config.ConfigRenderOptions
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
@@ -43,6 +43,11 @@ class MorphlinesParserSpec extends WordSpecLike with Matchers with BeforeAndAfte
                       col2 : /col2
                   }
               }
+          }
+          {
+            java {
+              code : "return child.process(record);"
+            }
           }
           {
               removeFields {
