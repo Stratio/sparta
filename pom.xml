@@ -36,7 +36,7 @@
     </modules>
 
     <name>SpaRkTA</name>
-    <description>Spark Runtime Analytics</description>
+    <description>Spark Real-Time Analytics</description>
     <inceptionYear>2014</inceptionYear>
 
     <licenses>
@@ -50,6 +50,33 @@
         <name>Stratio</name>
         <url>http://stratio.com</url>
     </organization>
+
+    <developers>
+        <developer>
+            <id>ajnavarro</id>
+            <name>Antonio Jesus Navarro</name>
+            <email>ajnavarro@stratio.com</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>gmunoz</id>
+            <name>Gaspar Muñoz</name>
+            <email>gmunoz@stratio.com</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>smola</id>
+            <name>Santiago M. Mola</name>
+            <email>smola@stratio.com</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
