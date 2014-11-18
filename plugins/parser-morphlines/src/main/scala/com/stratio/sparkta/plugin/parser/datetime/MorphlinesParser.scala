@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.plugin.parser.morphlines
+package com.stratio.sparkta.plugin.parser.datetime
 
 import java.io.{ByteArrayInputStream, Serializable}
 
-import com.stratio.sparkta.plugin.parser.morphlines.MorphlinesParser._
+import com.stratio.sparkta.plugin.parser.datetime.MorphlinesParser._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.{Event, Input, Parser}
 import com.typesafe.config.ConfigFactory

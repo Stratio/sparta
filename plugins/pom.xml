@@ -40,6 +40,7 @@
         <module>input-kafka</module>
         <module>input-flume</module>
         <module>input-socket</module>
+        <module>parser-datetime</module>
         <module>parser-morphlines</module>
         <module>bucketer-tag</module>
         <module>bucketer-hierarchy</module>

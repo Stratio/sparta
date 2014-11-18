@@ -17,9 +17,6 @@ package com.stratio.sparkta.sdk
 
 import java.io
 
-/**
- * Created by ajnavarro on 6/10/14.
- */
 case class Event(keyMap: Map[String, io.Serializable]) {
 
   if (keyMap == null) {
