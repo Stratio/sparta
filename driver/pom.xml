@@ -42,6 +42,16 @@
             <version>${spray.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_${scala.binary.version}</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-testkit_${scala.binary.version}</artifactId>
             <version>${spray.version}</version>
