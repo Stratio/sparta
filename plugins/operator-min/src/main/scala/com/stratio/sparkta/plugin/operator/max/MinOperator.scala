@@ -13,24 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.plugin.operator.count
+package com.stratio.sparkta.plugin.operator.min
 
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.sdk._
+import ValidatingPropertyMap._
 
-class CountOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
+class MinOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  override val key: String = "count"
+  private val inputField = properties.getString("inputField")
 
-  override val writeOperation = WriteOp.Inc
+  override val key : String = "min_" + inputField
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Long] = CountOperator.SOME_ONE
+  override val writeOperation = WriteOp.Min
 
-  override def processReduce(values: Iterable[Long]): Long = values.reduce(_ + _)
+  override def processMap(inputFields: Map[String, JSerializable]): Option[Long] =
+    inputFields.contains(inputField) match {
+      case false => None
+      case true => Some(inputFields.getLong(inputField))
+    }
 
-}
+  override def processReduce(values: Iterable[Long]): Long =
+    values.min
 
-private object CountOperator {
-  val SOME_ONE = Some(1L)
 }

@@ -13,23 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.plugin.operator.count
+package com.stratio.sparkta.plugin.operator.sum
 
-import java.io
-import java.io.Serializable
+import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{BucketType, Dimension, Operator}
+import com.stratio.sparkta.sdk.{WriteOp, Operator, BucketType, Dimension}
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 
-class SumOperator(properties: Map[String, Serializable]) extends Operator(properties) {
+class SumOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  override val key: String = "SUM"
+  private val inputField = properties.getString("inputField")
 
-  private val field = properties.getString("field")
+  override val key : String = "sum_" + inputField
 
-  override def process(streamData: Seq[(Dimension, BucketType, Seq[io.Serializable])])
-  : (Seq[(Dimension, BucketType, Seq[io.Serializable])], (String, Long)) = {
-    (streamData, (key, 1))
-  }
+  override val writeOperation = WriteOp.Inc
+
+  override def processMap(inputFields: Map[String, JSerializable]): Option[Long] =
+    inputFields.contains(inputField) match {
+      case false => None
+      case true => Some(inputFields.getLong(inputField))
+    }
+
+  override def processReduce(values: Iterable[Long]): Long =
+    values.sum
 
 }

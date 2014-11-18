@@ -26,6 +26,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>operator-sum</artifactId>
+    <artifactId>operator-min</artifactId>
+
 
 </project>

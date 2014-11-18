@@ -66,7 +66,8 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
 
     val outputs = apConfig.outputs.map(o =>
       (o.name, tryToInstantiate[Output](o.elementType, (c) =>
-        c.getDeclaredConstructor(classOf[Map[String, Serializable]], classOf[Map[String,WriteOp]]).newInstance(o.configuration, outputSchema).asInstanceOf[Output]
+        c.getDeclaredConstructor(classOf[Map[String, Serializable]], classOf[Map[String,WriteOp]])
+          .newInstance(o.configuration, outputSchema).asInstanceOf[Output]
       )))
 
     val rollups: Seq[Rollup] = apConfig.rollups.map(r => {

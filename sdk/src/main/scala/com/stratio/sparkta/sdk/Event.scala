@@ -21,6 +21,11 @@ import java.io
  * Created by ajnavarro on 6/10/14.
  */
 case class Event(keyMap: Map[String, io.Serializable]) {
+
+  if (keyMap == null) {
+    throw new NullPointerException("keyMap")
+  }
+
   override def toString: String = {
     "[Event, Properties=" + keyMap + "]"
   }

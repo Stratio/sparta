@@ -23,7 +23,6 @@ import com.stratio.sparkta.driver.dto.{JsoneyStringSerializer, AggregationPolici
 import com.stratio.sparkta.driver.exception.DriverException
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
-import org.json4s.jackson.Serialization
 import spray.httpx.Json4sJacksonSupport
 import spray.routing.{ExceptionHandler, HttpService}
 import spray.util.LoggingContext
@@ -31,7 +30,9 @@ import spray.util.LoggingContext
 import scala.concurrent.duration.DurationDouble
 
 trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
-  implicit val json4sJacksonFormats = DefaultFormats + new EnumNameSerializer(StreamingContextStatusEnum) + new JsoneyStringSerializer()
+  implicit val json4sJacksonFormats = DefaultFormats +
+    new EnumNameSerializer(StreamingContextStatusEnum) +
+    new JsoneyStringSerializer()
   implicit val timeout: Timeout = 15 seconds
 
   implicit def executionContext = actorRefFactory.dispatcher

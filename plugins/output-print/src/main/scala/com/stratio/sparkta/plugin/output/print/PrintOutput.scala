@@ -22,7 +22,8 @@ import com.stratio.sparkta.sdk._
 import org.apache.spark.streaming.dstream.DStream
 
 
-class PrintOutput(properties: Map[String, JSerializable], schema : Map[String,WriteOp]) extends Output(properties, schema) {
+class PrintOutput(properties: Map[String, JSerializable], schema : Map[String,WriteOp])
+  extends Output(properties, schema) {
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min)
 

@@ -15,10 +15,11 @@
  */
 package com.stratio.sparkta.aggregator
 
+import java.io.{Serializable => JSerializable}
+
 import com.stratio.sparkta.sdk._
 import org.apache.spark.streaming.StreamingContext._
 import org.apache.spark.streaming.dstream.DStream
-import java.io.{Serializable => JSerializable}
 
 /**
  * Use this class to describe a rollup that you want the datacube to keep.
@@ -29,7 +30,7 @@ import java.io.{Serializable => JSerializable}
 //TODO add operators
 case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Operator]) {
 
-  private lazy val operatorsMap = operators.map(_.key).zip(operators).toMap
+  private lazy val operatorsMap = operators.map(op => op.key -> op).toMap
 
   def this(dimension: Dimension, bucketType: BucketType, operators: Seq[Operator]) {
     this(Seq((dimension, bucketType)), operators)
@@ -39,33 +40,39 @@ case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Opera
     this(Seq((dimension, Bucketer.identity)), operators)
   }
 
-  def aggregate(extractedDimensionsDstream : DStream[(Seq[DimensionValue], Map[String,JSerializable])]) : DStream[UpdateMetricOperation] = {
+  private def mergeLongMaps[K](m1: Map[K, Long], m2: Map[K, Long]): Map[K, Long] =
+    m1 ++ m2.map { case (k, v) => k -> (v + m1.getOrElse(k, 0L))}
+
+
+  def aggregate(dimensionValuesStream: DStream[(Seq[DimensionValue], Map[String, JSerializable])])
+  : DStream[UpdateMetricOperation] = {
     //TODO catch errors and null elements control
 
-    val filteredDimensionsDstream : DStream[(Seq[DimensionValue], Map[String,JSerializable])] =
-      extractedDimensionsDstream
+    val filteredDimensionsDstream: DStream[(Seq[DimensionValue], Map[String, JSerializable])] =
+      dimensionValuesStream
         .map(x => {
-          val dimVals : Seq[DimensionValue] = x._1.filter(dimVal => components.contains(dimVal.dimension -> dimVal.bucketType))
-          (dimVals, x._2)
-        })
+        val dimVals = x._1.filter(dimVal => components.contains(dimVal.dimension -> dimVal.bucketType))
+        (dimVals, x._2)
+      })
         .filter(_._1.nonEmpty)
 
     filteredDimensionsDstream
       .mapValues(inputFields =>
-        operators.flatMap(op => op.processMap(inputFields).map(op.key -> _)).toMap
+      operators.flatMap(op => op.processMap(inputFields).map(op.key -> _)).toMap
       )
       .groupByKey()
       .map(x => {
-        val dimVals = x._1
-        val reducedMetricMap = x._2.flatten.groupBy(_._1).map(x => {
-          val name = x._1
-          val op = operatorsMap(name)
-          val values = x._2.map(_._2)
-          val reducedValue = op.processReduce(values)
-          (name, reducedValue)
-        })
-        UpdateMetricOperation(dimVals, reducedMetricMap)
+      val dimVals = x._1
+      val metrics = x._2.flatMap(_.toSeq)
+      val reducedMetricMap = metrics.groupBy(_._1).map(x => {
+        val name = x._1
+        val op = operatorsMap(name)
+        val values = x._2.map(_._2)
+        val reducedValue = op.processReduce(values)
+        (name, reducedValue)
       })
+      UpdateMetricOperation(dimVals, reducedMetricMap)
+    })
   }
 
   override def toString: String = {

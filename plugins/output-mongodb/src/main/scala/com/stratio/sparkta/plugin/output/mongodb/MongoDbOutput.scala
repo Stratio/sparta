@@ -56,24 +56,32 @@ class MongoDbOutput(properties: Map[String, Serializable], schema : Map[String,W
       builder.result()
     }
 
-    val update = metricOp.aggregations.map({
-      case (fieldName, value) =>
-        schema.get(fieldName) match {
-          case None =>
-            throw new Exception(s"Got an unknown field: $fieldName")
-          case Some(op) =>
-            op match {
-              case WriteOp.Inc =>
-                $inc(fieldName -> value)
-              case WriteOp.Set =>
-                $set(fieldName -> value)
-              case WriteOp.Max =>
-                MongoDBObject(fieldName -> MongoDBObject("$max" -> value))
-              case WriteOp.Max =>
-                MongoDBObject(fieldName -> MongoDBObject("$min" -> value))
-            }
-        }
-    })
+    val unknownFields = metricOp.aggregations.keySet.filter(!schema.hasKey(_))
+    if (unknownFields.nonEmpty) {
+      throw new Exception(s"Got fields not present in schema: ${unknownFields.mkString(",")}")
+    }
+
+    val update = (
+      for {
+        (fieldName, value) <- metricOp.aggregations.toSeq
+        op = schema(fieldName)
+      } yield (op, (fieldName, value))
+      )
+      .groupBy(_._1)
+      .mapValues(_.map(_._2))
+      .map({
+        case (op, seq) =>
+          op match {
+            case WriteOp.Inc =>
+              $inc(seq : _*)
+            case WriteOp.Set =>
+              $set(seq : _*)
+            case WriteOp.Max =>
+              MongoDBObject("$max" -> MongoDBObject(seq : _*))
+            case WriteOp.Min =>
+              MongoDBObject("$min" -> MongoDBObject(seq : _*))
+          }
+      })
       .reduce(_ ++ _)
 
     val collection = db().getCollection(metricOp.keyString)

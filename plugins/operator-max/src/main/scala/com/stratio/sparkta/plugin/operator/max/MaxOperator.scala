@@ -26,7 +26,7 @@ class MaxOperator(properties: Map[String, JSerializable]) extends Operator(prope
 
   override val key : String = "max_" + inputField
 
-  override val writeOperation = WriteOp.Inc
+  override val writeOperation = WriteOp.Max
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Long] =
     inputFields.contains(inputField) match {

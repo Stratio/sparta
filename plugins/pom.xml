@@ -34,10 +34,12 @@
         <module>output-mongodb</module>
         <module>output-print</module>
         <module>operator-count</module>
+        <module>operator-sum</module>
+        <module>operator-max</module>
+        <module>operator-min</module>
         <module>input-kafka</module>
         <module>input-flume</module>
         <module>input-socket</module>
-        <module>operator-max</module>
         <module>parser-morphlines</module>
         <module>bucketer-tag</module>
         <module>bucketer-hierarchy</module>
@@ -47,6 +49,11 @@
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
             <artifactId>sdk</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -20,7 +20,8 @@ import java.io.Serializable
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import org.apache.spark.streaming.dstream.DStream
 
-abstract class Output(properties: Map[String, Serializable], val schema : Map[String,WriteOp]) extends Parameterizable(properties) {
+abstract class Output(properties: Map[String, Serializable], val schema : Map[String,WriteOp])
+  extends Parameterizable(properties) {
 
   if (schema == null) {
     throw new NullPointerException("schema")
@@ -30,7 +31,7 @@ abstract class Output(properties: Map[String, Serializable], val schema : Map[St
   schema.values.toSet.diff(supportedWriteOps.toSet).toSeq match {
     case Nil =>
     case badWriteOps =>
-      throw new Exception(s"The following write operations are not supported by this output: ${badWriteOps.mkString(", ")}")
+      throw new Exception(s"The following write ops are not supported by this output: ${badWriteOps.mkString(", ")}")
   }*/
 
   def supportedWriteOps : Seq[WriteOp]
