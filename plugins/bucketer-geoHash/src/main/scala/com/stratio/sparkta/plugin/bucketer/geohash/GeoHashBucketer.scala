@@ -41,23 +41,25 @@ import com.stratio.sparkta.sdk.{BucketType, Bucketer}
  * 12 -> 3.7cm x 1.9cm
  *
  */
-case class GeoHashBucketer(override val bucketTypes: Seq[BucketType] =
-                           Seq(
-                             precision1,
-                             precision2,
-                             precision3,
-                             precision4,
-                             precision5,
-                             precision6,
-                             precision7,
-                             precision8,
-                             precision9,
-                             precision10,
-                             precision11,
-                             precision12)) extends Bucketer {
+case class GeoHashBucketer() extends Bucketer {
+
+  override val bucketTypes: Seq[BucketType] =
+    Seq(
+      precision1,
+      precision2,
+      precision3,
+      precision4,
+      precision5,
+      precision6,
+      precision7,
+      precision8,
+      precision9,
+      precision10,
+      precision11,
+      precision12)
 
   override def bucket(value: io.Serializable): Map[BucketType, io.Serializable] =
-    //TODO temporal data treatment
+  //TODO temporal data treatment
     if (value != null) {
       bucketTypes.map(bucketType => {
         //TODO temporal data treatment

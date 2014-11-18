@@ -29,7 +29,7 @@ import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 
 
-class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging{
+class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging {
 
   def createStreamingContext(apConfig: AggregationPoliciesDto): StreamingContext = {
     val ssc = new StreamingContext(
@@ -66,7 +66,7 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
 
     val outputs = apConfig.outputs.map(o =>
       (o.name, tryToInstantiate[Output](o.elementType, (c) =>
-        c.getDeclaredConstructor(classOf[Map[String, Serializable]], classOf[Map[String,WriteOp]])
+        c.getDeclaredConstructor(classOf[Map[String, Serializable]], classOf[Map[String, WriteOp]])
           .newInstance(o.configuration, outputSchema).asInstanceOf[Output]
       )))
 
@@ -103,10 +103,11 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
   private def instantiateDimensions(apConfig: AggregationPoliciesDto) = {
     apConfig.dimensions.map(d => (d.name,
       new Dimension(d.name, tryToInstantiate[Bucketer](d.dimensionType, (c) => {
+        //TODO fix behaviour when configuration is empty
         d.configuration match {
           case Some(conf) => c.getDeclaredConstructor(classOf[Map[String, Serializable]])
             .newInstance(conf).asInstanceOf[Bucketer]
-          case None => c.newInstance().asInstanceOf[Bucketer]
+          case None => c.getDeclaredConstructor().newInstance().asInstanceOf[Bucketer]
         }
       }))))
   }

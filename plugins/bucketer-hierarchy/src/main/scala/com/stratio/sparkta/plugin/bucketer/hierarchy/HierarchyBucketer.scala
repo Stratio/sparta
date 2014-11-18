@@ -25,14 +25,15 @@ import com.stratio.sparkta.sdk.{BucketType, Bucketer}
 /**
  * Created by ajnavarro on 27/10/14.
  */
-class HierarchyBucketer(override val bucketTypes:
-                        Seq[BucketType] = Seq(leftToRightWithWildCard),
-                        override val properties:
-                        Map[String, Serializable] = Map(
+class HierarchyBucketer(override val properties:
+                        Map[String, Serializable] =
+                        Map(
                           (SPLITTER_PROPERTY_NAME, DEFAULT_SPLITTER),
                           (WILDCARD_PROPERTY_NAME, DEFAULT_WILDCARD)
-                        ))
-  extends Bucketer {
+                        )) extends Bucketer {
+
+  override val bucketTypes:
+  Seq[BucketType] = Seq(leftToRight, rightToLeft, leftToRightWithWildCard, rightToLeftWithWildCard)
 
   val splitter = properties.getString(SPLITTER_PROPERTY_NAME)
   val wildcard = properties.getString(WILDCARD_PROPERTY_NAME)

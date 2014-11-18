@@ -55,7 +55,7 @@ with TableDrivenPropertyChecks {
       }
     }
     "In reverse implementation, every proposed combination should be ok" in {
-      hbs = new HierarchyBucketer(Seq(rightToLeftWithWildCard))
+      hbs = new HierarchyBucketer()
       val data = Table(
         ("i", "o"),
         ("com.stratio.sparkta", Seq("com.stratio.sparkta", "com.stratio.*", "com.*", "*"))
@@ -68,7 +68,7 @@ with TableDrivenPropertyChecks {
       }
     }
     "In reverse implementation without wildcards, every proposed combination should be ok" in {
-      hbs = new HierarchyBucketer(Seq(rightToLeft))
+      hbs = new HierarchyBucketer()
       val data = Table(
         ("i", "o"),
         ("com.stratio.sparkta", Seq("com.stratio.sparkta", "com.stratio", "com", "*"))
@@ -81,7 +81,7 @@ with TableDrivenPropertyChecks {
       }
     }
     "In non-reverse implementation without wildcards, every proposed combination should be ok" in {
-      hbs = new HierarchyBucketer(Seq(leftToRight))
+      hbs = new HierarchyBucketer()
       val data = Table(
         ("i", "o"),
         ("google.com", Seq("google.com", "com", "*"))

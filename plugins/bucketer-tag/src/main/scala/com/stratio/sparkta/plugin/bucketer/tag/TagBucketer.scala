@@ -16,11 +16,13 @@
 package com.stratio.sparkta.plugin.bucketer.tag
 
 import java.io.{Serializable => JSerializable}
+
 import com.stratio.sparkta.plugin.bucketer.tag.TagBucketer._
 import com.stratio.sparkta.sdk.{BucketType, Bucketer}
 
-case class TagBucketer(override val bucketTypes: Seq[BucketType] =
-                       Seq(allTags)) extends Bucketer {
+case class TagBucketer() extends Bucketer {
+
+  override val bucketTypes: Seq[BucketType] = Seq(allTags, lastTag, firstTag)
 
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] =
     bucketTypes.map(bt =>
