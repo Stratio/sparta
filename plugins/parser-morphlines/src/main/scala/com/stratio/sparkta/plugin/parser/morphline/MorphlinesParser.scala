@@ -17,7 +17,6 @@ package com.stratio.sparkta.plugin.parser.morphline
 
 import java.io.{ByteArrayInputStream, Serializable}
 
-import com.stratio.sparkta.plugin.parser.morphline.MorphlineEventCollector
 import com.stratio.sparkta.plugin.parser.morphline.MorphlinesParser._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.{Event, Input, Parser}
@@ -57,9 +56,9 @@ class MorphlinesParser(properties: Map[String, Serializable]) extends Parser(pro
 }
 
 object MorphlinesParser {
-  private lazy val morphlineContext: MorphlineContext = new MorphlineContext.Builder().build()
+  private var morphlineContext: MorphlineContext = null
   private val collector: ThreadLocal[MorphlineEventCollector] = new ThreadLocal[MorphlineEventCollector]() {
-    override def initialValue() : MorphlineEventCollector = new MorphlineEventCollector
+    override def initialValue(): MorphlineEventCollector = new MorphlineEventCollector
   }
   private var morphline: Command = null
 
@@ -76,7 +75,12 @@ object MorphlinesParser {
 
   private def collectorInstance(): MorphlineEventCollector = collector.get()
 
-  private def contextInstance(): MorphlineContext = morphlineContext
+  private def contextInstance(): MorphlineContext = {
+    if (morphlineContext == null) {
+      morphlineContext = new MorphlineContext.Builder().build()
+    }
+    morphlineContext
+  }
 
   private def toEvent(record: Record): Event = {
     val map = record.getFields.asMap().asScala.map(m => {
