@@ -76,7 +76,7 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.3</version>
                 <configuration>
-                    <finalName>${project.name}-${project.version}</finalName>
+                    <finalName>${project.name}-${project.version}-plugin</finalName>
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>

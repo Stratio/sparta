@@ -43,7 +43,9 @@ class FlumeInput(properties: Map[String, Serializable]) extends Input(properties
       FlumeUtils.createPollingStream(
         ssc,
         getAddresses,
-        storageLevel
+        storageLevel,
+        maxBatchSize,
+        parallelism
       ).map(data => new Event(Map(RAW_DATA_KEY -> data.event.getBody.array.asInstanceOf[Serializable]) ++
         data.event.getHeaders.asScala.map(h =>
           (h._1.toString -> h._2.asInstanceOf[Serializable])).toMap[String, Serializable]
