@@ -48,7 +48,7 @@ class MorphlinesParser(properties: Map[String, Serializable]) extends Parser(pro
 
     morphlineInstance(config).process(record)
     if (collectorInstance.records.isEmpty) {
-      null
+      new Event(Map())
     } else {
       toEvent(collectorInstance.records.head)
     }
