@@ -26,15 +26,26 @@ import org.scalatest.WordSpecLike
 class DateTimeParserSpec extends WordSpecLike {
 
   "A DateTimeParser" should {
-    "parse epoch" in {
-      val e1 = new Event(Map("ts" -> 1416330788L))
-      val e2 = new Event(Map("ts" -> new Date(1416330788L)))
-      assertResult(e2)(new DateTimeParser(Map("ts" -> "epoch")).parse(e1))
+    "parse unixMillis" in {
+      val e1 = new Event(Map("ts" -> 1416330788000L))
+      val e2 = new Event(Map("ts" -> new Date(1416330788000L)))
+      assertResult(e2)(new DateTimeParser(Map("ts" -> "unixMillis")).parse(e1))
     }
-    "parse epoch string" in {
+    "parse unixMillis string" in {
+      val e1 = new Event(Map("ts" -> "1416330788000"))
+      val e2 = new Event(Map("ts" -> new Date(1416330788000L)))
+      assertResult(e2)(new DateTimeParser(Map("ts" -> "unixMillis")).parse(e1))
+    }
+    "parse unix" in {
       val e1 = new Event(Map("ts" -> "1416330788"))
-      val e2 = new Event(Map("ts" -> new Date(1416330788L)))
-      assertResult(e2)(new DateTimeParser(Map("ts" -> "epoch")).parse(e1))
+      val e2 = new Event(Map("ts" -> new Date(1416330788000L)))
+      println(new Date(1416330788L))
+      assertResult(e2)(new DateTimeParser(Map("ts" -> "unix")).parse(e1))
+    }
+    "parse unix string" in {
+      val e1 = new Event(Map("ts" -> "1416330788"))
+      val e2 = new Event(Map("ts" -> new Date(1416330788000L)))
+      assertResult(e2)(new DateTimeParser(Map("ts" -> "unix")).parse(e1))
     }
     "parse dateTime" in {
       val e1 = new Event(Map("ts" -> "2014-05-23T21:22:23.250Z"))
