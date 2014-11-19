@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.plugin.test.parser.datetime
+package com.stratio.sparkta.plugin.test.parser.morphline
 
 import java.io.Serializable
 
-import com.stratio.sparkta.plugin.parser.datetime.MorphlinesParser
+import com.stratio.sparkta.plugin.parser.morphline.MorphlinesParser
 import com.stratio.sparkta.sdk.{Event, Input}
 import com.typesafe.config.ConfigRenderOptions
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}

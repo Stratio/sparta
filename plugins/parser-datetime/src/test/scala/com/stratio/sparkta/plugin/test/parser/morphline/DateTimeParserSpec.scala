@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.plugin.test.parser.datetime
+package com.stratio.sparkta.plugin.test.parser.morphline
 
 import java.util.Date
 
-import com.stratio.sparkta.plugin.parser.datetime.DateTimeParser
+import com.stratio.sparkta.plugin.parser.morphline.DateTimeParser
 import com.stratio.sparkta.sdk.Event
 import org.joda.time.chrono.ISOChronology
 import org.joda.time.{Chronology, DateTimeZone, DateTime}
