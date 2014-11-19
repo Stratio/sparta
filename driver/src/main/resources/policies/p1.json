@@ -210,7 +210,7 @@
   "parsers": [
     {
       "name": "morphline-parser",
-      "elementType": "com.stratio.sparkta.plugin.parser.morphlines.MorphlinesParser",
+      "elementType": "com.stratio.sparkta.plugin.parser.morphline.MorphlinesParser",
       "configuration": {
         "morphline": {
           "id": "morphline1",
