@@ -26,3 +26,14 @@
     - serving-api: REST api implementing serving-core.
     - plugins: Now, the platform is **pluggable**. This module contains all *official* plugins.
     - sdk: This library can be used to develop new plugins to adapt sparkta to your necessities.
+- Tag bucketer
+- Hierarchy bucketer
+- Improvements in flume and kafka input
+- Added new operator max
+- Added new operator min
+- Added new operator sum
+- Added new datetime parser
+- Added new morphlines parser
+- Now a distribution is generated
+
+
