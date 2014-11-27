@@ -16,6 +16,7 @@
 package com.stratio.sparkta.plugin.parser.morphline
 
 import java.io.{ByteArrayInputStream, Serializable}
+import java.util.concurrent.ConcurrentHashMap
 
 import com.stratio.sparkta.plugin.parser.morphline.MorphlinesParser._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
@@ -31,7 +32,6 @@ class MorphlinesParser(properties: Map[String, Serializable]) extends Parser(pro
   private val config: String = properties.getString("morphline")
 
   override def parse(data: Event): Event = {
-    collectorInstance.reset
     val record = new Record()
     data.keyMap.foreach(e => {
       if (Input.RAW_DATA_KEY.equals(e._1)) {
@@ -45,41 +45,34 @@ class MorphlinesParser(properties: Map[String, Serializable]) extends Parser(pro
         record.put(e._1, e._2)
       }
     })
-
-    morphlineInstance(config).process(record)
-    if (collectorInstance.records.isEmpty) {
-      new Event(Map())
-    } else {
-      toEvent(collectorInstance.records.head)
-    }
+    MorphlinesParser(config).process(record)
   }
 }
 
-object MorphlinesParser {
-  private var morphlineContext: MorphlineContext = null
-  private val collector: ThreadLocal[MorphlineEventCollector] = new ThreadLocal[MorphlineEventCollector]() {
+case class MorphlineImpl(config : String) {
+  
+  private val morphlineContext: MorphlineContext = new MorphlineContext.Builder().build()
+  
+  private val collector: ThreadLocal[MorphlineEventCollector] = new ThreadLocal[MorphlineEventCollector]() { 
     override def initialValue(): MorphlineEventCollector = new MorphlineEventCollector
   }
-  private var morphline: Command = null
-
-  private def morphlineInstance(config: String): Command = {
-    if (morphline == null) {
-      morphline = new Compiler()
-        .compile(
-          ConfigFactory.parseString(config),
-          contextInstance(),
-          collectorInstance())
-    }
-    morphline
+  
+  private val morphline: ThreadLocal[Command] = new ThreadLocal[Command]() {
+    override def initialValue(): Command = new Compiler()
+      .compile(
+        ConfigFactory.parseString(config),
+        morphlineContext,
+        collector.get())
   }
 
-  private def collectorInstance(): MorphlineEventCollector = collector.get()
-
-  private def contextInstance(): MorphlineContext = {
-    if (morphlineContext == null) {
-      morphlineContext = new MorphlineContext.Builder().build()
+  def process(inputRecord : Record) : Event = {
+    val coll = collector.get()
+    coll.reset()
+    morphline.get().process(inputRecord)
+    coll.records.headOption match {
+      case None => new Event(Map())
+      case Some(record) => toEvent(record)
     }
-    morphlineContext
   }
 
   private def toEvent(record: Record): Event = {
@@ -92,4 +85,22 @@ object MorphlinesParser {
     }).toMap
     new Event(map)
   }
+
+}
+
+object MorphlinesParser {
+
+  private val instances : ConcurrentHashMap[String, MorphlineImpl] = new ConcurrentHashMap[String, MorphlineImpl]()
+
+  def apply(config: String): MorphlineImpl = {
+    instances.get(config) match {
+      case null =>
+        val morphlineImpl = new MorphlineImpl(config)
+        instances.put(config, morphlineImpl)
+        morphlineImpl
+      case m =>
+        m
+    }
+  }
+
 }
