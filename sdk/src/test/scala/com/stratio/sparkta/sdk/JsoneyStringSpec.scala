@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.driver.test.dto
+package com.stratio.sparkta.sdk
 
-import com.stratio.sparkta.driver.dto.{JsoneyString, JsoneyStringSerializer}
-import org.json4s.{DefaultFormats, _}
 import org.json4s.jackson.JsonMethods._
+import org.json4s.jackson.Serialization.write
+import org.json4s.{DefaultFormats, _}
 import org.scalatest.{Matchers, WordSpecLike}
-import org.json4s.jackson.Serialization.{read, write}
 
 class JsoneyStringSpec extends WordSpecLike
 with Matchers {

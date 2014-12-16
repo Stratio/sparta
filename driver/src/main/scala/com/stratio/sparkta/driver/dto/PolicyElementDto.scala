@@ -15,4 +15,6 @@
  */
 package com.stratio.sparkta.driver.dto
 
+import com.stratio.sparkta.sdk.JsoneyString
+
 case class PolicyElementDto(name: String, elementType: String, configuration: Map[String, JsoneyString])

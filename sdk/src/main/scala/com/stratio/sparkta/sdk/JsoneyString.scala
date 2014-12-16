@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.driver.dto
+package com.stratio.sparkta.sdk
 
-import org.json4s.{CustomSerializer, _}
 import org.json4s.jackson.Serialization.write
+import org.json4s.{CustomSerializer, _}
 
 case class JsoneyString(string : String) {
   override def toString : String = string

@@ -19,8 +19,9 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import com.stratio.sparkta.driver.actor._
-import com.stratio.sparkta.driver.dto.{JsoneyStringSerializer, AggregationPoliciesDto, StreamingContextStatusDto}
+import com.stratio.sparkta.driver.dto.{AggregationPoliciesDto, StreamingContextStatusDto}
 import com.stratio.sparkta.driver.exception.DriverException
+import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
 import spray.httpx.Json4sJacksonSupport
