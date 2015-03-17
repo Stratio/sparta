@@ -31,6 +31,7 @@
         <module>bucketer-dateTime</module>
         <module>bucketer-passthrough</module>
         <module>bucketer-geoHash</module>
+        <module>bucketer-twitter-status</module>
         <module>output-mongodb</module>
         <module>output-print</module>
         <module>operator-count</module>
@@ -40,6 +41,7 @@
         <module>input-kafka</module>
         <module>input-flume</module>
         <module>input-socket</module>
+        <module>input-twitter</module>
         <module>parser-datetime</module>
         <module>parser-morphlines</module>
         <module>bucketer-tag</module>
