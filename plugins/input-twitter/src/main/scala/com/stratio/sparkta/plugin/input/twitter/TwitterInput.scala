@@ -45,6 +45,6 @@ class TwitterInput(properties: Map[String, JSerializable]) extends Input(propert
   override def setUp(ssc: StreamingContext): DStream[Event] = {
     val stream=TwitterUtils.createStream(ssc, None, trends)
 
-    stream.map(data => new Event(Map("status" -> data.asInstanceOf[java.io.Serializable] , "wordsN"-> data.getText.split( " ").length)))
+    stream.map(data => new Event(Map("status" -> data.asInstanceOf[java.io.Serializable] )))
   }
 }

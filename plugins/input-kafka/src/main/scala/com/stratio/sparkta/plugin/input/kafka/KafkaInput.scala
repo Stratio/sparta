@@ -44,7 +44,7 @@ class KafkaInput(properties: Map[String, Serializable]) extends Input(properties
 
     } else {
 
-      val kafkaParams = submap.get.map(entry => (entry._1, entry._2.asInstanceOf[String]))
+      val kafkaParams = submap.get.map(entry => (entry._1, entry._2.toString))
       KafkaUtils.createStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams,
         extractTopicsMap,
         storageLevel)
