@@ -1,0 +1,81 @@
+{
+    "name": "policy-demo",
+    "duration": 6000,
+    "inputs": [
+        {
+            "name": "in-socket",
+            "elementType": "com.stratio.sparkta.plugin.input.twitter.TwitterInput",
+            "configuration": {
+                "consumerKey": "toHNaJSKyMdCf1RWd82xuUVM2",
+                "consumerSecret": "vNPCwRZ4j8WZFeP9XQoYriR4sZnmB8DuMRrrTxPpXZwQfqr9Kv",
+                "accessToken": "133253042-Loho4KS0xLJPXVddRWHNb044fBkU2d9f3gl0LwQi",
+                "accessTokenSecret":"0A5rfOszsSdJLhKrWwkYSGYRpSsqrZ5ML7nb8W55G2ye1"
+                
+            }
+        }
+    ],
+     "dimensions": [
+        {
+            "dimensionType": "com.stratio.sparkta.plugin.bucketer.twitter.status.TwitterStatusBucketer",
+            "name": "status"
+        },
+       {
+         "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+         "name": "wordsN"
+       },
+       {
+         "dimensionType": "com.stratio.sparkta.plugin.bucketer.datetime.DateTimeBucketer",
+         "name": "timestamp"
+       }
+    ],
+    "rollups": [
+        {
+            "dimensionAndBucketTypes": [
+                {
+                    "dimensionName": "status",
+                    "bucketType": "hastags"
+                },
+                {
+                    "dimensionName": "status",
+                    "bucketType": "urls"
+                },
+                {
+                    "dimensionName": "status",
+                    "bucketType": "retweets"
+                },
+                {
+                  "dimensionName": "timestamp",
+                  "bucketType": "minute"
+                },
+              {
+                "dimensionName": "status",
+                "bucketType": "fulltext"
+              }
+            ]
+        }
+    ],
+    "outputs": [
+        {
+          "name": "out-mongo",
+          "elementType": "com.stratio.sparkta.plugin.output.mongodb.MongoDbOutput",
+          "configuration": {
+            "clientUri" : "mongodb://localhost:27017",
+            "dbName" : "sparkta",
+            "multiplexer" : "true",
+            "language" : "english",
+            "timeField" : "eventTime",
+            "timeDimension" : "timestamp",
+            "textIndex" : "fullTextIndex",
+            "granularity" : "day"
+          }
+        }
+      ],
+    "operators": [
+        {
+            "name": "count-operator",
+            "elementType": "com.stratio.sparkta.plugin.operator.count.CountOperator",
+            "configuration": {}
+        }
+    ]
+    
+}

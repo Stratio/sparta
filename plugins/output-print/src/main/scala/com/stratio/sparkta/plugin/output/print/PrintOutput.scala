@@ -21,11 +21,17 @@ import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 import org.apache.spark.streaming.dstream.DStream
 
+import scala.util.Try
+
 
 class PrintOutput(properties: Map[String, JSerializable], schema : Map[String,WriteOp])
   extends Output(properties, schema) {
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min)
+
+  override val multiplexer = Try(properties("multiplexer").asInstanceOf[String].toLowerCase().toBoolean).getOrElse(false)
+
+  def timeDimension : String = Try(properties("timeDimension").asInstanceOf[String]).getOrElse("")
 
   override def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
     streams.foreach(persist)

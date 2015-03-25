@@ -23,13 +23,15 @@ import org.scalatest._
 class TwitterInputSpec extends WordSpec {
 
   "A TwitterInput" should {
-
+    "instantiate successfully with parameters" in {
+      new TwitterInput(Map("hostname" -> "localhost", "port" -> 9999).mapValues(_.asInstanceOf[JSerializable]))
+    }
     "fail without parameters" in {
       intercept[IllegalStateException] {
         new TwitterInput(Map())
       }
     }
-    "fail with bad arguments argument" in {
+    "fail with bad port argument" in {
       intercept[IllegalStateException] {
         new TwitterInput(Map("hostname" -> "localhost", "port" -> "BADPORT").mapValues(_.asInstanceOf[JSerializable]))
       }

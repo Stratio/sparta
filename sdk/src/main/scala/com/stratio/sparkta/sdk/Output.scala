@@ -36,6 +36,10 @@ abstract class Output(properties: Map[String, Serializable], val schema : Map[St
 
   def supportedWriteOps : Seq[WriteOp]
 
+  def multiplexer : Boolean
+
+  def timeDimension : String
+
   def persist(stream: DStream[UpdateMetricOperation]) : Unit
 
   def persist(streams: Seq[DStream[UpdateMetricOperation]]) : Unit =
