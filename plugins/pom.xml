@@ -39,6 +39,10 @@
         <module>operator-sum</module>
         <module>operator-max</module>
         <module>operator-min</module>
+        <!--<module>operator-avg</module>
+        <module>operator-median</module>
+        <module>operator-variance</module>
+        <module>operator-stddev</module>-->
         <module>input-kafka</module>
         <module>input-flume</module>
         <module>input-socket</module>

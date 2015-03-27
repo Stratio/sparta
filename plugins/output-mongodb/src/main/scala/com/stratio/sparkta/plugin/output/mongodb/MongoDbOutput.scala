@@ -46,52 +46,64 @@ class MongoDbOutput(properties: Map[String, Serializable], schema : Map[String,W
 
   override val dbName = properties.getString("dbName", "sparkta")
 
-  override val multiplexer = Try(properties.getString("multiplexer").toLowerCase().toBoolean).getOrElse(false)
+  override val multiplexer = Try(properties.getString("multiplexer").toLowerCase().asInstanceOf[Boolean])
+    .getOrElse(false)
 
   override val eventTimeFieldName = properties.getString("timeField", "eventTime")
 
   override val timeDimension = properties.getString("timeDimension", "")
 
   override def multiplexStream(stream: DStream[UpdateMetricOperation]) : DStream[UpdateMetricOperation] = {
-
-    if(!multiplexer) stream
-    else {
+    if(multiplexer) {
       for {
         upMetricOp: UpdateMetricOperation <- stream
-        comb: Set[DimensionValue] <- upMetricOp.rollupKey.toSet[DimensionValue].subsets
+        comb: Set[DimensionValue] <- upMetricOp.rollupKey
+          .toSet[DimensionValue]
+          .subsets.filter(dimVals => dimVals.nonEmpty)
           .filter(dimVals =>
           (dimVals.size > 1) ||
-            ((dimVals.size == 1) && (dimVals.head.bucketType != Bucketer.fulltext))
+            ((dimVals.size == 1) && (dimVals.last.bucketType != Bucketer.fulltext))
           ).toTraversable
-      } yield UpdateMetricOperation(comb.toSeq, upMetricOp.aggregations) : UpdateMetricOperation
+      } yield UpdateMetricOperation(
+        comb.toSeq.sortWith(_.dimension.name < _.dimension.name),
+        upMetricOp.aggregations
+      ) : UpdateMetricOperation
       /*
       //Other way
       stream.flatMap(upMetricOp =>
         upMetricOp.rollupKey.toSet[DimensionValue].subsets.filter(_.size > 0).map(comb =>
           UpdateMetricOperation(comb.toSeq, upMetricOp.aggregations)).toIndexedSeq)*/
+    } else {
+      stream
     }
   }
 
-  override def multiplexStream(stream: DStream[UpdateMetricOperation], fixedDimension : String) : DStream[UpdateMetricOperation] = {
-
-    if(!multiplexer) stream
-    else {
+  override def multiplexStream(stream: DStream[UpdateMetricOperation],
+                               fixedDimension : String) : DStream[UpdateMetricOperation] = {
+    if(multiplexer){
       for {
         upMetricOp: UpdateMetricOperation <- stream
         fixedDim = upMetricOp.rollupKey.find(dimValue => dimValue.dimension.name == fixedDimension).get
-        comb: Set[DimensionValue] <- upMetricOp.rollupKey.toSet[DimensionValue]
-          .subsets
+        comb: Set[DimensionValue] <- upMetricOp.rollupKey
+          .toSet[DimensionValue]
+          .subsets.filter(dimVals => dimVals.nonEmpty)
           .filter(dimVals =>
-            (dimVals.size > 1) ||
-            ((dimVals.size == 1) && ((dimVals.head.bucketType != Bucketer.fulltext) && (dimVals.head.dimension.name != fixedDimension)))
-          )
+          (dimVals.size > 1) ||
+            ((dimVals.size == 1) &&
+              (dimVals.last.bucketType != Bucketer.fulltext) &&
+              (dimVals.last.dimension.name != fixedDim.dimension.name)))
           .map(setDimVal => setDimVal + fixedDim).toTraversable
-      } yield UpdateMetricOperation(comb.toSeq, upMetricOp.aggregations) : UpdateMetricOperation
+      } yield UpdateMetricOperation(
+        comb.toSeq.sortWith(_.dimension.name < _.dimension.name),
+        upMetricOp.aggregations
+      ) : UpdateMetricOperation
+    } else {
+      stream
     }
   }
 
-  def getStreamFromOptions(stream : DStream[UpdateMetricOperation], multiplexer : Boolean, timeDimension : String) : DStream[UpdateMetricOperation] = {
-
+  def getStreamFromOptions(stream : DStream[UpdateMetricOperation],
+                           multiplexer : Boolean, timeDimension : String) : DStream[UpdateMetricOperation] = {
     multiplexer match {
         case false => stream
         case _ => timeDimension match {
@@ -102,7 +114,6 @@ class MongoDbOutput(properties: Map[String, Serializable], schema : Map[String,W
   }
 
   override def persist(stream: DStream[UpdateMetricOperation]): Unit = {
-
     getStreamFromOptions(stream, multiplexer, timeDimension)
       .foreachRDD(rdd =>
         rdd.foreachPartition(ops =>
@@ -116,30 +127,31 @@ class MongoDbOutput(properties: Map[String, Serializable], schema : Map[String,W
   }
 
   def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
-
     metricOperations.toList.groupBy(metricOp => metricOp.keyString).foreach(collMetricOp => {
 
       if(collMetricOp._1.size > 0){
-
         val languageObject = languageFieldName -> language
         val bulkOperation = db().getCollection(collMetricOp._1).initializeOrderedBulkOperation()
 
-        if(textIndexName != "")
-          createTextIndex(collMetricOp._1, textIndexName, Bucketer.fulltext.id, language)
-
+        if(textIndexName != "") createTextIndex(collMetricOp._1, textIndexName, Bucketer.fulltext.id, language)
         //TODO fixed dateTimeField in documents??
         createIndex(collMetricOp._1, eventTimeFieldName, eventTimeFieldName, 1)
 
         collMetricOp._2.foreach(metricOp => {
+
           val dateObject = metricOp.rollupKey.filter(dimVal =>
             (timeDimension != "") && (timeDimension == dimVal.dimension.name)
           )
 
           val eventTimeObject = eventTimeFieldName -> {
-            if((dateObject != null) && (dateObject.size > 0))
+            if((dateObject != null) && (dateObject.size > 0)) {
               dateObject.last.value
-            else DateTime.now()
-              .withMillisOfSecond(0).withSecondOfMinute(0).withMinuteOfHour(0).withHourOfDay(1)//.withDayOfMonth(1).withMonthOfYear(1)
+            } else {
+              DateTime.now()
+                .withMillisOfSecond(0).withSecondOfMinute(1)//.withMinuteOfHour(0).withHourOfDay(1)
+              //.withDayOfMonth(1).withMonthOfYear(1)
+            }
+
           }
 
           val identitiesText = metricOp.rollupKey
@@ -182,13 +194,15 @@ class MongoDbOutput(properties: Map[String, Serializable], schema : Map[String,W
             case (op, seq) =>
               op match {
                 case WriteOp.Inc =>
-                  $inc(seq: _*)
+                  $inc(seq.asInstanceOf[Seq[(String, Long)]]: _*)
                 case WriteOp.Set =>
                   $set(seq: _*)
                 case WriteOp.Max =>
-                  MongoDBObject("$max" -> MongoDBObject(seq: _*))
+                  MongoDBObject("$max" -> MongoDBObject(seq.asInstanceOf[Seq[(String, Double)]]: _*))
                 case WriteOp.Min =>
-                  MongoDBObject("$min" -> MongoDBObject(seq: _*))
+                  MongoDBObject("$min" -> MongoDBObject(seq.asInstanceOf[Seq[(String, Double)]]: _*))
+                case WriteOp.Avg =>
+                  MongoDBObject("$avg" -> MongoDBObject(seq.asInstanceOf[Seq[(String, Double)]]: _*))
               }
           })
             .reduce(_ ++ _)
@@ -196,14 +210,14 @@ class MongoDbOutput(properties: Map[String, Serializable], schema : Map[String,W
           bulkOperation.find(find)
             .upsert().updateOne(update ++
             {
-              if(identities.size > 0)
-                $set(Bucketer.identity.id -> identities)
-              else DBObject()
+              if(identities.size > 0) $set(Bucketer.identity.id -> identities) else DBObject()
             } ++
             {
-              if(identitiesText.size > 0)
+              if(identitiesText.size > 0) {
                 $addToSet(Bucketer.fulltext.id -> identitiesText.mkString(" __ ")) ++ $set(languageObject)
-              else DBObject()
+              } else {
+                DBObject()
+              }
             }
             )
         })

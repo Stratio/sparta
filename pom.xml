@@ -77,6 +77,14 @@
                 <role>developer</role>
             </roles>
         </developer>
+        <developer>
+            <id>jcgarcia</id>
+            <name>Jose Carlos Garcia</name>
+            <email>jcgarcia@stratio.com</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
     </developers>
 
     <properties>

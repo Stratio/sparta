@@ -40,11 +40,19 @@ object TwitterStatusBucketer {
   private def bucket(value: Status, bucketType: BucketType): io.Serializable = {
     val getText: io.Serializable = value.getText
     val getContributors: io.Serializable = if (value.getContributors != null) value.getContributors.toString else ""
-    val getHastags: io.Serializable = if (value.getHashtagEntities != null) value.getHashtagEntities.map(_.getText).length else 0
+    val getHastags: io.Serializable = if (value.getHashtagEntities != null) {
+      value.getHashtagEntities.map(_.getText).length
+    } else {
+      0
+    }
     val getPlaces: io.Serializable = if (value.getPlace != null) value.getPlace.getFullName else ""
     val getRetweets: io.Serializable = value.getRetweetCount
     val getUrls: io.Serializable = if (value.getURLEntities != null) value.getURLEntities.map(_.getURL).length else 0
-    val getMentions: io.Serializable = if (value.getUserMentionEntities != null) value.getUserMentionEntities.map(_.getName) else ""
+    val getMentions: io.Serializable = if (value.getUserMentionEntities != null) {
+      value.getUserMentionEntities.map(_.getName)
+    } else {
+      ""
+    }
     val getWordsCount = value.getText.split(" ").length
     val getFullText : io.Serializable = value.getUser.getLocation.toLowerCase
 
@@ -74,7 +82,9 @@ object TwitterStatusBucketer {
   val words = new BucketType("words")
   val fulltext = new BucketType("fulltext")
 
-  override def toString = s"TwitterStatusBucketer(text=$text, contributors=$contributors, hastags=$hastags, places=$places, retweets=$retweets, urls=$urls, mentions=$mentions)"
+  override def toString = s"TwitterStatusBucketer(" +
+    s"text=$text, contributors=$contributors, hastags=$hastags," +
+    s" places=$places, retweets=$retweets, urls=$urls, mentions=$mentions)"
 }
 
 

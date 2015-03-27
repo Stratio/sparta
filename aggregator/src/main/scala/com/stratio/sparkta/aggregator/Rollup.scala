@@ -27,10 +27,10 @@ import org.apache.spark.streaming.dstream.DStream
  * For example, if you're counting events with the dimensions (color, size, flavor) and you
  * want to keep a total count for all (color, size) combinations, you'd specify that using a Rollup.
  */
-//TODO add operators
+
 case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Operator]) {
 
-  private lazy val operatorsMap = operators.map(op => op.key -> op).toMap
+  private lazy val operatorsMap: Map[String, Operator] = operators.map(op => op.key -> op).toMap
 
   def this(dimension: Dimension, bucketType: BucketType, operators: Seq[Operator]) {
     this(Seq((dimension, bucketType)), operators)
@@ -50,9 +50,10 @@ case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Opera
 
     val filteredDimensionsDstream: DStream[(Seq[DimensionValue], Map[String, JSerializable])] =
       dimensionValuesStream
-        .map(x => {
-        val dimVals = x._1.filter(dimVal => components.contains((dimVal.dimension -> dimVal.bucketType)))
-        (dimVals, x._2)
+        .map(dimensions => {
+        val dimVals: Seq[DimensionValue] = dimensions._1
+          .filter(dimVal => components.contains((dimVal.dimension -> dimVal.bucketType)))
+        (dimVals, dimensions._2)
       })
         .filter(_._1.nonEmpty)
 
@@ -61,15 +62,17 @@ case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Opera
       /*.map(inputFields => {
       (inputFields._1.filter(...), operators.flatMap(op => op.processMap(inputFields._2).map(op.key -> _)).toMap)
       })*/
-      .mapValues(inputFields => operators.flatMap(op => op.processMap(inputFields).map(op.key -> _)).toMap)
+      .mapValues(inputFields => operators.flatMap(op => op.processMap(inputFields).map(op.key -> Some(_)))
+        .toMap
+      )
       .groupByKey()
-      .map(x => {
-      val dimVals = x._1
-      val metrics = x._2.flatMap(_.toSeq)
-      val reducedMetricMap = metrics.groupBy(_._1).map(x => {
-        val name = x._1
+      .map(dimGrouped => {
+      val dimVals: Seq[DimensionValue] = dimGrouped._1
+      val metrics = dimGrouped._2.flatMap(_.toSeq)
+      val reducedMetricMap = metrics.groupBy(_._1).map(operation => {
+        val name: String = operation._1
         val op = operatorsMap(name)
-        val values = x._2.map(_._2)
+        val values = operation._2.map(_._2)
         val reducedValue = op.processReduce(values)
         (name, reducedValue)
       })

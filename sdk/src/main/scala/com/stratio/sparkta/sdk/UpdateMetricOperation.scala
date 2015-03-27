@@ -15,10 +15,9 @@
  */
 package com.stratio.sparkta.sdk
 
-
 case class UpdateMetricOperation(
                                   rollupKey: Seq[DimensionValue],
-                                  var aggregations: Map[String, Long]) {
+                                  var aggregations: Map[String, Option[_>:AnyVal]]) {
 
   if (rollupKey == null) {
     throw new NullPointerException("rollupKey")
@@ -38,7 +37,7 @@ case class UpdateMetricOperation(
         case Bucketer.fulltext => ""
         case _ => dimVal.dimension.name + SEPARATOR + dimVal.bucketType.id
       }
-    }).filter(dimName => dimName != "")
+    }).filter(dimName => dimName.nonEmpty)
       .mkString(SEPARATOR)
   }
 

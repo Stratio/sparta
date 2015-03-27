@@ -15,9 +15,9 @@
  */
 package com.stratio.sparkta.sdk
 
-import java.io
+import java.io.{Serializable => JSerializable}
 
-case class Event(keyMap: Map[String, io.Serializable]) {
+case class Event(keyMap: Map[String, JSerializable]) {
 
   if (keyMap == null) {
     throw new NullPointerException("keyMap")

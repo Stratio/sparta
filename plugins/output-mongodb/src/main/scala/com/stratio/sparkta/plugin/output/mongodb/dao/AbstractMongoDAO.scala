@@ -40,7 +40,7 @@ trait AbstractMongoDAO extends Closeable {
 
   protected def db(): MongoDB = db(dbName)
 
-  protected def defaultWriteConcern = casbah.WriteConcern.Majority
+  protected def defaultWriteConcern = casbah.WriteConcern.Unacknowledged
 
   def indexExists(collection : String, indexName : String) : Boolean = {
 
@@ -49,8 +49,7 @@ trait AbstractMongoDAO extends Closeable {
 
     while(itObjects.hasNext && !indexExists){
       val indexObject = itObjects.next()
-      if(indexObject.containsField("name") && (indexObject.get("name") == indexName))
-        indexExists = true
+      if(indexObject.containsField("name") && (indexObject.get("name") == indexName)) indexExists = true
     }
     indexExists
   }
@@ -61,8 +60,7 @@ trait AbstractMongoDAO extends Closeable {
       val options = MongoDBObject.newBuilder
       options += "name" -> indexName
       options += "background" -> true
-      if((language != null) && (language != ""))
-        options += "default_language" -> language
+      if((language != null) && (language != "")) options += "default_language" -> language
 
       db.getCollection(collection).createIndex(
         MongoDBObject(indexField -> "text"),
@@ -85,16 +83,16 @@ trait AbstractMongoDAO extends Closeable {
     }
   }
 
-  def insert(dbName: String, collName: String, dbOjects: Iterator[DBObject], writeConcern: WriteConcern = null): Unit = {
+  def insert(dbName: String, collName: String, dbOjects: Iterator[DBObject],
+             writeConcern: WriteConcern = null): Unit = {
     val coll = db(dbName).getCollection(collName)
     val builder = coll.initializeUnorderedBulkOperation
 
     dbOjects.map(dbObjectsBatch =>
         builder.insert(dbObjectsBatch)
     )
-    if(writeConcern == null)
-      builder.execute(defaultWriteConcern)
-    else builder.execute(writeConcern)
+    if(writeConcern == null) builder.execute(defaultWriteConcern) else builder.execute(writeConcern)
+
   }
 
   override def close(): Unit = {
@@ -108,7 +106,7 @@ private object AbstractMongoDAO {
   private val dbs: mutable.Map[(String, String), MongoDB] = mutable.Map()
   private lazy val options = MongoClientOptions.builder()
     .connectionsPerHost(5)
-    .writeConcern(com.mongodb.WriteConcern.UNACKNOWLEDGED)
+    .writeConcern(casbah.WriteConcern.Unacknowledged)
     .threadsAllowedToBlockForConnectionMultiplier(10)
 
   private def client(mongoClientUri: String): MongoClient = {
@@ -121,9 +119,8 @@ private object AbstractMongoDAO {
 
   private def db(mongoClientUri: String, dbName: String): MongoDB = {
     val key = (mongoClientUri, dbName)
-    if (!dbs.contains(key)) {
-      dbs.put(key, client(mongoClientUri).getDB(dbName))
-    }
+    if (!dbs.contains(key)) dbs.put(key, client(mongoClientUri).getDB(dbName))
+
     dbs(key)
   }
 

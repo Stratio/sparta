@@ -1,6 +1,6 @@
 {
     "name": "policy-demo",
-    "duration": 6000,
+    "duration": 10000,
     "inputs": [
         {
             "name": "in-socket",
@@ -27,6 +27,11 @@
          "dimensionType": "com.stratio.sparkta.plugin.bucketer.datetime.DateTimeBucketer",
          "name": "timestamp"
        }
+       ,
+       {
+         "dimensionType": "com.stratio.sparkta.plugin.bucketer.geohash.GeoHashBucketer",
+         "name": "geolocation"
+       }
     ],
     "rollups": [
         {
@@ -43,13 +48,17 @@
                     "dimensionName": "status",
                     "bucketType": "retweets"
                 },
-                {
-                  "dimensionName": "timestamp",
-                  "bucketType": "minute"
-                },
               {
                 "dimensionName": "status",
                 "bucketType": "fulltext"
+              },
+              {
+                "dimensionName": "geolocation",
+                "bucketType": "precision3"
+              },
+              {
+                "dimensionName": "wordsN",
+                "bucketType": "identity"
               }
             ]
         }
@@ -64,7 +73,7 @@
             "multiplexer" : "true",
             "language" : "english",
             "timeField" : "eventTime",
-            "timeDimension" : "timestamp",
+            "timeDimension" : "",
             "textIndex" : "fullTextIndex",
             "granularity" : "day"
           }
@@ -75,7 +84,21 @@
             "name": "count-operator",
             "elementType": "com.stratio.sparkta.plugin.operator.count.CountOperator",
             "configuration": {}
+        },
+      {
+        "name": "max-operator",
+        "elementType": "com.stratio.sparkta.plugin.operator.max.MaxOperator",
+        "configuration": {
+          "inputField" : "wordsN"
         }
+      },
+      {
+        "name": "min-operator",
+        "elementType": "com.stratio.sparkta.plugin.operator.min.MinOperator",
+        "configuration": {
+          "inputField" : "wordsN"
+        }
+      }
     ]
     
 }
