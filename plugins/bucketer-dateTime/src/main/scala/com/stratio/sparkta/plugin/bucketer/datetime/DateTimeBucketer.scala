@@ -38,13 +38,15 @@ case class DateTimeBucketer() extends Bucketer {
 
 object DateTimeBucketer {
   private def bucket(value: Date, bucketType: BucketType): io.Serializable = {
-    val minutesDate = new DateTime(value).withMillisOfSecond(0).withSecondOfMinute(0)
+    val secondsDate = new DateTime(value).withMillisOfSecond(0)
+    val minutesDate = secondsDate.withSecondOfMinute(0)
     val hourDate = minutesDate.withMinuteOfHour(0)
     val dayDate = hourDate.withHourOfDay(0)
     val monthDate = dayDate.withDayOfMonth(1)
     val yearDate = monthDate.withMonthOfYear(1)
 
     (bucketType match {
+      case s if s == seconds => secondsDate
       case m if m == minutes => minutesDate
       case h if h == hours => hourDate
       case d if d == days => dayDate
@@ -53,6 +55,7 @@ object DateTimeBucketer {
     }).toDate.asInstanceOf[io.Serializable]
   }
 
+  val seconds = new BucketType("second")
   val minutes = new BucketType("minute")
   val hours = new BucketType("hour")
   val days = new BucketType("day")

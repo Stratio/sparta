@@ -15,6 +15,7 @@
  */
 package com.stratio.sparkta.sdk
 
+
 case class UpdateMetricOperation(
                                   rollupKey: Seq[DimensionValue],
                                   var aggregations: Map[String, Long]) {
@@ -22,6 +23,7 @@ case class UpdateMetricOperation(
   if (rollupKey == null) {
     throw new NullPointerException("rollupKey")
   }
+
   if (aggregations == null) {
     throw new NullPointerException("aggregations")
   }
@@ -30,12 +32,14 @@ case class UpdateMetricOperation(
 
   // TODO: This should be refactored out of here
   def keyString: String = {
-    rollupKey.map(dimVal => {
+    rollupKey.sortWith(_.dimension.name < _.dimension.name).map(dimVal => {
       dimVal.bucketType match {
-        case x if x == Bucketer.identity => dimVal.dimension.name
+        case Bucketer.identity => dimVal.dimension.name
+        case Bucketer.fulltext => ""
         case _ => dimVal.dimension.name + SEPARATOR + dimVal.bucketType.id
       }
-    }) mkString SEPARATOR
+    }).filter(dimName => dimName != "")
+      .mkString(SEPARATOR)
   }
 
   override def toString: String = {

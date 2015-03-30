@@ -49,4 +49,5 @@ trait Bucketer {
 
 object Bucketer {
   val identity = new BucketType("identity")
+  val fulltext = new BucketType("fulltext")
 }
