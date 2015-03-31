@@ -43,6 +43,10 @@ abstract class Output(properties: Map[String, Serializable], val schema : Option
 
   def granularity : String
 
+  def granularity : String
+
+  def dateFromGranularity(value: DateTime, granularity : String): DateTime
+
   def persist(stream: DStream[UpdateMetricOperation]) : Unit
 
   def persist(streams: Seq[DStream[UpdateMetricOperation]]) : Unit =
