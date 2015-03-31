@@ -46,33 +46,34 @@ class MongoDbOutput(properties: Map[String, Serializable], schema : Map[String,W
 
   override val dbName = properties.getString("dbName", "sparkta")
 
-  override val multiplexer = Try(properties.getString("multiplexer").toLowerCase().asInstanceOf[Boolean])
-    .getOrElse(false)
+  override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
-  override val eventTimeFieldName = properties.getString("timeField", "eventTime")
+  override val eventTimeFieldName = properties.getString("timeFieldName", "eventTime")
 
   override val timeDimension = properties.getString("timeDimension", "")
+
+  override val granularity = properties.getString("granularity", "minute")
+
+  def combine(in: Seq[DimensionValue]): Seq[Seq[DimensionValue]] = {
+    for {
+      len <- 1 to in.length
+      combinations <- in combinations len
+    } yield combinations
+  }
 
   override def multiplexStream(stream: DStream[UpdateMetricOperation]) : DStream[UpdateMetricOperation] = {
     if(multiplexer) {
       for {
         upMetricOp: UpdateMetricOperation <- stream
-        comb: Set[DimensionValue] <- upMetricOp.rollupKey
-          .toSet[DimensionValue]
-          .subsets.filter(dimVals => dimVals.nonEmpty)
+        comb: Seq[DimensionValue] <- combine(upMetricOp.rollupKey)
           .filter(dimVals =>
           (dimVals.size > 1) ||
             ((dimVals.size == 1) && (dimVals.last.bucketType != Bucketer.fulltext))
-          ).toTraversable
-      } yield UpdateMetricOperation(
-        comb.toSeq.sortWith(_.dimension.name < _.dimension.name),
-        upMetricOp.aggregations
-      ) : UpdateMetricOperation
-      /*
-      //Other way
-      stream.flatMap(upMetricOp =>
-        upMetricOp.rollupKey.toSet[DimensionValue].subsets.filter(_.size > 0).map(comb =>
-          UpdateMetricOperation(comb.toSeq, upMetricOp.aggregations)).toIndexedSeq)*/
+          )
+        } yield UpdateMetricOperation(
+        comb.sortWith((dim1,dim2) =>
+          (dim1.dimension.name + dim1.bucketType.id) < (dim2.dimension.name + dim2.bucketType.id)),
+        upMetricOp.aggregations)
     } else {
       stream
     }
@@ -84,19 +85,18 @@ class MongoDbOutput(properties: Map[String, Serializable], schema : Map[String,W
       for {
         upMetricOp: UpdateMetricOperation <- stream
         fixedDim = upMetricOp.rollupKey.find(dimValue => dimValue.dimension.name == fixedDimension).get
-        comb: Set[DimensionValue] <- upMetricOp.rollupKey
-          .toSet[DimensionValue]
-          .subsets.filter(dimVals => dimVals.nonEmpty)
+        comb: Seq[DimensionValue] <- combine(upMetricOp.rollupKey)
           .filter(dimVals =>
           (dimVals.size > 1) ||
             ((dimVals.size == 1) &&
               (dimVals.last.bucketType != Bucketer.fulltext) &&
-              (dimVals.last.dimension.name != fixedDim.dimension.name)))
-          .map(setDimVal => setDimVal + fixedDim).toTraversable
+              (dimVals.last.dimension.name != fixedDim.dimension.name))
+          )
+          .map(seqDimVal => seqDimVal ++ Seq(fixedDim))
       } yield UpdateMetricOperation(
-        comb.toSeq.sortWith(_.dimension.name < _.dimension.name),
-        upMetricOp.aggregations
-      ) : UpdateMetricOperation
+        comb.sortWith((dim1,dim2) =>
+          (dim1.dimension.name + dim1.bucketType.id) < (dim2.dimension.name + dim2.bucketType.id)),
+        upMetricOp.aggregations)
     } else {
       stream
     }
@@ -107,8 +107,10 @@ class MongoDbOutput(properties: Map[String, Serializable], schema : Map[String,W
     multiplexer match {
         case false => stream
         case _ => timeDimension match {
+          //TODO crear una DimensionValue con la fecha actual
           case "" => multiplexStream(stream)
-          case _ => multiplexStream(stream, timeDimension)
+          case _ => multiplexStream(stream,
+            timeDimension)
         }
     }
   }
@@ -120,6 +122,25 @@ class MongoDbOutput(properties: Map[String, Serializable], schema : Map[String,W
           upsert(ops)
         )
       )
+  }
+
+  //TODO remove from here
+  override def dateFromGranularity(value: DateTime, granularity : String): DateTime = {
+    val secondsDate = new DateTime(value).withMillisOfSecond(0)
+    val minutesDate = secondsDate.withSecondOfMinute(0)
+    val hourDate = minutesDate.withMinuteOfHour(0)
+    val dayDate = hourDate.withHourOfDay(0)
+    val monthDate = dayDate.withDayOfMonth(1)
+    val yearDate = monthDate.withMonthOfYear(1)
+
+    granularity match {
+      case "second" => secondsDate
+      case "minute" => minutesDate
+      case "hour" => hourDate
+      case "day" => dayDate
+      case "month" => monthDate
+      case "year" => yearDate
+    }
   }
 
   override def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
@@ -134,11 +155,11 @@ class MongoDbOutput(properties: Map[String, Serializable], schema : Map[String,W
         val bulkOperation = db().getCollection(collMetricOp._1).initializeOrderedBulkOperation()
 
         if(textIndexName != "") createTextIndex(collMetricOp._1, textIndexName, Bucketer.fulltext.id, language)
-        //TODO fixed dateTimeField in documents??
         createIndex(collMetricOp._1, eventTimeFieldName, eventTimeFieldName, 1)
 
         collMetricOp._2.foreach(metricOp => {
 
+          //TODO cuando este creada la DimensionValue del tiempo hay que cambiar esto y mirar el bucketType
           val dateObject = metricOp.rollupKey.filter(dimVal =>
             (timeDimension != "") && (timeDimension == dimVal.dimension.name)
           )
@@ -147,19 +168,16 @@ class MongoDbOutput(properties: Map[String, Serializable], schema : Map[String,W
             if((dateObject != null) && (dateObject.size > 0)) {
               dateObject.last.value
             } else {
-              DateTime.now()
-                .withMillisOfSecond(0).withSecondOfMinute(1)//.withMinuteOfHour(0).withHourOfDay(1)
-              //.withDayOfMonth(1).withMonthOfYear(1)
+              dateFromGranularity(DateTime.now(),granularity)
             }
-
           }
 
           val identitiesText = metricOp.rollupKey
             .filter(_.bucketType.id == Bucketer.fulltext.id)
             .map( dimVal => dimVal.value.toString)
 
-          val identities = metricOp.rollupKey
-            .filter(_.bucketType.id == Bucketer.identity.id)
+          val identitiesField = metricOp.rollupKey
+            .filter(_.bucketType.id == Bucketer.identityField.id)
             .map( dimVal => MongoDBObject(dimVal.dimension.name -> dimVal.value)
           )
 
@@ -210,7 +228,7 @@ class MongoDbOutput(properties: Map[String, Serializable], schema : Map[String,W
           bulkOperation.find(find)
             .upsert().updateOne(update ++
             {
-              if(identities.size > 0) $set(Bucketer.identity.id -> identities) else DBObject()
+              if(identitiesField.size > 0) $set(Bucketer.identityField.id -> identitiesField) else DBObject()
             } ++
             {
               if(identitiesText.size > 0) {

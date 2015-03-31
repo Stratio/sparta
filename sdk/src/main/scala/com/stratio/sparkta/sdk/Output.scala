@@ -19,6 +19,7 @@ import java.io.Serializable
 
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import org.apache.spark.streaming.dstream.DStream
+import org.joda.time.DateTime
 
 abstract class Output(properties: Map[String, Serializable], val schema : Map[String,WriteOp])
   extends Parameterizable(properties) {
@@ -39,6 +40,10 @@ abstract class Output(properties: Map[String, Serializable], val schema : Map[St
   def multiplexer : Boolean
 
   def timeDimension : String
+
+  def granularity : String
+
+  def dateFromGranularity(value: DateTime, granularity : String): DateTime
 
   def persist(stream: DStream[UpdateMetricOperation]) : Unit
 

@@ -50,4 +50,10 @@ trait Bucketer {
 object Bucketer {
   val identity = new BucketType("identity")
   val fulltext = new BucketType("fulltext")
+
+  /*
+   * Add new bucketers for fixed actions??
+   */
+  val timestamp = new BucketType("timestamp")
+  val identityField = new BucketType("identityField")
 }

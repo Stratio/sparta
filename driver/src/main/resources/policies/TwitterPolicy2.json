@@ -72,7 +72,7 @@
             "dbName" : "sparkta",
             "multiplexer" : "true",
             "language" : "english",
-            "timeField" : "eventTime",
+            "timeFieldName" : "eventTime",
             "timeDimension" : "",
             "textIndex" : "fullTextIndex",
             "granularity" : "day"
