@@ -27,7 +27,7 @@ import org.joda.time.DateTime
  */
 case class DateTimeBucketer() extends Bucketer {
 
-  override val bucketTypes: Seq[BucketType] = Seq(minutes, hours, days, months, years)
+  override val bucketTypes: Seq[BucketType] = Seq(seconds, minutes, hours, days, months, years)
 
   override def bucket(value: io.Serializable): Map[BucketType, io.Serializable] =
     bucketTypes.map(bucketType =>
