@@ -32,7 +32,9 @@ class PrintOutput(properties: Map[String, JSerializable], schema : Map[String,Wr
   override val multiplexer = Try(
     properties("multiplexer").asInstanceOf[String].toLowerCase().toBoolean).getOrElse(false)
 
-  def timeDimension : String = Try(properties("timeDimension").asInstanceOf[String]).getOrElse("")
+  override def timeBucket : String = Try(properties("timeDimension").asInstanceOf[String]).getOrElse("")
+
+  override val granularity = Try(properties("granularity").asInstanceOf[String]).getOrElse("")
 
   override def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
     streams.foreach(persist)

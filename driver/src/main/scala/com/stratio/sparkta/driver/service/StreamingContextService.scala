@@ -74,7 +74,10 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       val components = r.dimensionAndBucketTypes.map(dab => {
         dimensionsMap.get(dab.dimensionName) match {
           case Some(x: Dimension) => x.bucketTypes.contains(new BucketType(dab.bucketType)) match {
-            case true => (x, new BucketType(dab.bucketType))
+            case true => (x, new BucketType(dab.bucketType, dab.configuration match {
+              case Some(conf) => conf
+              case None => Map()
+            }))
             case _ =>
               throw new DriverException(
                 "Bucket type " + dab.bucketType + " not supported in dimension " + dab.dimensionName)

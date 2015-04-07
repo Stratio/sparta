@@ -25,9 +25,11 @@
        },
        {
          "dimensionType": "com.stratio.sparkta.plugin.bucketer.datetime.DateTimeBucketer",
-         "name": "timestamp"
-       }
-       ,
+         "name": "timestamp",
+         "configuration": {
+           "granularity": "hour"
+         }
+       },
        {
          "dimensionType": "com.stratio.sparkta.plugin.bucketer.geohash.GeoHashBucketer",
          "name": "geolocation"
@@ -48,18 +50,22 @@
                     "dimensionName": "status",
                     "bucketType": "retweets"
                 },
-              {
-                "dimensionName": "status",
-                "bucketType": "fulltext"
-              },
-              {
-                "dimensionName": "geolocation",
-                "bucketType": "precision3"
-              },
-              {
-                "dimensionName": "wordsN",
-                "bucketType": "identity"
-              }
+                {
+                  "dimensionName": "status",
+                  "bucketType": "fulltext"
+                },
+                {
+                  "dimensionName": "geolocation",
+                  "bucketType": "precision3"
+                },
+                {
+                  "dimensionName": "wordsN",
+                  "bucketType": "identity"
+                },
+                {
+                  "dimensionName": "timestamp",
+                  "bucketType": "minute"
+                }
             ]
         }
     ],
@@ -71,10 +77,10 @@
             "clientUri" : "mongodb://localhost:27017",
             "dbName" : "sparkta",
             "multiplexer" : "true",
+            "timestampFieldName" : "timestamp",
+            "timestampBucket" : "minute",
+            "textIndexFieldName" : "fullTextIndex",
             "language" : "english",
-            "timeFieldName" : "eventTime",
-            "timeDimension" : "",
-            "textIndex" : "fullTextIndex",
             "granularity" : "day"
           }
         }
