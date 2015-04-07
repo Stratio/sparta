@@ -96,6 +96,15 @@
                 <role>developer</role>
             </roles>
         </developer>
+        <developer>
+            <id>anistal</id>
+            <name>Alvaro Nistal Cañal</name>
+            <email>anistal@stratio.com</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+
     </developers>
 
     <properties>
