@@ -39,14 +39,34 @@ abstract class Output(properties: Map[String, Serializable], val schema : Map[St
 
   def multiplexer : Boolean
 
-  def timeDimension : String
+  def timeBucket : String
 
   def granularity : String
-
-  def dateFromGranularity(value: DateTime, granularity : String): DateTime
 
   def persist(stream: DStream[UpdateMetricOperation]) : Unit
 
   def persist(streams: Seq[DStream[UpdateMetricOperation]]) : Unit =
     streams.foreach(persist)
+}
+
+
+object Output {
+
+  def dateFromGranularity(value: DateTime, granularity : String): DateTime = {
+      val secondsDate = new DateTime(value).withMillisOfSecond(0)
+      val minutesDate = secondsDate.withSecondOfMinute(0)
+      val hourDate = minutesDate.withMinuteOfHour(0)
+      val dayDate = hourDate.withHourOfDay(0)
+      val monthDate = dayDate.withDayOfMonth(1)
+      val yearDate = monthDate.withMonthOfYear(1)
+
+      granularity match {
+        case "minute" => minutesDate
+        case "hour" => hourDate
+        case "day" => dayDate
+        case "month" => monthDate
+        case "year" => yearDate
+        case _ => secondsDate
+      }
+  }
 }

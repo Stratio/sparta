@@ -52,7 +52,11 @@ case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Opera
       dimensionValuesStream
         .map(dimensions => {
         val dimVals: Seq[DimensionValue] = dimensions._1
-          .filter(dimVal => components.contains((dimVal.dimension -> dimVal.bucketType)))
+          .filter(dimVal => components.find(comp =>
+            comp._1 == dimVal.dimension && comp._2.id == dimVal.bucketType.id) match{
+              case None => false
+              case _ => true
+          })
         (dimVals, dimensions._2)
       })
         .filter(_._1.nonEmpty)

@@ -32,7 +32,7 @@ trait AbstractMongoDAO extends Closeable {
   def languageFieldName = "language"
   def eventTimeFieldName = "eventTime"
   def idFieldName = "_id"
-  def idSeparator = "__"
+  def idSeparator = "_"
 
   protected def client: MongoClient = AbstractMongoDAO.client(mongoClientUri)
 

@@ -80,7 +80,7 @@ object TwitterStatusBucketer {
   val mentions = new BucketType("mentions")
   val identity = new BucketType("identity")
   val words = new BucketType("words")
-  val fulltext = new BucketType("fulltext")
+  val fulltext = Bucketer.fulltext
 
   override def toString = s"TwitterStatusBucketer(" +
     s"text=$text, contributors=$contributors, hastags=$hastags," +

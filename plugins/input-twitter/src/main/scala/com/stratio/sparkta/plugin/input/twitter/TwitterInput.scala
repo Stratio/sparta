@@ -48,10 +48,10 @@ class TwitterInput(properties: Map[String, JSerializable]) extends Input(propert
     stream.map(data => new Event(Map("status" -> data.asInstanceOf[java.io.Serializable],
       "wordsN" -> data.getText.split(" ").size,
       "timestamp" ->  data.getCreatedAt,
-    "geolocation" -> (data.getGeoLocation match {
-      case null => None
-      case _ => Some((data.getGeoLocation.getLatitude + "__" + data.getGeoLocation.getLongitude))
-    }).asInstanceOf[JSerializable]
+      "geolocation" -> (data.getGeoLocation match {
+        case null => None
+        case _ => Some((data.getGeoLocation.getLatitude + "__" + data.getGeoLocation.getLongitude))
+      }).asInstanceOf[JSerializable]
     )))
   }
 }
