@@ -16,18 +16,19 @@
 package com.stratio.sparkta.driver.service
 
 import java.io.{File, Serializable}
+import scala.annotation.tailrec
 
 import akka.event.slf4j.SLF4JLogging
+import com.typesafe.config.Config
+import org.apache.spark.streaming.{Duration, StreamingContext}
+import org.apache.spark.streaming.dstream.DStream
+
 import com.stratio.sparkta.aggregator.{DataCube, Rollup}
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory.SparkContextFactory
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
-import com.typesafe.config.Config
-import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.streaming.{Duration, StreamingContext}
-
+import com.stratio.sparkta.sdk.WriteOp.WriteOp
 
 class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging {
 
@@ -89,14 +90,8 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     val input: DStream[Event] = inputs.head._2
     //TODO only support one output
     val output = outputs.head._2
-
-    var parsed = input
-    for (parser <- parsers) {
-      parsed = parser.map(parsed)
-    }
-
+    val parsed = StreamingContextService.applyParsers(input, parsers)
     output.persist(new DataCube(dimensionsSeq, rollups).setUp(parsed))
-
     ssc
   }
 
@@ -125,11 +120,17 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       case e: Exception => throw DriverException.create(
         "Generic error trying to instantiate " + classAndPackage, e)
     }
-
   }
 
-  private def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C = {
+  private def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C =
     clazz.getDeclaredConstructor(classOf[Map[String, Serializable]]).newInstance(properties).asInstanceOf[C]
-  }
+}
 
+object StreamingContextService {
+
+  @tailrec
+  def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
+    if (parsers.size > 0) applyParsers(parsers.head.map(input), parsers.drop(1))
+    else input
+  }
 }
