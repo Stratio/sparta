@@ -16,25 +16,28 @@
 package com.stratio.sparkta.plugin.operator.sum
 
 import java.io.{Serializable => JSerializable}
-
-import com.stratio.sparkta.sdk.{WriteOp, Operator, BucketType, Dimension}
+import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
+
+import scala.util.Try
 
 class SumOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  private val inputField = properties.getString("inputField")
+  private val inputField = if(properties.contains("inputField")) properties.getString("inputField") else ""
 
   override val key : String = "sum_" + inputField
 
   override val writeOperation = WriteOp.Inc
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Long] =
+  override def processMap(inputFields: Map[String, JSerializable]) =
     inputFields.contains(inputField) match {
-      case false => None
-      case true => Some(inputFields.getLong(inputField))
+      case false => Some(0L)
+      case true => Some(inputFields.get(inputField).get.asInstanceOf[Number])
     }
 
-  override def processReduce(values: Iterable[Long]): Long =
-    values.sum
+  override def processReduce(values : Iterable[Option[_>:AnyVal]]) = {
+    Try(Some(values.map(_.get.asInstanceOf[Number].longValue()).reduce(_ + _)))
+      .getOrElse(Some(0L))
+  }
 
 }

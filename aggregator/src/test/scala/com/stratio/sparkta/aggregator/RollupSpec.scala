@@ -43,9 +43,9 @@ class RollupSpec extends TestSuiteBase {
       rollup.aggregate,
       Seq(Seq(
         UpdateMetricOperation(Seq(DimensionValue(Dimension("foo", new PassthroughBucketer),
-          new BucketType("identity"), "bar")), Map("count" -> 2L, "sum_n" -> 7L)),
+          new BucketType("identity"), "bar")), Map("count" -> Some(2L), "sum_n" -> Some(7L))),
         UpdateMetricOperation(Seq(DimensionValue(Dimension("foo", new PassthroughBucketer),
-          new BucketType("identity"), "foo")), Map("count" -> 1L, "sum_n" -> 2L))
+          new BucketType("identity"), "foo")), Map("count" -> Some(1L), "sum_n" -> Some(2L)))
       )),
       false
     )

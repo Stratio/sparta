@@ -22,6 +22,7 @@ import java.io.{Serializable => JSerializable}
 case class DataCube(dimensions: Seq[Dimension], rollups: Seq[Rollup]) {
 
   def setUp(inputStream: DStream[Event]): Seq[DStream[UpdateMetricOperation]] = {
+
     //TODO: add event values
     val extractedDimensionsStream: DStream[(Seq[DimensionValue], Map[String, JSerializable])] = inputStream
       .map((e: Event) => {
@@ -33,7 +34,6 @@ case class DataCube(dimensions: Seq[Dimension], rollups: Seq[Rollup]) {
         (dimVals, e.keyMap)
       })
       .cache()
-
     // Create rollups
     rollups.map(_.aggregate(extractedDimensionsStream))
   }
