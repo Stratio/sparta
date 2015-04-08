@@ -16,6 +16,8 @@
 package com.stratio.sparkta.driver.service
 
 import java.io.{File, Serializable}
+import org.reflections.Reflections
+
 import scala.annotation.tailrec
 
 import akka.event.slf4j.SLF4JLogging
@@ -29,6 +31,7 @@ import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import scala.collection.JavaConversions._
 
 class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging {
 
@@ -132,5 +135,18 @@ object StreamingContextService {
   def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
     if (parsers.size > 0) applyParsers(parsers.head.map(input), parsers.drop(1))
     else input
+  }
+
+  val getClasspathMap : Map[String, String] = {
+    val reflections = new Reflections()()
+    val inputs = reflections.getSubTypesOf(classOf[Input]).toList
+    val bucketers = reflections.getSubTypesOf(classOf[Bucketer]).toList
+    val operators = reflections.getSubTypesOf(classOf[Operator]).toList
+    val outputs = reflections.getSubTypesOf(classOf[Output]).toList
+    val parsers = reflections.getSubTypesOf(classOf[Parser]).toList
+    val plugins = inputs ++ bucketers ++ operators ++ outputs ++ parsers
+
+    plugins map (t => t.getSimpleName -> t.getCanonicalName) toMap
+
   }
 }
