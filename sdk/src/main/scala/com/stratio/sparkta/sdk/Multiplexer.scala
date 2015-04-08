@@ -55,7 +55,8 @@ object Multiplexer {
         upMetricOp: UpdateMetricOperation <- stream
         fixedDim = fixedBucket match {
           case Some(value: DimensionValue) => fixedBucket.asInstanceOf[Option[DimensionValue]]
-          case value : String => upMetricOp.rollupKey.find(dimValue => dimValue.bucketType.id == fixedBucket.asInstanceOf[String])
+          case value : String => upMetricOp.rollupKey.find(
+            dimValue => dimValue.bucketType.id == fixedBucket.asInstanceOf[String])
         }
         comb: Seq[DimensionValue] <- combine(
           upMetricOp.rollupKey.filter(_.bucketType.id != (fixedDim match {
