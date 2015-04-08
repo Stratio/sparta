@@ -32,6 +32,7 @@ import com.stratio.sparkta.sdk.WriteOp.WriteOp
 
 class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging {
 
+  // scalastyle:ignore method.length
   def createStreamingContext(apConfig: AggregationPoliciesDto): StreamingContext = {
     val ssc = new StreamingContext(
       /*
@@ -43,28 +44,20 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       may be several baked-in assumptions that we'll have to address
       (the (effectively) global SparkEnv, for example).
        */
-      //new SparkContext(configToSparkConf(generalConfiguration, apConfig.name)),
-      SparkContextFactory.sparkContextInstance(generalConfig, jars),
-      new Duration(apConfig.duration))
-
+      SparkContextFactory.sparkContextInstance(generalConfig, jars), new Duration(apConfig.duration))
     val inputs: Map[String, DStream[Event]] = apConfig.inputs.map(i =>
       (i.name, tryToInstantiate[Input](i.elementType, (c) =>
         instantiateParameterizable[Input](c, i.configuration)).setUp(ssc))).toMap
-
     val parsers: Seq[Parser] = apConfig.parsers.map(p =>
       tryToInstantiate[Parser](p.elementType, (c) =>
         instantiateParameterizable[Parser](c, p.configuration)))
-
     val operators: Seq[Operator] = apConfig.operators.map(op =>
       tryToInstantiate[Operator](op.elementType, (c) =>
         instantiateParameterizable[Operator](c, op.configuration)))
-
     //TODO workaround this instantiateDimensions(apConfig).toMap.map(_._2) is not serializable.
     val dimensionsMap: Map[String, Dimension] = instantiateDimensions(apConfig).toMap
     val dimensionsSeq: Seq[Dimension] = instantiateDimensions(apConfig).map(_._2)
-
     val outputSchema = operators.map(op => op.key -> op.writeOperation).toMap
-
     val outputs = apConfig.outputs.map(o =>
       (o.name, tryToInstantiate[Output](o.elementType, (c) =>
         c.getDeclaredConstructor(classOf[Map[String, Serializable]], classOf[Map[String, WriteOp]])
@@ -130,7 +123,7 @@ object StreamingContextService {
 
   @tailrec
   def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
-    if (parsers.size > 0) applyParsers(parsers.head.map(input), parsers.drop(1))
+    if (parsers.size > 0) applyParsers(input.map(event => parsers.head.parse(event)), parsers.drop(1))
     else input
   }
 }
