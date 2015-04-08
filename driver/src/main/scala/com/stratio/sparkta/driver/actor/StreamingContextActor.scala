@@ -36,7 +36,7 @@ class StreamingContextActor
 
   private var ssc: Option[StreamingContext] = None
 
-  override def receive = {
+  override def receive: PartialFunction[Any, Unit] = {
     case Init =>
       log.debug("Init new streamingContext with name " + policy.name)
       ssc = Try(streamingContextService.createStreamingContext(policy)) match {

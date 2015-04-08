@@ -21,10 +21,10 @@ import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
-abstract class Output(properties: Map[String, Serializable], val schema : Map[String,WriteOp])
+abstract class Output(properties: Map[String, Serializable], val schema : Option[Map[String,WriteOp]])
   extends Parameterizable(properties) {
 
-  if (schema == null) {
+  if (schema.isEmpty) {
     throw new NullPointerException("schema")
   }
 

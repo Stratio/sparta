@@ -29,10 +29,10 @@ trait AbstractMongoDAO extends Closeable {
   def dbName : String
   def language : String
   def textIndexName : String
-  def languageFieldName = "language"
-  def eventTimeFieldName = "eventTime"
-  def idFieldName = "_id"
-  def idSeparator = "_"
+  def languageFieldName: String = "language"
+  def eventTimeFieldName : String = "eventTime"
+  def idFieldName : String = "_id"
+  def idSeparator : String = "_"
 
   protected def client: MongoClient = AbstractMongoDAO.client(mongoClientUri)
 
@@ -60,7 +60,7 @@ trait AbstractMongoDAO extends Closeable {
       val options = MongoDBObject.newBuilder
       options += "name" -> indexName
       options += "background" -> true
-      if((language != null) && (language != "")) options += "default_language" -> language
+      if(language != "") options += "default_language" -> language
 
       db.getCollection(collection).createIndex(
         MongoDBObject(indexField -> "text"),
@@ -84,14 +84,14 @@ trait AbstractMongoDAO extends Closeable {
   }
 
   def insert(dbName: String, collName: String, dbOjects: Iterator[DBObject],
-             writeConcern: WriteConcern = null): Unit = {
+             writeConcern: Option[WriteConcern] = None): Unit = {
     val coll = db(dbName).getCollection(collName)
     val builder = coll.initializeUnorderedBulkOperation
 
     dbOjects.map(dbObjectsBatch =>
         builder.insert(dbObjectsBatch)
     )
-    if(writeConcern == null) builder.execute(defaultWriteConcern) else builder.execute(writeConcern)
+    if(writeConcern.isEmpty) builder.execute(defaultWriteConcern) else builder.execute(writeConcern.get)
 
   }
 

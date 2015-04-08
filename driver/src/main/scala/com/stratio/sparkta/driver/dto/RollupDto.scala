@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 package com.stratio.sparkta.driver.dto
-
-
 /**
  * Created by ajnavarro on 13/10/14.
  */
 case class RollupDto(dimensionAndBucketTypes: Seq[DimensionAndBucketTypeDto])
-
-case class DimensionAndBucketTypeDto(dimensionName: String, bucketType: String,
+case class DimensionAndBucketTypeDto(dimensionName: String,
+                                     bucketType: String,
                                      configuration: Option[Map[String, String]])

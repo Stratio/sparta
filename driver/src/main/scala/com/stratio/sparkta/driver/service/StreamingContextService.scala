@@ -57,10 +57,12 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     //TODO workaround this instantiateDimensions(apConfig).toMap.map(_._2) is not serializable.
     val dimensionsMap: Map[String, Dimension] = instantiateDimensions(apConfig).toMap
     val dimensionsSeq: Seq[Dimension] = instantiateDimensions(apConfig).map(_._2)
-    val outputSchema = operators.map(op => op.key -> op.writeOperation).toMap
+
+    val outputSchema = Some(operators.map(op => op.key -> op.writeOperation).toMap)
+
     val outputs = apConfig.outputs.map(o =>
       (o.name, tryToInstantiate[Output](o.elementType, (c) =>
-        c.getDeclaredConstructor(classOf[Map[String, Serializable]], classOf[Map[String, WriteOp]])
+        c.getDeclaredConstructor(classOf[Map[String, Serializable]], classOf[Option[Map[String, WriteOp]]])
           .newInstance(o.configuration, outputSchema).asInstanceOf[Output]
       )))
 
@@ -68,10 +70,7 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       val components = r.dimensionAndBucketTypes.map(dab => {
         dimensionsMap.get(dab.dimensionName) match {
           case Some(x: Dimension) => x.bucketTypes.contains(new BucketType(dab.bucketType)) match {
-            case true => (x, new BucketType(dab.bucketType, dab.configuration match {
-              case Some(conf) => conf
-              case None => Map()
-            }))
+            case true => (x, new BucketType(dab.bucketType, dab.configuration.getOrElse(Map())))
             case _ =>
               throw new DriverException(
                 "Bucket type " + dab.bucketType + " not supported in dimension " + dab.dimensionName)

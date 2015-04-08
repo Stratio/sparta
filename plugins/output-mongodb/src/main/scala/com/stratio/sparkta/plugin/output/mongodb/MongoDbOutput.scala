@@ -31,7 +31,7 @@ import org.joda.time.DateTime
 
 import scala.util.Try
 
-class MongoDbOutput(properties: Map[String, Serializable], schema : Map[String,WriteOp])
+class MongoDbOutput(properties: Map[String, Serializable], schema: Option[Map[String, WriteOp]])
   extends Output(properties, schema) with AbstractMongoDAO with Multiplexer with Serializable with Logging {
 
   RegisterJodaTimeConversionHelpers()
@@ -54,14 +54,15 @@ class MongoDbOutput(properties: Map[String, Serializable], schema : Map[String,W
 
   override val language = properties.getString("language", "none")
 
-  override def getStreamsFromOptions(stream : DStream[UpdateMetricOperation],
-                           multiplexer : Boolean, fixedBucket : String) : DStream[UpdateMetricOperation] = {
+  override def getStreamsFromOptions(stream: DStream[UpdateMetricOperation],
+                                     multiplexer: Boolean,
+                                     fixedBucket: String): DStream[UpdateMetricOperation] = {
     multiplexer match {
-        case false => stream
-        case _ => fixedBucket match {
-          case "" => Multiplexer.multiplexStream(stream)
-          case _ => Multiplexer.multiplexStream[fixedBucket.type](stream, fixedBucket)
-        }
+      case false => stream
+      case _ => fixedBucket match {
+        case "" => Multiplexer.multiplexStream(stream)
+        case _ => Multiplexer.multiplexStream[fixedBucket.type](stream, fixedBucket)
+      }
     }
   }
 
@@ -77,54 +78,50 @@ class MongoDbOutput(properties: Map[String, Serializable], schema : Map[String,W
   def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
     metricOperations.toList.groupBy(metricOp => metricOp.keyString).foreach(collMetricOp => {
 
-      if(collMetricOp._1.size > 0){
+      if (collMetricOp._1.size > 0) {
         val languageObject = languageFieldName -> language
         val bulkOperation = db().getCollection(collMetricOp._1).initializeOrderedBulkOperation()
 
         //TODO refactor out of here
-        if(textIndexName != ""){
+        if (textIndexName != "") {
           createTextIndex(collMetricOp._1, textIndexName, Bucketer.fulltext.id, language)
         }
-        if((timeBucket != "") && ((collMetricOp._1.contains(timeBucket)) || (granularity != ""))){
+        if ((timeBucket != "") && ((collMetricOp._1.contains(timeBucket)) || (granularity != ""))) {
           createIndex(collMetricOp._1, eventTimeFieldName, eventTimeFieldName, 1)
         }
 
         collMetricOp._2.foreach(metricOp => {
-
           val eventTimeObject = timeBucket match {
             case "" => None
             case _ => metricOp.rollupKey.filter(dimVal => timeBucket == dimVal.bucketType.id) match {
-              case c if(c.size > 0) => Some(eventTimeFieldName -> c.last.value)
+              case c if (c.size > 0) => Some(eventTimeFieldName -> c.last.value)
               case _ => granularity match {
                 case "" => None
-                case _ => Some(eventTimeFieldName -> Output.dateFromGranularity(DateTime.now(),granularity))
+                case _ => Some(eventTimeFieldName -> Output.dateFromGranularity(DateTime.now(), granularity))
               }
             }
           }
-
           val identitiesText = metricOp.rollupKey
             .filter(_.bucketType.id == Bucketer.fulltext.id)
-            .map( dimVal => dimVal.value.toString)
+            .map(dimVal => dimVal.value.toString)
 
           val identitiesField = metricOp.rollupKey
             .filter(_.bucketType.id == Bucketer.identityField.id)
-            .map( dimVal => MongoDBObject(dimVal.dimension.name -> dimVal.value)
-          )
+            .map(dimVal => MongoDBObject(dimVal.dimension.name -> dimVal.value)
+            )
 
           val find = {
             val builder = MongoDBObject.newBuilder
             builder += idFieldName -> metricOp.rollupKey
               .filter(rollup =>
-                (rollup.bucketType.id != Bucketer.fulltext.id) && (rollup.bucketType.id != timeBucket))
+              (rollup.bucketType.id != Bucketer.fulltext.id) && (rollup.bucketType.id != timeBucket))
               .map(dimVal => dimVal.value.toString)
               .mkString(idSeparator)
-
-            if(eventTimeObject != None) builder += eventTimeObject.get
-
+            if (eventTimeObject != None) builder += eventTimeObject.get
             builder.result
           }
 
-          val unknownFields = metricOp.aggregations.keySet.filter(!schema.hasKey(_))
+          val unknownFields = metricOp.aggregations.keySet.filter(!schema.get.hasKey(_))
           if (unknownFields.nonEmpty) {
             throw new Exception(s"Got fields not present in schema: ${unknownFields.mkString(",")}")
           }
@@ -132,9 +129,8 @@ class MongoDbOutput(properties: Map[String, Serializable], schema : Map[String,W
           val update = (
             for {
               (fieldName, value) <- metricOp.aggregations.toSeq
-              op = schema(fieldName)
-            } yield (op, (fieldName, value))
-            )
+              op = schema.get(fieldName)
+            } yield (op, (fieldName, value)))
             .groupBy(_._1)
             .mapValues(_.map(_._2))
             .map({
@@ -150,27 +146,21 @@ class MongoDbOutput(properties: Map[String, Serializable], schema : Map[String,W
                   MongoDBObject("$min" -> MongoDBObject(seq.asInstanceOf[Seq[(String, Double)]]: _*))
                 case WriteOp.Avg =>
                   MongoDBObject("$avg" -> MongoDBObject(seq.asInstanceOf[Seq[(String, Double)]]: _*))
-              }
-            })
+              }})
             .reduce(_ ++ _)
 
           bulkOperation.find(find)
-            .upsert().updateOne(update ++
-            {
-              if(identitiesField.size > 0) $set(Bucketer.identityField.id -> identitiesField) else DBObject()
-            } ++
-            {
-              if(identitiesText.size > 0) {
-                $addToSet(Bucketer.fulltext.id -> identitiesText.mkString(" _ ")) ++ $set(languageObject)
-              } else {
-                DBObject()
-              }
+            .upsert().updateOne(update ++ {
+            if (identitiesField.size > 0) $set(Bucketer.identityField.id -> identitiesField) else DBObject()
+          } ++ {
+            if (identitiesText.size > 0) {
+              $addToSet(Bucketer.fulltext.id -> identitiesText.mkString(" _ ")) ++ $set(languageObject)
+            } else {
+              DBObject()
             }
-            )
+          })
         })
-
         bulkOperation.execute()
-
       }
     })
   }
