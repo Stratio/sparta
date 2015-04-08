@@ -53,7 +53,7 @@ case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Opera
         .map(dimensions => {
         val dimVals: Seq[DimensionValue] = dimensions._1
           .filter(dimVal => components.find(comp =>
-            comp._1 == dimVal.dimension && comp._2.id == dimVal.bucketType.id).isEmpty)
+            comp._1 == dimVal.dimension && comp._2.id == dimVal.bucketType.id).nonEmpty)
         (dimVals, dimensions._2)
       })
         .filter(_._1.nonEmpty)
