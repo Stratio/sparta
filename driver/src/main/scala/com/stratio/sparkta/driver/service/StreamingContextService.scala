@@ -16,6 +16,8 @@
 package com.stratio.sparkta.driver.service
 
 import java.io.{File, Serializable}
+import org.reflections.Reflections
+
 import scala.annotation.tailrec
 
 import akka.event.slf4j.SLF4JLogging
@@ -29,6 +31,7 @@ import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import scala.collection.JavaConversions._
 
 class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging {
 
@@ -103,8 +106,11 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
   }
 
   private def tryToInstantiate[C](classAndPackage: String, block: Class[_] => C): C = {
+    val clazMap: Map[String, String] = StreamingContextService.getClasspathMap
+
+    val finalClazzToInstance=clazMap.getOrElse(classAndPackage,classAndPackage)
     try {
-      val clazz = Class.forName(classAndPackage)
+      val clazz = Class.forName(finalClazzToInstance)
       block(clazz)
     } catch {
       case cnfe: ClassNotFoundException =>
@@ -117,6 +123,7 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     }
   }
 
+
   private def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C =
     clazz.getDeclaredConstructor(classOf[Map[String, Serializable]]).newInstance(properties).asInstanceOf[C]
 }
@@ -128,4 +135,17 @@ object StreamingContextService {
     if (parsers.size > 0) applyParsers(input.map(event => parsers.head.parse(event)), parsers.drop(1))
     else input
   }
+  val getClasspathMap : Map[String, String] = {
+    val reflections = new Reflections()()
+    val inputs = reflections.getSubTypesOf(classOf[Input]).toList
+    val bucketers = reflections.getSubTypesOf(classOf[Bucketer]).toList
+    val operators = reflections.getSubTypesOf(classOf[Operator]).toList
+    val outputs = reflections.getSubTypesOf(classOf[Output]).toList
+    val parsers = reflections.getSubTypesOf(classOf[Parser]).toList
+    val plugins = inputs ++ bucketers ++ operators ++ outputs ++ parsers
+
+    plugins map (t => t.getSimpleName -> t.getCanonicalName) toMap
+
+  }
+
 }
