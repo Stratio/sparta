@@ -111,8 +111,11 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
   }
 
   private def tryToInstantiate[C](classAndPackage: String, block: Class[_] => C): C = {
+    val clazMap: Map[String, String] = StreamingContextService.getClasspathMap
+
+    val finalClazzToInstance=clazMap.getOrElse(classAndPackage,classAndPackage)
     try {
-      val clazz = Class.forName(classAndPackage)
+      val clazz = Class.forName(finalClazzToInstance)
       block(clazz)
     } catch {
       case cnfe: ClassNotFoundException =>
@@ -125,6 +128,7 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     }
   }
 
+
   private def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C =
     clazz.getDeclaredConstructor(classOf[Map[String, Serializable]]).newInstance(properties).asInstanceOf[C]
 }
@@ -136,7 +140,6 @@ object StreamingContextService {
     if (parsers.size > 0) applyParsers(parsers.head.map(input), parsers.drop(1))
     else input
   }
-
   val getClasspathMap : Map[String, String] = {
     val reflections = new Reflections()()
     val inputs = reflections.getSubTypesOf(classOf[Input]).toList
@@ -149,4 +152,5 @@ object StreamingContextService {
     plugins map (t => t.getSimpleName -> t.getCanonicalName) toMap
 
   }
+
 }
