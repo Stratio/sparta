@@ -44,8 +44,10 @@ class KafkaInput(properties: Map[String, Serializable]) extends Input(properties
 
     } else {
 
-      val kafkaParams = submap.get.map(entry => (entry._1, entry._2.asInstanceOf[String]))
-      KafkaUtils.createStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams,
+      val kafkaParams = submap.get.map(entry => (entry._1, entry._2.toString))
+      KafkaUtils.createStream[String, String, StringDecoder, StringDecoder](
+        ssc,
+        kafkaParams,
         extractTopicsMap,
         storageLevel)
         .map(data => new Event(Map(RAW_DATA_KEY -> data._2.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))

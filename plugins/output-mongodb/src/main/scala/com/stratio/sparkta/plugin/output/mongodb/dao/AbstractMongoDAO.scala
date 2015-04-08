@@ -17,9 +17,9 @@ package com.stratio.sparkta.plugin.output.mongodb.dao
 
 import java.io.Closeable
 
+import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.{MongoClient, MongoClientURI, MongoDB}
 import com.mongodb.{DBObject, MongoClientOptions, WriteConcern, casbah, MongoClientURI => JMongoClientURI}
-import com.stratio.sparkta.plugin.output.mongodb.dao.AbstractMongoDAO._
 
 import scala.collection.mutable
 
@@ -27,6 +27,12 @@ trait AbstractMongoDAO extends Closeable {
 
   def mongoClientUri : String
   def dbName : String
+  def language : String
+  def textIndexName : String
+  def languageFieldName: String = "language"
+  def eventTimeFieldName : String = "eventTime"
+  def idFieldName : String = "_id"
+  def idSeparator : String = "_"
 
   protected def client: MongoClient = AbstractMongoDAO.client(mongoClientUri)
 
@@ -34,18 +40,59 @@ trait AbstractMongoDAO extends Closeable {
 
   protected def db(): MongoDB = db(dbName)
 
-  protected def defaultWriteConcern = casbah.WriteConcern.withRule(w = "majority", j = true)
+  protected def defaultWriteConcern = casbah.WriteConcern.Unacknowledged
 
-  def insert
-  (dbName: String, collName: String, dbOjects: Iterator[DBObject], writeConcern: WriteConcern = null): Unit = {
+  def indexExists(collection : String, indexName : String) : Boolean = {
+
+    var indexExists = false
+    val itObjects = db.getCollection(collection).getIndexInfo().iterator()
+
+    while(itObjects.hasNext && !indexExists){
+      val indexObject = itObjects.next()
+      if(indexObject.containsField("name") && (indexObject.get("name") == indexName)) indexExists = true
+    }
+    indexExists
+  }
+
+  def createTextIndex(collection : String, indexName : String, indexField : String, language : String) : Unit = {
+
+    if(!indexExists(collection, indexName)){
+      val options = MongoDBObject.newBuilder
+      options += "name" -> indexName
+      options += "background" -> true
+      if(language != "") options += "default_language" -> language
+
+      db.getCollection(collection).createIndex(
+        MongoDBObject(indexField -> "text"),
+        options.result
+      )
+    }
+  }
+
+  def createIndex(collection : String, indexName : String, indexField : String, order : Int) : Unit = {
+
+    if(!indexExists(collection, indexName)){
+      val options = MongoDBObject.newBuilder
+      options += "name" -> (indexName + "_" + order)
+      options += "background" -> true
+
+      db.getCollection(collection).createIndex(
+        MongoDBObject(indexField -> order),
+        options.result
+      )
+    }
+  }
+
+  def insert(dbName: String, collName: String, dbOjects: Iterator[DBObject],
+             writeConcern: Option[WriteConcern] = None): Unit = {
     val coll = db(dbName).getCollection(collName)
-    dbOjects.grouped(INSERT_BATCH_SIZE).map(dbObjectsBatch =>
-      if (writeConcern == null) {
-        coll.insert(dbObjectsBatch.toArray: _*)
-      } else {
-        coll.insert(dbObjectsBatch.toArray, writeConcern)
-      }
+    val builder = coll.initializeUnorderedBulkOperation
+
+    dbOjects.map(dbObjectsBatch =>
+        builder.insert(dbObjectsBatch)
     )
+    if(writeConcern.isEmpty) builder.execute(defaultWriteConcern) else builder.execute(writeConcern.get)
+
   }
 
   override def close(): Unit = {
@@ -55,18 +102,11 @@ trait AbstractMongoDAO extends Closeable {
 
 private object AbstractMongoDAO {
 
-  /**
-   * Too many insertions in same batch lead to the following error:
-   * command ironport.$cmd command: insert { $msg: "query not recording (too large)" }
-   */
-  private val INSERT_BATCH_SIZE = 128
-
   private val clients: mutable.Map[String, MongoClient] = mutable.Map()
   private val dbs: mutable.Map[(String, String), MongoDB] = mutable.Map()
   private lazy val options = MongoClientOptions.builder()
     .connectionsPerHost(5)
-    .writeConcern(com.mongodb
-    .WriteConcern.UNACKNOWLEDGED)
+    .writeConcern(casbah.WriteConcern.Unacknowledged)
     .threadsAllowedToBlockForConnectionMultiplier(10)
 
   private def client(mongoClientUri: String): MongoClient = {
@@ -79,9 +119,8 @@ private object AbstractMongoDAO {
 
   private def db(mongoClientUri: String, dbName: String): MongoDB = {
     val key = (mongoClientUri, dbName)
-    if (!dbs.contains(key)) {
-      dbs.put(key, client(mongoClientUri).getDB(dbName))
-    }
+    if (!dbs.contains(key)) dbs.put(key, client(mongoClientUri).getDB(dbName))
+
     dbs(key)
   }
 

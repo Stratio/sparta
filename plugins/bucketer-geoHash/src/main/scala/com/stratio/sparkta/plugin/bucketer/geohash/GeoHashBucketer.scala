@@ -15,7 +15,7 @@
  */
 package com.stratio.sparkta.plugin.bucketer.geohash
 
-import java.io
+import java.io.{Serializable => JSerializable}
 
 import com.github.davidmoten.geo.GeoHash
 import com.stratio.sparkta.plugin.bucketer.geohash.GeoHashBucketer._
@@ -58,12 +58,12 @@ case class GeoHashBucketer() extends Bucketer {
       precision11,
       precision12)
 
-  override def bucket(value: io.Serializable): Map[BucketType, io.Serializable] =
-  //TODO temporal data treatment
-    if (value != null) {
+  override def bucket(value: JSerializable): Map[BucketType, JSerializable] = {
+    //TODO temporal data treatment
+    if (value.asInstanceOf[Option[_]] != None) {
       bucketTypes.map(bucketType => {
         //TODO temporal data treatment
-        val latLongString = value.asInstanceOf[String].split("__")
+        val latLongString = value.asInstanceOf[Option[_]].get.asInstanceOf[String].split("__")
         val latDouble = latLongString(0).toDouble
         val longDouble = latLongString(1).toDouble
         bucketType -> GeoHashBucketer.bucket(latDouble, longDouble, bucketType)
@@ -71,25 +71,30 @@ case class GeoHashBucketer() extends Bucketer {
     } else {
       Map()
     }
-
+  }
 }
 
 object GeoHashBucketer {
-  private def bucket(lat: Double, long: Double, bucketType: BucketType): io.Serializable = {
+  private def bucket(lat: Double, long: Double, bucketType: BucketType): JSerializable = {
     (bucketType match {
-      case p if p == precision1 => GeoHash.encodeHash(lat, long, 1)
-      case p if p == precision2 => GeoHash.encodeHash(lat, long, 2)
-      case p if p == precision3 => GeoHash.encodeHash(lat, long, 3)
-      case p if p == precision4 => GeoHash.encodeHash(lat, long, 4)
-      case p if p == precision5 => GeoHash.encodeHash(lat, long, 5)
-      case p if p == precision6 => GeoHash.encodeHash(lat, long, 6)
-      case p if p == precision7 => GeoHash.encodeHash(lat, long, 7)
-      case p if p == precision8 => GeoHash.encodeHash(lat, long, 8)
-      case p if p == precision9 => GeoHash.encodeHash(lat, long, 9)
-      case p if p == precision10 => GeoHash.encodeHash(lat, long, 10)
-      case p if p == precision11 => GeoHash.encodeHash(lat, long, 11)
-      case p if p == precision12 => GeoHash.encodeHash(lat, long, 12)
-    }).asInstanceOf[io.Serializable]
+      case p if p == precision1 => decodeHash(GeoHash.encodeHash(lat, long, 1))
+      case p if p == precision2 => decodeHash(GeoHash.encodeHash(lat, long, 2))
+      case p if p == precision3 => decodeHash(GeoHash.encodeHash(lat, long, 3))
+      case p if p == precision4 => decodeHash(GeoHash.encodeHash(lat, long, 4))
+      case p if p == precision5 => decodeHash(GeoHash.encodeHash(lat, long, 5))
+      case p if p == precision6 => decodeHash(GeoHash.encodeHash(lat, long, 6))
+      case p if p == precision7 => decodeHash(GeoHash.encodeHash(lat, long, 7))
+      case p if p == precision8 => decodeHash(GeoHash.encodeHash(lat, long, 8))
+      case p if p == precision9 => decodeHash(GeoHash.encodeHash(lat, long, 9))
+      case p if p == precision10 => decodeHash(GeoHash.encodeHash(lat, long, 10))
+      case p if p == precision11 => decodeHash(GeoHash.encodeHash(lat, long, 11))
+      case p if p == precision12 => decodeHash(GeoHash.encodeHash(lat, long, 12))
+    })
+  }
+
+  private def decodeHash(geoLocHash : String) = {
+    val geoDecoded = GeoHash.decodeHash(geoLocHash)
+    (geoDecoded.getLat + "/" + geoDecoded.getLon).asInstanceOf[JSerializable]
   }
 
   val precision1 = new BucketType("precision1")

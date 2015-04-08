@@ -55,10 +55,9 @@ class SupervisorActor(streamingContextservice: StreamingContextService) extends 
         super.supervisorStrategy.decider.applyOrElse(t, (_: Any) => Escalate)
     }
 
-  override def receive = {
+  override def receive: PartialFunction[Any, Unit] = {
     case CreateContext(policy) =>
-      val streamingContextActor =
-        context.actorOf(
+      val streamingContextActor = context.actorOf(
           Props(new StreamingContextActor(policy, streamingContextservice)), "context-actor-".concat(policy.name))
       contextActors += (policy.name -> new ContextActorStatus(streamingContextActor, Initializing, null))
       (streamingContextActor ? Init)(Timeout(10 minutes)).onComplete {

@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2014 Stratio (http://stratio.com)
  *
@@ -15,7 +16,7 @@
  */
 package com.stratio.sparkta.plugin.bucketer.datetime
 
-import java.io
+import java.io.{Serializable => JSerializable}
 import java.util.Date
 
 import com.stratio.sparkta.plugin.bucketer.datetime.DateTimeBucketer._
@@ -25,38 +26,60 @@ import org.joda.time.DateTime
 /**
  * Created by ajnavarro on 9/10/14.
  */
-case class DateTimeBucketer() extends Bucketer {
+case class DateTimeBucketer(props: Map[String, JSerializable]) extends Bucketer with JSerializable {
 
-  override val bucketTypes: Seq[BucketType] = Seq(minutes, hours, days, months, years)
+  def this() {
+    this(Map((GRANULARITY_PROPERTY_NAME, DEFAULT_GRANULARITY)))
+  }
 
-  override def bucket(value: io.Serializable): Map[BucketType, io.Serializable] =
+  override val properties: Map[String, JSerializable] = props
+
+  override val bucketTypes: Seq[BucketType] = Seq(timestamp, seconds, minutes, hours, days, months, years)
+
+  override def bucket(value: JSerializable): Map[BucketType, JSerializable] =
     bucketTypes.map(bucketType =>
-      bucketType -> DateTimeBucketer.bucket(value.asInstanceOf[Date], bucketType)
+      bucketType -> DateTimeBucketer.bucket(value.asInstanceOf[Date], bucketType, properties)
     ).toMap
-
 }
 
 object DateTimeBucketer {
-  private def bucket(value: Date, bucketType: BucketType): io.Serializable = {
-    val minutesDate = new DateTime(value).withMillisOfSecond(0).withSecondOfMinute(0)
+
+  def dateFromGranularity(value: Date, granularity : JSerializable): DateTime = {
+    val secondsDate = new DateTime(value).withMillisOfSecond(0)
+    val minutesDate = secondsDate.withSecondOfMinute(0)
     val hourDate = minutesDate.withMinuteOfHour(0)
     val dayDate = hourDate.withHourOfDay(0)
     val monthDate = dayDate.withDayOfMonth(1)
     val yearDate = monthDate.withMonthOfYear(1)
 
-    (bucketType match {
-      case m if m == minutes => minutesDate
-      case h if h == hours => hourDate
-      case d if d == days => dayDate
-      case mo if mo == months => monthDate
-      case y if y == years => yearDate
-    }).toDate.asInstanceOf[io.Serializable]
+    granularity match {
+      case "minute" => minutesDate
+      case "hour" => hourDate
+      case "day" => dayDate
+      case "month" => monthDate
+      case "year" => yearDate
+      case _ => secondsDate
+    }
   }
 
+  private def bucket(value: Date, bucketType: BucketType, properties: Map[String, JSerializable]): JSerializable = {
+
+    dateFromGranularity(value , bucketType match {
+      case t if t == timestamp => properties.contains(GRANULARITY_PROPERTY_NAME) match {
+        case true => properties.get(GRANULARITY_PROPERTY_NAME).get
+        case _ => DEFAULT_GRANULARITY
+      }
+      case _ => bucketType.id
+    }).toDate.asInstanceOf[JSerializable]
+  }
+
+  private final val DEFAULT_GRANULARITY = "second".asInstanceOf[JSerializable]
+  private final val GRANULARITY_PROPERTY_NAME = "granularity"
+  val seconds = new BucketType("second")
   val minutes = new BucketType("minute")
   val hours = new BucketType("hour")
   val days = new BucketType("day")
   val months = new BucketType("month")
   val years = new BucketType("year")
-
+  val timestamp = Bucketer.timestamp
 }

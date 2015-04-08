@@ -19,11 +19,12 @@ import java.io.Serializable
 
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import org.apache.spark.streaming.dstream.DStream
+import org.joda.time.DateTime
 
-abstract class Output(properties: Map[String, Serializable], val schema : Map[String,WriteOp])
+abstract class Output(properties: Map[String, Serializable], val schema : Option[Map[String,WriteOp]])
   extends Parameterizable(properties) {
 
-  if (schema == null) {
+  if (schema.isEmpty) {
     throw new NullPointerException("schema")
   }
 
@@ -36,8 +37,36 @@ abstract class Output(properties: Map[String, Serializable], val schema : Map[St
 
   def supportedWriteOps : Seq[WriteOp]
 
+  def multiplexer : Boolean
+
+  def timeBucket : String
+
+  def granularity : String
+
   def persist(stream: DStream[UpdateMetricOperation]) : Unit
 
   def persist(streams: Seq[DStream[UpdateMetricOperation]]) : Unit =
     streams.foreach(persist)
+}
+
+
+object Output {
+
+  def dateFromGranularity(value: DateTime, granularity : String): DateTime = {
+      val secondsDate = new DateTime(value).withMillisOfSecond(0)
+      val minutesDate = secondsDate.withSecondOfMinute(0)
+      val hourDate = minutesDate.withMinuteOfHour(0)
+      val dayDate = hourDate.withHourOfDay(0)
+      val monthDate = dayDate.withDayOfMonth(1)
+      val yearDate = monthDate.withMonthOfYear(1)
+
+      granularity match {
+        case "minute" => minutesDate
+        case "hour" => hourDate
+        case "day" => dayDate
+        case "month" => monthDate
+        case "year" => yearDate
+        case _ => secondsDate
+      }
+  }
 }

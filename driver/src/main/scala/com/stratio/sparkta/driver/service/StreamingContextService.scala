@@ -16,21 +16,26 @@
 package com.stratio.sparkta.driver.service
 
 import java.io.{File, Serializable}
+import org.reflections.Reflections
+
+import scala.annotation.tailrec
 
 import akka.event.slf4j.SLF4JLogging
+import com.typesafe.config.Config
+import org.apache.spark.streaming.{Duration, StreamingContext}
+import org.apache.spark.streaming.dstream.DStream
+
 import com.stratio.sparkta.aggregator.{DataCube, Rollup}
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory.SparkContextFactory
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
-import com.typesafe.config.Config
-import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.streaming.{Duration, StreamingContext}
-
+import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import scala.collection.JavaConversions._
 
 class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging {
 
+  // scalastyle:ignore method.length
   def createStreamingContext(apConfig: AggregationPoliciesDto): StreamingContext = {
     val ssc = new StreamingContext(
       /*
@@ -42,31 +47,25 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       may be several baked-in assumptions that we'll have to address
       (the (effectively) global SparkEnv, for example).
        */
-      //new SparkContext(configToSparkConf(generalConfiguration, apConfig.name)),
-      SparkContextFactory.sparkContextInstance(generalConfig, jars),
-      new Duration(apConfig.duration))
-
+      SparkContextFactory.sparkContextInstance(generalConfig, jars), new Duration(apConfig.duration))
     val inputs: Map[String, DStream[Event]] = apConfig.inputs.map(i =>
       (i.name, tryToInstantiate[Input](i.elementType, (c) =>
         instantiateParameterizable[Input](c, i.configuration)).setUp(ssc))).toMap
-
     val parsers: Seq[Parser] = apConfig.parsers.map(p =>
       tryToInstantiate[Parser](p.elementType, (c) =>
         instantiateParameterizable[Parser](c, p.configuration)))
-
     val operators: Seq[Operator] = apConfig.operators.map(op =>
       tryToInstantiate[Operator](op.elementType, (c) =>
         instantiateParameterizable[Operator](c, op.configuration)))
-
     //TODO workaround this instantiateDimensions(apConfig).toMap.map(_._2) is not serializable.
     val dimensionsMap: Map[String, Dimension] = instantiateDimensions(apConfig).toMap
     val dimensionsSeq: Seq[Dimension] = instantiateDimensions(apConfig).map(_._2)
 
-    val outputSchema = operators.map(op => op.key -> op.writeOperation).toMap
+    val outputSchema = Some(operators.map(op => op.key -> op.writeOperation).toMap)
 
     val outputs = apConfig.outputs.map(o =>
       (o.name, tryToInstantiate[Output](o.elementType, (c) =>
-        c.getDeclaredConstructor(classOf[Map[String, Serializable]], classOf[Map[String, WriteOp]])
+        c.getDeclaredConstructor(classOf[Map[String, Serializable]], classOf[Option[Map[String, WriteOp]]])
           .newInstance(o.configuration, outputSchema).asInstanceOf[Output]
       )))
 
@@ -74,7 +73,7 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       val components = r.dimensionAndBucketTypes.map(dab => {
         dimensionsMap.get(dab.dimensionName) match {
           case Some(x: Dimension) => x.bucketTypes.contains(new BucketType(dab.bucketType)) match {
-            case true => (x, new BucketType(dab.bucketType))
+            case true => (x, new BucketType(dab.bucketType, dab.configuration.getOrElse(Map())))
             case _ =>
               throw new DriverException(
                 "Bucket type " + dab.bucketType + " not supported in dimension " + dab.dimensionName)
@@ -89,14 +88,8 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     val input: DStream[Event] = inputs.head._2
     //TODO only support one output
     val output = outputs.head._2
-
-    var parsed = input
-    for (parser <- parsers) {
-      parsed = parser.map(parsed)
-    }
-
+    val parsed = StreamingContextService.applyParsers(input, parsers)
     output.persist(new DataCube(dimensionsSeq, rollups).setUp(parsed))
-
     ssc
   }
 
@@ -113,8 +106,11 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
   }
 
   private def tryToInstantiate[C](classAndPackage: String, block: Class[_] => C): C = {
+    val clazMap: Map[String, String] = StreamingContextService.getClasspathMap
+
+    val finalClazzToInstance=clazMap.getOrElse(classAndPackage,classAndPackage)
     try {
-      val clazz = Class.forName(classAndPackage)
+      val clazz = Class.forName(finalClazzToInstance)
       block(clazz)
     } catch {
       case cnfe: ClassNotFoundException =>
@@ -125,11 +121,31 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       case e: Exception => throw DriverException.create(
         "Generic error trying to instantiate " + classAndPackage, e)
     }
-
   }
 
-  private def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C = {
+
+  private def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C =
     clazz.getDeclaredConstructor(classOf[Map[String, Serializable]]).newInstance(properties).asInstanceOf[C]
+}
+
+object StreamingContextService {
+
+  @tailrec
+  def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
+    if (parsers.size > 0) applyParsers(input.map(event => parsers.head.parse(event)), parsers.drop(1))
+    else input
+  }
+  val getClasspathMap : Map[String, String] = {
+    val reflections = new Reflections()()
+    val inputs = reflections.getSubTypesOf(classOf[Input]).toList
+    val bucketers = reflections.getSubTypesOf(classOf[Bucketer]).toList
+    val operators = reflections.getSubTypesOf(classOf[Operator]).toList
+    val outputs = reflections.getSubTypesOf(classOf[Output]).toList
+    val parsers = reflections.getSubTypesOf(classOf[Parser]).toList
+    val plugins = inputs ++ bucketers ++ operators ++ outputs ++ parsers
+
+    plugins map (t => t.getSimpleName -> t.getCanonicalName) toMap
+
   }
 
 }

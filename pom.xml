@@ -77,6 +77,14 @@
                 <role>developer</role>
             </roles>
         </developer>
+        <developer>
+            <id>jcgarcia</id>
+            <name>Jose Carlos Garcia</name>
+            <email>jcgarcia@stratio.com</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
     </developers>
 
     <properties>
@@ -87,7 +95,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <scala.binary.version>2.10</scala.binary.version>
         <scala.version>2.10.4</scala.version>
-        <spark.version>1.2.0</spark.version>
+        <spark.version>1.3.0</spark.version>
         <slf4j.version>1.7.7</slf4j.version>
         <joda.time.version>2.5</joda.time.version>
         <scalatest.version>2.2.2</scalatest.version>
@@ -143,7 +151,7 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.spark</groupId>
-                <artifactId>spark-sql_2.10</artifactId>
+                <artifactId>spark-sql_${scala.binary.version}</artifactId>
                 <version>${spark.version}</version>
             </dependency>
             <dependency>
@@ -312,7 +320,7 @@
                     <failOnWarning>false</failOnWarning>
                     <sourceDirectory>${basedir}/src/main/scala</sourceDirectory>
                     <testSourceDirectory>${basedir}/src/test/scala</testSourceDirectory>
-                    <configLocation>scalastyle-config.xml</configLocation>
+                    <configLocation>project/scalastyle_config.xml</configLocation>
                     <outputFile>target/scalastyle-output-${project.artifactId}.xml</outputFile>
                     <outputEncoding>UTF-8</outputEncoding>
                 </configuration>

@@ -16,25 +16,28 @@
 package com.stratio.sparkta.plugin.operator.min
 
 import java.io.{Serializable => JSerializable}
-
 import com.stratio.sparkta.sdk._
-import ValidatingPropertyMap._
+import com.stratio.sparkta.sdk.ValidatingPropertyMap._
+
+import scala.util.Try
 
 class MinOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  private val inputField = properties.getString("inputField")
+  private val inputField = if(properties.contains("inputField")) properties.getString("inputField") else ""
 
   override val key : String = "min_" + inputField
 
   override val writeOperation = WriteOp.Min
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Long] =
+  override def processMap(inputFields: Map[String, JSerializable]) =
     inputFields.contains(inputField) match {
-      case false => None
-      case true => Some(inputFields.getLong(inputField))
+      case false => Some(0)
+      case true => Some(inputFields.get(inputField).get.asInstanceOf[Number])
     }
 
-  override def processReduce(values: Iterable[Long]): Long =
-    values.min
+  override def processReduce(values : Iterable[Option[_>:AnyVal]]) = {
+    Try(Some(values.map(_.get.asInstanceOf[Number].doubleValue()).min))
+      .getOrElse(Some(0))
+  }
 
 }
