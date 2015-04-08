@@ -27,18 +27,18 @@ case class UpdateMetricOperation(
     throw new NullPointerException("aggregations")
   }
 
-  private def SEPARATOR = "__"
+  def SEPARATOR = "_"
 
-  // TODO: This should be refactored out of here
   def keyString: String = {
-    rollupKey.sortWith(_.dimension.name < _.dimension.name).map(dimVal => {
+    rollupKey.sortWith((dim1,dim2) =>
+      (dim1.dimension.name + dim1.bucketType.id) < (dim2.dimension.name + dim2.bucketType.id)
+    ).map(dimVal => {
       dimVal.bucketType match {
         case Bucketer.identity => dimVal.dimension.name
         case Bucketer.fulltext => ""
-        case _ => dimVal.dimension.name + SEPARATOR + dimVal.bucketType.id
+        case _ => dimVal.bucketType.id //dimVal.dimension.name + SEPARATOR + dimVal.bucketType.id
       }
-    }).filter(dimName => dimName.nonEmpty)
-      .mkString(SEPARATOR)
+    }).filter(dimName => dimName.nonEmpty).mkString(SEPARATOR)
   }
 
   override def toString: String = {

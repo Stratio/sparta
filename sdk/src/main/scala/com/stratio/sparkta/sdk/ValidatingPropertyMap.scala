@@ -43,27 +43,11 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
   }
 
   def getBoolean(key: K): Boolean =
-    m.get(key) match {
-      case Some(value: String) => value.asInstanceOf[Boolean]
-      case Some(value: Int) => value.asInstanceOf[Boolean]
-      case Some(value: Boolean) => value.asInstanceOf[Boolean]
-      case None =>
-        throw new Exception(s"$key is mandatory")
+    m.get(key).getOrElse(throw new Exception(s"$key is mandatory")) match {
+      case value: String => value.toBoolean
+      case value: Int => value.asInstanceOf[Boolean]
+      case value: Boolean => value
     }
-
-/*  def getBoolean(key: K, default : Boolean): Boolean = {
-    m.contains(key) match {
-      case true => m.get(key) match {
-        case Some(value: String) => value.asInstanceOf[Boolean]
-        case Some(value: Int) => value.asInstanceOf[Boolean]
-        case Some(value: Boolean) => value.asInstanceOf[Boolean]
-        case None => default
-      }
-      case _ => default
-    }
-  }
-  */
-
 
   def getInt(key: K): Int =
     m.get(key) match {

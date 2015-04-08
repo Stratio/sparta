@@ -23,5 +23,5 @@ class DriverException(msg: String) extends RuntimeException(msg)
 object DriverException {
   def create(msg: String): DriverException = new DriverException(msg)
 
-  def create(msg: String, cause: Throwable) = new DriverException(msg).initCause(cause)
+  def create(msg: String, cause: Throwable): Throwable = new DriverException(msg).initCause(cause)
 }

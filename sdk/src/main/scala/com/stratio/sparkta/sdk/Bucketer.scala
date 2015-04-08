@@ -16,13 +16,18 @@
 package com.stratio.sparkta.sdk
 
 import java.io
-import java.io.Serializable
 
 /**
  * Created by ajnavarro on 9/10/14.
  */
 
-case class BucketType(id: String)
+case class BucketType(id: String, properties :Map[String, io.Serializable]) {
+
+  def this(id: String) {
+    this(id, Map())
+  }
+
+}
 
 trait Bucketer {
   /**
@@ -43,11 +48,14 @@ trait Bucketer {
    */
   def bucketTypes(): Seq[BucketType]
 
-  val properties: Map[String, Serializable] = Map()
+  val properties: Map[String, io.Serializable] = Map()
 
 }
 
 object Bucketer {
+
   val identity = new BucketType("identity")
   val fulltext = new BucketType("fulltext")
+  val timestamp = new BucketType("timestamp")
+  val identityField = new BucketType("identityField")
 }

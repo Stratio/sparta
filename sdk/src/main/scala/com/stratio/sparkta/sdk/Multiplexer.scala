@@ -22,8 +22,60 @@ import org.apache.spark.streaming.dstream.DStream
  */
 trait Multiplexer {
 
-  def multiplexStream(stream: DStream[UpdateMetricOperation]) : DStream[UpdateMetricOperation]
+  def getStreamsFromOptions(stream : DStream[UpdateMetricOperation],
+                            multiplexer : Boolean, fixedBucket : String) : DStream[UpdateMetricOperation]
+}
 
-  def multiplexStream(stream: DStream[UpdateMetricOperation], fixedDimension : String) : DStream[UpdateMetricOperation]
+object Multiplexer {
+
+  def combine(in: Seq[DimensionValue]): Seq[Seq[DimensionValue]] = {
+    for {
+      len <- 1 to in.length
+      combinations <- in combinations len
+    } yield combinations
+  }
+
+  def multiplexStream(stream: DStream[UpdateMetricOperation]) : DStream[UpdateMetricOperation] = {
+     for {
+        upMetricOp: UpdateMetricOperation <- stream
+        comb: Seq[DimensionValue] <- combine(upMetricOp.rollupKey)
+          .filter(dimVals =>
+          (dimVals.size > 1) ||
+            ((dimVals.size == 1) && (dimVals.last.bucketType != Bucketer.fulltext))
+          )
+      } yield UpdateMetricOperation(
+          comb.sortWith((dim1,dim2) =>
+            (dim1.dimension.name + dim1.bucketType.id) < (dim2.dimension.name + dim2.bucketType.id)),
+          upMetricOp.aggregations)
+  }
+
+  def multiplexStream[T](stream: DStream[UpdateMetricOperation],
+                               fixedBucket : T) : DStream[UpdateMetricOperation] = {
+     for {
+        upMetricOp: UpdateMetricOperation <- stream
+        fixedDim = fixedBucket match {
+          case Some(value: DimensionValue) => fixedBucket.asInstanceOf[Option[DimensionValue]]
+          case value : String => upMetricOp.rollupKey.find(
+            dimValue => dimValue.bucketType.id == fixedBucket.asInstanceOf[String])
+        }
+        comb: Seq[DimensionValue] <- combine(
+          upMetricOp.rollupKey.filter(_.bucketType.id != (fixedDim match {
+            case None => ""
+            case _ => fixedDim.get.bucketType.id
+          })
+          ))
+          .filter(dimVals =>
+          (dimVals.size > 1) || ((dimVals.size == 1) && (dimVals.last.bucketType != Bucketer.fulltext)))
+          .map(seqDimVal => {
+          fixedDim match {
+            case None => seqDimVal
+            case _ => seqDimVal ++ Seq(fixedDim.get)
+          }
+        })
+     } yield UpdateMetricOperation(
+          comb.sortWith((dim1, dim2) =>
+            (dim1.dimension.name + dim1.bucketType.id) < (dim2.dimension.name + dim2.bucketType.id)),
+          upMetricOp.aggregations)
+  }
 
 }
