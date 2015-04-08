@@ -320,7 +320,7 @@
                     <failOnWarning>false</failOnWarning>
                     <sourceDirectory>${basedir}/src/main/scala</sourceDirectory>
                     <testSourceDirectory>${basedir}/src/test/scala</testSourceDirectory>
-                    <configLocation>scalastyle-config.xml</configLocation>
+                    <configLocation>project/scalastyle_config.xml</configLocation>
                     <outputFile>target/scalastyle-output-${project.artifactId}.xml</outputFile>
                     <outputEncoding>UTF-8</outputEncoding>
                 </configuration>
