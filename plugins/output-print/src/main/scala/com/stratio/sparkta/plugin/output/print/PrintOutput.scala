@@ -23,8 +23,7 @@ import org.apache.spark.streaming.dstream.DStream
 
 import scala.util.Try
 
-
-class PrintOutput(properties: Map[String, JSerializable], schema : Map[String,WriteOp])
+class PrintOutput(properties: Map[String, JSerializable], schema: Option[Map[String, WriteOp]])
   extends Output(properties, schema) {
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min)
@@ -32,7 +31,7 @@ class PrintOutput(properties: Map[String, JSerializable], schema : Map[String,Wr
   override val multiplexer = Try(
     properties("multiplexer").asInstanceOf[String].toLowerCase().toBoolean).getOrElse(false)
 
-  override def timeBucket : String = Try(properties("timeDimension").asInstanceOf[String]).getOrElse("")
+  override def timeBucket: String = Try(properties("timeDimension").asInstanceOf[String]).getOrElse("")
 
   override val granularity = Try(properties("granularity").asInstanceOf[String]).getOrElse("")
 
@@ -43,5 +42,4 @@ class PrintOutput(properties: Map[String, JSerializable], schema : Map[String,Wr
   override def persist(stream: DStream[UpdateMetricOperation]): Unit = {
     stream.print()
   }
-
 }

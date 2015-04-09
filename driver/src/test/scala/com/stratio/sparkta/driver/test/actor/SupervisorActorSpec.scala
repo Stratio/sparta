@@ -15,13 +15,10 @@
  */
 package com.stratio.sparkta.driver.test.actor
 
+import scala.concurrent.duration.DurationInt
+
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
-import com.stratio.sparkta.driver.actor.StreamingContextStatusEnum._
-import com.stratio.sparkta.driver.actor._
-import com.stratio.sparkta.driver.dto.{AggregationPoliciesDto, StreamingContextStatusDto}
-import com.stratio.sparkta.driver.exception.DriverException
-import com.stratio.sparkta.driver.service.StreamingContextService
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.streaming.StreamingContext
 import org.mockito.Matchers._
@@ -29,7 +26,11 @@ import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
 
-import scala.concurrent.duration.DurationInt
+import com.stratio.sparkta.driver.actor.StreamingContextStatusEnum._
+import com.stratio.sparkta.driver.actor._
+import com.stratio.sparkta.driver.dto.{AggregationPoliciesDto, StreamingContextStatusDto}
+import com.stratio.sparkta.driver.exception.DriverException
+import com.stratio.sparkta.driver.service.StreamingContextService
 
 /**
  * Created by ajnavarro on 8/10/14.
@@ -40,17 +41,17 @@ class SupervisorActorSpec
   with DefaultTimeout with ImplicitSender
   with WordSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with MockitoSugar {
 
-  var streamingContextService: StreamingContextService = null
+  var streamingContextService: Option[StreamingContextService] = None
 
   before {
-    streamingContextService = mock[StreamingContextService]
+    streamingContextService = Some(mock[StreamingContextService])
     val ssc = mock[StreamingContext]
     doNothing().when(ssc).start()
-    when(streamingContextService.createStreamingContext(any[AggregationPoliciesDto])).thenReturn(ssc)
+    when(streamingContextService.get.createStreamingContext(any[AggregationPoliciesDto])).thenReturn(ssc)
   }
 
   after {
-    streamingContextService = null
+    streamingContextService = None
   }
 
   override protected def afterAll(): Unit = {
@@ -62,7 +63,7 @@ class SupervisorActorSpec
       val supervisorRef = createSupervisorActor
       val errorMessage = "An error ocurred"
 
-      when(streamingContextService.createStreamingContext(any[AggregationPoliciesDto]))
+      when(streamingContextService.get.createStreamingContext(any[AggregationPoliciesDto]))
         .thenThrow(new DriverException(errorMessage))
 
       within(5000 millis) {
@@ -72,14 +73,13 @@ class SupervisorActorSpec
 
       within(5000 millis) {
         supervisorRef ! new GetContextStatus("test-1")
-        expectMsg(new StreamingContextStatusDto("test-1", ConfigurationError, errorMessage))
+        expectMsg(new StreamingContextStatusDto("test-1", ConfigurationError, Some(errorMessage)))
       }
-
     }
     "Init a StreamingContextActor and any unexpected error is thrown" in {
       val supervisorRef = createSupervisorActor
 
-      when(streamingContextService.createStreamingContext(any[AggregationPoliciesDto]))
+      when(streamingContextService.get.createStreamingContext(any[AggregationPoliciesDto]))
         .thenThrow(new NullPointerException)
       within(5000 millis) {
         supervisorRef ! new CreateContext(createPolicyConfiguration("test-1"))
@@ -88,7 +88,7 @@ class SupervisorActorSpec
 
       within(5000 millis) {
         supervisorRef ! new GetContextStatus("test-1")
-        expectMsg(new StreamingContextStatusDto("test-1", Error, null))
+        expectMsg(new StreamingContextStatusDto("test-1", Error, None))
       }
     }
     //TODO test when creating a streamingContextActor unexpected error occurs
@@ -103,9 +103,8 @@ class SupervisorActorSpec
 
       within(5000 millis) {
         supervisorRef ! new GetContextStatus("test-1")
-        expectMsg(new StreamingContextStatusDto("test-1", Initialized, null))
+        expectMsg(new StreamingContextStatusDto("test-1", Initialized, None))
       }
-
     }
     "Get a context status for a created context" in {
       val supervisorRef = createSupervisorActor
@@ -117,7 +116,7 @@ class SupervisorActorSpec
 
       within(5000 millis) {
         supervisorRef ! new GetContextStatus("test-1")
-        expectMsg(new StreamingContextStatusDto("test-1", Initialized, null))
+        expectMsg(new StreamingContextStatusDto("test-1", Initialized, None))
       }
     }
     "Delete a previously created context" in {
@@ -131,7 +130,7 @@ class SupervisorActorSpec
 
       within(5000 millis) {
         supervisorRef ! new DeleteContext("test-1")
-        expectMsg(new StreamingContextStatusDto("test-1", Removed, null))
+        expectMsg(new StreamingContextStatusDto("test-1", Removed, None))
       }
     }
     "Get all context statuses" in {
@@ -168,7 +167,7 @@ class SupervisorActorSpec
   }
 
   private def createSupervisorActor: ActorRef = {
-    system.actorOf(Props(new SupervisorActor(streamingContextService)))
+    system.actorOf(Props(new SupervisorActor(streamingContextService.get)))
   }
 
   private def createPolicyConfiguration(name: String): AggregationPoliciesDto = {
@@ -179,6 +178,7 @@ class SupervisorActorSpec
 }
 
 object SupervisorActorSpec {
+
   val config = """
                akka {
                  loglevel ="OFF"
