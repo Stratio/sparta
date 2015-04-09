@@ -19,22 +19,19 @@ package com.stratio.sparkta.driver.test.route
  * Created by ajnavarro on 3/11/14.
  */
 
-
+import scala.concurrent.duration._
 
 import akka.actor.{ActorRef, ActorRefFactory}
 import akka.testkit.TestProbe
+import org.scalatest.{Matchers, WordSpecLike}
+import spray.http.StatusCodes._
+import spray.routing.ValidationRejection
+import spray.testkit.ScalatestRouteTest
+
 import com.stratio.sparkta.driver.actor.StreamingContextStatusEnum._
 import com.stratio.sparkta.driver.actor.{CreateContext, DeleteContext, GetAllContextStatus, GetContextStatus}
 import com.stratio.sparkta.driver.dto._
 import com.stratio.sparkta.driver.route.PolicyRoutes
-import org.scalatest.{Matchers, WordSpecLike}
-import spray.http.StatusCodes._
-import spray.routing.{ValidationRejection, MethodRejection}
-import spray.testkit.ScalatestRouteTest
-
-import spray.http.HttpMethods
-
-import scala.concurrent.duration._
 
 class PolicyRoutesSpec extends WordSpecLike
 with PolicyRoutes
@@ -55,8 +52,8 @@ with Matchers {
       supervisorProbe.expectMsg(GetAllContextStatus)
 
       supervisorProbe.reply(List(
-        new StreamingContextStatusDto("p-1", Initializing, null),
-        new StreamingContextStatusDto("p-2", Error, "SOME_ERROR_DESCRIPTION")))
+        new StreamingContextStatusDto("p-1", Initializing, None),
+        new StreamingContextStatusDto("p-2", Error, Some("SOME_ERROR_DESCRIPTION"))))
 
       test ~> check {
         status should equal(OK)
@@ -70,7 +67,7 @@ with Matchers {
       val POLICY_NAME = "p-1"
       val test = Get("/policy/" + POLICY_NAME) ~> policyRoutes
       supervisorProbe.expectMsg(new GetContextStatus(POLICY_NAME))
-      supervisorProbe.reply(new StreamingContextStatusDto(POLICY_NAME, Initialized, null))
+      supervisorProbe.reply(new StreamingContextStatusDto(POLICY_NAME, Initialized, None))
       test ~> check {
         status should equal(OK)
         entity.asString should include(POLICY_NAME)
@@ -93,7 +90,7 @@ with Matchers {
       val POLICY_NAME = "p-1"
       val test = Delete("/policy/" + POLICY_NAME) ~> policyRoutes
       supervisorProbe.expectMsg(new DeleteContext(POLICY_NAME))
-      supervisorProbe.reply(new StreamingContextStatusDto(POLICY_NAME, Removed, null))
+      supervisorProbe.reply(new StreamingContextStatusDto(POLICY_NAME, Removed, None))
       test ~> check {
         status should equal(OK)
         entity.asString should include(POLICY_NAME)
@@ -105,12 +102,12 @@ with Matchers {
       val POLICY_NAME = "p-1"
       val DIMENSION_TO_ROLLUP = "dimension2"
       val dimensionDto = new DimensionDto("dimensionType", "dimension1", None)
-      val rollupDto = new RollupDto(Seq(new DimensionAndBucketTypeDto(DIMENSION_TO_ROLLUP, "dimensionType")))
+      val rollupDto = new RollupDto(Seq(new DimensionAndBucketTypeDto(DIMENSION_TO_ROLLUP, "dimensionType", None)))
       val apd =
         new AggregationPoliciesDto(POLICY_NAME, 0, Seq(dimensionDto), Seq(rollupDto), Seq(), Seq(), Seq(), Seq())
       val test = Post("/policy", apd) ~> policyRoutes
       test ~> check {
-        rejections should equal(List(ValidationRejection("All rollups should be declared in dimensions block\n",None)))
+        rejections should equal(List(ValidationRejection("All rollups should be declared in dimensions block\n", None)))
       }
     }
   }

@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.driver.actor
 
 import akka.actor.SupervisorStrategy.Escalate
@@ -58,7 +59,7 @@ class SupervisorActor(streamingContextservice: StreamingContextService) extends 
   override def receive: PartialFunction[Any, Unit] = {
     case CreateContext(policy) =>
       val streamingContextActor = context.actorOf(
-          Props(new StreamingContextActor(policy, streamingContextservice)), "context-actor-".concat(policy.name))
+        Props(new StreamingContextActor(policy, streamingContextservice)), "context-actor-".concat(policy.name))
       contextActors += (policy.name -> new ContextActorStatus(streamingContextActor, Initializing, null))
       (streamingContextActor ? Init)(Timeout(10 minutes)).onComplete {
         case Success(Initialized) =>
@@ -95,7 +96,8 @@ class SupervisorActor(streamingContextservice: StreamingContextService) extends 
     case GetContextStatus(contextName) =>
       contextActors.get(contextName) match {
         case Some(contextActorStatus) =>
-          sender ! new StreamingContextStatusDto(contextName, contextActorStatus.status, contextActorStatus.description)
+          sender ! new StreamingContextStatusDto(contextName, contextActorStatus.status,
+            Some(contextActorStatus.description))
         case None =>
           throw new DriverException("Context with name " + contextName + " does not exists.")
       }
@@ -104,12 +106,13 @@ class SupervisorActor(streamingContextservice: StreamingContextService) extends 
         case Some(contextActorStatus) =>
           contextActorStatus.actor ! PoisonPill
           contextActors -= contextName
-          sender ! new StreamingContextStatusDto(contextName, Removed, null)
+          sender ! new StreamingContextStatusDto(contextName, Removed, None)
         case None =>
           throw new DriverException("Context with name " + contextName + " does not exists.")
       }
     case GetAllContextStatus =>
-      sender ! contextActors.map(cas => new StreamingContextStatusDto(cas._1, cas._2.status, cas._2.description)).toList
+      sender ! contextActors.map(cas => new StreamingContextStatusDto(cas._1, cas._2.status, Some(cas._2.description)))
+        .toList
   }
 
   override def postStop(): Unit = {
