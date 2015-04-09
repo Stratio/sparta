@@ -15,11 +15,11 @@
  */
 package com.stratio.sparkta.driver.route
 
-import akka.actor.ActorRef
+import akka.actor.{ActorRefFactory, ActorRef}
 import akka.pattern.ask
 import akka.util.Timeout
 import com.stratio.sparkta.driver.actor._
-import com.stratio.sparkta.driver.dto.{AggregationPoliciesDto, StreamingContextStatusDto}
+import com.stratio.sparkta.driver.dto.{AggregationPoliciesValidator, AggregationPoliciesDto, StreamingContextStatusDto}
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import org.json4s.DefaultFormats
@@ -28,6 +28,7 @@ import spray.httpx.Json4sJacksonSupport
 import spray.routing.{ExceptionHandler, HttpService}
 import spray.util.LoggingContext
 
+import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration.DurationDouble
 
 trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
@@ -36,7 +37,7 @@ trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
     new JsoneyStringSerializer()
   implicit val timeout: Timeout = 15 seconds
 
-  implicit def executionContext = actorRefFactory.dispatcher
+  implicit def executionContext: ExecutionContextExecutor = actorRefFactory.dispatcher
 
   val supervisor: ActorRef
 
@@ -50,9 +51,12 @@ trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
     } ~
       post {
         entity(as[AggregationPoliciesDto]) { p =>
-          complete {
-            supervisor ! new CreateContext(p)
-            new Result("Creating new context with name " + p.name)
+          val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(p)
+          validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
+            complete {
+              supervisor ! new CreateContext(p)
+              new Result("Creating new context with name " + p.name)
+            }
           }
         }
       } ~
@@ -71,7 +75,7 @@ trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
   }
 
   //TODO test
-  implicit def driverExceptionHandler(implicit log: LoggingContext) =
+  implicit def driverExceptionHandler(implicit log: LoggingContext) : ExceptionHandler =
     ExceptionHandler {
       case e: DriverException =>
         requestUri { uri =>

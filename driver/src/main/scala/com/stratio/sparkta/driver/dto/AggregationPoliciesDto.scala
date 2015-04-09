@@ -15,14 +15,45 @@
  */
 package com.stratio.sparkta.driver.dto
 
+
 /**
  * Created by ajnavarro on 2/10/14.
  */
 case class AggregationPoliciesDto(name: String = "default",
-                                  val duration: Int = 2000,
+                                  duration: Long = AggregationPoliciesDto.StreamingWindowDurationInMillis,
                                   dimensions: Seq[DimensionDto],
                                   rollups: Seq[RollupDto],
                                   operators: Seq[PolicyElementDto],
                                   inputs: Seq[PolicyElementDto],
                                   parsers: Seq[PolicyElementDto],
                                   outputs: Seq[PolicyElementDto])
+
+case object AggregationPoliciesDto {
+  val StreamingWindowDurationInMillis = 2000
+}
+
+object AggregationPoliciesValidator {
+  def validateDto(aggregationPoliciesDto : AggregationPoliciesDto): (Boolean, String) = {
+
+    def validateRollupsInDimensions: (Boolean, String) = {
+
+      val dimensionNames = aggregationPoliciesDto.dimensions.map(_.name)
+
+      val rollupNames = aggregationPoliciesDto.rollups.flatMap(_.dimensionAndBucketTypes).map(_.dimensionName)
+
+      val isRollupInDimensions = dimensionNames.containsSlice(rollupNames)
+      val isRollupInDimensionsMsg =
+        if (!isRollupInDimensions)
+          "All rollups should be declared in dimensions block\n"
+        else
+          ""
+      (isRollupInDimensions, isRollupInDimensionsMsg)
+    }
+
+    val (isRollupInDimensions: Boolean, isRollupInDimensionsMsg: String) = validateRollupsInDimensions
+
+    val isValid = isRollupInDimensions
+    val errorMsg = isRollupInDimensionsMsg
+    (isValid, errorMsg)
+  }
+}
