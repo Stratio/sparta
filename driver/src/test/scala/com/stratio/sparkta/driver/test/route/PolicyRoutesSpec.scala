@@ -19,15 +19,20 @@ package com.stratio.sparkta.driver.test.route
  * Created by ajnavarro on 3/11/14.
  */
 
+
+
 import akka.actor.{ActorRef, ActorRefFactory}
 import akka.testkit.TestProbe
 import com.stratio.sparkta.driver.actor.StreamingContextStatusEnum._
 import com.stratio.sparkta.driver.actor.{CreateContext, DeleteContext, GetAllContextStatus, GetContextStatus}
-import com.stratio.sparkta.driver.dto.{AggregationPoliciesDto, StreamingContextStatusDto}
+import com.stratio.sparkta.driver.dto._
 import com.stratio.sparkta.driver.route.PolicyRoutes
 import org.scalatest.{Matchers, WordSpecLike}
 import spray.http.StatusCodes._
+import spray.routing.{ValidationRejection, MethodRejection}
 import spray.testkit.ScalatestRouteTest
+
+import spray.http.HttpMethods
 
 import scala.concurrent.duration._
 
@@ -96,6 +101,17 @@ with Matchers {
         entity.asString should include("Removed")
       }
     }
-    //TODO test error cases
+    "Validate policy rollup" in {
+      val POLICY_NAME = "p-1"
+      val DIMENSION_TO_ROLLUP = "dimension2"
+      val dimensionDto = new DimensionDto("dimensionType", "dimension1", None)
+      val rollupDto = new RollupDto(Seq(new DimensionAndBucketTypeDto(DIMENSION_TO_ROLLUP, "dimensionType")))
+      val apd =
+        new AggregationPoliciesDto(POLICY_NAME, 0, Seq(dimensionDto), Seq(rollupDto), Seq(), Seq(), Seq(), Seq())
+      val test = Post("/policy", apd) ~> policyRoutes
+      test ~> check {
+        rejections should equal(List(ValidationRejection("All rollups should be declared in dimensions block\n",None)))
+      }
+    }
   }
 }
