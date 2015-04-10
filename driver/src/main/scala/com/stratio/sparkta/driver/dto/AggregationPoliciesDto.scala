@@ -39,9 +39,11 @@ object AggregationPoliciesValidator {
 
       val dimensionNames = aggregationPoliciesDto.dimensions.map(_.name)
 
-      val rollupNames = aggregationPoliciesDto.rollups.flatMap(_.dimensionAndBucketTypes).map(_.dimensionName)
+      val rollupNames = aggregationPoliciesDto.rollups
+        .flatMap(_.dimensionAndBucketTypes).map(_.dimensionName)
 
-      val isRollupInDimensions = dimensionNames.containsSlice(rollupNames)
+      val rollupNotInDimensions = rollupNames.filter(!dimensionNames.contains(_))
+      val isRollupInDimensions = rollupNotInDimensions.isEmpty
       val isRollupInDimensionsMsg =
         if (!isRollupInDimensions)
           "All rollups should be declared in dimensions block\n"
