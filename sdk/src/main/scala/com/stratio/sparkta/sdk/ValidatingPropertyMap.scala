@@ -67,6 +67,13 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
         throw new IllegalStateException(s"$key is mandatory")
     }
 
+  def getInt(key: K, default: Int): Int = {
+    m.get(key) match {
+      case Some(value : Int) => getInt(key)
+      case None => default
+    }
+  }
+
   def getLong(key: K): Long =
     m.get(key) match {
       case Some(value : String) =>

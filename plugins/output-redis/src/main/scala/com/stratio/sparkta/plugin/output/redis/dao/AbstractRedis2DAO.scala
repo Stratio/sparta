@@ -32,32 +32,32 @@ package com.stratio.sparkta.plugin.output.redis.dao
 
 import com.redis.RedisClient
 import com.stratio.sparkta.sdk.Event
+import org.apache.spark.streaming.dstream.DStream
 
 
 /**
- *
- * @author anistal
- */
-trait AbstractRedisDAO {
+* Created by anistal on 4/8/15.
+*/
+trait AbstractRedis2DAO {
 
   def hostname : String
-  def port : Int
   def dbName : String
   def eventTimeFieldName: String = "eventTime"
   def idFieldName: String = "_id"
   def idSeparator: String = "__"
 
-  protected def client: RedisClient = AbstractRedisDAO.client(hostname, port)
+  protected def client: RedisClient = AbstractRedis2DAO.client(hostname)
 
   def insert(event: Event): Unit = {
-    event.keyMap.foreach(x => client.set(x._1, x._2))
+    client.set("testing", "testing")
   }
 }
 
-private object AbstractRedisDAO {
+private object AbstractRedis2DAO {
 
-  def client(clientUri: String, port: Int): RedisClient = {
-    val client = new RedisClient(clientUri, port)
+  private def client(clientUri: String): RedisClient = {
+    val DefaultRedisPort: Integer = 6379
+    val client = new RedisClient(clientUri, DefaultRedisPort)
     client
   }
 
