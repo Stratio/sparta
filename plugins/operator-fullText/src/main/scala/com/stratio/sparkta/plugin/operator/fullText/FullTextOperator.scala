@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.plugin.operator.min
+package com.stratio.sparkta.plugin.operator.fullText
 
 import java.io.{Serializable => JSerializable}
 import com.stratio.sparkta.sdk._
@@ -21,23 +21,23 @@ import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 
 import scala.util.Try
 
-class MinOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
+class FullTextOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
   private val inputField = if(properties.contains("inputField")) properties.getString("inputField") else ""
 
-  override val key : String = "min_" + inputField
+  override val key : String = inputField
 
-  override val writeOperation = WriteOp.Min
+  override val writeOperation = WriteOp.FullText
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Number] =
+  override def processMap(inputFields: Map[String, JSerializable]): Option[String] =
     inputFields.contains(inputField) match {
-      case false => Some(0d.asInstanceOf[Number])
-      case true => Some(inputFields.get(inputField).get.asInstanceOf[Number])
+      case false => Some("")
+      case true => Some(inputFields.get(inputField).get.asInstanceOf[String])
     }
 
-  override def processReduce(values : Iterable[Option[Any]]): Option[Double] = {
-    Try(Some(values.map(_.get.asInstanceOf[Number].doubleValue()).min))
-      .getOrElse(Some(0d))
+  override def processReduce(values : Iterable[Option[Any]]): Option[String] = {
+    Try(Some(values.map(_.get.asInstanceOf[String]).reduce(_ + " " + _)))
+      .getOrElse(Some(""))
   }
 
 }

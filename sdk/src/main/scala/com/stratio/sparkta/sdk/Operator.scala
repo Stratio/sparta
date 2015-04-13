@@ -22,6 +22,6 @@ import com.stratio.sparkta.sdk.WriteOp.WriteOp
 abstract class Operator(properties: Map[String, JSerializable]) extends Parameterizable(properties) {
   def key : String
   def writeOperation : WriteOp
-  def processMap(inputFields: Map[String, JSerializable]) : Option[_>:AnyVal]
-  def processReduce(values : Iterable[Option[_>:AnyVal]]) : Option[_>:AnyVal]
+  def processMap(inputFields: Map[String, JSerializable]) : Option[Any]
+  def processReduce(values : Iterable[Option[Any]]) : Option[Any]
 }

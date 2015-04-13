@@ -31,13 +31,16 @@ class StddevOperator(properties: Map[String, JSerializable]) extends Operator(pr
 
   override val writeOperation = WriteOp.Stddev
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[_] =
+  override def processMap(inputFields: Map[String, JSerializable]): Option[Number] =
     inputFields.contains(inputField) match {
-      case false => None
-      case true => Some(inputFields.get(inputField))
+      case false => Some(0d.asInstanceOf[Number])
+      case true => Some(inputFields.get(inputField).get.asInstanceOf[Number])
     }
 
-  override def processReduce(values: Iterable[Option[_]]) = {
-    Some(stddev(values.asInstanceOf[Iterable[Double]]))
+  override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
+    values.size match {
+      case (nz) if (nz != 0) => Some(stddev(values.map(_.get.asInstanceOf[Number].doubleValue())))
+      case _ => Some(0d)
+    }
   }
 }

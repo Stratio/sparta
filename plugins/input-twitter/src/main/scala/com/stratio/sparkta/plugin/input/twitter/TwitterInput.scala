@@ -47,6 +47,8 @@ class TwitterInput(properties: Map[String, JSerializable]) extends Input(propert
 
     stream.map(data => new Event(Map("status" -> data.asInstanceOf[java.io.Serializable],
       "wordsN" -> data.getText.split(" ").size,
+      "retweets" -> data.getRetweetCount,
+      "userLocation" -> data.getUser.getLocation.toLowerCase,
       "timestamp" ->  data.getCreatedAt,
       "geolocation" -> (data.getGeoLocation match {
         case null => None

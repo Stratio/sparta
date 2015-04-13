@@ -16,9 +16,9 @@
 package com.stratio.sparkta.plugin.output.mongodb
 
 import java.io.Serializable
-
+import com.mongodb.casbah
 import com.mongodb.casbah.Imports._
-import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.casbah.commons.{Imports, MongoDBObject}
 import com.stratio.sparkta.plugin.output.mongodb.dao.AbstractMongoDAO
 import com.stratio.sparkta.sdk.WriteOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
@@ -28,7 +28,6 @@ import org.apache.spark.streaming.dstream.DStream
 import ValidatingPropertyMap._
 import com.mongodb.casbah.commons.conversions.scala._
 import org.joda.time.DateTime
-
 import scala.util.Try
 
 class MongoDbOutput(properties: Map[String, Serializable], schema: Option[Map[String, WriteOp]])
@@ -50,7 +49,7 @@ class MongoDbOutput(properties: Map[String, Serializable], schema: Option[Map[St
 
   override val granularity = properties.getString("granularity", "")
 
-  override val textIndexName = properties.getString("textIndexFieldName", "")
+  override val textIndexFields = properties.getString("textIndexFields", "").split(",")
 
   override val language = properties.getString("language", "none")
 
@@ -75,22 +74,27 @@ class MongoDbOutput(properties: Map[String, Serializable], schema: Option[Map[St
     streams.foreach(persist)
   }
 
+  // scalastyle:off
   def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
-    metricOperations.toList.groupBy(metricOp => metricOp.keyString).foreach(collMetricOp => {
+    metricOperations.toList.groupBy(metricOp => metricOp.keyString)
+      .filter(_._1.size > 0)
+      .foreach(f = collMetricOp => {
 
-      if (collMetricOp._1.size > 0) {
-        val languageObject = languageFieldName -> language
+        val languageObject = (languageFieldName, language)
         val bulkOperation = db().getCollection(collMetricOp._1).initializeOrderedBulkOperation()
 
         //TODO refactor out of here
-        if (textIndexName != "") {
-          createTextIndex(collMetricOp._1, textIndexName, Bucketer.fulltext.id, language)
+        if (textIndexFields.size > 0) {
+          createTextIndex(collMetricOp._1, textIndexFields.mkString("_"), textIndexFields, language)
         }
+        var idField = idDefaultFieldName
         if ((timeBucket != "") && ((collMetricOp._1.contains(timeBucket)) || (granularity != ""))) {
-          createIndex(collMetricOp._1, eventTimeFieldName, eventTimeFieldName, 1)
+          createIndex(collMetricOp._1, eventTimeFieldName, Map("id" -> 1, eventTimeFieldName -> 1), true, true)
+          idField = "id"
         }
 
         collMetricOp._2.foreach(metricOp => {
+
           val eventTimeObject = timeBucket match {
             case "" => None
             case _ => metricOp.rollupKey.filter(dimVal => timeBucket == dimVal.bucketType.id) match {
@@ -101,32 +105,28 @@ class MongoDbOutput(properties: Map[String, Serializable], schema: Option[Map[St
               }
             }
           }
-          val identitiesText = metricOp.rollupKey
-            .filter(_.bucketType.id == Bucketer.fulltext.id)
-            .map(dimVal => dimVal.value.toString)
 
-          val identitiesField = metricOp.rollupKey
+          val identitiesField: Seq[Imports.DBObject] = metricOp.rollupKey
             .filter(_.bucketType.id == Bucketer.identityField.id)
             .map(dimVal => MongoDBObject(dimVal.dimension.name -> dimVal.value)
             )
 
-          val find = {
+          val find: Imports.DBObject = {
             val builder = MongoDBObject.newBuilder
-            builder += idFieldName -> metricOp.rollupKey
-              .filter(rollup =>
-              (rollup.bucketType.id != Bucketer.fulltext.id) && (rollup.bucketType.id != timeBucket))
+            builder += idField -> metricOp.rollupKey
+              .filter(rollup => (rollup.bucketType.id != timeBucket))
               .map(dimVal => dimVal.value.toString)
               .mkString(idSeparator)
             if (eventTimeObject != None) builder += eventTimeObject.get
             builder.result
           }
 
-          val unknownFields = metricOp.aggregations.keySet.filter(!schema.get.hasKey(_))
+          val unknownFields: Set[String] = metricOp.aggregations.keySet.filter(!schema.get.hasKey(_))
           if (unknownFields.nonEmpty) {
             throw new Exception(s"Got fields not present in schema: ${unknownFields.mkString(",")}")
           }
 
-          val update = (
+          val mapOperations : Map[Seq[(String, Any)], JSFunction] = (
             for {
               (fieldName, value) <- metricOp.aggregations.toSeq
               op = schema.get(fieldName)
@@ -134,35 +134,39 @@ class MongoDbOutput(properties: Map[String, Serializable], schema: Option[Map[St
             .groupBy(_._1)
             .mapValues(_.map(_._2))
             .map({
-            case (op, seq) =>
-              op match {
-                case WriteOp.Inc =>
-                  $inc(seq.asInstanceOf[Seq[(String, Long)]]: _*)
-                case WriteOp.Set =>
-                  $set(seq: _*)
-                case WriteOp.Max =>
-                  MongoDBObject("$max" -> MongoDBObject(seq.asInstanceOf[Seq[(String, Double)]]: _*))
-                case WriteOp.Min =>
-                  MongoDBObject("$min" -> MongoDBObject(seq.asInstanceOf[Seq[(String, Double)]]: _*))
-                case WriteOp.Avg =>
-                  MongoDBObject("$avg" -> MongoDBObject(seq.asInstanceOf[Seq[(String, Double)]]: _*))
-              }})
-            .reduce(_ ++ _)
-
-          bulkOperation.find(find)
-            .upsert().updateOne(update ++ {
-            if (identitiesField.size > 0) $set(Bucketer.identityField.id -> identitiesField) else DBObject()
-          } ++ {
-            if (identitiesText.size > 0) {
-              $addToSet(Bucketer.fulltext.id -> identitiesText.mkString(" _ ")) ++ $set(languageObject)
-            } else {
-              DBObject()
+            case (op, seq) => op match {
+              case WriteOp.Inc =>
+                (seq.asInstanceOf[Seq[(String, Long)]], "$inc")
+              case WriteOp.Set =>
+                (seq, "$set")
+              case WriteOp.Avg | WriteOp.Median | WriteOp.Variance | WriteOp.Stddev =>
+                (seq.asInstanceOf[Seq[(String, Double)]], "$set")
+              case WriteOp.Max =>
+                (seq.asInstanceOf[Seq[(String, Double)]], "$max")
+              case WriteOp.Min =>
+                (seq.asInstanceOf[Seq[(String, Double)]], "$min")
+              case WriteOp.AccAvg | WriteOp.AccMedian | WriteOp.AccVariance | WriteOp.AccStddev =>
+                (seq.asInstanceOf[Seq[(String, Double)]], "$addToset")
+              case WriteOp.FullText =>
+                (seq.asInstanceOf[Seq[(String, String)]], "$addToSet")
             }
           })
+
+          val combinedOptions: Map[Seq[(String, Any)], casbah.Imports.JSFunction] = mapOperations ++
+             Map((Seq(languageObject), "$set")) ++
+             {
+               if (identitiesField.size > 0) Map((Seq(Bucketer.identityField.id -> identitiesField), "$set")) else Map()
+             }
+
+          val update = combinedOptions.groupBy(_._2)
+            .map(grouped => MongoDBObject(grouped._1 -> MongoDBObject(grouped._2.flatMap(f => f._1).toSeq : _*)))
+            .reduce(_ ++ _)
+
+          bulkOperation.find(find).upsert().updateOne(update)
         })
         bulkOperation.execute()
       }
-    })
+    )
   }
 
 }

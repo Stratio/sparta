@@ -24,7 +24,7 @@ import twitter4j.{Status}
 case class TwitterStatusBucketer() extends Bucketer {
 
   override val bucketTypes: Seq[BucketType] = Seq(text
-    , contributors, hastags, places, retweets, urls, mentions, words, identity, fulltext)
+    , contributors, hastags, places, retweets, urls, mentions, words, identity, location)
 
   override def bucket(value: io.Serializable): Map[BucketType, io.Serializable] = {
 
@@ -54,7 +54,9 @@ object TwitterStatusBucketer {
       ""
     }
     val getWordsCount = value.getText.split(" ").length
-    val getFullText : io.Serializable = value.getUser.getLocation.toLowerCase
+    val getLocation : io.Serializable = value.getUser.getLocation.toLowerCase
+    val getLanguage = value.getUser.getLang
+    val getName = value.getUser.getName
 
     (bucketType match {
       case a if a == text => getText
@@ -66,7 +68,9 @@ object TwitterStatusBucketer {
       case m if m == mentions => getMentions
       case i if i == identity => value
       case w if w == words => getWordsCount
-      case f if f == fulltext => getFullText
+      case l if l == location => getLocation
+      case n if n == name => getName
+      case l if l == language => getLanguage
 
     }).toString.asInstanceOf[io.Serializable]
   }
@@ -80,9 +84,12 @@ object TwitterStatusBucketer {
   val mentions = new BucketType("mentions")
   val identity = new BucketType("identity")
   val words = new BucketType("words")
-  val fulltext = Bucketer.fulltext
+  val location = new BucketType("location")
+  val name = new BucketType("name")
+  val language = new BucketType("language")
 
-  override def toString = s"TwitterStatusBucketer(" +
+
+  override def toString : String = s"TwitterStatusBucketer(" +
     s"text=$text, contributors=$contributors, hastags=$hastags," +
     s" places=$places, retweets=$retweets, urls=$urls, mentions=$mentions)"
 }

@@ -35,7 +35,6 @@ case class UpdateMetricOperation(
     ).map(dimVal => {
       dimVal.bucketType match {
         case Bucketer.identity => dimVal.dimension.name
-        case Bucketer.fulltext => ""
         case _ => dimVal.bucketType.id //dimVal.dimension.name + SEPARATOR + dimVal.bucketType.id
       }
     }).filter(dimName => dimName.nonEmpty).mkString(SEPARATOR)

@@ -28,10 +28,10 @@ trait AbstractMongoDAO extends Closeable {
   def mongoClientUri : String
   def dbName : String
   def language : String
-  def textIndexName : String
+  def textIndexFields : Array[String]
   def languageFieldName: String = "language"
   def eventTimeFieldName : String = "eventTime"
-  def idFieldName : String = "_id"
+  def idDefaultFieldName : String = "_id"
   def idSeparator : String = "_"
 
   protected def client: MongoClient = AbstractMongoDAO.client(mongoClientUri)
@@ -54,32 +54,37 @@ trait AbstractMongoDAO extends Closeable {
     indexExists
   }
 
-  def createTextIndex(collection : String, indexName : String, indexField : String, language : String) : Unit = {
+  def createTextIndex(collection : String,
+                       indexName : String,
+                       indexFields : Array[String],
+                       language : String) : Unit = {
 
-    if(!indexExists(collection, indexName)){
+    if(collection.nonEmpty && indexFields.nonEmpty && indexName.nonEmpty && !indexExists(collection, indexName)){
+      val fields = indexFields.map(_ -> "text").toList
       val options = MongoDBObject.newBuilder
       options += "name" -> indexName
       options += "background" -> true
       if(language != "") options += "default_language" -> language
 
-      db.getCollection(collection).createIndex(
-        MongoDBObject(indexField -> "text"),
-        options.result
+      db.getCollection(collection).createIndex(MongoDBObject(fields), options.result
       )
     }
   }
 
-  def createIndex(collection : String, indexName : String, indexField : String, order : Int) : Unit = {
+  def createIndex(collection : String,
+                  indexName : String,
+                  indexFields : Map[String, Int],
+                  unique : Boolean,
+                  background : Boolean) : Unit = {
 
-    if(!indexExists(collection, indexName)){
+    if(collection.nonEmpty && indexFields.nonEmpty && indexName.nonEmpty && !indexExists(collection, indexName)){
+      val fields = indexFields.map(field => field._1 -> field._2).toList
       val options = MongoDBObject.newBuilder
-      options += "name" -> (indexName + "_" + order)
-      options += "background" -> true
+      options += "name" -> indexName
+      options += "background" -> background
+      options += "unique" -> unique
 
-      db.getCollection(collection).createIndex(
-        MongoDBObject(indexField -> order),
-        options.result
-      )
+      db.getCollection(collection).createIndex(MongoDBObject(fields), options.result)
     }
   }
 

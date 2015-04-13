@@ -42,4 +42,5 @@ class PrintOutput(properties: Map[String, JSerializable], schema: Option[Map[Str
   override def persist(stream: DStream[UpdateMetricOperation]): Unit = {
     stream.print()
   }
+
 }
