@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+
 <!--
 
     Copyright (C) 2014 Stratio (http://stratio.com)
@@ -43,6 +43,8 @@
         <module>operator-variance</module>
         <module>operator-stddev</module>
         <module>operator-fullText</module>
+        <module>operator-lastValue</module>
+        <module>operator-accumulator</module>
         <module>input-kafka</module>
         <module>input-flume</module>
         <module>input-socket</module>

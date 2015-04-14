@@ -31,13 +31,18 @@ class SumOperator(properties: Map[String, JSerializable]) extends Operator(prope
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Number] =
     inputFields.contains(inputField) match {
-      case false => Some(0L)
+      case false => SumOperator.SOME_ZERO_NUMBER
       case true => Some(inputFields.get(inputField).get.asInstanceOf[Number])
     }
 
   override def processReduce(values : Iterable[Option[Any]]): Option[Long] = {
     Try(Some(values.map(_.get.asInstanceOf[Number].longValue()).reduce(_ + _)))
-      .getOrElse(Some(0L))
+      .getOrElse(SumOperator.SOME_ZERO)
   }
-
 }
+
+private object SumOperator {
+  val SOME_ZERO = Some(0L)
+  val SOME_ZERO_NUMBER = Some(0L.asInstanceOf[Number])
+}
+

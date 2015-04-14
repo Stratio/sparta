@@ -31,13 +31,17 @@ class FullTextOperator(properties: Map[String, JSerializable]) extends Operator(
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[String] =
     inputFields.contains(inputField) match {
-      case false => Some("")
+      case false => FullTextOperator.SOME_EMPTY
       case true => Some(inputFields.get(inputField).get.asInstanceOf[String])
     }
 
   override def processReduce(values : Iterable[Option[Any]]): Option[String] = {
-    Try(Some(values.map(_.get.asInstanceOf[String]).reduce(_ + " " + _)))
-      .getOrElse(Some(""))
+    Try(Some(values.map(_.get.asInstanceOf[String]).reduce(_ + FullTextOperator.SEPARATOR + _)))
+      .getOrElse(FullTextOperator.SOME_EMPTY)
   }
+}
 
+private object FullTextOperator {
+  val SOME_EMPTY = Some("")
+  val SEPARATOR = " "
 }

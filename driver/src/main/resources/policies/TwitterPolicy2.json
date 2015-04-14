@@ -142,6 +142,20 @@
         "configuration": {
           "inputField" : "userLocation"
         }
+      },
+      {
+        "name": "lastValue-operator",
+        "elementType": "LastValueOperator",
+        "configuration": {
+          "inputField" : "retweets"
+        }
+      },
+      {
+        "name": "accumulator-operator",
+        "elementType": "AccumulatorOperator",
+        "configuration": {
+          "inputField" : "wordsN"
+        }
       }
     ]
     

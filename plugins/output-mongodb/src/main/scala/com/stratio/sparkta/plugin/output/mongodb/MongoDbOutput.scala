@@ -147,7 +147,7 @@ class MongoDbOutput(properties: Map[String, Serializable], schema: Option[Map[St
                 (seq.asInstanceOf[Seq[(String, Double)]], "$min")
               case WriteOp.AccAvg | WriteOp.AccMedian | WriteOp.AccVariance | WriteOp.AccStddev =>
                 (seq.asInstanceOf[Seq[(String, Double)]], "$addToset")
-              case WriteOp.FullText =>
+              case WriteOp.FullText | WriteOp.AccSet =>
                 (seq.asInstanceOf[Seq[(String, String)]], "$addToSet")
             }
           })

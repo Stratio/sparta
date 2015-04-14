@@ -31,13 +31,17 @@ class MinOperator(properties: Map[String, JSerializable]) extends Operator(prope
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Number] =
     inputFields.contains(inputField) match {
-      case false => Some(0d.asInstanceOf[Number])
+      case false => MinOperator.SOME_ZERO_NUMBER
       case true => Some(inputFields.get(inputField).get.asInstanceOf[Number])
     }
 
   override def processReduce(values : Iterable[Option[Any]]): Option[Double] = {
     Try(Some(values.map(_.get.asInstanceOf[Number].doubleValue()).min))
-      .getOrElse(Some(0d))
+      .getOrElse(MinOperator.SOME_ZERO)
   }
+}
 
+private object MinOperator {
+  val SOME_ZERO = Some(0d)
+  val SOME_ZERO_NUMBER = Some(0d.asInstanceOf[Number])
 }

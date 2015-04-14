@@ -33,14 +33,19 @@ class MedianOperator(properties: Map[String, JSerializable]) extends Operator(pr
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Number] =
     inputFields.contains(inputField) match {
-      case false => Some(0d.asInstanceOf[Number])
+      case false => MedianOperator.SOME_ZERO_NUMBER
       case true => Some(inputFields.get(inputField).get.asInstanceOf[Number])
     }
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     values.size match {
       case (nz) if (nz != 0) => Some(median(DenseVector(values.map(_.get.asInstanceOf[Number].doubleValue()).toArray)))
-      case _ => Some(0d)
+      case _ => MedianOperator.SOME_ZERO
     }
   }
+}
+
+private object MedianOperator {
+  val SOME_ZERO = Some(0d)
+  val SOME_ZERO_NUMBER = Some(0d.asInstanceOf[Number])
 }

@@ -122,7 +122,6 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     }
   }
 
-
   private def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C =
     clazz.getDeclaredConstructor(classOf[Map[String, Serializable]]).newInstance(properties).asInstanceOf[C]
 }
