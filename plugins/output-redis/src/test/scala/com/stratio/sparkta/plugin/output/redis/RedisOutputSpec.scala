@@ -34,8 +34,8 @@ import scala.collection.mutable.SynchronizedQueue
 class RedisOutputSpec extends FlatSpec with Matchers with BeforeAndAfterEach {
 
   val DefaultRedisTestingPort: Int = 63790
-  var redisServer : RedisServer = null
-  var ssc: StreamingContext = null
+  var redisServer : RedisServer = _
+  var ssc: StreamingContext = _
 
   "Behaviour of RedisOutput"
 
@@ -45,8 +45,9 @@ class RedisOutputSpec extends FlatSpec with Matchers with BeforeAndAfterEach {
 
     val properties: Map[String, JSerializable] =
       Map("hostname" -> "localhost", "port" -> 63790)
-    val schema: Map[String, WriteOp] = Map("count-operator" -> WriteOp.Set)
+    val schema: Option[Map[String, WriteOp]] = Option(Map("count-operator" -> WriteOp.Set))
     val redisOutput: RedisOutput = new RedisOutput(properties, schema)
+
     val sc = new SparkContext("local[1]", "RedisOutputTest")
 
     ssc = new StreamingContext(sc, Seconds(1))
