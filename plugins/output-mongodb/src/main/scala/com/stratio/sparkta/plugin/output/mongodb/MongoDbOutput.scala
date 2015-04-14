@@ -49,7 +49,9 @@ class MongoDbOutput(properties: Map[String, Serializable], schema: Option[Map[St
 
   override val granularity = properties.getString("granularity", "")
 
-  override val textIndexFields = properties.getString("textIndexFields", "").split(",")
+  override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
+
+  override val textIndexFields = properties.getString("textIndexFields", "").split(fieldsSeparator)
 
   override val language = properties.getString("language", "none")
 
@@ -85,12 +87,12 @@ class MongoDbOutput(properties: Map[String, Serializable], schema: Option[Map[St
 
         //TODO refactor out of here
         if (textIndexFields.size > 0) {
-          createTextIndex(collMetricOp._1, textIndexFields.mkString("_"), textIndexFields, language)
+          createTextIndex(collMetricOp._1, textIndexFields.mkString(indexNameSeparator), textIndexFields, language)
         }
         var idField = idDefaultFieldName
         if ((timeBucket != "") && ((collMetricOp._1.contains(timeBucket)) || (granularity != ""))) {
-          createIndex(collMetricOp._1, eventTimeFieldName, Map("id" -> 1, eventTimeFieldName -> 1), true, true)
-          idField = "id"
+          createIndex(collMetricOp._1, eventTimeFieldName, Map(idAuxFieldName -> 1, eventTimeFieldName -> 1), true, true)
+          idField = idAuxFieldName
         }
 
         collMetricOp._2.foreach(metricOp => {

@@ -33,6 +33,9 @@ trait AbstractMongoDAO extends Closeable {
   def eventTimeFieldName : String = "eventTime"
   def idDefaultFieldName : String = "_id"
   def idSeparator : String = "_"
+  def fieldsSeparator : String = ","
+  def idAuxFieldName : String = "id"
+  def indexNameSeparator : String = "_"
 
   protected def client: MongoClient = AbstractMongoDAO.client(mongoClientUri)
 
@@ -42,7 +45,7 @@ trait AbstractMongoDAO extends Closeable {
 
   protected def defaultWriteConcern = casbah.WriteConcern.Unacknowledged
 
-  def indexExists(collection : String, indexName : String) : Boolean = {
+  protected def indexExists(collection : String, indexName : String) : Boolean = {
 
     var indexExists = false
     val itObjects = db.getCollection(collection).getIndexInfo().iterator()
@@ -54,7 +57,7 @@ trait AbstractMongoDAO extends Closeable {
     indexExists
   }
 
-  def createTextIndex(collection : String,
+  protected def createTextIndex(collection : String,
                        indexName : String,
                        indexFields : Array[String],
                        language : String) : Unit = {
@@ -71,7 +74,7 @@ trait AbstractMongoDAO extends Closeable {
     }
   }
 
-  def createIndex(collection : String,
+  protected def createIndex(collection : String,
                   indexName : String,
                   indexFields : Map[String, Int],
                   unique : Boolean,
@@ -88,7 +91,7 @@ trait AbstractMongoDAO extends Closeable {
     }
   }
 
-  def insert(dbName: String, collName: String, dbOjects: Iterator[DBObject],
+  protected def insert(dbName: String, collName: String, dbOjects: Iterator[DBObject],
              writeConcern: Option[WriteConcern] = None): Unit = {
     val coll = db(dbName).getCollection(collName)
     val builder = coll.initializeUnorderedBulkOperation

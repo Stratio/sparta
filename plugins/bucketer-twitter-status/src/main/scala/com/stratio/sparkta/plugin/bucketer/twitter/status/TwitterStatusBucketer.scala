@@ -91,7 +91,8 @@ object TwitterStatusBucketer {
 
   override def toString : String = s"TwitterStatusBucketer(" +
     s"text=$text, contributors=$contributors, hastags=$hastags," +
-    s" places=$places, retweets=$retweets, urls=$urls, mentions=$mentions)"
+    s" places=$places, retweets=$retweets, urls=$urls, mentions=$mentions," +
+    s" words=$words, location=$location, name=$name, language=$language)"
 }
 
 

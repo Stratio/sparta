@@ -76,6 +76,7 @@
             "timestampFieldName" : "timestamp",
             "timestampBucket" : "minute",
             "textIndexFields" : "userLocation",
+            "fieldsSeparator" : ",",
             "language" : "english",
             "granularity" : "day"
           }
