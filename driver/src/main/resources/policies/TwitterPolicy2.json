@@ -4,7 +4,7 @@
     "inputs": [
         {
             "name": "in-socket",
-            "elementType": "com.stratio.sparkta.plugin.input.twitter.TwitterInput",
+            "elementType": "TwitterInput",
             "configuration": {
                 "consumerKey": "toHNaJSKyMdCf1RWd82xuUVM2",
                 "consumerSecret": "vNPCwRZ4j8WZFeP9XQoYriR4sZnmB8DuMRrrTxPpXZwQfqr9Kv",
@@ -16,22 +16,26 @@
     ],
      "dimensions": [
         {
-            "dimensionType": "com.stratio.sparkta.plugin.bucketer.twitter.status.TwitterStatusBucketer",
+            "dimensionType": "TwitterStatusBucketer",
             "name": "status"
         },
        {
-         "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+         "dimensionType": "PassthroughBucketer",
+         "name": "userLocation"
+       },
+       {
+         "dimensionType": "PassthroughBucketer",
          "name": "wordsN"
        },
        {
-         "dimensionType": "com.stratio.sparkta.plugin.bucketer.datetime.DateTimeBucketer",
+         "dimensionType": "DateTimeBucketer",
          "name": "timestamp",
          "configuration": {
            "granularity": "hour"
          }
        },
        {
-         "dimensionType": "com.stratio.sparkta.plugin.bucketer.geohash.GeoHashBucketer",
+         "dimensionType": "GeoHashBucketer",
          "name": "geolocation"
        }
     ],
@@ -51,16 +55,8 @@
                     "bucketType": "retweets"
                 },
                 {
-                  "dimensionName": "status",
-                  "bucketType": "fulltext"
-                },
-                {
                   "dimensionName": "geolocation",
                   "bucketType": "precision3"
-                },
-                {
-                  "dimensionName": "wordsN",
-                  "bucketType": "identity"
                 },
                 {
                   "dimensionName": "timestamp",
@@ -72,35 +68,92 @@
     "outputs": [
         {
           "name": "out-mongo",
-          "elementType": "com.stratio.sparkta.plugin.output.mongodb.MongoDbOutput",
+          "elementType": "MongoDbOutput",
           "configuration": {
             "clientUri" : "mongodb://localhost:27017",
             "dbName" : "sparkta",
             "multiplexer" : "true",
             "timestampFieldName" : "timestamp",
             "timestampBucket" : "minute",
-            "textIndexFieldName" : "fullTextIndex",
+            "textIndexFields" : "userLocation",
+            "fieldsSeparator" : ",",
             "language" : "english",
             "granularity" : "day"
           }
         }
       ],
     "operators": [
-        {
-            "name": "count-operator",
-            "elementType": "com.stratio.sparkta.plugin.operator.count.CountOperator",
-            "configuration": {}
-        },
+      {
+        "name": "count-operator",
+        "elementType": "CountOperator",
+        "configuration": {}
+      },
+      {
+        "name": "sum-operator",
+        "elementType": "SumOperator",
+        "configuration": {
+          "inputField" : "wordsN"
+        }
+      },
       {
         "name": "max-operator",
-        "elementType": "com.stratio.sparkta.plugin.operator.max.MaxOperator",
+        "elementType": "MaxOperator",
         "configuration": {
           "inputField" : "wordsN"
         }
       },
       {
         "name": "min-operator",
-        "elementType": "com.stratio.sparkta.plugin.operator.min.MinOperator",
+        "elementType": "MinOperator",
+        "configuration": {
+          "inputField" : "wordsN"
+        }
+      },
+      {
+        "name": "avg-operator",
+        "elementType": "AvgOperator",
+        "configuration": {
+          "inputField" : "wordsN"
+        }
+      },
+      {
+        "name": "median-operator",
+        "elementType": "MedianOperator",
+        "configuration": {
+          "inputField" : "wordsN"
+        }
+      },
+      {
+        "name": "variance-operator",
+        "elementType": "VarianceOperator",
+        "configuration": {
+          "inputField" : "wordsN"
+        }
+      },
+      {
+        "name": "stddev-operator",
+        "elementType": "StddevOperator",
+        "configuration": {
+          "inputField" : "wordsN"
+        }
+      },
+      {
+        "name": "fullText-operator",
+        "elementType": "FullTextOperator",
+        "configuration": {
+          "inputField" : "userLocation"
+        }
+      },
+      {
+        "name": "lastValue-operator",
+        "elementType": "LastValueOperator",
+        "configuration": {
+          "inputField" : "retweets"
+        }
+      },
+      {
+        "name": "accumulator-operator",
+        "elementType": "AccumulatorOperator",
         "configuration": {
           "inputField" : "wordsN"
         }

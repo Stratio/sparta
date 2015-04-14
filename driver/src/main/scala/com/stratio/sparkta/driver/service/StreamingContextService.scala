@@ -144,5 +144,7 @@ object StreamingContextService {
     val plugins = inputs ++ bucketers ++ operators ++ outputs ++ parsers
 
     plugins map (t => t.getSimpleName -> t.getCanonicalName) toMap
+
   }
+
 }

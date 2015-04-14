@@ -267,6 +267,14 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <scalaCompatVersion>${scala.binary.version}</scalaCompatVersion>
+                    <args>
+                        <arg>-deprecation</arg>
+                        <arg>-feature</arg>
+                    </args>
+                    <scalaVersion>${scala.version}</scalaVersion>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.mycila</groupId>

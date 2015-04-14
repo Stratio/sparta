@@ -39,10 +39,9 @@ object Multiplexer {
      for {
         upMetricOp: UpdateMetricOperation <- stream
         comb: Seq[DimensionValue] <- combine(upMetricOp.rollupKey)
-          .filter(dimVals =>
-          (dimVals.size > 1) ||
-            ((dimVals.size == 1) && (dimVals.last.bucketType != Bucketer.fulltext))
-          )
+          .filter(dimVals => dimVals.size >= 1)
+          //TODO necesary for other options?
+          //|| ((dimVals.size == 1) && (dimVals.last.bucketType != Bucketer.fulltext)))
       } yield UpdateMetricOperation(
           comb.sortWith((dim1,dim2) =>
             (dim1.dimension.name + dim1.bucketType.id) < (dim2.dimension.name + dim2.bucketType.id)),
@@ -62,10 +61,8 @@ object Multiplexer {
           upMetricOp.rollupKey.filter(_.bucketType.id != (fixedDim match {
             case None => ""
             case _ => fixedDim.get.bucketType.id
-          })
-          ))
-          .filter(dimVals =>
-          (dimVals.size > 1) || ((dimVals.size == 1) && (dimVals.last.bucketType != Bucketer.fulltext)))
+          })))
+          .filter(dimVals => dimVals.size >= 1)
           .map(seqDimVal => {
           fixedDim match {
             case None => seqDimVal

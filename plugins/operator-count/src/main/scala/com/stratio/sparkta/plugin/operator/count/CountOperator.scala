@@ -27,15 +27,16 @@ class CountOperator(properties: Map[String, JSerializable]) extends Operator(pro
 
   override val writeOperation = WriteOp.Inc
 
-  override def processMap(inputFields: Map[String, JSerializable]) = {
+  override def processMap(inputFields: Map[String, JSerializable]): Option[Long] = {
     CountOperator.SOME_ONE
   }
 
-  override def processReduce(values : Iterable[Option[_>:AnyVal]]) =
+  override def processReduce(values : Iterable[Option[Any]]): Option[Long] =
     Try(Some(values.map(_.get.asInstanceOf[Number].longValue()).reduce(_ + _)))
-      .getOrElse(Some(0L))
+      .getOrElse(CountOperator.SOME_ZERO)
 }
 
 private object CountOperator {
   val SOME_ONE = Some(1L)
+  val SOME_ZERO = Some(0L)
 }

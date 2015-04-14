@@ -53,16 +53,12 @@ case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Opera
         .map(dimensions => {
         val dimVals: Seq[DimensionValue] = dimensions._1
           .filter(dimVal => components.find(comp =>
-            comp._1 == dimVal.dimension && comp._2.id == dimVal.bucketType.id).nonEmpty)
+          comp._1 == dimVal.dimension && comp._2.id == dimVal.bucketType.id).nonEmpty)
         (dimVals, dimensions._2)
       })
         .filter(_._1.nonEmpty)
 
-    //Remove fullText bucketer?? Map and then filter key
     filteredDimensionsDstream
-      /*.map(inputFields => {
-      (inputFields._1.filter(...), operators.flatMap(op => op.processMap(inputFields._2).map(op.key -> _)).toMap)
-      })*/
       .mapValues(inputFields => operators.flatMap(op => op.processMap(inputFields).map(op.key -> Some(_)))
         .toMap
       )
@@ -77,7 +73,6 @@ case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Opera
         val reducedValue = op.processReduce(values)
         (name, reducedValue)
       })
-      //multiplexer output, is better in the outputs plugins
       UpdateMetricOperation(dimVals, reducedMetricMap)
     })
   }

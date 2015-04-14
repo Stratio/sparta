@@ -16,14 +16,13 @@
 package com.stratio.sparkta.plugin.input.twitter
 
 import java.io.{Serializable => JSerializable}
-import com.stratio.sparkta.sdk.Input._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.{Event, Input}
 
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.twitter.TwitterUtils
-import twitter4j.{Status, TwitterFactory}
+import twitter4j.TwitterFactory
 import twitter4j.conf.ConfigurationBuilder
 
 /**
@@ -47,6 +46,8 @@ class TwitterInput(properties: Map[String, JSerializable]) extends Input(propert
 
     stream.map(data => new Event(Map("status" -> data.asInstanceOf[java.io.Serializable],
       "wordsN" -> data.getText.split(" ").size,
+      "retweets" -> data.getRetweetCount,
+      "userLocation" -> data.getUser.getLocation.toLowerCase,
       "timestamp" ->  data.getCreatedAt,
       "geolocation" -> (data.getGeoLocation match {
         case null => None
