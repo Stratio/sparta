@@ -45,10 +45,10 @@ object AggregationPoliciesValidator {
 
   def validateDto(aggregationPoliciesDto : AggregationPoliciesDto): (Boolean, String) = {
     val (isValidAgainstSchema: Boolean, isValidAgainstSchemaMsg: String) = validateAgainstSchema(aggregationPoliciesDto)
-    val (isRollupInDimensions: Boolean, isRollupInDimensionsMsg: String) =
-      validateRollupsInDimensions(aggregationPoliciesDto)
+    val (isValidRollup: Boolean, isRollupInDimensionsMsg: String) =
+      validateRollups(aggregationPoliciesDto)
 
-    val isValid = isRollupInDimensions && isValidAgainstSchema
+    val isValid = isValidRollup && isValidAgainstSchema
     val errorMsg = isRollupInDimensionsMsg ++ isValidAgainstSchemaMsg
     (isValid, errorMsg)
   }
@@ -83,7 +83,7 @@ object AggregationPoliciesValidator {
     (isValid, msg)
   }
 
-  def validateRollupsInDimensions(aggregationPoliciesDto : AggregationPoliciesDto): (Boolean, String) = {
+  def validateRollups(aggregationPoliciesDto : AggregationPoliciesDto): (Boolean, String) = {
 
     val dimensionNames = aggregationPoliciesDto.dimensions.map(_.name)
 
