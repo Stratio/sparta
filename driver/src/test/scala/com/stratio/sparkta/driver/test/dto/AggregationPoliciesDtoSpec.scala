@@ -30,8 +30,6 @@ with Matchers {
   "A AggregationPoliciesValidator should" should {
     "validate dimensions is required and has at least 1 element" in {
 
-      val dimensionDto = new DimensionDto("dimensionType", "dimension1", None)
-
       val configuration: Map[String, JsoneyString]
         = Map(("topics",new JsoneyString("zion2:1")), ("kafkaParams.group.id",new JsoneyString("kafka-pruebas")))
       val input = new PolicyElementDto("kafka-input", "KafkaInput", configuration)

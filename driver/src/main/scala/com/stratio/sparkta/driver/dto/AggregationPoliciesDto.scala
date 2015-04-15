@@ -43,63 +43,67 @@ case object AggregationPoliciesDto {
 
 object AggregationPoliciesValidator {
 
+
+
   def validateDto(aggregationPoliciesDto : AggregationPoliciesDto): (Boolean, String) = {
-
-    def validateRollupsInDimensions: (Boolean, String) = {
-
-      val dimensionNames = aggregationPoliciesDto.dimensions.map(_.name)
-
-      val rollupNames = aggregationPoliciesDto.rollups
-        .flatMap(x=> Option(x)) //filter(_!=null) //Seq[Seq[Option[_]]]
-        .flatMap(x => Option(x.dimensionAndBucketTypes)) //Seq[Seq[_]]
-        .flatten //Seq[_]
-        .map(_.dimensionName)
-
-      val rollupNotInDimensions = rollupNames.filter(!dimensionNames.contains(_))
-      val isRollupInDimensions = rollupNotInDimensions.isEmpty
-      val isRollupInDimensionsMsg =
-        if (!isRollupInDimensions)
-          "All rollups should be declared in dimensions block\n"
-        else
-          ""
-      (isRollupInDimensions, isRollupInDimensionsMsg)
-    }
-
-    def validateAgainstSchema: (Boolean, String) = {
-
-      implicit val formats = DefaultFormats + new JsoneyStringSerializer()
-
-      var isValid: Boolean = false
-      var msg: String = ""
-
-      val policyJsonAST = Extraction.decompose(aggregationPoliciesDto)
-
-      val mapper: ObjectMapper = new ObjectMapper()
-      val policy: JsonNode = mapper.readTree(pretty(policyJsonAST))
-
-      val fileReader: BufferedReader =
-        new BufferedReader(
-          new FileReader(AggregationPoliciesValidator
-            .getClass.getClassLoader.getResource("policy_schema.json").getPath))
-      val jsonSchema: JsonNode = mapper.readTree(fileReader)
-      val schema: JsonSchema = JsonSchemaFactory.byDefault.getJsonSchema(jsonSchema)
-
-      try{
-        val report: ProcessingReport = schema.validate(policy)
-        isValid = report.isSuccess
-        msg = report.toString
-      } catch {
-        case ise: InvalidSchemaException => isValid = false; msg = ise.getLocalizedMessage
-      }
-
-      (isValid, msg)
-    }
-
-    val (isValidAgainstSchema: Boolean, isValidAgainstSchemaMsg: String) = validateAgainstSchema
-    val (isRollupInDimensions: Boolean, isRollupInDimensionsMsg: String) = validateRollupsInDimensions
+    val (isValidAgainstSchema: Boolean, isValidAgainstSchemaMsg: String) = validateAgainstSchema(aggregationPoliciesDto)
+    val (isRollupInDimensions: Boolean, isRollupInDimensionsMsg: String) =
+      validateRollupsInDimensions(aggregationPoliciesDto)
 
     val isValid = isRollupInDimensions && isValidAgainstSchema
     val errorMsg = isRollupInDimensionsMsg ++ isValidAgainstSchemaMsg
     (isValid, errorMsg)
   }
+
+  def validateAgainstSchema(aggregationPoliciesDto : AggregationPoliciesDto): (Boolean, String) = {
+
+    implicit val formats = DefaultFormats + new JsoneyStringSerializer()
+
+    var isValid: Boolean = false
+    var msg: String = ""
+
+    val policyJsonAST = Extraction.decompose(aggregationPoliciesDto)
+
+    val mapper: ObjectMapper = new ObjectMapper()
+    val policy: JsonNode = mapper.readTree(pretty(policyJsonAST))
+
+    val fileReader: BufferedReader =
+      new BufferedReader(
+        new FileReader(AggregationPoliciesValidator
+          .getClass.getClassLoader.getResource("policy_schema.json").getPath))
+    val jsonSchema: JsonNode = mapper.readTree(fileReader)
+    val schema: JsonSchema = JsonSchemaFactory.byDefault.getJsonSchema(jsonSchema)
+
+    try{
+      val report: ProcessingReport = schema.validate(policy)
+      isValid = report.isSuccess
+      msg = report.toString
+    } catch {
+      case ise: InvalidSchemaException => isValid = false; msg = ise.getLocalizedMessage
+    }
+
+    (isValid, msg)
+  }
+
+  def validateRollupsInDimensions(aggregationPoliciesDto : AggregationPoliciesDto): (Boolean, String) = {
+
+    val dimensionNames = aggregationPoliciesDto.dimensions.map(_.name)
+
+    val rollupNames = aggregationPoliciesDto.rollups
+      .flatMap(x=> Option(x)) //filter(_!=null) //Seq[Seq[Option[_]]]
+      .flatMap(x => Option(x.dimensionAndBucketTypes)) //Seq[Seq[_]]
+      .flatten //Seq[_]
+      .map(_.dimensionName)
+
+    val rollupNotInDimensions = rollupNames.filter(!dimensionNames.contains(_))
+    val isRollupInDimensions = rollupNotInDimensions.isEmpty
+    val isRollupInDimensionsMsg =
+      if (!isRollupInDimensions)
+        "All rollups should be declared in dimensions block\n"
+      else
+        ""
+    (isRollupInDimensions, isRollupInDimensionsMsg)
+  }
+
+
 }
