@@ -16,7 +16,7 @@
 package com.stratio.sparkta.sdk
 
 import org.json4s.jackson.Serialization.write
-import org.json4s.{CustomSerializer, _}
+import org.json4s._
 
 case class JsoneyString(string : String) {
   override def toString : String = string
@@ -39,4 +39,3 @@ class JsoneyStringSerializer extends CustomSerializer[JsoneyString](format => (
   }
   )) {
 }
-
