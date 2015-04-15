@@ -15,6 +15,15 @@
  */
 package com.stratio.sparkta.driver.dto
 
+import java.io.{FileReader, BufferedReader}
+
+import com.fasterxml.jackson.databind._
+import com.github.fge.jsonschema.core.exceptions.InvalidSchemaException
+import com.github.fge.jsonschema.core.report.ProcessingReport
+import com.github.fge.jsonschema.main.{JsonSchema, JsonSchemaFactory}
+import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
 
 /**
  * Created by ajnavarro on 2/10/14.
@@ -33,6 +42,7 @@ case object AggregationPoliciesDto {
 }
 
 object AggregationPoliciesValidator {
+
   def validateDto(aggregationPoliciesDto : AggregationPoliciesDto): (Boolean, String) = {
 
     def validateRollupsInDimensions: (Boolean, String) = {
@@ -40,7 +50,10 @@ object AggregationPoliciesValidator {
       val dimensionNames = aggregationPoliciesDto.dimensions.map(_.name)
 
       val rollupNames = aggregationPoliciesDto.rollups
-        .flatMap(_.dimensionAndBucketTypes).map(_.dimensionName)
+        .flatMap(x=> Option(x)) //filter(_!=null) //Seq[Seq[Option[_]]]
+        .flatMap(x => Option(x.dimensionAndBucketTypes)) //Seq[Seq[_]]
+        .flatten //Seq[_]
+        .map(_.dimensionName)
 
       val rollupNotInDimensions = rollupNames.filter(!dimensionNames.contains(_))
       val isRollupInDimensions = rollupNotInDimensions.isEmpty
@@ -52,10 +65,41 @@ object AggregationPoliciesValidator {
       (isRollupInDimensions, isRollupInDimensionsMsg)
     }
 
+    def validateAgainstSchema: (Boolean, String) = {
+
+      implicit val formats = DefaultFormats + new JsoneyStringSerializer()
+
+      var isValid: Boolean = false
+      var msg: String = ""
+
+      val policyJsonAST = Extraction.decompose(aggregationPoliciesDto)
+
+      val mapper: ObjectMapper = new ObjectMapper()
+      val policy: JsonNode = mapper.readTree(pretty(policyJsonAST))
+
+      val fileReader: BufferedReader =
+        new BufferedReader(
+          new FileReader(AggregationPoliciesValidator
+            .getClass.getClassLoader.getResource("policy_schema.json").getPath))
+      val jsonSchema: JsonNode = mapper.readTree(fileReader)
+      val schema: JsonSchema = JsonSchemaFactory.byDefault.getJsonSchema(jsonSchema)
+
+      try{
+        val report: ProcessingReport = schema.validate(policy)
+        isValid = report.isSuccess
+        msg = report.toString
+      } catch {
+        case ise: InvalidSchemaException => isValid = false; msg = ise.getLocalizedMessage
+      }
+
+      (isValid, msg)
+    }
+
+    val (isValidAgainstSchema: Boolean, isValidAgainstSchemaMsg: String) = validateAgainstSchema
     val (isRollupInDimensions: Boolean, isRollupInDimensionsMsg: String) = validateRollupsInDimensions
 
-    val isValid = isRollupInDimensions
-    val errorMsg = isRollupInDimensionsMsg
+    val isValid = isRollupInDimensions && isValidAgainstSchema
+    val errorMsg = isRollupInDimensionsMsg ++ isValidAgainstSchemaMsg
     (isValid, errorMsg)
   }
 }
