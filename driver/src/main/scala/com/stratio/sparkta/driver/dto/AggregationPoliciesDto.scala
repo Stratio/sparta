@@ -43,8 +43,6 @@ case object AggregationPoliciesDto {
 
 object AggregationPoliciesValidator {
 
-
-
   def validateDto(aggregationPoliciesDto : AggregationPoliciesDto): (Boolean, String) = {
     val (isValidAgainstSchema: Boolean, isValidAgainstSchemaMsg: String) = validateAgainstSchema(aggregationPoliciesDto)
     val (isRollupInDimensions: Boolean, isRollupInDimensionsMsg: String) =
@@ -104,6 +102,4 @@ object AggregationPoliciesValidator {
         ""
     (isRollupInDimensions, isRollupInDimensionsMsg)
   }
-
-
 }
