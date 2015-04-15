@@ -45,9 +45,9 @@ trait AbstractRedisDAO {
   def dbName : String
   def eventTimeFieldName: String = "eventTime"
   def idFieldName: String = "_id"
-  def idSeparator: String = "__"
+  def idSeparator: String = ":"
 
-  protected def client: RedisClient = AbstractRedisDAO.client(hostname, port)
+  def client: RedisClient = AbstractRedisDAO.client(hostname, port)
 
   def insert(event: Event): Unit = {
     event.keyMap.foreach(x => client.set(x._1, x._2))
