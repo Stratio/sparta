@@ -319,6 +319,7 @@
                             <sourceDirectory>${basedir}/src/main/scala</sourceDirectory>
                             <testSourceDirectory>${basedir}/src/test/scala</testSourceDirectory>
                             <configLocation>project/scalastyle_config.xml</configLocation>
+                            <outputFile>target/scalastyle-output-${project.artifactId}.xml</outputFile>
                             <outputEncoding>UTF-8</outputEncoding>
                         </configuration>
                         <executions>
