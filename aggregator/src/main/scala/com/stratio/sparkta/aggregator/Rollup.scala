@@ -66,7 +66,7 @@ case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Opera
       .map(dimGrouped => {
       val dimVals: Seq[DimensionValue] = dimGrouped._1
       val metrics = dimGrouped._2.flatMap(_.toSeq)
-      val reducedMetricMap = metrics.groupBy(_._1).map(operation => {
+      val reducedMetricMap: Map[String, Option[Any]] = metrics.groupBy(_._1).map(operation => {
         val name: String = operation._1
         val op = operatorsMap(name)
         val values = operation._2.map(_._2)

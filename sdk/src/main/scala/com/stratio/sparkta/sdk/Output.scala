@@ -18,11 +18,15 @@ package com.stratio.sparkta.sdk
 import java.io.Serializable
 
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.{DataFrame, SQLContext, Row}
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
-abstract class Output(properties: Map[String, Serializable], val schema : Option[Map[String,WriteOp]])
-  extends Parameterizable(properties) {
+abstract class Output(properties: Map[String, Serializable],
+                      schema : Option[Map[String,WriteOp]],
+                      sqlContext : SQLContext) extends Parameterizable(properties) {
 
   if (schema.isEmpty) {
     throw new NullPointerException("schema")
@@ -35,6 +39,8 @@ abstract class Output(properties: Map[String, Serializable], val schema : Option
       throw new Exception(s"The following write ops are not supported by this output: ${badWriteOps.mkString(", ")}")
   }*/
 
+  def name : String
+
   def supportedWriteOps : Seq[WriteOp]
 
   def multiplexer : Boolean
@@ -43,12 +49,42 @@ abstract class Output(properties: Map[String, Serializable], val schema : Option
 
   def granularity : String
 
-  def persist(stream: DStream[UpdateMetricOperation]) : Unit
-
-  def persist(streams: Seq[DStream[UpdateMetricOperation]]) : Unit =
+  def persist(streams: Seq[DStream[UpdateMetricOperation]]) : Unit = {
     streams.foreach(persist)
-}
+  }
 
+  def persist(stream: DStream[UpdateMetricOperation]) : Unit = {
+    persistDataFrame(stream)
+  }
+
+  def persistDataFrame(stream: DStream[UpdateMetricOperation]) : Unit = {
+    stream.map(updateMetricOp => updateMetricOp.toRowSchema).foreachRDD(rdd => {
+      //TODO leer la variable de broadcast
+      val mapSchemas: Seq[StructType] = Seq(rdd.first()._1.get)
+      mapSchemas.map(schema => {
+        val rddRow: RDD[Row] = Output.extractRow(rdd.filter( _._1.get == schema))
+        upsert(sqlContext.createDataFrame(rddRow, schema))
+      })
+    })
+  }
+
+  def upsert(dataFrame : DataFrame): Unit = {}
+
+  def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {}
+
+
+  def getStreamsFromOptions(stream: DStream[UpdateMetricOperation], multiplexer: Boolean,
+                            fixedBucket: String): DStream[UpdateMetricOperation] = {
+    multiplexer match {
+      case false => stream
+      case _ => fixedBucket match {
+        case "" => Multiplexer.multiplexStream(stream)
+        case _ => Multiplexer.multiplexStream[fixedBucket.type](stream, fixedBucket)
+      }
+    }
+  }
+
+}
 
 object Output {
 
@@ -69,4 +105,14 @@ object Output {
         case _ => secondsDate
       }
   }
+
+  def genericRowSchema (rdd : RDD[(Option[StructType], Row)]) : (StructType, RDD[Row]) = {
+    val fullSchema = rdd.map(rowType => rowType._1.get).reduce((a, b) => if(a.length > b.length) a else b)
+    (fullSchema, extractRow(rdd))
+  }
+
+  def extractRow (rdd : RDD[(Option[StructType], Row)]) : RDD[Row] = {
+    rdd.map(rowType => rowType._2)
+  }
+
 }

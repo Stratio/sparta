@@ -19,6 +19,7 @@ import java.io.File
 
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.Config
+import org.apache.spark.sql.SQLContext
 import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.collection.JavaConversions._
@@ -27,16 +28,16 @@ import scala.collection.JavaConversions._
  * Created by ajnavarro on 14/10/14.
  */
 object SparkContextFactory extends SLF4JLogging {
-  private var sc: SparkContext = null
+
+  private var sc : Option[SparkContext] = None
 
   def sparkContextInstance(generalConfig: Config, jars: Seq[File]): SparkContext = {
     synchronized {
-      if (sc == null) {
-        sc = new SparkContext(configToSparkConf(generalConfig))
-        jars.foreach(f => sc.addJar(f.getAbsolutePath))
-
+      if (sc == None) {
+        sc = Some(new SparkContext(configToSparkConf(generalConfig)))
+        jars.foreach(f => sc.get.addJar(f.getAbsolutePath))
       }
-      sc
+      sc.get
     }
   }
 
@@ -48,6 +49,10 @@ object SparkContextFactory extends SLF4JLogging {
     properties.foreach(e => conf.set(e.getKey, c.getString(e.getKey)))
 
     conf.setIfMissing("spark.streaming.concurrentJobs", "20")
+
+    //TODO add in output
+    conf.setIfMissing("spark.cassandra.connection.host", "127.0.0.1")
+    conf.setIfMissing("spark.sql.parquet.binaryAsString","true")
 
     conf
   }

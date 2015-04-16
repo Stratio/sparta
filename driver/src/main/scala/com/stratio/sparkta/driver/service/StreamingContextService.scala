@@ -16,6 +16,8 @@
 package com.stratio.sparkta.driver.service
 
 import java.io.{File, Serializable}
+import org.apache.spark.sql.SQLContext
+
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 
@@ -36,36 +38,36 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
 
   // scalastyle:ignore method.length
   def createStreamingContext(apConfig: AggregationPoliciesDto): StreamingContext = {
-    val ssc = new StreamingContext(
-      /*
-      Spark doesn't support multiple active SparkContexts in the same JVM,
-      although this isn't well-documented and there's no error-checking for this
-      (PySpark has checks for this, though). This isn't to say that we
-      can't / won't eventually support multiple contexts per JVM (see SPARK-2243),
-      but that could be somewhat difficult in the very short term because there
-      may be several baked-in assumptions that we'll have to address
-      (the (effectively) global SparkEnv, for example).
-       */
-      SparkContextFactory.sparkContextInstance(generalConfig, jars), new Duration(apConfig.duration))
+
+    val sc = SparkContextFactory.sparkContextInstance(generalConfig, jars)
+    val sqlContext = new SQLContext(sc)
+    val ssc = new StreamingContext(sc, new Duration(apConfig.duration))
+
     val inputs: Map[String, DStream[Event]] = apConfig.inputs.map(i =>
       (i.name, tryToInstantiate[Input](i.elementType, (c) =>
         instantiateParameterizable[Input](c, i.configuration)).setUp(ssc))).toMap
+
     val parsers: Seq[Parser] = apConfig.parsers.map(p =>
       tryToInstantiate[Parser](p.elementType, (c) =>
         instantiateParameterizable[Parser](c, p.configuration)))
+
     val operators: Seq[Operator] = apConfig.operators.map(op =>
       tryToInstantiate[Operator](op.elementType, (c) =>
         instantiateParameterizable[Operator](c, op.configuration)))
+
     //TODO workaround this instantiateDimensions(apConfig).toMap.map(_._2) is not serializable.
     val dimensionsMap: Map[String, Dimension] = instantiateDimensions(apConfig).toMap
     val dimensionsSeq: Seq[Dimension] = instantiateDimensions(apConfig).map(_._2)
 
     val outputSchema = Some(operators.map(op => op.key -> op.writeOperation).toMap)
 
-    val outputs = apConfig.outputs.map(o =>
+    val outputs: Seq[(String, Output)] = apConfig.outputs.map(o =>
       (o.name, tryToInstantiate[Output](o.elementType, (c) =>
-        c.getDeclaredConstructor(classOf[Map[String, Serializable]], classOf[Option[Map[String, WriteOp]]])
-          .newInstance(o.configuration, outputSchema).asInstanceOf[Output]
+        c.getDeclaredConstructor(
+          classOf[Map[String, Serializable]],
+          classOf[Option[Map[String, WriteOp]]],
+          classOf[SQLContext])
+          .newInstance(o.configuration, outputSchema, sqlContext).asInstanceOf[Output]
       )))
 
     val rollups: Seq[Rollup] = apConfig.rollups.map(r => {
@@ -82,6 +84,8 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       })
       new Rollup(components, operators)
     })
+
+
 
     //TODO only support one input
     val input: DStream[Event] = inputs.head._2

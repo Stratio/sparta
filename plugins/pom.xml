@@ -33,6 +33,7 @@
         <module>bucketer-geoHash</module>
         <module>bucketer-twitter-status</module>
         <module>output-mongodb</module>
+        <!--<module>output-cassandra</module> -->
         <module>output-print</module>
         <module>operator-count</module>
         <module>operator-sum</module>

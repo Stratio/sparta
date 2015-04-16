@@ -13,50 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.plugin.output.mongodb
+package com.stratio.sparkta.plugin.output.cassandra
 
 import java.io.Serializable
-import com.mongodb.casbah
-import com.mongodb.casbah.Imports._
-import com.mongodb.casbah.commons.{Imports, MongoDBObject}
 import com.stratio.sparkta.plugin.output.mongodb.dao.AbstractMongoDAO
 import com.stratio.sparkta.sdk.WriteOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 import org.apache.spark.Logging
-import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.dstream.DStream
 import ValidatingPropertyMap._
-import com.mongodb.casbah.commons.conversions.scala._
 import org.joda.time.DateTime
 import scala.util.Try
 
-class MongoDbOutput(properties: Map[String, Serializable],
-                    schema: Option[Map[String, WriteOp]],
-                    sqlContext : SQLContext)
-  extends Output(properties, schema, sqlContext) with AbstractMongoDAO with Multiplexer with Serializable with Logging {
+class CassandraOutput(properties: Map[String, Serializable], schema: Option[Map[String, WriteOp]])
+  extends Output(properties, schema) with AbstractCassandraDAO with Multiplexer with Serializable with Logging {
 
-  RegisterJodaTimeConversionHelpers()
-
-  override val name = properties.getString("name", this.getClass.toString)
-
-  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min, WriteOp.AccAvg,
-    WriteOp.AccMedian, WriteOp.AccVariance,  WriteOp.AccStddev, WriteOp.FullText, WriteOp.AccSet)
+  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min)
 
   override val mongoClientUri = properties.getString("clientUri", "mongodb://localhost:27017")
 
   override val dbName = properties.getString("dbName", "sparkta")
 
-  override val connectionsPerHost = Try(properties.getInt("connectionsPerHost"))
-    .getOrElse(DEFAULT_CONNECTIONS_PER_HOST)
+  override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
-  override val threadsAllowedToBlock = Try(properties.getInt("threadsAllowedToBlock"))
-    .getOrElse(DEFAULT_THREADS_ALLOWED_TO_BLOCK)
-
-  override val multiplexer = Try(properties.getString("multiplexer").toBoolean)
-    .getOrElse(false)
-
-  override val timestampField = properties.getString("timestampField", "timestamp")
+  override val eventTimeFieldName = properties.getString("timestampFieldName", "timestamp")
 
   override val timeBucket = properties.getString("timestampBucket", "")
 
@@ -64,13 +45,20 @@ class MongoDbOutput(properties: Map[String, Serializable],
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val textIndexFields = properties.getString("textIndexFields", "")
-    .split(fieldsSeparator)
+  override val textIndexFields = properties.getString("textIndexFields", "").split(fieldsSeparator)
 
   override val language = properties.getString("language", "none")
 
-  override def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
-    streams.foreach(persist)
+  override def getStreamsFromOptions(stream: DStream[UpdateMetricOperation],
+                                     multiplexer: Boolean,
+                                     fixedBucket: String): DStream[UpdateMetricOperation] = {
+    multiplexer match {
+      case false => stream
+      case _ => fixedBucket match {
+        case "" => Multiplexer.multiplexStream(stream)
+        case _ => Multiplexer.multiplexStream[fixedBucket.type](stream, fixedBucket)
+      }
+    }
   }
 
   override def persist(stream: DStream[UpdateMetricOperation]): Unit = {
@@ -78,22 +66,26 @@ class MongoDbOutput(properties: Map[String, Serializable],
       .foreachRDD(rdd => rdd.foreachPartition(ops => upsert(ops)))
   }
 
+  override def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
+    streams.foreach(persist)
+  }
+
   // scalastyle:off
-  override def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
+  def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
     metricOperations.toList.groupBy(metricOp => metricOp.keyString)
       .filter(_._1.size > 0)
       .foreach(f = collMetricOp => {
 
-        val languageObject = (LANGUAGE_FIELD_NAME, language)
+        val languageObject = (languageFieldName, language)
         val bulkOperation = db().getCollection(collMetricOp._1).initializeOrderedBulkOperation()
 
         //TODO refactor out of here
         if (textIndexFields.size > 0) {
-          createTextIndex(collMetricOp._1, textIndexFields.mkString(INDEX_NAME_SEPARATOR), textIndexFields, language)
+          createTextIndex(collMetricOp._1, textIndexFields.mkString(indexNameSeparator), textIndexFields, language)
         }
-        var idField = DEFAULT_ID
+        var idField = idDefaultFieldName
         if ((timeBucket != "") && ((collMetricOp._1.contains(timeBucket)) || (granularity != ""))) {
-          createIndex(collMetricOp._1, timestampField, Map(idAuxFieldName -> 1, timestampField -> 1), true, true)
+          createIndex(collMetricOp._1, eventTimeFieldName, Map(idAuxFieldName -> 1, eventTimeFieldName -> 1), true, true)
           idField = idAuxFieldName
         }
 
@@ -102,10 +94,10 @@ class MongoDbOutput(properties: Map[String, Serializable],
           val eventTimeObject = timeBucket match {
             case "" => None
             case _ => metricOp.rollupKey.filter(dimVal => timeBucket == dimVal.bucketType.id) match {
-              case c if (c.size > 0) => Some(timestampField -> c.last.value)
+              case c if (c.size > 0) => Some(eventTimeFieldName -> c.last.value)
               case _ => granularity match {
                 case "" => None
-                case _ => Some(timestampField -> Output.dateFromGranularity(DateTime.now(), granularity))
+                case _ => Some(eventTimeFieldName -> Output.dateFromGranularity(DateTime.now(), granularity))
               }
             }
           }
@@ -120,7 +112,7 @@ class MongoDbOutput(properties: Map[String, Serializable],
             builder += idField -> metricOp.rollupKey
               .filter(rollup => (rollup.bucketType.id != timeBucket))
               .map(dimVal => dimVal.value.toString)
-              .mkString(idValuesSeparator)
+              .mkString(idSeparator)
             if (eventTimeObject != None) builder += eventTimeObject.get
             builder.result
           }

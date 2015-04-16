@@ -40,7 +40,7 @@ object Multiplexer {
         upMetricOp: UpdateMetricOperation <- stream
         comb: Seq[DimensionValue] <- combine(upMetricOp.rollupKey)
           .filter(dimVals => dimVals.size >= 1)
-          //TODO necesary for other options?
+          // necesary for other options?
           //|| ((dimVals.size == 1) && (dimVals.last.bucketType != Bucketer.fulltext)))
       } yield UpdateMetricOperation(
           comb.sortWith((dim1,dim2) =>
@@ -74,5 +74,4 @@ object Multiplexer {
             (dim1.dimension.name + dim1.bucketType.id) < (dim2.dimension.name + dim2.bucketType.id)),
           upMetricOp.aggregations)
   }
-
 }

@@ -94,6 +94,16 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
     }
   }
 
+ /* def getSeq(key: K, default : String): V = {
+    m.get(key).getOrElse(throw new Exception(s"$key is mandatory")) match {
+      case value: Seq[String] => value
+      case value: Seq[Int] => value
+      case value: Seq[Long] => value
+      case value: Seq[Double] => value
+      case _ => Seq(default).asInstanceOf[V]
+    }
+  }*/
+
   def hasKey(key: K): Boolean = !m.get(key).isEmpty
 
 }

@@ -20,11 +20,16 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 import org.apache.spark.streaming.dstream.DStream
-
+import org.apache.spark.sql._
+import ValidatingPropertyMap._
 import scala.util.Try
 
-class PrintOutput(properties: Map[String, JSerializable], schema: Option[Map[String, WriteOp]])
-  extends Output(properties, schema) {
+class PrintOutput(properties: Map[String, JSerializable],
+                  schema: Option[Map[String, WriteOp]],
+                  sqlContext : SQLContext)
+  extends Output(properties, schema, sqlContext) {
+
+  override val name = properties.getString("name", this.getClass.toString)
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min)
 
@@ -40,7 +45,12 @@ class PrintOutput(properties: Map[String, JSerializable], schema: Option[Map[Str
   }
 
   override def persist(stream: DStream[UpdateMetricOperation]): Unit = {
-    stream.print()
+    persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket))
+  }
+
+  override def upsert(dataFrame: DataFrame) : Unit = {
+    dataFrame.printSchema()
+    dataFrame.collect().foreach(print)
   }
 
 }
