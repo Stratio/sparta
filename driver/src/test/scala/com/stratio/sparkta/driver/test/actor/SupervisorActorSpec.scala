@@ -88,7 +88,7 @@ class SupervisorActorSpec
 
       within(5000 millis) {
         supervisorRef ! new GetContextStatus("test-1")
-        expectMsg(new StreamingContextStatusDto("test-1", Error, None))
+        expectMsg(new StreamingContextStatusDto("test-1", Error, Some(null)))
       }
     }
     //TODO test when creating a streamingContextActor unexpected error occurs
@@ -103,7 +103,7 @@ class SupervisorActorSpec
 
       within(5000 millis) {
         supervisorRef ! new GetContextStatus("test-1")
-        expectMsg(new StreamingContextStatusDto("test-1", Initialized, None))
+        expectMsg(new StreamingContextStatusDto("test-1", Initialized, Some(null)))
       }
     }
     "Get a context status for a created context" in {
@@ -116,7 +116,7 @@ class SupervisorActorSpec
 
       within(5000 millis) {
         supervisorRef ! new GetContextStatus("test-1")
-        expectMsg(new StreamingContextStatusDto("test-1", Initialized, None))
+        expectMsg(new StreamingContextStatusDto("test-1", Initialized, Some(null)))
       }
     }
     "Delete a previously created context" in {
