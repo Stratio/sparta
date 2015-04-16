@@ -36,7 +36,7 @@
         <module>dist</module>
     </modules>
 
-    <name>SpaRkTA</name>
+    <name>Stratio SpaRkTA</name>
     <description>Spark Real-Time Analytics</description>
     <inceptionYear>2014</inceptionYear>
 
@@ -276,30 +276,6 @@
                     <scalaVersion>${scala.version}</scalaVersion>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>com.mycila</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <version>2.6</version>
-                <configuration>
-                    <header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
-                    <properties>
-                        <owner>${project.organization.name}</owner>
-                        <email>${project.organization.url}</email>
-                        <failOnMissingHeader>true</failOnMissingHeader>
-                    </properties>
-                    <excludes>
-                        <exclude>**/README*</exclude>
-                    </excludes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>format</goal>
-                        </goals>
-                        <phase>process-resources</phase>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -307,6 +283,30 @@
             <id>dev</id>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>com.mycila</groupId>
+                        <artifactId>license-maven-plugin</artifactId>
+                        <version>2.6</version>
+                        <configuration>
+                            <header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
+                            <properties>
+                                <owner>${project.organization.name}</owner>
+                                <email>${project.organization.url}</email>
+                                <failOnMissingHeader>true</failOnMissingHeader>
+                            </properties>
+                            <excludes>
+                                <exclude>**/README*</exclude>
+                            </excludes>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>format</goal>
+                                </goals>
+                                <phase>process-resources</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <plugin>
                         <groupId>org.scalastyle</groupId>
                         <artifactId>scalastyle-maven-plugin</artifactId>
