@@ -27,18 +27,18 @@ import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.sdk._
 
 //noinspection ScalaStyle
-class DataCubeSpec extends TestSuiteBase {
+class DataCubeSpec extends TestSuiteBase{
 
   val myConf = new SparkConf()
     .setAppName(this.getClass.getSimpleName + "" + System.currentTimeMillis())
-    .setMaster("local[2]") .set("spark.streaming.clock", "org.apache.spark.streaming.util.ManualClock")
+    .setMaster("local[2]").set("spark.streaming.clock", "org.apache.spark.streaming.util.ManualClock")
   val sc = new SparkContext(myConf)
   val ssc: StreamingContext = new StreamingContext(sc, Seconds(2))
   val clock = new ClockWrapper(ssc)
-  def myDim(i :Int) =  new Dimension("myKey" + i, new PassthroughBucketer().asInstanceOf[Bucketer])
+  def myDim(i: Int) = new Dimension("myKey" + i, new PassthroughBucketer().asInstanceOf[Bucketer])
   def getDimensions: Seq[Dimension] = (0 until 10) map (i => myDim(i))
 
-  def getComponents: Seq[(Dimension, BucketType)] = (0 until 1) map (i =>( myDim(i), Bucketer.identity))
+  def getComponents: Seq[(Dimension, BucketType)] = (0 until 1) map (i => (myDim(i), Bucketer.identity))
 
   def getOperators: Seq[Operator] = (0 until 1) map (i => new CountOperator(Map("prop" -> "propValue"
     .asInstanceOf[JSerializable])))
@@ -60,6 +60,8 @@ class DataCubeSpec extends TestSuiteBase {
     events += sc.makeRDD(getEvents)
     clock.advance(2)
 
+    ssc.stop()
 
   }
+
 }
