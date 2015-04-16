@@ -39,7 +39,7 @@ class DateTimeBucketerSpec extends WordSpecLike with Matchers with BeforeAndAfte
       val newDate = new Date()
       val buckets = dateTimeBucketer.bucket(newDate.asInstanceOf[io.Serializable])
 
-      buckets.size should be(5)
+      buckets.size should be(7)
 
       buckets.keys should contain(DateTimeBucketer.minutes)
       buckets.keys should contain(DateTimeBucketer.hours)
