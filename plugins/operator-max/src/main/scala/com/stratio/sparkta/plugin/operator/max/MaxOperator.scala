@@ -29,15 +29,19 @@ class MaxOperator(properties: Map[String, JSerializable]) extends Operator(prope
 
   override val writeOperation = WriteOp.Max
 
-  override def processMap(inputFields: Map[String, JSerializable]) =
+  override def processMap(inputFields: Map[String, JSerializable]): Option[Number] =
     inputFields.contains(inputField) match {
-      case false => Some(0)
+      case false => MaxOperator.SOME_ZERO_NUMBER
       case true => Some(inputFields.get(inputField).get.asInstanceOf[Number])
     }
 
-  override def processReduce(values : Iterable[Option[_>:AnyVal]]) = {
+  override def processReduce(values : Iterable[Option[Any]]): Option[Double] = {
     Try(Some(values.map(_.get.asInstanceOf[Number].doubleValue()).max))
-      .getOrElse(Some(0))
+      .getOrElse(MaxOperator.SOME_ZERO)
   }
+}
 
+private object MaxOperator {
+  val SOME_ZERO = Some(0d)
+  val SOME_ZERO_NUMBER = Some(0d.asInstanceOf[Number])
 }

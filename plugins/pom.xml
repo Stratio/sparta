@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+
 <!--
 
     Copyright (C) 2014 Stratio (http://stratio.com)
@@ -30,7 +30,6 @@
     <modules>
         <module>bucketer-dateTime</module>
         <module>bucketer-passthrough</module>
-        <module>bucketer-fullText</module>
         <module>bucketer-geoHash</module>
         <module>bucketer-twitter-status</module>
         <module>output-mongodb</module>
@@ -39,10 +38,13 @@
         <module>operator-sum</module>
         <module>operator-max</module>
         <module>operator-min</module>
-        <!--<module>operator-avg</module>
+        <module>operator-avg</module>
         <module>operator-median</module>
         <module>operator-variance</module>
-        <module>operator-stddev</module>-->
+        <module>operator-stddev</module>
+        <module>operator-fullText</module>
+        <module>operator-lastValue</module>
+        <module>operator-accumulator</module>
         <module>input-kafka</module>
         <module>input-flume</module>
         <module>input-socket</module>

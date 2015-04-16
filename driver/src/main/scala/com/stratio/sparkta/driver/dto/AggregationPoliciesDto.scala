@@ -15,6 +15,15 @@
  */
 package com.stratio.sparkta.driver.dto
 
+import java.io.{FileReader, BufferedReader}
+
+import com.fasterxml.jackson.databind._
+import com.github.fge.jsonschema.core.exceptions.InvalidSchemaException
+import com.github.fge.jsonschema.core.report.ProcessingReport
+import com.github.fge.jsonschema.main.{JsonSchema, JsonSchemaFactory}
+import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
 
 /**
  * Created by ajnavarro on 2/10/14.
@@ -33,29 +42,64 @@ case object AggregationPoliciesDto {
 }
 
 object AggregationPoliciesValidator {
+
   def validateDto(aggregationPoliciesDto : AggregationPoliciesDto): (Boolean, String) = {
+    val (isValidAgainstSchema: Boolean, isValidAgainstSchemaMsg: String) = validateAgainstSchema(aggregationPoliciesDto)
+    val (isValidRollup: Boolean, isRollupInDimensionsMsg: String) =
+      validateRollups(aggregationPoliciesDto)
 
-    def validateRollupsInDimensions: (Boolean, String) = {
+    val isValid = isValidRollup && isValidAgainstSchema
+    val errorMsg = isRollupInDimensionsMsg ++ isValidAgainstSchemaMsg
+    (isValid, errorMsg)
+  }
 
-      val dimensionNames = aggregationPoliciesDto.dimensions.map(_.name)
+  def validateAgainstSchema(aggregationPoliciesDto : AggregationPoliciesDto): (Boolean, String) = {
 
-      val rollupNames = aggregationPoliciesDto.rollups
-        .flatMap(_.dimensionAndBucketTypes).map(_.dimensionName)
+    implicit val formats = DefaultFormats + new JsoneyStringSerializer()
 
-      val rollupNotInDimensions = rollupNames.filter(!dimensionNames.contains(_))
-      val isRollupInDimensions = rollupNotInDimensions.isEmpty
-      val isRollupInDimensionsMsg =
-        if (!isRollupInDimensions)
-          "All rollups should be declared in dimensions block\n"
-        else
-          ""
-      (isRollupInDimensions, isRollupInDimensionsMsg)
+    var isValid: Boolean = false
+    var msg: String = ""
+
+    val policyJsonAST = Extraction.decompose(aggregationPoliciesDto)
+
+    val mapper: ObjectMapper = new ObjectMapper()
+    val policy: JsonNode = mapper.readTree(pretty(policyJsonAST))
+
+    val fileReader: BufferedReader =
+      new BufferedReader(
+        new FileReader(AggregationPoliciesValidator
+          .getClass.getClassLoader.getResource("policy_schema.json").getPath))
+    val jsonSchema: JsonNode = mapper.readTree(fileReader)
+    val schema: JsonSchema = JsonSchemaFactory.byDefault.getJsonSchema(jsonSchema)
+
+    try{
+      val report: ProcessingReport = schema.validate(policy)
+      isValid = report.isSuccess
+      msg = report.toString
+    } catch {
+      case ise: InvalidSchemaException => isValid = false; msg = ise.getLocalizedMessage
     }
 
-    val (isRollupInDimensions: Boolean, isRollupInDimensionsMsg: String) = validateRollupsInDimensions
+    (isValid, msg)
+  }
 
-    val isValid = isRollupInDimensions
-    val errorMsg = isRollupInDimensionsMsg
-    (isValid, errorMsg)
+  def validateRollups(aggregationPoliciesDto : AggregationPoliciesDto): (Boolean, String) = {
+
+    val dimensionNames = aggregationPoliciesDto.dimensions.map(_.name)
+
+    val rollupNames = aggregationPoliciesDto.rollups
+      .flatMap(x=> Option(x)) //filter(_!=null) //Seq[Seq[Option[_]]]
+      .flatMap(x => Option(x.dimensionAndBucketTypes)) //Seq[Seq[_]]
+      .flatten //Seq[_]
+      .map(_.dimensionName)
+
+    val rollupNotInDimensions = rollupNames.filter(!dimensionNames.contains(_))
+    val isRollupInDimensions = rollupNotInDimensions.isEmpty
+    val isRollupInDimensionsMsg =
+      if (!isRollupInDimensions)
+        "All rollups should be declared in dimensions block\n"
+      else
+        ""
+    (isRollupInDimensions, isRollupInDimensionsMsg)
   }
 }

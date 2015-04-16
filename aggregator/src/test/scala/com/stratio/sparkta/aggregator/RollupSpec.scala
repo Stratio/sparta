@@ -47,7 +47,7 @@ class RollupSpec extends TestSuiteBase {
         UpdateMetricOperation(Seq(DimensionValue(Dimension("foo", new PassthroughBucketer),
           new BucketType("identity"), "foo")), Map("count" -> Some(1L), "sum_n" -> Some(2L)))
       )),
-      false
+      true
     )
   }
 

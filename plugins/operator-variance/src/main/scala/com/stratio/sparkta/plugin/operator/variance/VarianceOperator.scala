@@ -16,7 +16,6 @@
 package com.stratio.sparkta.plugin.operator.variance
 
 import java.io.{Serializable => JSerializable}
-
 import com.stratio.sparkta.sdk.{WriteOp, Operator}
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import breeze.stats._
@@ -29,13 +28,22 @@ class VarianceOperator(properties: Map[String, JSerializable]) extends Operator(
 
   override val writeOperation = WriteOp.Variance
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[_] =
+  override def processMap(inputFields: Map[String, JSerializable]): Option[Number] =
     inputFields.contains(inputField) match {
-      case false => None
-      case true => Some(inputFields.get(inputField))
+      case false => VarianceOperator.SOME_ZERO_NUMBER
+      case true => Some(inputFields.get(inputField).get.asInstanceOf[Number])
     }
 
-  override def processReduce(values: Iterable[Option[_]]) = {
-    Some(variance(values.asInstanceOf[Iterable[Double]]))
+  override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
+    values.size match {
+      case (nz) if (nz != 0) => Some(variance(values.map(_.get.asInstanceOf[Number].doubleValue())))
+      case _ => VarianceOperator.SOME_ZERO
+    }
   }
 }
+
+private object VarianceOperator {
+  val SOME_ZERO = Some(0d)
+  val SOME_ZERO_NUMBER = Some(0d.asInstanceOf[Number])
+}
+
