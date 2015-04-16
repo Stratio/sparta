@@ -26,8 +26,7 @@ import com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer
 import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.sdk._
 
-//noinspection ScalaStyle
-class DataCubeSpec extends TestSuiteBase{
+class DataCubeSpec extends TestSuiteBase {
 
   val myConf = new SparkConf()
     .setAppName(this.getClass.getSimpleName + "" + System.currentTimeMillis())
@@ -35,7 +34,9 @@ class DataCubeSpec extends TestSuiteBase{
   val sc = new SparkContext(myConf)
   val ssc: StreamingContext = new StreamingContext(sc, Seconds(2))
   val clock = new ClockWrapper(ssc)
+
   def myDim(i: Int) = new Dimension("myKey" + i, new PassthroughBucketer().asInstanceOf[Bucketer])
+
   def getDimensions: Seq[Dimension] = (0 until 10) map (i => myDim(i))
 
   def getComponents: Seq[(Dimension, BucketType)] = (0 until 1) map (i => (myDim(i), Bucketer.identity))
@@ -53,15 +54,15 @@ class DataCubeSpec extends TestSuiteBase{
 
   test("DataCube setUp") {
     val dc: DataCube = new DataCube(myDimensions, myRollups)
-    val result =dc.setUp(ssc.queueStream(events))
+    val result = dc.setUp(ssc.queueStream(events))
     result.foreach(i => i.print)
-    assert(result.size ==2)
+
+    assert(result.size == 2)
+
     ssc.start()
     events += sc.makeRDD(getEvents)
     clock.advance(2)
 
     ssc.stop()
-
   }
-
 }
