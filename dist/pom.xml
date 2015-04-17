@@ -60,33 +60,124 @@
             </resource>
         </resources>
         <plugins>
+            <!--<plugin>-->
+                <!--<artifactId>maven-assembly-plugin</artifactId>-->
+                <!--<version>2.5.1</version>-->
+                <!--<configuration>-->
+                    <!--<descriptors>-->
+                        <!--<descriptor>assembly.xml</descriptor>-->
+                    <!--</descriptors>-->
+                <!--</configuration>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>assemble</id>-->
+                        <!--<phase>package</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>single</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.1</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.1</version>
                 <configuration>
-                    <descriptors>
-                        <descriptor>assembly.xml</descriptor>
-                    </descriptors>
+                    <skip>true</skip>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>assemble</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.scalastyle</groupId>
-                <artifactId>scalastyle-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>none</phase>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>package</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>appassembler-maven-plugin</artifactId>
+                        <version>1.8.1</version>
+                        <executions>
+                            <execution>
+                                <id>engine</id>
+                                <configuration>
+                                    <configurationSourceDirectory>${config.directory}</configurationSourceDirectory>
+                                    <configurationDirectory>:/etc/sds/streaming/conf</configurationDirectory>
+                                    <copyConfigurationDirectory>true</copyConfigurationDirectory>
+                                    <includeConfigurationDirectoryInClasspath>true
+                                    </includeConfigurationDirectoryInClasspath>
+                                    <assembleDirectory>target/appassembler</assembleDirectory>
+                                    <extraJvmArguments>$STREAMING_OPTS -Xms512m -Xmx512m
+                                        -Dcom.sun.management.jmxremote.port=7193
+                                        -Dcom.sun.management.jmxremote.authenticate=false
+                                        -Dcom.sun.management.jmxremote.ssl=false
+                                    </extraJvmArguments>
+
+                                    <filterConfigurationDirectory>true</filterConfigurationDirectory>
+                                    <programs>
+                                        <program>
+                                            <mainClass>com.stratio.streaming.StreamingEngine</mainClass>
+                                            <id>run</id>
+                                        </program>
+                                    </programs>
+                                    <platforms>
+                                        <platform>unix</platform>
+                                    </platforms>
+                                </configuration>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>assemble</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.stratio.mojo.unix</groupId>
+                        <artifactId>unix-maven-plugin</artifactId>
+                        <version>1.0-alpha-9</version>
+                        <extensions>true</extensions>
+                        <inherited>false</inherited>
+                        <configuration>
+                            <contact><![CDATA[Stratio Streaming<streaming@stratio.com>]]></contact>
+                            <contactEmail>streaming@stratio.com</contactEmail>
+                            <deb>
+                                <section>devel</section>
+                            </deb>
+                            <rpm>
+                                <group>stratio</group>
+                            </rpm>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>engine</id>
+                                <phase>package</phase>
+                                <configuration>
+                                    <name>Engine</name>
+                                    <size>1</size>
+                                    <assembly>
+                                        <copyDirectory>
+                                            <from>target/appassembler/bin</from>
+                                            <to>/opt/sds/streaming/bin</to>
+                                        </copyDirectory>
+                                        <copyDirectory>
+                                            <from>target/appassembler/repo</from>
+                                            <to>/opt/sds/streaming/repo</to>
+                                        </copyDirectory>
+                                        <copyDirectory>
+                                            <from>target/appassembler/:/etc/sds/streaming/conf</from>
+                                            <to>/etc/sds/streaming/conf</to>
+                                        </copyDirectory>
+                                    </assembly>
+                                </configuration>
+                                <goals>
+                                    <goal>package-deb</goal>
+                                    <goal>package-rpm</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
