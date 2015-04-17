@@ -221,6 +221,7 @@
                     </reportsDirectory>
                     <junitxml>.</junitxml>
                     <filereports>WDF TestSuite.txt</filereports>
+                    <skipTests>${skipUTs}</skipTests>
                 </configuration>
                 <executions>
                     <execution>
