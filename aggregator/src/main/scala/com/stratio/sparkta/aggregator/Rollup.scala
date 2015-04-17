@@ -18,7 +18,6 @@ package com.stratio.sparkta.aggregator
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.sdk._
-import org.apache.spark.streaming.StreamingContext._
 import org.apache.spark.streaming.dstream.DStream
 
 /**
@@ -80,5 +79,36 @@ case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Opera
   override def toString: String = {
     "[Rollup over " + components + "]"
   }
+
+  def sortComponents : Seq[(Dimension, BucketType)] = {
+    components.sortWith((rollup1, rollup2) =>
+      (rollup1._1.name + rollup1._2.id) < (rollup1._1.name + rollup1._2.id))
+  }
+
+  def componentNames(dimValues : Seq[(Dimension, BucketType)]) : Seq[String] = {
+    dimValues.map(dimVal => {
+      dimVal._2 match {
+        case Bucketer.identity => dimVal._1.name
+        case _ => dimVal._2.id
+      }
+    })
+  }
+
+  def sortOperators : Seq[Operator] = {
+    operators.sortWith((operator1, operator2) => (operator1.key) < (operator2.key))
+  }
+
+  def operatorsNames(operators : Seq[Operator]) : Seq[String] = {
+    operators.map(operator => operator.key)
+  }
+
+  def sortedComponentsNames : Seq[String] = {
+    componentNames(sortComponents)
+  }
+
+  def sortedOperatorsNames : Seq[String] = {
+    operatorsNames(sortOperators)
+  }
+
 }
 

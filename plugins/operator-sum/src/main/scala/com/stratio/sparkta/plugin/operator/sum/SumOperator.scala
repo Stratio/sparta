@@ -23,6 +23,8 @@ import scala.util.Try
 
 class SumOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
+  override val clazz = Some(classOf[Long])
+
   private val inputField = if(properties.contains("inputField")) properties.getString("inputField") else ""
 
   override val key : String = "sum_" + inputField

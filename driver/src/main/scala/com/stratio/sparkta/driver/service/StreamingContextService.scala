@@ -30,7 +30,7 @@ import org.reflections.Reflections
 import com.stratio.sparkta.aggregator.{DataCube, Rollup}
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.exception.DriverException
-import com.stratio.sparkta.driver.factory.SparkContextFactory
+import com.stratio.sparkta.driver.factory._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 
@@ -85,7 +85,8 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       new Rollup(components, operators)
     })
 
-
+    val componentsAggregationsSchema = sc.broadcast(PolicyFactory.rollupsOperatorsSchemas(rollups, outputs, operators))
+    print(componentsAggregationsSchema.value.toString())
 
     //TODO only support one input
     val input: DStream[Event] = inputs.head._2

@@ -25,6 +25,8 @@ import breeze.linalg._
 
 class MedianOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
+  override val clazz = Some(classOf[Double])
+
   private val inputField = properties.getString("inputField")
 
   override val key : String = "median_" + inputField

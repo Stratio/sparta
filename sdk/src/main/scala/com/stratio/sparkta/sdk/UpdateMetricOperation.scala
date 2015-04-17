@@ -32,8 +32,9 @@ case class UpdateMetricOperation(rollupKey: Seq[DimensionValue],
     throw new NullPointerException("aggregations")
   }
 
+  //TODO is not necesary filter??
   def keyString: String = {
-    ExtractOp.sortedNamesDimensionsValues(rollupKey)
+    sortedNamesDimensionsValues
       .filter(dimName => dimName.nonEmpty).mkString(SEPARATOR)
   }
 
@@ -41,7 +42,26 @@ case class UpdateMetricOperation(rollupKey: Seq[DimensionValue],
     this.keyString + " DIMENSIONS: " + rollupKey.mkString("|") + " AGGREGATIONS: " + aggregations
   }
 
-  def rowTypeFromOption(option : Option[Any]) : DataType= {
+  def sortDimensionValues: Seq[DimensionValue] = {
+    rollupKey.sortWith((dim1, dim2) =>
+      (dim1.dimension.name + dim1.bucketType.id) < (dim2.dimension.name + dim2.bucketType.id)
+    )
+  }
+
+  def namesDimensionValues(dimValues: Seq[DimensionValue]) : Seq[String] = {
+    dimValues.map(dimVal => {
+      dimVal.bucketType match {
+        case Bucketer.identity => dimVal.dimension.name
+        case _ => dimVal.bucketType.id
+      }
+    })
+  }
+
+  def sortedNamesDimensionsValues: Seq[String] = {
+    namesDimensionValues(sortDimensionValues)
+  }
+
+  def rowTypeFromOption(option: Option[Any]): DataType= {
     option match {
       case Some(any) => any match {
         case s if s.isInstanceOf[String] =>  StringType
@@ -57,14 +77,14 @@ case class UpdateMetricOperation(rollupKey: Seq[DimensionValue],
     }
   }
 
-  def toRowSchema : (Option[StructType], Row) = {
-    val sortedRollup = ExtractOp.sortDimensionValues(rollupKey)
+  def toRowSchema: (Option[StructType], Row) = {
+    val sortedRollup = sortDimensionValues
     val row = Row.fromSeq(
       sortedRollup.map(dimVal => dimVal.value) ++
         aggregations.toSeq.map(aggregation => aggregation._2.get)
     )
     val schema : StructType = StructType(
-      ExtractOp.namesDimensionValues(sortedRollup).map(fieldName => StructField(fieldName, StringType, false)) ++
+      namesDimensionValues(sortedRollup).map(fieldName => StructField(fieldName, StringType, false)) ++
         aggregations.map(fieldName =>
           StructField(fieldName._1, rowTypeFromOption(fieldName._2), false)
         )
@@ -72,7 +92,7 @@ case class UpdateMetricOperation(rollupKey: Seq[DimensionValue],
     if (schema.length > 0) (Some(schema), row) else (None, row)
   }
 
-  def toRow : Row = {
+  def toRow: Row = {
     Row.fromSeq(
       rollupKey.map(dimVal => dimVal.value) ++
         aggregations.toSeq.map(aggreation => aggreation._2.get.asInstanceOf[JSerializable])

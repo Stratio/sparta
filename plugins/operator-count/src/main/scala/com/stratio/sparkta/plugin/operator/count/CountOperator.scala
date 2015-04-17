@@ -23,6 +23,8 @@ import scala.util.Try
 
 class CountOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
+  override val clazz = Some(classOf[Long])
+
   override val key: String = "count"
 
   override val writeOperation = WriteOp.Inc

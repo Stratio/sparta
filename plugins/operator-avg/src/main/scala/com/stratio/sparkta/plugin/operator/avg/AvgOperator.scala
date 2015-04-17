@@ -21,6 +21,8 @@ import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 
 class AvgOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
+  override val clazz = Some(classOf[Double])
+
   private val inputField = properties.getString("inputField")
 
   override val key : String = "avg_" + inputField
@@ -40,6 +42,7 @@ class AvgOperator(properties: Map[String, JSerializable]) extends Operator(prope
       case _ => AvgOperator.SOME_ZERO
     }
   }
+
 }
 
 private object AvgOperator {

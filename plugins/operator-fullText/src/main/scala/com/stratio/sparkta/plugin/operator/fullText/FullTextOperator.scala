@@ -23,6 +23,8 @@ import scala.util.Try
 
 class FullTextOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
+  override val clazz = Some(classOf[String])
+
   private val inputField = if(properties.contains("inputField")) properties.getString("inputField") else ""
 
   override val key : String = inputField
