@@ -1,0 +1,47 @@
+{
+    "name": "policy-rabbitmq",
+    "duration": 10000,
+    "inputs": [
+        {
+            "name": "in",
+            "elementType": "com.stratio.sparkta.plugin.input.rabbitmq.RabbitMQInput",
+            "configuration": {
+                "queue": "test"
+            }
+        }
+    ],
+    "dimensions": [
+        {
+            "dimensionType": "com.stratio.sparkta.plugin.bucketer.datetime.DateTimeBucketer",
+            "name": "timestamp"
+        },
+        {
+            "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+            "name": "appName"
+        }
+    ],
+    "rollups": [
+        {
+            "dimensionAndBucketTypes": [
+                {
+                    "dimensionName": "timestamp",
+                    "bucketType": "minute"
+                }
+            ]
+        }
+    ],
+    "outputs": [
+        {
+            "name": "out-print",
+            "elementType": "PrintOutput",
+            "configuration": {}
+        }
+    ],
+    "operators": [
+        {
+            "name": "count-operator",
+            "elementType": "CountOperator",
+            "configuration": {}
+        }
+    ]
+}
