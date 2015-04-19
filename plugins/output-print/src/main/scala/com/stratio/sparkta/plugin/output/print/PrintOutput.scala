@@ -17,19 +17,17 @@ package com.stratio.sparkta.plugin.output.print
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
-import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.sql._
-import ValidatingPropertyMap._
 import scala.util.Try
 
-class PrintOutput(properties: Map[String, JSerializable],
-                  schema: Option[Map[String, WriteOp]],
+class PrintOutput(keyName : String,
+                  properties: Map[String, JSerializable],
+                  operationType : Option[Map[String, (WriteOp, TypeOp)]],
                   sqlContext : SQLContext)
-  extends Output(properties, schema, sqlContext) {
-
-  override val name = properties.getString("name", this.getClass.toString)
+  extends Output(keyName, properties, operationType, sqlContext) {
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min)
 
@@ -40,17 +38,16 @@ class PrintOutput(properties: Map[String, JSerializable],
 
   override val granularity = Try(properties("granularity").asInstanceOf[String]).getOrElse("")
 
-  override def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
-    streams.foreach(persist)
-  }
-
-  override def persist(stream: DStream[UpdateMetricOperation]): Unit = {
-    persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket))
-  }
-
-  override def upsert(dataFrame: DataFrame) : Unit = {
+  override def upsert(dataFrame : DataFrame): Unit = {
     dataFrame.printSchema()
-    dataFrame.collect().foreach(print)
+    dataFrame.foreach(println)
+    val select = dataFrame.select("precision3","hastags")
+    select.printSchema()
+    select.foreach(println)
+    println("COUNT : "  +  dataFrame.count())
   }
 
+  override def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
+    metricOperations.foreach(metricOp => println(metricOp.toString))
+  }
 }

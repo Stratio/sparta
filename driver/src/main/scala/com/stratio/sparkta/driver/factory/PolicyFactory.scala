@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2014 Stratio (http://stratio.com)
  *
@@ -17,10 +18,10 @@
 package com.stratio.sparkta.driver.factory
 
 import com.stratio.sparkta.aggregator.Rollup
+import com.stratio.sparkta.sdk.TypeOp.TypeOp
+import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 import org.apache.spark.sql.types._
-import org.joda.time._
-import java.util.Date
 
 /**
  * Created by jcgarcia on 16/04/15.
@@ -28,17 +29,16 @@ import java.util.Date
 object PolicyFactory {
 
   final val SEPARATOR = "_"
-  // scalastyle:ignore
 
-  def rowTypeFromOption(option: Option[_<:Any]): DataType= {
-    option.get match {
-        case value : Class[String] =>  StringType
-        case value : Class[Long] =>  LongType
-        case value : Class[Double] =>  DoubleType
-        case value : Class[Int] =>  IntegerType
-        case value : Class[Boolean] =>  BooleanType
-        case value : Class[Date] =>  DateType
-        case value : Class[DateTime] =>  TimestampType
+  def rowTypeFromOption(option: TypeOp): DataType= {
+    option match {
+        case TypeOp.Long =>  LongType
+        case TypeOp.Double =>  DoubleType
+        case TypeOp.Int =>  IntegerType
+        case TypeOp.Boolean =>  BooleanType
+        case TypeOp.Date =>  DateType
+        case TypeOp.DateTime =>  TimestampType
+        case TypeOp.String =>  StringType
         case _ => BinaryType
     }
   }
@@ -49,21 +49,29 @@ object PolicyFactory {
 
   def rollupsOperatorsSchemas(rollups: Seq[Rollup],
                               outputs: Seq[(String, Output)],
-                              operators: Seq[Operator]) : Map[String, StructType] = {
+                              operators: Seq[Operator]) : Seq[TableSchema] = {
 
     val componentsSorted: Seq[(Seq[String], Seq[(Dimension, BucketType)])] = rollups.map(rollup =>
       (rollup.sortedComponentsNames, rollup.sortComponents))
     val operatorsFields: Seq[StructField] = operators.sortWith(_.key < _.key)
-      .map(operator => StructField(operator.key, rowTypeFromOption(Some(operator.returnType)), false))
-    val tablesSchemas: Seq[Seq[(String, StructType)]] = outputs.map(output => {
+      .map(operator => StructField(operator.key, rowTypeFromOption(operator.returnType), true))
+    val tablesSchemas: Seq[Seq[TableSchema]] = outputs.map(output => {
       for {
         rollupsCombinations: (Seq[String], Seq[(Dimension, BucketType)]) <- if (output._2.multiplexer){
           Multiplexer.combine(componentsSorted).flatten
         } else componentsSorted
         schema : StructType = StructType(
           rollupsCombinations._1.map(fieldName => defaultRollupField(fieldName)) ++ operatorsFields)
-      } yield (output._1 + SEPARATOR + rollupsCombinations._1.mkString(SEPARATOR), schema)
+      } yield TableSchema(output._1, rollupsCombinations._1.mkString(SEPARATOR), schema)
     }).distinct
-    tablesSchemas.flatten.toMap
+    tablesSchemas.flatten
+  }
+
+  def operatorsKeyOperation(operators: Seq[Operator]): Option[Map[String, (WriteOp, TypeOp)]] = {
+    if(operators.size > 0) {
+      Some(operators.map(operator => (operator.key -> (operator.writeOperation, operator.returnType))).toMap)
+    } else {
+      None
+    }
   }
 }

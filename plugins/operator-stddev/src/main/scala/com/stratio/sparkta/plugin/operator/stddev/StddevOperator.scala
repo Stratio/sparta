@@ -17,7 +17,7 @@ package com.stratio.sparkta.plugin.operator.stddev
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{WriteOp, Operator}
+import com.stratio.sparkta.sdk.{TypeOp, WriteOp, Operator}
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import breeze.stats._
 import breeze.linalg._
@@ -25,7 +25,7 @@ import breeze.linalg._
 
 class StddevOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  override val clazz = Some(classOf[Double])
+  override val typeOp = Some(TypeOp.Double)
 
   private val inputField = properties.getString("inputField")
 

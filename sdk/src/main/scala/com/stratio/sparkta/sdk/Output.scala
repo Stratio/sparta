@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2014 Stratio (http://stratio.com)
  *
@@ -17,19 +18,22 @@ package com.stratio.sparkta.sdk
 
 import java.io.Serializable
 
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SQLContext, Row}
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
-abstract class Output(properties: Map[String, Serializable],
-                      schema : Option[Map[String,WriteOp]],
+abstract class Output(keyName :String,
+                      properties: Map[String, Serializable],
+                      operationType : Option[Map[String, (WriteOp, TypeOp)]],
                       sqlContext : SQLContext) extends Parameterizable(properties) {
 
-  if (schema.isEmpty) {
-    throw new NullPointerException("schema")
+  if (operationType.isEmpty) {
+    throw new NullPointerException("operationType")
   }
 
   /*TODO: This produces a NPE
@@ -39,8 +43,6 @@ abstract class Output(properties: Map[String, Serializable],
       throw new Exception(s"The following write ops are not supported by this output: ${badWriteOps.mkString(", ")}")
   }*/
 
-  def name : String
-
   def supportedWriteOps : Seq[WriteOp]
 
   def multiplexer : Boolean
@@ -48,30 +50,6 @@ abstract class Output(properties: Map[String, Serializable],
   def timeBucket : String
 
   def granularity : String
-
-  def persist(streams: Seq[DStream[UpdateMetricOperation]]) : Unit = {
-    streams.foreach(persist)
-  }
-
-  def persist(stream: DStream[UpdateMetricOperation]) : Unit = {
-    persistDataFrame(stream)
-  }
-
-  def persistDataFrame(stream: DStream[UpdateMetricOperation]) : Unit = {
-    stream.map(updateMetricOp => updateMetricOp.toRowSchema).foreachRDD(rdd => {
-      //TODO leer la variable de broadcast
-      val mapSchemas: Seq[StructType] = Seq(rdd.first()._1.get)
-      mapSchemas.map(schema => {
-        val rddRow: RDD[Row] = Output.extractRow(rdd.filter( _._1.get == schema))
-        upsert(sqlContext.createDataFrame(rddRow, schema))
-      })
-    })
-  }
-
-  def upsert(dataFrame : DataFrame): Unit = {}
-
-  def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {}
-
 
   def getStreamsFromOptions(stream: DStream[UpdateMetricOperation], multiplexer: Boolean,
                             fixedBucket: String): DStream[UpdateMetricOperation] = {
@@ -84,9 +62,41 @@ abstract class Output(properties: Map[String, Serializable],
     }
   }
 
+  def persist(streams: Seq[DStream[UpdateMetricOperation]]) : Unit = {
+    streams.foreach(persist)
+  }
+
+  def persist(streams: Seq[DStream[UpdateMetricOperation]], bcSchema : Seq[TableSchema]) : Unit = {
+    streams.foreach(stream => persist(stream, bcSchema))
+  }
+
+  def persist(stream: DStream[UpdateMetricOperation]) : Unit = {
+    getStreamsFromOptions(stream, multiplexer, timeBucket)
+      .foreachRDD(rdd => rdd.foreachPartition(ops => upsert(ops)))
+  }
+
+  def persist(stream: DStream[UpdateMetricOperation], bcSchema : Seq[TableSchema]) : Unit = {
+      persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket), bcSchema)
+  }
+
+  def persistDataFrame(stream: DStream[UpdateMetricOperation], bcSchema : Seq[TableSchema]) : Unit = {
+    stream.map(updateMetricOp => updateMetricOp.toKeyRow).foreachRDD(rdd => {
+      bcSchema.filter(tschema => (tschema.operatorName == keyName))
+        .foreach(tschema => {
+          val rddRow: RDD[Row] = Output.extractRow(rdd.filter(_._1.get == tschema.tableName))
+          upsert(sqlContext.createDataFrame(rddRow, tschema.schema))
+        })
+    })
+  }
+
+  def upsert(dataFrame : DataFrame): Unit = {}
+
+  def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {}
 }
 
 object Output {
+
+  final val SEPARATOR = "_"
 
   def dateFromGranularity(value: DateTime, granularity : String): DateTime = {
       val secondsDate = new DateTime(value).withMillisOfSecond(0)
@@ -106,13 +116,13 @@ object Output {
       }
   }
 
-  def genericRowSchema (rdd : RDD[(Option[StructType], Row)]) : (StructType, RDD[Row]) = {
-    val fullSchema = rdd.map(rowType => rowType._1.get).reduce((a, b) => if(a.length > b.length) a else b)
-    (fullSchema, extractRow(rdd))
+  def genericRowSchema (rdd : RDD[(Option[String], Row)]) : (Option[String], RDD[Row]) = {
+    val keySchema: Array[String] = rdd.map(rowType => rowType._1.get.split(SEPARATOR))
+      .reduce((a, b) => if(a.length > b.length) a else b)
+    (Some(keySchema.mkString(SEPARATOR)), extractRow(rdd))
   }
 
-  def extractRow (rdd : RDD[(Option[StructType], Row)]) : RDD[Row] = {
+  def extractRow (rdd : RDD[(Option[String], Row)]) : RDD[Row] = {
     rdd.map(rowType => rowType._2)
   }
-
 }

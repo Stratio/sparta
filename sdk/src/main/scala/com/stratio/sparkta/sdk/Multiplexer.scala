@@ -35,6 +35,7 @@ object Multiplexer {
     } yield combinations
   }
 
+  //TODO create object in Updatemetricoperation and call the sort Seq[DimensionValue]
   def multiplexStream(stream: DStream[UpdateMetricOperation]) : DStream[UpdateMetricOperation] = {
      for {
         upMetricOp: UpdateMetricOperation <- stream

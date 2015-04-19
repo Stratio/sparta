@@ -16,11 +16,13 @@
 package com.stratio.sparkta.plugin.operator.variance
 
 import java.io.{Serializable => JSerializable}
-import com.stratio.sparkta.sdk.{WriteOp, Operator}
+import com.stratio.sparkta.sdk.{TypeOp, WriteOp, Operator}
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import breeze.stats._
 
 class VarianceOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
+
+  override val typeOp = Some(TypeOp.Double)
 
   private val inputField = properties.getString("inputField")
 

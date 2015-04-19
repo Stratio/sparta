@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2014 Stratio (http://stratio.com)
  *
@@ -20,6 +21,7 @@ import com.mongodb.casbah
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.{Imports, MongoDBObject}
 import com.stratio.sparkta.plugin.output.mongodb.dao.AbstractMongoDAO
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.WriteOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
@@ -31,14 +33,14 @@ import com.mongodb.casbah.commons.conversions.scala._
 import org.joda.time.DateTime
 import scala.util.Try
 
-class MongoDbOutput(properties: Map[String, Serializable],
-                    schema: Option[Map[String, WriteOp]],
+class MongoDbOutput(keyName : String,
+                    properties: Map[String, Serializable],
+                    operationType: Option[Map[String, (WriteOp, TypeOp)]],
                     sqlContext : SQLContext)
-  extends Output(properties, schema, sqlContext) with AbstractMongoDAO with Multiplexer with Serializable with Logging {
+  extends Output(keyName, properties, operationType, sqlContext)
+  with AbstractMongoDAO with Multiplexer with Serializable with Logging {
 
   RegisterJodaTimeConversionHelpers()
-
-  override val name = properties.getString("name", this.getClass.toString)
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min, WriteOp.AccAvg,
     WriteOp.AccMedian, WriteOp.AccVariance,  WriteOp.AccStddev, WriteOp.FullText, WriteOp.AccSet)
@@ -125,7 +127,7 @@ class MongoDbOutput(properties: Map[String, Serializable],
             builder.result
           }
 
-          val unknownFields: Set[String] = metricOp.aggregations.keySet.filter(!schema.get.hasKey(_))
+          val unknownFields: Set[String] = metricOp.aggregations.keySet.filter(!operationType.get.hasKey(_))
           if (unknownFields.nonEmpty) {
             throw new Exception(s"Got fields not present in schema: ${unknownFields.mkString(",")}")
           }
@@ -133,7 +135,7 @@ class MongoDbOutput(properties: Map[String, Serializable],
           val mapOperations : Map[Seq[(String, Any)], JSFunction] = (
             for {
               (fieldName, value) <- metricOp.aggregations.toSeq
-              op = schema.get(fieldName)
+              op = operationType.get(fieldName)._1
             } yield (op, (fieldName, value)))
             .groupBy(_._1)
             .mapValues(_.map(_._2))

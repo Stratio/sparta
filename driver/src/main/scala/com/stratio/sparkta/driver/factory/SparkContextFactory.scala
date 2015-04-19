@@ -20,6 +20,7 @@ import java.io.File
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.Config
 import org.apache.spark.sql.SQLContext
+import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.collection.JavaConversions._
@@ -30,6 +31,26 @@ import scala.collection.JavaConversions._
 object SparkContextFactory extends SLF4JLogging {
 
   private var sc : Option[SparkContext] = None
+  private var sqlContext : Option[SQLContext] = None
+  private var ssc : Option[StreamingContext] = None
+
+  def sparkSqlContextInstance : Option[SQLContext] = {
+    synchronized {
+      if ((sc != None) && (sqlContext == None)) {
+        sqlContext = Some(new SQLContext(sc.get))
+      }
+      sqlContext
+    }
+  }
+
+  def sparkStreamingInstance(batchDuration : Duration) : Option[StreamingContext] = {
+    synchronized {
+      if ((sc != None) && (ssc == None)) {
+        ssc = Some(new StreamingContext(sc.get, batchDuration))
+      }
+      ssc
+    }
+  }
 
   def sparkContextInstance(generalConfig: Config, jars: Seq[File]): SparkContext = {
     synchronized {

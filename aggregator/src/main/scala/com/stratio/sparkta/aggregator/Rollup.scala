@@ -82,7 +82,7 @@ case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Opera
 
   def sortComponents : Seq[(Dimension, BucketType)] = {
     components.sortWith((rollup1, rollup2) =>
-      (rollup1._1.name + rollup1._2.id) < (rollup1._1.name + rollup1._2.id))
+      (rollup1._1.name + rollup1._2.id) < (rollup2._1.name + rollup2._2.id))
   }
 
   def componentNames(dimValues : Seq[(Dimension, BucketType)]) : Seq[String] = {
@@ -94,16 +94,16 @@ case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Opera
     })
   }
 
+  def sortedComponentsNames : Seq[String] = {
+    componentNames(sortComponents)
+  }
+
   def sortOperators : Seq[Operator] = {
     operators.sortWith((operator1, operator2) => (operator1.key) < (operator2.key))
   }
 
   def operatorsNames(operators : Seq[Operator]) : Seq[String] = {
     operators.map(operator => operator.key)
-  }
-
-  def sortedComponentsNames : Seq[String] = {
-    componentNames(sortComponents)
   }
 
   def sortedOperatorsNames : Seq[String] = {

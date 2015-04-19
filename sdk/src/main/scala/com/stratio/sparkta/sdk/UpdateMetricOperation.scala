@@ -16,7 +16,6 @@
 package com.stratio.sparkta.sdk
 
 import org.apache.spark.sql._
-import org.apache.spark.sql.types._
 import java.io.{Serializable => JSerializable}
 
 case class UpdateMetricOperation(rollupKey: Seq[DimensionValue],
@@ -61,42 +60,22 @@ case class UpdateMetricOperation(rollupKey: Seq[DimensionValue],
     namesDimensionValues(sortDimensionValues)
   }
 
-  def rowTypeFromOption(option: Option[Any]): DataType= {
-    option match {
-      case Some(any) => any match {
-        case s if s.isInstanceOf[String] =>  StringType
-        case l if l.isInstanceOf[Long] =>  LongType
-        case d if d.isInstanceOf[Double] =>  DoubleType
-        case i if i.isInstanceOf[Int] =>  IntegerType
-        case t if t.isInstanceOf[Boolean] =>  BooleanType
-        case d if d.isInstanceOf[java.util.Date] =>  DateType
-        case t if t.isInstanceOf[org.joda.time.DateTime] =>  TimestampType
-        case _ => StringType
-      }
-      case None => StringType
-    }
-  }
-
-  def toRowSchema: (Option[StructType], Row) = {
+  def toKeyRow: (Option[String], Row) = {
     val sortedRollup = sortDimensionValues
-    val row = Row.fromSeq(
-      sortedRollup.map(dimVal => dimVal.value) ++
-        aggregations.toSeq.map(aggregation => aggregation._2.get)
-    )
-    val schema : StructType = StructType(
-      namesDimensionValues(sortedRollup).map(fieldName => StructField(fieldName, StringType, false)) ++
+    val sortedNames = namesDimensionValues(sortDimensionValues)
+    val row = toRow
+    //TODO read from broadcast, we can check??
+    /*val schema : StructType = StructType(
+      sortedNames.map(fieldName => StructField(fieldName, StringType, false)) ++
         aggregations.map(fieldName =>
-          StructField(fieldName._1, rowTypeFromOption(fieldName._2), false)
+          StructField(fieldName._1, rowTypeFromOption(fieldName._2), true)
         )
-    )
-    if (schema.length > 0) (Some(schema), row) else (None, row)
+    )*/
+    if (sortedNames.length > 0) (Some(sortedNames.mkString(SEPARATOR)), row) else (None, row)
   }
 
   def toRow: Row = {
     Row.fromSeq(
-      rollupKey.map(dimVal => dimVal.value) ++
-        aggregations.toSeq.map(aggreation => aggreation._2.get.asInstanceOf[JSerializable])
-    )
+      sortDimensionValues.map(dimVal => dimVal.value) ++ aggregations.toSeq.map(aggregation => aggregation._2.get))
   }
-
 }

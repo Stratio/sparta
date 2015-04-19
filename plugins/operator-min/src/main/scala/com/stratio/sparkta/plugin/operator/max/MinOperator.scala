@@ -23,6 +23,8 @@ import scala.util.Try
 
 class MinOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
+  override val typeOp = Some(TypeOp.Double)
+
   private val inputField = if(properties.contains("inputField")) properties.getString("inputField") else ""
 
   override val key : String = "min_" + inputField

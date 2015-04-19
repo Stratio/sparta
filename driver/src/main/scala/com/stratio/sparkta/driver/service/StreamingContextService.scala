@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2014 Stratio (http://stratio.com)
  *
@@ -16,6 +17,7 @@
 package com.stratio.sparkta.driver.service
 
 import java.io.{File, Serializable}
+import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import org.apache.spark.sql.SQLContext
 
 import scala.annotation.tailrec
@@ -40,7 +42,8 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
   def createStreamingContext(apConfig: AggregationPoliciesDto): StreamingContext = {
 
     val sc = SparkContextFactory.sparkContextInstance(generalConfig, jars)
-    val sqlContext = new SQLContext(sc)
+    val sqlContext = SparkContextFactory.sparkSqlContextInstance.get
+    //val ssc = SparkContextFactory.sparkStreamingInstance(new Duration(apConfig.duration)).get
     val ssc = new StreamingContext(sc, new Duration(apConfig.duration))
 
     val inputs: Map[String, DStream[Event]] = apConfig.inputs.map(i =>
@@ -58,16 +61,16 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     //TODO workaround this instantiateDimensions(apConfig).toMap.map(_._2) is not serializable.
     val dimensionsMap: Map[String, Dimension] = instantiateDimensions(apConfig).toMap
     val dimensionsSeq: Seq[Dimension] = instantiateDimensions(apConfig).map(_._2)
-
-    val outputSchema = Some(operators.map(op => op.key -> op.writeOperation).toMap)
+    val operatorsKeyOperation = sc.broadcast(PolicyFactory.operatorsKeyOperation(operators))
 
     val outputs: Seq[(String, Output)] = apConfig.outputs.map(o =>
       (o.name, tryToInstantiate[Output](o.elementType, (c) =>
         c.getDeclaredConstructor(
+          classOf[String],
           classOf[Map[String, Serializable]],
-          classOf[Option[Map[String, WriteOp]]],
+          classOf[Option[Map[String, (WriteOp, TypeOp)]]],
           classOf[SQLContext])
-          .newInstance(o.configuration, outputSchema, sqlContext).asInstanceOf[Output]
+          .newInstance(o.name, o.configuration, operatorsKeyOperation.value, sqlContext).asInstanceOf[Output]
       )))
 
     val rollups: Seq[Rollup] = apConfig.rollups.map(r => {
@@ -85,15 +88,13 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       new Rollup(components, operators)
     })
 
-    val componentsAggregationsSchema = sc.broadcast(PolicyFactory.rollupsOperatorsSchemas(rollups, outputs, operators))
-    print(componentsAggregationsSchema.value.toString())
-
     //TODO only support one input
     val input: DStream[Event] = inputs.head._2
     //TODO only support one output
     val output = outputs.head._2
     val parsed = StreamingContextService.applyParsers(input, parsers)
-    output.persist(new DataCube(dimensionsSeq, rollups).setUp(parsed))
+    output.persist(new DataCube(dimensionsSeq, rollups).setUp(parsed),
+      sc.broadcast(PolicyFactory.rollupsOperatorsSchemas(rollups, outputs, operators)).value)
     ssc
   }
 

@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2014 Stratio (http://stratio.com)
  *
@@ -16,9 +15,16 @@
  */
 package com.stratio.sparkta.sdk
 
-object WriteOp extends Enumeration {
-  type WriteOp = Value
-  val FullText, Inc, Set, AccSet, Max, Min, Avg, AccAvg,
-      Median, AccMedian, Variance, AccVariance, Stddev, AccStddev = Value
+import org.apache.spark.sql.types.StructType
+import java.io.Serializable
+
+/**
+ * Created by jcgarcia on 17/04/15.
+ */
+
+case class TableSchema(operatorName: String, tableName: String,
+                       schema: StructType) extends Serializable {
+
+  override val toString = s"OPERATOR: $operatorName - TABLE: $tableName - SCHEMA: $schema"
 
 }
