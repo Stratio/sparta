@@ -31,35 +31,24 @@
 package com.stratio.sparkta.plugin.output.redis.dao
 
 import com.redis.RedisClient
-import com.stratio.sparkta.sdk.Event
 
-
-/**
- *
- * @author anistal
- */
 trait AbstractRedisDAO {
 
   def hostname : String
   def port : Int
-  def dbName : String
-  def eventTimeFieldName: String = "eventTime"
-  def idFieldName: String = "_id"
   def idSeparator: String = ":"
 
   def client: RedisClient = AbstractRedisDAO.client(hostname, port)
-
-  def insert(event: Event): Unit = {
-    event.keyMap.foreach(x => client.set(x._1, x._2))
-  }
 }
 
 private object AbstractRedisDAO {
+  var _client : Option[RedisClient] = None
 
   def client(clientUri: String, port: Int): RedisClient = {
-    val client = new RedisClient(clientUri, port)
-    client
+    _client = this._client match {
+      case None => Some(new RedisClient(clientUri, port))
+      case _ => this._client
+    }
+    _client.get
   }
-
-
 }

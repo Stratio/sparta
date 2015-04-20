@@ -29,13 +29,11 @@ import scala.util.Try
 class RedisOutput(properties: Map[String, Serializable], schema: Option[Map[String, WriteOp]])
   extends Output(properties, schema) with AbstractRedisDAO with Multiplexer with Serializable with Logging {
 
-  override val dbName = properties.getString("dbName", "sparkta")
-
   override val hostname = properties.getString("hostname", "localhost")
 
   override val port = properties.getInt("port", 6379)
 
-  override def supportedWriteOps: Seq[WriteOp] = Seq()
+  override def supportedWriteOps: Seq[WriteOp] = Seq(WriteOp.Inc, WriteOp.Max, WriteOp.Min)
 
   override def multiplexer: Boolean = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
@@ -57,14 +55,14 @@ class RedisOutput(properties: Map[String, Serializable], schema: Option[Map[Stri
 
   override def persist(stream: DStream[UpdateMetricOperation]): Unit = {
     getStreamsFromOptions(stream, multiplexer, timeBucket)
-      .foreachRDD(rdd => rdd.foreachPartition(ops => upsert(ops)))
+      .foreachRDD(rdd => rdd.foreachPartition(ops => hset(ops)))
   }
 
   override def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
     streams.foreach(persist)
   }
 
-  def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
+  def hset(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
     metricOperations.toList.groupBy(metricOp => metricOp.keyString).filter(_._1.size > 0).foreach(collMetricOp => {
       collMetricOp._2.map(metricOp => {
         def extractDimensionName(dimensionValue: DimensionValue): String =
@@ -75,16 +73,43 @@ class RedisOutput(properties: Map[String, Serializable], schema: Option[Map[Stri
 
         val hashKey = collMetricOp._1 + idSeparator + metricOp.rollupKey.filter(rollup =>
           (rollup.bucketType.id != Bucketer.fulltext.id) && (rollup.bucketType.id != timeBucket))
-          .map(dimVal =>
-            List(extractDimensionName(dimVal), dimVal.value.toString))
+          .map(dimVal => List(extractDimensionName(dimVal), dimVal.value.toString))
           .flatMap(_.toSeq).mkString(idSeparator)
 
-        metricOp.rollupKey.map(dimensionValue => {
-          client.hset(hashKey, extractDimensionName(dimensionValue), dimensionValue.value)
-        })
-
         metricOp.aggregations.map(aggregation => {
-          client.hset(hashKey, aggregation._1, aggregation._2.get)
+          val currentOperation = schema.get(aggregation._1)
+
+          currentOperation match {
+            case WriteOp.Inc => {
+              val valueHashOperation: Long  =
+                client.hget(hashKey, aggregation._1).getOrElse("0").toLong
+
+              val valueCurrentOperation: Long =
+                aggregation._2.getOrElse(0L).asInstanceOf[Long]
+
+              client.hset(hashKey, aggregation._1, valueHashOperation + valueCurrentOperation)
+            }
+
+            case WriteOp.Max => {
+              val valueHashOperation: Double  =
+                client.hget(hashKey, aggregation._1).getOrElse(Double.MinValue.toString).toDouble
+
+              val valueCurrentOperation: Double =
+                aggregation._2.getOrElse(Double.MinValue).asInstanceOf[Double]
+
+              if(valueCurrentOperation > valueHashOperation) client.hset(hashKey, aggregation._1, valueCurrentOperation)
+            }
+
+            case WriteOp.Min => {
+              val valueHashOperation: Double  =
+                client.hget(hashKey, aggregation._1).getOrElse(Double.MaxValue.toString).toDouble
+
+              val valueCurrentOperation: Double =
+                aggregation._2.getOrElse(Double.MaxValue).asInstanceOf[Double]
+
+              if(valueCurrentOperation < valueHashOperation) client.hset(hashKey, aggregation._1, valueCurrentOperation)
+            }
+          }
         })
       })
     })
