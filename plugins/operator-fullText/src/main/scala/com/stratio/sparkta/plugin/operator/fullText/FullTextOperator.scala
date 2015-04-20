@@ -25,17 +25,17 @@ class FullTextOperator(properties: Map[String, JSerializable]) extends Operator(
 
   override val typeOp = Some(TypeOp.String)
 
-  private val inputField = if(properties.contains("inputField")) properties.getString("inputField") else ""
+  private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
-  override val key : String = inputField
+  override val key : String = if(inputField.isDefined) inputField.get else "undefined"
 
   override val writeOperation = WriteOp.FullText
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[String] =
-    inputFields.contains(inputField) match {
-      case false => FullTextOperator.SOME_EMPTY
-      case true => Some(inputFields.get(inputField).get.asInstanceOf[String])
-    }
+  override def processMap(inputFields: Map[String, JSerializable]): Option[String] = {
+    if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
+      Some(inputFields.get(inputField.get).get.asInstanceOf[String])
+    } else FullTextOperator.SOME_EMPTY
+  }
 
   override def processReduce(values : Iterable[Option[Any]]): Option[String] = {
     Try(Some(values.map(_.get.asInstanceOf[String]).reduce(_ + FullTextOperator.SEPARATOR + _)))

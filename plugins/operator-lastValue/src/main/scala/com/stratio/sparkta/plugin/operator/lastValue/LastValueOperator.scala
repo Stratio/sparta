@@ -27,7 +27,7 @@ class LastValueOperator(properties: Map[String, JSerializable]) extends Operator
 
   private val inputField = if(properties.contains("inputField")) properties.getString("inputField") else ""
 
-  override val key : String = inputField
+  override val key : String = "last_" + inputField
 
   override val writeOperation = WriteOp.Set
 

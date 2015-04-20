@@ -174,5 +174,4 @@ class MongoDbOutput(keyName : String,
       }
     )
   }
-
 }

@@ -36,7 +36,7 @@ object SparkContextFactory extends SLF4JLogging {
 
   def sparkSqlContextInstance : Option[SQLContext] = {
     synchronized {
-      if ((sc != None) && (sqlContext == None)) {
+      if ((sc.isDefined) && (sqlContext.isEmpty)) {
         sqlContext = Some(new SQLContext(sc.get))
       }
       sqlContext
@@ -45,7 +45,7 @@ object SparkContextFactory extends SLF4JLogging {
 
   def sparkStreamingInstance(batchDuration : Duration) : Option[StreamingContext] = {
     synchronized {
-      if ((sc != None) && (ssc == None)) {
+      if ((sc.isDefined) && (ssc.isEmpty)) {
         ssc = Some(new StreamingContext(sc.get, batchDuration))
       }
       ssc
@@ -54,7 +54,7 @@ object SparkContextFactory extends SLF4JLogging {
 
   def sparkContextInstance(generalConfig: Config, jars: Seq[File]): SparkContext = {
     synchronized {
-      if (sc == None) {
+      if (sc.isEmpty) {
         sc = Some(new SparkContext(configToSparkConf(generalConfig)))
         jars.foreach(f => sc.get.addJar(f.getAbsolutePath))
       }

@@ -26,17 +26,18 @@ class AccumulatorOperator(properties: Map[String, JSerializable]) extends Operat
 
   override val typeOp = Some(TypeOp.String)
 
-  private val inputField = if(properties.contains("inputField")) properties.getString("inputField") else ""
+  private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
-  override val key : String = inputField
-
+  override val key : String = "acc_" + {
+    if(inputField.isDefined) inputField.get else "undefined"
+  }
   override val writeOperation = WriteOp.AccSet
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Any] =
-    inputFields.contains(inputField) match {
-      case false => AccumulatorOperator.SOME_EMPTY
-      case true => Some(inputFields.get(inputField).get)
-    }
+  override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
+    if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
+      Some(inputFields.get(inputField.get).get)
+    } else AccumulatorOperator.SOME_EMPTY
+  }
 
   override def processReduce(values : Iterable[Option[Any]]): Option[String] = {
     Try(Some(values.map(_.get.toString).reduce(_ + AccumulatorOperator.SEPARATOR + _)))

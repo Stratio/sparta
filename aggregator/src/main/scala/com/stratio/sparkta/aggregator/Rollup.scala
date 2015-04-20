@@ -39,13 +39,12 @@ case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Opera
     this(Seq((dimension, Bucketer.identity)), operators)
   }
 
-  private def mergeLongMaps[K](m1: Map[K, Long], m2: Map[K, Long]): Map[K, Long] =
-    m1 ++ m2.map { case (k, v) => k -> (v + m1.getOrElse(k, 0L))}
+  private def mergeLongMaps[K](m1: Map[K, Long], m2: Map[K, Long]): Map[K, Long] = m1 ++ m2.map {
+    case (k, v) => k -> (v + m1.getOrElse(k, 0L))
+  }
 
-
-  def aggregate(dimensionValuesStream: DStream[(Seq[DimensionValue], Map[String, JSerializable])])
-  : DStream[UpdateMetricOperation] = {
-    //TODO catch errors and null elements control
+  def aggregate(dimensionValuesStream: DStream[(Seq[DimensionValue],
+    Map[String, JSerializable])]): DStream[UpdateMetricOperation] = {
 
     val filteredDimensionsDstream: DStream[(Seq[DimensionValue], Map[String, JSerializable])] =
       dimensionValuesStream
@@ -76,9 +75,7 @@ case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Opera
     })
   }
 
-  override def toString: String = {
-    "[Rollup over " + components + "]"
-  }
+  override def toString: String = "[Rollup over " + components + "]"
 
   def sortComponents : Seq[(Dimension, BucketType)] = {
     components.sortWith((rollup1, rollup2) =>
@@ -94,21 +91,12 @@ case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Opera
     })
   }
 
-  def sortedComponentsNames : Seq[String] = {
-    componentNames(sortComponents)
-  }
+  def sortedComponentsNames : Seq[String] = componentNames(sortComponents)
 
-  def sortOperators : Seq[Operator] = {
-    operators.sortWith((operator1, operator2) => (operator1.key) < (operator2.key))
-  }
+  def sortOperators : Seq[Operator] = operators.sortWith((operator1, operator2) => (operator1.key) < (operator2.key))
 
-  def operatorsNames(operators : Seq[Operator]) : Seq[String] = {
-    operators.map(operator => operator.key)
-  }
+  def operatorsNames(operators : Seq[Operator]) : Seq[String] = operators.map(operator => operator.key)
 
-  def sortedOperatorsNames : Seq[String] = {
-    operatorsNames(sortOperators)
-  }
-
+  def sortedOperatorsNames : Seq[String] = operatorsNames(sortOperators)
 }
 

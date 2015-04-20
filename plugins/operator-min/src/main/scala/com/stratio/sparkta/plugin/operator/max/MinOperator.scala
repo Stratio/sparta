@@ -25,17 +25,19 @@ class MinOperator(properties: Map[String, JSerializable]) extends Operator(prope
 
   override val typeOp = Some(TypeOp.Double)
 
-  private val inputField = if(properties.contains("inputField")) properties.getString("inputField") else ""
+  private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
-  override val key : String = "min_" + inputField
+  override val key : String = "min_" + {
+    if(inputField.isDefined) inputField.get else "undefined"
+  }
 
   override val writeOperation = WriteOp.Min
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Number] =
-    inputFields.contains(inputField) match {
-      case false => MinOperator.SOME_ZERO_NUMBER
-      case true => Some(inputFields.get(inputField).get.asInstanceOf[Number])
-    }
+  override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
+    if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
+      Some(inputFields.get(inputField.get).get.asInstanceOf[Number])
+    } else MinOperator.SOME_ZERO_NUMBER
+  }
 
   override def processReduce(values : Iterable[Option[Any]]): Option[Double] = {
     Try(Some(values.map(_.get.asInstanceOf[Number].doubleValue()).min))

@@ -31,18 +31,33 @@ case class UpdateMetricOperation(rollupKey: Seq[DimensionValue],
     throw new NullPointerException("aggregations")
   }
 
-  //TODO is not necesary filter??
-  def keyString: String = {
-    sortedNamesDimensionsValues
-      .filter(dimName => dimName.nonEmpty).mkString(SEPARATOR)
-  }
-
   override def toString: String = {
     this.keyString + " DIMENSIONS: " + rollupKey.mkString("|") + " AGGREGATIONS: " + aggregations
   }
 
-  def sortDimensionValues: Seq[DimensionValue] = {
-    rollupKey.sortWith((dim1, dim2) =>
+  def keyString: String = {
+    UpdateMetricOperation.sortedNamesDimensionsValues(rollupKey)
+      .filter(dimName => dimName.nonEmpty).mkString(SEPARATOR)
+  }
+
+  def toKeyRow: (Option[String], Row) = {
+    val sortedNames = UpdateMetricOperation.namesDimensionValues(UpdateMetricOperation.sortDimensionValues(rollupKey))
+    val row = toRow
+
+    if (sortedNames.length > 0) (Some(sortedNames.mkString(SEPARATOR)), row) else (None, row)
+  }
+
+  def toRow: Row = {
+    Row.fromSeq(
+      UpdateMetricOperation.sortDimensionValues(rollupKey).map(dimVal => dimVal.value) ++
+        aggregations.toSeq.map(aggregation => aggregation._2.get))
+  }
+}
+
+object UpdateMetricOperation {
+
+  def sortDimensionValues(dimValues: Seq[DimensionValue]): Seq[DimensionValue] = {
+    dimValues.sortWith((dim1, dim2) =>
       (dim1.dimension.name + dim1.bucketType.id) < (dim2.dimension.name + dim2.bucketType.id)
     )
   }
@@ -56,26 +71,7 @@ case class UpdateMetricOperation(rollupKey: Seq[DimensionValue],
     })
   }
 
-  def sortedNamesDimensionsValues: Seq[String] = {
-    namesDimensionValues(sortDimensionValues)
-  }
-
-  def toKeyRow: (Option[String], Row) = {
-    val sortedRollup = sortDimensionValues
-    val sortedNames = namesDimensionValues(sortDimensionValues)
-    val row = toRow
-    //TODO read from broadcast, we can check??
-    /*val schema : StructType = StructType(
-      sortedNames.map(fieldName => StructField(fieldName, StringType, false)) ++
-        aggregations.map(fieldName =>
-          StructField(fieldName._1, rowTypeFromOption(fieldName._2), true)
-        )
-    )*/
-    if (sortedNames.length > 0) (Some(sortedNames.mkString(SEPARATOR)), row) else (None, row)
-  }
-
-  def toRow: Row = {
-    Row.fromSeq(
-      sortDimensionValues.map(dimVal => dimVal.value) ++ aggregations.toSeq.map(aggregation => aggregation._2.get))
+  def sortedNamesDimensionsValues(dimValues: Seq[DimensionValue]): Seq[String] = {
+    namesDimensionValues(sortDimensionValues(dimValues))
   }
 }

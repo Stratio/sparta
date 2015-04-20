@@ -27,17 +27,19 @@ class MedianOperator(properties: Map[String, JSerializable]) extends Operator(pr
 
   override val typeOp = Some(TypeOp.Double)
 
-  private val inputField = properties.getString("inputField")
+  private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
-  override val key : String = "median_" + inputField
+  override val key : String = "median_" + {
+    if(inputField.isDefined) inputField.get else "undefined"
+  }
 
   override val writeOperation = WriteOp.Median
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Number] =
-    inputFields.contains(inputField) match {
-      case false => MedianOperator.SOME_ZERO_NUMBER
-      case true => Some(inputFields.get(inputField).get.asInstanceOf[Number])
-    }
+  override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
+    if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
+      Some(inputFields.get(inputField.get).get.asInstanceOf[Number])
+    } else MedianOperator.SOME_ZERO_NUMBER
+  }
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     values.size match {

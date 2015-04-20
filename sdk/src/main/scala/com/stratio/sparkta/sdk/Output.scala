@@ -36,9 +36,9 @@ abstract class Output(keyName :String,
     throw new NullPointerException("operationType")
   }
 
-  /*TODO: This produces a NPE
-  schema.values.toSet.diff(supportedWriteOps.toSet).toSeq match {
-    case Nil =>
+  /*TODO check if this produce the NPE after refactor
+  operationType.get.values.map(_._1).toSet.diff(supportedWriteOps.toSet).toSeq match {
+    case s if s.size == 0 =>
     case badWriteOps =>
       throw new Exception(s"The following write ops are not supported by this output: ${badWriteOps.mkString(", ")}")
   }*/
@@ -62,9 +62,7 @@ abstract class Output(keyName :String,
     }
   }
 
-  def persist(streams: Seq[DStream[UpdateMetricOperation]]) : Unit = {
-    streams.foreach(persist)
-  }
+  def persist(streams: Seq[DStream[UpdateMetricOperation]]) : Unit = streams.foreach(persist)
 
   def persist(streams: Seq[DStream[UpdateMetricOperation]], bcSchema : Seq[TableSchema]) : Unit = {
     streams.foreach(stream => persist(stream, bcSchema))
@@ -122,7 +120,5 @@ object Output {
     (Some(keySchema.mkString(SEPARATOR)), extractRow(rdd))
   }
 
-  def extractRow (rdd : RDD[(Option[String], Row)]) : RDD[Row] = {
-    rdd.map(rowType => rowType._2)
-  }
+  def extractRow (rdd : RDD[(Option[String], Row)]) : RDD[Row] = rdd.map(rowType => rowType._2)
 }
