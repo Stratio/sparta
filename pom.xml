@@ -160,11 +160,6 @@
                 <version>${spark.version}</version>
                 <classifier>tests</classifier>
             </dependency>
-            <dependency>
-                <groupId>com.datastax.spark</groupId>
-                <artifactId>spark-cassandra-connector_${scala.binary.version}</artifactId>
-                <version>1.2.0-rc3</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
     <build>

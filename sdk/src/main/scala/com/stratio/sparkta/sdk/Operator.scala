@@ -21,12 +21,11 @@ import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 
 abstract class Operator(properties: Map[String, JSerializable]) extends Parameterizable(properties) {
-  //val clazz: Option[Class[_<:Any]] = None
+
   def typeOp : Option[TypeOp] = None
   def key : String
   def writeOperation : WriteOp
   def processMap(inputFields: Map[String, JSerializable]) : Option[Any]
   def processReduce(values : Iterable[Option[Any]]) : Option[Any]
-  //def returnType : Class[_<:Any] = clazz.getOrElse(classOf[Any])
   def returnType : TypeOp = typeOp.getOrElse(TypeOp.Binary)
 }

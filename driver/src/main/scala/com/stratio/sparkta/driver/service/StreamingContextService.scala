@@ -43,8 +43,7 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
 
     val sc = SparkContextFactory.sparkContextInstance(generalConfig, jars)
     val sqlContext = SparkContextFactory.sparkSqlContextInstance.get
-    //val ssc = SparkContextFactory.sparkStreamingInstance(new Duration(apConfig.duration)).get
-    val ssc = new StreamingContext(sc, new Duration(apConfig.duration))
+    val ssc = SparkContextFactory.sparkStreamingInstance(new Duration(apConfig.duration)).get
 
     val inputs: Map[String, DStream[Event]] = apConfig.inputs.map(i =>
       (i.name, tryToInstantiate[Input](i.elementType, (c) =>
