@@ -53,13 +53,12 @@ abstract class Output(keyName :String,
 
   def getStreamsFromOptions(stream: DStream[UpdateMetricOperation], multiplexer: Boolean,
                             fixedBucket: String): DStream[UpdateMetricOperation] = {
-    multiplexer match {
-      case false => stream
-      case _ => fixedBucket match {
+    if(multiplexer) {
+      fixedBucket match {
         case "" => Multiplexer.multiplexStream(stream)
         case _ => Multiplexer.multiplexStream[fixedBucket.type](stream, fixedBucket)
       }
-    }
+    } else stream
   }
 
   def persist(streams: Seq[DStream[UpdateMetricOperation]]) : Unit = streams.foreach(persist)
