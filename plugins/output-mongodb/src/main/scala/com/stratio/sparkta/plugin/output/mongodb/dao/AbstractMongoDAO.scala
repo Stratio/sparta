@@ -125,19 +125,18 @@ private object AbstractMongoDAO {
   private val clients: mutable.Map[String, MongoClient] = mutable.Map()
   private val dbs: mutable.Map[(String, String), MongoDB] = mutable.Map()
 
-  private def options(connectionsPerHost : Integer, threadsAllowedToBlock : Integer) = {
-    val options = MongoClientOptions.builder()
+  private def options(connectionsPerHost : Integer, threadsAllowedToBlock : Integer) =
+    MongoClientOptions.builder()
       .connectionsPerHost(connectionsPerHost)
       .writeConcern(casbah.WriteConcern.Unacknowledged)
       .threadsAllowedToBlockForConnectionMultiplier(threadsAllowedToBlock)
-    options
-  }
 
   private def client(mongoClientUri: String, connectionsPerHost : Integer,
                      threadsAllowedToBlock : Integer): MongoClient = {
     if (!clients.contains(mongoClientUri)) {
-      val jURI = new JMongoClientURI(mongoClientUri, options(connectionsPerHost, threadsAllowedToBlock))
-      clients.put(mongoClientUri, MongoClient(new MongoClientURI(jURI)))
+      clients.put(mongoClientUri, MongoClient(
+        new MongoClientURI(new JMongoClientURI(mongoClientUri, options(connectionsPerHost, threadsAllowedToBlock)))
+      ))
     }
     clients(mongoClientUri)
   }
