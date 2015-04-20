@@ -41,9 +41,6 @@ class PrintOutput(keyName : String,
   override def upsert(dataFrame : DataFrame): Unit = {
     dataFrame.printSchema()
     dataFrame.foreach(println)
-    val select = dataFrame.select("precision3","hastags")
-    select.printSchema()
-    select.foreach(println)
     println("COUNT : "  +  dataFrame.count())
   }
 
