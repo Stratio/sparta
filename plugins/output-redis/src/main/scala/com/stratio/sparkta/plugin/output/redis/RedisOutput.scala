@@ -31,7 +31,7 @@ import scala.util.Try
  *
  * @param properties that has needed properties to start the server.
  * @param schema with the equivalence between an operation id and its WriteOp.
- * @author Alvaro Nistal <alvaro.nistal@gmail.com>
+ * @author anistal
  */
 class RedisOutput(properties: Map[String, Serializable], schema: Option[Map[String, WriteOp]])
   extends Output(properties, schema) with AbstractRedisDAO with Multiplexer with Serializable with Logging {
