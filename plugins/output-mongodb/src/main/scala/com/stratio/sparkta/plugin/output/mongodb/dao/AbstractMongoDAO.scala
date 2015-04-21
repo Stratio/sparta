@@ -74,7 +74,6 @@ trait AbstractMongoDAO extends Closeable {
                        indexName : String,
                        indexFields : Array[String],
                        language : String) : Unit = {
-
     if(collection.nonEmpty && indexFields.nonEmpty && indexName.nonEmpty && !indexExists(collection, indexName)){
       val fields = indexFields.map(_ -> "text").toList
       val options = MongoDBObject.newBuilder
@@ -92,7 +91,6 @@ trait AbstractMongoDAO extends Closeable {
                   indexFields : Map[String, Int],
                   unique : Boolean,
                   background : Boolean) : Unit = {
-
     if(collection.nonEmpty && indexFields.nonEmpty && indexName.nonEmpty && !indexExists(collection, indexName)){
       val fields = indexFields.map(field => field._1 -> field._2).toList
       val options = MongoDBObject.newBuilder

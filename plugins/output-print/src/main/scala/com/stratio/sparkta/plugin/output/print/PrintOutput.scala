@@ -22,19 +22,20 @@ import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql._
-import org.apache.spark.streaming.dstream.DStream
+import ValidatingPropertyMap._
 import scala.util.Try
 
 class PrintOutput(keyName : String,
                   properties: Map[String, JSerializable],
                   sqlContext : SQLContext,
-                  operationType: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]])
-  extends Output(keyName, properties, sqlContext, operationType){
+                  operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]])
+  extends Output(keyName, properties, sqlContext, operationTypes){
 
-  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min)
+  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.Median,
+  WriteOp.Stddev, WriteOp.Variance, WriteOp.AccSet)
 
-  override val multiplexer = Try(
-    properties("multiplexer").asInstanceOf[String].toLowerCase().toBoolean).getOrElse(false)
+  override val multiplexer = Try(properties.getString("multiplexer").toBoolean)
+    .getOrElse(false)
 
   override def timeBucket: String = Try(properties("timeDimension").asInstanceOf[String]).getOrElse("")
 

@@ -28,18 +28,20 @@ import org.joda.time.DateTime
 
 abstract class Output(keyName :String, properties: Map[String, Serializable],
                       sqlContext : SQLContext,
-                      operationType: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]])
+                      operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]])
                       extends Parameterizable(properties) with Multiplexer {
 
-  if (operationType.isEmpty) {
-    throw new NullPointerException("operationType")
+  if (operationTypes.isEmpty) {
+    throw new NullPointerException("operationTypes")
   }
 
-  /*TODO check if this produce the NPE after refactor
-  operationType.get.values.map(_._1).toSet.diff(supportedWriteOps.toSet).toSeq match {
-    case s if s.size == 0 =>
-    case badWriteOps =>
-      throw new Exception(s"The following write ops are not supported by this output: ${badWriteOps.mkString(", ")}")
+  /* TODO NPE because access to supportedWriteOps
+  if(operationTypes.isDefined) {
+    operationTypes.get.value.values.map(_._1).toSet.diff(supportedWriteOps.toSet).toSeq match {
+      case s if s.size == 0 =>
+      case badWriteOps =>
+        throw new Exception(s"The following write ops are not supported by this output: ${badWriteOps.mkString(", ")}")
+    }
   }*/
 
   def supportedWriteOps : Seq[WriteOp]
@@ -50,9 +52,9 @@ abstract class Output(keyName :String, properties: Map[String, Serializable],
 
   def granularity : String
 
-  override def getStreamsFromOptions(stream: DStream[UpdateMetricOperation], multiplexer: Boolean,
+  override def getStreamsFromOptions(stream: DStream[UpdateMetricOperation], multiplex : Boolean,
                             fixedBucket: String): DStream[UpdateMetricOperation] = {
-    if(multiplexer) {
+    if(multiplex) {
       if(fixedBucket.isEmpty){
         Multiplexer.multiplexStream(stream)
       } else Multiplexer.multiplexStream[fixedBucket.type](stream, fixedBucket)
@@ -68,7 +70,7 @@ abstract class Output(keyName :String, properties: Map[String, Serializable],
 
   def persist(stream: DStream[UpdateMetricOperation], bcSchema : Option[Broadcast[Seq[TableSchema]]]) : Unit = {
     if(bcSchema.isDefined) {
-      persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket), bcSchema.get.value)
+      persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket), bcSchema.get)
     } else {
       persistMetricOperation(stream)
     }
@@ -79,12 +81,12 @@ abstract class Output(keyName :String, properties: Map[String, Serializable],
       .foreachRDD(rdd => rdd.foreachPartition(ops => upsert(ops)))
   }
 
-  def persistDataFrame(stream: DStream[UpdateMetricOperation], bcSchema : Seq[TableSchema]) : Unit = {
+  def persistDataFrame(stream: DStream[UpdateMetricOperation], bcSchema : Broadcast[Seq[TableSchema]]) : Unit = {
     stream.map(updateMetricOp => updateMetricOp.toKeyRow).foreachRDD(rdd => {
-      bcSchema.filter(tschema => (tschema.operatorName == keyName))
-        .foreach(tschema => {
-          val rddRow: RDD[Row] = Output.extractRow(rdd.filter(_._1.get == tschema.tableName))
-          upsert(sqlContext.createDataFrame(rddRow, tschema.schema))
+      bcSchema.value.filter(tschema => (tschema.operatorName == keyName))
+        .foreach(tschemaFiltered => {
+          val rddRow: RDD[Row] = Output.extractRow(rdd.filter(_._1.get == tschemaFiltered.tableName))
+          upsert(sqlContext.createDataFrame(rddRow, tschemaFiltered.schema))
         })
     })
   }

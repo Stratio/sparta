@@ -50,19 +50,18 @@ object PolicyFactory {
   def rollupsOperatorsSchemas(rollups: Seq[Rollup],
                               outputs: Seq[(String, Output)],
                               operators: Seq[Operator]) : Seq[TableSchema] = {
-
     val componentsSorted: Seq[(Seq[String], Seq[(Dimension, BucketType)])] = rollups.map(rollup =>
       (rollup.sortedComponentsNames, rollup.sortComponents))
     val operatorsFields: Seq[StructField] = operators.sortWith(_.key < _.key)
       .map(operator => StructField(operator.key, rowTypeFromOption(operator.returnType), true))
     val tablesSchemas: Seq[Seq[TableSchema]] = outputs.map(output => {
       for {
-        rollupsCombinations: (Seq[String], Seq[(Dimension, BucketType)]) <- if (output._2.multiplexer){
-          Multiplexer.combine(componentsSorted).flatten
-        } else componentsSorted
+        rollupsCombinations: Seq[String] <- if (output._2.multiplexer){
+          componentsSorted.map(component => Multiplexer.combine(component._1)).flatten.distinct
+        } else componentsSorted.map(_._1).distinct
         schema : StructType = StructType(
-          rollupsCombinations._1.map(fieldName => defaultRollupField(fieldName)) ++ operatorsFields)
-      } yield TableSchema(output._1, rollupsCombinations._1.mkString(SEPARATOR), schema)
+          rollupsCombinations.map(fieldName => defaultRollupField(fieldName)) ++ operatorsFields)
+      } yield TableSchema(output._1, rollupsCombinations.mkString(SEPARATOR), schema)
     }).distinct
     tablesSchemas.flatten
   }

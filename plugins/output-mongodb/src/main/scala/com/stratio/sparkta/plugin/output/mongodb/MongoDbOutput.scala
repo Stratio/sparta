@@ -37,8 +37,8 @@ import scala.util.Try
 class MongoDbOutput(keyName : String,
                     properties: Map[String, Serializable],
                     sqlContext : SQLContext,
-                    operationType: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]])
-  extends Output(keyName, properties, sqlContext, operationType)
+                    operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]])
+  extends Output(keyName, properties, sqlContext, operationTypes)
   with AbstractMongoDAO with Serializable with Logging {
 
   RegisterJodaTimeConversionHelpers()
@@ -124,7 +124,7 @@ class MongoDbOutput(keyName : String,
             builder.result
           }
 
-          val unknownFields: Set[String] = metricOp.aggregations.keySet.filter(!operationType.get.value.hasKey(_))
+          val unknownFields: Set[String] = metricOp.aggregations.keySet.filter(!operationTypes.get.value.hasKey(_))
           if (unknownFields.nonEmpty) {
             throw new Exception(s"Got fields not present in schema: ${unknownFields.mkString(",")}")
           }
@@ -132,7 +132,7 @@ class MongoDbOutput(keyName : String,
           val mapOperations : Map[Seq[(String, Any)], JSFunction] = (
             for {
               (fieldName, value) <- metricOp.aggregations.toSeq
-              op = operationType.get.value(fieldName)._1
+              op = operationTypes.get.value(fieldName)._1
             } yield (op, (fieldName, value)))
             .groupBy(_._1)
             .mapValues(_.map(_._2))
