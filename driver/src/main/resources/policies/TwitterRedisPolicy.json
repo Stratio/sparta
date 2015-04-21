@@ -50,10 +50,6 @@
                     "bucketType": "retweets"
                 },
                 {
-                  "dimensionName": "status",
-                  "bucketType": "fulltext"
-                },
-                {
                   "dimensionName": "geolocation",
                   "bucketType": "precision3"
                 },
