@@ -98,6 +98,7 @@ abstract class Output(keyName :String, properties: Map[String, Serializable],
       } else if(granularity.isEmpty) None else Some(Output.dateFromGranularity(DateTime.now(), granularity))
     }
   }
+
 }
 
 object Output {
