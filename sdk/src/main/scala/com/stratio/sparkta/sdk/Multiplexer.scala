@@ -23,7 +23,13 @@ import org.apache.spark.streaming.dstream.DStream
 trait Multiplexer {
 
   def getStreamsFromOptions(stream: DStream[UpdateMetricOperation], multiplexer: Boolean,
-                            fixedBucket: String): DStream[UpdateMetricOperation]
+                            fixedBucket: String): DStream[UpdateMetricOperation] = {
+    if(multiplexer) {
+      if(fixedBucket.isEmpty){
+        Multiplexer.multiplexStream(stream)
+      } else Multiplexer.multiplexStream[fixedBucket.type](stream, fixedBucket)
+    } else stream
+  }
 }
 
 object Multiplexer {

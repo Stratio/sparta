@@ -52,36 +52,20 @@ abstract class Output(keyName :String, properties: Map[String, Serializable],
 
   def granularity : String
 
-  override def getStreamsFromOptions(stream: DStream[UpdateMetricOperation], multiplex : Boolean,
-                            fixedBucket: String): DStream[UpdateMetricOperation] = {
-    if(multiplex) {
-      if(fixedBucket.isEmpty){
-        Multiplexer.multiplexStream(stream)
-      } else Multiplexer.multiplexStream[fixedBucket.type](stream, fixedBucket)
-    } else stream
-  }
-
-  def persist(streams: Seq[DStream[UpdateMetricOperation]])
+  protected def persist(streams: Seq[DStream[UpdateMetricOperation]])
              (implicit bcSchema : Option[Broadcast[Seq[TableSchema]]] = None) : Unit = {
     if (bcSchema.isDefined) {
-      streams.foreach(stream => persist(stream, bcSchema))
+      streams.foreach(stream => doPersist(stream, bcSchema))
     } else streams.foreach(stream => persistMetricOperation(stream))
   }
 
-  def persist(stream: DStream[UpdateMetricOperation], bcSchema : Option[Broadcast[Seq[TableSchema]]]) : Unit = {
-    if(bcSchema.isDefined) {
-      persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket), bcSchema.get)
-    } else {
-      persistMetricOperation(stream)
-    }
-  }
-
-  def persistMetricOperation(stream: DStream[UpdateMetricOperation]) : Unit = {
+  protected def persistMetricOperation(stream: DStream[UpdateMetricOperation]) : Unit = {
     getStreamsFromOptions(stream, multiplexer, timeBucket)
       .foreachRDD(rdd => rdd.foreachPartition(ops => upsert(ops)))
   }
 
-  def persistDataFrame(stream: DStream[UpdateMetricOperation], bcSchema : Broadcast[Seq[TableSchema]]) : Unit = {
+  protected def persistDataFrame(stream: DStream[UpdateMetricOperation],
+                                 bcSchema : Broadcast[Seq[TableSchema]]) : Unit = {
     stream.map(updateMetricOp => updateMetricOp.toKeyRow).foreachRDD(rdd => {
       bcSchema.value.filter(tschema => (tschema.operatorName == keyName))
         .foreach(tschemaFiltered => {
@@ -91,9 +75,28 @@ abstract class Output(keyName :String, properties: Map[String, Serializable],
     })
   }
 
+  def doPersist(stream: DStream[UpdateMetricOperation], bcSchema : Option[Broadcast[Seq[TableSchema]]]) : Unit = {
+    if(bcSchema.isDefined) {
+      persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket), bcSchema.get)
+    } else {
+      persistMetricOperation(stream)
+    }
+  }
+
   def upsert(dataFrame : DataFrame): Unit = {}
 
   def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {}
+
+  protected def getEventTime(metricOp : UpdateMetricOperation) : Option[Serializable] = {
+    if(timeBucket.isEmpty){
+      None
+    } else {
+      val metricOpFiltered = metricOp.rollupKey.filter(dimVal => timeBucket == dimVal.bucketType.id)
+      if (metricOpFiltered.size > 0){
+        Some(metricOpFiltered.last.value)
+      } else if(granularity.isEmpty) None else Some(Output.dateFromGranularity(DateTime.now(), granularity))
+    }
+  }
 }
 
 object Output {
@@ -108,7 +111,7 @@ object Output {
       val monthDate = dayDate.withDayOfMonth(1)
       val yearDate = monthDate.withMonthOfYear(1)
 
-      granularity match {
+      granularity.toLowerCase match {
         case "minute" => minutesDate
         case "hour" => hourDate
         case "day" => dayDate

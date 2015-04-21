@@ -31,7 +31,6 @@ import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.dstream.DStream
 import ValidatingPropertyMap._
 import com.mongodb.casbah.commons.conversions.scala._
-import org.joda.time.DateTime
 import scala.util.Try
 
 class MongoDbOutput(keyName : String,
@@ -72,7 +71,7 @@ class MongoDbOutput(keyName : String,
 
   override val language = properties.getString("language", "none")
 
-  override def persist(stream: DStream[UpdateMetricOperation],
+  override def doPersist(stream: DStream[UpdateMetricOperation],
                        bcSchema : Option[Broadcast[Seq[TableSchema]]]) : Unit = {
       persistMetricOperation(stream)
   }
@@ -98,15 +97,9 @@ class MongoDbOutput(keyName : String,
 
         collMetricOp._2.foreach(metricOp => {
 
-          val eventTimeObject = timeBucket match {
-            case "" => None
-            case _ => metricOp.rollupKey.filter(dimVal => timeBucket == dimVal.bucketType.id) match {
-              case c if (c.size > 0) => Some(timestampField -> c.last.value)
-              case _ => granularity match {
-                case "" => None
-                case _ => Some(timestampField -> Output.dateFromGranularity(DateTime.now(), granularity))
-              }
-            }
+          val eventTimeObject: Option[(String, Serializable)] = {
+            val eventTimeValue = getEventTime(metricOp)
+            if(eventTimeValue.isDefined) Some(timestampField -> eventTimeValue.get) else None
           }
 
           val identitiesField: Seq[Imports.DBObject] = metricOp.rollupKey
@@ -120,7 +113,7 @@ class MongoDbOutput(keyName : String,
               .filter(rollup => (rollup.bucketType.id != timeBucket))
               .map(dimVal => dimVal.value.toString)
               .mkString(idValuesSeparator)
-            if (eventTimeObject != None) builder += eventTimeObject.get
+            if (eventTimeObject.isDefined) builder += eventTimeObject.get
             builder.result
           }
 

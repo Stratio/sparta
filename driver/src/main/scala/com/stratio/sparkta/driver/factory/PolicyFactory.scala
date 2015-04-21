@@ -44,7 +44,7 @@ object PolicyFactory {
   }
 
   def defaultRollupField(fieldName: String) : StructField ={
-    StructField(fieldName, StringType, true)
+    StructField(fieldName, StringType, false)
   }
 
   def rollupsOperatorsSchemas(rollups: Seq[Rollup],
