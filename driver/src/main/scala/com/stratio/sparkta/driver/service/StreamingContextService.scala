@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2014 Stratio (http://stratio.com)
  *
@@ -16,6 +17,10 @@
 package com.stratio.sparkta.driver.service
 
 import java.io.{File, Serializable}
+import com.stratio.sparkta.sdk.TypeOp.TypeOp
+import org.apache.spark.broadcast.Broadcast
+import org.apache.spark.sql.SQLContext
+
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 
@@ -28,7 +33,7 @@ import org.reflections.Reflections
 import com.stratio.sparkta.aggregator.{DataCube, Rollup}
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.exception.DriverException
-import com.stratio.sparkta.driver.factory.SparkContextFactory
+import com.stratio.sparkta.driver.factory._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 
@@ -36,36 +41,40 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
 
   // scalastyle:ignore method.length
   def createStreamingContext(apConfig: AggregationPoliciesDto): StreamingContext = {
-    val ssc = new StreamingContext(
-      /*
-      Spark doesn't support multiple active SparkContexts in the same JVM,
-      although this isn't well-documented and there's no error-checking for this
-      (PySpark has checks for this, though). This isn't to say that we
-      can't / won't eventually support multiple contexts per JVM (see SPARK-2243),
-      but that could be somewhat difficult in the very short term because there
-      may be several baked-in assumptions that we'll have to address
-      (the (effectively) global SparkEnv, for example).
-       */
-      SparkContextFactory.sparkContextInstance(generalConfig, jars), new Duration(apConfig.duration))
+
+    val sc = SparkContextFactory.sparkContextInstance(generalConfig, jars)
+    val sqlContext = SparkContextFactory.sparkSqlContextInstance.get
+    val ssc = SparkContextFactory.sparkStreamingInstance(new Duration(apConfig.duration)).get
+
     val inputs: Map[String, DStream[Event]] = apConfig.inputs.map(i =>
       (i.name, tryToInstantiate[Input](i.elementType, (c) =>
         instantiateParameterizable[Input](c, i.configuration)).setUp(ssc))).toMap
+
     val parsers: Seq[Parser] = apConfig.parsers.map(p =>
       tryToInstantiate[Parser](p.elementType, (c) =>
         instantiateParameterizable[Parser](c, p.configuration)))
+
     val operators: Seq[Operator] = apConfig.operators.map(op =>
       tryToInstantiate[Operator](op.elementType, (c) =>
         instantiateParameterizable[Operator](c, op.configuration)))
+
     //TODO workaround this instantiateDimensions(apConfig).toMap.map(_._2) is not serializable.
     val dimensionsMap: Map[String, Dimension] = instantiateDimensions(apConfig).toMap
     val dimensionsSeq: Seq[Dimension] = instantiateDimensions(apConfig).map(_._2)
 
-    val outputSchema = Some(operators.map(op => op.key -> op.writeOperation).toMap)
+    val bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]] ={
+      val opKeyOp = PolicyFactory.operatorsKeyOperation(operators)
+      if(opKeyOp.size > 0) Some(sc.broadcast(opKeyOp)) else None
+    }
 
-    val outputs = apConfig.outputs.map(o =>
+    val outputs: Seq[(String, Output)] = apConfig.outputs.map(o =>
       (o.name, tryToInstantiate[Output](o.elementType, (c) =>
-        c.getDeclaredConstructor(classOf[Map[String, Serializable]], classOf[Option[Map[String, WriteOp]]])
-          .newInstance(o.configuration, outputSchema).asInstanceOf[Output]
+        c.getDeclaredConstructor(
+          classOf[String],
+          classOf[Map[String, Serializable]],
+          classOf[SQLContext],
+          classOf[Option[Broadcast[Map[String, (WriteOp, TypeOp)]]]])
+          .newInstance(o.name, o.configuration, sqlContext, bcOperatorsKeyOperation).asInstanceOf[Output]
       )))
 
     val rollups: Seq[Rollup] = apConfig.rollups.map(r => {
@@ -88,6 +97,12 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     //TODO only support one output
     val output = outputs.head._2
     val parsed = StreamingContextService.applyParsers(input, parsers)
+
+    implicit val bcRollupOperatorSchema = {
+      val rollOpSchema = PolicyFactory.rollupsOperatorsSchemas(rollups, outputs, operators)
+      if(rollOpSchema.size > 0) Some(sc.broadcast(rollOpSchema)) else None
+    }
+
     output.persist(new DataCube(dimensionsSeq, rollups).setUp(parsed))
     ssc
   }
@@ -105,6 +120,7 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
   }
 
   private def tryToInstantiate[C](classAndPackage: String, block: Class[_] => C): C = {
+
     val clazMap: Map[String, String] = StreamingContextService.getClasspathMap
 
     val finalClazzToInstance = clazMap.getOrElse(classAndPackage, classAndPackage)

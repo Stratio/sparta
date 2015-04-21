@@ -69,7 +69,7 @@ case class GeoHashBucketer() extends Bucketer {
         bucketType -> GeoHashBucketer.bucket(latDouble, longDouble, bucketType)
       }).toMap
     } else {
-      Map()
+      Map(precision3 -> GeoHashBucketer.bucket(0, 0, precision3))
     }
   }
 }

@@ -6,10 +6,10 @@
             "name": "in-socket",
             "elementType": "TwitterInput",
             "configuration": {
-                "consumerKey": "toHNaJSKyMdCf1RWd82xuUVM2",
-                "consumerSecret": "vNPCwRZ4j8WZFeP9XQoYriR4sZnmB8DuMRrrTxPpXZwQfqr9Kv",
-                "accessToken": "133253042-Loho4KS0xLJPXVddRWHNb044fBkU2d9f3gl0LwQi",
-                "accessTokenSecret":"0A5rfOszsSdJLhKrWwkYSGYRpSsqrZ5ML7nb8W55G2ye1"
+                "consumerKey": "IBP5g5cdypC2FaoQfsPCFnE7z",
+                "consumerSecret": "N2RyfNcbgiQUGCCAqdvQpZROrKeFBy7yXspqPY3OHls25e5yLq",
+                "accessToken": "2464161234-qA8Ov1wKe8c4U4of0ElaYJb2Fuv29qlySRpFd3W",
+                "accessTokenSecret":"t4nLVaiiokEuNcPG4xhBW13ZS2sjOUtyOn3fwPlkqy2R5"
                 
             }
         }
@@ -66,21 +66,13 @@
         }
     ],
     "outputs": [
-        {
-          "name": "out-mongo",
-          "elementType": "MongoDbOutput",
-          "configuration": {
-            "clientUri" : "mongodb://localhost:27017",
-            "dbName" : "sparkta",
-            "multiplexer" : "true",
-            "timestampFieldName" : "timestamp",
-            "timestampBucket" : "minute",
-            "textIndexFields" : "userLocation",
-            "fieldsSeparator" : ",",
-            "language" : "english",
-            "granularity" : "day"
-          }
+      {
+        "name": "out-print",
+        "elementType": "PrintOutput",
+        "configuration": {
+          "multiplexer" : "true"
         }
+      }
       ],
     "operators": [
       {
