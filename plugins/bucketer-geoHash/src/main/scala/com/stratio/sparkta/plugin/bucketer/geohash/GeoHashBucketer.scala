@@ -17,6 +17,7 @@ package com.stratio.sparkta.plugin.bucketer.geohash
 
 import java.io.{Serializable => JSerializable}
 
+import akka.event.slf4j.SLF4JLogging
 import com.github.davidmoten.geo.GeoHash
 import com.stratio.sparkta.plugin.bucketer.geohash.GeoHashBucketer._
 import com.stratio.sparkta.sdk.{BucketType, Bucketer}
@@ -41,7 +42,7 @@ import com.stratio.sparkta.sdk.{BucketType, Bucketer}
  * 12 -> 3.7cm x 1.9cm
  *
  */
-case class GeoHashBucketer() extends Bucketer {
+case class GeoHashBucketer() extends Bucketer with SLF4JLogging {
 
   override val bucketTypes: Seq[BucketType] =
     Seq(
@@ -60,22 +61,28 @@ case class GeoHashBucketer() extends Bucketer {
 
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] = {
     //TODO temporal data treatment
-    if (value.asInstanceOf[Option[_]] != None) {
-      bucketTypes.map(bucketType => {
-        //TODO temporal data treatment
-        val latLongString = value.asInstanceOf[Option[_]].get.asInstanceOf[String].split("__")
-        val latDouble = latLongString(0).toDouble
-        val longDouble = latLongString(1).toDouble
-        bucketType -> GeoHashBucketer.bucket(latDouble, longDouble, bucketType)
-      }).toMap
-    } else {
-      Map(precision3 -> GeoHashBucketer.bucket(0, 0, precision3))
+    try {
+      if (value.asInstanceOf[Option[_]] != None) {
+        bucketTypes.map(bucketType => {
+          //TODO temporal data treatment
+          val latLongString = value.asInstanceOf[Option[_]].get.asInstanceOf[String].split("__")
+          val latDouble = latLongString(0).toDouble
+          val longDouble = latLongString(1).toDouble
+          bucketType -> GeoHashBucketer.bucket(latDouble, longDouble, bucketType)
+        }).toMap
+      } else {
+        Map(precision3 -> GeoHashBucketer.bucket(0, 0, precision3))
+      }
+    }
+    catch {
+      case cce: ClassCastException => log.error("Error parsing " + value + " ."); throw cce;
     }
   }
 }
 
 object GeoHashBucketer {
   private def bucket(lat: Double, long: Double, bucketType: BucketType): JSerializable = {
+    // scalastyle:off
     (bucketType match {
       case p if p == precision1 => decodeHash(GeoHash.encodeHash(lat, long, 1))
       case p if p == precision2 => decodeHash(GeoHash.encodeHash(lat, long, 2))
@@ -90,6 +97,7 @@ object GeoHashBucketer {
       case p if p == precision11 => decodeHash(GeoHash.encodeHash(lat, long, 11))
       case p if p == precision12 => decodeHash(GeoHash.encodeHash(lat, long, 12))
     })
+    // scalastyle:on
   }
 
   private def decodeHash(geoLocHash : String) = {
