@@ -23,14 +23,13 @@ import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SQLContext, Row}
-import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
-abstract class Output(keyName :String,
-                      properties: Map[String, Serializable],
-                      operationType : Option[Map[String, (WriteOp, TypeOp)]],
-                      sqlContext : SQLContext) extends Parameterizable(properties) {
+abstract class Output(keyName :String, properties: Map[String, Serializable],
+                      sqlContext : SQLContext,
+                      operationType: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]])
+                      extends Parameterizable(properties) with Multiplexer {
 
   if (operationType.isEmpty) {
     throw new NullPointerException("operationType")
@@ -51,29 +50,33 @@ abstract class Output(keyName :String,
 
   def granularity : String
 
-  def getStreamsFromOptions(stream: DStream[UpdateMetricOperation], multiplexer: Boolean,
+  override def getStreamsFromOptions(stream: DStream[UpdateMetricOperation], multiplexer: Boolean,
                             fixedBucket: String): DStream[UpdateMetricOperation] = {
     if(multiplexer) {
-      fixedBucket match {
-        case "" => Multiplexer.multiplexStream(stream)
-        case _ => Multiplexer.multiplexStream[fixedBucket.type](stream, fixedBucket)
-      }
+      if(fixedBucket.isEmpty){
+        Multiplexer.multiplexStream(stream)
+      } else Multiplexer.multiplexStream[fixedBucket.type](stream, fixedBucket)
     } else stream
   }
 
-  def persist(streams: Seq[DStream[UpdateMetricOperation]]) : Unit = streams.foreach(persist)
-
-  def persist(streams: Seq[DStream[UpdateMetricOperation]], bcSchema : Seq[TableSchema]) : Unit = {
-    streams.foreach(stream => persist(stream, bcSchema))
+  def persist(streams: Seq[DStream[UpdateMetricOperation]])
+             (implicit bcSchema : Option[Broadcast[Seq[TableSchema]]] = None) : Unit = {
+    if (bcSchema.isDefined) {
+      streams.foreach(stream => persist(stream, bcSchema))
+    } else streams.foreach(stream => persistMetricOperation(stream))
   }
 
-  def persist(stream: DStream[UpdateMetricOperation]) : Unit = {
+  def persist(stream: DStream[UpdateMetricOperation], bcSchema : Option[Broadcast[Seq[TableSchema]]]) : Unit = {
+    if(bcSchema.isDefined) {
+      persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket), bcSchema.get.value)
+    } else {
+      persistMetricOperation(stream)
+    }
+  }
+
+  def persistMetricOperation(stream: DStream[UpdateMetricOperation]) : Unit = {
     getStreamsFromOptions(stream, multiplexer, timeBucket)
       .foreachRDD(rdd => rdd.foreachPartition(ops => upsert(ops)))
-  }
-
-  def persist(stream: DStream[UpdateMetricOperation], bcSchema : Seq[TableSchema]) : Unit = {
-      persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket), bcSchema)
   }
 
   def persistDataFrame(stream: DStream[UpdateMetricOperation], bcSchema : Seq[TableSchema]) : Unit = {

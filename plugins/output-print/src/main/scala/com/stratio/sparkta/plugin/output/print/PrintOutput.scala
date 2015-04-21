@@ -20,14 +20,16 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
+import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql._
+import org.apache.spark.streaming.dstream.DStream
 import scala.util.Try
 
 class PrintOutput(keyName : String,
                   properties: Map[String, JSerializable],
-                  operationType : Option[Map[String, (WriteOp, TypeOp)]],
-                  sqlContext : SQLContext)
-  extends Output(keyName, properties, operationType, sqlContext) {
+                  sqlContext : SQLContext,
+                  operationType: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]])
+  extends Output(keyName, properties, sqlContext, operationType){
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min)
 

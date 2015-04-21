@@ -18,6 +18,7 @@ package com.stratio.sparkta.driver.service
 
 import java.io.{File, Serializable}
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
+import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.SQLContext
 
 import scala.annotation.tailrec
@@ -60,16 +61,20 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     //TODO workaround this instantiateDimensions(apConfig).toMap.map(_._2) is not serializable.
     val dimensionsMap: Map[String, Dimension] = instantiateDimensions(apConfig).toMap
     val dimensionsSeq: Seq[Dimension] = instantiateDimensions(apConfig).map(_._2)
-    val operatorsKeyOperation = sc.broadcast(PolicyFactory.operatorsKeyOperation(operators))
+
+    val bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]] ={
+      val opKeyOp = PolicyFactory.operatorsKeyOperation(operators)
+      if(opKeyOp.size > 0) Some(sc.broadcast(opKeyOp)) else None
+    }
 
     val outputs: Seq[(String, Output)] = apConfig.outputs.map(o =>
       (o.name, tryToInstantiate[Output](o.elementType, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
           classOf[Map[String, Serializable]],
-          classOf[Option[Map[String, (WriteOp, TypeOp)]]],
-          classOf[SQLContext])
-          .newInstance(o.name, o.configuration, operatorsKeyOperation.value, sqlContext).asInstanceOf[Output]
+          classOf[SQLContext],
+          classOf[Option[Broadcast[Map[String, (WriteOp, TypeOp)]]]])
+          .newInstance(o.name, o.configuration, sqlContext, bcOperatorsKeyOperation).asInstanceOf[Output]
       )))
 
     val rollups: Seq[Rollup] = apConfig.rollups.map(r => {
@@ -92,8 +97,13 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     //TODO only support one output
     val output = outputs.head._2
     val parsed = StreamingContextService.applyParsers(input, parsers)
-    output.persist(new DataCube(dimensionsSeq, rollups).setUp(parsed),
-      sc.broadcast(PolicyFactory.rollupsOperatorsSchemas(rollups, outputs, operators)).value)
+
+    implicit val bcRollupOperatorSchema = {
+      val rollOpSchema = PolicyFactory.rollupsOperatorsSchemas(rollups, outputs, operators)
+      if(rollOpSchema.size > 0) Some(sc.broadcast(rollOpSchema)) else None
+    }
+
+    output.persist(new DataCube(dimensionsSeq, rollups).setUp(parsed))
     ssc
   }
 
@@ -110,6 +120,7 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
   }
 
   private def tryToInstantiate[C](classAndPackage: String, block: Class[_] => C): C = {
+
     val clazMap: Map[String, String] = StreamingContextService.getClasspathMap
 
     val finalClazzToInstance = clazMap.getOrElse(classAndPackage, classAndPackage)

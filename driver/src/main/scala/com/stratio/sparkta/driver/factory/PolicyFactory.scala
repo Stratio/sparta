@@ -67,11 +67,7 @@ object PolicyFactory {
     tablesSchemas.flatten
   }
 
-  def operatorsKeyOperation(operators: Seq[Operator]): Option[Map[String, (WriteOp, TypeOp)]] = {
-    if(operators.size > 0) {
-      Some(operators.map(operator => (operator.key -> (operator.writeOperation, operator.returnType))).toMap)
-    } else {
-      None
-    }
+  def operatorsKeyOperation(operators: Seq[Operator]): Map[String, (WriteOp, TypeOp)] = {
+      operators.map(operator => (operator.key -> (operator.writeOperation, operator.returnType))).toMap
   }
 }

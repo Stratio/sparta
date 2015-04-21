@@ -20,6 +20,11 @@ import org.apache.spark.streaming.dstream.DStream
 /**
  * Created by jcgarcia on 24/03/15.
  */
+trait Multiplexer {
+
+  def getStreamsFromOptions(stream: DStream[UpdateMetricOperation], multiplexer: Boolean,
+                            fixedBucket: String): DStream[UpdateMetricOperation]
+}
 
 object Multiplexer {
 

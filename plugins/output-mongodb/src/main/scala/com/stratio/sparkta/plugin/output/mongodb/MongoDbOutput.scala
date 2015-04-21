@@ -26,6 +26,7 @@ import com.stratio.sparkta.sdk.WriteOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 import org.apache.spark.Logging
+import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.dstream.DStream
 import ValidatingPropertyMap._
@@ -35,10 +36,10 @@ import scala.util.Try
 
 class MongoDbOutput(keyName : String,
                     properties: Map[String, Serializable],
-                    operationType: Option[Map[String, (WriteOp, TypeOp)]],
-                    sqlContext : SQLContext)
-  extends Output(keyName, properties, operationType, sqlContext)
-  with AbstractMongoDAO with Multiplexer with Serializable with Logging {
+                    sqlContext : SQLContext,
+                    operationType: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]])
+  extends Output(keyName, properties, sqlContext, operationType)
+  with AbstractMongoDAO with Serializable with Logging {
 
   RegisterJodaTimeConversionHelpers()
 
@@ -71,13 +72,9 @@ class MongoDbOutput(keyName : String,
 
   override val language = properties.getString("language", "none")
 
-  override def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
-    streams.foreach(persist)
-  }
-
-  override def persist(stream: DStream[UpdateMetricOperation]): Unit = {
-    getStreamsFromOptions(stream, multiplexer, timeBucket)
-      .foreachRDD(rdd => rdd.foreachPartition(ops => upsert(ops)))
+  override def persist(stream: DStream[UpdateMetricOperation],
+                       bcSchema : Option[Broadcast[Seq[TableSchema]]]) : Unit = {
+      persistMetricOperation(stream)
   }
 
   // scalastyle:off
@@ -127,7 +124,7 @@ class MongoDbOutput(keyName : String,
             builder.result
           }
 
-          val unknownFields: Set[String] = metricOp.aggregations.keySet.filter(!operationType.get.hasKey(_))
+          val unknownFields: Set[String] = metricOp.aggregations.keySet.filter(!operationType.get.value.hasKey(_))
           if (unknownFields.nonEmpty) {
             throw new Exception(s"Got fields not present in schema: ${unknownFields.mkString(",")}")
           }
@@ -135,7 +132,7 @@ class MongoDbOutput(keyName : String,
           val mapOperations : Map[Seq[(String, Any)], JSFunction] = (
             for {
               (fieldName, value) <- metricOp.aggregations.toSeq
-              op = operationType.get(fieldName)._1
+              op = operationType.get.value(fieldName)._1
             } yield (op, (fieldName, value)))
             .groupBy(_._1)
             .mapValues(_.map(_._2))
