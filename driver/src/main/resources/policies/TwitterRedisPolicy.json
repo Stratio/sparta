@@ -74,7 +74,8 @@
           "elementType": "com.stratio.sparkta.plugin.output.redis.RedisOutput",
           "configuration": {
             "hostname" : "localhost",
-            "multiplexer" : "true"
+            "multiplexer" : "true",
+            "timestampBucket" : "hour"
           }
         }
       ],

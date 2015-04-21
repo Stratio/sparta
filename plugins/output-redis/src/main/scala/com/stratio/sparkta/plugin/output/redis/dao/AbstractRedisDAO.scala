@@ -30,25 +30,72 @@
 */
 package com.stratio.sparkta.plugin.output.redis.dao
 
-import com.redis.RedisClient
+import com.redis.RedisClientPool
+import com.stratio.sparkta.sdk.{Bucketer, DimensionValue}
 
+/**
+ * Trait with common operations over redis server.
+ * 
+ * @author anistal
+ */
 trait AbstractRedisDAO {
 
   def hostname : String
+  
   def port : Int
-  def idSeparator: String = ":"
 
-  def client: RedisClient = AbstractRedisDAO.client(hostname, port)
+  def eventTimeFieldName : String = "eventTime"
+  
+  val IdSeparator: String = ":"
+
+  protected def pool: RedisClientPool = AbstractRedisDAO.pool(hostname, port)
+  
+  def hset(key: Any, field: Any, value: Any) = {
+    pool.withClient(client =>
+      client.hset(key, field, value)
+    )
+  }
+
+  def hget(key: Any, field: Any) = {
+    pool.withClient(client =>
+      client.hget(key, field)
+    )
+  }
+
+  /**
+   * Depending of the bucketType the dimension name could change.
+   *
+   * @param dimensionValue that contains the bucketType.
+   * @return dimensionName contained in the dimensionValue.
+   */
+  def extractDimensionName(dimensionValue: DimensionValue): String = {
+    dimensionValue.bucketType match {
+      case Bucketer.identity => dimensionValue.dimension.name
+      case _ => dimensionValue.bucketType.id
+    }
+  }
 }
 
+/**
+ * Initializes singletons objects needed in the trait.
+ * 
+ * @author anistal
+ */
 private object AbstractRedisDAO {
-  var _client : Option[RedisClient] = None
+  var instance : Option[RedisClientPool] = None
 
-  def client(clientUri: String, port: Int): RedisClient = {
-    _client = this._client match {
-      case None => Some(new RedisClient(clientUri, port))
-      case _ => this._client
+  /**
+   * Initializes a Redis connection pool.
+   *
+   * @param hostname of the redis server.
+   * @param port of the redis server.
+   * @return a pool of connections.
+   */
+  def pool(hostname: String, port: Int): RedisClientPool = {
+    instance = this.instance match {
+      case None => Some(new RedisClientPool(hostname, port))
+      case _ => this.instance
     }
-    _client.get
+    this.instance.get
   }
 }

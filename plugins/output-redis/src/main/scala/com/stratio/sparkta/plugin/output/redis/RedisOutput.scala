@@ -26,12 +26,21 @@ import org.apache.spark.streaming.dstream.DStream
 
 import scala.util.Try
 
+/**
+ * Saves calculated rollups on Redis.
+ *
+ * @param properties that has needed properties to start the server.
+ * @param schema with the equivalence between an operation id and its WriteOp.
+ * @author Alvaro Nistal <alvaro.nistal@gmail.com>
+ */
 class RedisOutput(properties: Map[String, Serializable], schema: Option[Map[String, WriteOp]])
   extends Output(properties, schema) with AbstractRedisDAO with Multiplexer with Serializable with Logging {
 
   override val hostname = properties.getString("hostname", "localhost")
 
   override val port = properties.getInt("port", 6379)
+
+  override val eventTimeFieldName = properties.getString("timestampFieldName", "timestamp")
 
   override def supportedWriteOps: Seq[WriteOp] = Seq(WriteOp.Inc, WriteOp.Max, WriteOp.Min)
 
@@ -41,73 +50,59 @@ class RedisOutput(properties: Map[String, Serializable], schema: Option[Map[Stri
 
   override def timeBucket: String = properties.getString("timestampBucket", "")
 
-  override def getStreamsFromOptions(stream: DStream[UpdateMetricOperation],
-                                     multiplexer: Boolean,
-                                     fixedBucket: String): DStream[UpdateMetricOperation] = {
-    multiplexer match {
-      case false => stream
-      case _ => fixedBucket match {
-        case "" => Multiplexer.multiplexStream(stream)
-        case _ => Multiplexer.multiplexStream[fixedBucket.type](stream, fixedBucket)
-      }
-    }
-  }
-
   override def persist(stream: DStream[UpdateMetricOperation]): Unit = {
     getStreamsFromOptions(stream, multiplexer, timeBucket)
-      .foreachRDD(rdd => rdd.foreachPartition(ops => hset(ops)))
+      .foreachRDD(rdd => rdd.foreachPartition(ops => hx(ops)))
   }
 
-  override def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
-    streams.foreach(persist)
-  }
-
-  def hset(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
+  /**
+   * Saves in a Redis' hash rollups values.
+   *
+   * @param metricOperations that will be saved.
+   */
+  def hx(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
     metricOperations.toList.groupBy(metricOp => metricOp.keyString).filter(_._1.size > 0).foreach(collMetricOp => {
       collMetricOp._2.map(metricOp => {
-        def extractDimensionName(dimensionValue: DimensionValue): String =
-          dimensionValue.bucketType match {
-            case Bucketer.identity | Bucketer.fulltext => dimensionValue.dimension.name
-            case _ => dimensionValue.bucketType.id
-          }
 
-        val hashKey = collMetricOp._1 + idSeparator + metricOp.rollupKey.filter(rollup =>
-          (rollup.bucketType.id != Bucketer.fulltext.id) && (rollup.bucketType.id != timeBucket))
+        // Step 1) It calculates redis' hash key with this structure -> A:B:C:A:valueA:B:valueB:C:valueC
+        // It is important to see that values be part of the key. This is needed to perform searches.
+        val hashKey = collMetricOp._1 + IdSeparator + metricOp.rollupKey
           .map(dimVal => List(extractDimensionName(dimVal), dimVal.value.toString))
-          .flatMap(_.toSeq).mkString(idSeparator)
+          .flatMap(_.toSeq).mkString(IdSeparator)
 
+        // Step 2) It calculates aggregations depending of its types and saves the result in the value of the hash.
         metricOp.aggregations.map(aggregation => {
           val currentOperation = schema.get(aggregation._1)
 
           currentOperation match {
             case WriteOp.Inc => {
               val valueHashOperation: Long  =
-                client.hget(hashKey, aggregation._1).getOrElse("0").toLong
+                hget(hashKey, aggregation._1).getOrElse("0").toLong
 
               val valueCurrentOperation: Long =
                 aggregation._2.getOrElse(0L).asInstanceOf[Long]
 
-              client.hset(hashKey, aggregation._1, valueHashOperation + valueCurrentOperation)
+              hset(hashKey, aggregation._1, valueHashOperation + valueCurrentOperation)
             }
 
             case WriteOp.Max => {
               val valueHashOperation: Double  =
-                client.hget(hashKey, aggregation._1).getOrElse(Double.MinValue.toString).toDouble
+                hget(hashKey, aggregation._1).getOrElse(Double.MinValue.toString).toDouble
 
               val valueCurrentOperation: Double =
                 aggregation._2.getOrElse(Double.MinValue).asInstanceOf[Double]
 
-              if(valueCurrentOperation > valueHashOperation) client.hset(hashKey, aggregation._1, valueCurrentOperation)
+              if(valueCurrentOperation > valueHashOperation) hset(hashKey, aggregation._1, valueCurrentOperation)
             }
 
             case WriteOp.Min => {
               val valueHashOperation: Double  =
-                client.hget(hashKey, aggregation._1).getOrElse(Double.MaxValue.toString).toDouble
+                hget(hashKey, aggregation._1).getOrElse(Double.MaxValue.toString).toDouble
 
               val valueCurrentOperation: Double =
                 aggregation._2.getOrElse(Double.MaxValue).asInstanceOf[Double]
 
-              if(valueCurrentOperation < valueHashOperation) client.hset(hashKey, aggregation._1, valueCurrentOperation)
+              if(valueCurrentOperation < valueHashOperation) hset(hashKey, aggregation._1, valueCurrentOperation)
             }
           }
         })
