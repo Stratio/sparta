@@ -17,9 +17,10 @@
 package com.stratio.sparkta.plugin.input.rabbitmq
 
 import java.net.ConnectException
+import java.util
 
+import akka.event.slf4j.SLF4JLogging
 import com.rabbitmq.client.{QueueingConsumer, Channel, Connection, ConnectionFactory}
-import org.apache.spark.Logging
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.receiver.Receiver
 
@@ -27,7 +28,7 @@ import org.apache.spark.streaming.receiver.Receiver
  * Created by dcarroza on 4/17/15.
  */
 class RabbitMQReceiver(rabbitMQHost: String, rabbitMQPort: Int, rabbitMQQueueName: String, storageLevel: StorageLevel)
-  extends Receiver[String](StorageLevel.MEMORY_AND_DISK_2) with Logging {
+  extends Receiver[String](StorageLevel.MEMORY_AND_DISK_2) with SLF4JLogging {
 
   def onStart() {
     // Start the thread that receives data over a connection
@@ -49,13 +50,12 @@ class RabbitMQReceiver(rabbitMQHost: String, rabbitMQPort: Int, rabbitMQQueueNam
       factory.setPort(rabbitMQPort)
       val connection: Connection = factory.newConnection
       val channel: Channel = connection.createChannel
-      channel.queueDeclare(rabbitMQQueueName, false, false, false, null)
-      log.info(" [*] Waiting for messages. To exit press CTRL+C")
+      channel.queueDeclare(rabbitMQQueueName, false, false, false, new util.HashMap(0))
+      log.info("RabbitMQ Input waiting for messages")
       val consumer: QueueingConsumer = new QueueingConsumer(channel)
       channel.basicConsume(rabbitMQQueueName, true, consumer)
       while (!isStopped) {
         val delivery: QueueingConsumer.Delivery = consumer.nextDelivery
-        log.info("Received data '" + new String(delivery.getBody) + "'")
         store(new String(delivery.getBody))
       }
       log.info("it has been stopped")
