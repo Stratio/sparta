@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.plugin.output.redis
 
-import java.io.Serializable
+import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.plugin.output.redis.dao.AbstractRedisDAO
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
@@ -33,12 +34,12 @@ import scala.util.Try
  * @param schema with the equivalence between an operation id and its WriteOp.
  * @author anistal
  */
-class RedisOutput(properties: Map[String, Serializable], schema: Option[Map[String, WriteOp]])
+class RedisOutput(properties: Map[String, JSerializable], schema: Option[Map[String, WriteOp]])
   extends Output(properties, schema) with AbstractRedisDAO with Multiplexer with Serializable with Logging {
 
-  override val hostname = properties.getString("hostname", "localhost")
+  override val hostname = properties.getString("hostname", DefaultRedisHostname)
 
-  override val port = properties.getInt("port", 6379)
+  override val port = properties.getInt("port", DefaultRedisPort)
 
   override val eventTimeFieldName = properties.getString("timestampFieldName", "timestamp")
 
@@ -52,7 +53,7 @@ class RedisOutput(properties: Map[String, Serializable], schema: Option[Map[Stri
 
   override def persist(stream: DStream[UpdateMetricOperation]): Unit = {
     getStreamsFromOptions(stream, multiplexer, timeBucket)
-      .foreachRDD(rdd => rdd.foreachPartition(ops => hx(ops)))
+      .foreachRDD(rdd => rdd.foreachPartition(ops => doPersist(ops)))
   }
 
   /**
@@ -60,11 +61,11 @@ class RedisOutput(properties: Map[String, Serializable], schema: Option[Map[Stri
    *
    * @param metricOperations that will be saved.
    */
-  def hx(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
-    metricOperations.toList.groupBy(metricOp => metricOp.keyString).filter(_._1.size > 0).foreach(collMetricOp => {
+  def doPersist(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
+    metricOperations.toSeq.groupBy(_.keyString).filter(_._1.size > 0).map(collMetricOp => {
       collMetricOp._2.map(metricOp => {
 
-        // Step 1) It calculates redis' hash key with this structure -> A:B:C:A:valueA:B:valueB:C:valueC
+        // Step 1) It calculates redis' hash key with this structure -> A_B_C:A:valueA:B:valueB:C:valueC
         // It is important to see that values be part of the key. This is needed to perform searches.
         val hashKey = collMetricOp._1 + IdSeparator + metricOp.rollupKey
           .map(dimVal => List(extractDimensionName(dimVal), dimVal.value.toString))
@@ -76,32 +77,20 @@ class RedisOutput(properties: Map[String, Serializable], schema: Option[Map[Stri
 
           currentOperation match {
             case WriteOp.Inc => {
-              val valueHashOperation: Long  =
-                hget(hashKey, aggregation._1).getOrElse("0").toLong
-
-              val valueCurrentOperation: Long =
-                aggregation._2.getOrElse(0L).asInstanceOf[Long]
-
+              val valueHashOperation: Long = hget(hashKey, aggregation._1).getOrElse("0").toLong
+              val valueCurrentOperation: Long = aggregation._2.getOrElse(0L).asInstanceOf[Long]
               hset(hashKey, aggregation._1, valueHashOperation + valueCurrentOperation)
             }
-
             case WriteOp.Max => {
-              val valueHashOperation: Double  =
+              val valueHashOperation: Double =
                 hget(hashKey, aggregation._1).getOrElse(Double.MinValue.toString).toDouble
-
-              val valueCurrentOperation: Double =
-                aggregation._2.getOrElse(Double.MinValue).asInstanceOf[Double]
-
+              val valueCurrentOperation: Double = aggregation._2.getOrElse(Double.MinValue).asInstanceOf[Double]
               if(valueCurrentOperation > valueHashOperation) hset(hashKey, aggregation._1, valueCurrentOperation)
             }
-
             case WriteOp.Min => {
               val valueHashOperation: Double  =
                 hget(hashKey, aggregation._1).getOrElse(Double.MaxValue.toString).toDouble
-
-              val valueCurrentOperation: Double =
-                aggregation._2.getOrElse(Double.MaxValue).asInstanceOf[Double]
-
+              val valueCurrentOperation: Double = aggregation._2.getOrElse(Double.MaxValue).asInstanceOf[Double]
               if(valueCurrentOperation < valueHashOperation) hset(hashKey, aggregation._1, valueCurrentOperation)
             }
           }
