@@ -23,17 +23,22 @@ import scala.util.Try
 
 class SumOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  private val inputField = if(properties.contains("inputField")) properties.getString("inputField") else ""
+  override val typeOp = Some(TypeOp.Long)
 
-  override val key : String = "sum_" + inputField
+  private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
+
+  override val key : String = "sum_" + {
+    if(inputField.isDefined) inputField.get else "undefined"
+  }
 
   override val writeOperation = WriteOp.Inc
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Number] =
-    inputFields.contains(inputField) match {
-      case false => SumOperator.SOME_ZERO_NUMBER
-      case true => Some(inputFields.get(inputField).get.asInstanceOf[Number])
-    }
+  override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
+    if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
+      Some(inputFields.get(inputField.get).get.asInstanceOf[Number])
+    } else SumOperator.SOME_ZERO_NUMBER
+  }
+
 
   override def processReduce(values : Iterable[Option[Any]]): Option[Long] = {
     Try(Some(values.map(_.get.asInstanceOf[Number].longValue()).reduce(_ + _)))

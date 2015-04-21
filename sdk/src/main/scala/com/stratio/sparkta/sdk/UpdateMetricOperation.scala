@@ -15,9 +15,13 @@
  */
 package com.stratio.sparkta.sdk
 
-case class UpdateMetricOperation(
-                                  rollupKey: Seq[DimensionValue],
-                                  var aggregations: Map[String, Option[_>:AnyVal]]) {
+import org.apache.spark.sql._
+import java.io.{Serializable => JSerializable}
+
+case class UpdateMetricOperation(rollupKey: Seq[DimensionValue],
+                                  var aggregations: Map[String, Option[Any]]) {
+
+  final val SEPARATOR = "_"
 
   if (rollupKey == null) {
     throw new NullPointerException("rollupKey")
@@ -27,21 +31,47 @@ case class UpdateMetricOperation(
     throw new NullPointerException("aggregations")
   }
 
-  def SEPARATOR = "_"
+  override def toString: String = {
+    this.keyString + " DIMENSIONS: " + rollupKey.mkString("|") + " AGGREGATIONS: " + aggregations
+  }
 
   def keyString: String = {
-    rollupKey.sortWith((dim1,dim2) =>
+    UpdateMetricOperation.sortedNamesDimensionsValues(rollupKey)
+      .filter(dimName => dimName.nonEmpty).mkString(SEPARATOR)
+  }
+
+  def toKeyRow: (Option[String], Row) = {
+    val sortedNames = UpdateMetricOperation.namesDimensionValues(UpdateMetricOperation.sortDimensionValues(rollupKey))
+    val row = toRow
+
+    if (sortedNames.length > 0) (Some(sortedNames.mkString(SEPARATOR)), row) else (None, row)
+  }
+
+  def toRow: Row = {
+    Row.fromSeq(
+      UpdateMetricOperation.sortDimensionValues(rollupKey).map(dimVal => dimVal.value) ++
+        aggregations.toSeq.map(aggregation => aggregation._2.get))
+  }
+}
+
+object UpdateMetricOperation {
+
+  def sortDimensionValues(dimValues: Seq[DimensionValue]): Seq[DimensionValue] = {
+    dimValues.sortWith((dim1, dim2) =>
       (dim1.dimension.name + dim1.bucketType.id) < (dim2.dimension.name + dim2.bucketType.id)
-    ).map(dimVal => {
+    )
+  }
+
+  def namesDimensionValues(dimValues: Seq[DimensionValue]) : Seq[String] = {
+    dimValues.map(dimVal => {
       dimVal.bucketType match {
         case Bucketer.identity => dimVal.dimension.name
-        case _ => dimVal.bucketType.id //dimVal.dimension.name + SEPARATOR + dimVal.bucketType.id
+        case _ => dimVal.bucketType.id
       }
-    }).filter(dimName => dimName.nonEmpty).mkString(SEPARATOR)
+    })
   }
 
-  override def toString: String = {
-    this.keyString + " DATA: " + rollupKey.mkString("|") + " AGGREGATIONS: " + aggregations
+  def sortedNamesDimensionsValues(dimValues: Seq[DimensionValue]): Seq[String] = {
+    namesDimensionValues(sortDimensionValues(dimValues))
   }
-
 }

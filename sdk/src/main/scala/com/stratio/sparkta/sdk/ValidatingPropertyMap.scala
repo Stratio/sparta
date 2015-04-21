@@ -95,7 +95,6 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
   }
 
   def hasKey(key: K): Boolean = !m.get(key).isEmpty
-
 }
 
 object ValidatingPropertyMap {

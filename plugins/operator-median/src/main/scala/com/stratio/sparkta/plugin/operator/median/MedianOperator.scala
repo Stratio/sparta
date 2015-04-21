@@ -17,7 +17,7 @@ package com.stratio.sparkta.plugin.operator.median
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{WriteOp, Operator}
+import com.stratio.sparkta.sdk.{TypeOp, WriteOp, Operator}
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import breeze.stats._
 import breeze.linalg._
@@ -25,17 +25,21 @@ import breeze.linalg._
 
 class MedianOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  private val inputField = properties.getString("inputField")
+  override val typeOp = Some(TypeOp.Double)
 
-  override val key : String = "median_" + inputField
+  private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
+
+  override val key : String = "median_" + {
+    if(inputField.isDefined) inputField.get else "undefined"
+  }
 
   override val writeOperation = WriteOp.Median
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Number] =
-    inputFields.contains(inputField) match {
-      case false => MedianOperator.SOME_ZERO_NUMBER
-      case true => Some(inputFields.get(inputField).get.asInstanceOf[Number])
-    }
+  override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
+    if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
+      Some(inputFields.get(inputField.get).get.asInstanceOf[Number])
+    } else MedianOperator.SOME_ZERO_NUMBER
+  }
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     values.size match {

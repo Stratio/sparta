@@ -17,30 +17,37 @@ package com.stratio.sparkta.plugin.output.print
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
-import org.apache.spark.streaming.dstream.DStream
-
+import org.apache.spark.broadcast.Broadcast
+import org.apache.spark.sql._
+import ValidatingPropertyMap._
 import scala.util.Try
 
-class PrintOutput(properties: Map[String, JSerializable], schema: Option[Map[String, WriteOp]])
-  extends Output(properties, schema) {
+class PrintOutput(keyName : String,
+                  properties: Map[String, JSerializable],
+                  sqlContext : SQLContext,
+                  operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]])
+  extends Output(keyName, properties, sqlContext, operationTypes){
 
-  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min)
+  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.Median,
+  WriteOp.Stddev, WriteOp.Variance, WriteOp.AccSet)
 
-  override val multiplexer = Try(
-    properties("multiplexer").asInstanceOf[String].toLowerCase().toBoolean).getOrElse(false)
+  override val multiplexer = Try(properties.getString("multiplexer").toBoolean)
+    .getOrElse(false)
 
   override def timeBucket: String = Try(properties("timeDimension").asInstanceOf[String]).getOrElse("")
 
   override val granularity = Try(properties("granularity").asInstanceOf[String]).getOrElse("")
 
-  override def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
-    streams.foreach(persist)
+  override def upsert(dataFrame : DataFrame): Unit = {
+    dataFrame.printSchema()
+    dataFrame.foreach(println)
+    println("COUNT : "  +  dataFrame.count())
   }
 
-  override def persist(stream: DStream[UpdateMetricOperation]): Unit = {
-    stream.print()
+  override def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
+    metricOperations.foreach(metricOp => println(metricOp.toString))
   }
-
 }

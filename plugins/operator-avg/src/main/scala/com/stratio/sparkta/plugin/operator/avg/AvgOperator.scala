@@ -16,22 +16,25 @@
 package com.stratio.sparkta.plugin.operator.avg
 
 import java.io.{Serializable => JSerializable}
-import com.stratio.sparkta.sdk.{WriteOp, Operator}
+import com.stratio.sparkta.sdk.{TypeOp, WriteOp, Operator}
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 
 class AvgOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  private val inputField = properties.getString("inputField")
+  override val typeOp = Some(TypeOp.Double)
 
-  override val key : String = "avg_" + inputField
+  private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
+
+  override val key : String = "avg_" + {
+    if(inputField.isDefined) inputField.get else "undefined"
+  }
 
   override val writeOperation = WriteOp.Avg
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
-    inputFields.contains(inputField) match {
-      case false => AvgOperator.SOME_ZERO_NUMBER
-      case true => Some(inputFields.get(inputField).get.asInstanceOf[Number])
-    }
+    if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
+      Some(inputFields.get(inputField.get).get.asInstanceOf[Number])
+    } else AvgOperator.SOME_ZERO_NUMBER
   }
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
@@ -40,6 +43,7 @@ class AvgOperator(properties: Map[String, JSerializable]) extends Operator(prope
       case _ => AvgOperator.SOME_ZERO
     }
   }
+
 }
 
 private object AvgOperator {

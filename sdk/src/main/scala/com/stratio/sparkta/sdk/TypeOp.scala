@@ -16,9 +16,12 @@
  */
 package com.stratio.sparkta.sdk
 
-object WriteOp extends Enumeration {
-  type WriteOp = Value
-  val FullText, Inc, Set, AccSet, Max, Min, Avg, AccAvg,
-      Median, AccMedian, Variance, AccVariance, Stddev, AccStddev = Value
+/**
+ * Created by jcgarcia on 18/04/15.
+ */
+
+object TypeOp extends Enumeration {
+  type TypeOp = Value
+  val Long, Int, String, Double, Boolean, Binary, Date, DateTime = Value
 
 }
