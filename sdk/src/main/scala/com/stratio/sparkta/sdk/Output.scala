@@ -59,12 +59,12 @@ abstract class Output(keyName :String, properties: Map[String, Serializable],
     } else streams.foreach(stream => persistMetricOperation(stream))
   }
 
-  def persistMetricOperation(stream: DStream[UpdateMetricOperation]) : Unit = {
+  protected def persistMetricOperation(stream: DStream[UpdateMetricOperation]) : Unit = {
     getStreamsFromOptions(stream, multiplexer, timeBucket)
       .foreachRDD(rdd => rdd.foreachPartition(ops => upsert(ops)))
   }
 
-  def persistDataFrame(stream: DStream[UpdateMetricOperation],
+  protected def persistDataFrame(stream: DStream[UpdateMetricOperation],
                                  bcSchema : Broadcast[Seq[TableSchema]]) : Unit = {
     stream.map(updateMetricOp => updateMetricOp.toKeyRow).foreachRDD(rdd => {
       bcSchema.value.filter(tschema => (tschema.operatorName == keyName))
@@ -75,7 +75,8 @@ abstract class Output(keyName :String, properties: Map[String, Serializable],
     })
   }
 
-  def doPersist(stream: DStream[UpdateMetricOperation], bcSchema : Option[Broadcast[Seq[TableSchema]]]) : Unit = {
+  protected def doPersist(stream: DStream[UpdateMetricOperation],
+                          bcSchema : Option[Broadcast[Seq[TableSchema]]]) : Unit = {
     if(bcSchema.isDefined) {
       persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket), bcSchema.get)
     } else {
@@ -97,6 +98,7 @@ abstract class Output(keyName :String, properties: Map[String, Serializable],
       } else if(granularity.isEmpty) None else Some(Output.dateFromGranularity(DateTime.now(), granularity))
     }
   }
+
 }
 
 object Output {
