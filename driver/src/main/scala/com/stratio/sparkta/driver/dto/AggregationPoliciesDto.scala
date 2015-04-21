@@ -29,6 +29,8 @@ import org.json4s.jackson.JsonMethods._
  * Created by ajnavarro on 2/10/14.
  */
 case class AggregationPoliciesDto(name: String = "default",
+                                  saveRawData:String = "true",
+                                  rawDataParquetPath:String ="default",
                                   duration: Long = AggregationPoliciesDto.StreamingWindowDurationInMillis,
                                   dimensions: Seq[DimensionDto],
                                   rollups: Seq[RollupDto],

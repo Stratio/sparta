@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,11 +31,13 @@ with Matchers {
     "validate dimensions is required and has at least 1 element" in {
 
       val configuration: Map[String, JsoneyString]
-        = Map(("topics",new JsoneyString("zion2:1")), ("kafkaParams.group.id",new JsoneyString("kafka-pruebas")))
+      = Map(("topics", new JsoneyString("zion2:1")), ("kafkaParams.group.id", new JsoneyString("kafka-pruebas")))
       val input = new PolicyElementDto("kafka-input", "KafkaInput", configuration)
 
       val apd = new AggregationPoliciesDto(
         "policy-name",
+        "true",
+        "example",
         0,
         Seq(),
         Seq(mock[RollupDto]),

@@ -28,6 +28,7 @@
     <properties>
         <spray.version>1.3.2</spray.version>
         <akka.version>2.3.4-spark</akka.version>
+        <avro.version>1.7.4</avro.version>
     </properties>
     <dependencies>
         <dependency>
@@ -105,5 +106,11 @@
             <artifactId>reflections</artifactId>
             <version>0.9.9</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_${scala.binary.version}</artifactId>
+        </dependency>
+
+
     </dependencies>
 </project>
