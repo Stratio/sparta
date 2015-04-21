@@ -16,13 +16,16 @@
 
 package com.stratio.sparkta.plugin.output.redis
 
-import java.io.{Serializable => JSerializable}
+import java.io.Serializable
 
 import com.stratio.sparkta.plugin.output.redis.dao.AbstractRedisDAO
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 import org.apache.spark.Logging
+import org.apache.spark.broadcast.Broadcast
+import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.dstream.DStream
 
 import scala.util.Try
@@ -30,12 +33,17 @@ import scala.util.Try
 /**
  * Saves calculated rollups on Redis.
  *
- * @param properties that has needed properties to start the server.
- * @param schema with the equivalence between an operation id and its WriteOp.
+ * @param keyName
+ * @param properties
+ * @param sqlContext
+ * @param operationTypes
  * @author anistal
  */
-class RedisOutput(properties: Map[String, JSerializable], schema: Option[Map[String, WriteOp]])
-  extends Output(properties, schema) with AbstractRedisDAO with Multiplexer with Serializable with Logging {
+class RedisOutput(keyName : String,
+                  properties: Map[String, Serializable],
+                  sqlContext : SQLContext,
+                  operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]])
+  extends Output(keyName, properties, sqlContext, operationTypes) with AbstractRedisDAO with Serializable with Logging {
 
   override val hostname = properties.getString("hostname", DefaultRedisHostname)
 
@@ -51,9 +59,9 @@ class RedisOutput(properties: Map[String, JSerializable], schema: Option[Map[Str
 
   override def timeBucket: String = properties.getString("timestampBucket", "")
 
-  override def persist(stream: DStream[UpdateMetricOperation]): Unit = {
-    getStreamsFromOptions(stream, multiplexer, timeBucket)
-      .foreachRDD(rdd => rdd.foreachPartition(ops => doPersist(ops)))
+  override def doPersist(stream: DStream[UpdateMetricOperation],
+                         bcSchema : Option[Broadcast[Seq[TableSchema]]]) : Unit = {
+    persistMetricOperation(stream)
   }
 
   /**
@@ -61,7 +69,7 @@ class RedisOutput(properties: Map[String, JSerializable], schema: Option[Map[Str
    *
    * @param metricOperations that will be saved.
    */
-  def doPersist(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
+  override def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
     metricOperations.toSeq.groupBy(_.keyString).filter(_._1.size > 0).map(collMetricOp => {
       collMetricOp._2.map(metricOp => {
 
@@ -73,7 +81,7 @@ class RedisOutput(properties: Map[String, JSerializable], schema: Option[Map[Str
 
         // Step 2) It calculates aggregations depending of its types and saves the result in the value of the hash.
         metricOp.aggregations.map(aggregation => {
-          val currentOperation = schema.get(aggregation._1)
+          val currentOperation = operationTypes.get.value.get(aggregation._1).get._1
 
           currentOperation match {
             case WriteOp.Inc => {
@@ -83,14 +91,14 @@ class RedisOutput(properties: Map[String, JSerializable], schema: Option[Map[Str
             }
             case WriteOp.Max => {
               val valueHashOperation: Double =
-                hget(hashKey, aggregation._1).getOrElse(Double.MinValue.toString).toDouble
-              val valueCurrentOperation: Double = aggregation._2.getOrElse(Double.MinValue).asInstanceOf[Double]
+                hget(hashKey, aggregation._1).getOrElse(scala.Double.MinValue.toString).toDouble
+              val valueCurrentOperation: Double = aggregation._2.getOrElse(scala.Double.MinValue).asInstanceOf[Double]
               if(valueCurrentOperation > valueHashOperation) hset(hashKey, aggregation._1, valueCurrentOperation)
             }
             case WriteOp.Min => {
               val valueHashOperation: Double  =
-                hget(hashKey, aggregation._1).getOrElse(Double.MaxValue.toString).toDouble
-              val valueCurrentOperation: Double = aggregation._2.getOrElse(Double.MaxValue).asInstanceOf[Double]
+                hget(hashKey, aggregation._1).getOrElse(scala.Double.MaxValue.toString).toDouble
+              val valueCurrentOperation: Double = aggregation._2.getOrElse(scala.Double.MaxValue).asInstanceOf[Double]
               if(valueCurrentOperation < valueHashOperation) hset(hashKey, aggregation._1, valueCurrentOperation)
             }
           }
