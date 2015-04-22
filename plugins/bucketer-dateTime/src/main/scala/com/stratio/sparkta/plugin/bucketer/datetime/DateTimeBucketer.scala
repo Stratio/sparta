@@ -19,14 +19,16 @@ package com.stratio.sparkta.plugin.bucketer.datetime
 import java.io.{Serializable => JSerializable}
 import java.util.Date
 
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.plugin.bucketer.datetime.DateTimeBucketer._
 import com.stratio.sparkta.sdk.{BucketType, Bucketer}
 import org.joda.time.DateTime
+import org.slf4j.Logger
 
 /**
  * Created by ajnavarro on 9/10/14.
  */
-case class DateTimeBucketer(props: Map[String, JSerializable]) extends Bucketer with JSerializable {
+case class DateTimeBucketer(props: Map[String, JSerializable]) extends Bucketer with JSerializable with SLF4JLogging{
 
   def this() {
     this(Map((GRANULARITY_PROPERTY_NAME, DEFAULT_GRANULARITY)))
@@ -36,10 +38,16 @@ case class DateTimeBucketer(props: Map[String, JSerializable]) extends Bucketer 
 
   override val bucketTypes: Seq[BucketType] = Seq(timestamp, seconds, minutes, hours, days, months, years)
 
+  @throws(classOf[ClassCastException])
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] =
-    bucketTypes.map(bucketType =>
-      bucketType -> DateTimeBucketer.bucket(value.asInstanceOf[Date], bucketType, properties)
-    ).toMap
+    try {
+      bucketTypes.map(bucketType =>
+        bucketType -> DateTimeBucketer.bucket(value.asInstanceOf[Date], bucketType, properties)
+      ).toMap
+    }
+    catch {
+      case cce: ClassCastException => log.error("Error parsing " + value + " ."); throw cce;
+    }
 }
 
 object DateTimeBucketer {

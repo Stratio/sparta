@@ -1,0 +1,179 @@
+{
+    "name": "policy-rabbitmq",
+    "duration": 10000,
+    "inputs": [
+        {
+            "name": "in",
+            "elementType": "RabbitMQInput",
+            "configuration": {
+                "queue": "test",
+                "host": "localhost",
+                "port": 5672,
+                "storageLevel": "MEMORY_ONLY",
+                "exchangeName": "twitterExchange",
+                "routingKeys" : ["routingKey3"]
+            }
+        }
+    ],
+    "dimensions": [
+        {
+            "dimensionType": "PassthroughBucketer",
+            "name": "source"
+        },
+        {
+            "dimensionType": "PassthroughBucketer",
+            "name": "text"
+        },
+        {
+            "dimensionType": "PassthroughBucketer",
+            "name": "lang"
+        },
+        {
+            "dimensionType": "DateTimeBucketer",
+            "name": "createdAt"
+        },
+        {
+            "dimensionType": "PassthroughBucketer",
+            "name": "favoriteCount"
+        },
+        {
+            "dimensionType": "PassthroughBucketer",
+            "name": "retweetCount"
+        },
+        {
+            "dimensionType": "PassthroughBucketer",
+            "name": "user_followersCount"
+        },
+        {
+            "dimensionType": "PassthroughBucketer",
+            "name": "user_favouritesCount"
+        },
+        {
+            "dimensionType": "PassthroughBucketer",
+            "name": "user_id"
+        },
+        {
+            "dimensionType": "PassthroughBucketer",
+            "name": "user_screenName"
+        },
+        {
+            "dimensionType": "PassthroughBucketer",
+            "name": "user_timeZone"
+        }
+    ],
+    "rollups": [
+        {
+            "dimensionAndBucketTypes": [
+                {
+                    "dimensionName": "createdAt",
+                    "bucketType": "minute"
+                }
+            ]
+        },
+        {
+            "dimensionAndBucketTypes": [
+                {
+                    "dimensionName": "lang",
+                    "bucketType": "identity"
+                }
+            ]
+        },
+        {
+            "dimensionAndBucketTypes": [
+                {
+                    "dimensionName": "lang",
+                    "bucketType": "identity"
+                },
+                {
+                    "dimensionName": "createdAt",
+                    "bucketType": "minute"
+                }
+            ]
+        },
+        {
+            "dimensionAndBucketTypes": [
+                {
+                    "dimensionName": "user_timeZone",
+                    "bucketType": "identity"
+                }
+            ]
+        }
+    ],
+    "outputs": [
+        {
+            "name": "out-mongo",
+            "elementType": "MongoDbOutput",
+            "configuration": {
+                "clientUri": "mongodb://172.19.1.238:27017",
+                "timeField": "timestamp",
+                "timeDimension": "createdAt"
+            }
+        }
+    ],
+    "operators": [
+        {
+            "name": "count-operator",
+            "elementType": "CountOperator",
+            "configuration": {}
+        },
+        {
+            "name": "max-operator",
+            "elementType": "MaxOperator",
+            "configuration": {
+                "inputField" : "user_followersCount"
+            }
+        }
+    ],
+    "parsers": [
+        {
+            "name": "morphline-parser",
+            "elementType": "MorphlinesParser",
+            "configuration": {
+                "morphline": {
+                    "id": "morphline1",
+                    "importCommands": [
+                        "org.kitesdk.**",
+                        "com.stratio.ingestion.morphline.**"
+                    ],
+                    "commands": [
+                        {
+                            "readJson": {}
+                        },
+                        {
+                            "extractJsonPaths": {
+                                "paths": {
+                                    "source": "/source",
+                                    "createdAt": "/createdAt",
+                                    "text": "/text",
+                                    "lang": "/lang",
+                                    "createdAt": "/createdAt",
+                                    "favoriteCount": "/favoriteCount",
+                                    "retweetCount": "/retweetCount",
+                                    "user_followersCount": "/user/followersCount",
+                                    "user_favouritesCount": "/user/favouritesCount",
+                                    "user_id": "/user/id",
+                                    "user_screenName": "/user/screenName",
+                                    "user_timeZone": "/user/timeZone"
+                                }
+                            }
+                        },
+                        {
+                            "removeFields": {
+                                "blacklist": [
+                                    "literal:_attachment_body"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "createdAt",
+            "elementType": "DateTimeParser",
+            "configuration": {
+                "createdAt": "unixMillis"
+            }
+        }
+    ]
+}

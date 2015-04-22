@@ -54,6 +54,7 @@
         <module>parser-morphlines</module>
         <module>bucketer-tag</module>
         <module>bucketer-hierarchy</module>
+        <module>input-rabbitMQ</module>
     </modules>
 
     <dependencies>
@@ -75,6 +76,11 @@
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_${scala.binary.version}</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
