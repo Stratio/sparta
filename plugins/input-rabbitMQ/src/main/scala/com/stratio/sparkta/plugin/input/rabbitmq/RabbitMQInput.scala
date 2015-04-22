@@ -30,7 +30,7 @@ import com.stratio.sparkta.sdk.ValidatingPropertyMap._
  */
 class RabbitMQInput(properties: Map[String, JSerializable]) extends Input(properties){
 
-  val storageLevel = properties.getString("storageLevel", "MEMORY_ONLY")
+  val storageLevel = properties.getString("storageLevel", "MEMORY_AND_DISK_SER_2")
 
   override def setUp(ssc: StreamingContext): DStream[Event] = {
     val receiverStream =
