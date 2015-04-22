@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -62,9 +62,9 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     val dimensionsMap: Map[String, Dimension] = instantiateDimensions(apConfig).toMap
     val dimensionsSeq: Seq[Dimension] = instantiateDimensions(apConfig).map(_._2)
 
-    val bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]] ={
+    val bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]] = {
       val opKeyOp = PolicyFactory.operatorsKeyOperation(operators)
-      if(opKeyOp.size > 0) Some(sc.broadcast(opKeyOp)) else None
+      if (opKeyOp.size > 0) Some(sc.broadcast(opKeyOp)) else None
     }
 
     val outputs: Seq[(String, Output)] = apConfig.outputs.map(o =>
@@ -96,15 +96,25 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     val input: DStream[Event] = inputs.head._2
     //TODO only support one output
     val output = outputs.head._2
+
+    saveRawData(apConfig, sqlContext, input)
+
     val parsed = StreamingContextService.applyParsers(input, parsers)
 
     implicit val bcRollupOperatorSchema = {
       val rollOpSchema = PolicyFactory.rollupsOperatorsSchemas(rollups, outputs, operators)
-      if(rollOpSchema.size > 0) Some(sc.broadcast(rollOpSchema)) else None
+      if (rollOpSchema.size > 0) Some(sc.broadcast(rollOpSchema)) else None
     }
 
     output.persist(new DataCube(dimensionsSeq, rollups).setUp(parsed))
     ssc
+  }
+
+  def saveRawData(apConfig: AggregationPoliciesDto, sqlContext: SQLContext, input: DStream[Event]): Unit = {
+    if (apConfig.saveRawData.toBoolean) {
+      def rawDataStorage: RawDataStorageService = new RawDataStorageService(sqlContext, apConfig.rawDataParquetPath)
+      rawDataStorage.save(input)
+    }
   }
 
   private def instantiateDimensions(apConfig: AggregationPoliciesDto) = {
@@ -160,7 +170,5 @@ object StreamingContextService {
     val plugins = inputs ++ bucketers ++ operators ++ outputs ++ parsers
 
     plugins map (t => t.getSimpleName -> t.getCanonicalName) toMap
-
   }
-
 }

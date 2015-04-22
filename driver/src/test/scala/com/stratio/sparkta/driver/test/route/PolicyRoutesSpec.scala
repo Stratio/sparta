@@ -103,7 +103,8 @@ with Matchers {
       val dimensionDto = new DimensionDto("dimensionType", "dimension1", None)
       val rollupDto = new RollupDto(Seq(new DimensionAndBucketTypeDto(DIMENSION_TO_ROLLUP, "dimensionType", None)))
       val apd =
-        new AggregationPoliciesDto(POLICY_NAME, 0, Seq(dimensionDto), Seq(rollupDto), Seq(), Seq(), Seq(), Seq())
+        new AggregationPoliciesDto(POLICY_NAME,"true",
+          "example", 0, Seq(dimensionDto), Seq(rollupDto), Seq(), Seq(), Seq(), Seq())
       val test = Post("/policy", apd) ~> policyRoutes
       test ~> check {
      //   rejections should equal(List(ValidationRejection("All rollups should be declared in dimensions block\n", None)))
