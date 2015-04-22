@@ -1,12 +1,11 @@
-
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.sdk
 
 import java.io.Serializable
 
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import org.apache.spark.broadcast.Broadcast
@@ -26,15 +27,16 @@ import org.apache.spark.sql.{DataFrame, SQLContext, Row}
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
+
 abstract class Output(keyName :String,
                       properties: Map[String, Serializable],
                       sqlContext : SQLContext,
                       operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
                       bcSchema : Option[Broadcast[Seq[TableSchema]]])
-                      extends Parameterizable(properties) with Multiplexer {
+                      extends Parameterizable(properties) with Multiplexer with SLF4JLogging {
 
-  if (operationTypes.isEmpty) {
-    throw new IllegalArgumentException("operationTypes")
+  if(operationTypes.isDefined) {
+    log.info("Operation types is empty, you don't have aggregations defined in your policy.")
   }
 
   /* TODO NPE because access to supportedWriteOps

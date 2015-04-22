@@ -1,12 +1,11 @@
-
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.plugin.output.mongodb
 
 import java.io.Serializable
@@ -25,7 +25,6 @@ import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.WriteOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
-import org.apache.spark.Logging
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.dstream.DStream
@@ -39,7 +38,7 @@ class MongoDbOutput(keyName : String,
                     operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
                     bcSchema : Option[Broadcast[Seq[TableSchema]]])
   extends Output(keyName, properties, sqlContext, operationTypes, bcSchema)
-  with AbstractMongoDAO with Serializable with Logging {
+  with AbstractMongoDAO with Serializable {
 
   RegisterJodaTimeConversionHelpers()
 
@@ -72,11 +71,12 @@ class MongoDbOutput(keyName : String,
 
   override val language = properties.getString("language", "none")
 
-  val fixedTimeField: Option[String] = if (!timeBucket.isEmpty && !granularity.isEmpty) Some(timeBucket) else None
+  val fixedTimeField: Option[String] = if (timeCreation(timeBucket, granularity)) Some(timeBucket) else None
 
-  override val pkTextIndexesCreated: (Boolean, Boolean) = bcSchema.get.value.filter(schemaFilter =>
-    schemaFilter.outputName == keyName &&
-      fixedTimeField.forall(schemaFilter.schema.fieldNames.contains(_) && schemaFilter.schema.size > 1))
+  override val pkTextIndexesCreated: (Boolean, Boolean) = bcSchema.get.value
+    .filter(schemaFilter => schemaFilter.outputName == keyName &&
+      fixedTimeField.forall(schemaFilter.schema.fieldNames.contains(_) &&
+        schemaFilter.schema.filter(!_.nullable).length > 1))
     .map(tableSchema => createPkTextIndex(tableSchema.tableName, timeBucket, granularity))
     .reduce((a,b) => (if(!a._1 || !b._1) false else true, if(!a._2 || !b._2) false else true))
 

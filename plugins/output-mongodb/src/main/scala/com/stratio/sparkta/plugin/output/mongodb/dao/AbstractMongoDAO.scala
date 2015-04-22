@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.plugin.output.mongodb.dao
 
 import java.io.Closeable
@@ -61,20 +62,22 @@ trait AbstractMongoDAO extends Closeable {
 
   protected def db(): MongoDB = db(dbName)
 
+  protected def timeCreation(timeBucket : String, granularity : String) : Boolean = {
+    !timeBucket.isEmpty && !granularity.isEmpty
+  }
+
   protected def createPkTextIndex(collection : String,
                                   timeBucket : String,
                                   granularity : String) : (Boolean, Boolean) = {
-    var textIndexCreated = false
-    var pkIndexCreated = false
+    val textIndexCreated = textIndexFields.size > 0
+    val pkIndexCreated = timeCreation(timeBucket, granularity)
 
-    if (textIndexFields.size > 0) {
+    if (textIndexCreated) {
       createTextIndex(collection, textIndexFields.mkString(INDEX_NAME_SEPARATOR), textIndexFields, language)
-      textIndexCreated = true
     }
-    if (!timeBucket.isEmpty && !granularity.isEmpty) {
+    if (pkIndexCreated) {
       createIndex(collection, idAuxFieldName + "_" + timestampField,
         Map(idAuxFieldName -> 1, timestampField -> 1), true, true)
-      pkIndexCreated = true
     }
     (pkIndexCreated, textIndexCreated)
   }
@@ -128,11 +131,8 @@ trait AbstractMongoDAO extends Closeable {
     val coll = db(dbName).getCollection(collName)
     val builder = coll.initializeUnorderedBulkOperation
 
-    dbOjects.map(dbObjectsBatch =>
-        builder.insert(dbObjectsBatch)
-    )
+    dbOjects.map(dbObjectsBatch => builder.insert(dbObjectsBatch))
     if(writeConcern.isEmpty) builder.execute(DEFAULT_WRITE_CONCERN) else builder.execute(writeConcern.get)
-
   }
 
   override def close(): Unit = {
@@ -163,6 +163,7 @@ private object AbstractMongoDAO {
   private def db(mongoClientUri: String, dbName: String,
                  connectionsPerHost : Integer, threadsAllowedToBlock : Integer): MongoDB = {
     val key = (mongoClientUri, dbName)
+
     if (!dbs.contains(key)){
       dbs.put(key, client(mongoClientUri, connectionsPerHost, threadsAllowedToBlock).getDB(dbName))
     }
