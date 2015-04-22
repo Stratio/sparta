@@ -23,7 +23,6 @@ import com.stratio.sparkta.sdk.{Event, Input}
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
-
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 
 /**
@@ -31,20 +30,13 @@ import com.stratio.sparkta.sdk.ValidatingPropertyMap._
  */
 class RabbitMQInput(properties: Map[String, JSerializable]) extends Input(properties){
 
-  val DefaultRabbitMQPort = 5672
-
-  val rabbitMQQueueName = properties.getString("queue")
-  val rabbitMQHost = properties.getString("host", "localhost")
-  val rabbitMQPort = properties.getInt("port", DefaultRabbitMQPort)
-  val storageLevel = properties.getOrElse("storageLevel", StorageLevel.MEMORY_ONLY)
+  val storageLevel = properties.getString("storageLevel", "MEMORY_ONLY")
 
   override def setUp(ssc: StreamingContext): DStream[Event] = {
     val receiverStream =
       ssc.receiverStream(
-        new RabbitMQReceiver(rabbitMQHost,
-          rabbitMQPort,
-          rabbitMQQueueName,
-          storageLevel.asInstanceOf[StorageLevel]))
+        new RabbitMQReceiver(properties, StorageLevel.fromString(storageLevel))
+      )
 
     receiverStream.
       map(data => new Event(Map(RAW_DATA_KEY -> data.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))

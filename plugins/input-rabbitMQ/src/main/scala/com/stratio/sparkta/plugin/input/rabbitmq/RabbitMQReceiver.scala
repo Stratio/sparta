@@ -16,19 +16,33 @@
 
 package com.stratio.sparkta.plugin.input.rabbitmq
 
+import java.io.{Serializable => JSerializable}
 import java.net.ConnectException
 import java.util
 
 import akka.event.slf4j.SLF4JLogging
 import com.rabbitmq.client.{QueueingConsumer, Channel, Connection, ConnectionFactory}
+import com.stratio.sparkta.sdk.{JsoneyStringSerializer, JsoneyString}
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.receiver.Receiver
+import com.stratio.sparkta.sdk.ValidatingPropertyMap._
+import org.json4s.{JsonMethods, DefaultFormats}
+import org.json4s.jackson.JsonMethods._
 
 /**
  * Created by dcarroza on 4/17/15.
  */
-class RabbitMQReceiver(rabbitMQHost: String, rabbitMQPort: Int, rabbitMQQueueName: String, storageLevel: StorageLevel)
-  extends Receiver[String](StorageLevel.MEMORY_AND_DISK_2) with SLF4JLogging {
+class RabbitMQReceiver(properties: Map[String, JSerializable], storageLevel: StorageLevel)
+  extends Receiver[String](storageLevel) with SLF4JLogging {
+
+  val DirectExchangeType: String = "direct"
+  val DefaultRabbitMQPort = 5672
+
+  val rabbitMQQueueName = properties.getString("queue")
+  val rabbitMQHost = properties.getString("host", "localhost")
+  val rabbitMQPort = properties.getInt("port", DefaultRabbitMQPort)
+  val exchangeName = properties.getString("exchangeName", "")
+  val routingKeys = properties.get("routingKeys")
 
   def onStart() {
     // Start the thread that receives data over a connection
@@ -44,20 +58,37 @@ class RabbitMQReceiver(rabbitMQHost: String, rabbitMQPort: Int, rabbitMQQueueNam
 
   /** Create a socket connection and receive data until receiver is stopped */
   private def receive() {
+
+    implicit val json4sJacksonFormats = DefaultFormats + new JsoneyStringSerializer()
+
     try {
       val factory: ConnectionFactory = new ConnectionFactory
       factory.setHost(rabbitMQHost)
       factory.setPort(rabbitMQPort)
       val connection: Connection = factory.newConnection
       val channel: Channel = connection.createChannel
-      channel.queueDeclare(rabbitMQQueueName, false, false, false, new util.HashMap(0))
+
+      var queueName = ""
+      if (routingKeys.isDefined){
+        channel.exchangeDeclare(exchangeName, DirectExchangeType)
+        queueName = channel.queueDeclare().getQueue()
+
+        for (routingKey: String <- routingKeys.get.asInstanceOf[JsoneyString].toSeq) {
+          channel.queueBind(queueName, exchangeName, routingKey)
+        }
+      }else{
+        channel.queueDeclare(rabbitMQQueueName, false, false, false, new util.HashMap(0))
+        queueName = rabbitMQQueueName
+      }
+
       log.info("RabbitMQ Input waiting for messages")
       val consumer: QueueingConsumer = new QueueingConsumer(channel)
-      channel.basicConsume(rabbitMQQueueName, true, consumer)
+      channel.basicConsume(queueName, true, consumer)
       while (!isStopped) {
         val delivery: QueueingConsumer.Delivery = consumer.nextDelivery
         store(new String(delivery.getBody))
       }
+
       log.info("it has been stopped")
       channel.close
       connection.close

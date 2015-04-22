@@ -6,7 +6,12 @@
             "name": "in",
             "elementType": "RabbitMQInput",
             "configuration": {
-                "queue": "test"
+                "queue": "test",
+                "host": "localhost",
+                "port": 5672,
+                "storageLevel": "MEMORY_ONLY",
+                "exchangeName": "twitterExchange",
+                "routingKeys" : ["routingKey3"]
             }
         }
     ],
@@ -99,7 +104,7 @@
             "name": "out-mongo",
             "elementType": "MongoDbOutput",
             "configuration": {
-                "clientUri": "mongodb://172.19.1.208:27017",
+                "clientUri": "mongodb://172.19.1.238:27017",
                 "timeField": "timestamp",
                 "timeDimension": "createdAt"
             }

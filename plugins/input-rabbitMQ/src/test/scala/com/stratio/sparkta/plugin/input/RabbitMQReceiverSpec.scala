@@ -18,14 +18,15 @@ package com.stratio.sparkta.plugin.input
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.plugin.input.rabbitmq.RabbitMQInput
+import com.stratio.sparkta.plugin.input.rabbitmq.{RabbitMQReceiver, RabbitMQInput}
+import org.apache.spark.storage.StorageLevel
 import org.scalatest.{Matchers, WordSpecLike}
 import org.scalatest.mock.MockitoSugar
 
 /**
  * Created by dcarroza on 4/17/15.
  */
-class RabbitMQInputSpec extends WordSpecLike
+class RabbitMQReceiverSpec extends WordSpecLike
 with MockitoSugar
 with Matchers {
 
@@ -34,14 +35,14 @@ with Matchers {
       val properties: Map[String, JSerializable]
         = Map(("queue", "test".asInstanceOf[JSerializable]))
 
-      new RabbitMQInput(properties)
+      new RabbitMQReceiver(properties, StorageLevel.MEMORY_AND_DISK)
     }
 
     "fail without queue parameter" in {
       val properties: Map[String, JSerializable] = Map()
 
       val thrown = intercept[IllegalStateException] {
-        new RabbitMQInput(properties)
+        new RabbitMQReceiver(properties, StorageLevel.MEMORY_AND_DISK)
       }
       assert(thrown.getMessage === "queue is mandatory")
     }
