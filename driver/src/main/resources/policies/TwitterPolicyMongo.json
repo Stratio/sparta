@@ -1,6 +1,8 @@
 {
     "name": "policy-demo",
     "duration": 10000,
+    "saveRawData": "false",
+    "rawDataParquetPath":"myTestParquetPath",
     "inputs": [
         {
             "name": "in-socket",
