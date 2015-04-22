@@ -1,6 +1,5 @@
-
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.driver.service
 
 import java.io.{File, Serializable}
-import com.stratio.sparkta.sdk.TypeOp.TypeOp
-import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.sql.SQLContext
-
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.Config
+import org.apache.spark.broadcast.Broadcast
+import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.reflections.Reflections
@@ -34,48 +32,29 @@ import com.stratio.sparkta.aggregator.{DataCube, Rollup}
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory._
+import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 
 class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging {
 
-  // scalastyle:ignore method.length
   def createStreamingContext(apConfig: AggregationPoliciesDto): StreamingContext = {
-
     val sc = SparkContextFactory.sparkContextInstance(generalConfig, jars)
     val sqlContext = SparkContextFactory.sparkSqlContextInstance.get
     val ssc = SparkContextFactory.sparkStreamingInstance(new Duration(apConfig.duration)).get
-
-    val inputs: Map[String, DStream[Event]] = apConfig.inputs.map(i =>
-      (i.name, tryToInstantiate[Input](i.elementType, (c) =>
-        instantiateParameterizable[Input](c, i.configuration)).setUp(ssc))).toMap
-
-    val parsers: Seq[Parser] = apConfig.parsers.map(p =>
-      tryToInstantiate[Parser](p.elementType, (c) =>
-        instantiateParameterizable[Parser](c, p.configuration)))
-
-    val operators: Seq[Operator] = apConfig.operators.map(op =>
-      tryToInstantiate[Operator](op.elementType, (c) =>
-        instantiateParameterizable[Operator](c, op.configuration)))
-
+    val inputs: Map[String, DStream[Event]] = SparktaJob.inputs(apConfig, ssc)
+    val parsers: Seq[Parser] = SparktaJob.parsers(apConfig)
+    val operators: Seq[Operator] = SparktaJob.operators(apConfig)
     //TODO workaround this instantiateDimensions(apConfig).toMap.map(_._2) is not serializable.
-    val dimensionsMap: Map[String, Dimension] = instantiateDimensions(apConfig).toMap
-    val dimensionsSeq: Seq[Dimension] = instantiateDimensions(apConfig).map(_._2)
+    val dimensionsMap: Map[String, Dimension] = SparktaJob.instantiateDimensions(apConfig).toMap
+    val dimensionsSeq: Seq[Dimension] = SparktaJob.instantiateDimensions(apConfig).map(_._2)
 
     val bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]] = {
       val opKeyOp = PolicyFactory.operatorsKeyOperation(operators)
       if (opKeyOp.size > 0) Some(sc.broadcast(opKeyOp)) else None
     }
 
-    val outputs: Seq[(String, Output)] = apConfig.outputs.map(o =>
-      (o.name, tryToInstantiate[Output](o.elementType, (c) =>
-        c.getDeclaredConstructor(
-          classOf[String],
-          classOf[Map[String, Serializable]],
-          classOf[SQLContext],
-          classOf[Option[Broadcast[Map[String, (WriteOp, TypeOp)]]]])
-          .newInstance(o.name, o.configuration, sqlContext, bcOperatorsKeyOperation).asInstanceOf[Output]
-      )))
+    val outputs = SparktaJob.outputs(apConfig, sqlContext, bcOperatorsKeyOperation)
 
     val rollups: Seq[Rollup] = apConfig.rollups.map(r => {
       val components = r.dimensionAndBucketTypes.map(dab => {
@@ -96,42 +75,66 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     val input: DStream[Event] = inputs.head._2
     //TODO only support one output
     val output = outputs.head._2
-
-    saveRawData(apConfig, sqlContext, input)
-
-    val parsed = StreamingContextService.applyParsers(input, parsers)
-
+    val parsed = SparktaJob.applyParsers(input, parsers)
     implicit val bcRollupOperatorSchema = {
       val rollOpSchema = PolicyFactory.rollupsOperatorsSchemas(rollups, outputs, operators)
       if (rollOpSchema.size > 0) Some(sc.broadcast(rollOpSchema)) else None
     }
-
     output.persist(new DataCube(dimensionsSeq, rollups).setUp(parsed))
     ssc
   }
+}
 
-  def saveRawData(apConfig: AggregationPoliciesDto, sqlContext: SQLContext, input: DStream[Event]): Unit = {
-    if (apConfig.saveRawData.toBoolean) {
-      def rawDataStorage: RawDataStorageService = new RawDataStorageService(sqlContext, apConfig.rawDataParquetPath)
-      rawDataStorage.save(input)
-    }
+object SparktaJob {
+
+  @tailrec
+  def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
+    if (parsers.size > 0) applyParsers(input.map(event => parsers.head.parse(event)), parsers.drop(1))
+    else input
   }
 
-  private def instantiateDimensions(apConfig: AggregationPoliciesDto) = {
-    apConfig.dimensions.map(d => (d.name,
-      new Dimension(d.name, tryToInstantiate[Bucketer](d.dimensionType, (c) => {
-        //TODO fix behaviour when configuration is empty
-        d.configuration match {
-          case Some(conf) => c.getDeclaredConstructor(classOf[Map[String, Serializable]])
-            .newInstance(conf).asInstanceOf[Bucketer]
-          case None => c.getDeclaredConstructor().newInstance().asInstanceOf[Bucketer]
-        }
-      }))))
+  val getClasspathMap: Map[String, String] = {
+    val reflections = new Reflections()
+    val inputs = reflections.getSubTypesOf(classOf[Input]).toList
+    val bucketers = reflections.getSubTypesOf(classOf[Bucketer]).toList
+    val operators = reflections.getSubTypesOf(classOf[Operator]).toList
+    val outputs = reflections.getSubTypesOf(classOf[Output]).toList
+    val parsers = reflections.getSubTypesOf(classOf[Parser]).toList
+    val plugins = inputs ++ bucketers ++ operators ++ outputs ++ parsers
+    plugins map (t => t.getSimpleName -> t.getCanonicalName) toMap
   }
 
-  private def tryToInstantiate[C](classAndPackage: String, block: Class[_] => C): C = {
+  def inputs(apConfig: AggregationPoliciesDto, ssc: StreamingContext): Map[String, DStream[Event]] =
+    apConfig.inputs.map(i =>
+      (i.name, tryToInstantiate[Input](i.elementType, (c) =>
+        instantiateParameterizable[Input](c, i.configuration)).setUp(ssc))).toMap
 
-    val clazMap: Map[String, String] = StreamingContextService.getClasspathMap
+  def parsers(apConfig: AggregationPoliciesDto): Seq[Parser] = apConfig.parsers.map(p =>
+    tryToInstantiate[Parser](p.elementType, (c) =>
+      instantiateParameterizable[Parser](c, p.configuration)))
+
+  def operators(apConfig: AggregationPoliciesDto): Seq[Operator] = apConfig.operators.map(op =>
+    tryToInstantiate[Operator](op.elementType, (c) =>
+      instantiateParameterizable[Operator](c, op.configuration)))
+
+  def outputs(apConfig: AggregationPoliciesDto,
+              sqlContext: SQLContext,
+              bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]]): Seq[(String, Output)] =
+    apConfig.outputs.map(o =>
+      (o.name, tryToInstantiate[Output](o.elementType, (c) =>
+        c.getDeclaredConstructor(
+          classOf[String],
+          classOf[Map[String, Serializable]],
+          classOf[SQLContext],
+          classOf[Option[Broadcast[Map[String, (WriteOp, TypeOp)]]]])
+          .newInstance(o.name, o.configuration, sqlContext, bcOperatorsKeyOperation).asInstanceOf[Output]
+      )))
+
+  def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C =
+    clazz.getDeclaredConstructor(classOf[Map[String, Serializable]]).newInstance(properties).asInstanceOf[C]
+
+  def tryToInstantiate[C](classAndPackage: String, block: Class[_] => C): C = {
+    val clazMap: Map[String, String] = SparktaJob.getClasspathMap
 
     val finalClazzToInstance = clazMap.getOrElse(classAndPackage, classAndPackage)
     try {
@@ -148,27 +151,27 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     }
   }
 
-  private def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C =
-    clazz.getDeclaredConstructor(classOf[Map[String, Serializable]]).newInstance(properties).asInstanceOf[C]
-}
+  def dimensionsMap(apConfig: AggregationPoliciesDto): Map[String, Dimension] = instantiateDimensions(apConfig).toMap
 
-object StreamingContextService {
+  def dimensionsSeq(apConfig: AggregationPoliciesDto): Seq[Dimension] = instantiateDimensions(apConfig).map(_._2)
 
-  @tailrec
-  def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
-    if (parsers.size > 0) applyParsers(input.map(event => parsers.head.parse(event)), parsers.drop(1))
-    else input
+  def instantiateDimensions(apConfig: AggregationPoliciesDto): Seq[(String, Dimension)] = {
+    val map: Seq[(String, Dimension)] = apConfig.dimensions.map(d => (d.name,
+      new Dimension(d.name, tryToInstantiate[Bucketer](d.dimensionType, (c) => {
+        //TODO fix behaviour when configuration is empty
+        d.configuration match {
+          case Some(conf) => c.getDeclaredConstructor(classOf[Map[String, Serializable]])
+            .newInstance(conf).asInstanceOf[Bucketer]
+          case None => c.getDeclaredConstructor().newInstance().asInstanceOf[Bucketer]
+        }
+      }))))
+    map
   }
 
-  val getClasspathMap: Map[String, String] = {
-    val reflections = new Reflections()
-    val inputs = reflections.getSubTypesOf(classOf[Input]).toList
-    val bucketers = reflections.getSubTypesOf(classOf[Bucketer]).toList
-    val operators = reflections.getSubTypesOf(classOf[Operator]).toList
-    val outputs = reflections.getSubTypesOf(classOf[Output]).toList
-    val parsers = reflections.getSubTypesOf(classOf[Parser]).toList
-    val plugins = inputs ++ bucketers ++ operators ++ outputs ++ parsers
-
-    plugins map (t => t.getSimpleName -> t.getCanonicalName) toMap
+  def saveRawData(apConfig: AggregationPoliciesDto, sqlContext: SQLContext, input: DStream[Event]): Unit = {
+    if (apConfig.saveRawData.toBoolean) {
+      def rawDataStorage: RawDataStorageService = new RawDataStorageService(sqlContext, apConfig.rawDataParquetPath)
+      rawDataStorage.save(input)
+    }
   }
 }
