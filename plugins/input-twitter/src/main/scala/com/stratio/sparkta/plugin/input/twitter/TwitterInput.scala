@@ -53,6 +53,6 @@ class TwitterInput(properties: Map[String, JSerializable]) extends Input(propert
         case null => None
         case _ => Some((data.getGeoLocation.getLatitude + "__" + data.getGeoLocation.getLongitude))
       }).asInstanceOf[JSerializable]
-    ),data))
+    ),Some(data)))
   }
 }

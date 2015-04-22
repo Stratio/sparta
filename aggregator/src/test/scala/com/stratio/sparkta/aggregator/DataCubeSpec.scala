@@ -50,7 +50,7 @@ class DataCubeSpec extends TestSuiteBase {
   val myDimensions: Seq[Dimension] = getDimensions
 
   val getEvents: Seq[Event] = (0 until 10) map (i => new Event(Map("key" + i -> System.currentTimeMillis()
-    .asInstanceOf[JSerializable]),"myRaw event data here"))
+    .asInstanceOf[JSerializable]),Some("myRaw event data here")))
 
   test("DataCube setUp") {
     val dc: DataCube = new DataCube(myDimensions, myRollups)

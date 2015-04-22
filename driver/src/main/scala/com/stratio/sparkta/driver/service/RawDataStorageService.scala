@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2014 Stratio (http://stratio.com)
  *
@@ -32,10 +31,10 @@ class RawDataStorageService(sc: SQLContext, path: String) extends Serializable {
   case class RawEvent(timeStamp: String, data: String)
 
   def extractRawDataFromEvent(event: Event) = {
-    if (None == event.rawData)
+    if ( event.rawData.isEmpty)
       event.keyMap.map(e => e._2).toSeq.toString
     else
-      event.rawData.toString
+      event.rawData.get.toString
   }
 
   def save(raw: DStream[Event]) = {
