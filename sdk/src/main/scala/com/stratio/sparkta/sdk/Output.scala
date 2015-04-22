@@ -27,7 +27,6 @@ import org.apache.spark.sql.{DataFrame, SQLContext, Row}
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
-
 abstract class Output(keyName :String,
                       properties: Map[String, Serializable],
                       sqlContext : SQLContext,
@@ -35,7 +34,7 @@ abstract class Output(keyName :String,
                       bcSchema : Option[Broadcast[Seq[TableSchema]]])
                       extends Parameterizable(properties) with Multiplexer with SLF4JLogging {
 
-  if(operationTypes.isDefined) {
+  if(operationTypes.isEmpty) {
     log.info("Operation types is empty, you don't have aggregations defined in your policy.")
   }
 
