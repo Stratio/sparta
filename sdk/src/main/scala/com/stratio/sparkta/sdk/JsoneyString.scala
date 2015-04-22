@@ -22,7 +22,7 @@ case class JsoneyString(string : String) {
   override def toString : String = string
   def toSeq : Seq[String] = {
     // transfors string of the form "[\"prop1\",\"prop2\"]" in a Seq
-    string.drop(1).reverse.drop(1).reverse.replaceAll("\"","").split(",").toSeq
+    string.drop(1).drop(1).dropRight(1).replaceAll("\"","").split(",").toSeq
   }
 }
 
