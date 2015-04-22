@@ -64,6 +64,7 @@ class RedisOutput(keyName : String,
     persistMetricOperation(stream)
   }
 
+
   /**
    * Saves in a Redis' hash rollups values.
    *
