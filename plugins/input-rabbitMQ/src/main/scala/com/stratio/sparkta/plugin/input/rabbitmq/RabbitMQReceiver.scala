@@ -31,6 +31,9 @@ import org.json4s.jackson.JsonMethods._
 
 /**
  * Created by dcarroza on 4/17/15.
+ *
+ * Example of this input at https://github.com/Stratio/SpaRkTA-examples
+ *
  */
 class RabbitMQReceiver(properties: Map[String, JSerializable], storageLevel: StorageLevel)
   extends Receiver[String](storageLevel) with SLF4JLogging {
