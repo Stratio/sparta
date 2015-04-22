@@ -80,5 +80,4 @@ object Sparkta extends App with SLF4JLogging {
   IO(Http) ! Http.Bind(controller, interface = apiConfig.getString("host"), port = apiConfig.getInt("port"))
 
   log.info("System UP!")
-
 }
