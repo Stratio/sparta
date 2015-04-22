@@ -30,8 +30,8 @@ object PolicyFactory {
 
   final val SEPARATOR = "_"
 
-  def rowTypeFromOption(option: TypeOp): DataType= {
-    option match {
+  def rowTypeFromOption(optionType: TypeOp): DataType= {
+    optionType match {
         case TypeOp.Long =>  LongType
         case TypeOp.Double =>  DoubleType
         case TypeOp.Int =>  IntegerType
@@ -48,7 +48,7 @@ object PolicyFactory {
   }
 
   def rollupsOperatorsSchemas(rollups: Seq[Rollup],
-                              outputs: Seq[(String, Output)],
+                              outputs: Seq[(String, Boolean)],
                               operators: Seq[Operator]) : Seq[TableSchema] = {
     val componentsSorted: Seq[(Seq[String], Seq[(Dimension, BucketType)])] = rollups.map(rollup =>
       (rollup.sortedComponentsNames, rollup.sortComponents))
@@ -56,7 +56,7 @@ object PolicyFactory {
       .map(operator => StructField(operator.key, rowTypeFromOption(operator.returnType), true))
     val tablesSchemas: Seq[Seq[TableSchema]] = outputs.map(output => {
       for {
-        rollupsCombinations: Seq[String] <- if (output._2.multiplexer){
+        rollupsCombinations: Seq[String] <- if (output._2){
           componentsSorted.map(component => Multiplexer.combine(component._1)).flatten.distinct
         } else componentsSorted.map(_._1).distinct
         schema : StructType = StructType(

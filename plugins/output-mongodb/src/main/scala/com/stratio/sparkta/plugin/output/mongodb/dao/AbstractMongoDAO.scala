@@ -20,6 +20,8 @@ import java.io.Closeable
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.{MongoClient, MongoClientURI, MongoDB}
 import com.mongodb.{DBObject, MongoClientOptions, WriteConcern, casbah, MongoClientURI => JMongoClientURI}
+import com.stratio.sparkta.sdk.TypeOp._
+import com.stratio.sparkta.sdk.WriteOp._
 
 import scala.collection.mutable
 
@@ -42,6 +44,7 @@ trait AbstractMongoDAO extends Closeable {
   def idValuesSeparator : String = "_"
   def fieldsSeparator : String = ","
   def idAuxFieldName : String = "id"
+  def pkTextIndexesCreated : (Boolean, Boolean) = (false, false)
 
   protected def client: MongoClient = AbstractMongoDAO.client(
     mongoClientUri,
@@ -57,6 +60,24 @@ trait AbstractMongoDAO extends Closeable {
   )
 
   protected def db(): MongoDB = db(dbName)
+
+  protected def createPkTextIndex(collection : String,
+                                  timeBucket : String,
+                                  granularity : String) : (Boolean, Boolean) = {
+    var textIndexCreated = false
+    var pkIndexCreated = false
+
+    if (textIndexFields.size > 0) {
+      createTextIndex(collection, textIndexFields.mkString(INDEX_NAME_SEPARATOR), textIndexFields, language)
+      textIndexCreated = true
+    }
+    if (!timeBucket.isEmpty && !granularity.isEmpty) {
+      createIndex(collection, idAuxFieldName + "_" + timestampField,
+        Map(idAuxFieldName -> 1, timestampField -> 1), true, true)
+      pkIndexCreated = true
+    }
+    (pkIndexCreated, textIndexCreated)
+  }
 
   protected def indexExists(collection : String, indexName : String) : Boolean = {
 

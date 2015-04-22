@@ -36,8 +36,9 @@ import scala.util.Try
 class MongoDbOutput(keyName : String,
                     properties: Map[String, Serializable],
                     sqlContext : SQLContext,
-                    operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]])
-  extends Output(keyName, properties, sqlContext, operationTypes)
+                    operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
+                    bcSchema : Option[Broadcast[Seq[TableSchema]]])
+  extends Output(keyName, properties, sqlContext, operationTypes, bcSchema)
   with AbstractMongoDAO with Serializable with Logging {
 
   RegisterJodaTimeConversionHelpers()
@@ -71,8 +72,11 @@ class MongoDbOutput(keyName : String,
 
   override val language = properties.getString("language", "none")
 
-  override def doPersist(stream: DStream[UpdateMetricOperation],
-                       bcSchema : Option[Broadcast[Seq[TableSchema]]]) : Unit = {
+  override val pkTextIndexesCreated: (Boolean, Boolean) = bcSchema.get.value.filter(_.outputName == keyName)
+    .map(tableSchema => createPkTextIndex(tableSchema.tableName, timeBucket, granularity))
+    .reduce((a,b) => (if(!a._1 || !b._1) false else true, if(!a._2 || !b._2) false else true))
+
+  override def doPersist(stream: DStream[UpdateMetricOperation]) : Unit = {
       persistMetricOperation(stream)
   }
 
@@ -85,15 +89,9 @@ class MongoDbOutput(keyName : String,
         val languageObject = (LANGUAGE_FIELD_NAME, language)
         val bulkOperation = db().getCollection(collMetricOp._1).initializeOrderedBulkOperation()
 
-        //TODO refactor out of here
-        if (textIndexFields.size > 0) {
-          createTextIndex(collMetricOp._1, textIndexFields.mkString(INDEX_NAME_SEPARATOR), textIndexFields, language)
-        }
-        var idField = DEFAULT_ID
-        if ((timeBucket != "") && ((collMetricOp._1.contains(timeBucket)) || (granularity != ""))) {
-          createIndex(collMetricOp._1, timestampField, Map(idAuxFieldName -> 1, timestampField -> 1), true, true)
-          idField = idAuxFieldName
-        }
+        val idField = if ((timeBucket != "") && ((collMetricOp._1.contains(timeBucket)) || (granularity != ""))) {
+          idAuxFieldName
+        } else DEFAULT_ID
 
         collMetricOp._2.foreach(metricOp => {
 
@@ -104,8 +102,7 @@ class MongoDbOutput(keyName : String,
 
           val identitiesField: Seq[Imports.DBObject] = metricOp.rollupKey
             .filter(_.bucketType.id == Bucketer.identityField.id)
-            .map(dimVal => MongoDBObject(dimVal.dimension.name -> dimVal.value)
-            )
+            .map(dimVal => MongoDBObject(dimVal.dimension.name -> dimVal.value))
 
           val find: Imports.DBObject = {
             val builder = MongoDBObject.newBuilder
@@ -151,7 +148,9 @@ class MongoDbOutput(keyName : String,
           val combinedOptions: Map[Seq[(String, Any)], casbah.Imports.JSFunction] = mapOperations ++
              Map((Seq(languageObject), "$set")) ++
              {
-               if (identitiesField.size > 0) Map((Seq(Bucketer.identityField.id -> identitiesField), "$set")) else Map()
+               if (identitiesField.size > 0){
+                 Map((Seq(Bucketer.identityField.id -> identitiesField), "$set"))
+               } else Map()
              }
 
           val update = combinedOptions.groupBy(_._2)
