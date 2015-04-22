@@ -81,6 +81,8 @@ private object AbstractRedisDAO {
    * @param port of the redis server.
    * @return a pool of connections.
    */
-  def pool(hostname: String, port: Int): RedisClientPool =
-    (if (instance.isEmpty) Some(new RedisClientPool(hostname, port)) else instance).get
+  def pool(hostname: String, port: Int): RedisClientPool = {
+    instance = if(instance.isEmpty) Some(new RedisClientPool(hostname, port)) else instance
+    instance.get
+  }
 }
