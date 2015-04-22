@@ -72,7 +72,11 @@ class MongoDbOutput(keyName : String,
 
   override val language = properties.getString("language", "none")
 
-  override val pkTextIndexesCreated: (Boolean, Boolean) = bcSchema.get.value.filter(_.outputName == keyName)
+  val fixedTimeField: Option[String] = if (!timeBucket.isEmpty && !granularity.isEmpty) Some(timeBucket) else None
+
+  override val pkTextIndexesCreated: (Boolean, Boolean) = bcSchema.get.value.filter(schemaFilter =>
+    schemaFilter.outputName == keyName &&
+      fixedTimeField.forall(schemaFilter.schema.fieldNames.contains(_) && schemaFilter.schema.size > 1))
     .map(tableSchema => createPkTextIndex(tableSchema.tableName, timeBucket, granularity))
     .reduce((a,b) => (if(!a._1 || !b._1) false else true, if(!a._2 || !b._2) false else true))
 
