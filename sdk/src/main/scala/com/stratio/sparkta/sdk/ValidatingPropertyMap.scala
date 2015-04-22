@@ -70,6 +70,7 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
   def getInt(key: K, default: Int): Int = {
     m.get(key) match {
       case Some(value : Int) => getInt(key)
+      case Some(value : JsoneyString) => getInt(key)
       case None => default
     }
   }

@@ -1,22 +1,5 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package com.stratio.sparkta.driver
-
-/**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +14,9 @@ package com.stratio.sparkta.driver
  * limitations under the License.
  */
 
-import java.io.File
+package com.stratio.sparkta.driver
 
+import java.io.File
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
@@ -43,21 +27,21 @@ import com.typesafe.config.ConfigFactory
 import spray.can.Http
 
 /**
- * Created by ajnavarro on 2/10/14.
+ * Entry point of the application.
  */
 object Sparkta extends App with SLF4JLogging {
 
-  var sparktaHome = System.getenv("SPARKTA_HOME")
-
-  if (sparktaHome == null) {
-    sparktaHome = System.getProperty("user.dir", "./")
+  var sparktaHome: Option[String] = Option(System.getenv("SPARKTA_HOME")).orElse({
+    sparktaHome = Option(System.getProperty("user.dir", "./"))
     log.warn("SPARKTA_HOME environment variable is not set, defaulting to {}", sparktaHome)
-  }
-  val jarsPath = new File(sparktaHome, "plugins")
+    sparktaHome
+  })
+
+  val jarsPath = new File(sparktaHome.get, "plugins")
   log.info("Loading jars from " + jarsPath.getAbsolutePath)
 
-  val jdkPath = new File(sparktaHome,"sdk");
-  val aggregatorPath = new File(sparktaHome,"aggregator");
+  val jdkPath = new File(sparktaHome.get, "sdk");
+  val aggregatorPath = new File(sparktaHome.get, "aggregator");
 
   val jars = findJarsByPath(jarsPath) ++ findJarsByPath(jdkPath) ++ findJarsByPath(aggregatorPath)
 
