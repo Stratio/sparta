@@ -19,6 +19,7 @@ package com.stratio.sparkta.driver.service
 import java.io.{File, Serializable}
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
+import scala.util.Try
 
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.Config
@@ -49,13 +50,6 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     val dimensionsMap: Map[String, Dimension] = SparktaJob.instantiateDimensions(apConfig).toMap
     val dimensionsSeq: Seq[Dimension] = SparktaJob.instantiateDimensions(apConfig).map(_._2)
 
-    val bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]] = {
-      val opKeyOp = PolicyFactory.operatorsKeyOperation(operators)
-      if (opKeyOp.size > 0) Some(sc.broadcast(opKeyOp)) else None
-    }
-
-    val outputs = SparktaJob.outputs(apConfig, sqlContext, bcOperatorsKeyOperation)
-
     val rollups: Seq[Rollup] = apConfig.rollups.map(r => {
       val components = r.dimensionAndBucketTypes.map(dab => {
         dimensionsMap.get(dab.dimensionName) match {
@@ -71,15 +65,27 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       new Rollup(components, operators)
     })
 
+    val bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]] = {
+      val opKeyOp = PolicyFactory.operatorsKeyOperation(operators)
+      if (opKeyOp.size > 0) Some(sc.broadcast(opKeyOp)) else None
+    }
+
+    val outputsConfig: Seq[(String, Boolean)] = apConfig.outputs.map(o =>
+      (o.name, Try(o.configuration.get("multiplexer").get.string.toBoolean).getOrElse(false)))
+
+    val bcRollupOperatorSchema: Option[Broadcast[Seq[TableSchema]]] = {
+      val rollOpSchema = PolicyFactory.rollupsOperatorsSchemas(rollups, outputsConfig, operators)
+      if (rollOpSchema.size > 0) Some(sc.broadcast(rollOpSchema)) else None
+    }
+
+    val outputs = SparktaJob.outputs(apConfig, sqlContext, bcOperatorsKeyOperation, bcRollupOperatorSchema)
+
     //TODO only support one input
     val input: DStream[Event] = inputs.head._2
     //TODO only support one output
     val output = outputs.head._2
     val parsed = SparktaJob.applyParsers(input, parsers)
-    implicit val bcRollupOperatorSchema = {
-      val rollOpSchema = PolicyFactory.rollupsOperatorsSchemas(rollups, outputs, operators)
-      if (rollOpSchema.size > 0) Some(sc.broadcast(rollOpSchema)) else None
-    }
+
     output.persist(new DataCube(dimensionsSeq, rollups).setUp(parsed))
     ssc
   }
@@ -119,16 +125,18 @@ object SparktaJob {
 
   def outputs(apConfig: AggregationPoliciesDto,
               sqlContext: SQLContext,
-              bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]]): Seq[(String, Output)] =
+              bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
+              bcRollupOperatorSchema: Option[Broadcast[Seq[TableSchema]]]): Seq[(String, Output)] =
     apConfig.outputs.map(o =>
       (o.name, tryToInstantiate[Output](o.elementType, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
           classOf[Map[String, Serializable]],
           classOf[SQLContext],
-          classOf[Option[Broadcast[Map[String, (WriteOp, TypeOp)]]]])
-          .newInstance(o.name, o.configuration, sqlContext, bcOperatorsKeyOperation).asInstanceOf[Output]
-      )))
+          classOf[Option[Broadcast[Map[String, (WriteOp, TypeOp)]]]],
+          classOf[Option[Broadcast[Seq[TableSchema]]]])
+          .newInstance(o.name, o.configuration, sqlContext, bcOperatorsKeyOperation, bcRollupOperatorSchema)
+          .asInstanceOf[Output])))
 
   def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C =
     clazz.getDeclaredConstructor(classOf[Map[String, Serializable]]).newInstance(properties).asInstanceOf[C]

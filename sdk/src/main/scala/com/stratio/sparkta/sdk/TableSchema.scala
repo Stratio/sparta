@@ -22,9 +22,9 @@ import java.io.Serializable
  * Created by jcgarcia on 17/04/15.
  */
 
-case class TableSchema(operatorName: String, tableName: String,
+case class TableSchema(outputName: String, tableName: String,
                        schema: StructType) extends Serializable {
 
-  override val toString = s"OPERATOR: $operatorName - TABLE: $tableName - SCHEMA: $schema"
+  override val toString = s"OPERATOR: $outputName - TABLE: $tableName - SCHEMA: $schema"
 
 }
