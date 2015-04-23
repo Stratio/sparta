@@ -42,6 +42,14 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
     }
   }
 
+  def getStringOption(key: K, default: Option[String]): Option[String] = {
+    m.get(key) match {
+      case Some(value : String) => Some(value)
+      case Some(value) => Some(value.toString)
+      case None => default
+    }
+  }
+
   def getBoolean(key: K): Boolean =
     m.get(key).getOrElse(throw new Exception(s"$key is mandatory")) match {
       case value: String => value.toBoolean
