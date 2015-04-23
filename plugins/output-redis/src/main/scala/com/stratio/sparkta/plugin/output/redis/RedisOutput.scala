@@ -42,8 +42,10 @@ import scala.util.Try
 class RedisOutput(keyName : String,
                   properties: Map[String, Serializable],
                   sqlContext : SQLContext,
-                  operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]])
-  extends Output(keyName, properties, sqlContext, operationTypes) with AbstractRedisDAO with Serializable with Logging {
+                  operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
+                  bcSchema : Option[Broadcast[Seq[TableSchema]]])
+  extends Output(keyName, properties, sqlContext, operationTypes, bcSchema)
+  with AbstractRedisDAO with Serializable {
 
   override val hostname = properties.getString("hostname", DefaultRedisHostname)
 
@@ -59,8 +61,7 @@ class RedisOutput(keyName : String,
 
   override def timeBucket: String = properties.getString("timestampBucket", "")
 
-  override def doPersist(stream: DStream[UpdateMetricOperation],
-                         bcSchema : Option[Broadcast[Seq[TableSchema]]]) : Unit = {
+  override def doPersist(stream: DStream[UpdateMetricOperation]) : Unit = {
     persistMetricOperation(stream)
   }
 

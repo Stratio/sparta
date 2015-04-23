@@ -1,12 +1,11 @@
-
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,25 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.sdk
 
-import java.io.Serializable
+import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import org.apache.spark.Logging
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SQLContext, Row}
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
-abstract class Output(keyName :String, properties: Map[String, Serializable],
+abstract class Output(keyName :String,
+                      properties: Map[String, JSerializable],
                       sqlContext : SQLContext,
-                      operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]])
-                      extends Parameterizable(properties) with Multiplexer {
+                      operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
+                      bcSchema : Option[Broadcast[Seq[TableSchema]]])
+                      extends Parameterizable(properties) with Multiplexer with Logging {
 
-  if (operationTypes.isEmpty) {
-    throw new NullPointerException("operationTypes")
+  if(operationTypes.isEmpty) {
+    log.info("Operation types is empty, you don't have aggregations defined in your policy.")
   }
 
   /* TODO NPE because access to supportedWriteOps
@@ -52,10 +55,9 @@ abstract class Output(keyName :String, properties: Map[String, Serializable],
 
   def granularity : String
 
-  def persist(streams: Seq[DStream[UpdateMetricOperation]])
-             (implicit bcSchema : Option[Broadcast[Seq[TableSchema]]] = None) : Unit = {
+  def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
     if (bcSchema.isDefined) {
-      streams.foreach(stream => doPersist(stream, bcSchema))
+      streams.foreach(stream => doPersist(stream))
     } else streams.foreach(stream => persistMetricOperation(stream))
   }
 
@@ -64,10 +66,9 @@ abstract class Output(keyName :String, properties: Map[String, Serializable],
       .foreachRDD(rdd => rdd.foreachPartition(ops => upsert(ops)))
   }
 
-  protected def persistDataFrame(stream: DStream[UpdateMetricOperation],
-                                 bcSchema : Broadcast[Seq[TableSchema]]) : Unit = {
+  protected def persistDataFrame(stream: DStream[UpdateMetricOperation]) : Unit = {
     stream.map(updateMetricOp => updateMetricOp.toKeyRow).foreachRDD(rdd => {
-      bcSchema.value.filter(tschema => (tschema.operatorName == keyName))
+      bcSchema.get.value.filter(tschema => (tschema.outputName == keyName))
         .foreach(tschemaFiltered => {
           val rddRow: RDD[Row] = Output.extractRow(rdd.filter(_._1.get == tschemaFiltered.tableName))
           upsert(sqlContext.createDataFrame(rddRow, tschemaFiltered.schema))
@@ -75,10 +76,9 @@ abstract class Output(keyName :String, properties: Map[String, Serializable],
     })
   }
 
-  protected def doPersist(stream: DStream[UpdateMetricOperation],
-                          bcSchema : Option[Broadcast[Seq[TableSchema]]]) : Unit = {
+  protected def doPersist(stream: DStream[UpdateMetricOperation]) : Unit = {
     if(bcSchema.isDefined) {
-      persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket), bcSchema.get)
+      persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket))
     } else {
       persistMetricOperation(stream)
     }
@@ -88,7 +88,7 @@ abstract class Output(keyName :String, properties: Map[String, Serializable],
 
   def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {}
 
-  def getEventTime(metricOp : UpdateMetricOperation) : Option[Serializable] = {
+  def getEventTime(metricOp : UpdateMetricOperation) : Option[JSerializable] = {
     if(timeBucket.isEmpty){
       None
     } else {

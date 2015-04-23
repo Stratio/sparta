@@ -1,7 +1,7 @@
 {
     "name": "policy-demo",
     "duration": 10000,
-    "saveRawData": "true",
+    "saveRawData": "false",
     "rawDataParquetPath":"myTestParquetPath",
     "inputs": [
         {
