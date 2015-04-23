@@ -30,7 +30,7 @@ class PrintOutput(keyName : String,
                   sqlContext : SQLContext,
                   operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
                   bcSchema : Option[Broadcast[Seq[TableSchema]]])
-  extends Output(keyName, properties, sqlContext, operationTypes, bcSchema){
+  extends Output(keyName, properties, sqlContext, operationTypes, bcSchema) {
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.Median,
   WriteOp.Stddev, WriteOp.Variance, WriteOp.AccSet)

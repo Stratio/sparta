@@ -45,7 +45,7 @@ class RedisOutput(keyName : String,
                   operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
                   bcSchema : Option[Broadcast[Seq[TableSchema]]])
   extends Output(keyName, properties, sqlContext, operationTypes, bcSchema)
-  with AbstractRedisDAO with Serializable with Logging {
+  with AbstractRedisDAO with Serializable {
 
   override val hostname = properties.getString("hostname", DefaultRedisHostname)
 

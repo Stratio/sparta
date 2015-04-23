@@ -16,11 +16,11 @@
 
 package com.stratio.sparkta.sdk
 
-import java.io.Serializable
+import java.io.{Serializable => JSerializable}
 
-import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import org.apache.spark.Logging
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SQLContext, Row}
@@ -28,11 +28,11 @@ import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
 abstract class Output(keyName :String,
-                      properties: Map[String, Serializable],
+                      properties: Map[String, JSerializable],
                       sqlContext : SQLContext,
                       operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
                       bcSchema : Option[Broadcast[Seq[TableSchema]]])
-                      extends Parameterizable(properties) with Multiplexer with SLF4JLogging {
+                      extends Parameterizable(properties) with Multiplexer with Logging {
 
   if(operationTypes.isEmpty) {
     log.info("Operation types is empty, you don't have aggregations defined in your policy.")
@@ -88,7 +88,7 @@ abstract class Output(keyName :String,
 
   def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {}
 
-  def getEventTime(metricOp : UpdateMetricOperation) : Option[Serializable] = {
+  def getEventTime(metricOp : UpdateMetricOperation) : Option[JSerializable] = {
     if(timeBucket.isEmpty){
       None
     } else {

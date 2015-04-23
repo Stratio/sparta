@@ -16,7 +16,7 @@
 
 package com.stratio.sparkta.plugin.output.mongodb
 
-import java.io.Serializable
+import java.io.{Serializable => JSerializable}
 import com.mongodb.casbah
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.{Imports, MongoDBObject}
@@ -33,12 +33,12 @@ import com.mongodb.casbah.commons.conversions.scala._
 import scala.util.Try
 
 class MongoDbOutput(keyName : String,
-                    properties: Map[String, Serializable],
+                    properties: Map[String, JSerializable],
                     sqlContext : SQLContext,
                     operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
                     bcSchema : Option[Broadcast[Seq[TableSchema]]])
   extends Output(keyName, properties, sqlContext, operationTypes, bcSchema)
-  with AbstractMongoDAO with Serializable {
+  with AbstractMongoDAO {
 
   RegisterJodaTimeConversionHelpers()
 
@@ -99,7 +99,7 @@ class MongoDbOutput(keyName : String,
 
         collMetricOp._2.foreach(metricOp => {
 
-          val eventTimeObject: Option[(String, Serializable)] = {
+          val eventTimeObject: Option[(String, JSerializable)] = {
             val eventTimeValue = getEventTime(metricOp)
             if(eventTimeValue.isDefined) Some(timestampField -> eventTimeValue.get) else None
           }
