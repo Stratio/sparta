@@ -36,20 +36,24 @@ import com.stratio.sparkta.sdk.Event
 class RawDataStorageServiceSpec extends WordSpecLike with BeforeAndAfterAll with Matchers {
 
   val WindowDuration: Long = 100
-  val SleepTime: Long = 500
+  val SleepTime: Long = 800
   val ExpectedResult: Long = 2000
   val path = "testPath"
 
   override def afterAll {
     val file = new File(path)
     deleteParquetFiles(file)
+    sc.stop()
+    otherSc.stop()
+    Thread.sleep(WindowDuration)
+
   }
 
   val myConf = new SparkConf()
     .setAppName(this.getClass.getSimpleName + "" + System.currentTimeMillis())
     .setMaster("local[2]")
   val sc = new SparkContext(myConf)
-
+  lazy val otherSc=new SparkContext(myConf)
   val ssc = new StreamingContext(sc, Duration.apply(WindowDuration))
   val sqlCtx: SQLContext = new SQLContext(sc)
 
@@ -77,7 +81,7 @@ class RawDataStorageServiceSpec extends WordSpecLike with BeforeAndAfterAll with
 
       ssc.stop()
 
-      val newSqlCtx = new SQLContext(new SparkContext(myConf))
+      val newSqlCtx = new SQLContext(otherSc)
       val pqFile = newSqlCtx.parquetFile(path)
 
       pqFile.count() should be(ExpectedResult)
