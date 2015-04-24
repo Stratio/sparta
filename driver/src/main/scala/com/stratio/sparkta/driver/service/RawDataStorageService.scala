@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,15 +30,14 @@ class RawDataStorageService(sc: SQLContext, path: String) extends Serializable {
 
   case class RawEvent(timeStamp: String, data: String)
 
+  def composeRawFrom(event: Event) =  event.keyMap.map(e => e._2).toSeq
+
   def extractRawDataFromEvent(event: Event) = {
-    if ( event.rawData.isEmpty)
-      event.keyMap.map(e => e._2).toSeq.toString
-    else
-      event.rawData.get.toString
+    event.rawData getOrElse composeRawFrom (event)
   }
 
   def save(raw: DStream[Event]) = {
-    raw.map(event => RawEvent(System.currentTimeMillis().toString, extractRawDataFromEvent(event))).foreachRDD(_.toDF()
-      .save(path, SaveMode.Append))
+    raw.map(event => RawEvent(System.currentTimeMillis().toString, extractRawDataFromEvent(event).toString))
+      .foreachRDD(_.toDF().save(path,"parquet", SaveMode.Append))
   }
 }
