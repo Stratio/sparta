@@ -35,8 +35,8 @@ import com.stratio.sparkta.sdk.Event
  */
 class RawDataStorageServiceSpec extends WordSpecLike with BeforeAndAfterAll with Matchers {
 
-  val WindowDuration: Long = 100
-  val SleepTime: Long = 800
+  val WindowDuration: Long = 200
+  val SleepTime: Long = 1000
   val ExpectedResult: Long = 2000
   val path = "testPath"
 
@@ -51,7 +51,7 @@ class RawDataStorageServiceSpec extends WordSpecLike with BeforeAndAfterAll with
 
   val myConf = new SparkConf()
     .setAppName(this.getClass.getSimpleName + "" + System.currentTimeMillis())
-    .setMaster("local[2]")
+    .setMaster("local[1]")
   val sc = new SparkContext(myConf)
   lazy val otherSc=new SparkContext(myConf)
   val ssc = new StreamingContext(sc, Duration.apply(WindowDuration))
