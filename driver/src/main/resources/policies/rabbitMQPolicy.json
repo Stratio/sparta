@@ -1,6 +1,7 @@
 {
     "name": "policy-rabbitmq",
     "duration": 10000,
+    "saveRawData": "false",
     "inputs": [
         {
             "name": "in",

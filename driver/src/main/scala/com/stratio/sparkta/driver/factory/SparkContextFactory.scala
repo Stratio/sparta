@@ -80,4 +80,18 @@ object SparkContextFactory extends SLF4JLogging {
 
     conf
   }
+
+  def destroySparkStreamingContext: Unit = {
+    synchronized {
+      if (ssc.isDefined) {
+        log.debug("Stopping streamingContext with name: " + ssc.get.sparkContext.appName)
+        ssc.get.stop()
+        log.debug("Stopped streamingContext with name: " + ssc.get.sparkContext.appName)
+        ssc = None
+      }
+      if (sc.isDefined) {
+        sc = None
+      }
+    }
+  }
 }
