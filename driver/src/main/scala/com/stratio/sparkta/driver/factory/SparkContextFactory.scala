@@ -86,6 +86,7 @@ object SparkContextFactory extends SLF4JLogging {
       if (ssc.isDefined) {
         log.debug("Stopping streamingContext with name: " + ssc.get.sparkContext.appName)
         ssc.get.stop()
+        ssc.get.awaitTermination()
         log.debug("Stopped streamingContext with name: " + ssc.get.sparkContext.appName)
         ssc = None
       }
