@@ -17,13 +17,24 @@
 package com.stratio.sparkta.driver.test.factory
 
 import com.typesafe.config.ConfigFactory
+import org.apache.spark.SparkContext
 import org.apache.spark.streaming.Duration
-import org.scalatest._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.{BeforeAndAfterAll, FlatSpec, _}
 
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 
-class SparkContextFactorySpec extends FlatSpec with ShouldMatchers {
+class SparkContextFactorySpec extends FlatSpec with ShouldMatchers with BeforeAndAfterAll {
+  self: FlatSpec =>
+
+  override def afterAll {
+    SparkContextFactory.destroySparkContext
+  }
+
+  object LocalSparkContext {
+
+    def getNewLocalSparkContext(numExecutors: Int = 1, title: String): SparkContext =
+      new SparkContext(s"local[$numExecutors]", title)
+  }
 
   trait WithConfig {
 
@@ -41,20 +52,22 @@ class SparkContextFactorySpec extends FlatSpec with ShouldMatchers {
     val sc = SparkContextFactory.sparkContextInstance(config, Seq())
     val otherSc = SparkContextFactory.sparkContextInstance(config, Seq())
     sc should be equals (otherSc)
+    SparkContextFactory.destroySparkContext
   }
 
   it should "create and reuse same SQLContext" in new WithConfig {
     val sc = SparkContextFactory.sparkContextInstance(config, Seq())
     val sqc = SparkContextFactory.sparkSqlContextInstance
-    sqc shouldNot be equals(None)
+    sqc shouldNot be equals (None)
     val otherSqc = SparkContextFactory.sparkSqlContextInstance
     sqc should be equals (otherSqc)
+    SparkContextFactory.destroySparkContext
   }
 
   it should "create and reuse same SparkStreamingContext" in new WithConfig {
     val sc = SparkContextFactory.sparkContextInstance(config, Seq())
     val ssc = SparkContextFactory.sparkStreamingInstance(batchDuraction)
-    ssc shouldNot be equals(None)
+    ssc shouldNot be equals (None)
     val otherSsc = SparkContextFactory.sparkStreamingInstance(batchDuraction)
     ssc should be equals (otherSsc)
   }
