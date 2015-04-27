@@ -112,7 +112,14 @@
                 <role>developer</role>
             </roles>
         </developer>
-
+        <developer>
+            <id>dcarroza</id>
+            <name>Daniel Carroza Santana</name>
+            <email>dcarroza@stratio.com</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
     </developers>
 
     <properties>
@@ -192,6 +199,12 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_${scala.binary.version}</artifactId>
             <version>${scalatest.version}</version>
@@ -223,21 +236,32 @@
         </pluginManagement>
         <plugins>
             <plugin>
-                <groupId>org.scalatest</groupId>
-                <artifactId>scalatest-maven-plugin</artifactId>
-                <version>1.0</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.18</version>
                 <configuration>
-                    <reportsDirectory>${project.build.directory}/surefire-reports
-                    </reportsDirectory>
-                    <junitxml>.</junitxml>
-                    <filereports>WDF TestSuite.txt</filereports>
+                    <includes>
+                        <include>**/*Spec.java</include>
+                    </includes>
                     <skipTests>${skipUTs}</skipTests>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.18</version>
+                <configuration>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
+                    <skipTests>${skipITs}</skipTests>
+                    <skipTests>true</skipTests>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>test</id>
+                        <id>integration-test</id>
                         <goals>
-                            <goal>test</goal>
+                            <goal>integration-test</goal>
                         </goals>
                     </execution>
                 </executions>

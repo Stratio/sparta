@@ -23,6 +23,8 @@ import scala.concurrent.duration._
 
 import akka.actor.{ActorRef, ActorRefFactory}
 import akka.testkit.TestProbe
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 import spray.http.StatusCodes._
 import spray.routing.ValidationRejection
@@ -33,6 +35,7 @@ import com.stratio.sparkta.driver.actor.{CreateContext, DeleteContext, GetAllCon
 import com.stratio.sparkta.driver.dto._
 import com.stratio.sparkta.driver.route.PolicyRoutes
 
+@RunWith(classOf[JUnitRunner])
 class PolicyRoutesSpec extends WordSpecLike
 with PolicyRoutes
 with ScalatestRouteTest
