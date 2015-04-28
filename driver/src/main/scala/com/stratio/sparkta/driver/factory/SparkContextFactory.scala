@@ -73,9 +73,6 @@ object SparkContextFactory extends SLF4JLogging {
     properties.foreach(e => conf.set(e.getKey, c.getString(e.getKey)))
 
     conf.setIfMissing("spark.streaming.concurrentJobs", "20")
-
-    //TODO add in output
-    conf.setIfMissing("spark.cassandra.connection.host", "127.0.0.1")
     conf.setIfMissing("spark.sql.parquet.binaryAsString", "true")
 
     conf

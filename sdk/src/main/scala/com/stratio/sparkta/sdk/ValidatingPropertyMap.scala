@@ -26,6 +26,8 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
         throw new IllegalStateException(s"$key is mandatory")
     }
 
+  def getOption(key: K): Option[V] = m.get(key)
+
   def getString(key: K): String =
     m.get(key) match {
       case Some(value : String) => value
@@ -42,7 +44,7 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
     }
   }
 
-  def getStringOption(key: K, default: Option[String]): Option[String] = {
+  def getString(key: K, default: Option[String]): Option[String] = {
     m.get(key) match {
       case Some(value : String) => Some(value)
       case Some(value) => Some(value.toString)

@@ -49,18 +49,6 @@
                     "bucketType": "hastags"
                 },
                 {
-                    "dimensionName": "status",
-                    "bucketType": "urls"
-                },
-                {
-                    "dimensionName": "status",
-                    "bucketType": "retweets"
-                },
-                {
-                  "dimensionName": "geolocation",
-                  "bucketType": "precision3"
-                },
-                {
                   "dimensionName": "timestamp",
                   "bucketType": "minute"
                 }
@@ -72,15 +60,15 @@
         "name": "out-cassandra",
         "elementType": "CassandraOutput",
         "configuration": {
-          "connectionSeeds" : "127.0.0.1",
+          "connectionHost" : "127.0.0.1",
           "keyspace" : "sparkta",
           "class" : "SimpleStrategy",
-          "compactStorage" : "COMPACT STORAGE",
           "replicationFactor" : "1",
-          "multiplexer" : "true",
+          "multiplexer" : "false",
           "clusteringBuckets" : "",
           "timestampFieldName" : "timestamp",
           "timestampBucket" : "minute",
+          "indexFields" : "minute",
           "textIndexFields" : "userLocation",
           "fieldsSeparator" : ",",
           "textIndexFieldsName" : "lucene",
@@ -94,76 +82,6 @@
         "name": "count-operator",
         "elementType": "CountOperator",
         "configuration": {}
-      },
-      {
-        "name": "sum-operator",
-        "elementType": "SumOperator",
-        "configuration": {
-          "inputField" : "wordsN"
-        }
-      },
-      {
-        "name": "max-operator",
-        "elementType": "MaxOperator",
-        "configuration": {
-          "inputField" : "wordsN"
-        }
-      },
-      {
-        "name": "min-operator",
-        "elementType": "MinOperator",
-        "configuration": {
-          "inputField" : "wordsN"
-        }
-      },
-      {
-        "name": "avg-operator",
-        "elementType": "AvgOperator",
-        "configuration": {
-          "inputField" : "wordsN"
-        }
-      },
-      {
-        "name": "median-operator",
-        "elementType": "MedianOperator",
-        "configuration": {
-          "inputField" : "wordsN"
-        }
-      },
-      {
-        "name": "variance-operator",
-        "elementType": "VarianceOperator",
-        "configuration": {
-          "inputField" : "wordsN"
-        }
-      },
-      {
-        "name": "stddev-operator",
-        "elementType": "StddevOperator",
-        "configuration": {
-          "inputField" : "wordsN"
-        }
-      },
-      {
-        "name": "fullText-operator",
-        "elementType": "FullTextOperator",
-        "configuration": {
-          "inputField" : "userLocation"
-        }
-      },
-      {
-        "name": "lastValue-operator",
-        "elementType": "LastValueOperator",
-        "configuration": {
-          "inputField" : "retweets"
-        }
-      },
-      {
-        "name": "accumulator-operator",
-        "elementType": "AccumulatorOperator",
-        "configuration": {
-          "inputField" : "wordsN"
-        }
       }
     ]
     

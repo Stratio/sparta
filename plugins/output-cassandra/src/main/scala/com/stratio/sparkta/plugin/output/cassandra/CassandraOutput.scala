@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,21 @@ import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
 import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.sql.{DataFrame, SQLContext}
+import org.apache.spark.sql._
 import org.apache.spark.streaming.dstream.DStream
 
 import com.stratio.sparkta.plugin.output.cassandra.dao.AbstractCassandraDAO
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
-import com.stratio.sparkta.sdk.{WriteOp, _}
-//import com.datastax.spark.connector.cql.CassandraConnector
-//import com.datastax.spark.connector._
+import com.stratio.sparkta.sdk._
+import com.datastax.spark.connector._
+import org.apache.spark.sql.SaveMode._
+import org.apache.spark.sql.sources.{CreatableRelationProvider, SchemaRelationProvider, BaseRelation, RelationProvider}
+import org.apache.spark.sql.cassandra._
+import com.datastax.spark.connector.writer.{WriteConf, SqlRowWriter}
+import com.datastax.spark.connector.cql.CassandraConnector
+
 
 class CassandraOutput(keyName: String,
                       properties: Map[String, JSerializable],
@@ -41,7 +46,9 @@ class CassandraOutput(keyName: String,
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min)
 
-  override val connectionSeeds = properties.getString("connectionSeeds", "127.0.0.1")
+  override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
+
+  override val connectionHost = properties.getString("connectionHost", "127.0.0.1")
 
   override val keyspace = properties.getString("keyspace", "sparkta")
 
@@ -49,38 +56,52 @@ class CassandraOutput(keyName: String,
 
   override val replicationFactor = properties.getString("replication_factor", "1")
 
-  override val compactStorage = properties.getStringOption("compactStorage", None)
-
-  override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
-
-  override val timestampFieldName = properties.getString("timestampFieldName", "timestamp")
-
-  override val timeBucket = properties.getString("timestampBucket", "")
-
-  override val granularity = properties.getString("granularity", "")
-
-  override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
-
-  override val textIndexFields = properties.getString("textIndexFields", "").split(fieldsSeparator)
+  override val compactStorage = properties.getString("compactStorage", None)
 
   override val clusteringBuckets = properties.getString("clusteringBuckets", "").split(fieldsSeparator)
 
-  override val analyzer = properties.getString("analyzer", "english")
+  override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
-  override val sparkConf = Some(sqlContext.sparkContext.getConf)
+  override val timeBucket = properties.getString("timestampBucket", None)
 
-  override val keyspaceCreated = createKeypace
+  override val granularity = properties.getString("granularity", None)
 
-  override val tablesCreated = bcSchema.exists(bc => createTables(bc.value, keyName, timeBucket, granularity))
+  override val indexFields = properties.getString("indexFields", "").split(fieldsSeparator)
 
+  override val textIndexFields = properties.getString("textIndexFields", "").split(fieldsSeparator)
+
+  override val analyzer = properties.getString("analyzer", None)
+
+  override val textIndexFieldsName = properties.getString("textIndexName", "lucene")
+
+  override val sparkConf = Some(setSparkConfig(sqlContext.sparkContext.getConf))
+
+  val keyspaceCreated = createKeypace
+
+  val schemaFiltered = filterSchemaByKeyAndField(bcSchema.get.value, timeBucket)
+
+  val tablesCreated = if (keyspaceCreated) {
+    bcSchema.exists(bc => createTables(schemaFiltered, timeBucket))
+  } else false
+
+  val indexesCreated = if (keyspaceCreated && tablesCreated) {
+    bcSchema.exists(bc => createIndexes(schemaFiltered, timeBucket))
+  } else false
+
+  /*
+  * The next two methods are beta.
+  * With the fork of PR 112 of datastax-spark-connector fails because the task is not serializable.
+  * https://github.com/datastax/spark-cassandra-connector/pull/648
+  */
   override protected def doPersist(stream: DStream[UpdateMetricOperation]): Unit = {
-    if (bcSchema.isDefined && tablesCreated) {
+    if (bcSchema.isDefined && keyspaceCreated && tablesCreated) {
       persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket))
-      //println("COUNT : " + stream.context.sparkContext.cassandraTable("test", "kv").count())
     }
   }
 
-  override def upsert(dataFrame: DataFrame): Unit = {
-    dataFrame.foreach(println)
+  override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
+    dataFrame.save("org.apache.spark.sql.cassandra",
+      Overwrite,
+      Map("c_table" -> tableName, "keyspace" -> keyspace))
   }
 }

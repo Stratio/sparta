@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.sdk
 
 import org.apache.spark.sql._
@@ -20,8 +21,6 @@ import java.io.{Serializable => JSerializable}
 
 case class UpdateMetricOperation(rollupKey: Seq[DimensionValue],
                                   var aggregations: Map[String, Option[Any]]) {
-
-  final val SEPARATOR = "_"
 
   if (rollupKey == null) {
     throw new NullPointerException("rollupKey")
@@ -37,20 +36,24 @@ case class UpdateMetricOperation(rollupKey: Seq[DimensionValue],
 
   def keyString: String = {
     UpdateMetricOperation.sortedNamesDimensionsValues(rollupKey)
-      .filter(dimName => dimName.nonEmpty).mkString(SEPARATOR)
+      .filter(dimName => dimName.nonEmpty).mkString(Output.SEPARATOR)
   }
 
-  def toKeyRow: (Option[String], Row) = {
+  def toKeyRow(fixedBucket : Option[String], auxValue : Option[Any]): (Option[String], Row) = {
+    val seqOfvalues = toSeq
     val sortedNames = UpdateMetricOperation.namesDimensionValues(UpdateMetricOperation.sortDimensionValues(rollupKey))
-    val row = toRow
+    val sortedNamesRow =  if(fixedBucket.isDefined && auxValue.isDefined && !sortedNames.contains(fixedBucket.get)){
+      (sortedNames ++ Seq(fixedBucket.get), Row.fromSeq(seqOfvalues ++ Seq(auxValue)))
+    } else (sortedNames, Row.fromSeq(seqOfvalues))
 
-    if (sortedNames.length > 0) (Some(sortedNames.mkString(SEPARATOR)), row) else (None, row)
+    if (sortedNamesRow._1.length > 0){
+      (Some(sortedNamesRow._1.mkString(Output.SEPARATOR)), sortedNamesRow._2)
+    } else (None, sortedNamesRow._2)
   }
 
-  def toRow: Row = {
-    Row.fromSeq(
+  def toSeq: Seq[Any] = {
       UpdateMetricOperation.sortDimensionValues(rollupKey).map(dimVal => dimVal.value) ++
-        aggregations.toSeq.map(aggregation => aggregation._2.get))
+        aggregations.toSeq.map(aggregation => aggregation._2.getOrElse(0))
   }
 }
 

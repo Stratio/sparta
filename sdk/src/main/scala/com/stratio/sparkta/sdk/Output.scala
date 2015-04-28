@@ -18,6 +18,8 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
+import org.apache.spark.sql.types._
+
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import org.apache.spark.Logging
@@ -27,33 +29,24 @@ import org.apache.spark.sql.{DataFrame, SQLContext, Row}
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
-abstract class Output(keyName :String,
+abstract class Output(keyName: String,
                       properties: Map[String, JSerializable],
-                      sqlContext : SQLContext,
+                      sqlContext: SQLContext,
                       operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                      bcSchema : Option[Broadcast[Seq[TableSchema]]])
-                      extends Parameterizable(properties) with Multiplexer with Logging {
+                      bcSchema: Option[Broadcast[Seq[TableSchema]]])
+  extends Parameterizable(properties) with Multiplexer with Logging {
 
-  if(operationTypes.isEmpty) {
+  if (operationTypes.isEmpty) {
     log.info("Operation types is empty, you don't have aggregations defined in your policy.")
   }
 
-  /* TODO NPE because access to supportedWriteOps
-  if(operationTypes.isDefined) {
-    operationTypes.get.value.values.map(_._1).toSet.diff(supportedWriteOps.toSet).toSeq match {
-      case s if s.size == 0 =>
-      case badWriteOps =>
-        throw new Exception(s"The following write ops are not supported by this output: ${badWriteOps.mkString(", ")}")
-    }
-  }*/
+  def supportedWriteOps: Seq[WriteOp]
 
-  def supportedWriteOps : Seq[WriteOp]
+  def multiplexer: Boolean
 
-  def multiplexer : Boolean
+  def timeBucket: Option[String]
 
-  def timeBucket : String
-
-  def granularity : String
+  def granularity: Option[String]
 
   def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
     if (bcSchema.isDefined) {
@@ -61,73 +54,114 @@ abstract class Output(keyName :String,
     } else streams.foreach(stream => persistMetricOperation(stream))
   }
 
-  protected def persistMetricOperation(stream: DStream[UpdateMetricOperation]) : Unit = {
+  protected def persistMetricOperation(stream: DStream[UpdateMetricOperation]): Unit = {
     getStreamsFromOptions(stream, multiplexer, timeBucket)
       .foreachRDD(rdd => rdd.foreachPartition(ops => upsert(ops)))
   }
 
-  protected def persistDataFrame(stream: DStream[UpdateMetricOperation]) : Unit = {
-    stream.map(updateMetricOp => updateMetricOp.toKeyRow).foreachRDD(rdd => {
-      bcSchema.get.value.filter(tschema => (tschema.outputName == keyName))
-        .foreach(tschemaFiltered => {
-          val rddRow: RDD[Row] = Output.extractRow(rdd.filter(_._1.get == tschemaFiltered.tableName))
-          upsert(sqlContext.createDataFrame(rddRow, tschemaFiltered.schema))
-        })
+  protected def persistDataFrame(stream: DStream[UpdateMetricOperation]): Unit = {
+    stream.map(updateMetricOp =>
+      updateMetricOp.toKeyRow(timeBucket, Output.getTimeFromGranularity(timeBucket, granularity))).foreachRDD(rdd => {
+      bcSchema.get.value.filter(tschema => (tschema.outputName == keyName)).foreach(tschemaFiltered => {
+        val tableSchemaTime = Output.getTableSchemaTime(tschemaFiltered, timeBucket, granularity)
+        val rddRow: RDD[Row] = Output.extractRow(rdd.filter(_._1.get == tableSchemaTime.tableName))
+        upsert(sqlContext.createDataFrame(rddRow, tableSchemaTime.schema), tableSchemaTime.tableName)
+      })
     })
   }
 
-  protected def doPersist(stream: DStream[UpdateMetricOperation]) : Unit = {
-    if(bcSchema.isDefined) {
+  protected def doPersist(stream: DStream[UpdateMetricOperation]): Unit = {
+    if (bcSchema.isDefined) {
       persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket))
     } else {
       persistMetricOperation(stream)
     }
   }
 
-  def upsert(dataFrame : DataFrame): Unit = {}
+  def upsert(dataFrame: DataFrame, tableName: String): Unit = {}
 
   def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {}
 
-  def getEventTime(metricOp : UpdateMetricOperation) : Option[JSerializable] = {
-    if(timeBucket.isEmpty){
-      None
-    } else {
-      val metricOpFiltered = metricOp.rollupKey.filter(dimVal => timeBucket == dimVal.bucketType.id)
-      if (metricOpFiltered.size > 0){
-        Some(metricOpFiltered.last.value)
-      } else if(granularity.isEmpty) None else Some(Output.dateFromGranularity(DateTime.now(), granularity))
+  protected def getTime(metricOp: UpdateMetricOperation): Option[JSerializable] =
+    timeBucket match {
+      case None => None
+      case Some(bucket) => {
+        val metricOpFiltered = metricOp.rollupKey.filter(dimVal => bucket == dimVal.bucketType.id)
+        if (metricOpFiltered.size > 0) {
+          Some(metricOpFiltered.last.value)
+        } else if (granularity.isEmpty) None else Some(Output.dateFromGranularity(DateTime.now(), granularity.get))
+      }
     }
-  }
 
+  protected def filterSchemaByKeyAndField(tSchemas: Seq[TableSchema], field: Option[String]): Seq[TableSchema] =
+    tSchemas.filter(schemaFilter => schemaFilter.outputName == keyName &&
+      field.forall(schemaFilter.schema.fieldNames.contains(_) &&
+        schemaFilter.schema.filter(!_.nullable).length > 1))
+
+  protected def checkOperationTypes: Boolean = {
+    if (operationTypes.isDefined) {
+      operationTypes.get.value.values.map(_._1).toSet.diff(supportedWriteOps.toSet).toSeq match {
+        case s if s.size == 0 => true
+        case badWriteOps => {
+          log.info(s"The following write operators are not supported by this output: ${badWriteOps.mkString(", ")}")
+          false
+        }
+      }
+    } else false
+  }
 }
 
 object Output {
 
   final val SEPARATOR = "_"
 
-  def dateFromGranularity(value: DateTime, granularity : String): DateTime = {
-      val secondsDate = new DateTime(value).withMillisOfSecond(0)
-      val minutesDate = secondsDate.withSecondOfMinute(0)
-      val hourDate = minutesDate.withMinuteOfHour(0)
-      val dayDate = hourDate.withHourOfDay(0)
-      val monthDate = dayDate.withDayOfMonth(1)
-      val yearDate = monthDate.withMonthOfYear(1)
+  def getTimeFromGranularity(timeBucket: Option[String], granularity: Option[String]): Option[DateTime] =
+    timeBucket match {
+      case None => None
+      case Some(_) => granularity.flatMap(value => Some(dateFromGranularity(DateTime.now(), value)))
+    }
 
-      granularity.toLowerCase match {
-        case "minute" => minutesDate
-        case "hour" => hourDate
-        case "day" => dayDate
-        case "month" => monthDate
-        case "year" => yearDate
-        case _ => secondsDate
-      }
+  def dateFromGranularity(value: DateTime, granularity: String): DateTime = {
+    val secondsDate = new DateTime(value).withMillisOfSecond(0)
+    val minutesDate = secondsDate.withSecondOfMinute(0)
+    val hourDate = minutesDate.withMinuteOfHour(0)
+    val dayDate = hourDate.withHourOfDay(0)
+    val monthDate = dayDate.withDayOfMonth(1)
+    val yearDate = monthDate.withMonthOfYear(1)
+
+    granularity.toLowerCase match {
+      case "minute" => minutesDate
+      case "hour" => hourDate
+      case "day" => dayDate
+      case "month" => monthDate
+      case "year" => yearDate
+      case _ => secondsDate
+    }
   }
 
-  def genericRowSchema (rdd : RDD[(Option[String], Row)]) : (Option[String], RDD[Row]) = {
+  def getTableSchemaTime(tbSchema: TableSchema,
+                         timeBucket: Option[String],
+                         granularity : Option[String]): TableSchema = {
+    if(timeBucket.isDefined && granularity.isDefined && !tbSchema.schema.fieldNames.contains(timeBucket.get)){
+      new TableSchema(tbSchema.outputName,
+        tbSchema.tableName + SEPARATOR + timeBucket.get,
+        StructType(tbSchema.schema.fields.toSeq ++ Seq(defaultTimeField(timeBucket.get))))
+    } else tbSchema
+  }
+
+  def defaultTimeField(fieldName: String) : StructField = {
+    StructField(fieldName, TimestampType, false)
+  }
+
+  def defaultStringField(fieldName: String) : StructField = {
+    StructField(fieldName, StringType, false)
+  }
+
+  def genericRowSchema(rdd: RDD[(Option[String], Row)]): (Option[String], RDD[Row]) = {
     val keySchema: Array[String] = rdd.map(rowType => rowType._1.get.split(SEPARATOR))
-      .reduce((a, b) => if(a.length > b.length) a else b)
+      .reduce((a, b) => if (a.length > b.length) a else b)
     (Some(keySchema.mkString(SEPARATOR)), extractRow(rdd))
   }
 
-  def extractRow (rdd : RDD[(Option[String], Row)]) : RDD[Row] = rdd.map(rowType => rowType._2)
+  def extractRow(rdd: RDD[(Option[String], Row)]): RDD[Row] = rdd.map(rowType => rowType._2)
 }
