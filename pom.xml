@@ -255,7 +255,6 @@
                         <include>**/*IT.java</include>
                     </includes>
                     <skipTests>${skipITs}</skipTests>
-                    <skipTests>true</skipTests>
                 </configuration>
                 <executions>
                     <execution>
