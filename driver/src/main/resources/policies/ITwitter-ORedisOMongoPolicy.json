@@ -3,7 +3,7 @@
   "duration": 10000,
   "inputs": [
     {
-      "name": "in-socket",
+      "name": "input-twitter",
       "elementType": "TwitterInput",
       "configuration": {
         "consumerKey": "rN5IkAFEwnRCrl98bUoYeB62g",
@@ -70,8 +70,23 @@
       "elementType": "RedisOutput",
       "configuration": {
         "hostname": "localhost",
-        "multiplexer": "true",
+        "multiplexer": "false",
         "timestampBucket": "hour"
+      }
+    },
+    {
+      "name": "out-mongo",
+      "elementType": "MongoDbOutput",
+      "configuration": {
+        "clientUri": "mongodb://localhost:27017",
+        "dbName": "sparkta",
+        "multiplexer": "false",
+        "timestampField": "timestamp",
+        "timestampBucket": "minute",
+        "textIndexFields": "userLocation",
+        "fieldsSeparator": ",",
+        "language": "english",
+        "granularity": "hour"
       }
     }
   ],

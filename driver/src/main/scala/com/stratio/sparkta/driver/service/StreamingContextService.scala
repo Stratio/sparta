@@ -79,14 +79,12 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     }
 
     val outputs = SparktaJob.outputs(apConfig, sqlContext, bcOperatorsKeyOperation, bcRollupOperatorSchema)
-
     //TODO only support one input
     val input: DStream[Event] = inputs.head._2
-    //TODO only support one output
-    val output = outputs.head._2
     val parsed = SparktaJob.applyParsers(input, parsers)
 
-    output.persist(new DataCube(dimensionsSeq, rollups).setUp(parsed))
+    val dataCube = new DataCube(dimensionsSeq, rollups).setUp(parsed)
+    outputs.map(_._2.persist(dataCube))
     ssc
   }
 }
