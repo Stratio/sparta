@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,9 +15,14 @@
  */
 package com.stratio.sparkta.driver.route
 
+import scala.reflect.io.File
+
 import akka.actor.{ActorRefFactory, ActorRef}
 import akka.pattern.ask
 import akka.util.Timeout
+import com.wordnik.swagger.annotations._
+import spray.http.StatusCodes
+import com.wordnik.swagger.annotations._
 import com.stratio.sparkta.driver.actor._
 import com.stratio.sparkta.driver.dto.{AggregationPoliciesValidator, AggregationPoliciesDto, StreamingContextStatusDto}
 import com.stratio.sparkta.driver.exception.DriverException
@@ -31,51 +36,103 @@ import spray.util.LoggingContext
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration.DurationDouble
 
+@Api(value = "/policy", description = "Operations about policies.", position = 0)
 trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
+
   implicit val json4sJacksonFormats = DefaultFormats +
     new EnumNameSerializer(StreamingContextStatusEnum) +
     new JsoneyStringSerializer()
+
   implicit val timeout: Timeout = 15 seconds
 
   implicit def executionContext: ExecutionContextExecutor = actorRefFactory.dispatcher
 
   val supervisor: ActorRef
+  val policyRoutes = policyGet ~ policyPost ~ policyByNameGet ~ deletePolicy
 
-  val policyRoutes = {
+  @ApiOperation(value = "Find all policies", notes = "Returns a policies list", httpMethod = "GET",
+    response =
+      classOf[String])
+  @ApiResponses(Array(
+    new ApiResponse(code = 404, message = "not found")
+
+  ))
+  def policyGet = {
     path("policy") {
       get {
         complete {
           supervisor.ask(GetAllContextStatus).mapTo[List[StreamingContextStatusDto]]
         }
       }
-    } ~
-      post {
-        entity(as[AggregationPoliciesDto]) { p =>
-          val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(p)
-          validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-            complete {
-              supervisor ! new CreateContext(p)
-              new Result("Creating new context with name " + p.name)
-            }
+    }
+  }
+
+  @ApiOperation(value = "post a policy", notes = "Returns the result", httpMethod = "POST",
+    response =
+      classOf[Result])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "policy", defaultValue = "", value = "policy json", dataType =
+      "AggregationPoliciesDto",
+      required =
+        true,
+      paramType = "json")
+  ))
+  def policyPost = {
+    post {
+      entity(as[AggregationPoliciesDto]) { p =>
+        val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(p)
+        validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
+          complete {
+            supervisor ! new CreateContext(p)
+            new Result("Creating new context with name " + p.name)
           }
         }
-      } ~
-      pathPrefix("policy" / Segment) { name =>
-        get {
-          complete {
-            supervisor.ask(new GetContextStatus(name)).mapTo[StreamingContextStatusDto]
-          }
-        } ~
-          delete {
-            complete {
-              supervisor.ask(new DeleteContext(name)).mapTo[StreamingContextStatusDto]
-            }
-          }
       }
+    }
+  }
+
+  @ApiOperation(value = "get policy status by name", notes = "Returns the status of a policy", httpMethod = "GET",
+    response =
+      classOf[StreamingContextStatusDto])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "policy name", defaultValue = "", value = "policy name", dataType =
+      "String",
+      required =
+        true
+    )
+  ))
+  def policyByNameGet = {
+    pathPrefix("policy" / Segment) { name =>
+      get {
+        complete {
+          supervisor.ask(new GetContextStatus(name)).mapTo[StreamingContextStatusDto]
+        }
+      }
+    }
+  }
+
+  @ApiOperation(value = "delete a policy by name", notes = "Returns the status of the policy", httpMethod = "DELETE",
+    response =
+      classOf[StreamingContextStatusDto])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "policy name", defaultValue = "", value = "policy name", dataType =
+      "String",
+      required =
+        true
+    )
+  ))
+  def deletePolicy = {
+    pathPrefix("policy" / Segment) { name =>
+      delete {
+        complete {
+          supervisor.ask(new DeleteContext(name)).mapTo[StreamingContextStatusDto]
+        }
+      }
+    }
   }
 
   //TODO test
-  implicit def driverExceptionHandler(implicit log: LoggingContext) : ExceptionHandler =
+  implicit def driverExceptionHandler(implicit log: LoggingContext): ExceptionHandler =
     ExceptionHandler {
       case e: DriverException =>
         requestUri { uri =>
