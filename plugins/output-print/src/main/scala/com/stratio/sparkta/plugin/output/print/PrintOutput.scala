@@ -35,18 +35,19 @@ class PrintOutput(keyName : String,
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.Median,
   WriteOp.Stddev, WriteOp.Variance, WriteOp.AccSet)
 
-  override val multiplexer = Try(properties.getString("multiplexer").toBoolean)
-    .getOrElse(false)
+  override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
   override val timeBucket = properties.getString("timestampBucket", None)
 
   override val granularity = properties.getString("granularity", None)
 
+  override val autoCalculateId = Try(properties.getString("autoCalculateId").toBoolean).getOrElse(false)
+
   override def upsert(dataFrame : DataFrame, tableName : String): Unit = {
-    println(tableName)
+    println("Table name : " + tableName)
     dataFrame.printSchema()
     dataFrame.foreach(println)
-    println("COUNT : "  +  dataFrame.count())
+    println("Count : "  +  dataFrame.count())
   }
 
   override def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
