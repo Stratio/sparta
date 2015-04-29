@@ -15,11 +15,13 @@
  */
 package com.stratio.sparkta.driver.actor
 
+import scala.reflect.runtime.universe._
+
 import akka.actor._
 import com.gettyimages.spray.swagger.SwaggerHttpService
 import com.wordnik.swagger.model.ApiInfo
 import spray.routing._
-import scala.reflect.runtime.universe._
+
 import com.stratio.sparkta.driver.route.PolicyRoutes
 
 /**
