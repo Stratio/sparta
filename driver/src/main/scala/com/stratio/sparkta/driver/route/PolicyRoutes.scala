@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,8 @@ trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
   val supervisor: ActorRef
   val policyRoutes = policyGet ~ policyPost ~ policyByNameGet ~ deletePolicy
 
+
+
   @ApiOperation(value = "Find all policies", notes = "Returns a policies list", httpMethod = "GET",
     response =
       classOf[String])
@@ -56,7 +58,7 @@ trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
     new ApiResponse(code = 404, message = "not found")
 
   ))
-  def policyGet = {
+  private def policyGet = {
     path("policy") {
       get {
         complete {
@@ -76,7 +78,7 @@ trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
         true,
       paramType = "json")
   ))
-  def policyPost = {
+  private def policyPost = {
     post {
       entity(as[AggregationPoliciesDto]) { p =>
         val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(p)
@@ -100,7 +102,7 @@ trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
         true
     )
   ))
-  def policyByNameGet = {
+  private def policyByNameGet = {
     pathPrefix("policy" / Segment) { name =>
       get {
         complete {
@@ -120,7 +122,7 @@ trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
         true
     )
   ))
-  def deletePolicy = {
+  private def deletePolicy = {
     pathPrefix("policy" / Segment) { name =>
       delete {
         complete {
