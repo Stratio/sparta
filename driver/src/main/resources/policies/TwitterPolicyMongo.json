@@ -75,12 +75,11 @@
             "clientUri" : "mongodb://localhost:27017",
             "dbName" : "sparkta",
             "multiplexer" : "true",
-            "timestampField" : "timestamp",
             "timestampBucket" : "minute",
+            "granularity" : "hour",
             "textIndexFields" : "userLocation",
             "fieldsSeparator" : ",",
-            "language" : "english",
-            "granularity" : "hour"
+            "language" : "english"
           }
         }
       ],
