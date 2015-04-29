@@ -15,6 +15,9 @@
  */
 package com.stratio.sparkta.aggregator
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+
 import com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer
 import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.plugin.operator.sum.SumOperator
@@ -22,6 +25,7 @@ import com.stratio.sparkta.sdk.{BucketType, UpdateMetricOperation, Dimension, Di
 import org.apache.spark.streaming.TestSuiteBase
 import java.io.{Serializable => JSerializable}
 
+@RunWith(classOf[JUnitRunner])
 class RollupSpec extends TestSuiteBase {
 
   test("aggregate") {

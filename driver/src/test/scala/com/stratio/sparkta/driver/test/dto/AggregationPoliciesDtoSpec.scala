@@ -15,6 +15,9 @@
  */
 package com.stratio.sparkta.driver.test.dto
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+
 import com.stratio.sparkta.driver.dto._
 import com.stratio.sparkta.sdk.JsoneyString
 import org.scalatest.mock.MockitoSugar
@@ -23,6 +26,7 @@ import org.scalatest.{Matchers, WordSpecLike}
 /**
  * Created by dcarroza on 4/13/15.
  */
+@RunWith(classOf[JUnitRunner])
 class AggregationPoliciesDtoSpec extends WordSpecLike
 with MockitoSugar
 with Matchers {

@@ -18,6 +18,9 @@ package com.stratio.sparkta.plugin.input
 
 import java.io.{Serializable => JSerializable}
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+
 import com.stratio.sparkta.plugin.input.rabbitmq.{RabbitMQReceiver, RabbitMQInput}
 import org.apache.spark.storage.StorageLevel
 import org.scalatest.{Matchers, WordSpecLike}
@@ -26,6 +29,7 @@ import org.scalatest.mock.MockitoSugar
 /**
  * Created by dcarroza on 4/17/15.
  */
+@RunWith(classOf[JUnitRunner])
 class RabbitMQReceiverSpec extends WordSpecLike
 with MockitoSugar
 with Matchers {

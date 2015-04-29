@@ -18,12 +18,16 @@ package com.stratio.sparkta.plugin.bucketer.datetime.test
 import java.io
 import java.util.Date
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+
 import com.stratio.sparkta.plugin.bucketer.datetime.DateTimeBucketer
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
 
 /**
  * Created by ajnavarro on 9/10/14.
  */
+@RunWith(classOf[JUnitRunner])
 class DateTimeBucketerSpec extends WordSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll {
   var dateTimeBucketer: DateTimeBucketer = null
   before {

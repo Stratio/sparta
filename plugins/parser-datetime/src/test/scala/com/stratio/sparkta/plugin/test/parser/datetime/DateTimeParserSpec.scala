@@ -17,12 +17,16 @@ package com.stratio.sparkta.plugin.test.parser.datetime
 
 import java.util.Date
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+
 import com.stratio.sparkta.plugin.parser.datetime.DateTimeParser
 import com.stratio.sparkta.sdk.Event
 import org.joda.time.DateTime
 import org.joda.time.chrono.ISOChronology
 import org.scalatest.WordSpecLike
 
+@RunWith(classOf[JUnitRunner])
 class DateTimeParserSpec extends WordSpecLike {
 
   "A DateTimeParser" should {

@@ -17,6 +17,9 @@ package com.stratio.sparkta.plugin.bucketer.tag.test
 
 import java.io.Serializable
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+
 import com.stratio.sparkta.plugin.bucketer.tag.TagBucketer
 import com.stratio.sparkta.plugin.bucketer.tag.TagBucketer._
 import org.scalatest._
@@ -25,6 +28,7 @@ import org.scalatest.prop.TableDrivenPropertyChecks
 /**
  * Created by ajnavarro on 27/10/14.
  */
+@RunWith(classOf[JUnitRunner])
 class TagBucketerSpec extends WordSpecLike
 with Matchers
 with BeforeAndAfter

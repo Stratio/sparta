@@ -18,8 +18,11 @@ package com.stratio.sparkta.sdk
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization.write
 import org.json4s.{DefaultFormats, _}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 
+@RunWith(classOf[JUnitRunner])
 class JsoneyStringSpec extends WordSpecLike
 with Matchers {
 

@@ -19,10 +19,13 @@ package com.stratio.sparkta.driver.test.factory
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.SparkContext
 import org.apache.spark.streaming.Duration
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, _}
 
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 
+@RunWith(classOf[JUnitRunner])
 class SparkContextFactorySpec extends FlatSpec with ShouldMatchers with BeforeAndAfterAll {
   self: FlatSpec =>
 

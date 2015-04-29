@@ -15,6 +15,8 @@
  */
 package com.stratio.sparkta.plugin.bucketer.twitter.status.test
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
 import com.stratio.sparkta.plugin.bucketer.twitter.status.TwitterStatusBucketer
 import org.scalatest.{FlatSpec,  Matchers}
@@ -24,7 +26,8 @@ import org.scalamock.scalatest._
 /**
  * Created by arincon on 16/03/15.
  */
-class TwitterStatusBucketerTest extends FlatSpec with MockFactory with Matchers {
+@RunWith(classOf[JUnitRunner])
+class TwitterStatusBucketerSpec extends FlatSpec with MockFactory with Matchers {
 
 
 

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
@@ -20,39 +21,45 @@ import scala.collection.mutable
 
 import org.apache.spark._
 import org.apache.spark.rdd.RDD
-import org.apache.spark.streaming.{TestSuiteBase, _}
+import org.apache.spark.streaming._
+import org.junit.runner.RunWith
+import org.scalatest.FlatSpec
+import org.scalatest.junit.JUnitRunner
 
 import com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer
 import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.sdk._
 
-class DataCubeSpec extends TestSuiteBase {
+@RunWith(classOf[JUnitRunner])
+class DataCubeSpec  extends FlatSpec{
 
-  val myConf = new SparkConf()
-    .setAppName(this.getClass.getSimpleName + "" + System.currentTimeMillis())
-    .setMaster("local[2]").set("spark.streaming.clock", "org.apache.spark.streaming.util.ManualClock")
-  val sc = new SparkContext(myConf)
-  val ssc: StreamingContext = new StreamingContext(sc, Seconds(2))
-  val clock = new ClockWrapper(ssc)
+  "DataCubeSpec" should "process the events queued" in {
 
-  def myDim(i: Int) = new Dimension("myKey" + i, new PassthroughBucketer().asInstanceOf[Bucketer])
+    val myConf = new SparkConf()
+      .setAppName(this.getClass.getSimpleName + "" + System.currentTimeMillis())
+      .setMaster("local[2]").set("spark.streaming.clock", "org.apache.spark.streaming.util.ManualClock")
+    val sc = new SparkContext(myConf)
+    val ssc: StreamingContext = new StreamingContext(sc, Seconds(2))
+    val clock = new ClockWrapper(ssc)
 
-  def getDimensions: Seq[Dimension] = (0 until 10) map (i => myDim(i))
+    def myDim(i: Int) = new Dimension("myKey" + i, new PassthroughBucketer().asInstanceOf[Bucketer])
 
-  def getComponents: Seq[(Dimension, BucketType)] = (0 until 1) map (i => (myDim(i), Bucketer.identity))
+    def getDimensions: Seq[Dimension] = (0 until 10) map (i => myDim(i))
 
-  def getOperators: Seq[Operator] = (0 until 1) map (i => new CountOperator(Map("prop" -> "propValue"
-    .asInstanceOf[JSerializable])))
+    def getComponents: Seq[(Dimension, BucketType)] = (0 until 1) map (i => (myDim(i), Bucketer.identity))
 
-  val myRollups: Seq[Rollup] = (0 until 2) map (i => new Rollup(components = getComponents, operators = getOperators))
+    def getOperators: Seq[Operator] = (0 until 1) map (i => new CountOperator(Map("prop" -> "propValue"
+      .asInstanceOf[JSerializable])))
 
-  val events = mutable.Queue[RDD[Event]]()
-  val myDimensions: Seq[Dimension] = getDimensions
+    val myRollups: Seq[Rollup] = (0 until 2) map (i => new Rollup(components = getComponents, operators = getOperators))
 
-  val getEvents: Seq[Event] = (0 until 10) map (i => new Event(Map("key" + i -> System.currentTimeMillis()
-    .asInstanceOf[JSerializable]),Some("myRaw event data here")))
+    val events = mutable.Queue[RDD[Event]]()
+    val myDimensions: Seq[Dimension] = getDimensions
 
-  test("DataCube setUp") {
+    val getEvents: Seq[Event] = (0 until 10) map (i => new Event(Map("key" + i -> System.currentTimeMillis()
+      .asInstanceOf[JSerializable]), Some("myRaw event data here")))
+
+
     val dc: DataCube = new DataCube(myDimensions, myRollups)
     val result = dc.setUp(ssc.queueStream(events))
     result.foreach(i => i.print)
@@ -64,5 +71,6 @@ class DataCubeSpec extends TestSuiteBase {
     clock.advance(2)
 
     ssc.stop()
+
   }
 }

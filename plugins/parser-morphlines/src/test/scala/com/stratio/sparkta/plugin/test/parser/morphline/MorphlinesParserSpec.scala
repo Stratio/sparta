@@ -17,6 +17,9 @@ package com.stratio.sparkta.plugin.test.parser.morphline
 
 import java.io.Serializable
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+
 import com.stratio.sparkta.plugin.parser.morphline.MorphlinesParser
 import com.stratio.sparkta.sdk.{Event, Input}
 import com.typesafe.config.ConfigRenderOptions
@@ -25,6 +28,7 @@ import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
 /**
  * Created by ajnavarro on 24/10/14.
  */
+@RunWith(classOf[JUnitRunner])
 class MorphlinesParserSpec extends WordSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll {
   var parser: MorphlinesParser = null
 

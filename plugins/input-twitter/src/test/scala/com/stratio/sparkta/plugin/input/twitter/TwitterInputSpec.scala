@@ -17,9 +17,13 @@ package com.stratio.sparkta.plugin.input.twitter
 
 import java.io.{Serializable => JSerializable}
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+
 import com.stratio.sparkta.sdk.{Event, Input}
 import org.scalatest._
 
+@RunWith(classOf[JUnitRunner])
 class TwitterInputSpec extends WordSpec {
 
   "A TwitterInput" should {

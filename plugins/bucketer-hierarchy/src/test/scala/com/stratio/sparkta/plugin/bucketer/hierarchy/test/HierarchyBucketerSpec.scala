@@ -17,6 +17,9 @@ package com.stratio.sparkta.plugin.bucketer.hierarchy.test
 
 import java.io.Serializable
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+
 import com.stratio.sparkta.plugin.bucketer.hierarchy.HierarchyBucketer
 import com.stratio.sparkta.plugin.bucketer.hierarchy.HierarchyBucketer._
 import org.scalatest.prop.TableDrivenPropertyChecks
@@ -25,6 +28,7 @@ import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
 /**
  * Created by ajnavarro on 27/10/14.
  */
+@RunWith(classOf[JUnitRunner])
 class HierarchyBucketerSpec extends WordSpecLike
 with Matchers
 with BeforeAndAfter

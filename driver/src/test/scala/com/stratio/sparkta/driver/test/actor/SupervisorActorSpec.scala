@@ -22,8 +22,10 @@ import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.streaming.StreamingContext
+import org.junit.runner.RunWith
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
 
@@ -33,6 +35,7 @@ import com.stratio.sparkta.driver.dto.{AggregationPoliciesDto, StreamingContextS
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.service.StreamingContextService
 
+@RunWith(classOf[JUnitRunner])
 class SupervisorActorSpec
   extends TestKit(ActorSystem("SupervisorActorSpec",
     ConfigFactory.parseString(SupervisorActorSpec.config)))

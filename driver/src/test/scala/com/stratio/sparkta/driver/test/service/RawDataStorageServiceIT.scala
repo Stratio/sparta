@@ -55,6 +55,7 @@ class RawDataStorageServiceIT extends WordSpecLike with BeforeAndAfterAll with M
   val myConf = new SparkConf()
     .setAppName(this.getClass.getSimpleName + "" + System.currentTimeMillis())
     .setMaster("local[1]")
+    .set("spark.driver.allowMultipleContexts", "true")
   val sc = new SparkContext(myConf)
   lazy val otherSc=new SparkContext(myConf)
   val ssc = new StreamingContext(sc, Duration.apply(WindowDuration))
