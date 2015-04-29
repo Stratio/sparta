@@ -15,8 +15,6 @@
  */
 package com.stratio.sparkta.driver.route
 
-
-
 import scala.concurrent.ExecutionContextExecutor
 
 import akka.actor.ActorRef
@@ -35,6 +33,7 @@ import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import scala.concurrent.duration.DurationDouble
 
+// scalastyle:off
 @Api(value = "/policy", description = "Operations about policies.", position = 0)
 trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
 
@@ -49,8 +48,6 @@ trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
   val supervisor: ActorRef
   val policyRoutes = policyGet ~ policyPost ~ policyByNameGet ~ deletePolicy
 
-
-
   @ApiOperation(value = "Find all policies", notes = "Returns a policies list", httpMethod = "GET",
     response =
       classOf[String])
@@ -58,7 +55,7 @@ trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
     new ApiResponse(code = 404, message = "not found")
 
   ))
-  private def policyGet = {
+  def policyGet = {
     path("policy") {
       get {
         complete {
@@ -78,7 +75,7 @@ trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
         true,
       paramType = "json")
   ))
-  private def policyPost = {
+  def policyPost = {
     post {
       entity(as[AggregationPoliciesDto]) { p =>
         val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(p)
@@ -102,7 +99,7 @@ trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
         true
     )
   ))
-  private def policyByNameGet = {
+  def policyByNameGet = {
     pathPrefix("policy" / Segment) { name =>
       get {
         complete {
@@ -122,7 +119,7 @@ trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
         true
     )
   ))
-  private def deletePolicy = {
+  def deletePolicy = {
     pathPrefix("policy" / Segment) { name =>
       delete {
         complete {
