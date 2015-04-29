@@ -1,0 +1,114 @@
+{
+  "name": "policy-rabbitmq",
+  "duration": 10000,
+  "saveRawData": "false",
+  "inputs": [
+    {
+      "name": "in",
+      "elementType": "RabbitMQInput",
+      "configuration": {
+        "queue": "logsQueue",
+        "host": "localhost",
+        "port": 5672,
+        "storageLevel": "MEMORY_ONLY",
+        "exchangeName": "logsExchange",
+        "routingKeys" : ["logsRoute"]
+      }
+    }
+  ],
+  "dimensions": [
+    {
+      "dimensionType": "DateTimeBucketer",
+      "name": "purchaseDate"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "country"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "city"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "user"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "totalAmount"
+    }
+  ],
+  "rollups": [
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "purchaseDate",
+          "bucketType": "minute"
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-mongo",
+      "elementType": "MongoDbOutput",
+      "configuration": {
+        "clientUri": "mongodb://localhost:27017",
+        "timeField": "purchaseDate",
+        "timeDimension": "purchaseDate"
+      }
+    }
+  ],
+  "operators": [
+    {
+      "name": "count-operator",
+      "elementType": "CountOperator",
+      "configuration": {}
+    }
+  ],
+  "parsers": [
+    {
+      "name": "morphline-parser",
+      "elementType": "MorphlinesParser",
+      "configuration": {
+        "morphline": {
+          "id": "morphline1",
+          "importCommands": [
+            "org.kitesdk.**",
+            "com.stratio.ingestion.morphline.**"
+          ],
+          "commands": [
+            {
+              "readJson": {}
+            },
+            {
+              "extractJsonPaths": {
+                "paths": {
+                  "purchaseDate": "/purchaseDate",
+                  "country": "/country",
+                  "city": "/city",
+                  "user": "/user",
+                  "totalAmount": "/totalAmount"
+                }
+              }
+            },
+            {
+              "removeFields": {
+                "blacklist": [
+                  "literal:_attachment_body"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "purchaseDate",
+      "elementType": "DateTimeParser",
+      "configuration": {
+        "purchaseDate": "unixMillis"
+      }
+    }
+  ]
+}
