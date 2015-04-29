@@ -24,8 +24,6 @@ import org.apache.spark.sql.types._
 
 object PolicyFactory {
 
-  final val SEPARATOR = "_"
-
   def rowTypeFromOption(optionType: TypeOp): DataType = {
     optionType match {
       case TypeOp.Long => LongType
@@ -55,7 +53,7 @@ object PolicyFactory {
           componentsSorted.flatMap(component => Multiplexer.combine(component._1)).distinct
         } else componentsSorted.map(_._1).distinct
         schema = StructType(rollupsCombinations.map(fieldName => defaultRollupField(fieldName)) ++ operatorsFields)
-      } yield TableSchema(output._1, rollupsCombinations.mkString(SEPARATOR), schema)
+      } yield TableSchema(output._1, rollupsCombinations.mkString(Output.SEPARATOR), schema)
     }).distinct
   }
 

@@ -65,67 +65,30 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
+
+                        <version>1.7</version>
                         <executions>
                             <execution>
-                                <id>Creates plugin, sdk and aggregators paths.</id>
-                                <phase>prepare-package</phase>
-                                <configuration>
-                                    <tasks>
-                                        <mkdir dir="target/appassembler/repo/sdk"/>
-                                        <mkdir dir="target/appassembler/repo/plugins"/>
-                                        <mkdir dir="target/appassembler/repo/aggregator"/>
-                                    </tasks>
-                                </configuration>
+                                <id>copy PLUGINS SDK AGGREGATOR</id>
+                                <phase>compile</phase>
                                 <goals>
                                     <goal>run</goal>
                                 </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>Copy sdk jars</id>
-                                <phase>prepare-package</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
                                 <configuration>
-                                    <executable>scripts/copy_plugins.sh</executable>
-                                    <arguments>
-                                        <argument>../sdk</argument>
-                                        <argument>target/appassembler/repo/sdk</argument>
-                                    </arguments>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>Copy plugin jars</id>
-                                <phase>prepare-package</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <executable>scripts/copy_plugins.sh</executable>
-                                    <arguments>
-                                        <argument>../plugins</argument>
-                                        <argument>target/appassembler/repo/plugins</argument>
-                                    </arguments>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>Copy aggregator jars</id>
-                                <phase>prepare-package</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <executable>scripts/copy_plugins.sh</executable>
-                                    <arguments>
-                                        <argument>../aggregator</argument>
-                                        <argument>target/appassembler/repo/aggregator</argument>
-                                    </arguments>
+                                    <target name="copy swf files to web project">
+                                        <copy todir="target/appassembler/repo/sdk">
+                                            <fileset dir="../sdk" includes="**/*.jar" />
+                                            <mapper type="flatten" />
+                                        </copy>
+                                        <copy todir="target/appassembler/repo/plugins">
+                                            <fileset dir="../plugins" includes="**/*.jar" />
+                                            <mapper type="flatten" />
+                                        </copy>
+                                        <copy todir="target/appassembler/repo/aggregator">
+                                            <fileset dir="../aggregator" includes="**/*.jar" />
+                                            <mapper type="flatten" />
+                                        </copy>
+                                    </target>
                                 </configuration>
                             </execution>
                         </executions>
@@ -156,7 +119,6 @@
                                             <id>run</id>
                                         </program>
                                     </programs>
-
                                     <platforms>
                                         <platform>unix</platform>
                                     </platforms>
@@ -204,7 +166,6 @@
                                             <from>target/appassembler/:/etc/sds/sparkta/conf</from>
                                             <to>/etc/sds/sparkta/conf</to>
                                         </copyDirectory>
-
                                         <copyDirectory>
                                             <from>target/appassembler/repo/sdk</from>
                                             <to>/opt/sds/sparkta/sdk</to>

@@ -72,7 +72,10 @@
         "name": "out-print",
         "elementType": "PrintOutput",
         "configuration": {
-          "multiplexer" : "true"
+          "multiplexer" : "true",
+          "timestampBucket" : "minute",
+          "granularity" : "hour",
+          "autoCalculateId" : "true"
         }
       }
       ],

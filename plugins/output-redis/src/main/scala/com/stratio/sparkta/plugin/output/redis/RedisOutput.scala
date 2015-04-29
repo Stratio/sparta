@@ -53,13 +53,13 @@ class RedisOutput(keyName : String,
 
   override val eventTimeFieldName = properties.getString("timestampFieldName", "timestamp")
 
-  override def supportedWriteOps: Seq[WriteOp] = Seq(WriteOp.Inc, WriteOp.Max, WriteOp.Min)
+  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Max, WriteOp.Min)
 
-  override def multiplexer: Boolean = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
+  override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
-  override def granularity: String = properties.getString("granularity", "")
+  override val timeBucket = properties.getString("timestampBucket", None)
 
-  override def timeBucket: String = properties.getString("timestampBucket", "")
+  override val granularity = properties.getString("granularity", None)
 
   override def doPersist(stream: DStream[UpdateMetricOperation]) : Unit = {
     persistMetricOperation(stream)
