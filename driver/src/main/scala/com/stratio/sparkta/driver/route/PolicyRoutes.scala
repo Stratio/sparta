@@ -15,6 +15,8 @@
  */
 package com.stratio.sparkta.driver.route
 
+
+
 import scala.concurrent.ExecutionContextExecutor
 
 import akka.actor.ActorRef
@@ -31,6 +33,7 @@ import com.stratio.sparkta.driver.actor._
 import com.stratio.sparkta.driver.dto.{AggregationPoliciesDto, AggregationPoliciesValidator, StreamingContextStatusDto}
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import scala.concurrent.duration.DurationDouble
 
 @Api(value = "/policy", description = "Operations about policies.", position = 0)
 trait PolicyRoutes extends HttpService with Json4sJacksonSupport {
