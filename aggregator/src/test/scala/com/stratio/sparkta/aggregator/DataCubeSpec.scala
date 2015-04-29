@@ -21,52 +21,48 @@ import scala.collection.mutable
 import org.apache.spark._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.{TestSuiteBase, _}
-import org.scalatest.FlatSpec
 
 import com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer
 import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.sdk._
 
-class DataCubeSpec  extends FlatSpec{
+class DataCubeSpec extends TestSuiteBase {
 
-  "DataCubeSpec" should "process the events queued" in {
+  val myConf = new SparkConf()
+    .setAppName(this.getClass.getSimpleName + "" + System.currentTimeMillis())
+    .setMaster("local[2]").set("spark.streaming.clock", "org.apache.spark.streaming.util.ManualClock")
+  val sc = new SparkContext(myConf)
+  val ssc: StreamingContext = new StreamingContext(sc, Seconds(2))
+  val clock = new ClockWrapper(ssc)
 
-    val myConf = new SparkConf()
-      .setAppName(this.getClass.getSimpleName + "" + System.currentTimeMillis())
-      .setMaster("local[2]").set("spark.streaming.clock", "org.apache.spark.streaming.util.ManualClock")
-    val sc = new SparkContext(myConf)
-    val ssc: StreamingContext = new StreamingContext(sc, Seconds(2))
-    val clock = new ClockWrapper(ssc)
+  def myDim(i: Int) = new Dimension("myKey" + i, new PassthroughBucketer().asInstanceOf[Bucketer])
 
-    def myDim(i: Int) = new Dimension("myKey" + i, new PassthroughBucketer().asInstanceOf[Bucketer])
+  def getDimensions: Seq[Dimension] = (0 until 10) map (i => myDim(i))
 
-    def getDimensions: Seq[Dimension] = (0 until 10) map (i => myDim(i))
+  def getComponents: Seq[(Dimension, BucketType)] = (0 until 1) map (i => (myDim(i), Bucketer.identity))
 
-    def getComponents: Seq[(Dimension, BucketType)] = (0 until 1) map (i => (myDim(i), Bucketer.identity))
+  def getOperators: Seq[Operator] = (0 until 1) map (i => new CountOperator(Map("prop" -> "propValue"
+    .asInstanceOf[JSerializable])))
 
-    def getOperators: Seq[Operator] = (0 until 1) map (i => new CountOperator(Map("prop" -> "propValue"
-      .asInstanceOf[JSerializable])))
+  val myRollups: Seq[Rollup] = (0 until 2) map (i => new Rollup(components = getComponents, operators = getOperators))
 
-    val myRollups: Seq[Rollup] = (0 until 2) map (i => new Rollup(components = getComponents, operators = getOperators))
+  val events = mutable.Queue[RDD[Event]]()
+  val myDimensions: Seq[Dimension] = getDimensions
 
-    val events = mutable.Queue[RDD[Event]]()
-    val myDimensions: Seq[Dimension] = getDimensions
+  val getEvents: Seq[Event] = (0 until 10) map (i => new Event(Map("key" + i -> System.currentTimeMillis()
+    .asInstanceOf[JSerializable]),Some("myRaw event data here")))
 
-    val getEvents: Seq[Event] = (0 until 10) map (i => new Event(Map("key" + i -> System.currentTimeMillis()
-      .asInstanceOf[JSerializable]), Some("myRaw event data here")))
+  test("DataCube setUp") {
+    val dc: DataCube = new DataCube(myDimensions, myRollups)
+    val result = dc.setUp(ssc.queueStream(events))
+    result.foreach(i => i.print)
 
+    assert(result.size == 2)
 
-      val dc: DataCube = new DataCube(myDimensions, myRollups)
-      val result = dc.setUp(ssc.queueStream(events))
-      result.foreach(i => i.print)
+    ssc.start()
+    events += sc.makeRDD(getEvents)
+    clock.advance(2)
 
-      assert(result.size == 2)
-
-      ssc.start()
-      events += sc.makeRDD(getEvents)
-      clock.advance(2)
-
-      ssc.stop()
-
+    ssc.stop()
   }
 }
