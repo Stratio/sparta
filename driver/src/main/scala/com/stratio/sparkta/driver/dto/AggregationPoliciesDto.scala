@@ -15,7 +15,7 @@
  */
 package com.stratio.sparkta.driver.dto
 
-import java.io.{FileReader, BufferedReader}
+import java.io._
 
 import com.fasterxml.jackson.databind._
 import com.github.fge.jsonschema.core.exceptions.InvalidSchemaException
@@ -68,9 +68,8 @@ object AggregationPoliciesValidator {
     val policy: JsonNode = mapper.readTree(pretty(policyJsonAST))
 
     val fileReader: BufferedReader =
-      new BufferedReader(
-        new FileReader(AggregationPoliciesValidator
-          .getClass.getClassLoader.getResource("policy_schema.json").getPath))
+      new BufferedReader(new InputStreamReader(AggregationPoliciesValidator
+        .getClass.getClassLoader.getResourceAsStream("policy_schema.json")))
     val jsonSchema: JsonNode = mapper.readTree(fileReader)
     val schema: JsonSchema = JsonSchemaFactory.byDefault.getJsonSchema(jsonSchema)
 

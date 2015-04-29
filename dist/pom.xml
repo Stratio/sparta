@@ -63,6 +63,74 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>Creates plugin, sdk and aggregators paths.</id>
+                                <phase>prepare-package</phase>
+                                <configuration>
+                                    <tasks>
+                                        <mkdir dir="target/appassembler/repo/sdk"/>
+                                        <mkdir dir="target/appassembler/repo/plugins"/>
+                                        <mkdir dir="target/appassembler/repo/aggregator"/>
+                                    </tasks>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>Copy sdk jars</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>scripts/copy_plugins.sh</executable>
+                                    <arguments>
+                                        <argument>../sdk</argument>
+                                        <argument>target/appassembler/repo/sdk</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>Copy plugin jars</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>scripts/copy_plugins.sh</executable>
+                                    <arguments>
+                                        <argument>../plugins</argument>
+                                        <argument>target/appassembler/repo/plugins</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>Copy aggregator jars</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>scripts/copy_plugins.sh</executable>
+                                    <arguments>
+                                        <argument>../aggregator</argument>
+                                        <argument>target/appassembler/repo/aggregator</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>appassembler-maven-plugin</artifactId>
                         <version>1.8.1</version>
@@ -81,7 +149,6 @@
                                         -Dcom.sun.management.jmxremote.authenticate=false
                                         -Dcom.sun.management.jmxremote.ssl=false
                                     </extraJvmArguments>
-
                                     <filterConfigurationDirectory>true</filterConfigurationDirectory>
                                     <programs>
                                         <program>
@@ -114,10 +181,10 @@
                                 <section>devel</section>
                             </deb>
                             <rpm>
-                                <group>stratio</group>
+                                <group>devel</group>
                             </rpm>
                         </configuration>
-                        <executions>
+                           <executions>
                             <execution>
                                 <id>engine</id>
                                 <phase>package</phase>
@@ -136,6 +203,19 @@
                                         <copyDirectory>
                                             <from>target/appassembler/:/etc/sds/sparkta/conf</from>
                                             <to>/etc/sds/sparkta/conf</to>
+                                        </copyDirectory>
+
+                                        <copyDirectory>
+                                            <from>target/appassembler/repo/sdk</from>
+                                            <to>/opt/sds/sparkta/sdk</to>
+                                        </copyDirectory>
+                                        <copyDirectory>
+                                            <from>target/appassembler/repo/plugins</from>
+                                            <to>/opt/sds/sparkta/plugins</to>
+                                        </copyDirectory>
+                                        <copyDirectory>
+                                            <from>target/appassembler/repo/aggregator</from>
+                                            <to>/opt/sds/sparkta/aggregator</to>
                                         </copyDirectory>
                                     </assembly>
                                 </configuration>
