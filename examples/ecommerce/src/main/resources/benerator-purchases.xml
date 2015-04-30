@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<setup>
+    <import class="com.stratio.examples.datagenerator.producers.PurchaseEventProducer"/>
+    <import class="org.databene.platform.java.JavaInvoker"/>
+    <import class="org.databene.benerator.distribution.function.*"/>
+    <import defaults="true" domains="person,address"/>
+
+    <bean id="dateTimeGen" class="CurrentMilliTimeGenerator"/>
+
+    <bean id="servicePurchaseEvent" spec="new PurchaseEventProducer('localhost', 5672)"/>
+    <bean id="consumerPurchaseEvent" spec="new JavaInvoker(servicePurchaseEvent, 'write')"/>
+
+    <generate type="purchaseEvent" consumer="consumerPurchaseEvent">
+        <variable name="person" generator="org.databene.domain.person.PersonGenerator" dataset="US" locale="us"/>
+        <variable name="address" generator="org.databene.domain.address.AddressGenerator" dataset="US" locale="us"/>
+
+        <attribute name="purchaseDate" type="long" generator="dateTimeGen"/>
+        <attribute name="user" type="string" script="person.givenName + ' ' + person.familyName"/>
+        <attribute name="totalAmount" type="float" min="25" max="160" />
+        <attribute name="city" type="string" script="address.city"/>
+        <attribute name="postalCode" type="string" script="address.postalCode"/>
+        <attribute name="state" type="string" script="address.state"/>
+        <attribute name="country" type="string" script="address.country"/>
+        <attribute name="customerType" type="string" pattern="(REGULAR|PREMIUM)"
+                   distribution="new DiscreteFunction(100,10)"/>
+        <attribute name="paymentType" type="string" pattern="(Paypal|Transfer|Refund|Card)"
+                   distribution="new DiscreteFunction(1000,10,200,500)"/>
+    </generate>
+
+</setup>

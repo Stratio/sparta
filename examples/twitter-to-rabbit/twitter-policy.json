@@ -1,5 +1,5 @@
 {
-    "name": "policy-rabbitmq",
+    "name": "twitter-policy",
     "duration": 10000,
     "saveRawData": "false",
     "inputs": [

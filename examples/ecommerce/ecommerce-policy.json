@@ -1,5 +1,5 @@
 {
-  "name": "policy-rabbitmq",
+  "name": "ecommerce-policy",
   "duration": 10000,
   "saveRawData": "false",
   "inputs": [
@@ -12,77 +12,77 @@
         "port": 5672,
         "storageLevel": "MEMORY_ONLY",
         "exchangeName": "logsExchange",
-        "routingKeys" : [ "webLogsRoute","purchasesRoute"]
+        "routingKeys" : ["webLogsRoute","purchasesRoute"]
       }
     }
   ],
   "dimensions": [
     {
       "dimensionType": "DateTimeBucketer",
-      "name": "purchaseDate"
+      "name": "purchaseDateOL"
     },
     {
       "dimensionType": "PassthroughBucketer",
-      "name": "user"
+      "name": "userOL"
     },
     {
       "dimensionType": "PassthroughBucketer",
-      "name": "totalAmount"
+      "name": "totalAmountOL"
     },
     {
       "dimensionType": "PassthroughBucketer",
-      "name": "city"
+      "name": "cityOL"
     },
     {
       "dimensionType": "PassthroughBucketer",
-      "name": "postalCode"
+      "name": "postalCodeOL"
     },
     {
       "dimensionType": "PassthroughBucketer",
-      "name": "state"
+      "name": "stateOL"
     },
     {
       "dimensionType": "PassthroughBucketer",
-      "name": "country"
+      "name": "countryOL"
     },
     {
       "dimensionType": "PassthroughBucketer",
-      "name": "customerType"
+      "name": "customerTypeOL"
     },
     {
       "dimensionType": "PassthroughBucketer",
-      "name": "paymentType"
+      "name": "paymentTypeOL"
     },
     {
       "dimensionType": "DateTimeBucketer",
-      "name": "timestamp"
+      "name": "timestampVL"
     },
     {
       "dimensionType": "PassthroughBucketer",
-      "name": "ipHost"
+      "name": "ipHostVL"
     },
     {
       "dimensionType": "PassthroughBucketer",
-      "name": "userAgent"
+      "name": "userAgentVL"
     },
     {
       "dimensionType": "PassthroughBucketer",
-      "name": "userLog"
+      "name": "userLogVL"
     },
     {
       "dimensionType": "PassthroughBucketer",
-      "name": "responseCode"
+      "name": "responseCodeVL"
     },
     {
       "dimensionType": "PassthroughBucketer",
-      "name": "operatingSystem"
+      "name": "operatingSystemVL"
     }
   ],
   "rollups": [
     {
       "dimensionAndBucketTypes": [
         {
-          "dimensionName": "purchaseDate",
+          "dimensionName": "purchaseDateOL",
           "bucketType": "minute"
         }
       ]
@@ -90,12 +90,28 @@
     {
       "dimensionAndBucketTypes": [
         {
-          "dimensionName": "ipHost",
+          "dimensionName": "ipHostVL",
           "bucketType": "identity"
         },
         {
-          "dimensionName": "timestamp",
+          "dimensionName": "timestampVL",
           "bucketType": "minute"
+        }
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "cityOL",
+          "bucketType": "identity"
+        }
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "stateOL",
+          "bucketType": "identity"
         }
       ]
     }
@@ -106,8 +122,8 @@
       "elementType": "MongoDbOutput",
       "configuration": {
         "clientUri": "mongodb://localhost:27017",
-        "timeField": "purchaseDate",
-        "timeDimension": "purchaseDate"
+        "timeField": "purchaseDateOL",
+        "timeDimension": "purchaseDateOL"
       }
     }
   ],
@@ -116,6 +132,34 @@
       "name": "count-operator",
       "elementType": "CountOperator",
       "configuration": {}
+    },
+    {
+      "name": "avg-operator",
+      "elementType": "AvgOperator",
+      "configuration": {
+        "inputField" : "totalAmountOL"
+      }
+    },
+    {
+      "name": "sum-operator",
+      "elementType": "SumOperator",
+      "configuration": {
+        "inputField" : "totalAmountOL"
+      }
+    },
+    {
+      "name": "max-operator",
+      "elementType": "MaxOperator",
+      "configuration": {
+        "inputField" : "totalAmountOL"
+      }
+    },
+    {
+      "name": "min-operator",
+      "elementType": "MinOperator",
+      "configuration": {
+        "inputField" : "totalAmountOL"
+      }
     }
   ],
   "parsers": [
@@ -136,21 +180,21 @@
             {
               "extractJsonPaths": {
                 "paths": {
-                  "purchaseDate": "/purchaseDate",
-                  "user": "/user",
-                  "totalAmount": "/totalAmount",
-                  "city": "/city",
-                  "postalCode": "/postalCode",
-                  "state": "/state",
-                  "country": "/country",
-                  "customerType": "/customerType",
-                  "paymentType": "/paymentType",
-                  "timestamp": "/timestamp",
-                  "ipHost": "/ipHost",
-                  "userAgent": "/userAgent",
-                  "userLog": "/userLog",
-                  "responseCode": "/responseCode",
-                  "operatingSystem": "/operatingSystem"
+                  "purchaseDateOL": "/purchaseDate",
+                  "userOL": "/user",
+                  "totalAmountOL": "/totalAmount",
+                  "cityOL": "/city",
+                  "postalCodeOL": "/postalCode",
+                  "stateOL": "/state",
+                  "countryOL": "/country",
+                  "customerTypeOL": "/customerType",
+                  "paymentTypeOL": "/paymentType",
+                  "timestampVL": "/timestamp",
+                  "ipHostVL": "/ipHost",
+                  "userAgentVL": "/userAgent",
+                  "userLogVL": "/userLog",
+                  "responseCodeVL": "/responseCode",
+                  "operatingSystemVL": "/operatingSystem"
                 }
               }
             },
@@ -166,17 +210,17 @@
       }
     },
     {
-      "name": "purchaseDate",
+      "name": "purchaseDateOL",
       "elementType": "DateTimeParser",
       "configuration": {
-        "purchaseDate": "unixMillis"
+        "purchaseDateOL": "unixMillis"
       }
     },
     {
-      "name": "timestamp",
+      "name": "timestampVL",
       "elementType": "DateTimeParser",
       "configuration": {
-        "timestamp": "unixMillis"
+        "timestampVL": "unixMillis"
       }
     }
   ]
