@@ -12,7 +12,7 @@
         "port": 5672,
         "storageLevel": "MEMORY_ONLY",
         "exchangeName": "logsExchange",
-        "routingKeys" : ["logsRoute"]
+        "routingKeys" : ["purchasesRoute", "webLogsRoute"]
       }
     }
   ],
@@ -36,6 +36,10 @@
     {
       "dimensionType": "PassthroughBucketer",
       "name": "totalAmount"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "ipHost"
     }
   ],
   "rollups": [
@@ -44,6 +48,14 @@
         {
           "dimensionName": "purchaseDate",
           "bucketType": "minute"
+        }
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "ipHost",
+          "bucketType": "identity"
         }
       ]
     }
@@ -88,7 +100,8 @@
                   "country": "/country",
                   "city": "/city",
                   "user": "/user",
-                  "totalAmount": "/totalAmount"
+                  "totalAmount": "/totalAmount",
+                  "ipHost": "/ipHost"
                 }
               }
             },
