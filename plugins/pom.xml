@@ -34,6 +34,7 @@
         <module>bucketer-twitter-status</module>
         <module>output-mongodb</module>
         <module>output-elasticsearch</module>
+        <module>output-cassandra</module>
         <module>output-redis</module>
         <module>output-print</module>
         <module>operator-count</module>
