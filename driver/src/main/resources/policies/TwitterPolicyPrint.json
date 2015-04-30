@@ -73,7 +73,7 @@
         "elementType": "PrintOutput",
         "configuration": {
           "multiplexer" : "true",
-          "timestampBucket" : "minute",
+          "dateBucket" : "minute",
           "granularity" : "hour",
           "autoCalculateId" : "true"
         }

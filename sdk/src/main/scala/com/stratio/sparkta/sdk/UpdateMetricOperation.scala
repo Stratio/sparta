@@ -17,10 +17,8 @@
 package com.stratio.sparkta.sdk
 
 import org.apache.spark.sql._
-import java.io.{Serializable => JSerializable}
 
-case class UpdateMetricOperation(rollupKey: Seq[DimensionValue],
-                                 var aggregations: Map[String, Option[Any]]) {
+case class UpdateMetricOperation(rollupKey: Seq[DimensionValue], var aggregations: Map[String, Option[Any]]) {
 
   if (rollupKey == null) {
     throw new NullPointerException("rollupKey")
@@ -30,40 +28,32 @@ case class UpdateMetricOperation(rollupKey: Seq[DimensionValue],
     throw new NullPointerException("aggregations")
   }
 
-  override def toString: String = {
+  override def toString: String =
     this.keyString + " DIMENSIONS: " + rollupKey.mkString("|") + " AGGREGATIONS: " + aggregations
-  }
 
-  def keyString: String = {
-    UpdateMetricOperation.sortedNamesDimensionsValues(rollupKey)
-      .filter(dimName => dimName.nonEmpty).mkString(Output.SEPARATOR)
-  }
+  def keyString: String =
+    UpdateMetricOperation.sortedNamesDimVals(rollupKey).filter(dimName => dimName.nonEmpty).mkString(Output.SEPARATOR)
 
   /*
-   * By default transform an UpdateMetricOperation in a Row with the description.
+   * By default transform an UpdateMetricOperation in a Row with description.
    * If fixedBuckets is defined add fields and values to the original values and fields.
    * Id field we need calculate the value with all other values
    */
-  def toKeyRow(fixedBuckets: Option[Seq[(String, Any)]], idCalculated: Boolean): (Option[String], Row) = {
-    val namesValues = UpdateMetricOperation.getNamesValues(
-      UpdateMetricOperation.namesDimensionValues(UpdateMetricOperation.sortDimensionValues(rollupKey)),
-      toSeq,
-      idCalculated)
-    val keysRow = if (fixedBuckets.isDefined) {
-      val fixedBucketsFiltered = fixedBuckets.get.filter(bucket => !namesValues._1.contains(bucket._1))
-      (namesValues._1 ++ fixedBucketsFiltered.map(_._1),
-        Row.fromSeq(namesValues._2 ++ fixedBucketsFiltered.map(_._2)))
-    } else (namesValues._1, Row.fromSeq(namesValues._2))
+  def toKeyRow(fixedBuckets: Option[Seq[(String, Option[Any])]], idCalculated: Boolean): (Option[String], Row) = {
+    val (names, values) = UpdateMetricOperation.getNamesValues(
+      UpdateMetricOperation.namesDimVals(UpdateMetricOperation.sortDimVals(rollupKey)), toSeq, idCalculated)
+    val (keys, row) = if (fixedBuckets.isDefined) {
+      val bucketsFilteredSorted = fixedBuckets.get.filter(bucket => !names.contains(bucket._1) && bucket._2.isDefined)
+        .sortWith((bucket1, bucket2) => bucket1._1 < bucket2._1)
+      (names ++ bucketsFilteredSorted.map(_._1), Row.fromSeq(values ++ bucketsFilteredSorted.map(_._2.get)))
+    } else (names, Row.fromSeq(values))
 
-    if (keysRow._1.length > 0) {
-      (Some(keysRow._1.mkString(Output.SEPARATOR)), keysRow._2)
-    } else (None, keysRow._2)
+    if (keys.length > 0) (Some(keys.mkString(Output.SEPARATOR)), row) else (None, row)
   }
 
-  def toSeq: (Seq[Any], Seq[Any]) = {
-    (UpdateMetricOperation.sortDimensionValues(rollupKey).map(dimVal => dimVal.value),
-      aggregations.toSeq.map(aggregation => aggregation._2.getOrElse(0)))
-  }
+  def toSeq: (Seq[Any], Seq[Any]) =
+    (UpdateMetricOperation.sortDimVals(rollupKey).map(dimVal => dimVal.value),
+      aggregations.toSeq.sortWith((agg1, agg2) => agg1._1 < agg2._1).map(aggregation => aggregation._2.getOrElse(0)))
 }
 
 object UpdateMetricOperation {
@@ -77,22 +67,17 @@ object UpdateMetricOperation {
     } else (sortedNames, seqOfvalues._1 ++ seqOfvalues._2)
   }
 
-  def sortDimensionValues(dimValues: Seq[DimensionValue]): Seq[DimensionValue] = {
+  def sortDimVals(dimValues: Seq[DimensionValue]): Seq[DimensionValue] =
     dimValues.sortWith((dim1, dim2) =>
-      (dim1.dimension.name + dim1.bucketType.id) < (dim2.dimension.name + dim2.bucketType.id)
-    )
-  }
+      (dim1.dimension.name + dim1.bucketType.id) < (dim2.dimension.name + dim2.bucketType.id))
 
-  def namesDimensionValues(dimValues: Seq[DimensionValue]): Seq[String] = {
+  def namesDimVals(dimValues: Seq[DimensionValue]): Seq[String] =
     dimValues.map(dimVal => {
       dimVal.bucketType match {
         case Bucketer.identity => dimVal.dimension.name
         case _ => dimVal.bucketType.id
       }
     })
-  }
 
-  def sortedNamesDimensionsValues(dimValues: Seq[DimensionValue]): Seq[String] = {
-    namesDimensionValues(sortDimensionValues(dimValues))
-  }
+  def sortedNamesDimVals(dimValues: Seq[DimensionValue]): Seq[String] = namesDimVals(sortDimVals(dimValues))
 }
