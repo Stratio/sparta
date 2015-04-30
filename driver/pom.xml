@@ -110,11 +110,14 @@
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql_${scala.binary.version}</artifactId>
         </dependency>
+<<<<<<< HEAD
         <dependency>
             <groupId>com.gettyimages</groupId>
             <artifactId>spray-swagger_2.10</artifactId>
             <version>0.5.0</version>
         </dependency>
 
+=======
+>>>>>>> cad77cc070a11a6dcc22cbcacf6abd821125f18b
     </dependencies>
 </project>
