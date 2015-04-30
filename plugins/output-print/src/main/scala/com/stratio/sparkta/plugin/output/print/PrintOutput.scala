@@ -37,7 +37,7 @@ class PrintOutput(keyName : String,
 
   override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
-  override val timeBucket = properties.getString("timestampBucket", None)
+  override val timeBucket = properties.getString("dateBucket", None)
 
   override val granularity = properties.getString("granularity", None)
 

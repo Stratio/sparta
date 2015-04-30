@@ -23,13 +23,14 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.{MongoClient, MongoClientURI, MongoDB}
 import com.mongodb.{DBObject, MongoClientOptions, MongoClientURI => JMongoClientURI, WriteConcern, casbah}
 
+import com.stratio.sparkta.sdk.Output
+
 trait AbstractMongoDAO extends Closeable {
 
   final val DEFAULT_CONNECTIONS_PER_HOST = 5
   final val DEFAULT_THREADS_ALLOWED_TO_BLOCK = 10
   final val LANGUAGE_FIELD_NAME = "language"
   final val DEFAULT_ID = "_id"
-  final val INDEX_NAME_SEPARATOR = "_"
   final val DEFAULT_WRITE_CONCERN = casbah.WriteConcern.Unacknowledged
 
   def mongoClientUri: String
@@ -44,11 +45,7 @@ trait AbstractMongoDAO extends Closeable {
 
   def textIndexFields: Array[String]
 
-  def idValuesSeparator: String = "_"
-
   def fieldsSeparator: String = ","
-
-  def idAuxFieldName: String = "id"
 
   def pkTextIndexesCreated: (Boolean, Boolean) = (false, false)
 
@@ -71,11 +68,11 @@ trait AbstractMongoDAO extends Closeable {
     val textIndexCreated = textIndexFields.size > 0
 
     if (textIndexCreated) {
-      createTextIndex(collection, textIndexFields.mkString(INDEX_NAME_SEPARATOR), textIndexFields, language)
+      createTextIndex(collection, textIndexFields.mkString(Output.SEPARATOR), textIndexFields, language)
     }
     if (timeBucket.isDefined) {
-      createIndex(collection, idAuxFieldName + "_" + timeBucket.get,
-        Map(idAuxFieldName -> 1, timeBucket.get -> 1), true, true)
+      createIndex(collection, Output.ID + Output.SEPARATOR + timeBucket.get,
+        Map(Output.ID -> 1, timeBucket.get -> 1), true, true)
     }
     (timeBucket.isDefined, textIndexCreated)
   }
