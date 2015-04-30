@@ -23,14 +23,6 @@
     },
     {
       "dimensionType": "PassthroughBucketer",
-      "name": "country"
-    },
-    {
-      "dimensionType": "PassthroughBucketer",
-      "name": "city"
-    },
-    {
-      "dimensionType": "PassthroughBucketer",
       "name": "user"
     },
     {
@@ -39,7 +31,51 @@
     },
     {
       "dimensionType": "PassthroughBucketer",
+      "name": "city"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "postalCode"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "state"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "country"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "customerType"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "paymentType"
+    },
+    {
+      "dimensionType": "DateTimeBucketer",
+      "name": "timestamp"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
       "name": "ipHost"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "userAgent"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "userLog"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "responseCode"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "operatingSystem"
     }
   ],
   "rollups": [
@@ -56,6 +92,10 @@
         {
           "dimensionName": "ipHost",
           "bucketType": "identity"
+        },
+        {
+          "dimensionName": "timestamp",
+          "bucketType": "minute"
         }
       ]
     }
@@ -97,11 +137,20 @@
               "extractJsonPaths": {
                 "paths": {
                   "purchaseDate": "/purchaseDate",
-                  "country": "/country",
-                  "city": "/city",
                   "user": "/user",
                   "totalAmount": "/totalAmount",
-                  "ipHost": "/ipHost"
+                  "city": "/city",
+                  "postalCode": "/postalCode",
+                  "state": "/state",
+                  "country": "/country",
+                  "customerType": "/customerType",
+                  "paymentType": "/paymentType",
+                  "timestamp": "/timestamp",
+                  "ipHost": "/ipHost",
+                  "userAgent": "/userAgent",
+                  "userLog": "/userLog",
+                  "responseCode": "/responseCode",
+                  "operatingSystem": "/operatingSystem"
                 }
               }
             },
@@ -121,6 +170,13 @@
       "elementType": "DateTimeParser",
       "configuration": {
         "purchaseDate": "unixMillis"
+      }
+    },
+    {
+      "name": "timestamp",
+      "elementType": "DateTimeParser",
+      "configuration": {
+        "timestamp": "unixMillis"
       }
     }
   ]
