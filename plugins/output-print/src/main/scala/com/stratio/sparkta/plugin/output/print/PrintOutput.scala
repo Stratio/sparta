@@ -27,7 +27,7 @@ import scala.util.Try
 
 class PrintOutput(keyName : String,
                   properties: Map[String, JSerializable],
-                  sqlContext : SQLContext,
+                  @transient sqlContext : SQLContext,
                   operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
                   bcSchema : Option[Broadcast[Seq[TableSchema]]])
   extends Output(keyName, properties, sqlContext, operationTypes, bcSchema) {
