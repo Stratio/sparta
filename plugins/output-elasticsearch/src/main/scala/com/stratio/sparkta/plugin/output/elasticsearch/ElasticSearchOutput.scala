@@ -19,6 +19,7 @@ package com.stratio.sparkta.plugin.output.elasticsearch
 import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
+import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql._
 import org.apache.spark.streaming.dstream.DStream
@@ -33,10 +34,10 @@ import com.stratio.sparkta.sdk._
 
 class ElasticSearchOutput(keyName: String,
                           properties: Map[String, JSerializable],
-                          @transient sqlContext: SQLContext,
+                          @transient sparkContext: SparkContext,
                           operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
                           bcSchema: Option[Broadcast[Seq[TableSchema]]])
-  extends Output(keyName, properties, sqlContext, operationTypes, bcSchema)
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema)
   with AbstractElasticSearchDAO {
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min, WriteOp.AccAvg,

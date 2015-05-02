@@ -17,6 +17,8 @@ package com.stratio.sparkta.plugin.output.print
 
 import java.io.{Serializable => JSerializable}
 
+import org.apache.spark.SparkContext
+
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
@@ -27,13 +29,13 @@ import scala.util.Try
 
 class PrintOutput(keyName : String,
                   properties: Map[String, JSerializable],
-                  @transient sqlContext : SQLContext,
+                  @transient sparkContext: SparkContext,
                   operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
                   bcSchema : Option[Broadcast[Seq[TableSchema]]])
-  extends Output(keyName, properties, sqlContext, operationTypes, bcSchema) {
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) {
 
-  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.Median,
-  WriteOp.Stddev, WriteOp.Variance, WriteOp.AccSet)
+  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min, WriteOp.AccAvg,
+    WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText, WriteOp.AccSet)
 
   override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 

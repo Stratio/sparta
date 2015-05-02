@@ -45,6 +45,13 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.datastax.spark</groupId>
+            <artifactId>cassandra-connector</artifactId>
+            <version>1.3.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/spark-cassandra-connector-assembly-1.3.0-SNAPSHOT.jar</systemPath>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

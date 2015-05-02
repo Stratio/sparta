@@ -61,6 +61,7 @@
         "elementType": "CassandraOutput",
         "configuration": {
           "connectionHost" : "127.0.0.1",
+          "cluster" : "Sparkta Cluster",
           "keyspace" : "sparkta",
           "class" : "SimpleStrategy",
           "replicationFactor" : "1",

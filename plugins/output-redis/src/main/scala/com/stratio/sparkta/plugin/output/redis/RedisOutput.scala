@@ -23,7 +23,7 @@ import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
-import org.apache.spark.Logging
+import org.apache.spark._
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.dstream.DStream
@@ -35,16 +35,16 @@ import scala.util.Try
  *
  * @param keyName
  * @param properties
- * @param sqlContext
+ * @param sparkContext
  * @param operationTypes
  * @author anistal
  */
 class RedisOutput(keyName : String,
                   properties: Map[String, Serializable],
-                  sqlContext : SQLContext,
+                  sparkContext : SparkContext,
                   operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
                   bcSchema : Option[Broadcast[Seq[TableSchema]]])
-  extends Output(keyName, properties, sqlContext, operationTypes, bcSchema)
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema)
   with AbstractRedisDAO with Serializable {
 
   override val hostname = properties.getString("hostname", DefaultRedisHostname)

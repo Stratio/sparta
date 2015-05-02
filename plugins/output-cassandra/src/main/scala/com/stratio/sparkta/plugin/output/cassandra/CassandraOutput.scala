@@ -19,6 +19,7 @@ package com.stratio.sparkta.plugin.output.cassandra
 import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
+import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.SaveMode._
 import org.apache.spark.sql._
@@ -32,17 +33,28 @@ import com.stratio.sparkta.sdk._
 
 class CassandraOutput(keyName: String,
                       properties: Map[String, JSerializable],
-                      @transient sqlContext: SQLContext,
+                      @transient sparkContext: SparkContext,
                       operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
                       bcSchema: Option[Broadcast[Seq[TableSchema]]])
-  extends Output(keyName, properties, sqlContext, operationTypes, bcSchema)
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema)
   with AbstractCassandraDAO {
 
-  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min)
+  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min, WriteOp.AccAvg,
+    WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText, WriteOp.AccSet)
+
+  override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
+
+  override val timeBucket = properties.getString("timeBucket", None)
+
+  override val granularity = properties.getString("granularity", None)
+
+  override val autoCalculateId = Try(properties.getString("autoCalculateId").toBoolean).getOrElse(false)
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
   override val connectionHost = properties.getString("connectionHost", "127.0.0.1")
+
+  override val cluster = properties.getString("cluster", "Test Cluster")
 
   override val keyspace = properties.getString("keyspace", "sparkta")
 
@@ -54,14 +66,6 @@ class CassandraOutput(keyName: String,
 
   override val clusteringBuckets = properties.getString("clusteringBuckets", "").split(fieldsSeparator)
 
-  override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
-
-  override val timeBucket = properties.getString("timeBucket", None)
-
-  override val granularity = properties.getString("granularity", None)
-
-  override val autoCalculateId = Try(properties.getString("autoCalculateId").toBoolean).getOrElse(false)
-
   override val indexFields = properties.getString("indexFields", "").split(fieldsSeparator)
 
   override val textIndexFields = properties.getString("textIndexFields", "").split(fieldsSeparator)
@@ -70,7 +74,7 @@ class CassandraOutput(keyName: String,
 
   override val textIndexName = properties.getString("textIndexName", "lucene")
 
-  override val connector = configConnector(sqlContext.sparkContext.getConf)
+  override val connector = configConnector(sparkContext.getConf)
 
   val keyspaceCreated = createKeypace
 
@@ -89,15 +93,13 @@ class CassandraOutput(keyName: String,
   * With the fork of PR 112 of datastax-spark-connector.
   * https://github.com/datastax/spark-cassandra-connector/pull/648
   */
-  override protected def doPersist(stream: DStream[UpdateMetricOperation]): Unit = {
+  override def doPersist(stream: DStream[UpdateMetricOperation]): Unit = {
     if (bcSchema.isDefined && keyspaceCreated && tablesCreated) {
       persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket))
     }
   }
 
   override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
-    dataFrame.save("org.apache.spark.sql.cassandra",
-      Overwrite,
-      Map("c_table" -> tableName, "keyspace" -> keyspace))
+    dataFrame.save("org.apache.spark.sql.cassandra", Overwrite, Map("c_table" -> tableName, "keyspace" -> keyspace))
   }
 }

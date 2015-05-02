@@ -23,6 +23,7 @@ import scala.util.Try
 
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.Config
+import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.dstream.DStream
@@ -78,11 +79,11 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       if (rollOpSchema.size > 0) Some(sc.broadcast(rollOpSchema)) else None
     }
 
-    val outputs = SparktaJob.outputs(apConfig, sqlContext, bcOperatorsKeyOperation, bcRollupOperatorSchema)
+    val outputs = SparktaJob.outputs(apConfig, sc, bcOperatorsKeyOperation, bcRollupOperatorSchema)
     //TODO only support one input
     val input: DStream[Event] = inputs.head._2
+    SparktaJob.saveRawData(apConfig, sqlContext, input)
     val parsed = SparktaJob.applyParsers(input, parsers)
-
     val dataCube = new DataCube(dimensionsSeq, rollups).setUp(parsed)
     outputs.map(_._2.persist(dataCube))
     ssc
@@ -122,7 +123,7 @@ object SparktaJob {
       instantiateParameterizable[Operator](c, op.configuration)))
 
   def outputs(apConfig: AggregationPoliciesDto,
-              sqlContext: SQLContext,
+              sparkContext: SparkContext,
               bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
               bcRollupOperatorSchema: Option[Broadcast[Seq[TableSchema]]]): Seq[(String, Output)] =
     apConfig.outputs.map(o =>
@@ -130,10 +131,10 @@ object SparktaJob {
         c.getDeclaredConstructor(
           classOf[String],
           classOf[Map[String, Serializable]],
-          classOf[SQLContext],
+          classOf[SparkContext],
           classOf[Option[Broadcast[Map[String, (WriteOp, TypeOp)]]]],
           classOf[Option[Broadcast[Seq[TableSchema]]]])
-          .newInstance(o.name, o.configuration, sqlContext, bcOperatorsKeyOperation, bcRollupOperatorSchema)
+          .newInstance(o.name, o.configuration, sparkContext, bcOperatorsKeyOperation, bcRollupOperatorSchema)
           .asInstanceOf[Output])))
 
   def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C =
