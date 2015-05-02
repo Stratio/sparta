@@ -86,6 +86,13 @@
         "configuration": {}
       },
       {
+        "name": "count-distinct-operator",
+        "elementType": "CountOperator",
+        "configuration": {
+          "distinctFields": "wordsN"
+        }
+      },
+      {
         "name": "sum-operator",
         "elementType": "SumOperator",
         "configuration": {
