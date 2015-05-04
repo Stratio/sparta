@@ -81,6 +81,7 @@ case class GeoHashBucketer() extends Bucketer with SLF4JLogging {
 }
 
 object GeoHashBucketer {
+  //scalastyle:off
   private def bucket(lat: Double, long: Double, bucketType: BucketType): JSerializable = {
     (bucketType match {
       case p if p == precision1 => decodeHash(GeoHash.encodeHash(lat, long, 1))
@@ -97,7 +98,7 @@ object GeoHashBucketer {
       case p if p == precision12 => decodeHash(GeoHash.encodeHash(lat, long, 12))
     })
   }
-
+  //scalastyle:on
   private def decodeHash(geoLocHash : String) = {
     val geoDecoded: LatLong = GeoHash.decodeHash(geoLocHash)
     val (latitude, longitude) = (geoDecoded.getLat, geoDecoded.getLon)
