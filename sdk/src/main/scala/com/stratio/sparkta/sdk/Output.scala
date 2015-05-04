@@ -56,9 +56,9 @@ abstract class Output(keyName: String,
   def isAutoCalculateId: Boolean = false
 
   def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
-    if (bcSchema.isDefined) {
+    if (bcSchema.isDefined)
       streams.foreach(stream => doPersist(stream))
-    } else streams.foreach(stream => persistMetricOperation(stream))
+    else streams.foreach(stream => persistMetricOperation(stream))
   }
 
   protected def persistMetricOperation(stream: DStream[UpdateMetricOperation]): Unit =
@@ -72,7 +72,7 @@ abstract class Output(keyName: String,
     stream.map(updateMetricOp => updateMetricOp.toKeyRow(fixedBuckets, isAutoCalculateId))
       .foreachRDD(rdd => {
       bcSchema.get.value.filter(tschema => (tschema.outputName == keyName)).foreach(tschemaFiltered => {
-        val tableSchemaTime = Output.getTableSchemaTimeId(tschemaFiltered, fixedBuckets, isAutoCalculateId, dateType)
+        val tableSchemaTime = Output.getTableSchemaFixedId(tschemaFiltered, fixedBuckets, isAutoCalculateId, dateType)
         upsert(sqlContext.createDataFrame(
           Output.extractRow(rdd.filter(_._1.get == tableSchemaTime.tableName)),
           tableSchemaTime.schema), tableSchemaTime.tableName)
@@ -81,11 +81,9 @@ abstract class Output(keyName: String,
   }
 
   protected def doPersist(stream: DStream[UpdateMetricOperation]): Unit = {
-    if (bcSchema.isDefined) {
+    if (bcSchema.isDefined)
       persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket))
-    } else {
-      persistMetricOperation(stream)
-    }
+    else persistMetricOperation(stream)
   }
 
   def upsert(dataFrame: DataFrame, tableName: String): Unit = {}
@@ -97,9 +95,9 @@ abstract class Output(keyName: String,
       case None => None
       case Some(bucket) => {
         val metricOpFiltered = metricOp.rollupKey.filter(dimVal => bucket == dimVal.bucketType.id)
-        if (metricOpFiltered.size > 0) {
+        if (metricOpFiltered.size > 0)
           Some(metricOpFiltered.last.value)
-        } else if (granularity.isEmpty) None else Some(Output.dateFromGranularity(DateTime.now(), granularity.get))
+        else if (granularity.isEmpty) None else Some(Output.dateFromGranularity(DateTime.now(), granularity.get))
       }
     }
 
@@ -151,27 +149,20 @@ object Output {
     new Timestamp(dateSelected.getMillis)
   }
 
-  def getTableSchemaTimeId(tbSchema: TableSchema,
-                           fixedBuckets: Option[Seq[(String, Any)]],
-                           isAutoCalculateId: Boolean,
-                           dateTimeType: TypeOp): TableSchema = {
-    var tableName = tbSchema.tableName
-    var fields = tbSchema.schema.fields.toSeq
+  def getTableSchemaFixedId(tbSchema: TableSchema,
+                            fixedBuckets: Option[Seq[(String, Any)]],
+                            isAutoCalculateId: Boolean,
+                            fieldType: TypeOp): TableSchema = {
+    val fixedNames = fixedBuckets.get.map(_._1)
+    var tableName = tbSchema.tableName.split(SEPARATOR).filter(name => !fixedNames.contains(name)).mkString(SEPARATOR)
+    var fields = tbSchema.schema.fields.toSeq.filter(field => !fixedNames.contains(field.name))
     var modifiedSchema = false
 
     if (fixedBuckets.isDefined) {
       fixedBuckets.get.foreach(bucket => {
-        if (!tbSchema.schema.fieldNames.contains(bucket._1)) {
-          tableName += SEPARATOR + bucket._1
-          fields = fields ++ Seq(getDateTimeType(dateTimeType, bucket._1))
-          modifiedSchema = true
-        } else {
-          fields = fields.map(field => field match {
-            case field if field.name == bucket._1 => getDateTimeType(dateTimeType, bucket._1)
-            case _ => field
-          })
-          modifiedSchema = true
-        }
+        tableName += SEPARATOR + bucket._1
+        fields = fields ++ Seq(getFieldType(fieldType, bucket._1))
+        modifiedSchema = true
       })
     }
 
@@ -184,7 +175,7 @@ object Output {
     if (modifiedSchema) new TableSchema(tbSchema.outputName, tableName, StructType(fields)) else tbSchema
   }
 
-  def getDateTimeType(dateTimeType: TypeOp, fieldName: String): StructField =
+  def getFieldType(dateTimeType: TypeOp, fieldName: String): StructField =
     dateTimeType match {
       case TypeOp.Date | TypeOp.DateTime => defaultDateField(fieldName)
       case TypeOp.Timestamp => defaultTimeStampField(fieldName)

@@ -25,7 +25,7 @@ import org.joda.time.DateTime
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{Output, TypeOp}
 
-trait AbstractElasticSearchDAO extends Closeable {
+trait ElasticSearchDAO extends Closeable {
 
   def nodes: String
 
@@ -51,7 +51,7 @@ trait AbstractElasticSearchDAO extends Closeable {
   def close(): Unit = {}
 }
 
-object AbstractElasticSearchDAO {
+object ElasticSearchDAO {
 
   final val TIMESTAMP_PATTERN = "@timestamp:"
   final val DEFAULT_DATE_FORMAT = "YYYY.MM.dd"

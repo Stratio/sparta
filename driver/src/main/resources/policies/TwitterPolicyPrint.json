@@ -75,7 +75,7 @@
           "multiplexer" : "true",
           "dateBucket" : "minute",
           "granularity" : "hour",
-          "autoCalculateId" : "true"
+          "isAutoCalculateId" : "true"
         }
       }
       ],

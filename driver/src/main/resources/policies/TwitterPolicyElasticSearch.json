@@ -77,7 +77,7 @@
             "multiplexer" : "true",
             "dateBucket" : "minute",
             "granularity" : "minute",
-            "autoCalculateId" : "true",
+            "isAutoCalculateId" : "true",
             "dateType" : "timestamp",
             "indexMapping" : "day"
           }
