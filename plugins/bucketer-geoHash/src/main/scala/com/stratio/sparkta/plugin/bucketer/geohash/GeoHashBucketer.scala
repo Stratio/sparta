@@ -18,7 +18,7 @@ package com.stratio.sparkta.plugin.bucketer.geohash
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
-import com.github.davidmoten.geo.GeoHash
+import com.github.davidmoten.geo.{LatLong, GeoHash}
 import com.stratio.sparkta.plugin.bucketer.geohash.GeoHashBucketer._
 import com.stratio.sparkta.sdk.{BucketType, Bucketer}
 
@@ -82,7 +82,6 @@ case class GeoHashBucketer() extends Bucketer with SLF4JLogging {
 
 object GeoHashBucketer {
   private def bucket(lat: Double, long: Double, bucketType: BucketType): JSerializable = {
-    // scalastyle:off
     (bucketType match {
       case p if p == precision1 => decodeHash(GeoHash.encodeHash(lat, long, 1))
       case p if p == precision2 => decodeHash(GeoHash.encodeHash(lat, long, 2))
@@ -97,12 +96,12 @@ object GeoHashBucketer {
       case p if p == precision11 => decodeHash(GeoHash.encodeHash(lat, long, 11))
       case p if p == precision12 => decodeHash(GeoHash.encodeHash(lat, long, 12))
     })
-    // scalastyle:on
   }
 
   private def decodeHash(geoLocHash : String) = {
-    val geoDecoded = GeoHash.decodeHash(geoLocHash)
-    (geoDecoded.getLat + "/" + geoDecoded.getLon).asInstanceOf[JSerializable]
+    val geoDecoded: LatLong = GeoHash.decodeHash(geoLocHash)
+    val (latitude, longitude) = (geoDecoded.getLat, geoDecoded.getLon)
+    (s"[$latitude,$longitude]").asInstanceOf[JSerializable]
   }
 
   val precision1 = new BucketType("precision1")
