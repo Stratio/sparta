@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk._
 import org.apache.spark.streaming.dstream.DStream
+
+import com.stratio.sparkta.sdk._
 
 /**
  * Use this class to describe a rollup that you want the datacube to keep.
@@ -29,7 +31,7 @@ import org.apache.spark.streaming.dstream.DStream
 
 case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Operator]) {
 
-  private lazy val operatorsMap: Map[String, Operator] = operators.map(op => op.key -> op).toMap
+  private lazy val operatorsMap = operators.map(op => op.key -> op).toMap
 
   def this(dimension: Dimension, bucketType: BucketType, operators: Seq[Operator]) {
     this(Seq((dimension, bucketType)), operators)
@@ -46,57 +48,48 @@ case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Opera
   def aggregate(dimensionValuesStream: DStream[(Seq[DimensionValue],
     Map[String, JSerializable])]): DStream[UpdateMetricOperation] = {
 
-    val filteredDimensionsDstream: DStream[(Seq[DimensionValue], Map[String, JSerializable])] =
-      dimensionValuesStream
-        .map(dimensions => {
-        val dimVals: Seq[DimensionValue] = dimensions._1
-          .filter(dimVal => components.find(comp =>
-          comp._1 == dimVal.dimension && comp._2.id == dimVal.bucketType.id).nonEmpty)
-        (dimVals, dimensions._2)
-      })
-        .filter(_._1.nonEmpty)
+    val filteredDimensionsDstream = dimensionValuesStream.map { case (dimensionValues, aggregationValues) => {
+      val dimensionsFiltered = dimensionValues.filter(dimVal => components.find(comp =>
+        comp._1 == dimVal.dimension && comp._2.id == dimVal.bucketType.id).nonEmpty)
+      (dimensionsFiltered, aggregationValues)
+    }
+    }.filter(_._1.nonEmpty)
 
     filteredDimensionsDstream
-      .mapValues(inputFields => operators.flatMap(op => op.processMap(inputFields).map(op.key -> Some(_)))
-        .toMap
-      )
+      .mapValues(inputFields => operators.flatMap(op => op.processMap(inputFields).map(op.key -> Some(_))).toMap)
       .groupByKey()
-      .map(dimGrouped => {
-      val dimVals: Seq[DimensionValue] = dimGrouped._1
-      val metrics = dimGrouped._2.flatMap(_.toSeq)
-      val reducedMetricMap: Map[String, Option[Any]] = metrics.groupBy(_._1).map(operation => {
-        val name: String = operation._1
-        val op = operatorsMap(name)
-        val values = operation._2.map(_._2)
-        val reducedValue = op.processReduce(values)
-        (name, reducedValue)
-      })
-      UpdateMetricOperation(dimVals, reducedMetricMap)
-    })
+      .map { case (rollupKey, aggregationValues) => {
+      val aggregations = aggregationValues.flatMap(_.toSeq)
+        .groupBy { case (name, value) => name }
+        .map { case (name, value) => (name, operatorsMap(name).processReduce(value.map(_._2))) }
+      UpdateMetricOperation(rollupKey, aggregations)
+    }
+    }
   }
 
   override def toString: String = "[Rollup over " + components + "]"
 
-  def sortComponents : Seq[(Dimension, BucketType)] = {
+  def sortComponents: Seq[(Dimension, BucketType)] = {
     components.sortWith((rollup1, rollup2) =>
       (rollup1._1.name + rollup1._2.id) < (rollup2._1.name + rollup2._2.id))
   }
 
-  def componentNames(dimValues : Seq[(Dimension, BucketType)]) : Seq[String] = {
-    dimValues.map(dimVal => {
-      dimVal._2 match {
-        case Bucketer.identity => dimVal._1.name
-        case _ => dimVal._2.id
+  def componentNames(dimValues: Seq[(Dimension, BucketType)]): Seq[String] = {
+    dimValues.map { case (dimension, bucketType) => {
+      bucketType match {
+        case Bucketer.identity => dimension.name
+        case _ => bucketType.id
       }
-    })
+    }
+    }
   }
 
-  def sortedComponentsNames : Seq[String] = componentNames(sortComponents)
+  def sortedComponentsNames: Seq[String] = componentNames(sortComponents)
 
-  def sortOperators : Seq[Operator] = operators.sortWith((operator1, operator2) => (operator1.key) < (operator2.key))
+  def sortOperators: Seq[Operator] = operators.sortWith((operator1, operator2) => (operator1.key) < (operator2.key))
 
-  def operatorsNames(operators : Seq[Operator]) : Seq[String] = operators.map(operator => operator.key)
+  def operatorsNames(operators: Seq[Operator]): Seq[String] = operators.map(operator => operator.key)
 
-  def sortedOperatorsNames : Seq[String] = operatorsNames(sortOperators)
+  def sortedOperatorsNames: Seq[String] = operatorsNames(sortOperators)
 }
 
