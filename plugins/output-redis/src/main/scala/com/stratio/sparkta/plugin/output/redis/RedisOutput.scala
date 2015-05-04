@@ -41,7 +41,7 @@ import scala.util.Try
  */
 class RedisOutput(keyName : String,
                   properties: Map[String, Serializable],
-                  sparkContext : SparkContext,
+                  @transient sparkContext : SparkContext,
                   operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
                   bcSchema : Option[Broadcast[Seq[TableSchema]]])
   extends Output(keyName, properties, sparkContext, operationTypes, bcSchema)
