@@ -26,7 +26,7 @@ import org.apache.spark.streaming.dstream.DStream
 
 import org.elasticsearch.spark.sql._
 
-import com.stratio.sparkta.plugin.output.elasticsearch.dao.AbstractElasticSearchDAO
+import com.stratio.sparkta.plugin.output.elasticsearch.dao.ElasticSearchDAO
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
@@ -37,17 +37,16 @@ class ElasticSearchOutput(keyName: String,
                           @transient sparkContext: SparkContext,
                           operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
                           bcSchema: Option[Broadcast[Seq[TableSchema]]])
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema)
-  with AbstractElasticSearchDAO {
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with ElasticSearchDAO {
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min, WriteOp.AccAvg,
     WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText, WriteOp.AccSet)
 
-  override val dateType = AbstractElasticSearchDAO.getDateTimeType(properties.getString("dateType", None))
+  override val dateType = ElasticSearchDAO.getDateTimeType(properties.getString("dateType", None))
 
-  override val nodes = properties.getString("nodes", AbstractElasticSearchDAO.DEFAULT_NODE)
+  override val nodes = properties.getString("nodes", ElasticSearchDAO.DEFAULT_NODE)
 
-  override val defaultPort = properties.getString("defaultPort", AbstractElasticSearchDAO.DEFAULT_PORT)
+  override val defaultPort = properties.getString("defaultPort", ElasticSearchDAO.DEFAULT_PORT)
 
   override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
@@ -60,20 +59,18 @@ class ElasticSearchOutput(keyName: String,
   override val idField = properties.getString("idField", None)
 
   override val defaultIndexMapping = properties.getString("indexMapping",
-    Some(AbstractElasticSearchDAO.DEFAULT_INDEX_TYPE))
+    Some(ElasticSearchDAO.DEFAULT_INDEX_TYPE))
 
-  override val indexMapping = AbstractElasticSearchDAO.getIndexType(defaultIndexMapping)
+  override val indexMapping = ElasticSearchDAO.getIndexType(defaultIndexMapping)
 
   override protected def doPersist(stream: DStream[UpdateMetricOperation]): Unit = {
-    if (indexMapping.isDefined) {
-      persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket))
-    }
+    if (indexMapping.isDefined) persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket))
   }
 
   override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
-    val indexNameType = tableName + "/" + indexMapping.get
-    if (idField.isDefined || isAutoCalculateId) {
-      dataFrame.saveToEs(indexNameType.toLowerCase(), getSparkConfig(timeBucket))
-    } else dataFrame.saveToEs(indexNameType)
+    val indexNameType = (tableName + "/" + indexMapping.get).toLowerCase
+    if (idField.isDefined || isAutoCalculateId)
+      dataFrame.saveToEs(indexNameType, getSparkConfig(timeBucket))
+    else dataFrame.saveToEs(indexNameType)
   }
 }
