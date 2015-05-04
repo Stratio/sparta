@@ -53,7 +53,7 @@ abstract class Output(keyName: String,
 
   def granularity: Option[String]
 
-  def autoCalculateId: Boolean = false
+  def isAutoCalculateId: Boolean = false
 
   def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
     if (bcSchema.isDefined) {
@@ -69,10 +69,10 @@ abstract class Output(keyName: String,
       case None => None
       case Some(timeB) => Some(Seq((timeB, Output.getTimeFromGranularity(timeBucket, granularity))))
     }
-    stream.map(updateMetricOp => updateMetricOp.toKeyRow(fixedBuckets, autoCalculateId))
+    stream.map(updateMetricOp => updateMetricOp.toKeyRow(fixedBuckets, isAutoCalculateId))
       .foreachRDD(rdd => {
       bcSchema.get.value.filter(tschema => (tschema.outputName == keyName)).foreach(tschemaFiltered => {
-        val tableSchemaTime = Output.getTableSchemaTimeId(tschemaFiltered, fixedBuckets, autoCalculateId, dateType)
+        val tableSchemaTime = Output.getTableSchemaTimeId(tschemaFiltered, fixedBuckets, isAutoCalculateId, dateType)
         upsert(sqlContext.createDataFrame(
           Output.extractRow(rdd.filter(_._1.get == tableSchemaTime.tableName)),
           tableSchemaTime.schema), tableSchemaTime.tableName)
@@ -153,7 +153,7 @@ object Output {
 
   def getTableSchemaTimeId(tbSchema: TableSchema,
                            fixedBuckets: Option[Seq[(String, Any)]],
-                           autoCalculateId: Boolean,
+                           isAutoCalculateId: Boolean,
                            dateTimeType : TypeOp): TableSchema = {
     var tableName = tbSchema.tableName
     var fields = tbSchema.schema.fields.toSeq
@@ -175,7 +175,7 @@ object Output {
       })
     }
 
-    if (autoCalculateId && !tbSchema.schema.fieldNames.contains(ID)) {
+    if (isAutoCalculateId && !tbSchema.schema.fieldNames.contains(ID)) {
       tableName += SEPARATOR + ID
       fields = fields ++ Seq(defaultStringField(ID))
       modifiedSchema = true

@@ -48,7 +48,7 @@ class CassandraOutput(keyName: String,
 
   override val granularity = properties.getString("granularity", None)
 
-  override val autoCalculateId = Try(properties.getString("autoCalculateId").toBoolean).getOrElse(false)
+  override val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
@@ -81,11 +81,11 @@ class CassandraOutput(keyName: String,
   val schemaFiltered = filterSchemaByKeyAndField(bcSchema.get.value, timeBucket)
 
   val tablesCreated = if (keyspaceCreated) {
-    bcSchema.exists(bc => createTables(schemaFiltered, timeBucket, autoCalculateId))
+    bcSchema.exists(bc => createTables(schemaFiltered, timeBucket, isAutoCalculateId))
   } else false
 
   val indexesCreated = if (keyspaceCreated && tablesCreated) {
-    bcSchema.exists(bc => createIndexes(schemaFiltered, timeBucket, autoCalculateId))
+    bcSchema.exists(bc => createIndexes(schemaFiltered, timeBucket, isAutoCalculateId))
   } else false
 
   /*

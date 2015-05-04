@@ -43,7 +43,7 @@ class PrintOutput(keyName : String,
 
   override val granularity = properties.getString("granularity", None)
 
-  override val autoCalculateId = Try(properties.getString("autoCalculateId").toBoolean).getOrElse(false)
+  override val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
   override def upsert(dataFrame : DataFrame, tableName : String): Unit = {
     println("Table name : " + tableName)

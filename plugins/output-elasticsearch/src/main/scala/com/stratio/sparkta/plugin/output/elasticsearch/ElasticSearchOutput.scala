@@ -55,7 +55,7 @@ class ElasticSearchOutput(keyName: String,
 
   override val granularity = properties.getString("granularity", None)
 
-  override val autoCalculateId = Try(properties.getString("autoCalculateId").toBoolean).getOrElse(true)
+  override val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
   override val idField = properties.getString("idField", None)
 
@@ -72,7 +72,7 @@ class ElasticSearchOutput(keyName: String,
 
   override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
     val indexNameType = tableName + "/" + indexMapping.get
-    if (idField.isDefined || autoCalculateId) {
+    if (idField.isDefined || isAutoCalculateId) {
       dataFrame.saveToEs(indexNameType, getSparkConfig(timeBucket))
     } else dataFrame.saveToEs(indexNameType)
   }
