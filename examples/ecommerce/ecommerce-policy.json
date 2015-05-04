@@ -90,6 +90,14 @@
     {
       "dimensionAndBucketTypes": [
         {
+          "dimensionName": "timestampVL",
+          "bucketType": "minute"
+        }
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
           "dimensionName": "ipHostVL",
           "bucketType": "identity"
         },
@@ -118,12 +126,16 @@
   ],
   "outputs": [
     {
-      "name": "out-mongo",
-      "elementType": "MongoDbOutput",
+      "name": "out-elasticsearch",
+      "elementType": "ElasticSearchOutput",
       "configuration": {
-        "clientUri": "mongodb://localhost:27017",
-        "timeField": "purchaseDateOL",
-        "timeDimension": "purchaseDateOL"
+        "nodes" : "localhost",
+        "defaultPort" : "9200",
+        "dateBucket" : "minute",
+        "granularity" : "minute",
+        "autoCalculateId" : "true",
+        "dateType" : "timestamp",
+        "indexMapping" : "day"
       }
     }
   ],

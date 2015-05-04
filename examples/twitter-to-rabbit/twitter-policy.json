@@ -105,7 +105,7 @@
             "name": "out-mongo",
             "elementType": "MongoDbOutput",
             "configuration": {
-                "clientUri": "mongodb://172.19.1.238:27017",
+                "clientUri": "mongodb://localhost:27017",
                 "timeField": "timestamp",
                 "timeDimension": "createdAt"
             }
