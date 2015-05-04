@@ -54,7 +54,7 @@ class ElasticSearchOutput(keyName: String,
 
   override val granularity = properties.getString("granularity", None)
 
-  override val autoCalculateId = Try(properties.getString("autoCalculateId").toBoolean).getOrElse(false)
+  override val autoCalculateId = Try(properties.getString("autoCalculateId").toBoolean).getOrElse(true)
 
   override val idField = properties.getString("idField", None)
 
