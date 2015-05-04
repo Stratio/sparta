@@ -17,7 +17,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 # sys.path.insert(0, os.path.abspath('.'))
 
-# -- General configuration ------------------------------------------------
+# -- General configuration -----------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
 # needs_sphinx = '1.0'
@@ -110,7 +110,7 @@ html_theme_options = {
     'versions' : ['1.2.0'],
     'github' : '',
     'jira': '',
-    'module_name' : 'admin'
+    'module_name' : 'sparkta'
 }
 
 # Add any paths that contain custom themes here, relative to this directory.

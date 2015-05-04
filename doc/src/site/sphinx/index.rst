@@ -4,4 +4,4 @@ Contents:
     :maxdepth: 4
     :numbered:
 
-    commingSoon.rst
+    examples.rst

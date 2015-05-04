@@ -1,0 +1,239 @@
+{
+  "name": "ecommerce-policy",
+  "duration": 10000,
+  "saveRawData": "false",
+  "inputs": [
+    {
+      "name": "in",
+      "elementType": "RabbitMQInput",
+      "configuration": {
+        "queue": "logsQueue",
+        "host": "localhost",
+        "port": 5672,
+        "storageLevel": "MEMORY_ONLY",
+        "exchangeName": "logsExchange",
+        "routingKeys" : ["webLogsRoute","purchasesRoute"]
+      }
+    }
+  ],
+  "dimensions": [
+    {
+      "dimensionType": "DateTimeBucketer",
+      "name": "purchaseDateOL"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "userOL"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "totalAmountOL"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "cityOL"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "postalCodeOL"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "stateOL"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "countryOL"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "customerTypeOL"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "paymentTypeOL"
+    },
+    {
+      "dimensionType": "DateTimeBucketer",
+      "name": "timestampVL"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "ipHostVL"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "userAgentVL"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "userLogVL"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "responseCodeVL"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "operatingSystemVL"
+    }
+  ],
+  "rollups": [
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "purchaseDateOL",
+          "bucketType": "minute"
+        }
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "timestampVL",
+          "bucketType": "minute"
+        }
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "ipHostVL",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "timestampVL",
+          "bucketType": "minute"
+        }
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "cityOL",
+          "bucketType": "identity"
+        }
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "stateOL",
+          "bucketType": "identity"
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-elasticsearch",
+      "elementType": "ElasticSearchOutput",
+      "configuration": {
+        "nodes" : "localhost",
+        "defaultPort" : "9200",
+        "dateBucket" : "minute",
+        "granularity" : "minute",
+        "autoCalculateId" : "true",
+        "dateType" : "timestamp",
+        "indexMapping" : "day"
+      }
+    }
+  ],
+  "operators": [
+    {
+      "name": "count-operator",
+      "elementType": "CountOperator",
+      "configuration": {}
+    },
+    {
+      "name": "avg-operator",
+      "elementType": "AvgOperator",
+      "configuration": {
+        "inputField" : "totalAmountOL"
+      }
+    },
+    {
+      "name": "sum-operator",
+      "elementType": "SumOperator",
+      "configuration": {
+        "inputField" : "totalAmountOL"
+      }
+    },
+    {
+      "name": "max-operator",
+      "elementType": "MaxOperator",
+      "configuration": {
+        "inputField" : "totalAmountOL"
+      }
+    },
+    {
+      "name": "min-operator",
+      "elementType": "MinOperator",
+      "configuration": {
+        "inputField" : "totalAmountOL"
+      }
+    }
+  ],
+  "parsers": [
+    {
+      "name": "morphline-parser",
+      "elementType": "MorphlinesParser",
+      "configuration": {
+        "morphline": {
+          "id": "morphline1",
+          "importCommands": [
+            "org.kitesdk.**",
+            "com.stratio.ingestion.morphline.**"
+          ],
+          "commands": [
+            {
+              "readJson": {}
+            },
+            {
+              "extractJsonPaths": {
+                "paths": {
+                  "purchaseDateOL": "/purchaseDate",
+                  "userOL": "/user",
+                  "totalAmountOL": "/totalAmount",
+                  "cityOL": "/city",
+                  "postalCodeOL": "/postalCode",
+                  "stateOL": "/state",
+                  "countryOL": "/country",
+                  "customerTypeOL": "/customerType",
+                  "paymentTypeOL": "/paymentType",
+                  "timestampVL": "/timestamp",
+                  "ipHostVL": "/ipHost",
+                  "userAgentVL": "/userAgent",
+                  "userLogVL": "/userLog",
+                  "responseCodeVL": "/responseCode",
+                  "operatingSystemVL": "/operatingSystem"
+                }
+              }
+            },
+            {
+              "removeFields": {
+                "blacklist": [
+                  "literal:_attachment_body"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "purchaseDateOL",
+      "elementType": "DateTimeParser",
+      "configuration": {
+        "purchaseDateOL": "unixMillis"
+      }
+    },
+    {
+      "name": "timestampVL",
+      "elementType": "DateTimeParser",
+      "configuration": {
+        "timestampVL": "unixMillis"
+      }
+    }
+  ]
+}

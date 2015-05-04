@@ -1,0 +1,43 @@
+<!--
+
+    Copyright (C) 2015 Stratio (http://stratio.com)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<setup>
+    <import class="com.stratio.examples.datagenerator.producers.VisitLogProducer"/>
+    <import class="org.databene.platform.java.JavaInvoker"/>
+    <import class="org.databene.benerator.distribution.function.*"/>
+    <import defaults="true" domains="person,address"/>
+
+    <bean id="dateTimeGen" class="CurrentMilliTimeGenerator"/>
+
+    <bean id="serviceVisitLogEvent" spec="new VisitLogProducer('localhost', 5672)"/>
+    <bean id="consumerVisitLogEvent" spec="new JavaInvoker(serviceVisitLogEvent, 'write')"/>
+
+    <generate type="visitLog" consumer="consumerVisitLogEvent">
+        <variable name="person" generator="org.databene.domain.person.PersonGenerator" dataset="US" locale="us"/>
+
+        <attribute name="timestamp" type="long" generator="dateTimeGen"/>
+        <attribute name="ipHost" type="string" pattern="55\.[0-2][0-5][0-5]\.[0-2][0-5][0-5]\.[0-2][0-5][0-5]"/>
+        <attribute name="userAgent" type="string"
+                   pattern="(Mozilla/5.0 (Linux;Android 4.0.3)|Mozilla/5.0 (Linux; U; Android 2.2)|Mozilla/5.0 (BlackBerry)|Mozilla/5.0 (X11; Linux i686)|Mozilla/5.0 (Windows CE 5.2))"
+                   distribution="new DiscreteFunction(5,100,10,500,400,30,200)"/>
+        <attribute name="userLog" type="string" script="person.givenName + ' ' + person.familyName"/>
+        <attribute name="responseCode" type="string" pattern="(200|500|502)"
+                   distribution="new DiscreteFunction(10000,10,20)"/>
+        <attribute name="operatingSystem" type="string" pattern="(OSX_LION|OSX_YOSEMITE|OSX_MAVERICKS|OSX_YOSEMITE|WINDOWS_7|WINDOWS_8|WINDOWS_SERVER|LINUX_CENTOS|LINUX_UBUNTU)" distribution="new DiscreteFunction(10,100,2,400,50,500,300,50,200)"/>
+    </generate>
+
+</setup>
