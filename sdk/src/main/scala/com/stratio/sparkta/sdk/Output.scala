@@ -154,16 +154,10 @@ object Output {
   def getTableSchemaTimeId(tbSchema: TableSchema,
                            fixedBuckets: Option[Seq[(String, Any)]],
                            autoCalculateId: Boolean,
-                           dateTimeType: TypeOp): TableSchema = {
+                           dateTimeType : TypeOp): TableSchema = {
     var tableName = tbSchema.tableName
     var fields = tbSchema.schema.fields.toSeq
     var modifiedSchema = false
-
-    if (autoCalculateId && !tbSchema.schema.fieldNames.contains(ID)) {
-      tableName += SEPARATOR + ID
-      fields = fields ++ Seq(defaultStringField(ID))
-      modifiedSchema = true
-    }
 
     if (fixedBuckets.isDefined) {
       fixedBuckets.get.foreach(bucket => {
@@ -179,6 +173,12 @@ object Output {
           modifiedSchema = true
         }
       })
+    }
+
+    if (autoCalculateId && !tbSchema.schema.fieldNames.contains(ID)) {
+      tableName += SEPARATOR + ID
+      fields = fields ++ Seq(defaultStringField(ID))
+      modifiedSchema = true
     }
 
     if (modifiedSchema) new TableSchema(tbSchema.outputName, tableName, StructType(fields)) else tbSchema
