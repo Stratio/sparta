@@ -22,7 +22,7 @@ trait Multiplexer {
 
   def getStreamsFromOptions(stream: DStream[UpdateMetricOperation], multiplexer: Boolean,
                             fixedBucket: Option[String]): DStream[UpdateMetricOperation] = {
-    if(multiplexer) {
+    if (multiplexer) {
       fixedBucket match {
         case None => Multiplexer.multiplexStream(stream)
         case Some(bucket) => Multiplexer.multiplexStream[bucket.type](stream, bucket)
@@ -40,35 +40,31 @@ object Multiplexer {
     } yield combinations
   }
 
-  def multiplexStream(stream: DStream[UpdateMetricOperation]) : DStream[UpdateMetricOperation] = {
-     for {
-        upMetricOp: UpdateMetricOperation <- stream
-        comb: Seq[DimensionValue] <- combine(upMetricOp.rollupKey)
-          .filter(dimVals => dimVals.size >= 1)
-      } yield UpdateMetricOperation(UpdateMetricOperation.sortDimensionValues(comb), upMetricOp.aggregations)
+  def multiplexStream(stream: DStream[UpdateMetricOperation]): DStream[UpdateMetricOperation] = {
+    for {
+      upMetricOp: UpdateMetricOperation <- stream
+      comb <- combine(upMetricOp.rollupKey).filter(dimVals => dimVals.size >= 1)
+    } yield UpdateMetricOperation(UpdateMetricOperation.sortDimVals(comb), upMetricOp.aggregations)
   }
 
-  def multiplexStream[T](stream: DStream[UpdateMetricOperation],
-                               fixedBucket : T) : DStream[UpdateMetricOperation] = {
+  def multiplexStream[T](stream: DStream[UpdateMetricOperation], fixedBucket: T): DStream[UpdateMetricOperation] = {
     for {
       upMetricOp: UpdateMetricOperation <- stream
       fixedDim = fixedBucket match {
         case Some(value: DimensionValue) => fixedBucket.asInstanceOf[Option[DimensionValue]]
-        case value : String => upMetricOp.rollupKey.find(
+        case value: String => upMetricOp.rollupKey.find(
           dimValue => dimValue.bucketType.id == fixedBucket.asInstanceOf[String])
       }
-      comb: Seq[DimensionValue] <- combine(
+      comb <- combine(
         upMetricOp.rollupKey.filter(_.bucketType.id != (fixedDim match {
           case None => ""
           case _ => fixedDim.get.bucketType.id
-        })))
-        .filter(dimVals => dimVals.size >= 1)
-        .map(seqDimVal => {
+        }))).filter(dimVals => dimVals.size >= 1).map(seqDimVal => {
         fixedDim match {
           case None => seqDimVal
           case _ => seqDimVal ++ Seq(fixedDim.get)
         }
       })
-    } yield UpdateMetricOperation(UpdateMetricOperation.sortDimensionValues(comb), upMetricOp.aggregations)
+    } yield UpdateMetricOperation(UpdateMetricOperation.sortDimVals(comb), upMetricOp.aggregations)
   }
 }

@@ -27,7 +27,7 @@ import scala.util.Try
 
 class PrintOutput(keyName : String,
                   properties: Map[String, JSerializable],
-                  sqlContext : SQLContext,
+                  @transient sqlContext : SQLContext,
                   operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
                   bcSchema : Option[Broadcast[Seq[TableSchema]]])
   extends Output(keyName, properties, sqlContext, operationTypes, bcSchema) {
@@ -37,7 +37,7 @@ class PrintOutput(keyName : String,
 
   override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
-  override val timeBucket = properties.getString("timestampBucket", None)
+  override val timeBucket = properties.getString("dateBucket", None)
 
   override val granularity = properties.getString("granularity", None)
 

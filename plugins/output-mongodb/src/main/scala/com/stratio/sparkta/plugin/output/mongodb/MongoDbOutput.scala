@@ -35,7 +35,7 @@ import com.stratio.sparkta.sdk.{WriteOp, _}
 
 class MongoDbOutput(keyName: String,
                     properties: Map[String, JSerializable],
-                    sqlContext: SQLContext,
+                    @transient sqlContext: SQLContext,
                     operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
                     bcSchema: Option[Broadcast[Seq[TableSchema]]])
   extends Output(keyName, properties, sqlContext, operationTypes, bcSchema)
@@ -57,14 +57,13 @@ class MongoDbOutput(keyName: String,
 
   override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
-  override val timeBucket = properties.getString("timestampBucket", None)
+  override val timeBucket = properties.getString("dateBucket", None)
 
   override val granularity = properties.getString("granularity", None)
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val textIndexFields = properties.getString("textIndexFields", "")
-    .split(fieldsSeparator)
+  override val textIndexFields = properties.getString("textIndexFields", "").split(fieldsSeparator)
 
   override val language = properties.getString("language", "none")
 
@@ -92,7 +91,7 @@ class MongoDbOutput(keyName: String,
       val languageObject = (LANGUAGE_FIELD_NAME, language)
       val bulkOperation = db().getCollection(collMetricOp._1).initializeOrderedBulkOperation()
       val idField = if (timeBucket.isDefined && (collMetricOp._1.contains(timeBucket) || granularity.isDefined)) {
-        idAuxFieldName
+        Output.ID
       } else DEFAULT_ID
 
       collMetricOp._2.foreach(metricOp => {
@@ -114,7 +113,7 @@ class MongoDbOutput(keyName: String,
           val builder = MongoDBObject.newBuilder
           builder += idField -> rollupKeyFilteredByTime(metricOp.rollupKey)
             .map(dimVal => dimVal.value.toString)
-            .mkString(idValuesSeparator)
+            .mkString(Output.SEPARATOR)
           if (eventTimeObject.isDefined) builder += eventTimeObject.get
           builder.result
         }

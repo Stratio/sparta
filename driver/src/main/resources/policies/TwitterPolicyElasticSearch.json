@@ -69,17 +69,17 @@
     ],
     "outputs": [
       {
-          "name": "out-mongo",
-          "elementType": "MongoDbOutput",
+          "name": "out-elasticsearch",
+          "elementType": "ElasticSearchOutput",
           "configuration": {
-            "clientUri" : "mongodb://localhost:27017",
-            "dbName" : "sparkta",
+            "nodes" : "localhost",
+            "defaultPort" : "9200",
             "multiplexer" : "true",
             "dateBucket" : "minute",
-            "granularity" : "hour",
-            "textIndexFields" : "userLocation",
-            "fieldsSeparator" : ",",
-            "language" : "english"
+            "granularity" : "minute",
+            "autoCalculateId" : "true",
+            "dateType" : "timestamp",
+            "indexMapping" : "day"
           }
         }
       ],
