@@ -25,7 +25,7 @@ import org.apache.spark.sql.SaveMode._
 import org.apache.spark.sql._
 import org.apache.spark.streaming.dstream.DStream
 
-import com.stratio.sparkta.plugin.output.cassandra.dao.AbstractCassandraDAO
+import com.stratio.sparkta.plugin.output.cassandra.dao.CassandraDAO
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
@@ -37,7 +37,7 @@ class CassandraOutput(keyName: String,
                       operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
                       bcSchema: Option[Broadcast[Seq[TableSchema]]])
   extends Output(keyName, properties, sparkContext, operationTypes, bcSchema)
-  with AbstractCassandraDAO {
+  with CassandraDAO {
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min, WriteOp.AccAvg,
     WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText, WriteOp.AccSet)

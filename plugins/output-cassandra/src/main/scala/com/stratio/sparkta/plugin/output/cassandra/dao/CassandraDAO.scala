@@ -24,7 +24,7 @@ import org.apache.spark.{Logging, SparkConf}
 
 import com.stratio.sparkta.sdk.{Output, TableSchema}
 
-trait AbstractCassandraDAO extends Closeable with Logging {
+trait CassandraDAO extends Closeable with Logging {
 
   val connector: Option[CassandraConnector] = None
 

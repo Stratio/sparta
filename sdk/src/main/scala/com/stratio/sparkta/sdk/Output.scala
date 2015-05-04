@@ -154,7 +154,7 @@ object Output {
   def getTableSchemaTimeId(tbSchema: TableSchema,
                            fixedBuckets: Option[Seq[(String, Any)]],
                            isAutoCalculateId: Boolean,
-                           dateTimeType : TypeOp): TableSchema = {
+                           dateTimeType: TypeOp): TableSchema = {
     var tableName = tbSchema.tableName
     var fields = tbSchema.schema.fields.toSeq
     var modifiedSchema = false
