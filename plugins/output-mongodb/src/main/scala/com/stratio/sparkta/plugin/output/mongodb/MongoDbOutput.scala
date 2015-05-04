@@ -23,6 +23,7 @@ import com.mongodb.casbah
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.conversions.scala._
 import com.mongodb.casbah.commons.{Imports, MongoDBObject}
+import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.dstream.DStream
@@ -35,10 +36,10 @@ import com.stratio.sparkta.sdk.{WriteOp, _}
 
 class MongoDbOutput(keyName: String,
                     properties: Map[String, JSerializable],
-                    @transient sqlContext: SQLContext,
+                    @transient sparkContext: SparkContext,
                     operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
                     bcSchema: Option[Broadcast[Seq[TableSchema]]])
-  extends Output(keyName, properties, sqlContext, operationTypes, bcSchema)
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema)
   with AbstractMongoDAO {
 
   RegisterJodaTimeConversionHelpers()

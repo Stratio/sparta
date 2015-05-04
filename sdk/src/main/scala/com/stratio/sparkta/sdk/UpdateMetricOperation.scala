@@ -35,20 +35,21 @@ case class UpdateMetricOperation(rollupKey: Seq[DimensionValue], var aggregation
     UpdateMetricOperation.sortedNamesDimVals(rollupKey).filter(dimName => dimName.nonEmpty).mkString(Output.SEPARATOR)
 
   /*
-   * By default transform an UpdateMetricOperation in a Row with description.
-   * If fixedBuckets is defined add fields and values to the original values and fields.
-   * Id field we need calculate the value with all other values
-   */
+    * By default transform an UpdateMetricOperation in a Row with description.
+    * If fixedBuckets is defined add fields and values to the original values and fields.
+    * Id field we need calculate the value with all other values
+    */
   def toKeyRow(fixedBuckets: Option[Seq[(String, Option[Any])]], idCalculated: Boolean): (Option[String], Row) = {
-    val (names, values) = UpdateMetricOperation.getNamesValues(
-      UpdateMetricOperation.namesDimVals(UpdateMetricOperation.sortDimVals(rollupKey)), toSeq, idCalculated)
-    val (keys, row) = if (fixedBuckets.isDefined) {
-      val bucketsFilteredSorted = fixedBuckets.get.filter(bucket => !names.contains(bucket._1) && bucket._2.isDefined)
+    val namesDim = UpdateMetricOperation.namesDimVals(UpdateMetricOperation.sortDimVals(rollupKey))
+    val (valuesDim, valuesAgg) = toSeq
+    val (namesFixed, valuesFixed) = if (fixedBuckets.isDefined) {
+      val fixedBucketsSorted = fixedBuckets.get.filter(bucket => !namesDim.contains(bucket._1) && bucket._2.isDefined)
         .sortWith((bucket1, bucket2) => bucket1._1 < bucket2._1)
-      (names ++ bucketsFilteredSorted.map(_._1), Row.fromSeq(values ++ bucketsFilteredSorted.map(_._2.get)))
-    } else (names, Row.fromSeq(values))
+      (namesDim ++ fixedBucketsSorted.map(_._1), valuesDim ++ valuesAgg ++ fixedBucketsSorted.map(_._2.get))
+    } else (namesDim, valuesDim ++ valuesAgg)
+    val (keys, row) = UpdateMetricOperation.getNamesValues(namesFixed, valuesFixed, idCalculated)
 
-    if (keys.length > 0) (Some(keys.mkString(Output.SEPARATOR)), row) else (None, row)
+    if (keys.length > 0) (Some(keys.mkString(Output.SEPARATOR)), Row.fromSeq(row)) else (None, Row.fromSeq(row))
   }
 
   def toSeq: (Seq[Any], Seq[Any]) =
@@ -58,13 +59,12 @@ case class UpdateMetricOperation(rollupKey: Seq[DimensionValue], var aggregation
 
 object UpdateMetricOperation {
 
-  def getNamesValues(sortedNames: Seq[String],
-                     seqOfvalues: (Seq[Any], Seq[Any]),
+  def getNamesValues(names: Seq[String],
+                     values: Seq[Any],
                      idCalculated: Boolean): (Seq[String], Seq[Any]) = {
-    if (idCalculated && !sortedNames.contains(Output.ID)) {
-      (sortedNames ++ Seq(Output.ID),
-        seqOfvalues._1 ++ seqOfvalues._2 ++ Seq(seqOfvalues._1.mkString(Output.SEPARATOR)))
-    } else (sortedNames, seqOfvalues._1 ++ seqOfvalues._2)
+    if (idCalculated && !names.contains(Output.ID))
+      (names ++ Seq(Output.ID), values ++ Seq(values.mkString(Output.SEPARATOR)))
+    else (names, values)
   }
 
   def sortDimVals(dimValues: Seq[DimensionValue]): Seq[DimensionValue] =
