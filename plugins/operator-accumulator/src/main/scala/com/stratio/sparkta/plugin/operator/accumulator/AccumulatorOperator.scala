@@ -24,7 +24,7 @@ import scala.util.Try
 
 class AccumulatorOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  override val typeOp = Some(TypeOp.String)
+  override val typeOp = Some(TypeOp.ArrayString)
 
   private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
@@ -39,9 +39,8 @@ class AccumulatorOperator(properties: Map[String, JSerializable]) extends Operat
     } else AccumulatorOperator.SOME_EMPTY
   }
 
-  override def processReduce(values : Iterable[Option[Any]]): Option[String] = {
-    Try(Some(values.map(_.get.toString).reduce(_ + AccumulatorOperator.SEPARATOR + _)))
-      .getOrElse(AccumulatorOperator.SOME_EMPTY)
+  override def processReduce(values : Iterable[Option[Any]]): Option[Any] = {
+    Try(Some(values.map(_.get.toString))).getOrElse(AccumulatorOperator.SOME_EMPTY)
   }
 }
 

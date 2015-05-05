@@ -22,5 +22,5 @@ package com.stratio.sparkta.sdk
 
 object TypeOp extends Enumeration {
   type TypeOp = Value
-  val Long, Int, String, Double, Boolean, Binary, Date, DateTime, Timestamp = Value
+  val Long, Int, String, Double, Boolean, Binary, Date, DateTime, Timestamp, ArrayDouble, ArrayString = Value
 }
