@@ -65,18 +65,18 @@ with Matchers {
       }
     }
     "Get info about specific policy" in {
-      val POLICY_NAME = "p-1"
-      val test = Get("/policy/" + POLICY_NAME) ~> policyRoutes
-      supervisorProbe.expectMsg(new GetContextStatus(POLICY_NAME))
-      supervisorProbe.reply(new StreamingContextStatusDto(POLICY_NAME, Initialized, None))
+      val PolicyName = "p-1"
+      val test = Get("/policy/" + PolicyName) ~> policyRoutes
+      supervisorProbe.expectMsg(new GetContextStatus(PolicyName))
+      supervisorProbe.reply(new StreamingContextStatusDto(PolicyName, Initialized, None))
       test ~> check {
         status should equal(OK)
-        entity.asString should include(POLICY_NAME)
+        entity.asString should include(PolicyName)
       }
     }
     "Create policy" in {
-      val POLICY_NAME = "p-1"
-      val apd = new AggregationPoliciesDto(POLICY_NAME, "false", "myPath", 0, Seq(), Seq(), Seq(), Seq(), Seq(), Seq())
+      val PolicyName = "p-1"
+      val apd = new AggregationPoliciesDto(PolicyName, "false", "myPath", 0, Seq(), Seq(), Seq(), Seq(), Seq(), Seq())
       try {
         val test = Post("/policy", apd) ~> policyRoutes
         supervisorProbe.expectMsg(new CreateContext(apd))
@@ -90,23 +90,23 @@ with Matchers {
       }
     }
     "Delete policy" in {
-      val POLICY_NAME = "p-1"
-      val test = Delete("/policy/" + POLICY_NAME) ~> policyRoutes
-      supervisorProbe.expectMsg(new DeleteContext(POLICY_NAME))
-      supervisorProbe.reply(new StreamingContextStatusDto(POLICY_NAME, Removed, None))
+      val PolicyName = "p-1"
+      val test = Delete("/policy/" + PolicyName) ~> policyRoutes
+      supervisorProbe.expectMsg(new DeleteContext(PolicyName))
+      supervisorProbe.reply(new StreamingContextStatusDto(PolicyName, Removed, None))
       test ~> check {
         status should equal(OK)
-        entity.asString should include(POLICY_NAME)
+        entity.asString should include(PolicyName)
         entity.asString should include("Removed")
       }
     }
     "Validate policy rollup" in {
-      val POLICY_NAME = "p-1"
-      val DIMENSION_TO_ROLLUP = "dimension2"
+      val PolicyName = "p-1"
+      val DimensionToRollup = "dimension2"
       val dimensionDto = new DimensionDto("dimensionType", "dimension1", None)
-      val rollupDto = new RollupDto(Seq(new DimensionAndBucketTypeDto(DIMENSION_TO_ROLLUP, "dimensionType", None)))
+      val rollupDto = new RollupDto(Seq(new DimensionAndBucketTypeDto(DimensionToRollup, "dimensionType", None)))
       val apd =
-        new AggregationPoliciesDto(POLICY_NAME, "true",
+        new AggregationPoliciesDto(PolicyName, "true",
           "example", 0, Seq(dimensionDto), Seq(rollupDto), Seq(), Seq(), Seq(), Seq())
       val test = Post("/policy", apd) ~> policyRoutes
       test ~> check {
