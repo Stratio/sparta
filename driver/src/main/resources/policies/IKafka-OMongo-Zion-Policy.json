@@ -1,85 +1,94 @@
 {
-  "name": "policy-demo-bbva",
-  "duration": 2000,
+  "name": "policy-Kafka-Mongo-Zion",
+  "duration": 10000,
+  "jarPaths": [],
   "inputs": [
     {
-      "name": "in",
-      "elementType": "com.stratio.sparkta.plugin.input.flume.FlumeInput",
+      "name": "in-kafka",
+      "elementType": "KafkaInput",
       "configuration": {
-        "type": "pull",
-        "addresses": "localhost:10999",
-        "storageLevel": "MEMORY_AND_DISK_SER_2",
-        "maxBatchSize": 500
+        "topics": "zion2:1",
+        "kafkaParams.zookeeper.connect": "localhost:2181",
+        "kafkaParams.group.id": "kafka-pruebas",
+        "storageLevel": "MEMORY_AND_DISK_SER_2"
       }
     }
   ],
   "dimensions": [
     {
-      "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+      "dimensionType": "PassthroughBucketer",
       "name": "appName"
     },
     {
-      "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+      "dimensionType": "PassthroughBucketer",
       "name": "appCountry"
     },
     {
-      "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+      "dimensionType": "PassthroughBucketer",
       "name": "appPlatform"
     },
     {
-      "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+      "dimensionType": "PassthroughBucketer",
       "name": "appVersion"
     },
     {
-      "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+      "dimensionType": "PassthroughBucketer",
       "name": "device"
     },
     {
-      "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+      "dimensionType": "PassthroughBucketer",
       "name": "osVersion"
     },
     {
-      "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+      "dimensionType": "PassthroughBucketer",
       "name": "lang"
     },
     {
-      "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+      "dimensionType": "PassthroughBucketer",
       "name": "appLang"
     },
     {
-      "dimensionType": "com.stratio.sparkta.plugin.bucketer.datetime.DateTimeBucketer",
+      "dimensionType": "DateTimeBucketer",
+      "name": "date"
+    },
+    {
+      "dimensionType": "DateTimeBucketer",
       "name": "timestamp"
     },
     {
-      "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+      "dimensionType": "PassthroughBucketer",
       "name": "session"
     },
     {
-      "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+      "dimensionType": "PassthroughBucketer",
       "name": "extra1"
     },
     {
-      "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+      "dimensionType": "PassthroughBucketer",
       "name": "extra2"
     },
     {
-      "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+      "dimensionType": "PassthroughBucketer",
       "name": "extra3"
     },
     {
-      "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+      "dimensionType": "PassthroughBucketer",
       "name": "source"
     },
     {
-      "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+      "dimensionType": "PassthroughBucketer",
+      "name": "responseTime"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
       "name": "environment"
     },
     {
-      "dimensionType": "com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer",
+      "dimensionType": "PassthroughBucketer",
       "name": "platform"
     },
     {
-      "dimensionType": "com.stratio.sparkta.plugin.bucketer.geohash.GeoHashBucketer",
+      "dimensionType": "GeoHashBucketer",
       "name": "geo"
     }
   ],
@@ -87,36 +96,8 @@
     {
       "dimensionAndBucketTypes": [
         {
-          "dimensionName": "extra1",
-          "bucketType": "identity"
-        },
-        {
           "dimensionName": "timestamp",
           "bucketType": "minute"
-        }
-      ]
-    },
-    {
-      "dimensionAndBucketTypes": [
-        {
-          "dimensionName": "platform",
-          "bucketType": "identity"
-        },
-        {
-          "dimensionName": "device",
-          "bucketType": "identity"
-        },
-        {
-          "dimensionName": "timestamp",
-          "bucketType": "minute"
-        }
-      ]
-    },
-    {
-      "dimensionAndBucketTypes": [
-        {
-          "dimensionName": "appName",
-          "bucketType": "identity"
         }
       ]
     },
@@ -135,12 +116,16 @@
     {
       "dimensionAndBucketTypes": [
         {
-          "dimensionName": "appLang",
+          "dimensionName": "platform",
           "bucketType": "identity"
-        },
+        }
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
         {
-          "dimensionName": "timestamp",
-          "bucketType": "minute"
+          "dimensionName": "device",
+          "bucketType": "identity"
         }
       ]
     },
@@ -155,40 +140,12 @@
     {
       "dimensionAndBucketTypes": [
         {
-          "dimensionName": "appCountry",
-          "bucketType": "identity"
-        },
-        {
-          "dimensionName": "timestamp",
-          "bucketType": "minute"
-        }
-      ]
-    },
-    {
-      "dimensionAndBucketTypes": [
-        {
           "dimensionName": "appPlatform",
           "bucketType": "identity"
         },
         {
           "dimensionName": "timestamp",
           "bucketType": "minute"
-        }
-      ]
-    },
-    {
-      "dimensionAndBucketTypes": [
-        {
-          "dimensionName": "appPlatform",
-          "bucketType": "identity"
-        }
-      ]
-    },
-    {
-      "dimensionAndBucketTypes": [
-        {
-          "dimensionName": "appCountry",
-          "bucketType": "identity"
         }
       ]
     }
@@ -197,20 +154,38 @@
     {
       "name": "out-mongo",
       "elementType": "com.stratio.sparkta.plugin.output.mongodb.MongoDbOutput",
-      "configuration": {}
+      "configuration": {
+        "clientUri": "mongodb://172.19.1.208:27017",
+        "timeField": "timestamp",
+        "timeDimension": "timestamp"
+      }
     }
   ],
   "operators": [
     {
       "name": "count-operator",
-      "elementType": "com.stratio.sparkta.plugin.operator.count.CountOperator",
+      "elementType": "CountOperator",
       "configuration": {}
+    },
+    {
+      "name": "max-operator",
+      "elementType": "MaxOperator",
+      "configuration": {
+        "inputField": "responseTime"
+      }
+    },
+    {
+      "name": "min-operator",
+      "elementType": "MinOperator",
+      "configuration": {
+        "inputField": "responseTime"
+      }
     }
   ],
   "parsers": [
     {
       "name": "morphline-parser",
-      "elementType": "com.stratio.sparkta.plugin.parser.morphline.MorphlinesParser",
+      "elementType": "MorphlinesParser",
       "configuration": {
         "morphline": {
           "id": "morphline1",
@@ -227,7 +202,7 @@
                 "paths": {
                   "appName": "/appName",
                   "method": "/method",
-                  "date": "/date",
+                  "datetime": "/date",
                   "appCountry": "/appCountry",
                   "appPlatform": "/appPlatform",
                   "appVersion": "/appVersion",
@@ -247,7 +222,8 @@
                   "extra3": "/extra3",
                   "source": "/source",
                   "environment": "/environment",
-                  "platform": "/platform"
+                  "platform": "/platform",
+                  "responseTime": "/responseTime"
                 }
               }
             },
@@ -269,10 +245,10 @@
       }
     },
     {
-      "name": "datetime",
-      "elementType": "com.stratio.sparkta.plugin.parser.datetime.DateTimeParser",
+      "name": "timestamp",
+      "elementType": "DateTimeParser",
       "configuration": {
-        "timestamp": "unix"
+        "timestamp": "autoGenerated"
       }
     }
   ]

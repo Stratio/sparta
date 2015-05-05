@@ -1,15 +1,15 @@
 {
-  "name": "policy-demo",
+  "name": "policy-Twitter-Redis",
   "duration": 10000,
   "inputs": [
     {
-      "name": "input-twitter",
+      "name": "in-twitter",
       "elementType": "TwitterInput",
       "configuration": {
-        "consumerKey": "rN5IkAFEwnRCrl98bUoYeB62g",
-        "consumerSecret": "UEX2QNSQRzl5tYiNfBuPXlDSJibYZXbJe4gXsDMahIHj9knvaF",
-        "accessToken": "114165505-XVPH3Rs6E8p0t7v69yYHP4ID3INJUSTMbrwFfivD",
-        "accessTokenSecret": "zmsvTUJsbVNh5ytJUnXgHX8enAyQGoMYbFpEWUoXejlrM"
+        "consumerKey": "*****",
+        "consumerSecret": "*****",
+        "accessToken": "*****",
+        "accessTokenSecret": "*****"
       }
     }
   ],
@@ -24,10 +24,7 @@
     },
     {
       "dimensionType": "DateTimeBucketer",
-      "name": "timestamp",
-      "configuration": {
-        "granularity": "hour"
-      }
+      "name": "timestamp"
     },
     {
       "dimensionType": "GeoHashBucketer",
@@ -70,23 +67,9 @@
       "elementType": "RedisOutput",
       "configuration": {
         "hostname": "localhost",
-        "multiplexer": "false",
-        "timestampBucket": "hour"
-      }
-    },
-    {
-      "name": "out-mongo",
-      "elementType": "MongoDbOutput",
-      "configuration": {
-        "clientUri": "mongodb://localhost:27017",
-        "dbName": "sparkta",
-        "multiplexer": "false",
-        "timestampField": "timestamp",
-        "timestampBucket": "minute",
-        "textIndexFields": "userLocation",
-        "fieldsSeparator": ",",
-        "language": "english",
-        "granularity": "hour"
+        "multiplexer": "true",
+        "dateBucket": "minute",
+        "granularity": "minute"
       }
     }
   ],
