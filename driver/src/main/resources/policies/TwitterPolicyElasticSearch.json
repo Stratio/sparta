@@ -49,8 +49,8 @@
                     "bucketType": "hastags"
                 },
                 {
-                    "dimensionName": "status",
-                    "bucketType": "urls"
+                  "dimensionName": "status",
+                  "bucketType": "firsthastag"
                 },
                 {
                     "dimensionName": "status",
@@ -58,7 +58,7 @@
                 },
                 {
                   "dimensionName": "geolocation",
-                  "bucketType": "precision3"
+                  "bucketType": "precision5"
                 },
                 {
                   "dimensionName": "timestamp",
@@ -74,10 +74,10 @@
           "configuration": {
             "nodes" : "localhost",
             "defaultPort" : "9200",
-            "multiplexer" : "true",
+            "multiplexer" : "false",
             "dateBucket" : "minute",
             "granularity" : "minute",
-            "isAutoCalculateId" : "true",
+            "isAutoCalculateId" : "false",
             "dateType" : "timestamp",
             "indexMapping" : "day"
           }

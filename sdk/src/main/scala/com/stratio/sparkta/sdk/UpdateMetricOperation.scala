@@ -83,4 +83,11 @@ object UpdateMetricOperation {
   def namesDimVals(dimValues: Seq[DimensionValue]): Seq[String] = dimValues.map(getNameDimension(_))
 
   def sortedNamesDimVals(dimValues: Seq[DimensionValue]): Seq[String] = namesDimVals(sortDimVals(dimValues))
+
+  def filterDimVals(dimValues: Seq[DimensionValue], bucketName : Option[String]): Seq[DimensionValue] = {
+    bucketName match {
+      case None => dimValues
+      case Some(bucket) => dimValues.filter(rollup => (rollup.bucketType.id != bucket))
+    }
+  }
 }

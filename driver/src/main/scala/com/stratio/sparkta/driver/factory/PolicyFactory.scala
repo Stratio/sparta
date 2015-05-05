@@ -24,7 +24,9 @@ import org.apache.spark.sql.types._
 
 object PolicyFactory {
 
-  def rowTypeFromOption(optionType: TypeOp): DataType = {
+  final val GeoLabel = "precision"
+
+  def rowTypeFromOption(optionType: TypeOp): DataType =
     optionType match {
       case TypeOp.Long => LongType
       case TypeOp.Double => DoubleType
@@ -32,14 +34,14 @@ object PolicyFactory {
       case TypeOp.Boolean => BooleanType
       case TypeOp.Date => DateType
       case TypeOp.DateTime => TimestampType
-      case TypeOp.String => StringType
-      case _ => BinaryType
+      case TypeOp.ArrayDouble => ArrayType(DoubleType)
+      case TypeOp.ArrayString => ArrayType(StringType)
+      case _ => StringType
     }
-  }
 
-  def defaultRollupField(fieldName: String) : StructField = {
-    StructField(fieldName, StringType, false)
-  }
+  def defaultRollupField(fieldName: String) : StructField = StructField(fieldName, StringType, false)
+
+  def geoRollupField(fieldName: String) : StructField = StructField(fieldName, ArrayType(DoubleType), false)
 
   def rollupsOperatorsSchemas(rollups: Seq[Rollup],
                               outputs: Seq[(String, Boolean)],
@@ -52,7 +54,9 @@ object PolicyFactory {
         rollupsCombinations <- if (output._2){
           componentsSorted.flatMap(component => Multiplexer.combine(component._1)).distinct
         } else componentsSorted.map(_._1).distinct
-        schema = StructType(rollupsCombinations.map(fieldName => defaultRollupField(fieldName)) ++ operatorsFields)
+        schema = StructType(rollupsCombinations.map(fieldName => {
+          if(fieldName.toLowerCase().contains(GeoLabel)) geoRollupField(fieldName) else defaultRollupField(fieldName)
+        }) ++ operatorsFields)
       } yield TableSchema(output._1, rollupsCombinations.mkString(Output.SEPARATOR), schema)
     }).distinct
   }

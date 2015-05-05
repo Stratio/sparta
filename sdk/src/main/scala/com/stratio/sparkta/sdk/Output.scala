@@ -74,8 +74,8 @@ abstract class Output(keyName: String,
       bcSchema.get.value.filter(tschema => (tschema.outputName == keyName)).foreach(tschemaFiltered => {
         val tableSchemaTime = Output.getTableSchemaFixedId(tschemaFiltered, fixedBuckets, isAutoCalculateId, dateType)
         upsert(sqlContext.createDataFrame(
-          Output.extractRow(rdd.filter(_._1.get == tableSchemaTime.tableName)),
-          tableSchemaTime.schema), tableSchemaTime.tableName)
+          Output.extractRow(rdd.filter(_._1.get == tableSchemaTime.tableName)), tableSchemaTime.schema),
+          tableSchemaTime.tableName)
       })
     })
   }
