@@ -53,14 +53,6 @@
                   "bucketType": "firsthastag"
                 },
                 {
-                  "dimensionName": "status",
-                  "bucketType": "location"
-                },
-                {
-                    "dimensionName": "status",
-                    "bucketType": "urls"
-                },
-                {
                     "dimensionName": "status",
                     "bucketType": "retweets"
                 },
@@ -85,7 +77,7 @@
             "multiplexer" : "false",
             "dateBucket" : "minute",
             "granularity" : "minute",
-            "isAutoCalculateId" : "true",
+            "isAutoCalculateId" : "false",
             "dateType" : "timestamp",
             "indexMapping" : "day"
           }
