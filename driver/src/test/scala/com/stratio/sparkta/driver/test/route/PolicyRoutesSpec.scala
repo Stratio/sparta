@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,6 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 import spray.http.StatusCodes._
-import spray.routing.ValidationRejection
 import spray.testkit.ScalatestRouteTest
 
 import com.stratio.sparkta.driver.actor.StreamingContextStatusEnum._
@@ -63,24 +62,21 @@ with Matchers {
         entity.asString should include("p-1")
         entity.asString should include("p-2")
         entity.asString should include("SOME_ERROR_DESCRIPTION")
-
       }
     }
     "Get info about specific policy" in {
       val POLICY_NAME = "p-1"
       val test = Get("/policy/" + POLICY_NAME) ~> policyRoutes
-        supervisorProbe.expectMsg(new GetContextStatus(POLICY_NAME))
-        supervisorProbe.reply(new StreamingContextStatusDto(POLICY_NAME, Initialized, None))
-        test ~> check {
-          status should equal(OK)
-          entity.asString should include(POLICY_NAME)
-        }
-
-
+      supervisorProbe.expectMsg(new GetContextStatus(POLICY_NAME))
+      supervisorProbe.reply(new StreamingContextStatusDto(POLICY_NAME, Initialized, None))
+      test ~> check {
+        status should equal(OK)
+        entity.asString should include(POLICY_NAME)
+      }
     }
     "Create policy" in {
       val POLICY_NAME = "p-1"
-      val apd = new AggregationPoliciesDto(POLICY_NAME,"false","myPath",0, Seq(), Seq(), Seq(), Seq(), Seq(), Seq())
+      val apd = new AggregationPoliciesDto(POLICY_NAME, "false", "myPath", 0, Seq(), Seq(), Seq(), Seq(), Seq(), Seq())
       try {
         val test = Post("/policy", apd) ~> policyRoutes
         supervisorProbe.expectMsg(new CreateContext(apd))
@@ -88,7 +84,7 @@ with Matchers {
         test ~> check {
           status should equal(OK)
         }
-      }catch{
+      } catch {
         //FIXME "timeout (3 seconds) during expectMsg"
         case e: Throwable => println(e)
       }
@@ -110,7 +106,7 @@ with Matchers {
       val dimensionDto = new DimensionDto("dimensionType", "dimension1", None)
       val rollupDto = new RollupDto(Seq(new DimensionAndBucketTypeDto(DIMENSION_TO_ROLLUP, "dimensionType", None)))
       val apd =
-        new AggregationPoliciesDto(POLICY_NAME,"true",
+        new AggregationPoliciesDto(POLICY_NAME, "true",
           "example", 0, Seq(dimensionDto), Seq(rollupDto), Seq(), Seq(), Seq(), Seq())
       val test = Post("/policy", apd) ~> policyRoutes
       test ~> check {
