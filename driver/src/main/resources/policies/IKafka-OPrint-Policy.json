@@ -1,0 +1,73 @@
+{
+  "name": "policy-kafka",
+  "duration": 6000,
+  "jarPaths": [],
+  "inputs": [
+    {
+      "name": "in-kafka",
+      "elementType": "KafkaInput",
+      "configuration": {
+        "topics": "test:1",
+        "kafkaParams.zookeeper.connect": "localhost:2181",
+        "kafkaParams.group.id": "my-spt-grp",
+        "storageLevel": "MEMORY_AND_DISK_SER_2"
+      }
+    }
+  ],
+  "dimensions": [
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "message"
+    }
+  ],
+  "rollups": [
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "message",
+          "bucketType": "identity"
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-print",
+      "elementType": "PrintOutput",
+      "configuration": {
+        "multiplexer": "true",
+        "dateBucket": "minute",
+        "granularity": "minute",
+        "isAutoCalculateId": "true"
+      }
+    }
+  ],
+  "operators": [
+    {
+      "name": "count-operator",
+      "elementType": "CountOperator",
+      "configuration": {}
+    }
+  ],
+  "parsers": [
+    {
+      "name": "morphline",
+      "elementType": "MorphlinesParser",
+      "configuration": {
+        "morphline": {
+          "id": "test1",
+          "importCommands": [
+            "org.kitesdk.**"
+          ],
+          "commands": [
+            {
+              "readLine": {
+                "charset": "UTF-8"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
