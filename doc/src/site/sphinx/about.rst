@@ -54,7 +54,7 @@ Sparkta overview
    :alt: Spark Architecture Overview
 
 
-Architectures used
+Key technologies
 ------------
 
 - `Spark Streaming & Spark <http://spark.apache.org>`__
@@ -73,6 +73,10 @@ Architectures used
 - `KiteSDK (morphlines) <http://kitesdk.org/docs/current>`__
 
 
+.. figure:: images/Inoutputs.png
+
+
+
 Inputs
 ------------
 
@@ -82,11 +86,7 @@ Inputs
 - `RabbitMQ <inputs.html#rabbitMQ-label>`__
 - `Socket <inputs.html#socket-label>`__
 
-.. image:: images/Inputs.png
-   :height: 500 px
-   :width: 500 px
-   :scale: 50 %
-   :alt: Spark Inputs Overview
+
 
 
 Outputs
@@ -99,9 +99,5 @@ Outputs
 - Spark's DataFrames Outputs
 - PrintOut
 
-.. image:: images/Outputs.png
-   :height: 500 px
-   :width: 500 px
-   :scale: 50 %
-   :alt: Spark Outputs Overview
+
 
