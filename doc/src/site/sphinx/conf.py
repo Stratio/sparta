@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 #
-# Streaming CEP documentation build configuration file, created by
-# sphinx-quickstart on Thu Jan 15 16:21:58 2015.
-#
 # This file is execfile()d with the current directory set to its
 # containing dir.
 #
@@ -50,7 +47,7 @@ copyright = u'2015 Stratio'
 
 # The short X.Y version.
 
-version = '1.2.0'
+version = '0.3.0'
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -107,9 +104,9 @@ html_theme = 'stratio'
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {    
-    'versions' : ['1.2.0'],
-    'github' : '',
-    'jira': '',
+    'versions' : ['0.4.0'],
+    'github' : 'https://github.com/Stratio/sparkta',
+    'jira': 'https://github.com/Stratio/sparkta/issues',
     'module_name' : 'sparkta'
 }
 
@@ -250,8 +247,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'streamingcep', u'Streaming CEP Documentation',
-     [u'David Morales, Alberto Rodríguez, Antonio Jesus Navarro'], 1)
+    ('index', 'sparkta', u'Sparkta Documentation',
+     [u'David Morales'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -264,8 +261,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'StreamingCEP', u'Streaming CEP Documentation',
-     u'David Morales, Alberto Rodríguez, Antonio Jesus Navarro', 'StreamingCEP',
+    ('index', 'Sparkta', u'Sparkta Documentation',
+     u'David Morales, 'StreamingCEP',
      'One line description of project.',
      'Miscellaneous'),
 ]
