@@ -1,6 +1,8 @@
 {
   "name": "policy-Twitter-Redis",
   "duration": 10000,
+  "saveRawData": "false",
+  "rawDataParquetPath": "myTestParquetPath",
   "inputs": [
     {
       "name": "in-twitter",

@@ -1,7 +1,8 @@
 {
   "name": "policy-Kafka-Mongo-Zion",
   "duration": 10000,
-  "jarPaths": [],
+  "saveRawData": "false",
+  "rawDataParquetPath": "myTestParquetPath",
   "inputs": [
     {
       "name": "in-kafka",
@@ -153,11 +154,13 @@
   "outputs": [
     {
       "name": "out-mongo",
-      "elementType": "com.stratio.sparkta.plugin.output.mongodb.MongoDbOutput",
+      "elementType": "MongoDbOutput",
       "configuration": {
-        "clientUri": "mongodb://172.19.1.208:27017",
-        "timeField": "timestamp",
-        "timeDimension": "timestamp"
+        "clientUri": "mongodb://localhost:27017",
+        "dbName": "sparkta",
+        "multiplexer": "false",
+        "dateBucket": "minute",
+        "granularity": "minute"
       }
     }
   ],

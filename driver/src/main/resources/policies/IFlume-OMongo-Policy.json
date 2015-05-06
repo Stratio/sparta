@@ -1,6 +1,8 @@
 {
   "name": "policy-MongoDB-Financtial",
   "duration": 5000,
+  "saveRawData": "false",
+  "rawDataParquetPath": "myTestParquetPath",
   "inputs": [
     {
       "name": "in-flume",

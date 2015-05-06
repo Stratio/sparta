@@ -1,6 +1,8 @@
 {
   "name": "policy-Twitter-Redis-MongoDb",
   "duration": 10000,
+  "saveRawData": "false",
+  "rawDataParquetPath": "myTestParquetPath",
   "inputs": [
     {
       "name": "input-twitter",
