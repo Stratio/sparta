@@ -47,7 +47,7 @@ copyright = u'2015 Stratio'
 
 # The short X.Y version.
 
-version = '0.3.0'
+version = '0.4.0'
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -260,12 +260,7 @@ man_pages = [
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
-texinfo_documents = [
-    ('index', 'Sparkta', u'Sparkta Documentation',
-     u'David Morales, 'StreamingCEP',
-     'One line description of project.',
-     'Miscellaneous'),
-]
+#texinfo_documents = [('index', 'Sparkta', u'Sparkta Documentation','David Morales, 'StreamingCEP','One line description of project.','Miscellaneous')]
 
 # Documents to append as an appendix to all manuals.
 #texinfo_appendices = []
