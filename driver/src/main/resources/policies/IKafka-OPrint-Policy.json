@@ -1,7 +1,8 @@
 {
   "name": "policy-kafka",
-  "duration": 6000,
-  "jarPaths": [],
+  "duration": 2000,
+  "saveRawData": "false",
+  "rawDataParquetPath": "myTestParquetPath",
   "inputs": [
     {
       "name": "in-kafka",

@@ -1,16 +1,16 @@
 {
-  "name": "policy-flume",
-  "duration": 6000,
+  "name": "policy-kafka-direct",
+  "duration": 2000,
   "saveRawData": "false",
   "rawDataParquetPath": "myTestParquetPath",
   "inputs": [
     {
-      "name": "in-flume",
-      "elementType": "FlumeInput",
+      "name": "in",
+      "elementType": "KafkaDirectInput",
       "configuration": {
-        "type": "pull",
-        "addresses": "localhost:10999",
-        "storageLevel": "MEMORY_AND_DISK_SER_2"
+        "topics": "test:1",
+        "kafkaParams.metadata.broker.list": "localhost:9092",
+        "kafkaParams.group.id": "my-spt-grp"
       }
     }
   ],
@@ -35,7 +35,7 @@
       "name": "out-print",
       "elementType": "PrintOutput",
       "configuration": {
-        "multiplexer": "true",
+        "multiplexer": "false",
         "dateBucket": "minute",
         "granularity": "minute",
         "isAutoCalculateId": "true"
