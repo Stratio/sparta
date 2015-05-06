@@ -7,14 +7,16 @@ this age of social media, where 100s of 1000s events take place every second, we
 by twitter's Rainbird project to develop a distributed aggregation engine with this high level
 features:
 
-
 - Pure Spark
+- No need of coding, only declarative aggregation workflows
 - Data continuously streamed in & processed in near real-time
 - Ready to use, plug&play
 - Flexible workflows (input, output, parsers, etc...)
 - High performance
+- Scalable and fault tolerant
 - BAM ready
 - Visualization
+
 
 
 Introduction
@@ -31,17 +33,20 @@ Features
 - Separate storage and query layers
 - Multiple application
 - Aggregation:
-    - Several operators (min, max, count, distinct, inc, dec...)
-    - Automatic rollups (MINUTELY,HOURLY,DAILY,MONTHLY)
+    - Several operators (count, inc, min, max, avg, median, variance, stddev, full-text, count distinct...)
+    - Automatic rollups (secondly, minutely, hourly, daily, monthly)
+    - GeoLocation
     - Hierarchical counting
-    - Flexible definition of aggregation policies (json, web app?)
+    - Flexible definition of aggregation policies (json, web app)
 - Querying
     - Automatic REST api
     - In memory data cube
     - Extend sparkSQL to allow MDX queries
 
+
 Architecture
 ============
+
 
 Sparkta overview
 ------------
@@ -52,20 +57,20 @@ Sparkta overview
 Key technologies
 ------------
 
-- `Apache Kafka <http://kafka.apache.org>`__
 - `Spark Streaming & Spark <http://spark.apache.org>`__
-- `MongoDB <http://www.mongodb.org/>`__
-- `Cassandra <http://cassandra.apache.org>`__
-- `Redis <http://redis.io>`__
-- `Elasticsearch <https://www.elastic.co>`__
-- `KiteSDK (morphlines) <http://kitesdk.org/docs/current>`__
 - `SparkSQL <https://spark.apache.org/sql>`__
-- `akka <http://akka.io>`__
-- `HDFS <http://hadoop.apache.org/docs/r1.2.1/hdfs_design.html>`__
-- `RabbitMQ <https://www.rabbitmq.com/>`__
-- `Apache Flume <https://flume.apache.org/>`__
-- `Spray <http://spray.io/>`__
+- `Akka <http://akka.io>`__
+- `MongoDB <http://www.mongodb.org/>`__
+- `Apache Cassandra <http://cassandra.apache.org>`__
+- `ElasticSearch <https://www.elastic.co>`__
+- `Redis <http://redis.io>`__
 - `Apache Parquet <http://parquet.apache.org/>`__
+- `HDFS <http://hadoop.apache.org/docs/r1.2.1/hdfs_design.html>`__
+- `Apache Kafka <http://kafka.apache.org>`__
+- `Apache Flume <https://flume.apache.org/>`__
+- `RabbitMQ <https://www.rabbitmq.com/>`__
+- `Spray <http://spray.io/>`__
+- `KiteSDK (morphlines) <http://kitesdk.org/docs/current>`__
 
 
 .. figure:: images/Inoutputs.png
@@ -84,26 +89,15 @@ Inputs
 
 
 
-
-
-
-
 Outputs
 ------------
 
 - MongoDB
-- PrintOut
 - Cassandra
+- ElasticSearch
 - Redis
-- Elasticsearch
-- Spark's Dataframes
-
-
-
-
-
-
-
+- Spark's DataFrames Outputs
+- PrintOut
 
 
 
