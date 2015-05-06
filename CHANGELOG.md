@@ -4,7 +4,7 @@
 ## v0.1
 
 ###Driver
-- *Akka Actors* (Supervisor and StreamingContextActor)
+- **Akka Actors** (Supervisor and StreamingContextActor)
 - Json parser
 - First approach streaming context generator
 
@@ -17,7 +17,7 @@
 - DateTime bucketer
 - GeoHash bucketer
 - Count operator
-- First approach *MongoDB* output
+- First approach **MongoDB** output
 - KeyValue parser
 - Temporal TwitterParser (demo purposes)
 
@@ -29,7 +29,7 @@
     - Doc: Documentation module.
     - Serving-core: Simple library to read aggregation data.
     - Serving-api: REST api implementing serving-core.
-    - Plugins: Now, the platform is **pluggable**. This module contains all *official* plugins.
+    - Plugins: Now, the platform is **pluggable**. This module contains all **official** plugins.
     - Sdk: This library can be used to develop new plugins to adapt Sparkta to your necessities.
 - Now a distribution is generated
 
@@ -40,7 +40,7 @@
 - Min operator
 - Sum operator
 - Datetime parser
-- Morphlines parser ( *Kite Sdk* )
+- Morphlines parser ( **Kite Sdk** )
 - Output MongoDB:
     - Count aggregation update
     - Max aggregation update
@@ -54,7 +54,7 @@
 ## v0.3
 
 ###Sdk
-- Multiplex rollups for *multi-cube* integration
+- Multiplex rollups for **multi-cube** integration
 
 ###Plugins
 - Avg operator
@@ -78,32 +78,32 @@
 
 
 ###Sdk
-- Integration with *Spark 1.3.1*
+- Integration with **Spark 1.3.1**
 - Auto create time series in outputs if not exist time bucket
-- Full integration in Outputs with *Spark DataFrames*
+- Full integration in Outputs with **Spark DataFrames**
 - Auto create "Id" in DataFrames with dimensions
 
 
 ###Driver
-- Save Raw data in *Parquet* files
+- Save Raw data in **Parquet** files
 - Auto detection schema with policies
 - Reflexions for native plugins
-- *Swagger API*:
+- **Swagger API**:
     - Interactive documentation
     - Client SDK generation and discoverability
 - Compatibility with multiple oputputs
 
 ###Plugins
-- Output *Cassandra*:
+- Output **Cassandra**:
     - Auto tables creation
     - Auto primary key and column families detection
     - Auto index creation
-- Output *ElasticSearch*:
+- Output **ElasticSearch**:
     - Options in mapping date types
     - Auto index type with time fields
-- Output *Redis*
-- Input *Kafka Direct Streaming* integrated in Spark 1.3.1
-- Input *RabbitMq*
+- Output **Redis**
+- Input **Kafka Direct Streaming** integrated in Spark 1.3.1
+- Input **RabbitMq**
 - Full-Text operator
 - Accumulator operator
 - Last Value operator
