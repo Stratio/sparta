@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.plugin.input.kafka
 
 import java.io.{Serializable => JSerializable}
@@ -53,25 +54,21 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
         extractTopicsMap,
         storageLevel)
         .map(data => new Event(Map(RAW_DATA_KEY -> data._2.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
-
     }
   }
 
-  private def extractTopicsMap(): Map[String, Int] = {
-    var topics : Map[String,Int] = Map()
+  def extractTopicsMap(): Map[String, Int] = {
 
-    if(!properties.contains("topics")){
+    if (!properties.hasKey("topics"))
       throw new IllegalStateException(s"Invalid configuration, topics must be declared.")
-    }
 
     properties.getString("topics").split(",").toSeq.map(
       str => str.split(":").toSeq match {
-        case Seq(topic) => topics += topic -> 1
-        case Seq(topic, partitions) => topics += topic -> partitions.toInt
-        case _ => throw new IllegalStateException(s"Invalid conf value for topics : $str")
+        case Seq(topic) => (topic, 1)
+        case Seq(topic, partitions) => (topic, partitions.toInt)
+        case _ => throw new IllegalStateException(s"Invalid configuration value for topics : $str")
       }
-    )
-    topics
+    ).toMap
   }
 
   private def storageLevel(): StorageLevel =
