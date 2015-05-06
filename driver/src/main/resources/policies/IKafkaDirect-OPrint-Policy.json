@@ -1,0 +1,73 @@
+{
+  "name": "policy-kafka-direct",
+  "duration": 2000,
+  "saveRawData": "false",
+  "rawDataParquetPath": "myTestParquetPath",
+  "inputs": [
+    {
+      "name": "in",
+      "elementType": "KafkaDirectInput",
+      "configuration": {
+        "topics": "test:1",
+        "kafkaParams.metadata.broker.list": "localhost:9092",
+        "kafkaParams.group.id": "my-spt-grp"
+      }
+    }
+  ],
+  "dimensions": [
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "message"
+    }
+  ],
+  "rollups": [
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "message",
+          "bucketType": "identity"
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-print",
+      "elementType": "PrintOutput",
+      "configuration": {
+        "multiplexer": "false",
+        "dateBucket": "minute",
+        "granularity": "minute",
+        "isAutoCalculateId": "true"
+      }
+    }
+  ],
+  "operators": [
+    {
+      "name": "count-operator",
+      "elementType": "CountOperator",
+      "configuration": {}
+    }
+  ],
+  "parsers": [
+    {
+      "name": "morphline",
+      "elementType": "MorphlinesParser",
+      "configuration": {
+        "morphline": {
+          "id": "test1",
+          "importCommands": [
+            "org.kitesdk.**"
+          ],
+          "commands": [
+            {
+              "readLine": {
+                "charset": "UTF-8"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
