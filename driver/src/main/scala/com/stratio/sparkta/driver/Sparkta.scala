@@ -40,8 +40,8 @@ object Sparkta extends App with SLF4JLogging {
   val jarsPath = new File(sparktaHome.get, "plugins")
   log.info("Loading jars from " + jarsPath.getAbsolutePath)
 
-  val jdkPath = new File(sparktaHome.get, "sdk");
-  val aggregatorPath = new File(sparktaHome.get, "aggregator");
+  val jdkPath = new File(sparktaHome.get, "sdk")
+  val aggregatorPath = new File(sparktaHome.get, "aggregator")
 
   val jars = findJarsByPath(jarsPath) ++ findJarsByPath(jdkPath) ++ findJarsByPath(aggregatorPath)
 

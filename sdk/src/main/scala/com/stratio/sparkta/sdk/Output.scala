@@ -65,7 +65,7 @@ abstract class Output(keyName: String,
     getStreamsFromOptions(stream, multiplexer, timeBucket).foreachRDD(rdd => rdd.foreachPartition(ops => upsert(ops)))
 
   protected def persistDataFrame(stream: DStream[UpdateMetricOperation]): Unit = {
-    val fixedBuckets = timeBucket match {
+    def fixedBuckets: Option[Seq[(String, Option[Timestamp])]] = timeBucket match {
       case None => None
       case Some(timeB) => Some(Seq((timeB, Output.getTimeFromGranularity(timeBucket, granularity))))
     }

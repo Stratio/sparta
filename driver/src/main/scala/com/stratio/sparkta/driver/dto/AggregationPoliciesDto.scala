@@ -89,9 +89,9 @@ object AggregationPoliciesValidator {
     val dimensionNames = aggregationPoliciesDto.dimensions.map(_.name)
 
     val rollupNames = aggregationPoliciesDto.rollups
-      .flatMap(x=> Option(x)) //filter(_!=null) //Seq[Seq[Option[_]]]
-      .flatMap(x => Option(x.dimensionAndBucketTypes)) //Seq[Seq[_]]
-      .flatten //Seq[_]
+      .flatMap(x=> Option(x))
+      .flatMap(x => Option(x.dimensionAndBucketTypes))
+      .flatten
       .map(_.dimensionName)
 
     val rollupNotInDimensions = rollupNames.filter(!dimensionNames.contains(_))
