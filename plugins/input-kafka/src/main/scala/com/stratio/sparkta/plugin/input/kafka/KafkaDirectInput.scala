@@ -22,59 +22,36 @@ import com.stratio.sparkta.sdk.Input._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.{Event, Input}
 import kafka.serializer.StringDecoder
-import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.kafka.KafkaUtils
 
 
-class KafkaInput(properties: Map[String, JSerializable]) extends Input(properties) {
-
-  val DEFAULT_STORAGE_LEVEL = "MEMORY_AND_DISK_SER_2"
+class KafkaDirectInput(properties: Map[String, JSerializable]) extends Input(properties) {
 
   override def setUp(ssc: StreamingContext): DStream[Event] = {
 
     val submap: Option[Map[String, JSerializable]] = properties.getMap("kafkaParams")
-    if (submap.isEmpty) {
 
-      KafkaUtils.createStream(
-        ssc,
-        properties.getString("zkQuorum"),
-        properties.getString("groupId"),
-        extractTopicsMap,
-        storageLevel)
-        .map(data => new Event(Map(RAW_DATA_KEY -> data._2.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
-
-    } else {
-
+    if (submap.isDefined) {
       val kafkaParams = submap.get.map(entry => (entry._1, entry._2.toString))
-      KafkaUtils.createStream[String, String, StringDecoder, StringDecoder](
+      KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](
         ssc,
         kafkaParams,
-        extractTopicsMap,
-        storageLevel)
+        extractTopicsSet)
         .map(data => new Event(Map(RAW_DATA_KEY -> data._2.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
+    } else {
+      throw new IllegalStateException(s"kafkaParams is necessary for KafkaDirectInput receiver")
     }
   }
 
-  def extractTopicsMap(): Map[String, Int] = {
+  private def extractTopicsSet(): Set[String] = {
 
-    if (!properties.hasKey("topics"))
+    if(!properties.hasKey("topics")){
       throw new IllegalStateException(s"Invalid configuration, topics must be declared.")
-
-    properties.getString("topics").split(",").toSeq.map(
-      str => str.split(":").toSeq match {
-        case Seq(topic) => (topic, 1)
-        case Seq(topic, partitions) => (topic, partitions.toInt)
-        case _ => throw new IllegalStateException(s"Invalid configuration value for topics : $str")
-      }
-    ).toMap
-  }
-
-  private def storageLevel(): StorageLevel =
-    properties.hasKey("storageLevel") match {
-      case true => StorageLevel.fromString(properties.getString("storageLevel"))
-      case false => StorageLevel.fromString(DEFAULT_STORAGE_LEVEL)
     }
+
+    properties.getString("topics").split(",").toSet
+  }
 
 }
