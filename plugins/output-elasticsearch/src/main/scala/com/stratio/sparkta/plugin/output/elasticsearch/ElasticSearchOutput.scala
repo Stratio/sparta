@@ -48,6 +48,8 @@ class ElasticSearchOutput(keyName: String,
 
   override val defaultPort = properties.getString("defaultPort", ElasticSearchDAO.DEFAULT_PORT)
 
+  override val defaultAnalyzerType = properties.getString("defaultAnalyzerType", None)
+
   override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
   override val timeBucket = properties.getString("dateBucket", None)
