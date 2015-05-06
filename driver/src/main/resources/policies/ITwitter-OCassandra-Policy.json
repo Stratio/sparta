@@ -1,0 +1,162 @@
+{
+  "name": "policy-Twitter-Cassandra",
+  "duration": 10000,
+  "saveRawData": "false",
+  "rawDataParquetPath": "myTestParquetPath",
+  "inputs": [
+    {
+      "name": "in-twitter",
+      "elementType": "TwitterInput",
+      "configuration": {
+        "consumerKey": "*****",
+        "consumerSecret": "*****",
+        "accessToken": "*****",
+        "accessTokenSecret": "*****"
+      }
+    }
+  ],
+  "dimensions": [
+    {
+      "dimensionType": "TwitterStatusBucketer",
+      "name": "status"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "userLocation"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "wordsN"
+    },
+    {
+      "dimensionType": "DateTimeBucketer",
+      "name": "timestamp"
+    },
+    {
+      "dimensionType": "GeoHashBucketer",
+      "name": "geolocation"
+    }
+  ],
+  "rollups": [
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "status",
+          "bucketType": "hastags"
+        },
+        {
+          "dimensionName": "status",
+          "bucketType": "firsthastag"
+        },
+        {
+          "dimensionName": "status",
+          "bucketType": "retweets"
+        },
+        {
+          "dimensionName": "timestamp",
+          "bucketType": "minute"
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-cassandra",
+      "elementType": "CassandraOutput",
+      "configuration": {
+        "connectionHost": "127.0.0.1",
+        "cluster": "Sparkta Cluster",
+        "keyspace": "sparkta",
+        "class": "SimpleStrategy",
+        "replicationFactor": "1",
+        "multiplexer": "false",
+        "isAutoCalculateId" : "false",
+        "clusteringBuckets": "",
+        "timeBucket": "minute",
+        "granularity": "hour",
+        "indexFields": "minute",
+        "textIndexFields": "userLocation",
+        "fieldsSeparator": ",",
+        "textIndexFieldsName": "lucene",
+        "analyzer": "english"
+      }
+    }
+  ],
+  "operators": [
+    {
+      "name": "count-operator",
+      "elementType": "CountOperator",
+      "configuration": {}
+    },
+    {
+      "name": "sum-operator",
+      "elementType": "SumOperator",
+      "configuration": {
+        "inputField": "wordsN"
+      }
+    },
+    {
+      "name": "max-operator",
+      "elementType": "MaxOperator",
+      "configuration": {
+        "inputField": "wordsN"
+      }
+    },
+    {
+      "name": "min-operator",
+      "elementType": "MinOperator",
+      "configuration": {
+        "inputField": "wordsN"
+      }
+    },
+    {
+      "name": "avg-operator",
+      "elementType": "AvgOperator",
+      "configuration": {
+        "inputField": "wordsN"
+      }
+    },
+    {
+      "name": "median-operator",
+      "elementType": "MedianOperator",
+      "configuration": {
+        "inputField": "wordsN"
+      }
+    },
+    {
+      "name": "variance-operator",
+      "elementType": "VarianceOperator",
+      "configuration": {
+        "inputField": "wordsN"
+      }
+    },
+    {
+      "name": "stddev-operator",
+      "elementType": "StddevOperator",
+      "configuration": {
+        "inputField": "wordsN"
+      }
+    },
+    {
+      "name": "fullText-operator",
+      "elementType": "FullTextOperator",
+      "configuration": {
+        "inputField": "userLocation"
+      }
+    },
+    {
+      "name": "lastValue-operator",
+      "elementType": "LastValueOperator",
+      "configuration": {
+        "inputField": "retweets"
+      }
+    },
+    {
+      "name": "accumulator-operator",
+      "elementType": "AccumulatorOperator",
+      "configuration": {
+        "inputField": "wordsN"
+      }
+    }
+  ]
+}

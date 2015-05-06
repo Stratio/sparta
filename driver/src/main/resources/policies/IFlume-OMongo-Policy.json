@@ -1,0 +1,287 @@
+{
+  "name": "policy-MongoDB-Financtial",
+  "duration": 5000,
+  "saveRawData": "false",
+  "rawDataParquetPath": "myTestParquetPath",
+  "inputs": [
+    {
+      "name": "in-flume",
+      "elementType": "FlumeInput",
+      "configuration": {
+        "type": "pull",
+        "addresses": "localhost:10999",
+        "storageLevel": "MEMORY_AND_DISK_SER_2",
+        "maxBatchSize": 500
+      }
+    }
+  ],
+  "dimensions": [
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "appName"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "appCountry"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "appPlatform"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "appVersion"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "device"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "osVersion"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "lang"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "appLang"
+    },
+    {
+      "dimensionType": "DateTimeBucketer",
+      "name": "timestamp"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "session"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "extra1"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "extra2"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "extra3"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "source"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "environment"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "platform"
+    },
+    {
+      "dimensionType": "GeoHashBucketer",
+      "name": "geo"
+    }
+  ],
+  "rollups": [
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "extra1",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "timestamp",
+          "bucketType": "minute"
+        }
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "platform",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "device",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "timestamp",
+          "bucketType": "minute"
+        }
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "appName",
+          "bucketType": "identity"
+        }
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "session",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "timestamp",
+          "bucketType": "minute"
+        }
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "appLang",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "timestamp",
+          "bucketType": "minute"
+        }
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "geo",
+          "bucketType": "precision6"
+        }
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "appCountry",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "timestamp",
+          "bucketType": "minute"
+        }
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "appPlatform",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "timestamp",
+          "bucketType": "minute"
+        }
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "appPlatform",
+          "bucketType": "identity"
+        }
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "appCountry",
+          "bucketType": "identity"
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-mongo",
+      "elementType": "MongoDbOutput",
+      "configuration": {
+        "clientUri": "mongodb://localhost:27017",
+        "dbName": "sparkta",
+        "multiplexer": "false",
+        "dateBucket": "minute",
+        "granularity": "minute"
+      }
+    }
+  ],
+  "operators": [
+    {
+      "name": "count-operator",
+      "elementType": "CountOperator",
+      "configuration": {}
+    }
+  ],
+  "parsers": [
+    {
+      "name": "morphline-parser",
+      "elementType": "MorphlinesParser",
+      "configuration": {
+        "morphline": {
+          "id": "morphline1",
+          "importCommands": [
+            "org.kitesdk.**",
+            "com.stratio.ingestion.morphline.**"
+          ],
+          "commands": [
+            {
+              "readJson": {}
+            },
+            {
+              "extractJsonPaths": {
+                "paths": {
+                  "appName": "/appName",
+                  "method": "/method",
+                  "date": "/date",
+                  "appCountry": "/appCountry",
+                  "appPlatform": "/appPlatform",
+                  "appVersion": "/appVersion",
+                  "uid": "/uid",
+                  "device": "/device",
+                  "latitude": "/latitude",
+                  "longitude": "/longitude",
+                  "osVersion": "/osVersion",
+                  "lang": "/lang",
+                  "appLang": "/appLang",
+                  "user_id": "/user_id",
+                  "connection": "/connection",
+                  "timestamp": "/timestamp",
+                  "session": "/session",
+                  "extra1": "/extra1",
+                  "extra2": "/extra2",
+                  "extra3": "/extra3",
+                  "source": "/source",
+                  "environment": "/environment",
+                  "platform": "/platform"
+                }
+              }
+            },
+            {
+              "addValues": {
+                "geo": "@{latitude}__@{longitude}"
+              }
+            },
+            {
+              "removeFields": {
+                "blacklist": [
+                  "literal:_attachment_body",
+                  "literal:message"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "datetime",
+      "elementType": "DateTimeParser",
+      "configuration": {
+        "timestamp": "unix"
+      }
+    }
+  ]
+}
