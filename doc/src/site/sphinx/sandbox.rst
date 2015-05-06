@@ -51,7 +51,7 @@ What you will find in the sandbox
 +------------------+----------+-----------+-----------------------------+
 | scala            | 2.10.3   |           |                             |
 +------------------+----------+-----------+-----------------------------+
-| RabbitMQ         | 2.10.3   |           |                             |
+| RabbitMQ         | 3.5.1    |           |                             |
 +------------------+----------+-----------+-----------------------------+
 
 
@@ -78,7 +78,7 @@ From the sandbox (vagrant ssh):
 
 -  Starting the Stratio Sparkta Shell:
    **/opt/sds/sparkta/bin/run**
--  Exit the Stratio Stratio Deep Shell: **exit**
+-  Exit the Stratio Stratio Sparkta Shell: **exit**
 
 F.A.Q about the sandbox
 =======================

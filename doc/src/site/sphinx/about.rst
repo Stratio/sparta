@@ -49,7 +49,7 @@ Sparkta overview
    :alt: Spark Architecture Overview
 
 
-Architectures used
+Key technologies
 ------------
 
 - `Apache Kafka <http://kafka.apache.org>`__
@@ -68,6 +68,10 @@ Architectures used
 - `Apache Parquet <http://parquet.apache.org/>`__
 
 
+.. figure:: images/Inoutputs.png
+
+
+
 Inputs
 ------------
 
@@ -77,11 +81,7 @@ Inputs
 - RabbitMQ
 - Socket
 
-.. image:: images/Inputs.png
-   :height: 500 px
-   :width: 500 px
-   :scale: 50 %
-   :alt: Spark Inputs Overview
+
 
 
 
@@ -98,11 +98,7 @@ Outputs
 - Elasticsearch
 - Spark's Dataframes
 
-.. image:: images/Outputs.png
-   :height: 500 px
-   :width: 500 px
-   :scale: 50 %
-   :alt: Spark Outputs Overview
+
 
 
 
