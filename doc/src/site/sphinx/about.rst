@@ -21,9 +21,32 @@ features:
 
 Introduction
 ============
+Social media and networking sites are  part of the fabric of everyday life, changing the way the world shares and
+accesses information.
+The overwhelming amount of information gathered not only from messages, updates and images but also readings
+from sensors, GPS signals and many other sources was the origin of a (big) technological revolution.
+
+This vast amount of data allows us to learn from the users and explore our own world.
+
+We can follow in real-time the evolution of a topic, an event or even an incident just by exploring aggregated data.
+
+.. figure:: images/map.png
 
 
+ But beyond cool visualizations, there are some core services delivered in real-time, using aggregated data to
+ answer common questions in the fastest way.
 
+ These services are the heart of the business behind their nice logos.
+
+ Site traffic, user engagement monitoring, service health, APIs, internal monitoring platforms, real-time dashboards…
+
+ Aggregated data feeds directly to end users, publishers, and advertisers, among others.
+
+ In Sparkta we want to start delivering real-time services. Real-time monitoring could be really nice, but your
+ company needs to work in the same way as digital companies:
+
+ Rethinking existing processes to deliver them faster, better.
+ Creating new opportunities for competitive advantages.
 
 Features
 ========
@@ -76,17 +99,14 @@ Key technologies
 .. figure:: images/Inoutputs.png
 
 
-
 Inputs
 ------------
 
-- `Twitter <inputs.html#twitter-label>`__
-- `Kafka <inputs.html#kafka-label>`__
-- `Flume <inputs.html#flume-label>`__
-- `RabbitMQ <inputs.html#rabbitMQ-label>`__
-- `Socket <inputs.html#socket-label>`__
-
-
+- Twitter
+- Kafka
+- Flume
+- RabbitMQ
+- Socket
 
 
 Outputs
