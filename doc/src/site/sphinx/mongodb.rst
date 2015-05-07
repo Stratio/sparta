@@ -16,13 +16,13 @@ Introduction
 This output uses the native driver for MongoDB in Scala language. **Casbah Driver** offers all the functionality that
 Sparkta need to insert,update and add and configure the database for proper system operation.
 
-In the implementation of a Output on the Sparkta SDK there are two possibilities, one would be allowing the system
-to transform our data even DataFrame type Spark or inserted directly a **UpdateMetricOperation**. This output does not
-use any Spark plugin to insert DataFrames.
+In the implementation of an Output of Sparkta's SDK there are two possibilities: one could be to allow transformations
+ over data to a Spark's DataFrame. Other posibility could be to insert directly a **UpdateMetricOperation**. This
+ output does not use any kind of Spark plugin to insert DataFrames.
 
-This plugin create one client connexion per Worker in a Spark Cluster.
+This plugin creates one client connection per Worker in a Spark Cluster.
 
-Is necessary need override two functions of Output SDK:
+Is necessary need to override two functions from the Output SDK:
 ::
   override def doPersist(stream: DStream[UpdateMetricOperation]): Unit
   override def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit
