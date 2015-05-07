@@ -17,8 +17,7 @@ features:
 - Business Activity Monitoring
 - Visualization
 
-
-- [Strataconf London 2015 slideshare](http://es.slideshare.net/Stratio/strata-sparkta)
+ [Strataconf London 2015 slideshare](http://es.slideshare.net/Stratio/strata-sparkta)
 
 Introduction
 ============
