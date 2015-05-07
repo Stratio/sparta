@@ -31,8 +31,6 @@ This vast amount of data allows us to learn from the users and explore our own w
 We can follow in real-time the evolution of a topic, an event or even an incident just by exploring aggregated data.
 
 
-![Map](/doc/src/images/map.jpg?raw=true)
-
 
  But beyond cool visualizations, there are some core services delivered in real-time, using aggregated data to
  answer common questions in the fastest way.
@@ -77,9 +75,6 @@ Architecture
 Sparkta overview
 ------------
 
-![Sparkta](/doc/src/images/sparkta1.png?raw=true)
-
-
 
 
 Key technologies
@@ -99,9 +94,6 @@ Key technologies
 - [Spray] (http://spray.io/)
 - [KiteSDK (morphlines)] (http://kitesdk.org/docs/current)
 
-
-
-![Inputs and outputs schema(/doc/src/images/Inoutputs.png?raw=true)
 
 
 
