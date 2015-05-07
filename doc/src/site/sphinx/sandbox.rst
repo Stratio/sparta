@@ -39,7 +39,7 @@ What you will find in the sandbox
 +==================+==========+===========+=============================+
 | Spark            | 1.3.0    | spark     | service spark start         |
 +------------------+----------+-----------+-----------------------------+
-| Cassandra        | 2.1.2    |cassandra  | service cassandra start     |
+| Cassandra        | 2.1.2    | cassandra | service cassandra start     |
 +------------------+----------+-----------+-----------------------------+
 | MongoDB          | 2.6.9    | mongod    | service mongod start        |
 +------------------+----------+-----------+-----------------------------+
