@@ -1,5 +1,5 @@
 
-Input plugins Configuration
+Inputs Configurations
 ******************
 
 - :ref:`flume-label`

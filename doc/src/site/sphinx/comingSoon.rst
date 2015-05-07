@@ -1,20 +1,16 @@
 Coming Soon
-**************
-
-Next steps
-============
-
-Sparkta is a work in progress, so we still have some nice features to develop…
+***********
 
 
+* Creating a REST services layer in order to query the aggregated data allows us to isolate the final consumer from the
+ specific data storage.
+  * Features:
 
+    - Time ranges.
 
-* Query Services
- Creating a REST services layer in order to query the aggregated data allows us to isolate the final consumer from the specific data storage
+    - Aggregation on time ranges.
 
-* Alarms
- For example, I want to know if we have earned over $3000 in London in the last hour...
- Remember operational intelligence!
+    - Best rollup selection.
 
 * Nice web interface to create and manage policies.
 
