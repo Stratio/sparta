@@ -13,8 +13,8 @@ features:
 - Ready to use, plug&play
 - Flexible workflows (input, output, parsers, etc...)
 - High performance
-- Scalable and fault tolerant
-- BAM ready
+- Scalable
+- Business Activity Monitoring
 - Visualization
 
 
@@ -52,19 +52,21 @@ Features
 ========
 
 - Highly business-project oriented
-- Community engagement from zero day
-- Separate storage and query layers
 - Multiple application
-- Aggregation:
-    - Several operators (count, inc, min, max, avg, median, variance, stddev, full-text, count distinct...)
-    - Automatic rollups (secondly, minutely, hourly, daily, monthly)
-    - GeoLocation
-    - Hierarchical counting
+- Rollups
+    - Pass-through
+    - Time-based
+    - Secondly, minutely, hourly,  daily, monthly, yearly...
+    - Hierarchical
+    - GeoRange: Areas with different sizes (rectangles)
     - Flexible definition of aggregation policies (json, web app)
-- Querying
-    - Automatic REST api
-    - In memory data cube
-    - Extend sparkSQL to allow MDX queries
+- Operators:
+    - Max, min, count, sum
+    - Average, median
+    - Stdev, variance, count distinct
+    - Last value
+    - Full-text search
+
 
 
 Architecture

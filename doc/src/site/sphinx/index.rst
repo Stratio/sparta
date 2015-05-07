@@ -8,5 +8,5 @@ Contents:
     usingSparkta.rst
     sandbox.rst
     examples.rst
-    commingSoon.rst
+    comingSoon.rst
     versionFeatures.rst
