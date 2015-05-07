@@ -115,12 +115,12 @@ Inputs
 Outputs
 ------------
 
-- MongoDB. <outputs.html#mongodb-label>`__
-- Cassandra. <outputs.html#cassandra-label>`__
-- ElasticSearch. <outputs.html#elasticsearch-label>`__
-- Redis. :doc:`redis` <outputs.html#redis-label>`__
-- Spark's DataFrames Outputs. <outputs.html#generic-label>`__
-- PrintOut. <outputs.html#print-label>`__
+- :doc:`mongodb`
+- Cassandra
+- ElasticSearch
+- :doc:`redis`
+- Spark's DataFrames Outputs
+- PrintOut
 
 
 

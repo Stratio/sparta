@@ -1,2 +1,2 @@
-Cassandra Output Specification
+Cassandra Specifications
 ******************
