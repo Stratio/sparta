@@ -17,7 +17,7 @@ features:
 - Business Activity Monitoring
 - Visualization
 
-
+[Here you can find more information about Sparkta](http://es.slideshare.net/Stratio/strata-sparkta)
 
 Introduction
 ============
@@ -30,6 +30,8 @@ This vast amount of data allows us to learn from the users and explore our own w
 
 We can follow in real-time the evolution of a topic, an event or even an incident just by exploring aggregated data.
 
+
+(/doc/src/images/map.jpg?raw=true)
 .. figure:: images/map.png
 
 
@@ -75,29 +77,32 @@ Architecture
 
 Sparkta overview
 ------------
+
+(/doc/src/images/sparkta1.png?raw=true)
 .. figure:: images/sparkta1.png
-   :alt: Spark Architecture Overview
+
 
 
 Key technologies
 ------------
+- [Spark Streaming & Spark http://spark.apache.org)
+- [SparkSQL https://spark.apache.org/sql)
+- [Akka http://akka.io)
+- [MongoDB http://www.mongodb.org/)
+- [Apache Cassandra http://cassandra.apache.org)
+- [ElasticSearch https://www.elastic.co)
+- [Redis http://redis.io)
+- [Apache Parquet http://parquet.apache.org/)
+- [HDFS http://hadoop.apache.org/docs/r1.2.1/hdfs_design.html)
+- [Apache Kafka http://kafka.apache.org)
+- [Apache Flume https://flume.apache.org/)
+- [RabbitMQ https://www.rabbitmq.com/)
+- [Spray http://spray.io/)
+- [KiteSDK (morphlines) http://kitesdk.org/docs/current)
 
-- `Spark Streaming & Spark <http://spark.apache.org>`__
-- `SparkSQL <https://spark.apache.org/sql>`__
-- `Akka <http://akka.io>`__
-- `MongoDB <http://www.mongodb.org/>`__
-- `Apache Cassandra <http://cassandra.apache.org>`__
-- `ElasticSearch <https://www.elastic.co>`__
-- `Redis <http://redis.io>`__
-- `Apache Parquet <http://parquet.apache.org/>`__
-- `HDFS <http://hadoop.apache.org/docs/r1.2.1/hdfs_design.html>`__
-- `Apache Kafka <http://kafka.apache.org>`__
-- `Apache Flume <https://flume.apache.org/>`__
-- `RabbitMQ <https://www.rabbitmq.com/>`__
-- `Spray <http://spray.io/>`__
-- `KiteSDK (morphlines) <http://kitesdk.org/docs/current>`__
 
 
+(/doc/src/images/Inoutputs.png?raw=true)
 .. figure:: images/Inoutputs.png
 
 
@@ -114,13 +119,12 @@ Inputs
 Outputs
 ------------
 
-- MongoDB. :doc:`mongodb`
-- Cassandra. :doc:`cassandra`
-- ElasticSearch. :doc:`elasticsearch`
-- Redis. :doc:`redis`
-- Spark's DataFrames Outputs. :doc:`dataframes`
+- MongoDB
+- Cassandra
+- ElasticSearch
+- Redis
+- Spark's DataFrames Outputs
 - PrintOut
 
 
 
-[Here you can find more information about Sparkta](http://es.slideshare.net/Stratio/strata-sparkta)
