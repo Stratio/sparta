@@ -31,6 +31,8 @@ trait ElasticSearchDAO extends Closeable {
 
   def defaultPort: String
 
+  def defaultAnalyzerType: Option[String]
+
   def idField: Option[String] = None
 
   def defaultIndexMapping: Option[String] = None
@@ -41,6 +43,11 @@ trait ElasticSearchDAO extends Closeable {
     Map("es.mapping.id" -> idField.getOrElse(Output.ID),
       "spark.es.nodes" -> nodes,
       "spark.es.port" -> defaultPort) ++ {
+      defaultAnalyzerType match {
+        case Some(analyzer) => Map("es.index.analysis.analyzer.default.type" -> analyzer)
+        case None => Map("" -> "")
+      }
+    } ++ {
       timeBucket match {
         case Some(tbucket) => Map("es.mapping.names" -> s"$tbucket:@timestamp")
         case None => Map("" -> "")

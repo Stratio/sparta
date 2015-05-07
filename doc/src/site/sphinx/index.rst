@@ -9,3 +9,5 @@ Contents:
     gettingStarted.rst
     sandbox.rst
     examples.rst
+    commingSoon.rst
+    versionFeatures.rst

@@ -112,11 +112,11 @@ Inputs
 Outputs
 ------------
 
-- MongoDB
-- Cassandra
-- ElasticSearch
-- Redis
-- Spark's DataFrames Outputs
+- MongoDB. :doc:`mongodb`
+- Cassandra. :doc:`cassandra`
+- ElasticSearch. :doc:`elasticsearch`
+- Redis. :doc:`redis`
+- Spark's DataFrames Outputs. :doc:`dataframes`
 - PrintOut
 
 

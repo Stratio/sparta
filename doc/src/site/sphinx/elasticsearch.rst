@@ -1,0 +1,2 @@
+ElasticSearch Output Specification
+******************
