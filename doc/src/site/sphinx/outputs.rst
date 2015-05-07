@@ -1,23 +1,23 @@
 
-Outputs Plugins Configurations
+Outputs Configurations
 ******************
 
-- :ref:`generic-label`
+- :ref:`generic-label` . :doc:`dataframes`
 
-- :ref:`mongodb-label`
+- :ref:`mongodb-label` . :doc:`mongodb`
 
-- :ref:`cassandra-label`
+- :ref:`cassandra-label` . :doc:`cassandra`
 
-- :ref:`elasticsearch-label`
+- :ref:`elasticsearch-label` . :doc:`elasticsearch`
 
-- :ref:`redis-label`
+- :ref:`redis-label` .:doc:`redis`
 
 - :ref:`print-label`
 
 
 .. image:: images/outputs.png
-   :height: 200 px
-   :width: 200 px
+   :height: 400 px
+   :width: 420 px
    :alt: Outputs in Sparkta
 
 
@@ -26,10 +26,13 @@ Outputs Plugins Configurations
 
 .. _generic-label:
 
-Generic Outputs Configuration
+Generic Configuration
 ==========
 
 In the SDK you can find the model that must follow an output to be implemented.It has several settings that can modify system operation.
+
+For more information for this output you can visit the :doc:`dataframes`
+
 These parameters can be completed in the policy file:
 
 * multiplexer:
@@ -83,6 +86,8 @@ MongoDB Configuration
 
 The output of MongoDB does not use the generic implementation with DataFrames, it has multiple configuration
 parameters to connect to the DB and self-creation of indexes.
+
+For more information for this output you can visit the :doc:`mongodb`
 
 * mongoClientUri:
    This parameter Connection routes specified the different nodes of a cluster of MongoDB, with replica set or with sharding.
@@ -159,9 +164,10 @@ Cassandra Configuration
 The output of Cassandra use the generic implementation with DataFrames, this implementation transform each
 UpdateMetricOperation to Row type of Spark and identify each row with his schema.
 
+For more information for this output you can visit the :doc:`cassandra`
 
 * connectionHost:
-   This parameter specified the different seeds of a cluster of Cassanda.
+   This parameter specified the different seeds of a cluster of Cassandra.
    Is possible omit this parameter in policy.
 
    * Sample:
@@ -280,6 +286,7 @@ ElasticSearch Configuration
 The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each
 UpdateMetricOperation to Row type of Spark and identify each row with his schema.
 
+For more information for this output you can visit the :doc:`elasticsearch`
 
 * nodes:
    This parameter specified the different nodes of a cluster of ElasticSearch.
@@ -344,6 +351,7 @@ Redis Configuration
 The output of Redis not use the generic implementation with DataFrames, this implementation save each
 UpdateMetricOperation in redis hash sets.
 
+For more information for this output you can visit the :doc:`redis`
 
 * hostname:
    This parameter specified the Ip of a Redis host.
