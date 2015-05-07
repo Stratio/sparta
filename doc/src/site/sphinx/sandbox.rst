@@ -7,7 +7,7 @@ Vagrant Setup
 To get an operating virtual machine with Stratio Sparkta distribution up
 and running, we use `Vagrant <https://www.vagrantup.com/>`__.
 
--  Download and install
+-  Download and install the lastest version (1.7.2)
    `Vagrant <https://www.vagrantup.com/downloads.html>`__.
 -  Download and install
    `VirtualBox <https://www.virtualbox.org/wiki/Downloads>`__.

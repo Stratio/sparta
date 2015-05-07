@@ -1,5 +1,5 @@
-About Stratio Sparkta
-******************
+# About Stratio Sparkta
+
 
 Since Aryabhatta invented zero, Mathematicians such as John von Neuman have been in pursuit
 of efficient counting and architects have constantly built systems that computes counts quicker. In
@@ -17,8 +17,8 @@ features:
 - Business Activity Monitoring
 - Visualization
 
-[Here you can find more information about Sparkta](http://docs.stratio.com/modules/sparkta/development/)
-[Strataconf London 2015 slideshare](http://es.slideshare.net/Stratio/strata-sparkta)
+
+- [Strataconf London 2015 slideshare](http://es.slideshare.net/Stratio/strata-sparkta)
 
 Introduction
 ============
@@ -76,7 +76,7 @@ Architecture
 Sparkta overview
 ------------
 
-
+![Settings Window](https://github.com/Brezyll/sparkta/blob/master/doc/src/site/sphinx/images/sparkta1.png)
 
 Key technologies
 ------------
@@ -118,5 +118,11 @@ Outputs
 - Spark's DataFrames Outputs
 - PrintOut
 
+Sandbox
+-------------
+- [All about how to start running the sandbox] (http://docs.stratio.com/modules/sparkta/development/sandbox.html)
 
+Documentation
+-------------
 
+- [Stratio Sparkta](http://docs.stratio.com/modules/sparkta/development/)
