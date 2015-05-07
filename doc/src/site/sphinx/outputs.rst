@@ -2,15 +2,15 @@
 Outputs Configurations
 ******************
 
-- :ref:`generic-label` . :doc:`dataframes`
+- :ref:`generic-label`
 
-- :ref:`mongodb-label` . :doc:`mongodb`
+- :ref:`mongodb-label`
 
-- :ref:`cassandra-label` . :doc:`cassandra`
+- :ref:`cassandra-label`
 
-- :ref:`elasticsearch-label` . :doc:`elasticsearch`
+- :ref:`elasticsearch-label`
 
-- :ref:`redis-label` .:doc:`redis`
+- :ref:`redis-label`
 
 - :ref:`print-label`
 
@@ -18,6 +18,7 @@ Outputs Configurations
 .. image:: images/outputs.png
    :height: 400 px
    :width: 420 px
+   :align: center
    :alt: Outputs in Sparkta
 
 

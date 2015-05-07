@@ -120,7 +120,7 @@ Outputs
 - ElasticSearch. <outputs.html#elasticsearch-label>`__
 - Redis. :doc:`redis` <outputs.html#redis-label>`__
 - Spark's DataFrames Outputs. <outputs.html#generic-label>`__
-- PrintOut
+- PrintOut. <outputs.html#print-label>`__
 
 
 
