@@ -15,6 +15,7 @@ An aggregation policy it's a JSON document. It's composed of:
 
 The policy have a few required fields like *name* and *duration* and others optional, like *saveRawData* and *rawDataParquetPath*
 
+
 .. _input:
 
 Input
@@ -39,6 +40,7 @@ Example:
   ]
 
 .. _output:
+
 
 Output(s)
 ---------
@@ -67,6 +69,7 @@ Example:
 
 .. _dimension:
 
+
 Dimension(s)
 ------------
 
@@ -88,6 +91,7 @@ Example:
 
 .. _rollup:
 
+
 RollUp(s)
 ---------
 
@@ -106,6 +110,7 @@ Example:
     ]
 
 .. _transformation:
+
 
 Transformation(s)
 -----------------
@@ -181,6 +186,7 @@ Example:
 
 .. _save-raw:
 
+
 Save raw data
 -------------
 
@@ -189,6 +195,7 @@ You can save the raw data to HDFS+Parquet with only two parameters:
 
     "saveRawData": "false",
     "rawDataParquetPath": "myTestParquetPath"
+
 
 
 Submiting Policy
