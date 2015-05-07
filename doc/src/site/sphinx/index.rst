@@ -6,7 +6,6 @@ Contents:
 
     about.rst
     usingSparkta.rst
-    gettingStarted.rst
     sandbox.rst
     examples.rst
     commingSoon.rst
