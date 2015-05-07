@@ -1,6 +1,12 @@
 Using Sparkta
 ******************
 
+Running Sparkta
+============
+
+Once Sparkta has been installed, you can run ``sh $SPARKTA_HOME/bin/run``.
+Default installation directory is ``/opt/sds/sparkta``
+
 Aggregation Policy
 ============
 
@@ -210,4 +216,3 @@ The policy must be submitted via POST with the following syntax:
 ::
 
     curl -X POST -H "Content-Type: application/json" --data @PATH-TO-FILE/sample-policy.json SPARKTA-URL:PORT/policies
-    

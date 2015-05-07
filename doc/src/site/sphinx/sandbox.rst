@@ -7,7 +7,7 @@ Vagrant Setup
 To get an operating virtual machine with Stratio Sparkta distribution up
 and running, we use `Vagrant <https://www.vagrantup.com/>`__.
 
--  Download and install
+-  Download and install the lastest version (1.7.2)
    `Vagrant <https://www.vagrantup.com/downloads.html>`__.
 -  Download and install
    `VirtualBox <https://www.virtualbox.org/wiki/Downloads>`__.
@@ -27,6 +27,8 @@ Login into the sandbox as **vagrant user** and start the services:
 -  Start Sparkta: **sudo service spark start**
 -  Start Elasticsearch: **sudo service elasticsearch start**
 
+Now you are ready to `test <examples.html>`__ the sandbox
+
 What you will find in the sandbox
 =================================
 
@@ -34,25 +36,25 @@ What you will find in the sandbox
 -  3GB RAM - 2 CPU
 -  Two ethernet interfaces.
 
-+------------------+----------+-----------+-----------------------------+
-|    Name          | Version  |  Service  |         Command             |
-+==================+==========+===========+=============================+
-| Spark            | 1.3.0    | spark     | service spark start         |
-+------------------+----------+-----------+-----------------------------+
-| Cassandra        | 2.1.2    | cassandra | service cassandra start     |
-+------------------+----------+-----------+-----------------------------+
-| MongoDB          | 2.6.9    | mongod    | service mongod start        |
-+------------------+----------+-----------+-----------------------------+
-| Elasticsearch    | 1.5.2    | elastic   | service elasticearch start  |
-+------------------+----------+-----------+-----------------------------+
-| zookeepter       | 2.3.6    |           |                             |
-+------------------+----------+-----------+-----------------------------+
-| Kafka            | 0.8.1    |           |                             |
-+------------------+----------+-----------+-----------------------------+
-| scala            | 2.10.4   |           |                             |
-+------------------+----------+-----------+-----------------------------+
-| RabbitMQ         | 3.5.1    |           |                             |
-+------------------+----------+-----------+-----------------------------+
++------------------+---------+-------------------------------+
+|    Name          | Version |         Command               |
++==================+=========+===============================+
+| Spark            | 1.3.0   | service spark start           |
++------------------+---------+-------------------------------+
+| Cassandra        | 2.1.2   | service cassandra start       |
++------------------+---------+-------------------------------+
+| MongoDB          | 2.6.9   | service mongod start          |
++------------------+---------+-------------------------------+
+| Elasticsearch    | 1.5.2   | service elasticearch start    |
++------------------+---------+-------------------------------+
+| zookeeper        | 2.3.6   |                               |
++------------------+---------+-------------------------------+
+| Kafka            | 0.8.1   |                               |
++------------------+---------+-------------------------------+
+| scala            | 2.10.4  |                               |
++------------------+---------+-------------------------------+
+| RabbitMQ         | 3.5.1   | service rabbitmq-server start |
++------------------+---------+-------------------------------+
 
 
 Access to the sandbox and other useful commands
