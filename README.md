@@ -95,7 +95,7 @@ Key technologies
 - [KiteSDK (morphlines)] (http://kitesdk.org/docs/current)
 
 
-[Inputs and ouputs](https://github.com/Brezyll/sparkta/blob/feature/Doc/doc/src/site/sphinx/images/Inoutputs.png)
+![Settings Window](https://github.com/Brezyll/sparkta/blob/feature/Doc/doc/src/site/sphinx/images/Inoutputs.png)
 
 Inputs
 ------------
