@@ -102,11 +102,11 @@ Key technologies
 Inputs
 ------------
 
-- Twitter
-- Kafka
-- Flume
-- RabbitMQ
-- Socket
+- `Twitter <inputs.html#twitter-label>`__
+- `Kafka <inputs.html#kafka-label>`__
+- `Flume <inputs.html#flume-label>`__
+- `RabbitMQ <inputs.html#rabbitMQ-label>`__
+- `Socket <inputs.html#socket-label>`__
 
 
 Outputs
