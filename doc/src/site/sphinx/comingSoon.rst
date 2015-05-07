@@ -1,12 +1,15 @@
-Comming Soon
-**************
+Coming Soon
+***********
 
 
 * Creating a REST services layer in order to query the aggregated data allows us to isolate the final consumer from the
  specific data storage.
   * Features:
+
     - Time ranges.
+
     - Aggregation on time ranges.
+
     - Best rollup selection.
 
 * Nice web interface to create and manage policies.

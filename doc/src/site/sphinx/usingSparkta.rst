@@ -21,6 +21,7 @@ An aggregation policy it's a JSON document. It's composed of:
 
 The policy have a few required fields like *name* and *duration* and others optional, like *saveRawData* and *rawDataParquetPath*
 
+
 .. _input:
 
 Input
@@ -46,11 +47,12 @@ Example:
 
 .. _output:
 
+
 Output(s)
 ---------
 
 You can have one or more outputs in your policy. One output is equivalent to one datastore.
-For more info you can visit :doc:`outputs`.
+For more configuration info you can visit :doc:`outputs`.
 
 Example:
 ::
@@ -71,7 +73,13 @@ Example:
     }
   ]
 
+
+You can read more specifications for the native outputs plugins here:
+  - :doc:`mongodb`
+  - :doc:`redis`
+
 .. _dimension:
+
 
 Dimension(s)
 ------------
@@ -94,6 +102,7 @@ Example:
 
 .. _rollup:
 
+
 RollUp(s)
 ---------
 
@@ -112,6 +121,7 @@ Example:
     ]
 
 .. _transformation:
+
 
 Transformation(s)
 -----------------
@@ -187,6 +197,7 @@ Example:
 
 .. _save-raw:
 
+
 Save raw data
 -------------
 
@@ -195,6 +206,7 @@ You can save the raw data to HDFS+Parquet with only two parameters:
 
     "saveRawData": "false",
     "rawDataParquetPath": "myTestParquetPath"
+
 
 
 Submiting Policy
