@@ -17,7 +17,8 @@ features:
 - Business Activity Monitoring
 - Visualization
 
-[Here you can find more information about Sparkta](http://es.slideshare.net/Stratio/strata-sparkta)
+[Here you can find more information about Sparkta](http://docs.stratio.com/modules/sparkta/development/)
+[Strataconf London 2015 slideshare](http://es.slideshare.net/Stratio/strata-sparkta)
 
 Introduction
 ============
