@@ -46,7 +46,7 @@ Output(s)
 ---------
 
 You can have one or more outputs in your policy. One output is equivalent to one datastore.
-For more info you can visit :doc:`outputs`.
+For more configuration info you can visit :doc:`outputs`.
 
 Example:
 ::
@@ -66,6 +66,11 @@ Example:
       }
     }
   ]
+
+
+You can read more specifications for the native outputs plugins here:
+  - :doc:`mongodb`
+  - :doc:`redis`
 
 .. _dimension:
 
