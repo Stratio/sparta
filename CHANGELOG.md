@@ -102,7 +102,7 @@
     - Options in mapping date types
     - Auto index type with time fields
 - Output **Redis**
-- Input **Kafka Direct Streaming** integrated in Spark 1.3.1
+- Input **Kafka Direct Streaming** integrated in Spark 1.3.0
 - Input **RabbitMq**
 - Full-Text operator
 - Accumulator operator

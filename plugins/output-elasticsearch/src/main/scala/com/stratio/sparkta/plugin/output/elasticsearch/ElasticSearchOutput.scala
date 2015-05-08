@@ -39,8 +39,8 @@ class ElasticSearchOutput(keyName: String,
                           bcSchema: Option[Broadcast[Seq[TableSchema]]])
   extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with ElasticSearchDAO {
 
-  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min, WriteOp.AccAvg,
-    WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText, WriteOp.AccSet)
+  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Max, WriteOp.Min,
+    WriteOp.AccAvg, WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText, WriteOp.AccSet)
 
   override val dateType = ElasticSearchDAO.getDateTimeType(properties.getString("dateType", None))
 

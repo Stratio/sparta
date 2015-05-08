@@ -53,7 +53,7 @@ class RedisOutput(keyName : String,
 
   override val eventTimeFieldName = properties.getString("timestampFieldName", "timestamp")
 
-  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Max, WriteOp.Min)
+  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Max, WriteOp.Min)
 
   override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
@@ -89,6 +89,14 @@ class RedisOutput(keyName : String,
             case WriteOp.Inc => {
               val valueHashOperation: Long = hget(hashKey, aggregation._1).getOrElse("0").toLong
               val valueCurrentOperation: Long = aggregation._2.getOrElse(0L).asInstanceOf[Long]
+              hset(hashKey, aggregation._1, valueHashOperation + valueCurrentOperation)
+            }
+            case WriteOp.IncBig => {
+              val valueHashOperation: Long = hget(hashKey, aggregation._1).getOrElse("0").toLong
+              val valueCurrentOperation: Long = aggregation._2 match {
+                case None => 0L
+                case Some(value) => value.asInstanceOf[BigDecimal].toLong
+              }
               hset(hashKey, aggregation._1, valueHashOperation + valueCurrentOperation)
             }
             case WriteOp.Max => {

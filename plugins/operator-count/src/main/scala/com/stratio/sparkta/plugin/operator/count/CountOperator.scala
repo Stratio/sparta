@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import com.stratio.sparkta.sdk._
 
 class CountOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  private val distinctFields = if (properties.contains("distinctFields")) {
-    val fields = properties.getString("distinctFields").split(",")
+  val distinctFields = if (properties.contains("distinctFields")) {
+    val fields = properties.getString("distinctFields").split(CountOperator.Separator)
     if (fields.isEmpty) None else Some(fields)
   } else None
 
@@ -39,8 +39,8 @@ class CountOperator(properties: Map[String, JSerializable]) extends Operator(pro
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
     distinctFields match {
-      case None => CountOperator.SOME_ONE
-      case Some(fields) => Some(fields.toString)
+      case None => CountOperator.SomeOne
+      case Some(fields) => Some(fields.mkString(CountOperator.Separator).toString)
     }
   }
 
@@ -48,14 +48,16 @@ class CountOperator(properties: Map[String, JSerializable]) extends Operator(pro
     Try {
       val longList: Iterable[Long] = distinctFields match {
         case None => values.map(_.get.asInstanceOf[Number].longValue())
-        case Some(fields) => values.toList.distinct.map(value => CountOperator.SOME_ONE.get)
+        case Some(fields) => values.toList.distinct.map(value => CountOperator.SomeOne.get)
       }
       Some(longList.reduce(_ + _))
-    }.getOrElse(CountOperator.SOME_ZERO)
+    }.getOrElse(CountOperator.SomeZero)
   }
 }
 
 private object CountOperator {
-  val SOME_ONE = Some(1L)
-  val SOME_ZERO = Some(0L)
+
+  val SomeOne = Some(1L)
+  val SomeZero = Some(0L)
+  val Separator = "_"
 }
