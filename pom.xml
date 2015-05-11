@@ -286,7 +286,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
@@ -294,7 +293,7 @@
                 <executions>
                     <execution>
                         <id>scala-compile-first</id>
-                        <phase>process-resources</phase>
+                        <phase>compile</phase>
                         <goals>
                             <goal>add-source</goal>
                             <goal>compile</goal>
@@ -302,19 +301,53 @@
                     </execution>
                     <execution>
                         <id>scala-test-compile</id>
-                        <phase>process-test-resources</phase>
+                        <phase>test-compile</phase>
                         <goals>
                             <goal>testCompile</goal>
                         </goals>
                     </execution>
                 </executions>
                 <configuration>
-                    <scalaCompatVersion>${scala.binary.version}</scalaCompatVersion>
                     <args>
+                        <arg>-P:genjavadoc:out=${project.build.directory}/genjavadoc</arg>
                         <arg>-deprecation</arg>
                         <arg>-feature</arg>
                     </args>
-                    <scalaVersion>${scala.version}</scalaVersion>
+                    <compilerPlugins>
+                        <compilerPlugin>
+                            <groupId>com.typesafe.genjavadoc</groupId>
+                            <artifactId>genjavadoc-plugin_${scala.version}</artifactId>
+                            <version>0.8</version>
+                        </compilerPlugin>
+                    </compilerPlugins>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/genjavadoc</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9</version>
+                <configuration>
+                    <minmemory>64m</minmemory>
+                    <maxmemory>2g</maxmemory>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                    <detectLinks>true</detectLinks>
                 </configuration>
             </plugin>
         </plugins>
