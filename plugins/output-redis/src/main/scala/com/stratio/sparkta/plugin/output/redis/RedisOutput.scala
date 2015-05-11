@@ -33,11 +33,6 @@ import scala.util.Try
 /**
  * Saves calculated rollups on Redis.
  *
- * @param keyName
- * @param properties
- * @param sparkContext
- * @param operationTypes
- * @author anistal
  */
 class RedisOutput(keyName : String,
                   properties: Map[String, Serializable],
