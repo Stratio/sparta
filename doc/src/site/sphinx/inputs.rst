@@ -59,6 +59,21 @@ Reads events from apache-kafka
         }
     ]
 
+* DirectInput Sample:
+::
+
+    "inputs": [
+        {
+            "name": "in",
+            "elementType": "KafkaDirectInput",
+            "configuration": {
+                "topics": "topic1",
+                "kafkaParams.metadata.broker.list": "localhost:9092",
+                "kafkaParams.group.id" : "kafka-test",
+            }
+        }
+    ]
+
 .. _rabbitMQ-label:
 
 Input-rabbitMQ
