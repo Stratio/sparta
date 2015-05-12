@@ -104,10 +104,6 @@ case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Opera
     }
   }
 
-  private def mergeLongMaps[K](m1: Map[K, Long], m2: Map[K, Long]): Map[K, Long] = m1 ++ m2.map {
-    case (k, v) => k -> (v + m1.getOrElse(k, 0L))
-  }
-
   override def toString: String = "[Rollup over " + components + "]"
 
   def sortComponents: Seq[(Dimension, BucketType)] = {
