@@ -47,14 +47,12 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     val specifictSparkConfig = SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration)
     val sc = SparkContextFactory.sparkContextInstance(generalConfig, specifictSparkConfig, jars)
     val sqlContext = SparkContextFactory.sparkSqlContextInstance.get
-    val ssc = SparkContextFactory.sparkStreamingInstance(new Duration(apConfig.duration)).get
+    val ssc = SparkContextFactory.sparkStreamingInstance(new Duration(apConfig.duration), apConfig.checkpointDir).get
     val inputs: Map[String, DStream[Event]] = SparktaJob.inputs(apConfig, ssc)
     val parsers: Seq[Parser] = SparktaJob.parsers(apConfig)
     val operators: Seq[Operator] = SparktaJob.operators(apConfig)
-    //TODO workaround this instantiateDimensions(apConfig).toMap.map(_._2) is not serializable.
     val dimensionsMap: Map[String, Dimension] = SparktaJob.instantiateDimensions(apConfig).toMap
     val dimensionsSeq: Seq[Dimension] = SparktaJob.instantiateDimensions(apConfig).map(_._2)
-
     val rollups: Seq[Rollup] = apConfig.rollups.map(r => {
       val components = r.dimensionAndBucketTypes.map(dab => {
         dimensionsMap.get(dab.dimensionName) match {
@@ -67,7 +65,8 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
           case None => throw new DriverException("Dimension name " + dab.dimensionName + " not found.")
         }
       })
-      new Rollup(components, operators)
+      new Rollup(components, operators, apConfig.checkpointInterval, apConfig.checkpointGranularity,
+        apConfig.checkpointAvailable)
     })
 
     val bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]] = {
@@ -84,11 +83,10 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     }
 
     val outputs = SparktaJob.outputs(apConfig, sc, bcOperatorsKeyOperation, bcRollupOperatorSchema)
-    //TODO only support one input
     val input: DStream[Event] = inputs.head._2
     SparktaJob.saveRawData(apConfig, sqlContext, input)
     val parsed = SparktaJob.applyParsers(input, parsers)
-    val dataCube = new DataCube(dimensionsSeq, rollups).setUp(parsed)
+    val dataCube = new DataCube(dimensionsSeq, rollups, apConfig.checkpointGranularity).setUp(parsed)
     outputs.map(_._2.persist(dataCube))
     ssc
   }

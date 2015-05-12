@@ -21,15 +21,7 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer
 import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.sdk._
-import org.apache.spark.streaming.TestSuiteBase
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FeatureSpec, FlatSpec}
 
-/**
- * Tests over DataCube operations.
- * @author anistal
- */
 @RunWith(classOf[JUnitRunner])
 class DataCubeSpec extends TestSuiteBase {
 
@@ -51,6 +43,11 @@ class DataCubeSpec extends TestSuiteBase {
      (List(DimensionValue(
        Dimension(eventKey,PassthroughBucketer()),BucketType(identity,Map()),value3)),Map(eventKey -> value3)))
          """) {
+
+    val checkpointInterval = 10000
+    val checkpointAvailable = 60000
+    val checkpointGranularity = "minute"
+    
     val bucketer = new PassthroughBucketer
     val dimension = Dimension("eventKey", bucketer)
     val operator = new CountOperator(Map())

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.driver.test.dto
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-
-import com.stratio.sparkta.driver.dto._
-import com.stratio.sparkta.sdk.JsoneyString
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, WordSpecLike}
 
-/**
- * Created by dcarroza on 4/13/15.
- */
+import com.stratio.sparkta.driver.dto._
+import com.stratio.sparkta.sdk.JsoneyString
+
 @RunWith(classOf[JUnitRunner])
 class AggregationPoliciesDtoSpec extends WordSpecLike
 with MockitoSugar
@@ -33,6 +31,11 @@ with Matchers {
 
   "A AggregationPoliciesValidator should" should {
     "validate dimensions is required and has at least 1 element" in {
+
+      val checkpointInterval = 10000
+      val checkpointAvailable = 60000
+      val checkpointGranularity = "minute"
+      val checkpointDir = "checkpoint"
 
       val configuration: Map[String, JsoneyString]
       = Map(("topics", new JsoneyString("zion2:1")), ("kafkaParams.group.id", new JsoneyString("kafka-pruebas")))
@@ -42,6 +45,10 @@ with Matchers {
         "policy-name",
         "true",
         "example",
+        checkpointDir,
+        checkpointGranularity,
+        checkpointInterval,
+        checkpointAvailable,
         0,
         Seq(),
         Seq(mock[RollupDto]),
@@ -50,9 +57,7 @@ with Matchers {
         Seq(mock[PolicyElementDto]),
         Seq(mock[PolicyElementDto]))
 
-
       val test = AggregationPoliciesValidator.validateDto(apd)
-
 
       test._1 should equal(false)
       test._2 should include("com.github.fge.jsonschema.core.report.ListProcessingReport: failure\n" +

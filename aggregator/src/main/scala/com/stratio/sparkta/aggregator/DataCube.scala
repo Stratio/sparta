@@ -16,11 +16,10 @@
 
 package com.stratio.sparkta.aggregator
 
-import java.io.{Serializable => JSerializable}
+import org.apache.spark.streaming.dstream.DStream
+import org.joda.time.DateTime
 
 import com.stratio.sparkta.sdk._
-import org.apache.spark.streaming.dstream.DStream
-
 
 /**
  * It builds a pre-calculated DataCube with dimension/s, rollup/s and operation/s defined by the user in the policy.
@@ -34,6 +33,18 @@ import org.apache.spark.streaming.dstream.DStream
  */
 case class DataCube(dimensions: Seq[Dimension], rollups: Seq[Rollup]) {
 
+case class DataCube(dimensions: Seq[Dimension], rollups: Seq[Rollup], checkpointGranularity: String) {
+
+  def setUp(inputStream: DStream[Event]): Seq[DStream[UpdateMetricOperation]] = {
+    val eventGranularity = Output.dateFromGranularity(DateTime.now(), checkpointGranularity).getTime
+    val extractedDimensionsStream = inputStream.map((e: Event) => {
+      val dimVals = for {
+        dimension: Dimension <- dimensions
+        value <- e.keyMap.get(dimension.name).toSeq
+        (bucketType, bucketedValue) <- dimension.bucketer.bucket(value)
+      } yield DimensionValue(dimension, bucketType, bucketedValue)
+      ((dimVals, eventGranularity),e.keyMap)
+    }).cache()
   /**
    * It builds the DataCube calculating aggregations.
    * @param inputStream with the original stream of data.
@@ -43,6 +54,7 @@ case class DataCube(dimensions: Seq[Dimension], rollups: Seq[Rollup]) {
     val extractedDimensionsStream = extractDimensionsStream(inputStream)
     rollups.map(_.aggregate(extractedDimensionsStream))
   }
+}
 
   /**
    * Extract a modified stream that will be needed to calculate aggregations.

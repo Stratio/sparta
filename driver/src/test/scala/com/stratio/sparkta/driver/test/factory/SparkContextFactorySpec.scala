@@ -43,7 +43,6 @@ class SparkContextFactorySpec extends FlatSpec with ShouldMatchers with BeforeAn
 
     lazy val config = ConfigFactory.load.getConfig("sparkta")
     val wrongConfig = ConfigFactory.empty
-    val specificConfig = Map("foo" -> "var")
     val seconds = 6
     val batchDuraction = Duration(seconds)
   }
@@ -69,10 +68,11 @@ class SparkContextFactorySpec extends FlatSpec with ShouldMatchers with BeforeAn
   }
 
   it should "create and reuse same SparkStreamingContext" in new WithConfig {
+    val checkpointDir = "checkpoint"
     val sc = SparkContextFactory.sparkContextInstance(config, specificConfig, Seq())
-    val ssc = SparkContextFactory.sparkStreamingInstance(batchDuraction)
+    val ssc = SparkContextFactory.sparkStreamingInstance(batchDuraction, checkpointDir)
     ssc shouldNot be equals (None)
-    val otherSsc = SparkContextFactory.sparkStreamingInstance(batchDuraction)
+    val otherSsc = SparkContextFactory.sparkStreamingInstance(batchDuraction, checkpointDir)
     ssc should be equals (otherSsc)
   }
 }
