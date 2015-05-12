@@ -37,7 +37,7 @@ case class DataCube(dimensions: Seq[Dimension], rollups: Seq[Rollup]) {
   /**
    * It builds the DataCube calculating aggregations.
    * @param inputStream with the original stream of data.
-   * @return the builded DataCube.
+   * @return the built DataCube.
    */
   def setUp(inputStream: DStream[Event]): Seq[DStream[UpdateMetricOperation]] = {
     val extractedDimensionsStream = extractDimensionsStream(inputStream)
