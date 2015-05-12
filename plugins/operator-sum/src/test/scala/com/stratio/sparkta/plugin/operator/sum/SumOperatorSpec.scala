@@ -16,10 +16,13 @@
 
 package com.stratio.sparkta.plugin.operator.sum
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 import java.math.{BigDecimal => JBigDecimal}
 
+@RunWith(classOf[JUnitRunner])
 class SumOperatorSpec extends WordSpec with Matchers {
 
   "Sum operator" should {

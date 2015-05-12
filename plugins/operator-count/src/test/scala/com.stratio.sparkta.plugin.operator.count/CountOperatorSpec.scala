@@ -16,8 +16,11 @@
 
 package com.stratio.sparkta.plugin.operator.count
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
+@RunWith(classOf[JUnitRunner])
 class CountOperatorSpec extends WordSpec with Matchers {
 
   "Count operator" should {

@@ -16,8 +16,11 @@
 
 package com.stratio.sparkta.plugin.operator.lastValue
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
+@RunWith(classOf[JUnitRunner])
 class LastValueOperatorSpec extends WordSpec with Matchers {
 
   "LastValue operator" should {

@@ -16,8 +16,11 @@
 
 package com.stratio.sparkta.plugin.operator.variance
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
+@RunWith(classOf[JUnitRunner])
 class VarianceOperatorSpec extends WordSpec with Matchers {
 
   "Variance operator" should {

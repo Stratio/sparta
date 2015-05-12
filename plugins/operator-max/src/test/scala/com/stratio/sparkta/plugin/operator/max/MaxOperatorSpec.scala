@@ -16,8 +16,11 @@
 
 package com.stratio.sparkta.plugin.operator.max
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
+@RunWith(classOf[JUnitRunner])
 class MaxOperatorSpec extends WordSpec with Matchers {
 
   "Max operator" should {

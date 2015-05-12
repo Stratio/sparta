@@ -16,8 +16,11 @@
 
 package com.stratio.sparkta.plugin.operator.fullText
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
+@RunWith(classOf[JUnitRunner])
 class FullTextOperatorSpec extends WordSpec with Matchers {
 
   "FullText operator" should {

@@ -16,8 +16,11 @@
 
 package com.stratio.sparkta.plugin.operator.median
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
+@RunWith(classOf[JUnitRunner])
 class MedianOperatorSpec extends WordSpec with Matchers {
 
   "Median operator" should {
