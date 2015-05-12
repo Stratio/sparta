@@ -16,9 +16,11 @@
 
 package com.stratio.sparkta.plugin.input.kafka
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
-
+@RunWith(classOf[JUnitRunner])
 class KafkaDirectInputSpec extends WordSpec with Matchers {
   "KafkaDirect Input" should {
     "Topics match " in {

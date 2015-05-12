@@ -157,10 +157,18 @@ trait MongoDbDAO extends Closeable {
       .reduce(_ ++ _)
   }
 
+  protected def valuesBigDecimalToDouble(seq: Seq[(String, Option[Any])]) : Seq[(String, Double)] = {
+    seq.asInstanceOf[Seq[(String, Option[BigDecimal])]].map(s => (s._1, s._2 match {
+      case None => 0
+      case Some(value) => value.toDouble
+    }))
+  }
   protected def getSentence(op: WriteOp, seq: Seq[(String, Option[Any])]): (Seq[(String, Any)], String) = {
     op match {
       case WriteOp.Inc =>
         (seq.asInstanceOf[Seq[(String, Long)]], "$inc")
+      case WriteOp.IncBig =>
+        (valuesBigDecimalToDouble(seq), "$inc")
       case WriteOp.Set =>
         (seq, "$set")
       case WriteOp.Avg | WriteOp.Median | WriteOp.Variance | WriteOp.Stddev =>

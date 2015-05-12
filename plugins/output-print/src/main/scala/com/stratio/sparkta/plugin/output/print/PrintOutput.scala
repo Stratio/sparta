@@ -43,8 +43,8 @@ class PrintOutput(keyName: String,
                   bcSchema: Option[Broadcast[Seq[TableSchema]]])
   extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with Logging {
 
-  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.Set, WriteOp.Max, WriteOp.Min, WriteOp.AccAvg,
-    WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText, WriteOp.AccSet)
+  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Max, WriteOp.Min,
+    WriteOp.AccAvg, WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText, WriteOp.AccSet)
 
   override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
