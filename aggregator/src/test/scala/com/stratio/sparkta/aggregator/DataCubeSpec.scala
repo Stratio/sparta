@@ -22,12 +22,15 @@ import com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer
 import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.sdk._
 import org.apache.spark.streaming.TestSuiteBase
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FeatureSpec, FlatSpec}
 
 /**
  * Tests over DataCube operations.
  * @author anistal
  */
+@RunWith(classOf[JUnitRunner])
 class DataCubeSpec extends TestSuiteBase {
 
   val PreserverOrder = false
