@@ -7,6 +7,7 @@ echo "export M2_HOME=/opt/sds/apache-maven-3.0.5" >> /home/vagrant/.bashrc
 echo "export PATH=$M2_HOME/bin:$PATH" >> /home/vagrant/.bashrc
 #sed -i "s|/bin:/usr/local/sbin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin|/bin:/usr/local/sbin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin:$M2_HOME/bin|g" .bashrc
 
+#export PATH=/opt/sds/apache-maven-3.0.5/bin:/usr/local/sbin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
 
 
 
