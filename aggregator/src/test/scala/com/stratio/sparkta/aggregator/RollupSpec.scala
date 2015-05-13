@@ -36,7 +36,7 @@ class RollupSpec extends TestSuiteBase {
     val PreserverOrder = true
     val bucketer = new PassthroughBucketer
     val checkpointInterval = 10000
-    val checkpointAvailable = 60000
+    val checkpointTimeAvailability = 60000
     val checkpointGranularity = "minute"
     val eventGranularity = Output.dateFromGranularity(DateTime.now(), "minute").getTime
     val rollup = new Rollup(
@@ -44,7 +44,7 @@ class RollupSpec extends TestSuiteBase {
       Seq(new CountOperator(Map()), new SumOperator(Map("inputField" -> "n"))),
       checkpointInterval,
       checkpointGranularity,
-      checkpointAvailable)
+      checkpointTimeAvailability)
 
     testOperation(getInput, rollup.aggregate, getOutput, PreserverOrder)
 

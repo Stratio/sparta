@@ -33,10 +33,13 @@ import com.stratio.sparkta.sdk._
  *   This final stream will be used mainly by outputs.
  * @param dimensions that will be contain the fields of the datacube.
  * @param rollups that will be contain how the data will be aggregate.
+ * @param timeBucket that will be contain the bucketer id that contain the date.
+ * @param checkpointGranularity that will be contain the granularity to calculate the time, only if this bucketer is
+ *                              not present.
  */
 case class DataCube(dimensions: Seq[Dimension],
                     rollups: Seq[Rollup],
-                    dateBucket: Option[String],
+                    timeBucket: Option[String],
                     checkpointGranularity: String) {
   /**
    * It builds the DataCube calculating aggregations.
@@ -61,15 +64,19 @@ case class DataCube(dimensions: Seq[Dimension],
         value <- event.keyMap.get(dimension.name).toSeq
         (bucketType, bucketedValue) <- dimension.bucketer.bucket(value)
       } yield DimensionValue(dimension, bucketType, bucketedValue)
-      val eventTime = dateBucket match {
-        case Some(bucket) => {
-          val dimensionsDates = dimensionValues.filter(dimensionValue => dimensionValue.bucketType.id == bucket)
-          if (dimensionsDates.isEmpty) getDate else dimensionsDates.head.value.asInstanceOf[Timestamp].getTime
-        }
-        case None => getDate
-      }
+      val eventTime = extractEventTime(dimensionValues)
       ((dimensionValues, eventTime), event.keyMap)
     }).cache()
+  }
+
+  private def extractEventTime(dimensionValues : Seq[DimensionValue]) = {
+    timeBucket match {
+      case Some(bucket) => {
+        val dimensionsDates = dimensionValues.filter(dimensionValue => dimensionValue.bucketType.id == bucket)
+        if (dimensionsDates.isEmpty) getDate else dimensionsDates.head.value.asInstanceOf[Timestamp].getTime
+      }
+      case None => getDate
+    }
   }
 
   private def getDate: Long = Output.dateFromGranularity(DateTime.now(), checkpointGranularity).getTime

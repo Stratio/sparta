@@ -51,9 +51,9 @@ class DataCubeSpec extends TestSuiteBase {
          """) {
 
     val checkpointInterval = 10000
-    val checkpointAvailable = 60000
+    val checkpointTimeAvailability = 60000
     val checkpointGranularity = "minute"
-    val dateBucket = None
+    val timeBucket = None
 
     val timestamp = Output.dateFromGranularity(DateTime.now(), checkpointGranularity).getTime
     
@@ -65,8 +65,8 @@ class DataCubeSpec extends TestSuiteBase {
       Seq(operator),
       checkpointInterval,
       checkpointGranularity,
-      checkpointAvailable)
-    val dataCube = new DataCube(Seq(dimension), Seq(rollup), dateBucket, checkpointGranularity)
+      checkpointTimeAvailability)
+    val dataCube = new DataCube(Seq(dimension), Seq(rollup), timeBucket, checkpointGranularity)
 
     testOperation(getEventInput, dataCube.extractDimensionsStream, getEventOutput(timestamp), PreserverOrder)
   }

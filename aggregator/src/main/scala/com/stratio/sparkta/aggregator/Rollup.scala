@@ -37,7 +37,7 @@ case class Rollup(components: Seq[(Dimension, BucketType)],
                   operators: Seq[Operator],
                   checkpointInterval: Int,
                   checkpointGranularity: String,
-                  checkpointAvailable: Int) {
+                  checkpointTimeAvailability: Int) {
 
   private lazy val operatorsMap = operators.map(op => op.key -> op).toMap
 
@@ -80,7 +80,8 @@ case class Rollup(components: Seq[(Dimension, BucketType)],
     val newUpdateFunc = (iterator: Iterator[((Seq[DimensionValue], Long),
       Seq[Map[String, JSerializable]],
       Option[Seq[(String, Option[Any])]])]) => {
-      val eventTime = Output.dateFromGranularity(DateTime.now(), checkpointGranularity).getTime - checkpointAvailable
+      val eventTime = Output.dateFromGranularity(DateTime.now(), checkpointGranularity).getTime -
+        checkpointTimeAvailability
       iterator.filter(dimensionsData => dimensionsData._1._2 >= eventTime)
         .flatMap { case (dimensionsKey, values, state) =>
         updateFunction(values, state).map(result => (dimensionsKey, result))
