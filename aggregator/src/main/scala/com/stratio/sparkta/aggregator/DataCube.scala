@@ -16,6 +16,9 @@
 
 package com.stratio.sparkta.aggregator
 
+import java.sql.Timestamp
+import java.io.{Serializable => JSerializable}
+
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
@@ -31,20 +34,9 @@ import com.stratio.sparkta.sdk._
  * @param dimensions that will be contain the fields of the datacube.
  * @param rollups that will be contain how the data will be aggregate.
  */
-case class DataCube(dimensions: Seq[Dimension], rollups: Seq[Rollup]) {
-
-case class DataCube(dimensions: Seq[Dimension], rollups: Seq[Rollup], checkpointGranularity: String) {
-
-  def setUp(inputStream: DStream[Event]): Seq[DStream[UpdateMetricOperation]] = {
-    val eventGranularity = Output.dateFromGranularity(DateTime.now(), checkpointGranularity).getTime
-    val extractedDimensionsStream = inputStream.map((e: Event) => {
-      val dimVals = for {
-        dimension: Dimension <- dimensions
-        value <- e.keyMap.get(dimension.name).toSeq
-        (bucketType, bucketedValue) <- dimension.bucketer.bucket(value)
-      } yield DimensionValue(dimension, bucketType, bucketedValue)
-      ((dimVals, eventGranularity),e.keyMap)
-    }).cache()
+case class DataCube(dimensions: Seq[Dimension], rollups: Seq[Rollup],
+                    dateBucket: Option[String],
+                    checkpointGranularity: String) {
   /**
    * It builds the DataCube calculating aggregations.
    * @param inputStream with the original stream of data.
@@ -54,22 +46,30 @@ case class DataCube(dimensions: Seq[Dimension], rollups: Seq[Rollup], checkpoint
     val extractedDimensionsStream = extractDimensionsStream(inputStream)
     rollups.map(_.aggregate(extractedDimensionsStream))
   }
-}
 
   /**
    * Extract a modified stream that will be needed to calculate aggregations.
    * @param inputStream with the original stream of data.
    * @return a modified stream after join dimensions, rollups and operations.
    */
-  def extractDimensionsStream(inputStream: DStream[Event]):
-    DStream[(Seq[DimensionValue], Map[String, JSerializable])] = {
-    inputStream.map((e: Event) => {
-      val dimVals = for {
-        dimension: Dimension <- dimensions
-        value <- e.keyMap.get(dimension.name).toSeq
+  private def extractDimensionsStream(inputStream: DStream[Event]):
+  DStream[((Seq[DimensionValue], Long), Map[String, JSerializable])] = {
+    inputStream.map(event => {
+      val dimensionValues = for {
+        dimension <- dimensions
+        value <- event.keyMap.get(dimension.name).toSeq
         (bucketType, bucketedValue) <- dimension.bucketer.bucket(value)
       } yield DimensionValue(dimension, bucketType, bucketedValue)
-      (dimVals, e.keyMap)
+      val eventTime = dateBucket match {
+        case Some(bucket) => {
+          val dimensionsDates = dimensionValues.filter(dimensionValue => dimensionValue.bucketType.id == bucket)
+          if (dimensionsDates.isEmpty) getDate else dimensionsDates.head.value.asInstanceOf[Timestamp].getTime
+        }
+        case None => getDate
+      }
+      ((dimensionValues, eventTime), event.keyMap)
     }).cache()
   }
+
+  private def getDate: Long = Output.dateFromGranularity(DateTime.now(), checkpointGranularity).getTime
 }

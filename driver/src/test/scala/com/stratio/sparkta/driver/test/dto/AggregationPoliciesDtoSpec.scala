@@ -46,6 +46,7 @@ with Matchers {
         "true",
         "example",
         checkpointDir,
+        "",
         checkpointGranularity,
         checkpointInterval,
         checkpointAvailable,

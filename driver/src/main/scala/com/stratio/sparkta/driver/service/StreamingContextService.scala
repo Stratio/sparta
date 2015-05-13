@@ -86,7 +86,8 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     val input: DStream[Event] = inputs.head._2
     SparktaJob.saveRawData(apConfig, sqlContext, input)
     val parsed = SparktaJob.applyParsers(input, parsers)
-    val dataCube = new DataCube(dimensionsSeq, rollups, apConfig.checkpointGranularity).setUp(parsed)
+    val dateBucket = if(apConfig.dateBucket.isEmpty) None else Some(apConfig.dateBucket)
+    val dataCube = new DataCube(dimensionsSeq, rollups,dateBucket, apConfig.checkpointGranularity).setUp(parsed)
     outputs.map(_._2.persist(dataCube))
     ssc
   }

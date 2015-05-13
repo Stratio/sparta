@@ -32,6 +32,7 @@ case class AggregationPoliciesDto(name: String = "default",
                                   saveRawData: String = "true",
                                   rawDataParquetPath: String = "default",
                                   checkpointDir: String = "checkpoint",
+                                  dateBucket: String = "",
                                   checkpointGranularity: String = "minute",
                                   checkpointInterval: Int = AggregationPoliciesDto.CheckPointInterval,
                                   checkpointAvailable: Int = AggregationPoliciesDto.checkpointAvailable,
@@ -45,7 +46,7 @@ case class AggregationPoliciesDto(name: String = "default",
 
 case object AggregationPoliciesDto {
   val StreamingWindowDurationInMillis = 2000
-  val CheckPointInterval = 10000
+  val CheckPointInterval = 20000
   val checkpointAvailable = 60000
 }
 
