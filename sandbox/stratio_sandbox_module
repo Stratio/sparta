@@ -37,5 +37,5 @@ sed -i "s|/usr/share/nginx/html|/opt/sds/kibana-3.1.2|g" default.conf
 
 /sbin/service nginx start
 
-#echo "> Installing Sparkta"
-#usr/bin/yum -y install stratio-sparkta
+echo "> Installing Sparkta"
+usr/bin/yum -y install stratio-sparkta
