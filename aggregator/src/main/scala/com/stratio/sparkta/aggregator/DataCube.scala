@@ -16,8 +16,8 @@
 
 package com.stratio.sparkta.aggregator
 
-import java.sql.Timestamp
 import java.io.{Serializable => JSerializable}
+import java.sql.Timestamp
 
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
@@ -34,7 +34,8 @@ import com.stratio.sparkta.sdk._
  * @param dimensions that will be contain the fields of the datacube.
  * @param rollups that will be contain how the data will be aggregate.
  */
-case class DataCube(dimensions: Seq[Dimension], rollups: Seq[Rollup],
+case class DataCube(dimensions: Seq[Dimension],
+                    rollups: Seq[Rollup],
                     dateBucket: Option[String],
                     checkpointGranularity: String) {
   /**
@@ -52,7 +53,7 @@ case class DataCube(dimensions: Seq[Dimension], rollups: Seq[Rollup],
    * @param inputStream with the original stream of data.
    * @return a modified stream after join dimensions, rollups and operations.
    */
-  private def extractDimensionsStream(inputStream: DStream[Event]):
+  def extractDimensionsStream(inputStream: DStream[Event]):
   DStream[((Seq[DimensionValue], Long), Map[String, JSerializable])] = {
     inputStream.map(event => {
       val dimensionValues = for {

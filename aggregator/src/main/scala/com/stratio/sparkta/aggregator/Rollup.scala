@@ -33,8 +33,11 @@ import com.stratio.sparkta.sdk._
  * multipelexer the output
  */
 
-case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Operator], checkpointInterval: Int,
-                  checkpointGranularity: String, checkpointAvailable: Int) {
+case class Rollup(components: Seq[(Dimension, BucketType)],
+                  operators: Seq[Operator],
+                  checkpointInterval: Int,
+                  checkpointGranularity: String,
+                  checkpointAvailable: Int) {
 
   private lazy val operatorsMap = operators.map(op => op.key -> op).toMap
 
@@ -72,8 +75,8 @@ case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Opera
     }.filter(_._1._1.nonEmpty)
   }
 
-  protected def updateState(dimensionsValues : DStream[((Seq[DimensionValue], Long), Map[String, JSerializable])])
-  : DStream[((Seq[DimensionValue], Long), Seq[(String, Option[Any])])] = {
+  protected def updateState(dimensionsValues : DStream[((Seq[DimensionValue], Long), Map[String, JSerializable])]):
+  DStream[((Seq[DimensionValue], Long), Seq[(String, Option[Any])])] = {
     val newUpdateFunc = (iterator: Iterator[((Seq[DimensionValue], Long),
       Seq[Map[String, JSerializable]],
       Option[Seq[(String, Option[Any])]])]) => {
@@ -94,8 +97,8 @@ case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Opera
     Some(state.getOrElse(Seq()) ++ procMap)
   }
 
-  protected def aggregateValues(dimensionsValues: DStream[((Seq[DimensionValue], Long), Seq[(String, Option[Any])])])
-  :  DStream[UpdateMetricOperation] = {
+  protected def aggregateValues(dimensionsValues: DStream[((Seq[DimensionValue], Long), Seq[(String, Option[Any])])]):
+  DStream[UpdateMetricOperation] = {
     dimensionsValues.map { case (rollupKey, aggregationValues) => {
       val aggregations = aggregationValues.groupBy { case (name, value) => name }
         .map { case (name, value) => (name, operatorsMap(name).processReduce(value.map(_._2))) }
