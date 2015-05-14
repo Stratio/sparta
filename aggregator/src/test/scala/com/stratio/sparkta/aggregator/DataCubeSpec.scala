@@ -61,7 +61,7 @@ class DataCubeSpec extends TestSuiteBase {
     val dimension = Dimension("eventKey", bucketer)
     val operator = new CountOperator(Map())
     val bucketType = new BucketType("identity")
-    val rollup = new Rollup(Seq(dimension -> bucketType),
+    val rollup = new Rollup(Seq(DimensionBucket(dimension, bucketType)),
       Seq(operator),
       checkpointInterval,
       checkpointGranularity,
@@ -86,18 +86,21 @@ class DataCubeSpec extends TestSuiteBase {
    * The expected result to test the DataCube output.
    * @return the expected result to test
    */
-  def getEventOutput(timestamp : Long): Seq[Seq[((Seq[DimensionValue], Long), Map[String, JSerializable])]] =
+  def getEventOutput(timestamp : Long): Seq[Seq[(DimensionValuesTime, Map[String, JSerializable])]] =
     Seq(Seq(
-      ((Seq(DimensionValue(
-        Dimension("eventKey", new PassthroughBucketer), BucketType("identity", Map()), "value1")), timestamp),
+      (DimensionValuesTime(Seq(DimensionValue(
+        DimensionBucket(Dimension("eventKey", new PassthroughBucketer), BucketType("identity", Map())), "value1")),
+        timestamp),
         Map("eventKey" -> "value1")
       ),
-      ((Seq(DimensionValue(
-        Dimension("eventKey", new PassthroughBucketer), BucketType("identity", Map()), "value2")), timestamp),
+      (DimensionValuesTime(Seq(DimensionValue(
+        DimensionBucket(Dimension("eventKey", new PassthroughBucketer), BucketType("identity", Map())), "value2")),
+        timestamp),
         Map("eventKey" -> "value2")
       ),
-      ((Seq(DimensionValue(
-        Dimension("eventKey", new PassthroughBucketer), BucketType("identity", Map()), "value3")), timestamp),
+      (DimensionValuesTime(Seq(DimensionValue(
+        DimensionBucket(Dimension("eventKey", new PassthroughBucketer), BucketType("identity", Map())), "value3")),
+        timestamp),
         Map("eventKey" -> "value3")
       )
     ))

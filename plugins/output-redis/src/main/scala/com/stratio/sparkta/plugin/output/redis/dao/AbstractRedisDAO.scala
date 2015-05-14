@@ -50,19 +50,6 @@ trait AbstractRedisDAO {
       client.hget(key, field)
     )
   }
-
-  /**
-   * Depending of the bucketType the dimension name could change.
-   *
-   * @param dimensionValue that contains the bucketType.
-   * @return dimensionName contained in the dimensionValue.
-   */
-  def extractDimensionName(dimensionValue: DimensionValue): String = {
-    dimensionValue.bucketType match {
-      case Bucketer.identity => dimensionValue.dimension.name
-      case _ => dimensionValue.bucketType.id
-    }
-  }
 }
 
 /**

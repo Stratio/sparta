@@ -163,6 +163,7 @@ trait MongoDbDAO extends Closeable {
       case Some(value) => value.toDouble
     }))
   }
+
   protected def getSentence(op: WriteOp, seq: Seq[(String, Option[Any])]): (Seq[(String, Any)], String) = {
     op match {
       case WriteOp.Inc =>

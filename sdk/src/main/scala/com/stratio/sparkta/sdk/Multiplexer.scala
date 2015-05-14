@@ -20,8 +20,8 @@ import org.apache.spark.streaming.dstream.DStream
 
 trait Multiplexer {
 
-  def getStreamsFromOptions(stream: DStream[UpdateMetricOperation], multiplexer: Boolean,
-                            fixedBucket: Option[String]): DStream[UpdateMetricOperation] = {
+  def getStreamsFromOptions(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])], multiplexer: Boolean,
+                            fixedBucket: Option[String]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     if (multiplexer) {
       fixedBucket match {
         case None => Multiplexer.multiplexStream(stream)
@@ -33,6 +33,13 @@ trait Multiplexer {
 
 object Multiplexer {
 
+  def combine[T](in: (Seq[T], Long)): Seq[(Seq[T], Long)] = {
+    for {
+      len <- 1 to in._1.length
+      combinations <- in._1 combinations len
+    } yield (combinations, in._2)
+  }
+
   def combine[T](in: Seq[T]): Seq[Seq[T]] = {
     for {
       len <- 1 to in.length
@@ -40,31 +47,33 @@ object Multiplexer {
     } yield combinations
   }
 
-  def multiplexStream(stream: DStream[UpdateMetricOperation]): DStream[UpdateMetricOperation] = {
+  def multiplexStream(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])])
+  : DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     for {
-      upMetricOp: UpdateMetricOperation <- stream
-      comb <- combine(upMetricOp.rollupKey).filter(dimVals => dimVals.size >= 1)
-    } yield UpdateMetricOperation(comb.sorted, upMetricOp.aggregations)
+      (dimensionValuesT, aggregations) <- stream
+      comb <- combine(dimensionValuesT.dimensionValues).filter(dimVals => dimVals.size >= 1)
+    } yield (DimensionValuesTime(comb.sorted, dimensionValuesT.time), aggregations)
   }
 
-  def multiplexStream[T](stream: DStream[UpdateMetricOperation], fixedBucket: T): DStream[UpdateMetricOperation] = {
+  def multiplexStream[T](stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])], fixedBucket: T)
+  : DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     for {
-      upMetricOp: UpdateMetricOperation <- stream
+      (dimensionValuesT, aggregations) <- stream
       fixedDim = fixedBucket match {
         case Some(value: DimensionValue) => fixedBucket.asInstanceOf[Option[DimensionValue]]
-        case value: String => upMetricOp.rollupKey.find(
-          dimValue => dimValue.bucketType.id == fixedBucket.asInstanceOf[String])
+        case value: String => dimensionValuesT.dimensionValues.find(
+          dimValue => dimValue.dimensionBucket.bucketType.id == fixedBucket.asInstanceOf[String])
       }
       comb <- combine(
-        upMetricOp.rollupKey.filter(_.bucketType.id != (fixedDim match {
+        dimensionValuesT.dimensionValues.filter(_.dimensionBucket.bucketType.id != (fixedDim match {
           case None => ""
-          case _ => fixedDim.get.bucketType.id
+          case Some(dimension) => dimension.dimensionBucket.bucketType.id
         }))).filter(dimVals => dimVals.size >= 1).map(seqDimVal => {
         fixedDim match {
           case None => seqDimVal
-          case _ => seqDimVal ++ Seq(fixedDim.get)
+          case Some(dimension) => seqDimVal ++ Seq(dimension)
         }
       })
-    } yield UpdateMetricOperation(comb.sorted, upMetricOp.aggregations)
+    } yield (DimensionValuesTime(comb.sorted, dimensionValuesT.time), aggregations)
   }
 }

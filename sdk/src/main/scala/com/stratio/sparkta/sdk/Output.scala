@@ -55,16 +55,16 @@ abstract class Output(keyName: String,
 
   def isAutoCalculateId: Boolean = false
 
-  def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
+  def persist(streams: Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]]): Unit = {
     if (bcSchema.isDefined)
       streams.foreach(stream => doPersist(stream))
     else streams.foreach(stream => persistMetricOperation(stream))
   }
 
-  protected def persistMetricOperation(stream: DStream[UpdateMetricOperation]): Unit =
+  protected def persistMetricOperation(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit =
     getStreamsFromOptions(stream, multiplexer, timeBucket).foreachRDD(rdd => rdd.foreachPartition(ops => upsert(ops)))
 
-  protected def persistDataFrame(stream: DStream[UpdateMetricOperation]): Unit = {
+  protected def persistDataFrame(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     def fixedBuckets: Option[Seq[(String, Option[Timestamp])]] = timeBucket match {
       case None => None
       case Some(timeB) => Some(Seq((timeB, Output.getTimeFromGranularity(timeBucket, granularity))))
@@ -80,7 +80,7 @@ abstract class Output(keyName: String,
     })
   }
 
-  protected def doPersist(stream: DStream[UpdateMetricOperation]): Unit = {
+  protected def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     if (bcSchema.isDefined)
       persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket))
     else persistMetricOperation(stream)
@@ -88,13 +88,13 @@ abstract class Output(keyName: String,
 
   def upsert(dataFrame: DataFrame, tableName: String): Unit = {}
 
-  def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {}
+  def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {}
 
-  protected def getTime(metricOp: UpdateMetricOperation): Option[JSerializable] =
+  protected def getTime(metricOp: (DimensionValuesTime, Map[String, Option[Any]])): Option[JSerializable] =
     timeBucket match {
       case None => None
       case Some(bucket) => {
-        val metricOpFiltered = metricOp.rollupKey.filter(dimVal => bucket == dimVal.bucketType.id)
+        val metricOpFiltered = metricOp.rollupKey.filter(dimVal => bucket == dimVal.dimensionBucket.bucketType.id)
         if (metricOpFiltered.size > 0)
           Some(metricOpFiltered.last.value)
         else if (granularity.isEmpty) None else Some(Output.dateFromGranularity(DateTime.now(), granularity.get))

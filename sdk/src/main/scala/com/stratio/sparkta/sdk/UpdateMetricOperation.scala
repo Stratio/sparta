@@ -18,33 +18,30 @@ package com.stratio.sparkta.sdk
 
 import org.apache.spark.sql._
 
-case class UpdateMetricOperation(rollupKey: Seq[DimensionValue], var aggregations: Map[String, Option[Any]]) {
+object UpdateMetricOperation {
 
-  if (rollupKey == null) {
-    throw new NullPointerException("rollupKey")
-  }
+  def toString(dimensionValues: Seq[DimensionValue], aggregations: Map[String, Option[Any]]): String =
+    keyString(dimensionValues, aggregations) +
+      " DIMENSIONS: " + dimensionValues.mkString("|") + " AGGREGATIONS: " + aggregations
 
-  if (aggregations == null) {
-    throw new NullPointerException("aggregations")
-  }
-
-  override def toString: String =
-    this.keyString + " DIMENSIONS: " + rollupKey.mkString("|") + " AGGREGATIONS: " + aggregations
-
-  def keyString: String =
-    UpdateMetricOperation.sortedNamesDimVals(rollupKey).filter(dimName => dimName.nonEmpty).mkString(Output.SEPARATOR)
+  def keyString(dimensionValues: Seq[DimensionValue], aggregations: Map[String, Option[Any]]): String =
+    UpdateMetricOperation.dimensionValuesNamesSorted(dimensionValues)
+      .filter(dimName => dimName.nonEmpty).mkString(Output.SEPARATOR)
 
   /*
   * By default transform an UpdateMetricOperation in a Row with description.
   * If fixedBuckets is defined add fields and values to the original values and fields.
   * Id field we need calculate the value with all other values
   */
-  def toKeyRow(fixedBuckets: Option[Seq[(String, Option[Any])]], idCalculated: Boolean): (Option[String], Row) = {
+  def toKeyRow(dimensionValues: Seq[DimensionValue],
+               aggregations: Map[String, Option[Any]],
+               fixedBuckets: Option[Seq[(String, Option[Any])]],
+               idCalculated: Boolean): (Option[String], Row) = {
     val rollupKeyFiltered = if (fixedBuckets.isDefined) {
       val fixedBucketsNames = fixedBuckets.get.map(_._1)
-      rollupKey.filter(dimVal => !fixedBucketsNames.contains(dimVal.getNameDimension))
-    } else rollupKey
-    val namesDim = UpdateMetricOperation.namesDimVals(rollupKeyFiltered.sorted)
+      dimensionValues.filter(dimVal => !fixedBucketsNames.contains(dimVal.getNameDimension))
+    } else dimensionValues
+    val namesDim = UpdateMetricOperation.dimensionValuesNames(rollupKeyFiltered.sorted)
     val (valuesDim, valuesAgg) = UpdateMetricOperation.toSeq(rollupKeyFiltered, aggregations)
     val (namesFixed, valuesFixed) = if (fixedBuckets.isDefined) {
       val fixedBucketsSorted = fixedBuckets.get.sortWith((bucket1, bucket2) => bucket1._1 < bucket2._1)
@@ -54,9 +51,6 @@ case class UpdateMetricOperation(rollupKey: Seq[DimensionValue], var aggregation
 
     if (keys.length > 0) (Some(keys.mkString(Output.SEPARATOR)), Row.fromSeq(row)) else (None, Row.fromSeq(row))
   }
-}
-
-object UpdateMetricOperation {
 
   def toSeq(dimensionValues: Seq[DimensionValue], aggregations: Map[String, Option[Any]]): (Seq[Any], Seq[Any]) =
     (dimensionValues.sorted.map(dimVal => dimVal.value),
@@ -70,14 +64,15 @@ object UpdateMetricOperation {
     else (names, values)
   }
 
-  def namesDimVals(dimValues: Seq[DimensionValue]): Seq[String] = dimValues.map(_.getNameDimension)
+  def dimensionValuesNames(dimensionValues: Seq[DimensionValue]): Seq[String] = dimensionValues.map(_.getNameDimension)
 
-  def sortedNamesDimVals(dimValues: Seq[DimensionValue]): Seq[String] = namesDimVals(dimValues.sorted)
+  def dimensionValuesNamesSorted(dimensionValues: Seq[DimensionValue]): Seq[String] =
+    dimensionValuesNames(dimensionValues.sorted)
 
-  def filterDimVals(dimValues: Seq[DimensionValue], bucketName : Option[String]): Seq[DimensionValue] = {
+  def filterDimensionValues(dimensionValues: Seq[DimensionValue], bucketName : Option[String]): Seq[DimensionValue] =
     bucketName match {
-      case None => dimValues
-      case Some(bucket) => dimValues.filter(rollup => (rollup.bucketType.id != bucket))
+      case None => dimensionValues
+      case Some(bucket) => dimensionValues.filter(rollup => (rollup.dimensionBucket.bucketType.id != bucket))
     }
-  }
+
 }

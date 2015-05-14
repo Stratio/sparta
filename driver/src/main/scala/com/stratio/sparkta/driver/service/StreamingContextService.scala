@@ -146,7 +146,7 @@ object SparktaJob {
       val components = r.dimensionAndBucketTypes.map(dab => {
         dimensionsMap.get(dab.dimensionName) match {
           case Some(x: Dimension) => x.bucketTypes.contains(new BucketType(dab.bucketType)) match {
-            case true => (x, new BucketType(dab.bucketType, dab.configuration.getOrElse(Map())))
+            case true => DimensionBucket(x, new BucketType(dab.bucketType, dab.configuration.getOrElse(Map())))
             case _ =>
               throw new DriverException(
                 "Bucket type " + dab.bucketType + " not supported in dimension " + dab.dimensionName)

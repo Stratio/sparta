@@ -46,7 +46,7 @@ case class DataCube(dimensions: Seq[Dimension],
    * @param inputStream with the original stream of data.
    * @return the built DataCube.
    */
-  def setUp(inputStream: DStream[Event]): Seq[DStream[UpdateMetricOperation]] = {
+  def setUp(inputStream: DStream[Event]): Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]] = {
     val extractedDimensionsStream = extractDimensionsStream(inputStream)
     rollups.map(_.aggregate(extractedDimensionsStream))
   }
@@ -57,22 +57,23 @@ case class DataCube(dimensions: Seq[Dimension],
    * @return a modified stream after join dimensions, rollups and operations.
    */
   def extractDimensionsStream(inputStream: DStream[Event]):
-  DStream[((Seq[DimensionValue], Long), Map[String, JSerializable])] = {
+  DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
     inputStream.map(event => {
       val dimensionValues = for {
         dimension <- dimensions
         value <- event.keyMap.get(dimension.name).toSeq
         (bucketType, bucketedValue) <- dimension.bucketer.bucket(value)
-      } yield DimensionValue(dimension, bucketType, bucketedValue)
+      } yield DimensionValue(DimensionBucket(dimension, bucketType), bucketedValue)
       val eventTime = extractEventTime(dimensionValues)
-      ((dimensionValues, eventTime), event.keyMap)
+      (DimensionValuesTime(dimensionValues, eventTime), event.keyMap)
     }).cache()
   }
 
   private def extractEventTime(dimensionValues : Seq[DimensionValue]) = {
     timeBucket match {
       case Some(bucket) => {
-        val dimensionsDates = dimensionValues.filter(dimensionValue => dimensionValue.bucketType.id == bucket)
+        val dimensionsDates =
+          dimensionValues.filter(dimensionValue => dimensionValue.dimensionBucket.bucketType.id == bucket)
         if (dimensionsDates.isEmpty) getDate else dimensionsDates.head.value.asInstanceOf[Timestamp].getTime
       }
       case None => getDate

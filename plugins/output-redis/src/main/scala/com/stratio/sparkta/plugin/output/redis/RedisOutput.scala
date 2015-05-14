@@ -73,7 +73,7 @@ class RedisOutput(keyName : String,
         // Step 1) It calculates redis' hash key with this structure -> A_B_C:A:valueA:B:valueB:C:valueC
         // It is important to see that values be part of the key. This is needed to perform searches.
         val hashKey = collMetricOp._1 + IdSeparator + metricOp.rollupKey
-          .map(dimVal => List(extractDimensionName(dimVal), dimVal.value.toString))
+          .map(dimVal => List(dimVal.getNameDimension, dimVal.value.toString))
           .flatMap(_.toSeq).mkString(IdSeparator)
 
         // Step 2) It calculates aggregations depending of its types and saves the result in the value of the hash.

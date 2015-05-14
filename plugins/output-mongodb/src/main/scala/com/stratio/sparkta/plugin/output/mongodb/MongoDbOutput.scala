@@ -82,8 +82,8 @@ class MongoDbOutput(keyName: String,
         checkFields(metricOp.aggregations.keySet, operationTypes)
 
         val eventTimeObject = getTime(metricOp).map(timeBucket.get -> _)
-        val identitiesField = metricOp.rollupKey.filter(_.bucketType.id == Bucketer.identityField.id)
-          .map(dimVal => MongoDBObject(dimVal.dimension.name -> dimVal.value))
+        val identitiesField = metricOp.rollupKey.filter(_.dimensionBucket.bucketType.id == Bucketer.identityField.id)
+          .map(dimVal => MongoDBObject(dimVal.dimensionBucket.dimension.name -> dimVal.value))
         val mapOperations = getOperations(metricOp.aggregations.toSeq, operationTypes)
           .groupBy { case (writeOp, op) => writeOp }
           .mapValues(operations => operations.map { case (writeOp, op) => op })

@@ -49,7 +49,7 @@ object PolicyFactory {
   def rollupsOperatorsSchemas(rollups: Seq[Rollup],
                               outputs: Seq[(String, Boolean)],
                               operators: Seq[Operator]): Seq[TableSchema] = {
-    val componentsSorted = rollups.map(rollup => (rollup.sortedComponentsNames, rollup.sortComponents))
+    val componentsSorted = rollups.map(rollup => (rollup.getComponentsNamesSorted, rollup.getComponentsSorted))
     val operatorsFields = operators.sortWith(_.key < _.key)
       .map(operator => StructField(operator.key, rowTypeFromOption(operator.returnType), true))
     outputs.flatMap(output => {
