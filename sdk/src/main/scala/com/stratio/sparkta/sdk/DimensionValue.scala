@@ -18,3 +18,14 @@ package com.stratio.sparkta.sdk
 import java.io.{Serializable => JSerializable}
 
 case class DimensionValue(dimension: Dimension, bucketType: BucketType, value: JSerializable)
+  extends Ordered[DimensionValue] {
+
+  def getNameDimension: String = bucketType match {
+      case Bucketer.identity => dimension.name
+      case _ => bucketType.id
+    }
+
+  def compare(dimensionValue: DimensionValue): Int =
+    (dimension.name + bucketType.id) compareTo (dimensionValue.dimension.name + dimensionValue.bucketType.id)
+
+}

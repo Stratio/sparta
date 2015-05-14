@@ -42,9 +42,9 @@ case class UpdateMetricOperation(rollupKey: Seq[DimensionValue], var aggregation
   def toKeyRow(fixedBuckets: Option[Seq[(String, Option[Any])]], idCalculated: Boolean): (Option[String], Row) = {
     val rollupKeyFiltered = if (fixedBuckets.isDefined) {
       val fixedBucketsNames = fixedBuckets.get.map(_._1)
-      rollupKey.filter(dimVal => !fixedBucketsNames.contains(UpdateMetricOperation.getNameDimension(dimVal)))
+      rollupKey.filter(dimVal => !fixedBucketsNames.contains(dimVal.getNameDimension))
     } else rollupKey
-    val namesDim = UpdateMetricOperation.namesDimVals(UpdateMetricOperation.sortDimVals(rollupKeyFiltered))
+    val namesDim = UpdateMetricOperation.namesDimVals(rollupKeyFiltered.sorted)
     val (valuesDim, valuesAgg) = UpdateMetricOperation.toSeq(rollupKeyFiltered, aggregations)
     val (namesFixed, valuesFixed) = if (fixedBuckets.isDefined) {
       val fixedBucketsSorted = fixedBuckets.get.sortWith((bucket1, bucket2) => bucket1._1 < bucket2._1)
@@ -59,7 +59,7 @@ case class UpdateMetricOperation(rollupKey: Seq[DimensionValue], var aggregation
 object UpdateMetricOperation {
 
   def toSeq(dimensionValues: Seq[DimensionValue], aggregations: Map[String, Option[Any]]): (Seq[Any], Seq[Any]) =
-    (UpdateMetricOperation.sortDimVals(dimensionValues).map(dimVal => dimVal.value),
+    (dimensionValues.sorted.map(dimVal => dimVal.value),
       aggregations.toSeq.sortWith((agg1, agg2) => agg1._1 < agg2._1).map(aggregation => aggregation._2.getOrElse(0)))
 
   def getNamesValues(names: Seq[String],
@@ -70,19 +70,9 @@ object UpdateMetricOperation {
     else (names, values)
   }
 
-  def sortDimVals(dimValues: Seq[DimensionValue]): Seq[DimensionValue] =
-    dimValues.sortWith((dim1, dim2) =>
-      (dim1.dimension.name + dim1.bucketType.id) < (dim2.dimension.name + dim2.bucketType.id))
+  def namesDimVals(dimValues: Seq[DimensionValue]): Seq[String] = dimValues.map(_.getNameDimension)
 
-  def getNameDimension(dimensionValue: DimensionValue): String =
-    dimensionValue.bucketType match {
-      case Bucketer.identity => dimensionValue.dimension.name
-      case _ => dimensionValue.bucketType.id
-    }
-
-  def namesDimVals(dimValues: Seq[DimensionValue]): Seq[String] = dimValues.map(getNameDimension(_))
-
-  def sortedNamesDimVals(dimValues: Seq[DimensionValue]): Seq[String] = namesDimVals(sortDimVals(dimValues))
+  def sortedNamesDimVals(dimValues: Seq[DimensionValue]): Seq[String] = namesDimVals(dimValues.sorted)
 
   def filterDimVals(dimValues: Seq[DimensionValue], bucketName : Option[String]): Seq[DimensionValue] = {
     bucketName match {

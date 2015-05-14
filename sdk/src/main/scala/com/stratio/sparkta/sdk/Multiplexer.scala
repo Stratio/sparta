@@ -44,7 +44,7 @@ object Multiplexer {
     for {
       upMetricOp: UpdateMetricOperation <- stream
       comb <- combine(upMetricOp.rollupKey).filter(dimVals => dimVals.size >= 1)
-    } yield UpdateMetricOperation(UpdateMetricOperation.sortDimVals(comb), upMetricOp.aggregations)
+    } yield UpdateMetricOperation(comb.sorted, upMetricOp.aggregations)
   }
 
   def multiplexStream[T](stream: DStream[UpdateMetricOperation], fixedBucket: T): DStream[UpdateMetricOperation] = {
@@ -65,6 +65,6 @@ object Multiplexer {
           case _ => seqDimVal ++ Seq(fixedDim.get)
         }
       })
-    } yield UpdateMetricOperation(UpdateMetricOperation.sortDimVals(comb), upMetricOp.aggregations)
+    } yield UpdateMetricOperation(comb.sorted, upMetricOp.aggregations)
   }
 }
