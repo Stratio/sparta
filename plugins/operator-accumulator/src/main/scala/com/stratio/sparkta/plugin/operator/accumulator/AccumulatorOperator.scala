@@ -1,6 +1,5 @@
-
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.plugin.operator.accumulator
 
 import java.io.{Serializable => JSerializable}
-import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-
 import scala.util.Try
+
+import com.stratio.sparkta.sdk.ValidatingPropertyMap._
+import com.stratio.sparkta.sdk._
 
 class AccumulatorOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 

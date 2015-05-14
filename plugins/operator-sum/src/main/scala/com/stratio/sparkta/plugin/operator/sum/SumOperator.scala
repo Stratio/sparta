@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,25 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.plugin.operator.sum
 
 import java.io.{Serializable => JSerializable}
-import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-
 import scala.util.Try
+
+import com.stratio.sparkta.sdk.ValidatingPropertyMap._
+import com.stratio.sparkta.sdk._
 
 class SumOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  override val typeOp = Some(TypeOp.Long)
+  override val typeOp = Some(TypeOp.BigDecimal)
 
-  private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
+  private val inputField = if (properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
-  override val key : String = "sum_" + {
-    if(inputField.isDefined) inputField.get else "undefined"
+  override val key: String = "sum_" + {
+    if (inputField.isDefined) inputField.get else "undefined"
   }
 
-  override val writeOperation = WriteOp.Inc
+  override val writeOperation = WriteOp.IncBig
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
     if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
@@ -39,15 +40,15 @@ class SumOperator(properties: Map[String, JSerializable]) extends Operator(prope
     } else SumOperator.SOME_ZERO_NUMBER
   }
 
-
-  override def processReduce(values : Iterable[Option[Any]]): Option[Long] = {
-    Try(Some(values.map(_.get.asInstanceOf[Number].longValue()).reduce(_ + _)))
+  override def processReduce(values: Iterable[Option[Any]]): Option[BigDecimal] = {
+    Try(Some(BigDecimal(values.map(_.get.asInstanceOf[Number].doubleValue()).reduce(_ + _))))
       .getOrElse(SumOperator.SOME_ZERO)
   }
 }
 
 private object SumOperator {
-  val SOME_ZERO = Some(0L)
-  val SOME_ZERO_NUMBER = Some(0L.asInstanceOf[Number])
+
+  val SOME_ZERO = Some(BigDecimal(0))
+  val SOME_ZERO_NUMBER = Some(0.asInstanceOf[Number])
 }
 
