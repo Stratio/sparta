@@ -30,8 +30,6 @@ trait CassandraDAO extends Closeable with Logging {
 
   def fieldsSeparator: String = ","
 
-  def connectionHost: String
-
   def cluster: String
 
   def keyspace: String
@@ -52,8 +50,7 @@ trait CassandraDAO extends Closeable with Logging {
 
   def analyzer: Option[String] = None
 
-  def configConnector(sparkConfig: SparkConf): Option[CassandraConnector] =
-    Some(CassandraConnector(sparkConfig.set("spark.cassandra.connection.host", connectionHost)))
+  def configConnector(sparkConfig: SparkConf): Option[CassandraConnector] = Some(CassandraConnector(sparkConfig))
 
   def createKeypace: Boolean = connector.exists(doCreateKeyspace(_))
 
@@ -70,7 +67,7 @@ trait CassandraDAO extends Closeable with Logging {
         s"'replication_factor': $replicationFactor }")
   }
 
-  def doCreateTables(conn: CassandraConnector,
+  protected def doCreateTables(conn: CassandraConnector,
                      tSchemas: Seq[TableSchema],
                      clusteringField: Option[String],
                      isAutoCalculateId: Boolean): Boolean = {

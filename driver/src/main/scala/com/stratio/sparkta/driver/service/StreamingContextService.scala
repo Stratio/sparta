@@ -40,8 +40,12 @@ import com.stratio.sparkta.sdk._
 
 class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging {
 
+  //scalastyle:off
   def createStreamingContext(apConfig: AggregationPoliciesDto): StreamingContext = {
-    val sc = SparkContextFactory.sparkContextInstance(generalConfig, jars)
+
+    val OutputsSparkConfiguration = "getSparkConfiguration"
+    val specifictSparkConfig = SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration)
+    val sc = SparkContextFactory.sparkContextInstance(generalConfig, specifictSparkConfig, jars)
     val sqlContext = SparkContextFactory.sparkSqlContextInstance.get
     val ssc = SparkContextFactory.sparkStreamingInstance(new Duration(apConfig.duration)).get
     val inputs: Map[String, DStream[Event]] = SparktaJob.inputs(apConfig, ssc)
@@ -109,6 +113,20 @@ object SparktaJob {
     plugins map (t => t.getSimpleName -> t.getCanonicalName) toMap
   }
 
+  def getSparkConfigs(apConfig: AggregationPoliciesDto, methodName: String): Map[String, String] =
+    apConfig.outputs.flatMap(o => {
+      val clazzToInstance = SparktaJob.getClasspathMap.getOrElse(o.elementType, o.elementType)
+      val clazz = Class.forName(clazzToInstance)
+      clazz.getMethods.find(p => p.getName == methodName) match {
+        case Some(method) => {
+          method.setAccessible(true)
+          method.invoke(clazz, o.configuration.asInstanceOf[Map[String, Serializable]])
+            .asInstanceOf[Seq[(String, String)]]
+        }
+        case None => Seq()
+      }
+    }).toMap
+
   def inputs(apConfig: AggregationPoliciesDto, ssc: StreamingContext): Map[String, DStream[Event]] =
     apConfig.inputs.map(i =>
       (i.name, tryToInstantiate[Input](i.elementType, (c) =>
@@ -142,7 +160,6 @@ object SparktaJob {
 
   def tryToInstantiate[C](classAndPackage: String, block: Class[_] => C): C = {
     val clazMap: Map[String, String] = SparktaJob.getClasspathMap
-
     val finalClazzToInstance = clazMap.getOrElse(classAndPackage, classAndPackage)
     try {
       val clazz = Class.forName(finalClazzToInstance)
@@ -162,8 +179,8 @@ object SparktaJob {
 
   def dimensionsSeq(apConfig: AggregationPoliciesDto): Seq[Dimension] = instantiateDimensions(apConfig).map(_._2)
 
-  def instantiateDimensions(apConfig: AggregationPoliciesDto): Seq[(String, Dimension)] = {
-    val map: Seq[(String, Dimension)] = apConfig.dimensions.map(d => (d.name,
+  def instantiateDimensions(apConfig: AggregationPoliciesDto): Seq[(String, Dimension)] =
+    apConfig.dimensions.map(d => (d.name,
       new Dimension(d.name, tryToInstantiate[Bucketer](d.dimensionType, (c) => {
         //TODO fix behaviour when configuration is empty
         d.configuration match {
@@ -172,8 +189,6 @@ object SparktaJob {
           case None => c.getDeclaredConstructor().newInstance().asInstanceOf[Bucketer]
         }
       }))))
-    map
-  }
 
   def saveRawData(apConfig: AggregationPoliciesDto, sqlContext: SQLContext, input: DStream[Event]): Unit = {
     if (apConfig.saveRawData.toBoolean) {
