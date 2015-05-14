@@ -36,8 +36,9 @@ class RawDataStorageService(sc: SQLContext, path: String) extends Serializable {
     event.rawData getOrElse composeRawFrom (event)
   }
 
-  def save(raw: DStream[Event]) = {
+  def save(raw: DStream[Event]):DStream[Event] = {
     raw.map(event => RawEvent(System.currentTimeMillis().toString, extractRawDataFromEvent(event).toString))
       .foreachRDD(_.toDF().save(path,"parquet", SaveMode.Append))
+    raw
   }
 }
