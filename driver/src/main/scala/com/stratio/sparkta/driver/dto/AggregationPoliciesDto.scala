@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.driver.dto
 
 import java.io._
@@ -21,16 +22,20 @@ import com.fasterxml.jackson.databind._
 import com.github.fge.jsonschema.core.exceptions.InvalidSchemaException
 import com.github.fge.jsonschema.core.report.ProcessingReport
 import com.github.fge.jsonschema.main.{JsonSchema, JsonSchemaFactory}
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
-/**
- * Created by ajnavarro on 2/10/14.
- */
+import com.stratio.sparkta.sdk.JsoneyStringSerializer
+
+
 case class AggregationPoliciesDto(name: String = "default",
-                                  saveRawData:String = "true",
-                                  rawDataParquetPath:String ="default",
+                                  saveRawData: String = "true",
+                                  rawDataParquetPath: String = "default",
+                                  checkpointDir: String = "checkpoint",
+                                  timeBucket: String = "",
+                                  checkpointGranularity: String = "minute",
+                                  checkpointInterval: Int = AggregationPoliciesDto.CheckPointInterval,
+                                  checkpointTimeAvailability: Int = AggregationPoliciesDto.checkpointTimeAvailability,
                                   duration: Long = AggregationPoliciesDto.StreamingWindowDurationInMillis,
                                   dimensions: Seq[DimensionDto],
                                   rollups: Seq[RollupDto],
@@ -41,11 +46,13 @@ case class AggregationPoliciesDto(name: String = "default",
 
 case object AggregationPoliciesDto {
   val StreamingWindowDurationInMillis = 2000
+  val CheckPointInterval = 20000
+  val checkpointTimeAvailability = 60000
 }
 
 object AggregationPoliciesValidator {
 
-  def validateDto(aggregationPoliciesDto : AggregationPoliciesDto): (Boolean, String) = {
+  def validateDto(aggregationPoliciesDto: AggregationPoliciesDto): (Boolean, String) = {
     val (isValidAgainstSchema: Boolean, isValidAgainstSchemaMsg: String) = validateAgainstSchema(aggregationPoliciesDto)
     val (isValidRollup: Boolean, isRollupInDimensionsMsg: String) =
       validateRollups(aggregationPoliciesDto)
@@ -55,7 +62,7 @@ object AggregationPoliciesValidator {
     (isValid, errorMsg)
   }
 
-  def validateAgainstSchema(aggregationPoliciesDto : AggregationPoliciesDto): (Boolean, String) = {
+  def validateAgainstSchema(aggregationPoliciesDto: AggregationPoliciesDto): (Boolean, String) = {
 
     implicit val formats = DefaultFormats + new JsoneyStringSerializer()
 
@@ -73,7 +80,7 @@ object AggregationPoliciesValidator {
     val jsonSchema: JsonNode = mapper.readTree(fileReader)
     val schema: JsonSchema = JsonSchemaFactory.byDefault.getJsonSchema(jsonSchema)
 
-    try{
+    try {
       val report: ProcessingReport = schema.validate(policy)
       isValid = report.isSuccess
       msg = report.toString
@@ -84,12 +91,12 @@ object AggregationPoliciesValidator {
     (isValid, msg)
   }
 
-  def validateRollups(aggregationPoliciesDto : AggregationPoliciesDto): (Boolean, String) = {
+  def validateRollups(aggregationPoliciesDto: AggregationPoliciesDto): (Boolean, String) = {
 
     val dimensionNames = aggregationPoliciesDto.dimensions.map(_.name)
 
     val rollupNames = aggregationPoliciesDto.rollups
-      .flatMap(x=> Option(x))
+      .flatMap(x => Option(x))
       .flatMap(x => Option(x.dimensionAndBucketTypes))
       .flatten
       .map(_.dimensionName)
@@ -97,10 +104,7 @@ object AggregationPoliciesValidator {
     val rollupNotInDimensions = rollupNames.filter(!dimensionNames.contains(_))
     val isRollupInDimensions = rollupNotInDimensions.isEmpty
     val isRollupInDimensionsMsg =
-      if (!isRollupInDimensions)
-        "All rollups should be declared in dimensions block\n"
-      else
-        ""
+      if (!isRollupInDimensions) "All rollups should be declared in dimensions block\n" else ""
     (isRollupInDimensions, isRollupInDimensionsMsg)
   }
 }

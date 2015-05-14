@@ -18,7 +18,10 @@ package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
 
+import org.apache.spark.HashPartitioner
+import org.apache.spark.streaming.Duration
 import org.apache.spark.streaming.dstream.DStream
+import org.joda.time.DateTime
 
 import com.stratio.sparkta.sdk._
 
@@ -26,43 +29,81 @@ import com.stratio.sparkta.sdk._
  * Use this class to describe a rollup that you want the datacube to keep.
  *
  * For example, if you're counting events with the dimensions (color, size, flavor) and you
- * want to keep a total count for all (color, size) combinations, you'd specify that using a Rollup.
+ * want to keep a total count for all (color, size) combinations, you'd specify that using a Rollup or
+ * multipelexer the output
  */
 
-case class Rollup(components: Seq[(Dimension, BucketType)], operators: Seq[Operator]) {
+case class Rollup(components: Seq[(Dimension, BucketType)],
+                  operators: Seq[Operator],
+                  checkpointInterval: Int,
+                  checkpointGranularity: String,
+                  checkpointTimeAvailability: Int) {
 
   private lazy val operatorsMap = operators.map(op => op.key -> op).toMap
 
-  def this(dimension: Dimension, bucketType: BucketType, operators: Seq[Operator]) {
-    this(Seq((dimension, bucketType)), operators)
+  def this(dimension: Dimension,
+           bucketType: BucketType,
+           operators: Seq[Operator],
+           checkpointInterval: Int,
+           checkpointGranularity: String,
+           checkpointAvailable : Int) {
+    this(Seq((dimension, bucketType)), operators, checkpointInterval, checkpointGranularity, checkpointAvailable)
   }
 
-  def this(dimension: Dimension, operators: Seq[Operator]) {
-    this(Seq((dimension, Bucketer.identity)), operators)
+  def this(dimension: Dimension,
+           operators: Seq[Operator],
+           checkpointInterval: Int,
+           checkpointGranularity: String,
+           checkpointAvailable : Int) {
+    this(Seq((dimension, Bucketer.identity)), operators, checkpointInterval, checkpointGranularity, checkpointAvailable)
   }
 
-  private def mergeLongMaps[K](m1: Map[K, Long], m2: Map[K, Long]): Map[K, Long] = m1 ++ m2.map {
-    case (k, v) => k -> (v + m1.getOrElse(k, 0L))
-  }
-
-  def aggregate(dimensionValuesStream: DStream[(Seq[DimensionValue],
+  def aggregate(dimensionsValues: DStream[((Seq[DimensionValue], Long),
     Map[String, JSerializable])]): DStream[UpdateMetricOperation] = {
+    val valuesFiltered = filterDimensionValues(dimensionsValues)
+    valuesFiltered.checkpoint(new Duration(checkpointInterval))
+    aggregateValues(updateState(valuesFiltered))
+  }
 
-    val filteredDimensionsDstream = dimensionValuesStream.map { case (dimensionValues, aggregationValues) => {
-      val dimensionsFiltered = dimensionValues.filter(dimVal => components.find(comp =>
-        comp._1 == dimVal.dimension && comp._2.id == dimVal.bucketType.id).nonEmpty)
-      (dimensionsFiltered, aggregationValues)
+  protected def filterDimensionValues(dimensionValues: DStream[((Seq[DimensionValue], Long),
+    Map[String, JSerializable])]): DStream[((Seq[DimensionValue], Long), Map[String, JSerializable])] = {
+    dimensionValues.map { case ((dimensions, time), aggregationValues) => {
+      val dimensionsFiltered = dimensions.filter(dimVal =>
+        components.find(comp => comp._1 == dimVal.dimension && comp._2.id == dimVal.bucketType.id).nonEmpty)
+      ((dimensionsFiltered, time), aggregationValues)
     }
-    }.filter(_._1.nonEmpty)
+    }.filter(_._1._1.nonEmpty)
+  }
 
-    filteredDimensionsDstream
-      .mapValues(inputFields => operators.flatMap(op => op.processMap(inputFields).map(op.key -> Some(_))).toMap)
-      .groupByKey()
-      .map { case (rollupKey, aggregationValues) => {
-      val aggregations = aggregationValues.flatMap(_.toSeq)
-        .groupBy { case (name, value) => name }
+  protected def updateState(dimensionsValues : DStream[((Seq[DimensionValue], Long), Map[String, JSerializable])]):
+  DStream[((Seq[DimensionValue], Long), Seq[(String, Option[Any])])] = {
+    val newUpdateFunc = (iterator: Iterator[((Seq[DimensionValue], Long),
+      Seq[Map[String, JSerializable]],
+      Option[Seq[(String, Option[Any])]])]) => {
+      val eventTime = Output.dateFromGranularity(DateTime.now(), checkpointGranularity).getTime -
+        checkpointTimeAvailability
+      iterator.filter(dimensionsData => dimensionsData._1._2 >= eventTime)
+        .flatMap { case (dimensionsKey, values, state) =>
+        updateFunction(values, state).map(result => (dimensionsKey, result))
+      }
+    }
+    dimensionsValues.updateStateByKey(
+      newUpdateFunc, new HashPartitioner(dimensionsValues.context.sparkContext.defaultParallelism), true)
+  }
+
+  protected def updateFunction(values: Seq[Map[String, JSerializable]],
+                     state: Option[Seq[(String, Option[Any])]]): Option[Seq[(String, Option[Any])]] = {
+    val procMap = values.flatMap(inputFields =>
+      operators.flatMap(op => op.processMap(inputFields).map(op.key -> Some(_))))
+    Some(state.getOrElse(Seq()) ++ procMap)
+  }
+
+  protected def aggregateValues(dimensionsValues: DStream[((Seq[DimensionValue], Long), Seq[(String, Option[Any])])]):
+  DStream[UpdateMetricOperation] = {
+    dimensionsValues.map { case (rollupKey, aggregationValues) => {
+      val aggregations = aggregationValues.groupBy { case (name, value) => name }
         .map { case (name, value) => (name, operatorsMap(name).processReduce(value.map(_._2))) }
-      UpdateMetricOperation(rollupKey, aggregations)
+      UpdateMetricOperation(rollupKey._1, aggregations)
     }
     }
   }

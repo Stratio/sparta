@@ -40,35 +40,19 @@ import com.stratio.sparkta.sdk._
 
 class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging {
 
-  //scalastyle:off
   def createStreamingContext(apConfig: AggregationPoliciesDto): StreamingContext = {
 
     val OutputsSparkConfiguration = "getSparkConfiguration"
     val specifictSparkConfig = SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration)
     val sc = SparkContextFactory.sparkContextInstance(generalConfig, specifictSparkConfig, jars)
     val sqlContext = SparkContextFactory.sparkSqlContextInstance.get
-    val ssc = SparkContextFactory.sparkStreamingInstance(new Duration(apConfig.duration)).get
+    val ssc = SparkContextFactory.sparkStreamingInstance(new Duration(apConfig.duration), apConfig.checkpointDir).get
     val inputs: Map[String, DStream[Event]] = SparktaJob.inputs(apConfig, ssc)
     val parsers: Seq[Parser] = SparktaJob.parsers(apConfig)
     val operators: Seq[Operator] = SparktaJob.operators(apConfig)
-    //TODO workaround this instantiateDimensions(apConfig).toMap.map(_._2) is not serializable.
     val dimensionsMap: Map[String, Dimension] = SparktaJob.instantiateDimensions(apConfig).toMap
     val dimensionsSeq: Seq[Dimension] = SparktaJob.instantiateDimensions(apConfig).map(_._2)
-
-    val rollups: Seq[Rollup] = apConfig.rollups.map(r => {
-      val components = r.dimensionAndBucketTypes.map(dab => {
-        dimensionsMap.get(dab.dimensionName) match {
-          case Some(x: Dimension) => x.bucketTypes.contains(new BucketType(dab.bucketType)) match {
-            case true => (x, new BucketType(dab.bucketType, dab.configuration.getOrElse(Map())))
-            case _ =>
-              throw new DriverException(
-                "Bucket type " + dab.bucketType + " not supported in dimension " + dab.dimensionName)
-          }
-          case None => throw new DriverException("Dimension name " + dab.dimensionName + " not found.")
-        }
-      })
-      new Rollup(components, operators)
-    })
+    val rollups: Seq[Rollup] = SparktaJob.rollups(apConfig, operators, dimensionsMap)
 
     val bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]] = {
       val opKeyOp = PolicyFactory.operatorsKeyOperation(operators)
@@ -84,11 +68,11 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     }
 
     val outputs = SparktaJob.outputs(apConfig, sc, bcOperatorsKeyOperation, bcRollupOperatorSchema)
-    //TODO only support one input
     val input: DStream[Event] = inputs.head._2
     SparktaJob.saveRawData(apConfig, sqlContext, input)
     val parsed = SparktaJob.applyParsers(input, parsers)
-    val dataCube = new DataCube(dimensionsSeq, rollups).setUp(parsed)
+    val dateBucket = if (apConfig.timeBucket.isEmpty) None else Some(apConfig.timeBucket)
+    val dataCube = new DataCube(dimensionsSeq, rollups, dateBucket, apConfig.checkpointGranularity).setUp(parsed)
     outputs.map(_._2.persist(dataCube))
     ssc
   }
@@ -154,6 +138,28 @@ object SparktaJob {
           classOf[Option[Broadcast[Seq[TableSchema]]]])
           .newInstance(o.name, o.configuration, sparkContext, bcOperatorsKeyOperation, bcRollupOperatorSchema)
           .asInstanceOf[Output])))
+
+  def rollups(apConfig: AggregationPoliciesDto,
+              operators: Seq[Operator],
+              dimensionsMap: Map[String, Dimension]): Seq[Rollup] =
+    apConfig.rollups.map(r => {
+      val components = r.dimensionAndBucketTypes.map(dab => {
+        dimensionsMap.get(dab.dimensionName) match {
+          case Some(x: Dimension) => x.bucketTypes.contains(new BucketType(dab.bucketType)) match {
+            case true => (x, new BucketType(dab.bucketType, dab.configuration.getOrElse(Map())))
+            case _ =>
+              throw new DriverException(
+                "Bucket type " + dab.bucketType + " not supported in dimension " + dab.dimensionName)
+          }
+          case None => throw new DriverException("Dimension name " + dab.dimensionName + " not found.")
+        }
+      })
+      new Rollup(components,
+        operators,
+        apConfig.checkpointInterval,
+        apConfig.checkpointGranularity,
+        apConfig.checkpointTimeAvailability)
+    })
 
   def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C =
     clazz.getDeclaredConstructor(classOf[Map[String, Serializable]]).newInstance(properties).asInstanceOf[C]

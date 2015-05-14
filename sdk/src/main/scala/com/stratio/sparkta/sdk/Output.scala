@@ -125,9 +125,9 @@ object Output {
   final val ID = "id"
 
   def getTimeFromGranularity(timeBucket: Option[String], granularity: Option[String]): Option[Timestamp] =
-    timeBucket match {
-      case None => None
-      case Some(_) => granularity.flatMap(value => Some(dateFromGranularity(DateTime.now(), value)))
+    (timeBucket, granularity) match {
+      case (Some(time), Some(granularity)) => Some(dateFromGranularity(DateTime.now(), granularity))
+      case _ => None
     }
 
   def dateFromGranularity(value: DateTime, granularity: String): Timestamp = {
@@ -153,7 +153,7 @@ object Output {
                             fixedBuckets: Option[Seq[(String, Any)]],
                             isAutoCalculateId: Boolean,
                             fieldType: TypeOp): TableSchema = {
-    val fixedNames = fixedBuckets.get.map(_._1)
+    val fixedNames = if(fixedBuckets.isDefined) fixedBuckets.get.map(_._1) else Seq()
     var tableName = tbSchema.tableName.split(SEPARATOR).filter(name => !fixedNames.contains(name)).mkString(SEPARATOR)
     var fields = tbSchema.schema.fields.toSeq.filter(field => !fixedNames.contains(field.name))
     var modifiedSchema = false

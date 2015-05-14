@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.driver.test.route
 
-/**
- * Created by ajnavarro on 3/11/14.
- */
+package com.stratio.sparkta.driver.test.route
 
 import scala.concurrent.duration._
 
@@ -48,6 +45,11 @@ with Matchers {
 
   implicit val routeTestTimeout = RouteTestTimeout(10.second)
 
+  val checkpointInterval = 10000
+  val checkpointAvailable = 60000
+  val checkpointGranularity = "minute"
+  val checkpointDir = "checkpoint"
+
   "A PolicytRoutes should" should {
     "Get info about created policies" in {
       val test = Get("/policy") ~> policyRoutes
@@ -76,7 +78,9 @@ with Matchers {
     }
     "Create policy" in {
       val PolicyName = "p-1"
-      val apd = new AggregationPoliciesDto(PolicyName, "false", "myPath", 0, Seq(), Seq(), Seq(), Seq(), Seq(), Seq())
+      val apd = new AggregationPoliciesDto(PolicyName, "false", "myPath",
+        checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable, 0,
+        Seq(), Seq(), Seq(), Seq(), Seq(), Seq())
       try {
         val test = Post("/policy", apd) ~> policyRoutes
         supervisorProbe.expectMsg(new CreateContext(apd))
@@ -86,7 +90,7 @@ with Matchers {
         }
       } catch {
         //FIXME "timeout (3 seconds) during expectMsg"
-        case e: Throwable => println(e)
+        case e: Throwable => print(e)
       }
     }
     "Delete policy" in {
@@ -106,8 +110,9 @@ with Matchers {
       val dimensionDto = new DimensionDto("dimensionType", "dimension1", None)
       val rollupDto = new RollupDto(Seq(new DimensionAndBucketTypeDto(DimensionToRollup, "dimensionType", None)))
       val apd =
-        new AggregationPoliciesDto(PolicyName, "true",
-          "example", 0, Seq(dimensionDto), Seq(rollupDto), Seq(), Seq(), Seq(), Seq())
+        new AggregationPoliciesDto(PolicyName, "true", "example",
+          checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable, 0,
+          Seq(dimensionDto), Seq(rollupDto), Seq(), Seq(), Seq(), Seq())
       val test = Post("/policy", apd) ~> policyRoutes
       test ~> check {
         rejections.size should be(1)

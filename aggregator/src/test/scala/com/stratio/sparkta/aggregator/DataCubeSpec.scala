@@ -18,18 +18,16 @@ package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
 
+import org.joda.time.DateTime
+
 import com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer
 import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.sdk._
+
 import org.apache.spark.streaming.TestSuiteBase
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FeatureSpec, FlatSpec}
 
-/**
- * Tests over DataCube operations.
- * @author anistal
- */
 @RunWith(classOf[JUnitRunner])
 class DataCubeSpec extends TestSuiteBase {
 
@@ -51,26 +49,33 @@ class DataCubeSpec extends TestSuiteBase {
      (List(DimensionValue(
        Dimension(eventKey,PassthroughBucketer()),BucketType(identity,Map()),value3)),Map(eventKey -> value3)))
          """) {
+
+    val checkpointInterval = 10000
+    val checkpointTimeAvailability = 60000
+    val checkpointGranularity = "minute"
+    val timeBucket = None
+
+    val timestamp = Output.dateFromGranularity(DateTime.now(), checkpointGranularity).getTime
+    
     val bucketer = new PassthroughBucketer
     val dimension = Dimension("eventKey", bucketer)
     val operator = new CountOperator(Map())
     val bucketType = new BucketType("identity")
-    val rollup = new Rollup(Seq(dimension -> bucketType), Seq(operator))
-    val dataCube = new DataCube(Seq(dimension), Seq(rollup))
+    val rollup = new Rollup(Seq(dimension -> bucketType),
+      Seq(operator),
+      checkpointInterval,
+      checkpointGranularity,
+      checkpointTimeAvailability)
+    val dataCube = new DataCube(Seq(dimension), Seq(rollup), timeBucket, checkpointGranularity)
 
-    testOperation(
-      getEventInput,
-      dataCube.extractDimensionsStream,
-      getEventOutput,
-      PreserverOrder
-    )
+    testOperation(getEventInput, dataCube.extractDimensionsStream, getEventOutput(timestamp), PreserverOrder)
   }
 
   /**
    * It gets a stream of data to test.
    * @return a stream of data.
    */
-  def getEventInput(): Seq[Seq[Event]] =
+  def getEventInput: Seq[Seq[Event]] =
     Seq(Seq(
       Event(Map("eventKey" -> "value1")),
       Event(Map("eventKey" -> "value2")),
@@ -81,18 +86,18 @@ class DataCubeSpec extends TestSuiteBase {
    * The expected result to test the DataCube output.
    * @return the expected result to test
    */
-  def getEventOutput(): Seq[Seq[(Seq[DimensionValue], Map[String, JSerializable])]] =
+  def getEventOutput(timestamp : Long): Seq[Seq[((Seq[DimensionValue], Long), Map[String, JSerializable])]] =
     Seq(Seq(
-      (Seq(DimensionValue(
-        Dimension("eventKey", new PassthroughBucketer), BucketType("identity", Map()), "value1")),
+      ((Seq(DimensionValue(
+        Dimension("eventKey", new PassthroughBucketer), BucketType("identity", Map()), "value1")), timestamp),
         Map("eventKey" -> "value1")
       ),
-      (Seq(DimensionValue(
-        Dimension("eventKey", new PassthroughBucketer), BucketType("identity", Map()), "value2")),
+      ((Seq(DimensionValue(
+        Dimension("eventKey", new PassthroughBucketer), BucketType("identity", Map()), "value2")), timestamp),
         Map("eventKey" -> "value2")
       ),
-      (Seq(DimensionValue(
-        Dimension("eventKey", new PassthroughBucketer), BucketType("identity", Map()), "value3")),
+      ((Seq(DimensionValue(
+        Dimension("eventKey", new PassthroughBucketer), BucketType("identity", Map()), "value3")), timestamp),
         Map("eventKey" -> "value3")
       )
     ))
