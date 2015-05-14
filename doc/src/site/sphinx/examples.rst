@@ -22,7 +22,7 @@ database::
 
 * Next we run SpaRkTA and send the policy. 
 If you are using the sandbox, you may need to start a new ssh session ( **vagrant ssh** ).
-You could do this byThis policy contains the configuration that tells SpaRkTA where to read,
+This policy contains the configuration that tells SpaRkTA where to read,
 where to write and how to transform the input data::
 
     cd /opt/sds/sparkta

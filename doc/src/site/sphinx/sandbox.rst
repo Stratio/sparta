@@ -1,8 +1,8 @@
 Stratio Sparkta sandbox
 *****************************
 
-Vagrant Setup
-=============
+Step 1: Vagrant Setup
+===========
 
 To get an operating virtual machine with Stratio Sparkta distribution up
 and running, we use `Vagrant <https://www.vagrantup.com/>`__.
@@ -14,18 +14,86 @@ and running, we use `Vagrant <https://www.vagrantup.com/>`__.
 -  If you are in a windows machine, we will install
    `Cygwin <https://cygwin.com/install.html>`__.
 
-Running the sandbox
-===================
+Step 2: Running the sandbox
+===========
 
--  Initialize the current directory from the command line:
-   **vagrant init stratio/sparkta**.
--  Start the sandbox from command line: **vagrant up**
+ * Initialize the current directory from the command line::
 
-Please, be patient the first time it runs!!
+     vagrant init stratio/sparkta
 
-Login into the sandbox as **vagrant user** and start the services:
--  Start Sparkta: **sudo service spark start**
--  Start Elasticsearch: **sudo service elasticsearch start**
+
+ * Start the sandbox from command line::
+
+     vagrant up
+
+ * In case you need to provision the sandbox run::
+
+     vagrant provision
+
+
+ * If the sandbox ask you for the credentials::
+
+
+     user -> vagrant
+
+     pass -> vagrant
+
+
+Step 3: Accessing the sandbox
+===========
+
+ Located in /install-folder
+
+ * Run the command::
+
+    vagrant ssh
+
+
+
+Step 4: Run Sparkta
+===========
+
+
+ To start Sparkta
+
+ * Starting the Stratio Sparkta Shell::
+
+    cd /opt/sds/sparkta
+
+    sh bin/run
+
+ * Exit the Stratio Stratio Sparkta Shell::
+
+    exit
+
+ * Check if it's already running::
+
+    sudo service elasticsearch status
+
+ * Start elasticsearch::
+
+    sudo service elasticsearch start
+
+ * Stop elasticsearch::
+
+    sudo service elasticsearch stop
+
+
+Useful commands
+===========
+
+ * Start the sandbox::
+
+    vagrant up
+
+ * Shut down the sandbox::
+
+    vagrant halt
+
+ * In the sandbox, to exit to the host::
+
+    exit
+
 
 Now you are ready to `test <examples.html>`__ the sandbox
 
@@ -57,30 +125,7 @@ What you will find in the sandbox
 +------------------+---------+-------------------------------+
 
 
-Access to the sandbox and other useful commands
-===============================================
 
-Useful commands
----------------
-
--  Start the sandbox: **vagrant up**
--  Shut down the sandbox: **vagrant halt**
--  In the sandbox, to exit to the host: **exit**
-
-Accessing the sandbox
----------------------
-
--  Located in /install-folder
--  Run the command: **vagrant ssh**
-
-Starting the Stratio Sparkta Shell
-===============================
-
-From the sandbox (vagrant ssh):
-
--  Starting the Stratio Sparkta Shell:
-   **cd /opt/sds/sparkta && sh bin/run**
--  Exit the Stratio Stratio Sparkta Shell: **exit**
 
 F.A.Q about the sandbox
 =======================

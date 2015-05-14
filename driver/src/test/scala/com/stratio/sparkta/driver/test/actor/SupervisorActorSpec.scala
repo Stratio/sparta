@@ -16,6 +16,8 @@
 
 package com.stratio.sparkta.driver.test.actor
 
+import com.stratio.sparkta.sdk.exception.MockException
+
 import scala.concurrent.duration.DurationInt
 
 import akka.actor.{ActorRef, ActorSystem, Props}
@@ -29,6 +31,8 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
 
+
+import com.stratio.sparkta.sdk.exception.MockException
 import com.stratio.sparkta.driver.actor.StreamingContextStatusEnum._
 import com.stratio.sparkta.driver.actor._
 import com.stratio.sparkta.driver.dto.{AggregationPoliciesDto, StreamingContextStatusDto}
@@ -62,7 +66,8 @@ class SupervisorActorSpec
   "An SupervisorActor" should {
     "Init a StreamingContextActor and DriverException error is thrown" in {
       val supervisorRef = createSupervisorActor
-      val errorMessage = "An error ocurred"
+      val errorMessage = "An error occurred"
+
 
       when(streamingContextService.get.createStreamingContext(any[AggregationPoliciesDto]))
         .thenThrow(new DriverException(errorMessage))
@@ -79,9 +84,10 @@ class SupervisorActorSpec
     }
     "Init a StreamingContextActor and any unexpected error is thrown" in {
       val supervisorRef = createSupervisorActor
+      val mockErrorMessage: String = "A mock error occurred"
 
       when(streamingContextService.get.createStreamingContext(any[AggregationPoliciesDto]))
-        .thenThrow(new NullPointerException)
+        .thenThrow(new MockException(mockErrorMessage))
       within(5000 millis) {
         supervisorRef ! new CreateContext(createPolicyConfiguration("test-1"))
         expectNoMsg

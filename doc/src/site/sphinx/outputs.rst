@@ -41,7 +41,7 @@ These parameters can be completed in the policy file:
    multiple "tables".
    With this parameter the possibility of multi cubes and the possibility of generating it implements a data
    aggregation lake.
-   Is possible omit this parameter in policy.
+   You can omit this parameter in the policy.
 
 
    * Example:
@@ -53,7 +53,7 @@ These parameters can be completed in the policy file:
    You can specify the time bucket containing the event, thanks to this parameter can be stored aggregate data and
    generate timeseries.
    This name will be as identified in the system of persistence.
-   Is possible omit this parameter in policy.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -63,7 +63,7 @@ These parameters can be completed in the policy file:
 * granularity:
    If not created any bucketer time to identify with "timeBucket" you can leave the system assigned to each event time
    with the specified granularity.
-   Is possible omit this parameter in policy.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -74,7 +74,7 @@ These parameters can be completed in the policy file:
    The system is capable of assigning an id added to each event, so that it may identify only the output.
    This field is calculated with all the values of the bucket rollup, including timeBucket date if the parameter is specified.
    Only for DataFrames persistence, disable in UpdateMetricOperation.
-   Is possible omit this parameter in policy.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -94,7 +94,7 @@ For more information for this output you can visit the :doc:`mongodb`
 
 * mongoClientUri:
    This parameter Connection routes specified the different nodes of a cluster of MongoDB, with replica set or with sharding.
-   Is possible omit this parameter in policy.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -105,7 +105,7 @@ For more information for this output you can visit the :doc:`mongodb`
    The system is capable of assigning an id added to each event, so that it may identify only the output.
    This field is calculated with all the values of the bucket rollup, including timeBucket date if the parameter is specified.
    Only for DataFrames persistence, disable in UpdateMetricOperation.
-   Is possible omit this parameter in policy.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -114,7 +114,7 @@ For more information for this output you can visit the :doc:`mongodb`
 
 * connectionsPerHost:
    Number of connections per host that the system open.
-   Is possible omit this parameter in policy.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -123,7 +123,7 @@ For more information for this output you can visit the :doc:`mongodb`
 
 * threadsAllowedToBlock:
    This multiplier, multiplied with the connectionsPerHost setting, gives the maximum number of threads that may be waiting for a connection to become available from the pool.
-   Is possible omit this parameter in policy.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -131,8 +131,8 @@ For more information for this output you can visit the :doc:`mongodb`
    "threadsAllowedToBlock": ("NUMBER")  Default: "10"
 
 * fieldsSeparator:
-   Is possible specify the character that separate the fields in the "textIndexFields" parameter.
-   Is possible omit this parameter in policy.
+   It's possible to specify the character that separate the fields in the "textIndexFields" parameter.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -141,7 +141,7 @@ For more information for this output you can visit the :doc:`mongodb`
 
 * textIndexFields:
    The system is capable of insert data in a full-text index. All of this fields compound the index.
-   Is possible omit this parameter in policy.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -151,7 +151,7 @@ For more information for this output you can visit the :doc:`mongodb`
 * language:
    Specify the language of the tokenizer in the full-text index in MongoDB, each document inserted must have this
    key-value.
-   Is possible omit this parameter in policy.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -170,8 +170,8 @@ UpdateMetricOperation to Row type of Spark and identify each row with his schema
 For more information for this output you can visit the :doc:`cassandra`
 
 * connectionHost:
-   This parameter specified the different seeds of a cluster of Cassandra.
-   Is possible omit this parameter in policy.
+   This parameter specifies the different seeds of a cluster of Cassandra.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -179,8 +179,8 @@ For more information for this output you can visit the :doc:`cassandra`
    "connectionHost": ("ip_seed1,ip_seed2,ip_seed3,...")  Default: "127.0.0.1"
 
 * cluster:
-   This parameter specified the cluster name.
-   Is possible omit this parameter in policy.
+   This parameter specifies the name of the cluster.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -188,8 +188,8 @@ For more information for this output you can visit the :doc:`cassandra`
    "cluster": ("CLUSTER_NAME")  Default: "Test Cluster"
 
 * keyspace:
-   This parameter specified the keyspace name.
-   Is possible omit this parameter in policy.
+   This parameter specifies the name of the keyspace.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -198,10 +198,10 @@ For more information for this output you can visit the :doc:`cassandra`
 
 * keyspaceClass:
    - SimpleStrategy:
-   Use only for a single data center. SimpleStrategy places the first replica on a node determined by the partitioner. Additional replicas are placed on the next nodes clockwise in the ring without considering topology (rack or data center location).
+   Use it only for a single data center. SimpleStrategy places the first replica on a node determined by the partitioner. Additional replicas are placed on the next nodes clockwise in the cassandra's ring without considering any topology (rack or data center location).
    - NetworkTopologyStrategy:
    Use NetworkTopologyStrategy when you have (or plan to have) your cluster deployed across multiple data centers. This strategy specifies how many replicas you want in each data center.
-   Is possible omit this parameter in policy.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -209,8 +209,8 @@ For more information for this output you can visit the :doc:`cassandra`
    "keyspaceClass": ("SimpleStrategy"/"NetworkTopologyStrategy")  Default: "SimpleStrategy"
 
 * replication_factor:
-   Required if class is SimpleStrategy; otherwise, not used. The number of replicas of data on multiple nodes.
-   Is possible omit this parameter in policy.
+   Required if class is SimpleStrategy; otherwise, not used. The parameter specifies the number of replicas of data on multiple nodes.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -219,7 +219,7 @@ For more information for this output you can visit the :doc:`cassandra`
 
 * compactStorage:
    The compact storage directive is used for backward compatibility of CQL 2 applications and data in the legacy (Thrift) storage engine format. To take advantage of CQL 3 capabilities, do not use this directive in new applications. When you create a table using compound primary keys, for every piece of data stored, the column name needs to be stored along with it. Instead of each non-primary key column being stored such that each column corresponds to one column on disk, an entire row is stored in a single column on disk, hence the name compact storage.
-   Is possible omit this parameter in policy.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -227,8 +227,8 @@ For more information for this output you can visit the :doc:`cassandra`
    "compactStorage": ("ANY")  Default: None
 
 * fieldsSeparator:
-   Is possible specify the character that separate the fields in the "textIndexFields" parameter.
-   Is possible omit this parameter in policy.
+   It's possible to specify the character that separate the fields in the "textIndexFields" parameter.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -236,8 +236,8 @@ For more information for this output you can visit the :doc:`cassandra`
    "fieldsSeparator": ("any_character")  Default: ","
 
 * clusteringBuckets:
-   Is possible specify the clustering columns for the primary key.
-   Is possible omit this parameter in policy.
+   It's possible to specify the clustering columns for the primary key.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -245,8 +245,8 @@ For more information for this output you can visit the :doc:`cassandra`
    "clusteringBuckets": ("bucket1,bucket2,bucket3...")  Default: ""
 
 * indexFields:
-   Is possible specify the indexed fields, could be any aggregate field or clustering column field.
-   Is possible omit this parameter in policy.
+   It's possible to specify the indexed fields, could be any aggregate field or clustering column field.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -254,8 +254,8 @@ For more information for this output you can visit the :doc:`cassandra`
    "indexFields": ("bucket1,bucket2,bucket3, ...")  Default: ""
 
 * textIndexFields:
-   Is possible specify the text index fields, this feature is for the Stratio Cassandra.
-   Is possible omit this parameter in policy.
+   It's possible to specify the text index fields, this feature is for the Stratio Cassandra.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -263,8 +263,8 @@ For more information for this output you can visit the :doc:`cassandra`
    "textIndexFields": ("bucket1,bucket2,bucket3,aggregate1, aggregate2, ...")  Default: ""
 
 * analyzer:
-   Is possible specify the analyzer for text index fields, this feature is for the Stratio Cassandra.
-   Is possible omit this parameter in policy.
+   It's possible to specify the analyzer for text index fields, this feature is for the Stratio Cassandra.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -272,8 +272,8 @@ For more information for this output you can visit the :doc:`cassandra`
    "analyzer": ("english"/"spanish"...)  Default: None
 
 * textIndexName:
-   Is possible specify the name of the text index, this feature is for the Stratio Cassandra.
-   Is possible omit this parameter in policy.
+   It's possible to specify the name of the text index, this feature is for the Stratio Cassandra.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -293,7 +293,7 @@ For more information for this output you can visit the :doc:`elasticsearch`
 
 * nodes:
    This parameter specified the different nodes of a cluster of ElasticSearch.
-   Is possible omit this parameter in policy.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -302,7 +302,7 @@ For more information for this output you can visit the :doc:`elasticsearch`
 
 * defaultPort:
    This parameter specified the port to connect.
-   Is possible omit this parameter in policy.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -310,8 +310,8 @@ For more information for this output you can visit the :doc:`elasticsearch`
    "defaultPort": ("PORT_NUMBER")  Default: "9200"
 
 * defaultAnalyzerType:
-   Is possible specify the analyzer for text index fields.
-   Is possible omit this parameter in policy.
+   It's possible to specify the analyzer for text index fields.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -319,8 +319,8 @@ For more information for this output you can visit the :doc:`elasticsearch`
    "defaultAnalyzerType": ("english"/"spanish"/"custom"...)  Default: None
 
 * idField:
-   Is possible specify the id field that contains the unique id for the row.
-   Is possible omit this parameter in policy.
+   It's possible to specify the id field that contains the unique id for the row.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -328,8 +328,8 @@ For more information for this output you can visit the :doc:`elasticsearch`
    "idField": ("ID_NAME")  Default: "id"
 
 * indexMapping:
-   This parameter assign the mapping for the index, is possible auto generate mappings for the indexes with the date.
-   Is possible omit this parameter in policy.
+   This parameter assign the mapping for the index, it's possible to auto generate mappings for the indexes with the date.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -337,8 +337,8 @@ For more information for this output you can visit the :doc:`elasticsearch`
    "indexMapping": ("second"/"minute"/"hour"/"day"/"month"/"year")  Default: "sparkta"
 
 * dateType:
-   Is possible specify the type of the date fields.
-   Is possible omit this parameter in policy.
+   It's possible to specify the type of the date fields.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -357,8 +357,8 @@ UpdateMetricOperation in redis hash sets.
 For more information for this output you can visit the :doc:`redis`
 
 * hostname:
-   This parameter specified the Ip of a Redis host.
-   Is possible omit this parameter in policy.
+   This parameter specifies the Ip of a Redis host.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -366,8 +366,8 @@ For more information for this output you can visit the :doc:`redis`
    "hostname": ("ip_host")  Default: "localhost"
 
 * port:
-   This parameter specified the port to connect.
-   Is possible omit this parameter in policy.
+   This parameter specifies the port to connect.
+   You can omit this parameter in the policy.
 
    * Example:
 ::
@@ -380,5 +380,5 @@ For more information for this output you can visit the :doc:`redis`
 Print Configuration
 ==========
 
-The output of Print use the generic implementation with DataFrames, this implementation print each dataframe with his
+The print output uses the generic implementation with DataFrames, this implementation print each dataframe with his
  schema.

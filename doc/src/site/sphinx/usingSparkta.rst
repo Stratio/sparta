@@ -7,6 +7,12 @@ Running Sparkta
 Once Sparkta has been installed, you can run ``sh $SPARKTA_HOME/bin/run``.
 Default installation directory is ``/opt/sds/sparkta``
 
+ * Starting the Stratio Sparkta Shell::
+
+    cd /opt/sds/sparkta
+
+    sh bin/run
+
 Aggregation Policy
 ============
 
