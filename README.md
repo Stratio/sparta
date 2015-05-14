@@ -1,7 +1,7 @@
 # About Stratio Sparkta
 
 
-Since Aryabhatta invented zero, Mathematicians such as John von Neuman have been in pursuit
+	Since Aryabhatta invented zero, Mathematicians such as John von Neuman have been in pursuit
 of efficient counting and architects have constantly built systems that computes counts quicker. In
 this age of social media, where 100s of 1000s events take place every second, we were inspired
 by twitter's Rainbird project to develop a distributed aggregation engine with this high level
