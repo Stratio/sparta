@@ -54,27 +54,29 @@ object SparkContextFactory extends SLF4JLogging {
     ssc
   }
 
-  def sparkContextInstance(generalConfig: Config, jars: Seq[File]): SparkContext =
+  def sparkContextInstance(generalConfig: Config, specificConfig : Map[String, String], jars: Seq[File]): SparkContext =
     synchronized {
-      sc.getOrElse(instantiateContext(generalConfig, jars))
+      sc.getOrElse(instantiateContext(generalConfig, specificConfig, jars))
     }
 
-  private def instantiateContext(generalConfig: Config, jars: Seq[File]): SparkContext = {
-    sc = Some(new SparkContext(configToSparkConf(generalConfig)))
+  private def instantiateContext(generalConfig: Config,
+                                 specificConfig : Map[String, String],
+                                 jars: Seq[File]): SparkContext = {
+    sc = Some(new SparkContext(configToSparkConf(generalConfig, specificConfig)))
     jars.foreach(f => sc.get.addJar(f.getAbsolutePath))
     sc.get
   }
 
-  private def configToSparkConf(generalConfig: Config): SparkConf = {
+  private def configToSparkConf(generalConfig: Config, specificConfig : Map[String, String]): SparkConf = {
     val c = generalConfig.getConfig("spark")
     val properties = c.entrySet()
     val conf = new SparkConf()
 
     properties.foreach(e => conf.set(e.getKey, c.getString(e.getKey)))
+    specificConfig.foreach(e => conf.set(e._1, e._2))
 
     conf.setIfMissing("spark.streaming.concurrentJobs", "20")
     conf.setIfMissing("spark.sql.parquet.binaryAsString", "true")
-    conf.setIfMissing("spark.cassandra.connection.host", "127.0.0.1")
 
     conf
   }

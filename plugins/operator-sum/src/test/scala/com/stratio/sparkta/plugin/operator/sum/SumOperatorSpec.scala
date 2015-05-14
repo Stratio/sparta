@@ -40,7 +40,7 @@ class SumOperatorSpec extends WordSpec with Matchers {
 
     "processReduce must be " in {
       val inputFields = new SumOperator(Map())
-      inputFields.processReduce(Seq()) should be(Some(0))
+      inputFields.processReduce(Seq()) should be(Some(BigDecimal(0)))
 
       val inputFields2 = new SumOperator(Map())
       inputFields2.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be

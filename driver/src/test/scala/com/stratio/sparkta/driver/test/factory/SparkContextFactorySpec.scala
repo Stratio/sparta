@@ -43,23 +43,24 @@ class SparkContextFactorySpec extends FlatSpec with ShouldMatchers with BeforeAn
 
     lazy val config = ConfigFactory.load.getConfig("sparkta")
     val wrongConfig = ConfigFactory.empty
+    val specificConfig = Map("foo" -> "var")
     val seconds = 6
     val batchDuraction = Duration(seconds)
   }
 
   "SparkContextFactorySpec" should "fails when properties is missing" in new WithConfig {
-    an[Exception] should be thrownBy (SparkContextFactory.sparkContextInstance(wrongConfig, Seq()))
+    an[Exception] should be thrownBy (SparkContextFactory.sparkContextInstance(wrongConfig, specificConfig, Seq()))
   }
 
   it should "create and reuse same context" in new WithConfig {
-    val sc = SparkContextFactory.sparkContextInstance(config, Seq())
-    val otherSc = SparkContextFactory.sparkContextInstance(config, Seq())
+    val sc = SparkContextFactory.sparkContextInstance(config, specificConfig, Seq())
+    val otherSc = SparkContextFactory.sparkContextInstance(config, specificConfig, Seq())
     sc should be equals (otherSc)
     SparkContextFactory.destroySparkContext
   }
 
   it should "create and reuse same SQLContext" in new WithConfig {
-    val sc = SparkContextFactory.sparkContextInstance(config, Seq())
+    val sc = SparkContextFactory.sparkContextInstance(config, specificConfig, Seq())
     val sqc = SparkContextFactory.sparkSqlContextInstance
     sqc shouldNot be equals (None)
     val otherSqc = SparkContextFactory.sparkSqlContextInstance
@@ -68,7 +69,7 @@ class SparkContextFactorySpec extends FlatSpec with ShouldMatchers with BeforeAn
   }
 
   it should "create and reuse same SparkStreamingContext" in new WithConfig {
-    val sc = SparkContextFactory.sparkContextInstance(config, Seq())
+    val sc = SparkContextFactory.sparkContextInstance(config, specificConfig, Seq())
     val ssc = SparkContextFactory.sparkStreamingInstance(batchDuraction)
     ssc shouldNot be equals (None)
     val otherSsc = SparkContextFactory.sparkStreamingInstance(batchDuraction)

@@ -52,8 +52,6 @@ class CassandraOutput(keyName: String,
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val connectionHost = properties.getString("connectionHost", "127.0.0.1")
-
   override val cluster = properties.getString("cluster", "Test Cluster")
 
   override val keyspace = properties.getString("keyspace", "sparkta")
@@ -101,5 +99,12 @@ class CassandraOutput(keyName: String,
 
   override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
     dataFrame.save("org.apache.spark.sql.cassandra", Overwrite, Map("c_table" -> tableName, "keyspace" -> keyspace))
+  }
+}
+
+object CassandraOutput {
+  def getSparkConfiguration(configuration : Map[String, JSerializable]) : Seq[(String, String)] = {
+    val connectionHost = configuration.getString("connectionHost", "127.0.0.1")
+    Seq(("spark.cassandra.connection.host", connectionHost))
   }
 }
