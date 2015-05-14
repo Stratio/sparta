@@ -3,14 +3,13 @@
 SpaRkTA examples
 ****************
 
-
-RabbitMQ
+RabbitMQ: from Twitter to MongoDB
 ========
 
 Example to take data in streaming from Twitter and ingesting it in RabbitMQ in order to test the SpaRkTA input.
 To access to the Twitter API it is necessary to config the file::
 
-    src/main/resources/twitter4j.properties
+    /opt/sds/sparkta/examples/twitter-to-rabbit/src/main/resources/twitter4j.properties
 
 Steps
 
@@ -21,7 +20,9 @@ database::
 
     sudo service mongod start
 
-* Next we run SpaRkTA and send the policy. This policy contains the configuration that tells SpaRkTA where to read,
+* Next we run SpaRkTA and send the policy. 
+If you are using the sandbox, you may need to start a new ssh session ( **vagrant ssh** ).
+You could do this byThis policy contains the configuration that tells SpaRkTA where to read,
 where to write and how to transform the input data::
 
     cd /opt/sds/sparkta
@@ -34,10 +35,12 @@ where to write and how to transform the input data::
 queue through a direct exchange (https://www.rabbitmq.com/tutorials/tutorial-four-java.html)
 
     - For producing data directly into a RabbitMQ queue run the class TwitterToRabbitMQSimple::
+	
+      cd /opt/sds/sparkta/examples/twitter-to-rabbit/
 
       mvn clean package
 
-      mvn exec:java -Dexec.mainClass="com.stratio.examples.twittertorabbit.TwitterToRabbitMQSimple"
+      mvn exec:java -Dexec.mainClass="com.stratio.examples.twittertorabbit.TwitterToRabbitMQSimple" -Dexec.args="routingKey3"
 
     - For Producing data into a RabbitMQ queue through a direct exchange run the class TwitterToRabbitMQWithRouting
     with the routingKey you want to write the data as argument::
@@ -46,7 +49,7 @@ queue through a direct exchange (https://www.rabbitmq.com/tutorials/tutorial-fou
 
       mvn exec:java -Dexec.mainClass="com.stratio.examples.twittertorabbit.TwitterToRabbitMQWithRouting"
 
-e-commerce
+e-commerce to RabbitMQ and ElasticSearch
 ==========
 
 This example simulates an environment of an e-commerce architecture.
