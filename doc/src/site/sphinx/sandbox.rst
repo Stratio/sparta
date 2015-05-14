@@ -79,7 +79,7 @@ Starting the Stratio Sparkta Shell
 From the sandbox (vagrant ssh):
 
 -  Starting the Stratio Sparkta Shell:
-   **/opt/sds/sparkta/bin/run**
+   **cd /opt/sds/sparkta && sh bin/run**
 -  Exit the Stratio Stratio Sparkta Shell: **exit**
 
 F.A.Q about the sandbox
