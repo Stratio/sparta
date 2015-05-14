@@ -1,3 +1,48 @@
 #!/bin/sh
+echo "> Installing maven"
+wget http://ftp.cixug.es/apache/maven/maven-3/3.0.5/binaries/apache-maven-3.0.5-bin.tar.gz
+cd /module
+tar -xzf apache-maven-3.0.5-bin.tar.gz -C /opt/sds
+echo "export M2_HOME=/opt/sds/apache-maven-3.0.5" >> /home/vagrant/.bashrc
+source ~/.bashrc
+echo "export PATH=/opt/sds/apache-maven-3.0.5/bin:/usr/local/sbin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin" >> /home/vagrant/.bashrc
+#sed -i "s|/bin:/usr/local/sbin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin|/bin:/usr/local/sbin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin:$M2_HOME/bin|g" .bashrc
 
-/usr/bin/apt-get install redis-server
+#export PATH=/opt/sds/apache-maven-3.0.5/bin:/usr/local/sbin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
+
+
+
+
+echo "> Starting MongoDB"
+/sbin/service mongod start
+
+echo "> Starting ElasticSearch"
+/sbin/service elasticsearch start
+echo "http.cors.enabled: true" >> /etc/sds/elasticsearch/elasticsearch.yml
+/opt/sds/elasticsearch/bin/./plugin -install royrusso/elasticsearch-HQ
+/opt/sds/elasticsearch/bin/./plugin -install mobz/elasticsearch-head
+
+
+echo "> Installing redis-server"
+/usr/bin/yum -y install redis
+
+echo "> Installing rabbitmq-server"
+/usr/bin/yum -y install rabbitmq-server
+/sbin/service rabbitmq-server start
+
+echo "> Installing kibana"
+wget https://download.elastic.co/kibana/kibana/kibana-3.1.2.tar.gz
+cd /module
+tar -xzf kibana-3.1.2.tar.gz -C /opt/sds
+
+echo "> Installing nginx"
+/usr/bin/yum -y install nginx
+#cp /home/vagrant/module/default /etc/nginx/conf.d/default.conf
+#/home/vagrant/module/default /etc/nginx/conf.d/default.conf
+cd /etc/nginx/conf.d/
+sed -i "s|/usr/share/nginx/html|/opt/sds/kibana-3.1.2|g" default.conf
+
+/sbin/service nginx start
+
+#echo "> Installing Sparkta"
+#usr/bin/yum -y install stratio-sparkta
