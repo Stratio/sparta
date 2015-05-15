@@ -74,7 +74,7 @@ abstract class Output(keyName: String,
       bcSchema.get.value.filter(tschema => (tschema.outputName == keyName)).foreach(tschemaFiltered => {
         val tableSchemaTime = Output.getTableSchemaFixedId(tschemaFiltered, fixedBuckets, isAutoCalculateId, dateType)
         upsert(sqlContext.createDataFrame(
-          Output.extractRow(rdd.filter(_._1.get == tableSchemaTime.tableName)), tableSchemaTime.schema),
+          extractRow(rdd.filter(_._1.get == tableSchemaTime.tableName)), tableSchemaTime.schema),
           tableSchemaTime.tableName)
       })
     })
@@ -106,6 +106,40 @@ abstract class Output(keyName: String,
       field.forall(schemaFilter.schema.fieldNames.contains(_) &&
         schemaFilter.schema.filter(!_.nullable).length > 1))
 
+  protected def getTableSchemaFixedId(tbSchema: TableSchema,
+                            fixedBuckets: Option[Seq[(String, Any)]],
+                            isAutoCalculateId: Boolean,
+                            fieldType: TypeOp): TableSchema = {
+    val fixedNames = if(fixedBuckets.isDefined) fixedBuckets.get.map(_._1) else Seq()
+    var tableName = tbSchema.tableName.split(Output.SEPARATOR)
+      .filter(name => !fixedNames.contains(name)).mkString(Output.SEPARATOR)
+    var fields = tbSchema.schema.fields.toSeq.filter(field => !fixedNames.contains(field.name))
+    var modifiedSchema = false
+
+    if (fixedBuckets.isDefined) {
+      fixedBuckets.get.foreach(bucket => {
+        tableName += Output.SEPARATOR + bucket._1
+        fields = fields ++ Seq(Output.getFieldType(fieldType, bucket._1))
+        modifiedSchema = true
+      })
+    }
+
+    if (isAutoCalculateId && !tbSchema.schema.fieldNames.contains(Output.ID)) {
+      tableName += Output.SEPARATOR + Output.ID
+      fields = fields ++ Seq(Output.defaultStringField(Output.ID, false))
+      modifiedSchema = true
+    }
+
+    if (modifiedSchema) new TableSchema(tbSchema.outputName, tableName, StructType(fields)) else tbSchema
+  }
+
+  protected def genericRowSchema(rdd: RDD[(Option[String], Row)]): (Option[String], RDD[Row]) =
+    (Some(rdd.map(rowType => rowType._1.get.split(Output.SEPARATOR))
+      .reduce((names1, names2) => if (names1.length > names2.length) names1 else names2).mkString(Output.SEPARATOR)),
+      extractRow(rdd))
+
+  protected def extractRow(rdd: RDD[(Option[String], Row)]): RDD[Row] = rdd.map(rowType => rowType._2)
+
   protected def checkOperationTypes: Boolean = {
     if (operationTypes.isDefined) {
       operationTypes.get.value.values.map(_._1).toSet.diff(supportedWriteOps.toSet).toSeq match {
@@ -124,74 +158,23 @@ object Output {
   final val SEPARATOR = "_"
   final val ID = "id"
 
-  def getTimeFromGranularity(timeBucket: Option[String], granularity: Option[String]): Option[Timestamp] =
-    (timeBucket, granularity) match {
-      case (Some(time), Some(granularity)) => Some(dateFromGranularity(DateTime.now(), granularity))
-      case _ => None
-    }
-
-  def dateFromGranularity(value: DateTime, granularity: String): Timestamp = {
-    val secondsDate = value.withMillisOfSecond(0)
-    val minutesDate = secondsDate.withSecondOfMinute(0)
-    val hourDate = minutesDate.withMinuteOfHour(0)
-    val dayDate = hourDate.withHourOfDay(0)
-    val monthDate = dayDate.withDayOfMonth(1)
-    val yearDate = monthDate.withMonthOfYear(1)
-
-    val dateSelected = granularity.toLowerCase match {
-      case "minute" => minutesDate
-      case "hour" => hourDate
-      case "day" => dayDate
-      case "month" => monthDate
-      case "year" => yearDate
-      case _ => secondsDate
-    }
-    new Timestamp(dateSelected.getMillis)
-  }
-
-  def getTableSchemaFixedId(tbSchema: TableSchema,
-                            fixedBuckets: Option[Seq[(String, Any)]],
-                            isAutoCalculateId: Boolean,
-                            fieldType: TypeOp): TableSchema = {
-    val fixedNames = if(fixedBuckets.isDefined) fixedBuckets.get.map(_._1) else Seq()
-    var tableName = tbSchema.tableName.split(SEPARATOR).filter(name => !fixedNames.contains(name)).mkString(SEPARATOR)
-    var fields = tbSchema.schema.fields.toSeq.filter(field => !fixedNames.contains(field.name))
-    var modifiedSchema = false
-
-    if (fixedBuckets.isDefined) {
-      fixedBuckets.get.foreach(bucket => {
-        tableName += SEPARATOR + bucket._1
-        fields = fields ++ Seq(getFieldType(fieldType, bucket._1))
-        modifiedSchema = true
-      })
-    }
-
-    if (isAutoCalculateId && !tbSchema.schema.fieldNames.contains(ID)) {
-      tableName += SEPARATOR + ID
-      fields = fields ++ Seq(defaultStringField(ID))
-      modifiedSchema = true
-    }
-
-    if (modifiedSchema) new TableSchema(tbSchema.outputName, tableName, StructType(fields)) else tbSchema
-  }
-
   def getFieldType(dateTimeType: TypeOp, fieldName: String): StructField =
     dateTimeType match {
-      case TypeOp.Date | TypeOp.DateTime => defaultDateField(fieldName)
-      case TypeOp.Timestamp => defaultTimeStampField(fieldName)
-      case _ => defaultStringField(fieldName)
+      case TypeOp.Date | TypeOp.DateTime => defaultDateField(fieldName, false)
+      case TypeOp.Timestamp => defaultTimeStampField(fieldName, false)
+      case _ => defaultStringField(fieldName, false)
     }
 
-  def defaultTimeStampField(fieldName: String): StructField = StructField(fieldName, TimestampType, false)
+  def defaultTimeStampField(fieldName: String, nullable : Boolean): StructField =
+    StructField(fieldName, TimestampType, nullable)
 
-  def defaultDateField(fieldName: String): StructField = StructField(fieldName, DateType, false)
+  def defaultDateField(fieldName: String, nullable : Boolean): StructField =
+    StructField(fieldName, DateType, nullable)
 
-  def defaultStringField(fieldName: String): StructField = StructField(fieldName, StringType, false)
+  def defaultStringField(fieldName: String, nullable : Boolean): StructField =
+    StructField(fieldName, StringType, nullable)
 
-  def genericRowSchema(rdd: RDD[(Option[String], Row)]): (Option[String], RDD[Row]) =
-    (Some(rdd.map(rowType => rowType._1.get.split(SEPARATOR))
-      .reduce((names1, names2) => if (names1.length > names2.length) names1 else names2).mkString(SEPARATOR)),
-      extractRow(rdd))
+  def geoRollupField(fieldName: String, nullable : Boolean): StructField =
+    StructField(fieldName, ArrayType(DoubleType), nullable)
 
-  def extractRow(rdd: RDD[(Option[String], Row)]): RDD[Row] = rdd.map(rowType => rowType._2)
 }

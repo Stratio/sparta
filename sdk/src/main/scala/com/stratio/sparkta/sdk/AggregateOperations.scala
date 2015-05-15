@@ -18,15 +18,14 @@ package com.stratio.sparkta.sdk
 
 import org.apache.spark.sql._
 
-object UpdateMetricOperation {
+object AggregateOperations {
 
   def toString(dimensionValues: Seq[DimensionValue], aggregations: Map[String, Option[Any]]): String =
     keyString(dimensionValues, aggregations) +
       " DIMENSIONS: " + dimensionValues.mkString("|") + " AGGREGATIONS: " + aggregations
 
   def keyString(dimensionValues: Seq[DimensionValue], aggregations: Map[String, Option[Any]]): String =
-    UpdateMetricOperation.dimensionValuesNamesSorted(dimensionValues)
-      .filter(dimName => dimName.nonEmpty).mkString(Output.SEPARATOR)
+    dimensionValuesNamesSorted(dimensionValues).filter(dimName => dimName.nonEmpty).mkString(Output.SEPARATOR)
 
   /*
   * By default transform an UpdateMetricOperation in a Row with description.
@@ -41,13 +40,13 @@ object UpdateMetricOperation {
       val fixedBucketsNames = fixedBuckets.get.map(_._1)
       dimensionValues.filter(dimVal => !fixedBucketsNames.contains(dimVal.getNameDimension))
     } else dimensionValues
-    val namesDim = UpdateMetricOperation.dimensionValuesNames(rollupKeyFiltered.sorted)
-    val (valuesDim, valuesAgg) = UpdateMetricOperation.toSeq(rollupKeyFiltered, aggregations)
+    val namesDim = dimensionValuesNames(rollupKeyFiltered.sorted)
+    val (valuesDim, valuesAgg) = toSeq(rollupKeyFiltered, aggregations)
     val (namesFixed, valuesFixed) = if (fixedBuckets.isDefined) {
       val fixedBucketsSorted = fixedBuckets.get.sortWith((bucket1, bucket2) => bucket1._1 < bucket2._1)
       (namesDim ++ fixedBucketsSorted.map(_._1), valuesDim ++ valuesAgg ++ fixedBucketsSorted.map(_._2.getOrElse("")))
     } else (namesDim, valuesDim ++ valuesAgg)
-    val (keys, row) = UpdateMetricOperation.getNamesValues(namesFixed, valuesFixed, idCalculated)
+    val (keys, row) = getNamesValues(namesFixed, valuesFixed, idCalculated)
 
     if (keys.length > 0) (Some(keys.mkString(Output.SEPARATOR)), Row.fromSeq(row)) else (None, Row.fromSeq(row))
   }

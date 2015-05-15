@@ -42,10 +42,6 @@ object PolicyFactory {
       case _ => BinaryType
     }
 
-  def defaultRollupField(fieldName: String): StructField = StructField(fieldName, StringType, false)
-
-  def geoRollupField(fieldName: String): StructField = StructField(fieldName, ArrayType(DoubleType), false)
-
   def rollupsOperatorsSchemas(rollups: Seq[Rollup],
                               outputs: Seq[(String, Boolean)],
                               operators: Seq[Operator]): Seq[TableSchema] = {
