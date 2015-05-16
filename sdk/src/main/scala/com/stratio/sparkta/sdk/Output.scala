@@ -52,13 +52,13 @@ abstract class Output(keyName: String,
 
   def multiplexer: Boolean
 
-  def fixedBuckets: Seq[String] = Seq()
+  def fixedBuckets: Array[String] = Array()
 
   def fieldsSeparator: String = ","
 
   def isAutoCalculateId: Boolean = false
 
-  protected def persist(streams: Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]]): Unit = {
+  def persist(streams: Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]]): Unit = {
       streams.foreach(stream => doPersist(stream))
   }
 
