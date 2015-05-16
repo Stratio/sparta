@@ -21,12 +21,10 @@ import org.apache.spark.streaming.dstream.DStream
 trait Multiplexer {
 
   def getStreamsFromOptions(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])], multiplexer: Boolean,
-                            fixedBucket: Option[String]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
+                            fixedBuckets: Seq[String]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     if (multiplexer) {
-      fixedBucket match {
-        case None => Multiplexer.multiplexStream(stream)
-        case Some(bucket) => Multiplexer.multiplexStream[bucket.type](stream, bucket)
-      }
+      if(fixedBuckets.isEmpty) Multiplexer.multiplexStream(stream)
+      else Multiplexer.multiplexStream[String](stream, fixedBuckets)
     } else stream
   }
 }
@@ -55,25 +53,21 @@ object Multiplexer {
     } yield (DimensionValuesTime(comb.sorted, dimensionValuesT.time), aggregations)
   }
 
-  def multiplexStream[T](stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])], fixedBucket: T)
+  def multiplexStream[T](stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])], fixedBuckets: Seq[T])
   : DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     for {
       (dimensionValuesT, aggregations) <- stream
-      fixedDim = fixedBucket match {
-        case Some(value: DimensionValue) => fixedBucket.asInstanceOf[Option[DimensionValue]]
-        case value: String => dimensionValuesT.dimensionValues.find(
-          dimValue => dimValue.dimensionBucket.bucketType.id == fixedBucket.asInstanceOf[String])
-      }
-      comb <- combine(
-        dimensionValuesT.dimensionValues.filter(_.dimensionBucket.bucketType.id != (fixedDim match {
-          case None => ""
-          case Some(dimension) => dimension.dimensionBucket.bucketType.id
-        }))).filter(dimVals => dimVals.size >= 1).map(seqDimVal => {
-        fixedDim match {
-          case None => seqDimVal
-          case Some(dimension) => seqDimVal ++ Seq(dimension)
+      fixedDims = fixedBuckets.flatMap(bucket => {
+        bucket match {
+          case value: DimensionValue => bucket.asInstanceOf[Option[DimensionValue]]
+          case _ => dimensionValuesT.dimensionValues.find(
+            dimValue => dimValue.dimensionBucket.bucketType.id == bucket.asInstanceOf[String])
         }
       })
+      comb <- combine(
+        dimensionValuesT.dimensionValues.filter(dimVal =>
+          !fixedDims.map(dim => dim.getNameDimension).contains(dimVal.getNameDimension)
+        )).filter(_.nonEmpty).map(dimensionsValues => dimensionsValues ++ fixedDims)
     } yield (DimensionValuesTime(comb.sorted, dimensionValuesT.time), aggregations)
   }
 }

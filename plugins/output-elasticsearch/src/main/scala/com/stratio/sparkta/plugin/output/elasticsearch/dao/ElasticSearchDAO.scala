@@ -22,8 +22,9 @@ import java.util.Date
 
 import org.joda.time.DateTime
 
+import com.stratio.sparkta.sdk.TypeOp
 import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk.{Output, TypeOp}
+import com.stratio.sparkta.sdk._
 
 trait ElasticSearchDAO extends Closeable {
 
@@ -39,7 +40,7 @@ trait ElasticSearchDAO extends Closeable {
 
   def indexMapping: Option[String] = None
 
-  def getSparkConfig(timeBucket: Option[String]): Map[String, String] = {
+  def getSparkConfig(timeName: String): Map[String, String] = {
     Map("es.mapping.id" -> idField.getOrElse(Output.ID),
       "spark.es.nodes" -> nodes,
       "spark.es.port" -> defaultPort) ++ {
@@ -48,10 +49,7 @@ trait ElasticSearchDAO extends Closeable {
         case None => Map("" -> "")
       }
     } ++ {
-      timeBucket match {
-        case Some(tbucket) => Map("es.mapping.names" -> s"$tbucket:@timestamp")
-        case None => Map("" -> "")
-      }
+      if(timeName.isEmpty) Map("" -> "") else Map("es.mapping.names" -> s"$timeName:@timestamp")
     }
   }
 
@@ -93,7 +91,7 @@ object ElasticSearchDAO {
     indexType.toLowerCase match {
       case "second" | "minute" | "hour" | "day" | "month" | "year" =>
         Some(new SimpleDateFormat(getGranularityPattern(indexType).getOrElse(DEFAULT_DATE_FORMAT))
-          .format(new Date(Output.dateFromGranularity(DateTime.now(), indexType).getTime)))
+          .format(new Date(DateOperations.dateFromGranularity(DateTime.now(), indexType))))
       case _ => Some(indexType)
     }
   }

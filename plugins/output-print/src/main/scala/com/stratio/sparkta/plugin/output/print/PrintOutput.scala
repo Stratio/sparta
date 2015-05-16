@@ -29,7 +29,7 @@ import ValidatingPropertyMap._
 import scala.util.Try
 
 /**
- * This output prints all UpdateMetricOperations information on screen. Very useful to debug.
+ * This output prints all AggregateOperations or DataFrames information on screen. Very useful to debug.
  * @param keyName
  * @param properties
  * @param sparkContext
@@ -40,17 +40,18 @@ class PrintOutput(keyName: String,
                   properties: Map[String, JSerializable],
                   @transient sparkContext: SparkContext,
                   operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                  bcSchema: Option[Broadcast[Seq[TableSchema]]])
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with Logging {
+                  bcSchema: Option[Broadcast[Seq[TableSchema]]],
+                  timeName: String)
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema, timeName) with Logging {
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Max, WriteOp.Min,
     WriteOp.AccAvg, WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText, WriteOp.AccSet)
 
   override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
-  override val timeBucket = properties.getString("dateBucket", None)
+  override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val granularity = properties.getString("granularity", None)
+  override val fixedBuckets = properties.getString("fixedBuckets", "").split(fieldsSeparator)
 
   override val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
@@ -66,7 +67,7 @@ class PrintOutput(keyName: String,
     dataFrame.foreach(frame => log.info(frame.toString()))
   }
 
-  override def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
-    metricOperations.foreach(metricOp => log.info(metricOp.toString))
+  override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+    metricOperations.foreach(metricOp => log.info(AggregateOperations.toString(metricOp._1, metricOp._2)))
   }
 }

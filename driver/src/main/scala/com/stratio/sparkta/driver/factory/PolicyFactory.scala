@@ -27,6 +27,7 @@ object PolicyFactory {
 
   final val GeoLabel = "precision"
 
+  //scalastyle:off
   def rowTypeFromOption(optionType: TypeOp): DataType =
     optionType match {
       case TypeOp.Long => LongType
@@ -41,6 +42,7 @@ object PolicyFactory {
       case TypeOp.String => StringType
       case _ => BinaryType
     }
+  //scalastyle:on
 
   def rollupsOperatorsSchemas(rollups: Seq[Rollup],
                               outputs: Seq[(String, Boolean)],
@@ -54,7 +56,8 @@ object PolicyFactory {
           componentsSorted.flatMap(component => Multiplexer.combine(component._1)).distinct
         } else componentsSorted.map(_._1).distinct
         schema = StructType(rollupsCombinations.map(fieldName => {
-          if (fieldName.toLowerCase().contains(GeoLabel)) geoRollupField(fieldName) else defaultRollupField(fieldName)
+          if (fieldName.toLowerCase().contains(GeoLabel)) Output.defaultGeoField(fieldName, false)
+          else Output.defaultStringField(fieldName, false)
         }) ++ operatorsFields)
       } yield TableSchema(output._1, rollupsCombinations.mkString(Output.SEPARATOR), schema)
     }).distinct

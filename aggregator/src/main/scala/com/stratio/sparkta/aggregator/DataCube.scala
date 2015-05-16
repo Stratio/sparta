@@ -27,10 +27,10 @@ import com.stratio.sparkta.sdk._
 /**
  * It builds a pre-calculated DataCube with dimension/s, rollup/s and operation/s defined by the user in the policy.
  * Steps:
- *   From a event stream it builds a Seq[(Seq[DimensionValue],Map[String, JSerializable])] with all needed data.
- *   For each rollup it calculates aggregations taking the stream calculated in the previous step.
- *   Finally, it returns a modified stream with pre-calculated data encapsulated in a UpdateMetricOperation.
- *   This final stream will be used mainly by outputs.
+ * From a event stream it builds a Seq[(Seq[DimensionValue],Map[String, JSerializable])] with all needed data.
+ * For each rollup it calculates aggregations taking the stream calculated in the previous step.
+ * Finally, it returns a modified stream with pre-calculated data encapsulated in a UpdateMetricOperation.
+ * This final stream will be used mainly by outputs.
  * @param dimensions that will be contain the fields of the datacube.
  * @param rollups that will be contain how the data will be aggregate.
  * @param timeBucket that will be contain the bucketer id that contain the date.
@@ -41,6 +41,7 @@ case class DataCube(dimensions: Seq[Dimension],
                     rollups: Seq[Rollup],
                     timeBucket: Option[String],
                     checkpointGranularity: String) {
+
   /**
    * It builds the DataCube calculating aggregations.
    * @param inputStream with the original stream of data.
@@ -69,7 +70,7 @@ case class DataCube(dimensions: Seq[Dimension],
     }).cache()
   }
 
-  private def extractEventTime(dimensionValues : Seq[DimensionValue]) = {
+  private def extractEventTime(dimensionValues: Seq[DimensionValue]) = {
     timeBucket match {
       case Some(bucket) => {
         val dimensionsDates =
@@ -80,5 +81,5 @@ case class DataCube(dimensions: Seq[Dimension],
     }
   }
 
-  private def getDate: Long = Output.dateFromGranularity(DateTime.now(), checkpointGranularity).getTime
+  private def getDate: Long = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity)
 }

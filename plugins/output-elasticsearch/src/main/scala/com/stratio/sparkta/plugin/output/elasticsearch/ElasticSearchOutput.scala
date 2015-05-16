@@ -36,8 +36,9 @@ class ElasticSearchOutput(keyName: String,
                           properties: Map[String, JSerializable],
                           @transient sparkContext: SparkContext,
                           operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                          bcSchema: Option[Broadcast[Seq[TableSchema]]])
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with ElasticSearchDAO {
+                          bcSchema: Option[Broadcast[Seq[TableSchema]]],
+                          timeName: String)
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema, timeName) with ElasticSearchDAO {
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Max, WriteOp.Min,
     WriteOp.AccAvg, WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText, WriteOp.AccSet)
@@ -52,9 +53,9 @@ class ElasticSearchOutput(keyName: String,
 
   override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
-  override val timeBucket = properties.getString("dateBucket", None)
+  override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val granularity = properties.getString("granularity", None)
+  override val fixedBuckets = properties.getString("fixedBuckets", "").split(fieldsSeparator)
 
   override val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
@@ -65,14 +66,14 @@ class ElasticSearchOutput(keyName: String,
 
   override val indexMapping = ElasticSearchDAO.getIndexType(defaultIndexMapping)
 
-  override protected def doPersist(stream: DStream[UpdateMetricOperation]): Unit = {
-    if (indexMapping.isDefined) persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket))
+  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+    if (indexMapping.isDefined) persistDataFrame(stream)
   }
 
   override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
     val indexNameType = (tableName + "/" + indexMapping.get).toLowerCase
     if (idField.isDefined || isAutoCalculateId)
-      dataFrame.saveToEs(indexNameType, getSparkConfig(timeBucket))
+      dataFrame.saveToEs(indexNameType, getSparkConfig(timeName))
     else dataFrame.saveToEs(indexNameType)
   }
 }

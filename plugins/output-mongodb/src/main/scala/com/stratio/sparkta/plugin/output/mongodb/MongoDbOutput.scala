@@ -24,6 +24,7 @@ import com.mongodb.casbah.commons.conversions.scala._
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.streaming.dstream.DStream
+import org.joda.time.DateTime
 
 import com.stratio.sparkta.plugin.output.mongodb.dao.MongoDbDAO
 import com.stratio.sparkta.sdk.TypeOp._
@@ -35,8 +36,9 @@ class MongoDbOutput(keyName: String,
                     properties: Map[String, JSerializable],
                     @transient sparkContext: SparkContext,
                     operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                    bcSchema: Option[Broadcast[Seq[TableSchema]]])
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with MongoDbDAO {
+                    bcSchema: Option[Broadcast[Seq[TableSchema]]],
+                    timeName: String)
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema, timeName) with MongoDbDAO {
 
   RegisterJodaTimeConversionHelpers()
 
@@ -54,44 +56,47 @@ class MongoDbOutput(keyName: String,
 
   override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
-  override val timeBucket = properties.getString("dateBucket", None)
-
-  override val granularity = properties.getString("granularity", None)
-
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
   override val textIndexFields = properties.getString("textIndexFields", "").split(fieldsSeparator)
 
+  override val fixedBuckets = properties.getString("fixedBuckets", "").split(fieldsSeparator)
+
   override val language = properties.getString("language", "none")
 
   override val pkTextIndexesCreated: (Boolean, Boolean) =
-    filterSchemaByKeyAndField(bcSchema.get.value, timeBucket)
-      .map(tableSchema => createPkTextIndex(tableSchema.tableName, timeBucket))
+    filterSchemaByKeyAndField.map(tableSchema => createPkTextIndex(tableSchema.tableName, timeName))
       .reduce((a, b) => (if (!a._1 || !b._1) false else true, if (!a._2 || !b._2) false else true))
 
-  override def doPersist(stream: DStream[UpdateMetricOperation]): Unit = persistMetricOperation(stream)
+  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+    persistMetricOperation(stream)
+  }
 
-  override def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
-    metricOperations.toList.groupBy(metricOp => metricOp.keyString).filter(_._1.size > 0).foreach(f = collMetricOp => {
+  override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+    metricOperations.toList.groupBy(upMetricOp => AggregateOperations.keyString(upMetricOp._1))
+      .filter(_._1.size > 0).foreach(f = collMetricOp => {
       val bulkOperation = db().getCollection(collMetricOp._1).initializeOrderedBulkOperation()
-      val idFieldName = if (timeBucket.isDefined && (collMetricOp._1.contains(timeBucket) || granularity.isDefined))
-        Output.ID
-      else DEFAULT_ID
+      val idFieldName = if (!timeName.isEmpty) Output.ID else DEFAULT_ID
 
-      collMetricOp._2.foreach(metricOp => {
-        checkFields(metricOp.aggregations.keySet, operationTypes)
+      collMetricOp._2.foreach{ case (rollupKey, aggregations) => {
+        checkFields(aggregations.keySet, operationTypes)
 
-        val eventTimeObject = getTime(metricOp).map(timeBucket.get -> _)
-        val identitiesField = metricOp.rollupKey.filter(_.dimensionBucket.bucketType.id == Bucketer.identityField.id)
+        val eventTimeObject = if(!timeName.isEmpty) Some(timeName -> new DateTime(rollupKey.time)) else None
+        val identitiesField = rollupKey.dimensionValues
+          .filter(_.dimensionBucket.bucketType.id == Bucketer.identityField.id)
           .map(dimVal => MongoDBObject(dimVal.dimensionBucket.dimension.name -> dimVal.value))
-        val mapOperations = getOperations(metricOp.aggregations.toSeq, operationTypes)
+        val mapOperations = getOperations(aggregations.toSeq, operationTypes)
           .groupBy { case (writeOp, op) => writeOp }
           .mapValues(operations => operations.map { case (writeOp, op) => op })
           .map({ case (op, seq) => getSentence(op, seq) })
 
-        bulkOperation.find(getFind(idFieldName, eventTimeObject, metricOp.rollupKey, timeBucket))
+        bulkOperation.find(getFind(
+          idFieldName,
+          eventTimeObject,
+          AggregateOperations.filterDimensionValuesByBucket(rollupKey.dimensionValues, if(timeName.isEmpty) None
+            else Some(timeName))))
           .upsert().updateOne(getUpdate(mapOperations, identitiesField))
-      })
+      }}
       bulkOperation.execute()
     })
   }

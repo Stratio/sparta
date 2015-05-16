@@ -38,7 +38,7 @@ class RollupSpec extends TestSuiteBase {
     val checkpointInterval = 10000
     val checkpointTimeAvailability = 60000
     val checkpointGranularity = "minute"
-    val eventGranularity = Output.dateFromGranularity(DateTime.now(), "minute").getTime
+    val eventGranularity = DateOperations.dateFromGranularity(DateTime.now(), "minute")
     val rollup = new Rollup(
       Seq(DimensionBucket(Dimension("foo", bucketer), new BucketType("identity"))),
       Seq(new CountOperator(Map()), new SumOperator(Map("inputField" -> "n"))),

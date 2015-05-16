@@ -24,6 +24,7 @@ import com.mongodb.casbah.commons.{Imports, MongoDBObject}
 import com.mongodb.casbah.{MongoClient, MongoClientURI, MongoDB}
 import com.mongodb.{DBObject, MongoClientOptions, MongoClientURI => JMongoClientURI, WriteConcern, casbah}
 import org.apache.spark.broadcast.Broadcast
+import org.joda.time.DateTime
 
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
@@ -50,8 +51,6 @@ trait MongoDbDAO extends Closeable {
 
   def textIndexFields: Array[String]
 
-  def fieldsSeparator: String = ","
-
   def pkTextIndexesCreated: (Boolean, Boolean) = (false, false)
 
   protected def client: MongoClient = MongoDbDAO.client(mongoClientUri, connectionsPerHost, threadsAllowedB)
@@ -60,16 +59,16 @@ trait MongoDbDAO extends Closeable {
 
   protected def db(): MongoDB = db(dbName)
 
-  protected def createPkTextIndex(collection: String, timeBucket: Option[String]): (Boolean, Boolean) = {
+  protected def createPkTextIndex(collection: String, timeBucket: String): (Boolean, Boolean) = {
     val textIndexCreated = textIndexFields.size > 0
 
     if (textIndexCreated)
       createTextIndex(collection, textIndexFields.mkString(Output.SEPARATOR), textIndexFields, language)
-    if (timeBucket.isDefined) {
-      createIndex(collection, Output.ID + Output.SEPARATOR + timeBucket.get,
-        Map(Output.ID -> 1, timeBucket.get -> 1), true, true)
+    if (!timeBucket.isEmpty) {
+      createIndex(collection, Output.ID + Output.SEPARATOR + timeBucket,
+        Map(Output.ID -> 1, timeBucket -> 1), true, true)
     }
-    (timeBucket.isDefined, textIndexCreated)
+    (!timeBucket.isEmpty, textIndexCreated)
   }
 
   protected def indexExists(collection: String, indexName: String): Boolean = {
@@ -124,12 +123,10 @@ trait MongoDbDAO extends Closeable {
   }
 
   protected def getFind(idFieldName: String,
-                        eventTimeObject: Option[(String, JSerializable)],
-                        rollupKey: Seq[DimensionValue],
-                        timeBucket: Option[String]): Imports.DBObject = {
+                        eventTimeObject: Option[(String, DateTime)],
+                        dimensionValues: Seq[DimensionValue]): Imports.DBObject = {
     val builder = MongoDBObject.newBuilder
-    builder += idFieldName -> UpdateMetricOperation.filterDimVals(rollupKey, timeBucket)
-      .map(dimVal => dimVal.value.toString)
+    builder += idFieldName -> dimensionValues.map(dimVal => dimVal.value.toString)
       .mkString(Output.SEPARATOR)
     if (eventTimeObject.isDefined) builder += eventTimeObject.get
     builder.result

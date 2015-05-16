@@ -55,7 +55,7 @@ class DataCubeSpec extends TestSuiteBase {
     val checkpointGranularity = "minute"
     val timeBucket = None
 
-    val timestamp = Output.dateFromGranularity(DateTime.now(), checkpointGranularity).getTime
+    val timestamp = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity)
     
     val bucketer = new PassthroughBucketer
     val dimension = Dimension("eventKey", bucketer)

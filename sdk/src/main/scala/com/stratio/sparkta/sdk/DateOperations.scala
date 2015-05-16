@@ -23,13 +23,13 @@ import org.joda.time.DateTime
 
 object DateOperations {
 
-  def getTimeFromGranularity(timeBucket: Option[String], granularity: Option[String]): Option[DateTime] =
+  def getTimeFromGranularity(timeBucket: Option[String], granularity: Option[String]): Long =
     (timeBucket, granularity) match {
-      case (Some(time), Some(granularity)) => Some(dateFromGranularity(DateTime.now(), granularity))
-      case _ => None
+      case (Some(time), Some(granularity)) => dateFromGranularity(DateTime.now(), granularity)
+      case _ => 0L
     }
 
-  def dateFromGranularity(value: DateTime, granularity: String): DateTime = {
+  def dateFromGranularity(value: DateTime, granularity: String): Long = {
     val secondsDate = value.withMillisOfSecond(0)
     val minutesDate = secondsDate.withSecondOfMinute(0)
     val hourDate = minutesDate.withMinuteOfHour(0)
@@ -38,22 +38,16 @@ object DateOperations {
     val yearDate = monthDate.withMonthOfYear(1)
 
     granularity.toLowerCase match {
-      case "minute" => minutesDate
-      case "hour" => hourDate
-      case "day" => dayDate
-      case "month" => monthDate
-      case "year" => yearDate
-      case _ => secondsDate
+      case "minute" => minutesDate.getMillis
+      case "hour" => hourDate.getMillis
+      case "day" => dayDate.getMillis
+      case "month" => monthDate.getMillis
+      case "year" => yearDate.getMillis
+      case "second" => secondsDate.getMillis
+      case _ => 0L
     }
   }
 
-  def dateTimeToTimeStamp(dateOp : Option[DateTime]) : Option[Timestamp] = dateOp match {
-    case Some(date) => Some(new Timestamp(date.getMillis))
-    case None => None
-  }
+  def millisToTimeStamp(date : Long) : Option[Timestamp] = Some(new Timestamp(date))
 
-  def dateTimeToMillis(dateOp : Option[DateTime]) : Long = dateOp match {
-    case Some(date) => date.getMillis
-    case None => 0L
-  }
 }
