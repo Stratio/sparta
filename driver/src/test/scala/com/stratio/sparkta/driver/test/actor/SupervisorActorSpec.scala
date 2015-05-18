@@ -95,7 +95,7 @@ class SupervisorActorSpec
 
       within(5000 millis) {
         supervisorRef ! new GetContextStatus("test-1")
-        expectMsg(new StreamingContextStatusDto("test-1", Error, None))
+        expectMsg(new StreamingContextStatusDto("test-1", Error, Some(mockErrorMessage)))
       }
     }
     //TODO test when creating a streamingContextActor unexpected error occurs
