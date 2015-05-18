@@ -66,12 +66,12 @@ trait CassandraDAO extends Closeable with Logging {
   }
 
   protected def doCreateTables(conn: CassandraConnector,
-                     tSchemas: Seq[TableSchema],
-                     clusteringField: String,
-                     isAutoCalculateId: Boolean): Boolean = {
+                               tSchemas: Seq[TableSchema],
+                               clusteringField: String,
+                               isAutoCalculateId: Boolean): Boolean = {
     tSchemas.map(tableSchema =>
       createTable(conn, tableSchema.tableName, tableSchema.schema, clusteringField, isAutoCalculateId))
-      .reduce((a, b) => (if (!a || !b) false else true))
+      .forall(result => result)
   }
 
   protected def createTable(conn: CassandraConnector,

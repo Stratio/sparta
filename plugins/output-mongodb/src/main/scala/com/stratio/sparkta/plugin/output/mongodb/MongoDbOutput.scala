@@ -60,13 +60,16 @@ class MongoDbOutput(keyName: String,
 
   override val textIndexFields = properties.getString("textIndexFields", "").split(fieldsSeparator)
 
-  override val fixedBuckets = properties.getString("fixedBuckets", "").split(fieldsSeparator)
+  override val fixedBuckets: Array[String] = properties.getString("fixedBuckets", None) match {
+    case None => Array()
+    case Some(fixBuckets) => fixBuckets.split(fieldsSeparator)
+  }
 
   override val language = properties.getString("language", "none")
 
-  override val pkTextIndexesCreated: (Boolean, Boolean) =
+  override val pkTextIndexesCreated: Boolean =
     filterSchemaByKeyAndField.map(tableSchema => createPkTextIndex(tableSchema.tableName, timeName))
-      .reduce((a, b) => (if (!a._1 || !b._1) false else true, if (!a._2 || !b._2) false else true))
+      .forall(result => result._1 && result._2)
 
   override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     persistMetricOperation(stream)
@@ -78,10 +81,9 @@ class MongoDbOutput(keyName: String,
       val bulkOperation = db().getCollection(collMetricOp._1).initializeOrderedBulkOperation()
       val idFieldName = if (!timeName.isEmpty) Output.ID else DEFAULT_ID
 
-      collMetricOp._2.foreach{ case (rollupKey, aggregations) => {
+      collMetricOp._2.foreach { case (rollupKey, aggregations) => {
         checkFields(aggregations.keySet, operationTypes)
-
-        val eventTimeObject = if(!timeName.isEmpty) Some(timeName -> new DateTime(rollupKey.time)) else None
+        val eventTimeObject = if (!timeName.isEmpty) Some(timeName -> new DateTime(rollupKey.time)) else None
         val identitiesField = rollupKey.dimensionValues
           .filter(_.dimensionBucket.bucketType.id == Bucketer.identityField.id)
           .map(dimVal => MongoDBObject(dimVal.dimensionBucket.dimension.name -> dimVal.value))
@@ -93,10 +95,11 @@ class MongoDbOutput(keyName: String,
         bulkOperation.find(getFind(
           idFieldName,
           eventTimeObject,
-          AggregateOperations.filterDimensionValuesByBucket(rollupKey.dimensionValues, if(timeName.isEmpty) None
-            else Some(timeName))))
+          AggregateOperations.filterDimensionValuesByBucket(rollupKey.dimensionValues, if (timeName.isEmpty) None
+          else Some(timeName))))
           .upsert().updateOne(getUpdate(mapOperations, identitiesField))
-      }}
+      }
+      }
       bulkOperation.execute()
     })
   }

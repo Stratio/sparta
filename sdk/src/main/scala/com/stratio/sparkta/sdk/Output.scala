@@ -50,7 +50,7 @@ abstract class Output(keyName: String,
 
   def supportedWriteOps: Seq[WriteOp]
 
-  def multiplexer: Boolean
+  def multiplexer: Boolean = false
 
   def fixedBuckets: Array[String] = Array()
 
@@ -59,7 +59,7 @@ abstract class Output(keyName: String,
   def isAutoCalculateId: Boolean = false
 
   def persist(streams: Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]]): Unit = {
-      streams.foreach(stream => doPersist(stream))
+    streams.foreach(stream => doPersist(stream))
   }
 
   def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
@@ -69,10 +69,12 @@ abstract class Output(keyName: String,
   }
 
   protected def persistMetricOperation(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit =
-    getStreamsFromOptions(stream, multiplexer, fixedBuckets).foreachRDD(rdd => rdd.foreachPartition(ops => upsert(ops)))
+    getStreamsFromOptions(stream, multiplexer, getFixedBucketsAndTimeBucket)
+      .foreachRDD(rdd => rdd.foreachPartition(ops => upsert(ops)))
 
   protected def persistDataFrame(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
-    getStreamsFromOptions(stream, multiplexer, fixedBuckets).map { case (dimensionValueTime, aggregations) =>
+    getStreamsFromOptions(stream, multiplexer, getFixedBucketsAndTimeBucket)
+      .map { case (dimensionValueTime, aggregations) =>
       AggregateOperations.toKeyRow(filterDimensionValueTimeByFixedBuckets(dimensionValueTime),
         aggregations,
         getFixedBuckets(dimensionValueTime),
@@ -94,6 +96,8 @@ abstract class Output(keyName: String,
 
   def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {}
 
+  def getFixedBucketsAndTimeBucket: Array[String] = fixedBuckets ++ Array(timeName)
+
   protected def getFixedBuckets(dimensionValuesTime: DimensionValuesTime): Option[Seq[(String, Any)]] =
     if (fixedBuckets.isEmpty) None
     else {
@@ -113,14 +117,14 @@ abstract class Output(keyName: String,
     if (!fixedBuckets.isEmpty) {
       fixedBuckets.foreach(bucket => {
         tableName += Output.SEPARATOR + bucket
-        fields = fields ++ Seq(Output.getFieldType(fixedBucketsType, bucket))
+        fields = fields ++ Seq(Output.getFieldType(fixedBucketsType, bucket, false))
         modifiedSchema = true
       })
     }
 
     if (!timeName.isEmpty) {
       tableName += Output.SEPARATOR + timeName
-      fields = fields ++ Seq(Output.getFieldType(dateType, timeName))
+      fields = fields ++ Seq(Output.getFieldType(dateType, timeName, false))
     }
 
     if (isAutoCalculateId && !tbSchema.schema.fieldNames.contains(Output.ID)) {
@@ -147,9 +151,9 @@ abstract class Output(keyName: String,
     }
 
   protected def filterSchemaByKeyAndField: Seq[TableSchema] =
-    if(bcSchema.isDefined){
+    if (bcSchema.isDefined) {
       bcSchema.get.value.filter(schemaFilter => schemaFilter.outputName == keyName &&
-        fixedBuckets.forall(schemaFilter.schema.fieldNames.contains(_) &&
+        getFixedBucketsAndTimeBucket.forall(schemaFilter.schema.fieldNames.contains(_) &&
           schemaFilter.schema.filter(!_.nullable).length > 1))
     } else Seq()
 
@@ -171,12 +175,12 @@ object Output {
   final val SEPARATOR = "_"
   final val ID = "id"
 
-  def getFieldType(dateTimeType: TypeOp, fieldName: String): StructField =
+  def getFieldType(dateTimeType: TypeOp, fieldName: String, nullable: Boolean): StructField =
     dateTimeType match {
-      case TypeOp.Date | TypeOp.DateTime => defaultDateField(fieldName, false)
-      case TypeOp.Timestamp => defaultTimeStampField(fieldName, false)
-      case TypeOp.String => defaultStringField(fieldName, false)
-      case _ => defaultStringField(fieldName, false)
+      case TypeOp.Date | TypeOp.DateTime => defaultDateField(fieldName, nullable)
+      case TypeOp.Timestamp => defaultTimeStampField(fieldName, nullable)
+      case TypeOp.String => defaultStringField(fieldName, nullable)
+      case _ => defaultStringField(fieldName, nullable)
     }
 
   def defaultTimeStampField(fieldName: String, nullable: Boolean): StructField =

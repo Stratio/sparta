@@ -51,7 +51,7 @@ trait MongoDbDAO extends Closeable {
 
   def textIndexFields: Array[String]
 
-  def pkTextIndexesCreated: (Boolean, Boolean) = (false, false)
+  def pkTextIndexesCreated: Boolean = false
 
   protected def client: MongoClient = MongoDbDAO.client(mongoClientUri, connectionsPerHost, threadsAllowedB)
 
@@ -164,9 +164,9 @@ trait MongoDbDAO extends Closeable {
   protected def getSentence(op: WriteOp, seq: Seq[(String, Option[Any])]): (Seq[(String, Any)], String) = {
     op match {
       case WriteOp.Inc =>
-        (seq.asInstanceOf[Seq[(String, Long)]], "$inc")
+        (seq.asInstanceOf[Seq[(String, Long)]], "$set")
       case WriteOp.IncBig =>
-        (valuesBigDecimalToDouble(seq), "$inc")
+        (valuesBigDecimalToDouble(seq), "$set")
       case WriteOp.Set =>
         (seq, "$set")
       case WriteOp.Avg | WriteOp.Median | WriteOp.Variance | WriteOp.Stddev =>

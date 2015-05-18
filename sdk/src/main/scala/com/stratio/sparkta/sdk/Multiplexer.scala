@@ -21,9 +21,9 @@ import org.apache.spark.streaming.dstream.DStream
 trait Multiplexer {
 
   def getStreamsFromOptions(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])], multiplexer: Boolean,
-                            fixedBuckets: Seq[String]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
+                            fixedBuckets: Array[String]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     if (multiplexer) {
-      if(fixedBuckets.isEmpty) Multiplexer.multiplexStream(stream)
+      if (fixedBuckets.isEmpty) Multiplexer.multiplexStream(stream)
       else Multiplexer.multiplexStream[String](stream, fixedBuckets)
     } else stream
   }
@@ -53,15 +53,15 @@ object Multiplexer {
     } yield (DimensionValuesTime(comb.sorted, dimensionValuesT.time), aggregations)
   }
 
-  def multiplexStream[T](stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])], fixedBuckets: Seq[T])
+  def multiplexStream[T](stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])], fixedBuckets: Array[T])
   : DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     for {
       (dimensionValuesT, aggregations) <- stream
       fixedDims = fixedBuckets.flatMap(bucket => {
         bucket match {
-          case value: DimensionValue => bucket.asInstanceOf[Option[DimensionValue]]
+          case value: DimensionValue => Some(bucket.asInstanceOf[DimensionValue])
           case _ => dimensionValuesT.dimensionValues.find(
-            dimValue => dimValue.dimensionBucket.bucketType.id == bucket.asInstanceOf[String])
+            dimValue => dimValue.getNameDimension == bucket.asInstanceOf[String])
         }
       })
       comb <- combine(

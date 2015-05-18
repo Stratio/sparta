@@ -28,6 +28,18 @@ import com.stratio.sparkta.sdk._
 
 trait ElasticSearchDAO extends Closeable {
 
+  final val TIMESTAMP_PATTERN = "@timestamp:"
+  final val DEFAULT_DATE_FORMAT = "YYYY.MM.dd"
+  final val YEAR = "YYYY"
+  final val MONTH = "MM"
+  final val DAY = "dd"
+  final val HOUR = "HH"
+  final val MINUTE = "mm"
+  final val SECOND = "ss"
+  final val DEFAULT_INDEX_TYPE = "sparkta"
+  final val DEFAULT_NODE = "localhost"
+  final val DEFAULT_PORT = "9200"
+
   def nodes: String
 
   def defaultPort: String
@@ -49,26 +61,9 @@ trait ElasticSearchDAO extends Closeable {
         case None => Map("" -> "")
       }
     } ++ {
-      if(timeName.isEmpty) Map("" -> "") else Map("es.mapping.names" -> s"$timeName:@timestamp")
+      if (timeName.isEmpty) Map("" -> "") else Map("es.mapping.names" -> s"$timeName:@timestamp")
     }
   }
-
-  def close(): Unit = {}
-}
-
-object ElasticSearchDAO {
-
-  final val TIMESTAMP_PATTERN = "@timestamp:"
-  final val DEFAULT_DATE_FORMAT = "YYYY.MM.dd"
-  final val YEAR = "YYYY"
-  final val MONTH = "MM"
-  final val DAY = "dd"
-  final val HOUR = "HH"
-  final val MINUTE = "mm"
-  final val SECOND = "ss"
-  final val DEFAULT_INDEX_TYPE = "sparkta"
-  final val DEFAULT_NODE = "localhost"
-  final val DEFAULT_PORT = "9200"
 
   def getDateTimeType(dateType: Option[String]): TypeOp = {
     dateType match {
@@ -87,7 +82,7 @@ object ElasticSearchDAO {
     }
   }
 
-  def getDateFromType(indexType: String): Option[String] = {
+  protected def getDateFromType(indexType: String): Option[String] = {
     indexType.toLowerCase match {
       case "second" | "minute" | "hour" | "day" | "month" | "year" =>
         Some(new SimpleDateFormat(getGranularityPattern(indexType).getOrElse(DEFAULT_DATE_FORMAT))
@@ -96,14 +91,14 @@ object ElasticSearchDAO {
     }
   }
 
-  def getIndexTypePattern(indexType: String): Option[String] = {
+  protected def getIndexTypePattern(indexType: String): Option[String] = {
     getGranularityPattern(indexType) match {
       case None => Some(indexType)
       case Some(pattern) => Some(s"{$TIMESTAMP_PATTERN$pattern}")
     }
   }
 
-  def getGranularityPattern(indexType: String): Option[String] = {
+  protected def getGranularityPattern(indexType: String): Option[String] = {
     indexType.toLowerCase match {
       case "second" => Some(s"$YEAR.$MONTH.$DAY $HOUR:$MINUTE:$SECOND")
       case "minute" => Some(s"$YEAR.$MONTH.$DAY $HOUR:$MINUTE")
@@ -114,5 +109,7 @@ object ElasticSearchDAO {
       case _ => None
     }
   }
+
+  def close(): Unit = {}
 }
 

@@ -51,7 +51,10 @@ class PrintOutput(keyName: String,
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val fixedBuckets = properties.getString("fixedBuckets", "").split(fieldsSeparator)
+  override val fixedBuckets: Array[String] = properties.getString("fixedBuckets", None) match {
+    case None => Array()
+    case Some(fixBuckets) => fixBuckets.split(fieldsSeparator)
+  }
 
   override val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
@@ -59,7 +62,7 @@ class PrintOutput(keyName: String,
     log.debug(s"> Table name       : $tableName")
     log.debug(s"> Data frame count : " + dataFrame.count())
 
-    if(log.isDebugEnabled) {
+    if (log.isDebugEnabled) {
       log.debug(s"> DataFrame schema")
       dataFrame.printSchema()
     }

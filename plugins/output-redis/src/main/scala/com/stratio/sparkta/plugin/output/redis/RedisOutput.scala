@@ -34,11 +34,11 @@ import scala.util.Try
  * Saves calculated rollups on Redis.
  *
  */
-class RedisOutput(keyName : String,
+class RedisOutput(keyName: String,
                   properties: Map[String, Serializable],
-                  @transient sparkContext : SparkContext,
+                  @transient sparkContext: SparkContext,
                   operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                  bcSchema : Option[Broadcast[Seq[TableSchema]]],
+                  bcSchema: Option[Broadcast[Seq[TableSchema]]],
                   timeName: String)
   extends Output(keyName, properties, sparkContext, operationTypes, bcSchema, timeName)
   with AbstractRedisDAO with Serializable {
@@ -55,7 +55,10 @@ class RedisOutput(keyName : String,
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val fixedBuckets = properties.getString("fixedBuckets", "").split(fieldsSeparator)
+  override val fixedBuckets: Array[String] = properties.getString("fixedBuckets", None) match {
+    case None => Array()
+    case Some(fixBuckets) => fixBuckets.split(fieldsSeparator)
+  }
 
   override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     persistMetricOperation(stream)
@@ -99,13 +102,13 @@ class RedisOutput(keyName : String,
               val valueHashOperation: Double =
                 hget(hashKey, aggregation._1).getOrElse(scala.Double.MinValue.toString).toDouble
               val valueCurrentOperation: Double = aggregation._2.getOrElse(scala.Double.MinValue).asInstanceOf[Double]
-              if(valueCurrentOperation > valueHashOperation) hset(hashKey, aggregation._1, valueCurrentOperation)
+              if (valueCurrentOperation > valueHashOperation) hset(hashKey, aggregation._1, valueCurrentOperation)
             }
             case WriteOp.Min => {
-              val valueHashOperation: Double  =
+              val valueHashOperation: Double =
                 hget(hashKey, aggregation._1).getOrElse(scala.Double.MaxValue.toString).toDouble
               val valueCurrentOperation: Double = aggregation._2.getOrElse(scala.Double.MaxValue).asInstanceOf[Double]
-              if(valueCurrentOperation < valueHashOperation) hset(hashKey, aggregation._1, valueCurrentOperation)
+              if (valueCurrentOperation < valueHashOperation) hset(hashKey, aggregation._1, valueCurrentOperation)
             }
           }
         })

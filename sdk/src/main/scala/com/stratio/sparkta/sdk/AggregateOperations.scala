@@ -75,7 +75,7 @@ object AggregateOperations {
   : Seq[DimensionValue] =
     bucketName match {
       case None => dimensionValues
-      case Some(bucket) => dimensionValues.filter(rollup => (rollup.dimensionBucket.bucketType.id != bucket))
+      case Some(bucket) => dimensionValues.filter(rollup => (rollup.getNameDimension != bucket))
     }
 
 }

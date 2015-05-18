@@ -43,11 +43,11 @@ class ElasticSearchOutput(keyName: String,
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Max, WriteOp.Min,
     WriteOp.AccAvg, WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText, WriteOp.AccSet)
 
-  override val dateType = ElasticSearchDAO.getDateTimeType(properties.getString("dateType", None))
+  override val dateType = getDateTimeType(properties.getString("dateType", None))
 
-  override val nodes = properties.getString("nodes", ElasticSearchDAO.DEFAULT_NODE)
+  override val nodes = properties.getString("nodes", DEFAULT_NODE)
 
-  override val defaultPort = properties.getString("defaultPort", ElasticSearchDAO.DEFAULT_PORT)
+  override val defaultPort = properties.getString("defaultPort", DEFAULT_PORT)
 
   override val defaultAnalyzerType = properties.getString("defaultAnalyzerType", None)
 
@@ -55,16 +55,19 @@ class ElasticSearchOutput(keyName: String,
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val fixedBuckets = properties.getString("fixedBuckets", "").split(fieldsSeparator)
+  override val fixedBuckets: Array[String] = properties.getString("fixedBuckets", None) match {
+    case None => Array()
+    case Some(fixBuckets) => fixBuckets.split(fieldsSeparator)
+  }
 
   override val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
   override val idField = properties.getString("idField", None)
 
   override val defaultIndexMapping = properties.getString("indexMapping",
-    Some(ElasticSearchDAO.DEFAULT_INDEX_TYPE))
+    Some(DEFAULT_INDEX_TYPE))
 
-  override val indexMapping = ElasticSearchDAO.getIndexType(defaultIndexMapping)
+  override val indexMapping = getIndexType(defaultIndexMapping)
 
   override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     if (indexMapping.isDefined) persistDataFrame(stream)

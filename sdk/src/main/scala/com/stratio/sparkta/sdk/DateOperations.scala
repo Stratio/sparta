@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.stratio.sparkta.sdk
 
 import java.sql.Timestamp
@@ -48,6 +47,5 @@ object DateOperations {
     }
   }
 
-  def millisToTimeStamp(date : Long) : Option[Timestamp] = Some(new Timestamp(date))
-
+  def millisToTimeStamp(date: Long): Timestamp = new Timestamp(date)
 }

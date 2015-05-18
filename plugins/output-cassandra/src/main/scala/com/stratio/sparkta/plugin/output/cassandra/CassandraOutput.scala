@@ -49,7 +49,10 @@ class CassandraOutput(keyName: String,
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val fixedBuckets = properties.getString("fixedBuckets", "").split(fieldsSeparator)
+  override val fixedBuckets: Array[String] = properties.getString("fixedBuckets", None) match {
+    case None => Array()
+    case Some(fixBuckets) => fixBuckets.split(fieldsSeparator)
+  }
 
   override val cluster = properties.getString("cluster", "Test Cluster")
 
