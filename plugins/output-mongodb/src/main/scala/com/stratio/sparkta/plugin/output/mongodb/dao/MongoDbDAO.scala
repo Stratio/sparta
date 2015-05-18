@@ -176,9 +176,9 @@ trait MongoDbDAO extends Closeable {
       case WriteOp.Min =>
         (seq.asInstanceOf[Seq[(String, Double)]], "$min")
       case WriteOp.AccAvg | WriteOp.AccMedian | WriteOp.AccVariance | WriteOp.AccStddev =>
-        (seq.asInstanceOf[Seq[(String, Double)]], "$addToset")
+        (seq.asInstanceOf[Seq[(String, Double)]], "$set")
       case WriteOp.FullText | WriteOp.AccSet =>
-        (seq.asInstanceOf[Seq[(String, String)]], "$addToSet")
+        (seq.asInstanceOf[Seq[(String, String)]], "$set")
     }
   }
 
