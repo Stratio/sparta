@@ -61,15 +61,17 @@ trait ElasticSearchDAO extends Closeable {
         case None => Map("" -> "")
       }
     } ++ {
-      if (timeName.isEmpty) Map("" -> "") else Map("es.mapping.names" -> s"$timeName:@timestamp")
+       if(timeName.isEmpty) Map("" -> "") else Map("es.mapping.names" -> s"$timeName:@timestamp")
     }
   }
 
   def getDateTimeType(dateType: Option[String]): TypeOp = {
     dateType match {
-      case None => TypeOp.Timestamp
+      case None => TypeOp.String
       case Some(date) => date.toLowerCase match {
         case "timestamp" => TypeOp.Timestamp
+        case "date" => TypeOp.Date
+        case "datetime" => TypeOp.DateTime
         case _ => TypeOp.String
       }
     }
