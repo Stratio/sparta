@@ -26,7 +26,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
 /**
- * Created by arincon on 13/05/15.
+ * @author arincon
  * This test sucks and I know it...
  */
 @RunWith(classOf[JUnitRunner])
