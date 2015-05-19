@@ -121,6 +121,14 @@ Sandbox
 -------------
 - [All about how to start running the sandbox] (http://docs.stratio.com/modules/sparkta/development/sandbox.html)
 
+Build
+-----
+
+In order to build the project you need to add the rabbitmq-receiver by running the following commands:
+
+  `cd plugins/input-rabbitMQ/`
+  `git submodule add https://github.com/Stratio/RabbitMQ-Receiver.git rabbitmq-receiver`
+
 Documentation
 -------------
 
