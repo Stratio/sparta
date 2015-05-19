@@ -25,16 +25,43 @@ import org.apache.spark.streaming.dstream.DStream
 
 import com.stratio.sparkta.sdk.Input._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk.{Event, Input}
+import com.stratio.sparkta.sdk.{JsoneyString, Event, Input}
 
 class RabbitMQInput(properties: Map[String, JSerializable]) extends Input(properties) {
 
-  val storageLevel = properties.getString("storageLevel", "MEMORY_AND_DISK_SER_2")
+  val DirectExchangeType: String = "direct"
+  val DefaultRabbitMQPort = 5672
 
-  val port = 5672
+  val RabbitMQQueueName = properties.getString("queue")
+  val RabbitMQHost = properties.getString("host", "localhost")
+  val RabbitMQPort = properties.getInt("port", DefaultRabbitMQPort)
+  val ExchangeName = properties.getString("exchangeName", "")
+  val RoutingKeys = properties.get("routingKeys")
+  val StorageLevelProperty = properties.getString("storageLevel", "MEMORY_AND_DISK_SER_2")
 
   override def setUp(ssc: StreamingContext): DStream[Event] = {
-    RabbitMQUtils.createStreamFromAQueue(ssc, "localhost", port, "test", StorageLevel.MEMORY_AND_DISK_SER_2)
+    RoutingKeys match {
+      case Some(_) => createStreamFromRoutingKeys(ssc)
+      case None => createStreamFromAQueue(ssc)
+    }
+  }
+
+  private def createStreamFromRoutingKeys(ssc: StreamingContext): DStream[Event] = {
+    RabbitMQUtils.createStreamFromRoutingKeys(ssc,
+      RabbitMQHost,
+      RabbitMQPort,
+      ExchangeName,
+      RoutingKeys.get.asInstanceOf[JsoneyString].toSeq,
+      StorageLevel.fromString(StorageLevelProperty))
+      .map(data => new Event(Map(RAW_DATA_KEY -> data.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
+  }
+
+  private def createStreamFromAQueue(ssc: StreamingContext): DStream[Event] = {
+    RabbitMQUtils.createStreamFromAQueue(ssc,
+      RabbitMQHost,
+      RabbitMQPort,
+      RabbitMQQueueName,
+      StorageLevel.fromString(StorageLevelProperty))
       .map(data => new Event(Map(RAW_DATA_KEY -> data.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
   }
 }
