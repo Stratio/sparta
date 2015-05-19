@@ -35,8 +35,9 @@ class CassandraOutput(keyName: String,
                       properties: Map[String, JSerializable],
                       @transient sparkContext: SparkContext,
                       operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                      bcSchema: Option[Broadcast[Seq[TableSchema]]])
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema)
+                      bcSchema: Option[Broadcast[Seq[TableSchema]]],
+                      timeName: String)
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema, timeName)
   with CassandraDAO {
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Max, WriteOp.Min,
@@ -44,13 +45,14 @@ class CassandraOutput(keyName: String,
 
   override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
-  override val timeBucket = properties.getString("timeBucket", None)
-
-  override val granularity = properties.getString("granularity", None)
-
   override val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
+
+  override val fixedBuckets: Array[String] = properties.getString("fixedBuckets", None) match {
+    case None => Array()
+    case Some(fixBuckets) => fixBuckets.split(fieldsSeparator)
+  }
 
   override val cluster = properties.getString("cluster", "Test Cluster")
 
@@ -76,14 +78,14 @@ class CassandraOutput(keyName: String,
 
   val keyspaceCreated = createKeypace
 
-  val schemaFiltered = filterSchemaByKeyAndField(bcSchema.get.value, timeBucket)
+  val schemaFiltered = filterSchemaByKeyAndField
 
   val tablesCreated = if (keyspaceCreated) {
-    bcSchema.exists(bc => createTables(schemaFiltered, timeBucket, isAutoCalculateId))
+    bcSchema.exists(bc => createTables(schemaFiltered, timeName, isAutoCalculateId))
   } else false
 
   val indexesCreated = if (keyspaceCreated && tablesCreated) {
-    bcSchema.exists(bc => createIndexes(schemaFiltered, timeBucket, isAutoCalculateId))
+    bcSchema.exists(bc => createIndexes(schemaFiltered, timeName, isAutoCalculateId))
   } else false
 
   /*
@@ -91,10 +93,8 @@ class CassandraOutput(keyName: String,
   * With the fork of PR 112 of datastax-spark-connector.
   * https://github.com/datastax/spark-cassandra-connector/pull/648
   */
-  override def doPersist(stream: DStream[UpdateMetricOperation]): Unit = {
-    if (bcSchema.isDefined && keyspaceCreated && tablesCreated) {
-      persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket))
-    }
+  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+    if (bcSchema.isDefined && keyspaceCreated && tablesCreated) persistDataFrame(stream)
   }
 
   override def upsert(dataFrame: DataFrame, tableName: String): Unit = {

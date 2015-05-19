@@ -3,6 +3,11 @@
   "duration": 10000,
   "saveRawData": "false",
   "rawDataParquetPath": "myTestParquetPath",
+  "checkpointDir": "checkpoint",
+  "timeBucket": "minute",
+  "checkpointGranularity": "minute",
+  "checkpointInterval": 30000,
+  "checkpointTimeAvailability": 60000,
   "inputs": [
     {
       "name": "input-twitter",
@@ -61,9 +66,7 @@
       "elementType": "RedisOutput",
       "configuration": {
         "hostname": "localhost",
-        "multiplexer": "false",
-        "dateBucket": "minute",
-        "granularity": "minute"
+        "multiplexer": "false"
       }
     },
     {
@@ -73,8 +76,6 @@
         "clientUri" : "mongodb://localhost:27017",
         "dbName" : "sparkta",
         "multiplexer" : "false",
-        "dateBucket" : "minute",
-        "granularity" : "minute",
         "textIndexFields" : "userLocation",
         "fieldsSeparator" : ",",
         "language" : "english"

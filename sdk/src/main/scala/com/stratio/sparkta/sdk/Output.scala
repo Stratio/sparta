@@ -34,7 +34,8 @@ abstract class Output(keyName: String,
                       properties: Map[String, JSerializable],
                       @transient sparkContext: SparkContext,
                       operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                      bcSchema: Option[Broadcast[Seq[TableSchema]]])
+                      bcSchema: Option[Broadcast[Seq[TableSchema]]],
+                      timeName: String)
   extends Parameterizable(properties) with Multiplexer with Logging {
 
   if (operationTypes.isEmpty) {
@@ -45,66 +46,116 @@ abstract class Output(keyName: String,
 
   def dateType: TypeOp.Value = TypeOp.Timestamp
 
+  def fixedBucketsType: TypeOp.Value = TypeOp.String
+
   def supportedWriteOps: Seq[WriteOp]
 
-  def multiplexer: Boolean
+  def multiplexer: Boolean = false
 
-  def timeBucket: Option[String]
+  def fixedBuckets: Array[String] = Array()
 
-  def granularity: Option[String]
+  def fieldsSeparator: String = ","
 
   def isAutoCalculateId: Boolean = false
 
-  def persist(streams: Seq[DStream[UpdateMetricOperation]]): Unit = {
-    if (bcSchema.isDefined)
-      streams.foreach(stream => doPersist(stream))
-    else streams.foreach(stream => persistMetricOperation(stream))
+  def persist(streams: Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]]): Unit = {
+    streams.foreach(stream => doPersist(stream))
   }
 
-  protected def persistMetricOperation(stream: DStream[UpdateMetricOperation]): Unit =
-    getStreamsFromOptions(stream, multiplexer, timeBucket).foreachRDD(rdd => rdd.foreachPartition(ops => upsert(ops)))
+  def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+    if (bcSchema.isDefined)
+      persistDataFrame(stream)
+    else persistMetricOperation(stream)
+  }
 
-  protected def persistDataFrame(stream: DStream[UpdateMetricOperation]): Unit = {
-    def fixedBuckets: Option[Seq[(String, Option[Timestamp])]] = timeBucket match {
-      case None => None
-      case Some(timeB) => Some(Seq((timeB, Output.getTimeFromGranularity(timeBucket, granularity))))
+  protected def persistMetricOperation(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit =
+    getStreamsFromOptions(stream, multiplexer, getFixedBucketsAndTimeBucket)
+      .foreachRDD(rdd => rdd.foreachPartition(ops => upsert(ops)))
+
+  protected def persistDataFrame(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+    getStreamsFromOptions(stream, multiplexer, getFixedBucketsAndTimeBucket)
+      .map { case (dimensionValueTime, aggregations) =>
+      AggregateOperations.toKeyRow(filterDimensionValueTimeByFixedBuckets(dimensionValueTime),
+        aggregations,
+        getFixedBuckets(dimensionValueTime),
+        isAutoCalculateId,
+        timeName)
     }
-    stream.map(updateMetricOp => updateMetricOp.toKeyRow(fixedBuckets, isAutoCalculateId))
       .foreachRDD(rdd => {
       bcSchema.get.value.filter(tschema => (tschema.outputName == keyName)).foreach(tschemaFiltered => {
-        val tableSchemaTime = Output.getTableSchemaFixedId(tschemaFiltered, fixedBuckets, isAutoCalculateId, dateType)
+        val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
         upsert(sqlContext.createDataFrame(
-          Output.extractRow(rdd.filter(_._1.get == tableSchemaTime.tableName)), tableSchemaTime.schema),
+          extractRow(rdd.filter { case (schema, row) => schema.exists(_ == tableSchemaTime.tableName) }),
+          tableSchemaTime.schema),
           tableSchemaTime.tableName)
       })
     })
   }
 
-  protected def doPersist(stream: DStream[UpdateMetricOperation]): Unit = {
-    if (bcSchema.isDefined)
-      persistDataFrame(getStreamsFromOptions(stream, multiplexer, timeBucket))
-    else persistMetricOperation(stream)
-  }
-
   def upsert(dataFrame: DataFrame, tableName: String): Unit = {}
 
-  def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {}
+  def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {}
 
-  protected def getTime(metricOp: UpdateMetricOperation): Option[JSerializable] =
-    timeBucket match {
-      case None => None
-      case Some(bucket) => {
-        val metricOpFiltered = metricOp.rollupKey.filter(dimVal => bucket == dimVal.bucketType.id)
-        if (metricOpFiltered.size > 0)
-          Some(metricOpFiltered.last.value)
-        else if (granularity.isEmpty) None else Some(Output.dateFromGranularity(DateTime.now(), granularity.get))
-      }
+  def getFixedBucketsAndTimeBucket: Array[String] = fixedBuckets ++ Array(timeName)
+
+  protected def getFixedBuckets(dimensionValuesTime: DimensionValuesTime): Option[Seq[(String, Any)]] =
+    if (fixedBuckets.isEmpty) None
+    else {
+      Some(fixedBuckets.flatMap(bucket => {
+        dimensionValuesTime.dimensionValues.find(dimension => dimension.getNameDimension == bucket)
+          .map(dimensionValue => (bucket, dimensionValue.value))
+      }))
     }
 
-  protected def filterSchemaByKeyAndField(tSchemas: Seq[TableSchema], field: Option[String]): Seq[TableSchema] =
-    tSchemas.filter(schemaFilter => schemaFilter.outputName == keyName &&
-      field.forall(schemaFilter.schema.fieldNames.contains(_) &&
-        schemaFilter.schema.filter(!_.nullable).length > 1))
+  protected def getTableSchemaFixedId(tbSchema: TableSchema): TableSchema = {
+    var tableName = tbSchema.tableName.split(Output.SEPARATOR)
+      .filter(name => !fixedBuckets.contains(name) && name != timeName).mkString(Output.SEPARATOR)
+    var fields = tbSchema.schema.fields.toSeq.filter(field =>
+      !fixedBuckets.contains(field.name) && field.name != timeName)
+    var modifiedSchema = false
+
+    if (!fixedBuckets.isEmpty) {
+      fixedBuckets.foreach(bucket => {
+        tableName += Output.SEPARATOR + bucket
+        fields = fields ++ Seq(Output.getFieldType(fixedBucketsType, bucket, false))
+        modifiedSchema = true
+      })
+    }
+
+    if (!timeName.isEmpty) {
+      tableName += Output.SEPARATOR + timeName
+      fields = fields ++ Seq(Output.getFieldType(dateType, timeName, false))
+    }
+
+    if (isAutoCalculateId && !tbSchema.schema.fieldNames.contains(Output.ID)) {
+      tableName += Output.SEPARATOR + Output.ID
+      fields = fields ++ Seq(Output.defaultStringField(Output.ID, false))
+      modifiedSchema = true
+    }
+
+    if (modifiedSchema) new TableSchema(tbSchema.outputName, tableName, StructType(fields)) else tbSchema
+  }
+
+  protected def genericRowSchema(rdd: RDD[(Option[String], Row)]): (Option[String], RDD[Row]) =
+    (Some(rdd.map(rowType => rowType._1.get.split(Output.SEPARATOR))
+      .reduce((names1, names2) => if (names1.length > names2.length) names1 else names2).mkString(Output.SEPARATOR)),
+      extractRow(rdd))
+
+  protected def extractRow(rdd: RDD[(Option[String], Row)]): RDD[Row] = rdd.map(rowType => rowType._2)
+
+  protected def filterDimensionValueTimeByFixedBuckets(dimensionValuesTime: DimensionValuesTime): DimensionValuesTime =
+    if (fixedBuckets.isEmpty) dimensionValuesTime
+    else {
+      DimensionValuesTime(dimensionValuesTime.dimensionValues.filter(dimensionValue =>
+        !fixedBuckets.contains(dimensionValue.dimensionBucket.getNameDimension)), dimensionValuesTime.time)
+    }
+
+  protected def filterSchemaByKeyAndField: Seq[TableSchema] =
+    if (bcSchema.isDefined) {
+      bcSchema.get.value.filter(schemaFilter => schemaFilter.outputName == keyName &&
+        getFixedBucketsAndTimeBucket.forall(schemaFilter.schema.fieldNames.contains(_) &&
+          schemaFilter.schema.filter(!_.nullable).length > 1))
+    } else Seq()
 
   protected def checkOperationTypes: Boolean = {
     if (operationTypes.isDefined) {
@@ -124,74 +175,23 @@ object Output {
   final val SEPARATOR = "_"
   final val ID = "id"
 
-  def getTimeFromGranularity(timeBucket: Option[String], granularity: Option[String]): Option[Timestamp] =
-    (timeBucket, granularity) match {
-      case (Some(time), Some(granularity)) => Some(dateFromGranularity(DateTime.now(), granularity))
-      case _ => None
-    }
-
-  def dateFromGranularity(value: DateTime, granularity: String): Timestamp = {
-    val secondsDate = value.withMillisOfSecond(0)
-    val minutesDate = secondsDate.withSecondOfMinute(0)
-    val hourDate = minutesDate.withMinuteOfHour(0)
-    val dayDate = hourDate.withHourOfDay(0)
-    val monthDate = dayDate.withDayOfMonth(1)
-    val yearDate = monthDate.withMonthOfYear(1)
-
-    val dateSelected = granularity.toLowerCase match {
-      case "minute" => minutesDate
-      case "hour" => hourDate
-      case "day" => dayDate
-      case "month" => monthDate
-      case "year" => yearDate
-      case _ => secondsDate
-    }
-    new Timestamp(dateSelected.getMillis)
-  }
-
-  def getTableSchemaFixedId(tbSchema: TableSchema,
-                            fixedBuckets: Option[Seq[(String, Any)]],
-                            isAutoCalculateId: Boolean,
-                            fieldType: TypeOp): TableSchema = {
-    val fixedNames = if(fixedBuckets.isDefined) fixedBuckets.get.map(_._1) else Seq()
-    var tableName = tbSchema.tableName.split(SEPARATOR).filter(name => !fixedNames.contains(name)).mkString(SEPARATOR)
-    var fields = tbSchema.schema.fields.toSeq.filter(field => !fixedNames.contains(field.name))
-    var modifiedSchema = false
-
-    if (fixedBuckets.isDefined) {
-      fixedBuckets.get.foreach(bucket => {
-        tableName += SEPARATOR + bucket._1
-        fields = fields ++ Seq(getFieldType(fieldType, bucket._1))
-        modifiedSchema = true
-      })
-    }
-
-    if (isAutoCalculateId && !tbSchema.schema.fieldNames.contains(ID)) {
-      tableName += SEPARATOR + ID
-      fields = fields ++ Seq(defaultStringField(ID))
-      modifiedSchema = true
-    }
-
-    if (modifiedSchema) new TableSchema(tbSchema.outputName, tableName, StructType(fields)) else tbSchema
-  }
-
-  def getFieldType(dateTimeType: TypeOp, fieldName: String): StructField =
+  def getFieldType(dateTimeType: TypeOp, fieldName: String, nullable: Boolean): StructField =
     dateTimeType match {
-      case TypeOp.Date | TypeOp.DateTime => defaultDateField(fieldName)
-      case TypeOp.Timestamp => defaultTimeStampField(fieldName)
-      case _ => defaultStringField(fieldName)
+      case TypeOp.Date | TypeOp.DateTime => defaultDateField(fieldName, nullable)
+      case TypeOp.Timestamp => defaultTimeStampField(fieldName, nullable)
+      case TypeOp.String => defaultStringField(fieldName, nullable)
+      case _ => defaultStringField(fieldName, nullable)
     }
 
-  def defaultTimeStampField(fieldName: String): StructField = StructField(fieldName, TimestampType, false)
+  def defaultTimeStampField(fieldName: String, nullable: Boolean): StructField =
+    StructField(fieldName, TimestampType, nullable)
 
-  def defaultDateField(fieldName: String): StructField = StructField(fieldName, DateType, false)
+  def defaultDateField(fieldName: String, nullable: Boolean): StructField =
+    StructField(fieldName, DateType, nullable)
 
-  def defaultStringField(fieldName: String): StructField = StructField(fieldName, StringType, false)
+  def defaultStringField(fieldName: String, nullable: Boolean): StructField =
+    StructField(fieldName, StringType, nullable)
 
-  def genericRowSchema(rdd: RDD[(Option[String], Row)]): (Option[String], RDD[Row]) =
-    (Some(rdd.map(rowType => rowType._1.get.split(SEPARATOR))
-      .reduce((names1, names2) => if (names1.length > names2.length) names1 else names2).mkString(SEPARATOR)),
-      extractRow(rdd))
-
-  def extractRow(rdd: RDD[(Option[String], Row)]): RDD[Row] = rdd.map(rowType => rowType._2)
+  def defaultGeoField(fieldName: String, nullable: Boolean): StructField =
+    StructField(fieldName, ArrayType(DoubleType), nullable)
 }

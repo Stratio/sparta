@@ -3,6 +3,11 @@
   "duration": 10000,
   "saveRawData": "false",
   "rawDataParquetPath": "myTestParquetPath",
+  "checkpointDir": "checkpoint",
+  "timeBucket": "minute",
+  "checkpointGranularity": "minute",
+  "checkpointInterval": 30000,
+  "checkpointTimeAvailability": 60000,
   "inputs": [
     {
       "name": "in-twitter",
@@ -72,8 +77,6 @@
         "multiplexer": "false",
         "isAutoCalculateId" : "false",
         "clusteringBuckets": "",
-        "timeBucket": "minute",
-        "granularity": "hour",
         "indexFields": "minute",
         "textIndexFields": "userLocation",
         "fieldsSeparator": ",",

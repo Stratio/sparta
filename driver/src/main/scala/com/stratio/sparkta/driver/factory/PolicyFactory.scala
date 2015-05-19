@@ -27,6 +27,7 @@ object PolicyFactory {
 
   final val GeoLabel = "precision"
 
+  //scalastyle:off
   def rowTypeFromOption(optionType: TypeOp): DataType =
     optionType match {
       case TypeOp.Long => LongType
@@ -41,15 +42,12 @@ object PolicyFactory {
       case TypeOp.String => StringType
       case _ => BinaryType
     }
-
-  def defaultRollupField(fieldName: String): StructField = StructField(fieldName, StringType, false)
-
-  def geoRollupField(fieldName: String): StructField = StructField(fieldName, ArrayType(DoubleType), false)
+  //scalastyle:on
 
   def rollupsOperatorsSchemas(rollups: Seq[Rollup],
                               outputs: Seq[(String, Boolean)],
                               operators: Seq[Operator]): Seq[TableSchema] = {
-    val componentsSorted = rollups.map(rollup => (rollup.sortedComponentsNames, rollup.sortComponents))
+    val componentsSorted = rollups.map(rollup => (rollup.getComponentsNamesSorted, rollup.getComponentsSorted))
     val operatorsFields = operators.sortWith(_.key < _.key)
       .map(operator => StructField(operator.key, rowTypeFromOption(operator.returnType), true))
     outputs.flatMap(output => {
@@ -58,7 +56,8 @@ object PolicyFactory {
           componentsSorted.flatMap(component => Multiplexer.combine(component._1)).distinct
         } else componentsSorted.map(_._1).distinct
         schema = StructType(rollupsCombinations.map(fieldName => {
-          if (fieldName.toLowerCase().contains(GeoLabel)) geoRollupField(fieldName) else defaultRollupField(fieldName)
+          if (fieldName.toLowerCase().contains(GeoLabel)) Output.defaultGeoField(fieldName, false)
+          else Output.defaultStringField(fieldName, false)
         }) ++ operatorsFields)
       } yield TableSchema(output._1, rollupsCombinations.mkString(Output.SEPARATOR), schema)
     }).distinct

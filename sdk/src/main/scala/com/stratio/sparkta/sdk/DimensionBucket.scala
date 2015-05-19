@@ -16,25 +16,14 @@
 
 package com.stratio.sparkta.sdk
 
-import java.io.{Serializable => JSerializable}
+case class DimensionBucket(dimension: Dimension, bucketType: BucketType) extends Ordered[DimensionBucket] {
 
-import com.stratio.sparkta.sdk.TypeOp.TypeOp
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
+  def getNameDimension: String = bucketType match {
+    case Bucketer.identity => dimension.name
+    case _ => bucketType.id
+  }
 
-abstract class Operator(properties: Map[String, JSerializable]) extends Parameterizable(properties)
-with Ordered[Operator] {
+  def compare(dimensionBucket: DimensionBucket): Int =
+    (dimension.name + bucketType.id) compareTo (dimensionBucket.dimension.name + dimensionBucket.bucketType.id)
 
-  def typeOp: Option[TypeOp] = None
-
-  def key: String
-
-  def writeOperation: WriteOp
-
-  def processMap(inputFields: Map[String, JSerializable]): Option[Any]
-
-  def processReduce(values: Iterable[Option[Any]]): Option[Any]
-
-  def returnType: TypeOp = typeOp.getOrElse(TypeOp.Binary)
-
-  def compare(operator: Operator): Int = key compareTo operator.key
 }

@@ -49,31 +49,29 @@ These parameters can be completed in the policy file:
 
    "multiplexer": ("true"/"false")  Default: "false"
 
-* timeBucket:
-   You can specify the time bucket containing the event, thanks to this parameter can be stored aggregate data and
-   generate timeseries.
-   This name will be as identified in the system of persistence.
+* fixedBuckets:
+   You can specify fields that will be fixed for the calculation of the multiplex, in this way can obtain fixed
+   dimensions and a smaller number of tables and possibilities
    You can omit this parameter in the policy.
 
    * Example:
 ::
 
-   "timeBucket": ("BUCKET_LABEL")  Default: ""
+   "fixedBuckets": ("bucket1{fieldsSeparator}bucket2{fieldsSeparator}...")  Default: ""
 
-* granularity:
-   If not created any bucketer time to identify with "timeBucket" you can leave the system assigned to each event time
-   with the specified granularity.
+* fieldsSeparator:
+   Is possible specify the character that separate the fields for the others parameters.
    You can omit this parameter in the policy.
 
    * Example:
 ::
 
-   "granularity": ("second"/"minute"/"hour"/"day"/"month"/"year")  Default: ""
+   "fieldsSeparator": ("any_character")  Default: ","
 
 * isAutoCalculateId:
    The system is capable of assigning an id added to each event, so that it may identify only the output.
    This field is calculated with all the values of the bucket rollup, including timeBucket date if the parameter is specified.
-   Only for DataFrames persistence, disable in UpdateMetricOperation.
+   Only for DataFrames persistence, disable in Tuple -> (DimensionValuesTime, Aggregations).
    You can omit this parameter in the policy.
 
    * Example:
@@ -129,15 +127,6 @@ For more information for this output you can visit the :doc:`mongodb`
 ::
 
    "threadsAllowedToBlock": ("NUMBER")  Default: "10"
-
-* fieldsSeparator:
-   It's possible to specify the character that separate the fields in the "textIndexFields" parameter.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "fieldsSeparator": ("any_character")  Default: ","
 
 * textIndexFields:
    The system is capable of insert data in a full-text index. All of this fields compound the index.

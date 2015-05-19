@@ -24,8 +24,8 @@ This plugin creates one client connection per Worker in a Spark Cluster.
 
 Is necessary need to override two functions from the Output SDK:
 ::
-  override def doPersist(stream: DStream[UpdateMetricOperation]): Unit
-  override def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit
+  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit
+  override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit
 
 
 .. _driver-label:
@@ -94,15 +94,15 @@ Worker Operations
 ============
 
 As this Output does not use functionality of DataFrames, override the method Upsert, that save all values
-of a **UpdateMetricOperation**.
+of a **Tuple -> (DimensionValuesTime, Aggregations)**.
 Below you can see each of the features implemented:
 
   * Each Worker save in one BulkOperation for each data partition of a RDD.
 
-  * The output create one collection for each rollup. With the name "bucket1_bucket2..." + Optional(timeBucket if is
-    specified in properties)
+  * The output create one collection for each rollup. With the name "bucket1_bucket2..." + timeBucket is
+    specified in properties for the stateful operations)
 
-      - Example:
+      - Example: (with multiplexer)
       ::
 
           hastags_minute
@@ -146,4 +146,4 @@ Below you can see each of the features implemented:
 
 
   * MongoDB have several **Update Aggregation Commands** that are used by Sparkta for insert the aggregate fields. As
-   can be Sum, Count, Avg, Max, Min.
+   can be Sum, Count, Avg, Max, Min ...

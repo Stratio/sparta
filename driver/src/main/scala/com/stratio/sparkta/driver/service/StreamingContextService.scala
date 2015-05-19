@@ -66,12 +66,13 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       val rollOpSchema = PolicyFactory.rollupsOperatorsSchemas(rollups, outputsConfig, operators)
       if (rollOpSchema.size > 0) Some(sc.broadcast(rollOpSchema)) else None
     }
-
-    val outputs = SparktaJob.outputs(apConfig, sc, bcOperatorsKeyOperation, bcRollupOperatorSchema)
+    val dateBucket = if (apConfig.timeBucket.isEmpty) None else Some(apConfig.timeBucket)
+    val timeName = if (dateBucket.isDefined) dateBucket.get else apConfig.checkpointGranularity
+    val outputs = SparktaJob.outputs(apConfig, sc, bcOperatorsKeyOperation, bcRollupOperatorSchema, timeName)
     val input: DStream[Event] = inputs.head._2
     SparktaJob.saveRawData(apConfig, sqlContext, input)
     val parsed = SparktaJob.applyParsers(input, parsers)
-    val dateBucket = if (apConfig.timeBucket.isEmpty) None else Some(apConfig.timeBucket)
+
     val dataCube = new DataCube(dimensionsSeq, rollups, dateBucket, apConfig.checkpointGranularity).setUp(parsed)
     outputs.map(_._2.persist(dataCube))
     ssc
@@ -127,7 +128,8 @@ object SparktaJob {
   def outputs(apConfig: AggregationPoliciesDto,
               sparkContext: SparkContext,
               bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-              bcRollupOperatorSchema: Option[Broadcast[Seq[TableSchema]]]): Seq[(String, Output)] =
+              bcRollupOperatorSchema: Option[Broadcast[Seq[TableSchema]]],
+              timeName : String): Seq[(String, Output)] =
     apConfig.outputs.map(o =>
       (o.name, tryToInstantiate[Output](o.elementType, (c) =>
         c.getDeclaredConstructor(
@@ -135,8 +137,9 @@ object SparktaJob {
           classOf[Map[String, Serializable]],
           classOf[SparkContext],
           classOf[Option[Broadcast[Map[String, (WriteOp, TypeOp)]]]],
-          classOf[Option[Broadcast[Seq[TableSchema]]]])
-          .newInstance(o.name, o.configuration, sparkContext, bcOperatorsKeyOperation, bcRollupOperatorSchema)
+          classOf[Option[Broadcast[Seq[TableSchema]]]],
+          classOf[String])
+          .newInstance(o.name, o.configuration, sparkContext, bcOperatorsKeyOperation, bcRollupOperatorSchema, timeName)
           .asInstanceOf[Output])))
 
   def rollups(apConfig: AggregationPoliciesDto,
@@ -146,7 +149,7 @@ object SparktaJob {
       val components = r.dimensionAndBucketTypes.map(dab => {
         dimensionsMap.get(dab.dimensionName) match {
           case Some(x: Dimension) => x.bucketTypes.contains(new BucketType(dab.bucketType)) match {
-            case true => (x, new BucketType(dab.bucketType, dab.configuration.getOrElse(Map())))
+            case true => DimensionBucket(x, new BucketType(dab.bucketType, dab.configuration.getOrElse(Map())))
             case _ =>
               throw new DriverException(
                 "Bucket type " + dab.bucketType + " not supported in dimension " + dab.dimensionName)

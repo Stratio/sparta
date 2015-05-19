@@ -22,43 +22,11 @@ import java.util.Date
 
 import org.joda.time.DateTime
 
+import com.stratio.sparkta.sdk.TypeOp
 import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk.{Output, TypeOp}
+import com.stratio.sparkta.sdk._
 
 trait ElasticSearchDAO extends Closeable {
-
-  def nodes: String
-
-  def defaultPort: String
-
-  def defaultAnalyzerType: Option[String]
-
-  def idField: Option[String] = None
-
-  def defaultIndexMapping: Option[String] = None
-
-  def indexMapping: Option[String] = None
-
-  def getSparkConfig(timeBucket: Option[String]): Map[String, String] = {
-    Map("es.mapping.id" -> idField.getOrElse(Output.ID),
-      "spark.es.nodes" -> nodes,
-      "spark.es.port" -> defaultPort) ++ {
-      defaultAnalyzerType match {
-        case Some(analyzer) => Map("es.index.analysis.analyzer.default.type" -> analyzer)
-        case None => Map("" -> "")
-      }
-    } ++ {
-      timeBucket match {
-        case Some(tbucket) => Map("es.mapping.names" -> s"$tbucket:@timestamp")
-        case None => Map("" -> "")
-      }
-    }
-  }
-
-  def close(): Unit = {}
-}
-
-object ElasticSearchDAO {
 
   final val TIMESTAMP_PATTERN = "@timestamp:"
   final val DEFAULT_DATE_FORMAT = "YYYY.MM.dd"
@@ -72,11 +40,39 @@ object ElasticSearchDAO {
   final val DEFAULT_NODE = "localhost"
   final val DEFAULT_PORT = "9200"
 
+  def nodes: String
+
+  def defaultPort: String
+
+  def defaultAnalyzerType: Option[String]
+
+  def idField: Option[String] = None
+
+  def defaultIndexMapping: Option[String] = None
+
+  def indexMapping: Option[String] = None
+
+  def getSparkConfig(timeName: String, idProvided: Boolean): Map[String, String] = {
+    {
+      if (idProvided) Map("es.mapping.id" -> idField.getOrElse(Output.ID)) else Map("" -> "")
+    } ++
+      Map("spark.es.nodes" -> nodes, "spark.es.port" -> defaultPort) ++ {
+      defaultAnalyzerType match {
+        case Some(analyzer) => Map("es.index.analysis.analyzer.default.type" -> analyzer)
+        case None => Map("" -> "")
+      }
+    } ++ {
+      if (timeName.isEmpty) Map("" -> "") else Map("es.mapping.names" -> s"$timeName:@timestamp")
+    }
+  }
+
   def getDateTimeType(dateType: Option[String]): TypeOp = {
     dateType match {
-      case None => TypeOp.Timestamp
+      case None => TypeOp.String
       case Some(date) => date.toLowerCase match {
         case "timestamp" => TypeOp.Timestamp
+        case "date" => TypeOp.Date
+        case "datetime" => TypeOp.DateTime
         case _ => TypeOp.String
       }
     }
@@ -89,23 +85,23 @@ object ElasticSearchDAO {
     }
   }
 
-  def getDateFromType(indexType: String): Option[String] = {
+  protected def getDateFromType(indexType: String): Option[String] = {
     indexType.toLowerCase match {
       case "second" | "minute" | "hour" | "day" | "month" | "year" =>
         Some(new SimpleDateFormat(getGranularityPattern(indexType).getOrElse(DEFAULT_DATE_FORMAT))
-          .format(new Date(Output.dateFromGranularity(DateTime.now(), indexType).getTime)))
+          .format(new Date(DateOperations.dateFromGranularity(DateTime.now(), indexType))))
       case _ => Some(indexType)
     }
   }
 
-  def getIndexTypePattern(indexType: String): Option[String] = {
+  protected def getIndexTypePattern(indexType: String): Option[String] = {
     getGranularityPattern(indexType) match {
       case None => Some(indexType)
       case Some(pattern) => Some(s"{$TIMESTAMP_PATTERN$pattern}")
     }
   }
 
-  def getGranularityPattern(indexType: String): Option[String] = {
+  protected def getGranularityPattern(indexType: String): Option[String] = {
     indexType.toLowerCase match {
       case "second" => Some(s"$YEAR.$MONTH.$DAY $HOUR:$MINUTE:$SECOND")
       case "minute" => Some(s"$YEAR.$MONTH.$DAY $HOUR:$MINUTE")
@@ -116,5 +112,7 @@ object ElasticSearchDAO {
       case _ => None
     }
   }
+
+  def close(): Unit = {}
 }
 

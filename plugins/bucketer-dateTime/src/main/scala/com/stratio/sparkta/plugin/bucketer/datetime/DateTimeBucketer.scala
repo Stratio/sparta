@@ -23,7 +23,7 @@ import akka.event.slf4j.SLF4JLogging
 import org.joda.time.DateTime
 
 import com.stratio.sparkta.plugin.bucketer.datetime.DateTimeBucketer._
-import com.stratio.sparkta.sdk.{BucketType, Bucketer, Output}
+import com.stratio.sparkta.sdk._
 
 case class DateTimeBucketer(props: Map[String, JSerializable]) extends Bucketer with JSerializable with SLF4JLogging {
 
@@ -60,7 +60,7 @@ object DateTimeBucketer {
   val timestamp = Bucketer.timestamp
 
   private def bucket(value: Date, bucketType: BucketType, properties: Map[String, JSerializable]): JSerializable = {
-    Output.dateFromGranularity(new DateTime(value), bucketType match {
+    DateOperations.dateFromGranularity(new DateTime(value), bucketType match {
       case t if t == timestamp => properties.contains(GRANULARITY_PROPERTY_NAME) match {
         case true => properties.get(GRANULARITY_PROPERTY_NAME).get.toString
         case _ => DEFAULT_GRANULARITY

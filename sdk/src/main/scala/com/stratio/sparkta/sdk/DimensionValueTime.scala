@@ -16,25 +16,4 @@
 
 package com.stratio.sparkta.sdk
 
-import java.io.{Serializable => JSerializable}
-
-import com.stratio.sparkta.sdk.TypeOp.TypeOp
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
-
-abstract class Operator(properties: Map[String, JSerializable]) extends Parameterizable(properties)
-with Ordered[Operator] {
-
-  def typeOp: Option[TypeOp] = None
-
-  def key: String
-
-  def writeOperation: WriteOp
-
-  def processMap(inputFields: Map[String, JSerializable]): Option[Any]
-
-  def processReduce(values: Iterable[Option[Any]]): Option[Any]
-
-  def returnType: TypeOp = typeOp.getOrElse(TypeOp.Binary)
-
-  def compare(operator: Operator): Int = key compareTo operator.key
-}
+case class DimensionValuesTime(dimensionValues: Seq[DimensionValue], time: Long)

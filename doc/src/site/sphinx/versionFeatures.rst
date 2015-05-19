@@ -90,7 +90,7 @@ Parent
 
 Sdk
 ---
-- Integration with **Spark 1.3.1**
+- Integration with **Spark 1.3.0**
 - Auto create time series in outputs if not exist time bucket
 - Full integration in Outputs with **Spark DataFrames**
 - Auto create "Id" in DataFrames with dimensions
