@@ -21,6 +21,7 @@ import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import com.stratio.sparkta.driver.actor.{PolicyControllerActor, SupervisorActor}
+import com.stratio.sparkta.driver.factory.CuratorFactoryHolder
 import com.stratio.sparkta.driver.factory.JarListFactory._
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.typesafe.config.ConfigFactory
@@ -47,6 +48,8 @@ object Sparkta extends App with SLF4JLogging {
 
   log.info("Loading configuration...")
   val sparktaConfig = ConfigFactory.load().getConfig("sparkta")
+
+  log.info("> Loading ZK client")
 
   log.info("Starting Actor System...")
   implicit val system = ActorSystem("sparkta")

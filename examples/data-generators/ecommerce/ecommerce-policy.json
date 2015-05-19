@@ -2,6 +2,11 @@
   "name": "ecommerce-policy",
   "duration": 10000,
   "saveRawData": "false",
+  "checkpointDir": "checkpoint",
+  "timeBucket": "minute",
+  "checkpointGranularity": "minute",
+  "checkpointInterval": 30000,
+  "checkpointTimeAvailability": 60000,
   "inputs": [
     {
       "name": "in",
@@ -131,8 +136,6 @@
       "configuration": {
         "nodes" : "localhost",
         "defaultPort" : "9200",
-        "dateBucket" : "minute",
-        "granularity" : "minute",
         "autoCalculateId" : "true",
         "dateType" : "timestamp",
         "indexMapping" : "day"

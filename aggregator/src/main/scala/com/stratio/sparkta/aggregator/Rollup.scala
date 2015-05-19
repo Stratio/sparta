@@ -33,7 +33,7 @@ import com.stratio.sparkta.sdk._
  * multipelexer the output
  */
 
-case class Rollup(components: Seq[(Dimension, BucketType)],
+case class Rollup(components: Seq[DimensionBucket],
                   operators: Seq[Operator],
                   checkpointInterval: Int,
                   checkpointGranularity: String,
@@ -46,43 +46,52 @@ case class Rollup(components: Seq[(Dimension, BucketType)],
            operators: Seq[Operator],
            checkpointInterval: Int,
            checkpointGranularity: String,
-           checkpointAvailable : Int) {
-    this(Seq((dimension, bucketType)), operators, checkpointInterval, checkpointGranularity, checkpointAvailable)
+           checkpointAvailable: Int) {
+    this(Seq(DimensionBucket(dimension, bucketType)),
+      operators,
+      checkpointInterval,
+      checkpointGranularity,
+      checkpointAvailable)
   }
 
   def this(dimension: Dimension,
            operators: Seq[Operator],
            checkpointInterval: Int,
            checkpointGranularity: String,
-           checkpointAvailable : Int) {
-    this(Seq((dimension, Bucketer.identity)), operators, checkpointInterval, checkpointGranularity, checkpointAvailable)
+           checkpointAvailable: Int) {
+    this(Seq(DimensionBucket(dimension, Bucketer.identity)),
+      operators,
+      checkpointInterval,
+      checkpointGranularity,
+      checkpointAvailable)
   }
 
-  def aggregate(dimensionsValues: DStream[((Seq[DimensionValue], Long),
-    Map[String, JSerializable])]): DStream[UpdateMetricOperation] = {
+  def aggregate(dimensionsValues: DStream[(DimensionValuesTime,
+    Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     val valuesFiltered = filterDimensionValues(dimensionsValues)
     valuesFiltered.checkpoint(new Duration(checkpointInterval))
     aggregateValues(updateState(valuesFiltered))
   }
 
-  protected def filterDimensionValues(dimensionValues: DStream[((Seq[DimensionValue], Long),
-    Map[String, JSerializable])]): DStream[((Seq[DimensionValue], Long), Map[String, JSerializable])] = {
-    dimensionValues.map { case ((dimensions, time), aggregationValues) => {
-      val dimensionsFiltered = dimensions.filter(dimVal =>
-        components.find(comp => comp._1 == dimVal.dimension && comp._2.id == dimVal.bucketType.id).nonEmpty)
-      ((dimensionsFiltered, time), aggregationValues)
+  protected def filterDimensionValues(dimensionValues: DStream[(DimensionValuesTime,
+    Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
+    dimensionValues.map { case (dimensionsValuesTime, aggregationValues) => {
+      val dimensionsFiltered = dimensionsValuesTime.dimensionValues.filter(dimVal =>
+        components.find(comp => comp.dimension == dimVal.dimensionBucket.dimension &&
+          comp.bucketType.id == dimVal.dimensionBucket.bucketType.id).nonEmpty)
+      (DimensionValuesTime(dimensionsFiltered, dimensionsValuesTime.time), aggregationValues)
     }
-    }.filter(_._1._1.nonEmpty)
+    }
   }
 
-  protected def updateState(dimensionsValues : DStream[((Seq[DimensionValue], Long), Map[String, JSerializable])]):
-  DStream[((Seq[DimensionValue], Long), Seq[(String, Option[Any])])] = {
-    val newUpdateFunc = (iterator: Iterator[((Seq[DimensionValue], Long),
+  protected def updateState(dimensionsValues: DStream[(DimensionValuesTime, Map[String, JSerializable])]):
+  DStream[(DimensionValuesTime, Seq[(String, Option[Any])])] = {
+    val newUpdateFunc = (iterator: Iterator[(DimensionValuesTime,
       Seq[Map[String, JSerializable]],
       Option[Seq[(String, Option[Any])]])]) => {
-      val eventTime = Output.dateFromGranularity(DateTime.now(), checkpointGranularity).getTime -
+      val eventTime = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity) -
         checkpointTimeAvailability
-      iterator.filter(dimensionsData => dimensionsData._1._2 >= eventTime)
+      iterator.filter(dimensionsData => dimensionsData._1.time >= eventTime)
         .flatMap { case (dimensionsKey, values, state) =>
         updateFunction(values, state).map(result => (dimensionsKey, result))
       }
@@ -92,45 +101,38 @@ case class Rollup(components: Seq[(Dimension, BucketType)],
   }
 
   protected def updateFunction(values: Seq[Map[String, JSerializable]],
-                     state: Option[Seq[(String, Option[Any])]]): Option[Seq[(String, Option[Any])]] = {
+                               state: Option[Seq[(String, Option[Any])]]): Option[Seq[(String, Option[Any])]] = {
     val procMap = values.flatMap(inputFields =>
       operators.flatMap(op => op.processMap(inputFields).map(op.key -> Some(_))))
     Some(state.getOrElse(Seq()) ++ procMap)
   }
 
-  protected def aggregateValues(dimensionsValues: DStream[((Seq[DimensionValue], Long), Seq[(String, Option[Any])])]):
-  DStream[UpdateMetricOperation] = {
-    dimensionsValues.map { case (rollupKey, aggregationValues) => {
+  protected def aggregateValues(dimensionsValues: DStream[(DimensionValuesTime, Seq[(String, Option[Any])])]):
+  DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
+    dimensionsValues.mapValues(aggregationValues => {
       val aggregations = aggregationValues.groupBy { case (name, value) => name }
         .map { case (name, value) => (name, operatorsMap(name).processReduce(value.map(_._2))) }
-      UpdateMetricOperation(rollupKey._1, aggregations)
-    }
-    }
+      aggregations
+    })
   }
 
   override def toString: String = "[Rollup over " + components + "]"
 
-  def sortComponents: Seq[(Dimension, BucketType)] = {
-    components.sortWith((rollup1, rollup2) =>
-      (rollup1._1.name + rollup1._2.id) < (rollup2._1.name + rollup2._2.id))
-  }
+  def getComponentsSorted: Seq[DimensionBucket] = components.sorted
 
-  def componentNames(dimValues: Seq[(Dimension, BucketType)]): Seq[String] = {
-    dimValues.map { case (dimension, bucketType) => {
-      bucketType match {
-        case Bucketer.identity => dimension.name
-        case _ => bucketType.id
-      }
-    }
-    }
-  }
+  def getComponentNames: Seq[String] = components.map(dimBucket => dimBucket.getNameDimension)
 
-  def sortedComponentsNames: Seq[String] = componentNames(sortComponents)
+  def getComponentNames(dimBuckets: Seq[DimensionBucket]): Seq[String] =
+    dimBuckets.map(dimBucket => dimBucket.getNameDimension)
 
-  def sortOperators: Seq[Operator] = operators.sortWith((operator1, operator2) => (operator1.key) < (operator2.key))
+  def getComponentsNamesSorted: Seq[String] = getComponentNames(getComponentsSorted)
 
-  def operatorsNames(operators: Seq[Operator]): Seq[String] = operators.map(operator => operator.key)
+  def getOperatorsSorted: Seq[Operator] = operators.sorted
 
-  def sortedOperatorsNames: Seq[String] = operatorsNames(sortOperators)
+  def getOperatorsNames(operatorsNames: Seq[Operator]): Seq[String] = operatorsNames.map(operator => operator.key)
+
+  def getOperatorsNames: Seq[String] = operators.map(operator => operator.key)
+
+  def getOperatorsNamesSorted: Seq[String] = getOperatorsNames(getOperatorsSorted)
 }
 

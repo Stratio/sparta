@@ -3,6 +3,11 @@
   "duration": 2000,
   "saveRawData": "false",
   "rawDataParquetPath": "myTestParquetPath",
+  "checkpointDir": "checkpoint",
+  "timeBucket": "minute",
+  "checkpointGranularity": "minute",
+  "checkpointInterval": 30000,
+  "checkpointTimeAvailability": 60000,
   "inputs": [
     {
       "name": "in-kafka",
@@ -36,9 +41,7 @@
       "name": "out-print",
       "elementType": "PrintOutput",
       "configuration": {
-        "multiplexer": "true",
-        "dateBucket": "minute",
-        "granularity": "minute",
+        "multiplexer": "false",
         "isAutoCalculateId": "true"
       }
     }

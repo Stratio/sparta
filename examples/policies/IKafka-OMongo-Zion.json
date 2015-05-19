@@ -3,6 +3,11 @@
   "duration": 10000,
   "saveRawData": "false",
   "rawDataParquetPath": "myTestParquetPath",
+  "checkpointDir": "checkpoint",
+  "timeBucket": "minute",
+  "checkpointGranularity": "minute",
+  "checkpointInterval": 30000,
+  "checkpointTimeAvailability": 60000,
   "inputs": [
     {
       "name": "in-kafka",
@@ -158,9 +163,7 @@
       "configuration": {
         "clientUri": "mongodb://localhost:27017",
         "dbName": "sparkta",
-        "multiplexer": "false",
-        "dateBucket": "minute",
-        "granularity": "minute"
+        "multiplexer": "false"
       }
     }
   ],

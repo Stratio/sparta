@@ -34,12 +34,13 @@ import scala.util.Try
  * Saves calculated rollups on Redis.
  *
  */
-class RedisOutput(keyName : String,
+class RedisOutput(keyName: String,
                   properties: Map[String, Serializable],
-                  @transient sparkContext : SparkContext,
+                  @transient sparkContext: SparkContext,
                   operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                  bcSchema : Option[Broadcast[Seq[TableSchema]]])
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema)
+                  bcSchema: Option[Broadcast[Seq[TableSchema]]],
+                  timeName: String)
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema, timeName)
   with AbstractRedisDAO with Serializable {
 
   override val hostname = properties.getString("hostname", DefaultRedisHostname)
@@ -52,32 +53,35 @@ class RedisOutput(keyName : String,
 
   override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
-  override val timeBucket = properties.getString("timestampBucket", None)
+  override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val granularity = properties.getString("granularity", None)
-
-  override def doPersist(stream: DStream[UpdateMetricOperation]) : Unit = {
-    persistMetricOperation(stream)
+  override val fixedBuckets: Array[String] = properties.getString("fixedBuckets", None) match {
+    case None => Array()
+    case Some(fixBuckets) => fixBuckets.split(fieldsSeparator)
   }
 
+  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+    persistMetricOperation(stream)
+  }
 
   /**
    * Saves in a Redis' hash rollups values.
    *
    * @param metricOperations that will be saved.
    */
-  override def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit = {
-    metricOperations.toSeq.groupBy(_.keyString).filter(_._1.size > 0).map(collMetricOp => {
+  override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+    metricOperations.toSeq.groupBy(upMetricOp => AggregateOperations.keyString(upMetricOp._1))
+      .filter(_._1.size > 0).map(collMetricOp => {
       collMetricOp._2.map(metricOp => {
 
         // Step 1) It calculates redis' hash key with this structure -> A_B_C:A:valueA:B:valueB:C:valueC
         // It is important to see that values be part of the key. This is needed to perform searches.
-        val hashKey = collMetricOp._1 + IdSeparator + metricOp.rollupKey
-          .map(dimVal => List(extractDimensionName(dimVal), dimVal.value.toString))
+        val hashKey = collMetricOp._1 + IdSeparator + metricOp._1.dimensionValues
+          .map(dimVal => List(dimVal.getNameDimension, dimVal.value.toString))
           .flatMap(_.toSeq).mkString(IdSeparator)
 
         // Step 2) It calculates aggregations depending of its types and saves the result in the value of the hash.
-        metricOp.aggregations.map(aggregation => {
+        metricOp._2.map(aggregation => {
           val currentOperation = operationTypes.get.value.get(aggregation._1).get._1
 
           currentOperation match {
@@ -98,13 +102,13 @@ class RedisOutput(keyName : String,
               val valueHashOperation: Double =
                 hget(hashKey, aggregation._1).getOrElse(scala.Double.MinValue.toString).toDouble
               val valueCurrentOperation: Double = aggregation._2.getOrElse(scala.Double.MinValue).asInstanceOf[Double]
-              if(valueCurrentOperation > valueHashOperation) hset(hashKey, aggregation._1, valueCurrentOperation)
+              if (valueCurrentOperation > valueHashOperation) hset(hashKey, aggregation._1, valueCurrentOperation)
             }
             case WriteOp.Min => {
-              val valueHashOperation: Double  =
+              val valueHashOperation: Double =
                 hget(hashKey, aggregation._1).getOrElse(scala.Double.MaxValue.toString).toDouble
               val valueCurrentOperation: Double = aggregation._2.getOrElse(scala.Double.MaxValue).asInstanceOf[Double]
-              if(valueCurrentOperation < valueHashOperation) hset(hashKey, aggregation._1, valueCurrentOperation)
+              if (valueCurrentOperation < valueHashOperation) hset(hashKey, aggregation._1, valueCurrentOperation)
             }
           }
         })
