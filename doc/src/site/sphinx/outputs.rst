@@ -147,6 +147,16 @@ For more information for this output you can visit the :doc:`mongodb`
 
    "language": ("english"/"spanish"...)  Default: "none"
 
+* retrySleep:
+   Is possible assign the number of milliseconds to wait for reconnect with mongoDb nodes when the last client fails.
+   Is recommendable set less time to the slide interval of the streaming.
+   You can omit this parameter in the policy.
+
+   * Example:
+::
+
+   "retrySleep": (MILLISECONDS)  Default: 1000
+
 
 .. _cassandra-label:
 
