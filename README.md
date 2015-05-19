@@ -92,7 +92,8 @@ Key technologies
 - [Apache Flume] (https://flume.apache.org/)
 - [RabbitMQ] (https://www.rabbitmq.com/)
 - [Spray] (http://spray.io/)
-- [KiteSDK (morphlines)] (http://kitesdk.org/docs/current)
+- [KiteSDK (morphlines)] (http://kitesdk.or
+sparktag/docs/current)
 
 
 ![Settings Window](https://github.com/Brezyll/sparkta/blob/feature/Doc/doc/src/site/sphinx/images/Inoutputs.png)
