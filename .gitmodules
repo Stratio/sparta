@@ -2,3 +2,8 @@
 	path = doc/src/site/sphinx/_themes/stratio
 	url = https://github.com/Stratio/sphinx-theme-stratio.git
 	branch = master
+
+[submodule "plugins/input-rabbitMQ/rabbitMQ-receiver"]
+	path = plugins/input-rabbitMQ/rabbitMQ-receiver
+	url = https://github.com/Stratio/RabbitMQ-Receiver.git
+	branch = master
