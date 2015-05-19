@@ -52,16 +52,17 @@ trait ElasticSearchDAO extends Closeable {
 
   def indexMapping: Option[String] = None
 
-  def getSparkConfig(timeName: String): Map[String, String] = {
-    Map("es.mapping.id" -> idField.getOrElse(Output.ID),
-      "spark.es.nodes" -> nodes,
-      "spark.es.port" -> defaultPort) ++ {
+  def getSparkConfig(timeName: String, idProvided: Boolean): Map[String, String] = {
+    {
+      if (idProvided) Map("es.mapping.id" -> idField.getOrElse(Output.ID)) else Map("" -> "")
+    } ++
+      Map("spark.es.nodes" -> nodes, "spark.es.port" -> defaultPort) ++ {
       defaultAnalyzerType match {
         case Some(analyzer) => Map("es.index.analysis.analyzer.default.type" -> analyzer)
         case None => Map("" -> "")
       }
     } ++ {
-       if(timeName.isEmpty) Map("" -> "") else Map("es.mapping.names" -> s"$timeName:@timestamp")
+      if (timeName.isEmpty) Map("" -> "") else Map("es.mapping.names" -> s"$timeName:@timestamp")
     }
   }
 

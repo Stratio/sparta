@@ -75,8 +75,7 @@ class ElasticSearchOutput(keyName: String,
 
   override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
     val indexNameType = (tableName + "/" + indexMapping.get).toLowerCase
-    if (idField.isDefined || isAutoCalculateId)
-      dataFrame.saveToEs(indexNameType, getSparkConfig(timeName))
-    else dataFrame.saveToEs(indexNameType)
+    dataFrame.saveToEs(indexNameType, getSparkConfig(timeName, idField.isDefined || isAutoCalculateId))
+
   }
 }

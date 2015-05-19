@@ -21,8 +21,8 @@ This plugin creates one client connection per Worker in a Spark Cluster.
 
 Is necessary need override two functions from the Output SDK:
 ::
-  override def doPersist(stream: DStream[UpdateMetricOperation]): Unit
-  override def upsert(metricOperations: Iterator[UpdateMetricOperation]): Unit
+  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit
+  override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit
 
 
 
@@ -39,7 +39,7 @@ Worker Operations
 ============
 
 As this Output does not use functionality of DataFrames, override the method Upsert, that save all values
-of a **UpdateMetricOperation**.
+of a **Tuple -> (DimensionValuesTime, Aggregations)**.
 Below you can see each of the features implemented:
 
   * For each rollup it saves the following information:
