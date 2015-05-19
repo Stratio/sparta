@@ -49,10 +49,12 @@ class MongoDbOutput(keyName: String,
 
   override val dbName = properties.getString("dbName", "sparkta")
 
-  override val connectionsPerHost = Try(properties.getInt("connectionsPerHost")).getOrElse(DEFAULT_CONNECTIONS_PER_HOST)
+  override val connectionsPerHost = Try(properties.getInt("connectionsPerHost")).getOrElse(DefaultConnectionsPerHost)
 
   override val threadsAllowedB = Try(properties.getInt("threadsAllowedToBlock"))
-    .getOrElse(DEFAULT_THREADS_ALLOWED_TO_BLOCK)
+    .getOrElse(DefaultThreadsAllowedToBlock)
+
+  override val retrySleep = Try(properties.getInt("retrySleep")).getOrElse(DefaultRetrySleep)
 
   override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
@@ -79,9 +81,9 @@ class MongoDbOutput(keyName: String,
     metricOperations.toList.groupBy(upMetricOp => AggregateOperations.keyString(upMetricOp._1))
       .filter(_._1.size > 0).foreach(f = collMetricOp => {
       val bulkOperation = db().getCollection(collMetricOp._1).initializeOrderedBulkOperation()
-      val idFieldName = if (!timeName.isEmpty) Output.ID else DEFAULT_ID
+      val idFieldName = if (!timeName.isEmpty) Output.ID else DefaultId
 
-      collMetricOp._2.foreach { case (rollupKey, aggregations) => {
+      val updateObjects = collMetricOp._2.map { case (rollupKey, aggregations) => {
         checkFields(aggregations.keySet, operationTypes)
         val eventTimeObject = if (!timeName.isEmpty) Some(timeName -> new DateTime(rollupKey.time)) else None
         val identitiesField = rollupKey.dimensionValues
@@ -92,15 +94,19 @@ class MongoDbOutput(keyName: String,
           .mapValues(operations => operations.map { case (writeOp, op) => op })
           .map({ case (op, seq) => getSentence(op, seq) })
 
-        bulkOperation.find(getFind(
+        (getFind(
           idFieldName,
           eventTimeObject,
           AggregateOperations.filterDimensionValuesByBucket(rollupKey.dimensionValues, if (timeName.isEmpty) None
-          else Some(timeName))))
-          .upsert().updateOne(getUpdate(mapOperations, identitiesField))
+          else Some(timeName))),
+          getUpdate(mapOperations, identitiesField))
       }
       }
-      bulkOperation.execute()
+
+      Try(executeBulkOperation(bulkOperation, updateObjects)).getOrElse({
+        val retryBulkOperation = reconnect.getCollection(collMetricOp._1).initializeOrderedBulkOperation()
+        Try(executeBulkOperation(retryBulkOperation, updateObjects)).getOrElse(log.error("Error connecting to MongoDB"))
+      })
     })
   }
 }
