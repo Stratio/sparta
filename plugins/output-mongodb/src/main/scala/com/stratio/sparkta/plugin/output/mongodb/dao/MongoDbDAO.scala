@@ -230,8 +230,8 @@ private object MongoDbDAO {
                  connectionsPerHost: Integer, threadsAllowedB: Integer): MongoDB = {
     val key = (mongoClientUri, dbName)
 
-    if (!dbs.contains(key)) dbs.put(key, client(mongoClientUri, connectionsPerHost, threadsAllowedB, false).getDB
-      (dbName))
+    if (!dbs.contains(key))
+      dbs.put(key, client(mongoClientUri, connectionsPerHost, threadsAllowedB, false).getDB(dbName))
     dbs(key)
   }
 

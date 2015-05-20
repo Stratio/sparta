@@ -148,8 +148,9 @@ For more information for this output you can visit the :doc:`mongodb`
    "language": ("english"/"spanish"...)  Default: "none"
 
 * retrySleep:
-   It is possible assign the number of milliseconds to wait for reconnect with MongoDb nodes when the last client fails.
-   It is recommendable set less time to the slide interval of the streaming window.
+   It is possible to assign the number of milliseconds to wait for reconnect with MongoDb nodes when the last client
+   fails.
+   It is recommendable to set less time to the slide interval of the streaming window.
    You can omit this parameter in the policy.
 
    * Example:
