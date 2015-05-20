@@ -2,15 +2,21 @@
   "name": "policy-Twitter-ElasticSearch",
   "duration": 10000,
   "saveRawData": "false",
+  "rawDataParquetPath": "myTestParquetPath",
+  "checkpointDir": "checkpoint",
+  "timeBucket": "minute",
+  "checkpointGranularity": "minute",
+  "checkpointInterval": 30000,
+  "checkpointTimeAvailability": 60000,
   "inputs": [
     {
       "name": "in-socket",
       "elementType": "TwitterInput",
       "configuration": {
-        "consumerKey": "*********",
-        "consumerSecret": "*********",
-        "accessToken": "*********-*********",
-        "accessTokenSecret": "*********"
+        "consumerKey": "*****",
+        "consumerSecret": "*****",
+        "accessToken": "*****",
+        "accessTokenSecret": "*****"
       }
     }
   ],
