@@ -37,7 +37,7 @@ trait MongoDbDAO extends Closeable {
   final val DefaultConnectionsPerHost = 5
   final val DefaultThreadsAllowedToBlock = 10
   final val DefaultRetrySleep = 1000
-  final val LanguajeFieldName = "language"
+  final val LanguageFieldName = "language"
   final val DefaultId = "_id"
   final val DefaultWriteConcern = casbah.WriteConcern.Unacknowledged
 
@@ -157,7 +157,7 @@ trait MongoDbDAO extends Closeable {
   protected def getUpdate(mapOperations: Map[Seq[(String, Any)], String],
                           identitiesField: Seq[Imports.DBObject]): Imports.DBObject = {
     val combinedOptions: Map[Seq[(String, Any)], casbah.Imports.JSFunction] = mapOperations ++
-      Map((Seq((LanguajeFieldName, language)), "$set")) ++ {
+      Map((Seq((LanguageFieldName, language)), "$set")) ++ {
       if (identitiesField.size > 0) {
         Map((Seq(Bucketer.identityField.id -> identitiesField), "$set"))
       } else Map()
@@ -218,7 +218,7 @@ private object MongoDbDAO {
 
   private def client(mongoClientUri: String, connectionsPerHost: Integer,
                      threadsAllowedToBlock: Integer, force: Boolean): MongoClient = {
-    if (!clients.contains(mongoClientUri)) {
+    if (!clients.contains(mongoClientUri) || force) {
       clients.put(mongoClientUri, MongoClient(
         new MongoClientURI(new JMongoClientURI(mongoClientUri, options(connectionsPerHost, threadsAllowedToBlock)))
       ))
