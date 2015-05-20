@@ -22,38 +22,52 @@ import kafka.producer.ProducerConfig;
 
 import java.util.Date;
 import java.util.Properties;
-import java.util.Random;
 
 
 public class KafkaProducer {
 
+    static final String FIXED_SUFFIX = ",\"url\":\"www.example.com\",\"ip\":\"192.168.2.2\"}";
+    static final long EVENTS=20000000L;
+
     public static void main(String[] args) {
-        long events = Long.parseLong("20000000");
-        Random rnd = new Random();
 
+        Properties props = getKafkaProperties();
+        ProducerConfig config = new ProducerConfig(props);
+        Producer<String, String> producer = new Producer<String, String>(config);
+
+        for (long nEvents = 0; nEvents < EVENTS; nEvents++) {
+
+            KeyedMessage<String, String> data = getMsg(nEvents);
+            producer.send(data);
+        }
+
+        producer.close();
+        System.out.println("---inserted events: " + EVENTS);
+    }
+
+    private static KeyedMessage<String, String> getMsg(long nEvents) {
+        long runtime = new Date().getTime();
+        StringBuffer msg = new StringBuffer("{\"timestamp\":\"").append(runtime).append("\"").append(FIXED_SUFFIX);
+        KeyedMessage<String, String> data = new KeyedMessage<String, String>("page_visits", String.valueOf(runtime), msg.toString());
+        if (isTimeToLog(nEvents))
+            printLog(nEvents, msg);
+        return data;
+    }
+
+    private static Properties getKafkaProperties() {
         Properties props = new Properties();
-
         props.put("metadata.broker.list", "localhost:9092");
         props.put("serializer.class", "kafka.serializer.StringEncoder");
         props.put("partitioner.class", "com.stratio.sparkta.benchmark.SimplePartitioner");
         props.put("request.required.acks", "1");
+        return props;
+    }
 
-        ProducerConfig config = new ProducerConfig(props);
-        Producer<String, String> producer = new Producer<String, String>(config);
-        String ip = "192.168.2.2";
-        for (long nEvents = 0; nEvents < events; nEvents++) {
-            long runtime = new Date().getTime();
+    private static void printLog(long nEvents, StringBuffer msg) {
+        System.out.println("inserting---> " + nEvents + msg);
+    }
 
-            String msg ="{" +
-                        "\"timestamp\":\""+runtime+"\""+
-                        ",\"url\":\"www.example.com\","+
-                        "\"ip\":\""+ip+"\""+
-                    "}" ;
-            KeyedMessage<String, String> data = new KeyedMessage<String, String>("page_visits", ip, msg);
-            producer.send(data);
-            if(nEvents%10000==0) System.out.println("inserting--->"+nEvents+msg);
-        }
-        producer.close();
-        System.out.println("---inserted events:"+events);
+    private static boolean isTimeToLog(long nEvents) {
+        return nEvents % 10000 == 0;
     }
 }
