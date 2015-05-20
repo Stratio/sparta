@@ -67,14 +67,12 @@
       "name": "out-elasticsearch",
       "elementType": "ElasticSearchOutput",
       "configuration": {
-        "nodes" : "172.17.0.10",
-        "defaultPort" : "9200",
-        "dateBucket" : "minute",
-        "granularity" : "minute",
-        "autoCalculateId" : "true",
-        "dateType" : "timestamp",
-        "indexMapping" : "day",
-        "indexAutoCreate" : "true"
+        "nodes": "localhost",
+        "defaultPort": "9200",
+        "multiplexer": "false",
+        "isAutoCalculateId": "false",
+        "dateType": "timestamp",
+        "indexMapping": "day"
       }
     }
   ],
