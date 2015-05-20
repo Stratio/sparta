@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.stratio.sparkta</groupId>
     <artifactId>sparkta-benchmark-kafka-producer</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <properties>
         <java.version>1.6</java.version>
     </properties>
