@@ -1,4 +1,4 @@
-Stratio-Sparkta Benchmark
+Stratio-SpaRkTA Benchmark
 ==========
 Benchmark -> kafka live-stream over MongoDB
 ---------
