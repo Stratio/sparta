@@ -7,10 +7,10 @@
       "name": "in-socket",
       "elementType": "TwitterInput",
       "configuration": {
-        "consumerKey": "vid8CxHgevrprEbwCKk6LgJwm",
-        "consumerSecret": "ajk1ORBIQ8YqkJBodqLTpDLHiOQbGGJMjaO7qPiRpoGX7Y3w3i",
-        "accessToken": "3216698842-aJMrjTpyntyyG4AySmOnGfFohbS7yEbi1ST6bK7",
-        "accessTokenSecret": "l3AsZGnWv2RwOzEy3L5FWWyEiCVtWtQS9ruddun6g8kiy"
+        "consumerKey": "*********",
+        "consumerSecret": "*********",
+        "accessToken": "*********-*********",
+        "accessTokenSecret": "*********"
       }
     }
   ],
