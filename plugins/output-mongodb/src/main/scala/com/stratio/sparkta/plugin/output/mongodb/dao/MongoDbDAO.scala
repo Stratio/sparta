@@ -19,6 +19,7 @@ package com.stratio.sparkta.plugin.output.mongodb.dao
 import java.io.{Closeable, Serializable => JSerializable}
 import scala.collection.mutable
 
+import com.mongodb
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.{Imports, MongoDBObject}
 import com.mongodb.casbah.{MongoClient, MongoClientURI, MongoDB}
@@ -33,11 +34,12 @@ import com.stratio.sparkta.sdk._
 
 trait MongoDbDAO extends Closeable {
 
-  final val DEFAULT_CONNECTIONS_PER_HOST = 5
-  final val DEFAULT_THREADS_ALLOWED_TO_BLOCK = 10
-  final val LANGUAGE_FIELD_NAME = "language"
-  final val DEFAULT_ID = "_id"
-  final val DEFAULT_WRITE_CONCERN = casbah.WriteConcern.Unacknowledged
+  final val DefaultConnectionsPerHost = 5
+  final val DefaultThreadsAllowedToBlock = 10
+  final val DefaultRetrySleep = 1000
+  final val LanguageFieldName = "language"
+  final val DefaultId = "_id"
+  final val DefaultWriteConcern = casbah.WriteConcern.Unacknowledged
 
   def mongoClientUri: String
 
@@ -53,11 +55,22 @@ trait MongoDbDAO extends Closeable {
 
   def pkTextIndexesCreated: Boolean = false
 
-  protected def client: MongoClient = MongoDbDAO.client(mongoClientUri, connectionsPerHost, threadsAllowedB)
+  def retrySleep: Int
+
+  protected def client: MongoClient = MongoDbDAO.client(mongoClientUri, connectionsPerHost, threadsAllowedB, false)
 
   protected def db(dbName: String): MongoDB = MongoDbDAO.db(mongoClientUri, dbName, connectionsPerHost, threadsAllowedB)
 
+  protected def reconnect(): MongoDB =
+    MongoDbDAO.reconnect(retrySleep, mongoClientUri, dbName, connectionsPerHost, threadsAllowedB)
+
   protected def db(): MongoDB = db(dbName)
+
+  def executeBulkOperation(bulkOperation: mongodb.BulkWriteOperation,
+                           updateObjects: List[(Imports.DBObject, Imports.DBObject)]): Unit = {
+    updateObjects.foreach { case (find, update) => bulkOperation.find(find).upsert().updateOne(update) }
+    bulkOperation.execute()
+  }
 
   protected def createPkTextIndex(collection: String, timeBucket: String): (Boolean, Boolean) = {
     val textIndexCreated = textIndexFields.size > 0
@@ -119,7 +132,7 @@ trait MongoDbDAO extends Closeable {
     val builder = coll.initializeUnorderedBulkOperation
 
     dbOjects.map(dbObjectsBatch => builder.insert(dbObjectsBatch))
-    if (writeConcern.isEmpty) builder.execute(DEFAULT_WRITE_CONCERN) else builder.execute(writeConcern.get)
+    if (writeConcern.isEmpty) builder.execute(DefaultWriteConcern) else builder.execute(writeConcern.get)
   }
 
   protected def getFind(idFieldName: String,
@@ -144,7 +157,7 @@ trait MongoDbDAO extends Closeable {
   protected def getUpdate(mapOperations: Map[Seq[(String, Any)], String],
                           identitiesField: Seq[Imports.DBObject]): Imports.DBObject = {
     val combinedOptions: Map[Seq[(String, Any)], casbah.Imports.JSFunction] = mapOperations ++
-      Map((Seq((LANGUAGE_FIELD_NAME, language)), "$set")) ++ {
+      Map((Seq((LanguageFieldName, language)), "$set")) ++ {
       if (identitiesField.size > 0) {
         Map((Seq(Bucketer.identityField.id -> identitiesField), "$set"))
       } else Map()
@@ -154,7 +167,7 @@ trait MongoDbDAO extends Closeable {
       .reduce(_ ++ _)
   }
 
-  protected def valuesBigDecimalToDouble(seq: Seq[(String, Option[Any])]) : Seq[(String, Double)] = {
+  protected def valuesBigDecimalToDouble(seq: Seq[(String, Option[Any])]): Seq[(String, Double)] = {
     seq.asInstanceOf[Seq[(String, Option[BigDecimal])]].map(s => (s._1, s._2 match {
       case None => 0
       case Some(value) => value.toDouble
@@ -204,8 +217,8 @@ private object MongoDbDAO {
       .threadsAllowedToBlockForConnectionMultiplier(threadsAllowedToBlock)
 
   private def client(mongoClientUri: String, connectionsPerHost: Integer,
-                     threadsAllowedToBlock: Integer): MongoClient = {
-    if (!clients.contains(mongoClientUri)) {
+                     threadsAllowedToBlock: Integer, force: Boolean): MongoClient = {
+    if (!clients.contains(mongoClientUri) || force) {
       clients.put(mongoClientUri, MongoClient(
         new MongoClientURI(new JMongoClientURI(mongoClientUri, options(connectionsPerHost, threadsAllowedToBlock)))
       ))
@@ -217,7 +230,16 @@ private object MongoDbDAO {
                  connectionsPerHost: Integer, threadsAllowedB: Integer): MongoDB = {
     val key = (mongoClientUri, dbName)
 
-    if (!dbs.contains(key)) dbs.put(key, client(mongoClientUri, connectionsPerHost, threadsAllowedB).getDB(dbName))
+    if (!dbs.contains(key))
+      dbs.put(key, client(mongoClientUri, connectionsPerHost, threadsAllowedB, false).getDB(dbName))
+    dbs(key)
+  }
+
+  private def reconnect(retrySleep: Int, mongoClientUri: String, dbName: String,
+                        connectionsPerHost: Integer, threadsAllowedB: Integer): MongoDB = {
+    Thread.sleep(retrySleep)
+    val key = (mongoClientUri, dbName)
+    dbs.put(key, client(mongoClientUri, connectionsPerHost, threadsAllowedB, true).getDB(dbName))
     dbs(key)
   }
 }
