@@ -21,7 +21,7 @@ import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
 import com.stratio.sparkta.driver.actor.StreamingContextStatusEnum._
-import com.stratio.sparkta.driver.dto.{AggregationPoliciesDto, StreamingContextStatusDto}
+import com.stratio.sparkta.driver.dto.{AggregationPoliciesDto, PolicyElementDto, StreamingContextStatusDto}
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.service.StreamingContextService
 
@@ -39,9 +39,12 @@ case class StopContext(contextName: String)
 
 case class DeleteContext(contextName: String)
 
+case class CreateFragment(fragment: PolicyElementDto)
+
 case class ContextActorStatus(actor: ActorRef, status: StreamingContextStatusEnum.Status, description: Option[String])
 
-class SupervisorActor(streamingContextService: StreamingContextService) extends InstrumentedActor {
+class StreamingSupervisorActor(streamingContextService: StreamingContextService) extends
+  InstrumentedActor {
 
   private var contextActors: Map[String, ContextActorStatus] = Map()
 

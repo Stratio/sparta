@@ -17,13 +17,9 @@
 package com.stratio.sparkta.driver.factory
 
 import akka.event.slf4j.SLF4JLogging
-import com.datastax.driver.core.policies.DefaultRetryPolicy
 import com.typesafe.config.{Config, ConfigException}
-import org.apache.curator.RetryPolicy
-import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory, CuratorTempFramework}
-import org.apache.curator.retry.{RetryNTimes, ExponentialBackoffRetry}
-
-import scala.Option
+import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
+import org.apache.curator.retry.ExponentialBackoffRetry
 
 /**
  * Customized factory that encapsulates the real CuratorFrameworkFactory and creates a singleton instance of it.
@@ -47,14 +43,14 @@ object CuratorFactoryHolder extends SLF4JLogging {
         val defaultConnectionString = getPathValue("connectionString", config, classOf[String])
         val connectionTimeout = getPathValue("connectionTimeout", config, classOf[Int])
         val sessionTimeout = getPathValue("sessionTimeout", config, classOf[Int])
-        val retryAttemps = getPathValue("retryAttemps", config, classOf[Int])
+        val retryAttempts = getPathValue("retryAttempts", config, classOf[Int])
         val retryInterval = getPathValue("retryInterval", config, classOf[Int])
 
         curatorFramework = Some(CuratorFrameworkFactory.builder()
           .connectString(defaultConnectionString)
           .connectionTimeoutMs(connectionTimeout)
           .sessionTimeoutMs(sessionTimeout)
-          .retryPolicy(new ExponentialBackoffRetry(retryInterval, retryAttemps)
+          .retryPolicy(new ExponentialBackoffRetry(retryInterval, retryAttempts)
         ).build())
 
         curatorFramework.get.start()
