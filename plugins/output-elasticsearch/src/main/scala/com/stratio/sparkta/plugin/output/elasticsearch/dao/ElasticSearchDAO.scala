@@ -56,7 +56,7 @@ trait ElasticSearchDAO extends Closeable {
     {
       if (idProvided) Map("es.mapping.id" -> idField.getOrElse(Output.ID)) else Map("" -> "")
     } ++
-      Map("spark.es.nodes" -> nodes, "spark.es.port" -> defaultPort) ++ {
+      Map("es.nodes" -> nodes, "es.port" -> defaultPort) ++ {
       defaultAnalyzerType match {
         case Some(analyzer) => Map("es.index.analysis.analyzer.default.type" -> analyzer)
         case None => Map("" -> "")
