@@ -290,10 +290,14 @@
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
                 <version>3.2.0</version>
+                <configuration>
+                    <recompileMode>incremental</recompileMode>
+                    <useZincServer>true</useZincServer>
+                </configuration>
                 <executions>
                     <execution>
                         <id>scala-compile-first</id>
-                        <phase>compile</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>add-source</goal>
                             <goal>compile</goal>
@@ -301,26 +305,12 @@
                     </execution>
                     <execution>
                         <id>scala-test-compile</id>
-                        <phase>test-compile</phase>
+                        <phase>process-test-resources</phase>
                         <goals>
                             <goal>testCompile</goal>
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <args>
-                        <arg>-P:genjavadoc:out=${project.build.directory}/genjavadoc</arg>
-                        <arg>-deprecation</arg>
-                        <arg>-feature</arg>
-                    </args>
-                    <compilerPlugins>
-                        <compilerPlugin>
-                            <groupId>com.typesafe.genjavadoc</groupId>
-                            <artifactId>genjavadoc-plugin_${scala.version}</artifactId>
-                            <version>0.8</version>
-                        </compilerPlugin>
-                    </compilerPlugins>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -404,6 +394,49 @@
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>doc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>net.alchim31.maven</groupId>
+                        <artifactId>scala-maven-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <executions>
+                            <execution>
+                                <id>scala-compile-first</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                    <goal>compile</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>scala-test-compile</id>
+                                <phase>test-compile</phase>
+                                <goals>
+                                    <goal>testCompile</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <args>
+                                <arg>-P:genjavadoc:out=${project.build.directory}/genjavadoc</arg>
+                                <arg>-deprecation</arg>
+                                <arg>-feature</arg>
+                            </args>
+                            <compilerPlugins>
+                                <compilerPlugin>
+                                    <groupId>com.typesafe.genjavadoc</groupId>
+                                    <artifactId>genjavadoc-plugin_${scala.version}</artifactId>
+                                    <version>0.8</version>
+                                </compilerPlugin>
+                            </compilerPlugins>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
