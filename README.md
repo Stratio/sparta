@@ -92,8 +92,7 @@ Key technologies
 - [Apache Flume] (https://flume.apache.org/)
 - [RabbitMQ] (https://www.rabbitmq.com/)
 - [Spray] (http://spray.io/)
-- [KiteSDK (morphlines)] (http://kitesdk.or
-sparktag/docs/current)
+- [KiteSDK (morphlines)] (http://kitesdk.org/docs/current)
 
 
 ![Settings Window](https://github.com/Brezyll/sparkta/blob/feature/Doc/doc/src/site/sphinx/images/Inoutputs.png)
@@ -121,14 +120,6 @@ Outputs
 Sandbox
 -------------
 - [All about how to start running the sandbox] (http://docs.stratio.com/modules/sparkta/development/sandbox.html)
-
-Build
------
-
-In order to build the project you need to add the rabbitmq-receiver by running the following commands:
-
-  `cd plugins/input-rabbitMQ/`
-  `git submodule add https://github.com/Stratio/RabbitMQ-Receiver.git rabbitmq-receiver`
 
 Documentation
 -------------
