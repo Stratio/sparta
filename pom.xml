@@ -34,6 +34,7 @@
         <module>doc</module>
         <module>plugins</module>
         <module>dist</module>
+        <module>plugins/input-rabbitMQ/rabbitmq-receiver</module>
     </modules>
 
     <name>Stratio SpaRkTA</name>
