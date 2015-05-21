@@ -77,12 +77,14 @@
         "class": "SimpleStrategy",
         "replicationFactor": "1",
         "multiplexer": "false",
-        "isAutoCalculateId" : "false",
+        "isAutoCalculateId": "false",
         "clusteringBuckets": "",
         "indexFields": "minute",
-        "textIndexFields": "userLocation",
+        "textIndexFields": "userLocation:text,minute:date,sum_wordsN:integer",
         "fieldsSeparator": ",",
         "textIndexFieldsName": "lucene",
+        "refreshSeconds": "1",
+        "dateFormat": "yyyy/MM/dd",
         "analyzer": "english"
       }
     }

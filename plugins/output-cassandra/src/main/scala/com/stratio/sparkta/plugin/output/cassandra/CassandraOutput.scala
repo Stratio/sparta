@@ -70,7 +70,11 @@ class CassandraOutput(keyName: String,
 
   override val textIndexFields = properties.getString("textIndexFields", "").split(fieldsSeparator)
 
-  override val analyzer = properties.getString("analyzer", None)
+  override val analyzer = properties.getString("analyzer", DefaultAnalyzer)
+
+  override val dateFormat = properties.getString("dateFormat", DefaultDateFormat)
+
+  override val refreshSeconds = properties.getString("refreshSeconds", DefaultRefreshSeconds)
 
   override val textIndexName = properties.getString("textIndexName", "lucene")
 
@@ -86,6 +90,10 @@ class CassandraOutput(keyName: String,
 
   val indexesCreated = if (keyspaceCreated && tablesCreated) {
     bcSchema.exists(bc => createIndexes(schemaFiltered, timeName, isAutoCalculateId))
+  } else false
+
+  val textIndexesCreated = if (keyspaceCreated && tablesCreated) {
+    bcSchema.exists(bc => createTextIndexes(schemaFiltered))
   } else false
 
   /*
