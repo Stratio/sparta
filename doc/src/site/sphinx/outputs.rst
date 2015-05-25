@@ -79,6 +79,14 @@ These parameters can be completed in the policy file:
 
    "isAutoCalculateId": ("true"/"false")  Default: "false"
 
+* fixedAggregation:
+   It's possible to specify one fixed aggregation with value for all dimensions.
+   You can omit this parameter in the policy.
+
+   * Example:
+::
+
+   "fixedAggregation": ("NAME:VALUE")  Default: None
 
 .. _mongodb-label:
 
@@ -260,7 +268,9 @@ For more information for this output you can visit the :doc:`cassandra`
    * Example:
 ::
 
-   "textIndexFields": ("bucket1,bucket2,bucket3,aggregate1, aggregate2, ...")  Default: ""
+   "textIndexFields": ("bucket1:type,bucket2:type,bucket3:type,aggregate1:type, aggregate2:type, ...")  Default: ""
+
+      type: "string/text/date/integer/long/double/...."
 
 * analyzer:
    It's possible to specify the analyzer for text index fields, this feature is for the Stratio Cassandra.
@@ -271,14 +281,34 @@ For more information for this output you can visit the :doc:`cassandra`
 
    "analyzer": ("english"/"spanish"...)  Default: None
 
-* textIndexName:
+* textIndexFieldsName:
    It's possible to specify the name of the text index, this feature is for the Stratio Cassandra.
    You can omit this parameter in the policy.
 
    * Example:
 ::
 
-   "textIndexName": ("NAME")  Default: "lucene"
+   "textIndexFieldsName": ("NAME")  Default: "lucene"
+
+* refreshSeconds:
+   It's possible to specify the number of seconds between refresh lucene index operations, this feature is for the
+   Stratio Cassandra.
+   You can omit this parameter in the policy.
+
+   * Example:
+::
+
+   "refreshSeconds": ("NUMBER")  Default: "1"
+
+* dateFormat:
+   It's possible to specify the date format for the date fields indexed, this feature is for the
+   Stratio Cassandra.
+   You can omit this parameter in the policy.
+
+   * Example:
+::
+
+   "dateFormat": ("SimpleDateFormat")  Default: "yyyy/mm/dd"
 
 
 .. _elasticsearch-label:

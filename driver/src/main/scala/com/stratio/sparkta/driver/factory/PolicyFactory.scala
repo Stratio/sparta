@@ -16,6 +16,8 @@
 
 package com.stratio.sparkta.driver.factory
 
+import scala.util.Try
+
 import org.apache.spark.sql.types._
 
 import com.stratio.sparkta.aggregator.Rollup
@@ -45,25 +47,35 @@ object PolicyFactory {
   //scalastyle:on
 
   def rollupsOperatorsSchemas(rollups: Seq[Rollup],
-                              outputs: Seq[(String, Boolean)],
+                              outputsOptions: Seq[(String, Map[String, String])],
                               operators: Seq[Operator]): Seq[TableSchema] = {
     val componentsSorted = rollups.map(rollup => (rollup.getComponentsNamesSorted, rollup.getComponentsSorted))
-    val operatorsFields = operators.sortWith(_.key < _.key)
-      .map(operator => StructField(operator.key, rowTypeFromOption(operator.returnType), true))
-    outputs.flatMap(output => {
+    val operatorsFields =
+      operators.map(operator => StructField(operator.key, rowTypeFromOption(operator.returnType), true))
+    outputsOptions.flatMap(outputOp => {
       for {
-        rollupsCombinations <- if (output._2) {
+        rollupsCombinations <- if (Try(outputOp._2.get(Output.Multiplexer).get.toBoolean).getOrElse(false)) {
           componentsSorted.flatMap(component => Multiplexer.combine(component._1)).distinct
         } else componentsSorted.map(_._1).distinct
-        schema = StructType(rollupsCombinations.map(fieldName => {
-          if (fieldName.toLowerCase().contains(GeoLabel)) Output.defaultGeoField(fieldName, false)
-          else Output.defaultStringField(fieldName, false)
-        }) ++ operatorsFields)
-      } yield TableSchema(output._1, rollupsCombinations.mkString(Output.SEPARATOR), schema)
+        schema = StructType(getDimensionsFields(rollupsCombinations) ++
+          (operatorsFields ++
+          getFixedFieldAggregation(outputOp._2)).sortWith(_.name < _.name))
+      } yield TableSchema(outputOp._1, rollupsCombinations.mkString(Output.Separator), schema)
     }).distinct
   }
 
-  def operatorsKeyOperation(operators: Seq[Operator]): Map[String, (WriteOp, TypeOp)] = {
+  private def getDimensionsFields(fields: Seq[String]) : Seq[StructField] =
+    fields.map(fieldName => {
+      if (fieldName.toLowerCase().contains(GeoLabel)) Output.defaultGeoField(fieldName, false)
+      else Output.defaultStringField(fieldName, false)
+    })
+
+  private def getFixedFieldAggregation(options: Map[String, String]) : Seq[StructField] =
+    options.get(Output.FixedAggregation) match {
+      case Some(field) => if(!field.isEmpty && field != "") Seq(Output.defaultStringField(field, true)) else Seq()
+      case None => Seq()
+    }
+
+  def operatorsKeyOperation(operators: Seq[Operator]): Map[String, (WriteOp, TypeOp)] =
     operators.map(operator => (operator.key ->(operator.writeOperation, operator.returnType))).toMap
-  }
 }

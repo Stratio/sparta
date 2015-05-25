@@ -80,9 +80,10 @@
         "isAutoCalculateId": "false",
         "clusteringBuckets": "",
         "indexFields": "minute",
-        "textIndexFields": "userLocation:text,minute:date,sum_wordsN:integer",
+        "textIndexFields": "firsthastag:string,userLocation:text,minute:date,avg_wordsn:double,count:long",
         "fieldsSeparator": ",",
         "textIndexFieldsName": "lucene",
+        "fixedAggregation": "lucene",
         "refreshSeconds": "1",
         "dateFormat": "yyyy/MM/dd",
         "analyzer": "english"
@@ -94,13 +95,6 @@
       "name": "count-operator",
       "elementType": "CountOperator",
       "configuration": {}
-    },
-    {
-      "name": "sum-operator",
-      "elementType": "SumOperator",
-      "configuration": {
-        "inputField": "wordsN"
-      }
     },
     {
       "name": "max-operator",
@@ -156,13 +150,6 @@
       "elementType": "LastValueOperator",
       "configuration": {
         "inputField": "retweets"
-      }
-    },
-    {
-      "name": "accumulator-operator",
-      "elementType": "AccumulatorOperator",
-      "configuration": {
-        "inputField": "wordsN"
       }
     }
   ]

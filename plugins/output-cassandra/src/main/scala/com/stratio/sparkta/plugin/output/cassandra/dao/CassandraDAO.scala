@@ -55,15 +55,13 @@ trait CassandraDAO extends Closeable with Logging {
 
   def refreshSeconds: String
 
-  def configConnector(sparkConfig: SparkConf): Option[CassandraConnector] = Some(CassandraConnector(sparkConfig))
-
   def createKeypace: Boolean = connector.exists(doCreateKeyspace(_))
 
-  def createTables(tSchemas: Seq[TableSchema], clusteringField: String, isAutoCalculateId: Boolean): Boolean =
-    connector.exists(doCreateTables(_, tSchemas, clusteringField, isAutoCalculateId))
+  def createTables(tSchemas: Seq[TableSchema], clusteringTime: String, isAutoCalculateId: Boolean): Boolean =
+    connector.exists(doCreateTables(_, tSchemas, clusteringTime, isAutoCalculateId))
 
-  def createIndexes(tSchemas: Seq[TableSchema], clusteringField: String, isAutoCalculateId: Boolean): Boolean =
-    connector.exists(doCreateIndexes(_, tSchemas, clusteringField, isAutoCalculateId))
+  def createIndexes(tSchemas: Seq[TableSchema], clusteringTime: String, isAutoCalculateId: Boolean): Boolean =
+    connector.exists(doCreateIndexes(_, tSchemas, clusteringTime, isAutoCalculateId))
 
   def createTextIndexes(tSchemas: Seq[TableSchema]): Boolean = connector.exists(doCreateTextIndexes(_, tSchemas))
 
@@ -76,19 +74,19 @@ trait CassandraDAO extends Closeable with Logging {
 
   protected def doCreateTables(conn: CassandraConnector,
                                tSchemas: Seq[TableSchema],
-                               clusteringField: String,
+                               clusteringTime: String,
                                isAutoCalculateId: Boolean): Boolean = {
     tSchemas.map(tableSchema =>
-      createTable(conn, tableSchema.tableName, tableSchema.schema, clusteringField, isAutoCalculateId))
+      createTable(conn, tableSchema.tableName, tableSchema.schema, clusteringTime, isAutoCalculateId))
       .forall(result => result)
   }
 
   protected def createTable(conn: CassandraConnector,
                             table: String,
                             schema: StructType,
-                            clusteringField: String,
+                            clusteringTime: String,
                             isAutoCalculateId: Boolean): Boolean = {
-    val schemaPkCloumns: Option[String] = schemaToPkCcolumns(schema, clusteringField, isAutoCalculateId)
+    val schemaPkCloumns: Option[String] = schemaToPkCcolumns(schema, clusteringTime, isAutoCalculateId)
     val compactSt = compactStorage match {
       case None => ""
       case Some(compact) => s" WITH $compact"
@@ -131,11 +129,10 @@ trait CassandraDAO extends Closeable with Logging {
     val seqResults = for {
       tableSchema <- tSchemas
       fields = textIndexFields.filter(textField => tableSchema.schema.fieldNames.contains(textField.split(":").head))
-      created = executeCommand(conn, s"CREATE CUSTOM INDEX IF NOT EXISTS ${tableSchema.tableName}_index ON ${tableSchema
-        .tableName}" +
-        s" ($textIndexName) " +
-        s"USING 'com.stratio.cassandra.index.RowIndex' WITH OPTIONS = { 'refresh_seconds' : '$refreshSeconds'," +
-        s" ${getTextIndexSentence(fields)} }")
+      command = s"CREATE CUSTOM INDEX IF NOT EXISTS ${tableSchema.tableName}_index " +
+        s"ON $keyspace.${tableSchema.tableName} ($textIndexName) USING 'com.stratio.cassandra.index.RowIndex' " +
+        s"WITH OPTIONS = { 'refresh_seconds' : '$refreshSeconds', ${getTextIndexSentence(fields)} }"
+      created = executeCommand(conn, command)
     } yield created
     seqResults.forall(result => result)
   }
@@ -144,12 +141,12 @@ trait CassandraDAO extends Closeable with Logging {
     val fieldsSentence = fields.map(field => {
       val fieldDescompose = field.split(":")
       val endSentence = fieldDescompose.last match {
-        case "text" => s", analyzer : \042$analyzer\042},"
-        case "date" => s", pattern : \042$dateFormat\042},"
-        case _ => "},"
+        case "text" => s", analyzer : \042$analyzer\042}"
+        case "date" => s", pattern : \042$dateFormat\042}"
+        case _ => "}"
       }
-      s"${fieldDescompose.head} : {type : \042${fieldDescompose.last}\042 $endSentence"
-    }).drop(1)
+      s"${fieldDescompose.head.toLowerCase} : {type : \042${fieldDescompose.last}\042 $endSentence"
+    }).mkString(",")
     s"'schema' :'{ fields : { $fieldsSentence } }'"
   }
 
@@ -187,7 +184,7 @@ trait CassandraDAO extends Closeable with Logging {
                               clusteringTime: String,
                               isAutoCalculateId: Boolean): Seq[String] = {
     val pkfields = if (isAutoCalculateId) {
-      schema.filter(field => field.name == Output.ID)
+      schema.filter(field => field.name == Output.Id)
     } else {
       schema.filter(field => pkConditions(field, clusteringTime))
     }

@@ -19,6 +19,7 @@ package com.stratio.sparkta.plugin.output.cassandra
 import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
+import com.datastax.spark.connector.cql.CassandraConnector
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.SaveMode._
@@ -41,7 +42,7 @@ class CassandraOutput(keyName: String,
   with CassandraDAO {
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Max, WriteOp.Min,
-    WriteOp.AccAvg, WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText, WriteOp.AccSet)
+    WriteOp.AccAvg, WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText)
 
   override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
@@ -78,11 +79,20 @@ class CassandraOutput(keyName: String,
 
   override val textIndexName = properties.getString("textIndexName", "lucene")
 
-  override val connector = configConnector(sparkContext.getConf)
+  val fixedAgg = properties.getString("fixedAggregation", None)
+
+  override val fixedAggregation: Map[String, Option[Any]] =
+    if(!textIndexFields.isEmpty && fixedAgg.isDefined){
+      val fixedAggSplited = fixedAgg.get.split(Output.FixedAggregationSeparator)
+      Map(fixedAggSplited.head -> Some(""))
+    } else Map()
+
+  override val connector = Some(CassandraConnector(sparkContext.getConf))
 
   val keyspaceCreated = createKeypace
 
-  val schemaFiltered = filterSchemaByKeyAndField
+  val schemaFiltered = bcSchema.get.value.filter(tschema => (tschema.outputName == keyName))
+    .map(tschemaFiltered => getTableSchemaFixedId(tschemaFiltered))
 
   val tablesCreated = if (keyspaceCreated) {
     bcSchema.exists(bc => createTables(schemaFiltered, timeName, isAutoCalculateId))
@@ -92,7 +102,11 @@ class CassandraOutput(keyName: String,
     bcSchema.exists(bc => createIndexes(schemaFiltered, timeName, isAutoCalculateId))
   } else false
 
-  val textIndexesCreated = if (keyspaceCreated && tablesCreated) {
+  val textIndexesCreated = if (keyspaceCreated &&
+    tablesCreated &&
+    !textIndexFields.isEmpty &&
+    !fixedAggregation.isEmpty &&
+    fixedAgg.get == textIndexName) {
     bcSchema.exists(bc => createTextIndexes(schemaFiltered))
   } else false
 
@@ -111,8 +125,11 @@ class CassandraOutput(keyName: String,
 }
 
 object CassandraOutput {
+
+  final val DefaultHost = "127.0.0.1"
+
   def getSparkConfiguration(configuration : Map[String, JSerializable]) : Seq[(String, String)] = {
-    val connectionHost = configuration.getString("connectionHost", "127.0.0.1")
+    val connectionHost = configuration.getString("connectionHost", DefaultHost)
     Seq(("spark.cassandra.connection.host", connectionHost))
   }
 }
