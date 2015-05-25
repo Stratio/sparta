@@ -33,7 +33,8 @@
           "dimensionName": "message",
           "bucketType": "identity"
         }
-      ]
+      ],
+      "operators": ["count-operator"]
     }
   ],
   "outputs": [
