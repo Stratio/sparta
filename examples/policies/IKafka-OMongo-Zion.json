@@ -105,7 +105,8 @@
           "dimensionName": "timestamp",
           "bucketType": "minute"
         }
-      ]
+      ],
+      "operators": ["count-operator", "max-operator", "min-operator"]
     },
     {
       "dimensionAndBucketTypes": [
@@ -117,7 +118,8 @@
           "dimensionName": "timestamp",
           "bucketType": "minute"
         }
-      ]
+      ],
+      "operators": ["count-operator", "max-operator", "min-operator"]
     },
     {
       "dimensionAndBucketTypes": [
@@ -125,7 +127,8 @@
           "dimensionName": "platform",
           "bucketType": "identity"
         }
-      ]
+      ],
+      "operators": ["count-operator", "max-operator", "min-operator"]
     },
     {
       "dimensionAndBucketTypes": [
@@ -133,7 +136,8 @@
           "dimensionName": "device",
           "bucketType": "identity"
         }
-      ]
+      ],
+      "operators": ["count-operator", "max-operator", "min-operator"]
     },
     {
       "dimensionAndBucketTypes": [
@@ -141,7 +145,8 @@
           "dimensionName": "geo",
           "bucketType": "precision6"
         }
-      ]
+      ],
+      "operators": ["count-operator", "max-operator", "min-operator"]
     },
     {
       "dimensionAndBucketTypes": [
@@ -153,7 +158,8 @@
           "dimensionName": "timestamp",
           "bucketType": "minute"
         }
-      ]
+      ],
+      "operators": ["count-operator", "max-operator", "min-operator"]
     }
   ],
   "outputs": [

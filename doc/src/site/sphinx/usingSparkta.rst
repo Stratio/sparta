@@ -89,7 +89,7 @@ Dimension(s)
 ------------
 
 Dimensions are the fields that you want to observe. You can, for example,
-work with geospatial data. For more info you can visit :doc:`dimensions`.
+work with geospatial data.
 
 Example:
 ::
@@ -110,17 +110,19 @@ Example:
 RollUp(s)
 ---------
 
-The rollups are the ways you want to aggregate the info. For more info you can visit :doc:`rollups`.
+The rollups are the ways you want to aggregate the info.
 
 Example:
 ::
     "rollups": [
-    {
-      "dimensionAndBucketTypes": [
-        {
-          "dimensionName": "status",
-          "bucketType": "hastags"
-        }
+      {
+        "dimensionAndBucketTypes": [
+          {
+            "dimensionName": "status",
+            "bucketType": "hastags"
+          }
+        ],
+        "operators": ["count-operator","avg-operator"]
       }
     ]
 
@@ -130,8 +132,7 @@ Example:
 Transformation(s)
 -----------------
 
-Here you can specify the functions which you want to apply before aggregation.  For more info you can visit
-:doc:`transformations`.
+Here you can specify the functions which you want to apply before aggregation.
 
 Example:
 ::

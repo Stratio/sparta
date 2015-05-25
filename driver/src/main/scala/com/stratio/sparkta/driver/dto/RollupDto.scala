@@ -17,7 +17,7 @@ package com.stratio.sparkta.driver.dto
 /**
  * Created by ajnavarro on 13/10/14.
  */
-case class RollupDto(dimensionAndBucketTypes: Seq[DimensionAndBucketTypeDto])
+case class RollupDto(dimensionAndBucketTypes: Seq[DimensionAndBucketTypeDto], operators: Seq[String])
 case class DimensionAndBucketTypeDto(dimensionName: String,
                                      bucketType: String,
                                      configuration: Option[Map[String, String]])

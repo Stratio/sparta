@@ -90,7 +90,8 @@
           "dimensionName": "purchaseDateOL",
           "bucketType": "minute"
         }
-      ]
+      ],
+      "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator"]
     },
     {
       "dimensionAndBucketTypes": [
@@ -98,7 +99,8 @@
           "dimensionName": "timestampVL",
           "bucketType": "minute"
         }
-      ]
+      ],
+      "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator"]
     },
     {
       "dimensionAndBucketTypes": [
@@ -110,7 +112,8 @@
           "dimensionName": "timestampVL",
           "bucketType": "minute"
         }
-      ]
+      ],
+      "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator"]
     },
     {
       "dimensionAndBucketTypes": [
@@ -118,7 +121,8 @@
           "dimensionName": "cityOL",
           "bucketType": "identity"
         }
-      ]
+      ],
+      "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator"]
     },
     {
       "dimensionAndBucketTypes": [
@@ -126,7 +130,8 @@
           "dimensionName": "stateOL",
           "bucketType": "identity"
         }
-      ]
+      ],
+      "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator"]
     }
   ],
   "outputs": [
