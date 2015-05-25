@@ -31,7 +31,7 @@ import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.reflections.Reflections
 
 import com.stratio.sparkta.aggregator.{DataCube, Rollup}
-import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
+import com.stratio.sparkta.driver.dto.{PolicyElementDto, AggregationPoliciesDto}
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory._
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
@@ -121,9 +121,14 @@ object SparktaJob {
     tryToInstantiate[Parser](p.elementType, (c) =>
       instantiateParameterizable[Parser](c, p.configuration)))
 
-  def operators(apConfig: AggregationPoliciesDto): Seq[Operator] = apConfig.operators.map(op =>
-    tryToInstantiate[Operator](op.elementType, (c) =>
-      instantiateParameterizable[Operator](c, op.configuration)))
+  private def createOperator(op2: PolicyElementDto) : Operator= {
+    tryToInstantiate[Operator](op2.elementType,
+      (c) => instantiateParameterizable[Operator](c, op2.configuration + ("name" -> new JsoneyString(op2.name))))
+  }
+
+  def operators(apConfig: AggregationPoliciesDto): Seq[Operator] =
+    apConfig.operators
+      .map(op2 => createOperator (op2))
 
   def outputs(apConfig: AggregationPoliciesDto,
               sparkContext: SparkContext,
@@ -142,6 +147,13 @@ object SparktaJob {
           .newInstance(o.name, o.configuration, sparkContext, bcOperatorsKeyOperation, bcRollupOperatorSchema, timeName)
           .asInstanceOf[Output])))
 
+  private def getOperatorsWithNames(operatorNamesPerRollup: Seq[String], operators: Seq[Operator]): Seq[Operator] = {
+    operators.filter(op => {
+      val operatorName = op.properties.filter(tuple => tuple._1.equals("name")).get("name")
+      operatorNamesPerRollup.contains(operatorName.get.toString)
+    })
+  }
+
   def rollups(apConfig: AggregationPoliciesDto,
               operators: Seq[Operator],
               dimensionsMap: Map[String, Dimension]): Seq[Rollup] =
@@ -157,8 +169,11 @@ object SparktaJob {
           case None => throw new DriverException("Dimension name " + dab.dimensionName + " not found.")
         }
       })
+      val operatorNamesPerRollup: Seq[String] = r.operators
+
+      val operatorsForRollup = getOperatorsWithNames(operatorNamesPerRollup, operators)
       new Rollup(components,
-        operators,
+        operatorsForRollup,
         apConfig.checkpointInterval,
         apConfig.checkpointGranularity,
         apConfig.checkpointTimeAvailability)
