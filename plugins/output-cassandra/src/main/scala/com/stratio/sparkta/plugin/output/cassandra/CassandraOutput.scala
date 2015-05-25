@@ -82,7 +82,7 @@ class CassandraOutput(keyName: String,
   val fixedAgg = properties.getString("fixedAggregation", None)
 
   override val fixedAggregation: Map[String, Option[Any]] =
-    if(!textIndexFields.isEmpty && fixedAgg.isDefined){
+    if (!textIndexFields.isEmpty && fixedAgg.isDefined) {
       val fixedAggSplited = fixedAgg.get.split(Output.FixedAggregationSeparator)
       Map(fixedAggSplited.head -> Some(""))
     } else Map()
@@ -128,7 +128,7 @@ object CassandraOutput {
 
   final val DefaultHost = "127.0.0.1"
 
-  def getSparkConfiguration(configuration : Map[String, JSerializable]) : Seq[(String, String)] = {
+  def getSparkConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
     val connectionHost = configuration.getString("connectionHost", DefaultHost)
     Seq(("spark.cassandra.connection.host", connectionHost))
   }

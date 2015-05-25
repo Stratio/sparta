@@ -137,7 +137,7 @@ trait CassandraDAO extends Closeable with Logging {
     seqResults.forall(result => result)
   }
 
-  protected def getTextIndexSentence(fields : Array[String]) : String = {
+  protected def getTextIndexSentence(fields: Array[String]): String = {
     val fieldsSentence = fields.map(field => {
       val fieldDescompose = field.split(":")
       val endSentence = fieldDescompose.last match {
