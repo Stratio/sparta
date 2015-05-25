@@ -147,10 +147,14 @@ object SparktaJob {
           .newInstance(o.name, o.configuration, sparkContext, bcOperatorsKeyOperation, bcRollupOperatorSchema, timeName)
           .asInstanceOf[Output])))
 
-  private def getOperatorsWithNames(operatorNamesPerRollup: Seq[String], operators: Seq[Operator]): Seq[Operator] = {
+  private def getOperatorsWithNames(operators: Seq[Operator], selectedOperators: Seq[String]): Seq[Operator] = {
     operators.filter(op => {
-      val operatorName = op.properties.filter(tuple => tuple._1.equals("name")).get("name")
-      operatorNamesPerRollup.contains(operatorName.get.toString)
+      val propertyTuple = Option(op.properties.filter(tuple => tuple._1.equals("name")))
+
+      propertyTuple match {
+        case Some(tuple) => selectedOperators.contains(tuple.get("name").get.toString)
+        case _ => false
+      }
     })
   }
 
@@ -169,9 +173,12 @@ object SparktaJob {
           case None => throw new DriverException("Dimension name " + dab.dimensionName + " not found.")
         }
       })
-      val operatorNamesPerRollup: Seq[String] = r.operators
 
-      val operatorsForRollup = getOperatorsWithNames(operatorNamesPerRollup, operators)
+      val operatorsForRollup = Option(r.operators) match {
+        case Some(selectedOperators) => getOperatorsWithNames(operators, selectedOperators)
+        case _ => Seq()
+      }
+
       new Rollup(components,
         operatorsForRollup,
         apConfig.checkpointInterval,
