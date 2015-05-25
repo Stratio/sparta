@@ -81,6 +81,8 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
 
 object SparktaJob {
 
+  val OperatorNamePropertyKey = "name"
+
   @tailrec
   def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
     if (parsers.size > 0) applyParsers(input.map(event => parsers.head.parse(event)), parsers.drop(1))
@@ -123,7 +125,8 @@ object SparktaJob {
 
   private def createOperator(op2: PolicyElementDto) : Operator= {
     tryToInstantiate[Operator](op2.elementType,
-      (c) => instantiateParameterizable[Operator](c, op2.configuration + ("name" -> new JsoneyString(op2.name))))
+      (c) => instantiateParameterizable[Operator](c,
+        op2.configuration + (OperatorNamePropertyKey -> new JsoneyString(op2.name))))
   }
 
   def operators(apConfig: AggregationPoliciesDto): Seq[Operator] =
@@ -146,8 +149,6 @@ object SparktaJob {
           classOf[String])
           .newInstance(o.name, o.configuration, sparkContext, bcOperatorsKeyOperation, bcRollupOperatorSchema, timeName)
           .asInstanceOf[Output])))
-
-  val OperatorNamePropertyKey = "name"
 
   private def getOperatorsWithNames(operators: Seq[Operator], selectedOperators: Seq[String]): Seq[Operator] = {
     operators.filter(op => {
