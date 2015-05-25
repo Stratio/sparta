@@ -147,12 +147,14 @@ object SparktaJob {
           .newInstance(o.name, o.configuration, sparkContext, bcOperatorsKeyOperation, bcRollupOperatorSchema, timeName)
           .asInstanceOf[Output])))
 
+  val OperatorNamePropertyKey = "name"
+
   private def getOperatorsWithNames(operators: Seq[Operator], selectedOperators: Seq[String]): Seq[Operator] = {
     operators.filter(op => {
-      val propertyTuple = Option(op.properties.filter(tuple => tuple._1.equals("name")))
+      val propertyTuple = Option(op.properties.filter(tuple => tuple._1.equals(OperatorNamePropertyKey)))
 
       propertyTuple match {
-        case Some(tuple) => selectedOperators.contains(tuple.get("name").get.toString)
+        case Some(tuple) => selectedOperators.contains(tuple.get(OperatorNamePropertyKey).get.toString)
         case _ => false
       }
     })
