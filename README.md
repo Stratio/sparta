@@ -117,6 +117,28 @@ Outputs
 - Spark's DataFrames Outputs
 - PrintOut
 
+Build
+-----
+
+You can generate rpm and deb packages by running:
+
+`mvn clean package -Ppackage`
+
+**Note:** you need to have installed the following programs in order to build these packages:
+
+In a debian distribution:
+
+  - fakeroot
+  - dpkg-dev
+  - rpm
+  
+In a centOS distribution:
+
+  - fakeroot
+  - dpkg-dev
+  - rpmdevtools
+
+
 Sandbox
 -------------
 - [All about how to start running the sandbox] (http://docs.stratio.com/modules/sparkta/development/sandbox.html)

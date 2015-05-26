@@ -47,7 +47,7 @@ copyright = u'2015 Stratio'
 
 # The short X.Y version.
 
-version = '0.4.0'
+version = '0.5.0-SNAPSHOT'
 # The full version, including alpha/beta/rc tags.
 release = version
 
