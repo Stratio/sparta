@@ -50,12 +50,13 @@ object AggregateOperations {
         .sortWith((bucket1, bucket2) => bucket1._1 < bucket2._1)
       (namesDim ++ fixedBucketsSorted.map(_._1) ++ Seq(timeName),
         valuesDim ++ fixedBucketsSorted.map(_._2) ++
-          Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time)) ++ valuesAgg)
+          Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time)))
     } else (namesDim ++ Seq(timeName),
-      valuesDim ++ Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time)) ++ valuesAgg)
-    val (keys, row) = getNamesValues(namesFixed, valuesFixed, idCalculated)
+      valuesDim ++ Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time)))
+    val (keysId, rowId) = getNamesValues(namesFixed, valuesFixed, idCalculated)
 
-    if (keys.length > 0) (Some(keys.mkString(Output.Separator)), Row.fromSeq(row)) else (None, Row.fromSeq(row))
+    if (keysId.length > 0) (Some(keysId.mkString(Output.Separator)), Row.fromSeq(rowId ++ valuesAgg))
+    else (None, Row.fromSeq(rowId ++ valuesAgg))
   }
 
   def toSeq(dimensionValues: Seq[DimensionValue], aggregations: Map[String, Option[Any]]): (Seq[Any], Seq[Any]) =
