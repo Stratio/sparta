@@ -25,7 +25,7 @@ An aggregation policy it's a JSON document. It's composed of:
 * :ref:`Transformation(s) <transformation>`: Which functions should be applied before aggregation?
 * :ref:`Save raw data <save-raw>`: Do you want to save raw events?
 
-The policy have a few required fields like *name* and *duration* and others optional, like *saveRawData* and *rawDataParquetPath*
+The policy have a few required fields like *name* and *duration* and others optional, like *saveRawData*, *rawDataParquetPath* and *rawDataGranularity*
 
 
 .. _input:
@@ -211,7 +211,7 @@ You can save the raw data to HDFS+Parquet with only two parameters:
 
     "saveRawData": "false",
     "rawDataParquetPath": "myTestParquetPath"
-
+    "rawDataGranularity": "day"
 
 Stateful Operations
 -------------

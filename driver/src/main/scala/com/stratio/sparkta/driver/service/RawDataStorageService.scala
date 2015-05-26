@@ -16,29 +16,36 @@
 package com.stratio.sparkta.driver.service
 
 
+import java.io
+
+import com.stratio.sparkta.sdk.{DateOperations, Event}
 import org.apache.spark.sql._
 import org.apache.spark.streaming.dstream.DStream
-
-import com.stratio.sparkta.sdk.Event
+import org.joda.time.DateTime
 
 /**
- * Created by arincon on 17/04/15.
+ * @author arincon on 17/04/15.
  */
-class RawDataStorageService(sc: SQLContext, path: String) extends Serializable {
+class RawDataStorageService(sc: SQLContext, path: String, granularity: String) extends Serializable {
+
+  final val Parquet: String = "parquet"
+  final val Slash: String = "/"
 
   import sc.implicits._
 
   case class RawEvent(timeStamp: String, data: String)
 
-  def composeRawFrom(event: Event) =  event.keyMap.map(e => e._2).toSeq
+  def composeRawFrom(event: Event): Seq[io.Serializable] = event.keyMap.map(e => e._2).toSeq
 
-  def extractRawDataFromEvent(event: Event) = {
-    event.rawData getOrElse composeRawFrom (event)
+  def timeSuffix: String = Slash + DateOperations.dateFromGranularity(DateTime.now(), granularity)
+
+  def extractRawDataFromEvent(event: Event): Any = {
+    event.rawData getOrElse composeRawFrom(event)
   }
 
-  def save(raw: DStream[Event]):DStream[Event] = {
+  def save(raw: DStream[Event]): DStream[Event] = {
     raw.map(event => RawEvent(System.currentTimeMillis().toString, extractRawDataFromEvent(event).toString))
-      .foreachRDD(_.toDF().save(path,"parquet", SaveMode.Append))
+      .foreachRDD(_.toDF().save(path + timeSuffix, Parquet, SaveMode.Append))
     raw
   }
 }

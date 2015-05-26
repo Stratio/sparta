@@ -226,7 +226,7 @@ object SparktaJob {
 
   def saveRawData(apConfig: AggregationPoliciesDto, sqlContext: SQLContext, input: DStream[Event]): Unit = {
     if (apConfig.saveRawData.toBoolean) {
-      def rawDataStorage: RawDataStorageService = new RawDataStorageService(sqlContext, apConfig.rawDataParquetPath)
+      def rawDataStorage: RawDataStorageService = new RawDataStorageService(sqlContext, apConfig.rawDataParquetPath,apConfig.rawDataGranularity)
       rawDataStorage.save(input)
     }
   }

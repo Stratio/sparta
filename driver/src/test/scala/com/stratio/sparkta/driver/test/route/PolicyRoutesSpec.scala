@@ -79,7 +79,7 @@ with Matchers {
     }
     "Create policy" in {
       val PolicyName = "p-1"
-      val apd = new AggregationPoliciesDto(PolicyName, "false", "myPath",
+      val apd = new AggregationPoliciesDto(PolicyName, "false", "myPath","day",
         checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable, 0,
         Seq(), Seq(), Seq(), Seq(), Seq(), Seq())
       try {
@@ -111,7 +111,7 @@ with Matchers {
       val dimensionDto = new DimensionDto("dimensionType", "dimension1", None)
       val rollupDto = new RollupDto(Seq(new DimensionAndBucketTypeDto(DimensionToRollup, "dimensionType", None)), Seq())
       val apd =
-        new AggregationPoliciesDto(PolicyName, "true", "example",
+        new AggregationPoliciesDto(PolicyName, "true", "example","day",
           checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable, 0,
           Seq(dimensionDto), Seq(rollupDto), Seq(), Seq(), Seq(), Seq())
       val test = Post("/policy", apd) ~> routes
