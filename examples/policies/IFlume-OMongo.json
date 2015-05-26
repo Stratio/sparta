@@ -101,7 +101,8 @@
           "dimensionName": "timestamp",
           "bucketType": "minute"
         }
-      ]
+      ],
+      "operators": ["count-operator"]
     },
     {
       "dimensionAndBucketTypes": [
@@ -117,7 +118,8 @@
           "dimensionName": "timestamp",
           "bucketType": "minute"
         }
-      ]
+      ],
+      "operators": ["count-operator"]
     },
     {
       "dimensionAndBucketTypes": [
@@ -125,7 +127,8 @@
           "dimensionName": "appName",
           "bucketType": "identity"
         }
-      ]
+      ],
+      "operators": ["count-operator"]
     },
     {
       "dimensionAndBucketTypes": [
@@ -137,7 +140,8 @@
           "dimensionName": "timestamp",
           "bucketType": "minute"
         }
-      ]
+      ],
+      "operators": ["count-operator"]
     },
     {
       "dimensionAndBucketTypes": [
@@ -149,7 +153,8 @@
           "dimensionName": "timestamp",
           "bucketType": "minute"
         }
-      ]
+      ],
+      "operators": ["count-operator"]
     },
     {
       "dimensionAndBucketTypes": [
@@ -157,7 +162,8 @@
           "dimensionName": "geo",
           "bucketType": "precision6"
         }
-      ]
+      ],
+      "operators": ["count-operator"]
     },
     {
       "dimensionAndBucketTypes": [
@@ -169,7 +175,8 @@
           "dimensionName": "timestamp",
           "bucketType": "minute"
         }
-      ]
+      ],
+      "operators": ["count-operator"]
     },
     {
       "dimensionAndBucketTypes": [
@@ -181,7 +188,8 @@
           "dimensionName": "timestamp",
           "bucketType": "minute"
         }
-      ]
+      ],
+      "operators": ["count-operator"]
     },
     {
       "dimensionAndBucketTypes": [
@@ -189,7 +197,8 @@
           "dimensionName": "appPlatform",
           "bucketType": "identity"
         }
-      ]
+      ],
+      "operators": ["count-operator"]
     },
     {
       "dimensionAndBucketTypes": [
@@ -197,7 +206,8 @@
           "dimensionName": "appCountry",
           "bucketType": "identity"
         }
-      ]
+      ],
+      "operators": ["count-operator"]
     }
   ],
   "outputs": [

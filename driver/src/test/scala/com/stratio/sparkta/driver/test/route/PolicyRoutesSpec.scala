@@ -16,6 +16,8 @@
 
 package com.stratio.sparkta.driver.test.route
 
+import com.stratio.sparkta.driver.service.http.PolicyHttpService
+
 import scala.concurrent.duration._
 
 import akka.actor.{ActorRef, ActorRefFactory}
@@ -29,11 +31,10 @@ import spray.testkit.ScalatestRouteTest
 import com.stratio.sparkta.driver.actor.StreamingContextStatusEnum._
 import com.stratio.sparkta.driver.actor.{CreateContext, DeleteContext, GetAllContextStatus, GetContextStatus}
 import com.stratio.sparkta.driver.dto._
-import com.stratio.sparkta.driver.route.PolicyRoutes
 
 @RunWith(classOf[JUnitRunner])
 class PolicyRoutesSpec extends WordSpecLike
-with PolicyRoutes
+with PolicyHttpService
 with ScalatestRouteTest
 with Matchers {
 
@@ -52,7 +53,7 @@ with Matchers {
 
   "A PolicytRoutes should" should {
     "Get info about created policies" in {
-      val test = Get("/policy") ~> policyRoutes
+      val test = Get("/policy") ~> routes
       supervisorProbe.expectMsg(GetAllContextStatus)
 
       supervisorProbe.reply(List(
@@ -68,7 +69,7 @@ with Matchers {
     }
     "Get info about specific policy" in {
       val PolicyName = "p-1"
-      val test = Get("/policy/" + PolicyName) ~> policyRoutes
+      val test = Get("/policy/" + PolicyName) ~> routes
       supervisorProbe.expectMsg(new GetContextStatus(PolicyName))
       supervisorProbe.reply(new StreamingContextStatusDto(PolicyName, Initialized, None))
       test ~> check {
@@ -82,7 +83,7 @@ with Matchers {
         checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable, 0,
         Seq(), Seq(), Seq(), Seq(), Seq(), Seq())
       try {
-        val test = Post("/policy", apd) ~> policyRoutes
+        val test = Post("/policy", apd) ~> routes
         supervisorProbe.expectMsg(new CreateContext(apd))
         supervisorProbe.reply(Unit)
         test ~> check {
@@ -95,7 +96,7 @@ with Matchers {
     }
     "Delete policy" in {
       val PolicyName = "p-1"
-      val test = Delete("/policy/" + PolicyName) ~> policyRoutes
+      val test = Delete("/policy/" + PolicyName) ~> routes
       supervisorProbe.expectMsg(new DeleteContext(PolicyName))
       supervisorProbe.reply(new StreamingContextStatusDto(PolicyName, Removed, None))
       test ~> check {
@@ -108,12 +109,12 @@ with Matchers {
       val PolicyName = "p-1"
       val DimensionToRollup = "dimension2"
       val dimensionDto = new DimensionDto("dimensionType", "dimension1", None)
-      val rollupDto = new RollupDto(Seq(new DimensionAndBucketTypeDto(DimensionToRollup, "dimensionType", None)))
+      val rollupDto = new RollupDto(Seq(new DimensionAndBucketTypeDto(DimensionToRollup, "dimensionType", None)), Seq())
       val apd =
         new AggregationPoliciesDto(PolicyName, "true", "example",
           checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable, 0,
           Seq(dimensionDto), Seq(rollupDto), Seq(), Seq(), Seq(), Seq())
-      val test = Post("/policy", apd) ~> policyRoutes
+      val test = Post("/policy", apd) ~> routes
       test ~> check {
         rejections.size should be(1)
       }

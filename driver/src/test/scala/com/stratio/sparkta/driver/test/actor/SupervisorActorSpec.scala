@@ -16,12 +16,14 @@
 
 package com.stratio.sparkta.driver.test.actor
 
-import com.stratio.sparkta.sdk.exception.MockException
-
-import scala.concurrent.duration.DurationInt
-
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
+import com.stratio.sparkta.driver.actor.StreamingContextStatusEnum._
+import com.stratio.sparkta.driver.actor._
+import com.stratio.sparkta.driver.dto.{AggregationPoliciesDto, StreamingContextStatusDto}
+import com.stratio.sparkta.driver.exception.DriverException
+import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.sdk.exception.MockException
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.streaming.StreamingContext
 import org.junit.runner.RunWith
@@ -31,13 +33,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
 
-
-import com.stratio.sparkta.sdk.exception.MockException
-import com.stratio.sparkta.driver.actor.StreamingContextStatusEnum._
-import com.stratio.sparkta.driver.actor._
-import com.stratio.sparkta.driver.dto.{AggregationPoliciesDto, StreamingContextStatusDto}
-import com.stratio.sparkta.driver.exception.DriverException
-import com.stratio.sparkta.driver.service.StreamingContextService
+import scala.concurrent.duration.DurationInt
 
 @RunWith(classOf[JUnitRunner])
 class SupervisorActorSpec
@@ -174,7 +170,7 @@ class SupervisorActorSpec
   }
 
   private def createSupervisorActor: ActorRef = {
-    system.actorOf(Props(new SupervisorActor(streamingContextService.get)))
+    system.actorOf(Props(new StreamingSupervisorActor(streamingContextService.get)))
   }
 
   private def createPolicyConfiguration(name: String): AggregationPoliciesDto = {

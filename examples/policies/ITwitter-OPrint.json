@@ -69,7 +69,9 @@
           "dimensionName": "timestamp",
           "bucketType": "minute"
         }
-      ]
+      ],
+      "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator","median-operator",
+        "variance-operator","stddev-operator","fullText-operator","lastValue-operator","accumulator-operator"]
     }
   ],
   "outputs": [

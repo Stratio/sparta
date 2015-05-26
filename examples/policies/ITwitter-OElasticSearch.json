@@ -2,15 +2,21 @@
   "name": "policy-Twitter-ElasticSearch",
   "duration": 10000,
   "saveRawData": "false",
+  "rawDataParquetPath": "myTestParquetPath",
+  "checkpointDir": "checkpoint",
+  "timeBucket": "minute",
+  "checkpointGranularity": "minute",
+  "checkpointInterval": 30000,
+  "checkpointTimeAvailability": 60000,
   "inputs": [
     {
       "name": "in-socket",
       "elementType": "TwitterInput",
       "configuration": {
-        "consumerKey": "vid8CxHgevrprEbwCKk6LgJwm",
-        "consumerSecret": "ajk1ORBIQ8YqkJBodqLTpDLHiOQbGGJMjaO7qPiRpoGX7Y3w3i",
-        "accessToken": "3216698842-aJMrjTpyntyyG4AySmOnGfFohbS7yEbi1ST6bK7",
-        "accessTokenSecret": "l3AsZGnWv2RwOzEy3L5FWWyEiCVtWtQS9ruddun6g8kiy"
+        "consumerKey": "*****",
+        "consumerSecret": "*****",
+        "accessToken": "*****",
+        "accessTokenSecret": "*****"
       }
     }
   ],
@@ -59,7 +65,9 @@
           "dimensionName": "timestamp",
           "bucketType": "minute"
         }
-      ]
+      ],
+      "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator","median-operator",
+        "variance-operator","stddev-operator","fullText-operator","lastValue-operator","accumulator-operator"]
     }
   ],
   "outputs": [
@@ -67,14 +75,12 @@
       "name": "out-elasticsearch",
       "elementType": "ElasticSearchOutput",
       "configuration": {
-        "nodes" : "172.17.0.10",
-        "defaultPort" : "9200",
-        "dateBucket" : "minute",
-        "granularity" : "minute",
-        "autoCalculateId" : "true",
-        "dateType" : "timestamp",
-        "indexMapping" : "day",
-        "indexAutoCreate" : "true"
+        "nodes": "localhost",
+        "defaultPort": "9200",
+        "multiplexer": "false",
+        "isAutoCalculateId": "false",
+        "dateType": "timestamp",
+        "indexMapping": "day"
       }
     }
   ],

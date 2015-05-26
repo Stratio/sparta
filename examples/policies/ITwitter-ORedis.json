@@ -65,7 +65,8 @@
           "dimensionName": "timestamp",
           "bucketType": "minute"
         }
-      ]
+      ],
+      "operators": ["count-operator","max-operator","min-operator"]
     }
   ],
   "outputs": [
