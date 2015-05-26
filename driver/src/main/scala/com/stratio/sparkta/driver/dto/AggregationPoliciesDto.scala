@@ -31,6 +31,7 @@ import com.stratio.sparkta.sdk.JsoneyStringSerializer
 case class AggregationPoliciesDto(name: String = "default",
                                   saveRawData: String = "true",
                                   rawDataParquetPath: String = "default",
+                                  rawDataGranularity: String = "day",
                                   checkpointDir: String = "checkpoint",
                                   timeBucket: String = "",
                                   checkpointGranularity: String = "minute",

@@ -45,6 +45,7 @@ with Matchers {
         "policy-name",
         "true",
         "example",
+        "day",
         checkpointDir,
         "",
         checkpointGranularity,
