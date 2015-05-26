@@ -102,7 +102,7 @@ object CuratorFactoryHolderIT {
                           "connectionString": "localhost:$TestServerZKPort",
                           "connectionTimeout": 15000,
                           "sessionTimeout": 60000
-                          "retryAttemps": 5
+                          "retryAttempts": 5
                           "retryInterval": 2000
                         }
                       """
