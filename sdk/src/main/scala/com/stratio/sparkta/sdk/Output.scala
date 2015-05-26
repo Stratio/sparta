@@ -110,6 +110,7 @@ abstract class Output(keyName: String,
       }))
     }
 
+  //TODO refactor for remove var types
   protected def getTableSchemaFixedId(tbSchema: TableSchema): TableSchema = {
     var tableName = tbSchema.tableName.split(Output.Separator)
       .filter(name => !fixedBuckets.contains(name) && name != timeName)
