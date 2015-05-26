@@ -34,7 +34,7 @@ class RawDataStorageService(sc: SQLContext, path: String, granularity: String) e
 
   def composeRawFrom(event: Event): Seq[io.Serializable] = event.keyMap.map(e => e._2).toSeq
 
-  def timeSuffix: Long = DateOperations.dateFromGranularity(DateTime.now(), granularity)
+  def timeSuffix: String = "/"+DateOperations.dateFromGranularity(DateTime.now(), granularity)
 
   def extractRawDataFromEvent(event: Event): Any = {
     event.rawData getOrElse composeRawFrom(event)

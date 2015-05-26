@@ -211,7 +211,7 @@ You can save the raw data to HDFS+Parquet with only two parameters:
 
     "saveRawData": "false",
     "rawDataParquetPath": "myTestParquetPath"
-    "rawDataGranularity":"day"
+    "rawDataGranularity": "day"
 
 Stateful Operations
 -------------
