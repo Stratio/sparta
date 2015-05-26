@@ -20,7 +20,7 @@ import java.io.File
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
-import com.stratio.sparkta.driver.actor.{PolicyControllerActor, SupervisorActor}
+import com.stratio.sparkta.driver.actor._
 import com.stratio.sparkta.driver.factory.CuratorFactoryHolder
 import com.stratio.sparkta.driver.factory.JarListFactory._
 import com.stratio.sparkta.driver.service.StreamingContextService
@@ -55,12 +55,19 @@ object Sparkta extends App with SLF4JLogging {
   implicit val system = ActorSystem("sparkta")
 
   val streamingContextService = new StreamingContextService(sparktaConfig, jars)
+  val curatorFramework = CuratorFactoryHolder.getInstance(sparktaConfig).get
 
-  log.info("Starting Supervisor Actor...")
-  val supervisor: ActorRef = system.actorOf(Props(new SupervisorActor(streamingContextService)), "supervisor")
+  log.info("Starting streaming supervisor")
+  val streamingSupervisor: ActorRef =
+    system.actorOf(Props(new StreamingSupervisorActor(streamingContextService)), "supervisor")
+
+  log.info("Starting fragment supervisor")
+  val fragmentSupervisor: ActorRef =
+    system.actorOf(Props(new FragmentSupervisorActor(curatorFramework)), "fragmentActor")
 
   log.info("Starting REST api...")
-  val controller = system.actorOf(Props(new PolicyControllerActor(supervisor)), "workflowController")
+  val controller = system.actorOf(Props(new PolicyControllerActor(streamingSupervisor, fragmentSupervisor)),
+    "workflowController")
 
   val apiConfig = sparktaConfig.getConfig("api")
 
