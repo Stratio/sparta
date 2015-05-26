@@ -28,13 +28,16 @@ import org.joda.time.DateTime
  */
 class RawDataStorageService(sc: SQLContext, path: String, granularity: String) extends Serializable {
 
+  final val Parquet: String = "parquet"
+  final val Slash: String = "/"
+
   import sc.implicits._
 
   case class RawEvent(timeStamp: String, data: String)
 
   def composeRawFrom(event: Event): Seq[io.Serializable] = event.keyMap.map(e => e._2).toSeq
 
-  def timeSuffix: String = "/"+DateOperations.dateFromGranularity(DateTime.now(), granularity)
+  def timeSuffix: String = Slash + DateOperations.dateFromGranularity(DateTime.now(), granularity)
 
   def extractRawDataFromEvent(event: Event): Any = {
     event.rawData getOrElse composeRawFrom(event)
@@ -42,7 +45,7 @@ class RawDataStorageService(sc: SQLContext, path: String, granularity: String) e
 
   def save(raw: DStream[Event]): DStream[Event] = {
     raw.map(event => RawEvent(System.currentTimeMillis().toString, extractRawDataFromEvent(event).toString))
-      .foreachRDD(_.toDF().save(path + timeSuffix, "parquet", SaveMode.Append))
+      .foreachRDD(_.toDF().save(path + timeSuffix, Parquet, SaveMode.Append))
     raw
   }
 }
