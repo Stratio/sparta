@@ -68,7 +68,7 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       )))
 
     val bcRollupOperatorSchema: Option[Broadcast[Seq[TableSchema]]] = {
-      val rollOpSchema = PolicyFactory.rollupsOperatorsSchemas(rollups, outputsSchemaConfig, operators)
+      val rollOpSchema = PolicyFactory.rollupsOperatorsSchemas(rollups, outputsSchemaConfig)
       if (rollOpSchema.size > 0) Some(sc.broadcast(rollOpSchema)) else None
     }
     val dateBucket = if (apConfig.timeBucket.isEmpty) None else Some(apConfig.timeBucket)
