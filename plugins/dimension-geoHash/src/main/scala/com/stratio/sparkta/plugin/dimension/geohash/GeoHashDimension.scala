@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.plugin.dimension.geohash
 
 import java.io.{Serializable => JSerializable}
@@ -23,7 +24,6 @@ import GeoHashDimension._
 import com.stratio.sparkta.sdk.{BucketType, Bucketer}
 
 /**
- * Created by ajnavarro on 20/10/14.
  *
  * Aggregation by geoposition
  *
@@ -83,6 +83,8 @@ case class GeoHashDimension() extends Bucketer with SLF4JLogging {
       case cce: ClassCastException => log.error("Error parsing " + value + " ."); throw cce;
     }
   }
+
+  override val defaultTypeOperation = TypeOp.ArrayDouble
 }
 
 object GeoHashDimension {
