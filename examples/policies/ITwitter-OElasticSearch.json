@@ -67,7 +67,7 @@
         }
       ],
       "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator","median-operator",
-        "variance-operator","stddev-operator","fullText-operator","lastValue-operator","accumulator-operator"]
+        "variance-operator","stddev-operator","fullText-operator","lastValue-operator","firstValue-operator","accumulator-operator"]
     }
   ],
   "outputs": [
@@ -149,6 +149,13 @@
     {
       "name": "lastValue-operator",
       "elementType": "LastValueOperator",
+      "configuration": {
+        "inputField": "retweets"
+      }
+    },
+    {
+      "name": "firstValue-operator",
+      "elementType": "FirstValueOperator",
       "configuration": {
         "inputField": "retweets"
       }
