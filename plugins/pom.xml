@@ -46,6 +46,7 @@
         <module>operator-variance</module>
         <module>operator-stddev</module>
         <module>operator-fullText</module>
+        <module>operator-firstValue</module>
         <module>operator-lastValue</module>
         <module>operator-accumulator</module>
         <module>input-kafka</module>
