@@ -24,7 +24,7 @@ import com.stratio.sparkta.sdk._
 
 class SumOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  override val typeOp = Some(TypeOp.BigDecimal)
+  override val typeOp = Some(TypeOp.Double)
 
   private val inputField = if (properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
@@ -32,7 +32,7 @@ class SumOperator(properties: Map[String, JSerializable]) extends Operator(prope
     if (inputField.isDefined) inputField.get else "undefined"
   }
 
-  override val writeOperation = WriteOp.IncBig
+  override val writeOperation = WriteOp.Inc
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
     if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
@@ -40,15 +40,15 @@ class SumOperator(properties: Map[String, JSerializable]) extends Operator(prope
     } else SumOperator.SOME_ZERO_NUMBER
   }
 
-  override def processReduce(values: Iterable[Option[Any]]): Option[BigDecimal] = {
-    Try(Some(BigDecimal(values.map(_.get.asInstanceOf[Number].doubleValue()).reduce(_ + _))))
+  override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
+    Try(Some(values.map(_.get.asInstanceOf[Number].doubleValue()).reduce(_ + _)))
       .getOrElse(SumOperator.SOME_ZERO)
   }
 }
 
 private object SumOperator {
 
-  val SOME_ZERO = Some(BigDecimal(0))
+  val SOME_ZERO = Some(0d)
   val SOME_ZERO_NUMBER = Some(0.asInstanceOf[Number])
 }
 
