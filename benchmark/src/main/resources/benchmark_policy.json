@@ -43,6 +43,7 @@
           "dimensionName": "url",
           "bucketType": "identity"
         }
+        ,"operators":["count-operator"]
       ]
     }
   ],

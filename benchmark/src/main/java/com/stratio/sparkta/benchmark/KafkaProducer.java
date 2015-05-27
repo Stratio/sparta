@@ -27,11 +27,14 @@ import java.util.Properties;
 public class KafkaProducer {
 
     static final String FIXED_SUFFIX = ",\"url\":\"www.example.com\",\"ip\":\"192.168.2.2\"}";
-    static final long EVENTS=20000000L;
+    static final long EVENTS = 20000000L;
 
     public static void main(String[] args) {
-
-        Properties props = getKafkaProperties();
+        String host = null;
+        if (args.length > 0) {
+            host = args[0];
+        }
+        Properties props = getKafkaProperties(host);
         ProducerConfig config = new ProducerConfig(props);
         Producer<String, String> producer = new Producer<String, String>(config);
 
@@ -54,9 +57,11 @@ public class KafkaProducer {
         return data;
     }
 
-    private static Properties getKafkaProperties() {
+    private static Properties getKafkaProperties(String host) {
         Properties props = new Properties();
-        props.put("metadata.broker.list", "localhost:9092");
+        if (host == null)
+            host = "localhost:9092";
+        props.put("metadata.broker.list", host);
         props.put("serializer.class", "kafka.serializer.StringEncoder");
         props.put("partitioner.class", "com.stratio.sparkta.benchmark.SimplePartitioner");
         props.put("request.required.acks", "1");
