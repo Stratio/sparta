@@ -88,6 +88,9 @@
                                             <fileset dir="../aggregator" includes="**/*.jar" />
                                             <mapper type="flatten" />
                                         </copy>
+                                        <copy todir="target/appassembler/repo/benchmark">
+                                            <fileset dir="../benchmark" includes="**/*.*" />
+                                        </copy>
                                     </target>
                                 </configuration>
                             </execution>
@@ -177,6 +180,10 @@
                                         <copyDirectory>
                                             <from>target/appassembler/repo/aggregator</from>
                                             <to>/opt/sds/sparkta/aggregator</to>
+                                        </copyDirectory>
+                                        <copyDirectory>
+                                            <from>target/appassembler/repo/benchmark</from>
+                                            <to>/opt/sds/sparkta/benchmark</to>
                                         </copyDirectory>
                                     </assembly>
                                 </configuration>
