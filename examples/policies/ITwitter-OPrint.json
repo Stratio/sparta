@@ -70,7 +70,8 @@
           "bucketType": "minute"
         }
       ],
-      "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator","median-operator",
+      "operators": ["count-operator","sum-operator","max-operator","min-operator","range-operator","avg-operator",
+        "median-operator",
         "variance-operator","stddev-operator","fullText-operator","lastValue-operator","firstValue-operator","accumulator-operator"]
     }
   ],
@@ -114,6 +115,13 @@
     {
       "name": "min-operator",
       "elementType": "MinOperator",
+      "configuration": {
+        "inputField": "wordsN"
+      }
+    },
+    {
+      "name": "range-operator",
+      "elementType": "RangeOperator",
       "configuration": {
         "inputField": "wordsN"
       }
