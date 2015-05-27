@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,16 +17,14 @@ package com.stratio.sparkta.plugin.dimension.passthrough
 
 import java.io
 
-import com.stratio.sparkta.sdk.{BucketType, Bucketer}
+import com.stratio.sparkta.sdk._
 
-/**
- * Created by ajnavarro on 9/10/14.
- */
+
 case class PassthroughDimension() extends Bucketer {
 
   override def bucket(value: io.Serializable): Map[BucketType, io.Serializable] = {
-    Map(Bucketer.identity -> value)
+    Map(Bucketer.getIdentity(getTypeOperation, TypeOp.String) -> value)
   }
 
-  override lazy val bucketTypes: Seq[BucketType] = Seq(Bucketer.identity)
+  override lazy val bucketTypes: Seq[BucketType] = Seq(Bucketer.getIdentity(getTypeOperation, TypeOp.String))
 }

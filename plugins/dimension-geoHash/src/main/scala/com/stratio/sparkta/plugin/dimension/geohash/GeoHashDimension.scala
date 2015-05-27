@@ -111,16 +111,16 @@ object GeoHashDimension {
     Seq(longitude, latitude).asInstanceOf[JSerializable]
   }
 
-  val precision1 = new BucketType("precision1")
-  val precision2 = new BucketType("precision2")
-  val precision3 = new BucketType("precision3")
-  val precision4 = new BucketType("precision4")
-  val precision5 = new BucketType("precision5")
-  val precision6 = new BucketType("precision6")
-  val precision7 = new BucketType("precision7")
-  val precision8 = new BucketType("precision8")
-  val precision9 = new BucketType("precision9")
-  val precision10 = new BucketType("precision10")
-  val precision11 = new BucketType("precision11")
-  val precision12 = new BucketType("precision12")
+  val precision1 = new BucketType("precision1", Some(TypeOp.ArrayDouble))
+  val precision2 = new BucketType("precision2", Some(TypeOp.ArrayDouble))
+  val precision3 = new BucketType("precision3", Some(TypeOp.ArrayDouble))
+  val precision4 = new BucketType("precision4", Some(TypeOp.ArrayDouble))
+  val precision5 = new BucketType("precision5", Some(TypeOp.ArrayDouble))
+  val precision6 = new BucketType("precision6", Some(TypeOp.ArrayDouble))
+  val precision7 = new BucketType("precision7", Some(TypeOp.ArrayDouble))
+  val precision8 = new BucketType("precision8", Some(TypeOp.ArrayDouble))
+  val precision9 = new BucketType("precision9", Some(TypeOp.ArrayDouble))
+  val precision10 = new BucketType("precision10", Some(TypeOp.ArrayDouble))
+  val precision11 = new BucketType("precision11", Some(TypeOp.ArrayDouble))
+  val precision12 = new BucketType("precision12", Some(TypeOp.ArrayDouble))
 }

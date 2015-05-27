@@ -21,32 +21,25 @@ import java.io.Serializable
 
 import HierarchyDimension._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk.{BucketType, Bucketer}
+import com.stratio.sparkta.sdk._
 
-/**
- * Created by ajnavarro on 27/10/14.
- */
+
 class HierarchyDimension(override val properties:
                         Map[String, Serializable] =
-                        Map(
-                          (SPLITTER_PROPERTY_NAME, DEFAULT_SPLITTER),
-                          (WILDCARD_PROPERTY_NAME, DEFAULT_WILDCARD)
-                        )) extends Bucketer {
+                        Map((SPLITTER_PROPERTY_NAME, DEFAULT_SPLITTER), (WILDCARD_PROPERTY_NAME, DEFAULT_WILDCARD)))
+  extends Bucketer {
 
-  override val bucketTypes:
-  Seq[BucketType] = Seq(leftToRight, rightToLeft, leftToRightWithWildCard, rightToLeftWithWildCard)
+  override val bucketTypes: Seq[BucketType] =
+    Seq(leftToRight, rightToLeft, leftToRightWithWildCard, rightToLeftWithWildCard)
 
   val splitter = properties.getString(SPLITTER_PROPERTY_NAME)
   val wildcard = properties.getString(WILDCARD_PROPERTY_NAME)
 
   override def bucket(value: io.Serializable): Map[BucketType, io.Serializable] =
-    bucketTypes.map(bt =>
-      (bt, bucket(value.asInstanceOf[String], bt)
-        .asInstanceOf[Serializable])
-    ).toMap
+    bucketTypes.map(bt => (bt, bucket(value.asInstanceOf[String], bt).asInstanceOf[Serializable])).toMap
 
   private def bucket(value: String, bucketType: BucketType): Seq[Serializable] = {
-    (bucketType match {
+    bucketType match {
       case x if x == leftToRight =>
         explodeWithWildcards(value, wildcard, splitter, false, false)
       case x if x == rightToLeft =>
@@ -55,7 +48,7 @@ class HierarchyDimension(override val properties:
         explodeWithWildcards(value, wildcard, splitter, false, true)
       case x if x == rightToLeftWithWildCard =>
         explodeWithWildcards(value, wildcard, splitter, true, true)
-    }).toSeq
+    }
   }
 }
 
@@ -66,7 +59,6 @@ object HierarchyDimension {
   val DEFAULT_WILDCARD = "*"
   val WILDCARD_PROPERTY_NAME = "wildcard"
 
-
   def explodeWithWildcards(
                             domain: String,
                             wildcard: String,
@@ -75,29 +67,19 @@ object HierarchyDimension {
                             withWildcards: Boolean
                             ): Seq[Serializable] = {
     val split = domain.split("\\Q" + splitter + "\\E").toSeq
-    val domainTails = reversed match {
-      case false => split.tails.toSeq
-      case true => split.reverse.tails.toSeq
-    }
+    val domainTails = if (reversed) split.reverse.tails.toSeq else split.tails.toSeq
     val fullDomain = domainTails.head
     domainTails.map({
       case Nil => wildcard
       case l: Seq[String] if l == fullDomain => domain
-      case l: Seq[String] => reversed match {
-        case false => withWildcards match {
-          case true => wildcard + splitter + l.mkString(splitter)
-          case false => l.mkString(splitter)
-        }
-        case true => withWildcards match {
-          case true => l.reverse.mkString(splitter) + splitter + wildcard
-          case false => l.reverse.mkString(splitter)
-        }
-      }
+      case l: Seq[String] => if (reversed) {
+        if (withWildcards) l.reverse.mkString(splitter) + splitter + wildcard else l.reverse.mkString(splitter)
+      } else if (withWildcards) wildcard + splitter + l.mkString(splitter) else l.mkString(splitter)
     })
   }
 
-  val leftToRight = new BucketType("leftToRight")
-  val rightToLeft = new BucketType("rightToLeft")
-  val leftToRightWithWildCard = new BucketType("leftToRightWithWildCard")
-  val rightToLeftWithWildCard = new BucketType("rightToLeftWithWildCard")
+  val leftToRight = new BucketType("leftToRight", Some(TypeOp.ArrayString))
+  val rightToLeft = new BucketType("rightToLeft", Some(TypeOp.ArrayString))
+  val leftToRightWithWildCard = new BucketType("leftToRightWithWildCard", Some(TypeOp.ArrayString))
+  val rightToLeftWithWildCard = new BucketType("rightToLeftWithWildCard", Some(TypeOp.ArrayString))
 }
