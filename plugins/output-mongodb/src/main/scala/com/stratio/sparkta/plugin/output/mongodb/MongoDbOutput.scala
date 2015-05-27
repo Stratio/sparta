@@ -81,7 +81,7 @@ class MongoDbOutput(keyName: String,
     metricOperations.toList.groupBy(upMetricOp => AggregateOperations.keyString(upMetricOp._1))
       .filter(_._1.size > 0).foreach(f = collMetricOp => {
       val bulkOperation = db().getCollection(collMetricOp._1).initializeOrderedBulkOperation()
-      val idFieldName = if (!timeName.isEmpty) Output.ID else DefaultId
+      val idFieldName = if (!timeName.isEmpty) Output.Id else DefaultId
 
       val updateObjects = collMetricOp._2.map { case (rollupKey, aggregations) => {
         checkFields(aggregations.keySet, operationTypes)

@@ -1,20 +1,44 @@
-Using Sparkta
-******************
+Using SpaRkTA
+*************
 
-Running Sparkta
-============
+Installing SpaRkTA
+==================
 
-Once Sparkta has been installed, you can run ``sh $SPARKTA_HOME/bin/run``.
+You can install SpaRkTA by unpackaging a `release <https://github.com/Stratio/sparkta/releases>`__ or by
+generating the deb or rpm packages from the `source code <https://github.com/Stratio/sparkta>`__.
+
+You can generate rpm and deb packages by running::
+
+    mvn clean package -Ppackage
+
+**Note:** you need to have installed the following programs in order to build these packages:
+
+ * In a debian distribution:
+
+  - fakeroot
+  - dpkg-dev
+  - rpm
+
+ * In a centOS distribution:
+
+  - fakeroot
+  - dpkg-dev
+  - rpmdevtools
+
+Running SpaRkTA
+===============
+
+Once SpaRkTA has been installed, you can run ``sh $SPARKTA_HOME/bin/run``.
 Default installation directory is ``/opt/sds/sparkta``
 
- * Starting the Stratio Sparkta Shell::
+ * Starting the Stratio SpaRkTA Shell::
 
     cd /opt/sds/sparkta
 
     sh bin/run
 
 Aggregation Policy
-============
+==================
 
 An aggregation policy it's a JSON document. It's composed of:
 
@@ -24,8 +48,9 @@ An aggregation policy it's a JSON document. It's composed of:
 * :ref:`RollUp(s) <rollup>`: How do you want to aggregate the dimensions?
 * :ref:`Transformation(s) <transformation>`: Which functions should be applied before aggregation?
 * :ref:`Save raw data <save-raw>`: Do you want to save raw events?
+* :ref:`Define stateful operations <stateful>`: Do you want to make non associative aggregations?
 
-The policy have a few required fields like *name* and *duration* and others optional, like *saveRawData* and *rawDataParquetPath*
+The policy have a few required fields like *name* and *duration* and others optional, like *saveRawData*, *rawDataParquetPath* and *rawDataGranularity*
 
 
 .. _input:
@@ -211,10 +236,12 @@ You can save the raw data to HDFS+Parquet with only two parameters:
 
     "saveRawData": "false",
     "rawDataParquetPath": "myTestParquetPath"
+    "rawDataGranularity": "day"
 
+.. _stateful:
 
 Stateful Operations
--------------
+-------------------
 
 The system runs with time windows, these windows are configurable and allow us to not associative operations:
 ::
@@ -279,8 +306,8 @@ The system runs with time windows, these windows are configurable and allow us t
    "checkpointTimeAvailability": (TIME_IN_MILLISECONDS)  Default: 60000
 
 
-Submiting Policy
-============
+Submitting Policy
+=================
 
 The policy must be submitted via POST with the following syntax:
 ::

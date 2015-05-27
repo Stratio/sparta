@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.driver.test.service
 
 import java.io.File
@@ -40,7 +41,7 @@ class RawDataStorageIT extends TestSuiteBase {
   test("Write and read events in/from parquet") {
 
     configureContext
-    val rds = new RawDataStorageService(sparktaTestSQLContext, path)
+    val rds = new RawDataStorageService(sparktaTestSQLContext, path,"day")
     //This is not a test, This is a way to feed parquet
     intercept[SparkException] {
       //ArrayStoreException:BoxedUnit
@@ -56,10 +57,10 @@ class RawDataStorageIT extends TestSuiteBase {
     Thread.sleep(SleepTime)
 
     try {
-      val pqFile = sparktaTestSQLContext.parquetFile(path)
+      val pqFile = sparktaTestSQLContext.parquetFile(path+rds.timeSuffix)
       assert(pqFile.count() == ExpectedResult)
     } finally { //We can't use the before method
-      val file = new File(path)
+      val file = new File(path+rds.timeSuffix)
       deleteParquetFiles(file)
     }
   }

@@ -54,7 +54,7 @@ trait ElasticSearchDAO extends Closeable {
 
   def getSparkConfig(timeName: String, idProvided: Boolean): Map[String, String] = {
     {
-      if (idProvided) Map("es.mapping.id" -> idField.getOrElse(Output.ID)) else Map("" -> "")
+      if (idProvided) Map("es.mapping.id" -> idField.getOrElse(Output.Id)) else Map("" -> "")
     } ++
       Map("es.nodes" -> nodes, "es.port" -> defaultPort) ++ {
       defaultAnalyzerType match {

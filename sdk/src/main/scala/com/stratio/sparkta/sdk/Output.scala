@@ -54,6 +54,8 @@ abstract class Output(keyName: String,
 
   def fixedBuckets: Array[String] = Array()
 
+  def fixedAggregation: Map[String, Option[Any]] = Map()
+
   def fieldsSeparator: String = ","
 
   def isAutoCalculateId: Boolean = false
@@ -77,6 +79,7 @@ abstract class Output(keyName: String,
       .map { case (dimensionValueTime, aggregations) =>
       AggregateOperations.toKeyRow(filterDimensionValueTimeByFixedBuckets(dimensionValueTime),
         aggregations,
+        fixedAggregation,
         getFixedBuckets(dimensionValueTime),
         isAutoCalculateId,
         timeName)
@@ -107,38 +110,46 @@ abstract class Output(keyName: String,
       }))
     }
 
+  //TODO refactor for remove var types
   protected def getTableSchemaFixedId(tbSchema: TableSchema): TableSchema = {
-    var tableName = tbSchema.tableName.split(Output.SEPARATOR)
-      .filter(name => !fixedBuckets.contains(name) && name != timeName).mkString(Output.SEPARATOR)
-    var fields = tbSchema.schema.fields.toSeq.filter(field =>
-      !fixedBuckets.contains(field.name) && field.name != timeName)
+    var tableName = tbSchema.tableName.split(Output.Separator)
+      .filter(name => !fixedBuckets.contains(name) && name != timeName)
+    var fieldsPk = getFields(tbSchema, false)
     var modifiedSchema = false
 
     if (!fixedBuckets.isEmpty) {
       fixedBuckets.foreach(bucket => {
-        tableName += Output.SEPARATOR + bucket
-        fields = fields ++ Seq(Output.getFieldType(fixedBucketsType, bucket, false))
+        tableName = tableName ++ Array(bucket)
+        fieldsPk = fieldsPk ++ Seq(Output.getFieldType(fixedBucketsType, bucket, false))
         modifiedSchema = true
       })
     }
 
-    if (!timeName.isEmpty) {
-      tableName += Output.SEPARATOR + timeName
-      fields = fields ++ Seq(Output.getFieldType(dateType, timeName, false))
-    }
-
-    if (isAutoCalculateId && !tbSchema.schema.fieldNames.contains(Output.ID)) {
-      tableName += Output.SEPARATOR + Output.ID
-      fields = fields ++ Seq(Output.defaultStringField(Output.ID, false))
+    if (isAutoCalculateId && !tbSchema.schema.fieldNames.contains(Output.Id)) {
+      tableName = Array(Output.Id) ++ tableName
+      fieldsPk = Seq(Output.defaultStringField(Output.Id, false)) ++ fieldsPk
       modifiedSchema = true
     }
 
-    if (modifiedSchema) new TableSchema(tbSchema.outputName, tableName, StructType(fields)) else tbSchema
+    if (!timeName.isEmpty) {
+      tableName = tableName ++ Array(timeName)
+      fieldsPk = fieldsPk ++ Seq(Output.getFieldType(dateType, timeName, false))
+      modifiedSchema = true
+    }
+
+    if (modifiedSchema){
+      fieldsPk = fieldsPk ++ getFields(tbSchema, true)
+      new TableSchema(tbSchema.outputName, tableName.mkString(Output.Separator), StructType(fieldsPk))
+    } else tbSchema
   }
 
+  protected def getFields(tbSchema: TableSchema, nullables: Boolean) : Seq[StructField] =
+    tbSchema.schema.fields.toSeq.filter(field =>
+    !fixedBuckets.contains(field.name) && field.name != timeName && field.nullable == nullables)
+
   protected def genericRowSchema(rdd: RDD[(Option[String], Row)]): (Option[String], RDD[Row]) =
-    (Some(rdd.map(rowType => rowType._1.get.split(Output.SEPARATOR))
-      .reduce((names1, names2) => if (names1.length > names2.length) names1 else names2).mkString(Output.SEPARATOR)),
+    (Some(rdd.map(rowType => rowType._1.get.split(Output.Separator))
+      .reduce((names1, names2) => if (names1.length > names2.length) names1 else names2).mkString(Output.Separator)),
       extractRow(rdd))
 
   protected def extractRow(rdd: RDD[(Option[String], Row)]): RDD[Row] = rdd.map(rowType => rowType._2)
@@ -154,7 +165,7 @@ abstract class Output(keyName: String,
     if (bcSchema.isDefined) {
       bcSchema.get.value.filter(schemaFilter => schemaFilter.outputName == keyName &&
         getFixedBucketsAndTimeBucket.forall(schemaFilter.schema.fieldNames.contains(_) &&
-          schemaFilter.schema.filter(!_.nullable).length > 1))
+          schemaFilter.schema.filter(!_.nullable).length >= 1))
     } else Seq()
 
   protected def checkOperationTypes: Boolean = {
@@ -172,8 +183,11 @@ abstract class Output(keyName: String,
 
 object Output {
 
-  final val SEPARATOR = "_"
-  final val ID = "id"
+  final val Separator = "_"
+  final val Id = "id"
+  final val FixedAggregation = "fixedAggregation"
+  final val FixedAggregationSeparator = ":"
+  final val Multiplexer = "multiplexer"
 
   def getFieldType(dateTimeType: TypeOp, fieldName: String, nullable: Boolean): StructField =
     dateTimeType match {

@@ -62,6 +62,14 @@ class ElasticSearchOutput(keyName: String,
 
   override val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
+  val fixedAgg = properties.getString("fixedAggregation", None)
+
+  override val fixedAggregation: Map[String, Option[Any]] =
+    if(fixedAgg.isDefined){
+      val fixedAggSplited = fixedAgg.get.split(Output.FixedAggregationSeparator)
+      Map(fixedAggSplited.head -> Some(fixedAggSplited.last))
+    } else Map()
+
   override val idField = properties.getString("idField", None)
 
   override val defaultIndexMapping = properties.getString("indexMapping",

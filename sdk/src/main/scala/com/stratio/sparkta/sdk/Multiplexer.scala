@@ -31,7 +31,7 @@ trait Multiplexer {
 
 object Multiplexer {
 
-  def combine[T](in: (Seq[T], Long)): Seq[(Seq[T], Long)] = {
+  def combine[T, U](in: (Seq[T], U)): Seq[(Seq[T], U)] = {
     for {
       len <- 1 to in._1.length
       combinations <- in._1 combinations len

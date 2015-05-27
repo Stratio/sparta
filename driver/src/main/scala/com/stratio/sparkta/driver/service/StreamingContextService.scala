@@ -59,11 +59,16 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       if (opKeyOp.size > 0) Some(sc.broadcast(opKeyOp)) else None
     }
 
-    val outputsConfig: Seq[(String, Boolean)] = apConfig.outputs.map(o =>
-      (o.name, Try(o.configuration.get("multiplexer").get.string.toBoolean).getOrElse(false)))
+    val outputsSchemaConfig: Seq[(String, Map[String, String])] = apConfig.outputs.map(o =>
+      (o.name, Map(
+        Output.Multiplexer -> Try(o.configuration.get(Output.Multiplexer).get.string).getOrElse("false"),
+        Output.FixedAggregation ->
+          Try(o.configuration.get(Output.FixedAggregation).get.string.split(Output.FixedAggregationSeparator).head)
+          .getOrElse("")
+      )))
 
     val bcRollupOperatorSchema: Option[Broadcast[Seq[TableSchema]]] = {
-      val rollOpSchema = PolicyFactory.rollupsOperatorsSchemas(rollups, outputsConfig, operators)
+      val rollOpSchema = PolicyFactory.rollupsOperatorsSchemas(rollups, outputsSchemaConfig)
       if (rollOpSchema.size > 0) Some(sc.broadcast(rollOpSchema)) else None
     }
     val dateBucket = if (apConfig.timeBucket.isEmpty) None else Some(apConfig.timeBucket)
@@ -226,7 +231,7 @@ object SparktaJob {
 
   def saveRawData(apConfig: AggregationPoliciesDto, sqlContext: SQLContext, input: DStream[Event]): Unit = {
     if (apConfig.saveRawData.toBoolean) {
-      def rawDataStorage: RawDataStorageService = new RawDataStorageService(sqlContext, apConfig.rawDataParquetPath)
+      def rawDataStorage: RawDataStorageService = new RawDataStorageService(sqlContext, apConfig.rawDataParquetPath,apConfig.rawDataGranularity)
       rawDataStorage.save(input)
     }
   }

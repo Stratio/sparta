@@ -76,10 +76,10 @@ trait MongoDbDAO extends Closeable {
     val textIndexCreated = textIndexFields.size > 0
 
     if (textIndexCreated)
-      createTextIndex(collection, textIndexFields.mkString(Output.SEPARATOR), textIndexFields, language)
+      createTextIndex(collection, textIndexFields.mkString(Output.Separator), textIndexFields, language)
     if (!timeBucket.isEmpty) {
-      createIndex(collection, Output.ID + Output.SEPARATOR + timeBucket,
-        Map(Output.ID -> 1, timeBucket -> 1), true, true)
+      createIndex(collection, Output.Id + Output.Separator + timeBucket,
+        Map(Output.Id -> 1, timeBucket -> 1), true, true)
     }
     (!timeBucket.isEmpty, textIndexCreated)
   }
@@ -140,7 +140,7 @@ trait MongoDbDAO extends Closeable {
                         dimensionValues: Seq[DimensionValue]): Imports.DBObject = {
     val builder = MongoDBObject.newBuilder
     builder += idFieldName -> dimensionValues.map(dimVal => dimVal.value.toString)
-      .mkString(Output.SEPARATOR)
+      .mkString(Output.Separator)
     if (eventTimeObject.isDefined) builder += eventTimeObject.get
     builder.result
   }
