@@ -19,9 +19,13 @@ package com.stratio.sparkta.driver.service.http
 import akka.pattern.ask
 import com.stratio.sparkta.driver.actor._
 import com.stratio.sparkta.driver.constants.HttpConstant
-import com.stratio.sparkta.driver.dto.{AggregationPoliciesDto, AggregationPoliciesValidator, StreamingContextStatusDto}
+import com.stratio.sparkta.driver.dto._
+import com.stratio.sparkta.driver.helpers.PolicyHelper
 import com.wordnik.swagger.annotations._
 import spray.routing._
+
+import scala.concurrent.Await
+import scala.util.{Failure, Success}
 
 @Api(value = "/policy", description = "Operations about policies.", position = 0)
 trait PolicyHttpService extends BaseHttpService {
@@ -50,10 +54,11 @@ trait PolicyHttpService extends BaseHttpService {
   def create: Route = {
     post {
       entity(as[AggregationPoliciesDto]) { p =>
-        val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(p)
+        val parsedP = (PolicyHelper.parseFragments _ compose fillFragments _)(p)
+        val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
         validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
           complete {
-            supervisor ! new CreateContext(p)
+            supervisor ! new CreateContext(parsedP)
             new Result("Creating new context with name " + p.name)
           }
         }
@@ -87,5 +92,27 @@ trait PolicyHttpService extends BaseHttpService {
         }
       }
     }
+  }
+
+  ///////////////////////////////////////////// XXX PRIVATE METHODS ////////////////////////////////////////////////////
+
+  /**
+   * The policy only has fragments with its name and type. When this method is called it finds the full fragment in
+   * ZK and fills the rest of the fragment.
+   * @param apConfig with the policy.
+   * @return a fragment with all fields filled.
+   */
+  private def fillFragments(apConfig: AggregationPoliciesDto): AggregationPoliciesDto = {
+    // TODO (Alvaro): I must have a look to it, because maybe is not the best way to instantiate actors with akka.
+    val actor = actorRefFactory.actorSelection("akka://sparkta/user/fragmentActor")
+
+    val currentFragments: Seq[FragmentElementDto] = apConfig.fragments.map(fragment => {
+      val future = actor ? new FragmentSupervisorActor_findByTypeAndName(fragment.fragmentType, fragment.name)
+      Await.result(future, timeout.duration) match {
+        case FragmentSupervisorActor_response_fragment(Failure(exception)) => throw exception
+        case FragmentSupervisorActor_response_fragment(Success(fragment)) => fragment
+      }
+    })
+    apConfig.copy(fragments = currentFragments)
   }
 }

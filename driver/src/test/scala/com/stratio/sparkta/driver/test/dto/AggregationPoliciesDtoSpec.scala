@@ -57,7 +57,8 @@ with Matchers {
         Seq(mock[PolicyElementDto]),
         Seq(input),
         Seq(mock[PolicyElementDto]),
-        Seq(mock[PolicyElementDto]))
+        Seq(mock[PolicyElementDto]),
+        Seq(mock[FragmentElementDto]))
 
       val test = AggregationPoliciesValidator.validateDto(apd)
 

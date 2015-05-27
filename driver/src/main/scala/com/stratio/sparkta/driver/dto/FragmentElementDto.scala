@@ -24,3 +24,11 @@ package com.stratio.sparkta.driver.dto
  * @author anistal
  */
 case class FragmentElementDto(fragmentType: String, name: String, element: PolicyElementDto)
+
+
+object FragmentType extends Enumeration {
+  type FragmentType = Value
+  val input = Value("input")
+  val output = Value("output")
+  val AllowedTypes = Seq(input, output)
+}

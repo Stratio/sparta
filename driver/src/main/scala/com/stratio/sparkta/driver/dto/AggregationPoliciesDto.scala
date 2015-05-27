@@ -43,7 +43,8 @@ case class AggregationPoliciesDto(name: String = "default",
                                   operators: Seq[PolicyElementDto],
                                   inputs: Seq[PolicyElementDto],
                                   parsers: Seq[PolicyElementDto],
-                                  outputs: Seq[PolicyElementDto])
+                                  outputs: Seq[PolicyElementDto],
+                                  fragments: Seq[FragmentElementDto])
 
 case object AggregationPoliciesDto {
   val StreamingWindowDurationInMillis = 2000
