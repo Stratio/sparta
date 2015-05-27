@@ -15,7 +15,7 @@
  */
 package com.stratio.sparkta.plugin.parser.detector
 
-import java.io.Serializable
+import java.io.{ByteArrayInputStream, Serializable}
 import java.util.Date
 
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
@@ -33,7 +33,13 @@ class DetectorParser(properties: Map[String, Serializable]) extends Parser(prope
     var event: Option[Event] = None
     data.keyMap.foreach(e => {
       if (Input.RAW_DATA_KEY.equals(e._1)) {
-        val json = JSON.parseFull(e._2.toString)
+        val result = e._2 match {
+          case s: String =>s
+          case b: Array[Byte] => new String(b)
+        }
+        val tsExp ="""\"timestamp\"[0-9 :]+,?""".r
+        val res = tsExp replaceFirstIn(result,"")
+        val json = JSON.parseFull(res)
         event = Some(new Event(json.get.asInstanceOf[Map[String, Serializable]],Some(e._2)))
         val columns = event.get.keyMap.get("columns").get.asInstanceOf[List[Map[String,String]]]
         val columnMap = columns.map(c => c.get("column").get-> c.get("value").getOrElse("")).toMap
