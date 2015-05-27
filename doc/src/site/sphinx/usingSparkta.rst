@@ -48,6 +48,7 @@ An aggregation policy it's a JSON document. It's composed of:
 * :ref:`RollUp(s) <rollup>`: How do you want to aggregate the dimensions?
 * :ref:`Transformation(s) <transformation>`: Which functions should be applied before aggregation?
 * :ref:`Save raw data <save-raw>`: Do you want to save raw events?
+* :ref:`Define stateful operations <stateful>`: Do you want to make non associative aggregations?
 
 The policy have a few required fields like *name* and *duration* and others optional, like *saveRawData*, *rawDataParquetPath* and *rawDataGranularity*
 
@@ -236,6 +237,8 @@ You can save the raw data to HDFS+Parquet with only two parameters:
     "saveRawData": "false",
     "rawDataParquetPath": "myTestParquetPath"
     "rawDataGranularity": "day"
+
+.. _stateful:
 
 Stateful Operations
 -------------------

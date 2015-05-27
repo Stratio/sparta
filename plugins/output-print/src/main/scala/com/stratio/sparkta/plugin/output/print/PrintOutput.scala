@@ -56,6 +56,14 @@ class PrintOutput(keyName: String,
     case Some(fixBuckets) => fixBuckets.split(fieldsSeparator)
   }
 
+  val fixedAgg = properties.getString("fixedAggregation", None)
+
+  override val fixedAggregation: Map[String, Option[Any]] =
+    if(fixedAgg.isDefined){
+      val fixedAggSplited = fixedAgg.get.split(Output.FixedAggregationSeparator)
+      Map(fixedAggSplited.head -> Some(fixedAggSplited.last))
+    } else Map()
+
   override val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
   override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
