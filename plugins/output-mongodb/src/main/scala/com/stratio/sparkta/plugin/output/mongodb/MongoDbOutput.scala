@@ -60,14 +60,14 @@ class MongoDbOutput(keyName: String,
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val textIndexFields = properties.getString("textIndexFields", "").split(fieldsSeparator)
+  override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(fieldsSeparator))
 
   override val fixedBuckets: Array[String] = properties.getString("fixedBuckets", None) match {
     case None => Array()
     case Some(fixBuckets) => fixBuckets.split(fieldsSeparator)
   }
 
-  override val language = properties.getString("language", "none")
+  override val language = properties.getString("language", None)
 
   override val pkTextIndexesCreated: Boolean =
     filterSchemaByKeyAndField.map(tableSchema => createPkTextIndex(tableSchema.tableName, timeName))
