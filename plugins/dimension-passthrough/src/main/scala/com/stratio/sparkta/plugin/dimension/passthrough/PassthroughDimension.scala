@@ -15,16 +15,23 @@
  */
 package com.stratio.sparkta.plugin.dimension.passthrough
 
-import java.io
+import java.io.{Serializable => JSerializable}
+
+import akka.event.slf4j.SLF4JLogging
 
 import com.stratio.sparkta.sdk._
 
+case class PassthroughDimension(props: Map[String, JSerializable]) extends Bucketer with SLF4JLogging {
 
-case class PassthroughDimension() extends Bucketer {
-
-  override def bucket(value: io.Serializable): Map[BucketType, io.Serializable] = {
-    Map(Bucketer.getIdentity(getTypeOperation, TypeOp.String) -> value)
+  def this() {
+    this(Map())
   }
 
-  override lazy val bucketTypes: Seq[BucketType] = Seq(Bucketer.getIdentity(getTypeOperation, TypeOp.String))
+  override val properties: Map[String, JSerializable] = props
+
+  override def bucket(value: JSerializable): Map[BucketType, JSerializable] = {
+    Map(Bucketer.getIdentity(getTypeOperation, defaultTypeOperation) -> value)
+  }
+
+  override lazy val bucketTypes: Seq[BucketType] = Seq(Bucketer.getIdentity(getTypeOperation, defaultTypeOperation))
 }

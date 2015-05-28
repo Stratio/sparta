@@ -16,48 +16,64 @@
 
 package com.stratio.sparkta.plugin.dimension.hierarchy
 
-import java.io
-import java.io.Serializable
+import java.io.{Serializable => JSerializable}
 
 import HierarchyDimension._
+import akka.event.slf4j.SLF4JLogging
+
+import com.stratio.sparkta.plugin.bucketer.hierarchy.HierarchyBucketer._
+import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk._
 
+case class HierarchyDimension(props: Map[String, JSerializable]) extends Bucketer with SLF4JLogging {
 
-class HierarchyDimension(override val properties:
-                        Map[String, Serializable] =
-                        Map((SPLITTER_PROPERTY_NAME, DEFAULT_SPLITTER), (WILDCARD_PROPERTY_NAME, DEFAULT_WILDCARD)))
-  extends Bucketer {
+  def this() {
+    this(Map())
+  }
+
+  override val properties: Map[String, JSerializable] = props ++ {
+    if (!props.contains(SplitterPropertyName)) Map(SplitterPropertyName -> DefaultSplitter) else Map()
+  } ++ {
+    if (!props.contains(WildCardPropertyName)) Map(WildCardPropertyName -> DefaultWildCard) else Map()
+  }
+
+  final val LeftToRight = getLeftToRight(getTypeOperation, defaultTypeOperation)
+  final val RightToLeft = getRightToLeft(getTypeOperation, defaultTypeOperation)
+  final val LeftToRightWithWildCard = getLeftToRightWithWildCard(getTypeOperation, defaultTypeOperation)
+  final val RightToLeftWithWildCard = getRightToLeftWithWildCard(getTypeOperation, defaultTypeOperation)
 
   override val bucketTypes: Seq[BucketType] =
-    Seq(leftToRight, rightToLeft, leftToRightWithWildCard, rightToLeftWithWildCard)
+    Seq(LeftToRight, RightToLeft, LeftToRightWithWildCard, RightToLeftWithWildCard)
 
-  val splitter = properties.getString(SPLITTER_PROPERTY_NAME)
-  val wildcard = properties.getString(WILDCARD_PROPERTY_NAME)
+  val splitter = properties.getString(SplitterPropertyName)
+  val wildcard = properties.getString(WildCardPropertyName)
 
-  override def bucket(value: io.Serializable): Map[BucketType, io.Serializable] =
-    bucketTypes.map(bt => (bt, bucket(value.asInstanceOf[String], bt).asInstanceOf[Serializable])).toMap
+  override def bucket(value: JSerializable): Map[BucketType, JSerializable] =
+    bucketTypes.map(bt => (bt, bucket(value.asInstanceOf[String], bt).asInstanceOf[JSerializable])).toMap
 
-  private def bucket(value: String, bucketType: BucketType): Seq[Serializable] = {
+  private def bucket(value: String, bucketType: BucketType): Seq[JSerializable] = {
     bucketType match {
-      case x if x == leftToRight =>
+      case x if x == LeftToRight =>
         explodeWithWildcards(value, wildcard, splitter, false, false)
-      case x if x == rightToLeft =>
+      case x if x == RightToLeft =>
         explodeWithWildcards(value, wildcard, splitter, true, false)
-      case x if x == leftToRightWithWildCard =>
+      case x if x == LeftToRightWithWildCard =>
         explodeWithWildcards(value, wildcard, splitter, false, true)
-      case x if x == rightToLeftWithWildCard =>
+      case x if x == RightToLeftWithWildCard =>
         explodeWithWildcards(value, wildcard, splitter, true, true)
     }
   }
+
+  override val defaultTypeOperation = TypeOp.String
 }
 
 object HierarchyDimension {
-  val DEFAULT_SPLITTER = "."
-  val SPLITTER_PROPERTY_NAME = "splitter"
 
-  val DEFAULT_WILDCARD = "*"
-  val WILDCARD_PROPERTY_NAME = "wildcard"
+  val DefaultSplitter = "."
+  val SplitterPropertyName = "splitter"
+  val DefaultWildCard = "*"
+  val WildCardPropertyName = "wildcard"
 
   def explodeWithWildcards(
                             domain: String,
@@ -65,7 +81,7 @@ object HierarchyDimension {
                             splitter: String,
                             reversed: Boolean,
                             withWildcards: Boolean
-                            ): Seq[Serializable] = {
+                            ): Seq[JSerializable] = {
     val split = domain.split("\\Q" + splitter + "\\E").toSeq
     val domainTails = if (reversed) split.reverse.tails.toSeq else split.tails.toSeq
     val fullDomain = domainTails.head
@@ -78,8 +94,15 @@ object HierarchyDimension {
     })
   }
 
-  val leftToRight = new BucketType("leftToRight", Some(TypeOp.ArrayString))
-  val rightToLeft = new BucketType("rightToLeft", Some(TypeOp.ArrayString))
-  val leftToRightWithWildCard = new BucketType("leftToRightWithWildCard", Some(TypeOp.ArrayString))
-  val rightToLeftWithWildCard = new BucketType("rightToLeftWithWildCard", Some(TypeOp.ArrayString))
+  def getLeftToRight(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType("leftToRight", typeOperation.orElse(Some(default)))
+
+  def getRightToLeft(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType("leftToRight", typeOperation.orElse(Some(default)))
+
+  def getLeftToRightWithWildCard(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType("leftToRight", typeOperation.orElse(Some(default)))
+
+  def getRightToLeftWithWildCard(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType("leftToRight", typeOperation.orElse(Some(default)))
 }

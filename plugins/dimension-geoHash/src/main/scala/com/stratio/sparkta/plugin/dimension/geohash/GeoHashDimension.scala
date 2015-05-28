@@ -22,6 +22,8 @@ import akka.event.slf4j.SLF4JLogging
 import com.github.davidmoten.geo.{LatLong, GeoHash}
 import GeoHashDimension._
 import com.stratio.sparkta.sdk.{BucketType, Bucketer}
+import com.stratio.sparkta.sdk.TypeOp._
+import com.stratio.sparkta.sdk.{TypeOp, _}
 
 /**
  *
@@ -44,20 +46,26 @@ import com.stratio.sparkta.sdk.{BucketType, Bucketer}
  */
 case class GeoHashDimension() extends Bucketer with SLF4JLogging {
 
+  def this() {
+    this(Map())
+  }
+
+  override val properties: Map[String, JSerializable] = props
+
   override val bucketTypes: Seq[BucketType] =
     Seq(
-      precision1,
-      precision2,
-      precision3,
-      precision4,
-      precision5,
-      precision6,
-      precision7,
-      precision8,
-      precision9,
-      precision10,
-      precision11,
-      precision12)
+      getPrecision1(getTypeOperation, defaultTypeOperation),
+      getPrecision2(getTypeOperation, defaultTypeOperation),
+      getPrecision3(getTypeOperation, defaultTypeOperation),
+      getPrecision4(getTypeOperation, defaultTypeOperation),
+      getPrecision5(getTypeOperation, defaultTypeOperation),
+      getPrecision6(getTypeOperation, defaultTypeOperation),
+      getPrecision7(getTypeOperation, defaultTypeOperation),
+      getPrecision8(getTypeOperation, defaultTypeOperation),
+      getPrecision9(getTypeOperation, defaultTypeOperation),
+      getPrecision10(getTypeOperation, defaultTypeOperation),
+      getPrecision11(getTypeOperation, defaultTypeOperation),
+      getPrecision12(getTypeOperation, defaultTypeOperation))
 
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] = {
     //TODO temporal data treatment
@@ -71,10 +79,11 @@ case class GeoHashDimension() extends Bucketer with SLF4JLogging {
             val latDouble = latLongString(0).toDouble
             val longDouble = latLongString(1).toDouble
             bucketType -> GeoHashDimension.bucket(latDouble, longDouble, bucketType)
-          }else (bucketType->"")
+          } else (bucketType -> "")
         }).toMap
       } else {
-        Map(precision3 -> GeoHashDimension.bucket(0, 0, precision3))
+        val defaultPrecision = getPrecision3(getTypeOperation, defaultTypeOperation)
+        Map(defaultPrecision -> GeoHashDimension.bucket(0, 0, defaultPrecision))
       }
     }
     catch {
@@ -88,21 +97,35 @@ case class GeoHashDimension() extends Bucketer with SLF4JLogging {
 }
 
 object GeoHashDimension {
+
+  val Precision1 = "precision1"
+  val Precision2 = "precision2"
+  val Precision3 = "precision3"
+  val Precision4 = "precision4"
+  val Precision5 = "precision5"
+  val Precision6 = "precision6"
+  val Precision7 = "precision7"
+  val Precision8 = "precision8"
+  val Precision9 = "precision9"
+  val Precision10 = "precision10"
+  val Precision11 = "precision11"
+  val Precision12 = "precision12"
+
   //scalastyle:off
   private def bucket(lat: Double, long: Double, bucketType: BucketType): JSerializable = {
     bucketType match {
-      case p if p == precision1 => decodeHash(GeoHash.encodeHash(lat, long, 1))
-      case p if p == precision2 => decodeHash(GeoHash.encodeHash(lat, long, 2))
-      case p if p == precision3 => decodeHash(GeoHash.encodeHash(lat, long, 3))
-      case p if p == precision4 => decodeHash(GeoHash.encodeHash(lat, long, 4))
-      case p if p == precision5 => decodeHash(GeoHash.encodeHash(lat, long, 5))
-      case p if p == precision6 => decodeHash(GeoHash.encodeHash(lat, long, 6))
-      case p if p == precision7 => decodeHash(GeoHash.encodeHash(lat, long, 7))
-      case p if p == precision8 => decodeHash(GeoHash.encodeHash(lat, long, 8))
-      case p if p == precision9 => decodeHash(GeoHash.encodeHash(lat, long, 9))
-      case p if p == precision10 => decodeHash(GeoHash.encodeHash(lat, long, 10))
-      case p if p == precision11 => decodeHash(GeoHash.encodeHash(lat, long, 11))
-      case p if p == precision12 => decodeHash(GeoHash.encodeHash(lat, long, 12))
+      case p if p.id == Precision1 => decodeHash(GeoHash.encodeHash(lat, long, 1))
+      case p if p.id == Precision2 => decodeHash(GeoHash.encodeHash(lat, long, 2))
+      case p if p.id == Precision3 => decodeHash(GeoHash.encodeHash(lat, long, 3))
+      case p if p.id == Precision4 => decodeHash(GeoHash.encodeHash(lat, long, 4))
+      case p if p.id == Precision5 => decodeHash(GeoHash.encodeHash(lat, long, 5))
+      case p if p.id == Precision6 => decodeHash(GeoHash.encodeHash(lat, long, 6))
+      case p if p.id == Precision7 => decodeHash(GeoHash.encodeHash(lat, long, 7))
+      case p if p.id == Precision8 => decodeHash(GeoHash.encodeHash(lat, long, 8))
+      case p if p.id == Precision9 => decodeHash(GeoHash.encodeHash(lat, long, 9))
+      case p if p.id == Precision10 => decodeHash(GeoHash.encodeHash(lat, long, 10))
+      case p if p.id == Precision11 => decodeHash(GeoHash.encodeHash(lat, long, 11))
+      case p if p.id == Precision12 => decodeHash(GeoHash.encodeHash(lat, long, 12))
     }
   }
 
@@ -113,16 +136,39 @@ object GeoHashDimension {
     Seq(longitude, latitude).asInstanceOf[JSerializable]
   }
 
-  val precision1 = new BucketType("precision1", Some(TypeOp.ArrayDouble))
-  val precision2 = new BucketType("precision2", Some(TypeOp.ArrayDouble))
-  val precision3 = new BucketType("precision3", Some(TypeOp.ArrayDouble))
-  val precision4 = new BucketType("precision4", Some(TypeOp.ArrayDouble))
-  val precision5 = new BucketType("precision5", Some(TypeOp.ArrayDouble))
-  val precision6 = new BucketType("precision6", Some(TypeOp.ArrayDouble))
-  val precision7 = new BucketType("precision7", Some(TypeOp.ArrayDouble))
-  val precision8 = new BucketType("precision8", Some(TypeOp.ArrayDouble))
-  val precision9 = new BucketType("precision9", Some(TypeOp.ArrayDouble))
-  val precision10 = new BucketType("precision10", Some(TypeOp.ArrayDouble))
-  val precision11 = new BucketType("precision11", Some(TypeOp.ArrayDouble))
-  val precision12 = new BucketType("precision12", Some(TypeOp.ArrayDouble))
+  def getPrecision1(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType(Precision1, typeOperation.orElse(Some(default)))
+
+  def getPrecision2(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType(Precision2, typeOperation.orElse(Some(default)))
+
+  def getPrecision3(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType(Precision3, typeOperation.orElse(Some(default)))
+
+  def getPrecision4(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType(Precision4, typeOperation.orElse(Some(default)))
+
+  def getPrecision5(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType(Precision5, typeOperation.orElse(Some(default)))
+
+  def getPrecision6(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType(Precision6, typeOperation.orElse(Some(default)))
+
+  def getPrecision7(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType(Precision7, typeOperation.orElse(Some(default)))
+
+  def getPrecision8(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType(Precision8, typeOperation.orElse(Some(default)))
+
+  def getPrecision9(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType(Precision9, typeOperation.orElse(Some(default)))
+
+  def getPrecision10(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType(Precision10, typeOperation.orElse(Some(default)))
+
+  def getPrecision11(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType(Precision11, typeOperation.orElse(Some(default)))
+
+  def getPrecision12(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType(Precision12, typeOperation.orElse(Some(default)))
 }

@@ -16,15 +16,19 @@
 package com.stratio.sparkta.plugin.dimension.tag
 
 import java.io.{Serializable => JSerializable}
+import akka.event.slf4j.SLF4JLogging
 
 import TagDimension._
 import com.stratio.sparkta.sdk.{BucketType, Bucketer}
-import com.stratio.sparkta.plugin.bucketer.tag.TagBucketer._
-import com.stratio.sparkta.sdk.TypeOp
-import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk._
 
-case class TagDimension() extends Bucketer {
+import com.stratio.sparkta.sdk.TypeOp._
+import com.stratio.sparkta.sdk.{TypeOp, _}
+
+case class TagDimension(props: Map[String, JSerializable]) extends Bucketer with SLF4JLogging {
+
+  def this() {
+    this(Map())
+  }
 
   override val bucketTypes: Seq[BucketType] = Seq(
     getFirstTag(getTypeOperation, defaultTypeOperation),
@@ -34,6 +38,7 @@ case class TagDimension() extends Bucketer {
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] =
     bucketTypes.map(bt => bt -> TagDimension.bucket(value.asInstanceOf[Iterable[JSerializable]], bt)).toMap
 
+  override val defaultTypeOperation = TypeOp.String
 }
 
 object TagDimension {
@@ -49,10 +54,12 @@ object TagDimension {
       case name if name == AllTagsName => value.toSeq.asInstanceOf[JSerializable]
     }
 
-  def getFirstTag(typeOperation: Option[TypeOp], default : TypeOp): BucketType =
-    new BucketType(FirstTagName, Some(TypeOp.String))
-  def getLastTag(typeOperation: Option[TypeOp], default : TypeOp): BucketType =
-    new BucketType(LastTagName, Some(TypeOp.String))
-  def getAllTags(typeOperation: Option[TypeOp], default : TypeOp): BucketType =
-    new BucketType(AllTagsName, Some(TypeOp.String))
+  def getFirstTag(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType(FirstTagName, typeOperation.orElse(Some(default)))
+
+  def getLastTag(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType(LastTagName, typeOperation.orElse(Some(default)))
+
+  def getAllTags(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType(AllTagsName, typeOperation.orElse(Some(default)))
 }

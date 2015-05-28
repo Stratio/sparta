@@ -81,7 +81,6 @@ trait Bucketer {
   //scalastyle:on
 
   def defaultTypeOperation: TypeOp = TypeOp.String
-
 }
 
 object Bucketer {
@@ -94,5 +93,4 @@ object Bucketer {
 
   def getTimestamp(typeOperation: Option[TypeOp]): BucketType =
     new BucketType("timestamp", typeOperation)
-
 }
