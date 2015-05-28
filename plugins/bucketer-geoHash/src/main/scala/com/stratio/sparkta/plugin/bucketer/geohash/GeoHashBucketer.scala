@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -61,20 +61,25 @@ case class GeoHashBucketer() extends Bucketer with SLF4JLogging {
 
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] = {
     //TODO temporal data treatment
+
     try {
       if (value.asInstanceOf[Option[_]] != None) {
         bucketTypes.map(bucketType => {
           //TODO temporal data treatment
           val latLongString = value.asInstanceOf[Option[_]].get.asInstanceOf[String].split("__")
-          val latDouble = latLongString(0).toDouble
-          val longDouble = latLongString(1).toDouble
-          bucketType -> GeoHashBucketer.bucket(latDouble, longDouble, bucketType)
+          if (latLongString.size != 0) {
+            val latDouble = latLongString(0).toDouble
+            val longDouble = latLongString(1).toDouble
+            bucketType -> GeoHashBucketer.bucket(latDouble, longDouble, bucketType)
+          }else (bucketType->"")
         }).toMap
       } else {
         Map(precision3 -> GeoHashBucketer.bucket(0, 0, precision3))
       }
     }
     catch {
+      case aobe: ArrayIndexOutOfBoundsException => log.error("geo problem"); Map()
+
       case cce: ClassCastException => log.error("Error parsing " + value + " ."); throw cce;
     }
   }
@@ -98,8 +103,9 @@ object GeoHashBucketer {
       case p if p == precision12 => decodeHash(GeoHash.encodeHash(lat, long, 12))
     }
   }
+
   //scalastyle:on
-  private def decodeHash(geoLocHash : String) = {
+  private def decodeHash(geoLocHash: String) = {
     val geoDecoded: LatLong = GeoHash.decodeHash(geoLocHash)
     val (latitude, longitude) = (geoDecoded.getLat, geoDecoded.getLon)
     Seq(longitude, latitude).asInstanceOf[JSerializable]
