@@ -41,6 +41,7 @@
         <module>operator-sum</module>
         <module>operator-max</module>
         <module>operator-min</module>
+        <module>operator-range</module>
         <module>operator-avg</module>
         <module>operator-median</module>
         <module>operator-variance</module>
