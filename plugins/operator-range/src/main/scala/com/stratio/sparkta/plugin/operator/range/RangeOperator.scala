@@ -33,7 +33,9 @@ class RangeOperator(properties: Map[String, JSerializable]) extends Operator(pro
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
     if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
-      Some(inputFields.get(inputField.get).get.asInstanceOf[Number])
+      val value = inputFields.get(inputField.get).get
+        if(value.isInstanceOf[String]) Some(value.asInstanceOf[String].toDouble.asInstanceOf[Number])
+        else Some(value.asInstanceOf[Number])
     } else RangeOperator.SOME_ZERO_NUMBER
   }
 

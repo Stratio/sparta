@@ -34,6 +34,9 @@ class RangeOperatorSpec extends WordSpec with Matchers {
 
       val inputFields3 = new RangeOperator(Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
+
+      val inputFields4 = new RangeOperator(Map("inputField" -> "field1"))
+      inputFields4.processMap(Map("field1" -> "1", "field2" -> 2)) should be(Some(1))
     }
 
     "processReduce must be " in {
