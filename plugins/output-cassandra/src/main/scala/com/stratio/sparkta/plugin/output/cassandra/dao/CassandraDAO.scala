@@ -41,11 +41,11 @@ trait CassandraDAO extends Closeable with Logging {
 
   def replicationFactor: String
 
-  def clusteringBuckets: Array[String]
+  def clusteringBuckets: Option[Array[String]]
 
-  def indexFields: Array[String]
+  def indexFields: Option[Array[String]]
 
-  def textIndexFields: Array[String]
+  def textIndexFields: Option[Array[String]]
 
   def textIndexName: String
 
@@ -102,18 +102,23 @@ trait CassandraDAO extends Closeable with Logging {
                                 tSchemas: Seq[TableSchema],
                                 clusteringTime: String,
                                 isAutoCalculateId: Boolean): Boolean = {
-    val seqResults = for {
-      tableSchema <- tSchemas
-      indexField <- indexFields
-      primaryKey = getPrimaryKey(tableSchema.schema, clusteringTime, isAutoCalculateId)
-      created = if (!primaryKey.contains(indexField)) {
-        createIndex(conn, tableSchema.tableName, indexField)
-      } else {
-        log.info(s"The indexed field: $indexField is part of primary key.")
-        false
+    indexFields match {
+      case Some(fields) => {
+        val seqResults = for {
+          tableSchema <- tSchemas
+          indexField <- fields
+          primaryKey = getPrimaryKey(tableSchema.schema, clusteringTime, isAutoCalculateId)
+          created = if (!primaryKey.contains(indexField)) {
+            createIndex(conn, tableSchema.tableName, indexField)
+          } else {
+            log.info(s"The indexed field: $indexField is part of primary key.")
+            false
+          }
+        } yield created
+        seqResults.forall(result => result)
       }
-    } yield created
-    seqResults.forall(result => result)
+      case None => false
+    }
   }
 
   protected def createIndex(conn: CassandraConnector, tableName: String, field: String): Boolean =
@@ -126,15 +131,20 @@ trait CassandraDAO extends Closeable with Logging {
   }
 
   protected def doCreateTextIndexes(conn: CassandraConnector, tSchemas: Seq[TableSchema]): Boolean = {
-    val seqResults = for {
-      tableSchema <- tSchemas
-      fields = textIndexFields.filter(textField => tableSchema.schema.fieldNames.contains(textField.split(":").head))
-      command = s"CREATE CUSTOM INDEX IF NOT EXISTS ${tableSchema.tableName}_index " +
-        s"ON $keyspace.${tableSchema.tableName} ($textIndexName) USING 'com.stratio.cassandra.index.RowIndex' " +
-        s"WITH OPTIONS = { 'refresh_seconds' : '$refreshSeconds', ${getTextIndexSentence(fields)} }"
-      created = executeCommand(conn, command)
-    } yield created
-    seqResults.forall(result => result)
+    textIndexFields match {
+      case Some(textFields) => {
+        val seqResults = for {
+          tableSchema <- tSchemas
+          fields = textFields.filter(textField => tableSchema.schema.fieldNames.contains(textField.split(":").head))
+          command = s"CREATE CUSTOM INDEX IF NOT EXISTS ${tableSchema.tableName}_index " +
+            s"ON $keyspace.${tableSchema.tableName} ($textIndexName) USING 'com.stratio.cassandra.index.RowIndex' " +
+            s"WITH OPTIONS = { 'refresh_seconds' : '$refreshSeconds', ${getTextIndexSentence(fields)} }"
+          created = executeCommand(conn, command)
+        } yield created
+        seqResults.forall(result => result)
+      }
+      case None => false
+    }
   }
 
   protected def getTextIndexSentence(fields: Array[String]): String = {
@@ -163,10 +173,10 @@ trait CassandraDAO extends Closeable with Logging {
   }
 
   protected def pkConditions(field: StructField, clusteringTime: String): Boolean =
-    !field.nullable && field.name != clusteringTime && !clusteringBuckets.contains(field.name)
+    !field.nullable && field.name != clusteringTime && clusteringBuckets.forall(!_.contains(field.name))
 
   protected def clusteringConditions(field: StructField, clusteringTime: String): Boolean =
-    !field.nullable && (field.name == clusteringTime || clusteringBuckets.contains(field.name))
+    !field.nullable && (field.name == clusteringTime || clusteringBuckets.exists(_.contains(field.name)))
 
   protected def schemaToPkCcolumns(schema: StructType,
                                    clusteringTime: String,

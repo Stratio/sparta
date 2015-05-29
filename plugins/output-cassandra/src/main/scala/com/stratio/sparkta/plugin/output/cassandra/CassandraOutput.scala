@@ -65,11 +65,11 @@ class CassandraOutput(keyName: String,
 
   override val compactStorage = properties.getString("compactStorage", None)
 
-  override val clusteringBuckets = properties.getString("clusteringBuckets", "").split(fieldsSeparator)
+  override val clusteringBuckets = properties.getString("clusteringBuckets", None).map(_.split(fieldsSeparator))
 
-  override val indexFields = properties.getString("indexFields", "").split(fieldsSeparator)
+  override val indexFields = properties.getString("indexFields", None).map(_.split(fieldsSeparator))
 
-  override val textIndexFields = properties.getString("textIndexFields", "").split(fieldsSeparator)
+  override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(fieldsSeparator))
 
   override val analyzer = properties.getString("analyzer", DefaultAnalyzer)
 
@@ -82,7 +82,7 @@ class CassandraOutput(keyName: String,
   val fixedAgg = properties.getString("fixedAggregation", None)
 
   override val fixedAggregation: Map[String, Option[Any]] =
-    if (!textIndexFields.isEmpty && fixedAgg.isDefined) {
+    if (textIndexFields.isDefined && !textIndexFields.get.isEmpty && fixedAgg.isDefined) {
       val fixedAggSplited = fixedAgg.get.split(Output.FixedAggregationSeparator)
       Map(fixedAggSplited.head -> Some(""))
     } else Map()
@@ -98,12 +98,13 @@ class CassandraOutput(keyName: String,
     bcSchema.exists(bc => createTables(schemaFiltered, timeName, isAutoCalculateId))
   } else false
 
-  val indexesCreated = if (keyspaceCreated && tablesCreated) {
+  val indexesCreated = if (keyspaceCreated && tablesCreated && indexFields.isDefined && !indexFields.get.isEmpty) {
     bcSchema.exists(bc => createIndexes(schemaFiltered, timeName, isAutoCalculateId))
   } else false
 
   val textIndexesCreated = if (keyspaceCreated &&
     tablesCreated &&
+    textIndexFields.isDefined &&
     !textIndexFields.isEmpty &&
     !fixedAggregation.isEmpty &&
     fixedAgg.get == textIndexName) {

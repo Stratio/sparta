@@ -49,9 +49,9 @@ trait MongoDbDAO extends Closeable {
 
   def threadsAllowedB: Int
 
-  def language: String
+  def language: Option[String]
 
-  def textIndexFields: Array[String]
+  def textIndexFields: Option[Array[String]]
 
   def pkTextIndexesCreated: Boolean = false
 
@@ -73,10 +73,13 @@ trait MongoDbDAO extends Closeable {
   }
 
   protected def createPkTextIndex(collection: String, timeBucket: String): (Boolean, Boolean) = {
-    val textIndexCreated = textIndexFields.size > 0
+    val textIndexCreated = if (textIndexFields.isDefined && language.isDefined) {
+      if (textIndexFields.get.size > 0) {
+        createTextIndex(collection, textIndexFields.mkString(Output.Separator), textIndexFields.get, language.get)
+        true
+      } else false
+    } else false
 
-    if (textIndexCreated)
-      createTextIndex(collection, textIndexFields.mkString(Output.Separator), textIndexFields, language)
     if (!timeBucket.isEmpty) {
       createIndex(collection, Output.Id + Output.Separator + timeBucket,
         Map(Output.Id -> 1, timeBucket -> 1), true, true)
@@ -156,12 +159,12 @@ trait MongoDbDAO extends Closeable {
 
   protected def getUpdate(mapOperations: Map[Seq[(String, Any)], String],
                           identitiesField: Seq[Imports.DBObject]): Imports.DBObject = {
-    val combinedOptions: Map[Seq[(String, Any)], casbah.Imports.JSFunction] = mapOperations ++
-      Map((Seq((LanguageFieldName, language)), "$set")) ++ {
-      if (identitiesField.size > 0) {
-        Map((Seq(Bucketer.identityField.id -> identitiesField), "$set"))
-      } else Map()
+    val combinedOptions: Map[Seq[(String, Any)], casbah.Imports.JSFunction] = mapOperations ++ {
+      if (language.isDefined) Map((Seq((LanguageFieldName, language.get)), "$set")) else Map()
+    } ++ {
+      if (identitiesField.size > 0) Map((Seq(Bucketer.identityField.id -> identitiesField), "$set")) else Map()
     }
+
     combinedOptions.groupBy(_._2)
       .map { case (name, value) => MongoDBObject(name -> MongoDBObject(value.flatMap(f => f._1).toSeq: _*)) }
       .reduce(_ ++ _)
