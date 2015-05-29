@@ -122,7 +122,7 @@ trait CassandraDAO extends Closeable with Logging {
   }
 
   protected def createIndex(conn: CassandraConnector, tableName: String, field: String): Boolean =
-    executeCommand(conn, s"CREATE INDEX IF NOT EXISTS index_$field ON $keyspace.$tableName ($field)")
+    executeCommand(conn, s"CREATE INDEX IF NOT EXISTS index_${tableName}_$field ON $keyspace.$tableName ($field)")
 
   protected def executeCommand(conn: CassandraConnector, command: String): Boolean = {
     conn.withSessionDo(session => session.execute(command))

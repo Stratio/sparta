@@ -46,8 +46,8 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
 
   def getString(key: K, default: Option[String]): Option[String] = {
     m.get(key) match {
-      case Some(value : String) => Some(value)
-      case Some(value) => Some(value.toString)
+      case Some(value : String) => if(value != "") Some(value) else default
+      case Some(value) => if(value.toString != "") Some(value.toString) else default
       case None => default
     }
   }
