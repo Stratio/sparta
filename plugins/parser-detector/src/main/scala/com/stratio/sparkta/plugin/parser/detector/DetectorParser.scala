@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.plugin.parser.detector
 
 import java.io.Serializable
@@ -23,23 +24,36 @@ import scala.util.parsing.json.JSON
 
 class DetectorParser(properties: Map[String, Serializable]) extends Parser(properties) {
 
-
   def addGeoTo(event: Map[String, Serializable]): Map[String, Serializable] = {
-    val lat = event.get("lat") match{
-      case (Some(_:String))=>if(event.get("lat")!=Some(""))event.get("lat") else None
-        case(_) =>None
+    val lat = event.get("lat") match {
+      case (Some(_: String)) => if (event.get("lat") != Some("")) event.get("lat") else None
+      case (_) => None
     }
-    val lon = event.get("lon") match{
-      case (Some(_:String))=> if(event.get("lon")!=Some(""))event.get("lon") else None
-      case(_) =>None
+    val lon = event.get("lon") match {
+      case (Some(_: String)) => if (event.get("lon") != Some("")) event.get("lon") else None
+      case (_) => None
     }
     val mapToReturn = (lat, lon) match {
       case (Some(_), Some(_)) => "geo" -> Some(lat.get + "__" + lon.get)
       case (None, None) => "geo" -> ""
     }
 
-    if(Map(mapToReturn).get("geo")!=Some("__")) Map(mapToReturn)
+    if (Map(mapToReturn).get("geo") != Some("__")) Map(mapToReturn)
     else Map()
+  }
+
+  def stringDimensionToDouble(dimensionName: String, newDimensionName: String, columnMap: Map[String, String]):
+  Map[String, Serializable] = {
+    columnMap.get(dimensionName) match {
+      case Some("") => Map()
+      case None => Map()
+      case Some(_)=> Map(newDimensionName -> columnMap.get(dimensionName).getOrElse("0").toDouble)
+    }
+  }
+
+  def cloneDimension(dimensionName: String, newDimensionName: String, columnMap: Map[String, String]):
+  Map[String, String] = {
+    Map(newDimensionName -> columnMap.get(dimensionName).getOrElse("undefined"))
   }
 
   override def parse(data: Event): Event = {
@@ -56,39 +70,37 @@ class DetectorParser(properties: Map[String, Serializable]) extends Parser(prope
         event = Some(new Event(json.get.asInstanceOf[Map[String, Serializable]], Some(e._2)))
         val columns = event.get.keyMap.get("columns").get.asInstanceOf[List[Map[String, String]]]
         val columnMap = columns.map(c => c.get("column").get -> c.get("value").getOrElse("")).toMap
-        event = Some(new Event((columnMap ++ addGeoTo(columnMap)).filter(m => m._2 != ""), None))
 
+        val columnMapExtended = columnMap ++
+          cloneDimension("company_root", "c_r", columnMap) ++
+          cloneDimension("ou_vehicle", "ou_v", columnMap) ++
+          cloneDimension("asset", "a", columnMap) ++
+          cloneDimension("recorded_at_ms", "r_a_m", columnMap) ++
+          cloneDimension("geo", "g", columnMap) ++
+          cloneDimension("rpm_event_avg", "r_e_a", columnMap) ++
+          cloneDimension("odometer", "o", columnMap) ++
+          cloneDimension("path_id", "p_i", columnMap)
 
+        val odometerMap = stringDimensionToDouble("odometer", "odometerNum", columnMapExtended)
+
+        val rmpAvgMap = stringDimensionToDouble("rpm_event_avg", "rpmAvgNum", columnMapExtended)
+
+        val resultMap = columnMapExtended ++ odometerMap ++ rmpAvgMap
+
+        event = Some(new Event((resultMap
+          .asInstanceOf[Map[String,Serializable]] ++
+          addGeoTo(resultMap))
+          .filter(m => m
+          ._2 !=
+          ""), None))
       }
     })
 
     val parsedEvent = event.getOrElse(data)
-//    if (hasAlarms(parsedEvent.keyMap).contains(true))
-//      new Event(Map(), None)
-//    else
+    if (!parsedEvent.keyMap.get("alarm_code").getOrElse("1").equals("0"))
+      new Event(Map(), None)
+    else
       parsedEvent
   }
-
-  private def hasAlarms(map: Map[String, Serializable]): Set[Boolean] = {
-    map.keySet.map(isAlarm(_))
-  }
-
-  def isAlarm(key: String): Boolean = {
-    key match {
-      case "alarm_timestamp" => true
-      case "alarm_code" => true
-      case "alarm_imei" => true
-      case "alarm_lat" => true
-      case "alarm_lon" => true
-      case "alarm_sat_number" => true
-      case "alarm_speed" => true
-      case "alarm_direction" => true
-      case "alarm_ignition" => true
-      case "alarm_batt_tension" => true
-      case "alarm_detl" => true
-      case _ => false
-    }
-  }
-
 }
 
