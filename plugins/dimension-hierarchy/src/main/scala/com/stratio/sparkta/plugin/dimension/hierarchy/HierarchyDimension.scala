@@ -38,10 +38,12 @@ case class HierarchyDimension(props: Map[String, JSerializable]) extends Buckete
     if (!props.contains(WildCardPropertyName)) Map(WildCardPropertyName -> DefaultWildCard) else Map()
   }
 
-  final val LeftToRight = getLeftToRight(getTypeOperation, defaultTypeOperation)
-  final val RightToLeft = getRightToLeft(getTypeOperation, defaultTypeOperation)
-  final val LeftToRightWithWildCard = getLeftToRightWithWildCard(getTypeOperation, defaultTypeOperation)
-  final val RightToLeftWithWildCard = getRightToLeftWithWildCard(getTypeOperation, defaultTypeOperation)
+  final val LeftToRight = getLeftToRight(getTypeOperation(LeftToRightName), defaultTypeOperation)
+  final val RightToLeft = getRightToLeft(getTypeOperation(RightToLeftName), defaultTypeOperation)
+  final val LeftToRightWithWildCard =
+    getLeftToRightWithWildCard(getTypeOperation(LeftToRightWithWildCardName), defaultTypeOperation)
+  final val RightToLeftWithWildCard =
+    getRightToLeftWithWildCard(getTypeOperation(RightToLeftWithWildCardName), defaultTypeOperation)
 
   override val bucketTypes: Seq[BucketType] =
     Seq(LeftToRight, RightToLeft, LeftToRightWithWildCard, RightToLeftWithWildCard)
@@ -70,10 +72,14 @@ case class HierarchyDimension(props: Map[String, JSerializable]) extends Buckete
 
 object HierarchyDimension {
 
-  val DefaultSplitter = "."
-  val SplitterPropertyName = "splitter"
-  val DefaultWildCard = "*"
-  val WildCardPropertyName = "wildcard"
+  private final val DefaultSplitter = "."
+  private final val SplitterPropertyName = "splitter"
+  private final val DefaultWildCard = "*"
+  private final val WildCardPropertyName = "wildcard"
+  private final val LeftToRightName = "leftToRight"
+  private final val RightToLeftName = "rightToLeft"
+  private final val LeftToRightWithWildCardName = "leftToRightWithWildCard"
+  private final val RightToLeftWithWildCardName = "rightToLeftWithWildCard"
 
   def explodeWithWildcards(
                             domain: String,
@@ -95,14 +101,14 @@ object HierarchyDimension {
   }
 
   def getLeftToRight(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType("leftToRight", typeOperation.orElse(Some(default)))
+    new BucketType(LeftToRightName, typeOperation.orElse(Some(default)))
 
   def getRightToLeft(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType("leftToRight", typeOperation.orElse(Some(default)))
+    new BucketType(RightToLeftName, typeOperation.orElse(Some(default)))
 
   def getLeftToRightWithWildCard(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType("leftToRight", typeOperation.orElse(Some(default)))
+    new BucketType(LeftToRightWithWildCardName, typeOperation.orElse(Some(default)))
 
   def getRightToLeftWithWildCard(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType("leftToRight", typeOperation.orElse(Some(default)))
+    new BucketType(RightToLeftWithWildCardName, typeOperation.orElse(Some(default)))
 }

@@ -55,10 +55,19 @@ trait Bucketer {
 
   val TypeOperationName = "typeOp"
 
-  def getTypeOperation: Option[TypeOp] = properties.get(TypeOperationName) match {
-    case Some(operation) => Some(getTypeOperationByName(operation.asInstanceOf[String]))
-    case None => None
-  }
+  def getTypeOperation: Option[TypeOp] = getResultType(TypeOperationName)
+
+  def getTypeOperation(typeOperation: String): Option[TypeOp] =
+    if(!typeOperation.isEmpty && properties.contains(typeOperation)) getResultType(typeOperation)
+    else getResultType(TypeOperationName)
+
+  def getResultType(typeOperation: String): Option[TypeOp] =
+    if(!typeOperation.isEmpty){
+      properties.get(typeOperation) match {
+        case Some(operation) => Some(getTypeOperationByName(operation.asInstanceOf[String]))
+        case None => None
+      }
+    } else None
 
   //scalastyle:off
   def getTypeOperationByName(nameOperation: String): TypeOp =
@@ -77,7 +86,6 @@ trait Bucketer {
       case name if name == "arraystring" => TypeOp.ArrayString
       case _ => defaultTypeOperation
     }
-
   //scalastyle:on
 
   def defaultTypeOperation: TypeOp = TypeOp.String
@@ -85,12 +93,16 @@ trait Bucketer {
 
 object Bucketer {
 
+  final val IdentityName = "identity"
+  final val IdentityFieldName = "identityField"
+  final val TimestampName = "timestamp"
+
   def getIdentity(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType("identity", typeOperation.orElse(Some(default)))
+    new BucketType(IdentityName, typeOperation.orElse(Some(default)))
 
   def getIdentityField(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType("identityField", typeOperation.orElse(Some(default)))
+    new BucketType(IdentityFieldName, typeOperation.orElse(Some(default)))
 
   def getTimestamp(typeOperation: Option[TypeOp]): BucketType =
-    new BucketType("timestamp", typeOperation)
+    new BucketType(TimestampName, typeOperation)
 }

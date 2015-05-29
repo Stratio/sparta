@@ -38,12 +38,12 @@ case class DateTimeDimension(props: Map[String, JSerializable]) extends Bucketer
 
   override val bucketTypes: Seq[BucketType] = Seq(
     timestamp,
-    getSeconds(getTypeOperation, defaultTypeOperation),
-    getMinutes(getTypeOperation, defaultTypeOperation),
-    getHours(getTypeOperation, defaultTypeOperation),
-    getDays(getTypeOperation, defaultTypeOperation),
-    getMonths(getTypeOperation, defaultTypeOperation),
-    getYears(getTypeOperation, defaultTypeOperation))
+    getSeconds(getTypeOperation(SecondName), defaultTypeOperation),
+    getMinutes(getTypeOperation(MinuteName), defaultTypeOperation),
+    getHours(getTypeOperation(HourName), defaultTypeOperation),
+    getDays(getTypeOperation(DayName), defaultTypeOperation),
+    getMonths(getTypeOperation(MonthName), defaultTypeOperation),
+    getYears(getTypeOperation(YearName), defaultTypeOperation))
 
   @throws(classOf[ClassCastException])
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] =
@@ -62,26 +62,31 @@ object DateTimeDimension {
 
   private final val DefaultGranularity = "second"
   private final val GranularityPropertyName = "granularity"
+  private final val SecondName = "second"
+  private final val MinuteName = "minute"
+  private final val HourName = "hour"
+  private final val DayName = "day"
+  private final val MonthName = "month"
+  private final val YearName = "year"
+  private final val timestamp = Bucketer.getTimestamp(Some(TypeOp.Timestamp))
 
   def getSeconds(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType("second", typeOperation.orElse(Some(default)))
+    new BucketType(SecondName, typeOperation.orElse(Some(default)))
 
   def getMinutes(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType("minute", typeOperation.orElse(Some(default)))
+    new BucketType(MinuteName, typeOperation.orElse(Some(default)))
 
   def getHours(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType("hour", typeOperation.orElse(Some(default)))
+    new BucketType(HourName, typeOperation.orElse(Some(default)))
 
   def getDays(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType("day", typeOperation.orElse(Some(default)))
+    new BucketType(DayName, typeOperation.orElse(Some(default)))
 
   def getMonths(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType("month", typeOperation.orElse(Some(default)))
+    new BucketType(MonthName, typeOperation.orElse(Some(default)))
 
   def getYears(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType("year", typeOperation.orElse(Some(default)))
-
-  val timestamp = Bucketer.getTimestamp(Some(TypeOp.Timestamp))
+    new BucketType(YearName, typeOperation.orElse(Some(default)))
 
   private def bucket(value: Date, bucketType: BucketType, properties: Map[String, JSerializable]): JSerializable = {
     DateOperations.dateFromGranularity(new DateTime(value), bucketType match {

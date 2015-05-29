@@ -44,7 +44,7 @@ import com.stratio.sparkta.sdk.{TypeOp, _}
  * 12 - 3.7cm x 1.9cm
  *
  */
-case class GeoHashDimension() extends Bucketer with SLF4JLogging {
+case class GeoHashDimension(props: Map[String, JSerializable]) extends Bucketer with SLF4JLogging {
 
   def this() {
     this(Map())
@@ -54,18 +54,18 @@ case class GeoHashDimension() extends Bucketer with SLF4JLogging {
 
   override val bucketTypes: Seq[BucketType] =
     Seq(
-      getPrecision1(getTypeOperation, defaultTypeOperation),
-      getPrecision2(getTypeOperation, defaultTypeOperation),
-      getPrecision3(getTypeOperation, defaultTypeOperation),
-      getPrecision4(getTypeOperation, defaultTypeOperation),
-      getPrecision5(getTypeOperation, defaultTypeOperation),
-      getPrecision6(getTypeOperation, defaultTypeOperation),
-      getPrecision7(getTypeOperation, defaultTypeOperation),
-      getPrecision8(getTypeOperation, defaultTypeOperation),
-      getPrecision9(getTypeOperation, defaultTypeOperation),
-      getPrecision10(getTypeOperation, defaultTypeOperation),
-      getPrecision11(getTypeOperation, defaultTypeOperation),
-      getPrecision12(getTypeOperation, defaultTypeOperation))
+      getPrecision(Precision1, getTypeOperation(Precision1), defaultTypeOperation),
+      getPrecision(Precision2, getTypeOperation(Precision2), defaultTypeOperation),
+      getPrecision(Precision3, getTypeOperation(Precision3), defaultTypeOperation),
+      getPrecision(Precision4, getTypeOperation(Precision4), defaultTypeOperation),
+      getPrecision(Precision5, getTypeOperation(Precision5), defaultTypeOperation),
+      getPrecision(Precision6, getTypeOperation(Precision6), defaultTypeOperation),
+      getPrecision(Precision7, getTypeOperation(Precision7), defaultTypeOperation),
+      getPrecision(Precision8, getTypeOperation(Precision8), defaultTypeOperation),
+      getPrecision(Precision9, getTypeOperation(Precision9), defaultTypeOperation),
+      getPrecision(Precision10, getTypeOperation(Precision10), defaultTypeOperation),
+      getPrecision(Precision11, getTypeOperation(Precision11), defaultTypeOperation),
+      getPrecision(Precision12, getTypeOperation(Precision12), defaultTypeOperation))
 
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] = {
     //TODO temporal data treatment
@@ -82,7 +82,7 @@ case class GeoHashDimension() extends Bucketer with SLF4JLogging {
           } else (bucketType -> "")
         }).toMap
       } else {
-        val defaultPrecision = getPrecision3(getTypeOperation, defaultTypeOperation)
+        val defaultPrecision = getPrecision(Precision3, getTypeOperation(Precision3), defaultTypeOperation)
         Map(defaultPrecision -> GeoHashDimension.bucket(0, 0, defaultPrecision))
       }
     }
@@ -136,39 +136,7 @@ object GeoHashDimension {
     Seq(longitude, latitude).asInstanceOf[JSerializable]
   }
 
-  def getPrecision1(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(Precision1, typeOperation.orElse(Some(default)))
+  def getPrecision(precision: String, typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType(precision, typeOperation.orElse(Some(default)))
 
-  def getPrecision2(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(Precision2, typeOperation.orElse(Some(default)))
-
-  def getPrecision3(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(Precision3, typeOperation.orElse(Some(default)))
-
-  def getPrecision4(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(Precision4, typeOperation.orElse(Some(default)))
-
-  def getPrecision5(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(Precision5, typeOperation.orElse(Some(default)))
-
-  def getPrecision6(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(Precision6, typeOperation.orElse(Some(default)))
-
-  def getPrecision7(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(Precision7, typeOperation.orElse(Some(default)))
-
-  def getPrecision8(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(Precision8, typeOperation.orElse(Some(default)))
-
-  def getPrecision9(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(Precision9, typeOperation.orElse(Some(default)))
-
-  def getPrecision10(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(Precision10, typeOperation.orElse(Some(default)))
-
-  def getPrecision11(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(Precision11, typeOperation.orElse(Some(default)))
-
-  def getPrecision12(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(Precision12, typeOperation.orElse(Some(default)))
 }
