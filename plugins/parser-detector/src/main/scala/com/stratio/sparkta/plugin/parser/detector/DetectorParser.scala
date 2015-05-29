@@ -76,7 +76,6 @@ class DetectorParser(properties: Map[String, Serializable]) extends Parser(prope
           cloneDimension("ou_vehicle", "ou_v", columnMap) ++
           cloneDimension("asset", "a", columnMap) ++
           cloneDimension("recorded_at_ms", "r_a_m", columnMap) ++
-          cloneDimension("geo", "g", columnMap) ++
           cloneDimension("rpm_event_avg", "r_e_a", columnMap) ++
           cloneDimension("odometer", "o", columnMap) ++
           cloneDimension("path_id", "p_i", columnMap)
