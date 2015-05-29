@@ -14,7 +14,7 @@
       "configuration": {
         "topics": "streaming_data",
         "kafkaParams.zookeeper.connect": "anistal:2181",
-        "kafkaParams.group.id": "kafka-pruebas",
+        "kafkaParams.group.id": "kafka-pruebas-daniel",
         "storageLevel": "MEMORY_AND_DISK_SER_2"
       }
     }
@@ -38,7 +38,7 @@
     },
     {
       "dimensionType": "GeoHashBucketer",
-      "name": "g"
+      "name": "geo"
     },
     {
       "dimensionType": "PassthroughBucketer",
@@ -65,7 +65,7 @@
           "bucketType": "identity"
         },
         {
-          "dimensionName": "g",
+          "dimensionName": "geo",
           "bucketType": "precision12"
         },
         {
@@ -96,7 +96,7 @@
           "bucketType": "identity"
         },
         {
-          "dimensionName": "g",
+          "dimensionName": "geo",
           "bucketType": "precision12"
         },
         {
@@ -138,13 +138,7 @@
       "configuration": {
         "connectionHost": "172.19.1.245",
         "cluster": "Sparkta Cluster",
-        "keyspace": "detector",
-        "multiplexer": "false",
-        "clusteringBuckets": "",
-        "indexFields": "minute",
-        "fieldsSeparator": ",",
-        "refreshSeconds": "1",
-        "analyzer": "english"
+        "keyspace": "detector"
       }
     }
   ],
