@@ -1,0 +1,166 @@
+{
+  "name": "policy-Kafka-Cassandra",
+  "duration": 10000,
+  "saveRawData": "false",
+  "checkpointDir": "checkpoint",
+  "timeBucket": "minute",
+  "checkpointGranularity": "minute",
+  "checkpointInterval": 30000,
+  "checkpointTimeAvailability": 60000,
+  "inputs": [
+    {
+      "name": "in-kafka",
+      "elementType": "KafkaInput",
+      "configuration": {
+        "topics": "streaming_data",
+        "kafkaParams.zookeeper.connect": "anistal:2181",
+        "kafkaParams.group.id": "kafka-pruebas",
+        "storageLevel": "MEMORY_AND_DISK_SER_2"
+      }
+    }
+  ],
+  "dimensions": [
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "c_r"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "ou_v"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "a"
+    },
+    {
+      "dimensionType": "DateTimeBucketer",
+      "name": "r_a_m"
+    },
+    {
+      "dimensionType": "GeoHashBucketer",
+      "name": "g"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "r_e_a"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "o"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "p_i"
+    }
+  ],
+  "rollups": [
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "c_r",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "ou_v",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "g",
+          "bucketType": "precision12"
+        },
+        {
+          "dimensionName": "r_a_m",
+          "bucketType": "minute"
+        },
+        {
+          "dimensionName": "r_e_a",
+          "bucketType": "identity"
+        }
+      ],
+      "operators": [
+        "avg-operator"
+      ]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "c_r",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "ou_v",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "a",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "g",
+          "bucketType": "precision12"
+        },
+        {
+          "dimensionName": "r_a_m",
+          "bucketType": "minute"
+        },
+        {
+          "dimensionName": "o",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "p_i",
+          "bucketType": "identity"
+        }
+      ],
+      "operators": ["range-operator"]
+    }
+  ],
+  "operators": [
+    {
+      "name": "avg-operator",
+      "elementType": "AvgOperator",
+      "configuration": {
+        "inputField": "r_e_a"
+      }
+    },
+    {
+      "name": "range-operator",
+      "elementType": "RangeOperator",
+      "configuration": {
+        "inputField": "o"
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-cassandra",
+      "elementType": "CassandraOutput",
+      "configuration": {
+        "connectionHost": "172.19.1.245",
+        "cluster": "Sparkta Cluster",
+        "keyspace": "detector",
+        "multiplexer": "false",
+        "clusteringBuckets": "",
+        "indexFields": "minute",
+        "fieldsSeparator": ",",
+        "refreshSeconds": "1",
+        "analyzer": "english"
+      }
+    }
+  ],
+  "parsers": [
+    {
+      "name": "detector-parser",
+      "elementType": "DetectorParser",
+      "configuration": {
+      }
+    },
+    {
+      "name": "recorded_at_ms-parser",
+      "elementType": "DateTimeParser",
+      "configuration": {
+        "r_a_m": "unixMillis"
+      }
+    }
+  ]
+}
