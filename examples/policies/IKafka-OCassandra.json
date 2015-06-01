@@ -51,34 +51,19 @@
     {
       "dimensionType": "PassthroughBucketer",
       "name": "p_i"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "asset"
     }
   ],
   "rollups": [
     {
       "dimensionAndBucketTypes": [
         {
-          "dimensionName": "c_r",
-          "bucketType": "identity"
-        },
-        {
-          "dimensionName": "ou_v",
-          "bucketType": "identity"
-        },
-        {
-          "dimensionName": "geo",
-          "bucketType": "precision12"
-        },
-        {
-          "dimensionName": "r_a_m",
-          "bucketType": "minute"
-        },
-        {
-          "dimensionName": "r_e_a",
+          "dimensionName": "asset",
           "bucketType": "identity"
         }
-      ],
-      "operators": [
-        "avg-operator"
       ]
     },
     {
@@ -94,10 +79,6 @@
         {
           "dimensionName": "a",
           "bucketType": "identity"
-        },
-        {
-          "dimensionName": "geo",
-          "bucketType": "precision12"
         },
         {
           "dimensionName": "r_a_m",
@@ -127,18 +108,19 @@
       "name": "range-operator",
       "elementType": "RangeOperator",
       "configuration": {
-        "inputField": "o"
+        "inputField": "o_long"
       }
     }
   ],
   "outputs": [
     {
-      "name": "out-cassandra",
-      "elementType": "CassandraOutput",
+      "name": "out-print",
+      "elementType": "PrintOutput",
       "configuration": {
-        "connectionHost": "172.19.1.245",
-        "cluster": "Sparkta Cluster",
-        "keyspace": "detector"
+        "multiplexer": "true",
+        "dateBucket": "minute",
+        "granularity": "minute",
+        "isAutoCalculateId": "true"
       }
     }
   ],
@@ -154,6 +136,15 @@
       "elementType": "DateTimeParser",
       "configuration": {
         "r_a_m": "unixMillis"
+      }
+    },
+    {
+      "name": "type-parser",
+      "elementType": "TypeParser",
+      "configuration": {
+        "sourceField": "o",
+        "type": "Long",
+        "newField": "o_long"
       }
     }
   ]
