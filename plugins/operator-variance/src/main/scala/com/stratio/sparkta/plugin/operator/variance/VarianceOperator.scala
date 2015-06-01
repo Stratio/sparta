@@ -40,22 +40,23 @@ class VarianceOperator(properties: Map[String, JSerializable]) extends Operator(
     if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
       inputFields.get(inputField.get).get match {
         case value if value.isInstanceOf[String] => Try(Some(value.asInstanceOf[String].toDouble.asInstanceOf[Number]))
-          .getOrElse(VarianceOperator.SOME_ZERO_NUMBER)
+          .getOrElse(None)
         case value if value.isInstanceOf[Int] ||
           value.isInstanceOf[Double] ||
           value.isInstanceOf[Float] ||
           value.isInstanceOf[Long] ||
           value.isInstanceOf[Short] ||
           value.isInstanceOf[Byte] => Some(value.asInstanceOf[Number])
-        case _ => VarianceOperator.SOME_ZERO_NUMBER
+        case _ => None
       }
-    } else VarianceOperator.SOME_ZERO_NUMBER
+    } else None
   }
   //scalastyle:on
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
-    values.size match {
-      case (nz) if (nz != 0) => Some(variance(values.map(_.get.asInstanceOf[Number].doubleValue())))
+    val valuesFiltered = values.flatten
+    valuesFiltered.size match {
+      case (nz) if (nz != 0) => Some(variance(valuesFiltered.map(_.asInstanceOf[Number].doubleValue())))
       case _ => VarianceOperator.SOME_ZERO
     }
   }
@@ -63,6 +64,5 @@ class VarianceOperator(properties: Map[String, JSerializable]) extends Operator(
 
 private object VarianceOperator {
   val SOME_ZERO = Some(0d)
-  val SOME_ZERO_NUMBER = Some(0d.asInstanceOf[Number])
 }
 

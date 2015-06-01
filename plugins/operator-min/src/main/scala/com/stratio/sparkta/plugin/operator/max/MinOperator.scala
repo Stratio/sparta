@@ -39,26 +39,25 @@ class MinOperator(properties: Map[String, JSerializable]) extends Operator(prope
     if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
       inputFields.get(inputField.get).get match {
         case value if value.isInstanceOf[String] => Try(Some(value.asInstanceOf[String].toDouble.asInstanceOf[Number]))
-          .getOrElse(MinOperator.SOME_ZERO_NUMBER)
+          .getOrElse(None)
         case value if value.isInstanceOf[Int] ||
           value.isInstanceOf[Double] ||
           value.isInstanceOf[Float] ||
           value.isInstanceOf[Long] ||
           value.isInstanceOf[Short] ||
           value.isInstanceOf[Byte] => Some(value.asInstanceOf[Number])
-        case _ => MinOperator.SOME_ZERO_NUMBER
+        case _ => None
       }
-    } else MinOperator.SOME_ZERO_NUMBER
+    } else None
   }
   //scalastyle:on
 
   override def processReduce(values : Iterable[Option[Any]]): Option[Double] = {
-    Try(Some(values.map(_.get.asInstanceOf[Number].doubleValue()).min))
+    Try(Some(values.flatten.map(_.asInstanceOf[Number].doubleValue()).min))
       .getOrElse(MinOperator.SOME_ZERO)
   }
 }
 
 private object MinOperator {
   val SOME_ZERO = Some(0d)
-  val SOME_ZERO_NUMBER = Some(0d.asInstanceOf[Number])
 }

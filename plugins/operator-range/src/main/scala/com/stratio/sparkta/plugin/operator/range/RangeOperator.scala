@@ -39,23 +39,24 @@ class RangeOperator(properties: Map[String, JSerializable]) extends Operator(pro
     if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
       inputFields.get(inputField.get).get match {
         case value if value.isInstanceOf[String] => Try(Some(value.asInstanceOf[String].toDouble.asInstanceOf[Number]))
-          .getOrElse(RangeOperator.SOME_ZERO_NUMBER)
+          .getOrElse(None)
         case value if value.isInstanceOf[Int] ||
           value.isInstanceOf[Double] ||
           value.isInstanceOf[Float] ||
           value.isInstanceOf[Long] ||
           value.isInstanceOf[Short] ||
           value.isInstanceOf[Byte] => Some(value.asInstanceOf[Number])
-        case _ => RangeOperator.SOME_ZERO_NUMBER
+        case _ => None
       }
-    } else RangeOperator.SOME_ZERO_NUMBER
+    } else None
   }
   //scalastyle:on
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
-    values.size match {
+    val valuesFiltered = values.flatten
+    valuesFiltered.size match {
       case (nz) if (nz != 0) => {
-        val valuesConverted = values.map(_.get.asInstanceOf[Number].doubleValue())
+        val valuesConverted = valuesFiltered.map(_.asInstanceOf[Number].doubleValue())
         Some(valuesConverted.max - valuesConverted.min)
       }
       case _ => RangeOperator.SOME_ZERO
@@ -64,7 +65,5 @@ class RangeOperator(properties: Map[String, JSerializable]) extends Operator(pro
 }
 
 private object RangeOperator {
-
   val SOME_ZERO = Some(0d)
-  val SOME_ZERO_NUMBER = Some(0d.asInstanceOf[Number])
 }

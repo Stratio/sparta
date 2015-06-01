@@ -27,10 +27,10 @@ class MinOperatorSpec extends WordSpec with Matchers {
 
     "processMap must be " in {
       val inputField = new MinOperator(Map())
-      inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(0d))
+      inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
 
       val inputFields2 = new MinOperator(Map("inputField" -> "field1"))
-      inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(Some(0d))
+      inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(None)
 
       val inputFields3 = new MinOperator(Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
@@ -39,7 +39,7 @@ class MinOperatorSpec extends WordSpec with Matchers {
       inputFields3.processMap(Map("field1" -> "1", "field2" -> 2)) should be(Some(1))
 
       val inputFields5 = new MinOperator(Map("inputField" -> "field1"))
-      inputFields5.processMap(Map("field1" -> "foo", "field2" -> 2)) should be(Some(0))
+      inputFields5.processMap(Map("field1" -> "foo", "field2" -> 2)) should be(None)
 
       val inputFields6 = new MinOperator(Map("inputField" -> "field1"))
       inputFields6.processMap(Map("field1" -> 1.5, "field2" -> 2)) should be(Some(1.5))
@@ -57,6 +57,10 @@ class MinOperatorSpec extends WordSpec with Matchers {
 
       val inputFields3 = new MinOperator(Map())
       inputFields3.processReduce(Seq(Some(1), Some(2), Some(3))) should be(Some(1d))
+
+      val inputFields4 = new MinOperator(Map())
+      inputFields4.processReduce(Seq(None)) should be(Some(0d))
+
     }
   }
 }

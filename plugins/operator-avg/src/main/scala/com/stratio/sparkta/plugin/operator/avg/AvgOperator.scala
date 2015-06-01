@@ -39,22 +39,23 @@ class AvgOperator(properties: Map[String, JSerializable]) extends Operator(prope
     if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
       inputFields.get(inputField.get).get match {
         case value if value.isInstanceOf[String] => Try(Some(value.asInstanceOf[String].toDouble.asInstanceOf[Number]))
-          .getOrElse(AvgOperator.SOME_ZERO_NUMBER)
+          .getOrElse(None)
         case value if value.isInstanceOf[Int] ||
           value.isInstanceOf[Double] ||
           value.isInstanceOf[Float] ||
           value.isInstanceOf[Long] ||
           value.isInstanceOf[Short] ||
           value.isInstanceOf[Byte] => Some(value.asInstanceOf[Number])
-        case _ => AvgOperator.SOME_ZERO_NUMBER
+        case _ => None
       }
-    } else AvgOperator.SOME_ZERO_NUMBER
+    } else None
   }
   //scalastyle:on
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
-    values.size match {
-      case (nz) if (nz != 0) => Some(values.map(_.get.asInstanceOf[Number].doubleValue()).sum / values.size)
+    val valuesFiltered = values.flatten
+    valuesFiltered.size match {
+      case (nz) if (nz != 0) => Some(valuesFiltered.map(_.asInstanceOf[Number].doubleValue()).sum / valuesFiltered.size)
       case _ => AvgOperator.SOME_ZERO
     }
   }
@@ -63,5 +64,4 @@ class AvgOperator(properties: Map[String, JSerializable]) extends Operator(prope
 
 private object AvgOperator {
   val SOME_ZERO = Some(0d)
-  val SOME_ZERO_NUMBER = Some(0d.asInstanceOf[Number])
 }

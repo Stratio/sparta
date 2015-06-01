@@ -42,22 +42,24 @@ class MedianOperator(properties: Map[String, JSerializable]) extends Operator(pr
     if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
       inputFields.get(inputField.get).get match {
         case value if value.isInstanceOf[String] => Try(Some(value.asInstanceOf[String].toDouble.asInstanceOf[Number]))
-          .getOrElse(MedianOperator.SOME_ZERO_NUMBER)
+          .getOrElse(None)
         case value if value.isInstanceOf[Int] ||
           value.isInstanceOf[Double] ||
           value.isInstanceOf[Float] ||
           value.isInstanceOf[Long] ||
           value.isInstanceOf[Short] ||
           value.isInstanceOf[Byte] => Some(value.asInstanceOf[Number])
-        case _ => MedianOperator.SOME_ZERO_NUMBER
+        case _ => None
       }
-    } else MedianOperator.SOME_ZERO_NUMBER
+    } else None
   }
   //scalastyle:on
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
-    values.size match {
-      case (nz) if (nz != 0) => Some(median(DenseVector(values.map(_.get.asInstanceOf[Number].doubleValue()).toArray)))
+    val valuesFiltered = values.flatten
+    valuesFiltered.size match {
+      case (nz) if (nz != 0) =>
+        Some(median(DenseVector(valuesFiltered.map(_.asInstanceOf[Number].doubleValue()).toArray)))
       case _ => MedianOperator.SOME_ZERO
     }
   }
@@ -65,5 +67,4 @@ class MedianOperator(properties: Map[String, JSerializable]) extends Operator(pr
 
 private object MedianOperator {
   val SOME_ZERO = Some(0d)
-  val SOME_ZERO_NUMBER = Some(0d.asInstanceOf[Number])
 }
