@@ -38,7 +38,10 @@ class TypeParser(properties: Map[String, Serializable]) extends Parser(propertie
             case "float" => (targetField, value.toString.toFloat.asInstanceOf[Serializable])
             case "double" => (targetField, value.toString.toDouble.asInstanceOf[Serializable])
             case _ =>
-              throw new IllegalArgumentException("Possible values for property type are: Int, Long, Float and Double")
+              throw new IllegalArgumentException("Possible values for property type are: Byte, Short, Int, Long, " +
+                "Float " +
+                "and " +
+                "Double")
           }
         } else {
           (key, value)
