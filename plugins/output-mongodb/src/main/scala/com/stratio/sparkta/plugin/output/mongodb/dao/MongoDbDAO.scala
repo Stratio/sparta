@@ -177,20 +177,20 @@ trait MongoDbDAO extends Closeable {
     }))
   }
 
+  /*
+   * With stateful all are set, but in the future is possible that we need more $max, $min, $avg for efficiency
+   */
   protected def getSentence(op: WriteOp, seq: Seq[(String, Option[Any])]): (Seq[(String, Any)], String) = {
     op match {
-      case WriteOp.Inc =>
-        (seq.asInstanceOf[Seq[(String, Long)]], "$set")
-      case WriteOp.IncBig =>
-        (valuesBigDecimalToDouble(seq), "$set")
-      case WriteOp.Set =>
-        (seq, "$set")
+      case WriteOp.Inc => (seq.asInstanceOf[Seq[(String, Long)]], "$set")
+      case WriteOp.IncBig => (valuesBigDecimalToDouble(seq), "$set")
+      case WriteOp.Set => (seq, "$set")
       case WriteOp.Avg | WriteOp.Median | WriteOp.Variance | WriteOp.Stddev =>
         (seq.asInstanceOf[Seq[(String, Double)]], "$set")
       case WriteOp.Max =>
-        (seq.asInstanceOf[Seq[(String, Double)]], "$max")
+        (seq.asInstanceOf[Seq[(String, Double)]], "$set")
       case WriteOp.Min =>
-        (seq.asInstanceOf[Seq[(String, Double)]], "$min")
+        (seq.asInstanceOf[Seq[(String, Double)]], "$set")
       case WriteOp.AccAvg | WriteOp.AccMedian | WriteOp.AccVariance | WriteOp.AccStddev =>
         (seq.asInstanceOf[Seq[(String, Double)]], "$set")
       case WriteOp.FullText | WriteOp.AccSet =>

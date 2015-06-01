@@ -34,11 +34,23 @@ class SumOperator(properties: Map[String, JSerializable]) extends Operator(prope
 
   override val writeOperation = WriteOp.Inc
 
+  //scalastyle:off
   override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
     if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
-      Some(inputFields.get(inputField.get).get.asInstanceOf[Number])
+      inputFields.get(inputField.get).get match {
+        case value if value.isInstanceOf[String] => Try(Some(value.asInstanceOf[String].toDouble.asInstanceOf[Number]))
+          .getOrElse(SumOperator.SOME_ZERO_NUMBER)
+        case value if value.isInstanceOf[Int] ||
+          value.isInstanceOf[Double] ||
+          value.isInstanceOf[Float] ||
+          value.isInstanceOf[Long] ||
+          value.isInstanceOf[Short] ||
+          value.isInstanceOf[Byte] => Some(value.asInstanceOf[Number])
+        case _ => SumOperator.SOME_ZERO_NUMBER
+      }
     } else SumOperator.SOME_ZERO_NUMBER
   }
+  //scalastyle:on
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     Try(Some(values.map(_.get.asInstanceOf[Number].doubleValue()).reduce(_ + _)))

@@ -34,6 +34,18 @@ class AvgOperatorSpec extends WordSpec with Matchers {
 
       val inputFields3 = new AvgOperator(Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
+
+      val inputFields4 = new AvgOperator(Map("inputField" -> "field1"))
+      inputFields4.processMap(Map("field1" -> "1", "field2" -> 2)) should be(Some(1))
+
+      val inputFields5 = new AvgOperator(Map("inputField" -> "field1"))
+      inputFields5.processMap(Map("field1" -> "foo", "field2" -> 2)) should be(Some(0))
+
+      val inputFields6 = new AvgOperator(Map("inputField" -> "field1"))
+      inputFields6.processMap(Map("field1" -> 1.5, "field2" -> 2)) should be(Some(1.5))
+
+      val inputFields7 = new AvgOperator(Map("inputField" -> "field1"))
+      inputFields7.processMap(Map("field1" -> 5L, "field2" -> 2)) should be(Some(5L))
     }
 
     "processReduce must be " in {
