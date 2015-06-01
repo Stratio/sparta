@@ -60,6 +60,7 @@
         <module>bucketer-hierarchy</module>
         <module>input-rabbitMQ</module>
         <module>parser-detector</module>
+        <module>parser-type</module>
     </modules>
 
     <dependencies>
