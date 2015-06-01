@@ -42,12 +42,13 @@ class DetectorParser(properties: Map[String, Serializable]) extends Parser(prope
     else Map()
   }
 
-  def stringDimensionToDouble(dimensionName: String, newDimensionName: String, columnMap: Map[String, String]):
+  def stringDimensionToDouble(dimensionName: String, newDimensionName: String, columnMap: Map[String, Any]):
   Map[String, Serializable] = {
     columnMap.get(dimensionName) match {
+      case Some(x:Double) => Map(newDimensionName-> x)
+      case Some(x:String) => if(x=="") Map() else Map(newDimensionName->x.toDouble)
+      case Some(_)=> Map(newDimensionName -> columnMap.get(dimensionName).getOrElse("0").toString.toDouble)
       case None => Map()
-      case Some(_)=> if(columnMap.get(dimensionName).isEmpty)Map()
-        else Map(newDimensionName -> columnMap.get(dimensionName).getOrElse(0L))
     }
   }
 
@@ -64,9 +65,9 @@ class DetectorParser(properties: Map[String, Serializable]) extends Parser(prope
           case s: String => s
           case b: Array[Byte] => new String(b)
         }
-        val tsExp = """(:)([^"{\[][\d.]*)""".r
-        val res = tsExp replaceFirstIn(result, """$1"$2"""")
-        val json = JSON.parseFull(res)
+
+        JSON.globalNumberParser = {input: String => input.toDouble}
+        val json = JSON.parseFull(result)
         event = Some(new Event(json.get.asInstanceOf[Map[String, Serializable]], Some(e._2)))
         val columns = event.get.keyMap.get("columns").get.asInstanceOf[List[Map[String, String]]]
         val columnMap = columns.map(c => c.get("column").get -> c.get("value").getOrElse("")).toMap
