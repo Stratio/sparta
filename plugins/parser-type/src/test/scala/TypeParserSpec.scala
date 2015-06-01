@@ -25,6 +25,8 @@ class TypeParserSpec extends WordSpecLike {
   val StringValue: String = "141633078"
   val StringDecimalValue: String = "141633078.2323"
   val StringDecimalValueWithComma: String = "141633078,2323"
+  val StringShortValue: String = "3"
+  val StringByteValue: String = "1"
 
   "A TypeParser" should {
     "parse string to int" in {
@@ -64,6 +66,26 @@ class TypeParserSpec extends WordSpecLike {
         new TypeParser(Map(
           "sourceField" -> "stringField",
           "type" -> "Double",
+          "newField" -> "numericField")).parse(e1))
+    }
+
+    "parse string to short" in {
+      val e1 = new Event(Map("stringField" -> StringShortValue))
+      val e2 = new Event(Map("numericField" -> StringShortValue.toShort))
+      assertResult (e2) (
+        new TypeParser(Map(
+          "sourceField" -> "stringField",
+          "type" -> "short",
+          "newField" -> "numericField")).parse(e1))
+    }
+
+    "parse string to byte" in {
+      val e1 = new Event(Map("stringField" -> StringByteValue))
+      val e2 = new Event(Map("numericField" -> StringByteValue.toByte))
+      assertResult (e2) (
+        new TypeParser(Map(
+          "sourceField" -> "stringField",
+          "type" -> "byte",
           "newField" -> "numericField")).parse(e1))
     }
   }

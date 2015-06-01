@@ -30,11 +30,13 @@ class TypeParser(properties: Map[String, Serializable]) extends Parser(propertie
     new Event(data.keyMap.map({
       case (key, value) =>
         if (sourceField.equals(key)) {
-          typeField match {
-            case "Int" => (targetField, value.toString.toInt.asInstanceOf[Serializable])
-            case "Long" => (targetField, value.toString.toLong.asInstanceOf[Serializable])
-            case "Float" => (targetField, value.toString.toFloat.asInstanceOf[Serializable])
-            case "Double" => (targetField, value.toString.toDouble.asInstanceOf[Serializable])
+          typeField.toLowerCase match {
+            case "byte" => (targetField, value.toString.toByte.asInstanceOf[Serializable])
+            case "short" => (targetField, value.toString.toShort.asInstanceOf[Serializable])
+            case "int" => (targetField, value.toString.toInt.asInstanceOf[Serializable])
+            case "long" => (targetField, value.toString.toLong.asInstanceOf[Serializable])
+            case "float" => (targetField, value.toString.toFloat.asInstanceOf[Serializable])
+            case "double" => (targetField, value.toString.toDouble.asInstanceOf[Serializable])
             case _ =>
               throw new IllegalArgumentException("Possible values for property type are: Int, Long, Float and Double")
           }
