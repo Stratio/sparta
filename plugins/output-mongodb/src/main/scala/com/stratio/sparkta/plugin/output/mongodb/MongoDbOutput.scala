@@ -58,6 +58,10 @@ class MongoDbOutput(keyName: String,
 
   override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
+  override val identitiesSaved = Try(properties.getString("identitiesSaved").toBoolean).getOrElse(false)
+
+  override val identitiesSavedAsField = Try(properties.getString("identitiesSavedAsField").toBoolean).getOrElse(false)
+
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
   override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(fieldsSeparator))
@@ -86,9 +90,8 @@ class MongoDbOutput(keyName: String,
       val updateObjects = collMetricOp._2.map { case (rollupKey, aggregations) => {
         checkFields(aggregations.keySet, operationTypes)
         val eventTimeObject = if (!timeName.isEmpty) Some(timeName -> new DateTime(rollupKey.time)) else None
-        val identitiesField = rollupKey.dimensionValues
-          .filter(_.dimensionBucket.bucketType.id == Bucketer.identityField.id)
-          .map(dimVal => MongoDBObject(dimVal.dimensionBucket.dimension.name -> dimVal.value))
+        val identitiesField = getIdentitiesField(rollupKey)
+        val identities = if(identitiesSaved) Some(getIdentities(rollupKey)) else None
         val mapOperations = getOperations(aggregations.toSeq, operationTypes)
           .groupBy { case (writeOp, op) => writeOp }
           .mapValues(operations => operations.map { case (writeOp, op) => op })
@@ -99,7 +102,7 @@ class MongoDbOutput(keyName: String,
           eventTimeObject,
           AggregateOperations.filterDimensionValuesByBucket(rollupKey.dimensionValues, if (timeName.isEmpty) None
           else Some(timeName))),
-          getUpdate(mapOperations, identitiesField))
+          getUpdate(mapOperations, identitiesField, identities))
       }
       }
 

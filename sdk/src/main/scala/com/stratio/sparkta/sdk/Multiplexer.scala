@@ -67,7 +67,7 @@ object Multiplexer {
       comb <- combine(
         dimensionValuesT.dimensionValues.filter(dimVal =>
           !fixedDims.map(dim => dim.getNameDimension).contains(dimVal.getNameDimension)
-        )).filter(_.nonEmpty).map(dimensionsValues => dimensionsValues ++ fixedDims)
+        )).filter(_.size >= 1).map(dimensionsValues => dimensionsValues ++ fixedDims)
     } yield (DimensionValuesTime(comb.sorted, dimensionValuesT.time), aggregations)
   }
 }

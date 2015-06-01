@@ -53,7 +53,11 @@ trait MongoDbDAO extends Closeable {
 
   def textIndexFields: Option[Array[String]]
 
-  def pkTextIndexesCreated: Boolean = false
+  def pkTextIndexesCreated: Boolean
+
+  def identitiesSaved: Boolean
+
+  def identitiesSavedAsField: Boolean
 
   def retrySleep: Int
 
@@ -158,11 +162,17 @@ trait MongoDbDAO extends Closeable {
   }
 
   protected def getUpdate(mapOperations: Map[Seq[(String, Any)], String],
-                          identitiesField: Seq[Imports.DBObject]): Imports.DBObject = {
+                          identitiesField: Seq[Imports.DBObject],
+                          identities: Option[Map[Seq[(String, JSerializable)], String]]): Imports.DBObject = {
     val combinedOptions: Map[Seq[(String, Any)], casbah.Imports.JSFunction] = mapOperations ++ {
       if (language.isDefined) Map((Seq((LanguageFieldName, language.get)), "$set")) else Map()
     } ++ {
       if (identitiesField.size > 0) Map((Seq(Bucketer.identityField.id -> identitiesField), "$set")) else Map()
+    } ++ {
+      identities match {
+        case Some(identity) => identity
+        case None => Map()
+      }
     }
 
     combinedOptions.groupBy(_._2)
@@ -197,6 +207,15 @@ trait MongoDbDAO extends Closeable {
         (seq.asInstanceOf[Seq[(String, String)]], "$set")
     }
   }
+
+  def getIdentities(rollupKey : DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
+    rollupKey.dimensionValues.filter(dimVal => dimVal.dimensionBucket.bucketType.id == Bucketer.identity.id)
+    .map(dimVal => (Seq(dimVal.getNameDimension -> dimVal.value), "$set")).toMap
+
+  def getIdentitiesField(rollupKey : DimensionValuesTime): Seq[Imports.DBObject] = rollupKey.dimensionValues
+    .filter(dimVal => dimVal.dimensionBucket.bucketType.id == Bucketer.identityField.id ||
+    (identitiesSavedAsField && dimVal.dimensionBucket.bucketType.id == Bucketer.identity.id))
+    .map(dimVal => MongoDBObject(dimVal.getNameDimension -> dimVal.value))
 
   protected def checkFields(aggregations: Set[String],
                             operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]]): Unit = {
