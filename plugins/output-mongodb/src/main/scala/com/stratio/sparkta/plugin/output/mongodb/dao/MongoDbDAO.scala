@@ -32,6 +32,7 @@ import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp._
 import com.stratio.sparkta.sdk._
 
+//scalastyle:off
 trait MongoDbDAO extends Closeable {
 
   final val DefaultConnectionsPerHost = 5
@@ -58,6 +59,8 @@ trait MongoDbDAO extends Closeable {
   def identitiesSaved: Boolean
 
   def identitiesSavedAsField: Boolean
+
+  def idAsField: Boolean
 
   def retrySleep: Int
 
@@ -163,7 +166,8 @@ trait MongoDbDAO extends Closeable {
 
   protected def getUpdate(mapOperations: Map[Seq[(String, Any)], String],
                           identitiesField: Seq[Imports.DBObject],
-                          identities: Option[Map[Seq[(String, JSerializable)], String]]): Imports.DBObject = {
+                          identities: Option[Map[Seq[(String, JSerializable)], String]],
+                          idFields: Option[Map[Seq[(String, JSerializable)], String]]): Imports.DBObject = {
     val combinedOptions: Map[Seq[(String, Any)], casbah.Imports.JSFunction] = mapOperations ++ {
       if (language.isDefined) Map((Seq((LanguageFieldName, language.get)), "$set")) else Map()
     } ++ {
@@ -173,11 +177,17 @@ trait MongoDbDAO extends Closeable {
         case Some(identity) => identity
         case None => Map()
       }
+    } ++ {
+      idFields match {
+        case Some(field) => field
+        case None => Map()
+      }
     }
 
-    combinedOptions.groupBy(_._2)
+    val updateObjects = combinedOptions.filter(_._2.nonEmpty).groupBy(_._2)
       .map { case (name, value) => MongoDBObject(name -> MongoDBObject(value.flatMap(f => f._1).toSeq: _*)) }
-      .reduce(_ ++ _)
+
+    if(updateObjects.nonEmpty) updateObjects.reduce(_ ++ _) else MongoDBObject()
   }
 
   protected def valuesBigDecimalToDouble(seq: Seq[(String, Option[Any])]): Seq[(String, Double)] = {
@@ -208,11 +218,14 @@ trait MongoDbDAO extends Closeable {
     }
   }
 
-  def getIdentities(rollupKey : DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
+  protected def getIdFields(rollupKey : DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
+    rollupKey.dimensionValues.map(dimVal => (Seq(dimVal.getNameDimension -> dimVal.value), "$set")).toMap
+
+  protected def getIdentities(rollupKey : DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
     rollupKey.dimensionValues.filter(dimVal => dimVal.dimensionBucket.bucketType.id == Bucketer.identity.id)
     .map(dimVal => (Seq(dimVal.getNameDimension -> dimVal.value), "$set")).toMap
 
-  def getIdentitiesField(rollupKey : DimensionValuesTime): Seq[Imports.DBObject] = rollupKey.dimensionValues
+  protected def getIdentitiesField(rollupKey : DimensionValuesTime): Seq[Imports.DBObject] = rollupKey.dimensionValues
     .filter(dimVal => dimVal.dimensionBucket.bucketType.id == Bucketer.identityField.id ||
     (identitiesSavedAsField && dimVal.dimensionBucket.bucketType.id == Bucketer.identity.id))
     .map(dimVal => MongoDBObject(dimVal.getNameDimension -> dimVal.value))
