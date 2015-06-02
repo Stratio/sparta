@@ -38,23 +38,11 @@ class StddevOperator(properties: Map[String, JSerializable]) extends Operator(pr
 
   override val writeOperation = WriteOp.Stddev
 
-  //scalastyle:off
   override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
-    if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
-      inputFields.get(inputField.get).get match {
-        case value if value.isInstanceOf[String] => Try(Some(value.asInstanceOf[String].toDouble.asInstanceOf[Number]))
-          .getOrElse(None)
-        case value if value.isInstanceOf[Int] ||
-          value.isInstanceOf[Double] ||
-          value.isInstanceOf[Float] ||
-          value.isInstanceOf[Long] ||
-          value.isInstanceOf[Short] ||
-          value.isInstanceOf[Byte] => Some(value.asInstanceOf[Number])
-        case _ => None
-      }
-    } else None
+    if ((inputField.isDefined) && (inputFields.contains(inputField.get)))
+      getNumberFromSerializable(inputFields.get(inputField.get).get)
+    else None
   }
-  //scalastyle:on
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     val valuesFiltered = values.flatten
