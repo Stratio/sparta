@@ -137,7 +137,11 @@ Reads events from Twitter API
         "consumerSecret": "CONSUMER_SECRET",
         "accessToken": "ACCESS_TOKEN",
         "accessTokenSecret": "ACCESS_TOKEN_SECRET"
+        "termsOfSearch": "#Your,search,#terms,could be,#whatever"
       }
     }
   ]
+
+  The field "termsOfSearch" it's optional, if you use it you can search according to it otherwise
+  the search will be done with global trending topics.
 
