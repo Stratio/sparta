@@ -62,6 +62,8 @@ class MongoDbOutput(keyName: String,
 
   override val identitiesSavedAsField = Try(properties.getString("identitiesSavedAsField").toBoolean).getOrElse(false)
 
+  override val idAsField = Try(properties.getString("idAsField").toBoolean).getOrElse(false)
+
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
   override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(fieldsSeparator))
@@ -92,6 +94,7 @@ class MongoDbOutput(keyName: String,
         val eventTimeObject = if (!timeName.isEmpty) Some(timeName -> new DateTime(rollupKey.time)) else None
         val identitiesField = getIdentitiesField(rollupKey)
         val identities = if(identitiesSaved) Some(getIdentities(rollupKey)) else None
+        val idFields = if(idAsField) Some(getIdFields(rollupKey)) else None
         val mapOperations = getOperations(aggregations.toSeq, operationTypes)
           .groupBy { case (writeOp, op) => writeOp }
           .mapValues(operations => operations.map { case (writeOp, op) => op })
@@ -102,7 +105,7 @@ class MongoDbOutput(keyName: String,
           eventTimeObject,
           AggregateOperations.filterDimensionValuesByBucket(rollupKey.dimensionValues, if (timeName.isEmpty) None
           else Some(timeName))),
-          getUpdate(mapOperations, identitiesField, identities))
+          getUpdate(mapOperations, identitiesField, identities, idFields))
       }
       }
 
