@@ -148,7 +148,7 @@
         <scala.version>2.10.4</scala.version>
         <spark.version>1.3.0</spark.version>
         <slf4j.version>1.7.7</slf4j.version>
-        <joda.time.version>2.5</joda.time.version>
+        <nscala.time.version>2.0.0</nscala.time.version>
         <scalatest.version>2.2.2</scalatest.version>
         <mockito.version>1.10.5</mockito.version>
     </properties>
@@ -166,9 +166,9 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>joda-time</groupId>
-                <artifactId>joda-time</artifactId>
-                <version>${joda.time.version}</version>
+                <groupId>com.github.nscala-time</groupId>
+                <artifactId>nscala-time_${scala.binary.version}</artifactId>
+                <version>${nscala.time.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.scala-lang</groupId>

@@ -18,13 +18,15 @@ package com.stratio.sparkta.sdk
 
 import java.sql.Timestamp
 
-import org.joda.time.DateTime
+import com.github.nscala_time.time.Imports._
 
 object DateOperations {
 
+  final val Slash: String = "/"
+
   def getTimeFromGranularity(timeBucket: Option[String], granularity: Option[String]): Long =
     (timeBucket, granularity) match {
-      case (Some(time), Some(granularity)) => dateFromGranularity(DateTime.now(), granularity)
+      case (Some(time), Some(granularity)) => dateFromGranularity(DateTime.now, granularity)
       case _ => 0L
     }
 
@@ -48,4 +50,10 @@ object DateOperations {
   }
 
   def millisToTimeStamp(date: Long): Timestamp = new Timestamp(date)
+
+  def subPath(granularity: String, datePattern: Option[String]): String = {
+    val suffix = dateFromGranularity(DateTime.now, granularity)
+    if (!datePattern.isDefined || suffix.equals(0L)) Slash + suffix
+    else Slash + DateTimeFormat.forPattern(datePattern.get).print(new DateTime(suffix)) + Slash + suffix
+  }
 }

@@ -30,8 +30,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
+            <groupId>com.github.nscala-time</groupId>
+            <artifactId>nscala-time_${scala.binary.version}</artifactId>
         </dependency>
     </dependencies>
 </project>
