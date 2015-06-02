@@ -27,13 +27,25 @@ class AvgOperatorSpec extends WordSpec with Matchers {
 
     "processMap must be " in {
       val inputField = new AvgOperator(Map())
-      inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(0d))
+      inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
 
       val inputFields2 = new AvgOperator(Map("inputField" -> "field1"))
-      inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(Some(0d))
+      inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(None)
 
       val inputFields3 = new AvgOperator(Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
+
+      val inputFields4 = new AvgOperator(Map("inputField" -> "field1"))
+      inputFields4.processMap(Map("field1" -> "1", "field2" -> 2)) should be(Some(1))
+
+      val inputFields5 = new AvgOperator(Map("inputField" -> "field1"))
+      inputFields5.processMap(Map("field1" -> "foo", "field2" -> 2)) should be(None)
+
+      val inputFields6 = new AvgOperator(Map("inputField" -> "field1"))
+      inputFields6.processMap(Map("field1" -> 1.5, "field2" -> 2)) should be(Some(1.5))
+
+      val inputFields7 = new AvgOperator(Map("inputField" -> "field1"))
+      inputFields7.processMap(Map("field1" -> 5L, "field2" -> 2)) should be(Some(5L))
     }
 
     "processReduce must be " in {
@@ -41,10 +53,14 @@ class AvgOperatorSpec extends WordSpec with Matchers {
       inputFields.processReduce(Seq()) should be(Some(0d))
 
       val inputFields2 = new AvgOperator(Map())
-      inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some(1))
+      inputFields2.processReduce(Seq(Some(1), Some(1), None)) should be(Some(1))
 
       val inputFields3 = new AvgOperator(Map())
-      inputFields3.processReduce(Seq(Some(1), Some(2), Some(3))) should be(Some(2))
+      inputFields3.processReduce(Seq(Some(1), Some(2), Some(3), None)) should be(Some(2))
+
+      val inputFields4 = new AvgOperator(Map())
+      inputFields4.processReduce(Seq(None)) should be(Some(0d))
+
     }
   }
 }

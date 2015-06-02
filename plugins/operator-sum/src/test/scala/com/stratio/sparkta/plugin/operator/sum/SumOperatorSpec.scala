@@ -27,13 +27,26 @@ class SumOperatorSpec extends WordSpec with Matchers {
 
     "processMap must be " in {
       val inputField = new SumOperator(Map())
-      inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(0))
+      inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
 
       val inputFields2 = new SumOperator(Map("inputField" -> "field1"))
-      inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(Some(0))
+      inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(None)
 
       val inputFields3 = new SumOperator(Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
+
+      val inputFields4 = new SumOperator(Map("inputField" -> "field1"))
+      inputFields3.processMap(Map("field1" -> "1", "field2" -> 2)) should be(Some(1))
+
+      val inputFields5 = new SumOperator(Map("inputField" -> "field1"))
+      inputFields5.processMap(Map("field1" -> "foo", "field2" -> 2)) should be(None)
+
+      val inputFields6 = new SumOperator(Map("inputField" -> "field1"))
+      inputFields6.processMap(Map("field1" -> 1.5, "field2" -> 2)) should be(Some(1.5))
+
+      val inputFields7 = new SumOperator(Map("inputField" -> "field1"))
+      inputFields7.processMap(Map("field1" -> 5L, "field2" -> 2)) should be(Some(5L))
+
     }
 
     "processReduce must be " in {
@@ -45,6 +58,11 @@ class SumOperatorSpec extends WordSpec with Matchers {
 
       val inputFields3 = new SumOperator(Map())
       inputFields3.processReduce(Seq(Some(1), Some(2), Some(3), Some(6.5), Some(7.5))) should be (Some(20d))
+
+      val inputFields4 = new SumOperator(Map())
+      inputFields4.processReduce(Seq(None)) should be(Some(0d))
+
+
     }
   }
 }

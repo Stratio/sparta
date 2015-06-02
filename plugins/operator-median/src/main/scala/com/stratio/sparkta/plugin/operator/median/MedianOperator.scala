@@ -17,6 +17,8 @@ package com.stratio.sparkta.plugin.operator.median
 
 import java.io.{Serializable => JSerializable}
 
+import scala.util.Try
+
 import com.stratio.sparkta.sdk.{TypeOp, WriteOp, Operator}
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import breeze.stats._
@@ -36,14 +38,16 @@ class MedianOperator(properties: Map[String, JSerializable]) extends Operator(pr
   override val writeOperation = WriteOp.Median
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
-    if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
-      Some(inputFields.get(inputField.get).get.asInstanceOf[Number])
-    } else MedianOperator.SOME_ZERO_NUMBER
+    if ((inputField.isDefined) && (inputFields.contains(inputField.get)))
+      getNumberFromSerializable(inputFields.get(inputField.get).get)
+    else None
   }
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
-    values.size match {
-      case (nz) if (nz != 0) => Some(median(DenseVector(values.map(_.get.asInstanceOf[Number].doubleValue()).toArray)))
+    val valuesFiltered = values.flatten
+    valuesFiltered.size match {
+      case (nz) if (nz != 0) =>
+        Some(median(DenseVector(valuesFiltered.map(_.asInstanceOf[Number].doubleValue()).toArray)))
       case _ => MedianOperator.SOME_ZERO
     }
   }
@@ -51,5 +55,4 @@ class MedianOperator(properties: Map[String, JSerializable]) extends Operator(pr
 
 private object MedianOperator {
   val SOME_ZERO = Some(0d)
-  val SOME_ZERO_NUMBER = Some(0d.asInstanceOf[Number])
 }

@@ -27,16 +27,25 @@ class RangeOperatorSpec extends WordSpec with Matchers {
 
     "processMap must be " in {
       val inputField = new RangeOperator(Map())
-      inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(0d))
+      inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
 
       val inputFields2 = new RangeOperator(Map("inputField" -> "field1"))
-      inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(Some(0d))
+      inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(None)
 
       val inputFields3 = new RangeOperator(Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
 
       val inputFields4 = new RangeOperator(Map("inputField" -> "field1"))
-      inputFields4.processMap(Map("field1" -> "1", "field2" -> 2)) should be(Some(1))
+      inputFields3.processMap(Map("field1" -> "1", "field2" -> 2)) should be(Some(1))
+
+      val inputFields5 = new RangeOperator(Map("inputField" -> "field1"))
+      inputFields5.processMap(Map("field1" -> "foo", "field2" -> 2)) should be(None)
+
+      val inputFields6 = new RangeOperator(Map("inputField" -> "field1"))
+      inputFields6.processMap(Map("field1" -> 1.5, "field2" -> 2)) should be(Some(1.5))
+
+      val inputFields7 = new RangeOperator(Map("inputField" -> "field1"))
+      inputFields7.processMap(Map("field1" -> 5L, "field2" -> 2)) should be(Some(5L))
     }
 
     "processReduce must be " in {
@@ -48,6 +57,10 @@ class RangeOperatorSpec extends WordSpec with Matchers {
 
       val inputFields3 = new RangeOperator(Map())
       inputFields3.processReduce(Seq(Some(1), Some(2), Some(4))) should be(Some(3))
+
+      val inputFields4 = new RangeOperator(Map())
+      inputFields4.processReduce(Seq(None)) should be(Some(0d))
+
     }
   }
 }

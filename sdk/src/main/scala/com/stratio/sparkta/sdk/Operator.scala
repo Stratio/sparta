@@ -18,6 +18,8 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
+import scala.util.Try
+
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 
@@ -37,4 +39,19 @@ with Ordered[Operator] {
   def returnType: TypeOp = typeOp.getOrElse(TypeOp.Binary)
 
   def compare(operator: Operator): Int = key compareTo operator.key
+
+  //scalastyle:off
+  def getNumberFromSerializable(value: JSerializable): Option[Number] =
+    value match {
+      case value if value.isInstanceOf[String] => Try(Some(value.asInstanceOf[String].toDouble.asInstanceOf[Number]))
+        .getOrElse(None)
+      case value if value.isInstanceOf[Int] ||
+        value.isInstanceOf[Double] ||
+        value.isInstanceOf[Float] ||
+        value.isInstanceOf[Long] ||
+        value.isInstanceOf[Short] ||
+        value.isInstanceOf[Byte] => Some(value.asInstanceOf[Number])
+      case _ => None
+    }
+  //scalastyle:on
 }

@@ -35,20 +35,18 @@ class SumOperator(properties: Map[String, JSerializable]) extends Operator(prope
   override val writeOperation = WriteOp.Inc
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
-    if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
-      Some(inputFields.get(inputField.get).get.asInstanceOf[Number])
-    } else SumOperator.SOME_ZERO_NUMBER
+    if ((inputField.isDefined) && (inputFields.contains(inputField.get)))
+      getNumberFromSerializable(inputFields.get(inputField.get).get)
+    else None
   }
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
-    Try(Some(values.map(_.get.asInstanceOf[Number].doubleValue()).reduce(_ + _)))
+    Try(Some(values.flatten.map(_.asInstanceOf[Number].doubleValue()).reduce(_ + _)))
       .getOrElse(SumOperator.SOME_ZERO)
   }
 }
 
 private object SumOperator {
-
   val SOME_ZERO = Some(0d)
-  val SOME_ZERO_NUMBER = Some(0.asInstanceOf[Number])
 }
 
