@@ -29,6 +29,9 @@ trait CassandraDAO extends Closeable with Logging {
   val DefaultAnalyzer = "english"
   val DefaultDateFormat = "yyyy/MM/dd"
   val DefaultRefreshSeconds = "1"
+  val IndexPrefix = "index_"
+  val MaxTableNameLength = 48
+  val MaxIndexNameLength = 48
 
   val connector: Option[CassandraConnector] = None
   val compactStorage: Option[String] = None
@@ -86,6 +89,7 @@ trait CassandraDAO extends Closeable with Logging {
                             schema: StructType,
                             clusteringTime: String,
                             isAutoCalculateId: Boolean): Boolean = {
+    val tableName = if(table.size > MaxTableNameLength) table.substring(0,MaxTableNameLength) else table
     val schemaPkCloumns: Option[String] = schemaToPkCcolumns(schema, clusteringTime, isAutoCalculateId)
     val compactSt = compactStorage match {
       case None => ""
@@ -94,7 +98,7 @@ trait CassandraDAO extends Closeable with Logging {
     schemaPkCloumns match {
       case None => false
       case Some(pkColumns) => executeCommand(conn,
-        s"CREATE TABLE IF NOT EXISTS $keyspace.$table $pkColumns $compactSt")
+        s"CREATE TABLE IF NOT EXISTS $keyspace.$tableName $pkColumns $compactSt")
     }
   }
 
@@ -121,8 +125,14 @@ trait CassandraDAO extends Closeable with Logging {
     }
   }
 
-  protected def createIndex(conn: CassandraConnector, tableName: String, field: String): Boolean =
-    executeCommand(conn, s"CREATE INDEX IF NOT EXISTS index_${tableName}_$field ON $keyspace.$tableName ($field)")
+  protected def createIndex(conn: CassandraConnector, tableName: String, field: String): Boolean = {
+    val indexName = s"$IndexPrefix${
+      if(tableName.size + IndexPrefix.size + field.size > MaxIndexNameLength)
+        tableName.substring(0, MaxIndexNameLength - IndexPrefix.size - field.size) else tableName
+    }_$field"
+    executeCommand(conn, s"CREATE INDEX IF NOT EXISTS $indexName ON $keyspace.$tableName ($field)")
+  }
+
 
   protected def executeCommand(conn: CassandraConnector, command: String): Boolean = {
     conn.withSessionDo(session => session.execute(command))
@@ -136,7 +146,12 @@ trait CassandraDAO extends Closeable with Logging {
         val seqResults = for {
           tableSchema <- tSchemas
           fields = textFields.filter(textField => tableSchema.schema.fieldNames.contains(textField.split(":").head))
-          command = s"CREATE CUSTOM INDEX IF NOT EXISTS ${tableSchema.tableName}_index " +
+          indexName = s"$IndexPrefix${
+            if(tableSchema.tableName.size + IndexPrefix.size > MaxIndexNameLength)
+              tableSchema.tableName.substring(0, MaxIndexNameLength - IndexPrefix.size)
+            else tableSchema.tableName
+          }"
+          command = s"CREATE CUSTOM INDEX IF NOT EXISTS $indexName " +
             s"ON $keyspace.${tableSchema.tableName} ($textIndexName) USING 'com.stratio.cassandra.index.RowIndex' " +
             s"WITH OPTIONS = { 'refresh_seconds' : '$refreshSeconds', ${getTextIndexSentence(fields)} }"
           created = executeCommand(conn, command)
