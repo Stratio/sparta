@@ -42,8 +42,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
+            <groupId>com.github.nscala-time</groupId>
+            <artifactId>nscala-time_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.datastax.spark</groupId>

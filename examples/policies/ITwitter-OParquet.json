@@ -1,0 +1,89 @@
+{
+  "name": "policy-Twitter-Parquet",
+  "duration": 10000,
+  "saveRawData": "false",
+  "rawDataParquetPath": "myTestParquetPath",
+  "checkpointDir": "checkpoint",
+  "timeBucket": "minute",
+  "checkpointGranularity": "minute",
+  "checkpointInterval": 30000,
+  "checkpointTimeAvailability": 60000,
+  "inputs": [
+    {
+      "name": "in-twitter",
+      "elementType": "TwitterInput",
+      "configuration": {
+        "consumerKey": "***",
+        "consumerSecret": "***",
+        "accessToken": "***",
+        "accessTokenSecret": "***"
+      }
+    }
+  ],
+  "dimensions": [
+    {
+      "dimensionType": "TwitterStatusBucketer",
+      "name": "status"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "wordsN"
+    },
+    {
+      "dimensionType": "DateTimeBucketer",
+      "name": "timestamp"
+    }
+  ],
+  "rollups": [
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "status",
+          "bucketType": "hastags"
+        },
+        {
+          "dimensionName": "status",
+          "bucketType": "retweets"
+        },
+        {
+          "dimensionName": "timestamp",
+          "bucketType": "minute"
+        }
+      ],
+      "operators": ["count-operator","sum-operator","max-operator","min-operator","range-operator","avg-operator",
+        "median-operator",
+        "variance-operator","stddev-operator","fullText-operator","lastValue-operator","firstValue-operator","accumulator-operator"]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-parquet",
+      "elementType": "ParquetOutput",
+      "configuration": {
+        "path": "path-to-parquet",
+        "datePattern": "yyyy/MM/dd"
+      }
+    }
+  ],
+  "operators": [
+    {
+      "name": "count-operator",
+      "elementType": "CountOperator",
+      "configuration": {}
+    },
+    {
+      "name": "count-distinct-operator",
+      "elementType": "CountOperator",
+      "configuration": {
+        "distinctFields": "wordsN"
+      }
+    },
+    {
+      "name": "sum-operator",
+      "elementType": "SumOperator",
+      "configuration": {
+        "inputField": "wordsN"
+      }
+    }
+  ]
+}

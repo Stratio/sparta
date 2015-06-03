@@ -14,6 +14,8 @@ Outputs Configurations
 
 - :ref:`print-label`
 
+- :ref:`parquet-label`
+
 
 .. image:: images/outputs.png
    :height: 400 px
@@ -412,3 +414,26 @@ Print Configuration
 
 The print output uses the generic implementation with DataFrames, this implementation print each dataframe with his
  schema.
+
+.. _parquet-label:
+
+Parquet Configuration
+==========
+
+The parquet output uses generic implementation of DataFrames. This output has the following parameters:
+
+* path:
+   Destination path to store info. Required.
+
+   * Example:
+::
+
+   "path": "file:///path-to-parquet-ds"
+
+* datePattern:
+   You can specify a formatting pattern for dates. This is for split subfolders
+
+   * Example:
+::
+
+  "dateFormat": "yyyy/MM/dd" ==> "/path-to-parquet-ds/agg-name/2011/07/19/..."

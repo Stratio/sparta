@@ -31,7 +31,7 @@ import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.reflections.Reflections
 
 import com.stratio.sparkta.aggregator.{DataCube, Rollup}
-import com.stratio.sparkta.driver.dto.{PolicyElementDto, AggregationPoliciesDto}
+import com.stratio.sparkta.driver.dto.{AggregationPoliciesDto, PolicyElementDto}
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory._
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
@@ -64,7 +64,7 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
         Output.Multiplexer -> Try(o.configuration.get(Output.Multiplexer).get.string).getOrElse("false"),
         Output.FixedAggregation ->
           Try(o.configuration.get(Output.FixedAggregation).get.string.split(Output.FixedAggregationSeparator).head)
-          .getOrElse("")
+            .getOrElse("")
       )))
 
     val bcRollupOperatorSchema: Option[Broadcast[Seq[TableSchema]]] = {
@@ -89,9 +89,9 @@ object SparktaJob {
   val OperatorNamePropertyKey = "name"
 
   @tailrec
-  def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
-    if (parsers.size > 0) applyParsers(input.map(event => parsers.head.parse(event)), parsers.drop(1))
-    else input
+  def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = parsers.headOption match {
+    case Some(parser: Parser) => applyParsers(input.map(event => parser.parse(event)), parsers.drop(1))
+    case None => input
   }
 
   val getClasspathMap: Map[String, String] = {
@@ -128,7 +128,7 @@ object SparktaJob {
     tryToInstantiate[Parser](p.elementType, (c) =>
       instantiateParameterizable[Parser](c, p.configuration)))
 
-  private def createOperator(op2: PolicyElementDto) : Operator= {
+  private def createOperator(op2: PolicyElementDto): Operator = {
     tryToInstantiate[Operator](op2.elementType,
       (c) => instantiateParameterizable[Operator](c,
         op2.configuration + (OperatorNamePropertyKey -> new JsoneyString(op2.name))))
@@ -136,13 +136,13 @@ object SparktaJob {
 
   def operators(apConfig: AggregationPoliciesDto): Seq[Operator] =
     apConfig.operators
-      .map(op2 => createOperator (op2))
+      .map(op2 => createOperator(op2))
 
   def outputs(apConfig: AggregationPoliciesDto,
               sparkContext: SparkContext,
               bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
               bcRollupOperatorSchema: Option[Broadcast[Seq[TableSchema]]],
-              timeName : String): Seq[(String, Output)] =
+              timeName: String): Seq[(String, Output)] =
     apConfig.outputs.map(o =>
       (o.name, tryToInstantiate[Output](o.elementType, (c) =>
         c.getDeclaredConstructor(
@@ -229,10 +229,10 @@ object SparktaJob {
         }
       }))))
 
-  def saveRawData(apConfig: AggregationPoliciesDto, sqlContext: SQLContext, input: DStream[Event]): Unit = {
+  def saveRawData(apConfig: AggregationPoliciesDto, sqlContext: SQLContext, input: DStream[Event]): Unit =
     if (apConfig.saveRawData.toBoolean) {
-      def rawDataStorage: RawDataStorageService = new RawDataStorageService(sqlContext, apConfig.rawDataParquetPath,apConfig.rawDataGranularity)
+      def rawDataStorage: RawDataStorageService =
+        new RawDataStorageService(sqlContext, apConfig.rawDataParquetPath, apConfig.rawDataGranularity)
       rawDataStorage.save(input)
     }
-  }
 }
