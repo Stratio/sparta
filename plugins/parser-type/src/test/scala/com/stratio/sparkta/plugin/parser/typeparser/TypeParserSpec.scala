@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package com.stratio.sparkta.plugin.parser.typeparser
+
 import com.stratio.sparkta.sdk.Event
 import org.junit.runner.RunWith
 import org.scalatest.WordSpecLike

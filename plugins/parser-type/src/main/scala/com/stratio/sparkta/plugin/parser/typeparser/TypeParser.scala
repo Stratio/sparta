@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package com.stratio.sparkta.plugin.parser.typeparser
+
 import java.io.Serializable
 
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
