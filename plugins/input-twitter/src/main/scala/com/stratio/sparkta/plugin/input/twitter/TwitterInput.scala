@@ -58,6 +58,7 @@ class TwitterInput(properties: Map[String, JSerializable]) extends Input(propert
       "retweets" -> data.getRetweetCount,
       "userLocation" -> data.getUser.getLocation.toLowerCase,
       "timestamp" ->  data.getCreatedAt,
+      "text"-> data.getText,
       "geolocation" -> (data.getGeoLocation match {
         case null => None
         case _ => Some((data.getGeoLocation.getLatitude + "__" + data.getGeoLocation.getLongitude))
