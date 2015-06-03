@@ -20,9 +20,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
-/**
- * Created by arincon on 3/06/15.
- */
+
 @RunWith(classOf[JUnitRunner])
 class SplitParserSpec extends WordSpec with Matchers {
 

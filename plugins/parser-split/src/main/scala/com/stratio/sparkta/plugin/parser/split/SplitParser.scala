@@ -15,8 +15,8 @@
  */
 package com.stratio.sparkta.plugin.parser.split
 
-import com.stratio.sparkta.sdk.{Event, Parser}
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
+import com.stratio.sparkta.sdk.{Event, Parser}
 
 import scala.util.{Failure, Success, Try}
 
@@ -30,10 +30,10 @@ class SplitParser(properties: Map[String, Serializable]) extends Parser(properti
 
   override def parse(data: Event): Event = {
     val txtValue = data.keyMap.getOrElse(txtField, None)
-   val myTry= Try {
+    val splitted = Try {
       Map(resultField -> txtValue.toString.split(splitter).toList)
     }
-   val result= myTry match {
+    val result = splitted match {
       case Success(x) => new Event(data.keyMap ++ x.asInstanceOf[Map[String, Serializable]])
       case Failure(_) => data
     }
