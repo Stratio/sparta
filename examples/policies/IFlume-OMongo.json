@@ -22,71 +22,71 @@
   ],
   "dimensions": [
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "appName"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "appCountry"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "appPlatform"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "appVersion"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "device"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "osVersion"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "lang"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "appLang"
     },
     {
-      "dimensionType": "DateTimeBucketer",
+      "dimensionType": "DateTimeDimension",
       "name": "timestamp"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "session"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "extra1"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "extra2"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "extra3"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "source"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "environment"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "platform"
     },
     {
-      "dimensionType": "GeoHashBucketer",
+      "dimensionType": "GeoHashDimension",
       "name": "geo"
     }
   ],

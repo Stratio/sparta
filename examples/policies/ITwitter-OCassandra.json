@@ -22,23 +22,23 @@
   ],
   "dimensions": [
     {
-      "dimensionType": "TwitterStatusBucketer",
+      "dimensionType": "TwitterStatusDimension",
       "name": "status"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "userLocation"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "wordsN"
     },
     {
-      "dimensionType": "DateTimeBucketer",
+      "dimensionType": "DateTimeDimension",
       "name": "timestamp"
     },
     {
-      "dimensionType": "GeoHashBucketer",
+      "dimensionType": "GeoHashDimension",
       "name": "geolocation"
     }
   ],

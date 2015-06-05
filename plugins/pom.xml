@@ -28,10 +28,12 @@
     <artifactId>plugins</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>bucketer-dateTime</module>
-        <module>bucketer-passthrough</module>
-        <module>bucketer-geoHash</module>
-        <module>bucketer-twitter-status</module>
+        <module>dimension-dateTime</module>
+        <module>dimension-passthrough</module>
+        <module>dimension-geoHash</module>
+        <module>dimension-twitter-status</module>
+        <module>dimension-tag</module>
+        <module>dimension-hierarchy</module>
         <module>output-mongodb</module>
         <module>output-elasticsearch</module>
         <module>output-cassandra</module>
@@ -57,8 +59,6 @@
         <module>input-twitter</module>
         <module>parser-datetime</module>
         <module>parser-morphlines</module>
-        <module>bucketer-tag</module>
-        <module>bucketer-hierarchy</module>
         <module>input-rabbitMQ</module>
         <module>parser-detector</module>
         <module>parser-type</module>

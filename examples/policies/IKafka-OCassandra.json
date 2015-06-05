@@ -21,39 +21,39 @@
   ],
   "dimensions": [
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "c_r"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "ou_v"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "a"
     },
     {
-      "dimensionType": "DateTimeBucketer",
+      "dimensionType": "DateTimeDimension",
       "name": "r_a_m"
     },
     {
-      "dimensionType": "GeoHashBucketer",
+      "dimensionType": "GeoHashDimension",
       "name": "geo"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "r_e_a"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "o"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "p_i"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "asset"
     }
   ],

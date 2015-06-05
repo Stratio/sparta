@@ -22,15 +22,31 @@
   ],
   "dimensions": [
     {
-      "dimensionType": "PassthroughBucketer",
-      "name": "message"
+      "name": "appName",
+      "dimensionType": "PassthroughDimension"
+    },
+    {
+      "name": "timestamp",
+      "dimensionType": "DateTimeDimension"
+    },
+    {
+      "name": "geo",
+      "dimensionType": "GeoHashDimension"
+    },
+    {
+      "name": "tag",
+      "dimensionType": "TagDimension"
+    },
+    {
+      "name": "twitterStatus",
+      "dimensionType": "TwitterStatusDimension"
     }
   ],
   "rollups": [
     {
       "dimensionAndBucketTypes": [
         {
-          "dimensionName": "message",
+          "dimensionName": "appName",
           "bucketType": "identity"
         }
       ],
@@ -42,8 +58,6 @@
       "name": "out-print",
       "elementType": "PrintOutput",
       "configuration": {
-        "multiplexer": "false",
-        "isAutoCalculateId": "true"
       }
     }
   ],
@@ -66,8 +80,17 @@
           ],
           "commands": [
             {
-              "readLine": {
-                "charset": "UTF-8"
+              "readJson": {}
+            },
+            {
+              "extractJsonPaths": {
+                "paths": {
+                  "appName": "/appName",
+                  "timestamp": "/timestamp",
+                  "geo": "/geo",
+                  "tag": "/tag",
+                  "twitterStatus": "/twitterStatus"
+                }
               }
             }
           ]

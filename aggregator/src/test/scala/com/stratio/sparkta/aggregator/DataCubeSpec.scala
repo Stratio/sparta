@@ -18,9 +18,8 @@ package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparkta.plugin.dimension.passthrough.PassthroughDimension
 import org.joda.time.DateTime
-
-import com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer
 import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.sdk._
 
@@ -57,7 +56,7 @@ class DataCubeSpec extends TestSuiteBase {
 
     val timestamp = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity)
     
-    val bucketer = new PassthroughBucketer
+    val bucketer = new PassthroughDimension
     val dimension = Dimension("eventKey", bucketer)
     val operator = new CountOperator(Map())
     val bucketType = new BucketType("identity")
@@ -89,17 +88,17 @@ class DataCubeSpec extends TestSuiteBase {
   def getEventOutput(timestamp : Long): Seq[Seq[(DimensionValuesTime, Map[String, JSerializable])]] =
     Seq(Seq(
       (DimensionValuesTime(Seq(DimensionValue(
-        DimensionBucket(Dimension("eventKey", new PassthroughBucketer), BucketType("identity", Map())), "value1")),
+        DimensionBucket(Dimension("eventKey", new PassthroughDimension), BucketType("identity", Map())), "value1")),
         timestamp),
         Map("eventKey" -> "value1")
       ),
       (DimensionValuesTime(Seq(DimensionValue(
-        DimensionBucket(Dimension("eventKey", new PassthroughBucketer), BucketType("identity", Map())), "value2")),
+        DimensionBucket(Dimension("eventKey", new PassthroughDimension), BucketType("identity", Map())), "value2")),
         timestamp),
         Map("eventKey" -> "value2")
       ),
       (DimensionValuesTime(Seq(DimensionValue(
-        DimensionBucket(Dimension("eventKey", new PassthroughBucketer), BucketType("identity", Map())), "value3")),
+        DimensionBucket(Dimension("eventKey", new PassthroughDimension), BucketType("identity", Map())), "value3")),
         timestamp),
         Map("eventKey" -> "value3")
       )

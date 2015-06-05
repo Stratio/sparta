@@ -21,7 +21,7 @@
   ],
   "dimensions": [
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "message"
     }
   ],

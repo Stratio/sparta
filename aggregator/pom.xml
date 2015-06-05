@@ -53,7 +53,7 @@
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
-            <artifactId>bucketer-passthrough</artifactId>
+            <artifactId>dimension-passthrough</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
