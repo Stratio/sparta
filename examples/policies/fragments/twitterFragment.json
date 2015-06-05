@@ -1,0 +1,14 @@
+{
+  "fragmentType": "input",
+  "name": "twitter",
+  "element": {
+    "name": "in-twitter",
+    "elementType": "TwitterInput",
+    "configuration": {
+      "consumerKey": "*****",
+      "consumerSecret": "*****",
+      "accessToken": "*****",
+      "accessTokenSecret": "*****"
+    }		
+  }
+}

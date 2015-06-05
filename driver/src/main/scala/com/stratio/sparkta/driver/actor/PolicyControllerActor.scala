@@ -51,12 +51,12 @@ class PolicyControllerActor(val streamingSupervisor: ActorRef, val fragmentSuper
 
   val policyRoute = new PolicyHttpService {
     override val supervisor: ActorRef = streamingSupervisor
-    def actorRefFactory: ActorRefFactory = actorRefFactory
+    override implicit def actorRefFactory: ActorRefFactory = context
   }
 
   val fragmentRoute = new FragmentHttpService {
     override val supervisor: ActorRef = fragmentSupervisor
-    override implicit def actorRefFactory: ActorRefFactory = actorRefFactory
+    override implicit def actorRefFactory: ActorRefFactory = context
   }
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(

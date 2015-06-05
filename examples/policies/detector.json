@@ -1,0 +1,162 @@
+{
+  "name": "policy-kafka",
+  "duration": 2000,
+  "saveRawData": "false",
+  "rawDataParquetPath": "myTestParquetPath",
+  "inputs": [
+    {
+      "name": "in-kafka",
+      "elementType": "KafkaInput",
+      "configuration": {
+        "topics": "detectorStream3",
+        "kafkaParams.zookeeper.connect": "*****",
+        "kafkaParams.group.id": "kafka-pruebas-8",
+        "storageLevel": "MEMORY_AND_DISK_SER_2"
+      }
+    }
+  ],
+  "dimensions": [
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "company_root"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "ou_vehicle"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "asset"
+    },
+    {
+      "dimensionType": "DateTimeBucketer",
+      "name": "recorded_at_ms"
+    },
+    {
+      "dimensionType": "GeoHashBucketer",
+      "name": "geo"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "rpm_event_avg"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "odometer"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "odometerNum"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "rpmAvgNum"
+    },
+    {
+      "dimensionType": "PassthroughBucketer",
+      "name": "path_id"
+    }
+  ],
+  "rollups": [
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "company_root",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "ou_vehicle",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "geo",
+          "bucketType": "precision12"
+        },
+        {
+          "dimensionName": "recorded_at_ms",
+          "bucketType": "minute"
+        }
+      ],
+      "operators": ["avg-operator"]
+    },
+    {
+      "dimensionAndBucketTypes": [
+        {
+          "dimensionName": "company_root",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "ou_vehicle",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "asset",
+          "bucketType": "identity"
+        },
+        {
+          "dimensionName": "recorded_at_ms",
+          "bucketType": "minute"
+        },
+        {
+          "dimensionName": "path_id",
+          "bucketType": "identity"
+        }
+      ],
+
+      "operators": ["max-operator", "min-operator"]
+    }
+  ],
+  "operators": [
+    {
+      "name": "avg-operator",
+      "elementType": "AvgOperator",
+      "configuration": {
+        "inputField": "rpmAvgNum"
+      }
+    },
+    {
+      "name": "max-operator",
+      "elementType": "MaxOperator",
+      "configuration": {
+        "inputField": "odometerNum"
+      }
+    },
+    {
+      "name": "min-operator",
+      "elementType": "MinOperator",
+      "configuration": {
+        "inputField": "odometerNum"
+      }
+    }
+  ],
+
+  "outputs": [
+    {
+      "name": "out-mongo",
+      "elementType": "MongoDbOutput",
+      "configuration": {
+        "clientUri": "mongodb://localhost:27017",
+        "dbName": "sparkta3",
+        "multiplexer": "false",
+        "granularity": "minute",
+	    "identitiesSaved": "true"
+      }
+    }
+  ],
+
+  "parsers": [
+    {
+      "name": "detector-parser",
+      "elementType": "DetectorParser",
+      "configuration": {
+      }
+    },
+    {
+      "name": "recorded_at_ms-parser",
+      "elementType": "DateTimeParser",
+      "configuration": {
+        "recorded_at_ms": "unixMillis"
+      }
+    }
+  ]
+}

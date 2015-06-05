@@ -81,7 +81,7 @@ with Matchers {
       val PolicyName = "p-1"
       val apd = new AggregationPoliciesDto(PolicyName, "false", "myPath","day",
         checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable, 0,
-        Seq(), Seq(), Seq(), Seq(), Seq(), Seq())
+        Seq(), Seq(), Seq(), Seq(), Seq(), Seq(), Seq())
       try {
         val test = Post("/policy", apd) ~> routes
         supervisorProbe.expectMsg(new CreateContext(apd))
@@ -113,7 +113,7 @@ with Matchers {
       val apd =
         new AggregationPoliciesDto(PolicyName, "true", "example","day",
           checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable, 0,
-          Seq(dimensionDto), Seq(rollupDto), Seq(), Seq(), Seq(), Seq())
+          Seq(dimensionDto), Seq(rollupDto), Seq(), Seq(), Seq(), Seq(), Seq())
       val test = Post("/policy", apd) ~> routes
       test ~> check {
         rejections.size should be(1)
