@@ -15,11 +15,11 @@
     ],
     "dimensions": [
         {
-            "dimensionType": "PassthroughBucketer",
+            "dimensionType": "PassthroughDimension",
             "name": "word"
         },
         {
-            "dimensionType": "PassthroughBucketer",
+            "dimensionType": "PassthroughDimension",
             "name": "wordCount"
         }
     ],

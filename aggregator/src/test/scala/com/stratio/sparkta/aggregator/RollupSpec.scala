@@ -18,12 +18,11 @@ package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparkta.plugin.dimension.passthrough.PassthroughDimension
 import org.apache.spark.streaming.TestSuiteBase
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-
-import com.stratio.sparkta.plugin.bucketer.passthrough.PassthroughBucketer
 import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.plugin.operator.sum.SumOperator
 import com.stratio.sparkta.sdk._
@@ -34,7 +33,7 @@ class RollupSpec extends TestSuiteBase {
   test("aggregate") {
 
     val PreserverOrder = true
-    val bucketer = new PassthroughBucketer
+    val bucketer = new PassthroughDimension
     val checkpointInterval = 10000
     val checkpointTimeAvailability = 60000
     val checkpointGranularity = "minute"
@@ -64,13 +63,13 @@ class RollupSpec extends TestSuiteBase {
           "foo")), eventGranularity), Map[String,JSerializable]("n" -> 3))))
 
     def getOutput: Seq[Seq[(DimensionValuesTime, Map[String, Option[Any]])]] = Seq(Seq(
-      (DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", new PassthroughBucketer),
+      (DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", new PassthroughDimension),
         new BucketType("identity")), "bar")), eventGranularity), Map("count" -> Some(2L), "sum_n" -> Some(7L))),
-      (DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", new PassthroughBucketer),
+      (DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", new PassthroughDimension),
         new BucketType("identity")), "foo")), eventGranularity), Map("count" -> Some(1L), "sum_n" -> Some(3L)))),
-      Seq((DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", new PassthroughBucketer),
+      Seq((DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", new PassthroughDimension),
         new BucketType("identity")), "bar")), eventGranularity), Map("count" -> Some(4L), "sum_n" -> Some(14L))),
-        (DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", new PassthroughBucketer),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", new PassthroughDimension),
           new BucketType("identity")), "foo")), eventGranularity), Map("count" -> Some(2L), "sum_n" -> Some(6L)))))
   }
 

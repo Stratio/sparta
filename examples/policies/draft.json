@@ -83,7 +83,7 @@
       "elementType": "MongoDbOutput",
       "configuration": {
         "host": "localhost",
-        "port": 27017
+        "port": 27017,
         "dbName": "sparkta"
       }
     },
@@ -105,8 +105,7 @@
         "morphline": {
           "id": "morphline1",
           "importCommands": [
-            "org.kitesdk.**",
-            "com.stratio.ingestion.morphline.**"
+            "org.kitesdk.**"
           ],
           "commands": [
             {
