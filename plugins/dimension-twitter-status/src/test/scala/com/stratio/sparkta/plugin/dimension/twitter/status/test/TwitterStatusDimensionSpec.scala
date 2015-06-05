@@ -27,21 +27,6 @@ import twitter4j.Status
 @RunWith(classOf[JUnitRunner])
 class TwitterStatusDimensionSpec extends FlatSpec with MockFactory with Matchers {
 
-
-
-//  "A status " should "have 9 dimensions" in {
-//
-//    val status: Status = getMockStatus
-//
-//
-//    val toTest = new TwitterStatusBucketer
-//    val expected =toTest.bucket(status)
-//
-//    expected.size should be(9)
-//   // expected.get(TwitterStatusBucketer.text) should be equals ("Some text")
-//  }
-
-
   def getMockStatus: Status = {
     val status = mock[Status]
     (status.getText _).expects().returning("Some text").anyNumberOfTimes()

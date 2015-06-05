@@ -34,18 +34,9 @@ with BeforeAndAfter
 with BeforeAndAfterAll
 with TableDrivenPropertyChecks {
 
-  var hbs: HierarchyDimension = null
-
-  before {
-    hbs = new HierarchyDimension()
-  }
-
-  after {
-    hbs = null
-  }
-
-  "A HierarchyBucketer" should {
+  "A HierarchyDimension" should {
     "In default implementation, every proposed combination should be ok" in {
+      val hbs = new HierarchyDimension()
       val data = Table(
         ("i", "o"),
         ("google.com", Seq("google.com", "*.com", "*"))
@@ -58,7 +49,7 @@ with TableDrivenPropertyChecks {
       }
     }
     "In reverse implementation, every proposed combination should be ok" in {
-      hbs = new HierarchyDimension()
+      val hbs = new HierarchyDimension()
       val data = Table(
         ("i", "o"),
         ("com.stratio.sparkta", Seq("com.stratio.sparkta", "com.stratio.*", "com.*", "*"))
@@ -71,7 +62,7 @@ with TableDrivenPropertyChecks {
       }
     }
     "In reverse implementation without wildcards, every proposed combination should be ok" in {
-      hbs = new HierarchyDimension()
+      val hbs = new HierarchyDimension()
       val data = Table(
         ("i", "o"),
         ("com.stratio.sparkta", Seq("com.stratio.sparkta", "com.stratio", "com", "*"))
@@ -84,7 +75,7 @@ with TableDrivenPropertyChecks {
       }
     }
     "In non-reverse implementation without wildcards, every proposed combination should be ok" in {
-      hbs = new HierarchyDimension()
+      val hbs = new HierarchyDimension()
       val data = Table(
         ("i", "o"),
         ("google.com", Seq("google.com", "com", "*"))

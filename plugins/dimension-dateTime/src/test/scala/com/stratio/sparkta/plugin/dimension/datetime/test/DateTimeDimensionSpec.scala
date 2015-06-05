@@ -27,22 +27,17 @@ import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
  * Created by ajnavarro on 9/10/14.
  */
 @RunWith(classOf[JUnitRunner])
-class DateTimeDimensionSpec extends WordSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll {
-  var dateTimeDimension: DateTimeDimension = null
-  before {
-    dateTimeDimension = new DateTimeDimension()
-  }
+class DateTimeDimensionSpec extends WordSpecLike with Matchers {
 
-  after {
-    dateTimeDimension = null
-  }
+  val NumExpectedBuckets = 7
 
-  "A DateTimeBucketer" should {
+  "A DateTimeDimension" should {
     "In default implementation, get 5 buckets for a specific time" in {
+      val dateTimeDimension = new DateTimeDimension()
       val newDate = new Date()
       val buckets = dateTimeDimension.bucket(newDate.asInstanceOf[io.Serializable])
 
-      buckets.size should be(7)
+      buckets.size should be(NumExpectedBuckets)
 
       buckets.keys should contain(DateTimeDimension.timestamp)
       buckets.keys should contain(DateTimeDimension.seconds)
