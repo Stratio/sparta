@@ -18,8 +18,8 @@ package com.stratio.sparkta.sdk
 
 case class DimensionBucket(dimension: Dimension, bucketType: BucketType) extends Ordered[DimensionBucket] {
 
-  def getNameDimension: String = bucketType match {
-    case Bucketer.identity => dimension.name
+  def getNameDimension: String = bucketType.id match {
+    case Bucketer.IdentityName => dimension.name
     case _ => bucketType.id
   }
 

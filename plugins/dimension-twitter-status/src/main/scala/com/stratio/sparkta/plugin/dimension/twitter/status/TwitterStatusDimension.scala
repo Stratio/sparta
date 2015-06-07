@@ -16,18 +16,39 @@
 
 package com.stratio.sparkta.plugin.dimension.twitter.status
 
-import java.io
+import java.io.{Serializable => JSerializable}
 
 import TwitterStatusDimension._
 import com.stratio.sparkta.sdk.{Bucketer, BucketType}
 import twitter4j.{Status}
 
-case class TwitterStatusDimension() extends Bucketer {
+case class TwitterStatusDimension(props: Map[String, JSerializable]) extends Bucketer {
 
-  override val bucketTypes: Seq[BucketType] =
-    Seq(text, contributors, hastags, places, retweets, urls, mentions, words, identity, location, firstHastag)
+  def this() {
+    this(Map())
+  }
 
-  override def bucket(value: io.Serializable): Map[BucketType, io.Serializable] = {
+  override val defaultTypeOperation = TypeOp.String
+
+  override val properties: Map[String, JSerializable] = props
+
+  override val bucketTypes: Map[String, BucketType] =
+    Map(
+      TextName -> getPrecision(TextName, getTypeOperation(TextName)),
+      ContributorsName -> getPrecision(ContributorsName, getTypeOperation(ContributorsName)),
+      HastagsName -> getPrecision(HastagsName, getTypeOperation(HastagsName)),
+      FirstHastagName -> getPrecision(FirstHastagName, getTypeOperation(FirstHastagName)),
+      PlacesName -> getPrecision(PlacesName, getTypeOperation(PlacesName)),
+      RetweetsName -> getPrecision(RetweetsName, getTypeOperation(RetweetsName)),
+      UrlsName ->getPrecision(UrlsName, getTypeOperation(UrlsName)),
+      MentionsName -> getPrecision(MentionsName, getTypeOperation(MentionsName)),
+      IdentityName -> getPrecision(IdentityName, getTypeOperation(IdentityName)),
+      WordsName -> getPrecision(WordsName, getTypeOperation(WordsName)),
+      LocationName -> getPrecision(LocationName, getTypeOperation(LocationName)),
+      NameName -> getPrecision(NameName, getTypeOperation(NameName)),
+      LanguageName -> getPrecision(LanguageName, getTypeOperation(LanguageName)))
+
+  override def bucket(value: JSerializable): Map[BucketType, JSerializable] = {
     bucketTypes.map(bucketType =>
       bucketType -> TwitterStatusDimension.bucket(value.asInstanceOf[Status], bucketType)
     ).toMap
@@ -37,65 +58,63 @@ case class TwitterStatusDimension() extends Bucketer {
 
 object TwitterStatusDimension {
 
+  final val TextName = "text"
+  final val ContributorsName = "contributors"
+  final val HastagsName = "hastags"
+  final val FirstHastagName = "firsthastag"
+  final val PlacesName = "places"
+  final val RetweetsName = "retweets"
+  final val UrlsName = "urls"
+  final val MentionsName = "mentions"
+  final val IdentityName = "identity"
+  final val WordsName = "words"
+  final val LocationName = "location"
+  final val NameName = "name"
+  final val LanguageName = "language"
+
   //scalastyle:off
-  private def bucket(value: Status, bucketType: BucketType): io.Serializable = {
-    val getText: io.Serializable = value.getText
-    val getContributors: io.Serializable = if (value.getContributors != null) value.getContributors.toString else ""
-    val getHastags: io.Serializable = if (value.getHashtagEntities != null)
+  def bucket(value: Status, bucketType: BucketType): JSerializable = {
+    val getText: JSerializable = value.getText
+    val getContributors: JSerializable = if (value.getContributors != null) value.getContributors.toString else ""
+    val getHastags: JSerializable = if (value.getHashtagEntities != null)
       value.getHashtagEntities.map(_.getText).length
     else 0
-    val getFirstHastag: io.Serializable = if ((value.getHashtagEntities != null) && value.getHashtagEntities.length > 0)
+    val getFirstHastag: JSerializable = if ((value.getHashtagEntities != null) && value.getHashtagEntities.length > 0)
       value.getHashtagEntities.head.getText
     else ""
-    val getPlaces: io.Serializable = if (value.getPlace != null) value.getPlace.getFullName else ""
-    val getRetweets: io.Serializable = value.getRetweetCount
-    val getUrls: io.Serializable = if (value.getURLEntities != null) value.getURLEntities.map(_.getURL).length else 0
-    val getMentions: io.Serializable = if (value.getUserMentionEntities != null)
+    val getPlaces: JSerializable = if (value.getPlace != null) value.getPlace.getFullName else ""
+    val getRetweets: JSerializable = value.getRetweetCount
+    val getUrls: JSerializable = if (value.getURLEntities != null) value.getURLEntities.map(_.getURL).length else 0
+    val getMentions: JSerializable = if (value.getUserMentionEntities != null)
       value.getUserMentionEntities.map(_.getName)
     else ""
     val getWordsCount = value.getText.split(" ").length
-    val getLocation : io.Serializable = value.getUser.getLocation.toLowerCase
+    val getLocation : JSerializable = value.getUser.getLocation.toLowerCase
     val getLanguage = value.getUser.getLang
     val getName = value.getUser.getName
 
-    (bucketType match {
-      case a if a == text => getText
-      case c if c == contributors => getContributors
-      case h if h == hastags => getHastags
-      case h if h == firstHastag => getFirstHastag
-      case p if p == places => getPlaces
-      case r if r == retweets => getRetweets
-      case u if u == urls => getUrls
-      case m if m == mentions => getMentions
-      case i if i == identity => value
-      case w if w == words => getWordsCount
-      case l if l == location => getLocation
-      case n if n == name => getName
-      case l if l == language => getLanguage
-
-    }).toString.asInstanceOf[io.Serializable]
+    (bucketType.id match {
+      case a if a == TextName => getText
+      case c if c == ContributorsName => getContributors
+      case h if h == HastagsName => getHastags
+      case h if h == FirstHastagName => getFirstHastag
+      case p if p == PlacesName => getPlaces
+      case r if r == RetweetsName => getRetweets
+      case u if u == UrlsName => getUrls
+      case m if m == MentionsName => getMentions
+      case i if i == IdentityName => value
+      case w if w == WordsName => getWordsCount
+      case l if l == LocationName => getLocation
+      case n if n == NameName => getName
+      case l if l == LanguageName => getLanguage
+    }).toString.asInstanceOf[JSerializable]
   }
   //scalastyle:on
 
-  val text = new BucketType("text")
-  val contributors = new BucketType("contributors")
-  val hastags = new BucketType("hastags")
-  val firstHastag = new BucketType("firsthastag")
-  val places = new BucketType("places")
-  val retweets = new BucketType("retweets")
-  val urls = new BucketType("urls")
-  val mentions = new BucketType("mentions")
-  val identity = new BucketType("identity")
-  val words = new BucketType("words")
-  val location = new BucketType("location")
-  val name = new BucketType("name")
-  val language = new BucketType("language")
-
-
   override def toString : String = s"TwitterStatusBucketer(" +
-    s"text=$text, contributors=$contributors, hastags=$hastags, firsthastag=$firstHastag" +
-    s" places=$places, retweets=$retweets, urls=$urls, mentions=$mentions," +
-    s" words=$words, location=$location, name=$name, language=$language)"
+    s"text=$TextName, contributors=$ContributorsName, hastags=$HastagsName, firsthastag=$FirstHastagName" +
+    s" places=$PlacesName, retweets=$RetweetsName, urls=$UrlsName, mentions=$MentionsName," +
+    s" words=$WordsName, location=$LocationName, name=$NameName, language=$LanguageName)"
 }
 
 

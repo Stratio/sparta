@@ -16,18 +16,14 @@
 
 package com.stratio.sparkta.sdk
 
-import java.io
+import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
 
-case class BucketType(id: String, typeOp: Option[TypeOp], properties: Map[String, io.Serializable]) {
+case class BucketType(id: String, typeOp: TypeOp, properties: Map[String, JSerializable]) {
 
-  def this(id: String, typeOp: Option[TypeOp]) {
+  def this(id: String, typeOp: TypeOp) {
     this(id, typeOp, Map())
-  }
-
-  def this(id: String) {
-    this(id, None, Map())
   }
 }
 
@@ -42,27 +38,32 @@ trait Bucketer {
    * @param value Used to generate the different bucketTypes
    * @return Map with all generated bucketTypes and a sequence with all values
    */
-  def bucket(value: io.Serializable): Map[BucketType, io.Serializable]
+  def bucket(value: JSerializable): Map[BucketType, JSerializable]
+
+  final val TypeOperationName = "typeOp"
 
   /**
    * All buckets supported into this bucketer
    *
    * @return Sequence of BucketTypes
    */
-  def bucketTypes(): Seq[BucketType]
+  def bucketTypes: Map[String, BucketType]
 
-  val properties: Map[String, io.Serializable] = Map()
+  def properties: Map[String, JSerializable] = Map()
 
-  val TypeOperationName = "typeOp"
+  def defaultTypeOperation: TypeOp = TypeOp.String
 
   def getTypeOperation: Option[TypeOp] = getResultType(TypeOperationName)
 
   def getTypeOperation(typeOperation: String): Option[TypeOp] =
-    if(!typeOperation.isEmpty && properties.contains(typeOperation)) getResultType(typeOperation)
+    if (!typeOperation.isEmpty && properties.contains(typeOperation)) getResultType(typeOperation)
     else getResultType(TypeOperationName)
 
+  def getPrecision(precision: String, typeOperation: Option[TypeOp]): BucketType =
+    new BucketType(precision, typeOperation.getOrElse(defaultTypeOperation))
+
   def getResultType(typeOperation: String): Option[TypeOp] =
-    if(!typeOperation.isEmpty){
+    if (!typeOperation.isEmpty) {
       properties.get(typeOperation) match {
         case Some(operation) => Some(getTypeOperationByName(operation.asInstanceOf[String]))
         case None => None
@@ -86,9 +87,8 @@ trait Bucketer {
       case name if name == "arraystring" => TypeOp.ArrayString
       case _ => defaultTypeOperation
     }
-  //scalastyle:on
 
-  def defaultTypeOperation: TypeOp = TypeOp.String
+  //scalastyle:on
 }
 
 object Bucketer {
@@ -98,11 +98,11 @@ object Bucketer {
   final val TimestampName = "timestamp"
 
   def getIdentity(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(IdentityName, typeOperation.orElse(Some(default)))
+    new BucketType(IdentityName, typeOperation.getOrElse(default))
 
   def getIdentityField(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(IdentityFieldName, typeOperation.orElse(Some(default)))
+    new BucketType(IdentityFieldName, typeOperation.getOrElse(default))
 
-  def getTimestamp(typeOperation: Option[TypeOp]): BucketType =
-    new BucketType(TimestampName, typeOperation)
+  def getTimestamp(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
+    new BucketType(TimestampName, typeOperation.getOrElse(default))
 }

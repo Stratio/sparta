@@ -29,9 +29,12 @@ case class PassthroughDimension(props: Map[String, JSerializable]) extends Bucke
 
   override val properties: Map[String, JSerializable] = props
 
+  override val defaultTypeOperation = TypeOp.String
+
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] = {
     Map(Bucketer.getIdentity(getTypeOperation, defaultTypeOperation) -> value)
   }
 
-  override lazy val bucketTypes: Seq[BucketType] = Seq(Bucketer.getIdentity(getTypeOperation, defaultTypeOperation))
+  override lazy val bucketTypes: Map[String, BucketType] =
+    Map(Bucketer.IdentityName -> Bucketer.getIdentity(getTypeOperation, defaultTypeOperation))
 }

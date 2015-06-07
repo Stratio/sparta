@@ -30,36 +30,30 @@ case class TagDimension(props: Map[String, JSerializable]) extends Bucketer with
     this(Map())
   }
 
-  override val bucketTypes: Seq[BucketType] = Seq(
-    getFirstTag(getTypeOperation, defaultTypeOperation),
-    getLastTag(getTypeOperation, defaultTypeOperation),
-    getAllTags(getTypeOperation, defaultTypeOperation))
+  override val defaultTypeOperation = TypeOp.String
+
+  override val properties: Map[String, JSerializable] = props
+
+  override val bucketTypes: Map[String, BucketType] = Map(
+    FirstTagName -> getPrecision(FirstTagName, getTypeOperation(FirstTagName)),
+    LastTagName -> getPrecision(LastTagName, getTypeOperation(LastTagName)),
+    AllTagsName -> getPrecision(AllTagsName, getTypeOperation(AllTagsName)))
 
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] =
-    bucketTypes.map(bt => bt -> TagDimension.bucket(value.asInstanceOf[Iterable[JSerializable]], bt)).toMap
+    bucketTypes.map(bt => bt._2 -> TagDimension.bucket(value.asInstanceOf[Iterable[JSerializable]], bt._2))
 
-  override val defaultTypeOperation = TypeOp.String
 }
 
 object TagDimension {
 
-  private final val FirstTagName = "fistTag"
-  private final val LastTagName = "lastTag"
-  private final val AllTagsName = "allTags"
-  
-  private def bucket(value: Iterable[JSerializable], bucketType: BucketType): JSerializable =
+  final val FirstTagName = "fistTag"
+  final val LastTagName = "lastTag"
+  final val AllTagsName = "allTags"
+
+  def bucket(value: Iterable[JSerializable], bucketType: BucketType): JSerializable =
     bucketType.id match {
       case name if name == FirstTagName => value.head
       case name if name == LastTagName => value.last
       case name if name == AllTagsName => value.toSeq.asInstanceOf[JSerializable]
     }
-
-  def getFirstTag(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(FirstTagName, typeOperation.orElse(Some(default)))
-
-  def getLastTag(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(LastTagName, typeOperation.orElse(Some(default)))
-
-  def getAllTags(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(AllTagsName, typeOperation.orElse(Some(default)))
 }

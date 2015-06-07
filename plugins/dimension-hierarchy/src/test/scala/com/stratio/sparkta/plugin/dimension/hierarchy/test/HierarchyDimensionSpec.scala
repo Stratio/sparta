@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,8 +15,8 @@
  */
 package com.stratio.sparkta.plugin.dimension.hierarchy.test
 
-import java.io.Serializable
-import com.stratio.sparkta.plugin.dimension.hierarchy.HierarchyDimension
+import java.io.{Serializable => JSerializable}
+
 import HierarchyDimension._
 import com.stratio.sparkta.plugin.dimension.hierarchy.HierarchyDimension
 import org.junit.runner.RunWith
@@ -24,9 +24,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
 
-/**
- * Created by ajnavarro on 27/10/14.
- */
+
 @RunWith(classOf[JUnitRunner])
 class HierarchyDimensionSpec extends WordSpecLike
 with Matchers
@@ -34,9 +32,29 @@ with BeforeAndAfter
 with BeforeAndAfterAll
 with TableDrivenPropertyChecks {
 
+  var hbs: HierarchyDimension = null
+
+  before {
+    hbs = new HierarchyDimension()
+  }
+
+  after {
+    hbs = null
+  }
+
   "A HierarchyDimension" should {
+    "In default implementation, get 4 buckets for all precision sizes" in {
+      val buckets = hbs.bucket("").map(_._1.id)
+
+      buckets.size should be(4)
+
+      buckets should contain(HierarchyBucketer.LeftToRightName)
+      buckets should contain(HierarchyBucketer.RightToLeftName)
+      buckets should contain(HierarchyBucketer.LeftToRightWithWildCardName)
+      buckets should contain(HierarchyBucketer.RightToLeftWithWildCardName)
+    }
+
     "In default implementation, every proposed combination should be ok" in {
-      val hbs = new HierarchyDimension()
       val data = Table(
         ("i", "o"),
         ("google.com", Seq("google.com", "*.com", "*"))
@@ -44,46 +62,46 @@ with TableDrivenPropertyChecks {
 
       forAll(data) { (i: String, o: Seq[String]) =>
         val result = hbs.bucket(i)
-        val value = result(leftToRightWithWildCard)
+        val value = result(hbs.LeftToRightWithWildCard)
         assertResult(o)(value)
       }
     }
     "In reverse implementation, every proposed combination should be ok" in {
-      val hbs = new HierarchyDimension()
+      hbs = new HierarchyDimension()
       val data = Table(
         ("i", "o"),
         ("com.stratio.sparkta", Seq("com.stratio.sparkta", "com.stratio.*", "com.*", "*"))
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.bucket(i.asInstanceOf[Serializable])
-        val value = result(rightToLeftWithWildCard)
+        val result = hbs.bucket(i.asInstanceOf[JSerializable])
+        val value = result(hbs.RightToLeftWithWildCard)
         assertResult(o)(value)
       }
     }
     "In reverse implementation without wildcards, every proposed combination should be ok" in {
-      val hbs = new HierarchyDimension()
+      hbs = new HierarchyDimension()
       val data = Table(
         ("i", "o"),
         ("com.stratio.sparkta", Seq("com.stratio.sparkta", "com.stratio", "com", "*"))
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.bucket(i.asInstanceOf[Serializable])
-        val value = result(rightToLeft)
+        val result = hbs.bucket(i.asInstanceOf[JSerializable])
+        val value = result(hbs.RightToLeft)
         assertResult(o)(value)
       }
     }
     "In non-reverse implementation without wildcards, every proposed combination should be ok" in {
-      val hbs = new HierarchyDimension()
+      hbs = new HierarchyDimension()
       val data = Table(
         ("i", "o"),
         ("google.com", Seq("google.com", "com", "*"))
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.bucket(i.asInstanceOf[Serializable])
-        val value = result(leftToRight)
+        val result = hbs.bucket(i.asInstanceOf[JSerializable])
+        val value = result(hbs.LeftToRight)
         assertResult(o)(value)
       }
     }

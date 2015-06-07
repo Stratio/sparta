@@ -17,7 +17,6 @@
 package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
-
 import scala.util.Try
 
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
@@ -53,5 +52,6 @@ with Ordered[Operator] {
         value.isInstanceOf[Byte] => Some(value.asInstanceOf[Number])
       case _ => None
     }
+
   //scalastyle:on
 }

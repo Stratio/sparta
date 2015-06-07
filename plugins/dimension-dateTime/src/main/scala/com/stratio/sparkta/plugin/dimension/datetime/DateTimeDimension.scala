@@ -32,63 +32,49 @@ case class DateTimeDimension(props: Map[String, JSerializable]) extends Bucketer
     this(Map())
   }
 
+  override val defaultTypeOperation = TypeOp.Timestamp
+
   override val properties: Map[String, JSerializable] = props ++ {
     if (!props.contains(GranularityPropertyName)) Map(GranularityPropertyName -> DefaultGranularity) else Map()
   }
 
-  override val bucketTypes: Seq[BucketType] = Seq(
-    timestamp,
-    getSeconds(getTypeOperation(SecondName), defaultTypeOperation),
-    getMinutes(getTypeOperation(MinuteName), defaultTypeOperation),
-    getHours(getTypeOperation(HourName), defaultTypeOperation),
-    getDays(getTypeOperation(DayName), defaultTypeOperation),
-    getMonths(getTypeOperation(MonthName), defaultTypeOperation),
-    getYears(getTypeOperation(YearName), defaultTypeOperation))
+  override val bucketTypes: Map[String, BucketType] = Map(
+    timestamp.id -> timestamp,
+    SecondName -> getPrecision(SecondName, getTypeOperation(SecondName)),
+    MinuteName -> getPrecision(MinuteName, getTypeOperation(MinuteName)),
+    HourName -> getPrecision(HourName, getTypeOperation(HourName)),
+    DayName -> getPrecision(DayName, getTypeOperation(DayName)),
+    MonthName -> getPrecision(MonthName, getTypeOperation(MonthName)),
+    YearName -> getPrecision(YearName, getTypeOperation(YearName)))
 
   @throws(classOf[ClassCastException])
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] =
     try {
       bucketTypes.map(bucketType =>
-        bucketType -> DateTimeDimension.bucket(value.asInstanceOf[Date], bucketType, properties)).toMap
+        bucketType._2 -> DateTimeDimension.bucket(value.asInstanceOf[Date], bucketType._2, properties))
     }
     catch {
-      case cce: ClassCastException => log.error("Error parsing " + value + " .") throw cce
+      case cce: ClassCastException => {
+        log.error("Error parsing " + value + " .")
+        throw cce
+      }
     }
 
-  override val defaultTypeOperation = TypeOp.Timestamp
 }
 
 object DateTimeDimension {
 
-  private final val DefaultGranularity = "second"
-  private final val GranularityPropertyName = "granularity"
-  private final val SecondName = "second"
-  private final val MinuteName = "minute"
-  private final val HourName = "hour"
-  private final val DayName = "day"
-  private final val MonthName = "month"
-  private final val YearName = "year"
-  private final val timestamp = Bucketer.getTimestamp(Some(TypeOp.Timestamp))
+  final val DefaultGranularity = "second"
+  final val GranularityPropertyName = "granularity"
+  final val SecondName = "second"
+  final val MinuteName = "minute"
+  final val HourName = "hour"
+  final val DayName = "day"
+  final val MonthName = "month"
+  final val YearName = "year"
+  final val timestamp = Bucketer.getTimestamp(Some(TypeOp.Timestamp), TypeOp.Timestamp)
 
-  def getSeconds(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(SecondName, typeOperation.orElse(Some(default)))
-
-  def getMinutes(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(MinuteName, typeOperation.orElse(Some(default)))
-
-  def getHours(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(HourName, typeOperation.orElse(Some(default)))
-
-  def getDays(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(DayName, typeOperation.orElse(Some(default)))
-
-  def getMonths(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(MonthName, typeOperation.orElse(Some(default)))
-
-  def getYears(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(YearName, typeOperation.orElse(Some(default)))
-
-  private def bucket(value: Date, bucketType: BucketType, properties: Map[String, JSerializable]): JSerializable = {
+  def bucket(value: Date, bucketType: BucketType, properties: Map[String, JSerializable]): JSerializable = {
     DateOperations.dateFromGranularity(new DateTime(value), bucketType match {
       case t if t == timestamp => if (properties.contains(GranularityPropertyName))
         properties.get(GranularityPropertyName).get.toString
