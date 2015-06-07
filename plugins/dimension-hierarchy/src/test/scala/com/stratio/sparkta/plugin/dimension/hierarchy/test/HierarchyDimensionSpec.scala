@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.plugin.dimension.hierarchy.test
 
 import java.io.{Serializable => JSerializable}
 
-import HierarchyDimension._
-import com.stratio.sparkta.plugin.dimension.hierarchy.HierarchyDimension
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
 
+import com.stratio.sparkta.plugin.dimension.hierarchy.HierarchyDimension
 
 @RunWith(classOf[JUnitRunner])
 class HierarchyDimensionSpec extends WordSpecLike
@@ -48,10 +48,10 @@ with TableDrivenPropertyChecks {
 
       buckets.size should be(4)
 
-      buckets should contain(HierarchyBucketer.LeftToRightName)
-      buckets should contain(HierarchyBucketer.RightToLeftName)
-      buckets should contain(HierarchyBucketer.LeftToRightWithWildCardName)
-      buckets should contain(HierarchyBucketer.RightToLeftWithWildCardName)
+      buckets should contain(HierarchyDimension.LeftToRightName)
+      buckets should contain(HierarchyDimension.RightToLeftName)
+      buckets should contain(HierarchyDimension.LeftToRightWithWildCardName)
+      buckets should contain(HierarchyDimension.RightToLeftWithWildCardName)
     }
 
     "In default implementation, every proposed combination should be ok" in {

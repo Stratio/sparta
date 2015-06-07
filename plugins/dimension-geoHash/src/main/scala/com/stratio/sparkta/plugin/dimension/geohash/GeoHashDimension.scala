@@ -19,11 +19,10 @@ package com.stratio.sparkta.plugin.dimension.geohash
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
-import com.github.davidmoten.geo.{LatLong, GeoHash}
-import GeoHashDimension._
-import com.stratio.sparkta.sdk.{BucketType, Bucketer}
-import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk.{TypeOp, _}
+import com.github.davidmoten.geo.{GeoHash, LatLong}
+
+import com.stratio.sparkta.plugin.dimension.geohash.GeoHashDimension._
+import com.stratio.sparkta.sdk.{BucketType, Bucketer, TypeOp}
 
 /**
  *
@@ -65,7 +64,7 @@ case class GeoHashDimension(props: Map[String, JSerializable]) extends Bucketer 
       Precision7Name -> getPrecision(Precision7Name, getTypeOperation(Precision7Name)),
       Precision8Name -> getPrecision(Precision8Name, getTypeOperation(Precision8Name)),
       Precision9Name -> getPrecision(Precision9Name, getTypeOperation(Precision9Name)),
-      Precision10Name ->getPrecision(Precision10Name, getTypeOperation(Precision10Name)),
+      Precision10Name -> getPrecision(Precision10Name, getTypeOperation(Precision10Name)),
       Precision11Name -> getPrecision(Precision11Name, getTypeOperation(Precision11Name)),
       Precision12Name -> getPrecision(Precision12Name, getTypeOperation(Precision12Name)))
 
@@ -99,7 +98,6 @@ case class GeoHashDimension(props: Map[String, JSerializable]) extends Bucketer 
       }
     }
   }
-
 }
 
 object GeoHashDimension {
@@ -137,7 +135,7 @@ object GeoHashDimension {
 
   //scalastyle:on
 
-  def decodeHash(geoLocHash: String) = {
+  def decodeHash(geoLocHash: String): JSerializable = {
     val geoDecoded: LatLong = GeoHash.decodeHash(geoLocHash)
     val (latitude, longitude) = (geoDecoded.getLat, geoDecoded.getLon)
     Seq(longitude, latitude).asInstanceOf[JSerializable]

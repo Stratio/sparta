@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.plugin.bucketer.passthrough
+package com.stratio.sparkta.plugin.dimension.passthrough
 
 import java.io.{Serializable => JSerializable}
 
@@ -25,20 +25,20 @@ import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
 import com.stratio.sparkta.sdk.{Bucketer, TypeOp}
 
 @RunWith(classOf[JUnitRunner])
-class PassthroughBucketerSpec extends WordSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll {
+class PassthroughDimensionSpec extends WordSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll {
 
-  var passthroughBucketer: PassthroughBucketer = null
+  var passthroughDimension: PassthroughDimension = null
   before {
-    passthroughBucketer = new PassthroughBucketer(Map("typeOp" -> "int"))
+    passthroughDimension = new PassthroughDimension(Map("typeOp" -> "int"))
   }
 
   after {
-    passthroughBucketer = null
+    passthroughDimension = null
   }
 
-  "A PassthroughBucketer" should {
+  "A PassthroughDimension" should {
     "In default implementation, get one buckets for a specific time" in {
-      val buckets = passthroughBucketer.bucket("foo".asInstanceOf[JSerializable]).map(_._1.id)
+      val buckets = passthroughDimension.bucket("foo".asInstanceOf[JSerializable]).map(_._1.id)
 
       buckets.size should be(1)
 
@@ -46,8 +46,7 @@ class PassthroughBucketerSpec extends WordSpecLike with Matchers with BeforeAndA
     }
 
     "The precision must be int" in {
-      passthroughBucketer.bucketTypes(Bucketer.IdentityName).typeOp should be(TypeOp.Int)
+      passthroughDimension.bucketTypes(Bucketer.IdentityName).typeOp should be(TypeOp.Int)
     }
-
   }
 }

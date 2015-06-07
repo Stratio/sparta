@@ -18,10 +18,9 @@ package com.stratio.sparkta.plugin.dimension.hierarchy
 
 import java.io.{Serializable => JSerializable}
 
-import HierarchyDimension._
 import akka.event.slf4j.SLF4JLogging
 
-import com.stratio.sparkta.plugin.bucketer.hierarchy.HierarchyBucketer._
+import com.stratio.sparkta.plugin.dimension.hierarchy.HierarchyDimension._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk._
 
@@ -57,7 +56,7 @@ case class HierarchyDimension(props: Map[String, JSerializable]) extends Buckete
   val wildcard = properties.getString(WildCardPropertyName)
 
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] =
-    bucketTypes.map(bucketType => 
+    bucketTypes.map(bucketType =>
       (bucketType._2, bucket(value.asInstanceOf[String], bucketType._2).asInstanceOf[JSerializable]))
 
   def bucket(value: String, bucketType: BucketType): Seq[JSerializable] = {
@@ -72,7 +71,6 @@ case class HierarchyDimension(props: Map[String, JSerializable]) extends Buckete
         explodeWithWildcards(value, wildcard, splitter, true, true)
     }
   }
-
 }
 
 object HierarchyDimension {

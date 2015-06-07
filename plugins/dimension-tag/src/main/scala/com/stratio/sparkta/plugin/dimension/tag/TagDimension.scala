@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.plugin.dimension.tag
 
 import java.io.{Serializable => JSerializable}
+
 import akka.event.slf4j.SLF4JLogging
 
-import TagDimension._
-import com.stratio.sparkta.sdk.{BucketType, Bucketer}
-
-import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk.{TypeOp, _}
+import com.stratio.sparkta.plugin.dimension.tag.TagDimension._
+import com.stratio.sparkta.sdk.{BucketType, Bucketer, TypeOp}
 
 case class TagDimension(props: Map[String, JSerializable]) extends Bucketer with SLF4JLogging {
 
@@ -41,7 +40,6 @@ case class TagDimension(props: Map[String, JSerializable]) extends Bucketer with
 
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] =
     bucketTypes.map(bt => bt._2 -> TagDimension.bucket(value.asInstanceOf[Iterable[JSerializable]], bt._2))
-
 }
 
 object TagDimension {

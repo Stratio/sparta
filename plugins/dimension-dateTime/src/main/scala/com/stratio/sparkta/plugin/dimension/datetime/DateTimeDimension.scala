@@ -22,8 +22,7 @@ import java.util.Date
 import akka.event.slf4j.SLF4JLogging
 import org.joda.time.DateTime
 
-import DateTimeDimension._
-import com.stratio.sparkta.sdk.TypeOp.TypeOp
+import com.stratio.sparkta.plugin.dimension.datetime.DateTimeDimension._
 import com.stratio.sparkta.sdk._
 
 case class DateTimeDimension(props: Map[String, JSerializable]) extends Bucketer with JSerializable with SLF4JLogging {
@@ -59,7 +58,6 @@ case class DateTimeDimension(props: Map[String, JSerializable]) extends Bucketer
         throw cce
       }
     }
-
 }
 
 object DateTimeDimension {

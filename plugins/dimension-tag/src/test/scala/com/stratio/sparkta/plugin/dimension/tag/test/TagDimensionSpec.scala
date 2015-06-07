@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.plugin.dimension.tag.test
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.plugin.dimension.tag.TagDimension
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.prop.TableDrivenPropertyChecks
+
+import com.stratio.sparkta.plugin.dimension.tag.TagDimension
 
 @RunWith(classOf[JUnitRunner])
 class TagDimensionSpec extends WordSpecLike
@@ -30,24 +32,24 @@ with BeforeAndAfter
 with BeforeAndAfterAll
 with TableDrivenPropertyChecks {
 
-  var tagBucketer: TagDimension = null
+  var tagDimension: TagDimension = null
   before {
-    tagBucketer = new TagDimension()
+    tagDimension = new TagDimension()
   }
 
   after {
-    tagBucketer = null
+    tagDimension = null
   }
 
   "A TagDimension" should {
     "In default implementation, get 3 buckets for all precision sizes" in {
-      val buckets = tagBucketer.bucket(Seq("").asInstanceOf[JSerializable]).map(_._1.id)
+      val buckets = tagDimension.bucket(Seq("").asInstanceOf[JSerializable]).map(_._1.id)
 
       buckets.size should be(3)
 
-      buckets should contain(TagBucketer.AllTagsName)
-      buckets should contain(TagBucketer.FirstTagName)
-      buckets should contain(TagBucketer.LastTagName)
+      buckets should contain(TagDimension.AllTagsName)
+      buckets should contain(TagDimension.FirstTagName)
+      buckets should contain(TagDimension.LastTagName)
     }
 
     "In default implementation, every proposed combination should be ok" in {
@@ -60,8 +62,8 @@ with TableDrivenPropertyChecks {
       )
 
       forAll(data) { (s: Seq[Any], rz: Int) =>
-        val result = tagBucketer.bucket(s.map(_.asInstanceOf[JSerializable]).toList.asInstanceOf[JSerializable])
-        val allTags = result(tagBucketer.bucketTypes(TagBucketer.AllTagsName)).asInstanceOf[Seq[String]]
+        val result = tagDimension.bucket(s.map(_.asInstanceOf[JSerializable]).toList.asInstanceOf[JSerializable])
+        val allTags = result(tagDimension.bucketTypes(TagDimension.AllTagsName)).asInstanceOf[Seq[String]]
         allTags.size should be(rz)
       }
     }

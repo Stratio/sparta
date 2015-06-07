@@ -28,38 +28,38 @@ import com.stratio.sparkta.sdk.TypeOp
 @RunWith(classOf[JUnitRunner])
 class DateTimeDimensionSpec extends WordSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll {
 
-  var dateTimeBucketer: DateTimeBucketer = null
+  var dateTimeDimension: DateTimeDimension = null
   before {
-    dateTimeBucketer = new DateTimeBucketer(Map("second" -> "long", "minute" -> "date", "typeOp" -> "datetime"))
+    dateTimeDimension = new DateTimeDimension(Map("second" -> "long", "minute" -> "date", "typeOp" -> "datetime"))
   }
 
   after {
-    dateTimeBucketer = null
+    dateTimeDimension = null
   }
 
-  "A DateTimeBucketer" should {
-    "In default implementation, get 7 buckets for a specific time" in {
+  "A DateTimeDimension" should {
+    "In default implementation, get 7 dimensions for a specific time" in {
       val newDate = new Date()
-      val buckets = dateTimeBucketer.bucket(newDate.asInstanceOf[io.Serializable]).map(_._1.id)
+      val buckets = dateTimeDimension.bucket(newDate.asInstanceOf[io.Serializable]).map(_._1.id)
 
       buckets.size should be(7)
 
-      buckets should contain(DateTimeBucketer.timestamp.id)
-      buckets should contain(DateTimeBucketer.SecondName)
-      buckets should contain(DateTimeBucketer.MinuteName)
-      buckets should contain(DateTimeBucketer.HourName)
-      buckets should contain(DateTimeBucketer.DayName)
-      buckets should contain(DateTimeBucketer.MonthName)
-      buckets should contain(DateTimeBucketer.YearName)
+      buckets should contain(DateTimeDimension.timestamp.id)
+      buckets should contain(DateTimeDimension.SecondName)
+      buckets should contain(DateTimeDimension.MinuteName)
+      buckets should contain(DateTimeDimension.HourName)
+      buckets should contain(DateTimeDimension.DayName)
+      buckets should contain(DateTimeDimension.MonthName)
+      buckets should contain(DateTimeDimension.YearName)
     }
 
-    "Each precision bucket have their output type, second must be long, minute must be date, others datetime" in {
-      dateTimeBucketer.bucketTypes(DateTimeBucketer.SecondName).typeOp should be(TypeOp.Long)
-      dateTimeBucketer.bucketTypes(DateTimeBucketer.MinuteName).typeOp should be(TypeOp.Date)
-      dateTimeBucketer.bucketTypes(DateTimeBucketer.DayName).typeOp should be(TypeOp.DateTime)
-      dateTimeBucketer.bucketTypes(DateTimeBucketer.MonthName).typeOp should be(TypeOp.DateTime)
-      dateTimeBucketer.bucketTypes(DateTimeBucketer.YearName).typeOp should be(TypeOp.DateTime)
-      dateTimeBucketer.bucketTypes(DateTimeBucketer.timestamp.id).typeOp should be(TypeOp.Timestamp)
+    "Each precision dimension have their output type, second must be long, minute must be date, others datetime" in {
+      dateTimeDimension.bucketTypes(DateTimeDimension.SecondName).typeOp should be(TypeOp.Long)
+      dateTimeDimension.bucketTypes(DateTimeDimension.MinuteName).typeOp should be(TypeOp.Date)
+      dateTimeDimension.bucketTypes(DateTimeDimension.DayName).typeOp should be(TypeOp.DateTime)
+      dateTimeDimension.bucketTypes(DateTimeDimension.MonthName).typeOp should be(TypeOp.DateTime)
+      dateTimeDimension.bucketTypes(DateTimeDimension.YearName).typeOp should be(TypeOp.DateTime)
+      dateTimeDimension.bucketTypes(DateTimeDimension.timestamp.id).typeOp should be(TypeOp.Timestamp)
     }
   }
 }

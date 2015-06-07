@@ -18,9 +18,10 @@ package com.stratio.sparkta.plugin.dimension.twitter.status
 
 import java.io.{Serializable => JSerializable}
 
-import TwitterStatusDimension._
-import com.stratio.sparkta.sdk.{Bucketer, BucketType}
-import twitter4j.{Status}
+import twitter4j.Status
+
+import com.stratio.sparkta.plugin.dimension.twitter.status.TwitterStatusDimension._
+import com.stratio.sparkta.sdk._
 
 case class TwitterStatusDimension(props: Map[String, JSerializable]) extends Bucketer {
 
@@ -40,7 +41,7 @@ case class TwitterStatusDimension(props: Map[String, JSerializable]) extends Buc
       FirstHastagName -> getPrecision(FirstHastagName, getTypeOperation(FirstHastagName)),
       PlacesName -> getPrecision(PlacesName, getTypeOperation(PlacesName)),
       RetweetsName -> getPrecision(RetweetsName, getTypeOperation(RetweetsName)),
-      UrlsName ->getPrecision(UrlsName, getTypeOperation(UrlsName)),
+      UrlsName -> getPrecision(UrlsName, getTypeOperation(UrlsName)),
       MentionsName -> getPrecision(MentionsName, getTypeOperation(MentionsName)),
       IdentityName -> getPrecision(IdentityName, getTypeOperation(IdentityName)),
       WordsName -> getPrecision(WordsName, getTypeOperation(WordsName)),
@@ -50,10 +51,8 @@ case class TwitterStatusDimension(props: Map[String, JSerializable]) extends Buc
 
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] = {
     bucketTypes.map(bucketType =>
-      bucketType -> TwitterStatusDimension.bucket(value.asInstanceOf[Status], bucketType)
-    ).toMap
+      bucketType._2 -> TwitterStatusDimension.bucket(value.asInstanceOf[Status], bucketType._2))
   }
-
 }
 
 object TwitterStatusDimension {
@@ -89,7 +88,7 @@ object TwitterStatusDimension {
       value.getUserMentionEntities.map(_.getName)
     else ""
     val getWordsCount = value.getText.split(" ").length
-    val getLocation : JSerializable = value.getUser.getLocation.toLowerCase
+    val getLocation: JSerializable = value.getUser.getLocation.toLowerCase
     val getLanguage = value.getUser.getLang
     val getName = value.getUser.getName
 
@@ -109,9 +108,10 @@ object TwitterStatusDimension {
       case l if l == LanguageName => getLanguage
     }).toString.asInstanceOf[JSerializable]
   }
+
   //scalastyle:on
 
-  override def toString : String = s"TwitterStatusBucketer(" +
+  override def toString: String = s"TwitterStatusBucketer(" +
     s"text=$TextName, contributors=$ContributorsName, hastags=$HastagsName, firsthastag=$FirstHastagName" +
     s" places=$PlacesName, retweets=$RetweetsName, urls=$UrlsName, mentions=$MentionsName," +
     s" words=$WordsName, location=$LocationName, name=$NameName, language=$LanguageName)"
