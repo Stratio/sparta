@@ -19,11 +19,11 @@ package com.stratio.sparkta.driver.test.service
 import java.io.File
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparkta.driver.constants.AppConstant
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
-import com.stratio.sparkta.driver.factory.JarListFactory._
+import com.stratio.sparkta.driver.helpers.sparkta.SparktaHelper
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.typesafe.config.ConfigFactory
 import org.json4s.{DefaultFormats, native}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -36,7 +36,7 @@ import scala.io.Source
 class StreamingContextServiceIT extends WordSpecLike
 with ScalatestRouteTest
 with Matchers
-with SLF4JLogging{
+with SLF4JLogging {
 
   val PathToPolicy = getClass.getClassLoader.getResource("policies/IKafka-OPrint.json").getPath
 
@@ -56,13 +56,10 @@ with SLF4JLogging{
 
   "A StreamingContextService should" should {
     "create spark streaming context from a policy" in {
-      val sparktaConfig = ConfigFactory.load().getConfig("sparkta")
-      val sparktaHome = getSparktaHome
-      val jarsPath = new File(sparktaHome, "plugins")
-      log.info("Loading jars from " + jarsPath.getAbsolutePath)
-      val jdkPath = new File(sparktaHome, "sdk")
-      val aggregatorPath = new File(sparktaHome, "aggregator")
-      val jars = findJarsByPath(jarsPath) ++ findJarsByPath(jdkPath) ++ findJarsByPath(aggregatorPath)
+      val sparktaConfig = SparktaHelper.initConfig("sparkta")
+      val sparktaHome = SparktaHelper.initSparktaHome()
+      val jars = SparktaHelper.initJars(AppConstant.JarPaths, sparktaHome)
+
       val streamingContextService = new StreamingContextService(sparktaConfig, jars)
       val json = Source.fromFile(new File(PathToPolicy)).mkString
       implicit val formats = DefaultFormats + new JsoneyStringSerializer()

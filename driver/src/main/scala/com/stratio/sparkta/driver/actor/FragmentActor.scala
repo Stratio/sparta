@@ -45,8 +45,7 @@ case class FragmentSupervisorActor_response(status: Try[Unit])
  * Implementation of supported CRUD operations over ZK needed to manage Fragments.
  * @author anistal
  */
-class FragmentSupervisorActor(curatorFramework: CuratorFramework) extends Actor
-with Json4sJacksonSupport with SLF4JLogging {
+class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4sJacksonSupport with SLF4JLogging {
 
   implicit val json4sJacksonFormats = DefaultFormats +
     new EnumNameSerializer(StreamingContextStatusEnum) +
@@ -61,17 +60,17 @@ with Json4sJacksonSupport with SLF4JLogging {
 
   def doFindAllByType(fragmentType: String): Unit =
     sender ! FragmentSupervisorActor_response_fragments(Try({
-      val children = curatorFramework.getChildren.forPath(FragmentSupervisorActor.generateFragmentPath(fragmentType))
+      val children = curatorFramework.getChildren.forPath(FragmentActor.generateFragmentPath(fragmentType))
       JavaConversions.asScalaBuffer(children).toList.map(element =>
         read[FragmentElementDto](new String(curatorFramework.getData.forPath(
-          FragmentSupervisorActor.generateFragmentPath(fragmentType) +
-            FragmentSupervisorActor.PathSeparator + element).asInstanceOf[Array[Byte]]))).toSeq
+          FragmentActor.generateFragmentPath(fragmentType) +
+            FragmentActor.PathSeparator + element).asInstanceOf[Array[Byte]]))).toSeq
     }))
 
   def doDetail(fragmentType: String, name: String): Unit =
     sender ! new FragmentSupervisorActor_response_fragment(Try({
       read[FragmentElementDto](new String(curatorFramework.getData.forPath(
-        FragmentSupervisorActor.generateFragmentPath(fragmentType) + FragmentSupervisorActor.PathSeparator + name)
+        FragmentActor.generateFragmentPath(fragmentType) + FragmentActor.PathSeparator + name)
         .asInstanceOf[Array[Byte]]))
     }))
     
@@ -79,18 +78,18 @@ with Json4sJacksonSupport with SLF4JLogging {
   def doCreate(fragment: FragmentElementDto): Unit =
     sender ! FragmentSupervisorActor_response(Try({
       curatorFramework.create().creatingParentsIfNeeded().forPath(
-        FragmentSupervisorActor.generateFragmentPath(fragment.fragmentType)
-          + FragmentSupervisorActor.PathSeparator + fragment.name, write(fragment).getBytes())
+        FragmentActor.generateFragmentPath(fragment.fragmentType)
+          + FragmentActor.PathSeparator + fragment.name, write(fragment).getBytes())
     }))
 
   def doDeleteByTypeAndName(fragmentType: String, name: String): Unit =
     sender ! FragmentSupervisorActor_response(Try({
       curatorFramework.delete().forPath(
-        FragmentSupervisorActor.generateFragmentPath(fragmentType) + FragmentSupervisorActor.PathSeparator + name)
+        FragmentActor.generateFragmentPath(fragmentType) + FragmentActor.PathSeparator + name)
     }))
 }
 
-object FragmentSupervisorActor {
+object FragmentActor {
 
   // TODO (anistal) This should be in a config file.
   val BaseZKPath: String = "/sparkta/policies"

@@ -18,10 +18,13 @@ package com.stratio.sparkta.driver.actor
 
 import akka.actor._
 import com.gettyimages.spray.swagger.SwaggerHttpService
+import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.driver.dto.ErrorDto
+import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.driver.service.http.{FragmentHttpService, PolicyHttpService}
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.wordnik.swagger.model.ApiInfo
+import org.apache.curator.framework.CuratorFramework
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.Serialization._
@@ -31,14 +34,14 @@ import spray.util.LoggingContext
 
 import scala.reflect.runtime.universe._
 
-class PolicyControllerActor(val streamingSupervisor: ActorRef, val fragmentSupervisor: ActorRef)
-  extends HttpServiceActor {
+class ControllerActor(streamingContextService: StreamingContextService,
+                      curatorFramework: CuratorFramework) extends HttpServiceActor {
 
   override  implicit def actorRefFactory: ActorContext = context
 
-  implicit val json4sJacksonFormats = DefaultFormats + new EnumNameSerializer(StreamingContextStatusEnum) +
+  implicit val json4sJacksonFormats = DefaultFormats +
+    new EnumNameSerializer(StreamingContextStatusEnum) +
     new JsoneyStringSerializer()
-
 
   implicit def exceptionHandler(implicit log: LoggingContext): ExceptionHandler =
     ExceptionHandler {
@@ -50,12 +53,14 @@ class PolicyControllerActor(val streamingSupervisor: ActorRef, val fragmentSuper
     }
 
   val policyRoute = new PolicyHttpService {
-    override val supervisor: ActorRef = streamingSupervisor
+    val streamingActor = context.actorOf(Props(new StreamingActor(streamingContextService)), "streamingActor")
+    override val supervisor = streamingActor
     override implicit def actorRefFactory: ActorRefFactory = context
   }
 
   val fragmentRoute = new FragmentHttpService {
-    override val supervisor: ActorRef = fragmentSupervisor
+    val fragmentActor = context.actorOf(Props(new FragmentActor(curatorFramework)), "fragmentActor")
+    override val supervisor = fragmentActor
     override implicit def actorRefFactory: ActorRefFactory = context
   }
 
@@ -89,6 +94,4 @@ class PolicyControllerActor(val streamingSupervisor: ActorRef, val fragmentSuper
       "http://www.apache.org/licenses/LICENSE-2.0"
     ))
   }
-
-
 }

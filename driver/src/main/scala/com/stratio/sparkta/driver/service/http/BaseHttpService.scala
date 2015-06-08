@@ -16,12 +16,12 @@
 
 package com.stratio.sparkta.driver.service.http
 
-import akka.actor.ActorRef
+import akka.actor.{ActorSelection, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
 import com.stratio.sparkta.driver.actor.StreamingContextStatusEnum
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import org.json4s.DefaultFormats
+import org.json4s.{Formats, DefaultFormats}
 import org.json4s.ext.EnumNameSerializer
 import spray.httpx.Json4sJacksonSupport
 import spray.routing._
@@ -35,7 +35,7 @@ import scala.concurrent.duration._
  */
 trait BaseHttpService extends HttpService with Json4sJacksonSupport with SLF4JLogging {
 
-  implicit val json4sJacksonFormats = DefaultFormats + new EnumNameSerializer(StreamingContextStatusEnum) +
+  implicit val json4sJacksonFormats: Formats = DefaultFormats + new EnumNameSerializer(StreamingContextStatusEnum) +
     new JsoneyStringSerializer()
 
   implicit val timeout: Timeout = Timeout(15.seconds)
