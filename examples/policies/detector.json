@@ -9,51 +9,51 @@
       "elementType": "KafkaInput",
       "configuration": {
         "topics": "detectorStream3",
-        "kafkaParams.zookeeper.connect": "*****",
-        "kafkaParams.group.id": "kafka-pruebas-8",
+        "kafkaParams.zookeeper.connect": "****",
+        "kafkaParams.group.id": "testgroup",
         "storageLevel": "MEMORY_AND_DISK_SER_2"
       }
     }
   ],
   "dimensions": [
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "company_root"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "ou_vehicle"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "asset"
     },
     {
-      "dimensionType": "DateTimeBucketer",
+      "dimensionType": "DateTimeDimension",
       "name": "recorded_at_ms"
     },
     {
-      "dimensionType": "GeoHashBucketer",
+      "dimensionType": "GeoHashDimension",
       "name": "geo"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "rpm_event_avg"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "odometer"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "odometerNum"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "rpmAvgNum"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "path_id"
     }
   ],
@@ -136,10 +136,11 @@
       "elementType": "MongoDbOutput",
       "configuration": {
         "clientUri": "mongodb://localhost:27017",
-        "dbName": "sparkta3",
+        "dbName": "sparkta",
         "multiplexer": "false",
         "granularity": "minute",
-	    "identitiesSaved": "true"
+	    "identitiesSaved": "true",
+        "idAsField": "true"
       }
     }
   ],
