@@ -21,7 +21,7 @@ import org.scalamock.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FlatSpec, Matchers}
 import twitter4j.Status
-
+import com.stratio.sparkta.plugin.dimension.twitter.status.TwitterStatusDimension
 
 @RunWith(classOf[JUnitRunner])
 class TwitterStatusDimensionSpec extends FlatSpec with MockFactory with Matchers {
@@ -32,14 +32,13 @@ class TwitterStatusDimensionSpec extends FlatSpec with MockFactory with Matchers
     val expected = toTest.bucket(status)
 
     expected.size should be(13)
-   // expected.get(TwitterStatusDimension.text) should be equals ("Some text")
+    expected.get(toTest.bucketTypes(TwitterStatusDimension.TextName)) should be equals ("Some text")
   }
-
 
   def getMockStatus: Status = {
     val status = mock[Status]
     (status.getText _).expects().returning("Some text").anyNumberOfTimes()
-    (status.getContributors _).expects().returning(null).anyNumberOfTimes()
+    (status.getContributors _).expects().returning(Array(0L)).anyNumberOfTimes()
     (status.getHashtagEntities _).expects().returning(null).anyNumberOfTimes()
     (status.getUser _).expects().returning(null).anyNumberOfTimes()
     (status.getRetweetCount _).expects().returning(1L).anyNumberOfTimes()

@@ -31,7 +31,7 @@ import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.reflections.Reflections
 
 import com.stratio.sparkta.aggregator.{DataCube, Rollup}
-import com.stratio.sparkta.driver.dto.{AggregationPoliciesDto, PolicyElementDto}
+import com.stratio.sparkta.driver.dto._
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory._
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
@@ -172,15 +172,7 @@ object SparktaJob {
     apConfig.rollups.map(r => {
       val components = r.dimensionAndBucketTypes.map(dab => {
         dimensionsMap.get(dab.dimensionName) match {
-          case Some(x: Dimension) => if (x.bucketTypes.contains(dab.bucketType)) {
-            val bucketType = x.bucketTypes(dab.bucketType)
-            DimensionBucket(x, new BucketType(bucketType.id,
-              bucketType.typeOp,
-              bucketType.properties ++ dab.configuration.getOrElse(Map())))
-          } else {
-            throw new DriverException(
-              "Bucket type " + dab.bucketType + " not supported in dimension " + dab.dimensionName)
-          }
+          case Some(x: Dimension) => getDimensionBucket(x, dab)
           case None => throw new DriverException("Dimension name " + dab.dimensionName + " not found.")
         }
       })
@@ -196,6 +188,18 @@ object SparktaJob {
         apConfig.checkpointGranularity,
         apConfig.checkpointTimeAvailability)
     })
+
+  def getDimensionBucket(dimension: Dimension, dimBucketDto: DimensionAndBucketTypeDto): DimensionBucket = {
+    if (dimension.bucketTypes.contains(dimBucketDto.bucketType)) {
+      val bucketType = dimension.bucketTypes(dimBucketDto.bucketType)
+      DimensionBucket(dimension, new BucketType(bucketType.id,
+        bucketType.typeOp,
+        bucketType.properties ++ dimBucketDto.configuration.getOrElse(Map())))
+    } else {
+      throw new DriverException(
+        "Bucket type " + dimBucketDto.bucketType + " not supported in dimension " + dimBucketDto.dimensionName)
+    }
+  }
 
   def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C =
     clazz.getDeclaredConstructor(classOf[Map[String, Serializable]]).newInstance(properties).asInstanceOf[C]

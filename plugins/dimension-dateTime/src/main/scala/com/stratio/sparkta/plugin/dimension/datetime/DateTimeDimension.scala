@@ -49,8 +49,9 @@ case class DateTimeDimension(props: Map[String, JSerializable]) extends Bucketer
   @throws(classOf[ClassCastException])
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] =
     try {
-      bucketTypes.map(bucketType =>
-        bucketType._2 -> DateTimeDimension.bucket(value.asInstanceOf[Date], bucketType._2, properties))
+      bucketTypes.map { case (name, bucketType) =>
+        bucketType -> DateTimeDimension.bucket(value.asInstanceOf[Date], bucketType, properties)
+      }
     }
     catch {
       case cce: ClassCastException => {

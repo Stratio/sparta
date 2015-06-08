@@ -26,27 +26,19 @@ import org.scalatest.prop.TableDrivenPropertyChecks
 import com.stratio.sparkta.plugin.dimension.tag.TagDimension
 
 @RunWith(classOf[JUnitRunner])
-class TagDimensionSpec extends WordSpecLike
-with Matchers
-with BeforeAndAfter
-with BeforeAndAfterAll
-with TableDrivenPropertyChecks {
+class TagDimensionSpec extends WordSpecLike with Matchers with TableDrivenPropertyChecks {
 
-  var tagDimension: TagDimension = null
-  before {
-    tagDimension = new TagDimension()
-  }
-
-  after {
-    tagDimension = null
-  }
+  val tagDimension: TagDimension = new TagDimension()
+  val tags1 = Seq("a", "b", "c")
+  val tags2 = Seq("a", "b", "c", "a")
+  val tags3 = Seq("a", System.currentTimeMillis(), System.currentTimeMillis(), "a")
+  val tags4 = Seq("a", "a", "a", "a")
 
   "A TagDimension" should {
     "In default implementation, get 3 buckets for all precision sizes" in {
       val buckets = tagDimension.bucket(Seq("").asInstanceOf[JSerializable]).map(_._1.id)
 
       buckets.size should be(3)
-
       buckets should contain(TagDimension.AllTagsName)
       buckets should contain(TagDimension.FirstTagName)
       buckets should contain(TagDimension.LastTagName)
@@ -55,10 +47,10 @@ with TableDrivenPropertyChecks {
     "In default implementation, every proposed combination should be ok" in {
       val data = Table(
         ("s", "rz"),
-        (Seq("a", "b", "c"), 3),
-        (Seq("a", "b", "c", "a"), 4),
-        (Seq("a", 45, 3, "a"), 4),
-        (Seq("a", "a", "a", "a"), 4)
+        (tags1, tags1.size),
+        (tags2, tags2.size),
+        (tags3, tags3.size),
+        (tags4, tags4.size)
       )
 
       forAll(data) { (s: Seq[Any], rz: Int) =>

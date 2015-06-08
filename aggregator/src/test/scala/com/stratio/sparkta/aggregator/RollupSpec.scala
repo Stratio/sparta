@@ -49,32 +49,33 @@ class RollupSpec extends TestSuiteBase {
 
     def getInput: Seq[Seq[(DimensionValuesTime, Map[String, JSerializable])]] = Seq(Seq(
       (DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", bucketer),
-        new BucketType("identity", TypeOp.String)), "bar")), eventGranularity), Map[String,JSerializable]("n" -> 4)),
+        new BucketType("identity", TypeOp.String)), "bar")), eventGranularity), Map[String, JSerializable]("n" -> 4)),
       (DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", bucketer),
-        new BucketType("identity", TypeOp.String)), "bar")), eventGranularity), Map[String,JSerializable]("n" -> 3)),
+        new BucketType("identity", TypeOp.String)), "bar")), eventGranularity), Map[String, JSerializable]("n" -> 3)),
       (DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", bucketer),
-        new BucketType("identity", TypeOp.String)), "foo")), eventGranularity), Map[String,JSerializable]("n" -> 3))),
+        new BucketType("identity", TypeOp.String)), "foo")), eventGranularity), Map[String, JSerializable]("n" -> 3))),
       Seq(
         (DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", bucketer),
-          new BucketType("identity",TypeOp.String)), "bar")), eventGranularity), Map[String,JSerializable]("n" -> 4)),
+          new BucketType("identity", TypeOp.String)), "bar")), eventGranularity), Map[String, JSerializable]("n" -> 4)),
         (DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", bucketer),
-          new BucketType("identity",TypeOp.String)), "bar")), eventGranularity), Map[String,JSerializable]("n" -> 3)),
+          new BucketType("identity", TypeOp.String)), "bar")), eventGranularity), Map[String, JSerializable]("n" -> 3)),
         (DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", bucketer),
-          new BucketType("identity", TypeOp.String)), "foo")), eventGranularity), Map[String,JSerializable]("n" -> 3))))
+          new BucketType("identity", TypeOp.String)), "foo")), eventGranularity), Map[String, JSerializable]("n" -> 3))))
 
-    def getOutput: Seq[Seq[(DimensionValuesTime, Map[String, Option[Any]])]] = Seq(Seq(
-      (DimensionValuesTime(
-        Seq(DimensionValue(DimensionBucket(Dimension("foo", new PassthroughDimension),
-        new BucketType("identity", TypeOp.String)), "bar")), eventGranularity),
-        Map("count" -> Some(2L), "sum_n" -> Some(7L))),
-      (DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", new PassthroughDimension),
-        new BucketType("identity", TypeOp.String)), "foo")), eventGranularity), Map("count" -> Some(1L), "sum_n" -> Some(3L)))),
-      Seq((DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", new PassthroughDimension),
-        new BucketType("identity", TypeOp.String)), "bar")), eventGranularity),
-        Map("count" -> Some(4L), "sum_n" -> Some(14L))),
+    def getOutput: Seq[Seq[(DimensionValuesTime, Map[String, Option[Any]])]] = Seq(
+      Seq(
+        (DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", new PassthroughDimension),
+          new BucketType("identity", TypeOp.String)), "bar")), eventGranularity),
+          Map("count" -> Some(2L), "sum_n" -> Some(7L))),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", new PassthroughDimension),
+          new BucketType("identity", TypeOp.String)), "foo")), eventGranularity),
+          Map("count" -> Some(1L), "sum_n" -> Some(3L)))),
+      Seq(
+        (DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", new PassthroughDimension),
+          new BucketType("identity", TypeOp.String)), "bar")), eventGranularity),
+          Map("count" -> Some(4L), "sum_n" -> Some(14L))),
         (DimensionValuesTime(Seq(DimensionValue(DimensionBucket(Dimension("foo", new PassthroughDimension),
           new BucketType("identity", TypeOp.String)), "foo")), eventGranularity),
           Map("count" -> Some(2L), "sum_n" -> Some(6L)))))
   }
-
 }

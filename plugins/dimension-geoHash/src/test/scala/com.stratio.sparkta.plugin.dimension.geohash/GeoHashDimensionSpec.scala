@@ -20,24 +20,15 @@ import java.io.{Serializable => JSerializable}
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.{Matchers, WordSpecLike}
 
 import com.stratio.sparkta.sdk.TypeOp
 
 @RunWith(classOf[JUnitRunner])
-class GeoHashDimensionSpec extends WordSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll {
+class GeoHashDimensionSpec extends WordSpecLike with Matchers {
 
-  var geoHashDimension: GeoHashDimension = null
-  var geoHashDimensionDefault: GeoHashDimension = null
-  before {
-    geoHashDimension = new GeoHashDimension(Map("precision1" -> "int", "typeOp" -> "long"))
-    geoHashDimensionDefault = new GeoHashDimension()
-  }
-
-  after {
-    geoHashDimension = null
-    geoHashDimensionDefault = null
-  }
+  val geoHashDimension: GeoHashDimension = new GeoHashDimension(Map("precision1" -> "int", "typeOp" -> "long"))
+  val geoHashDimensionDefault: GeoHashDimension = new GeoHashDimension()
 
   "A GeoHashDimension" should {
     "In default implementation, get 12 buckets for all precision sizes" in {

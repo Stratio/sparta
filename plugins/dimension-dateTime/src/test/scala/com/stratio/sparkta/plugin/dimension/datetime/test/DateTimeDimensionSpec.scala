@@ -18,24 +18,19 @@ package com.stratio.sparkta.plugin.dimension.datetime.test
 
 import java.io
 import java.util.Date
-import com.stratio.sparkta.plugin.dimension.datetime.DateTimeDimension
+
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.{Matchers, WordSpecLike}
 
+import com.stratio.sparkta.plugin.dimension.datetime.DateTimeDimension
 import com.stratio.sparkta.sdk.TypeOp
 
 @RunWith(classOf[JUnitRunner])
-class DateTimeDimensionSpec extends WordSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll {
+class DateTimeDimensionSpec extends WordSpecLike with Matchers {
 
-  var dateTimeDimension: DateTimeDimension = null
-  before {
-    dateTimeDimension = new DateTimeDimension(Map("second" -> "long", "minute" -> "date", "typeOp" -> "datetime"))
-  }
-
-  after {
-    dateTimeDimension = null
-  }
+  val dateTimeDimension: DateTimeDimension =
+    new DateTimeDimension(Map("second" -> "long", "minute" -> "date", "typeOp" -> "datetime"))
 
   "A DateTimeDimension" should {
     "In default implementation, get 7 dimensions for a specific time" in {

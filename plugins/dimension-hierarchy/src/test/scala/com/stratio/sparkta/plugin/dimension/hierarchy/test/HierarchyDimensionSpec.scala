@@ -32,19 +32,19 @@ with BeforeAndAfter
 with BeforeAndAfterAll
 with TableDrivenPropertyChecks {
 
-  var hbs: HierarchyDimension = null
+  var hbs: Option[HierarchyDimension] = _
 
   before {
-    hbs = new HierarchyDimension()
+    hbs = Some(new HierarchyDimension())
   }
 
   after {
-    hbs = null
+    hbs = None
   }
 
   "A HierarchyDimension" should {
     "In default implementation, get 4 buckets for all precision sizes" in {
-      val buckets = hbs.bucket("").map(_._1.id)
+      val buckets = hbs.get.bucket("").map(_._1.id)
 
       buckets.size should be(4)
 
@@ -61,47 +61,47 @@ with TableDrivenPropertyChecks {
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.bucket(i)
-        val value = result(hbs.LeftToRightWithWildCard)
+        val result = hbs.get.bucket(i)
+        val value = result(hbs.get.LeftToRightWithWildCard)
         assertResult(o)(value)
       }
     }
     "In reverse implementation, every proposed combination should be ok" in {
-      hbs = new HierarchyDimension()
+      hbs = Some(new HierarchyDimension())
       val data = Table(
         ("i", "o"),
         ("com.stratio.sparkta", Seq("com.stratio.sparkta", "com.stratio.*", "com.*", "*"))
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.bucket(i.asInstanceOf[JSerializable])
-        val value = result(hbs.RightToLeftWithWildCard)
+        val result = hbs.get.bucket(i.asInstanceOf[JSerializable])
+        val value = result(hbs.get.RightToLeftWithWildCard)
         assertResult(o)(value)
       }
     }
     "In reverse implementation without wildcards, every proposed combination should be ok" in {
-      hbs = new HierarchyDimension()
+      hbs = Some(new HierarchyDimension())
       val data = Table(
         ("i", "o"),
         ("com.stratio.sparkta", Seq("com.stratio.sparkta", "com.stratio", "com", "*"))
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.bucket(i.asInstanceOf[JSerializable])
-        val value = result(hbs.RightToLeft)
+        val result = hbs.get.bucket(i.asInstanceOf[JSerializable])
+        val value = result(hbs.get.RightToLeft)
         assertResult(o)(value)
       }
     }
     "In non-reverse implementation without wildcards, every proposed combination should be ok" in {
-      hbs = new HierarchyDimension()
+      hbs = Some(new HierarchyDimension())
       val data = Table(
         ("i", "o"),
         ("google.com", Seq("google.com", "com", "*"))
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.bucket(i.asInstanceOf[JSerializable])
-        val value = result(hbs.LeftToRight)
+        val result = hbs.get.bucket(i.asInstanceOf[JSerializable])
+        val value = result(hbs.get.LeftToRight)
         assertResult(o)(value)
       }
     }

@@ -20,21 +20,14 @@ import java.io.{Serializable => JSerializable}
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.{Matchers, WordSpecLike}
 
 import com.stratio.sparkta.sdk.{Bucketer, TypeOp}
 
 @RunWith(classOf[JUnitRunner])
-class PassthroughDimensionSpec extends WordSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll {
+class PassthroughDimensionSpec extends WordSpecLike with Matchers {
 
-  var passthroughDimension: PassthroughDimension = null
-  before {
-    passthroughDimension = new PassthroughDimension(Map("typeOp" -> "int"))
-  }
-
-  after {
-    passthroughDimension = null
-  }
+  val passthroughDimension: PassthroughDimension = new PassthroughDimension(Map("typeOp" -> "int"))
 
   "A PassthroughDimension" should {
     "In default implementation, get one buckets for a specific time" in {
