@@ -48,7 +48,7 @@
       "dimensionType": "GeoHashDimension",
       "name": "geolocation",
       "configuration": {
-        "typeOp": "arraydouble"
+        "typeOp": "string"
       }
     }
   ],
