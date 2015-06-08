@@ -26,11 +26,11 @@ class DetectorParser(properties: Map[String, Serializable]) extends Parser(prope
 
   def addGeoTo(event: Map[String, Serializable]): Map[String, Serializable] = {
     val lat = event.get("lat") match {
-      case (Some(_: String)) => if (event.get("lat") != Some("")) event.get("lat") else None
+      case (Some(_: Serializable)) => if (event.get("lat") != Some(0.0)) event.get("lat") else None
       case (_) => None
     }
     val lon = event.get("lon") match {
-      case (Some(_: String)) => if (event.get("lon") != Some("")) event.get("lon") else None
+      case (Some(_: Serializable)) => if (event.get("lon") != Some(0.0)) event.get("lon") else None
       case (_) => None
     }
     val mapToReturn = (lat, lon) match {
@@ -97,7 +97,7 @@ class DetectorParser(properties: Map[String, Serializable]) extends Parser(prope
     })
 
     val parsedEvent = event.getOrElse(data)
-    if (!parsedEvent.keyMap.get("alarm_code").getOrElse("1").equals("0"))
+    if (!parsedEvent.keyMap.get("alarm_code").getOrElse("1").equals(0.0))
       new Event(Map(), None)
     else
       parsedEvent

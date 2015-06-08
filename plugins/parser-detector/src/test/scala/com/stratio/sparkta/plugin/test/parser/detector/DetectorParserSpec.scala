@@ -44,7 +44,7 @@ class DetectorParserSpec extends WordSpecLike {
           |{"column":"score_emissions_lon_0"},{"column":"score_emissions_consumption_0"},
           |{"column":"score_emissions_timestamp_1"},{"column":"score_emissions_lat_1"},
           |{"column":"score_emissions_lon_1"},{"column":"score_emissions_consumption_1"},
-          |{"column":"alarm_timestamp"},{"column":"alarm_code","value": "0"},{"column":"alarm_imei"},
+          |{"column":"alarm_timestamp"},{"column":"alarm_code","value": 0.0},{"column":"alarm_imei"},
           |{"column":"alarm_lat"},{"column":"alarm_lon"},{"column":"alarm_sat_number"},{"column":"alarm_speed"},
           |{"column":"alarm_direction"},{"column":"alarm_modem_csq"},{"column":"alarm_cell_id"},
           |{"column":"alarm_ignition"},{"column":"alarm_batt_tension"},{"column":"alarm_detl"},{"column":"odometer",
