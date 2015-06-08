@@ -23,7 +23,14 @@
   "dimensions": [
     {
       "dimensionType": "TwitterStatusDimension",
-      "name": "status"
+      "name": "status",
+      "configuration": {
+        "typeOp": "string",
+        "hastags": "int",
+        "firsthastag": "string",
+        "retweets": "int",
+        "urls": "int"
+      }
     },
     {
       "dimensionType": "PassthroughDimension",
@@ -39,7 +46,10 @@
     },
     {
       "dimensionType": "GeoHashDimension",
-      "name": "geolocation"
+      "name": "geolocation",
+      "configuration": {
+        "typeOp": "string"
+      }
     }
   ],
   "rollups": [

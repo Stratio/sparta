@@ -19,6 +19,8 @@ package com.stratio.sparkta.aggregator
 import java.io.{Serializable => JSerializable}
 import java.sql.Timestamp
 
+import scala.util.Try
+
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
@@ -64,11 +66,37 @@ case class DataCube(dimensions: Seq[Dimension],
         dimension <- dimensions
         value <- event.keyMap.get(dimension.name).toSeq
         (bucketType, bucketedValue) <- dimension.bucketer.bucket(value)
-      } yield DimensionValue(DimensionBucket(dimension, bucketType), bucketedValue)
+      } yield DimensionValue(DimensionBucket(dimension, bucketType), convertToBucketTypeOp(bucketType,bucketedValue))
       val eventTime = extractEventTime(dimensionValues)
       (DimensionValuesTime(dimensionValues, eventTime), event.keyMap)
     }).cache()
   }
+
+  //scalastyle:off
+  private def convertToBucketTypeOp(bucketType : BucketType, bucketedValue : JSerializable): JSerializable = {
+    bucketType.typeOp match {
+      case TypeOp.String => bucketedValue match {
+        case value if value.isInstanceOf[String] => value
+        case value if value.isInstanceOf[Seq[Any]] =>
+          value.asInstanceOf[Seq[Any]].mkString(Output.Separator).asInstanceOf[JSerializable]
+        case _ => bucketedValue.toString.asInstanceOf[JSerializable]
+      }
+      case TypeOp.ArrayDouble => bucketedValue match {
+        case value if value.isInstanceOf[Seq[Double]] => value
+        case value if value.isInstanceOf[Seq[Any]] =>
+          Try(value.asInstanceOf[Seq[Any]].map(_.toString.toDouble)).getOrElse(Seq()).asInstanceOf[JSerializable]
+        case _ => Try(Seq(bucketedValue.toString.toDouble)).getOrElse(Seq()).asInstanceOf[JSerializable]
+      }
+      case TypeOp.ArrayString => bucketedValue match {
+        case value if value.isInstanceOf[Seq[String]] => value
+        case value if value.isInstanceOf[Seq[Any]] =>
+          Try(value.asInstanceOf[Seq[Any]].map(_.toString)).getOrElse(Seq()).asInstanceOf[JSerializable]
+        case _ => Try(Seq(bucketedValue.toString)).getOrElse(Seq()).asInstanceOf[JSerializable]
+      }
+      case _ => bucketedValue
+    }
+  }
+  //scalastyle:on
 
   private def extractEventTime(dimensionValues: Seq[DimensionValue]) = {
     timeBucket match {

@@ -22,49 +22,62 @@ import java.util.Date
 import akka.event.slf4j.SLF4JLogging
 import org.joda.time.DateTime
 
-import DateTimeDimension._
+import com.stratio.sparkta.plugin.dimension.datetime.DateTimeDimension._
 import com.stratio.sparkta.sdk._
 
 case class DateTimeDimension(props: Map[String, JSerializable]) extends Bucketer with JSerializable with SLF4JLogging {
 
   def this() {
-    this(Map((GRANULARITY_PROPERTY_NAME, DEFAULT_GRANULARITY)))
+    this(Map())
   }
 
-  override val properties: Map[String, JSerializable] = props
+  override val defaultTypeOperation = TypeOp.Timestamp
 
-  override val bucketTypes: Seq[BucketType] = Seq(timestamp, seconds, minutes, hours, days, months, years)
+  override val properties: Map[String, JSerializable] = props ++ {
+    if (!props.contains(GranularityPropertyName)) Map(GranularityPropertyName -> DefaultGranularity) else Map()
+  }
+
+  override val bucketTypes: Map[String, BucketType] = Map(
+    timestamp.id -> timestamp,
+    SecondName -> getPrecision(SecondName, getTypeOperation(SecondName)),
+    MinuteName -> getPrecision(MinuteName, getTypeOperation(MinuteName)),
+    HourName -> getPrecision(HourName, getTypeOperation(HourName)),
+    DayName -> getPrecision(DayName, getTypeOperation(DayName)),
+    MonthName -> getPrecision(MonthName, getTypeOperation(MonthName)),
+    YearName -> getPrecision(YearName, getTypeOperation(YearName)))
 
   @throws(classOf[ClassCastException])
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] =
     try {
-      bucketTypes.map(bucketType =>
+      bucketTypes.map { case (name, bucketType) =>
         bucketType -> DateTimeDimension.bucket(value.asInstanceOf[Date], bucketType, properties)
-      ).toMap
+      }
     }
     catch {
-      case cce: ClassCastException => log.error("Error parsing " + value + " ."); throw cce;
+      case cce: ClassCastException => {
+        log.error("Error parsing " + value + " .")
+        throw cce
+      }
     }
 }
 
 object DateTimeDimension {
 
-  private final val DEFAULT_GRANULARITY = "second"
-  private final val GRANULARITY_PROPERTY_NAME = "granularity"
-  val seconds = new BucketType("second")
-  val minutes = new BucketType("minute")
-  val hours = new BucketType("hour")
-  val days = new BucketType("day")
-  val months = new BucketType("month")
-  val years = new BucketType("year")
-  val timestamp = Bucketer.timestamp
+  final val DefaultGranularity = "second"
+  final val GranularityPropertyName = "granularity"
+  final val SecondName = "second"
+  final val MinuteName = "minute"
+  final val HourName = "hour"
+  final val DayName = "day"
+  final val MonthName = "month"
+  final val YearName = "year"
+  final val timestamp = Bucketer.getTimestamp(Some(TypeOp.Timestamp), TypeOp.Timestamp)
 
-  private def bucket(value: Date, bucketType: BucketType, properties: Map[String, JSerializable]): JSerializable = {
+  def bucket(value: Date, bucketType: BucketType, properties: Map[String, JSerializable]): JSerializable = {
     DateOperations.dateFromGranularity(new DateTime(value), bucketType match {
-      case t if t == timestamp => properties.contains(GRANULARITY_PROPERTY_NAME) match {
-        case true => properties.get(GRANULARITY_PROPERTY_NAME).get.toString
-        case _ => DEFAULT_GRANULARITY
-      }
+      case t if t == timestamp => if (properties.contains(GranularityPropertyName))
+        properties.get(GranularityPropertyName).get.toString
+      else DefaultGranularity
       case _ => bucketType.id
     }).asInstanceOf[JSerializable]
   }

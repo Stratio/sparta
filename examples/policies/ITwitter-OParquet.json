@@ -22,16 +22,19 @@
   ],
   "dimensions": [
     {
-      "dimensionType": "TwitterStatusBucketer",
+      "dimensionType": "TwitterStatusDimension",
       "name": "status"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "wordsN"
     },
     {
-      "dimensionType": "DateTimeBucketer",
-      "name": "timestamp"
+      "dimensionType": "DateTimeDimension",
+      "name": "timestamp",
+      "configuration": {
+        "typeOp": "arraydouble"
+      }
     }
   ],
   "rollups": [
@@ -39,7 +42,14 @@
       "dimensionAndBucketTypes": [
         {
           "dimensionName": "status",
-          "bucketType": "hastags"
+          "bucketType": "hastags",
+          "configuration": {
+            "typeOp": "string",
+            "hastags": "int",
+            "firsthastag": "string",
+            "retweets": "int",
+            "urls": "int"
+          }
         },
         {
           "dimensionName": "status",

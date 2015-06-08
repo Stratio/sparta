@@ -19,23 +19,30 @@
 
   "dimensions": [
     {
-      "dimensionType": "TwitterStatusBucketer",
-      "name": "status"
+      "dimensionType": "TwitterStatusDimension",
+      "name": "status",
+      "configuration": {
+        "typeOp": "string",
+        "hastags": "int",
+        "firsthastag": "string",
+        "retweets": "int",
+        "urls": "int"
+      }
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "userLocation"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "wordsN"
     },
     {
-      "dimensionType": "DateTimeBucketer",
+      "dimensionType": "DateTimeDimension",
       "name": "timestamp"
     },
     {
-      "dimensionType": "GeoHashBucketer",
+      "dimensionType": "GeoHashDimension",
       "name": "geolocation"
     }
   ],

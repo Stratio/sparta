@@ -171,7 +171,7 @@ trait MongoDbDAO extends Closeable {
     val combinedOptions: Map[Seq[(String, Any)], casbah.Imports.JSFunction] = mapOperations ++ {
       if (language.isDefined) Map((Seq((LanguageFieldName, language.get)), "$set")) else Map()
     } ++ {
-      if (identitiesField.size > 0) Map((Seq(Bucketer.identityField.id -> identitiesField), "$set")) else Map()
+      if (identitiesField.size > 0) Map((Seq(Bucketer.IdentityFieldName -> identitiesField), "$set")) else Map()
     } ++ {
       identities match {
         case Some(identity) => identity
@@ -222,12 +222,12 @@ trait MongoDbDAO extends Closeable {
     rollupKey.dimensionValues.map(dimVal => (Seq(dimVal.getNameDimension -> dimVal.value), "$set")).toMap
 
   protected def getIdentities(rollupKey : DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
-    rollupKey.dimensionValues.filter(dimVal => dimVal.dimensionBucket.bucketType.id == Bucketer.identity.id)
+    rollupKey.dimensionValues.filter(dimVal => dimVal.dimensionBucket.bucketType.id == Bucketer.IdentityName)
     .map(dimVal => (Seq(dimVal.getNameDimension -> dimVal.value), "$set")).toMap
 
   protected def getIdentitiesField(rollupKey : DimensionValuesTime): Seq[Imports.DBObject] = rollupKey.dimensionValues
-    .filter(dimVal => dimVal.dimensionBucket.bucketType.id == Bucketer.identityField.id ||
-    (identitiesSavedAsField && dimVal.dimensionBucket.bucketType.id == Bucketer.identity.id))
+    .filter(dimVal => dimVal.dimensionBucket.bucketType.id == Bucketer.IdentityFieldName ||
+    (identitiesSavedAsField && dimVal.dimensionBucket.bucketType.id == Bucketer.IdentityName))
     .map(dimVal => MongoDBObject(dimVal.getNameDimension -> dimVal.value))
 
   protected def checkFields(aggregations: Set[String],
