@@ -19,12 +19,13 @@ package com.stratio.sparkta.plugin.operator.range
 import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, WriteOp, Operator}
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 
 class RangeOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  override val typeOp = Some(TypeOp.Double)
+  override val defaultTypeOperation = TypeOp.Double
 
   private val inputField = if (properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
@@ -45,7 +46,7 @@ class RangeOperator(properties: Map[String, JSerializable]) extends Operator(pro
     valuesFiltered.size match {
       case (nz) if (nz != 0) => {
         val valuesConverted = valuesFiltered.map(_.asInstanceOf[Number].doubleValue())
-        Some(valuesConverted.max - valuesConverted.min)
+        Some(transformValueByTypeOp(returnType, valuesConverted.max - valuesConverted.min))
       }
       case _ => RangeOperator.SOME_ZERO
     }

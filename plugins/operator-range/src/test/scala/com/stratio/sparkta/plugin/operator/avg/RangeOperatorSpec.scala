@@ -61,6 +61,8 @@ class RangeOperatorSpec extends WordSpec with Matchers {
       val inputFields4 = new RangeOperator(Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
+      val inputFields5 = new RangeOperator(Map("typeOp" -> "string"))
+      inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("6.0"))
     }
   }
 }

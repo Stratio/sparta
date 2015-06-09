@@ -20,6 +20,7 @@ import java.io.{Serializable => JSerializable}
 
 import scala.util.Try
 
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, WriteOp, Operator}
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import breeze.stats._
@@ -28,7 +29,7 @@ import breeze.linalg._
 
 class StddevOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  override val typeOp = Some(TypeOp.Double)
+  override val defaultTypeOperation = TypeOp.Double
 
   private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
@@ -47,7 +48,8 @@ class StddevOperator(properties: Map[String, JSerializable]) extends Operator(pr
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     val valuesFiltered = values.flatten
     valuesFiltered.size match {
-      case (nz) if (nz != 0) => Some(stddev(valuesFiltered.map(_.asInstanceOf[Number].doubleValue())))
+      case (nz) if (nz != 0) =>
+        Some(transformValueByTypeOp(returnType, stddev(valuesFiltered.map(_.asInstanceOf[Number].doubleValue()))))
       case _ => StddevOperator.SOME_ZERO
     }
   }

@@ -16,13 +16,80 @@
 
 package com.stratio.sparkta.sdk
 
-/**
- * Created by jcgarcia on 18/04/15.
- */
+import java.sql.Date
+import scala.util.Try
+
+import org.joda.time.DateTime
 
 object TypeOp extends Enumeration {
 
   type TypeOp = Value
   val BigDecimal, Long, Int, String, Double, Boolean, Binary, Date, DateTime, Timestamp, ArrayDouble,
   ArrayString = Value
+
+  //scalastyle:off
+  def transformValueByTypeOp[T](typeOp: TypeOp, origValue: T): T = {
+    typeOp match {
+      case TypeOp.String => origValue match {
+        case value if value.isInstanceOf[String] => value
+        case value if value.isInstanceOf[Seq[Any]] =>
+          value.asInstanceOf[Seq[Any]].mkString(Output.Separator).asInstanceOf[T]
+        case _ => origValue.toString.asInstanceOf[T]
+      }
+      case TypeOp.ArrayDouble => origValue match {
+        case value if value.isInstanceOf[Seq[Double]] => value
+        case value if value.isInstanceOf[Seq[Any]] =>
+          Try(value.asInstanceOf[Seq[Any]].map(_.toString.toDouble)).getOrElse(Seq()).asInstanceOf[T]
+        case _ => Try(Seq(origValue.toString.toDouble)).getOrElse(Seq()).asInstanceOf[T]
+      }
+      case TypeOp.ArrayString => origValue match {
+        case value if value.isInstanceOf[Seq[String]] => value
+        case value if value.isInstanceOf[Seq[Any]] =>
+          Try(value.asInstanceOf[Seq[Any]].map(_.toString)).getOrElse(Seq()).asInstanceOf[T]
+        case _ => Try(Seq(origValue.toString)).getOrElse(Seq()).asInstanceOf[T]
+      }
+      case TypeOp.Timestamp => origValue match {
+        case value if value.isInstanceOf[Long] =>
+          DateOperations.millisToTimeStamp(value.asInstanceOf[Long]).asInstanceOf[T]
+        case value if value.isInstanceOf[Date] =>
+          DateOperations.millisToTimeStamp(value.asInstanceOf[Date].getTime).asInstanceOf[T]
+        case value if value.isInstanceOf[DateTime] =>
+          DateOperations.millisToTimeStamp(value.asInstanceOf[DateTime].getMillis).asInstanceOf[T]
+        case _ => Try(DateOperations.millisToTimeStamp(origValue.toString.toLong))
+          .getOrElse(DateOperations.millisToTimeStamp(0L)).asInstanceOf[T]
+      }
+      case TypeOp.Date => origValue match {
+        case value if value.isInstanceOf[Long] => new Date(value.asInstanceOf[Long]).asInstanceOf[T]
+        case value if value.isInstanceOf[Date] => value.asInstanceOf[Date].asInstanceOf[T]
+        case value if value.isInstanceOf[DateTime] => value.asInstanceOf[DateTime].toDate.asInstanceOf[T]
+        case _ => Try(new Date(origValue.toString.toLong)).getOrElse(new Date(0L)).asInstanceOf[T]
+      }
+      case TypeOp.DateTime => origValue match {
+        case value if value.isInstanceOf[Long] => new DateTime(value.asInstanceOf[Long]).asInstanceOf[T]
+        case value if value.isInstanceOf[Date] => new DateTime(value.asInstanceOf[Date]).asInstanceOf[T]
+        case value if value.isInstanceOf[DateTime] => value.asInstanceOf[DateTime].asInstanceOf[T]
+        case _ => Try(new DateTime(origValue.toString)).getOrElse(new DateTime(0L)).asInstanceOf[T]
+      }
+      case _ => origValue
+    }
+  }
+
+  def getTypeOperationByName(nameOperation: String, defaultTypeOperation: TypeOp): TypeOp =
+    nameOperation.toLowerCase match {
+      case name if name == "bigdecimal" => TypeOp.BigDecimal
+      case name if name == "long" => TypeOp.Long
+      case name if name == "int" => TypeOp.Int
+      case name if name == "string" => TypeOp.String
+      case name if name == "double" => TypeOp.Double
+      case name if name == "boolean" => TypeOp.Boolean
+      case name if name == "binary" => TypeOp.Binary
+      case name if name == "date" => TypeOp.Date
+      case name if name == "datetime" => TypeOp.DateTime
+      case name if name == "timestamp" => TypeOp.Timestamp
+      case name if name == "arraydouble" => TypeOp.ArrayDouble
+      case name if name == "arraystring" => TypeOp.ArrayString
+      case _ => defaultTypeOperation
+    }
+
+  //scalastyle:on
 }

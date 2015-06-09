@@ -45,6 +45,9 @@ class AccumulatorOperatorTestSpec extends WordSpec with Matchers {
 
       val inputFields3 = new AccumulatorOperator(Map())
       inputFields3.processReduce(Seq(Some("a"), Some("b"))) should be(Some(Seq("a", "b")))
+
+      val inputFields4 = new AccumulatorOperator(Map("typeOp" -> "string"))
+      inputFields4.processReduce(Seq(Some(1), Some(1))) should be(Some("1_1"))
     }
   }
 }

@@ -33,6 +33,8 @@ case class DateTimeDimension(props: Map[String, JSerializable]) extends Bucketer
 
   override val defaultTypeOperation = TypeOp.Timestamp
 
+  override val operationProps : Map[String, JSerializable] = props
+
   override val properties: Map[String, JSerializable] = props ++ {
     if (!props.contains(GranularityPropertyName)) Map(GranularityPropertyName -> DefaultGranularity) else Map()
   }

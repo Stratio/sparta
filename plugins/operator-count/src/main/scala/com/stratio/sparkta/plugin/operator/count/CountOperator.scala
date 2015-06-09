@@ -19,6 +19,8 @@ package com.stratio.sparkta.plugin.operator.count
 import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
+import com.stratio.sparkta.sdk.TypeOp
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk._
 
@@ -29,7 +31,7 @@ class CountOperator(properties: Map[String, JSerializable]) extends Operator(pro
     if (fields.isEmpty) None else Some(fields)
   } else None
 
-  override val typeOp = Some(TypeOp.Long)
+  override val defaultTypeOperation = TypeOp.Long
 
   override val key: String = "count" + {
     if (distinctFields.isDefined) "_distinct" else ""
@@ -50,7 +52,7 @@ class CountOperator(properties: Map[String, JSerializable]) extends Operator(pro
         case None => values.map(_.get.asInstanceOf[Number].longValue())
         case Some(fields) => values.toList.distinct.map(value => CountOperator.SomeOne.get)
       }
-      Some(longList.reduce(_ + _))
+      Some(transformValueByTypeOp(returnType, longList.reduce(_ + _)))
     }.getOrElse(CountOperator.SomeZero)
   }
 }

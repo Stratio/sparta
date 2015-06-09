@@ -22,7 +22,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.github.davidmoten.geo.{GeoHash, LatLong}
 
 import com.stratio.sparkta.plugin.dimension.geohash.GeoHashDimension._
-import com.stratio.sparkta.sdk.{BucketType, Bucketer, TypeOp}
+import com.stratio.sparkta.sdk._
 
 /**
  *
@@ -43,13 +43,15 @@ import com.stratio.sparkta.sdk.{BucketType, Bucketer, TypeOp}
  * 12 - 3.7cm x 1.9cm
  *
  */
-case class GeoHashDimension(props: Map[String, JSerializable]) extends Bucketer with SLF4JLogging {
+case class GeoHashDimension(props: Map[String, JSerializable]) extends Bucketer with JSerializable with SLF4JLogging {
 
   def this() {
     this(Map())
   }
 
   override val properties: Map[String, JSerializable] = props
+
+  override val operationProps : Map[String, JSerializable] = props
 
   override val defaultTypeOperation = TypeOp.ArrayDouble
 

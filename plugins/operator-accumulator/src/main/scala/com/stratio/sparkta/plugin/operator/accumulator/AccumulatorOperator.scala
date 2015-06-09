@@ -19,12 +19,14 @@ package com.stratio.sparkta.plugin.operator.accumulator
 import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
+import com.stratio.sparkta.sdk.TypeOp
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk._
 
 class AccumulatorOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  override val typeOp = Some(TypeOp.ArrayString)
+  override val defaultTypeOperation = TypeOp.ArrayString
 
   private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
@@ -40,7 +42,7 @@ class AccumulatorOperator(properties: Map[String, JSerializable]) extends Operat
   }
 
   override def processReduce(values : Iterable[Option[Any]]): Option[Any] = {
-    Try(Some(values.map(_.get.toString))).getOrElse(AccumulatorOperator.SOME_EMPTY)
+    Try(Some(transformValueByTypeOp(returnType, values.map(_.get.toString)))).getOrElse(AccumulatorOperator.SOME_EMPTY)
   }
 }
 

@@ -24,13 +24,15 @@ import com.stratio.sparkta.plugin.dimension.hierarchy.HierarchyDimension._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk._
 
-case class HierarchyDimension(props: Map[String, JSerializable]) extends Bucketer with SLF4JLogging {
+case class HierarchyDimension(props: Map[String, JSerializable]) extends Bucketer with JSerializable with SLF4JLogging {
 
   def this() {
     this(Map())
   }
 
   override val defaultTypeOperation = TypeOp.String
+
+  override val operationProps : Map[String, JSerializable] = props
 
   override val properties: Map[String, JSerializable] = props ++ {
     if (!props.contains(SplitterPropertyName)) Map(SplitterPropertyName -> DefaultSplitter) else Map()

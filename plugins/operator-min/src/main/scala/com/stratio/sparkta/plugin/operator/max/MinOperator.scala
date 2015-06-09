@@ -17,6 +17,8 @@
 package com.stratio.sparkta.plugin.operator.min
 
 import java.io.{Serializable => JSerializable}
+import com.stratio.sparkta.sdk.TypeOp
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 
@@ -24,7 +26,7 @@ import scala.util.Try
 
 class MinOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  override val typeOp = Some(TypeOp.Double)
+  override val defaultTypeOperation = TypeOp.Double
 
   private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
@@ -41,7 +43,7 @@ class MinOperator(properties: Map[String, JSerializable]) extends Operator(prope
   }
 
   override def processReduce(values : Iterable[Option[Any]]): Option[Double] = {
-    Try(Some(values.flatten.map(_.asInstanceOf[Number].doubleValue()).min))
+    Try(Some(transformValueByTypeOp(returnType, values.flatten.map(_.asInstanceOf[Number].doubleValue()).min)))
       .getOrElse(MinOperator.SOME_ZERO)
   }
 }

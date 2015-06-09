@@ -40,8 +40,11 @@ class LastValueOperatorSpec extends WordSpec with Matchers {
       val inputFields = new LastValueOperator(Map())
       inputFields.processReduce(Seq()) should be(Some(""))
 
-      val inputFields2 = new LastValueOperator(Map())
-      inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some(1))
+      val inputFields2 = new LastValueOperator(Map("typeOp" -> "int"))
+      inputFields2.processReduce(Seq(Some(1), Some(2))) should be(Some(2))
+
+      val inputFields4 = new LastValueOperator(Map("typeOp" -> "string"))
+      inputFields4.processReduce(Seq(Some(1), Some(2))) should be(Some("2"))
 
       val inputFields3 = new LastValueOperator(Map())
       inputFields3.processReduce(Seq(Some("a"), Some("b"))) should be(Some("b"))

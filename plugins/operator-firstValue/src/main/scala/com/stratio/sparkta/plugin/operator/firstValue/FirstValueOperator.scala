@@ -19,12 +19,14 @@ package com.stratio.sparkta.plugin.operator.firstValue
 import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
+import com.stratio.sparkta.sdk.TypeOp
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk._
 
 class FirstValueOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  override val typeOp = Some(TypeOp.String)
+  override val defaultTypeOperation = TypeOp.String
 
   private val inputField = if (properties.contains("inputField")) properties.getString("inputField", None) else None
 
@@ -37,12 +39,14 @@ class FirstValueOperator(properties: Map[String, JSerializable]) extends Operato
   override def processMap(inputFields: Map[String, JSerializable]): Option[Any] =
     if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
       Some(inputFields.get(inputField.get).get)
-    } else FirstValueOperator.SOME_EMPTY
+    } else FirstValueOperator.Some_Empty
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
-    Try(values.head.orElse(FirstValueOperator.SOME_EMPTY)).getOrElse(FirstValueOperator.SOME_EMPTY)
+    Try(Some(transformValueByTypeOp(returnType, values.head.getOrElse(FirstValueOperator.Empty))))
+      .getOrElse(FirstValueOperator.Some_Empty)
 }
 
 private object FirstValueOperator {
-  val SOME_EMPTY = Some("")
+  val Some_Empty = Some("")
+  val Empty = ""
 }
