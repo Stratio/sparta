@@ -38,19 +38,33 @@ with ScalatestRouteTest
 with Matchers
 with SLF4JLogging{
 
-  val PathToPolicy = "examples/policies/IKafka-OPrint.json"
+  val PathToPolicy = getClass.getClassLoader.getResource("policies/IKafka-OPrint.json").getPath
+
+  /**
+   * This is a workaround to find the jars either in the IDE or in a maven execution.
+   * This test should be moved to acceptance tests when available
+   */
+  def getSparktaHome: String = {
+    val fileForIde = new File(".", "plugins")
+
+    if (fileForIde.exists()){
+      new File(".").getCanonicalPath
+    }else{
+      new File("../.").getCanonicalPath
+    }
+  }
 
   "A StreamingContextService should" should {
     "create spark streaming context from a policy" in {
       val sparktaConfig = ConfigFactory.load().getConfig("sparkta")
-      val sparktaHome = new File(".").getCanonicalPath
+      val sparktaHome = getSparktaHome
       val jarsPath = new File(sparktaHome, "plugins")
       log.info("Loading jars from " + jarsPath.getAbsolutePath)
       val jdkPath = new File(sparktaHome, "sdk")
       val aggregatorPath = new File(sparktaHome, "aggregator")
       val jars = findJarsByPath(jarsPath) ++ findJarsByPath(jdkPath) ++ findJarsByPath(aggregatorPath)
       val streamingContextService = new StreamingContextService(sparktaConfig, jars)
-      val json = Source.fromFile(new File(sparktaHome, PathToPolicy)).mkString
+      val json = Source.fromFile(new File(PathToPolicy)).mkString
       implicit val formats = DefaultFormats + new JsoneyStringSerializer()
       val apConfig = native.Serialization.read[AggregationPoliciesDto](json)
 
