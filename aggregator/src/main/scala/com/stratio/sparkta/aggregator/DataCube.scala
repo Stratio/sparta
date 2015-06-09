@@ -17,14 +17,13 @@
 package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
-import java.sql.Timestamp
+import java.sql.Date
 
-import scala.util.Try
-
+import com.stratio.sparkta.sdk._
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
-import com.stratio.sparkta.sdk._
+import scala.util.Try
 
 /**
  * It builds a pre-calculated DataCube with dimension/s, rollup/s and operation/s defined by the user in the policy.
@@ -91,6 +90,12 @@ case class DataCube(dimensions: Seq[Dimension],
         case value if value.isInstanceOf[Seq[String]] => value
         case value if value.isInstanceOf[Seq[Any]] =>
           Try(value.asInstanceOf[Seq[Any]].map(_.toString)).getOrElse(Seq()).asInstanceOf[JSerializable]
+        case _ => Try(Seq(bucketedValue.toString)).getOrElse(Seq()).asInstanceOf[JSerializable]
+      }
+      case TypeOp.Timestamp => bucketedValue match {
+        case value if value.isInstanceOf[Long] => DateOperations.millisToTimeStamp(value.asInstanceOf[Long])
+        case value if value.isInstanceOf[Date] => DateOperations.millisToTimeStamp(value.asInstanceOf[Date].getTime)
+        case value if value.isInstanceOf[DateTime] => DateOperations.millisToTimeStamp(value.asInstanceOf[DateTime].getMillis)
         case _ => Try(Seq(bucketedValue.toString)).getOrElse(Seq()).asInstanceOf[JSerializable]
       }
       case _ => bucketedValue
