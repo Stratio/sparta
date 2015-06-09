@@ -30,11 +30,14 @@ class SplitParser(properties: Map[String, Serializable]) extends Parser(properti
 
   override def parse(data: Event): Event = {
     val txtValue = data.keyMap.getOrElse(txtField, None)
-    val splitted = Try {
-      Map(resultField -> txtValue.toString.split(splitter).toList)
+    val splitted = txtValue match {
+      case (x: String) => Try {
+        Map(resultField -> x.toString.split(splitter).toList)
+      }
+      case None => new Failure(new NoSuchElementException)
     }
     val result = splitted match {
-      case Success(x) => new Event(data.keyMap ++ x.asInstanceOf[Map[String, Serializable]])
+      case Success(x: Map[String, List[String]]) => new Event(data.keyMap ++ x.asInstanceOf[Map[String, Serializable]])
       case Failure(_) => data
     }
     result
