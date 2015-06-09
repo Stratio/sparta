@@ -34,6 +34,14 @@ class SplitParserSpec extends WordSpec with Matchers {
       val resultEvent = parser.parse(inputEvent)
       resultEvent.keyMap.get("parsedText") should be(Some(List("hola", "mundo", "hola", "mundito")))
     }
+    "has the same keyMap if there is no text to split" in {
+      val properties: Map[String, Serializable] = Map("textField" -> "text_not_exist", "splitter" -> " ", "resultField" -> "parsedText").asInstanceOf[Map[String, Serializable]]
+      val parser = new SplitParser(properties)
+      val resultEvent = parser.parse(inputEvent)
+      println(resultEvent.keyMap)
+      resultEvent.keyMap.size should be (1)
+    }
   }
+
 
 }
