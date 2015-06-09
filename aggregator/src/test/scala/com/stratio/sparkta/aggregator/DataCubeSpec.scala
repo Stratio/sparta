@@ -32,9 +32,10 @@ class DataCubeSpec extends TestSuiteBase {
 
   val PreserverOrder = false
 
-  test("""Given a rollup defined with:
+  /**
+   * Given a rollup defined with:
     - D = A dimension with name eventKey and a string value.
-    - B = A PassthroughBucketer applied to the dimension
+    - B = A PassthroughDimension applied to the dimension
     - O = No operator for the rollup
     - R = Rollup with D+B+O
 
@@ -42,12 +43,13 @@ class DataCubeSpec extends TestSuiteBase {
 
     List(
      (List(DimensionValue(
-       Dimension(eventKey,PassthroughBucketer()),BucketType(identity,Map()),value1)),Map(eventKey -> value1)),
+       Dimension(eventKey,PassthroughDimension()),BucketType(identity,Map()),value1)),Map(eventKey -> value1)),
      (List(DimensionValue(
-       Dimension(eventKey,PassthroughBucketer()),BucketType(identity,Map()),value2)),Map(eventKey -> value2)),
+       Dimension(eventKey,PassthroughDimension()),BucketType(identity,Map()),value2)),Map(eventKey -> value2)),
      (List(DimensionValue(
-       Dimension(eventKey,PassthroughBucketer()),BucketType(identity,Map()),value3)),Map(eventKey -> value3)))
-         """) {
+       Dimension(eventKey,PassthroughDimension()),BucketType(identity,Map()),value3)),Map(eventKey -> value3)))
+   */
+  test("DataCube extracts dimensions from events") {
 
     val checkpointInterval = 10000
     val checkpointTimeAvailability = 60000
