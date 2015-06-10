@@ -29,7 +29,7 @@ case class TagDimension(props: Map[String, JSerializable]) extends Bucketer with
     this(Map())
   }
 
-  override val defaultTypeOperation = TypeOp.String
+  override val defaultTypeOperation = TypeOp.ArrayString
 
   override val operationProps : Map[String, JSerializable] = props
 
@@ -51,9 +51,9 @@ object TagDimension {
   final val AllTagsName = "allTags"
 
   def bucket(value: Iterable[JSerializable], bucketType: BucketType): JSerializable =
-    bucketType.id match {
+    TypeOp.transformValueByTypeOp(bucketType.typeOp, bucketType.id match {
       case name if name == FirstTagName => value.head
       case name if name == LastTagName => value.last
       case name if name == AllTagsName => value.toSeq.asInstanceOf[JSerializable]
-    }
+    })
 }

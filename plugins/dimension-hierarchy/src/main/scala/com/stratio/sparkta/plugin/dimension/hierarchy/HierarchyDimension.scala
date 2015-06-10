@@ -30,7 +30,7 @@ case class HierarchyDimension(props: Map[String, JSerializable]) extends Buckete
     this(Map())
   }
 
-  override val defaultTypeOperation = TypeOp.String
+  override val defaultTypeOperation = TypeOp.ArrayString
 
   override val operationProps : Map[String, JSerializable] = props
 
@@ -59,7 +59,8 @@ case class HierarchyDimension(props: Map[String, JSerializable]) extends Buckete
 
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] =
     bucketTypes.map(bucketType =>
-      (bucketType._2, bucket(value.asInstanceOf[String], bucketType._2).asInstanceOf[JSerializable]))
+      (bucketType._2, TypeOp.transformValueByTypeOp(bucketType._2.typeOp,
+        bucket(value.asInstanceOf[String], bucketType._2).asInstanceOf[JSerializable])))
 
   def bucket(value: String, bucketType: BucketType): Seq[JSerializable] = {
     bucketType match {

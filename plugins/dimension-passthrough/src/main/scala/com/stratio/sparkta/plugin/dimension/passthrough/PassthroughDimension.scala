@@ -36,7 +36,8 @@ with JSerializable with SLF4JLogging {
   override val defaultTypeOperation = TypeOp.String
 
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] = {
-    Map(Bucketer.getIdentity(getTypeOperation, defaultTypeOperation) -> value)
+    val bucketType = Bucketer.getIdentity(getTypeOperation, defaultTypeOperation)
+    Map(bucketType -> TypeOp.transformValueByTypeOp(bucketType.typeOp, value))
   }
 
   override lazy val bucketTypes: Map[String, BucketType] =

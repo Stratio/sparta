@@ -16,9 +16,12 @@
 
 package com.stratio.sparkta.sdk
 
+import java.io.{Serializable => JSerializable}
 import java.sql.Timestamp
+import java.util.Date
 
 import com.github.nscala_time.time.Imports._
+import org.joda.time.DateTime
 
 object DateOperations {
 
@@ -50,6 +53,13 @@ object DateOperations {
   }
 
   def millisToTimeStamp(date: Long): Timestamp = new Timestamp(date)
+
+  def getMillisFromSerializable(date: JSerializable): Long = date match {
+    case value if value.isInstanceOf[Timestamp] => value.asInstanceOf[Timestamp].getTime
+    case value if value.isInstanceOf[Date] => value.asInstanceOf[Date].getTime
+    case value if value.isInstanceOf[DateTime] => value.asInstanceOf[DateTime].getMillis
+    case _ => 0L
+  }
 
   def subPath(granularity: String, datePattern: Option[String]): String = {
     val suffix = dateFromGranularity(DateTime.now, granularity)

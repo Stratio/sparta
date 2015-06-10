@@ -119,14 +119,16 @@
       "name": "max-operator",
       "elementType": "MaxOperator",
       "configuration": {
-        "inputField": "wordsN"
+        "inputField": "wordsN",
+        "typeOp": "string"
       }
     },
     {
       "name": "min-operator",
       "elementType": "MinOperator",
       "configuration": {
-        "inputField": "wordsN"
+        "inputField": "wordsN",
+        "typeOp": "string"
       }
     },
     {

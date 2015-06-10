@@ -16,7 +16,7 @@
 
 package com.stratio.sparkta.sdk
 
-import java.sql.Date
+import java.sql.{Timestamp, Date}
 import scala.util.Try
 
 import org.joda.time.DateTime
@@ -49,6 +49,7 @@ object TypeOp extends Enumeration {
         case _ => Try(Seq(origValue.toString)).getOrElse(Seq()).asInstanceOf[T]
       }
       case TypeOp.Timestamp => origValue match {
+        case value if value.isInstanceOf[Timestamp] => value
         case value if value.isInstanceOf[Long] =>
           DateOperations.millisToTimeStamp(value.asInstanceOf[Long]).asInstanceOf[T]
         case value if value.isInstanceOf[Date] =>
@@ -59,16 +60,25 @@ object TypeOp extends Enumeration {
           .getOrElse(DateOperations.millisToTimeStamp(0L)).asInstanceOf[T]
       }
       case TypeOp.Date => origValue match {
+        case value if value.isInstanceOf[Date] => value
         case value if value.isInstanceOf[Long] => new Date(value.asInstanceOf[Long]).asInstanceOf[T]
         case value if value.isInstanceOf[Date] => value.asInstanceOf[Date].asInstanceOf[T]
         case value if value.isInstanceOf[DateTime] => value.asInstanceOf[DateTime].toDate.asInstanceOf[T]
         case _ => Try(new Date(origValue.toString.toLong)).getOrElse(new Date(0L)).asInstanceOf[T]
       }
       case TypeOp.DateTime => origValue match {
+        case value if value.isInstanceOf[DateTime] => value
         case value if value.isInstanceOf[Long] => new DateTime(value.asInstanceOf[Long]).asInstanceOf[T]
         case value if value.isInstanceOf[Date] => new DateTime(value.asInstanceOf[Date]).asInstanceOf[T]
         case value if value.isInstanceOf[DateTime] => value.asInstanceOf[DateTime].asInstanceOf[T]
         case _ => Try(new DateTime(origValue.toString)).getOrElse(new DateTime(0L)).asInstanceOf[T]
+      }
+      case TypeOp.Long => origValue match {
+        case value if value.isInstanceOf[Long] => value
+        case value if value.isInstanceOf[Timestamp] => value.asInstanceOf[Timestamp].getTime.asInstanceOf[T]
+        case value if value.isInstanceOf[Date] => value.asInstanceOf[Date].getTime.asInstanceOf[T]
+        case value if value.isInstanceOf[DateTime] => value.asInstanceOf[Date].getTime.asInstanceOf[T]
+        case _ => Try(origValue.toString.toLong).getOrElse(0L).asInstanceOf[T]
       }
       case _ => origValue
     }

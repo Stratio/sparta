@@ -55,7 +55,8 @@ with JSerializable with SLF4JLogging {
 
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] = {
     bucketTypes.map(bucketType =>
-      bucketType._2 -> TwitterStatusDimension.bucket(value.asInstanceOf[Status], bucketType._2))
+      bucketType._2 -> TypeOp.transformValueByTypeOp(bucketType._2.typeOp,
+        TwitterStatusDimension.bucket(value.asInstanceOf[Status], bucketType._2)))
   }
 }
 

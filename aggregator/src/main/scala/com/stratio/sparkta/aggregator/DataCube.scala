@@ -75,7 +75,7 @@ case class DataCube(dimensions: Seq[Dimension],
       case Some(bucket) => {
         val dimensionsDates =
           dimensionValues.filter(dimensionValue => dimensionValue.dimensionBucket.bucketType.id == bucket)
-        if (dimensionsDates.isEmpty) getDate else dimensionsDates.head.value.asInstanceOf[Long]
+        if (dimensionsDates.isEmpty) getDate else DateOperations.getMillisFromSerializable(dimensionsDates.head.value)
       }
       case None => getDate
     }
