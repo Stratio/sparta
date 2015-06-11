@@ -17,7 +17,7 @@ package com.stratio.sparkta.plugin.dimension.arrayText
  */
 
 import java.io
-import java.io.{Serializable, Serializable => JSerializable}
+import java.io.{ Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.sdk.{BucketType, Bucketer, TypeOp}
