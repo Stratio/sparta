@@ -68,9 +68,9 @@ class MongoDbOutput(keyName: String,
 
   override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(fieldsSeparator))
 
-  override val fixedBuckets: Array[String] = properties.getString("fixedBuckets", None) match {
+  override val fixedPrecisions: Array[String] = properties.getString("fixedPrecisions", None) match {
     case None => Array()
-    case Some(fixBuckets) => fixBuckets.split(fieldsSeparator)
+    case Some(fixPrecisions) => fixPrecisions.split(fieldsSeparator)
   }
 
   override val language = properties.getString("language", None)
@@ -79,11 +79,11 @@ class MongoDbOutput(keyName: String,
     filterSchemaByKeyAndField.map(tableSchema => createPkTextIndex(tableSchema.tableName, timeName))
       .forall(result => result._1 && result._2)
 
-  override def doPersist(stream: DStream[(PrecisionValueTime, Map[String, Option[Any]])]): Unit = {
+  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     persistMetricOperation(stream)
   }
 
-  override def upsert(metricOperations: Iterator[(PrecisionValueTime, Map[String, Option[Any]])]): Unit = {
+  override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     metricOperations.toList.groupBy(upMetricOp => AggregateOperations.keyString(upMetricOp._1))
       .filter(_._1.size > 0).foreach(f = collMetricOp => {
       val bulkOperation = db().getCollection(collMetricOp._1).initializeOrderedBulkOperation()
@@ -103,7 +103,7 @@ class MongoDbOutput(keyName: String,
         (getFind(
           idFieldName,
           eventTimeObject,
-          AggregateOperations.filterDimensionValuesByBucket(rollupKey.dimensionValues, if (timeName.isEmpty) None
+          AggregateOperations.filterDimensionValuesByPrecision(rollupKey.dimensionValues, if (timeName.isEmpty) None
           else Some(timeName))),
           getUpdate(mapOperations, identitiesField, identities, idFields))
       }

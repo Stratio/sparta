@@ -61,7 +61,7 @@ class DataCubeSpec extends TestSuiteBase {
     val bucketer = new PassthroughDimension
     val dimension = Dimension("eventKey", bucketer)
     val operator = new CountOperator(Map())
-    val bucketType = new BucketType("identity", TypeOp.String)
+    val bucketType = new Precision("identity", TypeOp.String)
     val rollup = new Rollup(Seq(DimensionPrecision(dimension, bucketType)),
       Seq(operator),
       checkpointInterval,
@@ -87,20 +87,23 @@ class DataCubeSpec extends TestSuiteBase {
    * The expected result to test the DataCube output.
    * @return the expected result to test
    */
-  def getEventOutput(timestamp : Long): Seq[Seq[(PrecisionValueTime, Map[String, JSerializable])]] =
+  def getEventOutput(timestamp : Long): Seq[Seq[(DimensionValuesTime, Map[String, JSerializable])]] =
     Seq(Seq(
-      (PrecisionValueTime(Seq(DimensionValue(
-        DimensionPrecision(Dimension("eventKey", new PassthroughDimension), BucketType("identity", TypeOp.String, Map())),
+      (DimensionValuesTime(Seq(DimensionValue(
+        DimensionPrecision(Dimension("eventKey", new PassthroughDimension),
+          Precision("identity", TypeOp.String, Map())),
         "value1")), timestamp),
         Map("eventKey" -> "value1")
       ),
-      (PrecisionValueTime(Seq(DimensionValue(
-        DimensionPrecision(Dimension("eventKey", new PassthroughDimension), BucketType("identity", TypeOp.String, Map())),
+      (DimensionValuesTime(Seq(DimensionValue(
+        DimensionPrecision(Dimension("eventKey", new PassthroughDimension),
+          Precision("identity", TypeOp.String, Map())),
         "value2")), timestamp),
         Map("eventKey" -> "value2")
       ),
-      (PrecisionValueTime(Seq(DimensionValue(
-        DimensionPrecision(Dimension("eventKey", new PassthroughDimension), BucketType("identity", TypeOp.String, Map())),
+      (DimensionValuesTime(Seq(DimensionValue(
+        DimensionPrecision(Dimension("eventKey", new PassthroughDimension),
+          Precision("identity", TypeOp.String, Map())),
         "value3")), timestamp)
         , Map("eventKey" -> "value3")
       )

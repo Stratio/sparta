@@ -17,8 +17,7 @@
 package com.stratio.sparkta.plugin.output.redis.dao
 
 import com.redis.RedisClientPool
-import com.redis.serialization.{Parse, Format}
-import com.stratio.sparkta.sdk.{Bucketer, DimensionValue}
+import com.redis.serialization.{Format, Parse}
 
 /**
  * Trait with common operations over redis server.

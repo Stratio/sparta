@@ -35,13 +35,13 @@ class TagDimensionSpec extends WordSpecLike with Matchers with TableDrivenProper
   val tags4 = Seq("a", "a", "a", "a")
 
   "A TagDimension" should {
-    "In default implementation, get 3 buckets for all precision sizes" in {
-      val buckets = tagDimension.bucket(Seq("").asInstanceOf[JSerializable]).map(_._1.id)
+    "In default implementation, get 3 precisions for all precision sizes" in {
+      val precisions = tagDimension.dimensionValues(Seq("").asInstanceOf[JSerializable]).map(_._1.id)
 
-      buckets.size should be(3)
-      buckets should contain(TagDimension.AllTagsName)
-      buckets should contain(TagDimension.FirstTagName)
-      buckets should contain(TagDimension.LastTagName)
+      precisions.size should be(3)
+      precisions should contain(TagDimension.AllTagsName)
+      precisions should contain(TagDimension.FirstTagName)
+      precisions should contain(TagDimension.LastTagName)
     }
 
     "In default implementation, every proposed combination should be ok" in {
@@ -54,8 +54,9 @@ class TagDimensionSpec extends WordSpecLike with Matchers with TableDrivenProper
       )
 
       forAll(data) { (s: Seq[Any], rz: Int) =>
-        val result = tagDimension.bucket(s.map(_.asInstanceOf[JSerializable]).toList.asInstanceOf[JSerializable])
-        val allTags = result(tagDimension.bucketTypes(TagDimension.AllTagsName)).asInstanceOf[Seq[String]]
+        val result =
+          tagDimension.dimensionValues(s.map(_.asInstanceOf[JSerializable]).toList.asInstanceOf[JSerializable])
+        val allTags = result(tagDimension.precisions(TagDimension.AllTagsName)).asInstanceOf[Seq[String]]
         allTags.size should be(rz)
       }
     }

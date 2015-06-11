@@ -55,12 +55,12 @@ class RedisOutput(keyName: String,
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val fixedBuckets: Array[String] = properties.getString("fixedBuckets", None) match {
+  override val fixedPrecisions: Array[String] = properties.getString("fixedBuckets", None) match {
     case None => Array()
     case Some(fixBuckets) => fixBuckets.split(fieldsSeparator)
   }
 
-  override def doPersist(stream: DStream[(PrecisionValueTime, Map[String, Option[Any]])]): Unit = {
+  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     persistMetricOperation(stream)
   }
 
@@ -69,7 +69,7 @@ class RedisOutput(keyName: String,
    *
    * @param metricOperations that will be saved.
    */
-  override def upsert(metricOperations: Iterator[(PrecisionValueTime, Map[String, Option[Any]])]): Unit = {
+  override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     metricOperations.toSeq.groupBy(upMetricOp => AggregateOperations.keyString(upMetricOp._1))
       .filter(_._1.size > 0).map(collMetricOp => {
       collMetricOp._2.map(metricOp => {

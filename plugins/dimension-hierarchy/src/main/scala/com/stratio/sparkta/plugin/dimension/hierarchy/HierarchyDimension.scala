@@ -24,7 +24,8 @@ import com.stratio.sparkta.plugin.dimension.hierarchy.HierarchyDimension._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk._
 
-case class HierarchyDimension(props: Map[String, JSerializable]) extends Bucketer with JSerializable with SLF4JLogging {
+case class HierarchyDimension(props: Map[String, JSerializable])
+  extends DimensionType with JSerializable with SLF4JLogging {
 
   def this() {
     this(Map())
@@ -47,7 +48,7 @@ case class HierarchyDimension(props: Map[String, JSerializable]) extends Buckete
   final val RightToLeftWithWildCard =
     getPrecision(RightToLeftWithWildCardName, getTypeOperation(RightToLeftWithWildCardName))
 
-  override val bucketTypes: Map[String, BucketType] =
+  override val precisions: Map[String, Precision] =
     Map(
       LeftToRight.id -> LeftToRight,
       RightToLeft.id -> RightToLeft,
@@ -57,13 +58,13 @@ case class HierarchyDimension(props: Map[String, JSerializable]) extends Buckete
   val splitter = properties.getString(SplitterPropertyName)
   val wildcard = properties.getString(WildCardPropertyName)
 
-  override def bucket(value: JSerializable): Map[BucketType, JSerializable] =
-    bucketTypes.map(bucketType =>
-      (bucketType._2, TypeOp.transformValueByTypeOp(bucketType._2.typeOp,
-        bucket(value.asInstanceOf[String], bucketType._2).asInstanceOf[JSerializable])))
+  override def dimensionValues(value: JSerializable): Map[Precision, JSerializable] =
+    precisions.map(precision =>
+      (precision._2, TypeOp.transformValueByTypeOp(precision._2.typeOp,
+        bucket(value.asInstanceOf[String], precision._2).asInstanceOf[JSerializable])))
 
-  def bucket(value: String, bucketType: BucketType): Seq[JSerializable] = {
-    bucketType match {
+  def bucket(value: String, precision: Precision): Seq[JSerializable] = {
+    precision match {
       case x if x == LeftToRight =>
         explodeWithWildcards(value, wildcard, splitter, false, false)
       case x if x == RightToLeft =>

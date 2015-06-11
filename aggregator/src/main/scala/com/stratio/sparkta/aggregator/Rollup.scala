@@ -42,12 +42,12 @@ case class Rollup(components: Seq[DimensionPrecision],
   private lazy val operatorsMap = operators.map(op => op.key -> op).toMap
 
   def this(dimension: Dimension,
-           bucketType: BucketType,
+           precision: Precision,
            operators: Seq[Operator],
            checkpointInterval: Int,
            checkpointGranularity: String,
            checkpointAvailable: Int) {
-    this(Seq(DimensionPrecision(dimension, bucketType)),
+    this(Seq(DimensionPrecision(dimension, precision)),
       operators,
       checkpointInterval,
       checkpointGranularity,
@@ -60,34 +60,35 @@ case class Rollup(components: Seq[DimensionPrecision],
            checkpointGranularity: String,
            checkpointAvailable: Int) {
     this(Seq(DimensionPrecision(dimension,
-        Bucketer.getIdentity(dimension.bucketer.getTypeOperation, dimension.bucketer.defaultTypeOperation))),
+        DimensionType.getIdentity(dimension.dimensionType.getTypeOperation,
+          dimension.dimensionType.defaultTypeOperation))),
       operators,
       checkpointInterval,
       checkpointGranularity,
       checkpointAvailable)
   }
 
-  def aggregate(dimensionsValues: DStream[(PrecisionValueTime,
-    Map[String, JSerializable])]): DStream[(PrecisionValueTime, Map[String, Option[Any]])] = {
+  def aggregate(dimensionsValues: DStream[(DimensionValuesTime,
+    Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     val valuesFiltered = filterDimensionValues(dimensionsValues)
     valuesFiltered.checkpoint(new Duration(checkpointInterval))
     aggregateValues(updateState(valuesFiltered))
   }
 
-  protected def filterDimensionValues(dimensionValues: DStream[(PrecisionValueTime,
-    Map[String, JSerializable])]): DStream[(PrecisionValueTime, Map[String, JSerializable])] = {
+  protected def filterDimensionValues(dimensionValues: DStream[(DimensionValuesTime,
+    Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
     dimensionValues.map { case (dimensionsValuesTime, aggregationValues) => {
       val dimensionsFiltered = dimensionsValuesTime.dimensionValues.filter(dimVal =>
-        components.find(comp => comp.dimension == dimVal.dimensionBucket.dimension &&
-          comp.bucketType.id == dimVal.dimensionBucket.bucketType.id).nonEmpty)
-      (PrecisionValueTime(dimensionsFiltered, dimensionsValuesTime.time), aggregationValues)
+        components.find(comp => comp.dimension == dimVal.dimensionPrecision.dimension &&
+          comp.precision.id == dimVal.dimensionPrecision.precision.id).nonEmpty)
+      (DimensionValuesTime(dimensionsFiltered, dimensionsValuesTime.time), aggregationValues)
     }
     }
   }
 
-  protected def updateState(dimensionsValues: DStream[(PrecisionValueTime, Map[String, JSerializable])]):
-  DStream[(PrecisionValueTime, Seq[(String, Option[Any])])] = {
-    val newUpdateFunc = (iterator: Iterator[(PrecisionValueTime,
+  protected def updateState(dimensionsValues: DStream[(DimensionValuesTime, Map[String, JSerializable])]):
+  DStream[(DimensionValuesTime, Seq[(String, Option[Any])])] = {
+    val newUpdateFunc = (iterator: Iterator[(DimensionValuesTime,
       Seq[Map[String, JSerializable]],
       Option[Seq[(String, Option[Any])]])]) => {
       val eventTime = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity) -
@@ -108,8 +109,8 @@ case class Rollup(components: Seq[DimensionPrecision],
     Some(state.getOrElse(Seq()) ++ procMap)
   }
 
-  protected def aggregateValues(dimensionsValues: DStream[(PrecisionValueTime, Seq[(String, Option[Any])])]):
-  DStream[(PrecisionValueTime, Map[String, Option[Any]])] = {
+  protected def aggregateValues(dimensionsValues: DStream[(DimensionValuesTime, Seq[(String, Option[Any])])]):
+  DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     dimensionsValues.mapValues(aggregationValues => {
       val aggregations = aggregationValues.groupBy { case (name, value) => name }
         .map { case (name, value) => (name, operatorsMap(name).processReduce(value.map(_._2))) }

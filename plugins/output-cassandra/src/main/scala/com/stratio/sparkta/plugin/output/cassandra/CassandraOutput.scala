@@ -50,7 +50,7 @@ class CassandraOutput(keyName: String,
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val fixedBuckets: Array[String] = properties.getString("fixedBuckets", None) match {
+  override val fixedPrecisions: Array[String] = properties.getString("fixedPrecisions", None) match {
     case None => Array()
     case Some(fixBuckets) => fixBuckets.split(fieldsSeparator)
   }
@@ -116,7 +116,7 @@ class CassandraOutput(keyName: String,
   * With the fork of PR 112 of datastax-spark-connector.
   * https://github.com/datastax/spark-cassandra-connector/pull/648
   */
-  override def doPersist(stream: DStream[(PrecisionValueTime, Map[String, Option[Any]])]): Unit = {
+  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     if (bcSchema.isDefined && keyspaceCreated && tablesCreated) persistDataFrame(stream)
   }
 

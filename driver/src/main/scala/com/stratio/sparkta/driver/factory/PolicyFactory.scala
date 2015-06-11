@@ -74,7 +74,7 @@ object PolicyFactory {
     operators.map(operator => StructField(operator.key, rowTypeFromOption(operator.returnType), true))
 
   private def getDimensionsFields(fields: Seq[DimensionPrecision]) : Seq[StructField] =
-    fields.map(field => StructField(field.getNameDimension, rowTypeFromOption(field.bucketType.typeOp), false))
+    fields.map(field => StructField(field.getNameDimension, rowTypeFromOption(field.precision.typeOp), false))
 
   private def getFixedFieldAggregation(options: Map[String, String]) : Seq[StructField] =
     options.get(Output.FixedAggregation) match {

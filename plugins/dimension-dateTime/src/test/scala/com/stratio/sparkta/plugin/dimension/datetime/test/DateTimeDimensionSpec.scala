@@ -35,26 +35,26 @@ class DateTimeDimensionSpec extends WordSpecLike with Matchers {
   "A DateTimeDimension" should {
     "In default implementation, get 7 dimensions for a specific time" in {
       val newDate = new Date()
-      val buckets = dateTimeDimension.bucket(newDate.asInstanceOf[io.Serializable]).map(_._1.id)
+      val precisions = dateTimeDimension.dimensionValues(newDate.asInstanceOf[io.Serializable]).map(_._1.id)
 
-      buckets.size should be(7)
+      precisions.size should be(7)
 
-      buckets should contain(DateTimeDimension.timestamp.id)
-      buckets should contain(DateTimeDimension.SecondName)
-      buckets should contain(DateTimeDimension.MinuteName)
-      buckets should contain(DateTimeDimension.HourName)
-      buckets should contain(DateTimeDimension.DayName)
-      buckets should contain(DateTimeDimension.MonthName)
-      buckets should contain(DateTimeDimension.YearName)
+      precisions should contain(DateTimeDimension.timestamp.id)
+      precisions should contain(DateTimeDimension.SecondName)
+      precisions should contain(DateTimeDimension.MinuteName)
+      precisions should contain(DateTimeDimension.HourName)
+      precisions should contain(DateTimeDimension.DayName)
+      precisions should contain(DateTimeDimension.MonthName)
+      precisions should contain(DateTimeDimension.YearName)
     }
 
     "Each precision dimension have their output type, second must be long, minute must be date, others datetime" in {
-      dateTimeDimension.bucketTypes(DateTimeDimension.SecondName).typeOp should be(TypeOp.Long)
-      dateTimeDimension.bucketTypes(DateTimeDimension.MinuteName).typeOp should be(TypeOp.Date)
-      dateTimeDimension.bucketTypes(DateTimeDimension.DayName).typeOp should be(TypeOp.DateTime)
-      dateTimeDimension.bucketTypes(DateTimeDimension.MonthName).typeOp should be(TypeOp.DateTime)
-      dateTimeDimension.bucketTypes(DateTimeDimension.YearName).typeOp should be(TypeOp.DateTime)
-      dateTimeDimension.bucketTypes(DateTimeDimension.timestamp.id).typeOp should be(TypeOp.Timestamp)
+      dateTimeDimension.precisions(DateTimeDimension.SecondName).typeOp should be(TypeOp.Long)
+      dateTimeDimension.precisions(DateTimeDimension.MinuteName).typeOp should be(TypeOp.Date)
+      dateTimeDimension.precisions(DateTimeDimension.DayName).typeOp should be(TypeOp.DateTime)
+      dateTimeDimension.precisions(DateTimeDimension.MonthName).typeOp should be(TypeOp.DateTime)
+      dateTimeDimension.precisions(DateTimeDimension.YearName).typeOp should be(TypeOp.DateTime)
+      dateTimeDimension.precisions(DateTimeDimension.timestamp.id).typeOp should be(TypeOp.Timestamp)
     }
   }
 }

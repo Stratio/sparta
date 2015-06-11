@@ -171,7 +171,7 @@ trait MongoDbDAO extends Closeable {
     val combinedOptions: Map[Seq[(String, Any)], casbah.Imports.JSFunction] = mapOperations ++ {
       if (language.isDefined) Map((Seq((LanguageFieldName, language.get)), "$set")) else Map()
     } ++ {
-      if (identitiesField.size > 0) Map((Seq(Bucketer.IdentityFieldName -> identitiesField), "$set")) else Map()
+      if (identitiesField.size > 0) Map((Seq(DimensionType.IdentityFieldName -> identitiesField), "$set")) else Map()
     } ++ {
       identities match {
         case Some(identity) => identity
@@ -218,16 +218,16 @@ trait MongoDbDAO extends Closeable {
     }
   }
 
-  protected def getIdFields(rollupKey : PrecisionValueTime): Map[Seq[(String, JSerializable)], String] =
+  protected def getIdFields(rollupKey : DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
     rollupKey.dimensionValues.map(dimVal => (Seq(dimVal.getNameDimension -> dimVal.value), "$set")).toMap
 
-  protected def getIdentities(rollupKey : PrecisionValueTime): Map[Seq[(String, JSerializable)], String] =
-    rollupKey.dimensionValues.filter(dimVal => dimVal.dimensionBucket.bucketType.id == Bucketer.IdentityName)
+  protected def getIdentities(rollupKey : DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
+    rollupKey.dimensionValues.filter(dimVal => dimVal.dimensionPrecision.precision.id == DimensionType.IdentityName)
     .map(dimVal => (Seq(dimVal.getNameDimension -> dimVal.value), "$set")).toMap
 
-  protected def getIdentitiesField(rollupKey : PrecisionValueTime): Seq[Imports.DBObject] = rollupKey.dimensionValues
-    .filter(dimVal => dimVal.dimensionBucket.bucketType.id == Bucketer.IdentityFieldName ||
-    (identitiesSavedAsField && dimVal.dimensionBucket.bucketType.id == Bucketer.IdentityName))
+  protected def getIdentitiesField(rollupKey : DimensionValuesTime): Seq[Imports.DBObject] = rollupKey.dimensionValues
+    .filter(dimVal => dimVal.dimensionPrecision.precision.id == DimensionType.IdentityFieldName ||
+    (identitiesSavedAsField && dimVal.dimensionPrecision.precision.id == DimensionType.IdentityName))
     .map(dimVal => MongoDBObject(dimVal.getNameDimension -> dimVal.value))
 
   protected def checkFields(aggregations: Set[String],

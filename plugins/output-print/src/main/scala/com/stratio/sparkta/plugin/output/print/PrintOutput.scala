@@ -51,7 +51,7 @@ class PrintOutput(keyName: String,
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val fixedBuckets: Array[String] = properties.getString("fixedBuckets", None) match {
+  override val fixedPrecisions: Array[String] = properties.getString("fixedBuckets", None) match {
     case None => Array()
     case Some(fixBuckets) => fixBuckets.split(fieldsSeparator)
   }
@@ -78,7 +78,7 @@ class PrintOutput(keyName: String,
     dataFrame.foreach(frame => log.info(frame.toString()))
   }
 
-  override def upsert(metricOperations: Iterator[(PrecisionValueTime, Map[String, Option[Any]])]): Unit = {
+  override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     metricOperations.foreach(metricOp => log.info(AggregateOperations.toString(metricOp._1, metricOp._2)))
   }
 }

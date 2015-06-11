@@ -32,13 +32,13 @@ import com.stratio.sparkta.sdk._
  * This final stream will be used mainly by outputs.
  * @param dimensions that will be contain the fields of the datacube.
  * @param rollups that will be contain how the data will be aggregate.
- * @param timeBucket that will be contain the bucketer id that contain the date.
- * @param checkpointGranularity that will be contain the granularity to calculate the time, only if this bucketer is
- *                              not present.
+ * @param timePrecision that will be contain the dimensionType id that contain the date.
+ * @param checkpointGranularity that will be contain the granularity to calculate the time, only if this
+ *                              dimensionType is not present.
  */
 case class DataCube(dimensions: Seq[Dimension],
                     rollups: Seq[Rollup],
-                    timeBucket: Option[String],
+                    timePrecision: Option[String],
                     checkpointGranularity: String) {
 
   /**
@@ -46,7 +46,7 @@ case class DataCube(dimensions: Seq[Dimension],
    * @param inputStream with the original stream of data.
    * @return the built DataCube.
    */
-  def setUp(inputStream: DStream[Event]): Seq[DStream[(PrecisionValueTime, Map[String, Option[Any]])]] = {
+  def setUp(inputStream: DStream[Event]): Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]] = {
     val extractedDimensionsStream = extractDimensionsStream(inputStream)
     rollups.map(_.aggregate(extractedDimensionsStream))
   }
@@ -57,24 +57,24 @@ case class DataCube(dimensions: Seq[Dimension],
    * @return a modified stream after join dimensions, rollups and operations.
    */
   def extractDimensionsStream(inputStream: DStream[Event]):
-  DStream[(PrecisionValueTime, Map[String, JSerializable])] = {
+  DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
     inputStream.map(event => {
       val dimensionValues = for {
         dimension <- dimensions
         value <- event.keyMap.get(dimension.name).toSeq
-        (bucketType, bucketedValue) <- dimension.bucketer.bucket(value)
-      } yield DimensionValue(DimensionPrecision(dimension, bucketType),
-          TypeOp.transformValueByTypeOp(bucketType.typeOp, bucketedValue))
+        (precision, dimValue) <- dimension.dimensionType.dimensionValues(value)
+      } yield DimensionValue(DimensionPrecision(dimension, precision),
+          TypeOp.transformValueByTypeOp(precision.typeOp, dimValue))
       val eventTime = extractEventTime(dimensionValues)
-      (PrecisionValueTime(dimensionValues, eventTime), event.keyMap)
+      (DimensionValuesTime(dimensionValues, eventTime), event.keyMap)
     }).cache()
   }
 
   private def extractEventTime(dimensionValues: Seq[DimensionValue]) = {
-    timeBucket match {
+    timePrecision match {
       case Some(bucket) => {
         val dimensionsDates =
-          dimensionValues.filter(dimensionValue => dimensionValue.dimensionBucket.bucketType.id == bucket)
+          dimensionValues.filter(dimensionValue => dimensionValue.dimensionPrecision.precision.id == bucket)
         if (dimensionsDates.isEmpty) getDate else DateOperations.getMillisFromSerializable(dimensionsDates.head.value)
       }
       case None => getDate

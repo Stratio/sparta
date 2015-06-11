@@ -38,10 +38,10 @@ trait DimensionType extends TypeConversions {
    * @param value Used to generate the different precisions
    * @return Map with all generated precisions and a sequence with all values
    */
-  def bucket(value: JSerializable): Map[Precision, JSerializable]
+  def dimensionValues(value: JSerializable): Map[Precision, JSerializable]
 
   /**
-   * All precisions supported into this bucketer
+   * All precisions supported into this dimensionType
    *
    * @return Sequence of Precisions
    */
