@@ -27,8 +27,8 @@ object DateOperations {
 
   final val Slash: String = "/"
 
-  def getTimeFromGranularity(timeBucket: Option[String], granularity: Option[String]): Long =
-    (timeBucket, granularity) match {
+  def getTimeFromGranularity(timePrecision: Option[String], granularity: Option[String]): Long =
+    (timePrecision, granularity) match {
       case (Some(time), Some(granularity)) => dateFromGranularity(DateTime.now, granularity)
       case _ => 0L
     }

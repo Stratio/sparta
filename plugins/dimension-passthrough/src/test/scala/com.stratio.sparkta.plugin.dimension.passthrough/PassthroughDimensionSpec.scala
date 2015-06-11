@@ -31,11 +31,11 @@ class PassthroughDimensionSpec extends WordSpecLike with Matchers {
 
   "A PassthroughDimension" should {
     "In default implementation, get one precisions for a specific time" in {
-      val buckets = passthroughDimension.dimensionValues("foo".asInstanceOf[JSerializable]).map(_._1.id)
+      val precisions = passthroughDimension.dimensionValues("foo".asInstanceOf[JSerializable]).map(_._1.id)
 
-      buckets.size should be(1)
+      precisions.size should be(1)
 
-      buckets should contain(DimensionType.IdentityName)
+      precisions should contain(DimensionType.IdentityName)
     }
 
     "The precision must be int" in {

@@ -44,7 +44,7 @@ trait CassandraDAO extends Closeable with Logging {
 
   def replicationFactor: String
 
-  def clusteringBuckets: Option[Array[String]]
+  def clusteringPrecisions: Option[Array[String]]
 
   def indexFields: Option[Array[String]]
 
@@ -188,10 +188,10 @@ trait CassandraDAO extends Closeable with Logging {
   }
 
   protected def pkConditions(field: StructField, clusteringTime: String): Boolean =
-    !field.nullable && field.name != clusteringTime && clusteringBuckets.forall(!_.contains(field.name))
+    !field.nullable && field.name != clusteringTime && clusteringPrecisions.forall(!_.contains(field.name))
 
   protected def clusteringConditions(field: StructField, clusteringTime: String): Boolean =
-    !field.nullable && (field.name == clusteringTime || clusteringBuckets.exists(_.contains(field.name)))
+    !field.nullable && (field.name == clusteringTime || clusteringPrecisions.exists(_.contains(field.name)))
 
   protected def schemaToPkCcolumns(schema: StructType,
                                    clusteringTime: String,

@@ -88,7 +88,7 @@
         "replicationFactor": "1",
         "multiplexer": "false",
         "isAutoCalculateId": "false",
-        "clusteringBuckets": "",
+        "clusteringPrecisions": "",
         "indexFields": "minute",
         "textIndexFields": "firsthastag:string,userLocation:text,minute:date,avg_wordsn:double,count:long",
         "fieldsSeparator": ",",

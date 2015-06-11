@@ -81,12 +81,12 @@ case class GeoHashDimension(props: Map[String, JSerializable])
           if (latLongString.size != 0) {
             val latDouble = latLongString(0).toDouble
             val longDouble = latLongString(1).toDouble
-            precision._2 -> GeoHashDimension.bucket(latDouble, longDouble, precision._2)
+            precision._2 -> GeoHashDimension.getPrecision(latDouble, longDouble, precision._2)
           } else (precision._2 -> "")
         })
       } else {
         val defaultPrecision = getPrecision(Precision3Name, getTypeOperation(Precision3Name))
-        Map(defaultPrecision -> GeoHashDimension.bucket(0, 0, defaultPrecision))
+        Map(defaultPrecision -> GeoHashDimension.getPrecision(0, 0, defaultPrecision))
       }
     }
     catch {
@@ -119,7 +119,7 @@ object GeoHashDimension {
   final val Precision12Name = "precision12"
 
   //scalastyle:off
-  def bucket(lat: Double, long: Double, precision: Precision): JSerializable = {
+  def getPrecision(lat: Double, long: Double, precision: Precision): JSerializable = {
     TypeOp.transformValueByTypeOp(precision.typeOp, precision.id match {
       case p if p == Precision1Name => decodeHash(GeoHash.encodeHash(lat, long, 1))
       case p if p == Precision2Name => decodeHash(GeoHash.encodeHash(lat, long, 2))

@@ -72,9 +72,9 @@ case class DataCube(dimensions: Seq[Dimension],
 
   private def extractEventTime(dimensionValues: Seq[DimensionValue]) = {
     timePrecision match {
-      case Some(bucket) => {
+      case Some(precision) => {
         val dimensionsDates =
-          dimensionValues.filter(dimensionValue => dimensionValue.dimensionPrecision.precision.id == bucket)
+          dimensionValues.filter(dimensionValue => dimensionValue.dimensionPrecision.precision.id == precision)
         if (dimensionsDates.isEmpty) getDate else DateOperations.getMillisFromSerializable(dimensionsDates.head.value)
       }
       case None => getDate

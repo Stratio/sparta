@@ -61,9 +61,9 @@ case class HierarchyDimension(props: Map[String, JSerializable])
   override def dimensionValues(value: JSerializable): Map[Precision, JSerializable] =
     precisions.map(precision =>
       (precision._2, TypeOp.transformValueByTypeOp(precision._2.typeOp,
-        bucket(value.asInstanceOf[String], precision._2).asInstanceOf[JSerializable])))
+        getPrecision(value.asInstanceOf[String], precision._2).asInstanceOf[JSerializable])))
 
-  def bucket(value: String, precision: Precision): Seq[JSerializable] = {
+  def getPrecision(value: String, precision: Precision): Seq[JSerializable] = {
     precision match {
       case x if x == LeftToRight =>
         explodeWithWildcards(value, wildcard, splitter, false, false)

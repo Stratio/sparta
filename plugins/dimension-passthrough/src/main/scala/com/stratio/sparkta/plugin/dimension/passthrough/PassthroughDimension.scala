@@ -36,8 +36,8 @@ with JSerializable with SLF4JLogging {
   override val defaultTypeOperation = TypeOp.String
 
   override def dimensionValues(value: JSerializable): Map[Precision, JSerializable] = {
-    val bucketType = DimensionType.getIdentity(getTypeOperation, defaultTypeOperation)
-    Map(bucketType -> TypeOp.transformValueByTypeOp(bucketType.typeOp, value))
+    val precision = DimensionType.getIdentity(getTypeOperation, defaultTypeOperation)
+    Map(precision -> TypeOp.transformValueByTypeOp(precision.typeOp, value))
   }
 
   override lazy val precisions: Map[String, Precision] =

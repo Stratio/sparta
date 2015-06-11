@@ -122,10 +122,10 @@ case class Rollup(components: Seq[DimensionPrecision],
 
   def getComponentsSorted: Seq[DimensionPrecision] = components.sorted
 
-  def getComponentNames: Seq[String] = components.map(dimBucket => dimBucket.getNameDimension)
+  def getComponentNames: Seq[String] = components.map(dimPrecision => dimPrecision.getNameDimension)
 
-  def getComponentNames(dimBuckets: Seq[DimensionPrecision]): Seq[String] =
-    dimBuckets.map(dimBucket => dimBucket.getNameDimension)
+  def getComponentNames(dimPrecisions: Seq[DimensionPrecision]): Seq[String] =
+    dimPrecisions.map(dimPrecision => dimPrecision.getNameDimension)
 
   def getComponentsNamesSorted: Seq[String] = getComponentNames(getComponentsSorted)
 

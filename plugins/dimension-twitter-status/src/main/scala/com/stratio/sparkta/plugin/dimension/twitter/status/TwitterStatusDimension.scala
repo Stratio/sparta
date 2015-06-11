@@ -56,7 +56,7 @@ with JSerializable with SLF4JLogging {
   override def dimensionValues(value: JSerializable): Map[Precision, JSerializable] = {
     precisions.map(precision =>
       precision._2 -> TypeOp.transformValueByTypeOp(precision._2.typeOp,
-        TwitterStatusDimension.bucket(value.asInstanceOf[Status], precision._2)))
+        TwitterStatusDimension.getPrecision(value.asInstanceOf[Status], precision._2)))
   }
 }
 
@@ -77,7 +77,7 @@ object TwitterStatusDimension {
   final val LanguageName = "language"
 
   //scalastyle:off
-  def bucket(value: Status, precision: Precision): JSerializable = {
+  def getPrecision(value: Status, precision: Precision): JSerializable = {
     val getText: JSerializable = value.getText
     val getContributors: JSerializable = if (value.getContributors != null) value.getContributors.toString else ""
     val getHastags: JSerializable = if (value.getHashtagEntities != null)
