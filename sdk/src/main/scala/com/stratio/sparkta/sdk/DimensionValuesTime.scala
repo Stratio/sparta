@@ -16,14 +16,4 @@
 
 package com.stratio.sparkta.sdk
 
-case class DimensionBucket(dimension: Dimension, bucketType: BucketType) extends Ordered[DimensionBucket] {
-
-  def getNameDimension: String = bucketType.id match {
-    case Bucketer.IdentityName => dimension.name
-    case _ => bucketType.id
-  }
-
-  def compare(dimensionBucket: DimensionBucket): Int =
-    (dimension.name + bucketType.id) compareTo (dimensionBucket.dimension.name + dimensionBucket.bucketType.id)
-
-}
+case class DimensionValuesTime(precisionValues: Seq[DimensionValue], time: Long)

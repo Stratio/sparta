@@ -16,4 +16,14 @@
 
 package com.stratio.sparkta.sdk
 
-case class DimensionValuesTime(dimensionValues: Seq[DimensionValue], time: Long)
+case class DimensionPrecision(dimension: Dimension, precision: Precision) extends Ordered[DimensionPrecision] {
+
+  def getNameDimension: String = precision.id match {
+    case DimensionType.IdentityName => dimension.name
+    case _ => precision.id
+  }
+
+  def compare(dimensionPrecision: DimensionPrecision): Int =
+    (dimension.name + precision.id) compareTo (dimensionPrecision.dimension.name + dimensionPrecision.precision.id)
+
+}
