@@ -78,7 +78,7 @@ class PrintOutput(keyName: String,
     dataFrame.foreach(frame => log.info(frame.toString()))
   }
 
-  override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+  override def upsert(metricOperations: Iterator[(PrecisionValueTime, Map[String, Option[Any]])]): Unit = {
     metricOperations.foreach(metricOp => log.info(AggregateOperations.toString(metricOp._1, metricOp._2)))
   }
 }

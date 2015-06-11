@@ -34,8 +34,8 @@ trait TypeConversions {
     if (!typeOperation.isEmpty && operationProps.contains(typeOperation)) getResultType(typeOperation)
     else getResultType(TypeOperationName)
 
-  def getPrecision(precision: String, typeOperation: Option[TypeOp]): BucketType =
-    new BucketType(precision, typeOperation.getOrElse(defaultTypeOperation))
+  def getPrecision(precision: String, typeOperation: Option[TypeOp]): Precision =
+    new Precision(precision, typeOperation.getOrElse(defaultTypeOperation))
 
   def getResultType(typeOperation: String): Option[TypeOp] =
     if (!typeOperation.isEmpty) {

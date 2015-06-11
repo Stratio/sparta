@@ -60,8 +60,8 @@ object PolicyFactory {
   }
 
   private def getCombinationsWithOperators(configOptions: Map[String, String],
-                                           componentsSorted: Seq[(Seq[DimensionBucket], Seq[Operator])])
-  : Seq[(Seq[DimensionBucket], Seq[Operator])] =
+                                           componentsSorted: Seq[(Seq[DimensionPrecision], Seq[Operator])])
+  : Seq[(Seq[DimensionPrecision], Seq[Operator])] =
     if (Try(configOptions.get(Output.Multiplexer).get.toBoolean).getOrElse(false)) {
       componentsSorted.flatMap{ case (compSorted, operators) =>
         Multiplexer.combine(compSorted, operators)
@@ -73,7 +73,7 @@ object PolicyFactory {
   private def getOperatorsFields(operators: Seq[Operator]) : Seq[StructField] =
     operators.map(operator => StructField(operator.key, rowTypeFromOption(operator.returnType), true))
 
-  private def getDimensionsFields(fields: Seq[DimensionBucket]) : Seq[StructField] =
+  private def getDimensionsFields(fields: Seq[DimensionPrecision]) : Seq[StructField] =
     fields.map(field => StructField(field.getNameDimension, rowTypeFromOption(field.bucketType.typeOp), false))
 
   private def getFixedFieldAggregation(options: Map[String, String]) : Seq[StructField] =

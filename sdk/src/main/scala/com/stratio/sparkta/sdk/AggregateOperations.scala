@@ -32,24 +32,24 @@ object AggregateOperations {
 
   /*
   * By default transform an UpdateMetricOperation in a Row with description.
-  * If fixedBuckets is defined add fields and values to the original values and fields.
+  * If fixedPrecisions is defined add fields and values to the original values and fields.
   * Id field we need calculate the value with all other values
   */
   def toKeyRow(dimensionValuesT: DimensionValuesTime,
                aggregations: Map[String, Option[Any]],
                fixedAggregation: Map[String, Option[Any]],
-               fixedBuckets: Option[Seq[(String, Any)]],
+               fixedPrecisions: Option[Seq[(String, Any)]],
                idCalculated: Boolean,
                timeName : String): (Option[String], Row) = {
-    val dimensionValuesFiltered = filterDimensionValuesByBucket(dimensionValuesT.dimensionValues,
+    val dimensionValuesFiltered = filterDimensionValuesByPrecision(dimensionValuesT.dimensionValues,
       if(timeName.isEmpty) None else Some(timeName))
     val namesDim = dimensionValuesNames(dimensionValuesFiltered.sorted)
     val (valuesDim, valuesAgg) = toSeq(dimensionValuesFiltered, aggregations ++ fixedAggregation)
-    val (namesFixed, valuesFixed) = if (fixedBuckets.isDefined) {
-      val fixedBucketsSorted = fixedBuckets.get.filter(fb => fb._1 != timeName)
-        .sortWith((bucket1, bucket2) => bucket1._1 < bucket2._1)
-      (namesDim ++ fixedBucketsSorted.map(_._1) ++ Seq(timeName),
-        valuesDim ++ fixedBucketsSorted.map(_._2) ++
+    val (namesFixed, valuesFixed) = if (fixedPrecisions.isDefined) {
+      val fixedPrecisionsSorted = fixedPrecisions.get.filter(fb => fb._1 != timeName)
+        .sortWith((precision1, precision2) => precision1._1 < precision2._1)
+      (namesDim ++ fixedPrecisionsSorted.map(_._1) ++ Seq(timeName),
+        valuesDim ++ fixedPrecisionsSorted.map(_._2) ++
           Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time)))
     } else (namesDim ++ Seq(timeName),
       valuesDim ++ Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time)))
@@ -73,11 +73,11 @@ object AggregateOperations {
   def dimensionValuesNamesSorted(dimensionValues: Seq[DimensionValue]): Seq[String] =
     dimensionValuesNames(dimensionValues.sorted)
 
-  def filterDimensionValuesByBucket(dimensionValues: Seq[DimensionValue], bucketName : Option[String])
+  def filterDimensionValuesByPrecision(dimensionValues: Seq[DimensionValue], precisionName : Option[String])
   : Seq[DimensionValue] =
-    bucketName match {
+    precisionName match {
       case None => dimensionValues
-      case Some(bucket) => dimensionValues.filter(rollup => (rollup.getNameDimension != bucket))
+      case Some(precision) => dimensionValues.filter(rollup => (rollup.getNameDimension != precision))
     }
 
 }

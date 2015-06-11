@@ -189,10 +189,10 @@ object SparktaJob {
         apConfig.checkpointTimeAvailability)
     })
 
-  def getDimensionBucket(dimension: Dimension, dimBucketDto: DimensionAndBucketTypeDto): DimensionBucket = {
+  def getDimensionBucket(dimension: Dimension, dimBucketDto: DimensionAndBucketTypeDto): DimensionPrecision = {
     if (dimension.bucketTypes.contains(dimBucketDto.bucketType)) {
       val bucketType = dimension.bucketTypes(dimBucketDto.bucketType)
-      DimensionBucket(dimension, new BucketType(bucketType.id,
+      DimensionPrecision(dimension, new BucketType(bucketType.id,
         bucketType.typeOp,
         bucketType.properties ++ dimBucketDto.configuration.getOrElse(Map())))
     } else {

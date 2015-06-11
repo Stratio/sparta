@@ -62,7 +62,7 @@ class DataCubeSpec extends TestSuiteBase {
     val dimension = Dimension("eventKey", bucketer)
     val operator = new CountOperator(Map())
     val bucketType = new BucketType("identity", TypeOp.String)
-    val rollup = new Rollup(Seq(DimensionBucket(dimension, bucketType)),
+    val rollup = new Rollup(Seq(DimensionPrecision(dimension, bucketType)),
       Seq(operator),
       checkpointInterval,
       checkpointGranularity,
@@ -87,20 +87,20 @@ class DataCubeSpec extends TestSuiteBase {
    * The expected result to test the DataCube output.
    * @return the expected result to test
    */
-  def getEventOutput(timestamp : Long): Seq[Seq[(DimensionValuesTime, Map[String, JSerializable])]] =
+  def getEventOutput(timestamp : Long): Seq[Seq[(PrecisionValueTime, Map[String, JSerializable])]] =
     Seq(Seq(
-      (DimensionValuesTime(Seq(DimensionValue(
-        DimensionBucket(Dimension("eventKey", new PassthroughDimension), BucketType("identity", TypeOp.String, Map())),
+      (PrecisionValueTime(Seq(DimensionValue(
+        DimensionPrecision(Dimension("eventKey", new PassthroughDimension), BucketType("identity", TypeOp.String, Map())),
         "value1")), timestamp),
         Map("eventKey" -> "value1")
       ),
-      (DimensionValuesTime(Seq(DimensionValue(
-        DimensionBucket(Dimension("eventKey", new PassthroughDimension), BucketType("identity", TypeOp.String, Map())),
+      (PrecisionValueTime(Seq(DimensionValue(
+        DimensionPrecision(Dimension("eventKey", new PassthroughDimension), BucketType("identity", TypeOp.String, Map())),
         "value2")), timestamp),
         Map("eventKey" -> "value2")
       ),
-      (DimensionValuesTime(Seq(DimensionValue(
-        DimensionBucket(Dimension("eventKey", new PassthroughDimension), BucketType("identity", TypeOp.String, Map())),
+      (PrecisionValueTime(Seq(DimensionValue(
+        DimensionPrecision(Dimension("eventKey", new PassthroughDimension), BucketType("identity", TypeOp.String, Map())),
         "value3")), timestamp)
         , Map("eventKey" -> "value3")
       )

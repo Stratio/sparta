@@ -46,13 +46,13 @@ abstract class Output(keyName: String,
 
   def dateType: TypeOp.Value = TypeOp.Timestamp
 
-  def fixedBucketsType: TypeOp.Value = TypeOp.String
+  def fixedPrecisionsType: TypeOp.Value = TypeOp.String
 
   def supportedWriteOps: Seq[WriteOp]
 
   def multiplexer: Boolean = false
 
-  def fixedBuckets: Array[String] = Array()
+  def fixedPrecisions: Array[String] = Array()
 
   def fixedAggregation: Map[String, Option[Any]] = Map()
 
@@ -71,16 +71,16 @@ abstract class Output(keyName: String,
   }
 
   protected def persistMetricOperation(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit =
-    getStreamsFromOptions(stream, multiplexer, getFixedBucketsAndTimeBucket)
+    getStreamsFromOptions(stream, multiplexer, getFixedPrecisionsAndTimePrecision)
       .foreachRDD(rdd => rdd.foreachPartition(ops => upsert(ops)))
 
   protected def persistDataFrame(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
-    getStreamsFromOptions(stream, multiplexer, getFixedBucketsAndTimeBucket)
+    getStreamsFromOptions(stream, multiplexer, getFixedPrecisionsAndTimePrecision)
       .map { case (dimensionValueTime, aggregations) =>
-      AggregateOperations.toKeyRow(filterDimensionValueTimeByFixedBuckets(dimensionValueTime),
+      AggregateOperations.toKeyRow(filterDimensionValueTimeByFixedPrecisions(dimensionValueTime),
         aggregations,
         fixedAggregation,
-        getFixedBuckets(dimensionValueTime),
+        getFixedPrecisions(dimensionValueTime),
         isAutoCalculateId,
         timeName)
     }
@@ -99,28 +99,28 @@ abstract class Output(keyName: String,
 
   def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {}
 
-  def getFixedBucketsAndTimeBucket: Array[String] = fixedBuckets ++ Array(timeName)
+  def getFixedPrecisionsAndTimePrecision: Array[String] = fixedPrecisions ++ Array(timeName)
 
-  protected def getFixedBuckets(dimensionValuesTime: DimensionValuesTime): Option[Seq[(String, Any)]] =
-    if (fixedBuckets.isEmpty) None
+  protected def getFixedPrecisions(dimensionValuesTime: DimensionValuesTime): Option[Seq[(String, Any)]] =
+    if (fixedPrecisions.isEmpty) None
     else {
-      Some(fixedBuckets.flatMap(bucket => {
-        dimensionValuesTime.dimensionValues.find(dimension => dimension.getNameDimension == bucket)
-          .map(dimensionValue => (bucket, dimensionValue.value))
+      Some(fixedPrecisions.flatMap(precision => {
+        dimensionValuesTime.dimensionValues.find(dimension => dimension.getNameDimension == precision)
+          .map(dimensionValue => (precision, dimensionValue.value))
       }))
     }
 
   //TODO refactor for remove var types
   protected def getTableSchemaFixedId(tbSchema: TableSchema): TableSchema = {
     var tableName = tbSchema.tableName.split(Output.Separator)
-      .filter(name => !fixedBuckets.contains(name) && name != timeName)
+      .filter(name => !fixedPrecisions.contains(name) && name != timeName)
     var fieldsPk = getFields(tbSchema, false)
     var modifiedSchema = false
 
-    if (!fixedBuckets.isEmpty) {
-      fixedBuckets.foreach(bucket => {
-        tableName = tableName ++ Array(bucket)
-        fieldsPk = fieldsPk ++ Seq(Output.getFieldType(fixedBucketsType, bucket, false))
+    if (!fixedPrecisions.isEmpty) {
+      fixedPrecisions.foreach(precision => {
+        tableName = tableName ++ Array(precision)
+        fieldsPk = fieldsPk ++ Seq(Output.getFieldType(fixedPrecisionsType, precision, false))
         modifiedSchema = true
       })
     }
@@ -145,7 +145,7 @@ abstract class Output(keyName: String,
 
   protected def getFields(tbSchema: TableSchema, nullables: Boolean) : Seq[StructField] =
     tbSchema.schema.fields.toSeq.filter(field =>
-    !fixedBuckets.contains(field.name) && field.name != timeName && field.nullable == nullables)
+    !fixedPrecisions.contains(field.name) && field.name != timeName && field.nullable == nullables)
 
   protected def genericRowSchema(rdd: RDD[(Option[String], Row)]): (Option[String], RDD[Row]) =
     (Some(rdd.map(rowType => rowType._1.get.split(Output.Separator))
@@ -154,17 +154,18 @@ abstract class Output(keyName: String,
 
   protected def extractRow(rdd: RDD[(Option[String], Row)]): RDD[Row] = rdd.map(rowType => rowType._2)
 
-  protected def filterDimensionValueTimeByFixedBuckets(dimensionValuesTime: DimensionValuesTime): DimensionValuesTime =
-    if (fixedBuckets.isEmpty) dimensionValuesTime
+  protected def filterDimensionValueTimeByFixedPrecisions(dimensionValuesTime: DimensionValuesTime)
+  : DimensionValuesTime =
+    if (fixedPrecisions.isEmpty) dimensionValuesTime
     else {
       DimensionValuesTime(dimensionValuesTime.dimensionValues.filter(dimensionValue =>
-        !fixedBuckets.contains(dimensionValue.dimensionBucket.getNameDimension)), dimensionValuesTime.time)
+        !fixedPrecisions.contains(dimensionValue.dimensionPrecision.getNameDimension)), dimensionValuesTime.time)
     }
 
   protected def filterSchemaByKeyAndField: Seq[TableSchema] =
     if (bcSchema.isDefined) {
       bcSchema.get.value.filter(schemaFilter => schemaFilter.outputName == keyName &&
-        getFixedBucketsAndTimeBucket.forall(schemaFilter.schema.fieldNames.contains(_) &&
+        getFixedPrecisionsAndTimePrecision.forall(schemaFilter.schema.fieldNames.contains(_) &&
           schemaFilter.schema.filter(!_.nullable).length >= 1))
     } else Seq()
 

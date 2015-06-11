@@ -33,7 +33,7 @@ import com.stratio.sparkta.sdk._
  * multipelexer the output
  */
 
-case class Rollup(components: Seq[DimensionBucket],
+case class Rollup(components: Seq[DimensionPrecision],
                   operators: Seq[Operator],
                   checkpointInterval: Int,
                   checkpointGranularity: String,
@@ -47,7 +47,7 @@ case class Rollup(components: Seq[DimensionBucket],
            checkpointInterval: Int,
            checkpointGranularity: String,
            checkpointAvailable: Int) {
-    this(Seq(DimensionBucket(dimension, bucketType)),
+    this(Seq(DimensionPrecision(dimension, bucketType)),
       operators,
       checkpointInterval,
       checkpointGranularity,
@@ -59,7 +59,7 @@ case class Rollup(components: Seq[DimensionBucket],
            checkpointInterval: Int,
            checkpointGranularity: String,
            checkpointAvailable: Int) {
-    this(Seq(DimensionBucket(dimension,
+    this(Seq(DimensionPrecision(dimension,
         Bucketer.getIdentity(dimension.bucketer.getTypeOperation, dimension.bucketer.defaultTypeOperation))),
       operators,
       checkpointInterval,
@@ -67,27 +67,27 @@ case class Rollup(components: Seq[DimensionBucket],
       checkpointAvailable)
   }
 
-  def aggregate(dimensionsValues: DStream[(DimensionValuesTime,
-    Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
+  def aggregate(dimensionsValues: DStream[(PrecisionValueTime,
+    Map[String, JSerializable])]): DStream[(PrecisionValueTime, Map[String, Option[Any]])] = {
     val valuesFiltered = filterDimensionValues(dimensionsValues)
     valuesFiltered.checkpoint(new Duration(checkpointInterval))
     aggregateValues(updateState(valuesFiltered))
   }
 
-  protected def filterDimensionValues(dimensionValues: DStream[(DimensionValuesTime,
-    Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
+  protected def filterDimensionValues(dimensionValues: DStream[(PrecisionValueTime,
+    Map[String, JSerializable])]): DStream[(PrecisionValueTime, Map[String, JSerializable])] = {
     dimensionValues.map { case (dimensionsValuesTime, aggregationValues) => {
       val dimensionsFiltered = dimensionsValuesTime.dimensionValues.filter(dimVal =>
         components.find(comp => comp.dimension == dimVal.dimensionBucket.dimension &&
           comp.bucketType.id == dimVal.dimensionBucket.bucketType.id).nonEmpty)
-      (DimensionValuesTime(dimensionsFiltered, dimensionsValuesTime.time), aggregationValues)
+      (PrecisionValueTime(dimensionsFiltered, dimensionsValuesTime.time), aggregationValues)
     }
     }
   }
 
-  protected def updateState(dimensionsValues: DStream[(DimensionValuesTime, Map[String, JSerializable])]):
-  DStream[(DimensionValuesTime, Seq[(String, Option[Any])])] = {
-    val newUpdateFunc = (iterator: Iterator[(DimensionValuesTime,
+  protected def updateState(dimensionsValues: DStream[(PrecisionValueTime, Map[String, JSerializable])]):
+  DStream[(PrecisionValueTime, Seq[(String, Option[Any])])] = {
+    val newUpdateFunc = (iterator: Iterator[(PrecisionValueTime,
       Seq[Map[String, JSerializable]],
       Option[Seq[(String, Option[Any])]])]) => {
       val eventTime = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity) -
@@ -108,8 +108,8 @@ case class Rollup(components: Seq[DimensionBucket],
     Some(state.getOrElse(Seq()) ++ procMap)
   }
 
-  protected def aggregateValues(dimensionsValues: DStream[(DimensionValuesTime, Seq[(String, Option[Any])])]):
-  DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
+  protected def aggregateValues(dimensionsValues: DStream[(PrecisionValueTime, Seq[(String, Option[Any])])]):
+  DStream[(PrecisionValueTime, Map[String, Option[Any]])] = {
     dimensionsValues.mapValues(aggregationValues => {
       val aggregations = aggregationValues.groupBy { case (name, value) => name }
         .map { case (name, value) => (name, operatorsMap(name).processReduce(value.map(_._2))) }
@@ -119,11 +119,11 @@ case class Rollup(components: Seq[DimensionBucket],
 
   override def toString: String = "[Rollup over " + components + "]"
 
-  def getComponentsSorted: Seq[DimensionBucket] = components.sorted
+  def getComponentsSorted: Seq[DimensionPrecision] = components.sorted
 
   def getComponentNames: Seq[String] = components.map(dimBucket => dimBucket.getNameDimension)
 
-  def getComponentNames(dimBuckets: Seq[DimensionBucket]): Seq[String] =
+  def getComponentNames(dimBuckets: Seq[DimensionPrecision]): Seq[String] =
     dimBuckets.map(dimBucket => dimBucket.getNameDimension)
 
   def getComponentsNamesSorted: Seq[String] = getComponentNames(getComponentsSorted)

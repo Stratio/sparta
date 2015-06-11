@@ -116,7 +116,7 @@ class CassandraOutput(keyName: String,
   * With the fork of PR 112 of datastax-spark-connector.
   * https://github.com/datastax/spark-cassandra-connector/pull/648
   */
-  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+  override def doPersist(stream: DStream[(PrecisionValueTime, Map[String, Option[Any]])]): Unit = {
     if (bcSchema.isDefined && keyspaceCreated && tablesCreated) persistDataFrame(stream)
   }
 

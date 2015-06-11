@@ -218,14 +218,14 @@ trait MongoDbDAO extends Closeable {
     }
   }
 
-  protected def getIdFields(rollupKey : DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
+  protected def getIdFields(rollupKey : PrecisionValueTime): Map[Seq[(String, JSerializable)], String] =
     rollupKey.dimensionValues.map(dimVal => (Seq(dimVal.getNameDimension -> dimVal.value), "$set")).toMap
 
-  protected def getIdentities(rollupKey : DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
+  protected def getIdentities(rollupKey : PrecisionValueTime): Map[Seq[(String, JSerializable)], String] =
     rollupKey.dimensionValues.filter(dimVal => dimVal.dimensionBucket.bucketType.id == Bucketer.IdentityName)
     .map(dimVal => (Seq(dimVal.getNameDimension -> dimVal.value), "$set")).toMap
 
-  protected def getIdentitiesField(rollupKey : DimensionValuesTime): Seq[Imports.DBObject] = rollupKey.dimensionValues
+  protected def getIdentitiesField(rollupKey : PrecisionValueTime): Seq[Imports.DBObject] = rollupKey.dimensionValues
     .filter(dimVal => dimVal.dimensionBucket.bucketType.id == Bucketer.IdentityFieldName ||
     (identitiesSavedAsField && dimVal.dimensionBucket.bucketType.id == Bucketer.IdentityName))
     .map(dimVal => MongoDBObject(dimVal.getNameDimension -> dimVal.value))

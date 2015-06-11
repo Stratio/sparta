@@ -46,7 +46,7 @@ case class DataCube(dimensions: Seq[Dimension],
    * @param inputStream with the original stream of data.
    * @return the built DataCube.
    */
-  def setUp(inputStream: DStream[Event]): Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]] = {
+  def setUp(inputStream: DStream[Event]): Seq[DStream[(PrecisionValueTime, Map[String, Option[Any]])]] = {
     val extractedDimensionsStream = extractDimensionsStream(inputStream)
     rollups.map(_.aggregate(extractedDimensionsStream))
   }
@@ -57,16 +57,16 @@ case class DataCube(dimensions: Seq[Dimension],
    * @return a modified stream after join dimensions, rollups and operations.
    */
   def extractDimensionsStream(inputStream: DStream[Event]):
-  DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
+  DStream[(PrecisionValueTime, Map[String, JSerializable])] = {
     inputStream.map(event => {
       val dimensionValues = for {
         dimension <- dimensions
         value <- event.keyMap.get(dimension.name).toSeq
         (bucketType, bucketedValue) <- dimension.bucketer.bucket(value)
-      } yield DimensionValue(DimensionBucket(dimension, bucketType),
+      } yield DimensionValue(DimensionPrecision(dimension, bucketType),
           TypeOp.transformValueByTypeOp(bucketType.typeOp, bucketedValue))
       val eventTime = extractEventTime(dimensionValues)
-      (DimensionValuesTime(dimensionValues, eventTime), event.keyMap)
+      (PrecisionValueTime(dimensionValues, eventTime), event.keyMap)
     }).cache()
   }
 

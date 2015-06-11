@@ -77,7 +77,7 @@ class ElasticSearchOutput(keyName: String,
 
   override val indexMapping = getIndexType(defaultIndexMapping)
 
-  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+  override def doPersist(stream: DStream[(PrecisionValueTime, Map[String, Option[Any]])]): Unit = {
     if (indexMapping.isDefined) persistDataFrame(stream)
   }
 

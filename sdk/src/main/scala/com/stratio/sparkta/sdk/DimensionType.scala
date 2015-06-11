@@ -20,32 +20,32 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.sdk.TypeOp._
 
-case class BucketType(id: String, typeOp: TypeOp, properties: Map[String, JSerializable]) {
+case class Precision(id: String, typeOp: TypeOp, properties: Map[String, JSerializable]) {
 
   def this(id: String, typeOp: TypeOp) {
     this(id, typeOp, Map())
   }
 }
 
-trait Bucketer extends TypeConversions {
+trait DimensionType extends TypeConversions {
 
   /**
    * When writing to the cube at some address, the address will have one coordinate for each
    * dimension in the cube, for example (time: 348524388, location: portland). For each
-   * dimension, for each bucket type within that dimension, the bucketer must transform the
-   * input data into the bucket that should be used to store the data.
+   * dimension, for each precision type within that dimension, the dimensionType must transform the
+   * input data into the precision that should be used to store the data.
    *
-   * @param value Used to generate the different bucketTypes
-   * @return Map with all generated bucketTypes and a sequence with all values
+   * @param value Used to generate the different precisions
+   * @return Map with all generated precisions and a sequence with all values
    */
-  def bucket(value: JSerializable): Map[BucketType, JSerializable]
+  def bucket(value: JSerializable): Map[Precision, JSerializable]
 
   /**
-   * All buckets supported into this bucketer
+   * All precisions supported into this bucketer
    *
-   * @return Sequence of BucketTypes
+   * @return Sequence of Precisions
    */
-  def bucketTypes: Map[String, BucketType]
+  def precisions: Map[String, Precision]
 
   def properties: Map[String, JSerializable] = Map()
 
@@ -53,18 +53,18 @@ trait Bucketer extends TypeConversions {
 
 }
 
-object Bucketer {
+object DimensionType {
 
   final val IdentityName = "identity"
   final val IdentityFieldName = "identityField"
   final val TimestampName = "timestamp"
 
-  def getIdentity(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(IdentityName, typeOperation.getOrElse(default))
+  def getIdentity(typeOperation: Option[TypeOp], default: TypeOp): Precision =
+    new Precision(IdentityName, typeOperation.getOrElse(default))
 
-  def getIdentityField(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(IdentityFieldName, typeOperation.getOrElse(default))
+  def getIdentityField(typeOperation: Option[TypeOp], default: TypeOp): Precision =
+    new Precision(IdentityFieldName, typeOperation.getOrElse(default))
 
-  def getTimestamp(typeOperation: Option[TypeOp], default: TypeOp): BucketType =
-    new BucketType(TimestampName, typeOperation.getOrElse(default))
+  def getTimestamp(typeOperation: Option[TypeOp], default: TypeOp): Precision =
+    new Precision(TimestampName, typeOperation.getOrElse(default))
 }
