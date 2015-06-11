@@ -45,7 +45,6 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     val OutputsSparkConfiguration = "getSparkConfiguration"
     val specifictSparkConfig = SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration)
     val sc = SparkContextFactory.sparkContextInstance(generalConfig, specifictSparkConfig, jars)
-    val sqlContext = SparkContextFactory.sparkSqlContextInstance.get
     val ssc = SparkContextFactory.sparkStreamingInstance(new Duration(apConfig.duration), apConfig.checkpointDir).get
     val inputs: Map[String, DStream[Event]] = SparktaJob.inputs(apConfig, ssc)
     val parsers: Seq[Parser] = SparktaJob.parsers(apConfig)
@@ -75,7 +74,7 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     val timeName = if (dateBucket.isDefined) dateBucket.get else apConfig.checkpointGranularity
     val outputs = SparktaJob.outputs(apConfig, sc, bcOperatorsKeyOperation, bcRollupOperatorSchema, timeName)
     val input: DStream[Event] = inputs.head._2
-    SparktaJob.saveRawData(apConfig, sqlContext, input)
+    SparktaJob.saveRawData(apConfig, input)
     val parsed = SparktaJob.applyParsers(input, parsers)
 
     val dataCube = new DataCube(dimensionsSeq, rollups, dateBucket, apConfig.checkpointGranularity).setUp(parsed)
@@ -219,6 +218,7 @@ object SparktaJob {
       case e: Exception => throw DriverException.create(
         "Generic error trying to instantiate " + classAndPackage, e)
     }
+
   }
 
   def dimensionsMap(apConfig: AggregationPoliciesDto): Map[String, Dimension] = instantiateDimensions(apConfig).toMap
@@ -235,8 +235,10 @@ object SparktaJob {
         }
       }))))
 
-  def saveRawData(apConfig: AggregationPoliciesDto, sqlContext: SQLContext, input: DStream[Event]): Unit =
+  def saveRawData(apConfig: AggregationPoliciesDto, input: DStream[Event], sqc: Option[SQLContext] = None): Unit =
     if (apConfig.saveRawData.toBoolean) {
+      require(!apConfig.rawDataParquetPath.equals("default"),"The parquet path must be set")
+      val sqlContext = sqc.getOrElse(SparkContextFactory.sparkSqlContextInstance.get)
       def rawDataStorage: RawDataStorageService =
         new RawDataStorageService(sqlContext, apConfig.rawDataParquetPath, apConfig.rawDataGranularity)
       rawDataStorage.save(input)
