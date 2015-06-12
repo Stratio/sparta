@@ -40,7 +40,7 @@ with Matchers {
 
   val supervisorProbe = TestProbe()
 
-  override val supervisor: ActorRef = supervisorProbe.ref
+  override val supervisor = supervisorProbe.ref
 
   def actorRefFactory: ActorRefFactory = system
 

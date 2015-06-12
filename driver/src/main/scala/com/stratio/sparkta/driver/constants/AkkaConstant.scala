@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver
+package com.stratio.sparkta.driver.constants
 
-import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.driver.constants.AppConstant
-import com.stratio.sparkta.driver.helpers.sparkta.SparktaHelper
 
 /**
- * Entry point of the application.
+ * Akka constants with Akka's actor paths.
+ * @author anistal
  */
-object Sparkta extends App with SLF4JLogging {
+object AkkaConstant {
 
-  val sparktaHome   = SparktaHelper.initSparktaHome()
-  val jars          = SparktaHelper.initJars(AppConstant.JarPaths, sparktaHome)
-  val configSparkta = SparktaHelper.initConfig(AppConstant.ConfigAppName)
-  val configApi     = SparktaHelper.initConfig(AppConstant.ConfigApi, Some(configSparkta))
-
-  SparktaHelper.initAkkaSystem(configSparkta, configApi, jars, AppConstant.ConfigAppName)
-
+  final val StreamingActorAkkaPath = s"akka://${AppConstant.ConfigAppName}/user/streamingActor"
+  final val FragmentActorAkkaPath  = s"akka://${AppConstant.ConfigAppName}/user/fragmentActor"
 }

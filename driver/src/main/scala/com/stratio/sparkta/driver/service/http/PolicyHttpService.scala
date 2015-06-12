@@ -18,7 +18,7 @@ package com.stratio.sparkta.driver.service.http
 
 import akka.pattern.ask
 import com.stratio.sparkta.driver.actor._
-import com.stratio.sparkta.driver.constants.HttpConstant
+import com.stratio.sparkta.driver.constants.{AkkaConstant, HttpConstant}
 import com.stratio.sparkta.driver.dto._
 import com.stratio.sparkta.driver.helpers.PolicyHelper
 import com.wordnik.swagger.annotations._
@@ -103,8 +103,7 @@ trait PolicyHttpService extends BaseHttpService {
    * @return a fragment with all fields filled.
    */
   private def fillFragments(apConfig: AggregationPoliciesDto): AggregationPoliciesDto = {
-    // TODO (Alvaro): I must have a look to it, because maybe is not the best way to instantiate actors with akka.
-    val actor = actorRefFactory.actorSelection("akka://sparkta/user/fragmentActor")
+    val actor = actorRefFactory.actorSelection(AkkaConstant.FragmentActorAkkaPath)
 
     val currentFragments: Seq[FragmentElementDto] = apConfig.fragments.map(fragment => {
       val future = actor ? new FragmentSupervisorActor_findByTypeAndName(fragment.fragmentType, fragment.name)

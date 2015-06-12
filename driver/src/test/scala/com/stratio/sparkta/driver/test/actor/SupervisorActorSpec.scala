@@ -170,7 +170,7 @@ class SupervisorActorSpec
   }
 
   private def createSupervisorActor: ActorRef = {
-    system.actorOf(Props(new StreamingSupervisorActor(streamingContextService.get)))
+    system.actorOf(Props(new StreamingActor(streamingContextService.get)))
   }
 
   private def createPolicyConfiguration(name: String): AggregationPoliciesDto = {
