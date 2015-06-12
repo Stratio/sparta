@@ -1,7 +1,7 @@
 {
   "name": "ATSocketMongo",
   "duration": 2000,
-  "saveRawData": "true",
+  "saveRawData": "false",
   "rawDataParquetPath": "myTestParquetPath",
   "checkpointDir": "checkpoint",
   "timePrecision": "minute",
@@ -10,7 +10,7 @@
   "checkpointTimeAvailability": 60000,
   "inputs": [
     {
-      "name": "in-kafka",
+      "name": "in-socket",
       "elementType": "SocketInput",
       "configuration": {
         "hostname": "localhost",
@@ -30,10 +30,10 @@
   ],
   "rollups": [
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "product",
-          "bucketType": "identity"
+          "precision": "identity"
         }
       ],
       "operators": ["sum-operator","avg-operator"]
@@ -41,9 +41,12 @@
   ],
   "outputs": [
     {
-      "name": "out-print",
-      "elementType": "PrintOutput",
+      "name": "out-mongo",
+      "elementType": "MongoDbOutput",
       "configuration": {
+        "clientUri": "mongodb://localhost:60000",
+        "dbName": "csvtest",
+        "multiplexer": "false"
       }
     }
   ],
