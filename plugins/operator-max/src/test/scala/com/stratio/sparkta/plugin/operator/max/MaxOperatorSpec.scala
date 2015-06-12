@@ -61,6 +61,9 @@ class MaxOperatorSpec extends WordSpec with Matchers {
       val inputFields4 = new MaxOperator(Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
+      val inputFields5 = new MaxOperator(Map("typeOp" -> "string"))
+      inputFields5.processReduce(Seq(Some(1), Some(2))) should be(Some("2.0"))
+
     }
   }
 }

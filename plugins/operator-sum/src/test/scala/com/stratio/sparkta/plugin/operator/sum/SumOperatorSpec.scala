@@ -62,6 +62,10 @@ class SumOperatorSpec extends WordSpec with Matchers {
       val inputFields4 = new SumOperator(Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
+      val inputFields5 = new SumOperator(Map("typeOp" -> "string"))
+      inputFields5.processReduce(Seq(Some(1), Some(2), Some(3))) should be(Some("6.0"))
+
+
 
     }
   }

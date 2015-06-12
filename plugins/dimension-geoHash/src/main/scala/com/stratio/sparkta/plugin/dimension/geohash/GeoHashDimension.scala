@@ -22,7 +22,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.github.davidmoten.geo.{GeoHash, LatLong}
 
 import com.stratio.sparkta.plugin.dimension.geohash.GeoHashDimension._
-import com.stratio.sparkta.sdk.{BucketType, Bucketer, TypeOp}
+import com.stratio.sparkta.sdk._
 
 /**
  *
@@ -43,13 +43,15 @@ import com.stratio.sparkta.sdk.{BucketType, Bucketer, TypeOp}
  * 12 - 3.7cm x 1.9cm
  *
  */
-case class GeoHashDimension(props: Map[String, JSerializable]) extends Bucketer with SLF4JLogging {
+case class GeoHashDimension(props: Map[String, JSerializable]) extends Bucketer with JSerializable with SLF4JLogging {
 
   def this() {
     this(Map())
   }
 
   override val properties: Map[String, JSerializable] = props
+
+  override val operationProps : Map[String, JSerializable] = props
 
   override val defaultTypeOperation = TypeOp.ArrayDouble
 
@@ -117,7 +119,7 @@ object GeoHashDimension {
 
   //scalastyle:off
   def bucket(lat: Double, long: Double, bucketType: BucketType): JSerializable = {
-    bucketType match {
+    TypeOp.transformValueByTypeOp(bucketType.typeOp, bucketType match {
       case p if p.id == Precision1Name => decodeHash(GeoHash.encodeHash(lat, long, 1))
       case p if p.id == Precision2Name => decodeHash(GeoHash.encodeHash(lat, long, 2))
       case p if p.id == Precision3Name => decodeHash(GeoHash.encodeHash(lat, long, 3))
@@ -130,7 +132,7 @@ object GeoHashDimension {
       case p if p.id == Precision10Name => decodeHash(GeoHash.encodeHash(lat, long, 10))
       case p if p.id == Precision11Name => decodeHash(GeoHash.encodeHash(lat, long, 11))
       case p if p.id == Precision12Name => decodeHash(GeoHash.encodeHash(lat, long, 12))
-    }
+    })
   }
 
   //scalastyle:on

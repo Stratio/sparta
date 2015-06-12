@@ -61,6 +61,9 @@ class AvgOperatorSpec extends WordSpec with Matchers {
       val inputFields4 = new AvgOperator(Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
+      val inputFields5 = new AvgOperator(Map("typeOp" -> "string"))
+      inputFields5.processReduce(Seq(Some(1), Some(1))) should be(Some("1.0"))
+
     }
   }
 }

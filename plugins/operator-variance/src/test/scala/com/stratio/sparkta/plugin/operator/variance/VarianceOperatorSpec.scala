@@ -61,6 +61,10 @@ class VarianceOperatorSpec extends WordSpec with Matchers {
       val inputFields4 = new VarianceOperator(Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
+      val inputFields5 = new VarianceOperator(Map("typeOp" -> "string"))
+      inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("8.0"))
+
+
     }
   }
 }

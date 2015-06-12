@@ -19,12 +19,13 @@ package com.stratio.sparkta.plugin.operator.avg
 import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, WriteOp, Operator}
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 
 class AvgOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  override val typeOp = Some(TypeOp.Double)
+  override val defaultTypeOperation = TypeOp.Double
 
   private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
@@ -43,7 +44,8 @@ class AvgOperator(properties: Map[String, JSerializable]) extends Operator(prope
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     val valuesFiltered = values.flatten
     valuesFiltered.size match {
-      case (nz) if (nz != 0) => Some(valuesFiltered.map(_.asInstanceOf[Number].doubleValue()).sum / valuesFiltered.size)
+      case (nz) if (nz != 0) => Some(transformValueByTypeOp(returnType,
+          valuesFiltered.map(_.asInstanceOf[Number].doubleValue()).sum / valuesFiltered.size))
       case _ => AvgOperator.SOME_ZERO
     }
   }

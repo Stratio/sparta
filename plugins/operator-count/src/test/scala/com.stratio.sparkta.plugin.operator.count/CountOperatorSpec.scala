@@ -57,6 +57,9 @@ class CountOperatorSpec extends WordSpec with Matchers {
       val inputFields3 = new CountOperator(Map("distinctFields" -> s"field1${CountOperator.Separator}field2"))
       inputFields3.processReduce(Seq(Some(s"field1${CountOperator.Separator}field2" -> 1),
         Some(s"field1${CountOperator.Separator}field2" -> 1))) should be(Some(1L))
+
+      val inputFields5 = new CountOperator(Map("typeOp" -> "string"))
+      inputFields5.processReduce(Seq(Some(1), Some(1))) should be(Some("2"))
     }
   }
 }

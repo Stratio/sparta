@@ -18,7 +18,7 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.TypeOp.TypeOp
+import com.stratio.sparkta.sdk.TypeOp._
 
 case class BucketType(id: String, typeOp: TypeOp, properties: Map[String, JSerializable]) {
 
@@ -27,7 +27,7 @@ case class BucketType(id: String, typeOp: TypeOp, properties: Map[String, JSeria
   }
 }
 
-trait Bucketer {
+trait Bucketer extends TypeConversions {
 
   /**
    * When writing to the cube at some address, the address will have one coordinate for each
@@ -40,8 +40,6 @@ trait Bucketer {
    */
   def bucket(value: JSerializable): Map[BucketType, JSerializable]
 
-  final val TypeOperationName = "typeOp"
-
   /**
    * All buckets supported into this bucketer
    *
@@ -51,44 +49,8 @@ trait Bucketer {
 
   def properties: Map[String, JSerializable] = Map()
 
-  def defaultTypeOperation: TypeOp = TypeOp.String
+  override def defaultTypeOperation: TypeOp = TypeOp.String
 
-  def getTypeOperation: Option[TypeOp] = getResultType(TypeOperationName)
-
-  def getTypeOperation(typeOperation: String): Option[TypeOp] =
-    if (!typeOperation.isEmpty && properties.contains(typeOperation)) getResultType(typeOperation)
-    else getResultType(TypeOperationName)
-
-  def getPrecision(precision: String, typeOperation: Option[TypeOp]): BucketType =
-    new BucketType(precision, typeOperation.getOrElse(defaultTypeOperation))
-
-  def getResultType(typeOperation: String): Option[TypeOp] =
-    if (!typeOperation.isEmpty) {
-      properties.get(typeOperation) match {
-        case Some(operation) => Some(getTypeOperationByName(operation.asInstanceOf[String]))
-        case None => None
-      }
-    } else None
-
-  //scalastyle:off
-  def getTypeOperationByName(nameOperation: String): TypeOp =
-    nameOperation.toLowerCase match {
-      case name if name == "bigdecimal" => TypeOp.BigDecimal
-      case name if name == "long" => TypeOp.Long
-      case name if name == "int" => TypeOp.Int
-      case name if name == "string" => TypeOp.String
-      case name if name == "double" => TypeOp.Double
-      case name if name == "boolean" => TypeOp.Boolean
-      case name if name == "binary" => TypeOp.Binary
-      case name if name == "date" => TypeOp.Date
-      case name if name == "datetime" => TypeOp.DateTime
-      case name if name == "timestamp" => TypeOp.Timestamp
-      case name if name == "arraydouble" => TypeOp.ArrayDouble
-      case name if name == "arraystring" => TypeOp.ArrayString
-      case _ => defaultTypeOperation
-    }
-
-  //scalastyle:on
 }
 
 object Bucketer {

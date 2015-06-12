@@ -33,6 +33,8 @@ case class DateTimeDimension(props: Map[String, JSerializable]) extends Bucketer
 
   override val defaultTypeOperation = TypeOp.Timestamp
 
+  override val operationProps: Map[String, JSerializable] = props
+
   override val properties: Map[String, JSerializable] = props ++ {
     if (!props.contains(GranularityPropertyName)) Map(GranularityPropertyName -> DefaultGranularity) else Map()
   }
@@ -74,11 +76,12 @@ object DateTimeDimension {
   final val timestamp = Bucketer.getTimestamp(Some(TypeOp.Timestamp), TypeOp.Timestamp)
 
   def bucket(value: Date, bucketType: BucketType, properties: Map[String, JSerializable]): JSerializable = {
-    DateOperations.dateFromGranularity(new DateTime(value), bucketType match {
-      case t if t == timestamp => if (properties.contains(GranularityPropertyName))
-        properties.get(GranularityPropertyName).get.toString
-      else DefaultGranularity
-      case _ => bucketType.id
-    }).asInstanceOf[JSerializable]
+    TypeOp.transformValueByTypeOp(bucketType.typeOp,
+      DateOperations.dateFromGranularity(new DateTime(value), bucketType match {
+        case t if t == timestamp => if (properties.contains(GranularityPropertyName))
+          properties.get(GranularityPropertyName).get.toString
+        else DefaultGranularity
+        case _ => bucketType.id
+      })).asInstanceOf[JSerializable]
   }
 }

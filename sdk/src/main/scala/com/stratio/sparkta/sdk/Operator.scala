@@ -23,9 +23,11 @@ import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 
 abstract class Operator(properties: Map[String, JSerializable]) extends Parameterizable(properties)
-with Ordered[Operator] {
+with Ordered[Operator] with TypeConversions {
 
-  def typeOp: Option[TypeOp] = None
+  override def operationProps: Map[String, JSerializable] = properties
+
+  override def defaultTypeOperation: TypeOp = TypeOp.Binary
 
   def key: String
 
@@ -35,7 +37,7 @@ with Ordered[Operator] {
 
   def processReduce(values: Iterable[Option[Any]]): Option[Any]
 
-  def returnType: TypeOp = typeOp.getOrElse(TypeOp.Binary)
+  def returnType: TypeOp = getTypeOperation.getOrElse(defaultTypeOperation)
 
   def compare(operator: Operator): Int = key compareTo operator.key
 

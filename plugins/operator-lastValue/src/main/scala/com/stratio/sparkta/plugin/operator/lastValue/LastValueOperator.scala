@@ -19,12 +19,14 @@ package com.stratio.sparkta.plugin.operator.lastValue
 import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
+import com.stratio.sparkta.sdk.TypeOp
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk._
 
 class LastValueOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  override val typeOp = Some(TypeOp.String)
+  override val defaultTypeOperation = TypeOp.String
 
   private val inputField = if (properties.contains("inputField")) properties.getString("inputField", None) else None
 
@@ -37,12 +39,14 @@ class LastValueOperator(properties: Map[String, JSerializable]) extends Operator
   override def processMap(inputFields: Map[String, JSerializable]): Option[Any] =
     if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
       Some(inputFields.get(inputField.get).get)
-    } else LastValueOperator.SOME_EMPTY
+    } else LastValueOperator.Some_Empty
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
-    Try(values.last.orElse(LastValueOperator.SOME_EMPTY)).getOrElse(LastValueOperator.SOME_EMPTY)
+    Try(Some(transformValueByTypeOp(returnType, values.last.getOrElse(LastValueOperator.Empty))))
+      .getOrElse(LastValueOperator.Some_Empty)
 }
 
 private object LastValueOperator {
-  val SOME_EMPTY = Some("")
+  val Some_Empty = Some("")
+  val Empty = ""
 }

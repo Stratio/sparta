@@ -53,13 +53,17 @@ class MinOperatorSpec extends WordSpec with Matchers {
       inputFields.processReduce(Seq()) should be(Some(0d))
 
       val inputFields2 = new MinOperator(Map())
-      inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some(1d))
+      inputFields2.processReduce(Seq(Some(1), Some(2))) should be(Some(1d))
 
       val inputFields3 = new MinOperator(Map())
       inputFields3.processReduce(Seq(Some(1), Some(2), Some(3))) should be(Some(1d))
 
       val inputFields4 = new MinOperator(Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
+
+      val inputFields5 = new MinOperator(Map("typeOp" -> "string"))
+      inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("1.0"))
+
 
     }
   }

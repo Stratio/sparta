@@ -19,6 +19,7 @@ import java.io.{Serializable => JSerializable}
 
 import scala.util.Try
 
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, WriteOp, Operator}
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import breeze.stats._
@@ -27,7 +28,7 @@ import breeze.linalg._
 
 class MedianOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  override val typeOp = Some(TypeOp.Double)
+  override val defaultTypeOperation = TypeOp.Double
 
   private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
@@ -46,8 +47,8 @@ class MedianOperator(properties: Map[String, JSerializable]) extends Operator(pr
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     val valuesFiltered = values.flatten
     valuesFiltered.size match {
-      case (nz) if (nz != 0) =>
-        Some(median(DenseVector(valuesFiltered.map(_.asInstanceOf[Number].doubleValue()).toArray)))
+      case (nz) if (nz != 0) => Some(transformValueByTypeOp(returnType,
+        median(DenseVector(valuesFiltered.map(_.asInstanceOf[Number].doubleValue()).toArray))))
       case _ => MedianOperator.SOME_ZERO
     }
   }

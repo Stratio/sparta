@@ -20,6 +20,8 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
+import com.stratio.sparkta.sdk.TypeOp
+
 @RunWith(classOf[JUnitRunner])
 class FirstValueOperatorSpec extends WordSpec with Matchers {
 
@@ -40,8 +42,11 @@ class FirstValueOperatorSpec extends WordSpec with Matchers {
       val inputFields = new FirstValueOperator(Map())
       inputFields.processReduce(Seq()) should be(Some(""))
 
-      val inputFields2 = new FirstValueOperator(Map())
-      inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some(1))
+      val inputFields2 = new FirstValueOperator(Map("typeOp" -> "int"))
+      inputFields2.processReduce(Seq(Some(1), Some(2))) should be(Some(1))
+
+      val inputFields4 = new FirstValueOperator(Map("typeOp" -> "string"))
+      inputFields4.processReduce(Seq(Some(1), Some(2))) should be(Some("1"))
 
       val inputFields3 = new FirstValueOperator(Map())
       inputFields3.processReduce(Seq(Some("a"), Some("b"))) should be(Some("a"))

@@ -63,6 +63,11 @@ class StddevOperatorSpec extends WordSpec with Matchers {
       val inputFields4 = new StddevOperator(Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
+      val inputFields5 = new StddevOperator(Map("typeOp" -> "string"))
+      inputFields5.processReduce(
+        Seq(Some(1), Some(2), Some(3), Some(6.5), Some(7.5))) should be(Some("2.850438562747845"))
+
+
     }
   }
 }

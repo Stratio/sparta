@@ -24,13 +24,15 @@ import com.stratio.sparkta.plugin.dimension.hierarchy.HierarchyDimension._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk._
 
-case class HierarchyDimension(props: Map[String, JSerializable]) extends Bucketer with SLF4JLogging {
+case class HierarchyDimension(props: Map[String, JSerializable]) extends Bucketer with JSerializable with SLF4JLogging {
 
   def this() {
     this(Map())
   }
 
-  override val defaultTypeOperation = TypeOp.String
+  override val defaultTypeOperation = TypeOp.ArrayString
+
+  override val operationProps : Map[String, JSerializable] = props
 
   override val properties: Map[String, JSerializable] = props ++ {
     if (!props.contains(SplitterPropertyName)) Map(SplitterPropertyName -> DefaultSplitter) else Map()
@@ -57,7 +59,8 @@ case class HierarchyDimension(props: Map[String, JSerializable]) extends Buckete
 
   override def bucket(value: JSerializable): Map[BucketType, JSerializable] =
     bucketTypes.map(bucketType =>
-      (bucketType._2, bucket(value.asInstanceOf[String], bucketType._2).asInstanceOf[JSerializable]))
+      (bucketType._2, TypeOp.transformValueByTypeOp(bucketType._2.typeOp,
+        bucket(value.asInstanceOf[String], bucketType._2).asInstanceOf[JSerializable])))
 
   def bucket(value: String, bucketType: BucketType): Seq[JSerializable] = {
     bucketType match {

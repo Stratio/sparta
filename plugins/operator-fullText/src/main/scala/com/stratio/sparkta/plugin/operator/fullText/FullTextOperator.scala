@@ -19,12 +19,14 @@ package com.stratio.sparkta.plugin.operator.fullText
 import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
+import com.stratio.sparkta.sdk.TypeOp
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk._
 
 class FullTextOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
 
-  override val typeOp = Some(TypeOp.String)
+  override val defaultTypeOperation = TypeOp.String
 
   private val inputField = if (properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
@@ -39,7 +41,7 @@ class FullTextOperator(properties: Map[String, JSerializable]) extends Operator(
   }
 
   override def processReduce(values: Iterable[Option[Any]]): Option[String] = {
-    Try(Some(values.map(_.get.toString).reduce(_ + FullTextOperator.SEPARATOR + _)))
+    Try(Some(transformValueByTypeOp(returnType, values.map(_.get.toString).reduce(_ + FullTextOperator.SEPARATOR + _))))
       .getOrElse(FullTextOperator.SOME_EMPTY)
   }
 }

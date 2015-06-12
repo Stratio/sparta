@@ -45,6 +45,9 @@ class FullTextOperatorSpec extends WordSpec with Matchers {
 
       val inputFields3 = new FullTextOperator(Map())
       inputFields3.processReduce(Seq(Some("a"), Some("b"))) should be(Some(s"a${FullTextOperator.SEPARATOR}b"))
+
+      val inputFields4 = new FullTextOperator(Map("typeOp" -> "arraystring"))
+      inputFields4.processReduce(Seq(Some(1), Some(1))) should be(Some(Seq(s"1${FullTextOperator.SEPARATOR}1")))
     }
   }
 }
