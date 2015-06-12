@@ -24,7 +24,7 @@ import twitter4j.Status
 import com.stratio.sparkta.plugin.dimension.twitter.status.TwitterStatusDimension._
 import com.stratio.sparkta.sdk._
 
-case class TwitterStatusDimension(props: Map[String, JSerializable]) extends Bucketer
+case class TwitterStatusDimension(props: Map[String, JSerializable]) extends DimensionType
 with JSerializable with SLF4JLogging {
 
   def this() {
@@ -37,7 +37,7 @@ with JSerializable with SLF4JLogging {
 
   override val properties: Map[String, JSerializable] = props
 
-  override val bucketTypes: Map[String, BucketType] =
+  override val precisions: Map[String, Precision] =
     Map(
       TextName -> getPrecision(TextName, getTypeOperation(TextName)),
       ContributorsName -> getPrecision(ContributorsName, getTypeOperation(ContributorsName)),
@@ -53,10 +53,10 @@ with JSerializable with SLF4JLogging {
       NameName -> getPrecision(NameName, getTypeOperation(NameName)),
       LanguageName -> getPrecision(LanguageName, getTypeOperation(LanguageName)))
 
-  override def bucket(value: JSerializable): Map[BucketType, JSerializable] = {
-    bucketTypes.map(bucketType =>
-      bucketType._2 -> TypeOp.transformValueByTypeOp(bucketType._2.typeOp,
-        TwitterStatusDimension.bucket(value.asInstanceOf[Status], bucketType._2)))
+  override def dimensionValues(value: JSerializable): Map[Precision, JSerializable] = {
+    precisions.map(precision =>
+      precision._2 -> TypeOp.transformValueByTypeOp(precision._2.typeOp,
+        TwitterStatusDimension.getPrecision(value.asInstanceOf[Status], precision._2)))
   }
 }
 
@@ -77,7 +77,7 @@ object TwitterStatusDimension {
   final val LanguageName = "language"
 
   //scalastyle:off
-  def bucket(value: Status, bucketType: BucketType): JSerializable = {
+  def getPrecision(value: Status, precision: Precision): JSerializable = {
     val getText: JSerializable = value.getText
     val getContributors: JSerializable = if (value.getContributors != null) value.getContributors.toString else ""
     val getHastags: JSerializable = if (value.getHashtagEntities != null)
@@ -97,7 +97,7 @@ object TwitterStatusDimension {
     val getLanguage = value.getUser.getLang
     val getName = value.getUser.getName
 
-    (bucketType.id match {
+    (precision.id match {
       case a if a == TextName => getText
       case c if c == ContributorsName => getContributors
       case h if h == HastagsName => getHastags

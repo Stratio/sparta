@@ -79,7 +79,7 @@ trait MongoDbDAO extends Closeable {
     bulkOperation.execute()
   }
 
-  protected def createPkTextIndex(collection: String, timeBucket: String): (Boolean, Boolean) = {
+  protected def createPkTextIndex(collection: String, timePrecision: String): (Boolean, Boolean) = {
     val textIndexCreated = if (textIndexFields.isDefined && language.isDefined) {
       if (textIndexFields.get.size > 0) {
         createTextIndex(collection, textIndexFields.mkString(Output.Separator), textIndexFields.get, language.get)
@@ -87,11 +87,11 @@ trait MongoDbDAO extends Closeable {
       } else false
     } else false
 
-    if (!timeBucket.isEmpty) {
-      createIndex(collection, Output.Id + Output.Separator + timeBucket,
-        Map(Output.Id -> 1, timeBucket -> 1), true, true)
+    if (!timePrecision.isEmpty) {
+      createIndex(collection, Output.Id + Output.Separator + timePrecision,
+        Map(Output.Id -> 1, timePrecision -> 1), true, true)
     }
-    (!timeBucket.isEmpty, textIndexCreated)
+    (!timePrecision.isEmpty, textIndexCreated)
   }
 
   protected def indexExists(collection: String, indexName: String): Boolean = {
@@ -171,7 +171,7 @@ trait MongoDbDAO extends Closeable {
     val combinedOptions: Map[Seq[(String, Any)], casbah.Imports.JSFunction] = mapOperations ++ {
       if (language.isDefined) Map((Seq((LanguageFieldName, language.get)), "$set")) else Map()
     } ++ {
-      if (identitiesField.size > 0) Map((Seq(Bucketer.IdentityFieldName -> identitiesField), "$set")) else Map()
+      if (identitiesField.size > 0) Map((Seq(DimensionType.IdentityFieldName -> identitiesField), "$set")) else Map()
     } ++ {
       identities match {
         case Some(identity) => identity
@@ -222,12 +222,12 @@ trait MongoDbDAO extends Closeable {
     rollupKey.dimensionValues.map(dimVal => (Seq(dimVal.getNameDimension -> dimVal.value), "$set")).toMap
 
   protected def getIdentities(rollupKey : DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
-    rollupKey.dimensionValues.filter(dimVal => dimVal.dimensionBucket.bucketType.id == Bucketer.IdentityName)
+    rollupKey.dimensionValues.filter(dimVal => dimVal.dimensionPrecision.precision.id == DimensionType.IdentityName)
     .map(dimVal => (Seq(dimVal.getNameDimension -> dimVal.value), "$set")).toMap
 
   protected def getIdentitiesField(rollupKey : DimensionValuesTime): Seq[Imports.DBObject] = rollupKey.dimensionValues
-    .filter(dimVal => dimVal.dimensionBucket.bucketType.id == Bucketer.IdentityFieldName ||
-    (identitiesSavedAsField && dimVal.dimensionBucket.bucketType.id == Bucketer.IdentityName))
+    .filter(dimVal => dimVal.dimensionPrecision.precision.id == DimensionType.IdentityFieldName ||
+    (identitiesSavedAsField && dimVal.dimensionPrecision.precision.id == DimensionType.IdentityName))
     .map(dimVal => MongoDBObject(dimVal.getNameDimension -> dimVal.value))
 
   protected def checkFields(aggregations: Set[String],

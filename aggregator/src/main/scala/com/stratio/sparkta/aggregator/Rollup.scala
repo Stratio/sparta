@@ -33,7 +33,7 @@ import com.stratio.sparkta.sdk._
  * multipelexer the output
  */
 
-case class Rollup(components: Seq[DimensionBucket],
+case class Rollup(components: Seq[DimensionPrecision],
                   operators: Seq[Operator],
                   checkpointInterval: Int,
                   checkpointGranularity: String,
@@ -42,12 +42,12 @@ case class Rollup(components: Seq[DimensionBucket],
   private lazy val operatorsMap = operators.map(op => op.key -> op).toMap
 
   def this(dimension: Dimension,
-           bucketType: BucketType,
+           precision: Precision,
            operators: Seq[Operator],
            checkpointInterval: Int,
            checkpointGranularity: String,
            checkpointAvailable: Int) {
-    this(Seq(DimensionBucket(dimension, bucketType)),
+    this(Seq(DimensionPrecision(dimension, precision)),
       operators,
       checkpointInterval,
       checkpointGranularity,
@@ -59,8 +59,9 @@ case class Rollup(components: Seq[DimensionBucket],
            checkpointInterval: Int,
            checkpointGranularity: String,
            checkpointAvailable: Int) {
-    this(Seq(DimensionBucket(dimension,
-        Bucketer.getIdentity(dimension.bucketer.getTypeOperation, dimension.bucketer.defaultTypeOperation))),
+    this(Seq(DimensionPrecision(dimension,
+        DimensionType.getIdentity(dimension.dimensionType.getTypeOperation,
+          dimension.dimensionType.defaultTypeOperation))),
       operators,
       checkpointInterval,
       checkpointGranularity,
@@ -78,8 +79,8 @@ case class Rollup(components: Seq[DimensionBucket],
     Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
     dimensionValues.map { case (dimensionsValuesTime, aggregationValues) => {
       val dimensionsFiltered = dimensionsValuesTime.dimensionValues.filter(dimVal =>
-        components.find(comp => comp.dimension == dimVal.dimensionBucket.dimension &&
-          comp.bucketType.id == dimVal.dimensionBucket.bucketType.id).nonEmpty)
+        components.find(comp => comp.dimension == dimVal.dimensionPrecision.dimension &&
+          comp.precision.id == dimVal.dimensionPrecision.precision.id).nonEmpty)
       (DimensionValuesTime(dimensionsFiltered, dimensionsValuesTime.time), aggregationValues)
     }
     }
@@ -119,12 +120,12 @@ case class Rollup(components: Seq[DimensionBucket],
 
   override def toString: String = "[Rollup over " + components + "]"
 
-  def getComponentsSorted: Seq[DimensionBucket] = components.sorted
+  def getComponentsSorted: Seq[DimensionPrecision] = components.sorted
 
-  def getComponentNames: Seq[String] = components.map(dimBucket => dimBucket.getNameDimension)
+  def getComponentNames: Seq[String] = components.map(dimPrecision => dimPrecision.getNameDimension)
 
-  def getComponentNames(dimBuckets: Seq[DimensionBucket]): Seq[String] =
-    dimBuckets.map(dimBucket => dimBucket.getNameDimension)
+  def getComponentNames(dimPrecisions: Seq[DimensionPrecision]): Seq[String] =
+    dimPrecisions.map(dimPrecision => dimPrecision.getNameDimension)
 
   def getComponentsNamesSorted: Seq[String] = getComponentNames(getComponentsSorted)
 

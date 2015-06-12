@@ -32,13 +32,13 @@ import com.stratio.sparkta.sdk._
  * This final stream will be used mainly by outputs.
  * @param dimensions that will be contain the fields of the datacube.
  * @param rollups that will be contain how the data will be aggregate.
- * @param timeBucket that will be contain the bucketer id that contain the date.
- * @param checkpointGranularity that will be contain the granularity to calculate the time, only if this bucketer is
- *                              not present.
+ * @param timePrecision that will be contain the dimensionType id that contain the date.
+ * @param checkpointGranularity that will be contain the granularity to calculate the time, only if this
+ *                              dimensionType is not present.
  */
 case class DataCube(dimensions: Seq[Dimension],
                     rollups: Seq[Rollup],
-                    timeBucket: Option[String],
+                    timePrecision: Option[String],
                     checkpointGranularity: String) {
 
   /**
@@ -62,19 +62,19 @@ case class DataCube(dimensions: Seq[Dimension],
       val dimensionValues = for {
         dimension <- dimensions
         value <- event.keyMap.get(dimension.name).toSeq
-        (bucketType, bucketedValue) <- dimension.bucketer.bucket(value)
-      } yield DimensionValue(DimensionBucket(dimension, bucketType),
-          TypeOp.transformValueByTypeOp(bucketType.typeOp, bucketedValue))
+        (precision, dimValue) <- dimension.dimensionType.dimensionValues(value)
+      } yield DimensionValue(DimensionPrecision(dimension, precision),
+          TypeOp.transformValueByTypeOp(precision.typeOp, dimValue))
       val eventTime = extractEventTime(dimensionValues)
       (DimensionValuesTime(dimensionValues, eventTime), event.keyMap)
     }).cache()
   }
 
   private def extractEventTime(dimensionValues: Seq[DimensionValue]) = {
-    timeBucket match {
-      case Some(bucket) => {
+    timePrecision match {
+      case Some(precision) => {
         val dimensionsDates =
-          dimensionValues.filter(dimensionValue => dimensionValue.dimensionBucket.bucketType.id == bucket)
+          dimensionValues.filter(dimensionValue => dimensionValue.dimensionPrecision.precision.id == precision)
         if (dimensionsDates.isEmpty) getDate else DateOperations.getMillisFromSerializable(dimensionsDates.head.value)
       }
       case None => getDate

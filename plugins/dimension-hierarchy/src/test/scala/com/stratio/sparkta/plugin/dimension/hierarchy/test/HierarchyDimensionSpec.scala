@@ -43,15 +43,15 @@ with TableDrivenPropertyChecks {
   }
 
   "A HierarchyDimension" should {
-    "In default implementation, get 4 buckets for all precision sizes" in {
-      val buckets = hbs.get.bucket("").map(_._1.id)
+    "In default implementation, get 4 precisions for all precision sizes" in {
+      val precisions = hbs.get.dimensionValues("").map(_._1.id)
 
-      buckets.size should be(4)
+      precisions.size should be(4)
 
-      buckets should contain(HierarchyDimension.LeftToRightName)
-      buckets should contain(HierarchyDimension.RightToLeftName)
-      buckets should contain(HierarchyDimension.LeftToRightWithWildCardName)
-      buckets should contain(HierarchyDimension.RightToLeftWithWildCardName)
+      precisions should contain(HierarchyDimension.LeftToRightName)
+      precisions should contain(HierarchyDimension.RightToLeftName)
+      precisions should contain(HierarchyDimension.LeftToRightWithWildCardName)
+      precisions should contain(HierarchyDimension.RightToLeftWithWildCardName)
     }
 
     "In default implementation, every proposed combination should be ok" in {
@@ -61,7 +61,7 @@ with TableDrivenPropertyChecks {
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.get.bucket(i)
+        val result = hbs.get.dimensionValues(i)
         val value = result(hbs.get.LeftToRightWithWildCard)
         assertResult(o)(value)
       }
@@ -74,7 +74,7 @@ with TableDrivenPropertyChecks {
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.get.bucket(i.asInstanceOf[JSerializable])
+        val result = hbs.get.dimensionValues(i.asInstanceOf[JSerializable])
         val value = result(hbs.get.RightToLeftWithWildCard)
         assertResult(o)(value)
       }
@@ -87,7 +87,7 @@ with TableDrivenPropertyChecks {
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.get.bucket(i.asInstanceOf[JSerializable])
+        val result = hbs.get.dimensionValues(i.asInstanceOf[JSerializable])
         val value = result(hbs.get.RightToLeft)
         assertResult(o)(value)
       }
@@ -100,7 +100,7 @@ with TableDrivenPropertyChecks {
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.get.bucket(i.asInstanceOf[JSerializable])
+        val result = hbs.get.dimensionValues(i.asInstanceOf[JSerializable])
         val value = result(hbs.get.LeftToRight)
         assertResult(o)(value)
       }

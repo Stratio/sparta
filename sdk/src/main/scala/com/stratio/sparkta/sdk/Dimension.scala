@@ -16,12 +16,12 @@
 
 package com.stratio.sparkta.sdk
 
-case class Dimension(name: String, bucketer: Bucketer) {
+case class Dimension(name: String, dimensionType: DimensionType) {
 
-  val bucketTypes = bucketer.bucketTypes
+  val precisions = dimensionType.precisions
 
-  bucketTypes match {
-    case x if x.isEmpty => throw new IllegalArgumentException("Invalid bucketer. There must at least one bucket type!")
+  precisions match {
+    case x if x.isEmpty => throw new IllegalArgumentException("Invalid precision. There must at least one precision!")
     case _ =>
   }
 }

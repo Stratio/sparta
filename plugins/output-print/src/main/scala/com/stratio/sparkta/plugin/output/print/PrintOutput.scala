@@ -51,9 +51,9 @@ class PrintOutput(keyName: String,
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val fixedBuckets: Array[String] = properties.getString("fixedBuckets", None) match {
+  override val fixedPrecisions: Array[String] = properties.getString("fixedBuckets", None) match {
     case None => Array()
-    case Some(fixBuckets) => fixBuckets.split(fieldsSeparator)
+    case Some(fixPrecisions) => fixPrecisions.split(fieldsSeparator)
   }
 
   val fixedAgg = properties.getString("fixedAggregation", None)

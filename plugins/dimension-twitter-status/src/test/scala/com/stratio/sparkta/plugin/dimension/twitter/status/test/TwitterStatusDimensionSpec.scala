@@ -29,10 +29,10 @@ class TwitterStatusDimensionSpec extends FlatSpec with MockFactory with Matchers
   /*"A status " should "have 13 dimensions" in {
     val status: Status = getMockStatus
     val toTest = new TwitterStatusDimension()
-    val expected = toTest.bucket(status)
+    val expected = toTest.dimensionValues(status)
 
     expected.size should be(13)
-    expected.get(toTest.bucketTypes(TwitterStatusDimension.TextName)) should be equals ("Some text")
+    expected.get(toTest.precisions(TwitterStatusDimension.TextName)) should be equals ("Some text")
   }
 
   def getMockStatus: Status = {

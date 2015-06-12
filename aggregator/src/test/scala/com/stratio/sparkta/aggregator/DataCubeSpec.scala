@@ -43,31 +43,31 @@ class DataCubeSpec extends TestSuiteBase {
 
     List(
      (List(DimensionValue(
-       Dimension(eventKey,PassthroughDimension()),BucketType(identity,Map()),value1)),Map(eventKey -> value1)),
+       Dimension(eventKey,PassthroughDimension()),PrecisionType(identity,Map()),value1)),Map(eventKey -> value1)),
      (List(DimensionValue(
-       Dimension(eventKey,PassthroughDimension()),BucketType(identity,Map()),value2)),Map(eventKey -> value2)),
+       Dimension(eventKey,PassthroughDimension()),PrecisionType(identity,Map()),value2)),Map(eventKey -> value2)),
      (List(DimensionValue(
-       Dimension(eventKey,PassthroughDimension()),BucketType(identity,Map()),value3)),Map(eventKey -> value3)))
+       Dimension(eventKey,PassthroughDimension()),PrecisionType(identity,Map()),value3)),Map(eventKey -> value3)))
    */
   test("DataCube extracts dimensions from events") {
 
     val checkpointInterval = 10000
     val checkpointTimeAvailability = 60000
     val checkpointGranularity = "minute"
-    val timeBucket = None
+    val timePrecision = None
 
     val timestamp = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity)
     
-    val bucketer = new PassthroughDimension
-    val dimension = Dimension("eventKey", bucketer)
+    val precisioner = new PassthroughDimension
+    val dimension = Dimension("eventKey", precisioner)
     val operator = new CountOperator(Map())
-    val bucketType = new BucketType("identity", TypeOp.String)
-    val rollup = new Rollup(Seq(DimensionBucket(dimension, bucketType)),
+    val precisionType = new Precision("identity", TypeOp.String)
+    val rollup = new Rollup(Seq(DimensionPrecision(dimension, precisionType)),
       Seq(operator),
       checkpointInterval,
       checkpointGranularity,
       checkpointTimeAvailability)
-    val dataCube = new DataCube(Seq(dimension), Seq(rollup), timeBucket, checkpointGranularity)
+    val dataCube = new DataCube(Seq(dimension), Seq(rollup), timePrecision, checkpointGranularity)
 
     testOperation(getEventInput, dataCube.extractDimensionsStream, getEventOutput(timestamp), PreserverOrder)
   }
@@ -90,17 +90,20 @@ class DataCubeSpec extends TestSuiteBase {
   def getEventOutput(timestamp : Long): Seq[Seq[(DimensionValuesTime, Map[String, JSerializable])]] =
     Seq(Seq(
       (DimensionValuesTime(Seq(DimensionValue(
-        DimensionBucket(Dimension("eventKey", new PassthroughDimension), BucketType("identity", TypeOp.String, Map())),
+        DimensionPrecision(Dimension("eventKey", new PassthroughDimension),
+          Precision("identity", TypeOp.String, Map())),
         "value1")), timestamp),
         Map("eventKey" -> "value1")
       ),
       (DimensionValuesTime(Seq(DimensionValue(
-        DimensionBucket(Dimension("eventKey", new PassthroughDimension), BucketType("identity", TypeOp.String, Map())),
+        DimensionPrecision(Dimension("eventKey", new PassthroughDimension),
+          Precision("identity", TypeOp.String, Map())),
         "value2")), timestamp),
         Map("eventKey" -> "value2")
       ),
       (DimensionValuesTime(Seq(DimensionValue(
-        DimensionBucket(Dimension("eventKey", new PassthroughDimension), BucketType("identity", TypeOp.String, Map())),
+        DimensionPrecision(Dimension("eventKey", new PassthroughDimension),
+          Precision("identity", TypeOp.String, Map())),
         "value3")), timestamp)
         , Map("eventKey" -> "value3")
       )

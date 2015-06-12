@@ -16,14 +16,14 @@
 
 package com.stratio.sparkta.sdk
 
-case class DimensionBucket(dimension: Dimension, bucketType: BucketType) extends Ordered[DimensionBucket] {
+case class DimensionPrecision(dimension: Dimension, precision: Precision) extends Ordered[DimensionPrecision] {
 
-  def getNameDimension: String = bucketType.id match {
-    case Bucketer.IdentityName => dimension.name
-    case _ => bucketType.id
+  def getNameDimension: String = precision.id match {
+    case DimensionType.IdentityName => dimension.name
+    case _ => precision.id
   }
 
-  def compare(dimensionBucket: DimensionBucket): Int =
-    (dimension.name + bucketType.id) compareTo (dimensionBucket.dimension.name + dimensionBucket.bucketType.id)
+  def compare(dimensionPrecision: DimensionPrecision): Int =
+    (dimension.name + precision.id) compareTo (dimensionPrecision.dimension.name + dimensionPrecision.precision.id)
 
 }

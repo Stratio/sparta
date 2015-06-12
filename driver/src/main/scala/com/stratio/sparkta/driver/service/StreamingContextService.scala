@@ -70,14 +70,14 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       val rollOpSchema = PolicyFactory.rollupsOperatorsSchemas(rollups, outputsSchemaConfig)
       if (rollOpSchema.size > 0) Some(sc.broadcast(rollOpSchema)) else None
     }
-    val dateBucket = if (apConfig.timeBucket.isEmpty) None else Some(apConfig.timeBucket)
-    val timeName = if (dateBucket.isDefined) dateBucket.get else apConfig.checkpointGranularity
+    val datePrecision = if (apConfig.timePrecision.isEmpty) None else Some(apConfig.timePrecision)
+    val timeName = if (datePrecision.isDefined) datePrecision.get else apConfig.checkpointGranularity
     val outputs = SparktaJob.outputs(apConfig, sc, bcOperatorsKeyOperation, bcRollupOperatorSchema, timeName)
     val input: DStream[Event] = inputs.head._2
     SparktaJob.saveRawData(apConfig, input)
     val parsed = SparktaJob.applyParsers(input, parsers)
 
-    val dataCube = new DataCube(dimensionsSeq, rollups, dateBucket, apConfig.checkpointGranularity).setUp(parsed)
+    val dataCube = new DataCube(dimensionsSeq, rollups, datePrecision, apConfig.checkpointGranularity).setUp(parsed)
     outputs.map(_._2.persist(dataCube))
     ssc
   }
@@ -96,11 +96,11 @@ object SparktaJob {
   val getClasspathMap: Map[String, String] = {
     val reflections = new Reflections()
     val inputs = reflections.getSubTypesOf(classOf[Input]).toList
-    val bucketers = reflections.getSubTypesOf(classOf[Bucketer]).toList
+    val dimensionTypes = reflections.getSubTypesOf(classOf[DimensionType]).toList
     val operators = reflections.getSubTypesOf(classOf[Operator]).toList
     val outputs = reflections.getSubTypesOf(classOf[Output]).toList
     val parsers = reflections.getSubTypesOf(classOf[Parser]).toList
-    val plugins = inputs ++ bucketers ++ operators ++ outputs ++ parsers
+    val plugins = inputs ++ dimensionTypes ++ operators ++ outputs ++ parsers
     plugins map (t => t.getSimpleName -> t.getCanonicalName) toMap
   }
 
@@ -169,9 +169,9 @@ object SparktaJob {
               operators: Seq[Operator],
               dimensionsMap: Map[String, Dimension]): Seq[Rollup] =
     apConfig.rollups.map(r => {
-      val components = r.dimensionAndBucketTypes.map(dab => {
+      val components = r.dimensionAndPrecision.map(dab => {
         dimensionsMap.get(dab.dimensionName) match {
-          case Some(x: Dimension) => getDimensionBucket(x, dab)
+          case Some(x: Dimension) => getDimensionPrecision(x, dab)
           case None => throw new DriverException("Dimension name " + dab.dimensionName + " not found.")
         }
       })
@@ -188,15 +188,15 @@ object SparktaJob {
         apConfig.checkpointTimeAvailability)
     })
 
-  def getDimensionBucket(dimension: Dimension, dimBucketDto: DimensionAndBucketTypeDto): DimensionBucket = {
-    if (dimension.bucketTypes.contains(dimBucketDto.bucketType)) {
-      val bucketType = dimension.bucketTypes(dimBucketDto.bucketType)
-      DimensionBucket(dimension, new BucketType(bucketType.id,
-        bucketType.typeOp,
-        bucketType.properties ++ dimBucketDto.configuration.getOrElse(Map())))
+  def getDimensionPrecision(dimension: Dimension, dimPrecisionDto: DimensionAndPrecisionDto): DimensionPrecision = {
+    if (dimension.precisions.contains(dimPrecisionDto.precision)) {
+      val precision = dimension.precisions(dimPrecisionDto.precision)
+      DimensionPrecision(dimension, new Precision(precision.id,
+        precision.typeOp,
+        precision.properties ++ dimPrecisionDto.configuration.getOrElse(Map())))
     } else {
       throw new DriverException(
-        "Bucket type " + dimBucketDto.bucketType + " not supported in dimension " + dimBucketDto.dimensionName)
+        "Precision type " + dimPrecisionDto.precision + " not supported in dimension " + dimPrecisionDto.dimensionName)
     }
   }
 
@@ -227,11 +227,11 @@ object SparktaJob {
 
   def instantiateDimensions(apConfig: AggregationPoliciesDto): Seq[(String, Dimension)] =
     apConfig.dimensions.map(d => (d.name,
-      new Dimension(d.name, tryToInstantiate[Bucketer](d.dimensionType, (c) => {
+      new Dimension(d.name, tryToInstantiate[DimensionType](d.dimensionType, (c) => {
         d.configuration match {
           case Some(conf) => c.getDeclaredConstructor(classOf[Map[String, Serializable]])
-            .newInstance(conf).asInstanceOf[Bucketer]
-          case None => c.getDeclaredConstructor().newInstance().asInstanceOf[Bucketer]
+            .newInstance(conf).asInstanceOf[DimensionType]
+          case None => c.getDeclaredConstructor().newInstance().asInstanceOf[DimensionType]
         }
       }))))
 

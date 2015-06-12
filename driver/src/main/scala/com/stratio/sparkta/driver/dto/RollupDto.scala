@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.driver.dto
-/**
- * Created by ajnavarro on 13/10/14.
- */
-case class RollupDto(dimensionAndBucketTypes: Seq[DimensionAndBucketTypeDto], operators: Seq[String])
-case class DimensionAndBucketTypeDto(dimensionName: String,
-                                     bucketType: String,
+
+case class RollupDto(dimensionAndPrecision: Seq[DimensionAndPrecisionDto], operators: Seq[String])
+
+case class DimensionAndPrecisionDto(dimensionName: String,
+                                     precision: String,
                                      configuration: Option[Map[String, String]])

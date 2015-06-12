@@ -28,7 +28,7 @@ import org.scalatest.junit.JUnitRunner
 
 /**
  * @author arincon
- * This test sucks and I know it...
+ *         This test sucks and I know it...
  */
 @RunWith(classOf[JUnitRunner])
 class RawDataStorageIT extends TestSuiteBase {
@@ -41,7 +41,7 @@ class RawDataStorageIT extends TestSuiteBase {
   test("Write and read events in/from parquet") {
 
     configureContext
-    val rds = new RawDataStorageService(sparktaTestSQLContext, path,"day")
+    val rds = new RawDataStorageService(sparktaTestSQLContext, path, "day")
     //This is not a test, This is a way to feed parquet
     intercept[SparkException] {
       //ArrayStoreException:BoxedUnit
@@ -57,10 +57,11 @@ class RawDataStorageIT extends TestSuiteBase {
     Thread.sleep(SleepTime)
 
     try {
-      val pqFile = sparktaTestSQLContext.parquetFile(path+rds.timeSuffix)
+      val pqFile = sparktaTestSQLContext.parquetFile(path + rds.timeSuffix)
       assert(pqFile.count() == ExpectedResult)
-    } finally { //We can't use the before method
-      val file = new File(path+rds.timeSuffix)
+    } finally {
+      //We can't use the before method
+      val file = new File(path + rds.timeSuffix)
       deleteParquetFiles(file)
     }
   }
@@ -83,7 +84,7 @@ class RawDataStorageIT extends TestSuiteBase {
     new SQLContext(sc)
   }
 
- private def rawDataInput: Seq[Seq[Event]] =
+  private def rawDataInput: Seq[Seq[Event]] =
     Seq(Seq(
       Event(Map("eventKey" -> "value1")),
       Event(Map("eventKey" -> "value2")),

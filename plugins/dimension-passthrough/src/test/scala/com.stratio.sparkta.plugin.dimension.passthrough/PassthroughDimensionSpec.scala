@@ -22,7 +22,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 
-import com.stratio.sparkta.sdk.{Bucketer, TypeOp}
+import com.stratio.sparkta.sdk.{DimensionType, TypeOp}
 
 @RunWith(classOf[JUnitRunner])
 class PassthroughDimensionSpec extends WordSpecLike with Matchers {
@@ -30,16 +30,16 @@ class PassthroughDimensionSpec extends WordSpecLike with Matchers {
   val passthroughDimension: PassthroughDimension = new PassthroughDimension(Map("typeOp" -> "int"))
 
   "A PassthroughDimension" should {
-    "In default implementation, get one buckets for a specific time" in {
-      val buckets = passthroughDimension.bucket("foo".asInstanceOf[JSerializable]).map(_._1.id)
+    "In default implementation, get one precisions for a specific time" in {
+      val precisions = passthroughDimension.dimensionValues("foo".asInstanceOf[JSerializable]).map(_._1.id)
 
-      buckets.size should be(1)
+      precisions.size should be(1)
 
-      buckets should contain(Bucketer.IdentityName)
+      precisions should contain(DimensionType.IdentityName)
     }
 
     "The precision must be int" in {
-      passthroughDimension.bucketTypes(Bucketer.IdentityName).typeOp should be(TypeOp.Int)
+      passthroughDimension.precisions(DimensionType.IdentityName).typeOp should be(TypeOp.Int)
     }
   }
 }

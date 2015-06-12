@@ -33,7 +33,7 @@ case class AggregationPoliciesDto(name: String = "default",
                                   rawDataParquetPath: String = "default",
                                   rawDataGranularity: String = "day",
                                   checkpointDir: String = "checkpoint",
-                                  timeBucket: String = "",
+                                  timePrecision: String = "",
                                   checkpointGranularity: String = "minute",
                                   checkpointInterval: Int = AggregationPoliciesDto.CheckPointInterval,
                                   checkpointTimeAvailability: Int = AggregationPoliciesDto.checkpointTimeAvailability,
@@ -99,7 +99,7 @@ object AggregationPoliciesValidator {
 
     val rollupNames = aggregationPoliciesDto.rollups
       .flatMap(x => Option(x))
-      .flatMap(x => Option(x.dimensionAndBucketTypes))
+      .flatMap(x => Option(x.dimensionAndPrecision))
       .flatten
       .map(_.dimensionName)
 

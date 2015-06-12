@@ -20,11 +20,12 @@ import org.apache.spark.streaming.dstream.DStream
 
 trait Multiplexer {
 
-  def getStreamsFromOptions(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])], multiplexer: Boolean,
-                            fixedBuckets: Array[String]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
+  def getStreamsFromOptions(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])],
+                            multiplexer: Boolean, fixedPrecisions: Array[String]):
+  DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     if (multiplexer) {
-      if (fixedBuckets.isEmpty) Multiplexer.multiplexStream(stream)
-      else Multiplexer.multiplexStream[String](stream, fixedBuckets)
+      if (fixedPrecisions.isEmpty) Multiplexer.multiplexStream(stream)
+      else Multiplexer.multiplexStream[String](stream, fixedPrecisions)
     } else stream
   }
 }
@@ -53,15 +54,15 @@ object Multiplexer {
     } yield (DimensionValuesTime(comb.sorted, dimensionValuesT.time), aggregations)
   }
 
-  def multiplexStream[T](stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])], fixedBuckets: Array[T])
+  def multiplexStream[T](stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])], fixedPrecisions: Array[T])
   : DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     for {
       (dimensionValuesT, aggregations) <- stream
-      fixedDims = fixedBuckets.flatMap(bucket => {
-        bucket match {
-          case value: DimensionValue => Some(bucket.asInstanceOf[DimensionValue])
+      fixedDims = fixedPrecisions.flatMap(precision => {
+        precision match {
+          case value: DimensionValue => Some(precision.asInstanceOf[DimensionValue])
           case _ => dimensionValuesT.dimensionValues.find(
-            dimValue => dimValue.getNameDimension == bucket.asInstanceOf[String])
+            dimValue => dimValue.getNameDimension == precision.asInstanceOf[String])
         }
       })
       comb <- combine(

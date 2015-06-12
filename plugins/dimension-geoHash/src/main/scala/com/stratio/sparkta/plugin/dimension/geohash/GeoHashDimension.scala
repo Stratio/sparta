@@ -43,7 +43,8 @@ import com.stratio.sparkta.sdk._
  * 12 - 3.7cm x 1.9cm
  *
  */
-case class GeoHashDimension(props: Map[String, JSerializable]) extends Bucketer with JSerializable with SLF4JLogging {
+case class GeoHashDimension(props: Map[String, JSerializable])
+  extends DimensionType with JSerializable with SLF4JLogging {
 
   def this() {
     this(Map())
@@ -55,7 +56,7 @@ case class GeoHashDimension(props: Map[String, JSerializable]) extends Bucketer 
 
   override val defaultTypeOperation = TypeOp.ArrayDouble
 
-  override val bucketTypes: Map[String, BucketType] =
+  override val precisions: Map[String, Precision] =
     Map(
       Precision1Name -> getPrecision(Precision1Name, getTypeOperation(Precision1Name)),
       Precision2Name -> getPrecision(Precision2Name, getTypeOperation(Precision2Name)),
@@ -70,22 +71,22 @@ case class GeoHashDimension(props: Map[String, JSerializable]) extends Bucketer 
       Precision11Name -> getPrecision(Precision11Name, getTypeOperation(Precision11Name)),
       Precision12Name -> getPrecision(Precision12Name, getTypeOperation(Precision12Name)))
 
-  override def bucket(value: JSerializable): Map[BucketType, JSerializable] = {
+  override def dimensionValues(value: JSerializable): Map[Precision, JSerializable] = {
     //TODO temporal data treatment
     try {
       if (value.asInstanceOf[Option[_]] != None) {
-        bucketTypes.map(bucketType => {
+        precisions.map(precision => {
           //TODO temporal data treatment
           val latLongString = value.asInstanceOf[Option[_]].get.asInstanceOf[String].split("__")
           if (latLongString.size != 0) {
             val latDouble = latLongString(0).toDouble
             val longDouble = latLongString(1).toDouble
-            bucketType._2 -> GeoHashDimension.bucket(latDouble, longDouble, bucketType._2)
-          } else (bucketType._2 -> "")
+            precision._2 -> GeoHashDimension.getPrecision(latDouble, longDouble, precision._2)
+          } else (precision._2 -> "")
         })
       } else {
         val defaultPrecision = getPrecision(Precision3Name, getTypeOperation(Precision3Name))
-        Map(defaultPrecision -> GeoHashDimension.bucket(0, 0, defaultPrecision))
+        Map(defaultPrecision -> GeoHashDimension.getPrecision(0, 0, defaultPrecision))
       }
     }
     catch {
@@ -118,20 +119,20 @@ object GeoHashDimension {
   final val Precision12Name = "precision12"
 
   //scalastyle:off
-  def bucket(lat: Double, long: Double, bucketType: BucketType): JSerializable = {
-    TypeOp.transformValueByTypeOp(bucketType.typeOp, bucketType match {
-      case p if p.id == Precision1Name => decodeHash(GeoHash.encodeHash(lat, long, 1))
-      case p if p.id == Precision2Name => decodeHash(GeoHash.encodeHash(lat, long, 2))
-      case p if p.id == Precision3Name => decodeHash(GeoHash.encodeHash(lat, long, 3))
-      case p if p.id == Precision4Name => decodeHash(GeoHash.encodeHash(lat, long, 4))
-      case p if p.id == Precision5Name => decodeHash(GeoHash.encodeHash(lat, long, 5))
-      case p if p.id == Precision6Name => decodeHash(GeoHash.encodeHash(lat, long, 6))
-      case p if p.id == Precision7Name => decodeHash(GeoHash.encodeHash(lat, long, 7))
-      case p if p.id == Precision8Name => decodeHash(GeoHash.encodeHash(lat, long, 8))
-      case p if p.id == Precision9Name => decodeHash(GeoHash.encodeHash(lat, long, 9))
-      case p if p.id == Precision10Name => decodeHash(GeoHash.encodeHash(lat, long, 10))
-      case p if p.id == Precision11Name => decodeHash(GeoHash.encodeHash(lat, long, 11))
-      case p if p.id == Precision12Name => decodeHash(GeoHash.encodeHash(lat, long, 12))
+  def getPrecision(lat: Double, long: Double, precision: Precision): JSerializable = {
+    TypeOp.transformValueByTypeOp(precision.typeOp, precision.id match {
+      case p if p == Precision1Name => decodeHash(GeoHash.encodeHash(lat, long, 1))
+      case p if p == Precision2Name => decodeHash(GeoHash.encodeHash(lat, long, 2))
+      case p if p == Precision3Name => decodeHash(GeoHash.encodeHash(lat, long, 3))
+      case p if p == Precision4Name => decodeHash(GeoHash.encodeHash(lat, long, 4))
+      case p if p == Precision5Name => decodeHash(GeoHash.encodeHash(lat, long, 5))
+      case p if p == Precision6Name => decodeHash(GeoHash.encodeHash(lat, long, 6))
+      case p if p == Precision7Name => decodeHash(GeoHash.encodeHash(lat, long, 7))
+      case p if p == Precision8Name => decodeHash(GeoHash.encodeHash(lat, long, 8))
+      case p if p == Precision9Name => decodeHash(GeoHash.encodeHash(lat, long, 9))
+      case p if p == Precision10Name => decodeHash(GeoHash.encodeHash(lat, long, 10))
+      case p if p == Precision11Name => decodeHash(GeoHash.encodeHash(lat, long, 11))
+      case p if p == Precision12Name => decodeHash(GeoHash.encodeHash(lat, long, 12))
     })
   }
 

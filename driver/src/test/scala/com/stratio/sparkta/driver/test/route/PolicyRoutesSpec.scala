@@ -109,7 +109,7 @@ with Matchers {
       val PolicyName = "p-1"
       val DimensionToRollup = "dimension2"
       val dimensionDto = new DimensionDto("dimensionType", "dimension1", None)
-      val rollupDto = new RollupDto(Seq(new DimensionAndBucketTypeDto(DimensionToRollup, "dimensionType", None)), Seq())
+      val rollupDto = new RollupDto(Seq(new DimensionAndPrecisionDto(DimensionToRollup, "dimensionType", None)), Seq())
       val apd =
         new AggregationPoliciesDto(PolicyName, "true", "example","day",
           checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable, 0,

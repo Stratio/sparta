@@ -50,9 +50,9 @@ class CassandraOutput(keyName: String,
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val fixedBuckets: Array[String] = properties.getString("fixedBuckets", None) match {
+  override val fixedPrecisions: Array[String] = properties.getString("fixedPrecisions", None) match {
     case None => Array()
-    case Some(fixBuckets) => fixBuckets.split(fieldsSeparator)
+    case Some(fixPrecisions) => fixPrecisions.split(fieldsSeparator)
   }
 
   override val cluster = properties.getString("cluster", "Test Cluster")
@@ -65,7 +65,7 @@ class CassandraOutput(keyName: String,
 
   override val compactStorage = properties.getString("compactStorage", None)
 
-  override val clusteringBuckets = properties.getString("clusteringBuckets", None).map(_.split(fieldsSeparator))
+  override val clusteringPrecisions = properties.getString("clusteringPrecisions", None).map(_.split(fieldsSeparator))
 
   override val indexFields = properties.getString("indexFields", None).map(_.split(fieldsSeparator))
 

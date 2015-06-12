@@ -23,7 +23,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.plugin.dimension.tag.TagDimension._
 import com.stratio.sparkta.sdk._
 
-case class TagDimension(props: Map[String, JSerializable]) extends Bucketer with JSerializable with SLF4JLogging {
+case class TagDimension(props: Map[String, JSerializable]) extends DimensionType with JSerializable with SLF4JLogging {
 
   def this() {
     this(Map())
@@ -35,13 +35,13 @@ case class TagDimension(props: Map[String, JSerializable]) extends Bucketer with
 
   override val properties: Map[String, JSerializable] = props
 
-  override val bucketTypes: Map[String, BucketType] = Map(
+  override val precisions: Map[String, Precision] = Map(
     FirstTagName -> getPrecision(FirstTagName, getTypeOperation(FirstTagName)),
     LastTagName -> getPrecision(LastTagName, getTypeOperation(LastTagName)),
     AllTagsName -> getPrecision(AllTagsName, getTypeOperation(AllTagsName)))
 
-  override def bucket(value: JSerializable): Map[BucketType, JSerializable] =
-    bucketTypes.map(bt => bt._2 -> TagDimension.bucket(value.asInstanceOf[Iterable[JSerializable]], bt._2))
+  override def dimensionValues(value: JSerializable): Map[Precision, JSerializable] =
+    precisions.map(bt => bt._2 -> TagDimension.getPrecision(value.asInstanceOf[Iterable[JSerializable]], bt._2))
 }
 
 object TagDimension {
@@ -50,8 +50,8 @@ object TagDimension {
   final val LastTagName = "lastTag"
   final val AllTagsName = "allTags"
 
-  def bucket(value: Iterable[JSerializable], bucketType: BucketType): JSerializable =
-    TypeOp.transformValueByTypeOp(bucketType.typeOp, bucketType.id match {
+  def getPrecision(value: Iterable[JSerializable], precision: Precision): JSerializable =
+    TypeOp.transformValueByTypeOp(precision.typeOp, precision.id match {
       case name if name == FirstTagName => value.head
       case name if name == LastTagName => value.last
       case name if name == AllTagsName => value.toSeq.asInstanceOf[JSerializable]

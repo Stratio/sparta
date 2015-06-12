@@ -21,31 +21,31 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
-class BucketerSpec extends WordSpec with Matchers {
+class DimensionTypeSpec extends WordSpec with Matchers {
 
-  "Bucketer object" should {
+  "DimensionType object" should {
 
     "getIdentity must be " in {
-      val identity = Bucketer.getIdentity(None, TypeOp.Int)
+      val identity = DimensionType.getIdentity(None, TypeOp.Int)
       identity.typeOp should be(TypeOp.Int)
-      identity.id should be(Bucketer.IdentityName)
-      val identity2 = Bucketer.getIdentity(Some(TypeOp.String), TypeOp.Int)
+      identity.id should be(DimensionType.IdentityName)
+      val identity2 = DimensionType.getIdentity(Some(TypeOp.String), TypeOp.Int)
       identity2.typeOp should be(TypeOp.String)
     }
 
     "getIdentityField must be " in {
-      val identity = Bucketer.getIdentityField(None, TypeOp.Int)
+      val identity = DimensionType.getIdentityField(None, TypeOp.Int)
       identity.typeOp should be(TypeOp.Int)
-      identity.id should be(Bucketer.IdentityFieldName)
-      val identity2 = Bucketer.getIdentityField(Some(TypeOp.String), TypeOp.Int)
+      identity.id should be(DimensionType.IdentityFieldName)
+      val identity2 = DimensionType.getIdentityField(Some(TypeOp.String), TypeOp.Int)
       identity2.typeOp should be(TypeOp.String)
     }
 
     "getTimestamp must be " in {
-      val identity = Bucketer.getTimestamp(None, TypeOp.Int)
+      val identity = DimensionType.getTimestamp(None, TypeOp.Int)
       identity.typeOp should be(TypeOp.Int)
-      identity.id should be(Bucketer.TimestampName)
-      val identity2 = Bucketer.getTimestamp(Some(TypeOp.String), TypeOp.Int)
+      identity.id should be(DimensionType.TimestampName)
+      val identity2 = DimensionType.getTimestamp(Some(TypeOp.String), TypeOp.Int)
       identity2.typeOp should be(TypeOp.String)
     }
   }

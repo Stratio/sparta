@@ -25,7 +25,8 @@ import org.joda.time.DateTime
 import com.stratio.sparkta.plugin.dimension.datetime.DateTimeDimension._
 import com.stratio.sparkta.sdk._
 
-case class DateTimeDimension(props: Map[String, JSerializable]) extends Bucketer with JSerializable with SLF4JLogging {
+case class DateTimeDimension(props: Map[String, JSerializable])
+  extends DimensionType with JSerializable with SLF4JLogging {
 
   def this() {
     this(Map())
@@ -39,7 +40,7 @@ case class DateTimeDimension(props: Map[String, JSerializable]) extends Bucketer
     if (!props.contains(GranularityPropertyName)) Map(GranularityPropertyName -> DefaultGranularity) else Map()
   }
 
-  override val bucketTypes: Map[String, BucketType] = Map(
+  override val precisions: Map[String, Precision] = Map(
     timestamp.id -> timestamp,
     SecondName -> getPrecision(SecondName, getTypeOperation(SecondName)),
     MinuteName -> getPrecision(MinuteName, getTypeOperation(MinuteName)),
@@ -49,10 +50,10 @@ case class DateTimeDimension(props: Map[String, JSerializable]) extends Bucketer
     YearName -> getPrecision(YearName, getTypeOperation(YearName)))
 
   @throws(classOf[ClassCastException])
-  override def bucket(value: JSerializable): Map[BucketType, JSerializable] =
+  override def dimensionValues(value: JSerializable): Map[Precision, JSerializable] =
     try {
-      bucketTypes.map { case (name, bucketType) =>
-        bucketType -> DateTimeDimension.bucket(value.asInstanceOf[Date], bucketType, properties)
+      precisions.map { case (name, precision) =>
+        precision -> DateTimeDimension.getPrecision(value.asInstanceOf[Date], precision, properties)
       }
     }
     catch {
@@ -73,15 +74,15 @@ object DateTimeDimension {
   final val DayName = "day"
   final val MonthName = "month"
   final val YearName = "year"
-  final val timestamp = Bucketer.getTimestamp(Some(TypeOp.Timestamp), TypeOp.Timestamp)
+  final val timestamp = DimensionType.getTimestamp(Some(TypeOp.Timestamp), TypeOp.Timestamp)
 
-  def bucket(value: Date, bucketType: BucketType, properties: Map[String, JSerializable]): JSerializable = {
-    TypeOp.transformValueByTypeOp(bucketType.typeOp,
-      DateOperations.dateFromGranularity(new DateTime(value), bucketType match {
+  def getPrecision(value: Date, precision: Precision, properties: Map[String, JSerializable]): JSerializable = {
+    TypeOp.transformValueByTypeOp(precision.typeOp,
+      DateOperations.dateFromGranularity(new DateTime(value), precision match {
         case t if t == timestamp => if (properties.contains(GranularityPropertyName))
           properties.get(GranularityPropertyName).get.toString
         else DefaultGranularity
-        case _ => bucketType.id
+        case _ => precision.id
       })).asInstanceOf[JSerializable]
   }
 }

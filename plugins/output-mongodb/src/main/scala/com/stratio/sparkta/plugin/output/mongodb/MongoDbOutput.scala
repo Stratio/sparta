@@ -68,9 +68,9 @@ class MongoDbOutput(keyName: String,
 
   override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(fieldsSeparator))
 
-  override val fixedBuckets: Array[String] = properties.getString("fixedBuckets", None) match {
+  override val fixedPrecisions: Array[String] = properties.getString("fixedPrecisions", None) match {
     case None => Array()
-    case Some(fixBuckets) => fixBuckets.split(fieldsSeparator)
+    case Some(fixPrecisions) => fixPrecisions.split(fieldsSeparator)
   }
 
   override val language = properties.getString("language", None)
@@ -103,7 +103,7 @@ class MongoDbOutput(keyName: String,
         (getFind(
           idFieldName,
           eventTimeObject,
-          AggregateOperations.filterDimensionValuesByBucket(rollupKey.dimensionValues, if (timeName.isEmpty) None
+          AggregateOperations.filterDimensionValuesByPrecision(rollupKey.dimensionValues, if (timeName.isEmpty) None
           else Some(timeName))),
           getUpdate(mapOperations, identitiesField, identities, idFields))
       }
