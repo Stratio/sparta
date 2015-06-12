@@ -54,26 +54,26 @@
   ],
   "rollups": [
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "status",
-          "bucketType": "hastags"
+          "precision": "hastags"
         },
         {
           "dimensionName": "status",
-          "bucketType": "firsthastag"
+          "precision": "firsthastag"
         },
         {
           "dimensionName": "status",
-          "bucketType": "retweets"
+          "precision": "retweets"
         },
         {
           "dimensionName": "geolocation",
-          "bucketType": "precision5"
+          "precision": "precision3"
         },
         {
           "dimensionName": "timestamp",
-          "bucketType": "minute"
+          "precision": "minute"
         }
       ],
       "operators": ["count-operator","sum-operator","max-operator","min-operator","range-operator","avg-operator","median-operator",

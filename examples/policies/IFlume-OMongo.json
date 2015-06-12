@@ -92,119 +92,119 @@
   ],
   "rollups": [
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "extra1",
-          "bucketType": "identity"
+          "precision": "identity"
         },
         {
           "dimensionName": "timestamp",
-          "bucketType": "minute"
+          "precision": "minute"
         }
       ],
       "operators": ["count-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "platform",
-          "bucketType": "identity"
+          "precision": "identity"
         },
         {
           "dimensionName": "device",
-          "bucketType": "identity"
+          "precision": "identity"
         },
         {
           "dimensionName": "timestamp",
-          "bucketType": "minute"
+          "precision": "minute"
         }
       ],
       "operators": ["count-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "appName",
-          "bucketType": "identity"
+          "precision": "identity"
         }
       ],
       "operators": ["count-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "session",
-          "bucketType": "identity"
+          "precision": "identity"
         },
         {
           "dimensionName": "timestamp",
-          "bucketType": "minute"
+          "precision": "minute"
         }
       ],
       "operators": ["count-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "appLang",
-          "bucketType": "identity"
+          "precision": "identity"
         },
         {
           "dimensionName": "timestamp",
-          "bucketType": "minute"
+          "precision": "minute"
         }
       ],
       "operators": ["count-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "geo",
-          "bucketType": "precision6"
+          "precision": "precision6"
         }
       ],
       "operators": ["count-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "appCountry",
-          "bucketType": "identity"
+          "precision": "identity"
         },
         {
           "dimensionName": "timestamp",
-          "bucketType": "minute"
+          "precision": "minute"
         }
       ],
       "operators": ["count-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "appPlatform",
-          "bucketType": "identity"
+          "precision": "identity"
         },
         {
           "dimensionName": "timestamp",
-          "bucketType": "minute"
+          "precision": "minute"
         }
       ],
       "operators": ["count-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "appPlatform",
-          "bucketType": "identity"
+          "precision": "identity"
         }
       ],
       "operators": ["count-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "appCountry",
-          "bucketType": "identity"
+          "precision": "identity"
         }
       ],
       "operators": ["count-operator"]

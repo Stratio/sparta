@@ -44,10 +44,10 @@
   ],
   "rollups": [
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "appName",
-          "bucketType": "identity"
+          "precision": "identity"
         }
       ],
       "operators": ["count-operator"]

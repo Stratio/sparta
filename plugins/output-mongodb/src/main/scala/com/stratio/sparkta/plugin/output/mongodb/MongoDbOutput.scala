@@ -43,7 +43,8 @@ class MongoDbOutput(keyName: String,
   RegisterJodaTimeConversionHelpers()
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Max, WriteOp.Min,
-    WriteOp.AccAvg, WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText, WriteOp.AccSet)
+    WriteOp.Range, WriteOp.AccAvg, WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText,
+    WriteOp.AccSet)
 
   override val mongoClientUri = properties.getString("clientUri", "mongodb://localhost:27017")
 

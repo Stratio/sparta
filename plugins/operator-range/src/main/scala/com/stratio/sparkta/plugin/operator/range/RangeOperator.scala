@@ -33,7 +33,7 @@ class RangeOperator(properties: Map[String, JSerializable]) extends Operator(pro
     if (inputField.isDefined) inputField.get else "undefined"
   }
 
-  override val writeOperation = WriteOp.Set
+  override val writeOperation = WriteOp.Range
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
     if ((inputField.isDefined) && (inputFields.contains(inputField.get)))
