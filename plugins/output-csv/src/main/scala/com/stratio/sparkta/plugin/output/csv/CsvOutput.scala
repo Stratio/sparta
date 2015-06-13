@@ -14,43 +14,40 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.plugin.output.elasticsearch
+package com.stratio.sparkta.plugin.output.csv
 
 import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
-import org.apache.spark.SparkContext
+import com.databricks.spark.csv._
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql._
-import org.apache.spark.streaming.dstream.DStream
+import org.apache.spark.{Logging, SparkContext}
 
-import org.elasticsearch.spark.sql._
-
-import com.stratio.sparkta.plugin.output.elasticsearch.dao.ElasticSearchDAO
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 
-class ElasticSearchOutput(keyName: String,
-                          properties: Map[String, JSerializable],
-                          @transient sparkContext: SparkContext,
-                          operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                          bcSchema: Option[Broadcast[Seq[TableSchema]]],
-                          timeName: String)
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema, timeName) with ElasticSearchDAO {
+/**
+ * This output prints all AggregateOperations or DataFrames information on screen. Very useful to debug.
+ * @param keyName
+ * @param properties
+ * @param sparkContext
+ * @param operationTypes
+ * @param bcSchema
+ */
+class CsvOutput(keyName: String,
+                properties: Map[String, JSerializable],
+                @transient sparkContext: SparkContext,
+                operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
+                bcSchema: Option[Broadcast[Seq[TableSchema]]],
+                timeName: String)
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema, timeName) with Logging {
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Max, WriteOp.Min,
     WriteOp.Range, WriteOp.AccAvg, WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText,
     WriteOp.AccSet)
-
-  override val dateType = getDateTimeType(properties.getString("dateType", None))
-
-  override val nodes = properties.getString("nodes", DEFAULT_NODE)
-
-  override val defaultPort = properties.getString("defaultPort", DEFAULT_PORT)
-
-  override val defaultAnalyzerType = properties.getString("defaultAnalyzerType", None)
 
   override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
@@ -61,30 +58,29 @@ class ElasticSearchOutput(keyName: String,
     case Some(fixPrecisions) => fixPrecisions.split(fieldsSeparator)
   }
 
-  override val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
-
   val fixedAgg = properties.getString("fixedAggregation", None)
 
+  val path = properties.getString("path", None)
+
+  val header = Try(properties.getString("header").toBoolean).getOrElse(false)
+
+  val delimiter = properties.getString("delimiter", ",")
+
+  val datePattern = properties.getString("datePattern", None)
+
   override val fixedAggregation: Map[String, Option[Any]] =
-    if(fixedAgg.isDefined){
+    if (fixedAgg.isDefined) {
       val fixedAggSplited = fixedAgg.get.split(Output.FixedAggregationSeparator)
       Map(fixedAggSplited.head -> Some(fixedAggSplited.last))
     } else Map()
 
-  override val idField = properties.getString("idField", None)
-
-  override val defaultIndexMapping = properties.getString("indexMapping",
-    Some(DEFAULT_INDEX_TYPE))
-
-  override val indexMapping = getIndexType(defaultIndexMapping)
-
-  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
-    if (indexMapping.isDefined) persistDataFrame(stream)
-  }
+  override val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
   override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
-    val indexNameType = (tableName + "/" + indexMapping.get).toLowerCase
-    dataFrame.saveToEs(indexNameType, getSparkConfig(timeName, idField.isDefined || isAutoCalculateId))
-
+    require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
+    val pathParsed = if(path.get.endsWith("/")) path.get else path.get + "/"
+    val subPath = DateOperations.subPath(timeName, datePattern)
+    dataFrame.saveAsCsvFile(s"$pathParsed$tableName$subPath.csv",
+      Map("header" -> header.toString, "delimiter" -> delimiter))
   }
 }

@@ -25,14 +25,14 @@
     ],
     "rollups": [
         {
-            "dimensionAndBucketTypes": [
+            "dimensionAndPrecision": [
                 {
                     "dimensionName": "word",
-                    "bucketType": "identity"
+                    "precision": "identity"
                 },
 		{
                     "dimensionName": "wordCount",
-                    "bucketType": "identity"
+                    "precision": "identity"
                 }
 
             ]

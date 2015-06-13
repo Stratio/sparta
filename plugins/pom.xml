@@ -39,6 +39,7 @@
         <module>output-cassandra</module>
         <module>output-redis</module>
         <module>output-print</module>
+        <module>output-csv</module>
         <module>output-parquet</module>
         <module>operator-count</module>
         <module>operator-sum</module>

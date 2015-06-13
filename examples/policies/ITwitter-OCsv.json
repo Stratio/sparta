@@ -1,5 +1,5 @@
 {
-  "name": "policy-Twitter-Print",
+  "name": "policy-Twitter-Csv",
   "duration": 10000,
   "saveRawData": "false",
   "rawDataParquetPath": "myTestParquetPath",
@@ -8,15 +8,18 @@
   "checkpointGranularity": "minute",
   "checkpointInterval": 30000,
   "checkpointTimeAvailability": 60000,
-
-  "fragments": [
+  "inputs": [
     {
-      "fragmentType": "input",
-      "name": "twitter",
-      "element": null
+      "name": "in-twitter",
+      "elementType": "TwitterInput",
+      "configuration": {
+        "consumerKey": "*****",
+        "consumerSecret": "*****",
+        "accessToken": "*****",
+        "accessTokenSecret": "*****"
+      }
     }
   ],
-
   "dimensions": [
     {
       "dimensionType": "TwitterStatusDimension",
@@ -43,7 +46,10 @@
     },
     {
       "dimensionType": "GeoHashDimension",
-      "name": "geolocation"
+      "name": "geolocation",
+      "configuration": {
+        "typeOp": "arraydouble"
+      }
     }
   ],
   "rollups": [
@@ -70,18 +76,20 @@
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator","sum-operator","max-operator","min-operator","range-operator","avg-operator",
-        "median-operator",
-        "variance-operator","stddev-operator","fullText-operator","lastValue-operator","firstValue-operator","accumulator-operator"]
+      "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator","median-operator",
+        "variance-operator","stddev-operator","fullText-operator","lastValue-operator","accumulator-operator"]
     }
   ],
   "outputs": [
     {
-      "name": "out-print",
-      "elementType": "PrintOutput",
+      "name": "out-csv",
+      "elementType": "CsvOutput",
       "configuration": {
-        "multiplexer": "true",
-        "isAutoCalculateId": "true"
+        "multiplexer": "false",
+        "isAutoCalculateId": "false",
+        "path": "/home/jcgarcia/yeah/",
+        "header": "false",
+        "delimiter": ","
       }
     }
   ],
@@ -115,13 +123,6 @@
     {
       "name": "min-operator",
       "elementType": "MinOperator",
-      "configuration": {
-        "inputField": "wordsN"
-      }
-    },
-    {
-      "name": "range-operator",
-      "elementType": "RangeOperator",
       "configuration": {
         "inputField": "wordsN"
       }
@@ -164,13 +165,6 @@
     {
       "name": "lastValue-operator",
       "elementType": "LastValueOperator",
-      "configuration": {
-        "inputField": "retweets"
-      }
-    },
-    {
-      "name": "firstValue-operator",
-      "elementType": "FirstValueOperator",
       "configuration": {
         "inputField": "retweets"
       }

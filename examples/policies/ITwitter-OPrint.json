@@ -54,35 +54,30 @@
   ],
   "rollups": [
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "status",
-          "bucketType": "hastags"
+          "precision": "hastags"
         },
         {
           "dimensionName": "status",
-          "bucketType": "firsthastag"
+          "precision": "firsthastag"
         },
         {
           "dimensionName": "status",
-          "bucketType": "urls"
-        },
-        {
-          "dimensionName": "status",
-          "bucketType": "retweets"
+          "precision": "retweets"
         },
         {
           "dimensionName": "geolocation",
-          "bucketType": "precision3"
+          "precision": "precision3"
         },
         {
           "dimensionName": "timestamp",
-          "bucketType": "minute"
+          "precision": "minute"
         }
       ],
-      "operators": ["count-operator","sum-operator","max-operator","min-operator","range-operator","avg-operator",
-        "median-operator",
-        "variance-operator","stddev-operator","fullText-operator","lastValue-operator","firstValue-operator","accumulator-operator"]
+      "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator","median-operator",
+        "variance-operator","stddev-operator","fullText-operator","lastValue-operator","accumulator-operator"]
     }
   ],
   "outputs": [
@@ -119,21 +114,12 @@
       "name": "max-operator",
       "elementType": "MaxOperator",
       "configuration": {
-        "inputField": "wordsN",
-        "typeOp": "string"
+        "inputField": "wordsN"
       }
     },
     {
       "name": "min-operator",
       "elementType": "MinOperator",
-      "configuration": {
-        "inputField": "wordsN",
-        "typeOp": "string"
-      }
-    },
-    {
-      "name": "range-operator",
-      "elementType": "RangeOperator",
       "configuration": {
         "inputField": "wordsN"
       }
@@ -176,13 +162,6 @@
     {
       "name": "lastValue-operator",
       "elementType": "LastValueOperator",
-      "configuration": {
-        "inputField": "retweets"
-      }
-    },
-    {
-      "name": "firstValue-operator",
-      "elementType": "FirstValueOperator",
       "configuration": {
         "inputField": "retweets"
       }

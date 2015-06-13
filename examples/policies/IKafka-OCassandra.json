@@ -59,38 +59,38 @@
   ],
   "rollups": [
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "asset",
-          "bucketType": "identity"
+          "precision": "identity"
         }
       ]
     },
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "c_r",
-          "bucketType": "identity"
+          "precision": "identity"
         },
         {
           "dimensionName": "ou_v",
-          "bucketType": "identity"
+          "precision": "identity"
         },
         {
           "dimensionName": "a",
-          "bucketType": "identity"
+          "precision": "identity"
         },
         {
           "dimensionName": "r_a_m",
-          "bucketType": "minute"
+          "precision": "minute"
         },
         {
           "dimensionName": "o",
-          "bucketType": "identity"
+          "precision": "identity"
         },
         {
           "dimensionName": "p_i",
-          "bucketType": "identity"
+          "precision": "identity"
         }
       ],
       "operators": ["range-operator"]

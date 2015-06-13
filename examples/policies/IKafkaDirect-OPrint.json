@@ -27,10 +27,10 @@
   ],
   "rollups": [
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "message",
-          "bucketType": "identity"
+          "precision": "identity"
         }
       ],
       "operators": ["count-operator"]

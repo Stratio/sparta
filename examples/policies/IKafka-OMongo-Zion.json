@@ -100,10 +100,10 @@
   ],
   "rollups": [
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "timestamp",
-          "bucketType": "minute"
+          "precision": "minute"
         }
       ],
       "operators": ["count-operator", "max-operator", "min-operator"]

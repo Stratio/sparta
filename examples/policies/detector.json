@@ -59,47 +59,47 @@
   ],
   "rollups": [
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "company_root",
-          "bucketType": "identity"
+          "precision": "identity"
         },
         {
           "dimensionName": "ou_vehicle",
-          "bucketType": "identity"
+          "precision": "identity"
         },
         {
           "dimensionName": "geo",
-          "bucketType": "precision12"
+          "precision": "precision12"
         },
         {
           "dimensionName": "recorded_at_ms",
-          "bucketType": "minute"
+          "precision": "minute"
         }
       ],
       "operators": ["avg-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "company_root",
-          "bucketType": "identity"
+          "precision": "identity"
         },
         {
           "dimensionName": "ou_vehicle",
-          "bucketType": "identity"
+          "precision": "identity"
         },
         {
           "dimensionName": "asset",
-          "bucketType": "identity"
+          "precision": "identity"
         },
         {
           "dimensionName": "recorded_at_ms",
-          "bucketType": "minute"
+          "precision": "minute"
         },
         {
           "dimensionName": "path_id",
-          "bucketType": "identity"
+          "precision": "identity"
         }
       ],
 

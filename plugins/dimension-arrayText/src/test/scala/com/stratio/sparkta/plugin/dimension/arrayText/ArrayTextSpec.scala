@@ -1,5 +1,3 @@
-package com.stratio.sparkta.plugin.dimension.arrayText
-
 /**
  * Copyright (C) 2015 Stratio (http://stratio.com)
  *
@@ -16,9 +14,11 @@ package com.stratio.sparkta.plugin.dimension.arrayText
  * limitations under the License.
  */
 
+package com.stratio.sparkta.plugin.dimension.arrayText
+
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{BucketType, TypeOp}
+import com.stratio.sparkta.sdk._
 import org.scalatest.{Matchers, WordSpecLike}
 
 
@@ -29,12 +29,12 @@ class ArrayTextSpec extends WordSpecLike with Matchers {
   "ArrayTextDimType " should {
 
     "process the input" in {
-      val result = dimType.bucket(input.asInstanceOf[Serializable])
+      val result = dimType.dimensionValues(input.asInstanceOf[JSerializable])
       result should be(expectedOutput)
     }
 
     "process other input" in {
-      val result = dimType.bucket(otherInput.asInstanceOf[Serializable])
+      val result = dimType.dimensionValues(otherInput.asInstanceOf[JSerializable])
       result should be(otherExpectedOutput)
     }
 
@@ -43,12 +43,12 @@ class ArrayTextSpec extends WordSpecLike with Matchers {
 
   val otherInput = Seq("hola","hola")
 
-  val expectedOutput: Map[BucketType, JSerializable] =
-    Map(BucketType("hola" + 0, TypeOp.String, Map()) -> "hola".asInstanceOf[JSerializable],
-      BucketType("holo" + 1, TypeOp.String, Map()) -> "holo".asInstanceOf[JSerializable])
+  val expectedOutput: Map[Precision, JSerializable] =
+    Map(Precision("hola" + 0, TypeOp.String, Map()) -> "hola".asInstanceOf[JSerializable],
+      Precision("holo" + 1, TypeOp.String, Map()) -> "holo".asInstanceOf[JSerializable])
 
-  val otherExpectedOutput: Map[BucketType, JSerializable] =
-    Map(BucketType("hola" + 0, TypeOp.String, Map()) -> "hola".asInstanceOf[JSerializable],
-      BucketType("hola" + 1, TypeOp.String, Map()) -> "hola".asInstanceOf[JSerializable])
+  val otherExpectedOutput: Map[Precision, JSerializable] =
+    Map(Precision("hola" + 0, TypeOp.String, Map()) -> "hola".asInstanceOf[JSerializable],
+      Precision("hola" + 1, TypeOp.String, Map()) -> "hola".asInstanceOf[JSerializable])
 
 }
