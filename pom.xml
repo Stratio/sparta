@@ -43,6 +43,7 @@
         <module>doc</module>
         <module>plugins</module>
         <module>dist</module>
+        <module>test-at</module>
     </modules>
 
     <name>Stratio SpaRkTA</name>
