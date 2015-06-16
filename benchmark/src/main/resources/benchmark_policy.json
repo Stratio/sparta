@@ -30,7 +30,7 @@
   ],
   "cubes": [
     {
-      "precisions": [
+      "dimensions": [
         {
           "dimensionName": "time",
           "bucketType": "second"

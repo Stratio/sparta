@@ -44,7 +44,7 @@
   "cubes": [
     {
       "cube": "testCube",
-      "precisions": [
+      "dimensions": [
         {
           "dimension": "appName"
         }

@@ -4,7 +4,7 @@
   "saveRawData": "false",
   "rawDataParquetPath": "myTestParquetPath",
   "checkpointDir": "checkpoint",
-  "timeBucket": "minute",
+  "timePrecision": "minute",
   "checkpointGranularity": "minute",
   "checkpointInterval": 30000,
   "checkpointTimeAvailability": 60000,
@@ -36,7 +36,7 @@
   "cubes": [
     {
       "cube": "time",
-      "precisions": [
+      "dimensions": [
         {
           "dimension": "timestamp",
           "precision": "minute"
@@ -48,7 +48,7 @@
     },
     {
       "cube": "appName",
-      "precisions": [
+      "dimensions": [
         {
           "dimension": "appName"
         },
@@ -63,7 +63,7 @@
     },
     {
       "cube": "session",
-      "precisions": [
+      "dimensions": [
         {
           "dimension": "session"
         },

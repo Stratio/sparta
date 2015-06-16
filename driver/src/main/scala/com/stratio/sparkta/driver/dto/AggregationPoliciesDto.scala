@@ -99,11 +99,11 @@ object AggregationPoliciesValidator {
 
   def validateCubes(aggregationPoliciesDto: AggregationPoliciesDto): (Boolean, String) = {
 
-    val hasCubesNames = aggregationPoliciesDto.cubes.filter(c => c.cube == null || c.cube.isEmpty).isEmpty
+    val hasCubesNames = aggregationPoliciesDto.cubes.filter(c => c.name == null || c.name.isEmpty).isEmpty
     val dimensionNames = aggregationPoliciesDto.dimensions.map(_.name)
     val cubeDimension = aggregationPoliciesDto.cubes
       .flatMap(x => Option(x))
-      .flatMap(x => Option(x.precisions))
+      .flatMap(x => Option(x.dimensions))
       .flatten
       .map(_.dimension)
 

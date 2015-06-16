@@ -18,8 +18,8 @@ package com.stratio.sparkta.driver.dto
 
 import com.stratio.sparkta.sdk.DimensionType
 
-case class CubeDto(cube : String,
-                   precisions: Seq[PrecisionDto],
+case class CubeDto(name : String,
+                   dimensions: Seq[PrecisionDto],
                    operators: Seq[String],
                    outputs: Seq[String],
                    multiplexer : String = "false")

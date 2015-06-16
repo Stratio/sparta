@@ -58,7 +58,7 @@ object DimensionType {
   final val IdentityName = "identity"
   final val IdentityFieldName = "identityField"
   final val TimestampName = "timestamp"
-  final val NativeDimensionClass = "NativeDimension"
+  final val DefaultDimensionClass = "DefaultDimension"
 
   def getIdentity(typeOperation: Option[TypeOp], default: TypeOp): Precision =
     new Precision(IdentityName, typeOperation.getOrElse(default))

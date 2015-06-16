@@ -33,7 +33,7 @@ class CubeSpec extends TestSuiteBase {
   test("aggregate") {
 
     val PreserverOrder = true
-    val nativeDimension = new NativeDimension
+    val nativeDimension = new DefaultDimension
     val checkpointInterval = 10000
     val checkpointTimeAvailability = 60000
     val checkpointGranularity = "minute"
@@ -70,17 +70,17 @@ class CubeSpec extends TestSuiteBase {
 
     def getOutput: Seq[Seq[(DimensionValuesTime, Map[String, Option[Any]])]] = Seq(
       Seq(
-        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new NativeDimension),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new DefaultDimension),
           new Precision("identity", TypeOp.String)), "bar")), eventGranularity),
           Map("count" -> Some(2L), "sum_n" -> Some(7L))),
-        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new NativeDimension),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new DefaultDimension),
           new Precision("identity", TypeOp.String)), "foo")), eventGranularity),
           Map("count" -> Some(1L), "sum_n" -> Some(3L)))),
       Seq(
-        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new NativeDimension),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new DefaultDimension),
           new Precision("identity", TypeOp.String)), "bar")), eventGranularity),
           Map("count" -> Some(4L), "sum_n" -> Some(14L))),
-        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new NativeDimension),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new DefaultDimension),
           new Precision("identity", TypeOp.String)), "foo")), eventGranularity),
           Map("count" -> Some(2L), "sum_n" -> Some(6L)))))
   }

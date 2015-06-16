@@ -52,16 +52,16 @@
   ],
   "cubes": [
     {
-      "cube": "assets",
-      "precisions": [
+      "name": "assets",
+      "dimensions": [
         {
           "dimension": "asset"
         }
       ]
     },
     {
-      "cube": "c_r_ou_v_a_r_a_m_o_p_i",
-      "precisions": [
+      "name": "c_r_ou_v_a_r_a_m_o_p_i",
+      "dimensions": [
         {
           "dimension": "c_r"
         },

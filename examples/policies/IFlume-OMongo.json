@@ -77,8 +77,8 @@
   ],
   "cubes": [
     {
-      "cube": "extra1",
-      "precisions": [
+      "name": "extra1",
+      "dimensions": [
         {
           "dimension": "extra1"
         },
@@ -90,8 +90,8 @@
       "operators": ["count-operator"]
     },
     {
-      "cube": "platform_device",
-      "precisions": [
+      "name": "platform_device",
+      "dimensions": [
         {
           "dimension": "platform"
         },
@@ -106,8 +106,8 @@
       "operators": ["count-operator"]
     },
     {
-      "cube": "appname",
-      "precisions": [
+      "name": "appname",
+      "dimensions": [
         {
           "dimension": "appName"
         }
@@ -115,8 +115,8 @@
       "operators": ["count-operator"]
     },
     {
-      "cube": "session",
-      "precisions": [
+      "name": "session",
+      "dimensions": [
         {
           "dimension": "session"
         },
@@ -128,8 +128,8 @@
       "operators": ["count-operator"]
     },
     {
-      "cube": "applang",
-      "precisions": [
+      "name": "applang",
+      "dimensions": [
         {
           "dimension": "appLang"
         },
@@ -141,8 +141,8 @@
       "operators": ["count-operator"]
     },
     {
-      "cube": "geo",
-      "precisions": [
+      "name": "geo",
+      "dimensions": [
         {
           "dimension": "geo",
           "precision": "precision6"
@@ -151,8 +151,8 @@
       "operators": ["count-operator"]
     },
     {
-      "cube": "appCountry",
-      "precisions": [
+      "name": "appCountry",
+      "dimensions": [
         {
           "dimension": "appCountry"
         },
@@ -164,8 +164,8 @@
       "operators": ["count-operator"]
     },
     {
-      "cube": "appPlatform_time",
-      "precisions": [
+      "name": "appPlatform_time",
+      "dimensions": [
         {
           "dimension": "appPlatform"
         },
@@ -177,8 +177,8 @@
       "operators": ["count-operator"]
     },
     {
-      "cube": "appPlatform_time",
-      "precisions": [
+      "name": "appPlatform_time",
+      "dimensions": [
         {
           "dimension": "appPlatform"
         }
@@ -186,8 +186,8 @@
       "operators": ["count-operator"]
     },
     {
-      "cube": "appCountry",
-      "precisions": [
+      "name": "appCountry",
+      "dimensions": [
         {
           "dimension": "appCountry"
         }

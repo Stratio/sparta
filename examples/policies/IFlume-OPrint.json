@@ -26,8 +26,8 @@
   ],
   "cubes": [
     {
-      "cube": "messages",
-      "precisions": [
+      "name": "messages",
+      "dimensions": [
         {
           "dimension": "message"
         }

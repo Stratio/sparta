@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.plugin.dimension.native
+package com.stratio.sparkta.plugin.dimension.default
 
 import java.io.{Serializable => JSerializable}
 
@@ -25,13 +25,13 @@ import org.scalatest.{Matchers, WordSpecLike}
 import com.stratio.sparkta.sdk.{DimensionType, TypeOp}
 
 @RunWith(classOf[JUnitRunner])
-class NativeDimensionSpec extends WordSpecLike with Matchers {
+class DefaultDimensionSpec extends WordSpecLike with Matchers {
 
-  val nativeDimension: NativeDimension = new NativeDimension(Map("typeOp" -> "int"))
+  val defaultDimension: DefaultDimension = new DefaultDimension(Map("typeOp" -> "int"))
 
-  "A NativeDimension" should {
+  "A DefaultDimension" should {
     "In default implementation, get one precisions for a specific time" in {
-      val precisions = nativeDimension.dimensionValues("foo".asInstanceOf[JSerializable]).map(_._1.id)
+      val precisions = defaultDimension.dimensionValues("foo".asInstanceOf[JSerializable]).map(_._1.id)
 
       precisions.size should be(1)
 
@@ -39,7 +39,7 @@ class NativeDimensionSpec extends WordSpecLike with Matchers {
     }
 
     "The precision must be int" in {
-      nativeDimension.precisions(DimensionType.IdentityName).typeOp should be(TypeOp.Int)
+      defaultDimension.precisions(DimensionType.IdentityName).typeOp should be(TypeOp.Int)
     }
   }
 }
