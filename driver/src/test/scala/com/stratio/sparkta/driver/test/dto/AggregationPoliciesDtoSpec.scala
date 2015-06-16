@@ -44,7 +44,7 @@ with Matchers {
       val cubeName = "cubeTest"
       val DimensionToCube = "dimension2"
       val dimensionDto = new DimensionDto("dimensionType", "dimension1", None)
-      val cubeDto = new CubeDto(cubeName, Seq(new PrecisionDto(DimensionToCube, "dimensionType", None)), Seq(), Seq())
+      val cubeDto = new CubeDto(cubeName, Seq(new PrecisionDto(DimensionToCube, "dimensionType", None)), Seq())
 
       val apd = new AggregationPoliciesDto(
         "policy-name",

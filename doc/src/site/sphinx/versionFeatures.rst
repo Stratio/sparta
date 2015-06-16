@@ -18,7 +18,7 @@ Aggregator
 
 Plugins
 -------
-- Pass through dimension
+- Default dimension
 - DateTime dimension
 - GeoHash dimension
 - Count operator

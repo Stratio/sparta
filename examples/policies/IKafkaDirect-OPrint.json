@@ -21,7 +21,6 @@
   ],
   "dimensions": [
     {
-      "dimensionType": "PassthroughDimension",
       "name": "message"
     }
   ],

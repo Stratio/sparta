@@ -17,15 +17,12 @@
   ],
   "dimensions": [
     {
-      "dimensionType": "PassthroughDimension",
       "name": "company_root"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "ou_vehicle"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "asset"
     },
     {
@@ -37,23 +34,18 @@
       "name": "geo"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "rpm_event_avg"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "odometer"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "odometerNum"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "rpmAvgNum"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "path_id"
     }
   ],

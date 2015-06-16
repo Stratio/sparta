@@ -117,18 +117,7 @@ object AggregationPoliciesValidator {
           .flatMap(x => Option(x.operators))
           .flatten
 
-        checkCubeParameter(cubeOperators, operatorNames, "operators") match {
-          case resultOperator if resultOperator._1 => resultOperator
-          case _ => {
-            val outputNames = aggregationPoliciesDto.outputs.map(_.name)
-            val cubeOutputs = aggregationPoliciesDto.cubes
-              .flatMap(x => Option(x))
-              .flatMap(x => Option(x.outputs))
-              .flatten
-
-            checkCubeParameter(cubeOutputs, outputNames, "outputs")
-          }
-        }
+        checkCubeParameter(cubeOperators, operatorNames, "operators")
       }
     }
   }
@@ -138,7 +127,7 @@ object AggregationPoliciesValidator {
     val parameterNotIn = cubeNames.filter(!parameterNames.contains(_))
     val isParameterIn = parameterNotIn.isEmpty
     val isCubeInMsg =
-      if (!isParameterIn) s"All $label cubes should be declared in $label block\n" else ""
+      if (!isParameterIn) s"All references to $label in cubes should be declared in $label block" else ""
 
     (isParameterIn, isCubeInMsg)
   }
