@@ -28,9 +28,9 @@
       "name": "ip"
     }
   ],
-  "rollups": [
+  "cubes": [
     {
-      "dimensionAndBucketTypes": [
+      "precisions": [
         {
           "dimensionName": "time",
           "bucketType": "second"

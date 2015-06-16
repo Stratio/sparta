@@ -22,35 +22,27 @@
   ],
   "dimensions": [
     {
-      "dimensionType": "PassthroughDimension",
       "name": "appName"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "appCountry"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "appPlatform"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "appVersion"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "device"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "osVersion"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "lang"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "appLang"
     },
     {
@@ -62,35 +54,27 @@
       "name": "timestamp"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "session"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "extra1"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "extra2"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "extra3"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "source"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "responseTime"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "environment"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "platform"
     },
     {
@@ -98,65 +82,67 @@
       "name": "geo"
     }
   ],
-  "rollups": [
+  "cubes": [
     {
-      "dimensionAndPrecision": [
+      "cube": "time",
+      "precisions": [
         {
-          "dimensionName": "timestamp",
+          "dimension": "timestamp",
           "precision": "minute"
         }
       ],
       "operators": ["count-operator", "max-operator", "min-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "cube": "session",
+      "precisions": [
         {
-          "dimensionName": "session",
-          "bucketType": "identity"
+          "dimension": "session"
         },
         {
-          "dimensionName": "timestamp",
-          "bucketType": "minute"
+          "dimension": "timestamp",
+          "precision": "minute"
         }
       ],
       "operators": ["count-operator", "max-operator", "min-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "cube": "platform",
+      "precisions": [
         {
-          "dimensionName": "platform",
-          "bucketType": "identity"
+          "dimension": "platform"
         }
       ],
       "operators": ["count-operator", "max-operator", "min-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "cube": "device",
+      "precisions": [
         {
-          "dimensionName": "device",
-          "bucketType": "identity"
+          "dimension": "device"
         }
       ],
       "operators": ["count-operator", "max-operator", "min-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "cube": "geo",
+      "precisions": [
         {
-          "dimensionName": "geo",
-          "bucketType": "precision6"
+          "dimension": "geo",
+          "precision": "precision6"
         }
       ],
       "operators": ["count-operator", "max-operator", "min-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "cube": "appPlatform",
+      "precisions": [
         {
-          "dimensionName": "appPlatform",
-          "bucketType": "identity"
+          "dimension": "appPlatform"
         },
         {
-          "dimensionName": "timestamp",
-          "bucketType": "minute"
+          "dimension": "timestamp",
+          "precision": "minute"
         }
       ],
       "operators": ["count-operator", "max-operator", "min-operator"]

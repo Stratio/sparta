@@ -10,7 +10,7 @@ Coming Soon
 
     - Aggregation on time ranges.
 
-    - Best rollup selection.
+    - Best cube selection.
 
 * Nice web interface to create and manage policies.
 

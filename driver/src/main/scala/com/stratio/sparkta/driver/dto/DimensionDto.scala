@@ -16,5 +16,8 @@
 
 package com.stratio.sparkta.driver.dto
 
+import com.stratio.sparkta.sdk.DimensionType
 
-case class DimensionDto(dimensionType: String, name: String, configuration: Option[Map[String, String]])
+case class DimensionDto(dimensionType: String = DimensionType.NativeDimensionClass,
+                        name: String,
+                        configuration: Option[Map[String, String]])

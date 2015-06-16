@@ -14,13 +14,13 @@ Driver
 Aggregator
 ----------
 - Dimensions
-- Rollups
+- Cubes
 
 Plugins
 -------
-- Pass through bucketer
-- DateTime bucketer
-- GeoHash bucketer
+- Pass through dimension
+- DateTime dimension
+- GeoHash dimension
 - Count operator
 - First approach **MongoDB** output
 - KeyValue parser
@@ -42,8 +42,8 @@ Parent
 
 Plugins
 -------
-- Tag bucketer
-- Hierarchy bucketer
+- Tag dimension
+- Hierarchy dimension
 - Max operator
 - Min operator
 - Sum operator

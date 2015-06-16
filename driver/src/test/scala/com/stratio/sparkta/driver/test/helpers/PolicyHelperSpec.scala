@@ -33,7 +33,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
     Given("a policy with an input, an output and a fragment with an input")
     val ap = new AggregationPoliciesDto(
       dimensions = Seq(),
-      rollups = Seq(),
+      cubes = Seq(),
       operators =  Seq(),
       inputs = Seq(
         PolicyElementDto("input1","input",Map())),

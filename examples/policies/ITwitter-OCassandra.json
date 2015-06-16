@@ -33,11 +33,9 @@
       }
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "userLocation"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "wordsN"
     },
     {
@@ -52,27 +50,28 @@
       }
     }
   ],
-  "rollups": [
+  "cubes": [
     {
-      "dimensionAndPrecision": [
+      "cube": "twitter",
+      "precisions": [
         {
-          "dimensionName": "status",
+          "dimension": "status",
           "precision": "hastags"
         },
         {
-          "dimensionName": "status",
+          "dimension": "status",
           "precision": "firsthastag"
         },
         {
-          "dimensionName": "status",
+          "dimension": "status",
           "precision": "retweets"
         },
         {
-          "dimensionName": "geolocation",
+          "dimension": "geolocation",
           "precision": "precision3"
         },
         {
-          "dimensionName": "timestamp",
+          "dimension": "timestamp",
           "precision": "minute"
         }
       ],

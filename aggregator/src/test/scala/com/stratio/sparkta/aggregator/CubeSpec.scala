@@ -18,7 +18,7 @@ package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.plugin.dimension.passthrough.PassthroughDimension
+import com.stratio.sparkta.plugin.dimension.native._
 import org.apache.spark.streaming.TestSuiteBase
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
@@ -28,53 +28,59 @@ import com.stratio.sparkta.plugin.operator.sum.SumOperator
 import com.stratio.sparkta.sdk._
 
 @RunWith(classOf[JUnitRunner])
-class RollupSpec extends TestSuiteBase {
+class CubeSpec extends TestSuiteBase {
 
   test("aggregate") {
 
     val PreserverOrder = true
-    val passthroughDimension = new PassthroughDimension
+    val nativeDimension = new NativeDimension
     val checkpointInterval = 10000
     val checkpointTimeAvailability = 60000
     val checkpointGranularity = "minute"
     val eventGranularity = DateOperations.dateFromGranularity(DateTime.now(), "minute")
-    val rollup = new Rollup(
-      Seq(DimensionPrecision(Dimension("foo", passthroughDimension), new Precision("identity", TypeOp.String))),
+    val name = "cubeName"
+    val outputs = Seq()
+    val multiplexer = false
+    val cube = new Cube(
+      name,
+      Seq(DimensionPrecision(Dimension("foo", nativeDimension), new Precision("identity", TypeOp.String))),
       Seq(new CountOperator(Map()), new SumOperator(Map("inputField" -> "n"))),
+      outputs,
+      multiplexer,
       checkpointInterval,
       checkpointGranularity,
       checkpointTimeAvailability)
 
-    testOperation(getInput, rollup.aggregate, getOutput, PreserverOrder)
+    testOperation(getInput, cube.aggregate, getOutput, PreserverOrder)
 
     def getInput: Seq[Seq[(DimensionValuesTime, Map[String, JSerializable])]] = Seq(Seq(
-      (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", passthroughDimension),
+      (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", nativeDimension),
         new Precision("identity", TypeOp.String)), "bar")), eventGranularity), Map[String, JSerializable]("n" -> 4)),
-      (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", passthroughDimension),
+      (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", nativeDimension),
         new Precision("identity", TypeOp.String)), "bar")), eventGranularity), Map[String, JSerializable]("n" -> 3)),
-      (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", passthroughDimension),
+      (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", nativeDimension),
         new Precision("identity", TypeOp.String)), "foo")), eventGranularity), Map[String, JSerializable]("n" -> 3))),
       Seq(
-        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", passthroughDimension),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", nativeDimension),
           new Precision("identity", TypeOp.String)), "bar")), eventGranularity), Map[String, JSerializable]("n" -> 4)),
-        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", passthroughDimension),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", nativeDimension),
           new Precision("identity", TypeOp.String)), "bar")), eventGranularity), Map[String, JSerializable]("n" -> 3)),
-        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", passthroughDimension),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", nativeDimension),
           new Precision("identity", TypeOp.String)), "foo")), eventGranularity), Map[String, JSerializable]("n" -> 3))))
 
     def getOutput: Seq[Seq[(DimensionValuesTime, Map[String, Option[Any]])]] = Seq(
       Seq(
-        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new PassthroughDimension),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new NativeDimension),
           new Precision("identity", TypeOp.String)), "bar")), eventGranularity),
           Map("count" -> Some(2L), "sum_n" -> Some(7L))),
-        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new PassthroughDimension),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new NativeDimension),
           new Precision("identity", TypeOp.String)), "foo")), eventGranularity),
           Map("count" -> Some(1L), "sum_n" -> Some(3L)))),
       Seq(
-        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new PassthroughDimension),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new NativeDimension),
           new Precision("identity", TypeOp.String)), "bar")), eventGranularity),
           Map("count" -> Some(4L), "sum_n" -> Some(14L))),
-        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new PassthroughDimension),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new NativeDimension),
           new Precision("identity", TypeOp.String)), "foo")), eventGranularity),
           Map("count" -> Some(2L), "sum_n" -> Some(6L)))))
   }

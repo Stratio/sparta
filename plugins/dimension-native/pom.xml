@@ -26,7 +26,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>dimension-passthrough</artifactId>
+    <artifactId>dimension-native</artifactId>
 
 
 </project>

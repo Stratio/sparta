@@ -105,15 +105,16 @@ with Matchers {
         entity.asString should include("Removed")
       }
     }
-    "Validate policy rollup" in {
+    "Validate policy cube" in {
       val PolicyName = "p-1"
-      val DimensionToRollup = "dimension2"
+      val DimensionToCube = "dimension2"
+      val cubeName = "cubeTest"
       val dimensionDto = new DimensionDto("dimensionType", "dimension1", None)
-      val rollupDto = new RollupDto(Seq(new DimensionAndPrecisionDto(DimensionToRollup, "dimensionType", None)), Seq())
+      val cubeDto = new CubeDto(cubeName, Seq(new PrecisionDto(DimensionToCube, "dimensionType", None)), Seq(), Seq())
       val apd =
         new AggregationPoliciesDto(PolicyName, "true", "example","day",
           checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable, 0,
-          Seq(dimensionDto), Seq(rollupDto), Seq(), Seq(), Seq(), Seq(), Seq())
+          Seq(dimensionDto), Seq(cubeDto), Seq(), Seq(), Seq(), Seq(), Seq())
       val test = Post("/policy", apd) ~> routes
       test ~> check {
         rejections.size should be(1)

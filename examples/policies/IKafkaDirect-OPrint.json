@@ -25,12 +25,12 @@
       "name": "message"
     }
   ],
-  "rollups": [
+  "cubes": [
     {
-      "dimensionAndPrecision": [
+      "cube": "testCube",
+      "precisions": [
         {
-          "dimensionName": "message",
-          "precision": "identity"
+          "dimension": "message"
         }
       ],
       "operators": ["count-operator"]

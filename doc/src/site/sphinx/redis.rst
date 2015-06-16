@@ -42,9 +42,9 @@ As this Output does not use functionality of DataFrames, override the method Ups
 of a **Tuple -> (DimensionValuesTime, Aggregations)**.
 Below you can see each of the features implemented:
 
-  * For each rollup it saves the following information:
+  * For each cube it saves the following information:
 
-    - As key: the rollup identifiers that is built with the name of the bucket separeted with "_"
+    - As key: the cube identifiers that is built with the name of the bucket separeted with "_"
     - Furthermore for each bucket we will have the name of the bucket and its value (separated with ":" too).
     - With this key structure we could perform searches over the keys using pattern to search keys.
     - Example:

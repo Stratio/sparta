@@ -10,7 +10,7 @@
 
 ###Aggregator
 - Dimensions
-- Rollups
+- Cubes
 
 ###Plugins
 - Pass through bucketer
@@ -54,7 +54,7 @@
 ## v0.3
 
 ###Sdk
-- Multiplex rollups for **multi-cube** integration
+- Multiplex cubes for **multi-cube** integration
 
 ###Plugins
 - Avg operator

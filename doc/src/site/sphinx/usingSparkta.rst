@@ -46,7 +46,7 @@ An aggregation policy it's a JSON document. It's composed of:
 * :ref:`Output(s) <output>`: aggregate data should be stored?
 * :ref:`Fragment(s) <fragment>`: for convenience you can include alias of inputs/outputs.
 * :ref:`Dimension(s) <dimension>`: which fields will you need for your real-time needs?
-* :ref:`RollUp(s) <rollup>`: how do you want to aggregate the dimensions?
+* :ref:`Cube(s) <cube>`: how do you want to aggregate the dimensions?
 * :ref:`Transformation(s) <transformation>`: which functions should be applied before aggregation?
 * :ref:`Save raw data <save-raw>`: do you want to save raw events?
 * :ref:`Define stateful operations <stateful>`: do you want to make non associative aggregations?
@@ -180,22 +180,23 @@ Example:
         }
       ]
 
-.. _rollup:
+.. _cube:
 
 
-RollUp(s)
+Cube(s)
 ---------
 
-The rollups are the ways you want to aggregate the info.
+The cubes are the ways you want to aggregate the info.
 
 Example:
 ::
-    "rollups": [
+    "cubes": [
       {
-        "dimensionAndBucketTypes": [
+        "cube": "testCube",
+        "precisions": [
           {
             "dimensionName": "status",
-            "bucketType": "hastags"
+            "precision": "hastags"
           }
         ],
         "operators": ["count-operator","avg-operator"]
