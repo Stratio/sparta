@@ -1,4 +1,20 @@
-package com.stratio.sparkta.driver.acceptance
+/**
+ * Copyright (C) 2015 Stratio (http://stratio.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.stratio.sparkta.testa
 
 import java.io.{PrintStream, File}
 import java.net.InetSocketAddress
@@ -21,28 +37,48 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.io.Source
 
+import java.net.Socket
+
+import scala.concurrent.Await
+import scala.util.Try
+
 /**
- * Created by arincon on 15/06/15.
+ * Common operations that will be used in Acceptance Tests. All AT must extends from it.
+ * @author arincon
  */
-trait SparktaATSuite extends WordSpecLike
-with ScalatestRouteTest
-with SLF4JLogging with BeforeAndAfter with Matchers {
-  val Localhost: String = "127.0.0.1"
-  var SparktaPort: Int = _
+trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogging with BeforeAndAfter with Matchers {
+
+  val Localhost        = "127.0.0.1"
+  val SparktaPort      = 9090
   val TestServerZKPort = 6666
-  var zkTestServer: TestingServer = _
+  val SocketPort       = 10666
+  val SparktaSleep     = 3000
+  val PolicySleep      = 25000
+
+  var zkTestServer: TestingServer       = _
   var serverSocket: ServerSocketChannel = _
-  var out: PrintStream = _
-  
+  var out         : PrintStream         = _
+
+  /**
+   * Starts an embedded ZK server.
+   */
   def zookeeperStart: Unit = {
     zkTestServer = new TestingServer(TestServerZKPort)
     zkTestServer.start()
   }
+
+  /**
+   * Starts a socket that will act as an input sending streams of data.
+   */
   def socketStart: Unit = {
     serverSocket = ServerSocketChannel.open()
-    serverSocket.socket.bind(new InetSocketAddress(Localhost, 10666))
+    serverSocket.socket.bind(new InetSocketAddress(Localhost, SocketPort))
   }
-  def startSparkta = {
+
+  /**
+   * Starts an instance of Sparkta with a given configuration (reference.conf in our resources folder).
+   */
+  def startSparkta: Unit = {
     val sparktaConfig = SparktaHelper.initConfig(AppConstant.ConfigAppName)
     val configApi: Config = SparktaHelper.initConfig(AppConstant.ConfigApi, Some(sparktaConfig))
     val sparktaHome = SparktaHelper.initSparktaHome(new MockSystem(Map("SPARKTA_HOME" -> getSparktaHome), Map()))
@@ -50,21 +86,18 @@ with SLF4JLogging with BeforeAndAfter with Matchers {
     val sparktaPort = configApi.getInt("port")
 
     SparktaHelper.initAkkaSystem(sparktaConfig, configApi, jars, AppConstant.ConfigAppName)
+    sleep(SparktaSleep)
 
-    Thread.sleep(3000)
-    checkPort(sparktaPort) should be(true)
-    SparktaPort = sparktaPort
+    openSocket(sparktaPort).isSuccess should be(true)
   }
 
-  def checkPort(port: Int) = {
-    try {
-      val socket = new java.net.Socket(Localhost, port)
-      socket.close()
-      println(port)
-      true
-    } catch {
-      case _: Throwable ⇒ false
-    }
+  /**
+   * Opens a socket in a given port
+   * @param portNumber of the socket
+   * @return a Try object that contains a socket if succeed.
+   */
+  def openSocket(portNumber: Int): Try[Socket] = {
+      Try(new Socket(Localhost, portNumber))
   }
 
   /**
@@ -81,18 +114,29 @@ with SLF4JLogging with BeforeAndAfter with Matchers {
     }
   }
 
+  /**
+   * Given a policy it makes an http request to start it on Sparkta.
+   * @param path of the policy.
+   */
   def sendPolicy(path : String): Unit = {
     val policy = Source.fromFile(new File(path)).mkString // execution context for futures
     val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
-    val promise: Future[HttpResponse] = pipeline(Post(s"http://$Localhost:$SparktaPort/policies",
+    val promise: Future[HttpResponse] =
+      pipeline(Post(s"http://${Localhost}:${SparktaPort}/policies",
       HttpEntity(ContentType(MediaTypes.`application/json`, HttpCharsets.`UTF-8`), policy)))
 
     val response: HttpResponse = Await.result(promise, Timeout(5.seconds).duration)
 
     response.status should be(OK)
-    Thread.sleep(25000)
+    sleep(PolicySleep)
   }
-  def sendDataToSparkta(path :String) = {
+
+  //scalastyle:off
+  /**
+   * Reads from a CSV file and send data to the socket.
+   * @param path of the CSV.
+   */
+  def sendDataToSparkta(path :String): Unit = {
     val start = System.currentTimeMillis()
     val source = Source.fromFile(path).getLines()
     out = new PrintStream(serverSocket.socket().accept().getOutputStream())
@@ -103,5 +147,9 @@ with SLF4JLogging with BeforeAndAfter with Matchers {
     }
     out.flush()
   }
+  //scalastyle:off
+
+  protected def sleep(millis: Long): Unit =
+    Thread.sleep(millis)
 
 }

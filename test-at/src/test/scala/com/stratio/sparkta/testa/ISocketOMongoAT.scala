@@ -1,10 +1,34 @@
-package com.stratio.sparkta.driver.acceptance
+/**
+ * Copyright (C) 2015 Stratio (http://stratio.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.stratio.sparkta.testa
 
 import com.github.simplyscala.{MongoEmbedDatabase, MongodProps}
 import com.mongodb.casbah.{MongoClientURI, MongoCollection, MongoConnection}
 
+/**
+ * Acceptance test:
+ *   [Input]: Socket.
+ *   [Output]: MongoDB.
+ *   [Operators]: sum, avg.
+ * @author arincon
+ */
 class ISocketOMongoAT extends MongoEmbedDatabase with SparktaATSuite {
 
+  val PolicyEndSleep = 30000
   val TestMongoPort = 60000
   val PathToPolicy = getClass.getClassLoader.getResource("policies/ISocket-OMongo.json").getPath
   val PathToCsv = getClass.getClassLoader.getResource("fixtures/ISocket-OMongo.csv").getPath
@@ -22,25 +46,26 @@ class ISocketOMongoAT extends MongoEmbedDatabase with SparktaATSuite {
     mongoStop(mongoProps)
   }
 
-
-  "Sparkta should" should {
-
-    "start in 3 seconds on 9090" in {
+  "Sparkta" should {
+    "starts and executes a policy that reads from a socket and writes in mongodb" in {
       checkMongoDb
       startSparkta
       sendPolicy(PathToPolicy)
       sendDataToSparkta(PathToCsv)
-      Thread.sleep(30000)
+      sleep(PolicyEndSleep)
       checkMongoData
     }
 
     def checkMongoData(): Unit = {
       val mongoColl: MongoCollection = MongoConnection(Localhost, TestMongoPort)("csvtest")("product")
       mongoColl.size should be(2)
+
       val result = mongoColl.find()
+
       val productA = result.filter(dbject => {
         dbject.get("id") == "producta"
       }).toSeq.head
+
       val productB = result.filter(dbject => {
         dbject.get("id") == "productb"
       }).toSeq.head
