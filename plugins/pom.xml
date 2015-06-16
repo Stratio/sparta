@@ -34,6 +34,7 @@
         <module>dimension-twitter-status</module>
         <module>dimension-tag</module>
         <module>dimension-hierarchy</module>
+        <module>dimension-arrayText</module>
         <module>output-mongodb</module>
         <module>output-elasticsearch</module>
         <module>output-cassandra</module>
@@ -64,7 +65,6 @@
         <module>parser-detector</module>
         <module>parser-type</module>
         <module>parser-split</module>
-        <!--<module>dimension-arrayText</module>-->
     </modules>
 
     <dependencies>
