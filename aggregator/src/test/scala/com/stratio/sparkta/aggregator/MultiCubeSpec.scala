@@ -18,7 +18,7 @@ package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.plugin.dimension.native.DefaultDimension
+import com.stratio.sparkta.plugin.dimension.default.DefaultDimension
 import org.joda.time.DateTime
 import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.sdk._

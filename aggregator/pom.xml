@@ -53,7 +53,7 @@
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
-            <artifactId>dimension-native</artifactId>
+            <artifactId>dimension-default</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

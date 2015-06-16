@@ -174,9 +174,9 @@ object SparktaJob {
             outputs: Seq[Output],
             dimensionsMap: Map[String, Dimension]): Seq[Cube] =
     apConfig.cubes.map(r => {
-      val name = r.cube
+      val name = r.name
       val multiplexer = Try(r.multiplexer.toBoolean).getOrElse(false)
-      val components = r.precisions.map(dab => {
+      val components = r.dimensions.map(dab => {
         dimensionsMap.get(dab.dimension) match {
           case Some(x: Dimension) => getDimensionPrecision(x, dab)
           case None => throw new DriverException("Dimension name " + dab.dimension + " not found.")

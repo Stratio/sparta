@@ -42,4 +42,5 @@ with JSerializable with SLF4JLogging {
 
   override lazy val precisions: Map[String, Precision] =
     Map(DimensionType.IdentityName -> DimensionType.getIdentity(getTypeOperation, defaultTypeOperation))
+  
 }
