@@ -28,7 +28,7 @@
   ],
   "cubes": [
     {
-      "cube": "twitter",
+      "name": "twitter",
       "precisions": [
         {
           "dimensionName": "word"

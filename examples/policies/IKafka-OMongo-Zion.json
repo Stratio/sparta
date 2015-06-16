@@ -84,8 +84,8 @@
   ],
   "cubes": [
     {
-      "cube": "time",
-      "precisions": [
+      "name": "time",
+      "dimensions": [
         {
           "dimension": "timestamp",
           "precision": "minute"
@@ -94,8 +94,8 @@
       "operators": ["count-operator", "max-operator", "min-operator"]
     },
     {
-      "cube": "session",
-      "precisions": [
+      "name": "session",
+      "dimensions": [
         {
           "dimension": "session"
         },
@@ -107,8 +107,8 @@
       "operators": ["count-operator", "max-operator", "min-operator"]
     },
     {
-      "cube": "platform",
-      "precisions": [
+      "name": "platform",
+      "dimensions": [
         {
           "dimension": "platform"
         }
@@ -116,8 +116,8 @@
       "operators": ["count-operator", "max-operator", "min-operator"]
     },
     {
-      "cube": "device",
-      "precisions": [
+      "name": "device",
+      "dimensions": [
         {
           "dimension": "device"
         }
@@ -125,8 +125,8 @@
       "operators": ["count-operator", "max-operator", "min-operator"]
     },
     {
-      "cube": "geo",
-      "precisions": [
+      "name": "geo",
+      "dimensions": [
         {
           "dimension": "geo",
           "precision": "precision6"
@@ -135,8 +135,8 @@
       "operators": ["count-operator", "max-operator", "min-operator"]
     },
     {
-      "cube": "appPlatform",
-      "precisions": [
+      "name": "appPlatform",
+      "dimensions": [
         {
           "dimension": "appPlatform"
         },

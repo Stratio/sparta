@@ -42,8 +42,8 @@
   ],
   "cubes": [
     {
-      "cube": "twitter",
-      "precisions": [
+      "name": "twitter",
+      "dimensions": [
         {
           "dimension": "status",
           "precision": "hastags"

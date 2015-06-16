@@ -29,7 +29,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>dimension-dateTime</module>
-        <module>dimension-native</module>
+        <module>dimension-default</module>
         <module>dimension-geoHash</module>
         <module>dimension-twitter-status</module>
         <module>dimension-tag</module>

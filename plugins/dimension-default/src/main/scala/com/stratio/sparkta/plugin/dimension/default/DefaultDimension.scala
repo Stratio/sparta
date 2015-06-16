@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.plugin.dimension.native
+package com.stratio.sparkta.plugin.dimension.default
 
 import java.io.{Serializable => JSerializable}
 
@@ -22,7 +22,7 @@ import akka.event.slf4j.SLF4JLogging
 
 import com.stratio.sparkta.sdk._
 
-case class NativeDimension(props: Map[String, JSerializable]) extends DimensionType
+case class DefaultDimension(props: Map[String, JSerializable]) extends DimensionType
 with JSerializable with SLF4JLogging {
 
   def this() {

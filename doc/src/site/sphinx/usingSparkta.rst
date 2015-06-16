@@ -171,11 +171,11 @@ Example:
 ::
     "dimensions": [
         {
-          "dimensionType": "TwitterStatusBucketer",
+          "dimensionType": "TwitterStatusDimension",
           "name": "status"
         },
         {
-          "dimensionType": "GeoHashBucketer",
+          "dimensionType": "GeoHashDimension",
           "name": "geolocation"
         }
       ]
@@ -192,8 +192,8 @@ Example:
 ::
     "cubes": [
       {
-        "cube": "testCube",
-        "precisions": [
+        "name": "testCube",
+        "dimensions": [
           {
             "dimensionName": "status",
             "precision": "hastags"

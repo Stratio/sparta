@@ -39,7 +39,7 @@
   ],
   "cubes": [
     {
-      "cube": "twitter",
+      "name": "twitter",
       "precisions": [
         {
           "dimension": "status",

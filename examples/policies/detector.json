@@ -59,8 +59,8 @@
   ],
   "cubes": [
     {
-      "cube": "testCube",
-      "precisions": [
+      "name": "testCube",
+      "dimensions": [
         {
           "dimensionName": "company_root",
           "precision": "identity"
