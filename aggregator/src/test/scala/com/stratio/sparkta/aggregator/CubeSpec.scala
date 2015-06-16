@@ -33,19 +33,17 @@ class CubeSpec extends TestSuiteBase {
   test("aggregate") {
 
     val PreserverOrder = true
-    val nativeDimension = new DefaultDimension
+    val defaultDimension = new DefaultDimension
     val checkpointInterval = 10000
     val checkpointTimeAvailability = 60000
     val checkpointGranularity = "minute"
     val eventGranularity = DateOperations.dateFromGranularity(DateTime.now(), "minute")
     val name = "cubeName"
-    val outputs = Seq()
     val multiplexer = false
     val cube = new Cube(
       name,
-      Seq(DimensionPrecision(Dimension("foo", nativeDimension), new Precision("identity", TypeOp.String))),
+      Seq(DimensionPrecision(Dimension("foo", defaultDimension), new Precision("identity", TypeOp.String))),
       Seq(new CountOperator(Map()), new SumOperator(Map("inputField" -> "n"))),
-      outputs,
       multiplexer,
       checkpointInterval,
       checkpointGranularity,
@@ -54,18 +52,18 @@ class CubeSpec extends TestSuiteBase {
     testOperation(getInput, cube.aggregate, getOutput, PreserverOrder)
 
     def getInput: Seq[Seq[(DimensionValuesTime, Map[String, JSerializable])]] = Seq(Seq(
-      (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", nativeDimension),
+      (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", defaultDimension),
         new Precision("identity", TypeOp.String)), "bar")), eventGranularity), Map[String, JSerializable]("n" -> 4)),
-      (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", nativeDimension),
+      (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", defaultDimension),
         new Precision("identity", TypeOp.String)), "bar")), eventGranularity), Map[String, JSerializable]("n" -> 3)),
-      (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", nativeDimension),
+      (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", defaultDimension),
         new Precision("identity", TypeOp.String)), "foo")), eventGranularity), Map[String, JSerializable]("n" -> 3))),
       Seq(
-        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", nativeDimension),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", defaultDimension),
           new Precision("identity", TypeOp.String)), "bar")), eventGranularity), Map[String, JSerializable]("n" -> 4)),
-        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", nativeDimension),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", defaultDimension),
           new Precision("identity", TypeOp.String)), "bar")), eventGranularity), Map[String, JSerializable]("n" -> 3)),
-        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", nativeDimension),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", defaultDimension),
           new Precision("identity", TypeOp.String)), "foo")), eventGranularity), Map[String, JSerializable]("n" -> 3))))
 
     def getOutput: Seq[Seq[(DimensionValuesTime, Map[String, Option[Any]])]] = Seq(

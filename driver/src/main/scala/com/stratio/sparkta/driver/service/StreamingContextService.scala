@@ -188,15 +188,9 @@ object SparktaJob {
         case _ => Seq()
       }
 
-      val outputsForCube = Option(r.outputs) match {
-        case Some(selectedOutputs) => getOutputsWithNames(outputs, selectedOutputs)
-        case _ => Seq()
-      }
-
       new Cube(name,
         components,
         operatorsForCube,
-        outputsForCube,
         multiplexer,
         apConfig.checkpointInterval,
         apConfig.checkpointGranularity,

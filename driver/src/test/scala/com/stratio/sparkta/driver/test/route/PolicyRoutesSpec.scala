@@ -110,7 +110,7 @@ with Matchers {
       val DimensionToCube = "dimension2"
       val cubeName = "cubeTest"
       val dimensionDto = new DimensionDto("dimensionType", "dimension1", None)
-      val cubeDto = new CubeDto(cubeName, Seq(new PrecisionDto(DimensionToCube, "dimensionType", None)), Seq(), Seq())
+      val cubeDto = new CubeDto(cubeName, Seq(new PrecisionDto(DimensionToCube, "dimensionType", None)), Seq())
       val apd =
         new AggregationPoliciesDto(PolicyName, "true", "example","day",
           checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable, 0,

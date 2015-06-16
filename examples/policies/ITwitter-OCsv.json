@@ -33,11 +33,9 @@
       }
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "userLocation"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "wordsN"
     },
     {

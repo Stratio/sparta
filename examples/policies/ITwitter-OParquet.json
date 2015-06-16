@@ -26,7 +26,6 @@
       "name": "status"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "wordsN"
     },
     {

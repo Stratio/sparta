@@ -35,7 +35,7 @@ class MultiCubeSpec extends TestSuiteBase {
   /**
    * Given a cube defined with:
     - D = A dimension with name eventKey and a string value.
-    - B = A NativeDimension applied to the dimension
+    - B = A DefaultDimension applied to the dimension
     - O = No operator for the cube
     - R = Cube with D+B+O
 
@@ -43,11 +43,11 @@ class MultiCubeSpec extends TestSuiteBase {
 
     List(
      (List(DimensionValue(
-       Dimension(eventKey,NativeDimension()),PrecisionType(identity,Map()),value1)),Map(eventKey -> value1)),
+       Dimension(eventKey,DefaultDimension()),PrecisionType(identity,Map()),value1)),Map(eventKey -> value1)),
      (List(DimensionValue(
-       Dimension(eventKey,NativeDimension()),PrecisionType(identity,Map()),value2)),Map(eventKey -> value2)),
+       Dimension(eventKey,DefaultDimension()),PrecisionType(identity,Map()),value2)),Map(eventKey -> value2)),
      (List(DimensionValue(
-       Dimension(eventKey,NativeDimension()),PrecisionType(identity,Map()),value3)),Map(eventKey -> value3)))
+       Dimension(eventKey,DefaultDimension()),PrecisionType(identity,Map()),value3)),Map(eventKey -> value3)))
    */
   test("DataCube extracts dimensions from events") {
 
@@ -61,13 +61,11 @@ class MultiCubeSpec extends TestSuiteBase {
     val precisioner = new DefaultDimension
     val dimension = Dimension("eventKey", precisioner)
     val operator = new CountOperator(Map())
-    val outputs = Seq()
     val multiplexer = false
     val precisionType = new Precision("identity", TypeOp.String)
     val cube = new Cube(name,
       Seq(DimensionPrecision(dimension, precisionType)),
       Seq(operator),
-      outputs,
       multiplexer,
       checkpointInterval,
       checkpointGranularity,

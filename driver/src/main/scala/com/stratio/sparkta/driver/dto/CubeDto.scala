@@ -21,7 +21,6 @@ import com.stratio.sparkta.sdk.DimensionType
 case class CubeDto(name : String,
                    dimensions: Seq[PrecisionDto],
                    operators: Seq[String],
-                   outputs: Seq[String],
                    multiplexer : String = "false")
 
 case class PrecisionDto(dimension: String,
