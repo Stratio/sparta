@@ -1,0 +1,97 @@
+{
+  "name": "ATSocketElasticsearch",
+  "duration": 2000,
+  "saveRawData": "false",
+  "rawDataParquetPath": "myTestParquetPath",
+  "checkpointDir": "checkpoint",
+  "timePrecision": "",
+  "checkpointGranularity": "minute",
+  "checkpointInterval": 30000,
+  "checkpointTimeAvailability": 60000,
+  "inputs": [
+    {
+      "name": "in-socket",
+      "elementType": "SocketInput",
+      "configuration": {
+        "hostname": "localhost",
+        "port": "10666"
+      }
+    }
+  ],
+  "dimensions": [
+    {
+      "name": "product",
+      "dimensionType": "PassthroughDimension"
+    },
+    {
+      "name": "price",
+      "dimensionType": "PassthroughDimension"
+    }
+  ],
+  "rollups": [
+    {
+      "dimensionAndPrecision": [
+        {
+          "dimensionName": "product",
+          "precision": "identity"
+        }
+      ],
+      "operators": ["sum-operator","avg-operator"]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-elasticsearch",
+      "elementType": "ElasticSearchOutput",
+      "configuration": {
+        "nodes": "localhost",
+        "defaultPort": "9200",
+        "multiplexer": "false",
+        "isAutoCalculateId": "true",
+        "indexMapping": "day"
+      }
+    }
+  ],
+  "operators": [
+    {
+      "name": "sum-operator",
+      "elementType": "SumOperator",
+      "configuration": {
+        "inputField":"price"
+      }
+    },
+    {
+      "name": "avg-operator",
+      "elementType": "AvgOperator",
+      "configuration": {
+        "inputField":"price"
+      }
+    }
+  ],
+  "parsers": [
+  {
+    "name": "morphline-parser",
+    "elementType": "MorphlinesParser",
+    "configuration": {
+      "morphline": {
+        "id": "morphline1",
+        "importCommands": [
+          "org.kitesdk.**"
+        ],
+        "commands" : [
+          {
+            "readCSV" : {
+              "separator" : ",",
+              "columns" : ["product","price"],
+              "trim" : "true",
+              "charset" : "UTF-8",
+              "quoteChar" : "\"",
+              "commentPrefix" : "#"
+            }
+          }
+        ]
+      }
+    }
+  }
+]
+}

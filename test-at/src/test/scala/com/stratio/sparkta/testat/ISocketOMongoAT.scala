@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.testa
+package com.stratio.sparkta.testat
 
 import com.github.simplyscala.{MongoEmbedDatabase, MongodProps}
 import com.mongodb.casbah.{MongoClientURI, MongoCollection, MongoConnection}
