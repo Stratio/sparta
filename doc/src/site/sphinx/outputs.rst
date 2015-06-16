@@ -39,7 +39,7 @@ For more information for this output you can visit the :doc:`dataframes`
 These parameters can be completed in the policy file:
 
 * multiplexer:
-   If you want to multiplex all possible combinations that occur within a rollup,so that the outputs are saved
+   If you want to multiplex all possible combinations that occur within a cube,so that the outputs are saved
    multiple "tables".
    With this parameter the possibility of multi cubes and the possibility of generating it implements a data
    aggregation lake.
@@ -72,7 +72,7 @@ These parameters can be completed in the policy file:
 
 * isAutoCalculateId:
    The system is capable of assigning an id added to each event, so that it may identify only the output.
-   This field is calculated with all the values of the bucket rollup, including timeBucket date if the parameter is specified.
+   This field is calculated with all the values of the bucket cube, including timeBucket date if the parameter is specified.
    Only for DataFrames persistence, disable in Tuple -> (DimensionValuesTime, Aggregations).
    You can omit this parameter in the policy.
 
@@ -111,7 +111,7 @@ For more information for this output you can visit the :doc:`mongodb`
 
 * dbName:
    The system is capable of assigning an id added to each event, so that it may identify only the output.
-   This field is calculated with all the values of the bucket rollup, including timeBucket date if the parameter is specified.
+   This field is calculated with all the values of the bucket cube, including timeBucket date if the parameter is specified.
    Only for DataFrames persistence, disable in UpdateMetricOperation.
    You can omit this parameter in the policy.
 

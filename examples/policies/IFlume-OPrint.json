@@ -21,16 +21,15 @@
   ],
   "dimensions": [
     {
-      "dimensionType": "PassthroughDimension",
       "name": "message"
     }
   ],
-  "rollups": [
+  "cubes": [
     {
-      "dimensionAndPrecision": [
+      "cube": "messages",
+      "precisions": [
         {
-          "dimensionName": "message",
-          "precision": "identity"
+          "dimension": "message"
         }
       ],
       "operators": ["count-operator"]
@@ -42,8 +41,6 @@
       "elementType": "PrintOutput",
       "configuration": {
         "multiplexer": "true",
-        "dateBucket": "minute",
-        "granularity": "minute",
         "isAutoCalculateId": "true"
       }
     }

@@ -41,6 +41,11 @@ with Matchers {
       = Map(("topics", new JsoneyString("zion2:1")), ("kafkaParams.group.id", new JsoneyString("kafka-pruebas")))
       val input = new PolicyElementDto("kafka-input", "KafkaInput", configuration)
 
+      val cubeName = "cubeTest"
+      val DimensionToCube = "dimension2"
+      val dimensionDto = new DimensionDto("dimensionType", "dimension1", None)
+      val cubeDto = new CubeDto(cubeName, Seq(new PrecisionDto(DimensionToCube, "dimensionType", None)), Seq(), Seq())
+
       val apd = new AggregationPoliciesDto(
         "policy-name",
         "true",
@@ -53,7 +58,7 @@ with Matchers {
         checkpointAvailable,
         0,
         Seq(),
-        Seq(mock[RollupDto]),
+        Seq(cubeDto),
         Seq(mock[PolicyElementDto]),
         Seq(input),
         Seq(mock[PolicyElementDto]),

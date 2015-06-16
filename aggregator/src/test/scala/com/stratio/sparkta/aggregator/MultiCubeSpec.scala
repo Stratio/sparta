@@ -18,7 +18,7 @@ package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.plugin.dimension.passthrough.PassthroughDimension
+import com.stratio.sparkta.plugin.dimension.native.NativeDimension
 import org.joda.time.DateTime
 import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.sdk._
@@ -28,26 +28,26 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class DataCubeSpec extends TestSuiteBase {
+class MultiCubeSpec extends TestSuiteBase {
 
   val PreserverOrder = false
 
   /**
-   * Given a rollup defined with:
+   * Given a cube defined with:
     - D = A dimension with name eventKey and a string value.
-    - B = A PassthroughDimension applied to the dimension
-    - O = No operator for the rollup
-    - R = Rollup with D+B+O
+    - B = A NativeDimension applied to the dimension
+    - O = No operator for the cube
+    - R = Cube with D+B+O
 
     This test should produce Seq[(Seq[DimensionValue], Map[String, JSerializable])] with values:
 
     List(
      (List(DimensionValue(
-       Dimension(eventKey,PassthroughDimension()),PrecisionType(identity,Map()),value1)),Map(eventKey -> value1)),
+       Dimension(eventKey,NativeDimension()),PrecisionType(identity,Map()),value1)),Map(eventKey -> value1)),
      (List(DimensionValue(
-       Dimension(eventKey,PassthroughDimension()),PrecisionType(identity,Map()),value2)),Map(eventKey -> value2)),
+       Dimension(eventKey,NativeDimension()),PrecisionType(identity,Map()),value2)),Map(eventKey -> value2)),
      (List(DimensionValue(
-       Dimension(eventKey,PassthroughDimension()),PrecisionType(identity,Map()),value3)),Map(eventKey -> value3)))
+       Dimension(eventKey,NativeDimension()),PrecisionType(identity,Map()),value3)),Map(eventKey -> value3)))
    */
   test("DataCube extracts dimensions from events") {
 
@@ -57,17 +57,22 @@ class DataCubeSpec extends TestSuiteBase {
     val timePrecision = None
 
     val timestamp = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity)
-    
-    val precisioner = new PassthroughDimension
+    val name = "cubeName"
+    val precisioner = new NativeDimension
     val dimension = Dimension("eventKey", precisioner)
     val operator = new CountOperator(Map())
+    val outputs = Seq()
+    val multiplexer = false
     val precisionType = new Precision("identity", TypeOp.String)
-    val rollup = new Rollup(Seq(DimensionPrecision(dimension, precisionType)),
+    val cube = new Cube(name,
+      Seq(DimensionPrecision(dimension, precisionType)),
       Seq(operator),
+      outputs,
+      multiplexer,
       checkpointInterval,
       checkpointGranularity,
       checkpointTimeAvailability)
-    val dataCube = new DataCube(Seq(dimension), Seq(rollup), timePrecision, checkpointGranularity)
+    val dataCube = new MultiCube(Seq(dimension), Seq(cube), timePrecision, checkpointGranularity)
 
     testOperation(getEventInput, dataCube.extractDimensionsStream, getEventOutput(timestamp), PreserverOrder)
   }
@@ -90,19 +95,19 @@ class DataCubeSpec extends TestSuiteBase {
   def getEventOutput(timestamp : Long): Seq[Seq[(DimensionValuesTime, Map[String, JSerializable])]] =
     Seq(Seq(
       (DimensionValuesTime(Seq(DimensionValue(
-        DimensionPrecision(Dimension("eventKey", new PassthroughDimension),
+        DimensionPrecision(Dimension("eventKey", new NativeDimension),
           Precision("identity", TypeOp.String, Map())),
         "value1")), timestamp),
         Map("eventKey" -> "value1")
       ),
       (DimensionValuesTime(Seq(DimensionValue(
-        DimensionPrecision(Dimension("eventKey", new PassthroughDimension),
+        DimensionPrecision(Dimension("eventKey", new NativeDimension),
           Precision("identity", TypeOp.String, Map())),
         "value2")), timestamp),
         Map("eventKey" -> "value2")
       ),
       (DimensionValuesTime(Seq(DimensionValue(
-        DimensionPrecision(Dimension("eventKey", new PassthroughDimension),
+        DimensionPrecision(Dimension("eventKey", new NativeDimension),
           Precision("identity", TypeOp.String, Map())),
         "value3")), timestamp)
         , Map("eventKey" -> "value3")

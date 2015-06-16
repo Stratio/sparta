@@ -1,5 +1,5 @@
 {
-  "name": "policy-Kafka-Mongo-Zion",
+  "name": "policy-draft",
   "duration": 10000,
   "saveRawData": "false",
   "rawDataParquetPath": "myTestParquetPath",
@@ -22,8 +22,7 @@
   ],
   "dimensions": [
     {
-      "name": "appName",
-      "dimensionType": "PassthroughDimension"
+      "name": "appName"
     },
     {
       "name": "timestamp",
@@ -36,21 +35,35 @@
   ],
   "cubes": [
     {
-      "cube1": [
+      "cube": "time",
+      "precisions": [
         {
           "dimension": "timestamp",
           "precision": "minute"
         }
       ],
-      "granularity": "hour",
-      "multiplexer": true,
-      "operators": [
-        "count-operator",
-        "max-operator"
-      ]
+      "multiplexer": "false",
+      "operators": ["count-operator", "max-operator"],
+      "outputs": ["out-mongo"]
     },
     {
-      "cube2": [
+      "cube": "appName",
+      "precisions": [
+        {
+          "dimension": "appName"
+        },
+        {
+          "dimension": "timestamp",
+          "precision": "minute"
+        }
+      ],
+      "multiplexer": "false",
+      "operators": ["count-operator"],
+      "outputs": ["out-mongo"]
+    },
+    {
+      "cube": "session",
+      "precisions": [
         {
           "dimension": "session"
         },
@@ -59,8 +72,8 @@
           "precision": "minute"
         }
       ],
-      "granularity": "minute",
-      "operators": ["count-operator"]
+      "operators": ["count-operator"],
+      "outputs": ["out-mongo"]
     }
   ],
   "operators": [
@@ -91,9 +104,10 @@
       "name": "out-elasticsearch",
       "elementType": "ElasticSearchOutput",
       "configuration": {
-        "host": "localhost",
-        "port": 9200,
-        "dbName": "sparkta"
+        "nodes": "localhost",
+        "defaultPort": "9200",
+        "dateType": "timestamp",
+        "indexMapping": "day"
       }
     }
   ],

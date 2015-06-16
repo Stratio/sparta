@@ -16,8 +16,14 @@
 
 package com.stratio.sparkta.driver.dto
 
-case class RollupDto(dimensionAndPrecision: Seq[DimensionAndPrecisionDto], operators: Seq[String])
+import com.stratio.sparkta.sdk.DimensionType
 
-case class DimensionAndPrecisionDto(dimensionName: String,
-                                     precision: String,
-                                     configuration: Option[Map[String, String]])
+case class CubeDto(cube : String,
+                   precisions: Seq[PrecisionDto],
+                   operators: Seq[String],
+                   outputs: Seq[String],
+                   multiplexer : String = "false")
+
+case class PrecisionDto(dimension: String,
+                        precision: String = DimensionType.IdentityName,
+                        configuration: Option[Map[String, String]])

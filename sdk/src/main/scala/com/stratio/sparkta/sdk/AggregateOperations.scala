@@ -77,7 +77,7 @@ object AggregateOperations {
   : Seq[DimensionValue] =
     precisionName match {
       case None => dimensionValues
-      case Some(precision) => dimensionValues.filter(rollup => (rollup.getNameDimension != precision))
+      case Some(precision) => dimensionValues.filter(cube => (cube.getNameDimension != precision))
     }
 
 }

@@ -99,7 +99,7 @@ Below you can see each of the features implemented:
 
   * Each Worker save in one BulkOperation for each data partition of a RDD.
 
-  * The output create one collection for each rollup. With the name "bucket1_bucket2..." + timeBucket is
+  * The output create one collection for each cube. With the name "bucket1_bucket2..." + timeBucket is
     specified in properties for the stateful operations)
 
       - Example: (with multiplexer)

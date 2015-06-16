@@ -21,15 +21,12 @@
   ],
   "dimensions": [
     {
-      "dimensionType": "PassthroughDimension",
       "name": "c_r"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "ou_v"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "a"
     },
     {
@@ -41,56 +38,48 @@
       "name": "geo"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "r_e_a"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "o"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "p_i"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "asset"
     }
   ],
-  "rollups": [
+  "cubes": [
     {
-      "dimensionAndPrecision": [
+      "cube": "assets",
+      "precisions": [
         {
-          "dimensionName": "asset",
-          "precision": "identity"
+          "dimension": "asset"
         }
       ]
     },
     {
-      "dimensionAndPrecision": [
+      "cube": "c_r_ou_v_a_r_a_m_o_p_i",
+      "precisions": [
         {
-          "dimensionName": "c_r",
-          "precision": "identity"
+          "dimension": "c_r"
         },
         {
-          "dimensionName": "ou_v",
-          "precision": "identity"
+          "dimension": "ou_v"
         },
         {
-          "dimensionName": "a",
-          "precision": "identity"
+          "dimension": "a"
         },
         {
-          "dimensionName": "r_a_m",
+          "dimension": "r_a_m",
           "precision": "minute"
         },
         {
-          "dimensionName": "o",
-          "precision": "identity"
+          "dimension": "o"
         },
         {
-          "dimensionName": "p_i",
-          "precision": "identity"
+          "dimension": "p_i"
         }
       ],
       "operators": ["range-operator"]
@@ -118,8 +107,6 @@
       "elementType": "PrintOutput",
       "configuration": {
         "multiplexer": "true",
-        "dateBucket": "minute",
-        "granularity": "minute",
         "isAutoCalculateId": "true"
       }
     }

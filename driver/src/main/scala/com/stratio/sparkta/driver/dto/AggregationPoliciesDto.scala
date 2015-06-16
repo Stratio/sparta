@@ -27,7 +27,6 @@ import org.json4s.jackson.JsonMethods._
 
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 
-
 case class AggregationPoliciesDto(name: String = "default",
                                   saveRawData: String = "true",
                                   rawDataParquetPath: String = "default",
@@ -39,7 +38,7 @@ case class AggregationPoliciesDto(name: String = "default",
                                   checkpointTimeAvailability: Int = AggregationPoliciesDto.checkpointTimeAvailability,
                                   duration: Long = AggregationPoliciesDto.StreamingWindowDurationInMillis,
                                   dimensions: Seq[DimensionDto],
-                                  rollups: Seq[RollupDto],
+                                  cubes: Seq[CubeDto],
                                   operators: Seq[PolicyElementDto],
                                   inputs: Seq[PolicyElementDto],
                                   parsers: Seq[PolicyElementDto],
@@ -47,6 +46,7 @@ case class AggregationPoliciesDto(name: String = "default",
                                   fragments: Seq[FragmentElementDto])
 
 case object AggregationPoliciesDto {
+
   val StreamingWindowDurationInMillis = 2000
   val CheckPointInterval = 20000
   val checkpointTimeAvailability = 60000
@@ -54,13 +54,17 @@ case object AggregationPoliciesDto {
 
 object AggregationPoliciesValidator {
 
+  final val MessageCubeName = "All cubes must have a non empty name\n"
+  final val MessageDurationGranularity = "The duration must be less than checkpoint interval\n"
+
   def validateDto(aggregationPoliciesDto: AggregationPoliciesDto): (Boolean, String) = {
     val (isValidAgainstSchema: Boolean, isValidAgainstSchemaMsg: String) = validateAgainstSchema(aggregationPoliciesDto)
-    val (isValidRollup: Boolean, isRollupInDimensionsMsg: String) =
-      validateRollups(aggregationPoliciesDto)
+    val (isValidCube: Boolean, isCubeInDimensionsMsg: String) = validateCubes(aggregationPoliciesDto)
+    val isValidDurationGranularity = aggregationPoliciesDto.duration < aggregationPoliciesDto.checkpointInterval
+    val isValidDurationGranularityMsg = if(!isValidDurationGranularity) MessageDurationGranularity else ""
 
-    val isValid = isValidRollup && isValidAgainstSchema
-    val errorMsg = isRollupInDimensionsMsg ++ isValidAgainstSchemaMsg
+    val isValid = isValidCube && isValidAgainstSchema && isValidDurationGranularity
+    val errorMsg = isCubeInDimensionsMsg ++ isValidAgainstSchemaMsg ++ isValidDurationGranularityMsg
     (isValid, errorMsg)
   }
 
@@ -93,20 +97,49 @@ object AggregationPoliciesValidator {
     (isValid, msg)
   }
 
-  def validateRollups(aggregationPoliciesDto: AggregationPoliciesDto): (Boolean, String) = {
+  def validateCubes(aggregationPoliciesDto: AggregationPoliciesDto): (Boolean, String) = {
 
+    val hasCubesNames = aggregationPoliciesDto.cubes.filter(c => c.cube == null || c.cube.isEmpty).isEmpty
     val dimensionNames = aggregationPoliciesDto.dimensions.map(_.name)
-
-    val rollupNames = aggregationPoliciesDto.rollups
+    val cubeDimension = aggregationPoliciesDto.cubes
       .flatMap(x => Option(x))
-      .flatMap(x => Option(x.dimensionAndPrecision))
+      .flatMap(x => Option(x.precisions))
       .flatten
-      .map(_.dimensionName)
+      .map(_.dimension)
 
-    val rollupNotInDimensions = rollupNames.filter(!dimensionNames.contains(_))
-    val isRollupInDimensions = rollupNotInDimensions.isEmpty
-    val isRollupInDimensionsMsg =
-      if (!isRollupInDimensions) "All rollups should be declared in dimensions block\n" else ""
-    (isRollupInDimensions, isRollupInDimensionsMsg)
+    if(!hasCubesNames) (false, MessageCubeName)
+    else checkCubeParameter(cubeDimension, dimensionNames, "dimensions") match {
+      case resultDimension if resultDimension._1 => resultDimension
+      case _ => {
+        val operatorNames = aggregationPoliciesDto.operators.map(_.name)
+        val cubeOperators = aggregationPoliciesDto.cubes
+          .flatMap(x => Option(x))
+          .flatMap(x => Option(x.operators))
+          .flatten
+
+        checkCubeParameter(cubeOperators, operatorNames, "operators") match {
+          case resultOperator if resultOperator._1 => resultOperator
+          case _ => {
+            val outputNames = aggregationPoliciesDto.outputs.map(_.name)
+            val cubeOutputs = aggregationPoliciesDto.cubes
+              .flatMap(x => Option(x))
+              .flatMap(x => Option(x.outputs))
+              .flatten
+
+            checkCubeParameter(cubeOutputs, outputNames, "outputs")
+          }
+        }
+      }
+    }
+  }
+
+  private def checkCubeParameter(cubeNames: Seq[String], parameterNames: Seq[String], label: String):
+  (Boolean, String) = {
+    val parameterNotIn = cubeNames.filter(!parameterNames.contains(_))
+    val isParameterIn = parameterNotIn.isEmpty
+    val isCubeInMsg =
+      if (!isParameterIn) s"All $label cubes should be declared in $label block\n" else ""
+
+    (isParameterIn, isCubeInMsg)
   }
 }

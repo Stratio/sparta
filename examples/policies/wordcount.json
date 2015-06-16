@@ -1,90 +1,91 @@
 {
-    "name": "socket-policy",
-    "duration": 10000,
-    "saveRawData": "false",
-    "inputs": [
+  "name": "socket-policy",
+  "duration": 10000,
+  "saveRawData": "false",
+  "rawDataParquetPath": "myTestParquetPath",
+  "checkpointDir": "checkpoint",
+  "checkpointGranularity": "minute",
+  "checkpointInterval": 30000,
+  "checkpointTimeAvailability": 60000,
+  "inputs": [
+    {
+      "name": "in-socket",
+      "elementType": "SocketInput",
+      "configuration": {
+        "hostname": "localhost",
+        "port": 9999,
+        "storageLevel": "MEMORY_ONLY"
+      }
+    }
+  ],
+  "dimensions": [
+    {
+      "name": "word"
+    },
+    {
+      "name": "wordCount"
+    }
+  ],
+  "cubes": [
+    {
+      "cube": "twitter",
+      "precisions": [
         {
-            "name": "in-socket",
-            "elementType": "SocketInput",
-            "configuration": {
-                "hostname": "localhost",
-                "port": 9999,
-                "storageLevel": "MEMORY_ONLY"
-            }
-        }
-    ],
-    "dimensions": [
-        {
-            "dimensionType": "PassthroughDimension",
-            "name": "word"
+          "dimensionName": "word"
         },
         {
-            "dimensionType": "PassthroughDimension",
-            "name": "wordCount"
+          "dimensionName": "wordCount"
         }
-    ],
-    "rollups": [
-        {
-            "dimensionAndPrecision": [
-                {
-                    "dimensionName": "word",
-                    "precision": "identity"
-                },
-		{
-                    "dimensionName": "wordCount",
-                    "precision": "identity"
-                }
-
-            ]
-        }
-    ],
-    "outputs": [
-      {
-     "name": "out-print",
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-print",
       "elementType": "PrintOutput",
       "configuration": {}
-      }
-    ],
-    "operators": [
-        {
-            "name": "count-operator",
-            "elementType": "CountOperator",
-            "configuration": {}
-        }
-    ],
-    "parsers": [
-        {
-            "name": "morphline-parser",
-            "elementType": "MorphlinesParser",
-            "configuration": {
-                "morphline": {
-                    "id": "morphline1",
-                    "importCommands": [
-                        "org.kitesdk.**",
-                        "com.stratio.ingestion.morphline.**"
-                    ],
-                    "commands": [
-                        {
-                            "readJson": {}
-                        },
-                        {
-                            "extractJsonPaths": {
-                                "paths": {
-                                    "word": "/word",
-                                    "wordCount": "/wordCount"
-                                }
-                            }
-                        },
-                        {
-                            "removeFields": {
-                                "blacklist": [
-                                    "literal:_attachment_body"
-                                ]
-                            }
-                        }
-                    ]
+    }
+  ],
+  "operators": [
+    {
+      "name": "count-operator",
+      "elementType": "CountOperator",
+      "configuration": {}
+    }
+  ],
+  "parsers": [
+    {
+      "name": "morphline-parser",
+      "elementType": "MorphlinesParser",
+      "configuration": {
+        "morphline": {
+          "id": "morphline1",
+          "importCommands": [
+            "org.kitesdk.**",
+            "com.stratio.ingestion.morphline.**"
+          ],
+          "commands": [
+            {
+              "readJson": {}
+            },
+            {
+              "extractJsonPaths": {
+                "paths": {
+                  "word": "/word",
+                  "wordCount": "/wordCount"
                 }
+              }
+            },
+            {
+              "removeFields": {
+                "blacklist": [
+                  "literal:_attachment_body"
+                ]
+              }
             }
+          ]
         }
-    ]
+      }
+    }
+  ]
 }

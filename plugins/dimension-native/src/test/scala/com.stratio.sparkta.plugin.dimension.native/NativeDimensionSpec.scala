@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.plugin.dimension.passthrough
+package com.stratio.sparkta.plugin.dimension.native
 
 import java.io.{Serializable => JSerializable}
 
@@ -25,13 +25,13 @@ import org.scalatest.{Matchers, WordSpecLike}
 import com.stratio.sparkta.sdk.{DimensionType, TypeOp}
 
 @RunWith(classOf[JUnitRunner])
-class PassthroughDimensionSpec extends WordSpecLike with Matchers {
+class NativeDimensionSpec extends WordSpecLike with Matchers {
 
-  val passthroughDimension: PassthroughDimension = new PassthroughDimension(Map("typeOp" -> "int"))
+  val nativeDimension: NativeDimension = new NativeDimension(Map("typeOp" -> "int"))
 
-  "A PassthroughDimension" should {
+  "A NativeDimension" should {
     "In default implementation, get one precisions for a specific time" in {
-      val precisions = passthroughDimension.dimensionValues("foo".asInstanceOf[JSerializable]).map(_._1.id)
+      val precisions = nativeDimension.dimensionValues("foo".asInstanceOf[JSerializable]).map(_._1.id)
 
       precisions.size should be(1)
 
@@ -39,7 +39,7 @@ class PassthroughDimensionSpec extends WordSpecLike with Matchers {
     }
 
     "The precision must be int" in {
-      passthroughDimension.precisions(DimensionType.IdentityName).typeOp should be(TypeOp.Int)
+      nativeDimension.precisions(DimensionType.IdentityName).typeOp should be(TypeOp.Int)
     }
   }
 }

@@ -57,9 +57,10 @@
       "name": "path_id"
     }
   ],
-  "rollups": [
+  "cubes": [
     {
-      "dimensionAndPrecision": [
+      "cube": "testCube",
+      "precisions": [
         {
           "dimensionName": "company_root",
           "precision": "identity"

@@ -44,6 +44,8 @@ abstract class Output(keyName: String,
 
   val sqlContext: SQLContext = new SQLContext(sparkContext)
 
+  def getName: String = keyName
+
   def dateType: TypeOp.Value = TypeOp.Timestamp
 
   def fixedPrecisionsType: TypeOp.Value = TypeOp.String

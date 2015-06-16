@@ -26,43 +26,59 @@ import org.joda.time.DateTime
 import com.stratio.sparkta.sdk._
 
 /**
- * Use this class to describe a rollup that you want the datacube to keep.
+ * Use this class to describe a cube that you want the multicube to keep.
  *
  * For example, if you're counting events with the dimensions (color, size, flavor) and you
- * want to keep a total count for all (color, size) combinations, you'd specify that using a Rollup or
+ * want to keep a total count for all (color, size) combinations, you'd specify that using a Cube or
  * multipelexer the output
  */
 
-case class Rollup(components: Seq[DimensionPrecision],
-                  operators: Seq[Operator],
-                  checkpointInterval: Int,
-                  checkpointGranularity: String,
-                  checkpointTimeAvailability: Int) {
+case class Cube(name: String,
+                components: Seq[DimensionPrecision],
+                operators: Seq[Operator],
+                outputs: Seq[Output],
+                multiplexer: Boolean,
+                checkpointInterval: Int,
+                checkpointGranularity: String,
+                checkpointTimeAvailability: Int) {
 
   private lazy val operatorsMap = operators.map(op => op.key -> op).toMap
 
-  def this(dimension: Dimension,
+  //scalastyle:off
+  def this(name: String,
+           dimension: Dimension,
            precision: Precision,
            operators: Seq[Operator],
+           outputs: Seq[Output],
+           multiplexer: Boolean,
            checkpointInterval: Int,
            checkpointGranularity: String,
            checkpointAvailable: Int) {
-    this(Seq(DimensionPrecision(dimension, precision)),
+    this(name, Seq(DimensionPrecision(dimension, precision)),
       operators,
+      outputs,
+      multiplexer,
       checkpointInterval,
       checkpointGranularity,
       checkpointAvailable)
   }
 
-  def this(dimension: Dimension,
+  //scalastyle:on
+
+  def this(name: String,
+           dimension: Dimension,
            operators: Seq[Operator],
+           outputs: Seq[Output],
+           multiplexer: Boolean,
            checkpointInterval: Int,
            checkpointGranularity: String,
            checkpointAvailable: Int) {
-    this(Seq(DimensionPrecision(dimension,
-        DimensionType.getIdentity(dimension.dimensionType.getTypeOperation,
-          dimension.dimensionType.defaultTypeOperation))),
+    this(name, Seq(DimensionPrecision(dimension,
+      DimensionType.getIdentity(dimension.dimensionType.getTypeOperation,
+        dimension.dimensionType.defaultTypeOperation))),
       operators,
+      outputs,
+      multiplexer,
       checkpointInterval,
       checkpointGranularity,
       checkpointAvailable)
@@ -118,7 +134,7 @@ case class Rollup(components: Seq[DimensionPrecision],
     })
   }
 
-  override def toString: String = "[Rollup over " + components + "]"
+  override def toString: String = "[Cube over " + components + "]"
 
   def getComponentsSorted: Seq[DimensionPrecision] = components.sorted
 

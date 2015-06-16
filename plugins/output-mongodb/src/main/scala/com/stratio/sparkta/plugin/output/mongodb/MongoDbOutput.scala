@@ -90,12 +90,12 @@ class MongoDbOutput(keyName: String,
       val bulkOperation = db().getCollection(collMetricOp._1).initializeOrderedBulkOperation()
       val idFieldName = if (!timeName.isEmpty) Output.Id else DefaultId
 
-      val updateObjects = collMetricOp._2.map { case (rollupKey, aggregations) => {
+      val updateObjects = collMetricOp._2.map { case (cubeKey, aggregations) => {
         checkFields(aggregations.keySet, operationTypes)
-        val eventTimeObject = if (!timeName.isEmpty) Some(timeName -> new DateTime(rollupKey.time)) else None
-        val identitiesField = getIdentitiesField(rollupKey)
-        val identities = if(identitiesSaved) Some(getIdentities(rollupKey)) else None
-        val idFields = if(idAsField) Some(getIdFields(rollupKey)) else None
+        val eventTimeObject = if (!timeName.isEmpty) Some(timeName -> new DateTime(cubeKey.time)) else None
+        val identitiesField = getIdentitiesField(cubeKey)
+        val identities = if(identitiesSaved) Some(getIdentities(cubeKey)) else None
+        val idFields = if(idAsField) Some(getIdFields(cubeKey)) else None
         val mapOperations = getOperations(aggregations.toSeq, operationTypes)
           .groupBy { case (writeOp, op) => writeOp }
           .mapValues(operations => operations.map { case (writeOp, op) => op })
@@ -104,7 +104,7 @@ class MongoDbOutput(keyName: String,
         (getFind(
           idFieldName,
           eventTimeObject,
-          AggregateOperations.filterDimensionValuesByPrecision(rollupKey.dimensionValues, if (timeName.isEmpty) None
+          AggregateOperations.filterDimensionValuesByPrecision(cubeKey.dimensionValues, if (timeName.isEmpty) None
           else Some(timeName))),
           getUpdate(mapOperations, identitiesField, identities, idFields))
       }

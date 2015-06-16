@@ -22,8 +22,7 @@
   ],
   "dimensions": [
     {
-      "name": "appName",
-      "dimensionType": "PassthroughDimension"
+      "name": "appName"
     },
     {
       "name": "timestamp",
@@ -42,12 +41,12 @@
       "dimensionType": "TwitterStatusDimension"
     }
   ],
-  "rollups": [
+  "cubes": [
     {
-      "dimensionAndPrecision": [
+      "cube": "testCube",
+      "precisions": [
         {
-          "dimensionName": "appName",
-          "precision": "identity"
+          "dimension": "appName"
         }
       ],
       "operators": ["count-operator"]
