@@ -27,16 +27,20 @@ import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 
-class ISocketOParquetRawAT extends SparktaATSuite {
+class ISocketOParquetAT extends SparktaATSuite {
 
   val PolicyEndSleep = 30000
   val NumExecutors = 4
-  val Policy = getClass.getClassLoader.getResource("policies/ISocket-OParquetRaw.json")
+  val Policy = getClass.getClassLoader.getResource("policies/ISocket-OParquet.json")
   val PathToPolicy = Policy.getPath
-  val PathToCsv = getClass.getClassLoader.getResource("fixtures/ISocket-OParquetRaw.csv").getPath
+  val PathToCsv = getClass.getClassLoader.getResource("fixtures/ISocket-OParquet.csv").getPath
 
   implicit val formats = DefaultFormats + new JsoneyStringSerializer()
-  val parquetPath = parse(Policy.openStream()).extract[AggregationPoliciesDto].rawDataParquetPath
+  val parquetPath = parse(Policy.openStream()).extract[AggregationPoliciesDto].outputs(0).configuration("path").toString
+  val expectedResults = Seq(("producta", 750.0D, 6000.0D),
+    ("productb", 1000.0D, 8000.0D),
+    ("producta", 750.0D, 6000.0D),
+    ("productb", 1000.0D, 8000.0D))
 
   before {
     zookeeperStart
@@ -49,26 +53,26 @@ class ISocketOParquetRawAT extends SparktaATSuite {
     File(parquetPath).deleteRecursively
   }
 
-  val Total = 16
-
   "Sparkta" should {
 
-    "save raw data in the storage" in {
+    "save data in parquet" in {
       startSparkta
 
       sendPolicy(PathToPolicy)
       sendDataToSparkta(PathToCsv)
       Thread.sleep(PolicyEndSleep)
+      //FIXME: We need to change this when we can stop gracefully Sparkta
       SparkContextFactory.destroySparkContext
       checkData
     }
 
     def checkData(): Unit = {
-      val sc = new SparkContext(s"local[$NumExecutors]", "ISocketOParquetRawAT")
+      val sc = new SparkContext(s"local[$NumExecutors]", "ISocketOParquetAT")
       val sqc = new SQLContext(sc)
       val result = sqc.parquetFile(parquetPath).toDF
-      //FIXME: Currently we are only capable of check the count
-      result.count should be(Total)
+      val elementsAsSeq = result.select("product", "avg_price", "sum_price").map(
+        row => (row.getString(0), row.getDouble(1), row.getDouble(2))).collect.toSeq
+      elementsAsSeq should be(expectedResults)
     }
   }
 }
