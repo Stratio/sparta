@@ -1,0 +1,91 @@
+{
+  "name": "ATParquetRaw",
+  "duration": 2000,
+  "saveRawData": "true",
+  "rawDataParquetPath": "/tmp/sparkta/raw-data",
+  "checkpointDir": "checkpoint",
+  "timePrecision": "minute",
+  "checkpointGranularity": "minute",
+  "checkpointInterval": 30000,
+  "checkpointTimeAvailability": 60000,
+  "inputs": [
+    {
+      "name": "in-socket",
+      "elementType": "SocketInput",
+      "configuration": {
+        "hostname": "localhost",
+        "port": "10666"
+      }
+    }
+  ],
+  "dimensions": [
+    {
+      "name": "product",
+      "dimensionType": "PassthroughDimension"
+    },
+    {
+      "name": "price",
+      "dimensionType": "PassthroughDimension"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-print",
+      "elementType": "PrintOutput",
+      "configuration": {}
+    }
+  ],
+  "rollups": [
+    {
+      "dimensionAndPrecision": [
+        {
+          "dimensionName": "product",
+          "precision": "identity"
+        }
+      ],
+      "operators": ["sum-operator","avg-operator"]
+    }
+  ],
+  "operators": [
+    {
+      "name": "sum-operator",
+      "elementType": "SumOperator",
+      "configuration": {
+        "inputField":"price"
+      }
+    },
+    {
+      "name": "avg-operator",
+      "elementType": "AvgOperator",
+      "configuration": {
+        "inputField":"price"
+      }
+    }
+  ],
+  "parsers": [
+  {
+    "name": "morphline-parser",
+    "elementType": "MorphlinesParser",
+    "configuration": {
+      "morphline": {
+        "id": "morphline1",
+        "importCommands": [
+          "org.kitesdk.**"
+        ],
+        "commands" : [
+          {
+            "readCSV" : {
+              "separator" : ",",
+              "columns" : ["product","price"],
+              "trim" : "true",
+              "charset" : "UTF-8",
+              "quoteChar" : "\"",
+              "commentPrefix" : "#"
+            }
+          }
+        ]
+      }
+    }
+  }
+]
+}
