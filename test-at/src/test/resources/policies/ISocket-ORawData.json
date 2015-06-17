@@ -1,5 +1,5 @@
 {
-  "name": "ATParquetRaw",
+  "name": "ATRawData",
   "duration": 2000,
   "saveRawData": "true",
   "rawDataParquetPath": "/tmp/sparkta/raw-data",
