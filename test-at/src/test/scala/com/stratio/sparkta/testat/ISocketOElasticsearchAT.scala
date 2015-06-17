@@ -30,7 +30,7 @@ import org.elasticsearch.node.NodeBuilder._
 import spray.client.pipelining._
 import spray.http._
 
-class ISocketOElasticAT extends SparktaATSuite{
+class ISocketOElasticsearchAT extends SparktaATSuite{
 
   val PathToPolicy = getClass.getClassLoader.getResource("policies/ISocket-OElasticsearch.json").getPath
   val PathToCsv = getClass.getClassLoader.getResource("fixtures/ISocket-OMongo.csv").getPath
@@ -45,6 +45,13 @@ class ISocketOElasticAT extends SparktaATSuite{
   before {
     zookeeperStart
     socketStart
+
+    /**
+     * Running the embedded server in the test fails when writing data.
+     * This is the reason why we need to run it in a different process.
+     * We have already tested it making ElasticsearchEmbeddedServer implements Runnable and running it in a thread but
+     * no success...
+     */
     JVMProcess.runMain(ElasticThread.getClass.getCanonicalName.dropRight(1), false)
   }
 
