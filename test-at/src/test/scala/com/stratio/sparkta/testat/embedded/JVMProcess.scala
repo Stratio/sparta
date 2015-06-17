@@ -1,6 +1,6 @@
 
 
-package com.stratio.sparkta.testat.embeddedes
+package com.stratio.sparkta.testat.embedded
 
 import java.lang.System.{getProperty => Prop}
 

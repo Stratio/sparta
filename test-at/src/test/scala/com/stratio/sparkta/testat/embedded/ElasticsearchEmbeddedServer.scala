@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.testat.embeddedes
+package com.stratio.sparkta.testat.embedded
 
 import java.io.File
 

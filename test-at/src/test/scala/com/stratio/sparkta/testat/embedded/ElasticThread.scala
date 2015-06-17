@@ -1,5 +1,5 @@
 
-package com.stratio.sparkta.testat.embeddedes
+package com.stratio.sparkta.testat.embedded
 
 object ElasticThread {
 

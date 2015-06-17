@@ -16,7 +16,7 @@
 
 package com.stratio.sparkta.testat
 
-import com.stratio.sparkta.testat.embeddedes.{ElasticsearchEmbeddedServer, JVMProcess, ElasticThread}
+import com.stratio.sparkta.testat.embedded.{ElasticsearchEmbeddedServer, JVMProcess, ElasticThread}
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
