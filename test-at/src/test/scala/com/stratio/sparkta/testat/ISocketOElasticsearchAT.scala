@@ -33,7 +33,7 @@ import spray.http._
 class ISocketOElasticsearchAT extends SparktaATSuite{
 
   val PathToPolicy = getClass.getClassLoader.getResource("policies/ISocket-OElasticsearch.json").getPath
-  val PathToCsv = getClass.getClassLoader.getResource("fixtures/ISocket-OMongo.csv").getPath
+  val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data.csv").getPath
   val TimeElastisearchStarts: Long = 5000
   val PolicyEndSleep = 30000
   val ProductAAvg: Double = 750d
