@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.testa
+package com.stratio.sparkta.testat
 
-import scala.reflect.io.File
-
+import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
+import com.stratio.sparkta.driver.factory.SparkContextFactory
+import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
-import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
-import com.stratio.sparkta.driver.factory.SparkContextFactory
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import scala.reflect.io.File
 
 class ISocketORawDataAT extends SparktaATSuite {
 
