@@ -38,7 +38,7 @@ class ISocketOParquetAT extends SparktaATSuite {
 
   implicit val formats = DefaultFormats + new JsoneyStringSerializer()
   val parquetPath = parse(Policy.openStream()).extract[AggregationPoliciesDto].outputs(0).configuration("path").toString
-  val expectedResults = Seq(("producta", 750.0D, 6000.0D),
+  val expectedResults = Set(("producta", 750.0D, 6000.0D),
     ("productb", 1000.0D, 8000.0D),
     ("producta", 750.0D, 6000.0D),
     ("productb", 1000.0D, 8000.0D))
@@ -72,7 +72,7 @@ class ISocketOParquetAT extends SparktaATSuite {
       val sqc = new SQLContext(sc)
       val result = sqc.parquetFile(parquetPath).toDF
       val elementsAsSeq = result.select("product", "avg_price", "sum_price").map(
-        row => (row.getString(0), row.getDouble(1), row.getDouble(2))).collect.toSeq
+        row => (row.getString(0), row.getDouble(1), row.getDouble(2))).collect.toSet
       elementsAsSeq should be(expectedResults)
     }
   }
