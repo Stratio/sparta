@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.testa
+package com.stratio.sparkta.testat
 
-import java.io.{PrintStream, File}
-import java.net.InetSocketAddress
+import java.io.{File, PrintStream}
+import java.net.{InetSocketAddress, Socket}
 import java.nio.channels.ServerSocketChannel
 
 import akka.event.slf4j.SLF4JLogging
@@ -26,20 +26,15 @@ import com.stratio.sparkta.driver.constants.AppConstant
 import com.stratio.sparkta.driver.helpers.sparkta.{MockSystem, SparktaHelper}
 import com.typesafe.config.Config
 import org.apache.curator.test.TestingServer
-import org.scalatest.{Matchers, BeforeAndAfter, WordSpecLike}
-
+import org.scalatest.{BeforeAndAfter, Matchers, WordSpecLike}
 import spray.client.pipelining._
 import spray.http.StatusCodes._
 import spray.http._
 import spray.testkit.ScalatestRouteTest
 
-import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
+import scala.concurrent.duration._
 import scala.io.Source
-
-import java.net.Socket
-
-import scala.concurrent.Await
 import scala.util.Try
 
 /**
