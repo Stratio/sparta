@@ -3,7 +3,7 @@
   "duration": 10000,
   "saveRawData": "false",
   "checkpointDir": "checkpoint",
-  "timeBucket": "minute",
+  "timePrecision": "minute",
   "checkpointGranularity": "minute",
   "checkpointInterval": 30000,
   "checkpointTimeAvailability": 60000,
@@ -23,112 +23,112 @@
   ],
   "dimensions": [
     {
-      "dimensionType": "DateTimeBucketer",
+      "dimensionType": "DateTimeDimension",
       "name": "purchaseDateOL"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "userOL"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "totalAmountOL"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "cityOL"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "postalCodeOL"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "stateOL"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "countryOL"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "customerTypeOL"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "paymentTypeOL"
     },
     {
-      "dimensionType": "DateTimeBucketer",
+      "dimensionType": "DateTimeDimension",
       "name": "timestampVL"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "ipHostVL"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "userAgentVL"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "userLogVL"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "responseCodeVL"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimension",
       "name": "operatingSystemVL"
     }
   ],
   "rollups": [
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "purchaseDateOL",
-          "bucketType": "minute"
+          "precision": "minute"
         }
       ],
       "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "timestampVL",
-          "bucketType": "minute"
+          "precision": "minute"
         }
       ],
       "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "ipHostVL",
-          "bucketType": "identity"
+          "precision": "identity"
         },
         {
           "dimensionName": "timestampVL",
-          "bucketType": "minute"
+          "precision": "minute"
         }
       ],
       "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "cityOL",
-          "bucketType": "identity"
+          "precision": "identity"
         }
       ],
       "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator"]
     },
     {
-      "dimensionAndBucketTypes": [
+      "dimensionAndPrecision": [
         {
           "dimensionName": "stateOL",
-          "bucketType": "identity"
+          "precision": "identity"
         }
       ],
       "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator"]
@@ -190,8 +190,7 @@
         "morphline": {
           "id": "morphline1",
           "importCommands": [
-            "org.kitesdk.**",
-            "com.stratio.ingestion.morphline.**"
+            "org.kitesdk.**"
           ],
           "commands": [
             {

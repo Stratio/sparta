@@ -3,7 +3,7 @@
     "duration": 10000,
     "saveRawData": "false",
     "checkpointDir": "checkpoint",
-    "timeBucket": "minute",
+    "timePrecision": "minute",
     "checkpointGranularity": "minute",
     "checkpointInterval": 30000,
     "checkpointTimeAvailability": 60000,
@@ -23,87 +23,87 @@
     ],
     "dimensions": [
         {
-            "dimensionType": "PassthroughBucketer",
+            "dimensionType": "PassthroughDimension",
             "name": "source"
         },
         {
-            "dimensionType": "PassthroughBucketer",
+            "dimensionType": "PassthroughDimension",
             "name": "text"
         },
         {
-            "dimensionType": "PassthroughBucketer",
+            "dimensionType": "PassthroughDimension",
             "name": "lang"
         },
         {
-            "dimensionType": "DateTimeBucketer",
+            "dimensionType": "DateTimeDimension",
             "name": "createdAt"
         },
         {
-            "dimensionType": "PassthroughBucketer",
+            "dimensionType": "PassthroughDimension",
             "name": "favoriteCount"
         },
         {
-            "dimensionType": "PassthroughBucketer",
+            "dimensionType": "PassthroughDimension",
             "name": "retweetCount"
         },
         {
-            "dimensionType": "PassthroughBucketer",
+            "dimensionType": "PassthroughDimension",
             "name": "user_followersCount"
         },
         {
-            "dimensionType": "PassthroughBucketer",
+            "dimensionType": "PassthroughDimension",
             "name": "user_favouritesCount"
         },
         {
-            "dimensionType": "PassthroughBucketer",
+            "dimensionType": "PassthroughDimension",
             "name": "user_id"
         },
         {
-            "dimensionType": "PassthroughBucketer",
+            "dimensionType": "PassthroughDimension",
             "name": "user_screenName"
         },
         {
-            "dimensionType": "PassthroughBucketer",
+            "dimensionType": "PassthroughDimension",
             "name": "user_timeZone"
         }
     ],
     "rollups": [
         {
-            "dimensionAndBucketTypes": [
+            "dimensionAndPrecision": [
                 {
                     "dimensionName": "createdAt",
-                    "bucketType": "minute"
+                    "precision": "minute"
                 }
             ],
             "operators": ["count-operator","max-operator"]
         },
         {
-            "dimensionAndBucketTypes": [
+            "dimensionAndPrecision": [
                 {
                     "dimensionName": "lang",
-                    "bucketType": "identity"
+                    "precision": "identity"
                 }
             ],
             "operators": ["count-operator","max-operator"]
         },
         {
-            "dimensionAndBucketTypes": [
+            "dimensionAndPrecision": [
                 {
                     "dimensionName": "lang",
-                    "bucketType": "identity"
+                    "precision": "identity"
                 },
                 {
                     "dimensionName": "createdAt",
-                    "bucketType": "minute"
+                    "precision": "minute"
                 }
             ],
             "operators": ["count-operator","max-operator"]
         },
         {
-            "dimensionAndBucketTypes": [
+            "dimensionAndPrecision": [
                 {
                     "dimensionName": "user_timeZone",
-                    "bucketType": "identity"
+                    "precision": "identity"
                 }
             ],
             "operators": ["count-operator","max-operator"]
@@ -142,8 +142,7 @@
                 "morphline": {
                     "id": "morphline1",
                     "importCommands": [
-                        "org.kitesdk.**",
-                        "com.stratio.ingestion.morphline.**"
+                        "org.kitesdk.**"
                     ],
                     "commands": [
                         {
