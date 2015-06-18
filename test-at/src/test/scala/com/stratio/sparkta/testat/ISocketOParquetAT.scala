@@ -16,6 +16,8 @@
 
 package com.stratio.sparkta.testat
 
+import scala.reflect.io.File
+
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
@@ -32,7 +34,7 @@ class ISocketOParquetAT extends SparktaATSuite {
   val NumExecutors = 4
   val Policy = getClass.getClassLoader.getResource("policies/ISocket-OParquet.json")
   val PathToPolicy = Policy.getPath
-  val PathToCsv = getClass.getClassLoader.getResource("fixtures/ISocket-OParquet.csv").getPath
+  val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data.csv").getPath
 
   implicit val formats = DefaultFormats + new JsoneyStringSerializer()
   val parquetPath = parse(Policy.openStream()).extract[AggregationPoliciesDto].outputs(0).configuration("path").toString

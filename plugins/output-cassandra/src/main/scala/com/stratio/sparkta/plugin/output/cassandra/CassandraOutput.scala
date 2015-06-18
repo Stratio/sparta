@@ -129,9 +129,18 @@ class CassandraOutput(keyName: String,
 object CassandraOutput {
 
   final val DefaultHost = "127.0.0.1"
+  final val DefaultPort = "9042"
+
 
   def getSparkConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
     val connectionHost = configuration.getString("connectionHost", DefaultHost)
-    Seq(("spark.cassandra.connection.host", connectionHost))
+    val connectionPort = configuration.getString("connectionPort", DefaultPort)
+
+    // TODO (anistal) if the project is updated to spark 1.4, we must to change:
+    // spark.cassandra.connection.native.port to "spark.cassandra.connection.port
+
+    Seq(("spark.cassandra.connection.host", connectionHost),
+      ("spark.cassandra.connection.native.port", connectionPort)
+    )
   }
 }
