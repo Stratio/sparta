@@ -15,4 +15,4 @@
 # limitations under the License.
 #
 
-mvn test 
+mvn scoverage:check scoverage:report
