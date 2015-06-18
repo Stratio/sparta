@@ -1,0 +1,124 @@
+{
+  "name": "agg-process",
+  "duration": 2000,
+  "saveRawData": "false",
+  "checkpointDir": "checkpoint",
+  "timeBucket": "minute",
+  "checkpointGranularity": "minute",
+  "checkpointInterval": 30000,
+  "checkpointTimeAvailability": 60000,
+  "inputs": [
+    {
+      "name": "in-socket",
+      "elementType": "SocketInput",
+      "configuration": {
+        "hostname": "localhost",
+        "port": "10666"
+      }
+    }
+  ],
+  "dimensions": [
+    {
+      "name": "smfProcess",
+      "dimensionType": "PassthroughDimension"
+    },
+    {
+      "name": "millis",
+      "dimensionType": "DateTimeDimension"
+    }
+  ],
+  "rollups": [
+    {
+      "dimensionAndPrecision": [
+        {
+          "dimensionName": "smfProcess",
+          "precision": "identity"
+        },
+        {
+          "dimensionName": "millis",
+          "precision": "minute"
+        }
+      ],
+      "operators": ["count-operator"]
+    }
+  ],
+  "operators": [
+    {
+      "name": "count-operator",
+      "elementType": "CountOperator",
+      "configuration": {
+        "inputField":"smfProcess"
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-elasticsearch",
+      "elementType": "ElasticSearchOutput",
+      "configuration": {
+        "nodes": "localhost",
+        "defaultPort": "9200",
+        "multiplexer": "false",
+        "isAutoCalculateId": "true",
+        "indexMapping": "agg_proc_minute"
+      }
+    }
+  ],
+  "parsers": [
+    {
+      "name": "morphline",
+      "elementType": "MorphlinesParser",
+      "configuration": {
+        "morphline": {
+          "id": "morphline1",
+          "importCommands": [
+            "org.kitesdk.**",
+            "com.stratio.ingestion.morphline.**"
+          ],
+          "commands": [
+            {
+              "readJson": {}
+            },
+            {
+              "extractJsonPaths": {
+                "paths": {
+                  "tpe": "/tpe",
+                  "smfProcess": "/smfProcess/cod",
+                  "millis":"/timestamp/millis"
+                }
+              }
+            },
+            {
+              "removeFields": {
+                "blacklist": [
+                  "literal:_attachment_body"
+                ]
+              }
+            },
+            {
+              "if" : {
+                "conditions" : [
+                  { "not" : {
+                    "equals" : { "tpe" : ["A"] }
+                  }
+                  }
+                ],
+                "then" : [ {
+                  "dropRecord" :{}
+                }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "recorded_at_ms-parser",
+      "elementType": "DateTimeParser",
+      "configuration": {
+        "millis": "unixMillis"
+      }
+    }
+  ]
+}
