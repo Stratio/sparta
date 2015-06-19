@@ -286,6 +286,7 @@
                         <include>**/*IT.java</include>
                     </includes>
                     <skipTests>${skipITs}</skipTests>
+                    <argLine>-Xmx2048m -XX:MaxPermSize=256m</argLine>
                 </configuration>
                 <executions>
                     <execution>
