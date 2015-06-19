@@ -205,6 +205,7 @@ trait MongoDbDAO extends Closeable {
       case WriteOp.Inc => (seq.asInstanceOf[Seq[(String, Long)]], "$set")
       case WriteOp.IncBig => (valuesBigDecimalToDouble(seq), "$set")
       case WriteOp.Set => (seq, "$set")
+      case WriteOp.Range => (seq, "$set")
       case WriteOp.Avg | WriteOp.Median | WriteOp.Variance | WriteOp.Stddev =>
         (seq.asInstanceOf[Seq[(String, Double)]], "$set")
       case WriteOp.Max =>

@@ -30,7 +30,9 @@ class FullTextOperator(properties: Map[String, JSerializable]) extends Operator(
 
   private val inputField = if (properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
-  override val key: String = if (inputField.isDefined) inputField.get else "undefined"
+  override val key: String = "fulltext_" + {
+    if (inputField.isDefined) inputField.get else "undefined"
+  }
 
   override val writeOperation = WriteOp.FullText
 

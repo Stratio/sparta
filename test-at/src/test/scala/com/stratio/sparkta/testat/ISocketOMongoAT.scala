@@ -28,7 +28,7 @@ import com.mongodb.casbah.{MongoClientURI, MongoCollection, MongoConnection}
  */
 class ISocketOMongoAT extends MongoEmbedDatabase with SparktaATSuite {
 
-  val PolicyEndSleep = 30000
+  val PolicyEndSleep = 60000
   val TestMongoPort = 60000
   val PathToPolicy = getClass.getClassLoader.getResource("policies/ISocket-OMongo.json").getPath
   val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data.csv").getPath
