@@ -186,6 +186,7 @@ abstract class Output(keyName: String,
 
 object Output {
 
+  final val ClassSuffix = "Output"
   final val Separator = "_"
   final val Id = "id"
   final val FixedAggregation = "fixedAggregation"

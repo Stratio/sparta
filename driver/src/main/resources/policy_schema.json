@@ -7,7 +7,7 @@
       "id": "http://sparkta.stratio.com/name",
       "type": "string"
     },
-    "duration": {
+    "sparkStreamingWindow": {
       "id": "http://sparkta.stratio.com/duration",
       "type": "integer"
     },
@@ -24,7 +24,7 @@
         "id": "auto-generated-schema-229"
       }
     },
-    "dimensions": {
+    "fields": {
       "id": "http://sparkta.stratio.com/dimensions",
       "type": "array",
       "minItems": 1,
@@ -51,14 +51,6 @@
         "id": "auto-generated-schema-56"
       }
     },
-    "operators": {
-      "id": "http://sparkta.stratio.com/operators",
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "id": "auto-generated-schema-66"
-      }
-    },
     "parsers": {
       "id": "http://sparkta.stratio.com/parsers",
       "type": "array",
@@ -68,12 +60,9 @@
     }
   },
   "required": [
-    "name",
-    "duration",
     "inputs",
-    "dimensions",
+    "fields",
     "cubes",
-    "outputs",
-    "operators"
+    "outputs"
   ]
 }

@@ -25,3 +25,8 @@ case class Dimension(name: String, dimensionType: DimensionType) {
     case _ =>
   }
 }
+
+object Dimension {
+
+  final val ClassSuffix = "Field"
+}

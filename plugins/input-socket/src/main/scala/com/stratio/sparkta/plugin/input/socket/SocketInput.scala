@@ -38,6 +38,6 @@ class SocketInput(properties: Map[String, JSerializable]) extends Input(properti
       hostname,
       port,
       storageLevel)
-      .map(data => new Event(Map(RAW_DATA_KEY -> data)))
+      .map(data => new Event(Map(RawDataKey -> data)))
   }
 }

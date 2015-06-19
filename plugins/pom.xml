@@ -28,13 +28,12 @@
     <artifactId>plugins</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>dimension-dateTime</module>
-        <module>dimension-default</module>
-        <module>dimension-geoHash</module>
-        <module>dimension-twitter-status</module>
-        <module>dimension-tag</module>
-        <module>dimension-hierarchy</module>
-        <module>dimension-arrayText</module>
+        <module>field-dateTime</module>
+        <module>field-default</module>
+        <module>field-geoHash</module>
+        <module>field-twitter-status</module>
+        <module>field-tag</module>
+        <module>field-hierarchy</module>
         <module>output-mongodb</module>
         <module>output-elasticsearch</module>
         <module>output-cassandra</module>
@@ -65,6 +64,7 @@
         <module>parser-detector</module>
         <module>parser-type</module>
         <module>parser-split</module>
+        <module>field-arrayText</module>
     </modules>
 
     <dependencies>

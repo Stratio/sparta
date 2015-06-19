@@ -34,7 +34,7 @@ class MorphlinesParser(properties: Map[String, Serializable]) extends Parser(pro
   override def parse(data: Event): Event = {
     val record = new Record()
     data.keyMap.foreach(e => {
-      if (Input.RAW_DATA_KEY.equals(e._1)) {
+      if (Input.RawDataKey.equals(e._1)) {
         //TODO: This actually needs getting raw bytes from the origin
         val result = e._2 match {
           case s: String => new ByteArrayInputStream(s.getBytes("UTF-8"))

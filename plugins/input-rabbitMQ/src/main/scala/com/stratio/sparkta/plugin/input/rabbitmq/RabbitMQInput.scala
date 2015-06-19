@@ -53,7 +53,7 @@ class RabbitMQInput(properties: Map[String, JSerializable]) extends Input(proper
       ExchangeName,
       RoutingKeys.get.asInstanceOf[JsoneyString].toSeq,
       StorageLevel.fromString(StorageLevelProperty))
-      .map(data => new Event(Map(RAW_DATA_KEY -> data.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
+      .map(data => new Event(Map(RawDataKey -> data.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
   }
 
   private def createStreamFromAQueue(ssc: StreamingContext): DStream[Event] = {
@@ -62,6 +62,6 @@ class RabbitMQInput(properties: Map[String, JSerializable]) extends Input(proper
       RabbitMQPort,
       RabbitMQQueueName,
       StorageLevel.fromString(StorageLevelProperty))
-      .map(data => new Event(Map(RAW_DATA_KEY -> data.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
+      .map(data => new Event(Map(RawDataKey -> data.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
   }
 }

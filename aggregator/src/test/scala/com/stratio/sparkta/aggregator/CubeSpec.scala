@@ -18,7 +18,7 @@ package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.plugin.dimension.default._
+import com.stratio.sparkta.plugin.field.default.DefaultField
 import org.apache.spark.streaming.TestSuiteBase
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
@@ -33,7 +33,7 @@ class CubeSpec extends TestSuiteBase {
   test("aggregate") {
 
     val PreserverOrder = true
-    val defaultDimension = new DefaultDimension
+    val defaultDimension = new DefaultField
     val checkpointInterval = 10000
     val checkpointTimeAvailability = 60000
     val checkpointGranularity = "minute"
@@ -68,17 +68,17 @@ class CubeSpec extends TestSuiteBase {
 
     def getOutput: Seq[Seq[(DimensionValuesTime, Map[String, Option[Any]])]] = Seq(
       Seq(
-        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new DefaultDimension),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new DefaultField),
           new Precision("identity", TypeOp.String)), "bar")), eventGranularity),
           Map("count" -> Some(2L), "sum_n" -> Some(7L))),
-        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new DefaultDimension),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new DefaultField),
           new Precision("identity", TypeOp.String)), "foo")), eventGranularity),
           Map("count" -> Some(1L), "sum_n" -> Some(3L)))),
       Seq(
-        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new DefaultDimension),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new DefaultField),
           new Precision("identity", TypeOp.String)), "bar")), eventGranularity),
           Map("count" -> Some(4L), "sum_n" -> Some(14L))),
-        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new DefaultDimension),
+        (DimensionValuesTime(Seq(DimensionValue(DimensionPrecision(Dimension("foo", new DefaultField),
           new Precision("identity", TypeOp.String)), "foo")), eventGranularity),
           Map("count" -> Some(2L), "sum_n" -> Some(6L)))))
   }

@@ -16,7 +16,6 @@
 
 package com.stratio.sparkta.driver.service
 
-
 import java.io
 
 import com.stratio.sparkta.sdk.{DateOperations, Event}
@@ -24,10 +23,7 @@ import org.apache.spark.sql._
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
-/**
- * @author arincon on 17/04/15.
- */
-class RawDataStorageService(sc: SQLContext, path: String, granularity: String) extends Serializable {
+class RawDataStorageService(sc: SQLContext, path: String, timePartition: String) extends Serializable {
 
   final val Parquet: String = "parquet"
   final val Slash: String = "/"
@@ -38,7 +34,7 @@ class RawDataStorageService(sc: SQLContext, path: String, granularity: String) e
 
   def composeRawFrom(event: Event): Seq[io.Serializable] = event.keyMap.map(e => e._2).toSeq
 
-  def timeSuffix: String = Slash + DateOperations.dateFromGranularity(DateTime.now(), granularity)
+  def timeSuffix: String = Slash + DateOperations.dateFromGranularity(DateTime.now(), timePartition)
 
   def extractRawDataFromEvent(event: Event): Any = {
     event.rawData getOrElse composeRawFrom(event)
