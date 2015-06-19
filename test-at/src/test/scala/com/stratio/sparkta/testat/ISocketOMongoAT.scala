@@ -57,24 +57,18 @@ class ISocketOMongoAT extends MongoEmbedDatabase with SparktaATSuite {
     }
 
     def checkMongoData(): Unit = {
-      val mongoColl: MongoCollection = MongoConnection(Localhost, TestMongoPort)("csvtest")("product")
-      mongoColl.size should be(2)
-
-      val result = mongoColl.find()
-
-      val productA = result.filter(dbject => {
-        dbject.get("id") == "producta"
-      }).toSeq.head
-
-      val productB = result.filter(dbject => {
-        dbject.get("id") == "productb"
-      }).toSeq.head
-
-      productA.get("avg_price") should be(750.0d)
-      productA.get("sum_price") should be(6000.0d)
-
-      productB.get("avg_price") should be(1000.0d)
-      productB.get("sum_price") should be(8000.0d)
+      MongoConnection(Localhost, TestMongoPort)("csvtest")("product").find().map(dbObject => {
+        dbObject.get("id") match {
+          case "producta" => {
+            dbObject.get("avg_price") should be(750.0d)
+            dbObject.get("sum_price") should be(6000.0d)
+          }
+          case "productB" => {
+            dbObject.get("avg_price") should be(1000.0d)
+            dbObject.get("sum_price") should be(8000.0d)
+          }
+        }
+      })
     }
 
     def checkMongoDb: Unit = {
