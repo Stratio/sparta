@@ -64,8 +64,6 @@ class ISocketOMongoOperatorsAT extends MongoEmbedDatabase with SparktaATSuite {
       mongoColl.size should be(2)
 
       val productA = mongoColl.find(new BasicDBObject("id", "producta")).next()
-
-      val productB = mongoColl.find(new BasicDBObject("id", "productb")).next()
       productA.get("acc_price").asInstanceOf[BasicDBList].toArray.toSeq should be(
         Seq("10", "500", "1000", "500", "1000", "500", "1002", "600"))
       productA.get("avg_price") should be(639.0d)
@@ -80,6 +78,8 @@ class ISocketOMongoOperatorsAT extends MongoEmbedDatabase with SparktaATSuite {
       productA.get("variance_price") should be(121076.57142857143d)
       productA.get("range_price") should be(992.0d)
 
+
+      val productB = mongoColl.find(new BasicDBObject("id", "productb")).next()
       productB.get("acc_price").asInstanceOf[BasicDBList].toArray.toSeq should be(
         Seq("15", "1000", "1000", "1000", "1000", "1000", "1001", "50"))
       productB.get("avg_price") should be(758.25d)
