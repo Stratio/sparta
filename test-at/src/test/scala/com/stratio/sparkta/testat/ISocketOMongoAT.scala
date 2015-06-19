@@ -30,6 +30,8 @@ class ISocketOMongoAT extends MongoEmbedDatabase with SparktaATSuite {
 
   val PolicyEndSleep = 60000
   val TestMongoPort = 60000
+  val DatabaseName = "csvtest"
+  val CollectionName = "product"
   val PathToPolicy = getClass.getClassLoader.getResource("policies/ISocket-OMongo.json").getPath
   val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data.csv").getPath
   var mongoProps: MongodProps = _
@@ -57,18 +59,26 @@ class ISocketOMongoAT extends MongoEmbedDatabase with SparktaATSuite {
     }
 
     def checkMongoData(): Unit = {
-      MongoConnection(Localhost, TestMongoPort)("csvtest")("product").find().map(dbObject => {
+      val mongoConnection = getMongoConnection()
+
+      mongoConnection.size should be(2)
+      getMongoConnection().find().map(dbObject => {
         dbObject.get("id") match {
           case "producta" => {
             dbObject.get("avg_price") should be(750.0d)
             dbObject.get("sum_price") should be(6000.0d)
           }
-          case "productB" => {
+          case "productb" => {
             dbObject.get("avg_price") should be(1000.0d)
             dbObject.get("sum_price") should be(8000.0d)
           }
+          case _ => require(false)
         }
       })
+    }
+
+    def getMongoConnection(): MongoCollection = {
+      MongoConnection(Localhost, TestMongoPort)(DatabaseName)(CollectionName)
     }
 
     def checkMongoDb: Unit = {
