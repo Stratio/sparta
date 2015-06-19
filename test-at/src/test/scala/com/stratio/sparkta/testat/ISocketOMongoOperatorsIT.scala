@@ -19,6 +19,8 @@ package com.stratio.sparkta.testat
 import com.github.simplyscala.{MongoEmbedDatabase, MongodProps}
 import com.mongodb.{BasicDBList, BasicDBObject}
 import com.mongodb.casbah.{MongoClientURI, MongoCollection, MongoConnection}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
 /**
   * Acceptance test:
@@ -27,7 +29,8 @@ import com.mongodb.casbah.{MongoClientURI, MongoCollection, MongoConnection}
  *   [Operators]: accumulator, avg, count, firsValue, fullText, lastValue, max,
  *                median, min, range, stddev, sum, variance.
  */
-class ISocketOMongoOperatorsAT extends MongoEmbedDatabase with SparktaATSuite {
+@RunWith(classOf[JUnitRunner])
+class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
   val PolicyEndSleep = 60000
 
   val TestMongoPort = 60000
