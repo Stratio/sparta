@@ -126,23 +126,24 @@ trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogg
     sleep(PolicySleep)
   }
 
-  //scalastyle:off
+
+
   /**
    * Reads from a CSV file and send data to the socket.
    * @param path of the CSV.
    */
   def sendDataToSparkta(path :String): Unit = {
-    val start = System.currentTimeMillis()
-    val source = Source.fromFile(path).getLines()
     out = new PrintStream(serverSocket.socket().accept().getOutputStream())
-    for (x <- 0 to 15) {
-      val currentLine = source.next()
-      log.info(s"> Current line from CSV: $currentLine")
-      out.println(currentLine)
-    }
+
+    Source.fromFile(path).getLines().toList.map(line => {
+      log.info(s"> Read data: $line")
+      //scalastyle:off
+      out.println(line)
+      //scalastyle:on
+    })
+
     out.flush()
   }
-  //scalastyle:off
 
   protected def sleep(millis: Long): Unit =
     Thread.sleep(millis)
