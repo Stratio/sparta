@@ -39,7 +39,7 @@ case class Cube(name: String,
                 multiplexer: Boolean,
                 checkpointInterval: Int,
                 checkpointGranularity: String,
-                checkpointTimeAvailability: Int) {
+                checkpointTimeAvailability: Long) {
 
   private lazy val operatorsMap = operators.map(op => op.key -> op).toMap
 

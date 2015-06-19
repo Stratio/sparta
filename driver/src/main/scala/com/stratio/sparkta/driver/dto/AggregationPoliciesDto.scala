@@ -28,28 +28,19 @@ import org.json4s.jackson.JsonMethods._
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 
 case class AggregationPoliciesDto(name: String = "default",
-                                  saveRawData: String = "true",
-                                  rawDataParquetPath: String = "default",
-                                  rawDataGranularity: String = "day",
-                                  checkpointDir: String = "checkpoint",
-                                  timePrecision: String = "",
-                                  checkpointGranularity: String = "minute",
-                                  checkpointInterval: Int = AggregationPoliciesDto.CheckPointInterval,
-                                  checkpointTimeAvailability: Int = AggregationPoliciesDto.checkpointTimeAvailability,
-                                  duration: Long = AggregationPoliciesDto.StreamingWindowDurationInMillis,
-                                  dimensions: Seq[DimensionDto],
-                                  cubes: Seq[CubeDto],
-                                  operators: Seq[PolicyElementDto],
-                                  inputs: Seq[PolicyElementDto],
+                                  sparkStreamingWindow: Long = AggregationPoliciesDto.sparkStreamingWindow,
+                                  rawData: RawDataDto,
                                   parsers: Seq[PolicyElementDto],
+                                  fields: Seq[FieldDto],
+                                  cubes: Seq[CubeDto],
+                                  inputs: Seq[PolicyElementDto],
                                   outputs: Seq[PolicyElementDto],
-                                  fragments: Seq[FragmentElementDto])
+                                  fragments: Seq[FragmentElementDto],
+                                  checkpointing: CheckpointDto)
 
 case object AggregationPoliciesDto {
 
-  val StreamingWindowDurationInMillis = 2000
-  val CheckPointInterval = 20000
-  val checkpointTimeAvailability = 60000
+  val sparkStreamingWindow = 2000
 }
 
 object AggregationPoliciesValidator {
@@ -60,7 +51,8 @@ object AggregationPoliciesValidator {
   def validateDto(aggregationPoliciesDto: AggregationPoliciesDto): (Boolean, String) = {
     val (isValidAgainstSchema: Boolean, isValidAgainstSchemaMsg: String) = validateAgainstSchema(aggregationPoliciesDto)
     val (isValidCube: Boolean, isCubeInDimensionsMsg: String) = validateCubes(aggregationPoliciesDto)
-    val isValidDurationGranularity = aggregationPoliciesDto.duration < aggregationPoliciesDto.checkpointInterval
+    val isValidDurationGranularity =
+      aggregationPoliciesDto.sparkStreamingWindow < aggregationPoliciesDto.checkpointing.interval
     val isValidDurationGranularityMsg = if(!isValidDurationGranularity) MessageDurationGranularity else ""
 
     val isValid = isValidCube && isValidAgainstSchema && isValidDurationGranularity
@@ -100,7 +92,7 @@ object AggregationPoliciesValidator {
   def validateCubes(aggregationPoliciesDto: AggregationPoliciesDto): (Boolean, String) = {
 
     val hasCubesNames = aggregationPoliciesDto.cubes.filter(c => c.name == null || c.name.isEmpty).isEmpty
-    val dimensionNames = aggregationPoliciesDto.dimensions.map(_.name)
+    val dimensionNames = aggregationPoliciesDto.fields.map(_.name)
     val cubeDimension = aggregationPoliciesDto.cubes
       .flatMap(x => Option(x))
       .flatMap(x => Option(x.dimensions))
@@ -108,18 +100,8 @@ object AggregationPoliciesValidator {
       .map(_.dimension)
 
     if(!hasCubesNames) (false, MessageCubeName)
-    else checkCubeParameter(cubeDimension, dimensionNames, "dimensions") match {
-      case resultDimension if resultDimension._1 => resultDimension
-      case _ => {
-        val operatorNames = aggregationPoliciesDto.operators.map(_.name)
-        val cubeOperators = aggregationPoliciesDto.cubes
-          .flatMap(x => Option(x))
-          .flatMap(x => Option(x.operators))
-          .flatten
+    else checkCubeParameter(cubeDimension, dimensionNames, "fields")
 
-        checkCubeParameter(cubeOperators, operatorNames, "operators")
-      }
-    }
   }
 
   private def checkCubeParameter(cubeNames: Seq[String], parameterNames: Seq[String], label: String):

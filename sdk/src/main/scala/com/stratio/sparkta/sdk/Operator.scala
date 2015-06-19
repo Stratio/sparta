@@ -57,3 +57,7 @@ with Ordered[Operator] with TypeConversions {
 
   //scalastyle:on
 }
+
+object Operator {
+  final val ClassSuffix = "Operator"
+}

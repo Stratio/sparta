@@ -23,3 +23,7 @@ abstract class Parser(properties: Map[String, Serializable]) extends Parameteriz
 
   def parse(data: Event): Event
 }
+
+object Parser {
+  final val ClassSuffix = "Parser"
+}

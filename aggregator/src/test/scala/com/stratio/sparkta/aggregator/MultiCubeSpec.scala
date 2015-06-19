@@ -18,7 +18,7 @@ package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.plugin.dimension.default.DefaultDimension
+import com.stratio.sparkta.plugin.field.default.DefaultField
 import org.joda.time.DateTime
 import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.sdk._
@@ -58,7 +58,7 @@ class MultiCubeSpec extends TestSuiteBase {
 
     val timestamp = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity)
     val name = "cubeName"
-    val precisioner = new DefaultDimension
+    val precisioner = new DefaultField
     val dimension = Dimension("eventKey", precisioner)
     val operator = new CountOperator(Map())
     val multiplexer = false
@@ -93,19 +93,19 @@ class MultiCubeSpec extends TestSuiteBase {
   def getEventOutput(timestamp : Long): Seq[Seq[(DimensionValuesTime, Map[String, JSerializable])]] =
     Seq(Seq(
       (DimensionValuesTime(Seq(DimensionValue(
-        DimensionPrecision(Dimension("eventKey", new DefaultDimension),
+        DimensionPrecision(Dimension("eventKey", new DefaultField),
           Precision("identity", TypeOp.String, Map())),
         "value1")), timestamp),
         Map("eventKey" -> "value1")
       ),
       (DimensionValuesTime(Seq(DimensionValue(
-        DimensionPrecision(Dimension("eventKey", new DefaultDimension),
+        DimensionPrecision(Dimension("eventKey", new DefaultField),
           Precision("identity", TypeOp.String, Map())),
         "value2")), timestamp),
         Map("eventKey" -> "value2")
       ),
       (DimensionValuesTime(Seq(DimensionValue(
-        DimensionPrecision(Dimension("eventKey", new DefaultDimension),
+        DimensionPrecision(Dimension("eventKey", new DefaultField),
           Precision("identity", TypeOp.String, Map())),
         "value3")), timestamp)
         , Map("eventKey" -> "value3")

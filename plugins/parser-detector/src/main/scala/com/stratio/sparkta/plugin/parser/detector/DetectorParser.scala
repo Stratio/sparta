@@ -60,7 +60,7 @@ class DetectorParser(properties: Map[String, Serializable]) extends Parser(prope
   override def parse(data: Event): Event = {
     var event: Option[Event] = None
     data.keyMap.foreach(e => {
-      if (Input.RAW_DATA_KEY.equals(e._1)) {
+      if (Input.RawDataKey.equals(e._1)) {
         val result = e._2 match {
           case s: String => s
           case b: Array[Byte] => new String(b)

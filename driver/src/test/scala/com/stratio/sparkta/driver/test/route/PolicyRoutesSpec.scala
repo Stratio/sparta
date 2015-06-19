@@ -50,6 +50,7 @@ with Matchers {
   val checkpointAvailable = 60000
   val checkpointGranularity = "minute"
   val checkpointDir = "checkpoint"
+  val sparkStreamingWindow = 2000
 
   "A PolicytRoutes should" should {
     "Get info about created policies" in {
@@ -77,11 +78,12 @@ with Matchers {
         entity.asString should include(PolicyName)
       }
     }
+
     "Create policy" in {
       val PolicyName = "p-1"
-      val apd = new AggregationPoliciesDto(PolicyName, "false", "myPath","day",
-        checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable, 0,
-        Seq(), Seq(), Seq(), Seq(), Seq(), Seq(), Seq())
+      val apd = new AggregationPoliciesDto(PolicyName, sparkStreamingWindow, new RawDataDto(),
+        Seq(), Seq(), Seq(), Seq(), Seq(), Seq(),
+        new CheckpointDto(checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable))
       try {
         val test = Post("/policy", apd) ~> routes
         supervisorProbe.expectMsg(new CreateContext(apd))
@@ -109,12 +111,11 @@ with Matchers {
       val PolicyName = "p-1"
       val DimensionToCube = "dimension2"
       val cubeName = "cubeTest"
-      val dimensionDto = new DimensionDto("dimensionType", "dimension1", None)
+      val dimensionDto = new FieldDto("dimensionType", "dimension1", None)
       val cubeDto = new CubeDto(cubeName, Seq(new PrecisionDto(DimensionToCube, "dimensionType", None)), Seq())
-      val apd =
-        new AggregationPoliciesDto(PolicyName, "true", "example","day",
-          checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable, 0,
-          Seq(dimensionDto), Seq(cubeDto), Seq(), Seq(), Seq(), Seq(), Seq())
+      val apd = new AggregationPoliciesDto(PolicyName, sparkStreamingWindow, new RawDataDto(),
+        Seq(), Seq(), Seq(), Seq(), Seq(), Seq(),
+        new CheckpointDto(checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable))
       val test = Post("/policy", apd) ~> routes
       test ~> check {
         rejections.size should be(1)

@@ -16,7 +16,7 @@
 
 package com.stratio.sparkta.driver.test.helpers
 
-import com.stratio.sparkta.driver.dto.{AggregationPoliciesDto, FragmentElementDto, PolicyElementDto}
+import com.stratio.sparkta.driver.dto._
 import com.stratio.sparkta.driver.helpers.PolicyHelper
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -26,30 +26,34 @@ import org.scalatest.junit.JUnitRunner
  * Tests over policy operations.
  * @author anistal
  */
+
 @RunWith(classOf[JUnitRunner])
 class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
+
   feature("A policy that contains fragments must parse these fragments and join them to input/outputs depending of " +
     "its type") {
     Given("a policy with an input, an output and a fragment with an input")
     val ap = new AggregationPoliciesDto(
-      dimensions = Seq(),
+      "policy-test",
+      sparkStreamingWindow = 2000,
+      new RawDataDto(),
+      parsers = Seq(),
+      fields = Seq(),
       cubes = Seq(),
-      operators =  Seq(),
       inputs = Seq(
-        PolicyElementDto("input1","input",Map())),
-      parsers =  Seq(),
-      outputs =  Seq(
-        PolicyElementDto("output1","output",Map())),
+        PolicyElementDto("input1", "input", Map())),
+      outputs = Seq(
+        PolicyElementDto("output1", "output", Map())),
       fragments = Seq(
         FragmentElementDto(
-          name="fragment1",
-          fragmentType="input",
-          element = PolicyElementDto("inputF","input", Map())),
+          name = "fragment1",
+          fragmentType = "input",
+          element = PolicyElementDto("inputF", "input", Map())),
         FragmentElementDto(
-          name="fragment1",
-          fragmentType="output",
-          element = PolicyElementDto("outputF","output", Map()))
-      )
+          name = "fragment1",
+          fragmentType = "output",
+          element = PolicyElementDto("outputF", "output", Map()))),
+      checkpointing = new CheckpointDto()
     )
 
     When("the helper parse these fragments")
@@ -57,13 +61,13 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
 
     Then("inputs/outputs must have the existing input/outputs and the parsed input fragment")
     result.inputs.toSet should equal(Seq(
-      PolicyElementDto("input1","input",Map()),
-      PolicyElementDto("inputF","input",Map())).toSet
+      PolicyElementDto("input1", "input", Map()),
+      PolicyElementDto("inputF", "input", Map())).toSet
     )
 
     result.outputs.toSet should equal(Seq(
-      PolicyElementDto("output1","output",Map()),
-      PolicyElementDto("outputF","output",Map())).toSet
+      PolicyElementDto("output1", "output", Map()),
+      PolicyElementDto("outputF", "output", Map())).toSet
     )
   }
 }
