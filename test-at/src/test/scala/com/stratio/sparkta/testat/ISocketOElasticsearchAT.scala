@@ -35,7 +35,7 @@ class ISocketOElasticsearchAT extends SparktaATSuite{
   val PathToPolicy = getClass.getClassLoader.getResource("policies/ISocket-OElasticsearch.json").getPath
   val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data.csv").getPath
   val TimeElastisearchStarts: Long = 5000
-  val PolicyEndSleep = 30000
+  val PolicyEndSleep = 60000
   val ProductAAvg: Double = 750d
   val ProductASum: Double = 6000d
   val ProductBAvg: Double = 1000d
@@ -74,10 +74,6 @@ class ISocketOElasticsearchAT extends SparktaATSuite{
   }
 
   def checkESData: Unit = {
-    val node: Node  = nodeBuilder().node()
-    val client: Client = node.client()
-    val status =  client.admin.cluster.health(new ClusterHealthRequest)
-    status.actionGet().getStatus should be (ClusterHealthStatus.GREEN)
 
     val hitsA: List[Map[String, Any]] = rowsByProductFilteredByAvgAndSum("producta",ProductAAvg,ProductASum)
 
