@@ -74,7 +74,7 @@ case class DataCube(dimensions: Seq[Dimension],
     timePrecision match {
       case Some(precision) => {
         val dimensionsDates =
-          dimensionValues.filter(dimensionValue => dimensionValue.dimensionPrecision.precision.id == precision)
+          dimensionValues.filter(dimensionValue => dimensionValue.getNameDimension == precision)
         if (dimensionsDates.isEmpty) getDate else DateOperations.getMillisFromSerializable(dimensionsDates.head.value)
       }
       case None => getDate
