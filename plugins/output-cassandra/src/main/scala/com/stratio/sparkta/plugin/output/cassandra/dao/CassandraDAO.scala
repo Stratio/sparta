@@ -63,9 +63,6 @@ trait CassandraDAO extends Closeable with Logging {
   def createTables(tSchemas: Seq[TableSchema], clusteringTime: String, isAutoCalculateId: Boolean): Boolean =
     connector.exists(doCreateTables(_, tSchemas, clusteringTime, isAutoCalculateId))
 
-  def createIndexes(tSchemas: Seq[TableSchema], clusteringTime: String, isAutoCalculateId: Boolean): Boolean =
-    connector.exists(doCreateIndexes(_, tSchemas, clusteringTime, isAutoCalculateId))
-
   def createTextIndexes(tSchemas: Seq[TableSchema]): Boolean = connector.exists(doCreateTextIndexes(_, tSchemas))
 
   protected def doCreateKeyspace(conn: CassandraConnector): Boolean = {
@@ -101,38 +98,6 @@ trait CassandraDAO extends Closeable with Logging {
         s"CREATE TABLE IF NOT EXISTS $keyspace.$tableName $pkColumns $compactSt")
     }
   }
-
-  protected def doCreateIndexes(conn: CassandraConnector,
-                                tSchemas: Seq[TableSchema],
-                                clusteringTime: String,
-                                isAutoCalculateId: Boolean): Boolean = {
-    indexFields match {
-      case Some(fields) => {
-        val seqResults = for {
-          tableSchema <- tSchemas
-          indexField <- fields
-          primaryKey = getPrimaryKey(tableSchema.schema, clusteringTime, isAutoCalculateId)
-          created = if (!primaryKey.contains(indexField)) {
-            createIndex(conn, tableSchema.tableName, indexField)
-          } else {
-            log.info(s"The indexed field: $indexField is part of primary key.")
-            false
-          }
-        } yield created
-        seqResults.forall(result => result)
-      }
-      case None => false
-    }
-  }
-
-  protected def createIndex(conn: CassandraConnector, tableName: String, field: String): Boolean = {
-    val indexName = s"$IndexPrefix${
-      if(tableName.size + IndexPrefix.size + field.size > MaxIndexNameLength)
-        tableName.substring(0, MaxIndexNameLength - IndexPrefix.size - field.size) else tableName
-    }_$field"
-    executeCommand(conn, s"CREATE INDEX IF NOT EXISTS $indexName ON $keyspace.$tableName ($field)")
-  }
-
 
   protected def executeCommand(conn: CassandraConnector, command: String): Boolean = {
     conn.withSessionDo(session => session.execute(command))

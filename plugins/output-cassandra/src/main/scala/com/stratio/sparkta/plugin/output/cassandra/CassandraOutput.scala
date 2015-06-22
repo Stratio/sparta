@@ -99,19 +99,6 @@ class CassandraOutput(keyName: String,
     bcSchema.exists(bc => createTables(schemaFiltered, timeName, isAutoCalculateId))
   } else false
 
-  val indexesCreated = if (keyspaceCreated && tablesCreated && indexFields.isDefined && !indexFields.get.isEmpty) {
-    bcSchema.exists(bc => createIndexes(schemaFiltered, timeName, isAutoCalculateId))
-  } else false
-
-  val textIndexesCreated = if (keyspaceCreated &&
-    tablesCreated &&
-    textIndexFields.isDefined &&
-    !textIndexFields.isEmpty &&
-    !fixedAggregation.isEmpty &&
-    fixedAgg.get == textIndexName) {
-    bcSchema.exists(bc => createTextIndexes(schemaFiltered))
-  } else false
-
   /*
   * The next two methods are beta.
   * With the fork of PR 112 of datastax-spark-connector.
