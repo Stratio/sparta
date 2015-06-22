@@ -28,7 +28,7 @@ import com.stratio.sparkta.sdk._
  *
  * Aggregation by geoposition
  *
- * Supported buckets by geoHash length:
+ * Supported dimensions by geoHash length:
  * 1 - 5,009.4km x 4,992.6km
  * 2 - 51,252.3km x 624.1km
  * 3 - 156.5km x 156km

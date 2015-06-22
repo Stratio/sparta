@@ -16,15 +16,15 @@
   ],
   "dimensions": [
     {
-      "dimensionType": "DateTimeBucketer",
+      "dimensionType": "DateTimeDimensioner",
       "name": "time"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimensioner",
       "name": "url"
     },
     {
-      "dimensionType": "PassthroughBucketer",
+      "dimensionType": "PassthroughDimensioner",
       "name": "ip"
     }
   ],
@@ -33,15 +33,15 @@
       "dimensions": [
         {
           "dimensionName": "time",
-          "bucketType": "second"
+          "dimensionType": "second"
         },
         {
           "dimensionName": "ip",
-          "bucketType": "identity"
+          "dimensionType": "identity"
         },
         {
           "dimensionName": "url",
-          "bucketType": "identity"
+          "dimensionType": "identity"
         }
         ,"operators":["count-operator"]
       ]

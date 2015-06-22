@@ -57,7 +57,7 @@ Features
 - Highly business-project oriented
 - Multiple application
 - Cubes
-    - Pass-through
+    - Default
     - Time-based
     - Secondly, minutely, hourly,  daily, monthly, yearly...
     - Hierarchical

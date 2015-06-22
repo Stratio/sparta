@@ -33,6 +33,13 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
   feature("A policy that contains fragments must parse these fragments and join them to input/outputs depending of " +
     "its type") {
     Given("a policy with an input, an output and a fragment with an input")
+    val checkpointInterval = 10000
+    val checkpointAvailable = 60000
+    val checkpointGranularity = "minute"
+    val checkpointDir = "checkpoint"
+    val checkpointDto =
+      new CheckpointDto(checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable)
+
     val ap = new AggregationPoliciesDto(
       "policy-test",
       sparkStreamingWindow = 2000,
@@ -53,7 +60,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
           name = "fragment1",
           fragmentType = "output",
           element = PolicyElementDto("outputF", "output", Map()))),
-      checkpointing = new CheckpointDto()
+      checkpointing = checkpointDto
     )
 
     When("the helper parse these fragments")

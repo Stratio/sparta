@@ -1,17 +1,22 @@
 {
   "name": "policy-kafka",
-  "duration": 2000,
-  "saveRawData": "false",
-  "rawDataParquetPath": "myTestParquetPath",
-  "checkpointDir": "checkpoint",
-  "timeBucket": "minute",
-  "checkpointGranularity": "minute",
-  "checkpointInterval": 30000,
-  "checkpointTimeAvailability": 60000,
+  "sparkStreamingWindow": 2000,
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 60000
+  },
   "inputs": [
     {
       "name": "in-kafka",
-      "elementType": "KafkaInput",
+      "type": "Kafka",
       "configuration": {
         "topics": "test:1",
         "kafkaParams.zookeeper.connect": "localhost:2181",
@@ -20,25 +25,25 @@
       }
     }
   ],
-  "dimensions": [
+  "fields": [
     {
       "name": "appName"
     },
     {
       "name": "timestamp",
-      "dimensionType": "DateTimeDimension"
+      "type": "DateTime"
     },
     {
       "name": "geo",
-      "dimensionType": "GeoHashDimension"
+      "type": "GeoHash"
     },
     {
       "name": "tag",
-      "dimensionType": "TagDimension"
+      "type": "Tag"
     },
     {
       "name": "twitterStatus",
-      "dimensionType": "TwitterStatusDimension"
+      "type": "TwitterStatus"
     }
   ],
   "cubes": [
@@ -49,28 +54,28 @@
           "dimension": "appName"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {
+          }
+        }
+      ]
     }
   ],
   "outputs": [
     {
       "name": "out-print",
-      "elementType": "PrintOutput",
+      "type": "Print",
       "configuration": {
       }
-    }
-  ],
-  "operators": [
-    {
-      "name": "count-operator",
-      "elementType": "CountOperator",
-      "configuration": {}
     }
   ],
   "parsers": [
     {
       "name": "morphline",
-      "elementType": "MorphlinesParser",
+      "type": "Morphlines",
       "configuration": {
         "morphline": {
           "id": "test1",

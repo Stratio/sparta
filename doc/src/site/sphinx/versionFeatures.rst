@@ -64,7 +64,7 @@ Version 0.3.0
 
 Sdk
 ---
-- Multiplex rollups for **multi-cube** integration
+- Multiplex cubes for **multi-cube** integration
 
 Plugins
 -------
@@ -91,7 +91,7 @@ Parent
 Sdk
 ---
 - Integration with **Spark 1.3.0**
-- Auto create time series in outputs if not exist time bucket
+- Auto create time series in outputs if not exist time dimension
 - Full integration in Outputs with **Spark DataFrames**
 - Auto create "Id" in DataFrames with dimensions
 

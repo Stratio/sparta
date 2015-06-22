@@ -172,10 +172,6 @@ object SparktaJob {
   private def getOperatorKeyName(cubeName: String, operatorDto: OperatorDto): String =
     s"$cubeName${operatorDto.measureName}"
 
-  private def getOutputsWithNames(outputs: Seq[Output], selectedOutputs: Seq[String]): Seq[Output] = {
-    outputs.filter(out => selectedOutputs.contains(out.getName))
-  }
-
   def cubes(apConfig: AggregationPoliciesDto,
             operators: Map[String, Operator],
             outputs: Seq[Output],
