@@ -23,7 +23,7 @@ import org.apache.spark.sql._
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
-class RawDataStorageService(sc: SQLContext, path: String, timePartition: String) extends Serializable {
+class RawDataStorageService(sc: SQLContext, path: String, partitionFormat: String) extends Serializable {
 
   final val Parquet: String = "parquet"
   final val Slash: String = "/"
