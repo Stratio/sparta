@@ -45,8 +45,7 @@ import com.stratio.sparkta.sdk.JsoneyStringSerializer
  * Common operations that will be used in Acceptance Tests. All AT must extends from it.
  * @author arincon
  */
-trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogging with BeforeAndAfter
-with Matchers {
+trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogging with BeforeAndAfter with Matchers {
 
   val policyFile: String
   val Localhost = "127.0.0.1"
