@@ -1,17 +1,22 @@
 {
   "name": "policy-Twitter-Redis-MongoDb",
-  "duration": 10000,
-  "saveRawData": "false",
-  "rawDataParquetPath": "myTestParquetPath",
-  "checkpointDir": "checkpoint",
-  "timeBucket": "minute",
-  "checkpointGranularity": "minute",
-  "checkpointInterval": 30000,
-  "checkpointTimeAvailability": 60000,
+  "sparkStreamingWindow": 6000,
+  "rawData": {
+    "enabled": "false",
+    "timePartition": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 60000
+  },
   "inputs": [
     {
       "name": "input-twitter",
-      "elementType": "TwitterInput",
+      "elementType": "Twitter",
       "configuration": {
         "consumerKey": "*****",
         "consumerSecret": "*****",

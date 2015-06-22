@@ -1,12 +1,22 @@
 {
   "name": "policy-kafka",
-  "duration": 2000,
-  "saveRawData": "false",
-  "rawDataParquetPath": "myTestParquetPath",
+  "sparkStreamingWindow": 2000,
+  "rawData": {
+    "enabled": "true",
+    "timePartition": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 60000
+  },
   "inputs": [
     {
       "name": "in-kafka",
-      "elementType": "KafkaInput",
+      "type": "Kafka",
       "configuration": {
         "topics": "detectorStream3",
         "kafkaParams.zookeeper.connect": "****",
@@ -15,7 +25,7 @@
       }
     }
   ],
-  "dimensions": [
+  "fields": [
     {
       "name": "company_root"
     },
@@ -26,11 +36,11 @@
       "name": "asset"
     },
     {
-      "dimensionType": "DateTimeDimension",
+      "type": "DateTime",
       "name": "recorded_at_ms"
     },
     {
-      "dimensionType": "GeoHashDimension",
+      "type": "GeoHash",
       "name": "geo"
     },
     {
@@ -54,79 +64,79 @@
       "name": "testCube",
       "dimensions": [
         {
-          "dimensionName": "company_root",
-          "precision": "identity"
+          "dimension": "company_root"
+
         },
         {
-          "dimensionName": "ou_vehicle",
-          "precision": "identity"
+          "dimension": "ou_vehicle"
+
         },
         {
-          "dimensionName": "geo",
+          "dimension": "geo",
           "precision": "precision12"
         },
         {
-          "dimensionName": "recorded_at_ms",
+          "dimension": "recorded_at_ms",
           "precision": "minute"
         }
       ],
-      "operators": ["avg-operator"]
+      "operators": [
+        {
+        "measureName": "avg-operator",
+        "type": "Avg",
+        "configuration": {
+          "inputField": "rpmAvgNum"
+        }
+      }
+      ]
     },
     {
-      "dimensionAndPrecision": [
+      "name": "testCube1",
+      "dimensions": [
         {
-          "dimensionName": "company_root",
-          "precision": "identity"
+          "dimension": "company_root"
+
         },
         {
-          "dimensionName": "ou_vehicle",
-          "precision": "identity"
+          "dimension": "ou_vehicle"
+
         },
         {
-          "dimensionName": "asset",
-          "precision": "identity"
+          "dimension": "asset"
+
         },
         {
-          "dimensionName": "recorded_at_ms",
+          "dimension": "recorded_at_ms",
           "precision": "minute"
         },
         {
-          "dimensionName": "path_id",
-          "precision": "identity"
+          "dimension": "path_id",
+
         }
       ],
 
-      "operators": ["max-operator", "min-operator"]
+      "operators": [
+        {
+        "measureName": "max-operator",
+        "type": "Max",
+        "configuration": {
+          "inputField": "odometerNum"
+        }
+      },
+        {
+          "measureName": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "odometerNum"
+          }
+        }
+      ]
     }
   ],
-  "operators": [
-    {
-      "name": "avg-operator",
-      "elementType": "AvgOperator",
-      "configuration": {
-        "inputField": "rpmAvgNum"
-      }
-    },
-    {
-      "name": "max-operator",
-      "elementType": "MaxOperator",
-      "configuration": {
-        "inputField": "odometerNum"
-      }
-    },
-    {
-      "name": "min-operator",
-      "elementType": "MinOperator",
-      "configuration": {
-        "inputField": "odometerNum"
-      }
-    }
-  ],
-
   "outputs": [
     {
       "name": "out-mongo",
-      "elementType": "MongoDbOutput",
+      "type": "MongoDb",
       "configuration": {
         "clientUri": "mongodb://localhost:27017",
         "dbName": "sparkta",
@@ -141,13 +151,13 @@
   "parsers": [
     {
       "name": "detector-parser",
-      "elementType": "DetectorParser",
+      "type": "Detector",
       "configuration": {
       }
     },
     {
       "name": "recorded_at_ms-parser",
-      "elementType": "DateTimeParser",
+      "type": "DateTime",
       "configuration": {
         "recorded_at_ms": "unixMillis"
       }

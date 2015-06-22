@@ -1,14 +1,18 @@
 {
   "name": "policy-Twitter-Print",
-  "duration": 10000,
-  "saveRawData": "false",
-  "rawDataParquetPath": "myTestParquetPath",
-  "checkpointDir": "checkpoint",
-  "timeBucket": "minute",
-  "checkpointGranularity": "minute",
-  "checkpointInterval": 30000,
-  "checkpointTimeAvailability": 60000,
-
+  "sparkStreamingWindow": 6000,
+  "rawData": {
+    "enabled": "false",
+    "timePartition": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 60000
+  },
   "fragments": [
     {
       "fragmentType": "input",
@@ -16,10 +20,9 @@
       "element": null
     }
   ],
-
-  "dimensions": [
+  "fields": [
     {
-      "dimensionType": "TwitterStatusDimension",
+      "type": "TwitterStatus",
       "name": "status",
       "configuration": {
         "typeOp": "string",
@@ -30,25 +33,26 @@
       }
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "userLocation"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "wordsN"
     },
     {
-      "dimensionType": "DateTimeDimension",
+      "type": "DateTime",
       "name": "timestamp"
     },
     {
-      "dimensionType": "GeoHashDimension",
-      "name": "geolocation"
+      "type": "GeoHash",
+      "name": "geolocation",
+      "configuration": {
+        "typeOp": "arraydouble"
+      }
     }
   ],
   "cubes": [
     {
-      "name": "twitter",
+      "name": "testCube",
       "dimensions": [
         {
           "dimension": "status",
@@ -63,6 +67,12 @@
           "precision": "retweets"
         },
         {
+          "dimension": "userLocation"
+        },
+        {
+          "dimension": "wordsN"
+        },
+        {
           "dimension": "geolocation",
           "precision": "precision3"
         },
@@ -71,116 +81,99 @@
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator","sum-operator","max-operator","min-operator","range-operator","avg-operator",
-        "median-operator",
-        "variance-operator","stddev-operator","fullText-operator","lastValue-operator","firstValue-operator","accumulator-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "count-distinct-operator",
+          "type": "Count",
+          "configuration": {
+            "distinctFields": "wordsN"
+          }
+        },
+        {
+          "measureName": "sum-operator",
+          "type": "Sum",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "measureName": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "measureName": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "measureName": "avg-operator",
+          "type": "Avg",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "measureName": "median-operator",
+          "type": "Median",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "measureName": "variance-operator",
+          "type": "Variance",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "measureName": "stddev-operator",
+          "type": "Stddev",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "measureName": "fullText-operator",
+          "type": "FullText",
+          "configuration": {
+            "inputField": "userLocation"
+          }
+        },
+        {
+          "measureName": "lastValue-operator",
+          "type": "LastValue",
+          "configuration": {
+            "inputField": "retweets"
+          }
+        },
+        {
+          "measureName": "accumulator-operator",
+          "type": "Accumulator",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        }
+      ]
     }
-  ],
+    ],
   "outputs": [
     {
       "name": "out-print",
-      "elementType": "PrintOutput",
+      "type": "Print",
       "configuration": {
         "multiplexer": "true",
         "isAutoCalculateId": "true"
-      }
-    }
-  ],
-  "operators": [
-    {
-      "name": "count-operator",
-      "elementType": "CountOperator",
-      "configuration": {}
-    },
-    {
-      "name": "count-distinct-operator",
-      "elementType": "CountOperator",
-      "configuration": {
-        "distinctFields": "wordsN"
-      }
-    },
-    {
-      "name": "sum-operator",
-      "elementType": "SumOperator",
-      "configuration": {
-        "inputField": "wordsN"
-      }
-    },
-    {
-      "name": "max-operator",
-      "elementType": "MaxOperator",
-      "configuration": {
-        "inputField": "wordsN"
-      }
-    },
-    {
-      "name": "min-operator",
-      "elementType": "MinOperator",
-      "configuration": {
-        "inputField": "wordsN"
-      }
-    },
-    {
-      "name": "range-operator",
-      "elementType": "RangeOperator",
-      "configuration": {
-        "inputField": "wordsN"
-      }
-    },
-    {
-      "name": "avg-operator",
-      "elementType": "AvgOperator",
-      "configuration": {
-        "inputField": "wordsN"
-      }
-    },
-    {
-      "name": "median-operator",
-      "elementType": "MedianOperator",
-      "configuration": {
-        "inputField": "wordsN"
-      }
-    },
-    {
-      "name": "variance-operator",
-      "elementType": "VarianceOperator",
-      "configuration": {
-        "inputField": "wordsN"
-      }
-    },
-    {
-      "name": "stddev-operator",
-      "elementType": "StddevOperator",
-      "configuration": {
-        "inputField": "wordsN"
-      }
-    },
-    {
-      "name": "fullText-operator",
-      "elementType": "FullTextOperator",
-      "configuration": {
-        "inputField": "userLocation"
-      }
-    },
-    {
-      "name": "lastValue-operator",
-      "elementType": "LastValueOperator",
-      "configuration": {
-        "inputField": "retweets"
-      }
-    },
-    {
-      "name": "firstValue-operator",
-      "elementType": "FirstValueOperator",
-      "configuration": {
-        "inputField": "retweets"
-      }
-    },
-    {
-      "name": "accumulator-operator",
-      "elementType": "AccumulatorOperator",
-      "configuration": {
-        "inputField": "wordsN"
       }
     }
   ]

@@ -1,17 +1,22 @@
 {
   "name": "policy-MongoDB-Financtial",
-  "duration": 5000,
-  "saveRawData": "false",
-  "rawDataParquetPath": "myTestParquetPath",
-  "checkpointDir": "checkpoint",
-  "timeBucket": "minute",
-  "checkpointGranularity": "minute",
-  "checkpointInterval": 30000,
-  "checkpointTimeAvailability": 60000,
+  "sparkStreamingWindow": 6000,
+  "rawData": {
+    "enabled": "false",
+    "timePartition": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 60000
+  },
   "inputs": [
     {
       "name": "in-flume",
-      "elementType": "FlumeInput",
+      "type": "Flume",
       "configuration": {
         "type": "pull",
         "addresses": "localhost:10999",
@@ -20,7 +25,7 @@
       }
     }
   ],
-  "dimensions": [
+  "fields": [
     {
       "name": "appName"
     },
@@ -46,7 +51,7 @@
       "name": "appLang"
     },
     {
-      "dimensionType": "DateTimeDimension",
+      "type": "DateTime",
       "name": "timestamp"
     },
     {
@@ -71,7 +76,7 @@
       "name": "platform"
     },
     {
-      "dimensionType": "GeoHashDimension",
+      "dimensionType": "GeoHash",
       "name": "geo"
     }
   ],
@@ -87,7 +92,13 @@
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
       "name": "platform_device",
@@ -103,7 +114,13 @@
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
       "name": "appname",
@@ -112,7 +129,13 @@
           "dimension": "appName"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
       "name": "session",
@@ -125,7 +148,13 @@
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
       "name": "applang",
@@ -138,7 +167,13 @@
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
       "name": "geo",
@@ -148,7 +183,13 @@
           "precision": "precision6"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
       "name": "appCountry",
@@ -161,7 +202,13 @@
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
       "name": "appPlatform_time",
@@ -174,7 +221,13 @@
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
       "name": "appPlatform_time",
@@ -183,7 +236,13 @@
           "dimension": "appPlatform"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
       "name": "appCountry",
@@ -192,13 +251,19 @@
           "dimension": "appCountry"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     }
   ],
   "outputs": [
     {
       "name": "out-mongo",
-      "elementType": "MongoDbOutput",
+      "type": "MongoDb",
       "configuration": {
         "clientUri": "mongodb://localhost:27017",
         "dbName": "sparkta",
@@ -206,17 +271,10 @@
       }
     }
   ],
-  "operators": [
-    {
-      "name": "count-operator",
-      "elementType": "CountOperator",
-      "configuration": {}
-    }
-  ],
   "parsers": [
     {
       "name": "morphline-parser",
-      "elementType": "MorphlinesParser",
+      "type": "Morphlines",
       "configuration": {
         "morphline": {
           "id": "morphline1",
@@ -276,7 +334,7 @@
     },
     {
       "name": "datetime",
-      "elementType": "DateTimeParser",
+      "type": "DateTime",
       "configuration": {
         "timestamp": "unix"
       }
