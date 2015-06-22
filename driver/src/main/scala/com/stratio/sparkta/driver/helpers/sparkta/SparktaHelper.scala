@@ -48,7 +48,7 @@ object SparktaHelper extends SLF4JLogging {
       sparktaHomeDefault
     })
     assert(sparktaHome != None, "Fatal error: sparktaHome not found.")
-    log.info(s"> Setting configuration path to $sparktaHome.get")
+    log.info(s"> Setting configuration path to ${sparktaHome.get}")
     sparktaHome.get
   }
 
