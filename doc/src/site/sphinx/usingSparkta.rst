@@ -315,7 +315,7 @@ The system runs with time windows, these windows are configurable and allow us t
    "checkpointDir": ("directory")  Default: "checkpoint"
 
 * timeBucket:
-   You can specify the time bucket containing the event, thanks to this parameter can be stored aggregate data and
+   You can specify the time dimension containing the event, thanks to this parameter can be stored aggregate data and
    generate timeseries.
    This name will be as identified in the system of persistence.
    Is possible omit this parameter in policy.
@@ -326,7 +326,7 @@ The system runs with time windows, these windows are configurable and allow us t
    "timeBucket": ("BUCKET_LABEL")  Default: "minute"
 
 * checkpointGranularity:
-   If not created any bucketer time to identify with "timeBucket" you can leave the system assigned to each event time
+   If not created any dimensioner time to identify with "timeBucket" you can leave the system assigned to each event time
    with the specified granularity.
    Is possible omit this parameter in policy.
 

@@ -44,8 +44,8 @@ Below you can see each of the features implemented:
 
   * For each cube it saves the following information:
 
-    - As key: the cube identifiers that is built with the name of the bucket separeted with "_"
-    - Furthermore for each bucket we will have the name of the bucket and its value (separated with ":" too).
+    - As key: the cube identifiers that is built with the name of the dimension separeted with "_"
+    - Furthermore for each dimension we will have the name of the dimension and its value (separated with ":" too).
     - With this key structure we could perform searches over the keys using pattern to search keys.
     - Example:
       ::

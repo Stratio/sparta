@@ -16,17 +16,8 @@
 
 package com.stratio.sparkta.driver.dto
 
-case class CheckpointDto(path: String = CheckpointDto.Path,
-                          timeDimension: String = CheckpointDto.TimeDimension,
-                          granularity: String = CheckpointDto.Granularity,
-                          interval: Integer = CheckpointDto.Interval,
-                          timeAvailability: Long = CheckpointDto.TimeAvailability)
-
-case object CheckpointDto {
-
-  val Interval = 20000
-  val TimeAvailability = 60000
-  val Granularity = "minute"
-  val Path = "checkpoint"
-  val TimeDimension = ""
-}
+case class CheckpointDto(path: String,
+                          timeDimension: String,
+                          granularity: String,
+                          interval: Integer,
+                          timeAvailability: Long)
