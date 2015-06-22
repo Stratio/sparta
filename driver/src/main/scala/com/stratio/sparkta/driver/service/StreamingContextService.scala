@@ -252,7 +252,7 @@ object SparktaJob {
       require(!apConfig.rawData.path.equals("default"), "The parquet path must be set")
       val sqlContext = sqc.getOrElse(SparkContextFactory.sparkSqlContextInstance.get)
       def rawDataStorage: RawDataStorageService =
-        new RawDataStorageService(sqlContext, apConfig.rawData.path, apConfig.rawData.timePartition)
+        new RawDataStorageService(sqlContext, apConfig.rawData.path, apConfig.rawData.partitionFormat)
       rawDataStorage.save(input)
     }
 }

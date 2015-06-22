@@ -3,7 +3,7 @@
   "sparkStreamingWindow": 2000,
   "rawData": {
     "enabled": "false",
-    "timePartition": "day",
+    "partitionFormat": "day",
     "path": "myTestParquetPath"
   },
   "checkpointing": {

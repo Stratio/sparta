@@ -18,12 +18,12 @@ package com.stratio.sparkta.driver.dto
 
 
 case class RawDataDto(enabled: String = RawDataDto.Enabled,
-                      timePartition: String = RawDataDto.TimePartition,
+                      partitionFormat: String = RawDataDto.PartitionFormat,
                       path: String = RawDataDto.Path)
 
 case object RawDataDto {
 
   val Enabled = "false"
-  val TimePartition = "day"
+  val PartitionFormat = "day"
   val Path = "default"
 }
