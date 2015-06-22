@@ -1,143 +1,180 @@
 {
     "name": "twitter-policy",
-    "duration": 10000,
-    "saveRawData": "false",
-    "checkpointDir": "checkpoint",
-    "timePrecision": "minute",
-    "checkpointGranularity": "minute",
-    "checkpointInterval": 30000,
-    "checkpointTimeAvailability": 60000,
+    "sparkStreamingWindow": 6000,
+    "rawData": {
+        "enabled": "false",
+        "partitionFormat": "day",
+        "path": "myTestParquetPath"
+    },
+    "checkpointing": {
+        "path": "checkpoint",
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+    },
     "inputs": [
         {
             "name": "in",
-            "elementType": "RabbitMQInput",
+            "type": "RabbitMQ",
             "configuration": {
                 "queue": "test",
                 "host": "localhost",
                 "port": 5672,
                 "storageLevel": "MEMORY_ONLY",
                 "exchangeName": "twitterExchange",
-                "routingKeys" : ["routingKey3"]
+                "routingKeys": [
+                    "routingKey3"
+                ]
             }
         }
     ],
-    "dimensions": [
+    "fields": [
         {
-            "dimensionType": "PassthroughDimension",
             "name": "source"
         },
         {
-            "dimensionType": "PassthroughDimension",
             "name": "text"
         },
         {
-            "dimensionType": "PassthroughDimension",
             "name": "lang"
         },
         {
-            "dimensionType": "DateTimeDimension",
+            "dimensionType": "DateTime",
             "name": "createdAt"
         },
         {
-            "dimensionType": "PassthroughDimension",
             "name": "favoriteCount"
         },
         {
-            "dimensionType": "PassthroughDimension",
             "name": "retweetCount"
         },
         {
-            "dimensionType": "PassthroughDimension",
             "name": "user_followersCount"
         },
         {
-            "dimensionType": "PassthroughDimension",
             "name": "user_favouritesCount"
         },
         {
-            "dimensionType": "PassthroughDimension",
             "name": "user_id"
         },
         {
-            "dimensionType": "PassthroughDimension",
             "name": "user_screenName"
         },
         {
-            "dimensionType": "PassthroughDimension",
             "name": "user_timeZone"
         }
     ],
-    "rollups": [
+    "cubes": [
         {
-            "dimensionAndPrecision": [
+            "name": "testCube",
+            "dimensions": [
                 {
-                    "dimensionName": "createdAt",
+                    "dimension": "createdAt",
                     "precision": "minute"
                 }
             ],
-            "operators": ["count-operator","max-operator"]
-        },
-        {
-            "dimensionAndPrecision": [
+            "operators": [
                 {
-                    "dimensionName": "lang",
-                    "precision": "identity"
-                }
-            ],
-            "operators": ["count-operator","max-operator"]
-        },
-        {
-            "dimensionAndPrecision": [
-                {
-                    "dimensionName": "lang",
-                    "precision": "identity"
+                    "measureName": "count-operator",
+                    "type": "Count",
+                    "configuration": {}
                 },
                 {
-                    "dimensionName": "createdAt",
+                    "measureName": "max-operator",
+                    "type": "Max",
+                    "configuration": {
+                        "inputField": "user_followersCount"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "testCube1",
+            "dimensions": [
+                {
+                    "dimension": "lang"
+                }
+            ],
+            "operators": [
+                {
+                    "measureName": "count-operator",
+                    "type": "Count",
+                    "configuration": {}
+                },
+                {
+                    "measureName": "max-operator",
+                    "type": "Max",
+                    "configuration": {
+                        "inputField": "user_followersCount"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "testCube2",
+            "dimensions": [
+                {
+                    "dimension": "lang"
+                },
+                {
+                    "dimension": "createdAt",
                     "precision": "minute"
                 }
             ],
-            "operators": ["count-operator","max-operator"]
+            "operators": [
+                {
+                    "measureName": "count-operator",
+                    "type": "Count",
+                    "configuration": {}
+                },
+                {
+                    "measureName": "max-operator",
+                    "type": "Max",
+                    "configuration": {
+                        "inputField": "user_followersCount"
+                    }
+                }
+            ]
         },
         {
-            "dimensionAndPrecision": [
+            "name": "testCube3",
+            "dimensions": [
                 {
-                    "dimensionName": "user_timeZone",
-                    "precision": "identity"
+                    "dimension": "user_timeZone"
                 }
             ],
-            "operators": ["count-operator","max-operator"]
+            "operators": [
+                {
+                    "measureName": "count-operator",
+                    "type": "Count",
+                    "configuration": {}
+                },
+                {
+                    "measureName": "max-operator",
+                    "type": "Max",
+                    "configuration": {
+                        "inputField": "user_followersCount"
+                    }
+                }
+            ]
         }
     ],
     "outputs": [
-      {
-        "name": "out-mongo",
-        "elementType": "MongoDbOutput",
-        "configuration": {
-          "clientUri": "mongodb://localhost:27017",
-          "dbName": "sparkta",
-          "multiplexer": "false"
-        }
-      }
-    ],
-    "operators": [
         {
-            "name": "count-operator",
-            "elementType": "CountOperator",
-            "configuration": {}
-        },
-        {
-            "name": "max-operator",
-            "elementType": "MaxOperator",
+            "name": "out-mongo",
+            "type": "MongoDb",
             "configuration": {
-                "inputField" : "user_followersCount"
+                "clientUri": "mongodb://localhost:27017",
+                "dbName": "sparkta",
+                "multiplexer": "false"
             }
         }
     ],
     "parsers": [
         {
             "name": "morphline-parser",
-            "elementType": "MorphlinesParser",
+            "type": "Morphlines",
             "configuration": {
                 "morphline": {
                     "id": "morphline1",
@@ -155,7 +192,6 @@
                                     "createdAt": "/createdAt",
                                     "text": "/text",
                                     "lang": "/lang",
-                                    "createdAt": "/createdAt",
                                     "favoriteCount": "/favoriteCount",
                                     "retweetCount": "/retweetCount",
                                     "user_followersCount": "/user/followersCount",
@@ -179,7 +215,7 @@
         },
         {
             "name": "createdAt",
-            "elementType": "DateTimeParser",
+            "type": "DateTime",
             "configuration": {
                 "createdAt": "unixMillis"
             }

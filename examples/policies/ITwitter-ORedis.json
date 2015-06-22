@@ -1,17 +1,22 @@
 {
   "name": "policy-Twitter-Redis",
-  "duration": 10000,
-  "saveRawData": "false",
-  "rawDataParquetPath": "myTestParquetPath",
-  "checkpointDir": "checkpoint",
-  "timeBucket": "minute",
-  "checkpointGranularity": "minute",
-  "checkpointInterval": 30000,
-  "checkpointTimeAvailability": 60000,
+  "sparkStreamingWindow": 6000,
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 60000
+  },
   "inputs": [
     {
       "name": "in-twitter",
-      "elementType": "TwitterInput",
+      "elementType": "Twitter",
       "configuration": {
         "consumerKey": "*****",
         "consumerSecret": "*****",
@@ -20,79 +25,111 @@
       }
     }
   ],
-  "dimensions": [
+  "fields": [
     {
-      "dimensionType": "TwitterStatusDimension",
-      "name": "status"
+      "type": "TwitterStatus",
+      "name": "status",
+      "configuration": {
+        "typeOp": "string",
+        "hastags": "int",
+        "firsthastag": "string",
+        "retweets": "int",
+        "urls": "int"
+      }
     },
     {
-      "dimensionType": "PassthroughDimension",
+      "name": "userLocation"
+    },
+    {
       "name": "wordsN"
     },
     {
-      "dimensionType": "DateTimeDimension",
+      "type": "DateTime",
       "name": "timestamp"
     },
     {
-      "dimensionType": "GeoHashDimension",
-      "name": "geolocation"
+      "type": "GeoHash",
+      "name": "geolocation",
+      "configuration": {
+        "typeOp": "arraydouble"
+      }
     }
   ],
-  "rollups": [
+  "cubes": [
     {
-      "dimensionAndPrecision": [
+      "name": "testCube",
+      "dimensions": [
         {
-          "dimensionName": "status",
+          "dimension": "status",
           "precision": "hastags"
         },
         {
-          "dimensionName": "status",
+          "dimension": "status",
           "precision": "firsthastag"
         },
         {
-          "dimensionName": "status",
+          "dimension": "status",
           "precision": "retweets"
         },
         {
-          "dimensionName": "geolocation",
+          "dimension": "userLocation"
+        },
+        {
+          "dimension": "wordsN"
+        },
+        {
+          "dimension": "geolocation",
           "precision": "precision3"
         },
         {
-          "dimensionName": "timestamp",
+          "dimension": "timestamp",
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator","max-operator","min-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "count-distinct-operator",
+          "type": "Count",
+          "configuration": {
+            "distinctFields": "wordsN"
+          }
+        },
+        {
+          "measureName": "sum-operator",
+          "type": "Sum",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "measureName": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "measureName": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        }
+      ]
     }
   ],
   "outputs": [
     {
       "name": "out-redis",
-      "elementType": "RedisOutput",
+      "elementType": "Redis",
       "configuration": {
         "hostname": "localhost",
         "multiplexer": "true"
-      }
-    }
-  ],
-  "operators": [
-    {
-      "name": "count-operator",
-      "elementType": "CountOperator",
-      "configuration": {}
-    },
-    {
-      "name": "max-operator",
-      "elementType": "MaxOperator",
-      "configuration": {
-        "inputField": "wordsN"
-      }
-    },
-    {
-      "name": "min-operator",
-      "elementType": "MinOperator",
-      "configuration": {
-        "inputField": "wordsN"
       }
     }
   ]

@@ -1,16 +1,22 @@
 {
   "name": "policy-Kafka-Cassandra",
-  "duration": 10000,
-  "saveRawData": "false",
-  "checkpointDir": "checkpoint",
-  "timeBucket": "minute",
-  "checkpointGranularity": "minute",
-  "checkpointInterval": 30000,
-  "checkpointTimeAvailability": 60000,
+  "sparkStreamingWindow": 6000,
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 60000
+  },
   "inputs": [
     {
       "name": "in-kafka",
-      "elementType": "KafkaInput",
+      "type": "Kafka",
       "configuration": {
         "topics": "streaming_data",
         "kafkaParams.zookeeper.connect": "anistal:2181",
@@ -19,107 +25,86 @@
       }
     }
   ],
-  "dimensions": [
+  "fields": [
     {
-      "dimensionType": "PassthroughDimension",
       "name": "c_r"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "ou_v"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "a"
     },
     {
-      "dimensionType": "DateTimeDimension",
+      "type": "DateTime",
       "name": "r_a_m"
     },
     {
-      "dimensionType": "GeoHashDimension",
+      "type": "GeoHash",
       "name": "geo"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "r_e_a"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "o"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "p_i"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "asset"
     }
   ],
-  "rollups": [
+  "cubes": [
     {
-      "dimensionAndPrecision": [
+      "name": "assets",
+      "dimensions": [
         {
-          "dimensionName": "asset",
-          "precision": "identity"
+          "dimension": "asset"
         }
       ]
     },
     {
-      "dimensionAndPrecision": [
+      "name": "c_r_ou_v_a_r_a_m_o_p_i",
+      "dimensions": [
         {
-          "dimensionName": "c_r",
-          "precision": "identity"
+          "dimension": "c_r"
         },
         {
-          "dimensionName": "ou_v",
-          "precision": "identity"
+          "dimension": "ou_v"
         },
         {
-          "dimensionName": "a",
-          "precision": "identity"
+          "dimension": "a"
         },
         {
-          "dimensionName": "r_a_m",
+          "dimension": "r_a_m",
           "precision": "minute"
         },
         {
-          "dimensionName": "o",
-          "precision": "identity"
+          "dimension": "o"
         },
         {
-          "dimensionName": "p_i",
-          "precision": "identity"
+          "dimension": "p_i"
         }
       ],
-      "operators": ["range-operator"]
-    }
-  ],
-  "operators": [
-    {
-      "name": "avg-operator",
-      "elementType": "AvgOperator",
-      "configuration": {
-        "inputField": "r_e_a"
-      }
-    },
-    {
-      "name": "range-operator",
-      "elementType": "RangeOperator",
-      "configuration": {
-        "inputField": "o_long"
-      }
+      "operators": [
+        {
+          "measureName": "range-operator",
+          "type": "Range",
+          "configuration": {
+            "inputField": "o_long"
+          }
+        }
+        ]
     }
   ],
   "outputs": [
     {
       "name": "out-print",
-      "elementType": "PrintOutput",
+      "type": "Print",
       "configuration": {
         "multiplexer": "true",
-        "dateBucket": "minute",
-        "granularity": "minute",
         "isAutoCalculateId": "true"
       }
     }
@@ -127,20 +112,20 @@
   "parsers": [
     {
       "name": "detector-parser",
-      "elementType": "DetectorParser",
+      "type": "Detector",
       "configuration": {
       }
     },
     {
       "name": "recorded_at_ms-parser",
-      "elementType": "DateTimeParser",
+      "type": "DateTime",
       "configuration": {
         "r_a_m": "unixMillis"
       }
     },
     {
       "name": "type-parser",
-      "elementType": "TypeParser",
+      "type": "Type",
       "configuration": {
         "sourceField": "o",
         "type": "Long",

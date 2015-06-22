@@ -46,7 +46,7 @@ class FlumeInput(properties: Map[String, Serializable]) extends Input(properties
         storageLevel,
         maxBatchSize,
         parallelism
-      ).map(data => new Event(Map(RAW_DATA_KEY -> data.event.getBody.array.asInstanceOf[Serializable]) ++
+      ).map(data => new Event(Map(RawDataKey -> data.event.getBody.array.asInstanceOf[Serializable]) ++
         data.event.getHeaders.asScala.map(h =>
           (h._1.toString -> h._2.asInstanceOf[Serializable])).toMap[String, Serializable]
       ))
@@ -57,7 +57,7 @@ class FlumeInput(properties: Map[String, Serializable]) extends Input(properties
         properties.getInt("port"),
         storageLevel,
         enableDecompression
-      ).map(data => new Event(Map(RAW_DATA_KEY -> data.event.getBody.array.asInstanceOf[Serializable]) ++
+      ).map(data => new Event(Map(RawDataKey -> data.event.getBody.array.asInstanceOf[Serializable]) ++
         data.event.getHeaders.asScala.map(h =>
           (h._1.toString -> h._2.asInstanceOf[Serializable])).toMap[String, Serializable]
       ))

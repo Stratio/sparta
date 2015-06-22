@@ -10,12 +10,12 @@
 
 ###Aggregator
 - Dimensions
-- Rollups
+- Cubes
 
 ###Plugins
-- Pass through bucketer
-- DateTime bucketer
-- GeoHash bucketer
+- Default Dimension
+- DateTime Dimension
+- GeoHash Dimension
 - Count operator
 - First approach **MongoDB** output
 - KeyValue parser
@@ -34,8 +34,8 @@
 - Now a distribution is generated
 
 ###Plugins
-- Tag bucketer
-- Hierarchy bucketer
+- Tag dimensioner
+- Hierarchy dimensioner
 - Max operator
 - Min operator
 - Sum operator
@@ -54,7 +54,7 @@
 ## v0.3
 
 ###Sdk
-- Multiplex rollups for **multi-cube** integration
+- Multiplex cubes for **multi-cube** integration
 
 ###Plugins
 - Avg operator
@@ -79,7 +79,7 @@
 
 ###Sdk
 - Integration with **Spark 1.3.1**
-- Auto create time series in outputs if not exist time bucket
+- Auto create time series in outputs if not exist time dimension
 - Full integration in Outputs with **Spark DataFrames**
 - Auto create "Id" in DataFrames with dimensions
 

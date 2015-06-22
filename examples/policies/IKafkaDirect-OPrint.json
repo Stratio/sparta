@@ -1,17 +1,22 @@
 {
   "name": "policy-kafka-direct",
-  "duration": 2000,
-  "saveRawData": "false",
-  "rawDataParquetPath": "myTestParquetPath",
-  "checkpointDir": "checkpoint",
-  "timeBucket": "minute",
-  "checkpointGranularity": "minute",
-  "checkpointInterval": 30000,
-  "checkpointTimeAvailability": 60000,
+  "sparkStreamingWindow": 6000,
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 60000
+  },
   "inputs": [
     {
       "name": "in",
-      "elementType": "KafkaDirectInput",
+      "elementType": "KafkaDirect",
       "configuration": {
         "topics": "test:1",
         "kafkaParams.metadata.broker.list": "localhost:9092",
@@ -19,44 +24,42 @@
       }
     }
   ],
-  "dimensions": [
+  "fields": [
     {
-      "dimensionType": "PassthroughDimension",
       "name": "message"
     }
   ],
-  "rollups": [
+  "cubes": [
     {
-      "dimensionAndPrecision": [
+      "name": "testCube",
+      "dimensions": [
         {
-          "dimensionName": "message",
-          "precision": "identity"
+          "dimension": "message"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     }
   ],
   "outputs": [
     {
       "name": "out-print",
-      "elementType": "PrintOutput",
+      "elementType": "Print",
       "configuration": {
         "multiplexer": "false",
         "isAutoCalculateId": "true"
       }
     }
   ],
-  "operators": [
-    {
-      "name": "count-operator",
-      "elementType": "CountOperator",
-      "configuration": {}
-    }
-  ],
   "parsers": [
     {
       "name": "morphline",
-      "elementType": "MorphlinesParser",
+      "elementType": "Morphlines",
       "configuration": {
         "morphline": {
           "id": "test1",

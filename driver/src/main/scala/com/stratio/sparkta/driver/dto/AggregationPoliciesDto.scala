@@ -27,40 +27,36 @@ import org.json4s.jackson.JsonMethods._
 
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 
-
 case class AggregationPoliciesDto(name: String = "default",
-                                  saveRawData: String = "true",
-                                  rawDataParquetPath: String = "default",
-                                  rawDataGranularity: String = "day",
-                                  checkpointDir: String = "checkpoint",
-                                  timePrecision: String = "",
-                                  checkpointGranularity: String = "minute",
-                                  checkpointInterval: Int = AggregationPoliciesDto.CheckPointInterval,
-                                  checkpointTimeAvailability: Int = AggregationPoliciesDto.checkpointTimeAvailability,
-                                  duration: Long = AggregationPoliciesDto.StreamingWindowDurationInMillis,
-                                  dimensions: Seq[DimensionDto],
-                                  rollups: Seq[RollupDto],
-                                  operators: Seq[PolicyElementDto],
-                                  inputs: Seq[PolicyElementDto],
+                                  sparkStreamingWindow: Long = AggregationPoliciesDto.sparkStreamingWindow,
+                                  rawData: RawDataDto,
                                   parsers: Seq[PolicyElementDto],
+                                  fields: Seq[FieldDto],
+                                  cubes: Seq[CubeDto],
+                                  inputs: Seq[PolicyElementDto],
                                   outputs: Seq[PolicyElementDto],
-                                  fragments: Seq[FragmentElementDto])
+                                  fragments: Seq[FragmentElementDto],
+                                  checkpointing: CheckpointDto)
 
 case object AggregationPoliciesDto {
-  val StreamingWindowDurationInMillis = 2000
-  val CheckPointInterval = 20000
-  val checkpointTimeAvailability = 60000
+
+  val sparkStreamingWindow = 2000
 }
 
 object AggregationPoliciesValidator {
 
+  final val MessageCubeName = "All cubes must have a non empty name\n"
+  final val MessageDurationGranularity = "The duration must be less than checkpoint interval\n"
+
   def validateDto(aggregationPoliciesDto: AggregationPoliciesDto): (Boolean, String) = {
     val (isValidAgainstSchema: Boolean, isValidAgainstSchemaMsg: String) = validateAgainstSchema(aggregationPoliciesDto)
-    val (isValidRollup: Boolean, isRollupInDimensionsMsg: String) =
-      validateRollups(aggregationPoliciesDto)
+    val (isValidCube: Boolean, isCubeInDimensionsMsg: String) = validateCubes(aggregationPoliciesDto)
+    val isValidDurationGranularity =
+      aggregationPoliciesDto.sparkStreamingWindow < aggregationPoliciesDto.checkpointing.interval
+    val isValidDurationGranularityMsg = if(!isValidDurationGranularity) MessageDurationGranularity else ""
 
-    val isValid = isValidRollup && isValidAgainstSchema
-    val errorMsg = isRollupInDimensionsMsg ++ isValidAgainstSchemaMsg
+    val isValid = isValidCube && isValidAgainstSchema && isValidDurationGranularity
+    val errorMsg = isCubeInDimensionsMsg ++ isValidAgainstSchemaMsg ++ isValidDurationGranularityMsg
     (isValid, errorMsg)
   }
 
@@ -93,20 +89,28 @@ object AggregationPoliciesValidator {
     (isValid, msg)
   }
 
-  def validateRollups(aggregationPoliciesDto: AggregationPoliciesDto): (Boolean, String) = {
+  def validateCubes(aggregationPoliciesDto: AggregationPoliciesDto): (Boolean, String) = {
 
-    val dimensionNames = aggregationPoliciesDto.dimensions.map(_.name)
-
-    val rollupNames = aggregationPoliciesDto.rollups
+    val hasCubesNames = aggregationPoliciesDto.cubes.filter(c => c.name == null || c.name.isEmpty).isEmpty
+    val dimensionNames = aggregationPoliciesDto.fields.map(_.name)
+    val cubeDimension = aggregationPoliciesDto.cubes
       .flatMap(x => Option(x))
-      .flatMap(x => Option(x.dimensionAndPrecision))
+      .flatMap(x => Option(x.dimensions))
       .flatten
-      .map(_.dimensionName)
+      .map(_.dimension)
 
-    val rollupNotInDimensions = rollupNames.filter(!dimensionNames.contains(_))
-    val isRollupInDimensions = rollupNotInDimensions.isEmpty
-    val isRollupInDimensionsMsg =
-      if (!isRollupInDimensions) "All rollups should be declared in dimensions block\n" else ""
-    (isRollupInDimensions, isRollupInDimensionsMsg)
+    if(!hasCubesNames) (false, MessageCubeName)
+    else checkCubeParameter(cubeDimension, dimensionNames, "fields")
+
+  }
+
+  private def checkCubeParameter(cubeNames: Seq[String], parameterNames: Seq[String], label: String):
+  (Boolean, String) = {
+    val parameterNotIn = cubeNames.filter(!parameterNames.contains(_))
+    val isParameterIn = parameterNotIn.isEmpty
+    val isCubeInMsg =
+      if (!isParameterIn) s"All references to $label in cubes should be declared in $label block" else ""
+
+    (isParameterIn, isCubeInMsg)
   }
 }

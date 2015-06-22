@@ -76,7 +76,7 @@ class MorphlinesParserSpec extends WordSpecLike with Matchers with BeforeAndAfte
             "col2":"word"
             }
         """.getBytes("UTF-8")
-      val e1 = new Event(Map(Input.RAW_DATA_KEY -> simpleJson.asInstanceOf[Serializable]))
+      val e1 = new Event(Map(Input.RawDataKey -> simpleJson.asInstanceOf[Serializable]))
       val e2 = parser.parse(e1)
       e2.keyMap should contain(("col1", "hello"))
     }

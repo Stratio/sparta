@@ -1,191 +1,362 @@
 {
   "name": "ecommerce-policy",
-  "duration": 10000,
-  "saveRawData": "false",
-  "checkpointDir": "checkpoint",
-  "timePrecision": "minute",
-  "checkpointGranularity": "minute",
-  "checkpointInterval": 30000,
-  "checkpointTimeAvailability": 60000,
+  "sparkStreamingWindow": 6000,
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 60000
+  },
   "inputs": [
     {
       "name": "in",
-      "elementType": "RabbitMQInput",
+      "type": "RabbitMQ",
       "configuration": {
         "queue": "logsQueue",
         "host": "localhost",
         "port": 5672,
         "storageLevel": "MEMORY_ONLY",
         "exchangeName": "logsExchange",
-        "routingKeys" : ["webLogsRoute","purchasesRoute"]
+        "routingKeys": [
+          "webLogsRoute",
+          "purchasesRoute"
+        ]
       }
     }
   ],
-  "dimensions": [
+  "fields": [
     {
-      "dimensionType": "DateTimeDimension",
+      "type": "DateTime",
       "name": "purchaseDateOL"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "userOL"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "totalAmountOL"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "cityOL"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "postalCodeOL"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "stateOL"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "countryOL"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "customerTypeOL"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "paymentTypeOL"
     },
     {
-      "dimensionType": "DateTimeDimension",
+      "type": "DateTime",
       "name": "timestampVL"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "ipHostVL"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "userAgentVL"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "userLogVL"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "responseCodeVL"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "operatingSystemVL"
     }
   ],
-  "rollups": [
+  "cubes": [
     {
-      "dimensionAndPrecision": [
+      "name": "testCube",
+      "dimensions": [
         {
-          "dimensionName": "purchaseDateOL",
+          "dimension": "purchaseDateOL",
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "avg-operator",
+          "type": "Avg",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        },
+        {
+          "measureName": "sum-operator",
+          "type": "Sum",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        },
+        {
+          "name": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        },
+        {
+          "name": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        }
+      ]
     },
     {
-      "dimensionAndPrecision": [
+      "name": "testCube1",
+      "dimensions": [
         {
-          "dimensionName": "timestampVL",
+          "dimension": "timestampVL",
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "avg-operator",
+          "type": "Avg",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        },
+        {
+          "measureName": "sum-operator",
+          "type": "Sum",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        },
+        {
+          "name": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        },
+        {
+          "name": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        }
+      ]
     },
     {
-      "dimensionAndPrecision": [
+      "name": "testCube2",
+      "dimensions": [
         {
-          "dimensionName": "ipHostVL",
+          "dimension": "ipHostVL",
           "precision": "identity"
         },
         {
-          "dimensionName": "timestampVL",
+          "dimension": "timestampVL",
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "avg-operator",
+          "type": "Avg",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        },
+        {
+          "measureName": "sum-operator",
+          "type": "Sum",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        },
+        {
+          "name": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        },
+        {
+          "name": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        }
+      ]
     },
     {
-      "dimensionAndPrecision": [
+      "name": "testCube3",
+      "dimensions": [
         {
-          "dimensionName": "cityOL",
+          "dimension": "cityOL",
           "precision": "identity"
         }
       ],
-      "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "avg-operator",
+          "type": "Avg",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        },
+        {
+          "measureName": "sum-operator",
+          "type": "Sum",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        },
+        {
+          "name": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        },
+        {
+          "name": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        }
+      ]
     },
     {
-      "dimensionAndPrecision": [
+      "name": "testCube4",
+      "dimensions": [
         {
-          "dimensionName": "stateOL",
+          "dimension": "stateOL",
           "precision": "identity"
         }
       ],
-      "operators": ["count-operator","sum-operator","max-operator","min-operator","avg-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "avg-operator",
+          "type": "Avg",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        },
+        {
+          "measureName": "sum-operator",
+          "type": "Sum",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        },
+        {
+          "name": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        },
+        {
+          "name": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "totalAmountOL"
+          }
+        }
+      ]
     }
   ],
   "outputs": [
     {
       "name": "out-elasticsearch",
-      "elementType": "ElasticSearchOutput",
+      "type": "ElasticSearch",
       "configuration": {
-        "nodes" : "localhost",
-        "defaultPort" : "9200",
-        "autoCalculateId" : "true",
-        "dateType" : "timestamp",
-        "indexMapping" : "day"
+        "nodes": "localhost",
+        "defaultPort": "9200",
+        "autoCalculateId": "true",
+        "dateType": "timestamp",
+        "indexMapping": "day"
       }
     }
   ],
   "operators": [
     {
       "name": "count-operator",
-      "elementType": "CountOperator",
+      "type": "Count",
       "configuration": {}
     },
     {
       "name": "avg-operator",
-      "elementType": "AvgOperator",
+      "type": "Avg",
       "configuration": {
-        "inputField" : "totalAmountOL"
+        "inputField": "totalAmountOL"
       }
     },
     {
       "name": "sum-operator",
-      "elementType": "SumOperator",
+      "type": "Sum",
       "configuration": {
-        "inputField" : "totalAmountOL"
+        "inputField": "totalAmountOL"
       }
     },
     {
       "name": "max-operator",
-      "elementType": "MaxOperator",
+      "type": "Max",
       "configuration": {
-        "inputField" : "totalAmountOL"
+        "inputField": "totalAmountOL"
       }
     },
     {
       "name": "min-operator",
-      "elementType": "MinOperator",
+      "type": "Min",
       "configuration": {
-        "inputField" : "totalAmountOL"
+        "inputField": "totalAmountOL"
       }
     }
   ],
   "parsers": [
     {
       "name": "morphline-parser",
-      "elementType": "MorphlinesParser",
+      "type": "Morphlines",
       "configuration": {
         "morphline": {
           "id": "morphline1",
@@ -230,14 +401,14 @@
     },
     {
       "name": "purchaseDateOL",
-      "elementType": "DateTimeParser",
+      "type": "DateTime",
       "configuration": {
         "purchaseDateOL": "unixMillis"
       }
     },
     {
       "name": "timestampVL",
-      "elementType": "DateTimeParser",
+      "type": "DateTime",
       "configuration": {
         "timestampVL": "unixMillis"
       }

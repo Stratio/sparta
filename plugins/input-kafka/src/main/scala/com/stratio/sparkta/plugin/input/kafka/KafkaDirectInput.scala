@@ -39,7 +39,7 @@ class KafkaDirectInput(properties: Map[String, JSerializable]) extends Input(pro
         ssc,
         kafkaParams,
         extractTopicsSet)
-        .map(data => new Event(Map(RAW_DATA_KEY -> data._2.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
+        .map(data => new Event(Map(RawDataKey -> data._2.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
     } else {
       throw new IllegalStateException(s"kafkaParams is necessary for KafkaDirectInput receiver")
     }

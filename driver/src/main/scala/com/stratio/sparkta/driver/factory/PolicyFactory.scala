@@ -20,7 +20,7 @@ import scala.util.Try
 
 import org.apache.spark.sql.types._
 
-import com.stratio.sparkta.aggregator.Rollup
+import com.stratio.sparkta.aggregator.Cube
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
@@ -44,18 +44,18 @@ object PolicyFactory {
     }
   //scalastyle:on
 
-  def rollupsOperatorsSchemas(rollups: Seq[Rollup],
+  def cubesOperatorsSchemas(cubes: Seq[Cube],
                               configOptions: Seq[(String, Map[String, String])]): Seq[TableSchema] = {
-    val componentsSorted = rollups.map(rollup =>
-      (rollup.getComponentsSorted, rollup.operators))
+    val componentsSorted = cubes.map(cube =>
+      (cube.getComponentsSorted, cube.operators))
     configOptions.flatMap{ case (outputName, configOptions) => {
       for {
-        (rollupsCombinations, operators) <- getCombinationsWithOperators(configOptions, componentsSorted)
-        rollupsNames = rollupsCombinations.map(_.getNameDimension)
-        schema = StructType(getDimensionsFields(rollupsCombinations) ++
+        (cubesCombinations, operators) <- getCombinationsWithOperators(configOptions, componentsSorted)
+        cubesNames = cubesCombinations.map(_.getNameDimension)
+        schema = StructType(getDimensionsFields(cubesCombinations) ++
           (getOperatorsFields(operators) ++
           getFixedFieldAggregation(configOptions)).sortWith(_.name < _.name))
-      } yield TableSchema(outputName, rollupsNames.mkString(Output.Separator), schema)
+      } yield TableSchema(outputName, cubesNames.mkString(Output.Separator), schema)
     }}.distinct
   }
 

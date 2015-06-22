@@ -68,7 +68,7 @@ class DetectorParserSpec extends WordSpecLike {
           |"value":"1432558355"},{"column":"stratio_timestamp_1"},{"column":"stratio_timestamp_2"}],
           |"userDefined":true}""".stripMargin
 
-      val e1 = new Event(Map(Input.RAW_DATA_KEY -> myJson1))
+      val e1 = new Event(Map(Input.RawDataKey -> myJson1))
       val e2 = new Event(Map())
       assertResult(true)(new DetectorParser(Map()).parse(e1).keyMap.contains("plate"))
     }

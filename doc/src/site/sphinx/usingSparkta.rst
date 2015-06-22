@@ -46,7 +46,7 @@ An aggregation policy it's a JSON document. It's composed of:
 * :ref:`Output(s) <output>`: aggregate data should be stored?
 * :ref:`Fragment(s) <fragment>`: for convenience you can include alias of inputs/outputs.
 * :ref:`Dimension(s) <dimension>`: which fields will you need for your real-time needs?
-* :ref:`RollUp(s) <rollup>`: how do you want to aggregate the dimensions?
+* :ref:`Cube(s) <cube>`: how do you want to aggregate the dimensions?
 * :ref:`Transformation(s) <transformation>`: which functions should be applied before aggregation?
 * :ref:`Save raw data <save-raw>`: do you want to save raw events?
 * :ref:`Define stateful operations <stateful>`: do you want to make non associative aggregations?
@@ -171,31 +171,32 @@ Example:
 ::
     "dimensions": [
         {
-          "dimensionType": "TwitterStatusBucketer",
+          "dimensionType": "TwitterStatusDimension",
           "name": "status"
         },
         {
-          "dimensionType": "GeoHashBucketer",
+          "dimensionType": "GeoHashDimension",
           "name": "geolocation"
         }
       ]
 
-.. _rollup:
+.. _cube:
 
 
-RollUp(s)
+Cube(s)
 ---------
 
-The rollups are the ways you want to aggregate the info.
+The cubes are the ways you want to aggregate the info.
 
 Example:
 ::
-    "rollups": [
+    "cubes": [
       {
-        "dimensionAndBucketTypes": [
+        "name": "testCube",
+        "dimensions": [
           {
             "dimensionName": "status",
-            "bucketType": "hastags"
+            "precision": "hastags"
           }
         ],
         "operators": ["count-operator","avg-operator"]
@@ -314,7 +315,7 @@ The system runs with time windows, these windows are configurable and allow us t
    "checkpointDir": ("directory")  Default: "checkpoint"
 
 * timeBucket:
-   You can specify the time bucket containing the event, thanks to this parameter can be stored aggregate data and
+   You can specify the time dimension containing the event, thanks to this parameter can be stored aggregate data and
    generate timeseries.
    This name will be as identified in the system of persistence.
    Is possible omit this parameter in policy.
@@ -325,7 +326,7 @@ The system runs with time windows, these windows are configurable and allow us t
    "timeBucket": ("BUCKET_LABEL")  Default: "minute"
 
 * checkpointGranularity:
-   If not created any bucketer time to identify with "timeBucket" you can leave the system assigned to each event time
+   If not created any dimensioner time to identify with "timeBucket" you can leave the system assigned to each event time
    with the specified granularity.
    Is possible omit this parameter in policy.
 

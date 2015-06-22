@@ -39,7 +39,7 @@ For more information for this output you can visit the :doc:`dataframes`
 These parameters can be completed in the policy file:
 
 * multiplexer:
-   If you want to multiplex all possible combinations that occur within a rollup,so that the outputs are saved
+   If you want to multiplex all possible combinations that occur within a cube,so that the outputs are saved
    multiple "tables".
    With this parameter the possibility of multi cubes and the possibility of generating it implements a data
    aggregation lake.
@@ -51,7 +51,8 @@ These parameters can be completed in the policy file:
 
    "multiplexer": ("true"/"false")  Default: "false"
 
-* fixedBuckets:
+* fixedDimensions:
+* fixedDimensions:
    You can specify fields that will be fixed for the calculation of the multiplex, in this way can obtain fixed
    dimensions and a smaller number of tables and possibilities
    You can omit this parameter in the policy.
@@ -59,7 +60,7 @@ These parameters can be completed in the policy file:
    * Example:
 ::
 
-   "fixedBuckets": ("bucket1{fieldsSeparator}bucket2{fieldsSeparator}...")  Default: ""
+   "fixedDimensions": ("dimension1{fieldsSeparator}dimension2{fieldsSeparator}...")  Default: ""
 
 * fieldsSeparator:
    Is possible specify the character that separate the fields for the others parameters.
@@ -72,7 +73,7 @@ These parameters can be completed in the policy file:
 
 * isAutoCalculateId:
    The system is capable of assigning an id added to each event, so that it may identify only the output.
-   This field is calculated with all the values of the bucket rollup, including timeBucket date if the parameter is specified.
+   This field is calculated with all the values of the fields, including timeDimension date if the parameter is specified.
    Only for DataFrames persistence, disable in Tuple -> (DimensionValuesTime, Aggregations).
    You can omit this parameter in the policy.
 
@@ -111,7 +112,7 @@ For more information for this output you can visit the :doc:`mongodb`
 
 * dbName:
    The system is capable of assigning an id added to each event, so that it may identify only the output.
-   This field is calculated with all the values of the bucket rollup, including timeBucket date if the parameter is specified.
+   This field is calculated with all the values of the fields, including timeDimension date if the parameter is specified.
    Only for DataFrames persistence, disable in UpdateMetricOperation.
    You can omit this parameter in the policy.
 
@@ -245,14 +246,14 @@ For more information for this output you can visit the :doc:`cassandra`
 
    "fieldsSeparator": ("any_character")  Default: ","
 
-* clusteringBuckets:
+* clusteringDimensions:
    It's possible to specify the clustering columns for the primary key.
    You can omit this parameter in the policy.
 
    * Example:
 ::
 
-   "clusteringBuckets": ("bucket1,bucket2,bucket3...")  Default: ""
+   "clusteringDimensions": ("dimension1,dimension2,dimension3...")  Default: ""
 
 * indexFields:
    It's possible to specify the indexed fields, could be any aggregate field or clustering column field.
@@ -261,7 +262,7 @@ For more information for this output you can visit the :doc:`cassandra`
    * Example:
 ::
 
-   "indexFields": ("bucket1,bucket2,bucket3, ...")  Default: ""
+   "indexFields": ("dimension1,dimension2,dimension3, ...")  Default: ""
 
 * textIndexFields:
    It's possible to specify the text index fields, this feature is for the Stratio Cassandra.
@@ -270,7 +271,7 @@ For more information for this output you can visit the :doc:`cassandra`
    * Example:
 ::
 
-   "textIndexFields": ("bucket1:type,bucket2:type,bucket3:type,aggregate1:type, aggregate2:type, ...")  Default: ""
+   "textIndexFields": ("dimension1:type,dimension2:type,dimension3:type,aggregate1:type, aggregate2:type, ...")  Default: ""
 
       type: "string/text/date/integer/long/double/...."
 

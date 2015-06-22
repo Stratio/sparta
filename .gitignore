@@ -41,5 +41,5 @@ build.log
 
 # Sparkta specifics
 logs
-default
+/default
 checkpoint

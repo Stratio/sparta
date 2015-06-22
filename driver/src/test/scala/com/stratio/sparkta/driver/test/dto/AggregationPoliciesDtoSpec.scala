@@ -32,48 +32,40 @@ with Matchers {
   "A AggregationPoliciesValidator should" should {
     "validate dimensions is required and has at least 1 element" in {
 
+      val sparkStreamingWindow = 2000
       val checkpointInterval = 10000
       val checkpointAvailable = 60000
       val checkpointGranularity = "minute"
       val checkpointDir = "checkpoint"
+      val checkpointDto =
+        new CheckpointDto(checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable)
 
-      val configuration: Map[String, JsoneyString]
-      = Map(("topics", new JsoneyString("zion2:1")), ("kafkaParams.group.id", new JsoneyString("kafka-pruebas")))
+      val configuration: Map[String, JsoneyString] =
+        Map(("topics", new JsoneyString("zion2:1")), ("kafkaParams.group.id", new JsoneyString("kafka-pruebas")))
       val input = new PolicyElementDto("kafka-input", "KafkaInput", configuration)
+
+      val cubeName = "cubeTest"
+      val DimensionToCube = "dimension2"
+      val fieldDto = new FieldDto("dimensionType", "dimension1", None)
+      val cubeDto = new CubeDto(cubeName, Seq(new PrecisionDto(DimensionToCube, "dimensionType", None)), Seq())
+
+      val rawDataDto = new RawDataDto()
 
       val apd = new AggregationPoliciesDto(
         "policy-name",
-        "true",
-        "example",
-        "day",
-        checkpointDir,
-        "",
-        checkpointGranularity,
-        checkpointInterval,
-        checkpointAvailable,
-        0,
+        sparkStreamingWindow,
+        rawDataDto,
         Seq(),
-        Seq(mock[RollupDto]),
-        Seq(mock[PolicyElementDto]),
+        Seq(fieldDto),
+        Seq(cubeDto),
         Seq(input),
         Seq(mock[PolicyElementDto]),
-        Seq(mock[PolicyElementDto]),
-        Seq(mock[FragmentElementDto]))
+        Seq(mock[FragmentElementDto]),
+      checkpointDto)
 
       val test = AggregationPoliciesValidator.validateDto(apd)
 
       test._1 should equal(false)
-      test._2 should include("com.github.fge.jsonschema.core.report.ListProcessingReport: failure\n" +
-        "--- BEGIN MESSAGES ---\n" +
-        "error: array is too short: must have at least 1 elements but instance has 0 elements\n" +
-        "    level: \"error\"\n" +
-        "    schema: {\"loadingURI\":\"#\",\"pointer\":\"/properties/dimensions\"}\n" +
-        "    instance: {\"pointer\":\"/dimensions\"}\n" +
-        "    domain: \"validation\"\n" +
-        "    keyword: \"minItems\"\n" +
-        "    minItems: 1\n" +
-        "    found: 0\n" +
-        "---  END MESSAGES  ---")
     }
   }
 }

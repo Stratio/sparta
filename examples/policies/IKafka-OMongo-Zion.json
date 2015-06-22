@@ -1,17 +1,22 @@
 {
   "name": "policy-Kafka-Mongo-Zion",
-  "duration": 10000,
-  "saveRawData": "false",
-  "rawDataParquetPath": "myTestParquetPath",
-  "checkpointDir": "checkpoint",
-  "timeBucket": "minute",
-  "checkpointGranularity": "minute",
-  "checkpointInterval": 30000,
-  "checkpointTimeAvailability": 60000,
+  "sparkStreamingWindow": 6000,
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 60000
+  },
   "inputs": [
     {
       "name": "in-kafka",
-      "elementType": "KafkaInput",
+      "type": "Kafka",
       "configuration": {
         "topics": "zion2:1",
         "kafkaParams.zookeeper.connect": "localhost:2181",
@@ -20,152 +25,258 @@
       }
     }
   ],
-  "dimensions": [
+  "fields": [
     {
-      "dimensionType": "PassthroughDimension",
       "name": "appName"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "appCountry"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "appPlatform"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "appVersion"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "device"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "osVersion"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "lang"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "appLang"
     },
     {
-      "dimensionType": "DateTimeDimension",
+      "type": "DateTime",
       "name": "date"
     },
     {
-      "dimensionType": "DateTimeDimension",
+      "type": "DateTime",
       "name": "timestamp"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "session"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "extra1"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "extra2"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "extra3"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "source"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "responseTime"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "environment"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "platform"
     },
     {
-      "dimensionType": "GeoHashDimension",
+      "type": "GeoHash",
       "name": "geo"
     }
   ],
-  "rollups": [
+  "cubes": [
     {
-      "dimensionAndPrecision": [
+      "name": "time",
+      "dimensions": [
         {
-          "dimensionName": "timestamp",
+          "dimension": "timestamp",
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator", "max-operator", "min-operator"]
-    },
-    {
-      "dimensionAndBucketTypes": [
+      "operators": [
         {
-          "dimensionName": "session",
-          "bucketType": "identity"
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
         },
         {
-          "dimensionName": "timestamp",
-          "bucketType": "minute"
-        }
-      ],
-      "operators": ["count-operator", "max-operator", "min-operator"]
-    },
-    {
-      "dimensionAndBucketTypes": [
-        {
-          "dimensionName": "platform",
-          "bucketType": "identity"
-        }
-      ],
-      "operators": ["count-operator", "max-operator", "min-operator"]
-    },
-    {
-      "dimensionAndBucketTypes": [
-        {
-          "dimensionName": "device",
-          "bucketType": "identity"
-        }
-      ],
-      "operators": ["count-operator", "max-operator", "min-operator"]
-    },
-    {
-      "dimensionAndBucketTypes": [
-        {
-          "dimensionName": "geo",
-          "bucketType": "precision6"
-        }
-      ],
-      "operators": ["count-operator", "max-operator", "min-operator"]
-    },
-    {
-      "dimensionAndBucketTypes": [
-        {
-          "dimensionName": "appPlatform",
-          "bucketType": "identity"
+          "measureName": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "responseTime"
+          }
         },
         {
-          "dimensionName": "timestamp",
-          "bucketType": "minute"
+          "measureName": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        }
+      ]
+    },
+    {
+      "name": "session",
+      "dimensions": [
+        {
+          "dimension": "session"
+        },
+        {
+          "dimension": "timestamp",
+          "precision": "minute"
         }
       ],
-      "operators": ["count-operator", "max-operator", "min-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        },
+        {
+          "measureName": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        }
+      ]
+    },
+    {
+      "name": "platform",
+      "dimensions": [
+        {
+          "dimension": "platform"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        },
+        {
+          "measureName": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        }
+      ]
+    },
+    {
+      "name": "device",
+      "dimensions": [
+        {
+          "dimension": "device"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        },
+        {
+          "measureName": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        }
+      ]
+    },
+    {
+      "name": "geo",
+      "dimensions": [
+        {
+          "dimension": "geo",
+          "precision": "precision6"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        },
+        {
+          "measureName": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        }
+      ]
+    },
+    {
+      "name": "appPlatform",
+      "dimensions": [
+        {
+          "dimension": "appPlatform"
+        },
+        {
+          "dimension": "timestamp",
+          "precision": "minute"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        },
+        {
+          "measureName": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        }
+      ]
     }
   ],
   "outputs": [
     {
       "name": "out-mongo",
-      "elementType": "MongoDbOutput",
+      "type": "MongoDb",
       "configuration": {
         "clientUri": "mongodb://localhost:27017",
         "dbName": "sparkta",
@@ -173,31 +284,10 @@
       }
     }
   ],
-  "operators": [
-    {
-      "name": "count-operator",
-      "elementType": "CountOperator",
-      "configuration": {}
-    },
-    {
-      "name": "max-operator",
-      "elementType": "MaxOperator",
-      "configuration": {
-        "inputField": "responseTime"
-      }
-    },
-    {
-      "name": "min-operator",
-      "elementType": "MinOperator",
-      "configuration": {
-        "inputField": "responseTime"
-      }
-    }
-  ],
   "parsers": [
     {
       "name": "morphline-parser",
-      "elementType": "MorphlinesParser",
+      "type": "Morphlines",
       "configuration": {
         "morphline": {
           "id": "morphline1",
@@ -258,7 +348,7 @@
     },
     {
       "name": "timestamp",
-      "elementType": "DateTimeParser",
+      "type": "DateTime",
       "configuration": {
         "timestamp": "autoGenerated"
       }

@@ -52,7 +52,7 @@ Features
 
 - Highly business-project oriented
 - Multiple application
-- Rollups
+- Cubes
     - Pass-through
     - Time-based
     - Secondly, minutely, hourly,  daily, monthly, yearly...

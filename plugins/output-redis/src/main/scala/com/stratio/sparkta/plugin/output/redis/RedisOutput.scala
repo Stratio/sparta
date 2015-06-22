@@ -31,7 +31,7 @@ import org.apache.spark.streaming.dstream.DStream
 import scala.util.Try
 
 /**
- * Saves calculated rollups on Redis.
+ * Saves calculated cubes on Redis.
  *
  */
 class RedisOutput(keyName: String,
@@ -65,7 +65,7 @@ class RedisOutput(keyName: String,
   }
 
   /**
-   * Saves in a Redis' hash rollups values.
+   * Saves in a Redis' hash cubes values.
    *
    * @param metricOperations that will be saved.
    */

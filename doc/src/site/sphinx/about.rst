@@ -56,8 +56,8 @@ Features
 
 - Highly business-project oriented
 - Multiple application
-- Rollups
-    - Pass-through
+- Cubes
+    - Default
     - Time-based
     - Secondly, minutely, hourly,  daily, monthly, yearly...
     - Hierarchical

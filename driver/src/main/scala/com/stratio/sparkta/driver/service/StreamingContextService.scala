@@ -30,7 +30,7 @@ import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.reflections.Reflections
 
-import com.stratio.sparkta.aggregator.{DataCube, Rollup}
+import com.stratio.sparkta.aggregator.{MultiCube, Cube}
 import com.stratio.sparkta.driver.dto._
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory._
@@ -43,18 +43,20 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
   def createStreamingContext(apConfig: AggregationPoliciesDto): StreamingContext = {
 
     val OutputsSparkConfiguration = "getSparkConfiguration"
-    val specifictSparkConfig = SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration)
+    val specifictSparkConfig = SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
     val sc = SparkContextFactory.sparkContextInstance(generalConfig, specifictSparkConfig, jars)
-    val ssc = SparkContextFactory.sparkStreamingInstance(new Duration(apConfig.duration), apConfig.checkpointDir).get
+    val ssc = SparkContextFactory.sparkStreamingInstance(
+      new Duration(apConfig.sparkStreamingWindow),
+      apConfig.checkpointing.path).get
     val inputs: Map[String, DStream[Event]] = SparktaJob.inputs(apConfig, ssc)
     val parsers: Seq[Parser] = SparktaJob.parsers(apConfig)
-    val operators: Seq[Operator] = SparktaJob.operators(apConfig)
+    val operators: Map[String, Operator] = SparktaJob.operators(apConfig)
     val dimensionsMap: Map[String, Dimension] = SparktaJob.instantiateDimensions(apConfig).toMap
     val dimensionsSeq: Seq[Dimension] = SparktaJob.instantiateDimensions(apConfig).map(_._2)
-    val rollups: Seq[Rollup] = SparktaJob.rollups(apConfig, operators, dimensionsMap)
+    val cubes: Seq[Cube] = SparktaJob.cubes(apConfig, operators, Seq(), dimensionsMap)
 
     val bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]] = {
-      val opKeyOp = PolicyFactory.operatorsKeyOperation(operators)
+      val opKeyOp = PolicyFactory.operatorsKeyOperation(operators.values.toSeq)
       if (opKeyOp.size > 0) Some(sc.broadcast(opKeyOp)) else None
     }
 
@@ -66,18 +68,19 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
             .getOrElse("")
       )))
 
-    val bcRollupOperatorSchema: Option[Broadcast[Seq[TableSchema]]] = {
-      val rollOpSchema = PolicyFactory.rollupsOperatorsSchemas(rollups, outputsSchemaConfig)
+    val bcCubeOperatorSchema: Option[Broadcast[Seq[TableSchema]]] = {
+      val rollOpSchema = PolicyFactory.cubesOperatorsSchemas(cubes, outputsSchemaConfig)
       if (rollOpSchema.size > 0) Some(sc.broadcast(rollOpSchema)) else None
     }
-    val datePrecision = if (apConfig.timePrecision.isEmpty) None else Some(apConfig.timePrecision)
-    val timeName = if (datePrecision.isDefined) datePrecision.get else apConfig.checkpointGranularity
-    val outputs = SparktaJob.outputs(apConfig, sc, bcOperatorsKeyOperation, bcRollupOperatorSchema, timeName)
+    val datePrecision = if (apConfig.checkpointing.timeDimension.isEmpty) None
+    else Some(apConfig.checkpointing.timeDimension)
+    val timeName = if (datePrecision.isDefined) datePrecision.get else apConfig.checkpointing.granularity
+    val outputs = SparktaJob.outputs(apConfig, sc, bcOperatorsKeyOperation, bcCubeOperatorSchema, timeName)
     val input: DStream[Event] = inputs.head._2
     SparktaJob.saveRawData(apConfig, input)
     val parsed = SparktaJob.applyParsers(input, parsers)
 
-    val dataCube = new DataCube(dimensionsSeq, rollups, datePrecision, apConfig.checkpointGranularity).setUp(parsed)
+    val dataCube = new MultiCube(dimensionsSeq, cubes, datePrecision, apConfig.checkpointing.granularity).setUp(parsed)
     outputs.map(_._2.persist(dataCube))
     ssc
   }
@@ -104,9 +107,9 @@ object SparktaJob {
     plugins map (t => t.getSimpleName -> t.getCanonicalName) toMap
   }
 
-  def getSparkConfigs(apConfig: AggregationPoliciesDto, methodName: String): Map[String, String] =
+  def getSparkConfigs(apConfig: AggregationPoliciesDto, methodName: String, suffix: String): Map[String, String] =
     apConfig.outputs.flatMap(o => {
-      val clazzToInstance = SparktaJob.getClasspathMap.getOrElse(o.elementType, o.elementType)
+      val clazzToInstance = SparktaJob.getClasspathMap.getOrElse(o.`type` + suffix, o.`type` + suffix)
       val clazz = Class.forName(clazzToInstance)
       clazz.getMethods.find(p => p.getName == methodName) match {
         case Some(method) => {
@@ -120,30 +123,31 @@ object SparktaJob {
 
   def inputs(apConfig: AggregationPoliciesDto, ssc: StreamingContext): Map[String, DStream[Event]] =
     apConfig.inputs.map(i =>
-      (i.name, tryToInstantiate[Input](i.elementType, (c) =>
+      (i.name, tryToInstantiate[Input](i.`type` + Input.ClassSuffix, (c) =>
         instantiateParameterizable[Input](c, i.configuration)).setUp(ssc))).toMap
 
   def parsers(apConfig: AggregationPoliciesDto): Seq[Parser] = apConfig.parsers.map(p =>
-    tryToInstantiate[Parser](p.elementType, (c) =>
+    tryToInstantiate[Parser](p.`type` + Parser.ClassSuffix, (c) =>
       instantiateParameterizable[Parser](c, p.configuration)))
 
-  private def createOperator(op2: PolicyElementDto): Operator = {
-    tryToInstantiate[Operator](op2.elementType,
+  private def createOperator(operatorDto: OperatorDto): Operator = {
+    tryToInstantiate[Operator](operatorDto.`type` + Operator.ClassSuffix,
       (c) => instantiateParameterizable[Operator](c,
-        op2.configuration + (OperatorNamePropertyKey -> new JsoneyString(op2.name))))
+        operatorDto.configuration + (OperatorNamePropertyKey -> new JsoneyString(operatorDto.measureName))))
   }
 
-  def operators(apConfig: AggregationPoliciesDto): Seq[Operator] =
-    apConfig.operators
-      .map(op2 => createOperator(op2))
+  def operators(apConfig: AggregationPoliciesDto): Map[String, Operator] =
+    apConfig.cubes.flatMap(cube => cube.operators.map(operator =>
+      (getOperatorKeyName(cube.name, operator), createOperator(operator))))
+      .toMap
 
   def outputs(apConfig: AggregationPoliciesDto,
               sparkContext: SparkContext,
               bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-              bcRollupOperatorSchema: Option[Broadcast[Seq[TableSchema]]],
+              bcCubeOperatorSchema: Option[Broadcast[Seq[TableSchema]]],
               timeName: String): Seq[(String, Output)] =
     apConfig.outputs.map(o =>
-      (o.name, tryToInstantiate[Output](o.elementType, (c) =>
+      (o.name, tryToInstantiate[Output](o.`type` + Output.ClassSuffix, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
           classOf[Map[String, Serializable]],
@@ -151,7 +155,7 @@ object SparktaJob {
           classOf[Option[Broadcast[Map[String, (WriteOp, TypeOp)]]]],
           classOf[Option[Broadcast[Seq[TableSchema]]]],
           classOf[String])
-          .newInstance(o.name, o.configuration, sparkContext, bcOperatorsKeyOperation, bcRollupOperatorSchema, timeName)
+          .newInstance(o.name, o.configuration, sparkContext, bcOperatorsKeyOperation, bcCubeOperatorSchema, timeName)
           .asInstanceOf[Output])))
 
   private def getOperatorsWithNames(operators: Seq[Operator], selectedOperators: Seq[String]): Seq[Operator] = {
@@ -165,30 +169,35 @@ object SparktaJob {
     })
   }
 
-  def rollups(apConfig: AggregationPoliciesDto,
-              operators: Seq[Operator],
-              dimensionsMap: Map[String, Dimension]): Seq[Rollup] =
-    apConfig.rollups.map(r => {
-      val components = r.dimensionAndPrecision.map(dab => {
-        dimensionsMap.get(dab.dimensionName) match {
+  private def getOperatorKeyName(cubeName: String, operatorDto: OperatorDto): String =
+    s"$cubeName${operatorDto.measureName}"
+
+  def cubes(apConfig: AggregationPoliciesDto,
+            operators: Map[String, Operator],
+            outputs: Seq[Output],
+            dimensionsMap: Map[String, Dimension]): Seq[Cube] =
+    apConfig.cubes.map(cube => {
+      val name = cube.name
+      val multiplexer = Try(cube.multiplexer.toBoolean).getOrElse(false)
+      val components = cube.dimensions.map(dab => {
+        dimensionsMap.get(dab.dimension) match {
           case Some(x: Dimension) => getDimensionPrecision(x, dab)
-          case None => throw new DriverException("Dimension name " + dab.dimensionName + " not found.")
+          case None => throw new DriverException("Dimension name " + dab.dimension + " not found.")
         }
       })
 
-      val operatorsForRollup = Option(r.operators) match {
-        case Some(selectedOperators) => getOperatorsWithNames(operators, selectedOperators)
-        case _ => Seq()
-      }
+      val operatorsForCube = cube.operators.flatMap(operator => operators.get(getOperatorKeyName(cube.name, operator)))
 
-      new Rollup(components,
-        operatorsForRollup,
-        apConfig.checkpointInterval,
-        apConfig.checkpointGranularity,
-        apConfig.checkpointTimeAvailability)
+      new Cube(name,
+        components,
+        operatorsForCube,
+        multiplexer,
+        apConfig.checkpointing.interval,
+        apConfig.checkpointing.granularity,
+        apConfig.checkpointing.timeAvailability)
     })
 
-  def getDimensionPrecision(dimension: Dimension, dimPrecisionDto: DimensionAndPrecisionDto): DimensionPrecision = {
+  def getDimensionPrecision(dimension: Dimension, dimPrecisionDto: PrecisionDto): DimensionPrecision = {
     if (dimension.precisions.contains(dimPrecisionDto.precision)) {
       val precision = dimension.precisions(dimPrecisionDto.precision)
       DimensionPrecision(dimension, new Precision(precision.id,
@@ -196,7 +205,7 @@ object SparktaJob {
         precision.properties ++ dimPrecisionDto.configuration.getOrElse(Map())))
     } else {
       throw new DriverException(
-        "Precision type " + dimPrecisionDto.precision + " not supported in dimension " + dimPrecisionDto.dimensionName)
+        "Precision type " + dimPrecisionDto.precision + " not supported in dimension " + dimPrecisionDto.dimension)
     }
   }
 
@@ -218,7 +227,6 @@ object SparktaJob {
       case e: Exception => throw DriverException.create(
         "Generic error trying to instantiate " + classAndPackage, e)
     }
-
   }
 
   def dimensionsMap(apConfig: AggregationPoliciesDto): Map[String, Dimension] = instantiateDimensions(apConfig).toMap
@@ -226,8 +234,8 @@ object SparktaJob {
   def dimensionsSeq(apConfig: AggregationPoliciesDto): Seq[Dimension] = instantiateDimensions(apConfig).map(_._2)
 
   def instantiateDimensions(apConfig: AggregationPoliciesDto): Seq[(String, Dimension)] =
-    apConfig.dimensions.map(d => (d.name,
-      new Dimension(d.name, tryToInstantiate[DimensionType](d.dimensionType, (c) => {
+    apConfig.fields.map(d => (d.name,
+      new Dimension(d.name, tryToInstantiate[DimensionType](d.`type` + Dimension.ClassSuffix, (c) => {
         d.configuration match {
           case Some(conf) => c.getDeclaredConstructor(classOf[Map[String, Serializable]])
             .newInstance(conf).asInstanceOf[DimensionType]
@@ -236,11 +244,11 @@ object SparktaJob {
       }))))
 
   def saveRawData(apConfig: AggregationPoliciesDto, input: DStream[Event], sqc: Option[SQLContext] = None): Unit =
-    if (apConfig.saveRawData.toBoolean) {
-      require(!apConfig.rawDataParquetPath.equals("default"),"The parquet path must be set")
+    if (apConfig.rawData.enabled.toBoolean) {
+      require(!apConfig.rawData.path.equals("default"), "The parquet path must be set")
       val sqlContext = sqc.getOrElse(SparkContextFactory.sparkSqlContextInstance.get)
       def rawDataStorage: RawDataStorageService =
-        new RawDataStorageService(sqlContext, apConfig.rawDataParquetPath, apConfig.rawDataGranularity)
+        new RawDataStorageService(sqlContext, apConfig.rawData.path, apConfig.rawData.partitionFormat)
       rawDataStorage.save(input)
     }
 }

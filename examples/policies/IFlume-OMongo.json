@@ -1,17 +1,22 @@
 {
   "name": "policy-MongoDB-Financtial",
-  "duration": 5000,
-  "saveRawData": "false",
-  "rawDataParquetPath": "myTestParquetPath",
-  "checkpointDir": "checkpoint",
-  "timeBucket": "minute",
-  "checkpointGranularity": "minute",
-  "checkpointInterval": 30000,
-  "checkpointTimeAvailability": 60000,
+  "sparkStreamingWindow": 6000,
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 60000
+  },
   "inputs": [
     {
       "name": "in-flume",
-      "elementType": "FlumeInput",
+      "type": "Flume",
       "configuration": {
         "type": "pull",
         "addresses": "localhost:10999",
@@ -20,200 +25,245 @@
       }
     }
   ],
-  "dimensions": [
+  "fields": [
     {
-      "dimensionType": "PassthroughDimension",
       "name": "appName"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "appCountry"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "appPlatform"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "appVersion"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "device"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "osVersion"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "lang"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "appLang"
     },
     {
-      "dimensionType": "DateTimeDimension",
+      "type": "DateTime",
       "name": "timestamp"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "session"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "extra1"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "extra2"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "extra3"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "source"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "environment"
     },
     {
-      "dimensionType": "PassthroughDimension",
       "name": "platform"
     },
     {
-      "dimensionType": "GeoHashDimension",
+      "dimensionType": "GeoHash",
       "name": "geo"
     }
   ],
-  "rollups": [
+  "cubes": [
     {
-      "dimensionAndPrecision": [
+      "name": "extra1",
+      "dimensions": [
         {
-          "dimensionName": "extra1",
-          "precision": "identity"
+          "dimension": "extra1"
         },
         {
-          "dimensionName": "timestamp",
+          "dimension": "timestamp",
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
-      "dimensionAndPrecision": [
+      "name": "platform_device",
+      "dimensions": [
         {
-          "dimensionName": "platform",
-          "precision": "identity"
+          "dimension": "platform"
         },
         {
-          "dimensionName": "device",
-          "precision": "identity"
+          "dimension": "device"
         },
         {
-          "dimensionName": "timestamp",
+          "dimension": "timestamp",
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
-      "dimensionAndPrecision": [
+      "name": "appname",
+      "dimensions": [
         {
-          "dimensionName": "appName",
-          "precision": "identity"
+          "dimension": "appName"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
-      "dimensionAndPrecision": [
+      "name": "session",
+      "dimensions": [
         {
-          "dimensionName": "session",
-          "precision": "identity"
+          "dimension": "session"
         },
         {
-          "dimensionName": "timestamp",
+          "dimension": "timestamp",
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
-      "dimensionAndPrecision": [
+      "name": "applang",
+      "dimensions": [
         {
-          "dimensionName": "appLang",
-          "precision": "identity"
+          "dimension": "appLang"
         },
         {
-          "dimensionName": "timestamp",
+          "dimension": "timestamp",
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
-      "dimensionAndPrecision": [
+      "name": "geo",
+      "dimensions": [
         {
-          "dimensionName": "geo",
+          "dimension": "geo",
           "precision": "precision6"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
-      "dimensionAndPrecision": [
+      "name": "appCountry",
+      "dimensions": [
         {
-          "dimensionName": "appCountry",
-          "precision": "identity"
+          "dimension": "appCountry"
         },
         {
-          "dimensionName": "timestamp",
+          "dimension": "timestamp",
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
-      "dimensionAndPrecision": [
+      "name": "appPlatform_time",
+      "dimensions": [
         {
-          "dimensionName": "appPlatform",
-          "precision": "identity"
+          "dimension": "appPlatform"
         },
         {
-          "dimensionName": "timestamp",
+          "dimension": "timestamp",
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
-      "dimensionAndPrecision": [
+      "name": "appPlatform_time",
+      "dimensions": [
         {
-          "dimensionName": "appPlatform",
-          "precision": "identity"
+          "dimension": "appPlatform"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
-      "dimensionAndPrecision": [
+      "name": "appCountry",
+      "dimensions": [
         {
-          "dimensionName": "appCountry",
-          "precision": "identity"
+          "dimension": "appCountry"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     }
   ],
   "outputs": [
     {
       "name": "out-mongo",
-      "elementType": "MongoDbOutput",
+      "type": "MongoDb",
       "configuration": {
         "clientUri": "mongodb://localhost:27017",
         "dbName": "sparkta",
@@ -221,17 +271,10 @@
       }
     }
   ],
-  "operators": [
-    {
-      "name": "count-operator",
-      "elementType": "CountOperator",
-      "configuration": {}
-    }
-  ],
   "parsers": [
     {
       "name": "morphline-parser",
-      "elementType": "MorphlinesParser",
+      "type": "Morphlines",
       "configuration": {
         "morphline": {
           "id": "morphline1",
@@ -291,7 +334,7 @@
     },
     {
       "name": "datetime",
-      "elementType": "DateTimeParser",
+      "type": "DateTime",
       "configuration": {
         "timestamp": "unix"
       }

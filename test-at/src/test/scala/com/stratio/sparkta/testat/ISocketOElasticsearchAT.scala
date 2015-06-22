@@ -35,7 +35,7 @@ class ISocketOElasticsearchAT extends SparktaATSuite{
   val PathToPolicy = getClass.getClassLoader.getResource("policies/ISocket-OElasticsearch.json").getPath
   val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data.csv").getPath
   val TimeElastisearchStarts: Long = 5000
-  val PolicyEndSleep = 30000
+  val PolicyEndSleep = 60000
   val ProductAAvg: Double = 750d
   val ProductASum: Double = 6000d
   val ProductBAvg: Double = 1000d
