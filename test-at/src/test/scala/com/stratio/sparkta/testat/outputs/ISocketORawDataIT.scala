@@ -16,49 +16,26 @@
 
 package com.stratio.sparkta.testat
 
-
-import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
-import com.stratio.sparkta.driver.factory.SparkContextFactory
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import org.apache.spark.SparkContext
-import org.apache.spark.sql.SQLContext
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
-
 import scala.io.Source
 import scala.reflect.io.File
 
-class ISocketORawDataAT extends SparktaATSuite {
+import org.apache.spark.SparkContext
+import org.apache.spark.sql.SQLContext
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
-  val PolicyEndSleep = 30000
+@RunWith(classOf[JUnitRunner])
+class ISocketORawDataIT extends SparktaATSuite {
+
   val NumExecutors = 4
-  val Policy = getClass.getClassLoader.getResource("policies/ISocket-ORawData.json")
-  val PathToPolicy = Policy.getPath
-  val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data.csv").getPath
-
+  val policyFile = "policies/ISocket-ORawData.json"
   val CsvLines = Source.fromFile(PathToCsv).getLines().toList.map(line => line).toSeq.sortBy(_.toString)
 
-  implicit val formats = DefaultFormats + new JsoneyStringSerializer()
-  val parquetPath = parse(Policy.openStream()).extract[AggregationPoliciesDto].rawData.path
-
-  before {
-    zookeeperStart
-    socketStart
-  }
-
-  after {
-    serverSocket.close()
-    zkTestServer.stop()
-    File(parquetPath).deleteRecursively
-  }
+  val parquetPath = policyDto.rawData.path
 
   "Sparkta" should {
     "save raw data in the storage" in {
-      startSparkta
-      sendPolicy(PathToPolicy)
-      sendDataToSparkta(PathToCsv)
-      Thread.sleep(PolicyEndSleep)
-      SparkContextFactory.destroySparkContext
+      sparktaRunner
       checkData
     }
 
@@ -72,7 +49,12 @@ class ISocketORawDataAT extends SparktaATSuite {
         .collect()
         .map(_.get(0))
         .toSeq
-        .sortBy(_.toString) should be (CsvLines)
+        .sortBy(_.toString) should be(CsvLines)
+      sc.stop
     }
   }
+
+  override def extraAfter: Unit = File(parquetPath).deleteRecursively
+
+  override def extraBefore: Unit = {}
 }

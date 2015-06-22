@@ -14,43 +14,32 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.testat
+package com.stratio.sparkta.testat.outputs
 
 import com.datastax.driver.core.{Cluster, ResultSet, Session}
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+
+import com.stratio.sparkta.testat.SparktaATSuite
 
 /**
  * Acceptance test:
- *   [Input]: Socket.
- *   [Output]: Cassandra.
- *   [Operators]: sum, avg.
+ * [Input]: Socket.
+ * [Output]: Cassandra.
+ * [Operators]: sum, avg.
  * @author gschiavon anistal
  */
-class ISocketOCassandraAT extends SparktaATSuite {
 
-  val PolicyEndSleep = 30000
+@RunWith(classOf[JUnitRunner])
+class ISocketOCassandraIT extends SparktaATSuite {
+
   val CassandraPort = 9142
-  val PathToPolicy = getClass.getClassLoader.getResource("policies/ISocket-OCassandra.json").getPath
-  val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data.csv").getPath
-
-  before {
-    zookeeperStart
-    socketStart
-    EmbeddedCassandraServerHelper.startEmbeddedCassandra()
-  }
-
-  after {
-    serverSocket.close()
-    zkTestServer.stop()
-    EmbeddedCassandraServerHelper.cleanEmbeddedCassandra()
-  }
+  override val policyFile = "policies/ISocket-OCassandra.json"
 
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in cassandra" in {
-      startSparkta
-      sendPolicy(PathToPolicy)
-      sendDataToSparkta(PathToCsv)
-      sleep(PolicyEndSleep)
+      sparktaRunner
       checkData
     }
 
@@ -60,13 +49,17 @@ class ISocketOCassandraAT extends SparktaATSuite {
 
       val resultProductA: ResultSet = session.execute("select * from product_minute where product = 'producta'")
       val rowProductA = resultProductA.iterator().next()
-      (rowProductA).getDouble("avg_price") should be (750.0d)
-      (rowProductA).getDouble("sum_price") should be (6000.0d)
+      (rowProductA).getDouble("avg_price") should be(750.0d)
+      (rowProductA).getDouble("sum_price") should be(6000.0d)
 
       val resultProductB: ResultSet = session.execute("select * from product_minute where product = 'productb'")
       val rowProductB = resultProductB.iterator().next()
-      (rowProductB).getDouble("avg_price") should be (1000.0d)
-      (rowProductB).getDouble("sum_price") should be (8000.0d)
+      (rowProductB).getDouble("avg_price") should be(1000.0d)
+      (rowProductB).getDouble("sum_price") should be(8000.0d)
     }
   }
+
+  override def extraBefore: Unit = EmbeddedCassandraServerHelper.startEmbeddedCassandra()
+
+  override def extraAfter: Unit = EmbeddedCassandraServerHelper.cleanEmbeddedCassandra()
 }

@@ -4,7 +4,7 @@
   "rawData": {
     "enabled": "true",
     "partitionFormat": "day",
-    "path": "myTestParquetPath"
+    "path": "/tmp/sparkta/raw"
   },
   "checkpointing": {
     "path": "checkpoint",
