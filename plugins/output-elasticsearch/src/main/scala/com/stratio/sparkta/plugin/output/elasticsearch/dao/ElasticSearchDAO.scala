@@ -38,7 +38,7 @@ trait ElasticSearchDAO extends Closeable {
   final val SECOND = "ss"
   final val DEFAULT_INDEX_TYPE = "sparkta"
   final val DEFAULT_NODE = "localhost"
-  final val DEFAULT_PORT = "9200"
+  final val DEFAULT_PORT = "9300"
 
   def nodes: String
 
@@ -50,13 +50,16 @@ trait ElasticSearchDAO extends Closeable {
 
   def defaultIndexMapping: Option[String] = None
 
-  def indexMapping: Option[String] = None
+  def mappingType: Option[String] = None
 
   def getSparkConfig(timeName: String, idProvided: Boolean): Map[String, String] = {
     {
-      if (idProvided) Map("es.mapping.id" -> idField.getOrElse(Output.Id)) else Map("" -> "")
+      if (idProvided)
+        Map("es.mapping.id" -> idField.getOrElse(Output.Id))
+      else
+        Map("" -> "")
     } ++
-      Map("es.nodes" -> nodes, "es.port" -> defaultPort) ++ {
+      Map("es.nodes" -> nodes, "es.port" -> defaultPort, "es.index.auto.create" -> "no") ++ {
       defaultAnalyzerType match {
         case Some(analyzer) => Map("es.index.analysis.analyzer.default.type" -> analyzer)
         case None => Map("" -> "")
@@ -78,26 +81,12 @@ trait ElasticSearchDAO extends Closeable {
     }
   }
 
-  def getIndexType(defaultIndexType: Option[String]): Option[String] = {
-    defaultIndexType match {
-      case None => defaultIndexType
-      case Some(indexType) => getDateFromType(indexType)
-    }
-  }
-
   protected def getDateFromType(indexType: String): Option[String] = {
     indexType.toLowerCase match {
       case "second" | "minute" | "hour" | "day" | "month" | "year" =>
         Some(new SimpleDateFormat(getGranularityPattern(indexType).getOrElse(DEFAULT_DATE_FORMAT))
           .format(new Date(DateOperations.dateFromGranularity(DateTime.now(), indexType))))
       case _ => Some(indexType)
-    }
-  }
-
-  protected def getIndexTypePattern(indexType: String): Option[String] = {
-    getGranularityPattern(indexType) match {
-      case None => Some(indexType)
-      case Some(pattern) => Some(s"{$TIMESTAMP_PATTERN$pattern}")
     }
   }
 
