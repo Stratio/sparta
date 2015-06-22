@@ -25,7 +25,7 @@ import org.joda.time.DateTime
 
 object DateOperations {
 
-  final val Slash: String = "/"
+  val ParquetPathPattern = "/'year='yyyy/'month='MM/'day='dd/'hour='HH/'minute='mm/'second='ss"
 
   def getTimeFromGranularity(timePrecision: Option[String], granularity: Option[String]): Long =
     (timePrecision, granularity) match {
@@ -63,7 +63,14 @@ object DateOperations {
 
   def subPath(granularity: String, datePattern: Option[String]): String = {
     val suffix = dateFromGranularity(DateTime.now, granularity)
-    if (!datePattern.isDefined || suffix.equals(0L)) Slash + suffix
-    else Slash + DateTimeFormat.forPattern(datePattern.get).print(new DateTime(suffix)) + Slash + suffix
+    if (!datePattern.isDefined || suffix.equals(0L)) s"/$suffix"
+    else s"/${DateTimeFormat.forPattern(datePattern.get).print(new DateTime(suffix))}/$suffix"
   }
+
+  /**
+   * Generates a parquet path with the format contained in ParquetPathPattern.
+   * @return the object described above.
+   */
+  def generateParquetPath(dateTime: Option[DateTime] = Option(DateTime.now())): String =
+    DateTimeFormat.forPattern(ParquetPathPattern).print(dateTime.get)
 }
