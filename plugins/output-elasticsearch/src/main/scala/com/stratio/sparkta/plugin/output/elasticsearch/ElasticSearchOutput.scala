@@ -17,21 +17,33 @@
 package com.stratio.sparkta.plugin.output.elasticsearch
 
 import java.io.{Serializable => JSerializable}
+
 import scala.util.Try
 
-import org.apache.spark.SparkContext
-import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.sql._
-import org.apache.spark.streaming.dstream.DStream
-
-import org.elasticsearch.spark.sql._
-
+import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.mappings._
 import com.stratio.sparkta.plugin.output.elasticsearch.dao.ElasticSearchDAO
+import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
-import com.stratio.sparkta.sdk._
+import org.apache.spark.SparkContext
+import org.apache.spark.broadcast.Broadcast
+import org.apache.spark.sql._
+import org.apache.spark.sql.types._
+import org.apache.spark.streaming.dstream.DStream
+import org.elasticsearch.node.NodeBuilder
+import org.elasticsearch.spark.sql._
 
+/**
+ *
+ * Check for possible Elasticsearch-dataframe settings
+ *
+ * org/elasticsearch/hadoop/cfg/Settings.java
+ * org/elasticsearch/hadoop/cfg/ConfigurationOptions.java
+ *
+ */
 class ElasticSearchOutput(keyName: String,
                           properties: Map[String, JSerializable],
                           @transient sparkContext: SparkContext,
@@ -49,6 +61,15 @@ class ElasticSearchOutput(keyName: String,
   override val nodes = properties.getString("nodes", DEFAULT_NODE)
 
   override val defaultPort = properties.getString("defaultPort", DEFAULT_PORT)
+
+  @transient private val elasticClient = {
+    if (nodes.equals("localhost") || nodes.equals("127.0.0.1")){
+      val timeout: Long = 5000
+      ElasticClient.fromNode(NodeBuilder.nodeBuilder().client(true).node(), timeout)
+    }else{
+      ElasticClient.remote(nodes, defaultPort.toInt)
+    }
+  }
 
   override val defaultAnalyzerType = properties.getString("defaultAnalyzerType", None)
 
@@ -73,18 +94,54 @@ class ElasticSearchOutput(keyName: String,
 
   override val idField = properties.getString("idField", None)
 
-  override val defaultIndexMapping = properties.getString("indexMapping",
-    Some(DEFAULT_INDEX_TYPE))
+  override val mappingType = properties.getString("indexMapping", Some(DEFAULT_INDEX_TYPE))
 
-  override val indexMapping = getIndexType(defaultIndexMapping)
+  override def setup: Unit = { createIndices }
+
+  private def createIndices = {
+    bcSchema.get.value.filter(tschema => (tschema.outputName == keyName)).foreach(tschemaFiltered => {
+      val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
+      createIndexAcordingToSchema(tableSchemaTime.tableName, tableSchemaTime.schema)
+    })
+    elasticClient.close()
+  }
+
+  private def createIndexAcordingToSchema(tableName: String, schema: StructType) = {
+    elasticClient.execute {
+      create index tableName shards 1 replicas 0 mappings(
+        mappingType.get.toLowerCase as(getElasticsearchFields(schema))
+        )
+    }
+  }
+
 
   override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
-    if (indexMapping.isDefined) persistDataFrame(stream)
+    persistDataFrame(stream)
   }
 
   override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
-    val indexNameType = (tableName + "/" + indexMapping.get).toLowerCase
-    dataFrame.saveToEs(indexNameType, getSparkConfig(timeName, idField.isDefined || isAutoCalculateId))
-
+    val sparkConfig = getSparkConfig(timeName, idField.isDefined || isAutoCalculateId)
+    val indexNameType = (tableName + "/" + mappingType.get).toLowerCase
+    dataFrame.saveToEs(indexNameType, sparkConfig)
   }
+
+
+
+  //scalastyle:off
+  def getElasticsearchFields(schema: StructType): Seq[TypedFieldDefinition] = {
+    schema.map(structField => structField.dataType match {
+      case org.apache.spark.sql.types.LongType => structField.name typed FieldType.LongType
+      case org.apache.spark.sql.types.DoubleType => structField.name typed FieldType.DoubleType
+      case org.apache.spark.sql.types.DecimalType() => structField.name typed FieldType.DoubleType
+      case org.apache.spark.sql.types.IntegerType => structField.name typed FieldType.IntegerType
+      case org.apache.spark.sql.types.BooleanType => structField.name typed FieldType.BooleanType
+      case org.apache.spark.sql.types.DateType => structField.name typed FieldType.DateType
+      case org.apache.spark.sql.types.TimestampType => structField.name typed FieldType.DateType
+      case org.apache.spark.sql.types.ArrayType(_,_) => structField.name typed FieldType.MultiFieldType
+      case org.apache.spark.sql.types.StringType => structField.name typed FieldType.StringType index "not_analyzed"
+      case _ => structField.name typed FieldType.BinaryType
+    })
+  }
+  //scalastyle:on
+
 }
