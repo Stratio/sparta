@@ -16,33 +16,50 @@
 
 package com.stratio.sparkta.driver.service
 
-import java.io
-
-import com.stratio.sparkta.sdk.{DateOperations, Event}
+import com.stratio.sparkta.sdk.{DateOperations, Event, Input}
 import org.apache.spark.sql._
 import org.apache.spark.streaming.dstream.DStream
-import org.joda.time.DateTime
 
+/**
+ * Saves the raw data from a stream in Parquet.
+ * @author arincon
+ */
 class RawDataStorageService(sc: SQLContext, path: String, partitionFormat: String) extends Serializable {
-
-  final val Parquet: String = "parquet"
-  final val Slash: String = "/"
 
   import sc.implicits._
 
   case class RawEvent(timeStamp: String, data: String)
 
-  def composeRawFrom(event: Event): Seq[io.Serializable] = event.keyMap.map(e => e._2).toSeq
+  val timeSuffix = DateOperations.generateParquetPath()
 
-  def timeSuffix: String = Slash + DateOperations.dateFromGranularity(DateTime.now(), partitionFormat)
+  /**
+   * From an event, it tries to parse the raw data in this order:
+   *   it looks if exists Raw field.
+   *   it looks if exists RawDataKey field.
+   *   It compose all values from the event separated with ###
+   * @param event to parse
+   * @return the raw data as a string.
+   */
+  def extractRawFromEvent(event: Event): String =
+    event.rawData.getOrElse(
+      if (event.keyMap.size == 1 && event.keyMap.head._1.equals(Input.RawDataKey))
+        event.keyMap.head._2.toString
+      else event.keyMap.map(e => e._2).mkString("###")
+    ).toString
 
-  def extractRawDataFromEvent(event: Event): Any = {
-    event.rawData getOrElse composeRawFrom(event)
-  }
-
+  /**
+   * For each stream, it tries to extract and save the raw data.
+   * @param raw with the original stream.
+   * @return the original stream.
+   */
   def save(raw: DStream[Event]): DStream[Event] = {
-    raw.map(event => RawEvent(System.currentTimeMillis().toString, extractRawDataFromEvent(event).toString))
-      .foreachRDD(_.toDF().save(path + timeSuffix, Parquet, SaveMode.Append))
+    raw.map(event => {
+      RawEvent(System.currentTimeMillis().toString, extractRawFromEvent(event))
+    }).foreachRDD(_.toDF()
+      .write
+      .format("parquet")
+      .mode(SaveMode.Append)
+      .save(s"$path$timeSuffix"))
     raw
   }
 }

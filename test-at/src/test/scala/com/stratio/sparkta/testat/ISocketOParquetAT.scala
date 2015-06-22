@@ -16,8 +16,6 @@
 
 package com.stratio.sparkta.testat
 
-import scala.reflect.io.File
-
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
@@ -38,10 +36,11 @@ class ISocketOParquetAT extends SparktaATSuite {
 
   implicit val formats = DefaultFormats + new JsoneyStringSerializer()
   val parquetPath = parse(Policy.openStream()).extract[AggregationPoliciesDto].outputs(0).configuration("path").toString
-  val expectedResults = Set(("producta", 750.0D, 6000.0D),
-    ("productb", 1000.0D, 8000.0D),
-    ("producta", 750.0D, 6000.0D),
-    ("productb", 1000.0D, 8000.0D))
+
+  val expectedResults = Set(
+    Set("producta", 750.0D, 6000.0D),
+    Set("productb", 1000.0D, 8000.0D)
+  )
 
   before {
     zookeeperStart
@@ -70,10 +69,13 @@ class ISocketOParquetAT extends SparktaATSuite {
     def checkData(): Unit = {
       val sc = new SparkContext(s"local[$NumExecutors]", "ISocketOParquetAT")
       val sqc = new SQLContext(sc)
-      val result = sqc.parquetFile(parquetPath).toDF
-      val elementsAsSeq = result.select("product", "avg_price", "sum_price").map(
-        row => (row.getString(0), row.getDouble(1), row.getDouble(2))).collect.toSet
-      elementsAsSeq should be(expectedResults)
+      val result = sqc.read.parquet(parquetPath)
+      result.registerTempTable("products")
+
+      sqc.sql("select product, avg_price, sum_price from products")
+        .collect()
+        .map(_.toSeq.toSet)
+        .toSet should be (expectedResults)
     }
   }
 }

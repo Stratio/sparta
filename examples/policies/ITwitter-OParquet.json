@@ -177,8 +177,7 @@
       "name": "out-parquet",
       "elementType": "Parquet",
       "configuration": {
-        "path": "path-to-parquet",
-        "datePattern": "yyyy/MM/dd"
+        "path": "path-to-parquet"
       }
     }
   ]

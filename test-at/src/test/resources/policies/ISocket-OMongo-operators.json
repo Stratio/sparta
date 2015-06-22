@@ -1,50 +1,149 @@
 {
   "name": "ATSocketMongo",
-  "duration": 2000,
-  "saveRawData": "false",
-  "rawDataParquetPath": "myTestParquetPath",
-  "checkpointDir": "checkpoint",
-  "timePrecision": "minute",
-  "checkpointGranularity": "minute",
-  "checkpointInterval": 30000,
-  "checkpointTimeAvailability": 60000,
+  "sparkStreamingWindow": 2000,
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 60000
+  },
   "inputs": [
     {
       "name": "in-socket",
-      "elementType": "SocketInput",
+      "type": "Socket",
       "configuration": {
         "hostname": "localhost",
         "port": "10666"
       }
     }
   ],
-  "dimensions": [
+  "fields": [
     {
-      "name": "product",
-      "dimensionType": "PassthroughDimension"
+      "name": "product"
     },
     {
-      "name": "price",
-      "dimensionType": "PassthroughDimension"
+      "name": "price"
+    },
+    {
+      "name": "timestamp",
+      "type": "DateTime",
+      "configuration": {
+        "typeOp": "String"
+      }
     }
   ],
-  "rollups": [
+  "cubes": [
     {
-      "dimensionAndPrecision": [
+      "name": "testCube",
+      "dimensions": [
         {
-          "dimensionName": "product",
-          "precision": "identity"
+          "dimension": "product"
         }
       ],
-      "operators": ["accum-operator","avg-operator", "count-operator", "first-value-operator", "full-text-operator",
-        "last-value-operator", "max-operator", "median-operator", "min-operator", "stddev-operator", "sum-operator",
-        "variance-operator", "range-operator"]
+      "operators": [
+        {
+          "measureName": "accum-operator",
+          "type": "Accumulator",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "measureName": "avg-operator",
+          "type": "Avg",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {
+          }
+        },
+        {
+          "measureName": "first-value-operator",
+          "type": "FirstValue",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "measureName": "full-text-operator",
+          "type": "FullText",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "measureName": "last-value-operator",
+          "type": "LastValue",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "measureName": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "measureName": "median-operator",
+          "type": "Median",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "measureName": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "measureName": "range-operator",
+          "type": "Range",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "measureName": "stddev-operator",
+          "type": "Stddev",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "measureName": "sum-operator",
+          "type": "Sum",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "measureName": "variance-operator",
+          "type": "Variance",
+          "configuration": {
+            "inputField": "price"
+          }
+        }
+      ]
     }
   ],
   "outputs": [
     {
       "name": "out-mongo",
-      "elementType": "MongoDbOutput",
+      "type": "MongoDb",
       "configuration": {
         "clientUri": "mongodb://localhost:60000",
         "dbName": "csvtest",
@@ -52,122 +151,40 @@
       }
     }
   ],
-  "operators": [
-    {
-      "name": "accum-operator",
-      "elementType": "AccumulatorOperator",
-      "configuration": {
-        "inputField":"price"
-      }
-    },
-    {
-      "name": "avg-operator",
-      "elementType": "AvgOperator",
-      "configuration": {
-        "inputField":"price"
-      }
-    },
-    {
-      "name": "count-operator",
-      "elementType": "CountOperator",
-      "configuration": {
-      }
-    },
-    {
-      "name": "first-value-operator",
-      "elementType": "FirstValueOperator",
-      "configuration": {
-        "inputField":"price"
-      }
-    },
-    {
-      "name": "full-text-operator",
-      "elementType": "FullTextOperator",
-      "configuration": {
-        "inputField":"price"
-      }
-    },
-    {
-      "name": "last-value-operator",
-      "elementType": "LastValueOperator",
-      "configuration": {
-        "inputField":"price"
-      }
-    },
-    {
-      "name": "max-operator",
-      "elementType": "MaxOperator",
-      "configuration": {
-        "inputField":"price"
-      }
-    },
-    {
-      "name": "median-operator",
-      "elementType": "MedianOperator",
-      "configuration": {
-        "inputField":"price"
-      }
-    },
-    {
-      "name": "min-operator",
-      "elementType": "MinOperator",
-      "configuration": {
-        "inputField":"price"
-      }
-    },
-    {
-      "name": "range-operator",
-      "elementType": "RangeOperator",
-      "configuration": {
-        "inputField":"price"
-      }
-    },
-    {
-      "name": "stddev-operator",
-      "elementType": "StddevOperator",
-      "configuration": {
-        "inputField":"price"
-      }
-    },
-    {
-      "name": "sum-operator",
-      "elementType": "SumOperator",
-      "configuration": {
-        "inputField":"price"
-      }
-    },
-    {
-      "name": "variance-operator",
-      "elementType": "VarianceOperator",
-      "configuration": {
-        "inputField":"price"
-      }
-    }
-  ],
   "parsers": [
-  {
-    "name": "morphline-parser",
-    "elementType": "MorphlinesParser",
-    "configuration": {
-      "morphline": {
-        "id": "morphline1",
-        "importCommands": [
-          "org.kitesdk.**"
-        ],
-        "commands" : [
-          {
-            "readCSV" : {
-              "separator" : ",",
-              "columns" : ["product","price"],
-              "trim" : "true",
-              "charset" : "UTF-8",
-              "quoteChar" : "\"",
-              "commentPrefix" : "#"
+    {
+      "name": "morphline-parser",
+      "type": "Morphlines",
+      "configuration": {
+        "morphline": {
+          "id": "morphline1",
+          "importCommands": [
+            "org.kitesdk.**"
+          ],
+          "commands": [
+            {
+              "readCSV": {
+                "separator": ",",
+                "columns": [
+                  "product",
+                  "price"
+                ],
+                "trim": "true",
+                "charset": "UTF-8",
+                "quoteChar": "\"",
+                "commentPrefix": "#"
+              }
             }
-          }
-        ]
+          ]
+        }
+      }
+    },
+    {
+      "name": "timestamp",
+      "type": "DateTime",
+      "configuration": {
+        "timestamp": "autoGenerated"
       }
     }
-  }
-]
+  ]
 }
