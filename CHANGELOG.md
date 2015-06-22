@@ -13,9 +13,9 @@
 - Cubes
 
 ###Plugins
-- Pass through dimensioner
-- DateTime dimensioner
-- GeoHash dimensioner
+- Default Dimension
+- DateTime Dimension
+- GeoHash Dimension
 - Count operator
 - First approach **MongoDB** output
 - KeyValue parser
