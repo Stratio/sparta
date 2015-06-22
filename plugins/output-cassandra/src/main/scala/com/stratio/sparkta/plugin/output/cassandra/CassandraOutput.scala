@@ -56,8 +56,6 @@ class CassandraOutput(keyName: String,
     case Some(fixPrecisions) => fixPrecisions.split(fieldsSeparator)
   }
 
-  override val cluster = properties.getString("cluster", "Test Cluster")
-
   override val keyspace = properties.getString("keyspace", "sparkta")
 
   override val keyspaceClass = properties.getString("class", "SimpleStrategy")
@@ -68,17 +66,11 @@ class CassandraOutput(keyName: String,
 
   override val clusteringPrecisions = properties.getString("clusteringPrecisions", None).map(_.split(fieldsSeparator))
 
-  override val indexFields = properties.getString("indexFields", None).map(_.split(fieldsSeparator))
-
   override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(fieldsSeparator))
 
   override val analyzer = properties.getString("analyzer", DefaultAnalyzer)
 
   override val dateFormat = properties.getString("dateFormat", DefaultDateFormat)
-
-  override val refreshSeconds = properties.getString("refreshSeconds", DefaultRefreshSeconds)
-
-  override val textIndexName = properties.getString("textIndexName", "lucene")
 
   val fixedAgg = properties.getString("fixedAggregation", None)
 

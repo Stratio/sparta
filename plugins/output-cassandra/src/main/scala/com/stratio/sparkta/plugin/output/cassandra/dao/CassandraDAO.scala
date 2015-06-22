@@ -28,15 +28,10 @@ trait CassandraDAO extends Closeable with Logging {
 
   val DefaultAnalyzer = "english"
   val DefaultDateFormat = "yyyy/MM/dd"
-  val DefaultRefreshSeconds = "1"
-  val IndexPrefix = "index_"
   val MaxTableNameLength = 48
-  val MaxIndexNameLength = 48
 
   val connector: Option[CassandraConnector] = None
   val compactStorage: Option[String] = None
-
-  def cluster: String
 
   def keyspace: String
 
@@ -46,24 +41,16 @@ trait CassandraDAO extends Closeable with Logging {
 
   def clusteringPrecisions: Option[Array[String]]
 
-  def indexFields: Option[Array[String]]
-
   def textIndexFields: Option[Array[String]]
-
-  def textIndexName: String
 
   def analyzer: String
 
   def dateFormat: String
 
-  def refreshSeconds: String
-
   def createKeypace: Boolean = connector.exists(doCreateKeyspace(_))
 
   def createTables(tSchemas: Seq[TableSchema], clusteringTime: String, isAutoCalculateId: Boolean): Boolean =
     connector.exists(doCreateTables(_, tSchemas, clusteringTime, isAutoCalculateId))
-
-  def createTextIndexes(tSchemas: Seq[TableSchema]): Boolean = connector.exists(doCreateTextIndexes(_, tSchemas))
 
   protected def doCreateKeyspace(conn: CassandraConnector): Boolean = {
     executeCommand(conn,
@@ -103,41 +90,6 @@ trait CassandraDAO extends Closeable with Logging {
     conn.withSessionDo(session => session.execute(command))
     //TODO check if is correct now all true
     true
-  }
-
-  protected def doCreateTextIndexes(conn: CassandraConnector, tSchemas: Seq[TableSchema]): Boolean = {
-    textIndexFields match {
-      case Some(textFields) => {
-        val seqResults = for {
-          tableSchema <- tSchemas
-          fields = textFields.filter(textField => tableSchema.schema.fieldNames.contains(textField.split(":").head))
-          indexName = s"$IndexPrefix${
-            if(tableSchema.tableName.size + IndexPrefix.size > MaxIndexNameLength)
-              tableSchema.tableName.substring(0, MaxIndexNameLength - IndexPrefix.size)
-            else tableSchema.tableName
-          }"
-          command = s"CREATE CUSTOM INDEX IF NOT EXISTS $indexName " +
-            s"ON $keyspace.${tableSchema.tableName} ($textIndexName) USING 'com.stratio.cassandra.index.RowIndex' " +
-            s"WITH OPTIONS = { 'refresh_seconds' : '$refreshSeconds', ${getTextIndexSentence(fields)} }"
-          created = executeCommand(conn, command)
-        } yield created
-        seqResults.forall(result => result)
-      }
-      case None => false
-    }
-  }
-
-  protected def getTextIndexSentence(fields: Array[String]): String = {
-    val fieldsSentence = fields.map(field => {
-      val fieldDescompose = field.split(":")
-      val endSentence = fieldDescompose.last match {
-        case "text" => s", analyzer : \042$analyzer\042}"
-        case "date" => s", pattern : \042$dateFormat\042}"
-        case _ => "}"
-      }
-      s"${fieldDescompose.head.toLowerCase} : {type : \042${fieldDescompose.last}\042 $endSentence"
-    }).mkString(",")
-    s"'schema' :'{ fields : { $fieldsSentence } }'"
   }
 
   protected def dataTypeToCassandraType(dataType: DataType): String = {
