@@ -74,10 +74,6 @@ class ISocketOElasticsearchAT extends SparktaATSuite{
   }
 
   def checkESData: Unit = {
-    val node: Node  = nodeBuilder().node()
-    val client: Client = node.client()
-    val status =  client.admin.cluster.health(new ClusterHealthRequest)
-    status.actionGet().getStatus should be (ClusterHealthStatus.GREEN)
 
     val hitsA: List[Map[String, Any]] = rowsByProductFilteredByAvgAndSum("producta",ProductAAvg,ProductASum)
 
