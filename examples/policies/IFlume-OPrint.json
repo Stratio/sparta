@@ -1,17 +1,22 @@
 {
   "name": "policy-flume",
-  "duration": 6000,
-  "saveRawData": "false",
-  "rawDataParquetPath": "myTestParquetPath",
-  "checkpointDir": "checkpoint",
-  "timeBucket": "minute",
-  "checkpointGranularity": "minute",
-  "checkpointInterval": 30000,
-  "checkpointTimeAvailability": 60000,
+  "sparkStreamingWindow": 6000,
+  "rawData": {
+    "enabled": "false",
+    "timePartition": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 60000
+  },
   "inputs": [
     {
       "name": "in-flume",
-      "elementType": "FlumeInput",
+      "type": "Flume",
       "configuration": {
         "type": "pull",
         "addresses": "localhost:10999",
@@ -19,7 +24,7 @@
       }
     }
   ],
-  "dimensions": [
+  "fields": [
     {
       "name": "message"
     }
@@ -32,30 +37,29 @@
           "dimension": "message"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     }
   ],
   "outputs": [
     {
       "name": "out-print",
-      "elementType": "PrintOutput",
+      "type": "Print",
       "configuration": {
         "multiplexer": "true",
         "isAutoCalculateId": "true"
       }
     }
   ],
-  "operators": [
-    {
-      "name": "count-operator",
-      "elementType": "CountOperator",
-      "configuration": {}
-    }
-  ],
   "parsers": [
     {
       "name": "morphline",
-      "elementType": "MorphlinesParser",
+      "type": "Morphlines",
       "configuration": {
         "morphline": {
           "id": "test1",

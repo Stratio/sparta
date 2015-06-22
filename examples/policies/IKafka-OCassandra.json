@@ -1,16 +1,22 @@
 {
   "name": "policy-Kafka-Cassandra",
-  "duration": 10000,
-  "saveRawData": "false",
-  "checkpointDir": "checkpoint",
-  "timeBucket": "minute",
-  "checkpointGranularity": "minute",
-  "checkpointInterval": 30000,
-  "checkpointTimeAvailability": 60000,
+  "sparkStreamingWindow": 6000,
+  "rawData": {
+    "enabled": "false",
+    "timePartition": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 60000
+  },
   "inputs": [
     {
       "name": "in-kafka",
-      "elementType": "KafkaInput",
+      "type": "Kafka",
       "configuration": {
         "topics": "streaming_data",
         "kafkaParams.zookeeper.connect": "anistal:2181",
@@ -19,7 +25,7 @@
       }
     }
   ],
-  "dimensions": [
+  "fields": [
     {
       "name": "c_r"
     },
@@ -30,11 +36,11 @@
       "name": "a"
     },
     {
-      "dimensionType": "DateTimeDimension",
+      "type": "DateTime",
       "name": "r_a_m"
     },
     {
-      "dimensionType": "GeoHashDimension",
+      "type": "GeoHash",
       "name": "geo"
     },
     {
@@ -82,29 +88,21 @@
           "dimension": "p_i"
         }
       ],
-      "operators": ["range-operator"]
-    }
-  ],
-  "operators": [
-    {
-      "name": "avg-operator",
-      "elementType": "AvgOperator",
-      "configuration": {
-        "inputField": "r_e_a"
-      }
-    },
-    {
-      "name": "range-operator",
-      "elementType": "RangeOperator",
-      "configuration": {
-        "inputField": "o_long"
-      }
+      "operators": [
+        {
+          "measureName": "range-operator",
+          "type": "Range",
+          "configuration": {
+            "inputField": "o_long"
+          }
+        }
+        ]
     }
   ],
   "outputs": [
     {
       "name": "out-print",
-      "elementType": "PrintOutput",
+      "type": "Print",
       "configuration": {
         "multiplexer": "true",
         "isAutoCalculateId": "true"
@@ -114,20 +112,20 @@
   "parsers": [
     {
       "name": "detector-parser",
-      "elementType": "DetectorParser",
+      "type": "Detector",
       "configuration": {
       }
     },
     {
       "name": "recorded_at_ms-parser",
-      "elementType": "DateTimeParser",
+      "type": "DateTime",
       "configuration": {
         "r_a_m": "unixMillis"
       }
     },
     {
       "name": "type-parser",
-      "elementType": "TypeParser",
+      "type": "Type",
       "configuration": {
         "sourceField": "o",
         "type": "Long",

@@ -1,17 +1,22 @@
 {
   "name": "policy-Kafka-Mongo-Zion",
-  "duration": 10000,
-  "saveRawData": "false",
-  "rawDataParquetPath": "myTestParquetPath",
-  "checkpointDir": "checkpoint",
-  "timeBucket": "minute",
-  "checkpointGranularity": "minute",
-  "checkpointInterval": 30000,
-  "checkpointTimeAvailability": 60000,
+  "sparkStreamingWindow": 6000,
+  "rawData": {
+    "enabled": "false",
+    "timePartition": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 60000
+  },
   "inputs": [
     {
       "name": "in-kafka",
-      "elementType": "KafkaInput",
+      "type": "Kafka",
       "configuration": {
         "topics": "zion2:1",
         "kafkaParams.zookeeper.connect": "localhost:2181",
@@ -20,7 +25,7 @@
       }
     }
   ],
-  "dimensions": [
+  "fields": [
     {
       "name": "appName"
     },
@@ -46,11 +51,11 @@
       "name": "appLang"
     },
     {
-      "dimensionType": "DateTimeDimension",
+      "type": "DateTime",
       "name": "date"
     },
     {
-      "dimensionType": "DateTimeDimension",
+      "type": "DateTime",
       "name": "timestamp"
     },
     {
@@ -78,7 +83,7 @@
       "name": "platform"
     },
     {
-      "dimensionType": "GeoHashDimension",
+      "type": "GeoHash",
       "name": "geo"
     }
   ],
@@ -91,7 +96,27 @@
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator", "max-operator", "min-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        },
+        {
+          "measureName": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        }
+      ]
     },
     {
       "name": "session",
@@ -104,7 +129,27 @@
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator", "max-operator", "min-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        },
+        {
+          "measureName": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        }
+      ]
     },
     {
       "name": "platform",
@@ -113,7 +158,27 @@
           "dimension": "platform"
         }
       ],
-      "operators": ["count-operator", "max-operator", "min-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        },
+        {
+          "measureName": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        }
+      ]
     },
     {
       "name": "device",
@@ -122,7 +187,27 @@
           "dimension": "device"
         }
       ],
-      "operators": ["count-operator", "max-operator", "min-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        },
+        {
+          "measureName": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        }
+      ]
     },
     {
       "name": "geo",
@@ -132,7 +217,27 @@
           "precision": "precision6"
         }
       ],
-      "operators": ["count-operator", "max-operator", "min-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        },
+        {
+          "measureName": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        }
+      ]
     },
     {
       "name": "appPlatform",
@@ -145,13 +250,33 @@
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator", "max-operator", "min-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        },
+        {
+          "measureName": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "responseTime"
+          }
+        }
+      ]
     }
   ],
   "outputs": [
     {
       "name": "out-mongo",
-      "elementType": "MongoDbOutput",
+      "type": "MongoDb",
       "configuration": {
         "clientUri": "mongodb://localhost:27017",
         "dbName": "sparkta",
@@ -159,31 +284,10 @@
       }
     }
   ],
-  "operators": [
-    {
-      "name": "count-operator",
-      "elementType": "CountOperator",
-      "configuration": {}
-    },
-    {
-      "name": "max-operator",
-      "elementType": "MaxOperator",
-      "configuration": {
-        "inputField": "responseTime"
-      }
-    },
-    {
-      "name": "min-operator",
-      "elementType": "MinOperator",
-      "configuration": {
-        "inputField": "responseTime"
-      }
-    }
-  ],
   "parsers": [
     {
       "name": "morphline-parser",
-      "elementType": "MorphlinesParser",
+      "type": "Morphlines",
       "configuration": {
         "morphline": {
           "id": "morphline1",
@@ -244,7 +348,7 @@
     },
     {
       "name": "timestamp",
-      "elementType": "DateTimeParser",
+      "type": "DateTime",
       "configuration": {
         "timestamp": "autoGenerated"
       }
