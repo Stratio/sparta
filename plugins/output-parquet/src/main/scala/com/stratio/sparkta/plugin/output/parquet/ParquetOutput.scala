@@ -17,6 +17,8 @@
 package com.stratio.sparkta.plugin.output.parquet
 
 import java.io.{Serializable => JSerializable}
+import org.apache.spark.sql.SaveMode._
+
 import scala.util.Try
 
 import org.apache.spark.broadcast.Broadcast
@@ -68,8 +70,11 @@ class ParquetOutput(keyName: String,
   override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
     val path = properties.getString("path", None)
     require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
-    val subPath = DateOperations.subPath(timeName, properties.getString("datePattern", None))
-    dataFrame.save("parquet", SaveMode.Overwrite, Map("spark.sql.parquet.binaryAsString" -> "true",
-      "path" -> s"${path.get}/$tableName$subPath"))
+    val subPath = DateOperations.generateParquetPath()
+
+    dataFrame.write
+      .format("parquet")
+      .mode(Overwrite)
+      .save(s"${path.get}/$tableName$subPath")
   }
 }

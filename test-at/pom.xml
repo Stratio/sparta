@@ -204,6 +204,11 @@
             <version>2.1.3.2-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.datastax.spark</groupId>
+            <artifactId>spark-cassandra-connector_2.10</artifactId>
+            <version>1.4.0-M1</version>
+        </dependency>
     </dependencies>
 
 </project>

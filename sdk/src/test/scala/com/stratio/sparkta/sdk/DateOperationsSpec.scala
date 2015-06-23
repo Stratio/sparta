@@ -37,6 +37,7 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
     val monthDT = dayDT.withDayOfMonth(1)
     val yearDT = monthDT.withMonthOfYear(1)
     val wrongDT = 0L
+    val expectedRawPath = "/year=1984/month=03/day=17/hour=13/minute=13/second=13"
   }
 
   trait FailValues {
@@ -79,4 +80,11 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
     DateOperations.subPath(granularity, emptyPattern) should be(expectedGranularityPath)
     DateOperations.subPath(granularity, datePattern) should be(expectedGranularityWithPattern)
   }
+
+  it should "create a raw data path" in new CommonValues {
+    val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+    val now = Option(formatter.parseDateTime("1984-03-17 13:13:13"))
+    DateOperations.generateParquetPath(now) should be(expectedRawPath)
+  }
+
 }

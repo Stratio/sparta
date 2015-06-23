@@ -16,6 +16,7 @@
 
 package com.stratio.sparkta.testat
 
+
 import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
@@ -24,6 +25,7 @@ import org.apache.spark.sql.SQLContext
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
+import scala.io.Source
 import scala.reflect.io.File
 
 class ISocketORawDataAT extends SparktaATSuite {
@@ -33,6 +35,8 @@ class ISocketORawDataAT extends SparktaATSuite {
   val Policy = getClass.getClassLoader.getResource("policies/ISocket-ORawData.json")
   val PathToPolicy = Policy.getPath
   val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data.csv").getPath
+
+  val CsvLines = Source.fromFile(PathToCsv).getLines().toList.map(line => line).toSeq.sortBy(_.toString)
 
   implicit val formats = DefaultFormats + new JsoneyStringSerializer()
   val parquetPath = parse(Policy.openStream()).extract[AggregationPoliciesDto].rawData.path
@@ -48,13 +52,9 @@ class ISocketORawDataAT extends SparktaATSuite {
     File(parquetPath).deleteRecursively
   }
 
-  val Total = 16
-
   "Sparkta" should {
-
     "save raw data in the storage" in {
       startSparkta
-
       sendPolicy(PathToPolicy)
       sendDataToSparkta(PathToCsv)
       Thread.sleep(PolicyEndSleep)
@@ -65,9 +65,14 @@ class ISocketORawDataAT extends SparktaATSuite {
     def checkData(): Unit = {
       val sc = new SparkContext(s"local[$NumExecutors]", "ISocketORawDataAT")
       val sqc = new SQLContext(sc)
-      val result = sqc.parquetFile(parquetPath).toDF
-      //FIXME: Currently we are only capable of check the count
-      result.count should be(Total)
+      val result = sqc.read.parquet(parquetPath)
+      result.registerTempTable("rawLines")
+
+      sqc.sql("select data from rawLines")
+        .collect()
+        .map(_.get(0))
+        .toSeq
+        .sortBy(_.toString) should be (CsvLines)
     }
   }
 }

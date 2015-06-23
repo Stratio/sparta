@@ -71,9 +71,7 @@
       "name": "out-parquet",
       "type": "Parquet",
       "configuration": {
-        "path": "/tmp/sparkta/parquet",
-        "datePattern": "yyyy/MM/dd",
-        "multiplexer": "false"
+        "path": "/tmp/sparkta/parquet"
       }
     }
   ],
