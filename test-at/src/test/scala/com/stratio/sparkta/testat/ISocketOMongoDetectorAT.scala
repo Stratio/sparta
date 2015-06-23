@@ -32,7 +32,7 @@ class ISocketOMongoDetectorAT  extends MongoEmbedDatabase with SparktaATSuite {
   val PolicyEndSleep = 30000
   val TestMongoPort = 60000
   val PathToPolicy = getClass.getClassLoader.getResource("policies/ISocket-OMongo-Detector.json").getPath
-  val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-detector-data.csv").getPath
+  val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-internal-data.csv").getPath
   var mongoProps: MongodProps = _
   val DatabaseName = "csvtest"
   val CollectionMaxMinOdometer = "asset_company_root_ou_vehicle_path_id_minute"
