@@ -55,22 +55,21 @@ class MultiCubeSpec extends TestSuiteBase {
     val checkpointTimeAvailability = 60000
     val checkpointGranularity = "minute"
     val timePrecision = None
-
     val timestamp = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity)
     val name = "cubeName"
-    val precisioner = new DefaultField
-    val dimension = Dimension("eventKey", precisioner)
     val operator = new CountOperator(Map())
     val multiplexer = false
-    val precisionType = new Precision("identity", TypeOp.String)
+    val defaultDimension = new DefaultField
+    val dimension = Dimension("dim1", "eventKey", "identity", defaultDimension)
     val cube = new Cube(name,
-      Seq(DimensionPrecision(dimension, precisionType)),
+      Seq(dimension),
       Seq(operator),
       multiplexer,
       checkpointInterval,
       checkpointGranularity,
       checkpointTimeAvailability)
-    val dataCube = new MultiCube(Seq(dimension), Seq(cube), timePrecision, checkpointGranularity)
+    val dataCube = new MultiCube(Seq(cube), timePrecision, checkpointGranularity)
+    dataCube.currentCube = cube
 
     testOperation(getEventInput, dataCube.extractDimensionsStream, getEventOutput(timestamp), PreserverOrder)
   }
@@ -90,25 +89,18 @@ class MultiCubeSpec extends TestSuiteBase {
    * The expected result to test the DataCube output.
    * @return the expected result to test
    */
-  def getEventOutput(timestamp : Long): Seq[Seq[(DimensionValuesTime, Map[String, JSerializable])]] =
+  def getEventOutput(timestamp : Long): Seq[Seq[(DimensionValuesTime, Map[String, JSerializable])]] = {
+    val defaultDimension = new DefaultField
     Seq(Seq(
       (DimensionValuesTime(Seq(DimensionValue(
-        DimensionPrecision(Dimension("eventKey", new DefaultField),
-          Precision("identity", TypeOp.String, Map())),
-        "value1")), timestamp),
-        Map("eventKey" -> "value1")
-      ),
+        Dimension("dim1", "eventKey", "identity", defaultDimension), "value1")), timestamp), Map("eventKey" -> "value1")
+        ),
       (DimensionValuesTime(Seq(DimensionValue(
-        DimensionPrecision(Dimension("eventKey", new DefaultField),
-          Precision("identity", TypeOp.String, Map())),
-        "value2")), timestamp),
-        Map("eventKey" -> "value2")
-      ),
+        Dimension("dim1", "eventKey", "identity", defaultDimension), "value2")), timestamp), Map("eventKey" -> "value2")
+        ),
       (DimensionValuesTime(Seq(DimensionValue(
-        DimensionPrecision(Dimension("eventKey", new DefaultField),
-          Precision("identity", TypeOp.String, Map())),
-        "value3")), timestamp)
-        , Map("eventKey" -> "value3")
-      )
+        Dimension("dim1", "eventKey", "identity", defaultDimension), "value3")), timestamp), Map("eventKey" -> "value3")
+        )
     ))
+  }
 }

@@ -164,7 +164,7 @@ abstract class Output(keyName: String,
     if (fixedPrecisions.isEmpty) dimensionValuesTime
     else {
       DimensionValuesTime(dimensionValuesTime.dimensionValues.filter(dimensionValue =>
-        !fixedPrecisions.contains(dimensionValue.dimensionPrecision.getNameDimension)), dimensionValuesTime.time)
+        !fixedPrecisions.contains(dimensionValue.getNameDimension)), dimensionValuesTime.time)
     }
 
   protected def filterSchemaByKeyAndField: Seq[TableSchema] =

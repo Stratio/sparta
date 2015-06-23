@@ -44,7 +44,8 @@
       "name": "testCube",
       "dimensions": [
         {
-          "dimension": "product"
+          "name": "product",
+          "field": "product"
         }
       ],
       "operators": [

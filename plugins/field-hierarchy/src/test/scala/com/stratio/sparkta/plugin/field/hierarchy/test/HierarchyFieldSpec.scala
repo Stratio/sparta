@@ -43,14 +43,15 @@ with TableDrivenPropertyChecks {
 
   "A HierarchyDimension" should {
     "In default implementation, get 4 precisions for all precision sizes" in {
-      val precisions = hbs.get.dimensionValues("").map(_._1.id)
+      val precisionLeftToRight = hbs.get.precisionValue(HierarchyField.LeftToRightName, "")
+      val precisionRightToLeft = hbs.get.precisionValue(HierarchyField.RightToLeftName, "")
+      val precisionLeftToRightWithWildCard = hbs.get.precisionValue(HierarchyField.LeftToRightWithWildCardName, "")
+      val precisionRightToLeftWithWildCard = hbs.get.precisionValue(HierarchyField.RightToLeftWithWildCardName, "")
 
-      precisions.size should be(4)
-
-      precisions should contain(HierarchyField.LeftToRightName)
-      precisions should contain(HierarchyField.RightToLeftName)
-      precisions should contain(HierarchyField.LeftToRightWithWildCardName)
-      precisions should contain(HierarchyField.RightToLeftWithWildCardName)
+      precisionLeftToRight._1.id should be(HierarchyField.LeftToRightName)
+      precisionRightToLeft._1.id should be(HierarchyField.RightToLeftName)
+      precisionLeftToRightWithWildCard._1.id should be(HierarchyField.LeftToRightWithWildCardName)
+      precisionRightToLeftWithWildCard._1.id should be(HierarchyField.RightToLeftWithWildCardName)
     }
 
     "In default implementation, every proposed combination should be ok" in {
@@ -60,9 +61,8 @@ with TableDrivenPropertyChecks {
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.get.dimensionValues(i)
-        val value = result(hbs.get.LeftToRightWithWildCard)
-        assertResult(o)(value)
+        val result = hbs.get.precisionValue(HierarchyField.LeftToRightWithWildCardName, i)
+        assertResult(o)(result._2)
       }
     }
     "In reverse implementation, every proposed combination should be ok" in {
@@ -73,9 +73,8 @@ with TableDrivenPropertyChecks {
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.get.dimensionValues(i.asInstanceOf[JSerializable])
-        val value = result(hbs.get.RightToLeftWithWildCard)
-        assertResult(o)(value)
+        val result = hbs.get.precisionValue(HierarchyField.RightToLeftWithWildCardName, i.asInstanceOf[JSerializable])
+        assertResult(o)(result._2)
       }
     }
     "In reverse implementation without wildcards, every proposed combination should be ok" in {
@@ -86,9 +85,8 @@ with TableDrivenPropertyChecks {
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.get.dimensionValues(i.asInstanceOf[JSerializable])
-        val value = result(hbs.get.RightToLeft)
-        assertResult(o)(value)
+        val result = hbs.get.precisionValue(HierarchyField.RightToLeftName, i.asInstanceOf[JSerializable])
+        assertResult(o)(result._2)
       }
     }
     "In non-reverse implementation without wildcards, every proposed combination should be ok" in {
@@ -99,9 +97,8 @@ with TableDrivenPropertyChecks {
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.get.dimensionValues(i.asInstanceOf[JSerializable])
-        val value = result(hbs.get.LeftToRight)
-        assertResult(o)(value)
+        val result = hbs.get.precisionValue(HierarchyField.LeftToRightName, i.asInstanceOf[JSerializable])
+        assertResult(o)(result._2)
       }
     }
   }

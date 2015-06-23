@@ -23,28 +23,13 @@
       }
     }
   ],
-  "fields": [
-    {
-      "name": "product"
-    },
-    {
-      "name": "price"
-    },
-
-    {
-      "name": "timestamp",
-      "type": "DateTime",
-      "configuration": {
-        "typeOp": "String"
-      }
-    }
-  ],
   "cubes": [
     {
       "name": "testCube",
       "dimensions": [
         {
-          "dimension": "product"
+          "name": "product",
+          "field": "product"
         }
       ],
       "operators": [
