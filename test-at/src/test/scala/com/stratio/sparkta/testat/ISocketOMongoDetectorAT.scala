@@ -68,13 +68,10 @@ class ISocketOMongoDetectorAT extends MongoEmbedDatabase with SparktaATSuite {
         mongoConnectionRpmAvg.map(dbObject => {
           val id = dbObject.get("id")
           id match {
-
-            case "3.0_1510_List(37.265625, -3.515625)" => {
+            case "3.0_1510_List(37.265625, -3.515625)" =>
               dbObject.get("avg_rpm_event_avg") should be(26.666666666666668)
-            }
-            case "2.0_3_List(37.265625, -6.328125)" => {
+            case "2.0_3_List(37.265625, -6.328125)" =>
               dbObject.get("avg_rpm_event_avg") should be(14.0)
-            }
             case _ => require(false)
           }
         })
@@ -83,7 +80,6 @@ class ISocketOMongoDetectorAT extends MongoEmbedDatabase with SparktaATSuite {
       if (mongoConnectionMaxMinOdometer.size > 0) {
         mongoConnectionMaxMinOdometer.map(dbObject => {
           dbObject.get("id") match {
-
             case "3.0_1510_356363056643879_356363056643879-14" => {
               dbObject.get("max_odometer") should be(8004334.0d)
               dbObject.get("min_odometer") should be(1004334.0d)
@@ -98,11 +94,9 @@ class ISocketOMongoDetectorAT extends MongoEmbedDatabase with SparktaATSuite {
       }
     }
 
-
     def getMongoConnection(CollectionName: String): MongoCollection = {
       MongoConnection(Localhost, TestMongoPort)(DatabaseName)(CollectionName)
     }
-
 
     def checkMongoDb: Unit = {
       val mongoClientURI = MongoClientURI(s"mongodb://$Localhost:$TestMongoPort/local")
