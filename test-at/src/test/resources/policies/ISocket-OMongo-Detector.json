@@ -1,0 +1,172 @@
+{
+  "name": "ATSocketMongoDetector",
+  "duration": 2000,
+  "saveRawData": "false",
+  "rawDataParquetPath": "myTestParquetPath",
+  "checkpointDir": "checkpoint",
+  "timePrecision": "minute",
+  "checkpointGranularity": "minute",
+  "checkpointInterval": 30000,
+  "checkpointTimeAvailability": 6000000000,
+  "inputs": [
+    {
+      "name": "in-socket",
+      "elementType": "SocketInput",
+      "configuration": {
+        "hostname": "localhost",
+        "port": "10666"
+      }
+    }
+  ],
+  "dimensions": [
+    {
+      "name": "company_root",
+      "dimensionType": "PassthroughDimension"
+
+    },
+    {
+      "name": "ou_vehicle",
+      "dimensionType": "PassthroughDimension"
+
+    },
+    {
+      "name": "asset",
+      "dimensionType": "PassthroughDimension"
+
+    },
+    {
+      "name": "recorded_at_ms",
+      "dimensionType": "DateTimeDimension"
+
+    },
+    {
+      "name": "geo",
+      "dimensionType": "GeoHashDimension"
+
+    },
+    {
+      "dimensionType": "PassthroughDimension",
+      "name": "rpm_event_avg"
+    },
+    {
+      "name": "odometer",
+      "dimensionType": "PassthroughDimension"
+
+    },
+    {
+      "name": "odometerNum",
+      "dimensionType": "PassthroughDimension"
+
+    },
+    {
+      "name": "rpmAvgNum",
+      "dimensionType": "PassthroughDimension"
+
+    },
+    {
+      "name": "path_id",
+      "dimensionType": "PassthroughDimension"
+
+    }
+  ],
+  "rollups": [
+    {
+      "dimensionAndPrecision": [
+        {
+          "dimensionName": "company_root",
+          "precision": "identity"
+        },
+        {
+          "dimensionName": "ou_vehicle",
+          "precision": "identity"
+        },
+        {
+          "dimensionName": "geo",
+          "precision": "precision3"
+        },
+        {
+          "dimensionName": "recorded_at_ms",
+          "precision": "minute"
+        }
+      ],
+      "operators": ["avg-operator"]
+    },
+    {
+      "dimensionAndPrecision": [
+        {
+          "dimensionName": "company_root",
+          "precision": "identity"
+        },
+        {
+          "dimensionName": "ou_vehicle",
+          "precision": "identity"
+        },
+        {
+          "dimensionName": "asset",
+          "precision": "identity"
+        },
+        {
+          "dimensionName": "recorded_at_ms",
+          "precision": "minute"
+        },
+        {
+          "dimensionName": "path_id",
+          "precision": "identity"
+        }
+      ],
+
+      "operators": ["max-operator", "min-operator"]
+    }
+  ],
+  "operators": [
+    {
+      "name": "avg-operator",
+      "elementType": "AvgOperator",
+      "configuration": {
+        "inputField": "rpm_event_avg"
+      }
+    },
+    {
+      "name": "max-operator",
+      "elementType": "MaxOperator",
+      "configuration": {
+        "inputField": "odometer"
+      }
+    },
+    {
+      "name": "min-operator",
+      "elementType": "MinOperator",
+      "configuration": {
+        "inputField": "odometer"
+      }
+    }
+  ],
+
+  "outputs": [
+    {
+      "name": "out-mongo",
+      "elementType": "MongoDbOutput",
+      "configuration": {
+        "clientUri": "mongodb://localhost:60000",
+        "dbName": "csvtest",
+        "multiplexer": "false"
+      }
+    }
+  ],
+
+  "parsers": [
+    {
+      "name": "detector-parser",
+      "elementType": "DetectorParser",
+      "configuration": {
+      }
+    },
+    {
+      "name": "recorded_at_ms-parser",
+      "elementType": "DateTimeParser",
+      "configuration": {
+        "recorded_at_ms": "unixMillis"
+      }
+    }
+  ]
+}
