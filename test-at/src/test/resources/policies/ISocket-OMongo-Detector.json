@@ -1,0 +1,158 @@
+{
+  "name": "ATSocketMongoDetector",
+  "sparkStreamingWindow": 2000,
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": "myTestParquetPath"
+  },
+
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 6000000000
+
+  },
+  "inputs":  [
+    {
+      "name": "in-socket",
+      "type": "Socket",
+      "configuration": {
+        "hostname": "localhost",
+        "port": "10666"
+      }
+    }
+  ],
+  "fields": [
+    {
+      "name": "company_root"
+    },
+    {
+      "name": "ou_vehicle"
+    },
+    {
+      "name": "asset"
+    },
+    {
+      "name": "recorded_at_ms",
+      "type": "DateTime"
+    },
+    {
+      "name": "geo",
+      "type": "GeoHash"
+    },
+    {
+      "name": "rpm_event_avg"
+    },
+    {
+      "name": "odometer"
+    },
+    {
+      "name": "odometerNum"
+    },
+    {
+      "name": "rpmAvgNum"
+    },
+    {
+      "name": "path_id"
+    }
+  ],
+  "cubes": [
+    {
+      "name": "rpmAvg",
+      "dimensions": [
+        {
+          "dimension": "company_root"
+        },
+        {
+          "dimension": "ou_vehicle"
+        },
+        {
+          "dimension": "geo",
+          "precision": "precision3"
+        },
+        {
+          "dimension": "recorded_at_ms",
+          "precision": "minute"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "avg-operator",
+          "type": "Avg",
+          "configuration": {
+            "inputField": "rpm_event_avg"
+          }
+        }
+      ]
+    },
+    {
+      "name": "maxMinOdometer",
+      "dimensions": [
+        {
+          "dimension": "company_root"
+        },
+        {
+          "dimension": "ou_vehicle"
+        },
+        {
+          "dimension": "asset"
+        },
+        {
+          "dimension": "recorded_at_ms",
+          "precision": "minute"
+        },
+        {
+          "dimension": "path_id"
+        }
+      ],
+
+      "operators": [ {
+        "measureName": "max-operator",
+        "type": "Max",
+        "configuration": {
+          "inputField": "odometer"
+        }
+      },
+        {
+          "measureName": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "odometer"
+          }
+        }
+
+      ]
+    }
+  ],
+
+  "outputs": [
+    {
+      "name": "out-mongo",
+      "type": "MongoDb",
+      "configuration": {
+        "clientUri": "mongodb://localhost:60000",
+        "dbName": "csvtest",
+        "multiplexer": "false"
+      }
+    }
+  ],
+
+  "parsers": [
+    {
+      "name": "detector-parser",
+      "type": "Detector",
+      "configuration": {
+      }
+    },
+    {
+      "name": "recorded_at_ms-parser",
+      "type": "DateTime",
+      "configuration": {
+        "recorded_at_ms": "unixMillis"
+      }
+    }
+  ]
+}
