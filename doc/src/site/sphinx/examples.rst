@@ -77,7 +77,7 @@ where to write and how to transform the input data::
     sudo sh bin/run
 
     curl -H "Content-Type: application/json" http://localhost:9090 --data
-    @examples/ecommerce/data-generators/ecommerce-policy.json
+    @examples/data-generators/ecommerce/ecommerce-policy.json
 
 * And last we need to run the data generators in two different shells. This generators will generate random data and
 will write it into RabbitMQ. In a few seconds SpaRkTA will start to read the data and write it into elasticsearch::
