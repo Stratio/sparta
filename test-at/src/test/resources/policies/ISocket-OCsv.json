@@ -69,11 +69,10 @@
   "outputs": [
     {
       "name": "out-csv",
-      "elementType": "Csv",
+      "type": "Csv",
       "configuration": {
-        "multiplexer": "false",
         "isAutoCalculateId": "false",
-        "path": "/home/jcgarcia/yeah/",
+        "path": "/home/gschiavon/desarrollo/stratio/sparkta/test-at/src/test/resources/fixtures/",
         "header": "false",
         "delimiter": ","
       }

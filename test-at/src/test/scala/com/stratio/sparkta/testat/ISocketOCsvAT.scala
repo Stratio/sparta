@@ -17,8 +17,11 @@
 
 package com.stratio.sparkta.testat
 
-import com.github.simplyscala.{MongodProps, MongoEmbedDatabase}
-import com.mongodb.casbah.{MongoClientURI, MongoConnection, MongoCollection}
+
+import org.apache.spark.SparkContext
+import org.apache.spark.SparkContext._
+
+
 
 /**
  * Acceptance test:
@@ -32,20 +35,19 @@ class ISocketOCsvAT extends SparktaATSuite {
   val PolicyEndSleep = 60000
   val PathToPolicy = getClass.getClassLoader.getResource("policies/ISocket-OCsv.json").getPath
   val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data.csv").getPath
+  val PathToCsvOutput = getClass.getClassLoader.getResource("fixtures/product_minute/").getPath
+  val sc = new SparkContext()
+
 
 
   before {
     zookeeperStart
     socketStart
-
-
   }
 
   after {
-
     serverSocket.close()
     zkTestServer.stop()
-
   }
 
   "Sparkta" should {
@@ -55,9 +57,16 @@ class ISocketOCsvAT extends SparktaATSuite {
       sendPolicy(PathToPolicy)
       sendDataToSparkta(PathToCsv)
       sleep(PolicyEndSleep)
-
+      checkCsvData(PathToCsvOutput)
     }
 
+    def checkCsvData(path : String): Unit ={
+
+      val result = sc.textFile(path).collect()
+
+      log.info(result(0))
+      log.info(result(1))
+    }
 
   }
 }
