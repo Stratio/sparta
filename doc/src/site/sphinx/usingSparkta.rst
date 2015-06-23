@@ -25,13 +25,18 @@ You can generate rpm and deb packages by running::
   - dpkg-dev
   - rpmdevtools
 
+Prerequisites
+=============
+Apache Zookeeper needs to be installed in the system beforehand.
+
+
 Running SpaRkTA
 ===============
 
 Once SpaRkTA has been installed, you can run ``sh $SPARKTA_HOME/bin/run``.
 Default installation directory is ``/opt/sds/sparkta``
 
- * Starting the Stratio SpaRkTA Shell::
+ * Starting Stratio SpaRkTA::
 
     cd /opt/sds/sparkta
 
@@ -364,4 +369,4 @@ Submitting Policy
 The policy must be submitted via POST with the following syntax:
 ::
 
-    curl -X POST -H "Content-Type: application/json" --data @PATH-TO-FILE/sample-policy.json SPARKTA-URL:PORT/policies
+    curl -X POST -H "Content-Type: application/json" --data @PATH-TO-POLICY SPARKTA-URL:SPARKTA-PORT
