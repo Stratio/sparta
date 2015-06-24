@@ -118,11 +118,10 @@ Outputs
 ------------
 
 - :doc:`mongodb`
-- Cassandra
-- ElasticSearch
+- :doc:`cassandra`
+- :doc:`elasticsearch`
 - :doc:`redis`
-- Spark's DataFrames Outputs
-- PrintOut
+- :doc:`print`
 
 
 
