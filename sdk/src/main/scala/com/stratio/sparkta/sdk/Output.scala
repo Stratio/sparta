@@ -63,8 +63,11 @@ abstract class Output(keyName: String,
   def isAutoCalculateId: Boolean = false
 
   def persist(streams: Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]]): Unit = {
+    setup
     streams.foreach(stream => doPersist(stream))
   }
+
+  protected def setup: Unit = {}
 
   def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     if (bcSchema.isDefined)

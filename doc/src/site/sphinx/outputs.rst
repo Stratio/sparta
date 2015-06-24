@@ -342,15 +342,6 @@ For more information for this output you can visit the :doc:`elasticsearch`
 
    "defaultPort": ("PORT_NUMBER")  Default: "9200"
 
-* defaultAnalyzerType:
-   It's possible to specify the analyzer for text index fields.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "defaultAnalyzerType": ("english"/"spanish"/"custom"...)  Default: None
-
 * idField:
    It's possible to specify the id field that contains the unique id for the row.
    You can omit this parameter in the policy.
