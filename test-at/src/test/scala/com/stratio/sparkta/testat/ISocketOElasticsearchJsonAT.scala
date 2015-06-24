@@ -66,16 +66,19 @@ class ISocketOElasticsearchJsonAT extends SparktaATSuite {
   }
 
   def checkData: Unit = {
-    query("id_smfprocess_minute", "id","P0001_2015-06-24 11:58:00.0").head.get("_source").get
-      .asInstanceOf[Map[String,String]].get("count").get.asInstanceOf[Double] should be (2d)
-    query("id_minute", "id", "2015-06-24 11:58:00.0").head.get("_source").get
-      .asInstanceOf[Map[String,String]].get("count").get.asInstanceOf[Double] should be (2d)
+    numberOfEventsGrouped(indexName = "id_smfprocess_minute",
+          field = "id",
+          value = "P0001_2015-06-24 11:58:00.0") should be (2d)
+
+    numberOfEventsGrouped(indexName = "id_minute",
+          field ="id",
+          value = "2015-06-24 11:58:00.0") should be (2d)
   }
 
-  def query(index: String, field: String, value: Any): List[Map[String, Any]] = {
+  private def numberOfEventsGrouped(indexName: String, field: String, value: Any): Double = {
     val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
     val productArequest: Future[HttpResponse] =
-      pipeline(Get(s"http://${Localhost}:9200/$index/_search?q=*:*"))
+      pipeline(Get(s"http://${Localhost}:9200/$indexName/_search?q=*:*"))
 
     val response: HttpResponse = Await.result(productArequest, Timeout(5.seconds).duration)
 
@@ -84,8 +87,9 @@ class ISocketOElasticsearchJsonAT extends SparktaATSuite {
     val rows = json.get.asInstanceOf[Map[String, Any]]
       .get("hits").get.asInstanceOf[Map[String, Any]]
       .get("hits").get.asInstanceOf[List[Map[String, Any]]]
-    
+
     rows.filter(tuple =>
-        tuple.get("_source").get.asInstanceOf[Map[String, Any]].get(field).get == value)
+        tuple.get("_source").get.asInstanceOf[Map[String, Any]].get(field).get == value).head.get("_source").get
+        .asInstanceOf[Map[String,String]].get("count").get.asInstanceOf[Double]
   }
 }
