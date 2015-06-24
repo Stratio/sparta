@@ -89,9 +89,12 @@ object SparktaJob {
   val OperatorNamePropertyKey = "name"
 
   @tailrec
-  def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = parsers.headOption match {
-    case Some(parser: Parser) => applyParsers(input.map(event => parser.parse(event)), parsers.drop(1))
-    case None => input
+  def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
+    val parsersSorted = parsers.sortWith((parser1, parser2) => parser1.getOrder < parser2.getOrder)
+    parsersSorted.headOption match {
+      case Some(headParser: Parser) => applyParsers(input.map(event => headParser.parse(event)), parsersSorted.drop(1))
+      case None => input
+    }
   }
 
   val getClasspathMap: Map[String, String] = {
@@ -124,9 +127,17 @@ object SparktaJob {
       (i.name, tryToInstantiate[Input](i.`type` + Input.ClassSuffix, (c) =>
         instantiateParameterizable[Input](c, i.configuration)).setUp(ssc))).toMap
 
-  def parsers(apConfig: AggregationPoliciesDto): Seq[Parser] = apConfig.parsers.map(p =>
-    tryToInstantiate[Parser](p.`type` + Parser.ClassSuffix, (c) =>
-      instantiateParameterizable[Parser](c, p.configuration)))
+  def parsers(apConfig: AggregationPoliciesDto): Seq[Parser] =
+    apConfig.transformations.map(parser =>
+      tryToInstantiate[Parser](parser.`type` + Parser.ClassSuffix, (c) =>
+        c.getDeclaredConstructor(
+          classOf[String],
+          classOf[Integer],
+          classOf[String],
+          classOf[Seq[String]],
+          classOf[Map[String, Serializable]])
+          .newInstance(parser.name, parser.order, parser.inputField, parser.outputFields, parser.configuration)
+          .asInstanceOf[Parser]))
 
   private def createOperator(operatorDto: OperatorDto): Operator = {
     tryToInstantiate[Operator](operatorDto.`type` + Operator.ClassSuffix,

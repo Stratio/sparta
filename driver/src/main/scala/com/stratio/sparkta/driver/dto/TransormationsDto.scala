@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.driver.dto
 
-import java.io.{Serializable => JSerializable}
+import com.stratio.sparkta.sdk.{Input, JsoneyString}
 
-import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
-
-
-abstract class Input(properties: Map[String, JSerializable]) extends Parameterizable(properties) {
-
-  def setUp(ssc: StreamingContext): DStream[Event]
-}
-
-object Input {
-  //TODO it´s ok?
-  final val ClassSuffix = "Input"
-  final val RawDataKey = "_attachment_body"
-}
+case class TransormationsDto (name: String,
+                              `type`: String,
+                              order: Integer,
+                              inputField: String = Input.RawDataKey,
+                              outputFields: Seq[String],
+                              configuration: Map[String, JsoneyString])
 

@@ -42,7 +42,7 @@
         "id": "auto-generated-schema-56"
       }
     },
-    "parsers": {
+    "transformations": {
       "id": "http://sparkta.stratio.com/parsers",
       "type": "array",
       "items": {

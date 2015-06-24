@@ -16,12 +16,22 @@
 
 package com.stratio.sparkta.sdk
 
-import java.io.Serializable
+import java.io.{Serializable => JSerializable}
 
 
-abstract class Parser(properties: Map[String, Serializable]) extends Parameterizable(properties) {
+abstract class Parser(name: String,
+                      order: Integer,
+                      inputField: String,
+                      outputFields: Seq[String],
+                      properties: Map[String, JSerializable]) extends Parameterizable(properties) {
 
   def parse(data: Event): Event
+
+  def getOrder: Integer = order
+
+  def checkFields(keyMap: Map[String, JSerializable]) : Map[String, JSerializable] =
+    keyMap.flatMap(key => if(outputFields.contains(key._1)) Some(key) else None)
+
 }
 
 object Parser {

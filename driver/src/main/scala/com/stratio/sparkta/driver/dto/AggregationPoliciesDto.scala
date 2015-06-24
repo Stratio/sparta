@@ -30,7 +30,7 @@ import com.stratio.sparkta.sdk.JsoneyStringSerializer
 case class AggregationPoliciesDto(name: String = "default",
                                   sparkStreamingWindow: Long = AggregationPoliciesDto.sparkStreamingWindow,
                                   rawData: RawDataDto,
-                                  parsers: Seq[PolicyElementDto],
+                                  transformations: Seq[TransormationsDto],
                                   cubes: Seq[CubeDto],
                                   inputs: Seq[PolicyElementDto],
                                   outputs: Seq[PolicyElementDto],
