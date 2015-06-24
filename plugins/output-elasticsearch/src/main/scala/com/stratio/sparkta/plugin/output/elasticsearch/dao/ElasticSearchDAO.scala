@@ -44,8 +44,6 @@ trait ElasticSearchDAO extends Closeable {
 
   def defaultPort: String
 
-  def defaultAnalyzerType: Option[String]
-
   def idField: Option[String] = None
 
   def defaultIndexMapping: Option[String] = None
@@ -60,11 +58,6 @@ trait ElasticSearchDAO extends Closeable {
         Map("" -> "")
     } ++
       Map("es.nodes" -> nodes, "es.port" -> defaultPort, "es.index.auto.create" -> "no") ++ {
-      defaultAnalyzerType match {
-        case Some(analyzer) => Map("es.index.analysis.analyzer.default.type" -> analyzer)
-        case None => Map("" -> "")
-      }
-    } ++ {
       if (timeName.isEmpty) Map("" -> "") else Map("es.mapping.names" -> s"$timeName:@timestamp")
     }
   }
