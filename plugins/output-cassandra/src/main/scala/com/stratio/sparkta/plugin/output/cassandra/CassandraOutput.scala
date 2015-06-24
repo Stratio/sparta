@@ -56,8 +56,6 @@ class CassandraOutput(keyName: String,
     case Some(fixPrecisions) => fixPrecisions.split(fieldsSeparator)
   }
 
-  override val cluster = properties.getString("cluster", "Test Cluster")
-
   override val keyspace = properties.getString("keyspace", "sparkta")
 
   override val keyspaceClass = properties.getString("class", "SimpleStrategy")
@@ -99,9 +97,11 @@ class CassandraOutput(keyName: String,
     bcSchema.exists(bc => createTables(schemaFiltered, timeName, isAutoCalculateId))
   } else false
 
-  val indexesCreated = if (keyspaceCreated && tablesCreated && indexFields.isDefined && !indexFields.get.isEmpty) {
-    bcSchema.exists(bc => createIndexes(schemaFiltered, timeName, isAutoCalculateId))
-  } else false
+  override protected def setup: Unit = {
+    if (keyspaceCreated && tablesCreated && indexFields.isDefined && !indexFields.get.isEmpty) {
+      bcSchema.exists(bc => createIndexes(schemaFiltered, timeName, isAutoCalculateId))
+    }
+  }
 
   val textIndexesCreated = if (keyspaceCreated &&
     tablesCreated &&
