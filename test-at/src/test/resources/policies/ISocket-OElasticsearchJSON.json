@@ -1,57 +1,77 @@
 {
   "name": "ATSocketElasticsearch",
-  "duration": 2000,
-  "saveRawData": "false",
-  "rawDataParquetPath": "myTestParquetPath",
-  "checkpointDir": "checkpoint",
-  "timePrecision": "",
-  "checkpointGranularity": "minute",
-  "checkpointInterval": 30000,
-  "checkpointTimeAvailability": 60000,
+  "sparkStreamingWindow": 2000,
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 600000000000
+  },
   "inputs": [
     {
       "name": "in-socket",
-      "elementType": "SocketInput",
+      "type": "Socket",
       "configuration": {
         "hostname": "localhost",
         "port": "10666"
       }
     }
   ],
-  "dimensions": [
+  "fields": [
     {
-      "name": "smfProcess",
-      "dimensionType": "PassthroughDimension"
+      "name": "smfProcess"
     },
     {
       "name": "millis",
-      "dimensionType": "DateTimeDimension"
+      "type": "DateTime",
+      "configuration": {
+        "typeOp": "String"
+      }
     }
   ],
-  "rollups": [
+  "cubes": [
     {
-      "dimensionAndPrecision": [
+      "name": "cubeSmfProcess",
+      "dimensions": [
         {
-          "dimensionName": "smfProcess",
-          "precision": "identity"
+          "dimension": "smfProcess"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     },
     {
-      "dimensionAndPrecision": [
+      "name": "cubeMillis",
+      "dimensions": [
         {
-          "dimensionName": "millis",
+          "dimension": "millis",
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
     }
   ],
   "outputs": [
     {
       "name": "out-elasticsearch",
-      "elementType": "ElasticSearchOutput",
+      "type": "ElasticSearch",
       "configuration": {
         "nodes": "localhost",
         "defaultPort": "9200",
@@ -61,19 +81,10 @@
       }
     }
   ],
-  "operators": [
-    {
-      "name": "count-operator",
-      "elementType": "CountOperator",
-      "configuration": {
-        "inputField":"smfProcess"
-      }
-    }
-  ],
   "parsers": [
     {
       "name": "morphline",
-      "elementType": "MorphlinesParser",
+      "type": "Morphlines",
       "configuration": {
         "morphline": {
           "id": "morphline1",
@@ -90,7 +101,7 @@
                 "paths": {
                   "tpe": "/tpe",
                   "smfProcess": "/smfProcess/cod",
-                  "millis": "/timestamp/millis"
+                  "millis": "/timeStamp/millis"
                 }
               }
             },
@@ -123,6 +134,13 @@
             }
           ]
         }
+      }
+    },
+    {
+      "name": "recorded_at_ms-parser",
+      "type": "DateTime",
+      "configuration": {
+        "millis": "unixMillis"
       }
     }
   ]

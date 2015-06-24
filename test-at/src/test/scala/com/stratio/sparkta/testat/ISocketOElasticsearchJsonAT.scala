@@ -18,10 +18,6 @@ package com.stratio.sparkta.testat
 
 import akka.util.Timeout
 import com.stratio.sparkta.testat.embedded.{ElasticThread, ElasticsearchEmbeddedServer, JVMProcess}
-import org.elasticsearch.action.admin.cluster.health.{ClusterHealthRequest, ClusterHealthStatus}
-import org.elasticsearch.client.Client
-import org.elasticsearch.node.Node
-import org.elasticsearch.node.NodeBuilder._
 import spray.client.pipelining._
 import spray.http._
 
@@ -29,6 +25,10 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.util.parsing.json.JSON
 
+/**
+ * Test used in a internal project.
+ * @author anistal
+ */
 class ISocketOElasticsearchJsonAT extends SparktaATSuite {
 
   val PathToPolicy = getClass.getClassLoader.getResource("policies/ISocket-OElasticsearchJSON.json").getPath
@@ -44,13 +44,6 @@ class ISocketOElasticsearchJsonAT extends SparktaATSuite {
   before {
     zookeeperStart
     socketStart
-
-    /**
-     * Running the embedded server in the test fails when writing data.
-     * This is the reason why we need to run it in a different process.
-     * We have already tested it making ElasticsearchEmbeddedServer implements Runnable and running it in a thread but
-     * no success...
-     */
     JVMProcess.runMain(ElasticThread.getClass.getCanonicalName.dropRight(1), false)
   }
 
@@ -68,28 +61,21 @@ class ISocketOElasticsearchJsonAT extends SparktaATSuite {
       sendPolicy(PathToPolicy)
       sendDataToSparkta(PathToCsv)
       sleep(PolicyEndSleep)
-      checkESData
+      checkData
     }
   }
 
-  def checkESData: Unit = {
-    val node: Node  = nodeBuilder().node()
-    val client: Client = node.client()
-    val status =  client.admin.cluster.health(new ClusterHealthRequest)
-    status.actionGet().getStatus should be (ClusterHealthStatus.GREEN)
-
-    val hitsA: List[Map[String, Any]] = query("producta", ProductAAvg,ProductASum)
-
-
-
-    //hitsB.size should be (1)
+  def checkData: Unit = {
+    query("id_smfprocess_minute", "id","P0001_2015-06-24 11:58:00.0").head.get("_source").get
+      .asInstanceOf[Map[String,String]].get("count").get.asInstanceOf[Double] should be (2d)
+    query("id_minute", "id", "2015-06-24 11:58:00.0").head.get("_source").get
+      .asInstanceOf[Map[String,String]].get("count").get.asInstanceOf[Double] should be (2d)
   }
 
-  def query(productName :String,avg:Double, sum:Double): List[Map[String, Any]] = {
-    
+  def query(index: String, field: String, value: Any): List[Map[String, Any]] = {
     val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
     val productArequest: Future[HttpResponse] =
-      pipeline(Get(s"http://${Localhost}:9200/id_smfprocess_minute/_search?q=*:*"))
+      pipeline(Get(s"http://${Localhost}:9200/$index/_search?q=*:*"))
 
     val response: HttpResponse = Await.result(productArequest, Timeout(5.seconds).duration)
 
@@ -100,7 +86,6 @@ class ISocketOElasticsearchJsonAT extends SparktaATSuite {
       .get("hits").get.asInstanceOf[List[Map[String, Any]]]
     
     rows.filter(tuple =>
-      tuple.get("_source").get.asInstanceOf[Map[String, Any]].get("avg_price").get == avg &&
-        tuple.get("_source").get.asInstanceOf[Map[String, Any]].get("sum_price").get == sum)
+        tuple.get("_source").get.asInstanceOf[Map[String, Any]].get(field).get == value)
   }
 }

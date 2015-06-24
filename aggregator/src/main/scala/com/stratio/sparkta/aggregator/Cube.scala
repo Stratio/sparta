@@ -104,7 +104,9 @@ case class Cube(name: String,
       Option[Seq[(String, Option[Any])]])]) => {
       val eventTime = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity) -
         checkpointTimeAvailability
-      iterator.filter(dimensionsData => dimensionsData._1.time >= eventTime)
+      iterator.filter(dimensionsData => {
+        dimensionsData._1.time >= eventTime
+      })
         .flatMap { case (dimensionsKey, values, state) =>
         updateFunction(values, state).map(result => (dimensionsKey, result))
       }
