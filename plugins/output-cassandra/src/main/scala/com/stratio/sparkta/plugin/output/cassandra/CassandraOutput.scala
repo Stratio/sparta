@@ -66,11 +66,17 @@ class CassandraOutput(keyName: String,
 
   override val clusteringPrecisions = properties.getString("clusteringPrecisions", None).map(_.split(fieldsSeparator))
 
+  override val indexFields = properties.getString("indexFields", None).map(_.split(fieldsSeparator))
+
   override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(fieldsSeparator))
 
   override val analyzer = properties.getString("analyzer", DefaultAnalyzer)
 
   override val dateFormat = properties.getString("dateFormat", DefaultDateFormat)
+
+  override val refreshSeconds = properties.getString("refreshSeconds", DefaultRefreshSeconds)
+
+  override val textIndexName = properties.getString("textIndexName", "lucene")
 
   val fixedAgg = properties.getString("fixedAggregation", None)
 
@@ -89,6 +95,21 @@ class CassandraOutput(keyName: String,
 
   val tablesCreated = if (keyspaceCreated) {
     bcSchema.exists(bc => createTables(schemaFiltered, timeName, isAutoCalculateId))
+  } else false
+
+  override protected def setup: Unit = {
+    if (keyspaceCreated && tablesCreated && indexFields.isDefined && !indexFields.get.isEmpty) {
+      bcSchema.exists(bc => createIndexes(schemaFiltered, timeName, isAutoCalculateId))
+    }
+  }
+
+  val textIndexesCreated = if (keyspaceCreated &&
+    tablesCreated &&
+    textIndexFields.isDefined &&
+    !textIndexFields.isEmpty &&
+    !fixedAggregation.isEmpty &&
+    fixedAgg.get == textIndexName) {
+    bcSchema.exists(bc => createTextIndexes(schemaFiltered))
   } else false
 
   /*
