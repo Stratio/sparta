@@ -31,12 +31,9 @@ trait CassandraDAO extends Closeable with Logging {
   val DefaultRefreshSeconds = "1"
   val IndexPrefix = "index_"
   val MaxTableNameLength = 48
-  val MaxIndexNameLength = 48
 
   val connector: Option[CassandraConnector] = None
   val compactStorage: Option[String] = None
-
-  def cluster: String
 
   def keyspace: String
 
@@ -126,10 +123,7 @@ trait CassandraDAO extends Closeable with Logging {
   }
 
   protected def createIndex(conn: CassandraConnector, tableName: String, field: String): Boolean = {
-    val indexName = s"$IndexPrefix${
-      if(tableName.size + IndexPrefix.size + field.size > MaxIndexNameLength)
-        tableName.substring(0, MaxIndexNameLength - IndexPrefix.size - field.size) else tableName
-    }_$field"
+    val indexName = s"$IndexPrefix${tableName}_$field"
     executeCommand(conn, s"CREATE INDEX IF NOT EXISTS $indexName ON $keyspace.$tableName ($field)")
   }
 
@@ -146,11 +140,7 @@ trait CassandraDAO extends Closeable with Logging {
         val seqResults = for {
           tableSchema <- tSchemas
           fields = textFields.filter(textField => tableSchema.schema.fieldNames.contains(textField.split(":").head))
-          indexName = s"$IndexPrefix${
-            if(tableSchema.tableName.size + IndexPrefix.size > MaxIndexNameLength)
-              tableSchema.tableName.substring(0, MaxIndexNameLength - IndexPrefix.size)
-            else tableSchema.tableName
-          }"
+          indexName = s"$IndexPrefix${tableSchema.tableName}"
           command = s"CREATE CUSTOM INDEX IF NOT EXISTS $indexName " +
             s"ON $keyspace.${tableSchema.tableName} ($textIndexName) USING 'com.stratio.cassandra.index.RowIndex' " +
             s"WITH OPTIONS = { 'refresh_seconds' : '$refreshSeconds', ${getTextIndexSentence(fields)} }"
