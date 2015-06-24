@@ -18,10 +18,11 @@
       "name": "in-twitter",
       "type": "Twitter",
       "configuration": {
-        "consumerKey": "*****",
-        "consumerSecret": "*****",
-        "accessToken": "*****",
-        "accessTokenSecret": "*****"
+        "consumerKey": "****",
+        "consumerSecret": "****",
+        "accessToken": "****",
+        "accessTokenSecret": "****",
+        "termsOfSearch":"#hekj,prlk,#drm"
       }
     }
   ],
@@ -31,8 +32,8 @@
       "name": "status",
       "configuration": {
         "typeOp": "string",
-        "hastags": "int",
-        "firsthastag": "string",
+        "hashtags": "int",
+        "firsthashtag": "string",
         "retweets": "int",
         "urls": "int"
       }
@@ -61,11 +62,11 @@
       "dimensions": [
         {
           "dimension": "status",
-          "precision": "hastags"
+          "precision": "hashtags"
         },
         {
           "dimension": "status",
-          "precision": "firsthastag"
+          "precision": "firsthashtag"
         },
         {
           "dimension": "status",
@@ -73,9 +74,6 @@
         },
         {
           "dimension": "userLocation"
-        },
-        {
-          "dimension": "wordsN"
         },
         {
           "dimension": "geolocation",
@@ -92,13 +90,7 @@
           "type": "Count",
           "configuration": {}
         },
-        {
-          "measureName": "count-distinct-operator",
-          "type": "Count",
-          "configuration": {
-            "distinctFields": "wordsN"
-          }
-        },
+
         {
           "measureName": "sum-operator",
           "type": "Sum",
@@ -135,38 +127,10 @@
           }
         },
         {
-          "measureName": "variance-operator",
-          "type": "Variance",
-          "configuration": {
-            "inputField": "wordsN"
-          }
-        },
-        {
-          "measureName": "stddev-operator",
-          "type": "Stddev",
-          "configuration": {
-            "inputField": "wordsN"
-          }
-        },
-        {
           "measureName": "fullText-operator",
           "type": "FullText",
           "configuration": {
             "inputField": "userLocation"
-          }
-        },
-        {
-          "measureName": "lastValue-operator",
-          "type": "LastValue",
-          "configuration": {
-            "inputField": "retweets"
-          }
-        },
-        {
-          "measureName": "accumulator-operator",
-          "type": "Accumulator",
-          "configuration": {
-            "inputField": "wordsN"
           }
         }
       ]
@@ -175,14 +139,10 @@
   "outputs": [
     {
       "name": "out-mongo",
-      "elementType": "MongoDb",
+      "type": "MongoDb",
       "configuration": {
         "clientUri": "mongodb://localhost:27017",
-        "dbName": "sparkta",
-        "multiplexer": "false",
-        "textIndexFields": "userLocation",
-        "fieldsSeparator": ",",
-        "language": "english"
+        "dbName": "sparkta"
       }
     }
   ]
