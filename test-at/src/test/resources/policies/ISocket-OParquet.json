@@ -71,7 +71,7 @@
       "name": "out-parquet",
       "type": "Parquet",
       "configuration": {
-        "path": "/tmp/sparkta/parquet"
+        "path": "/tmp/sparkta/outputs/parquet"
       }
     }
   ],

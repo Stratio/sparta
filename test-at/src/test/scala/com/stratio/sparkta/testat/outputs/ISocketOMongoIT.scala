@@ -14,47 +14,35 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.testat
+package com.stratio.sparkta.testat.outputs
 
 import com.github.simplyscala.{MongoEmbedDatabase, MongodProps}
 import com.mongodb.casbah.{MongoClientURI, MongoCollection, MongoConnection}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+
+import com.stratio.sparkta.testat.SparktaATSuite
 
 /**
  * Acceptance test:
- *   [Input]: Socket.
- *   [Output]: MongoDB.
- *   [Operators]: sum, avg.
+ * [Input]: Socket.
+ * [Output]: MongoDB.
+ * [Operators]: sum, avg.
  * @author arincon
  */
-class ISocketOMongoAT extends MongoEmbedDatabase with SparktaATSuite {
+@RunWith(classOf[JUnitRunner])
+class ISocketOMongoIT extends MongoEmbedDatabase with SparktaATSuite {
 
-  val PolicyEndSleep = 60000
+  override val PolicyEndSleep = 60000
   val TestMongoPort = 60000
   val DatabaseName = "csvtest"
   val CollectionName = "product"
-  val PathToPolicy = getClass.getClassLoader.getResource("policies/ISocket-OMongo.json").getPath
-  val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data.csv").getPath
+  override val policyFile = "policies/ISocket-OMongo.json"
   var mongoProps: MongodProps = _
-
-  before {
-    zookeeperStart
-    socketStart
-    mongoProps = mongoStart(TestMongoPort)
-  }
-
-  after {
-    serverSocket.close()
-    zkTestServer.stop()
-    mongoStop(mongoProps)
-  }
 
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in mongodb" in {
-      checkMongoDb
-      startSparkta
-      sendPolicy(PathToPolicy)
-      sendDataToSparkta(PathToCsv)
-      sleep(PolicyEndSleep)
+      sparktaRunner
       checkMongoData
     }
 
@@ -86,4 +74,8 @@ class ISocketOMongoAT extends MongoEmbedDatabase with SparktaATSuite {
       mongoClientURI.database should be(Some("local"))
     }
   }
+
+  override def extraBefore: Unit = mongoProps = mongoStart(TestMongoPort)
+
+  override def extraAfter: Unit = mongoStop(mongoProps)
 }

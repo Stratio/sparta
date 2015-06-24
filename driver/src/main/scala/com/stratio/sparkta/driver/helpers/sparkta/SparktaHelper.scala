@@ -23,19 +23,20 @@ import java.net.{URL, URLClassLoader}
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
-import com.stratio.sparkta.driver.actor.ControllerActor
-import com.stratio.sparkta.driver.factory.CuratorFactoryHolder
-import com.stratio.sparkta.driver.service.StreamingContextService
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.Config
 import spray.can.Http
 
-import scala.util.Try
+import com.stratio.sparkta.driver.actor.ControllerActor
+import com.stratio.sparkta.driver.factory.{SparkContextFactory, CuratorFactoryHolder}
+import com.stratio.sparkta.driver.service.StreamingContextService
 
 /**
  * Helper with common operations used to create a Sparkta context used to run the application.
  * @author anistal
  */
 object SparktaHelper extends SLF4JLogging {
+
+  implicit var system: ActorSystem = _
 
   /**
    * Initializes Sparkta's base path.
@@ -95,7 +96,7 @@ object SparktaHelper extends SLF4JLogging {
     val curatorFramework = CuratorFactoryHolder.getInstance(configSparkta).get
 
     log.info("> Initializing akka actors")
-    implicit val system = ActorSystem(appName)
+    system = ActorSystem(appName)
 
     val controller = system.actorOf(Props(new ControllerActor(
       streamingContextService, curatorFramework)), "controllerActor")
@@ -133,5 +134,10 @@ object SparktaHelper extends SLF4JLogging {
     val method: Method = classOf[URLClassLoader].getDeclaredMethod("addURL", classOf[URL])
     method.setAccessible(true)
     method.invoke(ClassLoader.getSystemClassLoader(), file.toURI().toURL());
+  }
+
+  def shutdown: Unit = {
+    SparkContextFactory.destroySparkContext
+    system.shutdown
   }
 }

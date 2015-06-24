@@ -17,42 +17,51 @@
 package com.stratio.sparkta.testat
 
 import java.io.{File, PrintStream}
-import java.net.{InetSocketAddress, Socket}
+import java.net._
 import java.nio.channels.ServerSocketChannel
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
+import scala.io.Source
+import scala.util.Try
 
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
-import com.stratio.sparkta.driver.constants.AppConstant
-import com.stratio.sparkta.driver.helpers.sparkta.{MockSystem, SparktaHelper}
 import com.typesafe.config.Config
 import org.apache.curator.test.TestingServer
+import org.json4s.jackson.JsonMethods._
+import org.json4s.{DefaultFormats, _}
 import org.scalatest.{BeforeAndAfter, Matchers, WordSpecLike}
 import spray.client.pipelining._
 import spray.http.StatusCodes._
 import spray.http._
 import spray.testkit.ScalatestRouteTest
 
-import scala.concurrent.{Await, Future}
-import scala.concurrent.duration._
-import scala.io.Source
-import scala.util.Try
+import com.stratio.sparkta.driver.constants.AppConstant
+import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
+import com.stratio.sparkta.driver.helpers.sparkta.{MockSystem, SparktaHelper}
+import com.stratio.sparkta.sdk.JsoneyStringSerializer
 
 /**
  * Common operations that will be used in Acceptance Tests. All AT must extends from it.
  * @author arincon
  */
-trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogging with BeforeAndAfter with Matchers {
+trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogging with BeforeAndAfter
+with Matchers {
 
-  val Localhost        = "127.0.0.1"
-  val SparktaPort      = 9090
+  val policyFile: String
+  val Localhost = "127.0.0.1"
+  val SparktaPort = 9090
   val TestServerZKPort = 6666
-  val SocketPort       = 10666
-  val SparktaSleep     = 3000
-  val PolicySleep      = 25000
+  val SocketPort = 10666
+  val SparktaSleep = 3000
+  val PolicySleep = 25000
+  val PolicyEndSleep = 30000
 
-  var zkTestServer: TestingServer       = _
+  val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data.csv").getPath
+
+  var zkTestServer: TestingServer = _
   var serverSocket: ServerSocketChannel = _
-  var out         : PrintStream         = _
+  var out: PrintStream = _
 
   /**
    * Starts an embedded ZK server.
@@ -92,7 +101,7 @@ trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogg
    * @return a Try object that contains a socket if succeed.
    */
   def openSocket(portNumber: Int): Try[Socket] = {
-      Try(new Socket(Localhost, portNumber))
+    Try(new Socket(Localhost, portNumber))
   }
 
   /**
@@ -113,12 +122,12 @@ trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogg
    * Given a policy it makes an http request to start it on Sparkta.
    * @param path of the policy.
    */
-  def sendPolicy(path : String): Unit = {
+  def sendPolicy(path: String): Unit = {
     val policy = Source.fromFile(new File(path)).mkString // execution context for futures
     val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
     val promise: Future[HttpResponse] =
       pipeline(Post(s"http://${Localhost}:${SparktaPort}/policies",
-      HttpEntity(ContentType(MediaTypes.`application/json`, HttpCharsets.`UTF-8`), policy)))
+        HttpEntity(ContentType(MediaTypes.`application/json`, HttpCharsets.`UTF-8`), policy)))
 
     val response: HttpResponse = Await.result(promise, Timeout(5.seconds).duration)
 
@@ -126,13 +135,11 @@ trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogg
     sleep(PolicySleep)
   }
 
-
-
   /**
    * Reads from a CSV file and send data to the socket.
    * @param path of the CSV.
    */
-  def sendDataToSparkta(path :String): Unit = {
+  def sendDataToSparkta(path: String): Unit = {
     out = new PrintStream(serverSocket.socket().accept().getOutputStream())
 
     Source.fromFile(path).getLines().toList.map(line => {
@@ -148,4 +155,36 @@ trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogg
   protected def sleep(millis: Long): Unit =
     Thread.sleep(millis)
 
+  before {
+    zookeeperStart
+    socketStart
+    extraBefore
+  }
+
+  def sparktaRunner: Unit = {
+    startSparkta
+    sendPolicy(pathToPolicy)
+    sendDataToSparkta(PathToCsv)
+    Thread.sleep(PolicyEndSleep)
+    SparktaHelper.shutdown
+  }
+
+  after {
+    serverSocket.close()
+    zkTestServer.stop()
+    extraAfter
+  }
+
+  def extraBefore: Unit
+
+  def extraAfter: Unit
+
+  def policy: URL = getClass.getClassLoader.getResource(policyFile)
+
+  def pathToPolicy: String = policy.getPath
+
+  def policyDto: AggregationPoliciesDto = {
+    implicit val formats = DefaultFormats + new JsoneyStringSerializer()
+    parse(policy.openStream()).extract[AggregationPoliciesDto]
+  }
 }

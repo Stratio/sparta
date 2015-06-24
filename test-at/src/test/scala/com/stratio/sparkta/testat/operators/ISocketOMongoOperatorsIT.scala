@@ -14,51 +14,37 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.testat
+package com.stratio.sparkta.testat.operators
 
 import com.github.simplyscala.{MongoEmbedDatabase, MongodProps}
-import com.mongodb.{BasicDBList, BasicDBObject}
 import com.mongodb.casbah.{MongoClientURI, MongoCollection, MongoConnection}
+import com.mongodb.{BasicDBList, BasicDBObject}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
+import com.stratio.sparkta.testat.SparktaATSuite
+
 /**
-  * Acceptance test:
- *   [Input]: Socket.
- *   [Output]: MongoDB.
- *   [Operators]: accumulator, avg, count, firsValue, fullText, lastValue, max,
- *                median, min, range, stddev, sum, variance.
+ * Acceptance test:
+ * [Input]: Socket.
+ * [Output]: MongoDB.
+ * [Operators]: accumulator, avg, count, firsValue, fullText, lastValue, max,
+ * median, min, range, stddev, sum, variance.
  */
 @RunWith(classOf[JUnitRunner])
 class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
-  val PolicyEndSleep = 60000
 
+  override val PolicyEndSleep = 60000
+  override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-operators.csv").getPath
+  override val policyFile = "policies/ISocket-OMongo-operators.json"
   val TestMongoPort = 60000
-  val PathToPolicy = getClass.getClassLoader.getResource("policies/ISocket-OMongo-operators.json").getPath
-  val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-operators.csv").getPath
   var mongoProps: MongodProps = _
 
   val NumEventsExpected: Int = 8
 
-  before {
-    zookeeperStart
-    socketStart
-    mongoProps = mongoStart(TestMongoPort)
-  }
-
-  after {
-    serverSocket.close()
-    zkTestServer.stop()
-    mongoStop(mongoProps)
-  }
-
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in mongodb" in {
-      checkMongoDb
-      startSparkta
-      sendPolicy(PathToPolicy)
-      sendDataToSparkta(PathToCsv)
-      sleep(PolicyEndSleep)
+      sparktaRunner
       checkMongoData
     }
 
@@ -103,4 +89,8 @@ class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
       mongoClientURI.database should be(Some("local"))
     }
   }
+
+  override def extraBefore: Unit = mongoProps = mongoStart(TestMongoPort)
+
+  override def extraAfter: Unit = mongoStop(mongoProps)
 }
