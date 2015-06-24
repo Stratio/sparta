@@ -18,10 +18,11 @@
       "name": "in-twitter",
       "type": "Twitter",
       "configuration": {
-        "consumerKey": "*****",
-        "consumerSecret": "*****",
-        "accessToken": "*****",
-        "accessTokenSecret": "*****"
+        "consumerKey": "vid8CxHgevrprEbwCKk6LgJwm",
+        "consumerSecret": "ajk1ORBIQ8YqkJBodqLTpDLHiOQbGGJMjaO7qPiRpoGX7Y3w3i",
+        "accessToken": "3216698842-aJMrjTpyntyyG4AySmOnGfFohbS7yEbi1ST6bK7",
+        "accessTokenSecret": "l3AsZGnWv2RwOzEy3L5FWWyEiCVtWtQS9ruddun6g8kiy",
+        "termsOfSearch":"hoollyk,djimn"
       }
     }
   ],
@@ -175,14 +176,11 @@
   "outputs": [
     {
       "name": "out-mongo",
-      "elementType": "MongoDb",
+      "type": "MongoDb",
       "configuration": {
         "clientUri": "mongodb://localhost:27017",
         "dbName": "sparkta",
-        "multiplexer": "false",
-        "textIndexFields": "userLocation",
-        "fieldsSeparator": ",",
-        "language": "english"
+        "multiplexer": "false"
       }
     }
   ]
