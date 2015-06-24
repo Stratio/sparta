@@ -71,8 +71,6 @@ class ElasticSearchOutput(keyName: String,
     }
   }
 
-  override val defaultAnalyzerType = properties.getString("defaultAnalyzerType", None)
-
   override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
