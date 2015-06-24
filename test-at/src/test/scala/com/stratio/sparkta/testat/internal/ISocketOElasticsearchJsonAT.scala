@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.testat
+package com.stratio.sparkta.testat.internal
 
 import akka.util.Timeout
+import com.stratio.sparkta.testat.SparktaATSuite
 import com.stratio.sparkta.testat.embedded.{ElasticThread, ElasticsearchEmbeddedServer, JVMProcess}
 import spray.client.pipelining._
 import spray.http._
@@ -31,36 +32,12 @@ import scala.util.parsing.json.JSON
  */
 class ISocketOElasticsearchJsonAT extends SparktaATSuite {
 
-  val PathToPolicy = getClass.getClassLoader.getResource("policies/ISocket-OElasticsearchJSON.json").getPath
-  val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-json-data").getPath
-  val TimeElastisearchStarts: Long = 5000
-  val PolicyEndSleep = 30000
-  val ProductAAvg: Double = 750d
-  val ProductASum: Double = 6000d
-  val ProductBAvg: Double = 1000d
-  val ProductBSum: Double = 8000d
-
-
-  before {
-    zookeeperStart
-    socketStart
-    JVMProcess.runMain(ElasticThread.getClass.getCanonicalName.dropRight(1), false)
-  }
-
-  after {
-    serverSocket.close()
-    zkTestServer.stop()
-    JVMProcess.shutdown()
-    ElasticsearchEmbeddedServer.cleanData
-  }
+  val policyFile = "policies/ISocket-OElasticsearchJSON.json"
+  override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-json-data").getPath
 
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in ElasticSearch" in {
-      sleep(TimeElastisearchStarts)
-      startSparkta
-      sendPolicy(PathToPolicy)
-      sendDataToSparkta(PathToCsv)
-      sleep(PolicyEndSleep)
+      sparktaRunner
       checkData
     }
   }
@@ -91,5 +68,12 @@ class ISocketOElasticsearchJsonAT extends SparktaATSuite {
     rows.filter(tuple =>
         tuple.get("_source").get.asInstanceOf[Map[String, Any]].get(field).get == value).head.get("_source").get
         .asInstanceOf[Map[String,String]].get("count").get.asInstanceOf[Double]
+  }
+
+  override def extraBefore: Unit = JVMProcess.runMain(ElasticThread.getClass.getCanonicalName.dropRight(1), false)
+
+  override def extraAfter: Unit = {
+    JVMProcess.shutdown()
+    ElasticsearchEmbeddedServer.cleanData
   }
 }

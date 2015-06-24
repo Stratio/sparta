@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.testat.outputs
+package com.stratio.sparkta.testat.internal
 
 import com.github.simplyscala.{MongoEmbedDatabase, MongodProps}
 import com.mongodb.casbah.{MongoClientURI, MongoCollection, MongoConnection}
+import com.stratio.sparkta.testat.SparktaATSuite
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-
-import com.stratio.sparkta.testat.SparktaATSuite
 
 /**
  * Acceptance test:
