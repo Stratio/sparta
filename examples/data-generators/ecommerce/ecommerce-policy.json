@@ -30,62 +30,15 @@
       }
     }
   ],
-  "fields": [
-    {
-      "type": "DateTime",
-      "name": "purchaseDateOL"
-    },
-    {
-      "name": "userOL"
-    },
-    {
-      "name": "totalAmountOL"
-    },
-    {
-      "name": "cityOL"
-    },
-    {
-      "name": "postalCodeOL"
-    },
-    {
-      "name": "stateOL"
-    },
-    {
-      "name": "countryOL"
-    },
-    {
-      "name": "customerTypeOL"
-    },
-    {
-      "name": "paymentTypeOL"
-    },
-    {
-      "type": "DateTime",
-      "name": "timestampVL"
-    },
-    {
-      "name": "ipHostVL"
-    },
-    {
-      "name": "userAgentVL"
-    },
-    {
-      "name": "userLogVL"
-    },
-    {
-      "name": "responseCodeVL"
-    },
-    {
-      "name": "operatingSystemVL"
-    }
-  ],
   "cubes": [
     {
       "name": "testCube",
       "dimensions": [
         {
-          "dimension": "purchaseDateOL",
-          "precision": "minute"
+          "name": "purchaseDateOL",
+          "field": "purchaseDateOL",
+          "precision": "minute",
+          "type": "DateTime"
         }
       ],
       "operators": [
@@ -128,7 +81,9 @@
       "name": "testCube1",
       "dimensions": [
         {
-          "dimension": "timestampVL",
+          "name": "timestampVL",
+          "field": "timestampVL",
+          "type": "DateTime",
           "precision": "minute"
         }
       ],
@@ -172,11 +127,13 @@
       "name": "testCube2",
       "dimensions": [
         {
-          "dimension": "ipHostVL",
-          "precision": "identity"
+          "name": "ipHostVL",
+          "field": "ipHostVL"
         },
         {
-          "dimension": "timestampVL",
+          "name": "timestampVL",
+          "field": "timestampVL",
+          "type": "DateTime",
           "precision": "minute"
         }
       ],
@@ -220,8 +177,8 @@
       "name": "testCube3",
       "dimensions": [
         {
-          "dimension": "cityOL",
-          "precision": "identity"
+          "name": "cityOL",
+          "field": "cityOL"
         }
       ],
       "operators": [
@@ -264,8 +221,8 @@
       "name": "testCube4",
       "dimensions": [
         {
-          "dimension": "stateOL",
-          "precision": "identity"
+          "name": "stateOL",
+          "field": "stateOL"
         }
       ],
       "operators": [
@@ -318,10 +275,28 @@
       }
     }
   ],
-  "parsers": [
+  "transformations": [
     {
       "name": "morphline-parser",
+      "order": 1,
       "type": "Morphlines",
+      "outputFields": [
+        "purchaseDateOL",
+        "userOL",
+        "totalAmountOL",
+        "cityOL",
+        "postalCodeOL",
+        "stateOL",
+        "countryOL",
+        "customerTypeOL",
+        "paymentTypeOL",
+        "timestampVL",
+        "ipHostVL",
+        "userAgentVL",
+        "userLogVL",
+        "responseCodeVL",
+        "operatingSystemVL"
+      ],
       "configuration": {
         "morphline": {
           "id": "morphline1",
@@ -366,6 +341,11 @@
     },
     {
       "name": "purchaseDateOL",
+      "order": 2,
+      "inputField": "purchaseDateOL",
+      "outputFields": [
+        "purchaseDateOL"
+      ],
       "type": "DateTime",
       "configuration": {
         "purchaseDateOL": "unixMillis"
@@ -373,6 +353,11 @@
     },
     {
       "name": "timestampVL",
+      "order": 3,
+      "inputField": "timestampVL",
+      "outputFields": [
+        "timestampVL"
+      ],
       "type": "DateTime",
       "configuration": {
         "timestampVL": "unixMillis"

@@ -29,48 +29,14 @@
             }
         }
     ],
-    "fields": [
-        {
-            "name": "source"
-        },
-        {
-            "name": "text"
-        },
-        {
-            "name": "lang"
-        },
-        {
-            "dimensionType": "DateTime",
-            "name": "createdAt"
-        },
-        {
-            "name": "favoriteCount"
-        },
-        {
-            "name": "retweetCount"
-        },
-        {
-            "name": "user_followersCount"
-        },
-        {
-            "name": "user_favouritesCount"
-        },
-        {
-            "name": "user_id"
-        },
-        {
-            "name": "user_screenName"
-        },
-        {
-            "name": "user_timeZone"
-        }
-    ],
     "cubes": [
         {
             "name": "testCube",
             "dimensions": [
                 {
-                    "dimension": "createdAt",
+                    "name": "createdAt",
+                    "field": "createdAt",
+                    "type": "DateTime",
                     "precision": "minute"
                 }
             ],
@@ -93,7 +59,8 @@
             "name": "testCube1",
             "dimensions": [
                 {
-                    "dimension": "lang"
+                    "name": "lang",
+                    "field": "lang"
                 }
             ],
             "operators": [
@@ -115,10 +82,12 @@
             "name": "testCube2",
             "dimensions": [
                 {
-                    "dimension": "lang"
+                    "name": "lang",
+                    "field": "lang"
                 },
                 {
-                    "dimension": "createdAt",
+                    "field": "createdAt",
+                    "type": "DateTime",
                     "precision": "minute"
                 }
             ],
@@ -141,7 +110,8 @@
             "name": "testCube3",
             "dimensions": [
                 {
-                    "dimension": "user_timeZone"
+                    "name": "user_timeZone",
+                    "field": "user_timeZone"
                 }
             ],
             "operators": [
@@ -171,10 +141,24 @@
             }
         }
     ],
-    "parsers": [
+    "transformations": [
         {
             "name": "morphline-parser",
+            "order": 1,
             "type": "Morphlines",
+            "outputFields": [
+                "source",
+                "createdAt",
+                "text",
+                "lang",
+                "favoriteCount",
+                "retweetCount",
+                "user_followersCount",
+                "user_favouritesCount",
+                "user_id",
+                "user_screenName",
+                "user_timeZone"
+            ],
             "configuration": {
                 "morphline": {
                     "id": "morphline1",
@@ -215,6 +199,11 @@
         },
         {
             "name": "createdAt",
+            "order": 2,
+            "inputField": "createdAt",
+            "outputFields": [
+                "createdAt"
+            ],
             "type": "DateTime",
             "configuration": {
                 "createdAt": "unixMillis"

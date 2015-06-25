@@ -25,49 +25,84 @@
       }
     }
   ],
-  "dimensions": [
-    {
-      "dimensionType": "TwitterStatusDimension",
-      "name": "status"
-    },
-    {
-      "name": "wordsN"
-    },
-    {
-      "dimensionType": "DateTimeDimension",
-      "name": "timestamp"
-    },
-    {
-      "dimensionType": "GeoHashDimension",
-      "name": "geolocation"
-    }
-  ],
   "cubes": [
     {
       "name": "twitter",
-      "precisions": [
+      "dimensions": [
         {
-          "dimension": "status",
+          "name": "hastags",
+          "field": "status",
+          "type": "TwitterStatus",
           "precision": "hastags"
         },
         {
-          "dimension": "status",
+          "name": "firsthastag",
+          "field": "status",
+          "type": "TwitterStatus",
           "precision": "firsthastag"
         },
         {
-          "dimension": "status",
+          "name": "retweets",
+          "field": "status",
+          "type": "TwitterStatus",
           "precision": "retweets"
         },
         {
-          "dimension": "geolocation",
+          "name": "userLocation",
+          "field": "userLocation"
+        },
+        {
+          "name": "wordsN",
+          "field": "wordsN"
+        },
+        {
+          "name": "precision3",
+          "field": "geolocation",
+          "type": "GeoHash",
           "precision": "precision3"
         },
         {
-          "dimension": "timestamp",
+          "name": "minute",
+          "field": "timestamp",
+          "type": "DateTime",
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator", "max-operator", "min-operator"]
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "measureName": "count-distinct-operator",
+          "type": "Count",
+          "configuration": {
+            "distinctFields": "wordsN"
+          }
+        },
+        {
+          "measureName": "sum-operator",
+          "type": "Sum",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "measureName": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "measureName": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        }
+      ]
     }
   ],
   "outputs": [

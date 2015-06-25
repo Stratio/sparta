@@ -25,56 +25,28 @@
       }
     }
   ],
-  "fields": [
-    {
-      "name": "company_root"
-    },
-    {
-      "name": "ou_vehicle"
-    },
-    {
-      "name": "asset"
-    },
-    {
-      "name": "recorded_at_ms",
-      "type": "DateTime"
-    },
-    {
-      "name": "geo",
-      "type": "GeoHash"
-    },
-    {
-      "name": "rpm_event_avg"
-    },
-    {
-      "name": "odometer"
-    },
-    {
-      "name": "odometerNum"
-    },
-    {
-      "name": "rpmAvgNum"
-    },
-    {
-      "name": "path_id"
-    }
-  ],
   "cubes": [
     {
       "name": "rpmAvg",
       "dimensions": [
         {
-          "dimension": "company_root"
+          "name": "company_root",
+          "field": "company_root"
         },
         {
-          "dimension": "ou_vehicle"
+          "name": "ou_vehicle",
+          "field": "ou_vehicle"
         },
         {
-          "dimension": "geo",
+          "name": "geo",
+          "field": "geo",
+          "type": "GeoHash",
           "precision": "precision3"
         },
         {
-          "dimension": "recorded_at_ms",
+          "name": "recorded_at_ms",
+          "field": "recorded_at_ms",
+          "type": "DateTime",
           "precision": "minute"
         }
       ],
@@ -92,20 +64,26 @@
       "name": "maxMinOdometer",
       "dimensions": [
         {
-          "dimension": "company_root"
+          "name": "company_root",
+          "field": "company_root"
         },
         {
-          "dimension": "ou_vehicle"
+          "name": "ou_vehicle",
+          "field": "ou_vehicle"
         },
         {
-          "dimension": "asset"
+          "name": "asset",
+          "field": "asset"
         },
         {
-          "dimension": "recorded_at_ms",
+          "name": "recorded_at_ms",
+          "field": "recorded_at_ms",
+          "type": "DateTime",
           "precision": "minute"
         },
         {
-          "dimension": "path_id"
+          "name": "path_id",
+          "field": "path_id"
         }
       ],
 
@@ -123,7 +101,6 @@
             "inputField": "odometer"
           }
         }
-
       ]
     }
   ],
@@ -139,16 +116,19 @@
       }
     }
   ],
-
-  "parsers": [
+  "transformations": [
     {
       "name": "detector-parser",
+      "order": 1,
       "type": "Detector",
       "configuration": {
       }
     },
     {
       "name": "recorded_at_ms-parser",
+      "inputField": "recorded_at_ms",
+      "outputFields": ["recorded_at_ms"],
+      "order": 2,
       "type": "DateTime",
       "configuration": {
         "recorded_at_ms": "unixMillis"
