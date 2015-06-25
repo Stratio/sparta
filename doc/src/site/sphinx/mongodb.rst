@@ -56,7 +56,7 @@ There are two types of indexes:
               "_id" : 1
             },
             "name" : "_id_",
-            "ns" : "sparkta.precision3_hastags_retweets_minute"
+            "ns" : "sparkta.precision3_hashtags_retweets_minute"
           },
           {
             "v" : 1,
@@ -65,7 +65,7 @@ There are two types of indexes:
               "_ftsx" : 1
             },
             "name" : "userLocation",
-            "ns" : "sparkta.precision3_hastags_retweets_minute",
+            "ns" : "sparkta.precision3_hashtags_retweets_minute",
             "background" : true,
             "default_language" : "english",
             "weights" : {
@@ -82,7 +82,7 @@ There are two types of indexes:
               "minute" : 1
             },
             "name" : "id_minute",
-            "ns" : "sparkta.precision3_hastags_retweets_minute",
+            "ns" : "sparkta.precision3_hashtags_retweets_minute",
             "background" : true
           }
         ]
@@ -105,14 +105,14 @@ Below you can see each of the features implemented:
       - Example: (with multiplexer)
       ::
 
-          hastags_minute
-          hastags_retweets_minute
-          hastags_retweets_urls_minute
-          hastags_urls_minute
-          precision3_hastags_minute
-          precision3_hastags_retweets_minute
-          precision3_hastags_retweets_urls_minute
-          precision3_hastags_urls_minute
+          hashtags_minute
+          hashtags_retweets_minute
+          hashtags_retweets_urls_minute
+          hashtags_urls_minute
+          precision3_hashtags_minute
+          precision3_hashtags_retweets_minute
+          precision3_hashtags_retweets_urls_minute
+          precision3_hashtags_urls_minute
           precision3_minute
           precision3_retweets_minute
           precision3_retweets_urls_minute

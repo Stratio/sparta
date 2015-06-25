@@ -88,3 +88,4 @@ will write it into RabbitMQ. In a few seconds SpaRkTA will start to read the dat
 
     mvn -PvisitLog clean install benerator:generate
 
+
