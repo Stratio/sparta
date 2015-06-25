@@ -1,0 +1,147 @@
+{
+  "name": "ATSocketElasticsearch",
+  "sparkStreamingWindow": 2000,
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 600000000000
+  },
+  "inputs": [
+    {
+      "name": "in-socket",
+      "type": "Socket",
+      "configuration": {
+        "hostname": "localhost",
+        "port": "10666"
+      }
+    }
+  ],
+  "fields": [
+    {
+      "name": "smfProcess"
+    },
+    {
+      "name": "millis",
+      "type": "DateTime",
+      "configuration": {
+        "typeOp": "String"
+      }
+    }
+  ],
+  "cubes": [
+    {
+      "name": "cubeSmfProcess",
+      "dimensions": [
+        {
+          "dimension": "smfProcess"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
+    },
+    {
+      "name": "cubeMillis",
+      "dimensions": [
+        {
+          "dimension": "millis",
+          "precision": "minute"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-elasticsearch",
+      "type": "ElasticSearch",
+      "configuration": {
+        "nodes": "localhost",
+        "defaultPort": "9200",
+        "multiplexer": "false",
+        "isAutoCalculateId": "true",
+        "indexMapping": "day"
+      }
+    }
+  ],
+  "parsers": [
+    {
+      "name": "morphline",
+      "type": "Morphlines",
+      "configuration": {
+        "morphline": {
+          "id": "morphline1",
+          "importCommands": [
+            "org.kitesdk.**",
+            "com.stratio.ingestion.morphline.**"
+          ],
+          "commands": [
+            {
+              "readJson": {}
+            },
+            {
+              "extractJsonPaths": {
+                "paths": {
+                  "tpe": "/tpe",
+                  "smfProcess": "/smfProcess/cod",
+                  "millis": "/timeStamp/millis"
+                }
+              }
+            },
+            {
+              "removeFields": {
+                "blacklist": [
+                  "literal:_attachment_body"
+                ]
+              }
+            },
+            {
+              "if": {
+                "conditions": [
+                  {
+                    "not": {
+                      "equals": {
+                        "tpe": [
+                          "A"
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "then": [
+                  {
+                    "dropRecord": {}
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "recorded_at_ms-parser",
+      "type": "DateTime",
+      "configuration": {
+        "millis": "unixMillis"
+      }
+    }
+  ]
+}
