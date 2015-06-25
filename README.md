@@ -75,7 +75,7 @@ Architecture
 Sparkta overview
 ------------
 
-![Settings Window](https://github.com/Brezyll/sparkta/blob/master/doc/src/site/sphinx/images/sparkta1.png)
+![Architecture](./doc/src/site/sphinx/images/sparkta1.png)
 
 Key technologies
 ------------
@@ -95,7 +95,7 @@ Key technologies
 - [KiteSDK (morphlines)] (http://kitesdk.org/docs/current)
 
 
-![Settings Window](https://github.com/Brezyll/sparkta/blob/feature/Doc/doc/src/site/sphinx/images/Inoutputs.png)
+![Input/Outputs](./doc/src/site/sphinx/images/Inoutputs.png)
 
 Inputs
 ------------
