@@ -52,10 +52,6 @@
           "field": "userLocation"
         },
         {
-          "name": "wordsN",
-          "field": "wordsN"
-        },
-        {
           "name": "precision3",
           "field": "geolocation",
           "type": "GeoHash",

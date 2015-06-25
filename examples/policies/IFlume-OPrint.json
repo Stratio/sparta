@@ -24,9 +24,29 @@
       }
     }
   ],
-  "fields": [
+  "transormations": [
     {
-      "name": "message"
+      "name": "morphline",
+      "order": 0,
+      "outputFields": [
+        "message"
+      ],
+      "type": "Morphlines",
+      "configuration": {
+        "morphline": {
+          "id": "test1",
+          "importCommands": [
+            "org.kitesdk.**"
+          ],
+          "commands": [
+            {
+              "readLine": {
+                "charset": "UTF-8"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "cubes": [
@@ -34,7 +54,8 @@
       "name": "messages",
       "dimensions": [
         {
-          "dimension": "message"
+          "field": "message",
+          "name": "message"
         }
       ],
       "operators": [
@@ -53,27 +74,6 @@
       "configuration": {
         "multiplexer": "true",
         "isAutoCalculateId": "true"
-      }
-    }
-  ],
-  "parsers": [
-    {
-      "name": "morphline",
-      "type": "Morphlines",
-      "configuration": {
-        "morphline": {
-          "id": "test1",
-          "importCommands": [
-            "org.kitesdk.**"
-          ],
-          "commands": [
-            {
-              "readLine": {
-                "charset": "UTF-8"
-              }
-            }
-          ]
-        }
       }
     }
   ]

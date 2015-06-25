@@ -98,7 +98,7 @@ class DetectorParser(name: String,
     })
 
     val parsedEvent = event match {
-      case Some(x) => new Event(x.keyMap ++ data.keyMap)
+      case Some(x) => new Event(data.keyMap ++ x.keyMap)
       case None => data
     }
     if (!parsedEvent.keyMap.get("alarm_code").getOrElse("1").equals(0.0)) new Event(Map(), None)

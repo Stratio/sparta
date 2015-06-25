@@ -143,13 +143,6 @@
           "configuration": {
             "inputField": "retweets"
           }
-        },
-        {
-          "measureName": "accumulator-operator",
-          "type": "Accumulator",
-          "configuration": {
-            "inputField": "wordsN"
-          }
         }
       ]
     }

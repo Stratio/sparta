@@ -52,10 +52,6 @@
           "field": "userLocation"
         },
         {
-          "name": "wordsN",
-          "field": "wordsN"
-        },
-        {
           "name": "precision3",
           "field": "geolocation",
           "type": "GeoHash",
@@ -118,12 +114,12 @@
       "name": "out-mongo",
       "elementType": "MongoDbOutput",
       "configuration": {
-        "clientUri" : "mongodb://localhost:27017",
-        "dbName" : "sparkta",
-        "multiplexer" : "false",
-        "textIndexFields" : "userLocation",
-        "fieldsSeparator" : ",",
-        "language" : "english"
+        "clientUri": "mongodb://localhost:27017",
+        "dbName": "sparkta",
+        "multiplexer": "false",
+        "textIndexFields": "userLocation",
+        "fieldsSeparator": ",",
+        "language": "english"
       }
     }
   ],

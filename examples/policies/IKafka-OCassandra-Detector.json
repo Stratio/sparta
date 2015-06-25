@@ -1,6 +1,6 @@
 {
-  "name": "ATSocketMongoDetector",
-  "sparkStreamingWindow": 2000,
+  "name": "policy-Kafka-Cassandra",
+  "sparkStreamingWindow": 6000,
   "rawData": {
     "enabled": "false",
     "partitionFormat": "day",
@@ -11,15 +11,17 @@
     "timeDimension": "minute",
     "granularity": "minute",
     "interval": 30000,
-    "timeAvailability": 6000000000
+    "timeAvailability": 60000
   },
   "inputs": [
     {
-      "name": "in-socket",
-      "type": "Socket",
+      "name": "in-kafka",
+      "type": "Kafka",
       "configuration": {
-        "hostname": "localhost",
-        "port": "10666"
+        "topics": "streaming_data",
+        "kafkaParams.zookeeper.connect": "anistal:2181",
+        "kafkaParams.group.id": "kafka-pruebas-daniel",
+        "storageLevel": "MEMORY_AND_DISK_SER_2"
       }
     }
   ],
@@ -28,16 +30,28 @@
       "name": "detector-parser",
       "order": 1,
       "type": "Detector",
+      "outputFields": [
+        "company_root",
+        "ou_vehicle",
+        "recorded_at_ms",
+        "geo",
+        "rpm_event_avg",
+        "asset",
+        "odometer",
+        "odometerNum",
+        "rpmAvgNum",
+        "path_id"
+      ],
       "configuration": {}
     },
     {
       "name": "recorded_at_ms-parser",
+      "order": 2,
+      "type": "DateTime",
       "inputField": "recorded_at_ms",
       "outputFields": [
         "recorded_at_ms"
       ],
-      "order": 2,
-      "type": "DateTime",
       "configuration": {
         "recorded_at_ms": "unixMillis"
       }
@@ -45,7 +59,7 @@
   ],
   "cubes": [
     {
-      "name": "rpmAvg",
+      "name": "testCube1",
       "dimensions": [
         {
           "name": "company_root",
@@ -56,13 +70,13 @@
           "field": "ou_vehicle"
         },
         {
-          "name": "geo",
+          "name": "precision12",
           "field": "geo",
           "type": "GeoHash",
-          "precision": "precision3"
+          "precision": "precision12"
         },
         {
-          "name": "recorded_at_ms",
+          "name": "minute",
           "field": "recorded_at_ms",
           "type": "DateTime",
           "precision": "minute"
@@ -73,13 +87,13 @@
           "measureName": "avg-operator",
           "type": "Avg",
           "configuration": {
-            "inputField": "rpm_event_avg"
+            "inputField": "rpmAvgNum"
           }
         }
       ]
     },
     {
-      "name": "maxMinOdometer",
+      "name": "testCube2",
       "dimensions": [
         {
           "name": "company_root",
@@ -109,14 +123,21 @@
           "measureName": "max-operator",
           "type": "Max",
           "configuration": {
-            "inputField": "odometer"
+            "inputField": "odometerNum"
           }
         },
         {
           "measureName": "min-operator",
           "type": "Min",
           "configuration": {
-            "inputField": "odometer"
+            "inputField": "odometerNum"
+          }
+        },
+        {
+          "measureName": "range-operator",
+          "type": "Range",
+          "configuration": {
+            "inputField": "odometerNum"
           }
         }
       ]
@@ -124,12 +145,10 @@
   ],
   "outputs": [
     {
-      "name": "out-mongo",
-      "type": "MongoDb",
+      "name": "out-print",
+      "type": "Print",
       "configuration": {
-        "clientUri": "mongodb://localhost:60000",
-        "dbName": "csvtest",
-        "multiplexer": "false"
+        "isAutoCalculateId": "true"
       }
     }
   ]

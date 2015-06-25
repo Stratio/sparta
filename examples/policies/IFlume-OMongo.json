@@ -25,255 +25,10 @@
       }
     }
   ],
-  "fields": [
-    {
-      "name": "appName"
-    },
-    {
-      "name": "appCountry"
-    },
-    {
-      "name": "appPlatform"
-    },
-    {
-      "name": "appVersion"
-    },
-    {
-      "name": "device"
-    },
-    {
-      "name": "osVersion"
-    },
-    {
-      "name": "lang"
-    },
-    {
-      "name": "appLang"
-    },
-    {
-      "type": "DateTime",
-      "name": "timestamp"
-    },
-    {
-      "name": "session"
-    },
-    {
-      "name": "extra1"
-    },
-    {
-      "name": "extra2"
-    },
-    {
-      "name": "extra3"
-    },
-    {
-      "name": "source"
-    },
-    {
-      "name": "environment"
-    },
-    {
-      "name": "platform"
-    },
-    {
-      "dimensionType": "GeoHash",
-      "name": "geo"
-    }
-  ],
-  "cubes": [
-    {
-      "name": "extra1",
-      "dimensions": [
-        {
-          "dimension": "extra1"
-        },
-        {
-          "dimension": "timestamp",
-          "precision": "minute"
-        }
-      ],
-      "operators": [
-        {
-          "measureName": "count-operator",
-          "type": "Count",
-          "configuration": {}
-        }
-      ]
-    },
-    {
-      "name": "platform_device",
-      "dimensions": [
-        {
-          "dimension": "platform"
-        },
-        {
-          "dimension": "device"
-        },
-        {
-          "dimension": "timestamp",
-          "precision": "minute"
-        }
-      ],
-      "operators": [
-        {
-          "measureName": "count-operator",
-          "type": "Count",
-          "configuration": {}
-        }
-      ]
-    },
-    {
-      "name": "appname",
-      "dimensions": [
-        {
-          "dimension": "appName"
-        }
-      ],
-      "operators": [
-        {
-          "measureName": "count-operator",
-          "type": "Count",
-          "configuration": {}
-        }
-      ]
-    },
-    {
-      "name": "session",
-      "dimensions": [
-        {
-          "dimension": "session"
-        },
-        {
-          "dimension": "timestamp",
-          "precision": "minute"
-        }
-      ],
-      "operators": [
-        {
-          "measureName": "count-operator",
-          "type": "Count",
-          "configuration": {}
-        }
-      ]
-    },
-    {
-      "name": "applang",
-      "dimensions": [
-        {
-          "dimension": "appLang"
-        },
-        {
-          "dimension": "timestamp",
-          "precision": "minute"
-        }
-      ],
-      "operators": [
-        {
-          "measureName": "count-operator",
-          "type": "Count",
-          "configuration": {}
-        }
-      ]
-    },
-    {
-      "name": "geo",
-      "dimensions": [
-        {
-          "dimension": "geo",
-          "precision": "precision6"
-        }
-      ],
-      "operators": [
-        {
-          "measureName": "count-operator",
-          "type": "Count",
-          "configuration": {}
-        }
-      ]
-    },
-    {
-      "name": "appCountry",
-      "dimensions": [
-        {
-          "dimension": "appCountry"
-        },
-        {
-          "dimension": "timestamp",
-          "precision": "minute"
-        }
-      ],
-      "operators": [
-        {
-          "measureName": "count-operator",
-          "type": "Count",
-          "configuration": {}
-        }
-      ]
-    },
-    {
-      "name": "appPlatform_time",
-      "dimensions": [
-        {
-          "dimension": "appPlatform"
-        },
-        {
-          "dimension": "timestamp",
-          "precision": "minute"
-        }
-      ],
-      "operators": [
-        {
-          "measureName": "count-operator",
-          "type": "Count",
-          "configuration": {}
-        }
-      ]
-    },
-    {
-      "name": "appPlatform_time",
-      "dimensions": [
-        {
-          "dimension": "appPlatform"
-        }
-      ],
-      "operators": [
-        {
-          "measureName": "count-operator",
-          "type": "Count",
-          "configuration": {}
-        }
-      ]
-    },
-    {
-      "name": "appCountry",
-      "dimensions": [
-        {
-          "dimension": "appCountry"
-        }
-      ],
-      "operators": [
-        {
-          "measureName": "count-operator",
-          "type": "Count",
-          "configuration": {}
-        }
-      ]
-    }
-  ],
-  "outputs": [
-    {
-      "name": "out-mongo",
-      "type": "MongoDb",
-      "configuration": {
-        "clientUri": "mongodb://localhost:27017",
-        "dbName": "sparkta",
-        "multiplexer": "false"
-      }
-    }
-  ],
-  "parsers": [
+  "transformations": [
     {
       "name": "morphline-parser",
+      "order": 0,
       "type": "Morphlines",
       "configuration": {
         "morphline": {
@@ -284,7 +39,9 @@
           ],
           "commands": [
             {
-              "readJson": {}
+              "readJson": {
+
+              }
             },
             {
               "extractJsonPaths": {
@@ -334,9 +91,248 @@
     },
     {
       "name": "datetime",
+      "order": 1,
+      "inputField": "timestamp",
+      "outputFields": [
+        "timestamp"
+      ],
       "type": "DateTime",
       "configuration": {
         "timestamp": "unix"
+      }
+    }
+  ],
+  "cubes": [
+    {
+      "name": "extra1",
+      "dimensions": [
+        {
+          "name": "extra1",
+          "field": "extra1"
+        },
+        {
+          "field": "timestamp",
+          "precision": "minute",
+          "type": "DateTime",
+          "name": "minute"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {
+
+          }
+        }
+      ]
+    },
+    {
+      "name": "platform_device",
+      "dimensions": [
+        {
+          "name": "platform",
+          "field": "platform"
+        },
+        {
+          "name": "device",
+          "field": "device"
+        },
+        {
+          "dimension": "timestamp",
+          "precision": "minute",
+          "name": "minute"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {
+
+          }
+        }
+      ]
+    },
+    {
+      "name": "appname",
+      "dimensions": [
+        {
+          "field": "appName",
+          "name": "appName"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {
+
+          }
+        }
+      ]
+    },
+    {
+      "name": "session",
+      "dimensions": [
+        {
+          "name": "session",
+          "field": "session"
+        },
+        {
+          "dimension": "timestamp",
+          "precision": "minute",
+          "type": "DateTime",
+          "name": "minute"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {
+
+          }
+        }
+      ]
+    },
+    {
+      "name": "applang",
+      "dimensions": [
+        {
+          "name": "appLang",
+          "field": "appLang"
+        },
+        {
+          "name": "timestamp",
+          "type": "DateTime",
+          "field": "timestamp",
+          "precision": "minute"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {
+
+          }
+        }
+      ]
+    },
+    {
+      "name": "geo",
+      "dimensions": [
+        {
+          "field": "geo",
+          "type": "GeoHash",
+          "precision": "precision6",
+          "name": "precision6"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {
+
+          }
+        }
+      ]
+    },
+    {
+      "name": "appCountry",
+      "dimensions": [
+        {
+          "name": "appCountry",
+          "field": "appCountry"
+        },
+        {
+          "dimension": "timestamp",
+          "precision": "minute",
+          "type": "DateTime",
+          "name": "minute"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {
+
+          }
+        }
+      ]
+    },
+    {
+      "name": "appPlatform_time",
+      "dimensions": [
+        {
+          "name": "appPlatform",
+          "field": "appPlatform"
+        },
+        {
+          "dimension": "timestamp",
+          "precision": "minute",
+          "type": "DateTime",
+          "name": "minute"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {
+
+          }
+        }
+      ]
+    },
+    {
+      "name": "appPlatform_time",
+      "dimensions": [
+        {
+          "name": "appPlatform",
+          "field": "appPlatform"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {
+
+          }
+        }
+      ]
+    },
+    {
+      "name": "appCountry",
+      "dimensions": [
+        {
+          "name": "appCountry",
+          "field": "appCountry"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {
+
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-mongo",
+      "type": "MongoDb",
+      "configuration": {
+        "clientUri": "mongodb://localhost:27017",
+        "dbName": "sparkta"
+
       }
     }
   ]
