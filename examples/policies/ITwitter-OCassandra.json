@@ -25,6 +25,36 @@
       }
     }
   ],
+  "fields": [
+    {
+      "type": "TwitterStatus",
+      "name": "status",
+      "configuration": {
+        "typeOp": "string",
+        "hastags": "int",
+        "firsthastag": "string",
+        "retweets": "int",
+        "urls": "int"
+      }
+    },
+    {
+      "name": "userLocation"
+    },
+    {
+      "name": "wordsN"
+    },
+    {
+      "type": "DateTime",
+      "name": "timestamp"
+    },
+    {
+      "type": "GeoHash",
+      "name": "geolocation",
+      "configuration": {
+        "typeOp": "arraydouble"
+      }
+    }
+  ],
   "cubes": [
     {
       "name": "testCube",

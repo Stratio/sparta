@@ -201,7 +201,7 @@ Example:
         "dimensions": [
           {
             "dimensionName": "status",
-            "precision": "hastags"
+            "precision": "hashtags"
           }
         ],
         "operators": ["count-operator","avg-operator"]
