@@ -26,8 +26,8 @@
       "name": "status",
       "configuration": {
         "typeOp": "string",
-        "hastags": "int",
-        "firsthastag": "string",
+        "hashtags": "int",
+        "firsthashtag": "string",
         "retweets": "int",
         "urls": "int"
       }

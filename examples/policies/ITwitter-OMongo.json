@@ -22,7 +22,7 @@
         "consumerSecret": "ajk1ORBIQ8YqkJBodqLTpDLHiOQbGGJMjaO7qPiRpoGX7Y3w3i",
         "accessToken": "3216698842-aJMrjTpyntyyG4AySmOnGfFohbS7yEbi1ST6bK7",
         "accessTokenSecret": "l3AsZGnWv2RwOzEy3L5FWWyEiCVtWtQS9ruddun6g8kiy",
-        "termsOfSearch":"hoollyk,djimn"
+        "termsOfSearch":"#hekj,prlk,#drm"
       }
     }
   ],
@@ -32,8 +32,8 @@
       "name": "status",
       "configuration": {
         "typeOp": "string",
-        "hastags": "int",
-        "firsthastag": "string",
+        "hashtags": "int",
+        "firsthashtag": "string",
         "retweets": "int",
         "urls": "int"
       }
@@ -62,11 +62,11 @@
       "dimensions": [
         {
           "dimension": "status",
-          "precision": "hastags"
+          "precision": "hashtags"
         },
         {
           "dimension": "status",
-          "precision": "firsthastag"
+          "precision": "firsthashtag"
         },
         {
           "dimension": "status",
@@ -74,9 +74,6 @@
         },
         {
           "dimension": "userLocation"
-        },
-        {
-          "dimension": "wordsN"
         },
         {
           "dimension": "geolocation",
@@ -93,13 +90,7 @@
           "type": "Count",
           "configuration": {}
         },
-        {
-          "measureName": "count-distinct-operator",
-          "type": "Count",
-          "configuration": {
-            "distinctFields": "wordsN"
-          }
-        },
+
         {
           "measureName": "sum-operator",
           "type": "Sum",
@@ -136,38 +127,10 @@
           }
         },
         {
-          "measureName": "variance-operator",
-          "type": "Variance",
-          "configuration": {
-            "inputField": "wordsN"
-          }
-        },
-        {
-          "measureName": "stddev-operator",
-          "type": "Stddev",
-          "configuration": {
-            "inputField": "wordsN"
-          }
-        },
-        {
           "measureName": "fullText-operator",
           "type": "FullText",
           "configuration": {
             "inputField": "userLocation"
-          }
-        },
-        {
-          "measureName": "lastValue-operator",
-          "type": "LastValue",
-          "configuration": {
-            "inputField": "retweets"
-          }
-        },
-        {
-          "measureName": "accumulator-operator",
-          "type": "Accumulator",
-          "configuration": {
-            "inputField": "wordsN"
           }
         }
       ]

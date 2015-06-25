@@ -41,7 +41,7 @@ with JSerializable with SLF4JLogging {
     Map(
       TextName -> getPrecision(TextName, getTypeOperation(TextName)),
       ContributorsName -> getPrecision(ContributorsName, getTypeOperation(ContributorsName)),
-      HastagsName -> getPrecision(HastagsName, getTypeOperation(HastagsName)),
+      HashtagsName -> getPrecision(HashtagsName, getTypeOperation(HashtagsName)),
       FirstHastagName -> getPrecision(FirstHastagName, getTypeOperation(FirstHastagName)),
       PlacesName -> getPrecision(PlacesName, getTypeOperation(PlacesName)),
       RetweetsName -> getPrecision(RetweetsName, getTypeOperation(RetweetsName)),
@@ -64,8 +64,8 @@ object TwitterStatusField {
 
   final val TextName = "text"
   final val ContributorsName = "contributors"
-  final val HastagsName = "hastags"
-  final val FirstHastagName = "firsthastag"
+  final val HashtagsName = "hashtags"
+  final val FirstHastagName = "firsthashtag"
   final val PlacesName = "places"
   final val RetweetsName = "retweets"
   final val UrlsName = "urls"
@@ -80,10 +80,10 @@ object TwitterStatusField {
   def getPrecision(value: Status, precision: Precision): JSerializable = {
     val getText: JSerializable = value.getText
     val getContributors: JSerializable = if (value.getContributors != null) value.getContributors.toString else ""
-    val getHastags: JSerializable = if (value.getHashtagEntities != null)
+    val getHashtags: JSerializable = if (value.getHashtagEntities != null)
       value.getHashtagEntities.map(_.getText).length
     else 0
-    val getFirstHastag: JSerializable = if ((value.getHashtagEntities != null) && value.getHashtagEntities.length > 0)
+    val getFirstHashtag: JSerializable = if ((value.getHashtagEntities != null) && value.getHashtagEntities.length > 0)
       value.getHashtagEntities.head.getText
     else ""
     val getPlaces: JSerializable = if (value.getPlace != null) value.getPlace.getFullName else ""
@@ -100,8 +100,8 @@ object TwitterStatusField {
     (precision.id match {
       case a if a == TextName => getText
       case c if c == ContributorsName => getContributors
-      case h if h == HastagsName => getHastags
-      case h if h == FirstHastagName => getFirstHastag
+      case h if h == HashtagsName => getHashtags
+      case h if h == FirstHastagName => getFirstHashtag
       case p if p == PlacesName => getPlaces
       case r if r == RetweetsName => getRetweets
       case u if u == UrlsName => getUrls
@@ -117,7 +117,7 @@ object TwitterStatusField {
   //scalastyle:on
 
   override def toString: String = s"TwitterStatusBucketer(" +
-    s"text=$TextName, contributors=$ContributorsName, hastags=$HastagsName, firsthastag=$FirstHastagName" +
+    s"text=$TextName, contributors=$ContributorsName, hashtags=$HashtagsName, firsthashtag=$FirstHastagName" +
     s" places=$PlacesName, retweets=$RetweetsName, urls=$UrlsName, mentions=$MentionsName," +
     s" words=$WordsName, location=$LocationName, name=$NameName, language=$LanguageName)"
 }
