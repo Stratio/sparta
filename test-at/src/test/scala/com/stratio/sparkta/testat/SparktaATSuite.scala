@@ -107,14 +107,17 @@ with Matchers {
   /**
    * This is a workaround to find the jars either in the IDE or in a maven execution.
    * This test should be moved to acceptance tests when available
+   * TODO: this is a unicorn shit and must be changed.
    */
   def getSparktaHome: String = {
-    val fileForIde = new File(".", "plugins")
+    var fileForIde = new File(".", "plugins")
 
     if (fileForIde.exists()) {
       new File(".").getCanonicalPath
-    } else {
+    } else if(new File("../.", "plugins").exists()) {
       new File("../.").getCanonicalPath
+    } else {
+      new File("../../.").getCanonicalPath
     }
   }
 
