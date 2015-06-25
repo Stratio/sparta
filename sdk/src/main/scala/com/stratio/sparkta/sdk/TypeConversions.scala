@@ -40,7 +40,7 @@ trait TypeConversions {
   def getResultType(typeOperation: String): Option[TypeOp] =
     if (!typeOperation.isEmpty) {
       operationProps.get(typeOperation) match {
-        case Some(operation) => Some(getTypeOperationByName(operation.asInstanceOf[String], defaultTypeOperation))
+        case Some(operation) => Some(getTypeOperationByName(operation.toString, defaultTypeOperation))
         case None => None
       }
     } else None
