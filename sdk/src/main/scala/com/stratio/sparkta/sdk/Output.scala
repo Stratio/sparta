@@ -195,6 +195,7 @@ object Output {
   final val FixedAggregation = "fixedAggregation"
   final val FixedAggregationSeparator = ":"
   final val Multiplexer = "multiplexer"
+  final val DefaultMultiplexer = "false"
 
   def getFieldType(dateTimeType: TypeOp, fieldName: String, nullable: Boolean): StructField =
     dateTimeType match {

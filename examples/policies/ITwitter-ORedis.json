@@ -66,33 +66,33 @@
       ],
       "operators": [
         {
-          "measureName": "count-operator",
+          "name": "count-operator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "measureName": "count-distinct-operator",
+          "name": "count-distinct-operator",
           "type": "Count",
           "configuration": {
             "distinctFields": "wordsN"
           }
         },
         {
-          "measureName": "sum-operator",
+          "name": "sum-operator",
           "type": "Sum",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "max-operator",
+          "name": "max-operator",
           "type": "Max",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "min-operator",
+          "name": "min-operator",
           "type": "Min",
           "configuration": {
             "inputField": "wordsN"

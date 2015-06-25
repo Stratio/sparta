@@ -18,4 +18,4 @@ package com.stratio.sparkta.driver.dto
 
 import com.stratio.sparkta.sdk.JsoneyString
 
-case class OperatorDto(`type`: String, measureName: String, configuration: Map[String, JsoneyString])
+case class OperatorDto(`type`: String, name: String, configuration: Map[String, JsoneyString])

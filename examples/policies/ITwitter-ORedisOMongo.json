@@ -16,7 +16,7 @@
   "inputs": [
     {
       "name": "input-twitter",
-      "elementType": "Twitter",
+      "type": "Twitter",
       "configuration": {
         "consumerKey": "*****",
         "consumerSecret": "*****",
@@ -66,33 +66,33 @@
       ],
       "operators": [
         {
-          "measureName": "count-operator",
+          "name": "count-operator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "measureName": "count-distinct-operator",
+          "name": "count-distinct-operator",
           "type": "Count",
           "configuration": {
             "distinctFields": "wordsN"
           }
         },
         {
-          "measureName": "sum-operator",
+          "name": "sum-operator",
           "type": "Sum",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "max-operator",
+          "name": "max-operator",
           "type": "Max",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "min-operator",
+          "name": "min-operator",
           "type": "Min",
           "configuration": {
             "inputField": "wordsN"
@@ -104,7 +104,7 @@
   "outputs": [
     {
       "name": "out-redis",
-      "elementType": "RedisOutput",
+      "type": "Redis",
       "configuration": {
         "hostname": "localhost",
         "multiplexer": "false"
@@ -112,35 +112,14 @@
     },
     {
       "name": "out-mongo",
-      "elementType": "MongoDbOutput",
+      "type": "MongoDb",
       "configuration": {
         "clientUri": "mongodb://localhost:27017",
         "dbName": "sparkta",
-        "multiplexer": "false",
+
         "textIndexFields": "userLocation",
         "fieldsSeparator": ",",
         "language": "english"
-      }
-    }
-  ],
-  "operators": [
-    {
-      "name": "count-operator",
-      "elementType": "CountOperator",
-      "configuration": {}
-    },
-    {
-      "name": "max-operator",
-      "elementType": "MaxOperator",
-      "configuration": {
-        "inputField": "wordsN"
-      }
-    },
-    {
-      "name": "min-operator",
-      "elementType": "MinOperator",
-      "configuration": {
-        "inputField": "wordsN"
       }
     }
   ]

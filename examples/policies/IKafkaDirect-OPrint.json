@@ -60,7 +60,7 @@
       ],
       "operators": [
         {
-          "measureName": "count-operator",
+          "name": "count-operator",
           "type": "Count",
           "configuration": {}
         }
@@ -72,7 +72,7 @@
       "name": "out-print",
       "type": "Print",
       "configuration": {
-        "multiplexer": "false",
+
         "isAutoCalculateId": "true"
       }
     }

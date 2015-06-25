@@ -66,82 +66,82 @@
       ],
       "operators": [
         {
-          "measureName": "count-operator",
+          "name": "count-operator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "measureName": "count-distinct-operator",
+          "name": "count-distinct-operator",
           "type": "Count",
           "configuration": {
             "distinctFields": "wordsN"
           }
         },
         {
-          "measureName": "sum-operator",
+          "name": "sum-operator",
           "type": "Sum",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "max-operator",
+          "name": "max-operator",
           "type": "Max",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "min-operator",
+          "name": "min-operator",
           "type": "Min",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "avg-operator",
+          "name": "avg-operator",
           "type": "Avg",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "median-operator",
+          "name": "median-operator",
           "type": "Median",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "variance-operator",
+          "name": "variance-operator",
           "type": "Variance",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "stddev-operator",
+          "name": "stddev-operator",
           "type": "Stddev",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "fullText-operator",
+          "name": "fullText-operator",
           "type": "FullText",
           "configuration": {
             "inputField": "userLocation"
           }
         },
         {
-          "measureName": "lastValue-operator",
+          "name": "lastValue-operator",
           "type": "LastValue",
           "configuration": {
             "inputField": "retweets"
           }
         },
         {
-          "measureName": "accumulator-operator",
+          "name": "accumulator-operator",
           "type": "Accumulator",
           "configuration": {
             "inputField": "wordsN"
@@ -155,7 +155,7 @@
       "name": "out-csv",
       "elementType": "Csv",
       "configuration": {
-        "multiplexer": "false",
+
         "isAutoCalculateId": "false",
         "path": "/home/jcgarcia/yeah/",
         "header": "false",

@@ -30,7 +30,7 @@ import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.reflections.Reflections
 
-import com.stratio.sparkta.aggregator.{MultiCube, Cube}
+import com.stratio.sparkta.aggregator.{CubeMaker, Cube}
 import com.stratio.sparkta.driver.dto._
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory._
@@ -48,27 +48,28 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     val ssc = SparkContextFactory.sparkStreamingInstance(
       new Duration(apConfig.sparkStreamingWindow),
       apConfig.checkpointing.path).get
-    val inputs: Map[String, DStream[Event]] = SparktaJob.inputs(apConfig, ssc)
-    val parsers: Seq[Parser] = SparktaJob.parsers(apConfig)
-    val operators: Map[String, Operator] = SparktaJob.operators(apConfig)
-    val cubes: Seq[Cube] = SparktaJob.cubes(apConfig, operators)
+    val inputs = SparktaJob.inputs(apConfig, ssc)
+    val parsers = SparktaJob.parsers(apConfig).sortWith((parser1, parser2) => parser1.getOrder < parser2.getOrder)
+    val operators = SparktaJob.operators(apConfig)
+    val cubes = SparktaJob.cubes(apConfig, operators)
 
     val bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]] = {
       val opKeyOp = SchemaFactory.operatorsKeyOperation(operators.values.toSeq)
       if (opKeyOp.size > 0) Some(sc.broadcast(opKeyOp)) else None
     }
 
-    val outputsSchemaConfig: Seq[(String, Map[String, String])] = apConfig.outputs.map(o =>
+    val outputsSchemaConfig = apConfig.outputs.map(o =>
       (o.name, Map(
-        Output.Multiplexer -> Try(o.configuration.get(Output.Multiplexer).get.string).getOrElse("false"),
+        Output.Multiplexer -> Try(o.configuration.get(Output.Multiplexer).get.string)
+          .getOrElse(Output.DefaultMultiplexer),
         Output.FixedAggregation ->
           Try(o.configuration.get(Output.FixedAggregation).get.string.split(Output.FixedAggregationSeparator).head)
             .getOrElse("")
       )))
 
     val bcCubeOperatorSchema: Option[Broadcast[Seq[TableSchema]]] = {
-      val rollOpSchema = SchemaFactory.cubesOperatorsSchemas(cubes, outputsSchemaConfig)
-      if (rollOpSchema.size > 0) Some(sc.broadcast(rollOpSchema)) else None
+      val cubeOpSchema = SchemaFactory.cubesOperatorsSchemas(cubes, outputsSchemaConfig)
+      if (cubeOpSchema.size > 0) Some(sc.broadcast(cubeOpSchema)) else None
     }
     val datePrecision = if (apConfig.checkpointing.timeDimension.isEmpty) None
     else Some(apConfig.checkpointing.timeDimension)
@@ -78,8 +79,8 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     SparktaJob.saveRawData(apConfig, input)
     val parsed = SparktaJob.applyParsers(input, parsers)
 
-    val dataCube = new MultiCube(cubes, datePrecision, apConfig.checkpointing.granularity).setUp(parsed)
-    outputs.map(_._2.persist(dataCube))
+    val dataCube = new CubeMaker(cubes, datePrecision, apConfig.checkpointing.granularity).setUp(parsed)
+    outputs.foreach(_._2.persist(dataCube))
     ssc
   }
 }
@@ -90,9 +91,8 @@ object SparktaJob {
 
   @tailrec
   def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
-    val parsersSorted = parsers.sortWith((parser1, parser2) => parser1.getOrder < parser2.getOrder)
-    parsersSorted.headOption match {
-      case Some(headParser: Parser) => applyParsers(input.map(event => headParser.parse(event)), parsersSorted.drop(1))
+    parsers.headOption match {
+      case Some(headParser: Parser) => applyParsers(input.map(event => headParser.parse(event)), parsers.drop(1))
       case None => input
     }
   }
@@ -142,7 +142,7 @@ object SparktaJob {
   private def createOperator(operatorDto: OperatorDto): Operator = {
     tryToInstantiate[Operator](operatorDto.`type` + Operator.ClassSuffix,
       (c) => instantiateParameterizable[Operator](c,
-        operatorDto.configuration + (OperatorNamePropertyKey -> new JsoneyString(operatorDto.measureName))))
+        operatorDto.configuration + (OperatorNamePropertyKey -> new JsoneyString(operatorDto.name))))
   }
 
   def operators(apConfig: AggregationPoliciesDto): Map[String, Operator] =
@@ -166,25 +166,15 @@ object SparktaJob {
         .newInstance(o.name, o.configuration, sparkContext, bcOperatorsKeyOperation, bcCubeOperatorSchema, timeName)
         .asInstanceOf[Output])))
 
-  private def getOperatorsWithNames(operators: Seq[Operator], selectedOperators: Seq[String]): Seq[Operator] = {
-    operators.filter(op => {
-      val propertyTuple = Option(op.properties.filter(tuple => tuple._1.equals(OperatorNamePropertyKey)))
-
-      propertyTuple match {
-        case Some(tuple) => selectedOperators.contains(tuple.get(OperatorNamePropertyKey).get.toString)
-        case _ => false
-      }
-    })
-  }
-
   private def getOperatorKeyName(cubeName: String, operatorDto: OperatorDto): String =
-    s"$cubeName${operatorDto.measureName}"
+    s"$cubeName${operatorDto.name}"
 
   def cubes(apConfig: AggregationPoliciesDto,
             operators: Map[String, Operator]): Seq[Cube] =
     apConfig.cubes.map(cube => {
       val name = cube.name
-      val multiplexer = Try(cube.multiplexer.toBoolean).getOrElse(false)
+      val multiplexer = Try(cube.multiplexer.toBoolean)
+        .getOrElse(throw DriverException.create("The multiplexer value must be boolean"))
       val dimensions = cube.dimensions.map(dimensionDto => {
         new Dimension(dimensionDto.name,
           dimensionDto.field,

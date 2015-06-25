@@ -79,89 +79,89 @@
       ],
       "operators": [
         {
-          "measureName": "accum-operator",
+          "name": "accum-operator",
           "type": "Accumulator",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "measureName": "avg-operator",
+          "name": "avg-operator",
           "type": "Avg",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "measureName": "count-operator",
+          "name": "count-operator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "measureName": "first-value-operator",
+          "name": "first-value-operator",
           "type": "FirstValue",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "measureName": "full-text-operator",
+          "name": "full-text-operator",
           "type": "FullText",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "measureName": "last-value-operator",
+          "name": "last-value-operator",
           "type": "LastValue",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "measureName": "max-operator",
+          "name": "max-operator",
           "type": "Max",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "measureName": "median-operator",
+          "name": "median-operator",
           "type": "Median",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "measureName": "min-operator",
+          "name": "min-operator",
           "type": "Min",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "measureName": "range-operator",
+          "name": "range-operator",
           "type": "Range",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "measureName": "stddev-operator",
+          "name": "stddev-operator",
           "type": "Stddev",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "measureName": "sum-operator",
+          "name": "sum-operator",
           "type": "Sum",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "measureName": "variance-operator",
+          "name": "variance-operator",
           "type": "Variance",
           "configuration": {
             "inputField": "price"
@@ -177,7 +177,7 @@
       "configuration": {
         "nodes": "localhost",
         "defaultPort": "9200",
-        "multiplexer": "false",
+
         "isAutoCalculateId": "true",
         "indexMapping": "day"
       }

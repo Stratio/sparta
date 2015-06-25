@@ -71,7 +71,7 @@ class MultiCubeSpec extends TestSuiteBase {
       checkpointInterval,
       checkpointGranularity,
       checkpointTimeAvailability)
-    val dataCube = new MultiCube(Seq(cube), timePrecision, checkpointGranularity)
+    val dataCube = new CubeMaker(Seq(cube), timePrecision, checkpointGranularity)
     dataCube.currentCube = cube
 
     testOperation(getEventInput, dataCube.extractDimensionsStream, getEventOutput(timestamp), PreserverOrder)

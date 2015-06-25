@@ -35,7 +35,7 @@ import com.stratio.sparkta.sdk._
  * @param checkpointGranularity that will be contain the granularity to calculate the time, only if this
  *                              dimensionType is not present.
  */
-case class MultiCube(cubes: Seq[Cube],
+case class CubeMaker(cubes: Seq[Cube],
                     timePrecision: Option[String],
                     checkpointGranularity: String) {
 
@@ -44,7 +44,7 @@ case class MultiCube(cubes: Seq[Cube],
   /**
    * It builds the DataCube calculating aggregations.
    * @param inputStream with the original stream of data.
-   * @return the built DataCube.
+   * @return the built Cube.
    */
   def setUp(inputStream: DStream[Event]): Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]] = {
     cubes.map(cube => {

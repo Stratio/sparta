@@ -42,12 +42,12 @@
             ],
             "operators": [
                 {
-                    "measureName": "count-operator",
+                    "name": "count-operator",
                     "type": "Count",
                     "configuration": {}
                 },
                 {
-                    "measureName": "max-operator",
+                    "name": "max-operator",
                     "type": "Max",
                     "configuration": {
                         "inputField": "user_followersCount"
@@ -65,12 +65,12 @@
             ],
             "operators": [
                 {
-                    "measureName": "count-operator",
+                    "name": "count-operator",
                     "type": "Count",
                     "configuration": {}
                 },
                 {
-                    "measureName": "max-operator",
+                    "name": "max-operator",
                     "type": "Max",
                     "configuration": {
                         "inputField": "user_followersCount"
@@ -93,12 +93,12 @@
             ],
             "operators": [
                 {
-                    "measureName": "count-operator",
+                    "name": "count-operator",
                     "type": "Count",
                     "configuration": {}
                 },
                 {
-                    "measureName": "max-operator",
+                    "name": "max-operator",
                     "type": "Max",
                     "configuration": {
                         "inputField": "user_followersCount"
@@ -116,12 +116,12 @@
             ],
             "operators": [
                 {
-                    "measureName": "count-operator",
+                    "name": "count-operator",
                     "type": "Count",
                     "configuration": {}
                 },
                 {
-                    "measureName": "max-operator",
+                    "name": "max-operator",
                     "type": "Max",
                     "configuration": {
                         "inputField": "user_followersCount"
@@ -136,8 +136,7 @@
             "type": "MongoDb",
             "configuration": {
                 "clientUri": "mongodb://localhost:27017",
-                "dbName": "sparkta",
-                "multiplexer": "false"
+                "dbName": "sparkta"
             }
         }
     ],

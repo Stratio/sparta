@@ -84,7 +84,7 @@
       ],
       "operators": [
         {
-          "measureName": "avg-operator",
+          "name": "avg-operator",
           "type": "Avg",
           "configuration": {
             "inputField": "rpmAvgNum"
@@ -120,21 +120,21 @@
       ],
       "operators": [
         {
-          "measureName": "max-operator",
+          "name": "max-operator",
           "type": "Max",
           "configuration": {
             "inputField": "odometerNum"
           }
         },
         {
-          "measureName": "min-operator",
+          "name": "min-operator",
           "type": "Min",
           "configuration": {
             "inputField": "odometerNum"
           }
         },
         {
-          "measureName": "range-operator",
+          "name": "range-operator",
           "type": "Range",
           "configuration": {
             "inputField": "odometerNum"

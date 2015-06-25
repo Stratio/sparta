@@ -74,16 +74,16 @@ case class GeoHashField(props: Map[String, JSerializable])
   //scalastyle:on
 
   override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) =
-    //TODO temporal data treatment
     try {
       if (value.asInstanceOf[Option[_]] != None) {
         val precisionKey = precision(keyName)
-        val latLongString = value.asInstanceOf[Option[_]].get.asInstanceOf[String].split("__")
-        if (latLongString.size != 0) {
-          val latDouble = latLongString(0).toDouble
-          val longDouble = latLongString(1).toDouble
-          (precisionKey, GeoHashField.getPrecision(latDouble, longDouble, precisionKey))
-        } else (precisionKey, "")
+        val latLongArray = value.asInstanceOf[Option[_]].get.asInstanceOf[String]
+            .split(properties.get(GeoHashField.LatLongKey).getOrElse(GeoHashField.LatLongSepartor).toString)
+        latLongArray match {
+          case latLong if latLong.size == 2 =>
+            (precisionKey, GeoHashField.getPrecision(latLong(0).toDouble, latLong(1).toDouble, precisionKey))
+          case _ => (precisionKey, "")
+        }
       } else {
         val defaultPrecision = getPrecision(Precision3Name, getTypeOperation(Precision3Name))
         (defaultPrecision, GeoHashField.getPrecision(0, 0, defaultPrecision))
@@ -116,6 +116,8 @@ object GeoHashField {
   final val Precision10Name = "precision10"
   final val Precision11Name = "precision11"
   final val Precision12Name = "precision12"
+  final val LatLongSepartor = "__"
+  final val LatLongKey = "separator"
 
   //scalastyle:off
   def getPrecision(lat: Double, long: Double, precision: Precision): JSerializable = {

@@ -79,14 +79,14 @@
       ],
       "operators": [
         {
-          "measureName": "sum-operator",
+          "name": "sum-operator",
           "type": "Sum",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "measureName": "avg-operator",
+          "name": "avg-operator",
           "type": "Avg",
           "configuration": {
             "inputField": "price"
@@ -102,7 +102,7 @@
       "configuration": {
         "nodes": "localhost",
         "defaultPort": "9200",
-        "multiplexer": "false",
+
         "isAutoCalculateId": "true",
         "indexMapping": "day"
       }
