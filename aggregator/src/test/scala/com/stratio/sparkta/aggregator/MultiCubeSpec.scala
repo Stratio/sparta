@@ -42,12 +42,15 @@ class MultiCubeSpec extends TestSuiteBase {
     This test should produce Seq[(Seq[DimensionValue], Map[String, JSerializable])] with values:
 
     List(
-     (List(DimensionValue(
-       Dimension(eventKey,DefaultDimension()),PrecisionType(identity,Map()),value1)),Map(eventKey -> value1)),
-     (List(DimensionValue(
-       Dimension(eventKey,DefaultDimension()),PrecisionType(identity,Map()),value2)),Map(eventKey -> value2)),
-     (List(DimensionValue(
-       Dimension(eventKey,DefaultDimension()),PrecisionType(identity,Map()),value3)),Map(eventKey -> value3)))
+     ((DimensionValuesTime(Seq(DimensionValue(
+        Dimension("dim1", "eventKey", "identity", defaultDimension), "value1")), timestamp), Map("eventKey" -> "value1")
+        ),
+      (DimensionValuesTime(Seq(DimensionValue(
+        Dimension("dim1", "eventKey", "identity", defaultDimension), "value2")), timestamp), Map("eventKey" -> "value2")
+        ),
+      (DimensionValuesTime(Seq(DimensionValue(
+        Dimension("dim1", "eventKey", "identity", defaultDimension), "value3")), timestamp), Map("eventKey" -> "value3")
+        ))
    */
   test("DataCube extracts dimensions from events") {
 

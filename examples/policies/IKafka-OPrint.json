@@ -28,8 +28,8 @@
   "transformations": [
     {
       "name": "morphline",
-      "type": "Morphlines",
       "order": 0,
+      "type": "Morphlines",
       "outputFields": [
         "appName",
         "timestamp",
@@ -68,9 +68,8 @@
       "name": "testCube",
       "dimensions": [
         {
-          "name": "appName",
           "field": "appName",
-          "type": "TwitterStatus"
+          "name": "appName"
         }
       ],
       "operators": [
