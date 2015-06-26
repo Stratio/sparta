@@ -180,139 +180,65 @@ UpdateMetricOperation to Row type of Spark and identify each row with his schema
 
 For more information for this output you can visit the :doc:`cassandra`
 
-* connectionHost:
-   This parameter specifies the different seeds of a cluster of Cassandra.
-   You can omit this parameter in the policy.
 
-   * Example:
-::
-
-   "connectionHost": ("ip_seed1,ip_seed2,ip_seed3,...")  Default: "127.0.0.1"
-
-* cluster:
-   This parameter specifies the name of the cluster.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "cluster": ("CLUSTER_NAME")  Default: "Test Cluster"
-
-* keyspace:
-   This parameter specifies the name of the keyspace.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "keyspace": ("KEYSPACE_NAME")  Default: "sparkta"
-
-* keyspaceClass:
-   - SimpleStrategy:
-   Use it only for a single data center. SimpleStrategy places the first replica on a node determined by the partitioner. Additional replicas are placed on the next nodes clockwise in the cassandra's ring without considering any topology (rack or data center location).
-   - NetworkTopologyStrategy:
-   Use NetworkTopologyStrategy when you have (or plan to have) your cluster deployed across multiple data centers. This strategy specifies how many replicas you want in each data center.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "keyspaceClass": ("SimpleStrategy"/"NetworkTopologyStrategy")  Default: "SimpleStrategy"
-
-* replication_factor:
-   Required if class is SimpleStrategy; otherwise, not used. The parameter specifies the number of replicas of data on multiple nodes.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "replication_factor": ("NUMBER")  Default: "1"
-
-* compactStorage:
-   The compact storage directive is used for backward compatibility of CQL 2 applications and data in the legacy (Thrift) storage engine format. To take advantage of CQL 3 capabilities, do not use this directive in new applications. When you create a table using compound primary keys, for every piece of data stored, the column name needs to be stored along with it. Instead of each non-primary key column being stored such that each column corresponds to one column on disk, an entire row is stored in a single column on disk, hence the name compact storage.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "compactStorage": ("ANY")  Default: None
-
-* fieldsSeparator:
-   It's possible to specify the character that separate the fields in the "textIndexFields" parameter.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "fieldsSeparator": ("any_character")  Default: ","
-
-* clusteringDimensions:
-   It's possible to specify the clustering columns for the primary key.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "clusteringDimensions": ("dimension1,dimension2,dimension3...")  Default: ""
-
-* indexFields:
-   It's possible to specify the indexed fields, could be any aggregate field or clustering column field.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "indexFields": ("dimension1,dimension2,dimension3, ...")  Default: ""
-
-* textIndexFields:
-   It's possible to specify the text index fields, this feature is for the Stratio Cassandra.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "textIndexFields": ("dimension1:type,dimension2:type,dimension3:type,aggregate1:type, aggregate2:type, ...")  Default: ""
-
-      type: "string/text/date/integer/long/double/...."
-
-* analyzer:
-   It's possible to specify the analyzer for text index fields, this feature is for the Stratio Cassandra.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "analyzer": ("english"/"spanish"...)  Default: None
-
-* textIndexFieldsName:
-   It's possible to specify the name of the text index, this feature is for the Stratio Cassandra.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "textIndexFieldsName": ("NAME")  Default: "lucene"
-
-* refreshSeconds:
-   It's possible to specify the number of seconds between refresh lucene index operations, this feature is for the
-   Stratio Cassandra.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "refreshSeconds": ("NUMBER")  Default: "1"
-
-* dateFormat:
-   It's possible to specify the date format for the date fields indexed, this feature is for the
-   Stratio Cassandra.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "dateFormat": ("SimpleDateFormat")  Default: "yyyy/mm/dd"
-
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| Property              | Description                                              | Optional | Default               |
++=======================+==========================================================+==========+=======================+
+| connectionHost        | Different seeds of a cluster of Cassandra.               | Yes      | Yes                   |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| cluster               | The name of the cluster.                                 | Yes      | Yes                   |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| keyspace              | The name of the KeySpace                                 | Yes      | Yes                   |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| keyspaceClass         | The class of KeySpace.                                   | Yes      | SimpleStrategy        |
+|                       |  * SimpleStrategy: Use it only for a single data center. |          |                       |
+|                       |    SimpleStrategy places the first replica on a node     |          |                       |
+|                       |    determined by the partitioner.Additional replicas     |          |                       |
+|                       |    are placed on the next nodes clockwise in the         |          |                       |
+|                       |    cassandra's ring without considering any topology     |          |                       |
+|                       |    (rack or datacenter location).                        |          |                       |
+|                       |  * NetworkTopologyStrategy:Use NetworkTopologyStrategy   |          |                       |
+|                       |    when you have (or plan to have) your cluster deployed |          |                       |
+|                       |    across multiple data centers. This strategy specifies |          |                       |
+|                       |    how many replicas you want in each data center.       |          |                       |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| replication_factor    | Required if class is SimpleStrategy; otherwise, not used | Yes      | 1                     |
+|                       | The parameter specifies the number of replicas of data   |          |                       |
+|                       | on multiple nodes.                                       |          |                       |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| compactStorage        | The compact storage directive is used for backward       | Yes      | None                  |
+|                       | compatibility of CQL 2 applications and data in the      |          |                       |
+|                       | legacy (Thrift) storage engine format. To take advantage |          |                       |
+|                       | of CQL 3 capabilities, do not use this directive in new  |          |                       |
+|                       | applications. When you create a table using compound     |          |                       |
+|                       | primary keys, for every piece of data stored,            |          |                       |
+|                       | he column name needs to be stored along with it.         |          |                       |
+|                       | Instead of each non-primary key column being stored      |          |                       |
+|                       | such that each column corresponds to one column on disk, |          |                       |
+|                       | an entire row is stored in a single column on disk,      |          |                       |
+|                       | hence the name compact storage.                          |          |                       |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| fieldsSeparator       | The character that separate the fields in the            | Yes      | ,                     |
+|                       | "textIndexFields" parameter.                             |          |                       |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| clusteringDimensions  | Clustering columns for the primary key.                  | Yes      |                       |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| indexFields           | The indexed fields, could be any aggregate field         | Yes      |                       |
+|                       | or clustering column field.                              |          |                       |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| textIndexFields       | The text index fields, this feature is for the Stratio's | Yes      |                       |
+|                       |  Cassandra Lucene Index                                  |          |                       |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| analyzer              | The analyzer for text index fields, this feature is for  | Yes      | None                  |
+|                       | the Stratio's Cassandra Lucene Index                     |          |                       |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| refreshSeconds        | The number of seconds between refresh lucene index       | Yes      | 1                     |
+|                       | operations, this feature is for the Stratio's Cassandra  |          |                       |
+|                       | Lucene Index                                             |          |                       |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| dateFormat            | The date format for the date fields indexed, this        | Yes      | yyyy/mm/dd            |
+|                       | feature is for the Stratio's Cassandra Lucene Index      |          |                       |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
 
 .. _elasticsearch-label:
 
@@ -324,50 +250,21 @@ UpdateMetricOperation to Row type of Spark and identify each row with his schema
 
 For more information for this output you can visit the :doc:`elasticsearch`
 
-* nodes:
-   This parameter specified the different nodes of a cluster of ElasticSearch.
-   You can omit this parameter in the policy.
 
-   * Example:
-::
 
-   "connectionHost": ("ip_seed1,ip_seed2,ip_seed3,...")  Default: "localhost"
-
-* defaultPort:
-   This parameter specified the port to connect.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "defaultPort": ("PORT_NUMBER")  Default: "9200"
-
-* idField:
-   It's possible to specify the id field that contains the unique id for the row.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "idField": ("ID_NAME")  Default: "id"
-
-* indexMapping:
-   This parameter assign the mapping for the index, it's possible to auto generate mappings for the indexes with the date.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "indexMapping": ("second"/"minute"/"hour"/"day"/"month"/"year")  Default: "sparkta"
-
-* dateType:
-   It's possible to specify the type of the date fields.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "dateType": ("timestamp"/"ANY_NAME")  Default: None
++--------------------------+-----------------------------------------------+----------+
+| Property                 | Description                                   | Optional |
++==========================+===============================================+==========+
+| nodes                    | Nodes of a cluster of ElasticSearch.          | Yes      |
++--------------------------+-----------------------------------------------+----------+
+| defaultPort              | The port to connect with ElasticSearch.       | Yes      |
++--------------------------+-----------------------------------------------+----------+
+| idField                  | Field used as unique id for the row.          | Yes      |
++--------------------------+-----------------------------------------------+----------+
+| indexMapping             | Field used as mapping for the index.          | Yes      |
++--------------------------+-----------------------------------------------+----------+
+| dateType                 | The type of the date fields.                  | Yes      |
++--------------------------+-----------------------------------------------+----------+
 
 
 .. _redis-label:
@@ -412,20 +309,10 @@ The print output uses the generic implementation with DataFrames, this implement
 Parquet Configuration
 ==========
 
-The parquet output uses generic implementation of DataFrames. This output has the following parameters:
+The parquet output uses generic implementation of DataFrames.
 
-* path:
-   Destination path to store info. Required.
-
-   * Example:
-::
-
-   "path": "file:///path-to-parquet-ds"
-
-* datePattern:
-   You can specify a formatting pattern for dates. This is for split subfolders
-
-   * Example:
-::
-
-  "dateFormat": "yyyy/MM/dd" ==> "/path-to-parquet-ds/agg-name/2011/07/19/..."
++--------------------------+-----------------------------------------------+----------+
+| Property                 | Description                                   | Optional |
++==========================+===============================================+==========+
+| path                     | Destination path to store info.               | No       |
++--------------------------+-----------------------------------------------+----------+
