@@ -164,7 +164,7 @@ abstract class Output(keyName: String,
     if (fixedPrecisions.isEmpty) dimensionValuesTime
     else {
       DimensionValuesTime(dimensionValuesTime.dimensionValues.filter(dimensionValue =>
-        !fixedPrecisions.contains(dimensionValue.getNameDimension)), dimensionValuesTime.time)
+        !fixedPrecisions.contains(dimensionValue.dimensionPrecision.getNameDimension)), dimensionValuesTime.time)
     }
 
   protected def filterSchemaByKeyAndField: Seq[TableSchema] =
@@ -195,7 +195,6 @@ object Output {
   final val FixedAggregation = "fixedAggregation"
   final val FixedAggregationSeparator = ":"
   final val Multiplexer = "multiplexer"
-  final val DefaultMultiplexer = "false"
 
   def getFieldType(dateTimeType: TypeOp, fieldName: String, nullable: Boolean): StructField =
     dateTimeType match {

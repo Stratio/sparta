@@ -30,28 +30,25 @@ import com.stratio.sparkta.sdk._
  * For each cube it calculates aggregations taking the stream calculated in the previous step.
  * Finally, it returns a modified stream with pre-calculated data encapsulated in a UpdateMetricOperation.
  * This final stream will be used mainly by outputs.
+ * @param dimensions that will be contain the fields of the multicube.
  * @param cubes that will be contain how the data will be aggregate.
  * @param timePrecision that will be contain the dimensionType id that contain the date.
  * @param checkpointGranularity that will be contain the granularity to calculate the time, only if this
  *                              dimensionType is not present.
  */
-case class CubeMaker(cubes: Seq[Cube],
+case class MultiCube(dimensions: Seq[Dimension],
+                    cubes: Seq[Cube],
                     timePrecision: Option[String],
                     checkpointGranularity: String) {
-
-  var currentCube: Cube = _
 
   /**
    * It builds the DataCube calculating aggregations.
    * @param inputStream with the original stream of data.
-   * @return the built Cube.
+   * @return the built DataCube.
    */
   def setUp(inputStream: DStream[Event]): Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]] = {
-    cubes.map(cube => {
-      currentCube = cube
-      val extractedDimensionsStream = extractDimensionsStream(inputStream)
-      cube.aggregate(extractedDimensionsStream)
-    })
+    val extractedDimensionsStream = extractDimensionsStream(inputStream)
+    cubes.map(_.aggregate(extractedDimensionsStream))
   }
 
   /**
@@ -59,17 +56,18 @@ case class CubeMaker(cubes: Seq[Cube],
    * @param inputStream with the original stream of data.
    * @return a modified stream after join dimensions, cubes and operations.
    */
-  def extractDimensionsStream(inputStream: DStream[Event])
-  : DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
+  def extractDimensionsStream(inputStream: DStream[Event]):
+  DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
     inputStream.map(event => {
-        val dimensionValues = for {
-          dimension <- currentCube.dimensions
-          value <- event.keyMap.get(dimension.field).toSeq
-          (precision, dimValue) = dimension.dimensionType.precisionValue(dimension.precisionKey, value)
-        } yield DimensionValue(dimension, TypeOp.transformValueByTypeOp(precision.typeOp, dimValue))
-        val eventTime = extractEventTime(dimensionValues)
-        (DimensionValuesTime(dimensionValues, eventTime), event.keyMap)
-    })
+      val dimensionValues = for {
+        dimension <- dimensions
+        value <- event.keyMap.get(dimension.name).toSeq
+        (precision, dimValue) <- dimension.dimensionType.dimensionValues(value)
+      } yield DimensionValue(DimensionPrecision(dimension, precision),
+          TypeOp.transformValueByTypeOp(precision.typeOp, dimValue))
+      val eventTime = extractEventTime(dimensionValues)
+      (DimensionValuesTime(dimensionValues, eventTime), event.keyMap)
+    }).cache()
   }
 
   private def extractEventTime(dimensionValues: Seq[DimensionValue]) = {

@@ -22,7 +22,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, WordSpecLike}
 
 import com.stratio.sparkta.driver.dto._
-import com.stratio.sparkta.sdk.{DimensionType, JsoneyString}
+import com.stratio.sparkta.sdk.JsoneyString
 
 @RunWith(classOf[JUnitRunner])
 class AggregationPoliciesDtoSpec extends WordSpecLike
@@ -46,9 +46,8 @@ with Matchers {
 
       val cubeName = "cubeTest"
       val DimensionToCube = "dimension2"
-      val cubeDto = new CubeDto(cubeName, Seq(new DimensionDto(
-        DimensionToCube, "field1", DimensionType.IdentityName, DimensionType.DefaultDimensionClass, None)),
-        Seq())
+      val fieldDto = new FieldDto("dimensionType", "dimension1", None)
+      val cubeDto = new CubeDto(cubeName, Seq(new PrecisionDto(DimensionToCube, "dimensionType", None)), Seq())
 
       val rawDataDto = new RawDataDto()
 
@@ -57,6 +56,7 @@ with Matchers {
         sparkStreamingWindow,
         rawDataDto,
         Seq(),
+        Seq(fieldDto),
         Seq(cubeDto),
         Seq(input),
         Seq(mock[PolicyElementDto]),
@@ -65,28 +65,7 @@ with Matchers {
 
       val test = AggregationPoliciesValidator.validateDto(apd)
 
-      test._1 should equal(true)
-
-      val sparkStreamingWindowBad = 20000
-      val checkpointIntervalBad = 10000
-      val checkpointDtoBad =
-        new CheckpointDto(checkpointDir, "", checkpointGranularity, checkpointIntervalBad, checkpointAvailable)
-      val apdBad = new AggregationPoliciesDto(
-        "policy-name",
-        sparkStreamingWindowBad,
-        rawDataDto,
-        Seq(),
-        Seq(cubeDto),
-        Seq(input),
-        Seq(mock[PolicyElementDto]),
-        Seq(mock[FragmentElementDto]),
-        checkpointDtoBad)
-
-      val test2 = AggregationPoliciesValidator.validateDto(apdBad)
-
-      test2._1 should equal(false)
-
-
+      test._1 should equal(false)
     }
   }
 }

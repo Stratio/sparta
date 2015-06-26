@@ -13,41 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.stratio.sparkta.plugin.parser.split
-
-import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.{Event, Parser}
 
 import scala.util.{Failure, Success, Try}
 
-class SplitParser(name: String,
-                  order: Integer,
-                  inputField: String,
-                  outputFields: Seq[String],
-                  properties: Map[String, JSerializable])
-  extends Parser(name, order, inputField, outputFields, properties) {
-
+/**
+ * @author arincon
+ */
+class SplitParser(properties: Map[String, Serializable]) extends Parser(properties) {
+  val txtField = properties.getString(SplitParser.TextField)
   val splitter = properties.getString(SplitParser.Splitter)
   val resultField = properties.getString(SplitParser.ResultField)
 
   override def parse(data: Event): Event = {
-    val txtValue = data.keyMap.getOrElse(inputField, None)
+    val txtValue = data.keyMap.getOrElse(txtField, None)
     val splitted = txtValue match {
       case (x: String) => Try {
-        val splittedText = x.toString.split(splitter).toList
-        Map(resultField -> splittedText)
+        Map(resultField -> x.toString.split(splitter).toList)
       }
       case None => new Failure(new NoSuchElementException)
     }
-    val result = new Event(data.keyMap ++ {
-      splitted match {
-        case Success(x: Map[String, List[String]]) => x.asInstanceOf[Map[String, JSerializable]]
-        case Failure(_) => Map()
-      }
-    })
+    val result = splitted match {
+      case Success(x: Map[String, List[String]]) => new Event(data.keyMap ++ x.asInstanceOf[Map[String, Serializable]])
+      case Failure(_) => data
+    }
     result
   }
 }

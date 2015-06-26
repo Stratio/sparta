@@ -1,27 +1,27 @@
 {
-  "name": "ATSocketMongoDetector",
+  "name": "policy-kafka",
   "sparkStreamingWindow": 2000,
   "rawData": {
-    "enabled": "false",
+    "enabled": "true",
     "partitionFormat": "day",
     "path": "myTestParquetPath"
   },
-
   "checkpointing": {
     "path": "checkpoint",
     "timeDimension": "minute",
     "granularity": "minute",
     "interval": 30000,
-    "timeAvailability": 6000000000
-
+    "timeAvailability": 60000
   },
-  "inputs":  [
+  "inputs": [
     {
-      "name": "in-socket",
-      "type": "Socket",
+      "name": "in-kafka",
+      "type": "Kafka",
       "configuration": {
-        "hostname": "localhost",
-        "port": "10666"
+        "topics": "detectorStream3",
+        "kafkaParams.zookeeper.connect": "****",
+        "kafkaParams.group.id": "testgroup",
+        "storageLevel": "MEMORY_AND_DISK_SER_2"
       }
     }
   ],
@@ -36,12 +36,12 @@
       "name": "asset"
     },
     {
-      "name": "recorded_at_ms",
-      "type": "DateTime"
+      "type": "DateTime",
+      "name": "recorded_at_ms"
     },
     {
-      "name": "geo",
-      "type": "GeoHash"
+      "type": "GeoHash",
+      "name": "geo"
     },
     {
       "name": "rpm_event_avg"
@@ -61,17 +61,19 @@
   ],
   "cubes": [
     {
-      "name": "rpmAvg",
+      "name": "testCube",
       "dimensions": [
         {
           "dimension": "company_root"
+
         },
         {
           "dimension": "ou_vehicle"
+
         },
         {
           "dimension": "geo",
-          "precision": "precision3"
+          "precision": "precision12"
         },
         {
           "dimension": "recorded_at_ms",
@@ -80,62 +82,68 @@
       ],
       "operators": [
         {
-          "measureName": "avg-operator",
-          "type": "Avg",
-          "configuration": {
-            "inputField": "rpm_event_avg"
-          }
+        "measureName": "avg-operator",
+        "type": "Avg",
+        "configuration": {
+          "inputField": "rpmAvgNum"
         }
+      }
       ]
     },
     {
-      "name": "maxMinOdometer",
+      "name": "testCube1",
       "dimensions": [
         {
           "dimension": "company_root"
+
         },
         {
           "dimension": "ou_vehicle"
+
         },
         {
           "dimension": "asset"
+
         },
         {
           "dimension": "recorded_at_ms",
           "precision": "minute"
         },
         {
-          "dimension": "path_id"
+          "dimension": "path_id",
+
         }
       ],
 
-      "operators": [ {
+      "operators": [
+        {
         "measureName": "max-operator",
         "type": "Max",
         "configuration": {
-          "inputField": "odometer"
+          "inputField": "odometerNum"
         }
       },
         {
           "measureName": "min-operator",
           "type": "Min",
           "configuration": {
-            "inputField": "odometer"
+            "inputField": "odometerNum"
           }
         }
-
       ]
     }
   ],
-
   "outputs": [
     {
       "name": "out-mongo",
       "type": "MongoDb",
       "configuration": {
-        "clientUri": "mongodb://localhost:60000",
-        "dbName": "csvtest",
-        "multiplexer": "false"
+        "clientUri": "mongodb://localhost:27017",
+        "dbName": "sparkta",
+        "multiplexer": "false",
+        "granularity": "minute",
+	    "identitiesSaved": "true",
+        "idAsField": "true"
       }
     }
   ],

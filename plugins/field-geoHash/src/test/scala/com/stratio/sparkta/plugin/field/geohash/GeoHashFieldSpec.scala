@@ -32,73 +32,52 @@ class GeoHashFieldSpec extends WordSpecLike with Matchers {
 
   "A GeoHashDimension" should {
     "In default implementation, get 12 precisions for all precision sizes" in {
-      val precision1 =
-        geoHashDimension.precisionValue(GeoHashField.Precision1Name, Some("40.1__30.2").asInstanceOf[JSerializable])
-      val precision2 =
-        geoHashDimension.precisionValue(GeoHashField.Precision2Name, Some("40.1__30.2").asInstanceOf[JSerializable])
-      val precision3 =
-        geoHashDimension.precisionValue(GeoHashField.Precision3Name, Some("40.1__30.2").asInstanceOf[JSerializable])
-      val precision4 =
-        geoHashDimension.precisionValue(GeoHashField.Precision4Name, Some("40.1__30.2").asInstanceOf[JSerializable])
-      val precision5 =
-        geoHashDimension.precisionValue(GeoHashField.Precision5Name, Some("40.1__30.2").asInstanceOf[JSerializable])
-      val precision6 =
-        geoHashDimension.precisionValue(GeoHashField.Precision6Name, Some("40.1__30.2").asInstanceOf[JSerializable])
-      val precision7 =
-        geoHashDimension.precisionValue(GeoHashField.Precision7Name, Some("40.1__30.2").asInstanceOf[JSerializable])
-      val precision8 =
-        geoHashDimension.precisionValue(GeoHashField.Precision8Name, Some("40.1__30.2").asInstanceOf[JSerializable])
-      val precision9 =
-        geoHashDimension.precisionValue(GeoHashField.Precision9Name, Some("40.1__30.2").asInstanceOf[JSerializable])
-      val precision10 =
-        geoHashDimension.precisionValue(GeoHashField.Precision10Name, Some("40.1__30.2").asInstanceOf[JSerializable])
-      val precision11 =
-        geoHashDimension.precisionValue(GeoHashField.Precision11Name, Some("40.1__30.2").asInstanceOf[JSerializable])
-      val precision12 =
-        geoHashDimension.precisionValue(GeoHashField.Precision12Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+      val precisions = geoHashDimension.dimensionValues(Some("40.1__30.2").asInstanceOf[JSerializable]).map(_._1.id)
 
-      precision1._1.id should be(GeoHashField.Precision1Name)
-      precision2._1.id should be(GeoHashField.Precision2Name)
-      precision3._1.id should be(GeoHashField.Precision3Name)
-      precision4._1.id should be(GeoHashField.Precision4Name)
-      precision5._1.id should be(GeoHashField.Precision5Name)
-      precision6._1.id should be(GeoHashField.Precision6Name)
-      precision7._1.id should be(GeoHashField.Precision7Name)
-      precision8._1.id should be(GeoHashField.Precision8Name)
-      precision9._1.id should be(GeoHashField.Precision9Name)
-      precision10._1.id should be(GeoHashField.Precision10Name)
-      precision11._1.id should be(GeoHashField.Precision11Name)
-      precision12._1.id should be(GeoHashField.Precision12Name)
+      precisions.size should be(12)
+
+      precisions should contain(GeoHashField.Precision1Name)
+      precisions should contain(GeoHashField.Precision2Name)
+      precisions should contain(GeoHashField.Precision3Name)
+      precisions should contain(GeoHashField.Precision4Name)
+      precisions should contain(GeoHashField.Precision5Name)
+      precisions should contain(GeoHashField.Precision6Name)
+      precisions should contain(GeoHashField.Precision7Name)
+      precisions should contain(GeoHashField.Precision8Name)
+      precisions should contain(GeoHashField.Precision9Name)
+      precisions should contain(GeoHashField.Precision10Name)
+      precisions should contain(GeoHashField.Precision11Name)
+      precisions should contain(GeoHashField.Precision12Name)
     }
 
     "Each precision have their output type, precision1 must be integer and the others long" in {
-      geoHashDimension.precision(GeoHashField.Precision1Name).typeOp should be(TypeOp.Int)
-      geoHashDimension.precision(GeoHashField.Precision2Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision3Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision4Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision5Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision6Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision7Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision8Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision9Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision10Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision11Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision12Name).typeOp should be(TypeOp.Long)
+      geoHashDimension.precisions(GeoHashField.Precision1Name).typeOp should be(TypeOp.Int)
+      geoHashDimension.precisions(GeoHashField.Precision2Name).typeOp should be(TypeOp.Long)
+      geoHashDimension.precisions(GeoHashField.Precision3Name).typeOp should be(TypeOp.Long)
+      geoHashDimension.precisions(GeoHashField.Precision4Name).typeOp should be(TypeOp.Long)
+      geoHashDimension.precisions(GeoHashField.Precision5Name).typeOp should be(TypeOp.Long)
+      geoHashDimension.precisions(GeoHashField.Precision6Name).typeOp should be(TypeOp.Long)
+      geoHashDimension.precisions(GeoHashField.Precision7Name).typeOp should be(TypeOp.Long)
+      geoHashDimension.precisions(GeoHashField.Precision8Name).typeOp should be(TypeOp.Long)
+      geoHashDimension.precisions(GeoHashField.Precision9Name).typeOp should be(TypeOp.Long)
+      geoHashDimension.precisions(GeoHashField.Precision10Name).typeOp should be(TypeOp.Long)
+      geoHashDimension.precisions(GeoHashField.Precision11Name).typeOp should be(TypeOp.Long)
+      geoHashDimension.precisions(GeoHashField.Precision12Name).typeOp should be(TypeOp.Long)
     }
 
     "Each precision have their output type, all precisions must be ArrayDouble by default" in {
-      geoHashDimensionDefault.precision(GeoHashField.Precision1Name).typeOp should be(TypeOp.ArrayDouble)
-      geoHashDimensionDefault.precision(GeoHashField.Precision2Name).typeOp should be(TypeOp.ArrayDouble)
-      geoHashDimensionDefault.precision(GeoHashField.Precision3Name).typeOp should be(TypeOp.ArrayDouble)
-      geoHashDimensionDefault.precision(GeoHashField.Precision4Name).typeOp should be(TypeOp.ArrayDouble)
-      geoHashDimensionDefault.precision(GeoHashField.Precision5Name).typeOp should be(TypeOp.ArrayDouble)
-      geoHashDimensionDefault.precision(GeoHashField.Precision6Name).typeOp should be(TypeOp.ArrayDouble)
-      geoHashDimensionDefault.precision(GeoHashField.Precision7Name).typeOp should be(TypeOp.ArrayDouble)
-      geoHashDimensionDefault.precision(GeoHashField.Precision8Name).typeOp should be(TypeOp.ArrayDouble)
-      geoHashDimensionDefault.precision(GeoHashField.Precision9Name).typeOp should be(TypeOp.ArrayDouble)
-      geoHashDimensionDefault.precision(GeoHashField.Precision10Name).typeOp should be(TypeOp.ArrayDouble)
-      geoHashDimensionDefault.precision(GeoHashField.Precision11Name).typeOp should be(TypeOp.ArrayDouble)
-      geoHashDimensionDefault.precision(GeoHashField.Precision12Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimensionDefault.precisions(GeoHashField.Precision1Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimensionDefault.precisions(GeoHashField.Precision2Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimensionDefault.precisions(GeoHashField.Precision3Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimensionDefault.precisions(GeoHashField.Precision4Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimensionDefault.precisions(GeoHashField.Precision5Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimensionDefault.precisions(GeoHashField.Precision6Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimensionDefault.precisions(GeoHashField.Precision7Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimensionDefault.precisions(GeoHashField.Precision8Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimensionDefault.precisions(GeoHashField.Precision9Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimensionDefault.precisions(GeoHashField.Precision10Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimensionDefault.precisions(GeoHashField.Precision11Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimensionDefault.precisions(GeoHashField.Precision12Name).typeOp should be(TypeOp.ArrayDouble)
     }
   }
 }

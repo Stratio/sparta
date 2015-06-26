@@ -15,19 +15,14 @@
  */
 package com.stratio.sparkta.plugin.parser.datetime
 
-import java.io.{Serializable => JSerializable}
+import java.io.Serializable
 import java.util.Date
 
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.{Event, Parser}
 import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
 
-class DateTimeParser(name: String,
-                      order: Integer,
-                      inputField: String,
-                      outputFields: Seq[String],
-                      properties: Map[String, JSerializable])
-  extends Parser(name, order, inputField, outputFields, properties) {
+class DateTimeParser(properties: Map[String, Serializable]) extends Parser(properties) {
 
   private val formatters : Map[String,Either[DateTimeFormatter,String]] = (
     for {
@@ -45,7 +40,7 @@ class DateTimeParser(name: String,
   override def parse(data: Event): Event = {
     new Event(data.keyMap.map({
       case (key, value) =>
-        if ((inputField == key || formatters.hasKey(key)) && !value.isInstanceOf[Date] && outputFields.contains(key)) {
+        if (formatters.hasKey(key) && !value.isInstanceOf[Date]) {
           formatters(key) match {
             case Right("unix") =>
               (key, new Date(value.toString.toLong * 1000L))

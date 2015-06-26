@@ -30,17 +30,13 @@ class ArrayTextFieldSpec extends WordSpecLike with Matchers {
   "ArrayTextDimType " should {
 
     "process the input" in {
-      val result = dimType.precisionValue("hola", input.asInstanceOf[JSerializable])
+      val result = dimType.dimensionValues(input.asInstanceOf[JSerializable])
       result should be(expectedOutput)
+    }
 
-      val result1 = dimType.precisionValue("holo", input.asInstanceOf[JSerializable])
-      result1 should be(noExpectedOutput)
-
-      val result2 = dimType.precisionValue("hola", otherInput.asInstanceOf[JSerializable])
-      result2 should be(otherExpectedOutput)
-
-      val result3 = dimType.precisionValue("holo", otherInput.asInstanceOf[JSerializable])
-      result3 should be(otherNoExpectedOutput)
+    "process other input" in {
+      val result = dimType.dimensionValues(otherInput.asInstanceOf[JSerializable])
+      result should be(otherExpectedOutput)
     }
 
   }
@@ -48,11 +44,12 @@ class ArrayTextFieldSpec extends WordSpecLike with Matchers {
 
   val otherInput = Seq("hola","hola")
 
-  val expectedOutput = (Precision("hola" + 0, TypeOp.String, Map()), "0".asInstanceOf[JSerializable])
-  val noExpectedOutput = (Precision("holo" + 1, TypeOp.String, Map()), "1".asInstanceOf[JSerializable])
+  val expectedOutput: Map[Precision, JSerializable] =
+    Map(Precision("hola" + 0, TypeOp.String, Map()) -> "hola".asInstanceOf[JSerializable],
+      Precision("holo" + 1, TypeOp.String, Map()) -> "holo".asInstanceOf[JSerializable])
 
-  val otherExpectedOutput = (Precision("hola" + 0, TypeOp.String, Map()), "0".asInstanceOf[JSerializable])
-  val otherNoExpectedOutput =
-    (Precision(DimensionType.IdentityName, TypeOp.String, Map()), 0.asInstanceOf[JSerializable])
+  val otherExpectedOutput: Map[Precision, JSerializable] =
+    Map(Precision("hola" + 0, TypeOp.String, Map()) -> "hola".asInstanceOf[JSerializable],
+      Precision("hola" + 1, TypeOp.String, Map()) -> "hola".asInstanceOf[JSerializable])
 
 }

@@ -16,7 +16,7 @@
 
 package com.stratio.sparkta.plugin.field.datetime.test
 
-import java.io.{Serializable => JSerializable}
+import java.io
 import java.util.Date
 
 import com.stratio.sparkta.plugin.field.datetime.DateTimeField
@@ -32,36 +32,28 @@ class DateTimeFieldSpec extends WordSpecLike with Matchers {
     new DateTimeField(Map("second" -> "long", "minute" -> "date", "typeOp" -> "datetime"))
 
   "A DateTimeDimension" should {
-    "In default implementation, get 6 dimensions for a specific time" in {
+    "In default implementation, get 7 dimensions for a specific time" in {
       val newDate = new Date()
-      val precisionSecond =
-        dateTimeDimension.precisionValue(DateTimeField.SecondName, newDate.asInstanceOf[JSerializable])
-      val precisionMinute =
-        dateTimeDimension.precisionValue(DateTimeField.MinuteName, newDate.asInstanceOf[JSerializable])
-      val precisionHour =
-        dateTimeDimension.precisionValue(DateTimeField.HourName, newDate.asInstanceOf[JSerializable])
-      val precisionDay =
-        dateTimeDimension.precisionValue(DateTimeField.DayName, newDate.asInstanceOf[JSerializable])
-      val precisionMonth =
-        dateTimeDimension.precisionValue(DateTimeField.MonthName, newDate.asInstanceOf[JSerializable])
-      val precisionYear =
-        dateTimeDimension.precisionValue(DateTimeField.YearName, newDate.asInstanceOf[JSerializable])
+      val precisions = dateTimeDimension.dimensionValues(newDate.asInstanceOf[io.Serializable]).map(_._1.id)
 
-      precisionSecond._1.id should be(DateTimeField.SecondName)
-      precisionMinute._1.id should be(DateTimeField.MinuteName)
-      precisionHour._1.id should be(DateTimeField.HourName)
-      precisionDay._1.id should be(DateTimeField.DayName)
-      precisionMonth._1.id should be(DateTimeField.MonthName)
-      precisionYear._1.id should be(DateTimeField.YearName)
+      precisions.size should be(7)
+
+      precisions should contain(DateTimeField.timestamp.id)
+      precisions should contain(DateTimeField.SecondName)
+      precisions should contain(DateTimeField.MinuteName)
+      precisions should contain(DateTimeField.HourName)
+      precisions should contain(DateTimeField.DayName)
+      precisions should contain(DateTimeField.MonthName)
+      precisions should contain(DateTimeField.YearName)
     }
 
     "Each precision dimension have their output type, second must be long, minute must be date, others datetime" in {
-      dateTimeDimension.precision(DateTimeField.SecondName).typeOp should be(TypeOp.Long)
-      dateTimeDimension.precision(DateTimeField.MinuteName).typeOp should be(TypeOp.Date)
-      dateTimeDimension.precision(DateTimeField.DayName).typeOp should be(TypeOp.DateTime)
-      dateTimeDimension.precision(DateTimeField.MonthName).typeOp should be(TypeOp.DateTime)
-      dateTimeDimension.precision(DateTimeField.YearName).typeOp should be(TypeOp.DateTime)
-      dateTimeDimension.precision(DateTimeField.timestamp.id).typeOp should be(TypeOp.Timestamp)
+      dateTimeDimension.precisions(DateTimeField.SecondName).typeOp should be(TypeOp.Long)
+      dateTimeDimension.precisions(DateTimeField.MinuteName).typeOp should be(TypeOp.Date)
+      dateTimeDimension.precisions(DateTimeField.DayName).typeOp should be(TypeOp.DateTime)
+      dateTimeDimension.precisions(DateTimeField.MonthName).typeOp should be(TypeOp.DateTime)
+      dateTimeDimension.precisions(DateTimeField.YearName).typeOp should be(TypeOp.DateTime)
+      dateTimeDimension.precisions(DateTimeField.timestamp.id).typeOp should be(TypeOp.Timestamp)
     }
   }
 }

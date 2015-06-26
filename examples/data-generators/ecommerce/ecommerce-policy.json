@@ -30,32 +30,79 @@
       }
     }
   ],
+  "fields": [
+    {
+      "type": "DateTime",
+      "name": "purchaseDateOL"
+    },
+    {
+      "name": "userOL"
+    },
+    {
+      "name": "totalAmountOL"
+    },
+    {
+      "name": "cityOL"
+    },
+    {
+      "name": "postalCodeOL"
+    },
+    {
+      "name": "stateOL"
+    },
+    {
+      "name": "countryOL"
+    },
+    {
+      "name": "customerTypeOL"
+    },
+    {
+      "name": "paymentTypeOL"
+    },
+    {
+      "type": "DateTime",
+      "name": "timestampVL"
+    },
+    {
+      "name": "ipHostVL"
+    },
+    {
+      "name": "userAgentVL"
+    },
+    {
+      "name": "userLogVL"
+    },
+    {
+      "name": "responseCodeVL"
+    },
+    {
+      "name": "operatingSystemVL"
+    }
+  ],
   "cubes": [
     {
       "name": "testCube",
       "dimensions": [
         {
-          "name": "purchaseDateOL",
-          "field": "purchaseDateOL",
-          "precision": "minute",
-          "type": "DateTime"
+          "dimension": "purchaseDateOL",
+          "precision": "minute"
         }
       ],
       "operators": [
         {
-          "name": "count-operator",
+          "measureName": "count-operator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "name": "avg-operator",
+          "measureName": "avg-operator",
           "type": "Avg",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "name": "sum-operator",
+          "measureName": "sum-operator",
           "type": "Sum",
           "configuration": {
             "inputField": "totalAmountOL"
@@ -81,27 +128,25 @@
       "name": "testCube1",
       "dimensions": [
         {
-          "name": "timestampVL",
-          "field": "timestampVL",
-          "type": "DateTime",
+          "dimension": "timestampVL",
           "precision": "minute"
         }
       ],
       "operators": [
         {
-          "name": "count-operator",
+          "measureName": "count-operator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "name": "avg-operator",
+          "measureName": "avg-operator",
           "type": "Avg",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "name": "sum-operator",
+          "measureName": "sum-operator",
           "type": "Sum",
           "configuration": {
             "inputField": "totalAmountOL"
@@ -127,31 +172,29 @@
       "name": "testCube2",
       "dimensions": [
         {
-          "name": "ipHostVL",
-          "field": "ipHostVL"
+          "dimension": "ipHostVL",
+          "precision": "identity"
         },
         {
-          "name": "timestampVL",
-          "field": "timestampVL",
-          "type": "DateTime",
+          "dimension": "timestampVL",
           "precision": "minute"
         }
       ],
       "operators": [
         {
-          "name": "count-operator",
+          "measureName": "count-operator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "name": "avg-operator",
+          "measureName": "avg-operator",
           "type": "Avg",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "name": "sum-operator",
+          "measureName": "sum-operator",
           "type": "Sum",
           "configuration": {
             "inputField": "totalAmountOL"
@@ -177,25 +220,25 @@
       "name": "testCube3",
       "dimensions": [
         {
-          "name": "cityOL",
-          "field": "cityOL"
+          "dimension": "cityOL",
+          "precision": "identity"
         }
       ],
       "operators": [
         {
-          "name": "count-operator",
+          "measureName": "count-operator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "name": "avg-operator",
+          "measureName": "avg-operator",
           "type": "Avg",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "name": "sum-operator",
+          "measureName": "sum-operator",
           "type": "Sum",
           "configuration": {
             "inputField": "totalAmountOL"
@@ -221,25 +264,25 @@
       "name": "testCube4",
       "dimensions": [
         {
-          "name": "stateOL",
-          "field": "stateOL"
+          "dimension": "stateOL",
+          "precision": "identity"
         }
       ],
       "operators": [
         {
-          "name": "count-operator",
+          "measureName": "count-operator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "name": "avg-operator",
+          "measureName": "avg-operator",
           "type": "Avg",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "name": "sum-operator",
+          "measureName": "sum-operator",
           "type": "Sum",
           "configuration": {
             "inputField": "totalAmountOL"
@@ -275,28 +318,45 @@
       }
     }
   ],
-  "transformations": [
+  "operators": [
+    {
+      "name": "count-operator",
+      "type": "Count",
+      "configuration": {}
+    },
+    {
+      "name": "avg-operator",
+      "type": "Avg",
+      "configuration": {
+        "inputField": "totalAmountOL"
+      }
+    },
+    {
+      "name": "sum-operator",
+      "type": "Sum",
+      "configuration": {
+        "inputField": "totalAmountOL"
+      }
+    },
+    {
+      "name": "max-operator",
+      "type": "Max",
+      "configuration": {
+        "inputField": "totalAmountOL"
+      }
+    },
+    {
+      "name": "min-operator",
+      "type": "Min",
+      "configuration": {
+        "inputField": "totalAmountOL"
+      }
+    }
+  ],
+  "parsers": [
     {
       "name": "morphline-parser",
-      "order": 1,
       "type": "Morphlines",
-      "outputFields": [
-        "purchaseDateOL",
-        "userOL",
-        "totalAmountOL",
-        "cityOL",
-        "postalCodeOL",
-        "stateOL",
-        "countryOL",
-        "customerTypeOL",
-        "paymentTypeOL",
-        "timestampVL",
-        "ipHostVL",
-        "userAgentVL",
-        "userLogVL",
-        "responseCodeVL",
-        "operatingSystemVL"
-      ],
       "configuration": {
         "morphline": {
           "id": "morphline1",
@@ -341,11 +401,6 @@
     },
     {
       "name": "purchaseDateOL",
-      "order": 2,
-      "inputField": "purchaseDateOL",
-      "outputFields": [
-        "purchaseDateOL"
-      ],
       "type": "DateTime",
       "configuration": {
         "purchaseDateOL": "unixMillis"
@@ -353,11 +408,6 @@
     },
     {
       "name": "timestampVL",
-      "order": 3,
-      "inputField": "timestampVL",
-      "outputFields": [
-        "timestampVL"
-      ],
       "type": "DateTime",
       "configuration": {
         "timestampVL": "unixMillis"

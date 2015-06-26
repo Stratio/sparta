@@ -48,21 +48,20 @@ case class HierarchyField(props: Map[String, JSerializable])
   final val RightToLeftWithWildCard =
     getPrecision(RightToLeftWithWildCardName, getTypeOperation(RightToLeftWithWildCardName))
 
-  override def precision(keyName: String): Precision = keyName match {
-    case LeftToRight.id => LeftToRight
-    case RightToLeft.id => RightToLeft
-    case LeftToRightWithWildCard.id => LeftToRightWithWildCard
-    case RightToLeftWithWildCard.id => RightToLeftWithWildCard
-  }
+  override val precisions: Map[String, Precision] =
+    Map(
+      LeftToRight.id -> LeftToRight,
+      RightToLeft.id -> RightToLeft,
+      LeftToRightWithWildCard.id -> LeftToRightWithWildCard,
+      RightToLeftWithWildCard.id -> RightToLeftWithWildCard)
 
   val splitter = properties.getString(SplitterPropertyName)
   val wildcard = properties.getString(WildCardPropertyName)
 
-  override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) = {
-    val precisionKey = precision(keyName)
-      (precisionKey, TypeOp.transformValueByTypeOp(precisionKey.typeOp,
-        getPrecision(value.asInstanceOf[String], precisionKey).asInstanceOf[JSerializable]))
-  }
+  override def dimensionValues(value: JSerializable): Map[Precision, JSerializable] =
+    precisions.map(precision =>
+      (precision._2, TypeOp.transformValueByTypeOp(precision._2.typeOp,
+        getPrecision(value.asInstanceOf[String], precision._2).asInstanceOf[JSerializable])))
 
   def getPrecision(value: String, precision: Precision): Seq[JSerializable] = {
     precision match {

@@ -14,8 +14,16 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.dto
+package com.stratio.sparkta.sdk
 
-import com.stratio.sparkta.sdk.JsoneyString
+case class DimensionPrecision(dimension: Dimension, precision: Precision) extends Ordered[DimensionPrecision] {
 
-case class OperatorDto(`type`: String, measureName: String, configuration: Map[String, JsoneyString])
+  def getNameDimension: String = precision.id match {
+    case DimensionType.IdentityName => dimension.name
+    case _ => precision.id
+  }
+
+  def compare(dimensionPrecision: DimensionPrecision): Int =
+    (dimension.name + precision.id) compareTo (dimensionPrecision.dimension.name + dimensionPrecision.precision.id)
+
+}
