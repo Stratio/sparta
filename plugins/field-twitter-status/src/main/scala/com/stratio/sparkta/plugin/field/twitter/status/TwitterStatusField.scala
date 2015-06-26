@@ -41,7 +41,7 @@ with JSerializable with SLF4JLogging {
     Map(
       TextName -> getPrecision(TextName, getTypeOperation(TextName)),
       ContributorsName -> getPrecision(ContributorsName, getTypeOperation(ContributorsName)),
-      HastagsName -> getPrecision(HastagsName, getTypeOperation(HastagsName)),
+      HashtagsName -> getPrecision(HashtagsName, getTypeOperation(HashtagsName)),
       FirstHastagName -> getPrecision(FirstHastagName, getTypeOperation(FirstHastagName)),
       PlacesName -> getPrecision(PlacesName, getTypeOperation(PlacesName)),
       RetweetsName -> getPrecision(RetweetsName, getTypeOperation(RetweetsName)),
