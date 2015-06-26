@@ -93,8 +93,7 @@ The fields are:
 - timestamp
 - geolocation
 
-Some of the fields doesn't have to specify the type of  because it's set by default
-in the others you have to specify it.
+Some of the fields doesn't have to specify the type of  because it's set by default in the others you have to specify it.
 
 * **Third**
 
@@ -151,12 +150,12 @@ FullText operator will write the location where the tweet was tweeted.
 
 You may ask, What's WordsN?
 
-WordsN it's defined in the |streaming_link| and it's the number of words of the tweet::
+WordsN it's defined in the |Twitterinput_scala| and it's the number of words of the tweet::
 
     "wordsN" -> data.getText.split(" ").size
 
 
-.. |streaming_link| raw:: html
+.. |Twitterinput_scala| raw:: html
 
    <a href="https://github.com/Stratio/sparkta/blob/master/plugins/
    input-twitter/src/main/scala/com/stratio/sparkta/plugin/input/twitter/TwitterInput.scala"
@@ -164,7 +163,7 @@ WordsN it's defined in the |streaming_link| and it's the number of words of the 
 
 * **Fourth**
 
-The last step it's to declare our database where we want our aggregated data to be stored.
+The last step it's to declare our output database where we want our aggregated data to be stored.
 In this example we used MongoDB as database::
 
   "outputs": [
@@ -178,20 +177,24 @@ In this example we used MongoDB as database::
     }
   ]
 
-* You can have more information about the policies configuration in the documentation(LINK)
+ You can have more information about the policies configuration in the (|doc_link|)
 
+.. |doc_link| raw:: html
+
+   <a href="http://docs.stratio.com/modules/sparkta/development/"
+   target="_blank">documentation</a>
 
 After we had configured our policy, let's get started in the example!
 
 
-* Run Sparkta::
+Run Sparkta::
 
     cd /opt/sds/sparkta
 
     sudo sh bin/run
 
 
-* Now it's the time to decide if we want to custom our twitter search with our own terms or
+Now it's the time to decide if we want to custom our twitter search with our own terms or
 if we want the global trending topic at the moment.
 As we explained, if in the input you add::
 
@@ -214,70 +217,73 @@ policy will look like this::
       }
      ]
 
-* Now let's send the policy to sparkta::
+Now let's send the policy to sparkta::
 
       curl -H "Content-Type: application/json" http://localhost:9090 --data
       @examples/data-generators/twitter/ITwitter-OMongo.json
 
-* When sparkta is running it's ready to work, open your twitter account and
-write some tweets within a minute, since we are going to aggregate by minute(You can see the full
-policy //TODO //TODO |streaming_link|)
+When sparkta is running it's ready to work, open your twitter account and write some tweets within a minute, since we are going to aggregate by minute(You can see the full |twitter_policy_link|)
 
 
-.. |streaming_link| raw:: html
+.. |twitter_policy_link| raw:: html
 
-   <a href="https://apps.twitter.com/"
-   target="_blank">Twitter developer web site</a>
+   <a href="https://github.com/Stratio/sparkta/blob/master/examples/policies/ITwitter-OMongo-Example.json"
+   target="_blank">policy</a>
 
+In this case we are using meaningless words to do the search,so we make sure we are just processing our tweets::
 
-* In this case we are using meaningless words to do the search,so we make sure we are just
-processing our tweets::
+  "termsOfSearch":"#hekj,prlk,#drm"
 
- "termsOfSearch":"#hekj,prlk,#drm"
-
-* We tweeted 4 tweets in the same minute
+We tweeted 4 tweets in the same minute
 
 .. image:: images/TweetsExample.png
    :height: 350 px
    :width:  500 px
    :scale:  100 %
 
-* Now let's open a shell with MongoDB to see the aggregations::
+Now let's open a shell with MongoDB to see the aggregations::
 
  > sudo service mongod start
 
-* Find our database::
+
+Find our database::
 
  > show dbs
+
  local    0.078GB
  sparkta  0.078GB
 
-* Enter in the database::
+Enter in the database::
 
  > use sparkta
+
  switched to db sparkta
 
-* See the collections::
+See the collections::
 
  > show collections
+
  precision3_firsthashtag_hashtags_retweets_minute_userLocation
  system.indexes
 
-* Enter in the collection and find the results of the operations::
 
- > db.precision3_firsthashtag_hashtags_retweets_minute_userLocation.find().pretty()
- {
-	"_id" : ObjectId("558c17c57b361a3925ad05da"),
-	"id" : "1_drm_0_madrid, comunidad de madrid_List(0.703125, 0.703125)",
-	"minute" : ISODate("2015-06-25T15:01:00Z"),
-	"count" : NumberLong(4),
-	"avg_wordsN" : 4.25,
-	"min_wordsN" : 2,
-	"fulltext_userLocation" : "madrid, comunidad de madrid madrid, comunidad de madrid madrid, comunidad de madrid madrid, comunidad de madrid",
-	"max_wordsN" : 9,
-	"sum_wordsN" : 17,
-	"median_wordsN" : 3
- }
+Enter in the collection and find the results of the operations::
+
+  db.precision3_firsthashtag_hashtags_retweets_minute_userLocation.find().pretty()
+
+  {
+   "_id" : ObjectId("558c17c57b361a3925ad05da"),
+   "id" : "1_drm_0_madrid, comunidad de madrid_List(0.703125, 0.703125)",
+   "minute" : ISODate("2015-06-25T15:01:00Z"),
+   "count" : NumberLong(4),
+   "avg_wordsN" : 4.25,
+   "min_wordsN" : 2,
+   "fulltext_userLocation" : "madrid, comunidad de madrid madrid, comunidad de madrid madrid, comunidad de madrid madrid, comunidad de madrid",
+   "max_wordsN" : 9,
+   "sum_wordsN" : 17,
+   "median_wordsN" : 3
+   }
+
 
 Here you can see all the metrics operations that we did.
 
@@ -287,6 +293,6 @@ Here you can see all the metrics operations that we did.
 - Sum of all the words in this minute: 17
 - Median of all the words: 3
 - Average of words by tweet per minute: 4.25
-- Number of tweets per minute matching our search("#drm" in this case): 4
+- Number of tweets per minute matching our search terms("**#drm**" in this case): 4
 
 
