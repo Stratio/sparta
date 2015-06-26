@@ -50,18 +50,18 @@ Below you can see each of the features implemented:
     - Example:
       ::
 
-        hastags_urls_minute_wordsN:hastags:0:urls:0:minute:Tue Apr 28 15:45:00 CEST 2015:wordsN:13
+        hashtags_urls_minute_wordsN:hashtags:0:urls:0:minute:Tue Apr 28 15:45:00 CEST 2015:wordsN:13
         precision3_minute_wordsN:precision3:0.703125/0.703125:minute:Tue Apr 28 15:45:00 CEST 2015:wordsN:5
-        precision3_hastags_urls_minute:precision3:0.703125/0.703125:hastags:1:urls:0:minute:Tue Apr 28 15:40:00 CEST 2015
-        precision3_hastags_retweets_minute_wordsN:precision3:0.703125/0.703125:hastags:1:retweets:0:minute:Tue Apr 28 15:45:00 CEST 2015:wordsN:19
-        precision3_hastags_retweets_minute:precision3:0.703125/0.703125:hastags:3:retweets:0:minute:Tue Apr 28 15:40:00 CEST 2015
-        precision3_hastags_retweets_urls_minute_wordsN:precision3:0.703125/0.703125:hastags:0:retweets:0:urls:1:minute:Tue Apr 28 15:40:00 CEST 2015:wordsN:18
+        precision3_hashtags_urls_minute:precision3:0.703125/0.703125:hashtags:1:urls:0:minute:Tue Apr 28 15:40:00 CEST 2015
+        precision3_hashtags_retweets_minute_wordsN:precision3:0.703125/0.703125:hashtags:1:retweets:0:minute:Tue Apr 28 15:45:00 CEST 2015:wordsN:19
+        precision3_hashtags_retweets_minute:precision3:0.703125/0.703125:hashtags:3:retweets:0:minute:Tue Apr 28 15:40:00 CEST 2015
+        precision3_hashtags_retweets_urls_minute_wordsN:precision3:0.703125/0.703125:hashtags:0:retweets:0:urls:1:minute:Tue Apr 28 15:40:00 CEST 2015:wordsN:18
         precision3_retweets_urls_wordsN:precision3:0.703125/0.703125:retweets:0:urls:1:wordsN:12
-        precision3_hastags_retweets_wordsN:precision3:0.703125/0.703125:hastags:0:retweets:0:wordsN:22
-        precision3_hastags_retweets_urls_minute_wordsN:precision3:0.703125/0.703125:hastags:0:retweets:0:urls:1:minute:Tue Apr 28 15:45:00 CEST 2015:wordsN:4
-        precision3_hastags_retweets_urls_minute:precision3:0.703125/0.703125:hastags:0:retweets:0:urls:0:minute:Tue Apr 28 15:40:00 CEST 2015
-        hastags_retweets_urls_minute:hastags:1:retweets:0:urls:0:minute:Tue Apr 28 15:40:00 CEST 2015"
-        precision3_hastags_retweets_minute_wordsN:precision3:0.703125/0.703125:hastags:0:retweets:0:minute:Tue Apr 28 15:45:00 CEST 2015:wordsN:13
+        precision3_hashtags_retweets_wordsN:precision3:0.703125/0.703125:hashtags:0:retweets:0:wordsN:22
+        precision3_hashtags_retweets_urls_minute_wordsN:precision3:0.703125/0.703125:hashtags:0:retweets:0:urls:1:minute:Tue Apr 28 15:45:00 CEST 2015:wordsN:4
+        precision3_hashtags_retweets_urls_minute:precision3:0.703125/0.703125:hashtags:0:retweets:0:urls:0:minute:Tue Apr 28 15:40:00 CEST 2015
+        hashtags_retweets_urls_minute:hashtags:1:retweets:0:urls:0:minute:Tue Apr 28 15:40:00 CEST 2015"
+        precision3_hashtags_retweets_minute_wordsN:precision3:0.703125/0.703125:hashtags:0:retweets:0:minute:Tue Apr 28 15:45:00 CEST 2015:wordsN:13
 
 
   * The output contains information about aggregations:
