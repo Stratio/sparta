@@ -16,7 +16,7 @@
   "inputs": [
     {
       "name": "input-twitter",
-      "elementType": "Twitter",
+      "type": "Twitter",
       "configuration": {
         "consumerKey": "*****",
         "consumerSecret": "*****",
@@ -25,55 +25,86 @@
       }
     }
   ],
-  "dimensions": [
-    {
-      "dimensionType": "TwitterStatusDimension",
-      "name": "status"
-    },
-    {
-      "name": "wordsN"
-    },
-    {
-      "dimensionType": "DateTimeDimension",
-      "name": "timestamp"
-    },
-    {
-      "dimensionType": "GeoHashDimension",
-      "name": "geolocation"
-    }
-  ],
   "cubes": [
     {
       "name": "twitter",
-      "precisions": [
+      "dimensions": [
         {
-          "dimension": "status",
+          "name": "hastags",
+          "field": "status",
+          "type": "TwitterStatus",
           "precision": "hastags"
         },
         {
-          "dimension": "status",
+          "name": "firsthastag",
+          "field": "status",
+          "type": "TwitterStatus",
           "precision": "firsthastag"
         },
         {
-          "dimension": "status",
+          "name": "retweets",
+          "field": "status",
+          "type": "TwitterStatus",
           "precision": "retweets"
         },
         {
-          "dimension": "geolocation",
+          "name": "userLocation",
+          "field": "userLocation"
+        },
+        {
+          "name": "precision3",
+          "field": "geolocation",
+          "type": "GeoHash",
           "precision": "precision3"
         },
         {
-          "dimension": "timestamp",
+          "name": "minute",
+          "field": "timestamp",
+          "type": "DateTime",
           "precision": "minute"
         }
       ],
-      "operators": ["count-operator", "max-operator", "min-operator"]
+      "operators": [
+        {
+          "name": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "name": "count-distinct-operator",
+          "type": "Count",
+          "configuration": {
+            "distinctFields": "wordsN"
+          }
+        },
+        {
+          "name": "sum-operator",
+          "type": "Sum",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "name": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "name": "min-operator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        }
+      ]
     }
   ],
   "outputs": [
     {
       "name": "out-redis",
-      "elementType": "RedisOutput",
+      "type": "Redis",
       "configuration": {
         "hostname": "localhost",
         "multiplexer": "false"
@@ -81,35 +112,14 @@
     },
     {
       "name": "out-mongo",
-      "elementType": "MongoDbOutput",
+      "type": "MongoDb",
       "configuration": {
-        "clientUri" : "mongodb://localhost:27017",
-        "dbName" : "sparkta",
-        "multiplexer" : "false",
-        "textIndexFields" : "userLocation",
-        "fieldsSeparator" : ",",
-        "language" : "english"
-      }
-    }
-  ],
-  "operators": [
-    {
-      "name": "count-operator",
-      "elementType": "CountOperator",
-      "configuration": {}
-    },
-    {
-      "name": "max-operator",
-      "elementType": "MaxOperator",
-      "configuration": {
-        "inputField": "wordsN"
-      }
-    },
-    {
-      "name": "min-operator",
-      "elementType": "MinOperator",
-      "configuration": {
-        "inputField": "wordsN"
+        "clientUri": "mongodb://localhost:27017",
+        "dbName": "sparkta",
+
+        "textIndexFields": "userLocation",
+        "fieldsSeparator": ",",
+        "language": "english"
       }
     }
   ]

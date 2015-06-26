@@ -35,13 +35,16 @@ case class TagField(props: Map[String, JSerializable]) extends DimensionType wit
 
   override val properties: Map[String, JSerializable] = props
 
-  override val precisions: Map[String, Precision] = Map(
-    FirstTagName -> getPrecision(FirstTagName, getTypeOperation(FirstTagName)),
-    LastTagName -> getPrecision(LastTagName, getTypeOperation(LastTagName)),
-    AllTagsName -> getPrecision(AllTagsName, getTypeOperation(AllTagsName)))
+  override def precision(keyName: String): Precision = keyName match {
+    case FirstTagName => getPrecision(FirstTagName, getTypeOperation (FirstTagName) )
+    case LastTagName => getPrecision(LastTagName, getTypeOperation (LastTagName) )
+    case AllTagsName => getPrecision(AllTagsName, getTypeOperation (AllTagsName) )
+  }
 
-  override def dimensionValues(value: JSerializable): Map[Precision, JSerializable] =
-    precisions.map(bt => bt._2 -> TagField.getPrecision(value.asInstanceOf[Iterable[JSerializable]], bt._2))
+  override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) = {
+    val precisionKey = precision(keyName)
+    (precisionKey, TagField.getPrecision(value.asInstanceOf[Iterable[JSerializable]], precisionKey))
+  }
 }
 
 object TagField {

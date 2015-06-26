@@ -16,8 +16,12 @@
 
 package com.stratio.sparkta.driver.dto
 
-import com.stratio.sparkta.sdk.DimensionType
+import com.stratio.sparkta.sdk.{Input, JsoneyString}
 
-case class FieldDto(`type`: String = DimensionType.DefaultDimensionClass,
-                    name: String,
-                    configuration: Option[Map[String, String]])
+case class TransormationsDto (name: String,
+                              `type`: String,
+                              order: Integer,
+                              inputField: String = Input.RawDataKey,
+                              outputFields: Seq[String],
+                              configuration: Map[String, JsoneyString])
+
