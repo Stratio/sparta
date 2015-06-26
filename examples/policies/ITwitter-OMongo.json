@@ -142,8 +142,7 @@
       "type": "MongoDb",
       "configuration": {
         "clientUri": "mongodb://localhost:27017",
-        "dbName": "sparkta",
-        "multiplexer": "false"
+        "dbName": "sparkta"
       }
     }
   ]
