@@ -49,16 +49,16 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       new Duration(apConfig.sparkStreamingWindow),
       apConfig.checkpointing.path).get
     val inputs = SparktaJob.inputs(apConfig, ssc)
-    val parsers = SparktaJob.parsers(apConfig).sortWith((parser1, parser2) => parser1.getOrder < parser2.getOrder)
-    val operators = SparktaJob.operators(apConfig)
-    val cubes = SparktaJob.cubes(apConfig, operators)
+    val parsers =
+      SparktaJob.parsers(apConfig).sortWith((parser1, parser2) => parser1.getOrder < parser2.getOrder)
+    val cubes = SparktaJob.cubes(apConfig)
 
     val bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]] = {
-      val opKeyOp = SchemaFactory.operatorsKeyOperation(operators.values.toSeq)
+      val opKeyOp = SchemaFactory.operatorsKeyOperation(cubes.flatMap(cube => cube.operators))
       if (opKeyOp.size > 0) Some(sc.broadcast(opKeyOp)) else None
     }
 
-    val outputsSchemaConfig = apConfig.outputs.map(o =>
+    val outputsSchemaConfig: Seq[(String, Map[String, String])] = apConfig.outputs.map(o =>
       (o.name, Map(
         Output.Multiplexer -> Try(o.configuration.get(Output.Multiplexer).get.string)
           .getOrElse(Output.DefaultMultiplexer),
@@ -80,7 +80,7 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
     val parsed = SparktaJob.applyParsers(input, parsers)
 
     val dataCube = new CubeMaker(cubes, datePrecision, apConfig.checkpointing.granularity).setUp(parsed)
-    outputs.foreach(_._2.persist(dataCube))
+    outputs.map(_._2.persist(dataCube))
     ssc
   }
 }
@@ -145,10 +145,8 @@ object SparktaJob {
         operatorDto.configuration + (OperatorNamePropertyKey -> new JsoneyString(operatorDto.name))))
   }
 
-  def operators(apConfig: AggregationPoliciesDto): Map[String, Operator] =
-    apConfig.cubes.flatMap(cube => cube.operators.map(operator =>
-      (getOperatorKeyName(cube.name, operator), createOperator(operator))))
-      .toMap
+  def getOperators(operatorsDto: Seq[OperatorDto]): Seq[Operator] =
+    operatorsDto.map(operator => createOperator(operator))
 
   def outputs(apConfig: AggregationPoliciesDto,
               sparkContext: SparkContext,
@@ -166,11 +164,7 @@ object SparktaJob {
         .newInstance(o.name, o.configuration, sparkContext, bcOperatorsKeyOperation, bcCubeOperatorSchema, timeName)
         .asInstanceOf[Output])))
 
-  private def getOperatorKeyName(cubeName: String, operatorDto: OperatorDto): String =
-    s"$cubeName${operatorDto.name}"
-
-  def cubes(apConfig: AggregationPoliciesDto,
-            operators: Map[String, Operator]): Seq[Cube] =
+  def cubes(apConfig: AggregationPoliciesDto): Seq[Cube] =
     apConfig.cubes.map(cube => {
       val name = cube.name
       val multiplexer = Try(cube.multiplexer.toBoolean)
@@ -181,12 +175,11 @@ object SparktaJob {
           dimensionDto.precision,
           instantiateDimensionType(dimensionDto.`type`, dimensionDto.configuration))
       })
-
-      val operatorsForCube = cube.operators.flatMap(operator => operators.get(getOperatorKeyName(cube.name, operator)))
+      val operators = SparktaJob.getOperators(cube.operators)
 
       new Cube(name,
         dimensions,
-        operatorsForCube,
+        operators,
         multiplexer,
         apConfig.checkpointing.interval,
         apConfig.checkpointing.granularity,
