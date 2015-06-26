@@ -17,6 +17,7 @@ Let's explain what the example is going to do:
 Now let's get started on how to do it, without touching any line of code
 
 Steps
+----------
 
 * **First**
 
@@ -36,17 +37,23 @@ The most important step it's to set the policy up with the right parameters. ::
       }
      ]
 
- In order to get the keys you will have to register in `Twitter developer web site <https://apps.twitter.com/>`__
+In order to get the twitter access keys you will have to register in |streaming_link|
 
- The new feature that we included in the twitter input it's the parameter **termsOfSearch**, it allows you
- to search tweets based on the words you put in. They could be single words or hashtags.
- If the program find one of the words the tweet will be sent to be processed.
+
+.. |streaming_link| raw:: html
+
+   <a href="https://apps.twitter.com/"
+   target="_blank">Twitter developer web site</a>
+
+The new feature that we have included in the twitter input it's the parameter **termsOfSearch**, it allows you
+to search tweets based on the words you specify on it. They could be single words or hashtags.
+If the program find one of the words, the tweet will be sent to be processed.
 
 * **Second**
 
 Then we have to choose which fields we are going to consider relevant::
 
- "fields": [
+  "fields": [
     {
       "type": "TwitterStatus",
       "name": "status",
@@ -80,20 +87,20 @@ Then we have to choose which fields we are going to consider relevant::
 
 The fields are:
 
-- status(hashtags,firsthashtag,retweets and urls) //TODO Explain all of them
+- status(hashtags,firsthashtag,retweets and urls)
 - userLocation
 - wordsN
 - timestamp
 - geolocation
 
-Some of the fields doesn't have to specify the type of the fields because it's set by default
+Some of the fields doesn't have to specify the type of  because it's set by default
 in the others you have to specify it.
 
-* **Operations**
+* **Third**
 
-In this step we are going to apply all the operators that we defined in the policy::
+In this step we are going to define all the operators we want to apply to our data::
 
- "operators": [
+  "operators": [
         {
           "measureName": "count-operator",
           "type": "Count",
@@ -138,5 +145,148 @@ In this step we are going to apply all the operators that we defined in the poli
     }
   ]
 
-In this example we are going to use
+In this example we are going to use sum,max,min,avg operators on WordsN.
+Count operator will count the number of events that we process per minute.
+FullText operator will write the location where the tweet was tweeted.
+
+You may ask, What's WordsN?
+
+WordsN it's defined in the |streaming_link| and it's the number of words of the tweet::
+
+    "wordsN" -> data.getText.split(" ").size
+
+
+.. |streaming_link| raw:: html
+
+   <a href="https://github.com/Stratio/sparkta/blob/master/plugins/
+   input-twitter/src/main/scala/com/stratio/sparkta/plugin/input/twitter/TwitterInput.scala"
+   target="_blank">TwitterInput.scala</a>
+
+* **Fourth**
+
+The last step it's to declare our database where we want our aggregated data to be stored.
+In this example we used MongoDB as database::
+
+  "outputs": [
+     {
+      "name": "out-mongo",
+      "type": "MongoDb",
+      "configuration": {
+        "clientUri": "mongodb://localhost:27017",
+        "dbName": "sparkta"
+      }
+    }
+  ]
+
 * You can have more information about the policies configuration in the documentation(LINK)
+
+
+After we had configured our policy, let's get started in the example!
+
+
+* Run Sparkta::
+
+    cd /opt/sds/sparkta
+
+    sudo sh bin/run
+
+
+* Now it's the time to decide if we want to custom our twitter search with our own terms or
+if we want the global trending topic at the moment.
+As we explained, if in the input you add::
+
+ "termsOfSearch":"Your,#search,#could,be,whatever"
+
+
+It will be a custom search, if you want the other choice just delete the whole line, and the
+policy will look like this::
+
+ "inputs": [
+      {
+      "name": "in-twitter",
+      "type": "Twitter",
+      "configuration": {
+        "consumerKey": "****",
+        "consumerSecret": "****",
+        "accessToken": "****",
+        "accessTokenSecret": "****",
+       }
+      }
+     ]
+
+* Now let's send the policy to sparkta::
+
+      curl -H "Content-Type: application/json" http://localhost:9090 --data
+      @examples/data-generators/twitter/ITwitter-OMongo.json
+
+* When sparkta is running it's ready to work, open your twitter account and
+write some tweets within a minute, since we are going to aggregate by minute(You can see the full
+policy //TODO //TODO |streaming_link|)
+
+
+.. |streaming_link| raw:: html
+
+   <a href="https://apps.twitter.com/"
+   target="_blank">Twitter developer web site</a>
+
+
+* In this case we are using meaningless words to do the search,so we make sure we are just
+processing our tweets::
+
+ "termsOfSearch":"#hekj,prlk,#drm"
+
+* We tweeted 4 tweets in the same minute
+
+.. image:: images/TweetsExample.png
+   :height: 350 px
+   :width:  500 px
+   :scale:  100 %
+
+* Now let's open a shell with MongoDB to see the aggregations::
+
+ > sudo service mongod start
+
+* Find our database::
+
+ > show dbs
+ local    0.078GB
+ sparkta  0.078GB
+
+* Enter in the database::
+
+ > use sparkta
+ switched to db sparkta
+
+* See the collections::
+
+ > show collections
+ precision3_firsthashtag_hashtags_retweets_minute_userLocation
+ system.indexes
+
+* Enter in the collection and find the results of the operations::
+
+ > db.precision3_firsthashtag_hashtags_retweets_minute_userLocation.find().pretty()
+ {
+	"_id" : ObjectId("558c17c57b361a3925ad05da"),
+	"id" : "1_drm_0_madrid, comunidad de madrid_List(0.703125, 0.703125)",
+	"minute" : ISODate("2015-06-25T15:01:00Z"),
+	"count" : NumberLong(4),
+	"avg_wordsN" : 4.25,
+	"min_wordsN" : 2,
+	"fulltext_userLocation" : "madrid, comunidad de madrid madrid, comunidad de madrid madrid, comunidad de madrid madrid, comunidad de madrid",
+	"max_wordsN" : 9,
+	"sum_wordsN" : 17,
+	"median_wordsN" : 3
+ }
+
+Here you can see all the metrics operations that we did.
+
+- Maximum number of words: 9
+- Minimum number of words: 2
+- Location of the user: Madrid
+- Sum of all the words in this minute: 17
+- Median of all the words: 3
+- Average of words by tweet per minute: 4.25
+- Number of tweets per minute matching our search("#drm" in this case): 4
+
+
