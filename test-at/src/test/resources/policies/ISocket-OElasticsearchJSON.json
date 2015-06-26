@@ -23,74 +23,21 @@
       }
     }
   ],
-  "fields": [
-    {
-      "name": "smfProcess"
-    },
-    {
-      "name": "millis",
-      "type": "DateTime",
-      "configuration": {
-        "typeOp": "String"
-      }
-    }
-  ],
-  "cubes": [
-    {
-      "name": "cubeSmfProcess",
-      "dimensions": [
-        {
-          "dimension": "smfProcess"
-        }
-      ],
-      "operators": [
-        {
-          "measureName": "count-operator",
-          "type": "Count",
-          "configuration": {}
-        }
-      ]
-    },
-    {
-      "name": "cubeMillis",
-      "dimensions": [
-        {
-          "dimension": "millis",
-          "precision": "minute"
-        }
-      ],
-      "operators": [
-        {
-          "measureName": "count-operator",
-          "type": "Count",
-          "configuration": {}
-        }
-      ]
-    }
-  ],
-  "outputs": [
-    {
-      "name": "out-elasticsearch",
-      "type": "ElasticSearch",
-      "configuration": {
-        "nodes": "localhost",
-        "defaultPort": "9200",
-        "multiplexer": "false",
-        "isAutoCalculateId": "true",
-        "indexMapping": "day"
-      }
-    }
-  ],
-  "parsers": [
+  "transformations": [
     {
       "name": "morphline",
       "type": "Morphlines",
+      "order": 0,
+      "outputFields": [
+        "tpe",
+        "smfProcess",
+        "millis"
+      ],
       "configuration": {
         "morphline": {
           "id": "morphline1",
           "importCommands": [
-            "org.kitesdk.**",
-            "com.stratio.ingestion.morphline.**"
+            "org.kitesdk.**"
           ],
           "commands": [
             {
@@ -138,9 +85,60 @@
     },
     {
       "name": "recorded_at_ms-parser",
+      "order": 1,
       "type": "DateTime",
+      "inputField": "millis",
+      "outputFields": [
+        "millis"
+      ],
       "configuration": {
         "millis": "unixMillis"
+      }
+    }
+  ],
+  "cubes": [
+    {
+      "name": "cubeSmfProcess",
+      "dimensions": [
+        {
+          "field": "smfProcess",
+          "name": "smfProcess"
+        }
+      ],
+      "operators": [
+        {
+          "name": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
+    },
+    {
+      "name": "tpe",
+      "dimensions": [
+        {
+          "field": "tpe",
+          "name": "tpe"
+        }
+      ],
+      "operators": [
+        {
+          "name": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-elasticsearch",
+      "type": "ElasticSearch",
+      "configuration": {
+        "nodes": "localhost",
+        "defaultPort": "9200",
+        "isAutoCalculateId": "true",
+        "indexMapping": "day"
       }
     }
   ]
