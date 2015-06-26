@@ -44,7 +44,8 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
       "policy-test",
       sparkStreamingWindow = 2000,
       new RawDataDto(),
-      transformations = Seq(),
+      parsers = Seq(),
+      fields = Seq(),
       cubes = Seq(),
       inputs = Seq(
         PolicyElementDto("input1", "input", Map())),

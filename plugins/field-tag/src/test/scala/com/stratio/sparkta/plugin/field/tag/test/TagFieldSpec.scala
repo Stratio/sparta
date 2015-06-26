@@ -35,14 +35,12 @@ class TagFieldSpec extends WordSpecLike with Matchers with TableDrivenPropertyCh
 
   "A TagDimension" should {
     "In default implementation, get 3 precisions for all precision sizes" in {
-      val precisionFirstTagName =
-        tagDimension.precisionValue(TagField.FirstTagName, Seq("").asInstanceOf[JSerializable])
-      val precisionLastTagName = tagDimension.precisionValue(TagField.LastTagName, Seq("").asInstanceOf[JSerializable])
-      val precisionAllTagsName = tagDimension.precisionValue(TagField.AllTagsName, Seq("").asInstanceOf[JSerializable])
+      val precisions = tagDimension.dimensionValues(Seq("").asInstanceOf[JSerializable]).map(_._1.id)
 
-      precisionFirstTagName._1.id should be(TagField.FirstTagName)
-      precisionLastTagName._1.id should be(TagField.LastTagName)
-      precisionAllTagsName._1.id should be(TagField.AllTagsName)
+      precisions.size should be(3)
+      precisions should contain(TagField.AllTagsName)
+      precisions should contain(TagField.FirstTagName)
+      precisions should contain(TagField.LastTagName)
     }
 
     "In default implementation, every proposed combination should be ok" in {
@@ -55,9 +53,10 @@ class TagFieldSpec extends WordSpecLike with Matchers with TableDrivenPropertyCh
       )
 
       forAll(data) { (s: Seq[Any], rz: Int) =>
-        val result = tagDimension.precisionValue(TagField.AllTagsName,
-            s.map(_.asInstanceOf[JSerializable]).toList.asInstanceOf[JSerializable])
-        result._2.asInstanceOf[Seq[String]].size should be(rz)
+        val result =
+          tagDimension.dimensionValues(s.map(_.asInstanceOf[JSerializable]).toList.asInstanceOf[JSerializable])
+        val allTags = result(tagDimension.precisions(TagField.AllTagsName)).asInstanceOf[Seq[String]]
+        allTags.size should be(rz)
       }
     }
   }

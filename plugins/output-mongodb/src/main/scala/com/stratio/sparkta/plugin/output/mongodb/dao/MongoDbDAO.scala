@@ -223,12 +223,12 @@ trait MongoDbDAO extends Closeable {
     cubeKey.dimensionValues.map(dimVal => (Seq(dimVal.getNameDimension -> dimVal.value), "$set")).toMap
 
   protected def getIdentities(cubeKey : DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
-    cubeKey.dimensionValues.filter(dimVal => dimVal.dimension.precision.id == DimensionType.IdentityName)
+    cubeKey.dimensionValues.filter(dimVal => dimVal.dimensionPrecision.precision.id == DimensionType.IdentityName)
     .map(dimVal => (Seq(dimVal.getNameDimension -> dimVal.value), "$set")).toMap
 
   protected def getIdentitiesField(cubeKey : DimensionValuesTime): Seq[Imports.DBObject] = cubeKey.dimensionValues
-    .filter(dimVal => dimVal.dimension.precision.id == DimensionType.IdentityFieldName ||
-    (identitiesSavedAsField && dimVal.dimension.precision.id == DimensionType.IdentityName))
+    .filter(dimVal => dimVal.dimensionPrecision.precision.id == DimensionType.IdentityFieldName ||
+    (identitiesSavedAsField && dimVal.dimensionPrecision.precision.id == DimensionType.IdentityName))
     .map(dimVal => MongoDBObject(dimVal.getNameDimension -> dimVal.value))
 
   protected def checkFields(aggregations: Set[String],

@@ -37,29 +37,26 @@ with JSerializable with SLF4JLogging {
 
   override val properties: Map[String, JSerializable] = props
 
-  //scalastyle:off
-  override def precision(keyName: String): Precision = keyName match {
-    case TextName => getPrecision(TextName, getTypeOperation(TextName))
-    case ContributorsName => getPrecision(ContributorsName, getTypeOperation(ContributorsName))
-    case HastagsName => getPrecision(HastagsName, getTypeOperation(HastagsName))
-    case FirstHastagName => getPrecision(FirstHastagName, getTypeOperation(FirstHastagName))
-    case PlacesName => getPrecision(PlacesName, getTypeOperation(PlacesName))
-    case RetweetsName => getPrecision(RetweetsName, getTypeOperation(RetweetsName))
-    case UrlsName => getPrecision(UrlsName, getTypeOperation(UrlsName))
-    case MentionsName => getPrecision(MentionsName, getTypeOperation(MentionsName))
-    case IdentityName => getPrecision(IdentityName, getTypeOperation(IdentityName))
-    case WordsName => getPrecision(WordsName, getTypeOperation(WordsName))
-    case IdentityName => getPrecision(IdentityName, getTypeOperation(IdentityName))
-    case LocationName => getPrecision(LocationName, getTypeOperation(LocationName))
-    case NameName => getPrecision(NameName, getTypeOperation(NameName))
-    case LanguageName => getPrecision(LanguageName, getTypeOperation(LanguageName))
-  }
-  //scalastyle:on
+  override val precisions: Map[String, Precision] =
+    Map(
+      TextName -> getPrecision(TextName, getTypeOperation(TextName)),
+      ContributorsName -> getPrecision(ContributorsName, getTypeOperation(ContributorsName)),
+      HastagsName -> getPrecision(HastagsName, getTypeOperation(HastagsName)),
+      FirstHastagName -> getPrecision(FirstHastagName, getTypeOperation(FirstHastagName)),
+      PlacesName -> getPrecision(PlacesName, getTypeOperation(PlacesName)),
+      RetweetsName -> getPrecision(RetweetsName, getTypeOperation(RetweetsName)),
+      UrlsName -> getPrecision(UrlsName, getTypeOperation(UrlsName)),
+      MentionsName -> getPrecision(MentionsName, getTypeOperation(MentionsName)),
+      IdentityName -> getPrecision(IdentityName, getTypeOperation(IdentityName)),
+      WordsName -> getPrecision(WordsName, getTypeOperation(WordsName)),
+      LocationName -> getPrecision(LocationName, getTypeOperation(LocationName)),
+      NameName -> getPrecision(NameName, getTypeOperation(NameName)),
+      LanguageName -> getPrecision(LanguageName, getTypeOperation(LanguageName)))
 
-  override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) = {
-    val precisionKey = precision(keyName)
-    (precisionKey, TypeOp.transformValueByTypeOp(precisionKey.typeOp,
-        TwitterStatusField.getPrecision(value.asInstanceOf[Status], precisionKey)))
+  override def dimensionValues(value: JSerializable): Map[Precision, JSerializable] = {
+    precisions.map(precision =>
+      precision._2 -> TypeOp.transformValueByTypeOp(precision._2.typeOp,
+        TwitterStatusField.getPrecision(value.asInstanceOf[Status], precision._2)))
   }
 }
 

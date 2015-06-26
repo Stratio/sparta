@@ -34,7 +34,6 @@
         <module>field-twitter-status</module>
         <module>field-tag</module>
         <module>field-hierarchy</module>
-        <module>field-arrayText</module>
         <module>output-mongodb</module>
         <module>output-elasticsearch</module>
         <module>output-cassandra</module>
@@ -65,6 +64,7 @@
         <module>parser-detector</module>
         <module>parser-type</module>
         <module>parser-split</module>
+        <module>field-arrayText</module>
     </modules>
 
     <dependencies>

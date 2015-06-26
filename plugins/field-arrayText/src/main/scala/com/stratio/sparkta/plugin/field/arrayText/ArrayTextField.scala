@@ -34,16 +34,14 @@ class ArrayTextField(props: Map[String, JSerializable]) extends DimensionType wi
 
   override val defaultTypeOperation = TypeOp.String
 
-  override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) = {
-    value.asInstanceOf[Seq[String]].zipWithIndex.find{ case (item, index) => item == keyName} match {
-      case Some(find) => {
-        val precision = getPrecision(find._1 + find._2, getTypeOperation)
-        (precision, TypeOp.transformValueByTypeOp(precision.typeOp, find._2.asInstanceOf[JSerializable]))
+  override def dimensionValues(value: JSerializable): Map[Precision, JSerializable] =
+    value.asInstanceOf[Seq[String]].zipWithIndex.map({
+      case (item, index) => {
+        val precision = getPrecision(item.toString + index, getTypeOperation)
+        (precision, TypeOp.transformValueByTypeOp(precision.typeOp, item.asInstanceOf[JSerializable]))
       }
-      case None => (DimensionType.getIdentity(None, TypeOp.String), 0)
-    }
-  }
+    }).toMap
 
-  override def precision(keyName: String): Precision =
-    DimensionType.getIdentity (getTypeOperation, defaultTypeOperation)
+  override def precisions: Map[String, Precision] =
+    Map(DimensionType.IdentityName -> DimensionType.getIdentity(getTypeOperation, defaultTypeOperation))
 }

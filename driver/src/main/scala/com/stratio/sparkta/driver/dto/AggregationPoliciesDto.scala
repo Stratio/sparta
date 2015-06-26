@@ -30,7 +30,8 @@ import com.stratio.sparkta.sdk.JsoneyStringSerializer
 case class AggregationPoliciesDto(name: String = "default",
                                   sparkStreamingWindow: Long = AggregationPoliciesDto.sparkStreamingWindow,
                                   rawData: RawDataDto,
-                                  transformations: Seq[TransormationsDto],
+                                  parsers: Seq[PolicyElementDto],
+                                  fields: Seq[FieldDto],
                                   cubes: Seq[CubeDto],
                                   inputs: Seq[PolicyElementDto],
                                   outputs: Seq[PolicyElementDto],
@@ -49,12 +50,13 @@ object AggregationPoliciesValidator {
 
   def validateDto(aggregationPoliciesDto: AggregationPoliciesDto): (Boolean, String) = {
     val (isValidAgainstSchema: Boolean, isValidAgainstSchemaMsg: String) = validateAgainstSchema(aggregationPoliciesDto)
+    val (isValidCube: Boolean, isCubeInDimensionsMsg: String) = validateCubes(aggregationPoliciesDto)
     val isValidDurationGranularity =
       aggregationPoliciesDto.sparkStreamingWindow < aggregationPoliciesDto.checkpointing.interval
     val isValidDurationGranularityMsg = if(!isValidDurationGranularity) MessageDurationGranularity else ""
 
-    val isValid = isValidAgainstSchema && isValidDurationGranularity
-    val errorMsg = isValidAgainstSchemaMsg ++ isValidDurationGranularityMsg
+    val isValid = isValidCube && isValidAgainstSchema && isValidDurationGranularity
+    val errorMsg = isCubeInDimensionsMsg ++ isValidAgainstSchemaMsg ++ isValidDurationGranularityMsg
     (isValid, errorMsg)
   }
 
@@ -85,6 +87,21 @@ object AggregationPoliciesValidator {
     }
 
     (isValid, msg)
+  }
+
+  def validateCubes(aggregationPoliciesDto: AggregationPoliciesDto): (Boolean, String) = {
+
+    val hasCubesNames = aggregationPoliciesDto.cubes.filter(c => c.name == null || c.name.isEmpty).isEmpty
+    val dimensionNames = aggregationPoliciesDto.fields.map(_.name)
+    val cubeDimension = aggregationPoliciesDto.cubes
+      .flatMap(x => Option(x))
+      .flatMap(x => Option(x.dimensions))
+      .flatten
+      .map(_.dimension)
+
+    if(!hasCubesNames) (false, MessageCubeName)
+    else checkCubeParameter(cubeDimension, dimensionNames, "fields")
+
   }
 
   private def checkCubeParameter(cubeNames: Seq[String], parameterNames: Seq[String], label: String):

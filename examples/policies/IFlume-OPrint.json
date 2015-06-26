@@ -24,13 +24,41 @@
       }
     }
   ],
-  "transormations": [
+  "fields": [
+    {
+      "name": "message"
+    }
+  ],
+  "cubes": [
+    {
+      "name": "messages",
+      "dimensions": [
+        {
+          "dimension": "message"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-print",
+      "type": "Print",
+      "configuration": {
+        "multiplexer": "true",
+        "isAutoCalculateId": "true"
+      }
+    }
+  ],
+  "parsers": [
     {
       "name": "morphline",
-      "order": 0,
-      "outputFields": [
-        "message"
-      ],
       "type": "Morphlines",
       "configuration": {
         "morphline": {
@@ -46,34 +74,6 @@
             }
           ]
         }
-      }
-    }
-  ],
-  "cubes": [
-    {
-      "name": "messages",
-      "dimensions": [
-        {
-          "field": "message",
-          "name": "message"
-        }
-      ],
-      "operators": [
-        {
-          "name": "count-operator",
-          "type": "Count",
-          "configuration": {}
-        }
-      ]
-    }
-  ],
-  "outputs": [
-    {
-      "name": "out-print",
-      "type": "Print",
-      "configuration": {
-        "multiplexer": "true",
-        "isAutoCalculateId": "true"
       }
     }
   ]

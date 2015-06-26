@@ -25,7 +25,7 @@ import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 
-object SchemaFactory {
+object PolicyFactory {
 
   //scalastyle:off
   def rowTypeFromOption(optionType: TypeOp): DataType =
@@ -46,12 +46,12 @@ object SchemaFactory {
 
   def cubesOperatorsSchemas(cubes: Seq[Cube],
                               configOptions: Seq[(String, Map[String, String])]): Seq[TableSchema] = {
-    val dimensionsSorted = cubes.map(cube =>
-      (cube.getDimensionsSorted, cube.operators))
+    val componentsSorted = cubes.map(cube =>
+      (cube.getComponentsSorted, cube.operators))
     configOptions.flatMap{ case (outputName, configOptions) => {
       for {
-        (cubesCombinations, operators) <- getCombinationsWithOperators(configOptions, dimensionsSorted)
-        cubesNames = cubesCombinations.map(_.name)
+        (cubesCombinations, operators) <- getCombinationsWithOperators(configOptions, componentsSorted)
+        cubesNames = cubesCombinations.map(_.getNameDimension)
         schema = StructType(getDimensionsFields(cubesCombinations) ++
           (getOperatorsFields(operators) ++
           getFixedFieldAggregation(configOptions)).sortWith(_.name < _.name))
@@ -60,21 +60,21 @@ object SchemaFactory {
   }
 
   private def getCombinationsWithOperators(configOptions: Map[String, String],
-                                           dimensionsSorted: Seq[(Seq[Dimension], Seq[Operator])])
-  : Seq[(Seq[Dimension], Seq[Operator])] =
+                                           componentsSorted: Seq[(Seq[DimensionPrecision], Seq[Operator])])
+  : Seq[(Seq[DimensionPrecision], Seq[Operator])] =
     if (Try(configOptions.get(Output.Multiplexer).get.toBoolean).getOrElse(false)) {
-      dimensionsSorted.flatMap{ case (dimSorted, operators) =>
-        Multiplexer.combine(dimSorted, operators)
+      componentsSorted.flatMap{ case (compSorted, operators) =>
+        Multiplexer.combine(compSorted, operators)
       }.distinct
-    } else dimensionsSorted.map{ case (compSorted, operators) =>
+    } else componentsSorted.map{ case (compSorted, operators) =>
       (compSorted, operators)
     }.distinct
 
   private def getOperatorsFields(operators: Seq[Operator]) : Seq[StructField] =
     operators.map(operator => StructField(operator.key, rowTypeFromOption(operator.returnType), true))
 
-  private def getDimensionsFields(fields: Seq[Dimension]) : Seq[StructField] =
-    fields.map(field => StructField(field.name, rowTypeFromOption(field.precision.typeOp), false))
+  private def getDimensionsFields(fields: Seq[DimensionPrecision]) : Seq[StructField] =
+    fields.map(field => StructField(field.getNameDimension, rowTypeFromOption(field.precision.typeOp), false))
 
   private def getFixedFieldAggregation(options: Map[String, String]) : Seq[StructField] =
     options.get(Output.FixedAggregation) match {
