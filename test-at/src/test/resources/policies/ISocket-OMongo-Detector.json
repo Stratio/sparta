@@ -6,16 +6,14 @@
     "partitionFormat": "day",
     "path": "myTestParquetPath"
   },
-
   "checkpointing": {
     "path": "checkpoint",
     "timeDimension": "minute",
     "granularity": "minute",
     "interval": 30000,
     "timeAvailability": 6000000000
-
   },
-  "inputs":  [
+  "inputs": [
     {
       "name": "in-socket",
       "type": "Socket",
@@ -25,38 +23,24 @@
       }
     }
   ],
-  "fields": [
+  "transformations": [
     {
-      "name": "company_root"
+      "name": "detector-parser",
+      "order": 1,
+      "type": "Detector",
+      "configuration": {}
     },
     {
-      "name": "ou_vehicle"
-    },
-    {
-      "name": "asset"
-    },
-    {
-      "name": "recorded_at_ms",
-      "type": "DateTime"
-    },
-    {
-      "name": "geo",
-      "type": "GeoHash"
-    },
-    {
-      "name": "rpm_event_avg"
-    },
-    {
-      "name": "odometer"
-    },
-    {
-      "name": "odometerNum"
-    },
-    {
-      "name": "rpmAvgNum"
-    },
-    {
-      "name": "path_id"
+      "name": "recorded_at_ms-parser",
+      "inputField": "recorded_at_ms",
+      "outputFields": [
+        "recorded_at_ms"
+      ],
+      "order": 2,
+      "type": "DateTime",
+      "configuration": {
+        "recorded_at_ms": "unixMillis"
+      }
     }
   ],
   "cubes": [
@@ -64,23 +48,29 @@
       "name": "rpmAvg",
       "dimensions": [
         {
-          "dimension": "company_root"
+          "name": "company_root",
+          "field": "company_root"
         },
         {
-          "dimension": "ou_vehicle"
+          "name": "ou_vehicle",
+          "field": "ou_vehicle"
         },
         {
-          "dimension": "geo",
+          "name": "geo",
+          "field": "geo",
+          "type": "GeoHash",
           "precision": "precision3"
         },
         {
-          "dimension": "recorded_at_ms",
+          "name": "recorded_at_ms",
+          "field": "recorded_at_ms",
+          "type": "DateTime",
           "precision": "minute"
         }
       ],
       "operators": [
         {
-          "measureName": "avg-operator",
+          "name": "avg-operator",
           "type": "Avg",
           "configuration": {
             "inputField": "rpm_event_avg"
@@ -92,42 +82,46 @@
       "name": "maxMinOdometer",
       "dimensions": [
         {
-          "dimension": "company_root"
+          "name": "company_root",
+          "field": "company_root"
         },
         {
-          "dimension": "ou_vehicle"
+          "name": "ou_vehicle",
+          "field": "ou_vehicle"
         },
         {
-          "dimension": "asset"
+          "name": "asset",
+          "field": "asset"
         },
         {
-          "dimension": "recorded_at_ms",
+          "name": "recorded_at_ms",
+          "field": "recorded_at_ms",
+          "type": "DateTime",
           "precision": "minute"
         },
         {
-          "dimension": "path_id"
+          "name": "path_id",
+          "field": "path_id"
         }
       ],
-
-      "operators": [ {
-        "measureName": "max-operator",
-        "type": "Max",
-        "configuration": {
-          "inputField": "odometer"
-        }
-      },
+      "operators": [
         {
-          "measureName": "min-operator",
+          "name": "max-operator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "odometer"
+          }
+        },
+        {
+          "name": "min-operator",
           "type": "Min",
           "configuration": {
             "inputField": "odometer"
           }
         }
-
       ]
     }
   ],
-
   "outputs": [
     {
       "name": "out-mongo",
@@ -136,22 +130,6 @@
         "clientUri": "mongodb://localhost:60000",
         "dbName": "csvtest",
         "multiplexer": "false"
-      }
-    }
-  ],
-
-  "parsers": [
-    {
-      "name": "detector-parser",
-      "type": "Detector",
-      "configuration": {
-      }
-    },
-    {
-      "name": "recorded_at_ms-parser",
-      "type": "DateTime",
-      "configuration": {
-        "recorded_at_ms": "unixMillis"
       }
     }
   ]

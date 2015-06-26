@@ -20,145 +20,123 @@
       "element": null
     }
   ],
-  "fields": [
-    {
-      "type": "TwitterStatus",
-      "name": "status",
-      "configuration": {
-        "typeOp": "string",
-        "hastags": "int",
-        "firsthastag": "string",
-        "retweets": "int",
-        "urls": "int"
-      }
-    },
-    {
-      "name": "userLocation"
-    },
-    {
-      "name": "wordsN"
-    },
-    {
-      "type": "DateTime",
-      "name": "timestamp"
-    },
-    {
-      "type": "GeoHash",
-      "name": "geolocation",
-      "configuration": {
-        "typeOp": "arraydouble"
-      }
-    }
-  ],
   "cubes": [
     {
       "name": "testCube",
       "dimensions": [
         {
-          "dimension": "status",
+          "name": "hastags",
+          "field": "status",
+          "type": "TwitterStatus",
           "precision": "hastags"
         },
         {
-          "dimension": "status",
+          "name": "firsthastag",
+          "field": "status",
+          "type": "TwitterStatus",
           "precision": "firsthastag"
         },
         {
-          "dimension": "status",
+          "name": "retweets",
+          "field": "status",
+          "type": "TwitterStatus",
           "precision": "retweets"
         },
         {
-          "dimension": "userLocation"
+          "name": "userLocation",
+          "field": "userLocation"
         },
         {
-          "dimension": "wordsN"
-        },
-        {
-          "dimension": "geolocation",
+          "name": "precision3",
+          "field": "geolocation",
+          "type": "GeoHash",
           "precision": "precision3"
         },
         {
-          "dimension": "timestamp",
+          "name": "minute",
+          "field": "timestamp",
+          "type": "DateTime",
           "precision": "minute"
         }
       ],
       "operators": [
         {
-          "measureName": "count-operator",
+          "name": "count-operator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "measureName": "count-distinct-operator",
+          "name": "count-distinct-operator",
           "type": "Count",
           "configuration": {
             "distinctFields": "wordsN"
           }
         },
         {
-          "measureName": "sum-operator",
+          "name": "sum-operator",
           "type": "Sum",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "max-operator",
+          "name": "max-operator",
           "type": "Max",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "min-operator",
+          "name": "min-operator",
           "type": "Min",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "avg-operator",
+          "name": "avg-operator",
           "type": "Avg",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "median-operator",
+          "name": "median-operator",
           "type": "Median",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "variance-operator",
+          "name": "variance-operator",
           "type": "Variance",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "stddev-operator",
+          "name": "stddev-operator",
           "type": "Stddev",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "fullText-operator",
+          "name": "fullText-operator",
           "type": "FullText",
           "configuration": {
             "inputField": "userLocation"
           }
         },
         {
-          "measureName": "lastValue-operator",
+          "name": "lastValue-operator",
           "type": "LastValue",
           "configuration": {
             "inputField": "retweets"
           }
         },
         {
-          "measureName": "accumulator-operator",
+          "name": "accumulator-operator",
           "type": "Accumulator",
           "configuration": {
             "inputField": "wordsN"
@@ -166,7 +144,7 @@
         }
       ]
     }
-    ],
+  ],
   "outputs": [
     {
       "name": "out-print",

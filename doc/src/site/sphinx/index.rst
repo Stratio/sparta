@@ -11,3 +11,4 @@ Contents:
     examples.rst
     comingSoon.rst
     versionFeatures.rst
+    twitterExample.rst

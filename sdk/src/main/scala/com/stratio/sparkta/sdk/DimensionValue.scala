@@ -18,11 +18,13 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
-case class DimensionValue(dimensionPrecision : DimensionPrecision, value: JSerializable)
+case class DimensionValue(dimension : Dimension, value: JSerializable)
   extends Ordered[DimensionValue] {
 
-  def getNameDimension: String = dimensionPrecision.getNameDimension
+  val precisionValue = dimension.dimensionType.precisionValue(dimension.precisionKey, value)
 
-  def compare(precisionValue: DimensionValue): Int = dimensionPrecision compareTo precisionValue.dimensionPrecision
+  def getNameDimension: String = dimension.getNamePrecision
+
+  def compare(dimensionValue: DimensionValue): Int = dimension compareTo dimensionValue.dimension
 
 }

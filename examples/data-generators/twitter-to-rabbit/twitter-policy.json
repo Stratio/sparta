@@ -29,59 +29,25 @@
             }
         }
     ],
-    "fields": [
-        {
-            "name": "source"
-        },
-        {
-            "name": "text"
-        },
-        {
-            "name": "lang"
-        },
-        {
-            "dimensionType": "DateTime",
-            "name": "createdAt"
-        },
-        {
-            "name": "favoriteCount"
-        },
-        {
-            "name": "retweetCount"
-        },
-        {
-            "name": "user_followersCount"
-        },
-        {
-            "name": "user_favouritesCount"
-        },
-        {
-            "name": "user_id"
-        },
-        {
-            "name": "user_screenName"
-        },
-        {
-            "name": "user_timeZone"
-        }
-    ],
     "cubes": [
         {
             "name": "testCube",
             "dimensions": [
                 {
-                    "dimension": "createdAt",
+                    "name": "createdAt",
+                    "field": "createdAt",
+                    "type": "DateTime",
                     "precision": "minute"
                 }
             ],
             "operators": [
                 {
-                    "measureName": "count-operator",
+                    "name": "count-operator",
                     "type": "Count",
                     "configuration": {}
                 },
                 {
-                    "measureName": "max-operator",
+                    "name": "max-operator",
                     "type": "Max",
                     "configuration": {
                         "inputField": "user_followersCount"
@@ -93,17 +59,18 @@
             "name": "testCube1",
             "dimensions": [
                 {
-                    "dimension": "lang"
+                    "name": "lang",
+                    "field": "lang"
                 }
             ],
             "operators": [
                 {
-                    "measureName": "count-operator",
+                    "name": "count-operator",
                     "type": "Count",
                     "configuration": {}
                 },
                 {
-                    "measureName": "max-operator",
+                    "name": "max-operator",
                     "type": "Max",
                     "configuration": {
                         "inputField": "user_followersCount"
@@ -115,21 +82,23 @@
             "name": "testCube2",
             "dimensions": [
                 {
-                    "dimension": "lang"
+                    "name": "lang",
+                    "field": "lang"
                 },
                 {
-                    "dimension": "createdAt",
+                    "field": "createdAt",
+                    "type": "DateTime",
                     "precision": "minute"
                 }
             ],
             "operators": [
                 {
-                    "measureName": "count-operator",
+                    "name": "count-operator",
                     "type": "Count",
                     "configuration": {}
                 },
                 {
-                    "measureName": "max-operator",
+                    "name": "max-operator",
                     "type": "Max",
                     "configuration": {
                         "inputField": "user_followersCount"
@@ -141,17 +110,18 @@
             "name": "testCube3",
             "dimensions": [
                 {
-                    "dimension": "user_timeZone"
+                    "name": "user_timeZone",
+                    "field": "user_timeZone"
                 }
             ],
             "operators": [
                 {
-                    "measureName": "count-operator",
+                    "name": "count-operator",
                     "type": "Count",
                     "configuration": {}
                 },
                 {
-                    "measureName": "max-operator",
+                    "name": "max-operator",
                     "type": "Max",
                     "configuration": {
                         "inputField": "user_followersCount"
@@ -166,15 +136,28 @@
             "type": "MongoDb",
             "configuration": {
                 "clientUri": "mongodb://localhost:27017",
-                "dbName": "sparkta",
-                "multiplexer": "false"
+                "dbName": "sparkta"
             }
         }
     ],
-    "parsers": [
+    "transformations": [
         {
             "name": "morphline-parser",
+            "order": 1,
             "type": "Morphlines",
+            "outputFields": [
+                "source",
+                "createdAt",
+                "text",
+                "lang",
+                "favoriteCount",
+                "retweetCount",
+                "user_followersCount",
+                "user_favouritesCount",
+                "user_id",
+                "user_screenName",
+                "user_timeZone"
+            ],
             "configuration": {
                 "morphline": {
                     "id": "morphline1",
@@ -215,6 +198,11 @@
         },
         {
             "name": "createdAt",
+            "order": 2,
+            "inputField": "createdAt",
+            "outputFields": [
+                "createdAt"
+            ],
             "type": "DateTime",
             "configuration": {
                 "createdAt": "unixMillis"

@@ -16,15 +16,20 @@
 
 package com.stratio.sparkta.plugin.parser.detector
 
-import java.io.Serializable
+import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.sdk.{Event, Input, Parser}
 
 import scala.util.parsing.json.JSON
 
-class DetectorParser(properties: Map[String, Serializable]) extends Parser(properties) {
+class DetectorParser(name: String,
+                     order: Integer,
+                     inputField: String,
+                     outputFields: Seq[String],
+                     properties: Map[String, JSerializable])
+  extends Parser(name, order, inputField, outputFields, properties) {
 
-  def addGeoTo(event: Map[String, Serializable]): Map[String, Serializable] = {
+  def addGeoTo(event: Map[String, JSerializable]): Map[String, JSerializable] = {
     val lat = event.get("lat") match {
       case (Some(_: Serializable)) => if (event.get("lat") != Some(0.0)) event.get("lat") else None
       case (_) => None
@@ -43,11 +48,11 @@ class DetectorParser(properties: Map[String, Serializable]) extends Parser(prope
   }
 
   def stringDimensionToDouble(dimensionName: String, newDimensionName: String, columnMap: Map[String, Any]):
-  Map[String, Serializable] = {
+  Map[String, JSerializable] = {
     columnMap.get(dimensionName) match {
-      case Some(x:Double) => Map(newDimensionName-> x)
-      case Some(x:String) => if(x=="") Map() else Map(newDimensionName->x.toDouble)
-      case Some(_)=> Map(newDimensionName -> columnMap.get(dimensionName).getOrElse("0").toString.toDouble)
+      case Some(x: Double) => Map(newDimensionName -> x)
+      case Some(x: String) => if (x == "") Map() else Map(newDimensionName -> x.toDouble)
+      case Some(_) => Map(newDimensionName -> columnMap.get(dimensionName).getOrElse("0").toString.toDouble)
       case None => Map()
     }
   }
@@ -60,13 +65,13 @@ class DetectorParser(properties: Map[String, Serializable]) extends Parser(prope
   override def parse(data: Event): Event = {
     var event: Option[Event] = None
     data.keyMap.foreach(e => {
-      if (Input.RawDataKey.equals(e._1)) {
+      if (inputField.equals(e._1)) {
         val result = e._2 match {
           case s: String => s
           case b: Array[Byte] => new String(b)
         }
 
-        JSON.globalNumberParser = {input: String => input.toDouble}
+        JSON.globalNumberParser = { input: String => input.toDouble }
         val json = JSON.parseFull(result)
         event = Some(new Event(json.get.asInstanceOf[Map[String, Serializable]], Some(e._2)))
         val columns = event.get.keyMap.get("columns").get.asInstanceOf[List[Map[String, String]]]
@@ -87,20 +92,17 @@ class DetectorParser(properties: Map[String, Serializable]) extends Parser(prope
 
         val resultMap = columnMapExtended ++ odometerMap ++ rmpAvgMap
 
-        event = Some(new Event((resultMap
-          .asInstanceOf[Map[String,Serializable]] ++
-          addGeoTo(resultMap))
-          .filter(m => m
-          ._2 !=
-          ""), None))
+        event = Some(new Event((resultMap.asInstanceOf[Map[String, JSerializable]] ++ addGeoTo(resultMap))
+          .filter(m => (m._2 != "") && outputFields.contains(m._1)), None))
       }
     })
 
-    val parsedEvent = event.getOrElse(data)
-    if (!parsedEvent.keyMap.get("alarm_code").getOrElse("1").equals(0.0))
-      new Event(Map(), None)
-    else
-      parsedEvent
+    val parsedEvent = event match {
+      case Some(x) => new Event(data.keyMap ++ x.keyMap)
+      case None => data
+    }
+    if (!parsedEvent.keyMap.get("alarm_code").getOrElse("1").equals(0.0)) new Event(Map(), None)
+    else parsedEvent
   }
 }
 

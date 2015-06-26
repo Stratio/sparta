@@ -45,7 +45,7 @@ class ISocketOCassandraIT extends SparktaATSuite {
 
     def checkData(): Unit = {
       val cluster = Cluster.builder().addContactPoints(Localhost).withPort(CassandraPort).build()
-      val session: Session = cluster.connect("sparkta");
+      val session: Session = cluster.connect("sparkta")
 
       val resultProductA: ResultSet = session.execute("select * from product_minute where product = 'producta'")
       val rowProductA = resultProductA.iterator().next()

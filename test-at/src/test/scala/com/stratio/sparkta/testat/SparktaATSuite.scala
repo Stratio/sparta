@@ -45,8 +45,7 @@ import com.stratio.sparkta.sdk.JsoneyStringSerializer
  * Common operations that will be used in Acceptance Tests. All AT must extends from it.
  * @author arincon
  */
-trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogging with BeforeAndAfter
-with Matchers {
+trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogging with BeforeAndAfter with Matchers {
 
   val policyFile: String
   val Localhost = "127.0.0.1"
@@ -107,14 +106,17 @@ with Matchers {
   /**
    * This is a workaround to find the jars either in the IDE or in a maven execution.
    * This test should be moved to acceptance tests when available
+   * TODO: this is a unicorn shit and must be changed.
    */
   def getSparktaHome: String = {
-    val fileForIde = new File(".", "plugins")
+    var fileForIde = new File(".", "plugins")
 
     if (fileForIde.exists()) {
       new File(".").getCanonicalPath
-    } else {
+    } else if(new File("../.", "plugins").exists()) {
       new File("../.").getCanonicalPath
+    } else {
+      new File("../../.").getCanonicalPath
     }
   }
 
