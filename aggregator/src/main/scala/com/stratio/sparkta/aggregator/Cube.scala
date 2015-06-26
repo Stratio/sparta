@@ -34,7 +34,7 @@ import com.stratio.sparkta.sdk._
  */
 
 case class Cube(name: String,
-                components: Seq[DimensionPrecision],
+                dimensions: Seq[Dimension],
                 operators: Seq[Operator],
                 multiplexer: Boolean,
                 checkpointInterval: Int,
@@ -43,25 +43,6 @@ case class Cube(name: String,
 
   private lazy val operatorsMap = operators.map(op => op.key -> op).toMap
 
-  //scalastyle:off
-  def this(name: String,
-           dimension: Dimension,
-           precision: Precision,
-           operators: Seq[Operator],
-           multiplexer: Boolean,
-           checkpointInterval: Int,
-           checkpointGranularity: String,
-           checkpointAvailable: Int) {
-    this(name, Seq(DimensionPrecision(dimension, precision)),
-      operators,
-      multiplexer,
-      checkpointInterval,
-      checkpointGranularity,
-      checkpointAvailable)
-  }
-
-  //scalastyle:on
-
   def this(name: String,
            dimension: Dimension,
            operators: Seq[Operator],
@@ -69,9 +50,7 @@ case class Cube(name: String,
            checkpointInterval: Int,
            checkpointGranularity: String,
            checkpointAvailable: Int) {
-    this(name, Seq(DimensionPrecision(dimension,
-      DimensionType.getIdentity(dimension.dimensionType.getTypeOperation,
-        dimension.dimensionType.defaultTypeOperation))),
+    this(name, Seq(dimension),
       operators,
       multiplexer,
       checkpointInterval,
@@ -90,8 +69,8 @@ case class Cube(name: String,
     Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
     dimensionValues.map { case (dimensionsValuesTime, aggregationValues) => {
       val dimensionsFiltered = dimensionsValuesTime.dimensionValues.filter(dimVal =>
-        components.find(comp => comp.dimension == dimVal.dimensionPrecision.dimension &&
-          comp.precision.id == dimVal.dimensionPrecision.precision.id).nonEmpty)
+        dimensions.find(comp => comp == dimVal.dimension &&
+          comp.getNamePrecision == dimVal.getNameDimension).nonEmpty)
       (DimensionValuesTime(dimensionsFiltered, dimensionsValuesTime.time), aggregationValues)
     }
     }
@@ -131,16 +110,20 @@ case class Cube(name: String,
     })
   }
 
-  override def toString: String = "[Cube over " + components + "]"
+  override def toString: String = "[Cube over " + dimensions + "]"
 
-  def getComponentsSorted: Seq[DimensionPrecision] = components.sorted
+  def getDimensionsSorted: Seq[Dimension] = dimensions.sorted
 
-  def getComponentNames: Seq[String] = components.map(dimPrecision => dimPrecision.getNameDimension)
+  def getDimensionsNames: Seq[String] = dimensions.map(dimension => dimension.name)
 
-  def getComponentNames(dimPrecisions: Seq[DimensionPrecision]): Seq[String] =
-    dimPrecisions.map(dimPrecision => dimPrecision.getNameDimension)
+  def getPrecisionsNames: Seq[String] = dimensions.map(dimension => dimension.getNamePrecision)
 
-  def getComponentsNamesSorted: Seq[String] = getComponentNames(getComponentsSorted)
+  def getDimensionsNames(dimensions: Seq[Dimension]): Seq[String] = dimensions.map(dimension => dimension.name)
+
+  def getPrecisionsNames(dimensions: Seq[Dimension]): Seq[String] =
+    dimensions.map(dimension => dimension.getNamePrecision)
+
+  def getComponentsNamesSorted: Seq[String] = getDimensionsNames(getDimensionsSorted)
 
   def getOperatorsSorted: Seq[Operator] = operators.sorted
 

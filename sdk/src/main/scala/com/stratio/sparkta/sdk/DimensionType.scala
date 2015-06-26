@@ -38,14 +38,14 @@ trait DimensionType extends TypeConversions {
    * @param value Used to generate the different precisions
    * @return Map with all generated precisions and a sequence with all values
    */
-  def dimensionValues(value: JSerializable): Map[Precision, JSerializable]
+  def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable)
 
   /**
    * All precisions supported into this dimensionType
    *
    * @return Sequence of Precisions
    */
-  def precisions: Map[String, Precision]
+  def precision(keyName : String): Precision
 
   def properties: Map[String, JSerializable] = Map()
 
