@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.plugin.parser.split
 
 import com.stratio.sparkta.sdk.Event
@@ -24,22 +25,25 @@ import org.scalatest.{Matchers, WordSpec}
 @RunWith(classOf[JUnitRunner])
 class SplitParserSpec extends WordSpec with Matchers {
 
-
+  val inputField = "text"
+  val outputsFields = Seq("resultField")
   val inputEvent: Event = new Event(Map("text" -> "hola mundo hola mundito"))
 
   "The SplitParser" should {
     "add a tuple with a list" in {
-      val properties: Map[String, Serializable] = Map("textField" -> "text", "splitter" -> " ", "resultField" -> "parsedText").asInstanceOf[Map[String, Serializable]]
-      val parser = new SplitParser(properties)
+      val properties: Map[String, Serializable] = Map("splitter" -> " ", "resultField" -> "parsedText")
+        .asInstanceOf[Map[String, Serializable]]
+      val parser = new SplitParser("name", 1, inputField, outputsFields, properties)
       val resultEvent = parser.parse(inputEvent)
       resultEvent.keyMap.get("parsedText") should be(Some(List("hola", "mundo", "hola", "mundito")))
     }
     "has the same keyMap if there is no text to split" in {
-      val properties: Map[String, Serializable] = Map("textField" -> "text_not_exist", "splitter" -> " ", "resultField" -> "parsedText").asInstanceOf[Map[String, Serializable]]
-      val parser = new SplitParser(properties)
+      val properties: Map[String, Serializable] = Map("splitter" -> " ", "resultField" -> "parsedText")
+        .asInstanceOf[Map[String, Serializable]]
+      val parser = new SplitParser("name", 1, inputField, outputsFields, properties)
       val resultEvent = parser.parse(inputEvent)
       println(resultEvent.keyMap)
-      resultEvent.keyMap.size should be (1)
+      resultEvent.keyMap.size should be (2)
     }
   }
 

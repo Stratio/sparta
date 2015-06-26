@@ -40,21 +40,21 @@ case class DateTimeField(props: Map[String, JSerializable])
     if (!props.contains(GranularityPropertyName)) Map(GranularityPropertyName -> DefaultGranularity) else Map()
   }
 
-  override val precisions: Map[String, Precision] = Map(
-    timestamp.id -> timestamp,
-    SecondName -> getPrecision(SecondName, getTypeOperation(SecondName)),
-    MinuteName -> getPrecision(MinuteName, getTypeOperation(MinuteName)),
-    HourName -> getPrecision(HourName, getTypeOperation(HourName)),
-    DayName -> getPrecision(DayName, getTypeOperation(DayName)),
-    MonthName -> getPrecision(MonthName, getTypeOperation(MonthName)),
-    YearName -> getPrecision(YearName, getTypeOperation(YearName)))
+  override def precision(keyName: String): Precision = keyName match {
+    case SecondName => getPrecision(SecondName, getTypeOperation(SecondName))
+    case MinuteName => getPrecision(MinuteName, getTypeOperation(MinuteName))
+    case HourName => getPrecision(HourName, getTypeOperation(HourName))
+    case DayName => getPrecision(DayName, getTypeOperation(DayName))
+    case MonthName => getPrecision(MonthName, getTypeOperation(MonthName))
+    case YearName => getPrecision(YearName, getTypeOperation(YearName))
+    case _ => timestamp
+  }
 
   @throws(classOf[ClassCastException])
-  override def dimensionValues(value: JSerializable): Map[Precision, JSerializable] =
+  override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) =
     try {
-      precisions.map { case (name, precision) =>
-        precision -> DateTimeField.getPrecision(value.asInstanceOf[Date], precision, properties)
-      }
+      val precisionKey = precision(keyName)
+      (precisionKey, DateTimeField.getPrecision(value.asInstanceOf[Date], precisionKey, properties))
     }
     catch {
       case cce: ClassCastException => {

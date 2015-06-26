@@ -22,7 +22,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 
-import com.stratio.sparkta.sdk.{DimensionType, TypeOp}
+import com.stratio.sparkta.sdk.{Precision, DimensionType, TypeOp}
 
 @RunWith(classOf[JUnitRunner])
 class DefaultFieldSpec extends WordSpecLike with Matchers {
@@ -31,15 +31,15 @@ class DefaultFieldSpec extends WordSpecLike with Matchers {
 
   "A DefaultDimension" should {
     "In default implementation, get one precisions for a specific time" in {
-      val precisions = defaultDimension.dimensionValues("foo".asInstanceOf[JSerializable]).map(_._1.id)
+      val precision: (Precision, JSerializable) = defaultDimension.precisionValue("", "foo".asInstanceOf[JSerializable])
 
-      precisions.size should be(1)
+      precision._2 should be("foo")
 
-      precisions should contain(DimensionType.IdentityName)
+      precision._1.id should be(DimensionType.IdentityName)
     }
 
     "The precision must be int" in {
-      defaultDimension.precisions(DimensionType.IdentityName).typeOp should be(TypeOp.Int)
+      defaultDimension.precision(DimensionType.IdentityName).typeOp should be(TypeOp.Int)
     }
   }
 }

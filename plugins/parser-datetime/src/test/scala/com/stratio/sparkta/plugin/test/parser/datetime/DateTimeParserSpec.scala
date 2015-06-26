@@ -29,27 +29,30 @@ import org.scalatest.WordSpecLike
 @RunWith(classOf[JUnitRunner])
 class DateTimeParserSpec extends WordSpecLike {
 
+  val inputField = "ts"
+  val outputsFields = Seq("ts")
+
   "A DateTimeParser" should {
     "parse unixMillis" in {
       val e1 = new Event(Map("ts" -> 1416330788000L))
       val e2 = new Event(Map("ts" -> new Date(1416330788000L)))
-      assertResult(e2)(new DateTimeParser(Map("ts" -> "unixMillis")).parse(e1))
+      assertResult(e2)(new DateTimeParser("name", 1, inputField, outputsFields, Map("ts" -> "unixMillis")).parse(e1))
     }
     "parse unixMillis string" in {
       val e1 = new Event(Map("ts" -> "1416330788000"))
       val e2 = new Event(Map("ts" -> new Date(1416330788000L)))
-      assertResult(e2)(new DateTimeParser(Map("ts" -> "unixMillis")).parse(e1))
+      assertResult(e2)(new DateTimeParser("name", 1, inputField, outputsFields, Map("ts" -> "unixMillis")).parse(e1))
     }
     "parse unix" in {
       val e1 = new Event(Map("ts" -> "1416330788"))
       val e2 = new Event(Map("ts" -> new Date(1416330788000L)))
       println(new Date(1416330788L))
-      assertResult(e2)(new DateTimeParser(Map("ts" -> "unix")).parse(e1))
+      assertResult(e2)(new DateTimeParser("name", 1, inputField, outputsFields, Map("ts" -> "unix")).parse(e1))
     }
     "parse unix string" in {
       val e1 = new Event(Map("ts" -> "1416330788"))
       val e2 = new Event(Map("ts" -> new Date(1416330788000L)))
-      assertResult(e2)(new DateTimeParser(Map("ts" -> "unix")).parse(e1))
+      assertResult(e2)(new DateTimeParser("name", 1, inputField, outputsFields, Map("ts" -> "unix")).parse(e1))
     }
     "parse dateTime" in {
       val e1 = new Event(Map("ts" -> "2014-05-23T21:22:23.250Z"))
@@ -58,7 +61,7 @@ class DateTimeParserSpec extends WordSpecLike {
         .withHourOfDay(21).withMinuteOfHour(22).withSecondOfMinute(23).withMillisOfSecond(250)
         .toDate
       ))
-      assertResult(e2)(new DateTimeParser(Map("ts" -> "dateTime")).parse(e1))
+      assertResult(e2)(new DateTimeParser("name", 1, inputField, outputsFields, Map("ts" -> "dateTime")).parse(e1))
     }
   }
 }

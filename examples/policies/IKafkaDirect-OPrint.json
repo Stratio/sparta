@@ -16,7 +16,7 @@
   "inputs": [
     {
       "name": "in",
-      "elementType": "KafkaDirect",
+      "type": "KafkaDirect",
       "configuration": {
         "topics": "test:1",
         "kafkaParams.metadata.broker.list": "localhost:9092",
@@ -24,42 +24,14 @@
       }
     }
   ],
-  "fields": [
-    {
-      "name": "message"
-    }
-  ],
-  "cubes": [
-    {
-      "name": "testCube",
-      "dimensions": [
-        {
-          "dimension": "message"
-        }
-      ],
-      "operators": [
-        {
-          "measureName": "count-operator",
-          "type": "Count",
-          "configuration": {}
-        }
-      ]
-    }
-  ],
-  "outputs": [
-    {
-      "name": "out-print",
-      "elementType": "Print",
-      "configuration": {
-        "multiplexer": "false",
-        "isAutoCalculateId": "true"
-      }
-    }
-  ],
-  "parsers": [
+  "transformations": [
     {
       "name": "morphline",
-      "elementType": "Morphlines",
+      "order": 0,
+      "outputFields": [
+        "message"
+      ],
+      "type": "Morphlines",
       "configuration": {
         "morphline": {
           "id": "test1",
@@ -74,6 +46,34 @@
             }
           ]
         }
+      }
+    }
+  ],
+  "cubes": [
+    {
+      "name": "testCube",
+      "dimensions": [
+        {
+          "name": "message",
+          "field": "message"
+        }
+      ],
+      "operators": [
+        {
+          "name": "count-operator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-print",
+      "type": "Print",
+      "configuration": {
+
+        "isAutoCalculateId": "true"
       }
     }
   ]

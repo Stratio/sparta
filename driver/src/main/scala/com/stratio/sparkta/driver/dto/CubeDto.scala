@@ -19,7 +19,7 @@ package com.stratio.sparkta.driver.dto
 import com.stratio.sparkta.sdk.DimensionType
 
 case class CubeDto(name: String,
-                   dimensions: Seq[PrecisionDto],
+                   dimensions: Seq[DimensionDto],
                    operators: Seq[OperatorDto],
                    multiplexer: String = CubeDto.Multiplexer)
 
@@ -28,6 +28,8 @@ case object CubeDto {
   val Multiplexer = "false"
 }
 
-case class PrecisionDto(dimension: String,
+case class DimensionDto(name: String,
+                        field: String,
                         precision: String = DimensionType.IdentityName,
+                       `type`: String = DimensionType.DefaultDimensionClass,
                         configuration: Option[Map[String, String]])

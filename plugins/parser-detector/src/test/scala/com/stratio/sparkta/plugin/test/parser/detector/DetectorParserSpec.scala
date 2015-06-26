@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.plugin.test.parser.detector
 
 import com.stratio.sparkta.plugin.parser.detector.DetectorParser
@@ -23,6 +24,11 @@ import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class DetectorParserSpec extends WordSpecLike {
+
+  val inputField = Input.RawDataKey
+  val outputsFields = Seq("plate", "alarm_code")
+  val outputsFields2 = Seq("plate")
+  val outputsFields3 = Seq("odometerNum")
 
   "A DetectorParser" should {
     "parse to map with real json" in {
@@ -70,7 +76,13 @@ class DetectorParserSpec extends WordSpecLike {
 
       val e1 = new Event(Map(Input.RawDataKey -> myJson1))
       val e2 = new Event(Map())
-      assertResult(true)(new DetectorParser(Map()).parse(e1).keyMap.contains("plate"))
+      val result = new DetectorParser("name", 1, inputField, outputsFields, Map()).parse(e1)
+      val badResult = new DetectorParser("name", 1, inputField, outputsFields2, Map()).parse(e1)
+      val badResult2 = new DetectorParser("name", 1, inputField, outputsFields2, Map()).parse(e1)
+
+      assertResult(true)(result.keyMap.contains("plate"))
+      assertResult(false)(badResult.keyMap.contains("plate"))
+      assertResult(false)(badResult2.keyMap.contains("plate"))
     }
   }
 }
