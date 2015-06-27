@@ -102,7 +102,6 @@
       "configuration": {
         "nodes": "localhost",
         "defaultPort": "9200",
-
         "isAutoCalculateId": "true",
         "indexMapping": "day"
       }

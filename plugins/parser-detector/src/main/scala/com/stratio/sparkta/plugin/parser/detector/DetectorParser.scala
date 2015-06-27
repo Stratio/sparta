@@ -31,20 +31,19 @@ class DetectorParser(name: String,
 
   def addGeoTo(event: Map[String, JSerializable]): Map[String, JSerializable] = {
     val lat = event.get("lat") match {
-      case (Some(_: Serializable)) => if (event.get("lat") != Some(0.0)) event.get("lat") else None
-      case (_) => None
+      case Some(value) => if (value != Some(0.0)) Some(value.toString) else None
+      case None => None
     }
     val lon = event.get("lon") match {
-      case (Some(_: Serializable)) => if (event.get("lon") != Some(0.0)) event.get("lon") else None
-      case (_) => None
+      case Some(value) => if (value != Some(0.0)) Some(value.toString) else None
+      case None => None
     }
     val mapToReturn = (lat, lon) match {
-      case (Some(_), Some(_)) => "geo" -> Some(lat.get + "__" + lon.get)
-      case (None, None) => "geo" -> ""
+      case (Some(latVal), Some(lonVal)) => "geo" -> Some(latVal + "__" + lonVal)
+      case (None, None) => "geo" -> None
     }
 
-    if (Map(mapToReturn).get("geo") != Some("__")) Map(mapToReturn)
-    else Map()
+    Map(mapToReturn)
   }
 
   def stringDimensionToDouble(dimensionName: String, newDimensionName: String, columnMap: Map[String, Any]):
@@ -73,7 +72,7 @@ class DetectorParser(name: String,
 
         JSON.globalNumberParser = { input: String => input.toDouble }
         val json = JSON.parseFull(result)
-        event = Some(new Event(json.get.asInstanceOf[Map[String, Serializable]], Some(e._2)))
+        event = Some(new Event(json.get.asInstanceOf[Map[String, JSerializable]], Some(e._2)))
         val columns = event.get.keyMap.get("columns").get.asInstanceOf[List[Map[String, String]]]
         val columnMap = columns.map(c => c.get("column").get -> c.get("value").getOrElse("")).toMap
 
@@ -93,7 +92,7 @@ class DetectorParser(name: String,
         val resultMap = columnMapExtended ++ odometerMap ++ rmpAvgMap
 
         event = Some(new Event((resultMap.asInstanceOf[Map[String, JSerializable]] ++ addGeoTo(resultMap))
-          .filter(m => (m._2 != "") && outputFields.contains(m._1)), None))
+          .filter(m => (m._2.toString != "") && outputFields.contains(m._1)), None))
       }
     })
 

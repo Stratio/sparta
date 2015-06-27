@@ -33,12 +33,13 @@ import org.scalatest.junit.JUnitRunner
 class ISocketOMongoDetectorIT extends MongoEmbedDatabase with SparktaATSuite {
 
   val TestMongoPort = 60000
+  override val PolicyEndSleep = 30000
   val policyFile = "policies/ISocket-OMongo-Detector.json"
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-internal-data.csv").getPath
   var mongoProps: MongodProps = _
   val DatabaseName = "csvtest"
-  val CollectionMaxMinOdometer = "asset_company_root_ou_vehicle_path_id_minute"
-  val CollectionRpmAvg = "company_root_precision3_ou_vehicle_minute"
+  val CollectionMaxMinOdometer = "asset_companyRoot_ouVehicle_pathId_recordedAtMs"
+  val CollectionRpmAvg = "companyRoot_geo_ouVehicle_recordedAtMs"
 
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in mongodb" in {
@@ -49,6 +50,9 @@ class ISocketOMongoDetectorIT extends MongoEmbedDatabase with SparktaATSuite {
     def checkMongoData(): Unit = {
       val mongoConnectionMaxMinOdometer = getMongoConnection(CollectionMaxMinOdometer)
       val mongoConnectionRpmAvg = getMongoConnection(CollectionRpmAvg)
+
+      mongoConnectionMaxMinOdometer.size should be(2)
+      mongoConnectionRpmAvg.size should be(2)
 
       if (mongoConnectionRpmAvg.size > 0) {
         mongoConnectionRpmAvg.map(dbObject => {

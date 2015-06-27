@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.plugin.input.twitter
 
 import java.io.{Serializable => JSerializable}
@@ -30,7 +31,6 @@ import scala.util.Try
 
 /**
  * Connects to Twitter's stream and generates stream events.
- * @author ajnavarro
  */
 class TwitterInput(properties: Map[String, JSerializable]) extends Input(properties) {
 
@@ -57,7 +57,7 @@ class TwitterInput(properties: Map[String, JSerializable]) extends Input(propert
       "timestamp" ->  data.getCreatedAt,
       "text"-> data.getText,
       "geolocation" -> (Option(data.getGeoLocation) match {
-        case Some(geo) => Some((geo.getLatitude + "__" + geo.getLongitude))
+        case Some(geo) => Some(geo.getLatitude + "__" + geo.getLongitude)
         case _ => None
       }).asInstanceOf[JSerializable]
     ),Some(data)))

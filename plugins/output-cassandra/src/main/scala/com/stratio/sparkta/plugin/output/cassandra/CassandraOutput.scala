@@ -51,9 +51,9 @@ class CassandraOutput(keyName: String,
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val fixedPrecisions: Array[String] = properties.getString("fixedPrecisions", None) match {
+  override val fixedDimensions: Array[String] = properties.getString("fixedDimensions", None) match {
     case None => Array()
-    case Some(fixPrecisions) => fixPrecisions.split(fieldsSeparator)
+    case Some(fixDimensions) => fixDimensions.split(fieldsSeparator)
   }
 
   override val keyspace = properties.getString("keyspace", "sparkta")
@@ -97,20 +97,19 @@ class CassandraOutput(keyName: String,
     bcSchema.exists(bc => createTables(schemaFiltered, timeName, isAutoCalculateId))
   } else false
 
-  override protected def setup: Unit = {
-    if (keyspaceCreated && tablesCreated && indexFields.isDefined && !indexFields.get.isEmpty) {
-      bcSchema.exists(bc => createIndexes(schemaFiltered, timeName, isAutoCalculateId))
+  override def setup: Unit = {
+    if (keyspaceCreated && tablesCreated){
+      if (indexFields.isDefined && !indexFields.get.isEmpty) {
+        bcSchema.exists(bc => createIndexes(schemaFiltered, timeName, isAutoCalculateId))
+      }
+      if (textIndexFields.isDefined &&
+        !textIndexFields.isEmpty &&
+        !fixedAggregation.isEmpty &&
+        fixedAgg.get == textIndexName) {
+        bcSchema.exists(bc => createTextIndexes(schemaFiltered))
+      }
     }
   }
-
-  val textIndexesCreated = if (keyspaceCreated &&
-    tablesCreated &&
-    textIndexFields.isDefined &&
-    !textIndexFields.isEmpty &&
-    !fixedAggregation.isEmpty &&
-    fixedAgg.get == textIndexName) {
-    bcSchema.exists(bc => createTextIndexes(schemaFiltered))
-  } else false
 
   /*
   * The next two methods are beta.

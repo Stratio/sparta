@@ -75,7 +75,7 @@ case class GeoHashField(props: Map[String, JSerializable])
 
   override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) =
     try {
-      if (value.asInstanceOf[Option[_]] != None) {
+      if (value.isInstanceOf[Option[_]] && value.asInstanceOf[Option[_]] != None) {
         val precisionKey = precision(keyName)
         val latLongArray = value.asInstanceOf[Option[_]].get.asInstanceOf[String]
             .split(properties.get(GeoHashField.LatLongKey).getOrElse(GeoHashField.LatLongSepartor).toString)

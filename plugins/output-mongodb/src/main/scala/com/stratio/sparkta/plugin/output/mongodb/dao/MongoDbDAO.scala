@@ -79,7 +79,7 @@ trait MongoDbDAO extends Closeable {
     bulkOperation.execute()
   }
 
-  protected def createPkTextIndex(collection: String, timePrecision: String): (Boolean, Boolean) = {
+  protected def createPkTextIndex(collection: String, timeDimension: String): (Boolean, Boolean) = {
     val textIndexCreated = if (textIndexFields.isDefined && language.isDefined) {
       if (textIndexFields.get.size > 0) {
         createTextIndex(collection, textIndexFields.mkString(Output.Separator), textIndexFields.get, language.get)
@@ -87,11 +87,11 @@ trait MongoDbDAO extends Closeable {
       } else false
     } else false
 
-    if (!timePrecision.isEmpty) {
-      createIndex(collection, Output.Id + Output.Separator + timePrecision,
-        Map(Output.Id -> 1, timePrecision -> 1), true, true)
+    if (!timeDimension.isEmpty) {
+      createIndex(collection, Output.Id + Output.Separator + timeDimension,
+        Map(Output.Id -> 1, timeDimension -> 1), true, true)
     }
-    (!timePrecision.isEmpty, textIndexCreated)
+    (!timeDimension.isEmpty, textIndexCreated)
   }
 
   protected def indexExists(collection: String, indexName: String): Boolean = {
@@ -220,16 +220,16 @@ trait MongoDbDAO extends Closeable {
   }
 
   protected def getIdFields(cubeKey : DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
-    cubeKey.dimensionValues.map(dimVal => (Seq(dimVal.getNameDimension -> dimVal.value), "$set")).toMap
+    cubeKey.dimensionValues.map(dimVal => (Seq(dimVal.dimension.name -> dimVal.value), "$set")).toMap
 
   protected def getIdentities(cubeKey : DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
     cubeKey.dimensionValues.filter(dimVal => dimVal.dimension.precision.id == DimensionType.IdentityName)
-    .map(dimVal => (Seq(dimVal.getNameDimension -> dimVal.value), "$set")).toMap
+    .map(dimVal => (Seq(dimVal.dimension.name -> dimVal.value), "$set")).toMap
 
   protected def getIdentitiesField(cubeKey : DimensionValuesTime): Seq[Imports.DBObject] = cubeKey.dimensionValues
     .filter(dimVal => dimVal.dimension.precision.id == DimensionType.IdentityFieldName ||
     (identitiesSavedAsField && dimVal.dimension.precision.id == DimensionType.IdentityName))
-    .map(dimVal => MongoDBObject(dimVal.getNameDimension -> dimVal.value))
+    .map(dimVal => MongoDBObject(dimVal.dimension.name -> dimVal.value))
 
   protected def checkFields(aggregations: Set[String],
                             operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]]): Unit = {

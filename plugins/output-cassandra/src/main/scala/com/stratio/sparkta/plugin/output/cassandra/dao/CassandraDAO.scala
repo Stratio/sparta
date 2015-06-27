@@ -183,6 +183,7 @@ trait CassandraDAO extends Closeable with Logging {
   protected def clusteringConditions(field: StructField, clusteringTime: String): Boolean =
     !field.nullable && (field.name == clusteringTime || clusteringPrecisions.exists(_.contains(field.name)))
 
+  //scalastyle:off
   protected def schemaToPkCcolumns(schema: StructType,
                                    clusteringTime: String,
                                    isAutoCalculateId: Boolean): Option[String] = {
@@ -190,10 +191,16 @@ trait CassandraDAO extends Closeable with Logging {
     val primaryKey = getPrimaryKey(schema, clusteringTime, isAutoCalculateId).mkString(",")
     val clusteringColumns =
       schema.filter(field => clusteringConditions(field, clusteringTime)).map(_.name).mkString(",")
-    val pkCcolumns = if (clusteringColumns.isEmpty) s"($primaryKey)" else s"(($primaryKey), $clusteringColumns)"
+    val pkCcolumns = clusteringColumns match {
+      case clusteringCol if !clusteringCol.isEmpty && primaryKey.isEmpty => s"($clusteringColumns)"
+      case clusteringCol if clusteringCol.isEmpty && !primaryKey.isEmpty => s"($primaryKey)"
+      case clusteringCol if !clusteringCol.isEmpty && !primaryKey.isEmpty => s"(($primaryKey), $clusteringColumns)"
+    }
 
-    if (!primaryKey.isEmpty && !fields.isEmpty) Some(s"($fields, PRIMARY KEY $pkCcolumns)") else None
+    if (!fields.isEmpty && !pkCcolumns.isEmpty) Some(s"($fields, PRIMARY KEY $pkCcolumns)")
+    else None
   }
+  //scalastyle:on
 
   protected def getPrimaryKey(schema: StructType,
                               clusteringTime: String,

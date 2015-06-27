@@ -31,15 +31,15 @@ import com.stratio.sparkta.sdk._
  * Finally, it returns a modified stream with pre-calculated data encapsulated in a UpdateMetricOperation.
  * This final stream will be used mainly by outputs.
  * @param cubes that will be contain how the data will be aggregate.
- * @param timePrecision that will be contain the dimensionType id that contain the date.
+ * @param timeDimension that will be contain the dimensionType id that contain the date.
  * @param checkpointGranularity that will be contain the granularity to calculate the time, only if this
  *                              dimensionType is not present.
  */
 case class CubeMaker(cubes: Seq[Cube],
-                    timePrecision: Option[String],
+                    timeDimension: Option[String],
                     checkpointGranularity: String) {
 
-  var currentCube: Cube = _
+  //var currentCube: Cube = _
 
   /**
    * It builds the DataCube calculating aggregations.
@@ -48,8 +48,8 @@ case class CubeMaker(cubes: Seq[Cube],
    */
   def setUp(inputStream: DStream[Event]): Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]] = {
     cubes.map(cube => {
-      currentCube = cube
-      val extractedDimensionsStream = extractDimensionsStream(inputStream)
+      //currentCube = cube
+      val extractedDimensionsStream = extractDimensionsStream(inputStream, cube)
       cube.aggregate(extractedDimensionsStream)
     })
   }
@@ -59,11 +59,11 @@ case class CubeMaker(cubes: Seq[Cube],
    * @param inputStream with the original stream of data.
    * @return a modified stream after join dimensions, cubes and operations.
    */
-  def extractDimensionsStream(inputStream: DStream[Event])
+  def extractDimensionsStream(inputStream: DStream[Event], cube: Cube)
   : DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
     inputStream.map(event => {
         val dimensionValues = for {
-          dimension <- currentCube.dimensions
+          dimension <- cube.dimensions//currentCube.dimensions
           value <- event.keyMap.get(dimension.field).toSeq
           (precision, dimValue) = dimension.dimensionType.precisionValue(dimension.precisionKey, value)
         } yield DimensionValue(dimension, TypeOp.transformValueByTypeOp(precision.typeOp, dimValue))
@@ -73,10 +73,10 @@ case class CubeMaker(cubes: Seq[Cube],
   }
 
   private def extractEventTime(dimensionValues: Seq[DimensionValue]) = {
-    timePrecision match {
-      case Some(precision) => {
+    timeDimension match {
+      case Some(dimension) => {
         val dimensionsDates =
-          dimensionValues.filter(dimensionValue => dimensionValue.getNameDimension == precision)
+          dimensionValues.filter(dimensionValue => dimensionValue.dimension.name == dimension)
         if (dimensionsDates.isEmpty) getDate else DateOperations.getMillisFromSerializable(dimensionsDates.head.value)
       }
       case None => getDate
