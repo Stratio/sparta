@@ -39,8 +39,6 @@ case class CubeMaker(cubes: Seq[Cube],
                     timeDimension: Option[String],
                     checkpointGranularity: String) {
 
-  //var currentCube: Cube = _
-
   /**
    * It builds the DataCube calculating aggregations.
    * @param inputStream with the original stream of data.
@@ -48,7 +46,6 @@ case class CubeMaker(cubes: Seq[Cube],
    */
   def setUp(inputStream: DStream[Event]): Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]] = {
     cubes.map(cube => {
-      //currentCube = cube
       val extractedDimensionsStream = extractDimensionsStream(inputStream, cube)
       cube.aggregate(extractedDimensionsStream)
     })
@@ -63,7 +60,7 @@ case class CubeMaker(cubes: Seq[Cube],
   : DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
     inputStream.map(event => {
         val dimensionValues = for {
-          dimension <- cube.dimensions//currentCube.dimensions
+          dimension <- cube.dimensions
           value <- event.keyMap.get(dimension.field).toSeq
           (precision, dimValue) = dimension.dimensionType.precisionValue(dimension.precisionKey, value)
         } yield DimensionValue(dimension, TypeOp.transformValueByTypeOp(precision.typeOp, dimValue))
