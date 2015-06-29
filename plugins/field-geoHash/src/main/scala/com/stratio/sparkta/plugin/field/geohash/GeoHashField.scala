@@ -75,17 +75,22 @@ case class GeoHashField(props: Map[String, JSerializable])
 
   override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) =
     try {
-      if (value.isInstanceOf[Option[_]] && value.asInstanceOf[Option[_]] != None) {
-        val precisionKey = precision(keyName)
-        val latLongArray = value.asInstanceOf[Option[_]].get.asInstanceOf[String]
+      val defaultPrecision = getPrecision(Precision3Name, getTypeOperation(Precision3Name))
+      if (value.isInstanceOf[Option[_]]) {
+        if (value.asInstanceOf[Option[_]] != None) {
+          val precisionKey = precision(keyName)
+          val latLongArray = value.asInstanceOf[Option[_]].get.asInstanceOf[String]
             .split(properties.get(GeoHashField.LatLongKey).getOrElse(GeoHashField.LatLongSepartor).toString)
-        latLongArray match {
-          case latLong if latLong.size == 2 =>
-            (precisionKey, GeoHashField.getPrecision(latLong(0).toDouble, latLong(1).toDouble, precisionKey))
-          case _ => (precisionKey, "")
+          latLongArray match {
+            case latLong if latLong.size == 2 =>
+              (precisionKey, GeoHashField.getPrecision(latLong(0).toDouble, latLong(1).toDouble, precisionKey))
+            case _ => (precisionKey, "")
+          }
+        } else {
+          (defaultPrecision, GeoHashField.getPrecision(0, 0, defaultPrecision))
         }
       } else {
-        val defaultPrecision = getPrecision(Precision3Name, getTypeOperation(Precision3Name))
+        log.info("The geolocation precision can not be casted to Option")
         (defaultPrecision, GeoHashField.getPrecision(0, 0, defaultPrecision))
       }
     }
