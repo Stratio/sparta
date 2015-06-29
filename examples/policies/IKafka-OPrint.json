@@ -25,18 +25,57 @@
       }
     }
   ],
-  "transformations": [
+  "fields": [
+    {
+      "name": "appName"
+    },
+    {
+      "name": "timestamp",
+      "type": "DateTime"
+    },
+    {
+      "name": "geo",
+      "type": "GeoHash"
+    },
+    {
+      "name": "tag",
+      "type": "Tag"
+    },
+    {
+      "name": "twitterStatus",
+      "type": "TwitterStatus"
+    }
+  ],
+  "cubes": [
+    {
+      "name": "testCube",
+      "dimensions": [
+        {
+          "dimension": "appName"
+        }
+      ],
+      "operators": [
+        {
+          "measureName": "count-operator",
+          "type": "Count",
+          "configuration": {
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-print",
+      "type": "Print",
+      "configuration": {
+      }
+    }
+  ],
+  "parsers": [
     {
       "name": "morphline",
-      "order": 0,
       "type": "Morphlines",
-      "outputFields": [
-        "appName",
-        "timestamp",
-        "geo",
-        "tag",
-        "twitterStatus"
-      ],
       "configuration": {
         "morphline": {
           "id": "test1",
@@ -61,31 +100,6 @@
           ]
         }
       }
-    }
-  ],
-  "cubes": [
-    {
-      "name": "testCube",
-      "dimensions": [
-        {
-          "field": "appName",
-          "name": "appName"
-        }
-      ],
-      "operators": [
-        {
-          "name": "count-operator",
-          "type": "Count",
-          "configuration": {}
-        }
-      ]
-    }
-  ],
-  "outputs": [
-    {
-      "name": "out-print",
-      "type": "Print",
-      "configuration": {}
     }
   ]
 }

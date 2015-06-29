@@ -16,21 +16,17 @@
 
 package com.stratio.sparkta.sdk
 
-case class Dimension(name: String, field: String, precisionKey: String, dimensionType: DimensionType)
-  extends Ordered[Dimension] {
+case class Dimension(name: String, dimensionType: DimensionType) {
 
-  val precision = dimensionType.precision(precisionKey)
+  val precisions = dimensionType.precisions
 
-  def getNamePrecision: String = precision.id match {
-    case DimensionType.IdentityName => field
-    case _ => precision.id
+  precisions match {
+    case x if x.isEmpty => throw new IllegalArgumentException("Invalid precision. There must at least one precision!")
+    case _ =>
   }
-
-  def compare(dimension: Dimension): Int = name compareTo dimension.name
-
 }
 
-case object Dimension {
+object Dimension {
 
-  final val FieldClassSuffix = "Field"
+  final val ClassSuffix = "Field"
 }

@@ -9,7 +9,7 @@ In this example we are going to show one of the most interesting inputs right no
 Let's explain what the example is going to do:
 
 
-* Get data that we want to work with, specifying it in the policy.
+* Get the data that we want to work with, specifying it in the policy.
 * Aggregate the data based on the policy parameters.
 * Apply operations such as counters,max,min,averages and many others.
 * Save the data in MongoDB, where we can see the results of the operations
@@ -37,10 +37,10 @@ The most important step it's to set the policy up with the right parameters. ::
       }
      ]
 
-In order to get the twitter access keys you will have to register in |streaming_link|
+In order to get the twitter access keys you will have to register in |twitter_keys|
 
 
-.. |streaming_link| raw:: html
+.. |twitter_keys| raw:: html
 
    <a href="https://apps.twitter.com/"
    target="_blank">Twitter developer web site</a>
@@ -93,11 +93,11 @@ The fields are:
 - timestamp
 - geolocation
 
-Some of the fields doesn't have to specify the type of  because it's set by default in the others you have to specify it.
+Some of the fields doesn't have to specify their types because it's set by default. In the others you have to specify it.
 
 * **Third**
 
-In this step we are going to define all the operators we want to apply to our data::
+In this step we are going to define all the operators that we want to apply to our data::
 
   "operators": [
         {
@@ -163,8 +163,8 @@ WordsN it's defined in the |Twitterinput_scala| and it's the number of words of 
 
 * **Fourth**
 
-The last step it's to declare our output database where we want our aggregated data to be stored.
-In this example we used MongoDB as database::
+The last step it's to declare our output database where we want to store our aggregated data.
+In this example we use MongoDB as database::
 
   "outputs": [
      {
@@ -177,7 +177,7 @@ In this example we used MongoDB as database::
     }
   ]
 
- You can have more information about the policies configuration in the (|doc_link|)
+You can have more information about the policies configuration in the |doc_link|
 
 .. |doc_link| raw:: html
 
@@ -201,7 +201,7 @@ As we explained, if in the input you add::
  "termsOfSearch":"Your,#search,#could,be,whatever"
 
 
-It will be a custom search, if you want the other choice just delete the whole line, and the
+It will be a custom search, if you want the other choice(global trending topics) just delete the whole line, and the
 policy will look like this::
 
  "inputs": [
@@ -222,21 +222,21 @@ Now let's send the policy to sparkta::
       curl -H "Content-Type: application/json" http://localhost:9090 --data
       @examples/data-generators/twitter/ITwitter-OMongo.json
 
-When sparkta is running it's ready to work, open your twitter account and write some tweets within a minute, since we are going to aggregate by minute(You can see the full |twitter_policy_link|)
+When sparkta is running it's ready to work, open your twitter account and write some tweets within a minute, since we are going to aggregate by minute(You can see the full policy |twitter_policy_link|)
 
 
 .. |twitter_policy_link| raw:: html
 
    <a href="https://github.com/Stratio/sparkta/blob/master/examples/policies/ITwitter-OMongo-Example.json"
-   target="_blank">policy</a>
+   target="_blank">here</a>
 
-In this case we are using meaningless words to do the search,so we make sure we are just processing our tweets::
+In this case we are using meaningless words to do the search, so we can assure that we are just processing our tweets::
 
   "termsOfSearch":"#hekj,prlk,#drm"
 
-We tweeted 4 tweets in the same minute
+We tweeted four tweets in the same minute
 
-.. image:: images/TweetsExample.png
+.. image:: images/tweets.png
    :height: 350 px
    :width:  500 px
    :scale:  100 %
@@ -269,30 +269,29 @@ See the collections::
 
 Enter in the collection and find the results of the operations::
 
-  db.precision3_firsthashtag_hashtags_retweets_minute_userLocation.find().pretty()
+ > db.precision3_firsthashtag_hashtags_retweets_minute_userLocation.find().pretty()
 
-  {
-   "_id" : ObjectId("558c17c57b361a3925ad05da"),
-   "id" : "1_drm_0_madrid, comunidad de madrid_List(0.703125, 0.703125)",
-   "minute" : ISODate("2015-06-25T15:01:00Z"),
-   "count" : NumberLong(4),
-   "avg_wordsN" : 4.25,
-   "min_wordsN" : 2,
-   "fulltext_userLocation" : "madrid, comunidad de madrid madrid, comunidad de madrid madrid, comunidad de madrid madrid, comunidad de madrid",
-   "max_wordsN" : 9,
-   "sum_wordsN" : 17,
-   "median_wordsN" : 3
+    {
+  	 "_id" : ObjectId("5590eedca3475b6c9a0ff486"),
+         "id" : "1_drm_0_madrid, comunidad de madrid_List(0.703125, 0.703125)",
+ 	 "minute" : ISODate("2015-06-29T07:08:00Z"),
+	 "count" : NumberLong(4),
+         "avg_wordsN" : 4.5,
+	 "min_wordsN" : 2,
+	 "fulltext_userLocation" : "madrid, comunidad de madrid madrid, comunidad de madrid madrid, comunidad de madrid madrid, comunidad de madrid",
+	 "max_wordsN" : 9,
+	 "sum_wordsN" : 18,
+	 "median_wordsN" : 3.5
    }
-
 
 Here you can see all the metrics operations that we did.
 
 - Maximum number of words: 9
 - Minimum number of words: 2
 - Location of the user: Madrid
-- Sum of all the words in this minute: 17
-- Median of all the words: 3
-- Average of words by tweet per minute: 4.25
+- Sum of all the words in this minute: 18
+- Median of all the words: 3.5
+- Average of words by tweet per minute: 4.5
 - Number of tweets per minute matching our search terms("**#drm**" in this case): 4
 
 

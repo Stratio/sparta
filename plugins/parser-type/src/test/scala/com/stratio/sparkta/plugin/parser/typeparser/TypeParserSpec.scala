@@ -29,15 +29,14 @@ class TypeParserSpec extends WordSpecLike {
   val StringDecimalValueWithComma: String = "141633078,2323"
   val StringShortValue: String = "3"
   val StringByteValue: String = "1"
-  val inputField = "stringField"
-  val outputsFields = Seq("numericField")
 
   "A TypeParser" should {
     "parse string to int" in {
       val e1 = new Event(Map("stringField" -> StringValue))
       val e2 = new Event(Map("numericField" -> StringValue.toInt))
       assertResult (e2) (
-        new TypeParser("name", 1, inputField, outputsFields, Map(
+        new TypeParser(Map(
+            "sourceField" -> "stringField",
             "type" -> "Int",
             "newField" -> "numericField")).parse(e1))
     }
@@ -46,7 +45,8 @@ class TypeParserSpec extends WordSpecLike {
       val e1 = new Event(Map("stringField" -> StringValue))
       val e2 = new Event(Map("numericField" -> StringValue.toLong))
       assertResult (e2) (
-        new TypeParser("name", 1, inputField, outputsFields, Map(
+        new TypeParser(Map(
+          "sourceField" -> "stringField",
           "type" -> "Long",
           "newField" -> "numericField")).parse(e1))
     }
@@ -55,7 +55,8 @@ class TypeParserSpec extends WordSpecLike {
       val e1 = new Event(Map("stringField" -> StringDecimalValue))
       val e2 = new Event(Map("numericField" -> StringDecimalValue.toFloat))
       assertResult (e2) (
-        new TypeParser("name", 1, inputField, outputsFields, Map(
+        new TypeParser(Map(
+          "sourceField" -> "stringField",
           "type" -> "Float",
           "newField" -> "numericField")).parse(e1))
     }
@@ -64,7 +65,8 @@ class TypeParserSpec extends WordSpecLike {
       val e1 = new Event(Map("stringField" -> StringDecimalValue))
       val e2 = new Event(Map("numericField" -> StringDecimalValue.toDouble))
       assertResult (e2) (
-        new TypeParser("name", 1, inputField, outputsFields, Map(
+        new TypeParser(Map(
+          "sourceField" -> "stringField",
           "type" -> "Double",
           "newField" -> "numericField")).parse(e1))
     }
@@ -73,7 +75,8 @@ class TypeParserSpec extends WordSpecLike {
       val e1 = new Event(Map("stringField" -> StringShortValue))
       val e2 = new Event(Map("numericField" -> StringShortValue.toShort))
       assertResult (e2) (
-        new TypeParser("name", 1, inputField, outputsFields, Map(
+        new TypeParser(Map(
+          "sourceField" -> "stringField",
           "type" -> "short",
           "newField" -> "numericField")).parse(e1))
     }
@@ -82,7 +85,8 @@ class TypeParserSpec extends WordSpecLike {
       val e1 = new Event(Map("stringField" -> StringByteValue))
       val e2 = new Event(Map("numericField" -> StringByteValue.toByte))
       assertResult (e2) (
-        new TypeParser("name", 1, inputField, outputsFields, Map(
+        new TypeParser(Map(
+          "sourceField" -> "stringField",
           "type" -> "byte",
           "newField" -> "numericField")).parse(e1))
     }

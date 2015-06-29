@@ -16,42 +16,38 @@
 
 package com.stratio.sparkta.plugin.parser.typeparser
 
-import java.io.{Serializable => JSerializable}
+import java.io.Serializable
 
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.{Event, Parser}
 
-class TypeParser(name: String,
-                 order: Integer,
-                 inputField: String,
-                 outputFields: Seq[String],
-                 properties: Map[String, JSerializable])
-  extends Parser(name, order, inputField, outputFields, properties) {
+class TypeParser(properties: Map[String, Serializable]) extends Parser(properties) {
 
   override def parse(data: Event): Event = {
 
+    val sourceField = properties.getString("sourceField")
     val typeField = properties.getString("type")
     val targetField = properties.getString("newField")
 
-    new Event(data.keyMap.map {
+    new Event(data.keyMap.map({
       case (key, value) =>
-        if (inputField.equals(key) && outputFields.contains(targetField))
-          stringToSerializable(typeField, targetField, value)
-        else (key, value)
-    })
-  }
-
-  private def stringToSerializable(typeField: String, targetField: String, value: JSerializable) = {
-    typeField.toLowerCase match {
-      case "byte" => (targetField, value.toString.toByte.asInstanceOf[JSerializable])
-      case "short" => (targetField, value.toString.toShort.asInstanceOf[JSerializable])
-      case "int" => (targetField, value.toString.toInt.asInstanceOf[JSerializable])
-      case "long" => (targetField, value.toString.toLong.asInstanceOf[JSerializable])
-      case "float" => (targetField, value.toString.toFloat.asInstanceOf[JSerializable])
-      case "double" => (targetField, value.toString.toDouble.asInstanceOf[JSerializable])
-      case _ =>
-        throw new IllegalArgumentException("Possible values for property type are: Byte, Short, Int, Long, " +
-          "Float and Double")
-    }
+        if (sourceField.equals(key)) {
+          typeField.toLowerCase match {
+            case "byte" => (targetField, value.toString.toByte.asInstanceOf[Serializable])
+            case "short" => (targetField, value.toString.toShort.asInstanceOf[Serializable])
+            case "int" => (targetField, value.toString.toInt.asInstanceOf[Serializable])
+            case "long" => (targetField, value.toString.toLong.asInstanceOf[Serializable])
+            case "float" => (targetField, value.toString.toFloat.asInstanceOf[Serializable])
+            case "double" => (targetField, value.toString.toDouble.asInstanceOf[Serializable])
+            case _ =>
+              throw new IllegalArgumentException("Possible values for property type are: Byte, Short, Int, Long, " +
+                "Float " +
+                "and " +
+                "Double")
+          }
+        } else {
+          (key, value)
+        }
+    }))
   }
 }
