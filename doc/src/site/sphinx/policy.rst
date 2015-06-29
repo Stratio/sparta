@@ -2,7 +2,7 @@ Policies
 ########
 
 A policy is the way we tell SpaRkTA how to aggregate data. It is in JSON format and you can check some
-|examples_link| in the official repo.
+|examples_link| in the official repository.
 
 .. |examples_link| raw:: html
 
@@ -53,8 +53,8 @@ The `rawData` block allow you to save the `raw data <rawdata.html>`__ into HDFS 
 
 .. _input:
 
-Input
-*****
+Inputs
+******
 
 Here you define the source of your data. Currently, you can have only one input. For more info
 about supported inputs, you can visit :doc:`inputs`
@@ -78,8 +78,8 @@ Example::
 .. _dimension:
 
 
-Transformation(s)
-*****************
+Transformations
+***************
 
 Once the data passes through the input to SpaRkTA you usually need to treat this raw data in order to model your fields.
 
@@ -145,8 +145,8 @@ Example::
 .. _cube:
 
 
-Cube(s)
-*******
+Cubes
+*****
 
 The cubes are the way you want to aggregate your fields generated in the previous step.
 
@@ -189,8 +189,8 @@ Example::
 .. _output:
 
 
-Output(s)
-*********
+Outputs
+*******
 
 Here is where you decide where to persist your aggregated data. One output is equivalent to one datastore. You can
 have one or more outputs in your policy.
@@ -212,8 +212,8 @@ Example::
 
 .. _fragment:
 
-Fragment(s)
-===========
+Fragments
+=========
 
 For your convenience, it is possible to have an alias about input[s]/output[s] in your policy. These alias are
 fragments that will be included in your policy when the policy has been run.

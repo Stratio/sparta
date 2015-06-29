@@ -1,34 +1,62 @@
 Transformation(s)
-****************
-sdfsdfsdfsdfsdf
+*****************
+
+As a general rule, it is not possible to work directly with the raw data. Even if the raw data is in JSON format we
+need to know which fields to extract out of this JSON. This is why we need the use of transformations.
+Transformations are the tools to enrinch, parse and cast the data is getting into SpaRkTA through the selected input.
+
+It is important to know that you can link multiple transformation and that the order is important. One output
+transformation adds fields to the inputFields of the following one.
+
+Below are transformations explained in detail
 
 DateTime
 ========
 
-+-----------------+-------------------------------------------------------------------------+--------------------------+
-| Property        | Description                                                             | Optional                 |
-+=================+=========================================================================+==========================+
-| path            | This is the path where the temporal data is going to be saved, this path| Yes (default: checkpoint)|
-|                 | should point to a distributed file system as HDFS, S3,...               |                          |
-+-----------------+-------------------------------------------------------------------------+--------------------------+
-| timeDimension   | This is the directory to save temporal data, this must be a distributed | Yes (default: xxx)       |
-|                 | file system as HDFS, S3,...                                             |                          |
-+-----------------+-------------------------------------------------------------------------+--------------------------+
-| granularity     | This is the directory to save temporal data, this must be a distributed | Yes (default: minute)    |
-|                 | file system as HDFS, S3 ...                                             |                          |
-+-----------------+-------------------------------------------------------------------------+--------------------------+
-| interval        | This is the directory to save temporal data, this must be a distributed | Yes (default: 20000)     |
-|                 | file system as HDFS, S3 ...                                             |                          |
-+-----------------+-------------------------------------------------------------------------+--------------------------+
-| timeAvailability| This is the directory to save temporal data, this must be a distributed | Yes (default: 60000)     |
-|                 | file system as HDFS, S3 ...                                             |                          |
-+-----------------+-------------------------------------------------------------------------+--------------------------+
+In case you want to aggregate by time you need this transformation. The input field should be a timestamp field
+that comes with your data. In case you have no timestamp field you got the possibility to generated it. The
+transformation configuration would be::
+
+    {
+      "name": "recorded_at_ms-parser",
+      "order": 2,
+      "type": "DateTime",
+      "inputField": "recorded_at_ms",
+      "outputFields": [
+        "recorded_at_ms"
+      ],
+      "configuration": {
+        "recorded_at_ms": "unixMillis"
+      }
+    }
+
++---------------+-------------------------------------------------------------------------------------------+----------+
+| Property      | Description                                                                               | Optional |
++===============+===========================================================================================+==========+
+| name          | Name of the transformation you want to give                                               | Yes      |
++---------------+-------------------------------------------------------------------------------------------+----------+
+| order         | The order in which the transformation would be applied to the incoming data               | No       |
++---------------+-------------------------------------------------------------------------------------------+----------+
+| type          | The transformation type. In this case DateTime                                            | No       |
++---------------+-------------------------------------------------------------------------------------------+----------+
+| inputField    | The timestamp field you want to transform into a Date object                              | No       |
++---------------+-------------------------------------------------------------------------------------------+----------+
+| outputFields  | The field name you want to generate. It could be the same as the intput field in          | No       |
+|               | which case it would be overridden                                                         |          |
++---------------+-------------------------------------------------------------------------------------------+----------+
+| configuration | The key must be the input field name and the value should be:                             | No       |
+|               | unix (unix format), unixMillis or autoGenerated                                           |          |
++---------------+-------------------------------------------------------------------------------------------+----------+
 
 Type
 ====
 
+Sometimes you need to cast your input fields in order to make some operations on them. An example of configuration
+would be::
+
     {
       "name": "type-parser",
+      "order": 2,
       "type": "Type",
       "configuration": {
         "sourceField": "price",
@@ -37,40 +65,47 @@ Type
       }
     }
 
-+-----------------+-------------------------------------------------------------------------+--------------------------+
-| Property        | Description                                                             | Optional                 |
-+=================+=========================================================================+==========================+
-| name     | This is the path where the temporal data is going to be saved, this path| No|
-|                 | should point to a distributed file system as HDFS, S3,...               |                          |
-+-----------------+-------------------------------------------------------------------------+--------------------------+
-| type            | This is the directory to save temporal data, this must be a distributed | No      |
-|                 | file system as HDFS, S3,...                                             |                          |
-+-----------------+-------------------------------------------------------------------------+--------------------------+
-| sourceField     | This is the path where the temporal data is going to be saved, this path| No|
-|                 | should point to a distributed file system as HDFS, S3,...               |                          |
-+-----------------+-------------------------------------------------------------------------+--------------------------+
-| type            | This is the directory to save temporal data, this must be a distributed | No      |
-|                 | file system as HDFS, S3,...                                             |                          |
-+-----------------+-------------------------------------------------------------------------+--------------------------+
-| newField        | This is the directory to save temporal data, this must be a distributed | No    |
-|                 | file system as HDFS, S3 ...                                             |                          |
-+-----------------+-------------------------------------------------------------------------+--------------------------+
-
++---------------+-------------------------------------------------------------------------------------------+----------+
+| Property      | Description                                                                               | Optional |
++===============+===========================================================================================+==========+
+| name          | Name of the transformation you want to give                                               | Yes      |
++---------------+-------------------------------------------------------------------------------------------+----------+
+| order         | The order in which the transformation would be applied to the incoming data               | No       |
++---------------+-------------------------------------------------------------------------------------------+----------+
+| type          | The transformation type. In this case Type                                                | No       |
++---------------+-------------------------------------------------------------------------------------------+----------+
+| sourceField   | The input field you want to cast                                                          | No       |
++---------------+-------------------------------------------------------------------------------------------+----------+
+| type          | The output type. Possible values are: Byte, Short, Int, Long, Float and Double            | No       |
++---------------+-------------------------------------------------------------------------------------------+----------+
+| newField      | The field name you want to generate with the new type                                     | No       |
++---------------+-------------------------------------------------------------------------------------------+----------+
 
 
 Morphline
 =========
 
-http://kitesdk.org/docs/0.11.0/kite-morphlines/morphlinesReferenceGuide.html
+This is a very powerfull transformator. It uses Kite to make this transformations.
 
-Here you can specify the transformations you want to apply before aggregation.
+For more info visit the |kite_link|
 
-Example:
-::
-    "parsers": [
-    {
+
+.. |kite_link| raw:: html
+
+   <a href="http://kitesdk.org/docs/0.11.0/kite-morphlines/morphlinesReferenceGuide.html"
+   target="_blank">official documentation</a>
+
+Example::
+
+     {
       "name": "morphline-parser",
+      "order": 0,
       "type": "Morphlines",
+      "outputFields": [
+        "appName",
+        "method",
+        "datetime"
+      ],
       "configuration": {
         "morphline": {
           "id": "morphline1",
@@ -91,11 +126,6 @@ Example:
               }
             },
             {
-              "addValues": {
-                "geo": "@{latitude}__@{longitude}"
-              }
-            },
-            {
               "removeFields": {
                 "blacklist": [
                   "literal:_attachment_body",
@@ -106,19 +136,26 @@ Example:
           ]
         }
       }
-    }
-  ]
+     }
 
 
 Split
 =====
 
-+-----------------+-------------------------------------------------------------------------+--------------------------+
-| Property        | Description                                                             | Optional                 |
-+=================+=========================================================================+==========================+
-| name     | This is the path where the temporal data is going to be saved, this path| No|
-|                 | should point to a distributed file system as HDFS, S3,...               |                          |
-+-----------------+-------------------------------------------------------------------------+--------------------------+
-| type            | This is the directory to save temporal data, this must be a distributed | No      |
-|                 | file system as HDFS, S3,...                                             |                          |
-+-----------------+-------------------------------------------------------------------------+--------------------------+
+
+
++---------------+-------------------------------------------------------------------------------------------+----------+
+| Property      | Description                                                                               | Optional |
++===============+===========================================================================================+==========+
+| name          | Name of the transformation you want to give                                               | Yes      |
++---------------+-------------------------------------------------------------------------------------------+----------+
+| order         | The order in which the transformation would be applied to the incoming data               | No       |
++---------------+-------------------------------------------------------------------------------------------+----------+
+| type          | The transformation type. In this case Type                                                | No       |
++---------------+-------------------------------------------------------------------------------------------+----------+
+| sourceField   | The input field you want to cast                                                          | No       |
++---------------+-------------------------------------------------------------------------------------------+----------+
+| type          | The output type. Possible values are: Byte, Short, Int, Long, Float and Double            | No       |
++---------------+-------------------------------------------------------------------------------------------+----------+
+| newField      | The field name you want to generate with the new type                                     | No       |
++---------------+-------------------------------------------------------------------------------------------+----------+

@@ -4,7 +4,7 @@ Checkpointing
 The system runs with time windows, these windows are configurable and allow us to use not associative operations
 through Apache Spark Streaming |streaming_link|
 
-.. |examples_link| raw:: html
+.. |streaming_link| raw:: html
 
    <a href="https://github.com/Stratio/sparkta/tree/master/examples/policies"
    target="_blank">examples</a>
