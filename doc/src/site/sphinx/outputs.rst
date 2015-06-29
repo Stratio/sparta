@@ -38,58 +38,39 @@ For more information for this output you can visit the :doc:`dataframes`
 
 These parameters can be completed in the policy file:
 
-* multiplexer:
-   If you want to multiplex all possible combinations that occur within a cube,so that the outputs are saved
-   multiple "tables".
-   With this parameter the possibility of multi cubes and the possibility of generating it implements a data
-   aggregation lake.
-   You can omit this parameter in the policy.
 
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| Property              | Description                                              | Optional | Default               |
++=======================+==========================================================+==========+=======================+
+| multiplexer           | If you want to multiplex all possible combinations       | Yes      | false                 |
+|                       | that occur within a cube,so that the outputs are saved   |          |                       |
+|                       | multiple "tables". With this parameter the possibility   |          |                       |
+|                       | of multi cubes and the possibility of generating         |          |                       |
+|                       | it implements a data aggregation lake.                   |          |                       |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| replication_factor    | Required if class is SimpleStrategy; otherwise, not used | Yes      | 1                     |
+|                       | The parameter specifies the number of replicas of data   |          |                       |
+|                       | on multiple nodes.                                       |          |                       |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| fixedDimensions       | You can specify fields that will be fixed for the        | Yes      | ""                    |
+|                       | calculation of the multiplex, in this way can obtain     |          |                       |
+|                       | fixed dimensions and a smaller number of tables and      |          |                       |
+|                       | possibilities.                                           |          |                       |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| fieldsSeparator       | The character that separate the fields for the others    | Yes      | ,                     |
+|                       | parameters.                                              |          |                       |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| isAutoCalculateId     | The system is capable of assigning an id added to        | Yes      | false                 |
+|                       | each event, so that it may identify only the output.     |          |                       |
+|                       | This field is calculated with all the values of the      |          |                       |
+|                       | including timeDimension date if the parameter is         |          |                       |
+|                       | specified. Only for DataFrames persistence, disable      |          |                       |
+|                       | in Tuple -> (DimensionValuesTime, Aggregations).         |          |                       |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
+| fixedAggregation      | It's possible to specify one fixed aggregation with      | Yes      | None                  |
+|                       | value for all dimensions.                                |          |                       |
++-----------------------+----------------------------------------------------------+----------+-----------------------+
 
-   * Example:
-::
-
-   "multiplexer": ("true"/"false")  Default: "false"
-
-* fixedDimensions:
-* fixedDimensions:
-   You can specify fields that will be fixed for the calculation of the multiplex, in this way can obtain fixed
-   dimensions and a smaller number of tables and possibilities
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "fixedDimensions": ("dimension1{fieldsSeparator}dimension2{fieldsSeparator}...")  Default: ""
-
-* fieldsSeparator:
-   Is possible specify the character that separate the fields for the others parameters.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "fieldsSeparator": ("any_character")  Default: ","
-
-* isAutoCalculateId:
-   The system is capable of assigning an id added to each event, so that it may identify only the output.
-   This field is calculated with all the values of the fields, including timeDimension date if the parameter is specified.
-   Only for DataFrames persistence, disable in Tuple -> (DimensionValuesTime, Aggregations).
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "isAutoCalculateId": ("true"/"false")  Default: "false"
-
-* fixedAggregation:
-   It's possible to specify one fixed aggregation with value for all dimensions.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "fixedAggregation": ("NAME:VALUE")  Default: None
 
 .. _mongodb-label:
 
@@ -101,73 +82,41 @@ parameters to connect to the DB and self-creation of indexes.
 
 For more information for this output you can visit the :doc:`mongodb`
 
-* mongoClientUri:
-   This parameter Connection routes specified the different nodes of a cluster of MongoDB, with replica set or with sharding.
-   You can omit this parameter in the policy.
 
-   * Example:
-::
++-----------------------+----------------------------------------------------+----------+---------------------------+
+| Property              | Description                                        | Optional | Default                   |
++=======================+====================================================+==========+===========================+
+| mongoClientUri        | This parameter connection routes specified the     | Yes      | mongodb://localhost:27017 |
+|                       | nodes of a cluster of MongoDB, with different      |          |                           |
+|                       | replica set or with sharding.                      |          |                           |
++-----------------------+----------------------------------------------------+----------+---------------------------+
+| dbName                | The system is capable of assigning an id added     | Yes      | "sparkta"                 |
+|                       | to each event, so that it may identify only        |          |                           |
+|                       | the output. This field is calculated with all the  |          |                           |
+|                       | values of the fields, including timeDimension date |          |                           |
+|                       | if the parameter is specified. Only for DataFrames |          |                           |
+|                       | persistence, disable in UpdateMetricOperation.     |          |                           |
++-----------------------+----------------------------------------------------+----------+---------------------------+
+| connectionsPerHost    | Number of connections per host                     | Yes      | 5                         |
++-----------------------+----------------------------------------------------+----------+---------------------------+
+| threadsAllowedToBlock | This multiplier, multiplied with the               | Yes      | 10                        |
+|                       | connectionsPerHost setting, gives the maximum      |          |                           |
+|                       | number of threads that may be waiting for a        |          |                           |
+|                       | connection to become available from the pool.      |          |                           |
++-----------------------+----------------------------------------------------+----------+---------------------------+
+| textIndexFields       | The system is capable of insert data in a full-text| Yes      |                           |
+|                       | index. All of this fields compound the index.      |          |                           |
++-----------------------+----------------------------------------------------+----------+---------------------------+
+| language              | Specify the language of the tokenizer in the       | Yes      | None                      |
+|                       | full-text index in MongoDB, each document          |          |                           |
+|                       | inserted must have thiskey-value.                  |          |                           |
++-----------------------+----------------------------------------------------+----------+---------------------------+
+| retrySleep            | The number of milliseconds to wait for reconnect   | Yes      | 1000                      |
+|                       | with MongoDb nodes when the last clientfails.It is |          |                           |
+|                       | recommendable to set less time to the slide        |          |                           |
+|                       | interval of the streaming window.                  |          |                           |
++-----------------------+----------------------------------------------------+----------+---------------------------+
 
-   "mongoClientUri": ("mongodb://localhost:27017")  Default: "mongodb://localhost:27017"
-
-* dbName:
-   The system is capable of assigning an id added to each event, so that it may identify only the output.
-   This field is calculated with all the values of the fields, including timeDimension date if the parameter is specified.
-   Only for DataFrames persistence, disable in UpdateMetricOperation.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "dbName": ("DATABASE_NAME")  Default: "sparkta"
-
-* connectionsPerHost:
-   Number of connections per host that the system open.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "connectionsPerHost": ("NUMBER")  Default: "5"
-
-* threadsAllowedToBlock:
-   This multiplier, multiplied with the connectionsPerHost setting, gives the maximum number of threads that may be waiting for a connection to become available from the pool.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "threadsAllowedToBlock": ("NUMBER")  Default: "10"
-
-* textIndexFields:
-   The system is capable of insert data in a full-text index. All of this fields compound the index.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "textIndexFields": ("field1,field2")  Default: ""
-
-* language:
-   Specify the language of the tokenizer in the full-text index in MongoDB, each document inserted must have this
-   key-value.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "language": ("english"/"spanish"...)  Default: "none"
-
-* retrySleep:
-   It is possible to assign the number of milliseconds to wait for reconnect with MongoDb nodes when the last client
-   fails.
-   It is recommendable to set less time to the slide interval of the streaming window.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "retrySleep": (MILLISECONDS)  Default: 1000
 
 
 .. _cassandra-label:
@@ -252,19 +201,19 @@ For more information for this output you can visit the :doc:`elasticsearch`
 
 
 
-+--------------------------+-----------------------------------------------+----------+
-| Property                 | Description                                   | Optional |
-+==========================+===============================================+==========+
-| nodes                    | Nodes of a cluster of ElasticSearch.          | Yes      |
-+--------------------------+-----------------------------------------------+----------+
-| defaultPort              | The port to connect with ElasticSearch.       | Yes      |
-+--------------------------+-----------------------------------------------+----------+
-| idField                  | Field used as unique id for the row.          | Yes      |
-+--------------------------+-----------------------------------------------+----------+
-| indexMapping             | Field used as mapping for the index.          | Yes      |
-+--------------------------+-----------------------------------------------+----------+
-| dateType                 | The type of the date fields.                  | Yes      |
-+--------------------------+-----------------------------------------------+----------+
++--------------------------+-----------------------------------------------+----------+-----------------------+
+| Property                 | Description                                   | Optional | Default               |
++==========================+===============================================+==========+=======================+
+| nodes                    | Nodes of a cluster of ElasticSearch.          | Yes      | localhost             |
++--------------------------+-----------------------------------------------+----------+-----------------------+
+| defaultPort              | The port to connect with ElasticSearch.       | Yes      | 9200                  |
++--------------------------+-----------------------------------------------+----------+-----------------------+
+| idField                  | Field used as unique id for the row.          | Yes      | "id"                  |
++--------------------------+-----------------------------------------------+----------+-----------------------+
+| indexMapping             | Field used as mapping for the index.          | Yes      | "sparkta              |
++--------------------------+-----------------------------------------------+----------+-----------------------+
+| dateType                 | The type of the date fields.                  | Yes      | None                  |
++--------------------------+-----------------------------------------------+----------+-----------------------+
 
 
 .. _redis-label:
@@ -277,23 +226,15 @@ UpdateMetricOperation in redis hash sets.
 
 For more information for this output you can visit the :doc:`redis`
 
-* hostname:
-   This parameter specifies the Ip of a Redis host.
-   You can omit this parameter in the policy.
 
-   * Example:
-::
 
-   "hostname": ("ip_host")  Default: "localhost"
-
-* port:
-   This parameter specifies the port to connect.
-   You can omit this parameter in the policy.
-
-   * Example:
-::
-
-   "port": ("PORT_NUMBER")  Default: "6379"
++--------------------------+-----------------------------------------------+----------+-----------------------+
+| Property                 | Description                                   | Optional | Default               |
++==========================+===============================================+==========+=======================+
+| hostname                 | The Ip of a Redis host.                       | Yes      | localhost             |
++--------------------------+-----------------------------------------------+----------+-----------------------+
+| port                     | The port to connect with ElasticSearch.       | Yes      | 9200                  |
++--------------------------+-----------------------------------------------+----------+-----------------------+
 
 
 .. _print-label:
@@ -311,8 +252,8 @@ Parquet Configuration
 
 The parquet output uses generic implementation of DataFrames.
 
-+--------------------------+-----------------------------------------------+----------+
-| Property                 | Description                                   | Optional |
-+==========================+===============================================+==========+
-| path                     | Destination path to store info.               | No       |
-+--------------------------+-----------------------------------------------+----------+
++--------------------------+-----------------------------------------------+----------+-----------------------+
+| Property                 | Description                                   | Optional | Default               |
++==========================+===============================================+==========+=======================+
+| path                     | Destination path to store info.               | No       |                       |
++--------------------------+-----------------------------------------------+----------+-----------------------+
