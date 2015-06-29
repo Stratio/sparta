@@ -21,11 +21,11 @@ import org.apache.spark.streaming.dstream.DStream
 trait Multiplexer {
 
   def getStreamsFromOptions(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])],
-                            multiplexer: Boolean, fixedPrecisions: Array[String]):
+                            multiplexer: Boolean, fixedDimensions: Array[String]):
   DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     if (multiplexer) {
-      if (fixedPrecisions.isEmpty) Multiplexer.multiplexStream(stream)
-      else Multiplexer.multiplexStream[String](stream, fixedPrecisions)
+      if (fixedDimensions.isEmpty) Multiplexer.multiplexStream(stream)
+      else Multiplexer.multiplexStream[String](stream, fixedDimensions)
     } else stream
   }
 }
@@ -54,20 +54,20 @@ object Multiplexer {
     } yield (DimensionValuesTime(comb.sorted, dimensionValuesT.time), aggregations)
   }
 
-  def multiplexStream[T](stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])], fixedPrecisions: Array[T])
+  def multiplexStream[T](stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])], fixedDimensions: Array[T])
   : DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     for {
       (dimensionValuesT, aggregations) <- stream
-      fixedDims = fixedPrecisions.flatMap(precision => {
-        precision match {
-          case value: DimensionValue => Some(precision.asInstanceOf[DimensionValue])
+      fixedDims = fixedDimensions.flatMap(dimension => {
+        dimension match {
+          case value: DimensionValue => Some(dimension.asInstanceOf[DimensionValue])
           case _ => dimensionValuesT.dimensionValues.find(
-            dimValue => dimValue.getNameDimension == precision.asInstanceOf[String])
+            dimValue => dimValue.dimension.name == dimension.asInstanceOf[String])
         }
       })
       comb <- combine(
         dimensionValuesT.dimensionValues.filter(dimVal =>
-          !fixedDims.map(dim => dim.getNameDimension).contains(dimVal.getNameDimension)
+          !fixedDims.map(dim => dim.dimension.name).contains(dimVal.dimension.name)
         )).filter(_.size >= 1).map(dimensionsValues => dimensionsValues ++ fixedDims)
     } yield (DimensionValuesTime(comb.sorted, dimensionValuesT.time), aggregations)
   }

@@ -53,9 +53,9 @@ class CsvOutput(keyName: String,
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val fixedPrecisions: Array[String] = properties.getString("fixedBuckets", None) match {
+  override val fixedDimensions: Array[String] = properties.getString("fixedDimensions", None) match {
     case None => Array()
-    case Some(fixPrecisions) => fixPrecisions.split(fieldsSeparator)
+    case Some(fixDimensions) => fixDimensions.split(fieldsSeparator)
   }
 
   val fixedAgg = properties.getString("fixedAggregation", None)

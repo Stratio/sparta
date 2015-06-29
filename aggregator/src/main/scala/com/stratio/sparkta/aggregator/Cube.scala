@@ -69,8 +69,7 @@ case class Cube(name: String,
     Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
     dimensionValues.map { case (dimensionsValuesTime, aggregationValues) => {
       val dimensionsFiltered = dimensionsValuesTime.dimensionValues.filter(dimVal =>
-        dimensions.find(comp => comp == dimVal.dimension &&
-          comp.getNamePrecision == dimVal.getNameDimension).nonEmpty)
+        dimensions.find(comp => comp.name == dimVal.dimension.name).nonEmpty)
       (DimensionValuesTime(dimensionsFiltered, dimensionsValuesTime.time), aggregationValues)
     }
     }
@@ -123,7 +122,7 @@ case class Cube(name: String,
   def getPrecisionsNames(dimensions: Seq[Dimension]): Seq[String] =
     dimensions.map(dimension => dimension.getNamePrecision)
 
-  def getComponentsNamesSorted: Seq[String] = getDimensionsNames(getDimensionsSorted)
+  def getDimensionsNamesSorted: Seq[String] = getDimensionsNames(getDimensionsSorted)
 
   def getOperatorsSorted: Seq[Operator] = operators.sorted
 

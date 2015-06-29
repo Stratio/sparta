@@ -153,7 +153,7 @@
   "outputs": [
     {
       "name": "out-csv",
-      "elementType": "Csv",
+      "type": "Csv",
       "configuration": {
 
         "isAutoCalculateId": "false",

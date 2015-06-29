@@ -55,9 +55,9 @@ class RedisOutput(keyName: String,
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val fixedPrecisions: Array[String] = properties.getString("fixedBuckets", None) match {
+  override val fixedDimensions: Array[String] = properties.getString("fixedDimensions", None) match {
     case None => Array()
-    case Some(fixPrecisions) => fixPrecisions.split(fieldsSeparator)
+    case Some(fixDimensions) => fixDimensions.split(fieldsSeparator)
   }
 
   override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
@@ -70,14 +70,15 @@ class RedisOutput(keyName: String,
    * @param metricOperations that will be saved.
    */
   override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
-    metricOperations.toSeq.groupBy(upMetricOp => AggregateOperations.keyString(upMetricOp._1))
+    metricOperations.toSeq.groupBy(upMetricOp =>
+      AggregateOperations.keyString(upMetricOp._1, timeName, fixedDimensions))
       .filter(_._1.size > 0).map(collMetricOp => {
       collMetricOp._2.map(metricOp => {
 
         // Step 1) It calculates redis' hash key with this structure -> A_B_C:A:valueA:B:valueB:C:valueC
         // It is important to see that values be part of the key. This is needed to perform searches.
         val hashKey = collMetricOp._1 + IdSeparator + metricOp._1.dimensionValues
-          .map(dimVal => List(dimVal.getNameDimension, dimVal.value.toString))
+          .map(dimVal => List(dimVal.dimension.name, dimVal.value.toString))
           .flatMap(_.toSeq).mkString(IdSeparator)
 
         // Step 2) It calculates aggregations depending of its types and saves the result in the value of the hash.

@@ -8,10 +8,10 @@
   },
   "checkpointing": {
     "path": "checkpoint",
-    "timeDimension": "minute",
+    "timeDimension": "recordedAtMs",
     "granularity": "minute",
     "interval": 30000,
-    "timeAvailability": 6000000000
+    "timeAvailability": 60000000000000
   },
   "inputs": [
     {
@@ -27,6 +27,17 @@
     {
       "name": "detector-parser",
       "order": 1,
+      "outputFields": [
+        "recorded_at_ms",
+        "company_root",
+        "ou_vehicle",
+        "geo",
+        "alarm_code",
+        "asset",
+        "path_id",
+        "rpm_event_avg",
+        "odometer"
+      ],
       "type": "Detector",
       "configuration": {}
     },
@@ -48,11 +59,11 @@
       "name": "rpmAvg",
       "dimensions": [
         {
-          "name": "company_root",
+          "name": "companyRoot",
           "field": "company_root"
         },
         {
-          "name": "ou_vehicle",
+          "name": "ouVehicle",
           "field": "ou_vehicle"
         },
         {
@@ -62,7 +73,7 @@
           "precision": "precision3"
         },
         {
-          "name": "recorded_at_ms",
+          "name": "recordedAtMs",
           "field": "recorded_at_ms",
           "type": "DateTime",
           "precision": "minute"
@@ -70,7 +81,7 @@
       ],
       "operators": [
         {
-          "name": "avg-operator",
+          "name": "rpm_event_avg",
           "type": "Avg",
           "configuration": {
             "inputField": "rpm_event_avg"
@@ -82,11 +93,11 @@
       "name": "maxMinOdometer",
       "dimensions": [
         {
-          "name": "company_root",
+          "name": "companyRoot",
           "field": "company_root"
         },
         {
-          "name": "ou_vehicle",
+          "name": "ouVehicle",
           "field": "ou_vehicle"
         },
         {
@@ -94,13 +105,13 @@
           "field": "asset"
         },
         {
-          "name": "recorded_at_ms",
+          "name": "recordedAtMs",
           "field": "recorded_at_ms",
           "type": "DateTime",
           "precision": "minute"
         },
         {
-          "name": "path_id",
+          "name": "pathId",
           "field": "path_id"
         }
       ],

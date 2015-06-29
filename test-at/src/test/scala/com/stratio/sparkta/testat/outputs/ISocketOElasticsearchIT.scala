@@ -34,7 +34,7 @@ class ISocketOElasticsearchIT extends SparktaATSuite {
 
   val policyFile = "policies/ISocket-OElasticsearch.json"
   val TimeElastisearchStarts: Long = 5000
-  override val PolicyEndSleep = 60000
+  override val PolicyEndSleep = 30000
   val ProductAAvg: Double = 750d
   val ProductASum: Double = 6000d
   val ProductBAvg: Double = 1000d

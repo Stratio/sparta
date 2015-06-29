@@ -304,7 +304,7 @@ The system runs with time windows, these windows are configurable and allow us t
 ::
 
   "checkpointDir": "checkpoint",
-  "timeBucket": "minute",
+  "timeDimension": "minute",
   "checkpointGranularity": "minute",
   "checkpointInterval": 30000,
   "checkpointTimeAvailability": 60000,
@@ -319,7 +319,7 @@ The system runs with time windows, these windows are configurable and allow us t
 
    "checkpointDir": ("directory")  Default: "checkpoint"
 
-* timeBucket:
+* timeDimension:
    You can specify the time dimension containing the event, thanks to this parameter can be stored aggregate data and
    generate timeseries.
    This name will be as identified in the system of persistence.
@@ -328,10 +328,10 @@ The system runs with time windows, these windows are configurable and allow us t
    * Example:
 ::
 
-   "timeBucket": ("BUCKET_LABEL")  Default: "minute"
+   "timeDimension": ("BUCKET_LABEL")  Default: "minute"
 
 * checkpointGranularity:
-   If not created any dimensioner time to identify with "timeBucket" you can leave the system assigned to each event time
+   If not created any dimensioner time to identify with "timeDimension" you can leave the system assigned to each event time
    with the specified granularity.
    Is possible omit this parameter in policy.
 

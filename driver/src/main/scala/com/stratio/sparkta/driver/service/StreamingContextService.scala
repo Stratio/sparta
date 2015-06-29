@@ -166,7 +166,7 @@ object SparktaJob {
 
   def cubes(apConfig: AggregationPoliciesDto): Seq[Cube] =
     apConfig.cubes.map(cube => {
-      val name = cube.name
+      val name = cube.name.replaceAll(Output.Separator,"")
       val multiplexer = Try(cube.multiplexer.toBoolean)
         .getOrElse(throw DriverException.create("The multiplexer value must be boolean"))
       val dimensions = cube.dimensions.map(dimensionDto => {

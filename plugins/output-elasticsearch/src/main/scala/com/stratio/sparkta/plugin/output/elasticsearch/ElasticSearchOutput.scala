@@ -75,9 +75,9 @@ class ElasticSearchOutput(keyName: String,
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
-  override val fixedPrecisions: Array[String] = properties.getString("fixedBuckets", None) match {
+  override val fixedDimensions: Array[String] = properties.getString("fixedDimensions", None) match {
     case None => Array()
-    case Some(fixPrecisions) => fixPrecisions.split(fieldsSeparator)
+    case Some(fixDimensions) => fixDimensions.split(fieldsSeparator)
   }
 
   override val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)

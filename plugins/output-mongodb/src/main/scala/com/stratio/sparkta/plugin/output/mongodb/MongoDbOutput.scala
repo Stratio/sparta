@@ -63,30 +63,35 @@ class MongoDbOutput(keyName: String,
 
   override val identitiesSavedAsField = Try(properties.getString("identitiesSavedAsField").toBoolean).getOrElse(false)
 
-  override val idAsField = Try(properties.getString("idAsField").toBoolean).getOrElse(false)
+  override val idAsField = Try(properties.getString("idAsField").toBoolean).getOrElse(true)
 
   override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
 
   override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(fieldsSeparator))
 
-  override val fixedPrecisions: Array[String] = properties.getString("fixedPrecisions", None) match {
+  override val fixedDimensions: Array[String] = properties.getString("fixedDimensions", None) match {
     case None => Array()
-    case Some(fixPrecisions) => fixPrecisions.split(fieldsSeparator)
+    case Some(fixDimensions) => fixDimensions.split(fieldsSeparator)
   }
 
   override val language = properties.getString("language", None)
 
   override val pkTextIndexesCreated: Boolean =
-    filterSchemaByKeyAndField.map(tableSchema => createPkTextIndex(tableSchema.tableName, timeName))
-      .forall(result => result._1 && result._2)
+    if (bcSchema.isDefined) {
+      val schemasFiltered =
+        bcSchema.get.value.filter(schemaFilter => schemaFilter.outputName == keyName).map(getTableSchemaFixedId(_))
+      filterSchemaByFixedAndTimeDimensions(schemasFiltered)
+        .map(tableSchema => createPkTextIndex(tableSchema.tableName, timeName)).forall(result => result._1 && result._2)
+    } else false
 
   override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     persistMetricOperation(stream)
   }
 
   override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
-    metricOperations.toList.groupBy(upMetricOp => AggregateOperations.keyString(upMetricOp._1))
-      .filter(_._1.size > 0).foreach(f = collMetricOp => {
+    metricOperations.toList.filter(!_._1.dimensionValues.isEmpty).groupBy(upMetricOp =>
+      AggregateOperations.keyString(upMetricOp._1, timeName, fixedDimensions)).filter(_._1.size > 0)
+      .foreach(f = collMetricOp => {
       val bulkOperation = db().getCollection(collMetricOp._1).initializeOrderedBulkOperation()
       val idFieldName = if (!timeName.isEmpty) Output.Id else DefaultId
 
@@ -94,8 +99,8 @@ class MongoDbOutput(keyName: String,
         checkFields(aggregations.keySet, operationTypes)
         val eventTimeObject = if (!timeName.isEmpty) Some(timeName -> new DateTime(cubeKey.time)) else None
         val identitiesField = getIdentitiesField(cubeKey)
-        val identities = if(identitiesSaved) Some(getIdentities(cubeKey)) else None
-        val idFields = if(idAsField) Some(getIdFields(cubeKey)) else None
+        val identities = if (identitiesSaved) Some(getIdentities(cubeKey)) else None
+        val idFields = if (idAsField) Some(getIdFields(cubeKey)) else None
         val mapOperations = getOperations(aggregations.toSeq, operationTypes)
           .groupBy { case (writeOp, op) => writeOp }
           .mapValues(operations => operations.map { case (writeOp, op) => op })
@@ -104,7 +109,7 @@ class MongoDbOutput(keyName: String,
         (getFind(
           idFieldName,
           eventTimeObject,
-          AggregateOperations.filterDimensionValuesByPrecision(cubeKey.dimensionValues, if (timeName.isEmpty) None
+          AggregateOperations.filterDimensionValuesByName(cubeKey.dimensionValues, if (timeName.isEmpty) None
           else Some(timeName))),
           getUpdate(mapOperations, identitiesField, identities, idFields))
       }

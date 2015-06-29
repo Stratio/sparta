@@ -150,7 +150,7 @@
   "outputs": [
     {
       "name": "out-cassandra",
-      "elementType": "Cassandra",
+      "type": "Cassandra",
       "configuration": {
         "connectionHost": "127.0.0.1",
         "cluster": "Sparkta Cluster",

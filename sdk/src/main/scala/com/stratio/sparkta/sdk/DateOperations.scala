@@ -27,8 +27,8 @@ object DateOperations {
 
   val ParquetPathPattern = "/'year='yyyy/'month='MM/'day='dd/'hour='HH/'minute='mm/'second='ss"
 
-  def getTimeFromGranularity(timePrecision: Option[String], granularity: Option[String]): Long =
-    (timePrecision, granularity) match {
+  def getTimeFromGranularity(timeDimension: Option[String], granularity: Option[String]): Long =
+    (timeDimension, granularity) match {
       case (Some(time), Some(granularity)) => dateFromGranularity(DateTime.now, granularity)
       case _ => 0L
     }

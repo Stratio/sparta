@@ -153,7 +153,7 @@
   "outputs": [
     {
       "name": "out-parquet",
-      "elementType": "Parquet",
+      "type": "Parquet",
       "configuration": {
         "path": "path-to-parquet"
       }

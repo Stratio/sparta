@@ -16,7 +16,7 @@
   "inputs": [
     {
       "name": "in-twitter",
-      "elementType": "Twitter",
+      "type": "Twitter",
       "configuration": {
         "consumerKey": "*****",
         "consumerSecret": "*****",
@@ -104,7 +104,7 @@
   "outputs": [
     {
       "name": "out-redis",
-      "elementType": "Redis",
+      "type": "Redis",
       "configuration": {
         "hostname": "localhost",
         "multiplexer": "true"

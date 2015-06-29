@@ -36,7 +36,7 @@ class ISocketOMongoIT extends MongoEmbedDatabase with SparktaATSuite {
   override val PolicyEndSleep = 60000
   val TestMongoPort = 60000
   val DatabaseName = "csvtest"
-  val CollectionName = "product"
+  val CollectionName = "product_minute"
   override val policyFile = "policies/ISocket-OMongo.json"
   var mongoProps: MongodProps = _
 

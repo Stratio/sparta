@@ -28,7 +28,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class MultiCubeSpec extends TestSuiteBase {
+class CubeMakerSpec extends TestSuiteBase {
 
   val PreserverOrder = false
 
@@ -55,9 +55,9 @@ class MultiCubeSpec extends TestSuiteBase {
   test("DataCube extracts dimensions from events") {
 
     val checkpointInterval = 10000
-    val checkpointTimeAvailability = 60000
+    val checkpointTimeAvailability = 600000
     val checkpointGranularity = "minute"
-    val timePrecision = None
+    val timeDimension = None
     val timestamp = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity)
     val name = "cubeName"
     val operator = new CountOperator(Map())
@@ -71,10 +71,9 @@ class MultiCubeSpec extends TestSuiteBase {
       checkpointInterval,
       checkpointGranularity,
       checkpointTimeAvailability)
-    val dataCube = new CubeMaker(Seq(cube), timePrecision, checkpointGranularity)
-    dataCube.currentCube = cube
+    val dataCube = new CubeOperations(cube, timeDimension, checkpointGranularity)
 
-    testOperation(getEventInput, dataCube.extractDimensionsStream, getEventOutput(timestamp), PreserverOrder)
+    testOperation(getEventInput, dataCube.extractDimensionsAggregations, getEventOutput(timestamp), PreserverOrder)
   }
 
   /**
