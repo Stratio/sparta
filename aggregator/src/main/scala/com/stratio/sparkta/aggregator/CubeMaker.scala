@@ -46,26 +46,41 @@ case class CubeMaker(cubes: Seq[Cube],
    */
   def setUp(inputStream: DStream[Event]): Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]] = {
     cubes.map(cube => {
-      val extractedDimensionsStream = extractDimensionsStream(inputStream, cube)
+      val currentCube = new CubeOperations(cube, timeDimension, checkpointGranularity)
+      val extractedDimensionsStream = currentCube.extractDimensionsAggregations(inputStream)
       cube.aggregate(extractedDimensionsStream)
     })
   }
+
+}
+
+/**
+ * This class is necessary because we need test extractDimensionsAggregations with Spark testSuite for Dstreams.
+ * @param cube that will be contain the current cube.
+ * @param timeDimension that will be contain the dimensionType id that contain the date.
+ * @param checkpointGranularity that will be contain the granularity to calculate the time, only if this
+ *                              dimensionType is not present.
+ */
+
+protected case class CubeOperations(cube : Cube,
+                          timeDimension: Option[String],
+                          checkpointGranularity: String) {
 
   /**
    * Extract a modified stream that will be needed to calculate aggregations.
    * @param inputStream with the original stream of data.
    * @return a modified stream after join dimensions, cubes and operations.
    */
-  def extractDimensionsStream(inputStream: DStream[Event], cube: Cube)
+  def extractDimensionsAggregations(inputStream: DStream[Event])
   : DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
     inputStream.map(event => {
-        val dimensionValues = for {
-          dimension <- cube.dimensions
-          value <- event.keyMap.get(dimension.field).toSeq
-          (precision, dimValue) = dimension.dimensionType.precisionValue(dimension.precisionKey, value)
-        } yield DimensionValue(dimension, TypeOp.transformValueByTypeOp(precision.typeOp, dimValue))
-        val eventTime = extractEventTime(dimensionValues)
-        (DimensionValuesTime(dimensionValues, eventTime), event.keyMap)
+      val dimensionValues = for {
+        dimension <- cube.dimensions
+        value <- event.keyMap.get(dimension.field).toSeq
+        (precision, dimValue) = dimension.dimensionType.precisionValue(dimension.precisionKey, value)
+      } yield DimensionValue(dimension, TypeOp.transformValueByTypeOp(precision.typeOp, dimValue))
+      val eventTime = extractEventTime(dimensionValues)
+      (DimensionValuesTime(dimensionValues, eventTime), event.keyMap)
     })
   }
 
@@ -81,4 +96,5 @@ case class CubeMaker(cubes: Seq[Cube],
   }
 
   private def getDate: Long = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity)
+
 }

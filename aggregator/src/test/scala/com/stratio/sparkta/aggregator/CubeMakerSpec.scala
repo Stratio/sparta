@@ -71,10 +71,9 @@ class CubeMakerSpec extends TestSuiteBase {
       checkpointInterval,
       checkpointGranularity,
       checkpointTimeAvailability)
-    val dataCube = new CubeMaker(Seq(cube), timeDimension, checkpointGranularity)
-    //dataCube.currentCube = cube
+    val dataCube = new CubeOperations(cube, timeDimension, checkpointGranularity)
 
-    //testOperation(getEventInput, dataCube.extractDimensionsStream, getEventOutput(timestamp), PreserverOrder)
+    testOperation(getEventInput, dataCube.extractDimensionsAggregations, getEventOutput(timestamp), PreserverOrder)
   }
 
   /**
