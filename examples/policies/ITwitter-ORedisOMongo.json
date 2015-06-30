@@ -116,9 +116,7 @@
       "configuration": {
         "clientUri": "mongodb://localhost:27017",
         "dbName": "sparkta",
-
         "textIndexFields": "userLocation",
-        "fieldsSeparator": ",",
         "language": "english"
       }
     }

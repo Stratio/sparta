@@ -19,7 +19,6 @@ package com.stratio.sparkta.plugin.output.mongodb
 import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
-import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.commons.conversions.scala._
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
@@ -30,7 +29,7 @@ import com.stratio.sparkta.plugin.output.mongodb.dao.MongoDbDAO
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
-import com.stratio.sparkta.sdk.{WriteOp, _}
+import com.stratio.sparkta.sdk._
 
 class MongoDbOutput(keyName: String,
                     properties: Map[String, JSerializable],
@@ -41,10 +40,6 @@ class MongoDbOutput(keyName: String,
   extends Output(keyName, properties, sparkContext, operationTypes, bcSchema, timeName) with MongoDbDAO {
 
   RegisterJodaTimeConversionHelpers()
-
-  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Max, WriteOp.Min,
-    WriteOp.Range, WriteOp.AccAvg, WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText,
-    WriteOp.AccSet)
 
   override val mongoClientUri = properties.getString("clientUri", "mongodb://localhost:27017")
 
@@ -57,22 +52,13 @@ class MongoDbOutput(keyName: String,
 
   override val retrySleep = Try(properties.getInt("retrySleep")).getOrElse(DefaultRetrySleep)
 
-  override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
-
   override val identitiesSaved = Try(properties.getString("identitiesSaved").toBoolean).getOrElse(false)
 
   override val identitiesSavedAsField = Try(properties.getString("identitiesSavedAsField").toBoolean).getOrElse(false)
 
   override val idAsField = Try(properties.getString("idAsField").toBoolean).getOrElse(true)
 
-  override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
-
-  override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(fieldsSeparator))
-
-  override val fixedDimensions: Array[String] = properties.getString("fixedDimensions", None) match {
-    case None => Array()
-    case Some(fixDimensions) => fixDimensions.split(fieldsSeparator)
-  }
+  override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(FieldsSeparator))
 
   override val language = properties.getString("language", None)
 

@@ -187,7 +187,7 @@ trait MongoDbDAO extends Closeable {
     val updateObjects = combinedOptions.filter(_._2.nonEmpty).groupBy(_._2)
       .map { case (name, value) => MongoDBObject(name -> MongoDBObject(value.flatMap(f => f._1).toSeq: _*)) }
 
-    if(updateObjects.nonEmpty) updateObjects.reduce(_ ++ _) else MongoDBObject()
+    if (updateObjects.nonEmpty) updateObjects.reduce(_ ++ _) else MongoDBObject()
   }
 
   protected def valuesBigDecimalToDouble(seq: Seq[(String, Option[Any])]): Seq[(String, Double)] = {
@@ -219,14 +219,14 @@ trait MongoDbDAO extends Closeable {
     }
   }
 
-  protected def getIdFields(cubeKey : DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
+  protected def getIdFields(cubeKey: DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
     cubeKey.dimensionValues.map(dimVal => (Seq(dimVal.dimension.name -> dimVal.value), "$set")).toMap
 
-  protected def getIdentities(cubeKey : DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
+  protected def getIdentities(cubeKey: DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
     cubeKey.dimensionValues.filter(dimVal => dimVal.dimension.precision.id == DimensionType.IdentityName)
-    .map(dimVal => (Seq(dimVal.dimension.name -> dimVal.value), "$set")).toMap
+      .map(dimVal => (Seq(dimVal.dimension.name -> dimVal.value), "$set")).toMap
 
-  protected def getIdentitiesField(cubeKey : DimensionValuesTime): Seq[Imports.DBObject] = cubeKey.dimensionValues
+  protected def getIdentitiesField(cubeKey: DimensionValuesTime): Seq[Imports.DBObject] = cubeKey.dimensionValues
     .filter(dimVal => dimVal.dimension.precision.id == DimensionType.IdentityFieldName ||
     (identitiesSavedAsField && dimVal.dimension.precision.id == DimensionType.IdentityName))
     .map(dimVal => MongoDBObject(dimVal.dimension.name -> dimVal.value))

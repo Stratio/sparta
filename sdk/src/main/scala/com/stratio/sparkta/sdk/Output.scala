@@ -17,7 +17,7 @@
 package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
-import java.sql.Timestamp
+import scala.util.Try
 
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD
@@ -25,9 +25,9 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.{Logging, SparkContext}
-import org.joda.time.DateTime
 
 import com.stratio.sparkta.sdk.TypeOp._
+import com.stratio.sparkta.sdk.ValidatingPropertyMap.map2ValidatingPropertyMap
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 
 abstract class Output(keyName: String,
@@ -50,17 +50,28 @@ abstract class Output(keyName: String,
 
   def fixedDimensionsType: TypeOp.Value = TypeOp.String
 
-  def supportedWriteOps: Seq[WriteOp]
+  val supportedWriteOps = Seq(WriteOp.FullText, WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Range,
+    WriteOp.AccSet, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.AccAvg, WriteOp.Median,
+    WriteOp.AccMedian, WriteOp.Variance, WriteOp.AccVariance, WriteOp.Stddev, WriteOp.AccStddev)
 
-  def multiplexer: Boolean = false
+  val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
-  def fixedDimensions: Array[String] = Array()
+  val fixedDimensions: Array[String] = properties.getString("fixedDimensions", None) match {
+    case None => Array()
+    case Some(fixDimensions) => fixDimensions.split(FieldsSeparator)
+  }
 
-  def fixedAggregation: Map[String, Option[Any]] = Map()
+  val fixedAgg = properties.getString("fixedAggregation", None)
 
-  def fieldsSeparator: String = ","
+  val fixedAggregation: Map[String, Option[Any]] =
+    if (fixedAgg.isDefined) {
+      val fixedAggSplited = fixedAgg.get.split(Output.FixedAggregationSeparator)
+      Map(fixedAggSplited.head -> Some(fixedAggSplited.last))
+    } else Map()
 
-  def isAutoCalculateId: Boolean = false
+  final val FieldsSeparator = ","
+
+  val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
   def persist(streams: Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]]): Unit = {
     setup
