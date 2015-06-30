@@ -49,7 +49,7 @@ case class TagField(props: Map[String, JSerializable]) extends DimensionType wit
 
 object TagField {
 
-  final val FirstTagName = "fistTag"
+  final val FirstTagName = "firstTag"
   final val LastTagName = "lastTag"
   final val AllTagsName = "allTags"
 

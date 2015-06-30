@@ -1,9 +1,17 @@
 Saving the raw data
 *******************
 
-Sometimes one is interested in persisting theirs incoming data for post-analizing purposes or just for backup.
-SpaRkTA gives the possibility to persist this data in raw format in storage services like Parquet or HDFS. The
-following code is an example of the policy block that is needed to setup the raw data backup::
+Sometimes it's interesting to save the incoming data for post-analizing purposes or just for backup.
+SpaRkTA gives the possibility to persist this data in raw format in storage services like S3 or HDFS.
+SpaRkTA save the data as a Parquet file. |parquet_link|
+
+.. |parquet_link| raw:: html
+
+   <a href="https://parquet.apache.org/documentation/latest/"
+   target="_blank">examples</a>
+
+
+The following code is an example of the policy block that is needed to setup the raw data backup::
 
   "rawData": {
     "enabled": "true",
@@ -11,15 +19,14 @@ following code is an example of the policy block that is needed to setup the raw
     "path": "myParquetPath"
   }
 
-+-------------------+-------------------------------------------------------------------------+--------------------------+
-| Property          | Description                                                             | Optional              |
-+===================+=========================================================================+==========================+
-| saveRawData       | This is the path where the temporal data is going to be saved, this path| Yes (default: false)  |
-|                   | should point to a distributed file system as HDFS, S3,...           |                          |
-+-------------------+-------------------------------------------------------------------------+--------------------------+
-| rawDataParquetPath| This is the directory to save temporal data, this must be a distributed | Yes (default: xxx)       |
-|                   | file system as HDFS, S3,...                                      |                          |
-+-------------------+-------------------------------------------------------------------------+--------------------------+
-| rawDataGranularity| This is the directory to save temporal data, this must be a distributed | Yes (default: minute)    |
-|                   | file system as HDFS, S3 ...                                           |                        |
-+-------------------+-------------------------------------------------------------------------+--------------------------+
++-------------------+-------------------------------------------------------------------------+------------------------+
+| Property          | Description                                                             | Optional               |
++===================+=========================================================================+========================+
+| enabled           | This parameter set if the raw data is saved or not.                     | Yes (default: false)   |
++-------------------+-------------------------------------------------------------------------+------------------------+
+| path              | This is the path where the temporal data is going to be saved, this path| Yes (default:default)  |
+|                   | should point to a distributed file system as HDFS, S3,...               |                        |
++-------------------+-------------------------------------------------------------------------+------------------------+
+| partitionFormat   | This is the granularity for make partitions into folders in the         | Yes (default: day)     |
+|                   | distribuited file system. The path will be /year/month/day/ by default. |                        |
++-------------------+-------------------------------------------------------------------------+------------------------+

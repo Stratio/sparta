@@ -41,7 +41,7 @@ with JSerializable with SLF4JLogging {
   override def precision(keyName: String): Precision = keyName match {
     case TextName => getPrecision(TextName, getTypeOperation(TextName))
     case ContributorsName => getPrecision(ContributorsName, getTypeOperation(ContributorsName))
-    case HastagsName => getPrecision(HastagsName, getTypeOperation(HastagsName))
+    case HashtagsName => getPrecision(HashtagsName, getTypeOperation(HashtagsName))
     case FirstHastagName => getPrecision(FirstHastagName, getTypeOperation(FirstHastagName))
     case PlacesName => getPrecision(PlacesName, getTypeOperation(PlacesName))
     case RetweetsName => getPrecision(RetweetsName, getTypeOperation(RetweetsName))

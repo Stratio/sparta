@@ -31,7 +31,7 @@ object PolicyHelper {
    * @return a parsed policy with fragments included in input/outputs.
    */
   def parseFragments(apConfig: AggregationPoliciesDto): AggregationPoliciesDto = {
-    val mapInputsOutputs: Map[FragmentType, Seq[PolicyElementDto]] = (apConfig.fragments.map(fragment =>
+    val mapInputsOutputs: Map[`type`, Seq[PolicyElementDto]] = (apConfig.fragments.map(fragment =>
       FragmentType.withName(fragment.fragmentType) match {
         case FragmentType.input => (FragmentType.input -> fragment.element)
         case FragmentType.output => (FragmentType.output -> fragment.element)
