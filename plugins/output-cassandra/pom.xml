@@ -25,11 +25,4 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>output-cassandra</artifactId>
-    <dependencies>
-        <dependency>
-            <groupId>com.datastax.spark</groupId>
-            <artifactId>spark-cassandra-connector_2.10</artifactId>
-            <version>1.4.0-M1</version>
-        </dependency>
-    </dependencies>
 </project>

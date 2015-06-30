@@ -121,10 +121,7 @@ class CassandraOutput(keyName: String,
   }
 
   override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
-    dataFrame.write
-      .format("org.apache.spark.sql.cassandra")
-      .mode(Overwrite)
-      .options(Map("table" -> tableName, "keyspace" -> keyspace)).save()
+    dataFrame.save("org.apache.spark.sql.cassandra", Append, Map("c_table" -> tableName, "keyspace" -> keyspace))
   }
 }
 
@@ -140,7 +137,7 @@ object CassandraOutput {
 
     Seq(
       ("spark.cassandra.connection.host", connectionHost),
-      ("spark.cassandra.connection.port", connectionPort)
+      ("spark.cassandra.connection.native.port", connectionPort)
     )
   }
 }

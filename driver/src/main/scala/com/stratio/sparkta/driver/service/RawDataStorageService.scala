@@ -55,11 +55,8 @@ class RawDataStorageService(sc: SQLContext, path: String, partitionFormat: Strin
   def save(raw: DStream[Event]): DStream[Event] = {
     raw.map(event => {
       RawEvent(System.currentTimeMillis().toString, extractRawFromEvent(event))
-    }).foreachRDD(_.toDF()
-      .write
-      .format("parquet")
-      .mode(SaveMode.Append)
-      .save(s"$path$timeSuffix"))
+    }).foreachRDD(_.toDF().save(s"$path$timeSuffix", "parquet", SaveMode.Append))
+
     raw
   }
 }
