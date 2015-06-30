@@ -23,15 +23,11 @@ import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, WriteOp, Operator}
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 
-class RangeOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
+class RangeOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
 
   override val defaultTypeOperation = TypeOp.Double
 
   private val inputField = if (properties.contains("inputField")) Some(properties.getString("inputField")) else None
-
-  override val key: String = "range_" + {
-    if (inputField.isDefined) inputField.get else "undefined"
-  }
 
   override val writeOperation = WriteOp.Range
 

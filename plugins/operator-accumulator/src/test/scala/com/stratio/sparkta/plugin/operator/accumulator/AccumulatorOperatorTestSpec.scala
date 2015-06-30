@@ -26,27 +26,27 @@ class AccumulatorOperatorTestSpec extends WordSpec with Matchers {
   "Accumulator operator" should {
 
     "processMap must be " in {
-      val inputField = new AccumulatorOperator(Map())
+      val inputField = new AccumulatorOperator("accumulator", Map())
       inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(""))
 
-      val inputFields2 = new AccumulatorOperator(Map("inputField" -> "field1"))
+      val inputFields2 = new AccumulatorOperator("accumulator", Map("inputField" -> "field1"))
       inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(Some(""))
 
-      val inputFields3 = new AccumulatorOperator(Map("inputField" -> "field1"))
+      val inputFields3 = new AccumulatorOperator("accumulator", Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
     }
 
     "processReduce must be " in {
-      val inputFields = new AccumulatorOperator(Map())
+      val inputFields = new AccumulatorOperator("accumulator", Map())
       inputFields.processReduce(Seq()) should be(Some(Seq()))
 
-      val inputFields2 = new AccumulatorOperator(Map())
+      val inputFields2 = new AccumulatorOperator("accumulator", Map())
       inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some(Seq("1", "1")))
 
-      val inputFields3 = new AccumulatorOperator(Map())
+      val inputFields3 = new AccumulatorOperator("accumulator", Map())
       inputFields3.processReduce(Seq(Some("a"), Some("b"))) should be(Some(Seq("a", "b")))
 
-      val inputFields4 = new AccumulatorOperator(Map("typeOp" -> "string"))
+      val inputFields4 = new AccumulatorOperator("accumulator", Map("typeOp" -> "string"))
       inputFields4.processReduce(Seq(Some(1), Some(1))) should be(Some("1_1"))
     }
   }

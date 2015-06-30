@@ -113,7 +113,7 @@
       ],
       "operators": [
         {
-          "name": "count-operator",
+          "name": "countoperator",
           "type": "Count",
           "configuration": {}
         }
@@ -131,7 +131,7 @@
       ],
       "operators": [
         {
-          "name": "count-operator",
+          "name": "countoperator",
           "type": "Count",
           "configuration": {}
         }

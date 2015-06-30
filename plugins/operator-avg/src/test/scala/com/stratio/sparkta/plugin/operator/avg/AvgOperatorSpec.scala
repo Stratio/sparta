@@ -26,42 +26,42 @@ class AvgOperatorSpec extends WordSpec with Matchers {
   "Avg operator" should {
 
     "processMap must be " in {
-      val inputField = new AvgOperator(Map())
+      val inputField = new AvgOperator("avg", Map())
       inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
 
-      val inputFields2 = new AvgOperator(Map("inputField" -> "field1"))
+      val inputFields2 = new AvgOperator("avg", Map("inputField" -> "field1"))
       inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(None)
 
-      val inputFields3 = new AvgOperator(Map("inputField" -> "field1"))
+      val inputFields3 = new AvgOperator("avg", Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
 
-      val inputFields4 = new AvgOperator(Map("inputField" -> "field1"))
+      val inputFields4 = new AvgOperator("avg", Map("inputField" -> "field1"))
       inputFields4.processMap(Map("field1" -> "1", "field2" -> 2)) should be(Some(1))
 
-      val inputFields5 = new AvgOperator(Map("inputField" -> "field1"))
+      val inputFields5 = new AvgOperator("avg", Map("inputField" -> "field1"))
       inputFields5.processMap(Map("field1" -> "foo", "field2" -> 2)) should be(None)
 
-      val inputFields6 = new AvgOperator(Map("inputField" -> "field1"))
+      val inputFields6 = new AvgOperator("avg", Map("inputField" -> "field1"))
       inputFields6.processMap(Map("field1" -> 1.5, "field2" -> 2)) should be(Some(1.5))
 
-      val inputFields7 = new AvgOperator(Map("inputField" -> "field1"))
+      val inputFields7 = new AvgOperator("avg", Map("inputField" -> "field1"))
       inputFields7.processMap(Map("field1" -> 5L, "field2" -> 2)) should be(Some(5L))
     }
 
     "processReduce must be " in {
-      val inputFields = new AvgOperator(Map())
+      val inputFields = new AvgOperator("avg", Map())
       inputFields.processReduce(Seq()) should be(Some(0d))
 
-      val inputFields2 = new AvgOperator(Map())
+      val inputFields2 = new AvgOperator("avg", Map())
       inputFields2.processReduce(Seq(Some(1), Some(1), None)) should be(Some(1))
 
-      val inputFields3 = new AvgOperator(Map())
+      val inputFields3 = new AvgOperator("avg", Map())
       inputFields3.processReduce(Seq(Some(1), Some(2), Some(3), None)) should be(Some(2))
 
-      val inputFields4 = new AvgOperator(Map())
+      val inputFields4 = new AvgOperator("avg", Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
-      val inputFields5 = new AvgOperator(Map("typeOp" -> "string"))
+      val inputFields5 = new AvgOperator("avg", Map("typeOp" -> "string"))
       inputFields5.processReduce(Seq(Some(1), Some(1))) should be(Some("1.0"))
 
     }

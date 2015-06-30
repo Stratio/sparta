@@ -24,7 +24,7 @@ import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk._
 
-class CountOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
+class CountOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
 
   val distinctFields = if (properties.contains("distinctFields")) {
     val fields = properties.getString("distinctFields").split(CountOperator.Separator)
@@ -32,10 +32,6 @@ class CountOperator(properties: Map[String, JSerializable]) extends Operator(pro
   } else None
 
   override val defaultTypeOperation = TypeOp.Long
-
-  override val key: String = "count" + {
-    if (distinctFields.isDefined) "_distinct" else ""
-  }
 
   override val writeOperation = WriteOp.Inc
 

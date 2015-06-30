@@ -26,27 +26,27 @@ class FullTextOperatorSpec extends WordSpec with Matchers {
   "FullText operator" should {
 
     "processMap must be " in {
-      val inputField = new FullTextOperator(Map())
+      val inputField = new FullTextOperator("fullText", Map())
       inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(""))
 
-      val inputFields2 = new FullTextOperator(Map("inputField" -> "field1"))
+      val inputFields2 = new FullTextOperator("fullText", Map("inputField" -> "field1"))
       inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(Some(""))
 
-      val inputFields3 = new FullTextOperator(Map("inputField" -> "field1"))
+      val inputFields3 = new FullTextOperator("fullText", Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
     }
 
     "processReduce must be " in {
-      val inputFields = new FullTextOperator(Map())
+      val inputFields = new FullTextOperator("fullText", Map())
       inputFields.processReduce(Seq()) should be(Some(""))
 
-      val inputFields2 = new FullTextOperator(Map())
+      val inputFields2 = new FullTextOperator("fullText", Map())
       inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some(s"1${FullTextOperator.SEPARATOR}1"))
 
-      val inputFields3 = new FullTextOperator(Map())
+      val inputFields3 = new FullTextOperator("fullText", Map())
       inputFields3.processReduce(Seq(Some("a"), Some("b"))) should be(Some(s"a${FullTextOperator.SEPARATOR}b"))
 
-      val inputFields4 = new FullTextOperator(Map("typeOp" -> "arraystring"))
+      val inputFields4 = new FullTextOperator("fullText", Map("typeOp" -> "arraystring"))
       inputFields4.processReduce(Seq(Some(1), Some(1))) should be(Some(Seq(s"1${FullTextOperator.SEPARATOR}1")))
     }
   }

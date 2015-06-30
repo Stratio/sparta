@@ -26,15 +26,11 @@ import breeze.stats._
 import breeze.linalg._
 
 
-class MedianOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
+class MedianOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
 
   override val defaultTypeOperation = TypeOp.Double
 
   private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
-
-  override val key : String = "median_" + {
-    if(inputField.isDefined) inputField.get else "undefined"
-  }
 
   override val writeOperation = WriteOp.Median
 

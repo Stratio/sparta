@@ -81,7 +81,7 @@
       ],
       "operators": [
         {
-          "name": "rpm_event_avg",
+          "name": "avg_rpm",
           "type": "Avg",
           "configuration": {
             "inputField": "rpm_event_avg"

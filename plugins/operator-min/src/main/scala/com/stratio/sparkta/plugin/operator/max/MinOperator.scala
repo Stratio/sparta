@@ -24,15 +24,11 @@ import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 
 import scala.util.Try
 
-class MinOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
+class MinOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
 
   override val defaultTypeOperation = TypeOp.Double
 
   private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
-
-  override val key : String = "min_" + {
-    if(inputField.isDefined) inputField.get else "undefined"
-  }
 
   override val writeOperation = WriteOp.Min
 

@@ -24,15 +24,11 @@ import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk._
 
-class FullTextOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
+class FullTextOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
 
   override val defaultTypeOperation = TypeOp.String
 
   private val inputField = if (properties.contains("inputField")) Some(properties.getString("inputField")) else None
-
-  override val key: String = "fulltext_" + {
-    if (inputField.isDefined) inputField.get else "undefined"
-  }
 
   override val writeOperation = WriteOp.FullText
 

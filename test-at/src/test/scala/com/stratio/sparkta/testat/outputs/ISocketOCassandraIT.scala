@@ -49,13 +49,13 @@ class ISocketOCassandraIT extends SparktaATSuite {
 
       val resultProductA: ResultSet = session.execute("select * from product_minute where product = 'producta'")
       val rowProductA = resultProductA.iterator().next()
-      (rowProductA).getDouble("avg_price") should be(750.0d)
-      (rowProductA).getDouble("sum_price") should be(6000.0d)
+      (rowProductA).getDouble("avg") should be(750.0d)
+      (rowProductA).getDouble("sum") should be(6000.0d)
 
       val resultProductB: ResultSet = session.execute("select * from product_minute where product = 'productb'")
       val rowProductB = resultProductB.iterator().next()
-      (rowProductB).getDouble("avg_price") should be(1000.0d)
-      (rowProductB).getDouble("sum_price") should be(8000.0d)
+      (rowProductB).getDouble("avg") should be(1000.0d)
+      (rowProductB).getDouble("sum") should be(8000.0d)
     }
   }
 

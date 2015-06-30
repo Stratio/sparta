@@ -46,7 +46,7 @@ class ISocketOParquetIT extends SparktaATSuite {
       sparktaRunner
       val sqc = new SQLContext(new SparkContext(s"local[$NumExecutors]", "ISocketOParquetAT"))
       sqc.read.parquet(parquetPath).registerTempTable("products")
-      sqc.sql("select product, avg_price, sum_price from products")
+      sqc.sql("select product, avgoperator, sumoperator from products")
         .collect()
         .map(_.toSeq.toSet)
         .toSet should be(expectedResults)

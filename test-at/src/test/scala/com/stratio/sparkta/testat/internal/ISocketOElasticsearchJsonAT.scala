@@ -67,7 +67,7 @@ class ISocketOElasticsearchJsonAT extends SparktaATSuite {
 
     rows.filter(tuple =>
         tuple.get("_source").get.asInstanceOf[Map[String, Any]].get(field).get == value).head.get("_source").get
-        .asInstanceOf[Map[String,String]].get("count").get.asInstanceOf[Double]
+        .asInstanceOf[Map[String,String]].get("countoperator").get.asInstanceOf[Double]
   }
 
   override def extraBefore: Unit = JVMProcess.runMain(ElasticThread.getClass.getCanonicalName.dropRight(1), false)

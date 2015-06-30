@@ -44,7 +44,7 @@ class CubeSpec extends TestSuiteBase {
     val cube = new Cube(
       name,
       Seq(Dimension("dim1", "foo", "identity", defaultDimension)),
-      Seq(new CountOperator(Map()), new SumOperator(Map("inputField" -> "n"))),
+      Seq(new CountOperator("count", Map()), new SumOperator("sum", Map("inputField" -> "n"))),
       multiplexer,
       checkpointInterval,
       checkpointGranularity,
@@ -70,13 +70,13 @@ class CubeSpec extends TestSuiteBase {
     def getOutput: Seq[Seq[(DimensionValuesTime, Map[String, Option[Any]])]] = Seq(
       Seq(
         (DimensionValuesTime(Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension),
-          "bar")), eventGranularity), Map("count" -> Some(2L), "sum_n" -> Some(7L))),
+          "bar")), eventGranularity), Map("count" -> Some(2L), "sum" -> Some(7L))),
         (DimensionValuesTime(Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension),
-          "foo")), eventGranularity), Map("count" -> Some(1L), "sum_n" -> Some(3L)))),
+          "foo")), eventGranularity), Map("count" -> Some(1L), "sum" -> Some(3L)))),
       Seq(
         (DimensionValuesTime(Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension),
-          "bar")), eventGranularity), Map("count" -> Some(4L), "sum_n" -> Some(14L))),
+          "bar")), eventGranularity), Map("count" -> Some(4L), "sum" -> Some(14L))),
         (DimensionValuesTime(Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension),
-          "foo")), eventGranularity), Map("count" -> Some(2L), "sum_n" -> Some(6L)))))
+          "foo")), eventGranularity), Map("count" -> Some(2L), "sum" -> Some(6L)))))
   }
 }

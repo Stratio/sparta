@@ -87,8 +87,6 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
 
 object SparktaJob {
 
-  val OperatorNamePropertyKey = "name"
-
   @tailrec
   def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
     parsers.headOption match {
@@ -139,11 +137,12 @@ object SparktaJob {
           .newInstance(parser.name, parser.order, parser.inputField, parser.outputFields, parser.configuration)
           .asInstanceOf[Parser]))
 
-  private def createOperator(operatorDto: OperatorDto): Operator = {
-    tryToInstantiate[Operator](operatorDto.`type` + Operator.ClassSuffix,
-      (c) => instantiateParameterizable[Operator](c,
-        operatorDto.configuration + (OperatorNamePropertyKey -> new JsoneyString(operatorDto.name))))
-  }
+  private def createOperator(operatorDto: OperatorDto): Operator =
+    tryToInstantiate[Operator](operatorDto.`type` + Operator.ClassSuffix, (c) =>
+      c.getDeclaredConstructor(
+        classOf[String],
+        classOf[Map[String, Serializable]]
+      ).newInstance(operatorDto.name, operatorDto.configuration).asInstanceOf[Operator])
 
   def getOperators(operatorsDto: Seq[OperatorDto]): Seq[Operator] =
     operatorsDto.map(operator => createOperator(operator))
