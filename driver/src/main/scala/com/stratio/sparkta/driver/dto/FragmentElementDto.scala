@@ -27,7 +27,7 @@ case class FragmentElementDto(fragmentType: String, name: String, element: Polic
 
 
 object FragmentType extends Enumeration {
-  type FragmentType = Value
+  type `type` = Value
   val input = Value("input")
   val output = Value("output")
   val AllowedTypes = Seq(input, output)

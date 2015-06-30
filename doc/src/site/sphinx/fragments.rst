@@ -15,11 +15,11 @@ Let's imagine that you want to use a Twitter's input in some policies but you do
 "fragment" in each policy that you made.
 ::
     {
-      "fragmentType": "input",
+      "type": "input",
       "name": "twitter",
       "element": {
         "name": "in-twitter",
-        "elementType": "TwitterInput",
+        "type": "TwitterInput",
         "configuration": {
           "consumerKey": "*****",
           "consumerSecret": "*****",

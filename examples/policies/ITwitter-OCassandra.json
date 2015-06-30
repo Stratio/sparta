@@ -30,16 +30,16 @@
       "name": "testCube",
       "dimensions": [
         {
-          "name": "hastags",
+          "name": "hashtags",
           "field": "status",
           "type": "TwitterStatus",
-          "precision": "hastags"
+          "precision": "hashtags"
         },
         {
-          "name": "firsthastag",
+          "name": "firsthashtag",
           "field": "status",
           "type": "TwitterStatus",
-          "precision": "firsthastag"
+          "precision": "firsthashtag"
         },
         {
           "name": "retweets",
@@ -161,7 +161,7 @@
         "isAutoCalculateId": "false",
         "clusteringPrecisions": "",
         "indexFields": "minute",
-        "textIndexFields": "firsthastag:string,userLocation:text,minute:date,avg_wordsn:double,count:long",
+        "textIndexFields": "firsthashtag:string,userLocation:text,minute:date,avg_wordsn:double,count:long",
         "fieldsSeparator": ",",
         "textIndexFieldsName": "lucene",
         "fixedAggregation": "lucene",
