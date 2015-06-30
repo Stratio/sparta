@@ -1,7 +1,7 @@
 Checkpointing
 *************
 
-The system runs with time windows, these windows are configurable and allow us to use not associative operations
+The system works with time windows, they are configurable and allow us to use associative operations
 through Apache Spark Streaming |streaming_link|
 
 .. |streaming_link| raw:: html
@@ -25,7 +25,7 @@ This is an example of the checkpointing configuration in a policy::
 | path            | This is the path where the temporal data is going to be saved, this     | Yes (default: checkpoint)|
 |                 | path should point to a distributed file system as HDFS, S3,...          |                          |
 +-----------------+-------------------------------------------------------------------------+--------------------------+
-| timeDimension   | This is the name of the time dimension, if the cube contain this        | Yes                      |
+| timeDimension   | This is the name of the time dimension, if the cube contains this       | Yes                      |
 |                 | dimension, this is used for group events with the selected granularity. |                          |
 |                 | If the cube not contain this dimension, the time is auto generated.     |                          |
 |                 | The data persistence save this name as a field.                         |                          |

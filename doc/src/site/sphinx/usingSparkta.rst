@@ -53,10 +53,10 @@ Policy
 
 A policy it's a JSON document that define your aggregation rules. It's composed of:
 
-* :ref:`Input <inputs>`: where is the data coming from?
-* :ref:`Transformations <transformations>`: do you want to enrich your data?
-* :ref:`Cubes <cube>`: how do you want to aggregate your data?
-* :ref:`Outputs <output>`: where aggregated data should be stored?
+* `Inputs <inputs.html>`__: where is the data coming from?
+* `Transformations <transformations.html>`__ : do you want to enrich your data?
+* `Cubes <cube.html>`__ : how do you want to aggregate your data?
+* `Outputs <outputs.html>`__ : where aggregated data should be stored?
 
 You can read more about policies `here <policy.html>`__
 
