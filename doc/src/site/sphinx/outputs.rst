@@ -25,7 +25,7 @@ Outputs Configurations
 
 
 
-----------------------
+
 
 .. _generic-label:
 
@@ -34,38 +34,30 @@ Generic Configuration
 
 In the SDK you can find the model that must follow an output to be implemented.It has several settings that can modify system operation.
 
-For more information for this output you can visit the :doc:`dataframes`
-
 These parameters can be completed in the policy file:
 
 
 +-----------------------+----------------------------------------------------------+----------+-----------------------+
 | Property              | Description                                              | Optional | Default               |
 +=======================+==========================================================+==========+=======================+
-| multiplexer           | If you want to multiplex all possible combinations       | Yes      | false                 |
-|                       | that occur within a cube,so that the outputs are saved   |          |                       |
-|                       | multiple "tables". With this parameter the possibility   |          |                       |
-|                       | of multi cubes and the possibility of generating         |          |                       |
-|                       | it implements a data aggregation lake.                   |          |                       |
+| multiplexer           | If it's enabled it will generate tables corresponding    | Yes      | false                 |
+|                       | to all possible combinations of the dimensions.          |          |                       |
 +-----------------------+----------------------------------------------------------+----------+-----------------------+
 | replication_factor    | Required if class is SimpleStrategy; otherwise, not used | Yes      | 1                     |
 |                       | The parameter specifies the number of replicas of data   |          |                       |
 |                       | on multiple nodes.                                       |          |                       |
 +-----------------------+----------------------------------------------------------+----------+-----------------------+
-| fixedDimensions       | You can specify fields that will be fixed for the        | Yes      | ""                    |
-|                       | calculation of the multiplex, in this way can obtain     |          |                       |
-|                       | fixed dimensions and a smaller number of tables and      |          |                       |
+| fixedDimensions       | You can specify dimensions that will be fixed to         | Yes      | ""                    |
+|                       | calculate the multiplexer. This way you can obtain       |          |                       |
+|                       | fixed dimensions and a small number of tables and        |          |                       |
 |                       | possibilities.                                           |          |                       |
 +-----------------------+----------------------------------------------------------+----------+-----------------------+
-| fieldsSeparator       | The character that separate the fields for the others    | Yes      | ,                     |
+| fieldsSeparator       | The character that separate the fields to the others     | Yes      | ,                     |
 |                       | parameters.                                              |          |                       |
 +-----------------------+----------------------------------------------------------+----------+-----------------------+
-| isAutoCalculateId     | The system is capable of assigning an id added to        | Yes      | false                 |
-|                       | each event, so that it may identify only the output.     |          |                       |
-|                       | This field is calculated with all the values of the      |          |                       |
-|                       | including timeDimension date if the parameter is         |          |                       |
-|                       | specified. Only for DataFrames persistence, disable      |          |                       |
-|                       | in Tuple -> (DimensionValuesTime, Aggregations).         |          |                       |
+| isAutoCalculateId     | If it's true it will generate the primary key of the     | Yes      | false                 |
+|                       | register with the value of the dimensions and the        |          |                       |
+|                       | dimensionTime                                            |          |                       |
 +-----------------------+----------------------------------------------------------+----------+-----------------------+
 | fixedAggregation      | It's possible to specify one fixed aggregation with      | Yes      | None                  |
 |                       | value for all dimensions.                                |          |                       |
@@ -77,10 +69,8 @@ These parameters can be completed in the policy file:
 MongoDB Configuration
 ==========================
 
-The output of MongoDB does not use the generic implementation with DataFrames, it has multiple configuration
+The output of MongoDB doesn't use the generic implementation with DataFrames, it has multiple configuration
 parameters to connect to the DB and self-creation of indexes.
-
-For more information for this output you can visit the :doc:`mongodb`
 
 
 +-----------------------+----------------------------------------------------+----------+---------------------------+
@@ -90,12 +80,7 @@ For more information for this output you can visit the :doc:`mongodb`
 |                       | nodes of a cluster of MongoDB, with different      |          |                           |
 |                       | replica set or with sharding.                      |          |                           |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
-| dbName                | The system is capable of assigning an id added     | Yes      | "sparkta"                 |
-|                       | to each event, so that it may identify only        |          |                           |
-|                       | the output. This field is calculated with all the  |          |                           |
-|                       | values of the fields, including timeDimension date |          |                           |
-|                       | if the parameter is specified. Only for DataFrames |          |                           |
-|                       | persistence, disable in UpdateMetricOperation.     |          |                           |
+| dbName                | The name of the database                           | Yes      | "sparkta"                 |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
 | connectionsPerHost    | Number of connections per host                     | Yes      | 5                         |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
@@ -109,11 +94,11 @@ For more information for this output you can visit the :doc:`mongodb`
 +-----------------------+----------------------------------------------------+----------+---------------------------+
 | language              | Specify the language of the tokenizer in the       | Yes      | None                      |
 |                       | full-text index in MongoDB, each document          |          |                           |
-|                       | inserted must have thiskey-value.                  |          |                           |
+|                       | inserted must have this key-value.                 |          |                           |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
 | retrySleep            | The number of milliseconds to wait for reconnect   | Yes      | 1000                      |
-|                       | with MongoDb nodes when the last clientfails.It is |          |                           |
-|                       | recommendable to set less time to the slide        |          |                           |
+|                       | with MongoDb nodes when the last client fails. It  |          |                           |
+|                       | is recommendable to set less time to the slide     |          |                           |
 |                       | interval of the streaming window.                  |          |                           |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
 
@@ -126,8 +111,6 @@ Cassandra Configuration
 
 The output of Cassandra use the generic implementation with DataFrames, this implementation transform each
 UpdateMetricOperation to Row type of Spark and identify each row with his schema.
-
-For more information for this output you can visit the :doc:`cassandra`
 
 
 +-----------------------+----------------------------------------------------------+----------+-----------------------+
@@ -197,8 +180,6 @@ ElasticSearch Configuration
 The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each
 UpdateMetricOperation to Row type of Spark and identify each row with his schema.
 
-For more information for this output you can visit the :doc:`elasticsearch`
-
 
 
 +--------------------------+-----------------------------------------------+----------+-----------------------+
@@ -210,7 +191,7 @@ For more information for this output you can visit the :doc:`elasticsearch`
 +--------------------------+-----------------------------------------------+----------+-----------------------+
 | idField                  | Field used as unique id for the row.          | Yes      | "id"                  |
 +--------------------------+-----------------------------------------------+----------+-----------------------+
-| indexMapping             | Field used as mapping for the index.          | Yes      | "sparkta              |
+| indexMapping             | Field used as mapping for the index.          | Yes      | "sparkta"              |
 +--------------------------+-----------------------------------------------+----------+-----------------------+
 | dateType                 | The type of the date fields.                  | Yes      | None                  |
 +--------------------------+-----------------------------------------------+----------+-----------------------+
@@ -221,10 +202,7 @@ For more information for this output you can visit the :doc:`elasticsearch`
 Redis Configuration
 ====================
 
-The output of Redis not use the generic implementation with DataFrames, this implementation save each
-UpdateMetricOperation in redis hash sets.
-
-For more information for this output you can visit the :doc:`redis`
+The output of Redis doesn't use the generic implementation with DataFrames.
 
 
 

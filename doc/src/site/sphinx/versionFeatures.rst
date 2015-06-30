@@ -1,12 +1,11 @@
 Version Features
 ****************
 
-
 Version 0.5.0
 =============
 
 - Policy refactor. All names were reviewed
-    - Transformtations
+    - Transformations
     - Cubes
     - Operators inside cube
     - Dimensions with type inside cube
@@ -18,9 +17,8 @@ Version 0.5.0
 - Support for fragment composition in policies
 - Parquet output
 - Spark 1.4.x
-- Twitter search
-- Range Operator
-- Stratio Cassandra support
+- Twitter custom search
+
 
 
 Version 0.4.0
@@ -111,5 +109,3 @@ Sdk
 - Auto create time series in outputs if not exist time dimension
 - Full integration in Outputs with **Spark DataFrames**
 - Auto create "Id" in DataFrames with dimensions
-
-

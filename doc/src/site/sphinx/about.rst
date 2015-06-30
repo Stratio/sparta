@@ -31,11 +31,12 @@ This vast amount of data allows us to learn from the users and explore our own w
 We can follow in real-time the evolution of a topic, an event or even an incident just by exploring aggregated data.
 
 
-
-.. figure:: images/map.png
-
-
-
+.. image:: images/map.png
+   :height: 350 px
+   :width:  600 px
+   :scale:  100 %
+   :align: left
+-------------------------------
  But beyond cool visualizations, there are some core services delivered in real-time, using aggregated data to
  answer common questions in the fastest way.
 
