@@ -50,7 +50,7 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
 
     def checkData(): Unit = {
       val sqc = new SQLContext(new SparkContext(s"local[$NumExecutors]", "ISocketOParquet-operatros"))
-      val df = sqc.read.parquet(parquetPath).toDF
+      val df = sqc.parquetFile(parquetPath).toDF
       // scalastyle:off magic.number
       val mapValues = df.map(row => Map(
         "product" -> row.getString(0),
