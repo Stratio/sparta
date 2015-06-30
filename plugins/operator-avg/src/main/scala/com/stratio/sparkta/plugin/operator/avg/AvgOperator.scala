@@ -29,10 +29,6 @@ class AvgOperator(name: String, properties: Map[String, JSerializable]) extends 
 
   private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
-  override val key : String = "avg_" + {
-    if(inputField.isDefined) inputField.get else "undefined"
-  }
-
   override val writeOperation = WriteOp.Avg
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {

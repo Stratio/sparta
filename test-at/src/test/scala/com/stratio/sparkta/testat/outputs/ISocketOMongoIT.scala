@@ -17,6 +17,7 @@
 package com.stratio.sparkta.testat.outputs
 
 import com.github.simplyscala.{MongoEmbedDatabase, MongodProps}
+import com.mongodb.BasicDBObject
 import com.mongodb.casbah.{MongoClientURI, MongoCollection, MongoConnection}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -50,15 +51,15 @@ class ISocketOMongoIT extends MongoEmbedDatabase with SparktaATSuite {
       val mongoConnection = getMongoConnection()
 
       mongoConnection.size should be(2)
-      getMongoConnection().find().map(dbObject => {
+      mongoConnection.find().foreach(dbObject => {
         dbObject.get("id") match {
           case "producta" => {
-            dbObject.get("avg_price") should be(750.0d)
-            dbObject.get("sum_price") should be(6000.0d)
+            dbObject.get("avg") should be(750.0d)
+            dbObject.get("sum") should be(6000.0d)
           }
           case "productb" => {
-            dbObject.get("avg_price") should be(1000.0d)
-            dbObject.get("sum_price") should be(8000.0d)
+            dbObject.get("avg") should be(1000.0d)
+            dbObject.get("sum") should be(8000.0d)
           }
           case _ => require(false)
         }

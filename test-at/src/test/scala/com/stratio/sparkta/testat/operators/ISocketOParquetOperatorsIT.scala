@@ -56,7 +56,7 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
         "product" -> row.getString(0),
         "acc_price" -> row.getSeq[String](2),
         "avg_price" -> row.getDouble(3),
-        "count" -> row.getLong(4),
+        "count_price" -> row.getLong(4),
         "first_price" -> row.getString(5),
         "fulltext_price" -> row.getString(6),
         "last_price" -> row.getString(7),
@@ -74,7 +74,7 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
         Seq("10", "500", "1000", "500", "1000", "500", "1002", "600"))
       productA("avg_price") should be(639.0d)
       productA("sum_price") should be(5112.0d)
-      productA("count") should be(NumEventsExpected)
+      productA("count_price") should be(NumEventsExpected)
       productA("first_price") should be("10")
       productA("last_price") should be("600")
       productA("max_price") should be(1002.0d)
@@ -88,7 +88,7 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
         Seq("15", "1000", "1000", "1000", "1000", "1000", "1001", "50"))
       productB("avg_price") should be(758.25d)
       productB("sum_price") should be(6066.0d)
-      productB("count") should be(NumEventsExpected)
+      productB("count_price") should be(NumEventsExpected)
       productB("first_price") should be("15")
       productB("last_price") should be("50")
       productB("max_price") should be(1001.0d)

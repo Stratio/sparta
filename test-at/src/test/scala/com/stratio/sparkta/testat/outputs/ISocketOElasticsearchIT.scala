@@ -73,8 +73,8 @@ class ISocketOElasticsearchIT extends SparktaATSuite {
       .get("hits").get.asInstanceOf[List[Map[String, Any]]]
 
     rows.filter(tuple =>
-      tuple.get("_source").get.asInstanceOf[Map[String, Any]].get("avg_price").get == avg &&
-        tuple.get("_source").get.asInstanceOf[Map[String, Any]].get("sum_price").get == sum)
+      tuple.get("_source").get.asInstanceOf[Map[String, Any]].get("avg").get == avg &&
+        tuple.get("_source").get.asInstanceOf[Map[String, Any]].get("sum").get == sum)
   }
 
   /**

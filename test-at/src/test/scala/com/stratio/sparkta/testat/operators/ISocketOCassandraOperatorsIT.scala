@@ -58,7 +58,7 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
 
       rowProductA.getDouble("avg_price") should be(639.0d)
       rowProductA.getDouble("sum_price") should be(5112.0d)
-      rowProductA.getLong("count") should be(NumEventsExpected)
+      rowProductA.getLong("count_price") should be(NumEventsExpected)
       rowProductA.getString("first_price") should be("10")
       rowProductA.getString("last_price") should be("600")
       rowProductA.getDouble("max_price") should be(1002.0d)
@@ -75,7 +75,7 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
 
       rowProductB.getDouble("avg_price") should be(758.25d)
       rowProductB.getDouble("sum_price") should be(6066.0d)
-      rowProductB.getLong("count") should be(NumEventsExpected)
+      rowProductB.getLong("count_price") should be(NumEventsExpected)
       rowProductB.getString("first_price") should be("15")
       rowProductB.getString("last_price") should be("50")
       rowProductB.getDouble("max_price") should be(1001.0d)

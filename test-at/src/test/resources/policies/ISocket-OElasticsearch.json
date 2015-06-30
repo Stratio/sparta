@@ -79,14 +79,14 @@
       ],
       "operators": [
         {
-          "name": "sum-operator",
+          "name": "sum",
           "type": "Sum",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "name": "avg-operator",
+          "name": "avg",
           "type": "Avg",
           "configuration": {
             "inputField": "price"
