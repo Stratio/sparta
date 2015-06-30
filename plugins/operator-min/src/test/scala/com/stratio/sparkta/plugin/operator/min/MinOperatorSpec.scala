@@ -26,42 +26,42 @@ class MinOperatorSpec extends WordSpec with Matchers {
   "Min operator" should {
 
     "processMap must be " in {
-      val inputField = new MinOperator(Map())
+      val inputField = new MinOperator("min", Map())
       inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
 
-      val inputFields2 = new MinOperator(Map("inputField" -> "field1"))
+      val inputFields2 = new MinOperator("min", Map("inputField" -> "field1"))
       inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(None)
 
-      val inputFields3 = new MinOperator(Map("inputField" -> "field1"))
+      val inputFields3 = new MinOperator("min", Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
 
-      val inputFields4 = new MinOperator(Map("inputField" -> "field1"))
+      val inputFields4 = new MinOperator("min", Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> "1", "field2" -> 2)) should be(Some(1))
 
-      val inputFields5 = new MinOperator(Map("inputField" -> "field1"))
+      val inputFields5 = new MinOperator("min", Map("inputField" -> "field1"))
       inputFields5.processMap(Map("field1" -> "foo", "field2" -> 2)) should be(None)
 
-      val inputFields6 = new MinOperator(Map("inputField" -> "field1"))
+      val inputFields6 = new MinOperator("min", Map("inputField" -> "field1"))
       inputFields6.processMap(Map("field1" -> 1.5, "field2" -> 2)) should be(Some(1.5))
 
-      val inputFields7 = new MinOperator(Map("inputField" -> "field1"))
+      val inputFields7 = new MinOperator("min", Map("inputField" -> "field1"))
       inputFields7.processMap(Map("field1" -> 5L, "field2" -> 2)) should be(Some(5L))
     }
 
     "processReduce must be " in {
-      val inputFields = new MinOperator(Map())
+      val inputFields = new MinOperator("min", Map())
       inputFields.processReduce(Seq()) should be(Some(0d))
 
-      val inputFields2 = new MinOperator(Map())
+      val inputFields2 = new MinOperator("min", Map())
       inputFields2.processReduce(Seq(Some(1), Some(2))) should be(Some(1d))
 
-      val inputFields3 = new MinOperator(Map())
+      val inputFields3 = new MinOperator("min", Map())
       inputFields3.processReduce(Seq(Some(1), Some(2), Some(3))) should be(Some(1d))
 
-      val inputFields4 = new MinOperator(Map())
+      val inputFields4 = new MinOperator("min", Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
-      val inputFields5 = new MinOperator(Map("typeOp" -> "string"))
+      val inputFields5 = new MinOperator("min", Map("typeOp" -> "string"))
       inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("1.0"))
 
 

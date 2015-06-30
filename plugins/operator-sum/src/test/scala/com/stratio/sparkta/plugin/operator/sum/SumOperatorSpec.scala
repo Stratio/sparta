@@ -26,43 +26,43 @@ class SumOperatorSpec extends WordSpec with Matchers {
   "Sum operator" should {
 
     "processMap must be " in {
-      val inputField = new SumOperator(Map())
+      val inputField = new SumOperator("sum", Map())
       inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
 
-      val inputFields2 = new SumOperator(Map("inputField" -> "field1"))
+      val inputFields2 = new SumOperator("sum", Map("inputField" -> "field1"))
       inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(None)
 
-      val inputFields3 = new SumOperator(Map("inputField" -> "field1"))
+      val inputFields3 = new SumOperator("sum", Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
 
-      val inputFields4 = new SumOperator(Map("inputField" -> "field1"))
+      val inputFields4 = new SumOperator("sum", Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> "1", "field2" -> 2)) should be(Some(1))
 
-      val inputFields5 = new SumOperator(Map("inputField" -> "field1"))
+      val inputFields5 = new SumOperator("sum", Map("inputField" -> "field1"))
       inputFields5.processMap(Map("field1" -> "foo", "field2" -> 2)) should be(None)
 
-      val inputFields6 = new SumOperator(Map("inputField" -> "field1"))
+      val inputFields6 = new SumOperator("sum", Map("inputField" -> "field1"))
       inputFields6.processMap(Map("field1" -> 1.5, "field2" -> 2)) should be(Some(1.5))
 
-      val inputFields7 = new SumOperator(Map("inputField" -> "field1"))
+      val inputFields7 = new SumOperator("sum", Map("inputField" -> "field1"))
       inputFields7.processMap(Map("field1" -> 5L, "field2" -> 2)) should be(Some(5L))
 
     }
 
     "processReduce must be " in {
-      val inputFields = new SumOperator(Map())
+      val inputFields = new SumOperator("sum", Map())
       inputFields.processReduce(Seq()) should be(Some(0d))
 
-      val inputFields2 = new SumOperator(Map())
+      val inputFields2 = new SumOperator("sum", Map())
       inputFields2.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be (Some(20d))
 
-      val inputFields3 = new SumOperator(Map())
+      val inputFields3 = new SumOperator("sum", Map())
       inputFields3.processReduce(Seq(Some(1), Some(2), Some(3), Some(6.5), Some(7.5))) should be (Some(20d))
 
-      val inputFields4 = new SumOperator(Map())
+      val inputFields4 = new SumOperator("sum", Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
-      val inputFields5 = new SumOperator(Map("typeOp" -> "string"))
+      val inputFields5 = new SumOperator("sum", Map("typeOp" -> "string"))
       inputFields5.processReduce(Seq(Some(1), Some(2), Some(3))) should be(Some("6.0"))
 
 

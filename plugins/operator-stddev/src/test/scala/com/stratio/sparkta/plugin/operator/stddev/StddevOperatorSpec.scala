@@ -26,44 +26,44 @@ class StddevOperatorSpec extends WordSpec with Matchers {
   "Std dev operator" should {
 
     "processMap must be " in {
-      val inputField = new StddevOperator(Map())
+      val inputField = new StddevOperator("stdev", Map())
       inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
 
-      val inputFields2 = new StddevOperator(Map("inputField" -> "field1"))
+      val inputFields2 = new StddevOperator("stdev", Map("inputField" -> "field1"))
       inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(None)
 
-      val inputFields3 = new StddevOperator(Map("inputField" -> "field1"))
+      val inputFields3 = new StddevOperator("stdev", Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
 
-      val inputFields4 = new StddevOperator(Map("inputField" -> "field1"))
+      val inputFields4 = new StddevOperator("stdev", Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> "1", "field2" -> 2)) should be(Some(1))
 
-      val inputFields5 = new StddevOperator(Map("inputField" -> "field1"))
+      val inputFields5 = new StddevOperator("stdev", Map("inputField" -> "field1"))
       inputFields5.processMap(Map("field1" -> "foo", "field2" -> 2)) should be(None)
 
-      val inputFields6 = new StddevOperator(Map("inputField" -> "field1"))
+      val inputFields6 = new StddevOperator("stdev", Map("inputField" -> "field1"))
       inputFields6.processMap(Map("field1" -> 1.5, "field2" -> 2)) should be(Some(1.5))
 
-      val inputFields7 = new StddevOperator(Map("inputField" -> "field1"))
+      val inputFields7 = new StddevOperator("stdev", Map("inputField" -> "field1"))
       inputFields7.processMap(Map("field1" -> 5L, "field2" -> 2)) should be(Some(5L))
     }
 
     "processReduce must be " in {
-      val inputFields = new StddevOperator(Map())
+      val inputFields = new StddevOperator("stdev", Map())
       inputFields.processReduce(Seq()) should be(Some(0d))
 
-      val inputFields2 = new StddevOperator(Map())
+      val inputFields2 = new StddevOperator("stdev", Map())
       inputFields2.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be
       (Some(2.8284271247461903))
 
-      val inputFields3 = new StddevOperator(Map())
+      val inputFields3 = new StddevOperator("stdev", Map())
       inputFields3.processReduce(Seq(Some(1), Some(2), Some(3), Some(6.5), Some(7.5))) should be
       (Some(2.850438562747845))
 
-      val inputFields4 = new StddevOperator(Map())
+      val inputFields4 = new StddevOperator("stdev", Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
-      val inputFields5 = new StddevOperator(Map("typeOp" -> "string"))
+      val inputFields5 = new StddevOperator("stdev", Map("typeOp" -> "string"))
       inputFields5.processReduce(
         Seq(Some(1), Some(2), Some(3), Some(6.5), Some(7.5))) should be(Some("2.850438562747845"))
 

@@ -26,42 +26,42 @@ class VarianceOperatorSpec extends WordSpec with Matchers {
   "Variance operator" should {
 
     "processMap must be " in {
-      val inputField = new VarianceOperator(Map())
+      val inputField = new VarianceOperator("variance", Map())
       inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
 
-      val inputFields2 = new VarianceOperator(Map("inputField" -> "field1"))
+      val inputFields2 = new VarianceOperator("variance", Map("inputField" -> "field1"))
       inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(None)
 
-      val inputFields3 = new VarianceOperator(Map("inputField" -> "field1"))
+      val inputFields3 = new VarianceOperator("variance", Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
 
-      val inputFields4 = new VarianceOperator(Map("inputField" -> "field1"))
+      val inputFields4 = new VarianceOperator("variance", Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> "1", "field2" -> 2)) should be(Some(1))
 
-      val inputFields5 = new VarianceOperator(Map("inputField" -> "field1"))
+      val inputFields5 = new VarianceOperator("variance", Map("inputField" -> "field1"))
       inputFields5.processMap(Map("field1" -> "foo", "field2" -> 2)) should be(None)
 
-      val inputFields6 = new VarianceOperator(Map("inputField" -> "field1"))
+      val inputFields6 = new VarianceOperator("variance", Map("inputField" -> "field1"))
       inputFields6.processMap(Map("field1" -> 1.5, "field2" -> 2)) should be(Some(1.5))
 
-      val inputFields7 = new VarianceOperator(Map("inputField" -> "field1"))
+      val inputFields7 = new VarianceOperator("variance", Map("inputField" -> "field1"))
       inputFields7.processMap(Map("field1" -> 5L, "field2" -> 2)) should be(Some(5L))
     }
 
     "processReduce must be " in {
-      val inputFields = new VarianceOperator(Map())
+      val inputFields = new VarianceOperator("variance", Map())
       inputFields.processReduce(Seq()) should be(Some(0d))
 
-      val inputFields2 = new VarianceOperator(Map())
+      val inputFields2 = new VarianceOperator("variance", Map())
       inputFields2.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some(8))
 
-      val inputFields3 = new VarianceOperator(Map())
+      val inputFields3 = new VarianceOperator("variance", Map())
       inputFields3.processReduce(Seq(Some(1), Some(2), Some(3), Some(6.5), Some(7.5))) should be(Some(8.125))
 
-      val inputFields4 = new VarianceOperator(Map())
+      val inputFields4 = new VarianceOperator("variance", Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
-      val inputFields5 = new VarianceOperator(Map("typeOp" -> "string"))
+      val inputFields5 = new VarianceOperator("variance", Map("typeOp" -> "string"))
       inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("8.0"))
 
 

@@ -26,42 +26,42 @@ class MaxOperatorSpec extends WordSpec with Matchers {
   "Max operator" should {
 
     "processMap must be " in {
-      val inputField = new MaxOperator(Map())
+      val inputField = new MaxOperator("max", Map())
       inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
 
-      val inputFields2 = new MaxOperator(Map("inputField" -> "field1"))
+      val inputFields2 = new MaxOperator("max", Map("inputField" -> "field1"))
       inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(None)
 
-      val inputFields3 = new MaxOperator(Map("inputField" -> "field1"))
+      val inputFields3 = new MaxOperator("max", Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
 
-      val inputFields4 = new MaxOperator(Map("inputField" -> "field1"))
+      val inputFields4 = new MaxOperator("max", Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> "1", "field2" -> 2)) should be(Some(1))
 
-      val inputFields5 = new MaxOperator(Map("inputField" -> "field1"))
+      val inputFields5 = new MaxOperator("max", Map("inputField" -> "field1"))
       inputFields5.processMap(Map("field1" -> "foo", "field2" -> 2)) should be(None)
 
-      val inputFields6 = new MaxOperator(Map("inputField" -> "field1"))
+      val inputFields6 = new MaxOperator("max", Map("inputField" -> "field1"))
       inputFields6.processMap(Map("field1" -> 1.5, "field2" -> 2)) should be(Some(1.5))
 
-      val inputFields7 = new MaxOperator(Map("inputField" -> "field1"))
+      val inputFields7 = new MaxOperator("max", Map("inputField" -> "field1"))
       inputFields7.processMap(Map("field1" -> 5L, "field2" -> 2)) should be(Some(5L))
     }
 
     "processReduce must be " in {
-      val inputFields = new MaxOperator(Map())
+      val inputFields = new MaxOperator("max", Map())
       inputFields.processReduce(Seq()) should be(Some(0d))
 
-      val inputFields2 = new MaxOperator(Map())
+      val inputFields2 = new MaxOperator("max", Map())
       inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some(1d))
 
-      val inputFields3 = new MaxOperator(Map())
+      val inputFields3 = new MaxOperator("max", Map())
       inputFields3.processReduce(Seq(Some(1), Some(2), Some(3))) should be(Some(3d))
 
-      val inputFields4 = new MaxOperator(Map())
+      val inputFields4 = new MaxOperator("max", Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
-      val inputFields5 = new MaxOperator(Map("typeOp" -> "string"))
+      val inputFields5 = new MaxOperator("max", Map("typeOp" -> "string"))
       inputFields5.processReduce(Seq(Some(1), Some(2))) should be(Some("2.0"))
 
     }

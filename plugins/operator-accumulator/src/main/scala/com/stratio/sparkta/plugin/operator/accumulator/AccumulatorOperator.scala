@@ -24,15 +24,12 @@ import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk._
 
-class AccumulatorOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
+class AccumulatorOperator(name:String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
 
   override val defaultTypeOperation = TypeOp.ArrayString
 
   private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
-  override val key : String = "acc_" + {
-    if(inputField.isDefined) inputField.get else "undefined"
-  }
   override val writeOperation = WriteOp.AccSet
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {

@@ -24,15 +24,11 @@ import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk._
 
-class FirstValueOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
+class FirstValueOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
 
   override val defaultTypeOperation = TypeOp.String
 
   private val inputField = if (properties.contains("inputField")) properties.getString("inputField", None) else None
-
-  override val key: String = "first_" + {
-    if(inputField.isDefined) inputField.get else "undefined"
-  }
 
   override val writeOperation = WriteOp.Set
 

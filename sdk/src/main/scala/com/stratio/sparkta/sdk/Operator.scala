@@ -22,14 +22,14 @@ import scala.util.Try
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 
-abstract class Operator(properties: Map[String, JSerializable]) extends Parameterizable(properties)
+abstract class Operator(name: String, properties: Map[String, JSerializable]) extends Parameterizable(properties)
 with Ordered[Operator] with TypeConversions {
 
   override def operationProps: Map[String, JSerializable] = properties
 
   override def defaultTypeOperation: TypeOp = TypeOp.Binary
 
-  def key: String
+  def key: String = name
 
   def writeOperation: WriteOp
 
