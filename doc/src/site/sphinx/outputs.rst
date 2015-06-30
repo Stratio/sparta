@@ -25,7 +25,7 @@ Outputs Configurations
 
 
 
-----------------------
+
 
 .. _generic-label:
 
@@ -33,8 +33,6 @@ Generic Configuration
 =======================
 
 In the SDK you can find the model that must follow an output to be implemented.It has several settings that can modify system operation.
-
-For more information for this output you can visit the :doc:`dataframes`
 
 These parameters can be completed in the policy file:
 
@@ -80,8 +78,6 @@ MongoDB Configuration
 The output of MongoDB does not use the generic implementation with DataFrames, it has multiple configuration
 parameters to connect to the DB and self-creation of indexes.
 
-For more information for this output you can visit the :doc:`mongodb`
-
 
 +-----------------------+----------------------------------------------------+----------+---------------------------+
 | Property              | Description                                        | Optional | Default                   |
@@ -126,8 +122,6 @@ Cassandra Configuration
 
 The output of Cassandra use the generic implementation with DataFrames, this implementation transform each
 UpdateMetricOperation to Row type of Spark and identify each row with his schema.
-
-For more information for this output you can visit the :doc:`cassandra`
 
 
 +-----------------------+----------------------------------------------------------+----------+-----------------------+
@@ -197,7 +191,7 @@ ElasticSearch Configuration
 The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each
 UpdateMetricOperation to Row type of Spark and identify each row with his schema.
 
-For more information for this output you can visit the :doc:`elasticsearch`
+
 
 
 
@@ -224,7 +218,6 @@ Redis Configuration
 The output of Redis not use the generic implementation with DataFrames, this implementation save each
 UpdateMetricOperation in redis hash sets.
 
-For more information for this output you can visit the :doc:`redis`
 
 
 

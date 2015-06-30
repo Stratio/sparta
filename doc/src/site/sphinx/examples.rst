@@ -50,43 +50,75 @@ The new feature that we have included in the twitter input it's the parameter **
 to search tweets based on the words you specify on it. They could be single words or hashtags.
 If the program find one of the words, the tweet will be sent to be processed.
 
+Now it's the time to decide if we want to custom our twitter search with our own terms or
+if we want the global trending topic at the moment.
+As we explained, if in the input you add::
+
+ "termsOfSearch":"Your,#search,#could,be,whatever"
+
+
+It will be a custom search, if you want the other choice(global trending topics) just delete the whole line, and the
+policy will look like this::
+
+ "inputs": [
+      {
+      "name": "in-twitter",
+      "type": "Twitter",
+      "configuration": {
+        "consumerKey": "****",
+        "consumerSecret": "****",
+        "accessToken": "****",
+        "accessTokenSecret": "****",
+       }
+      }
+     ]
+
 * **Second**
 
-Then we have to choose which fields we are going to consider relevant::
+Then we have to choose which dimensions we are going to consider relevant::
 
-  "fields": [
+    "cubes": [
     {
-      "type": "TwitterStatus",
-      "name": "status",
-      "configuration": {
-        "typeOp": "string",
-        "hashtags": "int",
-        "firsthashtag": "string",
-        "retweets": "int",
-        "urls": "int"
-      }
-    },
-    {
-      "name": "userLocation"
-    },
-    {
-      "name": "wordsN"
-    },
-    {
-      "type": "DateTime",
-      "name": "timestamp"
-    },
-    {
-      "type": "GeoHash",
-      "name": "geolocation",
-      "configuration": {
-        "typeOp": "arraydouble"
-      }
-    }
-  ]
+      "name": "testCube",
+      "dimensions": [
+        {
+          "field": "status",
+          "name": "hashtags",
+          "type": "TwitterStatus",
+          "precision": "hashtags"
+        },
+        {
+          "field": "status",
+          "name": "firsthashtag",
+          "type": "TwitterStatus",
+          "precision": "firsthashtag"
+        },
+        {
+          "field": "status",
+          "name": "retweets",
+          "type": "TwitterStatus",
+          "precision": "retweets"
+        },
+        {
+          "name": "userLocation",
+          "field": "userLocation"
+        },
+        {
+          "field": "geolocation",
+          "name": "precision3",
+          "type": "GeoHash",
+          "precision": "precision3"
+        },
+        {
+          "field": "timestamp",
+          "name": "minute",
+          "type": "DateTime",
+          "precision": "minute"
+        }
+      ]
 
 
-The fields are:
+The dimensions are:
 
 - status(hashtags,firsthashtag,retweets and urls)
 - userLocation
@@ -102,40 +134,40 @@ In this step we are going to define all the operators that we want to apply to o
 
   "operators": [
         {
-          "measureName": "count-operator",
+          "name": "count-operator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "measureName": "sum-operator",
+          "name": "sum-operator",
           "type": "Sum",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "max-operator",
+          "name": "max-operator",
           "type": "Max",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "min-operator",
+          "name": "min-operator",
           "type": "Min",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "avg-operator",
+          "name": "avg-operator",
           "type": "Avg",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "fullText-operator",
+          "name": "fullText-operator",
           "type": "FullText",
           "configuration": {
             "inputField": "userLocation"
@@ -193,30 +225,6 @@ Run Sparkta::
     cd /opt/sds/sparkta
 
     sudo sh bin/run
-
-
-Now it's the time to decide if we want to custom our twitter search with our own terms or
-if we want the global trending topic at the moment.
-As we explained, if in the input you add::
-
- "termsOfSearch":"Your,#search,#could,be,whatever"
-
-
-It will be a custom search, if you want the other choice(global trending topics) just delete the whole line, and the
-policy will look like this::
-
- "inputs": [
-      {
-      "name": "in-twitter",
-      "type": "Twitter",
-      "configuration": {
-        "consumerKey": "****",
-        "consumerSecret": "****",
-        "accessToken": "****",
-        "accessTokenSecret": "****",
-       }
-      }
-     ]
 
 Now let's send the policy to sparkta::
 
