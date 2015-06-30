@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.testat.operators
+package com.stratio.sparkta.testat.outputs
 
 import com.datastax.driver.core.{Cluster, ResultSet, Session}
 import com.stratio.sparkta.testat.SparktaATSuite

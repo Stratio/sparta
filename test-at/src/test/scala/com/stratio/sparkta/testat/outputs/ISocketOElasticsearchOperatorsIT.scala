@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.testat.operators
+package com.stratio.sparkta.testat.outputs
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
@@ -47,11 +47,6 @@ class ISocketOElasticsearchOperatorsIT extends SparktaATSuite {
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-operators.csv").getPath
 
   val NumEventsExpected: Int = 8
-
-  val ProductAAvg: Double = 750d
-  val ProductASum: Double = 6000d
-  val ProductBAvg: Double = 1000d
-  val ProductBSum: Double = 8000d
 
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in Elasticsearch" in {
