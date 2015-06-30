@@ -96,7 +96,7 @@ Version 0.5.0
 =============
 
 - Policy refactor. All names were reviewed
-    - Transformtations
+    - Transformations
     - Cubes
     - Operators inside cube
     - Dimensions with type inside cube
@@ -108,4 +108,4 @@ Version 0.5.0
 - Support for fragment composition in policies
 - Parquet output
 - Spark 1.4.x
-- Twitter search
+- Twitter custom search
