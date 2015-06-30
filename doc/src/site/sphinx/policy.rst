@@ -15,7 +15,7 @@ It consists of the following parts:
 General configuration
 *********************
 
-In this part you must define the global parameters of your policy::
+In this part you have to define the global parameters of your policy::
 
   "name": "Twitter-Cassandra-policy",
   "sparkStreamingWindow": 6000,
@@ -42,7 +42,7 @@ In this part you must define the global parameters of your policy::
 +--------------------------+-----------------------------------------------+----------+
 
 
-The `checkpointing <stateful.html>`__ block is where you must define the Apache Spark Streaming |streaming_link|
+The `checkpointing <stateful.html>`__ block is where you have to define the Apache Spark Streaming |streaming_link|
 
 The `rawData` block allow you to save the `raw data <rawdata.html>`__ into HDFS + Parquet.
 
@@ -56,7 +56,7 @@ The `rawData` block allow you to save the `raw data <rawdata.html>`__ into HDFS 
 Inputs
 ******
 
-Here you define the source of your data. Currently, you can have only one input. For more info
+Here you can define the source of your data. Currently, you can have just one input. For more information
 about supported inputs, you can visit :doc:`inputs`
 
 Example::
@@ -75,7 +75,7 @@ Example::
     ]
 
 
-.. _dimension:
+
 
 
 Transformations
@@ -150,7 +150,7 @@ Cubes
 
 The cubes are the way you want to aggregate your fields generated in the previous step.
 
-Learn `here <cube.html>`__ more about cubes.
+Learn more about cubes `here <cube.html>`__ .
 
 Example::
 
@@ -192,10 +192,10 @@ Example::
 Outputs
 *******
 
-Here is where you decide where to persist your aggregated data. One output is equivalent to one datastore. You can
+Here is where you decide where to persist your aggregated data. An output is equivalent to a datastore. You can
 have one or more outputs in your policy.
 
-Learn `here <outputs.html>`__ more about cubes.
+Learn more about outputs `here <outputs.html>`__ .
 
 Example::
 
@@ -210,17 +210,3 @@ Example::
       }
     ]
 
-.. _fragment:
-
-Fragments
-=========
-
-For your convenience, it is possible to have an alias about input[s]/output[s] in your policy. These alias are
-fragments that will be included in your policy when the policy has been run.
-
-Fragments have an API Rest to perform CRUD operations over them. For more information you can read documentation about
-it querying Swagger::
-
-    http://<SPARKTA-HOST>:<SPARKTA-PORT>/swagger#!/fragment
-
-You have more configuration info `here <fragments.html>`__

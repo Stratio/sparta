@@ -117,11 +117,14 @@ Inputs
 Outputs
 ------------
 
-- :doc:`mongodb`
-- :doc:`cassandra`
-- :doc:`elasticsearch`
-- :doc:`redis`
-- :doc:`print`
+
+- `MongoDB <outputs.html#mongodb-label>`__
+- `Cassandra <outputs.html#cassandra-label>`__
+- `ElasticSearch <outputs.html#elasticsearch-label>`__
+- `Redis <outputs.html#redis-label>`__
+- `Print <outputs.html#print-label>`__
+- `Parquet <outputs.html#parquet-label>`__
 
 
 
+<outputs.html>

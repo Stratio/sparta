@@ -1,5 +1,5 @@
 
-Inputs Configurations
+Input Configuration
 ******************
 
 - :ref:`flume-label`
@@ -45,7 +45,7 @@ Read events from apache-flume
 +-----------------+------------------------------------------------------------------+------------+
 | type            | The Type of the input it's used to instantiate specific classes  | No         |
 +-----------------+------------------------------------------------------------------+------------+
-| Configuratio    |                                                                  | No         |
+| Configuration   | The kind of operation that we are going to do                    | No         |
 | Type            |                                                                  |            |
 +-----------------+------------------------------------------------------------------+------------+
 | Configuration   | host/port to connect                                             | No         |
@@ -54,7 +54,7 @@ Read events from apache-flume
 | Configuration:  | It's a spark parameter used to define the level of the trade-off | No         |
 | storageLevel    | between memory usage and CPU efficiency                          |            |
 +-----------------+------------------------------------------------------------------+------------+
-| Configuration:  |                                                                  | No         |
+| Configuration:  | The max number of lines to read and send to the channel at a time| No         |
 | maxBatchSize    |                                                                  |            |
 +-----------------+------------------------------------------------------------------+------------+
 .. _kafka-label:
@@ -78,7 +78,7 @@ Reads events from apache-kafka
       }
     }
    ]
-+-------------------------------------------------------------------------------------------+------------+
++--------------------------------+----------------------------------------------------------+------------+
 | Property                       | Description                                              | Optional   |
 +================================+==========================================================+============+
 | name                           | Name of the input                                        | No         |
