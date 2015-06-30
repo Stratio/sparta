@@ -17,6 +17,9 @@ This is an example of how create a cube::
         {
           "name": "session",
           "field": "session"
+          "configuration": {
+            "typeOp": "string"
+          }
         },
         {
           "name": "minute",
@@ -37,7 +40,8 @@ This is an example of how create a cube::
           "name": "min-operator",
           "type": "Min",
           "configuration": {
-            "inputField": "responseTime"
+            "inputField": "responseTime",
+            "typeOp": "int"
           }
         }
       ]
@@ -86,7 +90,8 @@ These are the common properties of a dimension
 +-----------------+---------------------------------------------------------------------------------------+------------+
 | precision       | In case the selected type make a sub-aggregation you will have to set this property   | Depending  |
 |                 | in order to mark the precision for which you want to group by                         | on the type|
-|                 |                                                                                       |            |
++-----------------+---------------------------------------------------------------------------------------+------------+
+| typeOp          | Is possible select the returned type of the dimension. (int, long, double, string...) | Yes        |
 +-----------------+---------------------------------------------------------------------------------------+------------+
 
 Below are shown the possible dimension types available:

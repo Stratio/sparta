@@ -2,6 +2,27 @@ Version Features
 ****************
 
 
+Version 0.5.0
+=============
+
+- Policy refactor. All names were reviewed
+    - Transformtations
+    - Cubes
+    - Operators inside cube
+    - Dimensions with type inside cube
+- Operators with type
+- ElasticSearch index mapping according to schema
+- Bugfixing
+- CSV output
+- Acceptance test
+- Support for fragment composition in policies
+- Parquet output
+- Spark 1.4.x
+- Twitter search
+- Range Operator
+- Stratio Cassandra support
+
+
 Version 0.4.0
 =============
 
@@ -92,20 +113,3 @@ Sdk
 - Auto create "Id" in DataFrames with dimensions
 
 
-Version 0.5.0
-=============
-
-- Policy refactor. All names were reviewed
-    - Transformtations
-    - Cubes
-    - Operators inside cube
-    - Dimensions with type inside cube
-- Operators with type
-- ElasticSearch index mapping according to schema
-- Bugfixing
-- CSV output
-- Acceptance test
-- Support for fragment composition in policies
-- Parquet output
-- Spark 1.4.x
-- Twitter search

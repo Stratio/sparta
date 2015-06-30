@@ -41,7 +41,8 @@ transformation configuration would be::
 +---------------+-------------------------------------------------------------------------------------------+----------+
 | type          | The transformation type. In this case DateTime                                            | No       |
 +---------------+-------------------------------------------------------------------------------------------+----------+
-| inputField    | The timestamp field you want to transform into a Date object                              | No       |
+| inputField    | The timestamp field you want to transform into a Date object                              | Yes      |
+|               |                                                                                           |(first)   |
 +---------------+-------------------------------------------------------------------------------------------+----------+
 | outputFields  | The field name you want to generate. It could be the same as the intput field in          | No       |
 |               | which case it would be overridden                                                         |          |
