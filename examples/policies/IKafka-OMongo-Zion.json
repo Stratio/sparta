@@ -241,19 +241,19 @@
       ],
       "operators": [
         {
-          "name": "count-operator",
+          "name": "countoperator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "name": "max-operator",
+          "name": "maxoperator",
           "type": "Max",
           "configuration": {
             "inputField": "responseTime"
           }
         },
         {
-          "name": "min-operator",
+          "name": "minoperator",
           "type": "Min",
           "configuration": {
             "inputField": "responseTime"
@@ -277,19 +277,19 @@
       ],
       "operators": [
         {
-          "name": "count-operator",
+          "name": "countoperator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "name": "max-operator",
+          "name": "maxoperator",
           "type": "Max",
           "configuration": {
             "inputField": "responseTime"
           }
         },
         {
-          "name": "min-operator",
+          "name": "minoperator",
           "type": "Min",
           "configuration": {
             "inputField": "responseTime"
@@ -307,19 +307,19 @@
       ],
       "operators": [
         {
-          "name": "count-operator",
+          "name": "countoperator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "name": "max-operator",
+          "name": "maxoperator",
           "type": "Max",
           "configuration": {
             "inputField": "responseTime"
           }
         },
         {
-          "name": "min-operator",
+          "name": "minoperator",
           "type": "Min",
           "configuration": {
             "inputField": "responseTime"
@@ -337,19 +337,19 @@
       ],
       "operators": [
         {
-          "name": "count-operator",
+          "name": "countoperator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "name": "max-operator",
+          "name": "maxoperator",
           "type": "Max",
           "configuration": {
             "inputField": "responseTime"
           }
         },
         {
-          "name": "min-operator",
+          "name": "minoperator",
           "type": "Min",
           "configuration": {
             "inputField": "responseTime"
@@ -369,19 +369,19 @@
       ],
       "operators": [
         {
-          "name": "count-operator",
+          "name": "countoperator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "name": "max-operator",
+          "name": "maxoperator",
           "type": "Max",
           "configuration": {
             "inputField": "responseTime"
           }
         },
         {
-          "name": "min-operator",
+          "name": "minoperator",
           "type": "Min",
           "configuration": {
             "inputField": "responseTime"
@@ -405,19 +405,19 @@
       ],
       "operators": [
         {
-          "name": "count-operator",
+          "name": "countoperator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "name": "max-operator",
+          "name": "maxoperator",
           "type": "Max",
           "configuration": {
             "inputField": "responseTime"
           }
         },
         {
-          "name": "min-operator",
+          "name": "minoperator",
           "type": "Min",
           "configuration": {
             "inputField": "responseTime"

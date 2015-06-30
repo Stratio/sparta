@@ -67,47 +67,47 @@
       ],
       "operators": [
         {
-          "name": "count-operator",
+          "name": "countoperator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "name": "sum-operator",
+          "name": "sumoperator",
           "type": "Sum",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "max-operator",
+          "name": "maxoperator",
           "type": "Max",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "min-operator",
+          "name": "minoperator",
           "type": "Min",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "avg-operator",
+          "name": "avgoperator",
           "type": "Avg",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "median-operator",
+          "name": "medianoperator",
           "type": "Median",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "fullText-operator",
+          "name": "fullTextoperator",
           "type": "FullText",
           "configuration": {
             "inputField": "userLocation"

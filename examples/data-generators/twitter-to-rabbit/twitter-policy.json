@@ -42,12 +42,12 @@
             ],
             "operators": [
                 {
-                    "name": "count-operator",
+                    "name": "countoperator",
                     "type": "Count",
                     "configuration": {}
                 },
                 {
-                    "name": "max-operator",
+                    "name": "maxoperator",
                     "type": "Max",
                     "configuration": {
                         "inputField": "user_followersCount"
@@ -65,12 +65,12 @@
             ],
             "operators": [
                 {
-                    "name": "count-operator",
+                    "name": "countoperator",
                     "type": "Count",
                     "configuration": {}
                 },
                 {
-                    "name": "max-operator",
+                    "name": "maxoperator",
                     "type": "Max",
                     "configuration": {
                         "inputField": "user_followersCount"
@@ -93,12 +93,12 @@
             ],
             "operators": [
                 {
-                    "name": "count-operator",
+                    "name": "countoperator",
                     "type": "Count",
                     "configuration": {}
                 },
                 {
-                    "name": "max-operator",
+                    "name": "maxoperator",
                     "type": "Max",
                     "configuration": {
                         "inputField": "user_followersCount"
@@ -116,12 +116,12 @@
             ],
             "operators": [
                 {
-                    "name": "count-operator",
+                    "name": "countoperator",
                     "type": "Count",
                     "configuration": {}
                 },
                 {
-                    "name": "max-operator",
+                    "name": "maxoperator",
                     "type": "Max",
                     "configuration": {
                         "inputField": "user_followersCount"

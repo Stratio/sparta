@@ -66,82 +66,82 @@
       ],
       "operators": [
         {
-          "name": "count-operator",
+          "name": "countoperator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "name": "count-distinct-operator",
+          "name": "count-distinctoperator",
           "type": "Count",
           "configuration": {
             "distinctFields": "wordsN"
           }
         },
         {
-          "name": "sum-operator",
+          "name": "sumoperator",
           "type": "Sum",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "max-operator",
+          "name": "maxoperator",
           "type": "Max",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "min-operator",
+          "name": "minoperator",
           "type": "Min",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "avg-operator",
+          "name": "avgoperator",
           "type": "Avg",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "median-operator",
+          "name": "medianoperator",
           "type": "Median",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "variance-operator",
+          "name": "varianceoperator",
           "type": "Variance",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "stddev-operator",
+          "name": "stddevoperator",
           "type": "Stddev",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "fullText-operator",
+          "name": "fullTextoperator",
           "type": "FullText",
           "configuration": {
             "inputField": "userLocation"
           }
         },
         {
-          "name": "lastValue-operator",
+          "name": "lastValueoperator",
           "type": "LastValue",
           "configuration": {
             "inputField": "retweets"
           }
         },
         {
-          "name": "accumulator-operator",
+          "name": "accumulatoroperator",
           "type": "Accumulator",
           "configuration": {
             "inputField": "wordsN"
