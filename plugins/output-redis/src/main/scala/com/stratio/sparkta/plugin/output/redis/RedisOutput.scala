@@ -18,17 +18,15 @@ package com.stratio.sparkta.plugin.output.redis
 
 import java.io.Serializable
 
+import org.apache.spark._
+import org.apache.spark.broadcast.Broadcast
+import org.apache.spark.streaming.dstream.DStream
+
 import com.stratio.sparkta.plugin.output.redis.dao.AbstractRedisDAO
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
-import org.apache.spark._
-import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.sql.SQLContext
-import org.apache.spark.streaming.dstream.DStream
-
-import scala.util.Try
 
 /**
  * Saves calculated cubes on Redis.
@@ -50,15 +48,6 @@ class RedisOutput(keyName: String,
   override val eventTimeFieldName = properties.getString("timestampFieldName", "timestamp")
 
   override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Max, WriteOp.Min)
-
-  override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
-
-  override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
-
-  override val fixedDimensions: Array[String] = properties.getString("fixedDimensions", None) match {
-    case None => Array()
-    case Some(fixDimensions) => fixDimensions.split(fieldsSeparator)
-  }
 
   override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     persistMetricOperation(stream)

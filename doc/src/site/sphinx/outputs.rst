@@ -89,6 +89,9 @@ parameters to connect to the DB and self-creation of indexes.
 |                       | number of threads that may be waiting for a        |          |                           |
 |                       | connection to become available from the pool.      |          |                           |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
+| idAsField             | Is possible to save all fields that compound the   | Yes      | false                     |
+|                       | unique key as a independent field.                 |          |                           |
++-----------------------+----------------------------------------------------+----------+---------------------------+
 | textIndexFields       | The system is capable of insert data in a full-text| Yes      |                           |
 |                       | index. All of this fields compound the index.      |          |                           |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
@@ -149,9 +152,6 @@ UpdateMetricOperation to Row type of Spark and identify each row with his schema
 |                       | such that each column corresponds to one column on disk, |          |                       |
 |                       | an entire row is stored in a single column on disk,      |          |                       |
 |                       | hence the name compact storage.                          |          |                       |
-+-----------------------+----------------------------------------------------------+----------+-----------------------+
-| fieldsSeparator       | The character that separate the fields in the            | Yes      | ,                     |
-|                       | "textIndexFields" parameter.                             |          |                       |
 +-----------------------+----------------------------------------------------------+----------+-----------------------+
 | clusteringDimensions  | Clustering columns for the primary key.                  | Yes      |                       |
 +-----------------------+----------------------------------------------------------+----------+-----------------------+

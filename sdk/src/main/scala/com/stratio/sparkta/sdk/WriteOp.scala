@@ -18,8 +18,8 @@
 package com.stratio.sparkta.sdk
 
 object WriteOp extends Enumeration {
+
   type WriteOp = Value
   val FullText, Inc, IncBig, Set, Range, AccSet, Max, Min, Avg, AccAvg,
-      Median, AccMedian, Variance, AccVariance, Stddev, AccStddev = Value
-
+  Median, AccMedian, Variance, AccVariance, Stddev, AccStddev = Value
 }
