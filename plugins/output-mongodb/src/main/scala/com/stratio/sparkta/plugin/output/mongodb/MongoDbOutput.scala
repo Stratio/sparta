@@ -19,6 +19,7 @@ package com.stratio.sparkta.plugin.output.mongodb
 import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
+import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.commons.conversions.scala._
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
@@ -52,9 +53,6 @@ class MongoDbOutput(keyName: String,
 
   override val retrySleep = Try(properties.getInt("retrySleep")).getOrElse(DefaultRetrySleep)
 
-  override val identitiesSaved = Try(properties.getString("identitiesSaved").toBoolean).getOrElse(false)
-
-  override val identitiesSavedAsField = Try(properties.getString("identitiesSavedAsField").toBoolean).getOrElse(false)
 
   override val idAsField = Try(properties.getString("idAsField").toBoolean).getOrElse(true)
 
@@ -84,8 +82,6 @@ class MongoDbOutput(keyName: String,
       val updateObjects = collMetricOp._2.map { case (cubeKey, aggregations) => {
         checkFields(aggregations.keySet, operationTypes)
         val eventTimeObject = if (!timeName.isEmpty) Some(timeName -> new DateTime(cubeKey.time)) else None
-        val identitiesField = getIdentitiesField(cubeKey)
-        val identities = if (identitiesSaved) Some(getIdentities(cubeKey)) else None
         val idFields = if (idAsField) Some(getIdFields(cubeKey)) else None
         val mapOperations = getOperations(aggregations.toSeq, operationTypes)
           .groupBy { case (writeOp, op) => writeOp }
@@ -97,7 +93,7 @@ class MongoDbOutput(keyName: String,
           eventTimeObject,
           AggregateOperations.filterDimensionValuesByName(cubeKey.dimensionValues, if (timeName.isEmpty) None
           else Some(timeName))),
-          getUpdate(mapOperations, identitiesField, identities, idFields))
+          getUpdate(mapOperations, idFields))
       }
       }
 

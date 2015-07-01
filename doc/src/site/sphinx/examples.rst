@@ -326,7 +326,7 @@ database::
 * Next we run SpaRkTA and send the policy. 
 If you are using the sandbox, you may need to start a new ssh session ( **vagrant ssh** ).
 This policy contains the configuration that tells SpaRkTA where to read,
-where to write and how to transform the input data::
+where to write and how to transform the input data. *Note that Zookeeper must be running*::
 
     cd /opt/sds/sparkta
 
@@ -373,7 +373,7 @@ will save the aggregated data::
     sudo service elasticsearch start
 
 * Next we run SpaRkTA and send the policy. This policy contains the configuration that tells SpaRkTA where to read,
-where to write and how to transform the input data::
+where to write and how to transform the input data. *Note that Zookeeper must be running*::
 
     cd /opt/sds/sparkta
 
