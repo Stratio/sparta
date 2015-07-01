@@ -30,7 +30,7 @@ import com.stratio.sparkta.plugin.output.mongodb.dao.MongoDbDAO
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
-import com.stratio.sparkta.sdk.{WriteOp, _}
+import com.stratio.sparkta.sdk._
 
 class MongoDbOutput(keyName: String,
                     properties: Map[String, JSerializable],
@@ -41,10 +41,6 @@ class MongoDbOutput(keyName: String,
   extends Output(keyName, properties, sparkContext, operationTypes, bcSchema, timeName) with MongoDbDAO {
 
   RegisterJodaTimeConversionHelpers()
-
-  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Max, WriteOp.Min,
-    WriteOp.Range, WriteOp.AccAvg, WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText,
-    WriteOp.AccSet)
 
   override val mongoClientUri = properties.getString("clientUri", "mongodb://localhost:27017")
 
@@ -57,22 +53,10 @@ class MongoDbOutput(keyName: String,
 
   override val retrySleep = Try(properties.getInt("retrySleep")).getOrElse(DefaultRetrySleep)
 
-  override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
-
-  override val identitiesSaved = Try(properties.getString("identitiesSaved").toBoolean).getOrElse(false)
-
-  override val identitiesSavedAsField = Try(properties.getString("identitiesSavedAsField").toBoolean).getOrElse(false)
 
   override val idAsField = Try(properties.getString("idAsField").toBoolean).getOrElse(true)
 
-  override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
-
-  override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(fieldsSeparator))
-
-  override val fixedDimensions: Array[String] = properties.getString("fixedDimensions", None) match {
-    case None => Array()
-    case Some(fixDimensions) => fixDimensions.split(fieldsSeparator)
-  }
+  override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(FieldsSeparator))
 
   override val language = properties.getString("language", None)
 
@@ -98,8 +82,6 @@ class MongoDbOutput(keyName: String,
       val updateObjects = collMetricOp._2.map { case (cubeKey, aggregations) => {
         checkFields(aggregations.keySet, operationTypes)
         val eventTimeObject = if (!timeName.isEmpty) Some(timeName -> new DateTime(cubeKey.time)) else None
-        val identitiesField = getIdentitiesField(cubeKey)
-        val identities = if (identitiesSaved) Some(getIdentities(cubeKey)) else None
         val idFields = if (idAsField) Some(getIdFields(cubeKey)) else None
         val mapOperations = getOperations(aggregations.toSeq, operationTypes)
           .groupBy { case (writeOp, op) => writeOp }
@@ -111,7 +93,7 @@ class MongoDbOutput(keyName: String,
           eventTimeObject,
           AggregateOperations.filterDimensionValuesByName(cubeKey.dimensionValues, if (timeName.isEmpty) None
           else Some(timeName))),
-          getUpdate(mapOperations, identitiesField, identities, idFields))
+          getUpdate(mapOperations, idFields))
       }
       }
 

@@ -157,12 +157,10 @@
         "keyspace": "sparkta",
         "class": "SimpleStrategy",
         "replicationFactor": "1",
-
         "isAutoCalculateId": "false",
         "clusteringPrecisions": "",
         "indexFields": "minute",
         "textIndexFields": "firsthashtag:string,userLocation:text,minute:date,avg_wordsn:double,count:long",
-        "fieldsSeparator": ",",
         "textIndexFieldsName": "lucene",
         "fixedAggregation": "lucene",
         "refreshSeconds": "1",

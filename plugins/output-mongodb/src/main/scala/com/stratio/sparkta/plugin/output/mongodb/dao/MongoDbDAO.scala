@@ -32,7 +32,6 @@ import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp._
 import com.stratio.sparkta.sdk._
 
-//scalastyle:off
 trait MongoDbDAO extends Closeable {
 
   final val DefaultConnectionsPerHost = 5
@@ -55,10 +54,6 @@ trait MongoDbDAO extends Closeable {
   def textIndexFields: Option[Array[String]]
 
   def pkTextIndexesCreated: Boolean
-
-  def identitiesSaved: Boolean
-
-  def identitiesSavedAsField: Boolean
 
   def idAsField: Boolean
 
@@ -165,18 +160,9 @@ trait MongoDbDAO extends Closeable {
   }
 
   protected def getUpdate(mapOperations: Map[Seq[(String, Any)], String],
-                          identitiesField: Seq[Imports.DBObject],
-                          identities: Option[Map[Seq[(String, JSerializable)], String]],
                           idFields: Option[Map[Seq[(String, JSerializable)], String]]): Imports.DBObject = {
     val combinedOptions: Map[Seq[(String, Any)], casbah.Imports.JSFunction] = mapOperations ++ {
       if (language.isDefined) Map((Seq((LanguageFieldName, language.get)), "$set")) else Map()
-    } ++ {
-      if (identitiesField.size > 0) Map((Seq(DimensionType.IdentityFieldName -> identitiesField), "$set")) else Map()
-    } ++ {
-      identities match {
-        case Some(identity) => identity
-        case None => Map()
-      }
     } ++ {
       idFields match {
         case Some(field) => field
@@ -187,7 +173,7 @@ trait MongoDbDAO extends Closeable {
     val updateObjects = combinedOptions.filter(_._2.nonEmpty).groupBy(_._2)
       .map { case (name, value) => MongoDBObject(name -> MongoDBObject(value.flatMap(f => f._1).toSeq: _*)) }
 
-    if(updateObjects.nonEmpty) updateObjects.reduce(_ ++ _) else MongoDBObject()
+    if (updateObjects.nonEmpty) updateObjects.reduce(_ ++ _) else MongoDBObject()
   }
 
   protected def valuesBigDecimalToDouble(seq: Seq[(String, Option[Any])]): Seq[(String, Double)] = {
@@ -204,32 +190,17 @@ trait MongoDbDAO extends Closeable {
     op match {
       case WriteOp.Inc => (seq.asInstanceOf[Seq[(String, Long)]], "$set")
       case WriteOp.IncBig => (valuesBigDecimalToDouble(seq), "$set")
-      case WriteOp.Set => (seq, "$set")
-      case WriteOp.Range => (seq, "$set")
-      case WriteOp.Avg | WriteOp.Median | WriteOp.Variance | WriteOp.Stddev =>
-        (seq.asInstanceOf[Seq[(String, Double)]], "$set")
-      case WriteOp.Max =>
-        (seq.asInstanceOf[Seq[(String, Double)]], "$set")
-      case WriteOp.Min =>
-        (seq.asInstanceOf[Seq[(String, Double)]], "$set")
-      case WriteOp.AccAvg | WriteOp.AccMedian | WriteOp.AccVariance | WriteOp.AccStddev =>
+      case WriteOp.Set | WriteOp.Range => (seq, "$set")
+      case WriteOp.Max | WriteOp.Min | WriteOp.Avg | WriteOp.Median | WriteOp.Variance | WriteOp.Stddev |
+           WriteOp.AccAvg | WriteOp.AccMedian | WriteOp.AccVariance | WriteOp.AccStddev =>
         (seq.asInstanceOf[Seq[(String, Double)]], "$set")
       case WriteOp.FullText | WriteOp.AccSet =>
         (seq.asInstanceOf[Seq[(String, String)]], "$set")
     }
   }
 
-  protected def getIdFields(cubeKey : DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
+  protected def getIdFields(cubeKey: DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
     cubeKey.dimensionValues.map(dimVal => (Seq(dimVal.dimension.name -> dimVal.value), "$set")).toMap
-
-  protected def getIdentities(cubeKey : DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
-    cubeKey.dimensionValues.filter(dimVal => dimVal.dimension.precision.id == DimensionType.IdentityName)
-    .map(dimVal => (Seq(dimVal.dimension.name -> dimVal.value), "$set")).toMap
-
-  protected def getIdentitiesField(cubeKey : DimensionValuesTime): Seq[Imports.DBObject] = cubeKey.dimensionValues
-    .filter(dimVal => dimVal.dimension.precision.id == DimensionType.IdentityFieldName ||
-    (identitiesSavedAsField && dimVal.dimension.precision.id == DimensionType.IdentityName))
-    .map(dimVal => MongoDBObject(dimVal.dimension.name -> dimVal.value))
 
   protected def checkFields(aggregations: Set[String],
                             operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]]): Unit = {
