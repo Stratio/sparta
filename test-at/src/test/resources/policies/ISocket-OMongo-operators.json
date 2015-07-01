@@ -79,89 +79,89 @@
       ],
       "operators": [
         {
-          "name": "accPrice",
+          "name": "acc_price",
           "type": "Accumulator",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "name": "avgPrice",
+          "name": "avg_price",
           "type": "Avg",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "name": "countPrice",
+          "name": "count_price",
           "type": "Count",
           "configuration": {}
         },
         {
-          "name": "firstPrice",
+          "name": "first_price",
           "type": "FirstValue",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "name": "fulltextPrice",
+          "name": "fulltext_price",
           "type": "FullText",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "name": "lastPrice",
+          "name": "last_price",
           "type": "LastValue",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "name": "maxPrice",
+          "name": "max_price",
           "type": "Max",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "name": "medianPrice",
+          "name": "median_price",
           "type": "Median",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "name": "minPrice",
+          "name": "min_price",
           "type": "Min",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "name": "rangePrice",
+          "name": "range_price",
           "type": "Range",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "name": "stddevPrice",
+          "name": "stddev_price",
           "type": "Stddev",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "name": "sumPrice",
+          "name": "sum_price",
           "type": "Sum",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "name": "variancePrice",
+          "name": "variance_price",
           "type": "Variance",
           "configuration": {
             "inputField": "price"
