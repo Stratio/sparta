@@ -31,9 +31,9 @@ This vast amount of data allows us to learn from the users and explore our own w
 We can follow in real-time the evolution of a topic, an event or even an incident just by exploring aggregated data.
 
 
-.. image:: images/map.png
-   :height: 350 px
-   :width:  600 px
+.. image:: images/dashboard.png
+   :height: 400 px
+   :width:  900 px
    :scale:  100 %
    :align: left
 -------------------------------
