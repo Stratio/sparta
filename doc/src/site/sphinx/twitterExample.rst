@@ -1,9 +1,8 @@
-.. _examples:
 
-SpaRkTA examples
+Twitter examples
 ****************
 
-Twitter to MongoDB
+Twitter
 =================================
 
 In this example we are going to show one of the most interesting inputs right now.
@@ -50,75 +49,43 @@ The new feature that we have included in the twitter input it's the parameter **
 to search tweets based on the words you specify on it. They could be single words or hashtags.
 If the program find one of the words, the tweet will be sent to be processed.
 
-Now it's the time to decide if we want to custom our twitter search with our own terms or
-if we want the global trending topic at the moment.
-As we explained, if in the input you add::
-
- "termsOfSearch":"Your,#search,#could,be,whatever"
-
-
-It will be a custom search, if you want the other choice(global trending topics) just delete the whole line, and the
-policy will look like this::
-
- "inputs": [
-      {
-      "name": "in-twitter",
-      "type": "Twitter",
-      "configuration": {
-        "consumerKey": "****",
-        "consumerSecret": "****",
-        "accessToken": "****",
-        "accessTokenSecret": "****",
-       }
-      }
-     ]
-
 * **Second**
 
-Then we have to choose which dimensions we are going to consider relevant::
+Then we have to choose which fields we are going to consider relevant::
 
-    "cubes": [
+  "fields": [
     {
-      "name": "testCube",
-      "dimensions": [
-        {
-          "field": "status",
-          "name": "hashtags",
-          "type": "TwitterStatus",
-          "precision": "hashtags"
-        },
-        {
-          "field": "status",
-          "name": "firsthashtag",
-          "type": "TwitterStatus",
-          "precision": "firsthashtag"
-        },
-        {
-          "field": "status",
-          "name": "retweets",
-          "type": "TwitterStatus",
-          "precision": "retweets"
-        },
-        {
-          "name": "userLocation",
-          "field": "userLocation"
-        },
-        {
-          "field": "geolocation",
-          "name": "precision3",
-          "type": "GeoHash",
-          "precision": "precision3"
-        },
-        {
-          "field": "timestamp",
-          "name": "minute",
-          "type": "DateTime",
-          "precision": "minute"
-        }
-      ]
+      "type": "TwitterStatus",
+      "name": "status",
+      "configuration": {
+        "typeOp": "string",
+        "hashtags": "int",
+        "firsthashtag": "string",
+        "retweets": "int",
+        "urls": "int"
+      }
+    },
+    {
+      "name": "userLocation"
+    },
+    {
+      "name": "wordsN"
+    },
+    {
+      "type": "DateTime",
+      "name": "timestamp"
+    },
+    {
+      "type": "GeoHash",
+      "name": "geolocation",
+      "configuration": {
+        "typeOp": "arraydouble"
+      }
+    }
+  ]
 
 
-The dimensions are:
+The fields are:
 
 - status(hashtags,firsthashtag,retweets and urls)
 - userLocation
@@ -134,40 +101,40 @@ In this step we are going to define all the operators that we want to apply to o
 
   "operators": [
         {
-          "name": "count-operator",
+          "measureName": "count-operator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "name": "sum-operator",
+          "measureName": "sum-operator",
           "type": "Sum",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "max-operator",
+          "measureName": "max-operator",
           "type": "Max",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "min-operator",
+          "measureName": "min-operator",
           "type": "Min",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "avg-operator",
+          "measureName": "avg-operator",
           "type": "Avg",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "fullText-operator",
+          "measureName": "fullText-operator",
           "type": "FullText",
           "configuration": {
             "inputField": "userLocation"
@@ -183,7 +150,7 @@ FullText operator will write the location where the tweet was tweeted.
 
 You may ask, What's WordsN?
 
-WordsN it's defined in  |Twitterinput_scala| and it's the number of words of the tweet::
+WordsN it's defined in the |Twitterinput_scala| and it's the number of words of the tweet::
 
     "wordsN" -> data.getText.split(" ").size
 
@@ -225,6 +192,30 @@ Run Sparkta::
     cd /opt/sds/sparkta
 
     sudo sh bin/run
+
+
+Now it's the time to decide if we want to custom our twitter search with our own terms or
+if we want the global trending topic at the moment.
+As we explained, if in the input you add::
+
+ "termsOfSearch":"Your,#search,#could,be,whatever"
+
+
+It will be a custom search, if you want the other choice(global trending topics) just delete the whole line, and the
+policy will look like this::
+
+ "inputs": [
+      {
+      "name": "in-twitter",
+      "type": "Twitter",
+      "configuration": {
+        "consumerKey": "****",
+        "consumerSecret": "****",
+        "accessToken": "****",
+        "accessTokenSecret": "****",
+       }
+      }
+     ]
 
 Now let's send the policy to sparkta::
 
@@ -302,93 +293,5 @@ Here you can see all the metrics operations that we did.
 - Median of all the words: 3.5
 - Average of words by tweet per minute: 4.5
 - Number of tweets per minute matching our search terms("**#drm**" in this case): 4
-
-
-
-
-RabbitMQ: from Twitter to MongoDB
-=================================
-
-Example to take data in streaming from Twitter and ingesting it in RabbitMQ in order to test the SpaRkTA input.
-To access to the Twitter API it is necessary to config the file::
-
-    /opt/sds/sparkta/examples/data-generators/twitter-to-rabbit/src/main/resources/twitter4j.properties
-
-Steps
-
-* Run the RabbitMQ server where we want to read from. We will use Mongodb to write our aggregated data in the sparta
-database::
-
-    sudo service rabbitmq-server start
-
-    sudo service mongod start
-
-* Next we run SpaRkTA and send the policy. 
-If you are using the sandbox, you may need to start a new ssh session ( **vagrant ssh** ).
-This policy contains the configuration that tells SpaRkTA where to read,
-where to write and how to transform the input data::
-
-    cd /opt/sds/sparkta
-
-    sudo sh bin/run
-
-    curl -H "Content-Type: application/json" http://localhost:9090 --data
-    @examples/data-generators/twitter-to-rabbit/twitter-policy.json
-
-* There are two ways of testing it. Producing data directly into a RabbitMQ queue or producing data into a RabbitMQ
-queue through a direct exchange (https://www.rabbitmq.com/tutorials/tutorial-four-java.html)
-
-    - For producing data directly into a RabbitMQ queue run the class TwitterToRabbitMQSimple::
-
-      cd /opt/sds/sparkta/examples/data-generators/twitter-to-rabbit/
-
-      mvn clean package
-
-      mvn exec:java -Dexec.mainClass="com.stratio.examples.twittertorabbit.TwitterToRabbitMQSimple"
-
-    - For Producing data into a RabbitMQ queue through a direct exchange run the class TwitterToRabbitMQWithRouting
-    with the routingKey you want to write the data as argument::
-
-      cd /opt/sds/sparkta/examples/data-generators/twitter-to-rabbit/
-
-      mvn clean package
-
-      mvn exec:java -Dexec.mainClass="com.stratio.examples.twittertorabbit.TwitterTabbitMQWithRouting" -Dexec.args="routingKey3"
-
-e-commerce to RabbitMQ and ElasticSearch
-========================================
-
-This example simulates an environment of an e-commerce architecture.
-In one hand we have the logs generated by an apache server and in the other the orders requested in the web site.
-We'll publish all this events in `RabbitMQ <https://www.rabbitmq.com>`__ and aggregate them with SpaRkTA which will
-save the aggregated data in elasticsearch.
-
-Steps
-
-* First we need to start the RabbitMQ server where we will tell SpaRkTA to read from. And elasticsearch where SpaRkTA
-will save the aggregated data::
-
-    sudo service rabbitmq-server start
-
-    sudo service elasticsearch start
-
-* Next we run SpaRkTA and send the policy. This policy contains the configuration that tells SpaRkTA where to read,
-where to write and how to transform the input data::
-
-    cd /opt/sds/sparkta
-
-    sudo sh bin/run
-
-    curl -H "Content-Type: application/json" http://localhost:9090 --data
-    @examples/data-generators/ecommerce/ecommerce-policy.json
-
-* And last we need to run the data generators in two different shells. This generators will generate random data and
-will write it into RabbitMQ. In a few seconds SpaRkTA will start to read the data and write it into elasticsearch::
-
-    cd examples/data-generators/ecommerce
-
-    mvn -PorderLines clean install benerator:generate
-
-    mvn -PvisitLog clean install benerator:generate
 
 

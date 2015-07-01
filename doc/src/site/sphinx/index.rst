@@ -6,7 +6,7 @@ Contents:
 
     about.rst
     usingSparkta.rst
+    policy.rst
     sandbox.rst
     examples.rst
-    comingSoon.rst
     versionFeatures.rst

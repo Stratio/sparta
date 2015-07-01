@@ -44,7 +44,6 @@ class TwitterInput(properties: Map[String, JSerializable]) extends Input(propert
   val twitterApi = tf.getInstance()
   val trends = twitterApi.getPlaceTrends(1).getTrends.map(trend => trend.getName)
   val terms :Try[Seq[String]] = Try(properties.getString("termsOfSearch").split(","))
-
   val search = terms.getOrElse(trends.toSeq)
 
   override def setUp(ssc: StreamingContext): DStream[Event] = {

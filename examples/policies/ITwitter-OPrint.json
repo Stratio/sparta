@@ -30,16 +30,16 @@
       "name": "testCube",
       "dimensions": [
         {
-          "name": "hastags",
+          "name": "hashtags",
           "field": "status",
           "type": "TwitterStatus",
-          "precision": "hastags"
+          "precision": "hashtags"
         },
         {
-          "name": "firsthastag",
+          "name": "firsthashtag",
           "field": "status",
           "type": "TwitterStatus",
-          "precision": "firsthastag"
+          "precision": "firsthashtag"
         },
         {
           "name": "retweets",
