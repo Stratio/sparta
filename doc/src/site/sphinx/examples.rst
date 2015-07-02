@@ -46,6 +46,11 @@ In order to get the twitter access keys you will have to register in |twitter_ke
    <a href="https://apps.twitter.com/"
    target="_blank">Twitter developer web site</a>
 
+
+Once you have they keys you have to edit the policy file::
+
+ cd /opt/sds/examples/policies/ITwitter-OMongo-Example.json
+
 The new feature that we have included in the twitter input it's the parameter **termsOfSearch**, it allows you
 to search tweets based on the words you specify on it. They could be single words or hashtags.
 If the program find one of the words, the tweet will be sent to be processed.
@@ -228,7 +233,9 @@ Run Sparkta. `Note that Zookeeper must be running <usingSparkta.html#zookeeper-l
 
 Now let's send the policy to sparkta::
 
-      curl -H "Content-Type: application/json" http://localhost:9090 --data @examples/data-generators/twitter/ITwitter-OMongo.json
+      cd /opt/sds/
+
+      #curl -X POST -H "Content-Type: application/json" --data @examples/policies/ITwitter-OMongo-Example.json localhost:9090/policies
 
 When sparkta is running it's ready to work, open your twitter account and write some tweets within a minute, since we are going to aggregate by minute(You can see the full policy |twitter_policy_link|)
 
