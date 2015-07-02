@@ -29,11 +29,16 @@ You can generate rpm and deb packages by running::
   - dpkg-dev
   - rpmdevtools
 
+.. _zookeeper-label:
 
 Prerequisites
 =============
 
-Apache Zookeeper needs to be installed in the system beforehand.
+Apache Zookeeper needs to be installed and run in the system beforehand. You can run it in the sandbox with the
+following commands::
+
+    cd /opt/sds/zookeeper
+    sudo ./bin/zkServer.sh start
 
 
 Running SpaRkTA
