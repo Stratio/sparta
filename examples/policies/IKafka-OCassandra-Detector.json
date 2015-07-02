@@ -19,8 +19,8 @@
       "type": "Kafka",
       "configuration": {
         "topics": "streaming_data",
-        "kafkaParams.zookeeper.connect": "anistal:2181",
-        "kafkaParams.group.id": "kafka-pruebas-daniel",
+        "kafkaParams.zookeeper.connect": "localhost:2181",
+        "kafkaParams.group.id": "kafka-test",
         "storageLevel": "MEMORY_AND_DISK_SER_2"
       }
     }
