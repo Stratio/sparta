@@ -3,7 +3,7 @@ Transformation(s)
 
 As a general rule, it is not possible to work directly with the raw data. Even if the raw data is in JSON format we
 need to know which fields to extract out of this JSON. This is why we need the use of transformations.
-Transformations are the tools to enrinch, parse and cast the data is getting into SpaRkTA through the selected input.
+Transformations are the tools to enrinch, parse and cast the data is getting into Sparkta through the selected input.
 
 It is important to know that you can link multiple transformation and that the order is important. An output
 transformation adds fields to the inputFields of the following one.
