@@ -1,7 +1,7 @@
 Policies
 ########
 
-A policy is the way we tell SpaRkTA how to aggregate data. It is in JSON format and you can check some
+A policy is the way we tell Sparkta how to aggregate data. It is in JSON format and you can check some
 |examples_link| in the official repository.
 
 .. |examples_link| raw:: html
@@ -81,7 +81,7 @@ Example::
 Transformations
 ***************
 
-Once the data passes through the input to SpaRkTA you usually need to treat this raw data in order to model your fields.
+Once the data passes through the input to Sparkta you usually need to treat this raw data in order to model your fields.
 
 You can learn more about transformations `here <transformations.html>`__
 

@@ -1,13 +1,13 @@
 
-Using SpaRkTA
+Using Sparkta
 *************
 
-Installing SpaRkTA
+Installing Sparkta
 ==================
 
-An easy way to test SpaRkTA is using it with the `sandbox <sandbox.html>`__.
+An easy way to test Sparkta is using it with the `sandbox <sandbox.html>`__.
 
-If you prefer to install it by yourself you can install SpaRkTA by unpackaging a `release <https://github
+If you prefer to install it by yourself you can install Sparkta by unpackaging a `release <https://github
 .com/Stratio/sparkta/releases>`__ or by generating the deb or rpm packages from the `source code <https://github
 .com/Stratio/sparkta>`__.
 
@@ -41,13 +41,13 @@ following commands::
     sudo ./bin/zkServer.sh start
 
 
-Running SpaRkTA
+Running Sparkta
 ===============
 
-Once SpaRkTA has been installed, you can run ``sh $SPARKTA_HOME/bin/run``.
+Once Sparkta has been installed, you can run ``sh $SPARKTA_HOME/bin/run``.
 Default installation directory is ``/opt/sds/sparkta``
 
- * Starting Stratio SpaRkTA::
+ * Starting Stratio Sparkta::
 
     cd /opt/sds/sparkta
 
