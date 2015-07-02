@@ -152,7 +152,6 @@ Tag
 Given a field that is a sentence it is possible to group by some token in it.
 Precision possible values are: firstTag, lastTag and allTags
 
-nae
 
 Operators
 =========
