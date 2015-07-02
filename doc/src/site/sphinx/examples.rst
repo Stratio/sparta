@@ -46,6 +46,11 @@ In order to get the twitter access keys you will have to register in |twitter_ke
    <a href="https://apps.twitter.com/"
    target="_blank">Twitter developer web site</a>
 
+
+Once you have they keys you have to edit the policy file::
+
+ cd /opt/sds/sparkta/examples/policies/ITwitter-OMongo-Example.json
+
 The new feature that we have included in the twitter input it's the parameter **termsOfSearch**, it allows you
 to search tweets based on the words you specify on it. They could be single words or hashtags.
 If the program find one of the words, the tweet will be sent to be processed.
@@ -219,8 +224,11 @@ You can have more information about the policies configuration in the |doc_link|
 
 After we had configured our policy, let's get started in the example!
 
+Note that Zookeeper must be running::
 
-Run Sparkta. `Note that Zookeeper must be running <usingSparkta.html#zookeeper-label>`__::
+  sudo service zookeeper start
+
+Run Sparkta::
 
     cd /opt/sds/sparkta
 
@@ -228,7 +236,9 @@ Run Sparkta. `Note that Zookeeper must be running <usingSparkta.html#zookeeper-l
 
 Now let's send the policy to sparkta::
 
-      curl -H "Content-Type: application/json" http://localhost:9090 --data @examples/data-generators/twitter/ITwitter-OMongo.json
+      cd /opt/sds/sparkta
+
+      curl -X POST -H "Content-Type: application/json" --data @examples/policies/ITwitter-OMongo-Example.json localhost:9090/policies
 
 When sparkta is running it's ready to work, open your twitter account and write some tweets within a minute, since we are going to aggregate by minute(You can see the full policy |twitter_policy_link|)
 
@@ -325,7 +335,11 @@ database::
 * Next we run Sparkta and send the policy.
 If you are using the sandbox, you may need to start a new ssh session ( **vagrant ssh** ).
 This policy contains the configuration that tells Sparkta where to read,
-where to write and how to transform the input data. `Note that Zookeeper must be running <usingSparkta.html#zookeeper-label>`__::
+where to write and how to transform the input data.
+
+ Note that Zookeeper must be running::
+
+    sudo service zookeeper start
 
     cd /opt/sds/sparkta
 
@@ -371,14 +385,17 @@ will save the aggregated data::
     sudo service elasticsearch start
 
 * Next we run Sparkta and send the policy. This policy contains the configuration that tells Sparkta where to read,
-where to write and how to transform the input data. `Note that Zookeeper must be running <usingSparkta.html#zookeeper-label>`__::
+where to write and how to transform the input data.
+
+  Note that Zookeeper must be running::
+
+    sudo service zookeeper start
 
     cd /opt/sds/sparkta
 
     sudo sh bin/run &> /tmp/sparkta.out &
 
-    curl -H "Content-Type: application/json" http://localhost:9090 --data
-    @examples/data-generators/ecommerce/ecommerce-policy.json
+    curl -H "Content-Type: application/json" http://localhost:9090 --data @examples/data-generators/ecommerce/ecommerce-policy.json
 
 * And last we need to run the data generators in two different shells. This generators will generate random data and
 will write it into RabbitMQ. In a few seconds Sparkta will start to read the data and write it into elasticsearch::
