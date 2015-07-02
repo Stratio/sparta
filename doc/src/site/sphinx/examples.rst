@@ -49,7 +49,7 @@ In order to get the twitter access keys you will have to register in |twitter_ke
 
 Once you have they keys you have to edit the policy file::
 
- cd /opt/sds/examples/policies/ITwitter-OMongo-Example.json
+ cd /opt/sds/sparkta/examples/policies/ITwitter-OMongo-Example.json
 
 The new feature that we have included in the twitter input it's the parameter **termsOfSearch**, it allows you
 to search tweets based on the words you specify on it. They could be single words or hashtags.
