@@ -8,7 +8,7 @@
   },
   "checkpointing": {
     "path": "checkpoint",
-    "timeDimension": "minute",
+    "timeDimension": "minuteDim",
     "granularity": "minute",
     "interval": 30000,
     "timeAvailability": 60000
@@ -175,9 +175,7 @@
       "name": "out-parquet",
       "type": "Parquet",
       "configuration": {
-        "path": "/tmp/sparkta/operators/parquet",
-        "datePattern": "yyyy/MM/dd",
-        "multiplexer": "false"
+        "path": "/tmp/sparkta/operators/parquet"
       }
     }
   ]

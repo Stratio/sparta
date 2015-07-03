@@ -206,8 +206,10 @@
         </dependency>
         <dependency>
             <groupId>com.datastax.spark</groupId>
-            <artifactId>spark-cassandra-connector_2.10</artifactId>
-            <version>1.4.0-M1</version>
+            <artifactId>cassandra-connector</artifactId>
+            <version>1.3.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../lib/spark-cassandra-connector-assembly-1.3.0-SNAPSHOT.jar</systemPath>
         </dependency>
     </dependencies>
 
