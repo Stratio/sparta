@@ -19,7 +19,6 @@ package com.stratio.sparkta.plugin.output.parquet
 import java.io.{Serializable => JSerializable}
 
 import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.sql.SaveMode._
 import org.apache.spark.sql._
 import org.apache.spark.{Logging, SparkContext}
 
@@ -48,7 +47,7 @@ class ParquetOutput(keyName: String,
     val path = properties.getString("path", None)
     require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
     val subPath = DateOperations.generateParquetPath()
-    dataFrame.save("parquet", SaveMode.Overwrite, Map("spark.sql.parquet.binaryAsString" -> "true",
+    dataFrame.save("parquet", SaveMode.Append, Map("spark.sql.parquet.binaryAsString" -> "true",
       "path" -> s"${path.get}/$tableName$subPath"))
   }
 }
