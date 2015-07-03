@@ -213,6 +213,16 @@
             <groupId>com.databricks</groupId>
             <artifactId>spark-csv_2.11</artifactId>
             <version>1.1.0</version>
+    	</dependency>
+	<dependency>
+            <groupId>com.github.kstyrc</groupId>
+            <artifactId>embedded-redis</artifactId>
+            <version>0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>net.debasishg</groupId>
+            <artifactId>redisclient_${scala.binary.version}</artifactId>
+            <version>2.15</version>
         </dependency>
     </dependencies>
 
