@@ -66,5 +66,24 @@ class MinOperatorSpec extends WordSpec with Matchers {
 
 
     }
+
+    "processReduce disctinct must be " in {
+      val inputFields = new MinOperator("min", Map("distinct" -> "true"))
+      inputFields.processReduce(Seq()) should be(Some(0d))
+
+      val inputFields2 = new MinOperator("min", Map("distinct" -> "true"))
+      inputFields2.processReduce(Seq(Some(1), Some(2))) should be(Some(1d))
+
+      val inputFields3 = new MinOperator("min", Map("distinct" -> "true"))
+      inputFields3.processReduce(Seq(Some(1), Some(2), Some(3))) should be(Some(1d))
+
+      val inputFields4 = new MinOperator("min", Map("distinct" -> "true"))
+      inputFields4.processReduce(Seq(None)) should be(Some(0d))
+
+      val inputFields5 = new MinOperator("min", Map("typeOp" -> "string", "distinct" -> "true"))
+      inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("1.0"))
+
+
+    }
   }
 }

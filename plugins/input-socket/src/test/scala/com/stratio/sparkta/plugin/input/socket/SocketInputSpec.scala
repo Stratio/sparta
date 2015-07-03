@@ -28,7 +28,7 @@ class SocketInputSpec extends WordSpec {
 
   "A SocketInput" should {
     "instantiate successfully with parameters" in {
-      new SocketInput(Map("hostname" -> "localhost", "port" -> 9999).mapValues(_.asInstanceOf[JSerializable]))
+      new SocketInput(Map("hostname" -> "localhost", "port" -> 80).mapValues(_.asInstanceOf[JSerializable]))
     }
     "fail without parameters" in {
       intercept[IllegalStateException] {

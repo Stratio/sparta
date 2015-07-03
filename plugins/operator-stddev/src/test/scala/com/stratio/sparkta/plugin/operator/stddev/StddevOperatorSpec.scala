@@ -67,6 +67,26 @@ class StddevOperatorSpec extends WordSpec with Matchers {
       inputFields5.processReduce(
         Seq(Some(1), Some(2), Some(3), Some(6.5), Some(7.5))) should be(Some("2.850438562747845"))
 
+    }
+
+    "processReduce distinct must be " in {
+      val inputFields = new StddevOperator("stdev", Map("distinct" -> "true"))
+      inputFields.processReduce(Seq()) should be(Some(0d))
+
+      val inputFields2 = new StddevOperator("stdev", Map("distinct" -> "true"))
+      inputFields2.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be
+      (Some(2.8284271247461903))
+
+      val inputFields3 = new StddevOperator("stdev", Map("distinct" -> "true"))
+      inputFields3.processReduce(Seq(Some(1), Some(1), Some(2), Some(3), Some(6.5), Some(7.5))) should be
+      (Some(2.850438562747845))
+
+      val inputFields4 = new StddevOperator("stdev", Map("distinct" -> "true"))
+      inputFields4.processReduce(Seq(None)) should be(Some(0d))
+
+      val inputFields5 = new StddevOperator("stdev", Map("typeOp" -> "string", "distinct" -> "true"))
+      inputFields5.processReduce(
+        Seq(Some(1), Some(1), Some(2), Some(3), Some(6.5), Some(7.5))) should be(Some("2.850438562747845"))
 
     }
   }

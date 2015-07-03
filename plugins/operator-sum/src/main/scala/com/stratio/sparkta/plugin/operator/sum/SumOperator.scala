@@ -39,7 +39,9 @@ class SumOperator(name: String, properties: Map[String, JSerializable]) extends 
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     Try(
-      Some(transformValueByTypeOp(returnType, values.flatten.map(_.asInstanceOf[Number].doubleValue()).reduce(_ + _)))
+      Some(transformValueByTypeOp(
+        returnType,
+        getDistinctValues(values.flatten.map(_.asInstanceOf[Number].doubleValue())).reduce(_ + _)))
     ).getOrElse(SumOperator.SOME_ZERO)
   }
 }

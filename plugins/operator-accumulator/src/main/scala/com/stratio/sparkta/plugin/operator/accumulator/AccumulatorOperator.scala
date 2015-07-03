@@ -39,7 +39,8 @@ class AccumulatorOperator(name:String, properties: Map[String, JSerializable]) e
   }
 
   override def processReduce(values : Iterable[Option[Any]]): Option[Any] = {
-    Try(Some(transformValueByTypeOp(returnType, values.map(_.get.toString)))).getOrElse(AccumulatorOperator.SOME_EMPTY)
+    Try(Some(transformValueByTypeOp(returnType, getDistinctValues(values.map(_.get.toString)))))
+      .getOrElse(AccumulatorOperator.SOME_EMPTY)
   }
 }
 

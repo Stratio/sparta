@@ -65,5 +65,23 @@ class MaxOperatorSpec extends WordSpec with Matchers {
       inputFields5.processReduce(Seq(Some(1), Some(2))) should be(Some("2.0"))
 
     }
+
+    "processReduce distinct must be " in {
+      val inputFields = new MaxOperator("max", Map("distinct" -> "true"))
+      inputFields.processReduce(Seq()) should be(Some(0d))
+
+      val inputFields2 = new MaxOperator("max", Map("distinct" -> "true"))
+      inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some(1d))
+
+      val inputFields3 = new MaxOperator("max", Map("distinct" -> "true"))
+      inputFields3.processReduce(Seq(Some(3), Some(2), Some(3))) should be(Some(3d))
+
+      val inputFields4 = new MaxOperator("max", Map("distinct" -> "true"))
+      inputFields4.processReduce(Seq(None)) should be(Some(0d))
+
+      val inputFields5 = new MaxOperator("max", Map("typeOp" -> "string", "distinct" -> "true"))
+      inputFields5.processReduce(Seq(Some(1), Some(2), Some(1))) should be(Some("2.0"))
+
+    }
   }
 }

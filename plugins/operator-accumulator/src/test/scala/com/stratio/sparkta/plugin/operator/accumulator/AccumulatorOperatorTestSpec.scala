@@ -49,5 +49,19 @@ class AccumulatorOperatorTestSpec extends WordSpec with Matchers {
       val inputFields4 = new AccumulatorOperator("accumulator", Map("typeOp" -> "string"))
       inputFields4.processReduce(Seq(Some(1), Some(1))) should be(Some("1_1"))
     }
+
+    "processReduce distinct must be " in {
+      val inputFields = new AccumulatorOperator("accumulator", Map("distinct" -> "true"))
+      inputFields.processReduce(Seq()) should be(Some(Seq()))
+
+      val inputFields2 = new AccumulatorOperator("accumulator", Map("distinct" -> "true"))
+      inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some(Seq("1")))
+
+      val inputFields3 = new AccumulatorOperator("accumulator", Map("distinct" -> "true"))
+      inputFields3.processReduce(Seq(Some("a"), Some("b"))) should be(Some(Seq("a", "b")))
+
+      val inputFields4 = new AccumulatorOperator("accumulator", Map("typeOp" -> "string", "distinct" -> "true"))
+      inputFields4.processReduce(Seq(Some(1), Some(1))) should be(Some("1"))
+    }
   }
 }

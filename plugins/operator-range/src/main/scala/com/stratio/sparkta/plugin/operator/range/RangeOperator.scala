@@ -38,7 +38,7 @@ class RangeOperator(name: String, properties: Map[String, JSerializable]) extend
   }
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
-    val valuesFiltered = values.flatten
+    val valuesFiltered = getDistinctValues(values.flatten)
     valuesFiltered.size match {
       case (nz) if (nz != 0) => {
         val valuesConverted = valuesFiltered.map(_.asInstanceOf[Number].doubleValue())

@@ -65,5 +65,23 @@ class AvgOperatorSpec extends WordSpec with Matchers {
       inputFields5.processReduce(Seq(Some(1), Some(1))) should be(Some("1.0"))
 
     }
+
+    "processReduce distinct must be " in {
+      val inputFields = new AvgOperator("avg", Map("distinct" -> "true"))
+      inputFields.processReduce(Seq()) should be(Some(0d))
+
+      val inputFields2 = new AvgOperator("avg", Map("distinct" -> "true"))
+      inputFields2.processReduce(Seq(Some(1), Some(1), None)) should be(Some(1))
+
+      val inputFields3 = new AvgOperator("avg", Map("distinct" -> "true"))
+      inputFields3.processReduce(Seq(Some(1), Some(3), Some(1), None)) should be(Some(2))
+
+      val inputFields4 = new AvgOperator("avg", Map("distinct" -> "true"))
+      inputFields4.processReduce(Seq(None)) should be(Some(0d))
+
+      val inputFields5 = new AvgOperator("avg", Map("typeOp" -> "string", "distinct" -> "true"))
+      inputFields5.processReduce(Seq(Some(1), Some(1))) should be(Some("1.0"))
+
+    }
   }
 }
