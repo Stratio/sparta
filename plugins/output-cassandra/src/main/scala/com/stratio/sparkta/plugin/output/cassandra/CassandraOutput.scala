@@ -103,7 +103,7 @@ class CassandraOutput(keyName: String,
   override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
     dataFrame.write
       .format("org.apache.spark.sql.cassandra")
-      .mode(Overwrite)
+      .mode(Append)
       .options(Map("table" -> tableName, "keyspace" -> keyspace)).save()
   }
 }
