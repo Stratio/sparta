@@ -53,10 +53,12 @@ class CsvOutput(keyName: String,
 
   val datePattern = properties.getString("datePattern", None)
 
+  val dateGranularityFile = properties.getString("dateGranularityFile", "day")
+
   override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
     require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
     val pathParsed = if (path.get.endsWith("/")) path.get else path.get + "/"
-    val subPath = DateOperations.subPath(timeName, datePattern)
+    val subPath = DateOperations.subPath(dateGranularityFile, datePattern)
     dataFrame.saveAsCsvFile(s"$pathParsed$tableName$subPath.csv",
       Map("header" -> header.toString, "delimiter" -> delimiter))
   }
