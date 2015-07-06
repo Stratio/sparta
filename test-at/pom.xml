@@ -209,6 +209,11 @@
             <artifactId>spark-cassandra-connector_2.10</artifactId>
             <version>1.4.0-M1</version>
         </dependency>
+        <dependency>
+            <groupId>com.databricks</groupId>
+            <artifactId>spark-csv_2.11</artifactId>
+            <version>1.1.0</version>
+        </dependency>
     </dependencies>
 
 </project>

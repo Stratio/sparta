@@ -1,5 +1,5 @@
 {
-  "name": "ATSocketMongo",
+  "name": "ATSocketCSV",
   "sparkStreamingWindow": 2000,
   "rawData": {
     "enabled": "false",
@@ -8,10 +8,10 @@
   },
   "checkpointing": {
     "path": "checkpoint",
-    "timeDimension": "minute",
-    "granularity": "minute",
+    "timeDimension": "timestamp",
+    "granularity": "day",
     "interval": 30000,
-    "timeAvailability": 60000
+    "timeAvailability": 600000
   },
   "inputs": [
     {
@@ -23,47 +23,141 @@
       }
     }
   ],
-  "fields": [
-    {
-      "name": "product"
-    },
-    {
-      "name": "price"
-    },
-
-    {
-      "name": "timestamp",
-      "type": "DateTime",
-      "configuration": {
-        "typeOp": "String"
+  "transformations": [
+  {
+    "name": "morphline-parser",
+    "order": 0,
+    "type": "Morphlines",
+    "outputFields": [
+      "product",
+      "timestamp",
+      "price"
+    ],
+    "configuration": {
+      "morphline": {
+        "id": "morphline1",
+        "importCommands": [
+          "org.kitesdk.**"
+        ],
+        "commands": [
+          {
+            "readCSV": {
+              "separator": ",",
+              "columns": [
+                "product",
+                "price"
+              ],
+              "trim": "true",
+              "charset": "UTF-8",
+              "quoteChar": "\"",
+              "commentPrefix": "#"
+            }
+          }
+        ]
       }
     }
-  ],
+  }
+],
   "cubes": [
     {
       "name": "testCube",
       "dimensions": [
         {
-          "dimension": "product"
+          "name": "product",
+          "field": "product"
         }
       ],
       "operators": [
         {
-          "measureName": "sum-operator",
-          "type": "Sum",
+          "name": "acc_price",
+          "type": "Accumulator",
           "configuration": {
-            "inputField":"price"
+            "inputField": "price"
           }
         },
         {
-          "measureName": "avg-operator",
+          "name": "avg_price",
           "type": "Avg",
           "configuration": {
-            "inputField":"price"
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "count_price",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "name": "first_price",
+          "type": "FirstValue",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "fulltext_price",
+          "type": "FullText",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "last_price",
+          "type": "LastValue",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "max_price",
+          "type": "Max",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "median_price",
+          "type": "Median",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "min_price",
+          "type": "Min",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "range_price",
+          "type": "Range",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "stddev_price",
+          "type": "Stddev",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "sum_price",
+          "type": "Sum",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "variance_price",
+          "type": "Variance",
+          "configuration": {
+            "inputField": "price"
           }
         }
       ]
-
     }
   ],
   "outputs": [
@@ -72,42 +166,9 @@
       "type": "Csv",
       "configuration": {
         "isAutoCalculateId": "false",
-        "path": "/home/gschiavon/desarrollo/stratio/sparkta/test-at/src/test/resources/fixtures/",
-        "header": "false",
+        "path": "/tmp/sparkta/operators/csv/",
+        "header": "true",
         "delimiter": ","
-      }
-    }
-  ],
-  "parsers": [
-    {
-      "name": "morphline-parser",
-      "type": "Morphlines",
-      "configuration": {
-        "morphline": {
-          "id": "morphline1",
-          "importCommands": [
-            "org.kitesdk.**"
-          ],
-          "commands" : [
-            {
-              "readCSV" : {
-                "separator" : ",",
-                "columns" : ["product","price"],
-                "trim" : "true",
-                "charset" : "UTF-8",
-                "quoteChar" : "\"",
-                "commentPrefix" : "#"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "timestamp",
-      "type": "DateTime",
-      "configuration": {
-        "timestamp": "autoGenerated"
       }
     }
   ]
