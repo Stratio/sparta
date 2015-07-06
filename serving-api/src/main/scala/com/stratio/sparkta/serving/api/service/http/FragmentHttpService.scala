@@ -61,7 +61,7 @@ trait FragmentHttpService extends BaseHttpService {
     path(HttpConstant.FragmentPath / Segment ) { (fragmentType) =>
       get {
         complete {
-          val future = supervisor ? new FragmentSupervisorActor_findAllByType(fragmentType)
+          val future = supervisor ? new FragmentSupervisorActor_findByType(fragmentType)
           Await.result(future, timeout.duration) match {
             case FragmentSupervisorActor_response_fragments(Failure(exception)) => throw exception
             case FragmentSupervisorActor_response_fragments(Success(fragments)) => fragments

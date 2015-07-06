@@ -18,8 +18,12 @@ package com.stratio.sparkta.driver.actor
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
+<<<<<<< HEAD:serving-api/src/main/scala/com/stratio/sparkta/serving/api/actor/FragmentActor.scala
 import com.stratio.sparkta.driver.actor.FragmentSupervisorActor_response_fragments
 import com.stratio.sparkta.driver.models.{StreamingContextStatusEnum, FragmentElementModel}
+=======
+import com.stratio.sparkta.driver.dto.FragmentElementDto
+>>>>>>> template service:driver/src/main/scala/com/stratio/sparkta/driver/actor/FragmentActor.scala
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.DefaultFormats
@@ -33,8 +37,13 @@ import scala.util.Try
 /**
  * List of all possible akka messages used to manage fragments.
  */
+<<<<<<< HEAD:serving-api/src/main/scala/com/stratio/sparkta/serving/api/actor/FragmentActor.scala
 case class FragmentSupervisorActor_create(fragment: FragmentElementModel)
 case class FragmentSupervisorActor_findAllByType(fragmentType: String)
+=======
+case class FragmentSupervisorActor_create(fragment: FragmentElementDto)
+case class FragmentSupervisorActor_findByType(fragmentType: String)
+>>>>>>> template service:driver/src/main/scala/com/stratio/sparkta/driver/actor/FragmentActor.scala
 case class FragmentSupervisorActor_findByTypeAndName(fragmentType: String, name: String)
 case class FragmentSupervisorActor_deleteByTypeAndName(fragmentType: String, name: String)
 case class FragmentSupervisorActor_response_fragment(fragment: Try[FragmentElementModel])
@@ -55,7 +64,7 @@ class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4
     case FragmentSupervisorActor_findByTypeAndName(fragmentType, name) => doDetail(fragmentType, name)
     case FragmentSupervisorActor_create(fragment) => doCreate(fragment)
     case FragmentSupervisorActor_deleteByTypeAndName(fragmentType, name) => doDeleteByTypeAndName(fragmentType, name)
-    case FragmentSupervisorActor_findAllByType(fragmentType) => doFindAllByType(fragmentType)
+    case FragmentSupervisorActor_findByType(fragmentType) => doFindAllByType(fragmentType)
   }
 
   def doFindAllByType(fragmentType: String): Unit =
@@ -78,27 +87,23 @@ class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4
   def doCreate(fragment: FragmentElementModel): Unit =
     sender ! FragmentSupervisorActor_response(Try({
       curatorFramework.create().creatingParentsIfNeeded().forPath(
-        FragmentActor.generateFragmentPath(fragment.fragmentType)
-          + FragmentActor.PathSeparator + fragment.name, write(fragment).getBytes())
+        s"${FragmentActor.generateFragmentPath(fragment.fragmentType)}/${fragment.name}", write(fragment).getBytes())
     }))
 
   def doDeleteByTypeAndName(fragmentType: String, name: String): Unit =
     sender ! FragmentSupervisorActor_response(Try({
-      curatorFramework.delete().forPath(
-        FragmentActor.generateFragmentPath(fragmentType) + FragmentActor.PathSeparator + name)
+      curatorFramework.delete().forPath(s"${FragmentActor.generateFragmentPath(fragmentType)}/$name")
     }))
 }
 
 object FragmentActor {
-
-  // TODO (anistal) This should be in a config file.
+  
   val BaseZKPath: String = "/sparkta/policies"
-  val PathSeparator: String = "/"
 
   def generateFragmentPath(fragmentType: String): String = {
     fragmentType match {
-      case "input" => BaseZKPath + PathSeparator + "input"
-      case "output" => BaseZKPath + PathSeparator + "output"
+      case "input" => s"$BaseZKPath/input"
+      case "output" => s"$BaseZKPath/output"
       case _ => throw new IllegalArgumentException("The fragment type must be input|output")
     }
   }

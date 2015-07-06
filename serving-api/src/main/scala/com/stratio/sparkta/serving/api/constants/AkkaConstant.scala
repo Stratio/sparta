@@ -26,4 +26,5 @@ object AkkaConstant {
 
   final val StreamingActorAkkaPath = s"akka://${AppConstant.ConfigAppName}/user/streamingActor"
   final val FragmentActorAkkaPath  = s"akka://${AppConstant.ConfigAppName}/user/fragmentActor"
+  final val TemplateActorAkkaPath  = s"akka://${AppConstant.ConfigAppName}/user/templateActor"
 }

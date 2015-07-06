@@ -27,6 +27,8 @@ object HttpConstant {
    */
   final val FragmentPath = "fragment"
 
+  final val TemplatePath = "template"
+
   /**
    * Http codes.
    */
