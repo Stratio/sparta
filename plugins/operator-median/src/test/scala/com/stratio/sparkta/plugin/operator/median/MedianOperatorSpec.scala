@@ -65,5 +65,23 @@ class MedianOperatorSpec extends WordSpec with Matchers {
       inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("3.0"))
 
     }
+
+    "processReduce distinct must be " in {
+      val inputFields = new MedianOperator("median", Map("distinct" -> "true"))
+      inputFields.processReduce(Seq()) should be(Some(0d))
+
+      val inputFields2 = new MedianOperator("median", Map("distinct" -> "true"))
+      inputFields2.processReduce(Seq(Some(1), Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some(2.5))
+
+      val inputFields3 = new MedianOperator("median", Map("distinct" -> "true"))
+      inputFields3.processReduce(Seq(Some(1), Some(1), Some(2), Some(3), Some(6.5), Some(7.5))) should be(Some(3))
+
+      val inputFields4 = new MedianOperator("median", Map("distinct" -> "true"))
+      inputFields4.processReduce(Seq(None)) should be(Some(0d))
+
+      val inputFields5 = new MedianOperator("median", Map("typeOp" -> "string", "distinct" -> "true"))
+      inputFields5.processReduce(Seq(Some(1), Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("2.5"))
+
+    }
   }
 }

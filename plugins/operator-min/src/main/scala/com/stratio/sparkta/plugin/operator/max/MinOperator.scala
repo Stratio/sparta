@@ -39,7 +39,8 @@ class MinOperator(name: String, properties: Map[String, JSerializable]) extends 
   }
 
   override def processReduce(values : Iterable[Option[Any]]): Option[Double] = {
-    Try(Some(transformValueByTypeOp(returnType, values.flatten.map(_.asInstanceOf[Number].doubleValue()).min)))
+    Try(Some(transformValueByTypeOp(returnType,
+      getDistinctValues(values.flatten.map(_.asInstanceOf[Number].doubleValue())).min)))
       .getOrElse(MinOperator.SOME_ZERO)
   }
 }

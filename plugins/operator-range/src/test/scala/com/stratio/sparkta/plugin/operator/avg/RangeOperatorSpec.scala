@@ -64,5 +64,22 @@ class RangeOperatorSpec extends WordSpec with Matchers {
       val inputFields5 = new RangeOperator("range", Map("typeOp" -> "string"))
       inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("6.0"))
     }
+
+    "processReduce distinct must be " in {
+      val inputFields = new RangeOperator("range", Map("distinct" -> "true"))
+      inputFields.processReduce(Seq()) should be(Some(0d))
+
+      val inputFields2 = new RangeOperator("range", Map("distinct" -> "true"))
+      inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some(0))
+
+      val inputFields3 = new RangeOperator("range", Map("distinct" -> "true"))
+      inputFields3.processReduce(Seq(Some(1), Some(2), Some(4))) should be(Some(3))
+
+      val inputFields4 = new RangeOperator("range", Map("distinct" -> "true"))
+      inputFields4.processReduce(Seq(None)) should be(Some(0d))
+
+      val inputFields5 = new RangeOperator("range", Map("typeOp" -> "string", "distinct" -> "true"))
+      inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("6.0"))
+    }
   }
 }

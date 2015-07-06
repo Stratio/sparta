@@ -39,8 +39,10 @@ class MaxOperator(name: String, properties: Map[String, JSerializable]) extends 
   }
 
   override def processReduce(values : Iterable[Option[Any]]): Option[Double] = {
-    Try(Some(transformValueByTypeOp(returnType, values.flatten.map(_.asInstanceOf[Number].doubleValue()).max)))
-      .getOrElse(MaxOperator.SOME_ZERO)
+    Try(Some(transformValueByTypeOp(
+      returnType,
+      getDistinctValues(values.flatten.map(_.asInstanceOf[Number].doubleValue())).max))
+    ).getOrElse(MaxOperator.SOME_ZERO)
   }
 }
 

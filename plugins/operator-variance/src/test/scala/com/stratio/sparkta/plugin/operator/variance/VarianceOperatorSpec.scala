@@ -64,6 +64,23 @@ class VarianceOperatorSpec extends WordSpec with Matchers {
       val inputFields5 = new VarianceOperator("variance", Map("typeOp" -> "string"))
       inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("8.0"))
 
+    }
+
+    "processReduce distinct must be " in {
+      val inputFields = new VarianceOperator("variance", Map("distinct" -> "true"))
+      inputFields.processReduce(Seq()) should be(Some(0d))
+
+      val inputFields2 = new VarianceOperator("variance", Map("distinct" -> "true"))
+      inputFields2.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some(6.916666666666667))
+
+      val inputFields3 = new VarianceOperator("variance", Map("distinct" -> "true"))
+      inputFields3.processReduce(Seq(Some(1), Some(1), Some(2), Some(3), Some(6.5), Some(7.5))) should be(Some(8.125))
+
+      val inputFields4 = new VarianceOperator("variance", Map("distinct" -> "true"))
+      inputFields4.processReduce(Seq(None)) should be(Some(0d))
+
+      val inputFields5 = new VarianceOperator("variance", Map("typeOp" -> "string", "distinct" -> "true"))
+      inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("6.916666666666667"))
 
     }
   }

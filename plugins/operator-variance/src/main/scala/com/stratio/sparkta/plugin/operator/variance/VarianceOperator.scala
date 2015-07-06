@@ -39,7 +39,7 @@ class VarianceOperator(name: String, properties: Map[String, JSerializable]) ext
   }
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
-    val valuesFiltered = values.flatten
+    val valuesFiltered = getDistinctValues(values.flatten)
     valuesFiltered.size match {
       case (nz) if (nz != 0) =>
         Some(transformValueByTypeOp(returnType, variance(valuesFiltered.map(_.asInstanceOf[Number].doubleValue()))))
