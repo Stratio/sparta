@@ -1,0 +1,3 @@
+export SPARKTA_CONF="/opt/sds/sparkta/conf"
+export SPARKTA_HOME="/opt/sds/sparkta"
+export SPARKTA_LOGS="/opt/sds/sparkta/logs"
