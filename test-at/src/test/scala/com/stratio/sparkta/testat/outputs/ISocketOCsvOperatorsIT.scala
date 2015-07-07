@@ -102,8 +102,6 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
       "variance" -> row.getAs[String]("variance_price"),
       "range" -> row.getAs[String]("range_price"))
 
-
-
   }
 
 
