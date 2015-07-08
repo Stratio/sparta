@@ -169,8 +169,19 @@
                                         <mode>755</mode>
                                     </attributes>
                                 </copyFile>
+                                <copyDirectory>
+                                    <from>src/main/unix/etc/default</from>
+                                    <to>/etc/default</to>
+                                </copyDirectory>
                                 <mkdirs>
                                     <path>/var/run/sds</path>
+                                    <attributes>
+                                        <user>stratio</user>
+                                        <group>stratio</group>
+                                    </attributes>
+                                </mkdirs>
+                                <mkdirs>
+                                    <path>/var/logs/sds</path>
                                     <attributes>
                                         <user>stratio</user>
                                         <group>stratio</group>

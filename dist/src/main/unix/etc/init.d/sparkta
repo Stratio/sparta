@@ -45,6 +45,8 @@
 #
 #
 
+source /etc/default/sparkta
+
 # Script arguments (start, stop, restart or status)
 COMMAND=$1
 
@@ -223,7 +225,7 @@ case "${COMMAND}" in
 
 		# Check zookeeper is running
 		ZOOKEEPER_PROC=`ps -ef | grep zookeeper | grep -v grep`
-		if [ -z $ZOOKEEPER_PROC ]
+		if [ -z "$ZOOKEEPER_PROC" ]
 		then
 			echoError "Zookeeper is not running!"
 			exit 1
@@ -232,7 +234,7 @@ case "${COMMAND}" in
 		# * * * Run the Play application * * *
 		TMP_LOG=`mktemp`
 		cd $APP_DIR
-		PID=`sh $SCRIPT_TO_RUN > /dev/null 2>$TMP_LOG & echo $!`
+		PID=`sh $SCRIPT_TO_RUN > $SPARKTA_LOGS & echo $!`
 
 		# Check if successfully started
 		if [ $? != 0 ]
