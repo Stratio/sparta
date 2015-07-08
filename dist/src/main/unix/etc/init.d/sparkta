@@ -221,6 +221,14 @@ case "${COMMAND}" in
 			exit 1
 		fi
 
+		# Check zookeeper is running
+		ZOOKEEPER_PROC=`ps -ef | grep zookeeper | grep -v grep`
+		if [ -z $ZOOKEEPER_PROC ]
+		then
+			echoError "Zookeeper is not running!"
+			exit 1
+		fi
+
 		# * * * Run the Play application * * *
 		TMP_LOG=`mktemp`
 		cd $APP_DIR
