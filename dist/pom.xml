@@ -181,7 +181,7 @@
                                     </attributes>
                                 </mkdirs>
                                 <mkdirs>
-                                    <path>/var/logs/sds</path>
+                                    <path>/var/log/sds/sparkta</path>
                                     <attributes>
                                         <user>stratio</user>
                                         <group>stratio</group>

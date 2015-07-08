@@ -232,9 +232,9 @@ case "${COMMAND}" in
 		fi
 
 		# * * * Run the Play application * * *
-		TMP_LOG=`mktemp`
+		LOG=$SPARKTA_LOGS/sparkta.out
 		cd $APP_DIR
-		PID=`sh $SCRIPT_TO_RUN > $SPARKTA_LOGS & echo $!`
+		PID=`sh $SCRIPT_TO_RUN > $LOG & echo $!`
 
 		# Check if successfully started
 		if [ $? != 0 ]
