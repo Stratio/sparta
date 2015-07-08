@@ -41,5 +41,10 @@
             <artifactId>elastic4s_${scala.binary.version}</artifactId>
             <version>${elasticsearch.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_${scala.binary.version}</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

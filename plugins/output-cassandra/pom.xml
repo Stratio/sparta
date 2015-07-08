@@ -31,5 +31,10 @@
             <artifactId>spark-cassandra-connector_2.10</artifactId>
             <version>1.4.0-M1</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_${scala.binary.version}</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
