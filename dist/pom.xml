@@ -24,7 +24,7 @@
         <version>0.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>dist</artifactId>
+    <artifactId>stratio-sparkta</artifactId>
     <properties>
         <classpath.directory>lib</classpath.directory>
         <plugins.directory>plugins</plugins.directory>
