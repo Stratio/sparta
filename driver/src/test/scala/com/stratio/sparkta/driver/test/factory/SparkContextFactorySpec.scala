@@ -71,6 +71,7 @@ class SparkContextFactorySpec extends FlatSpec with ShouldMatchers with BeforeAn
   it should "create and reuse same SparkStreamingContext" in new WithConfig {
     val checkpointDir = "checkpoint"
     val sc = SparkContextFactory.sparkContextInstance(config, specificConfig, Seq())
+    SparkContextFactory.sparkStreamingInstance should be (None)
     val ssc = SparkContextFactory.sparkStreamingInstance(batchDuraction, checkpointDir)
     ssc shouldNot be equals (None)
     val otherSsc = SparkContextFactory.sparkStreamingInstance(batchDuraction, checkpointDir)

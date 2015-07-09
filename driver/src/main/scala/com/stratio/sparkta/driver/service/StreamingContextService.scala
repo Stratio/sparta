@@ -30,7 +30,7 @@ import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.reflections.Reflections
 
-import com.stratio.sparkta.aggregator.{CubeMaker, Cube}
+import com.stratio.sparkta.aggregator.{Cube, CubeMaker}
 import com.stratio.sparkta.driver.dto._
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory._
@@ -41,10 +41,17 @@ import com.stratio.sparkta.sdk._
 class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging {
 
   def createStreamingContext(apConfig: AggregationPoliciesDto): StreamingContext = {
-
     val OutputsSparkConfiguration = "getSparkConfiguration"
     val specifictSparkConfig = SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
     val sc = SparkContextFactory.sparkContextInstance(generalConfig, specifictSparkConfig, jars)
+    SparktaJob.runSparktaJob(sc, apConfig)
+    SparkContextFactory.sparkStreamingInstance.get
+  }
+}
+
+object SparktaJob {
+
+  def runSparktaJob(sc: SparkContext, apConfig: AggregationPoliciesDto): Any = {
     val ssc = SparkContextFactory.sparkStreamingInstance(
       new Duration(apConfig.sparkStreamingWindow),
       apConfig.checkpointing.path).get
@@ -81,11 +88,7 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
 
     val dataCube = new CubeMaker(cubes, datePrecision, apConfig.checkpointing.granularity).setUp(parsed)
     outputs.map(_._2.persist(dataCube))
-    ssc
   }
-}
-
-object SparktaJob {
 
   @tailrec
   def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
@@ -165,7 +168,7 @@ object SparktaJob {
 
   def cubes(apConfig: AggregationPoliciesDto): Seq[Cube] =
     apConfig.cubes.map(cube => {
-      val name = cube.name.replaceAll(Output.Separator,"")
+      val name = cube.name.replaceAll(Output.Separator, "")
       val multiplexer = Try(cube.multiplexer.toBoolean)
         .getOrElse(throw DriverException.create("The multiplexer value must be boolean"))
       val dimensions = cube.dimensions.map(dimensionDto => {
