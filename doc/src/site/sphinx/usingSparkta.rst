@@ -44,14 +44,25 @@ following commands::
 Running Sparkta
 ===============
 
-Once Sparkta has been installed, you can run ``sh $SPARKTA_HOME/bin/run``.
-Default installation directory is ``/opt/sds/sparkta``
+Once Sparkta has been installed, to get it running you can use the following instructions:
 
- * Starting Stratio Sparkta::
+ * Linux:
+    You can run ``sh $SPARKTA_HOME/bin/run``.
+    Default installation directory is ``/opt/sds/sparkta``.
+    ::
+        cd /opt/sds/sparkta
 
-    cd /opt/sds/sparkta
+        sh bin/run
 
-    sh bin/run
+
+ * Linux as a service:
+    * Using service command::
+
+        sudo service sparkta [start|stop|restart|status]
+
+    * Using init.d::
+
+        sudo /etc/init.d/sparkta [start|stop|restart|status]
 
 Policy
 ======

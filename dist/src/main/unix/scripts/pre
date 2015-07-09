@@ -1,0 +1,51 @@
+#!/bin/sh
+
+set -e
+
+USER=stratio
+GROUP=stratio
+DIR_INSTALL=/opt/sds/sparkta
+INIT_DEAMON=/etc/init.d/sparkta
+DIR_CONF=$DIR_INSTALL/conf
+CONF_FILE_BACKUP=$DIR_INSTALL/conf.tar.gz
+
+###
+# UTILs
+###
+backup () {
+    if [ -d "$2" ]; then
+        echo "Creating backup $1"
+        tar -czf $1 $2 > /dev/null 2>&1
+    fi
+}
+
+###
+# USER / GROUP
+###
+# Add stratio group if it doesn't already exists
+if ! getent group $GROUP >/dev/null 2>&1; then
+    groupadd ${GROUP}
+fi
+
+# Add stratio user if it doesn't already exists
+if ! getent passwd $USER >/dev/null 2>&1; then
+    [ -d /opt ] || mkdir /opt
+    useradd -M -d /opt/sds -g ${GROUP} -s /bin/bash ${USER}
+else
+    usermod -G $GROUP $USER
+fi
+
+###
+# STOP
+###
+if [ -f "$INIT_DEAMON" ]
+then
+    service sparkta stop
+fi
+
+###
+# BACKUP conf & public
+###
+backup $CONF_FILE_BACKUP $DIR_CONF
+
+exit 0

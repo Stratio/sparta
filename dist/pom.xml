@@ -24,7 +24,7 @@
         <version>0.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>dist</artifactId>
+    <artifactId>stratio-sparkta</artifactId>
     <properties>
         <classpath.directory>lib</classpath.directory>
         <plugins.directory>plugins</plugins.directory>
@@ -136,7 +136,7 @@
                     <plugin>
                         <groupId>com.stratio.mojo.unix</groupId>
                         <artifactId>unix-maven-plugin</artifactId>
-                        <version>1.1.2</version>
+                        <version>1.1.6</version>
                         <extensions>true</extensions>
                         <inherited>false</inherited>
                         <configuration>
@@ -146,50 +146,111 @@
                                 <section>devel</section>
                             </deb>
                             <rpm>
-                                <group>devel</group>
+                                <group>stratio</group>
+                                <requires>bash</requires>
                             </rpm>
+                            <name>Engine</name>
+                            <excludeDirectoryAttributes>
+                                <dir>/etc</dir>
+                                <dir>/etc/init.d</dir>
+                                <dir>/etc/default</dir>
+                                <dir>/var</dir>
+                                <dir>/opt</dir>
+                                <dir>/usr</dir>
+                                <dir>/bin</dir>
+                            </excludeDirectoryAttributes>
+                            <assembly>
+                                <copyFile>
+                                    <path>src/main/unix/etc/init.d/sparkta</path>
+                                    <toFile>/etc/init.d/sparkta</toFile>
+                                    <attributes>
+                                        <user>root</user>
+                                        <group>root</group>
+                                        <mode>755</mode>
+                                    </attributes>
+                                </copyFile>
+                                <copyDirectory>
+                                    <from>src/main/unix/etc/default</from>
+                                    <to>/etc/default</to>
+                                </copyDirectory>
+                                <mkdirs>
+                                    <path>/var/run/sds</path>
+                                    <attributes>
+                                        <user>stratio</user>
+                                        <group>stratio</group>
+                                    </attributes>
+                                </mkdirs>
+                                <mkdirs>
+                                    <path>/var/log/sds/sparkta</path>
+                                    <attributes>
+                                        <user>stratio</user>
+                                        <group>stratio</group>
+                                    </attributes>
+                                </mkdirs>
+                                <copyDirectory>
+                                    <from>target/appassembler/bin</from>
+                                    <to>/opt/sds/sparkta/bin</to>
+                                </copyDirectory>
+                                <copyDirectory>
+                                    <from>target/appassembler/repo</from>
+                                    <to>/opt/sds/sparkta/repo</to>
+                                </copyDirectory>
+                                <copyDirectory>
+                                    <from>target/appassembler/:/etc/sds/sparkta/conf</from>
+                                    <to>/etc/sds/sparkta/conf</to>
+                                </copyDirectory>
+                                <copyDirectory>
+                                    <from>target/appassembler/repo/sdk</from>
+                                    <to>/opt/sds/sparkta/sdk</to>
+                                </copyDirectory>
+                                <copyDirectory>
+                                    <from>target/appassembler/repo/plugins</from>
+                                    <to>/opt/sds/sparkta/plugins</to>
+                                </copyDirectory>
+                                <copyDirectory>
+                                    <from>target/appassembler/repo/aggregator</from>
+                                    <to>/opt/sds/sparkta/aggregator</to>
+                                </copyDirectory>
+                                <copyDirectory>
+                                    <from>target/appassembler/repo/benchmark</from>
+                                    <to>/opt/sds/sparkta/benchmark</to>
+                                </copyDirectory>
+                            </assembly>
+                            <defaults>
+                                <directoryAttributes>
+                                    <mode>0755</mode>
+                                </directoryAttributes>
+                                <fileAttributes>
+                                    <mode>0644</mode>
+                                </fileAttributes>
+                            </defaults>
                         </configuration>
-                           <executions>
+                        <executions>
                             <execution>
-                                <id>engine</id>
+                                <id>deb</id>
                                 <phase>package</phase>
-                                <configuration>
-                                    <name>Engine</name>
-                                    <size>1</size>
-                                    <assembly>
-                                        <copyDirectory>
-                                            <from>target/appassembler/bin</from>
-                                            <to>/opt/sds/sparkta/bin</to>
-                                        </copyDirectory>
-                                        <copyDirectory>
-                                            <from>target/appassembler/repo</from>
-                                            <to>/opt/sds/sparkta/repo</to>
-                                        </copyDirectory>
-                                        <copyDirectory>
-                                            <from>target/appassembler/:/etc/sds/sparkta/conf</from>
-                                            <to>/etc/sds/sparkta/conf</to>
-                                        </copyDirectory>
-                                        <copyDirectory>
-                                            <from>target/appassembler/repo/sdk</from>
-                                            <to>/opt/sds/sparkta/sdk</to>
-                                        </copyDirectory>
-                                        <copyDirectory>
-                                            <from>target/appassembler/repo/plugins</from>
-                                            <to>/opt/sds/sparkta/plugins</to>
-                                        </copyDirectory>
-                                        <copyDirectory>
-                                            <from>target/appassembler/repo/aggregator</from>
-                                            <to>/opt/sds/sparkta/aggregator</to>
-                                        </copyDirectory>
-                                        <copyDirectory>
-                                            <from>target/appassembler/repo/benchmark</from>
-                                            <to>/opt/sds/sparkta/benchmark</to>
-                                        </copyDirectory>
-                                    </assembly>
-                                </configuration>
                                 <goals>
                                     <goal>package-deb</goal>
+                                </goals>
+                                <configuration>
+                                    <architecture>all</architecture>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>rpm</id>
+                                <phase>package</phase>
+                                <goals>
                                     <goal>package-rpm</goal>
+                                </goals>
+                                <configuration>
+                                    <architecture>noarch</architecture>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>zip</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>package-zip</goal>
                                 </goals>
                             </execution>
                         </executions>
