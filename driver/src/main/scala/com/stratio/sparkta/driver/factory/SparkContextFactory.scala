@@ -26,7 +26,7 @@ import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
 /**
- * @author ajnavarro
+ * @author ajnavarro, sgomezg
  */
 object SparkContextFactory extends SLF4JLogging {
 
@@ -44,31 +44,33 @@ object SparkContextFactory extends SLF4JLogging {
     sqlContext
   }
 
-  def sparkStreamingInstance(batchDuration: Duration, checkpointDir : String): Option[StreamingContext] = {
+  def sparkStreamingInstance: Option[StreamingContext] = ssc
+
+  def sparkStreamingInstance(batchDuration: Duration, checkpointDir: String): Option[StreamingContext] = {
     synchronized {
       ssc match {
         case Some(_) => ssc
         case None => ssc = Some(new StreamingContext(sc.get, batchDuration))
       }
-      if(!checkpointDir.isEmpty) ssc.get.checkpoint(checkpointDir)
+      if (!checkpointDir.isEmpty) ssc.get.checkpoint(checkpointDir)
     }
     ssc
   }
 
-  def sparkContextInstance(generalConfig: Config, specificConfig : Map[String, String], jars: Seq[File]): SparkContext =
+  def sparkContextInstance(generalConfig: Config, specificConfig: Map[String, String], jars: Seq[File]): SparkContext =
     synchronized {
       sc.getOrElse(instantiateContext(generalConfig, specificConfig, jars))
     }
 
   private def instantiateContext(generalConfig: Config,
-                                 specificConfig : Map[String, String],
+                                 specificConfig: Map[String, String],
                                  jars: Seq[File]): SparkContext = {
     sc = Some(new SparkContext(configToSparkConf(generalConfig, specificConfig)))
     jars.foreach(f => sc.get.addJar(f.getAbsolutePath))
     sc.get
   }
 
-  private def configToSparkConf(generalConfig: Config, specificConfig : Map[String, String]): SparkConf = {
+  private def configToSparkConf(generalConfig: Config, specificConfig: Map[String, String]): SparkConf = {
     val c = generalConfig.getConfig("spark")
     val properties = c.entrySet()
     val conf = new SparkConf()
