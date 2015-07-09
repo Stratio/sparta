@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-
 package com.stratio.sparkta.testat
-
-
-import com.stratio.sparkta.sdk.DateOperations
-import org.apache.spark.SparkContext
-import org.apache.spark.sql.{Row, SQLContext}
 
 import scala.reflect.io.File
 
+import com.databricks.spark.csv.CsvContext
+import org.apache.spark.SparkContext
+import org.apache.spark.sql.{Row, SQLContext}
+
+import com.stratio.sparkta.sdk.DateOperations
 
 /**
  * Acceptance test:
- *   [Input]: Socket.
- *   [Output]: MongoDB.
- *   [Operators]: sum, avg.
+ * [Input]: Socket.
+ * [Output]: MongoDB.
+ * [Operators]: sum, avg.
  * @author gschiavon
  */
 class ISocketOCsvOperatorsIT extends SparktaATSuite {
@@ -39,7 +38,7 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-operators.csv").getPath
   val csvOutputPath = policyDto.outputs(0).configuration("path").toString
   val NumExecutors = 4
-  val NumEventsExpected : String= "8"
+  val NumEventsExpected: String = "8"
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in csv" in {
       sparktaRunner
@@ -47,14 +46,14 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
     }
 
 
-    def checkCsvData(path : String): Unit ={
+    def checkCsvData(path: String): Unit = {
       val pathProductTimestamp = path + s"product_timestamp${DateOperations.subPath("day", None)}.csv"
       val sqlContext = new SQLContext(new SparkContext(s"local[$NumExecutors]", "ISocketOCsv"))
-      val df = sqlContext.read.format("com.databricks.spark.csv").option("header", "true").load(pathProductTimestamp)
+      val df = sqlContext.csvFile(pathProductTimestamp, true).toDF()
 
-      df.count should be (2)
+      df.count should be(2)
       df.collect.foreach(row => {
-        row.getAs[String]("product").toString match {
+        row.getAs[String](0).toString match {
           case "producta" => {
             val aValues = extractProductValues(row)
 
@@ -75,13 +74,13 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
 
             bValues("avg") should be("758.25")
             bValues("sum") should be("6066.0")
-            bValues("count")  should be(NumEventsExpected)
+            bValues("count") should be(NumEventsExpected)
             bValues("first") should be("15")
             bValues("last") should be("50")
             bValues("max") should be("1001.0")
             bValues("min") should be("15.0")
             bValues("fulltext") should be("15 1000 1000 1000 1000 1000 1001 50")
-            bValues("stddev")  should be("448.04041590655")
+            bValues("stddev") should be("448.04041590655")
             bValues("variance") should be("200740.2142857143")
             bValues("range") should be("986.0")
           }
@@ -89,25 +88,19 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
       })
     }
 
-    def extractProductValues(row : Row) : Map[String, String] = Map(
-      "avg" -> row.getAs[String]("avg_price"),
-      "sum" -> row.getAs[String]("sum_price"),
-      "count" -> row.getAs[String]("count_price"),
-      "first" -> row.getAs[String]("first_price"),
-      "last" -> row.getAs[String]("last_price"),
-      "max" -> row.getAs[String]("max_price"),
-      "min" -> row.getAs[String]("min_price"),
-      "fulltext" -> row.getAs[String]("fulltext_price"),
-      "stddev" -> row.getAs[String]("stddev_price"),
-      "variance" -> row.getAs[String]("variance_price"),
-      "range" -> row.getAs[String]("range_price"))
-
+    def extractProductValues(row: Row): Map[String, String] = Map(
+      "avg" -> row.getAs[String](3),
+      "sum" -> row.getAs[String](13),
+      "count" -> row.getAs[String](4),
+      "first" -> row.getAs[String](5),
+      "last" -> row.getAs[String](7),
+      "max" -> row.getAs[String](8),
+      "min" -> row.getAs[String](10),
+      "fulltext" -> row.getAs[String](6),
+      "stddev" -> row.getAs[String](12),
+      "variance" -> row.getAs[String](14),
+      "range" -> row.getAs[String](11))
   }
 
-
-
   override def extraAfter: Unit = File(csvOutputPath).deleteRecursively
-
-  override def extraBefore: Unit = {}
-
 }

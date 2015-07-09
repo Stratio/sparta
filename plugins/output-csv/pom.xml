@@ -31,8 +31,8 @@
     <dependencies>
         <dependency>
             <groupId>com.databricks</groupId>
-            <artifactId>spark-csv_2.11</artifactId>
-            <version>1.1.0</version>
+            <artifactId>spark-csv_2.10</artifactId>
+            <version>1.0.3</version>
         </dependency>
     </dependencies>
 
