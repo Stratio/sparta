@@ -50,7 +50,7 @@
       "order": 2,
       "type": "DateTime",
       "configuration": {
-        "recorded_at_ms": "unixMillis"
+        "inputFormat": "unixMillis"
       }
     }
   ],
