@@ -76,7 +76,7 @@ parameters to connect to the DB and self-creation of indexes.
 +-----------------------+----------------------------------------------------+----------+---------------------------+
 | Property              | Description                                        | Optional | Default                   |
 +=======================+====================================================+==========+===========================+
-| ClientUri             | This parameter connection routes specified the     | Yes      | mongodb://localhost:27017 |
+| clientUri             | This parameter connection routes specified the     | Yes      | mongodb://localhost:27017 |
 |                       | nodes of a cluster of MongoDB, with different      |          |                           |
 |                       | replica set or with sharding.                      |          |                           |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
