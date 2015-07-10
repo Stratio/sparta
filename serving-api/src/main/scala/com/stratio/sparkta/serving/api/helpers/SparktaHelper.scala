@@ -25,7 +25,7 @@ import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import com.stratio.sparkta.driver.actor.ControllerActor
 import com.stratio.sparkta.driver.factory.{CuratorFactoryHolder, SparkContextFactory}
-import com.stratio.sparkta.driver.helpers.sparkta.{ConfigFactory, SparktaConfigFactory, SparktaSystem, System}
+import com.stratio.sparkta.driver.helpers.{SparktaSystem, System, SparktaConfigFactory, ConfigFactory}
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.typesafe.config.Config
 import spray.can.Http

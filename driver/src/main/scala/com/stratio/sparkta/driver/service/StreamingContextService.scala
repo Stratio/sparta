@@ -102,7 +102,7 @@ object SparktaJob {
     val reflections = new Reflections()
     val inputs = reflections.getSubTypesOf(classOf[Input]).toList
     val dimensionTypes = reflections.getSubTypesOf(classOf[DimensionType]).toList
-    val operators = reflections.getSubTypesOf(classOf[OperatorModel]).toList
+    val operators = reflections.getSubTypesOf(classOf[Operator]).toList
     val outputs = reflections.getSubTypesOf(classOf[Output]).toList
     val parsers = reflections.getSubTypesOf(classOf[Parser]).toList
     val plugins = inputs ++ dimensionTypes ++ operators ++ outputs ++ parsers

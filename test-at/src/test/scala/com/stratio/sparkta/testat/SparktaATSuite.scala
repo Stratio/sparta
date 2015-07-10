@@ -19,6 +19,7 @@ package com.stratio.sparkta.testat
 import java.io.{File, PrintStream}
 import java.net._
 import java.nio.channels.ServerSocketChannel
+import com.stratio.sparkta.driver.helpers.MockSystem
 import com.stratio.sparkta.serving.api.helpers.SparktaHelper
 
 import scala.concurrent.duration._
@@ -40,7 +41,6 @@ import spray.testkit.ScalatestRouteTest
 
 import com.stratio.sparkta.driver.constants.AppConstant
 import com.stratio.sparkta.driver.models.AggregationPoliciesModel
-import com.stratio.sparkta.driver.helpers.sparkta.MockSystem
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 
 /**

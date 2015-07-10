@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.helpers.sparkta
+package com.stratio.sparkta.driver.helpers
 
 import akka.event.slf4j.SLF4JLogging
 

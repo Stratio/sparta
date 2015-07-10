@@ -16,7 +16,7 @@
 
 package com.stratio.sparkta.driver.test.helpers
 
-import com.stratio.sparkta.driver.helpers.sparkta.{MockConfigFactory, MockSystem}
+import com.stratio.sparkta.driver.helpers.{MockSystem, MockConfigFactory}
 import com.stratio.sparkta.serving.api.helpers.SparktaHelper
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
