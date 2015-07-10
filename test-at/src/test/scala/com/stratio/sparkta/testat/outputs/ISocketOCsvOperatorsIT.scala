@@ -103,4 +103,5 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
   }
 
   override def extraAfter: Unit = File(csvOutputPath).deleteRecursively
+  override def extraBefore: Unit = {}
 }
