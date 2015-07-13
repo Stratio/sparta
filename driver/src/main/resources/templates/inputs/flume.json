@@ -1,11 +1,11 @@
 {
-  "name": "Kafka",
+  "name": "Flume",
   "description": {
-    "short": "Reads events from apache-kafka",
-    "long": "Reads events from apache-kafka"
+    "short": "Reads events from flume",
+    "long": "Reads events from flume"
   },
   "icon": {
-    "url": "assets/images/datasources/logo-kafka.png"
+    "url": "assets/images/datasources/logo-flume.png"
   },
 
   "properties": [
@@ -28,39 +28,39 @@
       "tooltip": "The Type of the input it’s used to instantiate specific classes"
     },
     {
-      "propertyId": "topics",
-      "propertyName": "Topics",
+      "propertyId": "flumeType",
+      "propertyName": "FlumeType",
       "propertyType": "text",
       "regexp": "[^/\\. \"$]{1,3}",
       "default": "",
       "required": false,
-      "tooltip": "Topics to connect"
+      "tooltip": "Flume's type."
     },
     {
-      "propertyId": "zookeeperUrl",
-      "propertyName": "ZookeeperUrl",
+      "propertyId": "addresses",
+      "propertyName": "Addresses",
       "propertyType": "text",
       "regexp": "[^/\\. \"$]{1,3}",
       "required": false,
-      "tooltip": "Zookeeper's url."
-    },
-    {
-      "propertyId": "zookeeperGroupId",
-      "propertyName": "ZookeeperGroupId",
-      "propertyType": "text",
-      "regexp": "[^/\\. \"$]{1,3}",
-      "default": "",
-      "required": false,
-      "tooltip": "Zookeeper's group id."
+      "tooltip": "Flume's addresses."
     },
     {
       "propertyId": "storageLevel",
       "propertyName": "StorageLevel",
       "propertyType": "text",
+      "regexp": "[^/\\. \"$]{1,3}",
+      "default": "",
+      "required": false,
+      "tooltip": "It’s a spark parameter used to define the level of the trade-off between memory usage and CPU efficiency"
+    },
+    {
+      "propertyId": "maxBatchSize",
+      "propertyName": "MaxBatchSize",
+      "propertyType": "text",
       "regexp": "[^/\\. \"$]{1,300}",
       "default": "",
       "required": false,
-      "tooltip": "Zookeeper's storage level."
+      "tooltip": "The max number of lines to read and send to the channel at a time."
     }
   ]
 }
