@@ -1,85 +1,76 @@
 {
-  "name": "MongoDB",
+  "name": "Twitter",
   "description": {
-    "short": "MongoDB is an open-source document database, and the leading NoSQL database.",
-    "long": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling."
+    "short": "Reads events from Twitter stream.",
+    "long": "Reads events from Twitter stream."
   },
   "icon": {
-    "url": "assets/images/datasources/logo-mongodb.png"
+    "url": "assets/images/datasources/logo-twitter.png"
   },
 
   "properties": [
     {
-      "propertyId": "mongoClientUri",
-      "propertyName": "MongoClientUri",
+      "propertyId": "name",
+      "propertyName": "Name",
       "propertyType": "text",
       "regexp": "TODO",
-      "default": "mongodb://localhost:27017",
+      "default": "Twitter",
       "required": false,
-      "tooltip": "This parameter connection routes specified the nodes of a cluster of MongoDB, with different replica set or with sharding."
+      "tooltip": "Name of the input"
     },
     {
-      "propertyId": "dbName",
-      "propertyName": "DBName",
+      "propertyId": "type",
+      "propertyName": "Type",
       "propertyType": "text",
       "regexp": "[^/\\. \"$]{2,128}",
-      "default": "sparkta",
+      "default": "Twitter",
       "required": false,
-      "tooltip": "The name of the database"
+      "tooltip": "The Type of the input it’s used to instantiate specific classes"
     },
     {
-      "propertyId": "connectionsPerHost",
-      "propertyName": "ConnectionsPerHost",
+      "propertyId": "consumerKey",
+      "propertyName": "ConsumerKey",
       "propertyType": "text",
       "regexp": "[^/\\. \"$]{1,3}",
-      "default": "5",
+      "default": "****",
       "required": false,
-      "tooltip": "Number of connections per host"
+      "tooltip": "Twitter's consumer key."
     },
     {
-      "propertyId": "threadsAllowedToBlock",
-      "propertyName": "ThreadsAllowedToBlock",
+      "propertyId": "consumerSecret",
+      "propertyName": "ConsumerSecret",
       "propertyType": "text",
       "regexp": "[^/\\. \"$]{1,3}",
-      "default": 10,
+      "default": "****",
       "required": false,
-      "tooltip": "This multiplier, multiplied with the connectionsPerHost setting, gives the maximum number of threads that may be waiting for a connection to become available from the pool."
+      "tooltip": "Twitter's consumer secret"
     },
     {
-      "propertyId": "idAsField",
-      "propertyName": "IdAsField",
+      "propertyId": "accessToken",
+      "propertyName": "AccessToken",
       "propertyType": "text",
       "regexp": "[^/\\. \"$]{1,3}",
-      "default": "false",
+      "default": "****",
       "required": false,
-      "tooltip": "Is possible to save all fields that compound the unique key as a independent field."
+      "tooltip": "Twitter's access token."
     },
     {
-      "propertyId": "textIndexFields",
-      "propertyName": "TextIndexFields",
+      "propertyId": "tokenSecret",
+      "propertyName": "TokenSecret",
       "propertyType": "text",
       "regexp": "[^/\\. \"$]{1,300}",
-      "default": "",
+      "default": "****",
       "required": false,
-      "tooltip": "The system is capable of insert data in a full-text index. All of this fields compound the index."
+      "tooltip": "Twitter's token secret."
     },
     {
-      "propertyId": "language",
-      "propertyName": "Language",
+      "propertyId": "termsOfSearch",
+      "propertyName": "TermsOfSearch",
       "propertyType": "text",
       "regexp": "[^/\\. \"$]{1,20}",
-      "default": "None",
+      "default": "",
       "required": false,
-      "tooltip": "Specify the language of the tokenizer in the full-text index in MongoDB, each document inserted must have this key-value."
-    },
-    {
-      "propertyId": "retrySleep",
-      "propertyName": "RetrySleep",
-      "propertyType": "text",
-      "regexp": "[^/\\. \"$]{1,5}",
-      "default": "1000",
-      "required": false,
-      "tooltip": "The number of milliseconds to wait for reconnect with MongoDb nodes when the last client fails. It is recommendable to set less time to the slide interval of the streaming window."
+      "tooltip": "It allows to search tweets based on the words of this field. If you don’t use this field, it searches over global trending topics."
     }
   ]
 }
