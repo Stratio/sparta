@@ -17,11 +17,15 @@
 package com.stratio.sparkta.driver.service
 
 import java.io.{File, Serializable}
-import scala.annotation.tailrec
-import scala.collection.JavaConversions._
-import scala.util.Try
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparkta.aggregator.{Cube, CubeMaker}
+import com.stratio.sparkta.driver.exception.DriverException
+import com.stratio.sparkta.driver.factory._
+import com.stratio.sparkta.driver.models._
+import com.stratio.sparkta.sdk.TypeOp.TypeOp
+import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import com.stratio.sparkta.sdk._
 import com.typesafe.config.Config
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
@@ -30,17 +34,13 @@ import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.reflections.Reflections
 
-import com.stratio.sparkta.aggregator.{Cube, CubeMaker}
-import com.stratio.sparkta.driver.dto._
-import com.stratio.sparkta.driver.exception.DriverException
-import com.stratio.sparkta.driver.factory._
-import com.stratio.sparkta.sdk.TypeOp.TypeOp
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
-import com.stratio.sparkta.sdk._
+import scala.annotation.tailrec
+import scala.collection.JavaConversions._
+import scala.util.Try
 
 class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging {
 
-  def createStreamingContext(apConfig: AggregationPoliciesDto): StreamingContext = {
+  def createStreamingContext(apConfig: AggregationPoliciesModel): StreamingContext = {
     val OutputsSparkConfiguration = "getSparkConfiguration"
     val specifictSparkConfig = SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
     val sc = SparkContextFactory.sparkContextInstance(generalConfig, specifictSparkConfig, jars)
@@ -51,7 +51,7 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
 
 object SparktaJob {
 
-  def runSparktaJob(sc: SparkContext, apConfig: AggregationPoliciesDto): Any = {
+  def runSparktaJob(sc: SparkContext, apConfig: AggregationPoliciesModel): Any = {
     val ssc = SparkContextFactory.sparkStreamingInstance(
       new Duration(apConfig.sparkStreamingWindow),
       apConfig.checkpointing.path).get
@@ -109,7 +109,7 @@ object SparktaJob {
     plugins map (t => t.getSimpleName -> t.getCanonicalName) toMap
   }
 
-  def getSparkConfigs(apConfig: AggregationPoliciesDto, methodName: String, suffix: String): Map[String, String] =
+  def getSparkConfigs(apConfig: AggregationPoliciesModel, methodName: String, suffix: String): Map[String, String] =
     apConfig.outputs.flatMap(o => {
       val clazzToInstance = SparktaJob.getClasspathMap.getOrElse(o.`type` + suffix, o.`type` + suffix)
       val clazz = Class.forName(clazzToInstance)
@@ -123,12 +123,12 @@ object SparktaJob {
       }
     }).toMap
 
-  def inputs(apConfig: AggregationPoliciesDto, ssc: StreamingContext): Map[String, DStream[Event]] =
+  def inputs(apConfig: AggregationPoliciesModel, ssc: StreamingContext): Map[String, DStream[Event]] =
     apConfig.inputs.map(i =>
       (i.name, tryToInstantiate[Input](i.`type` + Input.ClassSuffix, (c) =>
         instantiateParameterizable[Input](c, i.configuration)).setUp(ssc))).toMap
 
-  def parsers(apConfig: AggregationPoliciesDto): Seq[Parser] =
+  def parsers(apConfig: AggregationPoliciesModel): Seq[Parser] =
     apConfig.transformations.map(parser =>
       tryToInstantiate[Parser](parser.`type` + Parser.ClassSuffix, (c) =>
         c.getDeclaredConstructor(
@@ -140,17 +140,17 @@ object SparktaJob {
           .newInstance(parser.name, parser.order, parser.inputField, parser.outputFields, parser.configuration)
           .asInstanceOf[Parser]))
 
-  private def createOperator(operatorDto: OperatorDto): Operator =
-    tryToInstantiate[Operator](operatorDto.`type` + Operator.ClassSuffix, (c) =>
+  private def createOperator(operatorModel: OperatorModel): Operator =
+    tryToInstantiate[Operator](operatorModel.`type` + Operator.ClassSuffix, (c) =>
       c.getDeclaredConstructor(
         classOf[String],
         classOf[Map[String, Serializable]]
-      ).newInstance(operatorDto.name, operatorDto.configuration).asInstanceOf[Operator])
+      ).newInstance(operatorModel.name, operatorModel.configuration).asInstanceOf[Operator])
 
-  def getOperators(operatorsDto: Seq[OperatorDto]): Seq[Operator] =
-    operatorsDto.map(operator => createOperator(operator))
+  def getOperators(operatorsModel: Seq[OperatorModel]): Seq[Operator] =
+    operatorsModel.map(operator => createOperator(operator))
 
-  def outputs(apConfig: AggregationPoliciesDto,
+  def outputs(apConfig: AggregationPoliciesModel,
               sparkContext: SparkContext,
               bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
               bcCubeOperatorSchema: Option[Broadcast[Seq[TableSchema]]],
@@ -166,7 +166,7 @@ object SparktaJob {
         .newInstance(o.name, o.configuration, sparkContext, bcOperatorsKeyOperation, bcCubeOperatorSchema, timeName)
         .asInstanceOf[Output])))
 
-  def cubes(apConfig: AggregationPoliciesDto): Seq[Cube] =
+  def cubes(apConfig: AggregationPoliciesModel): Seq[Cube] =
     apConfig.cubes.map(cube => {
       val name = cube.name.replaceAll(Output.Separator, "")
       val multiplexer = Try(cube.multiplexer.toBoolean)
@@ -217,7 +217,7 @@ object SparktaJob {
       }
     })
 
-  def saveRawData(apConfig: AggregationPoliciesDto, input: DStream[Event], sqc: Option[SQLContext] = None): Unit =
+  def saveRawData(apConfig: AggregationPoliciesModel, input: DStream[Event], sqc: Option[SQLContext] = None): Unit =
     if (apConfig.rawData.enabled.toBoolean) {
       require(!apConfig.rawData.path.equals("default"), "The parquet path must be set")
       val sqlContext = sqc.getOrElse(SparkContextFactory.sparkSqlContextInstance.get)

@@ -19,6 +19,9 @@ package com.stratio.sparkta.testat
 import java.io.{File, PrintStream}
 import java.net._
 import java.nio.channels.ServerSocketChannel
+import com.stratio.sparkta.driver.helpers.MockSystem
+import com.stratio.sparkta.serving.api.helpers.SparktaHelper
+
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.io.Source
@@ -37,8 +40,7 @@ import spray.http._
 import spray.testkit.ScalatestRouteTest
 
 import com.stratio.sparkta.driver.constants.AppConstant
-import com.stratio.sparkta.driver.dto.AggregationPoliciesDto
-import com.stratio.sparkta.driver.helpers.sparkta.{MockSystem, SparktaHelper}
+import com.stratio.sparkta.driver.models.AggregationPoliciesModel
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 
 /**
@@ -185,8 +187,8 @@ trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogg
 
   def pathToPolicy: String = policy.getPath
 
-  def policyDto: AggregationPoliciesDto = {
+  def policyDto: AggregationPoliciesModel = {
     implicit val formats = DefaultFormats + new JsoneyStringSerializer()
-    parse(policy.openStream()).extract[AggregationPoliciesDto]
+    parse(policy.openStream()).extract[AggregationPoliciesModel]
   }
 }
