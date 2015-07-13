@@ -92,7 +92,7 @@
         "millis"
       ],
       "configuration": {
-        "millis": "unixMillis"
+        "inputFormat": "unixMillis"
       }
     }
   ],

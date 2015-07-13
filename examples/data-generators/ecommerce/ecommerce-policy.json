@@ -348,7 +348,7 @@
       ],
       "type": "DateTime",
       "configuration": {
-        "purchaseDateOL": "unixMillis"
+        "inputFormat": "unixMillis"
       }
     },
     {
@@ -360,7 +360,7 @@
       ],
       "type": "DateTime",
       "configuration": {
-        "timestampVL": "unixMillis"
+        "inputFormat": "unixMillis"
       }
     }
   ]

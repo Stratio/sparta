@@ -28,7 +28,7 @@ transformation configuration would be::
         "recorded_at_ms"
       ],
       "configuration": {
-        "recorded_at_ms": "unixMillis"
+        "inputFormat": "unixMillis"
       }
     }
 
