@@ -74,12 +74,5 @@
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>redis.embedded</groupId>
-            <artifactId>embedded-redis</artifactId>
-            <version>${embedded-redis.version}</version>
-        </dependency>
-
     </dependencies>
 </project>

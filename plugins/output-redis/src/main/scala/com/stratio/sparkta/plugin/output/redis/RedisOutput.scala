@@ -18,19 +18,20 @@ package com.stratio.sparkta.plugin.output.redis
 
 import java.io.Serializable
 
-import org.apache.spark._
-import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.streaming.dstream.DStream
-
 import com.stratio.sparkta.plugin.output.redis.dao.AbstractRedisDAO
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
+import org.apache.spark._
+import org.apache.spark.broadcast.Broadcast
+import org.apache.spark.streaming.dstream.DStream
 
 /**
  * Saves calculated cubes on Redis.
- *
+ * The hashkey will have this kind of structure -> A_B_C:A:valueA:B:valueB:C:valueC.It is important to see that
+ * values will be part of the key and the objective of it is to perform better searches in the hash.
+ * @author anistal
  */
 class RedisOutput(keyName: String,
                   properties: Map[String, Serializable],
@@ -54,53 +55,21 @@ class RedisOutput(keyName: String,
   }
 
   /**
-   * Saves in a Redis' hash cubes values.
-   *
+   * Saves in Redis' hash cubes values.
    * @param metricOperations that will be saved.
    */
   override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
-    metricOperations.toSeq.groupBy(upMetricOp =>
+    metricOperations.toList.groupBy(upMetricOp =>
       AggregateOperations.keyString(upMetricOp._1, timeName, fixedDimensions))
-      .filter(_._1.size > 0).map(collMetricOp => {
-      collMetricOp._2.map(metricOp => {
-
-        // Step 1) It calculates redis' hash key with this structure -> A_B_C:A:valueA:B:valueB:C:valueC
-        // It is important to see that values be part of the key. This is needed to perform searches.
+      .filter(_._1.size > 0).foreach(collMetricOp => {
+      collMetricOp._2.foreach(metricOp => {
         val hashKey = collMetricOp._1 + IdSeparator + metricOp._1.dimensionValues
-          .map(dimVal => List(dimVal.dimension.name, dimVal.value.toString))
-          .flatMap(_.toSeq).mkString(IdSeparator)
+          .map(dimVal => List(dimVal.getNameDimension, dimVal.value.toString))
+          .flatMap(_.toSeq).mkString(IdSeparator) + IdSeparator + timeName + IdSeparator + metricOp._1.time
 
-        // Step 2) It calculates aggregations depending of its types and saves the result in the value of the hash.
-        metricOp._2.map(aggregation => {
+        metricOp._2.foreach(aggregation => {
           val currentOperation = operationTypes.get.value.get(aggregation._1).get._1
-
-          currentOperation match {
-            case WriteOp.Inc => {
-              val valueHashOperation: Long = hget(hashKey, aggregation._1).getOrElse("0").toLong
-              val valueCurrentOperation: Long = aggregation._2.getOrElse(0L).asInstanceOf[Long]
-              hset(hashKey, aggregation._1, valueHashOperation + valueCurrentOperation)
-            }
-            case WriteOp.IncBig => {
-              val valueHashOperation: Long = hget(hashKey, aggregation._1).getOrElse("0").toLong
-              val valueCurrentOperation: Long = aggregation._2 match {
-                case None => 0L
-                case Some(value) => value.asInstanceOf[BigDecimal].toLong
-              }
-              hset(hashKey, aggregation._1, valueHashOperation + valueCurrentOperation)
-            }
-            case WriteOp.Max => {
-              val valueHashOperation: Double =
-                hget(hashKey, aggregation._1).getOrElse(scala.Double.MinValue.toString).toDouble
-              val valueCurrentOperation: Double = aggregation._2.getOrElse(scala.Double.MinValue).asInstanceOf[Double]
-              if (valueCurrentOperation > valueHashOperation) hset(hashKey, aggregation._1, valueCurrentOperation)
-            }
-            case WriteOp.Min => {
-              val valueHashOperation: Double =
-                hget(hashKey, aggregation._1).getOrElse(scala.Double.MaxValue.toString).toDouble
-              val valueCurrentOperation: Double = aggregation._2.getOrElse(scala.Double.MaxValue).asInstanceOf[Double]
-              if (valueCurrentOperation < valueHashOperation) hset(hashKey, aggregation._1, valueCurrentOperation)
-            }
-          }
+          hset(hashKey, aggregation._1, aggregation._2.get)
         })
       })
     })
