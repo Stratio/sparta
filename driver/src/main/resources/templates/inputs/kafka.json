@@ -1,11 +1,11 @@
 {
-  "name": "Twitter",
+  "name": "Kafka",
   "description": {
-    "short": "Reads events from Twitter stream.",
-    "long": "Reads events from Twitter stream."
+    "short": "Reads events from apache-kafka",
+    "long": "Reads events from apache-kafka"
   },
   "icon": {
-    "url": "assets/images/datasources/logo-twitter.png"
+    "url": "assets/images/datasources/logo-kafka.png"
   },
 
   "properties": [
@@ -23,54 +23,44 @@
       "propertyName": "Type",
       "propertyType": "text",
       "regexp": "[^/\\. \"$]{2,128}",
-      "default": "Twitter",
+      "default": "",
       "required": false,
       "tooltip": "The Type of the input it’s used to instantiate specific classes"
     },
     {
-      "propertyId": "consumerKey",
-      "propertyName": "ConsumerKey",
+      "propertyId": "topics",
+      "propertyName": "Topics",
       "propertyType": "text",
       "regexp": "[^/\\. \"$]{1,3}",
-      "default": "****",
-      "required": false,
-      "tooltip": "Twitter's consumer key."
-    },
-    {
-      "propertyId": "consumerSecret",
-      "propertyName": "ConsumerSecret",
-      "propertyType": "text",
-      "regexp": "[^/\\. \"$]{1,3}",
-      "default": "****",
-      "required": false,
-      "tooltip": "Twitter's consumer secret"
-    },
-    {
-      "propertyId": "accessToken",
-      "propertyName": "AccessToken",
-      "propertyType": "text",
-      "regexp": "[^/\\. \"$]{1,3}",
-      "default": "****",
-      "required": false,
-      "tooltip": "Twitter's access token."
-    },
-    {
-      "propertyId": "tokenSecret",
-      "propertyName": "TokenSecret",
-      "propertyType": "text",
-      "regexp": "[^/\\. \"$]{1,300}",
-      "default": "****",
-      "required": false,
-      "tooltip": "Twitter's token secret."
-    },
-    {
-      "propertyId": "termsOfSearch",
-      "propertyName": "TermsOfSearch",
-      "propertyType": "text",
-      "regexp": "[^/\\. \"$]{1,20}",
       "default": "",
       "required": false,
-      "tooltip": "It allows to search tweets based on the words of this field. If you don’t use this field, it searches over global trending topics."
+      "tooltip": "Topics to connect"
+    },
+    {
+      "propertyId": "zookeeperUrl",
+      "propertyName": "ZookeeperUrl",
+      "propertyType": "text",
+      "regexp": "[^/\\. \"$]{1,3}",
+      "required": false,
+      "tooltip": "Zookeeper's url."
+    },
+    {
+      "propertyId": "zookeeperGroupId",
+      "propertyName": "ZookeeperGroupId",
+      "propertyType": "text",
+      "regexp": "[^/\\. \"$]{1,3}",
+      "default": "",
+      "required": false,
+      "tooltip": "Zookeeper's group id."
+    },
+    {
+      "propertyId": "storageLevel",
+      "propertyName": "StorageLevel",
+      "propertyType": "text",
+      "regexp": "[^/\\. \"$]{1,300}",
+      "default": "",
+      "required": false,
+      "tooltip": "It’s a spark parameter used to define the level of the trade-off between memory usage and CPU efficiency"
     }
   ]
 }
