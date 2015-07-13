@@ -26,8 +26,8 @@ import com.stratio.sparkta.sdk._
 
 class CountOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
 
-  val distinctFields = if (properties.contains("distinctDimensions")) {
-    val fields = properties.getString("distinctDimensions").split(CountOperator.Separator)
+  val distinctFields = if (properties.contains("distinctFields")) {
+    val fields = properties.getString("distinctFields").split(CountOperator.Separator)
     if (fields.isEmpty) None else Some(fields)
   } else None
 
@@ -38,7 +38,8 @@ class CountOperator(name: String, properties: Map[String, JSerializable]) extend
   override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
     distinctFields match {
       case None => CountOperator.SomeOne
-      case Some(fields) => Some(fields.mkString(CountOperator.Separator).toString)
+      case Some(fields) => Some(fields.map(field => inputFields.get(field).getOrElse(CountOperator.NullValue))
+        .mkString(CountOperator.Separator).toString)
     }
   }
 
@@ -58,4 +59,5 @@ private object CountOperator {
   val SomeOne = Some(1L)
   val SomeZero = Some(0L)
   val Separator = "_"
+  val NullValue = "None"
 }
