@@ -30,6 +30,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-core</artifactId>
+            <version>4.9.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.kitesdk</groupId>
             <artifactId>kite-morphlines-useragent</artifactId>
             <version>0.17.0</version>
