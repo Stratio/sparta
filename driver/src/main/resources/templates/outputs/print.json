@@ -6,9 +6,5 @@
   },
   "icon": {
     "url": "assets/images/datasources/logo-print.png"
-  },
-  "properties": [
-    {
-    }
-  ]
+  }
 }
