@@ -59,7 +59,7 @@ class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging {
         .listFiles
         .filter(file => file.getName.endsWith(".json"))
         .map(file => {
-          log.info(s">Retrieving template: ${file.getName}")
+          log.info(s"> Retrieving template: ${file.getName}")
           read[TemplateModel](new InputStreamReader(
             this.getClass.getClassLoader.getResourceAsStream(s"templates/${t}/${file.getName}")))
         })
