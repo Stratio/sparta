@@ -19,18 +19,24 @@ package com.stratio.sparkta.driver.service.http
 import akka.pattern.ask
 import com.stratio.sparkta.driver.actor._
 import com.stratio.sparkta.driver.constants.HttpConstant
+import com.stratio.sparkta.driver.dto.{TemplateDto, FragmentElementDto}
 import com.wordnik.swagger.annotations._
 import spray.routing.Route
 
 import scala.concurrent.Await
 import scala.util.{Failure, Success}
 
-@Api(value = HttpConstant.FragmentPath, description = "Operations about templates. One template will have an abstract" +
+@Api(value = HttpConstant.TemplatePath, description = "Operations about templates. One template will have an abstract" +
   " element that represents a validation, a tip, an icon over it.", position = 0)
 trait TemplateHttpService extends BaseHttpService {
 
   override def routes: Route = findByType ~ findByTypeAndName
 
+  @ApiOperation(value = "Find all templates depending ot its type", notes = "Returns a Seq of templates",
+    httpMethod = "GET", response = classOf[Seq[TemplateDto]])
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
+  ))
   def findByType: Route = {
     path(HttpConstant.TemplatePath / Segment) { (t) =>
       get {
@@ -45,6 +51,11 @@ trait TemplateHttpService extends BaseHttpService {
     }
   }
 
+  @ApiOperation(value = "Find a template depending ot its type and name", notes = "Returns a template.",
+    httpMethod = "GET", response = classOf[TemplateDto])
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
+  ))
   def findByTypeAndName: Route = {
     path(HttpConstant.TemplatePath / Segment / Segment ) { (t, name) =>
       get {

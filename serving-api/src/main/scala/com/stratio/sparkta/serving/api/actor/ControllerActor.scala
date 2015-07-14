@@ -85,7 +85,10 @@ class ControllerActor(streamingContextService: StreamingContextService,
   }
 
   val swaggerService = new SwaggerHttpService {
-    override def apiTypes: Seq[Type] = Seq(typeOf[PolicyHttpService])
+    override def apiTypes: Seq[Type] = Seq(
+      typeOf[PolicyHttpService],
+      typeOf[FragmentHttpService],
+      typeOf[TemplateHttpService])
     override def apiVersion: String = "1.0"
     override def baseUrl: String = "/" // let swagger-ui determine the host and port
     override def docsPath: String = "api-docs"
