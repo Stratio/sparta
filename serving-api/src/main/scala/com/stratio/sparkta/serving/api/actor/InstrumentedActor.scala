@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.driver.actor
+package com.stratio.sparkta.serving.api.actor
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 
-/**
- * Created by ajnavarro on 7/10/14.
- */
 abstract class InstrumentedActor extends Actor with SLF4JLogging {
   override def preRestart(reason: Throwable, message: Option[Any]) {
     log.error("About to restart actor due to exception:", reason)

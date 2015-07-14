@@ -23,7 +23,7 @@ import akka.testkit.TestProbe
 import akka.util.Timeout
 import com.stratio.sparkta.driver.actor._
 import com.stratio.sparkta.driver.helpers.sparkta.SparktaHelper
-import com.stratio.sparkta.driver.service.http.TemplateHttpService
+import com.stratio.sparkta.serving.api.service.http.TemplateHttpService
 import com.stratio.sparkta.testat.SparktaATSuite
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner

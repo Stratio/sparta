@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.service.http
+package com.stratio.sparkta.serving.api.service.http
 
 import akka.pattern.ask
-import com.stratio.sparkta.driver.actor._
-import com.stratio.sparkta.driver.constants.HttpConstant
-import com.stratio.sparkta.driver.dto.{TemplateDto, FragmentElementDto}
-import com.wordnik.swagger.annotations._
-import spray.routing.Route
+import com.stratio.sparkta.driver.models.TemplateModel
+import com.stratio.sparkta.serving.api.actor._
+import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.wordnik.swagger.annotations.{Api, ApiOperation, ApiResponse, ApiResponses}
+import spray.routing._
 
 import scala.concurrent.Await
 import scala.util.{Failure, Success}
@@ -33,7 +33,7 @@ trait TemplateHttpService extends BaseHttpService {
   override def routes: Route = findByType ~ findByTypeAndName
 
   @ApiOperation(value = "Find all templates depending ot its type", notes = "Returns a Seq of templates",
-    httpMethod = "GET", response = classOf[Seq[TemplateDto]])
+    httpMethod = "GET", response = classOf[TemplateModel])
   @ApiResponses(Array(
     new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
   ))
@@ -52,7 +52,7 @@ trait TemplateHttpService extends BaseHttpService {
   }
 
   @ApiOperation(value = "Find a template depending ot its type and name", notes = "Returns a template.",
-    httpMethod = "GET", response = classOf[TemplateDto])
+    httpMethod = "GET", response = classOf[TemplateModel])
   @ApiResponses(Array(
     new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
   ))

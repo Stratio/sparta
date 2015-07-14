@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.actor
+package com.stratio.sparkta.serving.api.actor
 
-import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, StreamingContextStatusEnum, AggregationPoliciesModel$}
-import StreamingContextStatusEnum._
 import com.stratio.sparkta.driver.factory.SparkContextFactory
+import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
+import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, StreamingContextStatusEnum}
 import com.stratio.sparkta.driver.service.StreamingContextService
 import org.apache.spark.streaming.StreamingContext
 
 import scala.util.{Failure, Success, Try}
 
-/**
- * Created by ajnavarro on 3/10/14.
- */
 case object Init
 
 case class InitError(e: Exception)

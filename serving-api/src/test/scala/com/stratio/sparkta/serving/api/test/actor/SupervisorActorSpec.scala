@@ -18,12 +18,12 @@ package com.stratio.sparkta.driver.test.actor
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
+import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
 import com.stratio.sparkta.driver.models._
-import StreamingContextStatusEnum._
-import com.stratio.sparkta.driver.actor._
-import com.stratio.sparkta.driver.exception.ServingApiException
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.sdk.exception.MockException
+import com.stratio.sparkta.serving.api.actor._
+import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.streaming.StreamingContext
 import org.junit.runner.RunWith

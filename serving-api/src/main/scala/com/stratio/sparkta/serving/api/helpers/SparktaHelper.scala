@@ -23,10 +23,11 @@ import java.net.{URL, URLClassLoader}
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
-import com.stratio.sparkta.driver.actor.ControllerActor
-import com.stratio.sparkta.driver.factory.{CuratorFactoryHolder, SparkContextFactory}
-import com.stratio.sparkta.driver.helpers.{SparktaSystem, System, SparktaConfigFactory, ConfigFactory}
+import com.stratio.sparkta.driver.factory.SparkContextFactory
+import com.stratio.sparkta.driver.helpers.{ConfigFactory, SparktaConfigFactory, SparktaSystem, System}
 import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.serving.api.actor.ControllerActor
+import com.stratio.sparkta.serving.api.factory.CuratorFactoryHolder
 import com.typesafe.config.Config
 import spray.can.Http
 

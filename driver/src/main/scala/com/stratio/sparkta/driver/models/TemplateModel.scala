@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.dto
+package com.stratio.sparkta.driver.models
 
 import com.stratio.sparkta.sdk.JsoneyString
 import org.codehaus.jettison.json.JSONString
@@ -23,12 +23,12 @@ import org.codehaus.jettison.json.JSONString
  * Class that represents a template used by the frontend to render inputs/outputs.
  * @author anistal
  */
-case class TemplateDto( name: String,
+case class TemplateModel( name: String,
                         description: Map[String,String],
                         icon: Map[String,String],
-                        properties: Seq[PropertyElementDto] )
+                        properties: Seq[PropertyElementModel] )
 
-case class PropertyElementDto(propertyId: String,
+case class PropertyElementModel(propertyId: String,
                               propertyName: String,
                               propertyType: String,
                               regexp: String,

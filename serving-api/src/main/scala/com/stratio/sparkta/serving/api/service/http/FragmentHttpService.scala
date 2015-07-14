@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.service.http
+package com.stratio.sparkta.serving.api.service.http
 
 
 import akka.pattern.ask
-import com.stratio.sparkta.driver.actor._
-import com.stratio.sparkta.driver.constants.HttpConstant
 import com.stratio.sparkta.driver.models.FragmentElementModel
+import com.stratio.sparkta.serving.api.actor._
+import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing.Route

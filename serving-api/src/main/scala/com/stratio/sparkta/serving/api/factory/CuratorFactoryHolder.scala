@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.factory
+package com.stratio.sparkta.serving.api.factory
 
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.{Config, ConfigException}

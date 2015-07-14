@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.service.http
+package com.stratio.sparkta.serving.api.service.http
 
 import akka.actor.{ActorSelection, ActorRef}
 import akka.event.slf4j.SLF4JLogging

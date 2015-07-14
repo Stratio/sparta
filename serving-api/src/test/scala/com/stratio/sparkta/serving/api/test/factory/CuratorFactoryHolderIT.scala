@@ -17,7 +17,7 @@
 package com.stratio.sparkta.driver.test.factory
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.driver.factory.CuratorFactoryHolder
+import com.stratio.sparkta.serving.api.factory.CuratorFactoryHolder
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import org.apache.curator.framework.api.ExistsBuilder
 import org.apache.curator.test.TestingServer

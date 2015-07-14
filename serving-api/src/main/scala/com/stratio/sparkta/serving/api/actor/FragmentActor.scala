@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.actor
+package com.stratio.sparkta.serving.api.actor
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
-<<<<<<< HEAD:serving-api/src/main/scala/com/stratio/sparkta/serving/api/actor/FragmentActor.scala
-import com.stratio.sparkta.driver.actor.FragmentSupervisorActor_response_fragments
-import com.stratio.sparkta.driver.models.{StreamingContextStatusEnum, FragmentElementModel}
-=======
-import com.stratio.sparkta.driver.dto.FragmentElementDto
->>>>>>> template service:driver/src/main/scala/com/stratio/sparkta/driver/actor/FragmentActor.scala
+import com.stratio.sparkta.driver.models.{FragmentElementModel, StreamingContextStatusEnum}
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.DefaultFormats
@@ -37,13 +32,12 @@ import scala.util.Try
 /**
  * List of all possible akka messages used to manage fragments.
  */
-<<<<<<< HEAD:serving-api/src/main/scala/com/stratio/sparkta/serving/api/actor/FragmentActor.scala
+
 case class FragmentSupervisorActor_create(fragment: FragmentElementModel)
-case class FragmentSupervisorActor_findAllByType(fragmentType: String)
-=======
-case class FragmentSupervisorActor_create(fragment: FragmentElementDto)
+
+
 case class FragmentSupervisorActor_findByType(fragmentType: String)
->>>>>>> template service:driver/src/main/scala/com/stratio/sparkta/driver/actor/FragmentActor.scala
+
 case class FragmentSupervisorActor_findByTypeAndName(fragmentType: String, name: String)
 case class FragmentSupervisorActor_deleteByTypeAndName(fragmentType: String, name: String)
 case class FragmentSupervisorActor_response_fragment(fragment: Try[FragmentElementModel])
@@ -64,26 +58,23 @@ class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4
     case FragmentSupervisorActor_findByTypeAndName(fragmentType, name) => doDetail(fragmentType, name)
     case FragmentSupervisorActor_create(fragment) => doCreate(fragment)
     case FragmentSupervisorActor_deleteByTypeAndName(fragmentType, name) => doDeleteByTypeAndName(fragmentType, name)
-    case FragmentSupervisorActor_findByType(fragmentType) => doFindAllByType(fragmentType)
+    case FragmentSupervisorActor_findByType(fragmentType) => doFindByType(fragmentType)
   }
 
-  def doFindAllByType(fragmentType: String): Unit =
+  def doFindByType(fragmentType: String): Unit =
     sender ! FragmentSupervisorActor_response_fragments(Try({
       val children = curatorFramework.getChildren.forPath(FragmentActor.generateFragmentPath(fragmentType))
       JavaConversions.asScalaBuffer(children).toList.map(element =>
         read[FragmentElementModel](new String(curatorFramework.getData.forPath(
-          FragmentActor.generateFragmentPath(fragmentType) +
-            FragmentActor.PathSeparator + element).asInstanceOf[Array[Byte]]))).toSeq
+          s"${FragmentActor.generateFragmentPath(fragmentType)}/$element")))).toSeq
     }))
 
   def doDetail(fragmentType: String, name: String): Unit =
     sender ! new FragmentSupervisorActor_response_fragment(Try({
       read[FragmentElementModel](new String(curatorFramework.getData.forPath(
-        FragmentActor.generateFragmentPath(fragmentType) + FragmentActor.PathSeparator + name)
-        .asInstanceOf[Array[Byte]]))
+        s"${FragmentActor.generateFragmentPath(fragmentType)}/$name)").asInstanceOf[Array[Byte]]))
     }))
-    
-
+  
   def doCreate(fragment: FragmentElementModel): Unit =
     sender ! FragmentSupervisorActor_response(Try({
       curatorFramework.create().creatingParentsIfNeeded().forPath(

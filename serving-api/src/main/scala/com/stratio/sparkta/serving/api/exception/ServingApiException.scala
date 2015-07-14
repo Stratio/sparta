@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.exception
+package com.stratio.sparkta.serving.api.exception
 
 class ServingApiException(msg: String) extends RuntimeException(msg)
 

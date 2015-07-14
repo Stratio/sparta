@@ -19,6 +19,8 @@ package com.stratio.sparkta.driver.test.route
 import com.stratio.sparkta.driver.models._
 import com.stratio.sparkta.driver.service.http.PolicyHttpService
 import com.stratio.sparkta.sdk.DimensionType
+import com.stratio.sparkta.serving.api.actor.{CreateContext, DeleteContext, GetContextStatus, GetAllContextStatus}
+import com.stratio.sparkta.serving.api.service.http.PolicyHttpService
 
 import scala.concurrent.duration._
 

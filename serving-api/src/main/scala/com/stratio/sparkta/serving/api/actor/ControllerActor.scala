@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.actor
+package com.stratio.sparkta.serving.api.actor
 
 import akka.actor._
 import akka.event.slf4j.SLF4JLogging
 import com.gettyimages.spray.swagger.SwaggerHttpService
 import com.stratio.sparkta.driver.models.{ErrorModel, StreamingContextStatusEnum}
 import com.stratio.sparkta.driver.service.StreamingContextService
-import com.stratio.sparkta.driver.service.http.{FragmentHttpService, PolicyHttpService, TemplateHttpService}
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.api.service.http.{TemplateHttpService, FragmentHttpService, PolicyHttpService}
 import com.wordnik.swagger.model.ApiInfo
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.DefaultFormats

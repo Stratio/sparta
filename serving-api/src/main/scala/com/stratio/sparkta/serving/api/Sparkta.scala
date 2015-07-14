@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver
+package com.stratio.sparkta.serving.api.driver
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.driver.constants.AppConstant
+import com.stratio.sparkta.serving.api.constants.AppConstant
 import com.stratio.sparkta.serving.api.helpers.SparktaHelper
 
 /**

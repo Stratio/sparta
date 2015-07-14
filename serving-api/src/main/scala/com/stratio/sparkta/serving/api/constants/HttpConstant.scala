@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.constants
+package com.stratio.sparkta.serving.api.constants
 
 /**
  * HttpConstants used in http services mainly.

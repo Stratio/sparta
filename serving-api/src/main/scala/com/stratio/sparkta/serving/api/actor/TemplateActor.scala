@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.actor
+package com.stratio.sparkta.serving.api.actor
 
-import java.io.{InputStreamReader, File, FileReader}
+import java.io.{File, InputStreamReader}
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.driver.dto.TemplateDto
+import com.stratio.sparkta.driver.models.{StreamingContextStatusEnum, TemplateModel}
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
@@ -34,14 +34,14 @@ import scala.util.Try
  */
 case class TemplateSupervisorActor_findByType(t: String)
 case class TemplateSupervisorActor_findByTypeAndName(t: String, name: String)
-case class TemplateSupervisorActor_response_templates(templates: Try[Seq[TemplateDto]])
-case class TemplateSupervisorActor_response_template(template: Try[TemplateDto])
+case class TemplateSupervisorActor_response_templates(templates: Try[Seq[TemplateModel]])
+case class TemplateSupervisorActor_response_template(template: Try[TemplateModel])
 
 /**
  * Implementation of supported CRUD operations over templates used to composite a policy.
  * @author anistal
  */
-class TemplateActor() extends Actor with Json4sJacksonSupport with SLF4JLogging {
+class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging {
 
   implicit val json4sJacksonFormats = DefaultFormats +
     new EnumNameSerializer(StreamingContextStatusEnum) +
@@ -60,14 +60,14 @@ class TemplateActor() extends Actor with Json4sJacksonSupport with SLF4JLogging 
         .filter(file => file.getName.endsWith(".json"))
         .map(file => {
           log.info(s">Retrieving template: ${file.getName}")
-          read[TemplateDto](new InputStreamReader(
+          read[TemplateModel](new InputStreamReader(
             this.getClass.getClassLoader.getResourceAsStream(s"templates/${t}/${file.getName}")))
         })
     }))
 
   def doFindByTypeAndName(t: String, name: String): Unit = {
     sender ! TemplateSupervisorActor_response_template(Try({
-      read[TemplateDto](new InputStreamReader(
+      read[TemplateModel](new InputStreamReader(
         this.getClass.getClassLoader.getResourceAsStream(s"templates/${t}/${name}.json")))
     }))
   }

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.actor
+package com.stratio.sparkta.serving.api.actor
 
 import akka.actor.SupervisorStrategy.Escalate
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
-import com.stratio.sparkta.driver.exception.ServingApiException
 import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
 import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, PolicyElementModel, StreamingContextStatus, StreamingContextStatusEnum}
 import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.serving.api.exception.ServingApiException
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._

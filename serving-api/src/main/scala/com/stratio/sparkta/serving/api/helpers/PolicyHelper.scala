@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.helpers
+package com.stratio.sparkta.serving.api.helpers
 
 import com.stratio.sparkta.driver.models.FragmentType._
 import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, FragmentType, PolicyElementModel}
