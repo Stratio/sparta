@@ -73,6 +73,16 @@ object DateOperations {
    * Generates a parquet path with the format contained in ParquetPathPattern.
    * @return the object described above.
    */
-  def generateParquetPath(dateTime: Option[DateTime] = Option(DateTime.now())): String =
-    DateTimeFormat.forPattern(ParquetPathPattern).print(dateTime.get)
+  def generateParquetPath(dateTime: Option[DateTime] = Option(DateTime.now()),
+                          parquetPattern : Option[String] = Some(ParquetPathPattern)): String = {
+    val pattern = parquetPattern.get match {
+      case "year" => "/'year='yyyy/'"
+      case "month" => "/'year='yyyy/'month='MM/'"
+      case "day" => "/'year='yyyy/'month='MM/'day='dd/'"
+      case "hour" => "/'year='yyyy/'month='MM/'day='dd/'hour='HH/'"
+      case "minute" => "/'year='yyyy/'month='MM/'day='dd/'hour='HH/'minute='mm/'"
+      case _ => ParquetPathPattern
+    }
+    DateTimeFormat.forPattern(pattern).print(dateTime.get)
+  }
 }

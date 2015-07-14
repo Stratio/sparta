@@ -30,7 +30,7 @@ class RawDataStorageService(sc: SQLContext, path: String, partitionFormat: Strin
 
   case class RawEvent(timeStamp: String, data: String)
 
-  val timeSuffix = DateOperations.generateParquetPath()
+  val timeSuffix = DateOperations.generateParquetPath(parquetPattern = Some((partitionFormat)))
 
   /**
    * From an event, it tries to parse the raw data in this order:
