@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.actor
+package com.stratio.sparkta.serving.api.actor
 
 import akka.actor._
+import akka.event.slf4j.SLF4JLogging
 import com.gettyimages.spray.swagger.SwaggerHttpService
-import com.stratio.sparkta.driver.constants.AkkaConstant
-import com.stratio.sparkta.driver.models.{StreamingContextStatusEnum, ErrorModel}
+import com.stratio.sparkta.driver.models.{ErrorModel, StreamingContextStatusEnum}
 import com.stratio.sparkta.driver.service.StreamingContextService
-import com.stratio.sparkta.driver.service.http.{FragmentHttpService, PolicyHttpService}
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.api.service.http.{TemplateHttpService, FragmentHttpService, PolicyHttpService}
 import com.wordnik.swagger.model.ApiInfo
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.DefaultFormats
@@ -35,7 +35,7 @@ import spray.util.LoggingContext
 import scala.reflect.runtime.universe._
 
 class ControllerActor(streamingContextService: StreamingContextService,
-                      curatorFramework: CuratorFramework) extends HttpServiceActor {
+                      curatorFramework: CuratorFramework) extends HttpServiceActor with SLF4JLogging {
 
   override  implicit def actorRefFactory: ActorContext = context
 
@@ -43,32 +43,37 @@ class ControllerActor(streamingContextService: StreamingContextService,
     new EnumNameSerializer(StreamingContextStatusEnum) +
     new JsoneyStringSerializer()
 
-  implicit def exceptionHandler(implicit log: LoggingContext): ExceptionHandler =
+  implicit def exceptionHandler(implicit logg: LoggingContext): ExceptionHandler =
     ExceptionHandler {
-      case e: Exception =>
+      case exception: Exception =>
         requestUri { uri =>
-          log.warning("Request to {} could not be handled normally", uri)
-          complete(StatusCodes.NotFound, write(ErrorModel("Error", e.getLocalizedMessage)))
+          logg.error(exception.getLocalizedMessage, exception)
+          complete(StatusCodes.NotFound, write(ErrorModel("Error", exception.getLocalizedMessage)))
         }
     }
-
-  val policyRoute = new PolicyHttpService {
-    val streamingActor = context.actorOf(Props(new StreamingActor(streamingContextService)), "streamingActor")
-    override val supervisor = streamingActor
-    override implicit def actorRefFactory: ActorRefFactory = context
-  }
-
-  val fragmentRoute = new FragmentHttpService {
-    val fragmentActor = context.actorOf(Props(new FragmentActor(curatorFramework)), "fragmentActor")
-    override val supervisor = fragmentActor
-    override implicit def actorRefFactory: ActorRefFactory = context
-  }
-
+  
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(
-    policyRoute.routes ~
-    fragmentRoute.routes ~
-    swaggerService.routes ~
-    swaggerUIroutes))
+    serviceRoutes ~
+    swaggerService ~
+    swaggerUIroutes
+  ))
+
+  val serviceRoutes: Route =
+    new PolicyHttpService {
+      val streamingActor = context.actorOf(Props(new StreamingActor(streamingContextService)), "streamingActor")
+      override val supervisor = streamingActor
+      override implicit def actorRefFactory: ActorRefFactory = context
+    }.routes ~
+      new FragmentHttpService {
+        val fragmentActor = context.actorOf(Props(new FragmentActor(curatorFramework)), "fragmentActor")
+        override val supervisor = fragmentActor
+        override implicit def actorRefFactory: ActorRefFactory = context
+      }.routes ~
+      new TemplateHttpService {
+        val templateActor = context.actorOf(Props(new TemplateActor()), "templateActor")
+        override val supervisor = templateActor
+        override implicit def actorRefFactory: ActorRefFactory = context
+      }.routes
 
   def swaggerUIroutes: Route =
     get {
@@ -80,7 +85,10 @@ class ControllerActor(streamingContextService: StreamingContextService,
   }
 
   val swaggerService = new SwaggerHttpService {
-    override def apiTypes: Seq[Type] = Seq(typeOf[PolicyHttpService])
+    override def apiTypes: Seq[Type] = Seq(
+      typeOf[PolicyHttpService],
+      typeOf[FragmentHttpService],
+      typeOf[TemplateHttpService])
     override def apiVersion: String = "1.0"
     override def baseUrl: String = "/" // let swagger-ui determine the host and port
     override def docsPath: String = "api-docs"
@@ -93,5 +101,5 @@ class ControllerActor(streamingContextService: StreamingContextService,
       "Apache V2",
       "http://www.apache.org/licenses/LICENSE-2.0"
     ))
-  }
+  }.routes
 }

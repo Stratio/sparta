@@ -1,0 +1,66 @@
+{
+  "name": "Kafka",
+  "description": {
+    "short": "Reads events from apache-kafka",
+    "long": "Reads events from apache-kafka"
+  },
+  "icon": {
+    "url": "assets/images/datasources/logo-kafka.png"
+  },
+
+  "properties": [
+    {
+      "propertyId": "name",
+      "propertyName": "Name",
+      "propertyType": "text",
+      "regexp": "TODO",
+      "default": "Twitter",
+      "required": false,
+      "tooltip": "Name of the input"
+    },
+    {
+      "propertyId": "type",
+      "propertyName": "Type",
+      "propertyType": "text",
+      "regexp": "[^/\\. \"$]{2,128}",
+      "default": "",
+      "required": false,
+      "tooltip": "The Type of the input it’s used to instantiate specific classes"
+    },
+    {
+      "propertyId": "topics",
+      "propertyName": "Topics",
+      "propertyType": "text",
+      "regexp": "[^/\\. \"$]{1,3}",
+      "default": "",
+      "required": false,
+      "tooltip": "Topics to connect"
+    },
+    {
+      "propertyId": "zookeeperUrl",
+      "propertyName": "ZookeeperUrl",
+      "propertyType": "text",
+      "regexp": "[^/\\. \"$]{1,3}",
+      "required": false,
+      "tooltip": "Zookeeper's url."
+    },
+    {
+      "propertyId": "zookeeperGroupId",
+      "propertyName": "ZookeeperGroupId",
+      "propertyType": "text",
+      "regexp": "[^/\\. \"$]{1,3}",
+      "default": "",
+      "required": false,
+      "tooltip": "Zookeeper's group id."
+    },
+    {
+      "propertyId": "storageLevel",
+      "propertyName": "StorageLevel",
+      "propertyType": "text",
+      "regexp": "[^/\\. \"$]{1,300}",
+      "default": "",
+      "required": false,
+      "tooltip": "It’s a spark parameter used to define the level of the trade-off between memory usage and CPU efficiency"
+    }
+  ]
+}

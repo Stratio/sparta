@@ -19,11 +19,11 @@ package com.stratio.sparkta.driver.test
 import java.io.File
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.driver.constants.AppConstant
 import com.stratio.sparkta.driver.helpers.MockSystem
 import com.stratio.sparkta.driver.models.AggregationPoliciesModel
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.api.constants.AppConstant
 import com.stratio.sparkta.serving.api.helpers.SparktaHelper
 import org.json4s.{DefaultFormats, native}
 import org.junit.runner.RunWith

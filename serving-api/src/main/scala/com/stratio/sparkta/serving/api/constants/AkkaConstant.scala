@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.constants
-
-import com.stratio.sparkta.driver.constants.AppConstant
+package com.stratio.sparkta.serving.api.constants
 
 /**
  * Akka constants with Akka's actor paths.
@@ -26,4 +24,5 @@ object AkkaConstant {
 
   final val StreamingActorAkkaPath = s"akka://${AppConstant.ConfigAppName}/user/streamingActor"
   final val FragmentActorAkkaPath  = s"akka://${AppConstant.ConfigAppName}/user/fragmentActor"
+  final val TemplateActorAkkaPath  = s"akka://${AppConstant.ConfigAppName}/user/templateActor"
 }

@@ -16,23 +16,20 @@
 
 package com.stratio.sparkta.driver.test.route
 
-import com.stratio.sparkta.driver.models._
-import com.stratio.sparkta.driver.service.http.PolicyHttpService
-import com.stratio.sparkta.sdk.DimensionType
-
-import scala.concurrent.duration._
-
-import akka.actor.{ActorRef, ActorRefFactory}
+import akka.actor.ActorRefFactory
 import akka.testkit.TestProbe
+import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
+import com.stratio.sparkta.driver.models._
+import com.stratio.sparkta.sdk.DimensionType
+import com.stratio.sparkta.serving.api.actor.{CreateContext, DeleteContext, GetAllContextStatus, GetContextStatus}
+import com.stratio.sparkta.serving.api.service.http.PolicyHttpService
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 import spray.http.StatusCodes._
 import spray.testkit.ScalatestRouteTest
 
-import StreamingContextStatusEnum._
-import com.stratio.sparkta.driver.actor.{CreateContext, DeleteContext, GetAllContextStatus, GetContextStatus}
-import com.stratio.sparkta.driver.models._
+import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
 class PolicyRoutesSpec extends WordSpecLike

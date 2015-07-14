@@ -1,0 +1,112 @@
+{
+  "name": "Cassandra",
+  "description": {
+    "short": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "long": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema."
+  },
+  "icon": {
+    "url": "assets/images/datasources/logo-cassandra.png"
+  },
+
+  "properties": [
+    {
+      "propertyId": "connectionHost",
+      "propertyName": "ConnectionHost",
+      "propertyType": "text",
+      "regexp": "TODO",
+      "default": "localhost",
+      "required": false,
+      "tooltip": "Different seeds of a cluster of Cassandra."
+    },
+    {
+      "propertyId": "keyspace",
+      "propertyName": "Keyspace",
+      "propertyType": "text",
+      "regexp": "TODO",
+      "default": "sparkta",
+      "required": false,
+      "tooltip": "The name of the KeySpace."
+    },
+    {
+      "propertyId": "keyspaceClass",
+      "propertyName": "KeyspaceClass",
+      "propertyType": "text",
+      "regexp": "TODO",
+      "default": "SimpleStrategy",
+      "required": false,
+      "tooltip": "The class of KeySpace."
+    },
+    {
+      "propertyId": "replication_factor",
+      "propertyName": "ReplicationFactor",
+      "propertyType": "text",
+      "regexp": "TODO",
+      "default": "1",
+      "required": false,
+      "tooltip": "Required if class is SimpleStrategy; otherwise, not used The parameter specifies the number of replicas of data on multiple nodes."
+    },
+    {
+      "propertyId": "compactStorage",
+      "propertyName": "CompactStorage",
+      "propertyType": "text",
+      "regexp": "TODO",
+      "default": "None",
+      "required": false,
+      "tooltip": "The compact storage directive is used for backward compatibility of CQL 2 applications and data in the legacy (Thrift) storage engine format. To take advantage of CQL 3 capabilities, do not use this directive in new applications. When you create a table using compound primary keys, for every piece of data stored, he column name needs to be stored along with it. Instead of each non-primary key column being stored such that each column corresponds to one column on disk, an entire row is stored in a single column on disk, hence the name compact storage."
+    },
+    {
+      "propertyId": "clusteringPrecisions",
+      "propertyName": "ClusteringPrecisions",
+      "propertyType": "text",
+      "regexp": "TODO",
+      "default": "",
+      "required": false,
+      "tooltip": "Clustering columns for the primary key."
+    },
+    {
+      "propertyId": "indexFields",
+      "propertyName": "IndexFields",
+      "propertyType": "text",
+      "regexp": "TODO",
+      "default": "",
+      "required": false,
+      "tooltip": "The indexed fields, could be any aggregate field or clustering column field."
+    },
+    {
+      "propertyId": "textIndexFields",
+      "propertyName": "TextIndexFields",
+      "propertyType": "text",
+      "regexp": "TODO",
+      "default": "",
+      "required": false,
+      "tooltip": "The text index fields, this feature is for the Stratio’s Cassandra Lucene Index"
+    },
+    {
+      "propertyId": "analyzer",
+      "propertyName": "Analyzer",
+      "propertyType": "text",
+      "regexp": "TODO",
+      "default": "None",
+      "required": false,
+      "tooltip": "The analyzer for text index fields, this feature is for the Stratio’s Cassandra Lucene Index"
+    },
+    {
+      "propertyId": "refreshSeconds",
+      "propertyName": "RefreshSeconds",
+      "propertyType": "text",
+      "regexp": "TODO",
+      "default": "1",
+      "required": false,
+      "tooltip": "The number of seconds between refresh lucene index operations, this feature is for the Stratio’s Cassandra Lucene Index"
+    },
+    {
+      "propertyId": "dateFormat",
+      "propertyName": "DateFormat",
+      "propertyType": "text",
+      "regexp": "TODO",
+      "default": "1",
+      "required": false,
+      "tooltip": "The date format for the date fields indexed, this feature is for the Stratio’s Cassandra Lucene Index"
+    }
+  ]
+}

@@ -22,8 +22,8 @@ syntax: glob
 target
 build
 null
-tmp*
-temp*
+tmp
+temp
 test-output
 build.log
 
