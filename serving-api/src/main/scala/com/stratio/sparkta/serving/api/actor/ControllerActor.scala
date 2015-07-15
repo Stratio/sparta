@@ -22,7 +22,7 @@ import com.gettyimages.spray.swagger.SwaggerHttpService
 import com.stratio.sparkta.driver.models.{ErrorModel, StreamingContextStatusEnum}
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.api.service.http.{FragmentHttpService, JobServerHttpService, PolicyHttpService, TemplateHttpService}
+import com.stratio.sparkta.serving.api.service.http._
 import com.typesafe.config.Config
 import com.wordnik.swagger.model.ApiInfo
 import org.apache.curator.framework.CuratorFramework
@@ -60,20 +60,14 @@ class ControllerActor(streamingContextService: StreamingContextService,
       swaggerUIroutes
   ))
 
-  val jobServerActor =
-    context.actorOf(Props(new JobServerActor(configJobServer.getString("host"),
-      configJobServer.getInt("port"))), "jobServerActor")
+
 
   val serviceRoutes: Route =
-    new JobServerHttpService {
-      override val supervisor = jobServerActor
-
-      override implicit def actorRefFactory: ActorRefFactory = context
-    }.routes ~
-      new PolicyHttpService {
-        val streamingActor = context.actorOf(Props(new StreamingActor(streamingContextService, jobServerActor)),
-          "streamingActor")
-        override val supervisor = streamingActor
+      new JobServerHttpService {
+        val jobServerActor =
+          context.actorOf(Props(new JobServerActor(configJobServer.getString("host"),
+            configJobServer.getInt("port"))), "jobServerActor")
+        override val supervisor = jobServerActor
 
         override implicit def actorRefFactory: ActorRefFactory = context
       }.routes ~
@@ -88,7 +82,13 @@ class ControllerActor(streamingContextService: StreamingContextService,
         override val supervisor = templateActor
 
         override implicit def actorRefFactory: ActorRefFactory = context
+      }.routes ~
+      new PolicyHttpService {
+        val policyActor = context.actorOf(Props(new PolicyActor(curatorFramework)), "policyActor")
+        override val supervisor = policyActor
+        override implicit def actorRefFactory: ActorRefFactory = context
       }.routes
+
 
   def swaggerUIroutes: Route =
     get {
@@ -105,6 +105,7 @@ class ControllerActor(streamingContextService: StreamingContextService,
       typeOf[PolicyHttpService],
       typeOf[FragmentHttpService],
       typeOf[TemplateHttpService])
+
 
     override def apiVersion: String = "1.0"
 

@@ -17,19 +17,119 @@
 package com.stratio.sparkta.serving.api.service.http
 
 import akka.pattern.ask
-import com.stratio.sparkta.driver.models._
+import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, FragmentElementModel}
 import com.stratio.sparkta.serving.api.actor._
-import com.stratio.sparkta.serving.api.constants.{AkkaConstant, HttpConstant}
-import com.stratio.sparkta.serving.api.helpers.PolicyHelper
+import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.wordnik.swagger.annotations._
+import spray.http.{StatusCodes, HttpResponse}
 import spray.routing._
 
 import scala.concurrent.Await
-import scala.util.{Failure, Success}
+import scala.util.{Success, Failure}
 
 @Api(value = "/policy", description = "Operations about policies.", position = 0)
 trait PolicyHttpService extends BaseHttpService {
 
+  override def routes: Route = find ~ findAll ~ create ~ update ~ remove
+
+  @ApiOperation(value = "Find a policy from its name", notes = "Returns a policy", httpMethod = "GET",
+    response = classOf[AggregationPoliciesModel])
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
+  ))
+  def find: Route = {
+    path(HttpConstant.PolicyPath / "find" / Segment) { (name) =>
+      get {
+        complete {
+          val future = supervisor ? new PolicySupervisorActor_find(name)
+          Await.result(future, timeout.duration) match {
+            case PolicySupervisorActor_response_policy(Failure(exception)) => throw exception
+            case PolicySupervisorActor_response_policy(Success(policy)) => policy
+          }
+        }
+      }
+    }
+  }
+
+  @ApiOperation(value = "Find a list of policies depending of its type", notes = "Returns a list of policies",
+    httpMethod = "GET", response = classOf[AggregationPoliciesModel])
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
+  ))
+  def findAll: Route = {
+    path(HttpConstant.PolicyPath / "all") {
+      get {
+        complete {
+          val future = supervisor ? new PolicySupervisorActor_findAll()
+          Await.result(future, timeout.duration) match {
+            case PolicySupervisorActor_response_policies(Failure(exception)) => throw exception
+            case PolicySupervisorActor_response_policies(Success(policies)) => policies
+          }
+        }
+      }
+    }
+  }
+
+  @ApiOperation(value = "Creates a policy", notes = "Creates a policy", httpMethod = "POST")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "policy", defaultValue = "", value = "policy json", dataType = "PolicyElementDto",
+      required = true, paramType = "json")))
+  def create: Route = {
+    path(HttpConstant.PolicyPath) {
+      post {
+        entity(as[AggregationPoliciesModel]) { policy =>
+          complete {
+            val future = supervisor ? new PolicySupervisorActor_create(policy)
+            Await.result(future, timeout.duration) match {
+              case PolicySupervisorActor_response(Failure(exception)) => throw exception
+              case PolicySupervisorActor_response(Success(_)) => HttpResponse(StatusCodes.Created)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @ApiOperation(value = "Creates a policy", notes = "Creates a policy", httpMethod = "POST")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "policy", defaultValue = "", value = "policy json", dataType = "PolicyElementDto",
+      required = true, paramType = "json")))
+  def update: Route = {
+    path(HttpConstant.PolicyPath) {
+      put {
+        entity(as[AggregationPoliciesModel]) { policy =>
+          complete {
+            val future = supervisor ? new PolicySupervisorActor_update(policy)
+            Await.result(future, timeout.duration) match {
+              case PolicySupervisorActor_response(Failure(exception)) => throw exception
+              case PolicySupervisorActor_response(Success(_)) => HttpResponse(StatusCodes.Created)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @ApiOperation(value = "Deletes a policy from its name", notes = "Deletes a fragment", httpMethod = "DELETE")
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
+  ))
+  def remove: Route = {
+    path(HttpConstant.PolicyPath / Segment) { (name) =>
+      delete {
+        complete {
+          val future = supervisor ? new PolicySupervisorActor_delete(name)
+          Await.result(future, timeout.duration) match {
+            case PolicySupervisorActor_response(Failure(exception)) => throw exception
+            case PolicySupervisorActor_response(Success(_)) => HttpResponse(StatusCodes.OK)
+          }
+        }
+      }
+    }
+  }
+
+
+  /*
   override def routes: Route = findAll ~ create ~ findById ~ deleteById
   case class Result(message: String, desc: Option[String] = None)
 
@@ -114,4 +214,5 @@ trait PolicyHttpService extends BaseHttpService {
     })
     apConfig.copy(fragments = currentFragments)
   }
+  */
 }

@@ -29,6 +29,8 @@ object HttpConstant {
 
   final val TemplatePath = "template"
 
+  final val PolicyPath = "policy"
+
   /**
    * Http codes.
    */
