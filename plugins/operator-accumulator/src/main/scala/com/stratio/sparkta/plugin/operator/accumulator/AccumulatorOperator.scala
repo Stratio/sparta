@@ -33,19 +33,18 @@ class AccumulatorOperator(name:String, properties: Map[String, JSerializable]) e
   override val writeOperation = WriteOp.AccSet
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
-    if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
-      Some(inputFields.get(inputField.get).get)
-    } else AccumulatorOperator.SOME_EMPTY
+    if (inputField.isDefined && inputFields.contains(inputField.get))
+      applyFilters(inputFields).flatMap(filteredFileds => Some(filteredFileds.get(inputField.get).get))
+    else None
   }
 
   override def processReduce(values : Iterable[Option[Any]]): Option[Any] = {
-    Try(Some(transformValueByTypeOp(returnType, getDistinctValues(values.map(_.get.toString)))))
+    Try(Some(transformValueByTypeOp(returnType, getDistinctValues(values.flatten.map(_.toString)))))
       .getOrElse(AccumulatorOperator.SOME_EMPTY)
   }
 }
 
 private object AccumulatorOperator {
   val SOME_EMPTY = Some("")
-  val SEPARATOR = " "
 }
 

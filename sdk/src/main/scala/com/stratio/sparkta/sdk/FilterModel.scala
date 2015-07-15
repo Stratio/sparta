@@ -16,6 +16,7 @@
 
 package com.stratio.sparkta.sdk
 
-import java.io.{Serializable => JSerializable}
-
-case class FilterModel(field: String, `type`: String, value : JSerializable)
+case class FilterModel(field: String,
+                       `type`: String,
+                       value : Option[String],
+                       dimensionValue: Option[String])

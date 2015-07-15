@@ -31,9 +31,12 @@ class RangeOperator(name: String, properties: Map[String, JSerializable]) extend
 
   override val writeOperation = WriteOp.Range
 
+  override val castingFilterType = TypeOp.Number
+
   override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
-    if ((inputField.isDefined) && (inputFields.contains(inputField.get)))
-      getNumberFromSerializable(inputFields.get(inputField.get).get)
+    if (inputField.isDefined && inputFields.contains(inputField.get))
+      applyFilters(inputFields)
+        .flatMap(filteredFileds => getNumberFromSerializable(inputFields.get(inputField.get).get))
     else None
   }
 

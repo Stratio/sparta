@@ -35,9 +35,12 @@ class StddevOperator(name: String, properties: Map[String, JSerializable]) exten
 
   override val writeOperation = WriteOp.Stddev
 
+  override val castingFilterType = TypeOp.Number
+
   override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
-    if ((inputField.isDefined) && (inputFields.contains(inputField.get)))
-      getNumberFromSerializable(inputFields.get(inputField.get).get)
+    if (inputField.isDefined && inputFields.contains(inputField.get))
+      applyFilters(inputFields)
+        .flatMap(filteredFileds => getNumberFromSerializable(inputFields.get(inputField.get).get))
     else None
   }
 

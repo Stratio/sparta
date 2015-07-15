@@ -31,17 +31,20 @@ class AvgOperator(name: String, properties: Map[String, JSerializable]) extends 
 
   override val writeOperation = WriteOp.Avg
 
+  override val castingFilterType = TypeOp.Number
+
   override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
-    if ((inputField.isDefined) && (inputFields.contains(inputField.get)))
-      getNumberFromSerializable(inputFields.get(inputField.get).get)
+    if (inputField.isDefined && inputFields.contains(inputField.get))
+      applyFilters(inputFields)
+        .flatMap(filteredFileds => getNumberFromSerializable(filteredFileds.get(inputField.get).get))
     else None
   }
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
-    val valuesFiltered = getDistinctValues(values.flatten)
-    valuesFiltered.size match {
+    val distinctValues = getDistinctValues(values.flatten)
+    distinctValues.size match {
       case (nz) if (nz != 0) => Some(transformValueByTypeOp(returnType,
-        valuesFiltered.map(_.asInstanceOf[Number].doubleValue()).sum / valuesFiltered.size))
+        distinctValues.map(_.asInstanceOf[Number].doubleValue()).sum / distinctValues.size))
       case _ => AvgOperator.SOME_ZERO
     }
   }

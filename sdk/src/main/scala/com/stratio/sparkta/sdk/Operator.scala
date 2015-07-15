@@ -32,6 +32,7 @@ import scala.util.Try
 abstract class Operator(name: String, properties: Map[String, JSerializable]) extends Parameterizable(properties)
 with Ordered[Operator] with TypeConversions {
 
+  @transient
   implicit val formats = DefaultFormats
 
   override def operationProps: Map[String, JSerializable] = properties
@@ -41,11 +42,6 @@ with Ordered[Operator] with TypeConversions {
   def key: String = name
 
   def distinct: Boolean = Try(properties.getString("distinct").toBoolean).getOrElse(false)
-
-  def filters: Array[FilterModel] = properties.getString("filters", None) match {
-    case Some(filters) => parse(filters).extract[Array[FilterModel]]
-    case None => Array()
-  }
 
   def writeOperation: WriteOp
 
@@ -58,6 +54,11 @@ with Ordered[Operator] with TypeConversions {
   def returnType: TypeOp = getTypeOperation.getOrElse(defaultTypeOperation)
 
   def compare(operator: Operator): Int = key compareTo operator.key
+
+  def filters: Array[FilterModel] = properties.getString("filters", None) match {
+    case Some(filters) => Try(parse(filters).extract[Array[FilterModel]]).getOrElse(Array())
+    case None => Array()
+  }
 
   //scalastyle:off
   def getNumberFromSerializable(value: JSerializable): Option[Number] =
@@ -75,32 +76,75 @@ with Ordered[Operator] with TypeConversions {
 
   //scalastyle:on
 
-  protected def getDistinctValues[T](values: Iterable[T]): List[T] =
-    if (distinct) {
+  def getDistinctValues[T](values: Iterable[T]): List[T] =
+    if (distinct)
       values.toList.distinct
-    }
     else values.toList
 
-  protected def applyFilters(inputFields: Map[String, JSerializable]): Option[Map[String, JSerializable]] =
-    if (inputFields.map(inputfield => applyFiltering(inputfield)).forall(result => result)) Some(inputFields) else None
+  def applyFilters(inputFields: Map[String, JSerializable]): Option[Map[String, JSerializable]] =
+    if (inputFields.map(inputField => doFiltering(inputField, inputFields)).forall(result => result))
+      Some(inputFields)
+    else None
 
-  protected def applyFiltering(inputField: (String, JSerializable)): Boolean = {
-    filters.map(filter => if (inputField._1 == filter.field) {
+  private def doFiltering(inputField: (String, JSerializable),
+                               inputFields: Map[String, JSerializable]): Boolean = {
+    filters.map(filter =>
+      if (inputField._1 == filter.field && (filter.dimensionValue.isDefined || filter.value.isDefined)) {
       castingFilterType match {
-        case TypeOp.Number =>
-          applyFilteringType(filter.`type`,
-            new RichDouble(inputField._2.toString.toDouble),
-            filter.value.toString.toDouble)
-        case _ =>
-          applyFilteringType(filter.`type`, new StringOps(inputField._2.toString), filter.value.toString)
+          case TypeOp.Number => {
+            val doubleValues = getDoubleValues(inputField._2, filter, inputFields)
+            applyfilterCauses(filter, doubleValues._1, doubleValues._2, doubleValues._3)
+          }
+          case _ => {
+            val stringValues = getStringValues(inputField._2, filter, inputFields)
+            applyfilterCauses(filter, stringValues._1, stringValues._2, stringValues._3)
+          }
+        }
       }
-    } else true).forall(result => result)
+      else true
+    ).forall(result => result)
   }
 
-  protected def applyFilteringType[T <: Ordered[U], U](filterType: String, value: T, filterValue: U): Boolean =
+  private def applyfilterCauses[T <: Ordered[U], U](filter: FilterModel,
+                                            value: T,
+                                            filterValue: Option[U],
+                                            dimensionValue: Option[U]): Boolean = {
+    Seq(
+      if(filter.value.isDefined && filterValue.isDefined)
+        doFilteringType(filter.`type`, value, filterValue.get)
+      else true,
+      if(filter.dimensionValue.isDefined && dimensionValue.isDefined)
+        doFilteringType(filter.`type`, value, dimensionValue.get)
+      else true
+    ).forall(result => result)
+  }
+
+  private def getDoubleValues(inputValue: JSerializable,
+                            filter: FilterModel,
+                            inputFields: Map[String, JSerializable]): (RichDouble, Option[Double], Option[Double]) = {
+
+    (new RichDouble(inputValue.toString.toDouble),
+      if(filter.value.isDefined) Some(filter.value.get.toString.toDouble) else None,
+      if (filter.dimensionValue.isDefined && inputFields.contains(filter.dimensionValue.get))
+        Some(inputFields.get(filter.dimensionValue.get).get.toString.toDouble)
+      else None)
+  }
+
+  private def getStringValues(inputValue: JSerializable,
+                                filter: FilterModel,
+                                inputFields: Map[String, JSerializable])
+  : (StringOps, Option[String], Option[String]) = {
+
+    (new StringOps(inputValue.toString), if(filter.value.isDefined) Some(filter.value.get.toString) else None,
+      if (filter.dimensionValue.isDefined && inputFields.contains(filter.dimensionValue.get))
+        Some(inputFields.get(filter.dimensionValue.get).get.toString)
+      else None)
+  }
+
+  private def doFilteringType[T <: Ordered[U], U](filterType: String, value: T, filterValue: U): Boolean =
     filterType match {
-      case "=" => value == filterValue
-      case "!=" => value != filterValue
+      case "=" => value.compare(filterValue) == 0
+      case "!=" => value.compare(filterValue) == -1
       case "<" => value < filterValue
       case "<=" => value <= filterValue
       case ">" => value > filterValue
