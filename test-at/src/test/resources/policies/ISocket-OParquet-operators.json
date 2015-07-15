@@ -17,6 +17,7 @@
     {
       "name": "in-socket",
       "type": "Socket",
+      "jarFile": "input-socket-plugin.jar",
       "configuration": {
         "hostname": "localhost",
         "port": "10666"
@@ -28,6 +29,7 @@
       "name": "morphline-parser",
       "order": 0,
       "type": "Morphlines",
+      "jarFile" : "parser-morphlines-plugin.jar",
       "outputFields": [
         "product",
         "price"
@@ -60,6 +62,7 @@
       "name": "timestamp",
       "order": 1,
       "type": "DateTime",
+      "jarFile" : "parser-datetime-plugin.jar",
       "outputFields": [
         "timestamp"
       ],
@@ -81,6 +84,7 @@
         {
           "name": "acc_price",
           "type": "Accumulator",
+          "jarFile" : "operator-accumulator-plugin.jar",
           "configuration": {
             "inputField": "price"
           }
@@ -88,6 +92,7 @@
         {
           "name": "avg_price",
           "type": "Avg",
+          "jarFile" : "operator-avg-plugin.jar",
           "configuration": {
             "inputField": "price"
           }
@@ -95,11 +100,13 @@
         {
           "name": "count_price",
           "type": "Count",
+          "jarFile" : "operator-count-plugin.jar",
           "configuration": {}
         },
         {
           "name": "first_price",
           "type": "FirstValue",
+          "jarFile" : "operator-firstValue-plugin.jar",
           "configuration": {
             "inputField": "price"
           }
@@ -107,6 +114,7 @@
         {
           "name": "fulltext_price",
           "type": "FullText",
+          "jarFile" : "operator-fullText-plugin.jar",
           "configuration": {
             "inputField": "price"
           }
@@ -114,6 +122,7 @@
         {
           "name": "last_price",
           "type": "LastValue",
+          "jarFile" : "operator-lastValue-plugin.jar",
           "configuration": {
             "inputField": "price"
           }
@@ -121,6 +130,7 @@
         {
           "name": "max_price",
           "type": "Max",
+          "jarFile" : "operator-max-plugin.jar",
           "configuration": {
             "inputField": "price"
           }
@@ -128,6 +138,7 @@
         {
           "name": "median_price",
           "type": "Median",
+          "jarFile" : "operator-median-plugin.jar",
           "configuration": {
             "inputField": "price"
           }
@@ -135,6 +146,7 @@
         {
           "name": "min_price",
           "type": "Min",
+          "jarFile" : "operator-min-plugin.jar",
           "configuration": {
             "inputField": "price"
           }
@@ -142,6 +154,7 @@
         {
           "name": "range_price",
           "type": "Range",
+          "jarFile" : "operator-range-plugin.jar",
           "configuration": {
             "inputField": "price"
           }
@@ -149,6 +162,7 @@
         {
           "name": "stddev_price",
           "type": "Stddev",
+          "jarFile" : "operator-stddev-plugin.jar",
           "configuration": {
             "inputField": "price"
           }
@@ -156,6 +170,7 @@
         {
           "name": "sum_price",
           "type": "Sum",
+          "jarFile" : "operator-sum-plugin.jar",
           "configuration": {
             "inputField": "price"
           }
@@ -163,6 +178,7 @@
         {
           "name": "variance_price",
           "type": "Variance",
+          "jarFile" : "operator-variance-plugin.jar",
           "configuration": {
             "inputField": "price"
           }
@@ -174,6 +190,7 @@
     {
       "name": "out-parquet",
       "type": "Parquet",
+      "jarFile" : "output-parquet-plugin.jar",
       "configuration": {
         "path": "/tmp/sparkta/operators/parquet",
         "datePattern": "yyyy/MM/dd",

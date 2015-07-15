@@ -19,9 +19,6 @@ package com.stratio.sparkta.testat
 import java.io.{File, PrintStream}
 import java.net._
 import java.nio.channels.ServerSocketChannel
-import com.stratio.sparkta.driver.helpers.MockSystem
-import com.stratio.sparkta.serving.api.helpers.SparktaHelper
-
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.io.Source
@@ -39,9 +36,11 @@ import spray.http.StatusCodes._
 import spray.http._
 import spray.testkit.ScalatestRouteTest
 
-import com.stratio.sparkta.driver.constants.AppConstant
+import com.stratio.sparkta.driver.helpers.MockSystem
 import com.stratio.sparkta.driver.models.AggregationPoliciesModel
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.api.constants.AppConstant
+import com.stratio.sparkta.serving.api.helpers.SparktaHelper
 
 /**
  * Common operations that will be used in Acceptance Tests. All AT must extends from it.
@@ -115,7 +114,7 @@ trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogg
 
     if (fileForIde.exists()) {
       new File(".").getCanonicalPath
-    } else if(new File("../.", "plugins").exists()) {
+    } else if (new File("../.", "plugins").exists()) {
       new File("../.").getCanonicalPath
     } else {
       new File("../../.").getCanonicalPath

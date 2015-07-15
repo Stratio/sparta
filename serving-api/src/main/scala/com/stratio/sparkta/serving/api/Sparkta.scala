@@ -17,6 +17,7 @@
 package com.stratio.sparkta.serving.api.driver
 
 import akka.event.slf4j.SLF4JLogging
+
 import com.stratio.sparkta.serving.api.constants.AppConstant
 import com.stratio.sparkta.serving.api.helpers.SparktaHelper
 
@@ -31,5 +32,4 @@ object Sparkta extends App with SLF4JLogging {
   val configApi     = SparktaHelper.initConfig(AppConstant.ConfigApi, Some(configSparkta))
 
   SparktaHelper.initAkkaSystem(configSparkta, configApi, jars, AppConstant.ConfigAppName)
-
 }
