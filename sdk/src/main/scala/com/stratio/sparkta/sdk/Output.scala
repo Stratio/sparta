@@ -42,7 +42,7 @@ abstract class Output(keyName: String,
     log.info("Operation types is empty, you don't have aggregations defined in your policy.")
   }
 
-  val sqlContext: SQLContext = new SQLContext(sparkContext)
+  lazy val sqlContext: SQLContext = new SQLContext(sparkContext)
 
   def getName: String = keyName
 

@@ -16,15 +16,10 @@
 
 package com.stratio.sparkta.testat.http
 
-import java.io.File
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 
-import akka.actor.ActorRefFactory
-import akka.testkit.TestProbe
 import akka.util.Timeout
-import com.stratio.sparkta.driver.actor._
-import com.stratio.sparkta.driver.helpers.sparkta.SparktaHelper
-import com.stratio.sparkta.serving.api.service.http.TemplateHttpService
-import com.stratio.sparkta.testat.SparktaATSuite
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
@@ -33,15 +28,13 @@ import spray.http.StatusCodes._
 import spray.http._
 import spray.testkit.ScalatestRouteTest
 
-import scala.concurrent.{Await, Future}
-import scala.concurrent.duration._
-import scala.io.Source
+import com.stratio.sparkta.testat.SparktaATSuite
 
-@RunWith(classOf[JUnitRunner])
+//@RunWith(classOf[JUnitRunner])
 class TemplateServiceSpec extends SparktaATSuite
-  with WordSpecLike
-  with ScalatestRouteTest
-  with Matchers {
+with WordSpecLike
+with ScalatestRouteTest
+with Matchers {
 
   override val policyFile = ""
   override val PathToCsv = ""
@@ -66,5 +59,4 @@ class TemplateServiceSpec extends SparktaATSuite
   override def extraBefore: Unit = {}
 
   override def extraAfter: Unit = {}
-
 }

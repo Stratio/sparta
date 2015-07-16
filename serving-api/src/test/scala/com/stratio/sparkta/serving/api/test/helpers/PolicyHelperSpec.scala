@@ -47,18 +47,18 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
       transformations = Seq(),
       cubes = Seq(),
       inputs = Seq(
-        PolicyElementModel("input1", "input", Map())),
+        PolicyElementModel("input1", "input")),
       outputs = Seq(
-        PolicyElementModel("output1", "output", Map())),
+        PolicyElementModel("output1", "output")),
       fragments = Seq(
         FragmentElementModel(
           name = "fragment1",
           fragmentType = "input",
-          element = PolicyElementModel("inputF", "input", Map())),
+          element = PolicyElementModel("inputF", "input")),
         FragmentElementModel(
           name = "fragment1",
           fragmentType = "output",
-          element = PolicyElementModel("outputF", "output", Map()))),
+          element = PolicyElementModel("outputF", "output"))),
       checkpointing = checkpointDto
     )
 
@@ -67,13 +67,13 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
 
     Then("inputs/outputs must have the existing input/outputs and the parsed input fragment")
     result.inputs.toSet should equal(Seq(
-      PolicyElementModel("input1", "input", Map()),
-      PolicyElementModel("inputF", "input", Map())).toSet
+      PolicyElementModel("input1", "input"),
+      PolicyElementModel("inputF", "input")).toSet
     )
 
     result.outputs.toSet should equal(Seq(
-      PolicyElementModel("output1", "output", Map()),
-      PolicyElementModel("outputF", "output", Map())).toSet
+      PolicyElementModel("output1", "output"),
+      PolicyElementModel("outputF", "output")).toSet
     )
   }
 }

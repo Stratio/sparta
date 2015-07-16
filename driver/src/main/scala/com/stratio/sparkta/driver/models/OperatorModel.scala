@@ -18,4 +18,5 @@ package com.stratio.sparkta.driver.models
 
 import com.stratio.sparkta.sdk.JsoneyString
 
-case class OperatorModel(`type`: String, name: String, configuration: Map[String, JsoneyString])
+case class OperatorModel(`type`: String, name: String, configuration: Map[String, JsoneyString],
+                         jarFile: Option[String] = None)

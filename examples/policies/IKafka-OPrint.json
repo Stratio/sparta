@@ -17,6 +17,7 @@
     {
       "name": "in-kafka",
       "type": "Kafka",
+      "jarFile": "input-kakfka-plugin.jar",
       "configuration": {
         "topics": "test:1",
         "kafkaParams.zookeeper.connect": "localhost:2181",
@@ -30,6 +31,7 @@
       "name": "morphline",
       "order": 0,
       "type": "Morphlines",
+      "jarFile": "parser-morphlines-plugin.jar",
       "outputFields": [
         "appName",
         "timestamp",
@@ -76,6 +78,7 @@
         {
           "name": "countoperator",
           "type": "Count",
+          "jarFile": "operator-count-plugin.jar",
           "configuration": {}
         }
       ]
@@ -85,6 +88,7 @@
     {
       "name": "out-print",
       "type": "Print",
+      "jarFile": "output-print-plugin.jar",
       "configuration": {}
     }
   ]

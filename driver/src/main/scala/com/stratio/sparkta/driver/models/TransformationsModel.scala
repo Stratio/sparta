@@ -18,10 +18,11 @@ package com.stratio.sparkta.driver.models
 
 import com.stratio.sparkta.sdk.{Input, JsoneyString}
 
-case class TransformationsModel (name: String,
-                              `type`: String,
-                              order: Integer,
-                              inputField: String = Input.RawDataKey,
-                              outputFields: Seq[String],
-                              configuration: Map[String, JsoneyString])
+case class TransformationsModel(name: String,
+                                `type`: String,
+                                order: Integer,
+                                inputField: String = Input.RawDataKey,
+                                outputFields: Seq[String],
+                                configuration: Map[String, JsoneyString] = Map(),
+                                jarFile: Option[String] = None)
 

@@ -18,4 +18,5 @@ package com.stratio.sparkta.driver.models
 
 import com.stratio.sparkta.sdk.JsoneyString
 
-case class PolicyElementModel(name: String, `type`: String, configuration: Map[String, JsoneyString])
+case class PolicyElementModel(name: String, `type`: String, configuration: Map[String, JsoneyString] = Map(),
+                              jarFile: Option[String] = None)
