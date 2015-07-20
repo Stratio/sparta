@@ -43,13 +43,13 @@ class SupervisorActorSpec
   with WordSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with MockitoSugar {
 
   var streamingContextService: Option[StreamingContextService] = None
-  val jobServerActor = system.actorOf(Props(new JobServerActor("", 8090)), "jobServerActor")
+  val jobServerActor = None
 
   before {
     streamingContextService = Some(mock[StreamingContextService])
     val ssc = mock[StreamingContext]
     doNothing().when(ssc).start()
-    when(streamingContextService.get.createStreamingContext(any[AggregationPoliciesModel], any[ActorRef]))
+    when(streamingContextService.get.createStreamingContext(any[AggregationPoliciesModel], any[Option[ActorRef]]))
       .thenReturn(ssc)
   }
 
@@ -67,7 +67,7 @@ class SupervisorActorSpec
       val errorMessage = "An error occurred"
 
 
-      when(streamingContextService.get.createStreamingContext(any[AggregationPoliciesModel], any[ActorRef]))
+      when(streamingContextService.get.createStreamingContext(any[AggregationPoliciesModel], any[Option[ActorRef]]))
         .thenThrow(new ServingApiException(errorMessage))
 
       within(5000 millis) {
@@ -84,7 +84,7 @@ class SupervisorActorSpec
       val supervisorRef = createSupervisorActor(jobServerActor)
       val mockErrorMessage: String = "A mock error occurred"
 
-      when(streamingContextService.get.createStreamingContext(any[AggregationPoliciesModel], any[ActorRef]))
+      when(streamingContextService.get.createStreamingContext(any[AggregationPoliciesModel], any[Option[ActorRef]]))
         .thenThrow(new MockException(mockErrorMessage))
       within(5000 millis) {
         supervisorRef ! new CreateContext(createPolicyConfiguration("test-1"))
@@ -171,7 +171,7 @@ class SupervisorActorSpec
     }
   }
 
-  private def createSupervisorActor(jobServerActor: ActorRef): ActorRef = {
+  private def createSupervisorActor(jobServerActor: Option[ActorRef]): ActorRef = {
     system.actorOf(Props(new StreamingActor(streamingContextService.get, jobServerActor)))
   }
 

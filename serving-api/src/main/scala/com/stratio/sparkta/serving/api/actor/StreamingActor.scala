@@ -43,7 +43,7 @@ case class CreateFragment(fragment: PolicyElementModel)
 
 case class ContextActorStatus(actor: ActorRef, status: StreamingContextStatusEnum.Status, description: Option[String])
 
-class StreamingActor(streamingContextService: StreamingContextService, jobServerRef: ActorRef)
+class StreamingActor(streamingContextService: StreamingContextService, jobServerRef: Option[ActorRef])
   extends InstrumentedActor {
 
   private var contextActors: Map[String, ContextActorStatus] = Map()

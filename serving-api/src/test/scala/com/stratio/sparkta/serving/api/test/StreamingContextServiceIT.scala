@@ -71,7 +71,7 @@ with SLF4JLogging {
       implicit val formats = DefaultFormats + new JsoneyStringSerializer()
       val apConfig = native.Serialization.read[AggregationPoliciesModel](json)
 
-      val jobServerActor = system.actorOf(Props(new JobServerActor("", 8090)), "jobServerActor")
+      val jobServerActor = None
       val ssc = streamingContextService.createStreamingContext(apConfig, jobServerActor)
 
       ssc should not be None
