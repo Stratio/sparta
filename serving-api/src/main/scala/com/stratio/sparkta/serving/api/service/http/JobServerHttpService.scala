@@ -18,9 +18,9 @@ package com.stratio.sparkta.serving.api.service.http
 
 import akka.pattern.ask
 import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.core.messages.ActorsMessages._
 import com.wordnik.swagger.annotations._
 import spray.routing._
-import com.stratio.sparkta.serving.core.messages.ActorsMessages._
 
 import scala.concurrent.Await
 import scala.util.{Failure, Success}

@@ -46,7 +46,11 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
     if (!host.isEmpty && port > 0) {
       val responseParsed: JValue = parse(Http(s"http://${host}:${port}/jars").asString.body)
       sender ! JobServerSupervisorActor_response_getJars(Try(responseParsed))
-    } else log.info("JobServer host and port is not defined in configuration file")
+    } else {
+      sender ! JobServerSupervisorActor_response_getJars(
+        Try(throw new Exception("JobServer host and port is not defined in configuration file"))
+      )
+    }
   }
 
   def doUploadJars(files: Seq[File]): Unit = {
@@ -56,7 +60,10 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
         s"${file.getName} : ${resultUpload}\n"
       }).mkString(",")
       sender ! JobServerSupervisorActor_response_uploadJars(Try(uploadsResults))
-    } else log.info("JobServer host and port is not defined in configuration file")
+    } else {
+      sender ! JobServerSupervisorActor_response_uploadJars(
+        Try(throw new Exception("JobServer host and port is not defined in configuration file")))
+    }
   }
 
   def uploadFile(fileName: String, filePath: String): String = {

@@ -21,14 +21,18 @@ import java.io.File
 import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
+import akka.util.Timeout
 import com.stratio.sparkta.driver.factory._
 import com.stratio.sparkta.driver.models._
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.messages.ActorsMessages._
 import com.typesafe.config.Config
 import org.apache.spark.streaming.StreamingContext
+import scala.concurrent.duration._
 
 class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging {
+
+  implicit val timeout: Timeout = Timeout(15.seconds)
 
   def createStreamingContext(apConfig: AggregationPoliciesModel, jobServerRef: ActorRef): StreamingContext = {
     val OutputsSparkConfiguration = "getSparkConfiguration"
