@@ -45,24 +45,36 @@ object AggregateOperations {
                aggregations: Map[String, Option[Any]],
                fixedAggregation: Map[String, Option[Any]],
                fixedDimensions: Option[Seq[(String, Any)]],
-               idCalculated: Boolean,
-               timeName: String): (Option[String], Row) = {
-    val dimensionValuesFiltered = filterDimensionValuesByName(dimensionValuesT.dimensionValues,
-      if (timeName.isEmpty) None else Some(timeName))
+               idCalculated: Boolean): (Option[String], Row) = {
+    val timeDimension = dimensionValuesT.timeDimension;
+    val dimensionValuesFiltered =
+      filterDimensionValuesByName(dimensionValuesT.dimensionValues,
+      if (timeDimension.isEmpty) None else Some(timeDimension))
+
     val namesDim = dimensionValuesNames(dimensionValuesFiltered.sorted)
+
     val (valuesDim, valuesAgg) = toSeq(dimensionValuesFiltered, aggregations ++ fixedAggregation)
+
     val (namesFixed, valuesFixed) = if (fixedDimensions.isDefined) {
-      val fixedDimensionsSorted = fixedDimensions.get.filter(fb => fb._1 != timeName)
+      val fixedDimensionsSorted = fixedDimensions.get
+        .filter(fb => fb._1 != timeDimension)
         .sortWith((dimension1, dimension2) => dimension1._1 < dimension2._1)
-      (namesDim ++ fixedDimensionsSorted.map(_._1) ++ Seq(timeName),
-        valuesDim ++ fixedDimensionsSorted.map(_._2) ++
-          Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time)))
-    } else (namesDim ++ Seq(timeName),
-      valuesDim ++ Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time)))
+      (
+        namesDim ++ fixedDimensionsSorted.map(_._1) ++ Seq(timeDimension),
+        valuesDim ++ fixedDimensionsSorted.map(_._2) ++ Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time))
+      )
+    } else
+      (
+        namesDim ++ Seq(timeDimension),
+        valuesDim ++ Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time))
+      )
+
     val (keysId, rowId) = getNamesValues(namesFixed, valuesFixed, idCalculated)
 
-    if (keysId.length > 0) (Some(keysId.mkString(Output.Separator)), Row.fromSeq(rowId ++ valuesAgg))
-    else (None, Row.fromSeq(rowId ++ valuesAgg))
+    if (keysId.length > 0)
+      (Some(keysId.mkString(Output.Separator)), Row.fromSeq(rowId ++ valuesAgg))
+    else
+      (None, Row.fromSeq(rowId ++ valuesAgg))
   }
 
   def toSeq(dimensionValues: Seq[DimensionValue], aggregations: Map[String, Option[Any]]): (Seq[Any], Seq[Any]) =

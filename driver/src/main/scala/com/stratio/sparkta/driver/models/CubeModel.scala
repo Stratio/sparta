@@ -19,6 +19,7 @@ package com.stratio.sparkta.driver.models
 import com.stratio.sparkta.sdk.DimensionType
 
 case class CubeModel(name: String,
+                   checkpointConfig: CheckpointModel,
                    dimensions: Seq[DimensionModel],
                    operators: Seq[OperatorModel],
                    multiplexer: String = CubeModel.Multiplexer)

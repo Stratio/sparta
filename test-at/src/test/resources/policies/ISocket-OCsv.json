@@ -1,17 +1,11 @@
 {
   "name": "ATSocketCSV",
   "sparkStreamingWindow": 2000,
+  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "partitionFormat": "day",
     "path": "myTestParquetPath"
-  },
-  "checkpointing": {
-    "path": "checkpoint",
-    "timeDimension": "timestamp",
-    "granularity": "day",
-    "interval": 30000,
-    "timeAvailability": 600000
   },
   "inputs": [
     {
@@ -61,6 +55,12 @@
   "cubes": [
     {
       "name": "testCube",
+      "checkpointConfig": {
+        "timeDimension": "timestamp",
+        "granularity": "day",
+        "interval": 30000,
+        "timeAvailability": 600000
+      },
       "dimensions": [
         {
           "name": "product",

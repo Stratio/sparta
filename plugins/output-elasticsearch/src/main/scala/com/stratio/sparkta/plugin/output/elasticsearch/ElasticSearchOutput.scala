@@ -47,9 +47,8 @@ class ElasticSearchOutput(keyName: String,
                           properties: Map[String, JSerializable],
                           @transient sparkContext: SparkContext,
                           operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                          bcSchema: Option[Broadcast[Seq[TableSchema]]],
-                          timeName: String)
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema, timeName) with ElasticSearchDAO {
+                          bcSchema: Option[Broadcast[Seq[TableSchema]]])
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with ElasticSearchDAO {
 
   override val dateType = getDateTimeType(properties.getString("dateType", None))
 
@@ -75,12 +74,12 @@ class ElasticSearchOutput(keyName: String,
   private def createIndices = {
     bcSchema.get.value.filter(tschema => (tschema.outputName == keyName)).foreach(tschemaFiltered => {
       val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
-      createIndexAcordingToSchema(tableSchemaTime.tableName, tableSchemaTime.schema)
+      createIndexAccordingToSchema(tableSchemaTime.tableName, tableSchemaTime.schema)
     })
     elasticClient.close()
   }
 
-  private def createIndexAcordingToSchema(tableName: String, schema: StructType) = {
+  private def createIndexAccordingToSchema(tableName: String, schema: StructType) = {
     elasticClient.execute {
       create index tableName shards 1 replicas 0 mappings (
         mappingType.get.toLowerCase as (getElasticsearchFields(schema))
@@ -92,8 +91,8 @@ class ElasticSearchOutput(keyName: String,
     persistDataFrame(stream)
   }
 
-  override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
-    val sparkConfig = getSparkConfig(timeName, idField.isDefined || isAutoCalculateId)
+  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
+    val sparkConfig = getSparkConfig(timeDimension, idField.isDefined || isAutoCalculateId)
     val indexNameType = (tableName + "/" + mappingType.get).toLowerCase
     dataFrame.saveToEs(indexNameType, sparkConfig)
   }

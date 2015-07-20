@@ -1,33 +1,33 @@
 {
   "name": "policy-Twitter-MongoDb",
   "sparkStreamingWindow": 6000,
+  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "partitionFormat": "day",
     "path": "myTestParquetPath"
-  },
-  "checkpointing": {
-    "path": "checkpoint",
-    "timeDimension": "minute",
-    "granularity": "minute",
-    "interval": 30000,
-    "timeAvailability": 60000
   },
   "inputs": [
     {
       "name": "in-twitter",
       "type": "Twitter",
       "configuration": {
-        "consumerKey": "*****",
-        "consumerSecret": "*****",
-        "accessToken": "*****",
-        "accessTokenSecret": "*****"
+        "consumerKey": "BuTtXWAOACTWafeyxHzr0mbeI",
+        "consumerSecret": "ZyjB40TDHA3s3JAsKy7X4gH72zlalONKhvf6JO3oMEP103SEJq",
+        "accessToken": "3190438006-Q1omUVbUtKqeCemixPqlAiSFlFeNsTjdOIbZVus",
+        "accessTokenSecret": "gyMF5bl2AjXWFdrOniLv5Cz8ITpDxhN4gP74WanlUBVwd"
       }
     }
   ],
   "cubes": [
     {
-      "name": "testCube",
+      "name": "testCube1",
+      "checkpointConfig": {
+        "timeDimension": "hour",
+        "granularity": "hour",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "name": "hashtags",
@@ -50,6 +50,125 @@
         {
           "name": "userLocation",
           "field": "userLocation"
+        },
+        {
+          "name": "minute",
+          "field": "timestamp",
+          "type": "DateTime",
+          "precision": "minute"
+        }
+      ],
+      "operators": [
+        {
+          "name": "countoperator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "name": "distinctoperator",
+          "type": "Count",
+          "configuration": {
+            "distinctFields": "wordsN"
+          }
+        },
+        {
+          "name": "sumoperator",
+          "type": "Sum",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "name": "maxoperator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "name": "minoperator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "name": "avgoperator",
+          "type": "Avg",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "name": "medianoperator",
+          "type": "Median",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "name": "varianceoperator",
+          "type": "Variance",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "name": "stddevoperator",
+          "type": "Stddev",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "name": "fullTextoperator",
+          "type": "FullText",
+          "configuration": {
+            "inputField": "userLocation"
+          }
+        },
+        {
+          "name": "lastValueoperator",
+          "type": "LastValue",
+          "configuration": {
+            "inputField": "retweets"
+          }
+        },
+        {
+          "name": "accumulatoroperator",
+          "type": "Accumulator",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        }
+      ]
+    },
+    {
+      "name": "testCube2",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
+      "dimensions": [
+        {
+          "name": "hashtags",
+          "field": "status",
+          "type": "TwitterStatus",
+          "precision": "hashtags"
+        },
+        {
+          "name": "firsthashtag",
+          "field": "status",
+          "type": "TwitterStatus",
+          "precision": "firsthashtag"
+        },
+        {
+          "name": "retweets",
+          "field": "status",
+          "type": "TwitterStatus",
+          "precision": "retweets"
         },
         {
           "name": "precision3",

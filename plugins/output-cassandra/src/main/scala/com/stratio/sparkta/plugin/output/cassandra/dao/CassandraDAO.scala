@@ -57,11 +57,11 @@ trait CassandraDAO extends Closeable with Logging {
 
   def createKeypace: Boolean = connector.exists(doCreateKeyspace(_))
 
-  def createTables(tSchemas: Seq[TableSchema], clusteringTime: String, isAutoCalculateId: Boolean): Boolean =
-    connector.exists(doCreateTables(_, tSchemas, clusteringTime, isAutoCalculateId))
+  def createTables(tSchemas: Seq[TableSchema], isAutoCalculateId: Boolean): Boolean =
+    connector.exists(doCreateTables(_, tSchemas, isAutoCalculateId))
 
-  def createIndexes(tSchemas: Seq[TableSchema], clusteringTime: String, isAutoCalculateId: Boolean): Boolean =
-    connector.exists(doCreateIndexes(_, tSchemas, clusteringTime, isAutoCalculateId))
+  def createIndexes(tSchemas: Seq[TableSchema], isAutoCalculateId: Boolean): Boolean =
+    connector.exists(doCreateIndexes(_, tSchemas, isAutoCalculateId))
 
   def createTextIndexes(tSchemas: Seq[TableSchema]): Boolean = connector.exists(doCreateTextIndexes(_, tSchemas))
 
@@ -74,10 +74,9 @@ trait CassandraDAO extends Closeable with Logging {
 
   protected def doCreateTables(conn: CassandraConnector,
                                tSchemas: Seq[TableSchema],
-                               clusteringTime: String,
                                isAutoCalculateId: Boolean): Boolean = {
     tSchemas.map(tableSchema =>
-      createTable(conn, tableSchema.tableName, tableSchema.schema, clusteringTime, isAutoCalculateId))
+      createTable(conn, tableSchema.tableName, tableSchema.schema, tableSchema.timeDimension, isAutoCalculateId))
       .forall(result => result)
   }
 
@@ -101,14 +100,13 @@ trait CassandraDAO extends Closeable with Logging {
 
   protected def doCreateIndexes(conn: CassandraConnector,
                                 tSchemas: Seq[TableSchema],
-                                clusteringTime: String,
                                 isAutoCalculateId: Boolean): Boolean = {
     indexFields match {
       case Some(fields) => {
         val seqResults = for {
           tableSchema <- tSchemas
           indexField <- fields
-          primaryKey = getPrimaryKey(tableSchema.schema, clusteringTime, isAutoCalculateId)
+          primaryKey = getPartitionKey(tableSchema.schema, tableSchema.timeDimension, isAutoCalculateId)
           created = if (!primaryKey.contains(indexField)) {
             createIndex(conn, tableSchema.tableName, indexField)
           } else {
@@ -188,13 +186,13 @@ trait CassandraDAO extends Closeable with Logging {
                                    clusteringTime: String,
                                    isAutoCalculateId: Boolean): Option[String] = {
     val fields = schema.map(field => field.name + " " + dataTypeToCassandraType(field.dataType)).mkString(",")
-    val primaryKey = getPrimaryKey(schema, clusteringTime, isAutoCalculateId).mkString(",")
+    val partitionKey = getPartitionKey(schema, clusteringTime, isAutoCalculateId).mkString(",")
     val clusteringColumns =
       schema.filter(field => clusteringConditions(field, clusteringTime)).map(_.name).mkString(",")
     val pkCcolumns = clusteringColumns match {
-      case clusteringCol if !clusteringCol.isEmpty && primaryKey.isEmpty => s"($clusteringColumns)"
-      case clusteringCol if clusteringCol.isEmpty && !primaryKey.isEmpty => s"($primaryKey)"
-      case clusteringCol if !clusteringCol.isEmpty && !primaryKey.isEmpty => s"(($primaryKey), $clusteringColumns)"
+      case clusteringCol if !clusteringCol.isEmpty && partitionKey.isEmpty => s"($clusteringColumns)"
+      case clusteringCol if clusteringCol.isEmpty && !partitionKey.isEmpty => s"($partitionKey)"
+      case clusteringCol if !clusteringCol.isEmpty && !partitionKey.isEmpty => s"(($partitionKey), $clusteringColumns)"
     }
 
     if (!fields.isEmpty && !pkCcolumns.isEmpty) Some(s"($fields, PRIMARY KEY $pkCcolumns)")
@@ -202,7 +200,7 @@ trait CassandraDAO extends Closeable with Logging {
   }
   //scalastyle:on
 
-  protected def getPrimaryKey(schema: StructType,
+  protected def getPartitionKey(schema: StructType,
                               clusteringTime: String,
                               isAutoCalculateId: Boolean): Seq[String] = {
     val pkfields = if (isAutoCalculateId) {

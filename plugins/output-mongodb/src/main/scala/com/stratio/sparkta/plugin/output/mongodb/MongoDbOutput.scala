@@ -36,9 +36,8 @@ class MongoDbOutput(keyName: String,
                     properties: Map[String, JSerializable],
                     @transient sparkContext: SparkContext,
                     operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                    bcSchema: Option[Broadcast[Seq[TableSchema]]],
-                    timeName: String)
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema, timeName) with MongoDbDAO {
+                    bcSchema: Option[Broadcast[Seq[TableSchema]]])
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with MongoDbDAO {
 
   RegisterJodaTimeConversionHelpers()
 
@@ -65,7 +64,8 @@ class MongoDbOutput(keyName: String,
       val schemasFiltered =
         bcSchema.get.value.filter(schemaFilter => schemaFilter.outputName == keyName).map(getTableSchemaFixedId(_))
       filterSchemaByFixedAndTimeDimensions(schemasFiltered)
-        .map(tableSchema => createPkTextIndex(tableSchema.tableName, timeName)).forall(result => result._1 && result._2)
+        .map(tableSchema => createPkTextIndex(tableSchema.tableName, tableSchema.timeDimension))
+        .forall(result => result._1 && result._2)
     } else false
 
   override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
@@ -74,14 +74,15 @@ class MongoDbOutput(keyName: String,
 
   override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     metricOperations.toList.filter(!_._1.dimensionValues.isEmpty).groupBy(upMetricOp =>
-      AggregateOperations.keyString(upMetricOp._1, timeName, fixedDimensions)).filter(_._1.size > 0)
+      AggregateOperations.keyString(upMetricOp._1, upMetricOp._1.timeDimension, fixedDimensions)).filter(_._1.size > 0)
       .foreach(f = collMetricOp => {
+      val dimensionTime = collMetricOp._2.head._1.timeDimension
       val bulkOperation = db().getCollection(collMetricOp._1).initializeOrderedBulkOperation()
-      val idFieldName = if (!timeName.isEmpty) Output.Id else DefaultId
+      val idFieldName = if (!dimensionTime.isEmpty) Output.Id else DefaultId
 
       val updateObjects = collMetricOp._2.map { case (cubeKey, aggregations) => {
         checkFields(aggregations.keySet, operationTypes)
-        val eventTimeObject = if (!timeName.isEmpty) Some(timeName -> new DateTime(cubeKey.time)) else None
+        val eventTimeObject = if (!dimensionTime.isEmpty) Some(dimensionTime -> new DateTime(cubeKey.time)) else None
         val idFields = if (idAsField) Some(getIdFields(cubeKey)) else None
         val mapOperations = getOperations(aggregations.toSeq, operationTypes)
           .groupBy { case (writeOp, op) => writeOp }
@@ -91,8 +92,8 @@ class MongoDbOutput(keyName: String,
         (getFind(
           idFieldName,
           eventTimeObject,
-          AggregateOperations.filterDimensionValuesByName(cubeKey.dimensionValues, if (timeName.isEmpty) None
-          else Some(timeName))),
+          AggregateOperations.filterDimensionValuesByName(cubeKey.dimensionValues, if (dimensionTime.isEmpty) None
+          else Some(dimensionTime))),
           getUpdate(mapOperations, idFields))
       }
       }

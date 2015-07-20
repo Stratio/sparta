@@ -21,6 +21,7 @@ import java.io.{Serializable => JSerializable}
 import com.datastax.spark.connector.cql.CassandraConnector
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SaveMode._
 import org.apache.spark.sql._
 import org.apache.spark.streaming.dstream.DStream
@@ -35,9 +36,8 @@ class CassandraOutput(keyName: String,
                       properties: Map[String, JSerializable],
                       @transient sparkContext: SparkContext,
                       operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                      bcSchema: Option[Broadcast[Seq[TableSchema]]],
-                      timeName: String)
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema, timeName)
+                      bcSchema: Option[Broadcast[Seq[TableSchema]]])
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema)
   with CassandraDAO {
 
   override val keyspace = properties.getString("keyspace", "sparkta")
@@ -74,13 +74,13 @@ class CassandraOutput(keyName: String,
     .map(tschemaFiltered => getTableSchemaFixedId(tschemaFiltered))
 
   val tablesCreated = if (keyspaceCreated) {
-    bcSchema.exists(bc => createTables(schemaFiltered, timeName, isAutoCalculateId))
+    bcSchema.exists(bc => createTables(schemaFiltered, isAutoCalculateId))
   } else false
 
   override def setup: Unit = {
     if (keyspaceCreated && tablesCreated) {
       if (indexFields.isDefined && !indexFields.get.isEmpty) {
-        bcSchema.exists(bc => createIndexes(schemaFiltered, timeName, isAutoCalculateId))
+        bcSchema.exists(bc => createIndexes(schemaFiltered, isAutoCalculateId))
       }
       if (textIndexFields.isDefined &&
         !textIndexFields.isEmpty &&
@@ -100,7 +100,7 @@ class CassandraOutput(keyName: String,
     if (bcSchema.isDefined && keyspaceCreated && tablesCreated) persistDataFrame(stream)
   }
 
-  override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
+  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
     dataFrame.write
       .format("org.apache.spark.sql.cassandra")
       .mode(Append)

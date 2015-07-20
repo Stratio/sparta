@@ -19,13 +19,7 @@ In this part you have to define the global parameters of your policy::
 
   "name": "Twitter-Cassandra-policy",
   "sparkStreamingWindow": 6000,
-  "checkpointing": {
-    "path": "myCheckpointPath",
-    "timeDimension": "minute",
-    "granularity": "minute",
-    "interval": 30000,
-    "timeAvailability": 60000
-  },
+  "checkpointPath": "myCheckpointPath",
   "rawData": {
     "enabled": "true",
     "partitionFormat": "day",
@@ -41,15 +35,7 @@ In this part you have to define the global parameters of your policy::
 | sparkStreamingWindow     | Apache Spark Streaming window duration        | No       |
 +--------------------------+-----------------------------------------------+----------+
 
-
-The `checkpointing <stateful.html>`__ block is where you have to define the Apache Spark Streaming |streaming_link|
-
 The `rawData` block allow you to save the `raw data <rawdata.html>`__ into HDFS + Parquet.
-
-.. |streaming_link| raw:: html
-
-   <a href="https://spark.apache.org/docs/latest/streaming-programming-guide.html#checkpointing"
-   target="_blank">configuration parameters</a>
 
 .. _input:
 
@@ -157,6 +143,12 @@ Example::
     "cubes": [
       {
         "name": "tweets-per-user-per-minute",
+        "checkpointConfig": {
+          "timeDimension": "minute",
+          "granularity": "minute",
+          "interval": 30000,
+          "timeAvailability": 60000
+        },
         "dimensions": [
           {
             "name": "userName",

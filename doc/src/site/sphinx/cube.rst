@@ -13,6 +13,12 @@ This is an example of how create a cube::
 
     {
       "name": "cube-session-per-minute",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "name": "session",
@@ -58,6 +64,12 @@ This is an example of how create a cube::
 | operators       | Array of operators                                               | No         |
 +-----------------+------------------------------------------------------------------+------------+
 
+The `checkpointing <stateful.html>`__ block is where you have to define the Apache Spark Streaming |streaming_link|
+
+.. |streaming_link| raw:: html
+
+   <a href="https://spark.apache.org/docs/latest/streaming-programming-guide.html#checkpointing"
+   target="_blank">configuration parameters</a>
 
 Dimensions
 ==========

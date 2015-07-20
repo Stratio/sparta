@@ -20,6 +20,7 @@ import com.datastax.driver.core.{Cluster, ResultSet, Session}
 import com.stratio.sparkta.testat.SparktaATSuite
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper
 import org.junit.runner.RunWith
+import org.scalatest.Ignore
 import org.scalatest.junit.JUnitRunner
 
 import scala.reflect.ClassTag

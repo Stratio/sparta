@@ -57,7 +57,7 @@ class CubeMakerSpec extends TestSuiteBase {
     val checkpointInterval = 10000
     val checkpointTimeAvailability = 600000
     val checkpointGranularity = "minute"
-    val timeDimension = None
+    val timeDimension = "minute"
     val timestamp = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity)
     val name = "cubeName"
     val operator = new CountOperator("count", Map())
@@ -68,6 +68,7 @@ class CubeMakerSpec extends TestSuiteBase {
       Seq(dimension),
       Seq(operator),
       multiplexer,
+      checkpointGranularity,
       checkpointInterval,
       checkpointGranularity,
       checkpointTimeAvailability)
@@ -95,13 +96,16 @@ class CubeMakerSpec extends TestSuiteBase {
     val defaultDimension = new DefaultField
     Seq(Seq(
       (DimensionValuesTime(Seq(DimensionValue(
-        Dimension("dim1", "eventKey", "identity", defaultDimension), "value1")), timestamp), Map("eventKey" -> "value1")
+        Dimension("dim1", "eventKey", "identity", defaultDimension), "value1")), timestamp, "minute"),
+        Map("eventKey" -> "value1")
         ),
       (DimensionValuesTime(Seq(DimensionValue(
-        Dimension("dim1", "eventKey", "identity", defaultDimension), "value2")), timestamp), Map("eventKey" -> "value2")
+        Dimension("dim1", "eventKey", "identity", defaultDimension), "value2")), timestamp, "minute"),
+        Map("eventKey" -> "value2")
         ),
       (DimensionValuesTime(Seq(DimensionValue(
-        Dimension("dim1", "eventKey", "identity", defaultDimension), "value3")), timestamp), Map("eventKey" -> "value3")
+        Dimension("dim1", "eventKey", "identity", defaultDimension), "value3")), timestamp, "minute"),
+        Map("eventKey" -> "value3")
         )
     ))
   }

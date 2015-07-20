@@ -47,28 +47,32 @@ object SchemaFactory {
   def cubesOperatorsSchemas(cubes: Seq[Cube],
                               configOptions: Seq[(String, Map[String, String])]): Seq[TableSchema] = {
     val dimensionsSorted = cubes.map(cube =>
-      (cube.getDimensionsSorted, cube.operators))
+      (cube.getDimensionsSorted, cube.operators, cube.checkpointTimeDimension))
     configOptions.flatMap{ case (outputName, configOptions) => {
       for {
-        (cubesCombinations, operators) <- getCombinationsWithOperators(configOptions, dimensionsSorted)
-        cubesNames = cubesCombinations.map(_.name)
-        schema = StructType(getDimensionsFields(cubesCombinations) ++
-          (getOperatorsFields(operators) ++
-          getFixedFieldAggregation(configOptions)).sortWith(_.name < _.name))
-      } yield TableSchema(outputName, cubesNames.mkString(Output.Separator), schema)
+        (dimensionCombinations, operators, timeDimension) <- getCombinationsWithOperators(configOptions,
+          dimensionsSorted)
+        dimensionNames = dimensionCombinations.map(_.name)
+        schema = StructType( getDimensionsFields(dimensionCombinations) ++ timeDimensionFieldType(timeDimension) ++
+          (getOperatorsFields(operators) ++ getFixedFieldAggregation(configOptions)).sortWith(_.name < _.name))
+      } yield TableSchema(outputName, dimensionNames.mkString(Output.Separator), schema, timeDimension)
     }}.distinct
   }
 
   private def getCombinationsWithOperators(configOptions: Map[String, String],
-                                           dimensionsSorted: Seq[(Seq[Dimension], Seq[Operator])])
-  : Seq[(Seq[Dimension], Seq[Operator])] =
+                                           dimensionsSorted: Seq[(Seq[Dimension], Seq[Operator], String)])
+  : Seq[(Seq[Dimension], Seq[Operator], String)] =
     if (Try(configOptions.get(Output.Multiplexer).get.toBoolean).getOrElse(false)) {
-      dimensionsSorted.flatMap{ case (dimSorted, operators) =>
-        Multiplexer.combine(dimSorted, operators)
+      dimensionsSorted.flatMap{ case (dimSorted, operators, timeDimension) =>
+        Multiplexer.combine(dimSorted, operators, timeDimension)
       }.distinct
-    } else dimensionsSorted.map{ case (compSorted, operators) =>
-      (compSorted, operators)
+    } else dimensionsSorted.map{ case (compSorted, operators, timeDimension) =>
+      (compSorted, operators, timeDimension)
     }.distinct
+
+  def timeDimensionFieldType(timeDimension: String) : Seq[StructField] = {
+    Seq(Output.getFieldType(TypeOp.DateTime, timeDimension, false))
+  }
 
   private def getOperatorsFields(operators: Seq[Operator]) : Seq[StructField] =
     operators.map(operator => StructField(operator.key, rowTypeFromOption(operator.returnType), true))

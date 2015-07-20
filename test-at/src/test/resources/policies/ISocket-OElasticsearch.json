@@ -1,11 +1,11 @@
 {
-  "name": "ATSocketCassandra",
+  "name": "ATSocketElasticSearch",
   "sparkStreamingWindow": 2000,
   "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "partitionFormat": "day",
-    "path": ""
+    "path": "myTestParquetPath"
   },
   "inputs": [
     {
@@ -79,83 +79,15 @@
       ],
       "operators": [
         {
-          "name": "avg_price",
-          "type": "Avg",
-          "configuration": {
-            "inputField": "price"
-          }
-        },
-        {
-          "name": "count_price",
-          "type": "Count",
-          "configuration": {}
-        },
-        {
-          "name": "first_price",
-          "type": "FirstValue",
-          "configuration": {
-            "inputField": "price"
-          }
-        },
-        {
-          "name": "fulltext_price",
-          "type": "FullText",
-          "configuration": {
-            "inputField": "price"
-          }
-        },
-        {
-          "name": "last_price",
-          "type": "LastValue",
-          "configuration": {
-            "inputField": "price"
-          }
-        },
-        {
-          "name": "max_price",
-          "type": "Max",
-          "configuration": {
-            "inputField": "price"
-          }
-        },
-        {
-          "name": "median_price",
-          "type": "Median",
-          "configuration": {
-            "inputField": "price"
-          }
-        },
-        {
-          "name": "min_price",
-          "type": "Min",
-          "configuration": {
-            "inputField": "price"
-          }
-        },
-        {
-          "name": "range_price",
-          "type": "Range",
-          "configuration": {
-            "inputField": "price"
-          }
-        },
-        {
-          "name": "stddev_price",
-          "type": "Stddev",
-          "configuration": {
-            "inputField": "price"
-          }
-        },
-        {
-          "name": "sum_price",
+          "name": "sum",
           "type": "Sum",
           "configuration": {
             "inputField": "price"
           }
         },
         {
-          "name": "variance_price",
-          "type": "Variance",
+          "name": "avg",
+          "type": "Avg",
           "configuration": {
             "inputField": "price"
           }
@@ -165,13 +97,13 @@
   ],
   "outputs": [
     {
-      "name": "out-cassandra",
-      "type": "Cassandra",
+      "name": "out-elasticsearch",
+      "type": "ElasticSearch",
       "configuration": {
-        "connectionHost": "127.0.0.1",
-        "connectionPort": "9142",
-        "cluster": "Test Cluster",
-        "keyspace": "sparkta"
+        "nodes": "localhost",
+        "defaultPort": "9200",
+        "isAutoCalculateId": "true",
+        "indexMapping": "day"
       }
     }
   ]

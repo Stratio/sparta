@@ -46,6 +46,7 @@ class CubeSpec extends TestSuiteBase {
       Seq(Dimension("dim1", "foo", "identity", defaultDimension)),
       Seq(new CountOperator("count", Map()), new SumOperator("sum", Map("inputField" -> "n"))),
       multiplexer,
+      checkpointGranularity,
       checkpointInterval,
       checkpointGranularity,
       checkpointTimeAvailability)
@@ -54,29 +55,29 @@ class CubeSpec extends TestSuiteBase {
 
     def getInput: Seq[Seq[(DimensionValuesTime, Map[String, JSerializable])]] = Seq(Seq(
       (DimensionValuesTime(Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar")),
-        eventGranularity), Map[String, JSerializable]("n" -> 4)),
+        eventGranularity, checkpointGranularity), Map[String, JSerializable]("n" -> 4)),
       (DimensionValuesTime(Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar")),
-        eventGranularity), Map[String, JSerializable]("n" -> 3)),
+        eventGranularity, checkpointGranularity), Map[String, JSerializable]("n" -> 3)),
       (DimensionValuesTime(Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "foo")),
-        eventGranularity), Map[String, JSerializable]("n" -> 3))),
+        eventGranularity, checkpointGranularity), Map[String, JSerializable]("n" -> 3))),
       Seq(
         (DimensionValuesTime(Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar")),
-          eventGranularity), Map[String, JSerializable]("n" -> 4)),
+          eventGranularity, checkpointGranularity), Map[String, JSerializable]("n" -> 4)),
         (DimensionValuesTime(Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar")),
-          eventGranularity), Map[String, JSerializable]("n" -> 3)),
+          eventGranularity, checkpointGranularity), Map[String, JSerializable]("n" -> 3)),
         (DimensionValuesTime(Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "foo")),
-          eventGranularity), Map[String, JSerializable]("n" -> 3))))
+          eventGranularity, checkpointGranularity), Map[String, JSerializable]("n" -> 3))))
 
     def getOutput: Seq[Seq[(DimensionValuesTime, Map[String, Option[Any]])]] = Seq(
       Seq(
         (DimensionValuesTime(Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension),
-          "bar")), eventGranularity), Map("count" -> Some(2L), "sum" -> Some(7L))),
+          "bar")), eventGranularity, checkpointGranularity), Map("count" -> Some(2L), "sum" -> Some(7L))),
         (DimensionValuesTime(Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension),
-          "foo")), eventGranularity), Map("count" -> Some(1L), "sum" -> Some(3L)))),
+          "foo")), eventGranularity, checkpointGranularity), Map("count" -> Some(1L), "sum" -> Some(3L)))),
       Seq(
         (DimensionValuesTime(Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension),
-          "bar")), eventGranularity), Map("count" -> Some(4L), "sum" -> Some(14L))),
+          "bar")), eventGranularity, checkpointGranularity), Map("count" -> Some(4L), "sum" -> Some(14L))),
         (DimensionValuesTime(Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension),
-          "foo")), eventGranularity), Map("count" -> Some(2L), "sum" -> Some(6L)))))
+          "foo")), eventGranularity, checkpointGranularity), Map("count" -> Some(2L), "sum" -> Some(6L)))))
   }
 }

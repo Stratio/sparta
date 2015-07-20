@@ -1,17 +1,11 @@
 {
   "name": "ATSocketElasticsearch",
   "sparkStreamingWindow": 2000,
+  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "partitionFormat": "day",
     "path": "myTestParquetPath"
-  },
-  "checkpointing": {
-    "path": "checkpoint",
-    "timeDimension": "minute",
-    "granularity": "minute",
-    "interval": 30000,
-    "timeAvailability": 60000000000000
   },
   "inputs": [
     {
@@ -99,6 +93,12 @@
   "cubes": [
     {
       "name": "cubeSmfProcess",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000000000000
+      },
       "dimensions": [
         {
           "field": "smfProcess",
@@ -121,6 +121,12 @@
     },
     {
       "name": "cubeMillis",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000000000000
+      },
       "dimensions": [
         {
           "field": "millis",

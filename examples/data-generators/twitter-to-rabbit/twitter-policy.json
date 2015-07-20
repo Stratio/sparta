@@ -1,17 +1,11 @@
 {
     "name": "twitter-policy",
     "sparkStreamingWindow": 6000,
+    "checkpointPath": "checkpoint",
     "rawData": {
         "enabled": "false",
         "partitionFormat": "day",
         "path": "myTestParquetPath"
-    },
-    "checkpointing": {
-        "path": "checkpoint",
-        "timeDimension": "minute",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
     },
     "inputs": [
         {
@@ -32,6 +26,12 @@
     "cubes": [
         {
             "name": "testCube",
+            "checkpointConfig": {
+                "timeDimension": "minute",
+                "granularity": "minute",
+                "interval": 30000,
+                "timeAvailability": 60000
+            },
             "dimensions": [
                 {
                     "name": "createdAt",
@@ -57,6 +57,12 @@
         },
         {
             "name": "testCube1",
+            "checkpointConfig": {
+                "timeDimension": "minute",
+                "granularity": "minute",
+                "interval": 30000,
+                "timeAvailability": 60000
+            },
             "dimensions": [
                 {
                     "name": "lang",
@@ -80,6 +86,12 @@
         },
         {
             "name": "testCube2",
+            "checkpointConfig": {
+                "timeDimension": "minute",
+                "granularity": "minute",
+                "interval": 30000,
+                "timeAvailability": 60000
+            },
             "dimensions": [
                 {
                     "name": "lang",
@@ -108,6 +120,12 @@
         },
         {
             "name": "testCube3",
+            "checkpointConfig": {
+                "timeDimension": "minute",
+                "granularity": "minute",
+                "interval": 30000,
+                "timeAvailability": 60000
+            },
             "dimensions": [
                 {
                     "name": "user_timeZone",

@@ -29,13 +29,13 @@ import com.stratio.sparkta.sdk.JsoneyStringSerializer
 
 case class AggregationPoliciesModel(name: String = "default",
                                   sparkStreamingWindow: Long = AggregationPoliciesModel.sparkStreamingWindow,
+                                  checkpointPath: String,
                                   rawData: RawDataModel,
                                   transformations: Seq[TransformationsModel],
                                   cubes: Seq[CubeModel],
                                   inputs: Seq[PolicyElementModel],
                                   outputs: Seq[PolicyElementModel],
-                                  fragments: Seq[FragmentElementModel],
-                                  checkpointing: CheckpointModel)
+                                  fragments: Seq[FragmentElementModel])
 
 case object AggregationPoliciesModel {
 
@@ -49,8 +49,10 @@ object AggregationPoliciesValidator {
 
   def validateDto(aggregationPoliciesDto: AggregationPoliciesModel): (Boolean, String) = {
     val (isValidAgainstSchema: Boolean, isValidAgainstSchemaMsg: String) = validateAgainstSchema(aggregationPoliciesDto)
-    val isValidDurationGranularity =
-      aggregationPoliciesDto.sparkStreamingWindow < aggregationPoliciesDto.checkpointing.interval
+
+    val isValidDurationGranularity = aggregationPoliciesDto.cubes
+      .forall(cube => aggregationPoliciesDto.sparkStreamingWindow < cube.checkpointConfig.interval)
+
     val isValidDurationGranularityMsg = if(!isValidDurationGranularity) MessageDurationGranularity else ""
 
     val isValid = isValidAgainstSchema && isValidDurationGranularity
