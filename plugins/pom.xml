@@ -55,6 +55,7 @@
         <module>operator-firstValue</module>
         <module>operator-lastValue</module>
         <module>operator-accumulator</module>
+        <module>operator-mode</module>
         <module>input-kafka</module>
         <module>input-flume</module>
         <module>input-socket</module>
