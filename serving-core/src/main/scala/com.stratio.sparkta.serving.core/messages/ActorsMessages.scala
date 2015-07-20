@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.constants
+package com.stratio.sparkta.serving.core.messages
 
-/**
- * Global constants of the application.
- * @author anistal
- */
-object AppConstant {
+import java.io.File
 
-  final val JarPaths = Seq("plugins", "sdk", "aggregator")
-  final val ConfigAppName = "sparkta"
-  final val ConfigApi = "api"
-  final val ConfigJobServer = "jobServer"
+import org.json4s._
 
+import scala.util.Try
+
+
+object ActorsMessages {
+
+  case class JobServerSupervisorActor_getJars()
+
+  case class JobServerSupervisorActor_uploadJars(files: Seq[File])
+
+  case class JobServerSupervisorActor_response_getJars(template: Try[JValue])
+
+  case class JobServerSupervisorActor_response_uploadJars(template: Try[String])
 }

@@ -16,6 +16,7 @@
 
 package com.stratio.sparkta.serving.api.actor
 
+import akka.actor.ActorRef
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
 import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, StreamingContextStatusEnum}
@@ -30,15 +31,16 @@ case class InitError(e: Exception)
 
 case object Stop
 
-class StreamingContextActor
-(policy: AggregationPoliciesModel, streamingContextService: StreamingContextService) extends InstrumentedActor {
+class StreamingContextActor(policy: AggregationPoliciesModel,
+                            streamingContextService: StreamingContextService,
+                            jobServerRef: ActorRef) extends InstrumentedActor {
 
   private var ssc: Option[StreamingContext] = None
 
   override def receive: PartialFunction[Any, Unit] = {
     case Init =>
       log.debug("Init new streamingContext with name " + policy.name)
-      ssc = Try(streamingContextService.createStreamingContext(policy)) match {
+      ssc = Try(streamingContextService.createStreamingContext(policy, jobServerRef)) match {
         case Success(_ssc) =>
           Try(_ssc.start()) match {
             case Failure(e: Exception) =>

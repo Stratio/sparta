@@ -43,7 +43,8 @@ case class CreateFragment(fragment: PolicyElementModel)
 
 case class ContextActorStatus(actor: ActorRef, status: StreamingContextStatusEnum.Status, description: Option[String])
 
-class StreamingActor(streamingContextService: StreamingContextService) extends InstrumentedActor {
+class StreamingActor(streamingContextService: StreamingContextService, jobServerRef: ActorRef)
+  extends InstrumentedActor {
 
   private var contextActors: Map[String, ContextActorStatus] = Map()
 
@@ -67,7 +68,8 @@ class StreamingActor(streamingContextService: StreamingContextService) extends I
    */
   private def doCreateContext(policy: AggregationPoliciesModel): Unit = {
     val streamingContextActor = context.actorOf(
-      Props(new StreamingContextActor(policy, streamingContextService)), "context-actor-".concat(policy.name))
+      Props(new StreamingContextActor(policy, streamingContextService, jobServerRef)),
+      "context-actor-".concat(policy.name))
     contextActors += (policy.name -> new ContextActorStatus(streamingContextActor, Initializing, None))
 
     (streamingContextActor ? Init)(Timeout(10 minutes)).onComplete {
