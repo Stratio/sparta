@@ -92,7 +92,11 @@ object SparktaHelper extends SLF4JLogging {
    * @param jars that will be loaded.
    * @param appName with the name of the application.
    */
-  def initAkkaSystem(configSparkta: Config, configApi: Config, jars: Seq[File], appName: String): Unit = {
+  def initAkkaSystem(configSparkta: Config,
+                     configApi: Config,
+                     configJobServer: Config,
+                     jars: Seq[File],
+                     appName: String): Unit = {
     val streamingContextService = new StreamingContextService(configSparkta, jars)
     val curatorFramework = CuratorFactoryHolder.getInstance(configSparkta).get
 
@@ -100,7 +104,7 @@ object SparktaHelper extends SLF4JLogging {
     system = ActorSystem(appName)
 
     val controller = system.actorOf(Props(new ControllerActor(
-      streamingContextService, curatorFramework)), "controllerActor")
+      streamingContextService, curatorFramework, configJobServer)), "controllerActor")
 
     IO(Http) ! Http.Bind(controller, interface = configApi.getString("host"), port = configApi.getInt("port"))
     log.info("> System UP!")

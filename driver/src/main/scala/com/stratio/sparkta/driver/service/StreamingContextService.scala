@@ -18,17 +18,19 @@ package com.stratio.sparkta.driver.service
 
 import java.io.File
 
+import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
-import com.typesafe.config.Config
-import org.apache.spark.streaming.StreamingContext
-
+import akka.pattern.ask
 import com.stratio.sparkta.driver.factory._
 import com.stratio.sparkta.driver.models._
 import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.serving.core.messages.ActorsMessages._
+import com.typesafe.config.Config
+import org.apache.spark.streaming.StreamingContext
 
 class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging {
 
-  def createStreamingContext(apConfig: AggregationPoliciesModel): StreamingContext = {
+  def createStreamingContext(apConfig: AggregationPoliciesModel, jobServerRef: ActorRef): StreamingContext = {
     val OutputsSparkConfiguration = "getSparkConfiguration"
     val activeJars = SparktaJob.activeJars(apConfig, jars)
     if (activeJars.isLeft) {
@@ -36,6 +38,7 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       activeJars.left.get.foreach(log.warn)
     } else {
       val activeJarsFilesToSend = SparktaJob.activeJarFiles(activeJars.right.get, jars)
+      jobServerRef ? new JobServerSupervisorActor_uploadJars(activeJarsFilesToSend)
     }
     val specifictSparkConfig = SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
     val sc = SparkContextFactory.sparkContextInstance(generalConfig, specifictSparkConfig, jars)

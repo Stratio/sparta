@@ -17,14 +17,14 @@
 package com.stratio.sparkta.driver.test.service
 
 import java.io.File
-import scala.io.Source
 
+import com.stratio.sparkta.driver.service.SparktaJob
+import com.stratio.sparkta.driver.util.PolicyUtils
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 
-import com.stratio.sparkta.driver.service.SparktaJob
-import com.stratio.sparkta.driver.util.PolicyUtils
+import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
 class SparktaJobSpec extends FlatSpec with ShouldMatchers {
@@ -33,7 +33,7 @@ class SparktaJobSpec extends FlatSpec with ShouldMatchers {
 
     val policyFile = getClass.getClassLoader.getResource("policies/IKafka-OPrint.json").getPath
     val policy = PolicyUtils.parseJson(Source.fromFile(new File(policyFile)).mkString)
-    val jars = List("aggregator-plugin.jar", "sdk-plugin.jar", "input-kakfka-plugin.jar", "output-print-plugin.jar",
+    val jars = List("aggregator-plugin.jar", "sdk-plugin.jar", "input-kafka-plugin.jar", "output-print-plugin.jar",
       "parser-morphlines-plugin.jar", "operator-count-plugin.jar")
     val jarFiles = jars.map(new File(_))
   }

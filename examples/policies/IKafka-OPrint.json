@@ -17,7 +17,7 @@
     {
       "name": "in-kafka",
       "type": "Kafka",
-      "jarFile": "input-kakfka-plugin.jar",
+      "jarFile": "input-kafka-plugin.jar",
       "configuration": {
         "topics": "test:1",
         "kafkaParams.zookeeper.connect": "localhost:2181",

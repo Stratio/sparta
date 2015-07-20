@@ -43,12 +43,14 @@ class SupervisorActorSpec
   with WordSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with MockitoSugar {
 
   var streamingContextService: Option[StreamingContextService] = None
+  val jobServerActor = system.actorOf(Props(new JobServerActor("", 8090)), "jobServerActor")
 
   before {
     streamingContextService = Some(mock[StreamingContextService])
     val ssc = mock[StreamingContext]
     doNothing().when(ssc).start()
-    when(streamingContextService.get.createStreamingContext(any[AggregationPoliciesModel])).thenReturn(ssc)
+    when(streamingContextService.get.createStreamingContext(any[AggregationPoliciesModel], any[ActorRef]))
+      .thenReturn(ssc)
   }
 
   after {
@@ -61,11 +63,11 @@ class SupervisorActorSpec
 
   "An SupervisorActor" should {
     "Init a StreamingContextActor and DriverException error is thrown" in {
-      val supervisorRef = createSupervisorActor
+      val supervisorRef = createSupervisorActor(jobServerActor)
       val errorMessage = "An error occurred"
 
 
-      when(streamingContextService.get.createStreamingContext(any[AggregationPoliciesModel]))
+      when(streamingContextService.get.createStreamingContext(any[AggregationPoliciesModel], any[ActorRef]))
         .thenThrow(new ServingApiException(errorMessage))
 
       within(5000 millis) {
@@ -79,10 +81,10 @@ class SupervisorActorSpec
       }
     }
     "Init a StreamingContextActor and any unexpected error is thrown" in {
-      val supervisorRef = createSupervisorActor
+      val supervisorRef = createSupervisorActor(jobServerActor)
       val mockErrorMessage: String = "A mock error occurred"
 
-      when(streamingContextService.get.createStreamingContext(any[AggregationPoliciesModel]))
+      when(streamingContextService.get.createStreamingContext(any[AggregationPoliciesModel], any[ActorRef]))
         .thenThrow(new MockException(mockErrorMessage))
       within(5000 millis) {
         supervisorRef ! new CreateContext(createPolicyConfiguration("test-1"))
@@ -97,7 +99,7 @@ class SupervisorActorSpec
     //TODO test when creating a streamingContextActor unexpected error occurs
     "Init a StreamingContextActor" in {
 
-      val supervisorRef = createSupervisorActor
+      val supervisorRef = createSupervisorActor(jobServerActor)
 
       within(5000 millis) {
         supervisorRef ! new CreateContext(createPolicyConfiguration("test-1"))
@@ -110,7 +112,7 @@ class SupervisorActorSpec
       }
     }
     "Get a context status for a created context" in {
-      val supervisorRef = createSupervisorActor
+      val supervisorRef = createSupervisorActor(jobServerActor)
 
       within(5000 millis) {
         supervisorRef ! new CreateContext(createPolicyConfiguration("test-1"))
@@ -124,7 +126,7 @@ class SupervisorActorSpec
     }
     "Delete a previously created context" in {
 
-      val supervisorRef = createSupervisorActor
+      val supervisorRef = createSupervisorActor(jobServerActor)
 
       within(5000 millis) {
         supervisorRef ! new CreateContext(createPolicyConfiguration("test-1"))
@@ -138,7 +140,7 @@ class SupervisorActorSpec
     }
     "Get all context statuses" in {
 
-      val supervisorRef = createSupervisorActor
+      val supervisorRef = createSupervisorActor(jobServerActor)
 
       within(5000 millis) {
 
@@ -169,8 +171,8 @@ class SupervisorActorSpec
     }
   }
 
-  private def createSupervisorActor: ActorRef = {
-    system.actorOf(Props(new StreamingActor(streamingContextService.get)))
+  private def createSupervisorActor(jobServerActor: ActorRef): ActorRef = {
+    system.actorOf(Props(new StreamingActor(streamingContextService.get, jobServerActor)))
   }
 
   private def createPolicyConfiguration(name: String): AggregationPoliciesModel = {
