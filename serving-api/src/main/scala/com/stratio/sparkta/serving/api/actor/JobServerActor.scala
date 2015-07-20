@@ -40,7 +40,6 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
 
     case JobServerSupervisorActor_getJars() => doGetJars
     case JobServerSupervisorActor_uploadJars(files) => doUploadJars(files)
-    //case files : Seq[File] => doUploadJars(files)
   }
 
   def doGetJars: Unit = {
