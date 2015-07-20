@@ -36,6 +36,8 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
     new EnumNameSerializer(StreamingContextStatusEnum) +
     new JsoneyStringSerializer()
 
+  final val HostPortExceptionMsg = "JobServer host and port is not defined in configuration file"
+
   override def receive: Receive = {
 
     case JobServerSupervisorActor_getJars() => doGetJars
@@ -48,7 +50,7 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
       sender ! JobServerSupervisorActor_response_getJars(Try(responseParsed))
     } else {
       sender ! JobServerSupervisorActor_response_getJars(
-        Try(throw new Exception("JobServer host and port is not defined in configuration file"))
+        Try(throw new Exception(HostPortExceptionMsg))
       )
     }
   }
@@ -62,7 +64,7 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
       sender ! JobServerSupervisorActor_response_uploadJars(Try(uploadsResults))
     } else {
       sender ! JobServerSupervisorActor_response_uploadJars(
-        Try(throw new Exception("JobServer host and port is not defined in configuration file")))
+        Try(throw new Exception(HostPortExceptionMsg)))
     }
   }
 
