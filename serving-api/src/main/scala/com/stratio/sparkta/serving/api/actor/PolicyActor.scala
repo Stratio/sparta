@@ -37,10 +37,12 @@ case class PolicySupervisorActor_update(policy: AggregationPoliciesModel)
 case class PolicySupervisorActor_delete(name: String)
 case class PolicySupervisorActor_findAll()
 case class PolicySupervisorActor_find(name: String)
+case class PolicySupervisorActor_findByFragment(fragmentType: String, name: String)
 
 case class PolicySupervisorActor_response(status: Try[Unit])
 case class PolicySupervisorActor_response_policies(policies: Try[Seq[AggregationPoliciesModel]])
 case class PolicySupervisorActor_response_policy(policy: Try[AggregationPoliciesModel])
+
 
 /**
  * Implementation of supported CRUD operations over ZK needed to manage policies.
@@ -60,6 +62,7 @@ class PolicyActor(curatorFramework: CuratorFramework) extends Actor
     case PolicySupervisorActor_delete(name) => delete(name)
     case PolicySupervisorActor_find(name) => find(name)
     case PolicySupervisorActor_findAll() => findAll()
+    case PolicySupervisorActor_findByFragment(fragmentType, name) => findByFragment(fragmentType, name)
   }
 
   def findAll(): Unit =
@@ -68,6 +71,15 @@ class PolicyActor(curatorFramework: CuratorFramework) extends Actor
       JavaConversions.asScalaBuffer(children).toList.map(element =>
         read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
           s"/policies/$element")))).toSeq
+    }))
+
+  def findByFragment(fragmentType: String, name: String): Unit =
+    sender ! PolicySupervisorActor_response_policies(Try({
+      val children = curatorFramework.getChildren.forPath(s"${PolicyActor.PoliciesBasePath}")
+      JavaConversions.asScalaBuffer(children).toList.map(element =>
+        read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
+          s"/policies/$element")))).filter(apm =>
+            (apm.fragments.filter(f => f.name == name)).size > 0).toSeq
     }))
 
   def find(name: String): Unit =

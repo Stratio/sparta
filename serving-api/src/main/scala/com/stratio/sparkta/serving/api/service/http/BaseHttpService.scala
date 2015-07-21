@@ -42,6 +42,8 @@ trait BaseHttpService extends HttpService with Json4sJacksonSupport with SLF4JLo
 
   implicit def executionContext: ExecutionContextExecutor = actorRefFactory.dispatcher
 
+  implicit val actors: Map[String, ActorRef]
+
   val supervisor: ActorRef
 
   def routes: Route

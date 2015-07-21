@@ -20,16 +20,18 @@ import java.io.File
 import java.lang.reflect.Method
 import java.net.{URL, URLClassLoader}
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.{ActorRefFactory, Props, ActorSystem}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.helpers.{ConfigFactory, SparktaConfigFactory, SparktaSystem, System}
 import com.stratio.sparkta.driver.service.StreamingContextService
-import com.stratio.sparkta.serving.api.actor.ControllerActor
+import com.stratio.sparkta.serving.api.actor._
 import com.stratio.sparkta.serving.api.factory.CuratorFactoryHolder
+import com.stratio.sparkta.serving.api.service.http.{PolicyHttpService, TemplateHttpService, FragmentHttpService}
 import com.typesafe.config.Config
 import spray.can.Http
+import spray.routing._
 
 /**
  * Helper with common operations used to create a Sparkta context used to run the application.
@@ -103,8 +105,23 @@ object SparktaHelper extends SLF4JLogging {
     log.info("> Initializing akka actors")
     system = ActorSystem(appName)
 
-    val controller = system.actorOf(Props(new ControllerActor(
-      streamingContextService, curatorFramework, configJobServer)), "controllerActor")
+    val jobServerActor =
+      system.actorOf(Props(new JobServerActor(configJobServer.getString("host"),
+        configJobServer.getInt("port"))), "jobServerActor")
+
+
+    implicit val actors = Map(
+      "fragmentActor" -> system.actorOf(Props(new FragmentActor(curatorFramework)), "fragmentActor"),
+      "templateActor" -> system.actorOf(Props(new TemplateActor()), "templateActor"),
+      "policyActor" -> system.actorOf(Props(new PolicyActor(curatorFramework)), "policyActor"),
+      "streamingActor" -> system.actorOf(
+        Props(new StreamingActor(streamingContextService, jobServerActor)), "streamingActor"),
+      "jobServerActor" -> jobServerActor
+    )
+
+    val controller = system.actorOf(
+      Props(new ControllerActor(streamingContextService,curatorFramework,actors,configJobServer)), "controllerActor")
+
 
     IO(Http) ! Http.Bind(controller, interface = configApi.getString("host"), port = configApi.getInt("port"))
     log.info("> System UP!")

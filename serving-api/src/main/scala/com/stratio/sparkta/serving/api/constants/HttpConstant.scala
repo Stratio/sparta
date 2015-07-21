@@ -31,6 +31,8 @@ object HttpConstant {
 
   final val PolicyPath = "policy"
 
+  final val PolicyContextPath = "policyContext"
+
   /**
    * Http codes.
    */

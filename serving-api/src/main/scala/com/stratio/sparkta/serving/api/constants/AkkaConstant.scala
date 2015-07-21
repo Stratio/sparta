@@ -26,4 +26,7 @@ object AkkaConstant {
   final val FragmentActorAkkaPath  = s"akka://${AppConstant.ConfigAppName}/user/fragmentActor"
   final val TemplateActorAkkaPath  = s"akka://${AppConstant.ConfigAppName}/user/templateActor"
   final val JobServerActorAkkaPath  = s"akka://${AppConstant.ConfigAppName}/user/jobServerActor"
+
+  final val PolicyActorAkkaPath    = s"akka://${AppConstant.ConfigAppName}/user/$PolicyActor"
+  final val PolicyActor = "policyActor"
 }

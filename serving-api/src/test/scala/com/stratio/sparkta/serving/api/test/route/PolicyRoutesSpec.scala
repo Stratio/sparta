@@ -16,12 +16,12 @@
 
 package com.stratio.sparkta.driver.test.route
 
-import akka.actor.ActorRefFactory
+import akka.actor.{ActorRef, Props, ActorRefFactory}
 import akka.testkit.TestProbe
 import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
 import com.stratio.sparkta.driver.models._
 import com.stratio.sparkta.sdk.DimensionType
-import com.stratio.sparkta.serving.api.actor.{CreateContext, DeleteContext, GetAllContextStatus, GetContextStatus}
+import com.stratio.sparkta.serving.api.actor._
 import com.stratio.sparkta.serving.api.service.http.PolicyHttpService
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -31,7 +31,7 @@ import spray.testkit.ScalatestRouteTest
 
 import scala.concurrent.duration._
 
-@RunWith(classOf[JUnitRunner])
+//@RunWith(classOf[JUnitRunner])
 class PolicyRoutesSpec extends WordSpecLike
 with PolicyHttpService
 with ScalatestRouteTest
@@ -43,7 +43,13 @@ with Matchers {
 
   def actorRefFactory: ActorRefFactory = system
 
+  implicit val actors: Map[String, ActorRef]  = Map(
+    "supervisor" -> supervisor
+  )
+
   implicit val routeTestTimeout = RouteTestTimeout(10.second)
+
+
 
   val checkpointInterval = 10000
   val checkpointAvailable = 60000
