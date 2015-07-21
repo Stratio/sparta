@@ -34,16 +34,20 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
 
   implicit val timeout: Timeout = Timeout(15.seconds)
 
-  def createStreamingContext(apConfig: AggregationPoliciesModel, jobServerRef: ActorRef): StreamingContext = {
+  def createStreamingContext(apConfig: AggregationPoliciesModel, jobServerRef: Option[ActorRef]): StreamingContext = {
     val OutputsSparkConfiguration = "getSparkConfiguration"
-    val activeJars = SparktaJob.activeJars(apConfig, jars)
-    if (activeJars.isLeft) {
-      log.warn(s"The policy have jars witch cannot be found in classpath:")
-      activeJars.left.get.foreach(log.warn)
-    } else {
-      val activeJarsFilesToSend = SparktaJob.activeJarFiles(activeJars.right.get, jars)
-      jobServerRef ? new JobServerSupervisorActor_uploadJars(activeJarsFilesToSend)
-    }
+
+    jobServerRef.foreach(actorRef => {
+      val activeJars = SparktaJob.activeJars(apConfig, jars)
+      if (activeJars.isLeft) {
+        log.warn(s"The policy have jars witch cannot be found in classpath:")
+        activeJars.left.get.foreach(log.warn)
+      } else {
+        val activeJarsFilesToSend = SparktaJob.activeJarFiles(activeJars.right.get, jars)
+        actorRef ? new JobServerSupervisorActor_uploadJars(activeJarsFilesToSend)
+      }
+    })
+
     val specifictSparkConfig = SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
     val sc = SparkContextFactory.sparkContextInstance(generalConfig, specifictSparkConfig, jars)
     SparktaJob.runSparktaJob(sc, apConfig)

@@ -33,7 +33,7 @@ case object Stop
 
 class StreamingContextActor(policy: AggregationPoliciesModel,
                             streamingContextService: StreamingContextService,
-                            jobServerRef: ActorRef) extends InstrumentedActor {
+                            jobServerRef: Option[ActorRef]) extends InstrumentedActor {
 
   private var ssc: Option[StreamingContext] = None
 

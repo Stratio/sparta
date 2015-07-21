@@ -61,15 +61,23 @@ class ControllerActor(streamingContextService: StreamingContextService,
   ))
 
   val jobServerActor =
-    context.actorOf(Props(new JobServerActor(configJobServer.getString("host"),
-      configJobServer.getInt("port"))), "jobServerActor")
+    if(!configJobServer.isEmpty && !configJobServer.getString("host").isEmpty && configJobServer.getInt("port") > 0) {
+    Some(context.actorOf(Props(new JobServerActor(configJobServer.getString("host"),
+      configJobServer.getInt("port"))), "jobServerActor"))
+    } else None
+
+  val jobServerService = jobServerActor match {
+    case Some(actorRef) => new JobServerHttpService {
+      override val supervisor = actorRef
+      override implicit def actorRefFactory: ActorRefFactory = context
+    }.routes
+    case None => new StandardRoute {
+      override def apply(v1: RequestContext): Unit = ???
+    }
+  }
 
   val serviceRoutes: Route =
-    new JobServerHttpService {
-      override val supervisor = jobServerActor
-
-      override implicit def actorRefFactory: ActorRefFactory = context
-    }.routes ~
+    jobServerService ~
       new PolicyHttpService {
         val streamingActor = context.actorOf(Props(new StreamingActor(streamingContextService, jobServerActor)),
           "streamingActor")
