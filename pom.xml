@@ -24,7 +24,7 @@
     <parent>
         <groupId>com.stratio</groupId>
         <artifactId>parent</artifactId>
-        <version>0.1.0</version>
+        <version>0.3.1</version>
     </parent>
 
     <groupId>com.stratio.sparkta</groupId>
@@ -160,8 +160,6 @@
         <nscala.time.version>2.0.0</nscala.time.version>
         <scalatest.version>2.2.2</scalatest.version>
         <mockito.version>1.10.5</mockito.version>
-        <!-- Sonar -->
-        <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
     </properties>
 
     <dependencyManagement>
@@ -231,14 +229,7 @@
                 <groupId>org.spark-project.akka</groupId>
                 <artifactId>akka-slf4j_${scala.binary.version}</artifactId>
                 <version>2.3.4-spark</version>
-	    </dependency>
-            <!-- JaCoCo -->
-            <dependency>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.4.201502262128</version>
-                <scope>test</scope>
-            </dependency>
+	        </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -268,86 +259,30 @@
                         <skip>true</skip>
                     </configuration>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.17</version>
-                    <configuration>
-                        <skipTests>true</skipTests>
-                    </configuration>
-                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.4.201502262128</version>
-                <executions>
-                    <execution>
-                        <id>unit-test-coverage</id>
-                        <phase>process-test-classes</phase>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                        <configuration>
-                            <destFile>${basedir}/target/jacocoUT.exec</destFile>
-                            <propertyName>jacoco-UT-argline</propertyName>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>integration-test-coverage</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                        <configuration>
-                            <destFile>${basedir}/target/jacocoIT.exec</destFile>
-                            <propertyName>jacoco-IT-argline</propertyName>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.18</version>
                 <configuration>
                     <includes>
                         <include>**/*Spec.java</include>
                     </includes>
-                    <skipTests>${skipUTs}</skipTests>
-                    <argLine>
-                        ${jacoco-UT-argline}
-                    </argLine>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.18</version>
                 <configuration>
                     <includes>
                         <include>**/*IT.java</include>
                     </includes>
-                    <skipTests>${skipITs}</skipTests>
-                    <argLine>${jacoco-IT-argline} -Xmx2048m -XX:MaxPermSize=256m</argLine>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>integration-test</id>
-                        <goals>
-                            <goal>integration-test</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>verify</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
@@ -450,30 +385,6 @@
                                     <goal>format</goal>
                                 </goals>
                                 <phase>process-resources</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.scalastyle</groupId>
-                        <artifactId>scalastyle-maven-plugin</artifactId>
-                        <version>0.5.0</version>
-                        <configuration>
-                            <verbose>false</verbose>
-                            <failOnViolation>true</failOnViolation>
-                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                            <failOnWarning>false</failOnWarning>
-                            <sourceDirectory>${basedir}/src/main/scala</sourceDirectory>
-                            <testSourceDirectory>${basedir}/src/test/scala</testSourceDirectory>
-                            <configLocation>project/scalastyle_config.xml</configLocation>
-                            <outputFile>target/scalastyle-output-${project.artifactId}.xml</outputFile>
-                            <outputEncoding>UTF-8</outputEncoding>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
                             </execution>
                         </executions>
                     </plugin>
