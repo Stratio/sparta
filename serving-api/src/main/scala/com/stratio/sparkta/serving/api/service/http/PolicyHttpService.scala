@@ -33,7 +33,7 @@ trait PolicyHttpService extends BaseHttpService {
 
   case class Result(message: String, desc: Option[String] = None)
 
-  override def routes: Route = find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ runA
+  override def routes: Route = find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run
 
   @ApiOperation(value = "Find a policy from its name", notes = "Returns a policy", httpMethod = "GET",
     response = classOf[AggregationPoliciesModel])
@@ -159,15 +159,15 @@ trait PolicyHttpService extends BaseHttpService {
   @ApiResponses(Array(
     new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
   ))
-  def runA: Route = {
+  def run: Route = {
     path(HttpConstant.PolicyPath / "run" / Segment) { (name) =>
       get {
         val future = supervisor ? new PolicySupervisorActor_find(name)
         Await.result(future, timeout.duration) match {
           case PolicySupervisorActor_response_policy(Failure(exception)) => throw exception
           case PolicySupervisorActor_response_policy(Success(policy)) => {
-            val parsedP = PolicyHelper.fillFragments(
-              PolicyHelper.parseFragments(policy),actors.get("fragmentActor").get, timeout)
+            val parsedP =
+              PolicyHelper.parseFragments(PolicyHelper.fillFragments(policy,actors.get("fragmentActor").get, timeout))
             val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
             validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
               actors.get("streamingActor").get ! new CreateContext(parsedP)

@@ -23,6 +23,8 @@ import com.stratio.sparkta.driver.models._
 import com.stratio.sparkta.serving.api.actor._
 import com.stratio.sparkta.serving.api.constants.AkkaConstant
 import akka.pattern.ask
+import akka.util.Timeout
+import scala.concurrent.duration._
 
 import scala.concurrent.Await
 import scala.util.{Success, Failure}
@@ -68,7 +70,10 @@ object PolicyHelper {
     val currentFragments: Seq[FragmentElementModel] = apConfig.fragments.map(fragment => {
       val future = actor ? new FragmentSupervisorActor_findByTypeAndName(fragment.fragmentType, fragment.name)
       Await.result(future, timeout.duration) match {
-        case FragmentSupervisorActor_response_fragment(Failure(exception)) => throw exception
+        case FragmentSupervisorActor_response_fragment(Failure(exception)) => {
+          exception.printStackTrace()
+          throw exception
+        }
         case FragmentSupervisorActor_response_fragment(Success(fragment)) => fragment
       }
     })
