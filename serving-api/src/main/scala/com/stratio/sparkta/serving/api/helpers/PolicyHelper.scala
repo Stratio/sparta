@@ -16,8 +16,16 @@
 
 package com.stratio.sparkta.serving.api.helpers
 
+import akka.actor.ActorRef
+import akka.util.Timeout
 import com.stratio.sparkta.driver.models.FragmentType._
-import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, FragmentType, PolicyElementModel}
+import com.stratio.sparkta.driver.models._
+import com.stratio.sparkta.serving.api.actor._
+import com.stratio.sparkta.serving.api.constants.AkkaConstant
+import akka.pattern.ask
+
+import scala.concurrent.Await
+import scala.util.{Success, Failure}
 
 /**
  * Helper with operations over policies and policy fragments.
@@ -43,5 +51,27 @@ object PolicyHelper {
     apConfig.copy(
       inputs = mapInputsOutputs.get(FragmentType.input).getOrElse(Seq()),
       outputs = mapInputsOutputs.get(FragmentType.output).getOrElse(Seq()))
+  }
+
+  /**
+   * The policy only has fragments with its name and type. When this method is called it finds the full fragment in
+   * ZK and fills the rest of the fragment.
+   * @param apConfig with the policy.
+   * @return a fragment with all fields filled.
+   */
+  def fillFragments(apConfig: AggregationPoliciesModel,
+                            actor: ActorRef,
+                            currentTimeout: Timeout): AggregationPoliciesModel = {
+
+    implicit val timeout = currentTimeout
+
+    val currentFragments: Seq[FragmentElementModel] = apConfig.fragments.map(fragment => {
+      val future = actor ? new FragmentSupervisorActor_findByTypeAndName(fragment.fragmentType, fragment.name)
+      Await.result(future, timeout.duration) match {
+        case FragmentSupervisorActor_response_fragment(Failure(exception)) => throw exception
+        case FragmentSupervisorActor_response_fragment(Success(fragment)) => fragment
+      }
+    })
+    apConfig.copy(fragments = currentFragments)
   }
 }

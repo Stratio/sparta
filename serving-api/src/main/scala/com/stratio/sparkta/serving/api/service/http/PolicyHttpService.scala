@@ -19,7 +19,8 @@ package com.stratio.sparkta.serving.api.service.http
 import akka.pattern.ask
 import com.stratio.sparkta.driver.models._
 import com.stratio.sparkta.serving.api.actor._
-import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.api.constants.{AkkaConstant, HttpConstant}
+import com.stratio.sparkta.serving.api.helpers.PolicyHelper
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
@@ -32,7 +33,7 @@ trait PolicyHttpService extends BaseHttpService {
 
   case class Result(message: String, desc: Option[String] = None)
 
-  override def routes: Route = find ~ findAll ~ findByFragment ~ create ~ update ~ remove
+  override def routes: Route = find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ runA
 
   @ApiOperation(value = "Find a policy from its name", notes = "Returns a policy", httpMethod = "GET",
     response = classOf[AggregationPoliciesModel])
@@ -99,6 +100,10 @@ trait PolicyHttpService extends BaseHttpService {
     path(HttpConstant.PolicyPath) {
       post {
         entity(as[AggregationPoliciesModel]) { policy =>
+          val parsedP = PolicyHelper.fillFragments(
+            PolicyHelper.parseFragments(policy),actors.get("fragmentActor").get, timeout)
+          val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
+          validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2)
           complete {
             val future = supervisor ? new PolicySupervisorActor_create(policy)
             Await.result(future, timeout.duration) match {
@@ -143,6 +148,33 @@ trait PolicyHttpService extends BaseHttpService {
           Await.result(future, timeout.duration) match {
             case PolicySupervisorActor_response(Failure(exception)) => throw exception
             case PolicySupervisorActor_response(Success(_)) => HttpResponse(StatusCodes.OK)
+          }
+        }
+      }
+    }
+  }
+
+  @ApiOperation(value = "Find a policy from its name", notes = "Returns a policy", httpMethod = "GET",
+    response = classOf[Result])
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
+  ))
+  def runA: Route = {
+    path(HttpConstant.PolicyPath / "run" / Segment) { (name) =>
+      get {
+        val future = supervisor ? new PolicySupervisorActor_find(name)
+        Await.result(future, timeout.duration) match {
+          case PolicySupervisorActor_response_policy(Failure(exception)) => throw exception
+          case PolicySupervisorActor_response_policy(Success(policy)) => {
+            val parsedP = PolicyHelper.fillFragments(
+              PolicyHelper.parseFragments(policy),actors.get("fragmentActor").get, timeout)
+            val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
+            validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
+              actors.get("streamingActor").get ! new CreateContext(parsedP)
+              complete {
+                new Result("Creating new context with name " + policy.name)
+              }
+            }
           }
         }
       }

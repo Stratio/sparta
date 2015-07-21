@@ -16,7 +16,6 @@
 
 package com.stratio.sparkta.serving.api.service.http
 
-
 import akka.pattern.ask
 import com.stratio.sparkta.driver.models.FragmentElementModel
 import com.stratio.sparkta.serving.api.actor._

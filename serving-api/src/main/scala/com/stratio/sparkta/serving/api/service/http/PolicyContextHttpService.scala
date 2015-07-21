@@ -19,13 +19,10 @@ package com.stratio.sparkta.serving.api.service.http
 import akka.pattern.ask
 import com.stratio.sparkta.driver.models._
 import com.stratio.sparkta.serving.api.actor._
-import com.stratio.sparkta.serving.api.constants.{AkkaConstant, HttpConstant}
+import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.api.helpers.PolicyHelper
 import com.wordnik.swagger.annotations._
 import spray.routing._
-
-import scala.concurrent.Await
-import scala.util.{Failure, Success}
 
 @Api(value = HttpConstant.PolicyContextPath, description = "Operations about policy contexts.", position = 0)
 trait PolicyContextHttpService extends BaseHttpService {
@@ -71,7 +68,8 @@ trait PolicyContextHttpService extends BaseHttpService {
     path(HttpConstant.PolicyContextPath) {
       post {
         entity(as[AggregationPoliciesModel]) { p =>
-          val parsedP = (PolicyHelper.parseFragments _ compose fillFragments _)(p)
+          val parsedP = PolicyHelper.fillFragments(
+            PolicyHelper.parseFragments(p),actors.get("fragmentActor").get, timeout)
           val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
           validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
             complete {
@@ -96,26 +94,5 @@ trait PolicyContextHttpService extends BaseHttpService {
         }
       }
     }
-  }
-
-  ///////////////////////////////////////////// XXX PRIVATE METHODS ////////////////////////////////////////////////////
-
-  /**
-   * The policy only has fragments with its name and type. When this method is called it finds the full fragment in
-   * ZK and fills the rest of the fragment.
-   * @param apConfig with the policy.
-   * @return a fragment with all fields filled.
-   */
-  private def fillFragments(apConfig: AggregationPoliciesModel): AggregationPoliciesModel = {
-    val actor = actorRefFactory.actorSelection(AkkaConstant.FragmentActorAkkaPath)
-
-    val currentFragments: Seq[FragmentElementModel] = apConfig.fragments.map(fragment => {
-      val future = actor ? new FragmentSupervisorActor_findByTypeAndName(fragment.fragmentType, fragment.name)
-      Await.result(future, timeout.duration) match {
-        case FragmentSupervisorActor_response_fragment(Failure(exception)) => throw exception
-        case FragmentSupervisorActor_response_fragment(Success(fragment)) => fragment
-      }
-    })
-    apConfig.copy(fragments = currentFragments)
   }
 }

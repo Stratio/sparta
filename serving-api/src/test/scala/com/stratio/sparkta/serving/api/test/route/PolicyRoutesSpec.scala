@@ -16,15 +16,14 @@
 
 package com.stratio.sparkta.driver.test.route
 
-import akka.actor.{ActorRef, Props, ActorRefFactory}
+import akka.actor.{ActorRef, ActorRefFactory}
 import akka.testkit.TestProbe
 import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
 import com.stratio.sparkta.driver.models._
 import com.stratio.sparkta.sdk.DimensionType
 import com.stratio.sparkta.serving.api.actor._
-import com.stratio.sparkta.serving.api.service.http.PolicyHttpService
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.api.service.http.PolicyContextHttpService
 import org.scalatest.{Matchers, WordSpecLike}
 import spray.http.StatusCodes._
 import spray.testkit.ScalatestRouteTest
@@ -32,8 +31,10 @@ import spray.testkit.ScalatestRouteTest
 import scala.concurrent.duration._
 
 //@RunWith(classOf[JUnitRunner])
+// TODO (anistal) This test must be fixed, taking into account this:
+// http://christopher-batey.blogspot.com.es/2014/01/akka-testing-that-actor-sends-message.html
 class PolicyRoutesSpec extends WordSpecLike
-with PolicyHttpService
+with PolicyContextHttpService
 with ScalatestRouteTest
 with Matchers {
 
@@ -43,13 +44,11 @@ with Matchers {
 
   def actorRefFactory: ActorRefFactory = system
 
-  implicit val actors: Map[String, ActorRef]  = Map(
+  implicit val actors: Map[String, ActorRef] = Map(
     "supervisor" -> supervisor
   )
 
   implicit val routeTestTimeout = RouteTestTimeout(10.second)
-
-
 
   val checkpointInterval = 10000
   val checkpointAvailable = 60000
@@ -57,9 +56,9 @@ with Matchers {
   val checkpointDir = "checkpoint"
   val sparkStreamingWindow = 2000
 
-  "A PolicytRoutes should" should {
+  "A PolicyRoutes should" should {
     "Get info about created policies" in {
-      val test = Get("/policy") ~> routes
+      val test = Get(HttpConstant.PolicyContextPath) ~> routes
       supervisorProbe.expectMsg(GetAllContextStatus)
 
       supervisorProbe.reply(List(
@@ -75,7 +74,7 @@ with Matchers {
     }
     "Get info about specific policy" in {
       val PolicyName = "p-1"
-      val test = Get("/policy/" + PolicyName) ~> routes
+      val test = Get(s"${HttpConstant.PolicyContextPath}/$PolicyName") ~> routes
       supervisorProbe.expectMsg(new GetContextStatus(PolicyName))
       supervisorProbe.reply(new StreamingContextStatus(PolicyName, Initialized, None))
       test ~> check {
@@ -88,21 +87,16 @@ with Matchers {
       val apd = new AggregationPoliciesModel(PolicyName, sparkStreamingWindow, new RawDataModel(),
         Seq(), Seq(), Seq(), Seq(), Seq(),
         new CheckpointModel(checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable))
-      try {
-        val test = Post("/policy", apd) ~> routes
-        supervisorProbe.expectMsg(new CreateContext(apd))
-        supervisorProbe.reply(Unit)
-        test ~> check {
-          status should equal(OK)
-        }
-      } catch {
-        //FIXME "timeout (3 seconds) during expectMsg"
-        case e: Throwable => print(e)
+      val test = Post(HttpConstant.PolicyContextPath, apd) ~> routes
+      supervisorProbe.expectMsg(new CreateContext(apd))
+      supervisorProbe.reply(Unit)
+      test ~> check {
+        status should equal(OK)
       }
     }
     "Delete policy" in {
       val PolicyName = "p-1"
-      val test = Delete("/policy/" + PolicyName) ~> routes
+      val test = Delete(s"${HttpConstant.PolicyContextPath}/$PolicyName") ~> routes
       supervisorProbe.expectMsg(new DeleteContext(PolicyName))
       supervisorProbe.reply(new StreamingContextStatus(PolicyName, Removed, None))
       test ~> check {
