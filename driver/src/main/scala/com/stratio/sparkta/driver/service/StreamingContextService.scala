@@ -17,7 +17,12 @@
 package com.stratio.sparkta.driver.service
 
 import java.io.File
-
+import org.json4s.ext.EnumNameSerializer
+import org.json4s._
+import org.json4s.native.Serialization
+import org.json4s.native.Serialization.{read, write}
+import org.json4s.native.JsonMethods._
+import org.json4s.{DefaultFormats, _}
 import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
@@ -25,14 +30,16 @@ import akka.util.Timeout
 import com.stratio.sparkta.driver.factory._
 import com.stratio.sparkta.driver.models._
 import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.messages.ActorsMessages._
+import com.stratio.sparkta.serving.core.messages.JobServerMessages._
 import com.typesafe.config.Config
 import org.apache.spark.streaming.StreamingContext
 import scala.concurrent.duration._
 
 class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging {
 
-  implicit val timeout: Timeout = Timeout(15.seconds)
+  implicit val timeout: Timeout = Timeout(60.seconds)
+  implicit val json4sJacksonFormats = DefaultFormats
+  implicit val formats = Serialization.formats(NoTypeHints)
 
   def createStreamingContext(apConfig: AggregationPoliciesModel, jobServerRef: ActorRef): StreamingContext = {
     val OutputsSparkConfiguration = "getSparkConfiguration"
@@ -41,8 +48,17 @@ class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SL
       log.warn(s"The policy have jars witch cannot be found in classpath:")
       activeJars.left.get.foreach(log.warn)
     } else {
+      val policyStr = write(apConfig)
       val activeJarsFilesToSend = SparktaJob.activeJarFiles(activeJars.right.get, jars)
+      //TODO only one input, the next iteration we support all inputs
       jobServerRef ? new JobServerSupervisorActor_uploadJars(activeJarsFilesToSend)
+      jobServerRef ? new JobServerSupervisorActor_createContext(s"${apConfig.name}-${apConfig.inputs.head.name}",
+        "4","512m")
+      jobServerRef ? new JobServerSupervisorActor_uploadPolicy("driver-plugin.jar",
+        "com.stratio.sparkta.driver.service.SparktaJob",
+        policyStr,
+        Some(s"${apConfig.name}-${apConfig.inputs.head.name}"))
+
     }
     val specifictSparkConfig = SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
     val sc = SparkContextFactory.sparkContextInstance(generalConfig, specifictSparkConfig, jars)

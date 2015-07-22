@@ -38,7 +38,7 @@ import com.stratio.sparkta.sdk._
 
 object SparktaJob {
 
-  val baseJars = Seq("aggregator-plugin.jar", "sdk-plugin.jar")
+  val baseJars = Seq("driver-plugin.jar", "aggregator-plugin.jar", "sdk-plugin.jar")
 
   def runSparktaJob(sc: SparkContext, apConfig: AggregationPoliciesModel): Any = {
     val ssc = SparkContextFactory.sparkStreamingInstance(
