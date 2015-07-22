@@ -16,11 +16,10 @@
 
 package com.stratio.sparkta.serving.api.service.http
 
-
 import akka.pattern.ask
 import com.stratio.sparkta.driver.models.FragmentElementModel
 import com.stratio.sparkta.serving.api.actor._
-import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.api.constants.{AkkaConstant, HttpConstant}
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing.Route
@@ -99,10 +98,20 @@ trait FragmentHttpService extends BaseHttpService {
     path(HttpConstant.FragmentPath / Segment / Segment) { (fragmentType, name) =>
       delete {
         complete {
+          val policyActor = actors.get(AkkaConstant.PolicyActor).get
           val future = supervisor ? new FragmentSupervisorActor_deleteByTypeAndName(fragmentType, name)
           Await.result(future, timeout.duration) match {
             case FragmentSupervisorActor_response(Failure(exception)) => throw exception
-            case FragmentSupervisorActor_response(Success(_)) => HttpResponse(StatusCodes.OK)
+            case FragmentSupervisorActor_response(Success(_)) => {
+              Await.result(
+                policyActor ? PolicySupervisorActor_findByFragment(fragmentType, name), timeout.duration) match {
+                  case PolicySupervisorActor_response_policies(Failure(exception)) => throw exception
+                  case PolicySupervisorActor_response_policies(Success(policies)) => {
+                    policies.map(policy => policyActor ! PolicySupervisorActor_delete(policy.name))
+                  }
+                }
+              HttpResponse(StatusCodes.OK)
+            }
           }
         }
       }

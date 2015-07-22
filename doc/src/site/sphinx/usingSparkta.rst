@@ -82,7 +82,7 @@ Submitting a Policy
 
 The policy must be submitted with the following syntax::
 
-    curl -H "Content-Type: application/json" --data @PATH-TO-POLICY http://<SPARKTA-HOST>:<SPARKTA-PORT>
+    curl -H "Content-Type: application/json" --data @PATH-TO-POLICY http://<SPARKTA-HOST>:<SPARKTA-PORT>/policyContext
 
 Example::
 

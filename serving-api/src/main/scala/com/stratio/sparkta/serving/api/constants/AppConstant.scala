@@ -22,9 +22,9 @@ package com.stratio.sparkta.serving.api.constants
  */
 object AppConstant {
 
-  final val JarPaths = Seq("plugins", "sdk", "aggregator")
-  final val ConfigAppName = "sparkta"
-  final val ConfigApi = "api"
+  final val JarPaths        = Seq("plugins", "sdk", "aggregator")
+  final val ConfigAppName   = "sparkta"
+  final val ConfigApi       = "api"
   final val ConfigJobServer = "jobServer"
 
 }

@@ -22,8 +22,9 @@ import com.gettyimages.spray.swagger.SwaggerHttpService
 import com.stratio.sparkta.driver.models.{ErrorModel, StreamingContextStatusEnum}
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.api.service.http.{FragmentHttpService, JobServerHttpService, PolicyHttpService, TemplateHttpService}
-import com.typesafe.config.Config
+import com.stratio.sparkta.serving.api.constants.{HttpConstant, AkkaConstant}
+import com.stratio.sparkta.serving.api.service.http._
+
 import com.wordnik.swagger.model.ApiInfo
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.DefaultFormats
@@ -32,12 +33,13 @@ import org.json4s.native.Serialization._
 import spray.http.StatusCodes
 import spray.routing._
 import spray.util.LoggingContext
+import com.typesafe.config.Config
 
 import scala.reflect.runtime.universe._
 
 class ControllerActor(streamingContextService: StreamingContextService,
                       curatorFramework: CuratorFramework,
-                      configJobServer: Config) extends HttpServiceActor with SLF4JLogging {
+                      actorsMap: Map[String, ActorRef]) extends HttpServiceActor with SLF4JLogging {
 
   override implicit def actorRefFactory: ActorContext = context
 
@@ -49,50 +51,47 @@ class ControllerActor(streamingContextService: StreamingContextService,
     ExceptionHandler {
       case exception: Exception =>
         requestUri { uri =>
-          logg.error(exception.getLocalizedMessage, exception)
+          log.error(exception.getLocalizedMessage, exception)
           complete(StatusCodes.NotFound, write(ErrorModel("Error", exception.getLocalizedMessage)))
         }
     }
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(
     serviceRoutes ~
-      swaggerService ~
-      swaggerUIroutes
+    swaggerService ~
+    swaggerUIroutes
   ))
 
-  val jobServerActor =
-    context.actorOf(Props(new JobServerActor(configJobServer.getString("host"),
-      configJobServer.getInt("port"))), "jobServerActor")
-
   val serviceRoutes: Route =
-    new JobServerHttpService {
-      override val supervisor = jobServerActor
-
-      override implicit def actorRefFactory: ActorRefFactory = context
-    }.routes ~
-      new PolicyHttpService {
-        val streamingActor = context.actorOf(Props(new StreamingActor(streamingContextService, jobServerActor)),
-          "streamingActor")
-        override val supervisor = streamingActor
-
+      new JobServerHttpService {
+        implicit val actors = actorsMap
+        override val supervisor = actorsMap.get(AkkaConstant.JobServerActor).get
         override implicit def actorRefFactory: ActorRefFactory = context
       }.routes ~
       new FragmentHttpService {
-        val fragmentActor = context.actorOf(Props(new FragmentActor(curatorFramework)), "fragmentActor")
-        override val supervisor = fragmentActor
-
+        implicit val actors = actorsMap
+        override val supervisor = actorsMap.get(AkkaConstant.FragmentActor).get
         override implicit def actorRefFactory: ActorRefFactory = context
       }.routes ~
       new TemplateHttpService {
-        val templateActor = context.actorOf(Props(new TemplateActor()), "templateActor")
-        override val supervisor = templateActor
-
+        implicit val actors = actorsMap
+        override val supervisor = actorsMap.get(AkkaConstant.TemplateActor).get
+        override implicit def actorRefFactory: ActorRefFactory = context
+      }.routes ~
+      new PolicyHttpService {
+        implicit val actors = actorsMap
+        override val supervisor = actorsMap.get(AkkaConstant.PolicyActor).get
+        override implicit def actorRefFactory: ActorRefFactory = context
+      }.routes ~
+      new PolicyContextHttpService {
+        implicit val actors = actorsMap
+        override val supervisor = actorsMap.get(AkkaConstant.StreamingActor).get
         override implicit def actorRefFactory: ActorRefFactory = context
       }.routes
 
   def swaggerUIroutes: Route =
     get {
-      pathPrefix("swagger") {
+      pathPrefix(HttpConstant.SwaggerPath) {
         pathEndOrSingleSlash {
           getFromResource("swagger-ui/index.html")
         }
@@ -104,7 +103,9 @@ class ControllerActor(streamingContextService: StreamingContextService,
       typeOf[JobServerHttpService],
       typeOf[PolicyHttpService],
       typeOf[FragmentHttpService],
-      typeOf[TemplateHttpService])
+      typeOf[TemplateHttpService],
+      typeOf[PolicyHttpService],
+      typeOf[PolicyContextHttpService])
 
     override def apiVersion: String = "1.0"
 

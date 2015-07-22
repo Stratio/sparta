@@ -23,11 +23,13 @@ package com.stratio.sparkta.serving.api.constants
 object HttpConstant {
 
   /**
-   * Endpoints of the web application.
+   * Serving api prefix endpoints
    */
-  final val FragmentPath = "fragment"
-
-  final val TemplatePath = "template"
+  final val FragmentPath      = "fragment"
+  final val TemplatePath      = "template"
+  final val PolicyPath        = "policy"
+  final val PolicyContextPath = "policyContext"
+  final val SwaggerPath       = "swagger"
 
   /**
    * Http codes.

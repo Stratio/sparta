@@ -71,8 +71,9 @@ class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4
 
   def doDetail(fragmentType: String, name: String): Unit =
     sender ! new FragmentSupervisorActor_response_fragment(Try({
+      log.info(s"> Retrieving information for path: ${FragmentActor.generateFragmentPath(fragmentType)}/$name)")
       read[FragmentElementModel](new String(curatorFramework.getData.forPath(
-        s"${FragmentActor.generateFragmentPath(fragmentType)}/$name)").asInstanceOf[Array[Byte]]))
+        s"${FragmentActor.generateFragmentPath(fragmentType)}/$name")))
     }))
   
   def doCreate(fragment: FragmentElementModel): Unit =

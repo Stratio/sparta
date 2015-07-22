@@ -21,7 +21,7 @@ import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
 import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
-import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, PolicyElementModel, StreamingContextStatus, StreamingContextStatusEnum}
+import com.stratio.sparkta.driver.models._
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.exception.ServingApiException
 
@@ -30,17 +30,11 @@ import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 case class CreateContext(policy: AggregationPoliciesModel)
-
 case class GetContextStatus(contextName: String)
-
 case class GetAllContextStatus()
-
 case class StopContext(contextName: String)
-
 case class DeleteContext(contextName: String)
-
 case class CreateFragment(fragment: PolicyElementModel)
-
 case class ContextActorStatus(actor: ActorRef, status: StreamingContextStatusEnum.Status, description: Option[String])
 
 class StreamingActor(streamingContextService: StreamingContextService, jobServerRef: ActorRef)

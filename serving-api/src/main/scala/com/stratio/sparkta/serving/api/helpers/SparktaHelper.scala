@@ -26,7 +26,8 @@ import akka.io.IO
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.helpers.{ConfigFactory, SparktaConfigFactory, SparktaSystem, System}
 import com.stratio.sparkta.driver.service.StreamingContextService
-import com.stratio.sparkta.serving.api.actor.ControllerActor
+import com.stratio.sparkta.serving.api.actor._
+import com.stratio.sparkta.serving.api.constants.AkkaConstant
 import com.stratio.sparkta.serving.api.factory.CuratorFactoryHolder
 import com.typesafe.config.Config
 import spray.can.Http
@@ -89,6 +90,7 @@ object SparktaHelper extends SLF4JLogging {
    * Initializes Sparkta's akka system running an embedded http server with the REST API.
    * @param configSparkta with Sparkta's global configuration.
    * @param configApi with http server's configuration.
+   * @param configJobServer with jobServer's configuration.
    * @param jars that will be loaded.
    * @param appName with the name of the application.
    */
@@ -103,8 +105,25 @@ object SparktaHelper extends SLF4JLogging {
     log.info("> Initializing akka actors")
     system = ActorSystem(appName)
 
-    val controller = system.actorOf(Props(new ControllerActor(
-      streamingContextService, curatorFramework, configJobServer)), "controllerActor")
+    val jobServerActor =
+      system.actorOf(Props(new JobServerActor(configJobServer.getString("host"),
+        configJobServer.getInt("port"))), AkkaConstant.JobServerActor)
+
+    implicit val actors = Map(
+      AkkaConstant.FragmentActor ->
+        system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor),
+      AkkaConstant.TemplateActor ->
+        system.actorOf(Props(new TemplateActor()), AkkaConstant.TemplateActor),
+      AkkaConstant.PolicyActor ->
+        system.actorOf(Props(new PolicyActor(curatorFramework)), AkkaConstant.PolicyActor),
+      AkkaConstant.StreamingActor -> system.actorOf(
+        Props(new StreamingActor(streamingContextService, jobServerActor)), AkkaConstant.StreamingActor),
+      AkkaConstant.JobServerActor ->
+        jobServerActor
+    )
+
+    val controller = system.actorOf(
+      Props(new ControllerActor(streamingContextService, curatorFramework, actors)), AkkaConstant.ControllerActor)
 
     IO(Http) ! Http.Bind(controller, interface = configApi.getString("host"), port = configApi.getInt("port"))
     log.info("> System UP!")
@@ -141,6 +160,9 @@ object SparktaHelper extends SLF4JLogging {
     method.invoke(ClassLoader.getSystemClassLoader(), file.toURI().toURL());
   }
 
+  /**
+   * Destroys Spark's context.
+   */
   def shutdown: Unit = {
     SparkContextFactory.destroySparkContext
     system.shutdown
