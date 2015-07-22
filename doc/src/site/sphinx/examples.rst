@@ -238,7 +238,7 @@ Now let's send the policy to sparkta::
 
       cd /opt/sds/sparkta
 
-      curl -X POST -H "Content-Type: application/json" --data @examples/policies/ITwitter-OMongo-Example.json localhost:9090/policies
+      curl -X POST -H "Content-Type: application/json" --data @examples/policies/ITwitter-OMongo-Example.json localhost:9090/policyContext
 
 When sparkta is running it's ready to work, open your twitter account and write some tweets within a minute, since we are going to aggregate by minute(You can see the full policy |twitter_policy_link|)
 

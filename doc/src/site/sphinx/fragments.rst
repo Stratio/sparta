@@ -31,7 +31,7 @@ Let's imagine that you want to use a Twitter's input in some policies but you do
 
 Then you can save this fragment in Sparkta:
 ::
-    curl -X POST -H "Content-Type: application/json" --data @examples/policiesfragments/twitterExample.json localhost:9090/fragment
+    curl -X POST -H "Content-Type: application/json" --data @examples/fragments/twitterExample.json localhost:9090/fragment
 
 Now you can include this fragment in every policy that has Twitter as input in a simple and comprehensible way:
 ::
