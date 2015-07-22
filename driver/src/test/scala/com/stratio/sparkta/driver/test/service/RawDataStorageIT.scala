@@ -30,7 +30,7 @@ import org.scalatest.junit.JUnitRunner
  * @author arincon
  *         This test sucks and I know it...
  */
-@RunWith(classOf[JUnitRunner])
+//@RunWith(classOf[JUnitRunner])
 class RawDataStorageIT extends TestSuiteBase {
 
   val ExpectedResult: Long = 6

@@ -54,7 +54,7 @@ trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogg
   val TestServerZKPort = 6666
   val SocketPort = 10666
   val SparktaSleep = 3000
-  val PolicySleep = 25000
+  val PolicySleep = 10000
   val PolicyEndSleep = 30000
 
   val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data.csv").getPath
@@ -88,8 +88,9 @@ trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogg
     val sparktaHome = SparktaHelper.initSparktaHome(new MockSystem(Map("SPARKTA_HOME" -> getSparktaHome), Map()))
     val jars = SparktaHelper.initJars(AppConstant.JarPaths, sparktaHome)
     val sparktaPort = configApi.getInt("port")
+    val configJobServer = SparktaHelper.initConfig(AppConstant.ConfigJobServer, Some(sparktaConfig))
 
-    SparktaHelper.initAkkaSystem(sparktaConfig, configApi, jars, AppConstant.ConfigAppName)
+    SparktaHelper.initAkkaSystem(sparktaConfig, configApi, configJobServer, jars, AppConstant.ConfigAppName)
     sleep(SparktaSleep)
 
     openSocket(sparktaPort).isSuccess should be(true)
@@ -129,7 +130,7 @@ trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogg
     val policy = Source.fromFile(new File(path)).mkString // execution context for futures
     val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
     val promise: Future[HttpResponse] =
-      pipeline(Post(s"http://${Localhost}:${SparktaPort}/policies",
+      pipeline(Post(s"http://${Localhost}:${SparktaPort}/policyContext",
         HttpEntity(ContentType(MediaTypes.`application/json`, HttpCharsets.`UTF-8`), policy)))
 
     val response: HttpResponse = Await.result(promise, Timeout(5.seconds).duration)
