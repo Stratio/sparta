@@ -33,33 +33,28 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
   feature("A policy that contains fragments must parse these fragments and join them to input/outputs depending of " +
     "its type") {
     Given("a policy with an input, an output and a fragment with an input")
-    val checkpointInterval = 10000
-    val checkpointAvailable = 60000
-    val checkpointGranularity = "minute"
     val checkpointDir = "checkpoint"
-    val checkpointDto =
-      new CheckpointModel(checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable)
 
     val ap = new AggregationPoliciesModel(
       "policy-test",
       sparkStreamingWindow = 2000,
+      checkpointDir,
       new RawDataModel(),
       transformations = Seq(),
       cubes = Seq(),
       inputs = Seq(
-        PolicyElementModel("input1", "input")),
+        PolicyElementModel("input1", "input", Map())),
       outputs = Seq(
-        PolicyElementModel("output1", "output")),
+        PolicyElementModel("output1", "output", Map())),
       fragments = Seq(
         FragmentElementModel(
           name = "fragment1",
           fragmentType = "input",
-          element = PolicyElementModel("inputF", "input")),
+          element = PolicyElementModel("inputF", "input", Map())),
         FragmentElementModel(
           name = "fragment1",
           fragmentType = "output",
-          element = PolicyElementModel("outputF", "output"))),
-      checkpointing = checkpointDto
+          element = PolicyElementModel("outputF", "output", Map())))
     )
 
     When("the helper parse these fragments")
@@ -67,13 +62,13 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
 
     Then("inputs/outputs must have the existing input/outputs and the parsed input fragment")
     result.inputs.toSet should equal(Seq(
-      PolicyElementModel("input1", "input"),
-      PolicyElementModel("inputF", "input")).toSet
+      PolicyElementModel("input1", "input", Map()),
+      PolicyElementModel("inputF", "input", Map())).toSet
     )
 
     result.outputs.toSet should equal(Seq(
-      PolicyElementModel("output1", "output"),
-      PolicyElementModel("outputF", "output")).toSet
+      PolicyElementModel("output1", "output", Map()),
+      PolicyElementModel("outputF", "output", Map())).toSet
     )
   }
 }

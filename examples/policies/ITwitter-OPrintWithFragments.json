@@ -1,17 +1,11 @@
 {
   "name": "policy-Twitter-Print",
   "sparkStreamingWindow": 6000,
+  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "partitionFormat": "day",
     "path": "myTestParquetPath"
-  },
-  "checkpointing": {
-    "path": "checkpoint",
-    "timeDimension": "minute",
-    "granularity": "minute",
-    "interval": 30000,
-    "timeAvailability": 60000
   },
   "fragments": [
     {
@@ -23,6 +17,12 @@
   "cubes": [
     {
       "name": "testCube",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "name": "hashtags",

@@ -1,17 +1,11 @@
 {
   "name": "policy-MongoDB-Financtial",
   "sparkStreamingWindow": 6000,
+  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "partitionFormat": "day",
     "path": "myTestParquetPath"
-  },
-  "checkpointing": {
-    "path": "checkpoint",
-    "timeDimension": "minute",
-    "granularity": "minute",
-    "interval": 30000,
-    "timeAvailability": 60000
   },
   "inputs": [
     {
@@ -105,6 +99,12 @@
   "cubes": [
     {
       "name": "extra1",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "name": "extra1",
@@ -129,6 +129,12 @@
     },
     {
       "name": "platform_device",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "name": "platform",
@@ -156,6 +162,12 @@
     },
     {
       "name": "appname",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "field": "appName",
@@ -174,6 +186,12 @@
     },
     {
       "name": "session",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "name": "session",
@@ -198,6 +216,12 @@
     },
     {
       "name": "applang",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "name": "appLang",
@@ -222,6 +246,12 @@
     },
     {
       "name": "geo",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "field": "geo",
@@ -242,6 +272,12 @@
     },
     {
       "name": "appCountry",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "name": "appCountry",
@@ -266,6 +302,12 @@
     },
     {
       "name": "appPlatform_time",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "name": "appPlatform",
@@ -290,6 +332,12 @@
     },
     {
       "name": "appPlatform_time",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "name": "appPlatform",
@@ -308,6 +356,12 @@
     },
     {
       "name": "appCountry",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "name": "appCountry",

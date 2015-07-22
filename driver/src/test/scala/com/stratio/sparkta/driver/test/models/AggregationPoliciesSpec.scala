@@ -29,7 +29,7 @@ with MockitoSugar
 with Matchers {
 
   "A AggregationPoliciesValidator should" should {
-    "validate dimensions is required and has at least 1 element" in {
+    "validate dimensions are required and have at least 1 element" in {
 
       val sparkStreamingWindow = 2000
       val checkpointInterval = 10000
@@ -37,7 +37,7 @@ with Matchers {
       val checkpointGranularity = "minute"
       val checkpointDir = "checkpoint"
       val checkpointDto =
-        new CheckpointModel(checkpointDir, "", checkpointGranularity, checkpointInterval, checkpointAvailable)
+        new CheckpointModel(checkpointGranularity, checkpointGranularity, checkpointInterval, checkpointAvailable)
 
       val configuration: Map[String, JsoneyString] =
         Map(("topics", new JsoneyString("zion2:1")), ("kafkaParams.group.id", new JsoneyString("kafka-pruebas")))
@@ -45,7 +45,7 @@ with Matchers {
 
       val cubeName = "cubeTest"
       val DimensionToCube = "dimension2"
-      val cubeDto = new CubeModel(cubeName, Seq(new DimensionModel(
+      val cubeDto = new CubeModel(cubeName, checkpointDto, Seq(new DimensionModel(
         DimensionToCube, "field1", DimensionType.IdentityName, DimensionType.DefaultDimensionClass, None)),
         Seq())
 
@@ -54,32 +54,29 @@ with Matchers {
       val apd = new AggregationPoliciesModel(
         "policy-name",
         sparkStreamingWindow,
+        checkpointDir,
         rawDataDto,
         Seq(),
         Seq(cubeDto),
         Seq(input),
         Seq(mock[PolicyElementModel]),
-        Seq(mock[FragmentElementModel]),
-      checkpointDto)
+        Seq(mock[FragmentElementModel]))
 
       val test = AggregationPoliciesValidator.validateDto(apd)
 
       test._1 should equal(true)
 
       val sparkStreamingWindowBad = 20000
-      val checkpointIntervalBad = 10000
-      val checkpointDtoBad =
-        new CheckpointModel(checkpointDir, "", checkpointGranularity, checkpointIntervalBad, checkpointAvailable)
       val apdBad = new AggregationPoliciesModel(
         "policy-name",
         sparkStreamingWindowBad,
+        checkpointDir,
         rawDataDto,
         Seq(),
         Seq(cubeDto),
         Seq(input),
         Seq(mock[PolicyElementModel]),
-        Seq(mock[FragmentElementModel]),
-        checkpointDtoBad)
+        Seq(mock[FragmentElementModel]))
 
       val test2 = AggregationPoliciesValidator.validateDto(apdBad)
 

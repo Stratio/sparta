@@ -1,17 +1,11 @@
 {
   "name": "ATSocketMongoDetector",
   "sparkStreamingWindow": 2000,
+  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "partitionFormat": "day",
     "path": "myTestParquetPath"
-  },
-  "checkpointing": {
-    "path": "checkpoint",
-    "timeDimension": "recordedAtMs",
-    "granularity": "minute",
-    "interval": 30000,
-    "timeAvailability": 60000000000000
   },
   "inputs": [
     {
@@ -57,6 +51,12 @@
   "cubes": [
     {
       "name": "rpmAvg",
+      "checkpointConfig": {
+        "timeDimension": "recordedAtMs",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000000000000
+      },
       "dimensions": [
         {
           "name": "companyRoot",
@@ -91,6 +91,12 @@
     },
     {
       "name": "maxMinOdometer",
+      "checkpointConfig": {
+        "timeDimension": "recordedAtMs",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000000000000
+      },
       "dimensions": [
         {
           "name": "companyRoot",

@@ -43,7 +43,7 @@ object SparktaJob {
   def runSparktaJob(sc: SparkContext, apConfig: AggregationPoliciesModel): Any = {
     val ssc = SparkContextFactory.sparkStreamingInstance(
       new Duration(apConfig.sparkStreamingWindow),
-      apConfig.checkpointing.path).get
+      apConfig.checkpointPath).get
     val inputs = SparktaJob.inputs(apConfig, ssc)
     val parsers =
       SparktaJob.parsers(apConfig).sortWith((parser1, parser2) => parser1.getOrder < parser2.getOrder)
@@ -67,15 +67,13 @@ object SparktaJob {
       val cubeOpSchema = SchemaFactory.cubesOperatorsSchemas(cubes, outputsSchemaConfig)
       if (cubeOpSchema.size > 0) Some(sc.broadcast(cubeOpSchema)) else None
     }
-    val datePrecision = if (apConfig.checkpointing.timeDimension.isEmpty) None
-    else Some(apConfig.checkpointing.timeDimension)
-    val timeName = if (datePrecision.isDefined) datePrecision.get else apConfig.checkpointing.granularity
-    val outputs = SparktaJob.outputs(apConfig, sc, bcOperatorsKeyOperation, bcCubeOperatorSchema, timeName)
+
+    val outputs = SparktaJob.outputs(apConfig, sc, bcOperatorsKeyOperation, bcCubeOperatorSchema)
     val input: DStream[Event] = inputs.head._2
     SparktaJob.saveRawData(apConfig, input)
     val parsed = SparktaJob.applyParsers(input, parsers)
 
-    val dataCube = new CubeMaker(cubes, datePrecision, apConfig.checkpointing.granularity).setUp(parsed)
+    val dataCube = new CubeMaker(cubes).setUp(parsed)
     outputs.map(_._2.persist(dataCube))
   }
 
@@ -87,7 +85,7 @@ object SparktaJob {
     }
   }
 
-  lazy val getClasspathMap: Map[String, String] = {
+  val getClasspathMap: Map[String, String] = {
     val reflections = new Reflections()
     val inputs = reflections.getSubTypesOf(classOf[Input]).toList
     val dimensionTypes = reflections.getSubTypesOf(classOf[DimensionType]).toList
@@ -142,17 +140,15 @@ object SparktaJob {
   def outputs(apConfig: AggregationPoliciesModel,
               sparkContext: SparkContext,
               bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-              bcCubeOperatorSchema: Option[Broadcast[Seq[TableSchema]]],
-              timeName: String): Seq[(String, Output)] =
+              bcCubeOperatorSchema: Option[Broadcast[Seq[TableSchema]]]): Seq[(String, Output)] =
     apConfig.outputs.map(o => (o.name, tryToInstantiate[Output](o.`type` + Output.ClassSuffix, (c) =>
       c.getDeclaredConstructor(
         classOf[String],
         classOf[Map[String, Serializable]],
         classOf[SparkContext],
         classOf[Option[Broadcast[Map[String, (WriteOp, TypeOp)]]]],
-        classOf[Option[Broadcast[Seq[TableSchema]]]],
-        classOf[String])
-        .newInstance(o.name, o.configuration, sparkContext, bcOperatorsKeyOperation, bcCubeOperatorSchema, timeName)
+        classOf[Option[Broadcast[Seq[TableSchema]]]])
+        .newInstance(o.name, o.configuration, sparkContext, bcOperatorsKeyOperation, bcCubeOperatorSchema)
         .asInstanceOf[Output])))
 
   def cubes(apConfig: AggregationPoliciesModel): Seq[Cube] =
@@ -168,13 +164,18 @@ object SparktaJob {
       })
       val operators = SparktaJob.getOperators(cube.operators)
 
+      val datePrecision = if (cube.checkpointConfig.timeDimension.isEmpty) None
+      else Some(cube.checkpointConfig.timeDimension)
+      val timeName = if (datePrecision.isDefined) datePrecision.get else cube.checkpointConfig.granularity
+
       new Cube(name,
         dimensions,
         operators,
         multiplexer,
-        apConfig.checkpointing.interval,
-        apConfig.checkpointing.granularity,
-        apConfig.checkpointing.timeAvailability)
+        timeName,
+        cube.checkpointConfig.interval,
+        cube.checkpointConfig.granularity,
+        cube.checkpointConfig.timeAvailability)
     })
 
   def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C =

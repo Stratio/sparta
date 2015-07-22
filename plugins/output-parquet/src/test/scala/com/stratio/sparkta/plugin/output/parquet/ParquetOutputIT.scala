@@ -57,12 +57,12 @@ class ParquetOutputSpec extends FlatSpec with ShouldMatchers with BeforeAndAfter
   trait WithEventData extends CommonValues {
 
     val properties = Map("path" -> tmpPath)
-    val output = new ParquetOutput("parquet-test", properties, sc, None, None, "minute")
+    val output = new ParquetOutput("parquet-test", properties, sc, None, None)
   }
 
   trait WithWrongOutput extends CommonValues {
 
-    val output = new ParquetOutput("parquet-test", Map(), sc, None, None, "")
+    val output = new ParquetOutput("parquet-test", Map(), sc, None, None)
   }
 
   trait WithDatePattern extends CommonValues {
@@ -70,7 +70,7 @@ class ParquetOutputSpec extends FlatSpec with ShouldMatchers with BeforeAndAfter
     val datePattern = "yyyy/MM/dd"
     val properties = Map("path" -> tmpPath, "datePattern" -> datePattern)
     val granularity = "minute"
-    val output = new ParquetOutput("parquet-test", properties, sc, None, None, granularity)
+    val output = new ParquetOutput("parquet-test", properties, sc, None, None)
     val dt = DateTime.now
     val expectedPath = "/" + DateTimeFormat.forPattern(datePattern).print(dt) + "/" + dt.withMillisOfSecond(0)
       .withSecondOfMinute(0).getMillis
@@ -80,12 +80,12 @@ class ParquetOutputSpec extends FlatSpec with ShouldMatchers with BeforeAndAfter
 
     val datePattern = "yyyy/MM/dd"
     val properties = Map("path" -> tmpPath, "datePattern" -> datePattern)
-    val output = new ParquetOutput("parquet-test", properties, sc, None, None, "")
+    val output = new ParquetOutput("parquet-test", properties, sc, None, None)
     val expectedPath = "/0"
   }
 
   "ParquetOutputSpec" should "save a dataframe" in new WithEventData {
-    output.upsert(data, "person")
+    output.upsert(data, "person", "minute")
     val read = sqlContext.parquetFile(tmpPath).toDF
     read.count should be(3)
     read should be eq (data)
@@ -93,7 +93,7 @@ class ParquetOutputSpec extends FlatSpec with ShouldMatchers with BeforeAndAfter
   }
 
   it should "throw an exception when path is not present" in new WithWrongOutput {
-    an[Exception] should be thrownBy output.upsert(data, "person")
+    an[Exception] should be thrownBy output.upsert(data, "person", "minute")
   }
 
   it should "format path with pattern" in new WithDatePattern {

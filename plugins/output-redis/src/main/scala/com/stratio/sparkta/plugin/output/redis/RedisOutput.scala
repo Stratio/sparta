@@ -37,9 +37,8 @@ class RedisOutput(keyName: String,
                   properties: Map[String, Serializable],
                   @transient sparkContext: SparkContext,
                   operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                  bcSchema: Option[Broadcast[Seq[TableSchema]]],
-                  timeName: String)
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema, timeName)
+                  bcSchema: Option[Broadcast[Seq[TableSchema]]])
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema)
   with AbstractRedisDAO with Serializable {
 
   override val hostname = properties.getString("hostname", DefaultRedisHostname)
@@ -60,12 +59,13 @@ class RedisOutput(keyName: String,
    */
   override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     metricOperations.toList.groupBy(upMetricOp =>
-      AggregateOperations.keyString(upMetricOp._1, timeName, fixedDimensions))
+      AggregateOperations.keyString(upMetricOp._1, upMetricOp._1.timeDimension, fixedDimensions))
       .filter(_._1.size > 0).foreach(collMetricOp => {
       collMetricOp._2.foreach(metricOp => {
+        val timeDimension = metricOp._1.timeDimension
         val hashKey = collMetricOp._1 + IdSeparator + metricOp._1.dimensionValues
           .map(dimVal => List(dimVal.getNameDimension, dimVal.value.toString))
-          .flatMap(_.toSeq).mkString(IdSeparator) + IdSeparator + timeName + IdSeparator + metricOp._1.time
+          .flatMap(_.toSeq).mkString(IdSeparator) + IdSeparator + timeDimension + IdSeparator + metricOp._1.time
 
         metricOp._2.foreach(aggregation => {
           val currentOperation = operationTypes.get.value.get(aggregation._1).get._1

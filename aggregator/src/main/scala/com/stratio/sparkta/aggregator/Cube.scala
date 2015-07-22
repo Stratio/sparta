@@ -37,6 +37,7 @@ case class Cube(name: String,
                 dimensions: Seq[Dimension],
                 operators: Seq[Operator],
                 multiplexer: Boolean,
+                checkpointTimeDimension: String,
                 checkpointInterval: Int,
                 checkpointGranularity: String,
                 checkpointTimeAvailability: Long) {
@@ -47,12 +48,15 @@ case class Cube(name: String,
            dimension: Dimension,
            operators: Seq[Operator],
            multiplexer: Boolean,
+           checkpointTimeDimension: String,
            checkpointInterval: Int,
            checkpointGranularity: String,
            checkpointAvailable: Int) {
-    this(name, Seq(dimension),
+    this(name,
+      Seq(dimension),
       operators,
       multiplexer,
+      checkpointTimeDimension,
       checkpointInterval,
       checkpointGranularity,
       checkpointAvailable)
@@ -70,7 +74,7 @@ case class Cube(name: String,
     dimensionValues.map { case (dimensionsValuesTime, aggregationValues) => {
       val dimensionsFiltered = dimensionsValuesTime.dimensionValues.filter(dimVal =>
         dimensions.find(comp => comp.name == dimVal.dimension.name).nonEmpty)
-      (DimensionValuesTime(dimensionsFiltered, dimensionsValuesTime.time), aggregationValues)
+      (DimensionValuesTime(dimensionsFiltered, dimensionsValuesTime.time, checkpointTimeDimension), aggregationValues)
     }
     }
   }

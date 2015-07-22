@@ -16,8 +16,7 @@
 
 package com.stratio.sparkta.driver.models
 
-case class CheckpointModel(path: String,
-                          timeDimension: String,
+case class CheckpointModel(timeDimension: String,
                           granularity: String,
                           interval: Integer,
                           timeAvailability: Long)

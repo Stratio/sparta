@@ -1,17 +1,11 @@
 {
   "name": "policy-Kafka-Mongo-Zion",
   "sparkStreamingWindow": 6000,
+  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "partitionFormat": "day",
     "path": "myTestParquetPath"
-  },
-  "checkpointing": {
-    "path": "checkpoint",
-    "timeDimension": "minute",
-    "granularity": "minute",
-    "interval": 30000,
-    "timeAvailability": 60000
   },
   "inputs": [
     {
@@ -231,6 +225,12 @@
   "cubes": [
     {
       "name": "time",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "field": "timestamp",
@@ -263,6 +263,12 @@
     },
     {
       "name": "session",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "name": "session",
@@ -299,6 +305,12 @@
     },
     {
       "name": "platform",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "name": "platform",
@@ -329,6 +341,12 @@
     },
     {
       "name": "device",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "name": "device",
@@ -359,6 +377,12 @@
     },
     {
       "name": "geo",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "name": "precision6",
@@ -391,6 +415,12 @@
     },
     {
       "name": "appPlatform",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "name": "appPlatform",

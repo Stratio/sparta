@@ -40,11 +40,10 @@ class ParquetOutput(keyName: String,
                     properties: Map[String, JSerializable],
                     @transient sparkContext: SparkContext,
                     operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                    bcSchema: Option[Broadcast[Seq[TableSchema]]],
-                    timeName: String)
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema, timeName: String) with Logging {
+                    bcSchema: Option[Broadcast[Seq[TableSchema]]])
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with Logging {
 
-  override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
+  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
     val path = properties.getString("path", None)
     require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
     val subPath = DateOperations.generateParquetPath()

@@ -32,11 +32,11 @@ trait Multiplexer {
 
 object Multiplexer {
 
-  def combine[T, U](in: (Seq[T], U)): Seq[(Seq[T], U)] = {
+  def combine[T, U, String](in: (Seq[T], U, String)): Seq[(Seq[T], U, String)] = {
     for {
       len <- 1 to in._1.length
       combinations <- in._1 combinations len
-    } yield (combinations, in._2)
+    } yield (combinations, in._2, in._3)
   }
 
   def combine[T](in: Seq[T]): Seq[Seq[T]] = {
@@ -51,7 +51,7 @@ object Multiplexer {
     for {
       (dimensionValuesT, aggregations) <- stream
       comb <- combine(dimensionValuesT.dimensionValues).filter(dimVals => dimVals.size >= 1)
-    } yield (DimensionValuesTime(comb.sorted, dimensionValuesT.time), aggregations)
+    } yield (DimensionValuesTime(comb.sorted, dimensionValuesT.time, dimensionValuesT.timeDimension), aggregations)
   }
 
   def multiplexStream[T](stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])], fixedDimensions: Array[T])
@@ -69,6 +69,6 @@ object Multiplexer {
         dimensionValuesT.dimensionValues.filter(dimVal =>
           !fixedDims.map(dim => dim.dimension.name).contains(dimVal.dimension.name)
         )).filter(_.size >= 1).map(dimensionsValues => dimensionsValues ++ fixedDims)
-    } yield (DimensionValuesTime(comb.sorted, dimensionValuesT.time), aggregations)
+    } yield (DimensionValuesTime(comb.sorted, dimensionValuesT.time, dimensionValuesT.timeDimension), aggregations)
   }
 }

@@ -1,17 +1,11 @@
 {
   "name": "policy-kafka",
   "sparkStreamingWindow": 2000,
+  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "true",
     "partitionFormat": "day",
     "path": "myTestParquetPath"
-  },
-  "checkpointing": {
-    "path": "checkpoint",
-    "timeDimension": "minute",
-    "granularity": "minute",
-    "interval": 30000,
-    "timeAvailability": 60000
   },
   "inputs": [
     {
@@ -60,6 +54,12 @@
   "cubes": [
     {
       "name": "testCube1",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "name": "company_root",
@@ -94,6 +94,12 @@
     },
     {
       "name": "testCube2",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
           "name": "company_root",
