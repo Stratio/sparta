@@ -158,6 +158,23 @@ Operators
 
 Operators allows to make an operation over the aggregation that are made in the cube through the dimensions.
 
+Is possible apply filters on operators. If you make one or more filters aggregation applies only on the values
+that satisfy each and every one of them.
+These filters should be entered in the operator level policy in the configuration section.
+Two examples of these filters are:
+
+  "configuration": {
+    "filters": [
+      {"field":"field1", "type": "<", "dimensionValue":"field2"},
+      {"field":"field1", "type": "!=", "value":2}
+    ]
+  }
+
+They are currently implemented the following filters:
+
+  <,>,<=,>=,=,!=
+
+
 
 Accumulator
 -----------
