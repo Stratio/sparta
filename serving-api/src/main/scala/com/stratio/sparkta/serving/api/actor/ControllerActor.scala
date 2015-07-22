@@ -22,6 +22,7 @@ import com.gettyimages.spray.swagger.SwaggerHttpService
 import com.stratio.sparkta.driver.models.{ErrorModel, StreamingContextStatusEnum}
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.api.constants.{HttpConstant, AkkaConstant}
 import com.stratio.sparkta.serving.api.service.http._
 
 import com.wordnik.swagger.model.ApiInfo
@@ -38,8 +39,7 @@ import scala.reflect.runtime.universe._
 
 class ControllerActor(streamingContextService: StreamingContextService,
                       curatorFramework: CuratorFramework,
-                      actorsMap: Map[String, ActorRef],
-                      configJobServer: Config) extends HttpServiceActor with SLF4JLogging {
+                      actorsMap: Map[String, ActorRef]) extends HttpServiceActor with SLF4JLogging {
 
   override implicit def actorRefFactory: ActorContext = context
 
@@ -58,42 +58,40 @@ class ControllerActor(streamingContextService: StreamingContextService,
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(
     serviceRoutes ~
-      swaggerService ~
-      swaggerUIroutes
+    swaggerService ~
+    swaggerUIroutes
   ))
-
-
 
   val serviceRoutes: Route =
       new JobServerHttpService {
         implicit val actors = actorsMap
-        override val supervisor = actorsMap.get("jobServerActor").get
+        override val supervisor = actorsMap.get(AkkaConstant.JobServerActor).get
         override implicit def actorRefFactory: ActorRefFactory = context
       }.routes ~
       new FragmentHttpService {
         implicit val actors = actorsMap
-        override val supervisor = actorsMap.get("fragmentActor").get
+        override val supervisor = actorsMap.get(AkkaConstant.FragmentActor).get
         override implicit def actorRefFactory: ActorRefFactory = context
       }.routes ~
       new TemplateHttpService {
         implicit val actors = actorsMap
-        override val supervisor = actorsMap.get("templateActor").get
+        override val supervisor = actorsMap.get(AkkaConstant.TemplateActor).get
         override implicit def actorRefFactory: ActorRefFactory = context
       }.routes ~
       new PolicyHttpService {
         implicit val actors = actorsMap
-        override val supervisor = actorsMap.get("policyActor").get
+        override val supervisor = actorsMap.get(AkkaConstant.PolicyActor).get
         override implicit def actorRefFactory: ActorRefFactory = context
       }.routes ~
       new PolicyContextHttpService {
         implicit val actors = actorsMap
-        override val supervisor = actorsMap.get("streamingActor").get
+        override val supervisor = actorsMap.get(AkkaConstant.StreamingActor).get
         override implicit def actorRefFactory: ActorRefFactory = context
       }.routes
 
   def swaggerUIroutes: Route =
     get {
-      pathPrefix("swagger") {
+      pathPrefix(HttpConstant.SwaggerPath) {
         pathEndOrSingleSlash {
           getFromResource("swagger-ui/index.html")
         }

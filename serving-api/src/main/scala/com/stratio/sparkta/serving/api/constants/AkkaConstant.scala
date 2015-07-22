@@ -22,11 +22,10 @@ package com.stratio.sparkta.serving.api.constants
  */
 object AkkaConstant {
 
-  final val StreamingActorAkkaPath = s"akka://${AppConstant.ConfigAppName}/user/streamingActor"
-  final val FragmentActorAkkaPath  = s"akka://${AppConstant.ConfigAppName}/user/fragmentActor"
-  final val TemplateActorAkkaPath  = s"akka://${AppConstant.ConfigAppName}/user/templateActor"
-  final val JobServerActorAkkaPath  = s"akka://${AppConstant.ConfigAppName}/user/jobServerActor"
-
-  final val PolicyActorAkkaPath    = s"akka://${AppConstant.ConfigAppName}/user/$PolicyActor"
-  final val PolicyActor = "policyActor"
+  final val FragmentActor   = "fragmentActor"
+  final val TemplateActor   = "templateActor"
+  final val PolicyActor     = "policyActor"
+  final val StreamingActor  = "streamingActor"
+  final val JobServerActor  = "jobServerActor"
+  final val ControllerActor = "controllerActor"
 }
