@@ -86,5 +86,10 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
     val now = Option(formatter.parseDateTime("1984-03-17 13:13:13"))
     DateOperations.generateParquetPath(now) should be(expectedRawPath)
   }
+  it should "round to 15 seconds" in new CommonValues {
+     val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+    val now = formatter.parseDateTime("1984-03-17 13:13:17")
+    DateOperations.dateFromGranularity(now,"_15s") should be(448373595000L)
+  }
 
 }

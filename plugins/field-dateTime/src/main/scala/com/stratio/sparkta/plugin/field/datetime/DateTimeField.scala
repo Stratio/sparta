@@ -47,7 +47,8 @@ case class DateTimeField(props: Map[String, JSerializable])
     HourName -> getPrecision(HourName, getTypeOperation(HourName)),
     DayName -> getPrecision(DayName, getTypeOperation(DayName)),
     MonthName -> getPrecision(MonthName, getTypeOperation(MonthName)),
-    YearName -> getPrecision(YearName, getTypeOperation(YearName)))
+    YearName -> getPrecision(YearName, getTypeOperation(YearName)),
+    _15sName-> getPrecision(_15sName,getTypeOperation(_15sName)))
 
   @throws(classOf[ClassCastException])
   override def dimensionValues(value: JSerializable): Map[Precision, JSerializable] =
@@ -68,6 +69,7 @@ object DateTimeField {
 
   final val DefaultGranularity = "second"
   final val GranularityPropertyName = "granularity"
+  final val _15sName="_15s"
   final val SecondName = "second"
   final val MinuteName = "minute"
   final val HourName = "hour"

@@ -8,8 +8,8 @@
   },
   "checkpointing": {
     "path": "checkpoint",
-    "timeDimension": "minute",
-    "granularity": "minute",
+    "timeDimension": "_15s",
+    "granularity": "_15s",
     "interval": 30000,
     "timeAvailability": 60000
   },

@@ -35,6 +35,7 @@ object DateOperations {
 
   def dateFromGranularity(value: DateTime, granularity: String): Long = {
     val secondsDate = value.withMillisOfSecond(0)
+    val _15s= roundDateTime(value,Duration.standardSeconds(15))
     val minutesDate = secondsDate.withSecondOfMinute(0)
     val hourDate = minutesDate.withMinuteOfHour(0)
     val dayDate = hourDate.withHourOfDay(0)
@@ -48,6 +49,7 @@ object DateOperations {
       case "month" => monthDate.getMillis
       case "year" => yearDate.getMillis
       case "second" => secondsDate.getMillis
+      case "_15s" => _15s.getMillis
       case _ => 0L
     }
   }
@@ -73,4 +75,9 @@ object DateOperations {
    */
   def generateParquetPath(dateTime: Option[DateTime] = Option(DateTime.now())): String =
     DateTimeFormat.forPattern(ParquetPathPattern).print(dateTime.get)
+
+  def roundDateTime(t: DateTime, d: Duration) = {
+    t minus (t.getMillis - (t.getMillis.toDouble / d.getMillis).round * d.getMillis)
+  }
+
 }

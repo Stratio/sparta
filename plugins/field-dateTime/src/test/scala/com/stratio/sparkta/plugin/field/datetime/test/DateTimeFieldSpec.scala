@@ -36,7 +36,7 @@ class DateTimeFieldSpec extends WordSpecLike with Matchers {
       val newDate = new Date()
       val precisions = dateTimeDimension.dimensionValues(newDate.asInstanceOf[io.Serializable]).map(_._1.id)
 
-      precisions.size should be(7)
+      precisions.size should be(8)
 
       precisions should contain(DateTimeField.timestamp.id)
       precisions should contain(DateTimeField.SecondName)
@@ -45,6 +45,8 @@ class DateTimeFieldSpec extends WordSpecLike with Matchers {
       precisions should contain(DateTimeField.DayName)
       precisions should contain(DateTimeField.MonthName)
       precisions should contain(DateTimeField.YearName)
+      precisions should contain(DateTimeField._15sName)
+
     }
 
     "Each precision dimension have their output type, second must be long, minute must be date, others datetime" in {
