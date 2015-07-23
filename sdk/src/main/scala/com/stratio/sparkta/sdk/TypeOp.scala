@@ -24,7 +24,7 @@ import org.joda.time.DateTime
 object TypeOp extends Enumeration {
 
   type TypeOp = Value
-  val BigDecimal, Long, Int, String, Double, Boolean, Binary, Date, DateTime, Timestamp, ArrayDouble,
+  val Number, BigDecimal, Long, Int, String, Double, Boolean, Binary, Date, DateTime, Timestamp, ArrayDouble,
   ArrayString = Value
 
   def transformValueByTypeOp[T](typeOp: TypeOp, origValue: T): T = {

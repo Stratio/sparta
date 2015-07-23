@@ -32,7 +32,7 @@ class CountOperatorSpec extends WordSpec with Matchers {
 
       val inputFields2 = new CountOperator("count", Map("distinctFields" -> "field1"))
       val distinctFields2 = inputFields2.distinctFields
-      distinctFields2 should be equals (Some(Array[String]("field1")))
+      distinctFields2 should be equals Some(Array[String]("field1"))
     }
 
     "processMap must be " in {
@@ -42,15 +42,29 @@ class CountOperatorSpec extends WordSpec with Matchers {
       val inputFields2 =
         new CountOperator("count", Map("distinctFields" -> s"field1${CountOperator.Separator}field2"))
       inputFields2.processMap(Map("field1" -> 1, "field2" -> 2)).get.toString should be
-      (s"field1${CountOperator.Separator}field2")
+      s"field1${CountOperator.Separator}field2"
 
       val inputFields3 = new CountOperator("count", Map("distinctFields" -> ""))
       inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)).get.toString should be("None")
+
+      val inputFields4 = new CountOperator("count",
+        Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2}]"))
+      inputFields4.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1L))
+
+      val inputFields5 = new CountOperator("count",
+        Map("filters" -> "[{\"field\":\"field1\", \"type\": \">\", \"value\":\"2\"}]"))
+      inputFields5.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
+
+      val inputFields6 = new CountOperator("count",
+        Map("filters" -> {"[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
+          "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"}))
+      inputFields6.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
+
     }
 
     "processReduce must be " in {
       val inputFields = new CountOperator("count", Map())
-      inputFields.processReduce(Seq(Some(1L), Some(1L))) should be(Some(2L))
+      inputFields.processReduce(Seq(Some(1L), Some(1L), None)) should be(Some(2L))
 
       val inputFields2 =
         new CountOperator("count", Map("distinctFields" -> s"field1${CountOperator.Separator}field2"))
@@ -73,7 +87,7 @@ class CountOperatorSpec extends WordSpec with Matchers {
         new CountOperator("count", Map("distinctFields" -> s"field1${CountOperator.Separator}field2"))
       inputFields6.processReduce(Seq(Some(s"field1${CountOperator.Separator}field2"),
         Some(s"field1${CountOperator.Separator}field3"),
-        Some(s"field1${CountOperator.Separator}field3"))) should be (Some(2L))
+        Some(s"field1${CountOperator.Separator}field3"))) should be(Some(2L))
     }
   }
 }

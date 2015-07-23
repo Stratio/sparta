@@ -168,7 +168,26 @@ Precision possible values are: firstTag, lastTag and allTags
 Operators
 =========
 
-Operators allows to make an operation over the aggregation that are made in the cube through the dimensions.
+Operators allow us to make an operation over the aggregation that are made in the cube through the dimensions.
+
+It is possible to apply filters on operators. If you make one or more filters, aggregation applies only on the values
+that satisfy each and every one of them.
+These filters should be entered in the operator configuration block.
+
+Two examples of these filters are::
+
+  "configuration": {
+    "filters": [
+      {"field":"field1", "type": "<", "dimensionValue":"field2"},
+      {"field":"field1", "type": "!=", "value":2}
+    ]
+  }
+
+
+The logical operators currently implemented are::
+
+  <, >, <=, >=, =, !=
+
 
 
 Accumulator

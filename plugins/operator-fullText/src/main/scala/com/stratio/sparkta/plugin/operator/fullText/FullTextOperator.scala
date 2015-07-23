@@ -33,13 +33,14 @@ class FullTextOperator(name: String, properties: Map[String, JSerializable]) ext
   override val writeOperation = WriteOp.FullText
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
-    if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
-      Some(inputFields.get(inputField.get).get)
-    } else FullTextOperator.SOME_EMPTY
+    if (inputField.isDefined && inputFields.contains(inputField.get)) {
+      applyFilters(inputFields).flatMap(filteredFileds => Some(inputFields.get(inputField.get).get))
+    } else None
   }
 
   override def processReduce(values: Iterable[Option[Any]]): Option[String] = {
-    Try(Some(transformValueByTypeOp(returnType, values.map(_.get.toString).reduce(_ + FullTextOperator.SEPARATOR + _))))
+    Try(Some(transformValueByTypeOp(returnType,
+      values.flatten.map(_.toString).reduce(_ + FullTextOperator.SEPARATOR + _))))
       .getOrElse(FullTextOperator.SOME_EMPTY)
   }
 }

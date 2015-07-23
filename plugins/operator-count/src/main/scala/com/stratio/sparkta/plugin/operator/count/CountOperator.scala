@@ -35,21 +35,23 @@ class CountOperator(name: String, properties: Map[String, JSerializable]) extend
 
   override val writeOperation = WriteOp.Inc
 
+  override val castingFilterType = TypeOp.Number
+
   override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
-    distinctFields match {
+    applyFilters(inputFields).flatMap(filteredFields => distinctFields match {
       case None => CountOperator.SomeOne
-      case Some(fields) => Some(fields.map(field => inputFields.get(field).getOrElse(CountOperator.NullValue))
+      case Some(fields) => Some(fields.map(field => filteredFields.getOrElse(field, CountOperator.NullValue))
         .mkString(CountOperator.Separator).toString)
-    }
+    })
   }
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Long] = {
     Try {
-      val longList: Iterable[Long] = distinctFields match {
-        case None => values.map(_.get.asInstanceOf[Number].longValue())
-        case Some(fields) => values.toList.distinct.map(value => CountOperator.SomeOne.get)
+      val longList = distinctFields match {
+        case None => values.flatten.map(value => value.asInstanceOf[Number].longValue())
+        case Some(fields) => values.flatten.toList.distinct.map(value => CountOperator.SomeOne.get)
       }
-      Some(transformValueByTypeOp(returnType, longList.reduce(_ + _)))
+      Some(transformValueByTypeOp(returnType, longList.sum))
     }.getOrElse(CountOperator.SomeZero)
   }
 }

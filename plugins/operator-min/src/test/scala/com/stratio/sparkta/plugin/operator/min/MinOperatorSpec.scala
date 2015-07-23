@@ -46,6 +46,19 @@ class MinOperatorSpec extends WordSpec with Matchers {
 
       val inputFields7 = new MinOperator("min", Map("inputField" -> "field1"))
       inputFields7.processMap(Map("field1" -> 5L, "field2" -> 2)) should be(Some(5L))
+
+      val inputFields8 = new MinOperator("min",
+        Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2}]"))
+      inputFields8.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1L))
+
+      val inputFields9 = new MinOperator("min",
+        Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \">\", \"value\":\"2\"}]"))
+      inputFields9.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
+
+      val inputFields10 = new MinOperator("min",
+        Map("inputField" -> "field1", "filters" -> {"[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
+          "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"}))
+      inputFields10.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
     }
 
     "processReduce must be " in {

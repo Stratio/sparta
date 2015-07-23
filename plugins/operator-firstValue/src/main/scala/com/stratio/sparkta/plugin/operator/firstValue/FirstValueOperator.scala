@@ -33,16 +33,15 @@ class FirstValueOperator(name: String, properties: Map[String, JSerializable]) e
   override val writeOperation = WriteOp.Set
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Any] =
-    if ((inputField.isDefined) && (inputFields.contains(inputField.get))) {
-      Some(inputFields.get(inputField.get).get)
-    } else FirstValueOperator.Some_Empty
+    if (inputField.isDefined && inputFields.contains(inputField.get))
+      applyFilters(inputFields).flatMap(filteredFileds => Some(filteredFileds.get(inputField.get).get))
+    else None
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
-    Try(Some(transformValueByTypeOp(returnType, values.head.getOrElse(FirstValueOperator.Empty))))
+    Try(Some(transformValueByTypeOp(returnType, values.flatten.head)))
       .getOrElse(FirstValueOperator.Some_Empty)
 }
 
 private object FirstValueOperator {
   val Some_Empty = Some("")
-  val Empty = ""
 }

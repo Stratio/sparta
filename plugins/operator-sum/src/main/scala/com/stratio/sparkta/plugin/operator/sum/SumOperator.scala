@@ -31,9 +31,12 @@ class SumOperator(name: String, properties: Map[String, JSerializable]) extends 
 
   override val writeOperation = WriteOp.Inc
 
+  override val castingFilterType = TypeOp.Number
+
   override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
-    if ((inputField.isDefined) && (inputFields.contains(inputField.get)))
-      getNumberFromSerializable(inputFields.get(inputField.get).get)
+    if (inputField.isDefined && inputFields.contains(inputField.get))
+      applyFilters(inputFields)
+        .flatMap(filteredFileds => getNumberFromSerializable(inputFields.get(inputField.get).get))
     else None
   }
 
@@ -41,7 +44,7 @@ class SumOperator(name: String, properties: Map[String, JSerializable]) extends 
     Try(
       Some(transformValueByTypeOp(
         returnType,
-        getDistinctValues(values.flatten.map(_.asInstanceOf[Number].doubleValue())).reduce(_ + _)))
+        getDistinctValues(values.flatten.map(_.asInstanceOf[Number].doubleValue())).sum))
     ).getOrElse(SumOperator.SOME_ZERO)
   }
 }
