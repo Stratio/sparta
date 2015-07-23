@@ -156,12 +156,13 @@ Precision possible values are: firstTag, lastTag and allTags
 Operators
 =========
 
-Operators allows to make an operation over the aggregation that are made in the cube through the dimensions.
+Operators allow us to make an operation over the aggregation that are made in the cube through the dimensions.
 
-Is possible apply filters on operators. If you make one or more filters aggregation applies only on the values
+It is possible to apply filters on operators. If you make one or more filters, aggregation applies only on the values
 that satisfy each and every one of them.
-These filters should be entered in the operator level policy in the configuration section.
-Two examples of these filters are:
+These filters should be entered in the operator configuration block.
+
+Two examples of these filters are::
 
   "configuration": {
     "filters": [
@@ -170,9 +171,10 @@ Two examples of these filters are:
     ]
   }
 
-They are currently implemented the following filters:
 
-  <,>,<=,>=,=,!=
+The logical operators currently implemented are::
+
+  <, >, <=, >=, =, !=
 
 
 
