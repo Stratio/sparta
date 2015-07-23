@@ -7,7 +7,7 @@
     "partitionFormat": "day",
     "path": "myTestParquetPath"
   },
-  "inputs": [
+  "input":
     {
       "name": "in",
       "type": "KafkaDirect",
@@ -17,7 +17,7 @@
         "kafkaParams.group.id": "my-spt-grp"
       }
     }
-  ],
+  ,
   "transformations": [
     {
       "name": "morphline",

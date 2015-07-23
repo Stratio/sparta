@@ -1,17 +1,23 @@
 {
   "name": "policy-kafka",
   "sparkStreamingWindow": 2000,
-  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "partitionFormat": "day",
     "path": "myTestParquetPath"
   },
-  "inputs": [
+  "checkpointing": {
+    "path": "checkpoint",
+    "timeDimension": "minute",
+    "granularity": "minute",
+    "interval": 30000,
+    "timeAvailability": 60000
+  },
+  "input":
     {
       "name": "in-kafka",
       "type": "Kafka",
-      "jarFile": "input-kafka-plugin.jar",
+      "jarFile": "input-kakfka-plugin.jar",
       "configuration": {
         "topics": "test:1",
         "kafkaParams.zookeeper.connect": "localhost:2181",
@@ -19,7 +25,7 @@
         "storageLevel": "MEMORY_AND_DISK_SER_2"
       }
     }
-  ],
+  ,
   "transformations": [
     {
       "name": "morphline",
@@ -62,12 +68,6 @@
   "cubes": [
     {
       "name": "testCube",
-      "checkpointConfig": {
-        "timeDimension": "minute",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
-      },
       "dimensions": [
         {
           "field": "appName",

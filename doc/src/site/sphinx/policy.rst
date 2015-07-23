@@ -47,7 +47,7 @@ about supported inputs, you can visit :doc:`inputs`
 
 Example::
 
-    "inputs": [
+    "input":
       {
         "name": "in-twitter",
         "elementType": "TwitterInput",

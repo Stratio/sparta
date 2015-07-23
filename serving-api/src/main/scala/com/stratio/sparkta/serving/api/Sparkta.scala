@@ -30,7 +30,7 @@ object Sparkta extends App with SLF4JLogging {
   val jars          = SparktaHelper.initJars(AppConstant.JarPaths, sparktaHome)
   val configSparkta = SparktaHelper.initConfig(AppConstant.ConfigAppName)
   val configApi     = SparktaHelper.initConfig(AppConstant.ConfigApi, Some(configSparkta))
-  val configJobServer = SparktaHelper.initConfig(AppConstant.ConfigJobServer, Some(configSparkta))
+  val configJobServer = SparktaHelper.initOptionalConfig(AppConstant.ConfigJobServer, Some(configSparkta))
 
   SparktaHelper.initAkkaSystem(configSparkta, configApi, configJobServer, jars, AppConstant.ConfigAppName)
 }

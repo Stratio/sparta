@@ -46,7 +46,7 @@ object SparktaJob extends SLF4JLogging {
     val ssc = SparkContextFactory.sparkStreamingInstance(
       new Duration(apConfig.sparkStreamingWindow),
       apConfig.checkpointPath).get
-    val inputs = SparktaJob.inputs(apConfig, ssc)
+    val input = SparktaJob.input(apConfig, ssc)
     val parsers =
       SparktaJob.parsers(apConfig).sortWith((parser1, parser2) => parser1.getOrder < parser2.getOrder)
     val cubes = SparktaJob.cubes(apConfig)
@@ -71,9 +71,10 @@ object SparktaJob extends SLF4JLogging {
     }
 
     val outputs = SparktaJob.outputs(apConfig, sc, bcOperatorsKeyOperation, bcCubeOperatorSchema)
-    val input: DStream[Event] = inputs.head._2
-    SparktaJob.saveRawData(apConfig, input)
-    val parsed = SparktaJob.applyParsers(input, parsers)
+    val inputEvent = input._2
+    SparktaJob.saveRawData(apConfig, inputEvent)
+    val parsed = SparktaJob.applyParsers(inputEvent, parsers)
+
     val dataCube = new CubeMaker(cubes).setUp(parsed)
     outputs.map(_._2.persist(dataCube))
   }
@@ -123,10 +124,9 @@ object SparktaJob extends SLF4JLogging {
       }
     }).toMap
 
-  def inputs(apConfig: AggregationPoliciesModel, ssc: StreamingContext): Map[String, DStream[Event]] =
-    apConfig.inputs.map(i =>
-      (i.name, tryToInstantiate[Input](i.`type` + Input.ClassSuffix, (c) =>
-        instantiateParameterizable[Input](c, i.configuration)).setUp(ssc))).toMap
+  def input(apConfig: AggregationPoliciesModel, ssc: StreamingContext): (String, DStream[Event]) =
+      (apConfig.input.name, tryToInstantiate[Input](apConfig.input.`type` + Input.ClassSuffix, (c) =>
+        instantiateParameterizable[Input](c, apConfig.input.configuration)).setUp(ssc))
 
   def parsers(apConfig: AggregationPoliciesModel): Seq[Parser] =
     apConfig.transformations.map(parser =>
@@ -230,7 +230,7 @@ object SparktaJob extends SLF4JLogging {
     }
 
   def jarsFromPolicy(apConfig: AggregationPoliciesModel): Seq[String] = {
-    val inputs = apConfig.inputs.flatMap(_.jarFile)
+    val inputs = apConfig.input.jarFile
     val outputs = apConfig.outputs.flatMap(_.jarFile)
     val transformations = apConfig.transformations.flatMap(_.jarFile)
     val operators = apConfig.cubes.flatMap(cube => cube.operators.map(_.jarFile)).flatten

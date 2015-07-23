@@ -15,14 +15,9 @@
       "id": "http://sparkta.stratio.com/jarPaths",
       "type": "array"
     },
-    "inputs": {
+    "input": {
       "id": "http://sparkta.stratio.com/inputs",
-      "type": "array",
-      "minItems": 1,
-      "uniqueItems": true,
-      "items": {
-        "id": "auto-generated-schema-229"
-      }
+      "type": "object"
     },
     "cubes": {
       "id": "http://sparkta.stratio.com/cubes",

@@ -7,7 +7,7 @@
     "partitionFormat": "day",
     "path": "myTestParquetPath"
   },
-  "inputs": [
+  "input":
     {
       "name": "in-socket",
       "type": "Socket",
@@ -17,7 +17,7 @@
         "port": "10666"
       }
     }
-  ],
+  ,
   "transformations": [
     {
       "name": "morphline-parser",

@@ -16,10 +16,9 @@
 
 package com.stratio.sparkta.serving.api.actor
 
-import akka.actor.ActorRef
 import com.stratio.sparkta.driver.factory.SparkContextFactory
+import com.stratio.sparkta.driver.models.AggregationPoliciesModel
 import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
-import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, StreamingContextStatusEnum}
 import com.stratio.sparkta.driver.service.StreamingContextService
 import org.apache.spark.streaming.StreamingContext
 
@@ -31,26 +30,25 @@ case class InitError(e: Exception)
 
 case object Stop
 
-class StreamingContextActor(policy: AggregationPoliciesModel,
-                            streamingContextService: StreamingContextService,
-                            jobServerRef: ActorRef) extends InstrumentedActor {
+class StandAloneContextActor(policy: AggregationPoliciesModel,
+                             streamingContextService: StreamingContextService) extends InstrumentedActor {
 
   private var ssc: Option[StreamingContext] = None
 
   override def receive: PartialFunction[Any, Unit] = {
     case Init =>
-      log.debug("Init new streamingContext with name " + policy.name)
-      ssc = Try(streamingContextService.createStreamingContext(policy, jobServerRef)) match {
+      log.debug("Init new standalone streamingContext with name " + policy.name)
+      ssc = Try(streamingContextService.standAloneStreamingContext(policy)) match {
         case Success(_ssc) =>
           Try(_ssc.start()) match {
             case Failure(e: Exception) =>
-              log.error(s"Exception starting up SparkStreamingContext for policy ${policy.name}", e)
+              log.error(s"Exception starting up standalone SparkStreamingContext for policy ${policy.name}", e)
               sender ! InitError(e)
             case x =>
-              log.debug("StreamingContext started successfully.")
+              log.debug("Standalone StreamingContext started successfully.")
           }
           sender ! Initialized
-          log.debug("StreamingContext initialized with name " + policy.name)
+          log.debug("Standalone StreamingContext initialized with name " + policy.name)
           Some(_ssc)
         case Failure(e: Exception) =>
           log.error(s"Exception instantiating policy ${policy.name}", e)
@@ -63,9 +61,8 @@ class StreamingContextActor(policy: AggregationPoliciesModel,
     ssc match {
       case Some(sc: StreamingContext) =>
         SparkContextFactory.destroySparkStreamingContext
-      case x => log.warn("Unrecognized StreamingContext to stop!", x)
+      case x => log.warn("Unrecognized standalone StreamingContext to stop!", x)
     }
     super.postStop()
   }
-
 }

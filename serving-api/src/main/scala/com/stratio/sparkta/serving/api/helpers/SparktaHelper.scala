@@ -32,6 +32,8 @@ import com.stratio.sparkta.serving.api.factory.CuratorFactoryHolder
 import com.typesafe.config.Config
 import spray.can.Http
 
+import scala.util.Try
+
 /**
  * Helper with common operations used to create a Sparkta context used to run the application.
  * @author anistal
@@ -50,7 +52,7 @@ object SparktaHelper extends SLF4JLogging {
       log.warn("SPARKTA_HOME environment variable is not set, setting to default value")
       sparktaHomeDefault
     })
-    assert(sparktaHome != None, "Fatal error: sparktaHome not found.")
+    assert(sparktaHome.isDefined, "Fatal error: sparktaHome not found.")
     log.info(s"> Setting configuration path to ${sparktaHome.get}")
     sparktaHome.get
   }
@@ -63,10 +65,10 @@ object SparktaHelper extends SLF4JLogging {
    * @return a list of loaded jars.
    */
   def initJars(relativeJarPaths: Seq[String], sparktaHome: String): Seq[File] =
-    relativeJarPaths.map(path => {
+    relativeJarPaths.flatMap(path => {
       log.info(s"> Loading jars from $sparktaHome/$path")
       findJarsByPathAndAddToClasspath(new File(sparktaHome, path))
-    }).flatten
+    })
 
   /**
    * Initializes base configuration.
@@ -87,6 +89,24 @@ object SparktaHelper extends SLF4JLogging {
   }
 
   /**
+   * Initializes base configuration.
+   * @param currentConfig if it is setted the function tries to load a node from a loaded config.
+   * @param node with the node needed to load the configuration.
+   * @return the loaded configuration.
+   */
+  def initOptionalConfig(node: String,
+                 currentConfig: Option[Config] = None,
+                 configFactory: ConfigFactory = new SparktaConfigFactory): Option[Config] = {
+    log.info(s"> Loading $node configuration")
+    Try(
+      currentConfig match {
+        case Some(config) => Some(config.getConfig(node))
+        case _ => configFactory.getConfig(node)
+      }
+    ).getOrElse(None)
+  }
+
+  /**
    * Initializes Sparkta's akka system running an embedded http server with the REST API.
    * @param configSparkta with Sparkta's global configuration.
    * @param configApi with http server's configuration.
@@ -96,7 +116,7 @@ object SparktaHelper extends SLF4JLogging {
    */
   def initAkkaSystem(configSparkta: Config,
                      configApi: Config,
-                     configJobServer: Config,
+                     configJobServer: Option[Config],
                      jars: Seq[File],
                      appName: String): Unit = {
     val streamingContextService = new StreamingContextService(configSparkta, jars)
@@ -106,8 +126,14 @@ object SparktaHelper extends SLF4JLogging {
     system = ActorSystem(appName)
 
     val jobServerActor =
-      system.actorOf(Props(new JobServerActor(configJobServer.getString("host"),
-        configJobServer.getInt("port"))), AkkaConstant.JobServerActor)
+      Try(
+        if(configJobServer.isDefined &&
+          !configJobServer.get.getString("host").isEmpty &&
+          configJobServer.get.getInt("port") > 0) {
+          Some(system.actorOf(Props(new JobServerActor(configJobServer.get.getString("host"),
+            configJobServer.get.getInt("port"))), AkkaConstant.JobServerActor))
+        } else None
+      ).getOrElse(None)
 
     implicit val actors = Map(
       AkkaConstant.FragmentActor ->
@@ -117,10 +143,10 @@ object SparktaHelper extends SLF4JLogging {
       AkkaConstant.PolicyActor ->
         system.actorOf(Props(new PolicyActor(curatorFramework)), AkkaConstant.PolicyActor),
       AkkaConstant.StreamingActor -> system.actorOf(
-        Props(new StreamingActor(streamingContextService, jobServerActor)), AkkaConstant.StreamingActor),
-      AkkaConstant.JobServerActor ->
-        jobServerActor
-    )
+        Props(new StreamingActor(streamingContextService, jobServerActor)), AkkaConstant.StreamingActor)
+    ) ++ {
+      if(jobServerActor.isDefined) Map(AkkaConstant.JobServerActor -> jobServerActor.get) else Map()
+    }
 
     val controller = system.actorOf(
       Props(new ControllerActor(streamingContextService, curatorFramework, actors)), AkkaConstant.ControllerActor)
@@ -157,7 +183,7 @@ object SparktaHelper extends SLF4JLogging {
   protected def addToClasspath(file: File): Unit = {
     val method: Method = classOf[URLClassLoader].getDeclaredMethod("addURL", classOf[URL])
     method.setAccessible(true)
-    method.invoke(ClassLoader.getSystemClassLoader(), file.toURI().toURL());
+    method.invoke(ClassLoader.getSystemClassLoader, file.toURI.toURL);
   }
 
   /**

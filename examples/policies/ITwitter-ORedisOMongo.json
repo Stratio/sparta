@@ -7,7 +7,7 @@
     "partitionFormat": "day",
     "path": "myTestParquetPath"
   },
-  "inputs": [
+  "input":
     {
       "name": "input-twitter",
       "type": "Twitter",
@@ -18,7 +18,7 @@
         "accessTokenSecret": "*****"
       }
     }
-  ],
+  ,
   "cubes": [
     {
       "name": "twitter",

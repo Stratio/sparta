@@ -24,7 +24,7 @@ Steps
 
 The most important step it's to set the policy up with the right parameters. ::
 
-     "inputs": [
+     "input":
       {
       "name": "in-twitter",
       "type": "Twitter",
@@ -65,7 +65,7 @@ As we explained, if in the input you add::
 It will be a custom search, if you want the other choice(global trending topics) just delete the whole line, and the
 policy will look like this::
 
- "inputs": [
+ "input":
       {
       "name": "in-twitter",
       "type": "Twitter",

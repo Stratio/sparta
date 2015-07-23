@@ -13,7 +13,7 @@
     "interval": 30000,
     "timeAvailability": 60000
   },
-  "inputs": [
+  "input":
     {
       "name": "in",
       "type": "Kafka",
@@ -24,7 +24,7 @@
         "storageLevel": "MEMORY_AND_DISK_SER_2"
       }
     }
-  ],
+  ,
   "transformations": [
     {
       "name": "morphline-parser",

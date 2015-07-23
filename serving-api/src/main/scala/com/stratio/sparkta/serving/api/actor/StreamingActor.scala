@@ -37,7 +37,7 @@ case class DeleteContext(contextName: String)
 case class CreateFragment(fragment: PolicyElementModel)
 case class ContextActorStatus(actor: ActorRef, status: StreamingContextStatusEnum.Status, description: Option[String])
 
-class StreamingActor(streamingContextService: StreamingContextService, jobServerRef: ActorRef)
+class StreamingActor(streamingContextService: StreamingContextService, jobServerRef: Option[ActorRef])
   extends InstrumentedActor {
 
   private var contextActors: Map[String, ContextActorStatus] = Map()
@@ -61,9 +61,9 @@ class StreamingActor(streamingContextService: StreamingContextService, jobServer
    * @param policy that contains the configuration to run.
    */
   private def doCreateContext(policy: AggregationPoliciesModel): Unit = {
-    val streamingContextActor = context.actorOf(
-      Props(new StreamingContextActor(policy, streamingContextService, jobServerRef)),
-      "context-actor-".concat(policy.name))
+
+    val streamingContextActor = getStreamingContextActor(policy)
+
     contextActors += (policy.name -> new ContextActorStatus(streamingContextActor, Initializing, None))
 
     (streamingContextActor ? Init)(Timeout(10 minutes)).onComplete {
@@ -99,6 +99,18 @@ class StreamingActor(streamingContextService: StreamingContextService, jobServer
         }
       case x =>
         log.warn("Unexpected message received by streamingContextActor: " + x)
+    }
+  }
+
+  private def getStreamingContextActor(policy: AggregationPoliciesModel): ActorRef = {
+    if(jobServerRef.isDefined){
+      context.actorOf(
+        Props(new ClusterContextActor(policy, streamingContextService, jobServerRef.get)),
+        "context-actor-".concat(policy.name))
+    } else {
+      context.actorOf(
+        Props(new StandAloneContextActor(policy, streamingContextService)),
+        "context-actor-".concat(policy.name))
     }
   }
 

@@ -25,7 +25,7 @@ Read events from apache-flume
 * Sample:
 ::
 
-  "inputs": [
+  "input":
     {
       "name": "in-flume",
       "type": "Flume",
@@ -66,7 +66,7 @@ Reads events from apache-kafka
 * Sample:
 ::
 
-   "inputs": [
+   "input":
     {
      "name": "in-kafka",
       "type": "Kafka",
@@ -109,7 +109,7 @@ Reads events from rabbitMQ
 * Sample:
 ::
 
-       "inputs": [
+       "input":
         {
             "name": "in",
             "type": "RabbitMQ",
@@ -163,7 +163,7 @@ Reads events from a socket
 * Sample:
 ::
 
-      "inputs": [
+      "input":
        {
          "name": "in-socket",
          "type": "Socket",
@@ -196,7 +196,7 @@ Reads events from Twitter API
 * Sample:
 ::
 
-  "inputs": [
+  "input":
       {
       "name": "in-twitter",
       "type": "Twitter",
