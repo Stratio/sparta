@@ -66,8 +66,8 @@
     {
       "name": "testCube",
       "checkpointConfig": {
-        "timeDimension": "s15",
-        "granularity": "s15",
+        "timeDimension": "minute",
+        "granularity": "minute",
         "interval": 30000,
         "timeAvailability": 60000
       },
