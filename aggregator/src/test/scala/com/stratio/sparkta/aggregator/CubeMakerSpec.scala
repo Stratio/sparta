@@ -94,7 +94,7 @@ class CubeMakerSpec extends TestSuiteBase {
    * The expected result to test the DataCube output.
    * @return the expected result to test
    */
-  def getEventOutput(timestamp : Long): ArrayBuffer[Seq[(DimensionValuesTime, Map[String, JSerializable])]] = {
+  def getEventOutput(timestamp: Long): ArrayBuffer[Seq[(DimensionValuesTime, Map[String, JSerializable])]] = {
     val defaultDimension = new DefaultField
     ArrayBuffer(Seq(
       (DimensionValuesTime(Seq(DimensionValue(
