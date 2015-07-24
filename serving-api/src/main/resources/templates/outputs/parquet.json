@@ -1,0 +1,21 @@
+{
+  "name": "Parquet",
+  "description": {
+    "short": "Parquet's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "long": "Parquet's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema."
+  },
+  "icon": {
+    "url": "assets/images/datasources/logo-parquet.png"
+  },
+  "properties": [
+    {
+      "propertyId": "path",
+      "propertyName": "Path",
+      "propertyType": "text",
+      "regexp": "[^/\\. \"$]{2,128}",
+      "default": "",
+      "required": false,
+      "tooltip": "Destination path to store info."
+    }
+  ]
+}

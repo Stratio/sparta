@@ -41,24 +41,8 @@ class CsvOutput(keyName: String,
                 properties: Map[String, JSerializable],
                 @transient sparkContext: SparkContext,
                 operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                bcSchema: Option[Broadcast[Seq[TableSchema]]],
-                timeName: String)
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema, timeName) with Logging {
-
-  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Max, WriteOp.Min,
-    WriteOp.Range, WriteOp.AccAvg, WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText,
-    WriteOp.AccSet)
-
-  override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
-
-  override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
-
-  override val fixedPrecisions: Array[String] = properties.getString("fixedBuckets", None) match {
-    case None => Array()
-    case Some(fixPrecisions) => fixPrecisions.split(fieldsSeparator)
-  }
-
-  val fixedAgg = properties.getString("fixedAggregation", None)
+                bcSchema: Option[Broadcast[Seq[TableSchema]]])
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with Logging {
 
   val path = properties.getString("path", None)
 
@@ -68,18 +52,12 @@ class CsvOutput(keyName: String,
 
   val datePattern = properties.getString("datePattern", None)
 
-  override val fixedAggregation: Map[String, Option[Any]] =
-    if (fixedAgg.isDefined) {
-      val fixedAggSplited = fixedAgg.get.split(Output.FixedAggregationSeparator)
-      Map(fixedAggSplited.head -> Some(fixedAggSplited.last))
-    } else Map()
+  val dateGranularityFile = properties.getString("dateGranularityFile", "day")
 
-  override val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
-
-  override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
+  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
     require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
-    val pathParsed = if(path.get.endsWith("/")) path.get else path.get + "/"
-    val subPath = DateOperations.subPath(timeName, datePattern)
+    val pathParsed = if (path.get.endsWith("/")) path.get else path.get + "/"
+    val subPath = DateOperations.subPath(dateGranularityFile, datePattern)
     dataFrame.saveAsCsvFile(s"$pathParsed$tableName$subPath.csv",
       Map("header" -> header.toString, "delimiter" -> delimiter))
   }

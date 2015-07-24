@@ -56,43 +56,48 @@ case class GeoHashField(props: Map[String, JSerializable])
 
   override val defaultTypeOperation = TypeOp.ArrayDouble
 
-  override val precisions: Map[String, Precision] =
-    Map(
-      Precision1Name -> getPrecision(Precision1Name, getTypeOperation(Precision1Name)),
-      Precision2Name -> getPrecision(Precision2Name, getTypeOperation(Precision2Name)),
-      Precision3Name -> getPrecision(Precision3Name, getTypeOperation(Precision3Name)),
-      Precision4Name -> getPrecision(Precision4Name, getTypeOperation(Precision4Name)),
-      Precision5Name -> getPrecision(Precision5Name, getTypeOperation(Precision5Name)),
-      Precision6Name -> getPrecision(Precision6Name, getTypeOperation(Precision6Name)),
-      Precision7Name -> getPrecision(Precision7Name, getTypeOperation(Precision7Name)),
-      Precision8Name -> getPrecision(Precision8Name, getTypeOperation(Precision8Name)),
-      Precision9Name -> getPrecision(Precision9Name, getTypeOperation(Precision9Name)),
-      Precision10Name -> getPrecision(Precision10Name, getTypeOperation(Precision10Name)),
-      Precision11Name -> getPrecision(Precision11Name, getTypeOperation(Precision11Name)),
-      Precision12Name -> getPrecision(Precision12Name, getTypeOperation(Precision12Name)))
+  //scalastyle:off
+  override def precision(keyName: String): Precision = keyName match {
+    case Precision1Name => getPrecision(Precision1Name, getTypeOperation(Precision1Name))
+    case Precision2Name => getPrecision(Precision2Name, getTypeOperation(Precision2Name))
+    case Precision3Name => getPrecision(Precision3Name, getTypeOperation(Precision3Name))
+    case Precision4Name => getPrecision(Precision4Name, getTypeOperation(Precision4Name))
+    case Precision5Name => getPrecision(Precision5Name, getTypeOperation(Precision5Name))
+    case Precision6Name => getPrecision(Precision6Name, getTypeOperation(Precision6Name))
+    case Precision7Name => getPrecision(Precision7Name, getTypeOperation(Precision7Name))
+    case Precision8Name => getPrecision(Precision8Name, getTypeOperation(Precision8Name))
+    case Precision9Name => getPrecision(Precision9Name, getTypeOperation(Precision9Name))
+    case Precision10Name => getPrecision(Precision10Name, getTypeOperation(Precision10Name))
+    case Precision11Name => getPrecision(Precision11Name, getTypeOperation(Precision11Name))
+    case Precision12Name => getPrecision(Precision12Name, getTypeOperation(Precision12Name))
+  }
+  //scalastyle:on
 
-  override def dimensionValues(value: JSerializable): Map[Precision, JSerializable] = {
-    //TODO temporal data treatment
+  override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) =
     try {
-      if (value.asInstanceOf[Option[_]] != None) {
-        precisions.map(precision => {
-          //TODO temporal data treatment
-          val latLongString = value.asInstanceOf[Option[_]].get.asInstanceOf[String].split("__")
-          if (latLongString.size != 0) {
-            val latDouble = latLongString(0).toDouble
-            val longDouble = latLongString(1).toDouble
-            precision._2 -> GeoHashField.getPrecision(latDouble, longDouble, precision._2)
-          } else (precision._2 -> "")
-        })
+      val defaultPrecision = getPrecision(Precision3Name, getTypeOperation(Precision3Name))
+      if (value.isInstanceOf[Option[_]]) {
+        if (value.asInstanceOf[Option[_]] != None) {
+          val precisionKey = precision(keyName)
+          val latLongArray = value.asInstanceOf[Option[_]].get.asInstanceOf[String]
+            .split(properties.get(GeoHashField.LatLongKey).getOrElse(GeoHashField.LatLongSepartor).toString)
+          latLongArray match {
+            case latLong if latLong.size == 2 =>
+              (precisionKey, GeoHashField.getPrecision(latLong(0).toDouble, latLong(1).toDouble, precisionKey))
+            case _ => (precisionKey, "")
+          }
+        } else {
+          (defaultPrecision, GeoHashField.getPrecision(0, 0, defaultPrecision))
+        }
       } else {
-        val defaultPrecision = getPrecision(Precision3Name, getTypeOperation(Precision3Name))
-        Map(defaultPrecision -> GeoHashField.getPrecision(0, 0, defaultPrecision))
+        log.info("The geolocation precision can not be casted to Option")
+        (defaultPrecision, GeoHashField.getPrecision(0, 0, defaultPrecision))
       }
     }
     catch {
       case aobe: ArrayIndexOutOfBoundsException => {
         log.error("geo problem")
-        Map()
+        throw aobe
       }
 
       case cce: ClassCastException => {
@@ -100,7 +105,6 @@ case class GeoHashField(props: Map[String, JSerializable])
         throw cce
       }
     }
-  }
 }
 
 object GeoHashField {
@@ -117,6 +121,8 @@ object GeoHashField {
   final val Precision10Name = "precision10"
   final val Precision11Name = "precision11"
   final val Precision12Name = "precision12"
+  final val LatLongSepartor = "__"
+  final val LatLongKey = "separator"
 
   //scalastyle:off
   def getPrecision(lat: Double, long: Double, precision: Precision): JSerializable = {

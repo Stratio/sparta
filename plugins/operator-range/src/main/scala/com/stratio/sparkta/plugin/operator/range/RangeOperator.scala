@@ -23,15 +23,11 @@ import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, WriteOp, Operator}
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 
-class RangeOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
+class RangeOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
 
   override val defaultTypeOperation = TypeOp.Double
 
   private val inputField = if (properties.contains("inputField")) Some(properties.getString("inputField")) else None
-
-  override val key: String = "range_" + {
-    if (inputField.isDefined) inputField.get else "undefined"
-  }
 
   override val writeOperation = WriteOp.Range
 
@@ -42,7 +38,7 @@ class RangeOperator(properties: Map[String, JSerializable]) extends Operator(pro
   }
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
-    val valuesFiltered = values.flatten
+    val valuesFiltered = getDistinctValues(values.flatten)
     valuesFiltered.size match {
       case (nz) if (nz != 0) => {
         val valuesConverted = valuesFiltered.map(_.asInstanceOf[Number].doubleValue())

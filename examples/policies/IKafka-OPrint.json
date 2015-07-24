@@ -1,22 +1,17 @@
 {
   "name": "policy-kafka",
   "sparkStreamingWindow": 2000,
+  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "partitionFormat": "day",
     "path": "myTestParquetPath"
   },
-  "checkpointing": {
-    "path": "checkpoint",
-    "timeDimension": "minute",
-    "granularity": "minute",
-    "interval": 30000,
-    "timeAvailability": 60000
-  },
   "inputs": [
     {
       "name": "in-kafka",
       "type": "Kafka",
+      "jarFile": "input-kafka-plugin.jar",
       "configuration": {
         "topics": "test:1",
         "kafkaParams.zookeeper.connect": "localhost:2181",
@@ -25,57 +20,19 @@
       }
     }
   ],
-  "fields": [
-    {
-      "name": "appName"
-    },
-    {
-      "name": "timestamp",
-      "type": "DateTime"
-    },
-    {
-      "name": "geo",
-      "type": "GeoHash"
-    },
-    {
-      "name": "tag",
-      "type": "Tag"
-    },
-    {
-      "name": "twitterStatus",
-      "type": "TwitterStatus"
-    }
-  ],
-  "cubes": [
-    {
-      "name": "testCube",
-      "dimensions": [
-        {
-          "dimension": "appName"
-        }
-      ],
-      "operators": [
-        {
-          "measureName": "count-operator",
-          "type": "Count",
-          "configuration": {
-          }
-        }
-      ]
-    }
-  ],
-  "outputs": [
-    {
-      "name": "out-print",
-      "type": "Print",
-      "configuration": {
-      }
-    }
-  ],
-  "parsers": [
+  "transformations": [
     {
       "name": "morphline",
+      "order": 0,
       "type": "Morphlines",
+      "jarFile": "parser-morphlines-plugin.jar",
+      "outputFields": [
+        "appName",
+        "timestamp",
+        "geo",
+        "tag",
+        "twitterStatus"
+      ],
       "configuration": {
         "morphline": {
           "id": "test1",
@@ -100,6 +57,39 @@
           ]
         }
       }
+    }
+  ],
+  "cubes": [
+    {
+      "name": "testCube",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
+      "dimensions": [
+        {
+          "field": "appName",
+          "name": "appName"
+        }
+      ],
+      "operators": [
+        {
+          "name": "countoperator",
+          "type": "Count",
+          "jarFile": "operator-count-plugin.jar",
+          "configuration": {}
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-print",
+      "type": "Print",
+      "jarFile": "output-print-plugin.jar",
+      "configuration": {}
     }
   ]
 }

@@ -1,17 +1,11 @@
 {
   "name": "policy-flume",
   "sparkStreamingWindow": 6000,
+  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "partitionFormat": "day",
     "path": "myTestParquetPath"
-  },
-  "checkpointing": {
-    "path": "checkpoint",
-    "timeDimension": "minute",
-    "granularity": "minute",
-    "interval": 30000,
-    "timeAvailability": 60000
   },
   "inputs": [
     {
@@ -24,41 +18,13 @@
       }
     }
   ],
-  "fields": [
-    {
-      "name": "message"
-    }
-  ],
-  "cubes": [
-    {
-      "name": "messages",
-      "dimensions": [
-        {
-          "dimension": "message"
-        }
-      ],
-      "operators": [
-        {
-          "measureName": "count-operator",
-          "type": "Count",
-          "configuration": {}
-        }
-      ]
-    }
-  ],
-  "outputs": [
-    {
-      "name": "out-print",
-      "type": "Print",
-      "configuration": {
-        "multiplexer": "true",
-        "isAutoCalculateId": "true"
-      }
-    }
-  ],
-  "parsers": [
+  "transormations": [
     {
       "name": "morphline",
+      "order": 0,
+      "outputFields": [
+        "message"
+      ],
       "type": "Morphlines",
       "configuration": {
         "morphline": {
@@ -74,6 +40,40 @@
             }
           ]
         }
+      }
+    }
+  ],
+  "cubes": [
+    {
+      "name": "messages",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
+      "dimensions": [
+        {
+          "field": "message",
+          "name": "message"
+        }
+      ],
+      "operators": [
+        {
+          "name": "countoperator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-print",
+      "type": "Print",
+      "configuration": {
+        "multiplexer": "true",
+        "isAutoCalculateId": "true"
       }
     }
   ]

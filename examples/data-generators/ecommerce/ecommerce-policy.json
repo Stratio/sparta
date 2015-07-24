@@ -1,17 +1,11 @@
 {
   "name": "ecommerce-policy",
   "sparkStreamingWindow": 6000,
+  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "partitionFormat": "day",
     "path": "myTestParquetPath"
-  },
-  "checkpointing": {
-    "path": "checkpoint",
-    "timeDimension": "minute",
-    "granularity": "minute",
-    "interval": 30000,
-    "timeAvailability": 60000
   },
   "inputs": [
     {
@@ -30,93 +24,52 @@
       }
     }
   ],
-  "fields": [
-    {
-      "type": "DateTime",
-      "name": "purchaseDateOL"
-    },
-    {
-      "name": "userOL"
-    },
-    {
-      "name": "totalAmountOL"
-    },
-    {
-      "name": "cityOL"
-    },
-    {
-      "name": "postalCodeOL"
-    },
-    {
-      "name": "stateOL"
-    },
-    {
-      "name": "countryOL"
-    },
-    {
-      "name": "customerTypeOL"
-    },
-    {
-      "name": "paymentTypeOL"
-    },
-    {
-      "type": "DateTime",
-      "name": "timestampVL"
-    },
-    {
-      "name": "ipHostVL"
-    },
-    {
-      "name": "userAgentVL"
-    },
-    {
-      "name": "userLogVL"
-    },
-    {
-      "name": "responseCodeVL"
-    },
-    {
-      "name": "operatingSystemVL"
-    }
-  ],
   "cubes": [
     {
       "name": "testCube",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
-          "dimension": "purchaseDateOL",
-          "precision": "minute"
+          "name": "purchaseDateOL",
+          "field": "purchaseDateOL",
+          "precision": "minute",
+          "type": "DateTime"
         }
       ],
       "operators": [
         {
-          "measureName": "count-operator",
+          "name": "countoperator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "measureName": "avg-operator",
+          "name": "avgoperator",
           "type": "Avg",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "measureName": "sum-operator",
+          "name": "sumoperator",
           "type": "Sum",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "name": "max-operator",
+          "name": "maxoperator",
           "type": "Max",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "name": "min-operator",
+          "name": "minoperator",
           "type": "Min",
           "configuration": {
             "inputField": "totalAmountOL"
@@ -126,41 +79,49 @@
     },
     {
       "name": "testCube1",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
-          "dimension": "timestampVL",
+          "name": "timestampVL",
+          "field": "timestampVL",
+          "type": "DateTime",
           "precision": "minute"
         }
       ],
       "operators": [
         {
-          "measureName": "count-operator",
+          "name": "countoperator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "measureName": "avg-operator",
+          "name": "avgoperator",
           "type": "Avg",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "measureName": "sum-operator",
+          "name": "sumoperator",
           "type": "Sum",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "name": "max-operator",
+          "name": "maxoperator",
           "type": "Max",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "name": "min-operator",
+          "name": "minoperator",
           "type": "Min",
           "configuration": {
             "inputField": "totalAmountOL"
@@ -170,45 +131,53 @@
     },
     {
       "name": "testCube2",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
-          "dimension": "ipHostVL",
-          "precision": "identity"
+          "name": "ipHostVL",
+          "field": "ipHostVL"
         },
         {
-          "dimension": "timestampVL",
+          "name": "timestampVL",
+          "field": "timestampVL",
+          "type": "DateTime",
           "precision": "minute"
         }
       ],
       "operators": [
         {
-          "measureName": "count-operator",
+          "name": "countoperator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "measureName": "avg-operator",
+          "name": "avgoperator",
           "type": "Avg",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "measureName": "sum-operator",
+          "name": "sumoperator",
           "type": "Sum",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "name": "max-operator",
+          "name": "maxoperator",
           "type": "Max",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "name": "min-operator",
+          "name": "minoperator",
           "type": "Min",
           "configuration": {
             "inputField": "totalAmountOL"
@@ -218,41 +187,47 @@
     },
     {
       "name": "testCube3",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
-          "dimension": "cityOL",
-          "precision": "identity"
+          "name": "cityOL",
+          "field": "cityOL"
         }
       ],
       "operators": [
         {
-          "measureName": "count-operator",
+          "name": "countoperator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "measureName": "avg-operator",
+          "name": "avgoperator",
           "type": "Avg",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "measureName": "sum-operator",
+          "name": "sumoperator",
           "type": "Sum",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "name": "max-operator",
+          "name": "maxoperator",
           "type": "Max",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "name": "min-operator",
+          "name": "minoperator",
           "type": "Min",
           "configuration": {
             "inputField": "totalAmountOL"
@@ -262,41 +237,47 @@
     },
     {
       "name": "testCube4",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
-          "dimension": "stateOL",
-          "precision": "identity"
+          "name": "stateOL",
+          "field": "stateOL"
         }
       ],
       "operators": [
         {
-          "measureName": "count-operator",
+          "name": "countoperator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "measureName": "avg-operator",
+          "name": "avgoperator",
           "type": "Avg",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "measureName": "sum-operator",
+          "name": "sumoperator",
           "type": "Sum",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "name": "max-operator",
+          "name": "maxoperator",
           "type": "Max",
           "configuration": {
             "inputField": "totalAmountOL"
           }
         },
         {
-          "name": "min-operator",
+          "name": "minoperator",
           "type": "Min",
           "configuration": {
             "inputField": "totalAmountOL"
@@ -318,45 +299,28 @@
       }
     }
   ],
-  "operators": [
-    {
-      "name": "count-operator",
-      "type": "Count",
-      "configuration": {}
-    },
-    {
-      "name": "avg-operator",
-      "type": "Avg",
-      "configuration": {
-        "inputField": "totalAmountOL"
-      }
-    },
-    {
-      "name": "sum-operator",
-      "type": "Sum",
-      "configuration": {
-        "inputField": "totalAmountOL"
-      }
-    },
-    {
-      "name": "max-operator",
-      "type": "Max",
-      "configuration": {
-        "inputField": "totalAmountOL"
-      }
-    },
-    {
-      "name": "min-operator",
-      "type": "Min",
-      "configuration": {
-        "inputField": "totalAmountOL"
-      }
-    }
-  ],
-  "parsers": [
+  "transformations": [
     {
       "name": "morphline-parser",
+      "order": 1,
       "type": "Morphlines",
+      "outputFields": [
+        "purchaseDateOL",
+        "userOL",
+        "totalAmountOL",
+        "cityOL",
+        "postalCodeOL",
+        "stateOL",
+        "countryOL",
+        "customerTypeOL",
+        "paymentTypeOL",
+        "timestampVL",
+        "ipHostVL",
+        "userAgentVL",
+        "userLogVL",
+        "responseCodeVL",
+        "operatingSystemVL"
+      ],
       "configuration": {
         "morphline": {
           "id": "morphline1",
@@ -401,16 +365,26 @@
     },
     {
       "name": "purchaseDateOL",
+      "order": 2,
+      "inputField": "purchaseDateOL",
+      "outputFields": [
+        "purchaseDateOL"
+      ],
       "type": "DateTime",
       "configuration": {
-        "purchaseDateOL": "unixMillis"
+        "inputFormat": "unixMillis"
       }
     },
     {
       "name": "timestampVL",
+      "order": 3,
+      "inputField": "timestampVL",
+      "outputFields": [
+        "timestampVL"
+      ],
       "type": "DateTime",
       "configuration": {
-        "timestampVL": "unixMillis"
+        "inputFormat": "unixMillis"
       }
     }
   ]

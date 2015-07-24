@@ -1,0 +1,129 @@
+{
+  "name": "policy-Twitter-MongoDb",
+  "sparkStreamingWindow": 6000,
+  "checkpointPath": "checkpoint",
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": "myTestParquetPath"
+  },
+  "inputs": [
+    {
+      "name": "in-twitter",
+      "type": "Twitter",
+      "configuration": {
+        "consumerKey": "****",
+        "consumerSecret": "****",
+        "accessToken": "****",
+        "accessTokenSecret": "****",
+        "termsOfSearch": "#hekj,prlk,#drm"
+      }
+    }
+  ],
+  "cubes": [
+    {
+      "name": "testCube",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
+      "dimensions": [
+        {
+          "field": "status",
+          "name": "hashtags",
+          "type": "TwitterStatus",
+          "precision": "hashtags"
+        },
+        {
+          "field": "status",
+          "name": "firsthashtag",
+          "type": "TwitterStatus",
+          "precision": "firsthashtag"
+        },
+        {
+          "field": "status",
+          "name": "retweets",
+          "type": "TwitterStatus",
+          "precision": "retweets"
+        },
+        {
+          "name": "userLocation",
+          "field": "userLocation"
+        },
+        {
+          "field": "geolocation",
+          "name": "precision3",
+          "type": "GeoHash",
+          "precision": "precision3"
+        },
+        {
+          "field": "timestamp",
+          "name": "minute",
+          "type": "DateTime",
+          "precision": "minute"
+        }
+      ],
+      "operators": [
+        {
+          "name": "countoperator",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "name": "sumoperator",
+          "type": "Sum",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "name": "maxoperator",
+          "type": "Max",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "name": "minoperator",
+          "type": "Min",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "name": "avgoperator",
+          "type": "Avg",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "name": "medianoperator",
+          "type": "Median",
+          "configuration": {
+            "inputField": "wordsN"
+          }
+        },
+        {
+          "name": "fullTextoperator",
+          "type": "FullText",
+          "configuration": {
+            "inputField": "userLocation"
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-mongo",
+      "type": "MongoDb",
+      "configuration": {
+        "clientUri": "mongodb://localhost:27017",
+        "dbName": "sparkta"
+      }
+    }
+  ]
+}

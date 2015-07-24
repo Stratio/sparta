@@ -20,43 +20,61 @@ import org.apache.spark.sql._
 
 object AggregateOperations {
 
-  def toString(dimensionValuesT: DimensionValuesTime, aggregations: Map[String, Option[Any]]): String =
-    keyString(dimensionValuesT) +
+  def toString(dimensionValuesT: DimensionValuesTime,
+               aggregations: Map[String, Option[Any]],
+               timeDimension: String,
+               fixedDimensions: Seq[String]): String =
+    keyString(dimensionValuesT, timeDimension, fixedDimensions) +
       " DIMENSIONS: " + dimensionValuesT.dimensionValues.mkString("|") +
       " AGGREGATIONS: " + aggregations +
       " TIME: " + dimensionValuesT.time
 
-  def keyString(dimensionValuesT: DimensionValuesTime): String =
-    dimensionValuesNamesSorted(dimensionValuesT.dimensionValues)
-      .filter(dimName => dimName.nonEmpty).mkString(Output.Separator)
+  def keyString(dimensionValuesT: DimensionValuesTime, timeDimension: String, fixedDimensions: Seq[String]): String = {
+    val dimensionsNames = dimensionValuesNamesSorted(dimensionValuesT.dimensionValues)
+      .filter(dimName => dimName.nonEmpty && dimName != timeDimension && !fixedDimensions.contains(dimName)) ++
+      fixedDimensions ++ Seq(timeDimension)
+    dimensionsNames.mkString(Output.Separator)
+  }
 
   /*
   * By default transform an UpdateMetricOperation in a Row with description.
-  * If fixedPrecisions is defined add fields and values to the original values and fields.
+  * If fixedDimensions is defined add fields and values to the original values and fields.
   * Id field we need calculate the value with all other values
   */
   def toKeyRow(dimensionValuesT: DimensionValuesTime,
                aggregations: Map[String, Option[Any]],
                fixedAggregation: Map[String, Option[Any]],
-               fixedPrecisions: Option[Seq[(String, Any)]],
-               idCalculated: Boolean,
-               timeName : String): (Option[String], Row) = {
-    val dimensionValuesFiltered = filterDimensionValuesByPrecision(dimensionValuesT.dimensionValues,
-      if(timeName.isEmpty) None else Some(timeName))
+               fixedDimensions: Option[Seq[(String, Any)]],
+               idCalculated: Boolean): (Option[String], Row) = {
+    val timeDimension = dimensionValuesT.timeDimension;
+    val dimensionValuesFiltered =
+      filterDimensionValuesByName(dimensionValuesT.dimensionValues,
+      if (timeDimension.isEmpty) None else Some(timeDimension))
+
     val namesDim = dimensionValuesNames(dimensionValuesFiltered.sorted)
+
     val (valuesDim, valuesAgg) = toSeq(dimensionValuesFiltered, aggregations ++ fixedAggregation)
-    val (namesFixed, valuesFixed) = if (fixedPrecisions.isDefined) {
-      val fixedPrecisionsSorted = fixedPrecisions.get.filter(fb => fb._1 != timeName)
-        .sortWith((precision1, precision2) => precision1._1 < precision2._1)
-      (namesDim ++ fixedPrecisionsSorted.map(_._1) ++ Seq(timeName),
-        valuesDim ++ fixedPrecisionsSorted.map(_._2) ++
-          Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time)))
-    } else (namesDim ++ Seq(timeName),
-      valuesDim ++ Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time)))
+
+    val (namesFixed, valuesFixed) = if (fixedDimensions.isDefined) {
+      val fixedDimensionsSorted = fixedDimensions.get
+        .filter(fb => fb._1 != timeDimension)
+        .sortWith((dimension1, dimension2) => dimension1._1 < dimension2._1)
+      (
+        namesDim ++ fixedDimensionsSorted.map(_._1) ++ Seq(timeDimension),
+        valuesDim ++ fixedDimensionsSorted.map(_._2) ++ Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time))
+      )
+    } else
+      (
+        namesDim ++ Seq(timeDimension),
+        valuesDim ++ Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time))
+      )
+
     val (keysId, rowId) = getNamesValues(namesFixed, valuesFixed, idCalculated)
 
-    if (keysId.length > 0) (Some(keysId.mkString(Output.Separator)), Row.fromSeq(rowId ++ valuesAgg))
-    else (None, Row.fromSeq(rowId ++ valuesAgg))
+    if (keysId.length > 0)
+      (Some(keysId.mkString(Output.Separator)), Row.fromSeq(rowId ++ valuesAgg))
+    else
+      (None, Row.fromSeq(rowId ++ valuesAgg))
   }
 
   def toSeq(dimensionValues: Seq[DimensionValue], aggregations: Map[String, Option[Any]]): (Seq[Any], Seq[Any]) =
@@ -68,16 +86,15 @@ object AggregateOperations {
       (Seq(Output.Id) ++ names, Seq(values.mkString(Output.Separator)) ++ values)
     else (names, values)
 
-  def dimensionValuesNames(dimensionValues: Seq[DimensionValue]): Seq[String] = dimensionValues.map(_.getNameDimension)
+  def dimensionValuesNames(dimensionValues: Seq[DimensionValue]): Seq[String] = dimensionValues.map(_.dimension.name)
 
   def dimensionValuesNamesSorted(dimensionValues: Seq[DimensionValue]): Seq[String] =
     dimensionValuesNames(dimensionValues.sorted)
 
-  def filterDimensionValuesByPrecision(dimensionValues: Seq[DimensionValue], precisionName : Option[String])
+  def filterDimensionValuesByName(dimensionValues: Seq[DimensionValue], dimensionName: Option[String])
   : Seq[DimensionValue] =
-    precisionName match {
+    dimensionName match {
       case None => dimensionValues
-      case Some(precision) => dimensionValues.filter(cube => (cube.getNameDimension != precision))
+      case Some(name) => dimensionValues.filter(cube => (cube.dimension.name != name))
     }
-
 }

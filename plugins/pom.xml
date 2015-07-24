@@ -22,7 +22,7 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>com.stratio.sparkta</groupId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>plugins</artifactId>
@@ -34,6 +34,7 @@
         <module>field-twitter-status</module>
         <module>field-tag</module>
         <module>field-hierarchy</module>
+        <module>field-arrayText</module>
         <module>output-mongodb</module>
         <module>output-elasticsearch</module>
         <module>output-cassandra</module>
@@ -64,13 +65,17 @@
         <module>parser-detector</module>
         <module>parser-type</module>
         <module>parser-split</module>
-        <module>field-arrayText</module>
     </modules>
 
     <dependencies>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
             <artifactId>sdk</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming_${scala.binary.version}</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -102,7 +107,7 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.3</version>
                 <configuration>
-                    <finalName>${project.name}-${project.version}-plugin</finalName>
+                    <finalName>${project.name}-plugin</finalName>
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>

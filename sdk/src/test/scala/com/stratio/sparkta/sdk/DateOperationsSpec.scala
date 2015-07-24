@@ -17,6 +17,7 @@
 package com.stratio.sparkta.sdk
 
 import com.github.nscala_time.time.Imports._
+import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
@@ -54,6 +55,31 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
       dt.withMillisOfSecond(0).withSecondOfMinute(0).getMillis
   }
 
+  trait ParquetPath{
+
+    val yearStr = "year"
+    val monthStr = "month"
+    val dayStr = "day"
+    val hourStr = "hour"
+    val minuteStr = "minute"
+    val defaultStr = "whatever"
+
+    val yearPattern = "/'year='yyyy/'"
+    val monthPattern = "/'year='yyyy/'month='MM/'"
+    val dayPattern = "/'year='yyyy/'month='MM/'day='dd/'"
+    val hourPattern = "/'year='yyyy/'month='MM/'day='dd/'hour='HH/'"
+    val minutePattern = "/'year='yyyy/'month='MM/'day='dd/'hour='HH/'minute='mm/'"
+    val defaultPattern = "/'year='yyyy/'month='MM/'day='dd/'hour='HH/'minute='mm/'second='ss"
+
+    val yearPatternResult = DateTimeFormat.forPattern(yearPattern).print(DateTime.now())
+    val monthPatternResult = DateTimeFormat.forPattern(monthPattern).print(DateTime.now())
+    val dayPatternResult = DateTimeFormat.forPattern(dayPattern).print(DateTime.now())
+    val hourPatternResult = DateTimeFormat.forPattern(hourPattern).print(DateTime.now())
+    val minutePatternResult = DateTimeFormat.forPattern(minutePattern).print(DateTime.now())
+    val defaultPatternResult = DateTimeFormat.forPattern(defaultPattern).print(DateTime.now())
+
+    }
+
   "DateOperationsSpec" should "return timestamp with correct parameters" in new CommonValues {
     DateOperations.getTimeFromGranularity(Some(""), Some("minute")) should be(minuteDT.getMillis)
     DateOperations.getTimeFromGranularity(Some(""), Some("hour")) should be(hourDT.getMillis)
@@ -89,7 +115,17 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
   it should "round to 15 seconds" in new CommonValues {
      val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
     val now = formatter.parseDateTime("1984-03-17 13:13:17")
-    DateOperations.dateFromGranularity(now,"_15s") should be(448373595000L)
+    DateOperations.dateFromGranularity(now,"s15") should be(448373595000L)
+  }
+
+  it should "create the full parquet path with just a word" in new ParquetPath {
+    DateOperations.generateParquetPath(parquetPattern = Some(yearStr)) should be (yearPatternResult)
+    DateOperations.generateParquetPath(parquetPattern = Some(monthStr)) should be (monthPatternResult)
+    DateOperations.generateParquetPath(parquetPattern = Some(dayStr)) should be (dayPatternResult)
+    DateOperations.generateParquetPath(parquetPattern = Some(hourStr)) should be (hourPatternResult)
+    DateOperations.generateParquetPath(parquetPattern = Some(minuteStr)) should be (minutePatternResult)
+    DateOperations.generateParquetPath(parquetPattern = Some(defaultStr)) should be (defaultPatternResult)
+
   }
 
 }

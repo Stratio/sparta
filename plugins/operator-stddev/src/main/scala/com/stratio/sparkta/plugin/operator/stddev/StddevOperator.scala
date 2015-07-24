@@ -27,15 +27,11 @@ import breeze.stats._
 import breeze.linalg._
 
 
-class StddevOperator(properties: Map[String, JSerializable]) extends Operator(properties) {
+class StddevOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
 
   override val defaultTypeOperation = TypeOp.Double
 
   private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
-
-  override val key : String = "stddev_" + {
-    if(inputField.isDefined) inputField.get else "undefined"
-  }
 
   override val writeOperation = WriteOp.Stddev
 
@@ -46,7 +42,7 @@ class StddevOperator(properties: Map[String, JSerializable]) extends Operator(pr
   }
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
-    val valuesFiltered = values.flatten
+    val valuesFiltered = getDistinctValues(values.flatten)
     valuesFiltered.size match {
       case (nz) if (nz != 0) =>
         Some(transformValueByTypeOp(returnType, stddev(valuesFiltered.map(_.asInstanceOf[Number].doubleValue()))))

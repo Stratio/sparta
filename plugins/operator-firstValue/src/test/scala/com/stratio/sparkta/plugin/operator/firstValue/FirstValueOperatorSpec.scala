@@ -28,27 +28,27 @@ class FirstValueOperatorSpec extends WordSpec with Matchers {
   "FirstValue operator" should {
 
     "processMap must be " in {
-      val inputField = new FirstValueOperator(Map())
+      val inputField = new FirstValueOperator("firstValue", Map())
       inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(""))
 
-      val inputFields2 = new FirstValueOperator(Map("inputField" -> "field1"))
+      val inputFields2 = new FirstValueOperator("firstValue", Map("inputField" -> "field1"))
       inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(Some(""))
 
-      val inputFields3 = new FirstValueOperator(Map("inputField" -> "field1"))
+      val inputFields3 = new FirstValueOperator("firstValue", Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
     }
 
     "processReduce must be " in {
-      val inputFields = new FirstValueOperator(Map())
+      val inputFields = new FirstValueOperator("firstValue", Map())
       inputFields.processReduce(Seq()) should be(Some(""))
 
-      val inputFields2 = new FirstValueOperator(Map("typeOp" -> "int"))
+      val inputFields2 = new FirstValueOperator("firstValue", Map("typeOp" -> "int"))
       inputFields2.processReduce(Seq(Some(1), Some(2))) should be(Some(1))
 
-      val inputFields4 = new FirstValueOperator(Map("typeOp" -> "string"))
+      val inputFields4 = new FirstValueOperator("firstValue", Map("typeOp" -> "string"))
       inputFields4.processReduce(Seq(Some(1), Some(2))) should be(Some("1"))
 
-      val inputFields3 = new FirstValueOperator(Map())
+      val inputFields3 = new FirstValueOperator("firstValue", Map())
       inputFields3.processReduce(Seq(Some("a"), Some("b"))) should be(Some("a"))
     }
   }

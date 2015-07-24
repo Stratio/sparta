@@ -30,21 +30,16 @@ import com.stratio.sparkta.plugin.output.mongodb.dao.MongoDbDAO
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
-import com.stratio.sparkta.sdk.{WriteOp, _}
+import com.stratio.sparkta.sdk._
 
 class MongoDbOutput(keyName: String,
                     properties: Map[String, JSerializable],
                     @transient sparkContext: SparkContext,
                     operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                    bcSchema: Option[Broadcast[Seq[TableSchema]]],
-                    timeName: String)
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema, timeName) with MongoDbDAO {
+                    bcSchema: Option[Broadcast[Seq[TableSchema]]])
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with MongoDbDAO {
 
   RegisterJodaTimeConversionHelpers()
-
-  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Max, WriteOp.Min,
-    WriteOp.Range, WriteOp.AccAvg, WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText,
-    WriteOp.AccSet)
 
   override val mongoClientUri = properties.getString("clientUri", "mongodb://localhost:27017")
 
@@ -57,45 +52,38 @@ class MongoDbOutput(keyName: String,
 
   override val retrySleep = Try(properties.getInt("retrySleep")).getOrElse(DefaultRetrySleep)
 
-  override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
-  override val identitiesSaved = Try(properties.getString("identitiesSaved").toBoolean).getOrElse(false)
+  override val idAsField = Try(properties.getString("idAsField").toBoolean).getOrElse(true)
 
-  override val identitiesSavedAsField = Try(properties.getString("identitiesSavedAsField").toBoolean).getOrElse(false)
-
-  override val idAsField = Try(properties.getString("idAsField").toBoolean).getOrElse(false)
-
-  override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
-
-  override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(fieldsSeparator))
-
-  override val fixedPrecisions: Array[String] = properties.getString("fixedPrecisions", None) match {
-    case None => Array()
-    case Some(fixPrecisions) => fixPrecisions.split(fieldsSeparator)
-  }
+  override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(FieldsSeparator))
 
   override val language = properties.getString("language", None)
 
   override val pkTextIndexesCreated: Boolean =
-    filterSchemaByKeyAndField.map(tableSchema => createPkTextIndex(tableSchema.tableName, timeName))
-      .forall(result => result._1 && result._2)
+    if (bcSchema.isDefined) {
+      val schemasFiltered =
+        bcSchema.get.value.filter(schemaFilter => schemaFilter.outputName == keyName).map(getTableSchemaFixedId(_))
+      filterSchemaByFixedAndTimeDimensions(schemasFiltered)
+        .map(tableSchema => createPkTextIndex(tableSchema.tableName, tableSchema.timeDimension))
+        .forall(result => result._1 && result._2)
+    } else false
 
   override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     persistMetricOperation(stream)
   }
 
   override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
-    metricOperations.toList.groupBy(upMetricOp => AggregateOperations.keyString(upMetricOp._1))
-      .filter(_._1.size > 0).foreach(f = collMetricOp => {
+    metricOperations.toList.filter(!_._1.dimensionValues.isEmpty).groupBy(upMetricOp =>
+      AggregateOperations.keyString(upMetricOp._1, upMetricOp._1.timeDimension, fixedDimensions)).filter(_._1.size > 0)
+      .foreach(f = collMetricOp => {
+      val dimensionTime = collMetricOp._2.head._1.timeDimension
       val bulkOperation = db().getCollection(collMetricOp._1).initializeOrderedBulkOperation()
-      val idFieldName = if (!timeName.isEmpty) Output.Id else DefaultId
+      val idFieldName = if (!dimensionTime.isEmpty) Output.Id else DefaultId
 
       val updateObjects = collMetricOp._2.map { case (cubeKey, aggregations) => {
         checkFields(aggregations.keySet, operationTypes)
-        val eventTimeObject = if (!timeName.isEmpty) Some(timeName -> new DateTime(cubeKey.time)) else None
-        val identitiesField = getIdentitiesField(cubeKey)
-        val identities = if(identitiesSaved) Some(getIdentities(cubeKey)) else None
-        val idFields = if(idAsField) Some(getIdFields(cubeKey)) else None
+        val eventTimeObject = if (!dimensionTime.isEmpty) Some(dimensionTime -> new DateTime(cubeKey.time)) else None
+        val idFields = if (idAsField) Some(getIdFields(cubeKey)) else None
         val mapOperations = getOperations(aggregations.toSeq, operationTypes)
           .groupBy { case (writeOp, op) => writeOp }
           .mapValues(operations => operations.map { case (writeOp, op) => op })
@@ -104,9 +92,9 @@ class MongoDbOutput(keyName: String,
         (getFind(
           idFieldName,
           eventTimeObject,
-          AggregateOperations.filterDimensionValuesByPrecision(cubeKey.dimensionValues, if (timeName.isEmpty) None
-          else Some(timeName))),
-          getUpdate(mapOperations, identitiesField, identities, idFields))
+          AggregateOperations.filterDimensionValuesByName(cubeKey.dimensionValues, if (dimensionTime.isEmpty) None
+          else Some(dimensionTime))),
+          getUpdate(mapOperations, idFields))
       }
       }
 

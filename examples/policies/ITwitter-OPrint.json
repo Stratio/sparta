@@ -1,17 +1,11 @@
 {
   "name": "policy-Twitter-Print",
   "sparkStreamingWindow": 6000,
+  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "partitionFormat": "day",
     "path": "myTestParquetPath"
-  },
-  "checkpointing": {
-    "path": "checkpoint",
-    "timeDimension": "minute",
-    "granularity": "minute",
-    "interval": 30000,
-    "timeAvailability": 60000
   },
   "inputs": [
     {
@@ -25,145 +19,129 @@
       }
     }
   ],
-  "fields": [
-    {
-      "type": "TwitterStatus",
-      "name": "status",
-      "configuration": {
-        "typeOp": "string",
-        "hastags": "int",
-        "firsthastag": "string",
-        "retweets": "int",
-        "urls": "int"
-      }
-    },
-    {
-      "name": "userLocation"
-    },
-    {
-      "name": "wordsN"
-    },
-    {
-      "type": "DateTime",
-      "name": "timestamp"
-    },
-    {
-      "type": "GeoHash",
-      "name": "geolocation",
-      "configuration": {
-        "typeOp": "arraydouble"
-      }
-    }
-  ],
   "cubes": [
     {
       "name": "testCube",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
       "dimensions": [
         {
-          "dimension": "status",
-          "precision": "hastags"
+          "name": "hashtags",
+          "field": "status",
+          "type": "TwitterStatus",
+          "precision": "hashtags"
         },
         {
-          "dimension": "status",
-          "precision": "firsthastag"
+          "name": "firsthashtag",
+          "field": "status",
+          "type": "TwitterStatus",
+          "precision": "firsthashtag"
         },
         {
-          "dimension": "status",
+          "name": "retweets",
+          "field": "status",
+          "type": "TwitterStatus",
           "precision": "retweets"
         },
         {
-          "dimension": "userLocation"
+          "name": "userLocation",
+          "field": "userLocation"
         },
         {
-          "dimension": "wordsN"
-        },
-        {
-          "dimension": "geolocation",
+          "name": "precision3",
+          "field": "geolocation",
+          "type": "GeoHash",
           "precision": "precision3"
         },
         {
-          "dimension": "timestamp",
+          "name": "minute",
+          "field": "timestamp",
+          "type": "DateTime",
           "precision": "minute"
         }
       ],
       "operators": [
         {
-          "measureName": "count-operator",
+          "name": "countoperator",
           "type": "Count",
           "configuration": {}
         },
         {
-          "measureName": "count-distinct-operator",
+          "name": "distinctoperator",
           "type": "Count",
           "configuration": {
             "distinctFields": "wordsN"
           }
         },
         {
-          "measureName": "sum-operator",
+          "name": "sumoperator",
           "type": "Sum",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "max-operator",
+          "name": "maxoperator",
           "type": "Max",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "min-operator",
+          "name": "minoperator",
           "type": "Min",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "avg-operator",
+          "name": "avgoperator",
           "type": "Avg",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "median-operator",
+          "name": "medianoperator",
           "type": "Median",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "variance-operator",
+          "name": "varianceoperator",
           "type": "Variance",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "stddev-operator",
+          "name": "stddevoperator",
           "type": "Stddev",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "measureName": "fullText-operator",
+          "name": "fullTextoperator",
           "type": "FullText",
           "configuration": {
             "inputField": "userLocation"
           }
         },
         {
-          "measureName": "lastValue-operator",
+          "name": "lastValueoperator",
           "type": "LastValue",
           "configuration": {
             "inputField": "retweets"
           }
         },
         {
-          "measureName": "accumulator-operator",
+          "name": "accumulatoroperator",
           "type": "Accumulator",
           "configuration": {
             "inputField": "wordsN"
@@ -177,7 +155,7 @@
       "name": "out-print",
       "type": "Print",
       "configuration": {
-        "multiplexer": "false",
+
         "isAutoCalculateId": "false"
       }
     }

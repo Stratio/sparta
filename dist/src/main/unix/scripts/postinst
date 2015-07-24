@@ -1,0 +1,38 @@
+#!/bin/sh
+
+USER=stratio
+GROUP=stratio
+DIR_INSTALL=/opt/sds/sparkta
+DIR_PID=/var/run/sds
+CONF_FILE_BACKUP=$DIR_INSTALL/conf.tar.gz
+
+###
+# UTILs
+###
+restoreAndPurge () {
+    if [ -f "$1" ]; then
+        echo "Restoring $1"
+        tar xzf $1 > /dev/null 2>&1
+        echo "Removing $1"
+        rm $1
+    fi
+}
+
+###
+# EXECUTION CONFIGURATION
+###
+chown -R ${USER}:${GROUP} $DIR_INSTALL
+chown -R ${USER}:${GROUP} $DIR_PID
+chmod 775 $DIR_INSTALL
+chmod 775 $DIR_PID
+/bin/chmod 755 $DIR_INSTALL/bin/run
+/bin/chmod 755 /etc/init.d/sparkta
+echo "Adding sparkta service"
+update-rc.d sparkta defaults > /dev/null 2>&1
+
+###
+# RESTORE conf
+###
+restoreAndPurge $CONF_FILE_BACKUP
+
+exit 0

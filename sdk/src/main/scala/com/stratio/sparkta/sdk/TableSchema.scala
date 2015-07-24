@@ -21,7 +21,7 @@ import java.io.Serializable
 
 
 case class TableSchema(outputName: String, tableName: String,
-                       schema: StructType) extends Serializable {
+                       schema: StructType, timeDimension: String) extends Serializable {
 
   override val toString = s"OPERATOR: $outputName - TABLE: $tableName - SCHEMA: $schema"
 

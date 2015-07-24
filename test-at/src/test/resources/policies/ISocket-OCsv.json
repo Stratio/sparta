@@ -1,0 +1,180 @@
+{
+  "name": "ATSocketCSV",
+  "sparkStreamingWindow": 2000,
+  "checkpointPath": "checkpoint",
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": "myTestParquetPath"
+  },
+  "inputs": [
+    {
+      "name": "in-socket",
+      "type": "Socket",
+      "configuration": {
+        "hostname": "localhost",
+        "port": "10666"
+      }
+    }
+  ],
+  "transformations": [
+  {
+    "name": "morphline-parser",
+    "order": 0,
+    "type": "Morphlines",
+    "outputFields": [
+      "product",
+      "timestamp",
+      "price"
+    ],
+    "configuration": {
+      "morphline": {
+        "id": "morphline1",
+        "importCommands": [
+          "org.kitesdk.**"
+        ],
+        "commands": [
+          {
+            "readCSV": {
+              "separator": ",",
+              "columns": [
+                "product",
+                "price"
+              ],
+              "trim": "true",
+              "charset": "UTF-8",
+              "quoteChar": "\"",
+              "commentPrefix": "#"
+            }
+          }
+        ]
+      }
+    }
+  }
+],
+  "cubes": [
+    {
+      "name": "testCube",
+      "checkpointConfig": {
+        "timeDimension": "timestamp",
+        "granularity": "day",
+        "interval": 30000,
+        "timeAvailability": 600000
+      },
+      "dimensions": [
+        {
+          "name": "product",
+          "field": "product"
+        }
+      ],
+      "operators": [
+        {
+          "name": "acc_price",
+          "type": "Accumulator",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "avg_price",
+          "type": "Avg",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "count_price",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "name": "first_price",
+          "type": "FirstValue",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "fulltext_price",
+          "type": "FullText",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "last_price",
+          "type": "LastValue",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "max_price",
+          "type": "Max",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "median_price",
+          "type": "Median",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "min_price",
+          "type": "Min",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "range_price",
+          "type": "Range",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "stddev_price",
+          "type": "Stddev",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "sum_price",
+          "type": "Sum",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "variance_price",
+          "type": "Variance",
+          "configuration": {
+            "inputField": "price"
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-csv",
+      "type": "Csv",
+      "configuration": {
+        "isAutoCalculateId": "false",
+        "path": "/tmp/sparkta/operators/csv/",
+        "header": "true",
+        "delimiter": ","
+      }
+    }
+  ]
+}
+
+
+
+
+

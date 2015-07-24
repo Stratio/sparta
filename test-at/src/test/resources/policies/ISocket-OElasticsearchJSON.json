@@ -1,0 +1,159 @@
+{
+  "name": "ATSocketElasticsearch",
+  "sparkStreamingWindow": 2000,
+  "checkpointPath": "checkpoint",
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": "myTestParquetPath"
+  },
+  "inputs": [
+    {
+      "name": "in-socket",
+      "type": "Socket",
+      "configuration": {
+        "hostname": "localhost",
+        "port": "10666"
+      }
+    }
+  ],
+  "transformations": [
+    {
+      "name": "morphline",
+      "type": "Morphlines",
+      "order": 0,
+      "outputFields": [
+        "tpe",
+        "smfProcess",
+        "millis"
+      ],
+      "configuration": {
+        "morphline": {
+          "id": "morphline1",
+          "importCommands": [
+            "org.kitesdk.**"
+          ],
+          "commands": [
+            {
+              "readJson": {}
+            },
+            {
+              "extractJsonPaths": {
+                "paths": {
+                  "tpe": "/tpe",
+                  "smfProcess": "/smfProcess/cod",
+                  "millis": "/timeStamp/millis"
+                }
+              }
+            },
+            {
+              "removeFields": {
+                "blacklist": [
+                  "literal:_attachment_body"
+                ]
+              }
+            },
+            {
+              "if": {
+                "conditions": [
+                  {
+                    "not": {
+                      "equals": {
+                        "tpe": [
+                          "A"
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "then": [
+                  {
+                    "dropRecord": {}
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "recorded_at_ms-parser",
+      "order": 1,
+      "type": "DateTime",
+      "inputField": "millis",
+      "outputFields": [
+        "millis"
+      ],
+      "configuration": {
+        "inputFormat": "unixMillis"
+      }
+    }
+  ],
+  "cubes": [
+    {
+      "name": "cubeSmfProcess",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000000000000
+      },
+      "dimensions": [
+        {
+          "field": "smfProcess",
+          "name": "smfProcess"
+        },
+        {
+          "field": "millis",
+          "name": "minute",
+          "type": "DateTime",
+          "precision": "minute"
+        }
+      ],
+      "operators": [
+        {
+          "name": "countoperator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
+    },
+    {
+      "name": "cubeMillis",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000000000000
+      },
+      "dimensions": [
+        {
+          "field": "millis",
+          "name": "minute",
+          "type": "DateTime",
+          "precision": "minute"
+        }
+      ],
+      "operators": [
+        {
+          "name": "countoperator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-elasticsearch",
+      "type": "ElasticSearch",
+      "configuration": {
+        "nodes": "localhost",
+        "defaultPort": "9200",
+        "isAutoCalculateId": "true",
+        "indexMapping": "day"
+      }
+    }
+  ]
+}

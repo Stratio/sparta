@@ -3,7 +3,7 @@
   "name": "twitter",
   "element": {
     "name": "in-twitter",
-    "elementType": "TwitterInput",
+    "type": "Twitter",
     "configuration": {
       "consumerKey": "*****",
       "consumerSecret": "*****",

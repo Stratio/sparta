@@ -17,11 +17,11 @@
 package com.stratio.sparkta.plugin.output.cassandra
 
 import java.io.{Serializable => JSerializable}
-import scala.util.Try
 
 import com.datastax.spark.connector.cql.CassandraConnector
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SaveMode._
 import org.apache.spark.sql._
 import org.apache.spark.streaming.dstream.DStream
@@ -36,27 +36,9 @@ class CassandraOutput(keyName: String,
                       properties: Map[String, JSerializable],
                       @transient sparkContext: SparkContext,
                       operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                      bcSchema: Option[Broadcast[Seq[TableSchema]]],
-                      timeName: String)
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema, timeName)
+                      bcSchema: Option[Broadcast[Seq[TableSchema]]])
+  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema)
   with CassandraDAO {
-
-  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Max, WriteOp.Min,
-    WriteOp.Range, WriteOp.AccAvg, WriteOp.AccMedian, WriteOp.AccVariance, WriteOp.AccStddev, WriteOp.FullText,
-    WriteOp.AccSet)
-
-  override val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
-
-  override val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
-
-  override val fieldsSeparator = properties.getString("fieldsSeparator", ",")
-
-  override val fixedPrecisions: Array[String] = properties.getString("fixedPrecisions", None) match {
-    case None => Array()
-    case Some(fixPrecisions) => fixPrecisions.split(fieldsSeparator)
-  }
-
-  override val cluster = properties.getString("cluster", "Test Cluster")
 
   override val keyspace = properties.getString("keyspace", "sparkta")
 
@@ -66,11 +48,11 @@ class CassandraOutput(keyName: String,
 
   override val compactStorage = properties.getString("compactStorage", None)
 
-  override val clusteringPrecisions = properties.getString("clusteringPrecisions", None).map(_.split(fieldsSeparator))
+  override val clusteringPrecisions = properties.getString("clusteringPrecisions", None).map(_.split(FieldsSeparator))
 
-  override val indexFields = properties.getString("indexFields", None).map(_.split(fieldsSeparator))
+  override val indexFields = properties.getString("indexFields", None).map(_.split(FieldsSeparator))
 
-  override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(fieldsSeparator))
+  override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(FieldsSeparator))
 
   override val analyzer = properties.getString("analyzer", DefaultAnalyzer)
 
@@ -80,15 +62,11 @@ class CassandraOutput(keyName: String,
 
   override val textIndexName = properties.getString("textIndexName", "lucene")
 
-  val fixedAgg = properties.getString("fixedAggregation", None)
-
-  override val fixedAggregation: Map[String, Option[Any]] =
-    if (textIndexFields.isDefined && !textIndexFields.get.isEmpty && fixedAgg.isDefined) {
-      val fixedAggSplited = fixedAgg.get.split(Output.FixedAggregationSeparator)
-      Map(fixedAggSplited.head -> Some(""))
-    } else Map()
-
   override val connector = Some(CassandraConnector(sparkContext.getConf))
+
+  override val supportedWriteOps: Seq[WriteOp.Value] = Seq(WriteOp.FullText, WriteOp.Inc, WriteOp.IncBig,
+    WriteOp.Set, WriteOp.Range, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.Median,
+    WriteOp.Variance, WriteOp.Stddev)
 
   val keyspaceCreated = createKeypace
 
@@ -96,21 +74,22 @@ class CassandraOutput(keyName: String,
     .map(tschemaFiltered => getTableSchemaFixedId(tschemaFiltered))
 
   val tablesCreated = if (keyspaceCreated) {
-    bcSchema.exists(bc => createTables(schemaFiltered, timeName, isAutoCalculateId))
+    bcSchema.exists(bc => createTables(schemaFiltered, isAutoCalculateId))
   } else false
 
-  val indexesCreated = if (keyspaceCreated && tablesCreated && indexFields.isDefined && !indexFields.get.isEmpty) {
-    bcSchema.exists(bc => createIndexes(schemaFiltered, timeName, isAutoCalculateId))
-  } else false
-
-  val textIndexesCreated = if (keyspaceCreated &&
-    tablesCreated &&
-    textIndexFields.isDefined &&
-    !textIndexFields.isEmpty &&
-    !fixedAggregation.isEmpty &&
-    fixedAgg.get == textIndexName) {
-    bcSchema.exists(bc => createTextIndexes(schemaFiltered))
-  } else false
+  override def setup: Unit = {
+    if (keyspaceCreated && tablesCreated) {
+      if (indexFields.isDefined && !indexFields.get.isEmpty) {
+        bcSchema.exists(bc => createIndexes(schemaFiltered, isAutoCalculateId))
+      }
+      if (textIndexFields.isDefined &&
+        !textIndexFields.isEmpty &&
+        !fixedAggregation.isEmpty &&
+        fixedAgg.get == textIndexName) {
+        bcSchema.exists(bc => createTextIndexes(schemaFiltered))
+      }
+    }
+  }
 
   /*
   * The next two methods are beta.
@@ -121,10 +100,10 @@ class CassandraOutput(keyName: String,
     if (bcSchema.isDefined && keyspaceCreated && tablesCreated) persistDataFrame(stream)
   }
 
-  override def upsert(dataFrame: DataFrame, tableName: String): Unit = {
+  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
     dataFrame.write
       .format("org.apache.spark.sql.cassandra")
-      .mode(Overwrite)
+      .mode(Append)
       .options(Map("table" -> tableName, "keyspace" -> keyspace)).save()
   }
 }
@@ -133,7 +112,6 @@ object CassandraOutput {
 
   final val DefaultHost = "127.0.0.1"
   final val DefaultPort = "9042"
-
 
   def getSparkConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
     val connectionHost = configuration.getString("connectionHost", DefaultHost)

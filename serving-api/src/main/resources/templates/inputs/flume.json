@@ -1,0 +1,66 @@
+{
+  "name": "Flume",
+  "description": {
+    "short": "Reads events from flume",
+    "long": "Reads events from flume"
+  },
+  "icon": {
+    "url": "assets/images/datasources/logo-flume.png"
+  },
+
+  "properties": [
+    {
+      "propertyId": "name",
+      "propertyName": "Name",
+      "propertyType": "text",
+      "regexp": "TODO",
+      "default": "Twitter",
+      "required": false,
+      "tooltip": "Name of the input"
+    },
+    {
+      "propertyId": "type",
+      "propertyName": "Type",
+      "propertyType": "text",
+      "regexp": "[^/\\. \"$]{2,128}",
+      "default": "",
+      "required": false,
+      "tooltip": "The Type of the input it’s used to instantiate specific classes"
+    },
+    {
+      "propertyId": "flumeType",
+      "propertyName": "FlumeType",
+      "propertyType": "text",
+      "regexp": "[^/\\. \"$]{1,3}",
+      "default": "",
+      "required": false,
+      "tooltip": "Flume's type."
+    },
+    {
+      "propertyId": "addresses",
+      "propertyName": "Addresses",
+      "propertyType": "text",
+      "regexp": "[^/\\. \"$]{1,3}",
+      "required": false,
+      "tooltip": "Flume's addresses."
+    },
+    {
+      "propertyId": "storageLevel",
+      "propertyName": "StorageLevel",
+      "propertyType": "text",
+      "regexp": "[^/\\. \"$]{1,3}",
+      "default": "",
+      "required": false,
+      "tooltip": "It’s a spark parameter used to define the level of the trade-off between memory usage and CPU efficiency"
+    },
+    {
+      "propertyId": "maxBatchSize",
+      "propertyName": "MaxBatchSize",
+      "propertyType": "text",
+      "regexp": "[^/\\. \"$]{1,300}",
+      "default": "",
+      "required": false,
+      "tooltip": "The max number of lines to read and send to the channel at a time."
+    }
+  ]
+}

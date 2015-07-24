@@ -30,8 +30,6 @@ This vast amount of data allows us to learn from the users and explore our own w
 
 We can follow in real-time the evolution of a topic, an event or even an incident just by exploring aggregated data.
 
-
-
  But beyond cool visualizations, there are some core services delivered in real-time, using aggregated data to
  answer common questions in the fastest way.
 
@@ -53,14 +51,13 @@ Features
 - Highly business-project oriented
 - Multiple application
 - Cubes
-    - Pass-through
     - Time-based
     - Secondly, minutely, hourly,  daily, monthly, yearly...
     - Hierarchical
     - GeoRange: Areas with different sizes (rectangles)
     - Flexible definition of aggregation policies (json, web app)
 - Operators:
-    - Max, min, count, sum
+    - Max, min, count, sum, range
     - Average, median
     - Stdev, variance, count distinct
     - Last value
@@ -75,7 +72,7 @@ Architecture
 Sparkta overview
 ------------
 
-![Settings Window](https://github.com/Brezyll/sparkta/blob/master/doc/src/site/sphinx/images/sparkta1.png)
+![Architecture](./doc/src/site/sphinx/images/sparkta1.png)
 
 Key technologies
 ------------
@@ -95,7 +92,7 @@ Key technologies
 - [KiteSDK (morphlines)] (http://kitesdk.org/docs/current)
 
 
-![Settings Window](https://github.com/Brezyll/sparkta/blob/feature/Doc/doc/src/site/sphinx/images/Inoutputs.png)
+![Input/Outputs](./doc/src/site/sphinx/images/Inoutputs.png)
 
 Inputs
 ------------
@@ -116,6 +113,8 @@ Outputs
 - Redis
 - Spark's DataFrames Outputs
 - PrintOut
+- CSV
+- Parquet
 
 Build
 -----

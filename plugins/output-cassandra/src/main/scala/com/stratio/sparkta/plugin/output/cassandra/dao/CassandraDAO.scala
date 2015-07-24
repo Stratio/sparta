@@ -31,12 +31,9 @@ trait CassandraDAO extends Closeable with Logging {
   val DefaultRefreshSeconds = "1"
   val IndexPrefix = "index_"
   val MaxTableNameLength = 48
-  val MaxIndexNameLength = 48
 
   val connector: Option[CassandraConnector] = None
   val compactStorage: Option[String] = None
-
-  def cluster: String
 
   def keyspace: String
 
@@ -60,11 +57,11 @@ trait CassandraDAO extends Closeable with Logging {
 
   def createKeypace: Boolean = connector.exists(doCreateKeyspace(_))
 
-  def createTables(tSchemas: Seq[TableSchema], clusteringTime: String, isAutoCalculateId: Boolean): Boolean =
-    connector.exists(doCreateTables(_, tSchemas, clusteringTime, isAutoCalculateId))
+  def createTables(tSchemas: Seq[TableSchema], isAutoCalculateId: Boolean): Boolean =
+    connector.exists(doCreateTables(_, tSchemas, isAutoCalculateId))
 
-  def createIndexes(tSchemas: Seq[TableSchema], clusteringTime: String, isAutoCalculateId: Boolean): Boolean =
-    connector.exists(doCreateIndexes(_, tSchemas, clusteringTime, isAutoCalculateId))
+  def createIndexes(tSchemas: Seq[TableSchema], isAutoCalculateId: Boolean): Boolean =
+    connector.exists(doCreateIndexes(_, tSchemas, isAutoCalculateId))
 
   def createTextIndexes(tSchemas: Seq[TableSchema]): Boolean = connector.exists(doCreateTextIndexes(_, tSchemas))
 
@@ -77,10 +74,9 @@ trait CassandraDAO extends Closeable with Logging {
 
   protected def doCreateTables(conn: CassandraConnector,
                                tSchemas: Seq[TableSchema],
-                               clusteringTime: String,
                                isAutoCalculateId: Boolean): Boolean = {
     tSchemas.map(tableSchema =>
-      createTable(conn, tableSchema.tableName, tableSchema.schema, clusteringTime, isAutoCalculateId))
+      createTable(conn, tableSchema.tableName, tableSchema.schema, tableSchema.timeDimension, isAutoCalculateId))
       .forall(result => result)
   }
 
@@ -104,14 +100,13 @@ trait CassandraDAO extends Closeable with Logging {
 
   protected def doCreateIndexes(conn: CassandraConnector,
                                 tSchemas: Seq[TableSchema],
-                                clusteringTime: String,
                                 isAutoCalculateId: Boolean): Boolean = {
     indexFields match {
       case Some(fields) => {
         val seqResults = for {
           tableSchema <- tSchemas
           indexField <- fields
-          primaryKey = getPrimaryKey(tableSchema.schema, clusteringTime, isAutoCalculateId)
+          primaryKey = getPartitionKey(tableSchema.schema, tableSchema.timeDimension, isAutoCalculateId)
           created = if (!primaryKey.contains(indexField)) {
             createIndex(conn, tableSchema.tableName, indexField)
           } else {
@@ -126,10 +121,7 @@ trait CassandraDAO extends Closeable with Logging {
   }
 
   protected def createIndex(conn: CassandraConnector, tableName: String, field: String): Boolean = {
-    val indexName = s"$IndexPrefix${
-      if(tableName.size + IndexPrefix.size + field.size > MaxIndexNameLength)
-        tableName.substring(0, MaxIndexNameLength - IndexPrefix.size - field.size) else tableName
-    }_$field"
+    val indexName = s"$IndexPrefix${tableName}_$field"
     executeCommand(conn, s"CREATE INDEX IF NOT EXISTS $indexName ON $keyspace.$tableName ($field)")
   }
 
@@ -146,11 +138,7 @@ trait CassandraDAO extends Closeable with Logging {
         val seqResults = for {
           tableSchema <- tSchemas
           fields = textFields.filter(textField => tableSchema.schema.fieldNames.contains(textField.split(":").head))
-          indexName = s"$IndexPrefix${
-            if(tableSchema.tableName.size + IndexPrefix.size > MaxIndexNameLength)
-              tableSchema.tableName.substring(0, MaxIndexNameLength - IndexPrefix.size)
-            else tableSchema.tableName
-          }"
+          indexName = s"$IndexPrefix${tableSchema.tableName}"
           command = s"CREATE CUSTOM INDEX IF NOT EXISTS $indexName " +
             s"ON $keyspace.${tableSchema.tableName} ($textIndexName) USING 'com.stratio.cassandra.index.RowIndex' " +
             s"WITH OPTIONS = { 'refresh_seconds' : '$refreshSeconds', ${getTextIndexSentence(fields)} }"
@@ -193,19 +181,26 @@ trait CassandraDAO extends Closeable with Logging {
   protected def clusteringConditions(field: StructField, clusteringTime: String): Boolean =
     !field.nullable && (field.name == clusteringTime || clusteringPrecisions.exists(_.contains(field.name)))
 
+  //scalastyle:off
   protected def schemaToPkCcolumns(schema: StructType,
                                    clusteringTime: String,
                                    isAutoCalculateId: Boolean): Option[String] = {
     val fields = schema.map(field => field.name + " " + dataTypeToCassandraType(field.dataType)).mkString(",")
-    val primaryKey = getPrimaryKey(schema, clusteringTime, isAutoCalculateId).mkString(",")
+    val partitionKey = getPartitionKey(schema, clusteringTime, isAutoCalculateId).mkString(",")
     val clusteringColumns =
       schema.filter(field => clusteringConditions(field, clusteringTime)).map(_.name).mkString(",")
-    val pkCcolumns = if (clusteringColumns.isEmpty) s"($primaryKey)" else s"(($primaryKey), $clusteringColumns)"
+    val pkCcolumns = clusteringColumns match {
+      case clusteringCol if !clusteringCol.isEmpty && partitionKey.isEmpty => s"($clusteringColumns)"
+      case clusteringCol if clusteringCol.isEmpty && !partitionKey.isEmpty => s"($partitionKey)"
+      case clusteringCol if !clusteringCol.isEmpty && !partitionKey.isEmpty => s"(($partitionKey), $clusteringColumns)"
+    }
 
-    if (!primaryKey.isEmpty && !fields.isEmpty) Some(s"($fields, PRIMARY KEY $pkCcolumns)") else None
+    if (!fields.isEmpty && !pkCcolumns.isEmpty) Some(s"($fields, PRIMARY KEY $pkCcolumns)")
+    else None
   }
+  //scalastyle:on
 
-  protected def getPrimaryKey(schema: StructType,
+  protected def getPartitionKey(schema: StructType,
                               clusteringTime: String,
                               isAutoCalculateId: Boolean): Seq[String] = {
     val pkfields = if (isAutoCalculateId) {

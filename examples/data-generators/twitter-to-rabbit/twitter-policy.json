@@ -1,17 +1,11 @@
 {
     "name": "twitter-policy",
     "sparkStreamingWindow": 6000,
+    "checkpointPath": "checkpoint",
     "rawData": {
         "enabled": "false",
         "partitionFormat": "day",
         "path": "myTestParquetPath"
-    },
-    "checkpointing": {
-        "path": "checkpoint",
-        "timeDimension": "minute",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
     },
     "inputs": [
         {
@@ -29,59 +23,31 @@
             }
         }
     ],
-    "fields": [
-        {
-            "name": "source"
-        },
-        {
-            "name": "text"
-        },
-        {
-            "name": "lang"
-        },
-        {
-            "dimensionType": "DateTime",
-            "name": "createdAt"
-        },
-        {
-            "name": "favoriteCount"
-        },
-        {
-            "name": "retweetCount"
-        },
-        {
-            "name": "user_followersCount"
-        },
-        {
-            "name": "user_favouritesCount"
-        },
-        {
-            "name": "user_id"
-        },
-        {
-            "name": "user_screenName"
-        },
-        {
-            "name": "user_timeZone"
-        }
-    ],
     "cubes": [
         {
             "name": "testCube",
+            "checkpointConfig": {
+                "timeDimension": "minute",
+                "granularity": "minute",
+                "interval": 30000,
+                "timeAvailability": 60000
+            },
             "dimensions": [
                 {
-                    "dimension": "createdAt",
+                    "name": "createdAt",
+                    "field": "createdAt",
+                    "type": "DateTime",
                     "precision": "minute"
                 }
             ],
             "operators": [
                 {
-                    "measureName": "count-operator",
+                    "name": "countoperator",
                     "type": "Count",
                     "configuration": {}
                 },
                 {
-                    "measureName": "max-operator",
+                    "name": "maxoperator",
                     "type": "Max",
                     "configuration": {
                         "inputField": "user_followersCount"
@@ -91,19 +57,26 @@
         },
         {
             "name": "testCube1",
+            "checkpointConfig": {
+                "timeDimension": "minute",
+                "granularity": "minute",
+                "interval": 30000,
+                "timeAvailability": 60000
+            },
             "dimensions": [
                 {
-                    "dimension": "lang"
+                    "name": "lang",
+                    "field": "lang"
                 }
             ],
             "operators": [
                 {
-                    "measureName": "count-operator",
+                    "name": "countoperator",
                     "type": "Count",
                     "configuration": {}
                 },
                 {
-                    "measureName": "max-operator",
+                    "name": "maxoperator",
                     "type": "Max",
                     "configuration": {
                         "inputField": "user_followersCount"
@@ -113,23 +86,31 @@
         },
         {
             "name": "testCube2",
+            "checkpointConfig": {
+                "timeDimension": "minute",
+                "granularity": "minute",
+                "interval": 30000,
+                "timeAvailability": 60000
+            },
             "dimensions": [
                 {
-                    "dimension": "lang"
+                    "name": "lang",
+                    "field": "lang"
                 },
                 {
-                    "dimension": "createdAt",
+                    "field": "createdAt",
+                    "type": "DateTime",
                     "precision": "minute"
                 }
             ],
             "operators": [
                 {
-                    "measureName": "count-operator",
+                    "name": "countoperator",
                     "type": "Count",
                     "configuration": {}
                 },
                 {
-                    "measureName": "max-operator",
+                    "name": "maxoperator",
                     "type": "Max",
                     "configuration": {
                         "inputField": "user_followersCount"
@@ -139,19 +120,26 @@
         },
         {
             "name": "testCube3",
+            "checkpointConfig": {
+                "timeDimension": "minute",
+                "granularity": "minute",
+                "interval": 30000,
+                "timeAvailability": 60000
+            },
             "dimensions": [
                 {
-                    "dimension": "user_timeZone"
+                    "name": "user_timeZone",
+                    "field": "user_timeZone"
                 }
             ],
             "operators": [
                 {
-                    "measureName": "count-operator",
+                    "name": "countoperator",
                     "type": "Count",
                     "configuration": {}
                 },
                 {
-                    "measureName": "max-operator",
+                    "name": "maxoperator",
                     "type": "Max",
                     "configuration": {
                         "inputField": "user_followersCount"
@@ -166,15 +154,28 @@
             "type": "MongoDb",
             "configuration": {
                 "clientUri": "mongodb://localhost:27017",
-                "dbName": "sparkta",
-                "multiplexer": "false"
+                "dbName": "sparkta"
             }
         }
     ],
-    "parsers": [
+    "transformations": [
         {
             "name": "morphline-parser",
+            "order": 1,
             "type": "Morphlines",
+            "outputFields": [
+                "source",
+                "createdAt",
+                "text",
+                "lang",
+                "favoriteCount",
+                "retweetCount",
+                "user_followersCount",
+                "user_favouritesCount",
+                "user_id",
+                "user_screenName",
+                "user_timeZone"
+            ],
             "configuration": {
                 "morphline": {
                     "id": "morphline1",
@@ -215,9 +216,14 @@
         },
         {
             "name": "createdAt",
+            "order": 2,
+            "inputField": "createdAt",
+            "outputFields": [
+                "createdAt"
+            ],
             "type": "DateTime",
             "configuration": {
-                "createdAt": "unixMillis"
+                "inputFormat": "unixMillis"
             }
         }
     ]

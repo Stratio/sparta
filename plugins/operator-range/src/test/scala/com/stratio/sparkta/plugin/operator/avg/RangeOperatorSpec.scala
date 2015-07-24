@@ -23,45 +23,62 @@ import org.scalatest.{Matchers, WordSpec}
 @RunWith(classOf[JUnitRunner])
 class RangeOperatorSpec extends WordSpec with Matchers {
 
-  "Avg operator" should {
+  "Range operator" should {
 
     "processMap must be " in {
-      val inputField = new RangeOperator(Map())
+      val inputField = new RangeOperator("range", Map())
       inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
 
-      val inputFields2 = new RangeOperator(Map("inputField" -> "field1"))
+      val inputFields2 = new RangeOperator("range", Map("inputField" -> "field1"))
       inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(None)
 
-      val inputFields3 = new RangeOperator(Map("inputField" -> "field1"))
+      val inputFields3 = new RangeOperator("range", Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
 
-      val inputFields4 = new RangeOperator(Map("inputField" -> "field1"))
+      val inputFields4 = new RangeOperator("range", Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> "1", "field2" -> 2)) should be(Some(1))
 
-      val inputFields5 = new RangeOperator(Map("inputField" -> "field1"))
+      val inputFields5 = new RangeOperator("range", Map("inputField" -> "field1"))
       inputFields5.processMap(Map("field1" -> "foo", "field2" -> 2)) should be(None)
 
-      val inputFields6 = new RangeOperator(Map("inputField" -> "field1"))
+      val inputFields6 = new RangeOperator("range", Map("inputField" -> "field1"))
       inputFields6.processMap(Map("field1" -> 1.5, "field2" -> 2)) should be(Some(1.5))
 
-      val inputFields7 = new RangeOperator(Map("inputField" -> "field1"))
+      val inputFields7 = new RangeOperator("range", Map("inputField" -> "field1"))
       inputFields7.processMap(Map("field1" -> 5L, "field2" -> 2)) should be(Some(5L))
     }
 
     "processReduce must be " in {
-      val inputFields = new RangeOperator(Map())
+      val inputFields = new RangeOperator("range", Map())
       inputFields.processReduce(Seq()) should be(Some(0d))
 
-      val inputFields2 = new RangeOperator(Map())
+      val inputFields2 = new RangeOperator("range", Map())
       inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some(0))
 
-      val inputFields3 = new RangeOperator(Map())
+      val inputFields3 = new RangeOperator("range", Map())
       inputFields3.processReduce(Seq(Some(1), Some(2), Some(4))) should be(Some(3))
 
-      val inputFields4 = new RangeOperator(Map())
+      val inputFields4 = new RangeOperator("range", Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
-      val inputFields5 = new RangeOperator(Map("typeOp" -> "string"))
+      val inputFields5 = new RangeOperator("range", Map("typeOp" -> "string"))
+      inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("6.0"))
+    }
+
+    "processReduce distinct must be " in {
+      val inputFields = new RangeOperator("range", Map("distinct" -> "true"))
+      inputFields.processReduce(Seq()) should be(Some(0d))
+
+      val inputFields2 = new RangeOperator("range", Map("distinct" -> "true"))
+      inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some(0))
+
+      val inputFields3 = new RangeOperator("range", Map("distinct" -> "true"))
+      inputFields3.processReduce(Seq(Some(1), Some(2), Some(4))) should be(Some(3))
+
+      val inputFields4 = new RangeOperator("range", Map("distinct" -> "true"))
+      inputFields4.processReduce(Seq(None)) should be(Some(0d))
+
+      val inputFields5 = new RangeOperator("range", Map("typeOp" -> "string", "distinct" -> "true"))
       inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("6.0"))
     }
   }

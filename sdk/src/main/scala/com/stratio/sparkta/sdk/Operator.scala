@@ -17,19 +17,23 @@
 package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
-import scala.util.Try
 
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
+import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 
-abstract class Operator(properties: Map[String, JSerializable]) extends Parameterizable(properties)
+import scala.util.Try
+
+abstract class Operator(name: String, properties: Map[String, JSerializable]) extends Parameterizable(properties)
 with Ordered[Operator] with TypeConversions {
 
   override def operationProps: Map[String, JSerializable] = properties
 
   override def defaultTypeOperation: TypeOp = TypeOp.Binary
 
-  def key: String
+  def key: String = name
+
+  def distinct: Boolean = Try(properties.getString("distinct").toBoolean).getOrElse(false)
 
   def writeOperation: WriteOp
 
@@ -56,8 +60,13 @@ with Ordered[Operator] with TypeConversions {
     }
 
   //scalastyle:on
+
+  protected def getDistinctValues[T](values: Iterable[T]) : List[T] =
+    if(distinct){ values.toList.distinct }
+    else values.toList
 }
 
 object Operator {
+
   final val ClassSuffix = "Operator"
 }
