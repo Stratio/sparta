@@ -45,7 +45,7 @@ trait TemplateHttpService extends BaseHttpService {
                          paramType = "path")
   ))
   @ApiResponses(Array(
-    new ApiResponse(code = HttpConstant.NotFound,
+    new ApiResponse(code    = HttpConstant.NotFound,
                     message = HttpConstant.NotFoundMessage)
   ))
   def findByType: Route = {
@@ -77,7 +77,8 @@ trait TemplateHttpService extends BaseHttpService {
                          paramType = "path")
   ))
   @ApiResponses(Array(
-    new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
+    new ApiResponse(code = HttpConstant.NotFound,
+                    message = HttpConstant.NotFoundMessage)
   ))
   def findByTypeAndName: Route = {
     path(HttpConstant.TemplatePath / Segment / Segment ) { (templateType, name) =>
