@@ -34,8 +34,20 @@ class ModeOperatorSpec extends WordSpec with Matchers {
 
       val inputFields3 = new ModeOperator("mode", Map("inputField" -> "field1"))
       inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be (Some(1))
-    }
 
+      val inputFields4 = new ModeOperator("mode",
+        Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2}]"))
+      inputFields4.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1L))
+
+      val inputFields5 = new ModeOperator("mode",
+        Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \">\", \"value\":\"2\"}]"))
+      inputFields5.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
+
+      val inputFields6 = new ModeOperator("mode",
+        Map("inputField" -> "field1", "filters" -> {"[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
+          "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"}))
+      inputFields6.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
+    }
 
     "processReduce must be " in {
       val inputFields = new ModeOperator("mode", Map())

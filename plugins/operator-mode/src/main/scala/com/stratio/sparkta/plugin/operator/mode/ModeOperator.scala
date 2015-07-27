@@ -33,10 +33,11 @@ class ModeOperator(name: String, properties: Map[String, JSerializable]) extends
   override val writeOperation = WriteOp.Mode
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
-    if ((inputField.isDefined) && (inputFields.contains(inputField.get)))
-      Some(inputFields.get(inputField.get).get)
-    else None
+    if (inputField.isDefined && inputFields.contains(inputField.get)) {
+      applyFilters(inputFields).flatMap(filteredFileds => Some(inputFields.get(inputField.get).get))
+    } else None
   }
+
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] = {
 
@@ -52,6 +53,5 @@ class ModeOperator(name: String, properties: Map[String, JSerializable]) extends
 }
 
 private object ModeOperator {
-  val SOME_ZERO = Some(0d)
   val SOME_EMPTY = Some(List())
 }
