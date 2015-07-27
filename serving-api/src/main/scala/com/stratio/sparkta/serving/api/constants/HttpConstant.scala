@@ -25,11 +25,11 @@ object HttpConstant {
   /**
    * Serving api prefix endpoints
    */
-  final val FragmentPath      = "fragment"
-  final val TemplatePath      = "template"
-  final val PolicyPath        = "policy"
-  final val PolicyContextPath = "policyContext"
-  final val SwaggerPath       = "swagger"
+  final val FragmentPath       = "fragment"
+  final val TemplatePath       = "template"
+  final val PolicyPath         = "policy"
+  final val PolicyContextPath  = "policyContext"
+  final val SwaggerPath        = "swagger"
 
   /**
    * Http codes.

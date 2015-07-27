@@ -101,7 +101,6 @@ class ControllerActor(streamingContextService: StreamingContextService,
   val swaggerService = new SwaggerHttpService {
     override def apiTypes: Seq[Type] = Seq(
       typeOf[JobServerHttpService],
-      typeOf[PolicyHttpService],
       typeOf[FragmentHttpService],
       typeOf[TemplateHttpService],
       typeOf[PolicyHttpService],

@@ -27,7 +27,8 @@ import spray.routing.Route
 import scala.concurrent.Await
 import scala.util.{Failure, Success}
 
-@Api(value = HttpConstant.FragmentPath, description = "Operations over fragments (inputs|outputs).")
+@Api(value = HttpConstant.FragmentPath, description = "Operations over fragments: inputs and outputs that will be " +
+  "included in a policy")
 trait FragmentHttpService extends BaseHttpService {
 
   override def routes: Route = findByTypeAndName ~ findAllByType ~ create ~ deleteByTypeAndName

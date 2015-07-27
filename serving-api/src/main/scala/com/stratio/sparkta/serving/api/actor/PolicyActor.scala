@@ -86,7 +86,7 @@ class PolicyActor(curatorFramework: CuratorFramework) extends Actor
   def find(name: String): Unit =
     sender ! new PolicySupervisorActor_response_policy(Try({
       read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.forPath(
-        s"/policies/$name")))
+        s"${PolicyActor.PoliciesBasePath}/$name")))
     }))
 
   def create(policy: AggregationPoliciesModel): Unit =
