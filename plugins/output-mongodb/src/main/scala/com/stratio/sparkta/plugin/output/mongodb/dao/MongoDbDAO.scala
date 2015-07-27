@@ -194,9 +194,9 @@ trait MongoDbDAO extends Closeable {
       case WriteOp.Max | WriteOp.Min | WriteOp.Avg | WriteOp.Median | WriteOp.Variance | WriteOp.Stddev |
            WriteOp.AccAvg | WriteOp.AccMedian | WriteOp.AccVariance | WriteOp.AccStddev =>
         (seq.asInstanceOf[Seq[(String, Double)]], "$set")
-      case WriteOp.FullText | WriteOp.AccSet =>
+      case WriteOp.FullText | WriteOp.AccSet | WriteOp.Mode =>
         (seq.asInstanceOf[Seq[(String, String)]], "$set")
-    }
+   }
   }
 
   protected def getIdFields(cubeKey: DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
