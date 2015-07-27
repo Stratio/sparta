@@ -38,10 +38,10 @@
         <module>driver</module>
         <module>aggregator</module>
         <module>serving-core</module>
-        <module>serving-api</module>
         <module>sdk</module>
-        <module>doc</module>
         <module>plugins</module>
+        <module>serving-api</module>
+        <module>doc</module>
         <module>dist</module>
     </modules>
 
