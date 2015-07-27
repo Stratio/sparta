@@ -29,14 +29,14 @@ import org.scalatest.junit.JUnitRunner
 import com.stratio.sparkta.sdk.DateOperations
 
 @RunWith(classOf[JUnitRunner])
-class ParquetOutputSpec extends FlatSpec with ShouldMatchers with BeforeAndAfterAll {
+class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAll {
   self: FlatSpec =>
 
   @transient var sc: SparkContext = _
 
   override def beforeAll {
     Logger.getRootLogger.setLevel(Level.ERROR)
-    sc = ParquetOutputSpec.getNewLocalSparkContext(1, "test")
+    sc = ParquetOutputIT.getNewLocalSparkContext(1, "test")
   }
 
   override def afterAll {
@@ -84,7 +84,7 @@ class ParquetOutputSpec extends FlatSpec with ShouldMatchers with BeforeAndAfter
     val expectedPath = "/0"
   }
 
-  "ParquetOutputSpec" should "save a dataframe" in new WithEventData {
+  "ParquetOutputIT" should "save a dataframe" in new WithEventData {
     output.upsert(data, "person", "minute")
     val read = sqlContext.parquetFile(tmpPath).toDF
     read.count should be(3)
@@ -105,7 +105,7 @@ class ParquetOutputSpec extends FlatSpec with ShouldMatchers with BeforeAndAfter
   }
 }
 
-object ParquetOutputSpec {
+object ParquetOutputIT {
 
   def getNewLocalSparkContext(numExecutors: Int = 1, title: String): SparkContext =
     new SparkContext(s"local[$numExecutors]", title)

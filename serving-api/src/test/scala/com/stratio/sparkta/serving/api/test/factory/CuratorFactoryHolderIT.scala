@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.test.factory
+package com.stratio.sparkta.serving.api.test.factory
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.serving.api.factory.CuratorFactoryHolder
