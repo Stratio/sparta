@@ -40,6 +40,7 @@ object DateOperations {
     val dayDate = hourDate.withHourOfDay(0)
     val monthDate = dayDate.withDayOfMonth(1)
     val yearDate = monthDate.withMonthOfYear(1)
+    val s15 = roundDateTime(value, Duration.standardSeconds(15))
 
     granularity.toLowerCase match {
       case "minute" => minutesDate.getMillis
@@ -48,6 +49,7 @@ object DateOperations {
       case "month" => monthDate.getMillis
       case "year" => yearDate.getMillis
       case "second" => secondsDate.getMillis
+      case "s15" => s15.getMillis
       case _ => 0L
     }
   }
@@ -56,14 +58,14 @@ object DateOperations {
 
   def getMillisFromSerializable(date: JSerializable): Long = date match {
     case value if value.isInstanceOf[Timestamp] || value.isInstanceOf[Date]
-    || value.isInstanceOf[DateTime] => getMillisFromDateTime(date)
+      || value.isInstanceOf[DateTime] => getMillisFromDateTime(date)
     case value if value.isInstanceOf[Long] => value.asInstanceOf[Long]
     case value if value.isInstanceOf[String] => value.asInstanceOf[String].toLong
     case _ => new DateTime().getMillis
   }
 
-  def getMillisFromDateTime(value : JSerializable): Long = value match {
-    case value if value.isInstanceOf[Timestamp]=> value.asInstanceOf[Timestamp].getTime
+  def getMillisFromDateTime(value: JSerializable): Long = value match {
+    case value if value.isInstanceOf[Timestamp] => value.asInstanceOf[Timestamp].getTime
     case value if value.isInstanceOf[Date] => value.asInstanceOf[Date].getTime
     case value if value.isInstanceOf[DateTime] => value.asInstanceOf[DateTime].getMillis
   }
@@ -79,7 +81,7 @@ object DateOperations {
    * @return the object described above.
    */
   def generateParquetPath(dateTime: Option[DateTime] = Option(DateTime.now()),
-                          parquetPattern : Option[String] = Some(ParquetPathPattern)): String = {
+                          parquetPattern: Option[String] = Some(ParquetPathPattern)): String = {
     val pattern = parquetPattern.get match {
       case "year" => "/'year='yyyy/'"
       case "month" => "/'year='yyyy/'month='MM/'"
@@ -89,5 +91,9 @@ object DateOperations {
       case _ => ParquetPathPattern
     }
     DateTimeFormat.forPattern(pattern).print(dateTime.get)
+  }
+
+  def roundDateTime(t: DateTime, d: Duration) = {
+    t minus (t.getMillis - (t.getMillis.toDouble / d.getMillis).round * d.getMillis)
   }
 }

@@ -55,7 +55,7 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
       dt.withMillisOfSecond(0).withSecondOfMinute(0).getMillis
   }
 
-  trait ParquetPath{
+  trait ParquetPath {
 
     val yearStr = "year"
     val monthStr = "month"
@@ -78,7 +78,7 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
     val minutePatternResult = DateTimeFormat.forPattern(minutePattern).print(DateTime.now())
     val defaultPatternResult = DateTimeFormat.forPattern(defaultPattern).print(DateTime.now())
 
-    }
+  }
 
   "DateOperationsSpec" should "return timestamp with correct parameters" in new CommonValues {
     DateOperations.getTimeFromGranularity(Some(""), Some("minute")) should be(minuteDT.getMillis)
@@ -112,14 +112,19 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
     val now = Option(formatter.parseDateTime("1984-03-17 13:13:13"))
     DateOperations.generateParquetPath(now) should be(expectedRawPath)
   }
+  it should "round to 15 seconds" in new CommonValues {
+    val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+    val now = formatter.parseDateTime("1984-03-17 13:13:17")
+    DateOperations.dateFromGranularity(now, "s15") should be(448373595000L)
+  }
 
   it should "create the full parquet path with just a word" in new ParquetPath {
-    DateOperations.generateParquetPath(parquetPattern = Some(yearStr)) should be (yearPatternResult)
-    DateOperations.generateParquetPath(parquetPattern = Some(monthStr)) should be (monthPatternResult)
-    DateOperations.generateParquetPath(parquetPattern = Some(dayStr)) should be (dayPatternResult)
-    DateOperations.generateParquetPath(parquetPattern = Some(hourStr)) should be (hourPatternResult)
-    DateOperations.generateParquetPath(parquetPattern = Some(minuteStr)) should be (minutePatternResult)
-    DateOperations.generateParquetPath(parquetPattern = Some(defaultStr)) should be (defaultPatternResult)
+    DateOperations.generateParquetPath(parquetPattern = Some(yearStr)) should be(yearPatternResult)
+    DateOperations.generateParquetPath(parquetPattern = Some(monthStr)) should be(monthPatternResult)
+    DateOperations.generateParquetPath(parquetPattern = Some(dayStr)) should be(dayPatternResult)
+    DateOperations.generateParquetPath(parquetPattern = Some(hourStr)) should be(hourPatternResult)
+    DateOperations.generateParquetPath(parquetPattern = Some(minuteStr)) should be(minutePatternResult)
+    DateOperations.generateParquetPath(parquetPattern = Some(defaultStr)) should be(defaultPatternResult)
 
   }
 

@@ -27,6 +27,8 @@ import org.apache.spark.streaming.TestSuiteBase
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
+import scala.collection.mutable.ArrayBuffer
+
 @RunWith(classOf[JUnitRunner])
 class CubeMakerSpec extends TestSuiteBase {
 
@@ -92,9 +94,9 @@ class CubeMakerSpec extends TestSuiteBase {
    * The expected result to test the DataCube output.
    * @return the expected result to test
    */
-  def getEventOutput(timestamp : Long): Seq[Seq[(DimensionValuesTime, Map[String, JSerializable])]] = {
+  def getEventOutput(timestamp: Long): ArrayBuffer[Seq[(DimensionValuesTime, Map[String, JSerializable])]] = {
     val defaultDimension = new DefaultField
-    Seq(Seq(
+    ArrayBuffer(Seq(
       (DimensionValuesTime(Seq(DimensionValue(
         Dimension("dim1", "eventKey", "identity", defaultDimension), "value1")), timestamp, "minute"),
         Map("eventKey" -> "value1")
