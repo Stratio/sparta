@@ -26,6 +26,7 @@ object AppConstant {
   final val ConfigAppName = "sparkta"
   final val ConfigApi = "api"
   final val ConfigJobServer = "jobServer"
+  final val ConfigAkka = "akka"
   final val BaseZKPath      = "/stratio/sparkta"
 
 }

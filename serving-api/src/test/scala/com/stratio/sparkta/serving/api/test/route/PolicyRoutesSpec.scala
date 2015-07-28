@@ -21,7 +21,7 @@ import akka.testkit.TestProbe
 import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
 import com.stratio.sparkta.driver.models._
 import com.stratio.sparkta.sdk.DimensionType
-import com.stratio.sparkta.serving.api.actor._
+import com.stratio.sparkta.serving.api.actor.StreamingActor._
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.api.service.http.PolicyContextHttpService
 import org.scalatest.{Matchers, WordSpecLike}
@@ -55,6 +55,7 @@ with Matchers {
   val checkpointGranularity = "minute"
   val checkpointDir = "checkpoint"
   val sparkStreamingWindow = 2000
+  val input = new PolicyElementModel("", "", Map())
 
   "A PolicyRoutes should" should {
     "Get info about created policies" in {
@@ -72,12 +73,11 @@ with Matchers {
           entity.asString should include("p-2")
           entity.asString should include("SOME_ERROR_DESCRIPTION")
         }
-      }catch {
+      } catch {
         case e => {
           e.printStackTrace()
         }
       }
-
     }
     "Get info about specific policy" in {
       val PolicyName = "p-1"
@@ -92,7 +92,7 @@ with Matchers {
     "Create policy" in {
       val PolicyName = "p-1"
       val apd = new AggregationPoliciesModel(PolicyName, sparkStreamingWindow, checkpointDir, new RawDataModel(),
-        Seq(), Seq(), Seq(), Seq(), Seq())
+        Seq(), Seq(), input, Seq(), Seq())
       try {
         val test = Post("/policy", apd) ~> routes
         supervisorProbe.expectMsg(new CreateContext(apd))
@@ -128,7 +128,7 @@ with Matchers {
         new CheckpointModel(checkpointGranularity, checkpointGranularity, checkpointInterval, checkpointAvailable)
       val cubeDto = new CubeModel(cubeName, checkpointConfig, Seq(dimensionDto), Seq(), CubeModel.Multiplexer)
       val apd = new AggregationPoliciesModel(PolicyName, sparkStreamingWindow, checkpointDir, new RawDataModel(),
-        Seq(), Seq(cubeDto), Seq(), Seq(), Seq())
+        Seq(), Seq(cubeDto), input, Seq(), Seq())
       val test = Post("/policy", apd) ~> routes
       test ~> check {
         rejections.size should be(1)

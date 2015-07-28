@@ -18,7 +18,7 @@ package com.stratio.sparkta.serving.api.service.http
 
 import akka.pattern.ask
 import com.stratio.sparkta.driver.models._
-import com.stratio.sparkta.serving.api.actor._
+import com.stratio.sparkta.serving.api.actor.StreamingActor._
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.api.helpers.PolicyHelper
 import com.wordnik.swagger.annotations._
@@ -90,7 +90,7 @@ trait PolicyContextHttpService extends BaseHttpService {
       post {
         entity(as[AggregationPoliciesModel]) { p =>
           val parsedP = PolicyHelper.fillFragments(
-            PolicyHelper.parseFragments(p),actors.get("fragmentActor").get, timeout)
+            PolicyHelper.parseFragments(p), actors.get("fragmentActor").get, timeout)
           val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
           validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
             complete {

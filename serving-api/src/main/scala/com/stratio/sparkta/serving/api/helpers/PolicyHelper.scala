@@ -43,16 +43,16 @@ object PolicyHelper {
   def parseFragments(apConfig: AggregationPoliciesModel): AggregationPoliciesModel = {
     val mapInputsOutputs: Map[`type`, Seq[PolicyElementModel]] = (apConfig.fragments.map(fragment =>
       FragmentType.withName(fragment.fragmentType) match {
-        case FragmentType.input => (FragmentType.input -> fragment.element)
-        case FragmentType.output => (FragmentType.output -> fragment.element)
+        case FragmentType.input => FragmentType.input -> fragment.element
+        case FragmentType.output => FragmentType.output -> fragment.element
       })
-      ++ apConfig.inputs.map(input => (FragmentType.input -> input))
-      ++ apConfig.outputs.map(output => (FragmentType.output -> output))
+      ++ Map(FragmentType.input -> apConfig.input)
+      ++ apConfig.outputs.map(output => FragmentType.output -> output)
       ).groupBy(_._1).mapValues(_.map(_._2))
 
     apConfig.copy(
-      inputs = mapInputsOutputs.get(FragmentType.input).getOrElse(Seq()),
-      outputs = mapInputsOutputs.get(FragmentType.output).getOrElse(Seq()))
+      input = mapInputsOutputs.getOrElse(FragmentType.input, Seq()).head,
+      outputs = mapInputsOutputs.getOrElse(FragmentType.output, Seq()))
   }
 
   /**

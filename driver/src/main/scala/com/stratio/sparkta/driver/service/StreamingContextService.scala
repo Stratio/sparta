@@ -18,55 +18,21 @@ package com.stratio.sparkta.driver.service
 
 import java.io.File
 
-import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
-import akka.pattern.ask
-import akka.util.Timeout
 import com.stratio.sparkta.driver.factory._
 import com.stratio.sparkta.driver.models._
 import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.messages.JobServerMessages._
 import com.typesafe.config.Config
 import org.apache.spark.SparkContext
 import org.apache.spark.streaming.StreamingContext
-import org.json4s.native.Serialization
-import org.json4s.native.Serialization.write
-import org.json4s.{DefaultFormats, _}
 
-import scala.concurrent.duration._
-
-class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging {
-
-  implicit val timeout: Timeout = Timeout(60.seconds)
-  implicit val json4sJacksonFormats = DefaultFormats
-  implicit val formats = Serialization.formats(NoTypeHints)
+case class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging {
 
   final val OutputsSparkConfiguration = "getSparkConfiguration"
 
-  def standAloneStreamingContext(apConfig: AggregationPoliciesModel): StreamingContext = {
+  def standAloneStreamingContext(apConfig: AggregationPoliciesModel): Option[StreamingContext] = {
     SparktaJob.runSparktaJob(getSparkContext(apConfig), apConfig)
-    SparkContextFactory.sparkStreamingInstance.get
-  }
-
-  def clusterStreamingContext(apConfig: AggregationPoliciesModel, jobServerRef: ActorRef): StreamingContext = {
-    val activeJars = SparktaJob.activeJars(apConfig, jars)
-
-    if (activeJars.isLeft) {
-      log.warn(s"The policy have jars witch cannot be found in classpath:")
-      activeJars.left.get.foreach(log.warn)
-    } else {
-      val policyStr = write(apConfig)
-      val activeJarsFilesToSend = SparktaJob.activeJarFiles(activeJars.right.get, jars)
-      jobServerRef ? new JobServerSupervisorActor_uploadJars(activeJarsFilesToSend)
-      jobServerRef ? new JobServerSupervisorActor_createContext(s"${apConfig.name}-${apConfig.input.name}", "4", "512m")
-      jobServerRef ? new JobServerSupervisorActor_uploadPolicy("driver-plugin.jar",
-        "com.stratio.sparkta.driver.service.SparktaJob",
-        policyStr,
-        Some(s"${apConfig.name}-${apConfig.input.name}"))
-    }
-
-    SparktaJob.runSparktaJob(getSparkContext(apConfig), apConfig)
-    SparkContextFactory.sparkStreamingInstance.get
+    SparkContextFactory.sparkStreamingInstance
   }
 
   private def getSparkContext(apConfig: AggregationPoliciesModel): SparkContext = {

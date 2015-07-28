@@ -32,7 +32,6 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
 
   feature("A policy that contains fragments must parse these fragments and join them to input/outputs depending of " +
     "its type") {
-
     scenario("A policy that contains fragments must parse these fragments and join them to input/outputs " +
       "depending of its type") {
 
@@ -46,8 +45,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
         new RawDataModel(),
         transformations = Seq(),
         cubes = Seq(),
-        inputs = Seq(
-          PolicyElementModel("input1", "input", Map())),
+        input = PolicyElementModel("input1", "input", Map()),
         outputs = Seq(
           PolicyElementModel("output1", "output", Map())),
         fragments = Seq(
@@ -64,17 +62,14 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
       When("the helper parse these fragments")
       val result = PolicyHelper.parseFragments(ap)
 
-      Then("inputs/outputs must have the existing input/outputs and the parsed input fragment")
-      result.inputs.toSet should equal(Seq(
-        PolicyElementModel("input1", "input", Map()),
-        PolicyElementModel("inputF", "input", Map())).toSet
-      )
+      Then("outputs must have the existing outputs and the parsed input fragment and the first input")
+
+      result.input should equal(PolicyElementModel("inputF", "input", Map()))
 
       result.outputs.toSet should equal(Seq(
         PolicyElementModel("output1", "output", Map()),
         PolicyElementModel("outputF", "output", Map())).toSet
       )
-
     }
   }
 }

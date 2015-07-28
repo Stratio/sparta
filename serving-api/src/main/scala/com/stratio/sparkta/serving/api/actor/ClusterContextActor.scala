@@ -16,55 +16,105 @@
 
 package com.stratio.sparkta.serving.api.actor
 
+import java.io.File
+
 import akka.actor.ActorRef
-import com.stratio.sparkta.driver.factory.SparkContextFactory
+import akka.pattern.ask
+import akka.util.Timeout
 import com.stratio.sparkta.driver.models.AggregationPoliciesModel
 import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
-import com.stratio.sparkta.driver.service.StreamingContextService
-import org.apache.spark.streaming.StreamingContext
+import com.stratio.sparkta.driver.service.{SparktaJob, StreamingContextService}
+import JobServerActor._
+import StreamingActor._
+import scala.concurrent.ExecutionContext.Implicits.global
+import org.json4s._
+import org.json4s.native.Serialization
+import org.json4s.native.Serialization._
 
+import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
-
-case object Init
-
-case class InitError(e: Exception)
-
-case object Stop
 
 class ClusterContextActor(policy: AggregationPoliciesModel,
                           streamingContextService: StreamingContextService,
                           jobServerRef: ActorRef) extends InstrumentedActor {
 
-  private var ssc: Option[StreamingContext] = None
+  implicit val timeout: Timeout = Timeout(60.seconds)
+  implicit val json4sJacksonFormats = DefaultFormats
+  implicit val formats = Serialization.formats(NoTypeHints)
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Init =>
-      log.debug("Init new standalone streamingContext with name " + policy.name)
-      ssc = Try(streamingContextService.clusterStreamingContext(policy, jobServerRef)) match {
-        case Success(_ssc) =>
-          Try(_ssc.start()) match {
-            case Failure(e: Exception) =>
-              log.error(s"Exception starting up standalone SparkStreamingContext for policy ${policy.name}", e)
-              sender ! InitError(e)
-            case x =>
-              log.debug("Standalone StreamingContext started successfully.")
-          }
-          sender ! Initialized
-          log.debug("Standalone StreamingContext initialized with name " + policy.name)
-          Some(_ssc)
-        case Failure(e: Exception) =>
-          log.error(s"Exception instantiating policy ${policy.name}", e)
-          sender ! InitError(e)
-          None
+    case InitSparktaContext => doInitSparktaContext
+    case JsResponseUploadPolicy(response) => doJobServerResponseUploadPolicy(response)
+  }
+
+  def doInitSparktaContext: Unit = {
+    log.debug("Init new cluster streamingContext with name " + policy.name)
+
+    //TODO validate policy
+    val activeJars: Either[Seq[String], Seq[String]] = SparktaJob.activeJars(policy, streamingContextService.jars)
+    if (activeJars.isLeft) {
+      val msg = s"The policy have jars witch cannot be found in classpath:" +
+        s" ${activeJars.left.get.mkString(",")}"
+      sender ! new ResponseCreateContext(new ContextActorStatus(context.self,
+        policy.name,
+        ConfigurationError,
+        Some(msg)))
+    } else sendPolicyToJobServerActor(activeJars)
+  }
+
+  private def doJobServerResponseUploadPolicy(response: Try[JValue]): Unit =
+    response match {
+      case Failure(exception) => this.context.parent ! new ContextActorStatus(context.self,
+        policy.name,
+        Error,
+        Some(exception.getMessage))
+      case Success(response) => {
+        this.context.parent ! new ResponseCreateContext(new ContextActorStatus(context.self,
+          policy.name,
+          Initialized,
+          Some(response.toString)))
       }
+    }
+
+  private def sendPolicyToJobServerActor(activeJars: Either[Seq[String], Seq[String]]): Unit = {
+
+    val policyStr = write(policy)
+    val activeJarsFilesToSend = SparktaJob.activeJarFiles(activeJars.right.get, streamingContextService.jars)
+
+    //TODO validate correct result and send messages to sender
+
+    doUploadJars(activeJarsFilesToSend, policyStr)
+  }
+
+  private def doUploadJars(jarFiles: Seq[File], policyStr: String): Unit = {
+    (jobServerRef ? new JsUploadJars(jarFiles)).mapTo[JsResponseUploadJars].foreach {
+      case JsResponseUploadJars(Failure(exception)) =>
+        sender ! new ResponseCreateContext(new ContextActorStatus(context.self,
+          policy.name,
+          Error,
+          Some(exception.getMessage)))
+      case JsResponseUploadJars(Success(response)) => doCreateContext(policyStr)
+    }
+  }
+
+  private def doCreateContext(policyStr: String): Unit = {
+    (jobServerRef ? new JsCreateContext(s"${policy.name}-${policy.input.name}", "4", "512m"))
+      .mapTo[JsResponseCreateContext].foreach {
+      case JsResponseCreateContext(Failure(exception)) =>
+        sender ! new ResponseCreateContext(new ContextActorStatus(context.self,
+          policy.name,
+          Error,
+          Some(exception.getMessage)))
+      case JsResponseCreateContext(Success(response)) =>
+        jobServerRef ! new JsUploadPolicy("driver-plugin.jar",
+          "com.stratio.sparkta.driver.service.SparktaJob",
+          policyStr,
+          Some(s"${policy.name}-${policy.input.name}"))
+    }
   }
 
   override def postStop(): Unit = {
-    ssc match {
-      case Some(sc: StreamingContext) =>
-        SparkContextFactory.destroySparkStreamingContext
-      case x => log.warn("Unrecognized standalone StreamingContext to stop!", x)
-    }
+
     super.postStop()
   }
 }

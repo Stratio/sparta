@@ -58,7 +58,7 @@ with Matchers {
         rawDataDto,
         Seq(),
         Seq(cubeDto),
-        Seq(input),
+        input,
         Seq(mock[PolicyElementModel]),
         Seq(mock[FragmentElementModel]))
 
@@ -74,7 +74,7 @@ with Matchers {
         rawDataDto,
         Seq(),
         Seq(cubeDto),
-        Seq(input),
+        input,
         Seq(mock[PolicyElementModel]),
         Seq(mock[FragmentElementModel]))
 

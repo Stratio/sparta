@@ -230,11 +230,14 @@ object SparktaJob extends SLF4JLogging {
     }
 
   def jarsFromPolicy(apConfig: AggregationPoliciesModel): Seq[String] = {
-    val inputs = apConfig.input.jarFile
+    val input = apConfig.input.jarFile match {
+      case Some(file) => Seq(file)
+      case None => Seq()
+    }
     val outputs = apConfig.outputs.flatMap(_.jarFile)
     val transformations = apConfig.transformations.flatMap(_.jarFile)
     val operators = apConfig.cubes.flatMap(cube => cube.operators.map(_.jarFile)).flatten
-    Seq(baseJars, inputs, outputs, transformations, operators).flatten
+    Seq(baseJars, input, outputs, transformations, operators).flatten
   }
 
   def activeJars(apConfig: AggregationPoliciesModel, jars: Seq[File]): Either[Seq[String], Seq[String]] = {

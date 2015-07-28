@@ -21,40 +21,58 @@ import com.stratio.sparkta.driver.models.AggregationPoliciesModel
 import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
 import com.stratio.sparkta.driver.service.StreamingContextService
 import org.apache.spark.streaming.StreamingContext
+import StreamingActor._
 
 import scala.util.{Failure, Success, Try}
-
-case object Init
-
-case class InitError(e: Exception)
-
-case object Stop
 
 class StandAloneContextActor(policy: AggregationPoliciesModel,
                              streamingContextService: StreamingContextService) extends InstrumentedActor {
 
   private var ssc: Option[StreamingContext] = None
+  private final val StartErrorException = "Problem starting up standalone SparkStreamingContext"
+  private final val CreatingErrorException = "Problem creating standalone SparkStreamingContext"
+  private final val InstantiatingErrorException = "Problem instantiating standalone SparkStreamingContext"
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Init =>
-      log.debug("Init new standalone streamingContext with name " + policy.name)
-      ssc = Try(streamingContextService.standAloneStreamingContext(policy)) match {
-        case Success(_ssc) =>
-          Try(_ssc.start()) match {
+    case InitSparktaContext => doInitSparktaContext
+  }
+
+  private def doInitSparktaContext: Unit = {
+    log.debug("Init new standalone streamingContext with name " + policy.name)
+
+    //TODO validate policy
+
+    ssc = Try(streamingContextService.standAloneStreamingContext(policy)) match {
+      case Success(_ssc) =>
+        _ssc match {
+          case Some(ssc) => Try(ssc.start()) match {
             case Failure(e: Exception) =>
-              log.error(s"Exception starting up standalone SparkStreamingContext for policy ${policy.name}", e)
-              sender ! InitError(e)
-            case x =>
-              log.debug("Standalone StreamingContext started successfully.")
+              sender ! new ResponseCreateContext(new ContextActorStatus(context.self,
+                policy.name,
+                Error,
+                Some(StartErrorException)))
+              None
+            case _ =>
+              sender ! new ResponseCreateContext(new ContextActorStatus(context.self,
+                policy.name,
+                Initialized,
+                None))
+              Some(ssc)
           }
-          sender ! Initialized
-          log.debug("Standalone StreamingContext initialized with name " + policy.name)
-          Some(_ssc)
-        case Failure(e: Exception) =>
-          log.error(s"Exception instantiating policy ${policy.name}", e)
-          sender ! InitError(e)
-          None
-      }
+          case None =>
+            sender ! new ResponseCreateContext(new ContextActorStatus(context.self,
+              policy.name,
+              Error,
+              Some(CreatingErrorException)))
+            None
+        }
+      case Failure(e: Exception) =>
+        sender ! new ResponseCreateContext(new ContextActorStatus(context.self,
+          policy.name,
+          ConfigurationError,
+          Some(InstantiatingErrorException)))
+        None
+    }
   }
 
   override def postStop(): Unit = {

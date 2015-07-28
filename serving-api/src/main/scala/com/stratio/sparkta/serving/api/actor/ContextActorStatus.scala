@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.models
+package com.stratio.sparkta.serving.api.actor
 
-object StreamingContextStatusEnum extends Enumeration {
-  type Status = Value
-  val Initializing, Initialized, Error, ConfigurationError, Stopped, Removed = Value
-}
+import akka.actor.ActorRef
+import com.stratio.sparkta.driver.models.StreamingContextStatusEnum
+
+case class ContextActorStatus(actor: ActorRef,
+                              policyName: String,
+                              status: StreamingContextStatusEnum.Status,
+                              description: Option[String])

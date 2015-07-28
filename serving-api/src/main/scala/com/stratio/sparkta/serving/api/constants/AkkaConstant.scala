@@ -28,4 +28,9 @@ object AkkaConstant {
   final val StreamingActor  = "streamingActor"
   final val JobServerActor  = "jobServerActor"
   final val ControllerActor = "controllerActor"
+  final val SupervisorContextActor = "supervisorContextActor"
+  final val ControllerActorInstances = "controllerActorInstances"
+  final val StreamingActorInstances = "streamingActorInstances"
+  final val DefaultControllerActorInstances = 5
+  final val DefaultStreamingActorInstances = 3
 }
