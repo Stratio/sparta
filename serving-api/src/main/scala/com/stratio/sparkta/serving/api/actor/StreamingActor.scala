@@ -35,7 +35,7 @@ import com.typesafe.config.Config
 
 class StreamingActor(streamingContextService: StreamingContextService,
                      jobServerRef: Option[ActorRef],
-                    jobServerConfig: Option[Config],
+                     jobServerConfig: Option[Config],
                      supervisorContextRef: ActorRef) extends InstrumentedActor {
 
   implicit val timeout: Timeout = Timeout(10.seconds)
@@ -69,9 +69,9 @@ class StreamingActor(streamingContextService: StreamingContextService,
   }
 
   private def getStreamingContextActor(policy: AggregationPoliciesModel): ActorRef = {
-    if (jobServerRef.isDefined) {
+    if (jobServerRef.isDefined && jobServerConfig.isDefined) {
       context.actorOf(
-        Props(new ClusterContextActor(policy, streamingContextService, jobServerRef.get)),
+        Props(new ClusterContextActor(policy, streamingContextService, jobServerRef.get, jobServerConfig.get)),
         "context-actor-".concat(policy.name))
     } else {
       context.actorOf(

@@ -96,8 +96,8 @@ object SparktaHelper extends SLF4JLogging {
    * @return the optional loaded configuration.
    */
   def initOptionalConfig(node: String,
-                 currentConfig: Option[Config] = None,
-                 configFactory: ConfigFactory = new SparktaConfigFactory): Option[Config] = {
+                         currentConfig: Option[Config] = None,
+                         configFactory: ConfigFactory = new SparktaConfigFactory): Option[Config] = {
     log.info(s"> Loading $node configuration")
     Try(
       currentConfig match {
@@ -120,25 +120,24 @@ object SparktaHelper extends SLF4JLogging {
                      appName: String): Unit = {
     val streamingContextService = new StreamingContextService(configSparkta, jars)
     val curatorFramework = CuratorFactoryHolder.getInstance(configSparkta).get
-
     log.info("> Initializing akka actors")
     system = ActorSystem(appName)
     val jobServerConfig = configSparkta.getConfig(AppConstant.ConfigJobServer)
     val akkaConfig = configSparkta.getConfig(AppConstant.ConfigAkka)
-    val controllerInstances = if(!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
-      else AkkaConstant.DefaultControllerActorInstances
-    val streamingActorInstances = if(!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
-      else AkkaConstant.DefaultControllerActorInstances
+    val controllerInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
+    else AkkaConstant.DefaultControllerActorInstances
+    val streamingActorInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
+    else AkkaConstant.DefaultControllerActorInstances
 
-    val jobServerActor = Try(
-        if(!jobServerConfig.isEmpty &&
-          !jobServerConfig.getString("host").isEmpty &&
-          jobServerConfig.getInt("port") > 0) {
-          Some(system.actorOf(Props(new JobServerActor(jobServerConfig.getString("host"),
-            jobServerConfig.getInt("port"))), AkkaConstant.JobServerActor))
-        } else None).getOrElse(None)
+    val jobServerActor = Try(if (!jobServerConfig.isEmpty &&
+      Try(jobServerConfig.getString("host")).isSuccess &&
+      Try(jobServerConfig.getInt("port")).isSuccess &&
+      Try(jobServerConfig.getInt("port")).getOrElse(0) > 0) {
+      Some(system.actorOf(Props(new JobServerActor(jobServerConfig.getString("host"),
+        jobServerConfig.getInt("port"))), AkkaConstant.JobServerActor))
+    } else None).getOrElse(None)
 
-    val jobServerConfigOp = if(jobServerActor.isDefined) Some(jobServerConfig) else None
+    val jobServerConfigOp = if (jobServerActor.isDefined) Some(jobServerConfig) else None
 
     val supervisorContextActor = system.actorOf(
       Props(new SupervisorContextActor), AkkaConstant.SupervisorContextActor)
@@ -155,12 +154,12 @@ object SparktaHelper extends SLF4JLogging {
         new StreamingActor(streamingContextService, jobServerActor, jobServerConfigOp, supervisorContextActor))),
         AkkaConstant.StreamingActor)
     ) ++ {
-      if(jobServerActor.isDefined) Map(AkkaConstant.JobServerActor -> jobServerActor.get) else Map()
+      if (jobServerActor.isDefined) Map(AkkaConstant.JobServerActor -> jobServerActor.get) else Map()
     }
 
     val controller = system.actorOf(RoundRobinPool(controllerInstances)
-        .props(Props(new ControllerActor(streamingContextService, curatorFramework, actors))),
-        AkkaConstant.ControllerActor)
+      .props(Props(new ControllerActor(streamingContextService, curatorFramework, actors))),
+      AkkaConstant.ControllerActor)
 
     IO(Http) ! Http.Bind(controller, interface = configApi.getString("host"), port = configApi.getInt("port"))
     log.info("> System UP!")

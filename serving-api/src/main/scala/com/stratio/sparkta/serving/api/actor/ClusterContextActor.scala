@@ -24,19 +24,22 @@ import akka.util.Timeout
 import com.stratio.sparkta.driver.models.AggregationPoliciesModel
 import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
 import com.stratio.sparkta.driver.service.{SparktaJob, StreamingContextService}
-import JobServerActor._
-import StreamingActor._
-import scala.concurrent.ExecutionContext.Implicits.global
+import com.stratio.sparkta.serving.api.actor.JobServerActor._
+import com.stratio.sparkta.serving.api.actor.StreamingActor._
+import com.stratio.sparkta.serving.api.constants._
+import com.typesafe.config.Config
 import org.json4s._
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization._
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
 class ClusterContextActor(policy: AggregationPoliciesModel,
                           streamingContextService: StreamingContextService,
-                          jobServerRef: ActorRef) extends InstrumentedActor {
+                          jobServerRef: ActorRef,
+                          jobServerConfig: Config) extends InstrumentedActor {
 
   implicit val timeout: Timeout = Timeout(60.seconds)
   implicit val json4sJacksonFormats = DefaultFormats
@@ -98,7 +101,11 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
   }
 
   private def doCreateContext(policyStr: String): Unit = {
-    (jobServerRef ? new JsCreateContext(s"${policy.name}-${policy.input.name}", "4", "512m"))
+
+    val cpuCores = Try(jobServerConfig.getInt(JobServerConstant.CpuCores)).getOrElse(JobServerConstant.DefaultCpuCores)
+    val memory = Try(jobServerConfig.getString(JobServerConstant.Memory)).getOrElse(JobServerConstant.DefaultMemory)
+
+    (jobServerRef ? new JsCreateContext(s"${policy.name}-${policy.input.name}", cpuCores.toString, memory))
       .mapTo[JsResponseCreateContext].foreach {
       case JsResponseCreateContext(Failure(exception)) =>
         sender ! new ResponseCreateContext(new ContextActorStatus(context.self,

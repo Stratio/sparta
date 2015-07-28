@@ -16,7 +16,7 @@
 
 package com.stratio.sparkta.serving.api.constants
 
-class JobServerConstant {
+object JobServerConstant {
 
   final val CpuCores = "cpuCores"
   final val Memory = "memory"
