@@ -53,7 +53,7 @@ class RawDataStorageIT extends TestSuiteBase {
     Thread.sleep(SleepTime)
 
     try {
-      val pqFile = sparktaTestSQLContext.read.parquet(path + rds.timeSuffix)
+      val pqFile = sparktaTestSQLContext.parquetFile(path + rds.timeSuffix)
       assert(pqFile.count() == ExpectedResult)
     } finally {
       //We can't use the before method

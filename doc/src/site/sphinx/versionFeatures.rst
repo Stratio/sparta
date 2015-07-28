@@ -4,19 +4,20 @@ Version Features
 Version 0.5.0
 =============
 
-- Added compatibility with Spark 1.4.x.
-
-- Parquet and CSV outputs.
-
-- Improved Twitter input. Possibility to filter tweets by hashtag.
-
-- Fixed important bug in Elasticsearch output. Fixed are mapped according to their type.
-
-- Policy refactor. Improved semantic of the JSON.
-
-- Support for fragment composition in policies.
-
+- Policy refactor. All names were reviewed
+    - Transformations
+    - Cubes
+    - Operators inside cube
+    - Dimensions with type inside cube
+- Operators with type
+- ElasticSearch index mapping according to schema
 - Bugfixing
+- CSV output
+- Acceptance test
+- Support for fragment composition in policies
+- Parquet output
+- Spark 1.4.x
+- Twitter custom search
 
 
 
