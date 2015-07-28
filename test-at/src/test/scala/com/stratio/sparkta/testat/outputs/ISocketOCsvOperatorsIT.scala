@@ -65,6 +65,7 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
             aValues("last") should be("600")
             aValues("max") should be("1002.0")
             aValues("min") should be("10.0")
+            aValues("mode") should be (List(500).toString())
             aValues("fulltext") should be("10 500 1000 500 1000 500 1002 600")
             aValues("stddev") should be("347.9605889013459")
             aValues("variance") should be("121076.57142857143")
@@ -80,6 +81,7 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
             bValues("last") should be("50")
             bValues("max") should be("1001.0")
             bValues("min") should be("15.0")
+            bValues("mode") should be (List(1000).toString())
             bValues("fulltext") should be("15 1000 1000 1000 1000 1000 1001 50")
             bValues("stddev")  should be("448.04041590655")
             bValues("variance") should be("200740.2142857143")
@@ -89,7 +91,7 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
       })
     }
 
-    def extractProductValues(row : Row) : Map[String, String] = Map(
+    def extractProductValues(row : Row) : Map[String, Any] = Map(
       "avg" -> row.getAs[String]("avg_price"),
       "sum" -> row.getAs[String]("sum_price"),
       "count" -> row.getAs[String]("count_price"),
@@ -100,10 +102,8 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
       "fulltext" -> row.getAs[String]("fulltext_price"),
       "stddev" -> row.getAs[String]("stddev_price"),
       "variance" -> row.getAs[String]("variance_price"),
-      "range" -> row.getAs[String]("range_price"))
-
-
-
+      "range" -> row.getAs[String]("range_price"),
+      "mode" -> row.getAs[String]("mode_price"))
   }
 
 
