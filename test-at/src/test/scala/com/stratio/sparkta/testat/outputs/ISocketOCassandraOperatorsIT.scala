@@ -52,7 +52,7 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
     def checkData: Unit = {
 
       val cluster = Cluster.builder().addContactPoints(Localhost).withPort(CassandraPort).build()
-      val session: Session = cluster.connect("sparkta");
+      val session: Session = cluster.connect("sparkta")
 
       val resultProductA: ResultSet = session.execute("select * from product_minute where product = 'producta'")
       val rowProductA = resultProductA.iterator().next()
@@ -68,7 +68,6 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
       rowProductA.getDouble("stddev_price") should be(347.9605889013459d)
       rowProductA.getDouble("variance_price") should be(121076.57142857143d)
       rowProductA.getDouble("range_price") should be(992.0d)
-      rowProductA.getDouble("variance_price") should be(121076.57142857143d)
       rowProductA.getDouble("variance_price") should be(121076.57142857143d)
 
       val resultProductB: ResultSet = session.execute("select * from product_minute where product = 'productb'")

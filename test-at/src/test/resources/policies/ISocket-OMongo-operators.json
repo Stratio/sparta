@@ -93,6 +93,13 @@
           }
         },
         {
+          "name": "mode_price",
+          "type": "Mode",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
           "name": "count_price",
           "type": "Count",
           "configuration": {}

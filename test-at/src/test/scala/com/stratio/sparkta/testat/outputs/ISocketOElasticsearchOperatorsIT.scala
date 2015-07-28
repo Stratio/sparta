@@ -65,10 +65,12 @@ class ISocketOElasticsearchOperatorsIT extends SparktaATSuite {
       productA("last_price") should be("600")
       productA("max_price") should be(1002.0d)
       productA("min_price") should be(10.0d)
+      productA("mode_price") should be (List("500"))
       productA("fulltext_price") should be("10 500 1000 500 1000 500 1002 600")
       productA("stddev_price") should be(347.9605889013459d)
       productA("variance_price") should be(121076.57142857143d)
       productA("range_price") should be(992.0d)
+
       val productB = getData("productb")
       productB("acc_price") should be(
         Seq("15", "1000", "1000", "1000", "1000", "1000", "1001", "50"))
@@ -79,6 +81,7 @@ class ISocketOElasticsearchOperatorsIT extends SparktaATSuite {
       productB("last_price") should be("50")
       productB("max_price") should be(1001.0d)
       productB("min_price") should be(15.0d)
+      productB("mode_price") should be (List("1000"))
       productB("fulltext_price") should be("15 1000 1000 1000 1000 1000 1001 50")
       productB("stddev_price") should be(448.04041590655d)
       productB("variance_price") should be(200740.2142857143d)

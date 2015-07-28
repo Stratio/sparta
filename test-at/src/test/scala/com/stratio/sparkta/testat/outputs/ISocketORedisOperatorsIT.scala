@@ -30,10 +30,10 @@ import redis.embedded.RedisServer
  * median, min, range, stddev, sum, variance.
  */
 @RunWith(classOf[JUnitRunner])
-class ISocketORedis extends SparktaATSuite {
+class ISocketORedisOperatorsIT extends SparktaATSuite {
 
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-operators.csv").getPath
-  override val policyFile = "policies/ISocket-ORedis.json"
+  override val policyFile = "policies/ISocket-ORedis-operators.json"
 
   val TestRedisHost = "localhost"
   val TestRedisPort = 63790
@@ -55,8 +55,6 @@ class ISocketORedis extends SparktaATSuite {
       val productSize = redisPool.withClient(client =>
         client.keys("*")
       )
-
-
       productSize.get.size should be (NumEventsExpected)
 
       val productAKey = redisPool.withClient(client =>
@@ -66,7 +64,6 @@ class ISocketORedis extends SparktaATSuite {
       val productA = redisPool.withClient(client =>
         client.hgetall(productAKey)
       )
-
       productA.get.get("stddev_price").get should be("347.9605889013459")
       productA.get.get("first_price").get should be("10")
       productA.get.get("last_price").get should be("600")
@@ -80,13 +77,11 @@ class ISocketORedis extends SparktaATSuite {
       productA.get.get("acc_price").get should be("List(10, 500, 1000, 500, 1000, 500, 1002, 600)")
       productA.get.get("count_price").get should be("8")
       productA.get.get("min_price").get should be("10.0")
+      productA.get.get("mode_price").get should be("List(500)")
 
-      val productBKey = redisPool.withClient(client =>
-        client.keys("product_minute:product:productb:minute:*")
+      val productBKey = redisPool.withClient(client =>client.keys("product_minute:product:productb:minute:*")
       ).get.head.get
-      val productB = redisPool.withClient(client =>
-        client.hgetall(productBKey)
-      )
+      val productB = redisPool.withClient(client =>client.hgetall(productBKey))
       productB.get.get("stddev_price").get should be("448.04041590655")
       productB.get.get("first_price").get should be("15")
       productB.get.get("last_price").get should be("50")
@@ -100,6 +95,7 @@ class ISocketORedis extends SparktaATSuite {
       productB.get.get("acc_price").get should be("List(15, 1000, 1000, 1000, 1000, 1000, 1001, 50)")
       productB.get.get("count_price").get should be("8")
       productB.get.get("min_price").get should be("15.0")
+      productB.get.get("mode_price").get should be("List(1000)")
     }
   }
 

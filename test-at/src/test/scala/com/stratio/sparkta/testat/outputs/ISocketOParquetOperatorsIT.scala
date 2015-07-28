@@ -63,15 +63,14 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
         "max_price" -> row.getDouble(8),
         "median_price" -> row.getDouble(9),
         "min_price" -> row.getDouble(10),
-        "range_price" -> row.getDouble(11),
-        "stddev_price" -> row.getDouble(12),
-        "sum_price" -> row.getDouble(13),
-        "variance_price" -> row.getDouble(14)
-      ))
-      // scalastyle:on magic.number
+        "range_price" -> row.getDouble(12),
+        "stddev_price" -> row.getDouble(13),
+        "sum_price" -> row.getDouble(14),
+        "variance_price" -> row.getDouble(15),
+        "mode_price" -> row.getList(11).toArray()))
+
       val productA = mapValues.filter(value => value("product") == "producta").take(1)(0)
-      productA("acc_price") should be(
-        Seq("10", "500", "1000", "500", "1000", "500", "1002", "600"))
+      productA("acc_price") should be(Seq("10", "500", "1000", "500", "1000", "500", "1002", "600"))
       productA("avg_price") should be(639.0d)
       productA("sum_price") should be(5112.0d)
       productA("count_price") should be(NumEventsExpected)
@@ -83,9 +82,9 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
       productA("stddev_price") should be(347.9605889013459d)
       productA("variance_price") should be(121076.57142857143d)
       productA("range_price") should be(992.0d)
+      productA("mode_price") should be(List("500"))
       val productB = mapValues.filter(value => value("product") == "productb").take(1)(0)
-      productB("acc_price") should be(
-        Seq("15", "1000", "1000", "1000", "1000", "1000", "1001", "50"))
+      productB("acc_price") should be(Seq("15", "1000", "1000", "1000", "1000", "1000", "1001", "50"))
       productB("avg_price") should be(758.25d)
       productB("sum_price") should be(6066.0d)
       productB("count_price") should be(NumEventsExpected)
@@ -97,6 +96,7 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
       productB("stddev_price") should be(448.04041590655d)
       productB("variance_price") should be(200740.2142857143d)
       productB("range_price") should be(986.0d)
+      productB("mode_price") should be(List("1000"))
       sqc.sparkContext.stop
     }
   }

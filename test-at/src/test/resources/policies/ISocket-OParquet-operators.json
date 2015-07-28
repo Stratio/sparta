@@ -182,6 +182,14 @@
           "configuration": {
             "inputField": "price"
           }
+        },
+        {
+          "name": "mode_price",
+          "type": "Mode",
+          "jarFile" : "operator-mode-plugin.jar",
+          "configuration": {
+            "inputField": "price"
+          }
         }
       ]
     }
