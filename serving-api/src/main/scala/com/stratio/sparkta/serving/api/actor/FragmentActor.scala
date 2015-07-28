@@ -20,6 +20,7 @@ import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.driver.models.{FragmentElementModel, StreamingContextStatusEnum}
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.api.constants.AppConstant
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
@@ -32,7 +33,6 @@ import scala.util.Try
 /**
  * List of all possible akka messages used to manage fragments.
  */
-
 case class FragmentSupervisorActor_create(fragment: FragmentElementModel)
 
 
@@ -89,13 +89,11 @@ class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4
 }
 
 object FragmentActor {
-  
-  val BaseZKPath: String = "/sparkta/policies"
 
   def generateFragmentPath(fragmentType: String): String = {
     fragmentType match {
-      case "input" => s"$BaseZKPath/input"
-      case "output" => s"$BaseZKPath/output"
+      case "input" => s"${AppConstant.BaseZKPath}/fragments/input"
+      case "output" => s"${AppConstant.BaseZKPath}/fragments/output"
       case _ => throw new IllegalArgumentException("The fragment type must be input|output")
     }
   }

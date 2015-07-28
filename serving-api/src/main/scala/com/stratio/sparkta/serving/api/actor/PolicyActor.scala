@@ -20,6 +20,7 @@ import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, StreamingContextStatusEnum}
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.api.constants.AppConstant
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
@@ -70,7 +71,7 @@ class PolicyActor(curatorFramework: CuratorFramework) extends Actor
       val children = curatorFramework.getChildren.forPath(s"${PolicyActor.PoliciesBasePath}")
       JavaConversions.asScalaBuffer(children).toList.map(element =>
         read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
-          s"/policies/$element")))).toSeq
+          s"${PolicyActor.PoliciesBasePath}/$element")))).toSeq
     }))
 
   def findByFragment(fragmentType: String, name: String): Unit =
@@ -78,7 +79,7 @@ class PolicyActor(curatorFramework: CuratorFramework) extends Actor
       val children = curatorFramework.getChildren.forPath(s"${PolicyActor.PoliciesBasePath}")
       JavaConversions.asScalaBuffer(children).toList.map(element =>
         read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
-          s"/policies/$element")))).filter(apm =>
+          s"${PolicyActor.PoliciesBasePath}/$element")))).filter(apm =>
             (apm.fragments.filter(f => f.name == name)).size > 0).toSeq
     }))
 
@@ -91,7 +92,7 @@ class PolicyActor(curatorFramework: CuratorFramework) extends Actor
   def create(policy: AggregationPoliciesModel): Unit =
     sender ! PolicySupervisorActor_response(Try({
       curatorFramework.create().creatingParentsIfNeeded().forPath(
-        s"/policies/${policy.name}", write(policy).getBytes)
+        s"${PolicyActor.PoliciesBasePath}/${policy.name}", write(policy).getBytes)
     }))
 
   def update(policy: AggregationPoliciesModel): Unit =
@@ -107,5 +108,5 @@ class PolicyActor(curatorFramework: CuratorFramework) extends Actor
 
 private object PolicyActor {
 
-  val PoliciesBasePath: String = "/policies"
+  val PoliciesBasePath: String = s"${AppConstant.BaseZKPath}/policies"
 }
