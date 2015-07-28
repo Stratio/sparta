@@ -32,43 +32,49 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
 
   feature("A policy that contains fragments must parse these fragments and join them to input/outputs depending of " +
     "its type") {
-    Given("a policy with an input, an output and a fragment with an input")
-    val checkpointDir = "checkpoint"
 
-    val ap = new AggregationPoliciesModel(
-      "policy-test",
-      sparkStreamingWindow = 2000,
-      checkpointDir,
-      new RawDataModel(),
-      transformations = Seq(),
-      cubes = Seq(),
-      inputs = Seq(
-        PolicyElementModel("input1", "input", Map())),
-      outputs = Seq(
-        PolicyElementModel("output1", "output", Map())),
-      fragments = Seq(
-        FragmentElementModel(
-          name = "fragment1",
-          fragmentType = "input",
-          element = PolicyElementModel("inputF", "input", Map())),
-        FragmentElementModel(
-          name = "fragment1",
-          fragmentType = "output",
-          element = PolicyElementModel("outputF", "output", Map())))
-    )
+    scenario("A policy that contains fragments must parse these fragments and join them to input/outputs " +
+      "depending of its type") {
 
-    When("the helper parse these fragments")
-    val result = PolicyHelper.parseFragments(ap)
+      Given("a policy with an input, an output and a fragment with an input")
+      val checkpointDir = "checkpoint"
 
-    Then("inputs/outputs must have the existing input/outputs and the parsed input fragment")
-    result.inputs.toSet should equal(Seq(
-      PolicyElementModel("input1", "input", Map()),
-      PolicyElementModel("inputF", "input", Map())).toSet
-    )
+      val ap = new AggregationPoliciesModel(
+        "policy-test",
+        sparkStreamingWindow = 2000,
+        checkpointDir,
+        new RawDataModel(),
+        transformations = Seq(),
+        cubes = Seq(),
+        inputs = Seq(
+          PolicyElementModel("input1", "input", Map())),
+        outputs = Seq(
+          PolicyElementModel("output1", "output", Map())),
+        fragments = Seq(
+          FragmentElementModel(
+            name = "fragment1",
+            fragmentType = "input",
+            element = PolicyElementModel("inputF", "input", Map())),
+          FragmentElementModel(
+            name = "fragment1",
+            fragmentType = "output",
+            element = PolicyElementModel("outputF", "output", Map())))
+      )
 
-    result.outputs.toSet should equal(Seq(
-      PolicyElementModel("output1", "output", Map()),
-      PolicyElementModel("outputF", "output", Map())).toSet
-    )
+      When("the helper parse these fragments")
+      val result = PolicyHelper.parseFragments(ap)
+
+      Then("inputs/outputs must have the existing input/outputs and the parsed input fragment")
+      result.inputs.toSet should equal(Seq(
+        PolicyElementModel("input1", "input", Map()),
+        PolicyElementModel("inputF", "input", Map())).toSet
+      )
+
+      result.outputs.toSet should equal(Seq(
+        PolicyElementModel("output1", "output", Map()),
+        PolicyElementModel("outputF", "output", Map())).toSet
+      )
+
+    }
   }
 }

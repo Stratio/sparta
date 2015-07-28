@@ -23,14 +23,12 @@ import com.stratio.sparkta.sdk.Event
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.TestSuiteBase
 import org.apache.spark.{SparkContext, SparkException}
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 
 /**
  * @author arincon
  *         This test sucks and I know it...
  */
-@RunWith(classOf[JUnitRunner])
+//@RunWith(classOf[JUnitRunner])
 class RawDataStorageIT extends TestSuiteBase {
 
   val ExpectedResult: Long = 6
