@@ -31,10 +31,19 @@ trait PolicyContextHttpService extends BaseHttpService {
 
   override def routes: Route = find ~ findAll ~ create ~ remove
 
-  @ApiOperation(value = "Get a policy context from its name", notes = "Returns the status of a policy",
-    httpMethod =  "GET",response = classOf[StreamingContextStatus])
-  @ApiImplicitParams(Array(new ApiImplicitParam(name = "policy name", defaultValue = "", value = "policy name",
-    dataType = "String", required = true)))
+  @ApiOperation(value      = "Gets a policy context from its name.",
+                notes      = "Returns the status of a policy",
+                httpMethod =  "GET",
+                response   = classOf[StreamingContextStatus])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name     = "name",
+                         value    = "policy name",
+                         dataType = "String",
+                         required = true)))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
   def find: Route = {
     pathPrefix(HttpConstant.PolicyContextPath / Segment) { name =>
       get {
@@ -45,10 +54,14 @@ trait PolicyContextHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value = "Find all policy contexts", notes = "Returns a policies list", httpMethod = "GET",
-    response = classOf[String])
+  @ApiOperation(value      = "Finds all policy contexts",
+                notes      = "Returns a policies list",
+                httpMethod = "GET",
+                response   = classOf[String],
+                responseContainer = "List")
   @ApiResponses(
-    Array(new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)))
+    Array(new ApiResponse(code = HttpConstant.NotFound,
+                          message = HttpConstant.NotFoundMessage)))
   def findAll: Route = {
     path(HttpConstant.PolicyContextPath) {
       get {
@@ -59,11 +72,19 @@ trait PolicyContextHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value = "post a policy context", notes = "Returns the result", httpMethod = "POST",
-    response = classOf[Result])
+  @ApiOperation(value      = "Creates a policy context.",
+                notes      = "Returns the result",
+                httpMethod = "POST",
+                response   = classOf[Result])
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "policy", defaultValue = "", value = "policy json", dataType = "AggregationPoliciesDto",
-      required = true, paramType = "json")))
+    new ApiImplicitParam(name         = "policy",
+                         value        = "policy json",
+                         dataType     = "AggregationPoliciesModel",
+                         required     = true,
+                         paramType    = "body")))
+  @ApiResponses(
+    Array(new ApiResponse(code = HttpConstant.NotFound,
+                          message = HttpConstant.NotFoundMessage)))
   def create: Route = {
     path(HttpConstant.PolicyContextPath) {
       post {
@@ -82,10 +103,18 @@ trait PolicyContextHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value = "delete a policy context by its name", notes = "Returns the status of the policy",
-    httpMethod = "DELETE", response = classOf[StreamingContextStatus])
-  @ApiImplicitParams(Array(new ApiImplicitParam(name = "policy name", defaultValue = "", value = "policy name",
-    dataType = "String", required = true)))
+  @ApiOperation(value      = "Deletes a policy context by its name",
+                notes      = "Returns the status of the policy",
+                httpMethod = "DELETE",
+                response   = classOf[StreamingContextStatus])
+  @ApiImplicitParams(Array(new ApiImplicitParam(
+    name     = "name",
+    value    = "policy name",
+    dataType = "String",
+    required = true)))
+  @ApiResponses(
+    Array(new ApiResponse(code = HttpConstant.NotFound,
+                          message = HttpConstant.NotFoundMessage)))
   def remove: Route = {
     pathPrefix(HttpConstant.PolicyContextPath / Segment) { name =>
       delete {

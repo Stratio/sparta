@@ -16,6 +16,8 @@
 
 package com.stratio.sparkta.serving.api.service.http
 
+import javax.ws.rs.Path
+
 import akka.pattern.ask
 import com.stratio.sparkta.driver.models._
 import com.stratio.sparkta.serving.api.actor._
@@ -28,17 +30,27 @@ import spray.routing._
 import scala.concurrent.Await
 import scala.util.{Failure, Success}
 
-@Api(value = HttpConstant.PolicyPath, description = "Operations about policies.", position = 0)
+@Api(value = HttpConstant.PolicyPath, description = "Operations over policies.")
 trait PolicyHttpService extends BaseHttpService {
 
   case class Result(message: String, desc: Option[String] = None)
 
   override def routes: Route = find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run
 
-  @ApiOperation(value = "Find a policy from its name", notes = "Returns a policy", httpMethod = "GET",
-    response = classOf[AggregationPoliciesModel])
+  @Path("/find/{name}")
+  @ApiOperation(value      = "Find a policy from its name.",
+                notes      = "Find a policy from its name.",
+                httpMethod = "GET",
+                response   = classOf[AggregationPoliciesModel])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name      = "name",
+                         value     = "name of the policy",
+                         dataType  = "string",
+                         paramType = "path")
+  ))
   @ApiResponses(Array(
-    new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
+    new ApiResponse(code    = HttpConstant.NotFound,
+                    message = HttpConstant.NotFoundMessage)
   ))
   def find: Route = {
     path(HttpConstant.PolicyPath / "find" / Segment) { (name) =>
@@ -54,10 +66,24 @@ trait PolicyHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value = "Finds policies that contains a fragment", notes = "Returns a list of policies",
-    httpMethod = "GET", response = classOf[AggregationPoliciesModel])
+  @Path("/fragment/{fragmentType}/{name}")
+  @ApiOperation(value      = "Finds policies that contains a fragment.",
+                notes      = "Finds policies that contains a fragment.",
+                httpMethod = "GET",
+                response = classOf[AggregationPoliciesModel])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name      = "fragmentType",
+                         value     = "type of fragment (input/output)",
+                         dataType  = "string",
+                         paramType = "path"),
+    new ApiImplicitParam(name      = "name",
+                         value     = "name of the fragment",
+                         dataType  = "string",
+                         paramType = "path")
+  ))
   @ApiResponses(Array(
-    new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
+    new ApiResponse(code = HttpConstant.NotFound,
+                    message = HttpConstant.NotFoundMessage)
   ))
   def findByFragment: Route = {
     path(HttpConstant.PolicyPath / "fragment" / Segment / Segment) { (fragmentType, name) =>
@@ -73,10 +99,14 @@ trait PolicyHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value = "Finds all policies", notes = "Returns a list of policies",
-    httpMethod = "GET", response = classOf[AggregationPoliciesModel])
+  @Path("/all")
+  @ApiOperation(value      = "Finds all policies.",
+                notes      = "Finds all policies.",
+                httpMethod = "GET",
+                response   = classOf[AggregationPoliciesModel])
   @ApiResponses(Array(
-    new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
+    new ApiResponse(code    = HttpConstant.NotFound,
+                    message = HttpConstant.NotFoundMessage)
   ))
   def findAll: Route = {
     path(HttpConstant.PolicyPath / "all") {
@@ -92,16 +122,22 @@ trait PolicyHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value = "Creates a policy", notes = "Creates a policy", httpMethod = "POST")
+  @ApiOperation(value      = "Creates a policy.",
+                notes      = "Creates a policy.",
+                httpMethod = "POST")
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "policy", defaultValue = "", value = "policy json", dataType = "PolicyElementDto",
-      required = true, paramType = "json")))
+    new ApiImplicitParam(name         = "policy",
+                         defaultValue = "",
+                         value        = "policy json",
+                         dataType     = "PolicyElementModel",
+                         required     = true,
+                         paramType    = "body")))
   def create: Route = {
     path(HttpConstant.PolicyPath) {
       post {
         entity(as[AggregationPoliciesModel]) { policy =>
           val parsedP = PolicyHelper.fillFragments(
-            PolicyHelper.parseFragments(policy),actors.get("fragmentActor").get, timeout)
+            PolicyHelper.parseFragments(policy),actors.get(AkkaConstant.FragmentActor).get, timeout)
           val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
           validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2)
           complete {
@@ -116,10 +152,16 @@ trait PolicyHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value = "Updates a policy", notes = "Creates a policy", httpMethod = "POST")
+  @ApiOperation(value = "Updates a policy.",
+                notes = "Updates a policy.",
+                httpMethod = "PUT")
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "policy", defaultValue = "", value = "policy json", dataType = "PolicyElementDto",
-      required = true, paramType = "json")))
+    new ApiImplicitParam(name = "policy",
+                         defaultValue = "",
+                         value = "policy json",
+                         dataType = "PolicyElementModel",
+                         required = true,
+                         paramType = "body")))
   def update: Route = {
     path(HttpConstant.PolicyPath) {
       put {
@@ -136,9 +178,18 @@ trait PolicyHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value = "Deletes a policy from its name", notes = "Deletes a fragment", httpMethod = "DELETE")
+  @ApiOperation(value      = "Deletes a policy from its name.",
+                notes      = "Deletes a policy from its name.",
+                httpMethod = "DELETE")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name      = "name",
+                         value     = "name of the policy",
+                         dataType  = "string",
+                         paramType = "path")
+  ))
   @ApiResponses(Array(
-    new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
+    new ApiResponse(code    = HttpConstant.NotFound,
+                    message = HttpConstant.NotFoundMessage)
   ))
   def remove: Route = {
     path(HttpConstant.PolicyPath / Segment) { (name) =>
@@ -154,10 +205,20 @@ trait PolicyHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value = "Find a policy from its name", notes = "Returns a policy", httpMethod = "GET",
-    response = classOf[Result])
+  @Path("/run/{name}")
+  @ApiOperation(value      = "Runs a policy from its name.",
+                notes      = "Runs a policy from its name.",
+                httpMethod = "GET",
+                response   = classOf[Result])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name      = "name",
+                         value     = "name of the policy",
+                         dataType  = "string",
+                         paramType = "path")
+  ))
   @ApiResponses(Array(
-    new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
+    new ApiResponse(code    = HttpConstant.NotFound,
+                    message = HttpConstant.NotFoundMessage)
   ))
   def run: Route = {
     path(HttpConstant.PolicyPath / "run" / Segment) { (name) =>
@@ -167,7 +228,8 @@ trait PolicyHttpService extends BaseHttpService {
           case PolicySupervisorActor_response_policy(Failure(exception)) => throw exception
           case PolicySupervisorActor_response_policy(Success(policy)) => {
             val parsedP =
-              PolicyHelper.parseFragments(PolicyHelper.fillFragments(policy,actors.get("fragmentActor").get, timeout))
+              PolicyHelper.parseFragments(PolicyHelper.fillFragments(
+                policy,actors.get(AkkaConstant.FragmentActor).get, timeout))
             val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
             validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
               actors.get("streamingActor").get ! new CreateContext(parsedP)

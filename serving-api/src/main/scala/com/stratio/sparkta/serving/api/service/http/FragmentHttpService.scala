@@ -27,15 +27,29 @@ import spray.routing.Route
 import scala.concurrent.Await
 import scala.util.{Failure, Success}
 
-@Api(value = HttpConstant.FragmentPath, description = "Operations about fragments.", position = 0)
+@Api(value = HttpConstant.FragmentPath, description = "Operations over fragments: inputs and outputs that will be " +
+  "included in a policy")
 trait FragmentHttpService extends BaseHttpService {
 
   override def routes: Route = findByTypeAndName ~ findAllByType ~ create ~ deleteByTypeAndName
 
-  @ApiOperation(value = "Find a segment depending of its type", notes = "Returns a segment", httpMethod = "GET",
-    response = classOf[FragmentElementModel])
+  @ApiOperation(value    = "Find a fragment depending of its type.",
+                notes    = "Find a fragment depending of its type.",
+                httpMethod = "GET",
+                response = classOf[FragmentElementModel])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name      = "fragmentType",
+                         value     = "type of fragment (input/output)",
+                         dataType  = "string",
+                         paramType = "path"),
+    new ApiImplicitParam(name      = "name",
+                         value     = "name of the fragment",
+                         dataType  = "string",
+                         paramType = "path")
+  ))
   @ApiResponses(Array(
-    new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
+    new ApiResponse(code    = HttpConstant.NotFound,
+                    message = HttpConstant.NotFoundMessage)
   ))
   def findByTypeAndName: Route = {
     path(HttpConstant.FragmentPath / Segment / Segment) { (fragmentType, name) =>
@@ -51,10 +65,20 @@ trait FragmentHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value = "Find a list of segments depending of its type", notes = "Returns a list of segments",
-    httpMethod = "GET", response = classOf[FragmentElementModel])
+  @ApiOperation(value             = "Find a list of fragments depending of its type.",
+                notes             = "Find a list of fragments depending of its type.",
+                httpMethod        = "GET",
+                response          = classOf[FragmentElementModel],
+                responseContainer = "List")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name      = "fragmentType",
+                         value     = "type of fragment (input|output)",
+                         dataType  = "string",
+                         paramType = "path")
+  ))
   @ApiResponses(Array(
-    new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
+    new ApiResponse(code    = HttpConstant.NotFound,
+                    message = HttpConstant.NotFoundMessage)
   ))
   def findAllByType: Route = {
     path(HttpConstant.FragmentPath / Segment ) { (fragmentType) =>
@@ -70,10 +94,16 @@ trait FragmentHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value = "Creates a fragment depending of its type", notes = "Creates a fragment", httpMethod = "POST")
+  @ApiOperation(value = "Creates a fragment depending of its type.",
+                notes = "Creates a fragment depending of its type.",
+                httpMethod = "POST")
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "fragment", defaultValue = "", value = "fragment json", dataType = "FragmentElementDto",
-      required = true, paramType = "json")))
+    new ApiImplicitParam( name         = "fragment",
+                          value        = "fragment to save",
+                          dataType     = "FragmentElementModel",
+                          required     = true,
+                          paramType    = "body")
+  ))
   def create: Route = {
     path(HttpConstant.FragmentPath) {
       post {
@@ -90,7 +120,19 @@ trait FragmentHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value = "Deletes a fragment depending of its type", notes = "Deletes a fragment", httpMethod = "DELETE")
+  @ApiOperation(value = "Deletes a fragment depending of its type.",
+    notes = "Deletes a fragment depending of its type.",
+    httpMethod = "DELETE")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name      = "fragmentType",
+                         value     = "type of fragment (input/output)",
+                         dataType  = "string",
+                         paramType = "path"),
+    new ApiImplicitParam(name      = "name",
+                         value     = "name of the fragment",
+                         dataType  = "string",
+                         paramType = "path")
+  ))
   @ApiResponses(Array(
     new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
   ))

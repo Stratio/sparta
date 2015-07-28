@@ -20,28 +20,39 @@ import akka.pattern.ask
 import com.stratio.sparkta.driver.models.TemplateModel
 import com.stratio.sparkta.serving.api.actor._
 import com.stratio.sparkta.serving.api.constants.HttpConstant
-import com.wordnik.swagger.annotations.{Api, ApiOperation, ApiResponse, ApiResponses}
+import com.wordnik.swagger.annotations._
 import spray.routing._
 
 import scala.concurrent.Await
 import scala.util.{Failure, Success}
 
-@Api(value = HttpConstant.TemplatePath, description = "Operations about templates. One template will have an abstract" +
-  " element that represents a validation, a tip, an icon over it.", position = 0)
+@Api(value = HttpConstant.TemplatePath,
+  description = "Operations about templates. One template will have an abstract" +
+  " element that represents a validation, a tip, an icon over it.")
 trait TemplateHttpService extends BaseHttpService {
 
   override def routes: Route = findByType ~ findByTypeAndName
 
-  @ApiOperation(value = "Find all templates depending ot its type", notes = "Returns a Seq of templates",
-    httpMethod = "GET", response = classOf[TemplateModel])
+  @ApiOperation(value = "Find all templates depending ot its type.",
+    notes             = "Find all templates depending ot its type.",
+    httpMethod        = "GET",
+    response          = classOf[TemplateModel],
+    responseContainer = "List")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name      = "templateType",
+                         value     = "type of the template.",
+                         dataType  = "string",
+                         paramType = "path")
+  ))
   @ApiResponses(Array(
-    new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
+    new ApiResponse(code    = HttpConstant.NotFound,
+                    message = HttpConstant.NotFoundMessage)
   ))
   def findByType: Route = {
-    path(HttpConstant.TemplatePath / Segment) { (t) =>
+    path(HttpConstant.TemplatePath / Segment) { (templateType) =>
       get {
         complete {
-          val future = supervisor ? new TemplateSupervisorActor_findByType(t)
+          val future = supervisor ? new TemplateSupervisorActor_findByType(templateType)
           Await.result(future, timeout.duration) match {
             case TemplateSupervisorActor_response_templates(Failure(exception)) => throw exception
             case TemplateSupervisorActor_response_templates(Success(templates)) => templates
@@ -51,16 +62,29 @@ trait TemplateHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value = "Find a template depending ot its type and name", notes = "Returns a template.",
-    httpMethod = "GET", response = classOf[TemplateModel])
+  @ApiOperation(value = "Find a template depending ot its type and name.",
+    notes = "Returns a template.",
+    httpMethod = "GET",
+    response = classOf[TemplateModel])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name      = "templateType",
+                         value     = "type of the template.",
+                         dataType  = "string",
+                         paramType = "path"),
+    new ApiImplicitParam(name      = "name",
+                         value     = "name of the template",
+                         dataType  = "string",
+                         paramType = "path")
+  ))
   @ApiResponses(Array(
-    new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
+    new ApiResponse(code = HttpConstant.NotFound,
+                    message = HttpConstant.NotFoundMessage)
   ))
   def findByTypeAndName: Route = {
-    path(HttpConstant.TemplatePath / Segment / Segment ) { (t, name) =>
+    path(HttpConstant.TemplatePath / Segment / Segment ) { (templateType, name) =>
       get {
         complete {
-          val future = supervisor ? new TemplateSupervisorActor_findByTypeAndName(t, name)
+          val future = supervisor ? new TemplateSupervisorActor_findByTypeAndName(templateType, name)
           Await.result(future, timeout.duration) match {
             case TemplateSupervisorActor_response_template(Failure(exception)) => throw exception
             case TemplateSupervisorActor_response_template(Success(template)) => template
