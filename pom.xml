@@ -271,7 +271,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <includes>
-                        <include>**/*Spec.java</include>
+                        <include>**/*Spec.*</include>
                     </includes>
                 </configuration>
             </plugin>
@@ -280,7 +280,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
                     <includes>
-                        <include>**/*IT.java</include>
+                        <include>**/*IT.*</include>
                     </includes>
                 </configuration>
             </plugin>

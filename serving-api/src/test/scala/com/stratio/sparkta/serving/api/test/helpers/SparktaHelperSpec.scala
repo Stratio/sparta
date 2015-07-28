@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.test.helpers
+package com.stratio.sparkta.serving.api.test.helpers
 
 import com.stratio.sparkta.driver.helpers.{MockSystem, MockConfigFactory}
 import com.stratio.sparkta.serving.api.helpers.SparktaHelper
