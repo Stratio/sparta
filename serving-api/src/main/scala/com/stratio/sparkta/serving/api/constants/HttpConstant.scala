@@ -31,6 +31,12 @@ object HttpConstant {
   final val PolicyContextPath = "policyContext"
   final val SwaggerPath       = "swagger"
 
+  final val JobServerPath = "jobServer"
+
+  final val JobsPath = "jobs"
+
+  final val ContextsPath = "contexts"
+
   /**
    * Http codes.
    */
@@ -42,4 +48,6 @@ object HttpConstant {
    */
   final val NotFoundMessage = "Not Found"
   final val BadRequestMessage = "Bad Request"
+  final val JobServerOkMessage = "OK"
+  final val JobServerHostPortExceptionMsg = "JobServer host and port is not defined in configuration file"
 }

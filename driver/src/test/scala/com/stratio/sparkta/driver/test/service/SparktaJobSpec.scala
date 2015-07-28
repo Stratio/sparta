@@ -33,8 +33,14 @@ class SparktaJobSpec extends FlatSpec with ShouldMatchers {
 
     val policyFile = getClass.getClassLoader.getResource("policies/IKafka-OPrint.json").getPath
     val policy = PolicyUtils.parseJson(Source.fromFile(new File(policyFile)).mkString)
-    val jars = List("aggregator-plugin.jar", "sdk-plugin.jar", "input-kafka-plugin.jar", "output-print-plugin.jar",
-      "parser-morphlines-plugin.jar", "operator-count-plugin.jar")
+    val jars = List(
+      "driver-plugin.jar",
+      "aggregator-plugin.jar",
+      "sdk-plugin.jar",
+      "input-kafka-plugin.jar",
+      "output-print-plugin.jar",
+      "parser-morphlines-plugin.jar",
+      "operator-count-plugin.jar")
     val jarFiles = jars.map(new File(_))
   }
 
@@ -42,7 +48,7 @@ class SparktaJobSpec extends FlatSpec with ShouldMatchers {
 
     val invalidJars = jars.drop(1)
     val invalidjarFiles = invalidJars.map(new File(_))
-    val missingJars = List("aggregator-plugin.jar")
+    val missingJars = List("driver-plugin.jar")
   }
 
   "SparktaJobSpec" should "retrieve jars list from policy" in new ValidData {
