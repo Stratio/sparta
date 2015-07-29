@@ -37,6 +37,7 @@
         <module>field-arrayText</module>
         <module>output-mongodb</module>
         <module>output-elasticsearch</module>
+        <module>output-solr</module>
         <module>output-cassandra</module>
         <module>output-redis</module>
         <module>output-print</module>
