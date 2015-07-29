@@ -41,7 +41,7 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
                           jobServerRef: ActorRef,
                           jobServerConfig: Config) extends InstrumentedActor {
 
-  implicit val timeout: Timeout = Timeout(60.seconds)
+  implicit val timeout: Timeout = Timeout(90.seconds)
   implicit val json4sJacksonFormats = DefaultFormats
   implicit val formats = Serialization.formats(NoTypeHints)
 
@@ -81,7 +81,9 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
 
   private def sendPolicyToJobServerActor(activeJars: Either[Seq[String], Seq[String]]): Unit = {
 
-    val policyStr = write(policy)
+    //TODO policy to string, we need spark configuration¿?
+
+    val policyStr = "input.policy = " + write(policy)
     val activeJarsFilesToSend = SparktaJob.activeJarFiles(activeJars.right.get, streamingContextService.jars)
 
     //TODO validate correct result and send messages to sender
@@ -90,6 +92,7 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
   }
 
   private def doUploadJars(jarFiles: Seq[File], policyStr: String): Unit = {
+
     (jobServerRef ? new JsUploadJars(jarFiles)).mapTo[JsResponseUploadJars].foreach {
       case JsResponseUploadJars(Failure(exception)) =>
         sender ! new ResponseCreateContext(new ContextActorStatus(context.self,
@@ -105,7 +108,7 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
     val cpuCores = Try(jobServerConfig.getInt(JobServerConstant.CpuCores)).getOrElse(JobServerConstant.DefaultCpuCores)
     val memory = Try(jobServerConfig.getString(JobServerConstant.Memory)).getOrElse(JobServerConstant.DefaultMemory)
 
-    (jobServerRef ? new JsCreateContext(s"${policy.name}-${policy.input.name}", cpuCores.toString, memory))
+    (jobServerRef ? new JsCreateContext(s"${policy.name}", cpuCores.toString, memory))
       .mapTo[JsResponseCreateContext].foreach {
       case JsResponseCreateContext(Failure(exception)) =>
         sender ! new ResponseCreateContext(new ContextActorStatus(context.self,

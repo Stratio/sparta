@@ -123,25 +123,25 @@ object SparktaHelper extends SLF4JLogging {
     log.info("> Initializing akka actors")
     system = ActorSystem(appName)
     val jobServerConfig = configSparkta.getConfig(AppConstant.ConfigJobServer)
+    val jobServerConfigOp = Try(if (!jobServerConfig.isEmpty &&
+      Try(jobServerConfig.getString("host")).isSuccess &&
+      Try(jobServerConfig.getInt("port")).isSuccess &&
+      Try(jobServerConfig.getInt("port")).getOrElse(0) > 0)
+      Some(jobServerConfig)
+    else None).getOrElse(None)
     val akkaConfig = configSparkta.getConfig(AppConstant.ConfigAkka)
+    val swaggerConfig = configSparkta.getConfig(AppConstant.ConfigSwagger)
     val controllerInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
     else AkkaConstant.DefaultControllerActorInstances
     val streamingActorInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
     else AkkaConstant.DefaultControllerActorInstances
 
-    val jobServerActor = Try(if (!jobServerConfig.isEmpty &&
-      Try(jobServerConfig.getString("host")).isSuccess &&
-      Try(jobServerConfig.getInt("port")).isSuccess &&
-      Try(jobServerConfig.getInt("port")).getOrElse(0) > 0) {
+    val jobServerActor = if (jobServerConfigOp.isDefined)
       Some(system.actorOf(Props(new JobServerActor(jobServerConfig.getString("host"),
         jobServerConfig.getInt("port"))), AkkaConstant.JobServerActor))
-    } else None).getOrElse(None)
-
-    val jobServerConfigOp = if (jobServerActor.isDefined) Some(jobServerConfig) else None
-
+    else None
     val supervisorContextActor = system.actorOf(
       Props(new SupervisorContextActor), AkkaConstant.SupervisorContextActor)
-
     implicit val actors = Map(
       AkkaConstant.FragmentActor ->
         system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor),
@@ -149,20 +149,20 @@ object SparktaHelper extends SLF4JLogging {
         system.actorOf(Props(new TemplateActor()), AkkaConstant.TemplateActor),
       AkkaConstant.PolicyActor ->
         system.actorOf(Props(new PolicyActor(curatorFramework)), AkkaConstant.PolicyActor),
-      AkkaConstant.StreamingActor -> system.actorOf(RoundRobinPool(streamingActorInstances)
-        .props(Props(
+      AkkaConstant.StreamingActor -> system.actorOf(RoundRobinPool(streamingActorInstances).props(Props(
         new StreamingActor(streamingContextService, jobServerActor, jobServerConfigOp, supervisorContextActor))),
         AkkaConstant.StreamingActor)
     ) ++ {
       if (jobServerActor.isDefined) Map(AkkaConstant.JobServerActor -> jobServerActor.get) else Map()
     }
-
-    val controller = system.actorOf(RoundRobinPool(controllerInstances)
+    val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)
       .props(Props(new ControllerActor(streamingContextService, curatorFramework, actors))),
       AkkaConstant.ControllerActor)
+    val swaggerActor = system.actorOf(Props(new SwaggerActor), AkkaConstant.SwaggerActor)
 
-    IO(Http) ! Http.Bind(controller, interface = configApi.getString("host"), port = configApi.getInt("port"))
-    log.info("> System UP!")
+    IO(Http) ! Http.Bind(controllerActor, interface = configApi.getString("host"), port = configApi.getInt("port"))
+    IO(Http) ! Http.Bind(swaggerActor, interface = swaggerConfig.getString("host"), port = swaggerConfig.getInt("port"))
+    log.info("> Actors System UP!")
   }
 
   ///////////////////////////////////////////  XXX Protected methods ///////////////////////////////////////////////////

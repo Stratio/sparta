@@ -22,14 +22,15 @@ import java.nio.file.{Files, Paths}
 import akka.actor._
 import com.stratio.sparkta.driver.models.StreamingContextStatusEnum
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.api.actor.JobServerActor.JsResponseCreateContext
+import com.stratio.sparkta.serving.api.actor.JobServerActor._
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.JsonMethods._
 import org.json4s.{DefaultFormats, _}
-import JobServerActor._
 
 import scala.util.Try
-import scalaj.http.Http
+import scalaj.http.{HttpRequest, Http}
 
 class JobServerActor(host: String, port: Int) extends InstrumentedActor {
 
@@ -111,7 +112,8 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
 
   def doDeleteJob(jobId: String): Unit = {
     if (ValidParameters) {
-      val response = Http(s"http://$host:$port/jobs/$jobId").method("DELETE").asString.body
+      val response = Http(s"http://$host:$port/jobs/$jobId").method("DELETE")
+        .timeout(HttpConstant.ConnectionTimeout, HttpConstant.ReadTimeout).asString.body
       if (response == HttpConstant.JobServerOkMessage) {
         sender ! JsResponseDeleteJob(Try(ResultOk))
       } else {
@@ -127,10 +129,9 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
 
   def doCreateContext(contextName: String, cpuCores: String, memory: String): Unit = {
     if (ValidParameters) {
-      doDeleteContext(contextName)
+      deleteContextRequest(contextName)
       val response = Http(s"http://$host:$port/contexts/$contextName?num-cpu-cores=$cpuCores&memory-per-node=$memory")
-        .postData("")
-        .asString.body
+        .postData("").timeout(HttpConstant.ConnectionTimeout, HttpConstant.ReadTimeout).asString.body
       if (response == HttpConstant.JobServerOkMessage) {
         sender ! JsResponseCreateContext(Try(ResultOk))
       } else {
@@ -146,7 +147,7 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
 
   def doDeleteContext(contextId: String): Unit = {
     if (ValidParameters) {
-      val response = Http(s"http://$host:$port/contexts/$contextId").method("DELETE").asString.body
+      val response = deleteContextRequest(contextId)
       if (response == HttpConstant.JobServerOkMessage) {
         sender ! JsResponseDeleteContext(Try(ResultOk))
       } else {
@@ -160,6 +161,10 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
     }
   }
 
+  def deleteContextRequest(contextId: String): String =
+    Http(s"http://$host:$port/contexts/$contextId").method("DELETE")
+      .timeout(HttpConstant.ConnectionTimeout, HttpConstant.ReadTimeout).asString.body
+
   def doUploadPolicy(jobName: String, classPath: String, policy: String, context: Option[String]): Unit = {
     if (ValidParameters) {
       val contextOptions = context match {
@@ -167,7 +172,7 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
         case None => ""
       }
       val response = Http(s"http://$host:$port/jobs?appName=$jobName&classPath=$classPath$contextOptions")
-        .postData(policy.getBytes).asString.body
+        .postData(policy.getBytes).timeout(HttpConstant.ConnectionTimeout, HttpConstant.ReadTimeout).asString.body
       if (response == HttpConstant.JobServerOkMessage) {
         sender ! JsResponseUploadPolicy(Try(ResultOk))
       } else {
@@ -196,8 +201,8 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
 
   def uploadFile(fileName: String, filePath: String): String = {
     val fileBytes = Files.readAllBytes(Paths.get(filePath))
-    val request = Http(s"http://$host:$port/jars/$fileName").postData(fileBytes).asString
-    request.body
+    Http(s"http://$host:$port/jars/$fileName").postData(fileBytes)
+      .timeout(HttpConstant.ConnectionTimeout, HttpConstant.ReadTimeout).asString.body
   }
 }
 
@@ -220,13 +225,13 @@ object JobServerActor {
   case class JsUploadJars(files: Seq[File])
 
   case class JsUploadPolicy(jobName: String,
-                          classPath: String,
-                          policy: String,
-                          context: Option[String])
+                            classPath: String,
+                            policy: String,
+                            context: Option[String])
 
   case class JsCreateContext(contextName: String,
-                           cpuCores: String,
-                           memory: String)
+                             cpuCores: String,
+                             memory: String)
 
   case class JsResponseGetJars(jarResult: Try[JValue])
 
