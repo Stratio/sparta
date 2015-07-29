@@ -17,8 +17,10 @@
 package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
-import scala.util.Try
 
+import com.stratio.sparkta.sdk.TypeOp._
+import com.stratio.sparkta.sdk.ValidatingPropertyMap.map2ValidatingPropertyMap
+import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.types._
@@ -26,9 +28,8 @@ import org.apache.spark.sql.{DataFrame, Row, SQLContext}
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.{Logging, SparkContext}
 
-import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk.ValidatingPropertyMap.map2ValidatingPropertyMap
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import scala.util._
+
 
 abstract class Output(keyName: String,
                       properties: Map[String, JSerializable],
@@ -87,7 +88,17 @@ abstract class Output(keyName: String,
 
   protected def persistMetricOperation(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit =
     getStreamsFromOptions(stream, multiplexer, getFixedDimensions)
-      .foreachRDD(rdd => rdd.foreachPartition(ops => upsert(ops)))
+      .foreachRDD(rdd => rdd.foreachPartition(
+        ops => {
+          Try(upsert(ops)) match {
+            case Success(value) => value
+            case Failure(exception) => {
+              val error = s"Failure[Output]: ${ops.toString} | Message: ${exception.getLocalizedMessage}"
+              log.error(error, exception)
+            }
+          }
+        }
+    ))
 
   protected def persistDataFrame(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     getStreamsFromOptions(stream, multiplexer, getFixedDimensions)

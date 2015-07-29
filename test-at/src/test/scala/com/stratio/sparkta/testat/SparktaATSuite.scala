@@ -54,7 +54,7 @@ trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogg
   val TestServerZKPort = 6666
   val SocketPort = 10666
   val SparktaSleep = 3000
-  val PolicySleep = 10000
+  val PolicySleep = 30000
   val PolicyEndSleep = 30000
 
   val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data.csv").getPath
