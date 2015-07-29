@@ -58,7 +58,7 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
     if (activeJars.isLeft) {
       val msg = s"The policy have jars witch cannot be found in classpath:" +
         s" ${activeJars.left.get.mkString(",")}"
-      sender ! new ResponseCreateContext(new ContextActorStatus(context.self,
+      sender ! new ResponseCreateContext(new StatusContextActor(context.self,
         policy.name,
         ConfigurationError,
         Some(msg)))
@@ -67,12 +67,12 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
 
   private def doJobServerResponseUploadPolicy(response: Try[JValue]): Unit =
     response match {
-      case Failure(exception) => this.context.parent ! new ContextActorStatus(context.self,
+      case Failure(exception) => this.context.parent ! new StatusContextActor(context.self,
         policy.name,
         Error,
         Some(exception.getMessage))
       case Success(response) => {
-        this.context.parent ! new ResponseCreateContext(new ContextActorStatus(context.self,
+        this.context.parent ! new ResponseCreateContext(new StatusContextActor(context.self,
           policy.name,
           Initialized,
           Some(response.toString)))
@@ -95,7 +95,7 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
 
     (jobServerRef ? new JsUploadJars(jarFiles)).mapTo[JsResponseUploadJars].foreach {
       case JsResponseUploadJars(Failure(exception)) =>
-        sender ! new ResponseCreateContext(new ContextActorStatus(context.self,
+        sender ! new ResponseCreateContext(new StatusContextActor(context.self,
           policy.name,
           Error,
           Some(exception.getMessage)))
@@ -111,7 +111,7 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
     (jobServerRef ? new JsCreateContext(s"${policy.name}", cpuCores.toString, memory))
       .mapTo[JsResponseCreateContext].foreach {
       case JsResponseCreateContext(Failure(exception)) =>
-        sender ! new ResponseCreateContext(new ContextActorStatus(context.self,
+        sender ! new ResponseCreateContext(new StatusContextActor(context.self,
           policy.name,
           Error,
           Some(exception.getMessage)))

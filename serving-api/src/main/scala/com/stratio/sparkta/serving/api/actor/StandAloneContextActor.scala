@@ -47,27 +47,27 @@ class StandAloneContextActor(policy: AggregationPoliciesModel,
         _ssc match {
           case Some(ssc) => Try(ssc.start()) match {
             case Failure(e: Exception) =>
-              sender ! new ResponseCreateContext(new ContextActorStatus(context.self,
+              sender ! new ResponseCreateContext(new StatusContextActor(context.self,
                 policy.name,
                 Error,
                 Some(StartErrorException)))
               None
             case _ =>
-              sender ! new ResponseCreateContext(new ContextActorStatus(context.self,
+              sender ! new ResponseCreateContext(new StatusContextActor(context.self,
                 policy.name,
                 Initialized,
                 None))
               Some(ssc)
           }
           case None =>
-            sender ! new ResponseCreateContext(new ContextActorStatus(context.self,
+            sender ! new ResponseCreateContext(new StatusContextActor(context.self,
               policy.name,
               Error,
               Some(CreatingErrorException)))
             None
         }
       case Failure(e: Exception) =>
-        sender ! new ResponseCreateContext(new ContextActorStatus(context.self,
+        sender ! new ResponseCreateContext(new StatusContextActor(context.self,
           policy.name,
           ConfigurationError,
           Some(InstantiatingErrorException)))

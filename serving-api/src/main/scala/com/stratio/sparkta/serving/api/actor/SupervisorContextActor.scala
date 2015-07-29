@@ -21,17 +21,17 @@ import com.stratio.sparkta.serving.api.actor.SupervisorContextActor._
 
 class SupervisorContextActor extends InstrumentedActor {
 
-  private var contextActors: Map[String, ContextActorStatus] = Map()
+  private var contextActors: Map[String, StatusContextActor] = Map()
 
   override def receive: PartialFunction[Any, Unit] = {
-    case SupAddContextStatus(name: String, contextStatus: ContextActorStatus) =>
+    case SupAddContextStatus(name: String, contextStatus: StatusContextActor) =>
       synchronized(doAddContextStatus(name, contextStatus))
     case SupGetContextStatus(name: String) => doGetContextStatus(name)
     case SupDeleteContextStatus(name: String) => synchronized(doDeleteContextStatus(name))
     case SupGetAllContextStatus => doGetAllContextStatus
   }
 
-  private def doAddContextStatus(name: String, contextStatus: ContextActorStatus): Unit = {
+  private def doAddContextStatus(name: String, contextStatus: StatusContextActor): Unit = {
     contextActors += (name -> contextStatus)
     doGetAllContextStatus
   }
@@ -56,7 +56,7 @@ class SupervisorContextActor extends InstrumentedActor {
 
 object SupervisorContextActor {
 
-  case class SupAddContextStatus(name: String, contextStatus: ContextActorStatus)
+  case class SupAddContextStatus(name: String, contextStatus: StatusContextActor)
 
   case class SupGetContextStatus(name: String)
 
@@ -64,9 +64,9 @@ object SupervisorContextActor {
 
   case object SupGetAllContextStatus
 
-  case class SupResponse_AllContextStatus(contextActors: Map[String, ContextActorStatus])
+  case class SupResponse_AllContextStatus(contextActors: Map[String, StatusContextActor])
 
-  case class SupResponse_ContextStatus(contextStatus: Option[ContextActorStatus])
+  case class SupResponse_ContextStatus(contextStatus: Option[StatusContextActor])
 
 }
 

@@ -64,7 +64,7 @@ class StreamingActor(streamingContextService: StreamingContextService,
     val streamingContextActor = getStreamingContextActor(policy)
 
     supervisorContextRef ! SupAddContextStatus(policy.name,
-      new ContextActorStatus(streamingContextActor, policy.name, Initializing, None))
+      new StatusContextActor(streamingContextActor, policy.name, Initializing, None))
     streamingContextActor ! InitSparktaContext
   }
 
@@ -80,7 +80,7 @@ class StreamingActor(streamingContextService: StreamingContextService,
     }
   }
 
-  private def doResponseCreateContext(response: ContextActorStatus): Unit = {
+  private def doResponseCreateContext(response: StatusContextActor): Unit = {
     supervisorContextRef ! SupAddContextStatus(response.policyName, response)
     response.status match {
       case Initialized =>
@@ -185,6 +185,6 @@ object StreamingActor {
 
   case object StopSparktaContext
 
-  case class ResponseCreateContext(contextStatus: ContextActorStatus)
+  case class ResponseCreateContext(contextStatus: StatusContextActor)
 
 }
