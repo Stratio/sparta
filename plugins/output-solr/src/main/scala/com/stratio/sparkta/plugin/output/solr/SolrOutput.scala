@@ -60,21 +60,19 @@ class SolrOutput(keyName: String,
   private val solrClients: Map[String, SolrServer] = {
     bcSchema.get.value.filter(tschema => tschema.outputName == keyName).map(tschemaFiltered => {
       val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
-      if (isCloud)
-        tableSchemaTime.tableName ->
-          new CloudSolrServer(zkHost)
-      else
-        tableSchemaTime.tableName ->
-          new HttpSolrServer("http://" + zkHost + "/solr")
+      tableSchemaTime.tableName -> getSolrServer(zkHost, isCloud)
     }).toMap
   }
 
   override def setup: Unit = if (validConfiguration) createCores else log.info(SolrConfigurationError)
 
   private def createCores: Unit = {
+    val coreList: Seq[String] = getCoreList(zkHost, isCloud)
     bcSchema.get.value.filter(tschema => tschema.outputName == keyName).foreach(tschemaFiltered => {
       val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
-      createCoreAccordingToSchema(solrClients, tableSchemaTime.tableName, tableSchemaTime.schema)
+      if (!coreList.contains(tableSchemaTime.tableName)){
+        createCoreAccordingToSchema(solrClients, tableSchemaTime.tableName, tableSchemaTime.schema)
+      }
     })
   }
 
