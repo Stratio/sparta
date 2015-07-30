@@ -17,17 +17,17 @@
 package com.stratio.sparkta.plugin.input.twitter
 
 import java.io.{Serializable => JSerializable}
+
+import scala.util.Try
+
+import com.stratio.sparkta.sdk.{Event, Input}
 import com.stratio.sparkta.sdk.Input._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk.{Event, Input}
-
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.twitter.TwitterUtils
-import twitter4j.{GeoLocation, TwitterFactory}
+import twitter4j.TwitterFactory
 import twitter4j.conf.ConfigurationBuilder
-
-import scala.util.Try
 
 /**
  * Connects to Twitter's stream and generates stream events.
@@ -39,7 +39,7 @@ class TwitterInput(properties: Map[String, JSerializable]) extends Input(propert
   System.setProperty("twitter4j.oauth.accessToken",  properties.getString("accessToken"))
   System.setProperty("twitter4j.oauth.accessTokenSecret", properties.getString("accessTokenSecret"))
 
-  val cb = new ConfigurationBuilder().setUseSSL(true)
+  val cb = new ConfigurationBuilder()
   val tf = new TwitterFactory(cb.build())
   val twitterApi = tf.getInstance()
   val trends = twitterApi.getPlaceTrends(1).getTrends.map(trend => trend.getName)

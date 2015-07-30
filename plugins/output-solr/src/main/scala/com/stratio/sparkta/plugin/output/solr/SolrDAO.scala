@@ -17,16 +17,17 @@
 package com.stratio.sparkta.plugin.output.solr
 
 import java.io.{Closeable, File}
-import java.nio.file.Paths
+import java.net.URL
+
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
-
 import org.apache.commons.io.FileUtils
-import org.apache.solr.client.solrj.SolrClient
-import org.apache.solr.client.solrj.impl.CloudSolrClient
+import org.apache.solr.client.solrj.SolrServer
+import org.apache.solr.client.solrj.impl.CloudSolrServer
 import org.apache.solr.client.solrj.request.CoreAdminRequest
+import org.apache.solr.client.solrj.request.CoreAdminRequest.Create
 import org.apache.spark.Logging
 import org.apache.spark.sql.types.{DataType, StructType}
 
@@ -52,20 +53,20 @@ trait SolrDAO extends Closeable with Logging {
 
   def cloudDataDir: Option[String]
 
-  def validConfiguration : Boolean = (isCloud && localDataDir.isDefined) || (isCloud && cloudDataDir.isDefined)
+  def validConfiguration: Boolean = (!isCloud && localDataDir.isDefined) || (isCloud && cloudDataDir.isDefined)
 
   def getConfig(host: String, collection: String): Map[String, String] =
     Map("zkhost" -> host, "collection" -> collection)
 
-  def createCoreAccordingToSchema(solrClients: Map[String, SolrClient],
+  def createCoreAccordingToSchema(solrClients: Map[String, SolrServer],
                                   tableName: String,
                                   schema: StructType): Unit = {
 
     val core = tableName
-    val tempDataPath = s"/temp/solr/$core/data"
-    val tempConfPath = s"/temp/solr/$core/conf"
+    val tempDataPath = s"/tmp/solr/$core/data"
+    val tempConfPath = s"/tmp/solr/$core/conf"
     val solrClient = solrClients(core)
-    val createCore = new CoreAdminRequest.Create
+    val createCore = new Create
 
     createDir(tempDataPath)
     createDir(tempConfPath)
@@ -74,14 +75,13 @@ trait SolrDAO extends Closeable with Logging {
     createCore.setCoreName(core)
     createCore.setSchemaName(SolrSchemaFile)
     createCore.setConfigName(SolrConfigFile)
-
     if (cloudDataDir.isDefined) {
 
       val clusterDataPath = s"${cloudDataDir.get}/$core/data"
 
       createCore.setDataDir(clusterDataPath)
       createCore.setInstanceDir(s"${cloudDataDir.get}/$core")
-      solrClient.asInstanceOf[CloudSolrClient].uploadConfig(Paths.get(tempConfPath), core)
+//      solrClient.asInstanceOf[CloudSolrServer].uploadConfig(Paths.get(tempConfPath), core)
     } else if (localDataDir.isDefined) {
 
       val localDataPath = s"${localDataDir.get}/$core/data"
@@ -101,17 +101,18 @@ trait SolrDAO extends Closeable with Logging {
   private def createDir(dirPath: String): Unit = new File(dirPath).mkdir
 
   private def createSolrConfig(confPath: String) {
-    FileUtils.copyFile(
-      new File(ClassLoader.getSystemResource(s"./$SolrConfigFile").toURI),
-      new File(confPath + s"/$SolrConfigFile")
-    )
+    val origin = getClass.getClassLoader.getResource(s"$SolrConfigFile")
+    val dest = new File(confPath + s"/$SolrConfigFile")
+    new File(confPath).mkdirs()
+    FileUtils.copyURLToFile(origin, dest)
   }
 
   private def createSolrSchema(schema: StructType, path: String) {
     val domFactory = DocumentBuilderFactory.newInstance
     domFactory.setIgnoringComments(true)
     val builder = domFactory.newDocumentBuilder
-    val doc = builder.parse(new File(ClassLoader.getSystemResource(s"./$SolrSchemaFile").toURI))
+    val schemaFile = getClass.getClassLoader().getResourceAsStream(s"$SolrSchemaFile")
+    val doc = builder.parse(schemaFile)
     val nodes = doc.getElementsByTagName("schema")
 
     for (structField <- schema.iterator) {
@@ -142,10 +143,11 @@ trait SolrDAO extends Closeable with Logging {
       case org.apache.spark.sql.types.DateType => "dateTime"
       case org.apache.spark.sql.types.TimestampType => "dateTime"
       case org.apache.spark.sql.types.ArrayType(_, _) => "string"
-      case org.apache.spark.sql.types.StringType => if(tokenizedFields) "text" else "string"
+      case org.apache.spark.sql.types.StringType => if (tokenizedFields) "text" else "string"
       case _ => "string"
     }
   }
+
   //scalastyle:on
 
   override def close(): Unit = {}

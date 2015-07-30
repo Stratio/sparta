@@ -18,19 +18,20 @@ package com.stratio.sparkta.plugin.output.solr
 
 import java.io.{Serializable => JSerializable}
 
+import org.apache.solr.client.solrj.SolrServer
+import org.apache.solr.client.solrj.impl.{HttpSolrServer, CloudSolrServer}
+
+import scala.util.Try
+
 import com.lucidworks.spark.SolrRelation
+import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
-import com.stratio.sparkta.sdk._
-import org.apache.solr.client.solrj.SolrClient
-import org.apache.solr.client.solrj.impl.{CloudSolrClient, HttpSolrClient}
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.streaming.dstream.DStream
-
-import scala.util.Try
 
 class SolrOutput(keyName: String,
                  properties: Map[String, JSerializable],
@@ -53,14 +54,18 @@ class SolrOutput(keyName: String,
 
   override val cloudDataDir = properties.getString("cloudDataDir", None)
 
+
   override val tokenizedFields = Try(properties.getString("tokenizedFields").toBoolean).getOrElse(false)
 
-  private val solrClients: Map[String, SolrClient] = {
+  private val solrClients: Map[String, SolrServer] = {
     bcSchema.get.value.filter(tschema => tschema.outputName == keyName).map(tschemaFiltered => {
+      val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
       if (isCloud)
-        tschemaFiltered.tableName -> new CloudSolrClient(zkHost)
+        tableSchemaTime.tableName ->
+          new CloudSolrServer(zkHost)
       else
-        tschemaFiltered.tableName -> new HttpSolrClient("http://" + zkHost + "/solr")
+        tableSchemaTime.tableName ->
+          new HttpSolrServer("http://" + zkHost + "/solr")
     }).toMap
   }
 
