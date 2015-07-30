@@ -112,6 +112,13 @@
           }
         },
         {
+          "name": "mode_price",
+          "type": "Mode",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
           "name": "last_price",
           "type": "LastValue",
           "configuration": {
