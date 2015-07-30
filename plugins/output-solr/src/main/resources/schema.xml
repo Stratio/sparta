@@ -7,7 +7,7 @@
  (the "License"); you may not use this file except in compliance with
  the License.  You may obtain a copy of the License at
 
-     http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,7 +26,9 @@
   <fieldType name="float" class="solr.TrieFloatField" precisionStep="0" positionIncrementGap="0"/>
   <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
   <fieldType name="double" class="solr.TrieDoubleField" precisionStep="0" positionIncrementGap="0"/>
-  
+
+  <fieldType name="dateTime" class="solr.TrieDateField" precisionStep="0" positionIncrementGap="0"/>
+
   <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
         <tokenizer class="solr.StandardTokenizerFactory"/>
@@ -44,26 +46,20 @@
         <filter class="solr.LowerCaseFilterFactory" />
       </analyzer>
   </fieldType>
-   
-   
-  <!-- general -->
-  <field name="stratio_streaming_id"  type="string"   	indexed="true"  stored="true"  required="true"/>
 
-  
   <!-- auxiliary -->
-  <field name="category_facet" 	type="lowercase" 	indexed="true" 	stored="true" 	multiValued="true"/>
+  <field name="category_facet" type="lowercase" indexed="true" stored="true" multiValued="true"/>
   
   <!-- solr -->
-  <field name="_version_" type="long"     indexed="true"  stored="true"/>
-  
-  
+  <field name="_version_" type="long" indexed="true" stored="true"/>
+
+
   <!-- Copy fields -->
   <!--<copyField source="category" dest="category_facet"/>-->
   
-  
 
  <!-- field to use to determine and enforce document uniqueness. -->
- <uniqueKey>stratio_streaming_id</uniqueKey>
+ <uniqueKey>id</uniqueKey>
 
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
  <!--<defaultSearchField>name</defaultSearchField>-->

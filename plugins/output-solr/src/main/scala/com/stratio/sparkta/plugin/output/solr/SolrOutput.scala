@@ -53,6 +53,8 @@ class SolrOutput(keyName: String,
 
   override val cloudDataDir = properties.getString("cloudDataDir", None)
 
+  override val tokenizedFields = Try(properties.getString("tokenizedFields").toBoolean).getOrElse(false)
+
   private val solrClients: Map[String, SolrClient] = {
     bcSchema.get.value.filter(tschema => tschema.outputName == keyName).map(tschemaFiltered => {
       if (isCloud)

@@ -46,6 +46,8 @@ trait SolrDAO extends Closeable with Logging {
 
   def isCloud: Boolean
 
+  def tokenizedFields: Boolean
+
   def localDataDir: Option[String]
 
   def cloudDataDir: Option[String]
@@ -76,7 +78,6 @@ trait SolrDAO extends Closeable with Logging {
     if (cloudDataDir.isDefined) {
 
       val clusterDataPath = s"${cloudDataDir.get}/$core/data"
-      val clusterConfPath = s"${cloudDataDir.get}/$core/conf"
 
       createCore.setDataDir(clusterDataPath)
       createCore.setInstanceDir(s"${cloudDataDir.get}/$core")
@@ -101,7 +102,7 @@ trait SolrDAO extends Closeable with Logging {
 
   private def createSolrConfig(confPath: String) {
     FileUtils.copyFile(
-      new File(ClassLoader.getSystemResource(s"./solr-config/$SolrConfigFile").toURI),
+      new File(ClassLoader.getSystemResource(s"./$SolrConfigFile").toURI),
       new File(confPath + s"/$SolrConfigFile")
     )
   }
@@ -110,7 +111,7 @@ trait SolrDAO extends Closeable with Logging {
     val domFactory = DocumentBuilderFactory.newInstance
     domFactory.setIgnoringComments(true)
     val builder = domFactory.newDocumentBuilder
-    val doc = builder.parse(new File(ClassLoader.getSystemResource(s"./solr-config/$SolrSchemaFile").toURI))
+    val doc = builder.parse(new File(ClassLoader.getSystemResource(s"./$SolrSchemaFile").toURI))
     val nodes = doc.getElementsByTagName("schema")
 
     for (structField <- schema.iterator) {
@@ -119,6 +120,7 @@ trait SolrDAO extends Closeable with Logging {
       field.setAttribute("type", getSolrFieldType(structField.dataType))
       field.setAttribute("indexed", "true")
       field.setAttribute("stored", "true")
+      field.setAttribute("required", structField.nullable.toString)
       nodes.item(0).appendChild(field)
     }
 
@@ -140,7 +142,7 @@ trait SolrDAO extends Closeable with Logging {
       case org.apache.spark.sql.types.DateType => "dateTime"
       case org.apache.spark.sql.types.TimestampType => "dateTime"
       case org.apache.spark.sql.types.ArrayType(_, _) => "string"
-      case org.apache.spark.sql.types.StringType => "string"
+      case org.apache.spark.sql.types.StringType => if(tokenizedFields) "text" else "string"
       case _ => "string"
     }
   }
