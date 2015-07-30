@@ -17,6 +17,8 @@
 package com.stratio.sparkta.driver.service
 
 import java.io.{File, Serializable}
+import akka.event.slf4j.SLF4JLogging
+
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.util._
@@ -36,7 +38,7 @@ import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 
-object SparktaJob {
+object SparktaJob extends SLF4JLogging {
 
   val baseJars = Seq("driver-plugin.jar", "aggregator-plugin.jar", "sdk-plugin.jar")
 
@@ -72,7 +74,6 @@ object SparktaJob {
     val input: DStream[Event] = inputs.head._2
     SparktaJob.saveRawData(apConfig, input)
     val parsed = SparktaJob.applyParsers(input, parsers)
-
     val dataCube = new CubeMaker(cubes).setUp(parsed)
     outputs.map(_._2.persist(dataCube))
   }
@@ -80,7 +81,19 @@ object SparktaJob {
   @tailrec
   def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
     parsers.headOption match {
-      case Some(headParser: Parser) => applyParsers(input.map(event => headParser.parse(event)), parsers.drop(1))
+      case Some(headParser: Parser) => applyParsers(input.map(event =>
+        Try(headParser.parse(event)) match {
+          case Success(event) => Some(event)
+          case Failure(exception) => {
+            val error = s"Failure[Parser]: ${event.toString} | Message: ${exception.getLocalizedMessage}" +
+              s" | Parser: ${headParser.getClass.getSimpleName}"
+            log.error(error, exception)
+            None
+          }
+        }).flatMap(event => event match {
+            case Some(value) => Seq(value)
+            case None => Seq()
+          }), parsers.drop(1))
       case None => input
     }
   }
