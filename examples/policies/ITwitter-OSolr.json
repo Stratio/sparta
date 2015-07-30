@@ -14,8 +14,8 @@
       "configuration": {
         "consumerKey": "*****",
         "consumerSecret": "*****",
-        "accessToken": "*****",
-        "accessTokenSecret": "*****"
+        "accessToken": "******",
+        "accessTokenSecret": "******"
       }
     }
   ],
@@ -274,10 +274,10 @@
       "name": "out-solr",
       "type": "Solr",
       "configuration": {
-        "zkHost": "localhost:2181",
+        "zkHost": "localhost:8983",
         "createSchema": "true",
         "isCloud": "false",
-        "dataDir": "solr-dataDir"
+        "localDataDir": "/tmp/solr-data"
       }
     }
   ]
