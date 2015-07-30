@@ -17,7 +17,6 @@
 package com.stratio.sparkta.plugin.output.solr
 
 import java.io.{Closeable, File}
-import java.net.URL
 
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
@@ -25,12 +24,10 @@ import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 import org.apache.commons.io.FileUtils
 import org.apache.solr.client.solrj.SolrServer
-import org.apache.solr.client.solrj.impl.{HttpSolrServer, CloudSolrServer}
+import org.apache.solr.client.solrj.impl.{CloudSolrServer, HttpSolrServer}
 import org.apache.solr.client.solrj.request.CoreAdminRequest
 import org.apache.solr.client.solrj.request.CoreAdminRequest.Create
-import org.apache.solr.client.solrj.response.{SolrResponseBase, CoreAdminResponse}
 import org.apache.solr.common.params.CoreAdminParams
-import org.apache.solr.common.util.NamedList
 import org.apache.spark.Logging
 import org.apache.spark.sql.types.{DataType, StructType}
 

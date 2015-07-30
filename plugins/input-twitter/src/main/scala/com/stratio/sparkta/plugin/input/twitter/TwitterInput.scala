@@ -39,7 +39,7 @@ class TwitterInput(properties: Map[String, JSerializable]) extends Input(propert
   System.setProperty("twitter4j.oauth.accessToken",  properties.getString("accessToken"))
   System.setProperty("twitter4j.oauth.accessTokenSecret", properties.getString("accessTokenSecret"))
 
-  val cb = new ConfigurationBuilder()
+  val cb = new ConfigurationBuilder().setUseSSL(true)
   val tf = new TwitterFactory(cb.build())
   val twitterApi = tf.getInstance()
   val trends = twitterApi.getPlaceTrends(1).getTrends.map(trend => trend.getName)

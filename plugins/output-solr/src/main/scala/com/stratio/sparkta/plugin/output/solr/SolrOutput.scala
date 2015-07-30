@@ -18,9 +18,6 @@ package com.stratio.sparkta.plugin.output.solr
 
 import java.io.{Serializable => JSerializable}
 
-import org.apache.solr.client.solrj.SolrServer
-import org.apache.solr.client.solrj.impl.{HttpSolrServer, CloudSolrServer}
-
 import scala.util.Try
 
 import com.lucidworks.spark.SolrRelation
@@ -28,6 +25,7 @@ import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import org.apache.solr.client.solrj.SolrServer
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.DataFrame
@@ -54,9 +52,9 @@ class SolrOutput(keyName: String,
 
   override val cloudDataDir = properties.getString("cloudDataDir", None)
 
-
   override val tokenizedFields = Try(properties.getString("tokenizedFields").toBoolean).getOrElse(false)
 
+  @transient
   private val solrClients: Map[String, SolrServer] = {
     bcSchema.get.value.filter(tschema => tschema.outputName == keyName).map(tschemaFiltered => {
       val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)

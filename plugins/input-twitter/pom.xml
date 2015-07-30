@@ -30,11 +30,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.twitter4j</groupId>
-            <artifactId>twitter4j-core</artifactId>
-            <version>4.0.4</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming-twitter_${scala.binary.version}</artifactId>
             <version>${spark.version}</version>
