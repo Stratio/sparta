@@ -29,7 +29,7 @@
 
     <groupId>com.stratio.sparkta</groupId>
     <artifactId>parent</artifactId>
-    <version>0.6.0_spark-1.3-SNAPSHOT</version>
+    <version>0.7.0_spark-1.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <url>http://www.stratio.com</url>
