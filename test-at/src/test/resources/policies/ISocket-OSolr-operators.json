@@ -175,7 +175,7 @@
       "name": "out-solr",
       "type": "Solr",
       "configuration": {
-        "zkHost": "localhost:2181",
+        "connection": "localhost:2181",
         "isCloud": "false",
         "localDataDir": "/tmp/solr-dataDir"
       }

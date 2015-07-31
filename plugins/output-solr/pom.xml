@@ -27,7 +27,7 @@
     <artifactId>output-solr</artifactId>
 
     <properties>
-        <solr.driver>4.10.3</solr.driver>
+        <solr.driver>5.2.1</solr.driver>
     </properties>
 
     <dependencies>

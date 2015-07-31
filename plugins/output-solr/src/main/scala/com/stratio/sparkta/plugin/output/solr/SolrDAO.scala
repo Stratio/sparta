@@ -17,14 +17,15 @@
 package com.stratio.sparkta.plugin.output.solr
 
 import java.io.{Closeable, File}
-
+import java.nio.file.Paths
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
+
 import org.apache.commons.io.FileUtils
-import org.apache.solr.client.solrj.SolrServer
-import org.apache.solr.client.solrj.impl.{CloudSolrServer, HttpSolrServer}
+import org.apache.solr.client.solrj.SolrClient
+import org.apache.solr.client.solrj.impl.{CloudSolrClient, HttpSolrClient}
 import org.apache.solr.client.solrj.request.CoreAdminRequest
 import org.apache.solr.client.solrj.request.CoreAdminRequest.Create
 import org.apache.solr.common.params.CoreAdminParams
@@ -41,7 +42,7 @@ trait SolrDAO extends Closeable with Logging {
 
   def idField: Option[String]
 
-  def zkHost: String
+  def connection: String
 
   def createSchema: Boolean
 
@@ -58,7 +59,7 @@ trait SolrDAO extends Closeable with Logging {
   def getConfig(host: String, collection: String): Map[String, String] =
     Map("zkhost" -> host, "collection" -> collection)
 
-  def createCoreAccordingToSchema(solrClients: Map[String, SolrServer],
+  def createCoreAccordingToSchema(solrClients: Map[String, SolrClient],
                                   tableName: String,
                                   schema: StructType): Unit = {
 
@@ -81,7 +82,7 @@ trait SolrDAO extends Closeable with Logging {
 
       createCore.setDataDir(clusterDataPath)
       createCore.setInstanceDir(s"${cloudDataDir.get}/$core")
-//      solrClient.asInstanceOf[CloudSolrServer].uploadConfig(Paths.get(tempConfPath), core)
+      solrClient.asInstanceOf[CloudSolrClient].uploadConfig(Paths.get(tempConfPath), core)
     } else if (localDataDir.isDefined) {
 
       val localDataPath = s"${localDataDir.get}/$core/data"
@@ -151,11 +152,11 @@ trait SolrDAO extends Closeable with Logging {
 
   override def close(): Unit = {}
 
-  def getSolrServer(zkHost: String, isCloud: Boolean): SolrServer = {
+  def getSolrServer(zkHost: String, isCloud: Boolean): SolrClient = {
     if (isCloud)
-      new CloudSolrServer(zkHost)
+      new CloudSolrClient(zkHost)
     else
-      new HttpSolrServer("http://" + zkHost + "/solr")
+      new HttpSolrClient("http://" + zkHost + "/solr")
   }
 
   def getCoreList(zkHost: String, isCloud: Boolean): Seq[String] = {
