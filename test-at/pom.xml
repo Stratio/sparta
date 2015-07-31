@@ -227,17 +227,17 @@
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
-            <version>4.9.1</version>
+            <version>5.2.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-test-framework</artifactId>
-            <version>4.9.1</version>
+            <version>5.2.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-core</artifactId>
-            <version>4.9.1</version>
+            <version>5.2.1</version>
         </dependency>
     </dependencies>
 
