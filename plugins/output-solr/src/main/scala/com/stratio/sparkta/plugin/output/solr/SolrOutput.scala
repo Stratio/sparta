@@ -18,9 +18,6 @@ package com.stratio.sparkta.plugin.output.solr
 
 import java.io.{Serializable => JSerializable}
 
-import org.apache.solr.client.solrj.SolrServer
-import org.apache.solr.client.solrj.impl.{HttpSolrServer, CloudSolrServer}
-
 import scala.util.Try
 
 import com.lucidworks.spark.SolrRelation
@@ -28,6 +25,7 @@ import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import org.apache.solr.client.solrj.SolrServer
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.DataFrame
@@ -54,27 +52,25 @@ class SolrOutput(keyName: String,
 
   override val cloudDataDir = properties.getString("cloudDataDir", None)
 
-
   override val tokenizedFields = Try(properties.getString("tokenizedFields").toBoolean).getOrElse(false)
 
+  @transient
   private val solrClients: Map[String, SolrServer] = {
     bcSchema.get.value.filter(tschema => tschema.outputName == keyName).map(tschemaFiltered => {
       val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
-      if (isCloud)
-        tableSchemaTime.tableName ->
-          new CloudSolrServer(zkHost)
-      else
-        tableSchemaTime.tableName ->
-          new HttpSolrServer("http://" + zkHost + "/solr")
+      tableSchemaTime.tableName -> getSolrServer(zkHost, isCloud)
     }).toMap
   }
 
   override def setup: Unit = if (validConfiguration) createCores else log.info(SolrConfigurationError)
 
   private def createCores: Unit = {
+    val coreList: Seq[String] = getCoreList(zkHost, isCloud)
     bcSchema.get.value.filter(tschema => tschema.outputName == keyName).foreach(tschemaFiltered => {
       val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
-      createCoreAccordingToSchema(solrClients, tableSchemaTime.tableName, tableSchemaTime.schema)
+      if (!coreList.contains(tableSchemaTime.tableName)){
+        createCoreAccordingToSchema(solrClients, tableSchemaTime.tableName, tableSchemaTime.schema)
+      }
     })
   }
 

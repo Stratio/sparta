@@ -17,7 +17,6 @@
 package com.stratio.sparkta.plugin.output.solr
 
 import java.io.{Closeable, File}
-import java.net.URL
 
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
@@ -25,9 +24,10 @@ import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 import org.apache.commons.io.FileUtils
 import org.apache.solr.client.solrj.SolrServer
-import org.apache.solr.client.solrj.impl.CloudSolrServer
+import org.apache.solr.client.solrj.impl.{CloudSolrServer, HttpSolrServer}
 import org.apache.solr.client.solrj.request.CoreAdminRequest
 import org.apache.solr.client.solrj.request.CoreAdminRequest.Create
+import org.apache.solr.common.params.CoreAdminParams
 import org.apache.spark.Logging
 import org.apache.spark.sql.types.{DataType, StructType}
 
@@ -147,8 +147,24 @@ trait SolrDAO extends Closeable with Logging {
       case _ => "string"
     }
   }
-
   //scalastyle:on
 
   override def close(): Unit = {}
+
+  def getSolrServer(zkHost: String, isCloud: Boolean): SolrServer = {
+    if (isCloud)
+      new CloudSolrServer(zkHost)
+    else
+      new HttpSolrServer("http://" + zkHost + "/solr")
+  }
+
+  def getCoreList(zkHost: String, isCloud: Boolean): Seq[String] = {
+    val solrClient = getSolrServer(zkHost, isCloud)
+    val coreAdminRequest: CoreAdminRequest = new CoreAdminRequest()
+    coreAdminRequest.setAction(CoreAdminParams.CoreAdminAction.STATUS)
+    val cores  = coreAdminRequest.process(solrClient)
+
+    for (i <- 0 until cores.getCoreStatus.size())
+      yield cores.getCoreStatus().getName(i)
+  }
 }
