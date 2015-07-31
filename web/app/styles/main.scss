@@ -1,6 +1,9 @@
 // bower:scss
 // endbower
 
+@import 'bower_components/compass-mixins/lib/compass/functions';
+@import 'bower_components/compass-mixins/lib/compass/css3';
+
 .browsehappy {
   margin: 0.2em 0;
   background: #ccc;
@@ -85,5 +88,9 @@ body {
   /* Remove the bottom border on the jumbotron for visual effect */
   .jumbotron {
     border-bottom: 0;
+  }
+
+  .test {
+    color: red;
   }
 }

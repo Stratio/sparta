@@ -15,9 +15,12 @@ angular
     'ngResource',
     'ngRoute',
     'ngSanitize',
-    'ngTouch'
+    'ngTouch',
+    'ui.router'
   ])
-  .config(function ($routeProvider) {
+
+  /*ROUTER*/
+  /*.config(function ($routeProvider) {
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
@@ -32,4 +35,32 @@ angular
       .otherwise({
         redirectTo: '/'
       });
-  });
+  });*/
+
+
+  /*ROUTER*/
+  .config(['$stateProvider','$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
+    // For any unmatched url, redirect to /state1
+    $urlRouterProvider.otherwise('/');
+
+    $stateProvider
+      .state('index', {
+        url: '/',
+        controller: 'MainCtrl',
+        templateUrl: 'views/main.html'
+      })
+      .state('about', {
+        url: '/about',
+        controller: 'AboutCtrl',
+        templateUrl: 'views/about.html'
+      })
+      .state('nuevo', {
+        url: '/nuevo',
+/*
+        - Comentado para que no entre 2 veces por el mismo controlador al cargar la página
+        - Referenciarlo en el view para que utilizar 'controller as'
+*/
+      /*controller: 'NuevoCtrl',*/
+        templateUrl: 'views/nuevo.html'
+      });
+  }]);
