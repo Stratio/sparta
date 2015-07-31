@@ -1,5 +1,11 @@
 Stratio Sparkta sandbox
 *****************************
+Sandbox is a test environment where you can easily try the examples. It's the fastest way to do it, because you don't need to install
+all the applications needed such as zookeeper,mongoDB and many others by yourself.
+
+Everything you need to run sparkta it's already in the sandbox, it allows you in a few minutes to have a fully Sparkta application installed with all their dependencies.
+
+Also in our sandbox you can find some demonstrations of our technology, they are explained step by step `here <examples.html>`__ .
 
 Step 1: Vagrant Setup
 ===========
