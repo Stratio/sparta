@@ -274,10 +274,11 @@
       "name": "out-solr",
       "type": "Solr",
       "configuration": {
-        "connection": "localhost:8983",
+        "connection": "localhost:2181",
         "createSchema": "true",
-        "isCloud": "false",
-        "localDataDir": "/tmp/solr-data"
+        "isCloud": "true",
+        "cloudDataDir": "/tmp/solr-data",
+        "fixedAggregation": "_indexed_at_tdt:0"
       }
     }
   ]

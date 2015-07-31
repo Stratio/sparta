@@ -176,8 +176,10 @@
       "type": "Solr",
       "configuration": {
         "connection": "localhost:2181",
-        "isCloud": "false",
-        "localDataDir": "/tmp/solr-dataDir"
+        "createSchema": "true",
+        "isCloud": "true",
+        "cloudDataDir": "/tmp/solr-data",
+        "fixedAggregation": "_indexed_at_tdt:0"
       }
     }
   ]

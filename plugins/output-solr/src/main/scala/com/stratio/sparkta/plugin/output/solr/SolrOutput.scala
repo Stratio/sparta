@@ -38,6 +38,9 @@ class SolrOutput(keyName: String,
                  bcSchema: Option[Broadcast[Seq[TableSchema]]])
   extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with SolrDAO {
 
+  override val supportedWriteOps = Seq(WriteOp.FullText, WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Range,
+    WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.Median, WriteOp.Variance, WriteOp.Stddev)
+
   override val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(true)
 
   override val idField = properties.getString("idField", None)
@@ -79,7 +82,7 @@ class SolrOutput(keyName: String,
   }
 
   override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
-    val slrRelation = new SolrRelation(sqlContext, getConfig(connection, tableName))
+    val slrRelation = new SolrRelation(sqlContext, getConfig(connection, tableName), dataFrame)
     slrRelation.insert(dataFrame, true)
   }
 }

@@ -53,14 +53,12 @@
 
   <!-- auxiliary -->
   <field name="category_facet" type="lowercase" indexed="true" stored="true" multiValued="true"/>
-  
+
   <!-- solr -->
   <field name="_version_" type="long" indexed="true" stored="true"/>
 
 
   <!-- Copy fields -->
-  <!--<copyField source="category" dest="category_facet"/>-->
-  
 
  <!-- field to use to determine and enforce document uniqueness. -->
  <uniqueKey>id</uniqueKey>
