@@ -1,5 +1,5 @@
 {
-  "name": "policy-Twitter-MongoDb",
+  "name": "policy-Twitter-Solr",
   "sparkStreamingWindow": 6000,
   "checkpointPath": "checkpoint",
   "rawData": {
@@ -14,9 +14,8 @@
       "configuration": {
         "consumerKey": "*****",
         "consumerSecret": "*****",
-        "accessToken": "*****",
-        "accessTokenSecret": "*****",
-        "termsOfSearch":"#hekj,prlk,#drm"
+        "accessToken": "******",
+        "accessTokenSecret": "******"
       }
     }
   ],
@@ -272,13 +271,14 @@
   ],
   "outputs": [
     {
-      "name": "out-mongo",
-      "type": "MongoDb",
+      "name": "out-solr",
+      "type": "Solr",
       "configuration": {
-        "clientUri": "mongodb://localhost:27017",
-        "dbName": "sparkta",
-        "textIndexFields": "userLocation",
-        "language": "english"
+        "connection": "localhost:2181",
+        "createSchema": "true",
+        "isCloud": "true",
+        "cloudDataDir": "/tmp/solr-data",
+        "fixedAggregation": "_indexed_at_tdt:0"
       }
     }
   ]

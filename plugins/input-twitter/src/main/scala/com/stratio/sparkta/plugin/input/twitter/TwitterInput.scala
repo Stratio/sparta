@@ -17,17 +17,17 @@
 package com.stratio.sparkta.plugin.input.twitter
 
 import java.io.{Serializable => JSerializable}
+
+import scala.util.Try
+
+import com.stratio.sparkta.sdk.{Event, Input}
 import com.stratio.sparkta.sdk.Input._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk.{Event, Input}
-
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.twitter.TwitterUtils
-import twitter4j.{GeoLocation, TwitterFactory}
+import twitter4j.TwitterFactory
 import twitter4j.conf.ConfigurationBuilder
-
-import scala.util.Try
 
 /**
  * Connects to Twitter's stream and generates stream events.
