@@ -26,15 +26,10 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>output-solr</artifactId>
 
-    <properties>
-        <solr.driver>5.2.1</solr.driver>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
-            <version>${solr.driver}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>

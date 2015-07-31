@@ -165,6 +165,21 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.apache.solr</groupId>
+                <artifactId>solr-solrj</artifactId>
+                <version>5.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>core</artifactId>
+                <version>4.4.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.4.1</version>
+            </dependency>
+            <dependency>
                 <groupId>com.stratio.sparkta</groupId>
                 <artifactId>aggregator</artifactId>
                 <version>${project.version}</version>
