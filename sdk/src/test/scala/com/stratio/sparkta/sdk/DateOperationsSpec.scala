@@ -117,7 +117,16 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
     val now = formatter.parseDateTime("1984-03-17 13:13:17")
     DateOperations.dateFromGranularity(now, "s15") should be(448373595000L)
   }
-
+  it should "round to 10 seconds" in new CommonValues {
+    val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+    val now = formatter.parseDateTime("1984-03-17 13:13:17")
+    DateOperations.dateFromGranularity(now, "s10") should be(448373600000L)
+  }
+  it should "round to 5 seconds" in new CommonValues {
+    val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+    val now = formatter.parseDateTime("1984-03-17 13:13:17")
+    DateOperations.dateFromGranularity(now, "s5") should be(448373595000L)
+  }
   it should "create the full parquet path with just a word" in new ParquetPath {
     DateOperations.generateParquetPath(parquetPattern = Some(yearStr)) should be(yearPatternResult)
     DateOperations.generateParquetPath(parquetPattern = Some(monthStr)) should be(monthPatternResult)

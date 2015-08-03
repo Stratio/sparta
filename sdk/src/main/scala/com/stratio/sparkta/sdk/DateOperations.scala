@@ -41,6 +41,8 @@ object DateOperations {
     val monthDate = dayDate.withDayOfMonth(1)
     val yearDate = monthDate.withMonthOfYear(1)
     val s15 = roundDateTime(value, Duration.standardSeconds(15))
+    val s10 = roundDateTime(value, Duration.standardSeconds(10))
+    val s5 = roundDateTime(value, Duration.standardSeconds(5))
 
     granularity.toLowerCase match {
       case "minute" => minutesDate.getMillis
@@ -50,6 +52,8 @@ object DateOperations {
       case "year" => yearDate.getMillis
       case "second" => secondsDate.getMillis
       case "s15" => s15.getMillis
+      case "s10" => s10.getMillis
+      case "s5" => s5.getMillis
       case _ => 0L
     }
   }
