@@ -18,8 +18,6 @@ module.exports = function (grunt) {
     ngtemplates: 'grunt-angular-templates'
   });
 
-  grunt.loadNpmTasks('grunt-connect-proxy');
-
   // Configurable paths for the application
   var appConfig = {
     app: require('./bower.json').appPath || 'src',
@@ -76,8 +74,16 @@ module.exports = function (grunt) {
         hostname: 'localhost',
         livereload: 35729
       },
-      proxies: [{
+      proxies: [
+      {
         context: '/policy', // the context of the data service
+        host: '127.0.0.1', // wherever the data service is running
+        port: 9090, // the port that the data service is running on,
+        changeOrigin: true,
+        ws: true
+      },
+      {
+        context: '/template', // the context of the data service
         host: '127.0.0.1', // wherever the data service is running
         port: 9090, // the port that the data service is running on,
         changeOrigin: true,
@@ -438,6 +444,7 @@ module.exports = function (grunt) {
 
 
   grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
+    grunt.loadNpmTasks('grunt-connect-proxy');
     if (target === 'dist') {
       return grunt.task.run(['build', 'connect:dist:keepalive']);
     }
@@ -459,7 +466,6 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('test', [
-    'clean:server',
     'wiredep',
     'concurrent:test',
     'autoprefixer',
@@ -468,7 +474,6 @@ module.exports = function (grunt) {
   ]);
 
   grunt.registerTask('build', [
-    'clean:dist',
     'wiredep',
     'useminPrepare',
     'concurrent:dist',
