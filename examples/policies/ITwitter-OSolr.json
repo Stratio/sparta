@@ -133,13 +133,6 @@
           "configuration": {
             "inputField": "retweets"
           }
-        },
-        {
-          "name": "accumulatoroperator",
-          "type": "Accumulator",
-          "configuration": {
-            "inputField": "wordsN"
-          }
         }
       ]
     },
@@ -257,13 +250,6 @@
           "type": "LastValue",
           "configuration": {
             "inputField": "retweets"
-          }
-        },
-        {
-          "name": "accumulatoroperator",
-          "type": "Accumulator",
-          "configuration": {
-            "inputField": "wordsN"
           }
         }
       ]
