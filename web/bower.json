@@ -1,0 +1,20 @@
+{
+  "name": "sparkta_web",
+  "version": "0.0.0",
+  "dependencies": {
+    "angular": "1.4.3",
+    "angular-animate": "1.4.3",
+    "angular-cookies": "1.4.3",
+    "angular-resource": "1.4.3",
+    "angular-route": "1.4.3",
+	   "angular-ui-router": "0.2.15",
+    "angular-sanitize": "1.4.3",
+    "angular-touch": "1.4.3",
+    "compass-mixins": "0.12.7"
+  },
+  "devDependencies": {
+    "angular-mocks": "1.4.3"
+  },
+  "appPath": "src",
+  "moduleName": "webApp"
+}
