@@ -48,6 +48,8 @@ case class DateTimeField(props: Map[String, JSerializable])
     case MonthName => getPrecision(MonthName, getTypeOperation(MonthName))
     case YearName => getPrecision(YearName, getTypeOperation(YearName))
     case s15Name => getPrecision(s15Name, getTypeOperation(s15Name))
+    case s10Name => getPrecision(s10Name, getTypeOperation(s10Name))
+    case s5Name => getPrecision(s5Name, getTypeOperation(s5Name))
     case _ => timestamp
   }
 
@@ -76,6 +78,8 @@ object DateTimeField {
   final val MonthName = "month"
   final val YearName = "year"
   final val s15Name = "s15"
+  final val s10Name = "s10"
+  final val s5Name = "s5"
   final val timestamp = DimensionType.getTimestamp(Some(TypeOp.Timestamp), TypeOp.Timestamp)
 
   def getPrecision(value: Date, precision: Precision, properties: Map[String, JSerializable]): JSerializable = {
