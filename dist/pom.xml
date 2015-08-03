@@ -30,7 +30,7 @@
         <plugins.directory>plugins</plugins.directory>
         <config.directory>src/main/resources</config.directory>
         <binary.name>sparkta-${project.version}</binary.name>
-        <driver.mainclass>com.stratio.sparkta.serving.api.driver.Sparkta</driver.mainclass>
+        <driver.mainclass>com.stratio.sparkta.serving.api.Sparkta</driver.mainclass>
         <outputFileName>stratio-sparkta</outputFileName>
     </properties>
     <dependencies>
