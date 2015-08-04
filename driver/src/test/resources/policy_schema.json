@@ -11,17 +11,22 @@
       "id": "http://sparkta.stratio.com/sparkStreamingWindow",
       "type": "integer"
     },
-    "jarPaths": {
-      "id": "http://sparkta.stratio.com/jarPaths",
-      "type": "array"
+    "checkpointPath": {
+      "id": "http://sparkta.stratio.com/checkpointPath",
+      "type": "string"
     },
-    "inputs": {
-      "id": "http://sparkta.stratio.com/inputs",
-      "type": "array",
-      "minItems": 1,
-      "uniqueItems": true,
-      "items": {
-        "id": "auto-generated-schema-229"
+    "input": {
+      "id": "http://sparkta.stratio.com/input",
+      "type": "object",
+      "properties": {
+        "name": {
+          "id": "http://sparkta.stratio.com/input/name",
+          "type": "string"
+        },
+        "type": {
+          "id": "http://sparkta.stratio.com/input/type",
+          "type": "string"
+        }
       }
     },
     "cubes": {
@@ -51,7 +56,7 @@
     }
   },
   "required": [
-    "inputs",
+    "input",
     "cubes",
     "outputs"
   ]

@@ -1,13 +1,13 @@
 {
   "name": "policy-kafka",
   "sparkStreamingWindow": 2000,
-  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "partitionFormat": "day",
     "path": "myTestParquetPath"
   },
-  "inputs": [
+  "checkpointPath": "checkpoint",
+  "input":
     {
       "name": "in-kafka",
       "type": "Kafka",
@@ -19,7 +19,7 @@
         "storageLevel": "MEMORY_AND_DISK_SER_2"
       }
     }
-  ],
+  ,
   "transformations": [
     {
       "name": "morphline",

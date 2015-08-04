@@ -23,24 +23,22 @@ import akka.util.Timeout
 import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
 import com.stratio.sparkta.driver.models._
 import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.serving.api.actor.JobServerActor._
+import com.stratio.sparkta.serving.api.actor.StreamingActor._
+import com.stratio.sparkta.serving.api.actor.SupervisorContextActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
+import com.typesafe.config.Config
 
-case class CreateContext(policy: AggregationPoliciesModel)
-case class GetContextStatus(contextName: String)
-case class GetAllContextStatus()
-case class StopContext(contextName: String)
-case class DeleteContext(contextName: String)
-case class CreateFragment(fragment: PolicyElementModel)
-case class ContextActorStatus(actor: ActorRef, status: StreamingContextStatusEnum.Status, description: Option[String])
+class StreamingActor(streamingContextService: StreamingContextService,
+                     jobServerRef: Option[ActorRef],
+                     jobServerConfig: Option[Config],
+                     supervisorContextRef: ActorRef) extends InstrumentedActor {
 
-class StreamingActor(streamingContextService: StreamingContextService, jobServerRef: ActorRef)
-  extends InstrumentedActor {
-
-  private var contextActors: Map[String, ContextActorStatus] = Map()
+  implicit val timeout: Timeout = Timeout(10.seconds)
 
   override val supervisorStrategy =
     OneForOneStrategy() {
@@ -53,7 +51,8 @@ class StreamingActor(streamingContextService: StreamingContextService, jobServer
     case CreateContext(policy) => doCreateContext(policy)
     case GetContextStatus(contextName) => doGetContextStatus(contextName)
     case DeleteContext(contextName) => doDeleteContext(contextName)
-    case GetAllContextStatus => doGetAllContextStatus()
+    case GetAllContextStatus => doGetAllContextStatus
+    case ResponseCreateContext(response) => doResponseCreateContext(response)
   }
 
   /**
@@ -61,44 +60,42 @@ class StreamingActor(streamingContextService: StreamingContextService, jobServer
    * @param policy that contains the configuration to run.
    */
   private def doCreateContext(policy: AggregationPoliciesModel): Unit = {
-    val streamingContextActor = context.actorOf(
-      Props(new StreamingContextActor(policy, streamingContextService, jobServerRef)),
-      "context-actor-".concat(policy.name))
-    contextActors += (policy.name -> new ContextActorStatus(streamingContextActor, Initializing, None))
 
-    (streamingContextActor ? Init)(Timeout(10 minutes)).onComplete {
-      case Success(Initialized) =>
-        log.info("Context initialized with name: " + policy.name)
-        contextActors.get(policy.name) match {
-          case Some(contextActorStatus) =>
-            contextActors += (policy.name -> new ContextActorStatus(contextActorStatus.actor, Initialized, None))
-        }
-      case Success(InitError(e: ServingApiException)) =>
-        log.warn("Configuration error! in context with name: " + policy.name)
-        contextActors.get(policy.name) match {
-          case Some(contextActorStatus) =>
-            contextActors += (policy.name ->
-              new ContextActorStatus(contextActorStatus.actor,ConfigurationError, Option(e.getMessage)))
-            contextActorStatus.actor ! PoisonPill
-        }
-      case Success(InitError(e)) =>
-        log.error("Error initializing StreamingContext with name: " + policy.name, e)
-        contextActors.get(policy.name) match {
-          case Some(contextActorStatus) =>
-            contextActors += (policy.name ->
-              new ContextActorStatus(contextActorStatus.actor, Error, Option(e.getMessage)))
-            contextActorStatus.actor ! PoisonPill
-        }
-      case Failure(e: Exception) =>
-        log.error("Akka error initializing StreamingContext with name: " + policy.name, e)
-        contextActors.get(policy.name) match {
-          case Some(contextActorStatus) =>
-            contextActors += (policy.name ->
-              new ContextActorStatus(contextActorStatus.actor, Error, Option(e.getMessage)))
-            contextActorStatus.actor ! PoisonPill
-        }
-      case x =>
-        log.warn("Unexpected message received by streamingContextActor: " + x)
+    val streamingContextActor = getStreamingContextActor(policy)
+
+    supervisorContextRef ! SupAddContextStatus(policy.name,
+      new StatusContextActor(streamingContextActor, policy.name, Initializing, None))
+    streamingContextActor ! InitSparktaContext
+  }
+
+  private def getStreamingContextActor(policy: AggregationPoliciesModel): ActorRef = {
+    if (jobServerRef.isDefined && jobServerConfig.isDefined) {
+      context.actorOf(
+        Props(new ClusterContextActor(policy, streamingContextService, jobServerRef.get, jobServerConfig.get)),
+        "context-actor-".concat(policy.name))
+    } else {
+      context.actorOf(
+        Props(new StandAloneContextActor(policy, streamingContextService)),
+        "context-actor-".concat(policy.name))
+    }
+  }
+
+  private def doResponseCreateContext(response: StatusContextActor): Unit = {
+    supervisorContextRef ! SupAddContextStatus(response.policyName, response)
+    response.status match {
+      case Initialized =>
+        log.info(s"StreamingContext initialized with name: ${response.policyName} \n " +
+          s"description: ${response.description.getOrElse("")}")
+      case ConfigurationError => {
+        log.warn(s"Configuration error! StreamingContext with name: ${response.policyName} \n " +
+          s"description: ${response.description.getOrElse("")}")
+        response.actor ! PoisonPill
+      }
+      case Error => {
+        log.error(s"Error initializing StreamingContext with name: ${response.policyName} \n " +
+          s"description: ${response.description.getOrElse("")}")
+        response.actor ! PoisonPill
+      }
     }
   }
 
@@ -107,10 +104,10 @@ class StreamingActor(streamingContextService: StreamingContextService, jobServer
    * @param contextName of the context to obtain information.
    */
   private def doGetContextStatus(contextName: String): Unit = {
-    contextActors.get(contextName) match {
-      case Some(contextActorStatus) =>
+    (supervisorContextRef ? SupGetContextStatus(contextName)).mapTo[SupResponse_ContextStatus].foreach {
+      case SupResponse_ContextStatus(Some(contextActorStatus)) =>
         sender ! new StreamingContextStatus(contextName, contextActorStatus.status, contextActorStatus.description)
-      case None =>
+      case SupResponse_ContextStatus(None) =>
         throw new ServingApiException("Context with name " + contextName + " does not exists.")
     }
   }
@@ -120,26 +117,74 @@ class StreamingActor(streamingContextService: StreamingContextService, jobServer
    * @param contextName of the context to delete.
    */
   private def doDeleteContext(contextName: String): Unit = {
-    contextActors.get(contextName) match {
-      case Some(contextActorStatus) =>
-        contextActorStatus.actor ! PoisonPill
-        contextActors -= contextName
+    (supervisorContextRef ? SupDeleteContextStatus(contextName)).mapTo[SupResponse_ContextStatus]
+      .foreach(resContextSt =>
+      resContextSt.contextStatus match {
+        case Some(contextActorStatus) => {
+          if (jobServerRef.isDefined) deleteClusterContext(contextName, contextActorStatus.actor)
+          else deleteStandAloneContext(contextName, contextActorStatus.actor)
+        }
+        case None =>
+          throw new ServingApiException("Context with name " + contextName + " does not exists.")
+      }
+      )
+  }
+
+  private def deleteStandAloneContext(contextName: String, contextActorStatus: ActorRef): Unit = {
+    contextActorStatus ! PoisonPill
+    sender ! new StreamingContextStatus(contextName, Removed, None)
+  }
+
+  private def deleteClusterContext(contextName: String, contextActorStatus: ActorRef): Unit = {
+    (jobServerRef.get ? JsDeleteContext(contextName)).mapTo[JsResponseDeleteContext].foreach {
+      case JsResponseDeleteContext(Failure(exception)) =>
+        sender ! new StreamingContextStatus(contextName, Error, Some(exception.getMessage))
+      case JsResponseDeleteContext(Success(response)) => {
+        contextActorStatus ! PoisonPill
         sender ! new StreamingContextStatus(contextName, Removed, None)
-      case None =>
-        throw new ServingApiException("Context with name " + contextName + " does not exists.")
+      }
     }
   }
 
   /**
    * Retrieves information of all running contexts.
    */
-  private def doGetAllContextStatus(): Unit = {
-    sender ! contextActors.map(cas =>
-      new StreamingContextStatus(cas._1, cas._2.status, cas._2.description)).toSeq
+  private def doGetAllContextStatus: Unit = {
+    (supervisorContextRef ? SupGetAllContextStatus).mapTo[SupResponse_AllContextStatus].foreach {
+      case SupResponse_AllContextStatus(contextStatuses) =>
+        sender ! contextStatuses.map(cas => new StreamingContextStatus(cas._1, cas._2.status, cas._2.description)).toSeq
+    }
   }
 
+  /**
+   * Stop all context actors.
+   */
   override def postStop(): Unit = {
-    contextActors.values.foreach(_.actor ! PoisonPill)
-    super.postStop()
+    (supervisorContextRef ? SupGetAllContextStatus).mapTo[SupResponse_AllContextStatus].foreach {
+      case SupResponse_AllContextStatus(contextStatuses) => contextStatuses.values.foreach(_.actor ! PoisonPill)
+        super.postStop()
+    }
   }
+}
+
+object StreamingActor {
+
+  case class CreateContext(policy: AggregationPoliciesModel)
+
+  case class GetContextStatus(contextName: String)
+
+  case object GetAllContextStatus
+
+  case class StopContext(contextName: String)
+
+  case class DeleteContext(contextName: String)
+
+  case object InitSparktaContext
+
+  case class InitSparktaContextError(e: Exception)
+
+  case object StopSparktaContext
+
+  case class ResponseCreateContext(contextStatus: StatusContextActor)
+
 }

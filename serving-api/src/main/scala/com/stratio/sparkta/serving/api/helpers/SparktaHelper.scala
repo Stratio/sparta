@@ -23,14 +23,17 @@ import java.net.{URL, URLClassLoader}
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
+import akka.routing.RoundRobinPool
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.helpers.{ConfigFactory, SparktaConfigFactory, SparktaSystem, System}
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor._
-import com.stratio.sparkta.serving.api.constants.AkkaConstant
+import com.stratio.sparkta.serving.api.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparkta.serving.api.factory.CuratorFactoryHolder
 import com.typesafe.config.Config
 import spray.can.Http
+
+import scala.util.Try
 
 /**
  * Helper with common operations used to create a Sparkta context used to run the application.
@@ -50,7 +53,7 @@ object SparktaHelper extends SLF4JLogging {
       log.warn("SPARKTA_HOME environment variable is not set, setting to default value")
       sparktaHomeDefault
     })
-    assert(sparktaHome != None, "Fatal error: sparktaHome not found.")
+    assert(sparktaHome.isDefined, "Fatal error: sparktaHome not found.")
     log.info(s"> Setting configuration path to ${sparktaHome.get}")
     sparktaHome.get
   }
@@ -63,10 +66,10 @@ object SparktaHelper extends SLF4JLogging {
    * @return a list of loaded jars.
    */
   def initJars(relativeJarPaths: Seq[String], sparktaHome: String): Seq[File] =
-    relativeJarPaths.map(path => {
+    relativeJarPaths.flatMap(path => {
       log.info(s"> Loading jars from $sparktaHome/$path")
       findJarsByPathAndAddToClasspath(new File(sparktaHome, path))
-    }).flatten
+    })
 
   /**
    * Initializes base configuration.
@@ -87,28 +90,59 @@ object SparktaHelper extends SLF4JLogging {
   }
 
   /**
+   * Initializes base configuration.
+   * @param currentConfig if it is setted the function tries to load a node from a loaded config.
+   * @param node with the node needed to load the configuration.
+   * @return the optional loaded configuration.
+   */
+  def initOptionalConfig(node: String,
+                         currentConfig: Option[Config] = None,
+                         configFactory: ConfigFactory = new SparktaConfigFactory): Option[Config] = {
+    log.info(s"> Loading $node configuration")
+    Try(
+      currentConfig match {
+        case Some(config) => Some(config.getConfig(node))
+        case _ => configFactory.getConfig(node)
+      }
+    ).getOrElse(None)
+  }
+
+  /**
    * Initializes Sparkta's akka system running an embedded http server with the REST API.
    * @param configSparkta with Sparkta's global configuration.
    * @param configApi with http server's configuration.
-   * @param configJobServer with jobServer's configuration.
    * @param jars that will be loaded.
    * @param appName with the name of the application.
    */
   def initAkkaSystem(configSparkta: Config,
                      configApi: Config,
-                     configJobServer: Config,
                      jars: Seq[File],
                      appName: String): Unit = {
     val streamingContextService = new StreamingContextService(configSparkta, jars)
     val curatorFramework = CuratorFactoryHolder.getInstance(configSparkta).get
-
     log.info("> Initializing akka actors")
     system = ActorSystem(appName)
+    val jobServerConfig = configSparkta.getConfig(AppConstant.ConfigJobServer)
+    val jobServerConfigOp = Try(if (!jobServerConfig.isEmpty &&
+      Try(jobServerConfig.getString("host")).isSuccess &&
+      Try(jobServerConfig.getString("host")).get != "" &&
+      Try(jobServerConfig.getInt("port")).isSuccess &&
+      Try(jobServerConfig.getInt("port")).get > 0)
+      Some(jobServerConfig)
+    else None).getOrElse(None)
+    val akkaConfig = configSparkta.getConfig(AppConstant.ConfigAkka)
+    val swaggerConfig = configSparkta.getConfig(AppConstant.ConfigSwagger)
+    val controllerInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
+    else AkkaConstant.DefaultControllerActorInstances
+    val streamingActorInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
+    else AkkaConstant.DefaultControllerActorInstances
 
-    val jobServerActor =
-      system.actorOf(Props(new JobServerActor(configJobServer.getString("host"),
-        configJobServer.getInt("port"))), AkkaConstant.JobServerActor)
-
+    val jobServerActor = if (jobServerConfigOp.isDefined)
+      Some(system.actorOf(Props(new JobServerActor(jobServerConfig.getString("host"),
+        jobServerConfig.getInt("port"))), AkkaConstant.JobServerActor))
+    else None
+    val supervisorContextActor = system.actorOf(
+      Props(new SupervisorContextActor), AkkaConstant.SupervisorContextActor)
     implicit val actors = Map(
       AkkaConstant.FragmentActor ->
         system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor),
@@ -116,17 +150,20 @@ object SparktaHelper extends SLF4JLogging {
         system.actorOf(Props(new TemplateActor()), AkkaConstant.TemplateActor),
       AkkaConstant.PolicyActor ->
         system.actorOf(Props(new PolicyActor(curatorFramework)), AkkaConstant.PolicyActor),
-      AkkaConstant.StreamingActor -> system.actorOf(
-        Props(new StreamingActor(streamingContextService, jobServerActor)), AkkaConstant.StreamingActor),
-      AkkaConstant.JobServerActor ->
-        jobServerActor
-    )
+      AkkaConstant.StreamingActor -> system.actorOf(RoundRobinPool(streamingActorInstances).props(Props(
+        new StreamingActor(streamingContextService, jobServerActor, jobServerConfigOp, supervisorContextActor))),
+        AkkaConstant.StreamingActor)
+    ) ++ {
+      if (jobServerActor.isDefined) Map(AkkaConstant.JobServerActor -> jobServerActor.get) else Map()
+    }
+    val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)
+      .props(Props(new ControllerActor(streamingContextService, curatorFramework, actors))),
+      AkkaConstant.ControllerActor)
+    val swaggerActor = system.actorOf(Props(new SwaggerActor), AkkaConstant.SwaggerActor)
 
-    val controller = system.actorOf(
-      Props(new ControllerActor(streamingContextService, curatorFramework, actors)), AkkaConstant.ControllerActor)
-
-    IO(Http) ! Http.Bind(controller, interface = configApi.getString("host"), port = configApi.getInt("port"))
-    log.info("> System UP!")
+    IO(Http) ! Http.Bind(controllerActor, interface = configApi.getString("host"), port = configApi.getInt("port"))
+    IO(Http) ! Http.Bind(swaggerActor, interface = swaggerConfig.getString("host"), port = swaggerConfig.getInt("port"))
+    log.info("> Actors System UP!")
   }
 
   ///////////////////////////////////////////  XXX Protected methods ///////////////////////////////////////////////////
@@ -157,7 +194,7 @@ object SparktaHelper extends SLF4JLogging {
   protected def addToClasspath(file: File): Unit = {
     val method: Method = classOf[URLClassLoader].getDeclaredMethod("addURL", classOf[URL])
     method.setAccessible(true)
-    method.invoke(ClassLoader.getSystemClassLoader(), file.toURI().toURL());
+    method.invoke(ClassLoader.getSystemClassLoader, file.toURI.toURL);
   }
 
   /**

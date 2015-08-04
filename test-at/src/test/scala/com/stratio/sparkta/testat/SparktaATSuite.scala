@@ -88,9 +88,9 @@ trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogg
     val sparktaHome = SparktaHelper.initSparktaHome(new MockSystem(Map("SPARKTA_HOME" -> getSparktaHome), Map()))
     val jars = SparktaHelper.initJars(AppConstant.JarPaths, sparktaHome)
     val sparktaPort = configApi.getInt("port")
-    val configJobServer = SparktaHelper.initConfig(AppConstant.ConfigJobServer, Some(sparktaConfig))
+    val configJobServer = None//SparktaHelper.initConfig(AppConstant.ConfigJobServer, Some(sparktaConfig))
 
-    SparktaHelper.initAkkaSystem(sparktaConfig, configApi, configJobServer, jars, AppConstant.ConfigAppName)
+    SparktaHelper.initAkkaSystem(sparktaConfig, configApi, jars, AppConstant.ConfigAppName)
     sleep(SparktaSleep)
 
     openSocket(sparktaPort).isSuccess should be(true)

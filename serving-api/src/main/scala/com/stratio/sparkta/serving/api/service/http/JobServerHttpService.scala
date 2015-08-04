@@ -17,141 +17,112 @@
 package com.stratio.sparkta.serving.api.service.http
 
 import akka.pattern.ask
+import com.stratio.sparkta.serving.api.actor.JobServerActor._
 import com.stratio.sparkta.serving.api.constants.HttpConstant
-import com.stratio.sparkta.serving.core.messages.JobServerMessages._
 import com.wordnik.swagger.annotations._
 import spray.routing._
 
 import scala.concurrent.Await
 import scala.util.{Failure, Success}
 
-@Api(value = "/jobServer", description = "Operations about JobServer.", position = 0)
 trait JobServerHttpService extends BaseHttpService {
 
   override def routes: Route = getJars ~ getJobs ~ getJob ~ getContexts ~ deleteContext ~ deleteJob ~ getJobConfig
 
   case class Result(message: String, desc: Option[String] = None)
 
-  @ApiOperation(value = "Find all jars", notes = "Returns a jars list", httpMethod = "GET",
-    response = classOf[String])
-  @ApiResponses(
-    Array(new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)))
   def getJars: Route = {
     path(HttpConstant.JobServerPath / "jars") {
       get {
         complete {
-          val future = supervisor ? new JobServerSupervisorActor_getJars()
+          val future = supervisor ? JsGetJars
           Await.result(future, timeout.duration) match {
-            case JobServerSupervisorActor_response_getJars(Failure(exception)) => throw exception
-            case JobServerSupervisorActor_response_getJars(Success(jarList)) => jarList
+            case JsResponseGetJars(Failure(exception)) => throw exception
+            case JsResponseGetJars(Success(jarList)) => jarList
           }
         }
       }
     }
   }
 
-  @ApiOperation(value = "Find all jobs", notes = "Returns a jobs list", httpMethod = "GET",
-    response = classOf[String])
-  @ApiResponses(
-    Array(new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)))
   def getJobs: Route = {
     path(HttpConstant.JobServerPath / HttpConstant.JobsPath) {
       get {
         complete {
-          val future = supervisor ? new JobServerSupervisorActor_getJobs()
+          val future = supervisor ? JsGetJobs
           Await.result(future, timeout.duration) match {
-            case JobServerSupervisorActor_response_getJobs(Failure(exception)) => throw exception
-            case JobServerSupervisorActor_response_getJobs(Success(jobsList)) => jobsList
+            case JsResponseGetJobs(Failure(exception)) => throw exception
+            case JsResponseGetJobs(Success(jobsList)) => jobsList
           }
         }
       }
     }
   }
 
-  @ApiOperation(value = "Find all contexts", notes = "Returns a contexts list", httpMethod = "GET",
-    response = classOf[String])
-  @ApiResponses(
-    Array(new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)))
   def getContexts: Route = {
     path(HttpConstant.JobServerPath / HttpConstant.ContextsPath) {
       get {
         complete {
-          val future = supervisor ? new JobServerSupervisorActor_getContexts()
+          val future = supervisor ? JsGetContexts
           Await.result(future, timeout.duration) match {
-            case JobServerSupervisorActor_response_getContexts(Failure(exception)) => throw exception
-            case JobServerSupervisorActor_response_getContexts(Success(contextsList)) => contextsList
+            case JsResponseGetContexts(Failure(exception)) => throw exception
+            case JsResponseGetContexts(Success(contextsList)) => contextsList
           }
         }
       }
     }
   }
 
-  @ApiOperation(value = "Delete context", notes = "Delete a context", httpMethod = "DELETE",
-    response = classOf[String])
-  @ApiResponses(
-    Array(new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)))
   def deleteContext: Route = {
     path(HttpConstant.JobServerPath / HttpConstant.ContextsPath / Segment) { (contextId) =>
       delete {
         complete {
-          val future = supervisor ? new JobServerSupervisorActor_deleteContext(contextId)
+          val future = supervisor ? new JsDeleteContext(contextId)
           Await.result(future, timeout.duration) match {
-            case JobServerSupervisorActor_response_deleteContext(Failure(exception)) => throw exception
-            case JobServerSupervisorActor_response_deleteContext(Success(response)) => response
+            case JsResponseDeleteContext(Failure(exception)) => throw exception
+            case JsResponseDeleteContext(Success(response)) => response
           }
         }
       }
     }
   }
 
-  @ApiOperation(value = "Delete job", notes = "Delete a job", httpMethod = "DELETE",
-    response = classOf[String])
-  @ApiResponses(
-    Array(new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)))
   def deleteJob: Route = {
     path(HttpConstant.JobServerPath / HttpConstant.JobsPath / Segment) { (jobId) =>
       delete {
         complete {
-          val future = supervisor ? new JobServerSupervisorActor_deleteJob(jobId)
+          val future = supervisor ? new JsDeleteJob(jobId)
           Await.result(future, timeout.duration) match {
-            case JobServerSupervisorActor_response_deleteJob(Failure(exception)) => throw exception
-            case JobServerSupervisorActor_response_deleteJob(Success(response)) => response
+            case JsResponseDeleteJob(Failure(exception)) => throw exception
+            case JsResponseDeleteJob(Success(response)) => response
           }
         }
       }
     }
   }
 
-  @ApiOperation(value = "Find job info by id", notes = "Return job information", httpMethod = "GET",
-    response = classOf[String])
-  @ApiResponses(
-    Array(new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)))
   def getJob: Route = {
     path(HttpConstant.JobServerPath / HttpConstant.JobsPath / Segment) { (jobId) =>
       get {
         complete {
-          val future = supervisor ? new JobServerSupervisorActor_getJob(jobId)
+          val future = supervisor ? new JsGetJob(jobId)
           Await.result(future, timeout.duration) match {
-            case JobServerSupervisorActor_response_getJob(Failure(exception)) => throw exception
-            case JobServerSupervisorActor_response_getJob(Success(jobInfo)) => jobInfo
+            case JsResponseGetJob(Failure(exception)) => throw exception
+            case JsResponseGetJob(Success(jobInfo)) => jobInfo
           }
         }
       }
     }
   }
 
-  @ApiOperation(value = "Find job config by id", notes = "Return job configuration", httpMethod = "GET",
-    response = classOf[String])
-  @ApiResponses(
-    Array(new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)))
   def getJobConfig: Route = {
     path(HttpConstant.JobServerPath / HttpConstant.JobsPath / Segment / "config") { (jobId) =>
       get {
         complete {
-          val future = supervisor ? new JobServerSupervisorActor_getJobConfig(jobId)
+          val future = supervisor ? new JsGetJobConfig(jobId)
           Await.result(future, timeout.duration) match {
-            case JobServerSupervisorActor_response_getJobConfig(Failure(exception)) => throw exception
-            case JobServerSupervisorActor_response_getJobConfig(Success(jobInfo)) => jobInfo
+            case JsResponseGetJobConfig(Failure(exception)) => throw exception
+            case JsResponseGetJobConfig(Success(jobInfo)) => jobInfo
           }
         }
       }

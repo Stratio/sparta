@@ -7,7 +7,7 @@
         "partitionFormat": "day",
         "path": "myTestParquetPath"
     },
-    "inputs": [
+    "input":
         {
             "name": "in",
             "type": "RabbitMQ",
@@ -22,7 +22,7 @@
                 ]
             }
         }
-    ],
+    ,
     "cubes": [
         {
             "name": "testCube",

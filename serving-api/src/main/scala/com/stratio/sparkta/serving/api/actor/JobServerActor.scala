@@ -22,14 +22,15 @@ import java.nio.file.{Files, Paths}
 import akka.actor._
 import com.stratio.sparkta.driver.models.StreamingContextStatusEnum
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.api.actor.JobServerActor.JsResponseCreateContext
+import com.stratio.sparkta.serving.api.actor.JobServerActor._
 import com.stratio.sparkta.serving.api.constants.HttpConstant
-import com.stratio.sparkta.serving.core.messages.JobServerMessages._
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.JsonMethods._
 import org.json4s.{DefaultFormats, _}
 
 import scala.util.Try
-import scalaj.http.Http
+import scalaj.http.{HttpRequest, Http}
 
 class JobServerActor(host: String, port: Int) extends InstrumentedActor {
 
@@ -42,25 +43,25 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
 
   override def receive: Receive = {
 
-    case JobServerSupervisorActor_getJars() => doGetJars
-    case JobServerSupervisorActor_getJobs() => doGetJobs
-    case JobServerSupervisorActor_getContexts() => doGetContexts
-    case JobServerSupervisorActor_getJob(jobId) => doGetJob(jobId)
-    case JobServerSupervisorActor_getJobConfig(jobId) => doGetJobConfig(jobId)
-    case JobServerSupervisorActor_deleteContext(contextId) => doDeleteContext(contextId)
-    case JobServerSupervisorActor_uploadJars(files) => doUploadJars(files)
-    case JobServerSupervisorActor_uploadPolicy(jobName, classPath, policy, contextName) =>
+    case JsGetJars => doGetJars
+    case JsGetJobs => doGetJobs
+    case JsGetContexts => doGetContexts
+    case JsGetJob(jobId) => doGetJob(jobId)
+    case JsGetJobConfig(jobId) => doGetJobConfig(jobId)
+    case JsDeleteContext(contextId) => doDeleteContext(contextId)
+    case JsUploadJars(files) => doUploadJars(files)
+    case JsUploadPolicy(jobName, classPath, policy, contextName) =>
       doUploadPolicy(jobName, classPath, policy, contextName)
-    case JobServerSupervisorActor_createContext(contextName, cpuCores, memory) =>
+    case JsCreateContext(contextName, cpuCores, memory) =>
       doCreateContext(contextName, cpuCores, memory)
   }
 
   def doGetJars: Unit = {
     if (ValidParameters) {
       val responseParsed = parse(Http(s"http://$host:$port/jars").asString.body)
-      sender ! JobServerSupervisorActor_response_getJars(Try(responseParsed))
+      sender ! JsResponseGetJars(Try(responseParsed))
     } else {
-      sender ! JobServerSupervisorActor_response_getJars(
+      sender ! JsResponseGetJars(
         Try(throw new Exception(HttpConstant.JobServerHostPortExceptionMsg))
       )
     }
@@ -69,9 +70,9 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
   def doGetJobs: Unit = {
     if (ValidParameters) {
       val responseParsed = parse(Http(s"http://$host:$port/jobs").asString.body)
-      sender ! JobServerSupervisorActor_response_getJobs(Try(responseParsed))
+      sender ! JsResponseGetJobs(Try(responseParsed))
     } else {
-      sender ! JobServerSupervisorActor_response_getJobs(
+      sender ! JsResponseGetJobs(
         Try(throw new Exception(HttpConstant.JobServerHostPortExceptionMsg))
       )
     }
@@ -80,9 +81,9 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
   def doGetContexts: Unit =
     if (ValidParameters) {
       val responseParsed = parse(Http(s"http://$host:$port/contexts").asString.body)
-      sender ! JobServerSupervisorActor_response_getContexts(Try(responseParsed))
+      sender ! JsResponseGetContexts(Try(responseParsed))
     } else {
-      sender ! JobServerSupervisorActor_response_getContexts(
+      sender ! JsResponseGetContexts(
         Try(throw new Exception(HttpConstant.JobServerHostPortExceptionMsg))
       )
     }
@@ -90,9 +91,9 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
   def doGetJob(jobId: String): Unit = {
     if (ValidParameters) {
       val responseParsed = parse(Http(s"http://$host:$port/jobs/$jobId").asString.body)
-      sender ! JobServerSupervisorActor_response_getJob(Try(responseParsed))
+      sender ! JsResponseGetJob(Try(responseParsed))
     } else {
-      sender ! JobServerSupervisorActor_response_getJob(
+      sender ! JsResponseGetJob(
         Try(throw new Exception(HttpConstant.JobServerHostPortExceptionMsg))
       )
     }
@@ -101,9 +102,9 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
   def doGetJobConfig(jobId: String): Unit = {
     if (ValidParameters) {
       val responseParsed = parse(Http(s"http://$host:$port/jobs/$jobId/config").asString.body)
-      sender ! JobServerSupervisorActor_response_getJobConfig(Try(responseParsed))
+      sender ! JsResponseGetJobConfig(Try(responseParsed))
     } else {
-      sender ! JobServerSupervisorActor_response_getJobConfig(
+      sender ! JsResponseGetJobConfig(
         Try(throw new Exception(HttpConstant.JobServerHostPortExceptionMsg))
       )
     }
@@ -111,11 +112,16 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
 
   def doDeleteJob(jobId: String): Unit = {
     if (ValidParameters) {
-      val response = Http(s"http://$host:$port/jobs/$jobId").method("DELETE").asString.body
-      val responseParsed = if (response == HttpConstant.JobServerOkMessage) ResultOk else parse(response)
-      sender ! JobServerSupervisorActor_response_deleteJob(Try(responseParsed))
+      val response = Http(s"http://$host:$port/jobs/$jobId").method("DELETE")
+        .timeout(HttpConstant.ConnectionTimeout, HttpConstant.ReadTimeout).asString.body
+      if (response == HttpConstant.JobServerOkMessage) {
+        sender ! JsResponseDeleteJob(Try(ResultOk))
+      } else {
+        sender ! JsResponseDeleteJob(
+          Try(throw new Exception(parse(response).toString)))
+      }
     } else {
-      sender ! JobServerSupervisorActor_response_deleteJob(
+      sender ! JsResponseDeleteJob(
         Try(throw new Exception(HttpConstant.JobServerHostPortExceptionMsg))
       )
     }
@@ -123,14 +129,17 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
 
   def doCreateContext(contextName: String, cpuCores: String, memory: String): Unit = {
     if (ValidParameters) {
-      doDeleteContext(contextName)
+      deleteContextRequest(contextName)
       val response = Http(s"http://$host:$port/contexts/$contextName?num-cpu-cores=$cpuCores&memory-per-node=$memory")
-        .postData("")
-        .asString.body
-      val responseParsed = if (response == HttpConstant.JobServerOkMessage) ResultOk else parse(response)
-      sender ! JobServerSupervisorActor_response_createContext(Try(responseParsed))
+        .postData("").timeout(HttpConstant.ConnectionTimeout, HttpConstant.ReadTimeout).asString.body
+      if (response == HttpConstant.JobServerOkMessage) {
+        sender ! JsResponseCreateContext(Try(ResultOk))
+      } else {
+        sender ! JsResponseCreateContext(
+          Try(throw new Exception(parse(response).toString)))
+      }
     } else {
-      sender ! JobServerSupervisorActor_response_createContext(
+      sender ! JsResponseCreateContext(
         Try(throw new Exception(HttpConstant.JobServerHostPortExceptionMsg))
       )
     }
@@ -138,15 +147,23 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
 
   def doDeleteContext(contextId: String): Unit = {
     if (ValidParameters) {
-      val response = Http(s"http://$host:$port/contexts/$contextId").method("DELETE").asString.body
-      val responseParsed = if (response == HttpConstant.JobServerOkMessage) ResultOk else parse(response)
-      sender ! JobServerSupervisorActor_response_deleteContext(Try(responseParsed))
+      val response = deleteContextRequest(contextId)
+      if (response == HttpConstant.JobServerOkMessage) {
+        sender ! JsResponseDeleteContext(Try(ResultOk))
+      } else {
+        sender ! JsResponseDeleteContext(
+          Try(throw new Exception(parse(response).toString)))
+      }
     } else {
-      sender ! JobServerSupervisorActor_response_deleteContext(
+      sender ! JsResponseDeleteContext(
         Try(throw new Exception(HttpConstant.JobServerHostPortExceptionMsg))
       )
     }
   }
+
+  def deleteContextRequest(contextId: String): String =
+    Http(s"http://$host:$port/contexts/$contextId").method("DELETE")
+      .timeout(HttpConstant.ConnectionTimeout, HttpConstant.ReadTimeout).asString.body
 
   def doUploadPolicy(jobName: String, classPath: String, policy: String, context: Option[String]): Unit = {
     if (ValidParameters) {
@@ -155,11 +172,15 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
         case None => ""
       }
       val response = Http(s"http://$host:$port/jobs?appName=$jobName&classPath=$classPath$contextOptions")
-        .postData(policy.getBytes).asString.body
-      val responseParsed = if (response == HttpConstant.JobServerOkMessage) ResultOk else parse(response)
-      sender ! JobServerSupervisorActor_response_uploadPolicy(Try(responseParsed))
+        .postData(policy.getBytes).timeout(HttpConstant.ConnectionTimeout, HttpConstant.ReadTimeout).asString.body
+      if (response == HttpConstant.JobServerOkMessage) {
+        sender ! JsResponseUploadPolicy(Try(ResultOk))
+      } else {
+        sender ! JsResponseUploadPolicy(
+          Try(throw new Exception(parse(response).toString)))
+      }
     } else {
-      sender ! JobServerSupervisorActor_response_uploadPolicy(
+      sender ! JsResponseUploadPolicy(
         Try(throw new Exception(HttpConstant.JobServerHostPortExceptionMsg))
       )
     }
@@ -171,16 +192,65 @@ class JobServerActor(host: String, port: Int) extends InstrumentedActor {
         val resultUpload = uploadFile(file.getName, file.getAbsolutePath)
         s"${file.getName} : $resultUpload\n"
       }).mkString(",")
-      sender ! JobServerSupervisorActor_response_uploadJars(Try(uploadsResults))
+      sender ! JsResponseUploadJars(Try(uploadsResults))
     } else {
-      sender ! JobServerSupervisorActor_response_uploadJars(
+      sender ! JsResponseUploadJars(
         Try(throw new Exception(HttpConstant.JobServerHostPortExceptionMsg)))
     }
   }
 
   def uploadFile(fileName: String, filePath: String): String = {
     val fileBytes = Files.readAllBytes(Paths.get(filePath))
-    val request = Http(s"http://$host:$port/jars/$fileName").postData(fileBytes).asString
-    request.body
+    Http(s"http://$host:$port/jars/$fileName").postData(fileBytes)
+      .timeout(HttpConstant.ConnectionTimeout, HttpConstant.ReadTimeout).asString.body
   }
+}
+
+object JobServerActor {
+
+  case object JsGetJars
+
+  case object JsGetJobs
+
+  case object JsGetContexts
+
+  case class JsGetJob(jobId: String)
+
+  case class JsGetJobConfig(jobId: String)
+
+  case class JsDeleteContext(contextId: String)
+
+  case class JsDeleteJob(jobId: String)
+
+  case class JsUploadJars(files: Seq[File])
+
+  case class JsUploadPolicy(jobName: String,
+                            classPath: String,
+                            policy: String,
+                            context: Option[String])
+
+  case class JsCreateContext(contextName: String,
+                             cpuCores: String,
+                             memory: String)
+
+  case class JsResponseGetJars(jarResult: Try[JValue])
+
+  case class JsResponseGetJobs(jobsResult: Try[JValue])
+
+  case class JsResponseGetContexts(contextsResult: Try[JValue])
+
+  case class JsResponseGetJob(jobInfoResult: Try[JValue])
+
+  case class JsResponseGetJobConfig(jobInfoResult: Try[JValue])
+
+  case class JsResponseDeleteContext(deleteContextResult: Try[JValue])
+
+  case class JsResponseDeleteJob(deleteJobResult: Try[JValue])
+
+  case class JsResponseUploadJars(uploadJarResult: Try[String])
+
+  case class JsResponseUploadPolicy(uploadPolicyResult: Try[JValue])
+
+  case class JsResponseCreateContext(createContextResult: Try[JValue])
+
 }
