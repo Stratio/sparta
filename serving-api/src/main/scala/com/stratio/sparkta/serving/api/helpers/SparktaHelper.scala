@@ -125,8 +125,9 @@ object SparktaHelper extends SLF4JLogging {
     val jobServerConfig = configSparkta.getConfig(AppConstant.ConfigJobServer)
     val jobServerConfigOp = Try(if (!jobServerConfig.isEmpty &&
       Try(jobServerConfig.getString("host")).isSuccess &&
+      Try(jobServerConfig.getString("host")).get != "" &&
       Try(jobServerConfig.getInt("port")).isSuccess &&
-      Try(jobServerConfig.getInt("port")).getOrElse(0) > 0)
+      Try(jobServerConfig.getInt("port")).get > 0)
       Some(jobServerConfig)
     else None).getOrElse(None)
     val akkaConfig = configSparkta.getConfig(AppConstant.ConfigAkka)
