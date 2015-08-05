@@ -45,10 +45,9 @@ import com.stratio.sparkta.sdk._
  */
 class ElasticSearchOutput(keyName: String,
                           properties: Map[String, JSerializable],
-                          @transient sparkContext: SparkContext,
                           operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
                           bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with ElasticSearchDAO {
+  extends Output(keyName, properties, operationTypes, bcSchema) with ElasticSearchDAO {
 
   override val dateType = getDateTimeType(properties.getString("dateType", None))
 

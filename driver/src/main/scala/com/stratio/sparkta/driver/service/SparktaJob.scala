@@ -157,10 +157,9 @@ object SparktaJob extends SLF4JLogging {
       c.getDeclaredConstructor(
         classOf[String],
         classOf[Map[String, Serializable]],
-        classOf[SparkContext],
         classOf[Option[Map[String, (WriteOp, TypeOp)]]],
         classOf[Option[Seq[TableSchema]]])
-        .newInstance(o.name, o.configuration, sparkContext, bcOperatorsKeyOperation, bcCubeOperatorSchema)
+        .newInstance(o.name, o.configuration, bcOperatorsKeyOperation, bcCubeOperatorSchema)
         .asInstanceOf[Output])))
 
   def cubes(apConfig: AggregationPoliciesModel): Seq[Cube] =

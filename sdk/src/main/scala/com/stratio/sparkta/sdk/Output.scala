@@ -21,18 +21,17 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap.map2ValidatingPropertyMap
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import org.apache.spark.Logging
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
 import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.{Logging, SparkContext}
 
 import scala.util._
 
 
 abstract class Output(keyName: String,
                       properties: Map[String, JSerializable],
-                      @transient sparkContext: SparkContext,
                       operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
                       bcSchema: Option[Seq[TableSchema]])
   extends Parameterizable(properties) with Multiplexer with Logging {
@@ -41,7 +40,7 @@ abstract class Output(keyName: String,
     log.info("Operation types is empty, you don't have aggregations defined in your policy.")
   }
 
-  lazy val sqlContext: SQLContext = new SQLContext(sparkContext)
+  var sqlContext: SQLContext = _
 
   def getName: String = keyName
 
@@ -73,6 +72,7 @@ abstract class Output(keyName: String,
   val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
   def persist(streams: Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]]): Unit = {
+    sqlContext = new SQLContext(streams.head.context.sparkContext)
     setup
     streams.foreach(stream => doPersist(stream))
   }

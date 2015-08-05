@@ -32,7 +32,6 @@ trait CassandraDAO extends Closeable with Logging {
   val IndexPrefix = "index_"
   val MaxTableNameLength = 48
 
-  val connector: Option[CassandraConnector] = None
   val compactStorage: Option[String] = None
 
   def keyspace: String
@@ -55,15 +54,21 @@ trait CassandraDAO extends Closeable with Logging {
 
   def refreshSeconds: String
 
-  def createKeypace: Boolean = connector.exists(doCreateKeyspace(_))
+  def createKeypace(connector: CassandraConnector): Boolean = doCreateKeyspace(connector)
 
-  def createTables(tSchemas: Seq[TableSchema], isAutoCalculateId: Boolean): Boolean =
-    connector.exists(doCreateTables(_, tSchemas, isAutoCalculateId))
+  def createTables(connector: CassandraConnector,
+                   tSchemas: Seq[TableSchema],
+                   isAutoCalculateId: Boolean): Boolean =
+    doCreateTables(connector, tSchemas, isAutoCalculateId)
 
-  def createIndexes(tSchemas: Seq[TableSchema], isAutoCalculateId: Boolean): Boolean =
-    connector.exists(doCreateIndexes(_, tSchemas, isAutoCalculateId))
+  def createIndexes(connector: CassandraConnector,
+                    tSchemas: Seq[TableSchema],
+                    isAutoCalculateId: Boolean): Boolean =
+    doCreateIndexes(connector, tSchemas, isAutoCalculateId)
 
-  def createTextIndexes(tSchemas: Seq[TableSchema]): Boolean = connector.exists(doCreateTextIndexes(_, tSchemas))
+  def createTextIndexes(connector: CassandraConnector,
+                        tSchemas: Seq[TableSchema]): Boolean =
+    doCreateTextIndexes(connector, tSchemas)
 
   protected def doCreateKeyspace(conn: CassandraConnector): Boolean = {
     executeCommand(conn,

@@ -34,10 +34,9 @@ import com.stratio.sparkta.sdk._
 
 class MongoDbOutput(keyName: String,
                     properties: Map[String, JSerializable],
-                    @transient sparkContext: SparkContext,
                     operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
                     bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with MongoDbDAO {
+  extends Output(keyName, properties, operationTypes, bcSchema) with MongoDbDAO {
 
   RegisterJodaTimeConversionHelpers()
 

@@ -39,10 +39,9 @@ import com.stratio.sparkta.sdk._
  */
 class CsvOutput(keyName: String,
                 properties: Map[String, JSerializable],
-                @transient sparkContext: SparkContext,
                 operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
                 bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with Logging {
+  extends Output(keyName, properties, operationTypes, bcSchema) with Logging {
 
   val path = properties.getString("path", None)
 
