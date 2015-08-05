@@ -24,7 +24,6 @@ import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.{Imports, MongoDBObject}
 import com.mongodb.casbah.{MongoClient, MongoClientURI, MongoDB}
 import com.mongodb.{DBObject, MongoClientOptions, MongoClientURI => JMongoClientURI, WriteConcern, casbah}
-import org.apache.spark.broadcast.Broadcast
 import org.joda.time.DateTime
 
 import com.stratio.sparkta.sdk.TypeOp._
@@ -151,11 +150,11 @@ trait MongoDbDAO extends Closeable {
   }
 
   protected def getOperations(aggregations: Seq[(String, Option[Any])],
-                              operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]])
+                              operationTypes: Option[Map[String, (WriteOp, TypeOp)]])
   : Seq[(WriteOp, (String, Option[Any]))] = {
     for {
       (fieldName, value) <- aggregations
-      op = operationTypes.get.value(fieldName)._1
+      op = operationTypes.get(fieldName)._1
     } yield (op, (fieldName, value))
   }
 
@@ -203,8 +202,8 @@ trait MongoDbDAO extends Closeable {
     cubeKey.dimensionValues.map(dimVal => (Seq(dimVal.dimension.name -> dimVal.value), "$set")).toMap
 
   protected def checkFields(aggregations: Set[String],
-                            operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]]): Unit = {
-    val unknownFields = aggregations.filter(!operationTypes.get.value.hasKey(_))
+                            operationTypes: Option[Map[String, (WriteOp, TypeOp)]]): Unit = {
+    val unknownFields = aggregations.filter(!operationTypes.get.hasKey(_))
     if (unknownFields.nonEmpty) throw new Exception(s"Fields not present in schema: ${unknownFields.mkString(",")}")
   }
 

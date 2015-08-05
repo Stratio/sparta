@@ -21,7 +21,6 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap.map2ValidatingPropertyMap
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
-import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
@@ -34,8 +33,8 @@ import scala.util._
 abstract class Output(keyName: String,
                       properties: Map[String, JSerializable],
                       @transient sparkContext: SparkContext,
-                      operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                      bcSchema: Option[Broadcast[Seq[TableSchema]]])
+                      operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
+                      bcSchema: Option[Seq[TableSchema]])
   extends Parameterizable(properties) with Multiplexer with Logging {
 
   if (operationTypes.isEmpty) {
@@ -111,7 +110,7 @@ abstract class Output(keyName: String,
         isAutoCalculateId)
     }
       .foreachRDD(rdd => {
-      bcSchema.get.value.filter(tschema => (tschema.outputName == keyName)).foreach(tschemaFiltered => {
+      bcSchema.get.filter(tschema => (tschema.outputName == keyName)).foreach(tschemaFiltered => {
         val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
         upsert(sqlContext.createDataFrame(
           extractRow(rdd.filter { case (schema, row) => schema.exists(_ == tableSchemaTime.tableName) }),
@@ -195,7 +194,7 @@ abstract class Output(keyName: String,
 
   protected def checkOperationTypes: Boolean =
     if (operationTypes.isDefined) {
-      operationTypes.get.value.values.map(_._1).toSet.diff(supportedWriteOps.toSet).toSeq match {
+      operationTypes.get.values.map(_._1).toSet.diff(supportedWriteOps.toSet).toSeq match {
         case s if s.size == 0 => true
         case badWriteOps => {
           log.info(s"The following write operators are not supported by this output: ${badWriteOps.mkString(", ")}")

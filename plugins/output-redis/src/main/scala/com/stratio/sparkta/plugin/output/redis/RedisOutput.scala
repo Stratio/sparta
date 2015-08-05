@@ -36,8 +36,8 @@ import org.apache.spark.streaming.dstream.DStream
 class RedisOutput(keyName: String,
                   properties: Map[String, Serializable],
                   @transient sparkContext: SparkContext,
-                  operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                  bcSchema: Option[Broadcast[Seq[TableSchema]]])
+                  operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
+                  bcSchema: Option[Seq[TableSchema]])
   extends Output(keyName, properties, sparkContext, operationTypes, bcSchema)
   with AbstractRedisDAO with Serializable {
 
@@ -68,7 +68,7 @@ class RedisOutput(keyName: String,
           .flatMap(_.toSeq).mkString(IdSeparator) + IdSeparator + timeDimension + IdSeparator + metricOp._1.time
 
         metricOp._2.foreach(aggregation => {
-          val currentOperation = operationTypes.get.value.get(aggregation._1).get._1
+          val currentOperation = operationTypes.get.get(aggregation._1).get._1
           hset(hashKey, aggregation._1, aggregation._2.get)
         })
       })

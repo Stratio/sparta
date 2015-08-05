@@ -35,8 +35,8 @@ import com.stratio.sparkta.sdk._
 class MongoDbOutput(keyName: String,
                     properties: Map[String, JSerializable],
                     @transient sparkContext: SparkContext,
-                    operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                    bcSchema: Option[Broadcast[Seq[TableSchema]]])
+                    operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
+                    bcSchema: Option[Seq[TableSchema]])
   extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with MongoDbDAO {
 
   RegisterJodaTimeConversionHelpers()
@@ -62,7 +62,7 @@ class MongoDbOutput(keyName: String,
   override val pkTextIndexesCreated: Boolean =
     if (bcSchema.isDefined) {
       val schemasFiltered =
-        bcSchema.get.value.filter(schemaFilter => schemaFilter.outputName == keyName).map(getTableSchemaFixedId(_))
+        bcSchema.get.filter(schemaFilter => schemaFilter.outputName == keyName).map(getTableSchemaFixedId(_))
       filterSchemaByFixedAndTimeDimensions(schemasFiltered)
         .map(tableSchema => createPkTextIndex(tableSchema.tableName, tableSchema.timeDimension))
         .forall(result => result._1 && result._2)

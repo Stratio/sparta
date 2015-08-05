@@ -39,8 +39,8 @@ import com.stratio.sparkta.sdk._
 class ParquetOutput(keyName: String,
                     properties: Map[String, JSerializable],
                     @transient sparkContext: SparkContext,
-                    operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                    bcSchema: Option[Broadcast[Seq[TableSchema]]])
+                    operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
+                    bcSchema: Option[Seq[TableSchema]])
   extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with Logging {
 
   override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
