@@ -19,8 +19,6 @@ package com.stratio.sparkta.serving.api.actor
 import akka.actor.ActorContext
 import akka.event.slf4j.SLF4JLogging
 import com.gettyimages.spray.swagger.SwaggerHttpService
-import com.wordnik.swagger.model.ApiInfo
-import scala.reflect.runtime.universe._
 import com.stratio.sparkta.driver.models.{ErrorModel, StreamingContextStatusEnum}
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.api.constants.HttpConstant
@@ -32,7 +30,9 @@ import org.json4s.native.Serialization._
 import spray.http.StatusCodes
 import spray.routing._
 import spray.util.LoggingContext
-import com.gettyimages.spray.swagger.SwaggerHttpService
+import SwaggerActor._
+
+import scala.reflect.runtime.universe._
 
 class SwaggerActor extends HttpServiceActor with SLF4JLogging {
 
@@ -51,10 +51,11 @@ class SwaggerActor extends HttpServiceActor with SLF4JLogging {
         }
     }
 
-  def receive: Receive = runRoute(handleExceptions(exceptionHandler)(
-      swaggerService ~
-      swaggerUIroutes
-  ))
+  def getRoutes: Route = swaggerService ~ swaggerUIroutes
+
+  def receive: Receive = {
+    case GetRoutes => new ResponseGetRoutes(getRoutes)
+  }
 
   def swaggerUIroutes: Route =
     get {
@@ -91,4 +92,9 @@ class SwaggerActor extends HttpServiceActor with SLF4JLogging {
       "http://www.apache.org/licenses/LICENSE-2.0"
     ))
   }.routes
+}
+
+object SwaggerActor {
+  case object GetRoutes
+  case class ResponseGetRoutes(routes : Route)
 }

@@ -16,13 +16,15 @@
 
 package com.stratio.sparkta.serving.api.actor
 
-import akka.actor._
+import akka.actor.{ActorContext, _}
 import akka.event.slf4j.SLF4JLogging
+import com.gettyimages.spray.swagger.SwaggerHttpService
 import com.stratio.sparkta.driver.models.{ErrorModel, StreamingContextStatusEnum}
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.api.constants.AkkaConstant
+import com.stratio.sparkta.serving.api.constants.{AkkaConstant, HttpConstant}
 import com.stratio.sparkta.serving.api.service.http._
+import com.wordnik.swagger.model.ApiInfo
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
@@ -30,6 +32,7 @@ import org.json4s.native.Serialization._
 import spray.http.StatusCodes
 import spray.routing._
 import spray.util.LoggingContext
+import scala.reflect.runtime.universe._
 
 class ControllerActor(streamingContextService: StreamingContextService,
                       curatorFramework: CuratorFramework,
@@ -50,7 +53,7 @@ class ControllerActor(streamingContextService: StreamingContextService,
         }
     }
 
-  def receive: Receive = runRoute(handleExceptions(exceptionHandler)(serviceRoutes))
+  def receive: Receive = runRoute(handleExceptions(exceptionHandler)(serviceRoutes ~ swaggerService ~ swaggerUIroutes))
 
   val serviceRoutes: Route =
     new JobServerHttpService {
@@ -93,4 +96,40 @@ class ControllerActor(streamingContextService: StreamingContextService,
 
         override implicit def actorRefFactory: ActorRefFactory = context
       }.routes
+
+  def swaggerUIroutes: Route =
+    get {
+      pathPrefix(HttpConstant.SwaggerPath) {
+        pathEndOrSingleSlash {
+          getFromResource("swagger-ui/index.html")
+        }
+      } ~ getFromResourceDirectory("swagger-ui")
+    }
+
+  val swaggerService = new SwaggerHttpService {
+    override def apiTypes: Seq[Type] = Seq(
+      typeOf[JobServerHttpService],
+      typeOf[FragmentHttpService],
+      typeOf[TemplateHttpService],
+      typeOf[PolicyHttpService],
+      typeOf[PolicyContextHttpService])
+
+    override def apiVersion: String = "1.0"
+
+    override def baseUrl: String = "/"
+
+    // let swagger-ui determine the host and port
+    override def docsPath: String = "api-docs"
+
+    override def actorRefFactory: ActorContext = context
+
+    override def apiInfo: Option[ApiInfo] = Some(new ApiInfo(
+      "SpaRkTA",
+      "A real time aggregation engine full spark based.",
+      "TOC Url",
+      "Sparkta@stratio.com",
+      "Apache V2",
+      "http://www.apache.org/licenses/LICENSE-2.0"
+    ))
+  }.routes
 }
