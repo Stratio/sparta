@@ -33,8 +33,8 @@ trait TemplateHttpService extends BaseHttpService {
 
   override def routes: Route = findByType ~ findByTypeAndName
 
-  @ApiOperation(value = "Find all templates depending ot its type.",
-    notes             = "Find all templates depending ot its type.",
+  @ApiOperation(value = "Find all templates depending ot its type. (input|output)",
+    notes             = "Find all templates depending ot its type. (input|output)",
     httpMethod        = "GET",
     response          = classOf[TemplateModel],
     responseContainer = "List")
@@ -62,7 +62,7 @@ trait TemplateHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value = "Find a template depending ot its type and name.",
+  @ApiOperation(value = "Find a template depending ot its type and name. (input|output)",
     notes = "Returns a template.",
     httpMethod = "GET",
     response = classOf[TemplateModel])

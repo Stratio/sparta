@@ -5,7 +5,7 @@
     "long": "Reads events from a socket."
   },
   "icon": {
-    "url": "assets/images/datasources/logo-socket.png"
+    "url": "logo_socket.png"
   },
 
   "properties": [

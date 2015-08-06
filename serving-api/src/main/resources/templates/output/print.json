@@ -5,6 +5,6 @@
     "long": "Print's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema."
   },
   "icon": {
-    "url": "assets/images/datasources/logo-print.png"
+    "url": "logo_print.png"
   }
 }

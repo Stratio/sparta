@@ -23,7 +23,11 @@ package com.stratio.sparkta.driver.models
  * @param element with all config parameters of the fragment.
  * @author anistal
  */
-case class FragmentElementModel(fragmentType: String, name: String, element: PolicyElementModel)
+case class FragmentElementModel(fragmentType: String,
+                                name: String,
+                                description: String,
+                                shortDescription: String,
+                                element:PolicyElementModel)
 
 
 object FragmentType extends Enumeration {
