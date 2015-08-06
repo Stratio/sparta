@@ -45,10 +45,9 @@ import com.stratio.sparkta.sdk._
  */
 class ElasticSearchOutput(keyName: String,
                           properties: Map[String, JSerializable],
-                          @transient sparkContext: SparkContext,
-                          operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                          bcSchema: Option[Broadcast[Seq[TableSchema]]])
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with ElasticSearchDAO {
+                          operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
+                          bcSchema: Option[Seq[TableSchema]])
+  extends Output(keyName, properties, operationTypes, bcSchema) with ElasticSearchDAO {
 
   override val dateType = getDateTimeType(properties.getString("dateType", None))
 
@@ -72,7 +71,7 @@ class ElasticSearchOutput(keyName: String,
   override def setup: Unit = createIndices
 
   private def createIndices = {
-    bcSchema.get.value.filter(tschema => (tschema.outputName == keyName)).foreach(tschemaFiltered => {
+    bcSchema.get.filter(tschema => (tschema.outputName == keyName)).foreach(tschemaFiltered => {
       val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
       createIndexAccordingToSchema(tableSchemaTime.tableName, tableSchemaTime.schema)
     })

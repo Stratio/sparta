@@ -34,10 +34,9 @@ import com.stratio.sparkta.sdk._
 
 class CassandraOutput(keyName: String,
                       properties: Map[String, JSerializable],
-                      @transient sparkContext: SparkContext,
-                      operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                      bcSchema: Option[Broadcast[Seq[TableSchema]]])
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema)
+                      operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
+                      bcSchema: Option[Seq[TableSchema]])
+  extends Output(keyName, properties, operationTypes, bcSchema)
   with CassandraDAO {
 
   override val keyspace = properties.getString("keyspace", "sparkta")
@@ -62,31 +61,32 @@ class CassandraOutput(keyName: String,
 
   override val textIndexName = properties.getString("textIndexName", "lucene")
 
-  override val connector = Some(CassandraConnector(sparkContext.getConf))
-
   override val supportedWriteOps: Seq[WriteOp.Value] = Seq(WriteOp.FullText, WriteOp.Inc, WriteOp.IncBig,
     WriteOp.Set, WriteOp.Range, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.Median,
     WriteOp.Variance, WriteOp.Stddev)
 
-  val keyspaceCreated = createKeypace
-
-  val schemaFiltered = bcSchema.get.value.filter(tschema => (tschema.outputName == keyName))
-    .map(tschemaFiltered => getTableSchemaFixedId(tschemaFiltered))
-
-  val tablesCreated = if (keyspaceCreated) {
-    bcSchema.exists(bc => createTables(schemaFiltered, isAutoCalculateId))
-  } else false
-
   override def setup: Unit = {
+
+    val connector = CassandraConnector(sqlContext.sparkContext.getConf)
+
+    val keyspaceCreated = createKeypace(connector)
+
+    val schemaFiltered = bcSchema.get.filter(tschema => (tschema.outputName == keyName))
+      .map(tschemaFiltered => getTableSchemaFixedId(tschemaFiltered))
+
+    val tablesCreated = if (keyspaceCreated) {
+      bcSchema.exists(bc => createTables(connector, schemaFiltered, isAutoCalculateId))
+    } else false
+
     if (keyspaceCreated && tablesCreated) {
       if (indexFields.isDefined && !indexFields.get.isEmpty) {
-        bcSchema.exists(bc => createIndexes(schemaFiltered, isAutoCalculateId))
+        bcSchema.exists(bc => createIndexes(connector, schemaFiltered, isAutoCalculateId))
       }
       if (textIndexFields.isDefined &&
         !textIndexFields.isEmpty &&
         !fixedAggregation.isEmpty &&
         fixedAgg.get == textIndexName) {
-        bcSchema.exists(bc => createTextIndexes(schemaFiltered))
+        bcSchema.exists(bc => createTextIndexes(connector, schemaFiltered))
       }
     }
   }
@@ -97,7 +97,7 @@ class CassandraOutput(keyName: String,
   * https://github.com/datastax/spark-cassandra-connector/pull/648
   */
   override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
-    if (bcSchema.isDefined && keyspaceCreated && tablesCreated) persistDataFrame(stream)
+    persistDataFrame(stream)
   }
 
   override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {

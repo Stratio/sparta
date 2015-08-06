@@ -30,16 +30,14 @@ import com.stratio.sparkta.sdk._
  * This output prints all AggregateOperations or DataFrames information on screen. Very useful to debug.
  * @param keyName
  * @param properties
- * @param sparkContext
  * @param operationTypes
  * @param bcSchema
  */
 class PrintOutput(keyName: String,
                   properties: Map[String, JSerializable],
-                  @transient sparkContext: SparkContext,
-                  operationTypes: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-                  bcSchema: Option[Broadcast[Seq[TableSchema]]])
-  extends Output(keyName, properties, sparkContext, operationTypes, bcSchema) with Logging {
+                  operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
+                  bcSchema: Option[Seq[TableSchema]])
+  extends Output(keyName, properties, operationTypes, bcSchema) with Logging {
 
   override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
     if (log.isDebugEnabled) {

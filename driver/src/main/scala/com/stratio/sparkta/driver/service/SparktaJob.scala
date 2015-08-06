@@ -24,7 +24,6 @@ import scala.collection.JavaConversions._
 import scala.util._
 
 import org.apache.spark.SparkContext
-import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
@@ -51,9 +50,9 @@ object SparktaJob extends SLF4JLogging {
       SparktaJob.parsers(apConfig).sortWith((parser1, parser2) => parser1.getOrder < parser2.getOrder)
     val cubes = SparktaJob.cubes(apConfig)
 
-    val bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]] = {
+    val operatorsKeyOperation: Option[Map[String, (WriteOp, TypeOp)]] = {
       val opKeyOp = SchemaFactory.operatorsKeyOperation(cubes.flatMap(cube => cube.operators))
-      if (opKeyOp.size > 0) Some(sc.broadcast(opKeyOp)) else None
+      if (opKeyOp.size > 0) Some(opKeyOp) else None
     }
 
     val outputsSchemaConfig: Seq[(String, Map[String, String])] = apConfig.outputs.map(o =>
@@ -65,12 +64,12 @@ object SparktaJob extends SLF4JLogging {
             .getOrElse("")
       )))
 
-    val bcCubeOperatorSchema: Option[Broadcast[Seq[TableSchema]]] = {
+    val bcCubeOperatorSchema: Option[Seq[TableSchema]] = {
       val cubeOpSchema = SchemaFactory.cubesOperatorsSchemas(cubes, outputsSchemaConfig)
-      if (cubeOpSchema.size > 0) Some(sc.broadcast(cubeOpSchema)) else None
+      if (cubeOpSchema.size > 0) Some(cubeOpSchema) else None
     }
 
-    val outputs = SparktaJob.outputs(apConfig, sc, bcOperatorsKeyOperation, bcCubeOperatorSchema)
+    val outputs = SparktaJob.outputs(apConfig, sc, operatorsKeyOperation, bcCubeOperatorSchema)
     val inputEvent = input._2
     SparktaJob.saveRawData(apConfig, inputEvent)
     val parsed = SparktaJob.applyParsers(inputEvent, parsers)
@@ -152,16 +151,15 @@ object SparktaJob extends SLF4JLogging {
 
   def outputs(apConfig: AggregationPoliciesModel,
               sparkContext: SparkContext,
-              bcOperatorsKeyOperation: Option[Broadcast[Map[String, (WriteOp, TypeOp)]]],
-              bcCubeOperatorSchema: Option[Broadcast[Seq[TableSchema]]]): Seq[(String, Output)] =
+              bcOperatorsKeyOperation: Option[Map[String, (WriteOp, TypeOp)]],
+              bcCubeOperatorSchema: Option[Seq[TableSchema]]): Seq[(String, Output)] =
     apConfig.outputs.map(o => (o.name, tryToInstantiate[Output](o.`type` + Output.ClassSuffix, (c) =>
       c.getDeclaredConstructor(
         classOf[String],
         classOf[Map[String, Serializable]],
-        classOf[SparkContext],
-        classOf[Option[Broadcast[Map[String, (WriteOp, TypeOp)]]]],
-        classOf[Option[Broadcast[Seq[TableSchema]]]])
-        .newInstance(o.name, o.configuration, sparkContext, bcOperatorsKeyOperation, bcCubeOperatorSchema)
+        classOf[Option[Map[String, (WriteOp, TypeOp)]]],
+        classOf[Option[Seq[TableSchema]]])
+        .newInstance(o.name, o.configuration, bcOperatorsKeyOperation, bcCubeOperatorSchema)
         .asInstanceOf[Output])))
 
   def cubes(apConfig: AggregationPoliciesModel): Seq[Cube] =
