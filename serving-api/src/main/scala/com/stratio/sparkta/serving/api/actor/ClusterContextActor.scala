@@ -119,7 +119,7 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
         jobServerRef ! new JsUploadPolicy("driver-plugin.jar",
           "com.stratio.sparkta.driver.service.SparktaJob",
           policyStr,
-          Some(s"${policy.name}-${policy.input.name}"))
+          Some(s"${policy.name}-${policy.input.get.name}"))
     }
   }
 
