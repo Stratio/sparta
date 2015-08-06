@@ -80,7 +80,7 @@ object PolicyHelper {
   //////////////////////////////////////////// PRIVATE METHODS /////////////////////////////////////////////////////////
 
   /**
-   * Depending of where is the input it tries to get a input. If not an exceptions is trowed.
+   * Depending of where is the input it tries to get a input. If not an exceptions is thrown.
    * @param mapInputsOutputs with inputs/outputs extracted from the fragments.
    * @param apConfig with the current configuration.
    * @return A policyElementModel with the input.
