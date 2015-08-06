@@ -49,11 +49,15 @@ object SparkContextFactory extends SLF4JLogging {
   def sparkStreamingInstance(batchDuration: Duration, checkpointDir: String): Option[StreamingContext] = {
     synchronized {
       ssc match {
-        case Some(_) => ssc
-        case None => ssc = Some(new StreamingContext(sc.get, batchDuration))
+        case None => ssc = Some(getNewStreamingContext(batchDuration, checkpointDir))
       }
-      if (!checkpointDir.isEmpty) ssc.get.checkpoint(checkpointDir)
     }
+    ssc
+  }
+
+  private def getNewStreamingContext(batchDuration: Duration, checkpointDir: String): StreamingContext = {
+    val ssc = new StreamingContext(sc.get, batchDuration)
+    ssc.checkpoint(checkpointDir)
     ssc
   }
 
@@ -80,6 +84,7 @@ object SparkContextFactory extends SLF4JLogging {
 
     conf.setIfMissing("spark.streaming.concurrentJobs", "20")
     conf.setIfMissing("spark.sql.parquet.binaryAsString", "true")
+    conf.set("spark.streaming.receiver.writeAheadLog.enable", "true")
 
     conf
   }
