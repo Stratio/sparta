@@ -1,0 +1,43 @@
+<ul class="submenu-list nodeList" ng-if="nodes.length < 16">
+	<li ui-sref-active="active">
+		<a href>
+			{{'List of nodes' | translate}}
+		</a>
+	</li>
+	<li ng-repeat="node in nodes | orderBy: 'fqdn'" ui-sref-active="active">
+		<a class="node" href ui-sref="main.dashboard.cluster.host({ hostFqdn : node.fqdn})">
+			{{node.fqdn}}
+		</a>
+	</li>
+</ul>
+
+<div ng-if="nodes.length >= 16" ng-class="{'opened-panel': vm.openedPanel}">
+	<ul class="submenu-list nodePanel">
+		<li ui-sref-active="active" class="has-opener">
+			<a href>
+				{{'List of nodes' | translate}}
+				({{nodes.length}} {{'nodes' | translate}})
+			</a>
+			<span class="open-panel icon-menu" ng-click="vm.togglePanel()"></span>
+		</li>
+	</ul>
+	<ul class="submenu-list">
+		<li>
+			<st-quick-search ng-model="nodeFilter" placeholder="{{'Node search' | translate}}" ng-click="vm.preventToggle()" ng-keyup="vm.togglePanel(true)"></st-quick-search>
+		</li>
+	</ul>
+	<div class="node-panel-window" ng-click="vm.preventToggle()">
+		<div class="nodes-title">{{'List of nodes' | translate}} ({{filteredNodes.length}} {{'nodes' | translate}})</div>
+		<div class="all-nodes-cont">
+			<div class="all-nodes"><!--
+			 --><div ng-animate="'animate'" ng-repeat="node in filteredNodes = (nodes | filter: {fqdn: nodeFilter} | orderBy: 'fqdn')" ui-sref-active="active">
+					<a class="node" href ui-sref="main.dashboard.cluster.host({ hostFqdn : node.fqdn})">
+						{{node.fqdn}}
+					</a>
+				</div><!--
+		 --></div>
+		</div>
+	</div>
+</div>
+
+<div class="submenu-overlay"></div>
