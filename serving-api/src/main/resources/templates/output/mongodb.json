@@ -5,7 +5,7 @@
     "long": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling."
   },
   "icon": {
-    "url": "assets/images/datasources/logo-mongodb.png"
+    "url": "logo_mongodb.png"
   },
 
   "properties": [

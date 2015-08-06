@@ -5,7 +5,7 @@
     "long": "Reads events from Twitter stream."
   },
   "icon": {
-    "url": "assets/images/datasources/logo-twitter.png"
+    "url": "logo_twitter.png"
   },
 
   "properties": [

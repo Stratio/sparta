@@ -5,7 +5,7 @@
     "long": "Reads events from RabbitMQ"
   },
   "icon": {
-    "url": "assets/images/datasources/logo-flume.png"
+    "url": "logo_rabbitmq.png"
   },
 
   "properties": [

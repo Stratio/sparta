@@ -1,6 +1,8 @@
 {
   "fragmentType": "input",
   "name": "twitter",
+  "description": "twitter input",
+  "shortDescription": "twitter input",
   "element": {
     "name": "in-twitter",
     "type": "Twitter",
