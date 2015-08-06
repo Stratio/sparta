@@ -46,12 +46,11 @@ object PolicyHelper {
         case FragmentType.input => FragmentType.input -> fragment.element
         case FragmentType.output => FragmentType.output -> fragment.element
       })
-      ++ Map(FragmentType.input -> apConfig.input)
       ++ apConfig.outputs.map(output => FragmentType.output -> output)
       ).groupBy(_._1).mapValues(_.map(_._2))
 
     apConfig.copy(
-      input = mapInputsOutputs.getOrElse(FragmentType.input, Seq()).head,
+      input = Some(getCurrentInput(mapInputsOutputs, apConfig)),
       outputs = mapInputsOutputs.getOrElse(FragmentType.output, Seq()))
   }
 
@@ -62,16 +61,14 @@ object PolicyHelper {
    * @return a fragment with all fields filled.
    */
   def fillFragments(apConfig: AggregationPoliciesModel,
-                            actor: ActorRef,
-                            currentTimeout: Timeout): AggregationPoliciesModel = {
-
+                    actor: ActorRef,
+                    currentTimeout: Timeout): AggregationPoliciesModel = {
     implicit val timeout = currentTimeout
 
     val currentFragments: Seq[FragmentElementModel] = apConfig.fragments.map(fragment => {
       val future = actor ? new FragmentSupervisorActor_findByTypeAndName(fragment.fragmentType, fragment.name)
       Await.result(future, timeout.duration) match {
         case FragmentSupervisorActor_response_fragment(Failure(exception)) => {
-          exception.printStackTrace()
           throw exception
         }
         case FragmentSupervisorActor_response_fragment(Success(fragment)) => fragment
@@ -79,4 +76,28 @@ object PolicyHelper {
     })
     apConfig.copy(fragments = currentFragments)
   }
+
+  //////////////////////////////////////////// PRIVATE METHODS /////////////////////////////////////////////////////////
+
+  /**
+   * Depending of where is the input it tries to get a input. If not an exceptions is thrown.
+   * @param mapInputsOutputs with inputs/outputs extracted from the fragments.
+   * @param apConfig with the current configuration.
+   * @return A policyElementModel with the input.
+   */
+  private def getCurrentInput(mapInputsOutputs: Map[`type`, Seq[PolicyElementModel]],
+                              apConfig: AggregationPoliciesModel): PolicyElementModel = {
+    val currentInputs = mapInputsOutputs.filter(x => if(x._1 == FragmentType.input) true else false)
+
+    if(currentInputs.size > 1 || (currentInputs.size == 1 && apConfig.input.isDefined)) {
+      throw new IllegalStateException("Only one input is allowed in the policy.")
+    }
+
+    if(currentInputs.size == 0 && apConfig.input.isDefined == false) {
+      throw new IllegalStateException("It is mandatory to define at least one input in the policy.")
+    }
+
+    if(apConfig.input.isDefined) apConfig.input.get else mapInputsOutputs.get(FragmentType.input).get.head
+  }
+
 }

@@ -33,7 +33,7 @@ case class AggregationPoliciesModel(name: String = "default",
                                   rawData: RawDataModel,
                                   transformations: Seq[TransformationsModel],
                                   cubes: Seq[CubeModel],
-                                  input: PolicyElementModel,
+                                  input: Option[PolicyElementModel] = None,
                                   outputs: Seq[PolicyElementModel],
                                   fragments: Seq[FragmentElementModel])
 
