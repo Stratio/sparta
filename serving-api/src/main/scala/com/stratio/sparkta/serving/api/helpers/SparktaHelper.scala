@@ -136,11 +136,9 @@ object SparktaHelper extends SLF4JLogging {
     else AkkaConstant.DefaultControllerActorInstances
     val streamingActorInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
     else AkkaConstant.DefaultControllerActorInstances
-
     val jobServerActor = if (jobServerConfigOp.isDefined)
       Some(system.actorOf(Props(new JobServerActor(jobServerConfig.getString("host"),
-        jobServerConfig.getInt("port"))), AkkaConstant.JobServerActor))
-    else None
+        jobServerConfig.getInt("port"))), AkkaConstant.JobServerActor)) else None
     val supervisorContextActor = system.actorOf(
       Props(new SupervisorContextActor), AkkaConstant.SupervisorContextActor)
     implicit val actors = Map(
@@ -156,13 +154,15 @@ object SparktaHelper extends SLF4JLogging {
     ) ++ {
       if (jobServerActor.isDefined) Map(AkkaConstant.JobServerActor -> jobServerActor.get) else Map()
     }
-    val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)
-      .props(Props(new ControllerActor(streamingContextService, curatorFramework, actors))),
-      AkkaConstant.ControllerActor)
-    val swaggerActor = system.actorOf(Props(new SwaggerActor), AkkaConstant.SwaggerActor)
-
+    val controllerActor = system.actorOf(
+      Props(new ControllerActor(streamingContextService, curatorFramework, actors)), AkkaConstant.ControllerActor)
+//    TODO: change this when swagger will be fixed.
+//     val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)
+//      .props(Props(new ControllerActor(streamingContextService, curatorFramework, actors))),
+//      AkkaConstant.ControllerActor)
+//    val swaggerActor = system.actorOf(Props(new SwaggerActor), AkkaConstant.SwaggerActor)
     IO(Http) ! Http.Bind(controllerActor, interface = configApi.getString("host"), port = configApi.getInt("port"))
-    IO(Http) ! Http.Bind(swaggerActor, interface = swaggerConfig.getString("host"), port = swaggerConfig.getInt("port"))
+//  IO(Http) ! Http.Bind(swaggerActor, interface = swaggerConfig.getString("host"), port = swaggerConfig.getInt("port"))
     log.info("> Actors System UP!")
   }
 
