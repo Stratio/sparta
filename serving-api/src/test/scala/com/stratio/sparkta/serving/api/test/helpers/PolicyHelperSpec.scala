@@ -45,7 +45,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
         new RawDataModel(),
         transformations = Seq(),
         cubes = Seq(),
-        input = PolicyElementModel("input1", "input", Map()),
+        input = None,
         outputs = Seq(
           PolicyElementModel("output1", "output", Map())),
         fragments = Seq(
@@ -68,7 +68,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
 
       Then("outputs must have the existing outputs and the parsed input fragment and the first input")
 
-      result.input should equal(PolicyElementModel("inputF", "input", Map()))
+      result.input should equal(Some(PolicyElementModel("inputF", "input", Map())))
 
       result.outputs.toSet should equal(Seq(
         PolicyElementModel("output1", "output", Map()),
@@ -76,4 +76,41 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
       )
     }
   }
+
+  scenario("A policy that contains one input an a fragments with one input too must throw an exception because only " +
+    "one input is allowed") {
+
+    Given("a policy with an input, an output and a fragment with an input")
+    val checkpointDir = "checkpoint"
+
+    val ap = new AggregationPoliciesModel(
+      "policy-test",
+      sparkStreamingWindow = 2000,
+      checkpointDir,
+      new RawDataModel(),
+      transformations = Seq(),
+      cubes = Seq(),
+      input = Some(PolicyElementModel("input1", "input", Map())),
+      outputs = Seq(
+        PolicyElementModel("output1", "output", Map())),
+      fragments = Seq(
+        FragmentElementModel(
+          name = "fragment1",
+          fragmentType = "input",
+          element = PolicyElementModel("inputF", "input", Map())),
+        FragmentElementModel(
+          name = "fragment1",
+          fragmentType = "output",
+          element = PolicyElementModel("outputF", "output", Map())))
+    )
+
+    When("the helper tries to parse the policy it throws an exception")
+    val thrown = intercept[IllegalStateException] {
+      PolicyHelper.parseFragments(ap)
+    }
+
+    Then("the exception must have the message")
+    assert(thrown.getMessage === "Only one input is allowed in the policy.")
+  }
+
 }

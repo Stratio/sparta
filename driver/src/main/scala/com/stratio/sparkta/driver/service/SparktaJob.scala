@@ -124,8 +124,8 @@ object SparktaJob extends SLF4JLogging {
     }).toMap
 
   def input(apConfig: AggregationPoliciesModel, ssc: StreamingContext): (String, DStream[Event]) =
-      (apConfig.input.name, tryToInstantiate[Input](apConfig.input.`type` + Input.ClassSuffix, (c) =>
-        instantiateParameterizable[Input](c, apConfig.input.configuration)).setUp(ssc))
+      (apConfig.input.get.name, tryToInstantiate[Input](apConfig.input.get.`type` + Input.ClassSuffix, (c) =>
+        instantiateParameterizable[Input](c, apConfig.input.get.configuration)).setUp(ssc))
 
   def parsers(apConfig: AggregationPoliciesModel): Seq[Parser] =
     apConfig.transformations.map(parser =>
@@ -228,7 +228,7 @@ object SparktaJob extends SLF4JLogging {
     }
 
   def jarsFromPolicy(apConfig: AggregationPoliciesModel): Seq[String] = {
-    val input = apConfig.input.jarFile match {
+    val input = apConfig.input.get.jarFile match {
       case Some(file) => Seq(file)
       case None => Seq()
     }
