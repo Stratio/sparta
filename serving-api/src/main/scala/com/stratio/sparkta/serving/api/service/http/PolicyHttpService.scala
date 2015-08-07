@@ -137,8 +137,8 @@ trait PolicyHttpService extends BaseHttpService {
     path(HttpConstant.PolicyPath) {
       post {
         entity(as[AggregationPoliciesModel]) { policy =>
-          val parsedP = PolicyHelper.fillFragments(
-            PolicyHelper.parseFragments(policy),actors.get(AkkaConstant.FragmentActor).get, timeout)
+          val parsedP = PolicyHelper.parseFragments(
+            PolicyHelper.fillFragments(policy,actors.get(AkkaConstant.FragmentActor).get, timeout))
           val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
           validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2)
           complete {
@@ -228,9 +228,8 @@ trait PolicyHttpService extends BaseHttpService {
         Await.result(future, timeout.duration) match {
           case PolicySupervisorActor_response_policy(Failure(exception)) => throw exception
           case PolicySupervisorActor_response_policy(Success(policy)) => {
-            val parsedP =
-              PolicyHelper.parseFragments(PolicyHelper.fillFragments(
-                policy,actors.get(AkkaConstant.FragmentActor).get, timeout))
+            val parsedP = PolicyHelper.parseFragments(
+              PolicyHelper.fillFragments(policy,actors.get(AkkaConstant.FragmentActor).get, timeout))
             val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
             validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
               actors.get("streamingActor").get ! new CreateContext(parsedP)
