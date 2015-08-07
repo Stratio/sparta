@@ -3,6 +3,7 @@
   "name": "twitter",
   "description": "twitter input",
   "shortDescription": "twitter input",
+  "icon": "icon.png",
   "element": {
     "name": "in-twitter",
     "type": "Twitter",
