@@ -22,6 +22,7 @@ import com.stratio.sparkta.driver.models.{FragmentElementModel, StreamingContext
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.api.constants.AppConstant
 import org.apache.curator.framework.CuratorFramework
+import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.Serialization._
@@ -67,7 +68,9 @@ class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4
       JavaConversions.asScalaBuffer(children).toList.map(element =>
         read[FragmentElementModel](new String(curatorFramework.getData.forPath(
           s"${FragmentActor.generateFragmentPath(fragmentType)}/$element")))).toSeq
-    }))
+    }).recover {
+      case e: NoNodeException => Seq()
+    })
 
   def doDetail(fragmentType: String, name: String): Unit =
     sender ! new FragmentSupervisorActor_response_fragment(Try({
@@ -75,7 +78,7 @@ class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4
       read[FragmentElementModel](new String(curatorFramework.getData.forPath(
         s"${FragmentActor.generateFragmentPath(fragmentType)}/$name")))
     }))
-  
+
   def doCreate(fragment: FragmentElementModel): Unit =
     sender ! FragmentSupervisorActor_response(Try({
       curatorFramework.create().creatingParentsIfNeeded().forPath(

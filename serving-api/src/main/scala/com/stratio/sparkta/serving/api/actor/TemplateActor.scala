@@ -22,6 +22,7 @@ import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.driver.models.{StreamingContextStatusEnum, TemplateModel}
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.Serialization._
@@ -55,15 +56,18 @@ class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging {
 
   def doFindByType(t: String): Unit =
     sender ! TemplateSupervisorActor_response_templates(Try({
-        new File(this.getClass.getClassLoader.getResource(s"templates/${t}").toURI)
+      new File(this.getClass.getClassLoader.getResource(s"templates/${t}").toURI)
         .listFiles
         .filter(file => file.getName.endsWith(".json"))
         .map(file => {
-          log.info(s"> Retrieving template: ${file.getName}")
-          read[TemplateModel](new InputStreamReader(
-            this.getClass.getClassLoader.getResourceAsStream(s"templates/${t}/${file.getName}")))
-        })
-    }))
+        log.info(s"> Retrieving template: ${file.getName}")
+        read[TemplateModel](new InputStreamReader(
+          this.getClass.getClassLoader.getResourceAsStream(s"templates/${t}/${file.getName}")))
+      }).toSeq
+    }).recover {
+      case e: NoNodeException => Seq()
+    })
+
 
   def doFindByTypeAndName(t: String, name: String): Unit = {
     sender ! TemplateSupervisorActor_response_template(Try({
