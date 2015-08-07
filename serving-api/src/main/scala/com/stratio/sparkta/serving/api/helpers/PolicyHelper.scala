@@ -89,15 +89,16 @@ object PolicyHelper {
                               apConfig: AggregationPoliciesModel): PolicyElementModel = {
     val currentInputs = mapInputsOutputs.filter(x => if(x._1 == FragmentType.input) true else false)
 
-    if(currentInputs.size > 1 || (currentInputs.size == 1 && apConfig.input.isDefined)) {
+    if((currentInputs.nonEmpty && currentInputs.get(FragmentType.input).get.size > 1)
+      ||(currentInputs.nonEmpty && currentInputs.get(FragmentType.input).get.size == 1 && apConfig.input.isDefined)) {
       throw new IllegalStateException("Only one input is allowed in the policy.")
     }
 
-    if(currentInputs.size == 0 && apConfig.input.isDefined == false) {
+    if(currentInputs.isEmpty && apConfig.input.isDefined == false) {
       throw new IllegalStateException("It is mandatory to define at least one input in the policy.")
     }
 
-    if(apConfig.input.isDefined) apConfig.input.get else mapInputsOutputs.get(FragmentType.input).get.head
+    apConfig.input.getOrElse(mapInputsOutputs.get(FragmentType.input).get.head)
   }
 
 }
