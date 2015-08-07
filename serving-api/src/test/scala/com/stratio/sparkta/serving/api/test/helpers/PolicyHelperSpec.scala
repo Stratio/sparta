@@ -97,10 +97,14 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
         FragmentElementModel(
           name = "fragment1",
           fragmentType = "input",
+          description = "description",
+          shortDescription = "short description",
           element = PolicyElementModel("inputF", "input", Map())),
         FragmentElementModel(
           name = "fragment1",
           fragmentType = "output",
+          description = "description",
+          shortDescription = "short description",
           element = PolicyElementModel("outputF", "output", Map())))
     )
 
