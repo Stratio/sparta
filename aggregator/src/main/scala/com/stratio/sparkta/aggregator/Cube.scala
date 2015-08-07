@@ -82,19 +82,33 @@ case class Cube(name: String,
   protected def updateState(dimensionsValues: DStream[(DimensionValuesTime, Map[String, JSerializable])]):
   DStream[(DimensionValuesTime, Seq[(String, Option[Any])])] = {
     val newUpdateFunc = (iterator: Iterator[(DimensionValuesTime,
-      Seq[Map[String, JSerializable]],
-      Option[Seq[(String, Option[Any])]])]) => {
+    Seq[Map[String, JSerializable]],
+    Option[Seq[(String, Option[Any])]])]) => {
+
+      val checkedIterator = getCheckedIterator(iterator)
+      checkedIterator.flatMap { case (dimensionsKey, values, state) =>
+        updateFunction(values, state).map(result => (dimensionsKey, result))
+      }
+    }
+    dimensionsValues.updateStateByKey(
+    newUpdateFunc, new HashPartitioner(dimensionsValues.context.sparkContext.defaultParallelism), true)
+  }
+
+  val isTimeDimensionInDimensions = dimensions.filter(dimension => dimension.name == checkpointTimeDimension).nonEmpty
+
+  def getCheckedIterator(iterator: Iterator[(DimensionValuesTime,
+    Seq[Map[String, JSerializable]],
+    Option[Seq[(String, Option[Any])]])]): Iterator[(DimensionValuesTime, Seq[Map[String, JSerializable]],
+    Option[Seq[(String, Option[Any])]])] = {
+    if (!isTimeDimensionInDimensions){
       val eventTime = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity) -
         checkpointTimeAvailability
       iterator.filter(dimensionsData => {
         dimensionsData._1.time >= eventTime
       })
-        .flatMap { case (dimensionsKey, values, state) =>
-        updateFunction(values, state).map(result => (dimensionsKey, result))
-      }
+    }else{
+      iterator
     }
-    dimensionsValues.updateStateByKey(
-      newUpdateFunc, new HashPartitioner(dimensionsValues.context.sparkContext.defaultParallelism), true)
   }
 
   protected def updateFunction(values: Seq[Map[String, JSerializable]],
