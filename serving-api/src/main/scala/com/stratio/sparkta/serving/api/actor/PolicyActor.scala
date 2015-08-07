@@ -22,6 +22,7 @@ import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, StreamingCon
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.api.constants.AppConstant
 import org.apache.curator.framework.CuratorFramework
+import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.Serialization._
@@ -50,8 +51,8 @@ case class PolicySupervisorActor_response_policy(policy: Try[AggregationPolicies
  * @author anistal
  */
 class PolicyActor(curatorFramework: CuratorFramework) extends Actor
-  with Json4sJacksonSupport
-  with SLF4JLogging {
+with Json4sJacksonSupport
+with SLF4JLogging {
 
   implicit val json4sJacksonFormats = DefaultFormats +
     new EnumNameSerializer(StreamingContextStatusEnum) +
@@ -72,7 +73,9 @@ class PolicyActor(curatorFramework: CuratorFramework) extends Actor
       JavaConversions.asScalaBuffer(children).toList.map(element =>
         read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
           s"${PolicyActor.PoliciesBasePath}/$element")))).toSeq
-    }))
+    }).recover {
+      case e: NoNodeException => Seq()
+    })
 
   def findByFragment(fragmentType: String, name: String): Unit =
     sender ! PolicySupervisorActor_response_policies(Try({
@@ -80,8 +83,10 @@ class PolicyActor(curatorFramework: CuratorFramework) extends Actor
       JavaConversions.asScalaBuffer(children).toList.map(element =>
         read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
           s"${PolicyActor.PoliciesBasePath}/$element")))).filter(apm =>
-            (apm.fragments.filter(f => f.name == name)).size > 0).toSeq
-    }))
+        (apm.fragments.filter(f => f.name == name)).size > 0).toSeq
+    }).recover {
+      case e: NoNodeException => Seq()
+    })
 
   def find(name: String): Unit =
     sender ! new PolicySupervisorActor_response_policy(Try({
