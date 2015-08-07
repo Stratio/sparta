@@ -84,7 +84,6 @@ object SparkContextFactory extends SLF4JLogging {
 
     conf.setIfMissing("spark.streaming.concurrentJobs", "20")
     conf.setIfMissing("spark.sql.parquet.binaryAsString", "true")
-    conf.set("spark.streaming.receiver.writeAheadLog.enable", "true")
 
     conf
   }
