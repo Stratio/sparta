@@ -19,27 +19,27 @@ angular
     'ui.stratio.grid',
     'ui.router',
     'StratioUI',
-    'ui.bootstrap'
+    'ui.bootstrap',
+    'pascalprecht.translate'
   ])
 
-  /*ROUTER*/
-  /*.config(function ($routeProvider) {
-    $routeProvider
-      .when('/', {
-        templateUrl: 'views/main.html',
-        controller: 'MainCtrl',
-        controllerAs: 'main'
-      })
-      .when('/about', {
-        templateUrl: 'views/about.html',
-        controller: 'AboutCtrl',
-        controllerAs: 'about'
-      })
-      .otherwise({
-        redirectTo: '/'
-      });
-  });*/
+  /*** TRANSLATING ***/
+  .config(['$translateProvider', function($translateProvider) {
+/*
+    var getLanguage = function() {
+      var language = (navigator.language) ? navigator.language : navigator.browserLanguage;
+      return (language.indexOf('es') === 0) ? 'es-ES' : 'en-US';
+    };
+    var language = getLanguage();
+*/
+    var language = 'en-US';
 
+    $translateProvider.useStaticFilesLoader({
+      prefix: '/languages/',
+      suffix: '.json'
+    });
+    $translateProvider.preferredLanguage(language);
+  }])
 
   /*ROUTER*/
   .config(['$stateProvider','$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
