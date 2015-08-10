@@ -50,10 +50,15 @@ object SparkContextFactory extends SLF4JLogging {
     synchronized {
       ssc match {
         case Some(_) => ssc
-        case None => ssc = Some(new StreamingContext(sc.get, batchDuration))
+        case None => ssc = Some(getNewStreamingContext(batchDuration, checkpointDir))
       }
-      if (!checkpointDir.isEmpty) ssc.get.checkpoint(checkpointDir)
     }
+    ssc
+  }
+
+  private def getNewStreamingContext(batchDuration: Duration, checkpointDir: String): StreamingContext = {
+    val ssc = new StreamingContext(sc.get, batchDuration)
+    ssc.checkpoint(checkpointDir)
     ssc
   }
 
