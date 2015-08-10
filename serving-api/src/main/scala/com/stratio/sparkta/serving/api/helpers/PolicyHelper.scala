@@ -95,7 +95,7 @@ object PolicyHelper {
     }
 
     if(currentInputs.isEmpty && apConfig.input.isDefined == false) {
-      throw new IllegalStateException("It is mandatory to define at least one input in the policy.")
+      throw new IllegalStateException("It is mandatory to define one input in the policy.")
     }
 
     apConfig.input.getOrElse(mapInputsOutputs.get(FragmentType.input).get.head)
