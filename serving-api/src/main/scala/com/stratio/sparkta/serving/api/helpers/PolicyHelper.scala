@@ -49,6 +49,10 @@ object PolicyHelper {
       ++ apConfig.outputs.map(output => FragmentType.output -> output)
       ).groupBy(_._1).mapValues(_.map(_._2))
 
+    if(mapInputsOutputs.get(FragmentType.output).isEmpty) {
+      throw new IllegalStateException("It is mandatory to define at least one output in the policy.")
+    }
+
     apConfig.copy(
       input = Some(getCurrentInput(mapInputsOutputs, apConfig)),
       outputs = mapInputsOutputs.getOrElse(FragmentType.output, Seq()))

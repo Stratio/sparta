@@ -30,7 +30,6 @@ case class FragmentElementModel(fragmentType: String,
                                 icon: String,
                                 element:PolicyElementModel)
 
-
 object FragmentType extends Enumeration {
   type `type` = Value
   val input = Value("input")
