@@ -1,0 +1,26 @@
+.st-button{
+	max-width: 180px;
+	text-align: center;
+	height: 40px;
+	line-height: 38px;
+	font-size: 18px;
+	text-transform: uppercase;
+	transition: all 0.26s ease;
+
+	&.transparent{
+		background: none;
+		border: 3px solid #e7e7e7;
+		color: #bebebe;
+		line-height: 34px;
+
+		&:hover{
+			border-color: #d1d1d1;
+			color: #a0a0a0
+		}
+	}
+
+	[class^="icon-"], [class*=" icon-"]{
+		position: relative;
+		top: 1px;
+	}
+}

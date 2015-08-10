@@ -1,0 +1,57 @@
+
+// Colors
+$blue: 		#37b5e4;		$blue-h:	#009dde;
+$red:		#d24234;		$red-h:		#a90e00;
+$yellow:	#ea942f;		$yellow-h:	#cd6f01;
+$green:		#93ae64;		$green-h:	#6b8e1c;
+
+
+
+// Colors on element
+	// Header
+	$header-bg-top: #222b37;
+	$header-bg-main: #1a212b;
+	$header-font-main: #959595;
+	$header-font-selected: #ccc;
+	$header-selected-border: $blue;
+
+	// Primary Sidebar
+	$primary-sidebar-bg: #eff2f3;
+	$primary-sidebar-font-mtitle: #282c31;
+	$primary-sidebar-font-title: #212429;
+	$primary-sidebar-font-list: #474747;
+
+	// Auxiliar sidebar
+	$auxiliar-sidebar-font-mtitle: #8b8b8b;
+	$auxiliar-sidebar-bg-mtitle: #ededed;
+	$auxiliar-sidebar-border-block: #c8c8c8;
+
+
+// Layout
+$base-padding: 30px;
+
+	// Base
+	$layout-base-left: 310px;
+	$layout-base-right: 240px;
+
+	// Header
+	$header-menu-height: 100px;
+	$header-topmenu-height: 40px;
+	$header-show-auxiliar: 37px;
+	$header-compact: 70px;
+
+	// Sidebars
+	$force-hide-auxiliar-sidebar: 1340px;
+	$allow-primary-sidebar-hidden: 1366px - 240px;
+
+	// Before content
+	$primary-sidebar-opener-size: 45px;
+
+
+
+// Media Queries
+	// Auxiliar sidebar hidden
+	$mq-auxiliar-sidebar-hidden: '(max-width: ' $force-hide-auxiliar-sidebar ')';
+
+	// Allow hide primary sidebar
+	$mq-allow-hide-primary-sidebar: '(max-width: ' $allow-primary-sidebar-hidden ')';

@@ -1,5 +1,47 @@
 <div data-ng-controller="NuevoCtrl as nuevo" data-ng-init="nuevo.init()">
-	<h1 class="test">{{nuevo.name}}</h1>
+	<!-- HEADER -->
+	<st-heading title="inputs" subtitle="manage:"></st-heading>
 
-	<p>{{nuevo.test}}</p>
+	<div class="inputs_wrapper">
+		<div class="filters">
+			<div class="element">
+				<label for="type">Type:</label>
+				<select id="type" class="filter_combo" data-ng-model="nuevo.filters.element.type">
+					<option value="">Please select an option</option>
+					<option value="{{inputType.type}}" data-ng-repeat="inputType in nuevo.inputTypes">
+						{{inputType.type}} ({{inputType.count}})
+					</option>
+				</select>
+			</div>
+			<div class="element filter_search_element">
+				<label for="name">Name:</label>
+				<span class="icon-search"></span>
+				<input type="text" id="name" class="filter_search" data-ng-model="nuevo.filters.name">
+			</div>
+		</div>
+
+		<ul br-ba-container="">
+			<!-- <li ng-repeat="dataView in filteredDataViews = (vm.dataViews | logicalOR:['name','dataSource.name','description']:vm.search)" br-ba-item="{index:$index, total:filteredDataViews.length}"> -->
+			<li data-ng-repeat="input in nuevo.inputsData | filter:nuevo.filters:strict" br-ba-item="{index:$index, total:nuevo.inputsData.length}">
+				<div class="title">
+					<span class="name">{{input.name}}</span>
+
+					<span class="icon-search menu_actions" ng-click="$root.stToggleFloatingMenu[$index]()">
+						<st-floating-menu toggle-id="{{$index}}" align="right">
+							<st-menu-element href="" class-icon="icon-location">
+								Log out
+							</st-menu-element>
+							<st-menu-element sref="" class-icon="icon-cog">
+								Settings
+							</st-menu-element>
+						</st-floating-menu>
+					</span>
+
+				</div>
+				<span class="description">{{input.shortDescription}}</span>
+				<img src="images/logo_{{input.element.type}}.png" alt="{{input.element.type}}" class="input_logo">
+				<span class="icon-info1 element_tooltip" tooltip="{{input.description}}"></span>
+			</li>
+	    </ul>
+    </div>
 </div>
