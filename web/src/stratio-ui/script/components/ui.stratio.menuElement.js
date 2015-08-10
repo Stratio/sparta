@@ -4,19 +4,15 @@ angular
 	.module('StratioUI.components.menuElement',[])
 	.directive('stMenuElement', stMenuElement);
 
-stMenuElement.$inject = ['TEMPLATE_URL'];
-function stMenuElement(TEMPLATE_URL){
+stMenuElement.$inject = ['TEMPLATE_URL', 'stPassAllAttributes'];
+function stMenuElement(TEMPLATE_URL, stPassAllAttributes){
 	var directive = {
 		restrict: 'AE',
-		scope: {
-			'href': '@',
-			'sref': '@',
-			'classIcon': '@',
-			'forceBind': '@'
-		},
+		scope: true,
 		templateUrl: TEMPLATE_URL('components', 'menuElement'),
 		transclude: true,
-		link: link
+		link: link,
+		link: stPassAllAttributes
 	};
 
 	return directive;

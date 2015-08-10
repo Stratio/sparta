@@ -17,6 +17,7 @@ function stPrimarySidebarSubmenu(TEMPLATE_URL){
 
 	function link(scope, elm, attrs, ctrl, $transclude){
 		scope.title = attrs.title;
+		scope.submenuClass = attrs.submenuClass;
 
 		$transclude(function(content){
 			scope.hasTransclude = !!content.length;

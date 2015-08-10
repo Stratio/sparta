@@ -68,3 +68,13 @@
 		height: 0px;
 	}
 }
+
+
+// Clearfix
+%clearfix{
+	&:after{
+		content: '';
+		display: block;
+		clear: both;
+	}
+}

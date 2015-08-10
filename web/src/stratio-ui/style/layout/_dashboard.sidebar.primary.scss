@@ -55,8 +55,8 @@ $scroll-bar-primary-sidenar: 20px;
 				display: block;
 				margin-bottom: 8px;
 
-				a,
-				span{
+				& > a,
+				& > span{
 					@extend .t-normal;
 					
 					width: 100%;
@@ -76,6 +76,9 @@ $scroll-bar-primary-sidenar: 20px;
 					cursor: default;
 				}
 			}
+		}
+		.quick-search{
+			padding-left: $base-padding;
 		}
 
 		.submenu-overlay{

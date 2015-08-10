@@ -2,6 +2,7 @@
   "name": "sparkta_web",
   "version": "0.0.0",
   "dependencies": {
+    "jquery": "1.10.2",
     "angular": "1.4.3",
     "angular-animate": "1.4.3",
     "angular-cookies": "1.4.3",

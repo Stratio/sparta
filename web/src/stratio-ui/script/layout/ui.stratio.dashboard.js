@@ -3,7 +3,7 @@
 /**
 * @desc Base dashboard for Stratio
 * @example <st-dashboard></st-dashboard>
-*/ 
+*/
 (function($){
 
 angular
@@ -22,7 +22,7 @@ function stDashboard(TEMPLATE_URL){
 		controller: controller,
 		link: link
 	};
-	
+
 	return directive;
 
 	controller.$inject = ['$scope','$rootScope','$timeout'];
@@ -42,7 +42,7 @@ function stDashboard(TEMPLATE_URL){
 			initOnScroll();
 			initOnResize();
 			initOnHeaderResize();
-			
+
 			$timeout(checkMenuMode, 200);
 		}
 
@@ -58,6 +58,7 @@ function stDashboard(TEMPLATE_URL){
 
 		function initOnScroll(){
 			$(window).scroll(onScroll);
+			$(window).scroll(function(){setTimeout(onScroll, 10);});
 
 			function onScroll(){
 				$scope.fixedDashboard = ($(document).scrollTop() >= compactMenuScroll);
@@ -134,7 +135,7 @@ function stDashboard(TEMPLATE_URL){
 		function updateHeaderSize(){
 			var visibleHeaderHeight = $('.stratio-base-header').height() - $(document).scrollTop();
 			var minVisibleHeaderHeight = compactMenuScroll;
-			
+
 			$rootScope.$broadcast('on-header-resize', Math.max(visibleHeaderHeight, minVisibleHeaderHeight));
 		}
 	}

@@ -49,12 +49,12 @@ st-floating-menu{
 
 		display: block;
 		height: 0;
-		line-height: $h - 2px;
 		font-size: 18px;
 		cursor: pointer;
 		opacity: 0;
 		
 		.element{
+			line-height: $h - 2px;
 			padding: 0px 15px;
 			display: block;
 			height: 100%;

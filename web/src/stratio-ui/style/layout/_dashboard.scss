@@ -13,8 +13,6 @@ html{
 }
 
 #stratio-base{
-	$temporal-separation-content-auxiliar: 40px;
-
 	overflow: hidden;
 	max-width: 100%;
     min-height: 100%;
@@ -62,6 +60,10 @@ html{
 		width: 100%;
 		padding-left: $layout-base-left;
 		padding-right: 0;
+
+		#dashboard-main-content{
+			padding: $base-padding ($base-padding / 2);
+		}
 	}
 
 	.show-auxiliar-sidebar{
@@ -146,7 +148,7 @@ html{
 	// Hide/show auxiliar sidebar
 	&.extended-auxiliar{
 		#base-content-wrapper{
-			padding-right: $layout-base-right + $temporal-separation-content-auxiliar;
+			padding-right: $layout-base-right;
 		}
 		#base-auxiliar-sidebar{
 			right: 0px;
@@ -173,7 +175,7 @@ html{
 	@media (min-width: 1480px){
 		&.extended-auxiliar{
 			#base-content-wrapper{
-				padding-right: $layout-base-right + $temporal-separation-content-auxiliar + $base-padding;
+				padding-right: $layout-base-right + $base-padding;
 			}
 			#base-auxiliar-sidebar{
 				right: $base-padding;

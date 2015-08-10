@@ -16,7 +16,8 @@ function stQuickSearch(TEMPLATE_URL){
 			'value': '@'
 		},
 		templateUrl: TEMPLATE_URL('components', 'quickSearch'),
-		link: link
+		link: link,
+		replace: true
 	};
 
 	return directive;

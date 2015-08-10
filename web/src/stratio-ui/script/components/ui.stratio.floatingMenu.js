@@ -1,5 +1,6 @@
-(function($){
 'use strict';
+
+(function($){
 
 angular
 	.module('StratioUI.components.floatingMenu',[])
@@ -7,6 +8,9 @@ angular
 
 stFloatingMenu.$inject = ['TEMPLATE_URL'];
 function stFloatingMenu(TEMPLATE_URL){
+	var hideFloatingMenu = {};
+	var lockToggle = false;
+
 	var directive = {
 		restrict: 'AE',
 		require: 'ngModel',
@@ -21,39 +25,61 @@ function stFloatingMenu(TEMPLATE_URL){
 
 	return directive;
 
-	var hideFloatingMenu = null;
-
 	controller.$inject = ['$rootScope', '$scope']
-
 	function controller($rootScope, $scope){
-		if(!$rootScope.stToggleFloatingMenu) {
-			$rootScope.stToggleFloatingMenu = [];
-		}
+		if(!$rootScope.stToggleFloatingMenu)
+			$rootScope.stToggleFloatingMenu = {};
 
-		$rootScope.stToggleFloatingMenu[$scope.toggleId] = showFloatingMenu($scope);
-		hideFloatingMenu = initHideFloatingMenu($scope, $rootScope);
+		$rootScope.stToggleFloatingMenu[$scope.toggleId] = showFloatingMenu($scope, $rootScope);
+		hideFloatingMenu[$scope.toggleId] = initHideFloatingMenu($scope, $rootScope);
+
+		$(window).on('click', hideAllFloatingMenu);
 	}
 
-	function showFloatingMenu($scope){
-		return function() {
-			$scope.visible = !$scope.visible;
-			$(window).on('click', hideFloatingMenu);
+	function showFloatingMenu($scope, $rootScope){
+		return function(){
+			var isVisible = $scope.visible;
+
+			hideAllFloatingMenu();
+			setLockToggle();
+
+			$scope.visible = !isVisible;
+
+			if($rootScope.$$phase == null)
+				$scope.$apply();
 		}
 	}
 
 	function initHideFloatingMenu($scope, $rootScope){
 		return function(event){
-			event.stopPropagation();
-
 			$scope.visible = false;
 
-			$(window).off('click', hideFloatingMenu);
+			$(window).off('click', hideFloatingMenu[$scope.toggleId]);
 
-			if($rootScope.$$phase == null){
+			if($rootScope.$$phase == null)
 				$scope.$apply();
-			}
 		}
 	}
+
+	function hideAllFloatingMenu(event){
+		if(event)
+			event.stopImmediatePropagation();
+		if(lockToggle)
+			return;
+		for(var menu in hideFloatingMenu){
+			hideFloatingMenu[menu]();
+			$(window).off('click', hideFloatingMenu[menu]);
+		}
+	}
+
+	function setLockToggle(){
+		lockToggle = true;
+
+		setTimeout(function(){
+			lockToggle = false;
+		}, 20);
+	}
+
 }
 
 })(jQuery);

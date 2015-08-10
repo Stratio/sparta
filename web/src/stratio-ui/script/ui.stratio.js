@@ -2,7 +2,8 @@
 
 angular
 	.module('StratioUI',[
-		'StratioUI.helpers.constants',
+		'StratioUI.helper.constant.templateUrl',
+		'StratioUI.helper.passAllAttributes',
 		'StratioUI.layout.dashboard',
 		'StratioUI.layout.menutab',
 		'StratioUI.components.quickSearch',
@@ -10,5 +11,7 @@ angular
 		'StratioUI.components.menuElement',
 		'StratioUI.components.nodeList',
 		'StratioUI.components.primarySidebarTitle',
-		'StratioUI.components.primarySidebarSubmenu'
+		'StratioUI.components.primarySidebarSubmenu',
+		'StratioUI.components.heading',
+		'StratioUI.components.actionButton'
 	]);

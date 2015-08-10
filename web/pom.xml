@@ -16,7 +16,7 @@
 	<properties>
 		<nodeVer>v0.12.2</nodeVer>
 		<npmVer>2.7.4</npmVer>
-		<nodeURL>http://sodio.stratio.com/nexus/content/repositories/thirdparty/node</nodeURL>
+		<!-- <nodeURL>http://sodio.stratio.com/nexus/content/repositories/thirdparty/node</nodeURL> -->
 	</properties>
 
 	<build>
@@ -35,8 +35,8 @@
 						<configuration>
 							<nodeVersion>${nodeVer}</nodeVersion>
 							<npmVersion>${npmVer}</npmVersion>
-							<nodeDownloadRoot>${nodeURL}/node/</nodeDownloadRoot>
- 							<npmDownloadRoot>${nodeURL}/npm/2.7.4/</npmDownloadRoot>
+							<!-- <nodeDownloadRoot>${nodeURL}/node/</nodeDownloadRoot>
+							 							<npmDownloadRoot>${nodeURL}/npm/2.7.4/</npmDownloadRoot> -->
 							<skip.installnodenpm>${skip.installnodenpm}</skip.installnodenpm>
 						</configuration>
 					</execution>
@@ -86,6 +86,7 @@
 					</execution>
 				</executions>
 			</plugin>
+<!--
 			<plugin>
 			   <groupId>org.codehaus.mojo</groupId>
 			   <artifactId>exec-maven-plugin</artifactId>
@@ -237,6 +238,7 @@
 			       </execution>
 			   </executions>
 			</plugin>
+-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
