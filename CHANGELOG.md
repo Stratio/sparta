@@ -3,21 +3,22 @@
 ## v0.6 (upcoming)
 
 
-## v0.5 
+## v0.5 (July 2015)
 
-Added compatibility with Apache Spark 1.4.x. and released a specific distribution for Apache Spark 1.3.x
-Bugfixing
+**Sdk**
+- Added compatibility with Apache Spark 1.4.x
+- Released a specific distribution for Apache Spark 1.3.x
 
-**Driver**
+**Serving-Api**
 - Support for fragment composition in policies.
 - Policy refactor. Improved semantic of the JSON.
 
 **Plugins**
 - Parquet and CSV outputs.
 - Improved Twitter input. Possibility to filter tweets by hashtag.
-- Fixed important bug in Elasticsearch output. Fixes are mapped according to their type.
+- Fixed important bug in Elasticsearch output. Fields are mapped according to their type.
 
-## v0.4
+## v0.4 (May 2015)
 
 **Parent**
 - SandBox Stratio Sparkta
@@ -51,73 +52,6 @@ Bugfixing
 - Full-Text operator
 - Accumulator operator
 - Last Value operator
-
-## v0.3
-
-**Sdk**
-- Multiplex cubes for **multi-cube** integration
-
-**Plugins**
-- Avg operator
-- Median operator
-- Variance operator
-- Stddev operator
-- Input Twitter
-- BulkOperantion in MongoDB Output
-- Auto creation Id and Full-Text indexes in MongoDB Output
-- Update aggregations commands in MongoDB:
-   - Avg aggregation update
-   - Set update
-   - AddToSet aggregation update
-
-## v0.2
-
-**Parent**
-- Created new maven modules:
-   - Doc: Documentation module.
-   - Serving-core: Simple library to read aggregation data.
-   - Serving-api: REST api implementing serving-core.
-   - Plugins: Now, the platform is **pluggable**. This module contains all **official** plugins.
-   - Sdk: This library can be used to develop new plugins to adapt Sparkta to your necessities.
-- Now a distribution is generated
-
-**Plugins**
-- Tag dimensioner
-- Hierarchy dimensioner
-- Max operator
-- Min operator
-- Sum operator
-- Datetime parser
-- Morphlines parser ( **Kite Sdk** )
-- Output MongoDB:
-   - Count aggregation update
-   - Max aggregation update
-   - Min aggregation update
-- Output Print
-- Input Flume
-- Input Kafka
-- Input Socket
-
-## v0.1
-
-**Driver**
-- **Akka Actors** (Supervisor and StreamingContextActor)
-- Json parser
-- First approach streaming context generator
-
-**Aggregator**
-- Dimensions
-- Cubes
-
-**Plugins**
-- Default Dimension
-- DateTime Dimension
-- GeoHash Dimension
-- Count operator
-- First approach **MongoDB** output
-- KeyValue parser
-- Temporal TwitterParser (demo purposes)
-
 
 
 
