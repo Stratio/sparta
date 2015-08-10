@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2015 Stratio (http://stratio.com)
  *
@@ -17,18 +18,9 @@
 package com.stratio.sparkta.driver.service
 
 import java.io.{File, Serializable}
-import akka.event.slf4j.SLF4JLogging
+import java.nio.file.{Files, Paths}
 
-import scala.annotation.tailrec
-import scala.collection.JavaConversions._
-import scala.util._
-
-import org.apache.spark.SparkContext
-import org.apache.spark.sql.SQLContext
-import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.streaming.{Duration, StreamingContext}
-import org.reflections.Reflections
-
+import akka.event.slf4j.{Logger, SLF4JLogging}
 import com.stratio.sparkta.aggregator.{Cube, CubeMaker}
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory.{SchemaFactory, SparkContextFactory}
@@ -36,15 +28,28 @@ import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, OperatorMode
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
+import org.apache.commons.io.FileUtils
+import org.apache.spark.SparkContext
+import org.apache.spark.sql.SQLContext
+import org.apache.spark.streaming.dstream.DStream
+import org.apache.spark.streaming.{Duration, StreamingContext}
+import org.reflections.Reflections
+
+import scala.annotation.tailrec
+import scala.collection.JavaConversions._
+import scala.util._
 
 object SparktaJob extends SLF4JLogging {
 
   val baseJars = Seq("driver-plugin.jar", "aggregator-plugin.jar", "sdk-plugin.jar")
 
   def runSparktaJob(sc: SparkContext, apConfig: AggregationPoliciesModel): Any = {
+
+    val checkpointPolicyPath = apConfig.checkpointPath.concat(File.separator).concat(apConfig.name)
+    deletePreviousCheckpointPath(checkpointPolicyPath)
+
     val ssc = SparkContextFactory.sparkStreamingInstance(
-      new Duration(apConfig.sparkStreamingWindow),
-      apConfig.checkpointPath).get
+      new Duration(apConfig.sparkStreamingWindow), checkpointPolicyPath).get
     val input = SparktaJob.input(apConfig, ssc)
     val parsers =
       SparktaJob.parsers(apConfig).sortWith((parser1, parser2) => parser1.getOrder < parser2.getOrder)
@@ -69,13 +74,22 @@ object SparktaJob extends SLF4JLogging {
       if (cubeOpSchema.size > 0) Some(cubeOpSchema) else None
     }
 
-    val outputs = SparktaJob.outputs(apConfig, sc, operatorsKeyOperation, bcCubeOperatorSchema)
+    val outputs = SparktaJob.outputs(apConfig, operatorsKeyOperation, bcCubeOperatorSchema)
     val inputEvent = input._2
     SparktaJob.saveRawData(apConfig, inputEvent)
     val parsed = SparktaJob.applyParsers(inputEvent, parsers)
 
     val dataCube = new CubeMaker(cubes).setUp(parsed)
     outputs.map(_._2.persist(dataCube))
+  }
+
+  def deletePreviousCheckpointPath(checkpointPolicyPath: String): Unit = {
+    if (Files.exists(Paths.get(checkpointPolicyPath))) {
+      Try(FileUtils.deleteDirectory(new File(checkpointPolicyPath))) match {
+        case Success(_) => log.info(s"Found path for this policy. Path deleted: $checkpointPolicyPath")
+        case Failure(e) => log.error(s"Found path for this policy. Cannot delete: $checkpointPolicyPath", e)
+      }
+    }
   }
 
   @tailrec
@@ -124,8 +138,8 @@ object SparktaJob extends SLF4JLogging {
     }).toMap
 
   def input(apConfig: AggregationPoliciesModel, ssc: StreamingContext): (String, DStream[Event]) =
-      (apConfig.input.name, tryToInstantiate[Input](apConfig.input.`type` + Input.ClassSuffix, (c) =>
-        instantiateParameterizable[Input](c, apConfig.input.configuration)).setUp(ssc))
+      (apConfig.input.get.name, tryToInstantiate[Input](apConfig.input.get.`type` + Input.ClassSuffix, (c) =>
+        instantiateParameterizable[Input](c, apConfig.input.get.configuration)).setUp(ssc))
 
   def parsers(apConfig: AggregationPoliciesModel): Seq[Parser] =
     apConfig.transformations.map(parser =>
@@ -150,7 +164,6 @@ object SparktaJob extends SLF4JLogging {
     operatorsModel.map(operator => createOperator(operator))
 
   def outputs(apConfig: AggregationPoliciesModel,
-              sparkContext: SparkContext,
               bcOperatorsKeyOperation: Option[Map[String, (WriteOp, TypeOp)]],
               bcCubeOperatorSchema: Option[Seq[TableSchema]]): Seq[(String, Output)] =
     apConfig.outputs.map(o => (o.name, tryToInstantiate[Output](o.`type` + Output.ClassSuffix, (c) =>
@@ -228,7 +241,7 @@ object SparktaJob extends SLF4JLogging {
     }
 
   def jarsFromPolicy(apConfig: AggregationPoliciesModel): Seq[String] = {
-    val input = apConfig.input.jarFile match {
+    val input = apConfig.input.get.jarFile match {
       case Some(file) => Seq(file)
       case None => Seq()
     }

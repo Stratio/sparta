@@ -9,8 +9,12 @@
   },
   "fragments": [
     {
+
       "fragmentType": "input",
       "name": "twitter",
+      "description": "description",
+      "shortDescription": "shortDescription",
+      "icon": "icon",
       "element": null
     }
   ],

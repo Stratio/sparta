@@ -27,8 +27,8 @@ case class FragmentElementModel(fragmentType: String,
                                 name: String,
                                 description: String,
                                 shortDescription: String,
+                                icon: String,
                                 element:PolicyElementModel)
-
 
 object FragmentType extends Enumeration {
   type `type` = Value
