@@ -17,24 +17,28 @@
 package com.stratio.sparkta.serving.api.actor
 
 import java.io.File
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import scala.sys.process._
+import scala.util.{Failure, Success, Try}
 
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
-import com.stratio.sparkta.driver.models.AggregationPoliciesModel
-import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
-import com.stratio.sparkta.driver.service.{SparktaJob, StreamingContextService}
-import com.stratio.sparkta.serving.api.actor.JobServerActor._
-import com.stratio.sparkta.serving.api.actor.StreamingActor._
-import com.stratio.sparkta.serving.api.constants._
 import com.typesafe.config.Config
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.json4s._
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
+import com.stratio.sparkta.driver.SparktaJob
+import com.stratio.sparkta.driver.models.AggregationPoliciesModel
+import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
+import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.serving.api.actor.JobServerActor._
+import com.stratio.sparkta.serving.api.actor.StreamingActor._
+import com.stratio.sparkta.serving.api.constants._
 
 class ClusterContextActor(policy: AggregationPoliciesModel,
                           streamingContextService: StreamingContextService,
@@ -53,16 +57,14 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
   def doInitSparktaContext: Unit = {
     log.debug("Init new cluster streamingContext with name " + policy.name)
 
-    //TODO validate policy
-    val activeJars: Either[Seq[String], Seq[String]] = SparktaJob.activeJars(policy, streamingContextService.jars)
-    if (activeJars.isLeft) {
-      val msg = s"The policy have jars witch cannot be found in classpath:" +
-        s" ${activeJars.left.get.mkString(",")}"
-      sender ! new ResponseCreateContext(new StatusContextActor(context.self,
-        policy.name,
-        ConfigurationError,
-        Some(msg)))
-    } else sendPolicyToJobServerActor(activeJars)
+    val file = new Path(s"/user/stratio/${policy.name}.json")
+    val fileSystem = FileSystem.get(new Configuration())
+    val out = fileSystem.create(file)
+    out.write(write(policy).getBytes)
+    out.close
+    val cmd = s"spark-submit --class com.stratio.sparkta.driver.SparktaJob --master  yarn-client " +
+      s"--num-executors 2 driver/target/driver-plugin.jar ${policy.name}"
+    cmd.!!
   }
 
   private def doJobServerResponseUploadPolicy(response: Try[JValue]): Unit =

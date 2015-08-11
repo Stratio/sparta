@@ -32,6 +32,7 @@ object AkkaConstant {
   final val SupervisorContextActor = "supervisorContextActor"
   final val ControllerActorInstances = "controllerActorInstances"
   final val StreamingActorInstances = "streamingActorInstances"
+  final val SparkSubmitActor  = "sparkSubmitActor"
   final val DefaultControllerActorInstances = 5
   final val DefaultStreamingActorInstances = 3
 }

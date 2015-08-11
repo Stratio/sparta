@@ -16,25 +16,30 @@
 
 package com.stratio.sparkta.driver.util
 
-import org.json4s.DefaultFormats
+import org.json4s.ext.EnumNameSerializer
 import org.json4s.jackson.JsonMethods._
+import org.json4s.native.Serialization._
+import org.json4s.{DefaultFormats, _}
 
-import com.stratio.sparkta.driver.models.AggregationPoliciesModel
+import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, StreamingContextStatusEnum}
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 
 /**
  * Utils for policies.
- * @author anistal,sgomezg
+ * @author sgomezg
  */
 object PolicyUtils {
+
+  implicit val json4sJacksonFormats = DefaultFormats +
+    new EnumNameSerializer(StreamingContextStatusEnum) +
+    new JsoneyStringSerializer()
 
   /**
    * Method to parse AggregationPoliciesModel from JSON string
    * @param json The policy as JSON string
    * @return AggregationPoliciesModel
    */
-  def parseJson(json: String): AggregationPoliciesModel = {
-    implicit val formats = DefaultFormats + new JsoneyStringSerializer()
-    parse(json).extract[AggregationPoliciesModel]
-  }
+  def parseJson(json: String): AggregationPoliciesModel = parse(json).extract[AggregationPoliciesModel]
+
+  def toJson(policy: AggregationPoliciesModel): String = write(policy)
 }
