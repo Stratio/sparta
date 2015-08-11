@@ -186,11 +186,13 @@ abstract class Output(keyName: String,
     )
 
   protected def filterSchemaByFixedAndTimeDimensions(tbschemas: Seq[TableSchema]): Seq[TableSchema] =
-    tbschemas.filter(schemaFilter => schemaFilter.outputName == keyName &&
-      (getFixedDimensions ++ schemaFilter.timeDimension).forall({
-        schemaFilter.schema.fieldNames.contains(_) &&
-          schemaFilter.schema.filter(!_.nullable).length >= 1
-      }))
+    tbschemas.filter(schemaFilter => {
+      val checkDimensions = getFixedDimensions ++ Array(schemaFilter.timeDimension)
+      schemaFilter.outputName == keyName &&
+        checkDimensions.forall({
+          schemaFilter.schema.fieldNames.contains(_)
+        })
+    })
 
   protected def checkOperationTypes: Boolean =
     if (operationTypes.isDefined) {

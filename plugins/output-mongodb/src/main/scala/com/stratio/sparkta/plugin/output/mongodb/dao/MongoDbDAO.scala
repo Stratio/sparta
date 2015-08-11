@@ -52,8 +52,6 @@ trait MongoDbDAO extends Closeable {
 
   def textIndexFields: Option[Array[String]]
 
-  def pkTextIndexesCreated: Boolean
-
   def idAsField: Boolean
 
   def retrySleep: Int
@@ -66,12 +64,6 @@ trait MongoDbDAO extends Closeable {
     MongoDbDAO.reconnect(retrySleep, mongoClientUri, dbName, connectionsPerHost, threadsAllowedB)
 
   protected def db(): MongoDB = db(dbName)
-
-  def executeBulkOperation(bulkOperation: mongodb.BulkWriteOperation,
-                           updateObjects: List[(Imports.DBObject, Imports.DBObject)]): Unit = {
-    updateObjects.foreach { case (find, update) => bulkOperation.find(find).upsert().updateOne(update) }
-    bulkOperation.execute()
-  }
 
   protected def createPkTextIndex(collection: String, timeDimension: String): (Boolean, Boolean) = {
     val textIndexCreated = if (textIndexFields.isDefined && language.isDefined) {
@@ -130,12 +122,14 @@ trait MongoDbDAO extends Closeable {
     }
   }
 
+
   protected def insert(dbName: String, collName: String, dbOjects: Iterator[DBObject],
                        writeConcern: Option[WriteConcern] = None): Unit = {
     val coll = db(dbName).getCollection(collName)
     val builder = coll.initializeUnorderedBulkOperation
 
     dbOjects.map(dbObjectsBatch => builder.insert(dbObjectsBatch))
+    if (writeConcern.isEmpty) builder.execute(DefaultWriteConcern) else builder.execute(writeConcern.get)
     if (writeConcern.isEmpty) builder.execute(DefaultWriteConcern) else builder.execute(writeConcern.get)
   }
 
