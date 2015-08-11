@@ -1,3 +1,9 @@
+@import 'setting/colors';
+@import 'setting/typography';
+
+@import 'helpers/colors';
+@import 'helpers/typography';
+
 @import '_reset';
 @import 'bower_components/compass-mixins/lib/compass/functions';
 @import 'bower_components/compass-mixins/lib/compass/css3';
