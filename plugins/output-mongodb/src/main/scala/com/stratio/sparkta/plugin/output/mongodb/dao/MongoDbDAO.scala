@@ -130,7 +130,6 @@ trait MongoDbDAO extends Closeable {
 
     dbOjects.map(dbObjectsBatch => builder.insert(dbObjectsBatch))
     if (writeConcern.isEmpty) builder.execute(DefaultWriteConcern) else builder.execute(writeConcern.get)
-    if (writeConcern.isEmpty) builder.execute(DefaultWriteConcern) else builder.execute(writeConcern.get)
   }
 
   protected def getFind(idFieldName: String,
@@ -189,7 +188,7 @@ trait MongoDbDAO extends Closeable {
         (seq.asInstanceOf[Seq[(String, Double)]], "$set")
       case WriteOp.FullText | WriteOp.AccSet | WriteOp.Mode =>
         (seq.asInstanceOf[Seq[(String, String)]], "$set")
-   }
+    }
   }
 
   protected def getIdFields(cubeKey: DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =
