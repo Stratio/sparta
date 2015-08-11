@@ -24,7 +24,8 @@
       "type": "Morphlines",
       "outputFields": [
         "product",
-        "price"
+        "price",
+        "text"
       ],
       "configuration": {
         "morphline": {
@@ -38,7 +39,8 @@
                 "separator": ",",
                 "columns": [
                   "product",
-                  "price"
+                  "price",
+                  "text"
                 ],
                 "trim": "true",
                 "charset": "UTF-8",
@@ -158,6 +160,13 @@
           "type": "Variance",
           "configuration": {
             "inputField": "price"
+          }
+        },
+        {
+          "name": "entityCount_text",
+          "type": "EntityCount",
+          "configuration": {
+            "inputField": "text"
           }
         }
       ]

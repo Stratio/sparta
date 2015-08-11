@@ -107,6 +107,7 @@ class ElasticSearchOutput(keyName: String,
       case org.apache.spark.sql.types.DateType => structField.name typed FieldType.DateType
       case org.apache.spark.sql.types.TimestampType => structField.name typed FieldType.DateType
       case org.apache.spark.sql.types.ArrayType(_, _) => structField.name typed FieldType.MultiFieldType
+      case org.apache.spark.sql.types.MapType(_, _, _) => structField.name typed FieldType.ObjectType
       case org.apache.spark.sql.types.StringType => structField.name typed FieldType.StringType index "not_analyzed"
       case _ => structField.name typed FieldType.BinaryType
     })

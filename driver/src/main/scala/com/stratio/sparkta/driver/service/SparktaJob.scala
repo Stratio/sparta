@@ -113,7 +113,7 @@ object SparktaJob extends SLF4JLogging {
   }
 
   val getClasspathMap: Map[String, String] = {
-    val reflections = new Reflections()
+    val reflections = new Reflections("com.stratio.sparkta")
     val inputs = reflections.getSubTypesOf(classOf[Input]).toList
     val dimensionTypes = reflections.getSubTypesOf(classOf[DimensionType]).toList
     val operators = reflections.getSubTypesOf(classOf[Operator]).toList

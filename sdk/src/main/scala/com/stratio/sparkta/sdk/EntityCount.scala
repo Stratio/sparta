@@ -1,0 +1,59 @@
+/**
+ * Copyright (C) 2015 Stratio (http://stratio.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.stratio.sparkta.sdk
+
+import java.io.{Serializable => JSerializable}
+
+import com.stratio.sparkta.sdk.ValidatingPropertyMap._
+
+abstract class EntityCount(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+
+  final val DefaultSplit = " "
+
+  val inputField = if (properties.contains("inputField")) Some(properties.getString("inputField")) else None
+
+  val split = if (properties.contains("split")) Some(properties.getString("split")) else None
+
+  val splitRegex = if (properties.contains("splitRegex")) Some(properties.getString("splitRegex")) else None
+
+  val replaceRegex =
+    if (properties.contains("replaceRegex")) Some(properties.getString("replaceRegex")) else None
+
+  override def processMap(inputFields: Map[String, JSerializable]): Option[Seq[String]] = {
+    if (inputField.isDefined && inputFields.contains(inputField.get))
+      applyFilters(inputFields)
+        .flatMap(filteredFields => filteredFields.get(inputField.get).map(applySplitters(_)))
+    else None
+  }
+
+  private def applySplitters(value: JSerializable): Seq[String] = {
+
+    val conditionDefault = split.isEmpty && splitRegex.isEmpty
+    val replacedValue = applyReplaceRegex(value.toString)
+
+    if (!conditionDefault) {
+      if (splitRegex.isDefined) replacedValue.split(splitRegex.get) else replacedValue.split(split.get)
+    } else replacedValue.split(DefaultSplit)
+  }
+
+  private def applyReplaceRegex(value: String): String =
+    replaceRegex match {
+      case Some(regex) => value.replaceAll(regex, "")
+      case None => value
+    }
+
+}

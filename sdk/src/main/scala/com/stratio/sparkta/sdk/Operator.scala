@@ -144,7 +144,7 @@ with Ordered[Operator] with TypeConversions {
   private def doFilteringType[T <: Ordered[U], U](filterType: String, value: T, filterValue: U): Boolean =
     filterType match {
       case "=" => value.compare(filterValue) == 0
-      case "!=" => value.compare(filterValue) == -1
+      case "!=" => value.compare(filterValue) != 0
       case "<" => value < filterValue
       case "<=" => value <= filterValue
       case ">" => value > filterValue
