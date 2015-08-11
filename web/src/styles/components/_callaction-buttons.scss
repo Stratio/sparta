@@ -1,0 +1,21 @@
+.callaction-menu {
+	margin: 0px 15px 45px 15px;
+	padding-top: 20px;
+	border-top: 1px solid #e6e6e6;
+
+	.callaction-button {
+		position: relAtive;
+		float: right;
+		height: 40px;
+		width: 180px;
+		background-color: #42b6e7;
+		color: #fff;
+		border: none;
+		cursor: pointer;
+		text-transform: uppercase;
+
+		.icon {
+			margin-right: 10px;
+		}
+	}
+}

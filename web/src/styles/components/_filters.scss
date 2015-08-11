@@ -2,6 +2,7 @@ $filters-background-color: #eef2f3;
 
 .inputs_wrapper {
 	margin: 0px 15px;
+	overflow: auto;
 
 	.filters {
 		position: relative;

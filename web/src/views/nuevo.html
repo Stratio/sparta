@@ -30,11 +30,14 @@
 
 					<span class="icon-search menu_actions" ng-click="$root.stToggleFloatingMenu[$index]()">
 						<st-floating-menu toggle-id="{{$index}}" align="right">
-							<st-menu-element href="" class-icon="icon-location">
-								Log out
+							<st-menu-element class-icon="icon-edit">
+								{{"_INPUT_ACTIONS_MENU_EDIT_" | translate}}
 							</st-menu-element>
-							<st-menu-element sref="" class-icon="icon-cog">
-								Settings
+							<st-menu-element class-icon="icon-copy">
+								{{"_INPUT_ACTIONS_MENU_DUPLICATE_" | translate}}
+							</st-menu-element>
+							<st-menu-element class-icon="icon-cross">
+								{{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
 							</st-menu-element>
 						</st-floating-menu>
 					</span>
@@ -45,5 +48,12 @@
 				<span class="icon-info1 element_tooltip" tooltip="{{input.description}}"></span>
 			</li>
 	    </ul>
+    </div>
+
+    <div class="callaction-menu">
+    	<button class="callaction-button" data-ng-click="nuevo.createInput('lg')">
+    		<span class="icon icon-circle-plus"></span>
+    		<span>{{"_INPUT_BUTTON_NEW_" | translate}}</span>
+    	</button>
     </div>
 </div>

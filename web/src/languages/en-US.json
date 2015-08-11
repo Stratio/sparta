@@ -3,5 +3,9 @@
   "_INPUT_HEADER_TITLE_SECONDARY": "manage",
   "_INPUT_FILTER_NAME_": "Name",
   "_INPUT_FILTER_TYPE_": "Type",
-  "_INPUT_FILTER_TYPE_DEFAULT_": "Please select an option"
+  "_INPUT_FILTER_TYPE_DEFAULT_": "Please select an option",
+  "_INPUT_ACTIONS_MENU_EDIT_": "Edit",
+  "_INPUT_ACTIONS_MENU_DUPLICATE_": "Duplicate",
+  "_INPUT_ACTIONS_MENU_DELETE_": "Delete",
+  "_INPUT_BUTTON_NEW_": "add new"
 }

@@ -2,7 +2,7 @@
     'use strict';
 
     angular.module('webApp')
-    .controller('NuevoCtrl',['ApiTest', '$filter', function (ApiTest, $filter) {
+    .controller('NuevoCtrl',['ApiTest', '$filter', '$modal', function (ApiTest, $filter, $modal) {
 
         this.init = function (){
             var vm = this;
@@ -48,5 +48,46 @@
             }
         };
 
+        this.createInput = function(size) {
+            var modalInstance = $modal.open({
+                animation: true,
+                templateUrl: 'views/myModalContent.html',
+                controller: 'ModalInstanceCtrl',
+                size: size,
+                resolve: {
+                    items: function () {
+                        /*return $scope.items;*/
+                    }
+                }
+            });
+
+/*
+            modalInstance.result.then(function (selectedItem) {
+                $scope.selected = selectedItem;
+            }, function () {
+                console.log('Modal dismissed at: ' + new Date())
+                $log.info('Modal dismissed at: ' + new Date());
+            });
+*/
+        };
+
     }]);
+
+    angular.module('webApp').controller('ModalInstanceCtrl', function ($scope, $modalInstance, items) {
+/*
+        $scope.items = items;
+        $scope.selected = {
+            item: $scope.items[0]
+        };
+
+        $scope.ok = function () {
+            $modalInstance.close($scope.selected.item);
+        };
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+*/
+    });
+
 })();
