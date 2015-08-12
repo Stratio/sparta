@@ -6,7 +6,7 @@
 		'fixed-dashboard': fixedDashboard,
 		'auxiliar-sticky': showAuxiliarSidebarSticky,
 		'menu-compact': menuCompact}">
-	
+
 	<header class="stratio-base-header">
 
 		<div class="top">
@@ -23,7 +23,7 @@
 			<div class="menu-cont">
 				<div class="valign"></div>
 				<div class="logo-cont">
-					<img src="{{moduleLogo}}" alt="Stratio Manager">
+					<img src="{{moduleLogo}}" alt="Stratio Sparkta">
 				</div>
 				<div ng-transclude></div>
 			</div>
@@ -37,7 +37,7 @@
 	</header>
 
 	<aside id="base-primary-sidebar">
-		<div id="sub-menu" ui-view="submenu" autoscroll="false"></div>
+		<div id="sub-menu" ui-view="menu" autoscroll="false"></div>
 	</aside>
 	<div id="base-content-wrapper">
 		<div class="show-primary-sidebar" ng-click="togglePrimarySidebar()">
