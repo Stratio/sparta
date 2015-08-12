@@ -52,11 +52,11 @@ angular
     .state('dashboard', {
         url: '/dashboard',
         views: {
-            'submenu': {
-                templateUrl:  'views/dashboard/submenu_dashboard.html'
+            'menu': {
+                templateUrl:  'views/dashboard/dashboard_menu.html'
             },
             'content': {
-                templateUrl:  'views/dashboard/submenu_dashboard_index.html'
+                templateUrl:  'views/dashboard/dashboard_content.html'
             }
         }
     })
@@ -87,13 +87,13 @@ angular
     .state('settings', {
         url: '/settings',
         views: {
-            'submenu': {
-                templateUrl:  'views/settings/submenu_settings.html'
+            'menu': {
+                templateUrl:  'views/settings/settings_menu.html'
             },
             'content': {
                 controller:   'NuevoCtrl',
                 controllerAs: 'nuevo',
-                templateUrl:  'views/settings/submenu_settings_index.html'
+                templateUrl:  'views/settings/settings_content.html'
             }
         }
     });
