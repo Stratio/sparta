@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title></title>
+	<title>Stratio Sparkta</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width">
 	<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
@@ -17,14 +17,12 @@
 </head>
 <body ng-app="webApp">
 
-
 	<st-dashboard
-		module-logo="/images/logo_stratio_manager.png"
-		module-name="Stratio Manager">
+		module-logo="/images/logo_stratio_sparkta.png"
+		module-name="Stratio Sparkta">
 
-		<div st-menu-tab title="Inputs" route="inputs" sref="inputs" icon="icon-grid" visible="true"></div>
-		<div st-menu-tab title="Dashboard" route="inputs" sref="inputs" icon="icon-grid" visible="true"></div>
-
+		<div st-menu-tab title="{{'_HEADER_MENU_DASHBOARD_' | translate}}" route="dashboard.inputs" sref="dashboard.inputs" icon="icon-grid" visible="true"></div>
+		<div st-menu-tab title="{{'_HEADER_MENU_SETTINGS_' | translate}}" route="settings" sref="settings" icon="icon-cog" visible="true"></div>
 <!--
 		<div st-menu-tab title="Cluster" route="main.dashboard.cluster" sref="main.dashboard.cluster.overview" icon="icon-grid" visible="true"></div>
 		<div st-menu-tab title="Services" route="main.dashboard.service" sref="main.dashboard.service.overview" icon="icon-puzzle" visible="true"></div>
