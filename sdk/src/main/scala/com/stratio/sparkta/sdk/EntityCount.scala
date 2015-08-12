@@ -22,13 +22,9 @@ import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 
 abstract class EntityCount(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
 
-  final val DefaultSplit = " "
-
   val inputField = if (properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
   val split = if (properties.contains("split")) Some(properties.getString("split")) else None
-
-  val splitRegex = if (properties.contains("splitRegex")) Some(properties.getString("splitRegex")) else None
 
   val replaceRegex =
     if (properties.contains("replaceRegex")) Some(properties.getString("replaceRegex")) else None
@@ -41,13 +37,8 @@ abstract class EntityCount(name: String, properties: Map[String, JSerializable])
   }
 
   private def applySplitters(value: JSerializable): Seq[String] = {
-
-    val conditionDefault = split.isEmpty && splitRegex.isEmpty
     val replacedValue = applyReplaceRegex(value.toString)
-
-    if (!conditionDefault) {
-      if (splitRegex.isDefined) replacedValue.split(splitRegex.get) else replacedValue.split(split.get)
-    } else replacedValue.split(DefaultSplit)
+    if (!split.isEmpty) replacedValue.split(split.get) else Seq(replacedValue)
   }
 
   private def applyReplaceRegex(value: String): String =

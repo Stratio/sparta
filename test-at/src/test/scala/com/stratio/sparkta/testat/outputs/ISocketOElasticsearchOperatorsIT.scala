@@ -70,7 +70,7 @@ class ISocketOElasticsearchOperatorsIT extends SparktaATSuite {
       productA("stddev_price") should be(347.9605889013459d)
       productA("variance_price") should be(121076.57142857143d)
       productA("range_price") should be(992.0d)
-      productA("entitycount_text") should be(Map("hola" -> 16L, "holo" -> 8L))
+      productA("entityCount_text") should be(Map("hola" -> 16L, "holo" -> 8L))
 
       val productB = getData("productb")
       productB("acc_price") should be(
@@ -87,7 +87,7 @@ class ISocketOElasticsearchOperatorsIT extends SparktaATSuite {
       productB("stddev_price") should be(448.04041590655d)
       productB("variance_price") should be(200740.2142857143d)
       productB("range_price") should be(986.0d)
-      productB("entitycount_text") should be(Map("hola" -> 16L, "holo" -> 8L))
+      productB("entityCount_text") should be(Map("hola" -> 16L, "holo" -> 8L))
     }
 
     def getData(productName: String): Map[String, Any] = {

@@ -180,7 +180,8 @@
           "name": "entityCount_text",
           "type": "EntityCount",
           "configuration": {
-            "inputField": "text"
+            "inputField": "text",
+            "split": " "
           }
         }
       ]
