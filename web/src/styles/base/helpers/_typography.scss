@@ -1,3 +1,7 @@
+@function get-font($font-family: bariol) {
+	@return map-get($font-families, $font-family);
+}
+
 @function get-font-weight($weight: normal) {
 	@return map-get($font-weights, $weight);
 }
