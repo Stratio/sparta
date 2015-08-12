@@ -1,24 +1,22 @@
 @import 'base/settings/colors';
+@import 'base/settings/fonts';
 @import 'base/settings/typography';
 
 @import 'base/helpers/colors';
 @import 'base/helpers/typography';
+@import 'base/helpers/app-config';
 
-@import '_reset';
-@import 'base/_typography';
-@import './fonts/stratio/_stratio_fonticon.scss';
-@import './components/_filters';
-@import './components/_inputs';
-@import './components/_combos';
-@import './components/_tooltip';
-@import './components/_callaction-buttons';
-@import './components/_modal';
-@import './directives/ui-stratio/_ui.stratio.grid';
-@import 'font-faces';
-@import '../stratio-ui/style/_stratio.ui';
+@import 'vendors/reset-css/reset';
 
-.container {
-	box-sizing: border-box;
-	min-width: 1024px;
-	padding: 50px 30px;
-}
+@import 'app';
+
+
+
+@import 'components/filters';
+@import 'components/inputs';
+@import 'components/combos';
+@import 'components/tooltip';
+@import 'components/callaction-buttons';
+@import 'components/modal';
+@import 'directives/ui-stratio/ui.stratio.grid';
+@import '../stratio-ui/style/stratio.ui';
