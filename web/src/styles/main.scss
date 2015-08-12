@@ -1,8 +1,8 @@
-@import 'setting/colors';
-@import 'setting/typography';
+@import 'base/settings/colors';
+@import 'base/settings/typography';
 
-@import 'helpers/colors';
-@import 'helpers/typography';
+@import 'base/helpers/colors';
+@import 'base/helpers/typography';
 
 @import '_reset';
 @import 'base/_typography';
