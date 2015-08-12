@@ -70,6 +70,7 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
             aValues("stddev") should be("347.9605889013459")
             aValues("variance") should be("121076.57142857143")
             aValues("range") should be("992.0")
+            aValues("entitycount") should be("Map(hola -> 16, holo -> 8)")
           }
           case "productb" => {
             val bValues = extractProductValues(row)
@@ -86,6 +87,7 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
             bValues("stddev")  should be("448.04041590655")
             bValues("variance") should be("200740.2142857143")
             bValues("range") should be("986.0")
+            bValues("entitycount") should be("Map(hola -> 16, holo -> 8)")
           }
         }
       })
@@ -103,7 +105,8 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
       "stddev" -> row.getAs[String]("stddev_price"),
       "variance" -> row.getAs[String]("variance_price"),
       "range" -> row.getAs[String]("range_price"),
-      "mode" -> row.getAs[String]("mode_price"))
+      "mode" -> row.getAs[String]("mode_price"),
+      "entitycount" -> row.getAs[String]("entityCount_text"))
   }
 
 

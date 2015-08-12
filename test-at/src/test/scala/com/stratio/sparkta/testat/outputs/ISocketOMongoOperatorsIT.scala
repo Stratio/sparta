@@ -21,6 +21,7 @@ import com.mongodb.casbah.{MongoClientURI, MongoCollection, MongoConnection}
 import com.mongodb.{BasicDBList, BasicDBObject}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import scala.collection.JavaConversions._
 
 import com.stratio.sparkta.testat.SparktaATSuite
 
@@ -67,6 +68,8 @@ class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
       productA.get("stddev_price") should be(347.9605889013459d)
       productA.get("variance_price") should be(121076.57142857143d)
       productA.get("range_price") should be(992.0d)
+      mapAsScalaMap(productA.get("entityCount_text").asInstanceOf[BasicDBObject].toMap) should be(
+        Map("hola" -> 16L, "holo" -> 8L))
 
 
       val productB = mongoColl.find(new BasicDBObject("product", "productb")).next()
@@ -84,6 +87,8 @@ class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
       productB.get("stddev_price") should be(448.04041590655d)
       productB.get("variance_price") should be(200740.2142857143d)
       productB.get("range_price") should be(986.0d)
+      mapAsScalaMap(productB.get("entityCount_text").asInstanceOf[BasicDBObject].toMap) should be(
+        Map("hola" -> 16L, "holo" -> 8L))
     }
 
     def checkMongoDb: Unit = {

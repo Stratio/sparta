@@ -33,7 +33,7 @@ class WordCountOperatorSpec extends WordSpec with Matchers {
       inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(None)
 
       val inputFields3 = new WordCountOperator("entityCount", Map("inputField" -> "field1"))
-      inputFields3.processMap(Map("field1" -> "hola holo", "field2" -> 2)) should be(Some(Seq("hola","holo")))
+      inputFields3.processMap(Map("field1" -> "hola holo", "field2" -> 2)) should be(Some(Seq("hola holo")))
 
       val inputFields4 = new WordCountOperator("entityCount", Map("inputField" -> "field1", "split" -> ","))
       inputFields4.processMap(Map("field1" -> "hola holo", "field2" -> 2)) should be(Some(Seq("hola holo")))
@@ -50,7 +50,8 @@ class WordCountOperatorSpec extends WordSpec with Matchers {
       inputFields7.processMap(Map("field1" -> "hola", "field2" -> 2)) should be(None)
 
       val inputFields8 = new WordCountOperator("entityCount",
-        Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \"!=\", \"value\":\"hola\"}]"))
+        Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \"!=\", \"value\":\"hola\"}]",
+          "split" -> " "))
       inputFields8.processMap(Map("field1" -> "hola holo", "field2" -> 2)) should be(Some(Seq("hola","holo")))
 
     }
