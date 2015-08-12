@@ -49,10 +49,10 @@ class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
     }
 
     def checkMongoData(): Unit = {
-      val mongoColl: MongoCollection = MongoConnection(Localhost, TestMongoPort)("csvtest")("product_minute")
+      val mongoColl: MongoCollection = MongoConnection(Localhost, TestMongoPort)("csvtest")("id_product_minute")
       mongoColl.size should be(2)
 
-      val productA = mongoColl.find(new BasicDBObject("id", "producta")).next()
+      val productA = mongoColl.find(new BasicDBObject("product", "producta")).next()
       productA.get("acc_price").asInstanceOf[BasicDBList].toArray.toSeq should be(
         Seq("10", "500", "1000", "500", "1000", "500", "1002", "600"))
       productA.get("avg_price") should be(639.0d)
@@ -69,7 +69,7 @@ class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
       productA.get("range_price") should be(992.0d)
 
 
-      val productB = mongoColl.find(new BasicDBObject("id", "productb")).next()
+      val productB = mongoColl.find(new BasicDBObject("product", "productb")).next()
       productB.get("acc_price").asInstanceOf[BasicDBList].toArray.toSeq should be(
         Seq("15", "1000", "1000", "1000", "1000", "1000", "1001", "50"))
       productB.get("avg_price") should be(758.25d)
