@@ -74,7 +74,7 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
       rowProductA.getDouble("variance_price") should be(121076.57142857143d)
       val counts = mapAsScalaMap(rowProductA.getMap("entitycount_text", classOf[String], classOf[java.lang.Long]))
       counts should be(Map("hola" -> new lang.Long(16), "holo" -> new lang.Long(8)))
-
+      rowProductA.getInt("totalentity_text") should be(24)
 
       val resultProductB: ResultSet = session.execute("select * from product_minute where product = 'productb'")
       val rowProductB = resultProductB.iterator().next()
@@ -92,6 +92,7 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
       rowProductB.getDouble("range_price") should be(986.0d)
       val counts2 = mapAsScalaMap(rowProductB.getMap("entitycount_text", classOf[String], classOf[java.lang.Long]))
       counts2 should be(Map("hola" -> new java.lang.Long(16), "holo" -> new java.lang.Long(8)))
+      rowProductB.getInt("totalentity_text") should be(24)
     }
   }
 

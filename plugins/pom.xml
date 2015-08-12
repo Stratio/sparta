@@ -56,7 +56,7 @@
         <module>operator-lastValue</module>
         <module>operator-accumulator</module>
         <module>operator-entityCount</module>
-        <module>operator-wordCount</module>
+        <module>operator-totalEntityCount</module>
         <module>operator-mode</module>
         <module>input-kafka</module>
         <module>input-flume</module>

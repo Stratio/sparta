@@ -200,6 +200,14 @@
             "inputField": "text",
             "split": " "
           }
+        },
+        {
+          "name": "totalEntity_text",
+          "type": "TotalEntityCount",
+          "configuration": {
+            "inputField": "text",
+            "split": " "
+          }
         }
       ]
     }

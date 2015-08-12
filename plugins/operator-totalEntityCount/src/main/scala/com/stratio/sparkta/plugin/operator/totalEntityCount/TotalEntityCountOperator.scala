@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.plugin.operator.wordCount
+package com.stratio.sparkta.plugin.operator.totalEntityCount
 
 import java.io.{Serializable => JSerializable}
 
@@ -23,7 +23,8 @@ import com.stratio.sparkta.sdk._
 
 import scala.util.Try
 
-class WordCountOperator(name: String, properties: Map[String, JSerializable]) extends EntityCount(name, properties) {
+class TotalEntityCountOperator(name: String, properties: Map[String, JSerializable])
+  extends EntityCount(name, properties) {
 
   final val Some_Empty = Some(0)
 
