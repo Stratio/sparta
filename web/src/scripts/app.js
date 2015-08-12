@@ -8,6 +8,7 @@
  *
  * Main module of the application.
  */
+
 angular
   .module('webApp', [
     'ngAnimate',
@@ -43,43 +44,59 @@ angular
 
   /*ROUTER*/
   .config(['$stateProvider','$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
-    // For any unmatched url, redirect to /state1
-    $urlRouterProvider.otherwise('/');
+    // For any unmatched url, redirect to /dashboard/inputs
+    $urlRouterProvider.otherwise('/dashboard/inputs');
 
     $stateProvider
-      .state('index', {
-        url: '/',
-        controller: 'MainCtrl',
-        templateUrl: 'views/main.html'
-      })
-/*
-      .state('inputs', {
-        url: '/inputs',
-
-        - Comentado para que no entre 2 veces por el mismo controlador al cargar la página
-        - Referenciarlo en el view para que utilizar 'controller as'
-
-      controller: 'NuevoCtrl',
-        templateUrl: 'views/nuevo.html'
-      });
-*/
-      .state('inputs', {
-        url: '/inputs',
+    /*******  DASHBOARD *******/
+    .state('dashboard', {
+        url: '/dashboard',
         views: {
-/*
-           'submenu': {
-            controller:   'DashboardSettingCtrl',
-            templateUrl:  'views/dashboard/settings/submenu_settings.html'
-          },
-*/
-          'content': {
-/*
-             controller:   'NuevoCtrl',
-*/
-            templateUrl:  'views/nuevo.html'
-          }
+            'menu': {
+                templateUrl:  'views/dashboard/dashboard_menu.html'
+            },
+            'content': {
+                templateUrl:  'views/dashboard/dashboard_content.html'
+            }
         }
-      });
+    })
+    .state('dashboard.inputs', {
+        url: '/inputs',
+        controller: 'NuevoCtrl',
+        controllerAs: 'nuevo',
+        templateUrl: 'views/nuevo.html'
+    })
+    .state('dashboard.outputs', {
+        url: '/outputs'
+/*
+        controller: 'NuevoCtrl',
+        controllerAs: 'nuevo',
+        templateUrl: 'views/nuevo.html'
+*/
+    })
+    .state('dashboard.policies', {
+        url: '/policies'
+/*
+        controller: 'NuevoCtrl',
+        controllerAs: 'nuevo',
+        templateUrl: 'views/nuevo.html'
+*/
+    })
+
+    /*******  SETINGS *******/
+    .state('settings', {
+        url: '/settings',
+        views: {
+            'menu': {
+                templateUrl:  'views/settings/settings_menu.html'
+            },
+            'content': {
+                controller:   'NuevoCtrl',
+                controllerAs: 'nuevo',
+                templateUrl:  'views/settings/settings_content.html'
+            }
+        }
+    });
 
 
   }]);

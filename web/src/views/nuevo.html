@@ -1,4 +1,4 @@
-<div data-ng-controller="NuevoCtrl as nuevo" data-ng-init="nuevo.init()">
+<div data-ng-init="nuevo.init()">
 	<!-- HEADER -->
 	<st-heading title="{{'_INPUT_HEADER_TITLE_MAIN' | translate}}" subtitle="{{'_INPUT_HEADER_TITLE_SECONDARY' | translate}}:"></st-heading>
 
@@ -21,10 +21,7 @@
 		</div>
 
 		<ul br-ba-container="">
-			<!--
-			<li ng-repeat="dataView in filteredDataViews = (vm.dataViews | logicalOR:['name','dataSource.name','description']:vm.search)" br-ba-item="{index:$index, total:filteredDataViews.length}">
-			-->
-			<li data-ng-repeat="input in nuevo.inputsData | filter:nuevo.filters:strict" br-ba-item="{index:$index, total:nuevo.inputsData.length}">
+			<li data-ng-repeat="input in filteredInputsData = (nuevo.inputsData | filter:nuevo.filters:strict)" br-ba-item="{index:$index, total:filteredInputsData.length}">
 				<div class="title">
 					<span class="name">{{input.name}}</span>
 

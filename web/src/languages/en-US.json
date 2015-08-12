@@ -1,11 +1,21 @@
 {
-  "_INPUT_HEADER_TITLE_MAIN": "inputs",
-  "_INPUT_HEADER_TITLE_SECONDARY": "manage",
-  "_INPUT_FILTER_NAME_": "Name",
-  "_INPUT_FILTER_TYPE_": "Type",
-  "_INPUT_FILTER_TYPE_DEFAULT_": "Please select an option",
-  "_INPUT_ACTIONS_MENU_EDIT_": "Edit",
-  "_INPUT_ACTIONS_MENU_DUPLICATE_": "Duplicate",
-  "_INPUT_ACTIONS_MENU_DELETE_": "Delete",
-  "_INPUT_BUTTON_NEW_": "add new"
+	"_HEADER_MENU_DASHBOARD_": "dashboard",
+	"_HEADER_MENU_SETTINGS_": "settings",
+
+	"_MENU_DASHBOARD_TITLE_": "dashboard",
+	"_MENU_DASHBOARD_INPUT_": "Inputs",
+	"_MENU_DASHBOARD_OUTPUT_": "Outputs",
+	"_MENU_DASHBOARD_POLICIES_": "Policies",
+
+	"_MENU_SETTINGS_TITLE_": "settings",
+
+  	"_INPUT_HEADER_TITLE_MAIN": "inputs",
+  	"_INPUT_HEADER_TITLE_SECONDARY": "manage",
+  	"_INPUT_FILTER_NAME_": "Name",
+  	"_INPUT_FILTER_TYPE_": "Type",
+  	"_INPUT_FILTER_TYPE_DEFAULT_": "Please select an option",
+  	"_INPUT_ACTIONS_MENU_EDIT_": "Edit",
+  	"_INPUT_ACTIONS_MENU_DUPLICATE_": "Duplicate",
+  	"_INPUT_ACTIONS_MENU_DELETE_": "Delete",
+  	"_INPUT_BUTTON_NEW_": "add new"
 }

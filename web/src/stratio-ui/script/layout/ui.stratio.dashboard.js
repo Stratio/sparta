@@ -20,7 +20,8 @@ function stDashboard(TEMPLATE_URL){
 		transclude: true,
 		templateUrl: TEMPLATE_URL('layout', 'dashboard'),
 		controller: controller,
-		link: link
+		link: link,
+		replace: true
 	};
 
 	return directive;
