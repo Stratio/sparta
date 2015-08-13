@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.models
+package com.stratio.sparkta.serving.core.models
 
-import com.stratio.sparkta.sdk.JsoneyString
-
-case class PolicyElementModel(name: String, `type`: String, configuration: Map[String, JsoneyString] = Map(),
-                              jarFile: Option[String] = None)
+case class StreamingContextStatus(name: String,
+                                  status: StreamingContextStatusEnum.Status,
+                                  description: Option[String])

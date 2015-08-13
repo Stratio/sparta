@@ -16,7 +16,7 @@
 
 package com.stratio.sparkta.serving.api.test.helpers
 
-import com.stratio.sparkta.driver.models._
+import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.api.helpers.PolicyHelper
 import org.junit.runner.RunWith
 import org.scalatest._

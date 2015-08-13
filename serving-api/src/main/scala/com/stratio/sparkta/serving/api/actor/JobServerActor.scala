@@ -20,17 +20,16 @@ import java.io.File
 import java.nio.file.{Files, Paths}
 
 import akka.actor._
-import com.stratio.sparkta.driver.models.StreamingContextStatusEnum
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.api.actor.JobServerActor.JsResponseCreateContext
 import com.stratio.sparkta.serving.api.actor.JobServerActor._
 import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.core.models.StreamingContextStatusEnum
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.JsonMethods._
 import org.json4s.{DefaultFormats, _}
 
 import scala.util.Try
-import scalaj.http.{HttpRequest, Http}
+import scalaj.http.Http
 
 class JobServerActor(host: String, port: Int) extends InstrumentedActor {
 

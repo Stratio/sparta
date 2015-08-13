@@ -21,7 +21,7 @@ import java.io.File
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.driver.SparktaJob
 import com.stratio.sparkta.driver.factory._
-import com.stratio.sparkta.driver.models._
+import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.sdk._
 import com.typesafe.config.Config
 import org.apache.spark.SparkContext

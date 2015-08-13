@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.models
+package com.stratio.sparkta.serving.core.models
 
-object StreamingContextStatusEnum extends Enumeration {
-  type Status = Value
-  val Initializing, Initialized, Error, ConfigurationError, Stopped, Removed = Value
-}
+import com.stratio.sparkta.sdk.JsoneyString
+
+case class PolicyElementModel(name: String, `type`: String, configuration: Map[String, JsoneyString] = Map(),
+                              jarFile: Option[String] = None)

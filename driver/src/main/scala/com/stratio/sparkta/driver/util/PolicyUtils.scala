@@ -21,7 +21,7 @@ import org.json4s.jackson.JsonMethods._
 import org.json4s.native.Serialization._
 import org.json4s.{DefaultFormats, _}
 
-import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, StreamingContextStatusEnum}
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, StreamingContextStatusEnum}
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 
 /**

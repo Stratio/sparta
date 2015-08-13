@@ -17,7 +17,7 @@
 package com.stratio.sparkta.serving.api.actor
 
 import akka.actor.ActorRef
-import com.stratio.sparkta.driver.models.StreamingContextStatusEnum
+import com.stratio.sparkta.serving.core.models.StreamingContextStatusEnum
 
 case class StatusContextActor(actor: ActorRef,
                               policyName: String,

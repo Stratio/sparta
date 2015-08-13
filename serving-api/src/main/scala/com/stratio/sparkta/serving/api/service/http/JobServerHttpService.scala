@@ -19,7 +19,6 @@ package com.stratio.sparkta.serving.api.service.http
 import akka.pattern.ask
 import com.stratio.sparkta.serving.api.actor.JobServerActor._
 import com.stratio.sparkta.serving.api.constants.HttpConstant
-import com.wordnik.swagger.annotations._
 import spray.routing._
 
 import scala.concurrent.Await

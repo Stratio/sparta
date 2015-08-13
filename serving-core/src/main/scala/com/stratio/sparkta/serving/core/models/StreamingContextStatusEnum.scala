@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.models
+package com.stratio.sparkta.serving.core.models
 
-case class CheckpointModel(timeDimension: String,
-                          granularity: String,
-                          interval: Integer,
-                          timeAvailability: Long)
+object StreamingContextStatusEnum extends Enumeration {
+  type Status = Value
+  val GettingPolicyFromZookeeper, Initializing, Initialized, Error, ConfigurationError, Stopped, Removed = Value
+}

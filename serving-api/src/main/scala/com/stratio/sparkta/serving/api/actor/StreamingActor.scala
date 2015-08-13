@@ -20,18 +20,16 @@ import akka.actor.SupervisorStrategy.Escalate
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
-import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
-import com.stratio.sparkta.driver.models._
+import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.service.StreamingContextService
-import com.stratio.sparkta.serving.api.actor.JobServerActor._
 import com.stratio.sparkta.serving.api.actor.StreamingActor._
 import com.stratio.sparkta.serving.api.actor.SupervisorContextActor._
-import com.stratio.sparkta.serving.api.exception.ServingApiException
+import com.stratio.sparkta.serving.core.models.StreamingContextStatusEnum._
+import com.stratio.sparkta.serving.core.models._
+import com.typesafe.config.Config
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import scala.util.{Failure, Success}
-import com.typesafe.config.Config
 
 class StreamingActor(streamingContextService: StreamingContextService,
                      jobServerRef: Option[ActorRef],
@@ -42,7 +40,7 @@ class StreamingActor(streamingContextService: StreamingContextService,
 
   override val supervisorStrategy =
     OneForOneStrategy() {
-      case _: ServingApiException => Escalate
+      case _: DriverException => Escalate
       case t =>
         super.supervisorStrategy.decider.applyOrElse(t, (_: Any) => Escalate)
     }
@@ -108,7 +106,7 @@ class StreamingActor(streamingContextService: StreamingContextService,
       case SupResponse_ContextStatus(Some(contextActorStatus)) =>
         sender ! new StreamingContextStatus(contextName, contextActorStatus.status, contextActorStatus.description)
       case SupResponse_ContextStatus(None) =>
-        throw new ServingApiException("Context with name " + contextName + " does not exists.")
+        throw new DriverException("Context with name " + contextName + " does not exists.")
     }
   }
 
@@ -125,7 +123,7 @@ class StreamingActor(streamingContextService: StreamingContextService,
           else deleteStandAloneContext(contextName, contextActorStatus.actor)
         }
         case None =>
-          throw new ServingApiException("Context with name " + contextName + " does not exists.")
+          throw new DriverException("Context with name " + contextName + " does not exists.")
       }
       )
   }
@@ -136,14 +134,14 @@ class StreamingActor(streamingContextService: StreamingContextService,
   }
 
   private def deleteClusterContext(contextName: String, contextActorStatus: ActorRef): Unit = {
-    (jobServerRef.get ? JsDeleteContext(contextName)).mapTo[JsResponseDeleteContext].foreach {
-      case JsResponseDeleteContext(Failure(exception)) =>
-        sender ! new StreamingContextStatus(contextName, Error, Some(exception.getMessage))
-      case JsResponseDeleteContext(Success(response)) => {
-        contextActorStatus ! PoisonPill
-        sender ! new StreamingContextStatus(contextName, Removed, None)
-      }
-    }
+//    (jobServerRef.get ? JsDeleteContext(contextName)).mapTo[JsResponseDeleteContext].foreach {
+//      case JsResponseDeleteContext(Failure(exception)) =>
+//        sender ! new StreamingContextStatus(contextName, Error, Some(exception.getMessage))
+//      case JsResponseDeleteContext(Success(response)) => {
+//        contextActorStatus ! PoisonPill
+//        sender ! new StreamingContextStatus(contextName, Removed, None)
+//      }
+//    }
   }
 
   /**

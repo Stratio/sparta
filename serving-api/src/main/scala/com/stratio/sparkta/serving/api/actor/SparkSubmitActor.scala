@@ -16,11 +16,11 @@
 
 package com.stratio.sparkta.serving.api.actor
 
-import com.typesafe.config.Config
-import scala.sys.process._
-
-import com.stratio.sparkta.driver.models.AggregationPoliciesModel
 import com.stratio.sparkta.serving.api.actor.SparkSubmitActor.SubmitJob
+import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.typesafe.config.Config
+
+import scala.sys.process._
 
 class SparkSubmitActor(policy: AggregationPoliciesModel,
                        jobServerConfig: Config) extends InstrumentedActor {

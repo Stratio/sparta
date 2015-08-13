@@ -19,11 +19,12 @@ package com.stratio.sparkta.serving.api.actor
 import akka.actor.{ActorContext, _}
 import akka.event.slf4j.SLF4JLogging
 import com.gettyimages.spray.swagger.SwaggerHttpService
-import com.stratio.sparkta.driver.models.{ErrorModel, StreamingContextStatusEnum}
+import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.api.constants.{AkkaConstant, HttpConstant}
+import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.api.service.http._
+import com.stratio.sparkta.serving.core.models.{ErrorModel, StreamingContextStatusEnum}
 import com.wordnik.swagger.model.ApiInfo
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.DefaultFormats
@@ -32,6 +33,7 @@ import org.json4s.native.Serialization._
 import spray.http.StatusCodes
 import spray.routing._
 import spray.util.LoggingContext
+
 import scala.reflect.runtime.universe._
 
 class ControllerActor(streamingContextService: StreamingContextService,

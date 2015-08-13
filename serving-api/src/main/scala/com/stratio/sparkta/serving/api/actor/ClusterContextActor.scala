@@ -17,14 +17,14 @@
 package com.stratio.sparkta.serving.api.actor
 
 import java.io.File
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-import scala.sys.process._
-import scala.util.{Failure, Success, Try}
 
 import akka.actor.ActorRef
-import akka.pattern.ask
 import akka.util.Timeout
+import com.stratio.sparkta.driver.SparktaJob
+import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.serving.api.actor.StreamingActor.{ResponseCreateContext, InitSparktaContext}
+import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.StreamingContextStatusEnum._
 import com.typesafe.config.Config
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -32,13 +32,9 @@ import org.json4s._
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization._
 
-import com.stratio.sparkta.driver.SparktaJob
-import com.stratio.sparkta.driver.models.AggregationPoliciesModel
-import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
-import com.stratio.sparkta.driver.service.StreamingContextService
-import com.stratio.sparkta.serving.api.actor.JobServerActor._
-import com.stratio.sparkta.serving.api.actor.StreamingActor._
-import com.stratio.sparkta.serving.api.constants._
+import scala.concurrent.duration._
+import scala.sys.process._
+import scala.util.{Failure, Success, Try}
 
 class ClusterContextActor(policy: AggregationPoliciesModel,
                           streamingContextService: StreamingContextService,
@@ -51,7 +47,7 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
 
   override def receive: PartialFunction[Any, Unit] = {
     case InitSparktaContext => doInitSparktaContext
-    case JsResponseUploadPolicy(response) => doJobServerResponseUploadPolicy(response)
+//    case JsResponseUploadPolicy(response) => doJobServerResponseUploadPolicy(response)
   }
 
   def doInitSparktaContext: Unit = {
@@ -95,34 +91,34 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
 
   private def doUploadJars(jarFiles: Seq[File], policyStr: String): Unit = {
 
-    (jobServerRef ? new JsUploadJars(jarFiles)).mapTo[JsResponseUploadJars].foreach {
-      case JsResponseUploadJars(Failure(exception)) =>
-        sender ! new ResponseCreateContext(new StatusContextActor(context.self,
-          policy.name,
-          Error,
-          Some(exception.getMessage)))
-      case JsResponseUploadJars(Success(response)) => doCreateContext(policyStr)
-    }
+//    (jobServerRef ? new JsUploadJars(jarFiles)).mapTo[JsResponseUploadJars].foreach {
+//      case JsResponseUploadJars(Failure(exception)) =>
+//        sender ! new ResponseCreateContext(new StatusContextActor(context.self,
+//          policy.name,
+//          Error,
+//          Some(exception.getMessage)))
+//      case JsResponseUploadJars(Success(response)) => doCreateContext(policyStr)
+//    }
   }
 
   private def doCreateContext(policyStr: String): Unit = {
 
-    val cpuCores = Try(jobServerConfig.getInt(JobServerConstant.CpuCores)).getOrElse(JobServerConstant.DefaultCpuCores)
-    val memory = Try(jobServerConfig.getString(JobServerConstant.Memory)).getOrElse(JobServerConstant.DefaultMemory)
-
-    (jobServerRef ? new JsCreateContext(s"${policy.name}", cpuCores.toString, memory))
-      .mapTo[JsResponseCreateContext].foreach {
-      case JsResponseCreateContext(Failure(exception)) =>
-        sender ! new ResponseCreateContext(new StatusContextActor(context.self,
-          policy.name,
-          Error,
-          Some(exception.getMessage)))
-      case JsResponseCreateContext(Success(response)) =>
-        jobServerRef ! new JsUploadPolicy("driver-plugin.jar",
-          "com.stratio.sparkta.driver.service.SparktaJob",
-          policyStr,
-          Some(s"${policy.name}-${policy.input.get.name}"))
-    }
+//    val cpuCores = Try(jobServerConfig.getInt(JobServerConstant.CpuCores)).getOrElse(JobServerConstant.DefaultCpuCores)
+//    val memory = Try(jobServerConfig.getString(JobServerConstant.Memory)).getOrElse(JobServerConstant.DefaultMemory)
+//
+//    (jobServerRef ? new JsCreateContext(s"${policy.name}", cpuCores.toString, memory))
+//      .mapTo[JsResponseCreateContext].foreach {
+//      case JsResponseCreateContext(Failure(exception)) =>
+//        sender ! new ResponseCreateContext(new StatusContextActor(context.self,
+//          policy.name,
+//          Error,
+//          Some(exception.getMessage)))
+//      case JsResponseCreateContext(Success(response)) =>
+//        jobServerRef ! new JsUploadPolicy("driver-plugin.jar",
+//          "com.stratio.sparkta.driver.service.SparktaJob",
+//          policyStr,
+//          Some(s"${policy.name}-${policy.input.get.name}"))
+//    }
   }
 
   override def postStop(): Unit = {

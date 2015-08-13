@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.models
+package com.stratio.sparkta.serving.core.models
 
-import com.stratio.sparkta.sdk.JsoneyString
+import com.stratio.sparkta.sdk.{Input, JsoneyString}
 
-case class OperatorModel(`type`: String, name: String, configuration: Map[String, JsoneyString],
-                         jarFile: Option[String] = None)
+case class TransformationsModel(name: String,
+                                `type`: String,
+                                order: Integer,
+                                inputField: String = Input.RawDataKey,
+                                outputFields: Seq[String],
+                                configuration: Map[String, JsoneyString] = Map(),
+                                jarFile: Option[String] = None)
+

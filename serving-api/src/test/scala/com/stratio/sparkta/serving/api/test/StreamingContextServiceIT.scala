@@ -18,14 +18,12 @@ package com.stratio.sparkta.serving.api.test
 
 import java.io.File
 
-import akka.actor.Props
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.driver.models.AggregationPoliciesModel
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.api.actor.JobServerActor
 import com.stratio.sparkta.serving.api.helpers.SparktaHelper
-import com.stratio.sparkta.serving.core.{SparktaConfig, MockSystem, AppConstant}
+import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.{AppConstant, MockSystem, SparktaConfig}
 import org.json4s.{DefaultFormats, native}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner

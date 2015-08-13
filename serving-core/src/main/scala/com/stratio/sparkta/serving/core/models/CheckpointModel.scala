@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.models
+package com.stratio.sparkta.serving.core.models
 
-case class StreamingContextStatus(name: String,
-                                  status: StreamingContextStatusEnum.Status,
-                                  description: Option[String])
+case class CheckpointModel(timeDimension: String,
+                          granularity: String,
+                          interval: Integer,
+                          timeAvailability: Long)

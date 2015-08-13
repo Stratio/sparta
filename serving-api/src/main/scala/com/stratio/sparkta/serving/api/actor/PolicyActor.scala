@@ -18,15 +18,14 @@ package com.stratio.sparkta.serving.api.actor
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, StreamingContextStatusEnum}
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.core.AppConstant
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, StreamingContextStatusEnum}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.Serialization._
-import spray.httpx.Json4sJacksonSupport
 
 import scala.collection.JavaConversions
 import scala.util.Try
@@ -51,7 +50,6 @@ case class PolicySupervisorActor_response_policy(policy: Try[AggregationPolicies
  * @author anistal
  */
 class PolicyActor(curatorFramework: CuratorFramework) extends Actor
-with Json4sJacksonSupport
 with SLF4JLogging {
 
   implicit val json4sJacksonFormats = DefaultFormats +

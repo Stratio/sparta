@@ -37,7 +37,7 @@ import spray.client.pipelining._
 import spray.http.StatusCodes._
 import spray.http._
 import spray.testkit.ScalatestRouteTest
-import com.stratio.sparkta.driver.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.api.helpers.SparktaHelper
 

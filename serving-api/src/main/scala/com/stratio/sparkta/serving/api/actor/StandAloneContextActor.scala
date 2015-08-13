@@ -17,11 +17,11 @@
 package com.stratio.sparkta.serving.api.actor
 
 import com.stratio.sparkta.driver.factory.SparkContextFactory
-import com.stratio.sparkta.driver.models.AggregationPoliciesModel
-import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
 import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.serving.api.actor.StreamingActor._
+import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.StreamingContextStatusEnum._
 import org.apache.spark.streaming.StreamingContext
-import StreamingActor._
 
 import scala.util.{Failure, Success, Try}
 

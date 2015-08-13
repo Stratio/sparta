@@ -20,8 +20,8 @@ import java.io.{File, InputStreamReader}
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.driver.models.{StreamingContextStatusEnum, TemplateModel}
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.core.models.{StreamingContextStatusEnum, TemplateModel}
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer

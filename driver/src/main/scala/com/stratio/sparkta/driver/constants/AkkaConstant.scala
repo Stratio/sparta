@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.constants
+package com.stratio.sparkta.driver.constants
 
 /**
  * Akka constants with Akka's actor paths.

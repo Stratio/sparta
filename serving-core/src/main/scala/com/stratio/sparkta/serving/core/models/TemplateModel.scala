@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.models
-
-import com.stratio.sparkta.sdk.JsoneyString
-import org.codehaus.jettison.json.JSONString
+package com.stratio.sparkta.serving.core.models
 
 /**
  * Class that represents a template used by the frontend to render inputs/outputs.
