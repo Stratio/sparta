@@ -1,3 +1,5 @@
+@import 'theme/light-platinum';
+
 @import 'base/settings/colors';
 @import 'base/settings/fonts';
 @import 'base/settings/typography';
@@ -10,13 +12,13 @@
 
 @import 'app';
 
+@import 'components/c-line-separator/index';
 
-
+//@import 'components/button';
 @import 'components/filters';
 @import 'components/inputs';
 @import 'components/combos';
 @import 'components/tooltip';
-@import 'components/callaction-buttons';
 @import 'components/modal';
 @import 'directives/ui-stratio/ui.stratio.grid';
 @import '../stratio-ui/style/stratio.ui';
