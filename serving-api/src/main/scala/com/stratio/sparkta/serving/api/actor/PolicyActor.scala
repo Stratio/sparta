@@ -20,7 +20,7 @@ import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, StreamingContextStatusEnum}
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.api.constants.AppConstant
+import com.stratio.sparkta.serving.core.AppConstant
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.DefaultFormats
@@ -69,20 +69,20 @@ with SLF4JLogging {
 
   def findAll(): Unit =
     sender ! PolicySupervisorActor_response_policies(Try({
-      val children = curatorFramework.getChildren.forPath(s"${PolicyActor.PoliciesBasePath}")
+      val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
       JavaConversions.asScalaBuffer(children).toList.map(element =>
         read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
-          s"${PolicyActor.PoliciesBasePath}/$element")))).toSeq
+          s"${AppConstant.PoliciesBasePath}/$element")))).toSeq
     }).recover {
       case e: NoNodeException => Seq()
     })
 
   def findByFragment(fragmentType: String, name: String): Unit =
     sender ! PolicySupervisorActor_response_policies(Try({
-      val children = curatorFramework.getChildren.forPath(s"${PolicyActor.PoliciesBasePath}")
+      val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
       JavaConversions.asScalaBuffer(children).toList.map(element =>
         read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
-          s"${PolicyActor.PoliciesBasePath}/$element")))).filter(apm =>
+          s"${AppConstant.PoliciesBasePath}/$element")))).filter(apm =>
         (apm.fragments.filter(f => f.name == name)).size > 0).toSeq
     }).recover {
       case e: NoNodeException => Seq()
@@ -91,27 +91,22 @@ with SLF4JLogging {
   def find(name: String): Unit =
     sender ! new PolicySupervisorActor_response_policy(Try({
       read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.forPath(
-        s"${PolicyActor.PoliciesBasePath}/$name")))
+        s"${AppConstant.PoliciesBasePath}/$name")))
     }))
 
   def create(policy: AggregationPoliciesModel): Unit =
     sender ! PolicySupervisorActor_response(Try({
       curatorFramework.create().creatingParentsIfNeeded().forPath(
-        s"${PolicyActor.PoliciesBasePath}/${policy.name}", write(policy).getBytes)
+        s"${AppConstant.PoliciesBasePath}/${policy.name}", write(policy).getBytes)
     }))
 
   def update(policy: AggregationPoliciesModel): Unit =
     sender ! PolicySupervisorActor_response(Try({
-      curatorFramework.setData.forPath(s"${PolicyActor.PoliciesBasePath}/${policy.name}", write(policy).getBytes)
+      curatorFramework.setData.forPath(s"${AppConstant.PoliciesBasePath}/${policy.name}", write(policy).getBytes)
     }))
 
   def delete(name: String): Unit =
     sender ! PolicySupervisorActor_response(Try({
-      curatorFramework.delete().forPath(s"${PolicyActor.PoliciesBasePath}/$name")
+      curatorFramework.delete().forPath(s"${AppConstant.PoliciesBasePath}/$name")
     }))
-}
-
-private object PolicyActor {
-
-  val PoliciesBasePath: String = s"${AppConstant.BaseZKPath}/policies"
 }

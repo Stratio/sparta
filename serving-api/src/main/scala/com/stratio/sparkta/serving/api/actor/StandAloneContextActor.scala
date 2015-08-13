@@ -67,6 +67,7 @@ class StandAloneContextActor(policy: AggregationPoliciesModel,
             None
         }
       case Failure(e: Exception) =>
+        log.error("Error in streamingContextService.standAloneStreamingContext", e)
         sender ! new ResponseCreateContext(new StatusContextActor(context.self,
           policy.name,
           ConfigurationError,

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.constants
+package com.stratio.sparkta.serving.core
 
 /**
  * Global constants of the application.
@@ -29,5 +29,6 @@ object AppConstant {
   final val ConfigAkka = "akka"
   final val ConfigSwagger = "swagger"
   final val BaseZKPath      = "/stratio/sparkta"
+  final val PoliciesBasePath = s"${AppConstant.BaseZKPath}/policies"
 
 }

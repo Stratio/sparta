@@ -25,11 +25,10 @@ import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import akka.routing.RoundRobinPool
 import com.stratio.sparkta.driver.factory.SparkContextFactory
-import com.stratio.sparkta.driver.helpers.{ConfigFactory, SparktaConfigFactory, SparktaSystem, System}
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor._
-import com.stratio.sparkta.serving.api.constants.{AkkaConstant, AppConstant}
-import com.stratio.sparkta.serving.api.factory.CuratorFactoryHolder
+import com.stratio.sparkta.serving.api.constants.AkkaConstant
+import com.stratio.sparkta.serving.core._
 import com.typesafe.config.Config
 import spray.can.Http
 
@@ -70,24 +69,6 @@ object SparktaHelper extends SLF4JLogging {
       log.info(s"> Loading jars from $sparktaHome/$path")
       findJarsByPathAndAddToClasspath(new File(sparktaHome, path))
     })
-
-  /**
-   * Initializes base configuration.
-   * @param currentConfig if it is setted the function tries to load a node from a loaded config.
-   * @param node with the node needed to load the configuration.
-   * @return the loaded configuration.
-   */
-  def initConfig(node: String,
-                 currentConfig: Option[Config] = None,
-                 configFactory: ConfigFactory = new SparktaConfigFactory): Config = {
-    log.info(s"> Loading $node configuration")
-    val configResult = currentConfig match {
-      case Some(config) => Some(config.getConfig(node))
-      case _ => configFactory.getConfig(node)
-    }
-    assert(configResult.isDefined, "Fatal Error: configuration can not be loaded: $node")
-    configResult.get
-  }
 
   /**
    * Initializes base configuration.

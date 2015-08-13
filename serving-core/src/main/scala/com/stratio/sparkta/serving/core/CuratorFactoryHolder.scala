@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2015 Stratio (http://stratio.com)
  *
@@ -14,10 +15,10 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.factory
+package com.stratio.sparkta.serving.core
 
 import akka.event.slf4j.SLF4JLogging
-import com.typesafe.config.{Config, ConfigException}
+import com.typesafe.config.Config
 import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
 import org.apache.curator.retry.ExponentialBackoffRetry
 
@@ -36,7 +37,6 @@ object CuratorFactoryHolder extends SLF4JLogging {
    * @param config with the ZK configuration.
    * @return a singleton instance of CuratorFramework.
    */
-  @throws(classOf[ConfigException])
   def getInstance(config: Config): Option[CuratorFramework] = {
     curatorFramework match {
       case None =>  {

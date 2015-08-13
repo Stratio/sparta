@@ -19,6 +19,8 @@ package com.stratio.sparkta.testat
 import java.io.{File, PrintStream}
 import java.net._
 import java.nio.channels.ServerSocketChannel
+import com.stratio.sparkta.serving.core.{MockSystem, AppConstant}
+
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.io.Source
@@ -35,11 +37,8 @@ import spray.client.pipelining._
 import spray.http.StatusCodes._
 import spray.http._
 import spray.testkit.ScalatestRouteTest
-
-import com.stratio.sparkta.driver.helpers.MockSystem
 import com.stratio.sparkta.driver.models.AggregationPoliciesModel
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.api.constants.AppConstant
 import com.stratio.sparkta.serving.api.helpers.SparktaHelper
 
 /**
