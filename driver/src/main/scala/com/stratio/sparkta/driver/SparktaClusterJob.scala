@@ -16,24 +16,16 @@
 
 package com.stratio.sparkta.driver
 
-import scala.util.{Failure, Success, Try}
-
-import org.apache.spark.{SparkConf, SparkContext}
-import org.json4s.DefaultFormats
-import org.json4s.ext.EnumNameSerializer
-
 import com.stratio.sparkta.driver.SparktaJob._
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.util.PolicyUtils
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, StreamingContextStatusEnum}
+import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
 import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder, SparktaConfig}
+import org.apache.spark.{SparkConf, SparkContext}
+
+import scala.util.{Failure, Success, Try}
 
 object SparktaClusterJob {
-  
-  implicit val json4sJacksonFormats = DefaultFormats +
-    new EnumNameSerializer(StreamingContextStatusEnum) +
-    new JsoneyStringSerializer()
 
   def main(args: Array[String]): Unit = {
     val aggregationPoliciesModel: AggregationPoliciesModel = getPolicyFromZookeeper(args(0))
@@ -57,4 +49,5 @@ object SparktaClusterJob {
       case Failure(e) => log.error(s"Cannot load policy $policyName", e); throw e
     }
   }
+
 }
