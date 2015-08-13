@@ -18,17 +18,17 @@ package com.stratio.sparkta.serving.core
 
 /**
  * Global constants of the application.
- * @author anistal
+ * @author anistalmvn
  */
 object AppConstant {
 
   final val JarPaths = Seq( "plugins", "sdk", "aggregator")
   final val ConfigAppName = "sparkta"
   final val ConfigApi = "api"
-  final val ConfigJobServer = "jobServer"
+  final val ConfigCluster = "cluster"
+  final val ConfigSpark = "spark"
   final val ConfigAkka = "akka"
   final val ConfigSwagger = "swagger"
   final val BaseZKPath      = "/stratio/sparkta"
   final val PoliciesBasePath = s"${AppConstant.BaseZKPath}/policies"
-
 }

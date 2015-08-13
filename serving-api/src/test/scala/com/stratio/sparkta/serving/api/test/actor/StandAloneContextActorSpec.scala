@@ -98,7 +98,7 @@ class StandAloneContextActorSpec
   }
 
   private def createSupervisorActorStandalone: ActorRef = {
-    system.actorOf(Props(new StreamingActor(streamingContextService.get, None, None, supervisorContextActor)))
+    system.actorOf(Props(new StreamingActor(streamingContextService.get, None, supervisorContextActor)))
   }
 
   private def createSupervisorContextActor: ActorRef = {
