@@ -16,14 +16,11 @@
 
 package com.stratio.sparkta.serving.api.actor
 
+import scala.reflect.runtime.universe._
+
 import akka.actor.ActorContext
 import akka.event.slf4j.SLF4JLogging
 import com.gettyimages.spray.swagger.SwaggerHttpService
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.api.actor.SwaggerActor._
-import com.stratio.sparkta.serving.api.constants.HttpConstant
-import com.stratio.sparkta.serving.api.service.http._
-import com.stratio.sparkta.serving.core.models.{ErrorModel, StreamingContextStatusEnum}
 import com.wordnik.swagger.model.ApiInfo
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
@@ -32,7 +29,11 @@ import spray.http.StatusCodes
 import spray.routing._
 import spray.util.LoggingContext
 
-import scala.reflect.runtime.universe._
+import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.api.actor.SwaggerActor._
+import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.api.service.http._
+import com.stratio.sparkta.serving.core.models.{ErrorModel, StreamingContextStatusEnum}
 
 class SwaggerActor extends HttpServiceActor with SLF4JLogging {
 
@@ -68,7 +69,6 @@ class SwaggerActor extends HttpServiceActor with SLF4JLogging {
 
   val swaggerService = new SwaggerHttpService {
     override def apiTypes: Seq[Type] = Seq(
-      typeOf[JobServerHttpService],
       typeOf[FragmentHttpService],
       typeOf[TemplateHttpService],
       typeOf[PolicyHttpService],
@@ -95,6 +95,9 @@ class SwaggerActor extends HttpServiceActor with SLF4JLogging {
 }
 
 object SwaggerActor {
+
   case object GetRoutes
-  case class ResponseGetRoutes(routes : Route)
+
+  case class ResponseGetRoutes(routes: Route)
+
 }

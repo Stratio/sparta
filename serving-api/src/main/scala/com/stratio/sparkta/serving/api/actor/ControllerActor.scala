@@ -16,15 +16,11 @@
 
 package com.stratio.sparkta.serving.api.actor
 
+import scala.reflect.runtime.universe._
+
 import akka.actor.{ActorContext, _}
 import akka.event.slf4j.SLF4JLogging
 import com.gettyimages.spray.swagger.SwaggerHttpService
-import com.stratio.sparkta.driver.constants.AkkaConstant
-import com.stratio.sparkta.driver.service.StreamingContextService
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.api.constants.HttpConstant
-import com.stratio.sparkta.serving.api.service.http._
-import com.stratio.sparkta.serving.core.models.{ErrorModel, StreamingContextStatusEnum}
 import com.wordnik.swagger.model.ApiInfo
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.DefaultFormats
@@ -34,7 +30,12 @@ import spray.http.StatusCodes
 import spray.routing._
 import spray.util.LoggingContext
 
-import scala.reflect.runtime.universe._
+import com.stratio.sparkta.driver.constants.AkkaConstant
+import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.api.service.http._
+import com.stratio.sparkta.serving.core.models.{ErrorModel, StreamingContextStatusEnum}
 
 class ControllerActor(streamingContextService: StreamingContextService,
                       curatorFramework: CuratorFramework,
@@ -58,22 +59,14 @@ class ControllerActor(streamingContextService: StreamingContextService,
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(serviceRoutes ~ swaggerService ~ swaggerUIroutes))
 
   val serviceRoutes: Route =
-    new JobServerHttpService {
+    new FragmentHttpService {
       implicit val actors = actorsMap
       override val supervisor =
-        if (actorsMap.contains(AkkaConstant.JobServerActor)) actorsMap.get(AkkaConstant.JobServerActor).get
+        if (actorsMap.contains(AkkaConstant.FragmentActor)) actorsMap.get(AkkaConstant.FragmentActor).get
         else context.self
 
       override implicit def actorRefFactory: ActorRefFactory = context
     }.routes ~
-      new FragmentHttpService {
-        implicit val actors = actorsMap
-        override val supervisor =
-          if (actorsMap.contains(AkkaConstant.FragmentActor)) actorsMap.get(AkkaConstant.FragmentActor).get
-          else context.self
-
-        override implicit def actorRefFactory: ActorRefFactory = context
-      }.routes ~
       new TemplateHttpService {
         implicit val actors = actorsMap
         override val supervisor =
@@ -110,7 +103,6 @@ class ControllerActor(streamingContextService: StreamingContextService,
 
   val swaggerService = new SwaggerHttpService {
     override def apiTypes: Seq[Type] = Seq(
-      typeOf[JobServerHttpService],
       typeOf[FragmentHttpService],
       typeOf[TemplateHttpService],
       typeOf[PolicyHttpService],
