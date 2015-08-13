@@ -16,12 +16,15 @@
 
 package com.stratio.sparkta.testat.outputs
 
+import java.{util, lang}
+
 import com.datastax.driver.core.{Cluster, ResultSet, Session}
 import com.stratio.sparkta.testat.SparktaATSuite
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper
 import org.junit.runner.RunWith
 import org.scalatest.Ignore
 import org.scalatest.junit.JUnitRunner
+import scala.collection.JavaConversions._
 
 import scala.reflect.ClassTag
 
@@ -69,6 +72,9 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
       rowProductA.getDouble("variance_price") should be(121076.57142857143d)
       rowProductA.getDouble("range_price") should be(992.0d)
       rowProductA.getDouble("variance_price") should be(121076.57142857143d)
+      val counts = mapAsScalaMap(rowProductA.getMap("entitycount_text", classOf[String], classOf[java.lang.Long]))
+      counts should be(Map("hola" -> new lang.Long(16), "holo" -> new lang.Long(8)))
+      rowProductA.getInt("totalentity_text") should be(24)
 
       val resultProductB: ResultSet = session.execute("select * from product_minute where product = 'productb'")
       val rowProductB = resultProductB.iterator().next()
@@ -84,6 +90,9 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
       rowProductB.getDouble("stddev_price") should be(448.04041590655d)
       rowProductB.getDouble("variance_price") should be(200740.2142857143d)
       rowProductB.getDouble("range_price") should be(986.0d)
+      val counts2 = mapAsScalaMap(rowProductB.getMap("entitycount_text", classOf[String], classOf[java.lang.Long]))
+      counts2 should be(Map("hola" -> new java.lang.Long(16), "holo" -> new java.lang.Long(8)))
+      rowProductB.getInt("totalentity_text") should be(24)
     }
   }
 

@@ -47,27 +47,28 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
       checkData
     }
 
-
+    // scalastyle:off
     def checkData(): Unit = {
       val sqc = new SQLContext(new SparkContext(s"local[$NumExecutors]", "ISocketOParquet-operators"))
       val df = sqc.read.parquet(parquetPath).toDF
-      // scalastyle:off magic.number
       val mapValues = df.map(row => Map(
         "product" -> row.getString(0),
         "acc_price" -> row.getSeq[String](2),
         "avg_price" -> row.getDouble(3),
         "count_price" -> row.getLong(4),
-        "first_price" -> row.getString(5),
-        "fulltext_price" -> row.getString(6),
-        "last_price" -> row.getString(7),
-        "max_price" -> row.getDouble(8),
-        "median_price" -> row.getDouble(9),
-        "min_price" -> row.getDouble(10),
-        "range_price" -> row.getDouble(12),
-        "stddev_price" -> row.getDouble(13),
-        "sum_price" -> row.getDouble(14),
-        "variance_price" -> row.getDouble(15),
-        "mode_price" -> row.getList(11).toArray()))
+        "first_price" -> row.getString(6),
+        "fulltext_price" -> row.getString(7),
+        "last_price" -> row.getString(8),
+        "max_price" -> row.getDouble(9),
+        "median_price" -> row.getDouble(10),
+        "min_price" -> row.getDouble(11),
+        "range_price" -> row.getDouble(13),
+        "stddev_price" -> row.getDouble(14),
+        "sum_price" -> row.getDouble(15),
+        "variance_price" -> row.getDouble(17),
+        "mode_price" -> row.getList(12).toArray(),
+        "entityCount_text" -> row.getMap(5),
+        "totalEntity_text" -> row.getInt(16)))
 
       val productA = mapValues.filter(value => value("product") == "producta").take(1)(0)
       productA("acc_price") should be(Seq("10", "500", "1000", "500", "1000", "500", "1002", "600"))
@@ -83,6 +84,9 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
       productA("variance_price") should be(121076.57142857143d)
       productA("range_price") should be(992.0d)
       productA("mode_price") should be(List("500"))
+      productA("entityCount_text") should be(Map("hola" -> 16L, "holo" -> 8L))
+      productA("totalEntity_text") should be(24)
+
       val productB = mapValues.filter(value => value("product") == "productb").take(1)(0)
       productB("acc_price") should be(Seq("15", "1000", "1000", "1000", "1000", "1000", "1001", "50"))
       productB("avg_price") should be(758.25d)
@@ -97,6 +101,9 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
       productB("variance_price") should be(200740.2142857143d)
       productB("range_price") should be(986.0d)
       productB("mode_price") should be(List("1000"))
+      productB("entityCount_text") should be(Map("hola" -> 16L, "holo" -> 8L))
+      productB("totalEntity_text") should be(24)
+
       sqc.sparkContext.stop
     }
   }

@@ -50,7 +50,8 @@ abstract class Output(keyName: String,
 
   val supportedWriteOps = Seq(WriteOp.FullText, WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Range,
     WriteOp.AccSet, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.AccAvg, WriteOp.Median,
-    WriteOp.AccMedian, WriteOp.Variance, WriteOp.AccVariance, WriteOp.Stddev, WriteOp.AccStddev)
+    WriteOp.AccMedian, WriteOp.Variance, WriteOp.AccVariance, WriteOp.Stddev, WriteOp.AccStddev,
+    WriteOp.WordCount, WriteOp.EntityCount, WriteOp.Mode)
 
   val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 

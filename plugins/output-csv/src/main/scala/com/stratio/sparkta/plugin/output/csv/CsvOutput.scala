@@ -33,7 +33,6 @@ import com.stratio.sparkta.sdk._
  * This output prints all AggregateOperations or DataFrames information on screen. Very useful to debug.
  * @param keyName
  * @param properties
- * @param sparkContext
  * @param operationTypes
  * @param bcSchema
  */
