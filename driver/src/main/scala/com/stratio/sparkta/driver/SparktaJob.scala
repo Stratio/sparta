@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2015 Stratio (http://stratio.com)
  *
@@ -25,13 +24,10 @@ import scala.util._
 
 import akka.event.slf4j.SLF4JLogging
 import org.apache.commons.io.FileUtils
+import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
-import org.apache.spark.{SparkConf, SparkContext}
-import org.json4s.DefaultFormats
-import org.json4s.ext.EnumNameSerializer
-import org.json4s.native.Serialization._
 import org.reflections.Reflections
 
 import com.stratio.sparkta.aggregator.{Cube, CubeMaker}
@@ -41,39 +37,11 @@ import com.stratio.sparkta.driver.service.RawDataStorageService
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.models._
-import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder, SparktaConfig}
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, OperatorModel}
 
 object SparktaJob extends SLF4JLogging {
 
   val baseJars = Seq("driver-plugin.jar", "aggregator-plugin.jar", "sdk-plugin.jar")
-
-  implicit val json4sJacksonFormats = DefaultFormats +
-    new EnumNameSerializer(StreamingContextStatusEnum) +
-    new JsoneyStringSerializer()
-
-  def main(args: Array[String]): Unit = {
-    val aggregationPoliciesModel: AggregationPoliciesModel = getPolicyFromZookeeper(args(0))
-
-    val sc = new SparkContext(new SparkConf().setAppName(s"SPARKTA-${aggregationPoliciesModel.name}"))
-    SparkContextFactory.setSparkContext(sc)
-    runSparktaJob(sc, aggregationPoliciesModel)
-    SparkContextFactory.sparkStreamingInstance.get.start
-    SparkContextFactory.sparkStreamingInstance.get.awaitTermination
-  }
-
-  def getPolicyFromZookeeper(policyName: String): AggregationPoliciesModel = {
-    Try({
-      val configSparkta = SparktaConfig.initConfig(AppConstant.ConfigAppName)
-      val curatorFramework = CuratorFactoryHolder.getInstance(configSparkta).get
-
-      read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.forPath(
-        s"${AppConstant.PoliciesBasePath}/${policyName}")))
-    }) match {
-      case Success(policy) => policy
-      case Failure(e) => log.error("", e); throw e
-    }
-  }
 
   def runSparktaJob(sc: SparkContext, apConfig: AggregationPoliciesModel): Any = {
 
