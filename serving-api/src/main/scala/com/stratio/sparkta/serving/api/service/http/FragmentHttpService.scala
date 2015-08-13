@@ -17,7 +17,7 @@
 package com.stratio.sparkta.serving.api.service.http
 
 import akka.pattern.ask
-import com.stratio.sparkta.driver.models.FragmentElementModel
+import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, FragmentElementModel}
 import com.stratio.sparkta.serving.api.actor._
 import com.stratio.sparkta.serving.api.constants.{AkkaConstant, HttpConstant}
 import com.wordnik.swagger.annotations._
@@ -31,7 +31,7 @@ import scala.util.{Failure, Success}
   "included in a policy")
 trait FragmentHttpService extends BaseHttpService {
 
-  override def routes: Route = findByTypeAndName ~ findAllByType ~ create ~ deleteByTypeAndName
+  override def routes: Route = findByTypeAndName ~ findAllByType ~ create ~ update ~ deleteByTypeAndName
 
   @ApiOperation(value    = "Find a fragment depending of its type.",
                 notes    = "Find a fragment depending of its type.",
@@ -110,6 +110,31 @@ trait FragmentHttpService extends BaseHttpService {
         entity(as[FragmentElementModel]) { fragment =>
           complete {
             val future = supervisor ? new FragmentSupervisorActor_create(fragment)
+            Await.result(future, timeout.duration) match {
+              case FragmentSupervisorActor_response(Failure(exception)) => throw exception
+              case FragmentSupervisorActor_response(Success(_)) => HttpResponse(StatusCodes.Created)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @ApiOperation(value      = "Updates a fragment.",
+                notes      = "Updates a fragment.",
+                httpMethod = "PUT")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name      = "fragment",
+                         value     = "fragment json",
+                         dataType  = "FragmentElementModel",
+                         required  = true,
+                         paramType = "body")))
+  def update: Route = {
+    path(HttpConstant.FragmentPath) {
+      put {
+        entity(as[FragmentElementModel]) { fragment =>
+          complete {
+            val future = supervisor ? new FragmentSupervisorActor_update(fragment)
             Await.result(future, timeout.duration) match {
               case FragmentSupervisorActor_response(Failure(exception)) => throw exception
               case FragmentSupervisorActor_response(Success(_)) => HttpResponse(StatusCodes.Created)

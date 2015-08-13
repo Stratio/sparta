@@ -18,7 +18,7 @@ package com.stratio.sparkta.serving.api.actor
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.driver.models.{FragmentElementModel, StreamingContextStatusEnum}
+import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, FragmentElementModel, StreamingContextStatusEnum}
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.api.constants.AppConstant
 import org.apache.curator.framework.CuratorFramework
@@ -35,10 +35,8 @@ import scala.util.Try
  * List of all possible akka messages used to manage fragments.
  */
 case class FragmentSupervisorActor_create(fragment: FragmentElementModel)
-
-
+case class FragmentSupervisorActor_update(fragment: FragmentElementModel)
 case class FragmentSupervisorActor_findByType(fragmentType: String)
-
 case class FragmentSupervisorActor_findByTypeAndName(fragmentType: String, name: String)
 case class FragmentSupervisorActor_deleteByTypeAndName(fragmentType: String, name: String)
 case class FragmentSupervisorActor_response_fragment(fragment: Try[FragmentElementModel])
@@ -58,6 +56,7 @@ class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4
   override def receive: Receive = {
     case FragmentSupervisorActor_findByTypeAndName(fragmentType, name) => doDetail(fragmentType, name)
     case FragmentSupervisorActor_create(fragment) => doCreate(fragment)
+    case FragmentSupervisorActor_update(fragment) => doUpdate(fragment)
     case FragmentSupervisorActor_deleteByTypeAndName(fragmentType, name) => doDeleteByTypeAndName(fragmentType, name)
     case FragmentSupervisorActor_findByType(fragmentType) => doFindByType(fragmentType)
   }
@@ -83,6 +82,12 @@ class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4
     sender ! FragmentSupervisorActor_response(Try({
       curatorFramework.create().creatingParentsIfNeeded().forPath(
         s"${FragmentActor.generateFragmentPath(fragment.fragmentType)}/${fragment.name}", write(fragment).getBytes())
+    }))
+
+  def doUpdate(fragment: FragmentElementModel): Unit =
+    sender ! FragmentSupervisorActor_response(Try({
+      curatorFramework.setData.forPath(
+        s"${FragmentActor.generateFragmentPath(fragment.fragmentType)}/${fragment.name}", write(fragment).getBytes)
     }))
 
   def doDeleteByTypeAndName(fragmentType: String, name: String): Unit =
