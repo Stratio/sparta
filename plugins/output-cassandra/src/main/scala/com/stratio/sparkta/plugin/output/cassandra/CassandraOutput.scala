@@ -96,10 +96,15 @@ class CassandraOutput(keyName: String,
   }
 
   override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
+    val tableNameFinal = getTableName(tableName.toLowerCase)
     dataFrame.write
       .format("org.apache.spark.sql.cassandra")
       .mode(Append)
-      .options(Map("table" -> tableName, "keyspace" -> keyspace)).save()
+      .options(Map("table" -> tableNameFinal, "keyspace" -> keyspace)).save()
+  }
+
+  def getTableName(table : String) : String = {
+    if(table.size > MaxTableNameLength) table.substring(0,MaxTableNameLength) else table
   }
 }
 
