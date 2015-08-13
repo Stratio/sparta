@@ -17,6 +17,9 @@
 package com.stratio.sparkta.plugin.output.mongodb
 
 import java.io.{Serializable => JSerializable}
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.SaveMode._
+
 import scala.util.Try
 
 import com.mongodb.casbah.commons.MongoDBObject
@@ -40,7 +43,11 @@ class MongoDbOutput(keyName: String,
 
   RegisterJodaTimeConversionHelpers()
 
+  override val isAutoCalculateId = true
+
   override val mongoClientUri = properties.getString("clientUri", "mongodb://localhost:27017")
+
+  val mongoDbDataFrameConnection = mongoClientUri.replaceAll("mongodb://", "")
 
   override val dbName = properties.getString("dbName", "sparkta")
 
@@ -51,56 +58,47 @@ class MongoDbOutput(keyName: String,
 
   override val retrySleep = Try(properties.getInt("retrySleep")).getOrElse(DefaultRetrySleep)
 
-
-  override val idAsField = Try(properties.getString("idAsField").toBoolean).getOrElse(true)
+  override val idAsField = Try(properties.getString("idAsField").toBoolean).getOrElse(false)
 
   override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(FieldsSeparator))
 
   override val language = properties.getString("language", None)
 
-  override val pkTextIndexesCreated: Boolean =
+  override def setup: Unit =
     if (bcSchema.isDefined) {
       val schemasFiltered =
         bcSchema.get.filter(schemaFilter => schemaFilter.outputName == keyName).map(getTableSchemaFixedId(_))
       filterSchemaByFixedAndTimeDimensions(schemasFiltered)
-        .map(tableSchema => createPkTextIndex(tableSchema.tableName, tableSchema.timeDimension))
-        .forall(result => result._1 && result._2)
-    } else false
+        .foreach(tableSchema => createPkTextIndex(tableSchema.tableName, tableSchema.timeDimension))
+    }
 
   override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
-    persistMetricOperation(stream)
+    persistDataFrame(stream)
   }
 
-  override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
-    metricOperations.toList.filter(!_._1.dimensionValues.isEmpty).groupBy(upMetricOp =>
-      AggregateOperations.keyString(upMetricOp._1, upMetricOp._1.timeDimension, fixedDimensions)).filter(_._1.size > 0)
-      .foreach(f = collMetricOp => {
-      val dimensionTime = collMetricOp._2.head._1.timeDimension
-      val bulkOperation = db().getCollection(collMetricOp._1).initializeOrderedBulkOperation()
-      val idFieldName = if (!dimensionTime.isEmpty) Output.Id else DefaultId
-
-      val updateObjects = collMetricOp._2.map { case (cubeKey, aggregations) => {
-        checkFields(aggregations.keySet, operationTypes)
-        val eventTimeObject = if (!dimensionTime.isEmpty) Some(dimensionTime -> new DateTime(cubeKey.time)) else None
-        val idFields = if (idAsField) Some(getIdFields(cubeKey)) else None
-        val mapOperations = getOperations(aggregations.toSeq, operationTypes)
-          .groupBy { case (writeOp, op) => writeOp }
-          .mapValues(operations => operations.map { case (writeOp, op) => op })
-          .map({ case (op, seq) => getSentence(op, seq) })
-
-        (getFind(
-          idFieldName,
-          eventTimeObject,
-          AggregateOperations.filterDimensionValuesByName(cubeKey.dimensionValues, if (dimensionTime.isEmpty) None
-          else Some(dimensionTime))),
-          getUpdate(mapOperations, idFields))
-      }
-      }
-
-      Try(executeBulkOperation(bulkOperation, updateObjects)).getOrElse({
-        val retryBulkOperation = reconnect.getCollection(collMetricOp._1).initializeOrderedBulkOperation()
-        Try(executeBulkOperation(retryBulkOperation, updateObjects)).getOrElse(log.error("Error connecting to MongoDB"))
-      })
-    })
+  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
+    val options = getDataFrameOptions(tableName, timeDimension)
+    dataFrame.write
+      .format("com.stratio.provider.mongodb")
+      .mode(Append)
+      .options(options)
+      .save()
   }
+
+  private def getDataFrameOptions(tableName: String, timeDimension: String): Map[String, String] =
+    Map(
+      "host" -> mongoDbDataFrameConnection,
+      "database" -> dbName,
+      "collection" -> tableName) ++ getPrimaryKeyOptions(timeDimension) ++ {
+      if (language.isDefined) Map("language" -> language.get) else Map()
+    }
+
+  private def getPrimaryKeyOptions(timeDimension: String): Map[String, String] =
+    if (idAsField) Map("_idField" -> Output.Id)
+    else {
+      if (!timeDimension.isEmpty) {
+        Map("searchFields" -> Seq(Output.Id, timeDimension).mkString(","))
+      } else Map()
+    }
 }
+

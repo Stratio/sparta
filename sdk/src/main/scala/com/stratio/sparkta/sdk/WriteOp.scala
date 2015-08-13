@@ -21,5 +21,5 @@ object WriteOp extends Enumeration {
 
   type WriteOp = Value
   val FullText, Inc, IncBig, Set, Range, AccSet, Max, Min, Avg, AccAvg,
-  Median, AccMedian, Variance, AccVariance, Stddev, AccStddev, Mode = Value
+  Median, AccMedian, Variance, AccVariance, Stddev, AccStddev, Mode, EntityCount, WordCount = Value
 }

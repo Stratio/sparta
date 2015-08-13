@@ -38,6 +38,11 @@
             <artifactId>spark-sql_${scala.binary.version}</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.stratio</groupId>
+            <artifactId>spark-mongodb-core</artifactId>
+            <version>0.8.7</version>
+        </dependency>
 
         <!--TODO REMOVE -->
         <dependency>

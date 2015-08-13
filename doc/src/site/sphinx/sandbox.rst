@@ -62,27 +62,21 @@ Step 4: Run Sparkta
 
  To start Sparkta
 
- * Starting the Stratio Sparkta Shell::
+ * Start zookeeper::
 
-    cd /opt/sds/sparkta
+    sudo service zookeeper start
 
-    sh bin/run
+ * Start Sparkta::
 
- * Exit the Stratio Stratio Sparkta Shell::
+    sudo service sparkta start
 
-    exit
+ * You can check the logs in::
 
- * Check if it's already running::
+    /var/log/sds/sparkta/sparkta.out
 
-    sudo service elasticsearch status
+ * You can configure Sparkta in::
 
- * Start elasticsearch::
-
-    sudo service elasticsearch start
-
- * Stop elasticsearch::
-
-    sudo service elasticsearch stop
+    /etc/sds/sparkta/
 
 
 Useful commands
@@ -96,7 +90,7 @@ Useful commands
 
     vagrant halt
 
- * In the sandbox, to exit to the host::
+ * Exit the sandbox::
 
     exit
 

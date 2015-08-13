@@ -34,7 +34,7 @@ class FullTextOperator(name: String, properties: Map[String, JSerializable]) ext
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
     if (inputField.isDefined && inputFields.contains(inputField.get)) {
-      applyFilters(inputFields).flatMap(filteredFileds => Some(inputFields.get(inputField.get).get))
+      applyFilters(inputFields).flatMap(filteredFields => Some(filteredFields.get(inputField.get).get))
     } else None
   }
 

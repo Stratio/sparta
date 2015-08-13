@@ -40,6 +40,7 @@ object SchemaFactory {
       case TypeOp.ArrayDouble => ArrayType(DoubleType)
       case TypeOp.ArrayString => ArrayType(StringType)
       case TypeOp.String => StringType
+      case TypeOp.MapStringLong => MapType(StringType, LongType)
       case _ => BinaryType
     }
   //scalastyle:on
