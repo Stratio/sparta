@@ -49,9 +49,4 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
       s"${cfg.getString("spark.extra")}} driver/target/driver-plugin.jar ${policy.name}"
     cmd.!!
   }
-
-  override def postStop(): Unit = {
-
-    super.postStop()
-  }
 }
