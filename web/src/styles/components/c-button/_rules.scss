@@ -1,0 +1,57 @@
+.c-button {
+	border: none;
+	cursor: pointer;
+	height: $c-button---height;
+	min-width: $c-button---min-width;
+	padding: $c-button---padding;
+	position: relative;
+	text-align: $c-button---text-align;
+	text-transform: $c-button---text-transform;
+
+	&--to-right {
+		float: right;
+	}
+
+	&--call-to-action-1 {
+		background: $c-button--call-to-action-1---background;
+		color: $c-button--call-to-action-1---color;
+
+		&:hover {
+			background: $c-button--call-to-action-1--hover---background;
+			color: $c-button--call-to-action-1--hover---color;
+		}
+	}
+
+	&--call-to-action-2 {
+		background: $c-button--call-to-action-2---background;
+		color: $c-button--call-to-action-2---color;
+
+		&:hover {
+			background: $c-button--call-to-action-2--hover---background;
+			color: $c-button--call-to-action-2--hover---color;
+		}
+	}
+
+	&--call-to-action-3 {
+		background: $c-button--call-to-action-3---background;
+		color: $c-button--call-to-action-3---color;
+
+		&:hover {
+			background: $c-button--call-to-action-3--hover---background;
+			color: $c-button--call-to-action-3--hover---color;
+		}
+	}
+
+	&--call-to-action-4 {
+		background: $c-button--call-to-action-4---background;
+		border: $c-button--call-to-action-4---border;
+		box-sizing: border-box;
+		color: $c-button--call-to-action-4---color;
+
+		&:hover {
+			background: $c-button--call-to-action-4--hover---background;
+			border: $c-button--call-to-action-4--hover---border;
+			color: $c-button--call-to-action-4--hover---color;
+		}
+	}
+}

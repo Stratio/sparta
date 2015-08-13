@@ -1,12 +1,11 @@
 /*doc
 ---
-title: c-line-separator
-name: c-line-separator
+title: c-button
+name: c-button
 category: components
 ---
 
-The line separator component creates a separator between elements which is a 
-line that can be customized.
+The button component creates a button that can be customized.
 
 ```html_example <hr class="c-line-separator" />
 
@@ -17,7 +16,6 @@ Variable                                      | Default value
 $c-line-separator---border-color              | `get-color(red)`
 $c-line-separator---border-style              | `solid`
 $c-line-separator---border-width              | `1px`
-$c-line-separator---margin                    | `20px 0`
 
 */
 

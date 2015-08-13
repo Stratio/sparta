@@ -1,5 +1,3 @@
-@import 'theme/light-platinum';
-
 @import 'base/settings/colors';
 @import 'base/settings/fonts';
 @import 'base/settings/typography';
@@ -8,13 +6,15 @@
 @import 'base/helpers/typography';
 @import 'base/helpers/app-config';
 
+@import 'theme/light-platinum';
+
 @import 'vendors/reset-css/reset';
 
 @import 'app';
 
 @import 'components/c-line-separator/index';
+@import 'components/c-button/index';
 
-//@import 'components/button';
 @import 'components/filters';
 @import 'components/inputs';
 @import 'components/combos';
