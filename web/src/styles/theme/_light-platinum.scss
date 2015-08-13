@@ -5,13 +5,111 @@
  *
  *	INDEX
  *
- *	1 - Stratio UI.......................The Stratio component UI library
+ *	1 - Settings.........................All the configuration values needed
+ *	2 - Stratio UI.......................The Stratio component UI library
+ *	3 - Sparkta UI.......................The Sparkta component UI library
+ *		c-line-separator
+ *		c-button
  *
  */
 
- /*
-  * 1- Stratui UI
-  *
-  */
-  $heading---margin: 0;
-  
+/*
+ * 1 - Settings
+ *
+ */
+$darken-color-correction: 20;
+
+$colors: (
+	c1: #37b5e4,
+	c1b: #2d96bd,
+	c2: #b7bfc3,
+	c2b: #92989c,
+	c3: #485566,
+	c3b: #2d3540,
+	c4: #222b37,
+	c5: #d3d8db,
+	g0: #fff,
+	g1: #fbfbfb,
+	g2: #f3f3f3,
+	g3: #e4e4e4,
+	g4: #cbcbcb,
+	g5: #b5b5b5,
+	g6: #999,
+	g7: #777,
+	g8: #555,
+	g9: #242424,
+	g10: #000,
+	f1: #222b37,
+	f2: #1a212b,
+	f3: #eff2f3,
+	f4: #e1e4e5,
+	f5: #fff,
+	e1: #93ae65,
+	e1b: #7d9456,
+	e1c: #9fad87,
+	e2: #eb8817,
+	e2b: #d17915,
+	e2c: #eb9e46,
+	e3: #d24234,
+	e3b: #b8392e,
+	e3c: #d15549,
+	a1: #d0c120,
+	a2: #21d8de,
+	a3: #bcea3f
+);
+
+
+
+
+
+/*
+ * 2 - Stratio UI
+ *
+ */
+$heading---margin: 0;
+
+
+
+
+
+/*
+ * 3 - Sparkta UI
+ *
+ */
+
+// c-line-separator
+
+$c-line-separator---border-color: get-color(g3);
+$c-line-separator---border-style: solid;
+$c-line-separator---border-width: 1px;
+$c-line-separator---margin: 20px 0;
+
+
+// c-button
+$c-button---height: 40px;
+$c-button---min-width: 180px;
+$c-button---padding: 0 20px;
+$c-button---text-align: center;
+$c-button---text-transform: uppercase;
+
+$c-button--call-to-action-1---background: get-color(c1);
+$c-button--call-to-action-1---color: get-color(g0);
+$c-button--call-to-action-1--hover---background: get-color(c1b);
+$c-button--call-to-action-1--hover---color: get-color(g0);
+
+$c-button--call-to-action-2---background: get-color(c2);
+$c-button--call-to-action-2---color: get-color(g0);
+$c-button--call-to-action-2--hover---background: get-color(c2b);
+$c-button--call-to-action-2--hover---color: get-color(g0);
+
+$c-button--call-to-action-3---background: get-color(c3);
+$c-button--call-to-action-3---color: get-color(g0);
+$c-button--call-to-action-3--hover---background: get-color(c3b);
+$c-button--call-to-action-3--hover---color: get-color(g0);
+
+$c-button--call-to-action-4---background: get-color(g0);
+$c-button--call-to-action-4---border: 2px solid get-color(g3);
+$c-button--call-to-action-4---color: get-color(g4);
+$c-button--call-to-action-4--hover---background: get-color(g0);
+$c-button--call-to-action-4--hover---border: 2px solid get-color(g4);
+$c-button--call-to-action-4--hover---color: get-color(g5);
