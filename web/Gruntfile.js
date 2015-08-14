@@ -414,9 +414,10 @@ module.exports = function (grunt) {
             '.htaccess',
             '*.html',
             'views/**/*.html',
-             'stratio-ui/**/*.html',
+            'stratio-ui/**/*.html',
             'images/{,*/}*.{webp}',
-            'styles/fonts/{,*/}*.*'
+            'styles/fonts/{,*/}*.*',
+            'languages/{,*/}*.*'
           ]
         }, {
           expand: true,
