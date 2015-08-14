@@ -106,6 +106,7 @@ class CassandraOutput(keyName: String,
   def getTableName(table : String) : String = {
     if(table.size > MaxTableNameLength) table.substring(0,MaxTableNameLength) else table
   }
+
 }
 
 object CassandraOutput {

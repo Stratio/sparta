@@ -116,7 +116,7 @@
         </dependency>
         <dependency>
             <groupId>com.gettyimages</groupId>
-            <artifactId>spray-swagger_2.10</artifactId>
+            <artifactId>spray-swagger_${scala.binary.version}</artifactId>
             <version>0.5.0</version>
         </dependency>
         <dependency>
@@ -142,7 +142,7 @@
         </dependency>
         <dependency>
             <groupId>org.scalamock</groupId>
-            <artifactId>scalamock-scalatest-support_2.10</artifactId>
+            <artifactId>scalamock-scalatest-support_${scala.binary.version}</artifactId>
             <version>3.2.2</version>
         </dependency>
         <dependency>
@@ -177,13 +177,13 @@
         </dependency>
         <dependency>
             <groupId>io.spray</groupId>
-            <artifactId>spray-json_2.10</artifactId>
+            <artifactId>spray-json_${scala.binary.version}</artifactId>
             <version>${spray.test.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.github.simplyscala</groupId>
-            <artifactId>scalatest-embedmongo_2.10</artifactId>
+            <artifactId>scalatest-embedmongo_${scala.binary.version}</artifactId>
             <version>0.2.2</version>
             <scope>test</scope>
         </dependency>
@@ -206,13 +206,13 @@
         </dependency>
         <dependency>
             <groupId>com.datastax.spark</groupId>
-            <artifactId>spark-cassandra-connector_2.10</artifactId>
-            <version>1.4.0-M1</version>
+            <artifactId>spark-cassandra-connector_${scala.binary.version}</artifactId>
+            <version>1.4.0-M3</version>
         </dependency>
         <dependency>
             <groupId>com.databricks</groupId>
-            <artifactId>spark-csv_2.11</artifactId>
-            <version>1.1.0</version>
+            <artifactId>spark-csv_${scala.binary.version}</artifactId>
+            <version>1.2.0</version>
     	</dependency>
 	<dependency>
             <groupId>com.github.kstyrc</groupId>
