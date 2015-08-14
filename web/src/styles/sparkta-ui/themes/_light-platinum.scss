@@ -16,6 +16,7 @@
  *		c-label
  *		c-form-control
  *		c-toolbar
+ *		c-titlebar
  *
  */
 
@@ -158,3 +159,11 @@ $c-form-control---margin: 0 0 0 $component-margin;
 // c-toolbar
 $c-toolbar---background: get-color(f3);
 $c-toolbar---padding: 11px 25px;
+
+
+
+// c-titlebar
+$c-titlebar---background: get-color(f3) !default;
+$c-titlebar---color: get-color(g7) !default;
+$c-titlebar---text-transform: uppercase !default;
+$c-titlebar---padding: 7px 10px !default;
