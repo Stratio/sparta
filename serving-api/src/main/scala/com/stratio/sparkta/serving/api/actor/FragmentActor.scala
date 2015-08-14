@@ -16,11 +16,11 @@
 
 package com.stratio.sparkta.serving.api.actor
 
+import scala.collection.JavaConversions
+import scala.util.Try
+
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, FragmentElementModel, StreamingContextStatusEnum}
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.core.AppConstant
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.DefaultFormats
@@ -28,19 +28,27 @@ import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.Serialization._
 import spray.httpx.Json4sJacksonSupport
 
-import scala.collection.JavaConversions
-import scala.util.Try
+import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.core.AppConstant
+import com.stratio.sparkta.serving.core.models.{FragmentElementModel, StreamingContextStatusEnum}
 
 /**
  * List of all possible akka messages used to manage fragments.
  */
 case class FragmentSupervisorActor_create(fragment: FragmentElementModel)
+
 case class FragmentSupervisorActor_update(fragment: FragmentElementModel)
+
 case class FragmentSupervisorActor_findByType(fragmentType: String)
+
 case class FragmentSupervisorActor_findByTypeAndName(fragmentType: String, name: String)
+
 case class FragmentSupervisorActor_deleteByTypeAndName(fragmentType: String, name: String)
+
 case class FragmentSupervisorActor_response_fragment(fragment: Try[FragmentElementModel])
+
 case class FragmentSupervisorActor_response_fragments(fragments: Try[Seq[FragmentElementModel]])
+
 case class FragmentSupervisorActor_response(status: Try[Unit])
 
 /**
