@@ -7,7 +7,7 @@
 
     ApiPolicyService.$inject = ['$resource'];
 
-    function ApiPolicyService($resource){
+    function ApiPolicyService($resource) {
         var vm = this;
 
         vm.GetPolicyByFragmentName = GetPolicyByFragmentName;
