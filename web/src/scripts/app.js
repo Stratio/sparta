@@ -21,6 +21,8 @@ angular
     'ui.router',
     'StratioUI',
     'ui.bootstrap',
+    'ui.bootstrap.modal',
+    'ui.bootstrap.tpls',
     'pascalprecht.translate'
   ])
 
@@ -36,7 +38,7 @@ angular
     var language = 'en-US';
 
     $translateProvider.useStaticFilesLoader({
-      prefix: '/languages/',
+      prefix: 'languages/',
       suffix: '.json'
     });
     $translateProvider.preferredLanguage(language);
