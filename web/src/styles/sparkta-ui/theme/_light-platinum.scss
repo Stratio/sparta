@@ -7,6 +7,7 @@
  *
  *	1 - Settings.........................All the configuration values needed
  *	2 - Stratio UI.......................The Stratio component UI library
+ *		heading
  *	3 - Sparkta UI.......................The Sparkta component UI library
  *		c-line-separator
  *		c-button
@@ -23,8 +24,6 @@
  * 1 - Settings
  *
  */
-$darken-color-correction: 20;
-
 $colors: (
 	c1: #37b5e4,
 	c1b: #2d96bd,
@@ -76,6 +75,8 @@ $component-margin: 15px;
  * 2 - Stratio UI
  *
  */
+
+// heading
 $heading---margin: 0;
 
 
@@ -129,7 +130,6 @@ $c-button--call-to-action-4--hover---color: get-color(g5);
 $c-input---border: none;
 $c-input---color: get-color(g8);
 $c-input---height: 28px;
-$c-input---margin: 0 0 0 $component-margin;
 $c-input---border-radius: $component-border-radius;
 
 $c-input--left-icon---padding: 0 0 0 35px;
