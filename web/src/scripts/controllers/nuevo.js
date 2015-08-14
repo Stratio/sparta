@@ -51,7 +51,7 @@
         this.createInput = function(size) {
             var modalInstance = $modal.open({
                 animation: true,
-                templateUrl: 'views/myModalContent.html',
+                templateUrl: 'templates/inputs/input-details.tpl.html',
                 controller: 'ModalInstanceCtrl',
                 size: size,
                 resolve: {
