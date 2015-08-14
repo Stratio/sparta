@@ -111,9 +111,9 @@ class ControllerActor(streamingContextService: StreamingContextService,
     get {
       pathPrefix("") {
         pathEndOrSingleSlash {
-          getFromResource("webApp/index.html")
+          getFromResource("web/index.html")
         }
-      } ~ getFromResourceDirectory("webApp")
+      } ~ getFromResourceDirectory("web")
     }
 
   val swaggerService = new SwaggerHttpService {
