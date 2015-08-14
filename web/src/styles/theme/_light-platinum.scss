@@ -10,6 +10,11 @@
  *	3 - Sparkta UI.......................The Sparkta component UI library
  *		c-line-separator
  *		c-button
+ *		c-input
+ *		c-searchbox
+ *		c-combobox
+ *		c-label
+ *		c-form-control
  *
  */
 
@@ -57,6 +62,10 @@ $colors: (
 	a2: #21d8de,
 	a3: #bcea3f
 );
+
+$component-border-radius: 5px;
+$component-margin: 15px;
+
 
 
 
@@ -113,3 +122,32 @@ $c-button--call-to-action-4---color: get-color(g4);
 $c-button--call-to-action-4--hover---background: get-color(g0);
 $c-button--call-to-action-4--hover---border: 2px solid get-color(g4);
 $c-button--call-to-action-4--hover---color: get-color(g5);
+
+
+// c-input
+$c-input---border: none;
+$c-input---color: get-color(g8);
+$c-input---height: 28px;
+$c-input---margin: 0 0 0 $component-margin;
+$c-input---border-radius: $component-border-radius;
+
+$c-input--left-icon---padding: 0 0 0 35px;
+
+
+
+//c-searchbox
+
+
+
+//c-combobox
+$c-combobox---padding: 0 10px;
+
+
+
+// c-label
+$c-label---margin: 0 $component-margin 0 0;
+
+
+
+//c-form-control
+$c-form-control---margin: 0 0 0 $component-margin;

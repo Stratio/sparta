@@ -1,5 +1,9 @@
-.c-line-separator {
+@mixin c-line-separator {
 	border: 0;
 	border-top: $c-line-separator---border-width $c-line-separator---border-style $c-line-separator---border-color;
 	margin: $c-line-separator---margin;
+}
+
+.c-line-separator {
+	@include c-line-separator;
 }

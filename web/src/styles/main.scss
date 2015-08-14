@@ -14,10 +14,15 @@
 
 @import 'components/c-line-separator/index';
 @import 'components/c-button/index';
+@import 'components/c-input/index';
+@import 'components/c-searchbox/index';
+@import 'components/c-combobox/index';
+@import 'components/c-label/index';
+@import 'components/c-icon/index';
+@import 'components/c-form-control/index';
+@import 'components/c-form-group/index';
 
 @import 'components/filters';
-@import 'components/inputs';
-@import 'components/combos';
 @import 'components/tooltip';
 @import 'components/modal';
 @import 'directives/ui-stratio/ui.stratio.grid';

@@ -1,0 +1,11 @@
+@mixin c-form-group {
+	position: relative;
+
+	&--to-right {
+		text-align: right;
+	}
+}
+
+.c-form-group {
+	@include c-form-group;
+}
