@@ -96,7 +96,7 @@
         function deleteInputConfirm(size, policies) {
             var modalInstance = $modal.open({
                 animation: true,
-                templateUrl: 'templates/components/st_delete_modal.html',
+                templateUrl: 'templates/components/st_delete_modal.tpl.html',
                 controller: 'ModalInstanceCtrl',
                 size: size,
                 resolve: {
