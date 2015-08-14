@@ -36,7 +36,7 @@ object SchemaFactory {
       case TypeOp.Int => IntegerType
       case TypeOp.Boolean => BooleanType
       case TypeOp.Date => DateType
-      case TypeOp.DateTime => TimestampType
+      case TypeOp.DateTime | TypeOp.Timestamp => TimestampType
       case TypeOp.ArrayDouble => ArrayType(DoubleType)
       case TypeOp.ArrayString => ArrayType(StringType)
       case TypeOp.String => StringType
