@@ -1,20 +1,31 @@
-@import '_reset';
-@import 'bower_components/compass-mixins/lib/compass/functions';
-@import 'bower_components/compass-mixins/lib/compass/css3';
-@import 'base/_typography';
-@import './fonts/stratio/_stratio_fonticon.scss';
-@import './components/_filters';
-@import './components/_inputs';
-@import './components/_combos';
-@import './components/_tooltip';
-@import './components/_callaction-buttons';
-@import './components/_modal';
-@import './directives/ui-stratio/_ui.stratio.grid';
-@import 'font-faces';
-@import '../stratio-ui/style/_stratio.ui';
+@import 'sparkta-ui/base/settings/colors';
+@import 'sparkta-ui/base/settings/fonts';
+@import 'sparkta-ui/base/settings/typography';
 
-.container {
-	box-sizing: border-box;
-	min-width: 1024px;
-	padding: 50px 30px;
-}
+@import 'sparkta-ui/base/helpers/colors';
+@import 'sparkta-ui/base/helpers/typography';
+@import 'sparkta-ui/base/helpers/app-config';
+
+@import 'sparkta-ui/theme/light-platinum';
+
+@import 'vendors/reset-css/reset';
+
+@import 'app';
+
+@import 'sparkta-ui/components/c-panel/index';
+@import 'sparkta-ui/components/c-row/index';
+@import 'sparkta-ui/components/c-line-separator/index';
+@import 'sparkta-ui/components/c-button/index';
+@import 'sparkta-ui/components/c-input/index';
+@import 'sparkta-ui/components/c-searchbox/index';
+@import 'sparkta-ui/components/c-combobox/index';
+@import 'sparkta-ui/components/c-label/index';
+@import 'sparkta-ui/components/c-icon/index';
+@import 'sparkta-ui/components/c-form-control/index';
+@import 'sparkta-ui/components/c-form-group/index';
+@import 'sparkta-ui/components/c-toolbar/index';
+
+@import 'vendors/angular-ui/tooltip';
+@import 'vendors/angular-ui/modal';
+
+@import '../stratio-ui/style/stratio.ui';

@@ -1,0 +1,7 @@
+@mixin c-label {
+	margin: $c-label---margin;
+}
+
+.c-label {
+	@include c-label;
+}
