@@ -2,8 +2,8 @@
 	<!-- HEADER -->
 	<st-heading title="{{'_INPUT_HEADER_TITLE_MAIN' | translate}}" subtitle="{{'_INPUT_HEADER_TITLE_SECONDARY' | translate}}:"></st-heading>
 
-	<div class="inputs_wrapper">
-		<div class="filters c-form-group--to-right">
+	<div class="c-panel">
+		<div class="c-toolbar c-form-group--to-right">
 			<div class="c-form-control">
 				<label class="c-label" for="name">{{"_INPUT_FILTER_NAME_" | translate}}:</label>
 				<i class="icon-search c-icon c-icon--in-input"></i>
@@ -50,8 +50,8 @@
 
     <hr class="c-line-separator" />
 
-    <div class="callaction-menu">
-    	<button class="c-button c-button--call-to-action-1 c-button--to-right" data-ng-click="nuevo.createInput('lg')">
+    <div class="c-row c-row--to-right">
+    	<button class="c-button c-button--call-to-action-1" data-ng-click="nuevo.createInput('lg')">
     		<span class="icon icon-circle-plus"></span>
     		<span>{{"_INPUT_BUTTON_NEW_" | translate}}</span>
     	</button>

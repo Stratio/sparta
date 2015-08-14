@@ -1,4 +1,4 @@
-@mixin c-form-group {
+@mixin c-row {
 	position: relative;
 
 	&--to-right {
@@ -6,6 +6,6 @@
 	}
 }
 
-.c-form-group {
-	@include c-form-group;
+.c-row {
+	@include c-row;
 }
