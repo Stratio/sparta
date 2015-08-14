@@ -11,6 +11,7 @@
         var vm = this;
 
         vm.GetPolicyByFragmentName = GetPolicyByFragmentName;
+        vm.DeleteFragment = DeleteFragment;
 
         /////////////////////////////////
 
@@ -18,6 +19,13 @@
             return $resource('/policy/fragment/:type/:name', {type:'@type', name:'@name'},
             {
                 'get'   : {method:'GET', isArray:true}
+            });
+        };
+
+        function DeleteFragment() {
+            return $resource('/fragment/:type/:name', {type:'@type', name:'@name'},
+            {
+                'delete'   : {method:'DELETE'}
             });
         };
     };

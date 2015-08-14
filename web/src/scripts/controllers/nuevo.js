@@ -34,8 +34,8 @@
             });
         };
 
-        function deleteInput(inputType, inputName) {
-            var policiesToDelete = FragmentDataService.GetPolicyByFragmentName(inputType, inputName);
+        function deleteInput(fragmentType, fragmentName) {
+            var policiesToDelete = FragmentDataService.GetPolicyByFragmentName(fragmentType, fragmentName);
 
             policiesToDelete.then(function (result) {
                 console.log('*********Controller');
@@ -44,8 +44,8 @@
                 var policies = vm.getPoliciesNames(result);
                 var inputToDelete =
                 {
-                    'type':inputType,
-                    'name': inputName,
+                    'type':fragmentType,
+                    'name': fragmentName,
                     'policies': policies
                 };
                 vm.deleteInputConfirm('lg', inputToDelete);
@@ -123,15 +123,21 @@
                 }
             });
 
-            modalInstance.result.then(function (selectedItem) {
-                console.log(selectedItem);
+            modalInstance.result
+                .then(function (selectedItem) {
+                    console.log(selectedItem);
+                    var fragmentDeleted = FragmentDataService.DeleteFragment(selectedItem.type, selectedItem.name);
 
-            }, function () {
-                console.log('Modal dismissed at: ' + new Date())
-            });
-
+                    fragmentDeleted
+                        .then(function (result) {
+                            console.log('*********Fragment deleted');
+                            console.log(result);
+                        });
+                },
+                function () {
+                    console.log('Modal dismissed at: ' + new Date())
+                });
         };
-
     };
 
 
