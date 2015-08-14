@@ -15,6 +15,7 @@
  *		c-combobox
  *		c-label
  *		c-form-control
+ *		c-toolbar
  *
  */
 
@@ -151,3 +152,9 @@ $c-label---margin: 0 $component-margin 0 0;
 
 //c-form-control
 $c-form-control---margin: 0 0 0 $component-margin;
+
+
+
+// c-toolbar
+$c-toolbar---background: get-color(f3);
+$c-toolbar---padding: 11px 25px;

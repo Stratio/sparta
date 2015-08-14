@@ -1,29 +1,31 @@
-@import 'base/settings/colors';
-@import 'base/settings/fonts';
-@import 'base/settings/typography';
+@import 'sparkta-ui/base/settings/colors';
+@import 'sparkta-ui/base/settings/fonts';
+@import 'sparkta-ui/base/settings/typography';
 
-@import 'base/helpers/colors';
-@import 'base/helpers/typography';
-@import 'base/helpers/app-config';
+@import 'sparkta-ui/base/helpers/colors';
+@import 'sparkta-ui/base/helpers/typography';
+@import 'sparkta-ui/base/helpers/app-config';
 
-@import 'theme/light-platinum';
+@import 'sparkta-ui/theme/light-platinum';
 
 @import 'vendors/reset-css/reset';
 
 @import 'app';
 
-@import 'components/c-line-separator/index';
-@import 'components/c-button/index';
-@import 'components/c-input/index';
-@import 'components/c-searchbox/index';
-@import 'components/c-combobox/index';
-@import 'components/c-label/index';
-@import 'components/c-icon/index';
-@import 'components/c-form-control/index';
-@import 'components/c-form-group/index';
+@import 'sparkta-ui/components/c-panel/index';
+@import 'sparkta-ui/components/c-row/index';
+@import 'sparkta-ui/components/c-line-separator/index';
+@import 'sparkta-ui/components/c-button/index';
+@import 'sparkta-ui/components/c-input/index';
+@import 'sparkta-ui/components/c-searchbox/index';
+@import 'sparkta-ui/components/c-combobox/index';
+@import 'sparkta-ui/components/c-label/index';
+@import 'sparkta-ui/components/c-icon/index';
+@import 'sparkta-ui/components/c-form-control/index';
+@import 'sparkta-ui/components/c-form-group/index';
+@import 'sparkta-ui/components/c-toolbar/index';
 
-@import 'components/filters';
-@import 'components/tooltip';
-@import 'components/modal';
-@import 'directives/ui-stratio/ui.stratio.grid';
+@import 'vendors/angular-ui/tooltip';
+@import 'vendors/angular-ui/modal';
+
 @import '../stratio-ui/style/stratio.ui';

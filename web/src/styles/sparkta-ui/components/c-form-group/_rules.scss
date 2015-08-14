@@ -1,0 +1,7 @@
+@mixin c-form-group {
+	@include c-row
+}
+
+.c-form-group {
+	@include c-form-group;
+}
