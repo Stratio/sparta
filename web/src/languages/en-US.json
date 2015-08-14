@@ -17,5 +17,6 @@
   	"_INPUT_ACTIONS_MENU_EDIT_": "Edit",
   	"_INPUT_ACTIONS_MENU_DUPLICATE_": "Duplicate",
   	"_INPUT_ACTIONS_MENU_DELETE_": "Delete",
-  	"_INPUT_BUTTON_NEW_": "add new"
+    "_INPUT_BUTTON_NEW_": "add new",
+  	"_INPUT_WINDOW_NEW_TITLE_": "New input"
 }
