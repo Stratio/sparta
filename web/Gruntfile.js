@@ -337,6 +337,12 @@ module.exports = function (grunt) {
           cwd: '<%= yeoman.app %>/images',
           src: '{,*/}*.{png,jpg,jpeg,gif}',
           dest: '<%= yeoman.dist %>/images'
+        },
+        {
+          expand: true,
+          cwd: '<%= yeoman.app %>/stratio-ui/images',
+          src: '{,*/}*.{png,jpg,jpeg,gif}',
+          dest: '<%= yeoman.dist %>/stratio-ui/images'
         }]
       }
     },
@@ -363,7 +369,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: '<%= yeoman.dist %>',
-          src: ['*.html'],
+          src: ['*.html', 'views/**/*.html', 'stratio-ui/**/*.html'],
           dest: '<%= yeoman.dist %>'
         }]
       }
@@ -407,8 +413,11 @@ module.exports = function (grunt) {
             '*.{ico,png,txt}',
             '.htaccess',
             '*.html',
+            'views/**/*.html',
+            'stratio-ui/**/*.html',
             'images/{,*/}*.{webp}',
-            'styles/fonts/{,*/}*.*'
+            'styles/fonts/{,*/}*.*',
+            'languages/{,*/}*.*'
           ]
         }, {
           expand: true,
