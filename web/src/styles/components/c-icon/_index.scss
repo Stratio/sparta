@@ -1,0 +1,27 @@
+/*doc
+---
+title: c-icon
+name: c-icon
+category: components
+---
+
+The icon component creates a customized icon item.
+
+```html_example
+<i type="text" class="c-icon icon-search"></i>
+<br />
+<i type="text" class="c-icon c-icon--in-input icon-search"></i>
+<input type="text" class="c-input" />
+```
+
+## Variables exposed to theming
+
+Variable                                    | Default value
+------------------------------------------- | -----------------
+$c-label---margin 							| `0 15px 0 0' 
+
+
+*/
+
+@import "vars";
+@import "rules";

@@ -1,4 +1,4 @@
-.c-button {
+@mixin c-button {
 	border: none;
 	cursor: pointer;
 	height: $c-button---height;
@@ -54,4 +54,8 @@
 			color: $c-button--call-to-action-4--hover---color;
 		}
 	}
+}
+
+.c-button {
+	@include c-button;
 }
