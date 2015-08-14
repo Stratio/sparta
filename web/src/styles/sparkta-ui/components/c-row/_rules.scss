@@ -1,4 +1,5 @@
 @mixin c-row {
+	display: block;
 	position: relative;
 
 	&--to-right {
