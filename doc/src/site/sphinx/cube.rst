@@ -189,6 +189,68 @@ The logical operators currently implemented are::
   <, >, <=, >=, =, !=
 
 
+EntityCount
+--------
+
+Is possible generate one word count in one inputField of the event and apply one split with a regular expression and
+other for replace and matching words.
+
+  One example is::
+
+        {
+          "name": "entityCount_text",
+          "type": "EntityCount",
+          "configuration": {
+            "inputField": "text",
+            "split": " "
+          }
+        }
+
+    "text" -> "Sparkta is the best real time aggregator of the world. Sparkta now support real time word count"
+
+    The output is:
+
+    "entityCount_text" = Map(
+      Sparkta: 2,
+      is: 1,
+      the: 2,
+      best: 1,
+      real: 2,
+      time: 2,
+      aggregator: 1,
+      of: 1,
+      world.: 1,
+      now: 1,
+      support: 1,
+      world: 1,
+      count: 1
+    )
+
+
+
+TotalEntityCount
+--------
+
+Is possible calculate the total of words that the event have in one inputField and apply one split with a regular expression and
+other for replace and matching words.
+
+  One example is::
+
+        {
+          "name": "totalEntityCount",
+          "type": "TotalEntityCount",
+          "configuration": {
+            "inputField": "text",
+            "split": " "
+          }
+        }
+
+    "text" -> "Sparkta is the best real time aggregator of the world. Sparkta now support real time word count"
+
+    The output is:
+
+      "totalEntityCount": 17
+
 
 Accumulator
 -----------

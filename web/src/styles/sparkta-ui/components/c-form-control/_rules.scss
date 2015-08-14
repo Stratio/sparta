@@ -1,0 +1,13 @@
+@mixin c-form-control {
+	display: inline-block;
+	margin: $c-form-control---margin;
+	position: relative;
+
+	&:first-child {
+		margin-left: 0;
+	}
+}
+
+.c-form-control {
+	@include c-form-control;
+}

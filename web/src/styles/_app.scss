@@ -1,0 +1,14 @@
+.stratio-app {
+	@include stratio-app;
+}
+
+/*
+	
+	Sparkta is using the Stratio App default configuration for CSS, included
+	in the stratio-app class. If extend is needed to apply specific config
+	elements, you should use the class showed below (keep in mind that you
+	need to include it in the HTML as well:
+
+	.stratio-app--sparkta {}
+
+*/

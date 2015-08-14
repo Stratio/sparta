@@ -168,17 +168,22 @@ trait CassandraDAO extends Closeable with Logging {
     s"'schema' :'{ fields : { $fieldsSentence } }'"
   }
 
+  //scalastyle:off
   protected def dataTypeToCassandraType(dataType: DataType): String = {
     dataType match {
       case StringType => "text"
       case LongType => "bigint"
       case DoubleType => "double"
+      case FloatType => "float"
       case IntegerType => "int"
       case BooleanType => "boolean"
+      case MapType(StringType, LongType, _) => "map<text,bigint>"
+      case ArrayType(DoubleType, _) => "set<double>"
       case DateType | TimestampType => "timestamp"
       case _ => "blob"
     }
   }
+  //scalastyle:on
 
   protected def pkConditions(field: StructField, clusteringTime: String): Boolean =
     !field.nullable && field.name != clusteringTime && clusteringPrecisions.forall(!_.contains(field.name))

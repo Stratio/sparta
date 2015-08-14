@@ -1,0 +1,10 @@
+@mixin c-toolbar {
+	@include c-panel;
+	
+	background: $c-toolbar---background;
+	padding: $c-toolbar---padding;
+}
+
+.c-toolbar {
+	@include c-toolbar;
+}

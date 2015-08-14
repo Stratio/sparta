@@ -1,0 +1,11 @@
+@mixin c-combobox {
+	@include c-input;
+
+	cursor: pointer;
+}
+
+.c-combobox {
+	@include c-combobox;
+
+	padding: $c-combobox---padding;
+}
