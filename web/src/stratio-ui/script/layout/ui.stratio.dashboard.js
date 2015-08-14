@@ -24,9 +24,10 @@ function stDashboard(TEMPLATE_URL){
 		replace: true
 	};
 
+	controller.$inject = ['$scope','$rootScope','$timeout'];
+
 	return directive;
 
-	controller.$inject = ['$scope','$rootScope','$timeout'];
 	function controller (  $scope,  $rootScope,  $timeout){
 		var compactMenuWindowWidth = 0;
 

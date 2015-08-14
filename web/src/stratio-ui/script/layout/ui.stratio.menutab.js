@@ -3,7 +3,7 @@
 angular
 	.module('StratioUI.layout.menutab',[])
 	.directive('stMenuTab', stMenuTab);
-	
+
 stMenuTab.$inject = ['TEMPLATE_URL'];
 function stMenuTab(TEMPLATE_URL){
 	var directive = {
@@ -20,10 +20,11 @@ function stMenuTab(TEMPLATE_URL){
 		templateUrl: TEMPLATE_URL('layout', 'menutab'),
 		controller: controller
 	};
-	
+
+	controller.$inject = ["$scope","$state"];
+
 	return directive;
 
-	controller.$inject = ["$scope","$state"]
 	function controller (  $scope,  $state){
 		$scope.$state = $state;
 	}

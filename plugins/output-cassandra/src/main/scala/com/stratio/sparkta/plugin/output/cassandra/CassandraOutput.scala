@@ -63,7 +63,7 @@ class CassandraOutput(keyName: String,
 
   override val supportedWriteOps: Seq[WriteOp.Value] = Seq(WriteOp.FullText, WriteOp.Inc, WriteOp.IncBig,
     WriteOp.Set, WriteOp.Range, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.Median,
-    WriteOp.Variance, WriteOp.Stddev)
+    WriteOp.Variance, WriteOp.Stddev, WriteOp.WordCount, WriteOp.EntityCount)
 
   override def setup: Unit = {
 
@@ -91,11 +91,6 @@ class CassandraOutput(keyName: String,
     }
   }
 
-  /*
-  * The next two methods are beta.
-  * With the fork of PR 112 of datastax-spark-connector.
-  * https://github.com/datastax/spark-cassandra-connector/pull/648
-  */
   override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     persistDataFrame(stream)
   }

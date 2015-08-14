@@ -85,6 +85,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_${scala.binary.version}</artifactId>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.scalamock</groupId>
             <artifactId>scalamock-scalatest-support_2.10</artifactId>
             <version>3.2.2</version>

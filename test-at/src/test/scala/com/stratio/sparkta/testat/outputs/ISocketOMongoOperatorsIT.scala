@@ -21,6 +21,7 @@ import com.mongodb.casbah.{MongoClientURI, MongoCollection, MongoConnection}
 import com.mongodb.{BasicDBList, BasicDBObject}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import scala.collection.JavaConversions._
 
 import com.stratio.sparkta.testat.SparktaATSuite
 
@@ -49,10 +50,10 @@ class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
     }
 
     def checkMongoData(): Unit = {
-      val mongoColl: MongoCollection = MongoConnection(Localhost, TestMongoPort)("csvtest")("product_minute")
+      val mongoColl: MongoCollection = MongoConnection(Localhost, TestMongoPort)("csvtest")("id_product_minute")
       mongoColl.size should be(2)
 
-      val productA = mongoColl.find(new BasicDBObject("id", "producta")).next()
+      val productA = mongoColl.find(new BasicDBObject("product", "producta")).next()
       productA.get("acc_price").asInstanceOf[BasicDBList].toArray.toSeq should be(
         Seq("10", "500", "1000", "500", "1000", "500", "1002", "600"))
       productA.get("avg_price") should be(639.0d)
@@ -67,9 +68,12 @@ class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
       productA.get("stddev_price") should be(347.9605889013459d)
       productA.get("variance_price") should be(121076.57142857143d)
       productA.get("range_price") should be(992.0d)
+      mapAsScalaMap(productA.get("entityCount_text").asInstanceOf[BasicDBObject].toMap) should be(
+        Map("hola" -> 16L, "holo" -> 8L))
+      productA.get("totalEntity_text") should be(24)
 
 
-      val productB = mongoColl.find(new BasicDBObject("id", "productb")).next()
+      val productB = mongoColl.find(new BasicDBObject("product", "productb")).next()
       productB.get("acc_price").asInstanceOf[BasicDBList].toArray.toSeq should be(
         Seq("15", "1000", "1000", "1000", "1000", "1000", "1001", "50"))
       productB.get("avg_price") should be(758.25d)
@@ -84,6 +88,9 @@ class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
       productB.get("stddev_price") should be(448.04041590655d)
       productB.get("variance_price") should be(200740.2142857143d)
       productB.get("range_price") should be(986.0d)
+      mapAsScalaMap(productB.get("entityCount_text").asInstanceOf[BasicDBObject].toMap) should be(
+        Map("hola" -> 16L, "holo" -> 8L))
+      productB.get("totalEntity_text") should be(24)
     }
 
     def checkMongoDb: Unit = {

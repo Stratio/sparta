@@ -52,8 +52,6 @@ trait MongoDbDAO extends Closeable {
 
   def textIndexFields: Option[Array[String]]
 
-  def pkTextIndexesCreated: Boolean
-
   def idAsField: Boolean
 
   def retrySleep: Int
@@ -66,12 +64,6 @@ trait MongoDbDAO extends Closeable {
     MongoDbDAO.reconnect(retrySleep, mongoClientUri, dbName, connectionsPerHost, threadsAllowedB)
 
   protected def db(): MongoDB = db(dbName)
-
-  def executeBulkOperation(bulkOperation: mongodb.BulkWriteOperation,
-                           updateObjects: List[(Imports.DBObject, Imports.DBObject)]): Unit = {
-    updateObjects.foreach { case (find, update) => bulkOperation.find(find).upsert().updateOne(update) }
-    bulkOperation.execute()
-  }
 
   protected def createPkTextIndex(collection: String, timeDimension: String): (Boolean, Boolean) = {
     val textIndexCreated = if (textIndexFields.isDefined && language.isDefined) {
@@ -129,6 +121,7 @@ trait MongoDbDAO extends Closeable {
       db.getCollection(collection).createIndex(MongoDBObject(fields), options.result)
     }
   }
+
 
   protected def insert(dbName: String, collName: String, dbOjects: Iterator[DBObject],
                        writeConcern: Option[WriteConcern] = None): Unit = {
@@ -195,7 +188,7 @@ trait MongoDbDAO extends Closeable {
         (seq.asInstanceOf[Seq[(String, Double)]], "$set")
       case WriteOp.FullText | WriteOp.AccSet | WriteOp.Mode =>
         (seq.asInstanceOf[Seq[(String, String)]], "$set")
-   }
+    }
   }
 
   protected def getIdFields(cubeKey: DimensionValuesTime): Map[Seq[(String, JSerializable)], String] =

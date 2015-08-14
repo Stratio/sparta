@@ -1,0 +1,11 @@
+@mixin c-row {
+	position: relative;
+
+	&--to-right {
+		text-align: right;
+	}
+}
+
+.c-row {
+	@include c-row;
+}

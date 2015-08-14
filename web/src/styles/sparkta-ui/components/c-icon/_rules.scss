@@ -1,0 +1,14 @@
+@mixin c-icon {
+	margin: $c-label---margin;
+}
+
+.c-icon {
+	@include c-icon;
+
+	&--in-input {
+		position: absolute;
+		top: 7px;
+		left: 70px;
+		color: $c-icon--in-input---color;
+	}
+}

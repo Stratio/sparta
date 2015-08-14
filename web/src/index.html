@@ -15,10 +15,10 @@
 	<!-- <link rel="stylesheet" href="styles/bootstrap.css">
 	<!-- endbuild -->
 </head>
-<body ng-app="webApp">
+<body ng-app="webApp" class="stratio-app stratio-app--sparkta">
 
 	<st-dashboard
-		module-logo="/images/logo_stratio_sparkta.png"
+		module-logo="images/logo_stratio_sparkta.png"
 		module-name="Stratio Sparkta">
 
 		<div st-menu-tab title="{{'_HEADER_MENU_DASHBOARD_' | translate}}" route="dashboard.inputs" sref="dashboard.inputs" icon="icon-grid" visible="true"></div>
@@ -48,7 +48,7 @@
 	<!-- endbower -->
 	<!-- endbuild -->
 
-	<!-- build:js({.tmp,app}) scripts/scripts.js -->
+	<!-- build:js({.tmp,src}) scripts/scripts.js -->
 	<script src="scripts/app.js"></script>
 	<!-- Controllers -------------------------------- -->
 	<script src="scripts/controllers/main.js"></script>

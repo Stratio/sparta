@@ -38,8 +38,9 @@ class ISocketOMongoDetectorIT extends MongoEmbedDatabase with SparktaATSuite {
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-internal-data.csv").getPath
   var mongoProps: MongodProps = _
   val DatabaseName = "csvtest"
-  val CollectionMaxMinOdometer = "asset_companyRoot_ouVehicle_pathId_recordedAtMs"
-  val CollectionRpmAvg = "companyRoot_geo_ouVehicle_recordedAtMs"
+  val CollectionMaxMinOdometer = "id_asset_companyRoot_ouVehicle_pathId_recordedAtMs"
+
+  val CollectionRpmAvg = "id_companyRoot_geo_ouVehicle_recordedAtMs"
 
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in mongodb" in {
@@ -58,9 +59,9 @@ class ISocketOMongoDetectorIT extends MongoEmbedDatabase with SparktaATSuite {
         mongoConnectionRpmAvg.map(dbObject => {
           val id = dbObject.get("id")
           id match {
-            case "3.0_1510_List(37.265625, -3.515625)" =>
+            case "3.0_List(37.265625, -3.515625)_1510_2015-06-22 11:01:00.0" =>
               dbObject.get("avg_rpm") should be(26.666666666666668)
-            case "2.0_3_List(37.265625, -6.328125)" =>
+            case "2.0_List(37.265625, -6.328125)_3_2015-06-22 12:40:00.0" =>
               dbObject.get("avg_rpm") should be(14.0)
             case _ => require(false)
           }
@@ -70,11 +71,11 @@ class ISocketOMongoDetectorIT extends MongoEmbedDatabase with SparktaATSuite {
       if (mongoConnectionMaxMinOdometer.size > 0) {
         mongoConnectionMaxMinOdometer.map(dbObject => {
           dbObject.get("id") match {
-            case "3.0_1510_356363056643879_356363056643879-14" => {
+            case "356363056643879_3.0_1510_356363056643879-14_2015-06-22 11:01:00.0" => {
               dbObject.get("max-operator") should be(8004334.0d)
               dbObject.get("min-operator") should be(1004334.0d)
             }
-            case "2.0_3_356363051321497_356363051321497-13" => {
+            case "356363051321497_2.0_3_356363051321497-13_2015-06-22 12:40:00.0" => {
               dbObject.get("max-operator") should be(9917036.0d)
               dbObject.get("min-operator") should be(3000216.0d)
             }

@@ -34,7 +34,7 @@ class AccumulatorOperator(name:String, properties: Map[String, JSerializable]) e
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
     if (inputField.isDefined && inputFields.contains(inputField.get))
-      applyFilters(inputFields).flatMap(filteredFileds => Some(filteredFileds.get(inputField.get).get))
+      applyFilters(inputFields).flatMap(filteredFields => Some(filteredFields.get(inputField.get).get))
     else None
   }
 

@@ -25,7 +25,7 @@ object TypeOp extends Enumeration {
 
   type TypeOp = Value
   val Number, BigDecimal, Long, Int, String, Double, Boolean, Binary, Date, DateTime, Timestamp, ArrayDouble,
-  ArrayString = Value
+  ArrayString, MapStringLong = Value
 
   def transformValueByTypeOp[T](typeOp: TypeOp, origValue: T): T = {
     typeOp match {
@@ -36,6 +36,7 @@ object TypeOp extends Enumeration {
       case TypeOp.Date => checkDateType(origValue)
       case TypeOp.DateTime => checkDateTimeType(origValue)
       case TypeOp.Long => checkLongType(origValue)
+      case TypeOp.MapStringLong => checkMapStringLongType(origValue)
       case _ => origValue
     }
   }
@@ -52,6 +53,19 @@ object TypeOp extends Enumeration {
     case value if value.isInstanceOf[Seq[Any]] =>
       Try(value.asInstanceOf[Seq[Any]].map(_.toString.toDouble)).getOrElse(Seq()).asInstanceOf[T]
     case _ => Try(Seq(origValue.toString.toDouble)).getOrElse(Seq()).asInstanceOf[T]
+  }
+
+  private def checkMapStringLongType[T](origValue : T) : T = origValue match {
+    case value if value.isInstanceOf[Map[String, Long]] => value
+    case value if value.isInstanceOf[Map[Any, Long]] =>
+      Try(value.asInstanceOf[Map[Any, Long]].map( cast => cast._1.toString -> cast._2)).getOrElse(Map()).asInstanceOf[T]
+    case value if value.isInstanceOf[Map[String, Long]] =>
+      Try(value.asInstanceOf[Map[String, Any]].map( cast => cast._1 -> cast._2.toString.toLong))
+        .getOrElse(Map()).asInstanceOf[T]
+    case value if value.isInstanceOf[Map[Any, Any]] =>
+      Try(value.asInstanceOf[Map[Any, Any]].map( cast => cast._1.toString -> cast._2.toString.toLong))
+        .getOrElse(Map()).asInstanceOf[T]
+    case _ => Try(origValue.asInstanceOf[Map[String, Long]]).getOrElse(Map()).asInstanceOf[T]
   }
 
   private def checkArrayStringType[T](origValue : T) : T = origValue match {
@@ -112,6 +126,7 @@ object TypeOp extends Enumeration {
       case name if name == "timestamp" => TypeOp.Timestamp
       case name if name == "arraydouble" => TypeOp.ArrayDouble
       case name if name == "arraystring" => TypeOp.ArrayString
+      case name if name == "mapstringlong" => TypeOp.MapStringLong
       case _ => defaultTypeOperation
     }
 
