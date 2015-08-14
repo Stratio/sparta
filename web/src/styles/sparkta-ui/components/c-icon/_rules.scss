@@ -11,4 +11,9 @@
 		left: 70px;
 		color: $c-icon--in-input---color;
 	}
+
+	&--to-right {
+		float: right;
+		margin-right: 0;
+	}
 }
