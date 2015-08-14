@@ -3,13 +3,15 @@
 
     angular
         .module('webApp')
-        .factory('FragmentDataService', ['ApiPolicyService', function(ApiPolicyService){
+        .factory('FragmentDataService', FragmentDataService);
 
-            return {
+    FragmentDataService.$inject = ['ApiPolicyService'];
+
+    function FragmentDataService(ApiPolicyService) {
+        return {
                 GetPolicyByFragmentName: function(inputType, inputName) {
                     return ApiPolicyService.GetPolicyByFragmentName().get({'type': inputType ,'name': inputName}).$promise;
                 }
             };
-
-    }]);
+    };
 })();

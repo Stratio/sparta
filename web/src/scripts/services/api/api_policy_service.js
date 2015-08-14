@@ -1,15 +1,24 @@
 (function() {
     'use strict';
 
-    angular.module('webApp')
-    .service('ApiPolicyService', ['$resource', function($resource){
+    angular
+        .module('webApp')
+        .service('ApiPolicyService', ApiPolicyService);
 
-    	this.GetPolicyByFragmentName = function() {
-    		return $resource('/policy/fragment/:type/:name', {type:'@type', name:'@name'},
+    ApiPolicyService.$inject = ['$resource'];
+
+    function ApiPolicyService($resource){
+        var vm = this;
+
+        vm.GetPolicyByFragmentName = GetPolicyByFragmentName;
+
+        /////////////////////////////////
+
+        function GetPolicyByFragmentName() {
+            return $resource('/policy/fragment/:type/:name', {type:'@type', name:'@name'},
             {
                 'get'   : {method:'GET', isArray:true}
             });
-    	};
-
-    }]);
+        };
+    };
 })();
