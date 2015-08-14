@@ -34,7 +34,8 @@
             });
         };
 
-        function deleteInput(fragmentType, fragmentName) {
+        function deleteInput(fragmentType, fragmentName, index) {
+            console.log(index);
             var policiesToDelete = FragmentDataService.GetPolicyByFragmentName(fragmentType, fragmentName);
 
             policiesToDelete.then(function (result) {
@@ -46,7 +47,8 @@
                 {
                     'type':fragmentType,
                     'name': fragmentName,
-                    'policies': policies
+                    'policies': policies,
+                    'index': index
                 };
                 vm.deleteInputConfirm('lg', inputToDelete);
             });
@@ -131,7 +133,8 @@
                     fragmentDeleted
                         .then(function (result) {
                             console.log('*********Fragment deleted');
-                            console.log(result);
+                            /*Check deleting the input in the array*/
+                            vm.inputsData.splice(selectedItem.index, 1);
                         });
                 },
                 function () {
