@@ -1,0 +1,15 @@
+@mixin c-info-text {
+	@include c-icon-text;
+
+	color: $c-info-text---color;
+	font-size: $c-info-text---font-size;
+
+	@at-root &__icon {
+		color: $c-info-text__icon---color;
+		font-size: $c-info-text__icon---font-size;
+	}
+}
+
+.c-info-text {
+	@include c-info-text;
+}

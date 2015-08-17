@@ -1,0 +1,31 @@
+@mixin is-clickable($onlyProperties: false) {
+	@if $onlyProperties {
+		cursor: pointer;
+	} @else {
+		&--is-clickable {
+			cursor: pointer;
+		}
+	}
+}
+
+@mixin is-link() {
+	&--is-link {
+		&:hover {
+			@include is-clickable(true);
+
+			text-decoration: underline;
+		}
+	}
+}
+
+@mixin container-to-right() {
+	&--to-right {
+		text-align: right;
+	}	
+}
+
+@mixin item-to-right() {
+	&--to-right {
+		float: right;
+	}	
+}

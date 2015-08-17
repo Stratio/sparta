@@ -1,0 +1,18 @@
+@mixin c-col {
+	@include c-panel;
+
+	display: inline-block;
+	position: relative;
+
+	&--2 {
+		width: 50%;
+	}
+
+	&--vertical-centered {
+		vertical-align: middle;
+	}
+}
+
+.c-col {
+	@include c-col;
+}

@@ -18,6 +18,12 @@
  *		c-form-control
  *		c-toolbar
  *		c-titlebar
+ *		c-icon-text
+ *		c-info-text
+ *		c-icon
+ *		c-modal-inner
+ *		c-col
+ *		c-row
  *
  */
 
@@ -167,3 +173,39 @@ $c-titlebar---background: get-color(f3) !default;
 $c-titlebar---color: get-color(g7) !default;
 $c-titlebar---text-transform: uppercase !default;
 $c-titlebar---padding: 7px 10px !default;
+
+
+
+// c-icon-text
+
+
+
+// c-info-text
+$c-info-text---color: get-color(g7);
+$c-info-text---font-size: get-font-size(medium);
+
+$c-info-text__icon---color: get-color(c1);
+$c-info-text__icon---font-size: get-font-size(medium);
+
+
+
+// c-icon
+$c-icon---margin: 0 .5em 0 0;
+$c-icon--in-input---top: 7px;
+$c-icon--in-input---left: 70px;
+
+$c-icon--in-input---color: get-color(g6);
+
+
+
+// c-modal-inner
+$c-modal-inner---padding: 15px 30px;
+
+
+
+// c-col
+
+
+
+// c-row
+$c-row--separated---margin: $component-margin 0 0;

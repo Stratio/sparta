@@ -8,9 +8,7 @@
 	text-align: $c-button---text-align;
 	text-transform: $c-button---text-transform;
 
-	&--to-right {
-		float: right;
-	}
+	@include item-to-right;
 
 	&--call-to-action-1 {
 		background: $c-button--call-to-action-1---background;

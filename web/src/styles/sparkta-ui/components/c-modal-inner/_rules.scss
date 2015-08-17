@@ -1,0 +1,9 @@
+@mixin c-modal-inner {
+	@include c-panel;
+
+	padding: $c-modal-inner---padding;
+}
+
+.c-modal-inner {
+	@include c-modal-inner;
+}
