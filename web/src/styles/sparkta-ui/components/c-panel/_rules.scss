@@ -4,4 +4,6 @@
 
 .c-panel {
 	@include c-panel;
+
+	overflow: auto;
 }
