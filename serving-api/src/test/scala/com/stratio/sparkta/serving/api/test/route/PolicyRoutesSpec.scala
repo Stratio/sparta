@@ -18,12 +18,12 @@ package com.stratio.sparkta.driver.test.route
 
 import akka.actor.{ActorRef, ActorRefFactory}
 import akka.testkit.TestProbe
-import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
-import com.stratio.sparkta.driver.models._
 import com.stratio.sparkta.sdk.DimensionType
-import com.stratio.sparkta.serving.api.actor.StreamingActor._
+import com.stratio.sparkta.serving.api.actor.StreamingActor.{DeleteContext, CreateContext, GetContextStatus, GetAllContextStatus}
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.api.service.http.PolicyContextHttpService
+import com.stratio.sparkta.serving.core.models.StreamingContextStatusEnum._
+import com.stratio.sparkta.serving.core.models._
 import org.scalatest.{Matchers, WordSpecLike}
 import spray.http.StatusCodes._
 import spray.testkit.ScalatestRouteTest

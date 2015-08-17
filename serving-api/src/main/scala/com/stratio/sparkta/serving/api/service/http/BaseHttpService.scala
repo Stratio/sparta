@@ -19,7 +19,7 @@ package com.stratio.sparkta.serving.api.service.http
 import akka.actor.{ActorSelection, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
-import com.stratio.sparkta.driver.models.StreamingContextStatusEnum
+import com.stratio.sparkta.serving.core.models.StreamingContextStatusEnum
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import org.json4s.{Formats, DefaultFormats}
 import org.json4s.ext.EnumNameSerializer
