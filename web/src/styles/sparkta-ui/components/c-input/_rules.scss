@@ -3,12 +3,12 @@
 	color: $c-input---color;
 	height: $c-input---height;
 	border-radius: $c-input---border-radius;
-}
-
-.c-input {
-	@include c-input;
 
 	&--left-icon {
 		padding: $c-input--left-icon---padding;
 	}
+}
+
+.c-input {
+	@include c-input;
 }
