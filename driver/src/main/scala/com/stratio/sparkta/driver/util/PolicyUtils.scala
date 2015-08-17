@@ -21,12 +21,15 @@ import org.json4s.jackson.JsonMethods._
 import org.json4s.native.Serialization._
 import org.json4s.{DefaultFormats, _}
 
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, StreamingContextStatusEnum}
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, StreamingContextStatusEnum}
+
+class PolicyUtils(self: AggregationPoliciesModel) {
+
+}
 
 /**
  * Utils for policies.
- * @author sgomezg
  */
 object PolicyUtils {
 

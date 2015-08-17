@@ -25,14 +25,12 @@ import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
-/**
- * @author ajnavarro, sgomezg
- */
 object SparkContextFactory extends SLF4JLogging {
 
   private var sc: Option[SparkContext] = None
   private var sqlContext: Option[SQLContext] = None
   private var ssc: Option[StreamingContext] = None
+  var jars: Seq[File] = _
   var config: Config = _
 
   def sparkSqlContextInstance: Option[SQLContext] = {
@@ -113,5 +111,10 @@ object SparkContextFactory extends SLF4JLogging {
         sc = None
       }
     }
+  }
+
+  def init(config: Config, jars: Seq[File]): Unit = {
+    this.config = config
+    this.jars = jars
   }
 }

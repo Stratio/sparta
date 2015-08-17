@@ -19,10 +19,10 @@ package com.stratio.sparkta.serving.core.models
 import com.stratio.sparkta.sdk.DimensionType
 
 case class CubeModel(name: String,
-                   checkpointConfig: CheckpointModel,
-                   dimensions: Seq[DimensionModel],
-                   operators: Seq[OperatorModel],
-                   multiplexer: String = CubeModel.Multiplexer)
+                     checkpointConfig: CheckpointModel,
+                     dimensions: Seq[DimensionModel],
+                     operators: Seq[OperatorModel],
+                     multiplexer: String = CubeModel.Multiplexer)
 
 case object CubeModel {
 
@@ -30,7 +30,8 @@ case object CubeModel {
 }
 
 case class DimensionModel(name: String,
-                        field: String,
-                        precision: String = DimensionType.IdentityName,
-                       `type`: String = DimensionType.DefaultDimensionClass,
-                        configuration: Option[Map[String, String]])
+                          field: String,
+                          precision: String = DimensionType.IdentityName,
+                          `type`: String = DimensionType.DefaultDimensionClass,
+                          configuration: Option[Map[String, String]],
+                          jarFile: Option[String] = None)
