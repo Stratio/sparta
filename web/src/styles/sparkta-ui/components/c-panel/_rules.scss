@@ -1,7 +1,9 @@
 @mixin c-panel {
-	overflow: auto;
+	@include container-to-right;
 }
 
 .c-panel {
 	@include c-panel;
+
+	overflow: auto;
 }
