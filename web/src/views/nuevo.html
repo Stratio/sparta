@@ -26,8 +26,8 @@
 				<div class="title">
 					<span class="name">{{input.name}}</span>
 
-					<span class="icon-search menu_actions" ng-click="$root.stToggleFloatingMenu[$index]()">
-						<st-floating-menu toggle-id="{{$index}}" align="right">
+					<span class="icon-search menu_actions" data-ng-click="$root.stToggleFloatingMenu[input.id]()">
+						<st-floating-menu toggle-id="{{input.id}}" align="right">
 							<st-menu-element class-icon="icon-edit">
 								{{"_INPUT_ACTIONS_MENU_EDIT_" | translate}}
 							</st-menu-element>
