@@ -13,11 +13,13 @@
 
         vm.getInputs = getInputs;
         vm.deleteInput = deleteInput;
-        vm.getInputTypes = getInputTypes
+        vm.getInputTypes = getInputTypes;
         vm.createInput = createInput;
         vm.deleteInputConfirm = deleteInputConfirm;
         vm.getPoliciesNames = getPoliciesNames;
+        vm.setInputsId = setInputsId;
         vm.inputTypes = [];
+        vm.inputId = 1;
 
         init();
 
@@ -29,7 +31,8 @@
 
         function getInputs() {
             ApiTest.get().$promise.then(function (result) {
-                vm.inputsData = result;
+                vm.inputsData = vm.setInputsId(result);
+                console.log(vm.inputsData);
                 vm.getInputTypes(result);
             });
         };
@@ -52,6 +55,14 @@
                 };
                 vm.deleteInputConfirm('lg', inputToDelete);
             });
+        };
+
+        function setInputsId(inputsData) {
+            for (var i=0; i < inputsData.length; i++) {
+                inputsData[i].id = vm.inputId;
+                vm.inputId++;
+            }
+            return inputsData;
         };
 
         function getPoliciesNames(policiesData) {
@@ -135,6 +146,7 @@
                             console.log('*********Fragment deleted');
                             /*Check deleting the input in the array*/
                             vm.inputsData.splice(selectedItem.index, 1);
+
                         });
                 },
                 function () {
