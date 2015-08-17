@@ -1,6 +1,7 @@
 @mixin c-row {
 	@include c-panel;
 
+	display: block;
 	position: relative;
 
 	&--separated {
