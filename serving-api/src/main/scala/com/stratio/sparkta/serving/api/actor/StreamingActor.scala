@@ -48,6 +48,7 @@ class StreamingActor(streamingContextService: StreamingContextService,
   override def receive: PartialFunction[Any, Unit] = {
     case CreateContext(policy) => doCreateContext(policy)
     case GetContextStatus(contextName) => doGetContextStatus(contextName)
+    case DeleteContext(contextName) => doDeleteContext(contextName)
     case GetAllContextStatus => doGetAllContextStatus
     case ResponseCreateContext(response) => doResponseCreateContext(response)
   }
@@ -107,6 +108,21 @@ class StreamingActor(streamingContextService: StreamingContextService,
       case SupResponse_ContextStatus(None) =>
         throw new ServingApiException("Context with name " + contextName + " does not exists.")
     }
+  }
+
+  /**
+   * If a context with a specific contextName exists, it will try to delete it.
+   * @param contextName of the context to delete.
+   */
+  private def doDeleteContext(contextName: String): Unit = {
+    (supervisorContextRef ? SupDeleteContextStatus(contextName)).mapTo[SupResponse_ContextStatus]
+      .foreach(resContextSt =>
+      resContextSt.contextStatus match {
+        case Some(contextActorStatus) => deleteStandAloneContext(contextName, contextActorStatus.actor)
+        case None =>
+          throw new ServingApiException("Context with name " + contextName + " does not exists.")
+      }
+      )
   }
 
   private def deleteStandAloneContext(contextName: String, contextActorStatus: ActorRef): Unit = {
