@@ -3,7 +3,7 @@
 	<st-heading title="{{'_INPUT_HEADER_TITLE_MAIN' | translate}}" subtitle="{{'_INPUT_HEADER_TITLE_SECONDARY' | translate}}:"></st-heading>
 
 	<div class="c-panel">
-		<div class="c-toolbar c-form-group--to-right">
+		<div class="c-toolbar c-form-group c-form-group--to-right">
 			<div class="c-form-control">
 				<label class="c-label" for="name">{{"_INPUT_FILTER_NAME_" | translate}}:</label>
 				<i class="icon-search c-icon c-icon--in-input"></i>
@@ -34,7 +34,7 @@
 							<st-menu-element class-icon="icon-copy">
 								{{"_INPUT_ACTIONS_MENU_DUPLICATE_" | translate}}
 							</st-menu-element>
-							<st-menu-element class-icon="icon-cross" data-ng-click="nuevo.deleteInput(input.fragmentType, input.name)">
+							<st-menu-element class-icon="icon-cross" data-ng-click="nuevo.deleteInput(input.fragmentType, input.name, $index)">
 								{{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
 							</st-menu-element>
 						</st-floating-menu>

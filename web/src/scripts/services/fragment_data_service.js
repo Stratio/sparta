@@ -3,13 +3,18 @@
 
     angular
         .module('webApp')
-        .factory('FragmentDataService', ['ApiPolicyService', function(ApiPolicyService){
+        .factory('FragmentDataService', FragmentDataService);
 
-            return {
-                GetPolicyByFragmentName: function(inputType, inputName) {
-                    return ApiPolicyService.GetPolicyByFragmentName().get({'type': inputType ,'name': inputName}).$promise;
-                }
+    FragmentDataService.$inject = ['ApiPolicyService'];
+
+    function FragmentDataService(ApiPolicyService) {
+        return {
+                GetPolicyByFragmentName: function(fragmentType, fragmentName) {
+                    return ApiPolicyService.GetPolicyByFragmentName().get({'type': fragmentType ,'name': fragmentName}).$promise;
+                },
+                DeleteFragment: function(fragmentType, fragmentName) {
+                    return ApiPolicyService.DeleteFragment().delete({'type': fragmentType ,'name': fragmentName}).$promise;
+                },
             };
-
-    }]);
+    };
 })();
