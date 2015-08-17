@@ -1,5 +1,5 @@
 @mixin c-panel {
-	overflow: auto;
+	@include container-to-right;
 }
 
 .c-panel {

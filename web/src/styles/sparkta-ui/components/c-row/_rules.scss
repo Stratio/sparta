@@ -1,8 +1,10 @@
 @mixin c-row {
+	@include c-panel;
+
 	position: relative;
 
-	&--to-right {
-		text-align: right;
+	&--separated {
+		margin: $c-row--separated---margin;
 	}
 }
 
