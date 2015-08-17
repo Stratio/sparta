@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.models
+package com.stratio.sparkta.serving.core.models
 
-import com.stratio.sparkta.sdk.{Input, JsoneyString}
-
-case class TransformationsModel(name: String,
-                                `type`: String,
-                                order: Integer,
-                                inputField: String = Input.RawDataKey,
-                                outputFields: Seq[String],
-                                configuration: Map[String, JsoneyString] = Map(),
-                                jarFile: Option[String] = None)
-
+/**
+ * An ErrorDto represents an error that will be sent as response to the frontend.
+ * @param i18nCode with the code of the error that will be translated.
+ * @param message that describes the exception.
+ * @param stackTraceElement with the stackTrace of the exception.
+ * @param params with values that could be needed by the frontend.
+ */
+case class ErrorModel(i18nCode: String,
+                    message: String,
+                    stackTraceElement: Option[Seq[StackTraceElement]] = None,
+                    params: Option[Map[Any,Any]]= None) {}

@@ -16,26 +16,24 @@
 
 package com.stratio.sparkta.serving.api.actor
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+
 import akka.actor.SupervisorStrategy.Escalate
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
-import com.stratio.sparkta.driver.models.StreamingContextStatusEnum._
-import com.stratio.sparkta.driver.models._
+import com.typesafe.config.Config
+
 import com.stratio.sparkta.driver.service.StreamingContextService
-import com.stratio.sparkta.serving.api.actor.JobServerActor._
 import com.stratio.sparkta.serving.api.actor.StreamingActor._
 import com.stratio.sparkta.serving.api.actor.SupervisorContextActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-import scala.util.{Failure, Success}
-import com.typesafe.config.Config
+import com.stratio.sparkta.serving.core.models.StreamingContextStatusEnum._
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, StreamingContextStatus}
 
 class StreamingActor(streamingContextService: StreamingContextService,
-                     jobServerRef: Option[ActorRef],
-                     jobServerConfig: Option[Config],
+                     clusterConfig: Option[Config],
                      supervisorContextRef: ActorRef) extends InstrumentedActor {
 
   implicit val timeout: Timeout = Timeout(10.seconds)
@@ -69,9 +67,9 @@ class StreamingActor(streamingContextService: StreamingContextService,
   }
 
   private def getStreamingContextActor(policy: AggregationPoliciesModel): ActorRef = {
-    if (jobServerRef.isDefined && jobServerConfig.isDefined) {
+    if (clusterConfig.isDefined) {
       context.actorOf(
-        Props(new ClusterContextActor(policy, streamingContextService, jobServerRef.get, jobServerConfig.get)),
+        Props(new ClusterContextActor(policy, streamingContextService, clusterConfig.get)),
         "context-actor-".concat(policy.name))
     } else {
       context.actorOf(
@@ -120,10 +118,7 @@ class StreamingActor(streamingContextService: StreamingContextService,
     (supervisorContextRef ? SupDeleteContextStatus(contextName)).mapTo[SupResponse_ContextStatus]
       .foreach(resContextSt =>
       resContextSt.contextStatus match {
-        case Some(contextActorStatus) => {
-          if (jobServerRef.isDefined) deleteClusterContext(contextName, contextActorStatus.actor)
-          else deleteStandAloneContext(contextName, contextActorStatus.actor)
-        }
+        case Some(contextActorStatus) => deleteStandAloneContext(contextName, contextActorStatus.actor)
         case None =>
           throw new ServingApiException("Context with name " + contextName + " does not exists.")
       }
@@ -133,17 +128,6 @@ class StreamingActor(streamingContextService: StreamingContextService,
   private def deleteStandAloneContext(contextName: String, contextActorStatus: ActorRef): Unit = {
     contextActorStatus ! PoisonPill
     sender ! new StreamingContextStatus(contextName, Removed, None)
-  }
-
-  private def deleteClusterContext(contextName: String, contextActorStatus: ActorRef): Unit = {
-    (jobServerRef.get ? JsDeleteContext(contextName)).mapTo[JsResponseDeleteContext].foreach {
-      case JsResponseDeleteContext(Failure(exception)) =>
-        sender ! new StreamingContextStatus(contextName, Error, Some(exception.getMessage))
-      case JsResponseDeleteContext(Success(response)) => {
-        contextActorStatus ! PoisonPill
-        sender ! new StreamingContextStatus(contextName, Removed, None)
-      }
-    }
   }
 
   /**

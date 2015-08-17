@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.constants
+package com.stratio.sparkta.driver.constants
 
 /**
  * Akka constants with Akka's actor paths.
@@ -32,6 +32,7 @@ object AkkaConstant {
   final val SupervisorContextActor = "supervisorContextActor"
   final val ControllerActorInstances = "controllerActorInstances"
   final val StreamingActorInstances = "streamingActorInstances"
+  final val SparkSubmitActor  = "sparkSubmitActor"
   final val DefaultControllerActorInstances = 5
   final val DefaultStreamingActorInstances = 3
 }

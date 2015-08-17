@@ -14,9 +14,21 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.models
+package com.stratio.sparkta.serving.core
 
-case class CheckpointModel(timeDimension: String,
-                          granularity: String,
-                          interval: Integer,
-                          timeAvailability: Long)
+/**
+ * Global constants of the application.
+ * @author anistal
+ */
+object AppConstant {
+
+  final val JarPaths = Seq( "plugins", "sdk", "aggregator")
+  final val ConfigAppName = "sparkta"
+  final val ConfigApi = "api"
+  final val ConfigCluster = "cluster"
+  final val ConfigSpark = "spark"
+  final val ConfigAkka = "akka"
+  final val ConfigSwagger = "swagger"
+  final val BaseZKPath      = "/stratio/sparkta"
+  final val PoliciesBasePath = s"${AppConstant.BaseZKPath}/policies"
+}

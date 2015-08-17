@@ -14,20 +14,9 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.constants
+package com.stratio.sparkta.serving.core.models
 
-/**
- * Global constants of the application.
- * @author anistal
- */
-object AppConstant {
-
-  final val JarPaths = Seq( "plugins", "sdk", "aggregator")
-  final val ConfigAppName = "sparkta"
-  final val ConfigApi = "api"
-  final val ConfigJobServer = "jobServer"
-  final val ConfigAkka = "akka"
-  final val ConfigSwagger = "swagger"
-  final val BaseZKPath      = "/stratio/sparkta"
-
-}
+case class CheckpointModel(timeDimension: String,
+                          granularity: String,
+                          interval: Integer,
+                          timeAvailability: Long)

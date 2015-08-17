@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.models
+package com.stratio.sparkta.serving.core.models
 
 /**
  * A fragmentElementDto represents a piece of policy that will be composed with other fragments before.

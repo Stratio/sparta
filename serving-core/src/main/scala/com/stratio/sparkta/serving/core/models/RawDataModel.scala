@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.models
+package com.stratio.sparkta.serving.core.models
 
 
 case class RawDataModel(enabled: String = RawDataModel.Enabled,

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.models
+package com.stratio.sparkta.serving.core.models
 
-import com.stratio.sparkta.sdk.JsoneyString
-
-case class OperatorModel(`type`: String, name: String, configuration: Map[String, JsoneyString],
-                         jarFile: Option[String] = None)
+object StreamingContextStatusEnum extends Enumeration {
+  type Status = Value
+  val GettingPolicyFromZookeeper, Initializing, Initialized, Error, ConfigurationError, Stopped, Removed = Value
+}

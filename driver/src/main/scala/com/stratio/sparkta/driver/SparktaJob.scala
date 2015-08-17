@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2015 Stratio (http://stratio.com)
  *
@@ -15,19 +14,15 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.service
+package com.stratio.sparkta.driver
 
-import java.io.{File, Serializable}
+import java.io._
 import java.nio.file.{Files, Paths}
+import scala.annotation.tailrec
+import scala.collection.JavaConversions._
+import scala.util._
 
-import akka.event.slf4j.{Logger, SLF4JLogging}
-import com.stratio.sparkta.aggregator.{Cube, CubeMaker}
-import com.stratio.sparkta.driver.exception.DriverException
-import com.stratio.sparkta.driver.factory.{SchemaFactory, SparkContextFactory}
-import com.stratio.sparkta.driver.models.{AggregationPoliciesModel, OperatorModel}
-import com.stratio.sparkta.sdk.TypeOp.TypeOp
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
-import com.stratio.sparkta.sdk._
+import akka.event.slf4j.SLF4JLogging
 import org.apache.commons.io.FileUtils
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
@@ -35,9 +30,14 @@ import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.reflections.Reflections
 
-import scala.annotation.tailrec
-import scala.collection.JavaConversions._
-import scala.util._
+import com.stratio.sparkta.aggregator.{Cube, CubeMaker}
+import com.stratio.sparkta.driver.exception.DriverException
+import com.stratio.sparkta.driver.factory.{SchemaFactory, SparkContextFactory}
+import com.stratio.sparkta.driver.service.RawDataStorageService
+import com.stratio.sparkta.sdk.TypeOp.TypeOp
+import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, OperatorModel}
 
 object SparktaJob extends SLF4JLogging {
 
@@ -105,15 +105,15 @@ object SparktaJob extends SLF4JLogging {
             None
           }
         }).flatMap(event => event match {
-            case Some(value) => Seq(value)
-            case None => Seq()
-          }), parsers.drop(1))
+        case Some(value) => Seq(value)
+        case None => Seq()
+      }), parsers.drop(1))
       case None => input
     }
   }
 
-  val getClasspathMap: Map[String, String] = {
-    val reflections = new Reflections("com.stratio.sparkta")
+  lazy val getClasspathMap: Map[String, String] = {
+    val reflections = new Reflections()
     val inputs = reflections.getSubTypesOf(classOf[Input]).toList
     val dimensionTypes = reflections.getSubTypesOf(classOf[DimensionType]).toList
     val operators = reflections.getSubTypesOf(classOf[Operator]).toList
@@ -138,8 +138,8 @@ object SparktaJob extends SLF4JLogging {
     }).toMap
 
   def input(apConfig: AggregationPoliciesModel, ssc: StreamingContext): (String, DStream[Event]) =
-      (apConfig.input.get.name, tryToInstantiate[Input](apConfig.input.get.`type` + Input.ClassSuffix, (c) =>
-        instantiateParameterizable[Input](c, apConfig.input.get.configuration)).setUp(ssc))
+    (apConfig.input.get.name, tryToInstantiate[Input](apConfig.input.get.`type` + Input.ClassSuffix, (c) =>
+      instantiateParameterizable[Input](c, apConfig.input.get.configuration)).setUp(ssc))
 
   def parsers(apConfig: AggregationPoliciesModel): Seq[Parser] =
     apConfig.transformations.map(parser =>
