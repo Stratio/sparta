@@ -18,7 +18,7 @@ package com.stratio.sparkta.serving.core
 
 /**
  * Global constants of the application.
- * @author anistalmvn
+ * @author anistal
  */
 object AppConstant {
 

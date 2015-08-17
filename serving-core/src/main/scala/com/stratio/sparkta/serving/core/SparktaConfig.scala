@@ -16,40 +16,30 @@
 
 package com.stratio.sparkta.serving.core
 
-import java.io.File
-import java.lang.reflect.Method
-import java.net.{URL, URLClassLoader}
-
-import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
-import akka.io.IO
-import akka.routing.RoundRobinPool
 import com.typesafe.config.Config
 
-import scala.util.Try
-
 /**
-  * Helper with common operations used to create a Sparkta context used to run the application.
-  * @author anistal
-  */
+ * Helper with common operations used to create a Sparkta context used to run the application.
+ * @author danielcsant
+ */
 object SparktaConfig extends SLF4JLogging {
 
-   /**
-    * Initializes base configuration.
-    * @param currentConfig if it is setted the function tries to load a node from a loaded config.
-    * @param node with the node needed to load the configuration.
-    * @return the loaded configuration.
-    */
-   def initConfig(node: String,
-                  currentConfig: Option[Config] = None,
-                  configFactory: ConfigFactory = new SparktaConfigFactory): Config = {
-     log.info(s"> Loading $node configuration")
-     val configResult = currentConfig match {
-       case Some(config) => Some(config.getConfig(node))
-       case _ => configFactory.getConfig(node)
-     }
-     assert(configResult.isDefined, "Fatal Error: configuration can not be loaded: $node")
-     configResult.get
-   }
-
- }
+  /**
+   * Initializes base configuration.
+   * @param currentConfig if it is setted the function tries to load a node from a loaded config.
+   * @param node with the node needed to load the configuration.
+   * @return the loaded configuration.
+   */
+  def initConfig(node: String,
+                 currentConfig: Option[Config] = None,
+                 configFactory: ConfigFactory = new SparktaConfigFactory): Config = {
+    log.info(s"> Loading $node configuration")
+    val configResult = currentConfig match {
+      case Some(config) => Some(config.getConfig(node))
+      case _ => configFactory.getConfig(node)
+    }
+    assert(configResult.isDefined, "Fatal Error: configuration can not be loaded: $node")
+    configResult.get
+  }
+}
