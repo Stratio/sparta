@@ -1,0 +1,126 @@
+.st-modal {
+    background: rgba(0,0,0,0.7);
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 9999;
+
+    .st-modal-container {
+        -webkit-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+        @include box-shadow(0 0 4px 4px rgba(0,0,0,0.2));
+
+        background: white;
+        box-sizing: border-box;
+        color: $text-color;
+        left: 50%;
+        position: absolute;
+        top: 50%;
+
+        &:not(.adjust-to-content){
+          width: $st-modal-width;
+
+          .st-modal-body {
+            max-height: 350px;
+          }
+        }
+
+        .st-modal-header {
+            border-bottom: 1px solid $st-modal-border;
+            box-sizing: border-box;
+            margin: $st-modal-margin;
+            padding-bottom: $st-modal-margin;
+            overflow: hidden;
+
+            .button-back {
+                color: $brand-color;
+                float: right;
+            }
+        }
+
+        .st-modal-body {
+            margin: $st-modal-margin * 4;
+            overflow-y: auto;
+            position: relative;
+
+            .st-modal-icon {
+                left: 0;
+                position: absolute;
+                top: 0;
+            }
+
+            &.hide-icon{
+              .st-modal-icon {
+                display: none;
+              }
+            }
+
+            &:not(.hide-icon) .st-modal-content {
+                border-left: 1px solid $st-modal-border;
+                margin-left: $st-modal-margin * 8;
+                padding-bottom: $st-modal-margin * 4;
+                padding-left: $st-modal-margin * 2;
+            }
+        }
+
+        .st-modal-footer {
+            background: $st-modal-gray;
+            box-sizing: border-box;
+            font-weight: bold;
+            height: 60px;
+            width: 100%;
+
+            .button-back {
+                color: $brand-color;
+                height: 100%;
+                margin-left: $st-modal-margin * 2;
+                i {
+                    vertical-align: middle;
+                }
+            }
+
+            .button-save {
+                background: $brand-color;
+                color: $st-modal-gray;
+                float: right;
+                height: 100%;
+                padding: 0 $st-modal-margin*2;
+            }
+
+            .button-secondary {
+              background: $danger-color;
+              color: $st-modal-gray;
+              float: right;
+              height: 100%;
+              padding: 0 $st-modal-margin*2;
+            }
+
+            .modal-loading {
+                float: right;
+                margin-right: $st-modal-margin * 3;
+                margin-top: $st-modal-margin * 2;
+                position: relative;
+            }
+        }
+    }
+}
+
+.st-modal.ng-hide-remove.ng-hide-remove-active {
+    -webkit-transition: all linear .4s;
+    transition: all linear .4s;
+    .st-modal-container {
+        -webkit-transition: all linear .2s;
+        transition: all linear .2s;
+    }
+}
+
+.st-modal.ng-hide {
+    background: rgba(0,0,0,0);
+    .st-modal-container {
+        -webkit-transform: translate(-50%, -100%);
+        transform: translate(-50%, -100%);
+        opacity: .5;
+    }
+}
