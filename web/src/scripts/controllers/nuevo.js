@@ -18,6 +18,7 @@
         vm.deleteInputConfirm = deleteInputConfirm;
         vm.getPoliciesNames = getPoliciesNames;
         vm.setInputsId = setInputsId;
+        vm.duplicateInput = duplicateInput;
         vm.inputTypes = [];
         vm.inputId = 1;
 
@@ -32,7 +33,6 @@
         function getInputs() {
             ApiTest.get().$promise.then(function (result) {
                 vm.inputsData = vm.setInputsId(result);
-                console.log(vm.inputsData);
                 vm.getInputTypes(result);
             });
         };
@@ -55,6 +55,15 @@
                 };
                 vm.deleteInputConfirm('lg', inputToDelete);
             });
+        };
+
+        function duplicateInput(inputName) {
+            var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {name:inputName}, true)[0];
+
+            var newName = autoIncrementName(inputSelected.name);
+            inputSelected.name = newName;
+
+            var newName = SetDuplicatetedInput('sm', inputSelected);
         };
 
         function setInputsId(inputsData) {
@@ -144,7 +153,6 @@
                     fragmentDeleted
                         .then(function (result) {
                             console.log('*********Fragment deleted');
-                            /*Check deleting the input in the array*/
                             vm.inputsData.splice(selectedItem.index, 1);
 
                         });
@@ -153,9 +161,50 @@
                     console.log('Modal dismissed at: ' + new Date())
                 });
         };
+
+        function SetDuplicatetedInput(size, inputName) {
+            var modalInstance = $modal.open({
+                animation: true,
+                templateUrl: 'templates/components/st_duplicate_modal.tpl.html',
+                controller: 'NewFragmentCtrl',
+                size: 'lg',
+                resolve: {
+                    item: function () {
+                        return inputName;
+                    }
+                }
+            });
+
+            modalInstance.result
+                .then(function (selectedItem) {
+                    delete selectedItem["id"];
+                    console.log(selectedItem);
+
+                    var newFragment = FragmentDataService.InsertFragment(selectedItem);
+
+                    newFragment
+                        .then(function (result) {
+                            console.log('*********Fragment created');
+                            console.log(result);
+
+                            var newId = vm.inputsData[vm.inputsData.length-1].id + 1;
+                            selectedItem.id = newId;
+
+                            vm.inputsData.push(selectedItem);
+                        },
+                        function (error) {
+                            console.log(error);
+                            console.log('Modal dismissed at: ' + new Date())
+                        });
+
+                },
+                function () {
+                    console.log('Modal dismissed at: ' + new Date())
+                });
+        };
     };
 
-
+    /*NEW INPUT & DELETE INPUT MODALS CONTROLLER */
     angular
         .module('webApp')
         .controller('ModalInstanceCtrl', ModalInstanceCtrl);
@@ -166,12 +215,35 @@
         console.log('*********Modal');
         console.log(item);
 
-        $scope.inputs = item;
+        $scope.inputsName = item;
 
         $scope.ok = function () {
             $modalInstance.close($scope.inputs);
         };
-        
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    };
+
+
+    /*DUPLICATE INPUT MODAL CONTROLLER */
+    angular
+        .module('webApp')
+        .controller('NewFragmentCtrl', NewFragmentCtrl);
+
+    NewFragmentCtrl.$inject = ['$scope', '$modalInstance', 'item'];
+
+    function NewFragmentCtrl($scope, $modalInstance, item) {
+        console.log('*********Modal');
+        console.log(item);
+
+        $scope.inputData = item;
+
+        $scope.ok = function () {
+            $modalInstance.close(item);
+        };
+
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
