@@ -56,6 +56,8 @@ object SparkContextFactory extends SLF4JLogging {
     ssc
   }
 
+  def setSparkContext(createdContext: SparkContext): Unit = sc = Some(createdContext)
+
   private def getNewStreamingContext(batchDuration: Duration, checkpointDir: String): StreamingContext = {
     val ssc = new StreamingContext(sc.get, batchDuration)
     ssc.checkpoint(checkpointDir)

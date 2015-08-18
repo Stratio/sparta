@@ -19,21 +19,20 @@ package com.stratio.sparkta.serving.api.helpers
 import java.io.File
 import java.lang.reflect.Method
 import java.net.{URL, URLClassLoader}
+import scala.util.Try
 
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import akka.routing.RoundRobinPool
-import com.stratio.sparkta.driver.factory.SparkContextFactory
-import com.stratio.sparkta.driver.helpers.{ConfigFactory, SparktaConfigFactory, SparktaSystem, System}
-import com.stratio.sparkta.driver.service.StreamingContextService
-import com.stratio.sparkta.serving.api.actor._
-import com.stratio.sparkta.serving.api.constants.{AkkaConstant, AppConstant}
-import com.stratio.sparkta.serving.api.factory.CuratorFactoryHolder
 import com.typesafe.config.Config
 import spray.can.Http
 
-import scala.util.Try
+import com.stratio.sparkta.driver.constants.AkkaConstant
+import com.stratio.sparkta.driver.factory.SparkContextFactory
+import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.serving.api.actor._
+import com.stratio.sparkta.serving.core._
 
 /**
  * Helper with common operations used to create a Sparkta context used to run the application.
@@ -75,24 +74,6 @@ object SparktaHelper extends SLF4JLogging {
    * Initializes base configuration.
    * @param currentConfig if it is setted the function tries to load a node from a loaded config.
    * @param node with the node needed to load the configuration.
-   * @return the loaded configuration.
-   */
-  def initConfig(node: String,
-                 currentConfig: Option[Config] = None,
-                 configFactory: ConfigFactory = new SparktaConfigFactory): Config = {
-    log.info(s"> Loading $node configuration")
-    val configResult = currentConfig match {
-      case Some(config) => Some(config.getConfig(node))
-      case _ => configFactory.getConfig(node)
-    }
-    assert(configResult.isDefined, "Fatal Error: configuration can not be loaded: $node")
-    configResult.get
-  }
-
-  /**
-   * Initializes base configuration.
-   * @param currentConfig if it is setted the function tries to load a node from a loaded config.
-   * @param node with the node needed to load the configuration.
    * @return the optional loaded configuration.
    */
   def initOptionalConfig(node: String,
@@ -105,6 +86,11 @@ object SparktaHelper extends SLF4JLogging {
         case _ => configFactory.getConfig(node)
       }
     ).getOrElse(None)
+  }
+
+  def parseClusterConfig(config: Config): Option[Config] = config.getBoolean(AppConstant.ConfigCluster) match {
+    case true => Some(config.getConfig(AppConstant.ConfigSpark))
+    case _ => None
   }
 
   /**
@@ -122,23 +108,14 @@ object SparktaHelper extends SLF4JLogging {
     val curatorFramework = CuratorFactoryHolder.getInstance(configSparkta).get
     log.info("> Initializing akka actors")
     system = ActorSystem(appName)
-    val jobServerConfig = configSparkta.getConfig(AppConstant.ConfigJobServer)
-    val jobServerConfigOp = Try(if (!jobServerConfig.isEmpty &&
-      Try(jobServerConfig.getString("host")).isSuccess &&
-      Try(jobServerConfig.getString("host")).get != "" &&
-      Try(jobServerConfig.getInt("port")).isSuccess &&
-      Try(jobServerConfig.getInt("port")).get > 0)
-      Some(jobServerConfig)
-    else None).getOrElse(None)
+    val clusterConfig = parseClusterConfig(configSparkta)
     val akkaConfig = configSparkta.getConfig(AppConstant.ConfigAkka)
     val swaggerConfig = configSparkta.getConfig(AppConstant.ConfigSwagger)
     val controllerInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
     else AkkaConstant.DefaultControllerActorInstances
     val streamingActorInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
     else AkkaConstant.DefaultControllerActorInstances
-    val jobServerActor = if (jobServerConfigOp.isDefined)
-      Some(system.actorOf(Props(new JobServerActor(jobServerConfig.getString("host"),
-        jobServerConfig.getInt("port"))), AkkaConstant.JobServerActor)) else None
+
     val supervisorContextActor = system.actorOf(
       Props(new SupervisorContextActor), AkkaConstant.SupervisorContextActor)
     implicit val actors = Map(
@@ -149,20 +126,19 @@ object SparktaHelper extends SLF4JLogging {
       AkkaConstant.PolicyActor ->
         system.actorOf(Props(new PolicyActor(curatorFramework)), AkkaConstant.PolicyActor),
       AkkaConstant.StreamingActor -> system.actorOf(RoundRobinPool(streamingActorInstances).props(Props(
-        new StreamingActor(streamingContextService, jobServerActor, jobServerConfigOp, supervisorContextActor))),
+        new StreamingActor(streamingContextService, clusterConfig, supervisorContextActor))),
         AkkaConstant.StreamingActor)
-    ) ++ {
-      if (jobServerActor.isDefined) Map(AkkaConstant.JobServerActor -> jobServerActor.get) else Map()
-    }
+    )
     val controllerActor = system.actorOf(
       Props(new ControllerActor(streamingContextService, curatorFramework, actors)), AkkaConstant.ControllerActor)
-//    TODO: change this when swagger will be fixed.
-//     val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)
-//      .props(Props(new ControllerActor(streamingContextService, curatorFramework, actors))),
-//      AkkaConstant.ControllerActor)
-//    val swaggerActor = system.actorOf(Props(new SwaggerActor), AkkaConstant.SwaggerActor)
+    //    TODO: change this when swagger will be fixed.
+    //     val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)
+    //      .props(Props(new ControllerActor(streamingContextService, curatorFramework, actors))),
+    //      AkkaConstant.ControllerActor)
+    //    val swaggerActor = system.actorOf(Props(new SwaggerActor), AkkaConstant.SwaggerActor)
     IO(Http) ! Http.Bind(controllerActor, interface = configApi.getString("host"), port = configApi.getInt("port"))
-//  IO(Http) ! Http.Bind(swaggerActor, interface = swaggerConfig.getString("host"), port = swaggerConfig.getInt("port"))
+    //  IO(Http) ! Http.Bind(swaggerActor, interface = swaggerConfig.getString("host"), port =
+    // swaggerConfig.getInt("port"))
     log.info("> Actors System UP!")
   }
 

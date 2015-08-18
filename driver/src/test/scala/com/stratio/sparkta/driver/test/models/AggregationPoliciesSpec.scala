@@ -16,7 +16,7 @@
 
 package com.stratio.sparkta.driver.test.models
 
-import com.stratio.sparkta.driver.models._
+import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.sdk.{DimensionType, JsoneyString}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner

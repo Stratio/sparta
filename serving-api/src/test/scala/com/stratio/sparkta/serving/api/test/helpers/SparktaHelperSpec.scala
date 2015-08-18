@@ -16,8 +16,8 @@
 
 package com.stratio.sparkta.serving.api.test.helpers
 
-import com.stratio.sparkta.driver.helpers.{MockSystem, MockConfigFactory}
 import com.stratio.sparkta.serving.api.helpers.SparktaHelper
+import com.stratio.sparkta.serving.core.{SparktaConfig, MockConfigFactory, MockSystem}
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
 import org.scalamock.scalatest._
@@ -56,7 +56,7 @@ class SparktaHelperSpec extends FlatSpec with MockFactory with ShouldMatchers wi
         |}
       """.stripMargin)
 
-    val sparktaConfig = SparktaHelper.initConfig(node = "sparkta", configFactory = new MockConfigFactory(config))
+    val sparktaConfig = SparktaConfig.initConfig(node = "sparkta", configFactory = new MockConfigFactory(config))
     sparktaConfig.getString("testKey") should be ("testValue")
   }
 
@@ -70,8 +70,8 @@ class SparktaHelperSpec extends FlatSpec with MockFactory with ShouldMatchers wi
         |}
       """.stripMargin)
 
-    val sparktaConfig = SparktaHelper.initConfig(node = "sparkta", configFactory = new MockConfigFactory(config))
-    val testNodeConfig = SparktaHelper.initConfig("testNode", Some(sparktaConfig), new MockConfigFactory(config))
+    val sparktaConfig = SparktaConfig.initConfig(node = "sparkta", configFactory = new MockConfigFactory(config))
+    val testNodeConfig = SparktaConfig.initConfig("testNode", Some(sparktaConfig), new MockConfigFactory(config))
     testNodeConfig.getString("testKey") should be ("testValue")
   }
 }
