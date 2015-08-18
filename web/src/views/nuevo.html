@@ -1,4 +1,4 @@
-<div data-ng-init="nuevo.init()">
+<div>
 	<!-- HEADER -->
 	<st-heading title="{{'_INPUT_HEADER_TITLE_MAIN' | translate}}" subtitle="{{'_INPUT_HEADER_TITLE_SECONDARY' | translate}}:"></st-heading>
 
@@ -7,7 +7,7 @@
 			<div class="c-form-control">
 				<label class="c-label" for="name">{{"_INPUT_FILTER_NAME_" | translate}}:</label>
 				<i class="icon-search c-icon c-icon--in-input"></i>
-				<input type="text" id="name" class="c-searchbox" data-ng-model="nuevo.filters.name" />
+				<input type="text" id="name" class="c-searchbox c-searchbox--left-icon" data-ng-model="nuevo.filters.name" />
 			</div>
 
 			<div class="c-form-control">
@@ -26,15 +26,15 @@
 				<div class="title">
 					<span class="name">{{input.name}}</span>
 
-					<span class="icon-search menu_actions" ng-click="$root.stToggleFloatingMenu[$index]()">
-						<st-floating-menu toggle-id="{{$index}}" align="right">
+					<span class="icon-search menu_actions" data-ng-click="$root.stToggleFloatingMenu[input.id]()">
+						<st-floating-menu toggle-id="{{input.id}}" align="right">
 							<st-menu-element class-icon="icon-edit">
 								{{"_INPUT_ACTIONS_MENU_EDIT_" | translate}}
 							</st-menu-element>
-							<st-menu-element class-icon="icon-copy">
+							<st-menu-element class-icon="icon-copy" data-ng-click="nuevo.duplicateInput(input.name)">
 								{{"_INPUT_ACTIONS_MENU_DUPLICATE_" | translate}}
 							</st-menu-element>
-							<st-menu-element class-icon="icon-cross">
+							<st-menu-element class-icon="icon-cross" data-ng-click="nuevo.deleteInput(input.fragmentType, input.name, $index)">
 								{{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
 							</st-menu-element>
 						</st-floating-menu>
@@ -56,4 +56,23 @@
     		<span>{{"_INPUT_BUTTON_NEW_" | translate}}</span>
     	</button>
     </div>
+
+<!--
+	<st-modal data-open="nuevo.deleteModal" data-action="nuevo.deleteDataSource()" data-action-label="delete data source" data-action-title="Delete data source: {{nuevo.dataSource.name}}">
+	    <p>Are you sure you want to delete this data source?</p>
+	    <div ng-if="nuevo.associated.dataViews.length > 0">
+	        <p>The next Data Views<span ng-if="nuevo.associated.widgets.length > 0"> and Widgets</span> are associated to the Data Source and will be deleted too:</p>
+	        <strong>Data Views</strong>
+	        <ul ng-repeat="associatedDataView in nuevo.associated.dataViews">
+	            <li>{{associatedDataView.name}}</li>
+	        </ul>
+	        <div ng-if="nuevo.associated.widgets.length > 0">
+	            <strong>Widgets</strong>
+	            <ul ng-repeat="associatedWidget in nuevo.associated.widgets">
+	                <li>{{associatedWidget.title}}</li>
+	            </ul>
+	        </div>
+	    </div>
+	</st-modal>
+-->
 </div>

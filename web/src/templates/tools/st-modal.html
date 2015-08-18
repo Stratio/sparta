@@ -1,0 +1,21 @@
+<div class="st-modal" ng-class="{'has-next': hasNext}" ng-show="open" ng-click="actionCancelHandler()">
+    <div class="st-modal-container" ng-click="$event.stopPropagation();" ng-class="{'adjust-to-content': adjustToContent == true}">
+        <div class="st-modal-header">
+            {{actionTitle}}
+            <button class="button button-back" ng-click="actionCancelHandler()"><i class="fa fa-times"></i></button>
+        </div>
+        <div class="st-modal-body" ng-class="{'hide-icon': showIcon == false}">
+            <div class="st-modal-icon"><i class="fa fa-info-circle fa-3x"></i></div>
+            <div class="st-modal-content" ng-transclude></div>
+        </div>
+        <div class="st-modal-footer" ng-hide="showFooter == false">
+            <!-- <button class="button button-back" ng-click="actionCancelHandler()"><i class="fa fa-caret-left"></i> cancel</button> -->
+            <button class="button button-back" ng-click="deletepolicies()"><i class="fa fa-caret-left"></i> cancel test</button>
+            <button class="button button-save" ng-click="actionHandler()" ng-disabled="showLoading()">{{actionLabel}}</button>
+            <button class="button button-secondary" ng-click="secondaryActionHandler()" ng-disabled="showLoading()" ng-if="secondaryActionLabel">{{secondaryActionLabel}}</button>
+            <div class="modal-loading" ng-if="showLoading()">
+                <dv-css-loading size="20" position="top"></dv-css-loading>
+            </div>
+        </div>
+    </div>
+</div>

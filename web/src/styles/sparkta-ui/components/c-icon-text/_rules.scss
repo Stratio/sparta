@@ -1,0 +1,16 @@
+@mixin c-icon-text {
+	display: inline-block;
+	position: relative;
+
+	@include is-clickable();
+	
+	@at-root &__text {
+		vertical-align: text-top;
+
+		@include is-link;
+	}
+}
+
+.c-icon-text {
+	@include c-icon-text;
+}

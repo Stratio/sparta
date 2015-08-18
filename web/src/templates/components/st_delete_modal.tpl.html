@@ -1,0 +1,20 @@
+<div class="modal-header">
+	<span>delete input</span>
+	<span class="icon-circle-cross" data-ng-click="cancel()"></span>
+</div>
+<div>
+	<div data-ng-repeat="item in inputs.policies">
+		{{item}}
+	</div>
+</div>
+<div>
+
+	<button data-ng-click="ok()">
+		<span class="icon-circle-check"></span>
+		<span>{{"_INPUT_BUTTON_DELETE_" | translate}}</span>
+	</button>
+	<button data-ng-click="cancel()">
+		<span class="icon-circle-cross"></span>
+		<span>{{"_INPUT_BUTTON_CANCEL_" | translate}}</span>
+	</button>
+</div>
