@@ -135,7 +135,7 @@ $c-button--call-to-action-4--hover---color: get-color(g5);
 
 
 // c-input
-$c-input---border: none;
+$c-input---border: 1px solid get-color(g3);
 $c-input---color: get-color(g8);
 $c-input---height: 28px;
 $c-input---border-radius: $component-border-radius;

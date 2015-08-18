@@ -7,6 +7,10 @@
 	&--left-icon {
 		padding: $c-input--left-icon---padding;
 	}
+
+	&--no-border {
+		border: 0;
+	}
 }
 
 .c-input {
