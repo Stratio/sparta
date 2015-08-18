@@ -1,4 +1,5 @@
 {
+  "id": "id",
   "name": "policy-Twitter-Print",
   "description": "policy-Twitter-Print",
   "sparkStreamingWindow": 6000,

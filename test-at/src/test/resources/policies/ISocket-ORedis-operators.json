@@ -1,4 +1,5 @@
 {
+  "id": "id",
   "name": "ATSocketRedis",
   "description": "No description",
   "sparkStreamingWindow": 2000,

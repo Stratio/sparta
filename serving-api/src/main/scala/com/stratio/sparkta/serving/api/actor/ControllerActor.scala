@@ -22,7 +22,7 @@ import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.api.service.http._
-import com.stratio.sparkta.serving.core.models.{ErrorModel, StreamingContextStatusEnum}
+import com.stratio.sparkta.serving.core.models.{SparktaSerializer, ErrorModel, StreamingContextStatusEnum}
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.Serialization._
@@ -31,13 +31,12 @@ import spray.routing._
 import spray.util.LoggingContext
 
 class ControllerActor(streamingContextService: StreamingContextService,
-                      actorsMap: Map[String, ActorRef]) extends HttpServiceActor with SLF4JLogging {
+                      actorsMap: Map[String, ActorRef])
+  extends HttpServiceActor
+  with SLF4JLogging
+  with SparktaSerializer {
 
   override implicit def actorRefFactory: ActorContext = context
-
-  implicit val json4sJacksonFormats = DefaultFormats +
-    new EnumNameSerializer(StreamingContextStatusEnum) +
-    new JsoneyStringSerializer()
 
   implicit def exceptionHandler(implicit logg: LoggingContext): ExceptionHandler =
     ExceptionHandler {

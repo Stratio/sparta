@@ -37,7 +37,7 @@ import spray.client.pipelining._
 import spray.http.StatusCodes._
 import spray.http._
 import spray.testkit.ScalatestRouteTest
-import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.{SparktaSerializer, AggregationPoliciesModel}
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.api.helpers.SparktaHelper
 
@@ -45,7 +45,13 @@ import com.stratio.sparkta.serving.api.helpers.SparktaHelper
  * Common operations that will be used in Acceptance Tests. All AT must extends from it.
  * @author arincon
  */
-trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogging with BeforeAndAfter with Matchers {
+trait SparktaATSuite
+  extends WordSpecLike
+  with ScalatestRouteTest
+  with SLF4JLogging
+  with BeforeAndAfter
+  with Matchers
+  with SparktaSerializer {
 
   val policyFile: String
   val Localhost = "127.0.0.1"
@@ -187,7 +193,6 @@ trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogg
   def pathToPolicy: String = policy.getPath
 
   def policyDto: AggregationPoliciesModel = {
-    implicit val formats = DefaultFormats + new JsoneyStringSerializer()
     parse(policy.openStream()).extract[AggregationPoliciesModel]
   }
 }

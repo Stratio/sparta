@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.util
+package com.stratio.sparkta.serving.core.models
 
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, SparktaSerializer}
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
-import org.json4s.native.Serialization._
+import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
+import org.json4s.ext.EnumNameSerializer
+import org.json4s.{DefaultFormats, Formats}
 
-object PolicyUtils extends SparktaSerializer {
+/**
+ * Extends this class if you need serialize / unserialize Sparkta's enums in any class / object.
+ */
+trait SparktaSerializer {
 
-  /**
-   * Method to parse AggregationPoliciesModel from JSON string
-   * @param json The policy as JSON string
-   * @return AggregationPoliciesModel
-   */
-  def parseJson(json: String): AggregationPoliciesModel = parse(json).extract[AggregationPoliciesModel]
-
-  def toJson(policy: AggregationPoliciesModel): String = write(policy)
+  implicit val json4sJacksonFormats: Formats =
+    DefaultFormats +
+    new EnumNameSerializer(StreamingContextStatusEnum) +
+    new JsoneyStringSerializer() +
+    new EnumNameSerializer(PolicyStatusEnum)
 }

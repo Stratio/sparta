@@ -1,4 +1,5 @@
 {
+  "id": "id",
   "name": "policy-flume",
   "description": "policy-flume",
   "sparkStreamingWindow": 6000,
