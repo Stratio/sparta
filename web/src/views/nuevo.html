@@ -31,7 +31,7 @@
 							<st-menu-element class-icon="icon-edit">
 								{{"_INPUT_ACTIONS_MENU_EDIT_" | translate}}
 							</st-menu-element>
-							<st-menu-element class-icon="icon-copy">
+							<st-menu-element class-icon="icon-copy" data-ng-click="nuevo.duplicateInput(input.name)">
 								{{"_INPUT_ACTIONS_MENU_DUPLICATE_" | translate}}
 							</st-menu-element>
 							<st-menu-element class-icon="icon-cross" data-ng-click="nuevo.deleteInput(input.fragmentType, input.name, $index)">

@@ -21,5 +21,6 @@
   "_INPUT_WINDOW_NEW_TITLE_": "New input",
 	"_INPUT_WINDOW_NEW_HELP_": "Do you need help?",
   "_INPUT_BUTTON_DELETE_": "delete",
-  "_INPUT_BUTTON_CANCEL_": "cancel"
+  "_INPUT_BUTTON_CANCEL_": "cancel",
+  "_INPUT_BUTTON_DUPLICATE_": "duplicate"
 }
