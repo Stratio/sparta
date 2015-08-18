@@ -9,9 +9,9 @@
 
     function TemplateDataService(ApiTemplateService) {
         return {
-                GetNewFragmentTemplate: function(fragmentType) {
-                    return ApiTemplateService.GetFragmentTemplateByType().get({'type': fragmentType}).$promise;
-                }
-            };
+            GetNewFragmentTemplate: function(fragmentType) {
+                return ApiTemplateService.GetFragmentTemplateByType().get({'type': fragmentType}).$promise;
+            }
+        };
     };
 })();
