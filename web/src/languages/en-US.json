@@ -24,7 +24,7 @@
 	"_ARE_YOU_COMPLETELY_SURE_": "Are you completely sure?",
 	"_INPUT_WINDOW_DELETE_MESSAGE_": "The following policies are going to be deleted",
 	"_INPUT_WINDOW_DELETE_MESSAGE2_": "If you do not want to delete these policies, please change first their inputs",
-  "_INPUT_BUTTON_DELETE_": "delete",
-  "_INPUT_BUTTON_CANCEL_": "cancel",
-  "_INPUT_BUTTON_DUPLICATE_": "duplicate"
+  	"_INPUT_BUTTON_DELETE_": "delete",
+  	"_INPUT_BUTTON_CANCEL_": "cancel",
+  	"_INPUT_BUTTON_DUPLICATE_": "duplicate"
 }

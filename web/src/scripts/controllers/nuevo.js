@@ -215,7 +215,7 @@
         console.log('*********Modal');
         console.log(item);
 
-        $scope.inputs = item;
+        $scope.inputsName = item;
 
         $scope.ok = function () {
             $modalInstance.close($scope.inputs);
