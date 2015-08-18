@@ -1,10 +1,10 @@
 @font-face {
 	font-family: 'ico_stratio';
-	src:url('vendors/stratio-fonticon/ico_stratio.eot?-lprm7n');
-	src:url('vendors/stratio-fonticon/ico_stratio.eot?#iefix-lprm7n') format('embedded-opentype'),
-		url('vendors/stratio-fonticon/ico_stratio.ttf?-lprm7n') format('truetype'),
-		url('vendors/stratio-fonticon/ico_stratio.woff?-lprm7n') format('woff'),
-		url('vendors/stratio-fonticon/ico_stratio.svg?-lprm7n#ico_stratio') format('svg');
+	src:url('vendors/stratio-fonticon/ico_stratio.eot?-aqvzz7');
+	src:url('vendors/stratio-fonticon/ico_stratio.eot?#iefix-aqvzz7') format('embedded-opentype'),
+		url('vendors/stratio-fonticon/ico_stratio.ttf?-aqvzz7') format('truetype'),
+		url('vendors/stratio-fonticon/ico_stratio.woff?-aqvzz7') format('woff'),
+		url('vendors/stratio-fonticon/ico_stratio.svg?-aqvzz7#ico_stratio') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -23,6 +23,45 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
+.icon-order:before {
+	content: "\e635";
+}
+.icon-stratio_small:before {
+	content: "\e633";
+}
+.icon-stratio_standard:before {
+	content: "\e634";
+}
+.icon-dot:before {
+	content: "\e622";
+}
+.icon-dot_selected:before {
+	content: "\e632";
+}
+.icon-logout:before {
+	content: "\e62e";
+}
+.icon-login:before {
+	content: "\e630";
+}
+.icon-cpu:before {
+	content: "\e627";
+}
+.icon-transport:before {
+	content: "\e628";
+}
+.icon-list:before {
+	content: "\e629";
+}
+.icon-chip1:before {
+	content: "\e62d";
+}
+.icon-chip2:before {
+	content: "\e62a";
+}
+.icon-fragments:before {
+	content: "\e62b";
+}
 .icon-filter:before {
 	content: "\e616";
 }
@@ -35,9 +74,6 @@
 .icon-indicator:before {
 	content: "\e601";
 }
-.icon-circle:before {
-	content: "\e622";
-}
 .icon-mongodb:before {
 	content: "\e623";
 }
@@ -49,6 +85,21 @@
 }
 .icon-jdbc:before {
 	content: "\e602";
+}
+.icon-rabbit:before {
+	content: "\e636";
+}
+.icon-twitter:before {
+	content: "\e637";
+}
+.icon-flume:before {
+	content: "\e644";
+}
+.icon-kafka:before {
+	content: "\e645";
+}
+.icon-socket:before {
+	content: "\e646";
 }
 .icon-tool:before {
 	content: "\e60c";
@@ -521,6 +572,9 @@
 .icon-delete:before {
 	content: "\e119";
 }
+.icon-actions:before {
+	content: "\e631";
+}
 .icon-menu:before {
 	content: "\e120";
 }
@@ -547,6 +601,9 @@
 }
 .icon-open:before {
 	content: "\e128";
+}
+.icon-waiting:before {
+	content: "\e62c";
 }
 .icon-ellipsis:before {
 	content: "\e129";

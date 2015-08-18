@@ -1,0 +1,7 @@
+@mixin c-list {
+	line-height: $c-list---line-height;
+}
+
+.c-list {
+	@include c-list;
+}

@@ -24,6 +24,7 @@
  *		c-modal-inner
  *		c-col
  *		c-row
+ *		c-list
  *
  */
 
@@ -169,10 +170,12 @@ $c-toolbar---padding: 11px 25px;
 
 
 // c-titlebar
-$c-titlebar---background: get-color(f3) !default;
-$c-titlebar---color: get-color(g7) !default;
-$c-titlebar---text-transform: uppercase !default;
-$c-titlebar---padding: 7px 10px !default;
+$c-titlebar---background: get-color(f3);
+$c-titlebar---color: get-color(g7);
+$c-titlebar---text-transform: uppercase;
+$c-titlebar---padding: 7px 10px;
+
+$c-titlebar__title---font-size: get-font-size(medium-alpha);
 
 
 
@@ -199,7 +202,18 @@ $c-icon--in-input---color: get-color(g6);
 
 
 // c-modal-inner
+$c-modal-inner---color: get-color(g7);
+$c-modal-inner---line-height: get-line-height(large);
 $c-modal-inner---padding: 15px 30px;
+
+$c-modal-inner__title---color: get-color(c4);
+$c-modal-inner__title---font-size: get-font-size(large);
+$c-modal-inner__title---font-weight: get-font-weight(normal);
+$c-modal-inner__title---text-transform: uppercase;
+$c-modal-inner__title---margin: 15px 0 5px;
+
+$c-modal-inner__c-list---line-height:  get-line-height(double);
+$c-modal-inner__c-list---margin: ($component-margin * 2);
 
 
 
@@ -209,3 +223,11 @@ $c-modal-inner---padding: 15px 30px;
 
 // c-row
 $c-row--separated---margin: $component-margin 0 0;
+
+
+
+// c-list
+$c-list---line-height: get-line-height(large);
+
+
+

@@ -10,11 +10,13 @@
 		color: $c-icon--in-input---color;
 	}
 
-	@include item-to-right;
+	@include item-to-right();
 
 	&--to-right {
 		margin-right: 0;
 	}
+
+	@include font-sizes();
 }
 
 .c-icon {
