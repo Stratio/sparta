@@ -5,9 +5,9 @@
         .module('webApp')
         .controller('NuevoCtrl', NuevoCtrl);
 
-    NuevoCtrl.$inject = ['ApiTest', 'FragmentDataService', '$filter', '$modal'];
+    NuevoCtrl.$inject = ['ApiTest', 'FragmentDataService', 'TemplateDataService', '$filter', '$modal'];
 
-    function NuevoCtrl(ApiTest, FragmentDataService, $filter, $modal) {
+    function NuevoCtrl(ApiTest, FragmentDataService, TemplateDataService, $filter, $modal) {
         /*jshint validthis: true*/
         var vm = this;
 
@@ -15,6 +15,7 @@
         vm.deleteInput = deleteInput;
         vm.getInputTypes = getInputTypes;
         vm.createInput = createInput;
+        vm.createInputModal = createInputModal;
         vm.deleteInputConfirm = deleteInputConfirm;
         vm.getPoliciesNames = getPoliciesNames;
         vm.setInputsId = setInputsId;
@@ -66,6 +67,17 @@
             var newName = SetDuplicatetedInput('sm', inputSelected);
         };
 
+        function createInput() {
+            var inputFragmentTemplate = TemplateDataService.GetNewFragmentTemplate('input');
+
+            inputFragmentTemplate.then(function (result) {
+                console.log('*********Controller');
+                console.log(result);
+
+                vm.createInputModal(result);
+            });
+        };
+
         function setInputsId(inputsData) {
             for (var i=0; i < inputsData.length; i++) {
                 inputsData[i].id = vm.inputId;
@@ -110,15 +122,15 @@
             }
         };
 
-        function createInput(size) {
+        function createInputModal(newInputTemplateData) {
             var modalInstance = $modal.open({
                 animation: true,
                 templateUrl: 'templates/inputs/input-details.tpl.html',
                 controller: 'ModalInstanceCtrl',
-                size: size,
+                size: 'lg',
                 resolve: {
                     item: function () {
-                        /*return $scope.items;*/
+                        return newInputTemplateData;
                     }
                 }
             });
