@@ -5,9 +5,9 @@
         .module('webApp')
         .controller('NuevoCtrl', NuevoCtrl);
 
-    NuevoCtrl.$inject = ['ApiTest', 'FragmentDataService', '$filter', '$modal'];
+    NuevoCtrl.$inject = ['ApiTest', 'FragmentDataService', 'TemplateDataService', '$filter', '$modal'];
 
-    function NuevoCtrl(ApiTest, FragmentDataService, $filter, $modal) {
+    function NuevoCtrl(ApiTest, FragmentDataService, TemplateDataService, $filter, $modal) {
         /*jshint validthis: true*/
         var vm = this;
 
@@ -15,6 +15,7 @@
         vm.deleteInput = deleteInput;
         vm.getInputTypes = getInputTypes;
         vm.createInput = createInput;
+        vm.createInputModal = createInputModal;
         vm.deleteInputConfirm = deleteInputConfirm;
         vm.getPoliciesNames = getPoliciesNames;
         vm.setInputsId = setInputsId;
@@ -64,6 +65,17 @@
             inputSelected.name = newName;
 
             var newName = SetDuplicatetedInput('sm', inputSelected);
+       };
+
+        function createInput() {
+            var inputFragmentTemplate = TemplateDataService.GetNewFragmentTemplate('input');
+
+            inputFragmentTemplate.then(function (result) {
+                console.log('*********Controller');
+                console.log(result);
+
+                vm.createInputModal(result);
+            });
         };
 
         function setInputsId(inputsData) {
@@ -110,15 +122,15 @@
             }
         };
 
-        function createInput(size) {
+        function createInputModal(newInputTemplateData) {
             var modalInstance = $modal.open({
                 animation: true,
                 templateUrl: 'templates/inputs/input-details.tpl.html',
                 controller: 'ModalInstanceCtrl',
-                size: size,
+                size: 'lg',
                 resolve: {
                     item: function () {
-                        /*return $scope.items;*/
+                        return newInputTemplateData;
                     }
                 }
             });
@@ -221,6 +233,7 @@
             $modalInstance.close($scope.inputs);
         };
 
+<<<<<<< HEAD
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
@@ -244,6 +257,8 @@
             $modalInstance.close(item);
         };
 
+=======
+>>>>>>> feature/new-input: getting template data from API
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
