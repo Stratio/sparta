@@ -1,0 +1,16 @@
+@mixin c-titlebar {
+	@include c-panel;
+	
+	background: $c-titlebar---background;
+	color: $c-titlebar---color;
+	text-transform: $c-titlebar---text-transform;
+	padding: $c-titlebar---padding;
+
+	@at-root &__title {
+		font-size: $c-titlebar__title---font-size;
+	}
+}
+
+.c-titlebar {
+	@include c-titlebar;
+}

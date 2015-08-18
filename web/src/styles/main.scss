@@ -5,6 +5,7 @@
 @import 'sparkta-ui/base/helpers/colors';
 @import 'sparkta-ui/base/helpers/typography';
 @import 'sparkta-ui/base/helpers/app-config';
+@import 'sparkta-ui/base/helpers/bem.modifiers';
 
 @import 'sparkta-ui/themes/light-platinum';
 
@@ -14,6 +15,7 @@
 
 @import 'sparkta-ui/components/c-panel/index';
 @import 'sparkta-ui/components/c-row/index';
+@import 'sparkta-ui/components/c-col/index';
 @import 'sparkta-ui/components/c-line-separator/index';
 @import 'sparkta-ui/components/c-button/index';
 @import 'sparkta-ui/components/c-input/index';
@@ -24,6 +26,10 @@
 @import 'sparkta-ui/components/c-form-control/index';
 @import 'sparkta-ui/components/c-form-group/index';
 @import 'sparkta-ui/components/c-toolbar/index';
+@import 'sparkta-ui/components/c-titlebar/index';
+@import 'sparkta-ui/components/c-icon-text/index';
+@import 'sparkta-ui/components/c-info-text/index';
+@import 'sparkta-ui/components/c-modal-inner/index';
 
 @import 'vendors/angular-ui/tooltip';
 @import 'vendors/angular-ui/modal';
