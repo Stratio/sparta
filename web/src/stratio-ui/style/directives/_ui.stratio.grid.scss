@@ -22,7 +22,7 @@ $item-name-height: 70px;
 
     .title {
         position: relative;
-        float: left;
+        //float: left;
         width: 100%;
         box-sizing: border-box;
         height: $item-name-height;
@@ -38,8 +38,8 @@ $item-name-height: 70px;
         }
         .menu_actions {
             position: absolute;
-            bottom: 15px;
-            right: 15px;
+            //bottom: 15px;
+            right: 0;
             cursor: pointer;
         }
     }
