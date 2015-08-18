@@ -65,6 +65,17 @@
             inputSelected.name = newName;
 
             var newName = SetDuplicatetedInput('sm', inputSelected);
+       };
+
+        function createInput() {
+            var inputFragmentTemplate = TemplateDataService.GetNewFragmentTemplate('input');
+
+            inputFragmentTemplate.then(function (result) {
+                console.log('*********Controller');
+                console.log(result);
+
+                vm.createInputModal(result);
+            });
         };
 
         function createInput() {
