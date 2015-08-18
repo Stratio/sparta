@@ -1,13 +1,16 @@
 <div class="c-titlebar">
 	<span "c-titlebar__title">{{"_INPUT_WINDOW_NEW_TITLE_" | translate}}</span>
-	<i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" ng-click="cancel()"></i>
+	<i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" data-ng-click="newFragment.cancel()"></i>
 </div>
 
 <div class="c-modal-inner">
 	<div class="c-row">
-		Inner auto-generated form (pending).
+		<label class="c-label" for="modal-newInput-name">{{"_INPUT_WINDOW_FORM_NAME_" | translate}}:</label>
+		<input class="c-input" id="modal-newInput-name" type="text">
 	</div>
-
+	<div class="c-row">
+		<label class="c-label" for="modal-newInput-type">{{"_INPUT_WINDOW_FORM_TYPE_" | translate}}:</label>
+	</div>
 	<div class="c-row c-row--separated">
 		<div class="c-col c-col--2 c-col--vertical-centered">
 			<span class="c-info-text c-info-text--is-clickable"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text c-info-text__text--is-link">{{"_INPUT_WINDOW_NEW_HELP_" | translate}}</span></span>
