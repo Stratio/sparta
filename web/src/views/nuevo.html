@@ -7,12 +7,12 @@
 			<div class="c-form-control">
 				<label class="c-label" for="name">{{"_INPUT_FILTER_NAME_" | translate}}:</label>
 				<i class="icon-search c-icon c-icon--in-input"></i>
-				<input type="text" id="name" class="c-searchbox c-searchbox--left-icon" data-ng-model="nuevo.filters.name" />
+				<input type="text" id="name" class="c-searchbox c-searchbox--left-icon c-searchbox--no-border" data-ng-model="nuevo.filters.name" />
 			</div>
 
 			<div class="c-form-control">
 				<label class="c-label" for="type">{{"_INPUT_FILTER_TYPE_" | translate}}:</label>
-				<select id="type" class="c-combobox" data-ng-model="nuevo.filters.element.type">
+				<select id="type" class="c-combobox c-combobox--no-border" data-ng-model="nuevo.filters.element.type">
 					<option value="">{{"_INPUT_FILTER_TYPE_DEFAULT_" | translate}}</option>
 					<option value="{{inputType.type}}" data-ng-repeat="inputType in nuevo.inputTypes">
 						{{inputType.type}} ({{inputType.count}})
@@ -66,23 +66,4 @@
     		<span>{{"_INPUT_BUTTON_NEW_" | translate}}</span>
     	</button>
     </div>
-
-<!--
-	<st-modal data-open="nuevo.deleteModal" data-action="nuevo.deleteDataSource()" data-action-label="delete data source" data-action-title="Delete data source: {{nuevo.dataSource.name}}">
-	    <p>Are you sure you want to delete this data source?</p>
-	    <div ng-if="nuevo.associated.dataViews.length > 0">
-	        <p>The next Data Views<span ng-if="nuevo.associated.widgets.length > 0"> and Widgets</span> are associated to the Data Source and will be deleted too:</p>
-	        <strong>Data Views</strong>
-	        <ul ng-repeat="associatedDataView in nuevo.associated.dataViews">
-	            <li>{{associatedDataView.name}}</li>
-	        </ul>
-	        <div ng-if="nuevo.associated.widgets.length > 0">
-	            <strong>Widgets</strong>
-	            <ul ng-repeat="associatedWidget in nuevo.associated.widgets">
-	                <li>{{associatedWidget.title}}</li>
-	            </ul>
-	        </div>
-	    </div>
-	</st-modal>
--->
 </div>
