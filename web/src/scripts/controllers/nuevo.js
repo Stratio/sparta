@@ -126,7 +126,7 @@
             var modalInstance = $modal.open({
                 animation: true,
                 templateUrl: 'templates/inputs/input-details.tpl.html',
-                controller: 'NewFragmentModalCtrl',
+                controller: 'NewFragmentModalCtrl as newFragment',
                 size: 'lg',
                 resolve: {
                     item: function () {
@@ -221,19 +221,33 @@
         .module('webApp')
         .controller('NewFragmentModalCtrl', NewFragmentModalCtrl);
 
-    NewFragmentModalCtrl.$inject = ['$scope', '$modalInstance', 'item'];
+    NewFragmentModalCtrl.$inject = ['$modalInstance', 'item'];
 
-    function NewFragmentModalCtrl($scope, $modalInstance, item) {
-        console.log('*********Modal');
-        console.log(item);
+    function NewFragmentModalCtrl($modalInstance, item) {
+        /*jshint validthis: true*/
+        var vm = this;
 
-        $scope.inputs = item;
+        vm.ok = ok;
+        vm.cancel = cancel;
+        vm.templateInputs = [];
 
-        $scope.ok = function () {
+        init();
+
+        /////////////////////////////////
+
+        function init() {
+            console.log('*********Modal');
+            console.log(item);
+
+            vm.templateInputs = item;
+        };
+
+        function ok() {
             $modalInstance.close($scope.inputs);
         };
 
-        $scope.cancel = function () {
+        function cancel() {
+            console.log('a');
             $modalInstance.dismiss('cancel');
         };
     };
