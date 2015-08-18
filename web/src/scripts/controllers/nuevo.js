@@ -116,7 +116,7 @@
             var modalInstance = $modal.open({
                 animation: true,
                 templateUrl: 'templates/inputs/input-details.tpl.html',
-                controller: 'ModalInstanceCtrl',
+                controller: 'NewFragmentModalCtrl',
                 size: 'lg',
                 resolve: {
                     item: function () {
@@ -165,6 +165,29 @@
                 });
         };
     };
+
+    /*NEW FRAGMENT MODAL CONTROLLER*/
+    angular
+        .module('webApp')
+        .controller('NewFragmentModalCtrl', NewFragmentModalCtrl);
+
+    NewFragmentModalCtrl.$inject = ['$scope', '$modalInstance', 'item'];
+
+    function NewFragmentModalCtrl($scope, $modalInstance, item) {
+        console.log('*********Modal');
+        console.log(item);
+
+        $scope.inputs = item;
+
+        $scope.ok = function () {
+            $modalInstance.close($scope.inputs);
+        };
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    };
+
 
 
     angular
