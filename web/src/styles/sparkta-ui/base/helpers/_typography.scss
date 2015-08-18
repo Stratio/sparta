@@ -6,7 +6,7 @@
 	@return map-get($font-weights, $weight);
 }
 
-@function get-font-size($size: normal) {
+@function get-font-size($size: medium) {
 	@return map-get($font-sizes, $size);
 }
 

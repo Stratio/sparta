@@ -5,9 +5,13 @@
 	@include is-clickable();
 	
 	@at-root &__text {
-		vertical-align: text-top;
+		vertical-align: middle;
 
 		@include is-link;
+	}
+
+	@at-root &__icon {
+		vertical-align: middle;
 	}
 }
 

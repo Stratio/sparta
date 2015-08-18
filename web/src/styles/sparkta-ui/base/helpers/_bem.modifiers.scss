@@ -29,3 +29,11 @@
 		float: right;
 	}	
 }
+
+@mixin font-sizes() {
+	@each $key, $value in $font-sizes {
+		&--#{$key} {
+			font-size: $value;
+		}
+	}
+}
