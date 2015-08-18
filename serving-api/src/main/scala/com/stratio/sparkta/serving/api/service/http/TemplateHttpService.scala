@@ -17,9 +17,9 @@
 package com.stratio.sparkta.serving.api.service.http
 
 import akka.pattern.ask
-import com.stratio.sparkta.driver.models.TemplateModel
 import com.stratio.sparkta.serving.api.actor._
 import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.core.models.TemplateModel
 import com.wordnik.swagger.annotations._
 import spray.routing._
 

@@ -10,24 +10,21 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permis;sions and
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
 package com.stratio.sparkta.serving.api.helpers
 
 import akka.actor.ActorRef
-import akka.util.Timeout
-import com.stratio.sparkta.driver.models.FragmentType._
-import com.stratio.sparkta.driver.models._
-import com.stratio.sparkta.serving.api.actor._
-import com.stratio.sparkta.serving.api.constants.AkkaConstant
 import akka.pattern.ask
 import akka.util.Timeout
-import scala.concurrent.duration._
+import com.stratio.sparkta.serving.api.actor._
+import com.stratio.sparkta.serving.core.models.FragmentType._
+import com.stratio.sparkta.serving.core.models._
 
 import scala.concurrent.Await
-import scala.util.{Success, Failure}
+import scala.util.{Failure, Success}
 
 /**
  * Helper with operations over policies and policy fragments.

@@ -17,12 +17,14 @@
 package com.stratio.sparkta.serving.api.service.http
 
 import akka.pattern.ask
-import com.stratio.sparkta.driver.models._
-import com.stratio.sparkta.serving.api.actor.StreamingActor._
-import com.stratio.sparkta.serving.api.constants.{AkkaConstant, HttpConstant}
-import com.stratio.sparkta.serving.api.helpers.PolicyHelper
 import com.wordnik.swagger.annotations._
 import spray.routing._
+
+import com.stratio.sparkta.driver.constants.AkkaConstant
+import com.stratio.sparkta.serving.api.actor.StreamingActor._
+import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.api.helpers.PolicyHelper
+import com.stratio.sparkta.serving.core.models._
 
 @Api(value = HttpConstant.PolicyContextPath, description = "Operations about policy contexts.", position = 0)
 trait PolicyContextHttpService extends BaseHttpService {
@@ -31,15 +33,15 @@ trait PolicyContextHttpService extends BaseHttpService {
 
   override def routes: Route = find ~ findAll ~ create ~ remove
 
-  @ApiOperation(value      = "Gets a policy context from its name.",
-                notes      = "Returns the status of a policy",
-                httpMethod =  "GET",
-                response   = classOf[StreamingContextStatus])
+  @ApiOperation(value = "Gets a policy context from its name.",
+    notes = "Returns the status of a policy",
+    httpMethod = "GET",
+    response = classOf[StreamingContextStatus])
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name     = "name",
-                         value    = "policy name",
-                         dataType = "String",
-                         required = true)))
+    new ApiImplicitParam(name = "name",
+      value = "policy name",
+      dataType = "String",
+      required = true)))
   @ApiResponses(Array(
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
@@ -54,14 +56,14 @@ trait PolicyContextHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value      = "Finds all policy contexts",
-                notes      = "Returns a policies list",
-                httpMethod = "GET",
-                response   = classOf[String],
-                responseContainer = "List")
+  @ApiOperation(value = "Finds all policy contexts",
+    notes = "Returns a policies list",
+    httpMethod = "GET",
+    response = classOf[String],
+    responseContainer = "List")
   @ApiResponses(
     Array(new ApiResponse(code = HttpConstant.NotFound,
-                          message = HttpConstant.NotFoundMessage)))
+      message = HttpConstant.NotFoundMessage)))
   def findAll: Route = {
     path(HttpConstant.PolicyContextPath) {
       get {
@@ -72,25 +74,25 @@ trait PolicyContextHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value      = "Creates a policy context.",
-                notes      = "Returns the result",
-                httpMethod = "POST",
-                response   = classOf[Result])
+  @ApiOperation(value = "Creates a policy context.",
+    notes = "Returns the result",
+    httpMethod = "POST",
+    response = classOf[Result])
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name         = "policy",
-                         value        = "policy json",
-                         dataType     = "AggregationPoliciesModel",
-                         required     = true,
-                         paramType    = "body")))
+    new ApiImplicitParam(name = "policy",
+      value = "policy json",
+      dataType = "AggregationPoliciesModel",
+      required = true,
+      paramType = "body")))
   @ApiResponses(
     Array(new ApiResponse(code = HttpConstant.NotFound,
-                          message = HttpConstant.NotFoundMessage)))
+      message = HttpConstant.NotFoundMessage)))
   def create: Route = {
     path(HttpConstant.PolicyContextPath) {
       post {
         entity(as[AggregationPoliciesModel]) { p =>
           val parsedP = PolicyHelper.parseFragments(
-            PolicyHelper.fillFragments(p,actors.get(AkkaConstant.FragmentActor).get, timeout))
+            PolicyHelper.fillFragments(p, actors.get(AkkaConstant.FragmentActor).get, timeout))
           val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
           validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
             complete {
@@ -103,18 +105,18 @@ trait PolicyContextHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value      = "Deletes a policy context by its name",
-                notes      = "Returns the status of the policy",
-                httpMethod = "DELETE",
-                response   = classOf[StreamingContextStatus])
+  @ApiOperation(value = "Deletes a policy context by its name",
+    notes = "Returns the status of the policy",
+    httpMethod = "DELETE",
+    response = classOf[StreamingContextStatus])
   @ApiImplicitParams(Array(new ApiImplicitParam(
-    name     = "name",
-    value    = "policy name",
+    name = "name",
+    value = "policy name",
     dataType = "String",
     required = true)))
   @ApiResponses(
     Array(new ApiResponse(code = HttpConstant.NotFound,
-                          message = HttpConstant.NotFoundMessage)))
+      message = HttpConstant.NotFoundMessage)))
   def remove: Route = {
     pathPrefix(HttpConstant.PolicyContextPath / Segment) { name =>
       delete {

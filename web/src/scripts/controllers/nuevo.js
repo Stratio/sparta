@@ -1,28 +1,81 @@
 (function() {
     'use strict';
 
-    angular.module('webApp')
-    .controller('NuevoCtrl',['ApiTest', '$filter', '$modal', function (ApiTest, $filter, $modal) {
+    angular
+        .module('webApp')
+        .controller('NuevoCtrl', NuevoCtrl);
 
-        this.init = function (){
-            var vm = this;
-            this.getInputs();
+    NuevoCtrl.$inject = ['ApiTest', 'FragmentDataService', '$filter', '$modal'];
+
+    function NuevoCtrl(ApiTest, FragmentDataService, $filter, $modal) {
+        /*jshint validthis: true*/
+        var vm = this;
+
+        vm.getInputs = getInputs;
+        vm.deleteInput = deleteInput;
+        vm.getInputTypes = getInputTypes;
+        vm.createInput = createInput;
+        vm.deleteInputConfirm = deleteInputConfirm;
+        vm.getPoliciesNames = getPoliciesNames;
+        vm.setInputsId = setInputsId;
+        vm.inputTypes = [];
+        vm.inputId = 1;
+
+        init();
+
+        /////////////////////////////////
+
+        function init() {
+            getInputs();
         };
 
-        this.getInputs = function(){
-            var vm = this;
-
-            vm.inputs = ApiTest.get();
-            vm.inputs.$promise.then(function (result) {
-                vm.inputsData = result;
-                vm.getInputTypes(vm.inputsData);
+        function getInputs() {
+            ApiTest.get().$promise.then(function (result) {
+                vm.inputsData = vm.setInputsId(result);
+                console.log(vm.inputsData);
+                vm.getInputTypes(result);
             });
         };
 
-        this.getInputTypes = function(inputs){
-            var vm = this;
-            vm.inputTypes = [];
+        function deleteInput(fragmentType, fragmentName, index) {
+            console.log(index);
+            var policiesToDelete = FragmentDataService.GetPolicyByFragmentName(fragmentType, fragmentName);
 
+            policiesToDelete.then(function (result) {
+                console.log('*********Controller');
+                console.log(result);
+
+                var policies = vm.getPoliciesNames(result);
+                var inputToDelete =
+                {
+                    'type':fragmentType,
+                    'name': fragmentName,
+                    'policies': policies,
+                    'index': index
+                };
+                vm.deleteInputConfirm('lg', inputToDelete);
+            });
+        };
+
+        function setInputsId(inputsData) {
+            for (var i=0; i < inputsData.length; i++) {
+                inputsData[i].id = vm.inputId;
+                vm.inputId++;
+            }
+            return inputsData;
+        };
+
+        function getPoliciesNames(policiesData) {
+            var policies = [];
+
+            for (var i=0; i<policiesData.length; i++){
+                policies.push(policiesData[i].name);
+            }
+
+            return policies;
+        };
+
+        function getInputTypes(inputs) {
             for (var i=0; i<inputs.length; i++) {
                 var newType = false;
                 var type    = inputs[i].element.type;
@@ -48,19 +101,18 @@
             }
         };
 
-        this.createInput = function(size) {
+        function createInput(size) {
             var modalInstance = $modal.open({
                 animation: true,
                 templateUrl: 'templates/inputs/input-details.tpl.html',
                 controller: 'ModalInstanceCtrl',
                 size: size,
                 resolve: {
-                    items: function () {
+                    item: function () {
                         /*return $scope.items;*/
                     }
                 }
             });
-
 /*
             modalInstance.result.then(function (selectedItem) {
                 $scope.selected = selectedItem;
@@ -71,22 +123,57 @@
 */
         };
 
-    }]);
+        function deleteInputConfirm(size, input) {
+            var modalInstance = $modal.open({
+                animation: true,
+                templateUrl: 'templates/components/st_delete_modal.tpl.html',
+                controller: 'ModalInstanceCtrl',
+                size: size,
+                resolve: {
+                    item: function () {
+                        return input;
+                    }
+                }
+            });
 
-    angular.module('webApp').controller('ModalInstanceCtrl', function ($scope, $modalInstance, items) {
-        $scope.items = items;
-        /*
-        $scope.selected = {
-            item: $scope.items[0]
+            modalInstance.result
+                .then(function (selectedItem) {
+                    console.log(selectedItem);
+                    var fragmentDeleted = FragmentDataService.DeleteFragment(selectedItem.type, selectedItem.name);
+
+                    fragmentDeleted
+                        .then(function (result) {
+                            console.log('*********Fragment deleted');
+                            /*Check deleting the input in the array*/
+                            vm.inputsData.splice(selectedItem.index, 1);
+
+                        });
+                },
+                function () {
+                    console.log('Modal dismissed at: ' + new Date())
+                });
         };
+    };
+
+
+    angular
+        .module('webApp')
+        .controller('ModalInstanceCtrl', ModalInstanceCtrl);
+
+    ModalInstanceCtrl.$inject = ['$scope', '$modalInstance', 'item'];
+
+    function ModalInstanceCtrl($scope, $modalInstance, item) {
+        console.log('*********Modal');
+        console.log(item);
+
+        $scope.inputs = item;
 
         $scope.ok = function () {
-            $modalInstance.close($scope.selected.item);
+            $modalInstance.close($scope.inputs);
         };
-        */
+        
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
-    });
-
+    };
 })();

@@ -163,7 +163,7 @@
           }
         },
         {
-          "name": "entityCount_text",
+          "name": "entitycount_text",
           "type": "EntityCount",
           "configuration": {
             "inputField": "text",
@@ -171,7 +171,7 @@
           }
         },
         {
-          "name": "totalEntity_text",
+          "name": "totalentity_text",
           "type": "TotalEntityCount",
           "configuration": {
             "inputField": "text",
