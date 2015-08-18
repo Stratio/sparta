@@ -334,6 +334,28 @@
         };
     };
 
+    /*NEW FRAGMENT MODAL CONTROLLER*/
+    angular
+        .module('webApp')
+        .controller('NewFragmentModalCtrl', NewFragmentModalCtrl);
+
+    NewFragmentModalCtrl.$inject = ['$scope', '$modalInstance', 'item'];
+
+    function NewFragmentModalCtrl($scope, $modalInstance, item) {
+        console.log('*********Modal');
+        console.log(item);
+
+        $scope.inputs = item;
+
+        $scope.ok = function () {
+            $modalInstance.close($scope.inputs);
+        };
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    };
+
     /*NEW INPUT & DELETE INPUT MODALS CONTROLLER */
     angular
         .module('webApp')
