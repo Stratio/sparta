@@ -8,7 +8,7 @@
 	 function datasourceFormField() {
 		  var directive = {
 				link: link,
-				templateUrl: 'stratio-ui/template/form/datasource_form_field.html',
+				templateUrl: '../../template/form/datasource_form_field.html',
 				restrict: 'AE',
 				replace: true,
 				scope: {
