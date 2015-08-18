@@ -24,7 +24,6 @@ import org.apache.curator.retry.ExponentialBackoffRetry
 
 /**
  * Customized factory that encapsulates the real CuratorFrameworkFactory and creates a singleton instance of it.
- * @author anistal
  */
 object CuratorFactoryHolder extends SLF4JLogging {
 
@@ -34,10 +33,9 @@ object CuratorFactoryHolder extends SLF4JLogging {
 
   /**
    * Gets a new instance of a CuratorFramework if it was not created before.
-   * @param config with the ZK configuration.
    * @return a singleton instance of CuratorFramework.
    */
-  def getInstance(config: Config): Option[CuratorFramework] = {
+  def getInstance(config: Config = SparktaConfig.initConfig(AppConstant.ConfigAppName)): CuratorFramework = {
     curatorFramework match {
       case None =>  {
         val defaultConnectionString = getPathValue("connectionString", config, classOf[String])
@@ -55,9 +53,9 @@ object CuratorFactoryHolder extends SLF4JLogging {
 
         curatorFramework.get.start()
         log.info(s"> ZK connection to $defaultConnectionString was successful.")
-        curatorFramework
+        curatorFramework.get
       }
-      case _ => curatorFramework
+      case _ => curatorFramework.get
     }
   }
 

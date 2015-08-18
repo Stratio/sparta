@@ -30,7 +30,7 @@ import spray.httpx.Json4sJacksonSupport
 
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.core.AppConstant
-import com.stratio.sparkta.serving.core.models.{FragmentElementModel, StreamingContextStatusEnum}
+import com.stratio.sparkta.serving.core.models.{SparktaSerializer, FragmentElementModel, StreamingContextStatusEnum}
 
 /**
  * List of all possible akka messages used to manage fragments.
@@ -55,11 +55,11 @@ case class FragmentSupervisorActor_response(status: Try[Unit])
  * Implementation of supported CRUD operations over ZK needed to manage Fragments.
  * @author anistal
  */
-class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4sJacksonSupport with SLF4JLogging {
-
-  implicit val json4sJacksonFormats = DefaultFormats +
-    new EnumNameSerializer(StreamingContextStatusEnum) +
-    new JsoneyStringSerializer()
+class FragmentActor(curatorFramework: CuratorFramework)
+  extends Actor
+  with Json4sJacksonSupport
+  with SLF4JLogging
+  with SparktaSerializer {
 
   override def receive: Receive = {
     case FragmentSupervisorActor_findByTypeAndName(fragmentType, name) => doDetail(fragmentType, name)

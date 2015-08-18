@@ -19,6 +19,7 @@ package com.stratio.sparkta.driver.test.service
 import java.io.File
 import com.stratio.sparkta.driver.SparktaJob
 import com.stratio.sparkta.driver.util.PolicyUtils
+
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner

@@ -20,11 +20,13 @@ import javax.ws.rs.Path
 
 import akka.pattern.ask
 import com.stratio.sparkta.driver.constants.AkkaConstant
-import com.stratio.sparkta.serving.api.actor.StreamingActor.CreateContext
+import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor.Create
 import com.stratio.sparkta.serving.api.actor._
-import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.api.helpers.PolicyHelper
+import com.stratio.sparkta.serving.core.models._
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
@@ -233,7 +235,9 @@ trait PolicyHttpService extends BaseHttpService {
               PolicyHelper.fillFragments(policy,actors.get(AkkaConstant.FragmentActor).get, timeout))
             val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
             validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-              actors.get("streamingActor").get ! new CreateContext(parsedP)
+              val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
+              policyStatusActor ? Update(PolicyStatusModel(policy.name, PolicyStatusEnum.Launched))
+              actors.get(AkkaConstant.SparkStreamingContextActor).get ! new Create(parsedP)
               complete {
                 new Result("Creating new context with name " + policy.name)
               }
