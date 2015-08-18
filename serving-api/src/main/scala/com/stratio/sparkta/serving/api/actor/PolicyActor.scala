@@ -37,12 +37,10 @@ import scala.util.{Failure, Success, Try}
 /**
  * Implementation of supported CRUD operations over ZK needed to manage policies.
  */
-class PolicyActor(curatorFramework: CuratorFramework) extends Actor
-with SLF4JLogging {
-
-  implicit val json4sJacksonFormats = DefaultFormats +
-    new EnumNameSerializer(StreamingContextStatusEnum) +
-    new JsoneyStringSerializer()
+class PolicyActor(curatorFramework: CuratorFramework)
+  extends Actor
+  with SLF4JLogging
+  with SparktaSerializer {
 
   override def receive: Receive = {
     case Create(policy) => create(policy)
@@ -151,7 +149,7 @@ object PolicyActor {
 
   case class FindAll()
 
-  case class Find(name: String)
+  case class Find(id: String)
 
   case class FindByFragment(fragmentType: String, id: String)
 

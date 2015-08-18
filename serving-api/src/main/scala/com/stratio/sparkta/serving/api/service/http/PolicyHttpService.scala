@@ -16,13 +16,13 @@
 
 package com.stratio.sparkta.serving.api.service.http
 
-import java.io.{File, PrintWriter}
+import java.io.File
 import javax.ws.rs.Path
 
 import akka.pattern.ask
 import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
-import com.stratio.sparkta.serving.api.actor.StreamingActor.CreateContext
+import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.api.helpers.PolicyHelper
 import com.stratio.sparkta.serving.core.models._
@@ -236,7 +236,7 @@ trait PolicyHttpService extends BaseHttpService {
               PolicyHelper.fillFragments(policy,actors.get(AkkaConstant.FragmentActor).get, timeout))
             val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
             validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-              actors.get("streamingActor").get ! new CreateContext(parsedP)
+              actors.get(AkkaConstant.SparkStreamingContextActor).get ! new SparkStreamingContextActor.Create(parsedP)
               complete {
                 new Result("Creating new context with name " + policy.name)
               }

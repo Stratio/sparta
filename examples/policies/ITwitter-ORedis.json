@@ -1,4 +1,5 @@
 {
+  "id": "id",
   "name": "policy-Twitter-Redis",
   "description": "policy-Twitter-Redis",
   "sparkStreamingWindow": 6000,

@@ -25,10 +25,11 @@ import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import akka.routing.RoundRobinPool
 import com.stratio.sparkta.driver.constants.AkkaConstant
-import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor._
 import com.stratio.sparkta.serving.core._
+import com.stratio.sparkta.serving.core.factory.SparkContextFactory
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
 import com.typesafe.config.Config
 import spray.can.Http
 
@@ -105,7 +106,7 @@ object SparktaHelper extends SLF4JLogging {
                      jars: Seq[File],
                      appName: String): Unit = {
     val streamingContextService = new StreamingContextService(configSparkta, jars)
-    val curatorFramework = CuratorFactoryHolder.getInstance(configSparkta).get
+    val curatorFramework = CuratorFactoryHolder.getInstance()
     log.info("> Initializing akka actors")
     system = ActorSystem(appName)
     val clusterConfig = parseClusterConfig(configSparkta)
@@ -116,18 +117,20 @@ object SparktaHelper extends SLF4JLogging {
     val streamingActorInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
     else AkkaConstant.DefaultControllerActorInstances
 
-    val supervisorContextActor = system.actorOf(
-      Props(new SupervisorContextActor), AkkaConstant.SupervisorContextActor)
+    val policyStatusActor = AkkaConstant.PolicyStatusActor ->
+      system.actorOf(Props(new PolicyStatusActor()), AkkaConstant.PolicyStatusActor)
+
     implicit val actors = Map(
+      policyStatusActor,
       AkkaConstant.FragmentActor ->
         system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor),
       AkkaConstant.TemplateActor ->
         system.actorOf(Props(new TemplateActor()), AkkaConstant.TemplateActor),
       AkkaConstant.PolicyActor ->
         system.actorOf(Props(new PolicyActor(curatorFramework)), AkkaConstant.PolicyActor),
-      AkkaConstant.StreamingActor -> system.actorOf(RoundRobinPool(streamingActorInstances).props(Props(
-        new StreamingActor(streamingContextService, clusterConfig, supervisorContextActor))),
-        AkkaConstant.StreamingActor)
+      AkkaConstant.SparkStreamingContextActor -> system.actorOf(RoundRobinPool(streamingActorInstances).props(Props(
+        new SparkStreamingContextActor(streamingContextService, policyStatusActor._2, clusterConfig))),
+        AkkaConstant.SparkStreamingContextActor)
     )
     val swaggerActor = system.actorOf(
       Props(new SwaggerActor(actors)), AkkaConstant.SwaggerActor)
