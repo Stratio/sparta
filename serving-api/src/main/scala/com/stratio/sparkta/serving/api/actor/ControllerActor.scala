@@ -56,7 +56,8 @@ class ControllerActor(streamingContextService: StreamingContextService,
         }
     }
 
-  def receive: Receive = runRoute(handleExceptions(exceptionHandler)(serviceRoutes ~ swaggerService ~ swaggerUIroutes))
+  def receive: Receive = runRoute(handleExceptions(exceptionHandler)
+    (serviceRoutes ~ swaggerService ~ webRoutes ~ swaggerUIroutes))
 
   val serviceRoutes: Route =
     new FragmentHttpService {
@@ -99,6 +100,15 @@ class ControllerActor(streamingContextService: StreamingContextService,
           getFromResource("swagger-ui/index.html")
         }
       } ~ getFromResourceDirectory("swagger-ui")
+    }
+
+  def webRoutes: Route =
+    get {
+      pathPrefix("") {
+        pathEndOrSingleSlash {
+          getFromResource("web/index.html")
+        }
+      } ~ getFromResourceDirectory("web")
     }
 
   val swaggerService = new SwaggerHttpService {

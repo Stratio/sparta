@@ -37,13 +37,15 @@
     <dependencies>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
+            <artifactId>web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.sparkta</groupId>
             <artifactId>serving-core</artifactId>
-            <version>0.6.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
             <artifactId>driver</artifactId>
-            <version>0.6.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>

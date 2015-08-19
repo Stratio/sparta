@@ -42,7 +42,7 @@
         <module>plugins</module>
         <module>serving-api</module>
         <module>doc</module>
-        <!--<module>web</module>-->
+        <module>web</module>
         <module>dist</module>
     </modules>
 
@@ -167,7 +167,22 @@
         <dependencies>
             <dependency>
                 <groupId>com.stratio.sparkta</groupId>
+                <artifactId>web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stratio.sparkta</groupId>
                 <artifactId>aggregator</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stratio.sparkta</groupId>
+                <artifactId>serving-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stratio.sparkta</groupId>
+                <artifactId>driver</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
