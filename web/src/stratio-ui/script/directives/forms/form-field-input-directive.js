@@ -9,7 +9,7 @@
     function formFieldInput($document) {
         var directive = {
             link: link,
-            templateUrl: '../../template/form/form_field_input.html',
+            templateUrl: 'stratio-ui/template/form/form_field_input.html',
             restrict: 'AE',
             replace: true,
             scope: {
