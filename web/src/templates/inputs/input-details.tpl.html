@@ -9,11 +9,11 @@
 		<form-field-input id="dataSourceName" data-model="vm.dataSource.name" data-label="{{'_INPUT_WINDOW_FORM_NAME_' | translate}}:" data-form="vm.form" data-st-name="dataSourceNameForm" data-required="true" data-autofocus="true"></form-field-input>
 
 		<ng-form name="dataSourceTypeForm" class="c-form-group">
-			<div class="c-form-control">
-				<label class="c-label" title="{{'_INPUT_WINDOW_FORM_TYPE_' | translate}}:" for="dataSourceType">{{"_INPUT_WINDOW_FORM_TYPE_" | translate}}:</label>
+			<div class="c-form-control c-form-control--full-width c-icon-radio">
+				<label class="c-col c-col--2 c-label c-icon-radio__label" title="{{'_INPUT_WINDOW_FORM_TYPE_' | translate}}:" for="dataSourceType">{{"_INPUT_WINDOW_FORM_TYPE_" | translate}}:</label>
 				<label data-ng-repeat="inputData in vm.templateInputsData">
-					<input type="radio" name="dataSourceTypeForm" data-ng-model="vm.dataSource.element.type" value="{{inputData.name}}" data-ng-click="vm.setProperties($index, inputData.name)">
-						{{inputData.name}}
+					<input class="c-icon-radio__item" id="type-{{inputData.name | lowercase}}" type="radio" name="dataSourceTypeForm" data-ng-model="vm.dataSource.element.type" value="{{inputData.name}}" data-ng-click="vm.setProperties($index, inputData.name)">
+						<label class="c-icon-radio__label" for="type-{{inputData.name | lowercase}}"><i class="c-icon c-icon-radio__icon icon-{{inputData.name | lowercase}}"></i></label>
 				</label>
 			</div>
 		</ng-form>
