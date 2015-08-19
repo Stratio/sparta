@@ -112,9 +112,4 @@ object SparkContextFactory extends SLF4JLogging {
       }
     }
   }
-
-  def init(config: Config, jars: Seq[File]): Unit = {
-    this.config = config
-    this.jars = jars
-  }
 }

@@ -41,7 +41,7 @@ class PolicyDslSpec extends FlatSpec with ShouldMatchers {
       "parser-morphlines-plugin.jar",
       "operator-count-plugin.jar")
     val jarFiles = jars.map(new File(_))
-    SparkContextFactory.init(ConfigFactory.empty(),jarFiles)
+    SparkContextFactory.jars = jarFiles
   }
 
   trait WrongData extends ValidData {
@@ -49,7 +49,7 @@ class PolicyDslSpec extends FlatSpec with ShouldMatchers {
     val invalidJars = jars.drop(1)
     val invalidjarFiles = invalidJars.map(new File(_))
     val missingJars = List("input-kafka-plugin.jar")
-    SparkContextFactory.init(ConfigFactory.empty(),invalidjarFiles)
+    SparkContextFactory.jars = invalidjarFiles
   }
 
   "PolicyDslSpec" should "retrieve jars list from policy" in new ValidData {

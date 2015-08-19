@@ -64,11 +64,13 @@ object SparktaHelper extends SLF4JLogging {
    * @param sparktaHome with Sparkta's base path.
    * @return a list of loaded jars.
    */
-  def initJars(relativeJarPaths: Seq[String], sparktaHome: String): Seq[File] =
-    relativeJarPaths.flatMap(path => {
+  def initJars(relativeJarPaths: Seq[String], sparktaHome: String): Seq[File] = {
+    SparkContextFactory.jars = relativeJarPaths.flatMap(path => {
       log.info(s"> Loading jars from $sparktaHome/$path")
       findJarsByPathAndAddToClasspath(new File(sparktaHome, path))
     })
+    SparkContextFactory.jars
+  }
 
   /**
    * Initializes base configuration.
