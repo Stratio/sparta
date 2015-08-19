@@ -1,6 +1,6 @@
 <ng-form name="{{name}}" class="c-form-group" ng-class="{empty: !model && model !== 0, focus: isFocused, placeholder: placeholder && !label, error: this[name][name].$invalid && form.$submitted, small: type=='number', disabled: disabled}">
     <div class="c-form-control c-form-control--full-width">
-        <label ng-if="label" class="c-col c-col--2 c-label" title="{{label}}" for="{{name}}">{{label}}</label><!--
+        <label data-ng-if="label" class="c-col c-col--2 c-label" title="{{label}}" for="{{name}}">{{label}}</label><!--
         --><div ng-if="placeholder" class="st-form-field-placeholder">{{placeholder}}</div><!--
         --><input ng-attr-id="{{name}}" name="{{name}}" class="c-col c-col--10 c-input" type="{{type}}" data-ng-model="model" data-ng-required="required" data-ng-disabled="disabled" data-ng-pattern="pattern" data-ng-minlength="minlength" data-ng-maxlength="maxlength" min="{{min}}" max="{{max}}" step="{{step}}" data-ng-focus="isFocused=true" data-ng-blur="isFocused=false" data-st-match="match" ng-trim="{{type !== 'password' && stTrim}}"/>
         <div class="st-form-field-line"><hr /></div>
