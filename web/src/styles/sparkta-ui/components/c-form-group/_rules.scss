@@ -1,5 +1,9 @@
 @mixin c-form-group {
 	@include c-row;
+
+	@at-root .c-form & {
+		margin: $c-form__c-form-group---margin;
+	}
 }
 
 .c-form-group {

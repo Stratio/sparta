@@ -4,8 +4,52 @@
 	display: inline-block;
 	position: relative;
 
-	&--2 {
+	&--12 {
+		width: 100%;
+	}
+
+	&--11 {
+		width: 91.66%;
+	}
+
+	&--10 {
+		width: 83.33%;
+	}
+
+	&--9 {
+		width: 75%;
+	}
+
+	&--8 {
+		width: 66.66%;
+	}
+
+	&--7 {
+		width: 58.33%;
+	}
+
+	&--6 {
 		width: 50%;
+	}
+
+	&--5 {
+		width: 41.66%;
+	}
+
+	&--4 {
+		width: 33.33%;
+	}
+
+	&--3 {
+		width: 25%;
+	}
+
+	&--2 {
+		width: 16.66%;
+	}
+
+	&--1 {
+		width: 8.33%;
 	}
 
 	&--vertical-centered {

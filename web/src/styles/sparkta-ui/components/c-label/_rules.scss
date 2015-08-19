@@ -1,5 +1,12 @@
+$c-form__c-label---width: 135px !default;
+
 @mixin c-label {
+	box-sizing: border-box;
 	margin: $c-label---margin;
+
+	@at-root &.c-col {
+		margin: 0;
+	}
 }
 
 .c-label {
