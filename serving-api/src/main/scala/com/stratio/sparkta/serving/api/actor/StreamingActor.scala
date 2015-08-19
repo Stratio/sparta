@@ -29,11 +29,12 @@ import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor.StreamingActor._
 import com.stratio.sparkta.serving.api.actor.SupervisorContextActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
+import com.stratio.sparkta.serving.core.AppConstant
 import com.stratio.sparkta.serving.core.models.StreamingContextStatusEnum._
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, StreamingContextStatus}
 
 class StreamingActor(streamingContextService: StreamingContextService,
-                     clusterConfig: Option[Config],
+                     config: Config,
                      supervisorContextRef: ActorRef) extends InstrumentedActor {
 
   implicit val timeout: Timeout = Timeout(10.seconds)
@@ -67,9 +68,9 @@ class StreamingActor(streamingContextService: StreamingContextService,
   }
 
   private def getStreamingContextActor(policy: AggregationPoliciesModel): ActorRef = {
-    if (clusterConfig.isDefined) {
+    if (config.getBoolean(AppConstant.ConfigCluster)) {
       context.actorOf(
-        Props(new ClusterContextActor(policy, streamingContextService, clusterConfig.get)),
+        Props(new ClusterContextActor(policy, streamingContextService, config)),
         "context-actor-".concat(policy.name))
     } else {
       context.actorOf(

@@ -16,6 +16,9 @@
 
 package com.stratio.sparkta.driver
 
+import akka.event.slf4j.SLF4JLogging
+import com.typesafe.config.{Config, ConfigFactory}
+
 import com.stratio.sparkta.driver.SparktaJob._
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.util.PolicyUtils
@@ -25,10 +28,15 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.util.{Failure, Success, Try}
 
-object SparktaClusterJob {
+object SparktaClusterJob extends SLF4JLogging{
 
   def main(args: Array[String]): Unit = {
-    val aggregationPoliciesModel: AggregationPoliciesModel = getPolicyFromZookeeper(args(0))
+    log.error(args(0))
+    log.error(args(1))
+    val config = ConfigFactory.parseString(args(1))
+    log.error(config.toString)
+    log.debug(config.toString)
+    val aggregationPoliciesModel: AggregationPoliciesModel = getPolicyFromZookeeper(args(0),config)
 
     val sc = new SparkContext(new SparkConf().setAppName(s"SPARKTA-${aggregationPoliciesModel.name}"))
     SparkContextFactory.setSparkContext(sc)
@@ -37,10 +45,9 @@ object SparktaClusterJob {
     SparkContextFactory.sparkStreamingInstance.get.awaitTermination
   }
 
-  def getPolicyFromZookeeper(policyName: String): AggregationPoliciesModel = {
+  def getPolicyFromZookeeper(policyName: String,config: Config): AggregationPoliciesModel = {
     Try({
-      val configSparkta = SparktaConfig.initConfig(AppConstant.ConfigAppName)
-      val curatorFramework = CuratorFactoryHolder.getInstance(configSparkta).get
+      val curatorFramework = CuratorFactoryHolder.getInstance(config).get
 
       PolicyUtils.parseJson(new Predef.String(curatorFramework.getData.forPath(
         s"${AppConstant.PoliciesBasePath}/${policyName}")))

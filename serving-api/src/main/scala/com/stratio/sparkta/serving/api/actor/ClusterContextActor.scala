@@ -16,6 +16,7 @@
 
 package com.stratio.sparkta.serving.api.actor
 
+import scala.collection.JavaConversions._
 import scala.concurrent.duration._
 import scala.sys.process._
 
@@ -50,12 +51,18 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
       if (activeJars.isRight) policy.activeJarFiles
       else SparkContextFactory.jars
     }
-
-    val spark = System.getenv("SPARK_HOME")
-    val cmd = s"$spark/bin/spark-submit " +
+    val sparkHome = sys.env("SPARK_HOME")
+    var str = ""
+    val params = cfg.getConfig("spark.yarn").entrySet.toSeq
+    for (param <- params) {
+      if (!param.getValue.unwrapped.toString.isEmpty) {
+        str += s"--${param.getKey} ${param.getValue.unwrapped.toString} "
+      }
+    }
+    val cmd = s"$sparkHome/bin/spark-submit " +
       "--class com.stratio.sparkta.driver.SparktaClusterJob " +
       s"--master ${cfg.getString("spark.spark.master")} " +
-      s"${cfg.getString("spark.spark.extra")} " +
+      s"$str" +
       s"--jars ${jars.mkString(",")} " +
       s" driver/target/driver-plugin.jar ${policy.name} " +
       s"${cfg.root.render(ConfigRenderOptions.concise)}"
