@@ -57,8 +57,7 @@ class ElasticSearchOutput(keyName: String,
 
   @transient private val elasticClient = {
     if (nodes.equals("localhost") || nodes.equals("127.0.0.1")) {
-      val timeout: Long = 5000
-      ElasticClient.fromNode(NodeBuilder.nodeBuilder().client(true).node(), timeout)
+      ElasticClient.fromNode(NodeBuilder.nodeBuilder().client(true).node())
     } else {
       ElasticClient.remote(nodes, defaultPort.toInt)
     }
