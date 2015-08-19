@@ -162,7 +162,7 @@ $c-label---margin: 0 $component-margin 0 0;
 
 
 // c-form-group
-$c-form__c-form-group---margin: 0 0 10px;
+$c-form__c-form-group---margin: 0 0 $component-margin;
 
 
 
@@ -249,4 +249,4 @@ $c-icon-radio__item--checked---border: 1px solid get-color(c4);
 $c-icon-radio__icon---background: get-color(g4);
 $c-icon-radio__icon---border: 1px solid get-color(g4);
 $c-icon-radio__icon---color: get-color(c4);
-$c-icon-radio__icon---padding: .5em;
+$c-icon-radio__icon---padding: .4em;
