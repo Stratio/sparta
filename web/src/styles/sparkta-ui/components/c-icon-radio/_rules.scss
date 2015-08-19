@@ -1,0 +1,36 @@
+%c-icon-radio__icon--selected {
+	background: get-color(g0);
+	color: get-color(c1);
+	font-weight: get-font-weight(semibold);
+}
+
+@mixin c-icon-radio {
+	&__item {
+		display: none;
+
+		&:checked {
+			border: 1px solid get-color(c4);
+
+			& + .c-icon-radio__label .c-icon-radio__icon {
+				@extend %c-icon-radio__icon--selected;
+			}
+		}
+	}
+
+	&__icon {
+		background: get-color(g4);
+		border: 1px solid get-color(g4);
+		border-radius: 100%;
+		color: get-color(c4);
+		cursor: pointer;
+		padding: .5em;
+
+		&:hover {
+			@extend %c-icon-radio__icon--selected;
+		}
+	}
+}
+
+.c-icon-radio {
+	@include c-icon-radio;
+}
