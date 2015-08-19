@@ -1,7 +1,7 @@
 %c-icon-radio__icon--selected {
-	background: get-color(g0);
-	color: get-color(c1);
-	font-weight: get-font-weight(semibold);
+	background: $c-icon-radio__icon--selected---background;
+	color: $c-icon-radio__icon--selected---color;
+	font-weight: $c-icon-radio__icon--selected---font-weight;
 }
 
 @mixin c-icon-radio {
@@ -9,7 +9,7 @@
 		display: none;
 
 		&:checked {
-			border: 1px solid get-color(c4);
+			border: $c-icon-radio__item--checked---border;
 
 			& + .c-icon-radio__label .c-icon-radio__icon {
 				@extend %c-icon-radio__icon--selected;
