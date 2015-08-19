@@ -12,6 +12,7 @@
 
         vm.GetPolicyByFragmentName = GetPolicyByFragmentName;
         vm.DeleteFragment = DeleteFragment;
+        vm.CreateFragment = CreateFragment;
 
         /////////////////////////////////
 
@@ -26,6 +27,13 @@
             return $resource('/fragment/:type/:name', {type:'@type', name:'@name'},
             {
                 'delete'   : {method:'DELETE'}
+            });
+        };
+
+        function CreateFragment() {
+            return $resource('/fragment/', {},
+            {
+                'create': {method:'POST'}
             });
         };
     };
