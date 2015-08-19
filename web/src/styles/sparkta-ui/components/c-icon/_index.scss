@@ -18,8 +18,10 @@ The icon component creates a customized icon item.
 
 Variable                                    | Default value
 ------------------------------------------- | -----------------
-$c-label---margin 							| `0 15px 0 0' 
-
+$c-icon---margin							| `0 .5em 0 0`
+$c-icon--in-input---top						| `7px`
+$c-icon--in-input---left					| `70px`
+$c-icon--in-input---color					| `get-color(g6)`
 
 */
 

@@ -1,5 +1,7 @@
 @mixin c-panel {
 	@include container-to-right;
+
+	box-sizing: border-box;
 }
 
 .c-panel {
