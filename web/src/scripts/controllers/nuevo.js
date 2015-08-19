@@ -139,6 +139,24 @@
                 then(function (newInputData) {
                     console.log('*************** Controller back');
                     console.log(newInputData);
+
+                    var newFragment = FragmentDataService.InsertFragment(newInputData);
+
+                    newFragment
+                        .then(function (result) {
+                            console.log('*********Fragment created');
+                            console.log(result);
+
+                            var newId = vm.inputsData[vm.inputsData.length-1].id + 1;
+                            newInputData.id = newId;
+
+                            vm.inputsData.push(newInputData);
+                        },
+                        function (error) {
+                            console.log(error);
+                            console.log('Modal dismissed at: ' + new Date())
+                        });
+
                 }, function () {
                     console.log('Modal dismissed at: ' + new Date())
                 });
