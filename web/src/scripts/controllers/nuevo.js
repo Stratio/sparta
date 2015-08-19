@@ -116,7 +116,7 @@
             var modalInstance = $modal.open({
                 animation: true,
                 templateUrl: 'templates/inputs/input-details.tpl.html',
-                controller: 'NewFragmentModalCtrl as newFragment',
+                controller: 'NewFragmentModalCtrl as vm',
                 size: 'lg',
                 resolve: {
                     item: function () {
@@ -124,14 +124,14 @@
                     }
                 }
             });
-/*
-            modalInstance.result.then(function (selectedItem) {
-                $scope.selected = selectedItem;
-            }, function () {
-                console.log('Modal dismissed at: ' + new Date())
-                $log.info('Modal dismissed at: ' + new Date());
-            });
-*/
+
+            modalInstance.result.
+                then(function (newInputData) {
+                    console.log('*************** Controller back');
+                    console.log(newInputData);
+                }, function () {
+                    console.log('Modal dismissed at: ' + new Date())
+                });
         };
 
         function deleteInputConfirm(size, input) {
@@ -177,10 +177,13 @@
         /*jshint validthis: true*/
         var vm = this;
 
+        vm.setProperties = setProperties;
         vm.ok = ok;
         vm.cancel = cancel;
-        vm.templateInputs = [];
-
+        vm.templateInputsData = [];
+        vm.initFragmentObecjt = initFragmentObecjt;
+        vm.setFragmentData = setFragmentData;
+        vm.dataSource = {};
         init();
 
         /////////////////////////////////
@@ -189,15 +192,65 @@
             console.log('*********Modal');
             console.log(item);
 
-            vm.templateInputs = item;
+            vm.templateInputsData = item;
+            vm.initFragmentObecjt(vm.templateInputsData);
+
+            vm.selectedIndex = 0;
+        };
+
+        function initFragmentObecjt(fragmentData) {
+            /*Init fragment*/
+            vm.dataSource.fragmentType = 'input';
+            vm.dataSource.name = '';
+
+            /*Init fragment.element*/
+            vm.dataSource.element = {};
+            vm.dataSource.element.type = fragmentData[0].name;
+            vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
+
+            /*Init fragment.element.configuration*/
+            vm.dataSource.element.configuration = {};
+
+            vm.properties = [];
+
+            /*Create one properties model for each input type*/
+            for (var i=0; i<fragmentData.length; i++){
+                vm.properties[fragmentData[i].name]={};
+                for (var j=0; j<fragmentData[i].properties.length; j++) {
+                    if (fragmentData[i].properties[j].propertyId !== 'name' && fragmentData[i].properties[j].propertyId !== 'type'){
+                        vm.properties[fragmentData[i].name][fragmentData[i].properties[j].propertyId]='';
+                    }
+                }
+                /*Init properties*/
+                if (i === 0) {
+                    vm.dataSource.element.configuration = vm.properties[fragmentData[i].name];
+                }
+            }
+
+            vm.setFragmentData(0);
+        };
+
+        function setFragmentData(index) {
+            /*Set fragment*/
+            vm.dataSource.description = vm.templateInputsData[index].description.long;
+            vm.dataSource.shortDescription = vm.templateInputsData[index].description.short;
+            vm.dataSource.icon = vm.templateInputsData[index].icon.url;
+            vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
+        };
+
+        function setProperties(index, inputName) {
+            vm.selectedIndex = index;
+
+            vm.dataSource.element.configuration = vm.properties[inputName];
+            vm.setFragmentData(index);
         };
 
         function ok() {
-            $modalInstance.close($scope.inputs);
+            console.log(vm.dataSource);
+            $modalInstance.close(vm.dataSource);
         };
 
         function cancel() {
-            console.log('a');
             $modalInstance.dismiss('cancel');
         };
     };
