@@ -6,6 +6,8 @@
 	&:first-child {
 		margin-left: 0;
 	}
+
+	@include full-width();
 }
 
 .c-form-control {
