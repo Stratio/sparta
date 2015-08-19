@@ -1,0 +1,7 @@
+@mixin c-form {
+
+}
+
+.c-form {
+	@include c-form;
+}
