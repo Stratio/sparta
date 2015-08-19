@@ -28,7 +28,7 @@
 
 					<span class="icon-search menu_actions" data-ng-click="$root.stToggleFloatingMenu[input.id]()">
 						<st-floating-menu toggle-id="{{input.id}}" align="right">
-							<st-menu-element class-icon="icon-edit">
+							<st-menu-element class-icon="icon-edit" data-ng-click="nuevo.modifyInput()">
 								{{"_INPUT_ACTIONS_MENU_EDIT_" | translate}}
 							</st-menu-element>
 							<st-menu-element class-icon="icon-copy">

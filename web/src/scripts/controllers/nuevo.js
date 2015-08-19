@@ -15,6 +15,7 @@
         vm.deleteInput = deleteInput;
         vm.getInputTypes = getInputTypes;
         vm.createInput = createInput;
+        vm.modifyInput = modifyInput;
         vm.createInputModal = createInputModal;
         vm.deleteInputConfirm = deleteInputConfirm;
         vm.getPoliciesNames = getPoliciesNames;
@@ -65,6 +66,17 @@
                 console.log(result);
 
                 vm.createInputModal(result);
+            });
+        };
+
+        function modifyInput() {
+            var inputFragmentTemplate = TemplateDataService.GetNewFragmentTemplate('input');
+
+            inputFragmentTemplate.then(function (result) {
+                console.log('*********Controller');
+                console.log(result);
+
+                //vm.createInputModal(result);
             });
         };
 
