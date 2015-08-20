@@ -17,6 +17,7 @@
         vm.createInput = createInput;
         vm.modifyInput = modifyInput;
         vm.createInputModal = createInputModal;
+        vm.modifyInputModal = modifyInputModal;
         vm.deleteInputConfirm = deleteInputConfirm;
         vm.getPoliciesNames = getPoliciesNames;
         vm.setInputsId = setInputsId;
@@ -69,14 +70,27 @@
             });
         };
 
-        function modifyInput() {
+        function modifyInput(inputName, index) {
+            var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {name:inputName}, true)[0];
+            var id = inputSelected.id;
+
+            delete inputSelected["id"];
+
             var inputFragmentTemplate = TemplateDataService.GetNewFragmentTemplate('input');
 
             inputFragmentTemplate.then(function (result) {
                 console.log('*********Controller');
                 console.log(result);
 
-                //vm.createInputModal(result);
+                var modifyInputData = {
+                    'index': index,
+                    'id': id,
+                    'action': 'modify',
+                    'inputSelected': inputSelected,
+                    'inputDataTemplate': result
+                };
+
+                vm.modifyInputModal(modifyInputData);
             });
         };
 
@@ -142,7 +156,7 @@
                     console.log('*************** Controller back');
                     console.log(newInputData);
 
-                    var newFragment = FragmentDataService.InsertFragment(newInputData);
+                    var newFragment = FragmentDataService.InsertFragment(newInputData.data);
 
                     newFragment
                         .then(function (result) {
@@ -150,9 +164,50 @@
                             console.log(result);
 
                             var newId = vm.inputsData[vm.inputsData.length-1].id + 1;
-                            newInputData.id = newId;
+                            result.id = newId;
 
-                            vm.inputsData.push(newInputData);
+                            vm.inputsData.push(result);
+                            console.log(vm.inputsData);
+                        },
+                        function (error) {
+                            console.log(error);
+                            console.log('Modal dismissed at: ' + new Date())
+                        });
+
+                }, function () {
+                    console.log('Modal dismissed at: ' + new Date())
+                });
+        };
+
+        function modifyInputModal(modidyInputData) {
+            var modalInstance = $modal.open({
+                animation: true,
+                templateUrl: 'templates/inputs/input-details.tpl.html',
+                controller: 'NewFragmentModalCtrl as vm',
+                size: 'lg',
+                resolve: {
+                    item: function () {
+                        return modidyInputData;
+                    }
+                }
+            });
+
+            modalInstance.result.
+                then(function (updatedInputData) {
+                    console.log('*************** Controller back');
+                    console.log(updatedInputData);
+
+                    var updatedFragment = FragmentDataService.UpdateFragment(updatedInputData.data);
+
+                    updatedFragment
+                        .then(function (result) {
+                            console.log('*********Fragment updated');
+                            console.log(result);
+
+                            result.id = updatedInputData.id;
+
+                            vm.inputsData[updatedInputData.index] = result;
+                            console.log(vm.inputsData);
                         },
                         function (error) {
                             console.log(error);
@@ -210,10 +265,14 @@
         vm.setProperties = setProperties;
         vm.ok = ok;
         vm.cancel = cancel;
-        vm.templateInputsData = [];
         vm.initFragmentObecjt = initFragmentObecjt;
         vm.setFragmentData = setFragmentData;
+        vm.createTypeModels = createTypeModels;
         vm.dataSource = {};
+        vm.dataSource.element = {};
+        vm.templateInputsData = [];
+        vm.properties = [];
+
         init();
 
         /////////////////////////////////
@@ -222,10 +281,20 @@
             console.log('*********Modal');
             console.log(item);
 
-            vm.templateInputsData = item;
-            vm.initFragmentObecjt(vm.templateInputsData);
+            vm.action = item.action;
 
-            vm.selectedIndex = 0;
+            if (vm.action === 'modify') {
+                vm.templateInputsData = item.inputDataTemplate;
+                vm.dataSource = item.inputSelected;
+                vm.createTypeModels(vm.templateInputsData);
+                vm.selectedIndex = vm.index;
+            }
+            else {
+                vm.templateInputsData = item;
+                vm.initFragmentObecjt(vm.templateInputsData);
+                vm.createTypeModels(vm.templateInputsData);
+                vm.selectedIndex = 0;
+            }
         };
 
         function initFragmentObecjt(fragmentData) {
@@ -234,30 +303,37 @@
             vm.dataSource.name = '';
 
             /*Init fragment.element*/
-            vm.dataSource.element = {};
             vm.dataSource.element.type = fragmentData[0].name;
             vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
 
             /*Init fragment.element.configuration*/
             vm.dataSource.element.configuration = {};
 
-            vm.properties = [];
+            vm.setFragmentData(0);
+        };
 
+        function createTypeModels(fragmentData) {
             /*Create one properties model for each input type*/
             for (var i=0; i<fragmentData.length; i++){
-                vm.properties[fragmentData[i].name]={};
+                vm.properties[fragmentData[i].name] = {};
+
                 for (var j=0; j<fragmentData[i].properties.length; j++) {
                     if (fragmentData[i].properties[j].propertyId !== 'name' && fragmentData[i].properties[j].propertyId !== 'type'){
-                        vm.properties[fragmentData[i].name][fragmentData[i].properties[j].propertyId]='';
+                        vm.properties[fragmentData[i].name][fragmentData[i].properties[j].propertyId] = '';
                     }
                 }
+
                 /*Init properties*/
-                if (i === 0) {
+                if(i === 0 && vm.action !== 'modify') {
                     vm.dataSource.element.configuration = vm.properties[fragmentData[i].name];
                 }
-            }
 
-            vm.setFragmentData(0);
+                else if(vm.action === 'modify' && fragmentData[i].name === vm.dataSource.element.type) {
+                    vm.properties[fragmentData[i].name] = vm.dataSource.element.configuration;
+                    vm.dataSource.element.configuration = vm.properties[fragmentData[i].name];
+                    vm.index = i;
+                }
+            }
         };
 
         function setFragmentData(index) {
@@ -270,14 +346,17 @@
 
         function setProperties(index, inputName) {
             vm.selectedIndex = index;
-
             vm.dataSource.element.configuration = vm.properties[inputName];
             vm.setFragmentData(index);
         };
 
         function ok() {
-            console.log(vm.dataSource);
-            $modalInstance.close(vm.dataSource);
+            var callBackData = {
+                'index': item.index,
+                'id': item.id,
+                'data': vm.dataSource,
+            };
+            $modalInstance.close(callBackData);
         };
 
         function cancel() {

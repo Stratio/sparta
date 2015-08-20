@@ -16,10 +16,10 @@
                     return ApiPolicyService.DeleteFragment().delete({'type': fragmentType ,'name': fragmentName}).$promise;
                 },
                 InsertFragment: function(newFragmentData) {
-                    console.log('Factory');
-                    console.log(newFragmentData);
-
                     return ApiPolicyService.CreateFragment().create(newFragmentData).$promise;
+                },
+                UpdateFragment: function(updatedFragmentData) {
+                    return ApiPolicyService.UpdateFragment().update(updatedFragmentData).$promise;
                 }
             };
     };
