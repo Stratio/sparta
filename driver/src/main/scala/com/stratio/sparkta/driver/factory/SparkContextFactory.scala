@@ -17,6 +17,7 @@
 package com.stratio.sparkta.driver.factory
 
 import java.io.File
+import java.net.URI
 import scala.collection.JavaConversions._
 
 import akka.event.slf4j.SLF4JLogging
@@ -25,9 +26,7 @@ import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
-/**
- * @author ajnavarro, sgomezg
- */
+
 object SparkContextFactory extends SLF4JLogging {
 
   private var sc: Option[SparkContext] = None
@@ -44,6 +43,8 @@ object SparkContextFactory extends SLF4JLogging {
     sqlContext
   }
 
+  def setSparkContext(createdContext: SparkContext): Unit = sc = Some(createdContext)
+
   def sparkStreamingInstance: Option[StreamingContext] = ssc
 
   def sparkStreamingInstance(batchDuration: Duration, checkpointDir: String): Option[StreamingContext] = {
@@ -56,20 +57,26 @@ object SparkContextFactory extends SLF4JLogging {
     ssc
   }
 
-  def setSparkContext(createdContext: SparkContext): Unit = sc = Some(createdContext)
-
   private def getNewStreamingContext(batchDuration: Duration, checkpointDir: String): StreamingContext = {
     val ssc = new StreamingContext(sc.get, batchDuration)
     ssc.checkpoint(checkpointDir)
     ssc
   }
 
-  def sparkContextInstance(generalConfig: Config, specificConfig: Map[String, String], jars: Seq[File]): SparkContext =
+  def sparkStandAloneContextInstance(generalConfig: Option[Config],
+                                specificConfig: Map[String, String],
+                                jars: Seq[File]): SparkContext =
     synchronized {
-      sc.getOrElse(instantiateContext(generalConfig, specificConfig, jars))
+      sc.getOrElse(instantiateStandAloneContext(generalConfig, specificConfig, jars))
     }
 
-  private def instantiateContext(generalConfig: Config,
+  def sparkClusterContextInstance(specificConfig: Map[String, String], jars: Seq[URI]):
+  SparkContext =
+    synchronized {
+      sc.getOrElse(instantiateClusterContext(specificConfig, jars))
+    }
+
+  private def instantiateStandAloneContext(generalConfig: Option[Config],
                                  specificConfig: Map[String, String],
                                  jars: Seq[File]): SparkContext = {
     sc = Some(new SparkContext(configToSparkConf(generalConfig, specificConfig)))
@@ -77,16 +84,23 @@ object SparkContextFactory extends SLF4JLogging {
     sc.get
   }
 
-  private def configToSparkConf(generalConfig: Config, specificConfig: Map[String, String]): SparkConf = {
-    val c = generalConfig.getConfig("spark")
-    val properties = c.entrySet()
+  private def instantiateClusterContext(specificConfig: Map[String, String],
+                                        jars: Seq[URI]): SparkContext = {
+    sc = Some(new SparkContext(configToSparkConf(None, specificConfig)))
+    jars.foreach(f => sc.get.addJar(f.toString))
+    sc.get
+  }
+
+  private def configToSparkConf(generalConfig: Option[Config], specificConfig: Map[String, String]): SparkConf = {
     val conf = new SparkConf()
-
-    properties.foreach(e => conf.set(e.getKey, c.getString(e.getKey)))
+    if(generalConfig.isDefined){
+      val properties = generalConfig.get.entrySet()
+      properties.foreach(e => {
+        if(e.getKey.startsWith("spark."))
+          conf.set(e.getKey, generalConfig.get.getString(e.getKey))
+      })
+    }
     specificConfig.foreach(e => conf.set(e._1, e._2))
-
-    conf.setIfMissing("spark.streaming.concurrentJobs", "20")
-    conf.setIfMissing("spark.sql.parquet.binaryAsString", "true")
 
     conf
   }
@@ -95,7 +109,7 @@ object SparkContextFactory extends SLF4JLogging {
     synchronized {
       if (ssc.isDefined) {
         log.debug("Stopping streamingContext with name: " + ssc.get.sparkContext.appName)
-        ssc.get.stop(false)
+        ssc.get.stop(true, true)
         log.debug("Stopped streamingContext with name: " + ssc.get.sparkContext.appName)
         ssc = None
       }

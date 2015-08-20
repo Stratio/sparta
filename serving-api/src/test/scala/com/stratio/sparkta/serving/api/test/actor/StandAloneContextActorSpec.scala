@@ -24,7 +24,7 @@ import com.stratio.sparkta.serving.api.actor.StreamingActor.{CreateContext, GetA
 import com.stratio.sparkta.serving.api.actor.{StreamingActor, SupervisorContextActor}
 import com.stratio.sparkta.serving.core.models.StreamingContextStatusEnum._
 import com.stratio.sparkta.serving.core.models._
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.spark.streaming.StreamingContext
 import org.junit.runner.RunWith
 import org.mockito.Matchers._
@@ -32,6 +32,7 @@ import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
+import java.io.File
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -50,7 +51,8 @@ class StandAloneContextActorSpec
     supervisorContextActor = createSupervisorContextActor
     val ssc = Some(mock[StreamingContext])
     doNothing().when(ssc.get).start()
-    when(streamingContextService.get.standAloneStreamingContext(any[AggregationPoliciesModel])).thenReturn(ssc)
+    when(streamingContextService.get
+      .standAloneStreamingContext(any[AggregationPoliciesModel], any[Seq[File]])).thenReturn(ssc)
   }
 
   after {
@@ -98,7 +100,9 @@ class StandAloneContextActorSpec
   }
 
   private def createSupervisorActorStandalone: ActorRef = {
-    system.actorOf(Props(new StreamingActor(streamingContextService.get, None, supervisorContextActor)))
+    val config = ConfigFactory.parseString(StandAloneContextActorSpec.config)
+    val zkConfig = ConfigFactory.parseString(StandAloneContextActorSpec.zkConfig)
+    system.actorOf(Props(new StreamingActor(streamingContextService.get, config, "", supervisorContextActor, zkConfig)))
   }
 
   private def createSupervisorContextActor: ActorRef = {
@@ -117,6 +121,21 @@ object StandAloneContextActorSpec {
   val config = """
                akka {
                  loglevel ="OFF"
+               }
+               executionMode = local
+               local {
+                 spark.app.name = SPARKTA
+                 spark.master = "local[2]"
+                 spark.cores.max = 2
+                 spark.executor.memory = 1024m
+                 spark.app.name = SPARKTA
+                 spark.sql.parquet.binaryAsString = true
+                 spark.streaming.concurrentJobs = 10
+               }
+               """
+  val zkConfig = """
+               zk {
+                 connectionString ="localhost:2181"
                }
                """
 }

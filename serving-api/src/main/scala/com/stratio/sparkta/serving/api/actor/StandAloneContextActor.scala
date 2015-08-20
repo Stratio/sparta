@@ -16,9 +16,13 @@
 
 package com.stratio.sparkta.serving.api.actor
 
+import java.io.File
+
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor.StreamingActor._
+import com.stratio.sparkta.serving.core.AppConstant
+import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
 import com.stratio.sparkta.serving.core.models.StreamingContextStatusEnum._
 import org.apache.spark.streaming.StreamingContext
@@ -26,7 +30,8 @@ import org.apache.spark.streaming.StreamingContext
 import scala.util.{Failure, Success, Try}
 
 class StandAloneContextActor(policy: AggregationPoliciesModel,
-                             streamingContextService: StreamingContextService) extends InstrumentedActor {
+                             streamingContextService: StreamingContextService,
+                             sparktaHome: String) extends InstrumentedActor {
 
   private var ssc: Option[StreamingContext] = None
   private final val StartErrorException = "Problem starting up standalone SparkStreamingContext"
@@ -41,8 +46,9 @@ class StandAloneContextActor(policy: AggregationPoliciesModel,
     log.debug("Init new standalone streamingContext with name " + policy.name)
 
     //TODO validate policy
+    val jars = JarsHelper.findJarsByPath(new File(sparktaHome, AppConstant.JarPluginsFolder), true)
 
-    ssc = Try(streamingContextService.standAloneStreamingContext(policy)) match {
+    ssc = Try(streamingContextService.standAloneStreamingContext(policy, jars)) match {
       case Success(_ssc) =>
         _ssc match {
           case Some(ssc) => Try(ssc.start()) match {

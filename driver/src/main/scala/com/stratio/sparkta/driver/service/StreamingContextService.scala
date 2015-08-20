@@ -17,27 +17,46 @@
 package com.stratio.sparkta.driver.service
 
 import java.io.File
+import java.net.URI
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.driver.SparktaJob
 import com.stratio.sparkta.driver.factory._
+import com.stratio.sparkta.serving.core.AppConstant
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.sdk._
 import com.typesafe.config.Config
 import org.apache.spark.SparkContext
 import org.apache.spark.streaming.StreamingContext
 
-case class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging {
+import scala.util.{Success, Try}
+
+case class StreamingContextService(generalConfig: Config) extends SLF4JLogging {
 
   final val OutputsSparkConfiguration = "getSparkConfiguration"
 
-  def standAloneStreamingContext(apConfig: AggregationPoliciesModel): Option[StreamingContext] = {
-    SparktaJob.runSparktaJob(getSparkContext(apConfig), apConfig)
+  def standAloneStreamingContext(apConfig: AggregationPoliciesModel, files: Seq[File]): Option[StreamingContext] = {
+    SparktaJob.runSparktaJob(getStandAloneSparkContext(apConfig, files), apConfig)
     SparkContextFactory.sparkStreamingInstance
   }
 
-  private def getSparkContext(apConfig: AggregationPoliciesModel): SparkContext = {
+  def clusterStreamingContext(apConfig: AggregationPoliciesModel, files : Seq[URI]): Option[StreamingContext] = {
+    SparktaJob.runSparktaJob(getClusterSparkContext(apConfig, files), apConfig)
+    SparkContextFactory.sparkStreamingInstance
+
+  }
+
+  private def getStandAloneSparkContext(apConfig: AggregationPoliciesModel, jars: Seq[File]): SparkContext = {
     val pluginsSparkConfig = SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
-    SparkContextFactory.sparkContextInstance(generalConfig, pluginsSparkConfig, jars)
+    val standAloneConfig = Try(generalConfig.getConfig(AppConstant.ConfigLocal)) match {
+      case Success(config) => Some(config)
+      case _ => None
+    }
+    SparkContextFactory.sparkStandAloneContextInstance(standAloneConfig, pluginsSparkConfig, jars)
+  }
+
+  private def getClusterSparkContext(apConfig: AggregationPoliciesModel, classPath: Seq[URI]): SparkContext = {
+    val pluginsSparkConfig = SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
+    SparkContextFactory.sparkClusterContextInstance(pluginsSparkConfig, classPath)
   }
 }

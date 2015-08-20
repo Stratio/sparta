@@ -41,8 +41,6 @@ import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, Operat
 
 object SparktaJob extends SLF4JLogging {
 
-  val baseJars = Seq("driver-plugin.jar", "aggregator-plugin.jar", "sdk-plugin.jar")
-
   def runSparktaJob(sc: SparkContext, apConfig: AggregationPoliciesModel): Any = {
 
     val checkpointPolicyPath = apConfig.checkpointPath.concat(File.separator).concat(apConfig.name)
@@ -240,25 +238,4 @@ object SparktaJob extends SLF4JLogging {
       rawDataStorage.save(input)
     }
 
-  def jarsFromPolicy(apConfig: AggregationPoliciesModel): Seq[String] = {
-    val input = apConfig.input.get.jarFile match {
-      case Some(file) => Seq(file)
-      case None => Seq()
-    }
-    val outputs = apConfig.outputs.flatMap(_.jarFile)
-    val transformations = apConfig.transformations.flatMap(_.jarFile)
-    val operators = apConfig.cubes.flatMap(cube => cube.operators.map(_.jarFile)).flatten
-    Seq(baseJars, input, outputs, transformations, operators).flatten
-  }
-
-  def activeJars(apConfig: AggregationPoliciesModel, jars: Seq[File]): Either[Seq[String], Seq[String]] = {
-    val policyJars = jarsFromPolicy(apConfig)
-    val names = jars.map(file => file.getName)
-    val missing = for (name <- policyJars if !names.contains(name)) yield name
-    if (missing.isEmpty) Right(policyJars)
-    else Left(missing)
-  }
-
-  def activeJarFiles(policyJars: Seq[String], jars: Seq[File]): Seq[File] =
-    jars.filter(file => policyJars.contains(file.getName))
 }

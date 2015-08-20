@@ -22,6 +22,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.api.helpers.SparktaHelper
+import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
 import com.stratio.sparkta.serving.core.{AppConstant, MockSystem, SparktaConfig}
 import org.json4s.{DefaultFormats, native}
@@ -61,14 +62,14 @@ with SLF4JLogging {
     "create spark streaming context from a policy" in {
       val sparktaConfig = SparktaConfig.initConfig("sparkta")
       val sparktaHome = SparktaHelper.initSparktaHome(new MockSystem(Map("SPARKTA_HOME" -> getSparktaHome), Map()))
-      val jars = SparktaHelper.initJars(AppConstant.JarPaths, sparktaHome)
+      val jars = JarsHelper.findJarsByPath(new File(sparktaHome, AppConstant.JarPluginsFolder), true)
 
-      val streamingContextService = new StreamingContextService(sparktaConfig, jars)
+      val streamingContextService = new StreamingContextService(sparktaConfig)
       val json = Source.fromFile(new File(PathToPolicy)).mkString
       implicit val formats = DefaultFormats + new JsoneyStringSerializer()
       val apConfig = native.Serialization.read[AggregationPoliciesModel](json)
 
-      val ssc = streamingContextService.standAloneStreamingContext(apConfig)
+      val ssc = streamingContextService.standAloneStreamingContext(apConfig, jars)
 
       ssc should not be None
     }

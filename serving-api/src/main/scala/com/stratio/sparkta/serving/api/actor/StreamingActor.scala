@@ -16,6 +16,9 @@
 
 package com.stratio.sparkta.serving.api.actor
 
+import com.stratio.sparkta.serving.api.helpers.SparktaHelper
+import com.stratio.sparkta.serving.core.AppConstant
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
@@ -33,8 +36,10 @@ import com.stratio.sparkta.serving.core.models.StreamingContextStatusEnum._
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, StreamingContextStatus}
 
 class StreamingActor(streamingContextService: StreamingContextService,
-                     clusterConfig: Option[Config],
-                     supervisorContextRef: ActorRef) extends InstrumentedActor {
+                     sparktaConfig: Config,
+                     sparktaHome: String,
+                     supervisorContextRef: ActorRef,
+                     zookeeperConfig: Config) extends InstrumentedActor {
 
   implicit val timeout: Timeout = Timeout(10.seconds)
 
@@ -58,23 +63,37 @@ class StreamingActor(streamingContextService: StreamingContextService,
    * @param policy that contains the configuration to run.
    */
   private def doCreateContext(policy: AggregationPoliciesModel): Unit = {
-
-    val streamingContextActor = getStreamingContextActor(policy)
-
-    supervisorContextRef ! SupAddContextStatus(policy.name,
-      new StatusContextActor(streamingContextActor, policy.name, Initializing, None))
-    streamingContextActor ! InitSparktaContext
+    getStreamingContextActor(policy) match {
+      case Some(streamingContextActor) => {
+        supervisorContextRef ! SupAddContextStatus(policy.name,
+          new StatusContextActor(streamingContextActor, policy.name, Initializing, None))
+        streamingContextActor ! InitSparktaContext
+      }
+      case None => {
+        log.info("Invalid configuration settings. We can't start the ContextActor.")
+      }
+    }
   }
 
-  private def getStreamingContextActor(policy: AggregationPoliciesModel): ActorRef = {
+  private def getStreamingContextActor(policy: AggregationPoliciesModel): Option[ActorRef] = {
+
+    val clusterConfig = SparktaHelper.parseClusterConfig(sparktaConfig)
+
     if (clusterConfig.isDefined) {
-      context.actorOf(
-        Props(new ClusterContextActor(policy, streamingContextService, clusterConfig.get)),
-        "context-actor-".concat(policy.name))
+      SparktaHelper.parseHdfsConfig(sparktaConfig) match {
+        case Some(hdfsConfig) => {
+          val executionMode = sparktaConfig.getString(AppConstant.ExecutionMode)
+          Some(context.actorOf(
+            Props(new ClusterContextActor(policy, streamingContextService, executionMode, clusterConfig.get, hdfsConfig,
+              zookeeperConfig, sparktaHome)),
+            "context-actor-".concat(policy.name)))
+        }
+        case None => None
+      }
     } else {
-      context.actorOf(
-        Props(new StandAloneContextActor(policy, streamingContextService)),
-        "context-actor-".concat(policy.name))
+      Some(context.actorOf(
+        Props(new StandAloneContextActor(policy, streamingContextService, sparktaHome)),
+        "context-actor-".concat(policy.name)))
     }
   }
 

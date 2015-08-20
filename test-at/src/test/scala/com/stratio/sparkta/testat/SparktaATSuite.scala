@@ -19,7 +19,8 @@ package com.stratio.sparkta.testat
 import java.io.{File, PrintStream}
 import java.net._
 import java.nio.channels.ServerSocketChannel
-import com.stratio.sparkta.serving.core.{MockSystem, AppConstant}
+import com.stratio.sparkta.serving.core.helpers.JarsHelper
+import com.stratio.sparkta.serving.core.{SparktaConfig, MockSystem, AppConstant}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
@@ -82,14 +83,13 @@ trait SparktaATSuite extends WordSpecLike with ScalatestRouteTest with SLF4JLogg
    * Starts an instance of Sparkta with a given configuration (reference.conf in our resources folder).
    */
   def startSparkta: Unit = {
-    val sparktaConfig = SparktaHelper.initConfig(AppConstant.ConfigAppName)
-    val configApi: Config = SparktaHelper.initConfig(AppConstant.ConfigApi, Some(sparktaConfig))
+    val sparktaConfig = SparktaConfig.initConfig(AppConstant.ConfigAppName)
+    val configApi: Config = SparktaConfig.initConfig(AppConstant.ConfigApi, Some(sparktaConfig))
     val sparktaHome = SparktaHelper.initSparktaHome(new MockSystem(Map("SPARKTA_HOME" -> getSparktaHome), Map()))
-    val jars = SparktaHelper.initJars(AppConstant.JarPaths, sparktaHome)
+    val jars = JarsHelper.findJarsByPath(new File(sparktaHome, AppConstant.JarPluginsFolder), true)
     val sparktaPort = configApi.getInt("port")
-    val configJobServer = None//SparktaHelper.initConfig(AppConstant.ConfigJobServer, Some(sparktaConfig))
 
-    SparktaHelper.initAkkaSystem(sparktaConfig, configApi, jars, AppConstant.ConfigAppName)
+    SparktaHelper.initAkkaSystem(sparktaConfig, configApi, sparktaHome, AppConstant.ConfigAppName)
     sleep(SparktaSleep)
 
     openSocket(sparktaPort).isSuccess should be(true)

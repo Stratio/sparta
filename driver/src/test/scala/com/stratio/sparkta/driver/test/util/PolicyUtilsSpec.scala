@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.test.service
+package com.stratio.sparkta.driver.test.util
 
 import java.io.File
-import com.stratio.sparkta.driver.SparktaJob
+
 import com.stratio.sparkta.driver.util.PolicyUtils
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -26,16 +26,13 @@ import org.scalatest.junit.JUnitRunner
 import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
-class SparktaJobSpec extends FlatSpec with ShouldMatchers {
+class PolicyUtilsSpec extends FlatSpec with ShouldMatchers {
 
   trait ValidData {
 
     val policyFile = getClass.getClassLoader.getResource("policies/IKafka-OPrint.json").getPath
     val policy = PolicyUtils.parseJson(Source.fromFile(new File(policyFile)).mkString)
     val jars = List(
-      "driver-plugin.jar",
-      "aggregator-plugin.jar",
-      "sdk-plugin.jar",
       "input-kafka-plugin.jar",
       "output-print-plugin.jar",
       "parser-morphlines-plugin.jar",
@@ -47,29 +44,29 @@ class SparktaJobSpec extends FlatSpec with ShouldMatchers {
 
     val invalidJars = jars.drop(1)
     val invalidjarFiles = invalidJars.map(new File(_))
-    val missingJars = List("driver-plugin.jar")
+    val missingJars = List("input-kafka-plugin.jar")
   }
 
-  "SparktaJobSpec" should "retrieve jars list from policy" in new ValidData {
-    SparktaJob.jarsFromPolicy(policy) should contain theSameElementsAs (jars)
+  "PolicyUtilsSpec" should "retrieve jars list from policy" in new ValidData {
+    PolicyUtils.jarsFromPolicy(policy) should contain theSameElementsAs (jars)
   }
 
   it should "validate policy jars" in new ValidData {
-    SparktaJob.activeJars(policy, jarFiles).isRight should be(true)
-    SparktaJob.activeJars(policy, jarFiles).right.get should contain theSameElementsAs (jars)
+    PolicyUtils.activeJars(policy, jarFiles).isRight should be(true)
+    PolicyUtils.activeJars(policy, jarFiles).right.get should contain theSameElementsAs (jars)
   }
 
   it should "retrieve jars list from policy, 1 missing" in new WrongData {
-    SparktaJob.jarsFromPolicy(policy) should not contain theSameElementsAs(invalidJars)
+    PolicyUtils.jarsFromPolicy(policy) should not contain theSameElementsAs(invalidJars)
   }
 
   it should "validate policy jars, wrong data" in new WrongData {
-    val validateResult = SparktaJob.activeJars(policy, invalidjarFiles)
+    val validateResult = PolicyUtils.activeJars(policy, invalidjarFiles)
     validateResult.isLeft should be(true)
     validateResult.left.get should contain theSameElementsAs (missingJars)
   }
 
   it should "filter jars files referenced in policy" in new ValidData {
-    SparktaJob.activeJarFiles(jars, jarFiles) should contain theSameElementsAs (jarFiles)
+    PolicyUtils.activeJarFiles(jars, jarFiles) should contain theSameElementsAs (jarFiles)
   }
 }

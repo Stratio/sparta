@@ -19,7 +19,7 @@ package com.stratio.sparkta.serving.api.helpers
 import java.io.File
 import java.lang.reflect.Method
 import java.net.{URL, URLClassLoader}
-import scala.util.Try
+import scala.util.{Success, Try}
 
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
@@ -58,19 +58,6 @@ object SparktaHelper extends SLF4JLogging {
   }
 
   /**
-   * With the aim of having a pluggable system of plugins and given  a list of relative paths that contain jars (our
-   * plugins). It tries to instance jars located in this paths and to load them in the classpath.
-   * @param relativeJarPaths that contains jar plugins.
-   * @param sparktaHome with Sparkta's base path.
-   * @return a list of loaded jars.
-   */
-  def initJars(relativeJarPaths: Seq[String], sparktaHome: String): Seq[File] =
-    relativeJarPaths.flatMap(path => {
-      log.info(s"> Loading jars from $sparktaHome/$path")
-      findJarsByPathAndAddToClasspath(new File(sparktaHome, path))
-    })
-
-  /**
    * Initializes base configuration.
    * @param currentConfig if it is setted the function tries to load a node from a loaded config.
    * @param node with the node needed to load the configuration.
@@ -82,35 +69,55 @@ object SparktaHelper extends SLF4JLogging {
     log.info(s"> Loading $node configuration")
     Try(
       currentConfig match {
-        case Some(config) => Some(config.getConfig(node))
+        case Some(config) => getOptionConfig(node,config)
         case _ => configFactory.getConfig(node)
       }
     ).getOrElse(None)
   }
 
-  def parseClusterConfig(config: Config): Option[Config] = config.getBoolean(AppConstant.ConfigCluster) match {
-    case true => Some(config.getConfig(AppConstant.ConfigSpark))
+  def getOptionConfig(node: String, currentConfig: Config): Option[Config] = {
+    log.info(s"> Loading $node configuration")
+    Try(currentConfig.getConfig(node)) match {
+      case Success(config) => Some(config)
+      case _ => None
+    }
+  }
+
+  def getOptionStringConfig(node: String, currentConfig: Config) : Option[String] = {
+    Try(currentConfig.getString(node)) match {
+      case Success(config) => Some(config)
+      case _ => None
+    }
+  }
+
+  def parseClusterConfig(config: Config): Option[Config] = Try(config.getString(AppConstant.ExecutionMode)) match {
+    case Success(executionMode)=> {
+      if(executionMode != AppConstant.ConfigLocal) getOptionConfig(executionMode, config)
+      else None
+    }
     case _ => None
   }
+
+  def parseHdfsConfig(config: Config): Option[Config] = getOptionConfig(AppConstant.ConfigHdfs, config)
 
   /**
    * Initializes Sparkta's akka system running an embedded http server with the REST API.
    * @param configSparkta with Sparkta's global configuration.
    * @param configApi with http server's configuration.
-   * @param jars that will be loaded.
+   * @param sparktaHome Path to Sparkta.
    * @param appName with the name of the application.
    */
   def initAkkaSystem(configSparkta: Config,
                      configApi: Config,
-                     jars: Seq[File],
+                     sparktaHome: String,
                      appName: String): Unit = {
-    val streamingContextService = new StreamingContextService(configSparkta, jars)
+    val streamingContextService = new StreamingContextService(configSparkta)
     val curatorFramework = CuratorFactoryHolder.getInstance(configSparkta).get
     log.info("> Initializing akka actors")
     system = ActorSystem(appName)
-    val clusterConfig = parseClusterConfig(configSparkta)
     val akkaConfig = configSparkta.getConfig(AppConstant.ConfigAkka)
     val swaggerConfig = configSparkta.getConfig(AppConstant.ConfigSwagger)
+    val zookeeperConfig = configSparkta.getConfig(AppConstant.ConfigZookeeper)
     val controllerInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
     else AkkaConstant.DefaultControllerActorInstances
     val streamingActorInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
@@ -126,7 +133,8 @@ object SparktaHelper extends SLF4JLogging {
       AkkaConstant.PolicyActor ->
         system.actorOf(Props(new PolicyActor(curatorFramework)), AkkaConstant.PolicyActor),
       AkkaConstant.StreamingActor -> system.actorOf(RoundRobinPool(streamingActorInstances).props(Props(
-        new StreamingActor(streamingContextService, clusterConfig, supervisorContextActor))),
+        new StreamingActor(
+          streamingContextService, configSparkta, sparktaHome, supervisorContextActor, zookeeperConfig))),
         AkkaConstant.StreamingActor)
     )
     val controllerActor = system.actorOf(
@@ -142,36 +150,6 @@ object SparktaHelper extends SLF4JLogging {
     log.info("> Actors System UP!")
   }
 
-  ///////////////////////////////////////////  XXX Protected methods ///////////////////////////////////////////////////
-
-  /**
-   * Finds files that end with the sufix *-plugin.jar and load them in the classpath of the application.
-   * @param path base path when it starts to scan in order to find plugins.
-   * @return a list of loaded jars.
-   */
-  protected def findJarsByPathAndAddToClasspath(path: File): Seq[File] = {
-    val these = path.listFiles()
-    val good = these.filter(f => {
-      if (f.getName.endsWith("-plugin.jar")) {
-        addToClasspath(f)
-        log.debug("File " + f.getName + " added")
-        true
-      } else {
-        false
-      }
-    })
-    good ++ these.filter(_.isDirectory).flatMap(findJarsByPathAndAddToClasspath)
-  }
-
-  /**
-   * Adds a file to the classpath of the application.
-   * @param file to add in the classpath.
-   */
-  protected def addToClasspath(file: File): Unit = {
-    val method: Method = classOf[URLClassLoader].getDeclaredMethod("addURL", classOf[URL])
-    method.setAccessible(true)
-    method.invoke(ClassLoader.getSystemClassLoader, file.toURI.toURL);
-  }
 
   /**
    * Destroys Spark's context.

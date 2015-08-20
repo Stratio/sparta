@@ -19,6 +19,8 @@ package com.stratio.sparkta.serving.core
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.Config
 
+import scala.util.{Success, Try}
+
 /**
  * Helper with common operations used to create a Sparkta context used to run the application.
  * @author danielcsant
@@ -36,10 +38,14 @@ object SparktaConfig extends SLF4JLogging {
                  configFactory: ConfigFactory = new SparktaConfigFactory): Config = {
     log.info(s"> Loading $node configuration")
     val configResult = currentConfig match {
-      case Some(config) => Some(config.getConfig(node))
+      case Some(config) => Try(config.getConfig(node)) match {
+        case Success(config) => Some(config)
+        case _ => None
+      }
       case _ => configFactory.getConfig(node)
     }
     assert(configResult.isDefined, "Fatal Error: configuration can not be loaded: $node")
     configResult.get
   }
+
 }
