@@ -23,10 +23,10 @@
 
 		<ul br-ba-container="">
 			<li data-ng-repeat="input in filteredInputsData = (nuevo.inputsData | filter:nuevo.filters:strict)" br-ba-item="{index:$index, total:filteredInputsData.length}">
-				<div class="title">
+				<header class="title">
 					<span class="name">{{input.name}}</span>
 
-					<span class="icon-search menu_actions" data-ng-click="$root.stToggleFloatingMenu[input.id]()">
+					<span class="icon-actions menu_actions" data-ng-click="$root.stToggleFloatingMenu[input.id]()">
 						<st-floating-menu toggle-id="{{input.id}}" align="right">
 							<st-menu-element class-icon="icon-edit" data-ng-click="nuevo.modifyInput(input.name, $index)">
 								{{"_INPUT_ACTIONS_MENU_EDIT_" | translate}}
@@ -40,10 +40,20 @@
 						</st-floating-menu>
 					</span>
 
+				</header>
+
+				<div class="c-row o-media">
+					<div class="o-media__img">
+						<i class="c-icon c-icon--xxxlarge icon-{{input.element.type | lowercase}} o-media__img__item" alt="{{input.element.type}}"></i>
+						<!--<img data-ng-src="images/logo_{{input.icon}}" alt="{{input.element.type}}">-->
+					</div>
+
+					<span class="o-media__bd">{{input.shortDescription}}</span>
 				</div>
-				<span class="description">{{input.shortDescription}}</span>
-				<img data-ng-src="images/logo_{{input.icon}}" alt="{{input.element.type}}" class="input_logo">
-				<span class="icon-info1 element_tooltip" tooltip="{{input.description}}"></span>
+
+				<footer>
+					<span class="icon-info1 element_tooltip" tooltip="{{input.description}}" tooltip-placement="top"></span>
+				</footer>
 			</li>
 	    </ul>
     </div>
