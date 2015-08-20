@@ -95,7 +95,8 @@ module.exports = function (grunt) {
         port: 9090, // the port that the data service is running on,
         changeOrigin: true,
         ws: true
-      }],
+      }
+      ],
       livereload: {
         options: {
           open: true,
