@@ -43,5 +43,12 @@
                 'create': {method:'POST'}
             });
         };
+
+        function CreateFragment() {
+            return $resource('/fragment/', {},
+            {
+                'create': {method:'POST'}
+            });
+        };
     };
 })();
