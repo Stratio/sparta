@@ -33,6 +33,7 @@ object SparkContextFactory extends SLF4JLogging {
   private var sc: Option[SparkContext] = None
   private var sqlContext: Option[SQLContext] = None
   private var ssc: Option[StreamingContext] = None
+  var config: Config = _
 
   def sparkSqlContextInstance: Option[SQLContext] = {
     synchronized {
