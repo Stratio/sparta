@@ -144,7 +144,7 @@
       "name": "out-mongo",
       "type": "MongoDb",
       "configuration": {
-        "clientUri": "mongodb://localhost:60000",
+        "hosts": "localhost:60000",
         "dbName": "csvtest",
         "multiplexer": "false"
       }

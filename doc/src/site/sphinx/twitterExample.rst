@@ -171,7 +171,7 @@ In this example we use MongoDB as database::
       "name": "out-mongo",
       "type": "MongoDb",
       "configuration": {
-        "clientUri": "mongodb://localhost:27017",
+        "hosts": "localhost:27017",
         "dbName": "sparkta"
       }
     }
