@@ -48,8 +48,8 @@ Once Sparkta has been installed, to get it running you can use the following ins
 
  * Linux:
     You can run ``sh $SPARKTA_HOME/bin/run``.
-    Default installation directory is ``/opt/sds/sparkta``.
-    ::
+    Default installation directory is ``/opt/sds/sparkta``::
+
         cd /opt/sds/sparkta
 
         sh bin/run
@@ -86,5 +86,5 @@ The policy must be submitted with the following syntax::
 
 Example::
 
-    curl -H "Content-Type: application/json" --data examples/policies/ITwitter-OMongo.json http://localhost:9090
+    curl -H "Content-Type: application/json" --data @examples/policies/ITwitter-OMongo.json http://localhost:9090/policyContext
 
