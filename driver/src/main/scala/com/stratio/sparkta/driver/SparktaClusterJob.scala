@@ -18,7 +18,6 @@ package com.stratio.sparkta.driver
 
 import java.io.File
 import java.net.URI
-import java.util.Properties
 
 import com.stratio.sparkta.driver.SparktaJob._
 import com.stratio.sparkta.driver.factory.SparkContextFactory
@@ -27,7 +26,6 @@ import com.stratio.sparkta.driver.util.{HdfsUtils, PolicyUtils}
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
 import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder, SparktaConfig}
-import com.typesafe.config.{ConfigFactory, ConfigUtil}
 import org.apache.commons.io.FileUtils
 
 import scala.util.{Failure, Success, Try}
@@ -47,6 +45,9 @@ object SparktaClusterJob {
         Map("spark.app.name" -> s"${policy.name}"), pluginFiles)
       val streamingContextService = new StreamingContextService(configSparkta)
       val ssc = streamingContextService.clusterStreamingContext(policy, pluginFiles).get
+
+      log.info("Streaming Context created")
+
       SparkContextFactory.sparkStreamingInstance.get.start
       SparkContextFactory.sparkStreamingInstance.get.awaitTermination
     } else log.warn("Invalid arguments")
@@ -55,9 +56,11 @@ object SparktaClusterJob {
   def getPluginsFiles(hdfsUtils: HdfsUtils, hdfsPath: String): Array[URI] = {
     hdfsUtils.getFiles(hdfsPath).map(file => {
       val fileName = s"${hdfsPath}${file.getPath.getName}"
-      log.info(s"Downloading file from HDFS: ${file.getPath.getName}")
       val tempFile = File.createTempFile(file.getPath.getName, "")
+
+      log.info(s"Downloading file from HDFS: ${file.getPath.getName}")
       log.info(s"Creating temp file: $tempFile")
+
       FileUtils.copyInputStreamToFile(hdfsUtils.getFile(fileName), tempFile)
       JarsHelper.addToClasspath(tempFile)
       file.getPath.toUri
@@ -71,6 +74,8 @@ object SparktaClusterJob {
       "sessionTimeout" -> args(4),
       "retryAttempts" -> args(5),
       "retryInterval" -> args(6))
+
+    log.info(s"Zookeeper Config received: ${mapConfig.toString}")
 
     Try({
       val curatorFramework = CuratorFactoryHolder.getInstance(mapConfig).get
