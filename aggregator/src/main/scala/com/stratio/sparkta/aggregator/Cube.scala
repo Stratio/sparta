@@ -18,13 +18,14 @@ package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.serving.core.SparktaConfig
 import org.apache.spark.HashPartitioner
 import org.apache.spark.streaming.Duration
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
-import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.SparktaConfig
+import scala.util.Try
 
 /**
  * Use this class to describe a cube that you want the multicube to keep.
@@ -94,7 +95,7 @@ case class Cube(name: String,
         updateFunction(values, state).map(result => (dimensionsKey, result))
       }
     }
-    val rememberPartitioner = SparktaConfig.mainConfig.getBoolean("spark.rememberPartitioner")
+    val rememberPartitioner = Try(SparktaConfig.mainConfig.getBoolean("spark.rememberPartitioner")).getOrElse(true)
     dimensionsValues.updateStateByKey(
       newUpdateFunc, new HashPartitioner(dimensionsValues.context.sparkContext.defaultParallelism), rememberPartitioner)
   }

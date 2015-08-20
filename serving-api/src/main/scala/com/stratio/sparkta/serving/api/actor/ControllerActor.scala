@@ -16,13 +16,12 @@
 
 package com.stratio.sparkta.serving.api.actor
 
-import scala.reflect.runtime.universe._
-
 import akka.actor.{ActorContext, _}
 import akka.event.slf4j.SLF4JLogging
-import com.gettyimages.spray.swagger.SwaggerHttpService
-import com.wordnik.swagger.model.ApiInfo
-import org.apache.curator.framework.CuratorFramework
+import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.api.service.http._
+import com.stratio.sparkta.serving.core.models.{ErrorModel, StreamingContextStatusEnum}
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.Serialization._
@@ -30,15 +29,7 @@ import spray.http.StatusCodes
 import spray.routing._
 import spray.util.LoggingContext
 
-import com.stratio.sparkta.driver.constants.AkkaConstant
-import com.stratio.sparkta.driver.service.StreamingContextService
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.api.constants.HttpConstant
-import com.stratio.sparkta.serving.api.service.http._
-import com.stratio.sparkta.serving.core.models.{ErrorModel, StreamingContextStatusEnum}
-
 class ControllerActor(streamingContextService: StreamingContextService,
-                      curatorFramework: CuratorFramework,
                       actorsMap: Map[String, ActorRef]) extends HttpServiceActor with SLF4JLogging {
 
   override implicit def actorRefFactory: ActorContext = context
@@ -56,51 +47,9 @@ class ControllerActor(streamingContextService: StreamingContextService,
         }
     }
 
-  def receive: Receive = runRoute(handleExceptions(exceptionHandler)
-    (serviceRoutes ~ swaggerService ~ webRoutes ~ swaggerUIroutes))
+  val serviceRoutes: Route = new ServiceRoutes(actorsMap, context).serviceRoutes
 
-  val serviceRoutes: Route =
-    new FragmentHttpService {
-      implicit val actors = actorsMap
-      override val supervisor =
-        if (actorsMap.contains(AkkaConstant.FragmentActor)) actorsMap.get(AkkaConstant.FragmentActor).get
-        else context.self
-
-      override implicit def actorRefFactory: ActorRefFactory = context
-    }.routes ~
-      new TemplateHttpService {
-        implicit val actors = actorsMap
-        override val supervisor =
-          if (actorsMap.contains(AkkaConstant.TemplateActor)) actorsMap.get(AkkaConstant.TemplateActor).get
-          else context.self
-
-        override implicit def actorRefFactory: ActorRefFactory = context
-      }.routes ~
-      new PolicyHttpService {
-        implicit val actors = actorsMap
-        override val supervisor =
-          if (actorsMap.contains(AkkaConstant.PolicyActor)) actorsMap.get(AkkaConstant.PolicyActor).get
-          else context.self
-
-        override implicit def actorRefFactory: ActorRefFactory = context
-      }.routes ~
-      new PolicyContextHttpService {
-        implicit val actors = actorsMap
-        override val supervisor =
-          if (actorsMap.contains(AkkaConstant.StreamingActor)) actorsMap.get(AkkaConstant.StreamingActor).get
-          else context.self
-
-        override implicit def actorRefFactory: ActorRefFactory = context
-      }.routes
-
-  def swaggerUIroutes: Route =
-    get {
-      pathPrefix(HttpConstant.SwaggerPath) {
-        pathEndOrSingleSlash {
-          getFromResource("swagger-ui/index.html")
-        }
-      } ~ getFromResourceDirectory("swagger-ui")
-    }
+  def receive: Receive = runRoute(handleExceptions(exceptionHandler)(serviceRoutes ~ webRoutes))
 
   def webRoutes: Route =
     get {
@@ -110,30 +59,4 @@ class ControllerActor(streamingContextService: StreamingContextService,
         }
       } ~ getFromResourceDirectory("web")
     }
-
-  val swaggerService = new SwaggerHttpService {
-    override def apiTypes: Seq[Type] = Seq(
-      typeOf[FragmentHttpService],
-      typeOf[TemplateHttpService],
-      typeOf[PolicyHttpService],
-      typeOf[PolicyContextHttpService])
-
-    override def apiVersion: String = "1.0"
-
-    override def baseUrl: String = "/"
-
-    // let swagger-ui determine the host and port
-    override def docsPath: String = "api-docs"
-
-    override def actorRefFactory: ActorContext = context
-
-    override def apiInfo: Option[ApiInfo] = Some(new ApiInfo(
-      "SpaRkTA",
-      "A real time aggregation engine full spark based.",
-      "TOC Url",
-      "Sparkta@stratio.com",
-      "Apache V2",
-      "http://www.apache.org/licenses/LICENSE-2.0"
-    ))
-  }.routes
 }
