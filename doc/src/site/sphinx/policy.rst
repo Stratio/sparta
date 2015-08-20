@@ -196,7 +196,7 @@ Example::
         "name": "out-mongo",
         "elementType": "MongoDb",
         "configuration": {
-          "clientUri": "mongodb://localhost:27017",
+          "hosts": "localhost:27017",
           "dbName": "sparkta"
         }
       }
