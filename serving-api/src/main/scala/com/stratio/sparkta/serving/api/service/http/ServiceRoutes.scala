@@ -16,44 +16,43 @@
 
 package com.stratio.sparkta.serving.api.service.http
 
-import akka.actor.{ActorRefFactory, ActorContext, ActorRef}
+import akka.actor.{ActorContext, ActorRef, ActorRefFactory}
 import com.stratio.sparkta.driver.constants.AkkaConstant
 import spray.routing._
 
-class ServiceRoutes (actorsMap: Map[String, ActorRef], context : ActorContext) extends RouteConcatenation {
+class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
 
-  val serviceRoutes: Route =
-    new FragmentHttpService {
-      implicit val actors = actorsMap
-      override val supervisor =
-        if (actorsMap.contains(AkkaConstant.FragmentActor)) actorsMap.get(AkkaConstant.FragmentActor).get
-        else context.self
+  val fragmentRoute: Route = new FragmentHttpService {
+    implicit val actors = actorsMap
+    override val supervisor =
+      if (actorsMap.contains(AkkaConstant.FragmentActor)) actorsMap.get(AkkaConstant.FragmentActor).get
+      else context.self
 
-      override implicit def actorRefFactory: ActorRefFactory = context
-    }.routes ~
-      new TemplateHttpService {
-        implicit val actors = actorsMap
-        override val supervisor =
-          if (actorsMap.contains(AkkaConstant.TemplateActor)) actorsMap.get(AkkaConstant.TemplateActor).get
-          else context.self
+    override implicit def actorRefFactory: ActorRefFactory = context
+  }.routes
+  val templateRoute: Route = new TemplateHttpService {
+    implicit val actors = actorsMap
+    override val supervisor =
+      if (actorsMap.contains(AkkaConstant.TemplateActor)) actorsMap.get(AkkaConstant.TemplateActor).get
+      else context.self
 
-        override implicit def actorRefFactory: ActorRefFactory = context
-      }.routes ~
-      new PolicyHttpService {
-        implicit val actors = actorsMap
-        override val supervisor =
-          if (actorsMap.contains(AkkaConstant.PolicyActor)) actorsMap.get(AkkaConstant.PolicyActor).get
-          else context.self
+    override implicit def actorRefFactory: ActorRefFactory = context
+  }.routes
+  val policyRoute: Route = new PolicyHttpService {
+    implicit val actors = actorsMap
+    override val supervisor =
+      if (actorsMap.contains(AkkaConstant.PolicyActor)) actorsMap.get(AkkaConstant.PolicyActor).get
+      else context.self
 
-        override implicit def actorRefFactory: ActorRefFactory = context
-      }.routes ~
-      new PolicyContextHttpService {
-        implicit val actors = actorsMap
-        override val supervisor =
-          if (actorsMap.contains(AkkaConstant.StreamingActor)) actorsMap.get(AkkaConstant.StreamingActor).get
-          else context.self
+    override implicit def actorRefFactory: ActorRefFactory = context
+  }.routes
+  val policyContextRoute: Route = new PolicyContextHttpService {
+    implicit val actors = actorsMap
+    override val supervisor =
+      if (actorsMap.contains(AkkaConstant.StreamingActor)) actorsMap.get(AkkaConstant.StreamingActor).get
+      else context.self
 
-        override implicit def actorRefFactory: ActorRefFactory = context
-      }.routes
+    override implicit def actorRefFactory: ActorRefFactory = context
+  }.routes
 }
 

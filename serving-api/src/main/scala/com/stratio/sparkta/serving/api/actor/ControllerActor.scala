@@ -47,9 +47,12 @@ class ControllerActor(streamingContextService: StreamingContextService,
         }
     }
 
-  val serviceRoutes: Route = new ServiceRoutes(actorsMap, context).serviceRoutes
+  val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context)
 
-  def receive: Receive = runRoute(handleExceptions(exceptionHandler)(serviceRoutes ~ webRoutes))
+  def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
+
+  def getRoutes: Route = webRoutes ~ serviceRoutes.fragmentRoute ~
+    serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~ serviceRoutes.templateRoute
 
   def webRoutes: Route =
     get {
