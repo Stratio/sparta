@@ -235,8 +235,6 @@ trait PolicyHttpService extends BaseHttpService {
               PolicyHelper.fillFragments(policy,actors.get(AkkaConstant.FragmentActor).get, timeout))
             val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
             validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-              val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
-              policyStatusActor ? Update(PolicyStatusModel(policy.name, PolicyStatusEnum.Launched))
               actors.get(AkkaConstant.SparkStreamingContextActor).get ! new Create(parsedP)
               complete {
                 new Result("Creating new context with name " + policy.name)

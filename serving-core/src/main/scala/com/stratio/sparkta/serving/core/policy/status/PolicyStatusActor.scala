@@ -104,7 +104,8 @@ object PolicyStatusActor {
     Some(PolicyStatusEnum.Starting) -> Seq(PolicyStatusEnum.Started, PolicyStatusEnum.Failed),
     Some(PolicyStatusEnum.Started) -> Seq(PolicyStatusEnum.Stopping, PolicyStatusEnum.Failed),
     Some(PolicyStatusEnum.Stopping) -> Seq(PolicyStatusEnum.Stopped, PolicyStatusEnum.Failed),
-    Some(PolicyStatusEnum.Stopped) -> Seq(PolicyStatusEnum.Launched, PolicyStatusEnum.Failed)
+    Some(PolicyStatusEnum.Stopped) -> Seq(PolicyStatusEnum.Launched, PolicyStatusEnum.Failed),
+    Some(PolicyStatusEnum.Failed) -> Seq(PolicyStatusEnum.Launched)
   )
 
   /**
