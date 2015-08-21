@@ -50,7 +50,6 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
   }
 
   def doInitSparktaContext: Unit = {
-
     log.debug("Init new cluster streamingContext with name " + policy.name)
     val jarsPlugins = JarsHelper.findJarsByPath(new File(sparktaHome, AppConstant.JarPluginsFolder), false)
     val activeJars = PolicyUtils.activeJars(policy, jarsPlugins)
@@ -81,12 +80,19 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
                 val cmd = s"${main} ${getGenericCommand} ${getMesosCommandString} " +
                   s"${getSparkConfig} ${hdfsDriverFile} ${policy.name} $pluginsJarsPath ${getZookeeperCommand}"
                 cmd.!!
-                log.info("Spark submit sentence executed")
+                log.info("Spark submit to Mesos cluster sentence executed")
               }
               if (executionMode == "yarn") {
-
+                val cmd = s"${main} ${getGenericCommand} ${getYarnCommandString} " +
+                  s"${getSparkConfig} ${hdfsDriverFile} ${policy.name} $pluginsJarsPath ${getZookeeperCommand}"
+                cmd.!!
+                log.info("Spark submit sentence to Yarn cluster executed")
               }
               if (executionMode == "standAlone") {
+                val cmd = s"${main} ${getGenericCommand} ${getStandAloneCommandString} " +
+                  s"${getSparkConfig} ${hdfsDriverFile} ${policy.name} $pluginsJarsPath ${getZookeeperCommand}"
+                cmd.!!
+                log.info("Spark submit to StandAlone cluster sentence executed")
               }
             }
             case None => log.warn(s"The driver jar cannot be found in classpath")
