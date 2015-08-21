@@ -276,7 +276,7 @@
             var modalInstance = $modal.open({
                 animation: true,
                 templateUrl: 'templates/components/st_duplicate_modal.tpl.html',
-                controller: 'DuplicateFragmentModalCtrl',
+                controller: 'DuplicateFragmentModalCtrl as vm',
                 size: 'lg',
                 resolve: {
                     item: function () {
@@ -464,19 +464,45 @@
         .module('webApp')
         .controller('DuplicateFragmentModalCtrl', DuplicateFragmentModalCtrl);
 
-    DuplicateFragmentModalCtrl.$inject = ['$scope', '$modalInstance', 'item'];
+    DuplicateFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentDataService'];
 
-    function DuplicateFragmentModalCtrl($scope, $modalInstance, item) {
-        console.log('*********Modal');
-        console.log(item);
+    function DuplicateFragmentModalCtrl($modalInstance, item, FragmentDataService) {
+        /*jshint validthis: true*/
+        var vm = this;
 
-        $scope.inputData = item;
+        vm.ok = ok;
+        vm.cancel = cancel;
+        vm.error = false;
 
-        $scope.ok = function () {
-            $modalInstance.close(item);
+        init();
+
+        ///////////////////////////////////////
+
+        function init () {
+            console.log('*********Modal');
+            console.log(item);
+            vm.inputData = item;
         };
 
-        $scope.cancel = function () {
+        function ok() {
+            if (vm.form.$valid){
+                var inputExists = checkInputname(vm.inputData.fragmentType, vm.inputData.name);
+            }
+        };
+
+        function checkInputname(inputType, inputName) {
+            var newFragment = FragmentDataService.GetFragmentByName(inputType, inputName);
+
+            newFragment
+            .then(function (result) {
+                vm.error = true;
+            },
+            function (error) {
+                $modalInstance.close(vm.inputData);
+            });
+        }
+
+        function cancel() {
             $modalInstance.dismiss('cancel');
         };
     };
