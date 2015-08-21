@@ -36,11 +36,6 @@
 			font-size: $value;
 		}
 	}
-
-@mixin full-width() {
-	&--full-width {
-		width: 100%;
-	}	
 }
 
 @mixin full-width() {
