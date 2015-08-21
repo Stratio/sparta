@@ -13,6 +13,7 @@
         vm.GetPolicyByFragmentName = GetPolicyByFragmentName;
         vm.DeleteFragment = DeleteFragment;
         vm.CreateFragment = CreateFragment;
+        vm.UpdateFragment = UpdateFragment;
 
         /////////////////////////////////
 
@@ -37,10 +38,10 @@
             });
         };
 
-        function CreateFragment() {
+        function UpdateFragment() {
             return $resource('/fragment/', {},
             {
-                'create': {method:'POST'}
+               'update': {method:'PUT'}
             });
         };
     };
