@@ -21,6 +21,9 @@
 
 		<datasource-form-field ng-repeat="item in vm.templateInputsData[vm.selectedIndex].properties" ng-form-id="{{item.propertyId}}"  data-field="item" data-model="vm.dataSource.element.configuration" data-form="vm.form" data-st-name="dataSource{{item.propertyName}}Form" data-ng-if="item.propertyId !== 'name' && item.propertyId !== 'type'"></datasource-form-field>
 
+		<div class="c-row" data-ng-if="vm.error">
+			There was an error. The name already exists!
+		</div>
 
 		<div class="c-row c-row--separated">
 			<div class="c-col c-col--6 c-col--vertical-centered">
