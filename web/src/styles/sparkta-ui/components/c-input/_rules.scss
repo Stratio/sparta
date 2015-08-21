@@ -6,6 +6,8 @@
 	height: $c-input---height;
 	padding: $c-input---padding;
 
+	@include full-width();
+
 	&--left-icon {
 		padding: $c-input--left-icon---padding;
 	}

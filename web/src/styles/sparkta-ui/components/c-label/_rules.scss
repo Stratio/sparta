@@ -4,7 +4,7 @@ $c-form__c-label---width: 135px !default;
 	box-sizing: border-box;
 	margin: $c-label---margin;
 
-	@at-root &.c-col {
+	@at-root &.c-col, &.o-wcag-hidden {
 		margin: 0;
 	}
 }
