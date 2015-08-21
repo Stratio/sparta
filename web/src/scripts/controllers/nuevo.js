@@ -73,10 +73,19 @@
            var inputFragmentTemplate = TemplateDataService.GetNewFragmentTemplate('input');
 
            inputFragmentTemplate.then(function (result) {
-               console.log('*********Controller');
-               console.log(result);
+                console.log('*********Controller');
+                console.log(result);
 
-               vm.createInputModal(result);
+                var createInputData = {
+                    'action': 'create',
+                    'inputDataTemplate': result,
+                    'texts': {
+                        'title': '_INPUT_WINDOW_NEW_TITLE_',
+                        'button_icon': 'icon-circle-plus'
+                    }
+                };
+
+               vm.createInputModal(createInputData);
            });
         };
 
@@ -97,7 +106,11 @@
                    'id': id,
                    'action': 'modify',
                    'inputSelected': inputSelected,
-                   'inputDataTemplate': result
+                   'inputDataTemplate': result,
+                   'texts': {
+                        'title': '_INPUT_WINDOW_MODIFY_TITLE_',
+                        'button_icon': 'icon-circle-check'
+                    }
                };
 
                vm.modifyInputModal(modifyInputData);
@@ -300,7 +313,7 @@
                 });
         };
     };
-    
+
     /*NEW FRAGMENT MODAL CONTROLLER*/
     angular
         .module('webApp')
@@ -331,6 +344,8 @@
             console.log('*********Modal');
             console.log(item);
 
+            setTexts(item.texts);
+
             vm.action = item.action;
 
             if (vm.action === 'modify') {
@@ -340,12 +355,17 @@
                 vm.selectedIndex = vm.index;
             }
             else {
-                vm.templateInputsData = item;
+                vm.templateInputsData = item.inputDataTemplate;
                 vm.initFragmentObecjt(vm.templateInputsData);
                 vm.createTypeModels(vm.templateInputsData);
                 vm.selectedIndex = 0;
             }
         };
+
+        function setTexts(texts) {
+            vm.title = texts.title;
+            vm.icon = texts.button_icon;
+        }
 
         function initFragmentObecjt(fragmentData) {
             /*Init fragment*/
