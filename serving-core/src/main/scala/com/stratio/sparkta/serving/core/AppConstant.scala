@@ -31,4 +31,5 @@ object AppConstant {
   final val ConfigSwagger = "swagger"
   final val BaseZKPath      = "/stratio/sparkta"
   final val PoliciesBasePath = s"${AppConstant.BaseZKPath}/policies"
+  final val ContextPath = s"${AppConstant.BaseZKPath}/contexts"
 }

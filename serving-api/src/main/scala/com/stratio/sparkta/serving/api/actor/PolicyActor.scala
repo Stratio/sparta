@@ -20,7 +20,7 @@ import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.core.AppConstant
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, StreamingContextStatusEnum}
+import com.stratio.sparkta.serving.core.models.{SparktaSerializer, AggregationPoliciesModel, StreamingContextStatusEnum}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.DefaultFormats
@@ -49,12 +49,10 @@ case class PolicySupervisorActor_response_policy(policy: Try[AggregationPolicies
  * Implementation of supported CRUD operations over ZK needed to manage policies.
  * @author anistal
  */
-class PolicyActor(curatorFramework: CuratorFramework) extends Actor
-with SLF4JLogging {
-
-  implicit val json4sJacksonFormats = DefaultFormats +
-    new EnumNameSerializer(StreamingContextStatusEnum) +
-    new JsoneyStringSerializer()
+class PolicyActor(curatorFramework: CuratorFramework)
+  extends Actor
+  with SLF4JLogging
+  with SparktaSerializer {
 
   override def receive: Receive = {
     case PolicySupervisorActor_create(policy) => create(policy)
