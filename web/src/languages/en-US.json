@@ -13,24 +13,31 @@
 
 	"_INPUT_HEADER_TITLE_MAIN": "inputs",
 	"_INPUT_HEADER_TITLE_SECONDARY": "manage",
+	
 	"_INPUT_FILTER_NAME_": "Name",
 	"_INPUT_FILTER_TYPE_": "Type",
-	"_INPUT_FILTER_TYPE_DEFAULT_": "Please select an option",
+	"_INPUT_FILTER_TYPE_DEFAULT_": "Type",
+	
 	"_INPUT_ACTIONS_MENU_EDIT_": "Edit",
 	"_INPUT_ACTIONS_MENU_DUPLICATE_": "Duplicate",
 	"_INPUT_ACTIONS_MENU_DELETE_": "Delete",
-  	"_INPUT_BUTTON_NEW_": "add new",
+  	
   	"_INPUT_WINDOW_NEW_TITLE_": "New input",
   	"_INPUT_WINDOW_MODIFY_TITLE_": "Modify input",
 	"_INPUT_WINDOW_NEW_HELP_": "Do you need help?",
 	"_INPUT_WINDOW_DELETE_TITLE_": "Delete input",
 	"_INPUT_WINDOW_FORM_NAME_": "Name",
 	"_INPUT_WINDOW_FORM_TYPE_": "Type",
+
+	"_INPUT_WINDOW_DUPLICATE_TITLE_": "Duplicate input",
+	
 	"_ARE_YOU_COMPLETELY_SURE_": "Are you completely sure?",
+	
 	"_INPUT_WINDOW_DELETE_MESSAGE_": "The following policies are going to be deleted",
 	"_INPUT_WINDOW_DELETE_MESSAGE2_": "If you do not want to delete these policies, please change first their inputs",
+  	
+  	"_INPUT_BUTTON_NEW_": "add new",
   	"_INPUT_BUTTON_DELETE_": "delete",
 	"_INPUT_BUTTON_CANCEL_": "cancel",
-  	"_INPUT_BUTTON_DUPLICATE_": "duplicate",
-	"_INPUT_WINDOW_DUPLICATE_TITLE_": "Duplicate input"
+  	"_INPUT_BUTTON_DUPLICATE_": "duplicate"
 }

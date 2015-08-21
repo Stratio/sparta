@@ -167,7 +167,7 @@ $c-form__c-form-group---margin: 0 0 $component-margin;
 
 
 // c-form-control
-$c-form-control---margin: 0 0 0 $component-margin;
+$c-form-control---padding: 0 0 0 $component-margin;
 
 
 
@@ -203,7 +203,7 @@ $c-info-text__icon---font-size: get-font-size(medium);
 // c-icon
 $c-icon---margin: 0 .5em 0 0;
 $c-icon--in-input---top: 7px;
-$c-icon--in-input---left: 70px;
+$c-icon--in-input---left: 22px;
 
 $c-icon--in-input---color: get-color(g6);
 
