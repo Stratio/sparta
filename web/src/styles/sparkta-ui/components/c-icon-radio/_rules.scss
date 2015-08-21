@@ -3,7 +3,7 @@
 	color: $c-icon-radio__icon--selected---color;
 	font-weight: $c-icon-radio__icon--selected---font-weight;
 }
-
+ 
 @mixin c-icon-radio {
 	&__item {
 		display: none;
