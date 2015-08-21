@@ -114,18 +114,24 @@ $c-button---text-align: center;
 $c-button---text-transform: uppercase;
 
 $c-button--call-to-action-1---background: get-color(c1);
+$c-button--call-to-action-1---border: 0;
 $c-button--call-to-action-1---color: get-color(g0);
 $c-button--call-to-action-1--hover---background: get-color(c1b);
+$c-button--call-to-action-1--hover---border: 0;
 $c-button--call-to-action-1--hover---color: get-color(g0);
 
 $c-button--call-to-action-2---background: get-color(c2);
+$c-button--call-to-action-2---border: 0;
 $c-button--call-to-action-2---color: get-color(g0);
 $c-button--call-to-action-2--hover---background: get-color(c2b);
+$c-button--call-to-action-2--hover---border: 0;
 $c-button--call-to-action-2--hover---color: get-color(g0);
 
 $c-button--call-to-action-3---background: get-color(c3);
+$c-button--call-to-action-3---border: 0;
 $c-button--call-to-action-3---color: get-color(g0);
 $c-button--call-to-action-3--hover---background: get-color(c3b);
+$c-button--call-to-action-3--hover---border: 0;
 $c-button--call-to-action-3--hover---color: get-color(g0);
 
 $c-button--call-to-action-4---background: get-color(g0);
@@ -134,6 +140,13 @@ $c-button--call-to-action-4---color: get-color(g4);
 $c-button--call-to-action-4--hover---background: get-color(g0);
 $c-button--call-to-action-4--hover---border: 2px solid get-color(g4);
 $c-button--call-to-action-4--hover---color: get-color(g5);
+
+$c-button--danger---background: get-color(e3);
+$c-button--danger---border: 0;
+$c-button--danger---color: get-color(g0);
+$c-button--danger--hover---background: get-color(e3b);
+$c-button--danger--hover---border: 0;
+$c-button--danger--hover---color: get-color(g0);
 
 
 // c-input
