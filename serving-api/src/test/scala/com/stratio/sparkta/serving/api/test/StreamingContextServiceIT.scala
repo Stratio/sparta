@@ -64,7 +64,7 @@ with SLF4JLogging {
       val sparktaHome = SparktaHelper.initSparktaHome(new MockSystem(Map("SPARKTA_HOME" -> getSparktaHome), Map()))
       val jars = JarsHelper.findJarsByPath(new File(sparktaHome, AppConstant.JarPluginsFolder), true)
 
-      val streamingContextService = new StreamingContextService(sparktaConfig)
+      val streamingContextService = new StreamingContextService(Some(sparktaConfig))
       val json = Source.fromFile(new File(PathToPolicy)).mkString
       implicit val formats = DefaultFormats + new JsoneyStringSerializer()
       val apConfig = native.Serialization.read[AggregationPoliciesModel](json)

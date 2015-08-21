@@ -47,7 +47,7 @@ object JarsHelper extends SLF4JLogging {
     val these = path.listFiles()
     val good = these.filter(f => {
       if (f.getName.endsWith("-plugin.jar")) {
-        if(doAddToClassPath){
+        if (doAddToClassPath) {
           addToClasspath(f)
           log.debug("File " + f.getName + " added")
         }
@@ -68,5 +68,4 @@ object JarsHelper extends SLF4JLogging {
     method.setAccessible(true)
     method.invoke(ClassLoader.getSystemClassLoader, file.toURI.toURL)
   }
-
 }

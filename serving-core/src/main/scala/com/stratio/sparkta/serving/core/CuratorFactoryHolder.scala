@@ -61,32 +61,6 @@ object CuratorFactoryHolder extends SLF4JLogging {
     }
   }
 
-  def getInstance(config: Map[String, String]): Option[CuratorFramework] = {
-    curatorFramework match {
-      case None =>  {
-        val defaultConnectionString = config.getOrElse("connectionString", AppConstant.DefaultZookeeperConnection)
-        val connectionTimeout =
-          config.getOrElse("connectionTimeout", AppConstant.DefaultZookeeperConnectionTimeout).toInt
-        val sessionTimeout =
-          config.getOrElse("sessionTimeout", AppConstant.DefaultZookeeperSessionTimeout).toInt
-        val retryAttempts = config.getOrElse("retryAttempts", AppConstant.DefaultZookeeperRetryAttemps).toInt
-        val retryInterval = config.getOrElse("retryInterval", AppConstant.DefaultZookeeperRetryInterval).toInt
-
-        curatorFramework = Some(CuratorFrameworkFactory.builder()
-          .connectString(defaultConnectionString)
-          .connectionTimeoutMs(connectionTimeout)
-          .sessionTimeoutMs(sessionTimeout)
-          .retryPolicy(new ExponentialBackoffRetry(retryInterval, retryAttempts)
-          ).build())
-
-        curatorFramework.get.start()
-        log.info(s"> ZK connection to $defaultConnectionString was successful.")
-        curatorFramework
-      }
-      case _ => curatorFramework
-    }
-  }
-
   /**
    * Resets the current instance of the curatorFramework.
    */

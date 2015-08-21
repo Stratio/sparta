@@ -18,7 +18,6 @@ package com.stratio.sparkta.driver.factory
 
 import java.io.File
 import java.net.URI
-import scala.collection.JavaConversions._
 
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.Config
@@ -26,6 +25,7 @@ import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
+import scala.collection.JavaConversions._
 
 object SparkContextFactory extends SLF4JLogging {
 
@@ -64,8 +64,8 @@ object SparkContextFactory extends SLF4JLogging {
   }
 
   def sparkStandAloneContextInstance(generalConfig: Option[Config],
-                                specificConfig: Map[String, String],
-                                jars: Seq[File]): SparkContext =
+                                     specificConfig: Map[String, String],
+                                     jars: Seq[File]): SparkContext =
     synchronized {
       sc.getOrElse(instantiateStandAloneContext(generalConfig, specificConfig, jars))
     }
@@ -77,8 +77,8 @@ object SparkContextFactory extends SLF4JLogging {
     }
 
   private def instantiateStandAloneContext(generalConfig: Option[Config],
-                                 specificConfig: Map[String, String],
-                                 jars: Seq[File]): SparkContext = {
+                                           specificConfig: Map[String, String],
+                                           jars: Seq[File]): SparkContext = {
     sc = Some(new SparkContext(configToSparkConf(generalConfig, specificConfig)))
     jars.foreach(f => sc.get.addJar(f.getAbsolutePath))
     sc.get
@@ -93,10 +93,10 @@ object SparkContextFactory extends SLF4JLogging {
 
   private def configToSparkConf(generalConfig: Option[Config], specificConfig: Map[String, String]): SparkConf = {
     val conf = new SparkConf()
-    if(generalConfig.isDefined){
+    if (generalConfig.isDefined) {
       val properties = generalConfig.get.entrySet()
       properties.foreach(e => {
-        if(e.getKey.startsWith("spark."))
+        if (e.getKey.startsWith("spark."))
           conf.set(e.getKey, generalConfig.get.getString(e.getKey))
       })
     }

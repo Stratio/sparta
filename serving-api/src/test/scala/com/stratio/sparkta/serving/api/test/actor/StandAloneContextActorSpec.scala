@@ -16,6 +16,8 @@
 
 package com.stratio.sparkta.driver.test.actor
 
+import java.io.File
+
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.pattern.ask
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
@@ -24,7 +26,7 @@ import com.stratio.sparkta.serving.api.actor.StreamingActor.{CreateContext, GetA
 import com.stratio.sparkta.serving.api.actor.{StreamingActor, SupervisorContextActor}
 import com.stratio.sparkta.serving.core.models.StreamingContextStatusEnum._
 import com.stratio.sparkta.serving.core.models._
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.ConfigFactory
 import org.apache.spark.streaming.StreamingContext
 import org.junit.runner.RunWith
 import org.mockito.Matchers._
@@ -32,7 +34,6 @@ import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
-import java.io.File
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -137,5 +138,5 @@ object StandAloneContextActorSpec {
                zk {
                  connectionString ="localhost:2181"
                }
-               """
+                 """
 }

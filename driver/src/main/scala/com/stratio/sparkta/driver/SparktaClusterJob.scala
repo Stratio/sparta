@@ -26,6 +26,7 @@ import com.stratio.sparkta.driver.util.{HdfsUtils, PolicyUtils}
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
 import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder, SparktaConfig}
+import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.FileUtils
 
 import scala.util.{Failure, Success, Try}
@@ -35,21 +36,23 @@ object SparktaClusterJob {
   def main(args: Array[String]): Unit = {
 
     if (checkArgs(args)) {
+      log.info("############################## JOB SERVER ########################")
+
       val hadoopUserName = scala.util.Properties.envOrElse("HADOOP_USER_NAME", AppConstant.DefaultHadoopUserName)
       val hadoopConfDir = scala.util.Properties.envOrNone("HADOOP_CONF_DIR")
       val hdfsUtils = new HdfsUtils(hadoopUserName, hadoopConfDir)
       val pluginFiles = getPluginsFiles(hdfsUtils, args(1))
       val policy = getPolicyFromZookeeper(args)
-      val configSparkta = SparktaConfig.initConfig("sparkta")
-      SparkContextFactory.sparkClusterContextInstance(
-        Map("spark.app.name" -> s"${policy.name}"), pluginFiles)
-      val streamingContextService = new StreamingContextService(configSparkta)
-      val ssc = streamingContextService.clusterStreamingContext(policy, pluginFiles).get
+      val streamingContextService = new StreamingContextService
+      val ssc = streamingContextService.clusterStreamingContext(policy,
+        pluginFiles,
+        Map("spark.app.name" -> s"${policy.name}")
+      ).get
 
       log.info("Streaming Context created")
 
-      SparkContextFactory.sparkStreamingInstance.get.start
-      SparkContextFactory.sparkStreamingInstance.get.awaitTermination
+      ssc.start
+      ssc.awaitTermination
     } else log.warn("Invalid arguments")
   }
 
@@ -69,16 +72,15 @@ object SparktaClusterJob {
 
   def getPolicyFromZookeeper(args: Array[String]): AggregationPoliciesModel = {
     val policyName = args(0)
-    val mapConfig = Map("connectionString" -> args(2),
-      "connectionTimeout" -> args(3),
-      "sessionTimeout" -> args(4),
-      "retryAttempts" -> args(5),
-      "retryInterval" -> args(6))
 
-    log.info(s"Zookeeper Config received: ${mapConfig.toString}")
+    log.info("Zookeeper arguments: " + args(2))
+
+    val config = ConfigFactory.parseString(args(2))
+
+    log.info(s"Zookeeper Config received: ${config.toString}")
 
     Try({
-      val curatorFramework = CuratorFactoryHolder.getInstance(mapConfig).get
+      val curatorFramework = CuratorFactoryHolder.getInstance(config).get
       PolicyUtils.parseJson(new Predef.String(curatorFramework.getData.forPath(
         s"${AppConstant.PoliciesBasePath}/${policyName}")))
     }) match {
@@ -87,5 +89,5 @@ object SparktaClusterJob {
     }
   }
 
-  def checkArgs(args: Array[String]): Boolean = args.length == 7
+  def checkArgs(args: Array[String]): Boolean = args.length == 3
 }

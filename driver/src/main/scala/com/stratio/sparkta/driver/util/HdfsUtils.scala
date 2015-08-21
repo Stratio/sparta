@@ -27,15 +27,15 @@ import org.apache.hadoop.security.UserGroupInformation
 
 import scala.util.Try
 
-class HdfsUtils(userName :String, hadoopConfDir: Option[String]) {
+class HdfsUtils(userName: String, hadoopConfDir: Option[String]) {
 
   System.setProperty("HADOOP_USER_NAME", userName)
   private val ugi: UserGroupInformation =
     UserGroupInformation.createProxyUser(userName, UserGroupInformation.getLoginUser())
   private val conf = new Configuration()
-  if(hadoopConfDir.isDefined){
-    val confDir = if(hadoopConfDir.get.endsWith("/")) hadoopConfDir.get else hadoopConfDir.get + "/"
-    val hdfsCoreSitePath = new FileInputStream(new File( confDir + "core-site.xml"))
+  if (hadoopConfDir.isDefined) {
+    val confDir = if (hadoopConfDir.get.endsWith("/")) hadoopConfDir.get else hadoopConfDir.get + "/"
+    val hdfsCoreSitePath = new FileInputStream(new File(confDir + "core-site.xml"))
     val hdfsHDFSSitePath = new FileInputStream(new File(confDir + "hdfs-site.xml"))
 
     conf.addResource(hdfsCoreSitePath)
@@ -79,7 +79,7 @@ class HdfsUtils(userName :String, hadoopConfDir: Option[String]) {
     })
   }
 
-  def setOwner(path: Path, username: Option[String], group: Option[String]) : Unit= {
+  def setOwner(path: Path, username: Option[String], group: Option[String]): Unit = {
     ugi.doAs(new PrivilegedExceptionAction[Unit]() {
       def run: Unit = {
         dfs.setOwner(path, username.getOrElse(null), group.getOrElse(null))
@@ -89,7 +89,7 @@ class HdfsUtils(userName :String, hadoopConfDir: Option[String]) {
 
   def open(path: Path): FSDataInputStream = {
     ugi.doAs(new PrivilegedExceptionAction[FSDataInputStream]() {
-      def run : FSDataInputStream = {
+      def run: FSDataInputStream = {
         dfs.open(path)
       }
     })
@@ -150,5 +150,5 @@ class HdfsUtils(userName :String, hadoopConfDir: Option[String]) {
     })
   }
 
-  def deletePath(path: String) : Unit = getFiles(path).foreach(file => delete(file.getPath))
+  def deletePath(path: String): Unit = getFiles(path).foreach(file => delete(file.getPath))
 }

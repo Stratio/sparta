@@ -18,18 +18,8 @@ package com.stratio.sparkta.driver
 
 import java.io._
 import java.nio.file.{Files, Paths}
-import scala.annotation.tailrec
-import scala.collection.JavaConversions._
-import scala.util._
 
 import akka.event.slf4j.SLF4JLogging
-import org.apache.commons.io.FileUtils
-import org.apache.spark.SparkContext
-import org.apache.spark.sql.SQLContext
-import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.streaming.{Duration, StreamingContext}
-import org.reflections.Reflections
-
 import com.stratio.sparkta.aggregator.{Cube, CubeMaker}
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory.{SchemaFactory, SparkContextFactory}
@@ -38,6 +28,16 @@ import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, OperatorModel}
+import org.apache.commons.io.FileUtils
+import org.apache.spark.SparkContext
+import org.apache.spark.sql.SQLContext
+import org.apache.spark.streaming.dstream.DStream
+import org.apache.spark.streaming.{Duration, StreamingContext}
+import org.reflections.Reflections
+
+import scala.annotation.tailrec
+import scala.collection.JavaConversions._
+import scala.util._
 
 object SparktaJob extends SLF4JLogging {
 
@@ -237,5 +237,4 @@ object SparktaJob extends SLF4JLogging {
         new RawDataStorageService(sqlContext, apConfig.rawData.path, apConfig.rawData.partitionFormat)
       rawDataStorage.save(input)
     }
-
 }

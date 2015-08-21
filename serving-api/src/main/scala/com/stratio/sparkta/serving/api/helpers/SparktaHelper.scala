@@ -16,23 +16,19 @@
 
 package com.stratio.sparkta.serving.api.helpers
 
-import java.io.File
-import java.lang.reflect.Method
-import java.net.{URL, URLClassLoader}
-import scala.util.{Success, Try}
-
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import akka.routing.RoundRobinPool
-import com.typesafe.config.Config
-import spray.can.Http
-
 import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor._
 import com.stratio.sparkta.serving.core._
+import com.typesafe.config.Config
+import spray.can.Http
+
+import scala.util.{Success, Try}
 
 /**
  * Helper with common operations used to create a Sparkta context used to run the application.
@@ -111,7 +107,7 @@ object SparktaHelper extends SLF4JLogging {
                      configApi: Config,
                      sparktaHome: String,
                      appName: String): Unit = {
-    val streamingContextService = new StreamingContextService(configSparkta)
+    val streamingContextService = new StreamingContextService(Some(configSparkta))
     val curatorFramework = CuratorFactoryHolder.getInstance(configSparkta).get
     log.info("> Initializing akka actors")
     system = ActorSystem(appName)

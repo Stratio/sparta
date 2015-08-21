@@ -35,7 +35,7 @@ object AppConstant {
   final val ConfigAkka = "akka"
   final val ConfigSwagger = "swagger"
   final val ConfigZookeeper = "zk"
-  final val BaseZKPath      = "/stratio/sparkta"
+  final val BaseZKPath = "/stratio/sparkta"
   final val PoliciesBasePath = s"${AppConstant.BaseZKPath}/policies"
 
   //Hdfs Options
@@ -56,11 +56,9 @@ object AppConstant {
   //Mesos Options
   final val MesosMasterDispatchers = "masterDispatchers"
 
-
   //StandAlone
   final val StandAloneSupervise = "supervise"
   final val StandAloneMasterNode = "master"
-
 
   //Yarn
   final val YarnQueue = "queue"
