@@ -18,6 +18,7 @@
        vm.modifyInput = modifyInput;
        vm.createInputModal = createInputModal;
        vm.modifyInputModal = modifyInputModal;
+       vm.duplicateInput = duplicateInput;
        vm.deleteInputConfirm = deleteInputConfirm;
        vm.getPoliciesNames = getPoliciesNames;
        vm.setInputsId = setInputsId;
