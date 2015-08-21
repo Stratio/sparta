@@ -19,7 +19,7 @@ package com.stratio.sparkta.testat
 import java.io.{File, PrintStream}
 import java.net._
 import java.nio.channels.ServerSocketChannel
-import com.stratio.sparkta.serving.core.{SparktaConfig, MockSystem, AppConstant}
+import com.stratio.sparkta.serving.core._
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
