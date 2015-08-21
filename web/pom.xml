@@ -187,7 +187,7 @@
 			               </arguments>
 			           </configuration>
 			       </execution>
-			       <execution>
+			       <!--<execution>
 			           <id>ln node</id>
 			           <phase>generate-sources</phase>
 			           <goals>
@@ -234,7 +234,7 @@
 				               	<argument>${user.home}/sparkta/bower_components</argument>
 			               </arguments>
 			           </configuration>
-			       </execution>
+			       </execution>-->
 			   </executions>
 			</plugin>
 			<plugin>
