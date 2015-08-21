@@ -6,6 +6,7 @@
  *	INDEX
  *
  *	1 - Settings.........................All the configuration values needed
+ *		angular-forms
  *	2 - Stratio UI.......................The Stratio component UI library
  *		heading
  *	3 - Sparkta UI.......................The Sparkta component UI library
@@ -76,6 +77,10 @@ $colors: (
 $component-border-radius: 5px;
 $component-margin: 15px;
 
+
+
+// angular-forms
+$angular-forms--ng-invalid---border: 1px solid get-color(e3);
 
 
 
@@ -153,7 +158,7 @@ $c-button--danger--hover---color: get-color(g0);
 $c-input---border: 1px solid get-color(g3);
 $c-input---color: get-color(g8);
 $c-input---height: 28px;
-$c-input---border-radius: $component-border-radius;
+$c-input---border-radius: 0;
 $c-input---padding: 0 5px;
 
 $c-input--left-icon---padding: 0 0 0 35px;
