@@ -19,14 +19,14 @@
 		<div class="c-col c-col--6 c-col--vertical-centered">
 			<span class="c-info-text c-info-text--is-clickable"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text c-info-text__text--is-link">{{"_INPUT_WINDOW_NEW_HELP_" | translate}}</span></span>
 		</div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
-			<button class="c-button c-button--call-to-action-2" data-ng-click="ok()">
-				<span class="icon icon-circle-check"></span>
-				<span>{{"_INPUT_BUTTON_DELETE_" | translate}}</span>
-			</button>
-			
 			<button class="c-button c-button--call-to-action-2" data-ng-click="cancel()">
 				<span class="icon-circle-cross"></span>
 				<span>{{"_INPUT_BUTTON_CANCEL_" | translate}}</span>
+			</button>
+
+			<button class="c-button c-button--danger" data-ng-click="ok()">
+				<span class="icon icon-circle-check"></span>
+				<span>{{"_INPUT_BUTTON_DELETE_" | translate}}</span>
 			</button>
 		</div>
 	</div>
