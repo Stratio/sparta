@@ -246,7 +246,7 @@
             var modalInstance = $modal.open({
                 animation: true,
                 templateUrl: 'templates/components/st_delete_modal.tpl.html',
-                controller: 'ModalInstanceCtrl',
+                controller: 'DeleteFragmentModalCtrl',
                 size: size,
                 resolve: {
                     item: function () {
@@ -276,7 +276,7 @@
             var modalInstance = $modal.open({
                 animation: true,
                 templateUrl: 'templates/components/st_duplicate_modal.tpl.html',
-                controller: 'NewFragmentCtrl',
+                controller: 'DuplicateFragmentModalCtrl',
                 size: 'lg',
                 resolve: {
                     item: function () {
@@ -314,7 +314,7 @@
         };
     };
 
-    /*NEW FRAGMENT MODAL CONTROLLER*/
+    /*NEW & EDIT FRAGMENT MODAL CONTROLLER*/
     angular
         .module('webApp')
         .controller('NewFragmentModalCtrl', NewFragmentModalCtrl);
@@ -436,14 +436,14 @@
         };
     };
 
-    /*NEW INPUT & DELETE INPUT MODALS CONTROLLER */
+    /*DELETE INPUT MODALS CONTROLLER */
     angular
         .module('webApp')
-        .controller('ModalInstanceCtrl', ModalInstanceCtrl);
+        .controller('DeleteFragmentModalCtrl', DeleteFragmentModalCtrl);
 
-    ModalInstanceCtrl.$inject = ['$scope', '$modalInstance', 'item'];
+    DeleteFragmentModalCtrl.$inject = ['$scope', '$modalInstance', 'item'];
 
-    function ModalInstanceCtrl($scope, $modalInstance, item) {
+    function DeleteFragmentModalCtrl($scope, $modalInstance, item) {
         console.log('*********Modal');
         console.log(item);
 
@@ -462,11 +462,11 @@
     /*DUPLICATE INPUT MODAL CONTROLLER */
     angular
         .module('webApp')
-        .controller('NewFragmentCtrl', NewFragmentCtrl);
+        .controller('DuplicateFragmentModalCtrl', DuplicateFragmentModalCtrl);
 
-    NewFragmentCtrl.$inject = ['$scope', '$modalInstance', 'item'];
+    DuplicateFragmentModalCtrl.$inject = ['$scope', '$modalInstance', 'item'];
 
-    function NewFragmentCtrl($scope, $modalInstance, item) {
+    function DuplicateFragmentModalCtrl($scope, $modalInstance, item) {
         console.log('*********Modal');
         console.log(item);
 
