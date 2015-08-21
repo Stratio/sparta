@@ -1,5 +1,5 @@
 <div class="c-titlebar">
-	<span "c-titlebar__title">{{"_INPUT_WINDOW_NEW_TITLE_" | translate}}</span>
+	<span "c-titlebar__title" translate="{{vm.title}}"></span>
 	<i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" data-ng-click="vm.cancel()"></i>
 </div>
 
@@ -27,8 +27,8 @@
 				<span class="c-info-text c-info-text--is-clickable"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text c-info-text__text--is-link">{{"_INPUT_WINDOW_NEW_HELP_" | translate}}</span></span>
 			</div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
 				<button class="c-button c-button--call-to-action-1" data-ng-click="vm.ok()">
-					<span class="icon icon-circle-plus"></span>
-					<span>{{"_INPUT_BUTTON_NEW_" | translate}}</span>
+					<span class="icon {{vm.icon}}"></span>
+					<span translate="{{vm.title}}"></span>
 				</button>
 			</div>
 		</div>
