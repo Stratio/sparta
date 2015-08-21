@@ -321,9 +321,9 @@
         .module('webApp')
         .controller('NewFragmentModalCtrl', NewFragmentModalCtrl);
 
-    NewFragmentModalCtrl.$inject = ['$modalInstance', 'item'];
+    NewFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentDataService'];
 
-    function NewFragmentModalCtrl($modalInstance, item) {
+    function NewFragmentModalCtrl($modalInstance, item, FragmentDataService) {
         /*jshint validthis: true*/
         var vm = this;
 
@@ -337,6 +337,7 @@
         vm.dataSource.element = {};
         vm.templateInputsData = [];
         vm.properties = [];
+        vm.error = false;
 
         init();
 
@@ -426,13 +427,25 @@
 
         function ok() {
             if (vm.form.$valid){
+                checkInputname(vm.dataSource.fragmentType, vm.dataSource.name);
+            }
+        };
+
+        function checkInputname(inputType, inputName) {
+            var newFragment = FragmentDataService.GetFragmentByName(inputType, inputName);
+
+            newFragment
+            .then(function (result) {
+                vm.error = true;
+            },
+            function (error) {
                 var callBackData = {
                     'index': item.index,
                     'id': item.id,
                     'data': vm.dataSource,
                 };
-                $modalInstance.close(callBackData);
-            }
+               $modalInstance.close(callBackData);
+            });
         };
 
         function cancel() {
@@ -490,7 +503,7 @@
 
         function ok() {
             if (vm.form.$valid){
-                var inputExists = checkInputname(vm.inputData.fragmentType, vm.inputData.name);
+                checkInputname(vm.inputData.fragmentType, vm.inputData.name);
             }
         };
 
@@ -504,7 +517,7 @@
             function (error) {
                 $modalInstance.close(vm.inputData);
             });
-        }
+        };
 
         function cancel() {
             $modalInstance.dismiss('cancel');
