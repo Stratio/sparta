@@ -19,20 +19,20 @@ package com.stratio.sparkta.serving.api.helpers
 import java.io.File
 import java.lang.reflect.Method
 import java.net.{URL, URLClassLoader}
-import scala.util.Try
 
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import akka.routing.RoundRobinPool
-import com.typesafe.config.Config
-import spray.can.Http
-
 import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor._
 import com.stratio.sparkta.serving.core._
+import com.typesafe.config.Config
+import spray.can.Http
+
+import scala.util.Try
 
 /**
  * Helper with common operations used to create a Sparkta context used to run the application.
@@ -129,16 +129,13 @@ object SparktaHelper extends SLF4JLogging {
         new StreamingActor(streamingContextService, clusterConfig, supervisorContextActor))),
         AkkaConstant.StreamingActor)
     )
-    val controllerActor = system.actorOf(
-      Props(new ControllerActor(streamingContextService, curatorFramework, actors)), AkkaConstant.ControllerActor)
-    //    TODO: change this when swagger will be fixed.
-    //     val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)
-    //      .props(Props(new ControllerActor(streamingContextService, curatorFramework, actors))),
-    //      AkkaConstant.ControllerActor)
-    //    val swaggerActor = system.actorOf(Props(new SwaggerActor), AkkaConstant.SwaggerActor)
+    val swaggerActor = system.actorOf(
+      Props(new SwaggerActor(actors)), AkkaConstant.SwaggerActor)
+    val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)
+      .props(Props(new ControllerActor(streamingContextService, actors))), AkkaConstant.ControllerActor)
+
     IO(Http) ! Http.Bind(controllerActor, interface = configApi.getString("host"), port = configApi.getInt("port"))
-    //  IO(Http) ! Http.Bind(swaggerActor, interface = swaggerConfig.getString("host"), port =
-    // swaggerConfig.getInt("port"))
+    IO(Http) ! Http.Bind(swaggerActor, interface = swaggerConfig.getString("host"), port = swaggerConfig.getInt("port"))
     log.info("> Actors System UP!")
   }
 

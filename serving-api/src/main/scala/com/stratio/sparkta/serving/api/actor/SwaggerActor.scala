@@ -16,11 +16,13 @@
 
 package com.stratio.sparkta.serving.api.actor
 
-import scala.reflect.runtime.universe._
-
-import akka.actor.ActorContext
+import akka.actor.{ActorContext, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.gettyimages.spray.swagger.SwaggerHttpService
+import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.api.service.http._
+import com.stratio.sparkta.serving.core.models.{ErrorModel, StreamingContextStatusEnum}
 import com.wordnik.swagger.model.ApiInfo
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
@@ -29,13 +31,9 @@ import spray.http.StatusCodes
 import spray.routing._
 import spray.util.LoggingContext
 
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.api.actor.SwaggerActor._
-import com.stratio.sparkta.serving.api.constants.HttpConstant
-import com.stratio.sparkta.serving.api.service.http._
-import com.stratio.sparkta.serving.core.models.{ErrorModel, StreamingContextStatusEnum}
+import scala.reflect.runtime.universe._
 
-class SwaggerActor extends HttpServiceActor with SLF4JLogging {
+class SwaggerActor(actorsMap: Map[String, ActorRef]) extends HttpServiceActor with SLF4JLogging {
 
   override implicit def actorRefFactory: ActorContext = context
 
@@ -52,11 +50,12 @@ class SwaggerActor extends HttpServiceActor with SLF4JLogging {
         }
     }
 
-  def getRoutes: Route = swaggerService ~ swaggerUIroutes
+  val serviceRoutes = new ServiceRoutes(actorsMap, context)
 
-  def receive: Receive = {
-    case GetRoutes => new ResponseGetRoutes(getRoutes)
-  }
+  def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
+
+  def getRoutes: Route = swaggerService ~ swaggerUIroutes ~ serviceRoutes.fragmentRoute ~
+    serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~ serviceRoutes.templateRoute
 
   def swaggerUIroutes: Route =
     get {
@@ -94,10 +93,3 @@ class SwaggerActor extends HttpServiceActor with SLF4JLogging {
   }.routes
 }
 
-object SwaggerActor {
-
-  case object GetRoutes
-
-  case class ResponseGetRoutes(routes: Route)
-
-}
