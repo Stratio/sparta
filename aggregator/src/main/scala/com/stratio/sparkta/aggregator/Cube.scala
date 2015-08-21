@@ -17,6 +17,7 @@
 package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
+import scala.util.Try
 
 import org.apache.spark.HashPartitioner
 import org.apache.spark.streaming.Duration
@@ -94,7 +95,7 @@ case class Cube(name: String,
         updateFunction(values, state).map(result => (dimensionsKey, result))
       }
     }
-    val rememberPartitioner = SparktaConfig.mainConfig.getBoolean("spark.rememberPartitioner")
+    val rememberPartitioner = Try(SparktaConfig.mainConfig.getBoolean("spark.rememberPartitioner")).getOrElse(true)
     dimensionsValues.updateStateByKey(
       newUpdateFunc, new HashPartitioner(dimensionsValues.context.sparkContext.defaultParallelism), rememberPartitioner)
   }
