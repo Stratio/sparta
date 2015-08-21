@@ -64,11 +64,13 @@ object SparktaHelper extends SLF4JLogging {
    * @param sparktaHome with Sparkta's base path.
    * @return a list of loaded jars.
    */
-  def initJars(relativeJarPaths: Seq[String], sparktaHome: String): Seq[File] =
-    relativeJarPaths.flatMap(path => {
+  def initJars(relativeJarPaths: Seq[String], sparktaHome: String): Seq[File] = {
+    SparkContextFactory.jars = relativeJarPaths.flatMap(path => {
       log.info(s"> Loading jars from $sparktaHome/$path")
       findJarsByPathAndAddToClasspath(new File(sparktaHome, path))
     })
+    SparkContextFactory.jars
+  }
 
   /**
    * Initializes base configuration.
@@ -88,11 +90,6 @@ object SparktaHelper extends SLF4JLogging {
     ).getOrElse(None)
   }
 
-  def parseClusterConfig(config: Config): Option[Config] = config.getBoolean(AppConstant.ConfigCluster) match {
-    case true => Some(config.getConfig(AppConstant.ConfigSpark))
-    case _ => None
-  }
-
   /**
    * Initializes Sparkta's akka system running an embedded http server with the REST API.
    * @param configSparkta with Sparkta's global configuration.
@@ -108,7 +105,6 @@ object SparktaHelper extends SLF4JLogging {
     val curatorFramework = CuratorFactoryHolder.getInstance(configSparkta).get
     log.info("> Initializing akka actors")
     system = ActorSystem(appName)
-    val clusterConfig = parseClusterConfig(configSparkta)
     val akkaConfig = configSparkta.getConfig(AppConstant.ConfigAkka)
     val swaggerConfig = configSparkta.getConfig(AppConstant.ConfigSwagger)
     val controllerInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
@@ -126,7 +122,7 @@ object SparktaHelper extends SLF4JLogging {
       AkkaConstant.PolicyActor ->
         system.actorOf(Props(new PolicyActor(curatorFramework)), AkkaConstant.PolicyActor),
       AkkaConstant.StreamingActor -> system.actorOf(RoundRobinPool(streamingActorInstances).props(Props(
-        new StreamingActor(streamingContextService, clusterConfig, supervisorContextActor))),
+        new StreamingActor(streamingContextService, configSparkta, supervisorContextActor))),
         AkkaConstant.StreamingActor)
     )
     val controllerActor = system.actorOf(

@@ -16,14 +16,17 @@
 
 package com.stratio.sparkta.serving.api.actor
 
+import scala.collection.JavaConversions._
 import scala.concurrent.duration._
 import scala.sys.process._
 
 import akka.util.Timeout
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigRenderOptions}
 import org.json4s._
 import org.json4s.native.Serialization
 
+import com.stratio.sparkta.driver.dsl.PolicyDsl._
+import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor.StreamingActor._
 import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
@@ -43,10 +46,26 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
   def doInitSparktaContext: Unit = {
     log.debug("Init new cluster streamingContext with name " + policy.name)
 
-    val cmd = s"spark-submit " +
-      "--class com.stratio.sparkta.driver.SparktaJob " +
-      s"--master ${cfg.getString("spark.master")} " +
-      s"${cfg.getString("spark.extra")}} driver/target/driver-plugin.jar ${policy.name}"
+    val activeJars = policy.activeJarsAsString
+    val jars = {
+      if (activeJars.isRight) policy.activeJarFiles
+      else SparkContextFactory.jars
+    }
+    val sparkHome = sys.env("SPARK_HOME")
+    var str = ""
+    val params = cfg.getConfig("spark.yarn").entrySet.toSeq
+    for (param <- params) {
+      if (!param.getValue.unwrapped.toString.isEmpty) {
+        str += s"--${param.getKey} ${param.getValue.unwrapped.toString} "
+      }
+    }
+    val cmd = s"$sparkHome/bin/spark-submit " +
+      "--class com.stratio.sparkta.driver.SparktaClusterJob " +
+      s"--master ${cfg.getString("spark.spark.master")} " +
+      s"$str" +
+      s"--jars ${jars.mkString(",")} " +
+      s" driver/target/driver-plugin.jar ${policy.name} " +
+      s"${cfg.root.render(ConfigRenderOptions.concise)}"
     cmd.!!
   }
 }
