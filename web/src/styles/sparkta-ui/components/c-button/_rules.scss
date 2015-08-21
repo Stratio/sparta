@@ -12,30 +12,36 @@
 
 	&--call-to-action-1 {
 		background: $c-button--call-to-action-1---background;
+		border: $c-button--call-to-action-1---border;
 		color: $c-button--call-to-action-1---color;
 
 		&:hover {
 			background: $c-button--call-to-action-1--hover---background;
+			border: $c-button--call-to-action-1--hover---border;
 			color: $c-button--call-to-action-1--hover---color;
 		}
 	}
 
 	&--call-to-action-2 {
 		background: $c-button--call-to-action-2---background;
+		border: $c-button--call-to-action-2---border;
 		color: $c-button--call-to-action-2---color;
 
 		&:hover {
 			background: $c-button--call-to-action-2--hover---background;
+			border: $c-button--call-to-action-2--hover---border;
 			color: $c-button--call-to-action-2--hover---color;
 		}
 	}
 
 	&--call-to-action-3 {
 		background: $c-button--call-to-action-3---background;
+		border: $c-button--call-to-action-3---border;
 		color: $c-button--call-to-action-3---color;
 
 		&:hover {
 			background: $c-button--call-to-action-3--hover---background;
+			border: $c-button--call-to-action-3--hover---border;
 			color: $c-button--call-to-action-3--hover---color;
 		}
 	}
@@ -50,6 +56,19 @@
 			background: $c-button--call-to-action-4--hover---background;
 			border: $c-button--call-to-action-4--hover---border;
 			color: $c-button--call-to-action-4--hover---color;
+		}
+	}
+
+	&--danger {
+		background: $c-button--danger---background;
+		border: $c-button--danger---border;
+		box-sizing: border-box;
+		color: $c-button--danger---color;
+
+		&:hover {
+			background: $c-button--danger--hover---background;
+			border: $c-button--danger--hover---border;
+			color: $c-button--danger--hover---color;
 		}
 	}
 }
