@@ -12,10 +12,10 @@
       "name": "in-twitter",
       "type": "Twitter",
       "configuration": {
-        "consumerKey": "BuTtXWAOACTWafeyxHzr0mbeI",
-        "consumerSecret": "ZyjB40TDHA3s3JAsKy7X4gH72zlalONKhvf6JO3oMEP103SEJq",
-        "accessToken": "3190438006-Q1omUVbUtKqeCemixPqlAiSFlFeNsTjdOIbZVus",
-        "accessTokenSecret": "gyMF5bl2AjXWFdrOniLv5Cz8ITpDxhN4gP74WanlUBVwd"
+        "consumerKey": "****",
+        "consumerSecret": "****",
+        "accessToken": "****",
+        "accessTokenSecret": "****"
       }
     }
   ,
