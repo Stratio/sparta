@@ -25,6 +25,8 @@ import com.typesafe.config.Config
  */
 object SparktaConfig extends SLF4JLogging {
 
+  var mainConfig: Config = _
+
   /**
    * Initializes base configuration.
    * @param currentConfig if it is setted the function tries to load a node from a loaded config.
@@ -41,5 +43,11 @@ object SparktaConfig extends SLF4JLogging {
     }
     assert(configResult.isDefined, "Fatal Error: configuration can not be loaded: $node")
     configResult.get
+  }
+
+  def initMainConfig(currentConfig: Option[Config] = None,
+                     configFactory: ConfigFactory = new SparktaConfigFactory): Config = {
+    mainConfig = initConfig(AppConstant.ConfigAppName, currentConfig, configFactory)
+    mainConfig
   }
 }

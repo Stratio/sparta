@@ -171,7 +171,7 @@ In this example we use MongoDB as database::
       "name": "out-mongo",
       "type": "MongoDb",
       "configuration": {
-        "clientUri": "mongodb://localhost:27017",
+        "hosts": "localhost:27017",
         "dbName": "sparkta"
       }
     }
@@ -219,7 +219,7 @@ policy will look like this::
 
 Now let's send the policy to sparkta::
 
-      curl -H "Content-Type: application/json" http://localhost:9090 --data @examples/data-generators/twitter/ITwitter-OMongo.json
+      curl -H "Content-Type: application/json" http://localhost:9090/policyContext --data @examples/data-generators/twitter/ITwitter-OMongo.json
 
 When sparkta is running it's ready to work, open your twitter account and write some tweets within a minute, since we are going to aggregate by minute(You can see the full policy |twitter_policy_link|)
 

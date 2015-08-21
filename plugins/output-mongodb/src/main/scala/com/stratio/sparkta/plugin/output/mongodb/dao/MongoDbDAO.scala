@@ -17,19 +17,21 @@
 package com.stratio.sparkta.plugin.output.mongodb.dao
 
 import java.io.{Closeable, Serializable => JSerializable}
-import scala.collection.mutable
+import java.net.UnknownHostException
 
-import com.mongodb
+import scala.collection.mutable
+import scala.util.{Failure, Success, Try}
+
+import com.mongodb.{DBObject, MongoClientOptions, MongoClientURI => JMongoClientURI, WriteConcern, casbah}
+import com.mongodb.casbah.{MongoClient, MongoDB}
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.{Imports, MongoDBObject}
-import com.mongodb.casbah.{MongoClient, MongoClientURI, MongoDB}
-import com.mongodb.{DBObject, MongoClientOptions, MongoClientURI => JMongoClientURI, WriteConcern, casbah}
-import org.joda.time.DateTime
-
+import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp._
-import com.stratio.sparkta.sdk._
+import org.apache.spark.Logging
+import org.joda.time.DateTime
 
 trait MongoDbDAO extends Closeable {
 
@@ -40,7 +42,7 @@ trait MongoDbDAO extends Closeable {
   final val DefaultId = "_id"
   final val DefaultWriteConcern = casbah.WriteConcern.Unacknowledged
 
-  def mongoClientUri: String
+  def hosts: String
 
   def dbName: String
 
@@ -56,12 +58,12 @@ trait MongoDbDAO extends Closeable {
 
   def retrySleep: Int
 
-  protected def client: MongoClient = MongoDbDAO.client(mongoClientUri, connectionsPerHost, threadsAllowedB, false)
+  protected def client: MongoClient = MongoDbDAO.client(hosts, connectionsPerHost, threadsAllowedB, false)
 
-  protected def db(dbName: String): MongoDB = MongoDbDAO.db(mongoClientUri, dbName, connectionsPerHost, threadsAllowedB)
+  protected def db(dbName: String): MongoDB = MongoDbDAO.db(hosts, dbName, connectionsPerHost, threadsAllowedB)
 
   protected def reconnect(): MongoDB =
-    MongoDbDAO.reconnect(retrySleep, mongoClientUri, dbName, connectionsPerHost, threadsAllowedB)
+    MongoDbDAO.reconnect(retrySleep, hosts, dbName, connectionsPerHost, threadsAllowedB)
 
   protected def db(): MongoDB = db(dbName)
 
@@ -82,7 +84,7 @@ trait MongoDbDAO extends Closeable {
 
   protected def indexExists(collection: String, indexName: String): Boolean = {
     var indexExists = false
-    val itObjects = db.getCollection(collection).getIndexInfo().iterator()
+    val itObjects =  db.getCollection(collection).getIndexInfo().iterator()
 
     while (itObjects.hasNext && !indexExists) {
       val indexObject = itObjects.next()
@@ -204,7 +206,7 @@ trait MongoDbDAO extends Closeable {
   }
 }
 
-private object MongoDbDAO {
+private object MongoDbDAO extends Logging {
 
   private val clients: mutable.Map[String, MongoClient] = mutable.Map()
   private val dbs: mutable.Map[(String, String), MongoDB] = mutable.Map()
@@ -218,11 +220,26 @@ private object MongoDbDAO {
   private def client(mongoClientUri: String, connectionsPerHost: Integer,
                      threadsAllowedToBlock: Integer, force: Boolean): MongoClient = {
     if (!clients.contains(mongoClientUri) || force) {
-      clients.put(mongoClientUri, MongoClient(
-        new MongoClientURI(new JMongoClientURI(mongoClientUri, options(connectionsPerHost, threadsAllowedToBlock)))
-      ))
+      clients.put(mongoClientUri, mongoClient(mongoClientUri.split(","), connectionsPerHost, threadsAllowedToBlock))
     }
     clients(mongoClientUri)
+  }
+
+  private def mongoClient(addresses: Seq[String], connectionsPerHost: Integer, threadsAllowedToBlock: Integer):
+    MongoClient = {
+
+    val serverAddresses = addresses.flatMap(address => {
+      Try(new ServerAddress(address)) match {
+        case Success(serverAddress) => Some(serverAddress)
+        case Failure(e: IllegalArgumentException) =>
+          log.warn("EndPoint " + address + e.getMessage)
+          None
+        case Failure(e: UnknownHostException) =>
+          log.warn("Unable to connect to " + address + e.getMessage)
+          None
+      }
+    })
+    MongoClient(serverAddresses.toList, options(connectionsPerHost, threadsAllowedToBlock).build())
   }
 
   private def db(mongoClientUri: String, dbName: String,

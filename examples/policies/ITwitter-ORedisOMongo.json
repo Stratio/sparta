@@ -114,7 +114,7 @@
       "name": "out-mongo",
       "type": "MongoDb",
       "configuration": {
-        "clientUri": "mongodb://localhost:27017",
+        "hosts": "localhost",
         "dbName": "sparkta",
         "textIndexFields": "userLocation",
         "language": "english"

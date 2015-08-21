@@ -209,7 +209,7 @@ In this example we use MongoDB as database::
       "name": "out-mongo",
       "type": "MongoDb",
       "configuration": {
-        "clientUri": "mongodb://localhost:27017",
+        "hosts": "localhost:27017",
         "dbName": "sparkta"
       }
     }
@@ -345,7 +345,7 @@ where to write and how to transform the input data.
 
     sudo sh bin/run &> /tmp/sparkta.out &
 
-    curl -H "Content-Type: application/json" http://localhost:9090 --data @examples/data-generators/twitter-to-rabbit/twitter-policy.json
+    curl -H "Content-Type: application/json" http://localhost:9090/policyContext --data @examples/data-generators/twitter-to-rabbit/twitter-policy.json
 
 * There are two ways of testing it. Producing data directly into a RabbitMQ queue or producing data into a RabbitMQ
 queue through a direct exchange (https://www.rabbitmq.com/tutorials/tutorial-four-java.html)
@@ -395,7 +395,7 @@ where to write and how to transform the input data.
 
     sudo sh bin/run &> /tmp/sparkta.out &
 
-    curl -H "Content-Type: application/json" http://localhost:9090 --data @examples/data-generators/ecommerce/ecommerce-policy.json
+    curl -H "Content-Type: application/json" http://localhost:9090/policyContext --data @examples/data-generators/ecommerce/ecommerce-policy.json
 
 * And last we need to run the data generators in two different shells. This generators will generate random data and
 will write it into RabbitMQ. In a few seconds Sparkta will start to read the data and write it into elasticsearch::

@@ -45,9 +45,9 @@ class MongoDbOutput(keyName: String,
 
   override val isAutoCalculateId = true
 
-  override val mongoClientUri = properties.getString("clientUri", "mongodb://localhost:27017")
+  override val hosts = properties.getString("hosts", "localhost")
 
-  val mongoDbDataFrameConnection = mongoClientUri.replaceAll("mongodb://", "")
+  val mongoDbDataFrameConnection = hosts.replaceAll("mongodb://", "")
 
   override val dbName = properties.getString("dbName", "sparkta")
 
