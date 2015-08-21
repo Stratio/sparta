@@ -1,0 +1,36 @@
+%c-icon-radio__icon--selected {
+	background: $c-icon-radio__icon--selected---background;
+	color: $c-icon-radio__icon--selected---color;
+	font-weight: $c-icon-radio__icon--selected---font-weight;
+}
+
+@mixin c-icon-radio {
+	&__item {
+		display: none;
+
+		&:checked {
+			border: $c-icon-radio__item--checked---border;
+
+			& + .c-icon-radio__label .c-icon-radio__icon {
+				@extend %c-icon-radio__icon--selected;
+			}
+		}
+	}
+
+	&__icon {
+		background: $c-icon-radio__icon---background;
+		border: $c-icon-radio__icon---border;
+		border-radius: 100%;
+		color: $c-icon-radio__icon---color;
+		cursor: pointer;
+		padding: $c-icon-radio__icon---padding;
+
+		&:hover {
+			@extend %c-icon-radio__icon--selected;
+		}
+	}
+}
+
+.c-icon-radio {
+	@include c-icon-radio;
+}

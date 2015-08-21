@@ -5,9 +5,9 @@
         .module('webApp')
         .controller('NuevoCtrl', NuevoCtrl);
 
-    NuevoCtrl.$inject = ['ApiTest', 'FragmentDataService', '$filter', '$modal'];
+    NuevoCtrl.$inject = ['ApiTest', 'FragmentDataService', 'TemplateDataService', '$filter', '$modal'];
 
-    function NuevoCtrl(ApiTest, FragmentDataService, $filter, $modal) {
+    function NuevoCtrl(ApiTest, FragmentDataService, TemplateDataService, $filter, $modal) {
         /*jshint validthis: true*/
         var vm = this;
 
@@ -15,6 +15,7 @@
         vm.deleteInput = deleteInput;
         vm.getInputTypes = getInputTypes;
         vm.createInput = createInput;
+        vm.createInputModal = createInputModal;
         vm.deleteInputConfirm = deleteInputConfirm;
         vm.getPoliciesNames = getPoliciesNames;
         vm.setInputsId = setInputsId;
@@ -64,6 +65,28 @@
             inputSelected.name = newName;
 
             var newName = SetDuplicatetedInput('sm', inputSelected);
+       };
+
+        function createInput() {
+            var inputFragmentTemplate = TemplateDataService.GetNewFragmentTemplate('input');
+
+            inputFragmentTemplate.then(function (result) {
+                console.log('*********Controller');
+                console.log(result);
+
+                vm.createInputModal(result);
+            });
+        };
+
+        function createInput() {
+            var inputFragmentTemplate = TemplateDataService.GetNewFragmentTemplate('input');
+
+            inputFragmentTemplate.then(function (result) {
+                console.log('*********Controller');
+                console.log(result);
+
+                vm.createInputModal(result);
+            });
         };
 
         function setInputsId(inputsData) {
@@ -110,26 +133,44 @@
             }
         };
 
-        function createInput(size) {
+        function createInputModal(newInputTemplateData) {
             var modalInstance = $modal.open({
                 animation: true,
                 templateUrl: 'templates/inputs/input-details.tpl.html',
-                controller: 'ModalInstanceCtrl',
-                size: size,
+                controller: 'NewFragmentModalCtrl as vm',
+                size: 'lg',
                 resolve: {
                     item: function () {
-                        /*return $scope.items;*/
+                        return newInputTemplateData;
                     }
                 }
             });
-/*
-            modalInstance.result.then(function (selectedItem) {
-                $scope.selected = selectedItem;
-            }, function () {
-                console.log('Modal dismissed at: ' + new Date())
-                $log.info('Modal dismissed at: ' + new Date());
-            });
-*/
+
+            modalInstance.result.
+                then(function (newInputData) {
+                    console.log('*************** Controller back');
+                    console.log(newInputData);
+
+                    var newFragment = FragmentDataService.InsertFragment(newInputData);
+
+                    newFragment
+                        .then(function (result) {
+                            console.log('*********Fragment created');
+                            console.log(result);
+
+                            var newId = vm.inputsData[vm.inputsData.length-1].id + 1;
+                            newInputData.id = newId;
+
+                            vm.inputsData.push(newInputData);
+                        },
+                        function (error) {
+                            console.log(error);
+                            console.log('Modal dismissed at: ' + new Date())
+                        });
+
+                }, function () {
+                    console.log('Modal dismissed at: ' + new Date())
+                });
         };
 
         function deleteInputConfirm(size, input) {
@@ -201,6 +242,184 @@
                 function () {
                     console.log('Modal dismissed at: ' + new Date())
                 });
+        };
+    };
+    
+    /*NEW FRAGMENT MODAL CONTROLLER*/
+    angular
+        .module('webApp')
+        .controller('NewFragmentModalCtrl', NewFragmentModalCtrl);
+
+    NewFragmentModalCtrl.$inject = ['$modalInstance', 'item'];
+
+    function NewFragmentModalCtrl($modalInstance, item) {
+        /*jshint validthis: true*/
+        var vm = this;
+
+        vm.setProperties = setProperties;
+        vm.ok = ok;
+        vm.cancel = cancel;
+        vm.templateInputsData = [];
+        vm.initFragmentObecjt = initFragmentObecjt;
+        vm.setFragmentData = setFragmentData;
+        vm.dataSource = {};
+        init();
+
+        /////////////////////////////////
+
+        function init() {
+            console.log('*********Modal');
+            console.log(item);
+
+            vm.templateInputsData = item;
+            vm.initFragmentObecjt(vm.templateInputsData);
+
+            vm.selectedIndex = 0;
+        };
+
+        function initFragmentObecjt(fragmentData) {
+            /*Init fragment*/
+            vm.dataSource.fragmentType = 'input';
+            vm.dataSource.name = '';
+
+            /*Init fragment.element*/
+            vm.dataSource.element = {};
+            vm.dataSource.element.type = fragmentData[0].name;
+            vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
+
+            /*Init fragment.element.configuration*/
+            vm.dataSource.element.configuration = {};
+
+            vm.properties = [];
+
+            /*Create one properties model for each input type*/
+            for (var i=0; i<fragmentData.length; i++){
+                vm.properties[fragmentData[i].name]={};
+                for (var j=0; j<fragmentData[i].properties.length; j++) {
+                    if (fragmentData[i].properties[j].propertyId !== 'name' && fragmentData[i].properties[j].propertyId !== 'type'){
+                        vm.properties[fragmentData[i].name][fragmentData[i].properties[j].propertyId]='';
+                    }
+                }
+                /*Init properties*/
+                if (i === 0) {
+                    vm.dataSource.element.configuration = vm.properties[fragmentData[i].name];
+                }
+            }
+
+            vm.setFragmentData(0);
+        };
+
+        function setFragmentData(index) {
+            /*Set fragment*/
+            vm.dataSource.description = vm.templateInputsData[index].description.long;
+            vm.dataSource.shortDescription = vm.templateInputsData[index].description.short;
+            vm.dataSource.icon = vm.templateInputsData[index].icon.url;
+            vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
+        };
+
+        function setProperties(index, inputName) {
+            vm.selectedIndex = index;
+
+            vm.dataSource.element.configuration = vm.properties[inputName];
+            vm.setFragmentData(index);
+        };
+
+        function ok() {
+            console.log(vm.dataSource);
+            $modalInstance.close(vm.dataSource);
+        };
+
+        function cancel() {
+            $modalInstance.dismiss('cancel');
+        };
+    };
+
+    /*NEW FRAGMENT MODAL CONTROLLER*/
+    angular
+        .module('webApp')
+        .controller('NewFragmentModalCtrl', NewFragmentModalCtrl);
+
+    NewFragmentModalCtrl.$inject = ['$modalInstance', 'item'];
+
+    function NewFragmentModalCtrl($modalInstance, item) {
+        /*jshint validthis: true*/
+        var vm = this;
+
+        vm.setProperties = setProperties;
+        vm.ok = ok;
+        vm.cancel = cancel;
+        vm.templateInputsData = [];
+        vm.initFragmentObecjt = initFragmentObecjt;
+        vm.setFragmentData = setFragmentData;
+        vm.dataSource = {};
+        init();
+
+        /////////////////////////////////
+
+        function init() {
+            console.log('*********Modal');
+            console.log(item);
+
+            vm.templateInputsData = item;
+            vm.initFragmentObecjt(vm.templateInputsData);
+
+            vm.selectedIndex = 0;
+        };
+
+        function initFragmentObecjt(fragmentData) {
+            /*Init fragment*/
+            vm.dataSource.fragmentType = 'input';
+            vm.dataSource.name = '';
+
+            /*Init fragment.element*/
+            vm.dataSource.element = {};
+            vm.dataSource.element.type = fragmentData[0].name;
+            vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
+
+            /*Init fragment.element.configuration*/
+            vm.dataSource.element.configuration = {};
+
+            vm.properties = [];
+
+            /*Create one properties model for each input type*/
+            for (var i=0; i<fragmentData.length; i++){
+                vm.properties[fragmentData[i].name]={};
+                for (var j=0; j<fragmentData[i].properties.length; j++) {
+                    if (fragmentData[i].properties[j].propertyId !== 'name' && fragmentData[i].properties[j].propertyId !== 'type'){
+                        vm.properties[fragmentData[i].name][fragmentData[i].properties[j].propertyId]='';
+                    }
+                }
+                /*Init properties*/
+                if (i === 0) {
+                    vm.dataSource.element.configuration = vm.properties[fragmentData[i].name];
+                }
+            }
+
+            vm.setFragmentData(0);
+        };
+
+        function setFragmentData(index) {
+            /*Set fragment*/
+            vm.dataSource.description = vm.templateInputsData[index].description.long;
+            vm.dataSource.shortDescription = vm.templateInputsData[index].description.short;
+            vm.dataSource.icon = vm.templateInputsData[index].icon.url;
+            vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
+        };
+
+        function setProperties(index, inputName) {
+            vm.selectedIndex = index;
+
+            vm.dataSource.element.configuration = vm.properties[inputName];
+            vm.setFragmentData(index);
+        };
+
+        function ok() {
+            console.log(vm.dataSource);
+            $modalInstance.close(vm.dataSource);
+        };
+
+        function cancel() {
+            $modalInstance.dismiss('cancel');
         };
     };
 

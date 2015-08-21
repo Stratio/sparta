@@ -1,11 +1,17 @@
 @mixin c-input {
 	border: $c-input---border;
+	border-radius: $c-input---border-radius;
+	box-sizing: border-box;
 	color: $c-input---color;
 	height: $c-input---height;
-	border-radius: $c-input---border-radius;
+	padding: $c-input---padding;
 
 	&--left-icon {
 		padding: $c-input--left-icon---padding;
+	}
+
+	&--no-border {
+		border: 0;
 	}
 }
 

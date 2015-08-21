@@ -15,6 +15,7 @@
  *		c-searchbox
  *		c-combobox
  *		c-label
+ *		c-form-group
  *		c-form-control
  *		c-toolbar
  *		c-titlebar
@@ -25,6 +26,7 @@
  *		c-col
  *		c-row
  *		c-list
+ *		c-icon-radio
  *
  */
 
@@ -135,10 +137,11 @@ $c-button--call-to-action-4--hover---color: get-color(g5);
 
 
 // c-input
-$c-input---border: none;
+$c-input---border: 1px solid get-color(g3);
 $c-input---color: get-color(g8);
 $c-input---height: 28px;
 $c-input---border-radius: $component-border-radius;
+$c-input---padding: 0 5px;
 
 $c-input--left-icon---padding: 0 0 0 35px;
 
@@ -158,7 +161,12 @@ $c-label---margin: 0 $component-margin 0 0;
 
 
 
-//c-form-control
+// c-form-group
+$c-form__c-form-group---margin: 0 0 $component-margin;
+
+
+
+// c-form-control
 $c-form-control---margin: 0 0 0 $component-margin;
 
 
@@ -231,3 +239,14 @@ $c-list---line-height: get-line-height(large);
 
 
 
+//c-icon-radio
+$c-icon-radio__icon--selected---background: get-color(g0);
+$c-icon-radio__icon--selected---color: get-color(c1);
+$c-icon-radio__icon--selected---font-weight: get-font-weight(semibold);
+
+$c-icon-radio__item--checked---border: 1px solid get-color(c4);
+
+$c-icon-radio__icon---background: get-color(g4);
+$c-icon-radio__icon---border: 1px solid get-color(g4);
+$c-icon-radio__icon---color: get-color(c4);
+$c-icon-radio__icon---padding: .4em;

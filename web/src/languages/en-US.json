@@ -23,6 +23,8 @@
   	"_INPUT_WINDOW_NEW_TITLE_": "New input",
 	"_INPUT_WINDOW_NEW_HELP_": "Do you need help?",
 	"_INPUT_WINDOW_DELETE_TITLE_": "Delete input",
+	"_INPUT_WINDOW_FORM_NAME_": "Name",
+	"_INPUT_WINDOW_FORM_TYPE_": "Type",
 	"_ARE_YOU_COMPLETELY_SURE_": "Are you completely sure?",
 	"_INPUT_WINDOW_DELETE_MESSAGE_": "The following policies are going to be deleted",
 	"_INPUT_WINDOW_DELETE_MESSAGE2_": "If you do not want to delete these policies, please change first their inputs",
