@@ -246,7 +246,7 @@
             var modalInstance = $modal.open({
                 animation: true,
                 templateUrl: 'templates/components/st_delete_modal.tpl.html',
-                controller: 'ModalInstanceCtrl',
+                controller: 'DeleteFragmentModalCtrl',
                 size: size,
                 resolve: {
                     item: function () {
@@ -276,7 +276,7 @@
             var modalInstance = $modal.open({
                 animation: true,
                 templateUrl: 'templates/components/st_duplicate_modal.tpl.html',
-                controller: 'NewFragmentCtrl',
+                controller: 'DuplicateFragmentModalCtrl as vm',
                 size: 'lg',
                 resolve: {
                     item: function () {
@@ -314,7 +314,7 @@
         };
     };
 
-    /*NEW FRAGMENT MODAL CONTROLLER*/
+    /*NEW & EDIT FRAGMENT MODAL CONTROLLER*/
     angular
         .module('webApp')
         .controller('NewFragmentModalCtrl', NewFragmentModalCtrl);
@@ -421,12 +421,14 @@
         };
 
         function ok() {
-            var callBackData = {
-                'index': item.index,
-                'id': item.id,
-                'data': vm.dataSource,
-            };
-            $modalInstance.close(callBackData);
+            if (vm.form.$valid){
+                var callBackData = {
+                    'index': item.index,
+                    'id': item.id,
+                    'data': vm.dataSource,
+                };
+                $modalInstance.close(callBackData);
+            }
         };
 
         function cancel() {
@@ -434,14 +436,14 @@
         };
     };
 
-    /*NEW INPUT & DELETE INPUT MODALS CONTROLLER */
+    /*DELETE INPUT MODALS CONTROLLER */
     angular
         .module('webApp')
-        .controller('ModalInstanceCtrl', ModalInstanceCtrl);
+        .controller('DeleteFragmentModalCtrl', DeleteFragmentModalCtrl);
 
-    ModalInstanceCtrl.$inject = ['$scope', '$modalInstance', 'item'];
+    DeleteFragmentModalCtrl.$inject = ['$scope', '$modalInstance', 'item'];
 
-    function ModalInstanceCtrl($scope, $modalInstance, item) {
+    function DeleteFragmentModalCtrl($scope, $modalInstance, item) {
         console.log('*********Modal');
         console.log(item);
 
@@ -460,21 +462,47 @@
     /*DUPLICATE INPUT MODAL CONTROLLER */
     angular
         .module('webApp')
-        .controller('NewFragmentCtrl', NewFragmentCtrl);
+        .controller('DuplicateFragmentModalCtrl', DuplicateFragmentModalCtrl);
 
-    NewFragmentCtrl.$inject = ['$scope', '$modalInstance', 'item'];
+    DuplicateFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentDataService'];
 
-    function NewFragmentCtrl($scope, $modalInstance, item) {
-        console.log('*********Modal');
-        console.log(item);
+    function DuplicateFragmentModalCtrl($modalInstance, item, FragmentDataService) {
+        /*jshint validthis: true*/
+        var vm = this;
 
-        $scope.inputData = item;
+        vm.ok = ok;
+        vm.cancel = cancel;
+        vm.error = false;
 
-        $scope.ok = function () {
-            $modalInstance.close(item);
+        init();
+
+        ///////////////////////////////////////
+
+        function init () {
+            console.log('*********Modal');
+            console.log(item);
+            vm.inputData = item;
         };
 
-        $scope.cancel = function () {
+        function ok() {
+            if (vm.form.$valid){
+                var inputExists = checkInputname(vm.inputData.fragmentType, vm.inputData.name);
+            }
+        };
+
+        function checkInputname(inputType, inputName) {
+            var newFragment = FragmentDataService.GetFragmentByName(inputType, inputName);
+
+            newFragment
+            .then(function (result) {
+                vm.error = true;
+            },
+            function (error) {
+                $modalInstance.close(vm.inputData);
+            });
+        }
+
+        function cancel() {
             $modalInstance.dismiss('cancel');
         };
     };

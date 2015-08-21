@@ -5,9 +5,9 @@
        .module('webApp')
        .factory('FragmentDataService', FragmentDataService);
 
-   FragmentDataService.$inject = ['ApiPolicyService'];
+   FragmentDataService.$inject = ['ApiPolicyService', 'ApiFragmentDataService'];
 
-   function FragmentDataService(ApiPolicyService) {
+   function FragmentDataService(ApiPolicyService, ApiFragmentDataService) {
        return {
                GetPolicyByFragmentName: function(fragmentType, fragmentName) {
                    return ApiPolicyService.GetPolicyByFragmentName().get({'type': fragmentType ,'name': fragmentName}).$promise;
@@ -20,6 +20,9 @@
                },
                UpdateFragment: function(updatedFragmentData) {
                    return ApiPolicyService.UpdateFragment().update(updatedFragmentData).$promise;
+               },
+               GetFragmentByName: function(fragmentType, fragmentName) {
+                  return ApiFragmentDataService.GetFragmentByName().get({'type': fragmentType ,'name': fragmentName}).$promise;
                }
            };
    };
