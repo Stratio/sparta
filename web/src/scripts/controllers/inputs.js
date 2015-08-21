@@ -10,7 +10,7 @@
     function InputsCtrl(FragmentFactory, PolicyFactory, TemplateFactory, $filter, $modal) {
         /*jshint validthis: true*/
        var vm = this;
-
+ 
        vm.getInputs = getInputs;
        vm.deleteInput = deleteInput;
        vm.getInputTypes = getInputTypes;
