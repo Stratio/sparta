@@ -421,12 +421,14 @@
         };
 
         function ok() {
-            var callBackData = {
-                'index': item.index,
-                'id': item.id,
-                'data': vm.dataSource,
-            };
-            $modalInstance.close(callBackData);
+            if (vm.form.$valid){
+                var callBackData = {
+                    'index': item.index,
+                    'id': item.id,
+                    'data': vm.dataSource,
+                };
+                $modalInstance.close(callBackData);
+            }
         };
 
         function cancel() {
