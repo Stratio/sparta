@@ -139,10 +139,12 @@ kill_softly() {
 		return 1
 	else
 		# Send termination signals one by one
-		for sig in TERM HUP INT QUIT PIPE KILL; do
-			if ! kill -$sig "$@" > /dev/null 2>&1 ;
-				then
-				break
+		#for sig in TERM HUP INT QUIT PIPE KILL; do
+		for sig in TERM KILL; do
+			if kill -$sig "$@" > /dev/null 2>&1 ;	then
+				while kill -0 "$@" > /dev/null 2>&1; do
+					sleep 0.5
+				done
 			fi
 			sleep 2
 		done
@@ -223,18 +225,11 @@ case "${COMMAND}" in
 			exit 1
 		fi
 
-		# Check zookeeper is running
-		ZOOKEEPER_PROC=`ps -ef | grep zookeeper | grep -v grep`
-		if [ -z "$ZOOKEEPER_PROC" ]
-		then
-			echoError "Zookeeper is not running!"
-			exit 1
-		fi
-
 		# * * * Run the Play application * * *
 		LOG=$SPARKTA_LOGS/sparkta.out
+		LOG_ERR=$SPARKTA_LOGS/sparkta.err
 		cd $APP_DIR
-		PID=`sh $SCRIPT_TO_RUN > $LOG & echo $!`
+		PID=`sh $SCRIPT_TO_RUN >> $LOG 2>> $LOG_ERR & echo $!`
 
 		# Check if successfully started
 		if [ $? != 0 ]
