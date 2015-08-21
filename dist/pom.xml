@@ -105,7 +105,7 @@
                                 <id>engine</id>
                                 <configuration>
                                     <configurationSourceDirectory>${config.directory}</configurationSourceDirectory>
-                                    <configurationDirectory>:/etc/sds/sparkta/conf</configurationDirectory>
+                                    <configurationDirectory>:/etc/sds/sparkta</configurationDirectory>
                                     <copyConfigurationDirectory>true</copyConfigurationDirectory>
                                     <includeConfigurationDirectoryInClasspath>true
                                     </includeConfigurationDirectoryInClasspath>
@@ -196,8 +196,8 @@
                                     <to>/opt/sds/sparkta/repo</to>
                                 </copyDirectory>
                                 <copyDirectory>
-                                    <from>target/appassembler/:/etc/sds/sparkta/conf</from>
-                                    <to>/etc/sds/sparkta/conf</to>
+                                    <from>target/appassembler/:/etc/sds/sparkta</from>
+                                    <to>/etc/sds/sparkta</to>
                                 </copyDirectory>
                                 <copyDirectory>
                                     <from>target/appassembler/repo/sdk</from>
