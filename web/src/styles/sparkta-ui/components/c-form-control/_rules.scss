@@ -1,10 +1,11 @@
 @mixin c-form-control {
+	box-sizing: border-box;
 	display: inline-block;
-	margin: $c-form-control---margin;
+	padding: $c-form-control---padding;
 	position: relative;
 
 	&:first-child {
-		margin-left: 0;
+		padding-left: 0;
 	}
 
 	@include full-width();
