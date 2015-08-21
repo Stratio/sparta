@@ -17,10 +17,10 @@
 package com.stratio.sparkta.driver
 
 import com.stratio.sparkta.driver.SparktaJob._
-import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.util.PolicyUtils
+import com.stratio.sparkta.serving.core.factory.SparkContextFactory
 import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
-import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder, SparktaConfig}
+import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder}
 import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.util.{Failure, Success, Try}
@@ -39,8 +39,7 @@ object SparktaClusterJob {
 
   def getPolicyFromZookeeper(policyName: String): AggregationPoliciesModel = {
     Try({
-      val configSparkta = SparktaConfig.initConfig(AppConstant.ConfigAppName)
-      val curatorFramework = CuratorFactoryHolder.getInstance(configSparkta).get
+      val curatorFramework = CuratorFactoryHolder.getInstance()
 
       PolicyUtils.parseJson(new Predef.String(curatorFramework.getData.forPath(
         s"${AppConstant.PoliciesBasePath}/${policyName}")))

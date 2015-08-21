@@ -35,10 +35,12 @@
     </properties>
 
     <dependencies>
+	<!--
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
             <artifactId>web</artifactId>
         </dependency>
+	-->
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
             <artifactId>serving-core</artifactId>

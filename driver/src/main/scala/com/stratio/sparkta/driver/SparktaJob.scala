@@ -18,41 +18,65 @@ package com.stratio.sparkta.driver
 
 import java.io._
 import java.nio.file.{Files, Paths}
-import scala.annotation.tailrec
-import scala.collection.JavaConversions._
-import scala.util._
 
+import akka.actor.{ActorSystem, Props}
+import akka.pattern.ask
 import akka.event.slf4j.SLF4JLogging
+import akka.routing.RoundRobinPool
+import akka.util.Timeout
+import com.stratio.sparkta.aggregator.{Cube, CubeMaker}
+import com.stratio.sparkta.driver.constants.AkkaConstant
+import com.stratio.sparkta.driver.exception.DriverException
+import com.stratio.sparkta.driver.factory.SchemaFactory
+import com.stratio.sparkta.driver.service.RawDataStorageService
+import com.stratio.sparkta.sdk.TypeOp.TypeOp
+import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.serving.core.factory.SparkContextFactory
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, OperatorModel, PolicyStatusModel}
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{AddListener, Update}
+import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
+import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.FileUtils
+import org.apache.curator.framework.recipes.cache.NodeCache
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.reflections.Reflections
 
-import com.stratio.sparkta.aggregator.{Cube, CubeMaker}
-import com.stratio.sparkta.driver.exception.DriverException
-import com.stratio.sparkta.driver.factory.{SchemaFactory, SparkContextFactory}
-import com.stratio.sparkta.driver.service.RawDataStorageService
-import com.stratio.sparkta.sdk.TypeOp.TypeOp
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
-import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, OperatorModel}
+import scala.annotation.tailrec
+import scala.collection.JavaConversions._
+import scala.util._
+import scala.concurrent.duration._
 
 object SparktaJob extends SLF4JLogging {
 
   val baseJars = Seq("driver-plugin.jar", "aggregator-plugin.jar", "sdk-plugin.jar")
 
+  implicit var system: ActorSystem = _
+
   def runSparktaJob(sc: SparkContext, apConfig: AggregationPoliciesModel): Any = {
+    implicit val timeout: Timeout = Timeout(3.seconds)
+    system = ActorSystem(apConfig.name)
+    val policyStatusActor = system.actorOf(Props[PolicyStatusActor], AkkaConstant.PolicyStatusActor)
+
+    policyStatusActor ? AddListener(apConfig.name, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
+      if (policyStatus.status equals PolicyStatusEnum.Stopping){
+        SparkContextFactory.destroySparkStreamingContext
+        nodeCache.close
+        policyStatusActor ? Update(PolicyStatusModel(apConfig.name, PolicyStatusEnum.Stopped))
+      }
+    })
 
     val checkpointPolicyPath = apConfig.checkpointPath.concat(File.separator).concat(apConfig.name)
     deletePreviousCheckpointPath(checkpointPolicyPath)
 
     val ssc = SparkContextFactory.sparkStreamingInstance(
-      new Duration(apConfig.sparkStreamingWindow), checkpointPolicyPath).get
+    new Duration(apConfig.sparkStreamingWindow), checkpointPolicyPath).get
     val input = SparktaJob.input(apConfig, ssc)
     val parsers =
-      SparktaJob.parsers(apConfig).sortWith((parser1, parser2) => parser1.getOrder < parser2.getOrder)
+    SparktaJob.parsers(apConfig).sortWith((parser1, parser2) => parser1.getOrder < parser2.getOrder)
     val cubes = SparktaJob.cubes(apConfig)
 
     val operatorsKeyOperation: Option[Map[String, (WriteOp, TypeOp)]] = {
@@ -61,13 +85,13 @@ object SparktaJob extends SLF4JLogging {
     }
 
     val outputsSchemaConfig: Seq[(String, Map[String, String])] = apConfig.outputs.map(o =>
-      (o.name, Map(
-        Output.Multiplexer -> Try(o.configuration.get(Output.Multiplexer).get.string)
+        (o.name, Map(
+            Output.Multiplexer -> Try(o.configuration.get(Output.Multiplexer).get.string)
           .getOrElse(Output.DefaultMultiplexer),
-        Output.FixedAggregation ->
-          Try(o.configuration.get(Output.FixedAggregation).get.string.split(Output.FixedAggregationSeparator).head)
-            .getOrElse("")
-      )))
+            Output.FixedAggregation ->
+              Try(o.configuration.get(Output.FixedAggregation).get.string.split(Output.FixedAggregationSeparator).head)
+          .getOrElse("")
+          )))
 
     val bcCubeOperatorSchema: Option[Seq[TableSchema]] = {
       val cubeOpSchema = SchemaFactory.cubesOperatorsSchemas(cubes, outputsSchemaConfig)

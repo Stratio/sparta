@@ -16,6 +16,9 @@
 
 package com.stratio.sparkta.serving.api.actor
 
+import akka.actor.ActorRef
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
+
 import scala.concurrent.duration._
 import scala.sys.process._
 
@@ -25,19 +28,19 @@ import org.json4s._
 import org.json4s.native.Serialization
 
 import com.stratio.sparkta.driver.service.StreamingContextService
-import com.stratio.sparkta.serving.api.actor.StreamingActor._
+import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
 
-class ClusterContextActor(policy: AggregationPoliciesModel,
-                          streamingContextService: StreamingContextService,
-                          cfg: Config) extends InstrumentedActor {
+class ClusterSparkStreamingContextActor(policy: AggregationPoliciesModel,
+                                        config: Config,
+                                        policyStatusActor: ActorRef) extends InstrumentedActor{
 
   implicit val timeout: Timeout = Timeout(90.seconds)
   implicit val json4sJacksonFormats = DefaultFormats
   implicit val formats = Serialization.formats(NoTypeHints)
 
   override def receive: PartialFunction[Any, Unit] = {
-    case InitSparktaContext => doInitSparktaContext
+    case Start => doInitSparktaContext
   }
 
   def doInitSparktaContext: Unit = {
@@ -45,8 +48,8 @@ class ClusterContextActor(policy: AggregationPoliciesModel,
 
     val cmd = s"spark-submit " +
       "--class com.stratio.sparkta.driver.SparktaJob " +
-      s"--master ${cfg.getString("spark.master")} " +
-      s"${cfg.getString("spark.extra")}} driver/target/driver-plugin.jar ${policy.name}"
+      s"--master ${config.getString("spark.master")} " +
+      s"${config.getString("spark.extra")}} driver/target/driver-plugin.jar ${policy.name}"
     cmd.!!
   }
 }

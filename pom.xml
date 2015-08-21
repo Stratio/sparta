@@ -42,7 +42,7 @@
         <module>plugins</module>
         <module>serving-api</module>
         <module>doc</module>
-        <module>web</module>
+	<!-- <module>web</module> -->
         <module>dist</module>
     </modules>
 

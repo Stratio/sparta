@@ -40,9 +40,9 @@ class CuratorFactoryHolderIT extends FlatSpec with Matchers with BeforeAndAfter 
     zkTestServer.start()
 
     val instance = CuratorFactoryHolder.getInstance(CuratorFactoryHolderIT.basicConfig)
-    Option(instance.get.checkExists().forPath("/test")) match {
+    Option(instance.checkExists().forPath("/test")) match {
       case eb: ExistsBuilder =>
-        instance.get.delete().deletingChildrenIfNeeded().forPath(CuratorFactoryHolderIT.PathTestNode)
+        instance.delete().deletingChildrenIfNeeded().forPath(CuratorFactoryHolderIT.PathTestNode)
       case None =>
         log.debug("Test node not created. It is not necessary to delete it.")
     }
@@ -65,9 +65,9 @@ class CuratorFactoryHolderIT extends FlatSpec with Matchers with BeforeAndAfter 
     Given(s"ZK configuration: $CuratorFactoryHolderIT.configString")
     val instance = CuratorFactoryHolder.getInstance(CuratorFactoryHolderIT.basicConfig)
     When("creates a ephimeral node in ZK server")
-    instance.get.create().withMode(CreateMode.EPHEMERAL).forPath(CuratorFactoryHolderIT.PathTestNode)
+    instance.create().withMode(CreateMode.EPHEMERAL).forPath(CuratorFactoryHolderIT.PathTestNode)
     Then("the created node must be exists when it is searched")
-    assert(Option(instance.get.checkExists().forPath(CuratorFactoryHolderIT.PathTestNode)) != None)
+    assert(Option(instance.checkExists().forPath(CuratorFactoryHolderIT.PathTestNode)) != None)
   }
 
   it must "reuse  the same connection" in {

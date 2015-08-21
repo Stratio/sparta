@@ -17,44 +17,25 @@
 package com.stratio.sparkta.serving.api.service.http
 
 import akka.pattern.ask
-import com.wordnik.swagger.annotations._
-import spray.routing._
-
 import com.stratio.sparkta.driver.constants.AkkaConstant
-import com.stratio.sparkta.serving.api.actor.StreamingActor._
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.api.helpers.PolicyHelper
 import com.stratio.sparkta.serving.core.models._
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{FindAll, Response, Update}
+import com.wordnik.swagger.annotations._
+import spray.http.{HttpResponse, StatusCodes}
+import spray.routing._
+
+import scala.concurrent.Await
+import scala.util.{Failure, Success}
+import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 
 @Api(value = HttpConstant.PolicyContextPath, description = "Operations about policy contexts.", position = 0)
 trait PolicyContextHttpService extends BaseHttpService {
 
   case class Result(message: String, desc: Option[String] = None)
 
-  override def routes: Route = find ~ findAll ~ create ~ remove
-
-  @ApiOperation(value = "Gets a policy context from its name.",
-    notes = "Returns the status of a policy",
-    httpMethod = "GET",
-    response = classOf[StreamingContextStatus])
-  @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "name",
-      value = "policy name",
-      dataType = "String",
-      required = true)))
-  @ApiResponses(Array(
-    new ApiResponse(code = HttpConstant.NotFound,
-      message = HttpConstant.NotFoundMessage)
-  ))
-  def find: Route = {
-    pathPrefix(HttpConstant.PolicyContextPath / Segment) { name =>
-      get {
-        complete {
-          supervisor.ask(new GetContextStatus(name)).mapTo[StreamingContextStatus]
-        }
-      }
-    }
-  }
+  override def routes: Route = findAll ~ update ~ create
 
   @ApiOperation(value = "Finds all policy contexts",
     notes = "Returns a policies list",
@@ -68,11 +49,41 @@ trait PolicyContextHttpService extends BaseHttpService {
     path(HttpConstant.PolicyContextPath) {
       get {
         complete {
-          supervisor.ask(GetAllContextStatus).mapTo[List[StreamingContextStatus]]
+          val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
+          val future = policyStatusActor ? FindAll
+          Await.result(future, timeout.duration) match {
+            case Response(Failure(exception)) => throw exception
+            case Response(Success(policyStatuses)) => policyStatuses
+          }
+
         }
       }
     }
   }
+
+  @ApiOperation(value = "Updates a policy status.",
+    notes = "Updates a policy status.",
+    httpMethod = "PUT")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "policy status",
+      value = "policy json",
+      dataType = "PolicyStatusModel",
+      required = true,
+      paramType = "body")))
+  def update: Route = {
+    path(HttpConstant.PolicyContextPath) {
+      put {
+        entity(as[PolicyStatusModel]) { policyStatus =>
+          complete {
+            val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
+            policyStatusActor ? Update(policyStatus)
+            HttpResponse(StatusCodes.Created)
+          }
+        }
+      }
+    }
+  }
+
 
   @ApiOperation(value = "Creates a policy context.",
     notes = "Returns the result",
@@ -96,7 +107,7 @@ trait PolicyContextHttpService extends BaseHttpService {
           val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
           validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
             complete {
-              supervisor ! new CreateContext(parsedP)
+              supervisor ! new Create(parsedP)
               new Result("Creating new context with name " + p.name)
             }
           }
@@ -105,25 +116,4 @@ trait PolicyContextHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value = "Deletes a policy context by its name",
-    notes = "Returns the status of the policy",
-    httpMethod = "DELETE",
-    response = classOf[StreamingContextStatus])
-  @ApiImplicitParams(Array(new ApiImplicitParam(
-    name = "name",
-    value = "policy name",
-    dataType = "String",
-    required = true)))
-  @ApiResponses(
-    Array(new ApiResponse(code = HttpConstant.NotFound,
-      message = HttpConstant.NotFoundMessage)))
-  def remove: Route = {
-    pathPrefix(HttpConstant.PolicyContextPath / Segment) { name =>
-      delete {
-        complete {
-          supervisor.ask(new DeleteContext(name)).mapTo[StreamingContextStatus]
-        }
-      }
-    }
-  }
 }

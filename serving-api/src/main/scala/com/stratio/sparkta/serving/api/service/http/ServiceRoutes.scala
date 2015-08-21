@@ -49,7 +49,8 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
   val policyContextRoute: Route = new PolicyContextHttpService {
     implicit val actors = actorsMap
     override val supervisor =
-      if (actorsMap.contains(AkkaConstant.StreamingActor)) actorsMap.get(AkkaConstant.StreamingActor).get
+      if (actorsMap.contains(AkkaConstant.SparkStreamingContextActor))
+        actorsMap.get(AkkaConstant.SparkStreamingContextActor).get
       else context.self
 
     override implicit def actorRefFactory: ActorRefFactory = context
