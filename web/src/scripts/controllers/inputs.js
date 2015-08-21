@@ -5,15 +5,9 @@
         .module('webApp')
         .controller('InputsCtrl', InputsCtrl);
 
-<<<<<<< HEAD
     InputsCtrl.$inject = ['FragmentFactory', 'PolicyFactory', 'TemplateFactory', '$filter', '$modal'];
 
     function InputsCtrl(FragmentFactory, PolicyFactory, TemplateFactory, $filter, $modal) {
-=======
-    InputsCtrl.$inject = ['API', 'FragmentDataService', 'TemplateDataService', '$filter', '$modal'];
-
-    function InputsCtrl(API, FragmentDataService, TemplateDataService, $filter, $modal) {
->>>>>>> refactor(API Service): change the name of the file and the service
         /*jshint validthis: true*/
        var vm = this;
 
@@ -40,13 +34,9 @@
         };
 
         function getInputs() {
-<<<<<<< HEAD
             var inputList = FragmentFactory.GetFragments("input");
 
             inputList.then(function (result) {
-=======
-            API.get().$promise.then(function (result) {
->>>>>>> refactor(API Service): change the name of the file and the service
                 vm.inputsData = vm.setInputsId(result);
                 vm.getInputTypes(result);
             });
