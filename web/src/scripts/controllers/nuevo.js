@@ -81,6 +81,7 @@
                     'inputDataTemplate': result,
                     'texts': {
                         'title': '_INPUT_WINDOW_NEW_TITLE_',
+                        'button': '_INPUT_WINDOW_NEW_BUTTON_',
                         'button_icon': 'icon-circle-plus'
                     }
                 };
@@ -109,6 +110,7 @@
                    'inputDataTemplate': result,
                    'texts': {
                         'title': '_INPUT_WINDOW_MODIFY_TITLE_',
+                        'button': '_INPUT_WINDOW_MODIFY_BUTTON_',
                         'button_icon': 'icon-circle-check'
                     }
                };
@@ -363,8 +365,10 @@
         };
 
         function setTexts(texts) {
-            vm.title = texts.title;
-            vm.icon = texts.button_icon;
+            vm.modalTexts = {};
+            vm.modalTexts.title = texts.title;
+            vm.modalTexts.button = texts.button;
+            vm.modalTexts.icon = texts.button_icon;
         }
 
         function initFragmentObecjt(fragmentData) {
