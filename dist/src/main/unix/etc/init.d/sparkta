@@ -139,7 +139,6 @@ kill_softly() {
 		return 1
 	else
 		# Send termination signals one by one
-		#for sig in TERM HUP INT QUIT PIPE KILL; do
 		for sig in TERM KILL; do
 			if kill -$sig "$@" > /dev/null 2>&1 ;	then
 				while kill -0 "$@" > /dev/null 2>&1; do
