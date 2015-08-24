@@ -330,7 +330,7 @@
         vm.setProperties = setProperties;
         vm.ok = ok;
         vm.cancel = cancel;
-        vm.initFragmentObecjt = initFragmentObecjt;
+        vm.initFragmentObject = initFragmentObject;
         vm.setFragmentData = setFragmentData;
         vm.createTypeModels = createTypeModels;
         vm.dataSource = {};
@@ -359,7 +359,7 @@
             }
             else {
                 vm.templateInputsData = item.inputDataTemplate;
-                vm.initFragmentObecjt(vm.templateInputsData);
+                vm.initFragmentObject(vm.templateInputsData);
                 vm.createTypeModels(vm.templateInputsData);
                 vm.selectedIndex = 0;
             }
@@ -372,7 +372,7 @@
             vm.modalTexts.icon = texts.button_icon;
         }
 
-        function initFragmentObecjt(fragmentData) {
+        function initFragmentObject(fragmentData) {
             /*Init fragment*/
             vm.dataSource.fragmentType = 'input';
             vm.dataSource.name = '';
