@@ -204,7 +204,7 @@
                });
             };
 
-        function modifyInputModal(modidyInputData) {
+        function modifyInputModal(modifyInputData) {
            var modalInstance = $modal.open({
                animation: true,
                templateUrl: 'templates/inputs/input-details.tpl.html',
@@ -212,7 +212,7 @@
                size: 'lg',
                resolve: {
                    item: function () {
-                       return modidyInputData;
+                       return modifyInputData;
                    }
                }
            });
@@ -427,11 +427,11 @@
 
         function ok() {
             if (vm.form.$valid){
-                checkInputname(vm.dataSource.fragmentType, vm.dataSource.name);
+                checkInputName(vm.dataSource.fragmentType, vm.dataSource.name);
             }
         };
 
-        function checkInputname(inputType, inputName) {
+        function checkInputName(inputType, inputName) {
             var newFragment = FragmentDataService.GetFragmentByName(inputType, inputName);
 
             newFragment
@@ -503,11 +503,11 @@
 
         function ok() {
             if (vm.form.$valid){
-                checkInputname(vm.inputData.fragmentType, vm.inputData.name);
+                checkInputName(vm.inputData.fragmentType, vm.inputData.name);
             }
         };
 
-        function checkInputname(inputType, inputName) {
+        function checkInputName(inputType, inputName) {
             var newFragment = FragmentDataService.GetFragmentByName(inputType, inputName);
 
             newFragment
