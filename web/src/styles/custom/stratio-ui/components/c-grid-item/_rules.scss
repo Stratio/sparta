@@ -1,0 +1,14 @@
+@mixin c-grid-item {
+	box-sizing: border-box;
+	position: relative;
+
+	&__info-icon {
+		color: $c-grid-item__info-icon---color;
+		display: inline-block;
+		margin: $c-grid-item__info-icon---margin;
+	}
+}
+
+.c-grid-item {
+	@include c-grid-item;
+}

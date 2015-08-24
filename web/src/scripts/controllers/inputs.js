@@ -3,11 +3,11 @@
 
     angular
         .module('webApp')
-        .controller('NuevoCtrl', NuevoCtrl);
+        .controller('InputsCtrl', InputsCtrl);
 
-    NuevoCtrl.$inject = ['ApiTest', 'FragmentDataService', 'TemplateDataService', '$filter', '$modal'];
+    InputsCtrl.$inject = ['API', 'FragmentDataService', 'TemplateDataService', '$filter', '$modal'];
 
-    function NuevoCtrl(ApiTest, FragmentDataService, TemplateDataService, $filter, $modal) {
+    function InputsCtrl(API, FragmentDataService, TemplateDataService, $filter, $modal) {
         /*jshint validthis: true*/
        var vm = this;
 
@@ -34,7 +34,7 @@
         };
 
         function getInputs() {
-            ApiTest.get().$promise.then(function (result) {
+            API.get().$promise.then(function (result) {
                 vm.inputsData = vm.setInputsId(result);
                 vm.getInputTypes(result);
             });
@@ -204,7 +204,7 @@
                });
             };
 
-        function modifyInputModal(modidyInputData) {
+        function modifyInputModal(modifyInputData) {
            var modalInstance = $modal.open({
                animation: true,
                templateUrl: 'templates/inputs/input-details.tpl.html',
@@ -212,7 +212,7 @@
                size: 'lg',
                resolve: {
                    item: function () {
-                       return modidyInputData;
+                       return modifyInputData;
                    }
                }
            });
@@ -330,7 +330,7 @@
         vm.setProperties = setProperties;
         vm.ok = ok;
         vm.cancel = cancel;
-        vm.initFragmentObecjt = initFragmentObecjt;
+        vm.initFragmentObject = initFragmentObject;
         vm.setFragmentData = setFragmentData;
         vm.createTypeModels = createTypeModels;
         vm.dataSource = {};
@@ -359,7 +359,7 @@
             }
             else {
                 vm.templateInputsData = item.inputDataTemplate;
-                vm.initFragmentObecjt(vm.templateInputsData);
+                vm.initFragmentObject(vm.templateInputsData);
                 vm.createTypeModels(vm.templateInputsData);
                 vm.selectedIndex = 0;
             }
@@ -372,7 +372,7 @@
             vm.modalTexts.icon = texts.button_icon;
         }
 
-        function initFragmentObecjt(fragmentData) {
+        function initFragmentObject(fragmentData) {
             /*Init fragment*/
             vm.dataSource.fragmentType = 'input';
             vm.dataSource.name = '';
@@ -427,11 +427,11 @@
 
         function ok() {
             if (vm.form.$valid){
-                checkInputname(vm.dataSource.fragmentType, vm.dataSource.name);
+                checkInputName(vm.dataSource.fragmentType, vm.dataSource.name);
             }
         };
 
-        function checkInputname(inputType, inputName) {
+        function checkInputName(inputType, inputName) {
             var newFragment = FragmentDataService.GetFragmentByName(inputType, inputName);
 
             newFragment
@@ -503,11 +503,11 @@
 
         function ok() {
             if (vm.form.$valid){
-                checkInputname(vm.inputData.fragmentType, vm.inputData.name);
+                checkInputName(vm.inputData.fragmentType, vm.inputData.name);
             }
         };
 
-        function checkInputname(inputType, inputName) {
+        function checkInputName(inputType, inputName) {
             var newFragment = FragmentDataService.GetFragmentByName(inputType, inputName);
 
             newFragment
