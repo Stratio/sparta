@@ -5,9 +5,9 @@
         .module('webApp')
         .controller('InputsCtrl', InputsCtrl);
 
-    InputsCtrl.$inject = ['ApiTest', 'FragmentDataService', 'TemplateDataService', '$filter', '$modal'];
+    InputsCtrl.$inject = ['API', 'FragmentDataService', 'TemplateDataService', '$filter', '$modal'];
 
-    function InputsCtrl(ApiTest, FragmentDataService, TemplateDataService, $filter, $modal) {
+    function InputsCtrl(API, FragmentDataService, TemplateDataService, $filter, $modal) {
         /*jshint validthis: true*/
        var vm = this;
 
@@ -34,7 +34,7 @@
         };
 
         function getInputs() {
-            ApiTest.get().$promise.then(function (result) {
+            API.get().$promise.then(function (result) {
                 vm.inputsData = vm.setInputsId(result);
                 vm.getInputTypes(result);
             });

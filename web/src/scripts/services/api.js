@@ -1,7 +1,7 @@
 'use strict';
 
     angular.module('webApp')
-    .service('ApiTest', ['$resource', function ApiDownloadModules($resource) {
+    .service('API', ['$resource', function ApiDownloadModules($resource) {
 
         /*var url = '/policy/all';*/
         /*var url = '/template/inputs';*/
