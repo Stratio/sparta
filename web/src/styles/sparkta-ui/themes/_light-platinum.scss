@@ -9,6 +9,7 @@
  *		angular-forms
  *	2 - Stratio UI.......................The Stratio component UI library
  *		heading
+ *		c-grid-item
  *	3 - Sparkta UI.......................The Sparkta component UI library
  *		c-line-separator
  *		c-button
@@ -94,6 +95,12 @@ $angular-forms--ng-invalid---border: 1px solid get-color(e3);
 
 // heading
 $heading---margin: 0;
+
+
+
+// c-grid-item
+$c-grid-item__info-icon---color: get-color(c1) !default;
+$c-grid-item__info-icon---margin: 0 .5em .5em 0 !default;
 
 
 

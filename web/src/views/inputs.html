@@ -21,8 +21,8 @@
 			</div>
 		</div>
 
-		<ul br-ba-container="">
-			<li data-ng-repeat="input in filteredInputsData = (inputs.inputsData | filter:inputs.filters:strict)" br-ba-item="{index:$index, total:filteredInputsData.length}">
+		<ul br-ba-container="c-grid">
+			<li class="c-grid-item" data-ng-repeat="input in filteredInputsData = (inputs.inputsData | filter:inputs.filters:strict)" br-ba-item="{index:$index, total:filteredInputsData.length}">
 				<header class="title">
 					<span class="name">{{input.name}}</span>
 
@@ -45,14 +45,13 @@
 				<div class="c-row o-media">
 					<div class="o-media__img">
 						<i class="c-icon c-icon--xxxlarge icon-{{input.element.type | lowercase}} o-media__img__item" alt="{{input.element.type}}"></i>
-						<!--<img data-ng-src="images/logo_{{input.icon}}" alt="{{input.element.type}}">-->
 					</div>
 
 					<span class="o-media__bd">{{input.shortDescription}}</span>
 				</div>
 
-				<footer>
-					<span class="icon-info1 element_tooltip" tooltip="{{input.description}}" tooltip-placement="top"></span>
+				<footer class="c-row c-row--to-bottom c-row--to-right">
+					<i class="c-icon c-icon--is-clickable c-grid-item__info-icon icon-info1" tooltip="{{input.description}}" tooltip-placement="top" tooltip-class="t-tooltip"></i>
 				</footer>
 			</li>
 	    </ul>
@@ -60,7 +59,7 @@
 
     <hr class="c-line-separator" />
 
-    <div class="c-row c-row--to-right">
+    <div class="c-row c-row--to-right c-row--footer">
     	<button class="c-button c-button--call-to-action-1" data-ng-click="inputs.createInput()">
     		<span class="icon icon-circle-plus"></span>
     		<span>{{"_INPUT_BUTTON_NEW_" | translate}}</span>
