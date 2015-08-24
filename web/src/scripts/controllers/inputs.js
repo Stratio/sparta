@@ -3,11 +3,11 @@
 
     angular
         .module('webApp')
-        .controller('NuevoCtrl', NuevoCtrl);
+        .controller('InputsCtrl', InputsCtrl);
 
-    NuevoCtrl.$inject = ['ApiTest', 'FragmentDataService', 'TemplateDataService', '$filter', '$modal'];
+    InputsCtrl.$inject = ['ApiTest', 'FragmentDataService', 'TemplateDataService', '$filter', '$modal'];
 
-    function NuevoCtrl(ApiTest, FragmentDataService, TemplateDataService, $filter, $modal) {
+    function InputsCtrl(ApiTest, FragmentDataService, TemplateDataService, $filter, $modal) {
         /*jshint validthis: true*/
        var vm = this;
 
