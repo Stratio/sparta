@@ -1,5 +1,6 @@
 @mixin c-panel {
-	@include container-to-right;
+	@include container-to-right();
+	@include container-to-bottom();
 
 	box-sizing: border-box;
 	position: relative;
