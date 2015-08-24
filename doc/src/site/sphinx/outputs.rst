@@ -69,7 +69,7 @@ These parameters can be completed in the policy file:
 MongoDB Configuration
 ==========================
 
-The output of MongoDB doesn't use the generic implementation with DataFrames, it has multiple configuration
+The output of MongoDB use the generic implementation with DataFrames, it has multiple configuration
 parameters to connect to the DB and self-creation of indexes.
 
 
