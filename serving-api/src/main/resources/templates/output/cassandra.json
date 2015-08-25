@@ -1,8 +1,10 @@
 {
   "name": "Cassandra",
+  "modelType": "Cassandra",
   "description": {
     "short": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-    "long": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema."
+    "long": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#cassandra-label"
   },
   "icon": {
     "url": "logo_cassandra.png"
@@ -13,37 +15,44 @@
       "propertyId": "connectionHost",
       "propertyName": "ConnectionHost",
       "propertyType": "text",
-      "regexp": "TODO",
+      "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
       "default": "localhost",
-      "required": false,
-      "tooltip": "Different seeds of a cluster of Cassandra."
+      "required": true,
+      "tooltip": ""
     },
     {
       "propertyId": "keyspace",
       "propertyName": "Keyspace",
       "propertyType": "text",
-      "regexp": "TODO",
+      "regexp": "TODO cualquier cadena de caracteres",
       "default": "sparkta",
-      "required": false,
+      "required": true,
       "tooltip": "The name of the KeySpace."
     },
     {
       "propertyId": "keyspaceClass",
       "propertyName": "KeyspaceClass",
-      "propertyType": "text",
-      "regexp": "TODO",
+      "propertyType": "select",
+      "regexp": "SimpleStrategy|NetworkTopologyStrategy",
+      "values":[{"label":"SimpleStrategy","value":"SimpleStrategy"},
+        {"label":"NetworkTopologyStrategy","value":"NetworkTopologyStrategy"}],
       "default": "SimpleStrategy",
-      "required": false,
+      "required": true,
       "tooltip": "The class of KeySpace."
     },
     {
       "propertyId": "replication_factor",
       "propertyName": "ReplicationFactor",
       "propertyType": "text",
-      "regexp": "TODO",
+      "regexp": "TODO cualquier número",
       "default": "1",
       "required": false,
-      "tooltip": "Required if class is SimpleStrategy; otherwise, not used The parameter specifies the number of replicas of data on multiple nodes."
+      "tooltip": "Specifies the number of replicas of data on multiple nodes.",
+      "visible": [
+        [{"propertyId": "KeyspaceClass", "value": "SimpleStrategy", "overrideProps" : [
+          {"label": "required", "value": true}]
+        }]
+      ]
     },
     {
       "propertyId": "compactStorage",
@@ -86,7 +95,7 @@
       "propertyName": "Analyzer",
       "propertyType": "text",
       "regexp": "TODO",
-      "default": "None",
+      "default": "english",
       "required": false,
       "tooltip": "The analyzer for text index fields, this feature is for the Stratio’s Cassandra Lucene Index"
     },
@@ -104,7 +113,7 @@
       "propertyName": "DateFormat",
       "propertyType": "text",
       "regexp": "TODO",
-      "default": "1",
+      "default": "yyyy/MM/dd",
       "required": false,
       "tooltip": "The date format for the date fields indexed, this feature is for the Stratio’s Cassandra Lucene Index"
     }

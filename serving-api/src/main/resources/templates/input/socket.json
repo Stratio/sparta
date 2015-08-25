@@ -1,48 +1,31 @@
 {
   "name": "Socket",
+  "modelType": "Socket",
   "description": {
     "short": "Reads events from a socket.",
-    "long": "Reads events from a socket."
+    "long": "Reads events from a socket.",
+    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#socket-label"
   },
   "icon": {
     "url": "logo_socket.png"
   },
-
   "properties": [
-    {
-      "propertyId": "name",
-      "propertyName": "Name",
-      "propertyType": "text",
-      "regexp": "TODO",
-      "default": "Twitter",
-      "required": false,
-      "tooltip": "Name of the input"
-    },
-    {
-      "propertyId": "type",
-      "propertyName": "Type",
-      "propertyType": "text",
-      "regexp": "[^/\\. \"$]{2,128}",
-      "default": "Twitter",
-      "required": false,
-      "tooltip": "The Type of the input it’s used to instantiate specific classes"
-    },
     {
       "propertyId": "hostname",
       "propertyName": "Hostname",
       "propertyType": "text",
-      "regexp": "[^/\\. \"$]{1,3}",
-      "default": "****",
-      "required": false,
+      "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+      "default": "",
+      "required": true,
       "tooltip": "Socket hostname"
     },
     {
       "propertyId": "port",
       "propertyName": "Port",
       "propertyType": "text",
-      "regexp": "[^/\\. \"$]{1,3}",
-      "default": "****",
-      "required": false,
+      "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
+      "default": "",
+      "required": true,
       "tooltip": "Socket port"
     }
   ]
