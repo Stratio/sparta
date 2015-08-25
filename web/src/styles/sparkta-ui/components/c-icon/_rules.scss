@@ -1,6 +1,4 @@
 @mixin c-icon {
-	margin: $c-icon---margin;
-
 	@include is-clickable();
 
 	&--in-input {
@@ -13,7 +11,7 @@
 	&--in-input-right {
 		position: absolute;
 		top: $c-icon--in-input---top;
-		right: 0;
+		right: $c-icon--in-input-right---right;
 		color: $c-icon--in-input---color;
 	}
 
