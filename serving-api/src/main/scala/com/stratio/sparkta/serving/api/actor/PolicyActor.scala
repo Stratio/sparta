@@ -16,6 +16,8 @@
 
 package com.stratio.sparkta.serving.api.actor
 
+import java.util.UUID
+
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
@@ -26,28 +28,13 @@ import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.Serialization._
+import com.stratio.sparkta.serving.api.actor.PolicyActor._
 
 import scala.collection.JavaConversions
 import scala.util.Try
 
 /**
- * List of all possible akka messages used to manage policies.
- */
-case class PolicySupervisorActor_create(policy: AggregationPoliciesModel)
-case class PolicySupervisorActor_update(policy: AggregationPoliciesModel)
-case class PolicySupervisorActor_delete(name: String)
-case class PolicySupervisorActor_findAll()
-case class PolicySupervisorActor_find(name: String)
-case class PolicySupervisorActor_findByFragment(fragmentType: String, name: String)
-
-case class PolicySupervisorActor_response(status: Try[Unit])
-case class PolicySupervisorActor_response_policies(policies: Try[Seq[AggregationPoliciesModel]])
-case class PolicySupervisorActor_response_policy(policy: Try[AggregationPoliciesModel])
-
-
-/**
  * Implementation of supported CRUD operations over ZK needed to manage policies.
- * @author anistal
  */
 class PolicyActor(curatorFramework: CuratorFramework) extends Actor
 with SLF4JLogging {
@@ -57,16 +44,16 @@ with SLF4JLogging {
     new JsoneyStringSerializer()
 
   override def receive: Receive = {
-    case PolicySupervisorActor_create(policy) => create(policy)
-    case PolicySupervisorActor_update(policy) => update(policy)
-    case PolicySupervisorActor_delete(name) => delete(name)
-    case PolicySupervisorActor_find(name) => find(name)
-    case PolicySupervisorActor_findAll() => findAll()
-    case PolicySupervisorActor_findByFragment(fragmentType, name) => findByFragment(fragmentType, name)
+    case Create(policy) => create(policy)
+    case Update(policy) => update(policy)
+    case Delete(id) => delete(id)
+    case Find(id) => find(id)
+    case FindAll() => findAll()
+    case FindByFragment(fragmentType, id) => findByFragment(fragmentType, id)
   }
 
   def findAll(): Unit =
-    sender ! PolicySupervisorActor_response_policies(Try({
+    sender ! ResponsePolicies(Try({
       val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
       JavaConversions.asScalaBuffer(children).toList.map(element =>
         read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
@@ -75,36 +62,58 @@ with SLF4JLogging {
       case e: NoNodeException => Seq()
     })
 
-  def findByFragment(fragmentType: String, name: String): Unit =
-    sender ! PolicySupervisorActor_response_policies(Try({
+  def findByFragment(fragmentType: String, id: String): Unit =
+    sender ! ResponsePolicies(Try({
       val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
       JavaConversions.asScalaBuffer(children).toList.map(element =>
         read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
           s"${AppConstant.PoliciesBasePath}/$element")))).filter(apm =>
-        (apm.fragments.filter(f => f.name == name)).size > 0).toSeq
+        (apm.fragments.filter(f => f.id.get == id)).size > 0).toSeq
     }).recover {
       case e: NoNodeException => Seq()
     })
 
-  def find(name: String): Unit =
-    sender ! new PolicySupervisorActor_response_policy(Try({
+  def find(id: String): Unit =
+    sender ! new ResponsePolicy(Try({
       read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.forPath(
-        s"${AppConstant.PoliciesBasePath}/$name")))
+        s"${AppConstant.PoliciesBasePath}/$id")))
     }))
 
   def create(policy: AggregationPoliciesModel): Unit =
-    sender ! PolicySupervisorActor_response(Try({
+    sender ! Response(Try({
+      val fragmentS = policy.copy(id = Some(s"${UUID.randomUUID.toString}"))
       curatorFramework.create().creatingParentsIfNeeded().forPath(
-        s"${AppConstant.PoliciesBasePath}/${policy.name}", write(policy).getBytes)
+        s"${AppConstant.PoliciesBasePath}/${fragmentS.id.get}", write(fragmentS).getBytes)
     }))
 
   def update(policy: AggregationPoliciesModel): Unit =
-    sender ! PolicySupervisorActor_response(Try({
-      curatorFramework.setData.forPath(s"${AppConstant.PoliciesBasePath}/${policy.name}", write(policy).getBytes)
+    sender ! Response(Try({
+      curatorFramework.setData.forPath(s"${AppConstant.PoliciesBasePath}/${policy.id.get}", write(policy).getBytes)
     }))
 
-  def delete(name: String): Unit =
-    sender ! PolicySupervisorActor_response(Try({
-      curatorFramework.delete().forPath(s"${AppConstant.PoliciesBasePath}/$name")
+  def delete(id: String): Unit =
+    sender ! Response(Try({
+      curatorFramework.delete().forPath(s"${AppConstant.PoliciesBasePath}/$id")
     }))
+}
+
+object PolicyActor {
+
+  case class Create(policy: AggregationPoliciesModel)
+
+  case class Update(policy: AggregationPoliciesModel)
+
+  case class Delete(name: String)
+
+  case class FindAll()
+
+  case class Find(name: String)
+
+  case class FindByFragment(fragmentType: String, id: String)
+
+  case class Response(status: Try[Unit])
+
+  case class ResponsePolicies(policies: Try[Seq[AggregationPoliciesModel]])
+
+  case class ResponsePolicy(policy: Try[AggregationPoliciesModel])
 }

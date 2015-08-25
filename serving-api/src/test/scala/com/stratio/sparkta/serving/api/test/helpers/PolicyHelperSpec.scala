@@ -40,6 +40,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
       val checkpointDir = "checkpoint"
 
       val ap = new AggregationPoliciesModel(
+        None,
         "policy-test",
         sparkStreamingWindow = SparkStreamingWindow,
         checkpointDir,
@@ -86,6 +87,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
     val checkpointDir = "checkpoint"
 
     val ap = new AggregationPoliciesModel(
+      None,
       "policy-test",
       sparkStreamingWindow = SparkStreamingWindow,
       checkpointDir,
@@ -126,6 +128,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
     val checkpointDir = "checkpoint"
 
     val ap = new AggregationPoliciesModel(
+      None,
       "policy-test",
       sparkStreamingWindow = SparkStreamingWindow,
       checkpointDir,
