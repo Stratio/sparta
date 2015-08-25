@@ -1,6 +1,4 @@
 @mixin c-icon {
-	margin: $c-icon---margin;
-
 	@include is-clickable();
 
 	&--in-input {
@@ -10,11 +8,14 @@
 		color: $c-icon--in-input---color;
 	}
 
-	@include item-to-right();
-
-	&--to-right {
-		margin-right: 0;
+	&--in-input-right {
+		position: absolute;
+		top: $c-icon--in-input---top;
+		right: $c-icon--in-input-right---right;
+		color: $c-icon--in-input---color;
 	}
+
+	@include item-to-right();
 
 	@include font-sizes();
 }

@@ -1,0 +1,20 @@
+@mixin c-msg {
+	@include c-panel;
+
+	&--small {
+		padding: $c-msg--small---padding;
+	}
+
+	&--error {
+		background: $c-msg--error---background;
+		color: $c-msg--error---color;
+	}
+
+	.c-icon {
+		margin: $c-msg__c-icon---margin;
+	}
+}
+
+.c-msg {
+	@include c-msg;
+}

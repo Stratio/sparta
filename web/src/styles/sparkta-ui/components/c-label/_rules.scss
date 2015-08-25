@@ -1,11 +1,13 @@
-$c-form__c-label---width: 135px !default;
-
 @mixin c-label {
 	box-sizing: border-box;
 	margin: $c-label---margin;
 
-	@at-root &.c-col {
+	@at-root &.c-col, &.o-wcag-hidden {
 		margin: 0;
+	}
+
+	@at-root .c-form & {
+		margin: $c-form__c-label---margin;
 	}
 }
 
