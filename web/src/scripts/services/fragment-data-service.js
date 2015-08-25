@@ -23,6 +23,9 @@
                },
                GetFragmentByName: function(fragmentType, fragmentName) {
                   return ApiFragmentDataService.GetFragmentByName().get({'type': fragmentType ,'name': fragmentName}).$promise;
+               },
+               GetFragments: function(fragmentType) {
+                  return ApiFragmentDataService.GetFragments().get({'type': fragmentType}).$promise;
                }
            };
    };

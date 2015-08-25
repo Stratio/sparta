@@ -11,6 +11,7 @@
         var vm = this;
 
         vm.GetFragmentByName = GetFragmentByName;
+        vm.GetFragments = GetFragments;
 
         /////////////////////////////////
 
@@ -20,5 +21,12 @@
                 'get'   : {method:'GET'}
             });
         };
+
+        function GetFragments() {
+            return $resource('/fragment/:type', {type:'@type'},
+            {
+                'get'   : {method:'GET', isArray:true}
+            });
+        }
     }
 })();
