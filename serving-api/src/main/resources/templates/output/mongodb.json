@@ -3,7 +3,7 @@
   "modelType": "MongoDb",
   "description": {
     "short": "MongoDB is an open-source document database, and the leading NoSQL database.",
-    "long": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling."
+    "long": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#mongodb-label"
   },
   "icon": {
