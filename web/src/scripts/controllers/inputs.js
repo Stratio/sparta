@@ -15,9 +15,9 @@
        vm.deleteInput = deleteInput;
        vm.getInputTypes = getInputTypes;
        vm.createInput = createInput;
-       vm.modifyInput = modifyInput;
+       vm.editInput = editInput;
        vm.createInputModal = createInputModal;
-       vm.modifyInputModal = modifyInputModal;
+       vm.editInputModal = editInputModal;
        vm.duplicateInput = duplicateInput;
        vm.deleteInputConfirm = deleteInputConfirm;
        vm.getPoliciesNames = getPoliciesNames;
@@ -92,7 +92,7 @@
            });
         };
 
-        function modifyInput(inputName, index) {
+        function editInput(inputName, index) {
            var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {name:inputName}, true)[0];
            var id = inputSelected.id;
 
@@ -104,10 +104,10 @@
                console.log('*********Controller');
                console.log(result);
 
-               var modifyInputData = {
+               var editInputData = {
                    'index': index,
                    'id': id,
-                   'action': 'modify',
+                   'action': 'edit',
                    'inputSelected': inputSelected,
                    'inputDataTemplate': result,
                    'texts': {
@@ -117,7 +117,7 @@
                     }
                };
 
-               vm.modifyInputModal(modifyInputData);
+               vm.editInputModal(editInputData);
            });
         };
 
@@ -206,7 +206,7 @@
                });
             };
 
-        function modifyInputModal(modifyInputData) {
+        function editInputModal(editInputData) {
            var modalInstance = $modal.open({
                animation: true,
                templateUrl: 'templates/inputs/input-details.tpl.html',
@@ -214,7 +214,7 @@
                size: 'lg',
                resolve: {
                    item: function () {
-                       return modifyInputData;
+                       return editInputData;
                    }
                }
            });
@@ -353,7 +353,7 @@
 
             vm.action = item.action;
 
-            if (vm.action === 'modify') {
+            if (vm.action === 'edit') {
                 vm.templateInputsData = item.inputDataTemplate;
                 vm.dataSource = item.inputSelected;
                 vm.createTypeModels(vm.templateInputsData);
@@ -401,11 +401,11 @@
                 }
 
                 /*Init properties*/
-                if(i === 0 && vm.action !== 'modify') {
+                if(i === 0 && vm.action !== 'edit') {
                     vm.dataSource.element.configuration = vm.properties[fragmentData[i].name];
                 }
 
-                else if(vm.action === 'modify' && fragmentData[i].name === vm.dataSource.element.type) {
+                else if(vm.action === 'edit' && fragmentData[i].name === vm.dataSource.element.type) {
                     vm.properties[fragmentData[i].name] = vm.dataSource.element.configuration;
                     vm.dataSource.element.configuration = vm.properties[fragmentData[i].name];
                     vm.index = i;
