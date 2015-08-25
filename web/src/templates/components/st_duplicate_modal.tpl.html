@@ -9,8 +9,8 @@
 			<form-field-input id="dataSourceName" data-model="vm.inputData.name" data-label="{{'_INPUT_WINDOW_FORM_NAME_' | translate}}:" data-form="vm.form" data-st-name="dataSourceNameForm" data-required="true" data-autofocus="true"></form-field-input>
 		</div>
 
-		<div class="c-row" data-ng-if="vm.error">
-			There was an error. The name already exists!
+		<div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error">
+			<i class="c-icon icon-circle-cross"></i>{{"_INPUT_ERROR_NAME_EXISTS_" | translate}}
 		</div>
 
 		<div class="c-row c-row--separated">
