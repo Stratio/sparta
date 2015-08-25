@@ -5,9 +5,9 @@
         .module('webApp')
         .controller('InputsCtrl', InputsCtrl);
 
-    InputsCtrl.$inject = ['FragmentDataService', 'PolicyFactory', 'TemplateDataService', '$filter', '$modal'];
+    InputsCtrl.$inject = ['FragmentFactory', 'PolicyFactory', 'TemplateFactory', '$filter', '$modal'];
 
-    function InputsCtrl(FragmentDataService, PolicyFactory, TemplateDataService, $filter, $modal) {
+    function InputsCtrl(FragmentFactory, PolicyFactory, TemplateFactory, $filter, $modal) {
         /*jshint validthis: true*/
        var vm = this;
 
@@ -34,7 +34,7 @@
         };
 
         function getInputs() {
-            var inputList = FragmentDataService.GetFragments("input");
+            var inputList = FragmentFactory.GetFragments("input");
 
             inputList.then(function (result) {
                 vm.inputsData = vm.setInputsId(result);
@@ -72,7 +72,7 @@
        };
 
         function createInput() {
-           var inputFragmentTemplate = TemplateDataService.GetNewFragmentTemplate('input');
+           var inputFragmentTemplate = TemplateFactory.GetNewFragmentTemplate('input');
 
            inputFragmentTemplate.then(function (result) {
                 console.log('*********Controller');
@@ -98,7 +98,7 @@
 
            delete inputSelected["id"];
 
-           var inputFragmentTemplate = TemplateDataService.GetNewFragmentTemplate('input');
+           var inputFragmentTemplate = TemplateFactory.GetNewFragmentTemplate('input');
 
            inputFragmentTemplate.then(function (result) {
                console.log('*********Controller');
@@ -183,7 +183,7 @@
                    console.log('*************** Controller back');
                    console.log(newInputData);
 
-                   var newFragment = FragmentDataService.CreateFragment(newInputData.data);
+                   var newFragment = FragmentFactory.CreateFragment(newInputData.data);
 
                    newFragment
                        .then(function (result) {
@@ -224,7 +224,7 @@
                    console.log('*************** Controller back');
                    console.log(updatedInputData);
 
-                   var updatedFragment = FragmentDataService.UpdateFragment(updatedInputData.data);
+                   var updatedFragment = FragmentFactory.UpdateFragment(updatedInputData.data);
 
                    updatedFragment
                        .then(function (result) {
@@ -262,7 +262,7 @@
             modalInstance.result
                 .then(function (selectedItem) {
                     console.log(selectedItem);
-                    var fragmentDeleted = FragmentDataService.DeleteFragment(selectedItem.type, selectedItem.name);
+                    var fragmentDeleted = FragmentFactory.DeleteFragment(selectedItem.type, selectedItem.name);
 
                     fragmentDeleted
                         .then(function (result) {
@@ -294,7 +294,7 @@
                     delete selectedItem["id"];
                     console.log(selectedItem);
 
-                    var newFragment = FragmentDataService.CreateFragment(selectedItem);
+                    var newFragment = FragmentFactory.CreateFragment(selectedItem);
 
                     newFragment
                         .then(function (result) {
@@ -323,9 +323,9 @@
         .module('webApp')
         .controller('NewFragmentModalCtrl', NewFragmentModalCtrl);
 
-    NewFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentDataService'];
+    NewFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentFactory'];
 
-    function NewFragmentModalCtrl($modalInstance, item, FragmentDataService) {
+    function NewFragmentModalCtrl($modalInstance, item, FragmentFactory) {
         /*jshint validthis: true*/
         var vm = this;
 
@@ -434,7 +434,7 @@
         };
 
         function checkInputName(inputType, inputName) {
-            var newFragment = FragmentDataService.GetFragmentByName(inputType, inputName);
+            var newFragment = FragmentFactory.GetFragmentByName(inputType, inputName);
 
             newFragment
             .then(function (result) {
@@ -483,9 +483,9 @@
         .module('webApp')
         .controller('DuplicateFragmentModalCtrl', DuplicateFragmentModalCtrl);
 
-    DuplicateFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentDataService'];
+    DuplicateFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentFactory'];
 
-    function DuplicateFragmentModalCtrl($modalInstance, item, FragmentDataService) {
+    function DuplicateFragmentModalCtrl($modalInstance, item, FragmentFactory) {
         /*jshint validthis: true*/
         var vm = this;
 
@@ -510,7 +510,7 @@
         };
 
         function checkInputName(inputType, inputName) {
-            var newFragment = FragmentDataService.GetFragmentByName(inputType, inputName);
+            var newFragment = FragmentFactory.GetFragmentByName(inputType, inputName);
 
             newFragment
             .then(function (result) {
