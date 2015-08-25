@@ -78,6 +78,9 @@ $colors: (
 
 $component-border-radius: 5px;
 $component-margin: 15px;
+$component-default-margin: .5em;
+
+$c-icon-default-margin: 0 $component-default-margin 0 0;
 
 
 
@@ -100,7 +103,7 @@ $heading---margin: 0;
 
 // c-grid-item
 $c-grid-item__info-icon---color: get-color(c1) !default;
-$c-grid-item__info-icon---margin: 0 .5em .5em 0 !default;
+$c-grid-item__info-icon---margin: 0 $component-default-margin $component-default-margin 0 !default;
 
 
 
@@ -161,7 +164,7 @@ $c-button--danger--hover---background: get-color(e3b);
 $c-button--danger--hover---border: 0;
 $c-button--danger--hover---color: get-color(g0);
 
-$c-button__c-icon---margin: 0 .5em 0 0;
+$c-button__c-icon---margin: $c-icon-default-margin;
 
 
 // c-input
@@ -226,7 +229,7 @@ $c-info-text---font-size: get-font-size(medium);
 
 $c-info-text__icon---color: get-color(c1);
 $c-info-text__icon---font-size: get-font-size(medium);
-$c-info-text__icon---margin: 0 .5em 0 0;
+$c-info-text__icon---margin: $c-icon-default-margin;
 
 
 
@@ -280,12 +283,15 @@ $c-icon-radio__item--checked---border: 1px solid get-color(c4);
 $c-icon-radio__icon---background: get-color(g4);
 $c-icon-radio__icon---border: 1px solid get-color(g4);
 $c-icon-radio__icon---color: get-color(c4);
-$c-icon-radio__item---margin: 0 .5em 0 0;
+$c-icon-radio__item---margin: $c-icon-default-margin;
 $c-icon-radio__icon---padding: .4em;
 
 
 
 // c-msg
 $c-msg--small---padding: 5px 10px;
+
 $c-msg--error---background: get-color(e3);
 $c-msg--error---color: get-color(g0);
+
+$c-msg__c-icon---margin: $c-icon-default-margin;
