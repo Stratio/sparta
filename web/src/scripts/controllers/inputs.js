@@ -5,9 +5,9 @@
         .module('webApp')
         .controller('InputsCtrl', InputsCtrl);
 
-    InputsCtrl.$inject = ['FragmentDataService', 'TemplateDataService', '$filter', '$modal'];
+    InputsCtrl.$inject = ['FragmentDataService', 'PolicyFactory', 'TemplateDataService', '$filter', '$modal'];
 
-    function InputsCtrl(FragmentDataService, TemplateDataService, $filter, $modal) {
+    function InputsCtrl(FragmentDataService, PolicyFactory, TemplateDataService, $filter, $modal) {
         /*jshint validthis: true*/
        var vm = this;
 
@@ -44,7 +44,7 @@
 
         function deleteInput(fragmentType, fragmentName, index) {
             console.log(index);
-            var policiesToDelete = FragmentDataService.GetPolicyByFragmentName(fragmentType, fragmentName);
+            var policiesToDelete = PolicyFactory.GetPolicyByFragmentName(fragmentType, fragmentName);
 
             policiesToDelete.then(function (result) {
                 console.log('*********Controller');
@@ -183,7 +183,7 @@
                    console.log('*************** Controller back');
                    console.log(newInputData);
 
-                   var newFragment = FragmentDataService.InsertFragment(newInputData.data);
+                   var newFragment = FragmentDataService.CreateFragment(newInputData.data);
 
                    newFragment
                        .then(function (result) {
@@ -294,7 +294,7 @@
                     delete selectedItem["id"];
                     console.log(selectedItem);
 
-                    var newFragment = FragmentDataService.InsertFragment(selectedItem);
+                    var newFragment = FragmentDataService.CreateFragment(selectedItem);
 
                     newFragment
                         .then(function (result) {
