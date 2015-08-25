@@ -1,0 +1,19 @@
+$angular-forms--ng-invalid---border: 1px solid red !default;
+$angular-forms--ng-invalid__label---color: red !default;
+$angular-forms--ng-invalid__error---color: red !default;
+$angular-forms--ng-invalid__error---font-style: italic !default;
+
+.c-form-group.ng-dirty.ng-invalid {
+	& input {
+		border: $angular-forms--ng-invalid---border;
+	}
+
+	& label {
+		color: $angular-forms--ng-invalid__label---color;
+	}
+}
+
+.angular-forms__error {
+	color: $angular-forms--ng-invalid__error---color;
+	font-style: $angular-forms--ng-invalid__error---font-style;
+}

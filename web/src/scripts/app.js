@@ -64,25 +64,23 @@ angular
     })
     .state('dashboard.inputs', {
         url: '/inputs',
-        controller: 'NuevoCtrl',
-        controllerAs: 'nuevo',
-        templateUrl: 'views/nuevo.html'
+        controller: 'InputsCtrl',
+        controllerAs: 'inputs',
+        templateUrl: 'views/inputs.html'
     })
     .state('dashboard.outputs', {
         url: '/outputs'
 /*
-        controller: 'NuevoCtrl',
-        controllerAs: 'nuevo',
-        templateUrl: 'views/nuevo.html'
+        controller: 'OutputsCtrl',
+        controllerAs: 'outputs',
+        templateUrl: 'views/outputs.html'
 */
     })
     .state('dashboard.policies', {
-        url: '/policies'
-/*
-        controller: 'NuevoCtrl',
-        controllerAs: 'nuevo',
-        templateUrl: 'views/nuevo.html'
-*/
+        url: '/policies',
+        controller: 'PoliciesCtrl',
+        controllerAs: 'policies',
+        templateUrl: 'views/policies.html'
     })
 
     /*******  SETINGS *******/
@@ -93,8 +91,8 @@ angular
                 templateUrl:  'views/settings/settings_menu.html'
             },
             'content': {
-                controller:   'NuevoCtrl',
-                controllerAs: 'nuevo',
+                controller:   'SettingsCtrl',
+                controllerAs: 'settings',
                 templateUrl:  'views/settings/settings_content.html'
             }
         }

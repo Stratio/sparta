@@ -11,9 +11,7 @@
         var vm = this;
 
         vm.GetPolicyByFragmentName = GetPolicyByFragmentName;
-        vm.DeleteFragment = DeleteFragment;
-        vm.CreateFragment = CreateFragment;
-        vm.UpdateFragment = UpdateFragment;
+        vm.GetAllpolicies = GetAllpolicies;
 
         /////////////////////////////////
 
@@ -24,24 +22,10 @@
             });
         };
 
-        function DeleteFragment() {
-            return $resource('/fragment/:type/:name', {type:'@type', name:'@name'},
+        function GetAllpolicies() {
+            return $resource('/policy/all', {},
             {
-                'delete': {method:'DELETE'}
-            });
-        };
-
-        function CreateFragment() {
-            return $resource('/fragment/', {},
-            {
-                'create': {method:'POST'}
-            });
-        };
-
-        function UpdateFragment() {
-            return $resource('/fragment/', {},
-            {
-               'update': {method:'PUT'}
+                'get': {method:'GET', isArray:true}
             });
         };
     };

@@ -24,6 +24,14 @@
 	}	
 }
 
+@mixin container-to-bottom() {
+	&--to-bottom {
+		bottom: 0;
+		position: absolute;
+		width: 100%;
+	}	
+}
+
 @mixin item-to-right() {
 	&--to-right {
 		float: right;
