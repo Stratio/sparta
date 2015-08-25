@@ -13,7 +13,7 @@
 				<label class="c-col c-col--12 c-label c-icon-radio__label" title="{{'_INPUT_WINDOW_FORM_TYPE_' | translate}}:" for="dataSourceType">{{"_INPUT_WINDOW_FORM_TYPE_" | translate}}</label>
 				<label data-ng-repeat="inputData in vm.templateInputsData">
 					<input class="c-icon-radio__item" id="type-{{inputData.name | lowercase}}" type="radio" name="dataSourceTypeForm" data-ng-model="vm.dataSource.element.type" value="{{inputData.name}}" data-ng-click="vm.setProperties($index, inputData.name)">
-						<label class="c-icon-radio__label" for="type-{{inputData.name | lowercase}}"><i class="c-icon c-icon--large c-icon-radio__icon icon-{{inputData.name | lowercase}}"></i></label>
+						<label class="c-icon-radio__label" for="type-{{inputData.name | lowercase}}"><i class="c-icon c-icon--large c-icon-radio__icon icon-{{inputData.name | lowercase}}" tooltip="{{inputData.name | lowercase}}" tooltip-placement="top" tooltip-class="t-tooltip"></i></label>
 				</label>
 			</div>
 		</ng-form>
