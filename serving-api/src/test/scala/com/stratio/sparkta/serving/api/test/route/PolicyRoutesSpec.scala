@@ -19,7 +19,7 @@ package com.stratio.sparkta.driver.test.route
 import akka.actor.{ActorRef, ActorRefFactory}
 import akka.testkit.TestProbe
 import com.stratio.sparkta.sdk.DimensionType
-import com.stratio.sparkta.serving.api.actor.StreamingActor.{DeleteContext, CreateContext, GetContextStatus, GetAllContextStatus}
+import com.stratio.sparkta.serving.api.actor.StreamingActor._
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.api.service.http.PolicyContextHttpService
 import com.stratio.sparkta.serving.core.models.StreamingContextStatusEnum._
@@ -91,7 +91,7 @@ with Matchers {
     }
     "Create policy" in {
       val PolicyName = "p-1"
-      val apd = new AggregationPoliciesModel(PolicyName, sparkStreamingWindow, checkpointDir, new RawDataModel(),
+      val apd = new AggregationPoliciesModel(None, PolicyName, sparkStreamingWindow, checkpointDir, new RawDataModel(),
         Seq(), Seq(), Some(input), Seq(), Seq())
       try {
         val test = Post("/policy", apd) ~> routes
@@ -127,7 +127,7 @@ with Matchers {
       val checkpointConfig =
         new CheckpointModel(checkpointGranularity, checkpointGranularity, checkpointInterval, checkpointAvailable)
       val cubeDto = new CubeModel(cubeName, checkpointConfig, Seq(dimensionDto), Seq(), CubeModel.Multiplexer)
-      val apd = new AggregationPoliciesModel(PolicyName, sparkStreamingWindow, checkpointDir, new RawDataModel(),
+      val apd = new AggregationPoliciesModel(None, PolicyName, sparkStreamingWindow, checkpointDir, new RawDataModel(),
         Seq(), Seq(cubeDto), Some(input), Seq(), Seq())
       val test = Post("/policy", apd) ~> routes
       test ~> check {

@@ -18,7 +18,6 @@ package com.stratio.sparkta.serving.core.models
 
 /**
  * Class that represents a template used by the frontend to render inputs/outputs.
- * @author anistal
  */
 case class TemplateModel( name: String,
                         description: Map[String,String],

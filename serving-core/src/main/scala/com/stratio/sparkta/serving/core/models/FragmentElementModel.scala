@@ -23,7 +23,8 @@ package com.stratio.sparkta.serving.core.models
  * @param element with all config parameters of the fragment.
  * @author anistal
  */
-case class FragmentElementModel(fragmentType: String,
+case class FragmentElementModel(id: Option[String] = None,
+                                fragmentType: String,
                                 name: String,
                                 description: String,
                                 shortDescription: String,

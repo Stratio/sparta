@@ -27,15 +27,16 @@ import org.json4s.jackson.JsonMethods._
 
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 
-case class AggregationPoliciesModel(name: String = "default",
-                                  sparkStreamingWindow: Long = AggregationPoliciesModel.sparkStreamingWindow,
-                                  checkpointPath: String,
-                                  rawData: RawDataModel,
-                                  transformations: Seq[TransformationsModel],
-                                  cubes: Seq[CubeModel],
-                                  input: Option[PolicyElementModel] = None,
-                                  outputs: Seq[PolicyElementModel],
-                                  fragments: Seq[FragmentElementModel])
+case class AggregationPoliciesModel(id: Option[String] = None,
+                                    name: String = "default",
+                                    sparkStreamingWindow: Long = AggregationPoliciesModel.sparkStreamingWindow,
+                                    checkpointPath: String,
+                                    rawData: RawDataModel,
+                                    transformations: Seq[TransformationsModel],
+                                    cubes: Seq[CubeModel],
+                                    input: Option[PolicyElementModel] = None,
+                                    outputs: Seq[PolicyElementModel],
+                                    fragments: Seq[FragmentElementModel])
 
 case object AggregationPoliciesModel {
 
