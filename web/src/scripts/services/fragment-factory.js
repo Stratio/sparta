@@ -3,11 +3,11 @@
 
    angular
        .module('webApp')
-       .factory('FragmentDataService', FragmentDataService);
+       .factory('FragmentFactory', FragmentFactory);
 
-   FragmentDataService.$inject = ['ApiFragmentService'];
+   FragmentFactory.$inject = ['ApiFragmentService'];
 
-   function FragmentDataService(ApiFragmentService) {
+   function FragmentFactory(ApiFragmentService) {
        return {
                DeleteFragment: function(fragmentType, fragmentName) {
                    return ApiFragmentService.DeleteFragment().delete({'type': fragmentType ,'name': fragmentName}).$promise;
