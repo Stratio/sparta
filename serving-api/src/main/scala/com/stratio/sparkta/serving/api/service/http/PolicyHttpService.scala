@@ -16,6 +16,7 @@
 
 package com.stratio.sparkta.serving.api.service.http
 
+import java.io.{File, PrintWriter}
 import javax.ws.rs.Path
 
 import akka.pattern.ask
@@ -26,6 +27,8 @@ import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.api.helpers.PolicyHelper
 import com.stratio.sparkta.serving.core.models._
 import com.wordnik.swagger.annotations._
+import org.json4s.native.Serialization._
+import spray.http.HttpHeaders.`Content-Disposition`
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
 
@@ -37,7 +40,7 @@ trait PolicyHttpService extends BaseHttpService {
 
   case class Result(message: String, desc: Option[String] = None)
 
-  override def routes: Route = find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run
+  override def routes: Route = find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download
 
   @Path("/find/{id}")
   @ApiOperation(value      = "Find a policy from its name.",
@@ -236,6 +239,44 @@ trait PolicyHttpService extends BaseHttpService {
               actors.get("streamingActor").get ! new CreateContext(parsedP)
               complete {
                 new Result("Creating new context with name " + policy.name)
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Path("/download/{id}")
+  @ApiOperation(value      = "Downloads a policy from its id.",
+    notes      = "Downloads a policy from its id.",
+    httpMethod = "GET",
+    response   = classOf[Result])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name      = "id",
+      value     = "id of the policy",
+      dataType  = "string",
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code    = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def download: Route = {
+    path(HttpConstant.PolicyPath / "download" / Segment) { (id) =>
+      get {
+        val future = supervisor ? new Find(id)
+        Await.result(future, timeout.duration) match {
+          case ResponsePolicy(Failure(exception)) => throw exception
+          case ResponsePolicy(Success(policy)) => {
+            val parsedP = PolicyHelper.parseFragments(
+              PolicyHelper.fillFragments(policy,actors.get(AkkaConstant.FragmentActor).get, timeout))
+            val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
+            validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
+              val tempFile = File.createTempFile(s"${parsedP.id.get}-${parsedP.name}-",".json")
+              respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> s"${parsedP.name}.json"))) {
+                scala.tools.nsc.io.File(tempFile).writeAll(write(parsedP))
+                getFromFile(tempFile)
               }
             }
           }
