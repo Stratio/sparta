@@ -14,7 +14,9 @@
 
 	"_INPUT_HEADER_TITLE_MAIN": "inputs",
 	"_INPUT_HEADER_TITLE_SECONDARY": "manage",
- 
+
+	"_POLICY_HEADER_TITLE_MAIN": "policies",
+
 	"_INPUT_FILTER_NAME_": "Name",
 	"_INPUT_FILTER_TYPE_": "Type",
 	"_INPUT_FILTER_TYPE_DEFAULT_": "All Types",

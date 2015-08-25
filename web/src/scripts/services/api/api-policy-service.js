@@ -14,6 +14,7 @@
         vm.DeleteFragment = DeleteFragment;
         vm.CreateFragment = CreateFragment;
         vm.UpdateFragment = UpdateFragment;
+        vm.GetAllpolicies = GetAllpolicies;
 
         /////////////////////////////////
 
@@ -42,6 +43,13 @@
             return $resource('/fragment/', {},
             {
                'update': {method:'PUT'}
+           });
+        };
+
+        function GetAllpolicies() {
+            return $resource('/policy/all', {},
+            {
+                'get': {method:'GET', isArray:true}
             });
         };
     };
