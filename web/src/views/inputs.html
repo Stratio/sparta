@@ -6,9 +6,9 @@
 		<div class="c-toolbar c-form-group c-form-group--to-right">
 			<div class="c-col c-col--2 c-form-control">
 				<label class="c-label o-wcag-hidden" for="type">{{"_INPUT_FILTER_TYPE_" | translate}}:</label>
-				<select id="type" class="c-combobox c-combobox--no-border c-combobox--full-width" data-ng-model="nuevo.filters.element.type">
+				<select id="type" class="c-combobox c-combobox--no-border c-combobox--full-width" data-ng-model="inputs.filters.element.type">
 					<option value="">{{"_INPUT_FILTER_TYPE_DEFAULT_" | translate}}</option>
-					<option value="{{inputType.type}}" data-ng-repeat="inputType in nuevo.inputTypes">
+					<option value="{{inputType.type}}" data-ng-repeat="inputType in inputs.inputTypes">
 						{{inputType.type}} ({{inputType.count}})
 					</option>
 				</select>
@@ -16,25 +16,25 @@
 
 		 --><div class="c-col c-col--10 c-form-control">
 				<label class="c-label o-wcag-hidden" for="name">{{"_INPUT_FILTER_NAME_" | translate}}:</label>
-				<i class="icon-search c-icon c-icon--in-input"></i>
-				<input type="text" id="name" class="c-searchbox c-searchbox--left-icon c-searchbox--no-border c-searchbox--full-width" data-ng-model="nuevo.filters.name" />
+				<i class="icon-search c-icon c-icon--in-input-right"></i>
+				<input type="text" id="name" class="c-searchbox c-searchbox--left-icon c-searchbox--no-border c-searchbox--full-width" data-ng-model="inputs.filters.name" />
 			</div>
 		</div>
 
-		<ul br-ba-container="">
-			<li data-ng-repeat="input in filteredInputsData = (nuevo.inputsData | filter:nuevo.filters:strict)" br-ba-item="{index:$index, total:filteredInputsData.length}">
+		<ul br-ba-container="c-grid">
+			<li class="c-grid-item" data-ng-repeat="input in filteredInputsData = (inputs.inputsData | filter:inputs.filters:strict)" br-ba-item="{index:$index, total:filteredInputsData.length}">
 				<header class="title">
 					<span class="name">{{input.name}}</span>
 
 					<span class="icon-actions menu_actions" data-ng-click="$root.stToggleFloatingMenu[input.id]()">
 						<st-floating-menu toggle-id="{{input.id}}" align="right">
-							<st-menu-element class-icon="icon-edit" data-ng-click="nuevo.modifyInput(input.name, $index)">
+							<st-menu-element class-icon="icon-edit" data-ng-click="inputs.editInput(input.fragmentType, input.name, $index)">
 								{{"_INPUT_ACTIONS_MENU_EDIT_" | translate}}
 							</st-menu-element>
-							<st-menu-element class-icon="icon-copy" data-ng-click="nuevo.duplicateInput(input.name)">
+							<st-menu-element class-icon="icon-copy" data-ng-click="inputs.duplicateInput(input.name)">
 								{{"_INPUT_ACTIONS_MENU_DUPLICATE_" | translate}}
 							</st-menu-element>
-							<st-menu-element class-icon="icon-cross" data-ng-click="nuevo.deleteInput(input.fragmentType, input.name, $index)">
+							<st-menu-element class-icon="icon-cross" data-ng-click="inputs.deleteInput(input.fragmentType, input.name, $index)">
 								{{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
 							</st-menu-element>
 						</st-floating-menu>
@@ -45,14 +45,13 @@
 				<div class="c-row o-media">
 					<div class="o-media__img">
 						<i class="c-icon c-icon--xxxlarge icon-{{input.element.type | lowercase}} o-media__img__item" alt="{{input.element.type}}"></i>
-						<!--<img data-ng-src="images/logo_{{input.icon}}" alt="{{input.element.type}}">-->
 					</div>
 
 					<span class="o-media__bd">{{input.shortDescription}}</span>
 				</div>
 
-				<footer>
-					<span class="icon-info1 element_tooltip" tooltip="{{input.description}}" tooltip-placement="top"></span>
+				<footer class="c-row c-row--to-bottom c-row--to-right">
+					<i class="c-icon c-icon--is-clickable c-grid-item__info-icon icon-info1" tooltip="{{input.description}}" tooltip-placement="left" tooltip-class="t-tooltip" tooltip-trigger="click"></i>
 				</footer>
 			</li>
 	    </ul>
@@ -60,8 +59,8 @@
 
     <hr class="c-line-separator" />
 
-    <div class="c-row c-row--to-right">
-    	<button class="c-button c-button--call-to-action-1" data-ng-click="nuevo.createInput()">
+    <div class="c-row c-row--to-right c-row--footer">
+    	<button class="c-button c-button--call-to-action-1" data-ng-click="inputs.createInput()">
     		<span class="icon icon-circle-plus"></span>
     		<span>{{"_INPUT_BUTTON_NEW_" | translate}}</span>
     	</button>

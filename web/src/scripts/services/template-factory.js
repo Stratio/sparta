@@ -3,11 +3,11 @@
 
     angular
         .module('webApp')
-        .factory('TemplateDataService', TemplateDataService);
+        .factory('TemplateFactory', TemplateFactory);
 
-    TemplateDataService.$inject = ['ApiTemplateService'];
+    TemplateFactory.$inject = ['ApiTemplateService'];
 
-    function TemplateDataService(ApiTemplateService) {
+    function TemplateFactory(ApiTemplateService) {
         return {
             GetNewFragmentTemplate: function(fragmentType) {
                 return ApiTemplateService.GetFragmentTemplateByType().get({'type': fragmentType}).$promise;

@@ -21,8 +21,11 @@
 		background: $c-icon-radio__icon---background;
 		border: $c-icon-radio__icon---border;
 		border-radius: 100%;
+		box-sizing: border-box;
 		color: $c-icon-radio__icon---color;
 		cursor: pointer;
+		display: inline-block;
+		margin: $c-icon-radio__item---margin;
 		padding: $c-icon-radio__icon---padding;
 
 		&:hover {

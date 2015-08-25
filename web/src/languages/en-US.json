@@ -1,5 +1,6 @@
 {
 	"_HELP_": "Do you need help?",
+	"_CANCEL_": "Cancel",
 
 	"_HEADER_MENU_DASHBOARD_": "dashboard",
 	"_HEADER_MENU_SETTINGS_": "settings",
@@ -16,7 +17,7 @@
 
 	"_INPUT_FILTER_NAME_": "Name",
 	"_INPUT_FILTER_TYPE_": "Type",
-	"_INPUT_FILTER_TYPE_DEFAULT_": "Type",
+	"_INPUT_FILTER_TYPE_DEFAULT_": "All Types",
 
 	"_INPUT_ACTIONS_MENU_EDIT_": "Edit",
 	"_INPUT_ACTIONS_MENU_DUPLICATE_": "Duplicate",
@@ -41,5 +42,8 @@
   	"_INPUT_BUTTON_NEW_": "add new",
   	"_INPUT_BUTTON_DELETE_": "delete",
 	"_INPUT_BUTTON_CANCEL_": "cancel",
-  	"_INPUT_BUTTON_DUPLICATE_": "duplicate"
+  	"_INPUT_BUTTON_DUPLICATE_": "duplicate",
+
+  	"_INPUT_ERROR_NAME_EXISTS_": "There was an error. The name already exists!"
+
 }

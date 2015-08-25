@@ -6,8 +6,10 @@
  *	INDEX
  *
  *	1 - Settings.........................All the configuration values needed
+ *		angular-forms
  *	2 - Stratio UI.......................The Stratio component UI library
  *		heading
+ *		c-grid-item
  *	3 - Sparkta UI.......................The Sparkta component UI library
  *		c-line-separator
  *		c-button
@@ -27,6 +29,7 @@
  *		c-row
  *		c-list
  *		c-icon-radio
+ *		c-msg
  *
  */
 
@@ -75,7 +78,14 @@ $colors: (
 
 $component-border-radius: 5px;
 $component-margin: 15px;
+$component-default-margin: .5em;
 
+$c-icon-default-margin: 0 $component-default-margin 0 0;
+
+
+
+// angular-forms
+$angular-forms--ng-invalid---border: 1px solid get-color(e3);
 
 
 
@@ -88,6 +98,12 @@ $component-margin: 15px;
 
 // heading
 $heading---margin: 0;
+
+
+
+// c-grid-item
+$c-grid-item__info-icon---color: get-color(c1) !default;
+$c-grid-item__info-icon---margin: 0 $component-default-margin $component-default-margin 0 !default;
 
 
 
@@ -148,12 +164,15 @@ $c-button--danger--hover---background: get-color(e3b);
 $c-button--danger--hover---border: 0;
 $c-button--danger--hover---color: get-color(g0);
 
+$c-button__c-icon---margin: $c-icon-default-margin;
+
+
 
 // c-input
 $c-input---border: 1px solid get-color(g3);
 $c-input---color: get-color(g8);
 $c-input---height: 28px;
-$c-input---border-radius: $component-border-radius;
+$c-input---border-radius: 0;
 $c-input---padding: 0 5px;
 
 $c-input--left-icon---padding: 0 0 0 35px;
@@ -171,6 +190,7 @@ $c-combobox---padding: 0 10px;
 
 // c-label
 $c-label---margin: 0 $component-margin 0 0;
+$c-form__c-label---margin: 0 0 5px;
 
 
 
@@ -194,7 +214,7 @@ $c-toolbar---padding: 11px 25px;
 $c-titlebar---background: get-color(f3);
 $c-titlebar---color: get-color(g7);
 $c-titlebar---text-transform: uppercase;
-$c-titlebar---padding: 7px 10px;
+$c-titlebar---padding: 15px 0 15px 30px;
 
 $c-titlebar__title---font-size: get-font-size(medium-alpha);
 
@@ -210,22 +230,23 @@ $c-info-text---font-size: get-font-size(medium);
 
 $c-info-text__icon---color: get-color(c1);
 $c-info-text__icon---font-size: get-font-size(medium);
+$c-info-text__icon---margin: $c-icon-default-margin;
 
 
 
 // c-icon
-$c-icon---margin: 0 .5em 0 0;
 $c-icon--in-input---top: 7px;
 $c-icon--in-input---left: 22px;
-
 $c-icon--in-input---color: get-color(g6);
+
+$c-icon--in-input-right---right: 7px;
 
 
 
 // c-modal-inner
 $c-modal-inner---color: get-color(g7);
 $c-modal-inner---line-height: get-line-height(large);
-$c-modal-inner---padding: 15px 30px;
+$c-modal-inner---padding: 30px 45px;
 
 $c-modal-inner__title---color: get-color(c4);
 $c-modal-inner__title---font-size: get-font-size(large);
@@ -239,11 +260,12 @@ $c-modal-inner__c-list---margin: ($component-margin * 2);
 
 
 // c-col
+$c-col---cols-number: 12;
 
 
 
 // c-row
-$c-row--separated---margin: $component-margin 0 0;
+$c-row--separated---margin: 60px 0 0;
 
 
 
@@ -262,4 +284,15 @@ $c-icon-radio__item--checked---border: 1px solid get-color(c4);
 $c-icon-radio__icon---background: get-color(g4);
 $c-icon-radio__icon---border: 1px solid get-color(g4);
 $c-icon-radio__icon---color: get-color(c4);
+$c-icon-radio__item---margin: $c-icon-default-margin;
 $c-icon-radio__icon---padding: .4em;
+
+
+
+// c-msg
+$c-msg--small---padding: 5px 10px;
+
+$c-msg--error---background: get-color(e3);
+$c-msg--error---color: get-color(g0);
+
+$c-msg__c-icon---margin: $c-icon-default-margin;

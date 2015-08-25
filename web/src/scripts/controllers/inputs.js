@@ -3,11 +3,11 @@
 
     angular
         .module('webApp')
-        .controller('NuevoCtrl', NuevoCtrl);
+        .controller('InputsCtrl', InputsCtrl);
 
-    NuevoCtrl.$inject = ['ApiTest', 'FragmentDataService', 'TemplateDataService', '$filter', '$modal'];
+    InputsCtrl.$inject = ['FragmentFactory', 'PolicyFactory', 'TemplateFactory', '$filter', '$modal'];
 
-    function NuevoCtrl(ApiTest, FragmentDataService, TemplateDataService, $filter, $modal) {
+    function InputsCtrl(FragmentFactory, PolicyFactory, TemplateFactory, $filter, $modal) {
         /*jshint validthis: true*/
        var vm = this;
 
@@ -15,12 +15,12 @@
        vm.deleteInput = deleteInput;
        vm.getInputTypes = getInputTypes;
        vm.createInput = createInput;
-       vm.modifyInput = modifyInput;
+       vm.editInput = editInput;
        vm.createInputModal = createInputModal;
-       vm.modifyInputModal = modifyInputModal;
+       vm.editInputModal = editInputModal;
        vm.duplicateInput = duplicateInput;
        vm.deleteInputConfirm = deleteInputConfirm;
-       vm.getPoliciesNames = getPoliciesNames;
+       vm.getPolicyNames = getPolicyNames;
        vm.setInputsId = setInputsId;
        vm.inputTypes = [];
        vm.inputId = 1;
@@ -34,21 +34,23 @@
         };
 
         function getInputs() {
-            ApiTest.get().$promise.then(function (result) {
+            var inputList = FragmentFactory.GetFragments("input");
+
+            inputList.then(function (result) {
                 vm.inputsData = vm.setInputsId(result);
                 vm.getInputTypes(result);
             });
         };
 
         function deleteInput(fragmentType, fragmentName, index) {
-            console.log(index);
-            var policiesToDelete = FragmentDataService.GetPolicyByFragmentName(fragmentType, fragmentName);
+            console.log('--> Deleting input');
+            console.log('> Getting Policies affected');
+            var policiesToDelete = PolicyFactory.GetPolicyByFragmentName(fragmentType, fragmentName);
 
             policiesToDelete.then(function (result) {
-                console.log('*********Controller');
                 console.log(result);
 
-                var policies = vm.getPoliciesNames(result);
+                var policies = vm.getPolicyNames(result);
                 var inputToDelete =
                 {
                     'type':fragmentType,
@@ -57,6 +59,10 @@
                     'index': index
                 };
                 vm.deleteInputConfirm('lg', inputToDelete);
+            },
+            function (error) {
+              console.log('#ERROR#');
+              console.log(error);
             });
         };
 
@@ -70,7 +76,7 @@
        };
 
         function createInput() {
-           var inputFragmentTemplate = TemplateDataService.GetNewFragmentTemplate('input');
+           var inputFragmentTemplate = TemplateFactory.GetNewFragmentTemplate('input');
 
            inputFragmentTemplate.then(function (result) {
                 console.log('*********Controller');
@@ -90,32 +96,46 @@
            });
         };
 
-        function modifyInput(inputName, index) {
+        function editInput(inputType, inputName, index) {
            var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {name:inputName}, true)[0];
            var id = inputSelected.id;
 
            delete inputSelected["id"];
 
-           var inputFragmentTemplate = TemplateDataService.GetNewFragmentTemplate('input');
+           var inputFragmentTemplate = TemplateFactory.GetNewFragmentTemplate('input');
 
            inputFragmentTemplate.then(function (result) {
-               console.log('*********Controller');
-               console.log(result);
+                console.log('--> Editing input');
+                console.log('> Getting Fragment Template');
+                console.log(result);
+                console.log('> Getting Policies affected');
+                var policiesAffected = PolicyFactory.GetPolicyByFragmentName(inputType, inputName);
+                var inputDataTemplate = result;
 
-               var modifyInputData = {
-                   'index': index,
-                   'id': id,
-                   'action': 'modify',
-                   'inputSelected': inputSelected,
-                   'inputDataTemplate': result,
-                   'texts': {
-                        'title': '_INPUT_WINDOW_MODIFY_TITLE_',
-                        'button': '_INPUT_WINDOW_MODIFY_BUTTON_',
-                        'button_icon': 'icon-circle-check'
-                    }
-               };
+                policiesAffected.then(function (result) {
+                    console.log(result);
 
-               vm.modifyInputModal(modifyInputData);
+                    var policies = vm.getPolicyNames(result);
+                    var editInputData = {
+                        'index': index,
+                        'id': id,
+                        'action': 'edit',
+                        'inputSelected': inputSelected,
+                        'inputDataTemplate': inputDataTemplate,
+                        'policies': policies,
+                        'texts': {
+                            'title': '_INPUT_WINDOW_MODIFY_TITLE_',
+                            'button': '_INPUT_WINDOW_MODIFY_BUTTON_',
+                            'button_icon': 'icon-circle-check'
+                        }
+                    };
+
+                    vm.editInputModal(editInputData);
+                },
+                function (error) {
+                  console.log('#ERROR#');
+                  console.log(error);
+                });
            });
         };
 
@@ -127,7 +147,7 @@
             return inputsData;
         };
 
-        function getPoliciesNames(policiesData) {
+        function getPolicyNames(policiesData) {
             var policies = [];
 
             for (var i=0; i<policiesData.length; i++){
@@ -181,7 +201,7 @@
                    console.log('*************** Controller back');
                    console.log(newInputData);
 
-                   var newFragment = FragmentDataService.InsertFragment(newInputData.data);
+                   var newFragment = FragmentFactory.CreateFragment(newInputData.data);
 
                    newFragment
                        .then(function (result) {
@@ -204,7 +224,7 @@
                });
             };
 
-        function modifyInputModal(modidyInputData) {
+        function editInputModal(editInputData) {
            var modalInstance = $modal.open({
                animation: true,
                templateUrl: 'templates/inputs/input-details.tpl.html',
@@ -212,7 +232,7 @@
                size: 'lg',
                resolve: {
                    item: function () {
-                       return modidyInputData;
+                       return editInputData;
                    }
                }
            });
@@ -222,7 +242,7 @@
                    console.log('*************** Controller back');
                    console.log(updatedInputData);
 
-                   var updatedFragment = FragmentDataService.UpdateFragment(updatedInputData.data);
+                   var updatedFragment = FragmentFactory.UpdateFragment(updatedInputData.data);
 
                    updatedFragment
                        .then(function (result) {
@@ -260,7 +280,7 @@
             modalInstance.result
                 .then(function (selectedItem) {
                     console.log(selectedItem);
-                    var fragmentDeleted = FragmentDataService.DeleteFragment(selectedItem.type, selectedItem.name);
+                    var fragmentDeleted = FragmentFactory.DeleteFragment(selectedItem.type, selectedItem.name);
 
                     fragmentDeleted
                         .then(function (result) {
@@ -292,7 +312,7 @@
                     delete selectedItem["id"];
                     console.log(selectedItem);
 
-                    var newFragment = FragmentDataService.InsertFragment(selectedItem);
+                    var newFragment = FragmentFactory.CreateFragment(selectedItem);
 
                     newFragment
                         .then(function (result) {
@@ -321,16 +341,16 @@
         .module('webApp')
         .controller('NewFragmentModalCtrl', NewFragmentModalCtrl);
 
-    NewFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentDataService'];
+    NewFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentFactory'];
 
-    function NewFragmentModalCtrl($modalInstance, item, FragmentDataService) {
+    function NewFragmentModalCtrl($modalInstance, item, FragmentFactory) {
         /*jshint validthis: true*/
         var vm = this;
 
         vm.setProperties = setProperties;
         vm.ok = ok;
         vm.cancel = cancel;
-        vm.initFragmentObecjt = initFragmentObecjt;
+        vm.initFragmentObject = initFragmentObject;
         vm.setFragmentData = setFragmentData;
         vm.createTypeModels = createTypeModels;
         vm.dataSource = {};
@@ -344,22 +364,25 @@
         /////////////////////////////////
 
         function init() {
-            console.log('*********Modal');
+            console.log('--> NewFragmentModalCtrl');
+            console.log('> Data received');
             console.log(item);
 
             setTexts(item.texts);
 
             vm.action = item.action;
 
-            if (vm.action === 'modify') {
+            if (vm.action === 'edit') {
                 vm.templateInputsData = item.inputDataTemplate;
                 vm.dataSource = item.inputSelected;
                 vm.createTypeModels(vm.templateInputsData);
                 vm.selectedIndex = vm.index;
+                vm.policiesAffected = item.policies;
             }
             else {
                 vm.templateInputsData = item.inputDataTemplate;
-                vm.initFragmentObecjt(vm.templateInputsData);
+                vm.initFragmentObject(vm.templateInputsData);
+
                 vm.createTypeModels(vm.templateInputsData);
                 vm.selectedIndex = 0;
             }
@@ -372,7 +395,7 @@
             vm.modalTexts.icon = texts.button_icon;
         }
 
-        function initFragmentObecjt(fragmentData) {
+        function initFragmentObject(fragmentData) {
             /*Init fragment*/
             vm.dataSource.fragmentType = 'input';
             vm.dataSource.name = '';
@@ -399,11 +422,11 @@
                 }
 
                 /*Init properties*/
-                if(i === 0 && vm.action !== 'modify') {
+                if(i === 0 && vm.action !== 'edit') {
                     vm.dataSource.element.configuration = vm.properties[fragmentData[i].name];
                 }
 
-                else if(vm.action === 'modify' && fragmentData[i].name === vm.dataSource.element.type) {
+                else if(vm.action === 'edit' && fragmentData[i].name === vm.dataSource.element.type) {
                     vm.properties[fragmentData[i].name] = vm.dataSource.element.configuration;
                     vm.dataSource.element.configuration = vm.properties[fragmentData[i].name];
                     vm.index = i;
@@ -427,12 +450,12 @@
 
         function ok() {
             if (vm.form.$valid){
-                checkInputname(vm.dataSource.fragmentType, vm.dataSource.name);
+                checkInputName(vm.dataSource.fragmentType, vm.dataSource.name);
             }
         };
 
-        function checkInputname(inputType, inputName) {
-            var newFragment = FragmentDataService.GetFragmentByName(inputType, inputName);
+        function checkInputName(inputType, inputName) {
+            var newFragment = FragmentFactory.GetFragmentByName(inputType, inputName);
 
             newFragment
             .then(function (result) {
@@ -481,9 +504,9 @@
         .module('webApp')
         .controller('DuplicateFragmentModalCtrl', DuplicateFragmentModalCtrl);
 
-    DuplicateFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentDataService'];
+    DuplicateFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentFactory'];
 
-    function DuplicateFragmentModalCtrl($modalInstance, item, FragmentDataService) {
+    function DuplicateFragmentModalCtrl($modalInstance, item, FragmentFactory) {
         /*jshint validthis: true*/
         var vm = this;
 
@@ -503,12 +526,12 @@
 
         function ok() {
             if (vm.form.$valid){
-                checkInputname(vm.inputData.fragmentType, vm.inputData.name);
+                checkInputName(vm.inputData.fragmentType, vm.inputData.name);
             }
         };
 
-        function checkInputname(inputType, inputName) {
-            var newFragment = FragmentDataService.GetFragmentByName(inputType, inputName);
+        function checkInputName(inputType, inputName) {
+            var newFragment = FragmentFactory.GetFragmentByName(inputType, inputName);
 
             newFragment
             .then(function (result) {
