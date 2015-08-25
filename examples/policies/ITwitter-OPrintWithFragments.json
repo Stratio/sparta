@@ -9,7 +9,8 @@
   },
   "fragments": [
     {
-      "id": "80b4f153-2475-4825-9ed7-7109d3c0fea0-twitter",
+      "id": "34fb3a28-746f-4e70-bc6a-320219155d74",
+      "name": "twitter",
       "fragmentType": "input",
       "description": "description",
       "shortDescription": "shortDescription",
