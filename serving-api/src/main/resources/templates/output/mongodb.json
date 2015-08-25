@@ -1,8 +1,10 @@
 {
-  "name": "MongoDB",
+  "name": "Kafka Direct",
+  "modelType": "MongoDb",
   "description": {
     "short": "MongoDB is an open-source document database, and the leading NoSQL database.",
     "long": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling."
+    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#mongodb-label"
   },
   "icon": {
     "url": "logo_mongodb.png"
@@ -10,13 +12,32 @@
 
   "properties": [
     {
-      "propertyId": "mongoClientUri",
-      "propertyName": "MongoClientUri",
-      "propertyType": "text",
-      "regexp": "TODO",
-      "default": "mongodb://localhost:27017",
-      "required": false,
-      "tooltip": "This parameter connection routes specified the nodes of a cluster of MongoDB, with different replica set or with sharding."
+      "propertyId": "hosts",
+      "propertyName": "Hosts",
+      "propertyType": "list",
+      "default": "",
+      "required": true,
+      "tooltip": "This parameter connection routes specified the nodes of a cluster of MongoDB, with different replica set or with sharding.",
+      "fields": [
+        {
+          "propertyId": "hostName",
+          "propertyName": "Host",
+          "propertyType": "text",
+          "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+          "default": "",
+          "hidden": false,
+          "required": true
+        },
+        {
+          "propertyId": "port",
+          "propertyName": "Port",
+          "propertyType": "number",
+          "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
+          "default": "27017",
+          "hidden": false,
+          "required": true
+        }
+      ]
     },
     {
       "propertyId": "dbName",

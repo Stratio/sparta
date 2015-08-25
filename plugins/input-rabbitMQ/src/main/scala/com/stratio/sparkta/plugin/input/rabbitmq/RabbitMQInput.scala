@@ -29,7 +29,6 @@ import com.stratio.sparkta.sdk.{JsoneyString, Event, Input}
 
 class RabbitMQInput(properties: Map[String, JSerializable]) extends Input(properties) {
 
-  val DirectExchangeType: String = "direct"
   val DefaultRabbitMQPort = 5672
 
   val RabbitMQQueueName = properties.getString("queue")
