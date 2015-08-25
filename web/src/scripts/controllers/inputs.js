@@ -20,7 +20,7 @@
        vm.editInputModal = editInputModal;
        vm.duplicateInput = duplicateInput;
        vm.deleteInputConfirm = deleteInputConfirm;
-       vm.getPoliciesNames = getPoliciesNames;
+       vm.getPolicyNames = getPolicyNames;
        vm.setInputsId = setInputsId;
        vm.inputTypes = [];
        vm.inputId = 1;
@@ -43,14 +43,14 @@
         };
 
         function deleteInput(fragmentType, fragmentName, index) {
-            console.log(index);
+            console.log('--> Deleting input');
+            console.log('> Getting Policies affected');
             var policiesToDelete = PolicyFactory.GetPolicyByFragmentName(fragmentType, fragmentName);
 
             policiesToDelete.then(function (result) {
-                console.log('*********Controller');
                 console.log(result);
 
-                var policies = vm.getPoliciesNames(result);
+                var policies = vm.getPolicyNames(result);
                 var inputToDelete =
                 {
                     'type':fragmentType,
@@ -59,6 +59,10 @@
                     'index': index
                 };
                 vm.deleteInputConfirm('lg', inputToDelete);
+            },
+            function (error) {
+              console.log('#ERROR#');
+              console.log(error);
             });
         };
 
@@ -92,7 +96,7 @@
            });
         };
 
-        function editInput(inputName, index) {
+        function editInput(inputType, inputName, index) {
            var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {name:inputName}, true)[0];
            var id = inputSelected.id;
 
@@ -101,23 +105,37 @@
            var inputFragmentTemplate = TemplateFactory.GetNewFragmentTemplate('input');
 
            inputFragmentTemplate.then(function (result) {
-               console.log('*********Controller');
-               console.log(result);
+                console.log('--> Editing input');
+                console.log('> Getting Fragment Template');
+                console.log(result);
+                console.log('> Getting Policies affected');
+                var policiesAffected = PolicyFactory.GetPolicyByFragmentName(inputType, inputName);
+                var inputDataTemplate = result;
 
-               var editInputData = {
-                   'index': index,
-                   'id': id,
-                   'action': 'edit',
-                   'inputSelected': inputSelected,
-                   'inputDataTemplate': result,
-                   'texts': {
-                        'title': '_INPUT_WINDOW_MODIFY_TITLE_',
-                        'button': '_INPUT_WINDOW_MODIFY_BUTTON_',
-                        'button_icon': 'icon-circle-check'
-                    }
-               };
+                policiesAffected.then(function (result) {
+                    console.log(result);
 
-               vm.editInputModal(editInputData);
+                    var policies = vm.getPolicyNames(result);
+                    var editInputData = {
+                        'index': index,
+                        'id': id,
+                        'action': 'edit',
+                        'inputSelected': inputSelected,
+                        'inputDataTemplate': inputDataTemplate,
+                        'policies': policies,
+                        'texts': {
+                            'title': '_INPUT_WINDOW_MODIFY_TITLE_',
+                            'button': '_INPUT_WINDOW_MODIFY_BUTTON_',
+                            'button_icon': 'icon-circle-check'
+                        }
+                    };
+
+                    vm.editInputModal(editInputData);
+                },
+                function (error) {
+                  console.log('#ERROR#');
+                  console.log(error);
+                });
            });
         };
 
@@ -129,7 +147,7 @@
             return inputsData;
         };
 
-        function getPoliciesNames(policiesData) {
+        function getPolicyNames(policiesData) {
             var policies = [];
 
             for (var i=0; i<policiesData.length; i++){
@@ -346,7 +364,8 @@
         /////////////////////////////////
 
         function init() {
-            console.log('*********Modal');
+            console.log('--> NewFragmentModalCtrl');
+            console.log('> Data received');
             console.log(item);
 
             setTexts(item.texts);
@@ -358,6 +377,7 @@
                 vm.dataSource = item.inputSelected;
                 vm.createTypeModels(vm.templateInputsData);
                 vm.selectedIndex = vm.index;
+                vm.policiesAffected = item.policies;
             }
             else {
                 vm.templateInputsData = item.inputDataTemplate;
