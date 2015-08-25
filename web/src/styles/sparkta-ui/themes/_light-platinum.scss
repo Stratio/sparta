@@ -161,6 +161,8 @@ $c-button--danger--hover---background: get-color(e3b);
 $c-button--danger--hover---border: 0;
 $c-button--danger--hover---color: get-color(g0);
 
+$c-button__c-icon---margin: 0 .5em 0 0;
+
 
 // c-input
 $c-input---border: 1px solid get-color(g3);
@@ -208,7 +210,7 @@ $c-toolbar---padding: 11px 25px;
 $c-titlebar---background: get-color(f3);
 $c-titlebar---color: get-color(g7);
 $c-titlebar---text-transform: uppercase;
-$c-titlebar---padding: 7px 10px;
+$c-titlebar---padding: 15px 0 15px 30px;
 
 $c-titlebar__title---font-size: get-font-size(medium-alpha);
 
@@ -224,22 +226,23 @@ $c-info-text---font-size: get-font-size(medium);
 
 $c-info-text__icon---color: get-color(c1);
 $c-info-text__icon---font-size: get-font-size(medium);
+$c-info-text__icon---margin: 0 .5em 0 0;
 
 
 
 // c-icon
-$c-icon---margin: 0 .5em 0 0;
 $c-icon--in-input---top: 7px;
 $c-icon--in-input---left: 22px;
-
 $c-icon--in-input---color: get-color(g6);
+
+$c-icon--in-input-right---right: 7px;
 
 
 
 // c-modal-inner
 $c-modal-inner---color: get-color(g7);
 $c-modal-inner---line-height: get-line-height(large);
-$c-modal-inner---padding: 15px 30px;
+$c-modal-inner---padding: 30px 45px;
 
 $c-modal-inner__title---color: get-color(c4);
 $c-modal-inner__title---font-size: get-font-size(large);
@@ -277,6 +280,7 @@ $c-icon-radio__item--checked---border: 1px solid get-color(c4);
 $c-icon-radio__icon---background: get-color(g4);
 $c-icon-radio__icon---border: 1px solid get-color(g4);
 $c-icon-radio__icon---color: get-color(c4);
+$c-icon-radio__item---margin: 0 .5em 0 0;
 $c-icon-radio__icon---padding: .4em;
 
 

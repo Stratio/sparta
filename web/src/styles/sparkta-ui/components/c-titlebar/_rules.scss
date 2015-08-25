@@ -9,6 +9,15 @@
 	@at-root &__title {
 		font-size: $c-titlebar__title---font-size;
 	}
+
+	@at-root &__close-icon {
+		@include c-icon();
+		@include is-clickable(true);
+
+		position: absolute;
+		right: 10px;
+		top: 10px;
+	}
 }
 
 .c-titlebar {
