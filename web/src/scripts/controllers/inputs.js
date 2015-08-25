@@ -382,7 +382,6 @@
             else {
                 vm.templateInputsData = item.inputDataTemplate;
                 vm.initFragmentObject(vm.templateInputsData);
-
                 vm.createTypeModels(vm.templateInputsData);
                 vm.selectedIndex = 0;
             }
