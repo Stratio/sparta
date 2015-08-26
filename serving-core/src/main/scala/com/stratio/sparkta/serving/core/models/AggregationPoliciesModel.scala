@@ -28,7 +28,8 @@ import org.json4s.jackson.JsonMethods._
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 
 case class AggregationPoliciesModel(id: Option[String] = None,
-                                    name: String = "default",
+                                    name: String,
+                                    description: String,
                                     sparkStreamingWindow: Long = AggregationPoliciesModel.sparkStreamingWindow,
                                     checkpointPath: String,
                                     rawData: RawDataModel,

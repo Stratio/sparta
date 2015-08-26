@@ -18,7 +18,6 @@ package com.stratio.sparkta.serving.api.constants
 
 /**
  * HttpConstants used in http services mainly.
- * @author anistal
  */
 object HttpConstant {
 

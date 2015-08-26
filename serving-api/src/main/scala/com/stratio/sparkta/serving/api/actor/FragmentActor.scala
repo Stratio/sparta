@@ -22,8 +22,9 @@ import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.api.actor.FragmentActor._
+import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.core.AppConstant
-import com.stratio.sparkta.serving.core.models.{FragmentElementModel, StreamingContextStatusEnum}
+import com.stratio.sparkta.serving.core.models.{ErrorModel, FragmentElementModel, StreamingContextStatusEnum}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.DefaultFormats
@@ -32,7 +33,7 @@ import org.json4s.native.Serialization._
 import spray.httpx.Json4sJacksonSupport
 
 import scala.collection.JavaConversions
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4sJacksonSupport with SLF4JLogging {
 
@@ -42,6 +43,7 @@ class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4
 
   override def receive: Receive = {
     case FindByTypeAndId(fragmentType, id) => findByTypeAndId(fragmentType, id)
+    case FindByTypeAndName(fragmentType, name) => findByTypeAndId(fragmentType, name)
     case Create(fragment) => create(fragment)
     case Update(fragment) => update(fragment)
     case DeleteByTypeAndId(fragmentType, id) => deleteByTypeAndId(fragmentType, id)
@@ -63,10 +65,31 @@ class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4
       log.info(s"> Retrieving information for path: ${FragmentActor.generateFragmentPath(fragmentType)}/$id)")
       read[FragmentElementModel](new String(curatorFramework.getData.forPath(
         s"${FragmentActor.generateFragmentPath(fragmentType)}/$id")))
-    }))
+    }).recover {
+      case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
+        new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId, s"No fragment of type ${fragmentType} with id ${id}.")
+      ))
+    })
+
+  def findByTypeAndName(fragmentType: String, name: String): Unit =
+    sender ! ResponseFragments(Try({
+      val children = curatorFramework.getChildren.forPath(FragmentActor.generateFragmentPath(fragmentType))
+      JavaConversions.asScalaBuffer(children).toList.map(element =>
+        read[FragmentElementModel](new String(curatorFramework.getData.forPath(
+          s"${FragmentActor.generateFragmentPath(fragmentType)}/$element"))))
+        .filter(fragment => fragment.name == name).toSeq
+    }).recover {
+      case e: NoNodeException => Seq()
+    })
 
   def create(fragment: FragmentElementModel): Unit =
     sender ! Response(Try({
+      if(existsByTypeAndName(fragment.fragmentType, fragment.name)) {
+        throw new ServingApiException(ErrorModel.toString(
+          new ErrorModel(ErrorModel.CodeExistsFragmentWithName,
+            s"Fragment of type ${fragment.fragmentType} with name ${fragment.name} exists.")
+        ))
+      }
       val fragmentS = fragment.copy(id = Some(s"${UUID.randomUUID.toString}"))
       curatorFramework.create().creatingParentsIfNeeded().forPath(
         s"${FragmentActor.generateFragmentPath(
@@ -75,14 +98,48 @@ class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4
 
   def update(fragment: FragmentElementModel): Unit =
     sender ! Response(Try({
+      if(existsByTypeAndName(fragment.fragmentType, fragment.name, fragment.id)) {
+        throw new ServingApiException(ErrorModel.toString(
+          new ErrorModel(ErrorModel.CodeExistsFragmentWithName,
+            s"Fragment of type ${fragment.fragmentType} with name ${fragment.name} exists.")
+        ))
+      }
       curatorFramework.setData.forPath(
         s"${FragmentActor.generateFragmentPath(fragment.fragmentType)}/${fragment.id.get}", write(fragment).getBytes)
-    }))
+    }).recover {
+      case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
+        new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId,
+          s"No fragment of type ${fragment.fragmentType} with id ${fragment.id.get}.")
+      ))
+    })
 
   def deleteByTypeAndId(fragmentType: String, id: String): Unit =
     sender ! Response(Try({
       curatorFramework.delete().forPath(s"${FragmentActor.generateFragmentPath(fragmentType)}/$id")
-    }))
+    }).recover {
+      case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
+        new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId, s"No fragment of type ${fragmentType} with id ${id}.")
+      ))
+    })
+
+  private def existsByTypeAndName(fragmentType: String, name: String, id: Option[String] = None): Boolean = {
+    Try({
+      val children = curatorFramework.getChildren.forPath(FragmentActor.generateFragmentPath(fragmentType))
+      JavaConversions.asScalaBuffer(children).toList.map(element =>
+        read[FragmentElementModel](new String(curatorFramework.getData.forPath(
+          s"${FragmentActor.generateFragmentPath(fragmentType)}/$element"))))
+        .filter(fragment => {
+          if(id.isDefined) fragment.name == name && fragment.id.get != id.get
+          else fragment.name == name
+      }).toSeq.size > 0
+    }) match {
+      case Success(result) => result
+      case Failure(exception) => {
+        log.error(exception.getLocalizedMessage, exception)
+        false
+      }
+    }
+  }
 }
 
 object FragmentActor {
@@ -95,13 +152,16 @@ object FragmentActor {
 
   case class FindByTypeAndId(fragmentType: String, id: String)
 
+  case class FindByTypeAndName(fragmentType: String, name: String)
+
   case class DeleteByTypeAndId(fragmentType: String, id: String)
 
   case class ResponseFragment(fragment: Try[FragmentElementModel])
 
   case class ResponseFragments(fragments: Try[Seq[FragmentElementModel]])
 
-  case class Response(status: Try[Unit])
+  case class Response(status: Try[_])
+
 
   def generateFragmentPath(fragmentType: String): String = {
     fragmentType match {
