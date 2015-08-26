@@ -1,6 +1,9 @@
 {
 	"_HELP_": "Do you need help?",
 	"_CANCEL_": "Cancel",
+	"_VIEW_MORE_": "View more",
+  	"_NAME_": "Name",
+  	"_DESCRIPTION_": "Description",
 
 	"_HEADER_MENU_DASHBOARD_": "dashboard",
 	"_HEADER_MENU_SETTINGS_": "settings",
@@ -46,6 +49,8 @@
 	"_INPUT_BUTTON_CANCEL_": "cancel",
   	"_INPUT_BUTTON_DUPLICATE_": "duplicate",
 
-  	"_INPUT_ERROR_NAME_EXISTS_": "There was an error. The name already exists!"
+  	"_INPUT_ERROR_NAME_EXISTS_": "There was an error. The name already exists!",
+
+  	"_POLICY_HEADER_TITLE_MAIN_": "Policies"
 }
  

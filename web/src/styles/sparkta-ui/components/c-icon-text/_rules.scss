@@ -5,6 +5,7 @@
 	position: relative;
 
 	@include is-clickable();
+	@include is-coloured($c-icon-text---colors);
 	
 	@at-root &__text {
 		vertical-align: middle;
@@ -13,6 +14,7 @@
 	}
 
 	@at-root &__icon {
+		margin: $c-icon-text__icon---margin;
 		vertical-align: middle;
 	}
 }
