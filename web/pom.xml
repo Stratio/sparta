@@ -15,7 +15,7 @@
 	<properties>
 		<nodeVer>v0.12.2</nodeVer>
 		<npmVer>2.7.4</npmVer>
-		<nodeURL>http://sodio.stratio.com/nexus/content/repositories/thirdparty/node</nodeURL>
+		<!--<nodeURL>http://sodio.stratio.com/nexus/content/repositories/thirdparty/node</nodeURL>-->
 	</properties>
 
 	<build>
@@ -34,8 +34,10 @@
 						<configuration>
 							<nodeVersion>${nodeVer}</nodeVersion>
 							<npmVersion>${npmVer}</npmVersion>
+							<!--
 							<nodeDownloadRoot>${nodeURL}/node/</nodeDownloadRoot>
 							<npmDownloadRoot>${nodeURL}/npm/2.7.4/</npmDownloadRoot>
+							 -->
 							<skip.installnodenpm>${skip.installnodenpm}</skip.installnodenpm>
 						</configuration>
 					</execution>
@@ -72,7 +74,7 @@
                             <skip.grunt>${skip.grunt}</skip.grunt>
 						</configuration>
 					</execution>
-					<execution>
+					<!--<execution>
 						<id>karma test</id>
 						<goals>
 							<goal>karma</goal>
@@ -82,160 +84,160 @@
 							<arguments>test</arguments>
                             <skipTests>${skipUTs}</skipTests>
 						</configuration>
-					</execution>
+					</execution>-->
 				</executions>
 			</plugin>
-			<plugin>
-			   <groupId>org.codehaus.mojo</groupId>
-			   <artifactId>exec-maven-plugin</artifactId>
-			   <version>1.4.0</version>
-			   <executions>
-			       <execution>
-			           <id>mkdir node</id>
-			           <phase>generate-sources</phase>
-			           <goals>
-			               <goal>exec</goal>
-			           </goals>
-			           <configuration>
-			               <executable>
-			                   mkdir
-			               </executable>
-			               <arguments>
-				               	<argument>-p</argument>
-				               	<argument>${user.home}/sparkta/node</argument>
-			               </arguments>
-			           </configuration>
-			       </execution>
-			   		<execution>
-			           <id>mkdir node_modules</id>
-			           <phase>generate-sources</phase>
-			           <goals>
-			               <goal>exec</goal>
-			           </goals>
-			           <configuration>
-			               <executable>
-			                   mkdir
-			               </executable>
-			               <arguments>
-				               	<argument>-p</argument>
-				               	<argument>${user.home}/sparkta/node_modules</argument>
-			               </arguments>
-			           </configuration>
-			       </execution>
-			       <execution>
-			           <id>mkdir bower_components</id>
-			           <phase>generate-sources</phase>
-			           <goals>
-			               <goal>exec</goal>
-			           </goals>
-			           <configuration>
-			               <executable>
-			                   mkdir
-			               </executable>
-			               <arguments>
-				               	<argument>-p</argument>
-				               	<argument>${user.home}/sparkta/bower_components</argument>
-			               </arguments>
-			           </configuration>
-			       </execution>
-			       <execution>
-			           <id>rm ln node</id>
-			           <phase>generate-sources</phase>
-			           <goals>
-			               <goal>exec</goal>
-			           </goals>
-			           <configuration>
-			               <executable>
-			                   rm
-			               </executable>
-			               <arguments>
-			               		<argument>-rf</argument>
-				               	<argument>node</argument>
-			               </arguments>
-			           </configuration>
-			       </execution>
-			       <execution>
-			           <id>rm ln node_modules</id>
-			           <phase>generate-sources</phase>
-			           <goals>
-			               <goal>exec</goal>
-			           </goals>
-			           <configuration>
-			               <executable>
-			                   rm
-			               </executable>
-			               <arguments>
-			               		<argument>-rf</argument>
-				               	<argument>node_modules</argument>
-			               </arguments>
-			           </configuration>
-			       </execution>
-			       <execution>
-			           <id>rm ln bower_components</id>
-			           <phase>generate-sources</phase>
-			           <goals>
-			               <goal>exec</goal>
-			           </goals>
-			           <configuration>
-			               <executable>
-			                   rm
-			               </executable>
-			               <arguments>
-			               		<argument>-rf</argument>
-				               	<argument>bower_components</argument>
-			               </arguments>
-			           </configuration>
-			       </execution>
-			       <!--<execution>
-			           <id>ln node</id>
-			           <phase>generate-sources</phase>
-			           <goals>
-			               <goal>exec</goal>
-			           </goals>
-			           <configuration>
-			               <executable>
-			                   ln
-			               </executable>
-			               <arguments>
-				               	<argument>-s</argument>
-				               	<argument>${user.home}/sparkta/node</argument>
-			               </arguments>
-			           </configuration>
-			       </execution>
-			       <execution>
-			           <id>ln node_modules</id>
-			           <phase>generate-sources</phase>
-			           <goals>
-			               <goal>exec</goal>
-			           </goals>
-			           <configuration>
-			               <executable>
-			                   ln
-			               </executable>
-			               <arguments>
-				               	<argument>-s</argument>
-				               	<argument>${user.home}/sparkta/node_modules</argument>
-			               </arguments>
-			           </configuration>
-			       </execution>
-			       <execution>
-			           <id>ln bower_components</id>
-			           <phase>generate-sources</phase>
-			           <goals>
-			               <goal>exec</goal>
-			           </goals>
-			           <configuration>
-			               <executable>
-			                   ln
-			               </executable>
-			               <arguments>
-				               	<argument>-s</argument>
-				               	<argument>${user.home}/sparkta/bower_components</argument>
-			               </arguments>
-			           </configuration>
-			       </execution>-->
-			   </executions>
-			</plugin>
+<!-- 			<plugin>
+   <groupId>org.codehaus.mojo</groupId>
+   <artifactId>exec-maven-plugin</artifactId>
+   <version>1.4.0</version>
+   <executions>
+       <execution>
+           <id>mkdir node</id>
+           <phase>generate-sources</phase>
+           <goals>
+               <goal>exec</goal>
+           </goals>
+           <configuration>
+               <executable>
+                   mkdir
+               </executable>
+               <arguments>
+	               	<argument>-p</argument>
+	               	<argument>${user.home}/sparkta/node</argument>
+               </arguments>
+           </configuration>
+       </execution>
+   		<execution>
+           <id>mkdir node_modules</id>
+           <phase>generate-sources</phase>
+           <goals>
+               <goal>exec</goal>
+           </goals>
+           <configuration>
+               <executable>
+                   mkdir
+               </executable>
+               <arguments>
+	               	<argument>-p</argument>
+	               	<argument>${user.home}/sparkta/node_modules</argument>
+               </arguments>
+           </configuration>
+       </execution>
+       <execution>
+           <id>mkdir bower_components</id>
+           <phase>generate-sources</phase>
+           <goals>
+               <goal>exec</goal>
+           </goals>
+           <configuration>
+               <executable>
+                   mkdir
+               </executable>
+               <arguments>
+	               	<argument>-p</argument>
+	               	<argument>${user.home}/sparkta/bower_components</argument>
+               </arguments>
+           </configuration>
+       </execution>
+       <execution>
+           <id>rm ln node</id>
+           <phase>generate-sources</phase>
+           <goals>
+               <goal>exec</goal>
+           </goals>
+           <configuration>
+               <executable>
+                   rm
+               </executable>
+               <arguments>
+               		<argument>-rf</argument>
+	               	<argument>node</argument>
+               </arguments>
+           </configuration>
+       </execution>
+       <execution>
+           <id>rm ln node_modules</id>
+           <phase>generate-sources</phase>
+           <goals>
+               <goal>exec</goal>
+           </goals>
+           <configuration>
+               <executable>
+                   rm
+               </executable>
+               <arguments>
+               		<argument>-rf</argument>
+	               	<argument>node_modules</argument>
+               </arguments>
+           </configuration>
+       </execution>
+       <execution>
+           <id>rm ln bower_components</id>
+           <phase>generate-sources</phase>
+           <goals>
+               <goal>exec</goal>
+           </goals>
+           <configuration>
+               <executable>
+                   rm
+               </executable>
+               <arguments>
+               		<argument>-rf</argument>
+	               	<argument>bower_components</argument>
+               </arguments>
+           </configuration>
+       </execution>
+       <execution>
+           <id>ln node</id>
+           <phase>generate-sources</phase>
+           <goals>
+               <goal>exec</goal>
+           </goals>
+           <configuration>
+               <executable>
+                   ln
+               </executable>
+               <arguments>
+	               	<argument>-s</argument>
+	               	<argument>${user.home}/sparkta/node</argument>
+               </arguments>
+           </configuration>
+       </execution>
+       <execution>
+           <id>ln node_modules</id>
+           <phase>generate-sources</phase>
+           <goals>
+               <goal>exec</goal>
+           </goals>
+           <configuration>
+               <executable>
+                   ln
+               </executable>
+               <arguments>
+	               	<argument>-s</argument>
+	               	<argument>${user.home}/sparkta/node_modules</argument>
+               </arguments>
+           </configuration>
+       </execution>
+       <execution>
+           <id>ln bower_components</id>
+           <phase>generate-sources</phase>
+           <goals>
+               <goal>exec</goal>
+           </goals>
+           <configuration>
+               <executable>
+                   ln
+               </executable>
+               <arguments>
+	               	<argument>-s</argument>
+	               	<argument>${user.home}/sparkta/bower_components</argument>
+               </arguments>
+           </configuration>
+       </execution>
+   </executions>
+</plugin> -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
