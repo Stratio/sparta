@@ -4,10 +4,12 @@
 	@include container-to-bottom();
 
 	position: relative;
+
+	&--fix-overflow {
+		overflow: auto;
+	}
 }
 
 .c-panel {
 	@include c-panel;
-
-	overflow: auto;
 }
