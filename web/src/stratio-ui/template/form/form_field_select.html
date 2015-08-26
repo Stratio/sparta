@@ -1,0 +1,15 @@
+<ng-form name="{{name}}" class="c-form-group" ng-class="{empty: !model, focus: isFocused, placeholder: placeholder && !label, error: this[name][name].$invalid && form.$submitted, disabled: disabled}">
+    <div class="c-form-control c-form-control--full-width">
+        <label ng-if="label" class="c-col c-col--12 c-label" title="{{label}}" for="{{name}}">{{label}}</label>
+        <div ng-if="placeholder" class="st-form-field-placeholder">{{placeholder}}</div>
+        <select ng-attr-id="{{name}}" name="{{name}}" class="st-form-field-select" ng-model="model" ng-options="item[field] for item in options track by item[trackBy]" ng-change="changeActionHandler()" ng-disabled="disabled" ng-required="required" ng-focus="isFocused=true" ng-blur="isFocused=false" ng-keyup="keyupHandler($event)" ng-show="trackBy" ></select>
+        <select ng-attr-id="{{name}}" name="{{name}}" class="st-form-field-select" ng-model="model" ng-options="item[field] for item in options" ng-change="changeActionHandler()" ng-required="required" ng-disabled="disabled" ng-focus="isFocused=true" ng-blur="isFocused=false" ng-keyup="keyupHandler($event)" ng-show="!trackBy" ></select>
+        <div ng-if="this[name][name].$invalid && form.$submitted" class="st-form-field-error">
+            <span ng-if="this[name][name].$error.required">This field is required. </span>
+        </div>
+        <div ng-if="help" class="st-form-field-help">
+            <div class="st-form-field-help-button button"><i id="help-{{name}}" class="fa fa-question-circle" ng-click="toggleHelp($event)"></i></div>
+            <div class="st-form-field-help-text" ng-show="showHelp">{{help}}</div>
+        </div>
+    </div>
+</ng-form>

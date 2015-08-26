@@ -8,6 +8,14 @@
 	}
 }
 
+@mixin is-coloured($colors) {
+	@each $key, $value in $colors {
+		&--#{$key} {
+			color: $value;
+		}
+	}
+}
+
 @mixin is-link() {
 	&--is-link {
 		&:hover {
