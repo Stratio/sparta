@@ -43,7 +43,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
 
   override def receive: Receive = {
     case FindByTypeAndId(fragmentType, id) => findByTypeAndId(fragmentType, id)
-    case FindByTypeAndName(fragmentType, name) => findByTypeAndName(fragmentType, name)
+    case FindByTypeAndName(fragmentType, name) => findByTypeAndName(fragmentType, name.toLowerCase())
     case Create(fragment) => create(fragment)
     case Update(fragment) => update(fragment)
     case DeleteByTypeAndId(fragmentType, id) => deleteByTypeAndId(fragmentType, id)
@@ -67,7 +67,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
         s"${FragmentActor.generateFragmentPath(fragmentType)}/$id")))
     }).recover {
       case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId, s"No fragment of type ${fragmentType} with id ${id}.")
+        new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId, s"No fragmentel of type ${fragmentType} with id ${id}.")
       ))
     })
 
@@ -87,13 +87,14 @@ class FragmentActor(curatorFramework: CuratorFramework)
 
   def create(fragment: FragmentElementModel): Unit =
     sender ! ResponseFragment(Try({
-      if(existsByTypeAndName(fragment.fragmentType, fragment.name)) {
+      if(existsByTypeAndName(fragment.fragmentType, fragment.name.toLowerCase)) {
         throw new ServingApiException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeExistsFragmentWithName,
             s"Fragment of type ${fragment.fragmentType} with name ${fragment.name} exists.")
         ))
       }
-      val fragmentS = fragment.copy(id = Some(s"${UUID.randomUUID.toString}"))
+      val fragmentS = fragment.copy(id = Some(s"${UUID.randomUUID.toString}"),
+                                    name = fragment.name.toLowerCase)
       curatorFramework.create().creatingParentsIfNeeded().forPath(
         s"${FragmentActor.generateFragmentPath(
           fragmentS.fragmentType)}/${fragmentS.id.get}", write(fragmentS).getBytes())
@@ -102,14 +103,17 @@ class FragmentActor(curatorFramework: CuratorFramework)
 
   def update(fragment: FragmentElementModel): Unit =
     sender ! Response(Try({
-      if(existsByTypeAndName(fragment.fragmentType, fragment.name, fragment.id)) {
+      if(existsByTypeAndName(fragment.fragmentType, fragment.name.toLowerCase, fragment.id)) {
         throw new ServingApiException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeExistsFragmentWithName,
             s"Fragment of type ${fragment.fragmentType} with name ${fragment.name} exists.")
         ))
       }
+
+      val fragmentS = fragment.copy(name = fragment.name.toLowerCase)
+
       curatorFramework.setData.forPath(
-        s"${FragmentActor.generateFragmentPath(fragment.fragmentType)}/${fragment.id.get}", write(fragment).getBytes)
+        s"${FragmentActor.generateFragmentPath(fragmentS.fragmentType)}/${fragment.id.get}", write(fragmentS).getBytes)
     }).recover {
       case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId,
