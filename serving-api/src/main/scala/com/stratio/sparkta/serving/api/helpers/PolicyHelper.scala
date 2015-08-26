@@ -19,6 +19,7 @@ package com.stratio.sparkta.serving.api.helpers
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
+import com.stratio.sparkta.serving.api.actor.FragmentActor.{ResponseFragment, Response, FindByTypeAndId}
 import com.stratio.sparkta.serving.api.actor._
 import com.stratio.sparkta.serving.core.models.FragmentType._
 import com.stratio.sparkta.serving.core.models._
@@ -67,12 +68,10 @@ object PolicyHelper {
     implicit val timeout = currentTimeout
 
     val currentFragments: Seq[FragmentElementModel] = apConfig.fragments.map(fragment => {
-      val future = actor ? new FragmentSupervisorActor_findByTypeAndName(fragment.fragmentType, fragment.name)
+      val future = actor ? new FindByTypeAndId(fragment.fragmentType, fragment.id.get)
       Await.result(future, timeout.duration) match {
-        case FragmentSupervisorActor_response_fragment(Failure(exception)) => {
-          throw exception
-        }
-        case FragmentSupervisorActor_response_fragment(Success(fragment)) => fragment
+        case ResponseFragment(Failure(exception)) => throw exception
+        case ResponseFragment(Success(fragment)) => fragment
       }
     })
     apConfig.copy(fragments = currentFragments)

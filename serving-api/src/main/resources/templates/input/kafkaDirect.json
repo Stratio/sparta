@@ -1,10 +1,10 @@
 {
-  "name": "Kafka",
-  "modelType": "Kafka",
+  "name": "Kafka Direct",
+  "modelType": "KafkaDirect",
   "description": {
     "short": "Reads events from apache-kafka",
     "long": "Reads events from apache-kafka",
-    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#kafka-label"
+    "learnMore": "http://docs.stratio.com"
   },
   "icon": {
     "url": "logo_kafka.png"

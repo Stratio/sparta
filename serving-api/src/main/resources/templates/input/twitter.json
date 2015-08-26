@@ -1,73 +1,56 @@
 {
   "name": "Twitter",
+  "modelType": "Twitter",
   "description": {
     "short": "Reads events from Twitter stream.",
-    "long": "Reads events from Twitter stream."
+    "long": "Reads events from Twitter stream.",
+    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#twitter-label"
   },
   "icon": {
     "url": "logo_twitter.png"
   },
-
   "properties": [
     {
-      "propertyId": "name",
-      "propertyName": "Name",
-      "propertyType": "text",
-      "regexp": "TODO",
-      "default": "Twitter",
-      "required": false,
-      "tooltip": "Name of the input"
-    },
-    {
-      "propertyId": "type",
-      "propertyName": "Type",
-      "propertyType": "text",
-      "regexp": "[^/\\. \"$]{2,128}",
-      "default": "Twitter",
-      "required": false,
-      "tooltip": "The Type of the input it’s used to instantiate specific classes"
-    },
-    {
       "propertyId": "consumerKey",
-      "propertyName": "ConsumerKey",
+      "propertyName": "Consumer key",
       "propertyType": "text",
-      "regexp": "[^/\\. \"$]{1,3}",
-      "default": "****",
-      "required": false,
+      "regexp": "",
+      "default": "",
+      "required": true,
       "tooltip": "Twitter's consumer key."
     },
     {
       "propertyId": "consumerSecret",
-      "propertyName": "ConsumerSecret",
+      "propertyName": "Consumer secret",
       "propertyType": "text",
-      "regexp": "[^/\\. \"$]{1,3}",
-      "default": "****",
-      "required": false,
+      "regexp": "",
+      "default": "",
+      "required": true,
       "tooltip": "Twitter's consumer secret"
     },
     {
       "propertyId": "accessToken",
-      "propertyName": "AccessToken",
+      "propertyName": "Access token",
       "propertyType": "text",
-      "regexp": "[^/\\. \"$]{1,3}",
-      "default": "****",
-      "required": false,
+      "regexp": "",
+      "default": "",
+      "required": true,
       "tooltip": "Twitter's access token."
     },
     {
       "propertyId": "tokenSecret",
-      "propertyName": "TokenSecret",
-      "propertyType": "text",
-      "regexp": "[^/\\. \"$]{1,300}",
-      "default": "****",
-      "required": false,
+      "propertyName": "Token secret",
+      "propertyType": "",
+      "regexp": "",
+      "default": "",
+      "required": true,
       "tooltip": "Twitter's token secret."
     },
     {
       "propertyId": "termsOfSearch",
-      "propertyName": "TermsOfSearch",
+      "propertyName": "Terms of search",
       "propertyType": "text",
-      "regexp": "[^/\\. \"$]{1,20}",
+      "regexp": "",
       "default": "",
       "required": false,
       "tooltip": "It allows to search tweets based on the words of this field. If you don’t use this field, it searches over global trending topics."

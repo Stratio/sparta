@@ -18,9 +18,9 @@ package com.stratio.sparkta.serving.core.models
 
 /**
  * Class that represents a template used by the frontend to render inputs/outputs.
- * @author anistal
  */
-case class TemplateModel( name: String,
+case class TemplateModel(name: String,
+                        modelType: String,
                         description: Map[String,String],
                         icon: Map[String,String],
                         properties: Seq[PropertyElementModel] )
@@ -28,8 +28,14 @@ case class TemplateModel( name: String,
 case class PropertyElementModel(propertyId: String,
                               propertyName: String,
                               propertyType: String,
-                              regexp: String,
+                              regexp: Option[String],
                               default: Option[String],
                               required: Boolean,
-                              tooltip: String)
+                              tooltip: String,
+                              hidden: Option[Boolean],
+                              visible: Option[Seq[Seq[VisibleItemModel]]],
+                              fields: Option[Seq[Any]])
 
+case class VisibleItemModel(propertyId: String,
+                            value: String,
+                            overrideProps: Option[Seq[Map[String, String]]])

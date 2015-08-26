@@ -16,11 +16,14 @@
 
 package com.stratio.sparkta.serving.api.actor
 
-import scala.collection.JavaConversions
-import scala.util.Try
+import java.util.UUID
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.api.actor.FragmentActor._
+import com.stratio.sparkta.serving.core.AppConstant
+import com.stratio.sparkta.serving.core.models.{FragmentElementModel, StreamingContextStatusEnum}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.DefaultFormats
@@ -28,33 +31,9 @@ import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.Serialization._
 import spray.httpx.Json4sJacksonSupport
 
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.core.AppConstant
-import com.stratio.sparkta.serving.core.models.{FragmentElementModel, StreamingContextStatusEnum}
+import scala.collection.JavaConversions
+import scala.util.Try
 
-/**
- * List of all possible akka messages used to manage fragments.
- */
-case class FragmentSupervisorActor_create(fragment: FragmentElementModel)
-
-case class FragmentSupervisorActor_update(fragment: FragmentElementModel)
-
-case class FragmentSupervisorActor_findByType(fragmentType: String)
-
-case class FragmentSupervisorActor_findByTypeAndName(fragmentType: String, name: String)
-
-case class FragmentSupervisorActor_deleteByTypeAndName(fragmentType: String, name: String)
-
-case class FragmentSupervisorActor_response_fragment(fragment: Try[FragmentElementModel])
-
-case class FragmentSupervisorActor_response_fragments(fragments: Try[Seq[FragmentElementModel]])
-
-case class FragmentSupervisorActor_response(status: Try[Unit])
-
-/**
- * Implementation of supported CRUD operations over ZK needed to manage Fragments.
- * @author anistal
- */
 class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4sJacksonSupport with SLF4JLogging {
 
   implicit val json4sJacksonFormats = DefaultFormats +
@@ -62,15 +41,15 @@ class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4
     new JsoneyStringSerializer()
 
   override def receive: Receive = {
-    case FragmentSupervisorActor_findByTypeAndName(fragmentType, name) => doDetail(fragmentType, name)
-    case FragmentSupervisorActor_create(fragment) => doCreate(fragment)
-    case FragmentSupervisorActor_update(fragment) => doUpdate(fragment)
-    case FragmentSupervisorActor_deleteByTypeAndName(fragmentType, name) => doDeleteByTypeAndName(fragmentType, name)
-    case FragmentSupervisorActor_findByType(fragmentType) => doFindByType(fragmentType)
+    case FindByTypeAndId(fragmentType, id) => findByTypeAndId(fragmentType, id)
+    case Create(fragment) => create(fragment)
+    case Update(fragment) => update(fragment)
+    case DeleteByTypeAndId(fragmentType, id) => deleteByTypeAndId(fragmentType, id)
+    case FindByType(fragmentType) => findByType(fragmentType)
   }
 
-  def doFindByType(fragmentType: String): Unit =
-    sender ! FragmentSupervisorActor_response_fragments(Try({
+  def findByType(fragmentType: String): Unit =
+    sender ! ResponseFragments(Try({
       val children = curatorFramework.getChildren.forPath(FragmentActor.generateFragmentPath(fragmentType))
       JavaConversions.asScalaBuffer(children).toList.map(element =>
         read[FragmentElementModel](new String(curatorFramework.getData.forPath(
@@ -79,32 +58,50 @@ class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4
       case e: NoNodeException => Seq()
     })
 
-  def doDetail(fragmentType: String, name: String): Unit =
-    sender ! new FragmentSupervisorActor_response_fragment(Try({
-      log.info(s"> Retrieving information for path: ${FragmentActor.generateFragmentPath(fragmentType)}/$name)")
+  def findByTypeAndId(fragmentType: String, id: String): Unit =
+    sender ! new ResponseFragment(Try({
+      log.info(s"> Retrieving information for path: ${FragmentActor.generateFragmentPath(fragmentType)}/$id)")
       read[FragmentElementModel](new String(curatorFramework.getData.forPath(
-        s"${FragmentActor.generateFragmentPath(fragmentType)}/$name")))
+        s"${FragmentActor.generateFragmentPath(fragmentType)}/$id")))
     }))
 
-  def doCreate(fragment: FragmentElementModel): Unit =
-    sender ! FragmentSupervisorActor_response(Try({
+  def create(fragment: FragmentElementModel): Unit =
+    sender ! Response(Try({
+      val fragmentS = fragment.copy(id = Some(s"${UUID.randomUUID.toString}"))
       curatorFramework.create().creatingParentsIfNeeded().forPath(
-        s"${FragmentActor.generateFragmentPath(fragment.fragmentType)}/${fragment.name}", write(fragment).getBytes())
+        s"${FragmentActor.generateFragmentPath(
+          fragmentS.fragmentType)}/${fragmentS.id.get}", write(fragmentS).getBytes())
     }))
 
-  def doUpdate(fragment: FragmentElementModel): Unit =
-    sender ! FragmentSupervisorActor_response(Try({
+  def update(fragment: FragmentElementModel): Unit =
+    sender ! Response(Try({
       curatorFramework.setData.forPath(
-        s"${FragmentActor.generateFragmentPath(fragment.fragmentType)}/${fragment.name}", write(fragment).getBytes)
+        s"${FragmentActor.generateFragmentPath(fragment.fragmentType)}/${fragment.id.get}", write(fragment).getBytes)
     }))
 
-  def doDeleteByTypeAndName(fragmentType: String, name: String): Unit =
-    sender ! FragmentSupervisorActor_response(Try({
-      curatorFramework.delete().forPath(s"${FragmentActor.generateFragmentPath(fragmentType)}/$name")
+  def deleteByTypeAndId(fragmentType: String, id: String): Unit =
+    sender ! Response(Try({
+      curatorFramework.delete().forPath(s"${FragmentActor.generateFragmentPath(fragmentType)}/$id")
     }))
 }
 
 object FragmentActor {
+
+  case class Create(fragment: FragmentElementModel)
+
+  case class Update(fragment: FragmentElementModel)
+
+  case class FindByType(fragmentType: String)
+
+  case class FindByTypeAndId(fragmentType: String, id: String)
+
+  case class DeleteByTypeAndId(fragmentType: String, id: String)
+
+  case class ResponseFragment(fragment: Try[FragmentElementModel])
+
+  case class ResponseFragments(fragments: Try[Seq[FragmentElementModel]])
+
+  case class Response(status: Try[Unit])
 
   def generateFragmentPath(fragmentType: String): String = {
     fragmentType match {

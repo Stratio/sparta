@@ -1,0 +1,54 @@
+{
+  "name": "CSV",
+  "modelType": "Csv",
+  "description": {
+    "short": "",
+    "long": "",
+    "learnMore": "http://docs.stratio.com"
+  },
+  "icon": {
+    "url": "logo_csv.png"
+  },
+  "properties": [
+    {
+      "propertyId": "path",
+      "propertyName": "Path",
+      "propertyType": "text",
+      "regexp": "^[a-zA-Z0-9:_\\.\\-\\+/\\\\]{2,}\\.csv$",
+      "default": null,
+      "required": true
+    },
+    {
+      "propertyId": "header",
+      "propertyName": "Header",
+      "propertyType": "text",
+      "regexp": "",
+      "default": false,
+      "required": false
+    },
+    {
+      "propertyId": "delimiter",
+      "propertyName": "Delimiter",
+      "propertyType": "text",
+      "regexp": "",
+      "default": ",",
+      "required": false
+    },
+    {
+      "propertyId": "datePattern",
+      "propertyName": "Date pattern",
+      "propertyType": "text",
+      "regexp": "",
+      "default": null,
+      "required": false
+    },
+    {
+      "propertyId": "dateGranularityFile",
+      "propertyName": "Date granularity file",
+      "propertyType": "text",
+      "regexp": "",
+      "default": "day",
+      "required": false
+    }
+  ]
+}

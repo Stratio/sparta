@@ -8,10 +8,10 @@
     "name": "in-twitter",
     "type": "Twitter",
     "configuration": {
-      "consumerKey": "*****",
-      "consumerSecret": "*****",
-      "accessToken": "*****",
-      "accessTokenSecret": "*****"
+      "consumerKey": "*",
+      "consumerSecret": "*",
+      "accessToken": "*",
+      "accessTokenSecret": "*"
     }		
   }
 }
