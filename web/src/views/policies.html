@@ -1,6 +1,7 @@
-<div>
-	<!-- HEADER -->
-	<st-heading title="{{'_POLICY_HEADER_TITLE_MAIN_' | translate}}" subtitle="{{'_INPUT_HEADER_TITLE_SECONDARY' | translate}}:"></st-heading>
+<section>
+	<header>
+		<st-heading title="{{'_POLICY_HEADER_TITLE_MAIN_' | translate}}" subtitle="{{'_INPUT_HEADER_TITLE_SECONDARY' | translate}}:"></st-heading>
+	</header>
 
 	<div class="c-panel">
 		<table>
@@ -13,8 +14,9 @@
 			<tbody>
 				<tr data-ng-repeat="policy in policies.policiesData.list">
 					<td>{{policy.name}}</td>
+					<td>Description</td>
 				</tr>
 			</tbody>
 		</table>
     </div>
-</div>
+</section>
