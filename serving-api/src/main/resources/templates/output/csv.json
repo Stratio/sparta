@@ -4,7 +4,7 @@
   "description": {
     "short": "",
     "long": "",
-    "learnMore": "http://docs.stratio.com"
+    "learnMore": "docs.stratio.com/modules/sparkta/0.6/outputs.html#csv-label"
   },
   "icon": {
     "url": "logo_csv.png"

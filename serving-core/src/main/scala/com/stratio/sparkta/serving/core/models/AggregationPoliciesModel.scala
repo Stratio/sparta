@@ -28,7 +28,8 @@ import org.json4s.jackson.JsonMethods._
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 
 case class AggregationPoliciesModel(id: Option[String] = None,
-                                    name: String,
+                                    storageLevel: Option[String] = AggregationPoliciesModel.storageDefaultValue,
+                                    name: String = "default",
                                     description: String,
                                     sparkStreamingWindow: Long = AggregationPoliciesModel.sparkStreamingWindow,
                                     checkpointPath: String,
@@ -42,6 +43,7 @@ case class AggregationPoliciesModel(id: Option[String] = None,
 case object AggregationPoliciesModel {
 
   val sparkStreamingWindow = 2000
+  val storageDefaultValue = Some("MEMORY_AND_DISK_SER_2")
 }
 
 object AggregationPoliciesValidator {

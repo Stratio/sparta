@@ -15,8 +15,7 @@
       "configuration": {
         "topics": "detectorStream3",
         "kafkaParams.zookeeper.connect": "****",
-        "kafkaParams.group.id": "testgroup",
-        "storageLevel": "MEMORY_AND_DISK_SER_2"
+        "kafkaParams.group.id": "testgroup"
       }
     }
   ,

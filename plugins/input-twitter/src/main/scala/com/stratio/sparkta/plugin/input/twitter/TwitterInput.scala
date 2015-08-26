@@ -46,7 +46,7 @@ class TwitterInput(properties: Map[String, JSerializable]) extends Input(propert
   val terms :Try[Seq[String]] = Try(properties.getString("termsOfSearch").split(","))
   val search = terms.getOrElse(trends.toSeq)
 
-  override def setUp(ssc: StreamingContext): DStream[Event] = {
+  override def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
     TwitterUtils.createStream(ssc, None, search ).map(data => new Event(Map(
       RawDataKey -> data,
       "status" -> data.asInstanceOf[java.io.Serializable],

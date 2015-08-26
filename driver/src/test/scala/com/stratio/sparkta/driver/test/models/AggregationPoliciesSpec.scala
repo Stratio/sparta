@@ -34,6 +34,7 @@ with Matchers {
       val sparkStreamingWindow = 2000
       val checkpointInterval = 10000
       val checkpointAvailable = 60000
+      val storageLevel = Some("MEMORY_AND_DISK_SER_2")
       val checkpointGranularity = "minute"
       val checkpointDir = "checkpoint"
       val checkpointDto =
@@ -53,6 +54,7 @@ with Matchers {
 
       val apd = new AggregationPoliciesModel(
         None,
+        storageLevel,
         "policy-name",
         "policy description",
         sparkStreamingWindow,
@@ -71,6 +73,7 @@ with Matchers {
       val sparkStreamingWindowBad = 20000
       val apdBad = new AggregationPoliciesModel(
         None,
+        storageLevel,
         "policy-name",
         "policy-description",
         sparkStreamingWindowBad,

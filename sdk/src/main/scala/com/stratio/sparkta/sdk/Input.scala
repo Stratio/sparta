@@ -18,13 +18,17 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
+import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
 
 abstract class Input(properties: Map[String, JSerializable]) extends Parameterizable(properties) {
 
-  def setUp(ssc: StreamingContext): DStream[Event]
+  def setUp(ssc: StreamingContext, storageLevel: String): DStream[Event]
+  def storageLevel(sparkStorageLevel: String): StorageLevel = {
+    StorageLevel.fromString(sparkStorageLevel)
+  }
 }
 
 object Input {

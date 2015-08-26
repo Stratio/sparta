@@ -14,17 +14,16 @@
     "timeAvailability": 60000
   },
   "input":
-    {
-      "name": "in",
-      "type": "Kafka",
-      "configuration": {
-        "topics": "page_visits",
-        "kafkaParams.zookeeper.connect": "localhost:2181",
-        "kafkaParams.group.id": "none",
-        "storageLevel": "MEMORY_AND_DISK_SER_2"
-      }
+  {
+    "name": "in",
+    "type": "Kafka",
+    "configuration": {
+      "topics": "page_visits",
+      "kafkaParams.zookeeper.connect": "localhost:2181",
+      "kafkaParams.group.id": "none"
     }
-  ,
+  }
+,
   "transformations": [
     {
       "name": "morphline-parser",
