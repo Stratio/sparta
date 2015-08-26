@@ -129,7 +129,7 @@
                             'button_icon': 'icon-circle-check'
                         }
                     };
-
+ 
                     vm.editInputModal(editInputData);
                 },
                 function (error) {

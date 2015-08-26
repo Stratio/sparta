@@ -81,7 +81,13 @@ $component-margin: 15px;
 $component-default-margin: .5em;
 
 $c-icon-default-margin: 0 $component-default-margin 0 0;
+ 
+$c-icon-default-margin: 0 $component-default-margin 0 0;
 
+
+
+// angular-forms
+$angular-forms--ng-invalid---border: 1px solid get-color(e3);
 
 
 // angular-forms
@@ -165,6 +171,7 @@ $c-button--danger--hover---border: 0;
 $c-button--danger--hover---color: get-color(g0);
 
 $c-button__c-icon---margin: $c-icon-default-margin;
+
 
 
 // c-input

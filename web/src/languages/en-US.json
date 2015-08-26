@@ -28,6 +28,8 @@
   	"_INPUT_WINDOW_MODIFY_TITLE_": "Modify input",
   	"_INPUT_WINDOW_MODIFY_BUTTON_": "Modify input",
 	"_INPUT_WINDOW_NEW_HELP_": "Do you need help?",
+  	"_INPUT_WINDOW_MODIFY_TITLE_": "Modify input",
+  	"_INPUT_WINDOW_MODIFY_BUTTON_": "Modify input",
 	"_INPUT_WINDOW_DELETE_TITLE_": "Delete input",
 	"_INPUT_WINDOW_FORM_NAME_": "Name",
 	"_INPUT_WINDOW_FORM_TYPE_": "Type",
@@ -46,3 +48,4 @@
 
   	"_INPUT_ERROR_NAME_EXISTS_": "There was an error. The name already exists!"
 }
+ 
