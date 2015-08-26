@@ -30,7 +30,7 @@
 						<goals>
 							<goal>install-node-and-npm</goal>
 						</goals>
-						<phase>generate-resources</phase>
+						<phase>validate</phase>
 						<configuration>
 							<nodeVersion>${nodeVer}</nodeVersion>
 							<npmVersion>${npmVer}</npmVersion>
@@ -44,7 +44,7 @@
 						<goals>
 							<goal>npm</goal>
 						</goals>
-						<phase>generate-resources</phase>
+						<phase>initialize</phase>
 						<configuration>
 							<arguments>install --production</arguments>
                             <skip.npm>${skip.npm}</skip.npm>
