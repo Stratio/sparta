@@ -53,6 +53,7 @@ with Matchers {
   val checkpointInterval = 10000
   val checkpointAvailable = 60000
   val checkpointGranularity = "minute"
+  val storageLevel = Some("MEMORY_AND_DISK_SER_2")
   val checkpointDir = "checkpoint"
   val sparkStreamingWindow = 2000
   val input = new PolicyElementModel("", "", Map())
@@ -91,9 +92,8 @@ with Matchers {
     }
     "Create policy" in {
       val PolicyName = "p-1"
-      val apd = new AggregationPoliciesModel(None, PolicyName, "description", sparkStreamingWindow, checkpointDir, new
-          RawDataModel(),
-        Seq(), Seq(), Some(input), Seq(), Seq())
+      val apd = new AggregationPoliciesModel(None, storageLevel, PolicyName, "description", sparkStreamingWindow,
+        checkpointDir, new RawDataModel(), Seq(), Seq(), Some(input), Seq(), Seq())
       try {
         val test = Post("/policy", apd) ~> routes
         supervisorProbe.expectMsg(new CreateContext(apd))
@@ -128,9 +128,8 @@ with Matchers {
       val checkpointConfig =
         new CheckpointModel(checkpointGranularity, checkpointGranularity, checkpointInterval, checkpointAvailable)
       val cubeDto = new CubeModel(cubeName, checkpointConfig, Seq(dimensionDto), Seq(), CubeModel.Multiplexer)
-      val apd = new AggregationPoliciesModel(None, PolicyName, "description", sparkStreamingWindow, checkpointDir, new
-          RawDataModel(),
-        Seq(), Seq(cubeDto), Some(input), Seq(), Seq())
+      val apd = new AggregationPoliciesModel(None, storageLevel, PolicyName, "description", sparkStreamingWindow,
+        checkpointDir, new RawDataModel(), Seq(), Seq(cubeDto), Some(input), Seq(), Seq())
       val test = Post("/policy", apd) ~> routes
       test ~> check {
         rejections.size should be(1)

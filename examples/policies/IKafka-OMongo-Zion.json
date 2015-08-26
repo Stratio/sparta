@@ -15,8 +15,7 @@
       "configuration": {
         "topics": "zion2:1",
         "kafkaParams.zookeeper.connect": "localhost:2181",
-        "kafkaParams.group.id": "kafka-pruebas",
-        "storageLevel": "MEMORY_AND_DISK_SER_2"
+        "kafkaParams.group.id": "kafka-pruebas"
       }
     }
   ,

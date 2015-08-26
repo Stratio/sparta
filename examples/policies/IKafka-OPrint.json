@@ -16,8 +16,7 @@
       "configuration": {
         "topics": "test:1",
         "kafkaParams.zookeeper.connect": "localhost:2181",
-        "kafkaParams.group.id": "my-spt-grp",
-        "storageLevel": "MEMORY_AND_DISK_SER_2"
+        "kafkaParams.group.id": "my-spt-grp"
       }
     }
   ,

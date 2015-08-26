@@ -139,7 +139,7 @@ object SparktaJob extends SLF4JLogging {
 
   def input(apConfig: AggregationPoliciesModel, ssc: StreamingContext): (String, DStream[Event]) =
     (apConfig.input.get.name, tryToInstantiate[Input](apConfig.input.get.`type` + Input.ClassSuffix, (c) =>
-      instantiateParameterizable[Input](c, apConfig.input.get.configuration)).setUp(ssc))
+      instantiateParameterizable[Input](c, apConfig.input.get.configuration)).setUp(ssc, apConfig.storageLevel.get))
 
   def parsers(apConfig: AggregationPoliciesModel): Seq[Parser] =
     apConfig.transformations.map(parser =>

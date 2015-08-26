@@ -15,7 +15,6 @@
       "configuration": {
         "type": "pull",
         "addresses": "localhost:10999",
-        "storageLevel": "MEMORY_AND_DISK_SER_2",
         "maxBatchSize": 500
       }
     }
