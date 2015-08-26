@@ -4,15 +4,15 @@
 	</header>
 
 	<div class="c-panel">
-		<table>
-			<thead>
+		<table class="c-table">
+			<thead class="c-table__thead">
 			  	<tr>
 			    	<th>{{"_POLICY_TABLE_NAME_" | translate}}</th>
       				<th>{{"_POLICY_TABLE_DESCRIPTION_" | translate}}</th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr data-ng-repeat="policy in policies.policiesData.list">
+				<tr class="c-table__tr" data-ng-repeat="policy in policies.policiesData.list">
 					<td>{{policy.name}}</td>
 					<td>Description</td>
 				</tr>

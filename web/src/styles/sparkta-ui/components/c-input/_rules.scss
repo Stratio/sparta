@@ -1,7 +1,8 @@
 @mixin c-input {
+	@include c-component;
+
 	border: $c-input---border;
 	border-radius: $c-input---border-radius;
-	box-sizing: border-box;
 	color: $c-input---color;
 	height: $c-input---height;
 	padding: $c-input---padding;

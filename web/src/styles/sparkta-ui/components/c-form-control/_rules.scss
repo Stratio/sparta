@@ -1,5 +1,6 @@
 @mixin c-form-control {
-	box-sizing: border-box;
+	@include c-component;
+
 	display: inline-block;
 	padding: $c-form-control---padding;
 	position: relative;

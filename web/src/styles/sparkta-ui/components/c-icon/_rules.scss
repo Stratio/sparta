@@ -1,4 +1,5 @@
 @mixin c-icon {
+	@include c-component;
 	@include is-clickable();
 
 	&--in-input {

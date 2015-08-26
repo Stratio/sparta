@@ -1,0 +1,8 @@
+@mixin c-table {
+	@include c-component;
+
+}
+
+.c-table {
+	@include c-table;
+}
