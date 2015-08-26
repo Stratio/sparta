@@ -9,7 +9,6 @@
 	</parent>
 
 	<artifactId>web</artifactId>
-	<packaging>pom</packaging>
 
 	<name>Stratio Sparkta Front</name>
 
