@@ -30,6 +30,7 @@
  *		c-list
  *		c-icon-radio
  *		c-msg
+ *		c-table
  *
  */
 
@@ -108,8 +109,8 @@ $heading---margin: 0;
 
 
 // c-grid-item
-$c-grid-item__info-icon---color: get-color(c1) !default;
-$c-grid-item__info-icon---margin: 0 $component-default-margin $component-default-margin 0 !default;
+$c-grid-item__info-icon---color: get-color(c1);
+$c-grid-item__info-icon---margin: 0 $component-default-margin $component-default-margin 0;
 
 
 
@@ -227,6 +228,10 @@ $c-titlebar__title---font-size: get-font-size(medium-alpha);
 
 
 // c-icon-text
+$c-icon-text---colors: (
+	call-to-action: get-color(c1)
+);
+$c-icon-text__icon---margin: $c-icon-default-margin;
 
 
 
@@ -236,7 +241,6 @@ $c-info-text---font-size: get-font-size(medium);
 
 $c-info-text__icon---color: get-color(c1);
 $c-info-text__icon---font-size: get-font-size(medium);
-$c-info-text__icon---margin: $c-icon-default-margin;
 
 
 
@@ -302,3 +306,22 @@ $c-msg--error---background: get-color(e3);
 $c-msg--error---color: get-color(g0);
 
 $c-msg__c-icon---margin: $c-icon-default-margin;
+
+
+
+// c-table
+$c-table---border-bottom: 3px solid get-color(g4);
+$c-table---cell-spacing: 10px;
+$c-table---line-height: get-line-height(normal-alpha);
+$c-table---padding-bottom: 20px;
+$c-table---padding-left: 30px;
+$c-table---padding-right: 30px;
+$c-table---padding-top: 20px;
+
+$c-table__thead---background: get-color(g4);
+$c-table__thead---color: get-color(g0);
+$c-table__thead---font-size: get-font-size(medium-alpha);
+$c-table__thead---font-weight: get-font-weight(medium);
+$c-table__thead---text-align: left;
+
+$c-table__tr--ntd-child-2---color: get-color(g2);

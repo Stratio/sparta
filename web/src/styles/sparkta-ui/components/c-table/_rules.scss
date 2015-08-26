@@ -1,6 +1,45 @@
 @mixin c-table {
 	@include c-component;
 
+	border-bottom: $c-table---border-bottom;
+	border-collapse: collapse;
+	line-height: $c-table---line-height;
+
+	@at-root &__thead {
+		background: $c-table__thead---background;
+		color: $c-table__thead---color;
+		font-size: $c-table__thead---font-size;
+		font-weight: $c-table__thead---font-weight;
+		text-align: $c-table__thead---text-align;
+
+		.c-table__td {
+			padding-bottom: $c-table__thead---padding-bottom;
+		}
+	}
+
+	@at-root &__tr {
+		&:nth-child(2) {
+			background: $c-table__tr--ntd-child-2---color;
+		}
+	}
+
+	@at-root &__td {
+		padding: $c-table---padding-top $c-table---cell-spacing $c-table---padding-bottom;
+
+		&:first-child {
+			padding-left: $c-table---padding-left;
+		}
+
+		&:last-child {
+			padding-right: $c-table---padding-right;
+		}
+
+		&--no-wrap {
+			white-space: nowrap;
+		}
+	}
+
+	@include full-width;
 }
 
 .c-table {

@@ -129,7 +129,7 @@
                             'button_icon': 'icon-circle-check'
                         }
                     };
- 
+
                     vm.editInputModal(editInputData);
                 },
                 function (error) {
@@ -385,6 +385,8 @@
                 vm.createTypeModels(vm.templateInputsData);
                 vm.selectedIndex = 0;
             }
+
+            console.log(vm.dataSource);
         };
 
         function setTexts(texts) {
@@ -415,7 +417,8 @@
                 vm.properties[fragmentData[i].name] = {};
 
                 for (var j=0; j<fragmentData[i].properties.length; j++) {
-                    if (fragmentData[i].properties[j].propertyId !== 'name' && fragmentData[i].properties[j].propertyId !== 'type'){
+                    /*if (fragmentData[i].properties[j].propertyId !== 'name' && fragmentData[i].properties[j].propertyId !== 'type'){*/
+                      if (fragmentData[i].properties[j].propertyId !== 'name'){
                         vm.properties[fragmentData[i].name][fragmentData[i].properties[j].propertyId] = '';
                     }
                 }
