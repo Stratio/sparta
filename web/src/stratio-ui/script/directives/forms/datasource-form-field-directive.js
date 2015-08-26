@@ -32,7 +32,7 @@
 					 if (scope.field && scope.field.hasOwnProperty('visible')) {
 						  for (var i=0; i<scope.field.visible.length; i++) {
 								var actual = scope.field.visible[i];
-								if (actual.value === scope.model[actual.propertyId].value) {
+								if (actual.value === scope.model[actual[0].propertyId].value) {
 									if(scope.field.visible[i].hasOwnProperty('overrideProps')){
 										for (var f = 0; f < scope.field.visible[i].overrideProps.length ; f++ ){
 											var overrideProps = scope.field.visible[i].overrideProps[f];
