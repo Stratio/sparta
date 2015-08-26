@@ -1,5 +1,6 @@
 {
   "name": "policy-flume",
+  "description": "policy-flume",
   "sparkStreamingWindow": 6000,
   "checkpointPath": "checkpoint",
   "rawData": {

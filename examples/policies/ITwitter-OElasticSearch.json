@@ -1,5 +1,6 @@
 {
   "name": "policy-Twitter-ElasticSearch",
+  "description": "policy-Twitter-ElasticSearch",
   "sparkStreamingWindow": 6000,
   "checkpointPath": "checkpoint",
   "rawData": {
