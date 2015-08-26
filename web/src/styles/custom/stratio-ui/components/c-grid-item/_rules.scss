@@ -1,5 +1,6 @@
 @mixin c-grid-item {
-	box-sizing: border-box;
+	@include c-component;
+
 	position: relative;
 
 	&__info-icon {

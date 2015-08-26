@@ -1,5 +1,5 @@
 @mixin c-form {
-
+	@include c-component;
 }
 
 .c-form {

@@ -1,13 +1,15 @@
 @mixin c-panel {
+	@include c-component;
 	@include container-to-right();
 	@include container-to-bottom();
 
-	box-sizing: border-box;
 	position: relative;
+
+	&--fix-overflow {
+		overflow: auto;
+	}
 }
 
 .c-panel {
 	@include c-panel;
-
-	overflow: auto;
 }

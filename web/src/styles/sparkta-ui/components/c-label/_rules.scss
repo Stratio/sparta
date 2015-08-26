@@ -1,5 +1,6 @@
 @mixin c-label {
-	box-sizing: border-box;
+	@include c-component;
+
 	margin: $c-label---margin;
 
 	@at-root &.c-col, &.o-wcag-hidden {

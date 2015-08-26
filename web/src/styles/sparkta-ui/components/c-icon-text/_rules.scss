@@ -1,4 +1,6 @@
 @mixin c-icon-text {
+	@include c-component;
+
 	display: inline-block;
 	position: relative;
 

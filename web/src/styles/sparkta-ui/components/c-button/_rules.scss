@@ -1,4 +1,6 @@
 @mixin c-button {
+	@include c-component;
+
 	border: none;
 	cursor: pointer;
 	height: $c-button---height;
@@ -49,7 +51,6 @@
 	&--call-to-action-4 {
 		background: $c-button--call-to-action-4---background;
 		border: $c-button--call-to-action-4---border;
-		box-sizing: border-box;
 		color: $c-button--call-to-action-4---color;
 
 		&:hover {
@@ -62,7 +63,6 @@
 	&--danger {
 		background: $c-button--danger---background;
 		border: $c-button--danger---border;
-		box-sizing: border-box;
 		color: $c-button--danger---color;
 
 		&:hover {
