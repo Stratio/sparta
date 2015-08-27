@@ -16,6 +16,8 @@ Outputs Configurations
 
 - :ref:`parquet-label`
 
+- :ref:`csv-label`
+
 
 .. image:: images/outputs.png
    :height: 400 px
@@ -26,15 +28,14 @@ Outputs Configurations
 
 
 
-
 .. _generic-label:
 
 Generic Configuration
 =======================
 
-In the SDK you can find the model that must follow an output to be implemented.It has several settings that can modify system operation.
+In the SDK you can find the model that an output has to follow to be implemented.It has several settings that can modify system operation.
 
-These parameters can be completed in the policy file:
+These parameters can be set in the policy file:
 
 
 +-----------------------+----------------------------------------------------------+----------+-----------------------+
@@ -68,8 +69,21 @@ These parameters can be completed in the policy file:
 
 MongoDB Configuration
 ==========================
+* Sample:
+::
 
-The output of MongoDB use the generic implementation with DataFrames, it has multiple configuration
+  "outputs": [
+    {
+      "name": "out-mongo",
+      "type": "MongoDb",
+      "configuration": {
+        "hosts": "localhost",
+        "dbName": "sparkta",
+        "identitiesSaved": "true",
+        "idAsField": "true"
+      }
+    }
+The output of MongoDB uses the generic implementation with DataFrames, it has multiple configuration
 parameters to connect to the DB and self-creation of indexes.
 
 
@@ -89,7 +103,7 @@ parameters to connect to the DB and self-creation of indexes.
 |                       | number of threads that may be waiting for a        |          |                           |
 |                       | connection to become available from the pool.      |          |                           |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
-| idAsField             | Is possible to save all fields that compound the   | Yes      | false                     |
+| idAsField             | It's possible to save all fields that compound the | Yes      | false                     |
 |                       | unique key as a independent field.                 |          |                           |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
 | textIndexFields       | The system is capable of insert data in a full-text| Yes      |                           |
@@ -100,7 +114,7 @@ parameters to connect to the DB and self-creation of indexes.
 |                       | inserted must have this key-value.                 |          |                           |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
 | retrySleep            | The number of milliseconds to wait for reconnect   | Yes      | 1000                      |
-|                       | with MongoDb nodes when the last client fails. It  |          |                           |
+|                       | with MongoDB nodes when the last client fails. It  |          |                           |
 |                       | is recommendable to set less time to the slide     |          |                           |
 |                       | interval of the streaming window.                  |          |                           |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
@@ -111,8 +125,22 @@ parameters to connect to the DB and self-creation of indexes.
 
 Cassandra Configuration
 ==============================
+* Sample:
+::
 
-The output of Cassandra use the generic implementation with DataFrames, this implementation transform each
+  "outputs": [
+    {
+      "name": "out-cassandra",
+      "type": "Cassandra",
+      "configuration": {
+        "connectionHost": "127.0.0.1",
+        "connectionPort": "9142",
+        "cluster": "Test Cluster",
+        "keyspace": "sparkta"
+      }
+    }
+  ]
+The output of Cassandra uses the generic implementation with DataFrames, this implementation transform each
 UpdateMetricOperation to Row type of Spark and identify each row with his schema.
 
 
@@ -159,7 +187,7 @@ UpdateMetricOperation to Row type of Spark and identify each row with his schema
 |                       | or clustering column field.                              |          |                       |
 +-----------------------+----------------------------------------------------------+----------+-----------------------+
 | textIndexFields       | The text index fields, this feature is for the Stratio's | Yes      |                       |
-|                       |  Cassandra Lucene Index                                  |          |                       |
+|                       | Cassandra Lucene Index                                   |          |                       |
 +-----------------------+----------------------------------------------------------+----------+-----------------------+
 | analyzer              | The analyzer for text index fields, this feature is for  | Yes      | None                  |
 |                       | the Stratio's Cassandra Lucene Index                     |          |                       |
@@ -176,8 +204,24 @@ UpdateMetricOperation to Row type of Spark and identify each row with his schema
 
 ElasticSearch Configuration
 ==============================
+* Sample:
+::
 
-The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each
+
+   "outputs": [
+    {
+      "name": "out-elasticsearch",
+      "type": "ElasticSearch",
+      "configuration": {
+        "nodes": "localhost",
+        "defaultPort": "9200",
+
+        "isAutoCalculateId": "true",
+        "indexMapping": "day"
+      }
+    }
+   ]
+The output of ElasticSearch uses the generic implementation with DataFrames, this implementation transform each
 UpdateMetricOperation to Row type of Spark and identify each row with his schema.
 
 
@@ -191,7 +235,7 @@ UpdateMetricOperation to Row type of Spark and identify each row with his schema
 +--------------------------+-----------------------------------------------+----------+-----------------------+
 | idField                  | Field used as unique id for the row.          | Yes      | "id"                  |
 +--------------------------+-----------------------------------------------+----------+-----------------------+
-| indexMapping             | Field used as mapping for the index.          | Yes      | "sparkta"              |
+| indexMapping             | Field used as mapping for the index.          | Yes      | "sparkta"             |
 +--------------------------+-----------------------------------------------+----------+-----------------------+
 | dateType                 | The type of the date fields.                  | Yes      | None                  |
 +--------------------------+-----------------------------------------------+----------+-----------------------+
@@ -201,7 +245,19 @@ UpdateMetricOperation to Row type of Spark and identify each row with his schema
 
 Redis Configuration
 ====================
+* Sample:
+::
 
+  "outputs": [
+    {
+      "name": "out-redis",
+      "type": "Redis",
+      "configuration": {
+        "hostname": "localhost",
+        "port": 63790
+      }
+    }
+  ]
 The output of Redis doesn't use the generic implementation with DataFrames.
 
 
@@ -219,7 +275,18 @@ The output of Redis doesn't use the generic implementation with DataFrames.
 
 Print Configuration
 ====================
+* Sample:
+::
 
+  "outputs": [
+    {
+      "name": "out-print",
+      "type": "Print",
+      "configuration": {
+        "isAutoCalculateId": "false"
+      }
+    }
+  ]
 The print output uses the generic implementation with DataFrames, this implementation print each dataframe with his
  schema.
 
@@ -227,6 +294,21 @@ The print output uses the generic implementation with DataFrames, this implement
 
 Parquet Configuration
 ====================
+* Sample:
+::
+
+  "outputs": [
+    {
+      "name": "out-parquet",
+      "type": "Parquet",
+      "jarFile" : "output-parquet-plugin.jar",
+      "configuration": {
+        "path": "/tmp/sparkta/operators/parquet",
+        "datePattern": "yyyy/MM/dd",
+        "multiplexer": "false"
+      }
+    }
+  ]
 
 The parquet output uses generic implementation of DataFrames.
 
@@ -234,4 +316,39 @@ The parquet output uses generic implementation of DataFrames.
 | Property                 | Description                                   | Optional | Default               |
 +==========================+===============================================+==========+=======================+
 | path                     | Destination path to store info.               | No       |                       |
++--------------------------+-----------------------------------------------+----------+-----------------------+
+
+
+.. _csv-label:
+
+Csv Configuration
+============
+* Sample:
+::
+
+  "outputs": [
+    {
+      "name": "out-csv",
+      "type": "Csv",
+      "configuration": {
+        "isAutoCalculateId": "false",
+        "path": "/tmp/sparkta/operators/csv/",
+        "header": "true",
+        "delimiter": ","
+      }
+    }
+  ]
+
++--------------------------+-----------------------------------------------+----------+-----------------------+
+| Property                 | Description                                   | Optional | Default               |
++==========================+===============================================+==========+=======================+
+| path                     | Destination path to store info.               | Yes      | None                  |
++--------------------------+-----------------------------------------------+----------+-----------------------+
+| header                   | Indicates if the file has header or not.      | Yes      | false                 |
++--------------------------+-----------------------------------------------+----------+-----------------------+
+| delimiter                | Fields are separated by the delimiter.        | Yes      | ","                   |
++--------------------------+-----------------------------------------------+----------+-----------------------+
+| datePattern              | Indicates the date pattern of the file.       | Yes      | None                  |
++--------------------------+-----------------------------------------------+----------+-----------------------+
+| dateGranularity          | Specify the granularity from second to year   | Yes      | Day                   |
 +--------------------------+-----------------------------------------------+----------+-----------------------+

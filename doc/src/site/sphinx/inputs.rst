@@ -33,11 +33,10 @@ Read events from apache-flume
       "type": "Flume",
       "configuration": {
         "type": "pull",
-        "addresses": "localhost:10999"
+        "addresses": "localhost:10999",
         "maxBatchSize": 500
       }
     }
-  ]
 
 +-----------------+------------------------------------------------------------------+------------+
 | Property        | Description                                                      | Optional   |
@@ -74,7 +73,7 @@ Read events from apache-kafka
         "kafkaParams.group.id": "kafka-pruebas"
       }
     }
-   ]
+
 +--------------------------------+----------------------------------------------------------+------------+
 | Property                       | Description                                              | Optional   |
 +================================+==========================================================+============+
@@ -93,6 +92,42 @@ Read events from apache-kafka
 | kafkaParams.group.id           | within the same consumer group                           |            |
 +--------------------------------+----------------------------------------------------------+------------+
 
+
+.. _kafkaDirect-label:
+
+Input-KafkaDirect
+=========
+Read events from KafkaDirect
+* Sample:
+::
+
+  "input":
+    {
+      "name": "in",
+      "type": "KafkaDirect",
+      "configuration": {
+        "topics": "test",
+        "kafkaParams.metadata.broker.list": "localhost:9092",
+        "kafkaParams.group.id": "my-spt-grp"
+      }
+    }
++----------------------------------+----------------------------------------------------------+------------+
+| Property                         | Description                                              | Optional   |
++==================================+==========================================================+============+
+| name                             | Name of the input                                        | No         |
++----------------------------------+----------------------------------------------------------+------------+
+| type                             | The Type of the input it's used to instantiate specific  | No         |
+|                                  | classes                                                  |            |
++----------------------------------+----------------------------------------------------------+------------+
+| topics                           | Kafka topic parameter is needed to connect to it and get | No         |
+|                                  | the data that generates                                  |            |
++----------------------------------+----------------------------------------------------------+------------+
+| kafkaParams.metadata.broker.list | Defines where the Producer can find a one or more        | No         |
+|                                  | Brokers to determine the Leader for each topic           |            |
++----------------------------------+----------------------------------------------------------+------------+
+| kafkaParams.group.id             | It's a string that uniquely identifies a set of consumers| No         |
+|                                  | within the same consumer group                           |            |
++----------------------------------+----------------------------------------------------------+------------+
 .. _rabbitMQ-label:
 
 Input-rabbitMQ
@@ -110,13 +145,13 @@ Reads events from rabbitMQ
                 "queue": "test",
                 "host": "localhost",
                 "port": 5672,
-                "exchangeName": "twitterExchange"
+                "exchangeName": "twitterExchange",
                 "routingKeys": [
                     "routingKey3"
                 ]
             }
         }
-       ]
+
 +------------------+-----------------------------------------------------------------+-----------------------------------+
 | Property         | Description                                                     | Optional                          |
 +==================+=================================================================+===================================+
@@ -161,7 +196,7 @@ Reads events from a socket
            "port": "10666"
           }
        }
-      ]
+
 +------------------+---------------------------------------------------------+-----------+
 | Property         | Description                                             | Optional  |
 +==================+=========================================================+===========+
@@ -197,7 +232,6 @@ Reads events from Twitter API
            "termsOfSearch": "#Your,search,#terms,could be,#whatever"
       }
     }
-  ]
 
 +-------------------+-----------------------------------------------------------+------------+
 | Property          | Description                                               | Optional   |
