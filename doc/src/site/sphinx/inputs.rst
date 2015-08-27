@@ -6,6 +6,8 @@ Input Configuration
 
 - :ref:`kafka-label`
 
+- :ref:`kafkaDirect-label`
+
 - :ref:`rabbitMQ-label`
 
 - :ref:`socket-label`
@@ -31,8 +33,7 @@ Read events from apache-flume
       "type": "Flume",
       "configuration": {
         "type": "pull",
-        "addresses": "localhost:10999",
-        "storageLevel": "MEMORY_AND_DISK_SER_2",
+        "addresses": "localhost:10999"
         "maxBatchSize": 500
       }
     }
@@ -51,9 +52,6 @@ Read events from apache-flume
 | Configuration   | host/port to connect                                             | No         |
 | addresses       |                                                                  |            |
 +-----------------+------------------------------------------------------------------+------------+
-| Configuration:  | It's a spark parameter used to define the level of the trade-off | No         |
-| storageLevel    | between memory usage and CPU efficiency                          |            |
-+-----------------+------------------------------------------------------------------+------------+
 | Configuration:  | The max number of lines to read and send to the channel at a time| No         |
 | maxBatchSize    |                                                                  |            |
 +-----------------+------------------------------------------------------------------+------------+
@@ -61,7 +59,7 @@ Read events from apache-flume
 
 Input-kafka
 =========
-Reads events from apache-kafka
+Read events from apache-kafka
 
 * Sample:
 ::
@@ -73,8 +71,7 @@ Reads events from apache-kafka
       "configuration": {
         "topics": "zion2:1",
         "kafkaParams.zookeeper.connect": "localhost:2181",
-        "kafkaParams.group.id": "kafka-pruebas",
-        "storageLevel": "MEMORY_AND_DISK_SER_2"
+        "kafkaParams.group.id": "kafka-pruebas"
       }
     }
    ]
@@ -95,10 +92,6 @@ Reads events from apache-kafka
 | Configuration:                 | It's a string that uniquely identifies a set of consumers| No         |
 | kafkaParams.group.id           | within the same consumer group                           |            |
 +--------------------------------+----------------------------------------------------------+------------+
-| Configuration:                 | It's a spark parameter used to define the level of the   | No         |
-| storageLevel                   | trade-off between memory usage and CPU efficiency        |            |
-+--------------------------------+----------------------------------------------------------+------------+
-
 
 .. _rabbitMQ-label:
 
@@ -117,8 +110,7 @@ Reads events from rabbitMQ
                 "queue": "test",
                 "host": "localhost",
                 "port": 5672,
-                "storageLevel": "MEMORY_ONLY",
-                "exchangeName": "twitterExchange",
+                "exchangeName": "twitterExchange"
                 "routingKeys": [
                     "routingKey3"
                 ]
@@ -141,9 +133,6 @@ Reads events from rabbitMQ
 +------------------+-----------------------------------------------------------------+-----------------------------------+
 | Configuration:   | Port to connect and listen                                      | No                                |
 | port             |                                                                 |                                   |
-+------------------+-----------------------------------------------------------------+-----------------------------------+
-| Configuration:   | It's a spark parameter used to define the level of trade-off    | No                                |
-| storageLevel     | between memory usage and CPU efficiency                         |                                   |
 +------------------+-----------------------------------------------------------------+-----------------------------------+
 | Configuration:   | Name of the exchange where the data will be consumed            | Yes. If queue name it's empty you |
 | exchangeName     |                                                                 | have to specify the exchange      |

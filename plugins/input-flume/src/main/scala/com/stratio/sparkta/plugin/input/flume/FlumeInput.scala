@@ -31,19 +31,18 @@ import scala.collection.JavaConverters._
 
 class FlumeInput(properties: Map[String, Serializable]) extends Input(properties) {
 
-  val DEFAULT_STORAGE_LEVEL = "MEMORY_AND_DISK_SER_2"
   val DEFAULT_FLUME_PORT = 11999
   val DEFAULT_ENABLE_DECOMPRESSION = false
   val DEFAULT_MAXBATCHSIZE = 1000
   val DEFAULT_PARALLELISM = 5
 
-  override def setUp(ssc: StreamingContext): DStream[Event] = {
+  override def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
 
     if (properties.getString("type").equalsIgnoreCase("pull")) {
       FlumeUtils.createPollingStream(
         ssc,
         getAddresses,
-        storageLevel,
+        storageLevel(sparkStorageLevel),
         maxBatchSize,
         parallelism
       ).map(data => new Event(Map(RawDataKey -> data.event.getBody.array.asInstanceOf[Serializable]) ++
@@ -55,7 +54,7 @@ class FlumeInput(properties: Map[String, Serializable]) extends Input(properties
       FlumeUtils.createStream(
         ssc, properties.getString("hostname"),
         properties.getInt("port"),
-        storageLevel,
+        storageLevel(sparkStorageLevel),
         enableDecompression
       ).map(data => new Event(Map(RawDataKey -> data.event.getBody.array.asInstanceOf[Serializable]) ++
         data.event.getHeaders.asScala.map(h =>
@@ -73,12 +72,6 @@ class FlumeInput(properties: Map[String, Serializable]) extends Input(properties
         throw new IllegalStateException(s"Invalid conf value for addresses : $str")
     })
   }
-
-  private def storageLevel(): StorageLevel =
-    properties.hasKey("storageLevel") match {
-      case true => StorageLevel.fromString(properties.getString("storageLevel"))
-      case false => StorageLevel.fromString(DEFAULT_STORAGE_LEVEL)
-    }
 
   private def enableDecompression(): Boolean =
     properties.hasKey("enableDecompression") match {

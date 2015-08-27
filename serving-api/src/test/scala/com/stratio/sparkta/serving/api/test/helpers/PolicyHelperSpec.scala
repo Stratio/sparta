@@ -31,6 +31,7 @@ import org.scalatest.junit.JUnitRunner
 class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
 
   val SparkStreamingWindow = 2000
+  val storageLevel = Some("MEMORY_AND_DISK_SER_2")
 
   feature("A policy that contains fragments must parse these fragments and join them to input/outputs depending of " +
     "its type") {
@@ -41,6 +42,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
 
       val ap = new AggregationPoliciesModel(
         None,
+        storageLevel,
         "policy-test",
         "policy description",
         sparkStreamingWindow = SparkStreamingWindow,
@@ -87,6 +89,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
 
     val ap = new AggregationPoliciesModel(
       None,
+      storageLevel,
       "policy-test",
       "policy description",
       sparkStreamingWindow = SparkStreamingWindow,
@@ -127,6 +130,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
 
     val ap = new AggregationPoliciesModel(
       None,
+      storageLevel,
       "policy-test",
       "policy description",
       sparkStreamingWindow = SparkStreamingWindow,

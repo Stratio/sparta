@@ -29,7 +29,7 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 
 class KafkaDirectInput(properties: Map[String, JSerializable]) extends Input(properties) {
 
-  override def setUp(ssc: StreamingContext): DStream[Event] = {
+  override def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
 
     val submap: Option[Map[String, JSerializable]] = properties.getMap("kafkaParams")
 
