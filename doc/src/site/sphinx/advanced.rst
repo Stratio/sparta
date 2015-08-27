@@ -10,8 +10,7 @@ Sparkta dependency and a common piece in any Big Data architecture we save all t
 All this info is saved under the znode `/stratio/sparkta`. Under this root we save input and output fragments,
 policies and policy statuses.
 
-Fragments are the JSON blocks of and input or an output. We use them for reusing them when managing policies with the
-user interface. An example of an input fragment::
+Fragments are JSON blocks of inputs/outputs that will be included in a policy. If one fragment is changed, all policies that had included it, will be automatically changed too. In fact, it is a nice way to reuse inputs/outputs between policies. An example of an input fragment::
 
   {
     "fragmentType": "input",
