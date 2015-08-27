@@ -75,7 +75,7 @@
                                     <goal>run</goal>
                                 </goals>
                                 <configuration>
-                                    <target name="copy swf files to web project">
+                                    <target name="copy folders">
                                         <copy todir="target/appassembler/repo/sdk">
                                             <fileset dir="../sdk" includes="**/*.jar" />
                                             <mapper type="flatten" />
@@ -90,6 +90,9 @@
                                         </copy>
                                         <copy todir="target/appassembler/repo/benchmark">
                                             <fileset dir="../benchmark" includes="**/*.*" />
+                                        </copy>
+                                        <copy todir="target/appassembler/repo/examples">
+                                            <fileset dir="../examples" includes="**/*.*" excludes="**/*.iml" />
                                         </copy>
                                     </target>
                                 </configuration>
@@ -214,6 +217,10 @@
                                 <copyDirectory>
                                     <from>target/appassembler/repo/benchmark</from>
                                     <to>/opt/sds/sparkta/benchmark</to>
+                                </copyDirectory>
+                                <copyDirectory>
+                                    <from>target/appassembler/repo/examples</from>
+                                    <to>/opt/sds/sparkta/examples</to>
                                 </copyDirectory>
                             </assembly>
                             <defaults>
