@@ -15,7 +15,7 @@
       "propertyName": "Path",
       "propertyType": "text",
       "regexp": "^[a-zA-Z0-9:_\\.\\-\\+/\\\\]{2,}\\.csv$",
-      "default": null,
+      "default": "",
       "required": true
     },
     {
@@ -39,7 +39,7 @@
       "propertyName": "Date pattern",
       "propertyType": "text",
       "regexp": "",
-      "default": null,
+      "default": "",
       "required": false
     },
     {

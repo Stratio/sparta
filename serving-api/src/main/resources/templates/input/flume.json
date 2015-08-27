@@ -16,7 +16,7 @@
       "propertyType": "select",
       "values":[{"label":"pull","value":"pull"},
         {"label":"push","value":"push"}],
-      "regexp": "pull|push",
+      "regexp": "",
       "default": "pull",
       "required": true,
       "tooltip": ""
@@ -92,7 +92,7 @@
       "propertyId": "enableDecompression",
       "propertyName": "Decompression",
       "propertyType": "boolean",
-      "regexp": "true|false",
+      "regexp": "",
       "default": false,
       "required": false,
       "tooltip": "",
