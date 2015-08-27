@@ -31,7 +31,7 @@
       "propertyName": "IdField",
       "propertyType": "text",
       "regexp": "[^/\\. \"$]{1,3}",
-      "default": null,
+      "default": "",
       "required": false
     },
     {

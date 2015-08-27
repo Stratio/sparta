@@ -15,7 +15,7 @@
       "propertyName": "Queue",
       "propertyType": "text",
       "regexp": "TODO cualquier cadena de caracteres",
-      "default": null,
+      "default": "",
       "required": false,
       "tooltip": "RabbitMQ's name queue."
     },
@@ -51,7 +51,7 @@
       "propertyName": "RoutingKeys",
       "propertyType": "text",
       "regexp": "",
-      "default": null,
+      "default": "",
       "required": false,
       "tooltip": "The exchange will delivery the messages to all the routing keys"
     }
