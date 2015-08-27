@@ -20,6 +20,9 @@ and running, we use `Vagrant <https://www.vagrantup.com/>`__.
 -  If you are in a windows machine, we will install
    `Cygwin <https://cygwin.com/install.html>`__.
 
+   **Note** that if you are using windows10 you might find interesting this `post <https://github.com/mitchellh/vagrant/issues/6059/>`__ in vagrant repository.
+   You can download the VirtualBox fixed `here <https://www.virtualbox.org/attachment/ticket/14040/VBox-Win10-fix-14040.exe>`__
+
 Step 2: Running the sandbox
 ===========
 
@@ -123,8 +126,6 @@ What you will find in the sandbox
 +------------------+---------+-------------------------------+
 | RabbitMQ         | 3.5.1   | service rabbitmq-server start |
 +------------------+---------+-------------------------------+
-
-
 
 
 F.A.Q about the sandbox
