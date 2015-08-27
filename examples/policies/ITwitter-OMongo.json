@@ -1,4 +1,5 @@
 {
+  "id": "id",
   "name": "policy-Twitter-MongoDb",
   "description": "policy-Twitter-MongoDb",
   "sparkStreamingWindow": 6000,

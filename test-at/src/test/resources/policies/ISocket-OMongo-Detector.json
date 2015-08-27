@@ -1,4 +1,5 @@
 {
+  "id": "id",
   "name": "ATSocketMongoDetector",
   "description": "No description",
   "sparkStreamingWindow": 2000,

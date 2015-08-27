@@ -24,7 +24,7 @@ import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.api.actor.FragmentActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.core.AppConstant
-import com.stratio.sparkta.serving.core.models.{ErrorModel, FragmentElementModel, StreamingContextStatusEnum}
+import com.stratio.sparkta.serving.core.models.{SparktaSerializer, ErrorModel, FragmentElementModel, StreamingContextStatusEnum}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.DefaultFormats
@@ -35,11 +35,11 @@ import spray.httpx.Json4sJacksonSupport
 import scala.collection.JavaConversions
 import scala.util.{Failure, Success, Try}
 
-class FragmentActor(curatorFramework: CuratorFramework) extends Actor with Json4sJacksonSupport with SLF4JLogging {
-
-  implicit val json4sJacksonFormats = DefaultFormats +
-    new EnumNameSerializer(StreamingContextStatusEnum) +
-    new JsoneyStringSerializer()
+class FragmentActor(curatorFramework: CuratorFramework)
+  extends Actor
+  with Json4sJacksonSupport
+  with SLF4JLogging
+  with SparktaSerializer {
 
   override def receive: Receive = {
     case FindByTypeAndId(fragmentType, id) => findByTypeAndId(fragmentType, id)

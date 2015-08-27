@@ -1,4 +1,5 @@
 {
+  "id": "id",
   "name": "policy-Twitter-Cassandra",
   "description": "policy-Twitter-Cassandra",
   "sparkStreamingWindow": 6000,

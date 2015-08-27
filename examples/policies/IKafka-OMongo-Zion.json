@@ -1,4 +1,5 @@
 {
+  "id": "id",
   "name": "policy-Kafka-Mongo-Zion",
   "description": "policy-Kafka-Mongo-Zion",
   "sparkStreamingWindow": 6000,

@@ -22,7 +22,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.api.helpers.SparktaHelper
-import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.{SparktaSerializer, AggregationPoliciesModel}
 import com.stratio.sparkta.serving.core.{AppConstant, MockSystem, SparktaConfig}
 import org.json4s.{DefaultFormats, native}
 import org.junit.runner.RunWith
@@ -36,7 +36,8 @@ import scala.io.Source
 class StreamingContextServiceIT extends WordSpecLike
 with ScalatestRouteTest
 with Matchers
-with SLF4JLogging {
+with SLF4JLogging
+with SparktaSerializer {
 
   val PathToPolicy = getClass.getClassLoader.getResource("policies/IKafka-OPrint.json").getPath
 
@@ -65,7 +66,6 @@ with SLF4JLogging {
 
       val streamingContextService = new StreamingContextService(sparktaConfig, jars)
       val json = Source.fromFile(new File(PathToPolicy)).mkString
-      implicit val formats = DefaultFormats + new JsoneyStringSerializer()
       val apConfig = native.Serialization.read[AggregationPoliciesModel](json)
 
       val ssc = streamingContextService.standAloneStreamingContext(apConfig)

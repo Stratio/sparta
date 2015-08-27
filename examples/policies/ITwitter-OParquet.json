@@ -1,4 +1,5 @@
 {
+  "id": "id",
   "name": "policy-Twitter-Parquet",
   "description": "policy-Twitter-Parquet",
   "sparkStreamingWindow": 6000,

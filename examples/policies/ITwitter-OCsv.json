@@ -1,4 +1,5 @@
 {
+  "id": "id",
   "name": "policy-Twitter-Csv",
   "description": "policy-Twitter-Csv",
   "sparkStreamingWindow": 6000,
