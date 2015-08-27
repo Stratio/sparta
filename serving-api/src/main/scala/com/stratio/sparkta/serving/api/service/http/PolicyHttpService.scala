@@ -183,12 +183,12 @@ trait PolicyHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value      = "Deletes a policy from its name.",
-    notes      = "Deletes a policy from its name.",
+  @ApiOperation(value      = "Deletes a policy from its id.",
+    notes      = "Deletes a policy from its id.",
     httpMethod = "DELETE")
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name      = "name",
-      value     = "name of the policy",
+    new ApiImplicitParam(name      = "id",
+      value     = "id of the policy",
       dataType  = "string",
       paramType = "path")
   ))
@@ -197,10 +197,10 @@ trait PolicyHttpService extends BaseHttpService {
       message = HttpConstant.NotFoundMessage)
   ))
   def remove: Route = {
-    path(HttpConstant.PolicyPath / Segment) { (name) =>
+    path(HttpConstant.PolicyPath / Segment) { (id) =>
       delete {
         complete {
-          val future = supervisor ? new Delete(name)
+          val future = supervisor ? new Delete(id)
           Await.result(future, timeout.duration) match {
             case Response(Failure(exception)) => throw exception
             case Response(Success(_)) => HttpResponse(StatusCodes.OK)

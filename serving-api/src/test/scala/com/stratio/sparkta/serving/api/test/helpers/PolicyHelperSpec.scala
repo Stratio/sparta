@@ -42,6 +42,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
       val ap = new AggregationPoliciesModel(
         None,
         "policy-test",
+        "policy description",
         sparkStreamingWindow = SparkStreamingWindow,
         checkpointDir,
         new RawDataModel(),
@@ -56,14 +57,12 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
             fragmentType = "input",
             description = "description",
             shortDescription = "short description",
-            icon = "icon.png",
             element = PolicyElementModel("inputF", "input", Map())),
           FragmentElementModel(
             name = "fragment1",
             fragmentType = "output",
             description = "description",
             shortDescription = "short description",
-            icon = "icon.png",
             element = PolicyElementModel("outputF", "output", Map())))
       )
 
@@ -89,6 +88,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
     val ap = new AggregationPoliciesModel(
       None,
       "policy-test",
+      "policy description",
       sparkStreamingWindow = SparkStreamingWindow,
       checkpointDir,
       new RawDataModel(),
@@ -103,14 +103,12 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
           fragmentType = "input",
           description = "description",
           shortDescription = "short description",
-          icon = "icon.png",
           element = PolicyElementModel("inputF", "input", Map())),
         FragmentElementModel(
           name = "fragment1",
           fragmentType = "output",
           description = "description",
           shortDescription = "short description",
-          icon = "icon.png",
           element = PolicyElementModel("outputF", "output", Map())))
     )
 
@@ -130,6 +128,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
     val ap = new AggregationPoliciesModel(
       None,
       "policy-test",
+      "policy description",
       sparkStreamingWindow = SparkStreamingWindow,
       checkpointDir,
       new RawDataModel(),

@@ -19,7 +19,7 @@ package com.stratio.sparkta.serving.api.service.http
 import akka.pattern.ask
 import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.serving.api.actor.FragmentActor._
-import com.stratio.sparkta.serving.api.actor.PolicyActor.FindByFragment
+import com.stratio.sparkta.serving.api.actor.PolicyActor.{Delete, ResponsePolicies, FindByFragment}
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.core.models.FragmentElementModel
 import com.wordnik.swagger.annotations._
@@ -165,14 +165,23 @@ trait FragmentHttpService extends BaseHttpService {
     new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
   ))
   def deleteByTypeAndId: Route = {
-    path(HttpConstant.FragmentPath / Segment / Segment) { (fragmentType, name) =>
+    path(HttpConstant.FragmentPath / Segment / Segment) { (fragmentType, id) =>
       delete {
         complete {
           val policyActor = actors.get(AkkaConstant.PolicyActor).get
-          val future = supervisor ? new DeleteByTypeAndId(fragmentType, name)
+          val future = supervisor ? new DeleteByTypeAndId(fragmentType, id)
           Await.result(future, timeout.duration) match {
             case Response(Failure(exception)) => throw exception
-            case Response(Success(_)) => HttpResponse(StatusCodes.OK)
+            case Response(Success(_)) => {
+              Await.result(
+                policyActor ? FindByFragment(fragmentType, id), timeout.duration) match {
+                  case ResponsePolicies(Failure(exception)) => throw exception
+                  case ResponsePolicies(Success(policies)) => {
+                    policies.map(policy => policyActor ! Delete(policy.id.get))
+                  }
+                }
+              HttpResponse(StatusCodes.OK)
+            }
           }
         }
       }

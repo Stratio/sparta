@@ -1,5 +1,6 @@
 {
   "name": "policy-kafka",
+  "description": "policy-kafka",
   "sparkStreamingWindow": 2000,
   "checkpointPath": "checkpoint",
   "rawData": {

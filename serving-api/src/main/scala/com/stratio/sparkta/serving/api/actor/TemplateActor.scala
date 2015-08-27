@@ -21,8 +21,9 @@ import java.io.{File, InputStreamReader}
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.core.models.{StreamingContextStatusEnum, TemplateModel}
-import org.apache.zookeeper.KeeperException.NoNodeException
+import com.stratio.sparkta.serving.api.actor.TemplateActor._
+import com.stratio.sparkta.serving.api.exception.ServingApiException
+import com.stratio.sparkta.serving.core.models.{ErrorModel, StreamingContextStatusEnum, TemplateModel}
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.Serialization._
@@ -31,16 +32,7 @@ import spray.httpx.Json4sJacksonSupport
 import scala.util.Try
 
 /**
- * List of all possible akka messages used to manage templates.
- */
-case class TemplateSupervisorActor_findByType(t: String)
-case class TemplateSupervisorActor_findByTypeAndName(t: String, name: String)
-case class TemplateSupervisorActor_response_templates(templates: Try[Seq[TemplateModel]])
-case class TemplateSupervisorActor_response_template(template: Try[TemplateModel])
-
-/**
  * Implementation of supported CRUD operations over templates used to composite a policy.
- * @author anistal
  */
 class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging {
 
@@ -50,12 +42,12 @@ class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging {
 
   override def receive: Receive = {
 
-    case TemplateSupervisorActor_findByType(t: String) => doFindByType(t)
-    case TemplateSupervisorActor_findByTypeAndName(t, name) => doFindByTypeAndName(t, name)
+    case FindByType(t: String) => doFindByType(t)
+    case FindByTypeAndName(t, name) => doFindByTypeAndName(t, name)
   }
 
   def doFindByType(t: String): Unit =
-    sender ! TemplateSupervisorActor_response_templates(Try({
+    sender ! ResponseTemplates(Try({
       new File(this.getClass.getClassLoader.getResource(s"templates/${t}").toURI)
         .listFiles
         .filter(file => file.getName.endsWith(".json"))
@@ -65,14 +57,28 @@ class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging {
           this.getClass.getClassLoader.getResourceAsStream(s"templates/${t}/${file.getName}")))
       }).toSeq
     }).recover {
-      case e: NoNodeException => Seq()
+      case e: NullPointerException => Seq()
     })
 
 
-  def doFindByTypeAndName(t: String, name: String): Unit = {
-    sender ! TemplateSupervisorActor_response_template(Try({
+  def doFindByTypeAndName(t: String, name: String): Unit =
+    sender ! ResponseTemplate(Try({
       read[TemplateModel](new InputStreamReader(
-        this.getClass.getClassLoader.getResourceAsStream(s"templates/${t}/${name}.json")))
-    }))
-  }
+        this.getClass.getClassLoader.getResourceAsStream(s"templates/${t}/${name.toLowerCase}.json")))
+    }).recover {
+      case e: NullPointerException => throw new ServingApiException(ErrorModel.toString(
+        new ErrorModel(ErrorModel.CodeNotExistsTemplatetWithName, s"No template of type $t  with name ${name}.json")
+      ))
+    })
+}
+
+object TemplateActor {
+
+  case class FindByType(t: String)
+
+  case class FindByTypeAndName(t: String, name: String)
+
+  case class ResponseTemplates(templates: Try[Seq[TemplateModel]])
+
+  case class ResponseTemplate(template: Try[TemplateModel])
 }

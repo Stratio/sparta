@@ -21,17 +21,18 @@ import java.util.UUID
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.api.actor.PolicyActor._
+import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.core.AppConstant
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, StreamingContextStatusEnum}
+import com.stratio.sparkta.serving.core.models._
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.Serialization._
-import com.stratio.sparkta.serving.api.actor.PolicyActor._
 
 import scala.collection.JavaConversions
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 /**
  * Implementation of supported CRUD operations over ZK needed to manage policies.
@@ -77,24 +78,67 @@ with SLF4JLogging {
     sender ! new ResponsePolicy(Try({
       read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.forPath(
         s"${AppConstant.PoliciesBasePath}/$id")))
-    }))
+    }).recover {
+      case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
+        new ErrorModel(ErrorModel.CodeNotExistsPolicytWithId, s"No policy  with id ${id}.")
+      ))
+    })
 
   def create(policy: AggregationPoliciesModel): Unit =
     sender ! Response(Try({
+      if(existsByName(policy.name)) {
+        throw new ServingApiException(ErrorModel.toString(
+          new ErrorModel(ErrorModel.CodeExistsPolicytWithName,
+            s"Policy with name ${policy.name} exists.")
+        ))
+      }
       val fragmentS = policy.copy(id = Some(s"${UUID.randomUUID.toString}"))
       curatorFramework.create().creatingParentsIfNeeded().forPath(
         s"${AppConstant.PoliciesBasePath}/${fragmentS.id.get}", write(fragmentS).getBytes)
     }))
 
-  def update(policy: AggregationPoliciesModel): Unit =
+  def update(policy: AggregationPoliciesModel): Unit = {
     sender ! Response(Try({
+      if (existsByName(policy.name, policy.id)) {
+        throw new ServingApiException(ErrorModel.toString(
+          new ErrorModel(ErrorModel.CodeExistsPolicytWithName,
+            s"Policy with name ${policy.name} exists.")
+        ))
+      }
       curatorFramework.setData.forPath(s"${AppConstant.PoliciesBasePath}/${policy.id.get}", write(policy).getBytes)
-    }))
+    }).recover {
+      case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
+        new ErrorModel(ErrorModel.CodeNotExistsPolicytWithId, s"No policy  with id ${policy.id.get}.")
+      ))
+    })
+  }
 
   def delete(id: String): Unit =
     sender ! Response(Try({
       curatorFramework.delete().forPath(s"${AppConstant.PoliciesBasePath}/$id")
-    }))
+    }).recover {
+      case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
+        new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId,
+          s"No policy with id $id.")
+      ))
+    })
+
+  private def existsByName(name: String, id: Option[String] = None): Boolean = {
+    Try({
+      val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
+      JavaConversions.asScalaBuffer(children).toList.map(element =>
+        read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
+          s"${AppConstant.PoliciesBasePath}/$element"))))
+        .filter(policy => if(id.isDefined) policy.name == name && policy.id.get != id.get
+         else policy.name == name).toSeq.size > 0
+    }) match {
+      case Success(result) => result
+      case Failure(exception) => {
+        log.error(exception.getLocalizedMessage, exception)
+        false
+      }
+    }
+  }
 }
 
 object PolicyActor {
@@ -111,7 +155,7 @@ object PolicyActor {
 
   case class FindByFragment(fragmentType: String, id: String)
 
-  case class Response(status: Try[Unit])
+  case class Response(status: Try[_])
 
   case class ResponsePolicies(policies: Try[Seq[AggregationPoliciesModel]])
 
