@@ -10,7 +10,7 @@
   },
   "fragments": [
     {
-      "id": "ca35bd1d-7609-450b-bc15-c1296c60624e",
+      "id": "change with the id of the fragment",
       "name": "twitter",
       "fragmentType": "input",
       "description": "description",
