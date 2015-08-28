@@ -43,7 +43,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
 
   override def receive: Receive = {
     case FindByTypeAndId(fragmentType, id) => findByTypeAndId(fragmentType, id)
-    case FindByTypeAndName(fragmentType, name) => findByTypeAndId(fragmentType, name)
+    case FindByTypeAndName(fragmentType, name) => findByTypeAndName(fragmentType, name)
     case Create(fragment) => create(fragment)
     case Update(fragment) => update(fragment)
     case DeleteByTypeAndId(fragmentType, id) => deleteByTypeAndId(fragmentType, id)
@@ -72,14 +72,17 @@ class FragmentActor(curatorFramework: CuratorFramework)
     })
 
   def findByTypeAndName(fragmentType: String, name: String): Unit =
-    sender ! ResponseFragments(Try({
+    sender ! ResponseFragment(Try({
       val children = curatorFramework.getChildren.forPath(FragmentActor.generateFragmentPath(fragmentType))
       JavaConversions.asScalaBuffer(children).toList.map(element =>
         read[FragmentElementModel](new String(curatorFramework.getData.forPath(
           s"${FragmentActor.generateFragmentPath(fragmentType)}/$element"))))
-        .filter(fragment => fragment.name == name).toSeq
+        .filter(fragment => fragment.name == name).head
     }).recover {
-      case e: NoNodeException => Seq()
+      case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
+        new ErrorModel(ErrorModel.CodeNotExistsFragmentWithName,
+          s"No fragment of type ${fragmentType} with name ${name}.")
+      ))
     })
 
   def create(fragment: FragmentElementModel): Unit =
