@@ -3,10 +3,11 @@
 <!--
     <form-field-input id="dataSourceName" data-model="vm.dataSource.name" data-label="{{'_INPUT_WINDOW_FORM_NAME_' | translate}}:" data-form="vm.form" data-st-name="dataSourceNameForm" data-required="true" data-autofocus="true"></form-field-input>
 -->
-
     <form-field-textarea ng-attr-id="{{ngFormId}}" ng-if="(field.propertyType == 'textarea') && isVisible()" data-form="form" data-st-name="{{name}}" data-model="model[field.propertyId]" data-label="{{modify.propertyName || field.propertyName}}" data-help="{{modify.tooltip || field.tooltip}}" data-pattern="field.regexp" data-required="field.required"></form-field-textarea>
 
     <form-field-select ng-attr-id="{{ngFormId}}" ng-if="(field.propertyType == 'select') && isVisible()" data-form="form" data-st-name="{{name}}" data-model="model[field.propertyId]" data-options="field.values" data-field="label" data-label="{{modify.propertyName || field.propertyName}}" data-help="{{modify.tooltip || field.tooltip}}" data-required="field.required"></form-field-select>
+
+    <form-field-check ng-attr-id="{{ngFormId}}" ng-if="field.propertyType == 'boolean' && isVisible()" data-form="form" data-st-name="{{name}}" data-model="model[field.propertyId]" data-label="{{modify.propertyName || field.propertyName}}" data-type="{{field.propertyType}}" data-help="{{modify.tooltip || field.tooltip}}" data-pattern="field.regexp" data-required="field.required"></form-field-check>
 
     <form-field-list ng-attr-id="{{ngFormId}}" ng-if="(field.propertyType == 'list') && isVisible()" data-field="field" data-form="form" data-st-name="{{name}}" data-model="model"></form-field-list>
 
