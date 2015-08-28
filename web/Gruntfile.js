@@ -1,12 +1,6 @@
 // Generated on 2015-07-27 using generator-angular 0.12.1
 'use strict';
 
-// # Globbing
-// for performance reasons we're only matching one level down:
-// 'test/spec/{,*/}*.js'
-// use this if you want to recursively match all subfolders:
-// 'test/spec/**/*.js'
-
 module.exports = function (grunt) {
 
   // Time how long tasks take. Can help when optimizing build times
@@ -15,7 +9,6 @@ module.exports = function (grunt) {
   // Automatically load required Grunt tasks
   require('jit-grunt')(grunt, {
     useminPrepare: 'grunt-usemin',
-    ngtemplates: 'grunt-angular-templates'
   });
 
   // Configurable paths for the application
@@ -28,7 +21,7 @@ module.exports = function (grunt) {
   grunt.initConfig({
 
     // Project settings
-    yeoman: appConfig,
+    stratio: appConfig,
 
     // Watches files for changes and runs tasks based on the changed files
     watch: {
@@ -37,18 +30,13 @@ module.exports = function (grunt) {
         tasks: ['wiredep']
       },
       js: {
-        files: ['<%= yeoman.app %>/scripts/{,*/}*.js'],
-        tasks: ['newer:jshint:all'],
+        files: ['<%= stratio.app %>/scripts/{,*/}*.js'],
         options: {
           livereload: '<%= connect.options.livereload %>'
         }
       },
-      jsTest: {
-        files: ['test/spec/{,*/}*.js'],
-        tasks: ['newer:jshint:test', 'karma']
-      },
       sass: {
-        files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
+        files: ['<%= stratio.app %>/styles/{,*/}*.{scss,sass}'],
         tasks: ['sass', 'autoprefixer']
       },
       gruntfile: {
@@ -59,9 +47,9 @@ module.exports = function (grunt) {
           livereload: '<%= connect.options.livereload %>'
         },
         files: [
-          '<%= yeoman.app %>/{,*/}*.html',
+          '<%= stratio.app %>/{,*/}*.html',
           '.tmp/styles/{,*/}*.css',
-          '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
+          '<%= stratio.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
         ]
       }
     },
@@ -136,28 +124,8 @@ module.exports = function (grunt) {
       dist: {
         options: {
           open: true,
-          base: '<%= yeoman.dist %>'
+          base: '<%= stratio.dist %>'
         }
-      }
-    },
-
-    // Make sure code styles are up to par and there are no obvious mistakes
-    jshint: {
-      options: {
-        jshintrc: '.jshintrc',
-        reporter: require('jshint-stylish')
-      },
-      all: {
-        src: [
-          'Gruntfile.js',
-          '<%= yeoman.app %>/scripts/{,*/}*.js'
-        ]
-      },
-      test: {
-        options: {
-          jshintrc: 'test/.jshintrc'
-        },
-        src: ['test/spec/{,*/}*.js']
       }
     },
 
@@ -168,12 +136,12 @@ module.exports = function (grunt) {
           dot: true,
           src: [
             '.tmp',
-            '<%= yeoman.dist %>/{,*/}*',
-            '!<%= yeoman.dist %>/.git{,*/}*'
+            '<%= stratio.dist %>/{,*/}*',
+            '!<%= stratio.dist %>/.git{,*/}*'
           ]
         }]
       },
-      server: '.tmp'
+      server: ['.tmp', '<%= stratio.dist %>']
     },
 
     // Add vendor prefixed styles
@@ -205,36 +173,8 @@ module.exports = function (grunt) {
     // Automatically inject Bower components into the app
     wiredep: {
       app: {
-        src: ['<%= yeoman.app %>/index.html'],
+        src: ['<%= stratio.app %>/index.html'],
         ignorePath:  /\.\.\//
-      },
-      test: {
-        devDependencies: true,
-        src: '<%= karma.unit.configFile %>',
-        ignorePath:  /\.\.\//,
-        fileTypes:{
-          js: {
-            block: /(([\s\t]*)\/{2}\s*?bower:\s*?(\S*))(\n|\r|.)*?(\/{2}\s*endbower)/gi,
-              detect: {
-                js: /'(.*\.js)'/gi
-              },
-              replace: {
-                js: '\'{{filePath}}\','
-              }
-            }
-          }
-      },
-      sass: {
-        src: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
-        ignorePath: /(\.\.\/){1,2}bower_components\//,
-        "dependencies": {
-          "compass-mixins": "0.12.7"
-        },
-        "overrides": {
-          "compass-mixins": {
-            "main": "."
-          }
-        }
       }
     },
 
@@ -244,7 +184,7 @@ module.exports = function (grunt) {
       },
       dist: {
         files: {
-          '.tmp/styles/main.css': '<%= yeoman.app %>/styles/main.scss'
+          '.tmp/styles/main.css': '<%= stratio.app %>/styles/main.scss'
         }
       },
       server: {
@@ -252,20 +192,8 @@ module.exports = function (grunt) {
           debugInfo: true
         },
         files: {
-          '.tmp/styles/main.css': '<%= yeoman.app %>/styles/main.scss'
+          '.tmp/styles/main.css': '<%= stratio.app %>/styles/main.scss'
         }
-      }
-    },
-
-    // Renames files for browser caching purposes
-    filerev: {
-      dist: {
-        src: [
-          '<%= yeoman.dist %>/scripts/{,*/}*.js',
-          '<%= yeoman.dist %>/styles/{,*/}*.css',
-          '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
-          '<%= yeoman.dist %>/styles/fonts/*'
-        ]
       }
     },
 
@@ -273,14 +201,14 @@ module.exports = function (grunt) {
     // concat, minify and revision files. Creates configurations in memory so
     // additional tasks can operate on them
     useminPrepare: {
-      html: '<%= yeoman.app %>/index.html',
+      html: '<%= stratio.app %>/index.html',
       options: {
-        dest: '<%= yeoman.dist %>',
+        dest: '<%= stratio.dist %>',
         flow: {
           html: {
             steps: {
-              js: ['concat', 'uglifyjs'],
-              css: ['cssmin']
+              js: ['concat', 'uglifyjs']//,
+              //css: ['cssmin']
             },
             post: {}
           }
@@ -290,14 +218,14 @@ module.exports = function (grunt) {
 
     // Performs rewrites based on filerev and the useminPrepare configuration
     usemin: {
-      html: ['<%= yeoman.dist %>/{,*/}*.html'],
-      css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
-      js: ['<%= yeoman.dist %>/scripts/{,*/}*.js'],
+      html: ['<%= stratio.dist %>/{,*/}*.html'],
+      css: ['<%= stratio.dist %>/styles/{,*/}*.css'],
+      js: ['<%= stratio.dist %>/{,*/}*.js'],
       options: {
         assetsDirs: [
-          '<%= yeoman.dist %>',
-          '<%= yeoman.dist %>/images',
-          '<%= yeoman.dist %>/styles'
+          '<%= stratio.dist %>',
+          '<%= stratio.dist %>/images',
+          '<%= stratio.dist %>/styles'
         ],
         patterns: {
           js: [[/(images\/[^''""]*\.(png|jpg|jpeg|gif|webp|svg))/g, 'Replacing references to images']]
@@ -305,60 +233,13 @@ module.exports = function (grunt) {
       }
     },
 
-    // The following *-min tasks will produce minified files in the dist folder
-    // By default, your `index.html`'s <!-- Usemin block --> will take care of
-    // minification. These next options are pre-configured if you do not wish
-    // to use the Usemin blocks.
-    // cssmin: {
-    //   dist: {
-    //     files: {
-    //       '<%= yeoman.dist %>/styles/main.css': [
-    //         '.tmp/styles/{,*/}*.css'
-    //       ]
-    //     }
-    //   }
-    // },
-    // uglify: {
-    //   dist: {
-    //     files: {
-    //       '<%= yeoman.dist %>/scripts/scripts.js': [
-    //         '<%= yeoman.dist %>/scripts/scripts.js'
-    //       ]
-    //     }
-    //   }
-    // },
-    // concat: {
-    //   dist: {}
-    // },
-
-    imagemin: {
-      dist: {
-        files: [{
-          expand: true,
-          cwd: '<%= yeoman.app %>/images',
-          src: '{,*/}*.{png,jpg,jpeg,gif}',
-          dest: '<%= yeoman.dist %>/images'
-        },
-        {
-          expand: true,
-          cwd: '<%= yeoman.app %>/stratio-ui/images',
-          src: '{,*/}*.{png,jpg,jpeg,gif}',
-          dest: '<%= yeoman.dist %>/stratio-ui/images'
-        }]
-      }
+    concat: {
+      options: {
+        sourceMap: true
+      },
+      dist: {}
     },
-
-    svgmin: {
-      dist: {
-        files: [{
-          expand: true,
-          cwd: '<%= yeoman.app %>/images',
-          src: '{,*/}*.svg',
-          dest: '<%= yeoman.dist %>/images'
-        }]
-      }
-    },
-
+    
     htmlmin: {
       dist: {
         options: {
@@ -369,23 +250,10 @@ module.exports = function (grunt) {
         },
         files: [{
           expand: true,
-          cwd: '<%= yeoman.dist %>',
+          cwd: '<%= stratio.dist %>',
           src: ['*.html', 'views/**/*.html', 'stratio-ui/**/*.html'],
-          dest: '<%= yeoman.dist %>'
+          dest: '<%= stratio.dist %>'
         }]
-      }
-    },
-
-    ngtemplates: {
-      dist: {
-        options: {
-          module: 'webApp',
-          htmlmin: '<%= htmlmin.dist.options %>',
-          usemin: 'scripts/scripts.js'
-        },
-        cwd: '<%= yeoman.app %>',
-        src: 'views/{,*/}*.html',
-        dest: '.tmp/templateCache.js'
       }
     },
 
@@ -408,30 +276,55 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           dot: true,
-          cwd: '<%= yeoman.app %>',
-          dest: '<%= yeoman.dist %>',
+          cwd: '<%= stratio.app %>',
+          dest: '<%= stratio.dist %>',
           src: [
             '*.{ico,png,txt}',
             '.htaccess',
             '*.html',
             'views/**/*.html',
-            'stratio-ui/**/*.html',
-            'images/{,*/}*.{webp}',
-            'styles/fonts/{,*/}*.*',
+            'stratio-ui/**/*.*',
+            '!stratio-ui/**/*.js',
+            '!stratio-ui/**/*.scss',
+            //'images/{,*/}*.{webp}',
+            'images/**.*',
+            'styles/vendors/{,*/}*.*',
+            '!styles/vendors/{,*/}*.scss',
             'languages/{,*/}*.*'
           ]
         }, {
           expand: true,
           cwd: '.tmp/images',
-          dest: '<%= yeoman.dist %>/images',
+          dest: '<%= stratio.dist %>/images',
           src: ['generated/*']
+        }, {
+          expand: true,
+          cwd: '.tmp/styles',
+          dest: '<%= stratio.dist %>/styles',
+          src: ['**/{,*/}*.css']
+        }, {
+          expand: true,
+          cwd: '.tmp/concat/scripts',
+          dest: '<%= stratio.dist %>/scripts',
+          src: ['**/{,*/}*.js', '**/{,*/}*.js.map']
+        }, {
+          expand: true,
+          cwd: '<%= stratio.app %>/templates',
+          dest: '<%= stratio.dist %>/templates',
+          src: ['**/{,*/}*.html']
         }]
       },
       styles: {
         expand: true,
-        cwd: '<%= yeoman.app %>/styles',
+        cwd: '<%= stratio.app %>/styles',
         dest: '.tmp/styles/',
         src: '{,*/}*.css'
+      },
+      scripts: {
+        expand: true,
+        cwd: '.tmp/concat/scripts',
+        dest: '<%= stratio.dist %>/scripts',
+        src: '{,*/}*.js'
       }
     },
 
@@ -444,19 +337,9 @@ module.exports = function (grunt) {
           'sass'
         ],
         dist: [
-          'sass:dist',
-          'imagemin',
-          'svgmin'
+          'sass:dist'
         ]
     },
-
-    // Test settings
-    karma: {
-      unit: {
-        configFile: 'test/karma.conf.js',
-        singleRun: true
-      }
-    }
   });
 
 
@@ -486,28 +369,23 @@ module.exports = function (grunt) {
     'wiredep',
     'concurrent:test',
     'autoprefixer',
-    'connect:test',
-    'karma'
+    'connect:test'
   ]);
 
   grunt.registerTask('build', [
+    'clean:server',
     'wiredep',
     'useminPrepare',
     'concurrent:dist',
     'autoprefixer',
-    'ngtemplates',
     'concat',
     'ngAnnotate',
     'copy:dist',
-    'cssmin',
-    'uglify',
-    'filerev',
     'usemin',
     'htmlmin'
   ]);
 
   grunt.registerTask('default', [
-    'newer:jshint',
     'test',
     'build'
   ]);

@@ -6,10 +6,6 @@
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width">
 	<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-	<!-- build:css(.) styles/vendor.css -->
-	<!-- bower:css -->
-	<!-- endbower -->
-	<!-- endbuild -->
 	<!-- build:css(.tmp) styles/main.css -->
 	<link rel="stylesheet" href="styles/main.css">
 	<!-- <link rel="stylesheet" href="styles/bootstrap.css">
@@ -32,10 +28,7 @@
  -->
 	</st-dashboard>
 
-
-
-	<!-- build:js(.) scripts/vendor.js -->
-	<!-- bower:js -->
+	<!-- build:js(.) scripts/vendors.js -->
 	<script src="bower_components/jquery/jquery.js"></script>
 	<script src="bower_components/angular/angular.js"></script>
 	<script src="bower_components/angular-animate/angular-animate.js"></script>
@@ -45,7 +38,6 @@
 	<script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
 	<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
 	<script src="bower_components/angular-touch/angular-touch.js"></script>
-	<!-- endbower -->
 	<!-- endbuild -->
 
 	<!-- build:js({.tmp,src}) scripts/scripts.js -->
@@ -67,6 +59,7 @@
 	<script src="stratio-ui/script/directives/forms/datasource-form-field-directive.js"></script>
 	<script src="stratio-ui/script/directives/forms/form-field-input-directive.js"></script>
 	<script src="stratio-ui/script/directives/forms/form-field-select-directive.js"></script>
+	<script src="stratio-ui/script/directives/forms/form-field-check-directive.js"></script>
 	<!-- Factories ----------------------------------- -->
 	<script src="scripts/services/fragment-factory.js"></script>
 	<script src="scripts/services/template-factory.js"></script>
@@ -77,15 +70,13 @@
 	<script src="scripts/services/api/api-fragment-service.js"></script>
 	<!-- Tools ----------------------------------- -->
 	<script src="scripts/lib/stratio.files.utils.js"></script>
+	<!-- endbuild -->
 
-
-	<!-- Nuevo Pedro -->
+	<!-- build:js({.tmp,src}) scripts/stratio-ui.js -->
 	<script src="stratio-ui/script/helper/ui.stratio.contant.templateUrl.js"></script>
 	<script src="stratio-ui/script/helper/ui.stratio.passAllAttributes.js"></script>
-
 	<script src="stratio-ui/script/layout/ui.stratio.dashboard.js"></script>
 	<script src="stratio-ui/script/layout/ui.stratio.menutab.js"></script>
-
 	<script src="stratio-ui/script/components/ui.stratio.actionButton.js"></script>
 	<script src="stratio-ui/script/components/ui.stratio.floatingMenu.js"></script>
 	<script src="stratio-ui/script/components/ui.stratio.heading.js"></script>
@@ -94,12 +85,7 @@
 	<script src="stratio-ui/script/components/ui.stratio.primarySidebarTitle.js"></script>
 	<script src="stratio-ui/script/components/ui.stratio.primarySidebarSubmenu.js"></script>
 	<script src="stratio-ui/script/components/ui.stratio.quickSearch.js"></script>
-
 	<script src="stratio-ui/script/ui.stratio.js"></script>
-	<!-- Nuevo Pedro -->
-
 	<!-- endbuild -->
-
-
 </body>
 </html>
