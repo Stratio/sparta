@@ -9,7 +9,6 @@ module.exports = function (grunt) {
   // Automatically load required Grunt tasks
   require('jit-grunt')(grunt, {
     useminPrepare: 'grunt-usemin',
-    ngtemplates: 'grunt-angular-templates'
   });
 
   // Configurable paths for the application
@@ -240,7 +239,7 @@ module.exports = function (grunt) {
       },
       dist: {}
     },
-    
+
     htmlmin: {
       dist: {
         options: {
@@ -257,20 +256,6 @@ module.exports = function (grunt) {
         }]
       }
     },
-
-    ngtemplates: {
-      dist: {
-        options: {
-          module: 'webApp',
-          htmlmin: '<%= htmlmin.dist.options %>',
-          usemin: ['scripts/vendors.js', 'scripts/scripts.js', 'scripts/stratio-ui.js']
-        },
-        cwd: '<%= stratio.app %>',
-        src: 'views/{,*/}*.html',
-        dest: '.tmp/app.templates.cache.js'
-      }
-    },
-
     // ng-annotate tries to make the code safe for minification automatically
     // by using the Angular long form for dependency injection.
     ngAnnotate: {
