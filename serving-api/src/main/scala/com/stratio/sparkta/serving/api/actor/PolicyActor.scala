@@ -47,6 +47,7 @@ class PolicyActor(curatorFramework: CuratorFramework)
     case Update(policy) => update(policy)
     case Delete(id) => delete(id)
     case Find(id) => find(id)
+    case FindByName(name) => findByName(name)
     case FindAll() => findAll()
     case FindByFragment(fragmentType, id) => findByFragment(fragmentType, id)
   }
@@ -78,7 +79,20 @@ class PolicyActor(curatorFramework: CuratorFramework)
         s"${AppConstant.PoliciesBasePath}/$id")))
     }).recover {
       case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsPolicytWithId, s"No policy  with id ${id}.")
+        new ErrorModel(ErrorModel.CodeNotExistsPolicytWithId, s"No policy with id ${id}.")
+      ))
+    })
+
+
+  def findByName(name: String): Unit =
+    sender ! ResponsePolicy(Try({
+      val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
+      JavaConversions.asScalaBuffer(children).toList.map(element =>
+        read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
+          s"${AppConstant.PoliciesBasePath}/$element")))).filter(policy => policy.name == name).head
+    }).recover {
+      case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
+        new ErrorModel(ErrorModel.CodeNotExistsPolicytWithName, s"No policy with name ${name}.")
       ))
     })
 
@@ -150,6 +164,8 @@ object PolicyActor {
   case class FindAll()
 
   case class Find(id: String)
+
+  case class FindByName(name: String)
 
   case class FindByFragment(fragmentType: String, id: String)
 
