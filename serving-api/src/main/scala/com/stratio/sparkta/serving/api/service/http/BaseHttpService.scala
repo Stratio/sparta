@@ -16,13 +16,10 @@
 
 package com.stratio.sparkta.serving.api.service.http
 
-import akka.actor.{ActorSelection, ActorRef}
+import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
-import com.stratio.sparkta.serving.core.models.StreamingContextStatusEnum
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import org.json4s.{Formats, DefaultFormats}
-import org.json4s.ext.EnumNameSerializer
+import com.stratio.sparkta.serving.core.models.SparktaSerializer
 import spray.httpx.Json4sJacksonSupport
 import spray.routing._
 
@@ -31,12 +28,8 @@ import scala.concurrent.duration._
 
 /**
  * It gives common operations such as error handling, i18n, etc. All HttpServices should extend of it.
- * @author anistal
  */
-trait BaseHttpService extends HttpService with Json4sJacksonSupport with SLF4JLogging {
-
-  implicit val json4sJacksonFormats: Formats = DefaultFormats + new EnumNameSerializer(StreamingContextStatusEnum) +
-    new JsoneyStringSerializer()
+trait BaseHttpService extends HttpService with Json4sJacksonSupport with SLF4JLogging with SparktaSerializer {
 
   implicit val timeout: Timeout = Timeout(15.seconds)
 

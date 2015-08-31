@@ -4,7 +4,7 @@
   "description": {
     "short": "Reads events from apache-kafka",
     "long": "Reads events from apache-kafka",
-    "learnMore": "http://docs.stratio.com"
+    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#kafkadirect-label"
   },
   "icon": {
     "url": "logo_kafka.png"
@@ -24,7 +24,7 @@
       "propertyName": "Type",
       "propertyType": "text",
       "regexp": "",
-      "default": null,
+      "default": "",
       "required": true,
       "tooltip": ""
     },
@@ -32,8 +32,8 @@
       "propertyId": "topics",
       "propertyName": "Topics",
       "propertyType": "text",
-      "regexp": "TODO cualquier cadena de caracteres",
-      "default": null,
+      "regexp": "",
+      "default": "",
       "required": true,
       "tooltip": "Topics to connect"
     }

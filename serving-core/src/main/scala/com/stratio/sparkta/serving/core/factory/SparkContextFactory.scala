@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.factory
+package com.stratio.sparkta.serving.core.factory
 
 import java.io.File
 import scala.collection.JavaConversions._
@@ -25,9 +25,6 @@ import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
-/**
- * @author ajnavarro, sgomezg
- */
 object SparkContextFactory extends SLF4JLogging {
 
   private var sc: Option[SparkContext] = None
@@ -95,10 +92,12 @@ object SparkContextFactory extends SLF4JLogging {
   def destroySparkStreamingContext: Unit = {
     synchronized {
       if (ssc.isDefined) {
-        log.debug("Stopping streamingContext with name: " + ssc.get.sparkContext.appName)
-        ssc.get.stop(false)
-        log.debug("Stopped streamingContext with name: " + ssc.get.sparkContext.appName)
+        log.info(s"Stopping streamingContext with name: ${ssc.get.sparkContext.appName}")
+        ssc.get.stop(false, true)
+        log.info(s"Stopped streamingContext with name: ${ssc.get.sparkContext.appName}")
         ssc = None
+      } else {
+        log.warn("Cannot destroy Spark Streaming Context")
       }
     }
   }

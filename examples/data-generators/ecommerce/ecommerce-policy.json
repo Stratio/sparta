@@ -15,7 +15,6 @@
         "queue": "logsQueue",
         "host": "localhost",
         "port": 5672,
-        "storageLevel": "MEMORY_ONLY",
         "exchangeName": "logsExchange",
         "routingKeys": [
           "webLogsRoute",

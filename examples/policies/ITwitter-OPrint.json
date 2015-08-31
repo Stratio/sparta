@@ -1,5 +1,7 @@
 {
+  "id": "id",
   "name": "policy-Twitter-Print",
+  "description": "policy-Twitter-Print",
   "sparkStreamingWindow": 6000,
   "checkpointPath": "checkpoint",
   "rawData": {
@@ -12,10 +14,10 @@
       "name": "in-twitter",
       "type": "Twitter",
       "configuration": {
-        "consumerKey": "*****",
-        "consumerSecret": "*****",
-        "accessToken": "*****",
-        "accessTokenSecret": "*****"
+        "consumerKey": "*",
+        "consumerSecret": "*",
+        "accessToken": "*",
+        "accessTokenSecret": "*"
       }
     }
   ,

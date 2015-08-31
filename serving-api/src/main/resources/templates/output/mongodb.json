@@ -41,9 +41,9 @@
     },
     {
       "propertyId": "dbName",
-      "propertyName": "DBName",
+      "propertyName": "Database name",
       "propertyType": "text",
-      "regexp": "TODO cualquier cadena de caracteres",
+      "regexp": "",
       "default": "sparkta",
       "required": false,
       "tooltip": "The name of the database"
@@ -52,7 +52,7 @@
       "propertyId": "connectionsPerHost",
       "propertyName": "Connections per host",
       "propertyType": "number",
-      "regexp": "TODO cualquier numero",
+      "regexp": "",
       "default": 5,
       "required": false,
       "tooltip": "Number of connections per host"
@@ -61,7 +61,7 @@
       "propertyId": "threadsAllowedToBlock",
       "propertyName": "Threads allowed to block",
       "propertyType": "number",
-      "regexp": "TODO cualquier numero",
+      "regexp": "",
       "default": 10,
       "required": false,
       "tooltip": "This multiplier, multiplied with the connectionsPerHost setting, gives the maximum number of threads that may be waiting for a connection to become available from the pool."
@@ -70,7 +70,7 @@
       "propertyId": "idAsField",
       "propertyName": "Id as field",
       "propertyType": "boolean",
-      "regexp": "true|false",
+      "regexp": "",
       "default": "false",
       "required": false,
       "tooltip": "Is possible to save all fields that compound the unique key as a independent field."
@@ -88,7 +88,7 @@
       "propertyId": "language",
       "propertyName": "Language",
       "propertyType": "text",
-      "regexp": "TODO cualquier cadena de caracteres",
+      "regexp": "",
       "default": "",
       "required": false,
       "tooltip": "Specify the language of the tokenizer in the full-text index in MongoDB, each document inserted must have this key-value."
@@ -97,7 +97,7 @@
       "propertyId": "retrySleep",
       "propertyName": "Retry sleep",
       "propertyType": "number",
-      "regexp": "TODO cualquier cadena de caracteres",
+      "regexp": "",
       "default": "1000",
       "required": false,
       "tooltip": "The number of milliseconds to wait for reconnect with MongoDb nodes when the last client fails. It is recommendable to set less time to the slide interval of the streaming window."

@@ -36,31 +36,30 @@ class RabbitMQInput(properties: Map[String, JSerializable]) extends Input(proper
   val RabbitMQPort = properties.getInt("port", DefaultRabbitMQPort)
   val ExchangeName = properties.getString("exchangeName", "")
   val RoutingKeys = properties.get("routingKeys")
-  val StorageLevelProperty = properties.getString("storageLevel", "MEMORY_AND_DISK_SER_2")
 
-  override def setUp(ssc: StreamingContext): DStream[Event] = {
+  override def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
     RoutingKeys match {
-      case Some(_) => createStreamFromRoutingKeys(ssc)
-      case None => createStreamFromAQueue(ssc)
+      case Some(_) => createStreamFromRoutingKeys(ssc, sparkStorageLevel)
+      case None => createStreamFromAQueue(ssc, sparkStorageLevel)
     }
   }
 
-  private def createStreamFromRoutingKeys(ssc: StreamingContext): DStream[Event] = {
+  private def createStreamFromRoutingKeys(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
     RabbitMQUtils.createStreamFromRoutingKeys(ssc,
       RabbitMQHost,
       RabbitMQPort,
       ExchangeName,
       RoutingKeys.get.asInstanceOf[JsoneyString].toSeq,
-      StorageLevel.fromString(StorageLevelProperty))
+      storageLevel(sparkStorageLevel))
       .map(data => new Event(Map(RawDataKey -> data.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
   }
 
-  private def createStreamFromAQueue(ssc: StreamingContext): DStream[Event] = {
+  private def createStreamFromAQueue(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
     RabbitMQUtils.createStreamFromAQueue(ssc,
       RabbitMQHost,
       RabbitMQPort,
       RabbitMQQueueName,
-      StorageLevel.fromString(StorageLevelProperty))
+      storageLevel(sparkStorageLevel))
       .map(data => new Event(Map(RawDataKey -> data.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
   }
 }

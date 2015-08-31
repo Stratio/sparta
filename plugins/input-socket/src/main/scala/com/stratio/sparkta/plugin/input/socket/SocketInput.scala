@@ -30,14 +30,12 @@ class SocketInput(properties: Map[String, JSerializable]) extends Input(properti
 
   private val hostname : String = properties.getString("hostname")
   private val port : Int = properties.getInt("port")
-  private val storageLevel : StorageLevel = StorageLevel
-    .fromString(properties.getString("storageLevel", "MEMORY_AND_DISK_SER_2"))
 
-  override def setUp(ssc: StreamingContext): DStream[Event] = {
+  override def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
     ssc.socketTextStream(
       hostname,
       port,
-      storageLevel)
+      storageLevel(sparkStorageLevel))
       .map(data => new Event(Map(RawDataKey -> data)))
   }
 }

@@ -20,8 +20,9 @@ import akka.actor.{ActorContext, _}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.api.service.http._
-import com.stratio.sparkta.serving.core.models.{ErrorModel, StreamingContextStatusEnum}
+import com.stratio.sparkta.serving.core.models.{SparktaSerializer, ErrorModel, StreamingContextStatusEnum}
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.Serialization._
@@ -30,20 +31,26 @@ import spray.routing._
 import spray.util.LoggingContext
 
 class ControllerActor(streamingContextService: StreamingContextService,
-                      actorsMap: Map[String, ActorRef]) extends HttpServiceActor with SLF4JLogging {
+                      actorsMap: Map[String, ActorRef])
+  extends HttpServiceActor
+  with SLF4JLogging
+  with SparktaSerializer {
 
   override implicit def actorRefFactory: ActorContext = context
 
-  implicit val json4sJacksonFormats = DefaultFormats +
-    new EnumNameSerializer(StreamingContextStatusEnum) +
-    new JsoneyStringSerializer()
-
   implicit def exceptionHandler(implicit logg: LoggingContext): ExceptionHandler =
     ExceptionHandler {
-      case exception: Exception =>
+      case exception: ServingApiException =>
+        requestUri { uri =>
+          log.error(exception.getLocalizedMessage)
+          complete(StatusCodes.NotFound, write(ErrorModel.toErrorModel(exception.getLocalizedMessage)))
+        }
+      case exception: Throwable =>
         requestUri { uri =>
           log.error(exception.getLocalizedMessage, exception)
-          complete(StatusCodes.NotFound, write(ErrorModel("Error", exception.getLocalizedMessage)))
+          complete(StatusCodes.InternalServerError, write(
+            new ErrorModel(ErrorModel.CodeUnknow, exception.getLocalizedMessage)
+          ))
         }
     }
 

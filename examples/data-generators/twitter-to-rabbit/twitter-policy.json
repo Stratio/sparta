@@ -15,7 +15,6 @@
                 "queue": "test",
                 "host": "localhost",
                 "port": 5672,
-                "storageLevel": "MEMORY_ONLY",
                 "exchangeName": "twitterExchange",
                 "routingKeys": [
                     "routingKey3"
