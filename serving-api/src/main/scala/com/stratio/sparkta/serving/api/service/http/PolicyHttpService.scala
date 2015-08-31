@@ -40,11 +40,11 @@ trait PolicyHttpService extends BaseHttpService {
 
   case class Result(message: String, desc: Option[String] = None)
 
-  override def routes: Route = find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download
+  override def routes: Route = find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download ~ findByName
 
   @Path("/find/{id}")
-  @ApiOperation(value      = "Find a policy from its name.",
-    notes      = "Find a policy from its name.",
+  @ApiOperation(value      = "Find a policy from its id.",
+    notes      = "Find a policy from its id.",
     httpMethod = "GET",
     response   = classOf[AggregationPoliciesModel])
   @ApiImplicitParams(Array(
@@ -70,6 +70,36 @@ trait PolicyHttpService extends BaseHttpService {
       }
     }
   }
+
+  @Path("/findByName/{name}")
+  @ApiOperation(value      = "Find a policy from its name.",
+    notes      = "Find a policy from its name.",
+    httpMethod = "GET",
+    response   = classOf[AggregationPoliciesModel])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name      = "name",
+      value     = "name of the policy",
+      dataType  = "string",
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code    = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def findByName: Route = {
+    path(HttpConstant.PolicyPath / "findByName" / Segment) { (name) =>
+      get {
+        complete {
+          val future = supervisor ? new FindByName(name)
+          Await.result(future, timeout.duration) match {
+            case ResponsePolicy(Failure(exception)) => throw exception
+            case ResponsePolicy(Success(policy)) => policy
+          }
+        }
+      }
+    }
+  }
+
 
   @Path("/fragment/{fragmentType}/{id}")
   @ApiOperation(value      = "Finds policies that contains a fragment.",
