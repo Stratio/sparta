@@ -13,7 +13,7 @@
     "properties": [
       {
         "propertyId": "type",
-        "propertyName": "Type",
+        "propertyName": "_TYPE_",
         "propertyType": "select",
         "values": [
           {
@@ -32,7 +32,7 @@
       },
       {
       "propertyId": "addresses",
-      "propertyName": "Addresses",
+      "propertyName": "",
       "propertyType": "list",
       "default": "",
       "required": false,
@@ -56,7 +56,7 @@
       "fields": [
         {
           "propertyId": "address",
-          "propertyName": "Address",
+          "propertyName": "_ADDRESS_",
           "propertyType": "text",
           "regexp": "",
           "default": "aa",
@@ -66,7 +66,7 @@
         },
         {
           "propertyId": "port",
-          "propertyName": "Port",
+          "propertyName": "_PORT_",
           "propertyType": "number",
           "regexp": "",
           "default": 1000,
@@ -78,7 +78,7 @@
       },
       {
         "propertyId": "maxBatchSize",
-        "propertyName": "Max batch size",
+        "propertyName": "_MAX_BATCH_SIZE",
         "propertyType": "number",
         "regexp": "",
         "default": 1000,
@@ -96,7 +96,7 @@
       },
       {
         "propertyId": "parallelism",
-        "propertyName": "Parallelism",
+        "propertyName": "_PARALLELISM_",
         "propertyType": "number",
         "regexp": "",
         "default": 5,
@@ -114,7 +114,7 @@
       },
       {
         "propertyId": "hostName",
-        "propertyName": "Host name",
+        "propertyName": "_HOST_NAME_",
         "propertyType": "text",
         "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
         "default": "",
@@ -132,7 +132,7 @@
       },
       {
         "propertyId": "port",
-        "propertyName": "Port",
+        "propertyName": "_PORT_",
         "propertyType": "number",
         "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
         "default": 11999,
@@ -150,7 +150,7 @@
       },
       {
         "propertyId": "enableDecompression",
-        "propertyName": "Decompression",
+        "propertyName": "_DECOMPRESSION_",
         "propertyType": "boolean",
         "regexp": "true|false",
         "required": false,
@@ -181,7 +181,7 @@
     "properties": [
       {
         "propertyId": "kafkaParams.zookeeper.connect",
-        "propertyName": "Zookeeper host",
+        "propertyName": "_ZOOKEEPER_HOST_",
         "propertyType": "text",
         "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))(:(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5]))))",
         "default": "localhost:2181",
@@ -190,7 +190,7 @@
       },
       {
         "propertyId": "kafkaParams.group.id",
-        "propertyName": "Type",
+        "propertyName": "_TYPE_",
         "propertyType": "text",
         "regexp": "",
         "required": true,
@@ -198,7 +198,7 @@
       },
       {
         "propertyId": "topics",
-        "propertyName": "Topics",
+        "propertyName": "_TOPICS_",
         "propertyType": "text",
         "regexp": "TODO cualquier cadena de caracteres",
         "required": true,
@@ -220,7 +220,7 @@
     "properties": [
       {
         "propertyId": "kafkaParams.zookeeper.connect",
-        "propertyName": "Zookeeper host",
+        "propertyName": "_ZOOKEEPER_HOST_",
         "propertyType": "text",
         "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))(:(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5]))))",
         "default": "localhost:2181",
@@ -229,7 +229,7 @@
       },
       {
         "propertyId": "kafkaParams.group.id",
-        "propertyName": "Type",
+        "propertyName": "_TYPE_",
         "propertyType": "text",
         "regexp": "",
         "required": true,
@@ -237,7 +237,7 @@
       },
       {
         "propertyId": "topics",
-        "propertyName": "Topics",
+        "propertyName": "_TOPICS_",
         "propertyType": "text",
         "regexp": "TODO cualquier cadena de caracteres",
         "required": true,
@@ -259,7 +259,7 @@
     "properties": [
       {
         "propertyId": "queue",
-        "propertyName": "Queue",
+        "propertyName": "_QUEUE_",
         "propertyType": "text",
         "regexp": "TODO cualquier cadena de caracteres",
         "required": false,
@@ -267,7 +267,7 @@
       },
       {
         "propertyId": "host",
-        "propertyName": "Host",
+        "propertyName": "_HOST_",
         "propertyType": "text",
         "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
         "default": "localhost",
@@ -276,7 +276,7 @@
       },
       {
         "propertyId": "port",
-        "propertyName": "Port",
+        "propertyName": "_PORT_",
         "propertyType": "text",
         "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
         "default": "5672",
@@ -285,7 +285,7 @@
       },
       {
         "propertyId": "exchangeName",
-        "propertyName": "ExchangeName",
+        "propertyName": "_EXCHANGE_NAME_",
         "propertyType": "text",
         "regexp": "",
         "default": "",
@@ -294,7 +294,7 @@
       },
       {
         "propertyId": "routingKeys",
-        "propertyName": "RoutingKeys",
+        "propertyName": "_ROUTING_KEYS_",
         "propertyType": "text",
         "regexp": "",
         "required": false,
@@ -316,7 +316,7 @@
     "properties": [
       {
         "propertyId": "hostname",
-        "propertyName": "Hostname",
+        "propertyName": "_HOST_NAME_",
         "propertyType": "text",
         "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
         "default": "",
@@ -325,7 +325,7 @@
       },
       {
         "propertyId": "port",
-        "propertyName": "Port",
+        "propertyName": "_PORT_",
         "propertyType": "text",
         "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
         "default": "",
@@ -348,7 +348,7 @@
     "properties": [
       {
         "propertyId": "consumerKey",
-        "propertyName": "Consumer key",
+        "propertyName": "_CONSUMER_KEY_",
         "propertyType": "text",
         "regexp": "",
         "default": "",
@@ -357,7 +357,7 @@
       },
       {
         "propertyId": "consumerSecret",
-        "propertyName": "Consumer secret",
+        "propertyName": "_CONSUMER_SECRET_",
         "propertyType": "text",
         "regexp": "",
         "default": "",
@@ -366,7 +366,7 @@
       },
       {
         "propertyId": "accessToken",
-        "propertyName": "Access token",
+        "propertyName": "_ACCESS_TOKEN_",
         "propertyType": "text",
         "regexp": "",
         "default": "",
@@ -375,7 +375,7 @@
       },
       {
         "propertyId": "tokenSecret",
-        "propertyName": "Token secret",
+        "propertyName": "_TOKEN_SECRET_",
         "propertyType": "text",
         "regexp": "",
         "default": "",
@@ -384,7 +384,7 @@
       },
       {
         "propertyId": "termsOfSearch",
-        "propertyName": "Terms of search",
+        "propertyName": "_TERMS_OF_SEARCH_",
         "propertyType": "text",
         "regexp": "",
         "default": "",
