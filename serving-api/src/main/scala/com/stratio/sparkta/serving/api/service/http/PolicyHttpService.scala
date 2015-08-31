@@ -175,12 +175,11 @@ trait PolicyHttpService extends BaseHttpService {
             PolicyHelper.fillFragments(policy,actors.get(AkkaConstant.FragmentActor).get, timeout))
           val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
           validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2)
-          complete {
-            val future = supervisor ? new Create(policy)
-            Await.result(future, timeout.duration) match {
-              case Response(Failure(exception)) => throw exception
-              case Response(Success(_)) => HttpResponse(StatusCodes.Created)
-            }
+
+          val future = supervisor ? new Create(policy)
+          Await.result(future, timeout.duration) match {
+            case ResponsePolicy(Failure(exception)) => throw exception
+            case ResponsePolicy(Success(policy)) => complete(policy)
           }
         }
       }

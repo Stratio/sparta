@@ -145,12 +145,10 @@ trait FragmentHttpService extends BaseHttpService {
     path(HttpConstant.FragmentPath) {
       post {
         entity(as[FragmentElementModel]) { fragment =>
-          complete {
             val future = supervisor ? new Create(fragment)
             Await.result(future, timeout.duration) match {
-              case Response(Failure(exception)) => throw exception
-              case Response(Success(_)) => HttpResponse(StatusCodes.Created)
-            }
+              case ResponseFragment(Failure(exception)) => throw exception
+              case ResponseFragment(Success(fragment)) => complete(fragment)
           }
         }
       }
@@ -174,7 +172,7 @@ trait FragmentHttpService extends BaseHttpService {
             val future = supervisor ? new Update(fragment)
             Await.result(future, timeout.duration) match {
               case Response(Failure(exception)) => throw exception
-              case Response(Success(_)) => HttpResponse(StatusCodes.Created)
+              case Response(Success(fragment)) => HttpResponse(StatusCodes.OK)
             }
           }
         }
