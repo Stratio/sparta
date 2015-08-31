@@ -7,6 +7,20 @@
 	&--separated {
 		margin: $c-row--separated---margin;
 	}
+
+	&--with-gutter {
+		.c-col {
+			padding: 0 $c-row---gutter;
+
+			&:first-child {
+				padding-left: 0;
+			}
+
+			&:last-child {
+				padding-right: 0;
+			}
+		}
+	}
 }
 
 .c-row {

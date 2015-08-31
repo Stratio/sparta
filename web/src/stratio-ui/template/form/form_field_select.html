@@ -1,6 +1,6 @@
 <ng-form name="{{name}}" class="c-form-group" ng-class="{empty: !model, focus: isFocused, placeholder: placeholder && !label, error: this[name][name].$invalid && form.$submitted, disabled: disabled}">
     <div class="c-form-control c-form-control--full-width">
-        <label ng-if="label" class="c-col c-col--12 c-label" title="{{label}}" for="{{name}}">{{label}}</label>
+        <label ng-if="label" class="c-col c-col--12 c-label" title="{{label}}" for="{{name}}">{{label | translate}}</label>
         <div ng-if="placeholder" class="st-form-field-placeholder">{{placeholder}}</div>
 
         <!-- <select ng-attr-id="{{name}}" name="{{name}}" class="st-form-field-select" ng-model="model" ng-options="item[field] for item in options track by item[trackBy]" ng-change="changeActionHandler()" ng-disabled="disabled" ng-required="required" ng-focus="isFocused=true" ng-blur="isFocused=false" ng-keyup="keyupHandler($event)" ng-show="trackBy" ></select> -->

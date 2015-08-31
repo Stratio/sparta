@@ -1,0 +1,7 @@
+@mixin c-checkbox {
+	@include c-component;
+}
+
+.c-checkbox {
+	@include c-checkbox;
+}
