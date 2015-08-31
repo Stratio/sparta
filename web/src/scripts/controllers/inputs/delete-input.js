@@ -6,19 +6,30 @@
         .module('webApp')
         .controller('DeleteFragmentModalCtrl', DeleteFragmentModalCtrl);
 
-    DeleteFragmentModalCtrl.$inject = ['$scope', '$modalInstance', 'item'];
+    DeleteFragmentModalCtrl.$inject = ['$modalInstance', 'item'];
 
-    function DeleteFragmentModalCtrl($scope, $modalInstance, item) {
-        console.log('*********Modal');
-        console.log(item);
+    function DeleteFragmentModalCtrl($modalInstance, item) {
+        /*jshint validthis: true*/
+        var vm = this;
 
-        $scope.inputs = item;
+        vm.ok = ok;
+        vm.cancel = cancel;
 
-        $scope.ok = function () {
-            $modalInstance.close($scope.inputs);
+        init();
+
+        ///////////////////////////////////////
+
+        function init () {
+            console.log('*********Modal');
+            console.log(item);
+            vm.inputs = item;
         };
 
-        $scope.cancel = function () {
+        function ok() {
+            $modalInstance.close(vm.inputs);
+        };
+
+        function cancel() {
             $modalInstance.dismiss('cancel');
         };
     };

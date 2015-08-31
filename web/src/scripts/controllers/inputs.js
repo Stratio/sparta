@@ -250,7 +250,7 @@
             var modalInstance = $modal.open({
                 animation: true,
                 templateUrl: 'templates/components/st-delete-modal.tpl.html',
-                controller: 'DeleteFragmentModalCtrl',
+                controller: 'DeleteFragmentModalCtrl as vm',
                 size: size,
                 resolve: {
                     item: function () {
