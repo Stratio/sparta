@@ -9,8 +9,8 @@
 
    function PolicyFactory(ApiPolicyService) {
        return {
-               GetPolicyByFragmentName: function(fragmentType, fragmentName) {
-                   return ApiPolicyService.GetPolicyByFragmentName().get({'type': fragmentType ,'name': fragmentName}).$promise;
+               GetPolicyByFragmentId: function(fragmentType, fragmentId) {
+                   return ApiPolicyService.GetPolicyByFragmentId().get({'type': fragmentType ,'id': fragmentId}).$promise;
                },
                GetAllpolicies: function() {
                    return ApiPolicyService.GetAllpolicies().get().$promise;

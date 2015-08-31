@@ -10,7 +10,7 @@
     function ApiFragmentService($resource) {
         var vm = this;
 
-        vm.GetFragmentByName = GetFragmentByName;
+        vm.GetFragmentById = GetFragmentById;
         vm.GetFragments = GetFragments;
         vm.DeleteFragment = DeleteFragment;
         vm.CreateFragment = CreateFragment;
@@ -18,8 +18,8 @@
 
         /////////////////////////////////
 
-        function GetFragmentByName() {
-            return $resource('/fragment/:type/:name', {type:'@type', name:'@name'},
+        function GetFragmentById() {
+            return $resource('/fragment/:type/:id', {type:'@type', id:'@id'},
             {
                 'get'   : {method:'GET'}
             });
@@ -44,10 +44,10 @@
             {
                'update': {method:'PUT'}
             });
-        };        
+        };
 
         function DeleteFragment() {
-            return $resource('/fragment/:type/:name', {type:'@type', name:'@name'},
+            return $resource('/fragment/:type/:id', {type:'@type', id:'@id'},
             {
                 'delete': {method:'DELETE'}
             });
