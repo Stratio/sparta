@@ -17,7 +17,6 @@
 package com.stratio.sparkta.serving.api.service.http
 
 import akka.pattern.ask
-import com.stratio.sparkta.serving.api.actor._
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.core.models.TemplateModel
 import com.wordnik.swagger.annotations._
@@ -25,6 +24,7 @@ import spray.routing._
 
 import scala.concurrent.Await
 import scala.util.{Failure, Success}
+import com.stratio.sparkta.serving.api.actor.TemplateActor._
 
 @Api(value = HttpConstant.TemplatePath,
   description = "Operations about templates. One template will have an abstract" +
@@ -52,10 +52,10 @@ trait TemplateHttpService extends BaseHttpService {
     path(HttpConstant.TemplatePath / Segment) { (templateType) =>
       get {
         complete {
-          val future = supervisor ? new TemplateSupervisorActor_findByType(templateType)
+          val future = supervisor ? new FindByType(templateType)
           Await.result(future, timeout.duration) match {
-            case TemplateSupervisorActor_response_templates(Failure(exception)) => throw exception
-            case TemplateSupervisorActor_response_templates(Success(templates)) => templates
+            case ResponseTemplates(Failure(exception)) => throw exception
+            case ResponseTemplates(Success(templates)) => templates
           }
         }
       }
@@ -84,10 +84,10 @@ trait TemplateHttpService extends BaseHttpService {
     path(HttpConstant.TemplatePath / Segment / Segment ) { (templateType, name) =>
       get {
         complete {
-          val future = supervisor ? new TemplateSupervisorActor_findByTypeAndName(templateType, name)
+          val future = supervisor ? new FindByTypeAndName(templateType, name)
           Await.result(future, timeout.duration) match {
-            case TemplateSupervisorActor_response_template(Failure(exception)) => throw exception
-            case TemplateSupervisorActor_response_template(Success(template)) => template
+            case ResponseTemplate(Failure(exception)) => throw exception
+            case ResponseTemplate(Success(template)) => template
           }
         }
       }

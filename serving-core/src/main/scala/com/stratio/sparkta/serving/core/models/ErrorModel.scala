@@ -16,6 +16,9 @@
 
 package com.stratio.sparkta.serving.core.models
 
+import org.json4s.DefaultFormats
+import org.json4s.native.Serialization._
+
 /**
  * An ErrorDto represents an error that will be sent as response to the frontend.
  * @param i18nCode with the code of the error that will be translated.
@@ -26,4 +29,28 @@ package com.stratio.sparkta.serving.core.models
 case class ErrorModel(i18nCode: String,
                     message: String,
                     stackTraceElement: Option[Seq[StackTraceElement]] = None,
-                    params: Option[Map[Any,Any]]= None) {}
+                    params: Option[Map[Any,Any]]= None) {
+
+}
+
+object ErrorModel {
+
+  implicit val json4sJacksonFormats = DefaultFormats
+
+  val CodeExistsFragmentWithName      = "100"
+  val CodeNotExistsFragmentWithId     = "101"
+  val CodeNotExistsFragmentWithName   = "102"
+  val CodeExistsPolicytWithName       = "200"
+  val CodeNotExistsPolicytWithId      = "201"
+  val CodeNotExistsPolicytWithName    = "202"
+  val CodeNotExistsTemplatetWithName  = "300"
+  val CodeUnknow                      = "666"
+
+  def toString(errorModel: ErrorModel): String = {
+    write(errorModel)
+  }
+
+  def toErrorModel(json: String): ErrorModel = {
+    read[ErrorModel](json)
+  }
+}

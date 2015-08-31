@@ -6,6 +6,8 @@ Input Configuration
 
 - :ref:`kafka-label`
 
+- :ref:`kafkaDirect-label`
+
 - :ref:`rabbitMQ-label`
 
 - :ref:`socket-label`
@@ -32,11 +34,9 @@ Read events from apache-flume
       "configuration": {
         "type": "pull",
         "addresses": "localhost:10999",
-        "storageLevel": "MEMORY_AND_DISK_SER_2",
         "maxBatchSize": 500
       }
     }
-  ]
 
 +-----------------+------------------------------------------------------------------+------------+
 | Property        | Description                                                      | Optional   |
@@ -51,9 +51,6 @@ Read events from apache-flume
 | Configuration   | host/port to connect                                             | No         |
 | addresses       |                                                                  |            |
 +-----------------+------------------------------------------------------------------+------------+
-| Configuration:  | It's a spark parameter used to define the level of the trade-off | No         |
-| storageLevel    | between memory usage and CPU efficiency                          |            |
-+-----------------+------------------------------------------------------------------+------------+
 | Configuration:  | The max number of lines to read and send to the channel at a time| No         |
 | maxBatchSize    |                                                                  |            |
 +-----------------+------------------------------------------------------------------+------------+
@@ -61,7 +58,7 @@ Read events from apache-flume
 
 Input-kafka
 =========
-Reads events from apache-kafka
+Read events from apache-kafka
 
 * Sample:
 ::
@@ -73,11 +70,10 @@ Reads events from apache-kafka
       "configuration": {
         "topics": "zion2:1",
         "kafkaParams.zookeeper.connect": "localhost:2181",
-        "kafkaParams.group.id": "kafka-pruebas",
-        "storageLevel": "MEMORY_AND_DISK_SER_2"
+        "kafkaParams.group.id": "kafka-pruebas"
       }
     }
-   ]
+
 +--------------------------------+----------------------------------------------------------+------------+
 | Property                       | Description                                              | Optional   |
 +================================+==========================================================+============+
@@ -95,11 +91,43 @@ Reads events from apache-kafka
 | Configuration:                 | It's a string that uniquely identifies a set of consumers| No         |
 | kafkaParams.group.id           | within the same consumer group                           |            |
 +--------------------------------+----------------------------------------------------------+------------+
-| Configuration:                 | It's a spark parameter used to define the level of the   | No         |
-| storageLevel                   | trade-off between memory usage and CPU efficiency        |            |
-+--------------------------------+----------------------------------------------------------+------------+
 
 
+.. _kafkaDirect-label:
+
+Input-KafkaDirect
+=========
+Read events from KafkaDirect
+* Sample:
+::
+
+  "input":
+    {
+      "name": "in",
+      "type": "KafkaDirect",
+      "configuration": {
+        "topics": "test",
+        "kafkaParams.metadata.broker.list": "localhost:9092",
+        "kafkaParams.group.id": "my-spt-grp"
+      }
+    }
++----------------------------------+----------------------------------------------------------+------------+
+| Property                         | Description                                              | Optional   |
++==================================+==========================================================+============+
+| name                             | Name of the input                                        | No         |
++----------------------------------+----------------------------------------------------------+------------+
+| type                             | The Type of the input it's used to instantiate specific  | No         |
+|                                  | classes                                                  |            |
++----------------------------------+----------------------------------------------------------+------------+
+| topics                           | Kafka topic parameter is needed to connect to it and get | No         |
+|                                  | the data that generates                                  |            |
++----------------------------------+----------------------------------------------------------+------------+
+| kafkaParams.metadata.broker.list | Defines where the Producer can find a one or more        | No         |
+|                                  | Brokers to determine the Leader for each topic           |            |
++----------------------------------+----------------------------------------------------------+------------+
+| kafkaParams.group.id             | It's a string that uniquely identifies a set of consumers| No         |
+|                                  | within the same consumer group                           |            |
++----------------------------------+----------------------------------------------------------+------------+
 .. _rabbitMQ-label:
 
 Input-rabbitMQ
@@ -117,14 +145,13 @@ Reads events from rabbitMQ
                 "queue": "test",
                 "host": "localhost",
                 "port": 5672,
-                "storageLevel": "MEMORY_ONLY",
                 "exchangeName": "twitterExchange",
                 "routingKeys": [
                     "routingKey3"
                 ]
             }
         }
-       ]
+
 +------------------+-----------------------------------------------------------------+-----------------------------------+
 | Property         | Description                                                     | Optional                          |
 +==================+=================================================================+===================================+
@@ -141,9 +168,6 @@ Reads events from rabbitMQ
 +------------------+-----------------------------------------------------------------+-----------------------------------+
 | Configuration:   | Port to connect and listen                                      | No                                |
 | port             |                                                                 |                                   |
-+------------------+-----------------------------------------------------------------+-----------------------------------+
-| Configuration:   | It's a spark parameter used to define the level of trade-off    | No                                |
-| storageLevel     | between memory usage and CPU efficiency                         |                                   |
 +------------------+-----------------------------------------------------------------+-----------------------------------+
 | Configuration:   | Name of the exchange where the data will be consumed            | Yes. If queue name it's empty you |
 | exchangeName     |                                                                 | have to specify the exchange      |
@@ -172,7 +196,7 @@ Reads events from a socket
            "port": "10666"
           }
        }
-      ]
+
 +------------------+---------------------------------------------------------+-----------+
 | Property         | Description                                             | Optional  |
 +==================+=========================================================+===========+
@@ -208,7 +232,6 @@ Reads events from Twitter API
            "termsOfSearch": "#Your,search,#terms,could be,#whatever"
       }
     }
-  ]
 
 +-------------------+-----------------------------------------------------------+------------+
 | Property          | Description                                               | Optional   |

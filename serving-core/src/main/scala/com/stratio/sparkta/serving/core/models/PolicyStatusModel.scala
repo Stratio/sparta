@@ -14,21 +14,8 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.util
+package com.stratio.sparkta.serving.core.models
 
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, SparktaSerializer}
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
-import org.json4s.native.Serialization._
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 
-object PolicyUtils extends SparktaSerializer {
-
-  /**
-   * Method to parse AggregationPoliciesModel from JSON string
-   * @param json The policy as JSON string
-   * @return AggregationPoliciesModel
-   */
-  def parseJson(json: String): AggregationPoliciesModel = parse(json).extract[AggregationPoliciesModel]
-
-  def toJson(policy: AggregationPoliciesModel): String = write(policy)
-}
+case class PolicyStatusModel(id: String, status: PolicyStatusEnum.Value)

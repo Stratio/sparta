@@ -16,16 +16,17 @@
 
 package com.stratio.sparkta.serving.api.service.http
 
+import javax.ws.rs.Path
+
 import akka.pattern.ask
 import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.serving.api.actor.FragmentActor._
-import com.stratio.sparkta.serving.api.actor.PolicyActor.FindByFragment
+import com.stratio.sparkta.serving.api.actor.PolicyActor.{Delete, FindByFragment, ResponsePolicies}
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.core.models.FragmentElementModel
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing.Route
-import com.stratio.sparkta.serving.api.actor.FragmentActor._
 
 import scala.concurrent.Await
 import scala.util.{Failure, Success}
@@ -34,10 +35,10 @@ import scala.util.{Failure, Success}
   "included in a policy")
 trait FragmentHttpService extends BaseHttpService {
 
-  override def routes: Route = findByTypeAndId ~ findAllByType ~ create ~ update ~ deleteByTypeAndId
+  override def routes: Route = findByTypeAndId ~ findAllByType ~ create ~ update ~ deleteByTypeAndId ~ findByTypeAndName
 
-  @ApiOperation(value = "Find a fragment depending of its type.",
-    notes = "Find a fragment depending of its type.",
+  @ApiOperation(value = "Find a fragment depending of its type and id.",
+    notes = "Find a fragment depending of its type and id.",
     httpMethod = "GET",
     response = classOf[FragmentElementModel])
   @ApiImplicitParams(Array(
@@ -59,6 +60,39 @@ trait FragmentHttpService extends BaseHttpService {
       get {
         complete {
           val future = supervisor ? new FindByTypeAndId(fragmentType, id)
+          Await.result(future, timeout.duration) match {
+            case ResponseFragment(Failure(exception)) => throw exception
+            case ResponseFragment(Success(fragment)) => fragment
+          }
+        }
+      }
+    }
+  }
+
+  @Path("/{fragmentType}/name/{name}")
+  @ApiOperation(value = "Find a fragment depending of its type and name.",
+    notes = "Find a fragment depending of its type and name.",
+    httpMethod = "GET",
+    response = classOf[FragmentElementModel])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "fragmentType",
+      value = "type of fragment (input/output)",
+      dataType = "string",
+      paramType = "path"),
+    new ApiImplicitParam(name = "name",
+      value = "name of the fragment",
+      dataType = "string",
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def findByTypeAndName: Route = {
+    path(HttpConstant.FragmentPath / Segment / "name" / Segment) { (fragmentType, name) =>
+      get {
+        complete {
+          val future = supervisor ? new FindByTypeAndName(fragmentType, name)
           Await.result(future, timeout.duration) match {
             case ResponseFragment(Failure(exception)) => throw exception
             case ResponseFragment(Success(fragment)) => fragment
@@ -165,14 +199,23 @@ trait FragmentHttpService extends BaseHttpService {
     new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
   ))
   def deleteByTypeAndId: Route = {
-    path(HttpConstant.FragmentPath / Segment / Segment) { (fragmentType, name) =>
+    path(HttpConstant.FragmentPath / Segment / Segment) { (fragmentType, id) =>
       delete {
         complete {
           val policyActor = actors.get(AkkaConstant.PolicyActor).get
-          val future = supervisor ? new DeleteByTypeAndId(fragmentType, name)
+          val future = supervisor ? new DeleteByTypeAndId(fragmentType, id)
           Await.result(future, timeout.duration) match {
             case Response(Failure(exception)) => throw exception
-            case Response(Success(_)) => HttpResponse(StatusCodes.OK)
+            case Response(Success(_)) => {
+              Await.result(
+                policyActor ? FindByFragment(fragmentType, id), timeout.duration) match {
+                  case ResponsePolicies(Failure(exception)) => throw exception
+                  case ResponsePolicies(Success(policies)) => {
+                    policies.map(policy => policyActor ! Delete(policy.id.get))
+                  }
+                }
+              HttpResponse(StatusCodes.OK)
+            }
           }
         }
       }

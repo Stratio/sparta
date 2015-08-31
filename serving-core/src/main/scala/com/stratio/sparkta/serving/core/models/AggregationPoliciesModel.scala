@@ -28,7 +28,9 @@ import org.json4s.jackson.JsonMethods._
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 
 case class AggregationPoliciesModel(id: Option[String] = None,
+                                    storageLevel: Option[String] = AggregationPoliciesModel.storageDefaultValue,
                                     name: String = "default",
+                                    description: String,
                                     sparkStreamingWindow: Long = AggregationPoliciesModel.sparkStreamingWindow,
                                     checkpointPath: String,
                                     rawData: RawDataModel,
@@ -41,9 +43,10 @@ case class AggregationPoliciesModel(id: Option[String] = None,
 case object AggregationPoliciesModel {
 
   val sparkStreamingWindow = 2000
+  val storageDefaultValue = Some("MEMORY_AND_DISK_SER_2")
 }
 
-object AggregationPoliciesValidator {
+object AggregationPoliciesValidator extends SparktaSerializer {
 
   final val MessageCubeName = "All cubes must have a non empty name\n"
   final val MessageDurationGranularity = "The duration must be less than checkpoint interval\n"
@@ -62,8 +65,6 @@ object AggregationPoliciesValidator {
   }
 
   def validateAgainstSchema(aggregationPoliciesDto: AggregationPoliciesModel): (Boolean, String) = {
-
-    implicit val formats = DefaultFormats + new JsoneyStringSerializer()
 
     var isValid: Boolean = false
     var msg: String = ""

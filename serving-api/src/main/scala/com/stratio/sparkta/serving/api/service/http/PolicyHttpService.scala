@@ -16,13 +16,13 @@
 
 package com.stratio.sparkta.serving.api.service.http
 
-import java.io.{File, PrintWriter}
+import java.io.File
 import javax.ws.rs.Path
 
 import akka.pattern.ask
 import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
-import com.stratio.sparkta.serving.api.actor.StreamingActor.CreateContext
+import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.api.helpers.PolicyHelper
 import com.stratio.sparkta.serving.core.models._
@@ -40,11 +40,11 @@ trait PolicyHttpService extends BaseHttpService {
 
   case class Result(message: String, desc: Option[String] = None)
 
-  override def routes: Route = find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download
+  override def routes: Route = find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download ~ findByName
 
   @Path("/find/{id}")
-  @ApiOperation(value      = "Find a policy from its name.",
-    notes      = "Find a policy from its name.",
+  @ApiOperation(value      = "Find a policy from its id.",
+    notes      = "Find a policy from its id.",
     httpMethod = "GET",
     response   = classOf[AggregationPoliciesModel])
   @ApiImplicitParams(Array(
@@ -70,6 +70,36 @@ trait PolicyHttpService extends BaseHttpService {
       }
     }
   }
+
+  @Path("/findByName/{name}")
+  @ApiOperation(value      = "Find a policy from its name.",
+    notes      = "Find a policy from its name.",
+    httpMethod = "GET",
+    response   = classOf[AggregationPoliciesModel])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name      = "name",
+      value     = "name of the policy",
+      dataType  = "string",
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code    = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def findByName: Route = {
+    path(HttpConstant.PolicyPath / "findByName" / Segment) { (name) =>
+      get {
+        complete {
+          val future = supervisor ? new FindByName(name)
+          Await.result(future, timeout.duration) match {
+            case ResponsePolicy(Failure(exception)) => throw exception
+            case ResponsePolicy(Success(policy)) => policy
+          }
+        }
+      }
+    }
+  }
+
 
   @Path("/fragment/{fragmentType}/{id}")
   @ApiOperation(value      = "Finds policies that contains a fragment.",
@@ -183,12 +213,12 @@ trait PolicyHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value      = "Deletes a policy from its name.",
-    notes      = "Deletes a policy from its name.",
+  @ApiOperation(value      = "Deletes a policy from its id.",
+    notes      = "Deletes a policy from its id.",
     httpMethod = "DELETE")
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name      = "name",
-      value     = "name of the policy",
+    new ApiImplicitParam(name      = "id",
+      value     = "id of the policy",
       dataType  = "string",
       paramType = "path")
   ))
@@ -197,10 +227,10 @@ trait PolicyHttpService extends BaseHttpService {
       message = HttpConstant.NotFoundMessage)
   ))
   def remove: Route = {
-    path(HttpConstant.PolicyPath / Segment) { (name) =>
+    path(HttpConstant.PolicyPath / Segment) { (id) =>
       delete {
         complete {
-          val future = supervisor ? new Delete(name)
+          val future = supervisor ? new Delete(id)
           Await.result(future, timeout.duration) match {
             case Response(Failure(exception)) => throw exception
             case Response(Success(_)) => HttpResponse(StatusCodes.OK)
@@ -236,7 +266,7 @@ trait PolicyHttpService extends BaseHttpService {
               PolicyHelper.fillFragments(policy,actors.get(AkkaConstant.FragmentActor).get, timeout))
             val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
             validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-              actors.get("streamingActor").get ! new CreateContext(parsedP)
+              actors.get(AkkaConstant.SparkStreamingContextActor).get ! new SparkStreamingContextActor.Create(parsedP)
               complete {
                 new Result("Creating new context with name " + policy.name)
               }

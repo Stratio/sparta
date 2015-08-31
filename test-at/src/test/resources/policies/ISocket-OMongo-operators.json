@@ -1,5 +1,7 @@
 {
+  "id": "id",
   "name": "ATSocketMongo",
+  "description": "No description",
   "sparkStreamingWindow": 2000,
   "checkpointPath": "checkpoint",
   "rawData": {
