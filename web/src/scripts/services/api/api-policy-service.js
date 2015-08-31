@@ -10,40 +10,16 @@
     function ApiPolicyService($resource) {
         var vm = this;
 
-        vm.GetPolicyByFragmentName = GetPolicyByFragmentName;
-        vm.DeleteFragment = DeleteFragment;
-        vm.CreateFragment = CreateFragment;
-        vm.UpdateFragment = UpdateFragment;
+        vm.GetPolicyByFragmentId = GetPolicyByFragmentId;
         vm.GetAllpolicies = GetAllpolicies;
 
         /////////////////////////////////
 
-        function GetPolicyByFragmentName() {
-            return $resource('/policy/fragment/:type/:name', {type:'@type', name:'@name'},
+        function GetPolicyByFragmentId() {
+            return $resource('/policy/fragment/:type/:id', {type:'@type', id:'@id'},
             {
                 'get': {method:'GET', isArray:true}
             });
-        };
-
-        function DeleteFragment() {
-            return $resource('/fragment/:type/:name', {type:'@type', name:'@name'},
-            {
-                'delete': {method:'DELETE'}
-            });
-        };
-
-        function CreateFragment() {
-            return $resource('/fragment/', {},
-            {
-                'create': {method:'POST'}
-            });
-        };
- 
-        function UpdateFragment() {
-            return $resource('/fragment/', {},
-            {
-               'update': {method:'PUT'}
-           });
         };
 
         function GetAllpolicies() {

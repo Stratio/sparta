@@ -29,13 +29,13 @@
 
 					<span class="icon-actions menu_actions" data-ng-click="$root.stToggleFloatingMenu[input.id]()">
 						<st-floating-menu toggle-id="{{input.id}}" align="right">
-							<st-menu-element class-icon="icon-edit" data-ng-click="inputs.editInput(input.fragmentType, input.name, $index)">
+							<st-menu-element class-icon="icon-edit" data-ng-click="inputs.editInput(input.fragmentType, input.name, input.id, $index)">
 								{{"_INPUT_ACTIONS_MENU_EDIT_" | translate}}
 							</st-menu-element>
 							<st-menu-element class-icon="icon-copy" data-ng-click="inputs.duplicateInput(input.name)">
 								{{"_INPUT_ACTIONS_MENU_DUPLICATE_" | translate}}
 							</st-menu-element>
-							<st-menu-element class-icon="icon-cross" data-ng-click="inputs.deleteInput(input.fragmentType, input.name, $index)">
+							<st-menu-element class-icon="icon-cross" data-ng-click="inputs.deleteInput(input.fragmentType, input.id, $index)">
 								{{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
 							</st-menu-element>
 						</st-floating-menu>
@@ -57,7 +57,7 @@
 			</li>
 	    </ul>
     </div>
- 
+
     <hr class="c-line-separator" />
 
     <footer class="c-row c-row--to-right c-row--footer">
@@ -67,4 +67,3 @@
     	</button>
     </footer>
 </section>
- 

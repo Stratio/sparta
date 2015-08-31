@@ -1,0 +1,14 @@
+<div class=" c-form-group">
+    <div ng-if="!field.limit == 1" class="list-label">{{field.propertyName}}</div>
+    <div class="st-form-field-help">
+        <div class="st-form-field-help-button button"><i id="help-{{name}}" class="fa fa-question-circle" ng-click="toggleHelp($event)"></i></div>
+        <div class="st-form-field-help-text" ng-show="showHelp">{{field.tooltip}}</div>
+    </div>
+    <div class="st-form-list-row" ng-repeat="row in model[field.propertyId]">
+        <div ng-repeat="item in field.fields" class="st-form-list-column" ng-class="item.propertyType == 'number' ? 'column-flex-grow-1' : 'column-flex-grow-2'">
+            <form-field-input ng-attr-id="ng-{{name}}{{$parent.$index}}-{{item.propertyId}}" data-form="form" data-st-name="{{name}}{{$parent.$index}}-{{item.propertyId}}" data-model="row[item.propertyId]" data-label="{{item.propertyName}}" data-type="{{item.propertyType}}" data-pattern="item.regexp" data-required="item.required"></form-field-input>
+        </div>
+        <div ng-if="!($first && $last)" class="button remove-item-button"><i class="icon-square-cross" ng-click="removeItem($index)"></i></div>
+    </div>
+    <div ng-if="!field.limit || model[field.propertyId].length < field.limit" class="button add-item-button"><i class="icon-square-plus" ng-click="addItem()"></i></div>
+</div>
