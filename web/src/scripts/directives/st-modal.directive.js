@@ -12,7 +12,7 @@
             link: link,
             replace: true,
             restrict: 'AE',
-            templateUrl: 'templates/tools/st-modal.html',
+            templateUrl: 'templates/tools/st-modal.tpl.html',
             transclude: true,
             scope: {
                 actionLabel: '@',

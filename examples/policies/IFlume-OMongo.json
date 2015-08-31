@@ -1,5 +1,7 @@
 {
+  "id": "id",
   "name": "policy-MongoDB-Financtial",
+  "description": "policy-MongoDB-Financtial",
   "sparkStreamingWindow": 6000,
   "checkpointPath": "checkpoint",
   "rawData": {
@@ -14,7 +16,6 @@
       "configuration": {
         "type": "pull",
         "addresses": "localhost:10999",
-        "storageLevel": "MEMORY_AND_DISK_SER_2",
         "maxBatchSize": 500
       }
     }

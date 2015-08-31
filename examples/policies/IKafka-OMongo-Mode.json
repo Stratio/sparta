@@ -1,5 +1,7 @@
 {
+  "id": "id",
   "name": "policy-kafka",
+  "description": "policy-kafka",
   "sparkStreamingWindow": 2000,
   "rawData": {
     "enabled": "true",
@@ -20,8 +22,7 @@
       "configuration": {
         "topics": "mode",
         "kafkaParams.zookeeper.connect": "localhost:2181",
-        "kafkaParams.group.id": "testgroup",
-        "storageLevel": "MEMORY_AND_DISK_SER_2"
+        "kafkaParams.group.id": "testgroup"
       }
     }
   ],

@@ -1,6 +1,7 @@
 @mixin c-icon {
 	@include c-component;
 	@include is-clickable();
+	@include is-coloured($c-icon---colors);
 
 	&--in-input {
 		position: absolute;

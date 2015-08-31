@@ -226,13 +226,11 @@ After we had configured our policy, let's get started in the example!
 
 Note that Zookeeper must be running::
 
-  sudo service zookeeper start
+      sudo service zookeeper start
 
 Run Sparkta::
 
-    cd /opt/sds/sparkta
-
-    sudo sh bin/run &> /tmp/sparkta.out &
+      service sparkta start
 
 Now let's send the policy to sparkta::
 
@@ -341,9 +339,7 @@ where to write and how to transform the input data.
 
     sudo service zookeeper start
 
-    cd /opt/sds/sparkta
-
-    sudo sh bin/run &> /tmp/sparkta.out &
+    service sparkta start
 
     curl -H "Content-Type: application/json" http://localhost:9090/policyContext --data @examples/data-generators/twitter-to-rabbit/twitter-policy.json
 
@@ -365,7 +361,7 @@ queue through a direct exchange (https://www.rabbitmq.com/tutorials/tutorial-fou
 
       mvn clean package
 
-      mvn exec:java -Dexec.mainClass="com.stratio.examples.twittertorabbit.TwitterTabbitMQWithRouting" -Dexec.args="routingKey3"
+      mvn exec:java -Dexec.mainClass="com.stratio.examples.twittertorabbit.TwitterToRabbitMQWithRouting" -Dexec.args="routingKey3"
 
 e-commerce to RabbitMQ and ElasticSearch
 ========================================
@@ -385,15 +381,11 @@ will save the aggregated data::
     sudo service elasticsearch start
 
 * Next we run Sparkta and send the policy. This policy contains the configuration that tells Sparkta where to read,
-where to write and how to transform the input data.
-
-  Note that Zookeeper must be running::
+where to write and how to transform the input data. Note that Zookeeper must be running::
 
     sudo service zookeeper start
 
-    cd /opt/sds/sparkta
-
-    sudo sh bin/run &> /tmp/sparkta.out &
+    service sparkta start
 
     curl -H "Content-Type: application/json" http://localhost:9090/policyContext --data @examples/data-generators/ecommerce/ecommerce-policy.json
 

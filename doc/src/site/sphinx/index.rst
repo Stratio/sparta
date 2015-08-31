@@ -10,3 +10,4 @@ Contents:
     sandbox.rst
     examples.rst
     versionFeatures.rst
+    advanced.rst

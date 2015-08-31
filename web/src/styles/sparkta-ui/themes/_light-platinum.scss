@@ -245,6 +245,7 @@ $c-info-text__icon---font-size: get-font-size(medium);
 
 
 // c-icon
+$c-icon---colors: $c-icon-text---colors;
 $c-icon--in-input---top: 7px;
 $c-icon--in-input---left: 22px;
 $c-icon--in-input---color: get-color(g6);

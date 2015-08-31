@@ -1,5 +1,7 @@
 {
+  "id": "id",
   "name": "policy-Kafka-Mongo-Zion",
+  "description": "policy-Kafka-Mongo-Zion",
   "sparkStreamingWindow": 6000,
   "checkpointPath": "checkpoint",
   "rawData": {
@@ -14,8 +16,7 @@
       "configuration": {
         "topics": "zion2:1",
         "kafkaParams.zookeeper.connect": "localhost:2181",
-        "kafkaParams.group.id": "kafka-pruebas",
-        "storageLevel": "MEMORY_AND_DISK_SER_2"
+        "kafkaParams.group.id": "kafka-pruebas"
       }
     }
   ,

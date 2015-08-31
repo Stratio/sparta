@@ -22,7 +22,6 @@ import com.stratio.sparkta.sdk.Input._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.{Event, Input}
 import kafka.serializer.StringDecoder
-import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.kafka.KafkaUtils
@@ -30,9 +29,7 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 
 class KafkaInput(properties: Map[String, JSerializable]) extends Input(properties) {
 
-  val DEFAULT_STORAGE_LEVEL = "MEMORY_AND_DISK_SER_2"
-
-  override def setUp(ssc: StreamingContext): DStream[Event] = {
+  override def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
 
     val submap: Option[Map[String, JSerializable]] = properties.getMap("kafkaParams")
     if (submap.isEmpty) {
@@ -42,7 +39,7 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
         properties.getString("zkQuorum"),
         properties.getString("groupId"),
         extractTopicsMap,
-        storageLevel)
+        storageLevel(sparkStorageLevel))
         .map(data => new Event(Map(RawDataKey -> data._2.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
 
     } else {
@@ -52,7 +49,7 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
         ssc,
         kafkaParams,
         extractTopicsMap,
-        storageLevel)
+        storageLevel(sparkStorageLevel))
         .map(data => new Event(Map(RawDataKey -> data._2.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
     }
   }
@@ -70,11 +67,5 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
       }
     ).toMap
   }
-
-  private def storageLevel(): StorageLevel =
-    properties.hasKey("storageLevel") match {
-      case true => StorageLevel.fromString(properties.getString("storageLevel"))
-      case false => StorageLevel.fromString(DEFAULT_STORAGE_LEVEL)
-    }
 
 }
