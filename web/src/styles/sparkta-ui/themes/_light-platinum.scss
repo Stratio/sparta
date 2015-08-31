@@ -229,7 +229,8 @@ $c-titlebar__title---font-size: get-font-size(medium-alpha);
 
 // c-icon-text
 $c-icon-text---colors: (
-	call-to-action: get-color(c1)
+	call-to-action: get-color(c1),
+	danger: get-color(e3)
 );
 $c-icon-text__icon---margin: $c-icon-default-margin;
 
@@ -277,6 +278,7 @@ $c-col---cols-number: 12;
 
 // c-row
 $c-row--separated---margin: 60px 0 0;
+$c-row---gutter: 5px;
 
 
 
