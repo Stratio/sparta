@@ -267,7 +267,7 @@
         function deleteInputConfirm(size, input) {
             var modalInstance = $modal.open({
                 animation: true,
-                templateUrl: 'templates/components/st_delete_modal.tpl.html',
+                templateUrl: 'templates/components/st-delete-modal.tpl.html',
                 controller: 'DeleteFragmentModalCtrl',
                 size: size,
                 resolve: {
@@ -297,7 +297,7 @@
         function SetDuplicatetedInput(size, inputName) {
             var modalInstance = $modal.open({
                 animation: true,
-                templateUrl: 'templates/components/st_duplicate_modal.tpl.html',
+                templateUrl: 'templates/components/st-duplicate-modal.tpl.html',
                 controller: 'DuplicateFragmentModalCtrl as vm',
                 size: 'lg',
                 resolve: {
