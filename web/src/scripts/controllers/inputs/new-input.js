@@ -1,14 +1,14 @@
 (function() {
   'use strict';
 
-    /*NEW & EDIT FRAGMENT MODAL CONTROLLER*/
+    /*NEW FRAGMENT MODAL CONTROLLER*/
     angular
         .module('webApp')
         .controller('NewFragmentModalCtrl', NewFragmentModalCtrl);
 
-    NewFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentFactory', '$filter'];
+    NewFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentFactory', 'TemplateFactory', '$filter'];
 
-    function NewFragmentModalCtrl($modalInstance, item, FragmentFactory, $filter) {
+    function NewFragmentModalCtrl($modalInstance, item, FragmentFactory, TemplateFactory, $filter) {
         /*jshint validthis: true*/
         var vm = this;
 
@@ -23,45 +23,53 @@
         vm.templateInputsData = [];
         vm.properties = [];
         vm.error = false;
+        vm.errorText = '';
+        vm.fragmentType = '';
 
         init();
 
         /////////////////////////////////
 
         function init() {
-            console.log('--> NewFragmentModalCtrl');
-            console.log('> Data received');
-            console.log(item);
+          console.log('--> NewFragmentModalCtrl');
+          console.log('> Data received');
+          console.log(item);
 
-            setTexts(item.texts);
+          vm.fragmentType = item.fragmentType;
 
-            vm.action = item.action;
-
-            if (vm.action === 'edit') {
-                vm.templateInputsData = item.inputDataTemplate;
-                vm.dataSource = item.inputSelected;
-                vm.createTypeModels(vm.templateInputsData);
-                vm.selectedIndex = vm.index;
-                vm.policiesAffected = item.policies;
-            }
-            else {
-                vm.templateInputsData = item.inputDataTemplate;
-                vm.initFragmentObject(vm.templateInputsData);
-                vm.createTypeModels(vm.templateInputsData);
-                vm.selectedIndex = 0;
-            }
+          setTexts(item.texts);
+          getTemplates(item.fragmentType);
         };
 
         function setTexts(texts) {
-            vm.modalTexts = {};
-            vm.modalTexts.title = texts.title;
-            vm.modalTexts.button = texts.button;
-            vm.modalTexts.icon = texts.button_icon;
-        }
+          vm.modalTexts = {};
+          vm.modalTexts.title = texts.title;
+          vm.modalTexts.button = texts.button;
+          vm.modalTexts.icon = texts.button_icon;
+        };
+
+        function getTemplates(fragmentType) {
+          var fragmentTemplates = TemplateFactory.GetNewFragmentTemplate(fragmentType);
+
+          fragmentTemplates.then(function (result) {
+            console.log('*********Templates result');
+            console.log(result);
+
+            vm.templateInputsData = result;
+
+            vm.initFragmentObject(vm.templateInputsData);
+            vm.createTypeModels(vm.templateInputsData);
+            vm.selectedIndex = 0;
+
+          },function (error) {
+              vm.error = true;
+              vm.errorText = "_INPUT_ERROR_TEMPLATES_";
+          });
+        };
 
         function initFragmentObject(fragmentData) {
             /*Init fragment*/
-            vm.dataSource.fragmentType = 'input';
+            vm.dataSource.fragmentType = vm.fragmentType;
             vm.dataSource.name = '';
 
             /*Init fragment.element*/
@@ -147,35 +155,11 @@
                 }
 
                 /*Init properties*/
-                if(vm.action !== 'edit' && i === 0) {
+                if(i === 0) {
                   console.log(differentObjects);
                   console.log(vm.properties[fragmentName]);
                   console.log([selectValue.values[0].value]);
                   vm.dataSource.element.configuration = (differentObjects) ? vm.properties[fragmentName][selectValue.values[0].value] : vm.properties[fragmentName];
-                }
-                else if(vm.action === 'edit' && fragmentName === vm.dataSource.element.type) {
-                  console.log('**');
-                  console.log(vm.dataSource.element);
-                  console.log(vm.dataSource.element.configuration);
-                  console.log(vm.properties);
-/*
-                  angular.forEach(vm.dataSource.element.configuration, function(value, key) {
-                    console.log(key + ': ' + value);
-                  });
-*/
-/*
-                  vm.properties[fragmentName] = vm.dataSource.element.configuration;
-                  vm.dataSource.element.configuration = vm.properties[fragmentName];
-*/
-                  if (differentObjects) {
-                    console.log(vm.dataSource.element.configuration.addresses);
-                    vm.properties[fragmentName][vm.dataSource.element.configuration.type] = vm.dataSource.element.configuration;
-                  }
-                  else {
-                    vm.properties[fragmentName] = vm.dataSource.element.configuration;
-                  }
-                  /*vm.dataSource.element.configuration = (differentObjects) ?  : ;*/
-                  vm.index = i;
                 }
             }
         };
@@ -195,26 +179,42 @@
         };
 
         function ok() {
-          console.log(vm.dataSource);
-          if (vm.form.$valid){
-              checkInputName(vm.dataSource.fragmentType, vm.dataSource.name);
+          if (vm.form.$valid) {
+            checkFragmnetname();
           }
         };
 
-        function checkInputName(inputType, inputName) {
-            var newFragment = FragmentFactory.GetFragmentById(inputType, inputName);
+        function checkFragmnetname() {
+          var inputNameExist = [];
+          inputNameExist = $filter('filter')(item.inputNamesList, {'name': vm.dataSource.name}, true);
 
-            newFragment
-            .then(function (result) {
-                vm.error = true;
-            },
-            function (error) {
-                var callBackData = {
-                    'index': item.index,
-                    'data': vm.dataSource,
-                };
-               $modalInstance.close(callBackData);
-            });
+          if (inputNameExist.length > 0) {
+            vm.error = true;
+            vm.errorText = "_INPUT_ERROR_100_";
+          }
+          else {
+            createfragment();
+          }
+        };
+
+        function createfragment() {
+          var newFragment = FragmentFactory.CreateFragment(vm.dataSource);
+
+          newFragment.then(function (result) {
+              console.log('*********Fragment created');
+              console.log(result);
+
+              var callBackData = {
+                'index': item.index,
+                'data': result,
+              };
+
+              $modalInstance.close(callBackData);
+
+          },function (error) {
+              vm.error = true;
+              vm.errorText = "_INPUT_ERROR_" + error.data.i18nCode + "_";
+          });
         };
 
         function cancel() {

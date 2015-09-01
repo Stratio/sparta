@@ -2,7 +2,7 @@
 	<span class="c-titlebar__title">{{"_INPUT_WINDOW_DUPLICATE_TITLE_" | translate}}</span>
 	<i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" ng-click="vm.cancel()"></i>
 </div>
- 
+
 <div class="c-modal-inner">
 	<form class="c-form" name="vm.form" novalidate>
 		<div class="c-row">
@@ -10,7 +10,8 @@
 		</div>
 
 		<div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error">
-			<i class="c-icon icon-circle-cross"></i>{{"_INPUT_ERROR_NAME_EXISTS_" | translate}}
+			<i class="c-icon icon-circle-cross"></i>
+			<span translate="{{vm.errorText}}"></span>
 		</div>
 
 		<div class="c-row c-row--separated">

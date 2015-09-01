@@ -17,4 +17,23 @@ function autoIncrementName(input) {
     output = output + ' (' + actual + ')';
 
     return output;
-}
+};
+
+function getFragmentsNames(fragmentsList) {
+    var fragmentNames = [];
+    for (var i=0; i<fragmentsList.length; i++){
+        var fragment = {'name':fragmentsList[i].name}
+        fragmentNames.push(fragment);
+    }
+    return fragmentNames;
+};
+
+function getPolicyNames(policiesData) {
+    var policies = [];
+
+    for (var i=0; i<policiesData.length; i++){
+        policies.push(policiesData[i].name);
+    }
+
+    return policies;
+};
