@@ -2,10 +2,10 @@
 
     <div class="c-form-control c-form-control--full-width">
         <div class="c-row">
-            <label class="c-label" for="{{name}}">{{label | translate}}</label>
+            <label class="c-label">{{label | translate}}</label>
         </div>
         <div class="c-row">
-            <input id="{{name}}" ng-attr-id="{{name}}" name="{{name}}" class="c-input c-checkbox" type="checkbox" data-ng-model="model" data-ng-required="required" data-ng-disabled="disabled" data-ng-pattern="pattern">
+            <input id="{{name}}" ng-attr-id="{{name}}" name="{{name}}" class="c-input c-checkbox" type="checkbox" data-ng-model="model" data-ng-required="required" data-ng-disabled="disabled" data-ng-pattern="pattern"><label class="c-label" for="{{name}}">{{label | translate}}</label>
         </div>
         <div data-ng-if="this[name][name].$invalid && form.$submitted" class="angular-forms__error">
             <span data-ng-if="this[name][name].$error.required">This field is required. </span>
