@@ -67,8 +67,13 @@
 	"_INPUT_BUTTON_CANCEL_": "cancel",
   	"_INPUT_BUTTON_DUPLICATE_": "duplicate",
 
-  	"_INPUT_ERROR_NAME_EXISTS_": "There was an error. The name already exists!",
+  	"_INPUT_ERROR_100_": "There was an error. The name of the fragment already exists!",
+  	"_INPUT_ERROR_101_": "There was an error. There is not a fragment whit this ID!",
+  	"_INPUT_ERROR_200_": "There was an error. The name of the policy already exists!",
+  	"_INPUT_ERROR_201_": "There was an error. There is not a policy whit this ID!",
+  	"_INPUT_ERROR_300_": "There was an error. There is not a template whit this name!",
+  	"_INPUT_ERROR_666_": "There was an error. Please try again later. (Server error)",
+  	"_INPUT_ERROR_TEMPLATES_": "There was an error while loading the templates! Please try again later.",
 
   	"_POLICY_HEADER_TITLE_MAIN_": "Policies"
 }
- 
