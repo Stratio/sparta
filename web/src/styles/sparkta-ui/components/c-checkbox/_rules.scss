@@ -4,6 +4,7 @@
 	display: none;
 
 	& + .c-label {
+		cursor: pointer;
 		display: inline-block;
 		max-width: 15px;
 		overflow: hidden;
@@ -13,7 +14,7 @@
 			@extend .icon-stop:before;
 
 			color: $c-checkbox---color;
-			font-family: 'ico_stratio';
+			font-family: $c-checkbox---font-family;
 		}
 	}
 
