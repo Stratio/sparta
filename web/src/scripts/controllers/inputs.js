@@ -5,9 +5,9 @@
         .module('webApp')
         .controller('InputsCtrl', InputsCtrl);
 
-    InputsCtrl.$inject = ['FragmentFactory', 'PolicyFactory', 'TemplateFactory', '$filter', '$modal'];
+    InputsCtrl.$inject = ['FragmentFactory', '$filter', '$modal'];
 
-    function InputsCtrl(FragmentFactory, PolicyFactory, TemplateFactory, $filter, $modal) {
+    function InputsCtrl(FragmentFactory, $filter, $modal) {
         /*jshint validthis: true*/
        var vm = this;
 
@@ -32,7 +32,7 @@
         };
 
         function getInputs() {
-          var inputList = FragmentFactory.GetFragments("input");
+          var inputList = FragmentFactory.GetFragments('input');
 
           inputList.then(function (result) {
             vm.inputsData = result;
@@ -144,6 +144,9 @@
             resolve: {
               item: function () {
                 return newInputTemplateData;
+              },
+              fragmentTemplates: function (TemplateFactory) {
+                return TemplateFactory.GetNewFragmentTemplate(newInputTemplateData.fragmentType);
               }
             }
           });
@@ -174,7 +177,7 @@
                       return TemplateFactory.GetNewFragmentTemplate(editInputData.inputSelected.fragmentType);
                    },
                    policiesAffected: function (PolicyFactory) {
-                      return PolicyFactory.GetPolicyByFragmentId(editInputData.inputSelected.fragmentType, editInputData.inputSelected.name);
+                      return PolicyFactory.GetPolicyByFragmentId(editInputData.inputSelected.fragmentType, editInputData.inputSelected.id);
                    }
                }
            });
@@ -197,6 +200,9 @@
             resolve: {
                 item: function () {
                     return input;
+                },
+                policiesAffected: function (PolicyFactory) {
+                  return PolicyFactory.GetPolicyByFragmentId(input.type, input.id);
                 }
             }
           });

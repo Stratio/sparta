@@ -6,9 +6,9 @@
         .module('webApp')
         .controller('NewFragmentModalCtrl', NewFragmentModalCtrl);
 
-    NewFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentFactory', 'TemplateFactory', '$filter'];
+    NewFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'fragmentTemplates', 'FragmentFactory', '$filter'];
 
-    function NewFragmentModalCtrl($modalInstance, item, FragmentFactory, TemplateFactory, $filter) {
+    function NewFragmentModalCtrl($modalInstance, item, fragmentTemplates, FragmentFactory, $filter) {
         /*jshint validthis: true*/
         var vm = this;
 
@@ -31,6 +31,7 @@
         /////////////////////////////////
 
         function init() {
+          console.log(fragmentTemplates);
           console.log('--> NewFragmentModalCtrl');
           console.log('> Data received');
           console.log(item);
@@ -38,7 +39,11 @@
           vm.fragmentType = item.fragmentType;
 
           setTexts(item.texts);
-          getTemplates(item.fragmentType);
+
+          vm.templateInputsData = fragmentTemplates;
+          vm.initFragmentObject(vm.templateInputsData);
+          vm.createTypeModels(vm.templateInputsData);
+          vm.selectedIndex = 0;
         };
 
         function setTexts(texts) {
@@ -46,25 +51,6 @@
           vm.modalTexts.title = texts.title;
           vm.modalTexts.button = texts.button;
           vm.modalTexts.icon = texts.button_icon;
-        };
-
-        function getTemplates(fragmentType) {
-          var fragmentTemplates = TemplateFactory.GetNewFragmentTemplate(fragmentType);
-
-          fragmentTemplates.then(function (result) {
-            console.log('*********Templates result');
-            console.log(result);
-
-            vm.templateInputsData = result;
-
-            vm.initFragmentObject(vm.templateInputsData);
-            vm.createTypeModels(vm.templateInputsData);
-            vm.selectedIndex = 0;
-
-          },function (error) {
-              vm.error = true;
-              vm.errorText = "_INPUT_ERROR_TEMPLATES_";
-          });
         };
 
         function initFragmentObject(fragmentData) {

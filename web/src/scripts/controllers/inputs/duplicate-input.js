@@ -64,5 +64,4 @@
             $modalInstance.dismiss('cancel');
         };
     };
-
 })();
