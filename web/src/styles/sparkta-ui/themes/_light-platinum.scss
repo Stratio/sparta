@@ -31,6 +31,7 @@
  *		c-icon-radio
  *		c-msg
  *		c-table
+ *		c-checkbox
  *
  */
 
@@ -328,3 +329,13 @@ $c-table__thead---font-weight: get-font-weight(medium);
 $c-table__thead---text-align: left;
 
 $c-table__tr--ntd-child-2---color: get-color(g2);
+
+
+
+// c-checkbox
+$c-checkbox---color: get-color(g3);
+$c-checkbox---font-family: 'ico_stratio';
+
+$c-checkbox--checked---color: get-color(e1);
+
+$c-checkbox__label---margin: 0 0 2px;
