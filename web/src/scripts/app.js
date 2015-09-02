@@ -73,7 +73,7 @@ angular
 /*
         controller: 'OutputsCtrl',
         controllerAs: 'outputs',
-        templateUrl: 'views/outputs.html'
+        templateUrl: 'views/output.html'
 */
     })
     .state('dashboard.policies', {

@@ -64,8 +64,8 @@
   "_INPUT_ERROR_666_": "There was an error. Please try again later. (Server error)",
   "_INPUT_ERROR_TEMPLATES_": "There was an error while loading the templates! Please try again later.",
   "_POLICY_HEADER_TITLE_MAIN_": "Policies",
-  "_POLICY_":{
-    "_STEPS_":{
+  "_POLICY_": {
+    "_STEPS_": {
       "_DESCRIPTION_": "Description",
       "_INPUT_": "Input",
       "_MODEL_": "Model",
@@ -73,5 +73,6 @@
       "_OUTPUTS_": "Outputs",
       "_ADVANCED_": "Advanced"
     }
-  }
+  },
+  "_WINDOW_DURATION_": "Window duration"
 }
