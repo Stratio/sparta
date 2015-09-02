@@ -3,7 +3,8 @@
 		class="element"
 		ng-if="href || sref"
 		href="{{sref ? '' : href}}"
-		ng-attr-ui-sref="{{sref || null}}">
+		ng-attr-ui-sref="{{sref || null}}"
+		data-qa="{{data-qa}}">
 		
 		<em ng-if="classIcon" class="ico {{classIcon}}"></em>
 		<span ng-transclude></span>
