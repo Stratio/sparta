@@ -20,15 +20,12 @@ import java.util.UUID
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.core.AppConstant
 import com.stratio.sparkta.serving.core.models._
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
-import org.json4s.DefaultFormats
-import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.Serialization._
 
 import scala.collection.JavaConversions
