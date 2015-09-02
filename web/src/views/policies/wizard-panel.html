@@ -1,2 +1,24 @@
-<steps-component steps=policy.steps c=(policy.currentStep)>
+<steps-component steps=policy.steps current-step=(policy.currentStep)>
 </steps-component>
+
+<div ng-switch on="policy.currentStep">
+  <div ng-switch-when="0" >
+    <ng-include src="'views/policies/description.html'"></ng-include>
+  </div>
+  <div ng-switch-when="1">
+    <ng-include src="'views/policies/input.html'"></ng-include>
+  </div>
+  <div ng-switch-when="2">
+    <ng-include src="'views/policies/model.html'"></ng-include>
+  </div>
+  <div ng-switch-when="3">
+    <ng-include src="'views/policies/cubes.html'"></ng-include>
+  </div>
+  <div ng-switch-when="4">
+    <ng-include src="'views/policies/output.html'"></ng-include>
+  </div>
+  <div ng-switch-when="5">
+    <ng-include src="'views/policies/advanced.html'"></ng-include>
+  </div>
+</div>
+
