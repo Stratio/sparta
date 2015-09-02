@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-    /*NEW & EDIT FRAGMENT MODAL CONTROLLER*/
+    /*EDIT FRAGMENT MODAL CONTROLLER*/
     angular
         .module('webApp')
         .controller('EditFragmentModalCtrl', EditFragmentModalCtrl);
@@ -23,6 +23,7 @@
         vm.properties = [];
         vm.error = false;
         vm.errorText = '';
+        vm.fragmentTemplateData = {};
 
         init();
 
@@ -33,7 +34,6 @@
           console.log('> Data received');
           console.log(item);
 
-          vm.fragmentType = item.fragmentType;
           vm.originalName = item.originalName;
 
           setTexts(item.texts);
@@ -43,6 +43,7 @@
           vm.createTypeModels(vm.templateInputsData);
           vm.selectedIndex = vm.index;
           vm.policiesAffected = policiesAffected;
+
         };
 
         function setTexts(texts) {
@@ -55,11 +56,16 @@
         function createTypeModels(fragmentData) {
             /*Creating one properties model for each input type*/
             for (var i=0; i<fragmentData.length; i++){
-                var differentObjects = false;
+                //var differentObjects = false;
 
                 var fragmentName = fragmentData[i].name;
                 vm.properties[fragmentName] = {};
 
+                /*Flag to check if there are any visible field*/
+                vm.fragmentTemplateData[fragmentName] = $filter('filter')(fragmentData[i].properties, {'visible': []}, true);
+                vm.properties[fragmentName]._visible = (vm.fragmentTemplateData[fragmentName].length > 0) ? true : false;
+
+/*
                 var selectValue = $filter('filter')(fragmentData[i].properties, {'values': []}, true)[0];
 
                 if (selectValue){
@@ -70,22 +76,26 @@
                   differentObjects = true;
                   vm.properties[fragmentName].select = true;
                 }
-
+*/
                 for (var j=0; j<fragmentData[i].properties.length; j++) {
                     var fragmentProperty = fragmentData[i].properties[j];
-                    var dif = (fragmentProperty.visible) ? fragmentProperty.visible[0][0].value : '';
+                    //var dif = (fragmentProperty.visible) ? fragmentProperty.visible[0][0].value : '';
 
                     switch (fragmentProperty.propertyType) {
                       case 'boolean':
+                        /*
                         if (dif !== '') {
                           vm.properties[fragmentName][dif][fragmentProperty.propertyId] = false;
                         }
                         else {
                           vm.properties[fragmentName][fragmentProperty.propertyId] = false;
                         }
+                        */
+                        vm.properties[fragmentName][fragmentProperty.propertyId] = false;
                         break;
 
                       case 'list':
+                        /*
                         if (dif !== '') {
                           vm.properties[fragmentName][dif][fragmentProperty.propertyId] = [];
                           var newFields = {};
@@ -108,18 +118,30 @@
                           }
                           vm.properties[fragmentName][fragmentProperty.propertyId].push(newFields);
                         }
+                        */
+                        vm.properties[fragmentName][fragmentProperty.propertyId] = [];
+                        var newFields = {};
+
+                        for (var m=0; m<fragmentProperty.fields.length; m++) {
+                          var defaultValue = (fragmentProperty.fields[m].default) ? fragmentProperty.fields[m].default : '';
+                          defaultValue = (fragmentProperty.fields[m].propertyType === 'number') ? parseInt(defaultValue) : defaultValue;
+                          newFields[fragmentProperty.fields[m].propertyId] = defaultValue;
+                        }
+                        vm.properties[fragmentName][fragmentProperty.propertyId].push(newFields);
                         break;
 
                       default:
                         var defaultValue = (fragmentProperty.default) ? fragmentProperty.default : '';
                         defaultValue = (fragmentProperty.propertyType === 'number') ? parseInt(defaultValue) : defaultValue;
-
+                        /*
                         if (dif !== '') {
                           vm.properties[fragmentName][dif][fragmentProperty.propertyId] = defaultValue;
                         }
                         else {
                           vm.properties[fragmentName][fragmentProperty.propertyId] = defaultValue;
                         }
+                        */
+                        vm.properties[fragmentName][fragmentProperty.propertyId] = defaultValue;
                         break;
                     }
                 }
@@ -139,6 +161,7 @@
                   vm.properties[fragmentName] = vm.dataSource.element.configuration;
                   vm.dataSource.element.configuration = vm.properties[fragmentName];
 */
+/*
                   if (differentObjects) {
                     console.log(vm.dataSource.element.configuration.addresses);
                     vm.properties[fragmentName][vm.dataSource.element.configuration.type] = vm.dataSource.element.configuration;
@@ -146,7 +169,13 @@
                   else {
                     vm.properties[fragmentName] = vm.dataSource.element.configuration;
                   }
-                  /*vm.dataSource.element.configuration = (differentObjects) ?  : ;*/
+*/
+
+                  angular.forEach(vm.dataSource.element.configuration, function(value, key) {
+                    vm.properties[fragmentName][key] = value;
+                  });
+
+                  vm.dataSource.element.configuration = vm.properties[fragmentName];
                   vm.index = i;
                 }
             }
@@ -168,8 +197,26 @@
 
         function ok() {
           if (vm.form.$valid) {
+            deleteNotVisibleProperties();
             checkFragmnetname();
           }
+        };
+
+        function deleteNotVisibleProperties() {
+          if (vm.dataSource.element.configuration._visible){
+            var fragmentType = vm.dataSource.element.type;
+
+            for (var i=0; i<vm.fragmentTemplateData[fragmentType].length; i++) {
+              var propertyId = vm.fragmentTemplateData[fragmentType][i].propertyId;
+              var originalProperty = vm.fragmentTemplateData[fragmentType][i].visible[0][0].propertyId;
+              var originalPropertyValue = vm.fragmentTemplateData[fragmentType][i].visible[0][0].value;
+
+              if (vm.dataSource.element.configuration[originalProperty] !== originalPropertyValue) {
+                delete vm.dataSource.element.configuration[propertyId]
+              }
+            }
+          }
+          delete vm.dataSource.element.configuration['_visible'];
         };
 
         function checkFragmnetname() {
