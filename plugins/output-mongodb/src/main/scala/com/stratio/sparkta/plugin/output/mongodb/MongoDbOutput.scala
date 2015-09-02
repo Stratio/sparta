@@ -45,18 +45,18 @@ class MongoDbOutput(keyName: String,
 
   override val isAutoCalculateId = true
 
+
   override val hosts = properties.getString("hosts", "localhost")
 
   val mongoDbDataFrameConnection = hosts.replaceAll("mongodb://", "")
 
   override val dbName = properties.getString("dbName", "sparkta")
 
-  override val connectionsPerHost = Try(properties.getInt("connectionsPerHost")).getOrElse(DefaultConnectionsPerHost)
+  override val connectionsPerHost = properties.getString("connectionsPerHost", DefaultConnectionsPerHost).toInt
 
-  override val threadsAllowedB = Try(properties.getInt("threadsAllowedToBlock"))
-    .getOrElse(DefaultThreadsAllowedToBlock)
+  override val threadsAllowedB = properties.getString("threadsAllowedToBlock", DefaultThreadsAllowedToBlock).toInt
 
-  override val retrySleep = Try(properties.getInt("retrySleep")).getOrElse(DefaultRetrySleep)
+  override val retrySleep = properties.getString("retrySleep", DefaultRetrySleep).toInt
 
   override val idAsField = Try(properties.getString("idAsField").toBoolean).getOrElse(false)
 
