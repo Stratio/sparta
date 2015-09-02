@@ -15,7 +15,6 @@
     "grunt-usemin": "3.0.0",
     "grunt-wiredep": "2.0.0",
     "jit-grunt": "0.9.1",
-    "karma-phantomjs-launcher": "*",
     "node-sass": "3.2.0",
     "grunt-contrib-clean": "0.6.0",
     "time-grunt": "1.0.0"

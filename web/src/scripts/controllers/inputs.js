@@ -267,7 +267,7 @@
         function deleteInputConfirm(size, input) {
             var modalInstance = $modal.open({
                 animation: true,
-                templateUrl: 'templates/components/st_delete_modal.tpl.html',
+                templateUrl: 'templates/components/st-delete-modal.tpl.html',
                 controller: 'DeleteFragmentModalCtrl',
                 size: size,
                 resolve: {
@@ -297,7 +297,7 @@
         function SetDuplicatetedInput(size, inputName) {
             var modalInstance = $modal.open({
                 animation: true,
-                templateUrl: 'templates/components/st_duplicate_modal.tpl.html',
+                templateUrl: 'templates/components/st-duplicate-modal.tpl.html',
                 controller: 'DuplicateFragmentModalCtrl as vm',
                 size: 'lg',
                 resolve: {
@@ -341,9 +341,9 @@
         .module('webApp')
         .controller('NewFragmentModalCtrl', NewFragmentModalCtrl);
 
-    NewFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentFactory'];
+    NewFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentFactory', '$filter'];
 
-    function NewFragmentModalCtrl($modalInstance, item, FragmentFactory) {
+    function NewFragmentModalCtrl($modalInstance, item, FragmentFactory, $filter) {
         /*jshint validthis: true*/
         var vm = this;
 
@@ -385,8 +385,6 @@
                 vm.createTypeModels(vm.templateInputsData);
                 vm.selectedIndex = 0;
             }
-
-            console.log(vm.dataSource);
         };
 
         function setTexts(texts) {
@@ -414,23 +412,58 @@
         function createTypeModels(fragmentData) {
             /*Create one properties model for each input type*/
             for (var i=0; i<fragmentData.length; i++){
-                vm.properties[fragmentData[i].name] = {};
+                var differentObjects = false;
+
+                var fragmentName = fragmentData[i].name;
+                vm.properties[fragmentName] = {};
+
+                var selectValue = $filter('filter')(fragmentData[i].properties, {'values': []}, true)[0];
+                if (selectValue){
+                  for (var k=0; k < selectValue.values.length; k++){
+                    vm.properties[fragmentName][selectValue.values[k].value] = {};
+                    vm.properties[fragmentName][selectValue.values[k].value][selectValue.propertyId] = selectValue.values[k].value;
+                  }
+                  differentObjects = true;
+                }
 
                 for (var j=0; j<fragmentData[i].properties.length; j++) {
-                    /*if (fragmentData[i].properties[j].propertyId !== 'name' && fragmentData[i].properties[j].propertyId !== 'type'){*/
-                      if (fragmentData[i].properties[j].propertyId !== 'name'){
-                        vm.properties[fragmentData[i].name][fragmentData[i].properties[j].propertyId] = '';
+                    var fragmentProperty = fragmentData[i].properties[j];
+                    var dif = (fragmentProperty.visible) ? fragmentProperty.visible[0][0].value : '';
+
+                    if (fragmentProperty.propertyId !== 'name'){
+
+                      if (fragmentProperty.propertyType === 'boolean') {
+                        if (dif !== '') {
+                          vm.properties[fragmentName][dif][fragmentProperty.propertyId] = false;
+                        }
+                        else {
+                          vm.properties[fragmentName][fragmentProperty.propertyId] = false;
+                        }
+                      }
+                      else {
+                        var defaultValue = (fragmentProperty.default) ? fragmentProperty.default : '';
+                        defaultValue = (fragmentProperty.propertyType === 'number') ? parseInt(defaultValue) : defaultValue;
+
+                        if (dif !== '') {
+                          vm.properties[fragmentName][dif][fragmentProperty.propertyId] = defaultValue;
+                        }
+                        else {
+                          vm.properties[fragmentName][fragmentProperty.propertyId] = defaultValue;
+                        }
+                      }
+
                     }
                 }
 
                 /*Init properties*/
                 if(i === 0 && vm.action !== 'edit') {
-                    vm.dataSource.element.configuration = vm.properties[fragmentData[i].name];
+                    /*vm.dataSource.element.configuration = vm.properties[fragmentName];*/
+                    vm.dataSource.element.configuration = (differentObjects) ? vm.properties[fragmentName][selectValue.values[0].value] : vm.properties[fragmentName];
                 }
 
-                else if(vm.action === 'edit' && fragmentData[i].name === vm.dataSource.element.type) {
-                    vm.properties[fragmentData[i].name] = vm.dataSource.element.configuration;
-                    vm.dataSource.element.configuration = vm.properties[fragmentData[i].name];
+                else if(vm.action === 'edit' && fragmentName === vm.dataSource.element.type) {
+                    vm.properties[fragmentName] = vm.dataSource.element.configuration;
+                    vm.dataSource.element.configuration = vm.properties[fragmentName];
                     vm.index = i;
                 }
             }

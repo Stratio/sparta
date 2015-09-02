@@ -24,28 +24,39 @@
 		  function link(scope, element, attrs) {
 				scope.mimeType = getMimeType();
 				scope.uploadFrom = '';
-				scope.isVisible = function() {
-					scope.modify = {};
-					 if (scope.field && scope.field.hasOwnProperty('hidden') && scope.field.hidden){
-						  return false
-					 }
-					 if (scope.field && scope.field.hasOwnProperty('visible')) {
-						  for (var i=0; i<scope.field.visible.length; i++) {
-								var actual = scope.field.visible[i];
-								if (actual.value === scope.model[actual[0].propertyId].value) {
-									if(scope.field.visible[i].hasOwnProperty('overrideProps')){
-										for (var f = 0; f < scope.field.visible[i].overrideProps.length ; f++ ){
-											var overrideProps = scope.field.visible[i].overrideProps[f];
-											scope.modify[overrideProps.label] = overrideProps.value;
-										}
-									 }
-									 return true;
-								}
-						  }
-						  return false;
-					 }
-					 return true;
-				};
+				scope.isVisible = function () {
+		            scope.modify = {};
+		            if (scope.field && scope.field.hasOwnProperty('hidden') && scope.field.hidden) {
+		               return false;
+		            }
+		            if (scope.field && scope.field.hasOwnProperty('visible')) {
+		               for (var i = 0; i < scope.field.visible.length; i++) {
+		                  var actuals = scope.field.visible[i];
+		                  var allTrue = true;
+		                  for (var j = 0; j < actuals.length; j++) {
+		                     var actual = actuals[j];
+		                     /*if (actual.value === scope.model[actual.propertyId].value) {*/
+		                     if (actual.value === scope.model[actual.propertyId]) {
+		                        if (actual.hasOwnProperty('overrideProps')) {
+		                           for (var f = 0; f < actual.overrideProps.length; f++) {
+		                              var overrideProps = actual.overrideProps[f];
+		                              scope.modify[overrideProps.label] = overrideProps.value;
+		                              scope.field[overrideProps.label] = overrideProps.value;
+		                           }
+		                        }
+		                     } else {
+		                        allTrue = false;
+		                        break; //TODO: check this break
+		                     }
+		                  }
+		                  if (allTrue) {
+		                     return true;
+		                  }
+		               }
+		               return false;
+		            }
+		            return true;
+		         };
 
             function getMimeType (){
                 var splited = scope.field.propertyType == 'file'? scope.field.propertyName.split(' ') : null;
