@@ -29,7 +29,7 @@
 
         function ok() {
             if (vm.form.$valid){
-              checkFragmnetname();
+                checkFragmnetname();
             }
         };
 
@@ -46,8 +46,8 @@
         };
 
         function createfragment() {
-            delete item.inputData['id'];
-            var newFragment = FragmentFactory.CreateFragment(item.inputData);
+            delete vm.inputData['id'];
+            var newFragment = FragmentFactory.CreateFragment(vm.inputData);
 
             newFragment.then(function (result) {
                 console.log('*********Fragment duplicated');
@@ -64,5 +64,4 @@
             $modalInstance.dismiss('cancel');
         };
     };
-
 })();

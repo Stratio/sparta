@@ -2,12 +2,12 @@
     'use strict';
 
     angular
-        .module('webApp')
-        .controller('InputsCtrl', InputsCtrl);
+      .module('webApp')
+      .controller('InputsCtrl', InputsCtrl);
 
-    InputsCtrl.$inject = ['FragmentFactory', 'PolicyFactory', 'TemplateFactory', '$filter', '$modal'];
+    InputsCtrl.$inject = ['FragmentFactory', '$filter', '$modal'];
 
-    function InputsCtrl(FragmentFactory, PolicyFactory, TemplateFactory, $filter, $modal) {
+    function InputsCtrl(FragmentFactory, $filter, $modal) {
         /*jshint validthis: true*/
        var vm = this;
 
@@ -32,7 +32,7 @@
         };
 
         function getInputs() {
-          var inputList = FragmentFactory.GetFragments("input");
+          var inputList = FragmentFactory.GetFragments('input');
 
           inputList.then(function (result) {
             vm.inputsData = result;
@@ -63,7 +63,7 @@
         };
 
         function editInput(inputType, inputName, inputId, index) {
-          var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {name:inputName}, true)[0];
+          var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {'id':inputId}, true)[0];
           var inputsList = getFragmentsNames(vm.inputsData);
 
           var editInputData = {
@@ -138,12 +138,15 @@
         function createInputModal(newInputTemplateData) {
           var modalInstance = $modal.open({
             animation: true,
-            templateUrl: 'templates/inputs/input-details.tpl.html',
+            templateUrl: 'templates/fragments/fragment-details.tpl.html',
             controller: 'NewFragmentModalCtrl as vm',
             size: 'lg',
             resolve: {
               item: function () {
                 return newInputTemplateData;
+              },
+              fragmentTemplates: function (TemplateFactory) {
+                return TemplateFactory.GetNewFragmentTemplate(newInputTemplateData.fragmentType);
               }
             }
           });
@@ -152,7 +155,7 @@
             console.log('*************** Controller back');
             console.log(newInputData);
 
-            vm.inputsData.push(newInputData.data);
+            vm.inputsData.push(newInputData);
             console.log(vm.inputsData);
 
           }, function () {
@@ -163,7 +166,7 @@
         function editInputModal(editInputData) {
            var modalInstance = $modal.open({
                animation: true,
-               templateUrl: 'templates/inputs/input-details.tpl.html',
+               templateUrl: 'templates/fragments/fragment-details.tpl.html',
                controller: 'EditFragmentModalCtrl as vm',
                size: 'lg',
                resolve: {
@@ -174,7 +177,7 @@
                       return TemplateFactory.GetNewFragmentTemplate(editInputData.inputSelected.fragmentType);
                    },
                    policiesAffected: function (PolicyFactory) {
-                      return PolicyFactory.GetPolicyByFragmentId(editInputData.inputSelected.fragmentType, editInputData.inputSelected.name);
+                      return PolicyFactory.GetPolicyByFragmentId(editInputData.inputSelected.fragmentType, editInputData.inputSelected.id);
                    }
                }
            });
@@ -197,12 +200,16 @@
             resolve: {
                 item: function () {
                     return input;
+                },
+                policiesAffected: function (PolicyFactory) {
+                  return PolicyFactory.GetPolicyByFragmentId(input.type, input.id);
                 }
             }
           });
 
           modalInstance.result.then(function (selectedItem) {
             vm.inputsData.splice(selectedItem.index, 1);
+            console.log(vm.inputsData);
 
           },function () {
             console.log('Modal dismissed at: ' + new Date())

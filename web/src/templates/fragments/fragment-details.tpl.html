@@ -20,11 +20,6 @@
 
 		<datasource-form-field ng-repeat="item in vm.templateInputsData[vm.selectedIndex].properties" ng-form-id="{{item.propertyId}}"  data-field="item" data-model="vm.dataSource.element.configuration" data-form="vm.form" data-st-name="dataSource{{item.propertyName}}Form" data-ng-if="item.propertyId !== 'name'"></datasource-form-field>
 
-		<div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error">
-			<i class="c-icon icon-circle-cross"></i>
-			<span translate="{{vm.errorText}}"></span>
-		</div>
-
 		<div class="c-row c-row--separated" data-ng-if="vm.policiesAffected.length > 0">
 			<p class="c-modal-inner__title">{{"_ARE_YOU_COMPLETELY_SURE_" | translate}}</p>
 			<p>{{"_INPUT_WINDOW_DELETE_MESSAGE_" | translate}}</p>
@@ -42,7 +37,7 @@
 
 		<div class="c-row c-row--separated">
 			<div class="c-col c-col--6 c-col--vertical-centered">
-				<span class="c-info-text c-info-text--is-clickable"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text c-info-text__text--is-link">{{"_INPUT_WINDOW_NEW_HELP_" | translate}}</span></span>
+				<a data-ng-href="{{vm.templateInputsData[vm.selectedIndex].description.learnMore}}" class="c-info-text c-info-text--is-clickable" target="_blank"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text c-info-text__text--is-link">{{"_INPUT_WINDOW_NEW_HELP_" | translate}}</span></a>
 			</div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
 				<button class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()">
 					<i class="c-icon icon-circle-cross"></i>
