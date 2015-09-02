@@ -5,7 +5,6 @@
     "jquery": "1.10.2",
     "angular": "1.4.3",
     "angular-animate": "1.4.3",
-    "angular-cookies": "1.4.3",
     "angular-resource": "1.4.3",
     "angular-route": "1.4.3",
     "angular-ui-router": "0.2.15",

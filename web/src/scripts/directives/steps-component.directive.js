@@ -10,11 +10,10 @@ function stepsComponent() {
     restrict: 'E',
     scope: {
       steps: '=steps',
-      current: '=c'
+      current: '=currentStep'
     },
     templateUrl: 'templates/components/steps-component.html',
     link: function(scope){
-      console.log( scope.current)
       scope.chooseStep = function (index) {
         scope.current = index;
       };
