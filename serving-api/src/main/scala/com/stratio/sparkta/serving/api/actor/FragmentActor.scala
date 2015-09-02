@@ -86,7 +86,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
     })
 
   def create(fragment: FragmentElementModel): Unit =
-    sender ! Response(Try({
+    sender ! ResponseFragment(Try({
       if(existsByTypeAndName(fragment.fragmentType, fragment.name)) {
         throw new ServingApiException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeExistsFragmentWithName,
@@ -97,6 +97,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
       curatorFramework.create().creatingParentsIfNeeded().forPath(
         s"${FragmentActor.generateFragmentPath(
           fragmentS.fragmentType)}/${fragmentS.id.get}", write(fragmentS).getBytes())
+      fragmentS
     }))
 
   def update(fragment: FragmentElementModel): Unit =

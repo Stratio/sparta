@@ -97,16 +97,17 @@ class PolicyActor(curatorFramework: CuratorFramework)
     })
 
   def create(policy: AggregationPoliciesModel): Unit =
-    sender ! Response(Try({
+    sender ! ResponsePolicy(Try({
       if(existsByName(policy.name)) {
         throw new ServingApiException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeExistsPolicytWithName,
             s"Policy with name ${policy.name} exists.")
         ))
       }
-      val fragmentS = policy.copy(id = Some(s"${UUID.randomUUID.toString}"))
+      val policyS = policy.copy(id = Some(s"${UUID.randomUUID.toString}"))
       curatorFramework.create().creatingParentsIfNeeded().forPath(
-        s"${AppConstant.PoliciesBasePath}/${fragmentS.id.get}", write(fragmentS).getBytes)
+        s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
+      policyS
     }))
 
   def update(policy: AggregationPoliciesModel): Unit = {
