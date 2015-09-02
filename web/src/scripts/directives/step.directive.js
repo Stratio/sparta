@@ -12,7 +12,7 @@ function step() {
       index: '=index',
       name: '=name',
       icon: '=icon',
-      current: '=c'
+      current: '=currentStep'
     },
     templateUrl: 'templates/components/step.html',
 
