@@ -239,7 +239,7 @@ module.exports = function (grunt) {
       },
       dist: {}
     },
-
+    
     htmlmin: {
       dist: {
         options: {
@@ -256,6 +256,7 @@ module.exports = function (grunt) {
         }]
       }
     },
+
     // ng-annotate tries to make the code safe for minification automatically
     // by using the Angular long form for dependency injection.
     ngAnnotate: {
@@ -340,7 +341,6 @@ module.exports = function (grunt) {
         ]
     },
   });
-
 
   grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
     grunt.loadNpmTasks('grunt-connect-proxy');

@@ -27,20 +27,19 @@
 				<header class="title">
 					<span class="name">{{input.name}}</span>
 
-					<span class="icon-actions menu_actions" data-ng-click="$root.stToggleFloatingMenu[input.id]()">
+					<span class="icon-actions menu_actions" data-ng-click="$root.stToggleFloatingMenu[input.id]()" data-qa="input-context-menu-{{input.id}}">
 						<st-floating-menu toggle-id="{{input.id}}" align="right">
-							<st-menu-element class-icon="icon-edit" data-ng-click="inputs.editInput(input.fragmentType, input.name, input.id, $index)">
+							<st-menu-element class-icon="icon-edit" data-ng-click="inputs.editInput(input.fragmentType, input.name, input.id, $index)" data-qa="input-context-menu-{{input.id}}-edit">
 								{{"_INPUT_ACTIONS_MENU_EDIT_" | translate}}
 							</st-menu-element>
-							<st-menu-element class-icon="icon-copy" data-ng-click="inputs.duplicateInput(input.id)">
+							<st-menu-element class-icon="icon-copy" data-ng-click="inputs.duplicateInput(input.id)" data-qa="input-context-menu-{{input.id}}-duplicate">
 								{{"_INPUT_ACTIONS_MENU_DUPLICATE_" | translate}}
 							</st-menu-element>
-							<st-menu-element class-icon="icon-cross" data-ng-click="inputs.deleteInput(input.fragmentType, input.id, $index)">
+							<st-menu-element class-icon="icon-cross" data-ng-click="inputs.deleteInput(input.fragmentType, input.id, $index)" data-qa="input-context-menu-{{input.id}}-delete">
 								{{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
 							</st-menu-element>
 						</st-floating-menu>
 					</span>
-
 				</header>
 
 				<div class="c-row o-media">
@@ -52,7 +51,7 @@
 				</div>
 
 				<footer class="c-row c-row--to-bottom c-row--to-right">
-					<i class="c-icon c-icon--is-clickable c-grid-item__info-icon icon-info1" tooltip="{{input.description}}" tooltip-placement="left" tooltip-class="t-tooltip" tooltip-trigger="click"></i>
+					<i class="c-icon c-icon--is-clickable c-grid-item__info-icon icon-info1" tooltip="{{input.description}}" tooltip-placement="left" tooltip-class="t-tooltip" tooltip-trigger="click" data-qa="input-tootip-{{input.id}}"></i>
 				</footer>
 			</li>
 	    </ul>

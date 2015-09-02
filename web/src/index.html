@@ -18,15 +18,8 @@
 		module-logo="images/app-logo.png"
 		module-name="Stratio Sparkta">
 
-		<div st-menu-tab title="{{'_HEADER_MENU_DASHBOARD_' | translate}}" route="dashboard.inputs" sref="dashboard.inputs" icon="icon-grid" visible="true"></div>
-		<div st-menu-tab title="{{'_HEADER_MENU_SETTINGS_' | translate}}" route="settings" sref="settings" icon="icon-cog" visible="true"></div>
-<!--
-		<div st-menu-tab title="Cluster" route="main.dashboard.cluster" sref="main.dashboard.cluster.overview" icon="icon-grid" visible="true"></div>
-		<div st-menu-tab title="Services" route="main.dashboard.service" sref="main.dashboard.service.overview" icon="icon-puzzle" visible="true"></div>
-		<div st-menu-tab title="Alerts" route="main.dashboard.alerts" sref="main.dashboard.alerts.currents" icon="icon-bell"
-			visible="true" label="1"></div>
-		<div st-menu-tab title="Settings" route="main.dashboard.settings" sref="main.dashboard.settings.configuration" icon="icon-cog" visible="true"></div>
- -->
+		<div st-menu-tab title="{{'_HEADER_MENU_DASHBOARD_' | translate}}" route="dashboard.inputs" sref="dashboard.inputs" icon="icon-grid" visible="true" qaref="app-main-menu-dashboard"></div>
+		<div st-menu-tab title="{{'_HEADER_MENU_SETTINGS_' | translate}}" route="settings" sref="settings" icon="icon-cog" visible="true" qaref="app-main-menu-settings"></div>
 	</st-dashboard>
 
 	<!-- build:js(.) scripts/vendors.js -->
