@@ -14,7 +14,7 @@
             "configuration": {
                 "queue": "test",
                 "host": "localhost",
-                "port": 5672,
+                "port": "5672",
                 "exchangeName": "twitterExchange",
                 "routingKeys": [
                     "routingKey3"
