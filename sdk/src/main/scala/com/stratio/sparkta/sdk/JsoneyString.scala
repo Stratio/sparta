@@ -37,6 +37,8 @@ class JsoneyStringSerializer extends CustomSerializer[JsoneyString](format => (
       new JsoneyString(s.s)
     case i : JInt =>
       new JsoneyString(i.num.toString())
+    case b : JBool =>
+      new JsoneyString(b.value.toString())
   },
   {
     case x: JsoneyString =>
