@@ -53,7 +53,7 @@ class FlumeInput(properties: Map[String, Serializable]) extends Input(properties
       // push
       FlumeUtils.createStream(
         ssc, properties.getString("hostname"),
-        properties.getInt("port"),
+        properties.getString("port").toInt,
         storageLevel(sparkStorageLevel),
         enableDecompression
       ).map(data => new Event(Map(RawDataKey -> data.event.getBody.array.asInstanceOf[Serializable]) ++
@@ -81,14 +81,14 @@ class FlumeInput(properties: Map[String, Serializable]) extends Input(properties
 
   private def parallelism(): Int = {
     properties.hasKey("parallelism") match {
-      case true => properties.getInt("parallelism")
+      case true => properties.getString("parallelism").toInt
       case false => DEFAULT_PARALLELISM
     }
   }
 
   private def maxBatchSize(): Int =
     properties.hasKey("maxBatchSize") match {
-      case true => properties.getInt("maxBatchSize")
+      case true => properties.getString("maxBatchSize").toInt
       case false => DEFAULT_MAXBATCHSIZE
     }
 }

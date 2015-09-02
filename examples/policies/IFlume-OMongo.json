@@ -16,7 +16,7 @@
       "configuration": {
         "type": "pull",
         "addresses": "localhost:10999",
-        "maxBatchSize": 500
+        "maxBatchSize": "500"
       }
     }
   ,
