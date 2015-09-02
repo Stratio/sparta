@@ -341,6 +341,7 @@
                 <artifactId>scala-maven-plugin</artifactId>
                 <version>3.2.0</version>
                 <configuration>
+               	    <checkMultipleScalaVersions>false</checkMultipleScalaVersions>
                     <recompileMode>incremental</recompileMode>
                     <useZincServer>true</useZincServer>
                 </configuration>
