@@ -21,9 +21,7 @@
        vm.duplicateInput = duplicateInput;
        vm.deleteInputConfirm = deleteInputConfirm;
        vm.getPolicyNames = getPolicyNames;
-       vm.setInputsId = setInputsId;
        vm.inputTypes = [];
-       vm.inputId = 1;
 
        init();
 
@@ -34,127 +32,81 @@
         };
 
         function getInputs() {
-            var inputList = FragmentFactory.GetFragments("input");
+          var inputList = FragmentFactory.GetFragments("input");
 
-            inputList.then(function (result) {
-                vm.inputsData = vm.setInputsId(result);
-                vm.getInputTypes(result);
-            });
+          inputList.then(function (result) {
+            vm.inputsData = result;
+            vm.getInputTypes(result);
+            console.log('********Inputs list')
+            console.log(vm.inputsData);
+
+          },function (error) {
+            console.log('There was an error while loading the inputs flist!');
+            console.log(error);
+          });
         };
 
-        function deleteInput(fragmentType, fragmentName, index) {
-            console.log('--> Deleting input');
-            console.log('> Getting Policies affected');
-            var policiesToDelete = PolicyFactory.GetPolicyByFragmentName(fragmentType, fragmentName);
+        function createInput() {
+          var inputsList = getFragmentsNames(vm.inputsData);
 
-            policiesToDelete.then(function (result) {
-                console.log(result);
+          var createInputData = {
+            'fragmentType': 'input',
+            'inputNamesList' : inputsList,
+            'texts': {
+              'title': '_INPUT_WINDOW_NEW_TITLE_',
+              'button': '_INPUT_WINDOW_NEW_BUTTON_',
+              'button_icon': 'icon-circle-plus'
+            }
+          };
 
-                var policies = vm.getPolicyNames(result);
-                var inputToDelete =
-                {
-                    'type':fragmentType,
-                    'name': fragmentName,
-                    'policies': policies,
-                    'index': index
-                };
-                vm.deleteInputConfirm('lg', inputToDelete);
-            },
-            function (error) {
-              console.log('#ERROR#');
-              console.log(error);
-            });
+          vm.createInputModal(createInputData);
         };
 
-        function duplicateInput(inputName) {
-            var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {name:inputName}, true)[0];
+        function editInput(inputType, inputName, inputId, index) {
+          var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {name:inputName}, true)[0];
+          var inputsList = getFragmentsNames(vm.inputsData);
+
+          var editInputData = {
+              'originalName': inputName,
+              'fragmentType': 'input',
+              'index': index,
+              'inputSelected': inputSelected,
+              'inputNamesList' : inputsList,
+              'texts': {
+                  'title': '_INPUT_WINDOW_MODIFY_TITLE_',
+                  'button': '_INPUT_WINDOW_MODIFY_BUTTON_',
+                  'button_icon': 'icon-circle-check'
+              }
+          };
+
+          vm.editInputModal(editInputData);
+        };
+
+        function deleteInput(fragmentType, fragmentId, index) {
+          console.log('--> Deleting input');
+          var inputToDelete =
+          {
+            'type':fragmentType,
+            'id': fragmentId,
+            'index': index
+          };
+          vm.deleteInputConfirm('lg', inputToDelete);
+        };
+
+        function duplicateInput(inputId) {
+            var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {'id':inputId}, true)[0];
 
             var newName = autoIncrementName(inputSelected.name);
             inputSelected.name = newName;
 
-            var newName = SetDuplicatetedInput('sm', inputSelected);
-       };
+            var inputsList = getFragmentsNames(vm.inputsData);
 
-        function createInput() {
-           var inputFragmentTemplate = TemplateFactory.GetNewFragmentTemplate('input');
+            var duplicateInputData = {
+              'inputData': inputSelected,
+              'inputNamesList': inputsList
+            };
 
-           inputFragmentTemplate.then(function (result) {
-                console.log('*********Controller');
-                console.log(result);
-
-                var createInputData = {
-                    'action': 'create',
-                    'inputDataTemplate': result,
-                    'texts': {
-                        'title': '_INPUT_WINDOW_NEW_TITLE_',
-                        'button': '_INPUT_WINDOW_NEW_BUTTON_',
-                        'button_icon': 'icon-circle-plus'
-                    }
-                };
-
-               vm.createInputModal(createInputData);
-           });
-        };
-
-        function editInput(inputType, inputName, index) {
-           var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {name:inputName}, true)[0];
-           var id = inputSelected.id;
-
-           delete inputSelected["id"];
-
-           var inputFragmentTemplate = TemplateFactory.GetNewFragmentTemplate('input');
-
-           inputFragmentTemplate.then(function (result) {
-                console.log('--> Editing input');
-                console.log('> Getting Fragment Template');
-                console.log(result);
-                console.log('> Getting Policies affected');
-                var policiesAffected = PolicyFactory.GetPolicyByFragmentName(inputType, inputName);
-                var inputDataTemplate = result;
-
-                policiesAffected.then(function (result) {
-                    console.log(result);
-
-                    var policies = vm.getPolicyNames(result);
-                    var editInputData = {
-                        'index': index,
-                        'id': id,
-                        'action': 'edit',
-                        'inputSelected': inputSelected,
-                        'inputDataTemplate': inputDataTemplate,
-                        'policies': policies,
-                        'texts': {
-                            'title': '_INPUT_WINDOW_MODIFY_TITLE_',
-                            'button': '_INPUT_WINDOW_MODIFY_BUTTON_',
-                            'button_icon': 'icon-circle-check'
-                        }
-                    };
-
-                    vm.editInputModal(editInputData);
-                },
-                function (error) {
-                  console.log('#ERROR#');
-                  console.log(error);
-                });
-           });
-        };
-
-        function setInputsId(inputsData) {
-            for (var i=0; i < inputsData.length; i++) {
-                inputsData[i].id = vm.inputId;
-                vm.inputId++;
-            }
-            return inputsData;
-        };
-
-        function getPolicyNames(policiesData) {
-            var policies = [];
-
-            for (var i=0; i<policiesData.length; i++){
-                policies.push(policiesData[i].name);
-            }
-
-            return policies;
+            var newName = SetDuplicatetedInput('sm', duplicateInputData);
         };
 
         function getInputTypes(inputs) {
@@ -184,401 +136,99 @@
         };
 
         function createInputModal(newInputTemplateData) {
-            var modalInstance = $modal.open({
-               animation: true,
-               templateUrl: 'templates/inputs/input-details.tpl.html',
-               controller: 'NewFragmentModalCtrl as vm',
-               size: 'lg',
-               resolve: {
-                   item: function () {
-                       return newInputTemplateData;
-                   }
-               }
-            });
+          var modalInstance = $modal.open({
+            animation: true,
+            templateUrl: 'templates/inputs/input-details.tpl.html',
+            controller: 'NewFragmentModalCtrl as vm',
+            size: 'lg',
+            resolve: {
+              item: function () {
+                return newInputTemplateData;
+              }
+            }
+          });
 
-            modalInstance.result.
-               then(function (newInputData) {
-                   console.log('*************** Controller back');
-                   console.log(newInputData);
+          modalInstance.result.then(function (newInputData) {
+            console.log('*************** Controller back');
+            console.log(newInputData);
 
-                   var newFragment = FragmentFactory.CreateFragment(newInputData.data);
+            vm.inputsData.push(newInputData.data);
+            console.log(vm.inputsData);
 
-                   newFragment
-                       .then(function (result) {
-                           console.log('*********Fragment created');
-                           console.log(result);
-
-                           var newId = vm.inputsData[vm.inputsData.length-1].id + 1;
-                           result.id = newId;
-
-                           vm.inputsData.push(result);
-                           console.log(vm.inputsData);
-                       },
-                       function (error) {
-                           console.log(error);
-                           console.log('Modal dismissed at: ' + new Date())
-                       });
-
-               }, function () {
-                   console.log('Modal dismissed at: ' + new Date())
-               });
-            };
+          }, function () {
+            console.log('Modal dismissed at: ' + new Date())
+          });
+        };
 
         function editInputModal(editInputData) {
            var modalInstance = $modal.open({
                animation: true,
                templateUrl: 'templates/inputs/input-details.tpl.html',
-               controller: 'NewFragmentModalCtrl as vm',
+               controller: 'EditFragmentModalCtrl as vm',
                size: 'lg',
                resolve: {
                    item: function () {
-                       return editInputData;
+                      return editInputData;
+                   },
+                   fragmentTemplates: function (TemplateFactory) {
+                      return TemplateFactory.GetNewFragmentTemplate(editInputData.inputSelected.fragmentType);
+                   },
+                   policiesAffected: function (PolicyFactory) {
+                      return PolicyFactory.GetPolicyByFragmentId(editInputData.inputSelected.fragmentType, editInputData.inputSelected.name);
                    }
                }
            });
 
-           modalInstance.result.
-               then(function (updatedInputData) {
-                   console.log('*************** Controller back');
-                   console.log(updatedInputData);
+          modalInstance.result.then(function (updatedInputData) {
+            vm.inputsData[updatedInputData.index] = updatedInputData.data;
+            console.log(vm.inputsData);
 
-                   var updatedFragment = FragmentFactory.UpdateFragment(updatedInputData.data);
-
-                   updatedFragment
-                       .then(function (result) {
-                           console.log('*********Fragment updated');
-                           console.log(result);
-
-                           result.id = updatedInputData.id;
-
-                           vm.inputsData[updatedInputData.index] = result;
-                           console.log(vm.inputsData);
-                       },
-                       function (error) {
-                           console.log(error);
-                           console.log('Modal dismissed at: ' + new Date())
-                       });
-
-               }, function () {
-                   console.log('Modal dismissed at: ' + new Date())
-               });
+          },function () {
+            console.log('Modal dismissed at: ' + new Date())
+          });
         };
 
         function deleteInputConfirm(size, input) {
-            var modalInstance = $modal.open({
-                animation: true,
-                templateUrl: 'templates/components/st-delete-modal.tpl.html',
-                controller: 'DeleteFragmentModalCtrl',
-                size: size,
-                resolve: {
-                    item: function () {
-                        return input;
-                    }
-                }
-            });
-
-            modalInstance.result
-                .then(function (selectedItem) {
-                    console.log(selectedItem);
-                    var fragmentDeleted = FragmentFactory.DeleteFragment(selectedItem.type, selectedItem.name);
-
-                    fragmentDeleted
-                        .then(function (result) {
-                            console.log('*********Fragment deleted');
-                            vm.inputsData.splice(selectedItem.index, 1);
-
-                        });
-                },
-                function () {
-                    console.log('Modal dismissed at: ' + new Date())
-                });
-        };
-
-        function SetDuplicatetedInput(size, inputName) {
-            var modalInstance = $modal.open({
-                animation: true,
-                templateUrl: 'templates/components/st-duplicate-modal.tpl.html',
-                controller: 'DuplicateFragmentModalCtrl as vm',
-                size: 'lg',
-                resolve: {
-                    item: function () {
-                        return inputName;
-                    }
-                }
-            });
-
-            modalInstance.result
-                .then(function (selectedItem) {
-                    delete selectedItem["id"];
-                    console.log(selectedItem);
-
-                    var newFragment = FragmentFactory.CreateFragment(selectedItem);
-
-                    newFragment
-                        .then(function (result) {
-                            console.log('*********Fragment created');
-                            console.log(result);
-
-                            var newId = vm.inputsData[vm.inputsData.length-1].id + 1;
-                            selectedItem.id = newId;
-
-                            vm.inputsData.push(selectedItem);
-                        },
-                        function (error) {
-                            console.log(error);
-                            console.log('Modal dismissed at: ' + new Date())
-                        });
-
-                },
-                function () {
-                    console.log('Modal dismissed at: ' + new Date())
-                });
-        };
-    };
-
-    /*NEW & EDIT FRAGMENT MODAL CONTROLLER*/
-    angular
-        .module('webApp')
-        .controller('NewFragmentModalCtrl', NewFragmentModalCtrl);
-
-    NewFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentFactory', '$filter'];
-
-    function NewFragmentModalCtrl($modalInstance, item, FragmentFactory, $filter) {
-        /*jshint validthis: true*/
-        var vm = this;
-
-        vm.setProperties = setProperties;
-        vm.ok = ok;
-        vm.cancel = cancel;
-        vm.initFragmentObject = initFragmentObject;
-        vm.setFragmentData = setFragmentData;
-        vm.createTypeModels = createTypeModels;
-        vm.dataSource = {};
-        vm.dataSource.element = {};
-        vm.templateInputsData = [];
-        vm.properties = [];
-        vm.error = false;
-
-        init();
-
-        /////////////////////////////////
-
-        function init() {
-            console.log('--> NewFragmentModalCtrl');
-            console.log('> Data received');
-            console.log(item);
-
-            setTexts(item.texts);
-
-            vm.action = item.action;
-
-            if (vm.action === 'edit') {
-                vm.templateInputsData = item.inputDataTemplate;
-                vm.dataSource = item.inputSelected;
-                vm.createTypeModels(vm.templateInputsData);
-                vm.selectedIndex = vm.index;
-                vm.policiesAffected = item.policies;
-            }
-            else {
-                vm.templateInputsData = item.inputDataTemplate;
-                vm.initFragmentObject(vm.templateInputsData);
-                vm.createTypeModels(vm.templateInputsData);
-                vm.selectedIndex = 0;
-            }
-        };
-
-        function setTexts(texts) {
-            vm.modalTexts = {};
-            vm.modalTexts.title = texts.title;
-            vm.modalTexts.button = texts.button;
-            vm.modalTexts.icon = texts.button_icon;
-        }
-
-        function initFragmentObject(fragmentData) {
-            /*Init fragment*/
-            vm.dataSource.fragmentType = 'input';
-            vm.dataSource.name = '';
-
-            /*Init fragment.element*/
-            vm.dataSource.element.type = fragmentData[0].name;
-            vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
-
-            /*Init fragment.element.configuration*/
-            vm.dataSource.element.configuration = {};
-
-            vm.setFragmentData(0);
-        };
-
-        function createTypeModels(fragmentData) {
-            /*Create one properties model for each input type*/
-            for (var i=0; i<fragmentData.length; i++){
-                var differentObjects = false;
-
-                var fragmentName = fragmentData[i].name;
-                vm.properties[fragmentName] = {};
-
-                var selectValue = $filter('filter')(fragmentData[i].properties, {'values': []}, true)[0];
-                if (selectValue){
-                  for (var k=0; k < selectValue.values.length; k++){
-                    vm.properties[fragmentName][selectValue.values[k].value] = {};
-                    vm.properties[fragmentName][selectValue.values[k].value][selectValue.propertyId] = selectValue.values[k].value;
-                  }
-                  differentObjects = true;
-                }
-
-                for (var j=0; j<fragmentData[i].properties.length; j++) {
-                    var fragmentProperty = fragmentData[i].properties[j];
-                    var dif = (fragmentProperty.visible) ? fragmentProperty.visible[0][0].value : '';
-
-                    if (fragmentProperty.propertyId !== 'name'){
-
-                      if (fragmentProperty.propertyType === 'boolean') {
-                        if (dif !== '') {
-                          vm.properties[fragmentName][dif][fragmentProperty.propertyId] = false;
-                        }
-                        else {
-                          vm.properties[fragmentName][fragmentProperty.propertyId] = false;
-                        }
-                      }
-                      else {
-                        var defaultValue = (fragmentProperty.default) ? fragmentProperty.default : '';
-                        defaultValue = (fragmentProperty.propertyType === 'number') ? parseInt(defaultValue) : defaultValue;
-
-                        if (dif !== '') {
-                          vm.properties[fragmentName][dif][fragmentProperty.propertyId] = defaultValue;
-                        }
-                        else {
-                          vm.properties[fragmentName][fragmentProperty.propertyId] = defaultValue;
-                        }
-                      }
-
-                    }
-                }
-
-                /*Init properties*/
-                if(i === 0 && vm.action !== 'edit') {
-                    /*vm.dataSource.element.configuration = vm.properties[fragmentName];*/
-                    vm.dataSource.element.configuration = (differentObjects) ? vm.properties[fragmentName][selectValue.values[0].value] : vm.properties[fragmentName];
-                }
-
-                else if(vm.action === 'edit' && fragmentName === vm.dataSource.element.type) {
-                    vm.properties[fragmentName] = vm.dataSource.element.configuration;
-                    vm.dataSource.element.configuration = vm.properties[fragmentName];
-                    vm.index = i;
+          var modalInstance = $modal.open({
+            animation: true,
+            templateUrl: 'templates/components/st-delete-modal.tpl.html',
+            controller: 'DeleteFragmentModalCtrl as vm',
+            size: size,
+            resolve: {
+                item: function () {
+                    return input;
                 }
             }
+          });
+
+          modalInstance.result.then(function (selectedItem) {
+            vm.inputsData.splice(selectedItem.index, 1);
+
+          },function () {
+            console.log('Modal dismissed at: ' + new Date())
+          });
         };
 
-        function setFragmentData(index) {
-            /*Set fragment*/
-            vm.dataSource.description = vm.templateInputsData[index].description.long;
-            vm.dataSource.shortDescription = vm.templateInputsData[index].description.short;
-            vm.dataSource.icon = vm.templateInputsData[index].icon.url;
-            vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
-        };
-
-        function setProperties(index, inputName) {
-            vm.selectedIndex = index;
-            vm.dataSource.element.configuration = vm.properties[inputName];
-            vm.setFragmentData(index);
-        };
-
-        function ok() {
-            if (vm.form.$valid){
-                checkInputName(vm.dataSource.fragmentType, vm.dataSource.name);
+        function SetDuplicatetedInput(size, InputData) {
+          var modalInstance = $modal.open({
+            animation: true,
+            templateUrl: 'templates/components/st-duplicate-modal.tpl.html',
+            controller: 'DuplicateFragmentModalCtrl as vm',
+            size: 'lg',
+            resolve: {
+                item: function () {
+                    return InputData;
+                }
             }
-        };
+          });
 
-        function checkInputName(inputType, inputName) {
-            var newFragment = FragmentFactory.GetFragmentByName(inputType, inputName);
+          modalInstance.result.then(function (newInput) {
+            vm.inputsData.push(newInput);
+            console.log(vm.inputsData);
 
-            newFragment
-            .then(function (result) {
-                vm.error = true;
-            },
-            function (error) {
-                var callBackData = {
-                    'index': item.index,
-                    'id': item.id,
-                    'data': vm.dataSource,
-                };
-               $modalInstance.close(callBackData);
-            });
-        };
-
-        function cancel() {
-            $modalInstance.dismiss('cancel');
-        };
-    };
-
-    /*DELETE INPUT MODALS CONTROLLER */
-    angular
-        .module('webApp')
-        .controller('DeleteFragmentModalCtrl', DeleteFragmentModalCtrl);
-
-    DeleteFragmentModalCtrl.$inject = ['$scope', '$modalInstance', 'item'];
-
-    function DeleteFragmentModalCtrl($scope, $modalInstance, item) {
-        console.log('*********Modal');
-        console.log(item);
-
-        $scope.inputs = item;
-
-        $scope.ok = function () {
-            $modalInstance.close($scope.inputs);
-        };
-
-        $scope.cancel = function () {
-            $modalInstance.dismiss('cancel');
-        };
-    };
-
-
-    /*DUPLICATE INPUT MODAL CONTROLLER */
-    angular
-        .module('webApp')
-        .controller('DuplicateFragmentModalCtrl', DuplicateFragmentModalCtrl);
-
-    DuplicateFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentFactory'];
-
-    function DuplicateFragmentModalCtrl($modalInstance, item, FragmentFactory) {
-        /*jshint validthis: true*/
-        var vm = this;
-
-        vm.ok = ok;
-        vm.cancel = cancel;
-        vm.error = false;
-
-        init();
-
-        ///////////////////////////////////////
-
-        function init () {
-            console.log('*********Modal');
-            console.log(item);
-            vm.inputData = item;
-        };
-
-        function ok() {
-            if (vm.form.$valid){
-                checkInputName(vm.inputData.fragmentType, vm.inputData.name);
-            }
-        };
-
-        function checkInputName(inputType, inputName) {
-            var newFragment = FragmentFactory.GetFragmentByName(inputType, inputName);
-
-            newFragment
-            .then(function (result) {
-                vm.error = true;
-            },
-            function (error) {
-                $modalInstance.close(vm.inputData);
-            });
-        };
-
-        function cancel() {
-            $modalInstance.dismiss('cancel');
+          },function () {
+            console.log('Modal dismissed at: ' + new Date())
+          });
         };
     };
 })();

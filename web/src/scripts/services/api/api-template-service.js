@@ -15,7 +15,7 @@
         /////////////////////////////////
 
         function GetFragmentTemplateByType() {
-            return $resource('/template/:type', {type:'@type'},
+            return $resource('/data-templates/:type', {type:'@type'},
             {
                 'get'   : {method:'GET', isArray:true}
             });

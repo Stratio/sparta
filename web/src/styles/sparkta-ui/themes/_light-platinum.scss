@@ -31,6 +31,7 @@
  *		c-icon-radio
  *		c-msg
  *		c-table
+ *		c-checkbox
  *
  */
 
@@ -229,7 +230,8 @@ $c-titlebar__title---font-size: get-font-size(medium-alpha);
 
 // c-icon-text
 $c-icon-text---colors: (
-	call-to-action: get-color(c1)
+	call-to-action: get-color(c1),
+	danger: get-color(e3)
 );
 $c-icon-text__icon---margin: $c-icon-default-margin;
 
@@ -277,6 +279,7 @@ $c-col---cols-number: 12;
 
 // c-row
 $c-row--separated---margin: 60px 0 0;
+$c-row---gutter: 5px;
 
 
 
@@ -326,3 +329,13 @@ $c-table__thead---font-weight: get-font-weight(medium);
 $c-table__thead---text-align: left;
 
 $c-table__tr--ntd-child-2---color: get-color(g2);
+
+
+
+// c-checkbox
+$c-checkbox---color: get-color(g3);
+$c-checkbox---font-family: 'ico_stratio';
+
+$c-checkbox--checked---color: get-color(e1);
+
+$c-checkbox__label---margin: 0 0 2px;

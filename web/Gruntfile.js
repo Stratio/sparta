@@ -342,7 +342,6 @@ module.exports = function (grunt) {
     },
   });
 
-
   grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
     grunt.loadNpmTasks('grunt-connect-proxy');
     if (target === 'dist') {
