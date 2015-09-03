@@ -346,7 +346,7 @@ $c-checkbox__label---margin: 0 0 2px;
 
 // c-step-progress-bar
 $c-step-progress-bar---background: get-color(g0);
-$c-step-progress-bar---padding: 0;
+$c-step-progress-bar---padding: 15px 0;
 
 
 
@@ -358,4 +358,9 @@ $c-step--active---color: get-color(c1);
 
 $c-step__progress-line---height: 1px;
 
+$c-step__section-icon---font-size: get-font-size(large);
+$c-step__section-icon---font-weight: get-font-weight(medium);
+
+$c-step__section-name---font-size: get-font-size(small);
+$c-step__section-name---font-weight: get-font-weight(semibold);
 $c-step__section-name---text-transform: uppercase;

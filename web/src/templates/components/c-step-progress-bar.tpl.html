@@ -1,7 +1,5 @@
 <aside>
 	<ul class="c-step-progress-bar">
-	  <c-step ng-repeat="step in steps" name="step.name" icon="step.icon" index="($index)" ng-click="chooseStep($index)" current-step="(current)"></c-step>
+	  <c-step class="c-col c-col--{{12 / steps.length | number: 0}}" ng-repeat="step in steps" name="step.name" icon="step.icon" index="($index)" ng-click="chooseStep($index)" current-step="(current)"></c-step>
 	</ul>
-	
-	<hr />
 </aside>
