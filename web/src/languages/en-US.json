@@ -74,5 +74,11 @@
       "_ADVANCED_": "Advanced"
     }
   },
+  "_SHORT_": "Short",
+  "_LONG_": "Long",
+  "_CUSTOM_": "Custom",
+  "_SPARK_STREAMING_WINDOW_": "Spark streaming window",
+  "_CHECKPOINT_AVAILABILITY_":"Checkpoint avaliability",
+  "_CHECKPOINT_PATH_":"Checkpoint path",
   "_WINDOW_DURATION_": "Window duration"
 }
