@@ -42,6 +42,7 @@
           setTexts(item.texts);
 
           vm.templateInputsData = fragmentTemplates;
+          console.log(fragmentTemplates);
           vm.initFragmentObject(vm.templateInputsData);
           vm.createTypeModels(vm.templateInputsData);
           vm.selectedIndex = 0;
@@ -77,6 +78,8 @@
 
                 /*Flag to check if there are any visible field*/
                 vm.fragmentTemplateData[fragmentName] = $filter('filter')(fragmentData[i].properties, {'visible': []}, true);
+                console.log(vm.fragmentTemplateData);
+                console.log(fragmentName);
                 vm.properties[fragmentName]._visible = (vm.fragmentTemplateData[fragmentName].length > 0) ? true : false;
 
                 for (var j=0; j<fragmentData[i].properties.length; j++) {

@@ -7,10 +7,6 @@
     "long": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#cassandra-label"
   },
-  "icon": {
-    "url": "logo_cassandra.png"
-  },
-
   "properties": [
     {
       "propertyId": "connectionHost",
@@ -128,9 +124,6 @@
     "long": "",
     "learnMore": "http://docs.stratio.com"
   },
-  "icon": {
-    "url": "logo_csv.png"
-  },
   "properties": [
     {
       "propertyId": "path",
@@ -182,9 +175,6 @@
     "long": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#elasticsearch-label"
   },
-  "icon": {
-    "url": "logo_elasticsearch.png"
-  },
   "properties": [
     {
       "propertyId": "nodes",
@@ -228,10 +218,6 @@
     "long": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#mongodb-label"
   },
-  "icon": {
-    "url": "logo_mongodb.png"
-  },
-
   "properties": [
     {
       "propertyId": "hosts",
@@ -334,9 +320,6 @@
     "long": "Parquet's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#parquet-label"
   },
-  "icon": {
-    "url": "logo_parquet.png"
-  },
   "properties": [
     {
       "propertyId": "Path",
@@ -357,9 +340,8 @@
     "long": "Print's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#print-label"
   },
-  "icon": {
-    "url": "logo_print.png"
-  }
+  "properties": [
+  ]
 },
 {
   "name": "Redis",
@@ -368,9 +350,6 @@
     "short": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
     "long": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#redis-label"
-  },
-  "icon": {
-    "url": "logo_redis.png"
   },
   "properties": [
     {

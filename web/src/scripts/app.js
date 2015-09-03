@@ -69,12 +69,10 @@ angular
         templateUrl: 'views/inputs.html'
     })
     .state('dashboard.outputs', {
-        url: '/outputs'
-/*
+        url: '/outputs',
         controller: 'OutputsCtrl',
         controllerAs: 'outputs',
-        templateUrl: 'views/output.html'
-*/
+        templateUrl: 'views/outputs.html'
     })
     .state('dashboard.policies', {
         url: '/policies',
