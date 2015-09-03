@@ -1,7 +1,7 @@
-<span>
-	<div ng-click="chooseStep()">
-	  <i class="{{icon}}"></i>
-	  <i ng-class="{'icon-dot_selected' : isSelected() ,'icon-dot' : !isSelected()}"></i>
-	  <h1>{{name | translate}}</h1>
-	</div>
-</span>
+<li>
+	<a class="c-step c-step--is-clickable" ng-class="{'c-step--selected' : isSelected()}" href ng-click="chooseStep()">
+	  <i class="c-icon c-step__section-icon {{icon}}"></i>
+	  <i class="c-icon c-step__selector" ng-class="{'icon-dot_selected' : isSelected() ,'icon-dot' : !isSelected()}"></i>
+	  <span class="c-step__section-name">{{name | translate}}</span>
+	</a>
+</li>

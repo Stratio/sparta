@@ -1,7 +1,7 @@
-<aside>
-	<div ng-repeat="step in steps">
+<aside class="c-step-counter">
+	<ul ng-repeat="step in steps">
 	  <c-step name="step.name" icon="step.icon" index="($index)" ng-click="chooseStep($index)" current-step="(current)"></c-step>
-	</div>
+	</ul>
 	
 	<hr />
 </aside>
