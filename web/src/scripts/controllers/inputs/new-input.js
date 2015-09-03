@@ -119,7 +119,6 @@
           /*Set fragment*/
           vm.dataSource.description = vm.templateInputsData[index].description.long;
           vm.dataSource.shortDescription = vm.templateInputsData[index].description.short;
-          vm.dataSource.icon = vm.templateInputsData[index].icon.url;
           vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
           console.log(vm.dataSource);
         };
