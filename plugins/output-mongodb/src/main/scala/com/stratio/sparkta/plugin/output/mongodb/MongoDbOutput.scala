@@ -17,23 +17,18 @@
 package com.stratio.sparkta.plugin.output.mongodb
 
 import java.io.{Serializable => JSerializable}
-import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.SaveMode._
 
-import scala.util.Try
-
-import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.commons.conversions.scala._
-import org.apache.spark.SparkContext
-import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.streaming.dstream.DStream
-import org.joda.time.DateTime
-
 import com.stratio.sparkta.plugin.output.mongodb.dao.MongoDbDAO
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.SaveMode._
+import org.apache.spark.streaming.dstream.DStream
+
+import scala.util.Try
 
 class MongoDbOutput(keyName: String,
                     properties: Map[String, JSerializable],
