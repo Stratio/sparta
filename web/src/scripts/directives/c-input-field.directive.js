@@ -1,7 +1,7 @@
 (function () {
 'use strict';
 
-/*BUTTON TO CHANGE ROUTE OR URL*/
+/*LINE WITH A FORM CONTROL AND INPUT FIELD*/
 
 angular
   .module('webApp')
@@ -18,7 +18,8 @@ function cInputField() {
       rightText: "=rightText",
       value: "=value",
       model: "=model",
-      inputType: "=inputType"
+      inputType: "=inputType",
+      pattern: "=pattern"
     },
     replace: "true",
     templateUrl: 'templates/components/c-input-field.tpl.html'
