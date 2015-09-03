@@ -21,6 +21,7 @@
        vm.duplicateInput = duplicateInput;
        vm.deleteInputConfirm = deleteInputConfirm;
        vm.getPolicyNames = getPolicyNames;
+       vm.inputsData = [];
        vm.inputTypes = [];
 
        init();

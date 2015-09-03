@@ -62,6 +62,9 @@
   "_INPUT_ERROR_300_": "There was an error. There is not a template whit this name!",
   "_INPUT_ERROR_666_": "There was an error. Please try again later. (Server error)",
   "_INPUT_ERROR_TEMPLATES_": "There was an error while loading the templates! Please try again later.",
+  "_OUTPUT_HEADER_TITLE_MAIN": "outputs",
+  "_OUTPUT_WINDOW_NEW_TITLE_": "New output",
+  "_OUTPUT_WINDOW_NEW_BUTTON_": "Add output",
   "_POLICY_HEADER_TITLE_MAIN_": "Policies",
   "_POLICY_": {
     "_STEPS_": {
