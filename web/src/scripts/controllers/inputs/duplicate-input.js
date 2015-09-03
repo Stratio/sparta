@@ -34,9 +34,12 @@
         };
 
         function checkFragmnetname() {
-          var inputNameExist = $filter('filter')(item.inputNamesList, {'name': vm.inputData.name}, true);
+          var inputNamesExisting = [];
+          console.log(vm.inputData);
+          var newInputName = vm.inputData.name.toLowerCase();
+          inputNamesExisting = $filter('filter')(item.inputNamesList, {'name': newInputName}, true);
 
-          if (inputNameExist.length > 0) {
+          if (inputNamesExisting.length > 0) {
             vm.error = true;
             vm.errorText = "_INPUT_ERROR_100_";
           }

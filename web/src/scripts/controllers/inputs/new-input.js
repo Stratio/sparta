@@ -72,8 +72,6 @@
         function createTypeModels(fragmentData) {
             /*Creating one properties model for each input type*/
             for (var i=0; i<fragmentData.length; i++){
-                // var differentObjects = false;
-
                 var fragmentName = fragmentData[i].name;
                 vm.properties[fragmentName] = {};
 
@@ -81,61 +79,15 @@
                 vm.fragmentTemplateData[fragmentName] = $filter('filter')(fragmentData[i].properties, {'visible': []}, true);
                 vm.properties[fragmentName]._visible = (vm.fragmentTemplateData[fragmentName].length > 0) ? true : false;
 
-
-/*
-                var selectValue = $filter('filter')(fragmentData[i].properties, {'values': []}, true)[0];
-
-                if (selectValue){
-                  for (var k=0; k < selectValue.values.length; k++){
-                    vm.properties[fragmentName][selectValue.values[k].value] = {};
-                    vm.properties[fragmentName][selectValue.values[k].value][selectValue.propertyId] = selectValue.values[k].value;
-                  }
-                  differentObjects = true;
-                  vm.properties[fragmentName].select = true;
-                }
-*/
                 for (var j=0; j<fragmentData[i].properties.length; j++) {
                     var fragmentProperty = fragmentData[i].properties[j];
-                    //var dif = (fragmentProperty.visible) ? fragmentProperty.visible[0][0].value : '';
 
                     switch (fragmentProperty.propertyType) {
                       case 'boolean':
-                        /*
-                        if (dif !== '') {
-                          vm.properties[fragmentName][dif][fragmentProperty.propertyId] = false;
-                        }
-                        else {
-                          vm.properties[fragmentName][fragmentProperty.propertyId] = false;
-                        }
-                        */
                         vm.properties[fragmentName][fragmentProperty.propertyId] = false;
                         break;
 
                       case 'list':
-                        /*
-                        if (dif !== '') {
-                          vm.properties[fragmentName][dif][fragmentProperty.propertyId] = [];
-                          var newFields = {};
-
-                          for (var m=0; m<fragmentProperty.fields.length; m++) {
-                            var defaultValue = (fragmentProperty.fields[m].default) ? fragmentProperty.fields[m].default : '';
-                            defaultValue = (fragmentProperty.fields[m].propertyType === 'number') ? parseInt(defaultValue) : defaultValue;
-                            newFields[fragmentProperty.fields[m].propertyId] = defaultValue;
-                          }
-                          vm.properties[fragmentName][dif][fragmentProperty.propertyId].push(newFields);
-                        }
-                        else {
-                          vm.properties[fragmentName][fragmentProperty.propertyId] = [];
-                          var newFields = {};
-
-                          for (var m=0; m<fragmentProperty.fields.length; m++) {
-                            var defaultValue = (fragmentProperty.fields[m].default) ? fragmentProperty.fields[m].default : '';
-                            defaultValue = (fragmentProperty.fields[m].propertyType === 'number') ? parseInt(defaultValue) : defaultValue;
-                            newFields[fragmentProperty.fields[m].propertyId] = defaultValue;
-                          }
-                          vm.properties[fragmentName][fragmentProperty.propertyId].push(newFields);
-                        }
-                        */
                         vm.properties[fragmentName][fragmentProperty.propertyId] = [];
                         var newFields = {};
 
@@ -150,14 +102,6 @@
                       default:
                         var defaultValue = (fragmentProperty.default) ? fragmentProperty.default : '';
                         defaultValue = (fragmentProperty.propertyType === 'number') ? parseInt(defaultValue) : defaultValue;
-                        /*
-                        if (dif !== '') {
-                          vm.properties[fragmentName][dif][fragmentProperty.propertyId] = defaultValue;
-                        }
-                        else {
-                          vm.properties[fragmentName][fragmentProperty.propertyId] = defaultValue;
-                        }
-                        */
                         vm.properties[fragmentName][fragmentProperty.propertyId] = defaultValue;
                         break;
                     }
@@ -165,12 +109,7 @@
 
                 /*Init properties*/
                 if(i === 0) {
-                  //console.log(differentObjects);
-                  console.log(vm.properties[fragmentName]);
-                  //console.log([selectValue.values[0].value]);
-                  //vm.dataSource.element.configuration = (differentObjects) ? vm.properties[fragmentName][selectValue.values[0].value] : vm.properties[fragmentName];
                   vm.dataSource.element.configuration = vm.properties[fragmentName];
-                  console.log(vm.dataSource.element.configuration);
                 }
             }
         };
@@ -187,19 +126,6 @@
 
         function setProperties(index, inputName) {
             vm.selectedIndex = index;
-            /*
-            if (vm.properties[inputName].select){
-              console.log(vm.properties[inputName]);
-              console.log(vm.properties[inputName].type);
-              var aux = vm.properties[inputName].type;
-              var aux1 = vm.properties[inputName][aux].type
-
-              vm.dataSource.element.configuration = vm.properties[inputName][aux1];
-            }
-            else {
-              vm.dataSource.element.configuration = vm.properties[inputName]
-            }
-*/
             vm.dataSource.element.configuration = vm.properties[inputName]
             vm.setFragmentData(index);
         };
@@ -229,10 +155,11 @@
         };
 
         function checkFragmnetname(newInputData) {
-          var inputNameExist = [];
-          inputNameExist = $filter('filter')(item.inputNamesList, {'name': vm.dataSource.name}, true);
+          var inputNamesExisting = [];
+          var newInputName = vm.dataSource.name.toLowerCase();
+          inputNamesExisting = $filter('filter')(item.inputNamesList, {'name': newInputName}, true);
 
-          if (inputNameExist.length > 0) {
+          if (inputNamesExisting.length > 0) {
             vm.error = true;
             vm.errorText = "_INPUT_ERROR_100_";
           }
