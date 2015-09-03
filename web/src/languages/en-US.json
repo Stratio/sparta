@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "_HELP_": "Do you need help?",
   "_CANCEL_": "Cancel",
   "_CONTINUE_": "Continue",
@@ -44,8 +45,6 @@
   "_INPUT_WINDOW_MODIFY_TITLE_": "Modify input",
   "_INPUT_WINDOW_MODIFY_BUTTON_": "Modify input",
   "_INPUT_WINDOW_NEW_HELP_": "Do you need help?",
-  "_INPUT_WINDOW_MODIFY_TITLE_": "Modify input",
-  "_INPUT_WINDOW_MODIFY_BUTTON_": "Modify input",
   "_INPUT_WINDOW_DELETE_TITLE_": "Delete input",
   "_INPUT_WINDOW_FORM_NAME_": "Name",
   "_INPUT_WINDOW_FORM_TYPE_": "Type",
@@ -86,5 +85,9 @@
   "_WINDOW_DURATION_": "Window duration",
   "_INSERT_DESCRIPTION_": "Insert Description",
   "_INSERT_NAME_": "Insert Name",
-  "_CUBE_CONFIG_HELP_MESSAGE_": "Need help to configure your Cube? Use the Help tab in the upper right of your screen"
+  "_CUBE_CONFIG_HELP_MESSAGE_": "Need help to configure your Cube? Use the Help tab in the upper right of your screen",
+  "_GROUP_ID_" : "Group ID",
+  "_TOPIC_": "Topic",
+  "_BROKER_": "Broker",
+	"_ROUTING_KEY_": "Routing key"
 }
