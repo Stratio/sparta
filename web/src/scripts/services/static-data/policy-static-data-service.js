@@ -11,9 +11,9 @@
       {name: "model", icon: "icon-content-left"}, {name: "cubes", icon: "icon-box"},
       {name: "outputs", icon: "icon-export"}, {name: "advanced", icon: "icon-star"}];
 
-    vm.sparkStreamingWindow = {min: 0, max: 100} ;
-    vm.checkpointInterval = {min: 0, max: 678} ;
-    vm.checkpointAvailability = {min: 0, max: 343} ;
+    vm.sparkStreamingWindow = {min: 0, max: 10000} ;
+    vm.checkpointInterval = {min: 0, max: 10000} ;
+    vm.checkpointAvailability = {min: 0, max: 10000} ;
   }
 
 })();
