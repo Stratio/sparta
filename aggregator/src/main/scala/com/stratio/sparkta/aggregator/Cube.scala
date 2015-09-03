@@ -96,7 +96,7 @@ case class Cube(name: String,
         updateFunction(values, state).map(result => (dimensionsKey, result))
       }
     }
-    val rememberPartitioner = Try(SparktaConfig.mainConfig.getBoolean("spark.rememberPartitioner")).getOrElse(true)
+    val rememberPartitioner = Try(SparktaConfig.mainConfig.get.getBoolean("spark.rememberPartitioner")).getOrElse(true)
     dimensionsValues.updateStateByKey(
       newUpdateFunc, new HashPartitioner(dimensionsValues.context.sparkContext.defaultParallelism), rememberPartitioner)
   }
