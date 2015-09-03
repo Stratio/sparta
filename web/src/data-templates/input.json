@@ -151,7 +151,7 @@
       {
         "propertyId": "enableDecompression",
         "propertyName": "_DECOMPRESSION_",
-        "propertyType": "boolean",
+        "propertyType": "text",
         "regexp": "true|false",
         "required": false,
         "tooltip": "",
