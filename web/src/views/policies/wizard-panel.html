@@ -3,7 +3,7 @@
     <st-heading title="{{'_POLICY_HEADER_TITLE_MAIN_' | translate}}" subtitle="{{'_INPUT_HEADER_TITLE_SECONDARY' | translate}}:"></st-heading>
   </header>
 
-  <c-step-progress-bar steps=policy.steps current-step=(policy.currentStep)></c-step-progress-bar>
+  <c-step-progress-bar steps="policy.steps" current-step="(policy.currentStep)"></c-step-progress-bar>
 
   <div ng-switch on="policy.currentStep">
     <div ng-switch-when="0" >

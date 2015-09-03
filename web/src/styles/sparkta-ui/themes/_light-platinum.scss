@@ -34,6 +34,8 @@
  *		c-checkbox
  *		c-step-progress-bar
  *		c-step
+ *		c-step-content
+ *		c-step-counter
  *
  */
 
@@ -80,6 +82,20 @@ $colors: (
 	a3: #bcea3f
 );
 
+$font-sizes: (
+	xxxlarge: 4rem,
+	xxlarge: 3rem,
+	xlarge-alpha: 2.5rem,
+	xlarge: 2rem,
+	large: 1.5rem,
+	medium-alpha: 1.2rem,
+	medium: 1rem,
+	small: .8rem,
+	xsmall: .7rem,
+	xxsmall: .6rem,
+	xxxsmall: .5rem
+);
+
 $component-border-radius: 5px;
 $component-margin: 15px;
 $component-default-margin: .5em;
@@ -107,7 +123,10 @@ $angular-forms--ng-invalid---border: 1px solid get-color(e3);
  */
 
 // heading
+$base-padding: 30px;
 $heading---margin: 0;
+
+$stratio-ui---base-padding: $base-padding;
 
 
 
@@ -346,13 +365,13 @@ $c-checkbox__label---margin: 0 0 2px;
 
 // c-step-progress-bar
 $c-step-progress-bar---background: get-color(g0);
-$c-step-progress-bar---padding: 15px 0;
+$c-step-progress-bar---padding: $component-margin 0 ($component-margin * 2);
 
 
 
 // c-step
 $c-step---separation: 15px;
-$c-step---padding: 0 0 0 $c-step---separation;
+$c-step---padding: 0;
 $c-step---color: get-color(g4);
 $c-step--active---color: get-color(c1);
 
@@ -364,3 +383,26 @@ $c-step__section-icon---font-weight: get-font-weight(medium);
 $c-step__section-name---font-size: get-font-size(small);
 $c-step__section-name---font-weight: get-font-weight(semibold);
 $c-step__section-name---text-transform: uppercase;
+
+
+
+// c-step-content
+$c-step-content---background: get-color(f3);
+$c-step-content---margin: 0 -$stratio-ui---base-padding;
+$c-step-content---padding: $stratio-ui---base-padding;
+
+$c-step-content__title---color: get-color(c4);
+$c-step-content__title---font-size: get-font-size(medium-alpha);
+$c-step-content__title---font-weight: get-font-weight(normal);
+$c-step-content__title---margin: 0 0 $component-margin;
+$c-step-content__title---text-transform: uppercase;
+
+$c-step-content__title--underlined---border-bottom: 1px solid get-color(f4);
+$c-step-content__title--underlined---padding: 0 0 ($component-margin / 2);
+
+
+
+// c-step-counter
+$c-step-counter---color: get-color(c1);
+$c-step-counter--after---color: get-color(c4);
+$c-step-counter--after---margin: 0 5px;

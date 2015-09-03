@@ -1,0 +1,18 @@
+@mixin c-step-counter {
+	@include c-panel;
+
+	color: $c-step-counter---color;
+	display: inline-block;
+	vertical-align: middle;
+
+	&__icon {
+		color: $c-step-counter--after---color;
+		margin: $c-step-counter--after---margin;
+		display: inline-block;
+		vertical-align: middle;
+	}
+}
+
+.c-step-counter {
+	@include c-step-counter;
+}
