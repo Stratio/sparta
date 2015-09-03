@@ -14,7 +14,10 @@ function cInputField() {
       formControlText: "=formControlText",
       formControlClass: "=formControlClass",
       inputText: "=inputText",
-      rightText: "=rightText"
+      rightText: "=rightText",
+      value: "=value",
+      model: "=model",
+      inputType: "=inputType"
     },
     replace: "true",
     templateUrl: 'templates/components/c-input-field.tpl.html'
