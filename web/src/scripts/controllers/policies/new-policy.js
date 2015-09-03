@@ -10,9 +10,9 @@ function NewPolicyCtrl(PolicyStaticDataService) {
   var vm = this;
 
   vm.steps = PolicyStaticDataService.steps;
-  vm.sparkStreamingWindow = PolicyStaticDataService.sparkStreamingWindow;
-  vm.checkpointInterval = PolicyStaticDataService.checkpointInterval;
-  vm.checkpointAvailability = PolicyStaticDataService.checkpointAvailability;
+  vm.sparkStreamingWindowData = PolicyStaticDataService.sparkStreamingWindow;
+  vm.checkpointIntervalData = PolicyStaticDataService.checkpointInterval;
+  vm.checkpointAvailabilityData = PolicyStaticDataService.checkpointAvailability;
 
   vm.currentStep = 0;
   vm.sparkStreamingWindow = 0;
