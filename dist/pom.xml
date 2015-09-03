@@ -253,13 +253,6 @@
                                     <architecture>noarch</architecture>
                                 </configuration>
                             </execution>
-                            <execution>
-                                <id>zip</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>package-zip</goal>
-                                </goals>
-                            </execution>
                         </executions>
                     </plugin>
                 </plugins>
