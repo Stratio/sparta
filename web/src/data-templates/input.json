@@ -68,7 +68,7 @@
           "propertyId": "port",
           "propertyName": "_PORT_",
           "propertyType": "text",
-          "regexp": "",
+          "regexp": "\\d+",
           "default": "1000",
           "required": false,
           "tooltip": "Flume's port.",
@@ -151,7 +151,7 @@
       {
         "propertyId": "enableDecompression",
         "propertyName": "_DECOMPRESSION_",
-        "propertyType": "text",
+        "propertyType": "boolean",
         "regexp": "true|false",
         "required": false,
         "tooltip": "",
@@ -200,7 +200,7 @@
         "propertyId": "topics",
         "propertyName": "_TOPICS_",
         "propertyType": "text",
-        "regexp": "TODO cualquier cadena de caracteres",
+        "regexp": "",
         "required": true,
         "tooltip": "Topics to connect"
       }
@@ -239,7 +239,7 @@
         "propertyId": "topics",
         "propertyName": "_TOPICS_",
         "propertyType": "text",
-        "regexp": "TODO cualquier cadena de caracteres",
+        "regexp": "",
         "required": true,
         "tooltip": "Topics to connect"
       }
@@ -261,7 +261,7 @@
         "propertyId": "queue",
         "propertyName": "_QUEUE_",
         "propertyType": "text",
-        "regexp": "TODO cualquier cadena de caracteres",
+        "regexp": "",
         "required": false,
         "tooltip": "RabbitMQ's name queue."
       },

@@ -22,7 +22,8 @@ function autoIncrementName(input) {
 function getFragmentsNames(fragmentsList) {
     var fragmentNames = [];
     for (var i=0; i<fragmentsList.length; i++){
-        var fragment = {'name':fragmentsList[i].name}
+        var lowerCaseName = fragmentsList[i].name.toLowerCase();
+        var fragment = {'name': lowerCaseName}
         fragmentNames.push(fragment);
     }
     return fragmentNames;
