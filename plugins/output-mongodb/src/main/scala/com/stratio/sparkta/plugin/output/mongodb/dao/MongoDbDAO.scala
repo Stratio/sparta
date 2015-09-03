@@ -208,7 +208,6 @@ trait MongoDbDAO extends Closeable {
 
 private object MongoDbDAO extends Logging {
 
-  private val clients: mutable.Map[String, MongoClient] = mutable.Map()
   private val dbs: mutable.Map[(String, String), MongoDB] = mutable.Map()
 
   private def options(connectionsPerHost: Integer, threadsAllowedToBlock: Integer) =
@@ -219,10 +218,7 @@ private object MongoDbDAO extends Logging {
 
   private def client(mongoClientUri: String, connectionsPerHost: Integer,
                      threadsAllowedToBlock: Integer, force: Boolean): MongoClient = {
-    if (!clients.contains(mongoClientUri) || force) {
-      clients.put(mongoClientUri, mongoClient(mongoClientUri.split(","), connectionsPerHost, threadsAllowedToBlock))
-    }
-    clients(mongoClientUri)
+    mongoClient(mongoClientUri.split(","), connectionsPerHost, threadsAllowedToBlock)
   }
 
   private def mongoClient(addresses: Seq[String], connectionsPerHost: Integer, threadsAllowedToBlock: Integer):
