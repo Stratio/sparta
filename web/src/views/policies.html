@@ -27,7 +27,7 @@
 								<st-menu-element class-icon="icon-copy" data-ng-click="">
 									{{"_INPUT_ACTIONS_MENU_DUPLICATE_" | translate}}
 								</st-menu-element>
-								<st-menu-element class-icon="icon-cross" route="settings">
+								<st-menu-element class-icon="icon-cross"  data-ng-click="">
 									{{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
 								</st-menu-element>
 							</st-floating-menu>
@@ -41,9 +41,7 @@
     <hr class="c-line-separator" />
 
     <footer class="c-row c-row--to-right c-row--footer">
-    	<button class="c-button c-button--call-to-action-1" data-ng-click="policies.createPolicy()">
-    		<span class="icon icon-circle-plus"></span>
-    		<span>{{"_INPUT_BUTTON_NEW_" | translate}}</span>
-    	</button>
+    <route-button button-class = "'c-button c-button--call-to-action-1'" route = "'dashboard.newPolicy'" text = "'_INPUT_BUTTON_NEW_' | translate" ></route-button>
+
     </footer>
 </section>
