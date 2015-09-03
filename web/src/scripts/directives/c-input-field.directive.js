@@ -1,3 +1,4 @@
+(function () {
 'use strict';
 
 /*BUTTON TO CHANGE ROUTE OR URL*/
@@ -23,3 +24,4 @@ function cInputField() {
     templateUrl: 'templates/components/c-input-field.tpl.html'
   }
 };
+})();

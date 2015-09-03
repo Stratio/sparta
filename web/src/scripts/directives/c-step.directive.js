@@ -1,3 +1,4 @@
+(function () {
 'use strict';
 
 /*STEP DIRECTIVE*/
@@ -22,6 +23,5 @@ function step() {
       };
     }
   };
-
-
-}
+};
+})();
