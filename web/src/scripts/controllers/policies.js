@@ -13,7 +13,7 @@
 
        vm.policiesData = {};
        vm.policiesData.list = [];
-
+vm.createPolicy = createPolicy();
        init();
 
         /////////////////////////////////
@@ -32,5 +32,12 @@
                 vm.policiesData.list = result;
             });
         };
+
+
+       function createPolicy(){
+
+
+       }
+
     };
 })();
