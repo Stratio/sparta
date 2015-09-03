@@ -1,0 +1,11 @@
+@mixin c-step-progress-bar {
+	@include c-panel;
+
+	background: $c-step-progress-bar---background;
+	display: block;
+	padding: $c-step-progress-bar---padding;
+}
+
+.c-step-progress-bar {
+	@include c-step-progress-bar;
+}

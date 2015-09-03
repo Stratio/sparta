@@ -32,6 +32,8 @@
  *		c-msg
  *		c-table
  *		c-checkbox
+ *		c-step-progress-bar
+ *		c-step
  *
  */
 
@@ -339,3 +341,21 @@ $c-checkbox---font-family: 'ico_stratio';
 $c-checkbox--checked---color: get-color(e1);
 
 $c-checkbox__label---margin: 0 0 2px;
+
+
+
+// c-step-progress-bar
+$c-step-progress-bar---background: get-color(g0);
+$c-step-progress-bar---padding: 0;
+
+
+
+// c-step
+$c-step---separation: 15px;
+$c-step---padding: 0 0 0 $c-step---separation;
+$c-step---color: get-color(g4);
+$c-step--active---color: get-color(c1);
+
+$c-step__progress-line---height: 1px;
+
+$c-step__section-name---text-transform: uppercase;
