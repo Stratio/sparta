@@ -3,7 +3,7 @@
 /*STEP DIRECTIVE*/
 angular
   .module('webApp')
-  .directive('cStepCounter', stepsComponent);
+  .directive('cStepProgressBar', stepsComponent);
 
 function stepsComponent() {
   return {
@@ -13,7 +13,7 @@ function stepsComponent() {
       current: '=currentStep'
     },
     replace: 'true',
-    templateUrl: 'templates/components/c-step-counter.tpl.html',
+    templateUrl: 'templates/components/c-step-progress-bar.tpl.html',
     link: function(scope){
       scope.chooseStep = function (index) {
         scope.current = index;
