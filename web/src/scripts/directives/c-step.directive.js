@@ -15,7 +15,7 @@ function step() {
       current: '=currentStep'
     },
     replace: 'true',
-    templateUrl: 'templates/components/c-step.html',
+    templateUrl: 'templates/components/c-step.tpl.html',
     link: function (scope, elem, attr) {
       scope.isSelected = function () {
         return scope.index == scope.current;

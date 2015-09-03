@@ -13,7 +13,7 @@ function stepsComponent() {
       current: '=currentStep'
     },
     replace: 'true',
-    templateUrl: 'templates/components/c-step-counter.html',
+    templateUrl: 'templates/components/c-step-counter.tpl.html',
     link: function(scope){
       scope.chooseStep = function (index) {
         scope.current = index;
