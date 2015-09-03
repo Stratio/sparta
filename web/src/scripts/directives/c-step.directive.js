@@ -3,7 +3,7 @@
 /*STEP DIRECTIVE*/
 angular
   .module('webApp')
-  .directive('step', step);
+  .directive('cStep', step);
 
 function step() {
   return {
@@ -14,12 +14,12 @@ function step() {
       icon: '=icon',
       current: '=currentStep'
     },
-    templateUrl: 'templates/components/step.html',
-
+    replace: 'true',
+    templateUrl: 'templates/components/c-step.tpl.html',
     link: function (scope, elem, attr) {
       scope.isSelected = function () {
         return scope.index == scope.current;
-    };
+      };
     }
   };
 
