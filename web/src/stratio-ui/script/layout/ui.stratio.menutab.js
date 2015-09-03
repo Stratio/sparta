@@ -15,7 +15,8 @@ function stMenuTab(TEMPLATE_URL){
 			route: '@route',
 			sref: '@sref',
 			icon: '@icon',
-			label: '@label'
+			label: '@label',
+			qaref: '@qaref'
 		},
 		templateUrl: TEMPLATE_URL('layout', 'menutab'),
 		controller: controller

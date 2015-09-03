@@ -17,6 +17,8 @@ module.exports = function (grunt) {
     dist: 'target/classes/web'
   };
 
+  var fs = require('fs');
+
   // Define the configuration for all the tasks
   grunt.initConfig({
 
@@ -239,7 +241,7 @@ module.exports = function (grunt) {
       },
       dist: {}
     },
-
+    
     htmlmin: {
       dist: {
         options: {
@@ -256,6 +258,7 @@ module.exports = function (grunt) {
         }]
       }
     },
+
     // ng-annotate tries to make the code safe for minification automatically
     // by using the Angular long form for dependency injection.
     ngAnnotate: {
@@ -341,7 +344,6 @@ module.exports = function (grunt) {
     },
   });
 
-
   grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
     grunt.loadNpmTasks('grunt-connect-proxy');
     if (target === 'dist') {
@@ -371,19 +373,25 @@ module.exports = function (grunt) {
     'connect:test'
   ]);
 
-  grunt.registerTask('build', [
-    'clean:server',
-    'wiredep',
-    'useminPrepare',
-    'concurrent:dist',
-    'autoprefixer',
-    'concat',
-    //'ngtemplates',
-    'ngAnnotate',
-    'copy:dist',
-    'usemin',
-    'htmlmin'
-  ]);
+  grunt.registerTask('build', 'Build if target is empty', function() {
+    if (fs.existsSync(appConfig.dist+'/index.html')) {
+      grunt.log.warn('Target already exists. If you want to force build run task `clean:dist` first');
+      return true;
+    }
+  
+    grunt.task.run([
+      'clean:server',
+      'wiredep',
+      'useminPrepare',
+      'concurrent:dist',
+      'autoprefixer',
+      'concat',
+      'ngAnnotate',
+      'copy:dist',
+      'usemin',
+      'htmlmin'
+    ]);
+  });
 
   grunt.registerTask('default', [
     'test',

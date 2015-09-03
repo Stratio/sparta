@@ -20,15 +20,12 @@ import java.util.UUID
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.core.AppConstant
 import com.stratio.sparkta.serving.core.models._
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
-import org.json4s.DefaultFormats
-import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.Serialization._
 
 import scala.collection.JavaConversions
@@ -47,7 +44,7 @@ class PolicyActor(curatorFramework: CuratorFramework)
     case Update(policy) => update(policy)
     case Delete(id) => delete(id)
     case Find(id) => find(id)
-    case FindByName(name) => findByName(name)
+    case FindByName(name) => findByName(name.toLowerCase())
     case FindAll() => findAll()
     case FindByFragment(fragmentType, id) => findByFragment(fragmentType, id)
   }
@@ -104,7 +101,8 @@ class PolicyActor(curatorFramework: CuratorFramework)
             s"Policy with name ${policy.name} exists.")
         ))
       }
-      val policyS = policy.copy(id = Some(s"${UUID.randomUUID.toString}"))
+      val policyS = policy.copy(id = Some(s"${UUID.randomUUID.toString}"),
+                                name = policy.name.toLowerCase)
       curatorFramework.create().creatingParentsIfNeeded().forPath(
         s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
       policyS
@@ -118,7 +116,8 @@ class PolicyActor(curatorFramework: CuratorFramework)
             s"Policy with name ${policy.name} exists.")
         ))
       }
-      curatorFramework.setData.forPath(s"${AppConstant.PoliciesBasePath}/${policy.id.get}", write(policy).getBytes)
+      val policyS = policy.copy(name = policy.name.toLowerCase)
+      curatorFramework.setData.forPath(s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
     }).recover {
       case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsPolicytWithId, s"No policy  with id ${policy.id.get}.")

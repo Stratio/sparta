@@ -35,9 +35,9 @@ import org.joda.time.DateTime
 
 trait MongoDbDAO extends Closeable {
 
-  final val DefaultConnectionsPerHost = 5
-  final val DefaultThreadsAllowedToBlock = 10
-  final val DefaultRetrySleep = 1000
+  final val DefaultConnectionsPerHost = "5"
+  final val DefaultThreadsAllowedToBlock = "10"
+  final val DefaultRetrySleep = "1000"
   final val LanguageFieldName = "language"
   final val DefaultId = "_id"
   final val DefaultWriteConcern = casbah.WriteConcern.Unacknowledged

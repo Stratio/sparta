@@ -6,9 +6,9 @@
         .module('webApp')
         .controller('DeleteFragmentModalCtrl', DeleteFragmentModalCtrl);
 
-    DeleteFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'PolicyFactory', 'FragmentFactory'];
+    DeleteFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'PolicyFactory', 'FragmentFactory', 'policiesAffected'];
 
-    function DeleteFragmentModalCtrl($modalInstance, item, PolicyFactory, FragmentFactory) {
+    function DeleteFragmentModalCtrl($modalInstance, item, PolicyFactory, FragmentFactory, policiesAffected) {
         /*jshint validthis: true*/
         var vm = this;
 
@@ -21,26 +21,13 @@
         ///////////////////////////////////////
 
         function init () {
+            console.log(policiesAffected);
             console.log('*********Modal');
             console.log(item);
 
             vm.inputs = item;
 
-            getPoliciesAffected(vm.inputs);
-        };
-
-        function getPoliciesAffected(fragmentData) {
-            console.log('> Getting Policies affected');
-            var policiesAffected = PolicyFactory.GetPolicyByFragmentId(fragmentData.type, fragmentData.id);
-
-            policiesAffected.then(function (result) {
-                console.log(result);
-                vm.inputs.policies = getPolicyNames(result);
-            },
-            function (error) {
-                console.log('#ERROR#');
-                console.log(error);
-            });
+            vm.inputs.policies = policiesAffected;
         };
 
         function ok() {

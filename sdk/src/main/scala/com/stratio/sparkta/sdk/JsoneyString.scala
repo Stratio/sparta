@@ -16,8 +16,9 @@
 
 package com.stratio.sparkta.sdk
 
-import org.json4s.jackson.Serialization.write
 import org.json4s._
+import org.json4s.jackson.JsonMethods._
+import org.json4s.jackson.Serialization.write
 
 case class JsoneyString(string : String) {
   override def toString : String = string
@@ -37,10 +38,18 @@ class JsoneyStringSerializer extends CustomSerializer[JsoneyString](format => (
       new JsoneyString(s.s)
     case i : JInt =>
       new JsoneyString(i.num.toString())
+    case b : JBool =>
+      new JsoneyString(b.value.toString())
   },
   {
     case x: JsoneyString =>
+      if(x.string.contains("[") && x.string.contains("{")) {
+        parse(x.string)
+      } else {
+        new JString(x.string)
+      }
       new JString(x.string)
   }
   )) {
 }
+

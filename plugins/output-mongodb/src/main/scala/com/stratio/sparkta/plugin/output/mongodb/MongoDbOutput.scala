@@ -17,23 +17,18 @@
 package com.stratio.sparkta.plugin.output.mongodb
 
 import java.io.{Serializable => JSerializable}
-import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.SaveMode._
 
-import scala.util.Try
-
-import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.commons.conversions.scala._
-import org.apache.spark.SparkContext
-import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.streaming.dstream.DStream
-import org.joda.time.DateTime
-
 import com.stratio.sparkta.plugin.output.mongodb.dao.MongoDbDAO
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.SaveMode._
+import org.apache.spark.streaming.dstream.DStream
+
+import scala.util.Try
 
 class MongoDbOutput(keyName: String,
                     properties: Map[String, JSerializable],
@@ -45,18 +40,18 @@ class MongoDbOutput(keyName: String,
 
   override val isAutoCalculateId = true
 
+
   override val hosts = properties.getString("hosts", "localhost")
 
   val mongoDbDataFrameConnection = hosts.replaceAll("mongodb://", "")
 
   override val dbName = properties.getString("dbName", "sparkta")
 
-  override val connectionsPerHost = Try(properties.getInt("connectionsPerHost")).getOrElse(DefaultConnectionsPerHost)
+  override val connectionsPerHost = properties.getString("connectionsPerHost", DefaultConnectionsPerHost).toInt
 
-  override val threadsAllowedB = Try(properties.getInt("threadsAllowedToBlock"))
-    .getOrElse(DefaultThreadsAllowedToBlock)
+  override val threadsAllowedB = properties.getString("threadsAllowedToBlock", DefaultThreadsAllowedToBlock).toInt
 
-  override val retrySleep = Try(properties.getInt("retrySleep")).getOrElse(DefaultRetrySleep)
+  override val retrySleep = properties.getString("retrySleep", DefaultRetrySleep).toInt
 
   override val idAsField = Try(properties.getString("idAsField").toBoolean).getOrElse(false)
 

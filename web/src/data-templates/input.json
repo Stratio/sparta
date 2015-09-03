@@ -59,7 +59,7 @@
           "propertyName": "_ADDRESS_",
           "propertyType": "text",
           "regexp": "",
-          "default": "aa",
+          "default": "localhost",
           "required": false,
           "tooltip": "Flume's address.",
           "hidden": false
@@ -67,9 +67,9 @@
         {
           "propertyId": "port",
           "propertyName": "_PORT_",
-          "propertyType": "number",
+          "propertyType": "text",
           "regexp": "",
-          "default": 1000,
+          "default": "1000",
           "required": false,
           "tooltip": "Flume's port.",
           "hidden": false
@@ -79,9 +79,9 @@
       {
         "propertyId": "maxBatchSize",
         "propertyName": "_MAX_BATCH_SIZE",
-        "propertyType": "number",
+        "propertyType": "text",
         "regexp": "",
-        "default": 1000,
+        "default": "1000",
         "required": false,
         "tooltip": "",
         "hidden": false,
@@ -97,9 +97,9 @@
       {
         "propertyId": "parallelism",
         "propertyName": "_PARALLELISM_",
-        "propertyType": "number",
+        "propertyType": "text",
         "regexp": "",
-        "default": 5,
+        "default": "5",
         "required": false,
         "tooltip": "",
         "hidden": false,
@@ -133,9 +133,9 @@
       {
         "propertyId": "port",
         "propertyName": "_PORT_",
-        "propertyType": "number",
+        "propertyType": "text",
         "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
-        "default": 11999,
+        "default": "11999",
         "required": true,
         "tooltip": "Flume port",
         "hidden": false,
@@ -151,7 +151,7 @@
       {
         "propertyId": "enableDecompression",
         "propertyName": "_DECOMPRESSION_",
-        "propertyType": "boolean",
+        "propertyType": "text",
         "regexp": "true|false",
         "required": false,
         "tooltip": "",
