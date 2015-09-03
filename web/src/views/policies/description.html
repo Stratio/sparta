@@ -1,6 +1,34 @@
 <h1>{{"_POLICY_._STEPS_._DESCRIPTION_" |translate}}</h1>
-<i class="icon-info1"></i><text>{{policy.info}}</text>
+<i class="icon-info1"></i>
+<text>{{"_POLICY_._DESCRIPTION_INFO_MESSAGE_" |translate}}</text>
 
 <h2>{{"_NAME_" |translate}}</h2>
+<c-input-field form-control-text="'_INSERT_NAME_' | translate" form-control-class=""></c-input-field>
+
+<h2>{{"_DESCRIPTION_" |translate}}</h2>
+<c-input-field form-control-text="'_INSERT_DESCRIPTION_' | translate" form-control-class=""></c-input-field>
 
 <h2>{{"_WINDOW_DURATION_" |translate}}</h2>
+<div>
+  <c-icon-label icon-class="'icon-info1'" text="'_SPARK_STREAMING_WINDOW_' | translate" text-class=""></c-icon-label>
+  <c-slider min-text="'_SHORT_' | translate" max-text="'_LONG_' | translate" min-value=policy.sparkStreamingWindowData.min
+            max-value=policy.sparkStreamingWindowData.max steps=1 value=policy.sparkStreamingWindow></c-slider>
+  <c-input-field form-control-text="'_CUSTOM_' | translate" form-control-class="" right-text="'ms.'"
+                 value=policy.sparkStreamingWindow model = "policy.sparkStreamingWindow" input-type = "'number'"></c-input-field>
+</div>
+<div>
+  <c-icon-label icon-class="'icon-info1'" text="'_CHECKPOINT_INTERVAL_' | translate" text-class=""></c-icon-label>
+  <c-slider min-text="'_SHORT_' | translate" max-text="'_LONG_' | translate" min-value=policy.checkpointIntervalData.min
+            max-value=policy.checkpointIntervalData.max steps=1 value=policy.checkpointInterval></c-slider>
+  <c-input-field form-control-text="'_CUSTOM_' | translate" form-control-class="" right-text="'ms.'"
+                 value=policy.checkpointInterval model = "policy.checkpointInterval" input-type = "'number'"></c-input-field>
+</div>
+<div>
+  <c-icon-label icon-class="'icon-info1'" text="'_CHECKPOINT_AVAILABILITY_' | translate" text-class=""></c-icon-label>
+  <c-slider min-text="'_SHORT_' | translate" max-text="'_LONG_' | translate" min-value=policy.checkpointAvailabilityData.min
+            max-value=policy.checkpointAvailabilityData.max steps=1 value=policy.checkpointAvailability></c-slider>
+  <c-input-field form-control-text="'_CUSTOM_' | translate" form-control-class="" right-text="'ms.'"
+                 value=policy.checkpointAvailability model = "policy.checkpointAvailability" input-type = "'number'"></c-input-field>
+</div>
+<c-icon-label icon-class="'icon-info1'" text="'_CHECKPOINT_PATH_' | translate" text-class=""></c-icon-label>
+<input type="text" ng-model = "policy.checkpointPath" />

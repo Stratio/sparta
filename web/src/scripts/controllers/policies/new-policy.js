@@ -5,11 +5,18 @@ angular
   .module('webApp')
   .controller('NewPolicyCtrl', NewPolicyCtrl);
 
-NewPolicyCtrl.$inject = [];
-function NewPolicyCtrl() {
+NewPolicyCtrl.$inject = ['PolicyStaticDataService'];
+function NewPolicyCtrl(PolicyStaticDataService) {
   var vm = this;
+
+  vm.steps = PolicyStaticDataService.steps;
+  vm.sparkStreamingWindowData = PolicyStaticDataService.sparkStreamingWindow;
+  vm.checkpointIntervalData = PolicyStaticDataService.checkpointInterval;
+  vm.checkpointAvailabilityData = PolicyStaticDataService.checkpointAvailability;
+
   vm.currentStep = 0;
-  vm.steps = [{name: "description", icon: "icon-tag_left"}, {name: "input", icon: "icon-import"},
-    {name: "model", icon: "icon-content-left"}, {name: "cubes", icon: "icon-box"},
-    {name: "outputs", icon: "icon-export"}, {name: "advanced", icon: "icon-star"}];
+  vm.sparkStreamingWindow = 0;
+  vm.checkpointInterval = 0;
+  vm.checkpointAvailability = 0;
+  vm.checkpointPath = 0;
 };

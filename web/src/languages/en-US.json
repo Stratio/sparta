@@ -1,6 +1,7 @@
 {
   "_HELP_": "Do you need help?",
   "_CANCEL_": "Cancel",
+  "_CONTINUE_": "Continue",
   "_VIEW_MORE_": "View more",
   "_NAME_": "Name",
   "_DESCRIPTION_": "Description",
@@ -72,7 +73,18 @@
       "_CUBES_": "Cubes",
       "_OUTPUTS_": "Outputs",
       "_ADVANCED_": "Advanced"
-    }
+    },
+    "_DESCRIPTION_INFO_MESSAGE_": "Policy description info message"
   },
-  "_WINDOW_DURATION_": "Window duration"
+  "_SHORT_": "Short",
+  "_LONG_": "Long",
+  "_CUSTOM_": "Custom",
+  "_SPARK_STREAMING_WINDOW_": "Spark streaming window",
+  "_CHECKPOINT_INTERVAL_":"Checkpoint interval",
+  "_CHECKPOINT_AVAILABILITY_":"Checkpoint availability",
+  "_CHECKPOINT_PATH_":"Checkpoint path",
+  "_WINDOW_DURATION_": "Window duration",
+  "_INSERT_DESCRIPTION_": "Insert Description",
+  "_INSERT_NAME_": "Insert Name",
+  "_CUBE_CONFIG_HELP_MESSAGE_": "Need help to configure your Cube? Use the Help tab in the upper right of your screen"
 }
