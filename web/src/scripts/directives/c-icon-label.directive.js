@@ -1,3 +1,4 @@
+(function () {
 'use strict';
 
 /*BUTTON TO CHANGE ROUTE OR URL*/
@@ -19,3 +20,5 @@ function cIconLabel() {
     templateUrl: 'templates/components/c-icon-label.tpl.html'
   }
 };
+})();
+
