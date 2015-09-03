@@ -15,6 +15,12 @@
 			left: 50%;
 			width: 50%;
 		}
+
+		&.c-step--active {
+			& .c-step__progress-line {
+				background: $c-step---color;
+			}
+		}
 	}
 
 	&:last-child {
@@ -24,6 +30,12 @@
 			right: 50%;
 			width: 50%;
 		}
+
+		&.c-step--active {
+			.c-step__progress-line {
+				background: $c-step--active---color;
+			}
+		}
 	}
 
 	&__section-icon,
@@ -31,7 +43,14 @@
 		display: block;
 	}
 
+	&__section-icon {
+		font-size: $c-step__section-icon---font-size;
+		font-weight: $c-step__section-icon---font-weight;
+	}
+
 	&__section-name {
+		font-size: $c-step__section-name---font-size;
+		font-weight: $c-step__section-name---font-weight;
 		text-transform: $c-step__section-name---text-transform;
 	}
 
@@ -59,27 +78,11 @@
 		z-index: get-layer(bottom);
 	}
 
-	&:first-child {
-		& .c-step--active {
-			& .c-step__progress-line {
-				background: $c-step---color;
-			}
-		}
-	}
-
 	&--active {
 		color: $c-step--active---color;
 
 		& .c-step__progress-line {
 			background: linear-gradient(90deg, $c-step--active---color 50%, $c-step---color 50%, $c-step---color);
-		}
-	}
-
-	&:last-child {
-		& .c-step--active {
-			& .c-step__progress-line {
-				background: $c-step--active---color;
-			}
 		}
 	}
 
