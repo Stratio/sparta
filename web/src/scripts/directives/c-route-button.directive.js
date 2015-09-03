@@ -19,7 +19,7 @@ function cRouteButton($state, $location) {
       params: '=params'
     },
     replace: "true",
-    template: '	<button class="c-button c-button--call-to-action-1">' +
+    template: '	<button class="{{class}}">' +
                  '<span class="icon icon-circle-plus"></span>' +
                   '<span> {{text}} </span> ' +
               '</button>',
