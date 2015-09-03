@@ -1,9 +1,11 @@
 @import 'sparkta-ui/base/settings/colors';
 @import 'sparkta-ui/base/settings/fonts';
+@import 'sparkta-ui/base/settings/layers';
 @import 'sparkta-ui/base/settings/typography';
 
 @import 'sparkta-ui/base/helpers/colors';
 @import 'sparkta-ui/base/helpers/typography';
+@import 'sparkta-ui/base/helpers/layers';
 @import 'sparkta-ui/base/helpers/app-config';
 @import 'sparkta-ui/base/helpers/bem-modifiers';
 @import 'sparkta-ui/base/helpers/angular-forms';
@@ -37,6 +39,8 @@
 @import 'sparkta-ui/components/c-msg/index';
 @import 'sparkta-ui/components/c-table/index';
 @import 'sparkta-ui/components/c-checkbox/index';
+@import 'sparkta-ui/components/c-step-progress-bar/index';
+@import 'sparkta-ui/components/c-step/index';
 
 @import 'sparkta-ui/objects/o-media';
 @import 'sparkta-ui/objects/o-wcag-hidden';
