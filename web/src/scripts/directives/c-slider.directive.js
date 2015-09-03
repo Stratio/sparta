@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  /*BUTTON TO CHANGE ROUTE OR URL*/
+  /*SLIDER WITH TWO LABELS*/
 
   angular
     .module('webApp')
