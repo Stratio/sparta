@@ -10,7 +10,8 @@
       "consumerKey": "*",
       "consumerSecret": "*",
       "accessToken": "*",
-      "accessTokenSecret": "*"
+      "accessTokenSecret": "*",
+      "test" : [{"a":"a", "b":"b"}]
     }		
   }
 }
