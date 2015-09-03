@@ -16,31 +16,71 @@
 
 package com.stratio.sparkta.driver
 
+import java.io.File
+import java.net.URI
+
 import com.stratio.sparkta.driver.SparktaJob._
-import com.stratio.sparkta.driver.util.PolicyUtils
-import com.stratio.sparkta.serving.core.factory.SparkContextFactory
+import com.stratio.sparkta.driver.factory.SparkContextFactory
+import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.driver.util.{HdfsUtils, PolicyUtils}
+import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
-import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder}
-import org.apache.spark.{SparkConf, SparkContext}
+import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder, SparktaConfig}
+import com.typesafe.config.ConfigFactory
+import org.apache.commons.io.FileUtils
 
 import scala.util.{Failure, Success, Try}
 
 object SparktaClusterJob {
 
   def main(args: Array[String]): Unit = {
-    val aggregationPoliciesModel: AggregationPoliciesModel = getPolicyFromZookeeper(args(0))
 
-    val sc = new SparkContext(new SparkConf().setAppName(s"SPARKTA-${aggregationPoliciesModel.name}"))
-    SparkContextFactory.setSparkContext(sc)
-    SparktaJob.runSparktaJob(sc, aggregationPoliciesModel)
-    SparkContextFactory.sparkStreamingInstance.get.start
-    SparkContextFactory.sparkStreamingInstance.get.awaitTermination
+    if (checkArgs(args)) {
+      log.info("############################## JOB SERVER ########################")
+
+      val hadoopUserName = scala.util.Properties.envOrElse("HADOOP_USER_NAME", AppConstant.DefaultHadoopUserName)
+      val hadoopConfDir = scala.util.Properties.envOrNone("HADOOP_CONF_DIR")
+      val hdfsUtils = new HdfsUtils(hadoopUserName, hadoopConfDir)
+      val pluginFiles = getPluginsFiles(hdfsUtils, args(1))
+      val policy = getPolicyFromZookeeper(args)
+      val streamingContextService = new StreamingContextService
+      val ssc = streamingContextService.clusterStreamingContext(policy,
+        pluginFiles,
+        Map("spark.app.name" -> s"${policy.name}")
+      ).get
+
+      log.info("Streaming Context created")
+
+      ssc.start
+      ssc.awaitTermination
+    } else log.warn("Invalid arguments")
   }
 
-  def getPolicyFromZookeeper(policyName: String): AggregationPoliciesModel = {
-    Try({
-      val curatorFramework = CuratorFactoryHolder.getInstance()
+  def getPluginsFiles(hdfsUtils: HdfsUtils, hdfsPath: String): Array[URI] = {
+    hdfsUtils.getFiles(hdfsPath).map(file => {
+      val fileName = s"${hdfsPath}${file.getPath.getName}"
+      val tempFile = File.createTempFile(file.getPath.getName, "")
 
+      log.info(s"Downloading file from HDFS: ${file.getPath.getName}")
+      log.info(s"Creating temp file: $tempFile")
+
+      FileUtils.copyInputStreamToFile(hdfsUtils.getFile(fileName), tempFile)
+      JarsHelper.addToClasspath(tempFile)
+      file.getPath.toUri
+    })
+  }
+
+  def getPolicyFromZookeeper(args: Array[String]): AggregationPoliciesModel = {
+    val policyName = args(0)
+
+    log.info("Zookeeper arguments: " + args(2))
+
+    val config = ConfigFactory.parseString(args(2))
+
+    log.info(s"Zookeeper Config received: ${config.toString}")
+
+    Try({
+      val curatorFramework = CuratorFactoryHolder.getInstance(config).get
       PolicyUtils.parseJson(new Predef.String(curatorFramework.getData.forPath(
         s"${AppConstant.PoliciesBasePath}/${policyName}")))
     }) match {
@@ -49,4 +89,5 @@ object SparktaClusterJob {
     }
   }
 
+  def checkArgs(args: Array[String]): Boolean = args.length == 3
 }

@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2015 Stratio (http://stratio.com)
  *
@@ -35,7 +34,7 @@ object CuratorFactoryHolder extends SLF4JLogging {
    * Gets a new instance of a CuratorFramework if it was not created before.
    * @return a singleton instance of CuratorFramework.
    */
-  def getInstance(config: Config = SparktaConfig.initConfig(AppConstant.ConfigAppName)): CuratorFramework = {
+  /*def getInstance(config: Config = SparktaConfig.initConfig(AppConstant.ConfigAppName).get): CuratorFramework = {
     curatorFramework match {
       case None =>  {
         val defaultConnectionString = getPathValue("connectionString", config, classOf[String])
@@ -56,6 +55,31 @@ object CuratorFactoryHolder extends SLF4JLogging {
         curatorFramework.get
       }
       case _ => curatorFramework.get
+    }
+  }*/
+
+  def getInstance(config: Config = SparktaConfig.initConfig(AppConstant.ConfigAppName).get)
+  : Option[CuratorFramework] = {
+    curatorFramework match {
+      case None =>  {
+        val defaultConnectionString = getPathValue("connectionString", config, classOf[String])
+        val connectionTimeout = getPathValue("connectionTimeout", config, classOf[Int])
+        val sessionTimeout = getPathValue("sessionTimeout", config, classOf[Int])
+        val retryAttempts = getPathValue("retryAttempts", config, classOf[Int])
+        val retryInterval = getPathValue("retryInterval", config, classOf[Int])
+
+        curatorFramework = Some(CuratorFrameworkFactory.builder()
+          .connectString(defaultConnectionString)
+          .connectionTimeoutMs(connectionTimeout)
+          .sessionTimeoutMs(sessionTimeout)
+          .retryPolicy(new ExponentialBackoffRetry(retryInterval, retryAttempts)
+          ).build())
+
+        curatorFramework.get.start()
+        log.info(s"> ZK connection to $defaultConnectionString was successful.")
+        curatorFramework
+      }
+      case _ => curatorFramework
     }
   }
 

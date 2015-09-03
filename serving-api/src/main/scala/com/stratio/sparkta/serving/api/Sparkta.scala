@@ -25,10 +25,8 @@ import com.stratio.sparkta.serving.core.{SparktaConfig, AppConstant}
  */
 object Sparkta extends App with SLF4JLogging {
 
-  val sparktaHome   = SparktaHelper.initSparktaHome()
-  val jars          = SparktaHelper.initJars(AppConstant.JarPaths, sparktaHome)
-  val configSparkta = SparktaConfig.initMainConfig()
-  val configApi     = SparktaConfig.initConfig(AppConstant.ConfigApi, Some(configSparkta))
-
-  SparktaHelper.initAkkaSystem(configSparkta, configApi, jars, AppConstant.ConfigAppName)
+  SparktaConfig.initMainConfig()
+  SparktaConfig.initApiConfig()
+  SparktaConfig.initSwaggerConfig()
+  SparktaHelper.initAkkaSystem(AppConstant.ConfigAppName)
 }

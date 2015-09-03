@@ -39,7 +39,7 @@ class CuratorFactoryHolderIT extends FlatSpec with Matchers with BeforeAndAfter 
     zkTestServer = new TestingServer(CuratorFactoryHolderIT.TestServerZKPort)
     zkTestServer.start()
 
-    val instance = CuratorFactoryHolder.getInstance(CuratorFactoryHolderIT.basicConfig)
+    val instance = CuratorFactoryHolder.getInstance(CuratorFactoryHolderIT.basicConfig).get
     Option(instance.checkExists().forPath("/test")) match {
       case eb: ExistsBuilder =>
         instance.delete().deletingChildrenIfNeeded().forPath(CuratorFactoryHolderIT.PathTestNode)
@@ -63,7 +63,7 @@ class CuratorFactoryHolderIT extends FlatSpec with Matchers with BeforeAndAfter 
 
   it must "create correctly and to check if exists" in {
     Given(s"ZK configuration: $CuratorFactoryHolderIT.configString")
-    val instance = CuratorFactoryHolder.getInstance(CuratorFactoryHolderIT.basicConfig)
+    val instance = CuratorFactoryHolder.getInstance(CuratorFactoryHolderIT.basicConfig).get
     When("creates a ephimeral node in ZK server")
     instance.create().withMode(CreateMode.EPHEMERAL).forPath(CuratorFactoryHolderIT.PathTestNode)
     Then("the created node must be exists when it is searched")

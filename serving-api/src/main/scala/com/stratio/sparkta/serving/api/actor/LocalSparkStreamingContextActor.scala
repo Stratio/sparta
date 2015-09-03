@@ -19,13 +19,16 @@ package com.stratio.sparkta.serving.api.actor
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
+import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
-import com.stratio.sparkta.serving.core.factory.SparkContextFactory
+import com.stratio.sparkta.serving.core.{SparktaConfig, AppConstant}
+import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 import org.apache.spark.streaming.StreamingContext
+import java.io.File
 
 import scala.util.{Failure, Success, Try}
 import scala.concurrent.duration._
@@ -41,10 +44,13 @@ class LocalSparkStreamingContextActor(policy: AggregationPoliciesModel,
   }
 
   private def doInitSparktaContext: Unit = {
+
     implicit val timeout: Timeout = Timeout(3.seconds)
+    val jars = JarsHelper.findJarsByPath(new File(SparktaConfig.sparktaHome, AppConstant.JarPluginsFolder), true)
+
     Try({
       policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting))
-      ssc = streamingContextService.standAloneStreamingContext(policy)
+      ssc = streamingContextService.standAloneStreamingContext(policy, jars)
       ssc.get.start
     }) match {
       case Success(_) => {

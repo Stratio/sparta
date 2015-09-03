@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.core.factory
+package com.stratio.sparkta.driver.factory
 
 import java.io.File
-import scala.collection.JavaConversions._
+import java.net.URI
 
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.Config
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
+
+import scala.collection.JavaConversions._
 
 object SparkContextFactory extends SLF4JLogging {
 
@@ -62,29 +64,44 @@ object SparkContextFactory extends SLF4JLogging {
     ssc
   }
 
-  def sparkContextInstance(generalConfig: Config, specificConfig: Map[String, String], jars: Seq[File]): SparkContext =
+  def sparkStandAloneContextInstance(generalConfig: Option[Config],
+                                     specificConfig: Map[String, String],
+                                     jars: Seq[File]): SparkContext =
     synchronized {
-      sc.getOrElse(instantiateContext(generalConfig, specificConfig, jars))
+      sc.getOrElse(instantiateStandAloneContext(generalConfig, specificConfig, jars))
     }
 
-  private def instantiateContext(generalConfig: Config,
-                                 specificConfig: Map[String, String],
-                                 jars: Seq[File]): SparkContext = {
+  def sparkClusterContextInstance(specificConfig: Map[String, String], jars: Seq[URI]):
+  SparkContext =
+    synchronized {
+      sc.getOrElse(instantiateClusterContext(specificConfig, jars))
+    }
+
+  private def instantiateStandAloneContext(generalConfig: Option[Config],
+                                           specificConfig: Map[String, String],
+                                           jars: Seq[File]): SparkContext = {
     sc = Some(new SparkContext(configToSparkConf(generalConfig, specificConfig)))
     jars.foreach(f => sc.get.addJar(f.getAbsolutePath))
     sc.get
   }
 
-  private def configToSparkConf(generalConfig: Config, specificConfig: Map[String, String]): SparkConf = {
-    val c = generalConfig.getConfig("spark")
-    val properties = c.entrySet()
+  private def instantiateClusterContext(specificConfig: Map[String, String],
+                                        jars: Seq[URI]): SparkContext = {
+    sc = Some(new SparkContext(configToSparkConf(None, specificConfig)))
+    jars.foreach(f => sc.get.addJar(f.toString))
+    sc.get
+  }
+
+  private def configToSparkConf(generalConfig: Option[Config], specificConfig: Map[String, String]): SparkConf = {
     val conf = new SparkConf()
-
-    properties.foreach(e => conf.set(e.getKey, c.getString(e.getKey)))
+    if (generalConfig.isDefined) {
+      val properties = generalConfig.get.entrySet()
+      properties.foreach(e => {
+        if (e.getKey.startsWith("spark."))
+          conf.set(e.getKey, generalConfig.get.getString(e.getKey))
+      })
+    }
     specificConfig.foreach(e => conf.set(e._1, e._2))
-
-    conf.setIfMissing("spark.streaming.concurrentJobs", "20")
-    conf.setIfMissing("spark.sql.parquet.binaryAsString", "true")
 
     conf
   }

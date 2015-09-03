@@ -19,6 +19,7 @@ package com.stratio.sparkta.testat
 import java.io.{File, PrintStream}
 import java.net._
 import java.nio.channels.ServerSocketChannel
+import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.{SparktaConfig, MockSystem, AppConstant}
 
 import scala.concurrent.duration._
@@ -88,14 +89,15 @@ trait SparktaATSuite
    * Starts an instance of Sparkta with a given configuration (reference.conf in our resources folder).
    */
   def startSparkta: Unit = {
-    val sparktaConfig = SparktaConfig.initConfig(AppConstant.ConfigAppName)
-    val configApi: Config = SparktaConfig.initConfig(AppConstant.ConfigApi, Some(sparktaConfig))
-    val sparktaHome = SparktaHelper.initSparktaHome(new MockSystem(Map("SPARKTA_HOME" -> getSparktaHome), Map()))
-    val jars = SparktaHelper.initJars(AppConstant.JarPaths, sparktaHome)
-    val sparktaPort = configApi.getInt("port")
-    val configJobServer = None//SparktaHelper.initConfig(AppConstant.ConfigJobServer, Some(sparktaConfig))
 
-    SparktaHelper.initAkkaSystem(sparktaConfig, configApi, jars, AppConstant.ConfigAppName)
+    SparktaConfig.initMainConfig()
+    SparktaConfig.initApiConfig()
+    SparktaConfig.sparktaHome = getSparktaHome
+    JarsHelper.findJarsByPath(new File(SparktaConfig.sparktaHome, AppConstant.JarPluginsFolder), true)
+
+    val sparktaPort = SparktaConfig.apiConfig.get.getInt("port")
+
+    SparktaHelper.initAkkaSystem(AppConstant.ConfigAppName)
     sleep(SparktaSleep)
 
     openSocket(sparktaPort).isSuccess should be(true)

@@ -30,23 +30,6 @@ import org.scalatest.junit.JUnitRunner
  */
 @RunWith(classOf[JUnitRunner])
 class SparktaHelperSpec extends FlatSpec with MockFactory with ShouldMatchers with Matchers {
-  "SparktaHelper" should "init SparktaHome with the path defined in env SPARKTA_HOME" in {
-    val sparktaHome = SparktaHelper
-      .initSparktaHome(new MockSystem(env = Map("SPARKTA_HOME" -> "/test"), properties = Map()))
-    sparktaHome should be ("/test")
-  }
-
-  it should "init SparktaHome with the path defined in property user.dir" in {
-    val sparktaHome = SparktaHelper
-      .initSparktaHome(new MockSystem(env = Map(), properties = Map("user.dir" -> "/test")))
-    sparktaHome should be ("/test")
-  }
-
-  it should "init SparktaHome with ./ because there are not properties either env" in {
-    val sparktaHome = SparktaHelper
-      .initSparktaHome(new MockSystem(env = Map(), properties = Map()))
-    sparktaHome should be ("./")
-  }
 
   it should "init SparktaConfig from a file with a configuration" in {
     val config = ConfigFactory.parseString(
@@ -57,7 +40,7 @@ class SparktaHelperSpec extends FlatSpec with MockFactory with ShouldMatchers wi
       """.stripMargin)
 
     val sparktaConfig = SparktaConfig.initConfig(node = "sparkta", configFactory = new MockConfigFactory(config))
-    sparktaConfig.getString("testKey") should be ("testValue")
+    sparktaConfig.get.getString("testKey") should be ("testValue")
   }
 
   it should "init a config from a given config" in {
@@ -71,7 +54,7 @@ class SparktaHelperSpec extends FlatSpec with MockFactory with ShouldMatchers wi
       """.stripMargin)
 
     val sparktaConfig = SparktaConfig.initConfig(node = "sparkta", configFactory = new MockConfigFactory(config))
-    val testNodeConfig = SparktaConfig.initConfig("testNode", Some(sparktaConfig), new MockConfigFactory(config))
-    testNodeConfig.getString("testKey") should be ("testValue")
+    val testNodeConfig = SparktaConfig.initConfig("testNode", sparktaConfig, new MockConfigFactory(config))
+    testNodeConfig.get.getString("testKey") should be ("testValue")
   }
 }
