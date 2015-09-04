@@ -1,1 +1,15 @@
-<h1>{{"_POLICY_._STEPS_._INPUT_" |translate}}</h1>
+<section ng-controller="PolicyInputCtrl as vm">
+
+  <h1>{{"_POLICY_._STEPS_._INPUT_" |translate}}</h1>
+
+  <p>{{"_POLICY_._INPUTS_INTRO_" | translate}}</p>
+
+  <div ng-repeat="input in vm.inputList">
+    <div ng-click="vm.setInput($index)">
+      <h1>{{input.name}}</h1>
+      <input type="checkbox" ng-checked="vm.isSelectedInput(input.name)">
+
+      <p>{{description}}</p>
+    </div>
+  </div>
+</section>
