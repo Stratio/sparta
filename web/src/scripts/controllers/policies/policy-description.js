@@ -6,14 +6,14 @@
     .module('webApp')
     .controller('PolicyDescriptionCtrl', PolicyDescriptionCtrl);
 
-  PolicyDescriptionCtrl.$inject = ['policyModelFactory', 'PolicyStaticDataService'];
+  PolicyDescriptionCtrl.$inject = ['policyModelFactory', 'PolicyStaticDataFactory'];
 
-  function PolicyDescriptionCtrl(policyModelFactory, PolicyStaticDataService ) {
+  function PolicyDescriptionCtrl(PolicyModelFactory, PolicyStaticDataFactory ) {
     var vm = this;
-    vm.policy = policyModelFactory.GetCurrentPolicy();
+    vm.policy = PolicyModelFactory.GetCurrentPolicy();
 
-    vm.sparkStreamingWindowData = PolicyStaticDataService.sparkStreamingWindow;
-    vm.checkpointIntervalData = PolicyStaticDataService.checkpointInterval;
-    vm.checkpointAvailabilityData = PolicyStaticDataService.checkpointAvailability;
+    vm.sparkStreamingWindowData = PolicyStaticDataFactory.sparkStreamingWindow;
+    vm.checkpointIntervalData = PolicyStaticDataFactory.checkpointInterval;
+    vm.checkpointAvailabilityData = PolicyStaticDataFactory.checkpointAvailability;
   }
 })();
