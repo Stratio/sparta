@@ -1,19 +1,19 @@
 (function() {
   'use strict';
 
-  /*POLICIY DESCRIPTION CONTROLLER*/
+  /*POLICY DESCRIPTION CONTROLLER*/
   angular
     .module('webApp')
     .controller('PolicyDescriptionCtrl', PolicyDescriptionCtrl);
 
-  PolicyDescriptionCtrl.$inject = ['NewPoliceService', 'PolicyStaticDataService'];
+  PolicyDescriptionCtrl.$inject = ['policyModelFactory', 'PolicyStaticDataService'];
 
-  function PolicyDescriptionCtrl(NewPoliceService, PolicyStaticDataService ) {
+  function PolicyDescriptionCtrl(policyModelFactory, PolicyStaticDataService ) {
     var vm = this;
-    vm = angular.extend(vm, NewPoliceService.GetCurrentPolicy());
+    vm.policy = policyModelFactory.GetCurrentPolicy();
+
     vm.sparkStreamingWindowData = PolicyStaticDataService.sparkStreamingWindow;
     vm.checkpointIntervalData = PolicyStaticDataService.checkpointInterval;
     vm.checkpointAvailabilityData = PolicyStaticDataService.checkpointAvailability;
-    console.log(vm)
   }
 })();
