@@ -3,9 +3,10 @@
     <st-heading title="{{'_POLICY_HEADER_TITLE_MAIN_' | translate}}" subtitle="{{'_INPUT_HEADER_TITLE_SECONDARY' | translate}}:"></st-heading>
   </header>
 
-  <c-step-progress-bar steps="policy.steps" current-step="(policy.currentStep)"></c-step-progress-bar>
 
-  <div ng-switch on="policy.currentStep">
+  <c-step-counter steps=wizard.steps current-step=(wizard.currentStep)></c-step-counter>
+
+  <div ng-switch on="wizard.currentStep">
     <div ng-switch-when="0" >
       <ng-include src="'views/policies/description.html'"></ng-include>
     </div>
@@ -27,8 +28,9 @@
   </div>
 
   <footer class="c-row c-row--to-right c-row--footer">
-    <c-icon-label icon-class="'icon-globe'" text="'_CUBE_CONFIG_HELP_MESSAGE_' | translate" text-class=""></c-icon-label>
-    <button class="c-button c-button--call-to-action-1">
+    <c-icon-label icon-class="'icon-globe'" text="'_CUBE_CONFIG_HELP_MESSAGE_' | translate"
+                  text-class=""></c-icon-label>
+    <button class="c-button c-button--call-to-action-1" ng-click = "wizard.continueToNextStep()">
       <span>{{"_CONTINUE_" | translate}}</span>
     </button>
   </footer>

@@ -3,27 +3,29 @@
 
   angular
     .module('webApp')
-    .service('NewPoliceService', NewPoliceService);
+    .factory('policyModelFactory', policyModelFactory);
 
-  function NewPoliceService() {
-    var vm = this;
-    var policy = {};
-
-    initPolicy();
+  function policyModelFactory() {
+    var policy = null;
 
     function initPolicy() {
+      policy = {};
       policy.name = "";
       policy.currentStep = 0;
       policy.sparkStreamingWindow = 0;
       policy.checkpointInterval = 0;
       policy.checkpointAvailability = 0;
       policy.checkpointPath = "";
+      policy.input = {};
     };
 
-    vm.GetCurrentPolicy = function () {
-      return policy;
+    return {
+      GetCurrentPolicy: function () {
+        if (!policy)
+          initPolicy();
+        return policy;
+      }
     }
-
   }
 
 })();
