@@ -11,6 +11,8 @@
  *		heading
  *		c-grid-item
  *	3 - Sparkta UI.......................The Sparkta component UI library
+ *		c-component
+ *		c-panel
  *		c-line-separator
  *		c-button
  *		c-input
@@ -124,6 +126,7 @@ $angular-forms--ng-invalid---border: 1px solid get-color(e3);
 
 // heading
 $base-padding: 30px;
+$primary-sidebar-bg: get-color(f4);
 $heading---margin: 0;
 
 $stratio-ui---base-padding: $base-padding;
@@ -142,6 +145,15 @@ $c-grid-item__info-icon---margin: 0 $component-default-margin $component-default
  * 3 - Sparkta UI
  *
  */
+
+ // c-component
+
+
+
+ // c-panel
+ $c-panel--framed---padding: $component-margin;
+
+
 
 // c-line-separator
 
@@ -388,7 +400,7 @@ $c-step__section-name---text-transform: uppercase;
 
 // c-step-content
 $c-step-content---background: get-color(f3);
-$c-step-content---margin: 0 -$stratio-ui---base-padding;
+$c-step-content---margin: 0 (-$stratio-ui---base-padding) (-$stratio-ui---base-padding);
 $c-step-content---padding: $stratio-ui---base-padding;
 
 $c-step-content__title---color: get-color(c4);

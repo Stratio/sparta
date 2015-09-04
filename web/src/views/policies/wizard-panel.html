@@ -4,34 +4,37 @@
   </header>
 
 
-  <c-step-counter steps=wizard.steps current-step=(wizard.currentStep)></c-step-counter>
+  <div class="c-step-content">
+    <div ng-switch on="policy.currentStep">
+      <div ng-switch-when="0" >
+        <ng-include src="'views/policies/description.html'"></ng-include>
+      </div>
+      <div ng-switch-when="1">
+        <ng-include src="'views/policies/input.html'"></ng-include>
+      </div>
+      <div ng-switch-when="2">
+        <ng-include src="'views/policies/model.html'"></ng-include>
+      </div>
+      <div ng-switch-when="3">
+        <ng-include src="'views/policies/cubes.html'"></ng-include>
+      </div>
+      <div ng-switch-when="4">
+        <ng-include src="'views/policies/output.html'"></ng-include>
+      </div>
+      <div ng-switch-when="5">
+        <ng-include src="'views/policies/advanced.html'"></ng-include>
+      </div>
+    </div>
 
-  <div data-ng-switch on="wizard.currentStep">
-    <div data-ng-switch-when="0" >
-      <ng-include src="'views/policies/description.html'"></ng-include>
-    </div>
-    <div data-ng-switch-when="1">
-      <ng-include src="'views/policies/input.html'"></ng-include>
-    </div>
-    <div data-ng-switch-when="2">
-      <ng-include src="'views/policies/model.html'"></ng-include>
-    </div>
-    <div data-ng-switch-when="3">
-      <ng-include src="'views/policies/cubes.html'"></ng-include>
-    </div>
-    <div data-ng-switch-when="4">
-      <ng-include src="'views/policies/output.html'"></ng-include>
-    </div>
-    <div data-ng-switch-when="5">
-      <ng-include src="'views/policies/advanced.html'"></ng-include>
-    </div>
+    <footer class="c-row c-row--footer c-row--separated">
+      <div class="c-col c-col--6 c-col--vertical-centered">
+        <c-icon-label icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action icon-help1'" text="'_CUBE_CONFIG_HELP_MESSAGE_' | translate" text-class=""></c-icon-label>
+      </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
+        <button class="c-button c-button--call-to-action-1">
+          <i class="icon icon-arrow-right"></i>
+          <span>{{"_CONTINUE_" | translate}}</span>
+        </button>
+      </div>
+    </footer>
   </div>
-
-  <footer class="c-row c-row--to-right c-row--footer">
-    <c-icon-label icon-class="'icon-globe'" text="'_CUBE_CONFIG_HELP_MESSAGE_' | translate"
-                  text-class=""></c-icon-label>
-    <button class="c-button c-button--call-to-action-1" data-ng-click = "wizard.continueToNextStep()">
-      <span>{{"_CONTINUE_" | translate}}</span>
-    </button>
-  </footer>
 </section>
