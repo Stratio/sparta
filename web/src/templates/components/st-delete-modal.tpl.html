@@ -1,17 +1,17 @@
 <div class="c-titlebar">
-	<span class="c-titlebar__title">{{"_INPUT_WINDOW_DELETE_TITLE_" | translate}}</span>
+	<span class="c-titlebar__title" translate="{{vm.modalTexts.title}}"></span>
 	<i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" ng-click="vm.cancel()"></i>
 </div>
 
 <div class="c-modal-inner">
 	<p class="c-modal-inner__title">{{"_ARE_YOU_COMPLETELY_SURE_" | translate}}</p>
 
-	<div class="c-row" ng-if="vm.inputs.policies.length > 0">
+	<div class="c-row" ng-if="vm.outputs.policies.length > 0">
 		<p>{{"_INPUT_WINDOW_DELETE_MESSAGE_" | translate}}</p>
 		<p>{{"_INPUT_WINDOW_DELETE_MESSAGE2_" | translate}}</p>
 
 		<ul class="c-list c-list--dashed">
-			<li data-ng-repeat="item in vm.inputs.policies">- {{item.name}}</li>
+			<li data-ng-repeat="item in vm.outputs.policies">- {{item.name}}</li>
 		</ul>
 	</div>
 

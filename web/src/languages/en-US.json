@@ -90,6 +90,10 @@
   "_OUTPUT_HEADER_TITLE_MAIN": "outputs",
   "_OUTPUT_WINDOW_NEW_TITLE_": "New output",
   "_OUTPUT_WINDOW_NEW_BUTTON_": "Add output",
+  "_OUTPUT_WINDOW_MODIFY_TITLE_": "Modify output",
+  "_OUTPUT_WINDOW_MODIFY_BUTTON_": "Modify output",
+  "_OUTPUT_WINDOW_DELETE_TITLE_": "Delete output",
+  "_OUTPUT_WINDOW_DUPLICATE_TITLE_": "Duplicate output",
   "_POLICY_HEADER_TITLE_MAIN_": "Policies",
   "_POLICY_": {
     "_STEPS_": {

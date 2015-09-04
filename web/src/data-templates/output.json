@@ -69,33 +69,6 @@
       "tooltip": "The compact storage directive is used for backward compatibility of CQL 2 applications and data in the legacy (Thrift) storage engine format. To take advantage of CQL 3 capabilities, do not use this directive in new applications. When you create a table using compound primary keys, for every piece of data stored, he column name needs to be stored along with it. Instead of each non-primary key column being stored such that each column corresponds to one column on disk, an entire row is stored in a single column on disk, hence the name compact storage."
     },
     {
-      "propertyId": "clusteringPrecisions",
-      "propertyName": "Clustering precisions",
-      "propertyType": "text",
-      "regexp": "",
-      "default": "",
-      "required": false,
-      "tooltip": "Clustering columns for the primary key."
-    },
-    {
-      "propertyId": "indexFields",
-      "propertyName": "IndexFields",
-      "propertyType": "text",
-      "regexp": "TODO",
-      "default": "",
-      "required": false,
-      "tooltip": "The indexed fields, could be any aggregate field or clustering column field."
-    },
-    {
-      "propertyId": "textIndexFields",
-      "propertyName": "TextIndexFields",
-      "propertyType": "text",
-      "regexp": "TODO",
-      "default": "",
-      "required": false,
-      "tooltip": "The text index fields, this feature is for the Stratio’s Cassandra Lucene Index"
-    },
-    {
       "propertyId": "analyzer",
       "propertyName": "_ANALYZER_",
       "propertyType": "text",
@@ -198,22 +171,6 @@
       "propertyType": "text",
       "regexp": "",
       "default": ",",
-      "required": false
-    },
-    {
-      "propertyId": "datePattern",
-      "propertyName": "Date pattern",
-      "propertyType": "text",
-      "regexp": "",
-      "default": null,
-      "required": false
-    },
-    {
-      "propertyId": "dateGranularityFile",
-      "propertyName": "Date granularity file",
-      "propertyType": "text",
-      "regexp": "",
-      "default": "day",
       "required": false
     }
   ]
@@ -346,15 +303,6 @@
       "default": false,
       "required": false,
       "tooltip": "Is possible to save all fields that compound the unique key as a independent field."
-    },
-    {
-      "propertyId": "textIndexFields",
-      "propertyName": "Text index fields",
-      "propertyType": "text",
-      "regexp": "TODO cualquier cadena de caracteres separada por comas",
-      "default": "",
-      "required": false,
-      "tooltip": "The system is capable of insert data in a full-text index. All of this fields compound the index."
     },
     {
       "propertyId": "language",
