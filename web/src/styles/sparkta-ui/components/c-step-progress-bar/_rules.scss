@@ -1,5 +1,5 @@
 @mixin c-step-progress-bar {
-	@include c-panel;
+	@include c-component;
 
 	background: $c-step-progress-bar---background;
 	display: block;
