@@ -1,3 +1,4 @@
+(function () {
 'use strict';
 
 /*BUTTON TO CHANGE ROUTE OR URL*/
@@ -35,3 +36,4 @@ function cRouteButton($state, $location) {
     }
   }
 };
+})();
