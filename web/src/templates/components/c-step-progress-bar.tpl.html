@@ -1,0 +1,5 @@
+<aside class="c-panel">
+	<ul class="c-step-progress-bar">
+	  <c-step class="c-col c-col--{{12 / steps.length | number: 0}}" ng-repeat="step in steps" name="step.name" icon="step.icon" index="($index)" ng-click="chooseStep($index)" current-step="(current)"></c-step>
+	</ul>
+</aside>

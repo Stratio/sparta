@@ -4,6 +4,7 @@
   "_CONTINUE_": "Continue",
   "_VIEW_MORE_": "View more",
   "_NAME_": "Name",
+  "_DATA_": "Data",
   "_DESCRIPTION_": "Description",
   "_TYPE_": "Type",
   "_ADDRESS_": "Address",
@@ -107,7 +108,7 @@
       "_FINISH_": "Finish"
     },
     "_INPUTS_INTRO_":"",
-    "_DESCRIPTION_INFO_MESSAGE_": "Policy description info message"
+    "_DESCRIPTION_INFO_MESSAGE_": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu."
   },
   "_SHORT_": "Short",
   "_LONG_": "Long",
