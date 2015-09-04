@@ -78,7 +78,8 @@
       "_MODEL_": "Model",
       "_CUBES_": "Cubes",
       "_OUTPUTS_": "Outputs",
-      "_ADVANCED_": "Advanced"
+      "_ADVANCED_": "Advanced",
+      "_FINISH_": "Finish"
     },
     "_INPUTS_INTRO_":"",
     "_DESCRIPTION_INFO_MESSAGE_": "Policy description info message"
