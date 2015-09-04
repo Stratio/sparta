@@ -1,5 +1,6 @@
-<aside>
-  <label>{{formControlText}}:</label>
-  <input ng-model = model value="{{value}}" type = {{inputType}} ng-pattern = pattern>
-  <label ng-if = "rightText">{{rightText}}</label>
-</aside>
+<div class = "{{formControlClass}}">
+  <label class = {{labelControlClass}}>{{labelControlText}}:</label>
+  <input class = {{inputControlClass}} ng-model = model value="{{value}}" placeholder = {{placeholder}}
+         type = {{inputType}} ng-pattern = pattern>
+  <label data-ng-if = "rightText" class = "{{rightTextClass}}">{{rightText}}</label>
+</div>

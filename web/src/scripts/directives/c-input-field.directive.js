@@ -12,8 +12,12 @@ function cInputField() {
   return {
     restrict: 'E',
     scope: {
-      formControlText: "=formControlText",
+      labelControlText: "=labelControlText",
+      labelControlClass: '=labelControlClass',
+      inputControlClass: '=inputControlClass',
       formControlClass: "=formControlClass",
+      rightTextClass: "=rightTextClass",
+      placeholder: '=placeholder',
       inputText: "=inputText",
       rightText: "=rightText",
       value: "=value",
