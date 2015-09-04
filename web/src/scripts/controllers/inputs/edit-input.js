@@ -19,7 +19,7 @@
         vm.createTypeModels = createTypeModels;
         vm.dataSource = {};
         vm.dataSource.element = {};
-        vm.templateInputsData = [];
+        vm.templateFragmentsData = [];
         vm.properties = [];
         vm.error = false;
         vm.errorText = '';
@@ -38,7 +38,7 @@
 
           setTexts(item.texts);
 
-          vm.templateInputsData = fragmentTemplates;
+          vm.templateFragmentsData = fragmentTemplates;
           vm.dataSource = item.fragmentSelected;
 
 /*
@@ -97,7 +97,7 @@
             };
 */
 
-          vm.createTypeModels(vm.templateInputsData);
+          vm.createTypeModels(vm.templateFragmentsData);
           vm.selectedIndex = vm.index;
           vm.policiesAffected = policiesAffected;
 
@@ -172,8 +172,8 @@
 
         function setFragmentData(index) {
             /*Set fragment*/
-            vm.dataSource.description = vm.templateInputsData[index].description.long;
-            vm.dataSource.shortDescription = vm.templateInputsData[index].description.short;
+            vm.dataSource.description = vm.templateFragmentsData[index].description.long;
+            vm.dataSource.shortDescription = vm.templateFragmentsData[index].description.short;
             vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
         };
 
