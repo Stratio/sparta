@@ -1,32 +1,42 @@
-(function() {
-'use strict';
+(function () {
+  'use strict';
 
-/*POLICIES STEP CONTROLLER*/
-angular
-  .module('webApp')
-  .controller('PolicyInputCtrl', PolicyInputCtrl);
+  /*POLICY INPUTS CONTROLLER*/
+  angular
+    .module('webApp')
+    .controller('PolicyInputCtrl', PolicyInputCtrl);
 
-PolicyInputCtrl.$inject = ['FragmentFactory','NewPoliceService', '$q'];
+  PolicyInputCtrl.$inject = ['FragmentFactory', 'policyModelFactory', '$q'];
 
-function PolicyInputCtrl(FragmentFactory,NewPoliceService, $q) {
-  var vm = this;
-  vm.policy = NewPoliceService.GetCurrentPolicy();
-  vm.init = init;
+  function PolicyInputCtrl(FragmentFactory, policyModelFactory, $q) {
+    var vm = this;
+    vm.setInput = setInput;
+    vm.isSelectedInput = isSelectedInput;
+    vm.inputList = [];
+    init();
 
-  function init() {
-    var defer = $q.defer();
-    var inputList = FragmentFactory.GetFragments("input");
+    function init() {
+      var defer = $q.defer();
+      vm.policy = policyModelFactory.GetCurrentPolicy();
+      var inputList = FragmentFactory.GetFragments("input");
+      inputList.then(function (result) {
+        vm.inputList = result;
+        defer.resolve();
+      }, function () {
+        defer.reject();
+      });
+      return defer.promise;
+    }
 
-    inputList.then(function (result) {
-      console.log(result);
-      vm.inputList = result;
+    function setInput(index) {
+      vm.policy.input = vm.inputList[index];
+    }
 
-      defer.resolve();
-    }, function () {
-      defer.reject();
-    });
-
-    return defer.promise;
-  }
-};
+    function isSelectedInput(name) {
+      if (vm.policy.input)
+        return name == vm.policy.input.name;
+      else
+        return false;
+    }
+  };
 })();
