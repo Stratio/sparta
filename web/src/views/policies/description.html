@@ -1,5 +1,4 @@
-
-<section ng-controller="PolicyDescriptionCtrl as vm">
+<section data-ng-controller="PolicyDescriptionCtrl as vm">
   <h1>{{"_POLICY_._STEPS_._DESCRIPTION_" |translate}}</h1>
   <i class="icon-info1"></i>
   <text>{{"_POLICY_._DESCRIPTION_INFO_MESSAGE_" |translate}}</text>
@@ -40,10 +39,10 @@
               min-value=vm.checkpointAvailabilityData.min
               max-value=vm.checkpointAvailabilityData.max steps=1 value=vm.policy.checkpointAvailability></c-slider>
     <c-input-field form-control-text="'_CUSTOM_' | translate" form-control-class="" right-text="'ms.'"
-                   value=vm.policy.checkpointAvailability model="vm.policy.checkpointAvailability" ng-pattern="/^\d+$/"
+                   value=vm.policy.checkpointAvailability model="vm.policy.checkpointAvailability" data-ng-pattern="/^\d+$/"
       ></c-input-field>
   </div>
   <c-icon-label icon-class="'icon-info1'" text="'_CHECKPOINT_PATH_' | translate" text-class=""></c-icon-label>
-  <input type="text" ng-model="vm.policy.checkpointPath"/>
+  <input type="text" data-ng-model="vm.policy.checkpointPath"/>
 
 </section>
