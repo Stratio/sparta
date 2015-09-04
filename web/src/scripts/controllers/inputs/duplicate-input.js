@@ -24,7 +24,14 @@
         function init () {
             console.log('*********Modal');
             console.log(item);
-            vm.inputData = item.inputData;
+            setTexts(item.texts);
+            vm.fragmentData = item.fragmentData;
+            console.log(vm.fragmentData);
+        };
+
+        function setTexts(texts) {
+          vm.modalTexts = {};
+          vm.modalTexts.title = texts.title;
         };
 
         function ok() {
@@ -34,12 +41,12 @@
         };
 
         function checkFragmnetname() {
-          var inputNamesExisting = [];
-          console.log(vm.inputData);
-          var newInputName = vm.inputData.name.toLowerCase();
-          inputNamesExisting = $filter('filter')(item.inputNamesList, {'name': newInputName}, true);
+          var fragmentNamesExisting = [];
+          console.log(vm.fragmentData);
+          var newFragmentName = vm.fragmentData.name.toLowerCase();
+          fragmentNamesExisting = $filter('filter')(item.fragmentNamesList, {'name': newFragmentName}, true);
 
-          if (inputNamesExisting.length > 0) {
+          if (fragmentNamesExisting.length > 0) {
             vm.error = true;
             vm.errorText = "_INPUT_ERROR_100_";
           }
@@ -49,8 +56,8 @@
         };
 
         function createfragment() {
-            delete vm.inputData['id'];
-            var newFragment = FragmentFactory.CreateFragment(vm.inputData);
+            delete vm.fragmentData['id'];
+            var newFragment = FragmentFactory.CreateFragment(vm.fragmentData);
 
             newFragment.then(function (result) {
                 console.log('*********Fragment duplicated');

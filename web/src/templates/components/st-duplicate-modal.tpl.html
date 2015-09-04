@@ -1,12 +1,12 @@
 <div class="c-titlebar">
-	<span class="c-titlebar__title">{{"_INPUT_WINDOW_DUPLICATE_TITLE_" | translate}}</span>
+	<span class="c-titlebar__title" translate="{{vm.modalTexts.title}}"></span>
 	<i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" ng-click="vm.cancel()"></i>
 </div>
 
 <div class="c-modal-inner">
 	<form class="c-form" name="vm.form" novalidate>
 		<div class="c-row">
-			<form-field-input id="dataSourceName" data-model="vm.inputData.name" data-label="{{'_INPUT_WINDOW_FORM_NAME_' | translate}}:" data-form="vm.form" data-st-name="dataSourceNameForm" data-required="true" data-autofocus="true"></form-field-input>
+			<form-field-input id="dataSourceName" data-model="vm.fragmentData.name" data-label="{{'_INPUT_WINDOW_FORM_NAME_' | translate}}:" data-form="vm.form" data-st-name="dataSourceNameForm" data-required="true" data-autofocus="true" data-placeholder='{{"_FRAGMENT_WINDOW_PLACEHOLDER_NAME_" | translate}}'></form-field-input>
 		</div>
 
 		<div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error">

@@ -10,7 +10,7 @@
   "properties": [
     {
       "propertyId": "connectionHost",
-      "propertyName": "ConnectionHost",
+      "propertyName": "_CONTACT_POINT_",
       "propertyType": "text",
       "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
       "default": "localhost",
@@ -18,99 +18,123 @@
       "tooltip": ""
     },
     {
-      "propertyId": "keyspace",
-      "propertyName": "Keyspace",
+      "propertyId": "connectionPort",
+      "propertyName": "_PORT_",
       "propertyType": "text",
-      "regexp": "TODO cualquier cadena de caracteres",
-      "default": "sparkta",
+      "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
+      "default": "9042",
       "required": true,
-      "tooltip": "The name of the KeySpace."
+      "tooltip": "Cassandra port",
+      "hidden": false
+    },
+    {
+      "propertyId": "keyspace",
+      "propertyName": "_KEYSPACE_",
+      "propertyType": "text",
+      "regexp": "",
+      "default": "Sparkta",
+      "required": true,
+      "tooltip": "Keyspace name."
     },
     {
       "propertyId": "keyspaceClass",
-      "propertyName": "KeyspaceClass",
+      "propertyName": "_KEYSPACE_CLASS_",
       "propertyType": "select",
-      "regexp": "SimpleStrategy|NetworkTopologyStrategy",
-      "values":[{"label":"SimpleStrategy","value":"SimpleStrategy"},
-        {"label":"NetworkTopologyStrategy","value":"NetworkTopologyStrategy"}],
-      "default": "SimpleStrategy",
+      "regexp": "simpleStrategy|networkTopologyStrategy",
+      "values":
+      [
+        {"label":"SimpleStrategy","value":"simpleStrategy"},
+        {"label":"NetworkTopologyStrategy","value":"networkTopologyStrategy"}
+      ],
+      "default": "simpleStrategy",
       "required": true,
-      "tooltip": "The class of KeySpace."
+      "tooltip": "KeySpace class."
     },
     {
       "propertyId": "replication_factor",
-      "propertyName": "ReplicationFactor",
+      "propertyName": "_REPLICATION_FACTOR_",
       "propertyType": "text",
-      "regexp": "TODO cualquier número",
+      "regexp": "\\d*",
       "default": "1",
-      "required": false,
-      "tooltip": "Specifies the number of replicas of data on multiple nodes.",
-      "visible": [
-        [{"propertyId": "KeyspaceClass", "value": "SimpleStrategy", "overrideProps" : [
-          {"label": "required", "value": true}]
-        }]
-      ]
+      "required": true,
+      "tooltip": "Specifies the number of replicas of data on multiple nodes."
     },
     {
       "propertyId": "compactStorage",
-      "propertyName": "CompactStorage",
-      "propertyType": "text",
-      "regexp": "TODO",
-      "default": "None",
+      "propertyName": "_COMPACT_STORAGE_",
+      "propertyType": "boolean",
+      "regexp": "true|false",
+      "default": false,
       "required": false,
       "tooltip": "The compact storage directive is used for backward compatibility of CQL 2 applications and data in the legacy (Thrift) storage engine format. To take advantage of CQL 3 capabilities, do not use this directive in new applications. When you create a table using compound primary keys, for every piece of data stored, he column name needs to be stored along with it. Instead of each non-primary key column being stored such that each column corresponds to one column on disk, an entire row is stored in a single column on disk, hence the name compact storage."
     },
     {
-      "propertyId": "clusteringPrecisions",
-      "propertyName": "ClusteringPrecisions",
-      "propertyType": "text",
-      "regexp": "TODO",
-      "default": "",
-      "required": false,
-      "tooltip": "Clustering columns for the primary key."
-    },
-    {
-      "propertyId": "indexFields",
-      "propertyName": "IndexFields",
-      "propertyType": "text",
-      "regexp": "TODO",
-      "default": "",
-      "required": false,
-      "tooltip": "The indexed fields, could be any aggregate field or clustering column field."
-    },
-    {
-      "propertyId": "textIndexFields",
-      "propertyName": "TextIndexFields",
-      "propertyType": "text",
-      "regexp": "TODO",
-      "default": "",
-      "required": false,
-      "tooltip": "The text index fields, this feature is for the Stratio’s Cassandra Lucene Index"
-    },
-    {
       "propertyId": "analyzer",
-      "propertyName": "Analyzer",
+      "propertyName": "_ANALYZER_",
       "propertyType": "text",
-      "regexp": "TODO",
+      "regexp": "",
       "default": "english",
       "required": false,
       "tooltip": "The analyzer for text index fields, this feature is for the Stratio’s Cassandra Lucene Index"
     },
     {
       "propertyId": "refreshSeconds",
-      "propertyName": "RefreshSeconds",
+      "propertyName": "_REFRESH_SECONDS_",
       "propertyType": "text",
-      "regexp": "TODO",
+      "regexp": "\\d*",
       "default": "1",
       "required": false,
       "tooltip": "The number of seconds between refresh lucene index operations, this feature is for the Stratio’s Cassandra Lucene Index"
     },
     {
       "propertyId": "dateFormat",
-      "propertyName": "DateFormat",
-      "propertyType": "text",
-      "regexp": "TODO",
-      "default": "yyyy/MM/dd",
+      "propertyName": "_DATE_FORMAT_",
+      "propertyType": "select",
+      "regexp": "",
+      "values":
+      [
+        {
+          "label":"yyyy-mm-dd HH:mm",
+          "value":"yyyy-mm-dd HH:mm"
+        },
+        {
+          "label":"yyyy-mm-dd HH:mm:ss",
+          "value":"yyyy-mm-dd HH:mm:ss"
+        },
+        {
+          "label":"yyyy-mm-dd HH:mmZ",
+          "value":"yyyy-mm-dd HH:mmZ"
+        },
+        {
+          "label":"yyyy-mm-dd HH:mm:ssZ",
+          "value":"yyyy-mm-dd HH:mm:ssZ"
+        },
+        {
+          "label":"yyyy-mm-dd'T'HH:mm",
+          "value":"yyyy-mm-dd'T'HH:mm"
+        },
+        {
+          "label":"yyyy-mm-dd'T'HH:mmZ",
+          "value":"yyyy-mm-dd'T'HH:mmZ"
+        },
+        {
+          "label":"yyyy-mm-dd'T'HH:mm:ss",
+          "value":"yyyy-mm-dd'T'HH:mm:ss"
+        },
+        {
+          "label":"yyyy-mm-dd'T'HH:mm:ssZ",
+          "value":"yyyy-mm-dd'T'HH:mm:ssZ"
+        },
+        {
+          "label":"yyyy-mm-dd",
+          "value":"yyyy-mm-dd"
+        },
+        {
+          "label":"yyyy-mm-ddZ",
+          "value":"yyyy-mm-ddZ"
+        }
+      ],
+      "default": "yyyy-mm-dd HH:mm",
       "required": false,
       "tooltip": "The date format for the date fields indexed, this feature is for the Stratio’s Cassandra Lucene Index"
     }
@@ -127,42 +151,26 @@
   "properties": [
     {
       "propertyId": "path",
-      "propertyName": "Path",
-      "propertyType": "text",
+      "propertyName": "_PATH_",
+      "propertyType": "_TEXT_",
       "regexp": "^[a-zA-Z0-9:_\\.\\-\\+/\\\\]{2,}\\.csv$",
-      "default": null,
+      "default": "path_to_csv.csv",
       "required": true
     },
     {
       "propertyId": "header",
-      "propertyName": "Header",
-      "propertyType": "text",
-      "regexp": "",
+      "propertyName": "_HEADER_",
+      "propertyType": "boolean",
+      "regexp": "true|false",
       "default": false,
       "required": false
     },
     {
       "propertyId": "delimiter",
-      "propertyName": "Delimiter",
+      "propertyName": "_DELIMITER_",
       "propertyType": "text",
       "regexp": "",
       "default": ",",
-      "required": false
-    },
-    {
-      "propertyId": "datePattern",
-      "propertyName": "Date pattern",
-      "propertyType": "text",
-      "regexp": "",
-      "default": null,
-      "required": false
-    },
-    {
-      "propertyId": "dateGranularityFile",
-      "propertyName": "Date granularity file",
-      "propertyType": "text",
-      "regexp": "",
-      "default": "day",
       "required": false
     }
   ]
@@ -178,31 +186,44 @@
   "properties": [
     {
       "propertyId": "nodes",
-      "propertyName": "nodes",
-      "propertyType": "text",
-      "regexp": "",
-      "default": "localhost",
-      "required": true
-    },
-    {
-      "propertyId": "defaultPort",
-      "propertyName": "Port",
-      "propertyType": "text",
-      "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
-      "default": 9300,
-      "required": false
+      "propertyName": "",
+      "propertyType": "list",
+      "default": "",
+      "required": true,
+      "hidden": false,
+      "limit": 0,
+      "tooltip": "",
+      "fields":
+      [
+        {
+          "propertyId": "node",
+          "propertyName": "_HOST_",
+          "propertyType": "text",
+          "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+          "default": "localhost",
+          "required": true
+        },
+        {
+          "propertyId": "defaultPort",
+          "propertyName": "_PORT_",
+          "propertyType": "text",
+          "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
+          "default": "9300",
+          "required": true
+        }
+      ]
     },
     {
       "propertyId": "idField",
-      "propertyName": "IdField",
+      "propertyName": "_ID_FIELD_",
       "propertyType": "text",
-      "regexp": "[^/\\. \"$]{1,3}",
-      "default": null,
+      "regexp": "",
+      "default": "",
       "required": false
     },
     {
       "propertyId": "indexMapping",
-      "propertyName": "IndexMapping",
+      "propertyName": "_INDEX_MAPPING_",
       "propertyType": "text",
       "regexp": "",
       "default": "sparkta",
@@ -221,7 +242,7 @@
   "properties": [
     {
       "propertyId": "hosts",
-      "propertyName": "Hosts",
+      "propertyName": "",
       "propertyType": "list",
       "default": "",
       "required": true,
@@ -229,17 +250,17 @@
       "fields": [
         {
           "propertyId": "hostName",
-          "propertyName": "Host",
+          "propertyName": "_HOST_",
           "propertyType": "text",
           "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
-          "default": "",
+          "default": "localhost",
           "hidden": false,
           "required": true
         },
         {
           "propertyId": "port",
-          "propertyName": "Port",
-          "propertyType": "number",
+          "propertyName": "_PORT_",
+          "propertyType": "text",
           "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
           "default": "27017",
           "hidden": false,
@@ -249,63 +270,54 @@
     },
     {
       "propertyId": "dbName",
-      "propertyName": "DBName",
+      "propertyName": "_DATEBASE_NAME_",
       "propertyType": "text",
-      "regexp": "TODO cualquier cadena de caracteres",
+      "regexp": "",
       "default": "sparkta",
-      "required": false,
-      "tooltip": "The name of the database"
+      "required": true,
+      "tooltip": "Name of the database."
     },
     {
       "propertyId": "connectionsPerHost",
-      "propertyName": "Connections per host",
-      "propertyType": "number",
-      "regexp": "TODO cualquier numero",
-      "default": 5,
+      "propertyName": "_CONNECTIONS_PER_HOST_",
+      "propertyType": "text",
+      "regexp": "\\d*",
+      "default": "5",
       "required": false,
       "tooltip": "Number of connections per host"
     },
     {
       "propertyId": "threadsAllowedToBlock",
-      "propertyName": "Threads allowed to block",
-      "propertyType": "number",
-      "regexp": "TODO cualquier numero",
-      "default": 10,
+      "propertyName": "_THREADS_ALLOWED_TO_BLOCK_",
+      "propertyType": "text",
+      "regexp": "\\d*",
+      "default": "10",
       "required": false,
       "tooltip": "This multiplier, multiplied with the connectionsPerHost setting, gives the maximum number of threads that may be waiting for a connection to become available from the pool."
     },
     {
       "propertyId": "idAsField",
-      "propertyName": "Id as field",
+      "propertyName": "_ID_AS_FIELD_",
       "propertyType": "boolean",
       "regexp": "true|false",
-      "default": "false",
+      "default": false,
       "required": false,
       "tooltip": "Is possible to save all fields that compound the unique key as a independent field."
     },
     {
-      "propertyId": "textIndexFields",
-      "propertyName": "Text index fields",
-      "propertyType": "text",
-      "regexp": "TODO cualquier cadena de caracteres separada por comas",
-      "default": "",
-      "required": false,
-      "tooltip": "The system is capable of insert data in a full-text index. All of this fields compound the index."
-    },
-    {
       "propertyId": "language",
-      "propertyName": "Language",
+      "propertyName": "_LANGUAGE_",
       "propertyType": "text",
-      "regexp": "TODO cualquier cadena de caracteres",
+      "regexp": "",
       "default": "",
       "required": false,
       "tooltip": "Specify the language of the tokenizer in the full-text index in MongoDB, each document inserted must have this key-value."
     },
     {
       "propertyId": "retrySleep",
-      "propertyName": "Retry sleep",
-      "propertyType": "number",
-      "regexp": "TODO cualquier cadena de caracteres",
+      "propertyName": "_RETRY_SLEEP_",
+      "propertyType": "text",
+      "regexp": "\\d*",
       "default": "1000",
       "required": false,
       "tooltip": "The number of milliseconds to wait for reconnect with MongoDb nodes when the last client fails. It is recommendable to set less time to the slide interval of the streaming window."
@@ -323,7 +335,7 @@
   "properties": [
     {
       "propertyId": "Path",
-      "propertyName": "Path",
+      "propertyName": "_PATH_",
       "propertyType": "text",
       "regexp": "",
       "default": "",
@@ -354,7 +366,7 @@
   "properties": [
     {
       "propertyId": "hostname",
-      "propertyName": "Hostname",
+      "propertyName": "_HOST_",
       "propertyType": "text",
       "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
       "default": "localhost",
@@ -363,12 +375,21 @@
     },
     {
       "propertyId": "port",
-      "propertyName": "Port",
+      "propertyName": "_PORT_",
       "propertyType": "text",
       "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
       "default": "6379",
-      "required": false,
+      "required": true,
       "tooltip": "Port of the server"
+    },
+    {
+      "propertyId": "timeStampFieldName",
+      "propertyName": "_TIME_STAMP_FIELD_NAME_",
+      "propertyType": "text",
+      "regexp": "",
+      "default": "timestamp",
+      "required": false,
+      "tooltip": ""
     }
   ]
 }

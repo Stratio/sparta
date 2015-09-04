@@ -19,7 +19,7 @@
         vm.createTypeModels = createTypeModels;
         vm.dataSource = {};
         vm.dataSource.element = {};
-        vm.templateInputsData = [];
+        vm.templateFragmentsData = [];
         vm.properties = [];
         vm.error = false;
         vm.errorText = '';
@@ -38,8 +38,8 @@
 
           setTexts(item.texts);
 
-          vm.templateInputsData = fragmentTemplates;
-          vm.dataSource = item.inputSelected;
+          vm.templateFragmentsData = fragmentTemplates;
+          vm.dataSource = item.fragmentSelected;
 
 /*
           vm.dataSource =
@@ -97,7 +97,7 @@
             };
 */
 
-          vm.createTypeModels(vm.templateInputsData);
+          vm.createTypeModels(vm.templateFragmentsData);
           vm.selectedIndex = vm.index;
           vm.policiesAffected = policiesAffected;
 
@@ -172,9 +172,8 @@
 
         function setFragmentData(index) {
             /*Set fragment*/
-            vm.dataSource.description = vm.templateInputsData[index].description.long;
-            vm.dataSource.shortDescription = vm.templateInputsData[index].description.short;
-            vm.dataSource.icon = vm.templateInputsData[index].icon.url;
+            vm.dataSource.description = vm.templateFragmentsData[index].description.long;
+            vm.dataSource.shortDescription = vm.templateFragmentsData[index].description.short;
             vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
         };
 
@@ -205,7 +204,7 @@
         function checkFragmnetname() {
           var inputNamesExisting = [];
           var newInputName = vm.dataSource.name.toLowerCase();
-          inputNamesExisting = $filter('filter')(item.inputNamesList, {'name': newInputName}, true);
+          inputNamesExisting = $filter('filter')(item.fragmentNamesList, {'name': newInputName}, true);
 
           if (inputNamesExisting.length > 0 && inputNamesExisting[0].name !== vm.originalName) {
             vm.error = true;
