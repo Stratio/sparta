@@ -1,6 +1,7 @@
+(function () {
 'use strict';
 
-/*BUTTON TO CHANGE ROUTE OR URL*/
+/*LINE WITH LABEL AND ICON*/
 
 angular
   .module('webApp')
@@ -19,3 +20,5 @@ function cIconLabel() {
     templateUrl: 'templates/components/c-icon-label.tpl.html'
   }
 };
+})();
+

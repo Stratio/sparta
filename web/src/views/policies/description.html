@@ -1,7 +1,8 @@
-<section>
+<<<<<<< HEAD
+<section data-ng-controller="PolicyDescriptionCtrl as vm">
   <header class="c-step-content__title c-step-content__title--underlined">
     <h1>
-      <span class="c-step-counter">{{policy.currentStep + 1}}/{{policy.steps.length}}</span>
+      <span class="c-step-counter">{{vm.policy.currentStep + 1}}/{{vm.policy.steps.length}}</span>
       <i class="c-step-counter__icon c-icon c-icon--small icon-arrow2_right"></i>
       <span class="c-step-content__title-text">{{"_POLICY_._STEPS_._DESCRIPTION_" | translate}}</span>
     </h1>
@@ -22,39 +23,41 @@
       </div>
     </fieldset>
 <!--
-    <c-input-field form-control-text="'_INSERT_NAME_' | translate" form-control-class=""></c-input-field>
+  <c-input-field form-control-text="'_INSERT_NAME_' | translate" form-control-class="" value=vm.policy.name
+                 model="vm.policy.name"></c-input-field>
 
-    <c-input-field form-control-text="'_INSERT_DESCRIPTION_' | translate" form-control-class=""></c-input-field>
+  <c-input-field form-control-text="'_INSERT_DESCRIPTION_' | translate" form-control-class="" value=vm.policy.description
+                 model="vm.policy.description"></c-input-field>
 -->
     <fieldset class="c-fieldset">
       <legend class="c-fieldset__title">{{"_WINDOW_DURATION_" | translate}}</legend>
       
       <div class="c-form-group">
         <c-icon-label icon-class="'c-icon icon-info1'" text="'_SPARK_STREAMING_WINDOW_' | translate" text-class=""></c-icon-label>
-        <c-slider min-text="'_SHORT_' | translate" max-text="'_LONG_' | translate" min-value="policy.sparkStreamingWindowData.min"
-                  max-value="policy.sparkStreamingWindowData.max" steps="1" value="policy.sparkStreamingWindow"></c-slider>
+        <c-slider min-text="'_SHORT_' | translate" max-text="'_LONG_' | translate" min-value="vm.policy.sparkStreamingWindowData.min"
+                  max-value="vm.policy.sparkStreamingWindowData.max" steps="1" value="vm.policy.sparkStreamingWindow"></c-slider>
         <c-input-field form-control-text="'_CUSTOM_' | translate" form-control-class="" right-text="'ms.'"
-                       value="policy.sparkStreamingWindow" model="policy.sparkStreamingWindow" input-type="'number'"></c-input-field>
+                       value="vm.policy.sparkStreamingWindow" model="vm.policy.sparkStreamingWindow" input-type="'number'"></c-input-field>
       </div>
 
       <div class="c-form-group">
         <c-icon-label icon-class="'icon-info1'" text="'_CHECKPOINT_INTERVAL_' | translate" text-class=""></c-icon-label>
-        <c-slider min-text="'_SHORT_' | translate" max-text="'_LONG_' | translate" min-value="policy.checkpointIntervalData.min"
-                  max-value="policy.checkpointIntervalData.max" steps="1" value="policy.checkpointInterval"></c-slider>
+        <c-slider min-text="'_SHORT_' | translate" max-text="'_LONG_' | translate" min-value="vm.policy.checkpointIntervalData.min"
+                  max-value="vm.policy.checkpointIntervalData.max" steps="1" value="vm.policy.checkpointInterval"></c-slider>
         <c-input-field form-control-text="'_CUSTOM_' | translate" form-control-class="" right-text="'ms.'"
-                       value="policy.checkpointInterval" model="policy.checkpointInterval" input-type="'number'"></c-input-field>
+                       value="vm.policy.checkpointInterval" model="vm.policy.checkpointInterval" input-type="'number'"></c-input-field>
       </div>
 
       <div class="c-form-group">
         <c-icon-label icon-class="'icon-info1'" text="'_CHECKPOINT_AVAILABILITY_' | translate" text-class=""></c-icon-label>
-        <c-slider min-text="'_SHORT_' | translate" max-text="'_LONG_' | translate" min-value="policy.checkpointAvailabilityData.min"
-                  max-value="policy.checkpointAvailabilityData.max" steps="1" value="policy.checkpointAvailability"></c-slider>
+        <c-slider min-text="'_SHORT_' | translate" max-text="'_LONG_' | translate" min-value="vm.policy.checkpointAvailabilityData.min"
+                  max-value="vm.policy.checkpointAvailabilityData.max" steps="1" value="vm.policy.checkpointAvailability"></c-slider>
         <c-input-field form-control-text="'_CUSTOM_' | translate" form-control-class="" right-text="'ms.'"
-                       value="policy.checkpointAvailability" model="policy.checkpointAvailability" input-type="'number'"></c-input-field>
+                       value="vm.policy.checkpointAvailability" model="vm.policy.checkpointAvailability" input-type="'number'"></c-input-field>
       </div>
 
       <c-icon-label icon-class="'icon-info1'" text="'_CHECKPOINT_PATH_' | translate" text-class=""></c-icon-label>
-      <input type="text" ng-model="policy.checkpointPath" />
+      <input type="text" ng-model="vm.policy.checkpointPath" />
     </fieldset>
   </form>
 </section>

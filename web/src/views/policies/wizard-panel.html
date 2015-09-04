@@ -3,7 +3,7 @@
     <st-heading title="{{'_POLICY_HEADER_TITLE_MAIN_' | translate}}" subtitle="{{'_INPUT_HEADER_TITLE_SECONDARY' | translate}}:"></st-heading>
   </header>
 
-  <c-step-progress-bar steps="policy.steps" current-step="(policy.currentStep)"></c-step-progress-bar>
+  <c-step-progress-bar steps="wizard.steps" current-step="(wizard.currentStep)"></c-step-progress-bar>
 
   <div class="c-step-content">
     <div ng-switch on="policy.currentStep">
@@ -31,7 +31,7 @@
       <div class="c-col c-col--6 c-col--vertical-centered">
         <c-icon-label icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action icon-help1'" text="'_CUBE_CONFIG_HELP_MESSAGE_' | translate" text-class=""></c-icon-label>
       </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
-        <button class="c-button c-button--call-to-action-1">
+        <button class="c-button c-button--call-to-action-1" data-ng-click = "wizard.continueToNextStep()">
           <i class="icon icon-arrow-right"></i>
           <span>{{"_CONTINUE_" | translate}}</span>
         </button>

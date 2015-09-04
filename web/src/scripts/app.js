@@ -83,7 +83,7 @@ angular
       .state('dashboard.newPolicy', {
         url: '/policy/new',
         controller: 'NewPolicyCtrl',
-        controllerAs: 'policy',
+        controllerAs: 'wizard',
         templateUrl: 'views/policies/wizard-panel.html'
       })
     /*******  SETINGS *******/

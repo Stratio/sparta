@@ -1,24 +1,28 @@
-'use strict';
+(function () {
+  'use strict';
 
-/*BUTTON TO CHANGE ROUTE OR URL*/
+  /*SLIDER WITH TWO LABELS*/
 
-angular
-  .module('webApp')
-  .directive('cSlider', cSlider);
+  angular
+    .module('webApp')
+    .directive('cSlider', cSlider);
+
+  cSlider.$inject = [];
 
 
-function cSlider() {
-  return {
-    restrict: 'E',
-    scope: {
-      minText: "=minText",
-      maxText: "=maxText",
-      minvalue: "=minValue",
-      maxvalue: "=maxValue",
-      steps: "=steps",
-      value: "=value"
-    },
-    replace: "true",
-    templateUrl: 'templates/components/c-slider.tpl.html',
-  }
-};
+  function cSlider() {
+    return {
+      restrict: 'E',
+      scope: {
+        minText: "=minText",
+        maxText: "=maxText",
+        minValue: "=minValue",
+        maxValue: "=maxValue",
+        steps: "=steps",
+        value: "=value"
+      },
+      replace: "true",
+      templateUrl: 'templates/components/c-slider.tpl.html',
+    }
+  };
+})();

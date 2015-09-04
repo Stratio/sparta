@@ -25,17 +25,23 @@
             console.log('*********Modal');
             console.log(item);
 
-            vm.inputs = item;
+            setTexts(item.texts);
 
-            vm.inputs.policies = policiesAffected;
+            vm.outputs = item;
+            vm.outputs.policies = policiesAffected;
+        };
+
+        function setTexts(texts) {
+          vm.modalTexts = {};
+          vm.modalTexts.title = texts.title;
         };
 
         function ok() {
-            var fragmentToDelete = FragmentFactory.DeleteFragment(vm.inputs.type, vm.inputs.id);
+            var fragmentToDelete = FragmentFactory.DeleteFragment(vm.outputs.type, vm.outputs.id);
 
             fragmentToDelete.then(function (result) {
                 console.log('*********Fragment deleted');
-                $modalInstance.close(vm.inputs);
+                $modalInstance.close(vm.outputs);
 
             },function (error) {
                 console.log(error);
