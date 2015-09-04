@@ -52,7 +52,7 @@
 
           var createInputData = {
             'fragmentType': 'input',
-            'inputNamesList' : inputsList,
+            'fragmentNamesList' : inputsList,
             'texts': {
               'title': '_INPUT_WINDOW_NEW_TITLE_',
               'button': '_INPUT_WINDOW_NEW_BUTTON_',
@@ -71,8 +71,8 @@
               'originalName': inputName,
               'fragmentType': 'input',
               'index': index,
-              'inputSelected': inputSelected,
-              'inputNamesList' : inputsList,
+              'fragmentSelected': inputSelected,
+              'fragmentNamesList' : inputsList,
               'texts': {
                   'title': '_INPUT_WINDOW_MODIFY_TITLE_',
                   'button': '_INPUT_WINDOW_MODIFY_BUTTON_',
@@ -89,7 +89,10 @@
           {
             'type':fragmentType,
             'id': fragmentId,
-            'index': index
+            'index': index,
+            'texts': {
+              'title': '_INPUT_WINDOW_DELETE_TITLE_'
+            }
           };
           vm.deleteInputConfirm('lg', inputToDelete);
         };
@@ -103,11 +106,14 @@
             var inputsList = getFragmentsNames(vm.inputsData);
 
             var duplicateInputData = {
-              'inputData': inputSelected,
-              'inputNamesList': inputsList
+              'fragmentData': inputSelected,
+              'fragmentNamesList': inputsList,
+              'texts': {
+                'title': '_INPUT_WINDOW_DUPLICATE_TITLE_'
+              }
             };
 
-            var newName = SetDuplicatetedInput('sm', duplicateInputData);
+            setDuplicatetedInput('sm', duplicateInputData);
         };
 
         function getInputTypes(inputs) {
@@ -175,10 +181,10 @@
                       return editInputData;
                    },
                    fragmentTemplates: function (TemplateFactory) {
-                      return TemplateFactory.GetNewFragmentTemplate(editInputData.inputSelected.fragmentType);
+                      return TemplateFactory.GetNewFragmentTemplate(editInputData.fragmentSelected.fragmentType);
                    },
                    policiesAffected: function (PolicyFactory) {
-                      return PolicyFactory.GetPolicyByFragmentId(editInputData.inputSelected.fragmentType, editInputData.inputSelected.id);
+                      return PolicyFactory.GetPolicyByFragmentId(editInputData.fragmentSelected.fragmentType, editInputData.fragmentSelected.id);
                    }
                }
            });
@@ -217,7 +223,7 @@
           });
         };
 
-        function SetDuplicatetedInput(size, InputData) {
+        function setDuplicatetedInput(size, InputData) {
           var modalInstance = $modal.open({
             animation: true,
             templateUrl: 'templates/components/st-duplicate-modal.tpl.html',

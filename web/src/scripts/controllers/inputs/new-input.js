@@ -20,7 +20,7 @@
         vm.createTypeModels = createTypeModels;
         vm.dataSource = {};
         vm.dataSource.element = {};
-        vm.templateInputsData = [];
+        vm.templateFragmentsData = [];
         vm.properties = [];
         vm.error = false;
         vm.errorText = '';
@@ -41,10 +41,10 @@
 
           setTexts(item.texts);
 
-          vm.templateInputsData = fragmentTemplates;
+          vm.templateFragmentsData = fragmentTemplates;
           console.log(fragmentTemplates);
-          vm.initFragmentObject(vm.templateInputsData);
-          vm.createTypeModels(vm.templateInputsData);
+          vm.initFragmentObject(vm.templateFragmentsData);
+          vm.createTypeModels(vm.templateFragmentsData);
           vm.selectedIndex = 0;
         };
 
@@ -120,15 +120,15 @@
         function setFragmentData(index) {
           console.log(vm.properties);
           /*Set fragment*/
-          vm.dataSource.description = vm.templateInputsData[index].description.long;
-          vm.dataSource.shortDescription = vm.templateInputsData[index].description.short;
+          vm.dataSource.description = vm.templateFragmentsData[index].description.long;
+          vm.dataSource.shortDescription = vm.templateFragmentsData[index].description.short;
           vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
           console.log(vm.dataSource);
         };
 
-        function setProperties(index, inputName) {
+        function setProperties(index, fragmentName) {
             vm.selectedIndex = index;
-            vm.dataSource.element.configuration = vm.properties[inputName]
+            vm.dataSource.element.configuration = vm.properties[fragmentName]
             vm.setFragmentData(index);
         };
 
@@ -157,11 +157,11 @@
         };
 
         function checkFragmnetname(newInputData) {
-          var inputNamesExisting = [];
-          var newInputName = vm.dataSource.name.toLowerCase();
-          inputNamesExisting = $filter('filter')(item.inputNamesList, {'name': newInputName}, true);
+          var fragmentNamesExisting = [];
+          var newFragmentName = vm.dataSource.name.toLowerCase();
+          fragmentNamesExisting = $filter('filter')(item.fragmentNamesList, {'name': newFragmentName}, true);
 
-          if (inputNamesExisting.length > 0) {
+          if (fragmentNamesExisting.length > 0) {
             vm.error = true;
             vm.errorText = "_INPUT_ERROR_100_";
           }
