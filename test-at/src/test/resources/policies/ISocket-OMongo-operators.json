@@ -202,7 +202,7 @@
       "name": "out-mongo",
       "type": "MongoDb",
       "configuration": {
-        "hosts": "localhost:60000",
+        "hosts": [{"host": "localhost" , "port": "60000" }],
         "dbName": "csvtest",
         "multiplexer": "false"
       }
