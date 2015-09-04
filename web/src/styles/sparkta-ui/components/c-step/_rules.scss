@@ -1,0 +1,100 @@
+@mixin c-step {
+	@include c-component;
+	@include is-clickable;
+
+	color: $c-step---color;
+	display: inline-block;
+	text-align: center;
+	padding: $c-step---padding;
+	position: relative;
+
+	&:first-child {
+		padding-left: 0;
+
+		& .c-step__progress-line {
+			left: 50%;
+			width: 50%;
+		}
+
+		&.c-step--active {
+			& .c-step__progress-line {
+				background: $c-step---color;
+			}
+		}
+	}
+
+	&:last-child {
+		padding-right: 0;
+
+		& .c-step__progress-line {
+			right: 50%;
+			width: 50%;
+		}
+
+		&.c-step--active {
+			.c-step__progress-line {
+				background: $c-step--active---color;
+			}
+		}
+	}
+
+	&__section-icon,
+	&__section-name {
+		display: block;
+	}
+
+	&__section-icon {
+		font-size: $c-step__section-icon---font-size;
+		font-weight: $c-step__section-icon---font-weight;
+	}
+
+	&__section-name {
+		font-size: $c-step__section-name---font-size;
+		font-weight: $c-step__section-name---font-weight;
+		text-transform: $c-step__section-name---text-transform;
+	}
+
+	&__progress-mark {
+		margin: ($c-step---separation / 2) (-$c-step---separation);
+		position: relative;
+		z-index: get-layer(base);
+	}
+
+	&__selector {
+		&--active,
+		&--visited {
+			background: $c-step-progress-bar---background;
+		}
+	}
+
+	&__progress-line {
+		background: $c-step---color;
+		border: 0;
+		height: $c-step__progress-line---height;
+		position: absolute;
+		top: 0;
+		vertical-align: middle;
+		width: 100%;
+		z-index: get-layer(bottom);
+	}
+
+	&--active {
+		color: $c-step--active---color;
+
+		& .c-step__progress-line {
+			background: linear-gradient(90deg, $c-step--active---color 50%, $c-step---color 50%, $c-step---color);
+		}
+	}
+
+	&--visited {
+		color: $c-step--active---color;
+
+		& .c-step__progress-line {
+			background: $c-step--active---color;
+		}
+	}
+}
+
+.c-step {
+	@include c-step;
+}
