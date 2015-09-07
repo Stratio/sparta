@@ -108,6 +108,7 @@
       "_FINISH_": "Finish"
     },
     "_INPUTS_INTRO_":"",
+    "_OUTPUTS_INTRO_":"",
     "_DESCRIPTION_INFO_MESSAGE_": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu."
   },
   "_SHORT_": "Short",
@@ -120,5 +121,6 @@
   "_WINDOW_DURATION_": "Window duration",
   "_INSERT_DESCRIPTION_": "Insert Description",
   "_INSERT_NAME_": "Insert Name",
-  "_CUBE_CONFIG_HELP_MESSAGE_": "Need help to configure your Cube? Use the Help tab in the upper right of your screen"
+  "_CUBE_CONFIG_HELP_MESSAGE_": "Need help to configure your Cube? Use the Help tab in the upper right of your screen",
+  "_INPUT_PLACEHOLDER_": ""
 }
