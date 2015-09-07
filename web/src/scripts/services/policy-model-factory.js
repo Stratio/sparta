@@ -17,7 +17,8 @@
       policy.checkpointAvailability = 0;
       policy.checkpointPath = "";
       policy.input = {};
-    };
+      policy.outputs = [];
+    }
 
     return {
       GetCurrentPolicy: function () {
