@@ -15,11 +15,11 @@
 
       <div class="c-panel c-panel--framed">
         <div class="c-form-group">
-          <c-input-field input-type="'text'" wrapper-control-class="'c-form-control c-form-control--full-width'" label-control-class="'c-label c-col c-col--12'" label-control-text="{{'_INSERT_NAME_' | translate}}" input-control-class="'c-input c-col c-col--12'" model="vm.policy.name" placeholder="'Ex. Name 1'"></c-input-field>
+          <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.policy.name" data-label="{{'_INSERT_NAME_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Name 1" required="true"></form-field-input>
         </div>
 
         <div class="c-form-group">
-          <c-input-field input-type="'text'" wrapper-control-class="'c-form-control c-form-control--full-width'" label-control-class="'c-label c-col c-col--12'" label-control-text="{{'_INSERT_DESCRIPTION_' | translate}}" input-control-class="'c-input c-col c-col--12'" model="vm.policy.description" placeholder="'Ex. Lorem ipsum dolor sit amet.'"></c-input-field>
+          <form-field-input data-form="vm.form" data-st-name="description-form" data-model="vm.policy.description" data-label="{{'_INSERT_DESCRIPTION_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Lorem ipsum dolor sit amet." required="true"></form-field-input>
         </div>
       </div>
     </fieldset>
@@ -29,25 +29,36 @@
 
       <div class="c-panel c-panel--framed">
         <div class="c-form-group">
-          <c-input-field input-type="'text'" wrapper-control-class="'c-form-control c-form-control--full-width'" label-control-class="'c-label c-col c-col--12'" label-control-text="{{'_SPARK_STREAMING_WINDOW_' | translate}}" input-control-class="'c-input c-col c-col--12'" model="vm.policy.sparkStreamingWindow" placeholder="'Ex. 6000'"></c-input-field>
+          <form-field-input data-form="vm.form" data-st-name="sparkStreamingWindow-form" data-model="vm.policy.sparkStreamingWindow" data-label="{{'_SPARK_STREAMING_WINDOW_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. 6000"></form-field-input>
         </div>
 
         <div class="c-form-group">
-          <c-input-field input-type="'text'" wrapper-control-class="'c-form-control c-form-control--full-width'" label-control-class="'c-label c-col c-col--12'" label-control-text="{{'_CHECKPOINT_PATH_' | translate}}" input-control-class="'c-input c-col c-col--12'" model="vm.policy.checkpointPath" placeholder="'Ex. /tmp/checkpoint'"></c-input-field>
+          <form-field-input data-form="vm.form" data-st-name="checkpointPath-form" data-model="vm.policy.checkpointPath" data-label="{{'_CHECKPOINT_PATH_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. /tmp/checkpoint" required="true"></form-field-input>
         </div>
 
         <div class="c-form-group">
-          <form-field-check data-form="form" data-st-name="persist-raw-data" data-model="vm.policy.rawData.enabled" data-label="{{'_PERSIST_RAW_DATA_' | translate}}" data-help="" data-required="true"></form-field-check>
+          <form-field-check data-form="vm.form" data-st-name="persist-raw-data" data-model="vm.policy.rawData.enabled" data-label="{{'_PERSIST_RAW_DATA_' | translate}}" data-help=""></form-field-check>
         </div>
 
         <div data-ng-if="vm.policy.rawData.enabled == true" class="c-form-group">
-          <c-input-field input-type="'text'" wrapper-control-class="'c-form-control c-form-control--full-width'" label-control-class="'c-label c-col c-col--12'" label-control-text="{{'_PATH_' | translate}}" input-control-class="'c-input c-col c-col--12'" model="vm.policy.rawData.path" placeholder="'Ex. /tmp/checkpoint'"></c-input-field>
+          <form-field-input data-form="vm.form" data-st-name="path-form" data-model="vm.policy.rawData.path" data-label="{{'_PATH_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. /tmp/checkpoint" required="true"></form-field-input>
         </div>
 
         <div data-ng-if="vm.policy.rawData.enabled == true" class="c-form-group">
-          <form-field-select ng-attr-id="{{ngFormId}}" data-form="form" data-st-name="partition-format" data-model="vm.policy.rawData.partitionFormat" data-options="field.values" data-field="label" data-label="{{'_PARTITION_FORMAT_' | translate}}" data-help="" data-required="true"></form-field-select>
+          <form-field-select ng-attr-id="{{ngFormId}}" data-form="vm.form" data-st-name="partition-format" data-model="vm.policy.rawData.partitionFormat" data-options="vm.partitionFormatData.values" data-field="label" data-label="{{'_PARTITION_FORMAT_' | translate}}" data-help="" data-required="true"></form-field-select>
         </div>
       </div>
     </fieldset>
+
+    <footer class="c-row c-row--footer">
+      <div class="c-col c-col--6 c-col--vertical-centered">
+        <c-icon-label icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action icon-help1'" text="'_CUBE_CONFIG_HELP_MESSAGE_' | translate" text-class=""></c-icon-label>
+      </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
+        <button class="c-button c-button--call-to-action-1" data-ng-click="vm.validateForm()">
+          <i class="icon icon-arrow-right"></i>
+          <span>{{"_CONTINUE_" | translate}}</span>
+        </button>
+      </div>
+    </footer>
   </form>
 </section>

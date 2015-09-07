@@ -6,16 +6,16 @@
     .module('webApp')
     .controller('PolicyOutputCtrl', PolicyOutputCtrl);
 
-  PolicyOutputCtrl.$inject = ['FragmentFactory', 'policyModelFactory', '$q'];
+  PolicyOutputCtrl.$inject = ['FragmentFactory', 'PolicyModelFactory', '$q'];
 
-  function PolicyOutputCtrl(FragmentFactory, policyModelFactory, $q) {
+  function PolicyOutputCtrl(FragmentFactory, PolicyModelFactory, $q) {
     var vm = this;
     vm.outputList = [];
     init();
 
     function init() {
       var defer = $q.defer();
-      vm.policy = policyModelFactory.GetCurrentPolicy();
+      vm.policy = PolicyModelFactory.GetCurrentPolicy();
 
       vm.outputList = [
         {
