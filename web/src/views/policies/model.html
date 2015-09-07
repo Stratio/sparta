@@ -5,3 +5,26 @@
     <span class="c-step-content__title-text">{{"_POLICY_._STEPS_._MODEL_" | translate}}</span>
   </h1>
 </header>
+<div data-ng-controller="PolicyModelsCtrl as vm">
+  <accordion>
+    <accordion-group is-open="accordionStatus[$index]"
+                     ng-repeat="model in vm.policy.models track by $index">
+      <accordion-heading>
+        {{model.type}}
+        <i class="pull-right glyphicon"
+           ng-class="{'glyphicon-chevron-down': vm.isCurrentModel($index), 'glyphicon-chevron-right': !vm.isCurrentModel($index)}"></i>
+      </accordion-heading>
+
+      <ng-include src="'views/policies/new-model.html'""></ng-include>
+    </accordion-group>
+
+    <accordion-group is-open="accordionStatus[$index]">
+      <accordion-heading>
+        {{"_POLICY_._MODEL_NAME_" | translate}}
+        <i class="pull-right glyphicon"
+           ng-class="{'glyphicon-chevron-down': vm.isCurrentModel(0), 'glyphicon-chevron-right': !vm.isCurrentModel($index)}"></i>
+      </accordion-heading>
+      <ng-include src="'views/policies/new-model.html'" ></ng-include>
+    </accordion-group>
+  </accordion>
+</div>
