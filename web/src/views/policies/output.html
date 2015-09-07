@@ -1,1 +1,25 @@
-<h1>{{"_POLICY_._STEPS_._OUTPUTS_" |translate}}</h1>
+<section data-ng-controller="PolicyOutputCtrl as vm">
+
+  <header class="c-step-content__title c-step-content__title--underlined">
+    <h1>
+      <span class="c-step-counter">{{wizard.currentStep + 1}}/{{wizard.steps.length}}</span>
+      <i class="c-step-counter__icon c-icon c-icon--small icon-arrow2_right"></i>
+      <span class="c-step-content__title-text">{{"_POLICY_._STEPS_._OUTPUTS_" | translate}}</span>
+    </h1>
+  </header>
+
+  <p>{{"_POLICY_._OUTPUTS_INTRO_" | translate}}</p>
+
+  <table style="width:100%">
+    <tr>
+      <th></th>
+      <th>{{ "_NAME_" | translate}}</th>
+      <th>{{ "_DESCRIPTION_" | translate}}</th>
+    </tr>
+    <tr data-ng-repeat="output in vm.outputList">
+      <td><input type="checkbox" ng-model="vm.policy.outputs[$index]" ng-true-value={{output}}></td>
+      <td>{{output.name}}</td>
+      <td>{{output.description}}</td>
+    </tr>
+  </table>
+</section>
