@@ -122,5 +122,6 @@
   "_INSERT_DESCRIPTION_": "Insert Description",
   "_INSERT_NAME_": "Insert Name",
   "_CUBE_CONFIG_HELP_MESSAGE_": "Need help to configure your Cube? Use the Help tab in the upper right of your screen",
-  "_INPUT_PLACEHOLDER_": ""
+  "_INPUT_PLACEHOLDER_": "",
+  "_STATUS_": "Status"
 }
