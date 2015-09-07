@@ -1,0 +1,5 @@
+<div class="{{formControlClass}}">
+  <label class={{labelControlClass}}>{{labelControlText}}:</label>
+  <input ng-repeat="input in inputs  track by $index" ng-model="input" ng-value =(input) class={{inputControlClass}} type={{inputType}}
+         ng-pattern="{{pattern}}" placeholder="{{placeholder}}" ng-readonly="readonly">
+</div>
