@@ -38,6 +38,7 @@
  *		c-step
  *		c-step-content
  *		c-step-counter
+ *		c-fieldset
  *
  */
 
@@ -418,3 +419,8 @@ $c-step-content__title--underlined---padding: 0 0 ($component-margin / 2);
 $c-step-counter---color: get-color(c1);
 $c-step-counter--after---color: get-color(c4);
 $c-step-counter--after---margin: 0 5px;
+
+
+
+// c-fielset
+$c-fieldset__title---font-weight: get-font-weight(semibold) !default;
