@@ -41,7 +41,9 @@ class MongoDbOutput(keyName: String,
   override val isAutoCalculateId = true
 
 
-  override val hosts = properties.getString("hosts", "localhost")
+  override val hosts:String = properties.getConnectionConfs("hosts")
+
+
 
   val mongoDbDataFrameConnection = hosts.replaceAll("mongodb://", "")
 
