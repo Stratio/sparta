@@ -23,6 +23,95 @@
       }
     }
   ,
+  "transformations": [
+    {
+      "name": "morphline-parser",
+      "order": 1,
+      "type": "Morphlines",
+      "outputFields": [
+        "purchaseDateOL",
+        "userOL",
+        "totalAmountOL",
+        "cityOL",
+        "postalCodeOL",
+        "stateOL",
+        "countryOL",
+        "customerTypeOL",
+        "paymentTypeOL",
+        "timestampVL",
+        "ipHostVL",
+        "userAgentVL",
+        "userLogVL",
+        "responseCodeVL",
+        "operatingSystemVL"
+      ],
+      "configuration": {
+        "morphline": {
+          "id": "morphline1",
+          "importCommands": [
+            "org.kitesdk.**"
+          ],
+          "commands": [
+            {
+              "readJson": {}
+            },
+            {
+              "extractJsonPaths": {
+                "paths": {
+                  "purchaseDateOL": "/purchaseDate",
+                  "userOL": "/user",
+                  "totalAmountOL": "/totalAmount",
+                  "cityOL": "/city",
+                  "postalCodeOL": "/postalCode",
+                  "stateOL": "/state",
+                  "countryOL": "/country",
+                  "customerTypeOL": "/customerType",
+                  "paymentTypeOL": "/paymentType",
+                  "timestampVL": "/timestamp",
+                  "ipHostVL": "/ipHost",
+                  "userAgentVL": "/userAgent",
+                  "userLogVL": "/userLog",
+                  "responseCodeVL": "/responseCode",
+                  "operatingSystemVL": "/operatingSystem"
+                }
+              }
+            },
+            {
+              "removeFields": {
+                "blacklist": [
+                  "literal:_attachment_body"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "purchaseDateOL",
+      "order": 2,
+      "inputField": "purchaseDateOL",
+      "outputFields": [
+        "purchaseDateOL"
+      ],
+      "type": "DateTime",
+      "configuration": {
+        "inputFormat": "unixMillis"
+      }
+    },
+    {
+      "name": "timestampVL",
+      "order": 3,
+      "inputField": "timestampVL",
+      "outputFields": [
+        "timestampVL"
+      ],
+      "type": "DateTime",
+      "configuration": {
+        "inputFormat": "unixMillis"
+      }
+    }
+  ],
   "cubes": [
     {
       "name": "testCube",
@@ -295,95 +384,6 @@
         "autoCalculateId": "true",
         "dateType": "timestamp",
         "indexMapping": "day"
-      }
-    }
-  ],
-  "transformations": [
-    {
-      "name": "morphline-parser",
-      "order": 1,
-      "type": "Morphlines",
-      "outputFields": [
-        "purchaseDateOL",
-        "userOL",
-        "totalAmountOL",
-        "cityOL",
-        "postalCodeOL",
-        "stateOL",
-        "countryOL",
-        "customerTypeOL",
-        "paymentTypeOL",
-        "timestampVL",
-        "ipHostVL",
-        "userAgentVL",
-        "userLogVL",
-        "responseCodeVL",
-        "operatingSystemVL"
-      ],
-      "configuration": {
-        "morphline": {
-          "id": "morphline1",
-          "importCommands": [
-            "org.kitesdk.**"
-          ],
-          "commands": [
-            {
-              "readJson": {}
-            },
-            {
-              "extractJsonPaths": {
-                "paths": {
-                  "purchaseDateOL": "/purchaseDate",
-                  "userOL": "/user",
-                  "totalAmountOL": "/totalAmount",
-                  "cityOL": "/city",
-                  "postalCodeOL": "/postalCode",
-                  "stateOL": "/state",
-                  "countryOL": "/country",
-                  "customerTypeOL": "/customerType",
-                  "paymentTypeOL": "/paymentType",
-                  "timestampVL": "/timestamp",
-                  "ipHostVL": "/ipHost",
-                  "userAgentVL": "/userAgent",
-                  "userLogVL": "/userLog",
-                  "responseCodeVL": "/responseCode",
-                  "operatingSystemVL": "/operatingSystem"
-                }
-              }
-            },
-            {
-              "removeFields": {
-                "blacklist": [
-                  "literal:_attachment_body"
-                ]
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "purchaseDateOL",
-      "order": 2,
-      "inputField": "purchaseDateOL",
-      "outputFields": [
-        "purchaseDateOL"
-      ],
-      "type": "DateTime",
-      "configuration": {
-        "inputFormat": "unixMillis"
-      }
-    },
-    {
-      "name": "timestampVL",
-      "order": 3,
-      "inputField": "timestampVL",
-      "outputFields": [
-        "timestampVL"
-      ],
-      "type": "DateTime",
-      "configuration": {
-        "inputFormat": "unixMillis"
       }
     }
   ]

@@ -1,5 +1,4 @@
 {
-  "id": "id",
   "name": "policy-Twitter-Cassandra",
   "description": "policy-Twitter-Cassandra",
   "sparkStreamingWindow": 6000,
@@ -17,7 +16,8 @@
         "consumerKey": "*****",
         "consumerSecret": "*****",
         "accessToken": "*****",
-        "accessTokenSecret": "*****"
+        "accessTokenSecret": "*****",
+        "termsOfSearch": "#BigData"
       }
     }
   ,

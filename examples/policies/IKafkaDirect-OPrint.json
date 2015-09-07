@@ -1,5 +1,4 @@
 {
-  "id": "id",
   "name": "policy-kafka-direct",
   "description": "policy-kafka-direct",
   "sparkStreamingWindow": 6000,
@@ -71,11 +70,13 @@
   ],
   "outputs": [
     {
-      "name": "out-print",
-      "type": "Print",
+      "name": "out-elasticsearch",
+      "type": "ElasticSearch",
       "configuration": {
-
-        "isAutoCalculateId": "true"
+        "nodes": "localhost",
+        "defaultPort": "9200",
+        "isAutoCalculateId": "true",
+        "indexMapping": "day"
       }
     }
   ]
