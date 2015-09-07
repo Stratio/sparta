@@ -14,7 +14,8 @@ function cIconLabel() {
     scope: {
       iconClass: "=iconClass",
       text: "=text",
-      textClass: "=textClass"
+      textClass: "=textClass",
+      iconUrl: "=iconUrl"
     },
     replace: "true",
     templateUrl: 'templates/components/c-icon-label.tpl.html'
