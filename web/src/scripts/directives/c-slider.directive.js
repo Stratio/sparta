@@ -14,6 +14,10 @@
     return {
       restrict: 'E',
       scope: {
+        wrapperControlClass: "=",
+        minTextClass: "=",
+        maxTextClass: "=",
+        sliderClass: "=",
         minText: "=minText",
         maxText: "=maxText",
         minValue: "=minValue",

@@ -2,7 +2,7 @@
 	'use strict';
 	
 	angular
-		.module('ngTruncate', [])
+		.module('ngTruncateNumber', [])
 		.filter('truncatenum', function() {
 		  return function(input) {
 		    return input | 0;
