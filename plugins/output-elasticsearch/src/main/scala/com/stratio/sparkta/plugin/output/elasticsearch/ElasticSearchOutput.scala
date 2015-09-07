@@ -50,7 +50,7 @@ class ElasticSearchOutput(keyName: String,
 
   override val dateType = getDateTimeType(properties.getString("dateType", None))
 
-  override val nodes = properties.getHostPortConfs("nodes")
+  override val nodes = properties.getHostPortConfs("nodes", DEFAULT_NODE, DEFAULT_PORT)
 
   @transient private val elasticClient = {
 
