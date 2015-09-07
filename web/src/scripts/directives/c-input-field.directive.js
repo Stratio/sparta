@@ -23,7 +23,8 @@
         value: "@",
         model: "=",
         inputType: "=",
-        pattern: "="
+        pattern: "=",
+        required: "="
       },
       replace: "true",
       templateUrl: 'templates/components/c-input-field.tpl.html'
