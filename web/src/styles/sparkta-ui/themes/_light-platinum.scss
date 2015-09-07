@@ -39,6 +39,7 @@
  *		c-step-content
  *		c-step-counter
  *		c-fieldset
+ *		c-slider
  *
  */
 
@@ -424,3 +425,8 @@ $c-step-counter--after---margin: 0 5px;
 
 // c-fielset
 $c-fieldset__title---font-weight: get-font-weight(semibold) !default;
+
+
+
+// c-slider
+$c-slider---margin: 0;

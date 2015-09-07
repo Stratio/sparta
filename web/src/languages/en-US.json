@@ -119,5 +119,7 @@
   "_INSERT_NAME_": "Insert Name",
   "_CUBE_CONFIG_HELP_MESSAGE_": "Need help to configure your Cube? Use the Help tab in the upper right of your screen",
   "_INPUT_PLACEHOLDER_": "",
+  "_PERSIST_RAW_DATA_": "Persist raw data",
+  "_PARTITION_FORMAT_": "Partition format",
   "_STATUS_": "Status"
 }

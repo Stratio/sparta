@@ -16,6 +16,11 @@
       policy.checkpointInterval = 0;
       policy.checkpointAvailability = 0;
       policy.checkpointPath = "";
+      policy.path = "";
+      policy.rawData = {};
+      policy.rawData.enabled = false;
+      policy.rawData.partitionFormat = "day";
+      policy.rawData.path = "";
       policy.input = {};
       policy.outputs = [];
     }
