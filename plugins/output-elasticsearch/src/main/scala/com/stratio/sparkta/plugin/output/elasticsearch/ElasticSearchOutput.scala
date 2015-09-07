@@ -21,8 +21,7 @@ import java.io.{Serializable => JSerializable}
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings._
-import org.apache.spark.SparkContext
-import org.apache.spark.broadcast.Broadcast
+
 import org.apache.spark.sql._
 import org.apache.spark.sql.types._
 import org.apache.spark.streaming.dstream.DStream
@@ -51,17 +50,17 @@ class ElasticSearchOutput(keyName: String,
 
   override val dateType = getDateTimeType(properties.getString("dateType", None))
 
-  override val nodes = properties.getString("nodes", DEFAULT_NODE)
-
-  override val defaultPort = properties.getString("defaultPort", DEFAULT_PORT)
+  override val nodes = properties.getHostPortConfs("nodes")
 
   @transient private val elasticClient = {
-    if (nodes.equals("localhost") || nodes.equals("127.0.0.1")) {
-      ElasticClient.fromNode(NodeBuilder.nodeBuilder().client(true).node())
-    } else {
-      ElasticClient.remote(nodes, defaultPort.toInt)
+
+      if (nodes(0)._1.equals("localhost") || nodes(0)._1.equals("127.0.0.1")) {
+        ElasticClient.fromNode(NodeBuilder.nodeBuilder().client(true).node())
+      } else {
+        ElasticClient.remote(nodes(0)._1, nodes(0)._2)
+      }
     }
-  }
+
 
   override val idField = properties.getString("idField", None)
 
