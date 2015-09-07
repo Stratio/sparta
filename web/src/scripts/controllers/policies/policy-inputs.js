@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('PolicyInputCtrl', PolicyInputCtrl);
 
-  PolicyInputCtrl.$inject = ['FragmentFactory', 'policyModelFactory', '$q'];
+  PolicyInputCtrl.$inject = ['FragmentFactory', 'PolicyModelFactory', '$q'];
 
-  function PolicyInputCtrl(FragmentFactory, policyModelFactory, $q) {
+  function PolicyInputCtrl(FragmentFactory, PolicyModelFactory, $q) {
     var vm = this;
     vm.setInput = setInput;
     vm.isSelectedInput = isSelectedInput;
@@ -17,7 +17,7 @@
 
     function init() {
       var defer = $q.defer();
-      vm.policy = policyModelFactory.GetCurrentPolicy();
+      vm.policy = PolicyModelFactory.GetCurrentPolicy();
       var inputList = FragmentFactory.GetFragments("input");
       inputList.then(function (result) {
         vm.inputList = result;
