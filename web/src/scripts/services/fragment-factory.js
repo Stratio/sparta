@@ -23,6 +23,9 @@
                },
                GetFragments: function(fragmentType) {
                   return ApiFragmentService.GetFragments().get({'type': fragmentType}).$promise;
+               },
+               GetFakeFragments: function(fragmentType) {
+                  return ApiFragmentService.GetFakeFragments().get({'type': fragmentType}).$promise;
                }
            };
    };

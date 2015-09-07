@@ -91,9 +91,6 @@ angular
     .state('settings', {
         url: '/settings',
         views: {
-            'menu': {
-                templateUrl:  'views/settings/settings_menu.html'
-            },
             'content': {
                 controller:   'SettingsCtrl',
                 controllerAs: 'settings',

@@ -12,6 +12,8 @@
 
         vm.GetPolicyByFragmentId = GetPolicyByFragmentId;
         vm.GetAllpolicies = GetAllpolicies;
+        vm.CreatePolicy = CreatePolicy;
+        vm.GetFakePolicy = GetFakePolicy;
 
         /////////////////////////////////
 
@@ -26,6 +28,20 @@
             return $resource('/policy/all', {},
             {
                 'get': {method:'GET', isArray:true}
+            });
+        };
+
+        function CreatePolicy() {
+            return $resource('/policy', {},
+            {
+                'create': {method:'POST'}
+            });
+        };
+
+        function GetFakePolicy() {
+            return $resource('/data-templates/fake_data/create_policies.json', {},
+            {
+                'get': {method:'GET'}
             });
         };
     };

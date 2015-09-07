@@ -1,0 +1,133 @@
+[
+  {
+    "description": "Reads events from a socket.",
+    "element": {
+      "configuration": {
+        "hostname": "localhost",
+        "port": "123"
+      },
+      "type": "Socket",
+      "name": "in-Socket"
+    },
+    "fragmentType": "input",
+    "shortDescription": "Reads events from a socket.",
+    "name": "test input socket"
+  },
+  {
+    "description": "Reads events from Twitter stream.",
+    "element": {
+      "configuration": {
+        "consumerKey": "a",
+        "accessTokenSecret": "d",
+        "accessToken": "c",
+        "consumerSecret": "b",
+        "termsOfSearch": "e"
+      },
+      "type": "Twitter",
+      "name": "in-Twitter"
+    },
+    "fragmentType": "input",
+    "shortDescription": "Reads events from Twitter stream.",
+    "name": "test input twitter"
+  },
+  {
+    "description": "Reads events from flume",
+    "element": {
+      "configuration": {
+        "enableDecompression": true,
+        "hostname": "localhost",
+        "type": "push",
+        "port": "11999"
+      },
+      "type": "Flume",
+      "name": "in-Flume"
+    },
+    "fragmentType": "input",
+    "shortDescription": "Reads events from flume",
+    "name": "test input flume type push"
+  },
+  {
+    "description": "Reads events from RabbitMQ",
+    "element": {
+      "configuration": {
+        "queue": "",
+        "host": "localhost",
+        "port": "5672",
+        "exchangeName": "",
+        "routingKeys":
+        [
+          {
+            "routingKey":""
+          }
+        ]
+      },
+      "type": "RabbitMQ",
+      "name": "in-RabbitMQ"
+    },
+    "fragmentType": "input",
+    "shortDescription": "Reads events from RabbitMQ",
+    "name": "test input rabbitmq"
+  },
+  {
+    "description": "Reads events from apache-kafka",
+    "element": {
+      "configuration": {
+        "kafkaParams.zookeeper.connect":
+        [
+          {
+            "host":"localhost",
+            "port":"2181"
+          }
+        ],
+        "topics":
+        [
+          {
+            "topic":"1111",
+            "partition":"1"
+          },
+          {
+            "topic":"2222",
+            "partition":"2"
+          }
+        ],
+        "kafkaParams.group.id": "aaaa"
+      },
+      "type": "Kafka",
+      "name": "in-Kafka"
+    },
+    "fragmentType": "input",
+    "shortDescription": "Reads events from apache-kafka",
+    "name": "test input kafka"
+  },
+  {
+    "description": "Reads events from apache-kafka",
+    "element": {
+      "configuration": {
+        "kafkaParams.group.id": "eee",
+        "topics": [{"topic":"111","partition":"1"},{"topic":"222","partition":"2"},{"topic":"3333","partition":"3"}],
+        "kafkaParams.metadata.broker.list": [{"broker":"localhost","port":"9092"}]
+      },
+      "type": "Kafka Direct",
+      "name": "in-Kafka Direct"
+    },
+    "fragmentType": "input",
+    "shortDescription": "Reads events from apache-kafka",
+    "name": "test input kafkadirect"
+  },
+  {
+    "description": "Reads events from flume",
+    "element": {
+      "configuration": {
+        "parallelism": "5",
+        "type": "pull",
+        "addresses": [{"host":"localhost","port":"11999"}],
+        "maxBatchSize": "1000"
+      },
+      "type": "Flume",
+      "name": "in-Flume"
+    },
+    "fragmentType": "input",
+    "shortDescription": "Reads events from flume",
+    "name": "test input flume type pull"
+  }
+]
