@@ -1,6 +1,11 @@
 <section data-ng-controller="PolicyInputCtrl as vm">
-
-  <h1>{{"_POLICY_._STEPS_._INPUT_" |translate}}</h1>
+  <header class="c-step-content__title c-step-content__title--underlined">
+    <h1>
+      <span class="c-step-counter">{{wizard.currentStep + 1}}/{{wizard.steps.length}}</span>
+      <i class="c-step-counter__icon c-icon c-icon--small icon-arrow2_right"></i>
+      <span class="c-step-content__title-text">{{"_POLICY_._STEPS_._INPUT_" | translate}}</span>
+    </h1>
+  </header>
 
   <p>{{"_POLICY_._INPUTS_INTRO_" | translate}}</p>
 
