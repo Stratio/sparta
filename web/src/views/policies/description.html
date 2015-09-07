@@ -1,7 +1,7 @@
 <section data-ng-controller="PolicyDescriptionCtrl as vm">
   <header class="c-step-content__title c-step-content__title--underlined">
     <h1>
-      <span class="c-step-counter">{{vm.policy.currentStep + 1}}/{{vm.policy.steps.length}}</span>
+      <span class="c-step-counter">{{wizard.currentStep + 1}}/{{wizard.steps.length}}</span>
       <i class="c-step-counter__icon c-icon c-icon--small icon-arrow2_right"></i>
       <span class="c-step-content__title-text">{{"_POLICY_._STEPS_._DESCRIPTION_" | translate}}</span>
     </h1>
@@ -12,31 +12,27 @@
   <form class="c-form c-panel c-panel--framed">
     <fieldset class="c-fieldset">
       <legend class="c-fieldset__title">{{"_DATA_" | translate}}</legend>
-      
+
       <div class="c-form-group">
-        <form-field-input id="name" data-model="vm.policyData.name" data-label="{{'_INSERT_NAME_' | translate}}:" data-form="vm.form" data-st-name="dataSourceNameForm" data-required="true" data-autofocus="true"></form-field-input>
+        <form-field-input id="name" data-model="vm.policy.name" data-label="{{'_INSERT_NAME_' | translate}}:" data-form="vm.form" data-st-name="dataSourceNameForm" data-required="true" data-autofocus="true"></form-field-input>
       </div>
-      
+
       <div class="c-form-group">
-        <form-field-input id="description" data-model="vm.policyData.name" data-label="{{'_INSERT_DESCRIPTION_' | translate}}:" data-form="vm.form" data-st-name="dataSourceNameForm" data-required="true" data-autofocus="true"></form-field-input>
+        <form-field-input id="description" data-model="vm.policy.description" data-label="{{'_INSERT_DESCRIPTION_' | translate}}:" data-form="vm.form" data-st-name="dataSourceNameForm" data-required="true" data-autofocus="true"></form-field-input>
       </div>
     </fieldset>
-<!--
-  <c-input-field form-control-text="'_INSERT_NAME_' | translate" form-control-class="" value=vm.policy.name
-                 model="vm.policy.name"></c-input-field>
 
-  <c-input-field form-control-text="'_INSERT_DESCRIPTION_' | translate" form-control-class="" value=vm.policy.description
-                 model="vm.policy.description"></c-input-field>
--->
     <fieldset class="c-fieldset">
       <legend class="c-fieldset__title">{{"_WINDOW_DURATION_" | translate}}</legend>
-      
+
       <div class="c-form-group">
         <c-icon-label icon-class="'c-icon icon-info1'" text="'_SPARK_STREAMING_WINDOW_' | translate" text-class=""></c-icon-label>
         <c-slider min-text="'_SHORT_' | translate" max-text="'_LONG_' | translate" min-value="vm.policy.sparkStreamingWindowData.min"
                   max-value="vm.policy.sparkStreamingWindowData.max" steps="1" value="vm.policy.sparkStreamingWindow"></c-slider>
-        <c-input-field form-control-text="'_CUSTOM_' | translate" form-control-class="" right-text="'ms.'"
-                       value="vm.policy.sparkStreamingWindow" model="vm.policy.sparkStreamingWindow" input-type="'number'"></c-input-field>
+        <c-input-field label-control-text="'_CUSTOM_' | translate" form-control-class="" label-control-class="" input-control-class="" right-text-class = ""
+                       right-text="'ms.'" placeholder="('_INPUT_PLACEHOLDER_' | translate)"
+                       value=vm.policy.sparkStreamingWindow model="vm.policy.sparkStreamingWindow"
+                       pattern="'[0-9]*'">
       </div>
 
       <div class="c-form-group">
@@ -44,7 +40,10 @@
         <c-slider min-text="'_SHORT_' | translate" max-text="'_LONG_' | translate" min-value="vm.policy.checkpointIntervalData.min"
                   max-value="vm.policy.checkpointIntervalData.max" steps="1" value="vm.policy.checkpointInterval"></c-slider>
         <c-input-field form-control-text="'_CUSTOM_' | translate" form-control-class="" right-text="'ms.'"
-                       value="vm.policy.checkpointInterval" model="vm.policy.checkpointInterval" input-type="'number'"></c-input-field>
+                       value=vm.policy.checkpointInterval model="vm.policy.checkpointInterval" ng-pattern="/^\d+$/"
+                       placeholder="('_INPUT_PLACEHOLDER_' | translate)"
+                       form-control-class="" label-control-class="" input-control-class="" right-text-class = "">
+        </c-input-field>
       </div>
 
       <div class="c-form-group">
@@ -52,7 +51,10 @@
         <c-slider min-text="'_SHORT_' | translate" max-text="'_LONG_' | translate" min-value="vm.policy.checkpointAvailabilityData.min"
                   max-value="vm.policy.checkpointAvailabilityData.max" steps="1" value="vm.policy.checkpointAvailability"></c-slider>
         <c-input-field form-control-text="'_CUSTOM_' | translate" form-control-class="" right-text="'ms.'"
-                       value="vm.policy.checkpointAvailability" model="vm.policy.checkpointAvailability" input-type="'number'"></c-input-field>
+                       value=vm.policy.checkpointAvailability model="vm.policy.checkpointAvailability"
+                       data-ng-pattern="/^\d+$/" placeholder="('_INPUT_PLACEHOLDER_' | translate)"
+          >
+        </c-input-field>
       </div>
 
       <c-icon-label icon-class="'icon-info1'" text="'_CHECKPOINT_PATH_' | translate" text-class=""></c-icon-label>
