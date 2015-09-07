@@ -1,5 +1,4 @@
 {
-  "id": "id",
   "name": "policy-kafka",
   "description": "policy-kafka",
   "sparkStreamingWindow": 2000,
@@ -148,10 +147,8 @@
       "name": "out-mongo",
       "type": "MongoDb",
       "configuration": {
-        "hosts": "localhost",
-        "dbName": "sparkta",
-        "identitiesSaved": "true",
-        "idAsField": "true"
+        "hosts": [{"host": "localhost" , "port": "27017" }],
+        "dbName": "sparkta"
       }
     }
   ]
