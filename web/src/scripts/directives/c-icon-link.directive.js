@@ -19,7 +19,10 @@ function cIconLink() {
       linkClass: "=linkClass"
     },
     replace: "true",
-    templateUrl: 'templates/components/c-icon-link.tpl.html'
+    templateUrl: 'templates/components/c-icon-link.tpl.html',
+    link: function(scope){
+      console.log(scope)
+    }
   }
 };
 })();

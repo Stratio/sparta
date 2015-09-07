@@ -18,6 +18,8 @@
       policy.checkpointPath = "";
       policy.input = {};
       policy.outputs = [];
+
+      policy.models = [];
     }
 
     return {
