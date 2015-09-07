@@ -1,0 +1,11 @@
+@mixin c-fieldset {
+	@include c-component;
+
+	&__title {
+		font-weight: $c-fieldset__title---font-weight;
+	}
+}
+
+.c-fieldset {
+	@include c-fieldset;
+}
