@@ -38,7 +38,7 @@ trait ElasticSearchDAO extends Closeable {
   final val SECOND = "ss"
   final val DEFAULT_INDEX_TYPE = "sparkta"
   final val DEFAULT_NODE = "localhost"
-  final val DEFAULT_PORT = "9300"
+  final val DEFAULT_PORT = "9200"
 
 
 

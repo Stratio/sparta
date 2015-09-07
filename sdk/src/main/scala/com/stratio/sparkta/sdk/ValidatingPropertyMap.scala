@@ -42,10 +42,18 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
     conObj.map(c => c.get("host").get + ":" + c.get("port").get).mkString(",")
   }
 
-  def getHostPortConfs(key: K): Seq[(String, Int)] = {
+  def getHostPortConfs(key: K, defaultHost: String, defaultPort: String): Seq[(String, Int)] = {
 
     val conObj = getConnectionChain(key)
-    conObj.map(c => (c.get("node").get.toString, c.get("defaultPort").get.toString.toInt))
+    conObj.map(c =>
+      (c.get("node") match{
+        case Some(value) => value.toString
+        case None => defaultHost
+      },
+        c.get("defaultPort") match {
+        case Some(value) => value.toString.toInt
+        case None => defaultPort.toInt
+        }))
 
   }
 

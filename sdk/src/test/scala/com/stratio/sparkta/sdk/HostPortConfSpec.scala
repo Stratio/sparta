@@ -29,7 +29,7 @@ class HostPortConfSpec extends WordSpec with Matchers{
       val conn = """[{"node":"localhost","defaultPort":"9200"}]"""
       val validating: ValidatingPropertyMap[String,JsoneyString] =
         new ValidatingPropertyMap[String, JsoneyString](Map("nodes" -> JsoneyString(conn)))
-      validating.getHostPortConfs("nodes") should be (List(("localhost", 9200)))
+      validating.getHostPortConfs("nodes", "localhost", "9200") should be (List(("localhost", 9200)))
     }
   }
 }
