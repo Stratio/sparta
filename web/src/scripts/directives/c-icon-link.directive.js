@@ -15,7 +15,7 @@ function cIconLink() {
       iconClass: "=iconClass",
       text: "=text",
       textClass: "=textClass",
-      linkUrl:"",
+      linkUrl:"=linkUrl",
       linkClass: "=linkClass"
     },
     replace: "true",
