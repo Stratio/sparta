@@ -64,7 +64,7 @@ class MongoDbOutput(keyName: String,
       val schemasFiltered =
         bcSchema.get.value.filter(schemaFilter => schemaFilter.outputName == keyName).map(getTableSchemaFixedId(_))
       filterSchemaByFixedAndTimeDimensions(schemasFiltered)
-        .map(tableSchema => createPkTextIndex(tableSchema.tableName, tableSchema.timeDimension))
+        .map(tableSchema => createPkTextIndex(tableSchema.cubeName, tableSchema.timeDimension))
         .forall(result => result._1 && result._2)
     } else false
 

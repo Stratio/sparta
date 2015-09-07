@@ -76,7 +76,7 @@ trait CassandraDAO extends Closeable with Logging {
                                tSchemas: Seq[TableSchema],
                                isAutoCalculateId: Boolean): Boolean = {
     tSchemas.map(tableSchema =>
-      createTable(conn, tableSchema.tableName, tableSchema.schema, tableSchema.timeDimension, isAutoCalculateId))
+      createTable(conn, tableSchema.cubeName, tableSchema.schema, tableSchema.timeDimension, isAutoCalculateId))
       .forall(result => result)
   }
 
@@ -108,7 +108,7 @@ trait CassandraDAO extends Closeable with Logging {
           indexField <- fields
           primaryKey = getPartitionKey(tableSchema.schema, tableSchema.timeDimension, isAutoCalculateId)
           created = if (!primaryKey.contains(indexField)) {
-            createIndex(conn, tableSchema.tableName, indexField)
+            createIndex(conn, tableSchema.cubeName, indexField)
           } else {
             log.info(s"The indexed field: $indexField is part of primary key.")
             false
@@ -138,9 +138,9 @@ trait CassandraDAO extends Closeable with Logging {
         val seqResults = for {
           tableSchema <- tSchemas
           fields = textFields.filter(textField => tableSchema.schema.fieldNames.contains(textField.split(":").head))
-          indexName = s"$IndexPrefix${tableSchema.tableName}"
+          indexName = s"$IndexPrefix${tableSchema.cubeName}"
           command = s"CREATE CUSTOM INDEX IF NOT EXISTS $indexName " +
-            s"ON $keyspace.${tableSchema.tableName} ($textIndexName) USING 'com.stratio.cassandra.index.RowIndex' " +
+            s"ON $keyspace.${tableSchema.cubeName} ($textIndexName) USING 'com.stratio.cassandra.index.RowIndex' " +
             s"WITH OPTIONS = { 'refresh_seconds' : '$refreshSeconds', ${getTextIndexSentence(fields)} }"
           created = executeCommand(conn, command)
         } yield created

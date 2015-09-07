@@ -74,7 +74,7 @@ class ElasticSearchOutput(keyName: String,
   private def createIndices = {
     bcSchema.get.value.filter(tschema => (tschema.outputName == keyName)).foreach(tschemaFiltered => {
       val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
-      createIndexAccordingToSchema(tableSchemaTime.tableName, tableSchemaTime.schema)
+      createIndexAccordingToSchema(tableSchemaTime.cubeName, tableSchemaTime.schema)
     })
     elasticClient.close()
   }

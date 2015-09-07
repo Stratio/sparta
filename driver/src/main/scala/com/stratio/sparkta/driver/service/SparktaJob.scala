@@ -85,7 +85,7 @@ object SparktaJob {
     }
   }
 
-  val getClasspathMap: Map[String, String] = {
+  lazy val getClasspathMap: Map[String, String] = {
     val reflections = new Reflections()
     val inputs = reflections.getSubTypesOf(classOf[Input]).toList
     val dimensionTypes = reflections.getSubTypesOf(classOf[DimensionType]).toList
