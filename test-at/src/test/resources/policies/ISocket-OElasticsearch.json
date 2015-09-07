@@ -102,8 +102,7 @@
       "name": "out-elasticsearch",
       "type": "ElasticSearch",
       "configuration": {
-        "nodes": "localhost",
-        "defaultPort": "9200",
+        "nodes": [{"node": "localhost" , "defaultPort": "9200" }],
         "isAutoCalculateId": "true",
         "indexMapping": "day"
       }
