@@ -20,7 +20,13 @@
     vm.helpLink = PolicyStaticDataFactory.helpLinks.description;
 
     function validateForm() {
-      if ( vm.form.$valid ) PolicyModelFactory.NextStep();
+      if (vm.form.$valid) {
+        if (vm.policy.rawData.enabled === false){
+            delete vm.policy.rawData['path'];
+            delete vm.policy.rawData['partitionFormat'];
+        }
+        PolicyModelFactory.NextStep();
+      }
     }
   }
 })();
