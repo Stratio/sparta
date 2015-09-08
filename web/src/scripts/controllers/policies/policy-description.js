@@ -17,6 +17,7 @@
     vm.checkpointIntervalData = PolicyStaticDataFactory.checkpointInterval;
     vm.checkpointAvailabilityData = PolicyStaticDataFactory.checkpointAvailability;
     vm.partitionFormatData = PolicyStaticDataFactory.partitionFormat;
+    vm.helpLink = PolicyStaticDataFactory.helpLinks.description;
 
     function validateForm() {
       if ( vm.form.$valid ) PolicyModelFactory.NextStep();
