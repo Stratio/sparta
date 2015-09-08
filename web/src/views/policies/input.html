@@ -1,20 +1,24 @@
 <section data-ng-controller="PolicyInputCtrl as vm">
   <header class="c-step-content__title c-step-content__title--underlined">
     <h1>
-      <span class="c-step-counter">{{wizard.currentStep + 1}}/{{wizard.steps.length}}</span>
+      <span class="c-step-counter">{{wizard.policy.currentStep + 1}}/{{wizard.steps.length}}</span>
       <i class="c-step-counter__icon c-icon c-icon--small icon-arrow2_right"></i>
       <span class="c-step-content__title-text">{{"_POLICY_._STEPS_._INPUT_" | translate}}</span>
     </h1>
   </header>
+
+  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error">
+    <i class="c-icon icon-circle-cross"></i>
+    <span>{{"_POLICY_._INPUTS_ERROR_" | translate}}</span>
+  </div>
 
   <p>{{"_POLICY_._INPUTS_INTRO_" | translate}}</p>
 
   <div data-ng-repeat="input in vm.inputList">
     <div data-ng-click="vm.setInput($index)">
       <h1>{{input.name}}</h1>
-      <input type="checkbox" data-ng-checked="vm.isSelectedInput(input.name)">
-
-      <p>{{description}}</p>
+      <input type="radio" data-ng-checked="vm.isSelectedInput(input.name)" data-ng-model = "vm.policy.input">
+      <p>{{input.description}}</p>
     </div>
   </div>
 
@@ -22,7 +26,7 @@
     <div class="c-col c-col--6 c-col--vertical-centered">
       <c-icon-link icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action icon-help1'" text="'_INPUT_WINDOW_NEW_HELP_' | translate" text-class="" link-url="vm.helpLink"></c-icon-link>
     </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
-      <button class="c-button c-button--call-to-action-1">
+      <button class="c-button c-button--call-to-action-1" data-ng-click="vm.checkInput()">
         <i class="icon icon-arrow-right"></i>
         <span>{{"_CONTINUE_" | translate}}</span>
       </button>

@@ -10,8 +10,11 @@
 
   function PolicyOutputCtrl(FragmentFactory, PolicyModelFactory, $q, PolicyStaticDataFactory) {
     var vm = this;
+    vm.checkOutputs = checkOutputs;
     vm.outputList = [];
     init();
+
+    ////////////////////////////////////
 
     function init() {
       vm.helpLink = PolicyStaticDataFactory.helpLinks.outputs;
@@ -30,6 +33,25 @@
 
       return defer.promise;
     }
+
+    function checkOutputs() {
+      var outputsCount = 0;
+      var outputsLength = vm.policy.outputs.length;
+
+      for (var i = outputsLength-1; i>=0; i--) {
+        if (vm.policy.outputs[i]) {
+          outputsCount++;
+        }
+      }
+
+      if (outputsCount > 0) {
+        vm.error = false;
+        PolicyModelFactory.NextStep();
+      }
+      else {
+        vm.error = true;
+      }
+    };
 
   }
 })();

@@ -12,7 +12,9 @@
     var vm = this;
     vm.setInput = setInput;
     vm.isSelectedInput = isSelectedInput;
+    vm.checkInput = checkInput;
     vm.inputList = [];
+    vm.error = false;
     init();
 
     function init() {
@@ -28,17 +30,28 @@
         defer.reject();
       });
       return defer.promise;
-    }
+    };
 
     function setInput(index) {
       vm.policy.input = vm.inputList[index];
-    }
+    };
 
     function isSelectedInput(name) {
       if (vm.policy.input)
         return name == vm.policy.input.name;
       else
         return false;
-    }
+    };
+
+    function checkInput() {
+      var inputObjectLenght = Object.getOwnPropertyNames(vm.policy.input).length;
+      if (inputObjectLenght > 0) {
+        vm.error = false;
+        PolicyModelFactory.NextStep();
+      }
+      else {
+        vm.error = true;
+      }
+    };
   };
 })();
