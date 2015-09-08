@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('PolicyModelsCtrl', PolicyModelsCtrl);
 
-  PolicyModelsCtrl.$inject = ['PolicyModelFactory', 'ModelStaticDataFactory'];
+  PolicyModelsCtrl.$inject = ['PolicyModelFactory', 'ModelStaticDataFactory', 'AccordionStatusService'];
 
-  function PolicyModelsCtrl(PolicyModelFactory, ModelStaticDataFactory) {
+  function PolicyModelsCtrl(PolicyModelFactory, ModelStaticDataFactory, AccordionStatusService) {
     var vm = this;
     vm.init = init;
     vm.isCurrentModel = isCurrentModel;
@@ -17,16 +17,18 @@
     vm.getCurrentModel = getCurrentModel;
     vm.removeModel = removeModel;
     vm.nextStep = nextStep;
+
     vm.init();
 
     function init() {
       vm.policy = PolicyModelFactory.GetCurrentPolicy();
-      vm.accordionStatus = [];
+      vm.accordionStatus = AccordionStatusService.GetAccordionStatus();
       vm.newModel = {};
       vm.newModelIndex = vm.policy.models.length;
       vm.templateModelData = ModelStaticDataFactory;
       initNewModel();
-      resetAccordionStatus();
+
+      AccordionStatusService.ResetAccordionStatus(vm.policy.models.length,vm.policy.models.length);
     }
 
     function isCurrentModel(index) {
@@ -52,7 +54,8 @@
         var newModel = angular.copy(vm.newModel);
         vm.policy.models.push(newModel);
         initNewModel();
-        resetAccordionStatus();
+
+        AccordionStatusService.ResetAccordionStatus(vm.policy.models.length,vm.policy.models.length);
       }else
         vm.showModelError = true;
     }
@@ -76,14 +79,7 @@
     function removeModel(index) {
       vm.policy.models.splice(index, 1);
       vm.newModelIndex = vm.policy.models.length;
-      resetAccordionStatus();
-    }
-
-    function resetAccordionStatus() {
-      for (var i = 0; i < vm.policy.models.length; ++i) {
-        vm.accordionStatus[i] = false;
-      }
-      vm.accordionStatus[vm.policy.models.length] = true;
+      AccordionStatusService.ResetAccordionStatus(vm.policy.models.length,vm.policy.models.length);
     }
 
     function isValidModel() {
