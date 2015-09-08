@@ -22,6 +22,8 @@
       policy.currentStep = 0;
       policy.input = {};
       policy.outputs = [];
+
+      policy.models = [];
     }
 
     return {
@@ -32,7 +34,6 @@
       },
       NextStep: function() {
         policy.currentStep++;
-        console.log(policy.currentStep);
       }
     }
   }

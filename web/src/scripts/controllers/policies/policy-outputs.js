@@ -26,14 +26,12 @@
       vm.policy = PolicyModelFactory.GetCurrentPolicy();
 
       var outputList = FragmentFactory.GetFragments("output");
-
       outputList.then(function (result) {
         vm.outputList = result;
         defer.resolve();
       }, function () {
         defer.reject();
       });
-
       return defer.promise;
     }
 

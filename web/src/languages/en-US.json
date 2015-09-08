@@ -10,7 +10,7 @@
   "_TYPE_": "Type",
   "_ADDRESS_": "Address",
   "_PORT_": "Port",
-  "_GROUP_ID_" : "Group ID",
+  "_GROUP_ID_": "Group ID",
   "_MAX_BATCH_SIZE": "Max batch size",
   "_PARALLELISM_": "Parallelism",
   "_HOST_NAME_": "Host name",
@@ -113,11 +113,8 @@
     "_OUTPUTS_INTRO_":"",
     "_OUTPUTS_ERROR_": "At least one output must be selected!",
     "_DESCRIPTION_INFO_MESSAGE_": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
-    "_WINDOW_": {
-      "_CONFIRM_": {
-        "_TITLE_" : "Create policy"
-      }
-    }
+    "_MODEL_NAME_": "Model name",
+    "_ADD_MODEL_": "Add model"
   },
   "_SHORT_": "Short",
   "_LONG_": "Long",
@@ -131,7 +128,8 @@
   "_INSERT_NAME_": "Insert Name",
   "_CUBE_CONFIG_HELP_MESSAGE_": "Need help to configure your Cube? Use the Help tab in the upper right of your screen",
   "_INPUT_PLACEHOLDER_": "",
-  "_PERSIST_RAW_DATA_": "Persist raw data",
-  "_PARTITION_FORMAT_": "Partition format",
-  "_STATUS_": "Status"
+  "_STATUS_": "Status",
+  "_INPUT_FIELDS_": "Input fields",
+  "_OUTPUTS_FIELDS_": "Output fields",
+  "_CONFIGURATION_": "Configuration"
 }

@@ -45,12 +45,15 @@
 @import 'sparkta-ui/components/c-step-counter/index';
 @import 'sparkta-ui/components/c-fieldset/index';
 @import 'sparkta-ui/components/c-slider/index';
+@import 'sparkta-ui/components/c-check-block/index';
+@import 'sparkta-ui/components/c-textarea/index';
 
 @import 'sparkta-ui/objects/o-media';
 @import 'sparkta-ui/objects/o-wcag-hidden';
 
 @import 'vendors/angular-ui/tooltip';
 @import 'vendors/angular-ui/modal';
+@import 'vendors/angular-ui/accordion';
 
 @import 'custom/angular-ui/tooltip';
 @import 'custom/stratio-ui/components/c-grid-item/index';
