@@ -7,24 +7,31 @@
 </header>
 <div data-ng-controller="PolicyModelsCtrl as vm">
   <accordion>
-    <accordion-group is-open="accordionStatus[$index]"
-                     ng-repeat="model in vm.policy.models track by $index">
+    <accordion-group  is-open="vm.accordionStatus[$index]" ng-repeat="currentModel in vm.policy.models track by $index" ng-model="currentModel">
+
       <accordion-heading>
-        {{model.type}}
+        <label>{{$index + 1}}</label>. <p>{{currentModel.type}}</p>
+
         <i class="pull-right glyphicon"
            ng-class="{'glyphicon-chevron-down': vm.isCurrentModel($index), 'glyphicon-chevron-right': !vm.isCurrentModel($index)}"></i>
-      </accordion-heading>
 
-      <ng-include src="'views/policies/new-model.html'""></ng-include>
+
+
+      </accordion-heading>
+      <button ng-click="vm.removeModel($index, $event)"><i class="icon-cross"></i></button>
+      <ng-include src="'views/policies/new-model.html'"></ng-include>
     </accordion-group>
 
-    <accordion-group is-open="accordionStatus[$index]">
+    <accordion-group is-open="vm.accordionStatus[vm.policy.models.length]" ng-model="vm.newModel">
       <accordion-heading>
-        {{"_POLICY_._MODEL_NAME_" | translate}}
+        <label>{{(vm.policy.models.length + 1) }}</label>. <p>{{"_POLICY_._MODEL_NAME_" | translate}}</p>
+
         <i class="pull-right glyphicon"
            ng-class="{'glyphicon-chevron-down': vm.isCurrentModel(0), 'glyphicon-chevron-right': !vm.isCurrentModel($index)}"></i>
       </accordion-heading>
-      <ng-include src="'views/policies/new-model.html'" ></ng-include>
+
+      <ng-include src="'views/policies/new-model.html'">
+      </ng-include>
     </accordion-group>
   </accordion>
 </div>

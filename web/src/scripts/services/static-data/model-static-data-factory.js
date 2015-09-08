@@ -8,7 +8,7 @@
   function ModelStaticDataFactory() {
 
     return {
-      types: [{iconName: "moreline", name: "moreline"}, {iconName: "datetime", name: "datetime"}],
+      types: [{iconName: "grid-dots", name: "moreline"}, {iconName: "dashboard", name: "datetime"}],
       defaultInput:["raw"]
     }
   }
