@@ -7,14 +7,34 @@
     </h1>
   </header>
 
-  <p>{{"_POLICY_._INPUTS_INTRO_" | translate}}</p>
+  <p class="c-info-text c-info-text--narrow"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._INPUTS_INTRO_" | translate}}</span></p>
 
-  <div data-ng-repeat="input in vm.inputList">
-    <div data-ng-click="vm.setInput($index)">
-      <h1>{{input.name}}</h1>
-      <input type="checkbox" data-ng-checked="vm.isSelectedInput(input.name)">
+  <form name="vm.form" class="c-form c-panel c-panel--framed" novalidate>
+    <div class="c-col c-col--4" data-ng-repeat="input in vm.inputList">
+      <div class="c-check-block" data-ng-click="vm.setInput($index)">
+        <!--<form-field-check data-form="vm.form" data-st-name="{{input.id}}" data-model="vm.input.name" data-label="{{input.name}}" data-help="" data-ng-checked="vm.isSelectedInput(input.id)"></form-field-check>-->
+        <div class="c-form-control c-form-control--full-width">
+          <div class="c-row">
+              <label class="c-label">{{input.name}}</label>
+          </div>
+          <div class="c-row">
+            <input class="c-checkbox" type="checkbox" data-ng-checked="vm.isSelectedInput(input.name)"><label class="c-label"></label>
+          </div>
+        </div>
 
-      <p>{{description}}</p>
+        <i class="c-icon icon-{{input.element.type | lowercase}}"></i>
+      </div>
     </div>
-  </div>
+
+    <footer class="c-row c-row--footer c-row--separated">
+      <div class="c-col c-col--6 c-col--vertical-centered">
+        <c-icon-label icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action icon-help1'" text="'_CUBE_CONFIG_HELP_MESSAGE_' | translate" text-class=""></c-icon-label>
+      </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
+        <button class="c-button c-button--call-to-action-1" data-ng-click="vm.validateForm()">
+          <i class="icon icon-arrow-right"></i>
+          <span>{{"_CONTINUE_" | translate}}</span>
+        </button>
+      </div>
+    </footer>
+  </form>
 </section>
