@@ -11,6 +11,9 @@
   function PolicyOutputCtrl(FragmentFactory, PolicyModelFactory, $q, PolicyStaticDataFactory) {
     var vm = this;
     vm.checkOutputs = checkOutputs;
+    vm.checkSelected = checkSelected;
+    vm.formSubmmited = false;
+    vm.error = false;
     vm.outputList = [];
     init();
 
@@ -34,7 +37,26 @@
       return defer.promise;
     }
 
+    function checkSelected() {
+      var outputsSelected = checkOutputsSelected();
+
+      vm.error = (outputsSelected>0)? false : true;
+    }
+
     function checkOutputs() {
+      vm.formSubmmited = true;
+      var outputsSelected = checkOutputsSelected();
+
+      if (outputsSelected > 0) {
+        vm.error = false;
+        PolicyModelFactory.NextStep();
+      }
+      else {
+        vm.error = true;
+      }
+    };
+
+    function checkOutputsSelected() {
       var outputsCount = 0;
       var outputsLength = vm.policy.outputs.length;
 
@@ -43,14 +65,7 @@
           outputsCount++;
         }
       }
-
-      if (outputsCount > 0) {
-        vm.error = false;
-        PolicyModelFactory.NextStep();
-      }
-      else {
-        vm.error = true;
-      }
+      return outputsCount;
     };
 
   }

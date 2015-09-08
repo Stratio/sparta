@@ -34,6 +34,7 @@
 
     function setInput(index) {
       vm.policy.input = vm.inputList[index];
+      vm.error = false
     };
 
     function isSelectedInput(name) {

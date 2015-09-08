@@ -17,7 +17,7 @@
   <div data-ng-repeat="input in vm.inputList">
     <div data-ng-click="vm.setInput($index)">
       <h1>{{input.name}}</h1>
-      <input type="radio" data-ng-checked="vm.isSelectedInput(input.name)" data-ng-model = "vm.policy.input">
+      <input type="radio" data-ng-checked="vm.isSelectedInput(input.name)" data-ng-model="vm.policy.input">
       <p>{{input.description}}</p>
     </div>
   </div>

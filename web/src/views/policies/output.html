@@ -8,7 +8,7 @@
     </h1>
   </header>
 
-  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error">
+  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error && vm.formSubmmited">
     <i class="c-icon icon-circle-cross"></i>
     <span>{{"_POLICY_._OUTPUTS_ERROR_" | translate}}</span>
   </div>
@@ -22,7 +22,7 @@
       <th>{{ "_DESCRIPTION_" | translate}}</th>
     </tr>
     <tr data-ng-repeat="output in vm.outputList">
-      <td><input type="checkbox" ng-model="vm.policy.outputs[$index]" ng-true-value={{output}} data-ng-false-value="null"></td>
+      <td><input type="checkbox" ng-model="vm.policy.outputs[$index]" ng-true-value={{output}} data-ng-false-value="null" data-ng-change="vm.checkSelected()"></td>
       <td>{{output.name}}</td>
       <td>{{output.description}}</td>
     </tr>
