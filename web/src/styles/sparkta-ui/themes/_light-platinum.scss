@@ -41,6 +41,7 @@
  *		c-fieldset
  *		c-slider
  *		c-check-block
+ *		c-textarea
  *
  */
 
@@ -451,3 +452,9 @@ $c-check-block__checkbox---color: $c-check-block---color;
 $c-check-block__icon---left: 20px;
 $c-check-block__icon---font-size: 2rem;
 $c-check-block__icon---bottom: 20px;
+
+
+
+// c-textarea
+$c-textarea--min-height: 100px;
+$c-textarea--big--min-height: 300px;

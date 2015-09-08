@@ -1,0 +1,28 @@
+/*doc
+---
+title: c-textarea
+name: c-textarea
+category: components
+---
+
+To do
+
+```html_example
+<input type="text" class="c-input" />
+```
+
+## Variables exposed to theming
+
+Variable                                    | Default value
+------------------------------------------- | -----------------
+todo 							| `none' 
+
+
+## Dependencies
+
+[c-input]()
+
+*/
+
+@import "vars";
+@import "rules";
