@@ -12,6 +12,7 @@
     var vm = this;
     vm.setInput = setInput;
     vm.isSelectedInput = isSelectedInput;
+    vm.validateForm = validateForm;
     vm.inputList = [];
     init();
 
@@ -39,6 +40,10 @@
         return name == vm.policy.input.name;
       else
         return false;
+    }
+
+    function validateForm() {
+      if ( vm.policy.input.name ) PolicyModelFactory.NextStep();
     }
   };
 })();
