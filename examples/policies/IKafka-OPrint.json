@@ -15,7 +15,7 @@
       "jarFile": "input-kafka-plugin.jar",
       "configuration": {
         "topics": [{"topic": "test", "partition" : "1"},{"topic": "test3", "partition" : "1"}],
-        "kafkaParams.zookeeper.connect": "localhost:2181",
+        "zookeeper.connect": [{"host": "localhost", "port": "2181"},{"host": "localhost", "port": "2185"}],
         "kafkaParams.group.id": "my-spt-grp"
       }
     }

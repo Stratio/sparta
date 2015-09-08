@@ -14,7 +14,7 @@
       "type": "Kafka",
       "configuration": {
         "topics": [{"topic": "detector", "partition" : "1"},{"topic": "detector4", "partition" : "1"}],
-        "kafkaParams.zookeeper.connect": "localhost:2181",
+        "zookeeper.connect": [{"host": "localhost", "port": "2181"}],
         "kafkaParams.group.id": "testgroup"
       }
     }

@@ -29,35 +29,24 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 
 class KafkaInput(properties: Map[String, JSerializable]) extends Input(properties) {
 
-  val defaultPartition: Int = 1
+  final val defaultPartition = 1
+  final val defaulPort = "2181"
+  final val defaultHost = "localhost"
 
   override def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
-
     val submap: Option[Map[String, JSerializable]] = properties.getMap("kafkaParams")
+    val connection = Map(properties.getZkConnectionConfs("zookeeper.connect", defaultHost, defaulPort))
+    val kafkaParams = submap.get.map(entry => (entry._1, entry._2.toString))
 
-
-    if (submap.isEmpty) {
-
-      KafkaUtils.createStream(
-        ssc,
-        properties.getString("zkQuorum"),
-        properties.getString("groupId"),
-        extractTopicsMap,
-        storageLevel(sparkStorageLevel))
-        .map(data => new Event(Map(RawDataKey -> data._2.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
-
-    } else {
-
-      val kafkaParams = submap.get.map(entry => (entry._1, entry._2.toString))
       KafkaUtils.createStream[String, String, StringDecoder, StringDecoder](
         ssc,
-        kafkaParams,
+        connection ++ kafkaParams,
         extractTopicsMap,
         storageLevel(sparkStorageLevel))
         .map(data => new Event(Map(RawDataKey ->{
         data._2.getBytes("UTF-8").asInstanceOf[java.io.Serializable]
       })))
-    }
+
   }
 
   def extractTopicsMap(): Map[String, Int] = {
@@ -66,21 +55,9 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
       throw new IllegalStateException(s"Invalid configuration, topics must be declared.")
     }
     else {
-
-     val topicPartition: Seq[(String, Int)] = properties.getTopicPartition("topics", defaultPartition)
-
+      val topicPartition: Seq[(String, Int)] = properties.getTopicPartition("topics", defaultPartition)
       val topicPartitionMap = topicPartition.map(tuple=>(tuple._1 -> tuple._2)).toMap
       topicPartitionMap
-//
-//            properties.getString("topics").split(",").toSeq.map(
-//              str => str.split(":").toSeq match {
-//                case Seq(topic) => (topic, 1)
-//                case Seq(topic, partitions) => (topic, partitions.toInt)
-//                case _ => throw new IllegalStateException(s"Invalid configuration value for topics : $str")
-//              }
-//            ).toMap
-//
-
     }
 
   }
