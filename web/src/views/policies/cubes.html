@@ -1,7 +1,54 @@
-<header class="c-step-content__title c-step-content__title--underlined">
-  <h1>
-    <span class="c-step-counter">{{wizard.currentStep + 1}}/{{wizard.steps.length}}</span>
-    <i class="c-step-counter__icon c-icon c-icon--small icon-arrow2_right"></i>
-    <span class="c-step-content__title-text">{{"_POLICY_._STEPS_._CUBES_" | translate}}</span>
-  </h1>
-</header>
+<section>
+  <header class="c-step-content__title c-step-content__title--underlined">
+    <h1>
+      <span class="c-step-counter">{{wizard.currentStep + 1}}/{{wizard.steps.length}}</span>
+      <i class="c-step-counter__icon c-icon c-icon--small icon-arrow2_right"></i>
+      <span class="c-step-content__title-text">{{"_POLICY_._STEPS_._CUBES_" | translate}}</span>
+    </h1>
+  </header>
+  <p class="c-info-text c-info-text--narrow"><i class="c-icon c-info-text__icon icon-info1"></i><span
+    class="c-info-text__text">{{"_POLICY_._CUBE_INTRO_" | translate}}</span></p>
+
+  <div data-ng-controller="PolicyCubesCtrl as vm">
+    <accordion>
+      <accordion-group is-open="vm.accordionStatus[$index]" ng-repeat="currentCube in vm.policy.cubes track by $index"
+                       ng-model="currentCube">
+
+        <accordion-heading>
+          <label>{{$index + 1}}</label>. <p>{{currentCube.type}}</p>
+
+          <i class="pull-right glyphicon"
+             ng-class="{'glyphicon-chevron-down': vm.isCurrentCube($index), 'glyphicon-chevron-right': !vm.isCurrentCube($index)}"></i>
+
+        </accordion-heading>
+        <button ng-click="vm.removeCube($index, $event)"><i class="icon-cross"></i></button>
+        <ng-include src="'views/policies/model-creation-panel.html'"></ng-include>
+      </accordion-group>
+
+      <accordion-group is-open="vm.accordionStatus[vm.policy.cubes.length]" ng-model="vm.newCube">
+        <accordion-heading>
+          <label>{{"_POLICY_._CUBE_NAME_" | translate}}</label>
+
+          <i class="pull-right glyphicon"
+             ng-class="{'glyphicon-chevron-down': vm.isCurrentCube(0), 'glyphicon-chevron-right': !vm.isCurrentCube($index)}"></i>
+        </accordion-heading>
+
+        <ng-include src="'views/policies/cube-creation-panel.html'">
+        </ng-include>
+      </accordion-group>
+    </accordion>
+  </div>
+  <footer class="c-row c-row--footer c-row--separated">
+    <div class="c-col c-col--6 c-col--vertical-centered">
+      <c-icon-link icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action icon-help1'"
+                   text="'_INPUT_WINDOW_NEW_HELP_' | translate" text-class="" link-url="vm.helpLink"></c-icon-link>
+    </div><!--
+ --><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
+    <button class="c-button c-button--call-to-action-1" data-ng-click="vm.nextStep()">
+      <i class="icon icon-arrow-right"></i>
+      <span>{{"_CONTINUE_" | translate}}</span>
+    </button>
+  </div>
+
+  </footer>
+</section>

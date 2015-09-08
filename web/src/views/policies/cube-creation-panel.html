@@ -1,0 +1,68 @@
+<section ng-init="cube = vm.getCurrentCube($index)" data-ng-model="cube">
+  <div ng-show="vm.showModelError" class="c-row c-msg c-msg--small c-msg--error">
+    <i class="c-icon icon-circle-cross"></i>
+    <span>{{"_POLICY_._CUBE_ERROR_" | translate}}</span>
+  </div>
+
+
+  <div class="c-col c-col--5 c-col--vertical-centered">
+    <label class="c-col c-col--12 c-col--vertical-centered"> {{"_POLICY_._FIELDS_" | translate}}</label>
+
+    <div class="c-col c-col--12 c-col--vertical-centered">
+      <!--OUTPUTS-->
+      <button class="c-button" ng-repeat="output in vm.outputList track by $index"  ng-click = "vm.addOutputToDimensions(output)">
+        <span>{{output}}</span>
+        <span class="icon icon-circle-plus"></span>
+      </button>
+
+    </div>
+  </div>
+
+  <div class="c-col c-col--5 c-col--vertical-centered">
+    <label class="c-col c-col--12 c-col--vertical-centered"> {{"_POLICY_._DIMENSIONS_" | translate}}</label>
+
+    <div class="c-col c-col--12 c-col--vertical-centered">
+      <!--DIMENSIONS-->
+      <button class="c-button" ng-repeat="dimension in cube.dimensionList" ng-click = "vm.removeOutputFromDimensions()">
+        <span>{{dimension}}</span>
+        <span class="icon icon-circle-minus"></span>
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="c-col c-col--5 c-col--vertical-centered">
+    <label class="c-col c-col--12 c-col--vertical-centered"> {{"_POLICY_._FUNCTIONS_" | translate}}</label>
+
+    <div class="c-col c-col--12 c-col--vertical-centered">
+      <!--_FUNCTIONS_-->
+      <button class="c-button" ng-repeat="function in  vm.templateCubeData.functions track by $index"  ng-click = "vm.addFunctionToOperators(function)">
+        <span>{{function}}</span>
+        <span class="icon icon-circle-plus"></span>
+      </button>
+
+    </div>
+  </div>
+
+  <div class="c-col c-col--5 c-col--vertical-centered">
+    <label class="c-col c-col--12 c-col--vertical-centered"> {{"_POLICY_._OPERATORS_" | translate}}</label>
+
+    <div class="c-col c-col--12 c-col--vertical-centered">
+      <!--_FUNCTIONS_-->
+      <button class="c-button" ng-repeat="operator in cube.operatorList track by $index"  ng-click = "vm.removeFunctionFromOperators(function)">
+        <span>{{function}}</span>
+        <span class="icon icon-circle-plus"></span>
+      </button>
+
+    </div>
+  </div>
+
+
+  <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
+    <button class="c-button" ng-click="vm.addModel()">
+      <span>{{"_POLICY_._ADD_CUBE_" | translate}}</span>
+    </button>
+  </div>
+
+</section>
