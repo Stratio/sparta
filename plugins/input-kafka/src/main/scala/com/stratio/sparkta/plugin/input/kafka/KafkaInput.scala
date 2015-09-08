@@ -29,9 +29,13 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 
 class KafkaInput(properties: Map[String, JSerializable]) extends Input(properties) {
 
+  val defaultPartition: Int = 1
+
   override def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
 
     val submap: Option[Map[String, JSerializable]] = properties.getMap("kafkaParams")
+
+
     if (submap.isEmpty) {
 
       KafkaUtils.createStream(
@@ -50,22 +54,34 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
         kafkaParams,
         extractTopicsMap,
         storageLevel(sparkStorageLevel))
-        .map(data => new Event(Map(RawDataKey -> data._2.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
+        .map(data => new Event(Map(RawDataKey ->{
+        data._2.getBytes("UTF-8").asInstanceOf[java.io.Serializable]
+      })))
     }
   }
 
   def extractTopicsMap(): Map[String, Int] = {
 
-    if (!properties.hasKey("topics"))
+    if (!properties.hasKey("topics")) {
       throw new IllegalStateException(s"Invalid configuration, topics must be declared.")
+    }
+    else {
 
-    properties.getString("topics").split(",").toSeq.map(
-      str => str.split(":").toSeq match {
-        case Seq(topic) => (topic, 1)
-        case Seq(topic, partitions) => (topic, partitions.toInt)
-        case _ => throw new IllegalStateException(s"Invalid configuration value for topics : $str")
-      }
-    ).toMap
+     val topicPartition: Seq[(String, Int)] = properties.getTopicPartition("topics", defaultPartition)
+
+      val topicPartitionMap = topicPartition.map(tuple=>(tuple._1 -> tuple._2)).toMap
+      topicPartitionMap
+//
+//            properties.getString("topics").split(",").toSeq.map(
+//              str => str.split(":").toSeq match {
+//                case Seq(topic) => (topic, 1)
+//                case Seq(topic, partitions) => (topic, partitions.toInt)
+//                case _ => throw new IllegalStateException(s"Invalid configuration value for topics : $str")
+//              }
+//            ).toMap
+//
+
+    }
+
   }
-
 }

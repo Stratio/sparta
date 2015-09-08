@@ -27,7 +27,7 @@ class ConnectionConfSpec extends WordSpec with Matchers {
       val conn = """[{"host":"localhost","port":"60000"},{"host":"localhost","port":"60000"}]"""
       val validating: ValidatingPropertyMap[String, JsoneyString] =
         new ValidatingPropertyMap[String, JsoneyString](Map("hosts" -> JsoneyString(conn)))
-      validating.getConnectionConfs("hosts") should be("localhost:60000,localhost:60000")
+      validating.getConnectionConfs("hosts", "host", "port") should be("localhost:60000,localhost:60000")
     }
   }
 
