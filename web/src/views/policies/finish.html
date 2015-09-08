@@ -1,0 +1,24 @@
+<section data-ng-controller="PolicyFinishCtrl as vm">
+  <header class="c-step-content__title c-step-content__title--underlined">
+    <h1>
+      <span class="c-step-counter">{{vm.policy.currentStep + 1}}/{{wizard.steps.length}}</span>
+      <i class="c-step-counter__icon c-icon c-icon--small icon-arrow2_right"></i>
+      <span class="c-step-content__title-text">{{"_POLICY_._STEPS_._FINISH_" | translate}}</span>
+    </h1>
+  </header>
+
+  <p class="c-info-text c-info-text--narrow"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._DESCRIPTION_INFO_MESSAGE_" | translate}}</span></p>
+
+  <textarea cols="200" rows="30" data-ng-model="vm.testingpolcyData" readonly></textarea>
+
+  <footer class="c-row c-row--footer">
+    <div class="c-col c-col--6 c-col--vertical-centered">
+      <c-icon-label icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action icon-help1'" text="'_CUBE_CONFIG_HELP_MESSAGE_' | translate" text-class=""></c-icon-label>
+    </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
+      <button class="c-button c-button--call-to-action-1" data-ng-click="vm.confirmPolicy()">
+        <i class="icon icon-rocket"></i>
+        <span>{{"_SAVE_" | translate}}</span>
+      </button>
+    </div>
+  </footer>
+</section>
