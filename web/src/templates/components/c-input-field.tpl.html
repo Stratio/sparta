@@ -1,6 +1,6 @@
-<div class = "{{formControlClass}}">
-  <label class = {{labelControlClass}}>{{labelControlText}}:</label>
-  <input class = {{inputControlClass}} ng-model = model value="{{value}}" placeholder = {{placeholder}}
-         type = {{inputType}} ng-pattern = pattern>
-  <label data-ng-if = "rightText" class = "{{rightTextClass}}">{{rightText}}</label>
-</div>
+<span class="{{wrapperControlClass}}">
+  <label class="{{labelControlClass}}">{{labelControlText}}:</label>
+  <input class="{{inputControlClass}}" data-ng-model="model" ng-value="value" placeholder="{{placeholder}}"
+         type="{{inputType}}" ng-pattern="pattern" data-ng-required="{{required}}">
+  <label data-ng-if="rightText" class="{{rightTextClass}}">{{rightText}}</label>
+</span>

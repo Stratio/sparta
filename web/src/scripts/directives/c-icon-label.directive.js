@@ -12,6 +12,7 @@ function cIconLabel() {
   return {
     restrict: 'E',
     scope: {
+      wrapperControlClass: "=",
       iconClass: "=iconClass",
       text: "=text",
       textClass: "=textClass",

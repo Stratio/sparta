@@ -6,16 +6,11 @@ angular
   .module('webApp')
   .controller('NewPolicyCtrl', NewPolicyCtrl);
 
-NewPolicyCtrl.$inject = ['PolicyStaticDataFactory', '$q'];
-function NewPolicyCtrl(PolicyStaticDataFactory) {
+NewPolicyCtrl.$inject = ['PolicyStaticDataFactory', '$q', 'PolicyModelFactory'];
+function NewPolicyCtrl(PolicyStaticDataFactory, $q, PolicyModelFactory) {
   var vm = this;
 
   vm.steps = PolicyStaticDataFactory.steps;
-  vm.currentStep = 0;
-  vm.continueToNextStep = continueToNextStep;
-
-  function continueToNextStep(){
-    vm.currentStep++;
-  }
+  vm.policy = PolicyModelFactory.GetCurrentPolicy();
 };
 })();

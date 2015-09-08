@@ -6,14 +6,21 @@
     .module('webApp')
     .controller('PolicyDescriptionCtrl', PolicyDescriptionCtrl);
 
-  PolicyDescriptionCtrl.$inject = ['policyModelFactory', 'PolicyStaticDataFactory'];
+  PolicyDescriptionCtrl.$inject = ['PolicyModelFactory', 'PolicyStaticDataFactory'];
 
   function PolicyDescriptionCtrl(PolicyModelFactory, PolicyStaticDataFactory ) {
     var vm = this;
     vm.policy = PolicyModelFactory.GetCurrentPolicy();
+    vm.validateForm = validateForm;
 
     vm.sparkStreamingWindowData = PolicyStaticDataFactory.sparkStreamingWindow;
     vm.checkpointIntervalData = PolicyStaticDataFactory.checkpointInterval;
     vm.checkpointAvailabilityData = PolicyStaticDataFactory.checkpointAvailability;
+    vm.partitionFormatData = PolicyStaticDataFactory.partitionFormat;
+    vm.helpLink = PolicyStaticDataFactory.helpLinks.description;
+
+    function validateForm() {
+      if ( vm.form.$valid ) PolicyModelFactory.NextStep();
+    }
   }
 })();

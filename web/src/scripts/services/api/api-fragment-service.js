@@ -15,6 +15,7 @@
         vm.DeleteFragment = DeleteFragment;
         vm.CreateFragment = CreateFragment;
         vm.UpdateFragment = UpdateFragment;
+        vm.GetFakeFragments = GetFakeFragments;
 
         /////////////////////////////////
 
@@ -50,6 +51,13 @@
             return $resource('/fragment/:type/:id', {type:'@type', id:'@id'},
             {
                 'delete': {method:'DELETE'}
+            });
+        };
+
+        function GetFakeFragments() {
+            return $resource('/data-templates/fake_data/:type', {type:'@type'},
+            {
+                'get': {method:'GET', isArray:true}
             });
         };
     }

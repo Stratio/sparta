@@ -2,6 +2,7 @@
   "_HELP_": "Do you need help?",
   "_CANCEL_": "Cancel",
   "_CONTINUE_": "Continue",
+  "_SAVE_": "Save",
   "_VIEW_MORE_": "View more",
   "_NAME_": "Name",
   "_DATA_": "Data",
@@ -107,9 +108,9 @@
       "_ADVANCED_": "Advanced",
       "_FINISH_": "Finish"
     },
-    "_INPUTS_INTRO_": "",
-    "_OUTPUTS_INTRO_": "",
-    "_DESCRIPTION_INFO_MESSAGE_": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
+    "_INPUTS_INTRO_":"",
+    "_OUTPUTS_INTRO_":"",
+    "_DESCRIPTION_INFO_MESSAGE_": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu."
     "_MODEL_NAME_": "Model name",
     "_ADD_MODEL_": "Add model"
   },
@@ -117,9 +118,9 @@
   "_LONG_": "Long",
   "_CUSTOM_": "Custom",
   "_SPARK_STREAMING_WINDOW_": "Spark streaming window",
-  "_CHECKPOINT_INTERVAL_": "Checkpoint interval",
-  "_CHECKPOINT_AVAILABILITY_": "Checkpoint availability",
-  "_CHECKPOINT_PATH_": "Checkpoint path",
+  "_CHECKPOINT_INTERVAL_":"Checkpoint interval",
+  "_CHECKPOINT_AVAILABILITY_":"Checkpoint availability",
+  "_CHECKPOINT_PATH_":"Checkpoint path",
   "_WINDOW_DURATION_": "Window duration",
   "_INSERT_DESCRIPTION_": "Insert Description",
   "_INSERT_NAME_": "Insert Name",

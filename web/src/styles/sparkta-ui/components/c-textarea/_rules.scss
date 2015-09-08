@@ -1,0 +1,13 @@
+@mixin c-textarea {
+	@include c-input;
+
+	min-height: $c-textarea--min-height;
+
+	&--big {
+		min-height: $c-textarea--big--min-height;
+	}
+}
+
+.c-textarea {
+	@include c-textarea;
+}

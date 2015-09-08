@@ -1,5 +1,5 @@
-<aside>
-  <h1>{{minText}}</h1>
-  <input type="range" ng-model="value" min="{{minValue}}" max="{{maxValue}}" step="{{steps}}" value = "{{value}}">
-  <h1>{{maxText}}</h1>
-</aside>
+<span class="{{wrapperControlClass}}">
+  <span class="{{minTextClass}}">{{minText}}</span><!--
+--><input class="{{sliderClass}}" type="range" ng-model="value" min="{{minValue}}" max="{{maxValue}}" step="{{steps}}" value = "{{value}}"><!--
+--><span class="{{maxTextClass}}">{{maxText}}</span>
+</span>

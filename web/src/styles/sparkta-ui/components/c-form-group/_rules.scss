@@ -1,6 +1,8 @@
 @mixin c-form-group {
 	@include c-row;
 
+	user-select: none;
+
 	@at-root .c-form & {
 		margin: $c-form__c-form-group---margin;
 	}

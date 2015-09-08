@@ -3,19 +3,23 @@
 
   angular
     .module('webApp')
-    .factory('policyModelFactory', policyModelFactory);
+    .factory('PolicyModelFactory', PolicyModelFactory);
 
-  function policyModelFactory() {
+  function PolicyModelFactory() {
     var policy = null;
 
     function initPolicy() {
       policy = {};
-      policy.name = "";
       policy.currentStep = 0;
-      policy.sparkStreamingWindow = 0;
-      policy.checkpointInterval = 0;
-      policy.checkpointAvailability = 0;
-      policy.checkpointPath = "";
+      policy.name = "";
+      policy.description = "";
+      policy.sparkStreamingWindow = "6000";
+      policy.checkpointPath = "/tmp/checkpoint";
+      policy.rawData = {};
+      policy.rawData.enabled = false;
+      policy.rawData.partitionFormat = "day";
+      policy.rawData.path = "";
+      policy.currentStep = 0;
       policy.input = {};
       policy.outputs = [];
 
@@ -27,6 +31,10 @@
         if (!policy)
           initPolicy();
         return policy;
+      },
+      NextStep: function() {
+        policy.currentStep++;
+        console.log(policy.currentStep);
       }
     }
   }

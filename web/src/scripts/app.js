@@ -23,7 +23,8 @@ angular
     'ui.bootstrap',
     'ui.bootstrap.modal',
     'ui.bootstrap.tpls',
-    'pascalprecht.translate'
+    'pascalprecht.translate',
+    'ngTruncateNumber'
   ])
 
   /*** TRANSLATING ***/
@@ -90,9 +91,6 @@ angular
     .state('settings', {
         url: '/settings',
         views: {
-            'menu': {
-                templateUrl:  'views/settings/settings_menu.html'
-            },
             'content': {
                 controller:   'SettingsCtrl',
                 controllerAs: 'settings',

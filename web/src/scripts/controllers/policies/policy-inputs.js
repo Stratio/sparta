@@ -6,18 +6,21 @@
     .module('webApp')
     .controller('PolicyInputCtrl', PolicyInputCtrl);
 
-  PolicyInputCtrl.$inject = ['FragmentFactory', 'policyModelFactory', '$q'];
+  PolicyInputCtrl.$inject = ['FragmentFactory', 'PolicyModelFactory', '$q', 'PolicyStaticDataFactory'];
 
-  function PolicyInputCtrl(FragmentFactory, policyModelFactory, $q) {
+  function PolicyInputCtrl(FragmentFactory, PolicyModelFactory, $q, PolicyStaticDataFactory) {
     var vm = this;
     vm.setInput = setInput;
     vm.isSelectedInput = isSelectedInput;
+    vm.validateForm = validateForm;
     vm.inputList = [];
     init();
 
     function init() {
+      vm.helpLink = PolicyStaticDataFactory.helpLinks.inputs;
+
       var defer = $q.defer();
-      vm.policy = policyModelFactory.GetCurrentPolicy();
+      vm.policy = PolicyModelFactory.GetCurrentPolicy();
       var inputList = FragmentFactory.GetFragments("input");
       inputList.then(function (result) {
         vm.inputList = result;
@@ -37,6 +40,10 @@
         return name == vm.policy.input.name;
       else
         return false;
+    }
+
+    function validateForm() {
+      if ( vm.policy.input.name ) PolicyModelFactory.NextStep();
     }
   };
 })();
