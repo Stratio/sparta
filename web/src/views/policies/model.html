@@ -20,7 +20,7 @@
 
       </accordion-heading>
       <button ng-click="vm.removeModel($index, $event)"><i class="icon-cross"></i></button>
-      <ng-include src="'views/policies/new-model.html'"></ng-include>
+      <ng-include src="'views/policies/model-creation-panel.html'"></ng-include>
     </accordion-group>
 
     <accordion-group is-open="vm.accordionStatus[vm.policy.models.length]" ng-model="vm.newModel">
@@ -31,7 +31,7 @@
            ng-class="{'glyphicon-chevron-down': vm.isCurrentModel(0), 'glyphicon-chevron-right': !vm.isCurrentModel($index)}"></i>
       </accordion-heading>
 
-      <ng-include src="'views/policies/new-model.html'">
+      <ng-include src="'views/policies/model-creation-panel.html'">
       </ng-include>
     </accordion-group>
   </accordion>
