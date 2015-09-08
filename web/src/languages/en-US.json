@@ -108,13 +108,18 @@
       "_ADVANCED_": "Advanced",
       "_FINISH_": "Finish"
     },
-    "_INPUTS_INTRO_":"",
     "_INPUTS_ERROR_": "One input must be selected!",
-    "_OUTPUTS_INTRO_":"",
     "_OUTPUTS_ERROR_": "At least one output must be selected!",
-    "_DESCRIPTION_INFO_MESSAGE_": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
     "_MODEL_NAME_": "Model name",
-    "_ADD_MODEL_": "Add model"
+    "_ADD_MODEL_": "Add model",
+    "_INPUTS_INTRO_":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
+    "_OUTPUTS_INTRO_":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
+    "_DESCRIPTION_INFO_MESSAGE_": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
+    "_WINDOW_": {
+     "_CONFIRM_": {
+       "_TITLE_" : "Create policy"
+     }
+   }
   },
   "_SHORT_": "Short",
   "_LONG_": "Long",
@@ -131,5 +136,8 @@
   "_STATUS_": "Status",
   "_INPUT_FIELDS_": "Input fields",
   "_OUTPUTS_FIELDS_": "Output fields",
-  "_CONFIGURATION_": "Configuration"
+  "_CONFIGURATION_": "Configuration",
+  "_PERSIST_RAW_DATA_": "Persist raw data",
+  "_PARTITION_FORMAT_": "Partition format",
+  "_STATUS_": "Status"
 }

@@ -45,7 +45,13 @@
     };
 
     function validateForm() {
-      if ( vm.policy.input.name ) PolicyModelFactory.NextStep();
+      if (vm.policy.input.name){
+        vm.error = false;
+        PolicyModelFactory.NextStep();
+      }
+      else {
+        vm.error = true;
+      }
     }
   };
 })();
