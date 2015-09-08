@@ -12,7 +12,17 @@
     <span>{{"_POLICY_._INPUTS_ERROR_" | translate}}</span>
   </div>
 
-  <p>{{"_POLICY_._INPUTS_INTRO_" | translate}}</p>
+  <form name="vm.form" class="c-form c-panel c-panel--framed" novalidate>
+    <div class="c-col c-col--4" data-ng-repeat="input in vm.inputList">
+      <div class="c-check-block" data-ng-click="vm.setInput($index)">
+        <div class="c-form-control c-form-control--full-width">
+          <div class="c-row">
+              <label class="c-label">{{input.name}}</label>
+          </div>
+          <div class="c-row">
+            <input class="c-checkbox" type="checkbox" data-ng-checked="vm.isSelectedInput(input.name)"><label class="c-label"></label>
+          </div>
+        </div>
 
   <div data-ng-repeat="input in vm.inputList">
     <div data-ng-click="vm.setInput($index)">
