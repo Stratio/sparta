@@ -6,7 +6,7 @@
     .module('webApp')
     .controller('PolicyModelsCtrl', PolicyModelsCtrl);
 
-  PolicyModelsCtrl.$inject = ['policyModelFactory', 'ModelStaticDataFactory'];
+  PolicyModelsCtrl.$inject = ['PolicyModelFactory', 'ModelStaticDataFactory'];
 
   function PolicyModelsCtrl(PolicyModelFactory,  ModelStaticDataFactory) {
     var vm = this;
