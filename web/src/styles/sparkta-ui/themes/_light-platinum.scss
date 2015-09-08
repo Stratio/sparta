@@ -25,6 +25,7 @@
  *		c-titlebar
  *		c-icon-text
  *		c-info-text
+ *		c-icon-link
  *		c-icon
  *		c-modal-inner
  *		c-col
@@ -259,7 +260,7 @@ $c-toolbar---padding: 11px 25px;
 $c-titlebar---background: get-color(f3);
 $c-titlebar---color: get-color(g7);
 $c-titlebar---text-transform: uppercase;
-$c-titlebar---padding: 15px 0 15px 30px;
+$c-titlebar---padding: 15px 15px 15px 30px;
 
 $c-titlebar__title---font-size: get-font-size(medium-alpha);
 
@@ -280,6 +281,15 @@ $c-info-text---font-size: get-font-size(medium);
 
 $c-info-text__icon---color: get-color(c1);
 $c-info-text__icon---font-size: get-font-size(medium);
+
+
+
+// c-icon-link
+$c-icon-link---color: get-color(g7);
+$c-icon-link---font-size: get-font-size(medium);
+
+$c-icon-link__icon---color: get-color(c1);
+$c-icon-link__icon---font-size: get-font-size(medium);
 
 
 
