@@ -1,7 +1,10 @@
-<aside ng-init="model = vm.getCurrentModel($index)" data-ng-model="model">
-
+<section ng-init="model = vm.getCurrentModel($index)" data-ng-model="model">
+  <div  ng-show = "vm.showModelError" class="c-row c-msg c-msg--small c-msg--error" >
+    <i class="c-icon icon-circle-cross"></i>
+    <span>{{"_POLICY_._MODEL_ERROR_" | translate}}</span>
+  </div>
   <div class="c-form-control c-form-control--full-width c-icon-radio" data-ng-model = "model">
-    <label data-ng-repeat="modelTypes in vm.templateModelData">
+    <label data-ng-repeat="modelTypes in vm.templateModelData.types">
       <input class="c-icon-radio__item" id="type-{{modelTypes.name + $parent.$index| lowercase}}" type="radio"
              data-ng-model="model.type" value="{{modelTypes.name}}">
       <label   data-ng-model="model.type" class="c-icon-radio__label" for="type-{{modelTypes.name + $parent.$index| lowercase}}">
@@ -18,8 +21,8 @@
 
   <div>
     <c-icon-label icon-class="'c-icon c-info-text__icon icon-info1'" data-text="('_CONFIGURATION_' | translate)"
-                  text-class="" link-url="" icon-url=""></c-icon-label>
-    <input type="text" ng-model="model.configuration"/>
+                  text-class="" icon-url="vm.templateModelData.configHelpLink"></c-icon-label>
+    <textarea ng-model="model.configuration"/>
   </div>
   <div class="c-form-group">
   <c-input-list-field data-inputs="model.outputs" label-control-text="'_OUTPUTS_FIELDS_' | translate"
@@ -30,6 +33,13 @@
                  type="'text'">
   </c-add-element>
 </div>
-  <button ng-click="vm.addModel()">{{"_POLICY_._ADD_MODEL_" | translate}}</button>
 
-</aside>
+  <div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
+    <button class="c-button c-button--call-to-action-1" ng-click="vm.addModel()">
+    <i class="icon icon-arrow-right"></i>
+      <span>{{"_POLICY_._ADD_MODEL_" | translate}}</span>
+    </button>
+  </div>
+
+
+</section>

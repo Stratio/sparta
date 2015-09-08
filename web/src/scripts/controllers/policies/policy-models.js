@@ -8,7 +8,7 @@
 
   PolicyModelsCtrl.$inject = ['PolicyModelFactory', 'ModelStaticDataFactory'];
 
-  function PolicyModelsCtrl(PolicyModelFactory,  ModelStaticDataFactory) {
+  function PolicyModelsCtrl(PolicyModelFactory, ModelStaticDataFactory) {
     var vm = this;
     vm.init = init;
     vm.isCurrentModel = isCurrentModel;
@@ -16,7 +16,7 @@
     vm.addModel = addModel;
     vm.getCurrentModel = getCurrentModel;
     vm.removeModel = removeModel;
-
+    vm.nextStep = nextStep;
     vm.init();
 
     function init() {
@@ -24,7 +24,7 @@
       vm.accordionStatus = [];
       vm.newModel = {};
       vm.newModelIndex = vm.policy.models.length;
-      vm.templateModelData = ModelStaticDataFactory.types;
+      vm.templateModelData = ModelStaticDataFactory;
       initNewModel();
       resetAccordionStatus();
     }
@@ -41,17 +41,20 @@
           result = ModelStaticDataFactory.defaultInput;
         else {
           var model = models[--vm.newModelIndex];
-          result = model.outputs;
+          result = model.inputs.concat(model.outputs);
         }
       }
       return result;
     }
 
     function addModel() {
-      var newModel = angular.copy(vm.newModel);
-      vm.policy.models.push(newModel);
-      initNewModel();
-      resetAccordionStatus();
+      if (isValidModel()) {
+        var newModel = angular.copy(vm.newModel);
+        vm.policy.models.push(newModel);
+        initNewModel();
+        resetAccordionStatus();
+      }else
+        vm.showModelError = true;
     }
 
     function initNewModel() {
@@ -60,6 +63,7 @@
       vm.newModel.outputs = [];
       vm.newModel.type = "";
       vm.newModel.configuration = "";
+      vm.showModelError = false;
     }
 
     function getCurrentModel(index) {
@@ -80,6 +84,14 @@
         vm.accordionStatus[i] = false;
       }
       vm.accordionStatus[vm.policy.models.length] = true;
+    }
+
+    function isValidModel() {
+      return vm.newModel.inputs.length > 0  && vm.newModel.outputs.length > 0 && vm.newModel.configuration != "" && vm.newModel.type != "";
+    }
+
+    function nextStep(){
+      PolicyModelFactory.NextStep();
     }
   }
 })();
