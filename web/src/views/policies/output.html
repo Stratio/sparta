@@ -8,6 +8,11 @@
     </h1>
   </header>
 
+  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error">
+    <i class="c-icon icon-circle-cross"></i>
+    <span>{{"_POLICY_._OUTPUTS_ERROR_" | translate}}</span>
+  </div>
+
   <p>{{"_POLICY_._OUTPUTS_INTRO_" | translate}}</p>
 
   <table style="width:100%">
@@ -17,7 +22,7 @@
       <th>{{ "_DESCRIPTION_" | translate}}</th>
     </tr>
     <tr data-ng-repeat="output in vm.outputList">
-      <td><input type="checkbox" ng-model="vm.policy.outputs[$index]" ng-true-value={{output}}></td>
+      <td><input type="checkbox" ng-model="vm.policy.outputs[$index]" ng-true-value={{output}} data-ng-false-value="null"></td>
       <td>{{output.name}}</td>
       <td>{{output.description}}</td>
     </tr>
@@ -27,7 +32,7 @@
     <div class="c-col c-col--6 c-col--vertical-centered">
       <c-icon-link icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action icon-help1'" text="'_INPUT_WINDOW_NEW_HELP_' | translate" text-class="" link-url="vm.helpLink"></c-icon-link>
     </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
-      <button class="c-button c-button--call-to-action-1">
+      <button class="c-button c-button--call-to-action-1" data-ng-click="vm.checkOutputs()">
         <i class="icon icon-arrow-right"></i>
         <span>{{"_CONTINUE_" | translate}}</span>
       </button>

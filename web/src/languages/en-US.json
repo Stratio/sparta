@@ -107,7 +107,9 @@
     },
 <<<<<<< HEAD
     "_INPUTS_INTRO_":"",
+    "_INPUTS_ERROR_": "One input must be selected!",
     "_OUTPUTS_INTRO_":"",
+    "_OUTPUTS_ERROR_": "At least one output must be selected!",
     "_DESCRIPTION_INFO_MESSAGE_": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
     "_WINDOW_": {
       "_CONFIRM_": {
