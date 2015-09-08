@@ -22,6 +22,75 @@
             }
         }
     ,
+    "transformations": [
+        {
+            "name": "morphline-parser",
+            "order": 1,
+            "type": "Morphlines",
+            "outputFields": [
+                "source",
+                "createdAt",
+                "text",
+                "lang",
+                "favoriteCount",
+                "retweetCount",
+                "user_followersCount",
+                "user_favouritesCount",
+                "user_id",
+                "user_screenName",
+                "user_timeZone"
+            ],
+            "configuration": {
+                "morphline": {
+                    "id": "morphline1",
+                    "importCommands": [
+                        "org.kitesdk.**"
+                    ],
+                    "commands": [
+                        {
+                            "readJson": {}
+                        },
+                        {
+                            "extractJsonPaths": {
+                                "paths": {
+                                    "source": "/source",
+                                    "createdAt": "/createdAt",
+                                    "text": "/text",
+                                    "lang": "/lang",
+                                    "favoriteCount": "/favoriteCount",
+                                    "retweetCount": "/retweetCount",
+                                    "user_followersCount": "/user/followersCount",
+                                    "user_favouritesCount": "/user/favouritesCount",
+                                    "user_id": "/user/id",
+                                    "user_screenName": "/user/screenName",
+                                    "user_timeZone": "/user/timeZone"
+                                }
+                            }
+                        },
+                        {
+                            "removeFields": {
+                                "blacklist": [
+                                    "literal:_attachment_body"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "createdAt",
+            "order": 2,
+            "inputField": "createdAt",
+            "outputFields": [
+                "createdAt"
+            ],
+            "type": "DateTime",
+            "configuration": {
+                "inputFormat": "unixMillis"
+            }
+        }
+    ],
     "cubes": [
         {
             "name": "testCube",
@@ -152,77 +221,8 @@
             "name": "out-mongo",
             "type": "MongoDb",
             "configuration": {
-                "hosts": "localhost",
+                "hosts": [{"host": "localhost" , "port": "27017" }],
                 "dbName": "sparkta"
-            }
-        }
-    ],
-    "transformations": [
-        {
-            "name": "morphline-parser",
-            "order": 1,
-            "type": "Morphlines",
-            "outputFields": [
-                "source",
-                "createdAt",
-                "text",
-                "lang",
-                "favoriteCount",
-                "retweetCount",
-                "user_followersCount",
-                "user_favouritesCount",
-                "user_id",
-                "user_screenName",
-                "user_timeZone"
-            ],
-            "configuration": {
-                "morphline": {
-                    "id": "morphline1",
-                    "importCommands": [
-                        "org.kitesdk.**"
-                    ],
-                    "commands": [
-                        {
-                            "readJson": {}
-                        },
-                        {
-                            "extractJsonPaths": {
-                                "paths": {
-                                    "source": "/source",
-                                    "createdAt": "/createdAt",
-                                    "text": "/text",
-                                    "lang": "/lang",
-                                    "favoriteCount": "/favoriteCount",
-                                    "retweetCount": "/retweetCount",
-                                    "user_followersCount": "/user/followersCount",
-                                    "user_favouritesCount": "/user/favouritesCount",
-                                    "user_id": "/user/id",
-                                    "user_screenName": "/user/screenName",
-                                    "user_timeZone": "/user/timeZone"
-                                }
-                            }
-                        },
-                        {
-                            "removeFields": {
-                                "blacklist": [
-                                    "literal:_attachment_body"
-                                ]
-                            }
-                        }
-                    ]
-                }
-            }
-        },
-        {
-            "name": "createdAt",
-            "order": 2,
-            "inputField": "createdAt",
-            "outputFields": [
-                "createdAt"
-            ],
-            "type": "DateTime",
-            "configuration": {
-                "inputFormat": "unixMillis"
             }
         }
     ]

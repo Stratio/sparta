@@ -16,6 +16,8 @@
 
 package com.stratio.sparkta.serving.api.actor
 
+import java.util.UUID
+
 import akka.actor.SupervisorStrategy.Escalate
 import akka.actor._
 import akka.pattern.ask
@@ -59,11 +61,13 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
    * @param policy that contains the configuration to run.
    */
   private def create(policy: AggregationPoliciesModel): Unit = {
-    policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Launched))
-    val streamingContextActor = getStreamingContextActor(policy)
+    val policyWithId = policy.copy(id=Some(UUID.randomUUID.toString))
+
+    policyStatusActor ? Update(PolicyStatusModel(policyWithId.id.get, PolicyStatusEnum.Launched))
+    val streamingContextActor = getStreamingContextActor(policyWithId)
 
     // TODO (anistal) change and use PolicyActor.
-    savePolicyInZk(policy)
+    savePolicyInZk(policyWithId)
 
     streamingContextActor ? Start
   }

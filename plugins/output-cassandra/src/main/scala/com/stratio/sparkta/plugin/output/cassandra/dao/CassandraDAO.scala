@@ -172,12 +172,12 @@ trait CassandraDAO extends Closeable with Logging {
   protected def dataTypeToCassandraType(dataType: DataType): String = {
     dataType match {
       case StringType => "text"
-      case LongType => "bigint"
+      case LongType => "int"
       case DoubleType => "double"
       case FloatType => "float"
       case IntegerType => "int"
       case BooleanType => "boolean"
-      case MapType(StringType, LongType, _) => "map<text,bigint>"
+      case MapType(StringType, LongType, _) => "map<text,int>"
       case ArrayType(DoubleType, _) => "set<double>"
       case DateType | TimestampType => "timestamp"
       case _ => "blob"

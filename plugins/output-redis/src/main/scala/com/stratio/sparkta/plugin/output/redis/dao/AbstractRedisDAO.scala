@@ -34,7 +34,7 @@ trait AbstractRedisDAO {
 
   val IdSeparator: String = ":"
 
-  val DefaultRedisPort: Int = 6379
+  val DefaultRedisPort: String = "6379"
 
   val DefaultRedisHostname: String = "localhost"
 
