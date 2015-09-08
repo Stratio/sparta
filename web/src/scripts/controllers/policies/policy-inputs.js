@@ -45,15 +45,14 @@
         return false;
     };
 
-    function checkInput() {
-      var inputObjectLenght = Object.getOwnPropertyNames(vm.policy.input).length;
-      if (inputObjectLenght > 0) {
+    function validateForm() {
+      if (vm.policy.input.name){
         vm.error = false;
         PolicyModelFactory.NextStep();
       }
       else {
         vm.error = true;
       }
-    };
+    }
   };
 })();
