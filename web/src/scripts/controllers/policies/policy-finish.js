@@ -20,7 +20,6 @@
     function init() {
       vm.policy = PolicyModelFactory.GetCurrentPolicy();
       vm.testingpolcyData = JSON.stringify(vm.policy, null, 4);
-      console.log(vm.policy);
     };
 
     function confirmPolicy() {
