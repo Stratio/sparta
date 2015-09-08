@@ -9,7 +9,7 @@
 
     return {
       steps: [
-        {name: "_POLICY_._STEPS_._DESCRIPTION_", icon: "icon-tag_left"}, 
+        {name: "_POLICY_._STEPS_._DESCRIPTION_", icon: "icon-tag_left"},
         {name: "_POLICY_._STEPS_._INPUT_", icon: "icon-import"},
         {name: "_POLICY_._STEPS_._MODEL_", icon: "icon-content-left"},
         {name: "_POLICY_._STEPS_._CUBES_", icon: "icon-box"},
@@ -47,6 +47,13 @@
             "value": "minute"
           }
         ],
+      },
+      helpLinks: {
+        description: 'http://docs.stratio.com/modules/sparkta/development/policy.html#general-configuration',
+        inputs: 'http://docs.stratio.com/modules/sparkta/development/policy.html#inputs',
+        models: 'http://docs.stratio.com/modules/sparkta/development/policy.html#transformations',
+        cubes: 'http://docs.stratio.com/modules/sparkta/development/policy.html#cubes',
+        outputs: 'http://docs.stratio.com/modules/sparkta/development/policy.html#outputs'
       }
     }
   }
