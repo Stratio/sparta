@@ -34,7 +34,6 @@
       },
       NextStep: function() {
         policy.currentStep++;
-        console.log(policy.currentStep);
       }
     }
   }
