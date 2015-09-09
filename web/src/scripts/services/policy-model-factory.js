@@ -14,6 +14,7 @@
       policy.name = "";
       policy.description = "";
       policy.sparkStreamingWindow = "6000";
+      policy.storageLevel = "MEMORY_AND_DISK_SER";
       policy.checkpointPath = "/tmp/checkpoint";
       policy.rawData = {};
       policy.rawData.enabled = false;

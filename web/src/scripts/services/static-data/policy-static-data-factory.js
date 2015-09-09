@@ -46,7 +46,51 @@
             "label": "minute",
             "value": "minute"
           }
-        ],
+        ]
+      },
+      storageLevel: {
+        "values": [
+          {
+            "label": "DISK_ONLY",
+            "value": "DISK_ONLY"
+          },
+          {
+            "label": "DISK_ONLY_2",
+            "value": "DISK_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY",
+            "value": "MEMORY_ONLY"
+          },
+          {
+            "label": "MEMORY_ONLY_2",
+            "value": "MEMORY_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY_SER",
+            "value": "MEMORY_ONLY_SER"
+          },
+          {
+            "label": "MEMORY_ONLY_SER_2",
+            "value": "MEMORY_ONLY_SER_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK",
+            "value": "MEMORY_AND_DISK"
+          },
+          {
+            "label": "MEMORY_AND_DISK_2",
+            "value": "MEMORY_AND_DISK_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER",
+            "value": "MEMORY_AND_DISK_SER"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER_2",
+            "value": "MEMORY_AND_DISK_SER_2"
+          }
+        ]
       },
       helpLinks: {
         description: 'http://docs.stratio.com/modules/sparkta/development/policy.html#general-configuration',
