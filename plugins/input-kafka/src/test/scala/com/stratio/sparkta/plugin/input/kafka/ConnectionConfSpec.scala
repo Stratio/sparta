@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.plugin.input.kafka
 
+import com.stratio.sparkta.sdk.{JsoneyString, ValidatingPropertyMap}
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner

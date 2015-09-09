@@ -42,21 +42,6 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
     conObj.map(c => c.get(firstJsonItem).get + ":" + c.get(secondJsonItem).get).mkString(",")
   }
 
-  def getZkConnectionConfs(key: K, defaultHost: String, defaultPort: String): (String, String) = {
-    val conObj = getConnectionChain(key)
-    val value = conObj.map(c => {
-      val host = c.get("host") match {
-        case Some(value) => value.toString
-        case None => defaultHost
-      }
-      val port = c.get("port") match {
-        case Some(value) => value.toString
-        case None => defaultPort
-      }
-      s"$host:$port"
-    }).mkString(",")
-    (key.toString, value)
-  }
 
   def getHostPortConfs(key: K, defaultHost: String, defaultPort: String): Seq[(String, Int)] = {
 
@@ -69,20 +54,6 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
         c.get("defaultPort") match {
           case Some(value) => value.toString.toInt
           case None => defaultPort.toInt
-        }))
-  }
-
-  def getTopicPartition(key: K, defaultPartition: Int): Seq[(String, Int)] ={
-
-    val conObj = getConnectionChain(key)
-    conObj.map(c =>
-      (c.get("topic") match{
-        case Some(value) => value.toString
-        case None => throw new IllegalStateException(s"$key is mandatory")
-      },
-        c.get("partition") match {
-          case Some(value) => value.toString.toInt
-          case None => defaultPartition
         }))
   }
 

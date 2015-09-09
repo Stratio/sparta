@@ -15,11 +15,12 @@
  */
 
 
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.plugin.input.kafka
 
+import com.stratio.sparkta.sdk.{JsoneyString, ValidatingPropertyMap}
 import org.junit.runner.RunWith
-import org.scalatest.{Matchers, WordSpec}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
 class getZkConnectionConfSpec extends WordSpec with Matchers {
@@ -29,9 +30,8 @@ class getZkConnectionConfSpec extends WordSpec with Matchers {
 
     "return a chain (zookeper:conection , host:port)" in {
       val conn = """[{"host": "localhost", "port": "2181"}]"""
-      val validating: ValidatingPropertyMap[String, JsoneyString] =
-        new ValidatingPropertyMap[String, JsoneyString](Map("zookeeper.connect" -> JsoneyString(conn)))
-      validating.getZkConnectionConfs("zookeeper.connect", "localhost", "2181") should
+      val input = new KafkaInput(Map("zookeeper.connect" -> JsoneyString(conn)))
+      input.getZkConnectionConfs("zookeeper.connect", "localhost", "2181") should
         be("zookeeper.connect", "localhost:2181")
     }
 
@@ -39,36 +39,32 @@ class getZkConnectionConfSpec extends WordSpec with Matchers {
       val conn =
         """[{"host": "localhost", "port": "2181"},{"host": "localhost", "port": "2181"},
           |{"host": "localhost", "port": "2181"}]""".stripMargin
-      val validating: ValidatingPropertyMap[String, JsoneyString] =
-        new ValidatingPropertyMap[String, JsoneyString](Map("zookeeper.connect" -> JsoneyString(conn)))
-      validating.getZkConnectionConfs("zookeeper.connect", "localhost", "2181") should
+      val input = new KafkaInput(Map("zookeeper.connect" -> JsoneyString(conn)))
+      input.getZkConnectionConfs("zookeeper.connect", "localhost", "2181") should
         be("zookeeper.connect", "localhost:2181,localhost:2181,localhost:2181")
     }
 
     "return a chain with default port (zookeper:conection , host: defaultport)" in {
       val conn =
         """[{"host": "localhost"}]"""
-      val validating: ValidatingPropertyMap[String, JsoneyString] =
-        new ValidatingPropertyMap[String, JsoneyString](Map("zookeeper.connect" -> JsoneyString(conn)))
-      validating.getZkConnectionConfs("zookeeper.connect", "localhost", "2181") should
+      val input = new KafkaInput(Map("zookeeper.connect" -> JsoneyString(conn)))
+      input.getZkConnectionConfs("zookeeper.connect", "localhost", "2181") should
         be("zookeeper.connect", "localhost:2181")
     }
 
     "return a chain with default host (zookeper:conection , defaultHost: port)" in {
       val conn =
         """[{"port": "2181"}]"""
-      val validating: ValidatingPropertyMap[String, JsoneyString] =
-        new ValidatingPropertyMap[String, JsoneyString](Map("zookeeper.connect" -> JsoneyString(conn)))
-      validating.getZkConnectionConfs("zookeeper.connect", "localhost", "2181") should
+      val input = new KafkaInput(Map("zookeeper.connect" -> JsoneyString(conn)))
+      input.getZkConnectionConfs("zookeeper.connect", "localhost", "2181") should
         be("zookeeper.connect", "localhost:2181")
     }
 
     "return a chain with default host and default porty (zookeeper.connect: , defaultHost: defaultport)" in {
       val conn =
         """[{}]"""
-      val validating: ValidatingPropertyMap[String, JsoneyString] =
-        new ValidatingPropertyMap[String, JsoneyString](Map("zookeeper.connect" -> JsoneyString(conn)))
-      validating.getZkConnectionConfs("zookeeper.connect", "localhost", "2181") should
+      val input = new KafkaInput(Map("zookeeper.connect" -> JsoneyString(conn)))
+      input.getZkConnectionConfs("zookeeper.connect", "localhost", "2181") should
         be("zookeeper.connect", "localhost:2181")
     }
   }

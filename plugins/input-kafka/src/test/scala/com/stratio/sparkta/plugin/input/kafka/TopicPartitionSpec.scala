@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.plugin.input.kafka
 
+import com.stratio.sparkta.sdk.{JsoneyString, ValidatingPropertyMap}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -24,12 +25,10 @@ import org.scalatest.{Matchers, WordSpec}
 class TopicPartitionSpec extends WordSpec with Matchers{
 
   "getTopicPartition" should {
-
     "return a tuples (topic,partition)" in {
       val conn = """[{"topic":"test","partition":"1"}]"""
-      val validating: ValidatingPropertyMap[String, JsoneyString] =
-        new ValidatingPropertyMap[String, JsoneyString](Map("topics" -> JsoneyString(conn)))
-      validating.getTopicPartition("topics", 1) should be (List(("test", 1)))
+      val input = new KafkaInput(Map("topics" -> JsoneyString(conn)))
+      input.getTopicPartition("topics", 1) should be (List(("test", 1)))
     }
 
     "return a sequence of tuples (topic,partition)" in {
@@ -37,9 +36,8 @@ class TopicPartitionSpec extends WordSpec with Matchers{
       val conn =
         """[{"topic":"test","partition":"1"},
           |{"topic":"test2","partition":"2"},{"topic":"test3","partition":"3"}]""".stripMargin
-      val validating: ValidatingPropertyMap[String, JsoneyString] =
-        new ValidatingPropertyMap[String, JsoneyString](Map("topics" -> JsoneyString(conn)))
-      validating.getTopicPartition("topics", 1) should be (List(("test", 1),("test2", 2),("test3", 3)))
+      val input = new KafkaInput(Map("topics" -> JsoneyString(conn)))
+      input.getTopicPartition("topics", 1) should be (List(("test", 1),("test2", 2),("test3", 3)))
     }
 
 
@@ -48,9 +46,8 @@ class TopicPartitionSpec extends WordSpec with Matchers{
       val conn =
         """[{"topic":"test"},
           |{"topic":"test2"},{"topic":"test3"}]""".stripMargin
-      val validating: ValidatingPropertyMap[String, JsoneyString] =
-        new ValidatingPropertyMap[String, JsoneyString](Map("topics" -> JsoneyString(conn)))
-      validating.getTopicPartition("topics", 1) should be (List(("test", 1),("test2", 1),("test3", 1)))
+      val input = new KafkaInput(Map("topics" -> JsoneyString(conn)))
+      input.getTopicPartition("topics", 1) should be (List(("test", 1),("test2", 1),("test3", 1)))
     }
   }
 

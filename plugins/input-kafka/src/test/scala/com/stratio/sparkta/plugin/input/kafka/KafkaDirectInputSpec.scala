@@ -16,6 +16,7 @@
 
 package com.stratio.sparkta.plugin.input.kafka
 
+import com.stratio.sparkta.sdk.JsoneyString
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -24,13 +25,13 @@ import org.scalatest.{Matchers, WordSpec}
 class KafkaDirectInputSpec extends WordSpec with Matchers {
   "KafkaDirect Input" should {
     "Topics match " in {
-
-      val input = new KafkaInput(Map("topics" -> "topic1,topic2"))
+      val conn =
+        """[{"topic":"test","partition":"1"},
+          |{"topic":"test2","partition":"2"},{"topic":"test3","partition":"3"}]""".stripMargin
+      val input = new KafkaInput(Map("topics" -> JsoneyString(conn)))
       val topicsMap = input.extractTopicsMap()
-
-      topicsMap.size should be (2)
+      topicsMap.size should be (3)
     }
-
-
   }
+
 }

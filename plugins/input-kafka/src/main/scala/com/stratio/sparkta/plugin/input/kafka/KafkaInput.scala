@@ -35,7 +35,7 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
 
   override def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
     val submap: Option[Map[String, JSerializable]] = properties.getMap("kafkaParams")
-    val connection = Map(properties.getZkConnectionConfs("zookeeper.connect", defaultHost, defaulPort))
+    val connection = Map(getZkConnectionConfs("zookeeper.connect", defaultHost, defaulPort))
     val kafkaParams = submap.get.map(entry => (entry._1, entry._2.toString))
 
       KafkaUtils.createStream[String, String, StringDecoder, StringDecoder](
@@ -50,15 +50,42 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
   }
 
   def extractTopicsMap(): Map[String, Int] = {
-
     if (!properties.hasKey("topics")) {
       throw new IllegalStateException(s"Invalid configuration, topics must be declared.")
     }
     else {
-      val topicPartition: Seq[(String, Int)] = properties.getTopicPartition("topics", defaultPartition)
+      val topicPartition: Seq[(String, Int)] = getTopicPartition("topics", defaultPartition)
       val topicPartitionMap = topicPartition.map(tuple=>(tuple._1 -> tuple._2)).toMap
       topicPartitionMap
     }
+  }
 
+  def getTopicPartition(key: String, defaultPartition: Int): Seq[(String, Int)] ={
+    val conObj = properties.getConnectionChain(key)
+    conObj.map(c =>
+      (c.get("topic") match{
+        case Some(value) => value.toString
+        case None => throw new IllegalStateException(s"$key is mandatory")
+      },
+        c.get("partition") match {
+          case Some(value) => value.toString.toInt
+          case None => defaultPartition
+        }))
+  }
+
+  def getZkConnectionConfs(key: String, defaultHost: String, defaultPort: String): (String, String) = {
+    val conObj = properties.getConnectionChain(key)
+    val value = conObj.map(c => {
+      val host = c.get("host") match {
+        case Some(value) => value.toString
+        case None => defaultHost
+      }
+      val port = c.get("port") match {
+        case Some(value) => value.toString
+        case None => defaultPort
+      }
+      s"$host:$port"
+    }).mkString(",")
+    (key.toString, value)
   }
 }
