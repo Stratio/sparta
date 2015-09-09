@@ -1,16 +1,4 @@
 <section data-ng-controller="PolicyDescriptionCtrl as vm">
-  <h1>{{"_POLICY_._STEPS_._DESCRIPTION_" |translate}}</h1>
-  <i class="icon-info1"></i>
-  <text>{{"_POLICY_._DESCRIPTION_INFO_MESSAGE_" |translate}}</text>
-
-  <h2>{{"_NAME_" |translate}}</h2>
-  <c-input-field form-control-text="'_INSERT_NAME_' | translate" form-control-class="" value=vm.policy.name
-                 model="vm.policy.name"></c-input-field>
-
-  <h2>{{"_DESCRIPTION_" |translate}}</h2>
-  <c-input-field form-control-text="'_INSERT_DESCRIPTION_' | translate" form-control-class="" value=vm.policy.description
-                 model="vm.policy.description"></c-input-field>
-<section>
   <header class="c-step-content__title c-step-content__title--underlined">
     <h1>
       <span class="c-step-counter">{{wizard.currentStep + 1}}/{{wizard.steps.length}}</span>

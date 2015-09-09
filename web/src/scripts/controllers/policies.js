@@ -22,7 +22,7 @@
     }
 
     function getPolicies() {
-      var policiesList = PolicyFactory.GetAllPolicies();
+      var policiesList = PolicyFactory.GetAllpolicies();
 
       policiesList.then(function (result) {
         console.log('--> Getting policies');
@@ -30,7 +30,7 @@
         console.log(result);
         vm.policiesData.list = result;
       });
-    }
+    };
 
   }
 })();

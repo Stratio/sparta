@@ -9,6 +9,11 @@
 
   <p class="c-info-text c-info-text--narrow"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._OUTPUTS_INTRO_" | translate}}</span></p>
 
+  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error && vm.formSubmmited">
+    <i class="c-icon icon-circle-cross"></i>
+    <span>{{"_POLICY_._INPUTS_ERROR_" | translate}}</span>
+  </div>
+
   <form name="vm.form" class="c-form c-panel c-panel--framed" novalidate>
     <div class="c-col c-col--4" data-ng-repeat="output in vm.outputList">
       <div class="c-check-block" data-ng-click="vm.setOutput($index)">
@@ -36,32 +41,4 @@
       </div>
     </footer>
   </form>
-
-
-
-<!--
-  <table style="width:100%">
-    <tr>
-      <th></th>
-      <th>{{ "_NAME_" | translate}}</th>
-      <th>{{ "_DESCRIPTION_" | translate}}</th>
-    </tr>
-    <tr data-ng-repeat="output in vm.outputList">
-      <td><input type="checkbox" ng-model="vm.policy.outputs[$index]" ng-true-value={{output}} data-ng-false-value="null" data-ng-change="vm.checkSelected()"></td>
-      <td>{{output.name}}</td>
-      <td>{{output.description}}</td>
-    </tr>
-  </table>
-
-  <footer class="c-row c-row--footer">
-    <div class="c-col c-col--6 c-col--vertical-centered">
-      <c-icon-link icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action icon-help1'" text="'_INPUT_WINDOW_NEW_HELP_' | translate" text-class="" link-url="vm.helpLink"></c-icon-link>
-    </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
-      <button class="c-button c-button--call-to-action-1" data-ng-click="vm.checkOutputs()">
-        <i class="icon icon-arrow-right"></i>
-        <span>{{"_CONTINUE_" | translate}}</span>
-      </button>
-    </div>
-  </footer>
--->
 </section>

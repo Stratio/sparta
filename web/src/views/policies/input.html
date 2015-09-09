@@ -23,12 +23,7 @@
             <input class="c-checkbox" type="checkbox" data-ng-checked="vm.isSelectedInput(input.name)"><label class="c-label"></label>
           </div>
         </div>
-
-  <div data-ng-repeat="input in vm.inputList">
-    <div data-ng-click="vm.setInput($index)">
-      <h1>{{input.name}}</h1>
-      <input type="radio" data-ng-checked="vm.isSelectedInput(input.name)" data-ng-model="vm.policy.input">
-      <p>{{input.description}}</p>
+      </div>
     </div>
 
     <footer class="c-row c-row--footer c-row--separated">

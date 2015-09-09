@@ -12,7 +12,7 @@
     var vm = this;
     vm.setInput = setInput;
     vm.isSelectedInput = isSelectedInput;
-    vm.checkInput = checkInput;
+    vm.validateForm = validateForm;
     vm.inputList = [];
     vm.error = false;
     init();

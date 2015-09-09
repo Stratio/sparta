@@ -19,7 +19,7 @@
         vm.createTypeModels = createTypeModels;
         vm.dataSource = {};
         vm.dataSource.element = {};
-        vm.templateInputsData = [];
+        vm.templateFragmentsData = [];
         vm.properties = [];
         vm.error = false;
         vm.errorText = '';
@@ -37,67 +37,10 @@
           vm.originalName = item.originalName;
 
           setTexts(item.texts);
-
-          vm.templateInputsData = fragmentTemplates;
+          vm.templateFragmentsData = fragmentTemplates;
           vm.dataSource = item.fragmentSelected;
 
-/*
-          vm.dataSource =
-            {
-              "id": "c6a50d1d-6577-47a8-8f70-2cb3cdb5b431",
-              "fragmentType": "input",
-              "name": "prueba flume pull 1",
-              "description": "Reads events from flume",
-              "shortDescription": "Reads events from flume",
-              "element": {
-                "name": "in-Flume",
-                "type": "Flume",
-                "configuration": {
-                  "type": "pull",
-                  "addresses":
-                    [
-                      {
-                        "address":"localhost",
-                        "port":"2000"
-                      },
-                      {
-                        "address":"localhost",
-                        "port":"3000"
-                      },
-                      {
-                        "address":"localhost",
-                        "port":"4000"
-                      }
-                    ],
-                  "maxBatchSize": "1000",
-                  "parallelism": "5"
-                }
-              }
-            };
-*/
-
-/*
-          vm.dataSource =
-            {
-              "id": "8c4371b8-cd9c-4c55-9976-7551853b73c8",
-              "fragmentType": "input",
-              "name": "prueba flume push 1",
-              "description": "Reads events from flume",
-              "shortDescription": "Reads events from flume",
-              "element": {
-                "name": "in-Flume",
-                "type": "Flume",
-                "configuration": {
-                  "type": "push",
-                  "hostName": "werwerwr",
-                  "port": "11999",
-                  "enableDecompression": true
-                }
-              }
-            };
-*/
-
-          vm.createTypeModels(vm.templateInputsData);
+          vm.createTypeModels(vm.templateFragmentsData);
           vm.selectedIndex = vm.index;
           vm.policiesAffected = policiesAffected;
 
@@ -172,8 +115,8 @@
 
         function setFragmentData(index) {
             /*Set fragment*/
-            vm.dataSource.description = vm.templateInputsData[index].description.long;
-            vm.dataSource.shortDescription = vm.templateInputsData[index].description.short;
+            vm.dataSource.description = vm.templateFragmentsData[index].description.long;
+            vm.dataSource.shortDescription = vm.templateFragmentsData[index].description.short;
             vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
         };
 

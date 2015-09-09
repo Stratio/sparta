@@ -72,7 +72,7 @@
     "description": "Reads events from apache-kafka",
     "element": {
       "configuration": {
-        "kafkaParams.zookeeper.connect":
+        "zookeeper.connect":
         [
           {
             "host":"localhost",
@@ -105,7 +105,7 @@
       "configuration": {
         "kafkaParams.group.id": "eee",
         "topics": [{"topic":"111","partition":"1"},{"topic":"222","partition":"2"},{"topic":"3333","partition":"3"}],
-        "kafkaParams.metadata.broker.list": [{"broker":"localhost","port":"9092"}]
+        "metadata.broker.list": [{"broker":"localhost","port":"9092"}]
       },
       "type": "Kafka Direct",
       "name": "in-Kafka Direct"
