@@ -12,7 +12,17 @@
 
 @import 'sparkta-ui/themes/light-platinum';
 
+// Import vendors
+
+@import 'vendors/angular-ui/tooltip';
+@import 'vendors/angular-ui/modal';
+@import 'vendors/angular-ui/accordion';
+
 @import 'vendors/reset-css/reset';
+
+@import '../stratio-ui/style/stratio.ui';
+
+// End import vendors
 
 @import 'app';
 
@@ -48,15 +58,15 @@
 @import 'sparkta-ui/components/c-slider/index';
 @import 'sparkta-ui/components/c-check-block/index';
 @import 'sparkta-ui/components/c-textarea/index';
+@import 'sparkta-ui/components/c-tag/index';
 
 @import 'sparkta-ui/objects/o-media';
 @import 'sparkta-ui/objects/o-wcag-hidden';
 
-@import 'vendors/angular-ui/tooltip';
-@import 'vendors/angular-ui/modal';
-@import 'vendors/angular-ui/accordion';
+// Vendor customizations
 
-@import 'custom/angular-ui/tooltip';
+@import 'custom/angular-ui/components/tooltip';
+@import 'custom/angular-ui/components/c-accordion/index';
 @import 'custom/stratio-ui/components/c-grid-item/index';
 
-@import '../stratio-ui/style/stratio.ui';
+// End vendor customizations
