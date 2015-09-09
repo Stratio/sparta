@@ -62,6 +62,7 @@
         <module>input-flume</module>
         <module>input-socket</module>
         <module>input-twitter</module>
+        <module>input-websocket</module>
         <module>parser-datetime</module>
         <module>parser-morphlines</module>
         <module>input-rabbitMQ</module>
