@@ -104,7 +104,7 @@
     "element": {
       "configuration": {
         "kafkaParams.group.id": "eee",
-        "topics": [{"topic":"111","partition":"1"},{"topic":"222","partition":"2"},{"topic":"3333","partition":"3"}],
+        "topics": [{"topic":"111"},{"topic":"222"},{"topic":"3333"}],
         "metadata.broker.list": [{"broker":"localhost","port":"9092"}]
       },
       "type": "Kafka Direct",

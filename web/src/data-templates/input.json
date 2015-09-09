@@ -309,16 +309,6 @@
           "required": true,
           "tooltip": "Topic to connect.",
           "hidden": false
-        },
-        {
-          "propertyId": "partition",
-          "propertyName": "_PARTITION_",
-          "propertyType": "text",
-          "regexp": "\\d*",
-          "default": "1",
-          "required": true,
-          "tooltip": "",
-          "hidden": false
         }
       ]
       }

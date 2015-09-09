@@ -13,6 +13,7 @@
         vm.GetPolicyByFragmentId = GetPolicyByFragmentId;
         vm.GetAllpolicies = GetAllpolicies;
         vm.CreatePolicy = CreatePolicy;
+        vm.DeletePolicy = DeletePolicy;
         vm.GetFakePolicy = GetFakePolicy;
 
         /////////////////////////////////
@@ -35,6 +36,13 @@
             return $resource('/policy', {},
             {
                 'create': {method:'POST'}
+            });
+        };
+
+        function DeletePolicy() {
+            return $resource('/policy/:id', {id:'@id'},
+            {
+                'delete': {method:'DELETE'}
             });
         };
 
