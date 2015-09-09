@@ -76,7 +76,8 @@
               'texts': {
                   'title': '_INPUT_WINDOW_MODIFY_TITLE_',
                   'button': '_INPUT_WINDOW_MODIFY_BUTTON_',
-                  'button_icon': 'icon-circle-check'
+                  'button_icon': 'icon-circle-check',
+                  'secondaryText2': '_INPUT_WINDOW_EDIT_MESSAGE2_'
               }
           };
 
@@ -91,7 +92,10 @@
             'id': fragmentId,
             'index': index,
             'texts': {
-              'title': '_INPUT_WINDOW_DELETE_TITLE_'
+              'title': '_INPUT_WINDOW_DELETE_TITLE_',
+              'mainText': '_ARE_YOU_COMPLETELY_SURE_',
+              'secondaryText1': '_INPUT_WINDOW_DELETE_MESSAGE_',
+              'secondaryText2': '_INPUT_WINDOW_DELETE_MESSAGE2_'
             }
           };
           vm.deleteInputConfirm('lg', inputToDelete);

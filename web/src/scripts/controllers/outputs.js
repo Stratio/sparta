@@ -96,7 +96,8 @@
             'texts': {
                 'title': '_OUTPUT_WINDOW_MODIFY_TITLE_',
                 'button': '_OUTPUT_WINDOW_MODIFY_BUTTON_',
-                'button_icon': 'icon-circle-check'
+                'button_icon': 'icon-circle-check',
+                'secondaryText2': '_OUTPUT_WINDOW_EDIT_MESSAGE2_'
             }
         };
 
@@ -111,7 +112,11 @@
           'id': fragmentId,
           'index': index,
           'texts': {
-            'title': '_OUTPUT_WINDOW_DELETE_TITLE_'
+            'title': '_OUTPUT_WINDOW_DELETE_TITLE_',
+            'mainText': '_OUTPUT_CAN_NOT_BE_DELETED_',
+            'mainTextOK': '_ARE_YOU_COMPLETELY_SURE_',
+            'secondaryText1': '_OUTPUT_WINDOW_DELETE_MESSAGE_',
+            'secondaryText2': '_OUTPUT_WINDOW_DELETE_MESSAGE2_'
           }
         };
         deleteOutputConfirm('lg', outputToDelete);

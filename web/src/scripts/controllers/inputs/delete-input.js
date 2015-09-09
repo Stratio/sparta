@@ -25,15 +25,23 @@
             console.log('*********Modal');
             console.log(item);
 
-            setTexts(item.texts);
-
             vm.outputs = item;
             vm.outputs.policies = policiesAffected;
+
+            setTexts(item.texts);
         };
 
         function setTexts(texts) {
           vm.modalTexts = {};
           vm.modalTexts.title = texts.title;
+          vm.modalTexts.secondaryText1 = texts.secondaryText1;
+          vm.modalTexts.secondaryText2 = texts.secondaryText2;
+          if (vm.outputs.type === 'output') {
+            vm.modalTexts.mainText = (vm.outputs.policies.length > 0)? texts.mainText : texts.mainTextOK;
+          }
+          else {
+            vm.modalTexts.mainText = texts.mainText;
+          }
         };
 
         function ok() {
