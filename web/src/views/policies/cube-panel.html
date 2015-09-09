@@ -1,0 +1,59 @@
+<section ng-controller="CubeCtrl as vm" data-ng-model="vm.cube" ng-init="vm.init(cube)">
+  <div ng-show="vm.showModelError" class="c-row c-msg c-msg--small c-msg--error">
+    <i class="c-icon icon-circle-cross"></i>
+    <span>{{"_POLICY_._CUBE_ERROR_" | translate}}</span>
+  </div>
+
+  <div class="c-col c-col--5 c-col--vertical-centered">
+    <label class="c-col c-col--12 c-col--vertical-centered"> {{"_POLICY_._FIELDS_" | translate}}</label>
+
+    <div class="c-col c-col--12 c-col--vertical-centered">
+      <!--OUTPUTS-->
+      <div class="c-col c-col--4 c-col--vertical-centered" ng-repeat="output in vm.outputList track by $index">
+        <span>{{output}}</span>
+        <span class="icon icon-circle-plus" ng-click="vm.addOutputToDimensions(output)"></span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="c-col c-col--5 c-col--vertical-centered">
+    <label class="c-col c-col--12 c-col--vertical-centered"> {{"_POLICY_._DIMENSIONS_" | translate}}</label>
+
+    <div class="c-col c-col--12 c-col--vertical-centered">
+      <!--DIMENSIONS-->
+      <div class="c-col c-col--4 c-col--vertical-centered" ng-repeat="dimension in  vm.cube.dimensions">
+        <span>{{dimension.name}}</span>
+        <span class="icon icon-circle-minus" ng-click="vm.removeOutputFromDimensions()"></span>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="c-col c-col--5 c-col--vertical-centered">
+    <label class="c-col c-col--12 c-col--vertical-centered"> {{"_POLICY_._FUNCTIONS_" | translate}}</label>
+
+    <div class="c-col c-col--12 c-col--vertical-centered">
+      <!--_FUNCTIONS_-->
+      <div class="c-col c-col--4 c-col--vertical-centered" ng-repeat="function in  vm.functionList track by $index">
+        <span>{{function}}</span>
+        <span class="icon icon-circle-plus" ng-click="vm.addFunctionToOperators(function)"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="c-col c-col--5 c-col--vertical-centered">
+    <label class="c-col c-col--12 c-col--vertical-centered"> {{"_POLICY_._OPERATORS_" | translate}}</label>
+
+    <div class="c-col c-col--12 c-col--vertical-centered">
+      <!--OPERATORS-->
+      <div class="c-col c-col--4 c-col--vertical-centered" ng-repeat="operator in vm.cube.operators track by $index">
+        <span>{{operator.name}}</span>
+        <span ng-click="vm.removeFunctionFromOperators(operator)" class="icon icon-circle-minus"></span>
+      </div>
+
+    </div>
+  </div>
+
+</section>

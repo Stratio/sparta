@@ -23,8 +23,8 @@
       policy.currentStep = 0;
       policy.input = {};
       policy.outputs = [];
-
       policy.models = [];
+      policy.cubes = [];
     }
 
     return {
