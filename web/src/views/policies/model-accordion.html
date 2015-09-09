@@ -35,7 +35,7 @@
         </accordion-group>
       </div>
 
-      <div class="c-accordion-item--new">
+      <div class="c-accordion-item c-accordion-item--new">
         <accordion-group is-open= vm.accordionStatus.newItem ng-model="vm.newModel">
           <accordion-heading class="c-accordion-header">
             <span class="c-accordion-header__step-number">{{(vm.policy.models.length + 1) }}</span><i data-ng-if="vm.newModel.type" class="c-accordion-header__type c-icon icon-{{vm.newModel.iconName | lowercase}}"></i><span class="c-accordion-header__title">{{"_POLICY_._NEW-MODEL-DEFINITION_" | translate}}</span>
@@ -46,16 +46,16 @@
           <ng-include src="'views/policies/model-panel.html'" ng-init = "model = vm.newModel">
 
           </ng-include>
+          
           <div class="c-form-group c-form-group--to-right">
             <button class="c-button c-button--call-to-action-1" ng-click="vm.addModel()">
-              <i class="icon icon-arrow-right"></i>
+              <i class="icon icon-circle-plus"></i>
               <span>{{"_POLICY_._ADD_MODEL_" | translate}}</span>
             </button>
           </div>
         </accordion-group>
       </div>
     </accordion>
-
   </form>
 
   <footer class="c-row c-row--footer">
