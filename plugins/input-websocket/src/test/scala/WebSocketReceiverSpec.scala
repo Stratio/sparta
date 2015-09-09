@@ -12,7 +12,7 @@ object WebSocketReceiverSpec extends App {
   val ssc = new StreamingContext(conf, Seconds(10))
   val ds=  ssc.receiverStream(new WebSocketReceiver("ws://stream.meetup.com/2/rsvps",StorageLevel.MEMORY_ONLY))
   ds.foreachRDD(x=>
-  println("hola"+x.collect().mkString(";"))
+  println("data ----> "+x.collect().mkString(";"))
   )
   ssc.start()
 
