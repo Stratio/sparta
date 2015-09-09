@@ -6,10 +6,15 @@
       <span class="c-step-content__title-text">{{"_POLICY_._STEPS_._MODEL_" | translate}}</span>
     </h1>
   </header>
-  <p class="c-info-text c-info-text--narrow"><i class="c-icon c-info-text__icon icon-info1"></i><span
-    class="c-info-text__text">{{"_POLICY_._MODEL_INTRO_" | translate}}</span></p>
 
-  <div data-ng-controller="PolicyModelsCtrl as vm">
+  <div class="c-row c-row--separated c-msg c-msg--small c-msg--error" data-ng-if="vm.error">
+    <i class="c-icon icon-circle-cross"></i>
+    <span>{{"_POLICY_._INPUTS_ERROR_" | translate}}</span>
+  </div>
+
+  <p class="c-info-text c-info-text--narrow"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._MODEL_INTRO_" | translate}}</span></p>
+
+  <div class="c-panel c-panel--framed" data-ng-controller="PolicyModelsCtrl as vm">
     <accordion>
       <accordion-group is-open="vm.accordionStatus[$index]" ng-repeat="currentModel in vm.policy.models track by $index"
                        ng-model="currentModel">
@@ -38,10 +43,10 @@
       </accordion-group>
     </accordion>
   </div>
-  <footer class="c-row c-row--footer c-row--separated">
+
+  <footer class="c-row c-row--footer">
     <div class="c-col c-col--6 c-col--vertical-centered">
-      <c-icon-link icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action icon-help1'"
-                   text="'_INPUT_WINDOW_NEW_HELP_' | translate" text-class="" link-url="vm.helpLink"></c-icon-link>
+      <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" link-url="vm.helpLink"></c-icon-link>
     </div><!--
  --><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
       <button class="c-button c-button--call-to-action-1" data-ng-click="vm.nextStep()">
