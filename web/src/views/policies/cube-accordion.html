@@ -1,4 +1,4 @@
-<section>
+<section  data-ng-controller="PolicyCubeAccordionCtrl as vm">
   {{vm.cube}}
   <header class="c-step-content__title c-step-content__title--underlined">
     <h1>
@@ -10,9 +10,9 @@
   <p class="c-info-text c-info-text--narrow"><i class="c-icon c-info-text__icon icon-info1"></i><span
     class="c-info-text__text">{{"_POLICY_._CUBE_INTRO_" | translate}}</span></p>
 
-  <div data-ng-controller="PolicyCubeAccordionCtrl as vm">
+  <div>
     <accordion ng-model = "vm.policy.cubes" close-others="true">
-      <accordion-group is-open= vm.accordionStatus.items[$index] ng-repeat="currentCube in vm.cubes track by $index"
+      <accordion-group is-open= vm.accordionStatus.items[$index] ng-repeat="currentCube in vm.policy.cubes track by $index"
                       ng-model = "currentCube" >
         <accordion-heading>
           <label>{{$index + 1}}</label>. <p>{{"_POLICY_._CUBE_TITLE_" | translate}}</p>

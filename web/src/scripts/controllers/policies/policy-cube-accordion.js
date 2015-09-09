@@ -19,26 +19,25 @@
 
     function init() {
       vm.policy = PolicyModelFactory.GetCurrentPolicy();
-      vm.cubes = CubeModelFactory.GetCubeList();
+      vm.policy.cubes = CubeModelFactory.GetCubeList();
       vm.newCube = CubeModelFactory.GetNewCube();
       vm.accordionStatus = AccordionStatusService.accordionStatus;
-      AccordionStatusService.ResetAccordionStatus(vm.cubes.length);
+      AccordionStatusService.ResetAccordionStatus(vm.policy.cubes.length);
     }
 
     function addCube() {
-      vm.cubes.push(angular.copy(vm.newCube));
+      vm.policy.cubes.push(angular.copy(vm.newCube));
       CubeModelFactory.ResetNewCube();
-      AccordionStatusService.ResetAccordionStatus(vm.cubes.length);
+      AccordionStatusService.ResetAccordionStatus(vm.policy.cubes.length);
     }
 
     function removeCube(index) {
-      vm.cubes.splice(index, 1);
-      AccordionStatusService.ResetAccordionStatus(vm.cubes.length);
+      vm.policy.cubes.splice(index, 1);
+      AccordionStatusService.ResetAccordionStatus(vm.policy.cubes.length);
       AccordionStatusService.accordionStatus.newItem = true;
     }
 
     function nextStep() {
-      vm.policy.cubes = vm.cubes;
       PolicyModelFactory.NextStep();
     }
 
