@@ -1,0 +1,91 @@
+{
+  "name": "policy-websocket",
+  "description": "Input kafka, output print",
+  "sparkStreamingWindow": 2000,
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointPath": "checkpoint",
+  "input": {
+    "name": "in-ws",
+    "type": "WebSocket",
+    "configuration": {
+      "url": "ws://stream.meetup.com/2/rsvps"
+    }
+  },
+  "transformations": [
+    {
+      "name": "morphline",
+      "type": "Morphlines",
+      "order": 0,
+      "outputFields": [
+        "response"
+      ],
+      "configuration": {
+        "morphline": {
+          "id": "morphline1",
+          "importCommands": [
+            "org.kitesdk.**"
+          ],
+          "commands": [
+            {
+              "readJson": {}
+            },
+            {
+              "extractJsonPaths": {
+                "paths": {
+                  "response": "/response"
+                }
+              }
+            },
+            {
+              "removeFields": {
+                "blacklist": [
+                  "literal:_attachment_body"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "cubes": [
+    {
+      "name": "testCube",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
+      "dimensions": [
+        {
+          "field": "response",
+          "name": "response"
+        }
+      ],
+      "operators": [
+        {
+          "name": "countoperator",
+          "type": "Count",
+          "jarFile": "operator-count-plugin.jar",
+          "configuration": {}
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-cassandra",
+      "type": "Cassandra",
+      "configuration": {
+        "connectionHost": "127.0.0.1",
+        "cluster": "Test Cluster",
+        "keyspace": "sparkta"
+      }
+    }
+  ]
+}
