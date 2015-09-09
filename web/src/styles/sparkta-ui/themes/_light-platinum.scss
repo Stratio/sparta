@@ -26,6 +26,7 @@
  *		c-icon-text
  *		c-info-text
  *		c-icon-link
+ *		c-icon-label
  *		c-icon
  *		c-modal-inner
  *		c-col
@@ -43,6 +44,8 @@
  *		c-slider
  *		c-check-block
  *		c-textarea
+ *		c-accordion
+ *		c-tag
  *
  */
 
@@ -285,11 +288,20 @@ $c-info-text__icon---font-size: get-font-size(medium);
 
 
 // c-icon-link
-$c-icon-link---color: get-color(g7);
-$c-icon-link---font-size: get-font-size(medium);
+$c-icon-link---color: $c-info-text---color;
+$c-icon-link---font-size: $c-info-text---font-size;
 
-$c-icon-link__icon---color: get-color(c1);
-$c-icon-link__icon---font-size: get-font-size(medium);
+$c-icon-link__icon---color: $c-info-text__icon---color;
+$c-icon-link__icon---font-size: $c-info-text__icon---font-size;
+
+
+
+// c-icon-label
+$c-icon-label---color: $c-info-text---color;
+$c-icon-label---font-size: $c-info-text---font-size;
+
+$c-icon-label__icon---color: $c-info-text__icon---color;
+$c-icon-label__icon---font-size: $c-info-text__icon---font-size;
 
 
 
@@ -468,3 +480,34 @@ $c-check-block__icon---bottom: 20px;
 // c-textarea
 $c-textarea--min-height: 100px;
 $c-textarea--big--min-height: 300px;
+
+
+
+// c-accordion
+$c-accordion-header__step-number---margin: -10px 10px -10px -14px;
+$c-accordion-header__step-number---font-size: 2rem;
+$c-accordion-header__step-number---width: 47px;
+$c-accordion-header__step-number---height: $c-accordion-header__step-number---width;
+$c-accordion-header__step-number---padding: 7px 0 0;
+
+$c-accordion-header__step-number---background: get-color(c1b);
+$c-accordion-header__step-number---color: get-color(g0);
+
+$c-accordion__type---margin: 0 10px;
+
+$c-accordion__open-mark---margin: 7px 0 0;
+$c-accordion__open-mark---rotation: 90deg;
+
+$c-accordion-item--new---background: get-color(c5);
+$c-accordion-item--new---color: get-color(g9);
+
+$c-accordion-header--new__step-number---background: get-color(c1);
+$c-accordion-header--new__step-number---color: get-color(g0);
+
+
+
+// c-tag
+$c-tag---background: get-color(c1b);
+$c-tag---color: get-color(g0);
+$c-tag---padding: 5px 10px;
+$c-tag---margin: 0 0 0 5px;
