@@ -62,7 +62,7 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
 
       rowProductA.getDouble("avg_price") should be(639.0d)
       rowProductA.getDouble("sum_price") should be(5112.0d)
-      rowProductA.getLong("count_price") should be(NumEventsExpected)
+      rowProductA.getInt("count_price") should be(NumEventsExpected)
       rowProductA.getString("first_price") should be("10")
       rowProductA.getString("last_price") should be("600")
       rowProductA.getDouble("max_price") should be(1002.0d)
@@ -72,7 +72,7 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
       rowProductA.getDouble("variance_price") should be(121076.57142857143d)
       rowProductA.getDouble("range_price") should be(992.0d)
       rowProductA.getDouble("variance_price") should be(121076.57142857143d)
-      val counts = mapAsScalaMap(rowProductA.getMap("entitycount_text", classOf[String], classOf[java.lang.Long]))
+      val counts = mapAsScalaMap(rowProductA.getMap("entitycount_text", classOf[String], classOf[java.lang.Integer]))
       counts should be(Map("hola" -> new lang.Long(16), "holo" -> new lang.Long(8)))
       rowProductA.getInt("totalentity_text") should be(24)
 
@@ -81,7 +81,7 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
 
       rowProductB.getDouble("avg_price") should be(758.25d)
       rowProductB.getDouble("sum_price") should be(6066.0d)
-      rowProductB.getLong("count_price") should be(NumEventsExpected)
+      rowProductB.getInt("count_price") should be(NumEventsExpected)
       rowProductB.getString("first_price") should be("15")
       rowProductB.getString("last_price") should be("50")
       rowProductB.getDouble("max_price") should be(1001.0d)
@@ -90,7 +90,7 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
       rowProductB.getDouble("stddev_price") should be(448.04041590655d)
       rowProductB.getDouble("variance_price") should be(200740.2142857143d)
       rowProductB.getDouble("range_price") should be(986.0d)
-      val counts2 = mapAsScalaMap(rowProductB.getMap("entitycount_text", classOf[String], classOf[java.lang.Long]))
+      val counts2 = mapAsScalaMap(rowProductB.getMap("entitycount_text", classOf[String], classOf[java.lang.Integer]))
       counts2 should be(Map("hola" -> new java.lang.Long(16), "holo" -> new java.lang.Long(8)))
       rowProductB.getInt("totalentity_text") should be(24)
     }
