@@ -113,7 +113,7 @@
           'index': index,
           'texts': {
             'title': '_OUTPUT_WINDOW_DELETE_TITLE_',
-            'mainText': '_OUTPUT_CAN_NOT_BE_DELETED_',
+            'mainText': '_OUTPUT_CANNOT_BE_DELETED_',
             'mainTextOK': '_ARE_YOU_COMPLETELY_SURE_',
             'secondaryText1': '_OUTPUT_WINDOW_DELETE_MESSAGE_',
             'secondaryText2': '_OUTPUT_WINDOW_DELETE_MESSAGE2_'
