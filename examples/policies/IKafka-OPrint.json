@@ -1,5 +1,4 @@
 {
-  "id": "blablabla",
   "name": "policy-kafka",
   "description": "Input kafka, output print",
   "sparkStreamingWindow": 2000,

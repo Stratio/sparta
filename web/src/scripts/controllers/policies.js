@@ -30,7 +30,7 @@
         console.log(result);
         vm.policiesData.list = result;
       });
-    }
+    };
 
   }
 })();

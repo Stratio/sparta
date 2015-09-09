@@ -10,8 +10,9 @@
 
   function PolicyOutputCtrl(FragmentFactory, PolicyModelFactory, $q, PolicyStaticDataFactory) {
     var vm = this;
-    vm.checkOutputs = checkOutputs;
-    vm.checkSelected = checkSelected;
+    vm.setOutput = setOutput;
+    vm.validateForm = validateForm;
+
     vm.formSubmmited = false;
     vm.error = false;
     vm.outputList = [];
@@ -33,15 +34,21 @@
         defer.reject();
       });
       return defer.promise;
-    }
+    };
 
-    function checkSelected() {
+    function setOutput(index) {
+      if (vm.policy.outputs[index]) {
+        vm.policy.outputs[index] = null;
+      }
+      else {
+        vm.policy.outputs[index] = vm.outputList[index];
+      }
+
       var outputsSelected = checkOutputsSelected();
-
       vm.error = (outputsSelected>0)? false : true;
-    }
+    };
 
-    function checkOutputs() {
+    function validateForm() {
       vm.formSubmmited = true;
       var outputsSelected = checkOutputsSelected();
 
@@ -65,6 +72,5 @@
       }
       return outputsCount;
     };
-
   }
 })();

@@ -34,15 +34,17 @@
 <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
 <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
 <script src="bower_components/angular-touch/angular-touch.js"></script>
+<!-- endbuild -->
 
 	<!-- build:js({.tmp,src}) scripts/scripts.js -->
 	<script src="scripts/app.js"></script>
-<!-- Filters -------------------------------- -->
-<script src="scripts/filters/angular-truncate-number.js"></script>
+	<!-- Filters -------------------------------- -->
+	<script src="scripts/filters/angular-truncate-number.js"></script>
 	<!-- Controllers -------------------------------- -->
 	<script src="scripts/controllers/inputs.js"></script>
 	<script src="scripts/controllers/outputs.js"></script>
 	<script src="scripts/controllers/policies.js"></script>
+	<script src="scripts/controllers/settings.js"></script>
 	<script src="scripts/controllers/inputs/new-input.js"></script>
 	<script src="scripts/controllers/inputs/edit-input.js"></script>
 	<script src="scripts/controllers/inputs/duplicate-input.js"></script>
@@ -50,11 +52,10 @@
     <script src="scripts/controllers/policies/new-policy.js"></script>
     <script src="scripts/controllers/policies/policy-description.js"></script>
     <script src="scripts/controllers/policies/policy-inputs.js"></script>
-  <script src="scripts/controllers/policies/policy-outputs.js"></script>
-<script src="scripts/controllers/policies/policy-finish.js"></script>
-<script src="scripts/controllers/policies/modal/confirm-policy-modal.js"></script>
-
-<!-- Directives ----------------------------------------- -->
+    <script src="scripts/controllers/policies/policy-outputs.js"></script>
+    <script src="scripts/controllers/policies/policy-finish.js"></script>
+    <script src="scripts/controllers/policies/modal/confirm-policy-modal.js"></script>
+	<!-- Directives ----------------------------------------- -->
 	<script src="scripts/vendors/angular-translate.js"></script>
 	<script src="scripts/vendors/ui.stratio.grid.js"></script>
 	<!-- Directiva Angular UI - Tooltip -->
@@ -74,13 +75,13 @@
     <script src="scripts/directives/c-route-button.directive.js"></script>
     <script src="scripts/directives/c-slider.directive.js"></script>
     <script src="scripts/directives/c-icon-label.directive.js"></script>
+    <script src="scripts/directives/c-icon-link.directive.js"></script>
     <script src="scripts/directives/c-input-field.directive.js"></script>
 	<!-- Factories ----------------------------------- -->
 	<script src="scripts/services/fragment-factory.js"></script>
 	<script src="scripts/services/template-factory.js"></script>
 	<script src="scripts/services/policy-factory.js"></script>
-<script src="scripts/services/policy-model-factory.js"></script>
-
+	<script src="scripts/services/policy-model-factory.js"></script>
 	<!-- Services ----------------------------------- -->
 	<script src="scripts/services/api/api-policy-service.js"></script>
 	<script src="scripts/services/api/api-template-service.js"></script>
@@ -90,7 +91,6 @@
 	<!-- Tools ----------------------------------- -->
 	<script src="scripts/lib/stratio.files.utils.js"></script>
 	<!-- endbuild -->
-
 <!-- build:js({.tmp,src}) scripts/scripts.js -->
 <script src="scripts/app.js"></script>
 <!-- Controllers -------------------------------- -->
@@ -143,7 +143,6 @@
 <script src="scripts/services/api/api-fragment-service.js"></script>
 <script src="scripts/services/static-data/policy-static-data-factory.js"></script>
 <script src="scripts/services/policy-model-factory.js"></script>
-
 <script src="scripts/services/static-data/model-static-data-factory.js"></script>
 <!-- Tools ----------------------------------- -->
 <script src="scripts/lib/stratio.files.utils.js"></script>

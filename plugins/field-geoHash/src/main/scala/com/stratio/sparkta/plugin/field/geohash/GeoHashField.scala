@@ -54,7 +54,17 @@ case class GeoHashField(props: Map[String, JSerializable])
 
   override val operationProps : Map[String, JSerializable] = props
 
-  override val defaultTypeOperation = TypeOp.ArrayDouble
+  val coordinate = properties.get("coordinate")
+
+  override val defaultTypeOperation = coordinate match {
+    case Some(coord) =>
+      if (coord.asInstanceOf[String] == "latitude") TypeOp.Double
+      else {
+        if (coord.asInstanceOf[String] == "longitude") TypeOp.Double
+        else TypeOp.ArrayDouble
+      }
+    case None => TypeOp.ArrayDouble
+  }
 
   //scalastyle:off
   override def precision(keyName: String): Precision = keyName match {
@@ -83,15 +93,15 @@ case class GeoHashField(props: Map[String, JSerializable])
             .split(properties.get(GeoHashField.LatLongKey).getOrElse(GeoHashField.LatLongSepartor).toString)
           latLongArray match {
             case latLong if latLong.size == 2 =>
-              (precisionKey, GeoHashField.getPrecision(latLong(0).toDouble, latLong(1).toDouble, precisionKey))
+              (precisionKey, getPrecision(latLong(0).toDouble, latLong(1).toDouble, precisionKey))
             case _ => (precisionKey, "")
           }
         } else {
-          (defaultPrecision, GeoHashField.getPrecision(0, 0, defaultPrecision))
+          (defaultPrecision, getPrecision(0, 0, defaultPrecision))
         }
       } else {
         log.info("The geolocation precision can not be casted to Option")
-        (defaultPrecision, GeoHashField.getPrecision(0, 0, defaultPrecision))
+        (defaultPrecision, getPrecision(0, 0, defaultPrecision))
       }
     }
     catch {
@@ -105,24 +115,6 @@ case class GeoHashField(props: Map[String, JSerializable])
         throw cce
       }
     }
-}
-
-object GeoHashField {
-
-  final val Precision1Name = "precision1"
-  final val Precision2Name = "precision2"
-  final val Precision3Name = "precision3"
-  final val Precision4Name = "precision4"
-  final val Precision5Name = "precision5"
-  final val Precision6Name = "precision6"
-  final val Precision7Name = "precision7"
-  final val Precision8Name = "precision8"
-  final val Precision9Name = "precision9"
-  final val Precision10Name = "precision10"
-  final val Precision11Name = "precision11"
-  final val Precision12Name = "precision12"
-  final val LatLongSepartor = "__"
-  final val LatLongKey = "separator"
 
   //scalastyle:off
   def getPrecision(lat: Double, long: Double, precision: Precision): JSerializable = {
@@ -147,6 +139,35 @@ object GeoHashField {
   def decodeHash(geoLocHash: String): JSerializable = {
     val geoDecoded: LatLong = GeoHash.decodeHash(geoLocHash)
     val (latitude, longitude) = (geoDecoded.getLat, geoDecoded.getLon)
-    Seq(longitude, latitude).asInstanceOf[JSerializable]
+    coordinate match {
+      case Some(coord) =>
+        if(coord.asInstanceOf[String] == "latitude"){
+          latitude.asInstanceOf[JSerializable]
+        }
+        else{
+          if(coord.asInstanceOf[String] == "longitude") longitude.asInstanceOf[JSerializable]
+          else Seq(longitude, latitude).asInstanceOf[JSerializable]
+        }
+      case None => Seq(longitude, latitude).asInstanceOf[JSerializable]
+    }
   }
+}
+
+object GeoHashField {
+
+  final val Precision1Name = "precision1"
+  final val Precision2Name = "precision2"
+  final val Precision3Name = "precision3"
+  final val Precision4Name = "precision4"
+  final val Precision5Name = "precision5"
+  final val Precision6Name = "precision6"
+  final val Precision7Name = "precision7"
+  final val Precision8Name = "precision8"
+  final val Precision9Name = "precision9"
+  final val Precision10Name = "precision10"
+  final val Precision11Name = "precision11"
+  final val Precision12Name = "precision12"
+  final val LatLongSepartor = "__"
+  final val LatLongKey = "separator"
+
 }

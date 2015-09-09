@@ -185,7 +185,7 @@
       "type": "Redis",
       "configuration": {
         "hostname": "localhost",
-        "port": 63790
+        "port": "63790"
       }
     }
   ]
