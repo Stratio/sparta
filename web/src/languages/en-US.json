@@ -126,8 +126,11 @@
     "_WINDOW_": {
      "_CONFIRM_": {
        "_TITLE_" : "Create policy"
-     }
-   },
+      },
+      "_DELETE_": {
+        "_TITLE_": "Delete policy"
+      }
+    },
     "_ADD_MODEL_": "Add model",
     "_MODEL_ERROR_": "There are some errors in the introduced data. Please, check them and try it again"
   },

@@ -12,6 +12,7 @@
     <span>{{"_POLICY_._INPUTS_ERROR_" | translate}}</span>
   </div>
 
+
   <p class="c-info-text c-info-text--narrow"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._INPUTS_INTRO_" | translate}}</span></p>
 
   <form name="vm.form" class="c-form c-panel c-panel--framed" novalidate>
@@ -25,10 +26,9 @@
             <input class="c-checkbox" type="checkbox" data-ng-checked="vm.isSelectedInput(input.name)"><label class="c-label"></label>
           </div>
         </div>
-
-        <i class="c-icon icon-{{input.element.type | lowercase}}"></i>
       </div>
     </div>
+
     <footer class="c-row c-row--footer c-row--separated">
       <div class="c-col c-col--6 c-col--vertical-centered">
         <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" text-class="" link-url="vm.helpLink" link-class=""></c-icon-link>

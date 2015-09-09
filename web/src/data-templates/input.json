@@ -168,7 +168,7 @@
     },
     "properties": [
       {
-      "propertyId": "kafkaParams.zookeeper.connect",
+      "propertyId": "zookeeper.connect",
       "propertyName": "",
       "propertyType": "list",
       "default": "",
@@ -251,7 +251,7 @@
     },
     "properties": [
       {
-      "propertyId": "kafkaParams.metadata.broker.list",
+      "propertyId": "metadata.broker.list",
       "propertyName": "",
       "propertyType": "list",
       "default": "",
@@ -308,16 +308,6 @@
           "default": "",
           "required": true,
           "tooltip": "Topic to connect.",
-          "hidden": false
-        },
-        {
-          "propertyId": "partition",
-          "propertyName": "_PARTITION_",
-          "propertyType": "text",
-          "regexp": "\\d*",
-          "default": "1",
-          "required": true,
-          "tooltip": "",
           "hidden": false
         }
       ]

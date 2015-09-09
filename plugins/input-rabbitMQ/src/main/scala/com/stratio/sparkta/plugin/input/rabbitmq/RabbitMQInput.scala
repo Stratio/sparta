@@ -29,11 +29,11 @@ import com.stratio.sparkta.sdk.{JsoneyString, Event, Input}
 
 class RabbitMQInput(properties: Map[String, JSerializable]) extends Input(properties) {
 
-  val DefaultRabbitMQPort = 5672
+  val DefaultRabbitMQPort = "5672"
 
   val RabbitMQQueueName = properties.getString("queue")
   val RabbitMQHost = properties.getString("host", "localhost")
-  val RabbitMQPort = properties.getInt("port", DefaultRabbitMQPort)
+  val RabbitMQPort = properties.getString("port", DefaultRabbitMQPort).toInt
   val ExchangeName = properties.getString("exchangeName", "")
   val RoutingKeys = properties.get("routingKeys")
 

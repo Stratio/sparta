@@ -1,7 +1,6 @@
 {
-  "id": "id",
-  "name": "policy-flume",
-  "description": "policy-flume",
+  "name": "policy-kafka-direct",
+  "description": "policy-kafka-direct",
   "sparkStreamingWindow": 6000,
   "checkpointPath": "checkpoint",
   "rawData": {
@@ -11,15 +10,16 @@
   },
   "input":
     {
-      "name": "in-flume",
-      "type": "Flume",
+      "name": "in",
+      "type": "KafkaDirect",
       "configuration": {
-        "type": "pull",
-        "addresses": "localhost:10999"
+        "topics": "test",
+        "kafkaParams.metadata.broker.list": "localhost:9092",
+        "kafkaParams.group.id": "my-spt-grp"
       }
     }
   ,
-  "transormations": [
+  "transformations": [
     {
       "name": "morphline",
       "order": 0,
@@ -46,7 +46,7 @@
   ],
   "cubes": [
     {
-      "name": "messages",
+      "name": "testCube",
       "checkpointConfig": {
         "timeDimension": "minute",
         "granularity": "minute",
@@ -55,8 +55,8 @@
       },
       "dimensions": [
         {
-          "field": "message",
-          "name": "message"
+          "name": "message",
+          "field": "message"
         }
       ],
       "operators": [
@@ -70,11 +70,12 @@
   ],
   "outputs": [
     {
-      "name": "out-print",
-      "type": "Print",
+      "name": "out-elasticsearch",
+      "type": "ElasticSearch",
       "configuration": {
-        "multiplexer": "true",
-        "isAutoCalculateId": "true"
+        "nodes": [{"node":"localhost","defaultPort":"9200"}],
+        "isAutoCalculateId": "true",
+        "indexMapping": "day"
       }
     }
   ]

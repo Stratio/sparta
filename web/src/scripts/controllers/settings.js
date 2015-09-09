@@ -74,22 +74,23 @@
         inputsListRequest.then(function (result) {
           console.log('********Inputs list')
           console.log(result);
-          vm.inputsList = result;
+          var inputList = result;
 
           var policyTemplate = PolicyFactory.GetFakePolicy();
 
           policyTemplate.then(function (result) {
             console.log('********Policy template')
             console.log(result);
-            var policyTemplate = result;
+            //var policyTemplate = result;
 
-            for(var i=0; i<vm.inputsList.length; i++) {
+            for(var i=0; i<inputList.length; i++) {
+              var test = {};
+              angular.copy(result, test);
+              test.name = 'Policy - ' + inputList[i].name + ' 1';
+              test.fragments[0].name = inputList[i].name;
+              test.fragments[0].id = inputList[i].id;
 
-              policyTemplate.name = 'Policy - ' + vm.inputsList[i].name + ' 1';
-              policyTemplate.fragments[0].name = vm.inputsList[i].name;
-              policyTemplate.fragments[0].id = vm.inputsList[i].id;
-
-              var newPolicy = PolicyFactory.CreatePolicy(policyTemplate);
+              var newPolicy = PolicyFactory.CreatePolicy(test);
 
               newPolicy.then(function (result) {
                 console.log('********New Policy')
@@ -98,7 +99,6 @@
                 console.log('There was an error while creating the policy!');
                 console.log(error);
               });
-
             };
 
           },function (error) {

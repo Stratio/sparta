@@ -42,7 +42,7 @@ class RedisOutput(keyName: String,
 
   override val hostname = properties.getString("hostname", DefaultRedisHostname)
 
-  override val port = properties.getInt("port", DefaultRedisPort)
+  override val port = properties.getString("port", DefaultRedisPort).toInt
 
   override val eventTimeFieldName = properties.getString("timestampFieldName", "timestamp")
 

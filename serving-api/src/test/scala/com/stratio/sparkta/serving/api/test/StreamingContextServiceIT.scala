@@ -68,7 +68,7 @@ with SparktaSerializer {
       val json = Source.fromFile(new File(PathToPolicy)).mkString
       val apConfig = native.Serialization.read[AggregationPoliciesModel](json)
 
-      val ssc = streamingContextService.standAloneStreamingContext(apConfig)
+      val ssc = streamingContextService.standAloneStreamingContext(apConfig.copy(id=Some("1")))
 
       ssc should not be None
     }
