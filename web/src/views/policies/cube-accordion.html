@@ -1,4 +1,5 @@
 <section>
+  {{vm.cube}}
   <header class="c-step-content__title c-step-content__title--underlined">
     <h1>
       <span class="c-step-counter">{{wizard.currentStep + 1}}/{{wizard.steps.length}}</span>
@@ -9,34 +10,38 @@
   <p class="c-info-text c-info-text--narrow"><i class="c-icon c-info-text__icon icon-info1"></i><span
     class="c-info-text__text">{{"_POLICY_._CUBE_INTRO_" | translate}}</span></p>
 
-  <div data-ng-controller="PolicyCubesCtrl as vm">
-    <accordion>
-      <accordion-group is-open="vm.accordionStatus[$index]" ng-repeat="currentCube in vm.policy.cubes track by $index"
-                       ng-model="currentCube">
-
+  <div data-ng-controller="PolicyCubeAccordionCtrl as vm">
+    <accordion ng-model = "vm.policy.cubes" close-others="true">
+      <accordion-group is-open= vm.accordionStatus.items[$index] ng-repeat="currentCube in vm.cubes track by $index"
+                      ng-model = "currentCube" >
         <accordion-heading>
-          <label>{{$index + 1}}</label>. <p>{{currentCube.type}}</p>
+          <label>{{$index + 1}}</label>. <p>{{"_POLICY_._CUBE_TITLE_" | translate}}</p>
 
           <i class="pull-right glyphicon"
-             ng-class="{'glyphicon-chevron-down': vm.isCurrentCube($index), 'glyphicon-chevron-right': !vm.isCurrentCube($index)}"></i>
+             ng-class="{'icon-arrow2_down':   vm.accordionStatus.items[$index], 'icon-arrow2_right': ! vm.accordionStatus.items[$index]}"></i>
 
         </accordion-heading>
         <button ng-click="vm.removeCube($index, $event)"><i class="icon-cross"></i></button>
-        <ng-include src="'views/policies/model-creation-panel.html'"></ng-include>
+        <ng-include src="'views/policies/cube-panel.html'"  ng-init =  "cube = currentCube" ></ng-include>
       </accordion-group>
 
-      <accordion-group is-open="vm.accordionStatus[vm.policy.cubes.length]" ng-model="vm.newCube">
+      <accordion-group is-open= vm.accordionStatus.newItem ng-model="vm.newCube">
         <accordion-heading>
-          <label>{{"_POLICY_._CUBE_NAME_" | translate}}</label>
-
+          <label>{{"_POLICY_._NEW_CUBE_" | translate}}</label>
           <i class="pull-right glyphicon"
-             ng-class="{'glyphicon-chevron-down': vm.isCurrentCube(0), 'glyphicon-chevron-right': !vm.isCurrentCube($index)}"></i>
+             ng-class="{'icon-arrow2_down':  vm.accordionStatus.newItem, 'icon-arrow2_right': !vm.accordionStatus.newItem}"></i>
         </accordion-heading>
 
-        <ng-include src="'views/policies/cube-creation-panel.html'">
+        <ng-include src="'views/policies/cube-panel.html'" ng-init =  "cube = vm.newCube">
         </ng-include>
+        <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
+          <button class="c-button" ng-click="vm.addCube()">
+            <span>{{"_POLICY_._ADD_CUBE_" | translate}}</span>
+          </button>
+        </div>
       </accordion-group>
     </accordion>
+
   </div>
   <footer class="c-row c-row--footer c-row--separated">
     <div class="c-col c-col--6 c-col--vertical-centered">

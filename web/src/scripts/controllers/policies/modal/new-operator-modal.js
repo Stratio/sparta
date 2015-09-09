@@ -17,6 +17,7 @@
     vm.operator = {};
     vm.operator.name = functionName;
     vm.operator.configuration = "";
+    vm.operator.type = "";
 
     ///////////////////////////////////////
 

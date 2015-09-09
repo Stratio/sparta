@@ -116,6 +116,8 @@
     "_MODEL_NAME_": "Model name",
     "_ADD_MODEL_": "Add model",
     "_CUBE_NAME_": "Cube name",
+    "_CUBE_TITLE_": "Cube",
+    "_NEW_CUBE_": "New cube",
     "_ADD_CUBE_": "Add cube",
     "_INPUTS_INTRO_":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
     "_OUTPUTS_INTRO_":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
@@ -137,6 +139,7 @@
     "_MODEL_ERROR_": "There are some errors in the introduced data. Please, check them and try it again",
     "_CUBE_ERROR_": "There are some errors in the introduced data. Please, check them and try it again",
     "_DIMENSIONS_": "Dimensions",
+    "_OPERATORS_": "Operators",
     "_FIELDS_": "Fields",
     "_FUNCTIONS_": "Functions"
   },
