@@ -123,6 +123,9 @@
     "_WINDOW_": {
      "_CONFIRM_": {
        "_TITLE_" : "Create policy"
+      },
+      "_DELETE_": {
+        "_TITLE_": "Delete policy"
       }
     },
     "_ADD_MODEL_": "Add model",
