@@ -22,6 +22,8 @@
         else
           vm.accordionStatus.items[i] = false;
       }
+      if (truePosition == undefined)
+        vm.accordionStatus.newItem = true;
     }
 
     function GetAccordionStatus() {
