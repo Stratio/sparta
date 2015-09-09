@@ -1,19 +1,20 @@
-<fieldset class="c-fieldset">
-  <legend class="c-fieldset__title">{{"_POLICY_._CUBE_._DIMENSION_" | translate}}</legend>
+<div class="c-titlebar">
+  <span class="c-titlebar__title">{{"_POLICY_._CUBE_._DIMENSION_" | translate}}</span>
+  <i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" ng-click="vm.cancel()"></i>
+</div>
 
-  <div class="c-panel c-panel--framed">
-    <div class="c-form-group">
-      <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.dimension.name" data-label="{{'_NAME_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Name 1" required="true"></form-field-input>
-    </div>
-    <div class="c-form-group">
-      <form-field-input data-form="vm.form" data-st-name="field-form" data-model="vm.dimension.field" data-label="{{'_POLICY_._CUBE_._FIELD_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Name 1" required="true"></form-field-input>
-    </div>
-    <div class="c-form-group">
-      <form-field-input data-form="vm.form" data-st-name="type-form" data-model="vm.dimension.type" data-label="{{'_TYPE_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Lorem ipsum dolor sit amet." required="true"></form-field-input>
-    </div>
-    <div class="c-form-group">
-      <form-field-input data-form="vm.form" data-st-name="precision-form" data-model="vm.dimension.precision" data-label="{{'_POLICY_._CUBE_._PRECISION_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Lorem ipsum dolor sit amet." required="true"></form-field-input>
-    </div>
+<div class="c-modal-inner">
+  <div class="c-form-group">
+    <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.dimension.name" data-label="{{'_NAME_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Name 1" required="true"></form-field-input>
+  </div>
+  <div class="c-form-group">
+    <form-field-input data-form="vm.form" data-st-name="field-form" data-model="vm.dimension.field" data-label="{{'_POLICY_._CUBE_._FIELD_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Name 1" required="true"></form-field-input>
+  </div>
+  <div class="c-form-group">
+    <form-field-input data-form="vm.form" data-st-name="type-form" data-model="vm.dimension.type" data-label="{{'_TYPE_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Lorem ipsum dolor sit amet." required="true"></form-field-input>
+  </div>
+  <div class="c-form-group">
+    <form-field-input data-form="vm.form" data-st-name="precision-form" data-model="vm.dimension.precision" data-label="{{'_POLICY_._CUBE_._PRECISION_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Lorem ipsum dolor sit amet." required="true"></form-field-input>
   </div>
 
   <div class="c-row c-row--separated">
@@ -29,4 +30,4 @@
       </button>
     </div>
   </div>
-</fieldset>
+</div>
