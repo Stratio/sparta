@@ -148,7 +148,8 @@
     "_DIMENSIONS_": "Dimensions",
     "_OPERATORS_": "Operators",
     "_FIELDS_": "Fields",
-    "_FUNCTIONS_": "Functions"
+    "_FUNCTIONS_": "Functions",
+    "_SUCCESS_SENT_": "Policy successfully created"
   },
   "_SHORT_": "Short",
   "_LONG_": "Long",
@@ -171,5 +172,14 @@
   "_PERSIST_RAW_DATA_": "Persist raw data",
   "_PARTITION_FORMAT_": "Partition format",
   "_STATUS_": "Status",
-  "_STORAGELEVEL_": "Storage level"
+  "_STORAGELEVEL_": "Storage level",
+  "_SECOND_": "Second",
+  "_5_SECONDS_": "5 seconds",
+  "_10_SECONDS_": "10 seconds",
+  "_15_SECONDS_": "15 seconds",
+  "_MINUTE_": "Minute",
+  "_HOUR_": "Hour",
+  "_DAY_": "Day",
+  "_DAY_": "Month",
+  "_Year_": "Month"
 }
