@@ -334,7 +334,6 @@
       }
     ]
   },
-
   {
     "name": "Twitter",
     "modelType": "Twitter",
@@ -391,30 +390,6 @@
         "default": "",
         "required": false,
         "tooltip": "It allows to search tweets based on the words of this field. If you donâ€™t use this field, it searches over global trending topics."
-      }
-    ]
-  },
-
-  {
-    "name": "Websocket",
-    "modelType": "Websocket",
-    "description": {
-      "short": "Reads events from a websocket stream.",
-      "long": "Reads events from websocket stream.",
-      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html"
-    },
-    "icon": {
-      "url": "logo_websocket.png"
-    },
-    "properties": [
-      {
-        "propertyId": "url",
-        "propertyName": "_URL_",
-        "propertyType": "text",
-        "regexp": "",
-        "default": "ws://stream.meetup.com/2/rsvps",
-        "required": true,
-        "tooltip": "Websocket url."
       }
     ]
   }

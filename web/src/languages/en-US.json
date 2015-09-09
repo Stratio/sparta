@@ -75,7 +75,5 @@
   	"_INPUT_ERROR_666_": "There was an error. Please try again later. (Server error)",
   	"_INPUT_ERROR_TEMPLATES_": "There was an error while loading the templates! Please try again later.",
 
-  	"_POLICY_HEADER_TITLE_MAIN_": "Policies",
-
-    "_URL_":"Url address"
+  	"_POLICY_HEADER_TITLE_MAIN_": "Policies"
 }
