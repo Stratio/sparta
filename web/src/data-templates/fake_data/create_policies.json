@@ -1,4 +1,16 @@
 {
+    "name": "",
+    "description": "",
+    "checkpointPath": "checkpoint",
+    "sparkStreamingWindow": "6000",
+    "storageLevel": "MEMORY_AND_DISK_SER",
+    "rawData": {
+        "enabled": "true",
+        "partitionFormat": "day",
+        "path": "myTestParquetPath"
+    },
+    "fragments": [],
+    "transformations": [],
     "cubes": [
         {
             "checkpointConfig": {
@@ -129,35 +141,5 @@
                 }
             ]
         }
-    ],
-    "name": "",
-    "description": "test description",
-    "checkpointPath": "checkpoint",
-    "rawData": {
-        "partitionFormat": "day",
-        "path": "myTestParquetPath",
-        "enabled": "false"
-    },
-    "outputs": [
-        {
-            "configuration": {
-                "isAutoCalculateId": "true",
-                "multiplexer": "true"
-            },
-            "type": "Print",
-            "name": "out-print"
-        }
-    ],
-    "fragments": [
-        {
-            "description": "description",
-            "name": "",
-            "fragmentType": "input",
-            "element": null,
-            "shortDescription": "shortDescription",
-            "id": "",
-            "icon": "icon"
-        }
-    ],
-    "sparkStreamingWindow": 6000
+    ]
 }
