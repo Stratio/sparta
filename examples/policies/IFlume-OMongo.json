@@ -1,5 +1,4 @@
 {
-  "id": "id",
   "name": "policy-MongoDB-Financtial",
   "description": "policy-MongoDB-Financtial",
   "sparkStreamingWindow": 6000,
@@ -123,7 +122,6 @@
           "name": "countoperator",
           "type": "Count",
           "configuration": {
-
           }
         }
       ]
@@ -146,8 +144,9 @@
           "field": "device"
         },
         {
-          "dimension": "timestamp",
+          "field": "timestamp",
           "precision": "minute",
+          "type": "DateTime",
           "name": "minute"
         }
       ],
@@ -199,7 +198,7 @@
           "field": "session"
         },
         {
-          "dimension": "timestamp",
+          "field": "timestamp",
           "precision": "minute",
           "type": "DateTime",
           "name": "minute"
@@ -285,7 +284,7 @@
           "field": "appCountry"
         },
         {
-          "dimension": "timestamp",
+          "field": "timestamp",
           "precision": "minute",
           "type": "DateTime",
           "name": "minute"
@@ -315,7 +314,7 @@
           "field": "appPlatform"
         },
         {
-          "dimension": "timestamp",
+          "field": "timestamp",
           "precision": "minute",
           "type": "DateTime",
           "name": "minute"
@@ -385,9 +384,8 @@
       "name": "out-mongo",
       "type": "MongoDb",
       "configuration": {
-        "hosts": "localhost",
+        "hosts": [{"host": "localhost" , "port": "27017" }],
         "dbName": "sparkta"
-
       }
     }
   ]

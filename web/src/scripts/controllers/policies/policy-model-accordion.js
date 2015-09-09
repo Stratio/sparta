@@ -4,11 +4,11 @@
   /*POLICY MODELS CONTROLLER*/
   angular
     .module('webApp')
-    .controller('PolicyModelsCtrl', PolicyModelsCtrl);
+    .controller('PolicyModelAccordionCtrl', PolicyModelAccordionCtrl);
 
-  PolicyModelsCtrl.$inject = ['PolicyModelFactory', 'ModelStaticDataFactory', 'AccordionStatusService', 'ModelFactory'];
+  PolicyModelAccordionCtrl.$inject = ['PolicyModelFactory', 'ModelStaticDataFactory', 'AccordionStatusService', 'ModelFactory'];
 
-  function PolicyModelsCtrl(PolicyModelFactory, ModelStaticDataFactory, AccordionStatusService, ModelFactory) {
+  function PolicyModelAccordionCtrl(PolicyModelFactory, ModelStaticDataFactory, AccordionStatusService, ModelFactory) {
     var vm = this;
     vm.init = init;
     vm.addModel = addModel;

@@ -38,11 +38,11 @@ trait ElasticSearchDAO extends Closeable {
   final val SECOND = "ss"
   final val DEFAULT_INDEX_TYPE = "sparkta"
   final val DEFAULT_NODE = "localhost"
-  final val DEFAULT_PORT = "9300"
+  final val DEFAULT_PORT = "9200"
 
-  def nodes: String
 
-  def defaultPort: String
+
+  def nodes: Seq[(String,Int)]
 
   def idField: Option[String] = None
 
@@ -57,7 +57,7 @@ trait ElasticSearchDAO extends Closeable {
       else
         Map("" -> "")
     } ++
-      Map("es.nodes" -> nodes, "es.port" -> defaultPort, "es.index.auto.create" -> "no") ++ {
+      Map("es.nodes" -> nodes(0)._1, "es.port" -> nodes(0)._2.toString, "es.index.auto.create" -> "no") ++ {
       if (timeName.isEmpty) Map("" -> "") else Map("es.mapping.names" -> s"$timeName:@timestamp")
     }
   }
@@ -97,4 +97,3 @@ trait ElasticSearchDAO extends Closeable {
 
   def close(): Unit = {}
 }
-

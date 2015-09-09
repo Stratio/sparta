@@ -18,6 +18,9 @@
                CreatePolicy: function(newPolicyData) {
                   return ApiPolicyService.CreatePolicy().create(newPolicyData).$promise;
                },
+               DeletePolicy: function(policyid) {
+                  return ApiPolicyService.DeletePolicy().delete({'id': policyid}).$promise;
+               },
                GetFakePolicy: function() {
                   return ApiPolicyService.GetFakePolicy().get().$promise;
                }

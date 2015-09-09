@@ -1,5 +1,4 @@
 {
-  "id": "id",
   "name": "policy-Twitter-Csv",
   "description": "policy-Twitter-Csv",
   "sparkStreamingWindow": 6000,
@@ -157,7 +156,6 @@
       "name": "out-csv",
       "type": "Csv",
       "configuration": {
-
         "isAutoCalculateId": "false",
         "path": "/home/jcgarcia/yeah/",
         "header": "false",

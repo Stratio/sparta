@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2015 Stratio (http://stratio.com)
  *
@@ -30,10 +31,12 @@ case class JsoneyString(string : String) {
 
 class JsoneyStringSerializer extends CustomSerializer[JsoneyString](format => (
   {
-    case obj : JObject =>
+    case obj : JObject => {
       new JsoneyString(write(obj)(implicitly(DefaultFormats + new JsoneyStringSerializer)))
-    case obj : JArray =>
+    }
+    case obj : JArray => {
       new JsoneyString(write(obj)(implicitly(DefaultFormats + new JsoneyStringSerializer)))
+    }
     case s: JString =>
       new JsoneyString(s.s)
     case i : JInt =>
@@ -45,11 +48,11 @@ class JsoneyStringSerializer extends CustomSerializer[JsoneyString](format => (
     case x: JsoneyString =>
       if(x.string.contains("[") && x.string.contains("{")) {
         parse(x.string)
+      } else if(x.string.equals("true") || x.string.equals("false")) {
+        new JBool(x.string.toBoolean)
       } else {
         new JString(x.string)
       }
-      new JString(x.string)
   }
   )) {
 }
-

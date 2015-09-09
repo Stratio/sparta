@@ -12,8 +12,8 @@
   <link rel="stylesheet" href="styles/main.css">
   <!-- endbuild -->
 </head>
-<body ng-app="webApp" class="stratio-app stratio-app--sparkta">
 
+<body ng-app="webApp" class="stratio-app stratio-app--sparkta">
 <st-dashboard
   module-logo="images/app-logo.png"
   module-name="Stratio Sparkta">
@@ -35,12 +35,10 @@
 <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
 <script src="bower_components/angular-touch/angular-touch.js"></script>
 
-
 <!-- build:js({.tmp,src}) scripts/scripts.js -->
 <script src="scripts/app.js"></script>
 <!-- Filters -------------------------------- -->
 <script src="scripts/filters/angular-truncate-number.js"></script>
-
 <!-- Controllers -------------------------------- -->
 <script src="scripts/controllers/inputs.js"></script>
 <script src="scripts/controllers/outputs.js"></script>
@@ -54,14 +52,15 @@
 <script src="scripts/controllers/policies/policy-description.js"></script>
 <script src="scripts/controllers/policies/policy-inputs.js"></script>
 <script src="scripts/controllers/policies/policy-outputs.js"></script>
-<script src="scripts/controllers/policies/policy-model-accordion.js"></script>
-<script src="scripts/controllers/policies/policy-cube-accordion.js"></script>
-<script src="scripts/controllers/policies/policy-cube.js"></script>
-<script src="scripts/controllers/policies/policy-model.js"></script>
 <script src="scripts/controllers/policies/policy-finish.js"></script>
 <script src="scripts/controllers/policies/modal/confirm-policy-modal.js"></script>
+<script src="scripts/controllers/policies/modal/delete-policy-modal.js"></script>
 <script src="scripts/controllers/policies/modal/new-dimension-modal.js"></script>
 <script src="scripts/controllers/policies/modal/new-operator-modal.js"></script>
+<script src="scripts/controllers/policies/policy-cube.js"></script>
+<script src="scripts/controllers/policies/policy-model.js"></script>
+<script src="scripts/controllers/policies/policy-cube-accordion.js"></script>
+<script src="scripts/controllers/policies/policy-model-accordion.js"></script>
 <!-- Directives ----------------------------------------- -->
 <script src="scripts/vendors/angular-translate.js"></script>
 <script src="scripts/vendors/ui.stratio.grid.js"></script>
@@ -87,22 +86,20 @@
 <script src="scripts/directives/c-input-list-field.directive.js"></script>
 <script src="scripts/directives/c-add-element.directive.js"></script>
 <!-- Factories ----------------------------------- -->
-<script src="scripts/services/policy-factory.js"></script>
 <script src="scripts/services/fragment-factory.js"></script>
 <script src="scripts/services/template-factory.js"></script>
+<script src="scripts/services/policy-factory.js"></script>
 <script src="scripts/services/policy-model-factory.js"></script>
 <script src="scripts/services/model-factory.js"></script>
-
+<script src="scripts/services/cube-model-factory.js"></script>
 <!-- Services ----------------------------------- -->
 <script src="scripts/services/api/api-policy-service.js"></script>
 <script src="scripts/services/api/api-template-service.js"></script>
 <script src="scripts/services/api/api-fragment-service.js"></script>
 <script src="scripts/services/static-data/policy-static-data-factory.js"></script>
-<script src="scripts/services/cube-model-factory.js"></script>
-<script src="scripts/services/accordion-status-service.js"></script>
 <script src="scripts/services/static-data/model-static-data-factory.js"></script>
 <script src="scripts/services/static-data/cube-static-data-factory.js"></script>
-
+<script src="scripts/services/accordion-status-service.js"></script>
 <!-- Tools ----------------------------------- -->
 <script src="scripts/lib/stratio.files.utils.js"></script>
 <!-- endbuild -->
