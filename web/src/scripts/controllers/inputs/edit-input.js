@@ -51,6 +51,7 @@
             vm.modalTexts.title = texts.title;
             vm.modalTexts.button = texts.button;
             vm.modalTexts.icon = texts.button_icon;
+            vm.modalTexts.secondaryText2 = texts.secondaryText2;
         };
 
         function createTypeModels(fragmentData) {

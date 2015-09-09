@@ -22,8 +22,8 @@
 
 		<div class="c-row c-row--separated" data-ng-if="vm.policiesAffected.length > 0">
 			<p class="c-modal-inner__title">{{"_ARE_YOU_COMPLETELY_SURE_" | translate}}</p>
-			<p>{{"_INPUT_WINDOW_DELETE_MESSAGE_" | translate}}</p>
-			<p>{{"_INPUT_WINDOW_DELETE_MESSAGE2_" | translate}}</p>
+			<p>{{"_FRAGMENT_WINDOW_EDIT_MESSAGE_" | translate}}</p>
+			<p translate="{{vm.modalTexts.secondaryText2}}"></p>
 
 			<ul class="c-list c-list--dashed">
 				<li data-ng-repeat="item in vm.policiesAffected">- {{item.name}}</li>

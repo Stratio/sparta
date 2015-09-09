@@ -1,13 +1,11 @@
 {
     "name": "",
     "description": "",
-    "checkpointPath": "checkpoint",
+    "checkpointPath": "/tmp/checkpoint",
     "sparkStreamingWindow": "6000",
     "storageLevel": "MEMORY_AND_DISK_SER",
     "rawData": {
-        "enabled": "true",
-        "partitionFormat": "day",
-        "path": "myTestParquetPath"
+        "enabled": "false"
     },
     "fragments": [],
     "transformations": [],
