@@ -129,5 +129,18 @@
     "fragmentType": "input",
     "shortDescription": "Reads events from flume",
     "name": "test input flume type pull"
+  },
+  {
+    "fragmentType": "input",
+    "name": "test input Websocket",
+    "description": "Reads events from websocket stream.",
+    "shortDescription": "Reads events from a websocket stream.",
+    "element": {
+      "name": "in-Websocket",
+      "type": "Websocket",
+      "configuration": {
+        "url": "ws://stream.meetup.com/2/rsvps"
+      }
+    }
   }
 ]
