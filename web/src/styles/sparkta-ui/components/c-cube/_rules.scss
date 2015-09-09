@@ -1,0 +1,50 @@
+@mixin c-cube {
+	@include c-component;
+
+	background: lightgrey;
+	border-right: 1px solid grey;
+	color: black;
+
+	&__title {
+		background: grey;
+		color: white;
+		display: block;
+		padding: 20px 15px 5px;
+		text-transform: uppercase;
+	}
+
+	&__section {
+		background-color: blue;
+		padding: 20px 10px;
+	}
+
+	&__field {
+		cursor: pointer;
+		position: relative;
+
+		&-wrapper {
+			padding: 10px;
+		}
+
+		&-icon, &-name {
+			display: inline-block;
+			padding: 10px;
+			vertical-align: middle;
+		}
+
+		&-icon {
+			background-color: lightgray;
+		}
+
+		&-name {
+			background: white;
+			left: 36px;
+			position: absolute;
+			right: 0;
+		}
+	}
+}
+
+.c-cube {
+	@include c-cube;
+}
