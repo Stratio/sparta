@@ -10,31 +10,38 @@
     class="c-info-text__text">{{"_POLICY_._MODEL_INTRO_" | translate}}</span></p>
 
   <div data-ng-controller="PolicyModelsCtrl as vm">
-    <accordion>
-      <accordion-group is-open="vm.accordionStatus[$index]" ng-repeat="currentModel in vm.policy.models track by $index"
+    <accordion close-others="true">
+      <accordion-group is-open=vm.accordionStatus.items[$index] ng-repeat="currentModel in vm.policy.models track by $index"
                        ng-model="currentModel">
 
         <accordion-heading>
           <label>{{$index + 1}}</label>. <p>{{currentModel.type}}</p>
 
           <i class="pull-right glyphicon"
-             ng-class="{'glyphicon-chevron-down': vm.isCurrentModel($index), 'glyphicon-chevron-right': !vm.isCurrentModel($index)}"></i>
-
+             ng-class="{'icon-arrow2_down':   vm.accordionStatus.items[$index], 'icon-arrow2_right': ! vm.accordionStatus.items[$index]}"></i>
         </accordion-heading>
         <button ng-click="vm.removeModel($index, $event)"><i class="icon-cross"></i></button>
-        <ng-include src="'views/policies/model-creation-panel.html'"></ng-include>
+        <ng-include src="'views/policies/model-panel.html'" ng-init = "model = currentModel"></ng-include>
       </accordion-group>
 
-      <accordion-group is-open="vm.accordionStatus[vm.policy.models.length]" ng-model="vm.newModel">
+      <accordion-group is-open = vm.accordionStatus.newItem ng-model="vm.newModel">
         <accordion-heading>
           <label>{{(vm.policy.models.length + 1) }}</label>. <p>{{"_POLICY_._MODEL_NAME_" | translate}}</p>
 
           <i class="pull-right glyphicon"
-             ng-class="{'glyphicon-chevron-down': vm.isCurrentModel(0), 'glyphicon-chevron-right': !vm.isCurrentModel($index)}"></i>
+             ng-class="{'icon-arrow2_down':  vm.accordionStatus.newItem, 'icon-arrow2_right': !vm.accordionStatus.newItem}"></i>
         </accordion-heading>
 
-        <ng-include src="'views/policies/model-creation-panel.html'">
+        <ng-include src="'views/policies/model-panel.html'" ng-init = "model = vm.newModel">
+
         </ng-include>
+
+        <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
+          <button class="c-button" ng-click="vm.addModel()">
+            <span>{{"_POLICY_._ADD_MODEL_" | translate}}</span>
+          </button>
+        </div>
+
       </accordion-group>
     </accordion>
   </div>

@@ -8,16 +8,20 @@
 
   function AccordionStatusService() {
     var vm = this;
-    vm.accordionStatus = [];
+    vm.accordionStatus = {};
+    vm.accordionStatus.items = [];
+    vm.accordionStatus.newItem = true;
 
     vm.ResetAccordionStatus = ResetAccordionStatus;
     vm.GetAccordionStatus = GetAccordionStatus;
 
     function ResetAccordionStatus(length, truePosition) {
       for (var i = 0; i < length; ++i) {
-        vm.accordionStatus[i] = false;
+        if (i == truePosition)
+          vm.accordionStatus.items[i] = true;
+        else
+          vm.accordionStatus.items[i] = false;
       }
-      vm.accordionStatus[truePosition] = true;
     }
 
     function GetAccordionStatus() {
