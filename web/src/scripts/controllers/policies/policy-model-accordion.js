@@ -19,7 +19,7 @@
 
     function init() {
       vm.policy = PolicyModelFactory.GetCurrentPolicy();
-      vm.models = ModelFactory.GetModelList();
+      vm.policy.models = ModelFactory.GetModelList();
       vm.newModel = ModelFactory.GetNewModel();
       vm.accordionStatus = AccordionStatusService.accordionStatus;
       vm.templateModelData = ModelStaticDataFactory;
