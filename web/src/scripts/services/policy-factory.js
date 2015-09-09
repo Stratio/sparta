@@ -12,7 +12,7 @@
                GetPolicyByFragmentId: function(fragmentType, fragmentId) {
                   return ApiPolicyService.GetPolicyByFragmentId().get({'type': fragmentType ,'id': fragmentId}).$promise;
                },
-               GetAllpolicies: function() {
+               GetAllPolicies: function() {
                   return ApiPolicyService.GetAllpolicies().get().$promise;
                },
                CreatePolicy: function(newPolicyData) {

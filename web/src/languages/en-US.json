@@ -15,15 +15,15 @@
   "_PARALLELISM_": "Parallelism",
   "_HOST_NAME_": "Host name",
   "_HOST_": "Host",
-  "_TOPIC_": "Topic",
-  "_BROKER_": "Broker",
-  "_ROUTING_KEY_": "Routing key",
   "_DECOMPRESSION_": "Decompression",
   "_ZOOKEEPER_HOST_": "Zookeeper host",
   "_TOPICS_": "Topics",
+  "_TOPIC_": "Topic",
+  "_BROKER_": "Broker",
   "_QUEUE_": "Queue",
   "_EXCHANGE_NAME_": "Exchange name",
   "_ROUTING_KEYS_": "Routing keys",
+  "_ROUTING_KEY_": "Routing key",
   "_CONSUMER_KEY_": "Consumer key",
   "_CONSUMER_SECRET_": "Consumer secret",
   "_ACCESS_TOKEN_": "Access token",
@@ -108,11 +108,11 @@
       "_ADVANCED_": "Advanced",
       "_FINISH_": "Finish"
     },
-    "_INPUTS_ERROR_": "One input must be selected!",
-    "_OUTPUTS_ERROR_": "At least one output must be selected!",
     "_INPUTS_INTRO_":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
     "_OUTPUTS_INTRO_":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
     "_DESCRIPTION_INFO_MESSAGE_": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
+    "_INPUTS_ERROR_": "One input must be selected!",
+    "_OUTPUTS_ERROR_": "At least one output must be selected!",
     "_MODEL_NAME_": "Model name",
     "_ADD_MODEL_": "Add model",
     "_INPUTS_INTRO_":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
@@ -123,8 +123,10 @@
     "_WINDOW_": {
      "_CONFIRM_": {
        "_TITLE_" : "Create policy"
-     }
-   }
+      }
+    },
+    "_ADD_MODEL_": "Add model",
+    "_MODEL_ERROR_": "There are some errors in the introduced data. Please, check them and try it again"
   },
   "_SHORT_": "Short",
   "_LONG_": "Long",

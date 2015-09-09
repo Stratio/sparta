@@ -22,7 +22,7 @@
               <label class="c-label">{{output.name}}</label>
           </div>
           <div class="c-row">
-            <input class="c-checkbox" type="checkbox" ng-model="vm.policy.outputs[$index]" ng-true-value="{{output}}"><label class="c-label"></label>
+            <input id="output-{{$index}}" class="c-checkbox" type="checkbox" ng-model="vm.policy.outputs[$index]" ng-true-value="{{output}}"><label for="output-{{$index}}" class="c-label"></label>
           </div>
         </div>
 

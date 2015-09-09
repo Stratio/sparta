@@ -34,8 +34,7 @@
         defer.reject();
       });
       return defer.promise;
-
-    }
+    };
 
     function setOutput(index) {
       if (vm.policy.outputs[index]) {
@@ -60,7 +59,7 @@
       else {
         vm.error = true;
       }
-    }
+    };
 
     function checkOutputsSelected() {
       var outputsCount = 0;

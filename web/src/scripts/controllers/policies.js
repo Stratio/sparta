@@ -22,7 +22,7 @@
     }
 
     function getPolicies() {
-      var policiesList = PolicyFactory.GetAllpolicies();
+      var policiesList = PolicyFactory.GetAllPolicies();
 
       policiesList.then(function (result) {
         console.log('--> Getting policies');
