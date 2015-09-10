@@ -1,0 +1,57 @@
+@mixin c-cube {
+	@include c-component;
+
+	background: $c-cube---background;
+	color: $c-cube---color;
+
+	&:first-child {
+		border-right: $c-cube--first-child---border-right;
+	}
+
+	&__title {
+		background: $c-cube__title---background;
+		color: $c-cube__title---color;
+		display: block;
+		padding: $c-cube__title---padding;
+		text-transform: $c-cube__title---text-transform;
+
+		&--2 {
+			background-color: $c-cube__title--2---background;
+			color: $c-cube__title--2---color;
+		}
+	}
+
+	&__section {
+		padding: $c-cube__section---padding;
+	}
+
+	&__field {
+		cursor: pointer;
+		position: relative;
+
+		&-wrapper {
+			padding: $c-cube__field-wrapper---padding;
+		}
+
+		&-icon, &-name {
+			display: inline-block;
+			padding: $c-cube__field-icon---padding;
+			vertical-align: middle;
+		}
+
+		&-icon {
+			background: $c-cube__field-icon---background;
+		}
+
+		&-name {
+			background: $c-cube__field-name---background;
+			left: $c-cube__field-name---left;
+			position: absolute;
+			right: $c-cube__field-name---right;
+		}
+	}
+}
+
+.c-cube {
+	@include c-cube;
+}

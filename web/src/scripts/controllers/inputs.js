@@ -2,12 +2,12 @@
     'use strict';
 
     angular
-        .module('webApp')
-        .controller('InputsCtrl', InputsCtrl);
+      .module('webApp')
+      .controller('InputsCtrl', InputsCtrl);
 
-    InputsCtrl.$inject = ['FragmentFactory', 'PolicyFactory', 'TemplateFactory', '$filter', '$modal'];
+    InputsCtrl.$inject = ['FragmentFactory', '$filter', '$modal'];
 
-    function InputsCtrl(FragmentFactory, PolicyFactory, TemplateFactory, $filter, $modal) {
+    function InputsCtrl(FragmentFactory, $filter, $modal) {
         /*jshint validthis: true*/
        var vm = this;
 
@@ -21,6 +21,7 @@
        vm.duplicateInput = duplicateInput;
        vm.deleteInputConfirm = deleteInputConfirm;
        vm.getPolicyNames = getPolicyNames;
+       vm.inputsData = [];
        vm.inputTypes = [];
 
        init();
@@ -32,7 +33,7 @@
         };
 
         function getInputs() {
-          var inputList = FragmentFactory.GetFragments("input");
+          var inputList = FragmentFactory.GetFragments('input');
 
           inputList.then(function (result) {
             vm.inputsData = result;
@@ -51,7 +52,7 @@
 
           var createInputData = {
             'fragmentType': 'input',
-            'inputNamesList' : inputsList,
+            'fragmentNamesList' : inputsList,
             'texts': {
               'title': '_INPUT_WINDOW_NEW_TITLE_',
               'button': '_INPUT_WINDOW_NEW_BUTTON_',
@@ -63,19 +64,20 @@
         };
 
         function editInput(inputType, inputName, inputId, index) {
-          var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {name:inputName}, true)[0];
+          var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {'id':inputId}, true)[0];
           var inputsList = getFragmentsNames(vm.inputsData);
 
           var editInputData = {
               'originalName': inputName,
               'fragmentType': 'input',
               'index': index,
-              'inputSelected': inputSelected,
-              'inputNamesList' : inputsList,
+              'fragmentSelected': inputSelected,
+              'fragmentNamesList' : inputsList,
               'texts': {
                   'title': '_INPUT_WINDOW_MODIFY_TITLE_',
                   'button': '_INPUT_WINDOW_MODIFY_BUTTON_',
-                  'button_icon': 'icon-circle-check'
+                  'button_icon': 'icon-circle-check',
+                  'secondaryText2': '_INPUT_WINDOW_EDIT_MESSAGE2_'
               }
           };
 
@@ -88,7 +90,13 @@
           {
             'type':fragmentType,
             'id': fragmentId,
-            'index': index
+            'index': index,
+            'texts': {
+              'title': '_INPUT_WINDOW_DELETE_TITLE_',
+              'mainText': '_ARE_YOU_COMPLETELY_SURE_',
+              'secondaryText1': '_INPUT_WINDOW_DELETE_MESSAGE_',
+              'secondaryText2': '_INPUT_WINDOW_DELETE_MESSAGE2_'
+            }
           };
           vm.deleteInputConfirm('lg', inputToDelete);
         };
@@ -102,11 +110,14 @@
             var inputsList = getFragmentsNames(vm.inputsData);
 
             var duplicateInputData = {
-              'inputData': inputSelected,
-              'inputNamesList': inputsList
+              'fragmentData': inputSelected,
+              'fragmentNamesList': inputsList,
+              'texts': {
+                'title': '_INPUT_WINDOW_DUPLICATE_TITLE_'
+              }
             };
 
-            var newName = SetDuplicatetedInput('sm', duplicateInputData);
+            setDuplicatetedInput('sm', duplicateInputData);
         };
 
         function getInputTypes(inputs) {
@@ -138,12 +149,15 @@
         function createInputModal(newInputTemplateData) {
           var modalInstance = $modal.open({
             animation: true,
-            templateUrl: 'templates/inputs/input-details.tpl.html',
+            templateUrl: 'templates/fragments/fragment-details.tpl.html',
             controller: 'NewFragmentModalCtrl as vm',
             size: 'lg',
             resolve: {
               item: function () {
                 return newInputTemplateData;
+              },
+              fragmentTemplates: function (TemplateFactory) {
+                return TemplateFactory.GetNewFragmentTemplate(newInputTemplateData.fragmentType);
               }
             }
           });
@@ -152,7 +166,7 @@
             console.log('*************** Controller back');
             console.log(newInputData);
 
-            vm.inputsData.push(newInputData.data);
+            vm.inputsData.push(newInputData);
             console.log(vm.inputsData);
 
           }, function () {
@@ -163,7 +177,7 @@
         function editInputModal(editInputData) {
            var modalInstance = $modal.open({
                animation: true,
-               templateUrl: 'templates/inputs/input-details.tpl.html',
+               templateUrl: 'templates/fragments/fragment-details.tpl.html',
                controller: 'EditFragmentModalCtrl as vm',
                size: 'lg',
                resolve: {
@@ -171,10 +185,10 @@
                       return editInputData;
                    },
                    fragmentTemplates: function (TemplateFactory) {
-                      return TemplateFactory.GetNewFragmentTemplate(editInputData.inputSelected.fragmentType);
+                      return TemplateFactory.GetNewFragmentTemplate(editInputData.fragmentSelected.fragmentType);
                    },
                    policiesAffected: function (PolicyFactory) {
-                      return PolicyFactory.GetPolicyByFragmentId(editInputData.inputSelected.fragmentType, editInputData.inputSelected.name);
+                      return PolicyFactory.GetPolicyByFragmentId(editInputData.fragmentSelected.fragmentType, editInputData.fragmentSelected.id);
                    }
                }
            });
@@ -197,19 +211,23 @@
             resolve: {
                 item: function () {
                     return input;
+                },
+                policiesAffected: function (PolicyFactory) {
+                  return PolicyFactory.GetPolicyByFragmentId(input.type, input.id);
                 }
             }
           });
 
           modalInstance.result.then(function (selectedItem) {
             vm.inputsData.splice(selectedItem.index, 1);
+            console.log(vm.inputsData);
 
           },function () {
             console.log('Modal dismissed at: ' + new Date())
           });
         };
 
-        function SetDuplicatetedInput(size, InputData) {
+        function setDuplicatetedInput(size, InputData) {
           var modalInstance = $modal.open({
             animation: true,
             templateUrl: 'templates/components/st-duplicate-modal.tpl.html',

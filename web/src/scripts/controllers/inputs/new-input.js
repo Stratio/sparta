@@ -6,9 +6,9 @@
         .module('webApp')
         .controller('NewFragmentModalCtrl', NewFragmentModalCtrl);
 
-    NewFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentFactory', 'TemplateFactory', '$filter'];
+    NewFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'fragmentTemplates', 'FragmentFactory', '$filter'];
 
-    function NewFragmentModalCtrl($modalInstance, item, FragmentFactory, TemplateFactory, $filter) {
+    function NewFragmentModalCtrl($modalInstance, item, fragmentTemplates, FragmentFactory, $filter) {
         /*jshint validthis: true*/
         var vm = this;
 
@@ -20,17 +20,19 @@
         vm.createTypeModels = createTypeModels;
         vm.dataSource = {};
         vm.dataSource.element = {};
-        vm.templateInputsData = [];
+        vm.templateFragmentsData = [];
         vm.properties = [];
         vm.error = false;
         vm.errorText = '';
         vm.fragmentType = '';
+        vm.fragmentTemplateData = {};
 
         init();
 
         /////////////////////////////////
 
         function init() {
+          console.log(fragmentTemplates);
           console.log('--> NewFragmentModalCtrl');
           console.log('> Data received');
           console.log(item);
@@ -38,7 +40,12 @@
           vm.fragmentType = item.fragmentType;
 
           setTexts(item.texts);
-          getTemplates(item.fragmentType);
+
+          vm.templateFragmentsData = fragmentTemplates;
+          console.log(fragmentTemplates);
+          vm.initFragmentObject(vm.templateFragmentsData);
+          vm.createTypeModels(vm.templateFragmentsData);
+          vm.selectedIndex = 0;
         };
 
         function setTexts(texts) {
@@ -46,25 +53,6 @@
           vm.modalTexts.title = texts.title;
           vm.modalTexts.button = texts.button;
           vm.modalTexts.icon = texts.button_icon;
-        };
-
-        function getTemplates(fragmentType) {
-          var fragmentTemplates = TemplateFactory.GetNewFragmentTemplate(fragmentType);
-
-          fragmentTemplates.then(function (result) {
-            console.log('*********Templates result');
-            console.log(result);
-
-            vm.templateInputsData = result;
-
-            vm.initFragmentObject(vm.templateInputsData);
-            vm.createTypeModels(vm.templateInputsData);
-            vm.selectedIndex = 0;
-
-          },function (error) {
-              vm.error = true;
-              vm.errorText = "_INPUT_ERROR_TEMPLATES_";
-          });
         };
 
         function initFragmentObject(fragmentData) {
@@ -85,110 +73,95 @@
         function createTypeModels(fragmentData) {
             /*Creating one properties model for each input type*/
             for (var i=0; i<fragmentData.length; i++){
-                var differentObjects = false;
-
                 var fragmentName = fragmentData[i].name;
                 vm.properties[fragmentName] = {};
 
-                var selectValue = $filter('filter')(fragmentData[i].properties, {'values': []}, true)[0];
-
-                if (selectValue){
-                  for (var k=0; k < selectValue.values.length; k++){
-                    vm.properties[fragmentName][selectValue.values[k].value] = {};
-                    vm.properties[fragmentName][selectValue.values[k].value][selectValue.propertyId] = selectValue.values[k].value;
-                  }
-                  differentObjects = true;
-                  vm.properties[fragmentName].select = true;
-                }
+                /*Flag to check if there are any visible field*/
+                vm.fragmentTemplateData[fragmentName] = $filter('filter')(fragmentData[i].properties, {'visible': []}, true);
+                console.log(vm.fragmentTemplateData);
+                console.log(fragmentName);
+                vm.properties[fragmentName]._visible = (vm.fragmentTemplateData[fragmentName].length > 0) ? true : false;
 
                 for (var j=0; j<fragmentData[i].properties.length; j++) {
                     var fragmentProperty = fragmentData[i].properties[j];
-                    var dif = (fragmentProperty.visible) ? fragmentProperty.visible[0][0].value : '';
 
                     switch (fragmentProperty.propertyType) {
                       case 'boolean':
-                        if (dif !== '') {
-                          vm.properties[fragmentName][dif][fragmentProperty.propertyId] = false;
-                        }
-                        else {
-                          vm.properties[fragmentName][fragmentProperty.propertyId] = false;
-                        }
+                        vm.properties[fragmentName][fragmentProperty.propertyId] = false;
                         break;
 
                       case 'list':
-                        if (dif !== '') {
-                          vm.properties[fragmentName][dif][fragmentProperty.propertyId] = [];
-                          var newFields = {};
+                        vm.properties[fragmentName][fragmentProperty.propertyId] = [];
+                        var newFields = {};
 
-                          for (var m=0; m<fragmentProperty.fields.length; m++) {
-                            var defaultValue = (fragmentProperty.fields[m].default) ? fragmentProperty.fields[m].default : '';
-                            defaultValue = (fragmentProperty.fields[m].propertyType === 'number') ? parseInt(defaultValue) : defaultValue;
-                            newFields[fragmentProperty.fields[m].propertyId] = defaultValue;
-                          }
-                          vm.properties[fragmentName][dif][fragmentProperty.propertyId].push(newFields);
+                        for (var m=0; m<fragmentProperty.fields.length; m++) {
+                          var defaultValue = (fragmentProperty.fields[m].default) ? fragmentProperty.fields[m].default : '';
+                          defaultValue = (fragmentProperty.fields[m].propertyType === 'number') ? parseInt(defaultValue) : defaultValue;
+                          newFields[fragmentProperty.fields[m].propertyId] = defaultValue;
                         }
-                        else {
-                          vm.properties[fragmentName][fragmentProperty.propertyId] = [];
-                          var newFields = {};
-
-                          for (var m=0; m<fragmentProperty.fields.length; m++) {
-                            var defaultValue = (fragmentProperty.fields[m].default) ? fragmentProperty.fields[m].default : '';
-                            defaultValue = (fragmentProperty.fields[m].propertyType === 'number') ? parseInt(defaultValue) : defaultValue;
-                            newFields[fragmentProperty.fields[m].propertyId] = defaultValue;
-                          }
-                          vm.properties[fragmentName][fragmentProperty.propertyId].push(newFields);
-                        }
+                        vm.properties[fragmentName][fragmentProperty.propertyId].push(newFields);
                         break;
 
                       default:
                         var defaultValue = (fragmentProperty.default) ? fragmentProperty.default : '';
                         defaultValue = (fragmentProperty.propertyType === 'number') ? parseInt(defaultValue) : defaultValue;
-
-                        if (dif !== '') {
-                          vm.properties[fragmentName][dif][fragmentProperty.propertyId] = defaultValue;
-                        }
-                        else {
-                          vm.properties[fragmentName][fragmentProperty.propertyId] = defaultValue;
-                        }
+                        vm.properties[fragmentName][fragmentProperty.propertyId] = defaultValue;
                         break;
                     }
                 }
 
                 /*Init properties*/
                 if(i === 0) {
-                  console.log(differentObjects);
-                  console.log(vm.properties[fragmentName]);
-                  console.log([selectValue.values[0].value]);
-                  vm.dataSource.element.configuration = (differentObjects) ? vm.properties[fragmentName][selectValue.values[0].value] : vm.properties[fragmentName];
+                  vm.dataSource.element.configuration = vm.properties[fragmentName];
                 }
             }
         };
 
         function setFragmentData(index) {
-            /*Set fragment*/
-            vm.dataSource.description = vm.templateInputsData[index].description.long;
-            vm.dataSource.shortDescription = vm.templateInputsData[index].description.short;
-            vm.dataSource.icon = vm.templateInputsData[index].icon.url;
-            vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
+          console.log(vm.properties);
+          /*Set fragment*/
+          vm.dataSource.description = vm.templateFragmentsData[index].description.long;
+          vm.dataSource.shortDescription = vm.templateFragmentsData[index].description.short;
+          vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
+          console.log(vm.dataSource);
         };
 
-        function setProperties(index, inputName) {
+        function setProperties(index, fragmentName) {
             vm.selectedIndex = index;
-            vm.dataSource.element.configuration = (vm.properties[inputName].select) ? vm.properties[inputName][vm.properties[inputName].type] : vm.properties[inputName];
+            vm.dataSource.element.configuration = vm.properties[fragmentName]
             vm.setFragmentData(index);
         };
 
         function ok() {
           if (vm.form.$valid) {
+            deleteNotVisibleProperties();
             checkFragmnetname();
           }
         };
 
-        function checkFragmnetname() {
-          var inputNameExist = [];
-          inputNameExist = $filter('filter')(item.inputNamesList, {'name': vm.dataSource.name}, true);
+        function deleteNotVisibleProperties() {
+          if (vm.dataSource.element.configuration._visible){
+            var fragmentType = vm.dataSource.element.type;
 
-          if (inputNameExist.length > 0) {
+            for (var i=0; i<vm.fragmentTemplateData[fragmentType].length; i++) {
+              var propertyId = vm.fragmentTemplateData[fragmentType][i].propertyId;
+              var originalProperty = vm.fragmentTemplateData[fragmentType][i].visible[0][0].propertyId;
+              var originalPropertyValue = vm.fragmentTemplateData[fragmentType][i].visible[0][0].value;
+
+              if (vm.dataSource.element.configuration[originalProperty] !== originalPropertyValue) {
+                delete vm.dataSource.element.configuration[propertyId]
+              }
+            }
+          }
+          delete vm.dataSource.element.configuration['_visible'];
+        };
+
+        function checkFragmnetname(newInputData) {
+          var fragmentNamesExisting = [];
+          var newFragmentName = vm.dataSource.name.toLowerCase();
+          fragmentNamesExisting = $filter('filter')(item.fragmentNamesList, {'name': newFragmentName}, true);
+
+          if (fragmentNamesExisting.length > 0) {
             vm.error = true;
             vm.errorText = "_INPUT_ERROR_100_";
           }
@@ -198,16 +171,16 @@
         };
 
         function createfragment() {
+          console.log('/*/*/*')
+          console.log(vm.dataSource);
+
           var newFragment = FragmentFactory.CreateFragment(vm.dataSource);
 
           newFragment.then(function (result) {
               console.log('*********Fragment created');
               console.log(result);
 
-              var callBackData = {
-                'index': item.index,
-                'data': result,
-              };
+              var callBackData = result;
 
               $modalInstance.close(callBackData);
 

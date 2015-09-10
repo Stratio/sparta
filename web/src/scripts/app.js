@@ -23,7 +23,8 @@ angular
     'ui.bootstrap',
     'ui.bootstrap.modal',
     'ui.bootstrap.tpls',
-    'pascalprecht.translate'
+    'pascalprecht.translate',
+    'ngTruncateNumber'
   ])
 
   /*** TRANSLATING ***/
@@ -69,12 +70,10 @@ angular
         templateUrl: 'views/inputs.html'
     })
     .state('dashboard.outputs', {
-        url: '/outputs'
-/*
+        url: '/outputs',
         controller: 'OutputsCtrl',
         controllerAs: 'outputs',
         templateUrl: 'views/outputs.html'
-*/
     })
     .state('dashboard.policies', {
         url: '/policies',
@@ -82,14 +81,16 @@ angular
         controllerAs: 'policies',
         templateUrl: 'views/policies.html'
     })
-
+      .state('dashboard.newPolicy', {
+        url: '/policy/new',
+        controller: 'NewPolicyCtrl',
+        controllerAs: 'wizard',
+        templateUrl: 'views/policies/wizard-panel.html'
+      })
     /*******  SETINGS *******/
     .state('settings', {
         url: '/settings',
         views: {
-            'menu': {
-                templateUrl:  'views/settings/settings_menu.html'
-            },
             'content': {
                 controller:   'SettingsCtrl',
                 controllerAs: 'settings',

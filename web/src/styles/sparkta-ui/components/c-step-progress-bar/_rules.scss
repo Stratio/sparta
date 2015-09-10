@@ -1,0 +1,12 @@
+@mixin c-step-progress-bar {
+	@include c-component;
+
+	background: $c-step-progress-bar---background;
+	display: block;
+	padding: $c-step-progress-bar---padding;
+	text-align: center;
+}
+
+.c-step-progress-bar {
+	@include c-step-progress-bar;
+}

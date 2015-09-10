@@ -1,0 +1,20 @@
+@mixin c-tag {
+	@include c-component;
+
+	background: $c-tag---background;
+	color: $c-tag---color;
+	display: inline-block;
+	padding: $c-tag---padding;
+
+	& + & {
+		margin: $c-tag---margin;
+	}
+
+	&:first-child {
+		margin-left: 0;
+	}
+}
+
+.c-tag {
+	@include c-tag;
+}

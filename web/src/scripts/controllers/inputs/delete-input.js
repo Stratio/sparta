@@ -6,9 +6,9 @@
         .module('webApp')
         .controller('DeleteFragmentModalCtrl', DeleteFragmentModalCtrl);
 
-    DeleteFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'PolicyFactory', 'FragmentFactory'];
+    DeleteFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'PolicyFactory', 'FragmentFactory', 'policiesAffected'];
 
-    function DeleteFragmentModalCtrl($modalInstance, item, PolicyFactory, FragmentFactory) {
+    function DeleteFragmentModalCtrl($modalInstance, item, PolicyFactory, FragmentFactory, policiesAffected) {
         /*jshint validthis: true*/
         var vm = this;
 
@@ -21,34 +21,35 @@
         ///////////////////////////////////////
 
         function init () {
+            console.log(policiesAffected);
             console.log('*********Modal');
             console.log(item);
 
-            vm.inputs = item;
+            vm.outputs = item;
+            vm.outputs.policies = policiesAffected;
 
-            getPoliciesAffected(vm.inputs);
+            setTexts(item.texts);
         };
 
-        function getPoliciesAffected(fragmentData) {
-            console.log('> Getting Policies affected');
-            var policiesAffected = PolicyFactory.GetPolicyByFragmentId(fragmentData.type, fragmentData.id);
-
-            policiesAffected.then(function (result) {
-                console.log(result);
-                vm.inputs.policies = getPolicyNames(result);
-            },
-            function (error) {
-                console.log('#ERROR#');
-                console.log(error);
-            });
+        function setTexts(texts) {
+          vm.modalTexts = {};
+          vm.modalTexts.title = texts.title;
+          vm.modalTexts.secondaryText1 = texts.secondaryText1;
+          vm.modalTexts.secondaryText2 = texts.secondaryText2;
+          if (vm.outputs.type === 'output') {
+            vm.modalTexts.mainText = (vm.outputs.policies.length > 0)? texts.mainText : texts.mainTextOK;
+          }
+          else {
+            vm.modalTexts.mainText = texts.mainText;
+          }
         };
 
         function ok() {
-            var fragmentToDelete = FragmentFactory.DeleteFragment(vm.inputs.type, vm.inputs.id);
+            var fragmentToDelete = FragmentFactory.DeleteFragment(vm.outputs.type, vm.outputs.id);
 
             fragmentToDelete.then(function (result) {
                 console.log('*********Fragment deleted');
-                $modalInstance.close(vm.inputs);
+                $modalInstance.close(vm.outputs);
 
             },function (error) {
                 console.log(error);

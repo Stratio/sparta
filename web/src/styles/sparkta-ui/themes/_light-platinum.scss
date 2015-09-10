@@ -11,6 +11,8 @@
  *		heading
  *		c-grid-item
  *	3 - Sparkta UI.......................The Sparkta component UI library
+ *		c-component
+ *		c-panel
  *		c-line-separator
  *		c-button
  *		c-input
@@ -23,6 +25,8 @@
  *		c-titlebar
  *		c-icon-text
  *		c-info-text
+ *		c-icon-link
+ *		c-icon-label
  *		c-icon
  *		c-modal-inner
  *		c-col
@@ -32,6 +36,17 @@
  *		c-msg
  *		c-table
  *		c-checkbox
+ *		c-step-progress-bar
+ *		c-step
+ *		c-step-content
+ *		c-step-counter
+ *		c-fieldset
+ *		c-slider
+ *		c-check-block
+ *		c-textarea
+ *		c-accordion
+ *		c-tag
+ *		c-cube
  *
  */
 
@@ -78,6 +93,20 @@ $colors: (
 	a3: #bcea3f
 );
 
+$font-sizes: (
+	xxxlarge: 4rem,
+	xxlarge: 3rem,
+	xlarge-alpha: 2.5rem,
+	xlarge: 2rem,
+	large: 1.5rem,
+	medium-alpha: 1.2rem,
+	medium: 1rem,
+	small: .8rem,
+	xsmall: .7rem,
+	xxsmall: .6rem,
+	xxxsmall: .5rem
+);
+
 $component-border-radius: 5px;
 $component-margin: 15px;
 $component-default-margin: .5em;
@@ -105,7 +134,11 @@ $angular-forms--ng-invalid---border: 1px solid get-color(e3);
  */
 
 // heading
+$base-padding: 30px;
+$primary-sidebar-bg: get-color(f4);
 $heading---margin: 0;
+
+$stratio-ui---base-padding: $base-padding;
 
 
 
@@ -121,6 +154,15 @@ $c-grid-item__info-icon---margin: 0 $component-default-margin $component-default
  * 3 - Sparkta UI
  *
  */
+
+ // c-component
+
+
+
+ // c-panel
+ $c-panel--framed---padding: $component-margin;
+
+
 
 // c-line-separator
 
@@ -222,7 +264,7 @@ $c-toolbar---padding: 11px 25px;
 $c-titlebar---background: get-color(f3);
 $c-titlebar---color: get-color(g7);
 $c-titlebar---text-transform: uppercase;
-$c-titlebar---padding: 15px 0 15px 30px;
+$c-titlebar---padding: 15px 15px 15px 30px;
 
 $c-titlebar__title---font-size: get-font-size(medium-alpha);
 
@@ -243,6 +285,24 @@ $c-info-text---font-size: get-font-size(medium);
 
 $c-info-text__icon---color: get-color(c1);
 $c-info-text__icon---font-size: get-font-size(medium);
+
+
+
+// c-icon-link
+$c-icon-link---color: $c-info-text---color;
+$c-icon-link---font-size: $c-info-text---font-size;
+
+$c-icon-link__icon---color: $c-info-text__icon---color;
+$c-icon-link__icon---font-size: $c-info-text__icon---font-size;
+
+
+
+// c-icon-label
+$c-icon-label---color: $c-info-text---color;
+$c-icon-label---font-size: $c-info-text---font-size;
+
+$c-icon-label__icon---color: $c-info-text__icon---color;
+$c-icon-label__icon---font-size: $c-info-text__icon---font-size;
 
 
 
@@ -328,7 +388,7 @@ $c-table__thead---font-size: get-font-size(medium-alpha);
 $c-table__thead---font-weight: get-font-weight(medium);
 $c-table__thead---text-align: left;
 
-$c-table__tr--ntd-child-2---color: get-color(g2);
+$c-table__tr--ntd-child--even---background: get-color(g2);
 
 
 
@@ -339,3 +399,143 @@ $c-checkbox---font-family: 'ico_stratio';
 $c-checkbox--checked---color: get-color(e1);
 
 $c-checkbox__label---margin: 0 0 2px;
+
+
+
+// c-step-progress-bar
+$c-step-progress-bar---background: get-color(g0);
+$c-step-progress-bar---padding: $component-margin 0 ($component-margin * 2);
+
+
+
+// c-step
+$c-step---separation: 15px;
+$c-step---padding: 0;
+$c-step---color: get-color(g4);
+$c-step--active---color: get-color(c1);
+
+$c-step__progress-line---height: 1px;
+
+$c-step__section-icon---font-size: get-font-size(large);
+$c-step__section-icon---font-weight: get-font-weight(medium);
+
+$c-step__section-name---font-size: get-font-size(small);
+$c-step__section-name---font-weight: get-font-weight(semibold);
+$c-step__section-name---text-transform: uppercase;
+
+
+
+// c-step-content
+$c-step-content---background: get-color(f3);
+$c-step-content---margin: 0 (-$stratio-ui---base-padding) (-$stratio-ui---base-padding);
+$c-step-content---padding: $stratio-ui---base-padding;
+
+$c-step-content__title---color: get-color(c4);
+$c-step-content__title---font-size: get-font-size(medium-alpha);
+$c-step-content__title---font-weight: get-font-weight(normal);
+$c-step-content__title---margin: 0 0 $component-margin;
+$c-step-content__title---text-transform: uppercase;
+
+$c-step-content__title--underlined---border-bottom: 1px solid get-color(f4);
+$c-step-content__title--underlined---padding: 0 0 ($component-margin / 2);
+
+
+
+// c-step-counter
+$c-step-counter---color: get-color(c1);
+$c-step-counter--after---color: get-color(c4);
+$c-step-counter--after---margin: 0 5px;
+
+
+
+// c-fielset
+$c-fieldset__title---font-weight: get-font-weight(semibold);
+
+
+
+// c-slider
+$c-slider---margin: 0;
+
+
+
+// c-check-block
+$c-check-block---color: get-color(c1);
+$c-check-block---padding: 10px 10px;
+
+$c-check-block__form-control---background: get-color(f4);
+$c-check-block__form-control---border-radius: 5px;
+$c-check-block__form-control---box-shadow: 0px 0px 5px 0px rgba(50, 50, 50, 0.75);
+$c-check-block__form-control---height: 80px;
+$c-check-block__form-control---padding: 10px;
+
+$c-check-block__checkbox---top: -15px;
+$c-check-block__checkbox---right: 5px;
+$c-check-block__checkbox---color: $c-check-block---color;
+
+$c-check-block__icon---left: 20px;
+$c-check-block__icon---font-size: 2rem;
+$c-check-block__icon---bottom: 20px;
+
+
+
+// c-textarea
+$c-textarea--min-height: 100px;
+$c-textarea--big--min-height: 300px;
+
+
+
+// c-accordion
+$c-accordion-header__step-number---margin: -10px 10px -10px -14px;
+$c-accordion-header__step-number---font-size: 2rem;
+$c-accordion-header__step-number---width: 47px;
+$c-accordion-header__step-number---height: $c-accordion-header__step-number---width;
+$c-accordion-header__step-number---padding: 7px 0 0;
+
+$c-accordion-header__step-number---background: get-color(c1b);
+$c-accordion-header__step-number---color: get-color(g0);
+
+$c-accordion__type---margin: 0 10px;
+
+$c-accordion__open-mark---margin: 7px 0 0;
+$c-accordion__open-mark---rotation: 90deg;
+
+$c-accordion-item--new---background: get-color(c5);
+$c-accordion-item--new---color: get-color(g9);
+
+$c-accordion-header--new__step-number---background: get-color(c1);
+$c-accordion-header--new__step-number---color: get-color(g0);
+
+
+
+// c-tag
+$c-tag---background: get-color(c1b);
+$c-tag---color: get-color(g0);
+$c-tag---padding: 5px 10px;
+$c-tag---margin: 0 0 0 5px;
+
+
+
+// c-cube
+$c-cube---background: get-color(g2);
+$c-cube---color: get-color(g9);
+
+$c-cube--first-child---border-right: 1px solid get-color(g5);
+
+$c-cube__title---background: get-color(g5);
+$c-cube__title---color: get-color(g0);
+$c-cube__title---padding: 20px 15px 5px;
+$c-cube__title---text-transform: uppercase;
+
+$c-cube__title--2---background: get-color(g3) !default;
+$c-cube__title--2---color: get-color(g9) !default;
+
+$c-cube__section---padding: 20px 10px;
+
+$c-cube__field-wrapper---padding: 10px;
+
+$c-cube__field-icon---padding: 10px;
+$c-cube__field-icon---background: get-color(g3);
+
+$c-cube__field-name---background: get-color(g0);
+$c-cube__field-name---left: 36px;
+$c-cube__field-name---right: 0;

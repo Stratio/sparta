@@ -18,8 +18,8 @@
 	}
 
 	@at-root &__tr {
-		&:nth-child(2) {
-			background: $c-table__tr--ntd-child-2---color;
+		&:nth-child(even) {
+			background: $c-table__tr--ntd-child--even---background;
 		}
 	}
 
