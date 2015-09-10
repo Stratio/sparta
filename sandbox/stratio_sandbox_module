@@ -1,11 +1,11 @@
 #!/bin/sh
 echo "> Installing maven"
-wget http://ftp.cixug.es/apache/maven/maven-3/3.0.5/binaries/apache-maven-3.0.5-bin.tar.gz
+wget apache.rediris.es/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz
 cd /module
-tar -xzf apache-maven-3.0.5-bin.tar.gz -C /opt/sds
-echo "export M2_HOME=/opt/sds/apache-maven-3.0.5" >> /home/vagrant/.bashrc
+tar -xzf apache-maven-3.3.3-bin.tar.gz -C /opt/sds
+echo "export M2_HOME=/opt/sds/apache-maven-3.3.3" >> /home/vagrant/.bashrc
 source ~/.bashrc
-echo "export PATH=/opt/sds/apache-maven-3.0.5/bin:/usr/local/sbin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin" >> /home/vagrant/.bashrc
+echo "export PATH=/opt/sds/apache-maven-3.3.3/bin:/usr/local/sbin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin" >> /home/vagrant/.bashrc
 #sed -i "s|/bin:/usr/local/sbin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin|/bin:/usr/local/sbin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin:$M2_HOME/bin|g" .bashrc
 
 #export PATH=/opt/sds/apache-maven-3.0.5/bin:/usr/local/sbin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
