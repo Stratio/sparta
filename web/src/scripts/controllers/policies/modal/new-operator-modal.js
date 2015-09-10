@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('NewOperatorModalCtrl', NewOperatorModalCtrl);
 
-  NewOperatorModalCtrl.$inject = ['$modalInstance', 'functionName'];
+  NewOperatorModalCtrl.$inject = ['$modalInstance', 'functionName', 'CubeStaticDataFactory'];
 
-  function NewOperatorModalCtrl($modalInstance, functionName) {
+  function NewOperatorModalCtrl($modalInstance, functionName, CubeStaticDataFactory) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -18,6 +18,7 @@
     vm.operator.name = functionName;
     vm.operator.configuration = "";
     vm.operator.type = "";
+    vm.configHelpLink =CubeStaticDataFactory.GetConfigurationHelpLink();
 
     ///////////////////////////////////////
 
