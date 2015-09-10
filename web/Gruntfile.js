@@ -285,6 +285,8 @@ module.exports = function (grunt) {
             '.htaccess',
             '*.html',
             'views/**/*.html',
+            'data-templates/**/*.*',
+            '!data-templates/fake_data/*.*',
             'stratio-ui/**/*.*',
             '!stratio-ui/**/*.js',
             '!stratio-ui/**/*.scss',
