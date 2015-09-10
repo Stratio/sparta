@@ -10,12 +10,16 @@
 
   function PolicyModelAccordionCtrl(PolicyModelFactory, ModelStaticDataFactory, AccordionStatusService, ModelFactory) {
     var vm = this;
+    var index = 0;
+
     vm.init = init;
     vm.addModel = addModel;
     vm.removeModel = removeModel;
     vm.nextStep = nextStep;
+    vm.getIndex = getIndex;
 
     vm.init();
+
 
     function init() {
       vm.policy = PolicyModelFactory.GetCurrentPolicy();
@@ -46,6 +50,10 @@
 
     function isValidModel() {
       return vm.newModel.inputs.length > 0 && vm.newModel.outputs.length > 0 && vm.newModel.configuration != "" && vm.newModel.type != "";
+    }
+
+    function getIndex() {
+      return index++;
     }
 
     function nextStep() {

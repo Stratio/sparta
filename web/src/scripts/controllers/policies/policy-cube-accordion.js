@@ -10,10 +10,13 @@
 
   function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService) {
     var vm = this;
+    var index = 0;
+
     vm.init = init;
     vm.nextStep = nextStep;
     vm.addCube = addCube;
     vm.removeCube = removeCube;
+    vm.getIndex = getIndex;
 
     vm.init();
 
@@ -35,6 +38,10 @@
       vm.policy.cubes.splice(index, 1);
       AccordionStatusService.ResetAccordionStatus(vm.policy.cubes.length);
       AccordionStatusService.accordionStatus.newItem = true;
+    }
+
+    function getIndex() {
+      return index++;
     }
 
     function nextStep() {

@@ -47,7 +47,7 @@
 
       var modalInstance = $modal.open({
         animation: true,
-        templateUrl: 'templates/wizard/st-delete-policy-modal.tpl.html',
+        templateUrl: 'templates/policies/st-delete-policy-modal.tpl.html',
         controller: 'DeletePolicyModalCtrl as vm',
         size: size,
         resolve: {
