@@ -1,13 +1,14 @@
 <section>
   <header>
-    <st-heading title="{{'_POLICY_HEADER_TITLE_MAIN_' | translate}}" subtitle="{{'_INPUT_HEADER_TITLE_SECONDARY' | translate}}:"></st-heading>
+    <st-heading title="{{'_POLICY_HEADER_TITLE_MAIN_' | translate}}"
+                subtitle="{{'_INPUT_HEADER_TITLE_SECONDARY' | translate}}:"></st-heading>
   </header>
 
-  <c-step-progress-bar steps="wizard.steps" current-step="(wizard.policy.currentStep)"></c-step-progress-bar>
+  <c-step-progress-bar steps="wizard.steps" current-step="(wizard.status.currentStep)"></c-step-progress-bar>
 
   <div class="c-step-content">
-    <div ng-switch on="wizard.policy.currentStep">
-      <div ng-switch-when="0" >
+    <div ng-switch on="wizard.status.currentStep">
+      <div ng-switch-when="0">
         <ng-include src="'views/policies/description.html'"></ng-include>
       </div>
       <div ng-switch-when="1">
@@ -24,7 +25,26 @@
       </div>
       <div ng-switch-when="5">
         <ng-include src="'views/policies/finish.html'"></ng-include>
+        <footer class="c-row c-row--footer">
+          <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
+            <button class="c-button c-button--call-to-action-1" data-ng-click="wizard.confirmPolicy()">
+              <i class="icon icon-rocket"></i>
+              <span>{{"_SAVE_" | translate}}</span>
+            </button>
+          </div>
+        </footer>
       </div>
     </div>
+
+    <div ng-show="vm.error" class="c-row c-msg c-msg--small c-msg--error">
+      <i class="c-icon icon-circle-cross"></i>
+      <span>{{vm.error | translate}}</span>
+    </div>
+    <div ng-show="vm.successfullySentPolicy" class="c-row c-msg c-msg--small c-msg--success">
+      <i class="c-icon icon-circle-check"></i>
+      <span>{{"_POLICY_._SUCCESS_SENT_" | translate}}</span>
+    </div>
   </div>
+
+
 </section>

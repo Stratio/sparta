@@ -26,8 +26,8 @@
       var policiesList = PolicyFactory.GetAllPolicies();
 
       policiesList.then(function (result) {
-        console.log('--> Getting policies');
-        console.log('> Getting list of policies');
+        console.log('--> Getting wizard');
+        console.log('> Getting list of wizard');
         console.log(result);
         vm.policiesData.list = result;
       });
@@ -47,7 +47,7 @@
 
       var modalInstance = $modal.open({
         animation: true,
-        templateUrl: 'templates/policies/st-delete-policy-modal.tpl.html',
+        templateUrl: 'templates/wizard/st-delete-policy-modal.tpl.html',
         controller: 'DeletePolicyModalCtrl as vm',
         size: size,
         resolve: {

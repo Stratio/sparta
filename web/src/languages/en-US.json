@@ -149,7 +149,8 @@
     "_DIMENSIONS_": "Dimensions",
     "_OPERATORS_": "Operators",
     "_FIELDS_": "Fields",
-    "_FUNCTIONS_": "Functions"
+    "_FUNCTIONS_": "Functions",
+    "_SUCCESS_SENT_": "Policy successfully created"
   },
   "_SHORT_": "Short",
   "_LONG_": "Long",
@@ -179,5 +180,14 @@
   "_OUTPUT_WINDOW_DELETE_MESSAGE2_": "If you want to delete this output, please change first the output of the policies",
   "_FRAGMENT_WINDOW_EDIT_MESSAGE_": "The following policies are going to be modified",
   "_INPUT_WINDOW_EDIT_MESSAGE2_": "If you do not want to modify these policies, please change first their input",
-  "_OUTPUT_WINDOW_EDIT_MESSAGE2_": "If you do not want to modify these policies, please change first their outputs"
+  "_OUTPUT_WINDOW_EDIT_MESSAGE2_": "If you do not want to modify these policies, please change first their outputs",
+  "_SECOND_": "Second",
+  "_5_SECONDS_": "5 seconds",
+  "_10_SECONDS_": "10 seconds",
+  "_15_SECONDS_": "15 seconds",
+  "_MINUTE_": "Minute",
+  "_HOUR_": "Hour",
+  "_DAY_": "Day",
+  "_DAY_": "Month",
+  "_Year_": "Month"
 }

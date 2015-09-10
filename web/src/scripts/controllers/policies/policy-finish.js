@@ -11,32 +11,28 @@
   function PolicyFinishCtrl(PolicyModelFactory, $modal) {
     var vm = this;
 
-    vm.confirmPolicy = confirmPolicy;
-
     init();
 
     ///////////////////////////////////////
 
     function init() {
       vm.policy = PolicyModelFactory.GetCurrentPolicy();
-      vm.testingpolcyData = JSON.stringify(vm.policy, null, 4);
+      var json = getFinalJSON();
+      vm.testingpolcyData = JSON.stringify(json, null, 4);
     };
 
-    function confirmPolicy() {
-      var modalInstance = $modal.open({
-        animation: true,
-        templateUrl: 'templates/policies/st-confirm-policy-modal.tpl.html',
-        controller: 'ConfirmPolicyModalCtrl as vm',
-        size: 'lg'
-      });
+    function getFinalJSON(){
+      var fragments = [];
+      var policy = angular.copy(vm.policy);
+      policy.transformations = policy.models;
+      fragments.push(policy.input);
+      fragments.concat(policy.outputs);
+      policy.fragments = fragments;
+      delete policy.models;
+      delete policy.input;
+      delete policy.outputs;
 
-      modalInstance.result.then(function () {
-        // Call a function to create the policy
-
-      },function () {
-        console.log('Modal dismissed at: ' + new Date())
-      });
-    };
-
+      return policy;
+    }
   };
 })();

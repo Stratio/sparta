@@ -7,10 +7,11 @@
 
   function PolicyModelFactory() {
     var policy = null;
+    var status = {};
 
     function initPolicy() {
+      status.currentStep = 0;
       policy = {};
-      policy.currentStep = 0;
       policy.name = "";
       policy.description = "";
       policy.sparkStreamingWindow = "6000";
@@ -20,7 +21,6 @@
       policy.rawData.enabled = false;
       policy.rawData.partitionFormat = "day";
       policy.rawData.path = "";
-      policy.currentStep = 0;
       policy.input = {};
       policy.outputs = [];
       policy.models = [];
@@ -34,7 +34,10 @@
         return policy;
       },
       NextStep: function() {
-        policy.currentStep++;
+        status.currentStep++;
+      },
+      GetStatus: function(){
+        return status;
       }
     }
   }
