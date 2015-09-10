@@ -13,6 +13,12 @@
 	&:first-child {
 		margin-left: 0;
 	}
+
+	&__close-icon {
+		color: $c-tag__close-icon---color;
+		font-size: $c-tag__close-icon---font-size;
+		margin: $c-tag__close-icon---margin;
+	}
 }
 
 .c-tag {

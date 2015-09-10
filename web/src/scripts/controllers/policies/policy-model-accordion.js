@@ -50,7 +50,7 @@
     }
 
     function isValidModel() {
-      return vm.newModel.inputs.length > 0 && vm.newModel.outputs.length > 0 && vm.newModel.configuration != "" && vm.newModel.type != "";
+      return vm.newModel.inputField != "" && vm.newModel.outputFields.length > 0 && vm.newModel.configuration != "" && vm.newModel.type != "";
     }
 
     function getIndex() {

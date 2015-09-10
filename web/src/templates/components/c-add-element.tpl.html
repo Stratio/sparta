@@ -1,4 +1,4 @@
 <div>
-  <i class="{{iconClass}}" ng-click="showInputField()"></i>
-  <input id = "addElementInput" type = '{{type}}' ng-model=inputToAdd ng-if="showInput"  ng-keypress="addInput($event, this)">
+  <input class="c-input c-col--6" id="addElementInput" type='{{type}}' ng-model=inputToAdd placeHolder="Write an output field name and click in the plus icon to add to the list"  data-ng-keypress="addInput($event)">
+  <i class="{{iconClass}}" data-ng-click="addInput($event)"></i>
 </div>

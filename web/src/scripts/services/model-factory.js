@@ -13,8 +13,9 @@
     var models = [];
 
     function initNewModel() {
-      model.inputs = getModelInputs();
-      model.outputs = [];
+      model.inputField = ModelStaticDataFactory.defaultInput;
+
+      model.outputFields = [];
       model.type = "";
       model.configuration = "";
     };
@@ -28,7 +29,10 @@
           result = ModelStaticDataFactory.defaultInput;
         else {
           var model = models[--index];
-          result = model.inputs.concat(model.outputs);
+          console.log(model.outputFields);
+          console.log(model.inputField);
+          result = [model.inputField].concat(model.outputFields);
+          console.log(result)
         }
       }
       return result;
@@ -44,7 +48,8 @@
       GetNewModel: function (index) {
         if (Object.keys(model).length == 0) initNewModel();
         return model;
-      }
+      },
+      GetModelInputs: getModelInputs
     }
   }
 

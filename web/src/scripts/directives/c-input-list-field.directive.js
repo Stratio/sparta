@@ -9,7 +9,7 @@
 
 
   function cInputListField() {
-    return {
+    var directive = {
       restrict: 'E',
       scope: {
         labelControlText: "=labelControlText",
@@ -23,10 +23,22 @@
         inputType: "=inputType",
         pattern: "=pattern",
         inputs: "=inputs",
-        readonly: "=readonly"
+        readonly: "=readonly",
+        enableDelete: "=enableDelete"
       },
       replace: "true",
-      templateUrl: 'templates/components/c-input-list-field.tpl.html'
+      templateUrl: 'templates/components/c-input-list-field.tpl.html',
+      link: link
+    };
+
+    return directive;
+
+    function link(scope) {
+      scope.deleteInput = deleteInput;
+
+      function deleteInput(index) {
+        scope.inputs.splice(index,1);
+      };
     }
   };
 })();
