@@ -25,12 +25,10 @@ import akka.util.Timeout
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
-import com.stratio.sparkta.serving.api.helpers.SparktaHelper
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
-import com.stratio.sparkta.serving.core.{SparktaConfig, AppConstant, CuratorFactoryHolder}
-import com.typesafe.config.Config
+import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder, SparktaConfig}
 import org.json4s.native.Serialization._
 
 import scala.concurrent.duration._
@@ -75,29 +73,29 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
 
   // XXX Private Methods.
   private def savePolicyInZk(policy: AggregationPoliciesModel): Unit = {
-    val curatorFramework = CuratorFactoryHolder.getInstance().get
+    val curatorFramework = CuratorFactoryHolder.getInstance()
 
     Try({
       read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.forPath(
-        s"${AppConstant.PoliciesBasePath}/${policy.id}")))
+        s"${AppConstant.PoliciesBasePath}/${policy.id.get}")))
     }) match {
-      case Success(_) => log.info(s"Policy ${policy.id} already in zookeeper. Updating it...")
-        curatorFramework.setData.forPath(s"${AppConstant.PoliciesBasePath}/${policy.id}", write(policy).getBytes)
+      case Success(_) => log.info(s"Policy ${policy.id.get} already in zookeeper. Updating it...")
+        curatorFramework.setData.forPath(s"${AppConstant.PoliciesBasePath}/${policy.id.get}", write(policy).getBytes)
       case Failure(e) => curatorFramework.create().creatingParentsIfNeeded().forPath(
-        s"${AppConstant.PoliciesBasePath}/${policy.id}", write(policy).getBytes)
+        s"${AppConstant.PoliciesBasePath}/${policy.id.get}", write(policy).getBytes)
     }
   }
 
   private def getStreamingContextActor(policy: AggregationPoliciesModel): Option[ActorRef] = {
     SparktaConfig.getClusterConfig match {
       case Some(clusterConfig) => {
-        val zookeeperConfig = SparktaConfig.getClusterConfig
-        val hdfsConfig = SparktaConfig.getClusterConfig
+        val zookeeperConfig = SparktaConfig.getZookeeperConfig
+        val hdfsConfig = SparktaConfig.getHdfsConfig
+        val detailConfig = SparktaConfig.getDetailConfig
 
         if (zookeeperConfig.isDefined && hdfsConfig.isDefined) {
           Some(context.actorOf(Props(new ClusterSparkStreamingContextActor(
-            policy, streamingContextService, SparktaConfig.getExecutionMode, clusterConfig,
-            hdfsConfig.get, zookeeperConfig.get)),
+            policy, streamingContextService, clusterConfig, hdfsConfig.get, zookeeperConfig.get, detailConfig)),
             s"$SparkStreamingContextActorPrefix-${policy.name}"))
         } else None
       }

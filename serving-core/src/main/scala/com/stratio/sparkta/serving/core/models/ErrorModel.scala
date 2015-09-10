@@ -33,9 +33,7 @@ case class ErrorModel(i18nCode: String,
 
 }
 
-object ErrorModel {
-
-  implicit val json4sJacksonFormats = DefaultFormats
+object ErrorModel extends SparktaSerializer{
 
   val CodeExistsFragmentWithName      = "100"
   val CodeNotExistsFragmentWithId     = "101"

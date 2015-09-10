@@ -34,29 +34,47 @@ object JarsHelper extends SLF4JLogging {
   def initStandAloneJars(relativeJarPaths: Seq[String], sparktaHome: String): Seq[File] =
     relativeJarPaths.flatMap(path => {
       log.info(s"> Loading jars from $sparktaHome/$path")
-      findJarsByPath(new File(sparktaHome, path), true)
+      findJarsByPath(new File(sparktaHome, path), Some("-plugin.jar"))
     })
 
-  /**
-   * Finds files that end with the sufix *-plugin.jar and load them in the classpath of the application.
-   * @param path base path when it starts to scan in order to find plugins.
-   * @param doAddToClassPath Add the jar founded to classPath.
-   * @return a list of jars.
-   */
-  def findJarsByPath(path: File, doAddToClassPath: Boolean): Seq[File] = {
-    val these = path.listFiles()
-    val good = these.filter(f => {
-      if (f.getName.endsWith("-plugin.jar")) {
-        if (doAddToClassPath) {
+  def findJarsByPath(path: File,
+                     endsWith: Option[String] = None,
+                     contains: Option[String] = None,
+                     notContains: Option[String] = None,
+                     excludeFolder: Option[Seq[String]] = None,
+                     doAddToClassPath: Boolean = true): Seq[File] = {
+    if (!path.isDirectory ||
+      (path.isDirectory && excludeFolder.forall(folder => folder.forall(exFolder => path.getName != exFolder)))) {
+      val these = path.listFiles()
+      val good = these.filter(f => {
+        val filter = endsWith.forall(ends => f.getName.endsWith(ends)) &&
+          contains.forall(cont => f.getName.contains(cont)) &&
+          notContains.forall(ncont => !f.getName.contains(ncont))
+        if (doAddToClassPath && filter) {
           addToClasspath(f)
           log.debug("File " + f.getName + " added")
         }
-        true
-      } else {
-        false
-      }
-    })
-    good ++ these.filter(_.isDirectory).flatMap(path => findJarsByPath(path, doAddToClassPath))
+        filter
+      })
+      good ++ these.filter(file => {
+        file.isDirectory &&
+          excludeFolder.forall(folder => folder.forall(exFolder => file.getName != exFolder))
+      }).flatMap(path => findJarsByPath(path, endsWith, contains, notContains, excludeFolder, doAddToClassPath))
+    } else Seq()
+  }
+
+  /**
+   * Finds files that are the driver application.
+   * @param path base path when it starts to scan in order to find plugins.
+   * @return a list of jars.
+   */
+  def findDriverByPath(path: File): Seq[File] = {
+    val these = path.listFiles()
+    val good =
+      these.filter(f => f.getName.toLowerCase.contains("driver") &&
+        f.getName.toLowerCase.contains("plugin") &&
+        f.getName.endsWith(".jar"))
+    good ++ these.filter(_.isDirectory).flatMap(path => findDriverByPath(path))
   }
 
   /**

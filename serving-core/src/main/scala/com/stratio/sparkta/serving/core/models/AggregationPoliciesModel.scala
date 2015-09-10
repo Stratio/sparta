@@ -25,12 +25,10 @@ import com.github.fge.jsonschema.main.{JsonSchema, JsonSchemaFactory}
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
-
 case class AggregationPoliciesModel(id: Option[String] = None,
                                     storageLevel: Option[String] = AggregationPoliciesModel.storageDefaultValue,
                                     name: String = "default",
-                                    description: String,
+                                    description: String = "default description",
                                     sparkStreamingWindow: Long = AggregationPoliciesModel.sparkStreamingWindow,
                                     checkpointPath: String,
                                     rawData: RawDataModel,
@@ -57,7 +55,7 @@ object AggregationPoliciesValidator extends SparktaSerializer {
     val isValidDurationGranularity = aggregationPoliciesDto.cubes
       .forall(cube => aggregationPoliciesDto.sparkStreamingWindow < cube.checkpointConfig.interval)
 
-    val isValidDurationGranularityMsg = if(!isValidDurationGranularity) MessageDurationGranularity else ""
+    val isValidDurationGranularityMsg = if (!isValidDurationGranularity) MessageDurationGranularity else ""
 
     val isValid = isValidAgainstSchema && isValidDurationGranularity
     val errorMsg = isValidAgainstSchemaMsg ++ isValidDurationGranularityMsg

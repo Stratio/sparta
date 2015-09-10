@@ -19,50 +19,70 @@ package com.stratio.sparkta.driver
 import java.io.File
 import java.net.URI
 
+import akka.actor.{ActorSystem, Props}
+import akka.pattern.ask
+import akka.util.Timeout
 import com.stratio.sparkta.driver.SparktaJob._
-import com.stratio.sparkta.driver.factory.SparkContextFactory
+import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.driver.util.{HdfsUtils, PolicyUtils}
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
-import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel}
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
+import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder, SparktaConfig}
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.FileUtils
+import org.json4s.NoTypeHints
+import org.json4s.native.Serialization
 
+import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
 object SparktaClusterJob {
 
+  implicit val timeout: Timeout = Timeout(3.seconds)
+
   def main(args: Array[String]): Unit = {
-
     if (checkArgs(args)) {
-      log.info("############################## JOB SERVER ########################")
-
-      val hadoopUserName = scala.util.Properties.envOrElse("HADOOP_USER_NAME", AppConstant.DefaultHadoopUserName)
-      val hadoopConfDir = scala.util.Properties.envOrNone("HADOOP_CONF_DIR")
-      val hdfsUtils = new HdfsUtils(hadoopUserName, hadoopConfDir)
-      val pluginFiles = getPluginsFiles(hdfsUtils, args(1))
-      val policy = getPolicyFromZookeeper(args)
-      val streamingContextService = new StreamingContextService
-      val ssc = streamingContextService.clusterStreamingContext(policy,
-        pluginFiles,
-        Map("spark.app.name" -> s"${policy.name}")
-      ).get
-
-      log.info("Streaming Context created")
-
-      ssc.start
-      ssc.awaitTermination
-    } else log.warn("Invalid arguments")
+      initSparktaConfig(args(4), args(3))
+      val policy = getPolicyFromZookeeper(args(0))
+      implicit val system = ActorSystem(s"${policy.id.get}")
+      val policyStatusActor = system.actorOf(Props[PolicyStatusActor], s"${AkkaConstant.PolicyStatusActor}")
+      Try {
+        policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting))
+        val hadoopUserName = scala.util.Properties.envOrElse("HADOOP_USER_NAME", AppConstant.DefaultHadoopUserName)
+        val hadoopConfDir = scala.util.Properties.envOrNone("HADOOP_CONF_DIR")
+        val hdfsUtils = new HdfsUtils(hadoopUserName, hadoopConfDir)
+        val pluginFiles = addHdfsFiles(hdfsUtils, args(1))
+        val classPathFiles = addHdfsFiles(hdfsUtils, args(2))
+        val streamingContextService = new StreamingContextService(Some(policyStatusActor))
+        val ssc = streamingContextService.clusterStreamingContext(
+          policy, pluginFiles ++ classPathFiles, Map("spark.app.name" -> s"${policy.name}")).get
+        ssc.start
+      } match {
+        case Success(_) => {
+          policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Started))
+        }
+        case Failure(exception) => {
+          log.error(exception.getLocalizedMessage, exception)
+          policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed))
+        }
+      }
+    } else {
+      log.warn("Invalid arguments")
+    }
   }
 
-  def getPluginsFiles(hdfsUtils: HdfsUtils, hdfsPath: String): Array[URI] = {
-    hdfsUtils.getFiles(hdfsPath).map(file => {
-      val fileName = s"${hdfsPath}${file.getPath.getName}"
-      val tempFile = File.createTempFile(file.getPath.getName, "")
+  def initSparktaConfig(detailConfig: String, zKConfig: String): Unit = {
+    val configStr = s"$detailConfig,$zKConfig".stripPrefix(",").stripSuffix(",")
+    SparktaConfig.initMainConfig(Some(ConfigFactory.parseString(s"{$configStr}").atKey("sparkta")))
+  }
 
-      log.info(s"Downloading file from HDFS: ${file.getPath.getName}")
-      log.info(s"Creating temp file: $tempFile")
+  def addHdfsFiles(hdfsUtils: HdfsUtils, hdfsPath: String): Array[URI] = {
+    hdfsUtils.getFiles(hdfsPath).map(file => {
+      val fileName = s"$hdfsPath${file.getPath.getName}"
+      val tempFile = File.createTempFile(file.getPath.getName, "")
 
       FileUtils.copyInputStreamToFile(hdfsUtils.getFile(fileName), tempFile)
       JarsHelper.addToClasspath(tempFile)
@@ -70,24 +90,16 @@ object SparktaClusterJob {
     })
   }
 
-  def getPolicyFromZookeeper(args: Array[String]): AggregationPoliciesModel = {
-    val policyName = args(0)
-
-    log.info("Zookeeper arguments: " + args(2))
-
-    val config = ConfigFactory.parseString(args(2))
-
-    log.info(s"Zookeeper Config received: ${config.toString}")
-
-    Try({
-      val curatorFramework = CuratorFactoryHolder.getInstance(config).get
+  def getPolicyFromZookeeper(policyId: String): AggregationPoliciesModel = {
+    Try {
+      val curatorFramework = CuratorFactoryHolder.getInstance()
       PolicyUtils.parseJson(new Predef.String(curatorFramework.getData.forPath(
-        s"${AppConstant.PoliciesBasePath}/${policyName}")))
-    }) match {
+        s"${AppConstant.PoliciesBasePath}/${policyId}")))
+    } match {
       case Success(policy) => policy
-      case Failure(e) => log.error(s"Cannot load policy $policyName", e); throw e
+      case Failure(e) => log.error(s"Cannot load policy $policyId", e); throw e
     }
   }
 
-  def checkArgs(args: Array[String]): Boolean = args.length == 3
+  def checkArgs(args: Array[String]): Boolean = args.length == 5
 }

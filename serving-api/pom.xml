@@ -54,7 +54,6 @@
         <dependency>
             <groupId>com.github.fge</groupId>
             <artifactId>json-schema-validator</artifactId>
-            <version>2.2.6</version>
         </dependency>
         <dependency>
             <groupId>io.spray</groupId>
@@ -152,6 +151,14 @@
             <artifactId>spray-json_2.10</artifactId>
             <version>${spray.test.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_${scala.binary.version}</artifactId>
         </dependency>
     </dependencies>
 

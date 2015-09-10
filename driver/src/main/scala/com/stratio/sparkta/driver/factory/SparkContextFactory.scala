@@ -32,7 +32,6 @@ object SparkContextFactory extends SLF4JLogging {
   private var sc: Option[SparkContext] = None
   private var sqlContext: Option[SQLContext] = None
   private var ssc: Option[StreamingContext] = None
-  var config: Config = _
 
   def sparkSqlContextInstance: Option[SQLContext] = {
     synchronized {
@@ -71,8 +70,7 @@ object SparkContextFactory extends SLF4JLogging {
       sc.getOrElse(instantiateStandAloneContext(generalConfig, specificConfig, jars))
     }
 
-  def sparkClusterContextInstance(specificConfig: Map[String, String], jars: Seq[URI]):
-  SparkContext =
+  def sparkClusterContextInstance(specificConfig: Map[String, String], jars: Seq[URI]): SparkContext =
     synchronized {
       sc.getOrElse(instantiateClusterContext(specificConfig, jars))
     }

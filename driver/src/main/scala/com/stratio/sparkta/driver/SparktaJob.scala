@@ -19,23 +19,17 @@ package com.stratio.sparkta.driver
 import java.io._
 import java.nio.file.{Files, Paths}
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
-import akka.pattern.ask
-import akka.util.Timeout
 import com.stratio.sparkta.aggregator.{Cube, CubeMaker}
-import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.driver.exception.DriverException
-import com.stratio.sparkta.driver.factory.{SparkContextFactory, SchemaFactory}
+import com.stratio.sparkta.driver.factory.{SchemaFactory, SparkContextFactory}
 import com.stratio.sparkta.driver.service.RawDataStorageService
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, OperatorModel, PolicyStatusModel}
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{AddListener, Update}
-import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, OperatorModel}
 import org.apache.commons.io.FileUtils
-import org.apache.curator.framework.recipes.cache.NodeCache
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.dstream.DStream
@@ -44,71 +38,45 @@ import org.reflections.Reflections
 
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
-import scala.concurrent.duration._
 import scala.util._
 
 object SparktaJob extends SLF4JLogging {
 
-  implicit var system: ActorSystem = _
-
   def runSparktaJob(sc: SparkContext, apConfig: AggregationPoliciesModel): Any = {
-    implicit val timeout: Timeout = Timeout(3.seconds)
-    system = ActorSystem(apConfig.id.get)
-    val policyStatusActor = system.actorOf(Props[PolicyStatusActor], AkkaConstant.PolicyStatusActor)
-
-    policyStatusActor ? AddListener(apConfig.id.get, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
-      if (policyStatus.status equals PolicyStatusEnum.Stopping){
-        SparkContextFactory.destroySparkStreamingContext
-        nodeCache.close
-        policyStatusActor ? Update(PolicyStatusModel(apConfig.id.get, PolicyStatusEnum.Stopped))
-      }
-    })
-
     val checkpointPolicyPath = apConfig.checkpointPath.concat(File.separator).concat(apConfig.name)
-    deletePreviousCheckpointPath(checkpointPolicyPath)
-
+    //TODO check the problem in the checkpoint and fault tolerance
+    // deletePreviousCheckpointPath(checkpointPolicyPath)
     val ssc = SparkContextFactory.sparkStreamingInstance(
       new Duration(apConfig.sparkStreamingWindow), checkpointPolicyPath)
     val input = SparktaJob.input(apConfig, ssc.get)
     val parsers =
-    SparktaJob.parsers(apConfig).sortWith((parser1, parser2) => parser1.getOrder < parser2.getOrder)
+      SparktaJob.parsers(apConfig).sortWith((parser1, parser2) => parser1.getOrder < parser2.getOrder)
     val cubes = SparktaJob.cubes(apConfig)
-
     val operatorsKeyOperation: Option[Map[String, (WriteOp, TypeOp)]] = {
       val opKeyOp = SchemaFactory.operatorsKeyOperation(cubes.flatMap(cube => cube.operators))
-      if (opKeyOp.size > 0) Some(opKeyOp) else None
+      if (opKeyOp.nonEmpty) Some(opKeyOp) else None
     }
 
     val outputsSchemaConfig: Seq[(String, Map[String, String])] = apConfig.outputs.map(o =>
-        (o.name, Map(
-            Output.Multiplexer -> Try(o.configuration.get(Output.Multiplexer).get.string)
+      (o.name, Map(
+        Output.Multiplexer -> Try(o.configuration.get(Output.Multiplexer).get.string)
           .getOrElse(Output.DefaultMultiplexer),
-            Output.FixedAggregation ->
-              Try(o.configuration.get(Output.FixedAggregation).get.string.split(Output.FixedAggregationSeparator).head)
-          .getOrElse("")
-          )))
+        Output.FixedAggregation ->
+          Try(o.configuration.get(Output.FixedAggregation).get.string.split(Output.FixedAggregationSeparator).head)
+            .getOrElse("")
+      )))
 
     val bcCubeOperatorSchema: Option[Seq[TableSchema]] = {
       val cubeOpSchema = SchemaFactory.cubesOperatorsSchemas(cubes, outputsSchemaConfig)
-      if (cubeOpSchema.size > 0) Some(cubeOpSchema) else None
+      if (cubeOpSchema.nonEmpty) Some(cubeOpSchema) else None
     }
 
     val outputs = SparktaJob.outputs(apConfig, operatorsKeyOperation, bcCubeOperatorSchema)
     val inputEvent = input._2
     SparktaJob.saveRawData(apConfig, inputEvent)
     val parsed = SparktaJob.applyParsers(inputEvent, parsers)
-
     val dataCube = new CubeMaker(cubes).setUp(parsed)
-    outputs.map(_._2.persist(dataCube))
-  }
-
-  def deletePreviousCheckpointPath(checkpointPolicyPath: String): Unit = {
-    if (Files.exists(Paths.get(checkpointPolicyPath))) {
-      Try(FileUtils.deleteDirectory(new File(checkpointPolicyPath))) match {
-        case Success(_) => log.info(s"Found path for this policy. Path deleted: $checkpointPolicyPath")
-        case Failure(e) => log.error(s"Found path for this policy. Cannot delete: $checkpointPolicyPath", e)
-      }
-    }
+    outputs.foreach(_._2.persist(dataCube))
   }
 
   @tailrec
@@ -116,7 +84,7 @@ object SparktaJob extends SLF4JLogging {
     parsers.headOption match {
       case Some(headParser: Parser) => applyParsers(input.map(event =>
         Try(headParser.parse(event)) match {
-          case Success(event) => Some(event)
+          case Success(okEvent) => Some(okEvent)
           case Failure(exception) => {
             val error = s"Failure[Parser]: ${event.toString} | Message: ${exception.getLocalizedMessage}" +
               s" | Parser: ${headParser.getClass.getSimpleName}"
@@ -142,7 +110,8 @@ object SparktaJob extends SLF4JLogging {
     plugins map (t => t.getSimpleName -> t.getCanonicalName) toMap
   }
 
-  def getSparkConfigs(apConfig: AggregationPoliciesModel, methodName: String, suffix: String): Map[String, String] =
+  def getSparkConfigs(apConfig: AggregationPoliciesModel, methodName: String, suffix: String): Map[String, String] = {
+    log.info("Initializing reflection")
     apConfig.outputs.flatMap(o => {
       val clazzToInstance = SparktaJob.getClasspathMap.getOrElse(o.`type` + suffix, o.`type` + suffix)
       val clazz = Class.forName(clazzToInstance)
@@ -155,6 +124,7 @@ object SparktaJob extends SLF4JLogging {
         case None => Seq()
       }
     }).toMap
+  }
 
   def input(apConfig: AggregationPoliciesModel, ssc: StreamingContext): (String, DStream[Event]) =
     (apConfig.input.get.name, tryToInstantiate[Input](apConfig.input.get.`type` + Input.ClassSuffix, (c) =>
@@ -259,4 +229,12 @@ object SparktaJob extends SLF4JLogging {
       rawDataStorage.save(input)
     }
 
+  def deletePreviousCheckpointPath(checkpointPolicyPath: String): Unit = {
+    if (Files.exists(Paths.get(checkpointPolicyPath))) {
+      Try(FileUtils.deleteDirectory(new File(checkpointPolicyPath))) match {
+        case Success(_) => log.info(s"Found path for this policy. Path deleted: $checkpointPolicyPath")
+        case Failure(e) => log.error(s"Found path for this policy. Cannot delete: $checkpointPolicyPath", e)
+      }
+    }
+  }
 }

@@ -29,7 +29,6 @@ import org.apache.spark.streaming.dstream.DStream
 
 import scala.util._
 
-
 abstract class Output(keyName: String,
                       properties: Map[String, JSerializable],
                       operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
@@ -89,15 +88,15 @@ abstract class Output(keyName: String,
   protected def persistMetricOperation(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit =
     getStreamsFromOptions(stream, multiplexer, getFixedDimensions)
       .foreachRDD(rdd => rdd.foreachPartition(
-        ops => {
-          Try(upsert(ops)) match {
-            case Success(value) => value
-            case Failure(exception) => {
-              val error = s"Failure[Output]: ${ops.toString} | Message: ${exception.getLocalizedMessage}"
-              log.error(error, exception)
-            }
+      ops => {
+        Try(upsert(ops)) match {
+          case Success(value) => value
+          case Failure(exception) => {
+            val error = s"Failure[Output]: ${ops.toString} | Message: ${exception.getLocalizedMessage}"
+            log.error(error, exception)
           }
         }
+      }
     ))
 
   protected def persistDataFrame(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
@@ -113,11 +112,10 @@ abstract class Output(keyName: String,
       .foreachRDD(rdd => {
       bcSchema.get.filter(tschema => (tschema.outputName == keyName)).foreach(tschemaFiltered => {
         val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
-        upsert(sqlContext.createDataFrame(
+        val dataFrame = sqlContext.createDataFrame(
           extractRow(rdd.filter { case (schema, row) => schema.exists(_ == tableSchemaTime.tableName) }),
-          tableSchemaTime.schema),
-          tableSchemaTime.tableName,
-          tschemaFiltered.timeDimension)
+          tableSchemaTime.schema)
+        upsert(dataFrame, tableSchemaTime.tableName, tschemaFiltered.timeDimension)
       })
     })
   }

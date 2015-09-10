@@ -23,7 +23,7 @@ import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.api.service.http._
-import com.stratio.sparkta.serving.core.models.{ErrorModel, StreamingContextStatusEnum}
+import com.stratio.sparkta.serving.core.models.{SparktaSerializer, ErrorModel, StreamingContextStatusEnum}
 import com.wordnik.swagger.model.ApiInfo
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
@@ -34,13 +34,9 @@ import spray.util.LoggingContext
 
 import scala.reflect.runtime.universe._
 
-class SwaggerActor(actorsMap: Map[String, ActorRef]) extends HttpServiceActor with SLF4JLogging {
+class SwaggerActor(actorsMap: Map[String, ActorRef]) extends HttpServiceActor with SLF4JLogging with SparktaSerializer{
 
   override implicit def actorRefFactory: ActorContext = context
-
-  implicit val json4sJacksonFormats = DefaultFormats +
-    new EnumNameSerializer(StreamingContextStatusEnum) +
-    new JsoneyStringSerializer()
 
   implicit def exceptionHandler(implicit logg: LoggingContext): ExceptionHandler =
     ExceptionHandler {
