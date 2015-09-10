@@ -241,7 +241,7 @@ module.exports = function (grunt) {
       },
       dist: {}
     },
-    
+
     htmlmin: {
       dist: {
         options: {
@@ -292,7 +292,9 @@ module.exports = function (grunt) {
             'images/**.*',
             'styles/vendors/{,*/}*.*',
             '!styles/vendors/{,*/}*.scss',
-            'languages/{,*/}*.*'
+            'languages/{,*/}*.*',
+            'data-templates/**/*.*',
+            '!data-templates/fake_data/*.*'
           ]
         }, {
           expand: true,
@@ -378,7 +380,7 @@ module.exports = function (grunt) {
       grunt.log.warn('Target already exists. If you want to force build run task `clean:dist` first');
       return true;
     }
-  
+
     grunt.task.run([
       'clean:server',
       'wiredep',
