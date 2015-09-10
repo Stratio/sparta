@@ -13,8 +13,12 @@
   </div>
 
   <div class="c-form-group">
-    <form-field-input data-form="vm.form" data-st-name="configuration-form" data-model="vm.operator.configuration" data-label="{{'_CONFIGURATION_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Lorem ipsum dolor sit amet." required="true"></form-field-input>
+    <c-icon-label wrapper-control-class="'c-label c-col c-col--12'" icon-class="'icon-info1'" data-text="('_CONFIGURATION_' | translate)"
+                  text-class="" icon-url="vm.configHelpLink"></c-icon-label>
+
+    <textarea class="c-textarea c-textarea--full-width" ng-model="vm.operator.configuration"/>
   </div>
+
 
   <div class="c-row c-row--separated">
     <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">

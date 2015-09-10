@@ -9,10 +9,13 @@
 
     return {
       GetFunctions: function () {
-        return ["Accumulator", "Avg", "Count", "Entity count", "First value", "Full text", "Last value", "Max", "Median", "Min", "Mode", "Range", "Std_Dev", "Sum", "Variance", "Total entity count"]
+        return ["Accumulator", "Avg", "Count", "EntityCount", "FirstValue", "FullText", "LastValue", "Max", "Median", "Min", "Mode", "Range", "Stddev", "Sum", "Variance", "TotalEntityCount"]
       },
-      getGranularityOptions: function () {
+      GetGranularityOptions: function () {
         return ["seconds", "5 seconds", "10 seconds", "15 seconds", "minute", "hour", "day", "month", "year"]
+      },
+      GetConfigurationHelpLink: function(){
+        return "http://docs.stratio.com/modules/sparkta/development/transformations.html"
       }
     }
   }
