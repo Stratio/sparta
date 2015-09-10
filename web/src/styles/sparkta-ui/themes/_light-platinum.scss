@@ -494,7 +494,8 @@ $c-accordion-header__step-number---padding: 7px 0 0;
 $c-accordion-header__step-number---background: get-color(c1b);
 $c-accordion-header__step-number---color: get-color(g0);
 
-$c-accordion__type---margin: 0 10px;
+$c-accordion__type---font-size: get-font-size(large);
+$c-accordion__type---margin: 0 10px 0 0;
 
 $c-accordion__open-mark---margin: 7px 0 0;
 $c-accordion__open-mark---rotation: 90deg;
