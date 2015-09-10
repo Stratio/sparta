@@ -2,8 +2,8 @@
   <label class="c-label {{labelControlClass}}">{{labelControlText}}:</label>
   <div data-ng-if="inputs.length > 0" class="c-form-group c-form-group--full-width">
     <span ng-repeat="input in inputs track by $index" ng-model="input" ng-value="(input)" class="c-tag" type="{{inputType}}">
-    	<span class="">{{input}}</span>
-    	<i class="c-icon c-icon--small c-icon--is-clickable icon-cross" data-ng-click="deleteInput($index)" data-ng-if="enableDelete"></i>
+    	<span class="c-tag__text">{{input}}</span>
+    	<i class="c-tag__close-icon c-icon c-icon--is-clickable icon-cross" data-ng-click="deleteInput($index)" data-ng-if="enableDelete"></i>
     </span>
   </div>
 </div>
