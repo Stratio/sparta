@@ -140,7 +140,8 @@
     "_CUBE_":{
       "_DIMENSION_": "Dimension",
       "_FIELD_": "Field",
-      "_PRECISION_": "Precision"
+      "_PRECISION_": "Precision",
+      "_OPERATOR_": "Operator"
     },
     "_ADD_MODEL_": "Add model",
     "_MODEL_ERROR_": "There are some errors in the introduced data. Please, check them and try it again",

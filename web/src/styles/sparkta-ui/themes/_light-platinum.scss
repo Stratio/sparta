@@ -46,6 +46,7 @@
  *		c-textarea
  *		c-accordion
  *		c-tag
+ *		c-cube
  *
  */
 
@@ -511,3 +512,30 @@ $c-tag---background: get-color(c1b);
 $c-tag---color: get-color(g0);
 $c-tag---padding: 5px 10px;
 $c-tag---margin: 0 0 0 5px;
+
+
+
+// c-cube
+$c-cube---background: get-color(g2);
+$c-cube---color: get-color(g9);
+
+$c-cube--first-child---border-right: 1px solid get-color(g5);
+
+$c-cube__title---background: get-color(g5);
+$c-cube__title---color: get-color(g0);
+$c-cube__title---padding: 20px 15px 5px;
+$c-cube__title---text-transform: uppercase;
+
+$c-cube__title--2---background: get-color(g3) !default;
+$c-cube__title--2---color: get-color(g9) !default;
+
+$c-cube__section---padding: 20px 10px;
+
+$c-cube__field-wrapper---padding: 10px;
+
+$c-cube__field-icon---padding: 10px;
+$c-cube__field-icon---background: get-color(g3);
+
+$c-cube__field-name---background: get-color(g0);
+$c-cube__field-name---left: 36px;
+$c-cube__field-name---right: 0;
