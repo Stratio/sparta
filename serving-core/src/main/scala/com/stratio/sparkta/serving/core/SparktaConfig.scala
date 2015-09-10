@@ -84,6 +84,29 @@ object SparktaConfig extends SLF4JLogging {
     swaggerConfig
   }
 
+  def getClusterConfig: Option[Config] = Try(getDetailConfig.get.getString(AppConstant.ExecutionMode)) match {
+    case Success(executionMode) => {
+      if (executionMode != AppConstant.ConfigLocal) getOptionConfig(executionMode, mainConfig.get)
+      else None
+    }
+    case _ => None
+  }
+
+  def getHdfsConfig: Option[Config] = mainConfig match {
+    case Some(config) => getOptionConfig(AppConstant.ConfigHdfs, config)
+    case None => None
+  }
+
+  def getDetailConfig: Option[Config] = mainConfig match {
+    case Some(config) => getOptionConfig(AppConstant.ConfigDetail, config)
+    case None => None
+  }
+
+  def getZookeeperConfig: Option[Config] = mainConfig match {
+    case Some(config) => getOptionConfig(AppConstant.ConfigZookeeper, config)
+    case None => None
+  }
+
   /**
    * Initializes base configuration.
    * @param currentConfig if it is setted the function tries to load a node from a loaded config.
@@ -96,47 +119,23 @@ object SparktaConfig extends SLF4JLogging {
     log.info(s"> Loading $node configuration")
     Try(
       currentConfig match {
-        case Some(config) => getOptionConfig(node,config)
+        case Some(config) => getOptionConfig(node, config)
         case _ => configFactory.getConfig(node)
       }
     ).getOrElse(None)
   }
 
   def getOptionConfig(node: String, currentConfig: Config): Option[Config] = {
-    log.info(s"> Loading $node configuration")
     Try(currentConfig.getConfig(node)) match {
       case Success(config) => Some(config)
       case _ => None
     }
   }
 
-  def getOptionStringConfig(node: String, currentConfig: Config) : Option[String] = {
+  def getOptionStringConfig(node: String, currentConfig: Config): Option[String] = {
     Try(currentConfig.getString(node)) match {
       case Success(config) => Some(config)
       case _ => None
     }
-  }
-
-  def getClusterConfig: Option[Config] = Try(mainConfig.get.getString(AppConstant.ExecutionMode)) match {
-    case Success(executionMode)=> {
-      if(executionMode != AppConstant.ConfigLocal) getOptionConfig(executionMode, mainConfig.get)
-      else None
-    }
-    case _ => None
-  }
-
-  def getHdfsConfig: Option[Config] = mainConfig match {
-    case Some(config)=> getOptionConfig(AppConstant.ConfigHdfs, config)
-    case None => None
-  }
-
-  def getZookeeperConfig: Option[Config] = mainConfig match {
-    case Some(config)=> getOptionConfig(AppConstant.ConfigZookeeper, config)
-    case None => None
-  }
-
-  def getExecutionMode: String = mainConfig match {
-    case Some(config)=> config.getString(AppConstant.ExecutionMode)
-    case None => AppConstant.DefaultExecutionMode
   }
 }

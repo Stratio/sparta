@@ -22,12 +22,14 @@ package com.stratio.sparkta.serving.core
 object AppConstant {
 
   final val JarPluginsFolder = "plugins"
+  final val ClasspathJarFolder = "dist/target/appassembler"
   final val ClusterExecutionJarFolder = "driver"
   final val ExecutionMode = "executionMode"
   final val DefaultExecutionMode = "local"
   final val ConfigAppName = "sparkta"
   final val ConfigApi = "api"
   final val ConfigHdfs = "hdfs"
+  final val ConfigDetail = "config"
   final val ConfigLocal = "local"
   final val ConfigStandAlone = "standAlone"
   final val ConfigMesos = "mesos"
@@ -35,7 +37,7 @@ object AppConstant {
   final val ConfigAkka = "akka"
   final val ConfigSwagger = "swagger"
   final val ConfigZookeeper = "zk"
-  final val BaseZKPath      = "/stratio/sparkta"
+  final val BaseZKPath = "/stratio/sparkta"
   final val PoliciesBasePath = s"${AppConstant.BaseZKPath}/policies"
   final val ContextPath = s"${AppConstant.BaseZKPath}/contexts"
 
@@ -70,13 +72,13 @@ object AppConstant {
   final val ZookeeperConnection = "connectionString"
   final val DefaultZookeeperConnection = "localhost:2181"
   final val ZookeeperConnectionTimeout = "connectionTimeout"
-  final val DefaultZookeeperConnectionTimeout = "15000"
+  final val DefaultZookeeperConnectionTimeout = 15000
   final val ZookeeperSessionTimeout = "sessionTimeout"
-  final val DefaultZookeeperSessionTimeout = "60000"
+  final val DefaultZookeeperSessionTimeout = 60000
   final val ZookeeperRetryAttemps = "retryAttempts"
-  final val DefaultZookeeperRetryAttemps = "5"
+  final val DefaultZookeeperRetryAttemps = 5
   final val ZookeeperRetryInterval = "retryInterval"
-  final val DefaultZookeeperRetryInterval = "10000"
+  final val DefaultZookeeperRetryInterval = 10000
 
   //HDFS
   final val DefaultHadoopUserName = "stratio"

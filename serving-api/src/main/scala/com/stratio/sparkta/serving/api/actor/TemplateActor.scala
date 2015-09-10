@@ -23,7 +23,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.api.actor.TemplateActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
-import com.stratio.sparkta.serving.core.models.{ErrorModel, StreamingContextStatusEnum, TemplateModel}
+import com.stratio.sparkta.serving.core.models.{SparktaSerializer, ErrorModel, StreamingContextStatusEnum, TemplateModel}
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.Serialization._
@@ -34,11 +34,7 @@ import scala.util.Try
 /**
  * Implementation of supported CRUD operations over templates used to composite a policy.
  */
-class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging {
-
-  implicit val json4sJacksonFormats = DefaultFormats +
-    new EnumNameSerializer(StreamingContextStatusEnum) +
-    new JsoneyStringSerializer()
+class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging with SparktaSerializer{
 
   override def receive: Receive = {
 

@@ -45,8 +45,7 @@ object SparktaHelper extends SLF4JLogging {
     if (SparktaConfig.mainConfig.isDefined &&
       SparktaConfig.apiConfig.isDefined &&
       SparktaConfig.swaggerConfig.isDefined) {
-      val streamingContextService = new StreamingContextService(SparktaConfig.mainConfig)
-      val curatorFramework = CuratorFactoryHolder.getInstance().get
+      val curatorFramework = CuratorFactoryHolder.getInstance()
       log.info("> Initializing akka actors")
       system = ActorSystem(appName)
       val akkaConfig = SparktaConfig.mainConfig.get.getConfig(AppConstant.ConfigAkka)
@@ -54,9 +53,8 @@ object SparktaHelper extends SLF4JLogging {
       else AkkaConstant.DefaultControllerActorInstances
       val streamingActorInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
       else AkkaConstant.DefaultStreamingActorInstances
-
       val policyStatusActor = system.actorOf(Props(new PolicyStatusActor()), AkkaConstant.PolicyStatusActor)
-
+      val streamingContextService = new StreamingContextService(Some(policyStatusActor), SparktaConfig.mainConfig)
       implicit val actors = Map(
         AkkaConstant.PolicyStatusActor -> policyStatusActor,
         AkkaConstant.FragmentActor ->
@@ -81,7 +79,7 @@ object SparktaHelper extends SLF4JLogging {
         port = SparktaConfig.swaggerConfig.get.getInt("port"))
 
       log.info("> Actors System UP!")
-    } else log.info("Conig for Sparkta is not defined")
+    } else log.info("Config for Sparkta is not defined")
   }
 
   /**

@@ -19,7 +19,7 @@ package com.stratio.sparkta.driver.util
 import java.io.File
 
 import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, StreamingContextStatusEnum}
+import com.stratio.sparkta.serving.core.models.{SparktaSerializer, AggregationPoliciesModel, StreamingContextStatusEnum}
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.jackson.JsonMethods._
 import org.json4s.native.Serialization._
@@ -31,11 +31,7 @@ import scala.util.{Either, Left, Right}
  * Utils for policies.
  * @author sgomezg
  */
-object PolicyUtils {
-
-  implicit val json4sJacksonFormats = DefaultFormats +
-    new EnumNameSerializer(StreamingContextStatusEnum) +
-    new JsoneyStringSerializer()
+object PolicyUtils extends SparktaSerializer {
 
   /**
    * Method to parse AggregationPoliciesModel from JSON string

@@ -19,23 +19,33 @@ package com.stratio.sparkta.driver.service
 import java.io.File
 import java.net.URI
 
+import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
+import akka.util.Timeout
 import com.stratio.sparkta.driver.SparktaJob
 import com.stratio.sparkta.driver.factory._
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.AppConstant
 import com.stratio.sparkta.serving.core.models._
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{Update, AddListener}
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 import com.typesafe.config.Config
+import org.apache.curator.framework.recipes.cache.NodeCache
 import org.apache.spark.SparkContext
 import org.apache.spark.streaming.StreamingContext
-
+import akka.pattern.ask
+import akka.util.Timeout
+import scala.concurrent.duration._
 import scala.util.{Success, Try}
 
-case class StreamingContextService(generalConfig: Option[Config] = None) extends SLF4JLogging {
+case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, generalConfig: Option[Config] = None)
+  extends SLF4JLogging {
 
+  implicit val timeout: Timeout = Timeout(3.seconds)
   final val OutputsSparkConfiguration = "getSparkConfiguration"
 
   def standAloneStreamingContext(apConfig: AggregationPoliciesModel, files: Seq[File]): Option[StreamingContext] = {
+    runStatusListener(apConfig.id.get)
     SparktaJob.runSparktaJob(getStandAloneSparkContext(apConfig, files), apConfig)
     SparkContextFactory.sparkStreamingInstance
   }
@@ -43,6 +53,7 @@ case class StreamingContextService(generalConfig: Option[Config] = None) extends
   def clusterStreamingContext(apConfig: AggregationPoliciesModel,
                               files: Seq[URI],
                               specifictConfig : Map[String, String]): Option[StreamingContext] = {
+    runStatusListener(apConfig.id.get)
     SparktaJob.runSparktaJob(getClusterSparkContext(apConfig, files, specifictConfig), apConfig)
     SparkContextFactory.sparkStreamingInstance
   }
@@ -62,5 +73,19 @@ case class StreamingContextService(generalConfig: Option[Config] = None) extends
     val pluginsSparkConfig =
       SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix) ++ specifictConfig
     SparkContextFactory.sparkClusterContextInstance(pluginsSparkConfig, classPath)
+  }
+
+  private def runStatusListener(policyId: String) : Unit = {
+    if (policyStatusActor.isDefined) {
+      log.info(s"Listener added for: $policyId")
+      policyStatusActor.get ! AddListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
+        if (policyStatus.status equals PolicyStatusEnum.Stopping) {
+          log.info("Stopping message received from Zookeeper")
+          SparkContextFactory.destroySparkStreamingContext
+          nodeCache.close()
+          policyStatusActor.get ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopped))
+        }
+      })
+    }
   }
 }

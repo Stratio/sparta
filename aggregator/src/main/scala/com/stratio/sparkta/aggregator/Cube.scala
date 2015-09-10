@@ -17,7 +17,6 @@
 package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
-import scala.util.Try
 
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.SparktaConfig
@@ -46,6 +45,8 @@ case class Cube(name: String,
                 checkpointTimeAvailability: Long) {
 
   private lazy val operatorsMap = operators.map(op => op.key -> op).toMap
+  private lazy val rememberPartitioner =
+    Try(SparktaConfig.getDetailConfig.get.getBoolean("rememberPartitioner")).getOrElse(true)
 
   def this(name: String,
            dimension: Dimension,
@@ -87,8 +88,8 @@ case class Cube(name: String,
     val newUpdateFunc = (iterator: Iterator[(DimensionValuesTime,
       Seq[Map[String, JSerializable]],
       Option[Seq[(String, Option[Any])]])]) => {
-      val eventTime = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity) -
-        checkpointTimeAvailability
+      val eventTime =
+        DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity) - checkpointTimeAvailability
       iterator.filter(dimensionsData => {
         dimensionsData._1.time >= eventTime
       })
@@ -96,7 +97,6 @@ case class Cube(name: String,
         updateFunction(values, state).map(result => (dimensionsKey, result))
       }
     }
-    val rememberPartitioner = Try(SparktaConfig.mainConfig.get.getBoolean("spark.rememberPartitioner")).getOrElse(true)
     dimensionsValues.updateStateByKey(
       newUpdateFunc, new HashPartitioner(dimensionsValues.context.sparkContext.defaultParallelism), rememberPartitioner)
   }
@@ -111,9 +111,8 @@ case class Cube(name: String,
   protected def aggregateValues(dimensionsValues: DStream[(DimensionValuesTime, Seq[(String, Option[Any])])]):
   DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     dimensionsValues.mapValues(aggregationValues => {
-      val aggregations = aggregationValues.groupBy { case (name, value) => name }
+      aggregationValues.groupBy { case (name, value) => name }
         .map { case (name, value) => (name, operatorsMap(name).processReduce(value.map(_._2))) }
-      aggregations
     })
   }
 
