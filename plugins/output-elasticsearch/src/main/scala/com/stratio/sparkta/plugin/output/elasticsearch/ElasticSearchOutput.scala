@@ -50,7 +50,7 @@ class ElasticSearchOutput(keyName: String,
 
   override val dateType = getDateTimeType(properties.getString("dateType", None))
 
-  override val nodes = properties.getHostPortConfs("nodes", DEFAULT_NODE, DEFAULT_PORT)
+  override val nodes = getHostPortConfs("nodes", DEFAULT_NODE, DEFAULT_PORT)
 
   @transient private val elasticClient = {
 
@@ -60,7 +60,6 @@ class ElasticSearchOutput(keyName: String,
       ElasticClient.remote(nodes(0)._1, nodes(0)._2)
     }
   }
-
 
   override val idField = properties.getString("idField", None)
 
@@ -110,6 +109,10 @@ class ElasticSearchOutput(keyName: String,
       case _ => structField.name typed FieldType.BinaryType
     })
   }
+  def getHostPortConfs(key: String, defaultHost: String, defaultPort: String): Seq[(String, Int)] = {
 
-  //scalastyle:on
+    val conObj = properties.getConnectionChain(key)
+    conObj.map(c =>
+      (c.get("node").getOrElse(defaultHost), c.get("defaultPort").getOrElse(defaultPort).toInt))
+  }
 }
