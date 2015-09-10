@@ -1,4 +1,5 @@
-<section>
+<section  data-ng-controller="PolicyCubeAccordionCtrl as vm">
+  {{vm.cube}}
   <header class="c-step-content__title c-step-content__title--underlined">
     <h1>
       <span class="c-step-counter">{{wizard.currentStep + 1}}/{{wizard.steps.length}}</span>
@@ -61,11 +62,10 @@
       <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" text-class="" link-url="vm.helpLink"></c-icon-link>
     </div><!--
  --><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
-    <button class="c-button c-button--call-to-action-1" data-ng-click="vm.nextStep()">
-      <i class="icon icon-arrow-right"></i>
-      <span>{{"_CONTINUE_" | translate}}</span>
-    </button>
-  </div>
-
+      <button class="c-button c-button--call-to-action-1" data-ng-click="vm.nextStep()">
+        <i class="icon icon-arrow-right"></i>
+        <span>{{"_CONTINUE_" | translate}}</span>
+      </button>
+    </div>
   </footer>
 </section>
