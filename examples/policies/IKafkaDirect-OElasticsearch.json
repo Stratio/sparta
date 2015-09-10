@@ -13,8 +13,8 @@
       "name": "in",
       "type": "KafkaDirect",
       "configuration": {
-        "topics": "test",
-        "kafkaParams.metadata.broker.list": "localhost:9092",
+        "topics": [{"topic": "test"}],
+        "metadata.broker.list": [{"broker": "localhost", "port": "9092"}],
         "kafkaParams.group.id": "my-spt-grp"
       }
     }

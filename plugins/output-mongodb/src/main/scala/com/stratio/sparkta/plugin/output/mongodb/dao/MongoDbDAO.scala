@@ -41,6 +41,8 @@ trait MongoDbDAO extends Closeable {
   final val LanguageFieldName = "language"
   final val DefaultId = "_id"
   final val DefaultWriteConcern = casbah.WriteConcern.Unacknowledged
+  final val DefaultHost = "localhost"
+  final val DefaultPort = "27017"
 
   def hosts: String
 

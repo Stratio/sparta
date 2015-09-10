@@ -13,8 +13,8 @@
       "name": "in-kafka",
       "type": "Kafka",
       "configuration": {
-        "topics": "detectorStream3",
-        "kafkaParams.zookeeper.connect": "****",
+        "topics": [{"topic": "detector", "partition" : "1"},{"topic": "detector4", "partition" : "1"}],
+        "zookeeper.connect": [{"host": "localhost", "port": "2181"}],
         "kafkaParams.group.id": "testgroup"
       }
     }

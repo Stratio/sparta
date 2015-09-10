@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2014 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,26 @@
 package com.stratio.sparkta.plugin.input.kafka
 
 import com.stratio.sparkta.sdk.JsoneyString
-import org.junit.runner.RunWith
 import org.scalatest.{Matchers, WordSpec}
-import org.scalatest.junit.JUnitRunner
 
-@RunWith(classOf[JUnitRunner])
-class KafkaInputSpec extends WordSpec with Matchers{
 
-  "KafkaInput" should {
-    "Topics match" in {
+class DirectTopicPartitionSpec extends WordSpec with Matchers {
+
+  "getDirectTopicPartition" should {
+
+    "return a tuples (topic,partition)" in {
+      val conn = """[{"topic":"test"}]"""
+      val input = new KafkaDirectInput(Map("topics" -> JsoneyString(conn)))
+      input.getDirectTopicPartition("topics", "topic") should be("test")
+    }
+
+    "return a sequence of tuples (topic,partition)" in {
 
       val conn =
-        """[{"topic":"test","partition":"1"},
-          |{"topic":"test2","partition":"2"},{"topic":"test3","partition":"3"}]""".stripMargin
-      val input = new KafkaInput(Map("topics" -> JsoneyString(conn)))
-      val topicsMap = input.extractTopicsMap()
-      topicsMap.size should be (3)
+        """[{"topic":"test"},{"topic":"test2"},{"topic":"test3"}]"""
+      val input = new KafkaDirectInput(Map("topics" -> JsoneyString(conn)))
+      input.getDirectTopicPartition("topics", "topic") should
+        be("test,test2,test3")
     }
   }
 }
