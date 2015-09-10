@@ -40,12 +40,7 @@ class MongoDbOutput(keyName: String,
 
   override val isAutoCalculateId = true
 
-
-  override val hosts:String = properties.getConnectionConfs("hosts", "host", "port")
-
-
-
-  val mongoDbDataFrameConnection = hosts.replaceAll("mongodb://", "")
+  override val hosts = getConnectionConfs("hosts", "host", "port")
 
   override val dbName = properties.getString("dbName", "sparkta")
 
@@ -84,7 +79,7 @@ class MongoDbOutput(keyName: String,
 
   private def getDataFrameOptions(tableName: String, timeDimension: String): Map[String, String] =
     Map(
-      "host" -> mongoDbDataFrameConnection,
+      "host" -> hosts,
       "database" -> dbName,
       "collection" -> tableName) ++ getPrimaryKeyOptions(timeDimension) ++ {
       if (language.isDefined) Map("language" -> language.get) else Map()
@@ -97,5 +92,13 @@ class MongoDbOutput(keyName: String,
         Map("searchFields" -> Seq(Output.Id, timeDimension).mkString(","))
       } else Map()
     }
+  private def getConnectionConfs(key: String, firstJsonItem: String, secondJsonItem: String): String = {
+    val conObj = properties.getConnectionChain(key)
+    conObj.map(c => {
+      val host = c.get(firstJsonItem).getOrElse(DefaultHost)
+      val port = c.get(secondJsonItem).getOrElse(DefaultPort)
+      s"$host:$port"
+    }).mkString(",")
+  }
 }
 

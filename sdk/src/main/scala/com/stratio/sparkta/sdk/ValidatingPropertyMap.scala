@@ -37,11 +37,6 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
         throw new IllegalStateException(s"$key is mandatory")
     }
 
-  def getConnectionConfs(key: K, firstJsonItem: String, secondJsonItem: String): String = {
-    val conObj = getConnectionChain(key)
-    conObj.map(c => c.get(firstJsonItem).get + ":" + c.get(secondJsonItem).get).mkString(",")
-  }
-
 
   def getHostPortConfs(key: K, defaultHost: String, defaultPort: String): Seq[(String, Int)] = {
 
