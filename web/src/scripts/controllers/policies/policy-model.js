@@ -22,15 +22,10 @@
         vm.model = model;
       }
       else {
-       vm.model = ModelFactory.GetNewModel();
-             vm.inputList = ModelFactory.GetModelInputs();
+        vm.model = ModelFactory.GetNewModel();
       }
-
-      vm.model.inputField = ModelStaticDataFactory.defaultInput[0];
-
       vm.policy = PolicyModelFactory.GetCurrentPolicy();
       vm.templateModelData = ModelStaticDataFactory;
-
     }
   }
 })();

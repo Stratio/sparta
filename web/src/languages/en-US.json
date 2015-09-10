@@ -144,8 +144,6 @@
       "_OPERATOR_": "Operator"
     },
     "_ADD_MODEL_": "Add model",
-    "_MODEL_ERROR_": "There are some errors in the introduced data. Please, check them and try it again",
-    "_CUBE_ERROR_": "There are some errors in the introduced data. Please, check them and try it again",
     "_DIMENSIONS_": "Dimensions",
     "_OPERATORS_": "Operators",
     "_FIELDS_": "Fields",
@@ -194,5 +192,6 @@
   "_INTERVAL_":"Interval",
   "_TIME_AVAILABILITY_": "Time availability",
   "_GRANULARITY_": "Granularity",
-  "SELECT_PLACEHOLDER": "Select one"
+  "SELECT_PLACEHOLDER": "Select one",
+  "_GENERIC_FORM_ERROR_": "There are some errors in the introduced data. Please, check them and try it again"
 }

@@ -27,7 +27,7 @@
       var models = vm.policy.models;
       if (models.length > 0) {
         vm.granularityOptions = CubeStaticDataFactory.GetGranularityOptions();
-        vm.outputList = models[models.length - 1].outputs;
+        vm.outputList = models[models.length - 1].outputFields;
         vm.functionList = CubeStaticDataFactory.GetFunctions();
       }
     }
