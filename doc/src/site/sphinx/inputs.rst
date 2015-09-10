@@ -14,6 +14,8 @@ Input Configuration
 
 - :ref:`twitter-label`
 
+- :ref:`websocket-label`
+
 
 ----------------------
 
@@ -256,5 +258,35 @@ Reads events from Twitter API
 | Configuration:    | It allows you to search tweets based on the words of this | Yes        |
 | termsOfSearch     | field. If you don't use this field, she search will be    |            |
 |                   | base on the global trending topics                        |            |
++-------------------+-----------------------------------------------------------+------------+
+
+.. _websocket-label:
+
+Input-websocket
+=========
+Reads events from a websocket stream
+
+* Sample:
+::
+
+  "input":
+      {
+      "name": "in-websocket",
+      "type": "WebSocket",
+         "configuration": {
+           "url": "ws://stream.meetup.com/2/rsvps"
+      }
+    }
+
++-------------------+-----------------------------------------------------------+------------+
+| Property          | Description                                               | Optional   |
++===================+===========================================================+============+
+| name              | Name of the input                                         | No         |
++-------------------+-----------------------------------------------------------+------------+
+| type              | The Type of the input it's used to instantiate specific   | No         |
+|                   | classes                                                   |            |
++-------------------+-----------------------------------------------------------+------------+
+| Configuration:    | Url for the stream                                        | No         |
+| url               |                                                           |            |
 +-------------------+-----------------------------------------------------------+------------+
 
