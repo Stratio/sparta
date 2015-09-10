@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.plugin.input.kafka
 
+import com.stratio.sparkta.sdk.{JsoneyString, ValidatingPropertyMap}
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
@@ -27,7 +28,7 @@ class ConnectionConfSpec extends WordSpec with Matchers {
       val conn = """[{"host":"localhost","port":"60000"},{"host":"localhost","port":"60000"}]"""
       val validating: ValidatingPropertyMap[String, JsoneyString] =
         new ValidatingPropertyMap[String, JsoneyString](Map("hosts" -> JsoneyString(conn)))
-      validating.getConnectionConfs("hosts") should be("localhost:60000,localhost:60000")
+      validating.getConnectionConfs("hosts", "host", "port") should be("localhost:60000,localhost:60000")
     }
   }
 

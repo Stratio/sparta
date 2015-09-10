@@ -41,7 +41,7 @@ class MongoDbOutput(keyName: String,
   override val isAutoCalculateId = true
 
 
-  override val hosts:String = properties.getConnectionConfs("hosts")
+  override val hosts:String = properties.getConnectionConfs("hosts", "host", "port")
 
 
 
