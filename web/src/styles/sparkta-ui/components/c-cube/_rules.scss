@@ -1,21 +1,28 @@
 @mixin c-cube {
 	@include c-component;
 
-	background: lightgrey;
-	border-right: 1px solid grey;
-	color: black;
+	background: $c-cube---background;
+	color: $c-cube---color;
+
+	&:first-child {
+		border-right: $c-cube--first-child---border-right;
+	}
 
 	&__title {
-		background: grey;
-		color: white;
+		background: $c-cube__title---background;
+		color: $c-cube__title---color;
 		display: block;
-		padding: 20px 15px 5px;
-		text-transform: uppercase;
+		padding: $c-cube__title---padding;
+		text-transform: $c-cube__title---text-transform;
+
+		&--2 {
+			background-color: $c-cube__title--2---background;
+			color: $c-cube__title--2---color;
+		}
 	}
 
 	&__section {
-		background-color: blue;
-		padding: 20px 10px;
+		padding: $c-cube__section---padding;
 	}
 
 	&__field {
@@ -23,24 +30,24 @@
 		position: relative;
 
 		&-wrapper {
-			padding: 10px;
+			padding: $c-cube__field-wrapper---padding;
 		}
 
 		&-icon, &-name {
 			display: inline-block;
-			padding: 10px;
+			padding: $c-cube__field-icon---padding;
 			vertical-align: middle;
 		}
 
 		&-icon {
-			background-color: lightgray;
+			background: $c-cube__field-icon---background;
 		}
 
 		&-name {
-			background: white;
-			left: 36px;
+			background: $c-cube__field-name---background;
+			left: $c-cube__field-name---left;
 			position: absolute;
-			right: 0;
+			right: $c-cube__field-name---right;
 		}
 	}
 }

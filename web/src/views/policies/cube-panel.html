@@ -1,61 +1,65 @@
 <section ng-controller="CubeCtrl as vm" data-ng-model="vm.cube" ng-init="vm.init(cube)">
-  <div ng-show="vm.showModelError" class="c-row c-msg c-msg--small c-msg--error">
+  <div ng-show="vm.showModelError" class="c-row c-row--flex c-msg c-msg--small c-msg--error">
     <i class="c-icon icon-circle-cross"></i>
     <span>{{"_POLICY_._CUBE_ERROR_" | translate}}</span>
   </div>
 
-  <div class="c-cube c-col c-col--5 c-col--vertical-top">
-    <label class="c-cube__title c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._FIELDS_" | translate}}</label>
+  <div class="c-row c-row--flex">
+    <div class="c-cube c-col c-col--5 c-col--vertical-top">
+      <label class="c-cube__title c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._FIELDS_" | translate}}</label>
 
-    <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
-      <!--OUTPUTS-->
-      <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered" ng-repeat="output in vm.outputList track by $index">
-        <div class="c-cube__field" ng-click="vm.addOutputToDimensions(output)">
-          <span class="c-cube__field-name">{{output}}</span><!--
-          --><span class="c-cube__field-icon c-icon icon-circle-plus"></span>
+      <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
+        <!--OUTPUTS-->
+        <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered" ng-repeat="output in vm.outputList track by $index">
+          <div class="c-cube__field" ng-click="vm.addOutputToDimensions(output)">
+            <span class="c-cube__field-name">{{output}}</span><!--
+            --><span class="c-cube__field-icon c-icon icon-circle-plus"></span>
+          </div>
         </div>
+
       </div>
+    </div><!--
 
-    </div>
-  </div><!--
+    --><div class="c-cube c-col c-col--5 c-col--vertical-top">
+      <label class="c-cube__title c-cube__title--2 c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._DIMENSIONS_" | translate}}</label>
 
-  --><div class="c-cube c-col c-col--5 c-col--vertical-top">
-    <label class="c-cube__title c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._DIMENSIONS_" | translate}}</label>
-
-    <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
-      <!--DIMENSIONS-->
-      <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered" ng-repeat="dimension in  vm.cube.dimensions">
-        <div class="c-cube__field" ng-click="vm.removeOutputFromDimensions()">
-          <span class="c-cube__field-name">{{dimension.name}}</span><!--
-          --><span class="c-cube__field-icon c-icon icon-circle-minus"></span>
-        </div>
-      </div>
-    </div>
-  </div><!--
-
-  --><div class="c-cube c-col c-col--5 c-col--vertical-top">
-    <label class="c-cube__title c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._FUNCTIONS_" | translate}}</label>
-
-    <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
-      <!--_FUNCTIONS_-->
-      <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered" ng-repeat="function in  vm.functionList track by $index">
-        <div class="c-cube__field" ng-click="vm.addFunctionToOperators(function)">
-          <span class="c-cube__field-name">{{function}}</span>
-          <span class="c-cube__field-icon c-icon icon-circle-plus"></span>
+      <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
+        <!--DIMENSIONS-->
+        <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered" ng-repeat="dimension in  vm.cube.dimensions">
+          <div class="c-cube__field" ng-click="vm.removeOutputFromDimensions()">
+            <span class="c-cube__field-name">{{dimension.name}}</span><!--
+            --><span class="c-cube__field-icon c-icon icon-circle-minus"></span>
+          </div>
         </div>
       </div>
     </div>
-  </div><!--
+  </div>
+  
+  <div class="c-row c-row--flex">
+    <div class="c-cube c-col c-col--5 c-col--vertical-top">
+      <label class="c-cube__title c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._FUNCTIONS_" | translate}}</label>
 
-  --><div class="c-cube c-col c-col--5 c-col--vertical-top">
-    <label class="c-cube__title c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._OPERATORS_" | translate}}</label>
+      <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
+        <!--_FUNCTIONS_-->
+        <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered" ng-repeat="function in  vm.functionList track by $index">
+          <div class="c-cube__field" ng-click="vm.addFunctionToOperators(function)">
+            <span class="c-cube__field-name">{{function}}</span>
+            <span class="c-cube__field-icon c-icon icon-circle-plus"></span>
+          </div>
+        </div>
+      </div>
+    </div><!--
 
-    <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
-      <!--OPERATORS-->
-      <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered" ng-repeat="operator in vm.cube.operators track by $index">
-        <div class="c-cube__field" ng-click="vm.removeFunctionFromOperators(operator)">
-          <span class="c-cube__field-name">{{operator.name}}</span>
-          <span class="c-cube__field-icon c-icon icon-circle-minus"></span>
+    --><div class="c-cube c-col c-col--5 c-col--vertical-top">
+      <label class="c-cube__title c-cube__title--2 c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._OPERATORS_" | translate}}</label>
+
+      <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
+        <!--OPERATORS-->
+        <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered" ng-repeat="operator in vm.cube.operators track by $index">
+          <div class="c-cube__field" ng-click="vm.removeFunctionFromOperators(operator)">
+            <span class="c-cube__field-name">{{operator.name}}</span>
+            <span class="c-cube__field-icon c-icon icon-circle-minus"></span>
+          </div>
         </div>
       </div>
     </div>
