@@ -1,0 +1,96 @@
+{
+  "name": "policy-rabbit",
+  "description": "Input rabbit, output print",
+  "sparkStreamingWindow": 2000,
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": "myTestParquetPath"
+  },
+  "checkpointPath": "checkpoint",
+  "input":
+  {
+    "name": "in",
+    "type": "RabbitMQ",
+    "configuration": {
+      "queue": "test",
+      "host": "localhost",
+      "port": "5672",
+      "exchangeName": "twitterExchange",
+      "routingKeys": [{"routingKey": "routingKey1"},{"routingKey": "routingKey2"}]
+    }
+  }
+,
+  "transformations": [
+    {
+      "name": "morphline",
+      "order": 0,
+      "type": "Morphlines",
+      "jarFile": "parser-morphlines-plugin.jar",
+      "outputFields": [
+        "appName",
+        "timestamp",
+        "geo",
+        "tag",
+        "twitterStatus"
+      ],
+      "configuration": {
+        "morphline": {
+          "id": "test1",
+          "importCommands": [
+            "org.kitesdk.**"
+          ],
+          "commands": [
+            {
+              "readJson": {}
+            },
+            {
+              "extractJsonPaths": {
+                "paths": {
+                  "appName": "/appName",
+                  "timestamp": "/timestamp",
+                  "geo": "/geo",
+                  "tag": "/tag",
+                  "twitterStatus": "/twitterStatus"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "cubes": [
+    {
+      "name": "testCube",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
+      "dimensions": [
+        {
+          "field": "appName",
+          "name": "appName"
+        }
+      ],
+      "operators": [
+        {
+          "name": "countoperator",
+          "type": "Count",
+          "jarFile": "operator-count-plugin.jar",
+          "configuration": {}
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-print",
+      "type": "Print",
+      "jarFile": "output-print-plugin.jar",
+      "configuration": {}
+    }
+  ]
+}
