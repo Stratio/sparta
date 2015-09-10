@@ -50,6 +50,7 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
           case Some(value) => value.toString.toInt
           case None => defaultPort.toInt
         }))
+
   }
 
   def getConnectionChain(key: K): Seq[Map[String,String]] = {
