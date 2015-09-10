@@ -20,7 +20,7 @@
   </div>
 
   <div class="c-form-group">
-    <c-input-list-field form-control-class="'c-form-control c-form-control--full-width'" label-control-class="'c-label c-col c-col--12'" data-inputs="vm.model.inputs" label-control-text="'_INPUT_FIELDS_' | translate" readonly="'true'"></c-input-list-field>
+    <c-input-list-field form-control-class="'c-form-control c-form-control--full-width'" label-control-class="'c-label c-col c-col--12'" data-inputs="vm.model.inputs" label-control-text="'_INPUT_FIELDS_' | translate" readonly="'true'" data-enable-delete="false"></c-input-list-field>
   </div>
 
   <div class="c-form-group">
@@ -31,9 +31,11 @@
   </div>
 
   <div class="c-form-group">
-    <c-input-list-field form-control-class="'c-form-control c-form-control--full-width'" data-inputs="vm.model.outputs" label-control-class="'c-label c-col c-col--12'" label-control-text="'_OUTPUTS_FIELDS_' | translate" readonly="'true'"></c-input-list-field>
+    <div class="c-form-control c-form-control--full-width">
+      <c-input-list-field form-control-class="" data-inputs="vm.model.outputs" label-control-class="'c-label c-col c-col--12'" label-control-text="'_OUTPUTS_FIELDS_' | translate" readonly="'true'" data-enable-delete="true"></c-input-list-field>
 
-    <c-add-element model="vm.model.outputs" icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action c-info-text__icon icon-circle-plus'" type="'text'"></c-add-element>
+      <c-add-element model="vm.model.outputs" icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action c-info-text__icon icon-square-plus'" type="'text'"></c-add-element>
+    </div>
   </div>
 
 

@@ -24,28 +24,16 @@
     return directive;
 
     function link(scope) {
-      scope.showInputField = showInputField;
-      scope.hideInputField = hideInputField;
       scope.addInput = addInput;
 
-      function showInputField() {
-        scope.showInput = true;
-      }
-
-      function hideInputField() {
-        scope.showInput = false;
-      }
-
-      function addInput(event, element) {
-        if (event.keyCode == '13') {
-          scope.model.push(element.inputToAdd);
-          scope.hideInputField();
+      function addInput(event) {
+        if (scope.inputToAdd !== '' && scope.inputToAdd !== undefined && (event.keyCode == '13' || event.type === "click")) {
+          scope.model.push(scope.inputToAdd);
+          scope.inputToAdd = '';
+          event.preventDefault();
         }
       }
-
     }
-
-
   };
 })();
 

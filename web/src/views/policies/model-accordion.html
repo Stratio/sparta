@@ -9,7 +9,7 @@
 
   <p class="c-info-text c-info-text--narrow"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._MODEL_INTRO_" | translate}}</span></p>
 
-  <form class="c-form c-panel c-panel--framed" >
+  <form class="c-form c-panel c-panel--framed" novalidate>
     <accordion class="c-accordion">
       <div class="c-accordion-item">
         <accordion-group is-open=vm.accordionStatus[$index] ng-repeat="currentModel in vm.policy.models track by $index" ng-model="currentModel">
