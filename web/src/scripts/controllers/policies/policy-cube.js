@@ -26,7 +26,7 @@
       vm.policy = PolicyModelFactory.GetCurrentPolicy();
       var models = vm.policy.models;
       if (models.length > 0) {
-        vm.templateCubeData = CubeStaticDataFactory;
+        vm.granularityOptions = CubeStaticDataFactory.GetGranularityOptions();
         vm.outputList = models[models.length - 1].outputs;
         vm.functionList = CubeStaticDataFactory.GetFunctions();
       }
