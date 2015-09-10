@@ -1,10 +1,10 @@
 @font-face {
 	font-family: 'ico_stratio';
-	src:url('vendors/stratio-fonticon/ico_stratio.eot?-yh5qdg');
-	src:url('vendors/stratio-fonticon/ico_stratio.eot?#iefix-yh5qdg') format('embedded-opentype'),
-		url('vendors/stratio-fonticon/ico_stratio.ttf?-yh5qdg') format('truetype'),
-		url('vendors/stratio-fonticon/ico_stratio.woff?-yh5qdg') format('woff'),
-		url('vendors/stratio-fonticon/ico_stratio.svg?-yh5qdg#ico_stratio') format('svg');
+	src:url('vendors/stratio-fonticon/ico_stratio.eot?-h2pkjo');
+	src:url('vendors/stratio-fonticon/ico_stratio.eot?#iefix-h2pkjo') format('embedded-opentype'),
+		url('vendors/stratio-fonticon/ico_stratio.ttf?-h2pkjo') format('truetype'),
+		url('vendors/stratio-fonticon/ico_stratio.woff?-h2pkjo') format('woff'),
+		url('vendors/stratio-fonticon/ico_stratio.svg?-h2pkjo#ico_stratio') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -23,6 +23,18 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
+.icon-datetime:before {
+	content: "\e64d";
+}
+.icon-morphline:before {
+	content: "\e64e";
+}
+.icon-type:before {
+	content: "\e64f";
+}
+.icon-websocket:before {
+	content: "\e650";
+}
 .icon-csv:before {
 	content: "\e647";
 }
@@ -580,6 +592,9 @@
 }
 .icon-check:before {
 	content: "\e116";
+}
+.icon-check2:before {
+	content: "\e64c";
 }
 .icon-cross:before {
 	content: "\e117";
