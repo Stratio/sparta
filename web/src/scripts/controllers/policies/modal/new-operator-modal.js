@@ -1,4 +1,4 @@
-(function() {
+(function () {
   'use strict';
 
   /*DELETE INPUT MODALS CONTROLLER */
@@ -6,19 +6,20 @@
     .module('webApp')
     .controller('NewOperatorModalCtrl', NewOperatorModalCtrl);
 
-  NewOperatorModalCtrl.$inject = ['$modalInstance', 'functionName', 'CubeStaticDataFactory'];
+  NewOperatorModalCtrl.$inject = ['$modalInstance', 'operatorName','operatorType', 'PolicyStaticDataFactory'];
 
-  function NewOperatorModalCtrl($modalInstance, functionName, CubeStaticDataFactory) {
+  function NewOperatorModalCtrl($modalInstance, operatorName, operatorType,PolicyStaticDataFactory) {
     /*jshint validthis: true*/
     var vm = this;
 
     vm.ok = ok;
     vm.cancel = cancel;
     vm.operator = {};
-    vm.operator.name = functionName;
+    vm.operator.name = operatorName;
     vm.operator.configuration = "";
-    vm.operator.type = "";
-    vm.configHelpLink =CubeStaticDataFactory.GetConfigurationHelpLink();
+    vm.operator.type = operatorType;
+    vm.configHelpLink = PolicyStaticDataFactory.configurationHelpLink;
+    vm.configPlaceholder = PolicyStaticDataFactory.configPlaceholder;
 
     ///////////////////////////////////////
 

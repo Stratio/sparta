@@ -193,5 +193,6 @@
   "_TIME_DIMENSION_": "Time dimension",
   "_INTERVAL_":"Interval",
   "_TIME_AVAILABILITY_": "Time availability",
-  "_GRANULARITY_": "Granularity"
+  "_GRANULARITY_": "Granularity",
+  "SELECT_PLACEHOLDER": "Select one"
 }

@@ -4,15 +4,16 @@
   /*POLICY MODEL CONTROLLER*/
   angular
     .module('webApp')
-    .controller('PolicyModelCtrl',PolicyModelCtrl);
+    .controller('PolicyModelCtrl', PolicyModelCtrl);
 
-  PolicyModelCtrl.$inject = ['ModelFactory','PolicyModelFactory','ModelStaticDataFactory'];
+  PolicyModelCtrl.$inject = ['ModelFactory', 'PolicyModelFactory', 'ModelStaticDataFactory', 'PolicyStaticDataFactory'];
 
-  function PolicyModelCtrl(ModelFactory,PolicyModelFactory, ModelStaticDataFactory) {
+  function PolicyModelCtrl(ModelFactory, PolicyModelFactory, ModelStaticDataFactory, PolicyStaticDataFactory) {
     var vm = this;
     vm.init = init;
 
     vm.showModelError = false;
+    vm.configPlaceholder = PolicyStaticDataFactory.configPlaceholder;
 
     vm.init();
 
@@ -23,7 +24,5 @@
       vm.policy = PolicyModelFactory.GetCurrentPolicy();
       vm.templateModelData = ModelStaticDataFactory;
     }
-
-
   }
 })();

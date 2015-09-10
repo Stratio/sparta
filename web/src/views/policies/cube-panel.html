@@ -20,9 +20,9 @@
     <div class="c-row c-row--flex c-col c-col--5">
       <div class="c-form-group">
         <form-field-input data-form="vm.form" data-st-name="interval-form" data-model="vm.cube.checkpointConfig.interval"
-                          data-label="{{'_INTERVAL_' | translate}}" data-help="" data-pattern=""
+                          data-label="{{'_INTERVAL_' | translate}}" data-help="" data-pattern="'\\d*'"
                           data-required="true" placeholder="1" required="true"
-                          data-type="number"></form-field-input>
+                          data-type="text"></form-field-input>
       </div>
     </div>
 
@@ -30,9 +30,9 @@
       <div class="c-form-group">
         <form-field-input data-form="vm.form" data-st-name="time-availability-form"
                           data-model="vm.cube.checkpointConfig.timeAvailability"
-                          data-label="{{'_TIME_AVAILABILITY_' | translate}}" data-help="" data-pattern=""
+                          data-label="{{'_TIME_AVAILABILITY_' | translate}}" data-help="" data-pattern="'\\d*'"
                           data-required="true" placeholder="1" required="true"
-                          data-type="number"></form-field-input>
+                          data-type="text"></form-field-input>
       </div>
     </div>
 

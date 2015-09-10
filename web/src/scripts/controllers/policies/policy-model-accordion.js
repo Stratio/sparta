@@ -34,6 +34,7 @@
       vm.error = false;
       if (isValidModel()) {
         var newModel = angular.copy(vm.newModel);
+        newModel.order = vm.policy.models.length +1;
         vm.policy.models.push(newModel);
         ModelFactory.ResetNewModel();
         AccordionStatusService.ResetAccordionStatus(vm.policy.models.length);

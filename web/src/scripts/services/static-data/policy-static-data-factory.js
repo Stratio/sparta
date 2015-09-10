@@ -98,6 +98,10 @@
         models: 'http://docs.stratio.com/modules/sparkta/development/policy.html#transformations',
         cubes: 'http://docs.stratio.com/modules/sparkta/development/policy.html#cubes',
         outputs: 'http://docs.stratio.com/modules/sparkta/development/policy.html#outputs'
+      },
+      configPlaceholder: '{    \n    "inputFormat": "unixMillis", \n   "dbName": "sparkta"\n}',
+      configurationHelpLink: function () {
+        return "http://docs.stratio.com/modules/sparkta/development/transformations.html";
       }
     }
   }

@@ -1,7 +1,7 @@
 <section data-ng-controller="PolicyDescriptionCtrl as vm">
   <header class="c-step-content__title c-step-content__title--underlined">
     <h1>
-      <span class="c-step-counter">{{wizard.currentStep + 1}}/{{wizard.steps.length}}</span>
+      <span class="c-step-counter">{{wizard.status.currentStep + 1}}/{{wizard.steps.length}}</span>
       <i class="c-step-counter__icon c-icon c-icon--small icon-arrow2_right"></i>
       <span class="c-step-content__title-text">{{"_POLICY_._STEPS_._DESCRIPTION_" | translate}}</span>
     </h1>

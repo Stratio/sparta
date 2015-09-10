@@ -27,7 +27,7 @@
     <c-icon-label wrapper-control-class="'c-label c-col c-col--12'" icon-class="'icon-info1'" data-text="('_CONFIGURATION_' | translate)"
                   text-class="" icon-url="vm.templateModelData.configHelpLink"></c-icon-label>
 
-    <textarea class="c-textarea c-textarea--full-width" ng-model="vm.model.configuration"/>
+    <textarea class="c-textarea c-textarea--full-width" ng-model="vm.model.configuration" placeholder = {{vm.configPlaceholder}} />
   </div>
 
   <div class="c-form-group">
