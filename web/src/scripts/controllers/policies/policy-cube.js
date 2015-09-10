@@ -10,11 +10,13 @@
 
   function CubeCtrl(CubeStaticDataFactory, CubeModelFactory, PolicyModelFactory, $modal) {
     var vm = this;
+
     vm.init = init;
     vm.addOutputToDimensions = addOutputToDimensions;
     vm.removeOutputFromDimensions = removeOutputFromDimensions;
     vm.addFunctionToOperators = addFunctionToOperators;
     vm.removeFunctionFromOperators = removeFunctionFromOperators;
+
     vm.init();
 
     function init(cube) {
