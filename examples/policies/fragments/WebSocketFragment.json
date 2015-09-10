@@ -1,0 +1,13 @@
+{
+  "fragmentType": "input",
+  "name": "websocket",
+  "description": "websocket input",
+  "shortDescription": "websocket input",
+  "element": {
+    "name": "in-websocket",
+    "type": "WebSocket",
+    "configuration": {
+      "url": "ws://stream.meetup.com/2/rsvps"
+    }
+  }
+}

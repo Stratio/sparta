@@ -1,0 +1,19 @@
+{
+  "fragmentType": "output",
+  "name": "Mongo",
+  "description": "Mongo input",
+  "shortDescription": "Mongo input",
+  "element": {
+    "name": "out-Mongo",
+    "type": "MongoDb",
+    "configuration": {
+      "hosts": [
+        {
+          "host": "localhost",
+          "port": "27017"
+        }
+      ],
+      "dbName": "sparkta"
+    }
+  }
+}
