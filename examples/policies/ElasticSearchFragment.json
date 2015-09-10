@@ -1,0 +1,20 @@
+{
+  "fragmentType": "output",
+  "name": "Elasticsearch",
+  "description": "Elasticsearch input",
+  "shortDescription": "Elasticsearch input",
+  "element": {
+    "name": "out-Elasticsearch",
+    "type": "Elasticsearch",
+    "configuration": {
+      "nodes": [
+        {
+          "node": "localhost",
+          "defaultPort": "9200"
+        }
+      ],
+      "isAutoCalculateId": "true",
+      "indexMapping": "day"
+    }
+  }
+}
