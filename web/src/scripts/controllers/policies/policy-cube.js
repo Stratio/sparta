@@ -10,11 +10,13 @@
 
   function CubeCtrl(CubeStaticDataFactory, CubeModelFactory, PolicyModelFactory, $modal) {
     var vm = this;
+
     vm.init = init;
     vm.addOutputToDimensions = addOutputToDimensions;
     vm.removeOutputFromDimensions = removeOutputFromDimensions;
     vm.addFunctionToOperators = addFunctionToOperators;
     vm.removeFunctionFromOperators = removeFunctionFromOperators;
+
     vm.init();
 
     function init(cube) {
@@ -24,7 +26,7 @@
       vm.policy = PolicyModelFactory.GetCurrentPolicy();
       var models = vm.policy.models;
       if (models.length > 0) {
-        vm.templateCubeData = CubeStaticDataFactory;
+        vm.granularityOptions = CubeStaticDataFactory.GetGranularityOptions();
         vm.outputList = models[models.length - 1].outputs;
         vm.functionList = CubeStaticDataFactory.GetFunctions();
       }

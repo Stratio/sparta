@@ -188,6 +188,10 @@
   "_MINUTE_": "Minute",
   "_HOUR_": "Hour",
   "_DAY_": "Day",
-  "_DAY_": "Month",
-  "_Year_": "Month"
+  "_MONTH_": "Month",
+  "_YEAR_": "Month",
+  "_TIME_DIMENSION_": "Time dimension",
+  "_INTERVAL_":"Interval",
+  "_TIME_AVAILABILITY_": "Time availability",
+  "_GRANULARITY_": "Granularity"
 }
