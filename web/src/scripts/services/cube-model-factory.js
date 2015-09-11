@@ -10,12 +10,13 @@
 
     function init() {
       cube.name = "";
+
       cube.dimensions = [];
       cube.operators = [];
       cube.checkpointConfig = {};
       cube.checkpointConfig.timeDimension = "";
-      cube.checkpointConfig.interval = "";
-      cube.checkpointConfig.timeAvailability = "";
+      cube.checkpointConfig.interval = null;
+      cube.checkpointConfig.timeAvailability = null;
       cube.checkpointConfig.granularity = "";
     };
 
