@@ -47,7 +47,7 @@
     <textarea ng-if="!disabled" class="c-textarea c-textarea--full-width" ng-model="vm.model.configuration"
               placeholder={{vm.configPlaceholder}} data-ng-readonly="disabled"/>
 
-      <p class="c-textarea c-textarea--full-width" ng-if="disabled" ng-model="vm.model.configuration">
+      <p class="c-textarea c-textarea--disabled c-textarea--full-width" ng-if="disabled" ng-model="vm.model.configuration">
         {{vm.model.configuration | json}}</p>
 
       <div class="c-form-group">
