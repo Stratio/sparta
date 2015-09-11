@@ -30,7 +30,7 @@
 
     function addCube() {
       vm.policy.cubes.push(angular.copy(vm.newCube));
-      CubeModelFactory.ResetNewCube();
+      CubeModelFactory.ResetCube();
       AccordionStatusService.ResetAccordionStatus(vm.policy.cubes.length);
     }
 

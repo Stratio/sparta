@@ -13,14 +13,15 @@
       cube.dimensions = [];
       cube.operators = [];
       cube.showCubeError = false;
-      cube.timeDimension = "";
-      cube.interval = "";
-      cube.timeAvailability = "";
-      cube.granularity = "";
+      cube.checkpointConfig = {};
+      cube.checkpointConfig.timeDimension = "";
+      cube.checkpointConfig.interval = "";
+      cube.checkpointConfig.timeAvailability = "";
+      cube.checkpointConfig.granularity = "";
     };
 
     return {
-      ResetNewCube: function () {
+      ResetCube: function () {
         init();
       },
       GetCube: function () {

@@ -33,7 +33,7 @@
 
           defer.resolve();
         }, function (error) {
-          vm.error = error;
+          vm.error = error.data;
           defer.reject();
         });
 
