@@ -9,6 +9,11 @@
 
   <p class="c-info-text c-info-text--narrow"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._MODEL_INTRO_" | translate}}</span></p>
 
+  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.modelError">
+    <i class="c-icon icon-circle-cross"></i>
+    <span>{{"_POLICY_._MODEL_ERROR_" | translate}}</span>
+  </div>
+
   <form class="c-form c-panel c-panel--framed" novalidate>
     <accordion class="c-accordion" ng-model = "vm.policy.models">
       <div class="c-accordion-item">
@@ -39,7 +44,7 @@
           </accordion-heading>
           <div class="c-row c-form-group c-msg c-msg--small c-msg--error" data-ng-if="vm.error">
             <i class="c-icon icon-circle-cross"></i>
-            <span>{{"_GENERIC_FORM_ERROR_" | translate}}</span>
+            <span>{{"_ERROR_ALL_FIELDS_REQUIRED_" | translate}}</span>
           </div>
           <ng-include src="'views/policies/model-panel.html'" ng-init = "model = vm.newModel">
 
