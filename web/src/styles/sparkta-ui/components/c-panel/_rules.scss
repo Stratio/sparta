@@ -8,6 +8,10 @@
 	&--fix-overflow {
 		overflow: auto;
 	}
+
+	&--framed {
+		padding: $c-panel--framed---padding;
+	}
 }
 
 .c-panel {

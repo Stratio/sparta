@@ -1,16 +1,28 @@
 @import 'sparkta-ui/base/settings/colors';
 @import 'sparkta-ui/base/settings/fonts';
+@import 'sparkta-ui/base/settings/layers';
 @import 'sparkta-ui/base/settings/typography';
 
 @import 'sparkta-ui/base/helpers/colors';
 @import 'sparkta-ui/base/helpers/typography';
+@import 'sparkta-ui/base/helpers/layers';
 @import 'sparkta-ui/base/helpers/app-config';
 @import 'sparkta-ui/base/helpers/bem-modifiers';
 @import 'sparkta-ui/base/helpers/angular-forms';
 
 @import 'sparkta-ui/themes/light-platinum';
 
+// Import vendors
+
+@import 'vendors/angular-ui/tooltip';
+@import 'vendors/angular-ui/modal';
+@import 'vendors/angular-ui/accordion';
+
 @import 'vendors/reset-css/reset';
+
+@import '../stratio-ui/style/stratio.ui';
+
+// End import vendors
 
 @import 'app';
 
@@ -32,19 +44,30 @@
 @import 'sparkta-ui/components/c-titlebar/index';
 @import 'sparkta-ui/components/c-icon-text/index';
 @import 'sparkta-ui/components/c-info-text/index';
+@import 'sparkta-ui/components/c-icon-link/index';
 @import 'sparkta-ui/components/c-modal-inner/index';
 @import 'sparkta-ui/components/c-icon-radio/index';
 @import 'sparkta-ui/components/c-msg/index';
 @import 'sparkta-ui/components/c-table/index';
 @import 'sparkta-ui/components/c-checkbox/index';
+@import 'sparkta-ui/components/c-step-progress-bar/index';
+@import 'sparkta-ui/components/c-step/index';
+@import 'sparkta-ui/components/c-step-content/index';
+@import 'sparkta-ui/components/c-step-counter/index';
+@import 'sparkta-ui/components/c-fieldset/index';
+@import 'sparkta-ui/components/c-slider/index';
+@import 'sparkta-ui/components/c-check-block/index';
+@import 'sparkta-ui/components/c-textarea/index';
+@import 'sparkta-ui/components/c-tag/index';
+@import 'sparkta-ui/components/c-cube/index';
 
 @import 'sparkta-ui/objects/o-media';
 @import 'sparkta-ui/objects/o-wcag-hidden';
 
-@import 'vendors/angular-ui/tooltip';
-@import 'vendors/angular-ui/modal';
+// Vendor customizations
 
-@import 'custom/angular-ui/tooltip';
+@import 'custom/angular-ui/components/tooltip';
+@import 'custom/angular-ui/components/c-accordion/index';
 @import 'custom/stratio-ui/components/c-grid-item/index';
 
-@import '../stratio-ui/style/stratio.ui';
+// End vendor customizations

@@ -1,0 +1,396 @@
+[
+	{
+  "name": "Cassandra",
+  "modelType": "Cassandra",
+  "description": {
+    "short": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "long": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#cassandra-label"
+  },
+  "properties": [
+    {
+      "propertyId": "connectionHost",
+      "propertyName": "_CONTACT_POINT_",
+      "propertyType": "text",
+      "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+      "default": "localhost",
+      "required": true,
+      "tooltip": ""
+    },
+    {
+      "propertyId": "connectionPort",
+      "propertyName": "_PORT_",
+      "propertyType": "text",
+      "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
+      "default": "9042",
+      "required": true,
+      "tooltip": "Cassandra port",
+      "hidden": false
+    },
+    {
+      "propertyId": "keyspace",
+      "propertyName": "_KEYSPACE_",
+      "propertyType": "text",
+      "regexp": "",
+      "default": "Sparkta",
+      "required": true,
+      "tooltip": "Keyspace name."
+    },
+    {
+      "propertyId": "keyspaceClass",
+      "propertyName": "_KEYSPACE_CLASS_",
+      "propertyType": "select",
+      "regexp": "simpleStrategy|networkTopologyStrategy",
+      "values":
+      [
+        {"label":"SimpleStrategy","value":"simpleStrategy"},
+        {"label":"NetworkTopologyStrategy","value":"networkTopologyStrategy"}
+      ],
+      "default": "simpleStrategy",
+      "required": true,
+      "tooltip": "KeySpace class."
+    },
+    {
+      "propertyId": "replication_factor",
+      "propertyName": "_REPLICATION_FACTOR_",
+      "propertyType": "text",
+      "regexp": "\\d*",
+      "default": "1",
+      "required": true,
+      "tooltip": "Specifies the number of replicas of data on multiple nodes."
+    },
+    {
+      "propertyId": "compactStorage",
+      "propertyName": "_COMPACT_STORAGE_",
+      "propertyType": "boolean",
+      "regexp": "true|false",
+      "default": false,
+      "required": false,
+      "tooltip": "The compact storage directive is used for backward compatibility of CQL 2 applications and data in the legacy (Thrift) storage engine format. To take advantage of CQL 3 capabilities, do not use this directive in new applications. When you create a table using compound primary keys, for every piece of data stored, he column name needs to be stored along with it. Instead of each non-primary key column being stored such that each column corresponds to one column on disk, an entire row is stored in a single column on disk, hence the name compact storage."
+    },
+    {
+      "propertyId": "analyzer",
+      "propertyName": "_ANALYZER_",
+      "propertyType": "text",
+      "regexp": "",
+      "default": "english",
+      "required": false,
+      "tooltip": "The analyzer for text index fields, this feature is for the Stratio’s Cassandra Lucene Index"
+    },
+    {
+      "propertyId": "refreshSeconds",
+      "propertyName": "_REFRESH_SECONDS_",
+      "propertyType": "text",
+      "regexp": "\\d*",
+      "default": "1",
+      "required": false,
+      "tooltip": "The number of seconds between refresh lucene index operations, this feature is for the Stratio’s Cassandra Lucene Index"
+    },
+    {
+      "propertyId": "dateFormat",
+      "propertyName": "_DATE_FORMAT_",
+      "propertyType": "select",
+      "regexp": "",
+      "values":
+      [
+        {
+          "label":"yyyy-mm-dd HH:mm",
+          "value":"yyyy-mm-dd HH:mm"
+        },
+        {
+          "label":"yyyy-mm-dd HH:mm:ss",
+          "value":"yyyy-mm-dd HH:mm:ss"
+        },
+        {
+          "label":"yyyy-mm-dd HH:mmZ",
+          "value":"yyyy-mm-dd HH:mmZ"
+        },
+        {
+          "label":"yyyy-mm-dd HH:mm:ssZ",
+          "value":"yyyy-mm-dd HH:mm:ssZ"
+        },
+        {
+          "label":"yyyy-mm-dd'T'HH:mm",
+          "value":"yyyy-mm-dd'T'HH:mm"
+        },
+        {
+          "label":"yyyy-mm-dd'T'HH:mmZ",
+          "value":"yyyy-mm-dd'T'HH:mmZ"
+        },
+        {
+          "label":"yyyy-mm-dd'T'HH:mm:ss",
+          "value":"yyyy-mm-dd'T'HH:mm:ss"
+        },
+        {
+          "label":"yyyy-mm-dd'T'HH:mm:ssZ",
+          "value":"yyyy-mm-dd'T'HH:mm:ssZ"
+        },
+        {
+          "label":"yyyy-mm-dd",
+          "value":"yyyy-mm-dd"
+        },
+        {
+          "label":"yyyy-mm-ddZ",
+          "value":"yyyy-mm-ddZ"
+        }
+      ],
+      "default": "yyyy-mm-dd HH:mm",
+      "required": false,
+      "tooltip": "The date format for the date fields indexed, this feature is for the Stratio’s Cassandra Lucene Index"
+    }
+  ]
+},
+{
+  "name": "CSV",
+  "modelType": "Csv",
+  "description": {
+    "short": "",
+    "long": "",
+    "learnMore": "http://docs.stratio.com"
+  },
+  "properties": [
+    {
+      "propertyId": "path",
+      "propertyName": "_PATH_",
+      "propertyType": "_TEXT_",
+      "regexp": "^[a-zA-Z0-9:_\\.\\-\\+/\\\\]{2,}\\.csv$",
+      "default": "path_to_csv.csv",
+      "required": true
+    },
+    {
+      "propertyId": "header",
+      "propertyName": "_HEADER_",
+      "propertyType": "boolean",
+      "regexp": "true|false",
+      "default": false,
+      "required": false
+    },
+    {
+      "propertyId": "delimiter",
+      "propertyName": "_DELIMITER_",
+      "propertyType": "text",
+      "regexp": "",
+      "default": ",",
+      "required": false
+    }
+  ]
+},
+{
+  "name": "Elasticsearch",
+  "modelType": "ElasticSearch",
+  "description": {
+    "short": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "long": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#elasticsearch-label"
+  },
+  "properties": [
+    {
+      "propertyId": "nodes",
+      "propertyName": "",
+      "propertyType": "list",
+      "default": "",
+      "required": true,
+      "hidden": false,
+      "limit": 0,
+      "tooltip": "",
+      "fields":
+      [
+        {
+          "propertyId": "node",
+          "propertyName": "_HOST_",
+          "propertyType": "text",
+          "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+          "default": "localhost",
+          "required": true
+        },
+        {
+          "propertyId": "defaultPort",
+          "propertyName": "_PORT_",
+          "propertyType": "text",
+          "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
+          "default": "9300",
+          "required": true
+        }
+      ]
+    },
+    {
+      "propertyId": "idField",
+      "propertyName": "_ID_FIELD_",
+      "propertyType": "text",
+      "regexp": "",
+      "default": "",
+      "required": false
+    },
+    {
+      "propertyId": "indexMapping",
+      "propertyName": "_INDEX_MAPPING_",
+      "propertyType": "text",
+      "regexp": "",
+      "default": "sparkta",
+      "required": false
+    }
+  ]
+},
+{
+  "name": "MongoDb",
+  "modelType": "MongoDb",
+  "description": {
+    "short": "MongoDB is an open-source document database, and the leading NoSQL database.",
+    "long": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling.",
+    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#mongodb-label"
+  },
+  "properties": [
+    {
+      "propertyId": "hosts",
+      "propertyName": "",
+      "propertyType": "list",
+      "default": "",
+      "required": true,
+      "tooltip": "This parameter connection routes specified the nodes of a cluster of MongoDB, with different replica set or with sharding.",
+      "fields": [
+        {
+          "propertyId": "hostName",
+          "propertyName": "_HOST_",
+          "propertyType": "text",
+          "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+          "default": "localhost",
+          "hidden": false,
+          "required": true
+        },
+        {
+          "propertyId": "port",
+          "propertyName": "_PORT_",
+          "propertyType": "text",
+          "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
+          "default": "27017",
+          "hidden": false,
+          "required": true
+        }
+      ]
+    },
+    {
+      "propertyId": "dbName",
+      "propertyName": "_DATEBASE_NAME_",
+      "propertyType": "text",
+      "regexp": "",
+      "default": "sparkta",
+      "required": true,
+      "tooltip": "Name of the database."
+    },
+    {
+      "propertyId": "connectionsPerHost",
+      "propertyName": "_CONNECTIONS_PER_HOST_",
+      "propertyType": "text",
+      "regexp": "\\d*",
+      "default": "5",
+      "required": false,
+      "tooltip": "Number of connections per host"
+    },
+    {
+      "propertyId": "threadsAllowedToBlock",
+      "propertyName": "_THREADS_ALLOWED_TO_BLOCK_",
+      "propertyType": "text",
+      "regexp": "\\d*",
+      "default": "10",
+      "required": false,
+      "tooltip": "This multiplier, multiplied with the connectionsPerHost setting, gives the maximum number of threads that may be waiting for a connection to become available from the pool."
+    },
+    {
+      "propertyId": "idAsField",
+      "propertyName": "_ID_AS_FIELD_",
+      "propertyType": "boolean",
+      "regexp": "true|false",
+      "default": false,
+      "required": false,
+      "tooltip": "Is possible to save all fields that compound the unique key as a independent field."
+    },
+    {
+      "propertyId": "language",
+      "propertyName": "_LANGUAGE_",
+      "propertyType": "text",
+      "regexp": "",
+      "default": "",
+      "required": false,
+      "tooltip": "Specify the language of the tokenizer in the full-text index in MongoDB, each document inserted must have this key-value."
+    },
+    {
+      "propertyId": "retrySleep",
+      "propertyName": "_RETRY_SLEEP_",
+      "propertyType": "text",
+      "regexp": "\\d*",
+      "default": "1000",
+      "required": false,
+      "tooltip": "The number of milliseconds to wait for reconnect with MongoDb nodes when the last client fails. It is recommendable to set less time to the slide interval of the streaming window."
+    }
+  ]
+},
+{
+  "name": "Parquet",
+  "modelType": "Parquet",
+  "description": {
+    "short": "Parquet's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "long": "Parquet's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#parquet-label"
+  },
+  "properties": [
+    {
+      "propertyId": "Path",
+      "propertyName": "_PATH_",
+      "propertyType": "text",
+      "regexp": "",
+      "default": "",
+      "required": true,
+      "tooltip": ""
+    }
+  ]
+},
+{
+  "name": "Print",
+  "modelType": "Print",
+  "description": {
+    "short": "Print's output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
+    "long": "Print's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#print-label"
+  },
+  "properties": [
+  ]
+},
+{
+  "name": "Redis",
+  "modelType": "Redis",
+  "description": {
+    "short": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "long": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#redis-label"
+  },
+  "properties": [
+    {
+      "propertyId": "hostname",
+      "propertyName": "_HOST_",
+      "propertyType": "text",
+      "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+      "default": "localhost",
+      "required": true,
+      "tooltip": "Hostname of the server"
+    },
+    {
+      "propertyId": "port",
+      "propertyName": "_PORT_",
+      "propertyType": "text",
+      "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
+      "default": "6379",
+      "required": true,
+      "tooltip": "Port of the server"
+    },
+    {
+      "propertyId": "timeStampFieldName",
+      "propertyName": "_TIME_STAMP_FIELD_NAME_",
+      "propertyType": "text",
+      "regexp": "",
+      "default": "timestamp",
+      "required": false,
+      "tooltip": ""
+    }
+  ]
+}
+]

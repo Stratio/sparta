@@ -10,10 +10,19 @@
    function PolicyFactory(ApiPolicyService) {
        return {
                GetPolicyByFragmentId: function(fragmentType, fragmentId) {
-                   return ApiPolicyService.GetPolicyByFragmentId().get({'type': fragmentType ,'id': fragmentId}).$promise;
+                  return ApiPolicyService.GetPolicyByFragmentId().get({'type': fragmentType ,'id': fragmentId}).$promise;
                },
-               GetAllpolicies: function() {
-                   return ApiPolicyService.GetAllpolicies().get().$promise;
+               GetAllPolicies: function() {
+                  return ApiPolicyService.GetAllpolicies().get().$promise;
+               },
+               CreatePolicy: function(newPolicyData) {
+                  return ApiPolicyService.CreatePolicy().create(newPolicyData).$promise;
+               },
+               DeletePolicy: function(policyid) {
+                  return ApiPolicyService.DeletePolicy().delete({'id': policyid}).$promise;
+               },
+               GetFakePolicy: function() {
+                  return ApiPolicyService.GetFakePolicy().get().$promise;
                }
            };
    };

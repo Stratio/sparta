@@ -1,0 +1,143 @@
+{
+    "name": "",
+    "description": "",
+    "checkpointPath": "/tmp/checkpoint",
+    "sparkStreamingWindow": "6000",
+    "storageLevel": "MEMORY_AND_DISK_SER",
+    "rawData": {
+        "enabled": "false"
+    },
+    "fragments": [],
+    "transformations": [],
+    "cubes": [
+        {
+            "checkpointConfig": {
+                "timeDimension": "minute",
+                "interval": 30000,
+                "timeAvailability": 60000,
+                "granularity": "minute"
+            },
+            "operators": [
+                {
+                    "configuration": {},
+                    "type": "Count",
+                    "name": "countoperator"
+                },
+                {
+                    "configuration": {
+                        "distinctFields": "wordsN"
+                    },
+                    "type": "Count",
+                    "name": "distinctoperator"
+                },
+                {
+                    "configuration": {
+                        "inputField": "wordsN"
+                    },
+                    "type": "Sum",
+                    "name": "sumoperator"
+                },
+                {
+                    "configuration": {
+                        "inputField": "wordsN"
+                    },
+                    "type": "Max",
+                    "name": "maxoperator"
+                },
+                {
+                    "configuration": {
+                        "inputField": "wordsN"
+                    },
+                    "type": "Min",
+                    "name": "minoperator"
+                },
+                {
+                    "configuration": {
+                        "inputField": "wordsN"
+                    },
+                    "type": "Avg",
+                    "name": "avgoperator"
+                },
+                {
+                    "configuration": {
+                        "inputField": "wordsN"
+                    },
+                    "type": "Median",
+                    "name": "medianoperator"
+                },
+                {
+                    "configuration": {
+                        "inputField": "wordsN"
+                    },
+                    "type": "Variance",
+                    "name": "varianceoperator"
+                },
+                {
+                    "configuration": {
+                        "inputField": "wordsN"
+                    },
+                    "type": "Stddev",
+                    "name": "stddevoperator"
+                },
+                {
+                    "configuration": {
+                        "inputField": "userLocation"
+                    },
+                    "type": "FullText",
+                    "name": "fullTextoperator"
+                },
+                {
+                    "configuration": {
+                        "inputField": "retweets"
+                    },
+                    "type": "LastValue",
+                    "name": "lastValueoperator"
+                },
+                {
+                    "configuration": {
+                        "inputField": "wordsN"
+                    },
+                    "type": "Accumulator",
+                    "name": "accumulatoroperator"
+                }
+            ],
+            "name": "testCube",
+            "dimensions": [
+                {
+                    "field": "status",
+                    "type": "TwitterStatus",
+                    "name": "hashtags",
+                    "precision": "hashtags"
+                },
+                {
+                    "field": "status",
+                    "type": "TwitterStatus",
+                    "name": "firsthashtag",
+                    "precision": "firsthashtag"
+                },
+                {
+                    "field": "status",
+                    "type": "TwitterStatus",
+                    "name": "retweets",
+                    "precision": "retweets"
+                },
+                {
+                    "field": "userLocation",
+                    "name": "userLocation"
+                },
+                {
+                    "field": "geolocation",
+                    "type": "GeoHash",
+                    "name": "precision3",
+                    "precision": "precision3"
+                },
+                {
+                    "field": "timestamp",
+                    "type": "DateTime",
+                    "name": "minute",
+                    "precision": "minute"
+                }
+            ]
+        }
+    ]
+}

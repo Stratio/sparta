@@ -1,0 +1,10 @@
+<li class="c-step" ng-class="{'c-step--active': isSelected(), 'c-step--visited': (index < current)}">
+	<i class="c-icon c-step__section-icon {{icon}}"></i>
+	
+	<div class="c-step__progress-mark">
+		<i class="c-icon c-step__selector" ng-class="{'c-step__selector--active': isSelected() ,'icon-dot_selected': isSelected() ,'icon-dot': !isSelected()}"></i>
+		<hr class="c-step__progress-line" />
+	</div>
+	
+	<span class="c-step__section-name">{{name | translate}}</span>
+</li>

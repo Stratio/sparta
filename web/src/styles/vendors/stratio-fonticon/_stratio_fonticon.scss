@@ -1,10 +1,10 @@
 @font-face {
 	font-family: 'ico_stratio';
-	src:url('vendors/stratio-fonticon/ico_stratio.eot?-ahjl3v');
-	src:url('vendors/stratio-fonticon/ico_stratio.eot?#iefix-ahjl3v') format('embedded-opentype'),
-		url('vendors/stratio-fonticon/ico_stratio.ttf?-ahjl3v') format('truetype'),
-		url('vendors/stratio-fonticon/ico_stratio.woff?-ahjl3v') format('woff'),
-		url('vendors/stratio-fonticon/ico_stratio.svg?-ahjl3v#ico_stratio') format('svg');
+	src:url('vendors/stratio-fonticon/ico_stratio.eot?-h2pkjo');
+	src:url('vendors/stratio-fonticon/ico_stratio.eot?#iefix-h2pkjo') format('embedded-opentype'),
+		url('vendors/stratio-fonticon/ico_stratio.ttf?-h2pkjo') format('truetype'),
+		url('vendors/stratio-fonticon/ico_stratio.woff?-h2pkjo') format('woff'),
+		url('vendors/stratio-fonticon/ico_stratio.svg?-h2pkjo#ico_stratio') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -23,14 +23,68 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-.icon-order:before {
-	content: "\e635";
+.icon-datetime:before {
+	content: "\e64d";
+}
+.icon-morphline:before {
+	content: "\e64e";
+}
+.icon-type:before {
+	content: "\e64f";
+}
+.icon-websocket:before {
+	content: "\e650";
+}
+.icon-csv:before {
+	content: "\e647";
+}
+.icon-kafkadirect:before {
+	content: "\e648";
+}
+.icon-kafka:before {
+	content: "\e645";
+}
+.icon-parquet:before {
+	content: "\e649";
+}
+.icon-print:before {
+	content: "\e64a";
+}
+.icon-redis:before {
+	content: "\e64b";
+}
+.icon-rabbitmq:before {
+	content: "\e636";
+}
+.icon-jdbc:before {
+	content: "\e602";
+}
+.icon-flume:before {
+	content: "\e646";
+}
+.icon-socket:before {
+	content: "\e644";
+}
+.icon-elasticsearch:before {
+	content: "\e624";
+}
+.icon-cassandra:before {
+	content: "\e62f";
+}
+.icon-mongodb:before {
+	content: "\e623";
+}
+.icon-twitter:before {
+	content: "\e637";
 }
 .icon-stratio_small:before {
 	content: "\e633";
 }
 .icon-stratio_standard:before {
 	content: "\e634";
+}
+.icon-order:before {
+	content: "\e635";
 }
 .icon-dot:before {
 	content: "\e622";
@@ -73,33 +127,6 @@
 }
 .icon-indicator:before {
 	content: "\e601";
-}
-.icon-mongodb:before {
-	content: "\e623";
-}
-.icon-cassandra:before {
-	content: "\e62f";
-}
-.icon-elasticsearch:before {
-	content: "\e624";
-}
-.icon-jdbc:before {
-	content: "\e602";
-}
-.icon-rabbitmq:before {
-	content: "\e636";
-}
-.icon-twitter:before {
-	content: "\e637";
-}
-.icon-socket:before {
-	content: "\e644";
-}
-.icon-flume:before {
-	content: "\e646";
-}
-.icon-kafka:before {
-	content: "\e645";
 }
 .icon-tool:before {
 	content: "\e60c";
@@ -438,10 +465,10 @@
 	content: "\e084";
 }
 .icon-tag_left:before {
-	content: "\e08a";
+	content: "\e085";
 }
 .icon-tag_right:before {
-	content: "\e085";
+	content: "\e08a";
 }
 .icon-power:before {
 	content: "\e086";
@@ -565,6 +592,9 @@
 }
 .icon-check:before {
 	content: "\e116";
+}
+.icon-check2:before {
+	content: "\e64c";
 }
 .icon-cross:before {
 	content: "\e117";

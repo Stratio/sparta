@@ -1,0 +1,120 @@
+<section ng-controller="CubeCtrl as vm" data-ng-model="vm.cube" ng-init="vm.init(cube)">
+
+  <div ng-show="vm.showModelError" class="c-row c-row--flex c-msg c-msg--small c-msg--error">
+    <i class="c-icon icon-circle-cross"></i>
+    <span>{{"_GENERIC_FORM_ERROR_" | translate}}</span>
+  </div>
+
+  <div class="c-form-group c-col c-col--5">
+    <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.cube.name"
+                      data-label="{{'_NAME_' | translate}}" data-help="" data-pattern=""
+                      placeholder="Ex. Name 1" data-type="text">
+    </form-field-input>
+  </div>
+
+  <div class="c-form-group c-col c-col--5">
+    <form-field-input data-form="vm.form" data-st-name="time-dimension-form"
+                      data-model="vm.cube.checkpointConfig.timeDimension"
+                      data-label="{{'_TIME_DIMENSION_' | translate}}" data-help="" data-pattern=""
+                      placeholder="Ex. Name 1" data-type="text">
+    </form-field-input>
+  </div>
+
+  <div class="c-form-group c-col c-col--5">
+    <form-field-input data-form="vm.form" data-st-name="interval-form" data-model="vm.cube.checkpointConfig.interval"
+                      data-label="{{'_INTERVAL_' | translate}}" data-help="" data-pattern=""
+                      placeholder="1" data-type="number"></form-field-input>
+  </div>
+
+  <div class="c-form-group c-col c-col--5">
+    <form-field-input data-form="vm.form" data-st-name="time-availability-form"
+                      data-model="vm.cube.checkpointConfig.timeAvailability"
+                      data-label="{{'_TIME_AVAILABILITY_' | translate}}" data-help="" data-pattern=""
+                      placeholder="1" data-type="number"></form-field-input>
+  </div>
+
+  <div class="c-form-group c-col c-col--5">
+    <form-field-select select-class="c-combobox--full-width"
+                       data-form="vm.form" data-st-name="granularity-form"
+                       data-model="vm.cube.checkpointConfig.granularity"
+                       data-options="vm.granularityOptions" data-field="label"
+                       data-label="{{'_GRANULARITY_' | translate}}"
+                       data-help="">
+    </form-field-select>
+  </div>
+
+  <div class="c-row c-row--flex">
+    <div class="c-cube c-col c-col--5 c-col--vertical-top">
+      <label class="c-cube__title c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._FIELDS_" | translate}}</label>
+
+      <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
+        <!--OUTPUTS-->
+        <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered"
+             ng-repeat="output in vm.outputList track by $index">
+          <div class="c-cube__field">
+            <span class="c-cube__field-name">{{output}}</span><!--
+            --><span class="c-cube__field-icon c-icon icon-circle-plus"
+                     ng-click="vm.addOutputToDimensions(output)"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--
+
+        -->
+    <div class="c-cube c-col c-col--5 c-col--vertical-top">
+      <label class="c-cube__title c-cube__title--2 c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._DIMENSIONS_" |
+        translate}}</label>
+
+      <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
+        <!--DIMENSIONS-->
+        <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered"
+             ng-repeat="dimension in  vm.cube.dimensions track by $index">
+          <div class="c-cube__field">
+            <span class="c-cube__field-name">{{dimension.name}}</span><!--
+            --><span class="c-cube__field-icon c-icon icon-circle-minus"
+                     ng-click="vm.removeOutputFromDimensions($index)"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="c-row c-row--flex">
+    <div class="c-cube c-col c-col--5 c-col--vertical-top">
+      <label class="c-cube__title c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._FUNCTIONS_" |
+        translate}}</label>
+
+      <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
+        <!--_FUNCTIONS_-->
+        <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered"
+             ng-repeat="function in  vm.functionList track by $index">
+          <div class="c-cube__field">
+            <span class="c-cube__field-name">{{function}}</span>
+            <span class="c-cube__field-icon c-icon icon-circle-plus"
+                  ng-click="vm.addFunctionToOperators(function)"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--
+
+        -->
+    <div class="c-cube c-col c-col--5 c-col--vertical-top">
+      <label class="c-cube__title c-cube__title--2 c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._OPERATORS_" |
+        translate}}</label>
+
+      <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
+        <!--OPERATORS-->
+        <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered"
+             ng-repeat="operator in vm.cube.operators track by $index">
+          <div class="c-cube__field">
+            <span class="c-cube__field-name">{{operator.name}}</span>
+            <span class="c-cube__field-icon c-icon icon-circle-minus"
+                  ng-click="vm.removeFunctionFromOperators($index)"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,67 @@
+<section>
+	<header>
+		<st-heading title="{{'_OUTPUT_HEADER_TITLE_MAIN' | translate}}" subtitle="{{'_INPUT_HEADER_TITLE_SECONDARY' | translate}}:"></st-heading>
+	</header>
+
+    <div class="c-panel c-panel--fix-overflow">
+        <div class="c-toolbar c-form-group c-form-group--to-right">
+            <div class="c-col c-col--2 c-form-control">
+                <label class="c-label o-wcag-hidden" for="type">{{"_INPUT_FILTER_TYPE_" | translate}}:</label>
+                <select id="type" class="c-combobox c-combobox--no-border c-combobox--full-width" data-ng-model="outputs.filters.element.type">
+                    <option value="">{{"_INPUT_FILTER_TYPE_DEFAULT_" | translate}}</option>
+                    <option value="{{outputType.type}}" data-ng-repeat="outputType in outputs.outputTypes">
+                        {{outputType.type}} ({{outputType.count}})
+                    </option>
+                </select>
+            </div><!--
+
+         --><div class="c-col c-col--10 c-form-control">
+                <label class="c-label o-wcag-hidden" for="name">{{"_INPUT_FILTER_NAME_" | translate}}:</label>
+                <i class="icon-search c-icon c-icon--in-input-right"></i>
+                <input type="text" id="name" class="c-searchbox c-searchbox--left-icon c-searchbox--no-border c-searchbox--full-width" data-ng-model="outputs.filters.name" />
+            </div>
+        </div>
+        <ul br-ba-container="c-grid">
+            <li class="c-grid-item" data-ng-repeat="output in filteredoutputsData = (outputs.outputsData | filter:outputs.filters:strict)" br-ba-item="{index:$index, total:filteredoutputsData.length}">
+                <header class="title">
+                    <span class="name">{{output.name}}</span>
+
+                    <span class="icon-actions menu_actions" data-ng-click="$root.stToggleFloatingMenu[output.id]()" data-qa="output-context-menu-{{output.id}}">
+                        <st-floating-menu toggle-id="{{output.id}}" align="right">
+                            <st-menu-element class-icon="icon-edit" data-ng-click="outputs.editOutput(output.fragmentType, output.name, output.id, $index)" data-qa="output-context-menu-{{output.id}}-edit">
+                                {{"_INPUT_ACTIONS_MENU_EDIT_" | translate}}
+                            </st-menu-element>
+                            <st-menu-element class-icon="icon-copy" data-ng-click="outputs.duplicateOutput(output.id)" data-qa="output-context-menu-{{output.id}}-duplicate">
+                                {{"_INPUT_ACTIONS_MENU_DUPLICATE_" | translate}}
+                            </st-menu-element>
+                            <st-menu-element class-icon="icon-cross" data-ng-click="outputs.deleteOutput(output.fragmentType, output.id, $index)" data-qa="output-context-menu-{{output.id}}-delete">
+                                {{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
+                            </st-menu-element>
+                        </st-floating-menu>
+                    </span>
+                </header>
+
+                <div class="c-row o-media">
+                    <div class="o-media__img">
+                        <i class="c-icon c-icon--xxxlarge icon-{{output.element.type | lowercase}} o-media__img__item" alt="{{output.element.type}}"></i>
+                    </div>
+
+                    <span class="o-media__bd">{{output.shortDescription}}</span>
+                </div>
+
+                <footer class="c-row c-row--to-bottom c-row--to-right">
+                    <i class="c-icon c-icon--is-clickable c-grid-item__info-icon icon-info1" tooltip="{{output.description}}" tooltip-placement="left" tooltip-class="t-tooltip" tooltip-trigger="click" data-qa="output-tootip-{{output.id}}"></i>
+                </footer>
+            </li>
+        </ul>
+    </div>
+
+    <hr class="c-line-separator" />
+
+    <footer class="c-row c-row--to-right c-row--footer">
+    	<button class="c-button c-button--call-to-action-1" data-ng-click="outputs.createOutput()">
+    		<span class="icon icon-circle-plus"></span>
+    		<span>{{"_INPUT_BUTTON_NEW_" | translate}}</span>
+    	</button>
+    </footer>
+</section>

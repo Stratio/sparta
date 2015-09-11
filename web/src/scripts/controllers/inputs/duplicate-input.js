@@ -24,19 +24,29 @@
         function init () {
             console.log('*********Modal');
             console.log(item);
-            vm.inputData = item.inputData;
+            setTexts(item.texts);
+            vm.fragmentData = item.fragmentData;
+            console.log(vm.fragmentData);
+        };
+
+        function setTexts(texts) {
+          vm.modalTexts = {};
+          vm.modalTexts.title = texts.title;
         };
 
         function ok() {
             if (vm.form.$valid){
-              checkFragmnetname();
+                checkFragmnetname();
             }
         };
 
         function checkFragmnetname() {
-          var inputNameExist = $filter('filter')(item.inputNamesList, {'name': vm.inputData.name}, true);
+          var fragmentNamesExisting = [];
+          console.log(vm.fragmentData);
+          var newFragmentName = vm.fragmentData.name.toLowerCase();
+          fragmentNamesExisting = $filter('filter')(item.fragmentNamesList, {'name': newFragmentName}, true);
 
-          if (inputNameExist.length > 0) {
+          if (fragmentNamesExisting.length > 0) {
             vm.error = true;
             vm.errorText = "_INPUT_ERROR_100_";
           }
@@ -46,8 +56,8 @@
         };
 
         function createfragment() {
-            delete item.inputData['id'];
-            var newFragment = FragmentFactory.CreateFragment(item.inputData);
+            delete vm.fragmentData['id'];
+            var newFragment = FragmentFactory.CreateFragment(vm.fragmentData);
 
             newFragment.then(function (result) {
                 console.log('*********Fragment duplicated');
@@ -64,5 +74,4 @@
             $modalInstance.dismiss('cancel');
         };
     };
-
 })();

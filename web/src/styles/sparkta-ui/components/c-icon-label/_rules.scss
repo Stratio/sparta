@@ -1,0 +1,19 @@
+@mixin c-icon-label {
+	@include c-icon-text;
+
+	color: $c-icon-label---color;
+	font-size: $c-icon-label---font-size;
+
+	&--narrow {
+		font-style: italic;
+	}
+
+	&__icon {
+		color: $c-icon-label__icon---color;
+		font-size: $c-icon-label__icon---font-size;
+	}
+}
+
+.c-icon-label {
+	@include c-icon-label;
+}

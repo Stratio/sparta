@@ -1,8 +1,6 @@
 @mixin c-grid-item {
 	@include c-component;
 
-	position: relative;
-
 	&__info-icon {
 		color: $c-grid-item__info-icon---color;
 		display: inline-block;

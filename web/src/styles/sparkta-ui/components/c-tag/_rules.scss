@@ -1,0 +1,26 @@
+@mixin c-tag {
+	@include c-component;
+
+	background: $c-tag---background;
+	color: $c-tag---color;
+	display: inline-block;
+	padding: $c-tag---padding;
+
+	& + & {
+		margin: $c-tag---margin;
+	}
+
+	&:first-child {
+		margin-left: 0;
+	}
+
+	&__close-icon {
+		color: $c-tag__close-icon---color;
+		font-size: $c-tag__close-icon---font-size;
+		margin: $c-tag__close-icon---margin;
+	}
+}
+
+.c-tag {
+	@include c-tag;
+}
