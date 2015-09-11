@@ -35,10 +35,10 @@
     }
 
     function ok() {
-      if (isValidConfiguration())
+      if (vm.form.$valid && isValidConfiguration()) {
         $modalInstance.close(vm.operator);
+      }
       else {
-
         vm.error = true;
         vm.errorText = "_GENERIC_FORM_ERROR_";
       }
