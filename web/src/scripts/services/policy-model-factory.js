@@ -38,6 +38,9 @@
       },
       GetStatus: function(){
         return status;
+      },
+      ResetPolicy: function (){
+        initPolicy();
       }
     }
   }
