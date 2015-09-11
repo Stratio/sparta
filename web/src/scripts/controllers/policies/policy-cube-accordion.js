@@ -29,34 +29,34 @@
       vm.accordionStatus = AccordionStatusService.accordionStatus;
       AccordionStatusService.ResetAccordionStatus(vm.policy.cubes.length);
       vm.helpLink = PolicyStaticDataFactory.helpLinks.cubes;
-    }
+    };
 
     function addCube() {
       if (isValidCube()) {
         vm.modelError = false;
         vm.error = false;
         vm.policy.cubes.push(angular.copy(vm.newCube));
-        CubeModelFactory.ResetNewCube();
+        CubeModelFactory.ResetCube();
         AccordionStatusService.ResetAccordionStatus(vm.policy.cubes.length);
       }
       else {
         vm.error = true;
       }
-    }
+    };
 
     function removeCube(index) {
       vm.policy.cubes.splice(index, 1);
       AccordionStatusService.ResetAccordionStatus(vm.policy.cubes.length);
       AccordionStatusService.accordionStatus.newItem = true;
-    }
+    };
 
     function isValidCube() {
       return vm.newCube.name !== "" && vm.newCube.timeDimension !== "" && vm.newCube.interval !== "" && vm.newCube.timeAvailability !== "" && vm.newCube.interval !== "" && vm.newCube.granularity !== "" &&  vm.newCube.dimensions.length > 0 && vm.newCube.operators.length > 0;
-    }
+    };
 
     function getIndex() {
       return index++;
-    }
+    };
 
     function nextStep() {
       if (vm.policy.cubes.length > 0) {
@@ -65,7 +65,7 @@
       else {
         vm.modelError = true;
       }
-    }
+    };
 
 
   }

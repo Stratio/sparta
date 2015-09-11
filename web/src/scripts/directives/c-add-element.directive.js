@@ -14,7 +14,8 @@
       scope: {
         iconClass: "=iconClass",
         model: "=model",
-        type: "=type"
+        type: "=type",
+        disabled: "=disabled"
       },
       replace: "true",
       templateUrl: 'templates/components/c-add-element.tpl.html',
