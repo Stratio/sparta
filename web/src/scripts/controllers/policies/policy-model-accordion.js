@@ -20,7 +20,6 @@
 
     vm.init();
 
-
     function init() {
       vm.policy = PolicyModelFactory.GetCurrentPolicy();
       vm.policy.models = ModelFactory.GetModelList();
@@ -34,6 +33,7 @@
       vm.error = false;
       if (isValidModel()) {
         var newModel = angular.copy(vm.newModel);
+        newModel.order = vm.policy.models.length + 1;
         vm.policy.models.push(newModel);
         ModelFactory.ResetNewModel();
         AccordionStatusService.ResetAccordionStatus(vm.policy.models.length);
@@ -49,7 +49,7 @@
     }
 
     function isValidModel() {
-      return vm.newModel.inputField != "" && vm.newModel.outputFields.length > 0 && vm.newModel.configuration != "" && vm.newModel.type != "";
+      return vm.newModel.inputField != "" && vm.newModel.outputFields.length > 0 && vm.newModel.configuration != "" && vm.newModel.type != "" && ModelFactory.IsValidConfiguration();
     }
 
     function getIndex() {

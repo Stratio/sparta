@@ -1,8 +1,7 @@
 <section  data-ng-controller="PolicyCubeAccordionCtrl as vm">
-  {{vm.cube}}
   <header class="c-step-content__title c-step-content__title--underlined">
     <h1>
-      <span class="c-step-counter">{{wizard.currentStep + 1}}/{{wizard.steps.length}}</span>
+      <span class="c-step-counter">{{wizard.status.currentStep + 1}}/{{wizard.steps.length}}</span>
       <i class="c-step-counter__icon c-icon c-icon--small icon-arrow2_right"></i>
       <span class="c-step-content__title-text">{{"_POLICY_._STEPS_._CUBES_" | translate}}</span>
     </h1>
@@ -55,7 +54,7 @@
         </accordion-group>
       </div>
     </accordion>
-  </form>
+
 
   <footer class="c-row c-row--footer">
     <div class="c-col c-col--6 c-col--vertical-centered">
@@ -68,4 +67,5 @@
       </button>
     </div>
   </footer>
+  </form>
 </section>

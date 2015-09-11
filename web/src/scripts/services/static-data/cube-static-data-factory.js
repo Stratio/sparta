@@ -48,8 +48,9 @@
       GetGranularityOptions: function () {
         return granularityOptions;
       },
-      GetConfigurationHelpLink: function () {
-        return "http://docs.stratio.com/modules/sparkta/development/transformations.html"
+
+      GetDefaultType: function(){
+        return "Default"
       }
     }
   }

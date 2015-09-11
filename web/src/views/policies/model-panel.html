@@ -19,17 +19,17 @@
     </div>
   </div>
 
-  <div class="c-form-group">
+  <div class="c-form-group" ng-model = "vm.model.inputList">
     <c-input-list-field form-control-class="'c-form-control c-form-control--full-width'" label-control-class="'c-label c-col c-col--12'" data-inputs="vm.model.inputs" label-control-text="'_INPUT_FIELD_' | translate" readonly="'true'" data-enable-delete="false"></c-input-list-field>
 
-    <select class="st-form-field-select c-combobox" ng-model="vm.model.inputField" ng-options="input | translate for input in vm.inputList" ng-required="required"></select>
+    <select class="st-form-field-select c-combobox" ng-model="vm.model.inputField" ng-options="input | translate for input in vm.model.inputList" ng-required="required"></select>
   </div>
 
   <div class="c-form-group">
     <c-icon-label wrapper-control-class="'c-label c-col c-col--12'" icon-class="'icon-info1'" data-text="('_CONFIGURATION_' | translate)"
                   text-class="" icon-url="vm.templateModelData.configHelpLink"></c-icon-label>
 
-    <textarea class="c-textarea c-textarea--full-width" ng-model="vm.model.configuration"/>
+    <textarea class="c-textarea c-textarea--full-width" ng-model="vm.model.configuration" placeholder = {{vm.configPlaceholder}} />
   </div>
 
   <div class="c-form-group">

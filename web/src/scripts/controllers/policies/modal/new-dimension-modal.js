@@ -6,16 +6,18 @@
     .module('webApp')
     .controller('NewDimensionModalCtrl', NewDimensionModalCtrl);
 
-  NewDimensionModalCtrl.$inject = ['$modalInstance', 'fieldName'];
+  NewDimensionModalCtrl.$inject = ['$modalInstance','dimensionName', 'fieldName', 'type'];
 
-  function NewDimensionModalCtrl($modalInstance, fieldName) {
+  function NewDimensionModalCtrl($modalInstance, dimensionName, fieldName, type) {
     /*jshint validthis: true*/
     var vm = this;
 
     vm.ok = ok;
     vm.cancel = cancel;
     vm.dimension = {};
-    vm.dimension.name = fieldName;
+    vm.dimension.name = dimensionName;
+    vm.dimension.field = fieldName;
+    vm.dimension.type = type;
 
     ///////////////////////////////////////
 

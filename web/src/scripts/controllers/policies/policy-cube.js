@@ -27,7 +27,7 @@
       var models = vm.policy.models;
       if (models.length > 0) {
         vm.granularityOptions = CubeStaticDataFactory.GetGranularityOptions();
-        vm.outputList = models[models.length - 1].outputs;
+        vm.outputList = models[models.length - 1].outputFields;
         vm.functionList = CubeStaticDataFactory.GetFunctions();
       }
     }
@@ -45,6 +45,13 @@
         resolve: {
           fieldName: function () {
             return outputName;
+          },
+          dimensionName: function () {
+            var functionLength = vm.cube.dimensions.length + 1;
+            return outputName + functionLength;
+          },
+          type: function () {
+            return CubeStaticDataFactory.GetDefaultType()
           }
         }
       });
@@ -65,8 +72,13 @@
         controller: 'NewOperatorModalCtrl as vm',
         size: 'lg',
         resolve: {
-          functionName: function () {
+          operatorType: function () {
             return functionName;
+          },
+          operatorName: function () {
+            var operatorLength = vm.cube.operators.length + 1;
+            return functionName.toLowerCase() + operatorLength;
+
           }
         }
       });

@@ -14,10 +14,11 @@
 
     function initNewModel() {
       model.inputField = ModelStaticDataFactory.defaultInput;
-
       model.outputFields = [];
       model.type = "";
       model.configuration = "";
+      model.inputList = getModelInputs();
+      model.inputField = model.inputList[0];
     };
 
     function getModelInputs() {
@@ -29,13 +30,21 @@
           result = ModelStaticDataFactory.defaultInput;
         else {
           var model = models[--index];
-          console.log(model.outputFields);
-          console.log(model.inputField);
           result = [model.inputField].concat(model.outputFields);
-          console.log(result)
         }
       }
       return result;
+    }
+
+    function IsValidConfiguration() {
+      var configuration = model.configuration;
+      try {
+        model.configuration = JSON.parse(configuration);
+        return true;
+      } catch (e) {
+        model.configuration = model.configuration;
+        return false;
+      }
     }
 
     return {
@@ -45,11 +54,11 @@
       ResetNewModel: function () {
         initNewModel();
       },
-      GetNewModel: function (index) {
+      GetNewModel: function () {
         if (Object.keys(model).length == 0) initNewModel();
         return model;
       },
-      GetModelInputs: getModelInputs
+      IsValidConfiguration: IsValidConfiguration
     }
   }
 
