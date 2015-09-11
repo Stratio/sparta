@@ -197,5 +197,6 @@
   "_GRANULARITY_": "Granularity",
   "SELECT_PLACEHOLDER": "Select one",
   "_GENERIC_FORM_ERROR_": "There are some errors in the introduced data. Please, check them and try it again",
-  "_ERROR_ALL_FIELDS_REQUIRED_": "All fields are required! Please check them and try to sumbit the form."
+  "_ERROR_ALL_FIELDS_REQUIRED_": "All fields are required! Please check them and try to sumbit the form.",
+  "_ERROR_INPUT_DUPLICATED_": "Output field alraedy exists!"
 }
