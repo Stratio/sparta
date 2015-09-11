@@ -117,6 +117,8 @@
     "_INPUTS_ERROR_": "One input must be selected!",
     "_OUTPUTS_ERROR_": "At least one output must be selected!",
     "_DESCRIPTION_ERROR_": "There was an error. The name of the policy already exists!",
+    "_MODEL_ERROR_": "There was an error. You must create one model at least!",
+    "_CUBE_ERROR_": "There was an error. You must create one cube at least!",
     "_MODEL_NAME_": "Model name",
     "_ADD_MODEL_": "Add model",
     "_CUBE_NAME_": "Cube name",
@@ -194,5 +196,6 @@
   "_TIME_AVAILABILITY_": "Time availability",
   "_GRANULARITY_": "Granularity",
   "SELECT_PLACEHOLDER": "Select one",
-  "_GENERIC_FORM_ERROR_": "There are some errors in the introduced data. Please, check them and try it again"
+  "_GENERIC_FORM_ERROR_": "There are some errors in the introduced data. Please, check them and try it again",
+  "_ERROR_ALL_FIELDS_REQUIRED_": "All fields are required! Please check them and try to sumbit the form."
 }
