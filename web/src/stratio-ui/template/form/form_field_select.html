@@ -5,7 +5,7 @@
 
         <!-- <select ng-attr-id="{{name}}" name="{{name}}" class="st-form-field-select" ng-model="model" ng-options="item[field] for item in options track by item[trackBy]" ng-change="changeActionHandler()" ng-disabled="disabled" ng-required="required" ng-focus="isFocused=true" ng-blur="isFocused=false" ng-keyup="keyupHandler($event)" ng-show="trackBy" ></select> -->
 
-        <select ng-attr-id="{{name}}" name="{{name}}" class="st-form-field-select c-combobox" ng-model="model" ng-options="item.value as item[field] | translate for item in options" ng-change="changeActionHandler()" ng-required="required" ng-disabled="disabled" ng-focus="isFocused=true" ng-blur="isFocused=false" ng-keyup="keyupHandler($event)" ng-show="!trackBy" ></select>
+        <select ng-attr-id="{{name}}" name="{{name}}" class="st-form-field-select c-combobox {{selectClass}}" ng-model="model" ng-options="item.value as item[field] | translate for item in options" ng-change="changeActionHandler()" ng-required="required" ng-disabled="disabled" ng-focus="isFocused=true" ng-blur="isFocused=false" ng-keyup="keyupHandler($event)" ng-show="!trackBy" ></select>
         <div ng-if="this[name][name].$invalid && form.$submitted" class="st-form-field-error">
             <span ng-if="this[name][name].$error.required">This field is required. </span>
         </div>
