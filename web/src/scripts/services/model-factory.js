@@ -10,9 +10,9 @@
 
   function ModelFactory(ModelStaticDataFactory, PolicyModelFactory) {
     var model = {};
-    var models = [];
 
-    function initNewModel() {
+    function init() {
+      model.name = "";
       model.inputField = ModelStaticDataFactory.defaultInput;
       model.outputFields = [];
       model.type = "";
@@ -42,20 +42,17 @@
         model.configuration = JSON.parse(configuration);
         return true;
       } catch (e) {
-        model.configuration = model.configuration;
+        model.configuration = configuration;
         return false;
       }
     }
 
     return {
-      GetModelList: function () {
-        return models;
+      ResetModel: function (index) {
+        init(index);
       },
-      ResetNewModel: function () {
-        initNewModel();
-      },
-      GetNewModel: function () {
-        if (Object.keys(model).length == 0) initNewModel();
+      GetModel: function () {
+        if (Object.keys(model).length == 0) init();
         return model;
       },
       IsValidConfiguration: IsValidConfiguration

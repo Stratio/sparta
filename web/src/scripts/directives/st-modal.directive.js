@@ -39,20 +39,20 @@
             scope.$watch('open', openHandler);
 
             scope.actionHandler = function() {
-                hideModalbroadcast()
+                hideModalbroadcast();
                 scope.isLoading = true;
                 scope.action();
                 actionClick = true;
             };
 
             scope.secondaryActionHandler = function() {
-                hideModalbroadcast()
+                hideModalbroadcast();
                 scope.isLoading = true;
                 scope.secondaryAction();
             };
 
             scope.actionCancelHandler = function() {
-                hideModalbroadcast()
+                hideModalbroadcast();
                 scope.isLoading = false;
                 scope.open = false;
                 scope.actionCancel();
@@ -67,7 +67,6 @@
             };
 
             scope.deletepolicies = function() {
-                console.log('test');
                 scope.open = false;
             };
 

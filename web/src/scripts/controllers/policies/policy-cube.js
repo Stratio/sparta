@@ -20,12 +20,15 @@
     vm.init();
 
     function init(cube) {
-      if (cube)
+      if (cube) {
         vm.cube = cube;
-      else vm.cube = CubeModelFactory.GetNewCube();
+      } else {
+        vm.cube = CubeModelFactory.GetCube();
+      }
       vm.policy = PolicyModelFactory.GetCurrentPolicy();
       var models = vm.policy.models;
       if (models.length > 0) {
+
         vm.granularityOptions = CubeStaticDataFactory.GetGranularityOptions();
         vm.outputList = models[models.length - 1].outputFields;
         vm.functionList = CubeStaticDataFactory.GetFunctions();

@@ -28,8 +28,6 @@
         var policiesList = PolicyFactory.GetAllPolicies();
 
         policiesList.then(function (result) {
-          console.log('--> Getting policies list');
-          console.log(result);
           var policiesDataList = result;
 
           var inputSelected = $filter('filter')(policiesDataList, {'name':vm.policy.name.toLowerCase()}, true);

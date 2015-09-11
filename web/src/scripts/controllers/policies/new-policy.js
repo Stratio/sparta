@@ -6,8 +6,8 @@
     .module('webApp')
     .controller('NewPolicyCtrl', NewPolicyCtrl);
 
-  NewPolicyCtrl.$inject = ['PolicyStaticDataFactory', 'PolicyModelFactory', 'PolicyFactory', '$q', '$modal'];
-  function NewPolicyCtrl(PolicyStaticDataFactory, PolicyModelFactory, PolicyFactory, $q, $modal) {
+  NewPolicyCtrl.$inject = ['PolicyStaticDataFactory', 'PolicyModelFactory', 'PolicyFactory', '$q', '$modal', '$state'];
+  function NewPolicyCtrl(PolicyStaticDataFactory, PolicyModelFactory, PolicyFactory, $q, $modal, $state) {
     var vm = this;
 
     vm.steps = PolicyStaticDataFactory.steps;
@@ -28,13 +28,16 @@
 
       modalInstance.result.then(function () {
         PolicyFactory.CreatePolicy(vm.policy).then(function () {
+          PolicyModelFactory.ResetPolicy();
+          $state.go("dashboard.policies");
+
           defer.resolve();
         }, function (error) {
           vm.error = error;
           defer.reject();
         });
 
-      },function () {
+      }, function () {
         defer.resolve();
       });
 

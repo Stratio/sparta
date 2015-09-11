@@ -22,7 +22,7 @@
         vm.model = model;
       }
       else {
-        vm.model = ModelFactory.GetNewModel();
+        vm.model = ModelFactory.GetModel();
       }
       vm.policy = PolicyModelFactory.GetCurrentPolicy();
       vm.templateModelData = ModelStaticDataFactory;

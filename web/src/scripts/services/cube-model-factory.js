@@ -7,25 +7,24 @@
 
   function CubeModelFactory() {
     var cube = {};
-    var cubes = [];
 
-    function initNewCube() {
+    function init() {
+      cube.name = "";
       cube.dimensions = [];
       cube.operators = [];
-      cube.type = "";
-      cube.configuration = "";
       cube.showCubeError = false;
+      cube.timeDimension = "";
+      cube.interval = "";
+      cube.timeAvailability = "";
+      cube.granularity = "";
     };
 
     return {
-      GetCubeList: function () {
-        return cubes;
-      },
       ResetNewCube: function () {
-        initNewCube();
+        init();
       },
-      GetNewCube: function () {
-        if (Object.keys(cube).length == 0) initNewCube();
+      GetCube: function () {
+        if (Object.keys(cube).length == 0) init();
         return cube;
       }
     }

@@ -21,18 +21,23 @@
       vm.testingpolcyData = JSON.stringify(json, null, 4);
     };
 
-    function getFinalJSON(){
+    function getFinalJSON() {
       var fragments = [];
-      var policy = angular.copy(vm.policy);
-      policy.transformations = policy.models;
-      fragments.push(policy.input);
-      fragments.concat(policy.outputs);
-      policy.fragments = fragments;
-      delete policy.models;
-      delete policy.input;
-      delete policy.outputs;
 
-      return policy;
+      vm.policy.transformations = vm.policy.models;
+      fragments.push(vm.policy.input);
+      for (var i = 0; i < vm.policy.outputs.length; ++i) {
+        if (vm.policy.outputs[i]) {
+          fragments.push(vm.policy.outputs[i]);
+        }
+      }
+      //fragments.concat(policy.outputs);
+      vm.policy.fragments = fragments;
+      delete vm.policy.models;
+      delete vm.policy.input;
+      delete vm.policy.outputs;
+
+      return vm.policy;
     }
   };
 })();

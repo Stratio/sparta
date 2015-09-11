@@ -22,8 +22,8 @@
 
     function init() {
       vm.policy = PolicyModelFactory.GetCurrentPolicy();
-      vm.policy.models = ModelFactory.GetModelList();
-      vm.newModel = ModelFactory.GetNewModel();
+      vm.policy.models = [];
+      vm.newModel = ModelFactory.GetModel();
       vm.accordionStatus = AccordionStatusService.accordionStatus;
       vm.templateModelData = ModelStaticDataFactory;
       AccordionStatusService.ResetAccordionStatus(vm.policy.models.length);
@@ -35,7 +35,7 @@
         var newModel = angular.copy(vm.newModel);
         newModel.order = vm.policy.models.length + 1;
         vm.policy.models.push(newModel);
-        ModelFactory.ResetNewModel();
+        ModelFactory.ResetModel();
         AccordionStatusService.ResetAccordionStatus(vm.policy.models.length);
       } else
         vm.error = true;
@@ -49,7 +49,8 @@
     }
 
     function isValidModel() {
-      return vm.newModel.inputField != "" && vm.newModel.outputFields.length > 0 && vm.newModel.configuration != "" && vm.newModel.type != "" && ModelFactory.IsValidConfiguration();
+      return vm.newModel.inputField != "" && vm.newModel.outputFields.length > 0 && vm.newModel.configuration != "" &&
+        vm.newModel.name != "" && vm.newModel.type != "" && ModelFactory.IsValidConfiguration();
     }
 
     function getIndex() {

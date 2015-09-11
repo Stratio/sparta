@@ -22,8 +22,8 @@
 
     function init() {
       vm.policy = PolicyModelFactory.GetCurrentPolicy();
-      vm.policy.cubes = CubeModelFactory.GetCubeList();
-      vm.newCube = CubeModelFactory.GetNewCube();
+      vm.policy.cubes = [];
+      vm.newCube = CubeModelFactory.GetCube();
       vm.accordionStatus = AccordionStatusService.accordionStatus;
       AccordionStatusService.ResetAccordionStatus(vm.policy.cubes.length);
     }

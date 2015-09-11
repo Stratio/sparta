@@ -19,7 +19,7 @@
             <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right"></i>
           </accordion-heading>
 
-          <ng-include src="'views/policies/model-panel.html'" ng-init = "model = currentModel" ng-model="currentModel"></ng-include>
+          <ng-include src="'views/policies/model-panel.html'" ng-init = "model = currentModel; index = $index" ng-model="currentModel"></ng-include>
 
           <div class="c-form-group c-form-group--full-width c-form-group--to-right">
             <button class="c-button c-button--danger" data-ng-click="vm.removeModel($index, $event)">
