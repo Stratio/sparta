@@ -16,6 +16,13 @@
 	&--no-border {
 		border: 0;
 	}
+
+	&:disabled,
+	&:read-only {
+		background: $c-input--disabled---background;
+		color: $c-input--disabled---color;
+		font-style: $c-input--disabled---font-style;
+	}
 }
 
 .c-input {

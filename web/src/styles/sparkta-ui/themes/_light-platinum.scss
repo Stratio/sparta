@@ -226,6 +226,10 @@ $c-input---height: 28px;
 $c-input---border-radius: 0;
 $c-input---padding: 0 5px;
 
+$c-input--disabled---background: get-color(g2);
+$c-input--disabled---color: get-color(g7);
+$c-input--disabled---font-style: italic;
+
 $c-input--left-icon---padding: 0 0 0 35px;
 
 
@@ -515,9 +519,9 @@ $c-tag---color: get-color(g0);
 $c-tag---padding: 5px 10px;
 $c-tag---margin: 0 0 0 5px;
 
-$c-tag__close-icon---color: get-color(g10) !default;
-$c-tag__close-icon---font-size: get-font-size(small) !default;
-$c-tag__close-icon---margin: 0 0 0 5px !default;
+$c-tag__close-icon---color: get-color(g10);
+$c-tag__close-icon---font-size: get-font-size(small);
+$c-tag__close-icon---margin: 0 0 0 5px;
 
 
 
@@ -532,8 +536,8 @@ $c-cube__title---color: get-color(g0);
 $c-cube__title---padding: 20px 15px 5px;
 $c-cube__title---text-transform: uppercase;
 
-$c-cube__title--2---background: get-color(g3) !default;
-$c-cube__title--2---color: get-color(g9) !default;
+$c-cube__title--2---background: get-color(g3);
+$c-cube__title--2---color: get-color(g9);
 
 $c-cube__section---padding: 20px 10px;
 
