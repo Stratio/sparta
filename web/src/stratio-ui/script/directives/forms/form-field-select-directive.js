@@ -19,6 +19,7 @@
                 name: '@stName',
                 placeholder: '@',
                 trackBy: '@',
+                selectClass: '@',
                 autofocus: '=',
                 defaultvalue: '=',
                 form: '=',
