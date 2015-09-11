@@ -36,7 +36,8 @@ class PolicyUtilsSpec extends FlatSpec with ShouldMatchers {
       "input-kafka-plugin.jar",
       "output-print-plugin.jar",
       "parser-morphlines-plugin.jar",
-      "operator-count-plugin.jar")
+      "operator-count-plugin.jar",
+      "field-default-plugin.jar")
     val jarFiles = jars.map(new File(_))
   }
 
