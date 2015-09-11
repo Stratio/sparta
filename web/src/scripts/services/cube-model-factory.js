@@ -12,7 +12,6 @@
       cube.name = "";
       cube.dimensions = [];
       cube.operators = [];
-      cube.showCubeError = false;
       cube.checkpointConfig = {};
       cube.checkpointConfig.timeDimension = "";
       cube.checkpointConfig.interval = "";
