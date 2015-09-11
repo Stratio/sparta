@@ -82,7 +82,7 @@ angular
         templateUrl: 'views/policies.html'
     })
       .state('dashboard.newPolicy', {
-        url: '/policy/new',
+        url: '/policies/new',
         controller: 'NewPolicyCtrl',
         controllerAs: 'wizard',
         templateUrl: 'views/policies/wizard-panel.html'
