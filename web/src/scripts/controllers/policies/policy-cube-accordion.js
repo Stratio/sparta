@@ -51,7 +51,7 @@
     };
 
     function isValidCube() {
-      return vm.newCube.name !== "" && vm.newCube.timeDimension !== "" && vm.newCube.interval !== "" && vm.newCube.timeAvailability !== "" && vm.newCube.interval !== "" && vm.newCube.granularity !== "" &&  vm.newCube.dimensions.length > 0 && vm.newCube.operators.length > 0;
+      return vm.newCube.name !== "" && vm.newCube.checkpointConfig.timeDimension !== "" && vm.newCube.checkpointConfig.interval !== null && vm.newCube.checkpointConfig.timeAvailability !== null && vm.newCube.checkpointConfig.granularity !== "" &&  vm.newCube.dimensions.length > 0 && vm.newCube.operators.length > 0;
     };
 
     function getIndex() {
