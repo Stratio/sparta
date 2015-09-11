@@ -22,7 +22,7 @@ package com.stratio.sparkta.serving.core
 object AppConstant {
 
   final val JarPluginsFolder = "plugins"
-  final val ClasspathJarFolder = "dist/target/appassembler"
+  final val ClasspathJarFolder = "repo"
   final val ClusterExecutionJarFolder = "driver"
   final val ExecutionMode = "executionMode"
   final val DefaultExecutionMode = "local"

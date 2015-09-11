@@ -38,6 +38,10 @@
             <groupId>com.stratio.sparkta</groupId>
             <artifactId>driver</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.stratio.sparkta</groupId>
+            <artifactId>serving-api</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -214,7 +218,7 @@
                                 </copyDirectory>
                                 <copyDirectory>
                                     <from>target/appassembler/repo/web</from>
-                                    <to>/opt/sds/sparkta/web</to>
+                                    <to>/opt/sds/sparkta/plugins</to>
                                 </copyDirectory>
                                 <copyDirectory>
                                     <from>target/appassembler/repo/benchmark</from>
