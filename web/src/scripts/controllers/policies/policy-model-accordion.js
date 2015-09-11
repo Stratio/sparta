@@ -17,6 +17,7 @@
     vm.removeModel = removeModel;
     vm.nextStep = nextStep;
     vm.getIndex = getIndex;
+    vm.isLastModel = isLastModel;
 
     vm.init();
 
@@ -37,15 +38,19 @@
         vm.policy.models.push(newModel);
         ModelFactory.ResetModel();
         AccordionStatusService.ResetAccordionStatus(vm.policy.models.length);
+        AccordionStatusService.accordionStatus.newItem = true;
       } else
         vm.error = true;
     }
 
     function removeModel(index) {
+      if (index == vm.policy.models.length -1){ //only it is possible to remove the last model
       vm.policy.models.splice(index, 1);
       vm.newModelIndex = vm.policy.models.length;
       AccordionStatusService.ResetAccordionStatus(vm.policy.models.length);
       AccordionStatusService.accordionStatus.newItem = true;
+      ModelFactory.ResetModel();
+      }
     }
 
     function isValidModel() {
@@ -55,6 +60,10 @@
 
     function getIndex() {
       return index++;
+    }
+
+    function isLastModel(index){
+      return index == vm.policy.models.length -1;
     }
 
     function nextStep() {
