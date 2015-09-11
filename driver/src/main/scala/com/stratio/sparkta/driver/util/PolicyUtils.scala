@@ -18,12 +18,10 @@ package com.stratio.sparkta.driver.util
 
 import java.io.File
 
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.core.models.{SparktaSerializer, AggregationPoliciesModel, StreamingContextStatusEnum}
-import org.json4s.ext.EnumNameSerializer
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, SparktaSerializer}
+import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import org.json4s.native.Serialization._
-import org.json4s.{DefaultFormats, _}
+import org.json4s.jackson.Serialization.write
 
 import scala.util.{Either, Left, Right}
 

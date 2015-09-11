@@ -69,7 +69,7 @@ class LocalSparkStreamingContextActor(policy: AggregationPoliciesModel,
     ssc match {
       case Some(sc: StreamingContext) =>
         SparkContextFactory.destroySparkStreamingContext
-      case x => log.warn("Unrecognized standalone StreamingContext to stop!", x)
+      case x => log.warn("Unrecognized Standalone StreamingContext to stop!", x)
     }
     super.postStop()
   }

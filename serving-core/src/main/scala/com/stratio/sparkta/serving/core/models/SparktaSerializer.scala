@@ -31,4 +31,5 @@ trait SparktaSerializer {
       new EnumNameSerializer(StreamingContextStatusEnum) +
       new JsoneyStringSerializer() +
       new EnumNameSerializer(PolicyStatusEnum)
+
 }

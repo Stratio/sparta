@@ -20,12 +20,14 @@ import java.io.File
 import java.net.URI
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
 import com.typesafe.config.Config
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.collection.JavaConversions._
+import scala.util.Try
 
 object SparkContextFactory extends SLF4JLogging {
 
@@ -107,8 +109,10 @@ object SparkContextFactory extends SLF4JLogging {
   def destroySparkStreamingContext: Unit = {
     synchronized {
       if (ssc.isDefined) {
+        val stopGracefully =
+          Try(SparktaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigStopGracefully)).getOrElse(true)
         log.info(s"Stopping streamingContext with name: ${ssc.get.sparkContext.appName}")
-        ssc.get.stop(false, true)
+        ssc.get.stop(false, stopGracefully)
         log.info(s"Stopped streamingContext with name: ${ssc.get.sparkContext.appName}")
         ssc = None
       } else {

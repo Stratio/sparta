@@ -37,11 +37,6 @@
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
             <artifactId>driver</artifactId>
-
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.sparkta</groupId>
-            <artifactId>serving-api</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -77,6 +72,10 @@
                                     <target name="copy folders">
                                         <copy todir="target/appassembler/repo/driver">
                                             <fileset dir="../driver" includes="**/*.jar" />
+                                            <mapper type="flatten" />
+                                        </copy>
+                                        <copy todir="target/appassembler/repo/serving-api">
+                                            <fileset dir="../serving-api" includes="**/*.jar" />
                                             <mapper type="flatten" />
                                         </copy>
                                         <copy todir="target/appassembler/repo/plugins">
@@ -208,6 +207,10 @@
                                 <copyDirectory>
                                     <from>target/appassembler/repo/driver</from>
                                     <to>/opt/sds/sparkta/driver</to>
+                                </copyDirectory>
+                                <copyDirectory>
+                                    <from>target/appassembler/repo/serving-api</from>
+                                    <to>/opt/sds/sparkta/serving-api</to>
                                 </copyDirectory>
                                 <copyDirectory>
                                     <from>target/appassembler/repo/web</from>
