@@ -28,10 +28,6 @@
     <dependencies>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
-            <artifactId>serving-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.sparkta</groupId>
             <artifactId>aggregator</artifactId>
         </dependency>
         <dependency>
@@ -85,23 +81,6 @@
         <dependency>
             <groupId>org.scalamock</groupId>
             <artifactId>scalamock-scalatest-support_${scala.binary.version}</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-framework</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-recipes</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-test</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

@@ -22,7 +22,7 @@ import com.stratio.sparkta.serving.core.models.{PolicyStatusModel, SparktaSerial
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor._
 import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder}
 import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
-import org.json4s.native.Serialization._
+import org.json4s.jackson.Serialization.{read, write}
 
 import scala.collection.JavaConversions
 import scala.util.{Failure, Success, Try}
@@ -39,7 +39,7 @@ class PolicyStatusActor extends Actor with SLF4JLogging with SparktaSerializer {
     val curator = CuratorFactoryHolder.getInstance()
     val path = s"${AppConstant.ContextPath}/${policyStatus.id}"
 
-    //TODO check the correct statuses for validate
+    //TODO check the correct statuses
     if (Option(curator.checkExists().forPath(path)).isDefined) {
       val ips =
         read[PolicyStatusModel](new String(curator.getData.forPath(s"${AppConstant.ContextPath}/${policyStatus.id}")))

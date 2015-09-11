@@ -40,6 +40,8 @@ object AppConstant {
   final val BaseZKPath = "/stratio/sparkta"
   final val PoliciesBasePath = s"${AppConstant.BaseZKPath}/policies"
   final val ContextPath = s"${AppConstant.BaseZKPath}/contexts"
+  final val ConfigRememberPartitioner = "rememberPartitioner"
+  final val ConfigStopGracefully = "stopGracefully"
 
   //Hdfs Options
   final val HadoopUserName = "hadoopUserName"

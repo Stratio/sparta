@@ -58,15 +58,15 @@ class ClusterSparkStreamingContextActor(policy: AggregationPoliciesModel,
         val hdfsUtils = new HdfsUtils(hadoopUserName, hadoopConfDir)
         val pluginsJarsFiles = PolicyUtils.activeJarFiles(activeJars.right.get, jarsPlugins)
         val pluginsJarsPath =
-          s"/user/$hadoopUserName/${policy.name}/${hdfsConfig.getString(AppConstant.PluginsFolder)}/"
+          s"/user/$hadoopUserName/${policy.id.get}/${hdfsConfig.getString(AppConstant.PluginsFolder)}/"
         val classpathJarsPath =
-          s"/user/$hadoopUserName/${policy.name}/${hdfsConfig.getString(AppConstant.ClasspathFolder)}/"
+          s"/user/$hadoopUserName/${policy.id.get}/${hdfsConfig.getString(AppConstant.ClasspathFolder)}/"
 
         pluginsJarsFiles.foreach(file => hdfsUtils.write(file.getAbsolutePath, pluginsJarsPath, true))
         log.info("Jars plugins uploaded to HDFS")
 
         JarsHelper.findJarsByPath(new File(SparktaConfig.sparktaHome, AppConstant.ClasspathJarFolder),
-          Some(".jar"), None, Some("driver"), Some(Seq("plugins", "spark", "driver", "web")), false)
+          Some(".jar"), None, None, Some(Seq("plugins", "spark", "driver", "web", "serving-api")), false)
           .foreach(file => hdfsUtils.write(file.getAbsolutePath, classpathJarsPath, true))
         log.info("Classpath uploaded to HDFS")
 
@@ -74,7 +74,7 @@ class ClusterSparkStreamingContextActor(policy: AggregationPoliciesModel,
           new File(SparktaConfig.sparktaHome, AppConstant.ClusterExecutionJarFolder)).headOption match {
           case Some(driverJar) => {
             val driverJarPath =
-              s"/user/$hadoopUserName/${policy.name}/${hdfsConfig.getString(AppConstant.ExecutionJarFolder)}/"
+              s"/user/$hadoopUserName/${policy.id.get}/${hdfsConfig.getString(AppConstant.ExecutionJarFolder)}/"
             val hdfsDriverFile =
               s" hdfs://${hdfsConfig.getString(AppConstant.HdfsMaster)}$driverJarPath${driverJar.getName}"
             hdfsUtils.write(driverJar.getAbsolutePath, driverJarPath, true)
@@ -92,13 +92,13 @@ class ClusterSparkStreamingContextActor(policy: AggregationPoliciesModel,
                                    pluginsJarsPath: String,
                                    classpathJarsPath: String): Unit = {
     val execMode = getExecutionMode.toLowerCase
-    if (execMode == "mesos") {
+    if (execMode == AppConstant.ConfigMesos) {
       sparkSubmitSentence(main, hdfsDriverFile, pluginsJarsPath, classpathJarsPath, execMode, getMesosCommandString)
     }
-    if (execMode == "yarn") {
+    if (execMode == AppConstant.ConfigYarn) {
       sparkSubmitSentence(main, hdfsDriverFile, pluginsJarsPath, classpathJarsPath, execMode, getYarnCommandString)
     }
-    if (execMode == "standAlone") {
+    if (execMode == AppConstant.ConfigStandAlone) {
       sparkSubmitSentence(main, hdfsDriverFile, pluginsJarsPath, classpathJarsPath, execMode,
         getStandAloneCommandString)
     }

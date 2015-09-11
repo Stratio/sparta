@@ -27,46 +27,51 @@ import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.driver.util.{HdfsUtils, PolicyUtils}
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel}
+import com.stratio.sparkta.serving.core.models.{SparktaSerializer, AggregationPoliciesModel, PolicyStatusModel}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder, SparktaConfig}
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.FileUtils
-import org.json4s.NoTypeHints
-import org.json4s.native.Serialization
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
-object SparktaClusterJob {
+object SparktaClusterJob extends SparktaSerializer {
 
   implicit val timeout: Timeout = Timeout(3.seconds)
 
   def main(args: Array[String]): Unit = {
     if (checkArgs(args)) {
-      initSparktaConfig(args(4), args(3))
-      val policy = getPolicyFromZookeeper(args(0))
-      implicit val system = ActorSystem(s"${policy.id.get}")
-      val policyStatusActor = system.actorOf(Props[PolicyStatusActor], s"${AkkaConstant.PolicyStatusActor}")
       Try {
-        policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting))
+        initSparktaConfig(args(4), args(3))
+        val policy = getPolicyFromZookeeper(args(0))
         val hadoopUserName = scala.util.Properties.envOrElse("HADOOP_USER_NAME", AppConstant.DefaultHadoopUserName)
         val hadoopConfDir = scala.util.Properties.envOrNone("HADOOP_CONF_DIR")
         val hdfsUtils = new HdfsUtils(hadoopUserName, hadoopConfDir)
         val pluginFiles = addHdfsFiles(hdfsUtils, args(1))
         val classPathFiles = addHdfsFiles(hdfsUtils, args(2))
-        val streamingContextService = new StreamingContextService(Some(policyStatusActor))
-        val ssc = streamingContextService.clusterStreamingContext(
-          policy, pluginFiles ++ classPathFiles, Map("spark.app.name" -> s"${policy.name}")).get
-        ssc.start
-      } match {
-        case Success(_) => {
-          policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Started))
+        implicit val system = ActorSystem(s"${policy.id.get}")
+        val policyStatusActor = system.actorOf(Props[PolicyStatusActor], s"${AkkaConstant.PolicyStatusActor}")
+        Try {
+          policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting))
+          val streamingContextService = new StreamingContextService(Some(policyStatusActor))
+          val ssc = streamingContextService.clusterStreamingContext(
+            policy, pluginFiles ++ classPathFiles, Map("spark.app.name" -> s"${policy.name}")).get
+          ssc.start
+        } match {
+          case Success(_) => {
+            policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Started))
+          }
+          case Failure(exception) => {
+            log.error(exception.getLocalizedMessage, exception)
+            policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed))
+          }
         }
+      } match {
         case Failure(exception) => {
+          log.error("Creating classpath and StatusActor")
           log.error(exception.getLocalizedMessage, exception)
-          policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed))
         }
       }
     } else {

@@ -29,7 +29,7 @@ import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, Policy
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder, SparktaConfig}
-import org.json4s.native.Serialization._
+import org.json4s.jackson.Serialization.{read, write}
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}

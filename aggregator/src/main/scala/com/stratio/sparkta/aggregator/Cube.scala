@@ -19,7 +19,7 @@ package com.stratio.sparkta.aggregator
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.SparktaConfig
+import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
 import org.apache.spark.HashPartitioner
 import org.apache.spark.streaming.Duration
 import org.apache.spark.streaming.dstream.DStream
@@ -46,7 +46,7 @@ case class Cube(name: String,
 
   private lazy val operatorsMap = operators.map(op => op.key -> op).toMap
   private lazy val rememberPartitioner =
-    Try(SparktaConfig.getDetailConfig.get.getBoolean("rememberPartitioner")).getOrElse(true)
+    Try(SparktaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigRememberPartitioner)).getOrElse(true)
 
   def this(name: String,
            dimension: Dimension,

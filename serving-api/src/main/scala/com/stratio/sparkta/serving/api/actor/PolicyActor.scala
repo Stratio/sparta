@@ -26,7 +26,7 @@ import com.stratio.sparkta.serving.core.AppConstant
 import com.stratio.sparkta.serving.core.models._
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
-import org.json4s.native.Serialization._
+import org.json4s.jackson.Serialization.{read, write}
 
 import scala.collection.JavaConversions
 import scala.util.{Failure, Success, Try}
@@ -80,7 +80,6 @@ class PolicyActor(curatorFramework: CuratorFramework)
       ))
     })
 
-
   def findByName(name: String): Unit =
     sender ! ResponsePolicy(Try({
       val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
@@ -95,7 +94,7 @@ class PolicyActor(curatorFramework: CuratorFramework)
 
   def create(policy: AggregationPoliciesModel): Unit =
     sender ! ResponsePolicy(Try({
-      if(existsByName(policy.name)) {
+      if (existsByName(policy.name)) {
         throw new ServingApiException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeExistsPolicytWithName,
             s"Policy with name ${policy.name} exists.")
@@ -141,8 +140,8 @@ class PolicyActor(curatorFramework: CuratorFramework)
       JavaConversions.asScalaBuffer(children).toList.map(element =>
         read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
           s"${AppConstant.PoliciesBasePath}/$element"))))
-        .filter(policy => if(id.isDefined) policy.name == name && policy.id.get != id.get
-         else policy.name == name).toSeq.size > 0
+        .filter(policy => if (id.isDefined) policy.name == name && policy.id.get != id.get
+      else policy.name == name).toSeq.nonEmpty
     }) match {
       case Success(result) => result
       case Failure(exception) => {
@@ -174,4 +173,5 @@ object PolicyActor {
   case class ResponsePolicies(policies: Try[Seq[AggregationPoliciesModel]])
 
   case class ResponsePolicy(policy: Try[AggregationPoliciesModel])
+
 }
