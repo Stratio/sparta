@@ -1,7 +1,7 @@
 <div class="menu-element"
 	ng-if="visible == 'true'"
 	id="menu-element-{{title | lowercase}}"
-	ng-class="{ selected: $state.includes(route)}">
+	ng-class="{ selected: (route.indexOf(title) > -1)}">
 
 	<a href ui-sref="{{sref}}" data-qa="{{qaref}}">
 		<i class="ico {{icon}}"></i>
