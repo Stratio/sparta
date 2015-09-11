@@ -22,7 +22,9 @@
     ///////////////////////////////////////
 
     function ok() {
-      $modalInstance.close(vm.dimension);
+      if (vm.form.$valid) {
+        $modalInstance.close(vm.dimension);
+      }
     };
 
     function cancel() {
