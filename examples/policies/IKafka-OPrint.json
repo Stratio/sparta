@@ -66,12 +66,14 @@
         "timeDimension": "minute",
         "granularity": "minute",
         "interval": 30000,
-        "timeAvailability": 60000
+        "timeAvailability": 60000,
+        "jarFile": "field-dateTime-plugin.jar"
       },
       "dimensions": [
         {
           "field": "appName",
-          "name": "appName"
+          "name": "appName",
+          "jarFile": "field-default-plugin.jar"
         }
       ],
       "operators": [

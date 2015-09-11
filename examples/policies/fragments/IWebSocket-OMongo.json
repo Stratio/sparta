@@ -85,7 +85,6 @@
         {
           "name": "countoperator",
           "type": "Count",
-          "jarFile": "operator-count-plugin.jar",
           "configuration": {}
         }
       ]

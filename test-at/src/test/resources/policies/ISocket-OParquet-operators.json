@@ -76,12 +76,14 @@
         "timeDimension": "minute",
         "granularity": "minute",
         "interval": 30000,
-        "timeAvailability": 60000
+        "timeAvailability": 60000,
+        "jarFile": "field-dateTime-plugin.jar"
       },
       "dimensions": [
         {
           "name": "product",
-          "field": "product"
+          "field": "product",
+          "jarFile": "field-default-plugin.jar"
         }
       ],
       "operators": [
@@ -198,6 +200,7 @@
         {
           "name": "entityCount_text",
           "type": "EntityCount",
+          "jarFile" : "operator-entityCount-plugin.jar",
           "configuration": {
             "inputField": "text",
             "split": " "
@@ -206,6 +209,7 @@
         {
           "name": "totalEntity_text",
           "type": "TotalEntityCount",
+          "jarFile" : "operator-totalEntityCount-plugin.jar",
           "configuration": {
             "inputField": "text",
             "split": " "

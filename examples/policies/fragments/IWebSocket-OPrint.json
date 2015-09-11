@@ -71,7 +71,6 @@
         {
           "name": "countoperator",
           "type": "Count",
-          "jarFile": "operator-count-plugin.jar",
           "configuration": {}
         }
       ]
@@ -81,7 +80,6 @@
     {
       "name": "out-print",
       "type": "Print",
-      "jarFile": "output-print-plugin.jar",
       "configuration": {}
     }
   ]
