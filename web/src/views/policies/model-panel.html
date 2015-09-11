@@ -45,7 +45,7 @@
                     text-class="" icon-url="vm.templateModelData.configHelpLink"></c-icon-label>
 
     <textarea ng-if="!disabled" class="c-textarea c-textarea--full-width" ng-model="vm.model.configuration"
-              placeholder={{vm.configPlaceholder}} data-ng-readonly="disabled"/>
+              placeholder={{vm.configPlaceholder}} data-ng-readonly="disabled"></textarea>
 
       <p class="c-textarea c-textarea--disabled c-textarea--full-width" ng-if="disabled" ng-model="vm.model.configuration">
         {{vm.model.configuration | json}}</p>
@@ -62,5 +62,6 @@
                          type="'text'"></c-add-element>
         </div>
       </div>
+    </div>
   </form>
 </section>
