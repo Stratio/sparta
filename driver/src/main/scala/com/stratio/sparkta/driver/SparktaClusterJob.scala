@@ -75,7 +75,8 @@ object SparktaClusterJob extends SparktaSerializer {
         }
       }
     } else {
-      log.warn("Invalid arguments")
+      log.error("Invalid arguments")
+      System.exit(-1)
     }
   }
 

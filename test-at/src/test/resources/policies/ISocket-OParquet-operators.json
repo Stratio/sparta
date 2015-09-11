@@ -76,8 +76,7 @@
         "timeDimension": "minute",
         "granularity": "minute",
         "interval": 30000,
-        "timeAvailability": 60000,
-        "jarFile": "field-dateTime-plugin.jar"
+        "timeAvailability": 60000
       },
       "dimensions": [
         {
