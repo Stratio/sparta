@@ -27,7 +27,7 @@
           <ng-include src="'views/policies/model-panel.html'" ng-init = "model = currentModel; disabled = true" ng-model="currentModel"></ng-include>
 
           <div class="c-form-group c-form-group--full-width c-form-group--to-right">
-            <button class="c-button c-button--danger" data-ng-click="vm.removeModel($index, $event)">
+            <button class="c-button c-button--danger" ng-if = "vm.isLastModel($index)" data-ng-click="vm.removeModel($index, $event)">
               <i class="c-icon icon-cross"></i>
               <span>{{"_DELETE_" | translate}}</span>
             </button>
