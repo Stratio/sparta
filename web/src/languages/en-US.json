@@ -116,6 +116,7 @@
     "_DESCRIPTION_INFO_MESSAGE_": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
     "_INPUTS_ERROR_": "One input must be selected!",
     "_OUTPUTS_ERROR_": "At least one output must be selected!",
+    "_DESCRIPTION_ERROR_": "There was an error. The name of the policy already exists!",
     "_MODEL_NAME_": "Model name",
     "_ADD_MODEL_": "Add model",
     "_CUBE_NAME_": "Cube name",
