@@ -34,16 +34,16 @@
           </div>
         </footer>
       </div>
+      <div ng-if="wizard.error" class="c-row c-msg c-msg--small c-msg--error">
+        <i class="c-icon icon-circle-cross"></i>
+        <span>{{wizard.error | translate}}</span>
+      </div>
+      <div ng-show="wizard.successfullySentPolicy" class="c-row c-msg c-msg--small c-msg--success">
+        <i class="c-icon icon-circle-check"></i>
+        <span>{{"_POLICY_._SUCCESS_SENT_" | translate}}</span>
+      </div>
     </div>
 
-    <div ng-show="vm.error" class="c-row c-msg c-msg--small c-msg--error">
-      <i class="c-icon icon-circle-cross"></i>
-      <span>{{vm.error | translate}}</span>
-    </div>
-    <div ng-show="vm.successfullySentPolicy" class="c-row c-msg c-msg--small c-msg--success">
-      <i class="c-icon icon-circle-check"></i>
-      <span>{{"_POLICY_._SUCCESS_SENT_" | translate}}</span>
-    </div>
   </div>
 
 
