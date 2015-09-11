@@ -1,3 +1,7 @@
 @mixin c-component {
 	box-sizing: border-box;
+
+	&--bottom-margin {
+		margin-bottom: $c-component---margin-bottom;
+	}
 }
