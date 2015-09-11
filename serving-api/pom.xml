@@ -161,5 +161,4 @@
             <artifactId>spark-sql_${scala.binary.version}</artifactId>
         </dependency>
     </dependencies>
-
 </project>

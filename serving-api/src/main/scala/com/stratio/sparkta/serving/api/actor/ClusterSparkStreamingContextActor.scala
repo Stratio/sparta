@@ -58,9 +58,10 @@ class ClusterSparkStreamingContextActor(policy: AggregationPoliciesModel,
         val hdfsUtils = new HdfsUtils(hadoopUserName, hadoopConfDir)
         val pluginsJarsFiles = PolicyUtils.activeJarFiles(activeJars.right.get, jarsPlugins)
         val pluginsJarsPath =
-          s"/user/$hadoopUserName/${policy.id.get}/${hdfsConfig.getString(AppConstant.PluginsFolder)}/"
+          s"/user/$hadoopUserName/${policy.name}-${policy.id.get}/${hdfsConfig.getString(AppConstant
+            .PluginsFolder)}/"
         val classpathJarsPath =
-          s"/user/$hadoopUserName/${policy.id.get}/${hdfsConfig.getString(AppConstant.ClasspathFolder)}/"
+          s"/user/$hadoopUserName/${policy.name}-${policy.id.get}/${hdfsConfig.getString(AppConstant.ClasspathFolder)}/"
 
         pluginsJarsFiles.foreach(file => hdfsUtils.write(file.getAbsolutePath, pluginsJarsPath, true))
         log.info("Jars plugins uploaded to HDFS")
@@ -73,8 +74,8 @@ class ClusterSparkStreamingContextActor(policy: AggregationPoliciesModel,
         JarsHelper.findDriverByPath(
           new File(SparktaConfig.sparktaHome, AppConstant.ClusterExecutionJarFolder)).headOption match {
           case Some(driverJar) => {
-            val driverJarPath =
-              s"/user/$hadoopUserName/${policy.id.get}/${hdfsConfig.getString(AppConstant.ExecutionJarFolder)}/"
+            val driverJarPath = s"/user/$hadoopUserName/${policy.name}-${policy.id.get}/" +
+                s"${hdfsConfig.getString(AppConstant.ExecutionJarFolder)}/"
             val hdfsDriverFile =
               s" hdfs://${hdfsConfig.getString(AppConstant.HdfsMaster)}$driverJarPath${driverJar.getName}"
             hdfsUtils.write(driverJar.getAbsolutePath, driverJarPath, true)
