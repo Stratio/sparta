@@ -16,28 +16,26 @@
 
 package com.stratio.sparkta.serving.api.actor
 
-import akka.actor.ActorRef
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
-
-import scala.concurrent.duration._
-import scala.sys.process._
-
-import akka.util.Timeout
-import com.typesafe.config.Config
-import org.json4s._
-import org.json4s.native.Serialization
+import java.io.File
 
 import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.driver.util.{HdfsUtils, PolicyUtils}
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
-import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.helpers.JarsHelper
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, SparktaSerializer}
+import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
+import com.typesafe.config.{Config, ConfigRenderOptions}
+import org.apache.commons.lang.StringEscapeUtils
+
+import scala.collection.JavaConversions._
+import scala.sys.process._
 
 class ClusterSparkStreamingContextActor(policy: AggregationPoliciesModel,
-                                        config: Config,
-                                        policyStatusActor: ActorRef) extends InstrumentedActor{
-
-  implicit val timeout: Timeout = Timeout(90.seconds)
-  implicit val json4sJacksonFormats = DefaultFormats
-  implicit val formats = Serialization.formats(NoTypeHints)
+                                        streamingContextService: StreamingContextService,
+                                        clusterConfig: Config,
+                                        hdfsConfig: Config,
+                                        zookeeperConfig: Config,
+                                        detailConfig: Option[Config]) extends InstrumentedActor with SparktaSerializer {
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start => doInitSparktaContext
@@ -45,11 +43,173 @@ class ClusterSparkStreamingContextActor(policy: AggregationPoliciesModel,
 
   def doInitSparktaContext: Unit = {
     log.debug("Init new cluster streamingContext with name " + policy.name)
+    val jarsPlugins = JarsHelper.findJarsByPath(
+      new File(SparktaConfig.sparktaHome, AppConstant.JarPluginsFolder), Some("-plugin.jar"), None, None, None, false)
+    val activeJars = PolicyUtils.activeJars(policy, jarsPlugins)
+    if (checkPolicyJars(activeJars)) {
+      val main = getMainCommand
+      if (main.isEmpty)
+        log.warn("You must set the sparkSubmit path in configuration")
+      else {
+        val hadoopUserName =
+          scala.util.Properties.envOrElse("HADOOP_USER_NAME", hdfsConfig.getString(AppConstant.HadoopUserName))
+        val hadoopConfDir =
+          Some(scala.util.Properties.envOrElse("HADOOP_CONF_DIR", hdfsConfig.getString(AppConstant.HadoopConfDir)))
+        val hdfsUtils = new HdfsUtils(hadoopUserName, hadoopConfDir)
+        val pluginsJarsFiles = PolicyUtils.activeJarFiles(activeJars.right.get, jarsPlugins)
+        val pluginsJarsPath =
+          s"/user/$hadoopUserName/${policy.name}-${policy.id.get}/${hdfsConfig.getString(AppConstant
+            .PluginsFolder)}/"
+        val classpathJarsPath =
+          s"/user/$hadoopUserName/${policy.name}-${policy.id.get}/${hdfsConfig.getString(AppConstant.ClasspathFolder)}/"
 
-    val cmd = s"spark-submit " +
-      "--class com.stratio.sparkta.driver.SparktaJob " +
-      s"--master ${config.getString("spark.master")} " +
-      s"${config.getString("spark.extra")}} driver/target/driver-plugin.jar ${policy.name}"
+        pluginsJarsFiles.foreach(file => hdfsUtils.write(file.getAbsolutePath, pluginsJarsPath, true))
+        log.info("Jars plugins uploaded to HDFS")
+
+        JarsHelper.findJarsByPath(new File(SparktaConfig.sparktaHome, AppConstant.ClasspathJarFolder),
+          Some(".jar"), None, None, Some(Seq("plugins", "spark", "driver", "web", "serving-api")), false)
+          .foreach(file => hdfsUtils.write(file.getAbsolutePath, classpathJarsPath, true))
+        log.info("Classpath uploaded to HDFS")
+
+        JarsHelper.findDriverByPath(
+          new File(SparktaConfig.sparktaHome, AppConstant.ClusterExecutionJarFolder)).headOption match {
+          case Some(driverJar) => {
+            val driverJarPath = s"/user/$hadoopUserName/${policy.name}-${policy.id.get}/" +
+                s"${hdfsConfig.getString(AppConstant.ExecutionJarFolder)}/"
+            val hdfsDriverFile =
+              s" hdfs://${hdfsConfig.getString(AppConstant.HdfsMaster)}$driverJarPath${driverJar.getName}"
+            hdfsUtils.write(driverJar.getAbsolutePath, driverJarPath, true)
+            log.info("Jar driver uploaded to HDFS")
+            sparkSubmitExecution(main, hdfsDriverFile, pluginsJarsPath, classpathJarsPath)
+          }
+          case None => log.warn(s"The driver jar cannot be found in classpath")
+        }
+      }
+    }
+  }
+
+  private def sparkSubmitExecution(main: String,
+                                   hdfsDriverFile: String,
+                                   pluginsJarsPath: String,
+                                   classpathJarsPath: String): Unit = {
+    val execMode = getExecutionMode.toLowerCase
+    if (execMode == AppConstant.ConfigMesos) {
+      sparkSubmitSentence(main, hdfsDriverFile, pluginsJarsPath, classpathJarsPath, execMode, getMesosCommandString)
+    }
+    if (execMode == AppConstant.ConfigYarn) {
+      sparkSubmitSentence(main, hdfsDriverFile, pluginsJarsPath, classpathJarsPath, execMode, getYarnCommandString)
+    }
+    if (execMode == AppConstant.ConfigStandAlone) {
+      sparkSubmitSentence(main, hdfsDriverFile, pluginsJarsPath, classpathJarsPath, execMode,
+        getStandAloneCommandString)
+    }
+  }
+
+  private def sparkSubmitSentence(main: String,
+                                  hdfsDriverFile: String,
+                                  pluginsJarsPath: String,
+                                  classpathJarsPath: String,
+                                  execMode: String,
+                                  execModeSentence: String): Unit = {
+    val cmd = s"$main $getGenericCommand $execModeSentence $getSparkConfig $hdfsDriverFile " +
+      s"${policy.id.get} $pluginsJarsPath $classpathJarsPath $getZookeeperCommand $getDetailConfigCommand"
     cmd.!!
+    log.info(s"Spark submit to $execMode cluster executed")
+  }
+
+  private def checkPolicyJars(activeJars: Either[Seq[String], Seq[String]]): Boolean = {
+    if (activeJars.isLeft || activeJars.right.get.isEmpty) {
+      if (activeJars.isLeft) {
+        log.warn(s"The policy have jars witch cannot be found in classpath:")
+        activeJars.left.get.foreach(log.warn)
+      } else {
+        if (activeJars.right.get.isEmpty) {
+          log.warn(s"The policy don't have jars in the plugins")
+        }
+      }
+      false
+    } else true
+  }
+
+  private def getMainCommand: String = {
+    var sparkPath = scala.util.Properties.envOrElse("SPARK_HOME",
+      SparktaConfig.getOptionStringConfig(AppConstant.SparkHome, clusterConfig) match {
+        case Some(submitPath) => s"$submitPath"
+        case None => ""
+      })
+    sparkPath = if (sparkPath.endsWith("/")) sparkPath else sparkPath + "/"
+    s"${sparkPath}bin/spark-submit --class com.stratio.sparkta.driver.SparktaClusterJob"
+  }
+
+  private def getGenericCommand: String = {
+    val deploy = SparktaConfig.getOptionStringConfig(AppConstant.DeployMode, clusterConfig)
+      .map(deployMode => s"--deploy-mode $deployMode")
+    val executors = SparktaConfig.getOptionStringConfig(AppConstant.NumExecutors, clusterConfig)
+      .map(numExecutors => s"--num-executors $numExecutors")
+    val executorCores = SparktaConfig.getOptionStringConfig(AppConstant.ExecutorCores, clusterConfig)
+      .map(cores => s"--executor-cores $cores")
+    val totalExecutorCores = SparktaConfig.getOptionStringConfig(AppConstant.TotalExecutorCores, clusterConfig)
+      .map(totalCores => s"--total-executor-cores $totalCores")
+    val executorMemory = SparktaConfig.getOptionStringConfig(AppConstant.ExecutorMemory, clusterConfig)
+      .map(executorsMemory => s"--executor-memory $executorsMemory")
+
+    Seq(deploy, executors, executorCores, totalExecutorCores, executorMemory).flatten.mkString(" ")
+  }
+
+  private def getMesosCommandString: String = {
+    val master = SparktaConfig.getOptionStringConfig(AppConstant.MesosMasterDispatchers, clusterConfig) match {
+      case Some(masterDispatcher) => s"--master mesos://$masterDispatcher:7077"
+      case None => ""
+    }
+    master
+  }
+
+  private def getYarnCommandString: String = {
+    val master = SparktaConfig.getOptionStringConfig(AppConstant.YarnMaster, clusterConfig) match {
+      case Some(master) => s"--master $master"
+      case None => ""
+    }
+    val queue = SparktaConfig.getOptionStringConfig(AppConstant.YarnQueue, clusterConfig) match {
+      case Some(queue) => s"--queue $queue"
+      case None => ""
+    }
+    master + queue
+  }
+
+  private def getStandAloneCommandString: String = {
+    val master = SparktaConfig.getOptionStringConfig(AppConstant.StandAloneMasterNode, clusterConfig) match {
+      case Some(master) => s"--master spark://$master:7077"
+      case None => ""
+    }
+    val supervise = SparktaConfig.getOptionStringConfig(AppConstant.StandAloneSupervise, clusterConfig) match {
+      case Some(supervise) => if (supervise == "true") s"--supervise" else ""
+      case None => ""
+    }
+    master + supervise
+  }
+
+  private def getZookeeperCommand: String = {
+    val config = zookeeperConfig.atKey("zk").root.render(ConfigRenderOptions.concise)
+    "\"" + StringEscapeUtils.escapeJavaScript(config.stripPrefix("{").stripSuffix("}")) + "\""
+  }
+
+  private def getDetailConfigCommand: String = {
+    if (detailConfig.isDefined) {
+      val config = detailConfig.get.atKey("config").root.render(ConfigRenderOptions.concise)
+      "\"" + StringEscapeUtils.escapeJavaScript(config.stripPrefix("{").stripSuffix("}")) + "\""
+    } else ""
+  }
+
+  private def getSparkConfig: String = {
+    val properties = clusterConfig.entrySet()
+    properties.flatMap(prop => {
+      if (prop.getKey.startsWith("spark.")) Some(s"--conf ${prop.getKey}=${clusterConfig.getString(prop.getKey)}")
+      else None
+    }).mkString(" ")
+  }
+
+  def getExecutionMode: String = detailConfig match {
+    case Some(config) => config.getString(AppConstant.ExecutionMode)
+    case None => AppConstant.DefaultExecutionMode
   }
 }

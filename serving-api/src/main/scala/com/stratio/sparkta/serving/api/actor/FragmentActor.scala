@@ -20,16 +20,13 @@ import java.util.UUID
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.api.actor.FragmentActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.core.AppConstant
-import com.stratio.sparkta.serving.core.models.{SparktaSerializer, ErrorModel, FragmentElementModel, StreamingContextStatusEnum}
+import com.stratio.sparkta.serving.core.models.{ErrorModel, FragmentElementModel, SparktaSerializer}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
-import org.json4s.DefaultFormats
-import org.json4s.ext.EnumNameSerializer
-import org.json4s.native.Serialization._
+import org.json4s.jackson.Serialization.{read, write}
 import spray.httpx.Json4sJacksonSupport
 
 import scala.collection.JavaConversions

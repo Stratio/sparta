@@ -20,13 +20,10 @@ import java.io.{File, InputStreamReader}
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.api.actor.TemplateActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
-import com.stratio.sparkta.serving.core.models.{ErrorModel, StreamingContextStatusEnum, TemplateModel}
-import org.json4s.DefaultFormats
-import org.json4s.ext.EnumNameSerializer
-import org.json4s.native.Serialization._
+import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer, TemplateModel}
+import org.json4s.jackson.Serialization.read
 import spray.httpx.Json4sJacksonSupport
 
 import scala.util.Try
@@ -34,11 +31,7 @@ import scala.util.Try
 /**
  * Implementation of supported CRUD operations over templates used to composite a policy.
  */
-class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging {
-
-  implicit val json4sJacksonFormats = DefaultFormats +
-    new EnumNameSerializer(StreamingContextStatusEnum) +
-    new JsoneyStringSerializer()
+class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging with SparktaSerializer {
 
   override def receive: Receive = {
 
@@ -60,7 +53,6 @@ class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging {
       case e: NullPointerException => Seq()
     })
 
-
   def doFindByTypeAndName(t: String, name: String): Unit =
     sender ! ResponseTemplate(Try({
       read[TemplateModel](new InputStreamReader(
@@ -81,4 +73,5 @@ object TemplateActor {
   case class ResponseTemplates(templates: Try[Seq[TemplateModel]])
 
   case class ResponseTemplate(template: Try[TemplateModel])
+
 }

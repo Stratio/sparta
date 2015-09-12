@@ -1,5 +1,4 @@
 {
-  "id": "id",
   "name": "ATSocketCSV",
   "description": "No description",
   "sparkStreamingWindow": 2000,

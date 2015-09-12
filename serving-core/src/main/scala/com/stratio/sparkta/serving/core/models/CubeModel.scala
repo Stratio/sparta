@@ -33,4 +33,5 @@ case class DimensionModel(name: String,
                         field: String,
                         precision: String = DimensionType.IdentityName,
                        `type`: String = DimensionType.DefaultDimensionClass,
-                        configuration: Option[Map[String, String]])
+                        configuration: Option[Map[String, String]],
+                          jarFile: Option[String] = None)

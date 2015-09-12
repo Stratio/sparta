@@ -71,7 +71,8 @@
       "dimensions": [
         {
           "field": "appName",
-          "name": "appName"
+          "name": "appName",
+          "jarFile": "field-default-plugin.jar"
         }
       ],
       "operators": [

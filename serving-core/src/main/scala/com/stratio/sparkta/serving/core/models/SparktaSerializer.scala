@@ -28,7 +28,8 @@ trait SparktaSerializer {
 
   implicit val json4sJacksonFormats: Formats =
     DefaultFormats +
-    new EnumNameSerializer(StreamingContextStatusEnum) +
-    new JsoneyStringSerializer() +
-    new EnumNameSerializer(PolicyStatusEnum)
+      new EnumNameSerializer(StreamingContextStatusEnum) +
+      new JsoneyStringSerializer() +
+      new EnumNameSerializer(PolicyStatusEnum)
+
 }
