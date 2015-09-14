@@ -86,6 +86,10 @@
                                             <fileset dir="../plugins" includes="**/*.jar" />
                                             <mapper type="flatten" />
                                         </copy>
+                                        <copy todir="target/appassembler/repo/cluster">
+                                            <fileset dir="../cluster" includes="**/*.jar" />
+                                            <mapper type="flatten" />
+                                        </copy>
                                         <copy todir="target/appassembler/repo/web">
                                             <fileset dir="../web" includes="**/*.jar" />
                                             <mapper type="flatten" />
@@ -215,6 +219,10 @@
                                 <copyDirectory>
                                     <from>target/appassembler/repo/serving-api</from>
                                     <to>/opt/sds/sparkta/serving-api</to>
+                                </copyDirectory>
+                                <copyDirectory>
+                                    <from>target/appassembler/repo/cluster</from>
+                                    <to>/opt/sds/sparkta/cluster</to>
                                 </copyDirectory>
                                 <copyDirectory>
                                     <from>target/appassembler/repo/web</from>
