@@ -39,7 +39,6 @@
           }
 
           if (inputExists){
-            console.log(scope.model[i]);
             scope.error = true;
           }
           else {
