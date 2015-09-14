@@ -17,10 +17,10 @@
             <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right"></i>
           </accordion-heading>
 
-          <ng-include class="c-form-group" src="'views/policies/cube-panel.html'" ng-init="cube=currentCube"></ng-include>
+          <ng-include class="c-form-group" src="'views/policies/cube-panel.html'" ng-init="cube=currentCube" data-qa="policy-cube-{{$index}}"></ng-include>
 
           <div class="c-form-group c-form-group--full-width c-form-group--to-right">
-            <button class="c-button c-button--danger" data-ng-click="vm.removeCube($index, $event)">
+            <button class="c-button c-button--danger" data-ng-click="vm.removeCube($index, $event)" data-qa="policy-cube-remove-button">
               <i class="c-icon icon-cross"></i>
               <span>{{"_DELETE_" | translate}}</span>
             </button>
@@ -41,10 +41,10 @@
             <span>{{"_ERROR_ALL_FIELDS_REQUIRED_" | translate}}</span>
           </div>
 
-          <ng-include class="c-form-group" src="'views/policies/cube-panel.html'" ng-init="cube=vm.newCube"></ng-include>
+          <ng-include class="c-form-group" src="'views/policies/cube-panel.html'" ng-init="cube=vm.newCube" data-qa="policy-cube-new"></ng-include>
 
           <div class="c-form-group c-form-group--full-width c-form-group--to-right">
-            <button class="c-button c-button--call-to-action-1" ng-click="vm.addCube()">
+            <button class="c-button c-button--call-to-action-1" ng-click="vm.addCube()" data-qa="policy-cube-add-button">
               <i class="icon icon-circle-plus"></i>
               <span>{{"_POLICY_._ADD_CUBE_" | translate}}</span>
             </button>

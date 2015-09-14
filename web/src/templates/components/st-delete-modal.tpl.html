@@ -11,7 +11,7 @@
 		<p translate="{{vm.modalTexts.secondaryText2}}"></p>
 
 		<ul class="c-list c-list--dashed">
-			<li data-ng-repeat="item in vm.outputs.policies">- {{item.name}}</li>
+			<li data-ng-repeat="item in vm.outputs.policies" data-qa="delete-modal-policy-{{item.id}}">- {{item.name}}</li>
 		</ul>
 	</div>
 

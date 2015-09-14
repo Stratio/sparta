@@ -27,7 +27,8 @@
                 options: '=',
                 required: '=',
                 disabled: '=',
-                changeAction: '&'
+                changeAction: '&',
+                qa: '@'
             }
         };
         return directive;
