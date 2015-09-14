@@ -23,21 +23,21 @@
     vm.init();
 
     function init() {
-      vm.policy = PolicyModelFactory.GetCurrentPolicy();
+      vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.policy.cubes = [];
-      vm.newCube = CubeModelFactory.GetCube();
-      vm.accordionStatus = AccordionStatusService.accordionStatus;
-      AccordionStatusService.ResetAccordionStatus(vm.policy.cubes.length);
+      vm.newCube = CubeModelFactory.getCube();
+      vm.accordionStatus = AccordionStatusService.getAccordionStatus();
+      AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
       vm.helpLink = PolicyStaticDataFactory.helpLinks.cubes;
     };
 
     function addCube() {
-      if (isValidCube()) {
+      if (CubeModelFactory.isValidCube()) {
         vm.modelError = false;
         vm.error = false;
         vm.policy.cubes.push(angular.copy(vm.newCube));
-        CubeModelFactory.ResetCube();
-        AccordionStatusService.ResetAccordionStatus(vm.policy.cubes.length);
+        CubeModelFactory.resetCube();
+        AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
       }
       else {
         vm.error = true;
@@ -46,12 +46,8 @@
 
     function removeCube(index) {
       vm.policy.cubes.splice(index, 1);
-      AccordionStatusService.ResetAccordionStatus(vm.policy.cubes.length);
+      AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
       AccordionStatusService.accordionStatus.newItem = true;
-    };
-
-    function isValidCube() {
-      return vm.newCube.name !== "" && vm.newCube.checkpointConfig.timeDimension !== "" && vm.newCube.checkpointConfig.interval !== null && vm.newCube.checkpointConfig.timeAvailability !== null && vm.newCube.checkpointConfig.granularity !== "" &&  vm.newCube.dimensions.length > 0 && vm.newCube.operators.length > 0;
     };
 
     function getIndex() {
@@ -60,7 +56,7 @@
 
     function nextStep() {
       if (vm.policy.cubes.length > 0) {
-        PolicyModelFactory.NextStep();
+        PolicyModelFactory.nextStep();
       }
       else {
         vm.modelError = true;

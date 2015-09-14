@@ -23,20 +23,16 @@
       if (cube) {
         vm.cube = cube;
       } else {
-        vm.cube = CubeModelFactory.GetCube();
+        vm.cube = CubeModelFactory.getCube();
       }
-      vm.policy = PolicyModelFactory.GetCurrentPolicy();
+      vm.policy = PolicyModelFactory.getCurrentPolicy();
       var models = vm.policy.models;
       if (models.length > 0) {
 
-        vm.granularityOptions = CubeStaticDataFactory.GetGranularityOptions();
+        vm.granularityOptions = CubeStaticDataFactory.getGranularityOptions();
         vm.outputList = models[models.length - 1].outputFields;
-        vm.functionList = CubeStaticDataFactory.GetFunctions();
+        vm.functionList = CubeStaticDataFactory.getFunctionNames();
       }
-    }
-
-    function isValidCube() {
-      return true; //TODO
     }
 
     function addOutputToDimensions(outputName) {
@@ -54,7 +50,7 @@
             return outputName + functionLength;
           },
           type: function () {
-            return CubeStaticDataFactory.GetDefaultType()
+            return CubeStaticDataFactory.getDefaultType()
           }
         }
       });

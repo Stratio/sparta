@@ -16,7 +16,7 @@
     ///////////////////////////////////////
 
     function init() {
-      vm.policy = PolicyModelFactory.GetCurrentPolicy();
+      vm.policy = PolicyModelFactory.getCurrentPolicy();
       var json = getFinalJSON();
       vm.testingpolcyData = JSON.stringify(json, null, 4);
     };

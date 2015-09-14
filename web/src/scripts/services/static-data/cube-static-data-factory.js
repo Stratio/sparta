@@ -42,14 +42,14 @@
       ];
 
     return {
-      GetFunctions: function () {
+      getFunctionNames: function () {
         return ["Accumulator", "Avg", "Count", "EntityCount", "FirstValue", "FullText", "LastValue", "Max", "Median", "Min", "Mode", "Range", "Stddev", "Sum", "Variance", "TotalEntityCount"]
       },
-      GetGranularityOptions: function () {
+      getGranularityOptions: function () {
         return granularityOptions;
       },
 
-      GetDefaultType: function(){
+      getDefaultType: function(){
         return "Default"
       }
     }

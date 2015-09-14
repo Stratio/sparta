@@ -20,14 +20,27 @@
       cube.checkpointConfig.granularity = "";
     };
 
-    return {
-      ResetCube: function () {
-        init();
-      },
-      GetCube: function () {
-        if (Object.keys(cube).length == 0) init();
-        return cube;
+    function resetCube() {
+      init();
+    };
+
+    function getCube() {
+      if (Object.keys(cube).length == 0) {
+        init()
       }
+      return cube;
+    }
+
+    function isValidCube() {
+      return cube.name !== "" && cube.checkpointConfig.timeDimension !== "" && cube.checkpointConfig.interval !== null
+        && cube.checkpointConfig.timeAvailability !== null && cube.checkpointConfig.granularity !== ""
+        && cube.dimensions.length > 0 && cube.operators.length > 0;
+    };
+
+    return {
+      resetCube: resetCube,
+      getCube: getCube,
+      isValidCube: isValidCube
     }
   }
 

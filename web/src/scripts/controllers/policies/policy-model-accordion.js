@@ -23,56 +23,51 @@
     vm.init();
 
     function init() {
-      vm.policy = PolicyModelFactory.GetCurrentPolicy();
+      vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.policy.models = [];
-      vm.newModel = ModelFactory.GetModel();
+      vm.newModel = ModelFactory.getModel();
       vm.accordionStatus = AccordionStatusService.accordionStatus;
       vm.templateModelData = ModelStaticDataFactory;
-      AccordionStatusService.ResetAccordionStatus(vm.policy.models.length);
+      AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
       vm.helpLink = PolicyStaticDataFactory.helpLinks.models;
     }
 
     function addModel() {
       vm.error = false;
-      if (isValidModel()) {
+      if (ModelFactory.isValidModel()) {
         vm.modelError = false;
         var newModel = angular.copy(vm.newModel);
         newModel.order = vm.policy.models.length + 1;
         vm.policy.models.push(newModel);
-        ModelFactory.ResetModel();
-        AccordionStatusService.ResetAccordionStatus(vm.policy.models.length);
+        ModelFactory.resetModel();
+        AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
         AccordionStatusService.accordionStatus.newItem = true;
       } else
         vm.error = true;
     }
 
     function removeModel(index) {
-      if (index == vm.policy.models.length -1){ //only it is possible to remove the last model
-      vm.policy.models.splice(index, 1);
-      vm.newModelIndex = vm.policy.models.length;
-      AccordionStatusService.ResetAccordionStatus(vm.policy.models.length);
-      AccordionStatusService.accordionStatus.newItem = true;
-      ModelFactory.ResetModel();
+      if (index == vm.policy.models.length - 1) { //only it is possible to remove the last model
+        vm.policy.models.splice(index, 1);
+        vm.newModelIndex = vm.policy.models.length;
+        AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
+        AccordionStatusService.getAccordionStatus().newItem = true;
+        ModelFactory.resetModel();
       }
-    }
-
-    function isValidModel() {
-      return vm.newModel.inputField != "" && vm.newModel.outputFields.length > 0 && vm.newModel.configuration != "" &&
-        vm.newModel.name != "" && vm.newModel.type != "" && ModelFactory.IsValidConfiguration();
     }
 
     function getIndex() {
       return index++;
     }
 
-    function isLastModel(index){
-      return index == vm.policy.models.length -1;
+    function isLastModel(index) {
+      return index == vm.policy.models.length - 1;
     }
 
     function nextStep() {
       if (vm.policy.models.length > 0) {
         vm.modelError = false;
-        PolicyModelFactory.NextStep();
+        PolicyModelFactory.nextStep();
       }
       else {
         vm.modelError = true;

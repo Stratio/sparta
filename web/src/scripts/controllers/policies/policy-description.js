@@ -10,7 +10,7 @@
 
   function PolicyDescriptionCtrl(PolicyModelFactory, PolicyStaticDataFactory, PolicyFactory, $filter) {
     var vm = this;
-    vm.policy = PolicyModelFactory.GetCurrentPolicy();
+    vm.policy = PolicyModelFactory.getCurrentPolicy();
     vm.validateForm = validateForm;
 
     vm.sparkStreamingWindowData = PolicyStaticDataFactory.sparkStreamingWindow;
@@ -36,7 +36,7 @@
               delete vm.policy.rawData['path'];
               delete vm.policy.rawData['partitionFormat'];
             }
-            PolicyModelFactory.NextStep();
+            PolicyModelFactory.nextStep();
           }
           else {
             vm.error = true;
