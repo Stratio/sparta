@@ -16,7 +16,7 @@
 				<tr class="c-table__tr" data-ng-repeat="policy in policies.policiesData.list">
 					<td class="c-table__td c-table__td--no-wrap c-col--3">{{policy.name}}</td>
 					<td class="c-table__td">{{policy.description}}</td>
-					<td class="c-table__td c-table__td--no-wrap c-col--1">
+					<td class="c-table__td c-table__td--no-wrap c-table__td--to-right c-col--1">
 						<i class="c-icon c-icon--is-clickable c-icon--call-to-action icon-actions" data-ng-click="$root.stToggleFloatingMenu[policy.id]()">
 							<st-floating-menu toggle-id="{{policy.id}}" align="right">
 								<st-menu-element class-icon="icon-cross" data-ng-click="policies.deletePolicy(policy.id, $index)" data-qa="policy-context-menu-{{policy.id}}">

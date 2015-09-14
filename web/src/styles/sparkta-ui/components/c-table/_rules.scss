@@ -26,6 +26,8 @@
 	@at-root &__td {
 		padding: $c-table---padding-top $c-table---cell-spacing $c-table---padding-bottom;
 
+		@include container-to-right;
+
 		&:first-child {
 			padding-left: $c-table---padding-left;
 		}
