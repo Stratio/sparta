@@ -19,13 +19,13 @@ package com.stratio.sparkta.serving.api.helpers
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
-import com.stratio.sparkta.serving.api.actor.FragmentActor.{ResponseFragment, FindByTypeAndId}
+import com.stratio.sparkta.serving.api.actor.FragmentActor.{ResponseFragment, Response, FindByTypeAndId}
+import com.stratio.sparkta.serving.api.actor._
 import com.stratio.sparkta.serving.core.models.FragmentType._
 import com.stratio.sparkta.serving.core.models._
-import spray.http.{IllegalRequestException, StatusCodes}
 
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Await
+import scala.util.{Failure, Success}
 
 /**
  * Helper with operations over policies and policy fragments.
@@ -35,30 +35,25 @@ object PolicyHelper {
 
   /**
    * If the policy has fragments, it tries to parse them and depending of its type it composes input/outputs/etc.
-   * @param apConfigF with the policy.
+   * @param apConfig with the policy.
    * @return a parsed policy with fragments included in input/outputs.
    */
-  def parseFragments(apConfigF: Future[AggregationPoliciesModel]): Future[AggregationPoliciesModel] = {
-    for {
-      apConfig <- apConfigF
-    } yield {
-      val mapInputsOutputs: Map[`type`, Seq[PolicyElementModel]] = (apConfig.fragments.map(fragment =>
-        FragmentType.withName(fragment.fragmentType) match {
-          case FragmentType.input => FragmentType.input -> fragment.element
-          case FragmentType.output => FragmentType.output -> fragment.element
-        })
-        ++ apConfig.outputs.map(output => FragmentType.output -> output)
-        ).groupBy(_._1).mapValues(_.map(_._2))
+  def parseFragments(apConfig: AggregationPoliciesModel): AggregationPoliciesModel = {
+    val mapInputsOutputs: Map[`type`, Seq[PolicyElementModel]] = (apConfig.fragments.map(fragment =>
+      FragmentType.withName(fragment.fragmentType) match {
+        case FragmentType.input => FragmentType.input -> fragment.element
+        case FragmentType.output => FragmentType.output -> fragment.element
+      })
+      ++ apConfig.outputs.map(output => FragmentType.output -> output)
+      ).groupBy(_._1).mapValues(_.map(_._2))
 
-      if (mapInputsOutputs.get(FragmentType.output).isEmpty) {
-        throw new IllegalStateException("It is mandatory to define at least one output in the policy.")
-      }
-
-      apConfig.copy(
-        input = Some(getCurrentInput(mapInputsOutputs, apConfig)),
-        outputs = mapInputsOutputs.getOrElse(FragmentType.output, Seq())
-      )
+    if(mapInputsOutputs.get(FragmentType.output).isEmpty) {
+      throw new IllegalStateException("It is mandatory to define at least one output in the policy.")
     }
+
+    apConfig.copy(
+      input = Some(getCurrentInput(mapInputsOutputs, apConfig)),
+      outputs = mapInputsOutputs.getOrElse(FragmentType.output, Seq()))
   }
 
   /**
@@ -69,30 +64,18 @@ object PolicyHelper {
    */
   def fillFragments(apConfig: AggregationPoliciesModel,
                     actor: ActorRef,
-                    currentTimeout: Timeout): Future[AggregationPoliciesModel] = {
+                    currentTimeout: Timeout): AggregationPoliciesModel = {
     implicit val timeout = currentTimeout
 
-    val currentFragments: Seq[Future[FragmentElementModel]] = apConfig.fragments.map(fragment =>
-      for {
-        response <- (actor ? new FindByTypeAndId(fragment.fragmentType, fragment.id.get)).mapTo[ResponseFragment]
-      } yield response.fragment.get
-    )
-
-    Future.sequence(currentFragments).map(
-      current => apConfig.copy(fragments = current)
-    )
+    val currentFragments: Seq[FragmentElementModel] = apConfig.fragments.map(fragment => {
+      val future = actor ? new FindByTypeAndId(fragment.fragmentType, fragment.id.get)
+      Await.result(future, timeout.duration) match {
+        case ResponseFragment(Failure(exception)) => throw exception
+        case ResponseFragment(Success(fragment)) => fragment
+      }
+    })
+    apConfig.copy(fragments = currentFragments)
   }
-
-  /**
-   * If the aggregationPoliciesModel is invalid, throw an IllegalRequestException
-   * @param aggregationPoliciesModel to evaluate
-   * @return if the aggregationPoliciesModel is valid or invalid
-   */
-  def validateAggregationPolicy(aggregationPoliciesModel: AggregationPoliciesModel): Boolean =
-    AggregationPoliciesValidator.validateDto(aggregationPoliciesModel) match {
-      case (false, msg) => throw new IllegalRequestException(StatusCodes.BadRequest, msg)
-      case (validationOk, _) => validationOk
-    }
 
   //////////////////////////////////////////// PRIVATE METHODS /////////////////////////////////////////////////////////
 
@@ -104,14 +87,14 @@ object PolicyHelper {
    */
   private def getCurrentInput(mapInputsOutputs: Map[`type`, Seq[PolicyElementModel]],
                               apConfig: AggregationPoliciesModel): PolicyElementModel = {
-    val currentInputs = mapInputsOutputs.filter(x => if (x._1 == FragmentType.input) true else false)
+    val currentInputs = mapInputsOutputs.filter(x => if(x._1 == FragmentType.input) true else false)
 
-    if ((currentInputs.nonEmpty && currentInputs.get(FragmentType.input).get.size > 1)
-      || (currentInputs.nonEmpty && currentInputs.get(FragmentType.input).get.size == 1 && apConfig.input.isDefined)) {
+    if((currentInputs.nonEmpty && currentInputs.get(FragmentType.input).get.size > 1)
+      ||(currentInputs.nonEmpty && currentInputs.get(FragmentType.input).get.size == 1 && apConfig.input.isDefined)) {
       throw new IllegalStateException("Only one input is allowed in the policy.")
     }
 
-    if (currentInputs.isEmpty && apConfig.input.isDefined == false) {
+    if(currentInputs.isEmpty && apConfig.input.isDefined == false) {
       throw new IllegalStateException("It is mandatory to define one input in the policy.")
     }
 
