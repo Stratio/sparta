@@ -14,6 +14,7 @@
         vm.GetAllpolicies = GetAllpolicies;
         vm.CreatePolicy = CreatePolicy;
         vm.DeletePolicy = DeletePolicy;
+        vm.RunPolicy = RunPolicy;
         vm.GetFakePolicy = GetFakePolicy;
 
         /////////////////////////////////
@@ -43,6 +44,13 @@
             return $resource('/policy/:id', {id:'@id'},
             {
                 'delete': {method:'DELETE'}
+            });
+        };
+
+        function RunPolicy() {
+            return $resource('/policy/run/:id', {id:'@id'},
+            {
+                'get': {method:'GET'}
             });
         };
 
