@@ -6,6 +6,12 @@
 		display: inline-block;
 		margin: $c-grid-item__info-icon---margin;
 	}
+
+	&__desc {
+		font-size: $c-grid-item__desc---font-size;
+		letter-spacing: $c-grid-item__desc---letter-spacing;
+		line-height: $c-grid-item__desc---line-height;
+	}
 }
 
 .c-grid-item {
