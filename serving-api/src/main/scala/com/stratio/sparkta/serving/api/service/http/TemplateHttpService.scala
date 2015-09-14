@@ -22,13 +22,11 @@ import com.stratio.sparkta.serving.core.models.TemplateModel
 import com.wordnik.swagger.annotations._
 import spray.routing._
 
-import scala.concurrent.Await
-import scala.util.{Failure, Success}
 import com.stratio.sparkta.serving.api.actor.TemplateActor._
 
 @Api(value = HttpConstant.TemplatePath,
   description = "Operations about templates. One template will have an abstract" +
-  " element that represents a validation, a tip, an icon over it.")
+    " element that represents a validation, a tip, an icon over it.")
 trait TemplateHttpService extends BaseHttpService {
 
   override def routes: Route = findByType ~ findByTypeAndName
@@ -40,23 +38,21 @@ trait TemplateHttpService extends BaseHttpService {
     responseContainer = "List")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name      = "templateType",
-                         value     = "type of the template.",
-                         dataType  = "string",
-                         paramType = "path")
+      value     = "type of the template.",
+      dataType  = "string",
+      paramType = "path")
   ))
   @ApiResponses(Array(
     new ApiResponse(code    = HttpConstant.NotFound,
-                    message = HttpConstant.NotFoundMessage)
+      message = HttpConstant.NotFoundMessage)
   ))
   def findByType: Route = {
     path(HttpConstant.TemplatePath / Segment) { (templateType) =>
       get {
         complete {
-          val future = supervisor ? new FindByType(templateType)
-          Await.result(future, timeout.duration) match {
-            case ResponseTemplates(Failure(exception)) => throw exception
-            case ResponseTemplates(Success(templates)) => templates
-          }
+          for {
+            response <- (supervisor ? new FindByType(templateType)).mapTo[ResponseTemplates]
+          } yield response.templates.get
         }
       }
     }
@@ -68,27 +64,25 @@ trait TemplateHttpService extends BaseHttpService {
     response = classOf[TemplateModel])
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name      = "templateType",
-                         value     = "type of the template.",
-                         dataType  = "string",
-                         paramType = "path"),
+      value     = "type of the template.",
+      dataType  = "string",
+      paramType = "path"),
     new ApiImplicitParam(name      = "name",
-                         value     = "name of the template",
-                         dataType  = "string",
-                         paramType = "path")
+      value     = "name of the template",
+      dataType  = "string",
+      paramType = "path")
   ))
   @ApiResponses(Array(
     new ApiResponse(code = HttpConstant.NotFound,
-                    message = HttpConstant.NotFoundMessage)
+      message = HttpConstant.NotFoundMessage)
   ))
   def findByTypeAndName: Route = {
     path(HttpConstant.TemplatePath / Segment / Segment ) { (templateType, name) =>
       get {
         complete {
-          val future = supervisor ? new FindByTypeAndName(templateType, name)
-          Await.result(future, timeout.duration) match {
-            case ResponseTemplate(Failure(exception)) => throw exception
-            case ResponseTemplate(Success(template)) => template
-          }
+          for {
+            response <- (supervisor ? new FindByTypeAndName(templateType, name)).mapTo[ResponseTemplate]
+          } yield response.template.get
         }
       }
     }
