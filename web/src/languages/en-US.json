@@ -111,7 +111,7 @@
     },
     "_RAW_": "Raw",
     "_NEW-MODEL-DEFINITION_": "New model definition [not saved]",
-    "_DESCRIPTION_INTRO_": "Introduce a name and description for your policy. You can also edit de advanced settings of the policy",
+    "_DESCRIPTION_INTRO_": "Introduce a name and description for your policy. You can also edit the advanced settings of the policy",
     "_INPUTS_INTRO_":"You have to select an input from your list to continue configuring the policy. You can only add one input to policy.",
     "_MODEL_INTRO_":"You have to create, at least, one model to can configure a cube in the next step.",
     "_CUBE_INTRO_":"You have to add a cube to the policy and configure, at least, one dimension and one operator with the output fields configured in the model.",
