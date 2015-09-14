@@ -13,6 +13,7 @@
 
     vm.policiesData = {};
     vm.policiesData.list = [];
+    vm.policiesJsonData = {};
     vm.deletePolicy = deletePolicy;
     vm.runPolicy = runPolicy;
     init();
