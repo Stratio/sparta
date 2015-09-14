@@ -1,6 +1,9 @@
 $c-msg--small---padding: 5px 10px !default;
 
-$c-msg--error---background: get-color(red) !default;
-$c-msg--error---color: get-color(white) !default;
+$c-msg--error---background: red !default;
+$c-msg--error---color: white !default;
+
+$c-msg--success---background: green !default;
+$c-msg--success---color: white !default;
  
 $c-msg__c-icon---margin: 0 .5em 0 0 !default;
