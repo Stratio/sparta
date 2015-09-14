@@ -15,7 +15,8 @@
         iconClass: "=iconClass",
         model: "=model",
         type: "=type",
-        disabled: "=disabled"
+        disabled: "=disabled",
+        qa: "@"
       },
       replace: "true",
       templateUrl: 'templates/components/c-add-element.tpl.html',
