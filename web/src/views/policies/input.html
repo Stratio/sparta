@@ -2,7 +2,7 @@
 
   <p class="c-info-text c-info-text--narrow c-info-text--bottom-margin"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._INPUTS_INTRO_" | translate}}</span></p>
 
-  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error">
+  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error" data-qa="error-msg">
     <i class="c-icon icon-circle-cross"></i>
     <span>{{"_POLICY_._INPUTS_ERROR_" | translate}}</span>
   </div>
@@ -27,7 +27,7 @@
       <div class="c-col c-col--6 c-col--vertical-centered">
         <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" text-class="" link-url="vm.helpLink" link-class=""></c-icon-link>
       </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
-        <button class="c-button c-button--call-to-action-1" data-ng-click="vm.validateForm()">
+        <button class="c-button c-button--call-to-action-1" data-ng-click="vm.validateForm()" data-qa="policy-new-next-button">
           <i class="icon icon-arrow-right"></i>
           <span>{{"_CONTINUE_" | translate}}</span>
         </button>
