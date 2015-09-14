@@ -14,11 +14,11 @@
 
       <div class="c-panel c-panel--framed">
         <div class="c-form-group">
-          <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.policy.name" data-label="{{'_INSERT_NAME_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Name 1" required="true"></form-field-input>
+          <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.policy.name" data-label="{{'_INSERT_NAME_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Name 1" required="true" data-qa="policy-description-name"></form-field-input>
         </div>
 
         <div class="c-form-group">
-          <form-field-input data-form="vm.form" data-st-name="description-form" data-model="vm.policy.description" data-label="{{'_INSERT_DESCRIPTION_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Lorem ipsum dolor sit amet." required="true"></form-field-input>
+          <form-field-input data-form="vm.form" data-st-name="description-form" data-model="vm.policy.description" data-label="{{'_INSERT_DESCRIPTION_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Lorem ipsum dolor sit amet." required="true" data-qa="policy-description-description"></form-field-input>
         </div>
       </div>
     </fieldset>
@@ -27,27 +27,27 @@
 
       <div class="c-panel c-panel--framed">
         <div class="c-form-group">
-          <form-field-input data-form="vm.form" data-st-name="sparkStreamingWindow-form" data-model="vm.policy.sparkStreamingWindow" data-label="{{'_SPARK_STREAMING_WINDOW_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. 6000"></form-field-input>
+          <form-field-input data-form="vm.form" data-st-name="sparkStreamingWindow-form" data-model="vm.policy.sparkStreamingWindow" data-label="{{'_SPARK_STREAMING_WINDOW_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. 6000" data-qa="policy-description-spark-streaming-window"></form-field-input>
         </div>
 
         <div class="c-form-group">
-          <form-field-select data-form="vm.form" data-st-name="storageLevel-format" data-model="vm.policy.storageLevel" data-options="vm.storageLevelData.values" data-field="label" data-label="{{'_STORAGELEVEL_' | translate}}" data-help="" data-required="true"></form-field-select>
+          <form-field-select data-form="vm.form" data-st-name="storageLevel-format" data-model="vm.policy.storageLevel" data-options="vm.storageLevelData.values" data-field="label" data-label="{{'_STORAGELEVEL_' | translate}}" data-help="" data-required="true" data-qa="policy-description-storage-level-data"></form-field-select>
         </div>
 
         <div class="c-form-group">
-          <form-field-input data-form="vm.form" data-st-name="checkpointPath-form" data-model="vm.policy.checkpointPath" data-label="{{'_CHECKPOINT_PATH_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. /tmp/checkpoint" required="true"></form-field-input>
+          <form-field-input data-form="vm.form" data-st-name="checkpointPath-form" data-model="vm.policy.checkpointPath" data-label="{{'_CHECKPOINT_PATH_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. /tmp/checkpoint" required="true" data-qa="policy-description-checkpoint-path"></form-field-input>
         </div>
 
         <div class="c-form-group">
-          <form-field-check data-form="vm.form" data-st-name="persist-raw-data" data-model="vm.policy.rawData.enabled" data-label="{{'_PERSIST_RAW_DATA_' | translate}}" data-help=""></form-field-check>
+          <form-field-check data-form="vm.form" data-st-name="persist-raw-data" data-model="vm.policy.rawData.enabled" data-label="{{'_PERSIST_RAW_DATA_' | translate}}" data-help="" data-qa="policy-description-persist-raw-data"></form-field-check>
         </div>
 
         <div data-ng-if="vm.policy.rawData.enabled == true" class="c-form-group">
-          <form-field-input data-form="vm.form" data-st-name="path-form" data-model="vm.policy.rawData.path" data-label="{{'_PATH_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. /tmp/checkpoint" required="true"></form-field-input>
+          <form-field-input data-form="vm.form" data-st-name="path-form" data-model="vm.policy.rawData.path" data-label="{{'_PATH_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. /tmp/checkpoint" required="true" data-qa="policy-description-raw-data-path"></form-field-input>
         </div>
 
         <div data-ng-if="vm.policy.rawData.enabled == true" class="c-form-group">
-          <form-field-select data-form="vm.form" data-st-name="partition-format" data-model="vm.policy.rawData.partitionFormat" data-options="vm.partitionFormatData.values" data-field="label" data-label="{{'_PARTITION_FORMAT_' | translate}}" data-help="" data-required="true"></form-field-select>
+          <form-field-select data-form="vm.form" data-st-name="partition-format" data-model="vm.policy.rawData.partitionFormat" data-options="vm.partitionFormatData.values" data-field="label" data-label="{{'_PARTITION_FORMAT_' | translate}}" data-help="" data-required="true" data-qa="policy-description-raw-data-partition-format"></form-field-select>
         </div>
       </div>
     </fieldset>

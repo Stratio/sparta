@@ -6,6 +6,6 @@
   <input class="c-input c-col--6" id="addElementInput" type='{{type}}' ng-model=inputToAdd
          placeHolder="Write an output field name and click in the plus icon to add to the list"
          ng-disabled="disabled"
-         data-ng-keypress="addInput($event)">
-  <i class="{{iconClass}}" data-ng-click="addInput($event)"></i>
+         data-ng-keypress="addInput($event)" data-qa="{{qa}}">
+  <i class="{{iconClass}}" data-ng-click="addInput($event)" data-qa="{{qa}}-add-button"></i>
 </div>

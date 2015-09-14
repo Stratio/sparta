@@ -22,7 +22,8 @@
                 model: '=',
                 pattern: '=',
                 required: '=',
-                disabled: '='
+                disabled: '=',
+                qa: '@'
             }
         };
         return directive;
