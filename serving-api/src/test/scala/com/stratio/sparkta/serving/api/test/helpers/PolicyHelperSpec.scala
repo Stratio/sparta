@@ -22,10 +22,6 @@ import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 
-import scala.concurrent.{Future, Await}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-
 /**
  * Tests over policy operations.
  * @author anistal
@@ -33,8 +29,6 @@ import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
 class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
-
-  implicit val timeout = 15.seconds
 
   val SparkStreamingWindow = 2000
   val storageLevel = Some("MEMORY_AND_DISK_SER_2")
@@ -75,7 +69,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
       )
 
       When("the helper parse these fragments")
-      val result = Await.result(PolicyHelper.parseFragments(Future(ap)), timeout)
+      val result = PolicyHelper.parseFragments(ap)
 
       Then("outputs must have the existing outputs and the parsed input fragment and the first input")
 
@@ -123,7 +117,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
 
     When("the helper tries to parse the policy it throws an exception")
     val thrown = intercept[IllegalStateException] {
-      Await.result(PolicyHelper.parseFragments(Future(ap)), timeout)
+      PolicyHelper.parseFragments(ap)
     }
 
     Then("the exception must have the message")
@@ -151,7 +145,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
 
     When("the helper tries to parse the policy it throws an exception")
     val thrown = intercept[IllegalStateException] {
-      Await.result(PolicyHelper.parseFragments(Future(ap)), timeout)
+      PolicyHelper.parseFragments(ap)
     }
 
     Then("the exception must have the message")
