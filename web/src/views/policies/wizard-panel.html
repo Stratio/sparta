@@ -8,6 +8,14 @@
 
   <div class="c-step-content">
     <div ng-switch on="wizard.status.currentStep">
+      <header class="c-step-content__title c-step-content__title--underlined">
+        <h1>
+          <span class="c-step-counter">{{wizard.status.currentStep + 1}}/{{wizard.steps.length}}</span>
+          <i class="c-step-counter__icon c-icon c-icon--small icon-arrow2_right"></i>
+          <span class="c-step-content__title-text">{{wizard.steps[wizard.status.currentStep].name | translate}}</span>
+        </h1>
+      </header>
+
       <div ng-switch-when="0">
         <ng-include src="'views/policies/description.html'"></ng-include>
       </div>
