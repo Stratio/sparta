@@ -21,10 +21,6 @@
         ///////////////////////////////////////
 
         function init () {
-            console.log(policiesAffected);
-            console.log('*********Modal');
-            console.log(item);
-
             vm.outputs = item;
             vm.outputs.policies = policiesAffected;
 
@@ -48,11 +44,9 @@
             var fragmentToDelete = FragmentFactory.DeleteFragment(vm.outputs.type, vm.outputs.id);
 
             fragmentToDelete.then(function (result) {
-                console.log('*********Fragment deleted');
                 $modalInstance.close(vm.outputs);
 
             },function (error) {
-                console.log(error);
                 vm.error = true;
                 vm.errorText = "_INPUT_ERROR_" + error.data.i18nCode + "_";
             });

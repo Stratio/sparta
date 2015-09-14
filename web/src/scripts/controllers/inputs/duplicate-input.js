@@ -22,11 +22,8 @@
         ///////////////////////////////////////
 
         function init () {
-            console.log('*********Modal');
-            console.log(item);
             setTexts(item.texts);
             vm.fragmentData = item.fragmentData;
-            console.log(vm.fragmentData);
         };
 
         function setTexts(texts) {
@@ -42,7 +39,6 @@
 
         function checkFragmnetname() {
           var fragmentNamesExisting = [];
-          console.log(vm.fragmentData);
           var newFragmentName = vm.fragmentData.name.toLowerCase();
           fragmentNamesExisting = $filter('filter')(item.fragmentNamesList, {'name': newFragmentName}, true);
 
@@ -60,8 +56,6 @@
             var newFragment = FragmentFactory.CreateFragment(vm.fragmentData);
 
             newFragment.then(function (result) {
-                console.log('*********Fragment duplicated');
-                console.log(result);
                 $modalInstance.close(result);
 
             },function (error) {
