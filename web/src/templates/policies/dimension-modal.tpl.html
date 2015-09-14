@@ -17,10 +17,28 @@
       <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.dimension.name" data-label="{{'_NAME_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Name 1" required="true" data-qa="dimension-modal-name"></form-field-input>
     </div>
     <div class="c-form-group">
-      <form-field-input data-form="vm.form" data-st-name="type-form" data-model="vm.dimension.type" data-label="{{'_TYPE_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Lorem ipsum dolor sit amet." required="true" data-qa="dimension-modal-type"></form-field-input>
+       <form-field-select select-class="c-combobox--full-width"
+                         data-form="vm.form" data-st-name="precision-form"
+                         data-model="vm.dimension.type"
+                         data-options="vm.cubeTypes"
+                         data-field="label"
+                         data-label="{{'_TYPE_' | translate}}"
+                         data-help=""
+                         data-required="true"
+                         data-qa="dimension-modal-type">
+      </form-field-select>
+
     </div>
     <div class="c-form-group">
-      <form-field-input data-form="vm.form" data-st-name="precision-form" data-model="vm.dimension.precision" data-label="{{'_POLICY_._CUBE_._PRECISION_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Lorem ipsum dolor sit amet." required="true" data-qa="dimension-modal-precision"></form-field-input>
+      <form-field-select ng-if=" vm.dimension.type != vm.defaultType" select-class="c-combobox--full-width"
+                         data-form="vm.form" data-st-name="precision-form"
+                         data-model="vm.dimension.precision"
+                         data-options="vm.getPrecisionsOfType()"
+                         data-field="label"
+                         data-label="{{'_POLICY_._CUBE_._PRECISION_' | translate}}"
+                         data-help=""
+                         data-qa="dimension-modal-precision">
+      </form-field-select>
     </div>
 
     <div class="c-row c-row--separated">

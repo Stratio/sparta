@@ -12,10 +12,10 @@
     vm.accordionStatus.items = [];
     vm.accordionStatus.newItem = true;
 
-    vm.ResetAccordionStatus = ResetAccordionStatus;
-    vm.GetAccordionStatus = GetAccordionStatus;
+    vm.resetAccordionStatus = resetAccordionStatus;
+    vm.getAccordionStatus = getAccordionStatus;
 
-    function ResetAccordionStatus(length, truePosition) {
+    function resetAccordionStatus(length, truePosition) {
       for (var i = 0; i < length; ++i) {
         if (i == truePosition)
           vm.accordionStatus.items[i] = true;
@@ -26,7 +26,7 @@
         vm.accordionStatus.newItem = true;
     }
 
-    function GetAccordionStatus() {
+    function getAccordionStatus() {
       return vm.accordionStatus;
     }
   }

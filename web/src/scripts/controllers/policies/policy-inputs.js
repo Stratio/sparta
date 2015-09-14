@@ -21,7 +21,7 @@
       vm.helpLink = PolicyStaticDataFactory.helpLinks.inputs;
 
       var defer = $q.defer();
-      vm.policy = PolicyModelFactory.GetCurrentPolicy();
+      vm.policy = PolicyModelFactory.getCurrentPolicy();
       var inputList = FragmentFactory.GetFragments("input");
       inputList.then(function (result) {
         vm.inputList = result;
@@ -47,7 +47,7 @@
     function validateForm() {
       if (vm.policy.input.name){
         vm.error = false;
-        PolicyModelFactory.NextStep();
+        PolicyModelFactory.nextStep();
       }
       else {
         vm.error = true;

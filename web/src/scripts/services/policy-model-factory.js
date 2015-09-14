@@ -27,21 +27,29 @@
       policy.cubes = [];
     }
 
-    return {
-      GetCurrentPolicy: function () {
-        if (!policy)
-          initPolicy();
-        return policy;
-      },
-      NextStep: function() {
-        status.currentStep++;
-      },
-      GetStatus: function(){
-        return status;
-      },
-      ResetPolicy: function (){
+    function getCurrentPolicy() {
+      if (!policy)
         initPolicy();
-      }
+      return policy;
+    }
+
+    function nextStep() {
+      status.currentStep++;
+    }
+
+    function getStatus() {
+      return status;
+    }
+
+    function resetPolicy() {
+      initPolicy();
+    }
+
+    return {
+      getCurrentPolicy: getCurrentPolicy,
+      nextStep: nextStep,
+      getStatus: getStatus,
+      resetPolicy: resetPolicy
     }
   }
 

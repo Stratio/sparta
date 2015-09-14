@@ -13,18 +13,19 @@
     vm.setOutput = setOutput;
     vm.validateForm = validateForm;
 
-    vm.formSubmmited = false;
-    vm.error = false;
-    vm.outputList = [];
+
     init();
 
     ////////////////////////////////////
 
     function init() {
-      vm.helpLink = PolicyStaticDataFactory.helpLinks.outputs;
-
       var defer = $q.defer();
-      vm.policy = PolicyModelFactory.GetCurrentPolicy();
+
+      vm.helpLink = PolicyStaticDataFactory.helpLinks.outputs;
+      vm.formSubmmited = false;
+      vm.error = false;
+      vm.outputList = [];
+      vm.policy = PolicyModelFactory.getCurrentPolicy();
 
       var outputList = FragmentFactory.GetFragments("output");
       outputList.then(function (result) {
@@ -50,11 +51,11 @@
 
     function validateForm() {
       vm.formSubmmited = true;
-      var outputsSelected = checkOutputsSelected();
+      var selectedOutputs = checkOutputsSelected();
 
-      if (outputsSelected > 0) {
+      if (selectedOutputs > 0) {
         vm.error = false;
-        PolicyModelFactory.NextStep();
+        PolicyModelFactory.nextStep();
       }
       else {
         vm.error = true;

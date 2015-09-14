@@ -22,9 +22,9 @@
         vm.model = model;
       }
       else {
-        vm.model = ModelFactory.GetModel();
+        vm.model = ModelFactory.getModel();
       }
-      vm.policy = PolicyModelFactory.GetCurrentPolicy();
+      vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.templateModelData = ModelStaticDataFactory;
     }
   }
