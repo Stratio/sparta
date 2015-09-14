@@ -35,7 +35,7 @@
         <ng-include src="'views/policies/finish.html'"></ng-include>
         <footer class="c-row c-row--footer">
           <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
-            <button class="c-button c-button--call-to-action-1" data-ng-click="wizard.confirmPolicy()">
+            <button class="c-button c-button--call-to-action-1" data-ng-click="wizard.confirmPolicy()" data-qa="policy-save-button">
               <i class="icon icon-rocket"></i>
               <span>{{"_SAVE_" | translate}}</span>
             </button>
@@ -46,7 +46,7 @@
         <i class="c-icon icon-circle-cross"></i>
         <span>{{wizard.error | translate}}</span>
       </div>
-      <div ng-show="wizard.successfullySentPolicy" class="c-row c-msg c-msg--small c-msg--success">
+      <div ng-show="wizard.successfullySentPolicy" class="c-row c-msg c-msg--small c-msg--success" data-qa="success-msg">
         <i class="c-icon icon-circle-check"></i>
         <span>{{"_POLICY_._SUCCESS_SENT_" | translate}}</span>
       </div>
