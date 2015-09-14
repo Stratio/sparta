@@ -27,7 +27,7 @@ import org.json4s.jackson.JsonMethods._
 
 case class AggregationPoliciesModel(id: Option[String] = None,
                                     storageLevel: Option[String] = AggregationPoliciesModel.storageDefaultValue,
-                                    name: String = "default",
+                                    name: String,
                                     description: String = "default description",
                                     sparkStreamingWindow: Long = AggregationPoliciesModel.sparkStreamingWindow,
                                     checkpointPath: String,
