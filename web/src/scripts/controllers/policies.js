@@ -13,7 +13,9 @@
 
     vm.policiesData = {};
     vm.policiesData.list = [];
+    vm.policiesJsonData = {};
     vm.deletePolicy = deletePolicy;
+    vm.runPolicy = runPolicy;
     init();
 
     /////////////////////////////////
@@ -30,6 +32,9 @@
         console.log('> Getting list of wizard');
         console.log(result);
         vm.policiesData.list = result;
+      },function (error) {
+        console.log('There was an error while loading the policies!');
+        console.log(error);
       });
     };
 
@@ -41,6 +46,19 @@
         'index': index
       };
       deletePolicyConfirm('lg', policyToDelete);
+    };
+
+    function runPolicy(policyId) {
+      var policyRunning = PolicyFactory.RunPolicy(policyId);
+
+      policyRunning.then(function (result) {
+        console.log('********Policy status')
+        console.log(result);
+
+      },function (error) {
+        console.log('There was an error while running the policy!');
+        console.log(error);
+      });
     };
 
     function deletePolicyConfirm(size, policy) {

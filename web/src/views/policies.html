@@ -22,6 +22,12 @@
 								<st-menu-element class-icon="icon-cross" data-ng-click="policies.deletePolicy(policy.id, $index)" data-qa="policy-context-menu-{{policy.id}}">
 									{{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
 								</st-menu-element>
+								<st-menu-element class-icon="icon-play" data-ng-click="policies.runPolicy(policy.id)">
+									{{"_OUTPUT_ACTIONS_MENU_RUN_" | translate}}
+								</st-menu-element>
+								<st-menu-element class-icon="icon-download" data-href="/policy/find/{{policy.id}}" data-download-file-name="{{policy.name}}.json">
+									{{"_OUTPUT_ACTIONS_MENU_DOWNLOAD_" | translate}}
+								</st-menu-element>
 							</st-floating-menu>
 						</i>
 					</td>
