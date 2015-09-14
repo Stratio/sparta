@@ -146,7 +146,9 @@ $stratio-ui---base-padding: $base-padding;
 $c-grid-item__info-icon---color: get-color(c1);
 $c-grid-item__info-icon---margin: 0 $component-default-margin $component-default-margin 0;
 
-
+$c-grid-item__desc---font-size: get-font-size(small);
+$c-grid-item__desc---line-height: get-line-height(large);
+$c-grid-item__desc---letter-spacing: .05rem;
 
 
 
