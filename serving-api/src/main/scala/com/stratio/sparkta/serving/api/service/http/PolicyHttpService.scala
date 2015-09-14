@@ -32,9 +32,6 @@ import spray.http.HttpHeaders.`Content-Disposition`
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
 
-import scala.concurrent.Await
-import scala.util.{Failure, Success}
-
 @Api(value = HttpConstant.PolicyPath, description = "Operations over policies.")
 trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
 
@@ -61,11 +58,9 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     path(HttpConstant.PolicyPath / "find" / Segment) { (id) =>
       get {
         complete {
-          val future = supervisor ? new Find(id)
-          Await.result(future, timeout.duration) match {
-            case ResponsePolicy(Failure(exception)) => throw exception
-            case ResponsePolicy(Success(policy)) => policy
-          }
+          for {
+            response <- (supervisor ? new Find(id)).mapTo[ResponsePolicy]
+          } yield response.policy.get
         }
       }
     }
@@ -90,11 +85,9 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     path(HttpConstant.PolicyPath / "findByName" / Segment) { (name) =>
       get {
         complete {
-          val future = supervisor ? new FindByName(name)
-          Await.result(future, timeout.duration) match {
-            case ResponsePolicy(Failure(exception)) => throw exception
-            case ResponsePolicy(Success(policy)) => policy
-          }
+          for {
+            response <- (supervisor ? new FindByName(name)).mapTo[ResponsePolicy]
+          } yield response.policy.get
         }
       }
     }
@@ -123,11 +116,9 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     path(HttpConstant.PolicyPath / "fragment" / Segment / Segment) { (fragmentType, id) =>
       get {
         complete {
-          val future = supervisor ? new FindByFragment(fragmentType, id)
-          Await.result(future, timeout.duration) match {
-            case ResponsePolicies(Failure(exception)) => throw exception
-            case ResponsePolicies(Success(policies)) => policies
-          }
+          for {
+            response <- (supervisor ? new FindByFragment(fragmentType, id)).mapTo[ResponsePolicies]
+          } yield response.policies.get
         }
       }
     }
@@ -146,11 +137,9 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     path(HttpConstant.PolicyPath / "all") {
       get {
         complete {
-          val future = supervisor ? new FindAll()
-          Await.result(future, timeout.duration) match {
-            case ResponsePolicies(Failure(exception)) => throw exception
-            case ResponsePolicies(Success(policies)) => policies
-          }
+          for {
+            response <- (supervisor ? new FindAll()).mapTo[ResponsePolicies]
+          } yield response.policies.get
         }
       }
     }
@@ -170,15 +159,14 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     path(HttpConstant.PolicyPath) {
       post {
         entity(as[AggregationPoliciesModel]) { policy =>
-          val parsedP = PolicyHelper.parseFragments(
-            PolicyHelper.fillFragments(policy, actors.get(AkkaConstant.FragmentActor).get, timeout))
-          val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
-          validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2)
-
-          val future = supervisor ? new Create(policy)
-          Await.result(future, timeout.duration) match {
-            case ResponsePolicy(Failure(exception)) => throw exception
-            case ResponsePolicy(Success(policy)) => complete(policy)
+          complete {
+            for {
+              parsedP <- PolicyHelper.parseFragments(
+                PolicyHelper.fillFragments(policy, actors.get(AkkaConstant.FragmentActor).get, timeout)
+              )
+              if PolicyHelper.validateAggregationPolicy(parsedP)
+              response <- (supervisor ? new Create(policy)).mapTo[ResponsePolicy]
+            } yield response.policy.get
           }
         }
       }
@@ -200,11 +188,10 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
       put {
         entity(as[AggregationPoliciesModel]) { policy =>
           complete {
-            val future = supervisor ? new Update(policy)
-            Await.result(future, timeout.duration) match {
-              case Response(Failure(exception)) => throw exception
-              case Response(Success(_)) => HttpResponse(StatusCodes.Created)
-            }
+            for {
+              response <- (supervisor ? new Update(policy)).mapTo[Response]
+              _ = response.status.get
+            } yield HttpResponse(StatusCodes.Created)
           }
         }
       }
@@ -228,11 +215,10 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     path(HttpConstant.PolicyPath / Segment) { (id) =>
       delete {
         complete {
-          val future = supervisor ? new Delete(id)
-          Await.result(future, timeout.duration) match {
-            case Response(Failure(exception)) => throw exception
-            case Response(Success(_)) => HttpResponse(StatusCodes.OK)
-          }
+          for {
+            response <- (supervisor ? new Delete(id)).mapTo[Response]
+            _ = response.status.get
+          } yield HttpResponse(StatusCodes.OK)
         }
       }
     }
@@ -256,19 +242,18 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
   def run: Route = {
     path(HttpConstant.PolicyPath / "run" / Segment) { (id) =>
       get {
-        val future = supervisor ? new Find(id)
-        Await.result(future, timeout.duration) match {
-          case ResponsePolicy(Failure(exception)) => throw exception
-          case ResponsePolicy(Success(policy)) => {
-            val parsedP = PolicyHelper.parseFragments(
-              PolicyHelper.fillFragments(policy, actors.get(AkkaConstant.FragmentActor).get, timeout))
-            val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
-            validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-              actors.get(AkkaConstant.SparkStreamingContextActor).get ! new SparkStreamingContextActor.Create(parsedP)
-              complete {
-                new Result("Creating new context with name " + policy.name)
-              }
-            }
+        complete {
+          for {
+            responsePolicy <- (supervisor ? Find(id)).mapTo[ResponsePolicy]
+            policy = responsePolicy.policy.get
+            parsedP <- PolicyHelper.parseFragments(
+              PolicyHelper.fillFragments(policy, actors.get(AkkaConstant.FragmentActor).get, timeout)
+            )
+            if PolicyHelper.validateAggregationPolicy(parsedP)
+          } yield {
+            val sscActor = actors.get(AkkaConstant.SparkStreamingContextActor).get
+            sscActor ! SparkStreamingContextActor.Create(parsedP)
+            Result("Creating new context with name " + policy.name)
           }
         }
       }
@@ -290,26 +275,26 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def download: Route = {
+  def download: Route =
     path(HttpConstant.PolicyPath / "download" / Segment) { (id) =>
       get {
-        val future = supervisor ? new Find(id)
-        Await.result(future, timeout.duration) match {
-          case ResponsePolicy(Failure(exception)) => throw exception
-          case ResponsePolicy(Success(policy)) => {
-            val parsedP = PolicyHelper.parseFragments(
-              PolicyHelper.fillFragments(policy, actors.get(AkkaConstant.FragmentActor).get, timeout))
-            val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
-            validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-              val tempFile = File.createTempFile(s"${parsedP.id.get}-${parsedP.name}-", ".json")
-              respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> s"${parsedP.name}.json"))) {
-                scala.tools.nsc.io.File(tempFile).writeAll(write(parsedP))
-                getFromFile(tempFile)
-              }
+        complete {
+          for {
+            response <- (supervisor ? Find(id)).mapTo[ResponsePolicy]
+            policy = response.policy.get
+            parsedP <- PolicyHelper.parseFragments(
+              PolicyHelper.fillFragments(policy, actors.get(AkkaConstant.FragmentActor).get, timeout)
+            )
+            if PolicyHelper.validateAggregationPolicy(parsedP)
+          } yield {
+            val tempFile = File.createTempFile(s"${parsedP.id.get}-${parsedP.name}-", ".json")
+            tempFile.deleteOnExit()
+            respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> s"${parsedP.name}.json"))) {
+              scala.tools.nsc.io.File(tempFile).writeAll(write(parsedP))
+              getFromFile(tempFile)
             }
           }
         }
       }
     }
-  }
 }
