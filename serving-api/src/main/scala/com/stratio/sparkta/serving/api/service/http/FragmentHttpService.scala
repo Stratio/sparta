@@ -28,6 +28,9 @@ import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing.Route
 
+import scala.concurrent.Await
+import scala.util.{Failure, Success}
+
 @Api(value = HttpConstant.FragmentPath, description = "Operations over fragments: inputs and outputs that will be " +
   "included in a policy")
 trait FragmentHttpService extends BaseHttpService {
@@ -56,9 +59,11 @@ trait FragmentHttpService extends BaseHttpService {
     path(HttpConstant.FragmentPath / Segment / Segment) { (fragmentType, id) =>
       get {
         complete {
-          for {
-            response <- (supervisor ? new FindByTypeAndId(fragmentType, id)).mapTo[ResponseFragment]
-          } yield response.fragment.get
+          val future = supervisor ? new FindByTypeAndId(fragmentType, id)
+          Await.result(future, timeout.duration) match {
+            case ResponseFragment(Failure(exception)) => throw exception
+            case ResponseFragment(Success(fragment)) => fragment
+          }
         }
       }
     }
@@ -87,9 +92,11 @@ trait FragmentHttpService extends BaseHttpService {
     path(HttpConstant.FragmentPath / Segment / "name" / Segment) { (fragmentType, name) =>
       get {
         complete {
-          for {
-            response <- (supervisor ? new FindByTypeAndName(fragmentType, name)).mapTo[ResponseFragment]
-          } yield response.fragment.get
+          val future = supervisor ? new FindByTypeAndName(fragmentType, name)
+          Await.result(future, timeout.duration) match {
+            case ResponseFragment(Failure(exception)) => throw exception
+            case ResponseFragment(Success(fragment)) => fragment
+          }
         }
       }
     }
@@ -114,9 +121,11 @@ trait FragmentHttpService extends BaseHttpService {
     path(HttpConstant.FragmentPath / Segment) { (fragmentType) =>
       get {
         complete {
-          for {
-            response <- (supervisor ? new FindByType(fragmentType)).mapTo[ResponseFragment]
-          } yield response.fragment.get
+          val future = supervisor ? new FindByType(fragmentType)
+          Await.result(future, timeout.duration) match {
+            case ResponseFragments(Failure(exception)) => throw exception
+            case ResponseFragments(Success(fragments)) => fragments
+          }
         }
       }
     }
@@ -136,10 +145,10 @@ trait FragmentHttpService extends BaseHttpService {
     path(HttpConstant.FragmentPath) {
       post {
         entity(as[FragmentElementModel]) { fragment =>
-          complete {
-            for {
-              response <- (supervisor ? new Create(fragment)).mapTo[ResponseFragment]
-            } yield response.fragment.get
+            val future = supervisor ? new Create(fragment)
+            Await.result(future, timeout.duration) match {
+              case ResponseFragment(Failure(exception)) => throw exception
+              case ResponseFragment(Success(fragment)) => complete(fragment)
           }
         }
       }
@@ -160,9 +169,11 @@ trait FragmentHttpService extends BaseHttpService {
       put {
         entity(as[FragmentElementModel]) { fragment =>
           complete {
-            for {
-              response <- (supervisor ? new Update(fragment)).mapTo[Response]
-            } yield response.status.map(_ => HttpResponse(StatusCodes.OK)).get
+            val future = supervisor ? new Update(fragment)
+            Await.result(future, timeout.duration) match {
+              case Response(Failure(exception)) => throw exception
+              case Response(Success(fragment)) => HttpResponse(StatusCodes.OK)
+            }
           }
         }
       }
@@ -190,15 +201,19 @@ trait FragmentHttpService extends BaseHttpService {
       delete {
         complete {
           val policyActor = actors.get(AkkaConstant.PolicyActor).get
-
-          for {
-            responseSupervisor  <- (supervisor ? new DeleteByTypeAndId(fragmentType, id)).mapTo[Response]
-            _                   = responseSupervisor.status.get
-            responsePolicy      <- (policyActor ? FindByFragment(fragmentType, id)).mapTo[ResponsePolicies]
-            policies            = responsePolicy.policies.get
-          } yield {
-            policies.foreach(policy => policyActor ! Delete(policy.id.get))
-            HttpResponse(StatusCodes.OK)
+          val future = supervisor ? new DeleteByTypeAndId(fragmentType, id)
+          Await.result(future, timeout.duration) match {
+            case Response(Failure(exception)) => throw exception
+            case Response(Success(_)) => {
+              Await.result(
+                policyActor ? FindByFragment(fragmentType, id), timeout.duration) match {
+                  case ResponsePolicies(Failure(exception)) => throw exception
+                  case ResponsePolicies(Success(policies)) => {
+                    policies.map(policy => policyActor ! Delete(policy.id.get))
+                  }
+                }
+              HttpResponse(StatusCodes.OK)
+            }
           }
         }
       }
