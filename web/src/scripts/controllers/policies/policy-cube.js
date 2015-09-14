@@ -50,7 +50,7 @@
             return outputName + functionLength;
           },
           type: function () {
-            return CubeStaticDataFactory.getDefaultType()
+            return CubeStaticDataFactory.getDefaultType().value
           }
         }
       });

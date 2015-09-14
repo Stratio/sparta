@@ -10,7 +10,6 @@
 
     function init() {
       cube.name = "";
-
       cube.dimensions = [];
       cube.operators = [];
       cube.checkpointConfig = {};
