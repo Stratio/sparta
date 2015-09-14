@@ -111,10 +111,13 @@
     },
     "_RAW_": "Raw",
     "_NEW-MODEL-DEFINITION_": "New model definition [not saved]",
-    "_INPUTS_INTRO_":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
-    "_OUTPUTS_INTRO_":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
-    "_DESCRIPTION_INFO_MESSAGE_": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
-    "_INPUTS_ERROR_": "One input must be selected!",
+    "_DESCRIPTION_INTRO_": "Introduce a name and description for your policy. You can also edit de advanced settings of the policy",
+    "_INPUTS_INTRO_":"You have to select an input from your list to continue configuring the policy. You can only add one input to policy.",
+    "_MODEL_INTRO_":"You have to create, at least, one model to can configure a cube in the next step.",
+    "_CUBE_INTRO_":"You have to add a cube to the policy and configure, at least, one dimension and one operator with the output fields configured in the model.",
+    "_OUTPUTS_INTRO_":"You have to select, at least, one output from your list to configure the policy. You can add more than one output to the policy.",
+    "_FINISH_INTRO_":"All your policy has been generated in a JSON format you can see below.",
+    "_INPUTS_ERROR_": "At least one input must be selected!",
     "_OUTPUTS_ERROR_": "At least one output must be selected!",
     "_DESCRIPTION_ERROR_": "There was an error. The name of the policy already exists!",
     "_MODEL_ERROR_": "There was an error. You must create one model at least!",
@@ -125,12 +128,6 @@
     "_CUBE_TITLE_": "Cube",
     "_NEW_CUBE_": "New cube",
     "_ADD_CUBE_": "Add cube",
-    "_INPUTS_INTRO_":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
-    "_OUTPUTS_INTRO_":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
-    "_MODEL_INTRO_":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
-    "_CUBE_INTRO_":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
-
-    "_DESCRIPTION_INFO_MESSAGE_": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac dui erat. Vestibulum ultrices sodales velit at tincidunt. Nam gravida, ex ut malesuada pharetra, nisi nisl lacinia arcu, et lacinia enim mauris vel ligula. Curabitur ornare nisi nunc, nec hendrerit lorem semper eu.",
     "_WINDOW_": {
      "_CONFIRM_": {
        "_TITLE_" : "Create policy"
@@ -191,6 +188,18 @@
   "_DAY_": "Day",
   "_MONTH_": "Month",
   "_YEAR_": "Month",
+  "_PRECISION_1_": "Precisión 1",
+  "_PRECISION_2_": "Precisión 2",
+  "_PRECISION_3_": "Precisión 3",
+  "_PRECISION_4_": "Precisión 4",
+  "_PRECISION_5_": "Precisión 5",
+  "_PRECISION_6_": "Precisión 6",
+  "_PRECISION_7_": "Precisión 7",
+  "_PRECISION_8_": "Precisión 8",
+  "_PRECISION_9_": "Precisión 9",
+  "_PRECISION_10_": "Precisión 10",
+  "_PRECISION_11_": "Precisión 11",
+  "_PRECISION_12_": "Precisión 12",
   "_TIME_DIMENSION_": "Time dimension",
   "_INTERVAL_":"Interval",
   "_TIME_AVAILABILITY_": "Time availability",
@@ -198,5 +207,7 @@
   "SELECT_PLACEHOLDER": "Select one",
   "_GENERIC_FORM_ERROR_": "There are some errors in the introduced data. Please, check them and try it again",
   "_ERROR_ALL_FIELDS_REQUIRED_": "All fields are required! Please check them and try to sumbit the form.",
-  "_ERROR_INPUT_DUPLICATED_": "Output field alraedy exists!"
+  "_ERROR_INPUT_DUPLICATED_": "Output field alraedy exists!",
+  "_OUTPUT_ACTIONS_MENU_RUN_" : "Run",
+  "_OUTPUT_ACTIONS_MENU_DOWNLOAD_" : "Download"
 }

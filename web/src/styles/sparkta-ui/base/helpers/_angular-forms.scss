@@ -3,7 +3,7 @@ $angular-forms--ng-invalid__label---color: red !default;
 $angular-forms--ng-invalid__error---color: red !default;
 $angular-forms--ng-invalid__error---font-style: italic !default;
 
-.c-form-group.ng-dirty.ng-invalid {
+.c-form-group.ng-invalid.submited {
 	& input {
 		border: $angular-forms--ng-invalid---border;
 	}

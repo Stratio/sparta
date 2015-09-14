@@ -20,10 +20,7 @@ function cRouteButton($state, $location) {
       params: '=params'
     },
     replace: "true",
-    template: '	<button class="{{class}}">' +
-                 '<span class="icon icon-circle-plus"></span>' +
-                  '<span> {{text}} </span> ' +
-              '</button>',
+    templateUrl: "templates/components/c-route-button.tpl.html",
     link: function (scope, element) {
       element.bind('click',function () {
         if (scope.params == undefined) scope.params = {};

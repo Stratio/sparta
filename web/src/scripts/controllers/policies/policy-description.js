@@ -10,7 +10,7 @@
 
   function PolicyDescriptionCtrl(PolicyModelFactory, PolicyStaticDataFactory, PolicyFactory, $filter) {
     var vm = this;
-    vm.policy = PolicyModelFactory.GetCurrentPolicy();
+    vm.policy = PolicyModelFactory.getCurrentPolicy();
     vm.validateForm = validateForm;
 
     vm.sparkStreamingWindowData = PolicyStaticDataFactory.sparkStreamingWindow;
@@ -23,29 +23,26 @@
 
     function validateForm() {
       if (vm.form.$valid) {
-
         /*Check if the name of the policy already exists*/
         var policiesList = PolicyFactory.GetAllPolicies();
 
         policiesList.then(function (result) {
           var policiesDataList = result;
 
-          var inputSelected = $filter('filter')(policiesDataList, {'name':vm.policy.name.toLowerCase()}, true);
-
-          if (inputSelected.length === 0){
+          var selectedInput = $filter('filter')(policiesDataList, {'name':vm.policy.name.toLowerCase()}, true);
+          if (selectedInput.length === 0){
             vm.error = false;
             if (vm.policy.rawData.enabled === false) {
               delete vm.policy.rawData['path'];
               delete vm.policy.rawData['partitionFormat'];
             }
-            PolicyModelFactory.NextStep();
+            PolicyModelFactory.nextStep();
           }
           else {
             vm.error = true;
           }
-
         },function () {
-          console.log('There was an error while getting the policies list')
+          console.log('There was an error while getting the policies list');
         });
       }
     }

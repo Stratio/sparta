@@ -11,8 +11,8 @@
     var vm = this;
 
     vm.steps = PolicyStaticDataFactory.steps;
-    vm.policy = PolicyModelFactory.GetCurrentPolicy();
-    vm.status = PolicyModelFactory.GetStatus();
+    vm.policy = PolicyModelFactory.getCurrentPolicy();
+    vm.status = PolicyModelFactory.getStatus();
     vm.confirmPolicy = confirmPolicy;
     vm.successfullySentPolicy = false;
     vm.error = null;
@@ -28,7 +28,7 @@
 
       modalInstance.result.then(function () {
         PolicyFactory.CreatePolicy(vm.policy).then(function () {
-          PolicyModelFactory.ResetPolicy();
+          PolicyModelFactory.resetPolicy();
           $state.go("dashboard.policies");
 
           defer.resolve();

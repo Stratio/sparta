@@ -21,6 +21,9 @@
                DeletePolicy: function(policyid) {
                   return ApiPolicyService.DeletePolicy().delete({'id': policyid}).$promise;
                },
+               RunPolicy: function(policyid) {
+                  return ApiPolicyService.RunPolicy().get({'id': policyid}).$promise;
+               },
                GetFakePolicy: function() {
                   return ApiPolicyService.GetFakePolicy().get().$promise;
                }

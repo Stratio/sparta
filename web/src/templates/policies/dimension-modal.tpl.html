@@ -1,36 +1,54 @@
 <div class="c-titlebar">
   <span class="c-titlebar__title">{{"_POLICY_._CUBE_._DIMENSION_" | translate}}</span>
-  <i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" ng-click="vm.cancel()"></i>
+  <i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
 </div>
 
 <form class="c-form" name="vm.form" novalidate>
-  <div class="c-row c-row--separated  c-msg c-msg--small c-msg--error" data-ng-if="vm.error">
+  <div class="c-row c-row--separated c-msg c-msg--small c-msg--error" data-ng-if="vm.error" data-qa="error-msg">
     <i class="c-icon icon-circle-cross"></i>
     <span translate="{{vm.errorText}}"></span>
   </div>
 
   <div class="c-modal-inner">
     <div class="c-form-group">
-      <form-field-input data-form="vm.form" data-st-name="field-form" data-model="vm.dimension.field" data-label="{{'_POLICY_._CUBE_._FIELD_' | translate}}" data-help="" data-pattern="" data-required="true"  required="true" disabled = true></form-field-input>
+      <form-field-input data-form="vm.form" data-st-name="field-form" data-model="vm.dimension.field" data-label="{{'_POLICY_._CUBE_._FIELD_' | translate}}" data-help="" data-pattern="" data-required="true"  required="true" disabled="true" data-qa="dimension-modal-field"></form-field-input>
     </div>
     <div class="c-form-group">
-      <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.dimension.name" data-label="{{'_NAME_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Name 1" required="true"></form-field-input>
+      <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.dimension.name" data-label="{{'_NAME_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Name 1" required="true" data-qa="dimension-modal-name"></form-field-input>
     </div>
     <div class="c-form-group">
-      <form-field-input data-form="vm.form" data-st-name="type-form" data-model="vm.dimension.type" data-label="{{'_TYPE_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Lorem ipsum dolor sit amet." required="true"></form-field-input>
+       <form-field-select select-class="c-combobox--full-width"
+                         data-form="vm.form" data-st-name="precision-form"
+                         data-model="vm.dimension.type"
+                         data-options="vm.cubeTypes"
+                         data-field="label"
+                         data-label="{{'_TYPE_' | translate}}"
+                         data-help=""
+                         data-required="true"
+                         data-qa="dimension-modal-type">
+      </form-field-select>
+
     </div>
     <div class="c-form-group">
-      <form-field-input data-form="vm.form" data-st-name="precision-form" data-model="vm.dimension.precision" data-label="{{'_POLICY_._CUBE_._PRECISION_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Lorem ipsum dolor sit amet." required="true"></form-field-input>
+      <form-field-select ng-if=" vm.dimension.type != vm.defaultType" select-class="c-combobox--full-width"
+                         data-form="vm.form" data-st-name="precision-form"
+                         data-model="vm.dimension.precision"
+                         data-options="vm.getPrecisionsOfType()"
+                         data-field="label"
+                         data-label="{{'_POLICY_._CUBE_._PRECISION_' | translate}}"
+                         data-help=""
+                         data-qa="dimension-modal-precision">
+      </form-field-select>
     </div>
 
     <div class="c-row c-row--separated">
       <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
-        <button class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()">
+        <button class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()" data-qa="modal-cancel-button">
           <span class="icon-circle-cross"></span>
           <span>{{"_INPUT_BUTTON_CANCEL_" | translate}}</span>
         </button>
 
-        <button class="c-button c-button--call-to-action-1" data-ng-click="vm.ok()">
+        <button class="c-button c-button--call-to-action-1" data-ng-click="vm.ok()" data-qa="modal-ok-button">
           <span class="icon icon-circle-check"></span>
           <span>{{"_SAVE_" | translate}}</span>
         </button>

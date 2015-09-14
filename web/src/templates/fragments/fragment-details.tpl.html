@@ -1,6 +1,6 @@
 <div class="c-titlebar">
 	<span "c-titlebar__title" translate="{{vm.modalTexts.title}}"></span>
-	<i class="c-titlebar__close-icon icon-circle-cross" data-ng-click="vm.cancel()"></i>
+	<i class="c-titlebar__close-icon icon-circle-cross" data-ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
 </div>
 
 <div class="c-modal-inner">
@@ -12,7 +12,7 @@
 			<div class="c-form-control c-form-control--full-width c-icon-radio">
 				<label class="c-col c-col--12 c-label c-icon-radio__label" title="{{'_TYPE_' | translate}}:" for="dataSourceType">{{"_INPUT_WINDOW_FORM_TYPE_" | translate}}</label>
 				<label data-ng-repeat="fragmentData in vm.templateFragmentsData">
-					<input class="c-icon-radio__item" id="type-{{fragmentData.name | lowercase}}" type="radio" name="dataSourceTypeForm" data-ng-model="vm.dataSource.element.type" value="{{fragmentData.name}}" data-ng-click="vm.setProperties($index, fragmentData.name)">
+					<input class="c-icon-radio__item" id="type-{{fragmentData.name | lowercase}}" type="radio" name="dataSourceTypeForm" data-ng-model="vm.dataSource.element.type" value="{{fragmentData.name}}" data-ng-click="vm.setProperties($index, fragmentData.name)" data-qa="fragment-detail-type-{{fragmentData.name | lowercase}}">
 						<label class="c-icon-radio__label" for="type-{{fragmentData.name | lowercase}}"><i class="c-icon c-icon--large c-icon-radio__icon icon-{{fragmentData.modelType | lowercase}}" tooltip="{{fragmentData.name | lowercase}}" tooltip-placement="top" tooltip-class="t-tooltip"></i></label>
 				</label>
 			</div>
@@ -26,11 +26,11 @@
 			<p translate="{{vm.modalTexts.secondaryText2}}"></p>
 
 			<ul class="c-list c-list--dashed">
-				<li data-ng-repeat="item in vm.policiesAffected">- {{item.name}}</li>
+				<li data-ng-repeat="item in vm.policiesAffected" data-qa="fragment-details-policies-affected-{{item.id}}">- {{item.name}}</li>
 			</ul>
 		</div>
 
-		<div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error">
+		<div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error" data-qa="error-msg">
 			<i class="c-icon icon-circle-cross"></i>
 			<span translate="{{vm.errorText}}"></span>
 		</div>
@@ -39,11 +39,11 @@
 			<div class="c-col c-col--6 c-col--vertical-centered">
 				<a data-ng-href="{{vm.templateFragmentsData[vm.selectedIndex].description.learnMore}}" class="c-info-text c-info-text--is-clickable" target="_blank"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text c-info-text__text--is-link">{{"_INPUT_WINDOW_NEW_HELP_" | translate}}</span></a>
 			</div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
-				<button class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()">
+				<button class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()" data-qa="modal-cancel-button">
 					<i class="c-icon icon-circle-cross"></i>
 					<span translate="_INPUT_BUTTON_CANCEL_"></span>
 				</button>
-				<button class="c-button c-button--call-to-action-1" data-ng-click="vm.ok()">
+				<button class="c-button c-button--call-to-action-1" data-ng-click="vm.ok()" data-qa="modal-ok-button">
 					<i class="icon {{vm.modalTexts.icon}}"></i>
 					<span translate="{{vm.modalTexts.button}}"></span>
 				</button>

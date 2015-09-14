@@ -1,35 +1,35 @@
 <div class="c-titlebar">
   <span class="c-titlebar__title">{{"_POLICY_._CUBE_._OPERATOR_" | translate}}</span>
-  <i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" ng-click="vm.cancel()"></i>
+  <i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
 </div>
 
 <form class="c-form" name="vm.form" novalidate>
-  <div class="c-row c-row--separated  c-msg c-msg--small c-msg--error" data-ng-if="vm.error">
+  <div class="c-row c-row--separated c-msg c-msg--small c-msg--error" data-ng-if="vm.error" data-qa="error-msg">
     <i class="c-icon icon-circle-cross"></i>
     <span translate="{{vm.errorText}}"></span>
   </div>
 
   <div class="c-modal-inner">
     <div class="c-form-group">
-      <form-field-input data-form="vm.form" data-st-name="type-form" data-model="vm.operator.type" data-label="{{'_TYPE_' | translate}}" data-help="" data-pattern="" data-required="true" required="true" disabled = true></form-field-input>
+      <form-field-input data-form="vm.form" data-st-name="type-form" data-model="vm.operator.type" data-label="{{'_TYPE_' | translate}}" data-help="" data-pattern="" data-required="true" required="true" disabled="true" data-qa="operator-modal-type"></form-field-input>
     </div>
 
     <div class="c-form-group">
-      <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.operator.name" data-label="{{'_NAME_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Name 1" required="true"></form-field-input>
+      <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.operator.name" data-label="{{'_NAME_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Name 1" required="true" data-qa="operator-modal-name"></form-field-input>
     </div>
 
     <div class="c-form-group">
-      <textarea class="c-textarea c-textarea--full-width" ng-model="vm.operator.configuration" placeholder={{vm.configPlaceholder}} form="vm.form"/>
+      <textarea class="c-textarea c-textarea--full-width" ng-model="vm.operator.configuration" placeholder={{vm.configPlaceholder}} form="vm.form" data-qa="operator-modal-config" />
     </div>
 
     <div class="c-row c-row--separated">
       <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
-        <button class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()">
+        <button class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()" data-qa="modal-cancel-button">
           <span class="icon-circle-cross"></span>
           <span>{{"_INPUT_BUTTON_CANCEL_" | translate}}</span>
         </button>
 
-        <button class="c-button c-button--call-to-action-1" data-ng-click="vm.ok()">
+        <button class="c-button c-button--call-to-action-1" data-ng-click="vm.ok()" data-qa="modal-ok-button">
           <span class="icon icon-circle-check"></span>
           <span>{{"_SAVE_" | translate}}</span>
         </button>

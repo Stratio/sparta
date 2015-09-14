@@ -24,7 +24,8 @@
         pattern: "=pattern",
         inputs: "=inputs",
         readonly: "=readonly",
-        enableDelete: "=enableDelete"
+        enableDelete: "=enableDelete",
+        qa: "@"
       },
       replace: "true",
       templateUrl: 'templates/components/c-input-list-field.tpl.html',

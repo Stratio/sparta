@@ -47,7 +47,7 @@
 						<i class="c-icon c-icon--xxxlarge icon-{{input.element.type | lowercase}} o-media__img__item" alt="{{input.element.type}}"></i>
 					</div>
 
-					<span class="o-media__bd">{{input.shortDescription}}</span>
+					<span class="o-media__bd c-grid-item__desc">{{input.shortDescription}}</span>
 				</div>
 
 				<footer class="c-row c-row--to-bottom c-row--to-right">
@@ -60,7 +60,7 @@
     <hr class="c-line-separator" />
 
     <footer class="c-row c-row--to-right c-row--footer">
-    	<button class="c-button c-button--call-to-action-1" data-ng-click="inputs.createInput()">
+    	<button class="c-button c-button--call-to-action-1" data-ng-click="inputs.createInput()" data-qa="inputs-new-button">
     		<span class="icon icon-circle-plus"></span>
     		<span>{{"_INPUT_BUTTON_NEW_" | translate}}</span>
     	</button>

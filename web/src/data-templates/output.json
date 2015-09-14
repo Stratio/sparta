@@ -152,7 +152,7 @@
     {
       "propertyId": "path",
       "propertyName": "_PATH_",
-      "propertyType": "_TEXT_",
+      "propertyType": "text",
       "regexp": "^[a-zA-Z0-9:_\\.\\-\\+/\\\\]{2,}\\.csv$",
       "default": "path_to_csv.csv",
       "required": true

@@ -10,6 +10,11 @@
 		color: $c-msg--error---color;
 	}
 
+	&--success {
+		background: $c-msg--success---background;
+		color: $c-msg--success---color;
+	}
+
 	.c-icon {
 		margin: $c-msg__c-icon---margin;
 	}
