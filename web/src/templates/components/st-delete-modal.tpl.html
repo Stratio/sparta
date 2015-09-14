@@ -1,6 +1,6 @@
 <header class="c-titlebar">
 	<span class="c-titlebar__title" translate="{{vm.modalTexts.title}}"></span>
-	<i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" ng-click="vm.cancel()"></i>
+	<i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
 </header>
 
 <div class="c-modal-inner">
@@ -22,12 +22,12 @@
 
 	<div class="c-row c-row--separated">
 		<div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
-			<button class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()">
+			<button class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()" data-qa="modal-cancel-button">
 				<span class="icon-circle-cross"></span>
 				<span>{{"_INPUT_BUTTON_CANCEL_" | translate}}</span>
 			</button>
 
-			<button data-ng-if="vm.outputs.type === 'input' || vm.outputs.policies.length === 0" class="c-button c-button--danger" data-ng-click="vm.ok()">
+			<button data-ng-if="vm.outputs.type === 'input' || vm.outputs.policies.length === 0" class="c-button c-button--danger" data-ng-click="vm.ok()" data-qa="modal-ok-button">
 				<span class="icon icon-circle-check"></span>
 				<span>{{"_INPUT_BUTTON_DELETE_" | translate}}</span>
 			</button>
