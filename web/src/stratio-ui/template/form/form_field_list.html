@@ -5,7 +5,7 @@
         <div class="st-form-field-help-text" ng-show="showHelp">{{field.tooltip}}</div>
     </div>
     <div class="c-form-group" ng-repeat="row in model[field.propertyId]">
-        <div ng-repeat="item in field.fields" class="st-form-list-column c-col c-col--{{(10 / field.fields.length) | number: 0}}">
+        <div ng-repeat="item in field.fields" class="st-form-list-column c-col c-col--{{(10 / field.fields.length) | number: 0}}" ng-class="{'c-col--vertical-top': ($index <= (field.fields.length - 2))}">
             <form-field-input ng-attr-id="ng-{{name}}{{$parent.$index}}-{{item.propertyId}}" data-form="form" data-st-name="{{name}}{{$parent.$index}}-{{item.propertyId}}" data-model="row[item.propertyId]" data-label="{{item.propertyName | translate}}" data-type="{{item.propertyType}}" data-pattern="item.regexp" data-required="item.required"></form-field-input>
         </div><!--
      --><div class="c-col c-col--2">
