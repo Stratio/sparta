@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('PolicyFinishCtrl', PolicyFinishCtrl);
 
-  PolicyFinishCtrl.$inject = ['PolicyModelFactory', '$modal'];
+  PolicyFinishCtrl.$inject = ['PolicyModelFactory'];
 
-  function PolicyFinishCtrl(PolicyModelFactory, $modal) {
+  function PolicyFinishCtrl(PolicyModelFactory) {
     var vm = this;
 
     init();
@@ -31,7 +31,6 @@
           fragments.push(vm.policy.outputs[i]);
         }
       }
-      //fragments.concat(policy.outputs);
       vm.policy.fragments = fragments;
       delete vm.policy.models;
       delete vm.policy.input;
