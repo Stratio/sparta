@@ -1,4 +1,4 @@
-<ng-form name="{{name}}" class="c-form-group" ng-class="{empty: !model && model !== 0, focus: isFocused, placeholder: placeholder && !label, error: this[name][name].$invalid && form.$submitted, small: type=='number', disabled: disabled}">
+<ng-form name="{{name}}" class="c-form-group" data-ng-class="{empty: !model && model !== 0, focus: isFocused, placeholder: placeholder && !label, error: this[name][name].$invalid && form.$submitted, small: type=='number', disabled: disabled, submited: form.$submitted}">
     <div class="c-form-control c-form-control--full-width">
         <label data-ng-if="label" class="c-col c-col--12 c-label" title="{{label}}" for="{{name}}">{{label}}</label>
         <!-- <div ng-if="placeholder" class="st-form-field-placeholder">{{placeholder}}</div> -->
