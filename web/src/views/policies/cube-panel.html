@@ -1,6 +1,6 @@
 <section ng-controller="CubeCtrl as vm" data-ng-model="vm.cube" ng-init="vm.init(cube)">
 
-  <div ng-show="vm.showModelError" class="c-row c-row--flex c-msg c-msg--small c-msg--error">
+  <div ng-show="vm.showModelError" class="c-row c-row--flex c-msg c-msg--small c-msg--error" data-qa="error-msg">
     <i class="c-icon icon-circle-cross"></i>
     <span>{{"_GENERIC_FORM_ERROR_" | translate}}</span>
   </div>

@@ -1,6 +1,6 @@
 <section ng-controller="PolicyModelCtrl as vm" ng-init="vm.init(model)" data-ng-model="vm.model">
   <form novalidate>
-    <div ng-show="vm.showModelError" class="c-row c-msg c-msg--small c-msg--error">
+    <div ng-show="vm.showModelError" class="c-row c-msg c-msg--small c-msg--error" data-qa="error-msg">
       <i class="c-icon icon-circle-cross"></i>
       <span>{{"_POLICY_._MODEL_ERROR_" | translate}}</span>
     </div>
