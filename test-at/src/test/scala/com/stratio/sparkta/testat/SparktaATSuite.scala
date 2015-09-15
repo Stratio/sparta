@@ -19,27 +19,26 @@ package com.stratio.sparkta.testat
 import java.io.{File, PrintStream}
 import java.net._
 import java.nio.channels.ServerSocketChannel
-import com.stratio.sparkta.serving.core.{SparktaConfig, MockSystem, AppConstant}
-
-import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
-import scala.io.Source
-import scala.util.Try
 
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
-import com.typesafe.config.Config
+import com.stratio.sparkta.serving.api.helpers.SparktaHelper
+import com.stratio.sparkta.serving.core.helpers.JarsHelper
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, SparktaSerializer}
+import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
 import org.apache.curator.test.TestingServer
+import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import org.json4s.{DefaultFormats, _}
 import org.scalatest.{BeforeAndAfter, Matchers, WordSpecLike}
 import spray.client.pipelining._
 import spray.http.StatusCodes._
 import spray.http._
 import spray.testkit.ScalatestRouteTest
-import com.stratio.sparkta.serving.core.models.{SparktaSerializer, AggregationPoliciesModel}
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.api.helpers.SparktaHelper
+
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
+import scala.io.Source
+import scala.util.Try
 
 /**
  * Common operations that will be used in Acceptance Tests. All AT must extends from it.
@@ -88,14 +87,17 @@ trait SparktaATSuite
    * Starts an instance of Sparkta with a given configuration (reference.conf in our resources folder).
    */
   def startSparkta: Unit = {
-    val sparktaConfig = SparktaConfig.initConfig(AppConstant.ConfigAppName)
-    val configApi: Config = SparktaConfig.initConfig(AppConstant.ConfigApi, Some(sparktaConfig))
-    val sparktaHome = SparktaHelper.initSparktaHome(new MockSystem(Map("SPARKTA_HOME" -> getSparktaHome), Map()))
-    val jars = SparktaHelper.initJars(AppConstant.JarPaths, sparktaHome)
-    val sparktaPort = configApi.getInt("port")
-    val configJobServer = None//SparktaHelper.initConfig(AppConstant.ConfigJobServer, Some(sparktaConfig))
 
-    SparktaHelper.initAkkaSystem(sparktaConfig, configApi, jars, AppConstant.ConfigAppName)
+    SparktaConfig.initMainConfig()
+    SparktaConfig.initApiConfig()
+    SparktaConfig.initSwaggerConfig()
+    SparktaConfig.sparktaHome = getSparktaHome
+    JarsHelper.findJarsByPath(
+      new File(SparktaConfig.sparktaHome, AppConstant.JarPluginsFolder), Some("-plugin.jar"))
+
+    val sparktaPort = SparktaConfig.apiConfig.get.getInt("port")
+
+    SparktaHelper.initAkkaSystem(AppConstant.ConfigAppName)
     sleep(SparktaSleep)
 
     openSocket(sparktaPort).isSuccess should be(true)

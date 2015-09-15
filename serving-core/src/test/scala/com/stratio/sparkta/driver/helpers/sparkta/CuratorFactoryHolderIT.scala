@@ -17,7 +17,7 @@
 package com.stratio.sparkta.driver.helpers.sparkta
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.serving.core.CuratorFactoryHolder
+import com.stratio.sparkta.serving.core.{SparktaConfig, CuratorFactoryHolder}
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import org.apache.curator.framework.api.ExistsBuilder
 import org.apache.curator.test.TestingServer
@@ -39,7 +39,8 @@ class CuratorFactoryHolderIT extends FlatSpec with Matchers with BeforeAndAfter 
     zkTestServer = new TestingServer(CuratorFactoryHolderIT.TestServerZKPort)
     zkTestServer.start()
 
-    val instance = CuratorFactoryHolder.getInstance(CuratorFactoryHolderIT.basicConfig)
+    SparktaConfig.initMainConfig(CuratorFactoryHolderIT.basicConfig)
+    val instance = CuratorFactoryHolder.getInstance()
     Option(instance.checkExists().forPath("/test")) match {
       case eb: ExistsBuilder =>
         instance.delete().deletingChildrenIfNeeded().forPath(CuratorFactoryHolderIT.PathTestNode)
@@ -54,28 +55,22 @@ class CuratorFactoryHolderIT extends FlatSpec with Matchers with BeforeAndAfter 
     zkTestServer.stop()
   }
 
-  "CuratorFactory holder" must "throws the correct error" in {
-    Given("an empty configuration")
-    Then("throws a missing config exception")
-    an[ConfigException] should be thrownBy
-      (CuratorFactoryHolder.getInstance(CuratorFactoryHolderIT.emptyConfig))
-  }
-
-  it must "create correctly and to check if exists" in {
+  "CuratorFactory holder" must "create correctly and to check if exists" in {
     Given(s"ZK configuration: $CuratorFactoryHolderIT.configString")
-    val instance = CuratorFactoryHolder.getInstance(CuratorFactoryHolderIT.basicConfig)
-    When("creates a ephimeral node in ZK server")
+    SparktaConfig.initMainConfig(CuratorFactoryHolderIT.basicConfig)
+    val instance = CuratorFactoryHolder.getInstance()
+    When("creates a ephemeral node in ZK server")
     instance.create().withMode(CreateMode.EPHEMERAL).forPath(CuratorFactoryHolderIT.PathTestNode)
     Then("the created node must be exists when it is searched")
     assert(Option(instance.checkExists().forPath(CuratorFactoryHolderIT.PathTestNode)) != None)
   }
 
-  it must "reuse  the same connection" in {
+  "CuratorFactory holder" must "reuse  the same connection" in {
     Given(s"ZK configuration: $CuratorFactoryHolderIT.configString")
     When("an instance is created with the CuratorFactoryHolder")
-    val instance = CuratorFactoryHolder.getInstance(CuratorFactoryHolderIT.basicConfig)
+    val instance = CuratorFactoryHolder.getInstance()
     And("other instance is created with the CuratorFactoryHolder")
-    val secondInstance = CuratorFactoryHolder.getInstance(CuratorFactoryHolderIT.basicConfig)
+    val secondInstance = CuratorFactoryHolder.getInstance()
     Then("the factory return the same instance for both cases")
     instance should be theSameInstanceAs secondInstance
   }
@@ -83,11 +78,11 @@ class CuratorFactoryHolderIT extends FlatSpec with Matchers with BeforeAndAfter 
   it must "not reuse  the same connection when resetInstance is invoked" in {
     Given(s"ZK configuration: $CuratorFactoryHolderIT.configString")
     When("an instance is created with the CuratorFactoryHolder")
-    val instance = CuratorFactoryHolder.getInstance(CuratorFactoryHolderIT.basicConfig)
+    val instance = CuratorFactoryHolder.getInstance()
     When("reset is called in the factory")
     CuratorFactoryHolder.resetInstance()
     And("other instance is created with the CuratorFactoryHolder")
-    val secondInstance = CuratorFactoryHolder.getInstance(CuratorFactoryHolderIT.basicConfig)
+    val secondInstance = CuratorFactoryHolder.getInstance(CuratorFactoryHolderIT.emptyConfig)
     Then("the factory return other different instance and them are not equals")
     instance should not be secondInstance
   }
@@ -98,14 +93,16 @@ object CuratorFactoryHolderIT {
   val TestServerZKPort = 6666
   val PathTestNode = "/test"
   val configString = s"""
-                        "zk": {
-                          "connectionString": "localhost:$TestServerZKPort",
-                          "connectionTimeout": 15000,
-                          "sessionTimeout": 60000
-                          "retryAttempts": 5
-                          "retryInterval": 2000
+                        "sparkta": {
+                          "zk": {
+                            "connectionString": "localhost:$TestServerZKPort",
+                            "connectionTimeout": 15000,
+                            "sessionTimeout": 60000
+                            "retryAttempts": 5
+                            "retryInterval": 2000
+                          }
                         }
                       """
-  lazy val basicConfig = ConfigFactory.parseString(configString)
-  lazy val emptyConfig = ConfigFactory.empty
+  lazy val basicConfig = Some(ConfigFactory.parseString(configString))
+  lazy val emptyConfig = Some(ConfigFactory.empty)
 }

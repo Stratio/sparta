@@ -22,7 +22,7 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>com.stratio.sparkta</groupId>
-        <version>0.6.0-SNAPSHOT</version>
+        <version>0.6.0-RC2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -42,13 +42,6 @@
             <groupId>com.stratio</groupId>
             <artifactId>spark-mongodb-core</artifactId>
             <version>0.8.7</version>
-        </dependency>
-
-        <!--TODO REMOVE -->
-        <dependency>
-            <groupId>com.typesafe</groupId>
-            <artifactId>config</artifactId>
-            <version>1.2.1</version>
         </dependency>
     </dependencies>
 </project>

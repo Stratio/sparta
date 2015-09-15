@@ -21,7 +21,7 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>com.stratio.sparkta</groupId>
-        <version>0.6.0-SNAPSHOT</version>
+        <version>0.6.0-RC2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>stratio-sparkta</artifactId>
@@ -37,12 +37,10 @@
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
             <artifactId>driver</artifactId>
-            <version>0.6.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
             <artifactId>serving-api</artifactId>
-            <version>0.6.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <build>
@@ -69,23 +67,27 @@
                         <version>1.7</version>
                         <executions>
                             <execution>
-                                <id>copy PLUGINS SDK AGGREGATOR</id>
+                                <id>copy PLUGINS DRIVER</id>
                                 <phase>compile</phase>
                                 <goals>
                                     <goal>run</goal>
                                 </goals>
                                 <configuration>
                                     <target name="copy folders">
-                                        <copy todir="target/appassembler/repo/sdk">
-                                            <fileset dir="../sdk" includes="**/*.jar" />
+                                        <copy todir="target/appassembler/repo/driver">
+                                            <fileset dir="../driver" includes="**/*.jar" />
+                                            <mapper type="flatten" />
+                                        </copy>
+                                        <copy todir="target/appassembler/repo/serving-api">
+                                            <fileset dir="../serving-api" includes="**/*.jar" />
                                             <mapper type="flatten" />
                                         </copy>
                                         <copy todir="target/appassembler/repo/plugins">
                                             <fileset dir="../plugins" includes="**/*.jar" />
                                             <mapper type="flatten" />
                                         </copy>
-                                        <copy todir="target/appassembler/repo/aggregator">
-                                            <fileset dir="../aggregator" includes="**/*.jar" />
+                                        <copy todir="target/appassembler/repo/web">
+                                            <fileset dir="../web" includes="**/*.jar" />
                                             <mapper type="flatten" />
                                         </copy>
                                         <copy todir="target/appassembler/repo/benchmark">
@@ -203,16 +205,20 @@
                                     <to>/etc/sds/sparkta</to>
                                 </copyDirectory>
                                 <copyDirectory>
-                                    <from>target/appassembler/repo/sdk</from>
-                                    <to>/opt/sds/sparkta/sdk</to>
-                                </copyDirectory>
-                                <copyDirectory>
                                     <from>target/appassembler/repo/plugins</from>
                                     <to>/opt/sds/sparkta/plugins</to>
                                 </copyDirectory>
                                 <copyDirectory>
-                                    <from>target/appassembler/repo/aggregator</from>
-                                    <to>/opt/sds/sparkta/aggregator</to>
+                                    <from>target/appassembler/repo/driver</from>
+                                    <to>/opt/sds/sparkta/driver</to>
+                                </copyDirectory>
+                                <copyDirectory>
+                                    <from>target/appassembler/repo/serving-api</from>
+                                    <to>/opt/sds/sparkta/serving-api</to>
+                                </copyDirectory>
+                                <copyDirectory>
+                                    <from>target/appassembler/repo/web</from>
+                                    <to>/opt/sds/sparkta/plugins</to>
                                 </copyDirectory>
                                 <copyDirectory>
                                     <from>target/appassembler/repo/benchmark</from>

@@ -22,7 +22,7 @@ import com.stratio.sparkta.serving.core.models.{PolicyStatusModel, SparktaSerial
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor._
 import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder}
 import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
-import org.json4s.native.Serialization._
+import org.json4s.jackson.Serialization.{read, write}
 
 import scala.collection.JavaConversions
 import scala.util.{Failure, Success, Try}
@@ -39,15 +39,16 @@ class PolicyStatusActor extends Actor with SLF4JLogging with SparktaSerializer {
     val curator = CuratorFactoryHolder.getInstance()
     val path = s"${AppConstant.ContextPath}/${policyStatus.id}"
 
-    if(Option(curator.checkExists().forPath(path)).isDefined) {
+    //TODO check the correct statuses
+    if (Option(curator.checkExists().forPath(path)).isDefined) {
       val ips =
         read[PolicyStatusModel](new String(curator.getData.forPath(s"${AppConstant.ContextPath}/${policyStatus.id}")))
       log.info(s">> Updating context ${policyStatus.id} : <${ips.status}> to <${policyStatus.status}>")
-      validate(Some(ips.status), policyStatus.status)
+      //validate(Some(ips.status), policyStatus.status)
       curator.setData().forPath(path, write(policyStatus).getBytes)
     } else {
       log.info(s">> Creating policy context |${policyStatus.id}| to <${policyStatus.status}>")
-      validate(None, policyStatus.status)
+      //validate(None, policyStatus.status)
       curator.create.creatingParentsIfNeeded.forPath(path, write(policyStatus).getBytes)
     }
   }
@@ -67,14 +68,17 @@ class PolicyStatusActor extends Actor with SLF4JLogging with SparktaSerializer {
    * @param id of the policy.
    * @param callback with a function that will be executed.
    */
-  def addListener(id: String, callback: (PolicyStatusModel, NodeCache) => Unit ): Unit = {
-    val path =  s"${AppConstant.ContextPath}/$id"
+  def addListener(id: String, callback: (PolicyStatusModel, NodeCache) => Unit): Unit = {
+    val path = s"${AppConstant.ContextPath}/$id"
     val curator = CuratorFactoryHolder.getInstance()
     val nodeCache: NodeCache = new NodeCache(curator, path)
+
     nodeCache.getListenable.addListener(new NodeCacheListener {
       override def nodeChanged(): Unit = {
         Try(new String(nodeCache.getCurrentData.getData)) match {
-          case Success(value) =>  callback(read[PolicyStatusModel](value), nodeCache)
+          case Success(value) => {
+            callback(read[PolicyStatusModel](value), nodeCache)
+          }
           case Failure(e) => log.error(s"NodeCache value: ${nodeCache.getCurrentData}", e)
         }
       }
@@ -82,8 +86,6 @@ class PolicyStatusActor extends Actor with SLF4JLogging with SparktaSerializer {
     nodeCache.start()
   }
 }
-
-
 
 object PolicyStatusActor {
 
@@ -98,8 +100,8 @@ object PolicyStatusActor {
   /**
    * This map represents the state machine of one context.
    */
-  val StateMachine : Map[Option[PolicyStatusEnum.Value], Seq[PolicyStatusEnum.Value]] = Map(
-    None ->  Seq(PolicyStatusEnum.Launched, PolicyStatusEnum.Failed),
+  val StateMachine: Map[Option[PolicyStatusEnum.Value], Seq[PolicyStatusEnum.Value]] = Map(
+    None -> Seq(PolicyStatusEnum.Launched, PolicyStatusEnum.Failed),
     Some(PolicyStatusEnum.Launched) -> Seq(PolicyStatusEnum.Starting, PolicyStatusEnum.Failed),
     Some(PolicyStatusEnum.Starting) -> Seq(PolicyStatusEnum.Started, PolicyStatusEnum.Failed),
     Some(PolicyStatusEnum.Started) -> Seq(PolicyStatusEnum.Stopping, PolicyStatusEnum.Failed),
@@ -114,10 +116,10 @@ object PolicyStatusActor {
    * @param finalStatus to change. If not one exception will be thrown.
    */
   def validate(initialStatus: Option[PolicyStatusEnum.Value], finalStatus: PolicyStatusEnum.Value): Unit = {
-    if(!StateMachine.exists(_._1 == initialStatus)) {
+    if (!StateMachine.exists(_._1 == initialStatus)) {
       throw new IllegalStateException(s"The status ${initialStatus.get} is not in the StateMachine")
     }
-    if(!StateMachine.get(initialStatus).get.contains(finalStatus)) {
+    if (!StateMachine.get(initialStatus).get.contains(finalStatus)) {
       throw new IllegalStateException(s"Imposible change status from $initialStatus to $finalStatus")
     }
   }
