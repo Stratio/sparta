@@ -28,23 +28,7 @@
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.granularityOptions = CubeStaticDataFactory.getGranularityOptions();
       vm.functionList = CubeStaticDataFactory.getFunctionNames();
-      vm.outputList = getAllModelOutputs();
-    }
-
-    function getAllModelOutputs() {
-      var models = vm.policy.models;
-      var outputs = [];
-      var modelOutputs, output = null;
-      for (var i = 0; i < models.length; ++i) {
-        modelOutputs = models[i].outputFields;
-        for (var j = 0; j < modelOutputs.length; ++j) {
-          output = modelOutputs[j];
-          if (outputs.indexOf(output) == -1) {
-            outputs.push(output);
-          }
-        }
-      }
-      return outputs;
+      vm.outputList = PolicyModelFactory.getAllModelOutputs();
     }
 
     function addOutputToDimensions(outputName) {
@@ -85,7 +69,7 @@
         resolve: {
           operatorType: function () {
             return functionName;
-          },
+        },
           operatorName: function () {
             var operatorLength = vm.cube.operators.length + 1;
             return functionName.toLowerCase() + operatorLength;

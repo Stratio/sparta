@@ -43,6 +43,9 @@
 								<st-menu-element class-icon="icon-stop" data-ng-click="policies.stopPolicy(policyData.policy.id, policyData.status, policyData.policy.name)" data-qa="policy-context-menu-{{policyData.policy.id}}-stop">
 									{{"_OUTPUT_ACTIONS_MENU_STOP_" | translate}}
 								</st-menu-element>
+                <st-menu-element class-icon="icon-edit"  sref="dashboard.editPolicy({id: '{{policy.id}}'})">
+                  {{"_OUTPUT_ACTIONS_MENU_EDIT_" | translate}}
+                </st-menu-element>
 							</st-floating-menu>
 						</i>
 					</td>
