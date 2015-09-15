@@ -6,11 +6,11 @@
     </div>
     <div class="c-form-group" ng-repeat="row in model[field.propertyId]">
         <div ng-repeat="item in field.fields" class="st-form-list-column c-col c-col--{{(10 / field.fields.length) | number: 0}}">
-            <form-field-input ng-attr-id="ng-{{name}}{{$parent.$index}}-{{item.propertyId}}" data-form="form" data-st-name="{{name}}{{$parent.$index}}-{{item.propertyId}}" data-model="row[item.propertyId]" data-label="{{item.propertyName | translate}}" data-type="{{item.propertyType}}" data-pattern="item.regexp" data-required="item.required"></form-field-input>
+            <form-field-input ng-attr-id="ng-{{name}}{{$parent.$index}}-{{item.propertyId}}" data-form="form" data-st-name="{{name}}{{$parent.$index}}-{{item.propertyId}}" data-model="row[item.propertyId]" data-label="{{item.propertyName | translate}}" data-type="{{item.propertyType}}" data-pattern="item.regexp" data-required="item.required" data-qa="{{item.qa}}-{{$parent.$index}}"></form-field-input>
         </div><!--
      --><div class="c-col c-col--2">
-            <i class="c-icon c-icon--is-clickable c-icon--danger icon-square-cross" ng-if="!($first && $last)" ng-click="removeItem($index)"></i>
-            <i class="c-icon c-icon--is-clickable c-icon--call-to-action icon-square-plus" ng-if="!field.limit || model[field.propertyId].length < field.limit" ng-click="addItem()"></i>
+            <i class="c-icon c-icon--is-clickable c-icon--danger icon-square-cross" ng-if="!($first && $last)" ng-click="removeItem($index)" data-qa="{{qa}}-minus-{{$parent.$index}}"></i>
+            <i class="c-icon c-icon--is-clickable c-icon--call-to-action icon-square-plus" ng-if="!field.limit || model[field.propertyId].length < field.limit" ng-click="addItem()" data-qa="{{qa}}-plus-{{$parent.$index}}"></i>
         </div>
     </div>
 </div>
