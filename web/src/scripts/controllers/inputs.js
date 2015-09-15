@@ -38,8 +38,6 @@
           inputList.then(function (result) {
             vm.inputsData = result;
             vm.getInputTypes(result);
-            console.log('********Inputs list')
-            console.log(vm.inputsData);
 
           },function (error) {
             console.log('There was an error while loading the inputs flist!');
@@ -85,8 +83,7 @@
         };
 
         function deleteInput(fragmentType, fragmentId, index) {
-          console.log('--> Deleting input');
-          var inputToDelete =
+                  var inputToDelete =
           {
             'type':fragmentType,
             'id': fragmentId,
@@ -163,14 +160,8 @@
           });
 
           modalInstance.result.then(function (newInputData) {
-            console.log('*************** Controller back');
-            console.log(newInputData);
-
             vm.inputsData.push(newInputData);
-            console.log(vm.inputsData);
-
           }, function () {
-            console.log('Modal dismissed at: ' + new Date())
           });
         };
 
@@ -195,11 +186,8 @@
 
           modalInstance.result.then(function (updatedInputData) {
             vm.inputsData[updatedInputData.index] = updatedInputData.data;
-            console.log(vm.inputsData);
-
-          },function () {
-            console.log('Modal dismissed at: ' + new Date())
-          });
+              },function () {
+                     });
         };
 
         function deleteInputConfirm(size, input) {
@@ -220,10 +208,7 @@
 
           modalInstance.result.then(function (selectedItem) {
             vm.inputsData.splice(selectedItem.index, 1);
-            console.log(vm.inputsData);
-
           },function () {
-            console.log('Modal dismissed at: ' + new Date())
           });
         };
 
@@ -242,10 +227,7 @@
 
           modalInstance.result.then(function (newInput) {
             vm.inputsData.push(newInput);
-            console.log(vm.inputsData);
-
           },function () {
-            console.log('Modal dismissed at: ' + new Date())
           });
         };
     };

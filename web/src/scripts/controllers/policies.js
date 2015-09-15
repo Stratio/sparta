@@ -28,9 +28,6 @@
       var policiesList = PolicyFactory.GetAllPolicies();
 
       policiesList.then(function (result) {
-        console.log('--> Getting wizard');
-        console.log('> Getting list of wizard');
-        console.log(result);
         vm.policiesData.list = result;
       },function (error) {
         console.log('There was an error while loading the policies!');
@@ -39,7 +36,6 @@
     };
 
     function deletePolicy(policyId, index) {
-      console.log('--> Deleting policy');
       var policyToDelete =
       {
         'id': policyId,
@@ -52,8 +48,6 @@
       var policyRunning = PolicyFactory.RunPolicy(policyId);
 
       policyRunning.then(function (result) {
-        console.log('********Policy status')
-        console.log(result);
 
       },function (error) {
         console.log('There was an error while running the policy!');
@@ -77,10 +71,8 @@
 
       modalInstance.result.then(function (selectedPolicy) {
         vm.policiesData.list.splice(selectedPolicy.index, 1);
-        console.log(vm.policiesData.list);
 
       },function () {
-        console.log('Modal dismissed at: ' + new Date())
       });
     };
 

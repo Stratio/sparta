@@ -16,7 +16,8 @@
                 name: '@stName',
                 field: '=',
                 form: '=',
-                model: '='
+                model: '=',
+                qa: '@'
             }
         }
         return directive;
