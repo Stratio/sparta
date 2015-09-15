@@ -21,7 +21,7 @@
 
 			<datasource-form-field ng-repeat="item in vm.templateFragmentsData[vm.selectedIndex].properties" ng-form-id="{{item.propertyId}}"  data-field="item" data-model="vm.dataSource.element.configuration" data-form="vm.form" data-st-name="dataSource{{item.propertyName}}Form" data-ng-if="item.propertyId !== 'name'" data-qa="{{item.qa}}"></datasource-form-field>
 
-			<div class="c-row c-row--separated" data-ng-if="vm.policiesAffected.length > 0">
+			<div class="c-row c-row--separated" data-ng-if="vm.policiesAffected.length > 0" data-qa="fragment-details-policies-affected">
 				<p class="c-modal-inner__title">{{"_ARE_YOU_COMPLETELY_SURE_" | translate}}</p>
 				<p>{{"_FRAGMENT_WINDOW_EDIT_MESSAGE_" | translate}}</p>
 				<p translate="{{vm.modalTexts.secondaryText2}}"></p>
@@ -38,7 +38,7 @@
 
 			<div class="c-row c-row--separated">
 				<div class="c-col c-col--6 c-col--vertical-centered">
-					<a data-ng-href="{{vm.templateFragmentsData[vm.selectedIndex].description.learnMore}}" class="c-info-text c-info-text--is-clickable" target="_blank"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text c-info-text__text--is-link">{{"_INPUT_WINDOW_NEW_HELP_" | translate}}</span></a>
+					<a data-ng-href="{{vm.templateFragmentsData[vm.selectedIndex].description.learnMore}}" class="c-info-text c-info-text--is-clickable" target="_blank" data-qa="fragment-detail-type-{{vm.dataSource.element.type | lowercase}}-help"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text c-info-text__text--is-link">{{"_INPUT_WINDOW_NEW_HELP_" | translate}}</span></a>
 				</div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
 					<button class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()" data-qa="modal-cancel-button">
 						<i class="c-icon icon-circle-cross"></i>

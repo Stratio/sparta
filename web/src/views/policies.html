@@ -17,15 +17,15 @@
 					<td class="c-table__td c-table__td--no-wrap c-col--3">{{policy.name}}</td>
 					<td class="c-table__td">{{policy.description}}</td>
 					<td class="c-table__td c-table__td--no-wrap c-table__td--to-right c-col--1">
-						<i class="c-icon c-icon--is-clickable c-icon--call-to-action icon-actions" data-ng-click="$root.stToggleFloatingMenu[policy.id]()">
+						<i class="c-icon c-icon--is-clickable c-icon--call-to-action icon-actions" data-ng-click="$root.stToggleFloatingMenu[policy.id]()" data-qa="input-context-menu-{{policy.id}}">
 							<st-floating-menu toggle-id="{{policy.id}}" align="right">
-								<st-menu-element class-icon="icon-cross" data-ng-click="policies.deletePolicy(policy.id, $index)" data-qa="policy-context-menu-{{policy.id}}">
+								<st-menu-element class-icon="icon-cross" data-ng-click="policies.deletePolicy(policy.id, $index)" data-qa="policy-context-menu-{{policy.id}}-delete">
 									{{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
 								</st-menu-element>
-								<st-menu-element class-icon="icon-play" data-ng-click="policies.runPolicy(policy.id)">
+								<st-menu-element class-icon="icon-play" data-ng-click="policies.runPolicy(policy.id)" data-qa="policy-context-menu-{{policy.id}}-run">
 									{{"_OUTPUT_ACTIONS_MENU_RUN_" | translate}}
 								</st-menu-element>
-								<st-menu-element class-icon="icon-download" data-href="/policy/find/{{policy.id}}" data-download-file-name="{{policy.name}}.json">
+								<st-menu-element class-icon="icon-download" data-href="/policy/find/{{policy.id}}" data-download-file-name="{{policy.name}}.json" data-qa="policy-context-menu-{{policy.id}}-download">
 									{{"_OUTPUT_ACTIONS_MENU_DOWNLOAD_" | translate}}
 								</st-menu-element>
 							</st-floating-menu>

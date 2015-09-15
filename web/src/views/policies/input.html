@@ -9,7 +9,7 @@
 
   <form name="vm.form" class="c-form c-panel c-panel--framed" novalidate>
     <div class="c-col c-col--4" data-ng-repeat="input in vm.inputList">
-      <div class="c-check-block" data-ng-click="vm.setInput($index)">
+      <div class="c-check-block" data-ng-click="vm.setInput($index)" data-qa="policy-input-fragment-{{input.id}}">
         <div class="c-form-control c-form-control--full-width">
           <div class="c-row">
               <label class="c-label">{{input.name}}</label>
@@ -25,7 +25,7 @@
 
     <footer class="c-row c-row--footer c-row--separated">
       <div class="c-col c-col--6 c-col--vertical-centered">
-        <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" text-class="" link-url="vm.helpLink" link-class=""></c-icon-link>
+        <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" text-class="" link-url="vm.helpLink" link-class="" data-qa="policy-input-help"></c-icon-link>
       </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
         <button class="c-button c-button--call-to-action-1" data-ng-click="vm.validateForm()" data-qa="policy-new-next-button">
           <i class="icon icon-arrow-right"></i>
