@@ -12,6 +12,7 @@
         "propertyId": "type",
         "propertyName": "_TYPE_",
         "propertyType": "select",
+        "qa": "fragment-details-flume-type",
         "values": [
           {
             "label": "pull",
@@ -36,6 +37,7 @@
       "hidden": false,
       "limit": 0,
       "tooltip": "",
+      "qa": "fragment-details-flume-pull-addresses",
       "visible": [
           [
             {
@@ -53,7 +55,8 @@
           "default": "localhost",
           "required": true,
           "tooltip": "Flume's address.",
-          "hidden": false
+          "hidden": false,
+          "qa": "fragment-details-flume-pull-host"
         },
         {
           "propertyId": "port",
@@ -63,7 +66,8 @@
           "default": "11999",
           "required": true,
           "tooltip": "Flume's port.",
-          "hidden": false
+          "hidden": false,
+          "qa": "fragment-details-flume-pull-port"
         }
       ]
       },
@@ -76,6 +80,7 @@
         "required": false,
         "tooltip": "",
         "hidden": false,
+        "qa": "fragment-details-flume-pull-max-batch-size",
         "visible": [
           [
             {
@@ -94,6 +99,7 @@
         "required": false,
         "tooltip": "",
         "hidden": false,
+        "qa": "fragment-details-flume-pull-parallelism",
         "visible": [
           [
             {
@@ -112,6 +118,7 @@
         "required": true,
         "tooltip": "You must set the Flume host IP or name.",
         "hidden": false,
+        "qa": "fragment-details-flume-push-host",
         "visible": [
           [
             {
@@ -130,6 +137,7 @@
         "required": true,
         "tooltip": "Flume port",
         "hidden": false,
+        "qa": "fragment-details-flume-push-port",
         "visible": [
           [
             {
@@ -147,6 +155,7 @@
         "required": false,
         "tooltip": "",
         "hidden": false,
+        "qa": "fragment-details-flume-push-enable-decompression",
         "visible": [
           [
             {
