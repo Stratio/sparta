@@ -26,13 +26,25 @@
         vm.cube = CubeModelFactory.getCube();
       }
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      var models = vm.policy.models;
-      if (models.length > 0) {
+      vm.granularityOptions = CubeStaticDataFactory.getGranularityOptions();
+      vm.functionList = CubeStaticDataFactory.getFunctionNames();
+      vm.outputList = getAllModelOutputs();
+    }
 
-        vm.granularityOptions = CubeStaticDataFactory.getGranularityOptions();
-        vm.outputList = models[models.length - 1].outputFields;
-        vm.functionList = CubeStaticDataFactory.getFunctionNames();
+    function getAllModelOutputs() {
+      var models = vm.policy.models;
+      var outputs = [];
+      var modelOutputs, output = null;
+      for (var i = 0; i < models.length; ++i) {
+        modelOutputs = models[i].outputFields;
+        for (var j = 0; j < modelOutputs.length; ++j) {
+          output = modelOutputs[j];
+          if (outputs.indexOf(output) == -1) {
+            outputs.push(output);
+          }
+        }
       }
+      return outputs;
     }
 
     function addOutputToDimensions(outputName) {

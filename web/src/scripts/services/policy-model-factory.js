@@ -27,6 +27,9 @@
       policy.cubes = [];
     }
 
+    function setPolicy(){
+
+    }
     function getCurrentPolicy() {
       if (!policy)
         initPolicy();
@@ -37,7 +40,7 @@
       status.currentStep++;
     }
 
-    function getStatus() {
+    function getProcessStatus() {
       return status;
     }
 
@@ -48,7 +51,7 @@
     return {
       getCurrentPolicy: getCurrentPolicy,
       nextStep: nextStep,
-      getStatus: getStatus,
+      getProcessStatus: getProcessStatus,
       resetPolicy: resetPolicy
     }
   }

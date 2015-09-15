@@ -9,8 +9,8 @@
 
     function TemplateFactory(ApiTemplateService) {
         return {
-            GetNewFragmentTemplate: function(fragmentType) {
-                return ApiTemplateService.GetFragmentTemplateByType().get({'type': fragmentType + '.json'}).$promise;
+            getNewFragmentTemplate: function(fragmentType) {
+                return ApiTemplateService.getFragmentTemplateByType().get({'type': fragmentType + '.json'}).$promise;
             }
         };
     };

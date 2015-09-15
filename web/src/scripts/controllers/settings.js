@@ -56,18 +56,18 @@
 
     function runScriptPolicies() {
       /*Get inputs list*/
-      var inputsListRequest = FragmentFactory.GetFragments('input');
+      var inputsListRequest = FragmentFactory.getFragments('input');
       inputsListRequest.then(function (inputsResult) {
         var inputList = inputsResult;
 
         /*Get outputs list*/
-        var outputsListRequest = FragmentFactory.GetFragments('output');
+        var outputsListRequest = FragmentFactory.getFragments('output');
         outputsListRequest.then(function (outputsResult) {
 
           var outputList = outputsResult;
 
           /*Get policy template*/
-          var policyTemplate = PolicyFactory.GetFakePolicy();
+          var policyTemplate = PolicyFactory.getFakePolicy();
           policyTemplate.then(function (policiesResult) {
 
             for (var i = 0; i < inputList.length; i++) {
@@ -80,7 +80,7 @@
               test.fragments.push(outputList[0]);
 
               /*Create a new policy*/
-              var newPolicy = PolicyFactory.CreatePolicy(test);
+              var newPolicy = PolicyFactory.createPolicy(test);
               newPolicy.then(function (result) {
 
               }, function (error) {

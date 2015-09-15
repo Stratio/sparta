@@ -29,7 +29,7 @@
       };
 
       function getOutputs() {
-        var outputList = FragmentFactory.GetFragments('output');
+        var outputList = FragmentFactory.getFragments('output');
 
         outputList.then(function (result) {
           vm.error = false;

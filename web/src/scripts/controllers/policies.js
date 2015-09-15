@@ -30,7 +30,7 @@
     }
 
     function getPolicies() {
-      var policiesList = PolicyFactory.GetAllPolicies();
+      var policiesList = PolicyFactory.getAllPolicies();
 
       policiesList.then(function (result) {
         vm.error = false;

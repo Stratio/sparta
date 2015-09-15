@@ -10,17 +10,16 @@
   function ApiPolicyService($resource, apiConfigSettings) {
     var vm = this;
 
-    vm.GetPolicyByFragmentId = GetPolicyByFragmentId;
-    vm.GetAllpolicies = GetAllPolicies;
-    vm.CreatePolicy = CreatePolicy;
-    vm.DeletePolicy = DeletePolicy;
-    vm.RunPolicy = RunPolicy;
+    vm.getPolicyByFragmentId = getPolicyByFragmentId;
+    vm.getAllpolicies = getAllPolicies;
+    vm.createPolicy = createPolicy;
+    vm.deletePolicy = deletePolicy;
+    vm.runPolicy = runPolicy;
+    vm.getFakePolicy = getFakePolicy;
     vm.StopPolicy = StopPolicy;
-    vm.GetFakePolicy = GetFakePolicy;
-
     /////////////////////////////////
 
-    function GetPolicyByFragmentId() {
+    function getPolicyByFragmentId() {
       return $resource('/policy/fragment/:type/:id', {type: '@type', id: '@id'},
         {
           'get': {method: 'GET', isArray: true},
@@ -28,7 +27,7 @@
         });
     };
 
-    function GetAllPolicies() {
+    function getAllPolicies() {
       return $resource('/policy/all', {},
         {
           'get': {
@@ -38,7 +37,7 @@
         });
     };
 
-    function CreatePolicy() {
+    function createPolicy() {
       return $resource('/policy', {},
         {
           'create': {method: 'POST',
@@ -46,7 +45,7 @@
         });
     };
 
-    function DeletePolicy() {
+    function deletePolicy() {
       return $resource('/policy/:id', {id: '@id'},
         {
           'delete': {method: 'DELETE',
@@ -54,7 +53,7 @@
         });
     };
 
-    function RunPolicy() {
+    function runPolicy() {
         return $resource('/policy/run/:id', {id:'@id'},
         {
             'get': {method:'GET',
@@ -70,7 +69,7 @@
         });
     };
 
-    function GetFakePolicy() {
+    function getFakePolicy() {
       return $resource('/data-templates/fake_data/create_policies.json', {},
         {
           'get': {method: 'GET',

@@ -24,7 +24,7 @@
     function validateForm() {
       if (vm.form.$valid) {
         /*Check if the name of the policy already exists*/
-        var policiesList = PolicyFactory.GetAllPolicies();
+        var policiesList = PolicyFactory.getAllPolicies();
 
         policiesList.then(function (result) {
           var policiesDataList = result;
