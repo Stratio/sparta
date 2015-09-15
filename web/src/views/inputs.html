@@ -7,7 +7,7 @@
 		<div class="c-toolbar c-form-group c-form-group--to-right">
 			<div class="c-col c-col--2 c-form-control">
 				<label class="c-label o-wcag-hidden" for="type">{{"_INPUT_FILTER_TYPE_" | translate}}:</label>
-				<select id="type" class="c-combobox c-combobox--no-border c-combobox--full-width" data-ng-model="inputs.filters.element.type">
+				<select id="type" class="c-combobox c-combobox--no-border c-combobox--full-width" data-ng-model="inputs.filters.element.type" data-qa="input-filter-type">
 					<option value="">{{"_INPUT_FILTER_TYPE_DEFAULT_" | translate}}</option>
 					<option value="{{inputType.type}}" data-ng-repeat="inputType in inputs.inputTypes">
 						{{inputType.type}} ({{inputType.count}})
@@ -18,7 +18,7 @@
 		 --><div class="c-col c-col--10 c-form-control">
 				<label class="c-label o-wcag-hidden" for="name">{{"_INPUT_FILTER_NAME_" | translate}}:</label>
 				<i class="icon-search c-icon c-icon--in-input-right"></i>
-				<input type="text" id="name" class="c-searchbox c-searchbox--left-icon c-searchbox--no-border c-searchbox--full-width" data-ng-model="inputs.filters.name" />
+				<input type="text" id="name" class="c-searchbox c-searchbox--left-icon c-searchbox--no-border c-searchbox--full-width" data-ng-model="inputs.filters.name" data-qa="input-filter-name"/>
 			</div>
 		</div>
 
