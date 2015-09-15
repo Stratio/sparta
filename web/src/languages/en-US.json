@@ -209,5 +209,6 @@
   "_ERROR_ALL_FIELDS_REQUIRED_": "All fields are required! Please check them and try to sumbit the form.",
   "_ERROR_INPUT_DUPLICATED_": "Output field alraedy exists!",
   "_OUTPUT_ACTIONS_MENU_RUN_" : "Run",
-  "_OUTPUT_ACTIONS_MENU_DOWNLOAD_" : "Download"
+  "_OUTPUT_ACTIONS_MENU_DOWNLOAD_" : "Download",
+  "_OUTPUT_ACTIONS_MENU_EDIT_" : "Edit"
 }

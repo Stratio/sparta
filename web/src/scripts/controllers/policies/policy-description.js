@@ -1,4 +1,4 @@
-(function() {
+(function () {
   'use strict';
 
   /*POLICY DESCRIPTION CONTROLLER*/
@@ -29,8 +29,9 @@
         policiesList.then(function (result) {
           var policiesDataList = result;
 
-          var selectedInput = $filter('filter')(policiesDataList, {'name':vm.policy.name.toLowerCase()}, true);
-          if (selectedInput.length === 0){
+          var filteredPolicies = $filter('filter')(policiesDataList, {'name': vm.policy.name.toLowerCase()}, true);
+          if (filteredPolicies.length === 0) {
+
             vm.error = false;
             if (vm.policy.rawData.enabled === false) {
               delete vm.policy.rawData['path'];
@@ -39,9 +40,13 @@
             PolicyModelFactory.nextStep();
           }
           else {
-            vm.error = true;
+            var foundPolicy = filteredPolicies[0];
+            if (vm.policy.id != foundPolicy.id) {
+              vm.error = true;
+            } else
+              PolicyModelFactory.nextStep();
           }
-        },function () {
+        }, function () {
           console.log('There was an error while getting the policies list');
         });
       }

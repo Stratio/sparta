@@ -154,7 +154,7 @@
                 return newInputTemplateData;
               },
               fragmentTemplates: function (TemplateFactory) {
-                return TemplateFactory.GetNewFragmentTemplate(newInputTemplateData.fragmentType);
+                return TemplateFactory.getNewFragmentTemplate(newInputTemplateData.fragmentType);
               }
             }
           });

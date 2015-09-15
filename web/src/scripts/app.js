@@ -87,6 +87,13 @@ angular
         controllerAs: 'wizard',
         templateUrl: 'views/policies/wizard-panel.html'
       })
+      .state('dashboard.editPolicy', {
+        url: '/policies/edit/:id',
+        params: { id: null },
+        controller: 'EditPolicyCtrl',
+        controllerAs: 'wizard',
+        templateUrl: 'views/policies/wizard-panel.html'
+      })
     /*******  SETINGS *******/
     .state('settings', {
         url: '/settings',

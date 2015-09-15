@@ -28,6 +28,9 @@
 								<st-menu-element class-icon="icon-download" data-href="/policy/find/{{policy.id}}" data-download-file-name="{{policy.name}}.json">
 									{{"_OUTPUT_ACTIONS_MENU_DOWNLOAD_" | translate}}
 								</st-menu-element>
+                <st-menu-element class-icon="icon-edit"  sref="dashboard.editPolicy({id: '{{policy.id}}'})">
+                  {{"_OUTPUT_ACTIONS_MENU_EDIT_" | translate}}
+                </st-menu-element>
 							</st-floating-menu>
 						</i>
 					</td>
