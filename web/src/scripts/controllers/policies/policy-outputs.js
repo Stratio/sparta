@@ -27,7 +27,7 @@
       vm.outputList = [];
       vm.policy = PolicyModelFactory.getCurrentPolicy();
 
-      var outputList = FragmentFactory.GetFragments("output");
+      var outputList = FragmentFactory.getFragments("output");
       outputList.then(function (result) {
         vm.outputList = result;
         defer.resolve();

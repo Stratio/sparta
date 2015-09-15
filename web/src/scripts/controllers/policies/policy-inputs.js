@@ -22,7 +22,7 @@
 
       var defer = $q.defer();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      var inputList = FragmentFactory.GetFragments("input");
+      var inputList = FragmentFactory.getFragments("input");
       inputList.then(function (result) {
         vm.inputList = result;
         defer.resolve();

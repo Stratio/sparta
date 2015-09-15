@@ -9,23 +9,23 @@
 
    function PolicyFactory(ApiPolicyService) {
        return {
-               GetPolicyByFragmentId: function(fragmentType, fragmentId) {
-                  return ApiPolicyService.GetPolicyByFragmentId().get({'type': fragmentType ,'id': fragmentId}).$promise;
+               getPolicyByFragmentId: function(fragmentType, fragmentId) {
+                  return ApiPolicyService.getPolicyByFragmentId().get({'type': fragmentType ,'id': fragmentId}).$promise;
                },
-               GetAllPolicies: function() {
-                  return ApiPolicyService.GetAllpolicies().get().$promise;
+               getAllPolicies: function() {
+                  return ApiPolicyService.getAllpolicies().get().$promise;
                },
-               CreatePolicy: function(newPolicyData) {
-                  return ApiPolicyService.CreatePolicy().create(newPolicyData).$promise;
+               createPolicy: function(newPolicyData) {
+                  return ApiPolicyService.createPolicy().create(newPolicyData).$promise;
                },
-               DeletePolicy: function(policyid) {
-                  return ApiPolicyService.DeletePolicy().delete({'id': policyid}).$promise;
+               deletePolicy: function(policyid) {
+                  return ApiPolicyService.deletePolicy().delete({'id': policyid}).$promise;
                },
-               RunPolicy: function(policyid) {
-                  return ApiPolicyService.RunPolicy().get({'id': policyid}).$promise;
+               runPolicy: function(policyid) {
+                  return ApiPolicyService.runPolicy().get({'id': policyid}).$promise;
                },
-               GetFakePolicy: function() {
-                  return ApiPolicyService.GetFakePolicy().get().$promise;
+               getFakePolicy: function() {
+                  return ApiPolicyService.getFakePolicy().get().$promise;
                }
            };
    };
