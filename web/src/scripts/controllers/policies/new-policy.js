@@ -12,7 +12,7 @@
 
     vm.steps = PolicyStaticDataFactory.steps;
     vm.policy = PolicyModelFactory.getCurrentPolicy();
-    vm.status = PolicyModelFactory.getStatus();
+    vm.status = PolicyModelFactory.getProcessStatus();
     vm.confirmPolicy = confirmPolicy;
     vm.successfullySentPolicy = false;
     vm.error = null;
@@ -27,7 +27,7 @@
       });
 
       modalInstance.result.then(function () {
-        PolicyFactory.CreatePolicy(vm.policy).then(function () {
+        PolicyFactory.createPolicy(vm.policy).then(function () {
           PolicyModelFactory.resetPolicy();
           $state.go("dashboard.policies");
 
