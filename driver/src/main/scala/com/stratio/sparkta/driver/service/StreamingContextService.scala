@@ -17,27 +17,82 @@
 package com.stratio.sparkta.driver.service
 
 import java.io.File
+import java.net.URI
 
+import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
+import akka.pattern.ask
+import akka.util.Timeout
 import com.stratio.sparkta.driver.SparktaJob
+import com.stratio.sparkta.driver.factory._
 import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.factory.SparkContextFactory
+import com.stratio.sparkta.serving.core.AppConstant
 import com.stratio.sparkta.serving.core.models._
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{AddListener, Update}
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 import com.typesafe.config.Config
+import org.apache.curator.framework.recipes.cache.NodeCache
 import org.apache.spark.SparkContext
 import org.apache.spark.streaming.StreamingContext
 
-case class StreamingContextService(generalConfig: Config, jars: Seq[File]) extends SLF4JLogging {
+import scala.concurrent.duration._
+import scala.util.{Success, Try}
 
+case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, generalConfig: Option[Config] = None)
+  extends SLF4JLogging {
+
+  implicit val timeout: Timeout = Timeout(3.seconds)
   final val OutputsSparkConfiguration = "getSparkConfiguration"
 
-  def standAloneStreamingContext(apConfig: AggregationPoliciesModel): Option[StreamingContext] = {
-    SparktaJob.runSparktaJob(getSparkContext(apConfig), apConfig)
+  def standAloneStreamingContext(apConfig: AggregationPoliciesModel, files: Seq[File]): Option[StreamingContext] = {
+    runStatusListener(apConfig.id.get)
+    SparktaJob.runSparktaJob(getStandAloneSparkContext(apConfig, files), apConfig)
     SparkContextFactory.sparkStreamingInstance
   }
 
-  private def getSparkContext(apConfig: AggregationPoliciesModel): SparkContext = {
+  def clusterStreamingContext(apConfig: AggregationPoliciesModel,
+                              files: Seq[URI],
+                              specifictConfig: Map[String, String]): Option[StreamingContext] = {
+    val exitWhenStop = true
+    runStatusListener(apConfig.id.get, exitWhenStop)
+    SparktaJob.runSparktaJob(getClusterSparkContext(apConfig, files, specifictConfig), apConfig)
+    SparkContextFactory.sparkStreamingInstance
+  }
+
+  private def getStandAloneSparkContext(apConfig: AggregationPoliciesModel, jars: Seq[File]): SparkContext = {
     val pluginsSparkConfig = SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
-    SparkContextFactory.sparkContextInstance(generalConfig, pluginsSparkConfig, jars)
+    val standAloneConfig = Try(generalConfig.get.getConfig(AppConstant.ConfigLocal)) match {
+      case Success(config) => Some(config)
+      case _ => None
+    }
+    SparkContextFactory.sparkStandAloneContextInstance(standAloneConfig, pluginsSparkConfig, jars)
+  }
+
+  private def getClusterSparkContext(apConfig: AggregationPoliciesModel,
+                                     classPath: Seq[URI],
+                                     specifictConfig: Map[String, String]): SparkContext = {
+    val pluginsSparkConfig =
+      SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix) ++ specifictConfig
+    SparkContextFactory.sparkClusterContextInstance(pluginsSparkConfig, classPath)
+  }
+
+  private def runStatusListener(policyId: String, exit: Boolean = false): Unit = {
+    if (policyStatusActor.isDefined) {
+      log.info(s"Listener added for: $policyId")
+      policyStatusActor.get ? AddListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
+        if (policyStatus.status.id equals PolicyStatusEnum.Stopping.id) {
+          synchronized {
+            log.info("Stopping message received from Zookeeper")
+            SparkContextFactory.destroySparkStreamingContext
+            policyStatusActor.get ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopped))
+            nodeCache.close()
+            if (exit) {
+              SparkContextFactory.destroySparkContext
+              System.exit(0)
+            }
+          }
+        }
+      })
+    }
   }
 }

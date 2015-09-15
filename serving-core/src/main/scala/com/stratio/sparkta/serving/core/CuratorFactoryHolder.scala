@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2015 Stratio (http://stratio.com)
  *
@@ -22,40 +21,57 @@ import com.typesafe.config.Config
 import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
 import org.apache.curator.retry.ExponentialBackoffRetry
 
+import scala.util.{Failure, Success, Try}
+
 /**
  * Customized factory that encapsulates the real CuratorFrameworkFactory and creates a singleton instance of it.
  */
 object CuratorFactoryHolder extends SLF4JLogging {
 
   private var curatorFramework: Option[CuratorFramework] = None
-
-  val ZKConfigPrefix     =   "zk"
+  final val ZKConfigPrefix = "zk"
 
   /**
    * Gets a new instance of a CuratorFramework if it was not created before.
    * @return a singleton instance of CuratorFramework.
    */
-  def getInstance(config: Config = SparktaConfig.initConfig(AppConstant.ConfigAppName)): CuratorFramework = {
+  def getInstance(config: Option[Config] = SparktaConfig.getZookeeperConfig): CuratorFramework = {
     curatorFramework match {
-      case None =>  {
-        val defaultConnectionString = getPathValue("connectionString", config, classOf[String])
-        val connectionTimeout = getPathValue("connectionTimeout", config, classOf[Int])
-        val sessionTimeout = getPathValue("sessionTimeout", config, classOf[Int])
-        val retryAttempts = getPathValue("retryAttempts", config, classOf[Int])
-        val retryInterval = getPathValue("retryInterval", config, classOf[Int])
+      case None => {
+        var defaultConnectionString = AppConstant.DefaultZookeeperConnection
+        var connectionTimeout = AppConstant.DefaultZookeeperConnectionTimeout
+        var sessionTimeout = AppConstant.DefaultZookeeperSessionTimeout
+        var retryAttempts = AppConstant.DefaultZookeeperRetryAttemps
+        var retryInterval = AppConstant.DefaultZookeeperRetryInterval
 
-        curatorFramework = Some(CuratorFrameworkFactory.builder()
-          .connectString(defaultConnectionString)
-          .connectionTimeoutMs(connectionTimeout)
-          .sessionTimeoutMs(sessionTimeout)
-          .retryPolicy(new ExponentialBackoffRetry(retryInterval, retryAttempts)
-        ).build())
+        Try(config match {
+          case Some(zkConfig) => {
+            defaultConnectionString = getStringConfigValue(zkConfig, AppConstant.ZookeeperConnection)
+            connectionTimeout = getIntConfigValue(zkConfig, AppConstant.ZookeeperConnectionTimeout)
+            sessionTimeout = getIntConfigValue(zkConfig, AppConstant.ZookeeperSessionTimeout)
+            retryAttempts = getIntConfigValue(zkConfig, AppConstant.ZookeeperRetryAttemps)
+            retryInterval = getIntConfigValue(zkConfig, AppConstant.ZookeeperRetryInterval)
+          }
+        })
 
-        curatorFramework.get.start()
-        log.info(s"> ZK connection to $defaultConnectionString was successful.")
-        curatorFramework.get
+        Try {
+          curatorFramework = Some(CuratorFrameworkFactory.builder()
+            .connectString(defaultConnectionString)
+            .connectionTimeoutMs(connectionTimeout)
+            .sessionTimeoutMs(sessionTimeout)
+            .retryPolicy(new ExponentialBackoffRetry(retryInterval, retryAttempts)
+            ).build())
+
+
+          curatorFramework.get.start()
+          log.info(s"Zookeeper connection to $defaultConnectionString was successful.")
+          curatorFramework.get
+        } match {
+          case Success(curatorFk) => curatorFk
+          case Failure(e) => log.error("Impossible to start Zookeeper connection", e); throw e
+        }
       }
-      case _ => curatorFramework.get
+      case Some(curatorFk) => curatorFk
     }
   }
 
@@ -73,5 +89,10 @@ object CuratorFactoryHolder extends SLF4JLogging {
    * @return the parsed value of the configuration.
    */
   protected def getPathValue[U](configKey: String, config: Config, defaultValue: Class[U]): U =
-    config.getConfig(ZKConfigPrefix).getAnyRef(configKey).asInstanceOf[U]
+    config.getAnyRef(configKey).asInstanceOf[U]
+
+
+  protected def getStringConfigValue(config: Config, key: String): String = getPathValue(key, config, classOf[String])
+
+  protected def getIntConfigValue(config: Config, key: String): Int = getPathValue(key, config, classOf[Int])
 }

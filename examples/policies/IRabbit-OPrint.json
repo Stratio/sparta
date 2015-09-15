@@ -18,7 +18,8 @@
       "port": "5672",
       "exchangeName": "twitterExchange",
       "routingKeys": [{"routingKey": "routingKey1"},{"routingKey": "routingKey2"}]
-    }
+    },
+    "jarFile": "input-twitter-plugin.jar"
   }
 ,
   "transformations": [
@@ -72,7 +73,8 @@
       "dimensions": [
         {
           "field": "appName",
-          "name": "appName"
+          "name": "appName",
+          "jarFile": "field-default-plugin.jar"
         }
       ],
       "operators": [
