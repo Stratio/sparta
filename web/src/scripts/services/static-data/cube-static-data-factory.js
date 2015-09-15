@@ -158,6 +158,9 @@
         "label": "GeoHash",
         "value": "GeoHash"
       }];
+    var defaultInterval = 30000;
+    var defaultTimeAvailability = 60000;
+    var defaultGranularity = "minute";
 
     return {
       getFunctionNames: function () {
@@ -166,7 +169,6 @@
       getGranularityOptions: function () {
         return granularityOptions;
       },
-
       getDefaultType: function () {
         return cubeTypes[0];
       },
@@ -175,6 +177,15 @@
       },
       getCubeTypes: function () {
         return cubeTypes;
+      },
+      getDefaultInterval: function () {
+        return defaultInterval;
+      },
+      getDefaultTimeAvailability: function () {
+        return defaultTimeAvailability;
+      },
+      getDefaultGranularity: function(){
+        return defaultGranularity;
       }
     }
   }
