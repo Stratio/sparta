@@ -32,8 +32,6 @@
         outputList.then(function (result) {
           vm.outputsData = result;
           getOutputTypes(result);
-          console.log('********Output list')
-          console.log(vm.outputsData);
 
         },function (error) {
           console.log('There was an error while loading the output list!');
@@ -105,8 +103,7 @@
       };
 
       function deleteOutput(fragmentType, fragmentId, index) {
-        console.log('--> Deleting input');
-        var outputToDelete =
+               var outputToDelete =
         {
           'type':fragmentType,
           'id': fragmentId,
@@ -158,14 +155,8 @@
         });
 
         modalInstance.result.then(function (newOutputData) {
-          console.log('*************** Controller back');
-          console.log(newOutputData);
-
           vm.outputsData.push(newOutputData);
-          console.log(vm.outputsData);
-
         }, function () {
-          console.log('Modal dismissed at: ' + new Date())
         });
       };
 
@@ -190,11 +181,9 @@
 
         modalInstance.result.then(function (updatedOutputData) {
           vm.outputsData[updatedOutputData.index] = updatedOutputData.data;
-          console.log(vm.outputsData);
 
         },function () {
-          console.log('Modal dismissed at: ' + new Date())
-        });
+                });
       };
 
       function deleteOutputConfirm(size, output) {
@@ -215,10 +204,7 @@
 
         modalInstance.result.then(function (selectedItem) {
           vm.outputsData.splice(selectedItem.index, 1);
-          console.log(vm.outputsData);
-
         },function () {
-          console.log('Modal dismissed at: ' + new Date())
         });
       };
 
@@ -237,10 +223,8 @@
 
         modalInstance.result.then(function (newOutput) {
           vm.outputsData.push(newOutput);
-          console.log(vm.outputsData);
 
         },function () {
-          console.log('Modal dismissed at: ' + new Date())
         });
       };
 
