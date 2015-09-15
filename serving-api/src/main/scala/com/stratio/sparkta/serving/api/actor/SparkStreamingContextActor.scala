@@ -57,7 +57,7 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
    * @param policy that contains the configuration to run.
    */
   private def create(policy: AggregationPoliciesModel): Unit = {
-    val policyWithIdModel=policyWithId(policy)
+    val policyWithIdModel = policyWithId(policy)
     policyStatusActor ? Update(PolicyStatusModel(policyWithIdModel.id.get, PolicyStatusEnum.Launched))
     getStreamingContextActor(policyWithIdModel) match {
       case Some(streamingContextActor) => {
@@ -71,12 +71,12 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
     }
   }
 
-  def policyWithId(policy: AggregationPoliciesModel): AggregationPoliciesModel = {
-    if (policy.id.isEmpty) {
-      policy.copy(id = Some(UUID.randomUUID.toString))
-    }else
-      policy
-  }
+  private def policyWithId(policy: AggregationPoliciesModel) =
+    policy.id match {
+      case None => policy.copy(id = Some(UUID.randomUUID.toString))
+      case Some(_) => policy
+    }
+
 
   // XXX Private Methods.
   private def savePolicyInZk(policy: AggregationPoliciesModel): Unit = {

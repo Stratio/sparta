@@ -28,7 +28,6 @@ import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.jackson.Serialization.{read, write}
 
-import scala.Predef
 import scala.collection.JavaConversions
 import scala.util.{Failure, Success, Try}
 
@@ -63,7 +62,7 @@ class PolicyActor(curatorFramework: CuratorFramework)
     sender ! ResponsePolicies(Try({
       val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
       JavaConversions.asScalaBuffer(children).toList.map(element =>
-       byId(element)).filter(apm =>
+        byId(element)).filter(apm =>
         (apm.fragments.filter(f => f.id.get == id)).size > 0).toSeq
     }).recover {
       case e: NoNodeException => Seq()
@@ -78,7 +77,7 @@ class PolicyActor(curatorFramework: CuratorFramework)
       ))
     })
 
-  private def byId(id:String): AggregationPoliciesModel = read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.forPath(
+  private def byId(id: String): AggregationPoliciesModel = read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.forPath(
     s"${AppConstant.PoliciesBasePath}/$id")))
 
   def findByName(name: String): Unit =
@@ -101,7 +100,7 @@ class PolicyActor(curatorFramework: CuratorFramework)
         ))
       }
       val policyS = policy.copy(id = Some(s"${UUID.randomUUID.toString}"),
-                                name = policy.name.toLowerCase)
+        name = policy.name.toLowerCase)
       curatorFramework.create().creatingParentsIfNeeded().forPath(
         s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
       policyS
