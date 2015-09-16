@@ -26,6 +26,7 @@ import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.api.helpers.PolicyHelper
 import com.stratio.sparkta.serving.core.models._
+import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusEnum, PolicyStatusActor}
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
 import spray.http.HttpHeaders.`Content-Disposition`
@@ -133,11 +134,15 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     }
   }
 
+  //TODO @dvallejo Refactor this case class to a better place
+  case class PolicyWithStatus(status: PolicyStatusEnum.Value,
+                              policy: AggregationPoliciesModel)
+
   @Path("/all")
   @ApiOperation(value = "Finds all policies.",
     notes = "Finds all policies.",
     httpMethod = "GET",
-    response = classOf[AggregationPoliciesModel])
+    response = classOf[PolicyWithStatus])
   @ApiResponses(Array(
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
@@ -149,7 +154,24 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
           val future = supervisor ? new FindAll()
           Await.result(future, timeout.duration) match {
             case ResponsePolicies(Failure(exception)) => throw exception
-            case ResponsePolicies(Success(policies)) => policies
+            case ResponsePolicies(Success(policies)) =>
+              val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
+              for {
+                response <- (policyStatusActor ? PolicyStatusActor.FindAll)
+                              .mapTo[PolicyStatusActor.Response]
+              } yield {
+                val statuses = response.policyStatus.get
+                policies.map( policy =>
+                  PolicyWithStatus(
+                    status = statuses.filter(_.id == policy.id.get)
+                              .headOption match {
+                                case Some(statusPolicy) => statusPolicy.status
+                                case None => PolicyStatusEnum.NotStarted
+                              },
+                    policy = policy
+                  )
+                )
+              }
           }
         }
       }
