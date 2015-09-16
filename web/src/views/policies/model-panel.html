@@ -1,16 +1,17 @@
 <section ng-controller="PolicyModelCtrl as vm" ng-init="vm.init(model)" data-ng-model="vm.model">
+
   <form novalidate>
     <div ng-show="vm.showModelError" class="c-row c-msg c-msg--small c-msg--error" data-qa="error-msg">
       <i class="c-icon icon-circle-cross"></i>
       <span>{{"_POLICY_._MODEL_ERROR_" | translate}}</span>
     </div>
-
     <div class="c-form-group">
       <div class="c-form-control c-form-control--full-width c-icon-radio" data-ng-model="model">
         <label class="c-label c-icon-radio__label c-col c-col--12">{{"_TYPE_" | translate}}:</label>
       <span data-ng-repeat="modelTypes in vm.templateModelData.types">
         <input class="c-icon-radio__item" id="type-{{modelTypes.name + $parent.$index| lowercase}}" type="radio"
-               data-ng-model="vm.model.type" value="{{modelTypes.name}}" data-ng-disabled="!editionMode" data-qa="policy-model-type-{{modelTypes.name | lowercase}}">
+               data-ng-model="vm.model.type" value="{{modelTypes.name}}" data-ng-disabled="!editionMode"
+               data-qa="policy-model-type-{{modelTypes.name | lowercase}}">
         <label data-ng-model="vm.model.type" class="c-icon-radio__label"
                for="type-{{modelTypes.name + $parent.$index| lowercase}}">
           <i class="c-icon c-icon--large c-icon-radio__icon icon-{{modelTypes.iconName | lowercase}}"
@@ -24,20 +25,26 @@
     <div class="c-form-group">
       <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.model.name"
                         data-label="{{'_NAME_' | translate}}" data-help="" data-pattern=""
-                        placeholder="Ex. Name 1" data-type="text" data-disabled="!editionMode" data-qa="policy-model-name">
+                        placeholder="Ex. Name 1" data-type="text" data-disabled="!editionMode"
+                        data-qa="policy-model-name">
       </form-field-input>
     </div>
 
-    <div class="c-form-group" ng-model="vm.model.inputList">
-      <c-input-list-field form-control-class="'c-form-control c-form-control--full-width'"
-                          label-control-class="'c-label c-col c-col--12'" data-inputs="vm.model.inputs"
-                          label-control-text="'_INPUT_FIELD_' | translate" data-disabled="!editionMode"
-                          data-enable-delete="false"></c-input-list-field>
-
-      <select class="st-form-field-select c-combobox" ng-model="vm.model.inputField"
-              ng-options="input | translate for input in vm.model.inputList" ng-required="required"
-              data-ng-disabled="!editionMode"  data-qa="policy-model-input"></select>
+    <div class="c-form-group">
+      <form-field-select ng-if="editionMode" ng-model="vm.model.inputList" data-form="vm.form" data-st-name="input-form"
+                         data-model="vm.model.inputField"
+                         data-options="vm.model.inputList"
+                         data-field="label" data-label="{{'_INPUT_FIELD_' | translate}}" data-help=""
+                         data-disabled="false"
+                         data-required="true" data-qa="policy-description-raw-data-partition-format">
+      </form-field-select>
+      <form-field-input ng-if="!editionMode" data-form="vm.form" data-st-name="input-form"
+                        data-model="vm.model.inputField"
+                        data-label="{{'_INPUT_FIELD_' | translate}}"
+                        data-type="text" data-disabled="true" data-qa="policy-model-input">
+      </form-field-input>
     </div>
+
 
     <div class="c-form-group">
       <c-icon-label wrapper-control-class="'c-label c-col c-col--12'" icon-class="'icon-info1'"
@@ -47,7 +54,8 @@
     <textarea ng-if="!!editionMode" class="c-textarea c-textarea--full-width" ng-model="vm.model.configuration"
               placeholder={{vm.configPlaceholder}} data-ng-readonly="!editionMode"></textarea>
 
-      <p class="c-textarea c-textarea--disabled c-textarea--full-width" ng-if="!editionMode" ng-model="vm.model.configuration"  data-qa="policy-model-config">
+      <p class="c-textarea c-textarea--disabled c-textarea--full-width" ng-if="!editionMode"
+         ng-model="vm.model.configuration" data-qa="policy-model-config">
         {{vm.model.configuration | json}}</p>
 
       <div class="c-form-group">
@@ -55,7 +63,8 @@
           <c-input-list-field form-control-class="" data-inputs="vm.model.outputFields"
                               label-control-class="'c-label c-col c-col--12'"
                               label-control-text="'_OUTPUTS_FIELDS_' | translate" readonly="'true'"
-                              data-enable-delete="!!editionMode" data-qa="policy-model-output-list"></c-input-list-field>
+                              data-enable-delete="!!editionMode"
+                              data-qa="policy-model-output-list"></c-input-list-field>
 
           <c-add-element ng-if="!!editionMode" model="vm.model.outputFields"
                          icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action c-info-text__icon icon-square-plus'"
