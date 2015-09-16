@@ -89,6 +89,9 @@ class PolicyActor(curatorFramework: CuratorFramework)
       case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsPolicytWithName, s"No policy with name ${name}.")
       ))
+      case e: NoSuchElementException => throw new ServingApiException(ErrorModel.toString(
+        new ErrorModel(ErrorModel.CodeNotExistsPolicytWithName, s"No policy with name ${name}.")
+      ))
     })
 
   def create(policy: AggregationPoliciesModel): Unit =
