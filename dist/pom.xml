@@ -75,7 +75,10 @@
                                 <configuration>
                                     <target name="copy folders">
                                         <copy todir="target/appassembler/repo/driver">
-                                            <fileset dir="../driver" includes="**/*.jar" />
+                                            <fileset dir="../driver/target" includes="*.jar" />
+                                        </copy>
+                                        <copy todir="target/appassembler/repo/cluster">
+                                            <fileset dir="../driver/target/cluster" includes="**/*.jar" />
                                             <mapper type="flatten" />
                                         </copy>
                                         <copy todir="target/appassembler/repo/serving-api">
@@ -211,6 +214,10 @@
                                 <copyDirectory>
                                     <from>target/appassembler/repo/driver</from>
                                     <to>/opt/sds/sparkta/driver</to>
+                                </copyDirectory>
+                                <copyDirectory>
+                                    <from>target/appassembler/repo/cluster</from>
+                                    <to>/opt/sds/sparkta/cluster</to>
                                 </copyDirectory>
                                 <copyDirectory>
                                     <from>target/appassembler/repo/serving-api</from>
