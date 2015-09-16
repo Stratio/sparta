@@ -12,7 +12,7 @@
     var vm = this;
 
     vm.policiesData = {};
-    vm.policiesData.list = [];
+    vm.policiesData.list = undefined;
     vm.policiesJsonData = {};
     vm.deletePolicy = deletePolicy;
     vm.runPolicy = runPolicy;

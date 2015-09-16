@@ -15,7 +15,7 @@
       vm.editOutput = editOutput;
       vm.deleteOutput = deleteOutput;
       vm.duplicateOutput = duplicateOutput;
-      vm.outputsData = [];
+      vm.outputsData = undefined;
       vm.outputTypes = [];
       vm.error = false;
       vm.errorMessage = '';
