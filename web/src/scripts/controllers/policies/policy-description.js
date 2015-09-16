@@ -10,16 +10,21 @@
 
   function PolicyDescriptionCtrl(PolicyModelFactory, PolicyStaticDataFactory, PolicyFactory, $filter) {
     var vm = this;
-    vm.policy = PolicyModelFactory.getCurrentPolicy();
+
     vm.validateForm = validateForm;
 
-    vm.sparkStreamingWindowData = PolicyStaticDataFactory.sparkStreamingWindow;
-    vm.checkpointIntervalData = PolicyStaticDataFactory.checkpointInterval;
-    vm.checkpointAvailabilityData = PolicyStaticDataFactory.checkpointAvailability;
-    vm.partitionFormatData = PolicyStaticDataFactory.partitionFormat;
-    vm.storageLevelData = PolicyStaticDataFactory.storageLevel;
-    vm.helpLink = PolicyStaticDataFactory.helpLinks.description;
-    vm.error = false;
+    init();
+
+    function init(){
+      vm.policy = PolicyModelFactory.getCurrentPolicy();
+      vm.sparkStreamingWindowData = PolicyStaticDataFactory.sparkStreamingWindow;
+      vm.checkpointIntervalData = PolicyStaticDataFactory.checkpointInterval;
+      vm.checkpointAvailabilityData = PolicyStaticDataFactory.checkpointAvailability;
+      vm.partitionFormatData = PolicyStaticDataFactory.partitionFormat;
+      vm.storageLevelData = PolicyStaticDataFactory.storageLevel;
+      vm.helpLink = PolicyStaticDataFactory.helpLinks.description;
+      vm.error = false;
+    }
 
     function validateForm() {
       if (vm.form.$valid) {
