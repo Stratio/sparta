@@ -13,7 +13,6 @@
     vm.setOutput = setOutput;
     vm.validateForm = validateForm;
 
-
     init();
 
     ////////////////////////////////////
@@ -36,7 +35,7 @@
         defer.reject();
       });
       return defer.promise;
-    };
+    }
 
     function initOutputs() {
       var outputs = [];
@@ -60,7 +59,7 @@
 
       var outputsSelected = checkOutputsSelected();
       vm.error = (outputsSelected > 0) ? false : true;
-    };
+    }
 
     function validateForm() {
       vm.formSubmmited = true;
@@ -73,7 +72,7 @@
       else {
         vm.error = true;
       }
-    };
+    }
 
     function checkOutputsSelected() {
       var outputsCount = 0;
@@ -85,6 +84,6 @@
         }
       }
       return outputsCount;
-    };
+    }
   }
 })();
