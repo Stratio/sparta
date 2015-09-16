@@ -151,7 +151,7 @@
     };
 
     function editfragment() {
-      var updateFragment = FragmentFactory.UpdateFragment(vm.dataSource);
+      var updateFragment = FragmentFactory.updateFragment(vm.dataSource);
 
       updateFragment.then(function (result) {
         var callBackData = {

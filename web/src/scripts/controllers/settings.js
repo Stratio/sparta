@@ -16,11 +16,11 @@
     /////////////////////////////////
 
     function runScriptFragments() {
-      var inputList = FragmentFactory.GetFakeFragments('create_inputs.json');
+      var inputList = FragmentFactory.getFakeFragments('create_inputs.json');
 
       inputList.then(function (result) {
         for (var i = 0; i < result.length; i++) {
-          var newFragment = FragmentFactory.CreateFragment(result[i]);
+          var newFragment = FragmentFactory.createFragment(result[i]);
 
           newFragment.then(function (newInputResult) {
           }, function (error) {
@@ -34,11 +34,11 @@
         console.log(error);
       });
 
-      var outputList = FragmentFactory.GetFakeFragments('create_outputs.json');
+      var outputList = FragmentFactory.getFakeFragments('create_outputs.json');
 
       outputList.then(function (result) {
         for (var i = 0; i < result.length; i++) {
-          var newFragment = FragmentFactory.CreateFragment(result[i]);
+          var newFragment = FragmentFactory.createFragment(result[i]);
 
           newFragment.then(function (newInputResult) {
           }, function (error) {

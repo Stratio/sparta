@@ -41,7 +41,7 @@
         };
 
         function ok() {
-            var fragmentToDelete = FragmentFactory.DeleteFragment(vm.outputs.type, vm.outputs.id);
+            var fragmentToDelete = FragmentFactory.deleteFragment(vm.outputs.type, vm.outputs.id);
 
             fragmentToDelete.then(function (result) {
                 $modalInstance.close(vm.outputs);

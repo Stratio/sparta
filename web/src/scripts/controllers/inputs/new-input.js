@@ -161,7 +161,7 @@
     };
 
     function createfragment() {
-      var newFragment = FragmentFactory.CreateFragment(vm.dataSource);
+      var newFragment = FragmentFactory.createFragment(vm.dataSource);
 
       newFragment.then(function (result) {
         var callBackData = result;
