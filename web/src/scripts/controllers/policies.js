@@ -5,9 +5,9 @@
     .module('webApp')
     .controller('PoliciesCtrl', PoliciesCtrl);
 
-  PoliciesCtrl.$inject = ['PolicyFactory', '$modal'];
+  PoliciesCtrl.$inject = ['PolicyFactory', '$modal', '$state'];
 
-  function PoliciesCtrl(PolicyFactory, $modal) {
+  function PoliciesCtrl(PolicyFactory, $modal, $state) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -80,6 +80,5 @@
       },function () {
       });
     };
-
   }
 })();
