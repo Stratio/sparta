@@ -81,3 +81,8 @@ Example::
 
     curl -H "Content-Type: application/json" --data @examples/policies/ITwitter-OMongo.json http://localhost:9090/policyContext
 
+
+User interface
+==============
+
+You can use Sparkta with an user interface at the url http://localhost:9090
