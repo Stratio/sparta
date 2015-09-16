@@ -31,6 +31,8 @@ class CountOperator(name: String, properties: Map[String, JSerializable]) extend
     if (fields.isEmpty) None else Some(fields)
   } else None
 
+  override val associative = true
+
   override val defaultTypeOperation = TypeOp.Long
 
   override val writeOperation = WriteOp.Inc
@@ -51,8 +53,12 @@ class CountOperator(name: String, properties: Map[String, JSerializable]) extend
         case None => values.flatten.map(value => value.asInstanceOf[Number].longValue())
         case Some(fields) => values.flatten.toList.distinct.map(value => CountOperator.SomeOne.get)
       }
-      Some(transformValueByTypeOp(returnType, longList.sum))
+      Some(longList.sum)
     }.getOrElse(CountOperator.SomeZero)
+  }
+
+  override def processAssociative(values: Iterable[Option[Any]]): Option[Long] = {
+    Some(transformValueByTypeOp(returnType, values.flatten.map(_.asInstanceOf[Number].longValue()).sum))
   }
 }
 

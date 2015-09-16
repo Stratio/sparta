@@ -80,14 +80,20 @@ class CountOperatorSpec extends WordSpec with Matchers {
       inputFields4.processReduce(Seq(Some(s"field1${CountOperator.Separator}field2"),
         Some(s"field1${CountOperator.Separator}field3"))) should be(Some(2L))
 
-      val inputFields5 = new CountOperator("count", Map("typeOp" -> "string"))
-      inputFields5.processReduce(Seq(Some(1), Some(1))) should be(Some("2"))
-
       val inputFields6 =
         new CountOperator("count", Map("distinctFields" -> s"field1${CountOperator.Separator}field2"))
       inputFields6.processReduce(Seq(Some(s"field1${CountOperator.Separator}field2"),
         Some(s"field1${CountOperator.Separator}field3"),
         Some(s"field1${CountOperator.Separator}field3"))) should be(Some(2L))
+    }
+
+    "associative process must be " in {
+      val inputFields = new CountOperator("count", Map())
+      inputFields.processAssociative(Seq(Some(1L), Some(1L), None)) should be(Some(2L))
+
+      val inputFields2 = new CountOperator("count", Map("typeOp" -> "string"))
+      inputFields2.processAssociative(Seq(Some(1), Some(1))) should be(Some("2"))
+
     }
   }
 }

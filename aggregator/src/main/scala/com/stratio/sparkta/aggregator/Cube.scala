@@ -18,6 +18,7 @@ package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
 
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
 import org.apache.spark.HashPartitioner
@@ -42,9 +43,12 @@ case class Cube(name: String,
                 checkpointTimeDimension: String,
                 checkpointInterval: Int,
                 checkpointGranularity: String,
-                checkpointTimeAvailability: Long) {
+                checkpointTimeAvailability: Long) extends SLF4JLogging {
 
   private lazy val operatorsMap = operators.map(op => op.key -> op).toMap
+  private lazy val associativeOperators = operators.filter(op => op.associative)
+  private lazy val associativeOperatorsMap = operatorsMap.filter(op => op._2.associative)
+  private lazy val nonAssociativeOperators = operators.filter(op => !op.associative)
   private lazy val rememberPartitioner =
     Try(SparktaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigRememberPartitioner)).getOrElse(true)
 
@@ -69,22 +73,91 @@ case class Cube(name: String,
   def aggregate(dimensionsValues: DStream[(DimensionValuesTime,
     Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     val valuesFiltered = filterDimensionValues(dimensionsValues)
-    valuesFiltered.checkpoint(new Duration(checkpointInterval))
-    aggregateValues(updateState(valuesFiltered))
+    val withAssociative = operators.exists(op => op.associative)
+    val withNonAssociative = operators.exists(op => op.associative)
+    (withAssociative, withNonAssociative) match {
+      case (true, true) => {
+        val nonAssociativeValues = aggregateNonAssociativeValues(updateNonAssociativeState(valuesFiltered))
+        val associativeValues = updateAssociativeState(associativeAggregation(valuesFiltered))
+        //TODO join is valid?
+        // associativeValues.join(nonAssociativeValues).mapValues(aggregations => aggregations._1 ++ aggregations._2)
+        associativeValues.cogroup(nonAssociativeValues)
+          .mapValues(aggregations => (aggregations._1.flatten ++ aggregations._2.flatten).toMap)
+      }
+      case (true, false) => updateAssociativeState(associativeAggregation(valuesFiltered))
+      case (false, true) => aggregateNonAssociativeValues(updateNonAssociativeState(valuesFiltered))
+      case _ => {
+        log.warn("You must define operators for aggregate input values")
+        throw new Exception("No operator has been defined")
+      }
+    }
   }
 
-  protected def filterDimensionValues(dimensionValues: DStream[(DimensionValuesTime,
-    Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
+  protected def filterDimensionValues(dimensionValues: DStream[(DimensionValuesTime, Map[String, JSerializable])])
+  : DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
     dimensionValues.map { case (dimensionsValuesTime, aggregationValues) => {
       val dimensionsFiltered = dimensionsValuesTime.dimensionValues.filter(dimVal =>
-        dimensions.find(comp => comp.name == dimVal.dimension.name).nonEmpty)
+        dimensions.exists(comp => comp.name == dimVal.dimension.name))
       (DimensionValuesTime(dimensionsFiltered, dimensionsValuesTime.time, checkpointTimeDimension), aggregationValues)
     }
     }
   }
 
-  protected def updateState(dimensionsValues: DStream[(DimensionValuesTime, Map[String, JSerializable])]):
+  def associativeAggregation(dimensionsValues: DStream[(DimensionValuesTime, Map[String, JSerializable])]):
   DStream[(DimensionValuesTime, Seq[(String, Option[Any])])] = {
+    dimensionsValues
+      .mapValues(inputFields =>
+      associativeOperators.flatMap(op => op.processMap(inputFields).map(op.key -> Some(_))).toMap)
+      .groupByKey()
+      .map { case (dimValues, aggregations) => {
+      val aggregatedValues = aggregations.flatMap(_.toSeq)
+        .groupBy(_._1)
+        .map { case (nameOp, valuesOp) => {
+        val op = associativeOperatorsMap(nameOp)
+        val values = valuesOp.map(_._2)
+        (nameOp, op.processReduce(values))
+      }
+      }.toSeq
+      (dimValues, aggregatedValues)
+    }
+    }
+  }
+
+  protected def updateAssociativeState(dimensionsValues: DStream[(DimensionValuesTime, Seq[(String, Option[Any])])]):
+  DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
+    dimensionsValues.checkpoint(new Duration(checkpointInterval))
+    val newUpdateFunc = (iterator: Iterator[(DimensionValuesTime,
+      Seq[Seq[(String, Option[Any])]],
+      Option[Map[String, Option[Any]]])]) => {
+      val eventTime =
+        DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity) - checkpointTimeAvailability
+      iterator.filter(dimensionsData => {
+        dimensionsData._1.time >= eventTime
+      })
+        .flatMap { case (dimensionsKey, values, state) => updateAssociativeFunction(values, state)
+        .map(result => (dimensionsKey, result))
+      }
+    }
+    dimensionsValues.updateStateByKey(
+      newUpdateFunc, new HashPartitioner(dimensionsValues.context.sparkContext.defaultParallelism), rememberPartitioner)
+  }
+
+  protected def updateAssociativeFunction(values: Seq[Seq[(String, Option[Any])]],
+                                          state: Option[Map[String, Option[Any]]])
+  : Option[Map[String, Option[Any]]] = {
+    val actualState = state.getOrElse(Map()).toSeq
+    val processAssociative = (values.flatten ++ actualState)
+      .groupBy(_._1)
+      .map(aggregation => {
+      val op = associativeOperatorsMap(aggregation._1)
+      (aggregation._1, op.processAssociative(aggregation._2.map(_._2)))
+    })
+    Some(processAssociative)
+  }
+
+  protected def updateNonAssociativeState(dimensionsValues: DStream[(DimensionValuesTime, Map[String, JSerializable])]):
+  DStream[(DimensionValuesTime, Seq[(String, Option[Any])])] = {
+    dimensionsValues.checkpoint(new Duration(checkpointInterval))
     val newUpdateFunc = (iterator: Iterator[(DimensionValuesTime,
       Seq[Map[String, JSerializable]],
       Option[Seq[(String, Option[Any])]])]) => {
@@ -93,23 +166,26 @@ case class Cube(name: String,
       iterator.filter(dimensionsData => {
         dimensionsData._1.time >= eventTime
       })
-        .flatMap { case (dimensionsKey, values, state) =>
-        updateFunction(values, state).map(result => (dimensionsKey, result))
+        .flatMap { case (dimensionsKey, values, state) => updateNonAssociativeFunction(values, state)
+        .map(result => (dimensionsKey, result))
       }
     }
     dimensionsValues.updateStateByKey(
       newUpdateFunc, new HashPartitioner(dimensionsValues.context.sparkContext.defaultParallelism), rememberPartitioner)
   }
 
-  protected def updateFunction(values: Seq[Map[String, JSerializable]],
-                               state: Option[Seq[(String, Option[Any])]]): Option[Seq[(String, Option[Any])]] = {
-    val procMap = values.flatMap(inputFields =>
-      operators.flatMap(op => op.processMap(inputFields).map(op.key -> Some(_))))
-    Some(state.getOrElse(Seq()) ++ procMap)
+  protected def updateNonAssociativeFunction(values: Seq[Map[String, JSerializable]],
+                                             state: Option[Seq[(String, Option[Any])]])
+  : Option[Seq[(String, Option[Any])]] = {
+    val proccessMapValues = values.flatMap(inputFields =>
+      nonAssociativeOperators.flatMap(op => op.processMap(inputFields).map(op.key -> Some(_))))
+    Some(state.getOrElse(Seq()) ++ proccessMapValues)
   }
 
-  protected def aggregateValues(dimensionsValues: DStream[(DimensionValuesTime, Seq[(String, Option[Any])])]):
-  DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
+  protected def aggregateNonAssociativeValues(
+                                               dimensionsValues: DStream[(DimensionValuesTime,
+                                                 Seq[(String, Option[Any])])])
+  : DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     dimensionsValues.mapValues(aggregationValues => {
       aggregationValues.groupBy { case (name, value) => name }
         .map { case (name, value) => (name, operatorsMap(name).processReduce(value.map(_._2))) }

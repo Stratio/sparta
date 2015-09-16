@@ -41,6 +41,8 @@ with Ordered[Operator] with TypeConversions {
 
   def key: String = name
 
+  def associative : Boolean = false
+
   def distinct: Boolean = Try(properties.getString("distinct").toBoolean).getOrElse(false)
 
   def writeOperation: WriteOp
@@ -48,6 +50,8 @@ with Ordered[Operator] with TypeConversions {
   def processMap(inputFields: Map[String, JSerializable]): Option[Any]
 
   def processReduce(values: Iterable[Option[Any]]): Option[Any]
+
+  def processAssociative(values: Iterable[Option[Any]]): Option[Any] = None
 
   def castingFilterType: TypeOp = TypeOp.String
 
