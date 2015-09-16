@@ -26,8 +26,6 @@ import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
 
-import scala.concurrent.Await
-import scala.util.{Failure, Success}
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 
 @Api(value = HttpConstant.PolicyContextPath, description = "Operations about policy contexts.", position = 0)
@@ -50,12 +48,9 @@ trait PolicyContextHttpService extends BaseHttpService {
       get {
         complete {
           val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
-          val future = policyStatusActor ? FindAll
-          Await.result(future, timeout.duration) match {
-            case Response(Failure(exception)) => throw exception
-            case Response(Success(policyStatuses)) => policyStatuses
-          }
-
+          for {
+            response <- (policyStatusActor ? FindAll).mapTo[Response]
+          } yield response.policyStatus.get
         }
       }
     }
@@ -76,8 +71,9 @@ trait PolicyContextHttpService extends BaseHttpService {
         entity(as[PolicyStatusModel]) { policyStatus =>
           complete {
             val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
-            policyStatusActor ? Update(policyStatus)
-            HttpResponse(StatusCodes.Created)
+            for {
+              _ <- policyStatusActor ? Update(policyStatus)
+            } yield HttpResponse(StatusCodes.Created)
           }
         }
       }
@@ -101,13 +97,15 @@ trait PolicyContextHttpService extends BaseHttpService {
     path(HttpConstant.PolicyContextPath) {
       post {
         entity(as[AggregationPoliciesModel]) { p =>
-          val parsedP = PolicyHelper.parseFragments(
-            PolicyHelper.fillFragments(p, actors.get(AkkaConstant.FragmentActor).get, timeout))
-          val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
-          validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-            complete {
-              supervisor ! new Create(parsedP)
-              new Result("Creating new context with name " + p.name)
+          complete {
+            for {
+              parsedP <- PolicyHelper.parseFragments(
+                PolicyHelper.fillFragments(p, actors.get(AkkaConstant.FragmentActor).get, timeout)
+              )
+              if PolicyHelper.validateAggregationPolicy(parsedP)
+            } yield {
+              supervisor ! Create(parsedP)
+              Result("Creating new context with name " + p.name)
             }
           }
         }
