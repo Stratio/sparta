@@ -40,24 +40,24 @@
     </div>
 
     <div class="c-form-group">
+      <div class="c-form-control c-form-control--full-width">
+        <c-icon-label data-wrapper-control-class="'c-label c-col c-col--12'"
+                      data-icon-class="'icon-info1'"
+                      data-text="'_CONFIGURATION_' | translate"
+                      data-text-class=""
+                      data-icon-url="vm.templateModelData.configHelpLink"
+                      data-test="policy-model-configuration-help">
+        </c-icon-label>
 
+        <textarea ng-if="!!editionMode" class="c-textarea c-textarea--full-width" ng-model="vm.model.configuration"
+                placeholder={{vm.configPlaceholder}} data-ng-readonly="!editionMode" data-qa="policy-model-configuration"></textarea>
 
-    <c-icon-label
-    data-wrapper-control-class="'c-label c-col c-col--12'"
-    data-icon-class="'icon-info1'"
-    data-text="'_CONFIGURATION_' | translate"
-    data-text-class=""
-    data-icon-url="vm.templateModelData.configHelpLink"
-    data-test="policy-model-configuration-help">
-    </c-icon-label>
+        <p class="c-textarea c-textarea--disabled c-textarea--full-width" ng-if="!editionMode" ng-model="vm.model.configuration"  data-qa="policy-model-config">
+          {{vm.model.configuration | json}}</p>
+      </div>
+    </div>
 
-
-    <textarea ng-if="!!editionMode" class="c-textarea c-textarea--full-width" ng-model="vm.model.configuration"
-              placeholder={{vm.configPlaceholder}} data-ng-readonly="!editionMode" data-qa="policy-model-configuration"></textarea>
-
-      <p class="c-textarea c-textarea--disabled c-textarea--full-width" ng-if="!editionMode" ng-model="vm.model.configuration"  data-qa="policy-model-config">
-        {{vm.model.configuration | json}}</p>
-
+    <div class="c-form-group">
       <div class="c-form-group">
         <div class="c-form-control c-form-control--full-width">
           <c-input-list-field form-control-class="" data-inputs="vm.model.outputFields"
