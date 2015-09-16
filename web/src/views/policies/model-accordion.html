@@ -17,7 +17,7 @@
             <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right"></i>
           </accordion-heading>
 
-          <ng-include src="'views/policies/model-panel.html'" ng-init = "model = currentModel; disabled = true" ng-model="currentModel" data-qa="policy-model-{{$index}}"></ng-include>
+          <ng-include ng-if = "vm.accordionStatus[$index]" src="'views/policies/model-panel.html'" ng-init = "model = currentModel; disabled = true" ng-model="currentModel" data-qa="policy-model-{{$index}}"></ng-include>
 
           <div class="c-form-group c-form-group--full-width c-form-group--to-right">
             <button class="c-button c-button--danger" ng-if = "vm.isLastModel($index)" data-ng-click="vm.removeModel($index, $event)" data-qa="policy-model-remove-button">
@@ -39,7 +39,7 @@
             <i class="c-icon icon-circle-cross"></i>
             <span>{{"_ERROR_ALL_FIELDS_REQUIRED_" | translate}}</span>
           </div>
-          <ng-include src="'views/policies/model-panel.html'" ng-init = "model = vm.newModel; editionMode = true" data-qa="policy-model-new">
+          <ng-include ng-if = "vm.accordionStatus.newItem"  src="'views/policies/model-panel.html'" ng-init = "model = vm.newModel; editionMode = true" data-qa="policy-model-new">
 
           </ng-include>
 

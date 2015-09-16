@@ -17,11 +17,11 @@
 
     function init() {
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      var json = getFinalJSON();
-      vm.testingpolcyData = JSON.stringify(json, null, 4);
+      generateFinalJSON();
+      vm.testingpolcyData = JSON.stringify(vm.policy, null, 4);
     };
 
-    function getFinalJSON() {
+    function generateFinalJSON() {
       var fragments = [];
 
       vm.policy.transformations = vm.policy.models;
@@ -32,11 +32,19 @@
         }
       }
       vm.policy.fragments = fragments;
+      cleanPolicyJSON();
+
+      return vm.policy;
+    }
+
+    function cleanPolicyJSON() {
       delete vm.policy.models;
       delete vm.policy.input;
       delete vm.policy.outputs;
-
-      return vm.policy;
+      if (vm.policy.rawData.enabled === 'false') {
+        delete vm.policy.rawData['path'];
+        delete vm.policy.rawData['partitionFormat'];
+      }
     }
   };
 })();

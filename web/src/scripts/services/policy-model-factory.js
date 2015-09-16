@@ -8,7 +8,6 @@
 
   function PolicyModelFactory(fragmentConstants) {
     var policy = {};
-    var allModelOutputs = null;
     var status = {};
 
     function initPolicy() {
@@ -29,7 +28,6 @@
     }
 
     function setPolicy(inputPolicyJSON) {
-
       status.currentStep = 0;
       policy.id = inputPolicyJSON.id;
       policy.name = inputPolicyJSON.name;
@@ -38,6 +36,7 @@
       policy.storageLevel = inputPolicyJSON.storageLevel;
       policy.checkpointPath = inputPolicyJSON.checkpointPath;
       policy.rawData = inputPolicyJSON.rawData;
+      policy.rawData.enabled = (inputPolicyJSON.rawData.enabled == "true");
       policy.models = inputPolicyJSON.transformations; //TODO Change policy models attribute to transformations
       policy.cubes = inputPolicyJSON.cubes;
 
@@ -84,24 +83,21 @@
     }
 
     function getAllModelOutputs() {
-      if (!allModelOutputs) {
-        allModelOutputs = [];
-        var models = policy.models;
-        var outputs = [];
-        var modelOutputs, output = null;
-        for (var i = 0; i < models.length; ++i) {
-          modelOutputs = models[i].outputFields;
-          for (var j = 0; j < modelOutputs.length; ++j) {
-            output = modelOutputs[j];
-            if (outputs.indexOf(output) == -1) {
-              allModelOutputs.push(output);
-            }
+      var allModelOutputs = [];
+      var models = policy.models;
+      var outputs = [];
+      var modelOutputs, output = null;
+      for (var i = 0; i < models.length; ++i) {
+        modelOutputs = models[i].outputFields;
+        for (var j = 0; j < modelOutputs.length; ++j) {
+          output = modelOutputs[j];
+          if (outputs.indexOf(output) == -1) {
+            allModelOutputs.push(output);
           }
         }
       }
       return allModelOutputs;
     }
-
 
     return {
       setPolicy: setPolicy,
