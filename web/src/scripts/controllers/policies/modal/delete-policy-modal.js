@@ -25,7 +25,7 @@
     };
 
     function ok() {
-      var policyToDelete = PolicyFactory.DeletePolicy(vm.policyData.id);
+      var policyToDelete = PolicyFactory.deletePolicy(vm.policyData.id);
 
       policyToDelete.then(function (result) {
         $modalInstance.close(vm.policyData);
