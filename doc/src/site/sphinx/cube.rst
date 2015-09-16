@@ -178,7 +178,7 @@ Two examples of these filters are::
 
   "configuration": {
     "filters": [
-      {"field":"field1", "type": "<", "dimensionValue":"field2"},
+      {"field":"field1", "type": "<", "fieldValue":"field2"},
       {"field":"field1", "type": "!=", "value":2}
     ]
   }
