@@ -77,7 +77,7 @@ MongoDB Configuration
       "name": "out-mongo",
       "type": "MongoDb",
       "configuration": {
-        "hosts": "localhost",
+        "hosts": [{"host": "localhost" , "port": "27017" }],
         "dbName": "sparkta",
         "identitiesSaved": "true",
         "idAsField": "true"
@@ -213,10 +213,12 @@ ElasticSearch Configuration
       "name": "out-elasticsearch",
       "type": "ElasticSearch",
       "configuration": {
-        "nodes": "localhost",
-        "defaultPort": "9200",
-
-        "isAutoCalculateId": "true",
+        "nodes": [
+          {
+            "node": "localhost",
+            "defaultPort": "9200"
+          }
+        ],
         "indexMapping": "day"
       }
     }
@@ -283,7 +285,6 @@ Print Configuration
       "name": "out-print",
       "type": "Print",
       "configuration": {
-        "isAutoCalculateId": "false"
       }
     }
   ]
@@ -331,7 +332,6 @@ Csv Configuration
       "name": "out-csv",
       "type": "Csv",
       "configuration": {
-        "isAutoCalculateId": "false",
         "path": "/tmp/sparkta/operators/csv/",
         "header": "true",
         "delimiter": ","
