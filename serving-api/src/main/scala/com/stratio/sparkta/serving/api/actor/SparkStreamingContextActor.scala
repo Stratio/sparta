@@ -72,10 +72,12 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
   }
 
   private def policyWithId(policy: AggregationPoliciesModel) =
-    policy.id match {
-      case None => policy.copy(id = Some(UUID.randomUUID.toString))
-      case Some(_) => policy
-    }
+    (
+      policy.id match {
+        case None => policy.copy(id = Some(UUID.randomUUID.toString))
+        case Some(_) => policy
+      }
+    ).copy(name = policy.name.toLowerCase)
 
 
   // XXX Private Methods.
