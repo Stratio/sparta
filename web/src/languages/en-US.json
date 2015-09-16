@@ -89,7 +89,7 @@
   "_INPUT_ERROR_200_": "There was an error. The name of the policy already exists!",
   "_INPUT_ERROR_201_": "There was an error. There is not a policy whit this ID!",
   "_INPUT_ERROR_300_": "There was an error. There is not a template whit this name!",
-  "_INPUT_ERROR_666_": "There was an error. Please try again later. (Server error)",
+  "_INPUT_ERROR_666_": "Server error. There was an error. Please try again later.",
   "_INPUT_ERROR_TEMPLATES_": "There was an error while loading the templates! Please try again later.",
   "_OUTPUT_HEADER_TITLE_MAIN": "outputs",
   "_OUTPUT_WINDOW_NEW_TITLE_": "New output",
@@ -210,5 +210,8 @@
   "_ERROR_INPUT_DUPLICATED_": "Output field alraedy exists!",
   "_OUTPUT_ACTIONS_MENU_RUN_" : "Run",
   "_OUTPUT_ACTIONS_MENU_DOWNLOAD_" : "Download",
-  "_NAME_HELP_": "White spaces are not allowed"
+  "_NAME_HELP_": "White spaces are not allowed",
+  "_INPUT_CREATE_FIRST_ONE_": "Click here to create your first input!",
+  "_OUTPUT_CREATE_FIRST_ONE_": "Click here to create your first output!",
+  "_POLICY_CREATE_FIRST_ONE_": "Click here to create your first policy!"
 }
