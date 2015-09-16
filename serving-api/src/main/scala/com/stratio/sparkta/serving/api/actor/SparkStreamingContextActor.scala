@@ -94,6 +94,7 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
   }
 
   private def getStreamingContextActor(policy: AggregationPoliciesModel): Option[ActorRef] = {
+    val actorName = policy.name.replace(" ","_")
     SparktaConfig.getClusterConfig match {
       case Some(clusterConfig) => {
         val zookeeperConfig = SparktaConfig.getZookeeperConfig
@@ -103,13 +104,13 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
         if (zookeeperConfig.isDefined && hdfsConfig.isDefined) {
           Some(context.actorOf(Props(new ClusterSparkStreamingContextActor(
             policy, streamingContextService, clusterConfig, hdfsConfig.get, zookeeperConfig.get, detailConfig)),
-            s"$SparkStreamingContextActorPrefix-${policy.name}"))
+            s"$SparkStreamingContextActorPrefix-${actorName}"))
         } else None
       }
       case None => Some(context.actorOf(
         Props(new LocalSparkStreamingContextActor(
           policy, streamingContextService, policyStatusActor)),
-        s"$SparkStreamingContextActorPrefix-${policy.name}"))
+        s"$SparkStreamingContextActorPrefix-${actorName}"))
     }
   }
 }
