@@ -16,9 +16,10 @@ function cIconLink() {
       text: "=text",
       textClass: "=textClass",
       linkUrl:"=linkUrl",
-      linkClass: "=linkClass"
+      linkClass: "=linkClass",
+      qa: "=qa"
     },
-    replace: "true",
+    replace: true,
     templateUrl: 'templates/components/c-icon-link.tpl.html'
   }
 };

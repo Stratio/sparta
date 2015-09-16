@@ -57,19 +57,26 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
    * @param policy that contains the configuration to run.
    */
   private def create(policy: AggregationPoliciesModel): Unit = {
-    val policyWithId = policy.copy(id=Some(UUID.randomUUID.toString))
-    policyStatusActor ? Update(PolicyStatusModel(policyWithId.id.get, PolicyStatusEnum.Launched))
-    getStreamingContextActor(policyWithId) match {
+    val policyWithIdModel = policyWithId(policy)
+    policyStatusActor ? Update(PolicyStatusModel(policyWithIdModel.id.get, PolicyStatusEnum.Launched))
+    getStreamingContextActor(policyWithIdModel) match {
       case Some(streamingContextActor) => {
         // TODO (anistal) change and use PolicyActor.
-        savePolicyInZk(policyWithId)
+        savePolicyInZk(policyWithIdModel)
         streamingContextActor ? Start
       }
       case None => {
-        policyStatusActor ? Update(PolicyStatusModel(policyWithId.id.get, PolicyStatusEnum.Failed))
+        policyStatusActor ? Update(PolicyStatusModel(policyWithIdModel.id.get, PolicyStatusEnum.Failed))
       }
     }
   }
+
+  private def policyWithId(policy: AggregationPoliciesModel) =
+    policy.id match {
+      case None => policy.copy(id = Some(UUID.randomUUID.toString))
+      case Some(_) => policy
+    }
+
 
   // XXX Private Methods.
   private def savePolicyInZk(policy: AggregationPoliciesModel): Unit = {
