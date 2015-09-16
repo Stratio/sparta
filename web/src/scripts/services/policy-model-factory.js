@@ -7,13 +7,12 @@
   PolicyModelFactory.$inject = ['fragmentConstants'];
 
   function PolicyModelFactory(fragmentConstants) {
-    var policy = null;
+    var policy = {};
     var allModelOutputs = null;
     var status = {};
 
     function initPolicy() {
       status.currentStep = 0;
-      policy = {};
       policy.name = "";
       policy.description = "";
       policy.sparkStreamingWindow = "6000";
@@ -29,20 +28,20 @@
       policy.cubes = [];
     }
 
-    function setPolicy(inputPolicy) {
-      policy = {};
-      status.currentStep = 0;
-      policy.id = inputPolicy.id;
-      policy.name = inputPolicy.name;
-      policy.description = inputPolicy.description;
-      policy.sparkStreamingWindow = inputPolicy.sparkStreamingWindow;
-      policy.storageLevel = inputPolicy.storageLevel;
-      policy.checkpointPath = inputPolicy.checkpointPath;
-      policy.rawData = inputPolicy.rawData;
-      policy.models = inputPolicy.transformations; //TODO Change policy models attribute to transformations
-      policy.cubes = inputPolicy.cubes;
+    function setPolicy(inputPolicyJSON) {
 
-      var policyFragments = separateFragments(inputPolicy.fragments);
+      status.currentStep = 0;
+      policy.id = inputPolicyJSON.id;
+      policy.name = inputPolicyJSON.name;
+      policy.description = inputPolicyJSON.description;
+      policy.sparkStreamingWindow = inputPolicyJSON.sparkStreamingWindow;
+      policy.storageLevel = inputPolicyJSON.storageLevel;
+      policy.checkpointPath = inputPolicyJSON.checkpointPath;
+      policy.rawData = inputPolicyJSON.rawData;
+      policy.models = inputPolicyJSON.transformations; //TODO Change policy models attribute to transformations
+      policy.cubes = inputPolicyJSON.cubes;
+
+      var policyFragments = separateFragments(inputPolicyJSON.fragments);
       policy.input = policyFragments.input;
       policy.outputs = policyFragments.outputs;
     }
