@@ -159,23 +159,29 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
           Await.result(future, timeout.duration) match {
             case ResponsePolicies(Failure(exception)) => throw exception
             case ResponsePolicies(Success(policies)) =>
-              val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
-              for {
-                response <- (policyStatusActor ? PolicyStatusActor.FindAll)
-                              .mapTo[PolicyStatusActor.Response]
-              } yield {
-                val statuses = response.policyStatus.get
-                policies.map( policy =>
-                  PolicyWithStatus(
-                    status = statuses.filter(_.id == policy.id.get)
-                              .headOption match {
-                                case Some(statusPolicy) => statusPolicy.status
-                                case None => PolicyStatusEnum.NotStarted
-                              },
-                    policy = policy
+
+              if(!policies.isEmpty){
+                val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
+                for {
+                  response <- (policyStatusActor ? PolicyStatusActor.FindAll)
+                    .mapTo[PolicyStatusActor.Response]
+                } yield {
+                  val statuses = response.policyStatus.get
+                  policies.map( policy =>
+                    PolicyWithStatus(
+                      status = statuses.filter(_.id == policy.id.get)
+                        .headOption match {
+                        case Some(statusPolicy) => statusPolicy.status
+                        case None => PolicyStatusEnum.NotStarted
+                      },
+                      policy = policy
+                    )
                   )
-                )
+                }
+              } else {
+                Seq()
               }
+
           }
         }
       }
