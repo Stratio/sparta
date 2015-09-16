@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  /*POLICIES STEP CONTROLLER*/
+  /*POLICY EDITION CONTROLLER*/
   angular
     .module('webApp')
     .controller('EditPolicyCtrl', EditPolicyCtrl);
@@ -9,22 +9,22 @@
   EditPolicyCtrl.$inject = ['PolicyStaticDataFactory', 'PolicyModelFactory', 'PolicyFactory', '$q', '$modal', '$state', '$stateParams'];
   function EditPolicyCtrl(PolicyStaticDataFactory, PolicyModelFactory, PolicyFactory, $q, $modal, $state, $stateParams) {
     var vm = this;
-    vm.init = init;
+
+    vm.confirmPolicy = confirmPolicy;
 
     init();
+
     function init() {
       var defer = $q.defer();
       var id = $stateParams.id;
       vm.steps = PolicyStaticDataFactory.steps;
       vm.status = PolicyModelFactory.getProcessStatus();
-      vm.confirmPolicy = confirmPolicy;
       vm.successfullySentPolicy = false;
       vm.error = null;
       PolicyFactory.getPolicyById(id).then(
-        function (policy) {
-          vm.policy = policy;
-          PolicyModelFactory.setPolicy(vm.policy);
-
+        function (policyJSON) {
+          PolicyModelFactory.setPolicy(policyJSON);
+          vm.policy = PolicyModelFactory.getCurrentPolicy();
           defer.resolve();
         }
         , function () {

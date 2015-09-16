@@ -210,5 +210,8 @@
   "_ERROR_INPUT_DUPLICATED_": "Output field alraedy exists!",
   "_OUTPUT_ACTIONS_MENU_RUN_" : "Run",
   "_OUTPUT_ACTIONS_MENU_DOWNLOAD_" : "Download",
-  "_OUTPUT_ACTIONS_MENU_EDIT_" : "Edit"
+  "_OUTPUT_ACTIONS_MENU_EDIT_" : "Edit",
+  "_REMOVE_MODEL_MESSAGE_": "If you remove this model, the following cubes will be removed: {{modelList}}",
+  "_CONFIRM_": "Confirm",
+  "_REMOVE_MODEL_CONFIRM_TITLE_": "Remove model"
 }
