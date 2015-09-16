@@ -297,7 +297,7 @@
           "required": true,
           "tooltip": "Broker's port.",
           "hidden": false,
-          "qa": "fragment-details-kafkadirect-post"
+          "qa": "fragment-details-kafkadirect-port"
         }
       ]
       },

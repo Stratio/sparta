@@ -76,7 +76,7 @@
   "_INPUT_WINDOW_FORM_NAME_": "Name",
   "_INPUT_WINDOW_FORM_TYPE_": "Type",
   "_INPUT_WINDOW_DUPLICATE_TITLE_": "Duplicate input",
-  "_FRAGMENT_WINDOW_PLACEHOLDER_NAME_": "Ex. name1",
+  "_FRAGMENT_WINDOW_PLACEHOLDER_NAME_": "Ex. name_name_1",
   "_ARE_YOU_COMPLETELY_SURE_": "Are you completely sure?",
   "_INPUT_WINDOW_DELETE_MESSAGE_": "The following policies are going to be deleted",
   "_INPUT_WINDOW_DELETE_MESSAGE2_": "If you do not want to delete these policies, please change first their inputs",
@@ -209,5 +209,6 @@
   "_ERROR_ALL_FIELDS_REQUIRED_": "All fields are required! Please check them and try to sumbit the form.",
   "_ERROR_INPUT_DUPLICATED_": "Output field alraedy exists!",
   "_OUTPUT_ACTIONS_MENU_RUN_" : "Run",
-  "_OUTPUT_ACTIONS_MENU_DOWNLOAD_" : "Download"
+  "_OUTPUT_ACTIONS_MENU_DOWNLOAD_" : "Download",
+  "_NAME_HELP_": "White spaces are not allowed"
 }

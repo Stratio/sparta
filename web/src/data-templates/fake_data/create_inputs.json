@@ -11,7 +11,7 @@
     },
     "fragmentType": "input",
     "shortDescription": "Reads events from a socket.",
-    "name": "testInputSocket"
+    "name": "test_input_socket"
   },
   {
     "description": "Reads events from Twitter stream.",
@@ -28,7 +28,7 @@
     },
     "fragmentType": "input",
     "shortDescription": "Reads events from Twitter stream.",
-    "name": "testInputTwitter"
+    "name": "test_input_twitter"
   },
   {
     "description": "Reads events from flume",
@@ -44,7 +44,7 @@
     },
     "fragmentType": "input",
     "shortDescription": "Reads events from flume",
-    "name": "testInputFlumeTypePush"
+    "name": "test_input_flume_type_push"
   },
   {
     "description": "Reads events from RabbitMQ",

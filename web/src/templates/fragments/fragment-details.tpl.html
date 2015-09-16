@@ -7,7 +7,7 @@
 	<div class="c-modal-inner">
 		<form class="c-form" name="vm.form" novalidate>
 
-			<form-field-input id="dataSourceName" data-model="vm.dataSource.name" data-label="{{'_NAME_' | translate}}" data-form="vm.form" data-st-name="dataSourceNameForm" data-required="true" data-autofocus="true" data-placeholder='{{"_FRAGMENT_WINDOW_PLACEHOLDER_NAME_" | translate}}' data-qa="fragment-detail-name"></form-field-input>
+			<form-field-input id="dataSourceName" data-model="vm.dataSource.name" data-label="{{'_NAME_' | translate}}" data-form="vm.form" data-st-name="dataSourceNameForm" data-required="true" data-autofocus="true" data-pattern="'\\S+'" data-placeholder='{{"_FRAGMENT_WINDOW_PLACEHOLDER_NAME_" | translate}}' data-qa="fragment-detail-name" data-help='{{"_NAME_HELP_" | translate}}' data-help-qa="fragment-detail-name-help"></form-field-input>
 
 			<ng-form name="dataSourceTypeForm" class="c-form-group">
 				<div class="c-form-control c-form-control--full-width c-icon-radio">
