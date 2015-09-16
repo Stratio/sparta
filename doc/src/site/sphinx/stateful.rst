@@ -9,10 +9,10 @@ through Apache Spark Streaming |streaming_link|
    <a href="https://spark.apache.org/docs/latest/streaming-programming-guide.html#checkpointing"
    target="_blank">configuration parameters</a>
 
-This is an example of the checkpointing configuration in a policy::
+Checkpointing works at cube level. This is an example of the checkpointing configuration in a cube. Note that you
+need to set the checkpointing path at policy level::
 
-    "checkpointing": {
-        "path": "myCheckpointPath",
+    "checkpointConfig": {
         "timeDimension": "timeStamp",
         "granularity": "minute",
         "interval": 30000,
@@ -22,9 +22,6 @@ This is an example of the checkpointing configuration in a policy::
 +-----------------+-------------------------------------------------------------------------+--------------------------+
 | Property        | Description                                                             | Optional                 |
 +=================+=========================================================================+==========================+
-| path            | This is the path where the temporal data is going to be saved, this     | Yes (default: checkpoint)|
-|                 | path should point to a distributed file system as HDFS, S3,...          |                          |
-+-----------------+-------------------------------------------------------------------------+--------------------------+
 | timeDimension   | This is the name of the time dimension, if the cube contains this       | Yes                      |
 |                 | dimension, this is used for group events with the selected granularity. |                          |
 |                 | If the cube not contain this dimension, the time is auto generated.     |                          |

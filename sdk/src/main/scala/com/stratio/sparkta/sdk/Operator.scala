@@ -89,7 +89,7 @@ with Ordered[Operator] with TypeConversions {
   private def doFiltering(inputField: (String, JSerializable),
                                inputFields: Map[String, JSerializable]): Boolean = {
     filters.map(filter =>
-      if (inputField._1 == filter.field && (filter.dimensionValue.isDefined || filter.value.isDefined)) {
+      if (inputField._1 == filter.field && (filter.fieldValue.isDefined || filter.value.isDefined)) {
       castingFilterType match {
           case TypeOp.Number => {
             val doubleValues = getDoubleValues(inputField._2, filter, inputFields)
@@ -113,7 +113,7 @@ with Ordered[Operator] with TypeConversions {
       if(filter.value.isDefined && filterValue.isDefined)
         doFilteringType(filter.`type`, value, filterValue.get)
       else true,
-      if(filter.dimensionValue.isDefined && dimensionValue.isDefined)
+      if(filter.fieldValue.isDefined && dimensionValue.isDefined)
         doFilteringType(filter.`type`, value, dimensionValue.get)
       else true
     ).forall(result => result)
@@ -125,8 +125,8 @@ with Ordered[Operator] with TypeConversions {
 
     (new RichDouble(inputValue.toString.toDouble),
       if(filter.value.isDefined) Some(filter.value.get.toString.toDouble) else None,
-      if (filter.dimensionValue.isDefined && inputFields.contains(filter.dimensionValue.get))
-        Some(inputFields.get(filter.dimensionValue.get).get.toString.toDouble)
+      if (filter.fieldValue.isDefined && inputFields.contains(filter.fieldValue.get))
+        Some(inputFields.get(filter.fieldValue.get).get.toString.toDouble)
       else None)
   }
 
@@ -136,8 +136,8 @@ with Ordered[Operator] with TypeConversions {
   : (StringOps, Option[String], Option[String]) = {
 
     (new StringOps(inputValue.toString), if(filter.value.isDefined) Some(filter.value.get.toString) else None,
-      if (filter.dimensionValue.isDefined && inputFields.contains(filter.dimensionValue.get))
-        Some(inputFields.get(filter.dimensionValue.get).get.toString)
+      if (filter.fieldValue.isDefined && inputFields.contains(filter.fieldValue.get))
+        Some(inputFields.get(filter.fieldValue.get).get.toString)
       else None)
   }
 

@@ -178,7 +178,7 @@ Two examples of these filters are::
 
   "configuration": {
     "filters": [
-      {"field":"field1", "type": "<", "dimensionValue":"field2"},
+      {"field":"field1", "type": "<", "fieldValue":"field2"},
       {"field":"field1", "type": "!=", "value":2}
     ]
   }
@@ -190,10 +190,10 @@ The logical operators currently implemented are::
 
 
 EntityCount
---------
+-----------
 
-Is possible generate one word count in one inputField of the event and apply one split with a regular expression and
-other for replace and matching words.
+It counts words from the input field and shows how many times a word has appeared. It is possible to select the string
+ to split by.
 
   One example is::
 
@@ -206,9 +206,8 @@ other for replace and matching words.
           }
         }
 
-    "text" -> "Sparkta is the best real time aggregator of the world. Sparkta now support real time word count"
-
-    The output is:
+With the text "Sparkta is the best real time aggregator of the world. Sparkta now support real time word count" the
+output would be::
 
     "entityCount_text" = Map(
       Sparkta: 2,
@@ -229,10 +228,9 @@ other for replace and matching words.
 
 
 TotalEntityCount
---------
+----------------
 
-Is possible calculate the total of words that the event have in one inputField and apply one split with a regular expression and
-other for replace and matching words.
+It counts words from the input field. It is possible to select the string to split by.
 
   One example is::
 
@@ -245,9 +243,9 @@ other for replace and matching words.
           }
         }
 
-    "text" -> "Sparkta is the best real time aggregator of the world. Sparkta now support real time word count"
 
-    The output is:
+With the text "Sparkta is the best real time aggregator of the world. Sparkta now support real time word count" the
+output would be::
 
       "totalEntityCount": 17
 

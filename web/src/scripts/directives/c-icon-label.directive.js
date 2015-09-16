@@ -16,9 +16,10 @@ function cIconLabel() {
       iconClass: "=iconClass",
       text: "=text",
       textClass: "=textClass",
-      iconUrl: "=iconUrl"
+      iconUrl: "=iconUrl",
+      test: "@"
     },
-    replace: "true",
+    replace: true,
     templateUrl: 'templates/components/c-icon-label.tpl.html'
   }
 };
