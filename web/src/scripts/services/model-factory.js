@@ -13,12 +13,11 @@
 
       function init() {
         model.name = "";
-        model.inputField = ModelStaticDataFactory.defaultInput;
         model.outputFields = [];
         model.type = "";
         model.configuration = "";
         model.inputList = getModelInputs();
-        model.inputField = model.inputList[0];
+        model.inputField = model.inputList[0].value;
       };
 
       function getModelInputs() {
@@ -30,10 +29,23 @@
             result = ModelStaticDataFactory.defaultInput;
           else {
             var model = models[--index];
-            result = [model.inputField].concat(model.outputFields);
+            var options = generateOutputOptions(model.outputFields);
+            var defaultOption = generateOutputOptions([model.inputField]);
+            result = defaultOption.concat(options);
           }
         }
         return result;
+      }
+
+      function generateOutputOptions(outputs) {
+        var options = [];
+        var output, option = "";
+        for (var i = 0; i < outputs.length; ++i) {
+          output = outputs[i];
+          option = {label: output, value: output};
+          options.push(option);
+        }
+        return options;
       }
 
       function isValidConfiguration() {
