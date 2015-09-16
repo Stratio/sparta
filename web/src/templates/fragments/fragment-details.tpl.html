@@ -13,8 +13,8 @@
 				<div class="c-form-control c-form-control--full-width c-icon-radio">
 					<label class="c-col c-col--12 c-label c-icon-radio__label" title="{{'_TYPE_' | translate}}:" for="dataSourceType">{{"_INPUT_WINDOW_FORM_TYPE_" | translate}}</label>
 					<label data-ng-repeat="fragmentData in vm.templateFragmentsData">
-						<input class="c-icon-radio__item" id="type-{{fragmentData.name | lowercase}}" type="radio" name="dataSourceTypeForm" data-ng-model="vm.dataSource.element.type" value="{{fragmentData.name}}" data-ng-click="vm.setProperties($index, fragmentData.name)" data-qa="fragment-detail-type-{{fragmentData.name | lowercase}}">
-							<label class="c-icon-radio__label" for="type-{{fragmentData.name | lowercase}}"><i class="c-icon c-icon--large c-icon-radio__icon icon-{{fragmentData.modelType | lowercase}}" tooltip="{{fragmentData.name | lowercase}}" tooltip-placement="top" tooltip-class="t-tooltip"></i></label>
+						<input class="c-icon-radio__item" id="type-{{fragmentData.name | lowercase}}" type="radio" name="dataSourceTypeForm" data-ng-model="vm.dataSource.element.type" value="{{fragmentData.name}}" data-ng-click="vm.setProperties($index, fragmentData.name)">
+							<label class="c-icon-radio__label" for="type-{{fragmentData.name | lowercase}}" data-qa="fragment-detail-type-{{fragmentData.name | lowercase}}"><i class="c-icon c-icon--large c-icon-radio__icon icon-{{fragmentData.modelType | lowercase}}" tooltip="{{fragmentData.name | lowercase}}" tooltip-placement="top" tooltip-class="t-tooltip"></i></label>
 					</label>
 				</div>
 			</ng-form>
