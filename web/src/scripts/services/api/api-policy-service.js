@@ -97,7 +97,7 @@
     function savePolicy() {
       return $resource('/policy', {},
         {
-          'create': {
+          'put': {
             method: 'PUT',
             timeout: apiConfigSettings.timeout
           }
