@@ -62,9 +62,9 @@
 	    </ul>
     </div>
 
-    <div class="c-panel c-panel--framed" data-ng-if="inputs.inputsData.length === 0" data-ng-click="inputs.createInput()" data-qa="input-first-message">
-		<i class="icon-marquee-plus"></i>
-    	<span>{{"_INPUT_CREATE_FIRST_ONE_" | translate}}</span>
+    <div class="c-msg--noitems c-msg--giant" data-ng-if="inputs.inputsData.length === 0" data-ng-click="inputs.createInput()" data-qa="input-first-message">
+		<i class="c-icon icon-marquee-plus"></i>
+    	<span class="c-msg__text">{{"_INPUT_CREATE_FIRST_ONE_" | translate}}</span>
 	</div>
 
     <hr class="c-line-separator" />
