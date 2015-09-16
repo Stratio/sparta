@@ -23,26 +23,32 @@
        vm.getPolicyNames = getPolicyNames;
        vm.inputsData = [];
        vm.inputTypes = [];
+       vm.error = false;
+       vm.errorMessage = '';
 
        init();
 
         /////////////////////////////////
 
         function init() {
-            getInputs();
+          getInputs();
         };
 
         function getInputs() {
           var inputList = FragmentFactory.GetFragments('input');
 
           inputList.then(function (result) {
+            vm.error = false;
             vm.inputsData = result;
             vm.getInputTypes(result);
 
           },function (error) {
+            vm.error = true
+            vm.errorMessage = "_INPUT_ERROR_" + error.data.i18nCode + "_";;
             console.log('There was an error while loading the inputs flist!');
             console.log(error);
           });
+
         };
 
         function createInput() {

@@ -47,6 +47,8 @@ abstract class Output(keyName: String,
 
   def fixedDimensionsType: TypeOp.Value = TypeOp.String
 
+
+
   val supportedWriteOps = Seq(WriteOp.FullText, WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Range,
     WriteOp.AccSet, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.AccAvg, WriteOp.Median,
     WriteOp.AccMedian, WriteOp.Variance, WriteOp.AccVariance, WriteOp.Stddev, WriteOp.AccStddev,
@@ -69,7 +71,7 @@ abstract class Output(keyName: String,
 
   final val FieldsSeparator = ","
 
-  val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
+  protected def isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
   def persist(streams: Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]]): Unit = {
     sqlContext = new SQLContext(streams.head.context.sparkContext)

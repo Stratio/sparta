@@ -203,7 +203,7 @@
       "type": "ElasticSearch",
       "configuration": {
         "nodes": [{"node":"localhost","defaultPort":"9200"}],
-        "isAutoCalculateId": "true",
+        "isAutoCalculateId": "false",
         "indexMapping": "day"
       }
     }

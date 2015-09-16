@@ -5,9 +5,9 @@
     .module('webApp')
     .controller('PoliciesCtrl', PoliciesCtrl);
 
-  PoliciesCtrl.$inject = ['PolicyFactory', '$modal'];
+  PoliciesCtrl.$inject = ['PolicyFactory', '$modal', '$state'];
 
-  function PoliciesCtrl(PolicyFactory, $modal) {
+  function PoliciesCtrl(PolicyFactory, $modal, $state) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -16,6 +16,8 @@
     vm.policiesJsonData = {};
     vm.deletePolicy = deletePolicy;
     vm.runPolicy = runPolicy;
+    vm.error = true;
+    vm.errorMessage = '';
     init();
 
     /////////////////////////////////
@@ -28,8 +30,11 @@
       var policiesList = PolicyFactory.GetAllPolicies();
 
       policiesList.then(function (result) {
+        vm.error = false;
         vm.policiesData.list = result;
       },function (error) {
+        vm.error = true;
+        vm.errorMessage = "_INPUT_ERROR_" + error.data.i18nCode + "_";
         console.log('There was an error while loading the policies!');
         console.log(error);
       });
@@ -75,6 +80,5 @@
       },function () {
       });
     };
-
   }
 })();
