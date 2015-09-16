@@ -18,12 +18,14 @@ package com.stratio.sparkta.serving.api.actor
 
 import java.util.UUID
 
-import akka.actor.Actor
+import akka.actor.{ActorRef, Actor}
 import akka.event.slf4j.SLF4JLogging
+import akka.pattern.ask
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.core.AppConstant
 import com.stratio.sparkta.serving.core.models._
+import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.jackson.Serialization.{read, write}
@@ -34,7 +36,7 @@ import scala.util.{Failure, Success, Try}
 /**
  * Implementation of supported CRUD operations over ZK needed to manage policies.
  */
-class PolicyActor(curatorFramework: CuratorFramework)
+class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRef)
   extends Actor
   with SLF4JLogging
   with SparktaSerializer {
@@ -77,7 +79,8 @@ class PolicyActor(curatorFramework: CuratorFramework)
       ))
     })
 
-  private def byId(id: String): AggregationPoliciesModel = read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.forPath(
+  private def byId(id: String): AggregationPoliciesModel = read[AggregationPoliciesModel](
+    new Predef.String(curatorFramework.getData.forPath(
     s"${AppConstant.PoliciesBasePath}/$id")))
 
   def findByName(name: String): Unit =
@@ -94,6 +97,10 @@ class PolicyActor(curatorFramework: CuratorFramework)
       ))
     })
 
+  def associateStatus(model: AggregationPoliciesModel): Unit = {
+    policyStatusActor ! PolicyStatusActor.Update(PolicyStatusModel(model.id.get, PolicyStatusEnum.NotStarted))
+  }
+
   def create(policy: AggregationPoliciesModel): Unit =
     sender ! ResponsePolicy(Try({
       if (existsByName(policy.name)) {
@@ -106,6 +113,9 @@ class PolicyActor(curatorFramework: CuratorFramework)
         name = policy.name.toLowerCase)
       curatorFramework.create().creatingParentsIfNeeded().forPath(
         s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
+
+      associateStatus(policyS)
+
       policyS
     }))
 

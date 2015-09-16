@@ -62,7 +62,7 @@ object SparktaHelper extends SLF4JLogging {
         AkkaConstant.TemplateActor ->
           system.actorOf(Props(new TemplateActor()), AkkaConstant.TemplateActor),
         AkkaConstant.PolicyActor ->
-          system.actorOf(Props(new PolicyActor(curatorFramework)), AkkaConstant.PolicyActor),
+          system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActor)), AkkaConstant.PolicyActor),
         AkkaConstant.SparkStreamingContextActor -> system.actorOf(RoundRobinPool(streamingActorInstances).props(Props(
           new SparkStreamingContextActor(
             streamingContextService, policyStatusActor))),
