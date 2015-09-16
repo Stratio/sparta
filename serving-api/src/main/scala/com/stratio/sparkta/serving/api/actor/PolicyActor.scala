@@ -53,8 +53,7 @@ class PolicyActor(curatorFramework: CuratorFramework)
     sender ! ResponsePolicies(Try({
       val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
       JavaConversions.asScalaBuffer(children).toList.map(element =>
-        read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
-          s"${AppConstant.PoliciesBasePath}/$element")))).toSeq
+        byId(element)).toSeq
     }).recover {
       case e: NoNodeException => Seq()
     })
@@ -63,8 +62,7 @@ class PolicyActor(curatorFramework: CuratorFramework)
     sender ! ResponsePolicies(Try({
       val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
       JavaConversions.asScalaBuffer(children).toList.map(element =>
-        read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
-          s"${AppConstant.PoliciesBasePath}/$element")))).filter(apm =>
+        byId(element)).filter(apm =>
         (apm.fragments.filter(f => f.id.get == id)).size > 0).toSeq
     }).recover {
       case e: NoNodeException => Seq()
@@ -72,20 +70,21 @@ class PolicyActor(curatorFramework: CuratorFramework)
 
   def find(id: String): Unit =
     sender ! new ResponsePolicy(Try({
-      read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.forPath(
-        s"${AppConstant.PoliciesBasePath}/$id")))
+      byId(id)
     }).recover {
       case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsPolicytWithId, s"No policy with id ${id}.")
       ))
     })
 
+  private def byId(id: String): AggregationPoliciesModel = read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.forPath(
+    s"${AppConstant.PoliciesBasePath}/$id")))
+
   def findByName(name: String): Unit =
     sender ! ResponsePolicy(Try({
       val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
       JavaConversions.asScalaBuffer(children).toList.map(element =>
-        read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
-          s"${AppConstant.PoliciesBasePath}/$element")))).filter(policy => policy.name == name).head
+        byId(element)).filter(policy => policy.name == name).head
     }).recover {
       case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsPolicytWithName, s"No policy with name ${name}.")
@@ -101,7 +100,7 @@ class PolicyActor(curatorFramework: CuratorFramework)
         ))
       }
       val policyS = policy.copy(id = Some(s"${UUID.randomUUID.toString}"),
-                                name = policy.name.toLowerCase)
+        name = policy.name.toLowerCase)
       curatorFramework.create().creatingParentsIfNeeded().forPath(
         s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
       policyS
