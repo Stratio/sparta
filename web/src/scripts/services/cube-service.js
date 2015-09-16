@@ -11,6 +11,7 @@
 
     function findCubesUsingOutputs(cubes, outputs) {
       var cubeNames = [];
+      var cubePositions = [];
       var currentCube = null;
       var found = false;
       for (var i = 0; i < cubes.length; ++i) {
@@ -19,9 +20,11 @@
         found = findDimensionUsingOutputs(currentCube, outputs);
         if (found) {
           cubeNames.push(currentCube.name);
+          cubePositions.push(i);
         }
       }
-      return cubeNames;
+      var result = {names: cubeNames, positions: cubePositions};
+      return result;
     }
 
     function findDimensionUsingOutputs(cube, outputs) {

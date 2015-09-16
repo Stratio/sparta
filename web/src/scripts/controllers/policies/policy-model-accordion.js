@@ -7,10 +7,10 @@
     .controller('PolicyModelAccordionCtrl', PolicyModelAccordionCtrl);
 
   PolicyModelAccordionCtrl.$inject = ['PolicyModelFactory', 'ModelStaticDataFactory', 'AccordionStatusService',
-    'ModelFactory', 'PolicyStaticDataFactory', 'CubeService', '$modal'];
+    'ModelFactory', 'PolicyStaticDataFactory', 'CubeService', '$modal', '$translate', '$q'];
 
   function PolicyModelAccordionCtrl(PolicyModelFactory, ModelStaticDataFactory, AccordionStatusService,
-                                    ModelFactory, PolicyStaticDataFactory, CubeService, $modal) {
+                                    ModelFactory, PolicyStaticDataFactory, CubeService, $modal, $translate, $q) {
     var vm = this;
     var index = 0;
 
@@ -34,7 +34,6 @@
     }
 
     function addModel() {
-      vm.error = false;
       if (ModelFactory.isValidModel()) {
         vm.modelError = false;
         var newModel = angular.copy(vm.newModel);
@@ -48,34 +47,54 @@
     }
 
     function removeModel(index) {
-
       //check if there are cubes whose dimensions have fields == model.outputFields
-      var cubeNames = CubeService.findCubesUsingOutputs(vm.policy.cubes, vm.policy.models[index].outputFields);
-      console.log(cubeNames);
-      //TODO show an alert to confirm to delete the cubes contained in cubeNmaes
-      showConfirmRemoveModel();
-      //TODO If alert is confirmed by user, remove cubes and model
-      //vm.policy.models.splice(index, 1);
-      //vm.newModelIndex = vm.policy.models.length;
-      //AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
-      //AccordionStatusService.getAccordionStatus().newItem = true;
-      //ModelFactory.resetModel();
+      var cubeList = CubeService.findCubesUsingOutputs(vm.policy.cubes, vm.policy.models[index].outputFields);
+
+        showConfirmRemoveModel(cubeList.names).then(function () {
+        removeCubes(cubeList.positions);
+        vm.policy.models.splice(index, 1);
+        vm.newModelIndex = vm.policy.models.length;
+        AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
+        AccordionStatusService.getAccordionStatus().newItem = true;
+        ModelFactory.resetModel();
+      });
     }
 
-    function showConfirmRemoveModel()
-    {
+    function showConfirmRemoveModel(cubeNames) {
+      var defer = $q.defer();
+      var message = $translate('_REMOVE_MODEL_MESSAGE_', {modelList: cubeNames.toString()});
+
       var modalInstance = $modal.open({
         animation: true,
-        templateUrl: 'templates/policies/st-confirm-policy-modal.tpl.html',
-        controller: 'ConfirmPolicyModalCtrl as vm',
-        size: 'lg'
+        templateUrl: 'templates/confirm-modal.tpl.html',
+        controller: 'ConfirmModalCtrl as vm',
+        size: 'lg',
+        resolve: {
+          title: function(){
+            return "_REMOVE_MODEL_CONFIRM_TITLE_"
+          },
+          message: function () {
+            return message;
+          }
+        }
       });
 
-      modalInstance.result.then(function (dimension) {
-        vm.cube.dimensions.push(dimension);
+      modalInstance.result.then(function () {
+        defer.resolve();
       }, function () {
+        defer.reject();
       });
+      return defer.promise;
     }
+
+    function removeCubes(cubePositions) {
+      var cubePosition = null;
+      for (var i = 0; i < cubePositions.length; ++i) {
+        cubePosition = cubePositions[i];
+        vm.policy.cubes.splice(cubePosition, 1);
+      }
+    }
+
     function getIndex() {
       return index++;
     }
