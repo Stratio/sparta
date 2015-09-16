@@ -32,7 +32,8 @@
                 pattern: '=',
                 required: '=',
                 disabled: '=',
-                qa: '@'
+                qa: '@',
+                helpQa: '@'
             }
         };
         return directive;
