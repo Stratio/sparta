@@ -42,6 +42,7 @@
           console.log('There was an error while loading the output list!');
           console.log(error);
         });
+
       };
 
       function getOutputTypes(outputs) {

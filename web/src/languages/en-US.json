@@ -210,5 +210,8 @@
   "_ERROR_INPUT_DUPLICATED_": "Output field alraedy exists!",
   "_OUTPUT_ACTIONS_MENU_RUN_" : "Run",
   "_OUTPUT_ACTIONS_MENU_DOWNLOAD_" : "Download",
-  "_NAME_HELP_": "White spaces are not allowed"
+  "_NAME_HELP_": "White spaces are not allowed",
+  "_INPUT_CREATE_FIRST_ONE_": "Click here to create your first input!",
+  "_OUTPUT_CREATE_FIRST_ONE_": "Click here to create your first output!",
+  "_POLICY_CREATE_FIRST_ONE_": "Click here to create your first policy!"
 }
