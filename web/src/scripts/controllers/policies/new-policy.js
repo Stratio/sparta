@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  /*POLICIES STEP CONTROLLER*/
+  /*POLICY CREATION CONTROLLER*/
   angular
     .module('webApp')
     .controller('NewPolicyCtrl', NewPolicyCtrl);
@@ -10,12 +10,18 @@
   function NewPolicyCtrl(PolicyStaticDataFactory, PolicyModelFactory, PolicyFactory, $q, $modal, $state) {
     var vm = this;
 
-    vm.steps = PolicyStaticDataFactory.steps;
-    vm.policy = PolicyModelFactory.getCurrentPolicy();
-    vm.status = PolicyModelFactory.getProcessStatus();
     vm.confirmPolicy = confirmPolicy;
-    vm.successfullySentPolicy = false;
-    vm.error = null;
+
+    init();
+
+    function init() {
+      vm.steps = PolicyStaticDataFactory.steps;
+      PolicyModelFactory.resetPolicy();
+      vm.policy = PolicyModelFactory.getCurrentPolicy();
+      vm.status = PolicyModelFactory.getProcessStatus();
+      vm.successfullySentPolicy = false;
+      vm.error = null;
+    }
 
     function confirmPolicy() {
       var defer = $q.defer();
