@@ -50,7 +50,7 @@
       //check if there are cubes whose dimensions have fields == model.outputFields
       var cubeList = CubeService.findCubesUsingOutputs(vm.policy.cubes, vm.policy.models[index].outputFields);
 
-        showConfirmRemoveModel(cubeList.names).then(function () {
+      showConfirmRemoveModel(cubeList.names).then(function () {
         removeCubes(cubeList.positions);
         vm.policy.models.splice(index, 1);
         vm.newModelIndex = vm.policy.models.length;
@@ -62,7 +62,9 @@
 
     function showConfirmRemoveModel(cubeNames) {
       var defer = $q.defer();
-      var message = $translate('_REMOVE_MODEL_MESSAGE_', {modelList: cubeNames.toString()});
+      var message = "";
+      if (cubeNames.length > 0)
+        message = $translate('_REMOVE_MODEL_MESSAGE_', {modelList: cubeNames.toString()});
 
       var modalInstance = $modal.open({
         animation: true,
@@ -70,7 +72,7 @@
         controller: 'ConfirmModalCtrl as vm',
         size: 'lg',
         resolve: {
-          title: function(){
+          title: function () {
             return "_REMOVE_MODEL_CONFIRM_TITLE_"
           },
           message: function () {
