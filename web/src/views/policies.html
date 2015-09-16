@@ -41,6 +41,11 @@
 		</table>
     </div>
 
+    <div class="c-panel c-panel--framed" data-ng-if="policies.policiesData.list.length === 0" ui-sref="dashboard.newPolicy" data-qa="policy-first-message">
+        <i class="icon-marquee-plus"></i>
+        <span>{{"_POLICY_CREATE_FIRST_ONE_" | translate}}</span>
+    </div>
+
     <footer class="c-row c-row--separated c-row--to-right c-row--footer">
     	<c-route-button button-class="'c-button c-button--call-to-action-1'" route="'dashboard.newPolicy'" text="'_INPUT_BUTTON_NEW_' | translate" data-qa="policies-new-button"></c-route-button>
     </footer>

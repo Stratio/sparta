@@ -31,7 +31,7 @@
         /////////////////////////////////
 
         function init() {
-            getInputs();
+          getInputs();
         };
 
         function getInputs() {
@@ -48,6 +48,7 @@
             console.log('There was an error while loading the inputs flist!');
             console.log(error);
           });
+
         };
 
         function createInput() {
