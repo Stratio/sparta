@@ -16,7 +16,7 @@
     vm.policiesJsonData = {};
     vm.deletePolicy = deletePolicy;
     vm.runPolicy = runPolicy;
-    vm.error = true;
+    vm.error = false;
     vm.errorMessage = '';
     init();
 
