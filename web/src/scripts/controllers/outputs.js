@@ -17,6 +17,8 @@
       vm.duplicateOutput = duplicateOutput;
       vm.outputsData = [];
       vm.outputTypes = [];
+      vm.error = false;
+      vm.errorMessage = '';
 
       init();
 
@@ -30,10 +32,13 @@
         var outputList = FragmentFactory.GetFragments('output');
 
         outputList.then(function (result) {
+          vm.error = false;
           vm.outputsData = result;
           getOutputTypes(result);
 
         },function (error) {
+          vm.error = true
+          vm.errorMessage = "_INPUT_ERROR_" + error.data.i18nCode + "_";;
           console.log('There was an error while loading the output list!');
           console.log(error);
         });

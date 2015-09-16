@@ -3,7 +3,12 @@
 		<st-heading title="{{'_POLICY_HEADER_TITLE_MAIN_' | translate}}" subtitle="{{'_INPUT_HEADER_TITLE_SECONDARY' | translate}}:"></st-heading>
 	</header>
 
-	<div class="c-panel">
+	<div class="c-row c-msg c-msg--small c-msg--error c-msg--bottom-margin" data-ng-if="policies.error" data-qa="manage-policies-error-msg">
+    	<i class="c-icon icon-circle-cross"></i>
+    	<span translate="{{policies.errorMessage}}"></span>
+  	</div>
+
+	<div class="c-panel" data-ng-if="policies.policiesData.list.length > 0">
 		<table class="c-table c-table--full-width">
 			<thead class="c-table__thead">
 			  	<tr>
