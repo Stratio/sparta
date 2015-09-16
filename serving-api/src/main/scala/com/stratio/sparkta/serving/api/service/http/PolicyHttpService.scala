@@ -52,6 +52,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiImplicitParam(name = "id",
       value = "id of the policy",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
@@ -81,6 +82,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiImplicitParam(name = "name",
       value = "name of the policy",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
@@ -110,10 +112,12 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiImplicitParam(name = "fragmentType",
       value = "type of fragment (input/output)",
       dataType = "string",
+      required = true,
       paramType = "path"),
     new ApiImplicitParam(name = "id",
       value = "id of the fragment",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
@@ -240,6 +244,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiImplicitParam(name = "id",
       value = "id of the policy",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
@@ -269,6 +274,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiImplicitParam(name = "id",
       value = "id of the policy",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
@@ -306,6 +312,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiImplicitParam(name = "id",
       value = "id of the policy",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
