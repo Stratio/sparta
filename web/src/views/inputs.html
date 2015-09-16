@@ -3,7 +3,12 @@
 		<st-heading title="{{'_INPUT_HEADER_TITLE_MAIN' | translate}}" subtitle="{{'_INPUT_HEADER_TITLE_SECONDARY' | translate}}:"></st-heading>
 	</header>
 
-	<div class="c-panel c-panel--fix-overflow">
+	<div class="c-row c-msg c-msg--small c-msg--error c-msg--bottom-margin" data-ng-if="inputs.error" data-qa="manage-policies-error-msg">
+    	<i class="c-icon icon-circle-cross"></i>
+    	<span translate="{{inputs.errorMessage}}"></span>
+  	</div>
+
+	<div class="c-panel c-panel--fix-overflow" data-ng-if="inputs.inputsData.length > 0">
 		<div class="c-toolbar c-form-group c-form-group--to-right">
 			<div class="c-col c-col--2 c-form-control">
 				<label class="c-label o-wcag-hidden" for="type">{{"_INPUT_FILTER_TYPE_" | translate}}:</label>
