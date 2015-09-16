@@ -15,7 +15,7 @@
 	<properties>
 		<nodeVer>v0.12.2</nodeVer>
 		<npmVer>2.7.4</npmVer>
-		<nodeURL>http://sodio.stratio.com/nexus/content/repositories/thirdparty/node</nodeURL>
+		<nodeURL>http://tools.stratio.com/buildtools</nodeURL>
 	</properties>
 
 	<build>
@@ -35,7 +35,7 @@
 							<nodeVersion>${nodeVer}</nodeVersion>
 							<npmVersion>${npmVer}</npmVersion>
 							<nodeDownloadRoot>${nodeURL}/node/</nodeDownloadRoot>
-							<npmDownloadRoot>${nodeURL}/npm/2.7.4/</npmDownloadRoot>
+							<npmDownloadRoot>${nodeURL}/npm/${npmVer}/</npmDownloadRoot>
 							<skip.installnodenpm>${skip.installnodenpm}</skip.installnodenpm>
 						</configuration>
 					</execution>
@@ -65,7 +65,7 @@
 						<goals>
 							<goal>bower</goal>
 						</goals>
-						<phase>generate-resources</phase>
+						<phase>process-sources</phase>
 						<configuration>
 							<arguments>install --allow-root</arguments>
               <skip.bower>${skip.bower}</skip.bower>
