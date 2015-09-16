@@ -16,6 +16,8 @@
     vm.policiesJsonData = {};
     vm.deletePolicy = deletePolicy;
     vm.runPolicy = runPolicy;
+    vm.error = true;
+    vm.errorMessage = '';
     init();
 
     /////////////////////////////////
@@ -28,8 +30,11 @@
       var policiesList = PolicyFactory.GetAllPolicies();
 
       policiesList.then(function (result) {
+        vm.error = false;
         vm.policiesData.list = result;
       },function (error) {
+        vm.error = true;
+        vm.errorMessage = "_INPUT_ERROR_" + error.data.i18nCode + "_";
         console.log('There was an error while loading the policies!');
         console.log(error);
       });
