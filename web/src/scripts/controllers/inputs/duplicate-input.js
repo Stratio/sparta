@@ -53,7 +53,7 @@
 
         function createfragment() {
             delete vm.fragmentData['id'];
-            var newFragment = FragmentFactory.CreateFragment(vm.fragmentData);
+            var newFragment = FragmentFactory.createFragment(vm.fragmentData);
 
             newFragment.then(function (result) {
                 $modalInstance.close(result);
