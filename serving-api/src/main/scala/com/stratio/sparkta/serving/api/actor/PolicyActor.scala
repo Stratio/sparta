@@ -46,7 +46,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
     case Update(policy) => update(policy)
     case Delete(id) => delete(id)
     case Find(id) => find(id)
-    case FindByName(name) => findByName(name.toLowerCase())
+    case FindByName(name) => findByName(name.toLowerCase)
     case FindAll() => findAll()
     case FindByFragment(fragmentType, id) => findByFragment(fragmentType, id)
   }
