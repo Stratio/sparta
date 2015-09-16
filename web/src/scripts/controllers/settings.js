@@ -74,7 +74,8 @@
               var test = {};
               angular.copy(policiesResult, test);
 
-              test.name = 'Policy - ' + inputList[i].name;
+              /*test.name = 'Policy - ' + inputList[i].name;*/
+              test.name = inputList[i].name;
               test.description = 'Test description - ' + inputList[i].name;
               test.fragments.push(inputList[i]);
               test.fragments.push(outputList[0]);

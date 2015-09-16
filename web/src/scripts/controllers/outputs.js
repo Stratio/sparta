@@ -40,6 +40,7 @@
       };
 
       function getOutputTypes(outputs) {
+        vm.outputTypes = [];
         for (var i=0; i<outputs.length; i++) {
             var newType = false;
             var type    = outputs[i].element.type;
@@ -156,6 +157,8 @@
 
         modalInstance.result.then(function (newOutputData) {
           vm.outputsData.push(newOutputData);
+          getOutputTypes(vm.outputsData);
+
         }, function () {
         });
       };
@@ -181,6 +184,7 @@
 
         modalInstance.result.then(function (updatedOutputData) {
           vm.outputsData[updatedOutputData.index] = updatedOutputData.data;
+          getOutputTypes(vm.outputsData);
 
         },function () {
                 });
@@ -204,6 +208,7 @@
 
         modalInstance.result.then(function (selectedItem) {
           vm.outputsData.splice(selectedItem.index, 1);
+          getOutputTypes(vm.outputsData);
         },function () {
         });
       };
@@ -223,6 +228,7 @@
 
         modalInstance.result.then(function (newOutput) {
           vm.outputsData.push(newOutput);
+          getOutputTypes(vm.outputsData);
 
         },function () {
         });
