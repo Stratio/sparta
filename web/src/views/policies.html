@@ -27,7 +27,7 @@
 				<tr class="c-table__tr" data-ng-repeat="policyData in policies.policiesData.list">
 					<td class="c-table__td c-table__td--no-wrap c-col--3">{{policyData.policy.name}}</td>
 					<td class="c-table__td">{{policyData.policy.description}}</td>
-					<td class="c-table__td c-col--1 c-table__td--to-right">{{policyData.status}}</td>
+					<td class="c-table__td c-col--1 c-table__td--to-right"><span class="c-policy-status-badge c-policy-status-badge--small c-policy-status-badge--{{policyData.status | lowercase}}">{{policyData.status}}</span></td>
 					<td class="c-table__td c-table__td--no-wrap c-table__td--to-right c-col--1">
 						<i class="c-icon c-icon--is-clickable c-icon--call-to-action icon-actions" data-ng-click="$root.stToggleFloatingMenu[policyData.policy.id]()" data-qa="input-context-menu-{{policyData.policy.id}}">
 							<st-floating-menu toggle-id="{{policyData.policy.id}}" align="right">
