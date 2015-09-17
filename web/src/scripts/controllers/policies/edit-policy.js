@@ -17,7 +17,7 @@
     function init() {
       var defer = $q.defer();
       var id = $stateParams.id;
-      vm.steps = PolicyStaticDataFactory.steps;
+      vm.steps = PolicyStaticDataFactory.getSteps();
       vm.status = PolicyModelFactory.getProcessStatus();
       vm.successfullySentPolicy = false;
       vm.error = null;
