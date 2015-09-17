@@ -5,7 +5,7 @@
 	</div>
 
 	<div class="c-modal-inner">
-		<form class="c-form" name="vm.form" novalidate>
+		<form class="c-form" name="vm.form" novalidate data-ng-if="vm.policiesRunning.length === 0">
 
 			<form-field-input id="dataSourceName" data-model="vm.dataSource.name" data-label="{{'_NAME_' | translate}}" data-form="vm.form" data-st-name="dataSourceNameForm" data-required="true" data-autofocus="true" data-pattern="'\\S+'" data-placeholder='{{"_FRAGMENT_WINDOW_PLACEHOLDER_NAME_" | translate}}' data-qa="fragment-detail-name" data-help='{{"_NAME_HELP_" | translate}}' data-help-qa="fragment-detail-name-help"></form-field-input>
 
@@ -27,7 +27,7 @@
 				<p translate="{{vm.modalTexts.secondaryText2}}"></p>
 
 				<ul class="c-list c-list--dashed">
-					<li data-ng-repeat="item in vm.policiesAffected" data-qa="fragment-details-policies-affected-{{item.id}}">- {{item.name}}</li>
+					<li data-ng-repeat="item in vm.policiesAffected" data-qa="fragment-details-policies-affected-{{item.policy.id}}">- {{item.policy.name}}</li>
 				</ul>
 			</div>
 
@@ -51,5 +51,29 @@
 				</div>
 			</div>
 		</form>
+
+		<div data-ng-if="vm.policiesRunning.length > 0">
+			<div class="c-row c-row--separated" data-qa="fragment-details-policies-affected">
+				<p class="c-modal-inner__title" translate="{{vm.modalTexts.policyRunningMain}}"></p>
+				<p translate="{{vm.modalTexts.policyRunningSecondary}}"></p>
+				<p translate="{{vm.modalTexts.policyRunningSecondary2}}"></p>
+
+				<ul class="c-list c-list--dashed">
+					<li data-ng-repeat="item in vm.policiesRunning" data-qa="fragment-details-policies-running-{{item.name}}">- {{item.name}}</li>
+				</ul>
+			</div>
+
+			<div class="c-row c-row--separated">
+				<div class="c-col c-col--6 c-col--vertical-centered">
+						<a data-ng-href="{{vm.templateFragmentsData[vm.selectedIndex].description.learnMore}}" class="c-info-text c-info-text--is-clickable" target="_blank" data-qa="fragment-detail-type-{{vm.dataSource.element.type | lowercase}}-help"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text c-info-text__text--is-link">{{"_INPUT_WINDOW_NEW_HELP_" | translate}}</span></a>
+				</div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
+					<button class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()" data-qa="modal-cancel-button">
+						<i class="c-icon icon-circle-cross"></i>
+						<span translate="_INPUT_BUTTON_CANCEL_"></span>
+					</button>
+				</div>
+			</div>
+		</div>
+
 	</div>
 </aside>

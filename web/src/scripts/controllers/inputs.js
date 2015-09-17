@@ -82,7 +82,10 @@
                   'title': '_INPUT_WINDOW_MODIFY_TITLE_',
                   'button': '_INPUT_WINDOW_MODIFY_BUTTON_',
                   'button_icon': 'icon-circle-check',
-                  'secondaryText2': '_INPUT_WINDOW_EDIT_MESSAGE2_'
+                  'secondaryText2': '_INPUT_WINDOW_EDIT_MESSAGE2_',
+                  'policyRunningMain': '_INPUT_CANNOT_BE_DELETED_',
+                  'policyRunningSecondary': '_INTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
+                  'policyRunningSecondary2': '_INTPUT_WINDOW_POLICY_RUNNING_MESSAGE2_'
               }
           };
 
@@ -99,7 +102,10 @@
               'title': '_INPUT_WINDOW_DELETE_TITLE_',
               'mainText': '_ARE_YOU_COMPLETELY_SURE_',
               'secondaryText1': '_INPUT_WINDOW_DELETE_MESSAGE_',
-              'secondaryText2': '_INPUT_WINDOW_DELETE_MESSAGE2_'
+              'secondaryText2': '_INPUT_WINDOW_DELETE_MESSAGE2_',
+              'policyRunningMain': '_INPUT_CANNOT_BE_DELETED_',
+              'policyRunningSecondary': '_INTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
+              'policyRunningSecondary2': '_INTPUT_WINDOW_DELETE_POLICY_RUNNING_MESSAGE2_'
             }
           };
           vm.deleteInputConfirm('lg', inputToDelete);

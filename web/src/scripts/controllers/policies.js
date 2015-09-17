@@ -35,8 +35,12 @@
         vm.error = false;
         vm.policiesData.list = result;
       },function (error) {
-        vm.error = true;
-        vm.errorMessage = "_INPUT_ERROR_" + error.data.i18nCode + "_";
+        $translate('_INPUT_ERROR_' + error.data.i18nCode + '_').then(function(value){
+            console.log(error);
+            vm.error = true;
+            vm.success = false;
+            vm.successMessage = value;
+          });
       });
     };
 
@@ -50,7 +54,6 @@
     };
 
     function runPolicy(policyId, policyStatus, policyName) {
-      policyStatus = 'notstartedsdf';
       if (policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed') {
         var policyRunning = PolicyFactory.RunPolicy(policyId);
 
@@ -62,10 +65,13 @@
           });
 
         },function (error) {
-          vm.error = true;
-          vm.success = false;
-          vm.errorMessage = "_INPUT_ERROR_" + error.data.i18nCode + "_";
-          /*vm.errorMessageExtended = error.message*/
+          $translate('_INPUT_ERROR_' + error.data.i18nCode + '_').then(function(value){
+            console.log(error);
+            vm.error = true;
+            vm.success = false;
+            vm.errorMessage = value;
+            vm.errorMessageExtended = 'Error: ' + error.data.message;
+          });
         });
       }
       else {
