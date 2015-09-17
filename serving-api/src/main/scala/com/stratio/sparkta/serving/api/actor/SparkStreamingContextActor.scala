@@ -31,12 +31,15 @@ import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder, SparktaConfig}
 import org.json4s.jackson.Serialization.{read, write}
 
+import scala.collection.JavaConversions
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
 class SparkStreamingContextActor(streamingContextService: StreamingContextService,
                                  policyStatusActor: ActorRef) extends InstrumentedActor with SparktaSerializer {
+
+  val curatorFramework = CuratorFactoryHolder.getInstance()
 
   val SparkStreamingContextActorPrefix: String = "sparkStreamingContextActor"
 
@@ -86,17 +89,36 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
    */
   private def create(policy: AggregationPoliciesModel): Try[Unit] = {
     Try(
+
       if (policy.id.isDefined)
         launch(policy)
       else {
+        if (existsByName(policy.name)) throw new Exception(s"${policy.name} already exists")
         launchNewPolicy(policy)
       }
     )
   }
 
-
+  def existsByName(name: String, id: Option[String] = None): Boolean = {
+    val nameToComare =name.toLowerCase
+    Try({
+      val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
+      JavaConversions.asScalaBuffer(children).toList.map(element =>
+        read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
+          s"${AppConstant.PoliciesBasePath}/$element"))))
+        .filter(policy => if (id.isDefined) policy.name == nameToComare && policy.id.get != id.get
+      else policy.name == nameToComare).toSeq.nonEmpty
+    }) match {
+      case Success(result) => result
+      case Failure(exception) => {
+        log.error(exception.getLocalizedMessage, exception)
+        false
+      }
+    }
+  }
   def launchNewPolicy(policy: AggregationPoliciesModel): Unit = {
     val policyWithIdModel = policyWithId(policy)
+
     policyStatusActor ? Update(PolicyStatusModel(policyWithIdModel.id.get, PolicyStatusEnum.Launched))
     getStreamingContextActor(policyWithIdModel) match {
       case Some(streamingContextActor) => {
@@ -121,7 +143,7 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
 
   // XXX Private Methods.
   private def savePolicyInZk(policy: AggregationPoliciesModel): Unit = {
-    val curatorFramework = CuratorFactoryHolder.getInstance()
+
 
     Try({
       read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.forPath(
