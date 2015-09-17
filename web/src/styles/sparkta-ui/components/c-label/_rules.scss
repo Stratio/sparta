@@ -8,6 +8,7 @@
 	}
 
 	@at-root .c-form & {
+		display: inline-block;
 		margin: $c-form__c-label---margin;
 	}
 }

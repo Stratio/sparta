@@ -61,9 +61,9 @@
         </ul>
     </div>
 
-    <div class="c-panel c-panel--framed" data-ng-if="outputs.outputsData.length === 0" data-ng-click="outputs.createOutput()" data-qa="output-first-message">
-        <i class="icon-marquee-plus"></i>
-        <span>{{"_OUTPUT_CREATE_FIRST_ONE_" | translate}}</span>
+    <div class="c-msg--noitems c-msg--giant" data-ng-if="outputs.outputsData.length === 0" data-ng-click="outputs.createOutput()" data-qa="output-first-message">
+        <i class="c-icon icon-marquee-plus"></i>
+        <span class="c-msg__text">{{"_OUTPUT_CREATE_FIRST_ONE_" | translate}}</span>
     </div>
 
     <hr class="c-line-separator" />

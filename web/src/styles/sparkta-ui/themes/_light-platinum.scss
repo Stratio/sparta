@@ -371,13 +371,20 @@ $c-icon-radio__icon---padding: .4em;
 
 
 // c-msg
+$c-msg--small---font-size: get-font-size(medium);
 $c-msg--small---padding: 5px 10px;
+
+$c-msg--giant---font-size: get-font-size(xxxlarge);
+$c-msg--giant---padding: 150px 10px;
 
 $c-msg--error---background: get-color(e3);
 $c-msg--error---color: get-color(g0);
 
-$c-msg--success---background: get-color(e1) !default;
-$c-msg--success---color: get-color(g0) !default;
+$c-msg--success---background: get-color(e1);
+$c-msg--success---color: get-color(g0);
+
+$c-msg--noitems---background: transparent;
+$c-msg--noitems---color: get-color(g4);
 
 $c-msg__c-icon---margin: $c-icon-default-margin;
 
@@ -501,7 +508,7 @@ $c-accordion-header__step-number---width: 47px;
 $c-accordion-header__step-number---height: $c-accordion-header__step-number---width;
 $c-accordion-header__step-number---padding: 7px 0 0;
 
-$c-accordion-header__step-number---background: get-color(c1b);
+$c-accordion-header__step-number---background: get-color(c1);
 $c-accordion-header__step-number---color: get-color(g0);
 
 $c-accordion__type---font-size: get-font-size(large);
@@ -513,7 +520,7 @@ $c-accordion__open-mark---rotation: 90deg;
 $c-accordion-item--new---background: get-color(c5);
 $c-accordion-item--new---color: get-color(g9);
 
-$c-accordion-header--new__step-number---background: get-color(c1);
+$c-accordion-header--new__step-number---background: get-color(c1b);
 $c-accordion-header--new__step-number---color: get-color(g0);
 
 
