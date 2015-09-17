@@ -308,7 +308,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
               val a:Future[Any]=actors.get(AkkaConstant.SparkStreamingContextActor).get ? new SparkStreamingContextActor.Create(parsedP)
               val error=  Await.result(a,timeout.duration) match {
                 case Failure(ex)=>Some(ex)
-                case Success => None
+                case Success(_) => None
               }
               complete {
                 error match {
