@@ -146,14 +146,15 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
       ))
     })
 
-  private def existsByName(name: String, id: Option[String] = None): Boolean = {
+   def existsByName(name: String, id: Option[String] = None): Boolean = {
+    val nameToCompare =name.toLowerCase
     Try({
       val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
       JavaConversions.asScalaBuffer(children).toList.map(element =>
         read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
           s"${AppConstant.PoliciesBasePath}/$element"))))
-        .filter(policy => if (id.isDefined) policy.name == name && policy.id.get != id.get
-      else policy.name == name).toSeq.nonEmpty
+        .filter(policy => if (id.isDefined) policy.name == nameToCompare && policy.id.get != id.get
+      else policy.name == nameToCompare).toSeq.nonEmpty
     }) match {
       case Success(result) => result
       case Failure(exception) => {

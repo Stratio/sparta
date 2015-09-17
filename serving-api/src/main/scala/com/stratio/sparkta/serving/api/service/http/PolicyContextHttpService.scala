@@ -18,6 +18,7 @@ package com.stratio.sparkta.serving.api.service.http
 
 import akka.pattern.ask
 import com.stratio.sparkta.driver.constants.AkkaConstant
+import com.stratio.sparkta.serving.api.actor.PolicyActor.ResponsePolicy
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.api.helpers.PolicyHelper
@@ -111,13 +112,18 @@ trait PolicyContextHttpService extends BaseHttpService {
     path(HttpConstant.PolicyContextPath) {
       post {
         entity(as[AggregationPoliciesModel]) { p =>
+
           val parsedP = PolicyHelper.parseFragments(
             PolicyHelper.fillFragments(p, actors.get(AkkaConstant.FragmentActor).get, timeout))
+
           val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
           validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
             complete {
-              supervisor ! new Create(parsedP)
-              new Result("Creating new context with name " + p.name)
+              val response = supervisor ? new Create(parsedP)
+              Await.result(response,timeout.duration) match {
+                case Failure(ex) => throw ex
+                case Success(policy) => new Result("Creating new context with name " + p.name)
+              }
             }
           }
         }
