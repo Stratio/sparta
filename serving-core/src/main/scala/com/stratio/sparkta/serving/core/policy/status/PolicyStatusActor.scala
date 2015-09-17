@@ -30,6 +30,7 @@ import scala.util.{Failure, Success, Try}
 class PolicyStatusActor extends Actor with SLF4JLogging with SparktaSerializer {
 
   override def receive: Receive = {
+    case Create(policyStatus) => sender ! create(policyStatus)
     case Update(policyStatus) => sender ! update(policyStatus)
     case FindAll => findAll
     case AddListener(name, callback) => addListener(name, callback)
@@ -49,6 +50,36 @@ class PolicyStatusActor extends Actor with SLF4JLogging with SparktaSerializer {
       Some(policyStatus)
     } else None
   }
+
+  def create(policyStatus: PolicyStatusModel): Option[PolicyStatusModel] = {
+    val curator = CuratorFactoryHolder.getInstance()
+    val path = s"${AppConstant.ContextPath}/${policyStatus.id}"
+
+    if (Option(curator.checkExists().forPath(path)).isDefined) {
+      val ips =
+        read[PolicyStatusModel](new String(curator.getData.forPath(s"${AppConstant.ContextPath}/${policyStatus.id}")))
+      log.info(s">> Updating context ${policyStatus.id} : <${ips.status}> to <${policyStatus.status}>")
+      //validate(Some(ips.status), policyStatus.status)
+      curator.setData().forPath(path, write(policyStatus).getBytes)
+      Some(policyStatus)
+    } else {
+      log.info(s">> Creating policy context |${policyStatus.id}| to <${policyStatus.status}>")
+      validate(None, policyStatus.status)
+      curator.create.creatingParentsIfNeeded.forPath(path, write(policyStatus).getBytes)
+      Some(policyStatus)
+    }
+  }
+
+  def setNotStartedStatus(policyStatus : PolicyStatusModel): Option[PolicyStatusModel] = {
+    val curator = CuratorFactoryHolder.getInstance()
+    val path = s"${AppConstant.ContextPath}/${policyStatus.id}"
+
+    log.info(s">> Creating policy context |${policyStatus.id}| to <${policyStatus.status}>")
+    validate(None, policyStatus.status)
+    curator.create.creatingParentsIfNeeded.forPath(path, write(policyStatus).getBytes)
+    Some(policyStatus)
+  }
+
 
   def findAll(): Unit = {
     sender ! Response(Try({
@@ -88,6 +119,8 @@ object PolicyStatusActor {
 
   case class Update(policyStatus: PolicyStatusModel)
 
+  case class Create(policyStatus: PolicyStatusModel)
+
   case class AddListener(name: String, callback: (PolicyStatusModel, NodeCache) => Unit)
 
   case object FindAll
@@ -98,13 +131,15 @@ object PolicyStatusActor {
    * This map represents the state machine of one context.
    */
   val StateMachine: Map[Option[PolicyStatusEnum.Value], Seq[PolicyStatusEnum.Value]] = Map(
-    None -> Seq(PolicyStatusEnum.Launched, PolicyStatusEnum.Failed),
+    None -> Seq(PolicyStatusEnum.NotStarted),
+    Some(PolicyStatusEnum.NotStarted) -> Seq(PolicyStatusEnum.Launched, PolicyStatusEnum.Failed),
     Some(PolicyStatusEnum.Launched) -> Seq(PolicyStatusEnum.Starting, PolicyStatusEnum.Failed),
     Some(PolicyStatusEnum.Starting) -> Seq(PolicyStatusEnum.Started, PolicyStatusEnum.Failed),
     Some(PolicyStatusEnum.Started) -> Seq(PolicyStatusEnum.Stopping, PolicyStatusEnum.Failed),
     Some(PolicyStatusEnum.Stopping) -> Seq(PolicyStatusEnum.Stopped, PolicyStatusEnum.Failed),
     Some(PolicyStatusEnum.Stopped) -> Seq(PolicyStatusEnum.Launched, PolicyStatusEnum.Failed),
     Some(PolicyStatusEnum.Failed) -> Seq(PolicyStatusEnum.Launched)
+
   )
 
   /**
