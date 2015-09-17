@@ -98,7 +98,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
     })
 
   def associateStatus(model: AggregationPoliciesModel): Unit = {
-    policyStatusActor ! PolicyStatusActor.Update(PolicyStatusModel(model.id.get, PolicyStatusEnum.NotStarted))
+    policyStatusActor ! PolicyStatusActor.Create(PolicyStatusModel(model.id.get, PolicyStatusEnum.NotStarted))
   }
 
   def create(policy: AggregationPoliciesModel): Unit =

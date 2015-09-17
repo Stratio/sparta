@@ -18,8 +18,7 @@
       "port": "5672",
       "exchangeName": "twitterExchange",
       "routingKeys": [{"routingKey": "routingKey1"},{"routingKey": "routingKey2"}]
-    },
-    "jarFile": "input-twitter-plugin.jar"
+    }
   }
 ,
   "transformations": [
@@ -27,7 +26,6 @@
       "name": "morphline",
       "order": 0,
       "type": "Morphlines",
-      "jarFile": "parser-morphlines-plugin.jar",
       "outputFields": [
         "appName",
         "timestamp",
@@ -73,15 +71,13 @@
       "dimensions": [
         {
           "field": "appName",
-          "name": "appName",
-          "jarFile": "field-default-plugin.jar"
+          "name": "appName"
         }
       ],
       "operators": [
         {
           "name": "countoperator",
           "type": "Count",
-          "jarFile": "operator-count-plugin.jar",
           "configuration": {}
         }
       ]
@@ -91,7 +87,6 @@
     {
       "name": "out-print",
       "type": "Print",
-      "jarFile": "output-print-plugin.jar",
       "configuration": {}
     }
   ]

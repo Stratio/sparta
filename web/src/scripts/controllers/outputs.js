@@ -102,7 +102,10 @@
                 'title': '_OUTPUT_WINDOW_MODIFY_TITLE_',
                 'button': '_OUTPUT_WINDOW_MODIFY_BUTTON_',
                 'button_icon': 'icon-circle-check',
-                'secondaryText2': '_OUTPUT_WINDOW_EDIT_MESSAGE2_'
+                'secondaryText2': '_OUTPUT_WINDOW_EDIT_MESSAGE2_',
+                'policyRunningMain': '_OUTPUT_CANNOT_BE_DELETED_',
+                'policyRunningSecondary': '_OUTTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
+                'policyRunningSecondary2': '_OUTTPUT_WINDOW_POLICY_RUNNING_MESSAGE2_'
             }
         };
 
@@ -120,7 +123,10 @@
             'mainText': '_OUTPUT_CANNOT_BE_DELETED_',
             'mainTextOK': '_ARE_YOU_COMPLETELY_SURE_',
             'secondaryText1': '_OUTPUT_WINDOW_DELETE_MESSAGE_',
-            'secondaryText2': '_OUTPUT_WINDOW_DELETE_MESSAGE2_'
+            'secondaryText2': '_OUTPUT_WINDOW_DELETE_MESSAGE2_',
+            'policyRunningMain': '_OUTPUT_CANNOT_BE_DELETED_',
+            'policyRunningSecondary': '_OUTTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
+            'policyRunningSecondary2': '_OUTTPUT_WINDOW_DELETE_POLICY_RUNNING_MESSAGE2_'
           }
         };
         deleteOutputConfirm('lg', outputToDelete);

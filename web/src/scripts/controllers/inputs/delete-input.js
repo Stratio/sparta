@@ -15,16 +15,28 @@
         vm.ok = ok;
         vm.cancel = cancel;
         vm.error = false;
+        vm.policiesRunning = [];
 
         init();
 
         ///////////////////////////////////////
 
         function init () {
+            setPoliciesRunning(policiesAffected);
+
             vm.outputs = item;
             vm.outputs.policies = policiesAffected;
 
             setTexts(item.texts);
+        };
+
+        function setPoliciesRunning(policiesList) {
+          for (var i=0; i < policiesList.length; i++) {
+            if (policiesList[i].status !== 'NotStarted' && policiesList[i].status !== 'Stoped' && policiesList[i].status !== 'Failed') {
+              var policy = {'name':policiesList[i].policy.name}
+              vm.policiesRunning.push(policy);
+            }
+          }
         };
 
         function setTexts(texts) {
@@ -32,6 +44,10 @@
           vm.modalTexts.title = texts.title;
           vm.modalTexts.secondaryText1 = texts.secondaryText1;
           vm.modalTexts.secondaryText2 = texts.secondaryText2;
+          vm.modalTexts.policyRunningMain = texts.policyRunningMain;
+          vm.modalTexts.policyRunningSecondary = texts.policyRunningSecondary;
+          vm.modalTexts.policyRunningSecondary2 = texts.policyRunningSecondary2;
+
           if (vm.outputs.type === 'output') {
             vm.modalTexts.mainText = (vm.outputs.policies.length > 0)? texts.mainText : texts.mainTextOK;
           }

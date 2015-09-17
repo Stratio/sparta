@@ -64,7 +64,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
         s"${FragmentActor.generateFragmentPath(fragmentType)}/$id")))
     }).recover {
       case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId, s"No fragmentel of type ${fragmentType} with id ${id}.")
+        new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId, s"No fragment of type ${fragmentType} with id ${id}.")
       ))
     })
 
@@ -79,6 +79,10 @@ class FragmentActor(curatorFramework: CuratorFramework)
       case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsFragmentWithName,
           s"No fragment of type ${fragmentType} with name ${name}.")
+      ))
+      case e: NoSuchElementException => throw new ServingApiException(ErrorModel.toString(
+        new ErrorModel(ErrorModel.CodeNotExistsPolicytWithName,
+          s"No fragment of type ${fragmentType} with name ${name}")
       ))
     })
 
