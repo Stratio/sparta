@@ -15,7 +15,8 @@
       cube.dimensions = [];
       cube.operators = [];
       cube.checkpointConfig = {};
-      cube.checkpointConfig.timeDimension = "";
+      cube.checkpointConfig.timeDimension = CubeStaticDataFactory.getDefaultTimeDimension();
+      cube.checkpointConfig.interval = CubeStaticDataFactory.getDefaultInterval();
       cube.checkpointConfig.interval = CubeStaticDataFactory.getDefaultInterval();
       cube.checkpointConfig.timeAvailability = CubeStaticDataFactory.getDefaultTimeAvailability();
       cube.checkpointConfig.granularity = CubeStaticDataFactory.getDefaultGranularity();

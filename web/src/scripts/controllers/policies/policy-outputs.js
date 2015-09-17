@@ -20,7 +20,7 @@
     function init() {
       var defer = $q.defer();
 
-      vm.helpLink = PolicyStaticDataFactory.helpLinks.outputs;
+      vm.helpLink = PolicyStaticDataFactory.getHelpLinks().outputs;
       vm.formSubmmited = false;
       vm.error = false;
       vm.outputList = [];
