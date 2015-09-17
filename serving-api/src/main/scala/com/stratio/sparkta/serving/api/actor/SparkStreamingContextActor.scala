@@ -57,6 +57,7 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
     val future = policyStatusActor ? FindAll
     val models = Await.result(future, timeout.duration) match {
       case Response(Success(s)) => s.filter(s=>s.id==policy.id.get)
+      case Response(Failure(ex)) => throw ex
     }
     models.asInstanceOf[Seq[PolicyStatusModel]].exists(p => p.status match {
       case PolicyStatusEnum.Launched => false
