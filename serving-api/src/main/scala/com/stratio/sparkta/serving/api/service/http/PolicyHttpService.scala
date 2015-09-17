@@ -20,6 +20,7 @@ import java.io.File
 import javax.ws.rs.Path
 
 import akka.pattern.ask
+import akka.util.Timeout
 import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor
@@ -33,7 +34,7 @@ import spray.http.HttpHeaders.`Content-Disposition`
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
 
-import scala.concurrent.Await
+import scala.concurrent.{Future, Await}
 import scala.util.{Failure, Success}
 
 @Api(value = HttpConstant.PolicyPath, description = "Operations over policies.")
@@ -286,9 +287,17 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
               PolicyHelper.fillFragments(policy, actors.get(AkkaConstant.FragmentActor).get, timeout))
             val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
             validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-              actors.get(AkkaConstant.SparkStreamingContextActor).get ! new SparkStreamingContextActor.Create(parsedP)
+              val a:Future[Any]=actors.get(AkkaConstant.SparkStreamingContextActor).get ? new SparkStreamingContextActor.Create(parsedP)
+              val error=  Await.result(a,timeout.duration) match {
+                case Failure(ex)=>Some(ex)
+                case Success => None
+              }
               complete {
-                new Result("Creating new context with name " + policy.name)
+                error match {
+                  case Some(ex:Throwable)=> throw ex
+                  case None =>new Result("Creating new context with name " + policy.name)
+                }
+
               }
             }
           }
