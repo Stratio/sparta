@@ -22,7 +22,7 @@ import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.serving.api.actor.FragmentActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
-import com.stratio.sparkta.serving.core.AppConstant
+import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, AppConstant}
 import com.stratio.sparkta.serving.core.models.{ErrorModel, FragmentElementModel, SparktaSerializer}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
@@ -134,11 +134,11 @@ class FragmentActor(curatorFramework: CuratorFramework)
 
   private def existsByTypeAndName(fragmentType: String, name: String, id: Option[String] = None): Boolean = {
     Try({
-      val path = FragmentActor.generateFragmentPath(fragmentType)
-      if(Option(curatorFramework.checkExists().forPath(path)).isDefined) {
+      val fragmentPath = FragmentActor.generateFragmentPath(fragmentType)
+      if(CuratorFactoryHolder.existsPath(fragmentPath)) {
         val children = curatorFramework.getChildren.forPath(FragmentActor.generateFragmentPath(fragmentType))
         JavaConversions.asScalaBuffer(children).toList.map(element =>
-          read[FragmentElementModel](new String(curatorFramework.getData.forPath(s"$path/$element"))))
+          read[FragmentElementModel](new String(curatorFramework.getData.forPath(s"$fragmentPath/$element"))))
           .filter(fragment => {
           if (id.isDefined) fragment.name == name && fragment.id.get != id.get
           else fragment.name == name

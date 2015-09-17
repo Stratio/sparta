@@ -23,7 +23,7 @@ import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
-import com.stratio.sparkta.serving.core.AppConstant
+import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, AppConstant}
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 import org.apache.curator.framework.CuratorFramework
@@ -148,9 +148,9 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
    def existsByName(name: String, id: Option[String] = None): Boolean = {
     val nameToCompare =name.toLowerCase
     Try({
-      val path = s"${AppConstant.PoliciesBasePath}"
-      if (Option(curatorFramework.checkExists().forPath(path)).isDefined) {
-        val children = curatorFramework.getChildren.forPath(path)
+      val basePath = s"${AppConstant.PoliciesBasePath}"
+      if (CuratorFactoryHolder.existsPath(basePath)) {
+        val children = curatorFramework.getChildren.forPath(basePath)
         JavaConversions.asScalaBuffer(children).toList.map(element =>
           read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(s"$path/$element"))))
           .filter(policy => if (id.isDefined) policy.name == nameToCompare && policy.id.get != id.get
