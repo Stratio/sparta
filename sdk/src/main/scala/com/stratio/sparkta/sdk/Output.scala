@@ -208,6 +208,7 @@ object Output {
     dateTimeType match {
       case TypeOp.Date | TypeOp.DateTime => defaultDateField(fieldName, nullable)
       case TypeOp.Timestamp => defaultTimeStampField(fieldName, nullable)
+      case TypeOp.Long => defaultLongField(fieldName, nullable)
       case TypeOp.String => defaultStringField(fieldName, nullable)
       case _ => defaultStringField(fieldName, nullable)
     }
@@ -223,4 +224,7 @@ object Output {
 
   def defaultGeoField(fieldName: String, nullable: Boolean): StructField =
     StructField(fieldName, ArrayType(DoubleType), nullable)
+
+  def defaultLongField(fieldName: String, nullable: Boolean): StructField =
+    StructField(fieldName, LongType, nullable)
 }
