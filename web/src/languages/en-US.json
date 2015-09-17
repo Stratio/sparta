@@ -214,5 +214,7 @@
   "_INPUT_CREATE_FIRST_ONE_": "Click here to create your first input!",
   "_OUTPUT_CREATE_FIRST_ONE_": "Click here to create your first output!",
   "_POLICY_CREATE_FIRST_ONE_": "Click here to create your first policy!",
-  "_STATUS_": "Status"
+  "_STATUS_": "Status",
+  "_RUN_POLICY_OK_": "The policy '{{policyName}}' is running!",
+  "_RUN_POLICY_KO_": "The policy '{{policyName}}' is already running! Please stop it and try again later."
 }
