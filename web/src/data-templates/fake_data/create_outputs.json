@@ -18,7 +18,7 @@
     },
     "fragmentType": "output",
     "shortDescription": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-    "name": "test output cassandra"
+    "name": "test_output_cassandra"
   },
   {
     "description": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
@@ -33,7 +33,7 @@
     },
     "fragmentType": "output",
     "shortDescription": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-    "name": "test output redis"
+    "name": "test_output_redis"
   },
   {
     "description": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
@@ -48,7 +48,7 @@
     },
     "fragmentType": "output",
     "shortDescription": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-    "name": "test output elasticsearch"
+    "name": "test_output_elasticsearch"
   },
   {
     "description": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling.",
@@ -67,7 +67,7 @@
     },
     "fragmentType": "output",
     "shortDescription": "MongoDB is an open-source document database, and the leading NoSQL database.",
-    "name": "test output mongodb"
+    "name": "test_output_mongodb"
   },
   {
     "description": "Parquet's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
@@ -80,7 +80,7 @@
     },
     "fragmentType": "output",
     "shortDescription": "Parquet's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-    "name": "test output parquet"
+    "name": "test_output_parquet"
   },
   {
     "description": "",
@@ -95,7 +95,7 @@
     },
     "fragmentType": "output",
     "shortDescription": "",
-    "name": "test output csv"
+    "name": "test_output_csv"
   },
   {
     "description": "Print's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
@@ -106,6 +106,6 @@
     },
     "fragmentType": "output",
     "shortDescription": "Print's output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
-    "name": "test output print"
+    "name": "test_output_print"
   }
 ]

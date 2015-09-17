@@ -7,21 +7,21 @@
 	<div class="c-modal-inner">
 		<form class="c-form" name="vm.form" novalidate>
 
-			<form-field-input id="dataSourceName" data-model="vm.dataSource.name" data-label="{{'_NAME_' | translate}}" data-form="vm.form" data-st-name="dataSourceNameForm" data-required="true" data-autofocus="true" data-placeholder='{{"_FRAGMENT_WINDOW_PLACEHOLDER_NAME_" | translate}}' data-qa="fragment-detail-name"></form-field-input>
+			<form-field-input id="dataSourceName" data-model="vm.dataSource.name" data-label="{{'_NAME_' | translate}}" data-form="vm.form" data-st-name="dataSourceNameForm" data-required="true" data-autofocus="true" data-pattern="'\\S+'" data-placeholder='{{"_FRAGMENT_WINDOW_PLACEHOLDER_NAME_" | translate}}' data-qa="fragment-detail-name" data-help='{{"_NAME_HELP_" | translate}}' data-help-qa="fragment-detail-name-help"></form-field-input>
 
 			<ng-form name="dataSourceTypeForm" class="c-form-group">
 				<div class="c-form-control c-form-control--full-width c-icon-radio">
 					<label class="c-col c-col--12 c-label c-icon-radio__label" title="{{'_TYPE_' | translate}}:" for="dataSourceType">{{"_INPUT_WINDOW_FORM_TYPE_" | translate}}</label>
 					<label data-ng-repeat="fragmentData in vm.templateFragmentsData">
-						<input class="c-icon-radio__item" id="type-{{fragmentData.name | lowercase}}" type="radio" name="dataSourceTypeForm" data-ng-model="vm.dataSource.element.type" value="{{fragmentData.name}}" data-ng-click="vm.setProperties($index, fragmentData.name)" data-qa="fragment-detail-type-{{fragmentData.name | lowercase}}">
-							<label class="c-icon-radio__label" for="type-{{fragmentData.name | lowercase}}"><i class="c-icon c-icon--large c-icon-radio__icon icon-{{fragmentData.modelType | lowercase}}" tooltip="{{fragmentData.name | lowercase}}" tooltip-placement="top" tooltip-class="t-tooltip"></i></label>
+						<input class="c-icon-radio__item" id="type-{{fragmentData.name | lowercase}}" type="radio" name="dataSourceTypeForm" data-ng-model="vm.dataSource.element.type" value="{{fragmentData.name}}" data-ng-click="vm.setProperties($index, fragmentData.name)">
+							<label class="c-icon-radio__label" for="type-{{fragmentData.name | lowercase}}" data-qa="fragment-detail-type-{{fragmentData.name | lowercase}}"><i class="c-icon c-icon--large c-icon-radio__icon icon-{{fragmentData.modelType | lowercase}}" tooltip="{{fragmentData.name | lowercase}}" tooltip-placement="top" tooltip-class="t-tooltip"></i></label>
 					</label>
 				</div>
 			</ng-form>
 
 			<datasource-form-field ng-repeat="item in vm.templateFragmentsData[vm.selectedIndex].properties" ng-form-id="{{item.propertyId}}"  data-field="item" data-model="vm.dataSource.element.configuration" data-form="vm.form" data-st-name="dataSource{{item.propertyName}}Form" data-ng-if="item.propertyId !== 'name'" data-qa="{{item.qa}}"></datasource-form-field>
 
-			<div class="c-row c-row--separated" data-ng-if="vm.policiesAffected.length > 0">
+			<div class="c-row c-row--separated" data-ng-if="vm.policiesAffected.length > 0" data-qa="fragment-details-policies-affected">
 				<p class="c-modal-inner__title">{{"_ARE_YOU_COMPLETELY_SURE_" | translate}}</p>
 				<p>{{"_FRAGMENT_WINDOW_EDIT_MESSAGE_" | translate}}</p>
 				<p translate="{{vm.modalTexts.secondaryText2}}"></p>
@@ -38,7 +38,7 @@
 
 			<div class="c-row c-row--separated">
 				<div class="c-col c-col--6 c-col--vertical-centered">
-					<a data-ng-href="{{vm.templateFragmentsData[vm.selectedIndex].description.learnMore}}" class="c-info-text c-info-text--is-clickable" target="_blank"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text c-info-text__text--is-link">{{"_INPUT_WINDOW_NEW_HELP_" | translate}}</span></a>
+					<a data-ng-href="{{vm.templateFragmentsData[vm.selectedIndex].description.learnMore}}" class="c-info-text c-info-text--is-clickable" target="_blank" data-qa="fragment-detail-type-{{vm.dataSource.element.type | lowercase}}-help"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text c-info-text__text--is-link">{{"_INPUT_WINDOW_NEW_HELP_" | translate}}</span></a>
 				</div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
 					<button class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()" data-qa="modal-cancel-button">
 						<i class="c-icon icon-circle-cross"></i>

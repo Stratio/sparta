@@ -118,6 +118,7 @@
         };
 
         function getInputTypes(inputs) {
+            vm.inputTypes = [];
             for (var i=0; i<inputs.length; i++) {
                 var newType = false;
                 var type    = inputs[i].element.type;
@@ -161,6 +162,7 @@
 
           modalInstance.result.then(function (newInputData) {
             vm.inputsData.push(newInputData);
+            vm.getInputTypes(vm.inputsData);
           }, function () {
           });
         };
@@ -186,6 +188,8 @@
 
           modalInstance.result.then(function (updatedInputData) {
             vm.inputsData[updatedInputData.index] = updatedInputData.data;
+            vm.getInputTypes(vm.inputsData);
+
               },function () {
                      });
         };
@@ -208,6 +212,7 @@
 
           modalInstance.result.then(function (selectedItem) {
             vm.inputsData.splice(selectedItem.index, 1);
+            vm.getInputTypes(vm.inputsData);
           },function () {
           });
         };
@@ -227,6 +232,7 @@
 
           modalInstance.result.then(function (newInput) {
             vm.inputsData.push(newInput);
+            vm.getInputTypes(vm.inputsData);
           },function () {
           });
         };

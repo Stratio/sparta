@@ -30,12 +30,12 @@ import scala.util.{Failure, Success, Try}
 class PolicyStatusActor extends Actor with SLF4JLogging with SparktaSerializer {
 
   override def receive: Receive = {
-    case Update(policyStatus) => update(policyStatus)
+    case Update(policyStatus) => sender ! update(policyStatus)
     case FindAll => findAll
     case AddListener(name, callback) => addListener(name, callback)
   }
 
-  def update(policyStatus: PolicyStatusModel): Unit = {
+  def update(policyStatus: PolicyStatusModel): Option[PolicyStatusModel] = {
     val curator = CuratorFactoryHolder.getInstance()
     val path = s"${AppConstant.ContextPath}/${policyStatus.id}"
 
@@ -46,11 +46,8 @@ class PolicyStatusActor extends Actor with SLF4JLogging with SparktaSerializer {
       log.info(s">> Updating context ${policyStatus.id} : <${ips.status}> to <${policyStatus.status}>")
       //validate(Some(ips.status), policyStatus.status)
       curator.setData().forPath(path, write(policyStatus).getBytes)
-    } else {
-      log.info(s">> Creating policy context |${policyStatus.id}| to <${policyStatus.status}>")
-      //validate(None, policyStatus.status)
-      curator.create.creatingParentsIfNeeded.forPath(path, write(policyStatus).getBytes)
-    }
+      Some(policyStatus)
+    } else None
   }
 
   def findAll(): Unit = {
@@ -145,4 +142,5 @@ object PolicyStatusEnum extends Enumeration {
   val Failed = Value("Failed")
   val Stopping = Value("Stopping")
   val Stopped = Value("Stopped")
+  val NotStarted = Value("NotStarted")
 }
