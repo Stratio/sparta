@@ -27,11 +27,10 @@
     function ok() {
       var policyToDelete = PolicyFactory.deletePolicy(vm.policyData.id);
 
-      policyToDelete.then(function (result) {
+      policyToDelete.then(function () {
         $modalInstance.close(vm.policyData);
 
       }, function (error) {
-        console.log(error);
         vm.error = true;
         vm.errorText = "_INPUT_ERROR_" + error.data.i18nCode + "_";
       });

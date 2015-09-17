@@ -17,12 +17,12 @@
 
     function init() {
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      vm.sparkStreamingWindowData = PolicyStaticDataFactory.sparkStreamingWindow;
-      vm.checkpointIntervalData = PolicyStaticDataFactory.checkpointInterval;
-      vm.checkpointAvailabilityData = PolicyStaticDataFactory.checkpointAvailability;
-      vm.partitionFormatData = PolicyStaticDataFactory.partitionFormat;
-      vm.storageLevelData = PolicyStaticDataFactory.storageLevel;
-      vm.helpLink = PolicyStaticDataFactory.helpLinks.description;
+      vm.sparkStreamingWindowData = PolicyStaticDataFactory.getSparkStreamingWindow();
+      vm.checkpointIntervalData = PolicyStaticDataFactory.getCheckpointInterval();
+      vm.checkpointAvailabilityData = PolicyStaticDataFactory.getCheckpointAvailability();
+      vm.partitionFormatData = PolicyStaticDataFactory.getPartitionFormat();
+      vm.storageLevelData = PolicyStaticDataFactory.getStorageLevel();
+      vm.helpLink = PolicyStaticDataFactory.getHelpLinks().description;
       vm.error = false;
     }
 

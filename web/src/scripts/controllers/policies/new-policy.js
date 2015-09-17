@@ -15,7 +15,7 @@
     init();
 
     function init() {
-      vm.steps = PolicyStaticDataFactory.steps;
+      vm.steps = PolicyStaticDataFactory.getSteps();
       PolicyModelFactory.resetPolicy();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.status = PolicyModelFactory.getProcessStatus();

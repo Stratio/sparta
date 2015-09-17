@@ -15,7 +15,7 @@
         model.name = "";
         model.outputFields = [];
         model.type = "";
-        model.configuration = "";
+        model.configuration ="";
         model.inputList = getModelInputs();
         model.inputField = model.inputList[0].value;
       };
@@ -26,7 +26,7 @@
         var index = models.length;
         if (index >= 0) {
           if (index == 0)
-            result = ModelStaticDataFactory.defaultInput;
+            result = ModelStaticDataFactory.getDefaultInput();
           else {
             var model = models[--index];
             var options = generateOutputOptions(model.outputFields);
@@ -63,6 +63,8 @@
         return model.inputField != "" && model.outputFields.length > 0 && model.configuration != "" &&
           model.name != "" && model.type != "" && isValidConfiguration();
       }
+
+
 
       function getModel() {
         if (Object.keys(model).length == 0) init();

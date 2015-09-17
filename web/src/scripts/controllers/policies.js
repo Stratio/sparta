@@ -45,7 +45,7 @@
     };
 
     function runPolicy(policyId) {
-      var policyRunning = PolicyFactory.RunPolicy(policyId);
+      var policyRunning = PolicyFactory.runPolicy(policyId);
 
       policyRunning.then(function (result) {
 
