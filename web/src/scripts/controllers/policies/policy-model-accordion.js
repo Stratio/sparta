@@ -30,12 +30,12 @@
       vm.accordionStatus = AccordionStatusService.accordionStatus;
       vm.templateModelData = ModelStaticDataFactory;
       AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
-      vm.helpLink = PolicyStaticDataFactory.helpLinks.models;
+      vm.helpLink = PolicyStaticDataFactory.getHelpLinks().models;
     }
 
     function addModel() {
+      vm.modelError = false;
       if (ModelFactory.isValidModel()) {
-        vm.modelError = false;
         var newModel = angular.copy(vm.newModel);
         newModel.order = vm.policy.models.length + 1;
         vm.policy.models.push(newModel);
@@ -43,7 +43,7 @@
         AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
         AccordionStatusService.accordionStatus.newItem = true;
       } else
-        vm.error = true;
+        vm.modelError = true;
     }
 
     function removeModel(index) {

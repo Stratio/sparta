@@ -113,10 +113,10 @@
     "_NEW-MODEL-DEFINITION_": "New model definition [not saved]",
     "_DESCRIPTION_INTRO_": "Introduce a name and description for your policy. You can also edit the advanced settings of the policy",
     "_INPUTS_INTRO_":"You have to select an input from your list to continue configuring the policy. You can only add one input to policy.",
-    "_MODEL_INTRO_":"You have to create, at least, one model to can configure a cube in the next step.",
+    "_MODEL_INTRO_":"You have to create, at least, one model to be able to configure a cube in the next step.",
     "_CUBE_INTRO_":"You have to add a cube to the policy and configure, at least, one dimension and one operator with the output fields configured in the model.",
     "_OUTPUTS_INTRO_":"You have to select, at least, one output from your list to configure the policy. You can add more than one output to the policy.",
-    "_FINISH_INTRO_":"All your policy has been generated in a JSON format you can see below.",
+    "_FINISH_INTRO_":"The policy has been generated in a JSON format you can see below.",
     "_INPUTS_ERROR_": "At least one input must be selected!",
     "_OUTPUTS_ERROR_": "At least one output must be selected!",
     "_DESCRIPTION_ERROR_": "There was an error. The name of the policy already exists!",
@@ -141,7 +141,11 @@
       "_DIMENSION_": "Dimension",
       "_FIELD_": "Field",
       "_PRECISION_": "Precision",
-      "_OPERATOR_": "Operator"
+      "_OPERATOR_": "Operator",
+      "_INVALID_DIMENSION_PRECISION_": "You have to select a precision for this dimension type",
+      "_DIMENSION_NAME_EXISTS_": "There is a dimension with this name. Please change it and try it again",
+      "_OPERATOR_NAME_EXISTS_": "There is an operator with this name. Please change it and try it again",
+      "_INVALID_CONFIG_": "The JSON introduced in the configuration is not valid"
     },
     "_ADD_MODEL_": "Add model",
     "_DIMENSIONS_": "Dimensions",
@@ -207,11 +211,12 @@
   "SELECT_PLACEHOLDER": "Select one",
   "_GENERIC_FORM_ERROR_": "There are some errors in the introduced data. Please, check them and try it again",
   "_ERROR_ALL_FIELDS_REQUIRED_": "All fields are required! Please check them and try to sumbit the form.",
-  "_ERROR_INPUT_DUPLICATED_": "Output field alraedy exists!",
+  "_ERROR_INPUT_DUPLICATED_": "Output field already exists!",
   "_OUTPUT_ACTIONS_MENU_RUN_" : "Run",
   "_OUTPUT_ACTIONS_MENU_DOWNLOAD_" : "Download",
   "_OUTPUT_ACTIONS_MENU_EDIT_" : "Edit",
   "_REMOVE_MODEL_MESSAGE_": "If you remove this model, the following cubes will be removed: {{modelList}}",
   "_CONFIRM_": "Confirm",
-  "_REMOVE_MODEL_CONFIRM_TITLE_": "Remove model"
+  "_REMOVE_MODEL_CONFIRM_TITLE_": "Remove model",
+  "_OUTPUT_INPUT_PLACEHOLDER_": "Write an output field name and click in the plus icon to add to the list"
 }

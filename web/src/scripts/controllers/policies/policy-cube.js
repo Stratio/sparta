@@ -37,6 +37,9 @@
         templateUrl: 'templates/policies/dimension-modal.tpl.html',
         controller: 'NewDimensionModalCtrl as vm',
         size: 'lg',
+        show: true,
+        keyboard: false,
+        backdrop: 'static',
         resolve: {
           fieldName: function () {
             return outputName;
@@ -47,6 +50,9 @@
           },
           type: function () {
             return CubeStaticDataFactory.getDefaultType().value
+          },
+          dimensions: function(){
+            return vm.cube.dimensions
           }
         }
       });
@@ -66,6 +72,9 @@
         templateUrl: 'templates/policies/operator-modal.tpl.html',
         controller: 'NewOperatorModalCtrl as vm',
         size: 'lg',
+        show: true,
+        keyboard: false,
+        backdrop: 'static',
         resolve: {
           operatorType: function () {
             return functionName;
@@ -73,7 +82,9 @@
           operatorName: function () {
             var operatorLength = vm.cube.operators.length + 1;
             return functionName.toLowerCase() + operatorLength;
-
+          },
+          operators: function(){
+            return vm.cube.operators
           }
         }
       });

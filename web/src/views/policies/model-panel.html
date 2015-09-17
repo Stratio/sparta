@@ -8,8 +8,8 @@
     <div class="c-form-group">
       <div class="c-form-control c-form-control--full-width c-icon-radio" data-ng-model="model">
         <label class="c-label c-icon-radio__label c-col c-col--12">{{"_TYPE_" | translate}}:</label>
-      <span data-ng-repeat="modelTypes in vm.templateModelData.types">
-        <input class="c-icon-radio__item" id="type-{{modelTypes.name + $parent.$index| lowercase}}" type="radio"
+      <span data-ng-repeat="modelTypes in vm.modelTypes">
+        <input ng-change = "vm.changeDefaultConfiguration()" class="c-icon-radio__item" id="type-{{modelTypes.name + $parent.$index| lowercase}}" type="radio"
                data-ng-model="vm.model.type" value="{{modelTypes.name}}" data-ng-disabled="!editionMode"
                data-qa="policy-model-type-{{modelTypes.name | lowercase}}">
         <label data-ng-model="vm.model.type" class="c-icon-radio__label"
@@ -49,7 +49,7 @@
     <div class="c-form-group">
       <c-icon-label wrapper-control-class="'c-label c-col c-col--12'" icon-class="'icon-info1'"
                     data-text="('_CONFIGURATION_' | translate)"
-                    text-class="" icon-url="vm.templateModelData.configHelpLink"></c-icon-label>
+                    text-class="" icon-url="vm.templateModelData.getConfigHelpLink()"></c-icon-label>
 
     <textarea ng-if="!!editionMode" class="c-textarea c-textarea--full-width" ng-model="vm.model.configuration"
               placeholder={{vm.configPlaceholder}} data-ng-readonly="!editionMode"></textarea>
@@ -64,11 +64,14 @@
                               label-control-class="'c-label c-col c-col--12'"
                               label-control-text="'_OUTPUTS_FIELDS_' | translate" readonly="'true'"
                               data-enable-delete="!!editionMode"
-                              data-qa="policy-model-output-list"></c-input-list-field>
+                              data-qa="policy-model-output-list">
+          </c-input-list-field>
 
-          <c-add-element ng-if="!!editionMode" model="vm.model.outputFields"
+          <c-add-element ng-if="editionMode" model="vm.model.outputFields"
                          icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action c-info-text__icon icon-square-plus'"
-                         type="'text'" data-qa="policy-model-outputs"></c-add-element>
+                         type="'text'" data-qa="policy-model-outputs" data-pattern="vm.outputPattern"
+                         data-placeholder="{{vm.outputInputPlaceholder | translate}}">
+          </c-add-element>
         </div>
       </div>
     </div>
