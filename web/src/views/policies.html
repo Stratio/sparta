@@ -4,8 +4,13 @@
 	</header>
 
 	<div class="c-row c-msg c-msg--small c-msg--error c-msg--bottom-margin" data-ng-if="policies.error" data-qa="manage-policies-error-msg">
+    	<p><i class="c-icon icon-circle-cross"></i>{{policies.errorMessage}}</p>
+    	<p>{{policies.errorMessageExtended}}</p>
+  	</div>
+
+  	<div class="c-row c-msg c-msg--small c-msg--success c-msg--bottom-margin" data-ng-if="policies.success" data-qa="manage-policies-error-msg">
     	<i class="c-icon icon-circle-cross"></i>
-    	<span translate="{{policies.errorMessage}}"></span>
+    	<span>{{policies.successMessage}}</span>
   	</div>
 
 	<div class="c-panel" data-ng-if="policies.policiesData.list.length > 0">
@@ -29,7 +34,7 @@
 								<st-menu-element class-icon="icon-cross" data-ng-click="policies.deletePolicy(policyData.policy.id, $index)" data-qa="policy-context-menu-{{policyData.policy.id}}-delete">
 									{{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
 								</st-menu-element>
-								<st-menu-element class-icon="icon-play" data-ng-click="policies.runPolicy(policyData.policy.id)" data-qa="policy-context-menu-{{policyData.policy.id}}-run">
+								<st-menu-element class-icon="icon-play" data-ng-click="policies.runPolicy(policyData.policy.id, policyData.status, policyData.policy.name)" data-qa="policy-context-menu-{{policyData.policy.id}}-run">
 									{{"_OUTPUT_ACTIONS_MENU_RUN_" | translate}}
 								</st-menu-element>
 								<st-menu-element class-icon="icon-download" data-href="/policy/find/{{policyData.policy.id}}" data-download-file-name="{{policyData.policy.name}}.json" data-qa="policy-context-menu-{{policyData.policy.id}}-download">
