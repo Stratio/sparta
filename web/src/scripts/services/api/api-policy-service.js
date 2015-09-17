@@ -15,6 +15,7 @@
     vm.CreatePolicy = CreatePolicy;
     vm.DeletePolicy = DeletePolicy;
     vm.RunPolicy = RunPolicy;
+    vm.StopPolicy = StopPolicy;
     vm.GetFakePolicy = GetFakePolicy;
 
     /////////////////////////////////
@@ -57,6 +58,14 @@
         return $resource('/policy/run/:id', {id:'@id'},
         {
             'get': {method:'GET',
+            timeout: apiConfigSettings.timeout}
+        });
+    };
+
+    function StopPolicy() {
+      return $resource('/policyContext', {},
+        {
+          'update': {method: 'PUT',
             timeout: apiConfigSettings.timeout}
         });
     };

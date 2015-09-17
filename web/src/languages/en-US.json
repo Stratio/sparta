@@ -216,6 +216,7 @@
   "_ERROR_ALL_FIELDS_REQUIRED_": "All fields are required! Please check them and try to sumbit the form.",
   "_ERROR_INPUT_DUPLICATED_": "Output field alraedy exists!",
   "_OUTPUT_ACTIONS_MENU_RUN_" : "Run",
+  "_OUTPUT_ACTIONS_MENU_STOP_" : "Stop",
   "_OUTPUT_ACTIONS_MENU_DOWNLOAD_" : "Download",
   "_NAME_HELP_": "White spaces are not allowed",
   "_INPUT_CREATE_FIRST_ONE_": "Click here to create your first input!",
@@ -223,5 +224,7 @@
   "_POLICY_CREATE_FIRST_ONE_": "Click here to create your first policy!",
   "_STATUS_": "Status",
   "_RUN_POLICY_OK_": "The policy '{{policyName}}' is running!",
-  "_RUN_POLICY_KO_": "The policy '{{policyName}}' is already running! Please stop it and try again later."
+  "_RUN_POLICY_KO_": "The policy '{{policyName}}' is already running! Please stop it and try again later.",
+  "_STOP_POLICY_OK_": "The policy '{{policyName}}' is stopping!",
+  "_STOP_POLICY_KO_": "The policy '{{policyName}}' is already stopped! Please run it and try again later."
 }
