@@ -6,7 +6,6 @@
     "transformations": {
       "id": "http://sparkta.stratio.com/transformations",
       "type": "array",
-      "uniqueItems": true,
       "items": {
         "id": "http://sparkta.stratio.com/transformations/",
         "type": "object",
@@ -27,7 +26,6 @@
             "id": "http://sparkta.stratio.com/transformations/outputFields",
             "type": "array",
             "minItems": 1,
-            "uniqueItems": true,
             "items": {
               "id": "http://sparkta.stratio.com/transformations/outputFields/",
               "type": "string"
@@ -113,7 +111,6 @@
       "id": "http://sparkta.stratio.com/cubes",
       "type": "array",
       "minItems": 1,
-      "uniqueItems": true,
       "items": {
         "id": "http://sparkta.stratio.com/cubes/",
         "type": "object",
@@ -154,7 +151,6 @@
             "id": "http://sparkta.stratio.com/cubes/dimensions",
             "type": "array",
             "minItems": 1,
-            "uniqueItems": true,
             "items": [
               {
                 "id": "http://sparkta.stratio.com/cubes/dimensions/",
@@ -187,7 +183,6 @@
           "operators": {
             "id": "http://sparkta.stratio.com/cubes/operators",
             "type": "array",
-            "uniqueItems": true,
             "items": {
               "id": "http://sparkta.stratio.com/cubes/operators/",
               "type": "object",
@@ -223,7 +218,6 @@
       "id": "http://sparkta.stratio.com/outputs",
       "type": "array",
       "minItems": 1,
-      "uniqueItems": true,
       "items": {
         "id": "http://sparkta.stratio.com/outputs/",
         "type": "object",
@@ -250,7 +244,6 @@
     "fragments": {
       "id": "http://sparkta.stratio.com/fragments",
       "type": "array",
-      "uniqueItems": true,
       "items": {
         "id": "http://sparkta.stratio.com/fragments/",
         "type": "object",
