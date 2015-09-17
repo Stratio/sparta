@@ -24,6 +24,9 @@
                RunPolicy: function(policyid) {
                   return ApiPolicyService.RunPolicy().get({'id': policyid}).$promise;
                },
+               StopPolicy: function(policy) {
+                  return ApiPolicyService.StopPolicy().update(policy).$promise;
+               },
                GetFakePolicy: function() {
                   return ApiPolicyService.GetFakePolicy().get().$promise;
                }

@@ -16,6 +16,7 @@
     vm.policiesJsonData = {};
     vm.deletePolicy = deletePolicy;
     vm.runPolicy = runPolicy;
+    vm.stopPolicy = stopPolicy;
     vm.error = false;
     vm.success = false;
     vm.errorMessage = '';
@@ -54,7 +55,7 @@
     };
 
     function runPolicy(policyId, policyStatus, policyName) {
-      if (policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed') {
+      if (policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' || policyStatus.toLowerCase() === 'stopped') {
         var policyRunning = PolicyFactory.RunPolicy(policyId);
 
         policyRunning.then(function (result) {
@@ -76,6 +77,43 @@
       }
       else {
         $translate('_RUN_POLICY_KO_', {policyName: policyName}).then(function(value){
+          vm.error = true;
+          vm.success = false;
+          vm.errorMessage = value;
+        });
+      }
+    };
+
+    function stopPolicy(policyId, policyStatus, policyName) {
+      if (policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'stopped') {
+
+        var stopPolicy =
+        {
+          "id": policyId,
+          "status": "Stopping"
+        };
+
+        var policyStopping = PolicyFactory.StopPolicy(stopPolicy);
+
+        policyStopping.then(function (result) {
+          $translate('_STOP_POLICY_OK_', {policyName: policyName}).then(function(value){
+            vm.error = false;
+            vm.success = true;
+            vm.successMessage = value;
+          });
+
+
+        },function (error) {
+          $translate('_INPUT_ERROR_' + error.data.i18nCode + '_').then(function(value){
+            vm.error = true;
+            vm.success = false;
+            vm.errorMessage = value;
+            vm.errorMessageExtended = 'Error: ' + error.data.message;
+          });
+        });
+      }
+      else {
+        $translate('_STOP_POLICY_KO_', {policyName: policyName}).then(function(value){
           vm.error = true;
           vm.success = false;
           vm.errorMessage = value;

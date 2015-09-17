@@ -26,6 +26,7 @@
     vm.errorText = '';
     vm.fragmentType = '';
     vm.fragmentTemplateData = {};
+    vm.policiesRunning = [];
 
     init();
 

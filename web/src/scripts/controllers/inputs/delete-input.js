@@ -32,7 +32,7 @@
 
         function setPoliciesRunning(policiesList) {
           for (var i=0; i < policiesList.length; i++) {
-            if (policiesList[i].status !== 'NotStarted' && policiesList[i].status !== 'Stoped' && policiesList[i].status !== 'Failed') {
+            if (policiesList[i].status !== 'NotStarted' && policiesList[i].status !== 'Stopped' && policiesList[i].status !== 'Failed') {
               var policy = {'name':policiesList[i].policy.name}
               vm.policiesRunning.push(policy);
             }
