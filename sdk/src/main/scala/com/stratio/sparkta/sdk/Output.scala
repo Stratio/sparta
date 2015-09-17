@@ -103,9 +103,9 @@ abstract class Output(keyName: String,
       bcSchema.get.value.filter(tschema => (tschema.outputName == keyName)).foreach(tschemaFiltered => {
         val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
         upsert(sqlContext.createDataFrame(
-          extractRow(rdd.filter { case (schema, row) => schema.exists(_ == tableSchemaTime.tableName) }),
+          extractRow(rdd.filter { case (schema, row) => schema.exists(_ == tableSchemaTime.id) }),
           tableSchemaTime.schema),
-          tableSchemaTime.tableName,
+          tableSchemaTime.cubeName,
           tschemaFiltered.timeDimension)
       })
     })
@@ -117,7 +117,7 @@ abstract class Output(keyName: String,
 
   //TODO refactor for remove var types
   protected def getTableSchemaFixedId(tbSchema: TableSchema): TableSchema = {
-    var tableName = tbSchema.tableName.split(Output.Separator)
+    var tableName = tbSchema.id.split(Output.Separator)
       .filter(name => !fixedDimensions.contains(name) && name != tbSchema.timeDimension) ++ Seq(tbSchema.timeDimension)
     var fieldsPk = getFields(tbSchema, false)
     var modifiedSchema = false
@@ -140,9 +140,10 @@ abstract class Output(keyName: String,
       Seq(Output.getFieldType(dateType, tbSchema.timeDimension, false)) ++
       getFields(tbSchema, true)
     new TableSchema(tbSchema.outputName,
-      tableName.mkString(Output.Separator),
+      tbSchema.cubeName,
       StructType(fieldsPk),
-      tbSchema.timeDimension)
+      tbSchema.timeDimension,
+      tableName.mkString(Output.Separator))
   }
 
   protected def getFields(tbSchema: TableSchema, nullables: Boolean): Seq[StructField] =
