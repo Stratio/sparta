@@ -56,7 +56,7 @@
 
     function runPolicy(policyId, policyStatus, policyName) {
       if (policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' || policyStatus.toLowerCase() === 'stopped') {
-        var policyRunning = PolicyFactory.RunPolicy(policyId);
+        var policyRunning = PolicyFactory.runPolicy(policyId);
 
         policyRunning.then(function (result) {
           $translate('_RUN_POLICY_OK_', {policyName: policyName}).then(function(value){
