@@ -84,10 +84,13 @@ class PolicyStatusActor extends Actor with SLF4JLogging with SparktaSerializer {
   def findAll(): Unit = {
     sender ! Response(Try({
       val curator = CuratorFactoryHolder.getInstance()
-      val children = curator.getChildren.forPath(s"${AppConstant.ContextPath}")
-      JavaConversions.asScalaBuffer(children).toList.map(element =>
-        read[PolicyStatusModel](new String(curator.getData.forPath(
-          s"${AppConstant.ContextPath}/$element")))).toSeq
+      val path = s"${AppConstant.ContextPath}"
+      if (Option(curator.checkExists().forPath(path)).isDefined) {
+        val children = curator.getChildren.forPath(path)
+        JavaConversions.asScalaBuffer(children).toList.map(element =>
+          read[PolicyStatusModel](new String(curator.getData.forPath(
+            s"${AppConstant.ContextPath}/$element")))).toSeq
+      } else Seq()
     }))
   }
 

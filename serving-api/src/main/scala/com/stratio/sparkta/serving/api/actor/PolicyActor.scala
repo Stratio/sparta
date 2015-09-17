@@ -80,8 +80,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
     })
 
   private def byId(id: String): AggregationPoliciesModel = read[AggregationPoliciesModel](
-    new Predef.String(curatorFramework.getData.forPath(
-    s"${AppConstant.PoliciesBasePath}/$id")))
+    new Predef.String(curatorFramework.getData.forPath(s"${AppConstant.PoliciesBasePath}/$id")))
 
   def findByName(name: String): Unit =
     sender ! ResponsePolicy(Try({
@@ -148,12 +147,14 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
 
   private def existsByName(name: String, id: Option[String] = None): Boolean = {
     Try({
-      val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
-      JavaConversions.asScalaBuffer(children).toList.map(element =>
-        read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
-          s"${AppConstant.PoliciesBasePath}/$element"))))
-        .filter(policy => if (id.isDefined) policy.name == name && policy.id.get != id.get
-      else policy.name == name).toSeq.nonEmpty
+      val path = s"${AppConstant.PoliciesBasePath}"
+      if (Option(curatorFramework.checkExists().forPath(path)).isDefined) {
+        val children = curatorFramework.getChildren.forPath(path)
+        JavaConversions.asScalaBuffer(children).toList.map(element =>
+          read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(s"$path/$element"))))
+          .filter(policy => if (id.isDefined) policy.name == name && policy.id.get != id.get
+        else policy.name == name).toSeq.nonEmpty
+      } else false
     }) match {
       case Success(result) => result
       case Failure(exception) => {
