@@ -132,14 +132,13 @@ class FragmentActor(curatorFramework: CuratorFramework)
       ))
     })
 
-  //scalastyle:off
   private def existsByTypeAndName(fragmentType: String, name: String, id: Option[String] = None): Boolean = {
     Try({
-      if(curatorFramework.checkExists().forPath(FragmentActor.generateFragmentPath(fragmentType)) != null) {
+      val path = FragmentActor.generateFragmentPath(fragmentType)
+      if(Option(curatorFramework.checkExists().forPath(path)).isDefined) {
         val children = curatorFramework.getChildren.forPath(FragmentActor.generateFragmentPath(fragmentType))
         JavaConversions.asScalaBuffer(children).toList.map(element =>
-          read[FragmentElementModel](new String(curatorFramework.getData.forPath(
-            s"${FragmentActor.generateFragmentPath(fragmentType)}/$element"))))
+          read[FragmentElementModel](new String(curatorFramework.getData.forPath(s"$path/$element"))))
           .filter(fragment => {
           if (id.isDefined) fragment.name == name && fragment.id.get != id.get
           else fragment.name == name
@@ -153,7 +152,6 @@ class FragmentActor(curatorFramework: CuratorFramework)
       }
     }
   }
-  //scalastyle:on
 }
 
 object FragmentActor {
