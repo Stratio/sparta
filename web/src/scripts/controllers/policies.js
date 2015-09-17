@@ -5,9 +5,9 @@
     .module('webApp')
     .controller('PoliciesCtrl', PoliciesCtrl);
 
-  PoliciesCtrl.$inject = ['PolicyFactory', '$modal', '$state'];
+  PoliciesCtrl.$inject = ['PolicyFactory', '$modal', '$state', '$translate'];
 
-  function PoliciesCtrl(PolicyFactory, $modal, $state) {
+  function PoliciesCtrl(PolicyFactory, $modal, $state, $translate) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -17,7 +17,9 @@
     vm.deletePolicy = deletePolicy;
     vm.runPolicy = runPolicy;
     vm.error = false;
+    vm.success = false;
     vm.errorMessage = '';
+    vm.successMessage = '';
     init();
 
     /////////////////////////////////
@@ -35,8 +37,6 @@
       },function (error) {
         vm.error = true;
         vm.errorMessage = "_INPUT_ERROR_" + error.data.i18nCode + "_";
-        console.log('There was an error while loading the policies!');
-        console.log(error);
       });
     };
 
@@ -49,18 +49,32 @@
       deletePolicyConfirm('lg', policyToDelete);
     };
 
-    function runPolicy(policyId) {
+    function runPolicy(policyId, policyStatus, policyName) {
+      policyStatus = 'notstartedsdf';
+      if (policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed') {
+        var policyRunning = PolicyFactory.RunPolicy(policyId);
 
-      var policyRunning = PolicyFactory.RunPolicy(policyId);
+        policyRunning.then(function (result) {
+          $translate('_RUN_POLICY_OK_', {policyName: policyName}).then(function(value){
+            vm.error = false;
+            vm.success = true;
+            vm.successMessage = value;
+          });
 
-      policyRunning.then(function (result) {
-        console.log('*********** Policy running!')
-        console.log(result);
-
-      },function (error) {
-        console.log('There was an error while running the policy!');
-        console.log(error);
-      });
+        },function (error) {
+          vm.error = true;
+          vm.success = false;
+          vm.errorMessage = "_INPUT_ERROR_" + error.data.i18nCode + "_";
+          /*vm.errorMessageExtended = error.message*/
+        });
+      }
+      else {
+        $translate('_RUN_POLICY_KO_', {policyName: policyName}).then(function(value){
+          vm.error = true;
+          vm.success = false;
+          vm.errorMessage = value;
+        });
+      }
     };
 
     function deletePolicyConfirm(size, policy) {
