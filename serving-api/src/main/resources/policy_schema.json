@@ -259,12 +259,22 @@
           "name": {
             "id": "http://sparkta.stratio.com/fragments/name",
             "type": "string"
+          },
+          "description": {
+            "id": "http://sparkta.stratio.com/fragments/description",
+            "type": "string"
+          },
+          "shortDescription": {
+            "id": "http://sparkta.stratio.com/fragments/shortDescription",
+            "type": "string"
           }
         },
         "required": [
           "id",
           "fragmentType",
-          "name"
+          "name",
+          "shortDescription",
+          "description"
         ]
       }
     }
