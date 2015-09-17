@@ -221,7 +221,7 @@
   "_ERROR_INPUT_DUPLICATED_": "Output field already exists!",
   "_OUTPUT_ACTIONS_MENU_RUN_" : "Run",
   "_OUTPUT_ACTIONS_MENU_DOWNLOAD_" : "Download",
-  "_OUTPUT_ACTIONS_MENU_EDIT_" : "Edit"
+  "_OUTPUT_ACTIONS_MENU_EDIT_" : "Edit",
   "_OUTPUT_ACTIONS_MENU_STOP_" : "Stop",
   "_OUTPUT_ACTIONS_MENU_DOWNLOAD_" : "Download",
   "_NAME_HELP_": "White spaces are not allowed",
@@ -232,7 +232,7 @@
   "_RUN_POLICY_OK_": "The policy '{{policyName}}' is running!",
   "_RUN_POLICY_KO_": "The policy '{{policyName}}' is already running! Please stop it and try again later.",
   "_STOP_POLICY_OK_": "The policy '{{policyName}}' is stopping!",
-  "_STOP_POLICY_KO_": "The policy '{{policyName}}' is already stopped! Please run it and try again later."
+  "_STOP_POLICY_KO_": "The policy '{{policyName}}' is already stopped! Please run it and try again later.",
   "_OUTPUT_ACTIONS_MENU_EDIT_" : "Edit",
   "_REMOVE_MODEL_MESSAGE_": "If you remove this model, the following cubes will be removed: {{modelList}}",
   "_CONFIRM_": "Confirm",
