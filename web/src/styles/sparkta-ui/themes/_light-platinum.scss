@@ -47,6 +47,7 @@
  *		c-accordion
  *		c-tag
  *		c-cube
+ *		c-policy-status-badge
  *
  */
 
@@ -561,3 +562,23 @@ $c-cube__field-icon---background: get-color(g3);
 $c-cube__field-name---background: get-color(g0);
 $c-cube__field-name---left: 36px;
 $c-cube__field-name---right: 0;
+
+
+
+// c-policy-status-badge
+$c-policy-status-badge---margin: 0;
+$c-policy-status-badge---padding: .2em .5em;
+$c-policy-status-badge--launched---background: get-color(e1);
+$c-policy-status-badge--launched---color: get-color(g0);
+$c-policy-status-badge--starting---background: get-color(e1);
+$c-policy-status-badge--starting---color: get-color(g0);
+$c-policy-status-badge--started---background: get-color(e1);
+$c-policy-status-badge--started---color: get-color(g0);
+$c-policy-status-badge--failed---background: get-color(e3);
+$c-policy-status-badge--failed---color: get-color(g0);
+$c-policy-status-badge--stopping---background: get-color(e3b);
+$c-policy-status-badge--stopping---color: get-color(g0);
+$c-policy-status-badge--stopped---background: get-color(e3b);
+$c-policy-status-badge--stopped---color: get-color(g0);
+$c-policy-status-badge--notstarted---background: get-color(g4);
+$c-policy-status-badge--notstarted---color: get-color(g0);
