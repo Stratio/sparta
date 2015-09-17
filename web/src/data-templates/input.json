@@ -503,7 +503,7 @@
     ]
   },
   {
-    "name": "Websocket",
+    "name": "WebsSocket",
     "modelType": "WebSocket",
     "description": {
       "short": "Reads events from a websocket stream.",

@@ -15,22 +15,24 @@
 			    	<th class="c-table__td c-col--3">{{"_NAME_" | translate}}</th>
       				<th class="c-table__td">{{"_DESCRIPTION_" | translate}}</th>
       				<th class="c-table__td c-col--1"></th>
+      				<th class="c-table__td c-col--1"></th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr class="c-table__tr" data-ng-repeat="policy in policies.policiesData.list">
-					<td class="c-table__td c-table__td--no-wrap c-col--3">{{policy.name}}</td>
-					<td class="c-table__td">{{policy.description}}</td>
+				<tr class="c-table__tr" data-ng-repeat="policyData in policies.policiesData.list">
+					<td class="c-table__td c-table__td--no-wrap c-col--3">{{policyData.policy.name}}</td>
+					<td class="c-table__td">{{policyData.policy.description}}</td>
+					<td class="c-table__td c-col--1 c-table__td--to-right">{{policyData.status}}</td>
 					<td class="c-table__td c-table__td--no-wrap c-table__td--to-right c-col--1">
-						<i class="c-icon c-icon--is-clickable c-icon--call-to-action icon-actions" data-ng-click="$root.stToggleFloatingMenu[policy.id]()" data-qa="input-context-menu-{{policy.id}}">
-							<st-floating-menu toggle-id="{{policy.id}}" align="right">
-								<st-menu-element class-icon="icon-cross" data-ng-click="policies.deletePolicy(policy.id, $index)" data-qa="policy-context-menu-{{policy.id}}-delete">
+						<i class="c-icon c-icon--is-clickable c-icon--call-to-action icon-actions" data-ng-click="$root.stToggleFloatingMenu[policyData.policy.id]()" data-qa="input-context-menu-{{policyData.policy.id}}">
+							<st-floating-menu toggle-id="{{policyData.policy.id}}" align="right">
+								<st-menu-element class-icon="icon-cross" data-ng-click="policies.deletePolicy(policyData.policy.id, $index)" data-qa="policy-context-menu-{{policyData.policy.id}}-delete">
 									{{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
 								</st-menu-element>
-								<st-menu-element class-icon="icon-play" data-ng-click="policies.runPolicy(policy.id)" data-qa="policy-context-menu-{{policy.id}}-run">
+								<st-menu-element class-icon="icon-play" data-ng-click="policies.runPolicy(policyData.policy.id)" data-qa="policy-context-menu-{{policyData.policy.id}}-run">
 									{{"_OUTPUT_ACTIONS_MENU_RUN_" | translate}}
 								</st-menu-element>
-								<st-menu-element class-icon="icon-download" data-href="/policy/find/{{policy.id}}" data-download-file-name="{{policy.name}}.json" data-qa="policy-context-menu-{{policy.id}}-download">
+								<st-menu-element class-icon="icon-download" data-href="/policy/find/{{policyData.policy.id}}" data-download-file-name="{{policyData.policy.name}}.json" data-qa="policy-context-menu-{{policyData.policy.id}}-download">
 									{{"_OUTPUT_ACTIONS_MENU_DOWNLOAD_" | translate}}
 								</st-menu-element>
 							</st-floating-menu>

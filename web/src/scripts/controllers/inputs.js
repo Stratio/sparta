@@ -41,6 +41,7 @@
             vm.error = false;
             vm.inputsData = result;
             vm.getInputTypes(result);
+            console.log(result);
 
           },function (error) {
             vm.error = true
