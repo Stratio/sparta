@@ -29,13 +29,13 @@ import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
 
 import scala.concurrent.Await
-import scala.util.{Failure, Success}
+import scala.util.{Try, Failure, Success}
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 
 @Api(value = HttpConstant.PolicyContextPath, description = "Operations about policy contexts.", position = 0)
 trait PolicyContextHttpService extends BaseHttpService {
 
-  case class Result(message: String, desc: Option[String] = None)
+  case class Result(policyId: String, policyName: String)
 
   override def routes: Route = findAll ~ update ~ create
 
@@ -119,10 +119,14 @@ trait PolicyContextHttpService extends BaseHttpService {
           val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
           validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
             complete {
-              val response = supervisor ? new Create(parsedP)
-              Await.result(response,timeout.duration) match {
-                case Failure(ex) => throw ex
-                case Success(policy) => new Result("Creating new context with name " + p.name)
+              for {
+                response <- (supervisor ? Create(parsedP)).mapTo[Try[AggregationPoliciesModel]]
+              } yield {
+                response match {
+                  case Success(policy) =>
+                    Result(policy.id.getOrElse(""), p.name)
+                  case Failure(e) => throw e
+                }
               }
             }
           }
