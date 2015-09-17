@@ -1,15 +1,15 @@
 <section ng-controller="PolicyModelCtrl as vm" ng-init="vm.init(model)" data-ng-model="vm.model">
+
   <form novalidate>
     <div ng-show="vm.showModelError" class="c-row c-msg c-msg--small c-msg--error" data-qa="error-msg">
       <i class="c-icon icon-circle-cross"></i>
       <span>{{"_POLICY_._MODEL_ERROR_" | translate}}</span>
     </div>
-
     <div class="c-form-group">
       <div class="c-form-control c-form-control--full-width c-icon-radio" data-ng-model="model">
         <label class="c-label c-icon-radio__label c-col c-col--12">{{"_TYPE_" | translate}}:</label>
-      <span data-ng-repeat="modelTypes in vm.templateModelData.types">
-        <input class="c-icon-radio__item" id="type-{{modelTypes.name + $parent.$index| lowercase}}" type="radio"
+      <span data-ng-repeat="modelTypes in vm.modelTypes">
+        <input ng-change = "vm.changeDefaultConfiguration()" class="c-icon-radio__item" id="type-{{modelTypes.name + $parent.$index| lowercase}}" type="radio"
                data-ng-model="vm.model.type" value="{{modelTypes.name}}" data-ng-disabled="!editionMode"
                data-qa="policy-model-type-{{modelTypes.name | lowercase}}">
         <label data-ng-model="vm.model.type" class="c-icon-radio__label"
@@ -45,6 +45,7 @@
       </form-field-input>
     </div>
 
+
     <div class="c-form-group">
       <div class="c-form-control c-form-control--full-width">
         <c-icon-label data-wrapper-control-class="'c-label c-col c-col--12'"
@@ -71,10 +72,11 @@
 
           <c-add-element ng-if="editionMode" model="vm.model.outputFields"
                          icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action c-info-text__icon icon-square-plus'"
-                         type="'text'" data-qa="policy-model-outputs"></c-add-element>
+                         type="'text'" data-qa="policy-model-outputs" data-pattern="vm.outputPattern"
+                         data-placeholder="{{vm.outputInputPlaceholder | translate}}">
+          </c-add-element>
         </div>
       </div>
-
     </div>
   </form>
 </section>

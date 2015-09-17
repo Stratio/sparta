@@ -1,13 +1,13 @@
-<aside data-qa="dimension-modal">
+<div data-qa="dimension-modal" id = "modal">
   <div class="c-titlebar">
     <span class="c-titlebar__title">{{"_POLICY_._CUBE_._DIMENSION_" | translate}}</span>
     <i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
   </div>
 
   <form class="c-form" name="vm.form" novalidate>
-    <div class="c-row c-row--separated c-msg c-msg--small c-msg--error" data-ng-if="vm.error" data-qa="error-msg">
+    <div class="c-row c-row--separated c-msg c-msg--small c-msg--error" data-ng-if="vm.errorText != ''" data-qa="error-msg">
       <i class="c-icon icon-circle-cross"></i>
-      <span translate="{{vm.errorText}}"></span>
+      <span translate="{{vm.errorText | translate}}"></span>
     </div>
 
     <div class="c-modal-inner">
@@ -57,4 +57,4 @@
       </div>
     </div>
   </form>
-</aside>
+</div>
