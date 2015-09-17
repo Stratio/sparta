@@ -152,7 +152,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
       if (CuratorFactoryHolder.existsPath(basePath)) {
         val children = curatorFramework.getChildren.forPath(basePath)
         JavaConversions.asScalaBuffer(children).toList.map(element =>
-          read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(s"$path/$element"))))
+          read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(s"$basePath/$element"))))
           .filter(policy => if (id.isDefined) policy.name == nameToCompare && policy.id.get != id.get
         else policy.name == nameToCompare).toSeq.nonEmpty
       } else false
