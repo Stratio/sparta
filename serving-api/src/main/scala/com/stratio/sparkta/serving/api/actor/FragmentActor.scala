@@ -26,6 +26,7 @@ import com.stratio.sparkta.serving.core.AppConstant
 import com.stratio.sparkta.serving.core.models.{ErrorModel, FragmentElementModel, SparktaSerializer}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
+import org.apache.zookeeper.data.Stat
 import org.json4s.jackson.Serialization.{read, write}
 import spray.httpx.Json4sJacksonSupport
 
@@ -131,16 +132,19 @@ class FragmentActor(curatorFramework: CuratorFramework)
       ))
     })
 
+  //scalastyle:off
   private def existsByTypeAndName(fragmentType: String, name: String, id: Option[String] = None): Boolean = {
     Try({
-      val children = curatorFramework.getChildren.forPath(FragmentActor.generateFragmentPath(fragmentType))
-      JavaConversions.asScalaBuffer(children).toList.map(element =>
-        read[FragmentElementModel](new String(curatorFramework.getData.forPath(
-          s"${FragmentActor.generateFragmentPath(fragmentType)}/$element"))))
-        .filter(fragment => {
-          if(id.isDefined) fragment.name == name && fragment.id.get != id.get
+      if(curatorFramework.checkExists().forPath(FragmentActor.generateFragmentPath(fragmentType)) != null) {
+        val children = curatorFramework.getChildren.forPath(FragmentActor.generateFragmentPath(fragmentType))
+        JavaConversions.asScalaBuffer(children).toList.map(element =>
+          read[FragmentElementModel](new String(curatorFramework.getData.forPath(
+            s"${FragmentActor.generateFragmentPath(fragmentType)}/$element"))))
+          .filter(fragment => {
+          if (id.isDefined) fragment.name == name && fragment.id.get != id.get
           else fragment.name == name
-      }).toSeq.size > 0
+        }).toSeq.nonEmpty
+      } else false
     }) match {
       case Success(result) => result
       case Failure(exception) => {
@@ -149,6 +153,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
       }
     }
   }
+  //scalastyle:on
 }
 
 object FragmentActor {
