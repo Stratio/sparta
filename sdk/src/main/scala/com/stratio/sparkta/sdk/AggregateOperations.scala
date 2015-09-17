@@ -46,14 +46,20 @@ object AggregateOperations {
                fixedAggregation: Map[String, Option[Any]],
                fixedDimensions: Option[Seq[(String, Any)]],
                idCalculated: Boolean): (Option[String], Row) = {
-    val timeDimension = dimensionValuesT.timeDimension;
+    val timeDimension = dimensionValuesT.timeDimension
+    val filtered = !dimensionValuesT.dimensionValues.filter(cube => (cube.dimension.name == timeDimension)).isEmpty
     val dimensionValuesFiltered =
       filterDimensionValuesByName(dimensionValuesT.dimensionValues,
-      if (timeDimension.isEmpty) None else Some(timeDimension))
+        if (timeDimension.isEmpty) None else Some(timeDimension))
 
     val namesDim = dimensionValuesNames(dimensionValuesFiltered.sorted)
 
     val (valuesDim, valuesAgg) = toSeq(dimensionValuesFiltered, aggregations ++ fixedAggregation)
+
+    val timeDimensionValue = filtered match {
+      case true => Seq(dimensionValuesT.time)
+      case false => Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time))
+    }
 
     val (namesFixed, valuesFixed) = if (fixedDimensions.isDefined) {
       val fixedDimensionsSorted = fixedDimensions.get
@@ -61,17 +67,18 @@ object AggregateOperations {
         .sortWith((dimension1, dimension2) => dimension1._1 < dimension2._1)
       (
         namesDim ++ fixedDimensionsSorted.map(_._1) ++ Seq(timeDimension),
-        valuesDim ++ fixedDimensionsSorted.map(_._2) ++ Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time))
-      )
-    } else
+        valuesDim ++ fixedDimensionsSorted.map(_._2) ++ timeDimensionValue
+        )
+    } else {
       (
         namesDim ++ Seq(timeDimension),
-        valuesDim ++ Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time))
-      )
+        valuesDim ++ timeDimensionValue
+        )
+    }
 
     val (keysId, rowId) = getNamesValues(namesFixed, valuesFixed, idCalculated)
 
-    if (keysId.length > 0)
+    if (keysId.nonEmpty)
       (Some(keysId.mkString(Output.Separator)), Row.fromSeq(rowId ++ valuesAgg))
     else
       (None, Row.fromSeq(rowId ++ valuesAgg))

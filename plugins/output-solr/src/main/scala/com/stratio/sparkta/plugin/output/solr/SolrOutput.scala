@@ -55,6 +55,8 @@ class SolrOutput(keyName: String,
 
   override val tokenizedFields = Try(properties.getString("tokenizedFields").toBoolean).getOrElse(false)
 
+  override def dateType: TypeOp.Value = TypeOp.Long
+
   @transient
   private val solrClients: Map[String, SolrClient] = {
     bcSchema.get.value.filter(tschema => tschema.outputName == keyName).map(tschemaFiltered => {
