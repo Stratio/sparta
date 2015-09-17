@@ -26,11 +26,12 @@ import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{FindAll, Response, Update}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder, SparktaConfig}
 import org.json4s.jackson.Serialization.{read, write}
 
+import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
@@ -49,14 +50,52 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
     }
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Create(policy) => create(policy)
+    case Create(policy) => sender ! create(policy)
+  }
+
+  def isNotRunning(policy: AggregationPoliciesModel): Boolean = {
+    val future = policyStatusActor ? FindAll
+    val models = Await.result(future, timeout.duration) match {
+      case Response(Success(s)) => s.filter(s=>s.id==policy.id.get)
+      case Response(Failure(ex)) => throw ex
+    }
+    models.asInstanceOf[Seq[PolicyStatusModel]].exists(p => p.status match {
+      case PolicyStatusEnum.Launched => false
+      case PolicyStatusEnum.Starting => false
+      case PolicyStatusEnum.Started => false
+      case _ => true
+    })
+  }
+
+  def launch(policy: AggregationPoliciesModel): Unit = {
+    if (isNotRunning(policy)) {
+      policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Launched))
+      getStreamingContextActor(policy) match {
+        case Some(streamingContextActor) => streamingContextActor ? Start
+        case None =>
+          policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed))
+      }
+    }
+    else
+      throw new Exception(s"policy ${policy.name} is launched")
   }
 
   /**
    * Tries to create a spark streaming context with a given configuration.
    * @param policy that contains the configuration to run.
    */
-  private def create(policy: AggregationPoliciesModel): Unit = {
+  private def create(policy: AggregationPoliciesModel): Try[Unit] = {
+    Try(
+      if (policy.id.isDefined)
+        launch(policy)
+      else {
+        launchNewPolicy(policy)
+      }
+    )
+  }
+
+
+  def launchNewPolicy(policy: AggregationPoliciesModel): Unit = {
     val policyWithIdModel = policyWithId(policy)
     policyStatusActor ? Update(PolicyStatusModel(policyWithIdModel.id.get, PolicyStatusEnum.Launched))
     getStreamingContextActor(policyWithIdModel) match {
@@ -77,7 +116,7 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
         case None => policy.copy(id = Some(UUID.randomUUID.toString))
         case Some(_) => policy
       }
-    ).copy(name = policy.name.toLowerCase)
+      ).copy(name = policy.name.toLowerCase)
 
 
   // XXX Private Methods.
@@ -96,7 +135,7 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
   }
 
   private def getStreamingContextActor(policy: AggregationPoliciesModel): Option[ActorRef] = {
-    val actorName = policy.name.replace(" ","_")
+    val actorName = policy.name.replace(" ", "_")
     SparktaConfig.getClusterConfig match {
       case Some(clusterConfig) => {
         val zookeeperConfig = SparktaConfig.getZookeeperConfig
