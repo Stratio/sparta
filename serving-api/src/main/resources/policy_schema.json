@@ -246,6 +246,34 @@
           "type"
         ]
       }
+    },
+    "fragments": {
+      "id": "http://sparkta.stratio.com/fragments",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "id": "http://sparkta.stratio.com/fragments/",
+        "type": "object",
+        "properties": {
+          "id": {
+            "id": "http://sparkta.stratio.com/fragments/id",
+            "type": "string"
+          },
+          "fragmentType": {
+            "id": "http://sparkta.stratio.com/fragments/fragmentType",
+            "type": "string"
+          },
+          "name": {
+            "id": "http://sparkta.stratio.com/fragments/name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "fragmentType",
+          "name"
+        ]
+      }
     }
   },
   "required": [

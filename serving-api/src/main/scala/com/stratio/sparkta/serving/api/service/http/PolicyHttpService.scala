@@ -210,8 +210,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     path(HttpConstant.PolicyPath) {
       post {
         entity(as[AggregationPoliciesModel]) { policy =>
-          val parsedP = getPolicyWithFragments(policy)
-          val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
+          val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(getPolicyWithFragments(policy))
           validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
             val future = supervisor ? new Create(policy)
             Await.result(future, timeout.duration) match {
@@ -238,8 +237,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     path(HttpConstant.PolicyPath) {
       put {
         entity(as[AggregationPoliciesModel]) { policy =>
-          val parsedP = getPolicyWithFragments(policy)
-          val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
+          val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(getPolicyWithFragments(policy))
           validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
           complete {
             val future = supervisor ? new Update(policy)
@@ -350,12 +348,11 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
         Await.result(future, timeout.duration) match {
           case ResponsePolicy(Failure(exception)) => throw exception
           case ResponsePolicy(Success(policy)) => {
-            val parsedP = getPolicyWithFragments(policy)
-            val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
+            val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(getPolicyWithFragments(policy))
             validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-              val tempFile = File.createTempFile(s"${parsedP.id.get}-${parsedP.name}-", ".json")
-              respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> s"${parsedP.name}.json"))) {
-                scala.tools.nsc.io.File(tempFile).writeAll(write(parsedP))
+              val tempFile = File.createTempFile(s"${policy.id.get}-${policy.name}-", ".json")
+              respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> s"${policy.name}.json"))) {
+                scala.tools.nsc.io.File(tempFile).writeAll(write(policy))
                 getFromFile(tempFile)
               }
             }
