@@ -16,7 +16,7 @@
     vm.policiesJsonData = {};
     vm.deletePolicy = deletePolicy;
     vm.runPolicy = runPolicy;
-    vm.error = true;
+    vm.error = false;
     vm.errorMessage = '';
     init();
 
@@ -50,9 +50,12 @@
     };
 
     function runPolicy(policyId) {
+
       var policyRunning = PolicyFactory.RunPolicy(policyId);
 
       policyRunning.then(function (result) {
+        console.log('*********** Policy running!')
+        console.log(result);
 
       },function (error) {
         console.log('There was an error while running the policy!');

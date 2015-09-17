@@ -213,5 +213,6 @@
   "_NAME_HELP_": "White spaces are not allowed",
   "_INPUT_CREATE_FIRST_ONE_": "Click here to create your first input!",
   "_OUTPUT_CREATE_FIRST_ONE_": "Click here to create your first output!",
-  "_POLICY_CREATE_FIRST_ONE_": "Click here to create your first policy!"
+  "_POLICY_CREATE_FIRST_ONE_": "Click here to create your first policy!",
+  "_STATUS_": "Status"
 }
