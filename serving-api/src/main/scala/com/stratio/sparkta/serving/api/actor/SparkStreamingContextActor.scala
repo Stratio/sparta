@@ -56,7 +56,7 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
   def isNotRunning(policy: AggregationPoliciesModel): Boolean = {
     val future = policyStatusActor ? FindAll
     val models = Await.result(future, timeout.duration) match {
-      case Response(Success(s)) => s
+      case Response(Success(s)) => s.filter(s=>s.id==policy.id.get)
     }
     models.asInstanceOf[Seq[PolicyStatusModel]].exists(p => p.status match {
       case PolicyStatusEnum.Launched => false
