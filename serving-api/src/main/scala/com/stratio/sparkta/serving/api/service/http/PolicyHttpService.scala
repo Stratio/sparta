@@ -52,6 +52,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiImplicitParam(name = "id",
       value = "id of the policy",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
@@ -81,6 +82,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiImplicitParam(name = "name",
       value = "name of the policy",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
@@ -110,10 +112,12 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiImplicitParam(name = "fragmentType",
       value = "type of fragment (input/output)",
       dataType = "string",
+      required = true,
       paramType = "path"),
     new ApiImplicitParam(name = "id",
       value = "id of the fragment",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
@@ -155,23 +159,29 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
           Await.result(future, timeout.duration) match {
             case ResponsePolicies(Failure(exception)) => throw exception
             case ResponsePolicies(Success(policies)) =>
-              val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
-              for {
-                response <- (policyStatusActor ? PolicyStatusActor.FindAll)
-                              .mapTo[PolicyStatusActor.Response]
-              } yield {
-                val statuses = response.policyStatus.get
-                policies.map( policy =>
-                  PolicyWithStatus(
-                    status = statuses.filter(_.id == policy.id.get)
-                              .headOption match {
-                                case Some(statusPolicy) => statusPolicy.status
-                                case None => PolicyStatusEnum.NotStarted
-                              },
-                    policy = policy
+
+              if(!policies.isEmpty){
+                val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
+                for {
+                  response <- (policyStatusActor ? PolicyStatusActor.FindAll)
+                    .mapTo[PolicyStatusActor.Response]
+                } yield {
+                  val statuses = response.policyStatus.get
+                  policies.map( policy =>
+                    PolicyWithStatus(
+                      status = statuses.filter(_.id == policy.id.get)
+                        .headOption match {
+                        case Some(statusPolicy) => statusPolicy.status
+                        case None => PolicyStatusEnum.NotStarted
+                      },
+                      policy = policy
+                    )
                   )
-                )
+                }
+              } else {
+                Seq()
               }
+
           }
         }
       }
@@ -240,6 +250,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiImplicitParam(name = "id",
       value = "id of the policy",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
@@ -269,6 +280,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiImplicitParam(name = "id",
       value = "id of the policy",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
@@ -306,6 +318,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiImplicitParam(name = "id",
       value = "id of the policy",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(

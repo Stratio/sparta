@@ -19,6 +19,7 @@ package com.stratio.sparkta.serving.api.service.http
 import akka.pattern.ask
 import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.api.helpers.PolicyHelper
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{FindAll, Response, Update}
@@ -76,8 +77,17 @@ trait PolicyContextHttpService extends BaseHttpService {
         entity(as[PolicyStatusModel]) { policyStatus =>
           complete {
             val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
-            policyStatusActor ? Update(policyStatus)
-            HttpResponse(StatusCodes.Created)
+            for {
+              response <- (policyStatusActor ? Update(policyStatus)).mapTo[Option[PolicyStatusModel]]
+            } yield {
+              if (response.isDefined)
+                HttpResponse(StatusCodes.Created)
+              else
+                throw new ServingApiException(ErrorModel.toString(
+                  ErrorModel(ErrorModel.CodeNotExistsPolicytWithId,
+                    s"No policy with id ${policyStatus.id}.")
+                ))
+            }
           }
         }
       }
