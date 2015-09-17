@@ -160,7 +160,9 @@
       }];
     var defaultInterval = 30000;
     var defaultTimeAvailability = 60000;
-    var defaultGranularity = "minute";
+    var defaultGranularity = granularityOptions[3].value;
+    var defaultTimeDimension = granularityOptions[3].value;
+    var defaultOperatorConfiguration = '{"inputField": "field1"}';
 
     return {
       getFunctionNames: function () {
@@ -184,8 +186,14 @@
       getDefaultTimeAvailability: function () {
         return defaultTimeAvailability;
       },
-      getDefaultGranularity: function(){
+      getDefaultGranularity: function () {
         return defaultGranularity;
+      },
+      getDefaultTimeDimension: function () {
+        return defaultTimeDimension;
+      },
+      getDefaultOperatorConfiguration: function () {
+        return defaultOperatorConfiguration;
       }
     }
   }
