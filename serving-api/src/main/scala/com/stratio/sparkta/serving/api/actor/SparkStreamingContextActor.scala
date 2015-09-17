@@ -57,19 +57,28 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
    * @param policy that contains the configuration to run.
    */
   private def create(policy: AggregationPoliciesModel): Unit = {
-    val policyWithId = policy.copy(id=Some(UUID.randomUUID.toString))
-    policyStatusActor ? Update(PolicyStatusModel(policyWithId.id.get, PolicyStatusEnum.Launched))
-    getStreamingContextActor(policyWithId) match {
+    val policyWithIdModel = policyWithId(policy)
+    policyStatusActor ? Update(PolicyStatusModel(policyWithIdModel.id.get, PolicyStatusEnum.Launched))
+    getStreamingContextActor(policyWithIdModel) match {
       case Some(streamingContextActor) => {
         // TODO (anistal) change and use PolicyActor.
-        savePolicyInZk(policyWithId)
+        savePolicyInZk(policyWithIdModel)
         streamingContextActor ? Start
       }
       case None => {
-        policyStatusActor ? Update(PolicyStatusModel(policyWithId.id.get, PolicyStatusEnum.Failed))
+        policyStatusActor ? Update(PolicyStatusModel(policyWithIdModel.id.get, PolicyStatusEnum.Failed))
       }
     }
   }
+
+  private def policyWithId(policy: AggregationPoliciesModel) =
+    (
+      policy.id match {
+        case None => policy.copy(id = Some(UUID.randomUUID.toString))
+        case Some(_) => policy
+      }
+    ).copy(name = policy.name.toLowerCase)
+
 
   // XXX Private Methods.
   private def savePolicyInZk(policy: AggregationPoliciesModel): Unit = {
@@ -87,6 +96,7 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
   }
 
   private def getStreamingContextActor(policy: AggregationPoliciesModel): Option[ActorRef] = {
+    val actorName = policy.name.replace(" ","_")
     SparktaConfig.getClusterConfig match {
       case Some(clusterConfig) => {
         val zookeeperConfig = SparktaConfig.getZookeeperConfig
@@ -96,13 +106,13 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
         if (zookeeperConfig.isDefined && hdfsConfig.isDefined) {
           Some(context.actorOf(Props(new ClusterSparkStreamingContextActor(
             policy, streamingContextService, clusterConfig, hdfsConfig.get, zookeeperConfig.get, detailConfig)),
-            s"$SparkStreamingContextActorPrefix-${policy.name}"))
+            s"$SparkStreamingContextActorPrefix-${actorName}"))
         } else None
       }
       case None => Some(context.actorOf(
         Props(new LocalSparkStreamingContextActor(
           policy, streamingContextService, policyStatusActor)),
-        s"$SparkStreamingContextActorPrefix-${policy.name}"))
+        s"$SparkStreamingContextActorPrefix-${actorName}"))
     }
   }
 }

@@ -35,5 +35,5 @@ This fragments are saved in Zookeeper in paths `/stratio/sparkta/fragments/input
 
 Policies are saved in path `/stratio/sparkta/policies`.
 
-Another useful information we saved is the policy statuses. We save the current status of a policy. This status is
+Another useful information we save is the policy status. We save the current status of a policy. This status is
 persisted in path `/stratio/sparkta/contexts`

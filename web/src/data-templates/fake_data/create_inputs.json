@@ -11,7 +11,7 @@
     },
     "fragmentType": "input",
     "shortDescription": "Reads events from a socket.",
-    "name": "test input socket"
+    "name": "test_input_socket"
   },
   {
     "description": "Reads events from Twitter stream.",
@@ -28,7 +28,7 @@
     },
     "fragmentType": "input",
     "shortDescription": "Reads events from Twitter stream.",
-    "name": "test input twitter"
+    "name": "test_input_twitter"
   },
   {
     "description": "Reads events from flume",
@@ -44,7 +44,7 @@
     },
     "fragmentType": "input",
     "shortDescription": "Reads events from flume",
-    "name": "test input flume type push"
+    "name": "test_input_flume_type_push"
   },
   {
     "description": "Reads events from RabbitMQ",
@@ -66,7 +66,7 @@
     },
     "fragmentType": "input",
     "shortDescription": "Reads events from RabbitMQ",
-    "name": "test input rabbitmq"
+    "name": "test_input_rabbitmq"
   },
   {
     "description": "Reads events from apache-kafka",
@@ -97,7 +97,7 @@
     },
     "fragmentType": "input",
     "shortDescription": "Reads events from apache-kafka",
-    "name": "test input kafka"
+    "name": "test_input_kafka"
   },
   {
     "description": "Reads events from apache-kafka",
@@ -112,7 +112,7 @@
     },
     "fragmentType": "input",
     "shortDescription": "Reads events from apache-kafka",
-    "name": "test input kafkadirect"
+    "name": "test_input_kafkadirect"
   },
   {
     "description": "Reads events from flume",
@@ -128,11 +128,11 @@
     },
     "fragmentType": "input",
     "shortDescription": "Reads events from flume",
-    "name": "test input flume type pull"
+    "name": "test_input_flume_type_pull"
   },
   {
     "fragmentType": "input",
-    "name": "test input Websocket",
+    "name": "test_input_Websocket",
     "description": "Reads events from websocket stream.",
     "shortDescription": "Reads events from a websocket stream.",
     "element": {
