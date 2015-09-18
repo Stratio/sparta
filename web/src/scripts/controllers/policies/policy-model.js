@@ -20,6 +20,7 @@
       vm.configPlaceholder = PolicyStaticDataFactory.getConfigPlaceholder();
       vm.outputPattern = ModelStaticDataFactory.getOutputPattern();
       vm.outputInputPlaceholder = ModelStaticDataFactory.getOutputInputPlaceholder();
+      vm.templateModelData = ModelStaticDataFactory;
       vm.modelError = ModelFactory.getError();
 
       if (model) {
