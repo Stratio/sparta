@@ -1,8 +1,8 @@
 Cluster Execution
 ***********
 
-In Sparkta is possible run policies over a Spark Cluster. Sparkta need one Cluster Manager for run, and this that can be
-Mesos, Yarn and Spark StandAlone.
+In Sparkta is possible to run policies in a Spark Cluster. Sparkta needs one Cluster Manager to run, and this could be
+Mesos, Yarn or Spark StandAlone.
 With this mode the user can run a lot of policies in the same Spark cluster with more than one Spark context.
 
 All the configuration parameters are inside the application.conf file.
@@ -46,7 +46,7 @@ All the configuration parameters are inside the application.conf file.
          }
 
 
-If you change executionMode parameter you can change the type of execution, their possible values are:
+If you change the executionMode parameter you can change the type of execution, their possible values are:
   - mesos
   - yarn
   - standAlone
@@ -69,29 +69,36 @@ this parameters are optionals.
   config::
 
     executionMode: mesos/yarn/StandAlone/local. Optional: No.
+
     rememberPartitioner: Remember partitioner for the stateful operations. Optional: Yes.
+
     stopGracefully: Stop the sparkContext gracefully. Optional: Yes.
 
 
   hdfs::
 
     hadoopUserName: User name configured in Hdfs for save temporal files and classpath for the policies. Optional: No.
+
     hadoopConfDir: Path for search the configurations files for HDFS. Optional: Yes.
+
     hdfsMaster: Ip for search the files in HDFS. Optional: No.
+
     pluginsFolder: Folder for save the jars of the plugins related to each policy. Optional: Yes.
+
     executionJarFolder = Folder for save the jar driver related to each policy. Optional: Yes.
+
     classpathFolder = Folder for save the jars classpath related to each policy. Optional: Yes.
 
 
   mesos::
 
-    sparkHome: Path of the spark installation for search the sparkSubmit program. Optional: Yes.
+    sparkHome: Path of the spark installation to search the sparkSubmit program. Optional: Yes.
 
-    deployMode: Is possible run over mesos in two modes, client and cluster. Optional: No.
+    deployMode: It`s possible to run in a mesos with two different modes, client and cluster. Optional: No.
 
     numExecutors: The number of Sparkta executors to deploy with mesos. Optional: No.
 
-    masterDispatchers: Ip of the machine that runs the mesos dispatcher script. Optional: No.
+    masterDispatchers: IP of the machine that runs the mesos dispatcher script. Optional: No.
 
     spark.cores.max: The maximum amount of CPU cores to request for the application from across the cluster (not from
       each machine). If not set, the default will be infinite (all available cores) on Mesos. Optional: Yes.
