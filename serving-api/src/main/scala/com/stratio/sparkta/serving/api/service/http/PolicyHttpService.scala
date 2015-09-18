@@ -20,7 +20,6 @@ import java.io.File
 import javax.ws.rs.Path
 
 import akka.pattern.ask
-import akka.util.Timeout
 import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor
@@ -35,7 +34,7 @@ import spray.http.{HttpResponse, StatusCodes}
 import spray.httpx.marshalling.ToResponseMarshallable
 import spray.routing._
 
-import scala.concurrent.{Future, Await}
+import scala.concurrent.Await
 import scala.util.{Failure, Success}
 
 @Api(value = HttpConstant.PolicyPath, description = "Operations over policies.")
@@ -44,6 +43,9 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
   case class Result(message: String, desc: Option[String] = None)
 
   override def routes: Route = find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download ~ findByName
+
+  def getPolicyWithFragments(policy: AggregationPoliciesModel): AggregationPoliciesModel =
+    PolicyHelper.parseFragments(PolicyHelper.fillFragments(policy, actors.get(AkkaConstant.FragmentActor).get, timeout))
 
   @Path("/find/{id}")
   @ApiOperation(value = "Find a policy from its id.",
@@ -187,8 +189,6 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
           Await.result(future, timeout.duration) match {
             case ResponsePolicies(Failure(exception)) => throw exception
             case ResponsePolicies(Success(policies)) => withStatus(policies)
-
-
           }
         }
       }
@@ -209,15 +209,15 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     path(HttpConstant.PolicyPath) {
       post {
         entity(as[AggregationPoliciesModel]) { policy =>
-          val parsedP = PolicyHelper.parseFragments(
-            PolicyHelper.fillFragments(policy, actors.get(AkkaConstant.FragmentActor).get, timeout))
-          val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
-          validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2)
-
-          val future = supervisor ? new Create(policy)
-          Await.result(future, timeout.duration) match {
-            case ResponsePolicy(Failure(exception)) => throw exception
-            case ResponsePolicy(Success(policy)) => complete(policy)
+          val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(getPolicyWithFragments(policy))
+          validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
+            complete {
+              val future = supervisor ? new Create(policy)
+              Await.result(future, timeout.duration) match {
+                case ResponsePolicy(Failure(exception)) => throw exception
+                case ResponsePolicy(Success(pol)) => pol
+              }
+            }
           }
         }
       }
@@ -238,11 +238,14 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     path(HttpConstant.PolicyPath) {
       put {
         entity(as[AggregationPoliciesModel]) { policy =>
-          complete {
-            val future = supervisor ? new Update(policy)
-            Await.result(future, timeout.duration) match {
-              case Response(Failure(exception)) => throw exception
-              case Response(Success(_)) => HttpResponse(StatusCodes.Created)
+          val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(getPolicyWithFragments(policy))
+          validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
+            complete {
+              val future = supervisor ? new Update(policy)
+              Await.result(future, timeout.duration) match {
+                case Response(Failure(exception)) => throw exception
+                case Response(Success(_)) => HttpResponse(StatusCodes.Created)
+              }
             }
           }
         }
@@ -301,21 +304,16 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
         Await.result(future, timeout.duration) match {
           case ResponsePolicy(Failure(exception)) => throw exception
           case ResponsePolicy(Success(policy)) => {
-            val parsedP = PolicyHelper.parseFragments(
-              PolicyHelper.fillFragments(policy, actors.get(AkkaConstant.FragmentActor).get, timeout))
+            val parsedP = getPolicyWithFragments(policy)
             val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
             validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-              val a:Future[Any]=actors.get(AkkaConstant.SparkStreamingContextActor).get ? new SparkStreamingContextActor.Create(parsedP)
-              val error=  Await.result(a,timeout.duration) match {
-                case Failure(ex)=>Some(ex)
-                case Success(_) => None
-              }
               complete {
-                error match {
-                  case Some(ex:Throwable)=> throw ex
-                  case None =>new Result("Creating new context with name " + policy.name)
+                val response = actors.get(AkkaConstant.SparkStreamingContextActor).get ?
+                  new SparkStreamingContextActor.Create(parsedP)
+                Await.result(response, timeout.duration) match {
+                  case Failure(ex) => throw ex
+                  case Success(_) => new Result("Creating new context with name " + policy.name)
                 }
-
               }
             }
           }
@@ -347,14 +345,14 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
         Await.result(future, timeout.duration) match {
           case ResponsePolicy(Failure(exception)) => throw exception
           case ResponsePolicy(Success(policy)) => {
-            val parsedP = PolicyHelper.parseFragments(
-              PolicyHelper.fillFragments(policy, actors.get(AkkaConstant.FragmentActor).get, timeout))
-            val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
+            val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(getPolicyWithFragments(policy))
             validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-              val tempFile = File.createTempFile(s"${parsedP.id.get}-${parsedP.name}-", ".json")
-              respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> s"${parsedP.name}.json"))) {
-                scala.tools.nsc.io.File(tempFile).writeAll(write(parsedP))
-                getFromFile(tempFile)
+              complete {
+                val tempFile = File.createTempFile(s"${policy.id.get}-${policy.name}-", ".json")
+                respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> s"${policy.name}.json"))) {
+                  scala.tools.nsc.io.File(tempFile).writeAll(write(policy))
+                  getFromFile(tempFile)
+                }
               }
             }
           }
