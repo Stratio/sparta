@@ -5,9 +5,9 @@
     .module('webApp')
     .controller('PoliciesCtrl', PoliciesCtrl);
 
-  PoliciesCtrl.$inject = ['PolicyFactory', '$modal', '$state', '$translate'];
+  PoliciesCtrl.$inject = ['PolicyFactory', '$modal', '$state', '$translate', '$interval', '$filter', '$scope', '$timeout'];
 
-  function PoliciesCtrl(PolicyFactory, $modal, $state, $translate) {
+  function PoliciesCtrl(PolicyFactory, $modal, $state, $translate, $interval, $filter, $scope, $timeout) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -27,6 +27,13 @@
 
     function init() {
       getPolicies();
+
+      /*Stop $interval when changing the view*/
+      $scope.$on("$destroy",function(){
+          if (angular.isDefined(vm.checkPoliciesStatus)) {
+            $interval.cancel(vm.checkPoliciesStatus);
+          }
+      });
     }
 
     function getPolicies() {
@@ -35,9 +42,28 @@
       policiesList.then(function (result) {
         vm.error = false;
         vm.policiesData.list = result;
+
+
+
+        vm.checkPoliciesStatus = $interval(function() {
+          var policiesStatus = PolicyFactory.getPoliciesStatus();
+
+          policiesStatus.then(function (result) {
+            for (var i=0; i < result.length; i++) {
+              var policyData = $filter('filter')(vm.policiesData.list, {'policy':{'id':result[i].id}}, true)[0];
+              if (policyData) {
+                policyData.status = result[i].status;
+              }
+            }
+          },function (error) {
+          });
+        }, 5000);
+
+
+
+
       },function (error) {
         $translate('_INPUT_ERROR_' + error.data.i18nCode + '_').then(function(value){
-            console.log(error);
             vm.error = true;
             vm.success = false;
             vm.successMessage = value;
@@ -65,9 +91,19 @@
             vm.successMessage = value;
           });
 
+
+
+
+
+
+
+          $timeout(function(){vm.success = false}, 5000);
+
+
+
+
         },function (error) {
           $translate('_INPUT_ERROR_' + error.data.i18nCode + '_').then(function(value){
-            console.log(error);
             vm.error = true;
             vm.success = false;
             vm.errorMessage = value;
@@ -93,7 +129,7 @@
           "status": "Stopping"
         };
 
-        var policyStopping = PolicyFactory.StopPolicy(stopPolicy);
+        var policyStopping = PolicyFactory.stopPolicy(stopPolicy);
 
         policyStopping.then(function (result) {
           $translate('_STOP_POLICY_OK_', {policyName: policyName}).then(function(value){
@@ -101,6 +137,11 @@
             vm.success = true;
             vm.successMessage = value;
           });
+
+
+
+
+          $timeout(function(){vm.success = false}, 5000);
 
 
         },function (error) {
