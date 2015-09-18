@@ -47,7 +47,7 @@
       var policiesList = PolicyFactory.getAllPolicies();
       policiesList.then(function (result) {
         var policiesDataList = result;
-        var filteredPolicies = $filter('filter')(policiesDataList, {'name': vm.policy.name.toLowerCase()}, true);
+        var filteredPolicies = $filter('filter')(policiesDataList, {'policy':{'name': vm.policy.name.toLowerCase()}}, true);
 
         if (filteredPolicies.length > 0) {
           var foundPolicy = filteredPolicies[0];
