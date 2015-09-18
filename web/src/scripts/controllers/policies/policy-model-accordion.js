@@ -6,10 +6,10 @@
     .module('webApp')
     .controller('PolicyModelAccordionCtrl', PolicyModelAccordionCtrl);
 
-  PolicyModelAccordionCtrl.$inject = ['PolicyModelFactory', 'ModelStaticDataFactory', 'AccordionStatusService',
+  PolicyModelAccordionCtrl.$inject = ['PolicyModelFactory', 'AccordionStatusService',
     'ModelFactory', 'PolicyStaticDataFactory', 'CubeService', '$modal', '$translate', '$q'];
 
-  function PolicyModelAccordionCtrl(PolicyModelFactory, ModelStaticDataFactory, AccordionStatusService,
+  function PolicyModelAccordionCtrl(PolicyModelFactory, AccordionStatusService,
                                     ModelFactory, PolicyStaticDataFactory, CubeService, $modal, $translate, $q) {
     var vm = this;
     var index = 0;
@@ -29,7 +29,6 @@
       ModelFactory.resetModel();
       vm.newModel = ModelFactory.getModel();
       vm.accordionStatus = AccordionStatusService.accordionStatus;
-      vm.templateModelData = ModelStaticDataFactory;
       AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
       vm.helpLink = PolicyStaticDataFactory.getHelpLinks().models;
       vm.error = "";
@@ -112,11 +111,11 @@
 
     function nextStep() {
       if (vm.policy.models.length > 0) {
-        vm.error = "" ;
+        vm.error = "";
         PolicyModelFactory.nextStep();
       }
       else {
-        vm.error = "_POLICY_._MODEL_ERROR_" ;
+        vm.error = "_POLICY_._MODEL_ERROR_";
       }
     }
   }
