@@ -56,8 +56,6 @@
               }
             }
           },function (error) {
-            console.log('********** Error when uploading policies status');
-            console.log(error);
           });
         }, 5000);
 
@@ -66,7 +64,6 @@
 
       },function (error) {
         $translate('_INPUT_ERROR_' + error.data.i18nCode + '_').then(function(value){
-            console.log(error);
             vm.error = true;
             vm.success = false;
             vm.successMessage = value;
@@ -107,7 +104,6 @@
 
         },function (error) {
           $translate('_INPUT_ERROR_' + error.data.i18nCode + '_').then(function(value){
-            console.log(error);
             vm.error = true;
             vm.success = false;
             vm.errorMessage = value;

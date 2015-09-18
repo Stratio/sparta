@@ -24,6 +24,7 @@
 
     function init() {
       vm.policy = PolicyModelFactory.getCurrentPolicy();
+      CubeModelFactory.resetCube();
       vm.newCube = CubeModelFactory.getCube();
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
       AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
