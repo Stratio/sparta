@@ -18,6 +18,10 @@
     vm.StopPolicy = StopPolicy;
     vm.GetFakePolicy = GetFakePolicy;
 
+
+
+    vm.getPoliciesStatus = getPoliciesStatus;
+
     /////////////////////////////////
 
     function GetPolicyByFragmentId() {
@@ -75,6 +79,20 @@
         {
           'get': {method: 'GET',
             timeout: apiConfigSettings.timeout}
+        });
+    };
+
+
+
+
+
+    function getPoliciesStatus() {
+      return $resource('/policyContext', {},
+        {
+          'get': {
+            method: 'GET', isArray: true,
+            timeout: apiConfigSettings.timeout
+          }
         });
     };
   };

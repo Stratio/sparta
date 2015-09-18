@@ -29,6 +29,12 @@
                },
                GetFakePolicy: function() {
                   return ApiPolicyService.GetFakePolicy().get().$promise;
+               },
+
+
+
+               getPoliciesStatus: function() {
+                  return ApiPolicyService.getPoliciesStatus().get().$promise;
                }
            };
    };
