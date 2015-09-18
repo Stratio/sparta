@@ -20,6 +20,7 @@
       vm.configPlaceholder = PolicyStaticDataFactory.getConfigPlaceholder();
       vm.outputPattern = ModelStaticDataFactory.getOutputPattern();
       vm.outputInputPlaceholder = ModelStaticDataFactory.getOutputInputPlaceholder();
+      vm.modelError = ModelFactory.getError();
 
       if (model) {
         vm.model = model;
@@ -30,7 +31,6 @@
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.modelTypes = ModelStaticDataFactory.getTypes();
     }
-
 
     function changeDefaultConfiguration() {
       var configString = JSON.stringify(ModelStaticDataFactory.getDefaultConfigurations(vm.model.type));

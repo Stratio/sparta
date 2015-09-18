@@ -20,7 +20,6 @@
     vm.nextStep = nextStep;
     vm.getIndex = getIndex;
     vm.isLastModel = isLastModel;
-    vm.modelError = false;
 
     vm.init();
 
@@ -31,10 +30,11 @@
       vm.templateModelData = ModelStaticDataFactory;
       AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
       vm.helpLink = PolicyStaticDataFactory.getHelpLinks().models;
+      vm.error = "";
     }
 
     function addModel() {
-      vm.modelError = false;
+      vm.error = "";
       if (ModelFactory.isValidModel()) {
         var newModel = angular.copy(vm.newModel);
         newModel.order = vm.policy.models.length + 1;
@@ -42,8 +42,7 @@
         ModelFactory.resetModel();
         AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
         AccordionStatusService.accordionStatus.newItem = true;
-      } else
-        vm.modelError = true;
+      }
     }
 
     function removeModel(index) {
@@ -107,11 +106,11 @@
 
     function nextStep() {
       if (vm.policy.models.length > 0) {
-        vm.modelError = false;
+        vm.error = "" ;
         PolicyModelFactory.nextStep();
       }
       else {
-        vm.modelError = true;
+        vm.error = "_POLICY_._MODEL_ERROR_" ;
       }
     }
   }
