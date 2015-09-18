@@ -10,16 +10,28 @@
   function ApiPolicyService($resource, apiConfigSettings) {
     var vm = this;
 
-    vm.GetPolicyByFragmentId = GetPolicyByFragmentId;
-    vm.GetAllpolicies = GetAllPolicies;
-    vm.CreatePolicy = CreatePolicy;
-    vm.DeletePolicy = DeletePolicy;
-    vm.RunPolicy = RunPolicy;
-    vm.GetFakePolicy = GetFakePolicy;
+    vm.getPolicyById = getPolicyById;
+    vm.getPolicyByFragmentId = getPolicyByFragmentId;
+    vm.getAllpolicies = getAllPolicies;
+    vm.createPolicy = createPolicy;
+    vm.deletePolicy = deletePolicy;
+    vm.runPolicy = runPolicy;
+    vm.getFakePolicy = getFakePolicy;
+    vm.savePolicy = savePolicy;
+    vm.stopPolicy = stopPolicy;
+    vm.getPoliciesStatus = getPoliciesStatus;
 
     /////////////////////////////////
 
-    function GetPolicyByFragmentId() {
+    function getPolicyById() {
+      return $resource('/policy/find/:id', {id: '@id'},
+        {
+          'get': {method: 'GET'},
+          timeout: apiConfigSettings.timeout
+        });
+    };
+
+    function getPolicyByFragmentId() {
       return $resource('/policy/fragment/:type/:id', {type: '@type', id: '@id'},
         {
           'get': {method: 'GET', isArray: true},
@@ -27,7 +39,7 @@
         });
     };
 
-    function GetAllPolicies() {
+    function getAllPolicies() {
       return $resource('/policy/all', {},
         {
           'get': {
@@ -37,35 +49,69 @@
         });
     };
 
-    function CreatePolicy() {
+    function createPolicy() {
       return $resource('/policy', {},
         {
-          'create': {method: 'POST',
-            timeout: apiConfigSettings.timeout}
+          'create': {
+            method: 'POST',
+            timeout: apiConfigSettings.timeout
+          }
         });
     };
 
-    function DeletePolicy() {
+    function deletePolicy() {
       return $resource('/policy/:id', {id: '@id'},
         {
-          'delete': {method: 'DELETE',
-            timeout: apiConfigSettings.timeout}
+          'delete': {
+            method: 'DELETE',
+            timeout: apiConfigSettings.timeout
+          }
         });
     };
 
-    function RunPolicy() {
-        return $resource('/policy/run/:id', {id:'@id'},
+    function runPolicy() {
+      return $resource('/policy/run/:id', {id: '@id'},
         {
             'get': {method:'GET',
             timeout: apiConfigSettings.timeout}
         });
     };
 
-    function GetFakePolicy() {
+    function stopPolicy() {
+      return $resource('/policyContext', {},
+        {
+          'update': {method: 'PUT',
+            timeout: apiConfigSettings.timeout}
+        });
+    };
+
+    function getFakePolicy() {
       return $resource('/data-templates/fake_data/create_policies.json', {},
         {
-          'get': {method: 'GET',
-            timeout: apiConfigSettings.timeout}
+          'get': {
+            method: 'GET',
+            timeout: apiConfigSettings.timeout
+          }
+        });
+    };
+
+    function savePolicy() {
+      return $resource('/policy', {},
+        {
+          'put': {
+            method: 'PUT',
+            timeout: apiConfigSettings.timeout
+          }
+        });
+    };
+
+    function getPoliciesStatus() {
+      return $resource('/policyContext', {},
+        {
+          'get': {
+            method: 'GET', isArray: true,
+            timeout: apiConfigSettings.timeout
+          }
         });
     };
   };

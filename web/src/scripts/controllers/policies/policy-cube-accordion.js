@@ -18,29 +18,25 @@
     vm.removeCube = removeCube;
     vm.getIndex = getIndex;
     vm.error = false;
-    vm.modelError = false;
+    vm.error = "";
 
     vm.init();
 
     function init() {
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      vm.policy.cubes = [];
+      CubeModelFactory.resetCube();
       vm.newCube = CubeModelFactory.getCube();
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
       AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
-      vm.helpLink = PolicyStaticDataFactory.helpLinks.cubes;
+      vm.helpLink = PolicyStaticDataFactory.getHelpLinks().cubes;
     };
 
     function addCube() {
       if (CubeModelFactory.isValidCube()) {
-        vm.modelError = false;
-        vm.error = false;
+        vm.error = "";
         vm.policy.cubes.push(angular.copy(vm.newCube));
         CubeModelFactory.resetCube();
         AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
-      }
-      else {
-        vm.error = true;
       }
     };
 
@@ -59,7 +55,7 @@
         PolicyModelFactory.nextStep();
       }
       else {
-        vm.modelError = true;
+        vm.error = "_POLICY_._CUBE_ERROR_" ;
       }
     };
 

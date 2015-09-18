@@ -2,7 +2,13 @@
 	@include c-panel;
 
 	&--small {
+		font-size: $c-msg--small---font-size;
 		padding: $c-msg--small---padding;
+	}
+
+	&--giant {
+		font-size: $c-msg--giant---font-size;
+		padding: $c-msg--giant---padding;
 	}
 
 	&--error {
@@ -13,6 +19,13 @@
 	&--success {
 		background: $c-msg--success---background;
 		color: $c-msg--success---color;
+	}
+
+	&--noitems {
+		background: $c-msg--noitems---background;
+		color: $c-msg--noitems---color;
+		cursor: pointer;
+		text-align: center;
 	}
 
 	.c-icon {
