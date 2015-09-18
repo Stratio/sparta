@@ -27,14 +27,17 @@
       runPolicy: function (policyid) {
         return ApiPolicyService.runPolicy().get({'id': policyid}).$promise;
       },
-      getFakePolicy: function () {
-        return ApiPolicyService.getFakePolicy().get().$promise;
-      },
-      StopPolicy: function (policy) {
-        return ApiPolicyService.StopPolicy().update(policy).$promise;
+      stopPolicy: function (policy) {
+        return ApiPolicyService.stopPolicy().update(policy).$promise;
       },
       savePolicy: function (policyData) {
         return ApiPolicyService.savePolicy().put(policyData).$promise;
+      },
+      getPoliciesStatus: function() {
+        return ApiPolicyService.getPoliciesStatus().get().$promise;
+      },
+      getFakePolicy: function () {
+        return ApiPolicyService.getFakePolicy().get().$promise;
       }
     };
   };
