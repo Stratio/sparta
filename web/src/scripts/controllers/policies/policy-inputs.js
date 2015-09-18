@@ -18,11 +18,11 @@
     init();
 
     function init() {
-      vm.helpLink = PolicyStaticDataFactory.helpLinks.inputs;
+      vm.helpLink = PolicyStaticDataFactory.getHelpLinks().inputs;
 
       var defer = $q.defer();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      var inputList = FragmentFactory.GetFragments("input");
+      var inputList = FragmentFactory.getFragments("input");
       inputList.then(function (result) {
         vm.inputList = result;
         defer.resolve();

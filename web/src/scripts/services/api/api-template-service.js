@@ -10,11 +10,11 @@
     function ApiTemplateService($resource, apiConfigSettings) {
         var vm = this;
 
-        vm.GetFragmentTemplateByType = GetFragmentTemplateByType;
+        vm.getFragmentTemplateByType = getFragmentTemplateByType;
 
         /////////////////////////////////
 
-        function GetFragmentTemplateByType() {
+        function getFragmentTemplateByType() {
             return $resource('/data-templates/:type', {type:'@type'},
             {
                 'get'   : {method:'GET', isArray:true,
