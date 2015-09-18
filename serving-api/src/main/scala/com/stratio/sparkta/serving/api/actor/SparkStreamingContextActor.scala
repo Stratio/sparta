@@ -27,13 +27,14 @@ import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{FindAll, Response, Update}
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
+import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder, SparktaConfig}
 import org.json4s.jackson.Serialization.{read, write}
 
 import scala.collection.JavaConversions
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits._
 import scala.util.{Failure, Success, Try}
 
 class SparkStreamingContextActor(streamingContextService: StreamingContextService,
@@ -119,7 +120,13 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
   def launchNewPolicy(policy: AggregationPoliciesModel): Unit = {
     val policyWithIdModel = policyWithId(policy)
 
-    policyStatusActor ? Update(PolicyStatusModel(policyWithIdModel.id.get, PolicyStatusEnum.Launched))
+    for {
+      response <- policyStatusActor ? PolicyStatusActor.Create(PolicyStatusModel(
+                                        id = policyWithIdModel.id.get,
+                                        status = PolicyStatusEnum.NotStarted
+                                      ))
+    } yield policyStatusActor ! Update(PolicyStatusModel(policyWithIdModel.id.get, PolicyStatusEnum.Launched))
+
     getStreamingContextActor(policyWithIdModel) match {
       case Some(streamingContextActor) => {
         // TODO (anistal) change and use PolicyActor.
