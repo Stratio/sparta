@@ -55,7 +55,7 @@ trait SolrDAO extends Closeable with Logging {
   def validConfiguration: Boolean = dataDir.isDefined
 
   def getConfig(host: String, collection: String): Map[String, String] =
-    Map("zkhost" -> host, "collection" -> collection)
+    Map("zkhost" -> host, "collection" -> collection, "skip_default_index" -> "true")
 
   def createCoreAccordingToSchema(solrClients: Map[String, SolrClient],
                                   tableName: String,

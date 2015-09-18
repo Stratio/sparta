@@ -60,9 +60,9 @@
         <dependency>
             <groupId>com.lucidworks.spark</groupId>
             <artifactId>spark-solr</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.4-SNAPSHOT</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/../lib/spark-solr-1.3-SNAPSHOT.jar</systemPath>
+            <systemPath>${project.basedir}/../lib/spark-solr-1.4-SNAPSHOT.jar</systemPath>
         </dependency>
     </dependencies>
     <build>
