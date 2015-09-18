@@ -50,7 +50,7 @@
         var filteredPolicies = $filter('filter')(policiesDataList, {'policy':{'name': vm.policy.name.toLowerCase()}}, true);
 
         if (filteredPolicies.length > 0) {
-          var foundPolicy = filteredPolicies[0];
+          var foundPolicy = filteredPolicies[0].policy;
           if (vm.policy.id != foundPolicy.id || vm.policy.id === undefined) {
             found = true;
           }
