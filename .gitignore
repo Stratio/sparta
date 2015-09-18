@@ -38,6 +38,7 @@ build.log
 
 #SHITTY output not in target directory
 /dependency-reduced-pom.xml
+examples/scripts/temp.json
 
 # Sparkta specifics
 logs
