@@ -1,15 +1,20 @@
-<form name="form" class="c-form c-panel c-panel--framed" novalidate>
+<form name="form" class="c-form c-panel" novalidate>
   <div class="c-row c-msg c-msg--small c-msg--error c-msg--bottom-margin" data-ng-if="error">
     <i class="c-icon icon-circle-cross"></i>
     <span>{{"_ERROR_INPUT_DUPLICATED_" | translate}}</span>
   </div>
-  <div class="c-form-group">
-    <form-field-input id="addElementInput" data-form="form" data-st-name="input-form"
-                      type={{type}} data-model="inputToAdd"
-                      data-placeHolder={{placeholder}}
-                      data-disabled="disabled" data-pattern="pattern"
-                      data-ng-keypress="addInput($event, form)" data-qa="{{qa}}">
-    </form-field-input>
-    <i class="{{iconClass}}" data-ng-click="addInput($event)" data-qa="{{qa}}-add-button"></i>
+  <div class="c-form-group c-form-group--with-gutter">
+    <div class="c-col c-col--11">
+      <form-field-input id="addElementInput" data-form="form" data-st-name="input-form"
+                        type={{type}} data-model="inputToAdd"
+                        data-placeHolder={{placeholder}}
+                        data-disabled="disabled" data-pattern="pattern"
+                        data-ng-keypress="addInput($event, form)" data-qa="{{qa}}">
+      </form-field-input>
+    </div><!--
+
+ --><div class="c-col c-col--1">
+      <i class="{{iconClass}}" data-ng-click="addInput($event)" data-qa="{{qa}}-add-button"></i>
+    </div>
   </div>
 </form>
