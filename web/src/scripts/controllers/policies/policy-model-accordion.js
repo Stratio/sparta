@@ -25,6 +25,7 @@
 
     function init() {
       vm.policy = PolicyModelFactory.getCurrentPolicy();
+      ModelFactory.resetModel();
       vm.newModel = ModelFactory.getModel();
       vm.accordionStatus = AccordionStatusService.accordionStatus;
       vm.templateModelData = ModelStaticDataFactory;
