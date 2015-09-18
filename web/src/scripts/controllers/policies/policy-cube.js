@@ -46,8 +46,7 @@
             return outputName;
           },
           dimensionName: function () {
-            var functionLength = vm.cube.dimensions.length + 1;
-            return outputName + functionLength;
+            return outputName;
           },
           type: function () {
             return CubeStaticDataFactory.getDefaultType().value
