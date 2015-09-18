@@ -41,13 +41,9 @@
             vm.error = false;
             vm.inputsData = result;
             vm.getInputTypes(result);
-            console.log(result);
-
           },function (error) {
             vm.error = true
-            vm.errorMessage = "_INPUT_ERROR_" + error.data.i18nCode + "_";;
-            console.log('There was an error while loading the inputs flist!');
-            console.log(error);
+            vm.errorMessage = "_INPUT_ERROR_" + error.data.i18nCode + "_";
           });
 
         };

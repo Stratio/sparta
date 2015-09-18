@@ -25,13 +25,11 @@
           newFragment.then(function (newInputResult) {
           }, function (error) {
             console.log('There was an error while creating an input');
-            console.log(error);
           });
         }
 
       }, function (error) {
         console.log('There was an error while loading the inputs flist!');
-        console.log(error);
       });
 
       var outputList = FragmentFactory.getFakeFragments('create_outputs.json');
@@ -43,13 +41,11 @@
           newFragment.then(function (newInputResult) {
           }, function (error) {
             console.log('There was an error while creating an output!');
-            console.log(error);
           });
         }
 
       }, function (error) {
         console.log('There was an error while loading the outputs list!');
-        console.log(error);
       });
     };
 
@@ -85,24 +81,20 @@
 
               }, function (error) {
                 console.log('There was an error while creating the policy!');
-                console.log(error);
               });
             }
             ;
 
           }, function (error) {
             console.log('There was an error while loading the policy template!');
-            console.log(error);
           });
 
         }, function (error) {
           console.log('There was an error while loading the outputs list!');
-          console.log(error);
         });
 
       }, function (error) {
         console.log('There was an error while loading the inputs list!');
-        console.log(error);
       });
 
     };
