@@ -10,6 +10,7 @@
 
   function PolicyFinishCtrl(PolicyModelFactory) {
     var vm = this;
+    vm.previousStep = previousStep;
 
     init();
 
@@ -17,34 +18,41 @@
 
     function init() {
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      generateFinalJSON();
-      vm.testingpolcyData = JSON.stringify(vm.policy, null, 4);
-    };
+
+      var finalJSON = generateFinalJSON();
+      PolicyModelFactory.setFinalJSON(finalJSON);
+      vm.testingpolcyData = JSON.stringify(finalJSON, null, 4);
+    }
+
+    function previousStep() {
+      PolicyModelFactory.previousStep();
+    }
 
     function generateFinalJSON() {
       var fragments = [];
-
-      vm.policy.transformations = vm.policy.models;
-      fragments.push(vm.policy.input);
-      for (var i = 0; i < vm.policy.outputs.length; ++i) {
-        if (vm.policy.outputs[i]) {
-          fragments.push(vm.policy.outputs[i]);
+      var finalJSON = angular.copy(vm.policy);
+      finalJSON.transformations = finalJSON.models;
+      fragments.push(finalJSON.input);
+      for (var i = 0; i < finalJSON.outputs.length; ++i) {
+        if (finalJSON.outputs[i]) {
+          fragments.push(finalJSON.outputs[i]);
         }
       }
-      vm.policy.fragments = fragments;
-      cleanPolicyJSON();
+      finalJSON.fragments = fragments;
+      finalJSON = cleanPolicyJSON(finalJSON);
 
-      return vm.policy;
+      return finalJSON;
     }
 
-    function cleanPolicyJSON() {
-      delete vm.policy.models;
-      delete vm.policy.input;
-      delete vm.policy.outputs;
-      if (vm.policy.rawData.enabled === 'false') {
-        delete vm.policy.rawData['path'];
-        delete vm.policy.rawData['partitionFormat'];
+    function cleanPolicyJSON(finalJSON) {
+      delete finalJSON.models;
+      delete finalJSON.input;
+      delete finalJSON.outputs;
+      if (finalJSON.rawData.enabled === 'false') {
+        delete finalJSON.rawData['path'];
+        delete finalJSON.rawData['partitionFormat'];
       }
+      return finalJSON;
     }
-  };
+  }
 })();

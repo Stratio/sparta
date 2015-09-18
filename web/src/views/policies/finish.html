@@ -1,8 +1,16 @@
 <section data-ng-controller="PolicyFinishCtrl as vm">
 
-  <p class="c-info-text c-info-text--narrow"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._FINISH_INTRO_" | translate}}</span></p>
+  <p class="c-info-text c-info-text--narrow"><i class="c-icon c-info-text__icon icon-info1"></i><span
+    class="c-info-text__text">{{"_POLICY_._FINISH_INTRO_" | translate}}</span></p>
 
   <div class="c-panel c-panel--framed">
-    <textarea class="c-textarea c-textarea--full-width c-textarea--big" data-ng-model="vm.testingpolcyData" readonly data-qa="policy-finish-json"></textarea>
+    <textarea class="c-textarea c-textarea--full-width c-textarea--big" data-ng-model="vm.testingpolcyData" readonly
+              data-qa="policy-finish-json"></textarea>
+  </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">
+    <button class="c-button c-button--call-to-action-2" data-ng-click="vm.previousStep()"
+            data-qa="policy-cube-previous-button">
+      <i class="icon icon-arrow-left"></i>
+      <span>{{"_PREVIOUS_" | translate}}</span>
+    </button>
   </div>
 </section>

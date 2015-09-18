@@ -17,6 +17,7 @@
     vm.init = init;
     vm.addModel = addModel;
     vm.removeModel = removeModel;
+    vm.previousStep = previousStep;
     vm.nextStep = nextStep;
     vm.getIndex = getIndex;
     vm.isLastModel = isLastModel;
@@ -103,6 +104,10 @@
 
     function isLastModel(index) {
       return index == vm.policy.models.length - 1;
+    }
+
+    function previousStep() {
+      PolicyModelFactory.previousStep();
     }
 
     function nextStep() {
