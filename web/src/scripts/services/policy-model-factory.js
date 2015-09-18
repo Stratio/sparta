@@ -9,6 +9,7 @@
   function PolicyModelFactory(fragmentConstants) {
     var policy = {};
     var status = {};
+    var finalJSON = {};
 
     function initPolicy() {
       status.currentStep = 0;
@@ -28,6 +29,7 @@
     }
 
     function setPolicy(inputPolicyJSON) {
+      console.log(inputPolicyJSON);
       status.currentStep = 0;
       policy.id = inputPolicyJSON.id;
       policy.name = inputPolicyJSON.name;
@@ -70,6 +72,10 @@
       return policy;
     }
 
+    function previousStep() {
+      status.currentStep--;
+    }
+
     function nextStep() {
       status.currentStep++;
     }
@@ -99,13 +105,24 @@
       return allModelOutputs;
     }
 
+    function getFinalJSON() {
+      return finalJSON;
+    }
+
+    function setFinalJSON(json) {
+      return finalJSON = json;
+    }
+
     return {
       setPolicy: setPolicy,
       getCurrentPolicy: getCurrentPolicy,
+      previousStep: previousStep,
       nextStep: nextStep,
       getProcessStatus: getProcessStatus,
       resetPolicy: resetPolicy,
-      getAllModelOutputs: getAllModelOutputs
+      getAllModelOutputs: getAllModelOutputs,
+      getFinalJSON: getFinalJSON,
+      setFinalJSON: setFinalJSON
     }
   }
 

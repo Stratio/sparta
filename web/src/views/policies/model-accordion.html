@@ -52,10 +52,16 @@
   </form>
 
   <footer class="c-row c-row--footer">
-    <div class="c-col c-col--6 c-col--vertical-centered">
-      <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" link-url="vm.helpLink" data-qa="policy-model-help"></c-icon-link>
-    </div><!--
- --><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
+    <div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">
+      <div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">
+        <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" link-url="vm.helpLink" data-qa="policy-model-help"></c-icon-link>
+      </div>
+    </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
+      <button class="c-button c-button--call-to-action-2" data-ng-click="vm.previousStep()"
+              data-qa="policy-cube-previous-button">
+        <i class="icon icon-arrow-left"></i>
+        <span>{{"_PREVIOUS_" | translate}}</span>
+      </button>
       <button class="c-button c-button--call-to-action-1" data-ng-click="vm.nextStep()" data-qa="policy-model-next-button">
         <i class="c-icon icon-arrow-right"></i>
         <span>{{"_CONTINUE_" | translate}}</span>
