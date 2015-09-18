@@ -309,13 +309,9 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
               complete {
                 val response = actors.get(AkkaConstant.SparkStreamingContextActor).get ?
                     new SparkStreamingContextActor.Create(parsedP)
-                val error = Await.result(response, timeout.duration) match {
-                  case Failure(ex) => Some(ex)
-                  case Success => None
-                }
-                error match {
-                  case Some(ex: Throwable) => throw ex
-                  case None => new Result("Creating new context with name " + policy.name)
+                Await.result(response, timeout.duration) match {
+                  case Failure(ex) => throw ex
+                  case Success(_) => new Result("Creating new context with name " + policy.name)
                 }
               }
             }
