@@ -11,6 +11,7 @@
   function PolicyOutputCtrl(FragmentFactory, PolicyModelFactory, $q, PolicyStaticDataFactory, UtilsService) {
     var vm = this;
     vm.setOutput = setOutput;
+    vm.previousStep = previousStep;
     vm.validateForm = validateForm;
 
     init();
@@ -39,11 +40,13 @@
 
     function initOutputs() {
       var outputs = [];
-      for (var i = 0; i < vm.policy.outputs.length; ++i) {
-        var currentOutput = vm.policy.outputs[i];
-        var position = UtilsService.findElementInJSONArray(vm.outputList, currentOutput, "id");
-        if (position != -1) {
-          outputs[position] = currentOutput;
+      if (vm.policy.outputs) {
+        for (var i = 0; i < vm.policy.outputs.length; ++i) {
+          var currentOutput = vm.policy.outputs[i];
+          var position = UtilsService.findElementInJSONArray(vm.outputList, currentOutput, "id");
+          if (position != -1) {
+            outputs[position] = currentOutput;
+          }
         }
       }
       vm.policy.outputs = outputs;
@@ -59,6 +62,10 @@
 
       var outputsSelected = checkOutputsSelected();
       vm.error = (outputsSelected > 0) ? false : true;
+    }
+
+    function previousStep() {
+      PolicyModelFactory.previousStep();
     }
 
     function validateForm() {
