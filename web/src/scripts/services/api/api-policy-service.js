@@ -18,7 +18,8 @@
     vm.runPolicy = runPolicy;
     vm.getFakePolicy = getFakePolicy;
     vm.savePolicy = savePolicy;
-    vm.StopPolicy = StopPolicy;
+    vm.stopPolicy = stopPolicy;
+    vm.getPoliciesStatus = getPoliciesStatus;
 
     /////////////////////////////////
 
@@ -76,7 +77,7 @@
         });
     };
 
-    function StopPolicy() {
+    function stopPolicy() {
       return $resource('/policyContext', {},
         {
           'update': {method: 'PUT',
@@ -102,6 +103,16 @@
             timeout: apiConfigSettings.timeout
           }
         });
-    }
+    };
+
+    function getPoliciesStatus() {
+      return $resource('/policyContext', {},
+        {
+          'get': {
+            method: 'GET', isArray: true,
+            timeout: apiConfigSettings.timeout
+          }
+        });
+    };
   };
 })();
