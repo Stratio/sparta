@@ -27,13 +27,14 @@ import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{FindAll, Response, Update}
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
+import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder, SparktaConfig}
 import org.json4s.jackson.Serialization.{read, write}
 
 import scala.collection.JavaConversions
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits._
 import scala.util.{Failure, Success, Try}
 
 class SparkStreamingContextActor(streamingContextService: StreamingContextService,
@@ -70,7 +71,7 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
     })
   }
 
-  def launch(policy: AggregationPoliciesModel): Unit = {
+  def launch(policy: AggregationPoliciesModel): AggregationPoliciesModel = {
     if (isNotRunning(policy)) {
       policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Launched))
       getStreamingContextActor(policy) match {
@@ -81,22 +82,21 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
     }
     else
       throw new Exception(s"policy ${policy.name} is launched")
+
+    policy
   }
 
   /**
    * Tries to create a spark streaming context with a given configuration.
    * @param policy that contains the configuration to run.
    */
-  private def create(policy: AggregationPoliciesModel): Try[Unit] = {
-    Try(
-
-      if (policy.id.isDefined)
-        launch(policy)
-      else {
-        if (existsByName(policy.name)) throw new Exception(s"${policy.name} already exists")
-        launchNewPolicy(policy)
-      }
-    )
+  private def create(policy: AggregationPoliciesModel): Try[AggregationPoliciesModel] = Try {
+    if (policy.id.isDefined)
+      launch(policy)
+    else {
+      if (existsByName(policy.name)) throw new Exception(s"${policy.name} already exists")
+      launchNewPolicy(policy)
+    }
   }
 
   def existsByName(name: String, id: Option[String] = None): Boolean = {
@@ -116,21 +116,27 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
       }
     }
   }
-  def launchNewPolicy(policy: AggregationPoliciesModel): Unit = {
+  def launchNewPolicy(policy: AggregationPoliciesModel): AggregationPoliciesModel = {
     val policyWithIdModel = policyWithId(policy)
 
-    policyStatusActor ? Update(PolicyStatusModel(policyWithIdModel.id.get, PolicyStatusEnum.Launched))
+    for {
+      response <- policyStatusActor ? PolicyStatusActor.Create(PolicyStatusModel(
+        id = policyWithIdModel.id.get,
+        status = PolicyStatusEnum.NotStarted
+      ))
+    } yield policyStatusActor ! Update(PolicyStatusModel(policyWithIdModel.id.get, PolicyStatusEnum.Launched))
+
     getStreamingContextActor(policyWithIdModel) match {
-      case Some(streamingContextActor) => {
+      case Some(streamingContextActor) =>
         // TODO (anistal) change and use PolicyActor.
         savePolicyInZk(policyWithIdModel)
         streamingContextActor ? Start
-      }
-      case None => {
+      case None =>
         policyStatusActor ? Update(PolicyStatusModel(policyWithIdModel.id.get, PolicyStatusEnum.Failed))
-      }
     }
+    policyWithIdModel
   }
+
 
   private def policyWithId(policy: AggregationPoliciesModel) =
     (
