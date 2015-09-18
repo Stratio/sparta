@@ -27,6 +27,7 @@
       }
       else {
         vm.model = ModelFactory.getModel();
+        changeDefaultConfiguration();
       }
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.modelTypes = ModelStaticDataFactory.getTypes();

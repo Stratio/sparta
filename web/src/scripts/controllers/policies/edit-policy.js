@@ -43,7 +43,9 @@
       });
 
       modalInstance.result.then(function () {
-        PolicyFactory.savePolicy(vm.policy).then(function () {
+        var finalJSON = PolicyModelFactory.getFinalJSON();
+
+        PolicyFactory.savePolicy(finalJSON).then(function () {
           PolicyModelFactory.resetPolicy();
           $state.go("dashboard.policies");
 

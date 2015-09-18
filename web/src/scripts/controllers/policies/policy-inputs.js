@@ -12,6 +12,7 @@
     var vm = this;
     vm.setInput = setInput;
     vm.isSelectedInput = isSelectedInput;
+    vm.previousStep = previousStep;
     vm.validateForm = validateForm;
     vm.inputList = [];
     vm.error = false;
@@ -44,8 +45,12 @@
         return false;
     };
 
+    function previousStep() {
+      PolicyModelFactory.previousStep();
+    }
+
     function validateForm() {
-      if (vm.policy.input.name){
+      if (vm.policy.input.name) {
         vm.error = false;
         PolicyModelFactory.nextStep();
       }
