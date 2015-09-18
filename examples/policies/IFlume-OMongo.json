@@ -14,7 +14,7 @@
       "type": "Flume",
       "configuration": {
         "type": "pull",
-        "addresses": "localhost:10999",
+        "addresses": [{"host": "localhost", "port": "10999"}],
         "maxBatchSize": "500"
       }
     }
