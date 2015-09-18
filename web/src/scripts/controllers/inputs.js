@@ -35,7 +35,7 @@
         };
 
         function getInputs() {
-          var inputList = FragmentFactory.GetFragments('input');
+          var inputList = FragmentFactory.getFragments('input');
 
           inputList.then(function (result) {
             vm.error = false;
@@ -168,7 +168,7 @@
                 return newInputTemplateData;
               },
               fragmentTemplates: function (TemplateFactory) {
-                return TemplateFactory.GetNewFragmentTemplate(newInputTemplateData.fragmentType);
+                return TemplateFactory.getNewFragmentTemplate(newInputTemplateData.fragmentType);
               }
             }
           });
@@ -191,10 +191,10 @@
                       return editInputData;
                    },
                    fragmentTemplates: function (TemplateFactory) {
-                      return TemplateFactory.GetNewFragmentTemplate(editInputData.fragmentSelected.fragmentType);
+                      return TemplateFactory.getNewFragmentTemplate(editInputData.fragmentSelected.fragmentType);
                    },
                    policiesAffected: function (PolicyFactory) {
-                      return PolicyFactory.GetPolicyByFragmentId(editInputData.fragmentSelected.fragmentType, editInputData.fragmentSelected.id);
+                      return PolicyFactory.getPolicyByFragmentId(editInputData.fragmentSelected.fragmentType, editInputData.fragmentSelected.id);
                    }
                }
            });
