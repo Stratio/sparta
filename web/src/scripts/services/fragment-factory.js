@@ -9,23 +9,23 @@
 
    function FragmentFactory(ApiFragmentService) {
        return {
-               DeleteFragment: function(fragmentType, fragmentId) {
-                   return ApiFragmentService.DeleteFragment().delete({'type': fragmentType ,'id': fragmentId}).$promise;
+               deleteFragment: function(fragmentType, fragmentId) {
+                   return ApiFragmentService.deleteFragment().delete({'type': fragmentType ,'id': fragmentId}).$promise;
                },
-               CreateFragment: function(newFragmentData) {
-                   return ApiFragmentService.CreateFragment().create(newFragmentData).$promise;
+               createFragment: function(newFragmentData) {
+                   return ApiFragmentService.createFragment().create(newFragmentData).$promise;
                },
-               UpdateFragment: function(updatedFragmentData) {
-                   return ApiFragmentService.UpdateFragment().update(updatedFragmentData).$promise;
+               updateFragment: function(updatedFragmentData) {
+                   return ApiFragmentService.updateFragment().update(updatedFragmentData).$promise;
                },
-               GetFragmentById: function(fragmentType, fragmentId) {
-                  return ApiFragmentService.GetFragmentById().get({'type': fragmentType ,'id': fragmentId}).$promise;
+               getFragmentById: function(fragmentType, fragmentId) {
+                  return ApiFragmentService.getFragmentById().get({'type': fragmentType ,'id': fragmentId}).$promise;
                },
-               GetFragments: function(fragmentType) {
-                  return ApiFragmentService.GetFragments().get({'type': fragmentType}).$promise;
+               getFragments: function(fragmentType) {
+                  return ApiFragmentService.getFragments().get({'type': fragmentType}).$promise;
                },
-               GetFakeFragments: function(fragmentType) {
-                  return ApiFragmentService.GetFakeFragments().get({'type': fragmentType}).$promise;
+               getFakeFragments: function(fragmentType) {
+                  return ApiFragmentService.getFakeFragments().get({'type': fragmentType}).$promise;
                }
            };
    };

@@ -24,11 +24,10 @@
 
     function init() {
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      vm.policy.cubes = [];
       vm.newCube = CubeModelFactory.getCube();
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
       AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
-      vm.helpLink = PolicyStaticDataFactory.helpLinks.cubes;
+      vm.helpLink = PolicyStaticDataFactory.getHelpLinks().cubes;
     };
 
     function addCube() {

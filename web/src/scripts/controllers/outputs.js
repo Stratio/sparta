@@ -29,7 +29,7 @@
       };
 
       function getOutputs() {
-        var outputList = FragmentFactory.GetFragments('output');
+        var outputList = FragmentFactory.getFragments('output');
 
         outputList.then(function (result) {
           vm.error = false;
@@ -162,7 +162,7 @@
               return newOutputTemplateData;
             },
             fragmentTemplates: function (TemplateFactory) {
-              return TemplateFactory.GetNewFragmentTemplate(newOutputTemplateData.fragmentType);
+              return TemplateFactory.getNewFragmentTemplate(newOutputTemplateData.fragmentType);
             }
           }
         });
@@ -186,10 +186,10 @@
                     return editOutputData;
                  },
                  fragmentTemplates: function (TemplateFactory) {
-                    return TemplateFactory.GetNewFragmentTemplate(editOutputData.fragmentSelected.fragmentType);
+                    return TemplateFactory.getNewFragmentTemplate(editOutputData.fragmentSelected.fragmentType);
                  },
                  policiesAffected: function (PolicyFactory) {
-                    return PolicyFactory.GetPolicyByFragmentId(editOutputData.fragmentSelected.fragmentType, editOutputData.fragmentSelected.id);
+                    return PolicyFactory.getPolicyByFragmentId(editOutputData.fragmentSelected.fragmentType, editOutputData.fragmentSelected.id);
                  }
              }
          });
