@@ -1,15 +1,15 @@
 <section ng-controller="PolicyModelCtrl as vm" ng-init="vm.init(model)" data-ng-model="vm.model">
-
   <form novalidate>
-    <div ng-show="vm.showModelError" class="c-row c-msg c-msg--small c-msg--error" data-qa="error-msg">
+    <div ng-show="vm.modelError.text!= ''" class="c-row c-msg c-msg--small c-msg--error" data-qa="error-msg">
       <i class="c-icon icon-circle-cross"></i>
-      <span>{{"_POLICY_._MODEL_ERROR_" | translate}}</span>
+      <span  ng-model = "vm.modelError" >{{vm.modelError.text | translate}}</span>
     </div>
     <div class="c-form-group">
       <div class="c-form-control c-form-control--full-width c-icon-radio" data-ng-model="model">
         <label class="c-label c-icon-radio__label c-col c-col--12">{{"_TYPE_" | translate}}:</label>
       <span data-ng-repeat="modelTypes in vm.modelTypes">
-        <input ng-change = "vm.changeDefaultConfiguration()" class="c-icon-radio__item" id="type-{{modelTypes.name + $parent.$index| lowercase}}" type="radio"
+        <input ng-change="vm.changeDefaultConfiguration()" class="c-icon-radio__item"
+               id="type-{{modelTypes.name + $parent.$index| lowercase}}" type="radio"
                data-ng-model="vm.model.type" value="{{modelTypes.name}}" data-ng-disabled="!editionMode"
                data-qa="policy-model-type-{{modelTypes.name | lowercase}}">
         <label data-ng-model="vm.model.type" class="c-icon-radio__label"
@@ -59,9 +59,9 @@
     <textarea ng-if="editionMode" class="c-textarea c-textarea--full-width" ng-model="vm.model.configuration"
               placeholder={{vm.configPlaceholder}}></textarea>
 
-      <p class="c-textarea c-textarea--disabled c-textarea--full-width" ng-if="!editionMode"
-         ng-model="vm.model.configuration" data-qa="policy-model-config">
-        {{vm.model.configuration | json}}</p>
+        <p class="c-textarea c-textarea--disabled c-textarea--full-width" ng-if="!editionMode"
+           ng-model="vm.model.configuration" data-qa="policy-model-config">
+          {{vm.model.configuration | json}}</p>
       </div>
       <div class="c-form-group">
         <div class="c-form-control c-form-control--full-width">
