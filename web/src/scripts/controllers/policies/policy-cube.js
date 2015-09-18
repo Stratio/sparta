@@ -29,6 +29,7 @@
       vm.granularityOptions = CubeStaticDataFactory.getGranularityOptions();
       vm.functionList = CubeStaticDataFactory.getFunctionNames();
       vm.outputList = PolicyModelFactory.getAllModelOutputs();
+      vm.cubeError = CubeModelFactory.getError();
     }
 
     function addOutputToDimensions(outputName) {
