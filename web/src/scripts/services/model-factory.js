@@ -15,7 +15,7 @@
     function init() {
       model.name = "";
       model.outputFields = [];
-      model.type = "";
+      model.type = ModelStaticDataFactory.getTypes()[0].name;
       model.configuration = "";
       model.inputList = getModelInputs();
       model.inputField = model.inputList[0].value;

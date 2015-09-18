@@ -29,6 +29,7 @@
     }
 
     function setPolicy(inputPolicyJSON) {
+      console.log(inputPolicyJSON);
       status.currentStep = 0;
       policy.id = inputPolicyJSON.id;
       policy.name = inputPolicyJSON.name;
