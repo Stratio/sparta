@@ -21,28 +21,31 @@
        vm.duplicateInput = duplicateInput;
        vm.deleteInputConfirm = deleteInputConfirm;
        vm.getPolicyNames = getPolicyNames;
-       vm.inputsData = [];
+       vm.inputsData = undefined;
        vm.inputTypes = [];
+       vm.error = false;
+       vm.errorMessage = '';
 
        init();
 
         /////////////////////////////////
 
         function init() {
-            getInputs();
+          getInputs();
         };
 
         function getInputs() {
-          var inputList = FragmentFactory.GetFragments('input');
+          var inputList = FragmentFactory.getFragments('input');
 
           inputList.then(function (result) {
+            vm.error = false;
             vm.inputsData = result;
             vm.getInputTypes(result);
-
           },function (error) {
-            console.log('There was an error while loading the inputs flist!');
-            console.log(error);
+            vm.error = true
+            vm.errorMessage = "_INPUT_ERROR_" + error.data.i18nCode + "_";
           });
+
         };
 
         function createInput() {
@@ -75,7 +78,10 @@
                   'title': '_INPUT_WINDOW_MODIFY_TITLE_',
                   'button': '_INPUT_WINDOW_MODIFY_BUTTON_',
                   'button_icon': 'icon-circle-check',
-                  'secondaryText2': '_INPUT_WINDOW_EDIT_MESSAGE2_'
+                  'secondaryText2': '_INPUT_WINDOW_EDIT_MESSAGE2_',
+                  'policyRunningMain': '_INPUT_CANNOT_BE_DELETED_',
+                  'policyRunningSecondary': '_INTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
+                  'policyRunningSecondary2': '_INTPUT_WINDOW_POLICY_RUNNING_MESSAGE2_'
               }
           };
 
@@ -92,7 +98,10 @@
               'title': '_INPUT_WINDOW_DELETE_TITLE_',
               'mainText': '_ARE_YOU_COMPLETELY_SURE_',
               'secondaryText1': '_INPUT_WINDOW_DELETE_MESSAGE_',
-              'secondaryText2': '_INPUT_WINDOW_DELETE_MESSAGE2_'
+              'secondaryText2': '_INPUT_WINDOW_DELETE_MESSAGE2_',
+              'policyRunningMain': '_INPUT_CANNOT_BE_DELETED_',
+              'policyRunningSecondary': '_INTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
+              'policyRunningSecondary2': '_INTPUT_WINDOW_DELETE_POLICY_RUNNING_MESSAGE2_'
             }
           };
           vm.deleteInputConfirm('lg', inputToDelete);
@@ -118,6 +127,7 @@
         };
 
         function getInputTypes(inputs) {
+            vm.inputTypes = [];
             for (var i=0; i<inputs.length; i++) {
                 var newType = false;
                 var type    = inputs[i].element.type;
@@ -154,13 +164,14 @@
                 return newInputTemplateData;
               },
               fragmentTemplates: function (TemplateFactory) {
-                return TemplateFactory.GetNewFragmentTemplate(newInputTemplateData.fragmentType);
+                return TemplateFactory.getNewFragmentTemplate(newInputTemplateData.fragmentType);
               }
             }
           });
 
           modalInstance.result.then(function (newInputData) {
             vm.inputsData.push(newInputData);
+            vm.getInputTypes(vm.inputsData);
           }, function () {
           });
         };
@@ -176,16 +187,18 @@
                       return editInputData;
                    },
                    fragmentTemplates: function (TemplateFactory) {
-                      return TemplateFactory.GetNewFragmentTemplate(editInputData.fragmentSelected.fragmentType);
+                      return TemplateFactory.getNewFragmentTemplate(editInputData.fragmentSelected.fragmentType);
                    },
                    policiesAffected: function (PolicyFactory) {
-                      return PolicyFactory.GetPolicyByFragmentId(editInputData.fragmentSelected.fragmentType, editInputData.fragmentSelected.id);
+                      return PolicyFactory.getPolicyByFragmentId(editInputData.fragmentSelected.fragmentType, editInputData.fragmentSelected.id);
                    }
                }
            });
 
           modalInstance.result.then(function (updatedInputData) {
             vm.inputsData[updatedInputData.index] = updatedInputData.data;
+            vm.getInputTypes(vm.inputsData);
+
               },function () {
                      });
         };
@@ -208,6 +221,7 @@
 
           modalInstance.result.then(function (selectedItem) {
             vm.inputsData.splice(selectedItem.index, 1);
+            vm.getInputTypes(vm.inputsData);
           },function () {
           });
         };
@@ -227,6 +241,7 @@
 
           modalInstance.result.then(function (newInput) {
             vm.inputsData.push(newInput);
+            vm.getInputTypes(vm.inputsData);
           },function () {
           });
         };

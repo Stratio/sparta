@@ -47,6 +47,7 @@
  *		c-accordion
  *		c-tag
  *		c-cube
+ *		c-policy-status-badge
  *
  */
 
@@ -138,6 +139,7 @@ $base-padding: 30px;
 $primary-sidebar-bg: get-color(f4);
 $heading---margin: 0;
 
+$dashboard-main-content---min-height: 70vh !default;
 $stratio-ui---base-padding: $base-padding;
 
 
@@ -371,13 +373,20 @@ $c-icon-radio__icon---padding: .4em;
 
 
 // c-msg
+$c-msg--small---font-size: get-font-size(medium);
 $c-msg--small---padding: 5px 10px;
+
+$c-msg--giant---font-size: get-font-size(xxxlarge);
+$c-msg--giant---padding: 150px 10px;
 
 $c-msg--error---background: get-color(e3);
 $c-msg--error---color: get-color(g0);
 
-$c-msg--success---background: get-color(e1) !default;
-$c-msg--success---color: get-color(g0) !default;
+$c-msg--success---background: get-color(e1);
+$c-msg--success---color: get-color(g0);
+
+$c-msg--noitems---background: transparent;
+$c-msg--noitems---color: get-color(g4);
 
 $c-msg__c-icon---margin: $c-icon-default-margin;
 
@@ -501,7 +510,7 @@ $c-accordion-header__step-number---width: 47px;
 $c-accordion-header__step-number---height: $c-accordion-header__step-number---width;
 $c-accordion-header__step-number---padding: 7px 0 0;
 
-$c-accordion-header__step-number---background: get-color(c1b);
+$c-accordion-header__step-number---background: get-color(c1);
 $c-accordion-header__step-number---color: get-color(g0);
 
 $c-accordion__type---font-size: get-font-size(large);
@@ -513,7 +522,7 @@ $c-accordion__open-mark---rotation: 90deg;
 $c-accordion-item--new---background: get-color(c5);
 $c-accordion-item--new---color: get-color(g9);
 
-$c-accordion-header--new__step-number---background: get-color(c1);
+$c-accordion-header--new__step-number---background: get-color(c1b);
 $c-accordion-header--new__step-number---color: get-color(g0);
 
 
@@ -554,3 +563,23 @@ $c-cube__field-icon---background: get-color(g3);
 $c-cube__field-name---background: get-color(g0);
 $c-cube__field-name---left: 36px;
 $c-cube__field-name---right: 0;
+
+
+
+// c-policy-status-badge
+$c-policy-status-badge---margin: 0;
+$c-policy-status-badge---padding: .2em .5em;
+$c-policy-status-badge--launched---background: get-color(e1);
+$c-policy-status-badge--launched---color: get-color(g0);
+$c-policy-status-badge--starting---background: get-color(e1);
+$c-policy-status-badge--starting---color: get-color(g0);
+$c-policy-status-badge--started---background: get-color(e1);
+$c-policy-status-badge--started---color: get-color(g0);
+$c-policy-status-badge--failed---background: get-color(e3);
+$c-policy-status-badge--failed---color: get-color(g0);
+$c-policy-status-badge--stopping---background: get-color(e3b);
+$c-policy-status-badge--stopping---color: get-color(g0);
+$c-policy-status-badge--stopped---background: get-color(e3b);
+$c-policy-status-badge--stopped---color: get-color(g0);
+$c-policy-status-badge--notstarted---background: get-color(g4);
+$c-policy-status-badge--notstarted---color: get-color(g0);

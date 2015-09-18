@@ -318,7 +318,7 @@
           "precision": "minute",
           "type": "DateTime",
           "name": "minute"
-        }
+
       ],
       "operators": [
         {

@@ -10,16 +10,16 @@
   function ApiFragmentService($resource, apiConfigSettings) {
     var vm = this;
 
-    vm.GetFragmentById = GetFragmentById;
-    vm.GetFragments = GetFragments;
-    vm.DeleteFragment = DeleteFragment;
-    vm.CreateFragment = CreateFragment;
-    vm.UpdateFragment = UpdateFragment;
-    vm.GetFakeFragments = GetFakeFragments;
+    vm.getFragmentById = getFragmentById;
+    vm.getFragments = getFragments;
+    vm.deleteFragment = deleteFragment;
+    vm.createFragment = createFragment;
+    vm.updateFragment = updateFragment;
+    vm.getFakeFragments = getFakeFragments;
 
     /////////////////////////////////
 
-    function GetFragmentById() {
+    function getFragmentById() {
       return $resource('/fragment/:type/:id', {type: '@type', id: '@id'},
         {
           'get': {method: 'GET',
@@ -27,7 +27,7 @@
         });
     };
 
-    function GetFragments() {
+    function getFragments() {
       return $resource('/fragment/:type', {type: '@type'},
         {
           'get': {method: 'GET', isArray: true,
@@ -35,7 +35,7 @@
         });
     }
 
-    function CreateFragment() {
+    function createFragment() {
       return $resource('/fragment/', {},
         {
           'create': {method: 'POST',
@@ -43,7 +43,7 @@
         });
     };
 
-    function UpdateFragment() {
+    function updateFragment() {
       return $resource('/fragment/', {},
         {
           'update': {method: 'PUT',
@@ -51,7 +51,7 @@
         });
     };
 
-    function DeleteFragment() {
+    function deleteFragment() {
       return $resource('/fragment/:type/:id', {type: '@type', id: '@id'},
         {
           'delete': {method: 'DELETE',
@@ -59,7 +59,7 @@
         });
     };
 
-    function GetFakeFragments() {
+    function getFakeFragments() {
       return $resource('/data-templates/fake_data/:type', {type: '@type'},
         {
           'get': {method: 'GET', isArray: true,

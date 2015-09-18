@@ -20,19 +20,22 @@ import java.io.File
 import javax.ws.rs.Path
 
 import akka.pattern.ask
+import akka.util.Timeout
 import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.api.helpers.PolicyHelper
 import com.stratio.sparkta.serving.core.models._
+import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
 import spray.http.HttpHeaders.`Content-Disposition`
 import spray.http.{HttpResponse, StatusCodes}
+import spray.httpx.marshalling.ToResponseMarshallable
 import spray.routing._
 
-import scala.concurrent.Await
+import scala.concurrent.{Future, Await}
 import scala.util.{Failure, Success}
 
 @Api(value = HttpConstant.PolicyPath, description = "Operations over policies.")
@@ -51,6 +54,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiImplicitParam(name = "id",
       value = "id of the policy",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
@@ -80,6 +84,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiImplicitParam(name = "name",
       value = "name of the policy",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
@@ -109,10 +114,12 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiImplicitParam(name = "fragmentType",
       value = "type of fragment (input/output)",
       dataType = "string",
+      required = true,
       paramType = "path"),
     new ApiImplicitParam(name = "id",
       value = "id of the fragment",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
@@ -126,18 +133,48 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
           val future = supervisor ? new FindByFragment(fragmentType, id)
           Await.result(future, timeout.duration) match {
             case ResponsePolicies(Failure(exception)) => throw exception
-            case ResponsePolicies(Success(policies)) => policies
+            case ResponsePolicies(Success(policies)) =>
+              withStatus(policies)
           }
         }
       }
     }
   }
 
+  def withStatus(policies: Seq[AggregationPoliciesModel]): ToResponseMarshallable = {
+
+    if (!policies.isEmpty) {
+      val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
+      for {
+        response <- (policyStatusActor ? PolicyStatusActor.FindAll)
+          .mapTo[PolicyStatusActor.Response]
+      } yield {
+        val statuses = response.policyStatus.get
+        policies.map(policy =>
+          PolicyWithStatus(
+            status = statuses.filter(_.id == policy.id.get)
+              .headOption match {
+              case Some(statusPolicy) => statusPolicy.status
+              case None => PolicyStatusEnum.NotStarted
+            },
+            policy = policy
+          )
+        )
+      }
+    } else {
+      Seq()
+    }
+  }
+
+  //TODO @dvallejo Refactor this case class to a better place
+  case class PolicyWithStatus(status: PolicyStatusEnum.Value,
+                              policy: AggregationPoliciesModel)
+
   @Path("/all")
   @ApiOperation(value = "Finds all policies.",
     notes = "Finds all policies.",
     httpMethod = "GET",
-    response = classOf[AggregationPoliciesModel])
+    response = classOf[PolicyWithStatus])
   @ApiResponses(Array(
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
@@ -149,7 +186,9 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
           val future = supervisor ? new FindAll()
           Await.result(future, timeout.duration) match {
             case ResponsePolicies(Failure(exception)) => throw exception
-            case ResponsePolicies(Success(policies)) => policies
+            case ResponsePolicies(Success(policies)) => withStatus(policies)
+
+
           }
         }
       }
@@ -218,6 +257,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiImplicitParam(name = "id",
       value = "id of the policy",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
@@ -247,6 +287,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiImplicitParam(name = "id",
       value = "id of the policy",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
@@ -264,9 +305,17 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
               PolicyHelper.fillFragments(policy, actors.get(AkkaConstant.FragmentActor).get, timeout))
             val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
             validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-              actors.get(AkkaConstant.SparkStreamingContextActor).get ! new SparkStreamingContextActor.Create(parsedP)
+              val a:Future[Any]=actors.get(AkkaConstant.SparkStreamingContextActor).get ? new SparkStreamingContextActor.Create(parsedP)
+              val error=  Await.result(a,timeout.duration) match {
+                case Failure(ex)=>Some(ex)
+                case Success(_) => None
+              }
               complete {
-                new Result("Creating new context with name " + policy.name)
+                error match {
+                  case Some(ex:Throwable)=> throw ex
+                  case None =>new Result("Creating new context with name " + policy.name)
+                }
+
               }
             }
           }
@@ -284,6 +333,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     new ApiImplicitParam(name = "id",
       value = "id of the policy",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(

@@ -179,22 +179,22 @@ class OperatorSpec extends WordSpec with Matchers {
       operator14.applyFilters(inputFields14) should be (None)
 
       val operator15 = new OperatorTest("opTest",
-        Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"dimensionValue\":\"field2\"}]"))
+        Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"fieldValue\":\"field2\"}]"))
       val inputFields15 = Map("field1" -> 2.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
       operator15.applyFilters(inputFields15) should be (None)
 
       val operator16 = new OperatorTest("opTest",
-        Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"dimensionValue\":\"field2\"}]"))
+        Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"fieldValue\":\"field2\"}]"))
       val inputFields16 = Map("field1" -> 2.asInstanceOf[JSerializable], "field2" -> 3.asInstanceOf[JSerializable])
       operator16.applyFilters(inputFields16) should be (Some(inputFields16))
 
       val operator17 = new OperatorTest("opTest",
-        Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"dimensionValue\":\"field2\", \"value\":2 }]"))
+        Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"fieldValue\":\"field2\", \"value\":2 }]"))
       val inputFields17 = Map("field1" -> 1.asInstanceOf[JSerializable], "field2" -> 4.asInstanceOf[JSerializable])
       operator17.applyFilters(inputFields17) should be (Some(inputFields17))
 
       val operator18 = new OperatorTest("opTest",
-        Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"dimensionValue\":\"field2\", \"value\":2 }]"))
+        Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"fieldValue\":\"field2\", \"value\":2 }]"))
       val inputFields18 = Map("field1" -> 2.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
       operator18.applyFilters(inputFields18) should be (None)
 

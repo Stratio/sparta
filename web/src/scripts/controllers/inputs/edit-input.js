@@ -24,22 +24,35 @@
         vm.error = false;
         vm.errorText = '';
         vm.fragmentTemplateData = {};
+        vm.policiesRunning = [];
 
         init();
 
         /////////////////////////////////
 
     function init() {
+      setPoliciesRunning(policiesAffected);
       vm.originalName = item.originalName;
 
       setTexts(item.texts);
-      vm.templateFragmentsData = fragmentTemplates;
-      vm.dataSource = item.fragmentSelected;
 
-      vm.createTypeModels(vm.templateFragmentsData);
-      vm.selectedIndex = vm.index;
-      vm.policiesAffected = policiesAffected;
+      if (vm.policiesRunning.length === 0){
+        vm.templateFragmentsData = fragmentTemplates;
+        vm.dataSource = item.fragmentSelected;
 
+        vm.createTypeModels(vm.templateFragmentsData);
+        vm.selectedIndex = vm.index;
+        vm.policiesAffected = policiesAffected;
+      }
+    };
+
+    function setPoliciesRunning(policiesList) {
+      for (var i=0; i < policiesList.length; i++) {
+        if (policiesList[i].status !== 'NotStarted' && policiesList[i].status !== 'Stopped' && policiesList[i].status !== 'Failed') {
+          var policy = {'name':policiesList[i].policy.name}
+          vm.policiesRunning.push(policy);
+        }
+      }
     };
 
     function setTexts(texts) {
@@ -48,6 +61,9 @@
       vm.modalTexts.button = texts.button;
       vm.modalTexts.icon = texts.button_icon;
       vm.modalTexts.secondaryText2 = texts.secondaryText2;
+      vm.modalTexts.policyRunningMain = texts.policyRunningMain;
+      vm.modalTexts.policyRunningSecondary = texts.policyRunningSecondary;
+      vm.modalTexts.policyRunningSecondary2 = texts.policyRunningSecondary2;
     };
 
     function createTypeModels(fragmentData) {
@@ -151,7 +167,7 @@
     };
 
     function editfragment() {
-      var updateFragment = FragmentFactory.UpdateFragment(vm.dataSource);
+      var updateFragment = FragmentFactory.updateFragment(vm.dataSource);
 
       updateFragment.then(function (result) {
         var callBackData = {

@@ -196,9 +196,10 @@ Example::
         "name": "out-mongo",
         "elementType": "MongoDb",
         "configuration": {
-          "hosts": "localhost:27017",
+          "hosts": [{"host": "localhost" , "port": "27017" }],
           "dbName": "sparkta"
         }
       }
     ]
+
 

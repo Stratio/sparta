@@ -5,11 +5,10 @@
   </div>
 
   <form class="c-form" name="vm.form" novalidate>
-    <div class="c-row c-row--separated c-msg c-msg--small c-msg--error" data-ng-if="vm.error" data-qa="error-msg">
+    <div class="c-row c-row--separated c-msg c-msg--small c-msg--error" data-ng-if=" vm.errorText != ''" data-qa="error-msg">
       <i class="c-icon icon-circle-cross"></i>
-      <span translate="{{vm.errorText}}"></span>
+      <span ng-model = "vm.errorText">{{vm.errorText |translate}}</span>
     </div>
-
     <div class="c-modal-inner">
       <div class="c-form-group">
         <form-field-input data-form="vm.form" data-st-name="type-form" data-model="vm.operator.type" data-label="{{'_TYPE_' | translate}}" data-help="" data-pattern="" data-required="true" required="true" disabled="true" data-qa="operator-modal-type"></form-field-input>
