@@ -1,7 +1,7 @@
 Cluster Execution
 ***********
 
-In Sparkta is possible run policies over a Spark Cluster. Sparkta need one Cluster Manager for run that can be
+In Sparkta is possible run policies over a Spark Cluster. Sparkta need one Cluster Manager for run, and this that can be
 Mesos, Yarn and Spark StandAlone.
 With this mode the user can run a lot of policies in the same Spark cluster with more than one Spark context.
 
