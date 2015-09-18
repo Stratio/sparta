@@ -31,19 +31,19 @@
 					<td class="c-table__td c-table__td--no-wrap c-table__td--to-right c-col--1">
 						<i class="c-icon c-icon--is-clickable c-icon--call-to-action icon-actions" data-ng-click="$root.stToggleFloatingMenu[policyData.policy.id]()" data-qa="input-context-menu-{{policyData.policy.id}}">
 							<st-floating-menu toggle-id="{{policyData.policy.id}}" align="right">
-								<st-menu-element class-icon="icon-cross" data-ng-click="policies.deletePolicy(policyData.policy.id, $index)" data-qa="policy-context-menu-{{policyData.policy.id}}-delete">
+								<st-menu-element class-icon="icon-cross" data-ng-click="policies.deletePolicy(policyData.policy.id, policyData.status, $index)" data-qa="policy-context-menu-{{policyData.policy.id}}-delete">
 									{{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
 								</st-menu-element>
-								<st-menu-element class-icon="icon-download" data-href="/policy/find/{{policyData.policy.id}}" data-download-file-name="{{policyData.policy.name}}.json" data-qa="policy-context-menu-{{policyData.policy.id}}-download">
+				                <st-menu-element class-icon="icon-edit2" data-ng-click="policies.editPolicy('dashboard.editPolicy', policyData.policy.id, policyData.status)">
+				                  {{"_OUTPUT_ACTIONS_MENU_EDIT_" | translate}}
+				                </st-menu-element>
+				                <st-menu-element class-icon="icon-download" data-href="/policy/find/{{policyData.policy.id}}" data-download-file-name="{{policyData.policy.name}}.json" data-qa="policy-context-menu-{{policyData.policy.id}}-download">
 									{{"_OUTPUT_ACTIONS_MENU_DOWNLOAD_" | translate}}
 								</st-menu-element>
-								<st-menu-element class-icon="icon-play" data-ng-click="policies.runPolicy(policyData.policy.id, policyData.status, policyData.policy.name)" data-qa="policy-context-menu-{{policyData.policy.id}}-run">
+				                <st-menu-element class-icon="icon-play" data-ng-click="policies.runPolicy(policyData.policy.id, policyData.status, policyData.policy.name)" data-qa="policy-context-menu-{{policyData.policy.id}}-run">
 									{{"_OUTPUT_ACTIONS_MENU_RUN_" | translate}}
 								</st-menu-element>
-                <st-menu-element class-icon="icon-edit2"  sref="dashboard.editPolicy({id: '{{policyData.policy.id}}'})">
-                  {{"_OUTPUT_ACTIONS_MENU_EDIT_" | translate}}
-                </st-menu-element>
-									<st-menu-element class-icon="icon-stop" data-ng-click="policies.stopPolicy(policyData.policy.id, policyData.status, policyData.policy.name)" data-qa="policy-context-menu-{{policyData.policy.id}}-stop">
+								<st-menu-element class-icon="icon-stop" data-ng-click="policies.stopPolicy(policyData.policy.id, policyData.status, policyData.policy.name)" data-qa="policy-context-menu-{{policyData.policy.id}}-stop">
 									{{"_OUTPUT_ACTIONS_MENU_STOP_" | translate}}
 								</st-menu-element>
 

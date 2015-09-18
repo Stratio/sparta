@@ -17,6 +17,7 @@
     vm.deletePolicy = deletePolicy;
     vm.runPolicy = runPolicy;
     vm.stopPolicy = stopPolicy;
+    vm.editPolicy = editPolicy;
     vm.error = false;
     vm.success = false;
     vm.errorMessage = '';
@@ -43,8 +44,6 @@
         vm.error = false;
         vm.policiesData.list = result;
 
-
-
         vm.checkPoliciesStatus = $interval(function() {
           var policiesStatus = PolicyFactory.getPoliciesStatus();
 
@@ -59,9 +58,6 @@
           });
         }, 5000);
 
-
-
-
       },function (error) {
         $translate('_INPUT_ERROR_' + error.data.i18nCode + '_').then(function(value){
             vm.error = true;
@@ -71,17 +67,39 @@
       });
     };
 
-    function deletePolicy(policyId, index) {
-      var policyToDelete =
-      {
-        'id': policyId,
-        'index': index
-      };
-      deletePolicyConfirm('lg', policyToDelete);
+    function editPolicy(route, policyId, policyStatus) {
+      if(policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' || policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
+        $state.go(route,{"id":policyId});
+      }
+      else {
+        $translate('_POLICY_ERROR_EDIT_POLICY_').then(function(value){
+          vm.error = true;
+          vm.success = false;
+          vm.errorMessage = value;
+        });
+      }
+    };
+
+    function deletePolicy(policyId, policyStatus, index) {
+      if(policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' || policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
+        var policyToDelete =
+        {
+          'id': policyId,
+          'index': index
+        };
+        deletePolicyConfirm('lg', policyToDelete);
+      }
+      else {
+        $translate('_POLICY_ERROR_DELETE_POLICY_').then(function(value){
+          vm.error = true;
+          vm.success = false;
+          vm.errorMessage = value;
+        });
+      }
     };
 
     function runPolicy(policyId, policyStatus, policyName) {
-      if (policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' || policyStatus.toLowerCase() === 'stopped') {
+      if (policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' || policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
         var policyRunning = PolicyFactory.runPolicy(policyId);
 
         policyRunning.then(function (result) {
@@ -90,17 +108,7 @@
             vm.success = true;
             vm.successMessage = value;
           });
-
-
-
-
-
-
-
           $timeout(function(){vm.success = false}, 5000);
-
-
-
 
         },function (error) {
           $translate('_INPUT_ERROR_' + error.data.i18nCode + '_').then(function(value){
@@ -121,7 +129,7 @@
     };
 
     function stopPolicy(policyId, policyStatus, policyName) {
-      if (policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'stopped') {
+      if (policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'stopped' && policyStatus.toLowerCase() !== 'stopping') {
 
         var stopPolicy =
         {
@@ -137,12 +145,7 @@
             vm.success = true;
             vm.successMessage = value;
           });
-
-
-
-
           $timeout(function(){vm.success = false}, 5000);
-
 
         },function (error) {
           $translate('_INPUT_ERROR_' + error.data.i18nCode + '_').then(function(value){
@@ -178,6 +181,12 @@
 
       modalInstance.result.then(function (selectedPolicy) {
         vm.policiesData.list.splice(selectedPolicy.index, 1);
+        $translate('_POLICY_DELETE_OK_').then(function(value){
+          vm.error = false;
+          vm.success = true;
+          vm.successMessage = value;
+          $timeout(function(){vm.success = false}, 5000);
+        });
 
       },function () {
       });
