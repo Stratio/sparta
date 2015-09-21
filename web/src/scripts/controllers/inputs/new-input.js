@@ -56,7 +56,7 @@
       vm.dataSource.name = '';
 
       /*Init fragment.element*/
-      vm.dataSource.element.type = fragmentData[0].name;
+      vm.dataSource.element.type = fragmentData[0].modelType;
       vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
 
       /*Init fragment.element.configuration*/
