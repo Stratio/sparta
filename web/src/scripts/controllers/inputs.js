@@ -214,7 +214,7 @@
                     return input;
                 },
                 policiesAffected: function (PolicyFactory) {
-                  return PolicyFactory.GetPolicyByFragmentId(input.type, input.id);
+                  return PolicyFactory.getPolicyByFragmentId(input.type, input.id);
                 }
             }
           });
