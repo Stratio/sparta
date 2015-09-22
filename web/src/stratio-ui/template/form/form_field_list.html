@@ -1,10 +1,10 @@
-<div class="c-form-group c-form-group--with-gutter">
+<div class="c-form-group">
     <div ng-if="!field.limit == 1" class="list-label">{{field.propertyName}}</div>
     <div class="st-form-field-help">
         <div class="st-form-field-help-button button"><i id="help-{{name}}" class="fa fa-question-circle" ng-click="toggleHelp($event)"></i></div>
         <div class="st-form-field-help-text" ng-show="showHelp">{{field.tooltip}}</div>
     </div>
-    <div class="c-form-group" ng-repeat="row in model[field.propertyId]">
+    <div class="c-form-group c-form-group--with-gutter" ng-repeat="row in model[field.propertyId]">
         <div ng-repeat="item in field.fields" class="st-form-list-column c-col c-col--{{(10 / field.fields.length) | number: 0}}" ng-class="{'c-col--vertical-top': ($index <= (field.fields.length - 2))}">
             <form-field-input ng-attr-id="ng-{{name}}{{$parent.$index}}-{{item.propertyId}}" data-form="form" data-st-name="{{name}}{{$parent.$index}}-{{item.propertyId}}" data-model="row[item.propertyId]" data-label="{{item.propertyName | translate}}" data-type="{{item.propertyType}}" data-pattern="item.regexp" data-required="item.required" data-qa="{{item.qa}}-{{$parent.$index}}"></form-field-input>
         </div><!--
