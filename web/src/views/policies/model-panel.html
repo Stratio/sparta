@@ -55,26 +55,27 @@
                       data-test="policy-model-configuration-help">
         </c-icon-label>
 
-    <textarea ng-if="editionMode" class="c-textarea c-textarea--full-width" ng-model="vm.model.configuration"
+        <textarea ng-if="editionMode" class="c-textarea c-textarea--full-width" ng-model="vm.model.configuration"
               placeholder={{vm.configPlaceholder}}></textarea>
 
         <p class="c-textarea c-textarea--disabled c-textarea--full-width" ng-if="!editionMode"
            ng-model="vm.model.configuration" data-qa="policy-model-config">
           {{vm.model.configuration | json}}</p>
       </div>
-      <div class="c-form-group">
-        <div class="c-form-control c-form-control--full-width">
-          <c-input-list-field form-control-class="" data-inputs="vm.model.outputFields"
-                              label-control-class="'c-label c-col c-col--12'"
-                              label-control-text="'_OUTPUTS_FIELDS_' | translate" readonly="'true'"
-                              data-enable-delete="editionMode" data-qa="policy-model-output-list"></c-input-list-field>
+    </div>
 
-          <c-add-element ng-if="editionMode" model="vm.model.outputFields"
-                         icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action c-info-text__icon icon-square-plus'"
-                         type="'text'" data-qa="policy-model-outputs" data-pattern="vm.outputPattern"
-                         data-placeholder="{{vm.outputInputPlaceholder | translate}}">
-          </c-add-element>
-        </div>
+    <div class="c-fom-group">
+      <div class="c-form-control c-form-control--full-width">
+        <c-input-list-field form-control-class="" data-inputs="vm.model.outputFields"
+                            label-control-class="'c-label c-col c-col--12'"
+                            label-control-text="'_OUTPUTS_FIELDS_' | translate" readonly="'true'"
+                            data-enable-delete="editionMode" data-qa="policy-model-output-list"></c-input-list-field>
+
+        <c-add-element ng-if="editionMode" model="vm.model.outputFields"
+                       icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action c-info-text__icon icon-square-plus'"
+                       type="'text'" data-qa="policy-model-outputs" data-pattern="vm.outputPattern"
+                       data-placeholder="{{vm.outputInputPlaceholder | translate}}">
+        </c-add-element>
       </div>
     </div>
   </form>
