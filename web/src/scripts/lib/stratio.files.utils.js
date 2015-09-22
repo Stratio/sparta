@@ -14,7 +14,7 @@ function autoIncrementName(input) {
         output = input;
     }
 
-    output = output + ' (' + actual + ')';
+    output = output + '(' + actual + ')';
 
     return output;
 };
