@@ -1,5 +1,6 @@
 {
   "name": "ecommerce-policy",
+  "description": "Ecommerce example",
   "sparkStreamingWindow": 6000,
   "checkpointPath": "checkpoint",
   "rawData": {
@@ -16,10 +17,7 @@
         "host": "localhost",
         "port": 5672,
         "exchangeName": "logsExchange",
-        "routingKeys": [
-          "webLogsRoute",
-          "purchasesRoute"
-        ]
+        "routingKeys": [{"routingKey": "webLogsRoute"},{"routingKey": "purchasesRoute"}]
       }
     }
   ,
@@ -379,10 +377,8 @@
       "name": "out-elasticsearch",
       "type": "ElasticSearch",
       "configuration": {
-        "nodes": "localhost",
-        "defaultPort": "9200",
-        "autoCalculateId": "true",
-        "dateType": "timestamp",
+        "nodes": [{"node":"localhost","defaultPort":"9200"}],
+        "isAutoCalculateId": "true",
         "indexMapping": "day"
       }
     }

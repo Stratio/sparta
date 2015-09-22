@@ -67,7 +67,7 @@ class ClusterSparkStreamingContextActor(policy: AggregationPoliciesModel,
         log.info("Jars plugins uploaded to HDFS")
 
         JarsHelper.findJarsByPath(new File(SparktaConfig.sparktaHome, AppConstant.ClasspathJarFolder),
-          Some(".jar"), None, None, Some(Seq("plugins", "spark", "driver", "web", "serving-api")), false)
+          Some(".jar"), None, Some("driver"), Some(Seq("plugins", "spark", "driver", "web", "serving-api")), false)
           .foreach(file => hdfsUtils.write(file.getAbsolutePath, classpathJarsPath, true))
         log.info("Classpath uploaded to HDFS")
 

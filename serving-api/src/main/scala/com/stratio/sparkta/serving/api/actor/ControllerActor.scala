@@ -62,6 +62,11 @@ class ControllerActor(streamingContextService: StreamingContextService,
     get {
       pathPrefix("") {
         pathEndOrSingleSlash {
+          getFromResource("classes/web/index.html")
+        }
+      } ~ getFromResourceDirectory("classes/web") ~
+      pathPrefix("") {
+        pathEndOrSingleSlash {
           getFromResource("web/index.html")
         }
       } ~ getFromResourceDirectory("web")

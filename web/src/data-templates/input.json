@@ -442,67 +442,6 @@
     ]
   },
   {
-    "name": "Twitter",
-    "modelType": "Twitter",
-    "description": {
-      "short": "Reads events from Twitter stream.",
-      "long": "Reads events from Twitter stream.",
-      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#twitter-label"
-    },
-    "properties": [
-      {
-        "propertyId": "consumerKey",
-        "propertyName": "_CONSUMER_KEY_",
-        "propertyType": "text",
-        "regexp": "",
-        "default": "",
-        "required": true,
-        "tooltip": "Twitter's consumer key.",
-        "qa": "fragment-details-twitter-consumerKey"
-      },
-      {
-        "propertyId": "consumerSecret",
-        "propertyName": "_CONSUMER_SECRET_",
-        "propertyType": "text",
-        "regexp": "",
-        "default": "",
-        "required": true,
-        "tooltip": "Twitter's consumer secret",
-        "qa": "fragment-details-twitter-consumerSecret"
-      },
-      {
-        "propertyId": "accessToken",
-        "propertyName": "_ACCESS_TOKEN_",
-        "propertyType": "text",
-        "regexp": "",
-        "default": "",
-        "required": true,
-        "tooltip": "Twitter's access token.",
-        "qa": "fragment-details-twitter-accessToken"
-      },
-      {
-        "propertyId": "accessTokenSecret",
-        "propertyName": "_TOKEN_SECRET_",
-        "propertyType": "text",
-        "regexp": "",
-        "default": "",
-        "required": true,
-        "tooltip": "Twitter's token secret.",
-        "qa": "fragment-details-twitter-accessTokenSecret"
-      },
-      {
-        "propertyId": "termsOfSearch",
-        "propertyName": "_TERMS_OF_SEARCH_",
-        "propertyType": "text",
-        "regexp": "",
-        "default": "",
-        "required": false,
-        "tooltip": "It allows to search tweets based on the words of this field. If you donâ€™t use this field, it searches over global trending topics.",
-        "qa": "fragment-details-twitter-termsOfSearch"
-      }
-    ]
-  },
-  {
     "name": "WebSocket",
     "modelType": "WebSocket",
     "description": {
@@ -510,6 +449,7 @@
       "long": "Reads events from websocket stream.",
       "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html"
     },
+
     "properties": [
       {
         "propertyId": "url",

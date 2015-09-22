@@ -64,14 +64,20 @@ class FlumeInput(properties: Map[String, Serializable]) extends Input(properties
 
   }
 
-  private def getAddresses(): Seq[InetSocketAddress] = {
-    properties.getString("addresses").split(",").toSeq.map(str => str.split(":").toSeq match {
-      case Seq(address) => new InetSocketAddress(address, DEFAULT_FLUME_PORT)
-      case Seq(address, port) => new InetSocketAddress(address, port.toInt)
-      case _ =>
-        throw new IllegalStateException(s"Invalid conf value for addresses : $str")
-    })
-  }
+  private def getAddresses(): Seq[InetSocketAddress] =
+    properties
+      .getConnectionChain("addresses")
+      .map(mapValues => {
+        val host: Option[String] = mapValues.get("host")
+        val port: Option[String] = mapValues.get("port")
+        (host, port)
+      })
+      .map {
+        case (Some(address), None) => new InetSocketAddress(address, DEFAULT_FLUME_PORT)
+        case (Some(address), Some(port)) => new InetSocketAddress(address, port.toInt)
+        case _ =>
+          throw new IllegalStateException(s"Invalid conf value for addresses : ${properties.get("addresses")}")
+      }
 
   private def enableDecompression(): Boolean =
     properties.hasKey("enableDecompression") match {
