@@ -35,7 +35,7 @@
     }
 
     function changeDefaultConfiguration() {
-      var configString = JSON.stringify(ModelStaticDataFactory.getDefaultConfigurations(vm.model.type));
+      var configString = JSON.stringify(ModelStaticDataFactory.getDefaultConfigurations(vm.model.type),null, 4);
       vm.model.configuration = configString;
     }
   }
