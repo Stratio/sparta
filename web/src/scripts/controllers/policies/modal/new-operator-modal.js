@@ -24,9 +24,9 @@
       vm.operator.type = operatorType;
       vm.configHelpLink = PolicyStaticDataFactory.getConfigurationHelpLink();
       vm.configPlaceholder = PolicyStaticDataFactory.getConfigPlaceholder();
-      vm.operator.configuration = CubeStaticDataFactory.getDefaultOperatorConfiguration();
       vm.error = false;
       vm.errorText = "";
+      setDefaultConfiguration();
     }
 
     ///////////////////////////////////////
@@ -50,6 +50,15 @@
         vm.errorText = "_POLICY_._CUBE_._OPERATOR_NAME_EXISTS_";
       }
       return repeated;
+    }
+
+    function setDefaultConfiguration(){
+      var defaultConfiguration = '{}';
+      var countType = CubeStaticDataFactory.getFunctionNames()[2];
+      if (vm.operator.type !== countType){
+        defaultConfiguration= CubeStaticDataFactory.getDefaultOperatorConfiguration();
+      }
+      vm.operator.configuration = defaultConfiguration;
     }
 
     function ok() {
