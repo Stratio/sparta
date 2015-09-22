@@ -23,7 +23,7 @@ import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
-import com.stratio.sparkta.serving.core.AppConstant
+import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, AppConstant}
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 import org.apache.curator.framework.CuratorFramework
@@ -46,7 +46,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
     case Update(policy) => update(policy)
     case Delete(id) => delete(id)
     case Find(id) => find(id)
-    case FindByName(name) => findByName(name.toLowerCase())
+    case FindByName(name) => findByName(name.toLowerCase)
     case FindAll() => findAll()
     case FindByFragment(fragmentType, id) => findByFragment(fragmentType, id)
   }
@@ -80,8 +80,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
     })
 
   private def byId(id: String): AggregationPoliciesModel = read[AggregationPoliciesModel](
-    new Predef.String(curatorFramework.getData.forPath(
-    s"${AppConstant.PoliciesBasePath}/$id")))
+    new Predef.String(curatorFramework.getData.forPath(s"${AppConstant.PoliciesBasePath}/$id")))
 
   def findByName(name: String): Unit =
     sender ! ResponsePolicy(Try({
@@ -146,14 +145,17 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
       ))
     })
 
-  private def existsByName(name: String, id: Option[String] = None): Boolean = {
+   def existsByName(name: String, id: Option[String] = None): Boolean = {
+    val nameToCompare =name.toLowerCase
     Try({
-      val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
-      JavaConversions.asScalaBuffer(children).toList.map(element =>
-        read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
-          s"${AppConstant.PoliciesBasePath}/$element"))))
-        .filter(policy => if (id.isDefined) policy.name == name && policy.id.get != id.get
-      else policy.name == name).toSeq.nonEmpty
+      val basePath = s"${AppConstant.PoliciesBasePath}"
+      if (CuratorFactoryHolder.existsPath(basePath)) {
+        val children = curatorFramework.getChildren.forPath(basePath)
+        JavaConversions.asScalaBuffer(children).toList.map(element =>
+          read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(s"$basePath/$element"))))
+          .filter(policy => if (id.isDefined) policy.name == nameToCompare && policy.id.get != id.get
+        else policy.name == nameToCompare).toSeq.nonEmpty
+      } else false
     }) match {
       case Success(result) => result
       case Failure(exception) => {

@@ -1,10 +1,31 @@
 Version Features
 ****************
 
+Version 0.6.0
+=============
+
+- Upgrade Spark version to 1.4.1
+
+- User Interface to help create your cubes
+
+- Automatic deployment in Mesos cluster
+
+- Policy status lifecycle
+
+- New WebSocket input
+
+- Elasticsearch output updated to version 1.7
+
+- New EntityCount and TotalEntityCount operators
+
+- Filters in operators
+
+
+
 Version 0.5.0
 =============
 
-- Added compatibility with Spark 1.4.x.
+- Added compatibility with Spark 1.4
 
 - Parquet and CSV outputs.
 

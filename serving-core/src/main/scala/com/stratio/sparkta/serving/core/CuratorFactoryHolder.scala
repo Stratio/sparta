@@ -80,6 +80,11 @@ object CuratorFactoryHolder extends SLF4JLogging {
    */
   def resetInstance(): Unit = curatorFramework = None
 
+  def existsPath(path : String) : Boolean = curatorFramework match {
+    case Some(curator) => Option(curator.checkExists().forPath(path)).isDefined
+    case None => false
+  }
+
   /**
    * Tries to instantiate a configuration value depending of its type.
    * @param configKey with the name of the property instead of configuration file.
@@ -95,4 +100,5 @@ object CuratorFactoryHolder extends SLF4JLogging {
   protected def getStringConfigValue(config: Config, key: String): String = getPathValue(key, config, classOf[String])
 
   protected def getIntConfigValue(config: Config, key: String): Int = getPathValue(key, config, classOf[Int])
+
 }

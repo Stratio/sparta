@@ -21,7 +21,7 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>com.stratio.sparkta</groupId>
-        <version>0.6.0-RC2-SNAPSHOT</version>
+        <version>0.6.1-RC1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>stratio-sparkta</artifactId>
@@ -119,7 +119,7 @@
                                     </includeConfigurationDirectoryInClasspath>
                                     <assembleDirectory>target/appassembler</assembleDirectory>
                                     <extraJvmArguments>$SPARKTA_OPTS -Xms1024m -Xmx2048m -XX:MaxPermSize=512m
-                                        -Dcom.sun.management.jmxremote.port=7193
+                                        -Dcom.sun.management.jmxremote.port=7183
                                         -Dcom.sun.management.jmxremote.authenticate=false
                                         -Dcom.sun.management.jmxremote.ssl=false
                                     </extraJvmArguments>

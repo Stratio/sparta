@@ -24,6 +24,7 @@ import com.github.fge.jsonschema.core.report.ProcessingReport
 import com.github.fge.jsonschema.main.{JsonSchema, JsonSchemaFactory}
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
+import scala.collection.JavaConversions._
 
 case class AggregationPoliciesModel(id: Option[String] = None,
                                     storageLevel: Option[String] = AggregationPoliciesModel.storageDefaultValue,
@@ -81,12 +82,19 @@ object AggregationPoliciesValidator extends SparktaSerializer {
     try {
       val report: ProcessingReport = schema.validate(policy)
       isValid = report.isSuccess
-      msg = report.toString
+      msg = getMessageErrorFromValidation(report)
     } catch {
       case ise: InvalidSchemaException => isValid = false; msg = ise.getLocalizedMessage
     }
 
     (isValid, msg)
+  }
+
+  private def getMessageErrorFromValidation(report: ProcessingReport) : String = {
+    report.iterator().map(message => {
+      s"No usable value for ${message.asJson().findValue("instance").findValue("pointer").asText()
+        .replaceAll("/[0-9]/", "-").stripPrefix("/").capitalize}. ${message.getMessage.capitalize}."
+    }).mkString("\n")
   }
 
   private def checkCubeParameter(cubeNames: Seq[String], parameterNames: Seq[String], label: String):
