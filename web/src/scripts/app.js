@@ -11,12 +11,8 @@
 
 angular
   .module('webApp', [
-    'ngAnimate',
-    'ngCookies',
     'ngResource',
     'ngRoute',
-    'ngSanitize',
-    'ngTouch',
     'ui.stratio.grid',
     'ui.router',
     'StratioUI',
