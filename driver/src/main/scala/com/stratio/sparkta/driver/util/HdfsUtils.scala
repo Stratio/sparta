@@ -136,7 +136,7 @@ class HdfsUtils(userName: String, hadoopConfDir: Option[String]) {
         val out = dfs.create(new Path(s"$destPath${file.getName}"))
         val in = new BufferedInputStream(new FileInputStream(file))
 
-        Try(IOUtils.copy(in, out))
+        IOUtils.copy(in, out)
 
         IOUtils.closeQuietly(in)
         IOUtils.closeQuietly(out)
