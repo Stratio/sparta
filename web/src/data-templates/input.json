@@ -449,6 +449,7 @@
       "long": "Reads events from websocket stream.",
       "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html"
     },
+
     "properties": [
       {
         "propertyId": "url",
