@@ -45,10 +45,10 @@ case class Cube(name: String,
                 checkpointGranularity: String,
                 checkpointTimeAvailability: Long) extends SLF4JLogging {
 
-  private lazy val operatorsMap = operators.map(op => op.key -> op).toMap
-  private lazy val associativeOperators = operators.filter(op => op.associative)
-  private lazy val associativeOperatorsMap = operatorsMap.filter(op => op._2.associative)
-  private lazy val nonAssociativeOperators = operators.filter(op => !op.associative)
+  private val associativeOperators = operators.filter(op => op.associative)
+  private val associativeOperatorsMap = associativeOperators.map(op => op.key -> op).toMap
+  private val nonAssociativeOperators = operators.filter(op => !op.associative)
+  private val nonAssociativeOperatorsMap = nonAssociativeOperators.map(op => op.key -> op).toMap
   private lazy val rememberPartitioner =
     Try(SparktaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigRememberPartitioner)).getOrElse(true)
 
@@ -70,29 +70,6 @@ case class Cube(name: String,
       checkpointAvailable)
   }
 
-  def aggregate(dimensionsValues: DStream[(DimensionValuesTime,
-    Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
-    val valuesFiltered = filterDimensionValues(dimensionsValues)
-    val withAssociative = operators.exists(op => op.associative)
-    val withNonAssociative = operators.exists(op => op.associative)
-    (withAssociative, withNonAssociative) match {
-      case (true, true) => {
-        val nonAssociativeValues = aggregateNonAssociativeValues(updateNonAssociativeState(valuesFiltered))
-        val associativeValues = updateAssociativeState(associativeAggregation(valuesFiltered))
-        //TODO join is valid?
-        // associativeValues.join(nonAssociativeValues).mapValues(aggregations => aggregations._1 ++ aggregations._2)
-        associativeValues.cogroup(nonAssociativeValues)
-          .mapValues(aggregations => (aggregations._1.flatten ++ aggregations._2.flatten).toMap)
-      }
-      case (true, false) => updateAssociativeState(associativeAggregation(valuesFiltered))
-      case (false, true) => aggregateNonAssociativeValues(updateNonAssociativeState(valuesFiltered))
-      case _ => {
-        log.warn("You must define operators for aggregate input values")
-        throw new Exception("No operator has been defined")
-      }
-    }
-  }
-
   protected def filterDimensionValues(dimensionValues: DStream[(DimensionValuesTime, Map[String, JSerializable])])
   : DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
     dimensionValues.map { case (dimensionsValuesTime, aggregationValues) => {
@@ -100,6 +77,59 @@ case class Cube(name: String,
         dimensions.exists(comp => comp.name == dimVal.dimension.name))
       (DimensionValuesTime(dimensionsFiltered, dimensionsValuesTime.time, checkpointTimeDimension), aggregationValues)
     }
+    }
+  }
+
+  /*def aggregate(dimensionsValues: DStream[(DimensionValuesTime,
+    Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
+    val valuesFiltered = filterDimensionValues(dimensionsValues)
+    val associativeValues = if (operators.exists(op => op.associative))
+      Some(updateAssociativeState(associativeAggregation(valuesFiltered)))
+    else None
+    val nonAssociativeValues = if (operators.exists(op => !op.associative))
+      Some(aggregateNonAssociativeValues(updateNonAssociativeState(valuesFiltered)))
+    else None
+
+    (associativeValues, nonAssociativeValues) match {
+      case (Some(associative), Some(nonAssociative)) => {
+        associative.cogroup(nonAssociative)
+          .mapValues(aggregations => (aggregations._1.flatten ++ aggregations._2.flatten).toMap)
+      }
+      case (Some(associative), None) => associative
+      case (None, Some(nonAssociative)) => nonAssociative
+      case _ => noAggregationsState(valuesFiltered)
+    }
+  }*/
+
+  def aggregate(dimensionsValues: DStream[(DimensionValuesTime,
+    Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
+    val valuesFiltered = filterDimensionValues(dimensionsValues)
+    val withAssociative = operators.exists(op => op.associative)
+    val withNonAssociative = operators.exists(op => !op.associative)
+    (withAssociative, withNonAssociative) match {
+      case (true, true) => {
+        val nonAssociativeValues = aggregateNonAssociativeValues(updateNonAssociativeState(valuesFiltered))
+        val associativeValues = updateAssociativeState(associativeAggregation(valuesFiltered))
+
+        associativeValues.cogroup(nonAssociativeValues)
+          .mapValues(aggregations => (aggregations._1.flatten ++ aggregations._2.flatten).toMap)
+      }
+      case (true, false) => updateAssociativeState(associativeAggregation(valuesFiltered))
+      case (false, true) => aggregateNonAssociativeValues(updateNonAssociativeState(valuesFiltered))
+      case _ => {
+        log.warn("You should define operators for aggregate input values")
+        dimensionsValues.map{ case (dimensionValueTime, aggregations) =>
+          (dimensionValueTime, operators.map(op => op.key -> None).toMap)
+        }
+      }
+    }
+  }
+
+  def noAggregationsState(dimensionsValues: DStream[(DimensionValuesTime,
+    Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
+    dimensionsValues.map {
+      case (dimensionValueTime, aggregations) =>
+        (dimensionValueTime, operators.map(op => op.key -> None).toMap)
     }
   }
 
@@ -188,7 +218,10 @@ case class Cube(name: String,
   : DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     dimensionsValues.mapValues(aggregationValues => {
       aggregationValues.groupBy { case (name, value) => name }
-        .map { case (name, value) => (name, operatorsMap(name).processReduce(value.map(_._2))) }
+        .map { case (name, value) => {
+        val as = "as"
+        (name, nonAssociativeOperatorsMap(name).processReduce(value.map(_._2)))
+      } }
     })
   }
 
