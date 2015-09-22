@@ -1,6 +1,8 @@
 # Changelog
 
-Only listing significant user-visible, not internal code cleanups and minor bug fixes.
+## 0.6.1 (September 2015)
+
+- Hotfix: User interface was not showing up
 
 ## 0.6.0 (September 2015)
 
