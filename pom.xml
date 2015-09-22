@@ -29,7 +29,7 @@
 
     <groupId>com.stratio.sparkta</groupId>
     <artifactId>parent</artifactId>
-    <version>0.6.1-RC2</version>
+    <version>0.6.1-RC3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <url>http://www.stratio.com</url>
