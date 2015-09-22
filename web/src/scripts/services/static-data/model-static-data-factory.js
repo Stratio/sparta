@@ -8,23 +8,31 @@
   function ModelStaticDataFactory() {
     var morphlinesDefaultConfiguration = {
       "morphline": {
-        "id": "morphline1",
-        "importCommands": [
-          "org.kitesdk.**"
-        ],
-        "commands": [
-          {
-            "readJson": {}
-          },
-          {
-            "extractJsonPaths": {
-              "paths": {
-                "field1": "/field-in-json1",
-                "field2": "/field-in-json2"
+          "id": "morphline1",
+          "importCommands": [
+              "org.kitesdk.**"
+          ],
+          "commands": [
+              {
+                  "readJson": {}
+              },
+              {
+                  "extractJsonPaths": {
+                      "paths": {
+                          "field1": "/field-in-json1",
+                          "field2": "/field-in-json2"
+                      }
+                  }
+              },
+              {
+                "removeFields": {
+                  "blacklist": [
+                    "literal:_attachment_body",
+                    "literal:message"
+                  ]
+                }
               }
-            }
-          }
-        ]
+          ]
       }
     };
     var dateTimeDefaultConfiguration = {
