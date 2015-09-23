@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('CubeCtrl', CubeCtrl);
 
-  CubeCtrl.$inject = ['CubeStaticDataFactory', 'CubeModelFactory', 'PolicyModelFactory', '$modal'];
+  CubeCtrl.$inject = ['CubeModelFactory', 'PolicyModelFactory', '$modal'];
 
-  function CubeCtrl(CubeStaticDataFactory, CubeModelFactory, PolicyModelFactory, $modal) {
+  function CubeCtrl(CubeModelFactory, PolicyModelFactory, $modal) {
     var vm = this;
 
     vm.init = init;
@@ -20,16 +20,17 @@
     vm.init();
 
     function init(cube) {
-      if (cube) {
-        vm.cube = cube;
-      } else {
-        vm.cube = CubeModelFactory.getCube();
-      }
-      vm.policy = PolicyModelFactory.getCurrentPolicy();
-      vm.granularityOptions = CubeStaticDataFactory.getGranularityOptions();
-      vm.functionList = CubeStaticDataFactory.getFunctionNames();
-      vm.outputList = PolicyModelFactory.getAllModelOutputs();
-      vm.cubeError = CubeModelFactory.getError();
+        vm.template =  PolicyModelFactory.getTemplate();
+        if (cube) {
+          vm.cube = cube;
+        } else {
+          vm.cube = CubeModelFactory.getCube(vm.template);
+        }
+        vm.policy = PolicyModelFactory.getCurrentPolicy();
+        vm.granularityOptions = vm.template.granularityOptions;
+        vm.functionList = vm.template.functionNames;
+        vm.outputList = PolicyModelFactory.getAllModelOutputs();
+        vm.cubeError = CubeModelFactory.getError();
     }
 
     function addOutputToDimensions(outputName) {
@@ -48,11 +49,11 @@
           dimensionName: function () {
             return outputName;
           },
-          type: function () {
-            return CubeStaticDataFactory.getDefaultType().value
-          },
-          dimensions: function(){
+          dimensions: function () {
             return vm.cube.dimensions
+          },
+          template: function(){
+            return vm.template;
           }
         }
       });
@@ -78,13 +79,16 @@
         resolve: {
           operatorType: function () {
             return functionName;
-        },
+          },
           operatorName: function () {
             var operatorLength = vm.cube.operators.length + 1;
             return functionName.toLowerCase() + operatorLength;
           },
-          operators: function(){
+          operators: function () {
             return vm.cube.operators
+          },
+          template: function () {
+            return  vm.template;
           }
         }
       });

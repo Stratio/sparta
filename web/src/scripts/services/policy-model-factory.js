@@ -10,6 +10,7 @@
     var policy = {};
     var status = {};
     var finalJSON = {};
+    var template = {};
 
     function initPolicy() {
       status.currentStep = 0;
@@ -44,6 +45,14 @@
       var policyFragments = separateFragments(inputPolicyJSON.fragments);
       policy.input = policyFragments.input;
       policy.outputs = policyFragments.outputs;
+    }
+
+    function setTemplate(newTemplate){
+      template = newTemplate;
+    }
+
+    function getTemplate(){
+     return template;
     }
 
     function separateFragments(fragments) {
@@ -114,6 +123,8 @@
 
     return {
       setPolicy: setPolicy,
+      setTemplate: setTemplate,
+      getTemplate: getTemplate,
       getCurrentPolicy: getCurrentPolicy,
       previousStep: previousStep,
       nextStep: nextStep,

@@ -7,10 +7,10 @@
     .controller('PolicyModelAccordionCtrl', PolicyModelAccordionCtrl);
 
   PolicyModelAccordionCtrl.$inject = ['PolicyModelFactory', 'AccordionStatusService',
-    'ModelFactory', 'PolicyStaticDataFactory', 'CubeService', '$modal', '$translate', '$q'];
+    'ModelFactory', 'CubeService', '$modal', '$translate', '$q'];
 
   function PolicyModelAccordionCtrl(PolicyModelFactory, AccordionStatusService,
-                                    ModelFactory, PolicyStaticDataFactory, CubeService, $modal, $translate, $q) {
+                                    ModelFactory, CubeService, $modal, $translate, $q) {
     var vm = this;
     var index = 0;
 
@@ -25,12 +25,13 @@
     vm.init();
 
     function init() {
+      vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      ModelFactory.resetModel();
-      vm.newModel = ModelFactory.getModel();
+      ModelFactory.resetModel(vm.template);
+      vm.newModel = ModelFactory.getModel(vm.template);
       vm.accordionStatus = AccordionStatusService.accordionStatus;
       AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
-      vm.helpLink = PolicyStaticDataFactory.getHelpLinks().models;
+      vm.helpLink = vm.template.helpLinks.models;
       vm.error = "";
     }
 
@@ -40,7 +41,7 @@
         var newModel = angular.copy(vm.newModel);
         newModel.order = vm.policy.models.length + 1;
         vm.policy.models.push(newModel);
-        ModelFactory.resetModel();
+        ModelFactory.resetModel(vm.template);
         AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
         AccordionStatusService.accordionStatus.newItem = true;
       }
@@ -55,8 +56,7 @@
         vm.policy.models.splice(index, 1);
         vm.newModelIndex = vm.policy.models.length;
         AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
-        AccordionStatusService.getAccordionStatus().newItem = true;
-        ModelFactory.resetModel();
+        ModelFactory.resetModel(vm.template);
       });
     }
 

@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('PolicyDescriptionCtrl', PolicyDescriptionCtrl);
 
-  PolicyDescriptionCtrl.$inject = ['PolicyModelFactory', 'PolicyStaticDataFactory', 'PolicyFactory', '$filter', '$q'];
+  PolicyDescriptionCtrl.$inject = ['PolicyModelFactory', 'PolicyFactory', '$filter', '$q'];
 
-  function PolicyDescriptionCtrl(PolicyModelFactory, PolicyStaticDataFactory, PolicyFactory, $filter, $q) {
+  function PolicyDescriptionCtrl(PolicyModelFactory, PolicyFactory, $filter, $q) {
     var vm = this;
 
     vm.validateForm = validateForm;
@@ -16,13 +16,14 @@
     init();
 
     function init() {
+      vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      vm.sparkStreamingWindowData = PolicyStaticDataFactory.getSparkStreamingWindow();
-      vm.checkpointIntervalData = PolicyStaticDataFactory.getCheckpointInterval();
-      vm.checkpointAvailabilityData = PolicyStaticDataFactory.getCheckpointAvailability();
-      vm.partitionFormatData = PolicyStaticDataFactory.getPartitionFormat();
-      vm.storageLevelData = PolicyStaticDataFactory.getStorageLevel();
-      vm.helpLink = PolicyStaticDataFactory.getHelpLinks().description;
+      vm.sparkStreamingWindowData = vm.template.sparkStreamingWindow;
+      vm.checkpointIntervalData = vm.template.checkpointInterval;
+      vm.checkpointAvailabilityData = vm.template.checkpointAvailability;
+      vm.partitionFormatData = vm.template.partitionFormat;
+      vm.storageLevelData = vm.template.storageLevel;
+      vm.helpLink = vm.template.helpLinks.description;
       vm.error = false;
     }
 
@@ -41,8 +42,7 @@
         }, function () {
           defer.reject();
         });
-      }else {
-        vm.error = true;
+      } else {
         defer.resolve();
       }
       return defer.promise;
@@ -54,7 +54,7 @@
       var policiesList = PolicyFactory.getAllPolicies();
       policiesList.then(function (result) {
         var policiesDataList = result;
-        var filteredPolicies = $filter('filter')(policiesDataList, {'policy':{'name': vm.policy.name.toLowerCase()}}, true);
+        var filteredPolicies = $filter('filter')(policiesDataList, {'policy': {'name': vm.policy.name.toLowerCase()}}, true);
 
         if (filteredPolicies.length > 0) {
           var foundPolicy = filteredPolicies[0].policy;

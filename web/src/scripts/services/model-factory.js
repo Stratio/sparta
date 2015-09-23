@@ -5,22 +5,23 @@
     .module('webApp')
     .factory('ModelFactory', ModelFactory);
 
+  ModelFactory.$inject = ['PolicyModelFactory'];
 
-  ModelFactory.$inject = ['ModelStaticDataFactory', 'PolicyModelFactory'];
-
-  function ModelFactory(ModelStaticDataFactory, PolicyModelFactory) {
+  function ModelFactory(PolicyModelFactory) {
     var model = {};
     var error = {text: ""};
+    var template = null;
 
-    function init() {
+    function init(newTemplate) {
+      template = newTemplate;
       model.name = "";
       model.outputFields = [];
-      model.type = ModelStaticDataFactory.getTypes()[0].name;
-      model.configuration = "";
+      model.type = template.types[0].name;
+      model.configuration =  JSON.stringify(newTemplate.morphlinesDefaultConfiguration, null, 4);
       model.inputList = getModelInputs();
       model.inputField = model.inputList[0].value;
       error.text = "";
-    };
+    }
 
     function getModelInputs() {
       var models = PolicyModelFactory.getCurrentPolicy().models;
@@ -28,7 +29,7 @@
       var index = models.length;
       if (index >= 0) {
         if (index == 0)
-          result = ModelStaticDataFactory.getDefaultInput();
+          result = template.defaultInput;
         else {
           var model = models[--index];
           var options = generateOutputOptions(model.outputFields);
@@ -66,17 +67,17 @@
         model.name != "" && model.type != "" && isValidConfiguration();
       if (!isValid) {
         error.text = "_GENERIC_FORM_ERROR_";
-      }else  error.text = "";
+      } else  error.text = "";
       return isValid;
     }
 
-    function getModel() {
-      if (Object.keys(model).length == 0) init();
+    function getModel(template) {
+      if (Object.keys(model).length == 0) init(template);
       return model;
     }
 
-    function resetModel() {
-      init();
+    function resetModel(template) {
+      init(template);
     }
 
     function getError() {

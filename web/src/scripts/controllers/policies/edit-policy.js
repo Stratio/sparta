@@ -6,8 +6,8 @@
     .module('webApp')
     .controller('EditPolicyCtrl', EditPolicyCtrl);
 
-  EditPolicyCtrl.$inject = ['PolicyStaticDataFactory', 'PolicyModelFactory', 'PolicyFactory', '$q', '$modal', '$state', '$stateParams'];
-  function EditPolicyCtrl(PolicyStaticDataFactory, PolicyModelFactory, PolicyFactory, $q, $modal, $state, $stateParams) {
+  EditPolicyCtrl.$inject = ['TemplateFactory', 'PolicyModelFactory', 'PolicyFactory', '$q', '$modal', '$state', '$stateParams'];
+  function EditPolicyCtrl(TemplateFactory, PolicyModelFactory, PolicyFactory, $q, $modal, $state, $stateParams) {
     var vm = this;
 
     vm.confirmPolicy = confirmPolicy;
@@ -16,20 +16,24 @@
 
     function init() {
       var defer = $q.defer();
-      var id = $stateParams.id;
-      vm.steps = PolicyStaticDataFactory.getSteps();
-      vm.status = PolicyModelFactory.getProcessStatus();
-      vm.successfullySentPolicy = false;
-      vm.error = null;
-      PolicyFactory.getPolicyById(id).then(
-        function (policyJSON) {
-          PolicyModelFactory.setPolicy(policyJSON);
-          vm.policy = PolicyModelFactory.getCurrentPolicy();
-          defer.resolve();
-        }
-        , function () {
-          defer.reject();
-        });
+      TemplateFactory.getPolicyTemplate().then(function (template) {
+        PolicyModelFactory.setTemplate(template);
+        var id = $stateParams.id;
+        vm.steps = template.steps;
+        vm.status = PolicyModelFactory.getProcessStatus();
+        vm.successfullySentPolicy = false;
+        vm.error = null;
+        PolicyFactory.getPolicyById(id).then(
+          function (policyJSON) {
+            PolicyModelFactory.setPolicy(policyJSON);
+            vm.policy = PolicyModelFactory.getCurrentPolicy();
+            defer.resolve();
+          }
+          , function () {
+            defer.reject();
+          });
+      });
+
       return defer.promise;
     }
 
