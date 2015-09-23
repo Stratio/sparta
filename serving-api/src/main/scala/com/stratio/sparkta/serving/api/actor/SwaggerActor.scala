@@ -56,7 +56,8 @@ class SwaggerActor(actorsMap: Map[String, ActorRef]) extends HttpServiceActor wi
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
   def getRoutes: Route = swaggerService ~ swaggerUIroutes ~ serviceRoutes.fragmentRoute ~
-    serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~ serviceRoutes.templateRoute
+    serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~ serviceRoutes.templateRoute ~
+    serviceRoutes.AppStatusRoute
 
   def swaggerUIroutes: Route =
     get {
