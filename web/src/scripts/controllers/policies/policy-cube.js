@@ -40,8 +40,6 @@
         controller: 'NewDimensionModalCtrl as vm',
         size: 'lg',
         show: true,
-        keyboard: false,
-        backdrop: 'static',
         resolve: {
           fieldName: function () {
             return outputName;
@@ -74,8 +72,6 @@
         controller: 'NewOperatorModalCtrl as vm',
         size: 'lg',
         show: true,
-        keyboard: false,
-        backdrop: 'static',
         resolve: {
           operatorType: function () {
             return functionName;

@@ -258,7 +258,7 @@
     ]
   },
   {
-    "name": "KafkaDirect",
+    "name": "Kafka Direct",
     "modelType": "KafkaDirect",
     "description": {
       "short": "Reads events from apache-kafka",

@@ -2,7 +2,7 @@
 
   <p class="c-info-text c-info-text--narrow c-info-text--bottom-margin"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._MODEL_INTRO_" | translate}}</span></p>
 
-  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error != ''" data-qa="error-msg">
+  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error != ''" data-qa="policy-model-error-msg">
     <i class="c-icon icon-circle-cross"></i>
     <span>{{vm.error| translate}}</span>
   </div>
@@ -14,13 +14,13 @@
           <accordion-heading>
             <span class="c-accordion-header__step-number">{{$index + 1}}</span>
             <i data-ng-if="currentModel.type" class="c-accordion-header__type c-icon icon-{{currentModel.type | lowercase}}"></i><span class="c-accordion-header__title">{{currentModel.type}}</span>
-            <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right"></i>
+            <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right" data-qa="policy-model-arrow-{{$index + 1}}"></i>
           </accordion-heading>
 
-          <ng-include ng-if = "vm.accordionStatus[$index]" src="'views/policies/model-panel.html'" ng-init = "model = currentModel; disabled = true" ng-model="currentModel" data-qa="policy-model-{{$index}}"></ng-include>
+          <ng-include ng-if = "vm.accordionStatus[$index]" src="'views/policies/model-panel.html'" ng-init = "model = currentModel" ng-model="currentModel" data-qa="policy-model-{{$index}}"></ng-include>
 
           <div class="c-form-group c-form-group--full-width c-form-group--to-right">
-            <button class="c-button c-button--danger" ng-if = "vm.isLastModel($index)" data-ng-click="vm.removeModel($index, $event)" data-qa="policy-model-remove-button">
+            <button class="c-button c-button--danger" ng-if = "vm.isLastModel($index)" data-ng-click="vm.removeModel($index, $event)" data-qa="policy-model-delete-button">
               <i class="c-icon icon-cross"></i>
               <span>{{"_DELETE_" | translate}}</span>
             </button>
@@ -33,7 +33,7 @@
           <accordion-heading class="c-accordion-header">
             <span class="c-accordion-header__step-number">{{(vm.policy.models.length + 1) }}</span><i data-ng-if="vm.newModel.type" class="c-accordion-header__type c-icon icon-{{vm.newModel.iconName | lowercase}}"></i><span class="c-accordion-header__title">{{"_POLICY_._NEW-MODEL-DEFINITION_" | translate}}</span>
 
-            <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right"></i>
+            <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right" data-qa="policy-model-arrow-{{(vm.policy.models.length + 1) }}"></i>
           </accordion-heading>
 
           <ng-include ng-if = "vm.accordionStatus.newItem"   ng-model="vm.newModel" src="'views/policies/model-panel.html'" ng-init = "model = vm.newModel; editionMode = true" data-qa="policy-model-new">
