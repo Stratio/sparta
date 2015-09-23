@@ -4,16 +4,11 @@ module.exports = function (config) {
     basePath: '',
 
     files: [
-      'bower_components/jquery/jquery.js',
       'bower_components/angular/angular.js',
       'bower_components/angular-mocks/angular-mocks.js',
-      'bower_components/angular-animate/angular-animate.js',
-      'bower_components/angular-cookies/angular-cookies.js',
       'bower_components/angular-resource/angular-resource.js',
       'bower_components/angular-route/angular-route.js',
       'bower_components/angular-ui-router/release/angular-ui-router.js',
-      'bower_components/angular-sanitize/angular-sanitize.js',
-      'bower_components/angular-touch/angular-touch.js',
       'src/scripts/filters/angular-truncate-number.js',
 
       'src/stratio-ui/script/ui.stratio.js',
@@ -26,30 +21,39 @@ module.exports = function (config) {
       'src/scripts/constants/**/*.js',
       'src/scripts/controllers/**/*.js',
       'src/languages/en-US.json',
+      // fixtures
+      'test/mock/*.json',
       'test/**/*.js'
     ],
 
     autoWatch: false,
 
-    frameworks: ['jasmine'],
+    frameworks: ['jasmine-jquery', 'jasmine'],
 
-    browsers: ['Chrome'],
+    browsers: ['PhantomJS'],
 
     plugins: [
-      'karma-chrome-launcher',
+      'karma-ng-json2js-preprocessor',
+      'karma-phantomjs-launcher',
       'karma-jasmine',
-      'karma-html2js-preprocessor',
-      'karma-ng-html2js-preprocessor'
+      'karma-jasmine-jquery'
     ],
 
     preprocessors: {
-      '**/*.html': ['html2js'],
-      '**/*.json': ['html2js']
+      '**/*.html': ['ng-html2js'],
+      '**/*.json': ['ng-json2js']
     },
 
     junitReporter: {
       outputFile: 'test_out/unit.xml',
       suite: 'unit'
+    },
+
+    ngJson2JsPreprocessor: {
+      // strip this from the file path
+      stripPrefix: 'test/mock/',
+      // prepend this to the
+      prependPrefix: 'served/'
     }
 
   });

@@ -33,10 +33,17 @@
         /*Check if the name of the policy already exists*/
         findPolicyWithSameName().then(function (found) {
           vm.error = found;
+          if (!found) {
+            vm.policy.rawData.enabled = vm.policy.rawData.enabled.toString();
+            PolicyModelFactory.nextStep();
+          }
           defer.resolve();
         }, function () {
           defer.reject();
         });
+      }else {
+        vm.error = true;
+        defer.resolve();
       }
       return defer.promise;
     }
@@ -55,10 +62,7 @@
             found = true;
           }
         }
-        if (!found) {
-          vm.policy.rawData.enabled = vm.policy.rawData.enabled.toString();
-          PolicyModelFactory.nextStep();
-        }
+
         defer.resolve(found);
       }, function () {
         defer.reject();

@@ -1,17 +1,11 @@
 describe('Policy description controller', function () {
   beforeEach(module('webApp'));
+  beforeEach(module('served/policy.json'));
 
-  var ctrl = null;
-  var fakePolicy = {
-    name: "fake policy",
-    rawData: {
-      enabled: false,
-      partitionFormat: "day",
-      path: ""
-    }
+    var ctrl, fakePolicy, fakeAllPoliciesResponse = null;
 
-  };
-  var fakeAllPoliciesResponse = [{policy: fakePolicy, status: "RUNNING"}];
+
+  // init mock modules
 
   var policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'nextStep']);
   policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
@@ -27,6 +21,11 @@ describe('Policy description controller', function () {
   var policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['getAllPolicies']);
 
   beforeEach(inject(function ($controller, $q, $httpBackend) {
+    inject(function (_servedPolicy_) {
+      fakePolicy = _servedPolicy_;
+      fakeAllPoliciesResponse = [{policy: fakePolicy, status: "RUNNING"}];
+    });
+
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
 
@@ -52,6 +51,7 @@ describe('Policy description controller', function () {
     beforeEach(inject(function ($rootScope, $httpBackend) {
       rootScope = $rootScope;
       httpBackend = $httpBackend;
+      policyModelFactoryMock.nextStep.calls.reset();
     }));
 
     describe("if view validations have been passed", function () {
@@ -80,7 +80,6 @@ describe('Policy description controller', function () {
       it("It is valid if there is not any policy with the same name, next step is executed", function () {
         ctrl.policy = angular.copy(fakePolicy);
         ctrl.policy.name = "new name";
-        policyModelFactoryMock.nextStep;
         ctrl.validateForm().then(function () {
           expect(policyModelFactoryMock.nextStep).toHaveBeenCalled();
         });
@@ -96,7 +95,7 @@ describe('Policy description controller', function () {
       it("It is invalid and next step is not executed", function () {
         ctrl.policy = fakePolicy;
         ctrl.validateForm().then(function () {
-          expect(ctrl.error).toBe(false);
+          expect(ctrl.error).toBe(true);
           expect(policyModelFactoryMock.nextStep).not.toHaveBeenCalled();
         });
 
