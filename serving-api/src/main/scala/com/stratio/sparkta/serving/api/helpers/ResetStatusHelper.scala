@@ -36,6 +36,7 @@ object ResetStatusHelper extends SparktaSerializer {
       }
     } match {
       case Failure(ex: Exception) => throw ex
+      case Success(())=> {}
 
     }
   }
