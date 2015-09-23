@@ -43,8 +43,8 @@
         "indexMapping": "sparkta",
         "idField": ""
       },
-      "type": "Elasticsearch",
-      "name": "in-Elasticsearch"
+      "type": "ElasticSearch",
+      "name": "in-ElasticSearch"
     },
     "fragmentType": "output",
     "shortDescription": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
@@ -90,8 +90,8 @@
         "delimiter": ",",
         "header": true
       },
-      "type": "CSV",
-      "name": "in-CSV"
+      "type": "Csv",
+      "name": "in-Csv"
     },
     "fragmentType": "output",
     "shortDescription": "",
