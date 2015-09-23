@@ -53,7 +53,7 @@
     return {
       getTypes: getTypes,
       getDefaultInput: function () {
-        return [{"label": "raw", "value": "raw"}]
+        return [{"label": "_attachment_body", "value": "_attachment_body"}]
       },
       getConfigHelpLink: function () {
         return "http://docs.stratio.com/modules/sparkta/development/transformations.html"
