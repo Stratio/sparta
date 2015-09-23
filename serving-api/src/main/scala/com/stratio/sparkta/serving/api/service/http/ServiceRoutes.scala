@@ -55,13 +55,5 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
 
     override implicit def actorRefFactory: ActorRefFactory = context
   }.routes
-  val AppStatusRoute: Route = new AppStatusHttpService {
-    override implicit val actors: Map[String, ActorRef] = actorsMap
-    override val supervisor: ActorRef = if (actorsMap.contains(AkkaConstant.StatusActor))
-      actorsMap.get(AkkaConstant.StatusActor).get
-    else context.self
-
-    override implicit def actorRefFactory: ActorRefFactory = context
-  }.routes
 }
 

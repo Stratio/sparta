@@ -32,7 +32,6 @@ object HttpConstant {
   final val JobServerPath = "jobServer"
   final val JobsPath = "jobs"
   final val ContextsPath = "contexts"
-  final val AppStatus= "status"
 
   /**
    * Http codes.
