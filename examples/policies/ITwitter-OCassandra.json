@@ -32,36 +32,30 @@
       },
       "dimensions": [
         {
-          "name": "hashtags",
+          "name": "h",
           "field": "status",
           "type": "TwitterStatus",
           "precision": "hashtags"
         },
         {
-          "name": "firsthashtag",
+          "name": "f_h",
           "field": "status",
           "type": "TwitterStatus",
           "precision": "firsthashtag"
         },
         {
-          "name": "retweets",
+          "name": "rt",
           "field": "status",
           "type": "TwitterStatus",
           "precision": "retweets"
         },
         {
-          "name": "userLocation",
+          "name": "u_l",
           "field": "userLocation"
         },
         {
-          "name": "wordsN",
+          "name": "w_n",
           "field": "wordsN"
-        },
-        {
-          "name": "precision3",
-          "field": "geolocation",
-          "type": "GeoHash",
-          "precision": "precision3"
         },
         {
           "name": "minute",
@@ -72,75 +66,75 @@
       ],
       "operators": [
         {
-          "name": "countoperator",
+          "name": "c",
           "type": "Count",
           "configuration": {}
         },
         {
-          "name": "distinctoperator",
+          "name": "d",
           "type": "Count",
           "configuration": {
             "distinctFields": "wordsN"
           }
         },
         {
-          "name": "sumoperator",
+          "name": "s",
           "type": "Sum",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "maxoperator",
+          "name": "m",
           "type": "Max",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "minoperator",
+          "name": "min",
           "type": "Min",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "avgoperator",
+          "name": "avg",
           "type": "Avg",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "medianoperator",
+          "name": "med",
           "type": "Median",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "varianceoperator",
+          "name": "var",
           "type": "Variance",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "stddevoperator",
+          "name": "stdv",
           "type": "Stddev",
           "configuration": {
             "inputField": "wordsN"
           }
         },
         {
-          "name": "fullTextoperator",
+          "name": "ft",
           "type": "FullText",
           "configuration": {
             "inputField": "userLocation"
           }
         },
         {
-          "name": "lastValueoperator",
+          "name": "lv",
           "type": "LastValue",
           "configuration": {
             "inputField": "retweets"
@@ -155,19 +149,9 @@
       "type": "Cassandra",
       "configuration": {
         "connectionHost": "127.0.0.1",
-        "cluster": "Sparkta Cluster",
-        "keyspace": "sparkta",
-        "class": "SimpleStrategy",
-        "replicationFactor": "1",
-        "isAutoCalculateId": "false",
-        "clusteringPrecisions": "",
-        "indexFields": "minute",
-        "textIndexFields": "firsthashtag:string,userLocation:text,minute:date,avg_wordsn:double,count:long",
-        "textIndexFieldsName": "lucene",
-        "fixedAggregation": "lucene",
-        "refreshSeconds": "1",
-        "dateFormat": "yyyy/MM/dd",
-        "analyzer": "english"
+        "connectionPort": "9042",
+        "cluster": "Test Cluster",
+        "keyspace": "sparkta"
       }
     }
   ]
