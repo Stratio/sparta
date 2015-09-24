@@ -31,7 +31,6 @@
     function generateFinalJSON() {
       var fragments = [];
       var finalJSON = angular.copy(vm.policy);
-      finalJSON.transformations = finalJSON.models;
       fragments.push(finalJSON.input);
       for (var i = 0; i < finalJSON.outputs.length; ++i) {
         if (finalJSON.outputs[i]) {
@@ -44,14 +43,26 @@
       return finalJSON;
     }
 
-    function cleanPolicyJSON(finalJSON) {
+    function cleanModels(finalJSON){
+      var modelsJSON = finalJSON.models;
+     if (modelsJSON){
+       for (var i = 0; i < modelsJSON.length; ++i){
+         delete modelsJSON[i].inputList;
+       }
+     }
       delete finalJSON.models;
+      return modelsJSON;
+    }
+
+    function cleanPolicyJSON(finalJSON) {
       delete finalJSON.input;
       delete finalJSON.outputs;
       if (finalJSON.rawData.enabled === 'false') {
         delete finalJSON.rawData['path'];
         delete finalJSON.rawData['partitionFormat'];
       }
+      finalJSON.transformations =  cleanModels(finalJSON);
+
       return finalJSON;
     }
   }
