@@ -1,13 +1,13 @@
 <aside data-qa="confirm-policy-modal">
 	<div class="c-titlebar">
 		<span class="c-titlebar__title">{{"_POLICY_._WINDOW_._CONFIRM_._TITLE_" | translate}}</span>
-		<i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
+		<i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" data-ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
 	</div>
 
 	<div class="c-modal-inner">
 		<p class="c-modal-inner__title">{{"_ARE_YOU_COMPLETELY_SURE_" | translate}}</p>
 
-		<div class="c-row" ng-if="vm.outputs.policies.length > 0">
+		<div class="c-row" data-ng-if="vm.outputs.policies.length > 0">
 			<p>{{"_INPUT_WINDOW_DELETE_MESSAGE_" | translate}}</p>
 			<p>{{"_INPUT_WINDOW_DELETE_MESSAGE2_" | translate}}</p>
 

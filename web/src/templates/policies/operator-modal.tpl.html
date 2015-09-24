@@ -1,13 +1,13 @@
 <aside data-qa="operator-modal">
   <div class="c-titlebar">
     <span class="c-titlebar__title">{{"_POLICY_._CUBE_._OPERATOR_" | translate}}</span>
-    <i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
+    <i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" data-ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
   </div>
 
   <form class="c-form" name="vm.form" novalidate>
     <div class="c-row c-row--separated c-msg c-msg--small c-msg--error" data-ng-if=" vm.errorText != ''" data-qa="error-msg">
       <i class="c-icon icon-circle-cross"></i>
-      <span ng-model = "vm.errorText">{{vm.errorText |translate}}</span>
+      <span data-ng-model = "vm.errorText">{{vm.errorText |translate}}</span>
     </div>
     <div class="c-modal-inner">
       <div class="c-form-group">
@@ -19,7 +19,7 @@
       </div>
 
       <div class="c-form-group">
-        <textarea class="c-textarea c-textarea--full-width" ng-model="vm.operator.configuration" placeholder={{vm.configPlaceholder}} form="vm.form" data-qa="operator-modal-config" />
+        <textarea class="c-textarea c-textarea--full-width" data-ng-model="vm.operator.configuration" placeholder={{vm.configPlaceholder}} form="vm.form" data-qa="operator-modal-config" />
       </div>
 
       <div class="c-row c-row--separated">
