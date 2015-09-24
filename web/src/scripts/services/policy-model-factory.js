@@ -10,12 +10,13 @@
     var policy = {};
     var status = {};
     var finalJSON = {};
+    var template = {};
 
     function initPolicy() {
       status.currentStep = 0;
       policy.name = "";
       policy.description = "";
-      policy.sparkStreamingWindow = "6000";
+      policy.sparkStreamingWindow = 6000;
       policy.storageLevel = "MEMORY_AND_DISK_SER";
       policy.checkpointPath = "/tmp/checkpoint";
       policy.rawData = {};
@@ -44,6 +45,14 @@
       var policyFragments = separateFragments(inputPolicyJSON.fragments);
       policy.input = policyFragments.input;
       policy.outputs = policyFragments.outputs;
+    }
+
+    function setTemplate(newTemplate){
+      template = newTemplate;
+    }
+
+    function getTemplate(){
+     return template;
     }
 
     function separateFragments(fragments) {
@@ -114,6 +123,8 @@
 
     return {
       setPolicy: setPolicy,
+      setTemplate: setTemplate,
+      getTemplate: getTemplate,
       getCurrentPolicy: getCurrentPolicy,
       previousStep: previousStep,
       nextStep: nextStep,

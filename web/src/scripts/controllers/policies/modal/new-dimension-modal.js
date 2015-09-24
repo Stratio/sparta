@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('NewDimensionModalCtrl', NewDimensionModalCtrl);
 
-  NewDimensionModalCtrl.$inject = ['$modalInstance', 'dimensionName', 'fieldName', 'type', 'dimensions', 'CubeStaticDataFactory', '$filter', 'UtilsService'];
+  NewDimensionModalCtrl.$inject = ['$modalInstance', 'dimensionName', 'fieldName', 'dimensions', '$filter', 'UtilsService', 'template'];
 
-  function NewDimensionModalCtrl($modalInstance, dimensionName, fieldName, type, dimensions, CubeStaticDataFactory, $filter, UtilsService) {
+  function NewDimensionModalCtrl($modalInstance, dimensionName, fieldName, dimensions, $filter, UtilsService, template) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -22,10 +22,11 @@
       vm.dimension = {};
       vm.dimension.name = dimensionName;
       vm.dimension.field = fieldName;
-      vm.dimension.type = type;
-      vm.precisionOptions = CubeStaticDataFactory.getPrecisionOptions();
-      vm.cubeTypes = CubeStaticDataFactory.getCubeTypes();
-      vm.defaultType = CubeStaticDataFactory.getDefaultType().value;
+      vm.cubeTypes = template.cubeTypes;
+      vm.dimension.type = vm.cubeTypes[0].value;
+      vm.precisionOptions = template.precisionOptions;
+
+      vm.defaultType = template.cubeTypes[0].value;
       vm.errorText = "";
     }
 

@@ -69,7 +69,7 @@
     function createTypeModels(fragmentData) {
       /*Creating one properties model for each input type*/
       for (var i = 0; i < fragmentData.length; i++) {
-        var fragmentName = fragmentData[i].name;
+        var fragmentName = fragmentData[i].modelType;
         vm.properties[fragmentName] = {};
 
         /*Flag to check if there are any visible field*/

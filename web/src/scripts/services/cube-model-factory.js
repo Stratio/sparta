@@ -5,32 +5,31 @@
       .module('webApp')
       .factory('CubeModelFactory', CubeModelFactory);
 
-    CubeModelFactory.$inject = ['CubeStaticDataFactory'];
+    CubeModelFactory.$inject = [];
 
-    function CubeModelFactory(CubeStaticDataFactory) {
+    function CubeModelFactory() {
       var cube = {};
       var error = {text: ""};
 
-      function init() {
+      function init(template) {
         cube.name = "";
         cube.dimensions = [];
         cube.operators = [];
         cube.checkpointConfig = {};
-        cube.checkpointConfig.timeDimension = CubeStaticDataFactory.getDefaultTimeDimension();
-        cube.checkpointConfig.interval = CubeStaticDataFactory.getDefaultInterval();
-        cube.checkpointConfig.interval = CubeStaticDataFactory.getDefaultInterval();
-        cube.checkpointConfig.timeAvailability = CubeStaticDataFactory.getDefaultTimeAvailability();
-        cube.checkpointConfig.granularity = CubeStaticDataFactory.getDefaultGranularity();
+        cube.checkpointConfig.timeDimension = template.defaultTimeDimension;
+        cube.checkpointConfig.interval = template.defaultInterval;
+        cube.checkpointConfig.timeAvailability = template.defaultTimeAvailability;
+        cube.checkpointConfig.granularity = template.defaultGranularity;
         error.text= "";
-      };
+      }
 
-      function resetCube() {
-        init();
-      };
+      function resetCube(template) {
+        init(template);
+      }
 
-      function getCube() {
+      function getCube(template) {
         if (Object.keys(cube).length == 0) {
-          init()
+          init(template)
         }
         return cube;
       }

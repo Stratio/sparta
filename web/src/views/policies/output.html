@@ -10,15 +10,14 @@
   </div>
   <form name="vm.form" class="c-form c-panel c-panel--framed" novalidate>
     <div class="c-col c-col--4" data-ng-repeat="output in vm.outputList">
-      <div class="c-check-block" data-ng-click="vm.setOutput($index)">
+      <div class="c-check-block" data-ng-click="vm.setOutput($index)"  data-qa="policy-output-item-{{output.id}}">
         <div class="c-form-control c-form-control--full-width">
           <div class="c-row">
             <label class="c-label">{{output.name}}</label>
           </div>
           <div class="c-row">
-            <input id="output-{{$index}}" class="c-checkbox" type="checkbox" ng-model="vm.policy.outputs[$index]"
-                   ng-true-value="{{output}}" data-qa="policy-output-checkbox-{{output.id}}"><label
-            for="output-{{$index}}" class="c-label"></label>
+            <input id="output-{{$index}}" class="c-checkbox" type="checkbox" data-ng-model="vm.policy.outputs[$index]"
+                   data-ng-true-value="{{output}}"><label for="output-{{$index}}" class="c-label" data-qa="policy-output-checkbox-{{output.id}}"></label>
           </div>
         </div>
 

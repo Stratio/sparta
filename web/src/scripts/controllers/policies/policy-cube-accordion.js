@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('PolicyCubeAccordionCtrl', PolicyCubeAccordionCtrl);
 
-  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'AccordionStatusService', 'PolicyStaticDataFactory'];
+  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'AccordionStatusService'];
 
-  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService, PolicyStaticDataFactory) {
+  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService) {
     var vm = this;
     var index = 0;
 
@@ -24,19 +24,20 @@
     vm.init();
 
     function init() {
+      vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      CubeModelFactory.resetCube();
-      vm.newCube = CubeModelFactory.getCube();
+      CubeModelFactory.resetCube(vm.template);
+      vm.newCube = CubeModelFactory.getCube(vm.template);
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
       AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
-      vm.helpLink = PolicyStaticDataFactory.getHelpLinks().cubes;
+      vm.helpLink = vm.template.helpLinks.cubes;
     }
 
     function addCube() {
       if (CubeModelFactory.isValidCube()) {
         vm.error = "";
         vm.policy.cubes.push(angular.copy(vm.newCube));
-        CubeModelFactory.resetCube();
+        CubeModelFactory.resetCube(vm.template);
         AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
       }
     }

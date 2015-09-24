@@ -25,7 +25,7 @@
           'get': {method: 'GET',
             timeout: apiConfigSettings.timeout}
         });
-    };
+    }
 
     function getFragments() {
       return $resource('/fragment/:type', {type: '@type'},
@@ -41,7 +41,7 @@
           'create': {method: 'POST',
             timeout: apiConfigSettings.timeout}
         });
-    };
+    }
 
     function updateFragment() {
       return $resource('/fragment/', {},
@@ -49,7 +49,7 @@
           'update': {method: 'PUT',
             timeout: apiConfigSettings.timeout}
         });
-    };
+    }
 
     function deleteFragment() {
       return $resource('/fragment/:type/:id', {type: '@type', id: '@id'},
@@ -57,7 +57,7 @@
           'delete': {method: 'DELETE',
             timeout: apiConfigSettings.timeout}
         });
-    };
+    }
 
     function getFakeFragments() {
       return $resource('/data-templates/fake_data/:type', {type: '@type'},
@@ -65,6 +65,6 @@
           'get': {method: 'GET', isArray: true,
             timeout: apiConfigSettings.timeout}
         });
-    };
+    }
   }
 })();
