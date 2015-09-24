@@ -240,6 +240,7 @@
   "_REMOVE_MODEL_MESSAGE_": "If you remove this model, the following cubes will be removed: {{modelList}}",
   "_CONFIRM_": "Confirm",
   "_REMOVE_MODEL_CONFIRM_TITLE_": "Remove model",
+  "_REMOVE_CUBE_CONFIRM_TITLE_": "Remove cube",
   "_OUTPUT_INPUT_PLACEHOLDER_": "Write an output field name and click in the plus icon to add to the list",
   "_POLICY_ERROR_DELETE_POLICY_": "The policy is not stopped! If you want to delete this policy, please stop it first.",
   "_POLICY_ERROR_EDIT_POLICY_": "The policy is not stopped! If you want to edit this policy, please stop it first.",
