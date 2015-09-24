@@ -1,16 +1,14 @@
 describe('Policy description controller', function () {
   beforeEach(module('webApp'));
   beforeEach(module('served/policy.json'));
+  beforeEach(module('served/policyTemplate.json'));
 
-    var ctrl, fakePolicy, fakeAllPoliciesResponse = null;
+    var ctrl, fakePolicy,fakeTemplate, fakeAllPoliciesResponse, policyModelFactoryMock = null;
 
 
   // init mock modules
 
-  var policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'nextStep']);
-  policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
-    return fakePolicy;
-  });
+
   var policyStaticDataFactoryMock = jasmine.createSpyObj('PolicyStaticDataFactory', ['getSparkStreamingWindow',
     'getCheckpointInterval', 'getCheckpointAvailability', 'getPartitionFormat', 'getStorageLevel', 'getHelpLinks']);
 
@@ -21,19 +19,29 @@ describe('Policy description controller', function () {
   var policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['getAllPolicies']);
 
   beforeEach(inject(function ($controller, $q, $httpBackend) {
-    inject(function (_servedPolicy_) {
+    inject(function (_servedPolicy_, _servedPolicyTemplate_) {
       fakePolicy = _servedPolicy_;
+      fakeTemplate = _servedPolicyTemplate_;
       fakeAllPoliciesResponse = [{policy: fakePolicy, status: "RUNNING"}];
     });
 
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
 
+    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate','nextStep']);
+    policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
+      return fakePolicy;
+    });
+    policyModelFactoryMock.getTemplate.and.callFake(function () {
+      return fakeTemplate;
+    });
+
     policyFactoryMock.getAllPolicies.and.callFake(function () {
       var defer = $q.defer();
       defer.resolve(fakeAllPoliciesResponse);
       return defer.promise;
     });
+
 
     ctrl = $controller('PolicyDescriptionCtrl', {
       'PolicyModelFactory': policyModelFactoryMock,
@@ -95,7 +103,7 @@ describe('Policy description controller', function () {
       it("It is invalid and next step is not executed", function () {
         ctrl.policy = fakePolicy;
         ctrl.validateForm().then(function () {
-          expect(ctrl.error).toBe(true);
+          expect(ctrl.error).toBe(false);
           expect(policyModelFactoryMock.nextStep).not.toHaveBeenCalled();
         });
 
