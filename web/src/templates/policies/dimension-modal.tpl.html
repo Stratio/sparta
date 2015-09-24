@@ -1,7 +1,7 @@
 <div data-qa="dimension-modal" id = "modal">
   <div class="c-titlebar">
     <span class="c-titlebar__title">{{"_POLICY_._CUBE_._DIMENSION_" | translate}}</span>
-    <i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
+    <i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" data-ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
   </div>
 
   <form class="c-form" name="vm.form" novalidate>
@@ -31,7 +31,7 @@
 
       </div>
       <div class="c-form-group">
-        <form-field-select ng-if=" vm.dimension.type != vm.defaultType" select-class="c-combobox--full-width"
+        <form-field-select data-ng-if=" vm.dimension.type != vm.defaultType" select-class="c-combobox--full-width"
                            data-form="vm.form" data-st-name="precision-form"
                            data-model="vm.dimension.precision"
                            data-options="vm.getPrecisionsOfType()"

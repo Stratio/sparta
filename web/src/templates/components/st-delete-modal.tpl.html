@@ -1,13 +1,13 @@
 <aside data-qa="delete-modal">
 	<header class="c-titlebar">
 		<span class="c-titlebar__title" translate="{{vm.modalTexts.title}}"></span>
-		<i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
+		<i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" data-ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
 	</header>
 
 	<div class="c-modal-inner" data-ng-if="vm.policiesRunning.length === 0">
 		<p class="c-modal-inner__title" translate="{{vm.modalTexts.mainText}}"></p>
 
-		<div class="c-row" ng-if="vm.outputs.policies.length > 0" data-qa="fragment-delete-policies-affected">
+		<div class="c-row" data-ng-if="vm.outputs.policies.length > 0" data-qa="fragment-delete-policies-affected">
 			<p translate="{{vm.modalTexts.secondaryText1}}"></p>
 			<p translate="{{vm.modalTexts.secondaryText2}}"></p>
 

@@ -1,14 +1,14 @@
-<section ng-controller="PolicyModelCtrl as vm" ng-init="vm.init(model)" data-ng-model="vm.model">
+<section data-ng-controller="PolicyModelCtrl as vm" data-ng-init="vm.init(model)" data-ng-model="vm.model">
   <form novalidate>
-    <div ng-show="vm.modelError.text!= ''" class="c-row c-msg c-msg--small c-msg--error" data-qa="policy-modal-error-msg-accordion">
+    <div data-ng-show="vm.modelError.text!= ''" class="c-row c-msg c-msg--small c-msg--error" data-qa="policy-modal-error-msg-accordion">
       <i class="c-icon icon-circle-cross"></i>
-      <span  ng-model = "vm.modelError" >{{vm.modelError.text | translate}}</span>
+      <span  data-ng-model = "vm.modelError" >{{vm.modelError.text | translate}}</span>
     </div>
     <div class="c-form-group">
       <div class="c-form-control c-form-control--full-width c-icon-radio" data-ng-model="model">
         <label class="c-label c-icon-radio__label c-col c-col--12">{{"_TYPE_" | translate}}:</label>
       <span data-ng-repeat="modelTypes in vm.modelTypes">
-        <input ng-change="vm.changeDefaultConfiguration()" class="c-icon-radio__item"
+        <input data-ng-change="vm.changeDefaultConfiguration()" class="c-icon-radio__item"
                id="type-{{modelTypes.name + $parent.$index| lowercase}}" type="radio"
                data-ng-model="vm.model.type" value="{{modelTypes.name}}" data-ng-disabled="!editionMode">
         <label data-ng-model="vm.model.type" class="c-icon-radio__label" data-qa="policy-model-type-{{modelTypes.name | lowercase}}"
@@ -30,14 +30,14 @@
     </div>
 
     <div class="c-form-group">
-      <form-field-select ng-if="editionMode" ng-model="vm.model.inputList" data-form="vm.form" data-st-name="input-form"
+      <form-field-select data-ng-if="editionMode" data-ng-model="vm.model.inputList" data-form="vm.form" data-st-name="input-form"
                          data-model="vm.model.inputField"
                          data-options="vm.model.inputList"
                          data-field="label" data-label="{{'_INPUT_FIELD_' | translate}}" data-help=""
                          data-disabled="false"
                          data-required="true" data-qa="policy-description-raw-data-partition-format">
       </form-field-select>
-      <form-field-input ng-if="!editionMode" data-form="vm.form" data-st-name="input-form"
+      <form-field-input data-ng-if="!editionMode" data-form="vm.form" data-st-name="input-form"
                         data-model="vm.model.inputField"
                         data-label="{{'_INPUT_FIELD_' | translate}}"
                         data-type="text" data-disabled="true" data-qa="policy-model-input">
@@ -54,11 +54,11 @@
                       data-test="policy-model-configuration-help">
         </c-icon-label>
 
-        <textarea ng-if="editionMode" class="c-textarea c-textarea--full-width" ng-model="vm.model.configuration" data-qa="policy-model-configuration-textarea"
+        <textarea data-ng-if="editionMode" class="c-textarea c-textarea--full-width" data-ng-model="vm.model.configuration" data-qa="policy-model-configuration-textarea"
               placeholder={{vm.configPlaceholder}}></textarea>
 
-        <p class="c-textarea c-textarea--disabled c-textarea--full-width" ng-if="!editionMode"
-           ng-model="vm.model.configuration" data-qa="policy-model-configuration-textarea">
+        <p class="c-textarea c-textarea--disabled c-textarea--full-width" data-ng-if="!editionMode"
+           data-ng-model="vm.model.configuration" data-qa="policy-model-configuration-textarea">
           {{vm.model.configuration | json}}</p>
       </div>
     </div>
@@ -70,7 +70,7 @@
                             label-control-text="'_OUTPUTS_FIELDS_' | translate" readonly="'true'"
                             data-enable-delete="editionMode" data-qa="policy-model-output-list"></c-input-list-field>
 
-        <c-add-element ng-if="editionMode" model="vm.model.outputFields"
+        <c-add-element data-ng-if="editionMode" model="vm.model.outputFields"
                        icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action c-info-text__icon icon-square-plus'"
                        type="'text'" data-qa="policy-model-outputs" data-pattern="vm.outputPattern"
                        data-placeholder="{{vm.outputInputPlaceholder | translate}}">
