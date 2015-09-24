@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('NewOperatorModalCtrl', NewOperatorModalCtrl);
 
-  NewOperatorModalCtrl.$inject = ['$modalInstance', 'operatorName', 'operatorType', 'operators','PolicyStaticDataFactory','CubeStaticDataFactory', 'UtilsService'];
+  NewOperatorModalCtrl.$inject = ['$modalInstance', 'operatorName', 'operatorType', 'operators', 'UtilsService', 'template'];
 
-  function NewOperatorModalCtrl($modalInstance, operatorName, operatorType, operators,PolicyStaticDataFactory,CubeStaticDataFactory, UtilsService) {
+  function NewOperatorModalCtrl($modalInstance, operatorName, operatorType, operators, UtilsService, template) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -22,8 +22,7 @@
       vm.operator.name = operatorName;
       vm.operator.configuration = "";
       vm.operator.type = operatorType;
-      vm.configHelpLink = PolicyStaticDataFactory.getConfigurationHelpLink();
-      vm.configPlaceholder = PolicyStaticDataFactory.getConfigPlaceholder();
+      vm.configHelpLink = template.configurationHelpLink;
       vm.error = false;
       vm.errorText = "";
       setDefaultConfiguration();
@@ -54,9 +53,9 @@
 
     function setDefaultConfiguration(){
       var defaultConfiguration = '{}';
-      var countType = CubeStaticDataFactory.getFunctionNames()[2];
+      var countType = template.functionNames[2];
       if (vm.operator.type !== countType){
-        defaultConfiguration= CubeStaticDataFactory.getDefaultOperatorConfiguration();
+        defaultConfiguration= template.defaultOperatorConfiguration;
       }
       vm.operator.configuration = defaultConfiguration;
     }

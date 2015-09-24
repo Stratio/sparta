@@ -6,8 +6,8 @@
     .module('webApp')
     .controller('NewPolicyCtrl', NewPolicyCtrl);
 
-  NewPolicyCtrl.$inject = ['PolicyStaticDataFactory', 'PolicyModelFactory', 'PolicyFactory', '$q', '$modal', '$state'];
-  function NewPolicyCtrl(PolicyStaticDataFactory, PolicyModelFactory, PolicyFactory, $q, $modal, $state) {
+  NewPolicyCtrl.$inject = ['TemplateFactory', 'PolicyModelFactory', 'PolicyFactory', '$q', '$modal', '$state'];
+  function NewPolicyCtrl(TemplateFactory, PolicyModelFactory, PolicyFactory, $q, $modal, $state) {
     var vm = this;
 
     vm.confirmPolicy = confirmPolicy;
@@ -15,12 +15,19 @@
     init();
 
     function init() {
-      vm.steps = PolicyStaticDataFactory.getSteps();
-      PolicyModelFactory.resetPolicy();
-      vm.policy = PolicyModelFactory.getCurrentPolicy();
-      vm.status = PolicyModelFactory.getProcessStatus();
-      vm.successfullySentPolicy = false;
-      vm.error = null;
+      var defer = $q.defer();
+
+      TemplateFactory.getPolicyTemplate().then(function(template) {
+        PolicyModelFactory.setTemplate(template);
+        vm.steps = template.steps;
+        PolicyModelFactory.resetPolicy();
+        vm.policy = PolicyModelFactory.getCurrentPolicy();
+        vm.status = PolicyModelFactory.getProcessStatus();
+        vm.successfullySentPolicy = false;
+        vm.error = null;
+        defer.resolve();
+      });
+      return defer.promise;
     }
 
     function confirmPolicy() {

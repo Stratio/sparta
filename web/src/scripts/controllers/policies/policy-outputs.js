@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('PolicyOutputCtrl', PolicyOutputCtrl);
 
-  PolicyOutputCtrl.$inject = ['FragmentFactory', 'PolicyModelFactory', '$q', 'PolicyStaticDataFactory', 'UtilsService'];
+  PolicyOutputCtrl.$inject = ['FragmentFactory', 'PolicyModelFactory', '$q', 'UtilsService'];
 
-  function PolicyOutputCtrl(FragmentFactory, PolicyModelFactory, $q, PolicyStaticDataFactory, UtilsService) {
+  function PolicyOutputCtrl(FragmentFactory, PolicyModelFactory, $q, UtilsService) {
     var vm = this;
     vm.setOutput = setOutput;
     vm.previousStep = previousStep;
@@ -21,7 +21,8 @@
     function init() {
       var defer = $q.defer();
 
-      vm.helpLink = PolicyStaticDataFactory.getHelpLinks().outputs;
+      vm.template = PolicyModelFactory.getTemplate();
+      vm.helpLink = vm.template.helpLinks.outputs;
       vm.formSubmmited = false;
       vm.error = false;
       vm.outputList = [];
