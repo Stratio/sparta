@@ -41,9 +41,17 @@
       var defer = $q.defer();
       var modalInstance = $modal.open({
         animation: true,
-        templateUrl: 'templates/policies/st-confirm-policy-modal.tpl.html',
-        controller: 'ConfirmPolicyModalCtrl as vm',
-        size: 'lg'
+        templateUrl: 'templates/modal/confirm-modal.tpl.html',
+        controller: 'ConfirmModalCtrl as vm',
+        size: 'lg',
+        resolve: {
+          title: function () {
+            return "_POLICY_._WINDOW_._EDIT_._TITLE_";
+          },
+          message: function () {
+            return "";
+          }
+        }
       });
 
       modalInstance.result.then(function () {

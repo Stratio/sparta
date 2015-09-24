@@ -135,8 +135,10 @@
      },
       "_DELETE_": {
         "_TITLE_": "Delete policy"
+      },
+      "_EDIT_": {
+        "_TITLE_": "Edit policy"
       }
-
    },
     "_CUBE_":{
       "_DIMENSION_": "Dimension",
