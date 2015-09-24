@@ -184,15 +184,13 @@
                                 <mkdirs>
                                     <path>/var/run/sds</path>
                                     <attributes>
-                                        <user>stratio</user>
-                                        <group>stratio</group>
+                                        <mode>755</mode>
                                     </attributes>
                                 </mkdirs>
                                 <mkdirs>
                                     <path>/var/log/sds/sparkta</path>
                                     <attributes>
-                                        <user>stratio</user>
-                                        <group>stratio</group>
+                                        <mode>755</mode>
                                     </attributes>
                                 </mkdirs>
                                 <copyDirectory>
@@ -238,10 +236,14 @@
                             </assembly>
                             <defaults>
                                 <directoryAttributes>
+                                    <user>stratio</user>
+                                    <group>stratio</group>
                                     <mode>0755</mode>
                                 </directoryAttributes>
                                 <fileAttributes>
-                                    <mode>0644</mode>
+                                    <user>stratio</user>
+                                    <group>stratio</group>
+                                    <mode>0755</mode>
                                 </fileAttributes>
                             </defaults>
                         </configuration>
