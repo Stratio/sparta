@@ -17,7 +17,7 @@
       "host": "localhost",
       "port": "5672",
       "exchangeName": "twitterExchange",
-      "routingKeys": [{"routingKey": "routingKey1"},{"routingKey": "routingKey2"}]
+      "routingKeys": [{"routingKey": "routingKey1"}]
     }
   }
 ,
@@ -56,6 +56,18 @@
             }
           ]
         }
+      }
+    },
+    {
+      "name": "timestamp",
+      "order": 1,
+      "type": "DateTime",
+      "inputField": "timestamp",
+      "outputFields": [
+        "timestamp"
+      ],
+      "configuration": {
+        "inputFormat": "unixMillis"
       }
     }
   ],
