@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('PolicyCubeAccordionCtrl', PolicyCubeAccordionCtrl);
 
-  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'AccordionStatusService'];
+  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'AccordionStatusService', '$modal', '$q'];
 
-  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService) {
+  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService, $modal, $q) {
     var vm = this;
     var index = 0;
 
@@ -43,9 +43,42 @@
     }
 
     function removeCube(index) {
-      vm.policy.cubes.splice(index, 1);
-      AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
-      AccordionStatusService.accordionStatus.newItem = true;
+      var defer = $q.defer();
+      showConfirmRemoveCube().then(function () {
+        vm.policy.cubes.splice(index, 1);
+        AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
+        AccordionStatusService.accordionStatus.newItem = true;
+        defer.resolve();
+      }, function () {
+        defer.reject()
+      });
+      return defer.promise;
+    }
+
+    function showConfirmRemoveCube() {
+      var defer = $q.defer();
+
+      var modalInstance = $modal.open({
+        animation: true,
+        templateUrl: 'templates/modal/confirm-modal.tpl.html',
+        controller: 'ConfirmModalCtrl as vm',
+        size: 'lg',
+        resolve: {
+          title: function () {
+            return "_REMOVE_CUBE_CONFIRM_TITLE_"
+          },
+          message: function () {
+            return "";
+          }
+        }
+      });
+
+      modalInstance.result.then(function () {
+        defer.resolve();
+      }, function () {
+        defer.reject();
+      });
+      return defer.promise;
     }
 
     function getIndex() {
