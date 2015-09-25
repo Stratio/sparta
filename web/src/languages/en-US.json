@@ -135,8 +135,10 @@
      },
       "_DELETE_": {
         "_TITLE_": "Delete policy"
+      },
+      "_EDIT_": {
+        "_TITLE_": "Edit policy"
       }
-
    },
     "_CUBE_":{
       "_DIMENSION_": "Dimension",
@@ -199,19 +201,19 @@
   "_HOUR_": "Hour",
   "_DAY_": "Day",
   "_MONTH_": "Month",
-  "_YEAR_": "Month",
-  "_PRECISION_1_": "Precisión 1",
-  "_PRECISION_2_": "Precisión 2",
-  "_PRECISION_3_": "Precisión 3",
-  "_PRECISION_4_": "Precisión 4",
-  "_PRECISION_5_": "Precisión 5",
-  "_PRECISION_6_": "Precisión 6",
-  "_PRECISION_7_": "Precisión 7",
-  "_PRECISION_8_": "Precisión 8",
-  "_PRECISION_9_": "Precisión 9",
-  "_PRECISION_10_": "Precisión 10",
-  "_PRECISION_11_": "Precisión 11",
-  "_PRECISION_12_": "Precisión 12",
+  "_YEAR_": "Year",
+  "_PRECISION_1_": "5,009.4km x 4,992.6km",
+  "_PRECISION_2_": "51,252.3km x 624.1km",
+  "_PRECISION_3_": "156.5km x 156km",
+  "_PRECISION_4_": "39.1km x 19.5km",
+  "_PRECISION_5_": "4.9km x 4.9km",
+  "_PRECISION_6_": "1.2km x 609.4m",
+  "_PRECISION_7_": "152.9m x 152.4m",
+  "_PRECISION_8_": "38.2m x 19m",
+  "_PRECISION_9_": "4.8m x 4.8m",
+  "_PRECISION_10_": "1.2m x 59.5cm",
+  "_PRECISION_11_": "14.9cm x 14.9cm",
+  "_PRECISION_12_": "3.7cm x 1.9cm",
   "_TIME_DIMENSION_": "Time dimension",
   "_INTERVAL_":"Interval",
   "_TIME_AVAILABILITY_": "Time availability",
@@ -238,6 +240,7 @@
   "_REMOVE_MODEL_MESSAGE_": "If you remove this model, the following cubes will be removed: {{modelList}}",
   "_CONFIRM_": "Confirm",
   "_REMOVE_MODEL_CONFIRM_TITLE_": "Remove model",
+  "_REMOVE_CUBE_CONFIRM_TITLE_": "Remove cube",
   "_OUTPUT_INPUT_PLACEHOLDER_": "Write an output field name and click in the plus icon to add to the list",
   "_POLICY_ERROR_DELETE_POLICY_": "The policy is not stopped! If you want to delete this policy, please stop it first.",
   "_POLICY_ERROR_EDIT_POLICY_": "The policy is not stopped! If you want to edit this policy, please stop it first.",

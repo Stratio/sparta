@@ -62,8 +62,8 @@ html{
 		padding-right: 0;
 
 		#dashboard-main-content{
-			min-height: $dashboard-main-content---min-height;
 			padding: $base-padding;
+			padding-bottom: $dashboard-main-content---margin-bottom;
 		}
 	}
 
