@@ -11,6 +11,7 @@
   function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService, $modal, $q) {
     var vm = this;
     var index = 0;
+    var createdCubes = 0;
 
     vm.init = init;
     vm.previousStep = previousStep;
@@ -18,7 +19,6 @@
     vm.addCube = addCube;
     vm.removeCube = removeCube;
     vm.getIndex = getIndex;
-    vm.error = false;
     vm.error = "";
 
     vm.init();
@@ -26,19 +26,25 @@
     function init() {
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      CubeModelFactory.resetCube(vm.template);
-      vm.newCube = CubeModelFactory.getCube(vm.template);
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
-      AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
+      createdCubes =  vm.policy.cubes.length;
+      resetViewModel();
+
+      vm.newCube = CubeModelFactory.getCube(vm.template, createdCubes+1);
       vm.helpLink = vm.template.helpLinks.cubes;
     }
 
+    function resetViewModel() {
+      CubeModelFactory.resetCube(vm.template, createdCubes+1);
+      AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
+    }
+
     function addCube() {
-      if (CubeModelFactory.isValidCube()) {
+      if (CubeModelFactory.isValidCube(vm.policy.cubes)) {
         vm.error = "";
         vm.policy.cubes.push(angular.copy(vm.newCube));
-        CubeModelFactory.resetCube(vm.template);
-        AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
+        createdCubes++;
+        resetViewModel();
       }
     }
 
