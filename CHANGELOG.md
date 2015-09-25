@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.2 (September 2015)
+
+- Bugfix: DateTime now parses string formats
+- Bugfix: Permission issues running Sparkta service
+- Bugfix: Minor errors in user interface
+
 ## 0.6.1 (September 2015)
 
 - Hotfix: User interface was not showing up
