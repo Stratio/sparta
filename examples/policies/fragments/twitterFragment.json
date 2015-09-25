@@ -1,11 +1,11 @@
 {
   "fragmentType": "input",
-  "name": "twitter",
+  "name": "twitterJson",
   "description": "twitter input",
   "shortDescription": "twitter input",
   "element": {
     "name": "in-twitter",
-    "type": "Twitter",
+    "type": "TwitterJson",
     "configuration": {
       "consumerKey": "*",
       "consumerSecret": "*",

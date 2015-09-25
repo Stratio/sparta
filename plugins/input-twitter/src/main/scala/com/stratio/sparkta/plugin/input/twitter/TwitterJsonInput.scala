@@ -18,6 +18,7 @@ package com.stratio.sparkta.plugin.input.twitter
 
 import java.io.{Serializable => JSerializable}
 
+import com.google.gson.Gson
 import com.stratio.sparkta.sdk.Input._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.{Event, Input}
@@ -32,8 +33,7 @@ import scala.util.Try
 /**
  * Connects to Twitter's stream and generates stream events.
  */
-@deprecated
-class TwitterInput(properties: Map[String, JSerializable]) extends Input(properties) {
+class TwitterJsonInput(properties: Map[String, JSerializable]) extends Input(properties) {
 
   System.setProperty("twitter4j.oauth.consumerKey", properties.getString("consumerKey"))
   System.setProperty("twitter4j.oauth.consumerSecret", properties.getString("consumerSecret"))
@@ -48,18 +48,14 @@ class TwitterInput(properties: Map[String, JSerializable]) extends Input(propert
   val search = terms.getOrElse(trends.toSeq)
 
   override def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
-    TwitterUtils.createStream(ssc, None, search, storageLevel(sparkStorageLevel)).map(data => new Event(Map(
-      RawDataKey -> data,
-      "status" -> data.asInstanceOf[java.io.Serializable],
-      "wordsN" -> data.getText.split(" ").size,
-      "retweets" -> data.getRetweetCount,
-      "userLocation" -> data.getUser.getLocation.toLowerCase,
-      "timestamp" -> data.getCreatedAt,
-      "text" -> data.getText,
-      "geolocation" -> (Option(data.getGeoLocation) match {
-        case Some(geo) => Some(geo.getLatitude + "__" + geo.getLongitude)
-        case _ => None
-      }).asInstanceOf[JSerializable]
-    ), Some(data)))
+    TwitterUtils.createStream(ssc, None, search, storageLevel(sparkStorageLevel)).map(d => {
+      val gson = new Gson()
+      new Event(
+        Map(RawDataKey -> gson.toJson(d.asInstanceOf[JSerializable])
+          .asInstanceOf[JSerializable]))
+    }
+    )
   }
+
+
 }
