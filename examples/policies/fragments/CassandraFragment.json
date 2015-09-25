@@ -1,8 +1,8 @@
 {
   "fragmentType": "output",
   "name": "Cassandra",
-  "description": "cassandra input",
-  "shortDescription": "cassandra input",
+  "description": "Cassandra output",
+  "shortDescription": "Cassandra output",
   "element": {
     "name": "out-cassandra",
     "type": "Cassandra",
