@@ -75,9 +75,6 @@ class SumOperatorSpec extends WordSpec with Matchers {
       val inputFields4 = new SumOperator("sum", Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
-      val inputFields5 = new SumOperator("sum", Map("typeOp" -> "string"))
-      inputFields5.processReduce(Seq(Some(1), Some(2), Some(3))) should be(Some("6.0"))
-
     }
 
     "processReduce distinct must be " in {
@@ -86,6 +83,15 @@ class SumOperatorSpec extends WordSpec with Matchers {
 
       val inputFields2 = new SumOperator("sum", Map("distinct" -> "true"))
       inputFields2.processReduce(Seq(Some(1), Some(2), Some(1))) should be (Some(3d))
+
+    }
+
+    "associative process must be " in {
+      val inputFields = new SumOperator("count", Map())
+      inputFields.processAssociative(Seq(Some(1L), Some(1L), None)) should be(Some(2d))
+
+      val inputFields2 = new SumOperator("count", Map("typeOp" -> "string"))
+      inputFields2.processAssociative(Seq(Some(1), Some(1))) should be(Some("2.0"))
 
     }
   }

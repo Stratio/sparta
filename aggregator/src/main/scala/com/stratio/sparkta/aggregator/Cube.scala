@@ -80,27 +80,6 @@ case class Cube(name: String,
     }
   }
 
-  /*def aggregate(dimensionsValues: DStream[(DimensionValuesTime,
-    Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
-    val valuesFiltered = filterDimensionValues(dimensionsValues)
-    val associativeValues = if (operators.exists(op => op.associative))
-      Some(updateAssociativeState(associativeAggregation(valuesFiltered)))
-    else None
-    val nonAssociativeValues = if (operators.exists(op => !op.associative))
-      Some(aggregateNonAssociativeValues(updateNonAssociativeState(valuesFiltered)))
-    else None
-
-    (associativeValues, nonAssociativeValues) match {
-      case (Some(associative), Some(nonAssociative)) => {
-        associative.cogroup(nonAssociative)
-          .mapValues(aggregations => (aggregations._1.flatten ++ aggregations._2.flatten).toMap)
-      }
-      case (Some(associative), None) => associative
-      case (None, Some(nonAssociative)) => nonAssociative
-      case _ => noAggregationsState(valuesFiltered)
-    }
-  }*/
-
   def aggregate(dimensionsValues: DStream[(DimensionValuesTime,
     Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
     val valuesFiltered = filterDimensionValues(dimensionsValues)
