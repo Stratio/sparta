@@ -6,8 +6,8 @@
     .module('webApp')
     .controller('EditPolicyCtrl', EditPolicyCtrl);
 
-  EditPolicyCtrl.$inject = ['TemplateFactory', 'PolicyModelFactory', 'PolicyFactory', '$q', '$modal', '$state', '$stateParams'];
-  function EditPolicyCtrl(TemplateFactory, PolicyModelFactory, PolicyFactory, $q, $modal, $state, $stateParams) {
+  EditPolicyCtrl.$inject = ['TemplateFactory', 'PolicyModelFactory', 'PolicyFactory', '$q', 'ModalService', '$state', '$stateParams'];
+  function EditPolicyCtrl(TemplateFactory, PolicyModelFactory, PolicyFactory, $q, ModalService, $state, $stateParams) {
     var vm = this;
 
     vm.confirmPolicy = confirmPolicy;
@@ -39,12 +39,17 @@
 
     function confirmPolicy() {
       var defer = $q.defer();
-      var modalInstance = $modal.open({
-        animation: true,
-        templateUrl: 'templates/policies/st-confirm-policy-modal.tpl.html',
-        controller: 'ConfirmPolicyModalCtrl as vm',
-        size: 'lg'
-      });
+      var templateUrl = "templates/modal/confirm-modal.tpl.html";
+      var controller = "ConfirmModalCtrl";
+      var resolve = {
+        title: function () {
+          return "_POLICY_._WINDOW_._EDIT_._TITLE_";
+        },
+        message: function () {
+          return "";
+        }
+      };
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
 
       modalInstance.result.then(function () {
         var finalJSON = PolicyModelFactory.getFinalJSON();

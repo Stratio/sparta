@@ -3,8 +3,8 @@
   "name": "Cassandra",
   "modelType": "Cassandra",
   "description": {
-    "short": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-    "long": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "short": "The Cassandra output uses the generic implementation with DataFrames.",
+    "long": "The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. Linear scalability and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#cassandra-label"
   },
   "properties": [
@@ -153,9 +153,9 @@
   "name": "CSV",
   "modelType": "Csv",
   "description": {
-    "short": "",
-    "long": "",
-    "learnMore": "http://docs.stratio.com"
+    "short": "Persist your data in HDFS with CSV format.",
+    "long": "Persist your data in HDFS with CSV format.",
+    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#csv-label"
   },
   "properties": [
     {
@@ -191,8 +191,8 @@
   "name": "Elasticsearch",
   "modelType": "ElasticSearch",
   "description": {
-    "short": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-    "long": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "short": "The Elasticsearch output uses the generic implementation with DataFrames.",
+    "long": "Elasticsearch is a search server based on Lucene. It provides a distributed, multitenant-capable full-text search engine with a RESTful web interface and schema-free JSON documents.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#elasticsearch-label"
   },
   "properties": [
@@ -354,8 +354,8 @@
   "name": "Parquet",
   "modelType": "Parquet",
   "description": {
-    "short": "Parquet's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-    "long": "Parquet's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "short": "Parquet output uses the generic implementation with DataFrames.",
+    "long": "Apache Parquet is a columnar storage format available to any project in the Hadoop ecosystem, regardless of the choice of data processing framework, data model or programming language.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#parquet-label"
   },
   "properties": [
@@ -375,8 +375,8 @@
   "name": "Print",
   "modelType": "Print",
   "description": {
-    "short": "Print's output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
-    "long": "Print's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "short": "Print output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
+    "long": "Print output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#print-label"
   },
   "properties": [
@@ -386,8 +386,8 @@
   "name": "Redis",
   "modelType": "Redis",
   "description": {
-    "short": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-    "long": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "short": "The output of Redis use the generic implementation with DataFrames.",
+    "long": "The output of Redis use the generic implementation with DataFrames. Redis is an open source (BSD licensed), in-memory data structure store, used as database, cache and message broker.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#redis-label"
   },
   "properties": [

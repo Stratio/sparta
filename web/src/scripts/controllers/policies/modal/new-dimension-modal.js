@@ -37,7 +37,7 @@
       if (result && result.length > 0) {
         return result[0].precisions;
       }
-    };
+    }
 
     function cleanPrecision() {
       if (vm.dimension.type == vm.defaultType)
@@ -45,7 +45,7 @@
     }
 
     function validatePrecision() {
-      var validPrecision = (vm.dimension.type == vm.defaultType) || (!(vm.dimension.type == vm.defaultType) && vm.dimension.precision)
+      var validPrecision = (vm.dimension.type == vm.defaultType) || (!(vm.dimension.type == vm.defaultType) && vm.dimension.precision);
       if (!validPrecision) {
         vm.errorText = "_POLICY_._CUBE_._INVALID_DIMENSION_PRECISION_";
       }
@@ -63,15 +63,19 @@
 
     function ok() {
       vm.errorText = "";
-      if (vm.form.$valid && validatePrecision() && !isRepeated()) {
-        cleanPrecision();
-        $modalInstance.close(vm.dimension);
+      if (vm.form.$valid) {
+        if (validatePrecision() && !isRepeated()) {
+          cleanPrecision();
+          $modalInstance.close(vm.dimension);
+        }
+      } else {
+        vm.errorText = "_GENERIC_FORM_ERROR_";
       }
-    };
+    }
 
     function cancel() {
       $modalInstance.dismiss('cancel');
-    };
-  };
+    }
+  }
 
 })();

@@ -6,11 +6,12 @@
     .module('webApp')
     .controller('PolicyCubeAccordionCtrl', PolicyCubeAccordionCtrl);
 
-  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'AccordionStatusService'];
+  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'AccordionStatusService', 'CubeService', 'ModalService', '$q'];
 
-  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService) {
+  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService, CubeService, ModalService, $q) {
     var vm = this;
     var index = 0;
+    var createdCubes = 0;
 
     vm.init = init;
     vm.previousStep = previousStep;
@@ -18,7 +19,6 @@
     vm.addCube = addCube;
     vm.removeCube = removeCube;
     vm.getIndex = getIndex;
-    vm.error = false;
     vm.error = "";
 
     vm.init();
@@ -26,26 +26,64 @@
     function init() {
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      CubeModelFactory.resetCube(vm.template);
-      vm.newCube = CubeModelFactory.getCube(vm.template);
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
-      AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
+      createdCubes = vm.policy.cubes.length;
+      resetViewModel();
+
+      vm.newCube = CubeModelFactory.getCube(vm.template, createdCubes + 1);
       vm.helpLink = vm.template.helpLinks.cubes;
     }
 
+    function resetViewModel() {
+      CubeModelFactory.resetCube(vm.template, createdCubes + 1);
+      AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
+    }
+
     function addCube() {
-      if (CubeModelFactory.isValidCube()) {
+      if (CubeService.isValidCube(vm.newCube, vm.policy.cubes)) {
         vm.error = "";
         vm.policy.cubes.push(angular.copy(vm.newCube));
-        CubeModelFactory.resetCube(vm.template);
-        AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
+        createdCubes++;
+        resetViewModel();
+      } else {
+        CubeModelFactory.setError("_GENERIC_FORM_ERROR_");
       }
     }
 
     function removeCube(index) {
-      vm.policy.cubes.splice(index, 1);
-      AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
-      AccordionStatusService.accordionStatus.newItem = true;
+      var defer = $q.defer();
+      showConfirmRemoveCube().then(function () {
+        vm.policy.cubes.splice(index, 1);
+        AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
+        AccordionStatusService.accordionStatus.newItem = true;
+        defer.resolve();
+      }, function () {
+        defer.reject()
+      });
+      return defer.promise;
+    }
+
+    function showConfirmRemoveCube() {
+      var defer = $q.defer();
+      var controller = "ConfirmModalCtrl";
+      var templateUrl = "templates/modal/confirm-modal.tpl.html";
+      var title = "_REMOVE_CUBE_CONFIRM_TITLE_";
+      var message = "";
+      var resolve = {
+        title: function () {
+          return title
+        }, message: function () {
+          return message
+        }
+      };
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
+
+      modalInstance.result.then(function () {
+        defer.resolve();
+      }, function () {
+        defer.reject();
+      });
+      return defer.promise;
     }
 
     function getIndex() {
@@ -57,7 +95,7 @@
     }
 
     function nextStep() {
-      if (vm.policy.cubes.length > 0) {
+      if (vm.policy.cubes.length > 0 && CubeService.areValidCubes(vm.policy.cubes)) {
         PolicyModelFactory.nextStep();
       }
       else {
