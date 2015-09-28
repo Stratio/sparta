@@ -18,7 +18,8 @@
         disabled: "=disabled",
         qa: "@",
         pattern: "=",
-        placeholder: "@"
+        placeholder: "@",
+        error: '='
       },
       replace: "true",
       templateUrl: 'templates/components/c-add-element.tpl.html',
@@ -29,7 +30,6 @@
 
     function link(scope) {
       scope.addInput = addInput;
-      scope.error = false;
 
       function addInput(event) {
         if (scope.inputToAdd !== '' && scope.inputToAdd !== undefined && (event.keyCode == '13' || event.type === "click")) {

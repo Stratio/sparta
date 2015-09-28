@@ -20,17 +20,15 @@
     vm.init();
 
     function init(cube) {
-        vm.template =  PolicyModelFactory.getTemplate();
-        if (cube) {
-          vm.cube = cube;
-        } else {
-          vm.cube = CubeModelFactory.getCube(vm.template);
-        }
+      if (cube) {
+        vm.template = PolicyModelFactory.getTemplate();
+        vm.cube = cube;
         vm.policy = PolicyModelFactory.getCurrentPolicy();
         vm.granularityOptions = vm.template.granularityOptions;
         vm.functionList = vm.template.functionNames;
         vm.outputList = PolicyModelFactory.getAllModelOutputs();
         vm.cubeError = CubeModelFactory.getError();
+      }
     }
 
     function addOutputToDimensions(outputName) {
@@ -50,7 +48,7 @@
           dimensions: function () {
             return vm.cube.dimensions
           },
-          template: function(){
+          template: function () {
             return vm.template;
           }
         }
@@ -84,7 +82,7 @@
             return vm.cube.operators
           },
           template: function () {
-            return  vm.template;
+            return vm.template;
           }
         }
       });
