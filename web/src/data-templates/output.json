@@ -354,7 +354,7 @@
   "name": "Parquet",
   "modelType": "Parquet",
   "description": {
-    "short": "Parquet's output uses the generic implementation with DataFrames.",
+    "short": "Parquet output uses the generic implementation with DataFrames.",
     "long": "Apache Parquet is a columnar storage format available to any project in the Hadoop ecosystem, regardless of the choice of data processing framework, data model or programming language.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#parquet-label"
   },
@@ -375,8 +375,8 @@
   "name": "Print",
   "modelType": "Print",
   "description": {
-    "short": "Print's output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
-    "long": "Print's output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
+    "short": "Print output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
+    "long": "Print output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#print-label"
   },
   "properties": [
@@ -386,8 +386,8 @@
   "name": "Redis",
   "modelType": "Redis",
   "description": {
-    "short": "The output of ElasticSearch use the generic implementation with DataFrames.",
-    "long": "The output of ElasticSearch use the generic implementation with DataFrames. Redis is an open source (BSD licensed), in-memory data structure store, used as database, cache and message broker.",
+    "short": "The output of Redis use the generic implementation with DataFrames.",
+    "long": "The output of Redis use the generic implementation with DataFrames. Redis is an open source (BSD licensed), in-memory data structure store, used as database, cache and message broker.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#redis-label"
   },
   "properties": [
