@@ -152,10 +152,12 @@
                             <contactEmail>sparkta@stratio.com</contactEmail>
                             <deb>
                                 <section>devel</section>
+                                <preDepends>jq</preDepends>
                             </deb>
                             <rpm>
                                 <group>stratio</group>
                                 <requires>bash</requires>
+                                <requires>jq</requires>
                             </rpm>
                             <name>Engine</name>
                             <excludeDirectoryAttributes>
