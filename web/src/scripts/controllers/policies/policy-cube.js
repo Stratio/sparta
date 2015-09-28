@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('CubeCtrl', CubeCtrl);
 
-  CubeCtrl.$inject = ['CubeModelFactory', 'PolicyModelFactory', 'ModalService'];
+  CubeCtrl.$inject = ['CubeModelFactory', 'PolicyModelFactory', 'ModalService', '$q'];
 
-  function CubeCtrl(CubeModelFactory, PolicyModelFactory, ModalService) {
+  function CubeCtrl(CubeModelFactory, PolicyModelFactory, ModalService, $q) {
     var vm = this;
 
     vm.init = init;
