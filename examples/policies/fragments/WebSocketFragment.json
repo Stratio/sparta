@@ -1,6 +1,6 @@
 {
   "fragmentType": "input",
-  "name": "websocket",
+  "name": "WebSocket",
   "description": "websocket input",
   "shortDescription": "websocket input",
   "element": {
