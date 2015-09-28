@@ -4,5 +4,6 @@
     "enabled": false,
     "partitionFormat": "day",
     "path": ""
-  }
+  },
+  "input": {}
 }

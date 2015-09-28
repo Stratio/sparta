@@ -8,14 +8,6 @@ describe('Policy description controller', function () {
 
   // init mock modules
 
-
-  var policyStaticDataFactoryMock = jasmine.createSpyObj('PolicyStaticDataFactory', ['getSparkStreamingWindow',
-    'getCheckpointInterval', 'getCheckpointAvailability', 'getPartitionFormat', 'getStorageLevel', 'getHelpLinks']);
-
-  policyStaticDataFactoryMock.getHelpLinks.and.callFake(function () {
-    return {description: {}}
-  });
-
   var policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['getAllPolicies']);
 
   beforeEach(inject(function ($controller, $q, $httpBackend) {
@@ -45,12 +37,15 @@ describe('Policy description controller', function () {
 
     ctrl = $controller('PolicyDescriptionCtrl', {
       'PolicyModelFactory': policyModelFactoryMock,
-      'PolicyStaticDataFactory': policyStaticDataFactoryMock,
       'PolicyFactory': policyFactoryMock
     });
   }));
 
-  it('should get a policy from policy factory', function () {
+  it('should get a policy template from from policy factory', function () {
+    expect(ctrl.template).toBe(fakeTemplate);
+  });
+
+  it('should get the policy that is being created or edited from policy factory', function () {
     expect(ctrl.policy).toBe(fakePolicy);
   });
 
