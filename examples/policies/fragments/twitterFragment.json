@@ -1,6 +1,6 @@
 {
   "fragmentType": "input",
-  "name": "twitter",
+  "name": "Twitter",
   "description": "twitter input",
   "shortDescription": "twitter input",
   "element": {

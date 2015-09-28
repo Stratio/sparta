@@ -17,6 +17,10 @@
 package com.stratio.sparkta.serving.core.models
 
 import com.stratio.sparkta.sdk.JsoneyString
+import com.stratio.sparkta.serving.core.AppConstant
 
-case class OperatorModel(`type`: String, name: String, configuration: Map[String, JsoneyString],
-                         jarFile: Option[String] = None)
+case class OperatorModel(`type`: String, name: String, configuration: Map[String, JsoneyString]) {
+
+  val jarFile = AppConstant.jarsFilesMap.get(`type`)
+
+}

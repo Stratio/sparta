@@ -18,7 +18,9 @@ package com.stratio.sparkta.serving.api.service.http
 
 import akka.pattern.ask
 import com.stratio.sparkta.driver.constants.AkkaConstant
+import com.stratio.sparkta.serving.api.actor.PolicyActor.ResponsePolicy
 import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.api.helpers.PolicyHelper
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{FindAll, Response, Update}
@@ -27,13 +29,13 @@ import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
 
 import scala.concurrent.Await
-import scala.util.{Failure, Success}
+import scala.util.{Try, Failure, Success}
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 
 @Api(value = HttpConstant.PolicyContextPath, description = "Operations about policy contexts.", position = 0)
 trait PolicyContextHttpService extends BaseHttpService {
 
-  case class Result(message: String, desc: Option[String] = None)
+  case class Result(policyId: String, policyName: String)
 
   override def routes: Route = findAll ~ update ~ create
 
@@ -76,8 +78,17 @@ trait PolicyContextHttpService extends BaseHttpService {
         entity(as[PolicyStatusModel]) { policyStatus =>
           complete {
             val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
-            policyStatusActor ? Update(policyStatus)
-            HttpResponse(StatusCodes.Created)
+            for {
+              response <- (policyStatusActor ? Update(policyStatus)).mapTo[Option[PolicyStatusModel]]
+            } yield {
+              if (response.isDefined)
+                HttpResponse(StatusCodes.Created)
+              else
+                throw new ServingApiException(ErrorModel.toString(
+                  ErrorModel(ErrorModel.CodeNotExistsPolicytWithId,
+                    s"No policy with id ${policyStatus.id}.")
+                ))
+            }
           }
         }
       }
@@ -101,13 +112,22 @@ trait PolicyContextHttpService extends BaseHttpService {
     path(HttpConstant.PolicyContextPath) {
       post {
         entity(as[AggregationPoliciesModel]) { p =>
+
           val parsedP = PolicyHelper.parseFragments(
             PolicyHelper.fillFragments(p, actors.get(AkkaConstant.FragmentActor).get, timeout))
+
           val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
           validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
             complete {
-              supervisor ! new Create(parsedP)
-              new Result("Creating new context with name " + p.name)
+              for {
+                response <- (supervisor ? Create(parsedP)).mapTo[Try[AggregationPoliciesModel]]
+              } yield {
+                response match {
+                  case Success(policy) =>
+                    Result(policy.id.getOrElse(""), p.name)
+                  case Failure(e) => throw e
+                }
+              }
             }
           }
         }

@@ -6,23 +6,24 @@
     .module('webApp')
     .controller('PolicyInputCtrl', PolicyInputCtrl);
 
-  PolicyInputCtrl.$inject = ['FragmentFactory', 'PolicyModelFactory', '$q', 'PolicyStaticDataFactory'];
+  PolicyInputCtrl.$inject = ['FragmentFactory', 'PolicyModelFactory', '$q'];
 
-  function PolicyInputCtrl(FragmentFactory, PolicyModelFactory, $q, PolicyStaticDataFactory) {
+  function PolicyInputCtrl(FragmentFactory, PolicyModelFactory, $q) {
     var vm = this;
     vm.setInput = setInput;
     vm.isSelectedInput = isSelectedInput;
+    vm.previousStep = previousStep;
     vm.validateForm = validateForm;
     vm.inputList = [];
     vm.error = false;
     init();
 
     function init() {
-      vm.helpLink = PolicyStaticDataFactory.helpLinks.inputs;
-
       var defer = $q.defer();
+      vm.template = PolicyModelFactory.getTemplate();
+      vm.helpLink = vm.template.helpLinks.inputs;
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      var inputList = FragmentFactory.GetFragments("input");
+      var inputList = FragmentFactory.getFragments("input");
       inputList.then(function (result) {
         vm.inputList = result;
         defer.resolve();
@@ -44,8 +45,12 @@
         return false;
     };
 
+    function previousStep() {
+      PolicyModelFactory.previousStep();
+    }
+
     function validateForm() {
-      if (vm.policy.input.name){
+      if (vm.policy.input.name) {
         vm.error = false;
         PolicyModelFactory.nextStep();
       }

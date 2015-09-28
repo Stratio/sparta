@@ -6,63 +6,101 @@
     .module('webApp')
     .controller('PolicyCubeAccordionCtrl', PolicyCubeAccordionCtrl);
 
-  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'AccordionStatusService', 'PolicyStaticDataFactory'];
+  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'AccordionStatusService', 'CubeService', 'ModalService', '$q'];
 
-  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService, PolicyStaticDataFactory) {
+  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService, CubeService, ModalService, $q) {
     var vm = this;
     var index = 0;
+    var createdCubes = 0;
 
     vm.init = init;
+    vm.previousStep = previousStep;
     vm.nextStep = nextStep;
     vm.addCube = addCube;
     vm.removeCube = removeCube;
     vm.getIndex = getIndex;
-    vm.error = false;
-    vm.modelError = false;
+    vm.error = "";
 
     vm.init();
 
     function init() {
+      vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      vm.policy.cubes = [];
-      vm.newCube = CubeModelFactory.getCube();
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
+      createdCubes = vm.policy.cubes.length;
+      resetViewModel();
+
+      vm.newCube = CubeModelFactory.getCube(vm.template, createdCubes + 1);
+      vm.helpLink = vm.template.helpLinks.cubes;
+    }
+
+    function resetViewModel() {
+      CubeModelFactory.resetCube(vm.template, createdCubes + 1);
       AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
-      vm.helpLink = PolicyStaticDataFactory.helpLinks.cubes;
-    };
+    }
 
     function addCube() {
-      if (CubeModelFactory.isValidCube()) {
-        vm.modelError = false;
-        vm.error = false;
+      if (CubeService.isValidCube(vm.newCube, vm.policy.cubes)) {
+        vm.error = "";
         vm.policy.cubes.push(angular.copy(vm.newCube));
-        CubeModelFactory.resetCube();
-        AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
+        createdCubes++;
+        resetViewModel();
+      } else {
+        CubeModelFactory.setError("_GENERIC_FORM_ERROR_");
       }
-      else {
-        vm.error = true;
-      }
-    };
+    }
 
     function removeCube(index) {
-      vm.policy.cubes.splice(index, 1);
-      AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
-      AccordionStatusService.accordionStatus.newItem = true;
-    };
+      var defer = $q.defer();
+      showConfirmRemoveCube().then(function () {
+        vm.policy.cubes.splice(index, 1);
+        AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
+        AccordionStatusService.accordionStatus.newItem = true;
+        defer.resolve();
+      }, function () {
+        defer.reject()
+      });
+      return defer.promise;
+    }
+
+    function showConfirmRemoveCube() {
+      var defer = $q.defer();
+      var controller = "ConfirmModalCtrl";
+      var templateUrl = "templates/modal/confirm-modal.tpl.html";
+      var title = "_REMOVE_CUBE_CONFIRM_TITLE_";
+      var message = "";
+      var resolve = {
+        title: function () {
+          return title
+        }, message: function () {
+          return message
+        }
+      };
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
+
+      modalInstance.result.then(function () {
+        defer.resolve();
+      }, function () {
+        defer.reject();
+      });
+      return defer.promise;
+    }
 
     function getIndex() {
       return index++;
-    };
+    }
+
+    function previousStep() {
+      PolicyModelFactory.previousStep();
+    }
 
     function nextStep() {
-      if (vm.policy.cubes.length > 0) {
+      if (vm.policy.cubes.length > 0 && CubeService.areValidCubes(vm.policy.cubes)) {
         PolicyModelFactory.nextStep();
       }
       else {
-        vm.modelError = true;
+        vm.error = "_POLICY_._CUBE_ERROR_";
       }
-    };
-
-
+    }
   }
 })();

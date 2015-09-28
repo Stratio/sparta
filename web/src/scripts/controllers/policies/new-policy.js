@@ -1,33 +1,52 @@
 (function () {
   'use strict';
 
-  /*POLICIES STEP CONTROLLER*/
+  /*POLICY CREATION CONTROLLER*/
   angular
     .module('webApp')
     .controller('NewPolicyCtrl', NewPolicyCtrl);
 
-  NewPolicyCtrl.$inject = ['PolicyStaticDataFactory', 'PolicyModelFactory', 'PolicyFactory', '$q', '$modal', '$state'];
-  function NewPolicyCtrl(PolicyStaticDataFactory, PolicyModelFactory, PolicyFactory, $q, $modal, $state) {
+  NewPolicyCtrl.$inject = ['TemplateFactory', 'PolicyModelFactory', 'PolicyFactory', '$q', 'ModalService', '$state'];
+  function NewPolicyCtrl(TemplateFactory, PolicyModelFactory, PolicyFactory, $q, ModalService, $state) {
     var vm = this;
 
-    vm.steps = PolicyStaticDataFactory.steps;
-    vm.policy = PolicyModelFactory.getCurrentPolicy();
-    vm.status = PolicyModelFactory.getStatus();
     vm.confirmPolicy = confirmPolicy;
-    vm.successfullySentPolicy = false;
-    vm.error = null;
+
+    init();
+
+    function init() {
+      var defer = $q.defer();
+
+      TemplateFactory.getPolicyTemplate().then(function (template) {
+        PolicyModelFactory.setTemplate(template);
+        vm.steps = template.steps;
+        PolicyModelFactory.resetPolicy();
+        vm.policy = PolicyModelFactory.getCurrentPolicy();
+        vm.status = PolicyModelFactory.getProcessStatus();
+        vm.successfullySentPolicy = false;
+        vm.error = null;
+        defer.resolve();
+      });
+      return defer.promise;
+    }
 
     function confirmPolicy() {
       var defer = $q.defer();
-      var modalInstance = $modal.open({
-        animation: true,
-        templateUrl: 'templates/policies/st-confirm-policy-modal.tpl.html',
-        controller: 'ConfirmPolicyModalCtrl as vm',
-        size: 'lg'
-      });
+      var templateUrl = "templates/modal/confirm-modal.tpl.html";
+      var controller = "ConfirmModalCtrl";
+      var resolve = {
+        title: function () {
+          return "_POLICY_._WINDOW_._CONFIRM_._TITLE_";
+        },
+        message: function () {
+          return "";
+        }
+      };
 
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
       modalInstance.result.then(function () {
-        PolicyFactory.CreatePolicy(vm.policy).then(function () {
+        var finalJSON = PolicyModelFactory.getFinalJSON();
+        PolicyFactory.createPolicy(finalJSON).then(function () {
           PolicyModelFactory.resetPolicy();
           $state.go("dashboard.policies");
 

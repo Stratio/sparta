@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('NewDimensionModalCtrl', NewDimensionModalCtrl);
 
-  NewDimensionModalCtrl.$inject = ['$modalInstance', 'dimensionName', 'fieldName', 'type', 'CubeStaticDataFactory', '$filter'];
+  NewDimensionModalCtrl.$inject = ['$modalInstance', 'dimensionName', 'fieldName', 'dimensions', '$filter', 'UtilsService', 'template'];
 
-  function NewDimensionModalCtrl($modalInstance, dimensionName, fieldName, type, CubeStaticDataFactory, $filter) {
+  function NewDimensionModalCtrl($modalInstance, dimensionName, fieldName, dimensions, $filter, UtilsService, template) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -16,13 +16,19 @@
     vm.cancel = cancel;
     vm.getPrecisionsOfType = getPrecisionsOfType;
 
-    vm.dimension = {};
-    vm.dimension.name = dimensionName;
-    vm.dimension.field = fieldName;
-    vm.dimension.type = type;
-    vm.precisionOptions = CubeStaticDataFactory.getPrecisionOptions();
-    vm.cubeTypes = CubeStaticDataFactory.getCubeTypes();
-    vm.defaultType = CubeStaticDataFactory.getDefaultType().value;
+    init();
+
+    function init() {
+      vm.dimension = {};
+      vm.dimension.name = dimensionName;
+      vm.dimension.field = fieldName;
+      vm.cubeTypes = template.cubeTypes;
+      vm.dimension.type = vm.cubeTypes[0].value;
+      vm.precisionOptions = template.precisionOptions;
+
+      vm.defaultType = template.cubeTypes[0].value;
+      vm.errorText = "";
+    }
 
     ///////////////////////////////////////
 
@@ -31,23 +37,45 @@
       if (result && result.length > 0) {
         return result[0].precisions;
       }
-    };
+    }
 
     function cleanPrecision() {
       if (vm.dimension.type == vm.defaultType)
         delete vm.dimension.precision;
     }
 
-    function ok() {
-      if (vm.form.$valid) {
-        cleanPrecision();
-        $modalInstance.close(vm.dimension);
+    function validatePrecision() {
+      var validPrecision = (vm.dimension.type == vm.defaultType) || (!(vm.dimension.type == vm.defaultType) && vm.dimension.precision);
+      if (!validPrecision) {
+        vm.errorText = "_POLICY_._CUBE_._INVALID_DIMENSION_PRECISION_";
       }
-    };
+      return validPrecision;
+    }
+
+    function isRepeated() {
+      var position = UtilsService.findElementInJSONArray(dimensions, vm.dimension, "name");
+      var repeated = position != -1;
+      if (repeated) {
+        vm.errorText = "_POLICY_._CUBE_._DIMENSION_NAME_EXISTS_";
+      }
+      return repeated;
+    }
+
+    function ok() {
+      vm.errorText = "";
+      if (vm.form.$valid) {
+        if (validatePrecision() && !isRepeated()) {
+          cleanPrecision();
+          $modalInstance.close(vm.dimension);
+        }
+      } else {
+        vm.errorText = "_GENERIC_FORM_ERROR_";
+      }
+    }
 
     function cancel() {
       $modalInstance.dismiss('cancel');
-    };
-  };
+    }
+  }
 
 })();

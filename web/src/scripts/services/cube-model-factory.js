@@ -1,49 +1,55 @@
 (function () {
-  'use strict';
+    'use strict';
 
-  angular
-    .module('webApp')
-    .factory('CubeModelFactory', CubeModelFactory);
+    angular
+      .module('webApp')
+      .factory('CubeModelFactory', CubeModelFactory);
 
-  function CubeModelFactory() {
-    var cube = {};
+    CubeModelFactory.$inject = [];
 
-    function init() {
-      cube.name = "";
-      cube.dimensions = [];
-      cube.operators = [];
-      cube.checkpointConfig = {};
-      cube.checkpointConfig.timeDimension = "";
-      cube.checkpointConfig.interval = null;
-      cube.checkpointConfig.timeAvailability = null;
-      cube.checkpointConfig.granularity = "";
-    };
+    function CubeModelFactory() {
+      var cube = {};
+      var error = {text: ""};
 
-    function resetCube() {
-      init();
-    };
-
-    function getCube() {
-      if (Object.keys(cube).length == 0) {
-        init()
+      function init(template, position) {
+        cube.name = template.defaultCubeName + position;
+        cube.dimensions = [];
+        cube.operators = [];
+        cube.checkpointConfig = {};
+        cube.checkpointConfig.timeDimension = template.defaultTimeDimension;
+        cube.checkpointConfig.interval = template.defaultInterval;
+        cube.checkpointConfig.timeAvailability = template.defaultTimeAvailability;
+        cube.checkpointConfig.granularity = template.defaultGranularity;
+        error.text= "";
       }
-      return cube;
+
+      function resetCube(template, position) {
+        init(template, position);
+      }
+
+      function getCube(template, position) {
+        if (Object.keys(cube).length == 0) {
+          init(template, position)
+        }
+        return cube;
+      }
+
+      function getError() {
+        return error;
+      }
+
+      function setError(err) {
+        error.text = err;
+      }
+      return {
+        resetCube: resetCube,
+        getCube: getCube,
+        setError: setError,
+        getError: getError
+      }
     }
 
-    function isValidCube() {
-      return cube.name !== "" && cube.checkpointConfig.timeDimension !== "" && cube.checkpointConfig.interval !== null
-        && cube.checkpointConfig.timeAvailability !== null && cube.checkpointConfig.granularity !== ""
-        && cube.dimensions.length > 0 && cube.operators.length > 0;
-    };
-
-    return {
-      resetCube: resetCube,
-      getCube: getCube,
-      isValidCube: isValidCube
-    }
-  }
-
-})
+  })
 ();
 
 

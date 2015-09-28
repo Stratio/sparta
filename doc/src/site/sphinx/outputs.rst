@@ -77,7 +77,7 @@ MongoDB Configuration
       "name": "out-mongo",
       "type": "MongoDb",
       "configuration": {
-        "hosts": "localhost",
+        "hosts": [{"host": "localhost" , "port": "27017" }],
         "dbName": "sparkta",
         "identitiesSaved": "true",
         "idAsField": "true"
@@ -140,8 +140,8 @@ Cassandra Configuration
       }
     }
   ]
-The output of Cassandra uses the generic implementation with DataFrames, this implementation transform each
-UpdateMetricOperation to Row type of Spark and identify each row with his schema.
+
+The Cassandra output uses the generic implementation with DataFrames.
 
 
 +-----------------------+----------------------------------------------------------+----------+-----------------------+
@@ -213,16 +213,17 @@ ElasticSearch Configuration
       "name": "out-elasticsearch",
       "type": "ElasticSearch",
       "configuration": {
-        "nodes": "localhost",
-        "defaultPort": "9200",
-
-        "isAutoCalculateId": "true",
+        "nodes": [
+          {
+            "node": "localhost",
+            "defaultPort": "9200"
+          }
+        ],
         "indexMapping": "day"
       }
     }
    ]
-The output of ElasticSearch uses the generic implementation with DataFrames, this implementation transform each
-UpdateMetricOperation to Row type of Spark and identify each row with his schema.
+The Elasticsearch output uses the generic implementation with DataFrames.
 
 
 
@@ -283,7 +284,6 @@ Print Configuration
       "name": "out-print",
       "type": "Print",
       "configuration": {
-        "isAutoCalculateId": "false"
       }
     }
   ]
@@ -331,7 +331,6 @@ Csv Configuration
       "name": "out-csv",
       "type": "Csv",
       "configuration": {
-        "isAutoCalculateId": "false",
         "path": "/tmp/sparkta/operators/csv/",
         "header": "true",
         "delimiter": ","

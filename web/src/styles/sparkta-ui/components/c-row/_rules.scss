@@ -9,7 +9,7 @@
 	}
 
 	&--with-gutter {
-		.c-col {
+		& > .c-col {
 			padding: 0 $c-row---gutter;
 
 			&:first-child {

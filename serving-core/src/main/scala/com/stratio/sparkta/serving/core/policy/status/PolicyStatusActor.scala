@@ -30,36 +30,67 @@ import scala.util.{Failure, Success, Try}
 class PolicyStatusActor extends Actor with SLF4JLogging with SparktaSerializer {
 
   override def receive: Receive = {
-    case Update(policyStatus) => update(policyStatus)
+    case Create(policyStatus) => sender ! create(policyStatus)
+    case Update(policyStatus) => sender ! update(policyStatus)
     case FindAll => findAll
     case AddListener(name, callback) => addListener(name, callback)
   }
 
-  def update(policyStatus: PolicyStatusModel): Unit = {
+  def update(policyStatus: PolicyStatusModel): Option[PolicyStatusModel] = {
     val curator = CuratorFactoryHolder.getInstance()
-    val path = s"${AppConstant.ContextPath}/${policyStatus.id}"
+    val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
 
     //TODO check the correct statuses
-    if (Option(curator.checkExists().forPath(path)).isDefined) {
+    if (CuratorFactoryHolder.existsPath(statusPath)) {
       val ips =
-        read[PolicyStatusModel](new String(curator.getData.forPath(s"${AppConstant.ContextPath}/${policyStatus.id}")))
+        read[PolicyStatusModel](new String(curator.getData.forPath(statusPath)))
       log.info(s">> Updating context ${policyStatus.id} : <${ips.status}> to <${policyStatus.status}>")
       //validate(Some(ips.status), policyStatus.status)
-      curator.setData().forPath(path, write(policyStatus).getBytes)
+      curator.setData().forPath(statusPath, write(policyStatus).getBytes)
+      Some(policyStatus)
+    } else None
+  }
+
+  def create(policyStatus: PolicyStatusModel): Option[PolicyStatusModel] = {
+    val curator = CuratorFactoryHolder.getInstance()
+    val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
+
+    if (CuratorFactoryHolder.existsPath(statusPath)) {
+      val ips =
+        read[PolicyStatusModel](new String(curator.getData.forPath(statusPath)))
+      log.info(s">> Updating context ${policyStatus.id} : <${ips.status}> to <${policyStatus.status}>")
+      //validate(Some(ips.status), policyStatus.status)
+      curator.setData().forPath(statusPath, write(policyStatus).getBytes)
+      Some(policyStatus)
     } else {
       log.info(s">> Creating policy context |${policyStatus.id}| to <${policyStatus.status}>")
-      //validate(None, policyStatus.status)
-      curator.create.creatingParentsIfNeeded.forPath(path, write(policyStatus).getBytes)
+      validate(None, policyStatus.status)
+      curator.create.creatingParentsIfNeeded.forPath(statusPath, write(policyStatus).getBytes)
+      Some(policyStatus)
     }
   }
+
+  def setNotStartedStatus(policyStatus : PolicyStatusModel): Option[PolicyStatusModel] = {
+    val curator = CuratorFactoryHolder.getInstance()
+    val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
+
+    log.info(s">> Creating policy context |${policyStatus.id}| to <${policyStatus.status}>")
+    validate(None, policyStatus.status)
+    curator.create.creatingParentsIfNeeded.forPath(statusPath, write(policyStatus).getBytes)
+    Some(policyStatus)
+  }
+
 
   def findAll(): Unit = {
     sender ! Response(Try({
       val curator = CuratorFactoryHolder.getInstance()
-      val children = curator.getChildren.forPath(s"${AppConstant.ContextPath}")
-      JavaConversions.asScalaBuffer(children).toList.map(element =>
-        read[PolicyStatusModel](new String(curator.getData.forPath(
-          s"${AppConstant.ContextPath}/$element")))).toSeq
+      val contextPath = s"${AppConstant.ContextPath}"
+      if (CuratorFactoryHolder.existsPath(contextPath)) {
+        val children = curator.getChildren.forPath(contextPath)
+        JavaConversions.asScalaBuffer(children).toList.map(element =>
+          read[PolicyStatusModel](new String(curator.getData.forPath(
+            s"${AppConstant.ContextPath}/$element")))).toSeq
+      } else Seq()
     }))
   }
 
@@ -69,9 +100,9 @@ class PolicyStatusActor extends Actor with SLF4JLogging with SparktaSerializer {
    * @param callback with a function that will be executed.
    */
   def addListener(id: String, callback: (PolicyStatusModel, NodeCache) => Unit): Unit = {
-    val path = s"${AppConstant.ContextPath}/$id"
+    val contextPath = s"${AppConstant.ContextPath}/$id"
     val curator = CuratorFactoryHolder.getInstance()
-    val nodeCache: NodeCache = new NodeCache(curator, path)
+    val nodeCache: NodeCache = new NodeCache(curator, contextPath)
 
     nodeCache.getListenable.addListener(new NodeCacheListener {
       override def nodeChanged(): Unit = {
@@ -91,6 +122,8 @@ object PolicyStatusActor {
 
   case class Update(policyStatus: PolicyStatusModel)
 
+  case class Create(policyStatus: PolicyStatusModel)
+
   case class AddListener(name: String, callback: (PolicyStatusModel, NodeCache) => Unit)
 
   case object FindAll
@@ -101,13 +134,15 @@ object PolicyStatusActor {
    * This map represents the state machine of one context.
    */
   val StateMachine: Map[Option[PolicyStatusEnum.Value], Seq[PolicyStatusEnum.Value]] = Map(
-    None -> Seq(PolicyStatusEnum.Launched, PolicyStatusEnum.Failed),
+    None -> Seq(PolicyStatusEnum.NotStarted),
+    Some(PolicyStatusEnum.NotStarted) -> Seq(PolicyStatusEnum.Launched, PolicyStatusEnum.Failed),
     Some(PolicyStatusEnum.Launched) -> Seq(PolicyStatusEnum.Starting, PolicyStatusEnum.Failed),
     Some(PolicyStatusEnum.Starting) -> Seq(PolicyStatusEnum.Started, PolicyStatusEnum.Failed),
     Some(PolicyStatusEnum.Started) -> Seq(PolicyStatusEnum.Stopping, PolicyStatusEnum.Failed),
     Some(PolicyStatusEnum.Stopping) -> Seq(PolicyStatusEnum.Stopped, PolicyStatusEnum.Failed),
     Some(PolicyStatusEnum.Stopped) -> Seq(PolicyStatusEnum.Launched, PolicyStatusEnum.Failed),
     Some(PolicyStatusEnum.Failed) -> Seq(PolicyStatusEnum.Launched)
+
   )
 
   /**
@@ -145,4 +180,5 @@ object PolicyStatusEnum extends Enumeration {
   val Failed = Value("Failed")
   val Stopping = Value("Stopping")
   val Stopped = Value("Stopped")
+  val NotStarted = Value("NotStarted")
 }

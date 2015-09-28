@@ -14,7 +14,7 @@
       "type": "Flume",
       "configuration": {
         "type": "pull",
-        "addresses": "localhost:10999",
+        "addresses": [{"host": "localhost", "port": "10999"}],
         "maxBatchSize": "500"
       }
     }
@@ -24,6 +24,10 @@
       "name": "morphline-parser",
       "order": 0,
       "type": "Morphlines",
+      "outputFields": [
+        "timestamp",
+        "extra1"
+      ],
       "configuration": {
         "morphline": {
           "id": "morphline1",
@@ -40,35 +44,10 @@
             {
               "extractJsonPaths": {
                 "paths": {
-                  "appName": "/appName",
-                  "method": "/method",
-                  "date": "/date",
-                  "appCountry": "/appCountry",
-                  "appPlatform": "/appPlatform",
-                  "appVersion": "/appVersion",
-                  "uid": "/uid",
-                  "device": "/device",
-                  "latitude": "/latitude",
-                  "longitude": "/longitude",
-                  "osVersion": "/osVersion",
-                  "lang": "/lang",
-                  "appLang": "/appLang",
-                  "user_id": "/user_id",
-                  "connection": "/connection",
-                  "timestamp": "/timestamp",
-                  "session": "/session",
-                  "extra1": "/extra1",
-                  "extra2": "/extra2",
-                  "extra3": "/extra3",
-                  "source": "/source",
-                  "environment": "/environment",
-                  "platform": "/platform"
+                 "timestamp": "/timestamp",
+                  "extra1": "/extra1"
+
                 }
-              }
-            },
-            {
-              "addValues": {
-                "geo": "@{latitude}__@{longitude}"
               }
             },
             {
@@ -122,258 +101,6 @@
           "name": "countoperator",
           "type": "Count",
           "configuration": {
-          }
-        }
-      ]
-    },
-    {
-      "name": "platform_device",
-      "checkpointConfig": {
-        "timeDimension": "minute",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
-      },
-      "dimensions": [
-        {
-          "name": "platform",
-          "field": "platform"
-        },
-        {
-          "name": "device",
-          "field": "device"
-        },
-        {
-          "field": "timestamp",
-          "precision": "minute",
-          "type": "DateTime",
-          "name": "minute"
-        }
-      ],
-      "operators": [
-        {
-          "name": "countoperator",
-          "type": "Count",
-          "configuration": {
-
-          }
-        }
-      ]
-    },
-    {
-      "name": "appname",
-      "checkpointConfig": {
-        "timeDimension": "minute",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
-      },
-      "dimensions": [
-        {
-          "field": "appName",
-          "name": "appName"
-        }
-      ],
-      "operators": [
-        {
-          "name": "countoperator",
-          "type": "Count",
-          "configuration": {
-
-          }
-        }
-      ]
-    },
-    {
-      "name": "session",
-      "checkpointConfig": {
-        "timeDimension": "minute",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
-      },
-      "dimensions": [
-        {
-          "name": "session",
-          "field": "session"
-        },
-        {
-          "field": "timestamp",
-          "precision": "minute",
-          "type": "DateTime",
-          "name": "minute"
-        }
-      ],
-      "operators": [
-        {
-          "name": "countoperator",
-          "type": "Count",
-          "configuration": {
-
-          }
-        }
-      ]
-    },
-    {
-      "name": "applang",
-      "checkpointConfig": {
-        "timeDimension": "minute",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
-      },
-      "dimensions": [
-        {
-          "name": "appLang",
-          "field": "appLang"
-        },
-        {
-          "name": "timestamp",
-          "type": "DateTime",
-          "field": "timestamp",
-          "precision": "minute"
-        }
-      ],
-      "operators": [
-        {
-          "name": "countoperator",
-          "type": "Count",
-          "configuration": {
-
-          }
-        }
-      ]
-    },
-    {
-      "name": "geo",
-      "checkpointConfig": {
-        "timeDimension": "minute",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
-      },
-      "dimensions": [
-        {
-          "field": "geo",
-          "type": "GeoHash",
-          "precision": "precision6",
-          "name": "precision6"
-        }
-      ],
-      "operators": [
-        {
-          "name": "countoperator",
-          "type": "Count",
-          "configuration": {
-
-          }
-        }
-      ]
-    },
-    {
-      "name": "appCountry",
-      "checkpointConfig": {
-        "timeDimension": "minute",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
-      },
-      "dimensions": [
-        {
-          "name": "appCountry",
-          "field": "appCountry"
-        },
-        {
-          "field": "timestamp",
-          "precision": "minute",
-          "type": "DateTime",
-          "name": "minute"
-        }
-      ],
-      "operators": [
-        {
-          "name": "countoperator",
-          "type": "Count",
-          "configuration": {
-
-          }
-        }
-      ]
-    },
-    {
-      "name": "appPlatform_time",
-      "checkpointConfig": {
-        "timeDimension": "minute",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
-      },
-      "dimensions": [
-        {
-          "name": "appPlatform",
-          "field": "appPlatform"
-        },
-        {
-          "field": "timestamp",
-          "precision": "minute",
-          "type": "DateTime",
-          "name": "minute"
-        }
-      ],
-      "operators": [
-        {
-          "name": "countoperator",
-          "type": "Count",
-          "configuration": {
-
-          }
-        }
-      ]
-    },
-    {
-      "name": "appPlatform_time",
-      "checkpointConfig": {
-        "timeDimension": "minute",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
-      },
-      "dimensions": [
-        {
-          "name": "appPlatform",
-          "field": "appPlatform"
-        }
-      ],
-      "operators": [
-        {
-          "name": "countoperator",
-          "type": "Count",
-          "configuration": {
-
-          }
-        }
-      ]
-    },
-    {
-      "name": "appCountry",
-      "checkpointConfig": {
-        "timeDimension": "minute",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
-      },
-      "dimensions": [
-        {
-          "name": "appCountry",
-          "field": "appCountry"
-        }
-      ],
-      "operators": [
-        {
-          "name": "countoperator",
-          "type": "Count",
-          "configuration": {
-
           }
         }
       ]

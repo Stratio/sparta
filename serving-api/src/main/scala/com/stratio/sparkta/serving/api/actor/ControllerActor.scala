@@ -56,14 +56,20 @@ class ControllerActor(streamingContextService: StreamingContextService,
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
   def getRoutes: Route = webRoutes ~ serviceRoutes.fragmentRoute ~
-    serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~ serviceRoutes.templateRoute
+    serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~
+    serviceRoutes.templateRoute ~ serviceRoutes.AppStatusRoute
 
   def webRoutes: Route =
     get {
       pathPrefix("") {
         pathEndOrSingleSlash {
-          getFromResource("web/index.html")
+          getFromResource("classes/web/index.html")
         }
-      } ~ getFromResourceDirectory("web")
+      } ~ getFromResourceDirectory("classes/web") ~
+        pathPrefix("") {
+          pathEndOrSingleSlash {
+            getFromResource("web/index.html")
+          }
+        } ~ getFromResourceDirectory("web")
     }
 }

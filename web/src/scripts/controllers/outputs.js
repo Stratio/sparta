@@ -15,8 +15,10 @@
       vm.editOutput = editOutput;
       vm.deleteOutput = deleteOutput;
       vm.duplicateOutput = duplicateOutput;
-      vm.outputsData = [];
+      vm.outputsData = undefined;
       vm.outputTypes = [];
+      vm.error = false;
+      vm.errorMessage = '';
 
       init();
 
@@ -27,19 +29,22 @@
       };
 
       function getOutputs() {
-        var outputList = FragmentFactory.GetFragments('output');
+        var outputList = FragmentFactory.getFragments('output');
 
         outputList.then(function (result) {
+          vm.error = false;
           vm.outputsData = result;
           getOutputTypes(result);
 
         },function (error) {
-          console.log('There was an error while loading the output list!');
-          console.log(error);
+          vm.error = true
+          vm.errorMessage = "_INPUT_ERROR_" + error.data.i18nCode + "_";;
         });
+
       };
 
       function getOutputTypes(outputs) {
+        vm.outputTypes = [];
         for (var i=0; i<outputs.length; i++) {
             var newType = false;
             var type    = outputs[i].element.type;
@@ -95,7 +100,10 @@
                 'title': '_OUTPUT_WINDOW_MODIFY_TITLE_',
                 'button': '_OUTPUT_WINDOW_MODIFY_BUTTON_',
                 'button_icon': 'icon-circle-check',
-                'secondaryText2': '_OUTPUT_WINDOW_EDIT_MESSAGE2_'
+                'secondaryText2': '_OUTPUT_WINDOW_EDIT_MESSAGE2_',
+                'policyRunningMain': '_OUTPUT_CANNOT_BE_DELETED_',
+                'policyRunningSecondary': '_OUTTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
+                'policyRunningSecondary2': '_OUTTPUT_WINDOW_POLICY_RUNNING_MESSAGE2_'
             }
         };
 
@@ -113,7 +121,10 @@
             'mainText': '_OUTPUT_CANNOT_BE_DELETED_',
             'mainTextOK': '_ARE_YOU_COMPLETELY_SURE_',
             'secondaryText1': '_OUTPUT_WINDOW_DELETE_MESSAGE_',
-            'secondaryText2': '_OUTPUT_WINDOW_DELETE_MESSAGE2_'
+            'secondaryText2': '_OUTPUT_WINDOW_DELETE_MESSAGE2_',
+            'policyRunningMain': '_OUTPUT_CANNOT_BE_DELETED_',
+            'policyRunningSecondary': '_OUTTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
+            'policyRunningSecondary2': '_OUTTPUT_WINDOW_DELETE_POLICY_RUNNING_MESSAGE2_'
           }
         };
         deleteOutputConfirm('lg', outputToDelete);
@@ -149,13 +160,15 @@
               return newOutputTemplateData;
             },
             fragmentTemplates: function (TemplateFactory) {
-              return TemplateFactory.GetNewFragmentTemplate(newOutputTemplateData.fragmentType);
+              return TemplateFactory.getNewFragmentTemplate(newOutputTemplateData.fragmentType);
             }
           }
         });
 
         modalInstance.result.then(function (newOutputData) {
           vm.outputsData.push(newOutputData);
+          getOutputTypes(vm.outputsData);
+
         }, function () {
         });
       };
@@ -171,16 +184,17 @@
                     return editOutputData;
                  },
                  fragmentTemplates: function (TemplateFactory) {
-                    return TemplateFactory.GetNewFragmentTemplate(editOutputData.fragmentSelected.fragmentType);
+                    return TemplateFactory.getNewFragmentTemplate(editOutputData.fragmentSelected.fragmentType);
                  },
                  policiesAffected: function (PolicyFactory) {
-                    return PolicyFactory.GetPolicyByFragmentId(editOutputData.fragmentSelected.fragmentType, editOutputData.fragmentSelected.id);
+                    return PolicyFactory.getPolicyByFragmentId(editOutputData.fragmentSelected.fragmentType, editOutputData.fragmentSelected.id);
                  }
              }
          });
 
         modalInstance.result.then(function (updatedOutputData) {
           vm.outputsData[updatedOutputData.index] = updatedOutputData.data;
+          getOutputTypes(vm.outputsData);
 
         },function () {
                 });
@@ -197,13 +211,14 @@
                   return output;
               },
               policiesAffected: function (PolicyFactory) {
-                return PolicyFactory.GetPolicyByFragmentId(output.type, output.id);
+                return PolicyFactory.getPolicyByFragmentId(output.type, output.id);
               }
           }
         });
 
         modalInstance.result.then(function (selectedItem) {
           vm.outputsData.splice(selectedItem.index, 1);
+          getOutputTypes(vm.outputsData);
         },function () {
         });
       };
@@ -223,6 +238,7 @@
 
         modalInstance.result.then(function (newOutput) {
           vm.outputsData.push(newOutput);
+          getOutputTypes(vm.outputsData);
 
         },function () {
         });

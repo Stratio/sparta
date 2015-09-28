@@ -18,74 +18,108 @@ package com.stratio.sparkta.serving.api.actor
 
 import java.io.File
 
+import akka.actor.ActorRef
+import akka.pattern.ask
+import akka.util.Timeout
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.driver.util.{HdfsUtils, PolicyUtils}
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, SparktaSerializer}
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
 import com.typesafe.config.{Config, ConfigRenderOptions}
 import org.apache.commons.lang.StringEscapeUtils
 
 import scala.collection.JavaConversions._
+import scala.concurrent.duration._
 import scala.sys.process._
+import scala.util.{Success, Failure, Try}
 
 class ClusterSparkStreamingContextActor(policy: AggregationPoliciesModel,
                                         streamingContextService: StreamingContextService,
                                         clusterConfig: Config,
                                         hdfsConfig: Config,
                                         zookeeperConfig: Config,
-                                        detailConfig: Option[Config]) extends InstrumentedActor with SparktaSerializer {
+                                        detailConfig: Option[Config],
+                                        policyStatusActor: ActorRef) extends InstrumentedActor with SparktaSerializer {
+
+  implicit val timeout: Timeout = Timeout(3.seconds)
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start => doInitSparktaContext
   }
 
+  //scalastyle:off
   def doInitSparktaContext: Unit = {
-    log.debug("Init new cluster streamingContext with name " + policy.name)
-    val jarsPlugins = JarsHelper.findJarsByPath(
-      new File(SparktaConfig.sparktaHome, AppConstant.JarPluginsFolder), Some("-plugin.jar"), None, None, None, false)
-    val activeJars = PolicyUtils.activeJars(policy, jarsPlugins)
-    if (checkPolicyJars(activeJars)) {
-      val main = getMainCommand
-      if (main.isEmpty)
-        log.warn("You must set the sparkSubmit path in configuration")
-      else {
-        val hadoopUserName =
-          scala.util.Properties.envOrElse("HADOOP_USER_NAME", hdfsConfig.getString(AppConstant.HadoopUserName))
-        val hadoopConfDir =
-          Some(scala.util.Properties.envOrElse("HADOOP_CONF_DIR", hdfsConfig.getString(AppConstant.HadoopConfDir)))
-        val hdfsUtils = new HdfsUtils(hadoopUserName, hadoopConfDir)
-        val pluginsJarsFiles = PolicyUtils.activeJarFiles(activeJars.right.get, jarsPlugins)
-        val pluginsJarsPath =
-          s"/user/$hadoopUserName/${policy.name}-${policy.id.get}/${hdfsConfig.getString(AppConstant
-            .PluginsFolder)}/"
-        val classpathJarsPath =
-          s"/user/$hadoopUserName/${policy.name}-${policy.id.get}/${hdfsConfig.getString(AppConstant.ClasspathFolder)}/"
+    Try {
+      log.info("Init new cluster streamingContext with name " + policy.name)
+      val jarsPlugins = JarsHelper.findJarsByPath(
+        new File(SparktaConfig.sparktaHome, AppConstant.JarPluginsFolder), Some("-plugin.jar"), None, None, None, false)
+      val activeJars = PolicyUtils.activeJars(policy, jarsPlugins)
+      if (checkPolicyJars(activeJars)) {
+        val main = getMainCommand
+        if (main.isEmpty) {
+          log.warn("You must set the sparkSubmit path in configuration")
+          setErrorStatus
+        }
+        else {
+          val hadoopUserName =
+            scala.util.Properties.envOrElse("HADOOP_USER_NAME", hdfsConfig.getString(AppConstant.HadoopUserName))
+          val hadoopConfDir =
+            Some(scala.util.Properties.envOrElse("HADOOP_CONF_DIR", hdfsConfig.getString(AppConstant.HadoopConfDir)))
+          val hdfsUtils = new HdfsUtils(hadoopUserName, hadoopConfDir)
+          val pluginsJarsFiles = PolicyUtils.activeJarFiles(activeJars.right.get, jarsPlugins)
+          val pluginsJarsPath =
+            s"/user/$hadoopUserName/${policy.name}-${policy.id.get}/${
+              hdfsConfig.getString(AppConstant
+                .PluginsFolder)
+            }/"
+          val classpathJarsPath =
+            s"/user/$hadoopUserName/${policy.name}-${policy.id.get}/${hdfsConfig.getString(AppConstant.ClasspathFolder)}/"
 
-        pluginsJarsFiles.foreach(file => hdfsUtils.write(file.getAbsolutePath, pluginsJarsPath, true))
-        log.info("Jars plugins uploaded to HDFS")
+          pluginsJarsFiles.foreach(file => hdfsUtils.write(file.getAbsolutePath, pluginsJarsPath, true))
+          log.info("Jars plugins uploaded to HDFS")
 
-        JarsHelper.findJarsByPath(new File(SparktaConfig.sparktaHome, AppConstant.ClasspathJarFolder),
-          Some(".jar"), None, None, Some(Seq("plugins", "spark", "driver", "web", "serving-api")), false)
-          .foreach(file => hdfsUtils.write(file.getAbsolutePath, classpathJarsPath, true))
-        log.info("Classpath uploaded to HDFS")
+          JarsHelper.findJarsByPath(new File(SparktaConfig.sparktaHome, AppConstant.ClasspathJarFolder),
+            Some(".jar"), None, Some("driver"), Some(Seq("plugins", "spark", "driver", "web", "serving-api")), false)
+            .foreach(file => hdfsUtils.write(file.getAbsolutePath, classpathJarsPath, true))
+          log.info("Classpath uploaded to HDFS")
 
-        JarsHelper.findDriverByPath(
-          new File(SparktaConfig.sparktaHome, AppConstant.ClusterExecutionJarFolder)).headOption match {
-          case Some(driverJar) => {
-            val driverJarPath = s"/user/$hadoopUserName/${policy.name}-${policy.id.get}/" +
+          JarsHelper.findDriverByPath(
+            new File(SparktaConfig.sparktaHome, AppConstant.ClusterExecutionJarFolder)).headOption match {
+            case Some(driverJar) => {
+              val driverJarPath = s"/user/$hadoopUserName/${policy.name}-${policy.id.get}/" +
                 s"${hdfsConfig.getString(AppConstant.ExecutionJarFolder)}/"
-            val hdfsDriverFile =
-              s" hdfs://${hdfsConfig.getString(AppConstant.HdfsMaster)}$driverJarPath${driverJar.getName}"
-            hdfsUtils.write(driverJar.getAbsolutePath, driverJarPath, true)
-            log.info("Jar driver uploaded to HDFS")
-            sparkSubmitExecution(main, hdfsDriverFile, pluginsJarsPath, classpathJarsPath)
+              val hdfsDriverFile =
+                s" hdfs://${hdfsConfig.getString(AppConstant.HdfsMaster)}$driverJarPath${driverJar.getName}"
+              hdfsUtils.write(driverJar.getAbsolutePath, driverJarPath, true)
+              log.info("Jar driver uploaded to HDFS")
+              sparkSubmitExecution(main, hdfsDriverFile, pluginsJarsPath, classpathJarsPath)
+            }
+            case None => {
+              log.warn(s"The driver jar cannot be found in classpath")
+              setErrorStatus
+            }
           }
-          case None => log.warn(s"The driver jar cannot be found in classpath")
         }
       }
+    } match {
+      case Failure(exception) => {
+        log.error(exception.getLocalizedMessage, exception)
+        setErrorStatus
+      }
+      case Success(_) => {
+        //TODO add more statuses for the policies
+      }
     }
+  }
+
+  //scalastyle:on
+
+  private def setErrorStatus: Unit = {
+    policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed))
   }
 
   private def sparkSubmitExecution(main: String,

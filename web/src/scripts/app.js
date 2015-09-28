@@ -11,12 +11,8 @@
 
 angular
   .module('webApp', [
-    'ngAnimate',
-    'ngCookies',
     'ngResource',
     'ngRoute',
-    'ngSanitize',
-    'ngTouch',
     'ui.stratio.grid',
     'ui.router',
     'StratioUI',
@@ -85,7 +81,14 @@ angular
         url: '/policies/new',
         controller: 'NewPolicyCtrl',
         controllerAs: 'wizard',
-        templateUrl: 'views/policies/wizard-panel.html'
+        templateUrl: 'views/policy-wizard/wizard-panel.html'
+      })
+      .state('dashboard.editPolicy', {
+        url: '/policies/edit/:id',
+        params: { id: null },
+        controller: 'EditPolicyCtrl',
+        controllerAs: 'wizard',
+        templateUrl: 'views/policy-wizard/wizard-panel.html'
       })
     /*******  SETINGS *******/
     .state('settings', {

@@ -27,7 +27,7 @@
 
       <div class="c-panel c-panel--framed">
         <div class="c-form-group">
-          <form-field-input data-form="vm.form" data-st-name="sparkStreamingWindow-form" data-model="vm.policy.sparkStreamingWindow" data-label="{{'_SPARK_STREAMING_WINDOW_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. 6000" data-qa="policy-description-spark-streaming-window"></form-field-input>
+          <form-field-input data-form="vm.form" data-st-name="sparkStreamingWindow-form" data-model="vm.policy.sparkStreamingWindow" data-label="{{'_SPARK_STREAMING_WINDOW_' | translate}}" data-help="" data-type="number" data-pattern="" data-required="true" placeholder="Ex. 6000" data-qa="policy-description-spark-streaming-window"></form-field-input>
         </div>
 
         <div class="c-form-group">
@@ -54,7 +54,7 @@
 
     <footer class="c-row c-row--footer">
       <div class="c-col c-col--6 c-col--vertical-centered">
-        <c-icon-link icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action icon-help1'" text="'_INPUT_WINDOW_NEW_HELP_' | translate" text-class="" link-url="vm.helpLink"></c-icon-link>
+        <c-icon-link icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action icon-help1'" text="'_INPUT_WINDOW_NEW_HELP_' | translate" text-class="" link-url="vm.helpLink" data-qa="policy-description-help"></c-icon-link>
       </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
         <button class="c-button c-button--call-to-action-1" data-ng-click="vm.validateForm()" data-qa="policy-description-next-button">
           <i class="icon icon-arrow-right"></i>

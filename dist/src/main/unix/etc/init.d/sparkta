@@ -56,6 +56,8 @@ COMMAND=$1
 NAME=run
 APP_DIR=/opt/sds/sparkta
 PID_DIR=/var/run/sds
+USER=stratio
+GROUP=stratio
 
 export SPARKTA_HOME=$APP_DIR
 
@@ -114,14 +116,14 @@ resetColor() {
 
 # Checks if RUNNING_PID file exists and whether the process is really running.
 checkPidFile() {
-	if [ -f $PID_FILE ]
+	if [ -s $PID_FILE ]
 	then
 		if ps -p `cat $PID_FILE` > /dev/null
 		then
 			# The file exists and the process is running
 			return 1
 		else
-			# The file exitsts, but the process is dead
+			# The file exists, but the process is dead
 			return 2
 		fi
 	fi
@@ -196,6 +198,11 @@ checkAppStarted() {
 	fi
 }
 
+createPidFile() {
+  /bin/touch $PID_FILE
+	/bin/chmod 777 $PID_FILE
+}
+
 # Check input arguments
 checkArgs
 if [ $? != 0 ]
@@ -213,7 +220,9 @@ case "${COMMAND}" in
 			1) echoOK "$(printPid) already started"
 				exit ;;
 			2) # Delete the RUNNING_PID FILE
-				rm $PID_FILE ;;
+			rm $PID_FILE
+			createPidFile
+			;;
 		esac
 
 		SCRIPT_TO_RUN=bin/$NAME
@@ -270,6 +279,7 @@ case "${COMMAND}" in
 					echoOK "$PRINTED_PID stopped"
 					echoProgress "Removing $PID_FILE"
 					rm $PID_FILE
+					createPidFile
 				fi ;;
 			2) echoError "RUNNING_PID exists but process is already dead" ;;
 		esac
