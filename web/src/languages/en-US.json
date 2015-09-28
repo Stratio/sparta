@@ -122,7 +122,7 @@
     "_OUTPUTS_ERROR_": "At least one output must be selected!",
     "_DESCRIPTION_ERROR_": "There was an error. The name of the policy already exists!",
     "_MODEL_ERROR_": "There was an error. You must create one model at least!",
-    "_CUBE_ERROR_": "There was an error. You must create one cube at least!",
+    "_CUBE_ERROR_": "There was an error. You must create one cube at least and they can not have the same name",
     "_MODEL_NAME_": "Model name",
     "_ADD_MODEL_": "Add model",
     "_CUBE_NAME_": "Cube name",
@@ -148,7 +148,9 @@
       "_INVALID_DIMENSION_PRECISION_": "You have to select a precision for this dimension type",
       "_DIMENSION_NAME_EXISTS_": "There is a dimension with this name. Please change it and try it again",
       "_OPERATOR_NAME_EXISTS_": "There is an operator with this name. Please change it and try it again",
-      "_INVALID_CONFIG_": "The JSON introduced in the configuration is not valid"
+      "_INVALID_CONFIG_": "The JSON introduced in the configuration is not valid",
+      "_REMOVE_DIMENSION_CONFIRM_TITLE_": "Remove dimension",
+      "_REMOVE_OPERATOR_CONFIRM_TITLE_": "Remove operator"
     },
     "_ADD_MODEL_": "Add model",
     "_DIMENSIONS_": "Dimensions",
