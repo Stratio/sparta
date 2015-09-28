@@ -17,7 +17,7 @@
 
     init();
 
-    function init(){
+    function init() {
       vm.operator = {};
       vm.operator.name = operatorName;
       vm.operator.configuration = "";
@@ -51,19 +51,23 @@
       return repeated;
     }
 
-    function setDefaultConfiguration(){
+    function setDefaultConfiguration() {
       var defaultConfiguration = '{}';
       var countType = template.functionNames[2];
-      if (vm.operator.type !== countType){
-        defaultConfiguration= template.defaultOperatorConfiguration;
+      if (vm.operator.type !== countType) {
+        defaultConfiguration = template.defaultOperatorConfiguration;
       }
       vm.operator.configuration = defaultConfiguration;
     }
 
     function ok() {
       vm.errorText = "";
-      if (vm.form.$valid && !isRepeated() && isValidConfiguration()) {
-        $modalInstance.close(vm.operator);
+      if (vm.form.$valid) {
+        if (!isRepeated() && isValidConfiguration()) {
+          $modalInstance.close(vm.operator);
+        }
+      } else {
+        vm.errorText = "_GENERIC_FORM_ERROR_";
       }
     };
 

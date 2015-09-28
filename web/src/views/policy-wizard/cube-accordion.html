@@ -17,7 +17,7 @@
             <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right" data-qa="policy-cube-arrow-{{$index + 1}}"></i>
           </accordion-heading>
 
-          <ng-include class="c-form-group" src="'views/policies/cube-panel.html'" data-ng-init="cube=currentCube" data-qa="policy-cube-{{$index}}"></ng-include>
+          <ng-include class="c-form-group" src="'views/policy-wizard/cube-panel.html'" data-ng-init="cube=currentCube" data-qa="policy-cube-{{$index}}"></ng-include>
 
           <div class="c-form-group c-form-group--full-width c-form-group--to-right">
             <button class="c-button c-button--danger" data-ng-click="vm.removeCube($index, $event)" data-qa="policy-cube-delete-button">
@@ -36,7 +36,7 @@
             <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right" data-qa="policy-cube-arrow-{{(vm.policy.cubes.length + 1) }}"></i>
           </accordion-heading>
 
-          <ng-include class="c-form-group" src="'views/policies/cube-panel.html'" data-ng-init="cube=vm.newCube" data-qa="policy-cube-new"></ng-include>
+          <ng-include class="c-form-group" src="'views/policy-wizard/cube-panel.html'" data-ng-init="cube=vm.newCube" data-qa="policy-cube-new"></ng-include>
 
           <div class="c-form-group c-form-group--full-width c-form-group--to-right">
             <button class="c-button c-button--call-to-action-1" data-ng-click="vm.addCube()" data-qa="policy-cube-add-button">
