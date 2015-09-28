@@ -9,7 +9,7 @@
 
   function ModelFactory(PolicyModelFactory) {
     var model = {};
-    var error = {text: ""};
+    var error = {text: "", duplicatedOutput: false};
     var template = null;
 
     function init(newTemplate) {
@@ -17,10 +17,11 @@
       model.name = "";
       model.outputFields = [];
       model.type = template.types[0].name;
-      model.configuration =  JSON.stringify(newTemplate.morphlinesDefaultConfiguration, null, 4);
+      model.configuration =  JSON.stringify(template.morphlinesDefaultConfiguration, null, 4);
       model.inputList = getModelInputs();
       model.inputField = model.inputList[0].value;
       error.text = "";
+      error.duplicatedOutput = false;
     }
 
     function getModelInputs() {
@@ -63,7 +64,7 @@
     }
 
     function isValidModel() {
-      var isValid = model.inputField != "" && model.outputFields.length > 0 && model.configuration != "" &&
+      var isValid = model.inputField != "" && model.outputFields.length > 0 &&
         model.name != "" && model.type != "" && isValidConfiguration();
       if (!isValid) {
         error.text = "_GENERIC_FORM_ERROR_";

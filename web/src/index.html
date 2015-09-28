@@ -18,10 +18,10 @@
   module-logo="images/app-logo.png"
   module-name="Stratio Sparkta">
 
-  <div st-menu-tab title="{{'_HEADER_MENU_DASHBOARD_' | translate}}" route="dashboard.inputs" sref="dashboard.inputs"
-       icon="icon-grid" data-visible="true" qaref="app-main-menu-dashboard"></div>
-  <div st-menu-tab title="{{'_HEADER_MENU_SETTINGS_' | translate}}" route="settings" sref="settings" icon="icon-cog"
-       data-visible="false" qaref="app-main-menu-settings"></div>
+  <div st-menu-tab data-title="dashboard" data-route="dashboard.inputs" data-sref="dashboard.inputs"
+       data-icon="icon-grid" data-visible="true" data-qaref="app-main-menu-dashboard"></div>
+  <div st-menu-tab data-title="settings" data-route="settings" data-sref="settings" data-icon="icon-cog"
+       data-visible="false" data-qaref="app-main-menu-settings"></div>
 </st-dashboard>
 
 <!-- build:js(.) scripts/vendors.js -->
@@ -97,6 +97,7 @@
 <script src="scripts/services/accordion-status-service.js"></script>
 <script src="scripts/services/cube-service.js"></script>
 <script src="scripts/services/utils-service.js"></script>
+<script src="scripts/services/modal-service.js"></script>
 <!-- Constants ----------------------------------- -->
 <script src="scripts/constants/api-config-settings.js"></script>
 <script src="scripts/constants/fragment-constants.js"></script>

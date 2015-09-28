@@ -7,10 +7,10 @@
     .controller('PolicyModelAccordionCtrl', PolicyModelAccordionCtrl);
 
   PolicyModelAccordionCtrl.$inject = ['PolicyModelFactory', 'AccordionStatusService',
-    'ModelFactory', 'CubeService', '$modal', '$translate', '$q'];
+    'ModelFactory', 'CubeService', 'ModalService', '$translate', '$q'];
 
   function PolicyModelAccordionCtrl(PolicyModelFactory, AccordionStatusService,
-                                    ModelFactory, CubeService, $modal, $translate, $q) {
+                                    ModelFactory, CubeService, ModalService, $translate, $q) {
     var vm = this;
     var index = 0;
 
@@ -68,24 +68,20 @@
 
     function showConfirmRemoveModel(cubeNames) {
       var defer = $q.defer();
+      var templateUrl = "templates/modal/confirm-modal.tpl.html";
+      var controller = "ConfirmModalCtrl";
       var message = "";
       if (cubeNames.length > 0)
         message = $translate('_REMOVE_MODEL_MESSAGE_', {modelList: cubeNames.toString()});
-
-      var modalInstance = $modal.open({
-        animation: true,
-        templateUrl: 'templates/modal/confirm-modal.tpl.html',
-        controller: 'ConfirmModalCtrl as vm',
-        size: 'lg',
-        resolve: {
-          title: function () {
-            return "_REMOVE_MODEL_CONFIRM_TITLE_"
-          },
-          message: function () {
-            return message;
-          }
+      var resolve = {
+        title: function () {
+          return "_REMOVE_MODEL_CONFIRM_TITLE_"
+        },
+        message: function () {
+          return message;
         }
-      });
+      };
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
 
       modalInstance.result.then(function () {
         defer.resolve();

@@ -62,8 +62,7 @@ Input-kafka
 =========
 Read events from apache-kafka
 
-* Sample:
-::
+* Sample::
 
    "input":
     {
@@ -100,8 +99,8 @@ Read events from apache-kafka
 Input-KafkaDirect
 =========
 Read events from KafkaDirect
-* Sample:
-::
+
+* Sample::
 
   "input":
     {

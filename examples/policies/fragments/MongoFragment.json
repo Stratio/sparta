@@ -1,8 +1,8 @@
 {
   "fragmentType": "output",
-  "name": "Mongo",
-  "description": "Mongo input",
-  "shortDescription": "Mongo input",
+  "name": "MongoDB",
+  "description": "MongoDB output",
+  "shortDescription": "MongoDB output",
   "element": {
     "name": "out-Mongo",
     "type": "MongoDb",
