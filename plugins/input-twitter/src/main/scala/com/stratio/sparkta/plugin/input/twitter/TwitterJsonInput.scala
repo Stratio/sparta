@@ -28,7 +28,7 @@ import org.apache.spark.streaming.twitter.TwitterUtils
 import twitter4j.TwitterFactory
 import twitter4j.conf.ConfigurationBuilder
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 /**
  * Connects to Twitter's stream and generates stream events.
@@ -44,7 +44,11 @@ class TwitterJsonInput(properties: Map[String, JSerializable]) extends Input(pro
   val tf = new TwitterFactory(cb.build())
   val twitterApi = tf.getInstance()
   val trends = twitterApi.getPlaceTrends(1).getTrends.map(trend => trend.getName)
-  val terms: Try[Seq[String]] = Try(properties.getString("termsOfSearch").split(","))
+  val terms: Option[Seq[String]] = Try(properties.getString("termsOfSearch")) match {
+    case Success("") => None
+    case Success(t: String) => Some(t.split(",").toSeq)
+    case Failure(_)=> None
+  }
   val search = terms.getOrElse(trends.toSeq)
 
   override def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
