@@ -216,7 +216,8 @@ Reads events from a socket
 
 Input-twitter
 =========
-Reads events from Twitter API
+Reads events from Twitter API and returns Json status event
+- `Event format <https://dev.twitter.com/rest/reference/get/statuses/user_timeline>`__
 
 * Sample:
 ::
@@ -224,7 +225,7 @@ Reads events from Twitter API
   "input":
       {
       "name": "in-twitter",
-      "type": "Twitter",
+      "type": "TwitterJson",
          "configuration": {
            "consumerKey": "****",
            "consumerSecret": "****",

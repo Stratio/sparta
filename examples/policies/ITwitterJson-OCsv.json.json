@@ -1,0 +1,100 @@
+{
+  "name": "policy-TwitterJson-Csv",
+  "description": "policy-TwitterJson-Csv",
+  "sparkStreamingWindow": 6000,
+  "checkpointPath": "checkpoint",
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": "myTestParquetPath"
+  },
+  "input": {
+    "name": "in-twitter-json",
+    "type": "TwitterJson",
+    "configuration": {
+      "consumerKey": "*********",
+      "consumerSecret": "*********",
+      "accessToken": "*********",
+      "accessTokenSecret": "*********"
+    }
+  },
+  "transformations": [
+    {
+      "name": "morphline",
+      "order": 0,
+      "type": "Morphlines",
+      "outputFields": [
+        "text",
+        "source",
+        "hashtags",
+        "retweets"
+      ],
+      "configuration": {
+        "morphline": {
+          "id": "test1",
+          "importCommands": [
+            "org.kitesdk.**"
+          ],
+          "commands": [
+            {
+              "readJson": {}
+            },
+            {
+              "extractJsonPaths": {
+                "paths": {
+                  "text": "/text",
+                  "source": "/source",
+                  "hashtag": "/hashtagEntities/text",
+                  "retweets": "/retweetCount"
+                }
+              }
+            },
+            {
+              "removeFields": {
+                "blacklist": [
+                  "literal:_attachment_body"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "cubes": [
+    {
+      "name": "testCube",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
+      "dimensions": [
+        {
+          "field": "retweets",
+          "name": "retweets"
+        }
+      ],
+      "operators": [
+        {
+          "name": "countoperator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-csv",
+      "type": "Csv",
+      "configuration": {
+        "isAutoCalculateId": "false",
+        "path": "/tmp/",
+        "header": "false",
+        "delimiter": ","
+      }
+    }
+  ]
+}
