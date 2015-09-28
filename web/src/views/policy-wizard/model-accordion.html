@@ -17,7 +17,7 @@
             <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right" data-qa="policy-model-arrow-{{$index + 1}}"></i>
           </accordion-heading>
 
-          <ng-include data-ng-if = "vm.accordionStatus[$index]" src="'views/policies/model-panel.html'" data-ng-init = "model = currentModel" data-ng-model="currentModel" data-qa="policy-model-{{$index}}"></ng-include>
+          <ng-include data-ng-if = "vm.accordionStatus[$index]" src="'views/policy-wizard/model-panel.html'" data-ng-init = "model = currentModel" data-ng-model="currentModel" data-qa="policy-model-{{$index}}"></ng-include>
 
           <div data-ng-if = "vm.accordionStatus[$index]" class="c-form-group c-form-group--full-width c-form-group--to-right">
             <button class="c-button c-button--danger" data-ng-if = "vm.isLastModel($index)" data-ng-click="vm.removeModel($index, $event)" data-qa="policy-model-delete-button">
@@ -36,7 +36,7 @@
             <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right" data-qa="policy-model-arrow-{{(vm.policy.models.length + 1) }}"></i>
           </accordion-heading>
 
-          <ng-include data-ng-show = "vm.accordionStatus.newItem"  data-ng-model="vm.newModel" src="'views/policies/model-panel.html'" data-ng-init = "model = vm.newModel; editionMode = true" data-qa="policy-model-new">
+          <ng-include data-ng-show = "vm.accordionStatus.newItem"  data-ng-model="vm.newModel" src="'views/policy-wizard/model-panel.html'" data-ng-init = "model = vm.newModel; editionMode = true" data-qa="policy-model-new">
 
           </ng-include>
 
