@@ -19,7 +19,7 @@
     vm.removeModel = removeModel;
     vm.previousStep = previousStep;
     vm.nextStep = nextStep;
-    vm.getIndex = getIndex;
+    vm.generateIndex = generateIndex;
     vm.isLastModel = isLastModel;
 
     vm.init();
@@ -41,7 +41,6 @@
       if (ModelFactory.isValidModel()) {
         modeToAdd.order = vm.policy.models.length + 1;
         vm.policy.models.push(modeToAdd);
-        //ModelFactory.resetModel(vm.template);
         AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
       }
     }
@@ -101,7 +100,7 @@
       }
     }
 
-    function getIndex() {
+    function generateIndex() {
       return index++;
     }
 

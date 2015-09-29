@@ -5,13 +5,14 @@
     .module('webApp')
     .service('CubeService', CubeService);
 
-  CubeService.$inject = ['UtilsService'];
+  CubeService.$inject = ['UtilsService', 'ModalService'];
 
-  function CubeService(UtilsService) {
+  function CubeService(UtilsService, ModalService) {
     var vm = this;
     vm.findCubesUsingOutputs = findCubesUsingOutputs;
     vm.isValidCube = isValidCube;
     vm.areValidCubes = areValidCubes;
+    vm.showConfirmRemoveCube = showConfirmRemoveCube;
 
     function findCubesUsingOutputs(cubes, outputs) {
       var cubeNames = [];
@@ -27,8 +28,7 @@
           cubePositions.push(i);
         }
       }
-      var result = {names: cubeNames, positions: cubePositions};
-      return result;
+      return {names: cubeNames, positions: cubePositions};
     }
 
     function findDimensionUsingOutputs(cube, outputs) {
@@ -47,11 +47,9 @@
     }
 
     function isValidCube(cube, cubes, cubePosition) {
-      var isValid = cube.name !== "" && cube.checkpointConfig.timeDimension !== "" && cube.checkpointConfig.interval !== null
+      return cube.name !== "" && cube.checkpointConfig.timeDimension !== "" && cube.checkpointConfig.interval !== null
         && cube.checkpointConfig.timeAvailability !== null && cube.checkpointConfig.granularity !== ""
         && cube.dimensions.length > 0 && cube.operators.length > 0 && !nameExists(cube, cubes, cubePosition);
-
-      return isValid;
     }
 
     function nameExists(cube, cubes, cubePosition) {
@@ -76,6 +74,29 @@
         valid = false;
       }
       return valid;
+    }
+
+    function showConfirmRemoveCube() {
+      var defer = $q.defer();
+      var controller = "ConfirmModalCtrl";
+      var templateUrl = "templates/modal/confirm-modal.tpl.html";
+      var title = "_REMOVE_CUBE_CONFIRM_TITLE_";
+      var message = "";
+      var resolve = {
+        title: function () {
+          return title
+        }, message: function () {
+          return message
+        }
+      };
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
+
+      modalInstance.result.then(function () {
+        defer.resolve();
+      }, function () {
+        defer.reject();
+      });
+      return defer.promise;
     }
   }
 })();
