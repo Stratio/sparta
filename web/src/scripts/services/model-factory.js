@@ -17,7 +17,7 @@
       model.name = "";
       model.outputFields = [];
       model.type = template.types[0].name;
-      model.configuration =  JSON.stringify(template.morphlinesDefaultConfiguration, null, 4);
+      model.configuration = JSON.stringify(template.morphlinesDefaultConfiguration, null, 4);
       model.inputList = getModelInputs();
       model.inputField = model.inputList[0].value;
       error.text = "";
@@ -77,6 +77,18 @@
       return model;
     }
 
+    function setModel(m) {
+      model.name = m.name;
+      model.outputFields = m.outputFields;
+      model.type = m.type;
+      if( !(m.configuration instanceof String) ) {
+        m.configuration= JSON.stringify(m.configuration, null, 4);
+      }
+      model.configuration =JSON.stringify(m.configuration, null, 4);
+      model.inputList = m.inputList;
+      model.inputField = m.inputField;
+    }
+
     function resetModel(template) {
       init(template);
     }
@@ -88,6 +100,7 @@
     return {
       resetModel: resetModel,
       getModel: getModel,
+      setModel: setModel,
       isValidModel: isValidModel,
       getError: getError
     }
