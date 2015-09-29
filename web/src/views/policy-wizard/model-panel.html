@@ -50,10 +50,10 @@
                       data-icon-class="'icon-info1'"
                       data-text="'_CONFIGURATION_' | translate"
                       data-text-class=""
-                      data-icon-url="vm.template.getConfigHelpLink()"
+                      data-icon-url="vm.template.configHelpLink"
                       data-test="policy-model-configuration-help">
         </c-icon-label>
-
+        <p class = "c-label c-col c-col--12">{{"_CONFIGURATION_INFO_" | translate}}</p>
         <textarea data-ng-if="editionMode" class="c-textarea c-textarea--full-width" data-ng-model="vm.model.configuration" data-qa="policy-model-configuration-textarea"
               placeholder={{vm.configPlaceholder}}></textarea>
 
