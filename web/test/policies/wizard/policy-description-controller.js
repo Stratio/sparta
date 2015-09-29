@@ -3,18 +3,10 @@ describe('Policy description controller', function () {
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/policyTemplate.json'));
 
-    var ctrl, fakePolicy,fakeTemplate, fakeAllPoliciesResponse, policyModelFactoryMock = null;
+  var ctrl, fakePolicy, fakeTemplate, fakeAllPoliciesResponse, policyModelFactoryMock = null;
 
 
   // init mock modules
-
-
-  var policyStaticDataFactoryMock = jasmine.createSpyObj('PolicyStaticDataFactory', ['getSparkStreamingWindow',
-    'getCheckpointInterval', 'getCheckpointAvailability', 'getPartitionFormat', 'getStorageLevel', 'getHelpLinks']);
-
-  policyStaticDataFactoryMock.getHelpLinks.and.callFake(function () {
-    return {description: {}}
-  });
 
   var policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['getAllPolicies']);
 
@@ -28,7 +20,7 @@ describe('Policy description controller', function () {
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
 
-    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate','nextStep']);
+    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate', 'nextStep']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
       return fakePolicy;
     });
@@ -45,12 +37,15 @@ describe('Policy description controller', function () {
 
     ctrl = $controller('PolicyDescriptionCtrl', {
       'PolicyModelFactory': policyModelFactoryMock,
-      'PolicyStaticDataFactory': policyStaticDataFactoryMock,
       'PolicyFactory': policyFactoryMock
     });
   }));
 
-  it('should get a policy from policy factory', function () {
+  it('should get a policy template from from policy factory', function () {
+    expect(ctrl.template).toBe(fakeTemplate);
+  });
+
+  it('should get the policy that is being created or edited from policy factory', function () {
     expect(ctrl.policy).toBe(fakePolicy);
   });
 
@@ -62,6 +57,11 @@ describe('Policy description controller', function () {
       policyModelFactoryMock.nextStep.calls.reset();
     }));
 
+    afterEach(function () {
+      httpBackend.flush();
+      rootScope.$digest();
+    });
+
     describe("if view validations have been passed", function () {
       beforeEach(function () {
         ctrl.form = {$valid: true}; //view validations have been passed
@@ -71,8 +71,6 @@ describe('Policy description controller', function () {
         ctrl.validateForm().then(function () {
           expect(ctrl.error).toBe(true);
         });
-        httpBackend.flush();
-        rootScope.$digest();
       });
 
       it("It is valid if there is not any policy with the same name", function () {
@@ -81,8 +79,6 @@ describe('Policy description controller', function () {
         ctrl.validateForm().then(function () {
           expect(ctrl.error).toBe(false);
         });
-        httpBackend.flush();
-        rootScope.$digest();
       });
 
       it("It is valid if there is not any policy with the same name, next step is executed", function () {
@@ -91,8 +87,6 @@ describe('Policy description controller', function () {
         ctrl.validateForm().then(function () {
           expect(policyModelFactoryMock.nextStep).toHaveBeenCalled();
         });
-        httpBackend.flush();
-        rootScope.$digest();
       });
     });
 
@@ -106,9 +100,6 @@ describe('Policy description controller', function () {
           expect(ctrl.error).toBe(false);
           expect(policyModelFactoryMock.nextStep).not.toHaveBeenCalled();
         });
-
-        httpBackend.flush();
-        rootScope.$digest();
       })
     });
   });

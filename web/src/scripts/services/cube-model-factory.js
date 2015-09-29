@@ -5,9 +5,9 @@
       .module('webApp')
       .factory('CubeModelFactory', CubeModelFactory);
 
-    CubeModelFactory.$inject = ['UtilsService'];
+    CubeModelFactory.$inject = [];
 
-    function CubeModelFactory(UtilsService) {
+    function CubeModelFactory() {
       var cube = {};
       var error = {text: ""};
 
@@ -34,28 +34,17 @@
         return cube;
       }
 
-      function isValidCube(cubes) {
-        var isValid = cube.name !== "" && cube.checkpointConfig.timeDimension !== "" && cube.checkpointConfig.interval !== null
-          && cube.checkpointConfig.timeAvailability !== null && cube.checkpointConfig.granularity !== ""
-          && cube.dimensions.length > 0 && cube.operators.length > 0 && !nameExists(cubes);
-        if (!isValid) {
-          error.text = "_GENERIC_FORM_ERROR_";
-        }
-        return isValid;
-      }
-
-      function nameExists(cubes){
-        var found = UtilsService.findElementInJSONArray(cubes, cube, "name");
-        return found !== -1;
-      }
-
       function getError() {
         return error;
+      }
+
+      function setError(err) {
+        error.text = err;
       }
       return {
         resetCube: resetCube,
         getCube: getCube,
-        isValidCube: isValidCube,
+        setError: setError,
         getError: getError
       }
     }

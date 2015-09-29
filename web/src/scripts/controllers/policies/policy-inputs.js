@@ -31,19 +31,21 @@
         defer.reject();
       });
       return defer.promise;
-    };
+    }
 
     function setInput(index) {
-      vm.policy.input = vm.inputList[index];
-      vm.error = false
-    };
+      if (index >= 0 && index < vm.inputList.length) {
+        vm.policy.input = vm.inputList[index];
+        vm.error = false
+      }
+    }
 
     function isSelectedInput(name) {
       if (vm.policy.input)
         return name == vm.policy.input.name;
       else
         return false;
-    };
+    }
 
     function previousStep() {
       PolicyModelFactory.previousStep();
@@ -58,5 +60,5 @@
         vm.error = true;
       }
     }
-  };
+  }
 })();

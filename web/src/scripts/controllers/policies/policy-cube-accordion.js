@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('PolicyCubeAccordionCtrl', PolicyCubeAccordionCtrl);
 
-  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'AccordionStatusService', '$modal', '$q'];
+  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'AccordionStatusService', 'CubeService', 'ModalService', '$q'];
 
-  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService, $modal, $q) {
+  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService, CubeService, ModalService, $q) {
     var vm = this;
     var index = 0;
     var createdCubes = 0;
@@ -27,24 +27,26 @@
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
-      createdCubes =  vm.policy.cubes.length;
+      createdCubes = vm.policy.cubes.length;
       resetViewModel();
 
-      vm.newCube = CubeModelFactory.getCube(vm.template, createdCubes+1);
+      vm.newCube = CubeModelFactory.getCube(vm.template, createdCubes + 1);
       vm.helpLink = vm.template.helpLinks.cubes;
     }
 
     function resetViewModel() {
-      CubeModelFactory.resetCube(vm.template, createdCubes+1);
+      CubeModelFactory.resetCube(vm.template, createdCubes + 1);
       AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
     }
 
     function addCube() {
-      if (CubeModelFactory.isValidCube(vm.policy.cubes)) {
+      if (CubeService.isValidCube(vm.newCube, vm.policy.cubes)) {
         vm.error = "";
         vm.policy.cubes.push(angular.copy(vm.newCube));
         createdCubes++;
         resetViewModel();
+      } else {
+        CubeModelFactory.setError("_GENERIC_FORM_ERROR_");
       }
     }
 
@@ -63,21 +65,18 @@
 
     function showConfirmRemoveCube() {
       var defer = $q.defer();
-
-      var modalInstance = $modal.open({
-        animation: true,
-        templateUrl: 'templates/modal/confirm-modal.tpl.html',
-        controller: 'ConfirmModalCtrl as vm',
-        size: 'lg',
-        resolve: {
-          title: function () {
-            return "_REMOVE_CUBE_CONFIRM_TITLE_"
-          },
-          message: function () {
-            return "";
-          }
+      var controller = "ConfirmModalCtrl";
+      var templateUrl = "templates/modal/confirm-modal.tpl.html";
+      var title = "_REMOVE_CUBE_CONFIRM_TITLE_";
+      var message = "";
+      var resolve = {
+        title: function () {
+          return title
+        }, message: function () {
+          return message
         }
-      });
+      };
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
 
       modalInstance.result.then(function () {
         defer.resolve();
@@ -96,7 +95,7 @@
     }
 
     function nextStep() {
-      if (vm.policy.cubes.length > 0) {
+      if (vm.policy.cubes.length > 0 && CubeService.areValidCubes(vm.policy.cubes)) {
         PolicyModelFactory.nextStep();
       }
       else {
