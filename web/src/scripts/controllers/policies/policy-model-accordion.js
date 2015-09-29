@@ -7,10 +7,10 @@
     .controller('PolicyModelAccordionCtrl', PolicyModelAccordionCtrl);
 
   PolicyModelAccordionCtrl.$inject = ['PolicyModelFactory', 'AccordionStatusService',
-    'ModelFactory', 'CubeService', 'ModalService', '$translate', '$q'];
+    'ModelFactory', 'CubeService', 'ModalService', '$translate', '$q', '$scope'];
 
   function PolicyModelAccordionCtrl(PolicyModelFactory, AccordionStatusService,
-                                    ModelFactory, CubeService, ModalService, $translate, $q) {
+                                    ModelFactory, CubeService, ModalService, $translate, $q, $scope) {
     var vm = this;
     var index = 0;
 
@@ -28,8 +28,8 @@
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       ModelFactory.resetModel(vm.template);
-      vm.newModel = ModelFactory.getModel(vm.template);
-      vm.accordionStatus = AccordionStatusService.accordionStatus;
+      //vm.newModel = ModelFactory.getModel(vm.template);
+      vm.accordionStatus = AccordionStatusService.getAccordionStatus();
       AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
       vm.helpLink = vm.template.helpLinks.models;
       vm.error = "";
@@ -37,13 +37,13 @@
 
     function addModel() {
       vm.error = "";
-      if (ModelFactory.isValidModel()) {
-        var newModel = angular.copy(vm.newModel);
-        newModel.order = vm.policy.models.length + 1;
-        vm.policy.models.push(newModel);
-        ModelFactory.resetModel(vm.template);
+
+      var modeToAdd = angular.copy(ModelFactory.getModel());
+      if (modeToAdd) {
+        modeToAdd.order = vm.policy.models.length + 1;
+        vm.policy.models.push(modeToAdd);
+        //ModelFactory.resetModel(vm.template);
         AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
-        AccordionStatusService.accordionStatus.newItem = true;
       }
     }
 
@@ -123,5 +123,22 @@
         vm.error = "_POLICY_._MODEL_ERROR_";
       }
     }
+
+    $scope.$watchCollection(
+      "vm.accordionStatus",
+      function (newValue, oldValue) {
+        if (vm.accordionStatus) {
+          var selectedModelPosition = newValue.indexOf(true);
+
+            if (selectedModelPosition >= 0 && selectedModelPosition < vm.policy.models.length) {
+              var selectedModel = vm.policy.models[selectedModelPosition];
+              ModelFactory.setModel(selectedModel);
+            }else{
+              ModelFactory.resetModel(vm.template);
+            }
+          console.log(ModelFactory.getModel());
+        }
+      }
+    );
   }
 })();
