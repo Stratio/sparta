@@ -326,7 +326,7 @@
   "defaultTimeAvailability": 60000,
   "defaultGranularity": "minute",
   "defaultTimeDimension": "minute",
-  "defaultOperatorConfiguration": "{\"inputField\": \"field1\"}",
+  "defaultOperatorConfiguration": {"inputField": "field1"},
   "functionNames": [
     "Accumulator",
     "Avg",

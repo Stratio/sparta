@@ -55,7 +55,7 @@
       var defaultConfiguration = '{}';
       var countType = template.functionNames[2];
       if (vm.operator.type !== countType) {
-        defaultConfiguration = template.defaultOperatorConfiguration;
+        defaultConfiguration = JSON.stringify(template.defaultOperatorConfiguration, null, 4);
       }
       vm.operator.configuration = defaultConfiguration;
     }
