@@ -19,10 +19,10 @@
 
     vm.init();
 
-    function init(cube) {
-      if (cube) {
+    function init() {
+      vm.cube = CubeModelFactory.getCube();
+      if (vm.cube) {
         vm.template = PolicyModelFactory.getTemplate();
-        vm.cube = cube;
         vm.policy = PolicyModelFactory.getCurrentPolicy();
         vm.granularityOptions = vm.template.granularityOptions;
         vm.functionList = vm.template.functionNames;

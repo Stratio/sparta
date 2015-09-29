@@ -9,9 +9,13 @@
 
     function CubeModelFactory() {
       var cube = {};
+      var order = 0;
       var error = {text: ""};
 
       function init(template, position) {
+        if (position === undefined){
+          position = order;
+        };
         cube.name = template.defaultCubeName + position;
         cube.dimensions = [];
         cube.operators = [];
@@ -21,6 +25,7 @@
         cube.checkpointConfig.timeAvailability = template.defaultTimeAvailability;
         cube.checkpointConfig.granularity = template.defaultGranularity;
         error.text= "";
+        order = position;
       }
 
       function resetCube(template, position) {
