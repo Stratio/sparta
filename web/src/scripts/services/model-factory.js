@@ -81,9 +81,10 @@
       model.name = m.name;
       model.outputFields = m.outputFields;
       model.type = m.type;
-      if( !(m.configuration instanceof String)) {
-        m.configuration= JSON.stringify(m.configuration, null, 4);
+      if (!((typeof m.configuration) == "string")) {
+        m.configuration = JSON.stringify(m.configuration, null, 4);
       }
+      model.configuration = m.configuration;
       model.inputList = m.inputList;
       model.inputField = m.inputField;
       error.text = "";

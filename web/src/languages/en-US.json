@@ -131,16 +131,16 @@
     "_NEW_CUBE_": "New cube",
     "_ADD_CUBE_": "Add cube",
     "_WINDOW_": {
-     "_CONFIRM_": {
-       "_TITLE_" : "Create policy"
-     },
+      "_CONFIRM_": {
+        "_TITLE_" : "Create policy"
+      },
       "_DELETE_": {
         "_TITLE_": "Delete policy"
       },
       "_EDIT_": {
         "_TITLE_": "Edit policy"
       }
-   },
+    },
     "_CUBE_":{
       "_DIMENSION_": "Dimension",
       "_FIELD_": "Field",
