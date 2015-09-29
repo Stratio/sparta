@@ -10,14 +10,14 @@
   <form class="c-form c-panel c-panel--framed" novalidate>
     <accordion class="c-accordion" data-ng-model="vm.policy.cubes" close-others="true" data-ng-controller="PolicyCubeAccordionCtrl as vm" novalidate>
       <div class="c-accordion-item">
-        <accordion-group is-open="vm.accordionStatus.items[$index]" data-ng-repeat="currentCube in vm.policy.cubes track by vm.getIndex()" data-ng-model = "currentCube" >
+        <accordion-group is-open="vm.accordionStatus[$index]" data-ng-repeat="currentCube in vm.policy.cubes track by vm.getIndex()" data-ng-model = "currentCube" >
           <accordion-heading>
             <span class="c-accordion-header__step-number">{{$index + 1}}</span><i data-ng-if="currentCube.type" class="c-accordion-header__type c-icon icon-{{currentCube.type | lowercase}}"></i><span class="c-accordion-header__title">{{currentCube.name}}</span>
 
             <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right" data-qa="policy-cube-arrow-{{$index + 1}}"></i>
           </accordion-heading>
 
-          <ng-include class="c-form-group" src="'views/policy-wizard/cube-panel.html'" data-ng-init="cube=currentCube" data-qa="policy-cube-{{$index}}"></ng-include>
+          <ng-include class="c-form-group" src="'views/policy-wizard/cube-panel.html'" data-qa="policy-cube-{{$index}}"></ng-include>
 
           <div class="c-form-group c-form-group--full-width c-form-group--to-right">
             <button class="c-button c-button--danger" data-ng-click="vm.removeCube($index, $event)" data-qa="policy-cube-delete-button">
@@ -29,14 +29,14 @@
       </div>
 
       <div class="c-accordion-item c-accordion-item--new">
-        <accordion-group is-open="vm.accordionStatus.newItem" data-ng-model="vm.newCube">
+        <accordion-group is-open="vm.accordionStatus[vm.policy.cubes.length]">
           <accordion-heading>
             <span class="c-accordion-header__step-number">{{vm.policy.cubes.length + 1}}</span><i data-ng-if="vm.newCube.type" class="c-accordion-header__type c-icon icon-{{vm.newCube.type | lowercase}}"></i><span class="c-accordion-header__title">{{"_POLICY_._NEW_CUBE_" | translate}}</span>
 
             <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right" data-qa="policy-cube-arrow-{{(vm.policy.cubes.length + 1) }}"></i>
           </accordion-heading>
 
-          <ng-include class="c-form-group" src="'views/policy-wizard/cube-panel.html'" data-ng-init="cube=vm.newCube" data-qa="policy-cube-new"></ng-include>
+          <ng-include class="c-form-group" src="'views/policy-wizard/cube-panel.html'" data-qa="policy-cube-new"></ng-include>
 
           <div class="c-form-group c-form-group--full-width c-form-group--to-right">
             <button class="c-button c-button--call-to-action-1" data-ng-click="vm.addCube()" data-qa="policy-cube-add-button">
