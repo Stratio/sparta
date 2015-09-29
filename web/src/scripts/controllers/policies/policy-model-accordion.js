@@ -28,7 +28,6 @@
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       ModelFactory.resetModel(vm.template);
-      //vm.newModel = ModelFactory.getModel(vm.template);
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
       AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
       vm.helpLink = vm.template.helpLinks.models;
@@ -124,7 +123,7 @@
 
     $scope.$watchCollection(
       "vm.accordionStatus",
-      function (newValue, oldValue) {
+      function (newValue) {
         if (vm.accordionStatus) {
           var selectedModelPosition = newValue.indexOf(true);
 
