@@ -20,6 +20,7 @@ module.exports = function (config) {
       'src/scripts/vendors/*.js',
       'src/scripts/constants/**/*.js',
       'src/scripts/controllers/**/*.js',
+      'src/scripts/services/**/*.js',
       'src/languages/en-US.json',
       // fixtures
       'test/mock/*.json',
