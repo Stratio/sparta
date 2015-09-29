@@ -49,20 +49,23 @@
 
     function removeModel(index) {
       var defer = $q.defer();
-      //check if there are cubes whose dimensions have model outputFields as fields
-      var cubeList = CubeService.findCubesUsingOutputs(vm.policy.cubes, vm.policy.models[index].outputFields);
+      if (index !== undefined && index !== null && index >= 0 && index < vm.policy.models.length) {
+        //check if there are cubes whose dimensions have model outputFields as fields
+        var cubeList = CubeService.findCubesUsingOutputs(vm.policy.cubes, vm.policy.models[index].outputFields);
 
-      showConfirmRemoveModel(cubeList.names).then(function () {
-        removeCubes(cubeList.positions);
-        vm.policy.models.splice(index, 1);
-        vm.newModelIndex = vm.policy.models.length;
-        AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
-        ModelFactory.resetModel(vm.template);
-        defer.resolve();
-      }, function () {
-        defer.reject()
-      });
-
+        showConfirmRemoveModel(cubeList.names).then(function () {
+          removeCubes(cubeList.positions);
+          vm.policy.models.splice(index, 1);
+          vm.newModelIndex = vm.policy.models.length;
+          AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
+          ModelFactory.resetModel(vm.template);
+          defer.resolve();
+        }, function () {
+          defer.reject()
+        });
+      } else {
+        defer.reject();
+      }
       return defer.promise;
     }
 

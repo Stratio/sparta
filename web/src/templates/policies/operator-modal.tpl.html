@@ -19,7 +19,15 @@
       </div>
 
       <div class="c-form-group">
-        <textarea class="c-textarea c-textarea--full-width" data-ng-model="vm.operator.configuration" placeholder={{vm.configPlaceholder}} form="vm.form" data-qa="operator-modal-config" />
+        <c-icon-label data-wrapper-control-class="'c-label c-col c-col--12'"
+                      data-icon-class="'icon-info1'"
+                      data-text="'_CONFIGURATION_' | translate"
+                      data-text-class=""
+                      data-icon-url="vm.configHelpLink"
+                      data-test="policy-operator-configuration-help">
+        </c-icon-label>
+        <p class = "c-label c-col c-col--12">{{"_CONFIGURATION_INFO_" | translate}}</p>
+        <textarea class="c-textarea c-textarea--full-width" data-ng-model="vm.operator.configuration" placeholder={{vm.configPlaceholder}} data-qa="operator-modal-config" />
       </div>
 
       <div class="c-row c-row--separated">

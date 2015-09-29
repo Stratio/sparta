@@ -189,7 +189,7 @@
       "fields": [
         {
           "propertyId": "host",
-          "propertyName": "_HOST_",
+          "propertyName": "_ZOOKEEPER_HOST_",
           "propertyType": "text",
           "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
           "default": "localhost",
@@ -200,7 +200,7 @@
         },
         {
           "propertyId": "port",
-          "propertyName": "_PORT_",
+          "propertyName": "_ZOOKEEPER_PORT_",
           "propertyType": "text",
           "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
           "default": "2181",
