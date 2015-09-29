@@ -1,10 +1,4 @@
 {
-  "name": "fake policy",
-  "rawData": {
-    "enabled": false,
-    "partitionFormat": "day",
-    "path": ""
-  },
-  "input": {},
-  "models":[]
+  "name": "fake model",
+  "outputFields":["output1", "output2"]
 }

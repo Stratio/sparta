@@ -3,7 +3,7 @@ describe('Policy description controller', function () {
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/policyTemplate.json'));
 
-    var ctrl, fakePolicy,fakeTemplate, fakeAllPoliciesResponse, policyModelFactoryMock = null;
+  var ctrl, fakePolicy, fakeTemplate, fakeAllPoliciesResponse, policyModelFactoryMock = null;
 
 
   // init mock modules
@@ -20,7 +20,7 @@ describe('Policy description controller', function () {
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
 
-    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate','nextStep']);
+    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate', 'nextStep']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
       return fakePolicy;
     });
@@ -57,6 +57,11 @@ describe('Policy description controller', function () {
       policyModelFactoryMock.nextStep.calls.reset();
     }));
 
+    afterEach(function () {
+      httpBackend.flush();
+      rootScope.$digest();
+    });
+
     describe("if view validations have been passed", function () {
       beforeEach(function () {
         ctrl.form = {$valid: true}; //view validations have been passed
@@ -66,8 +71,6 @@ describe('Policy description controller', function () {
         ctrl.validateForm().then(function () {
           expect(ctrl.error).toBe(true);
         });
-        httpBackend.flush();
-        rootScope.$digest();
       });
 
       it("It is valid if there is not any policy with the same name", function () {
@@ -76,8 +79,6 @@ describe('Policy description controller', function () {
         ctrl.validateForm().then(function () {
           expect(ctrl.error).toBe(false);
         });
-        httpBackend.flush();
-        rootScope.$digest();
       });
 
       it("It is valid if there is not any policy with the same name, next step is executed", function () {
@@ -86,8 +87,6 @@ describe('Policy description controller', function () {
         ctrl.validateForm().then(function () {
           expect(policyModelFactoryMock.nextStep).toHaveBeenCalled();
         });
-        httpBackend.flush();
-        rootScope.$digest();
       });
     });
 
@@ -101,9 +100,6 @@ describe('Policy description controller', function () {
           expect(ctrl.error).toBe(false);
           expect(policyModelFactoryMock.nextStep).not.toHaveBeenCalled();
         });
-
-        httpBackend.flush();
-        rootScope.$digest();
       })
     });
   });
