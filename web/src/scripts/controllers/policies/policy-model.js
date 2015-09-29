@@ -15,22 +15,22 @@
 
     vm.init();
 
-    function init(model) {
-      if (model) {
-        vm.model = model;
-        vm.policy = PolicyModelFactory.getCurrentPolicy();
-        vm.template = PolicyModelFactory.getTemplate();
-        vm.modelError = ModelFactory.getError();
+    function init() {
+      vm.model = ModelFactory.getModel();
+      if (vm.model) {
+      vm.policy = PolicyModelFactory.getCurrentPolicy();
+      vm.template = PolicyModelFactory.getTemplate();
+      vm.modelError = ModelFactory.getError();
 
-        vm.modelTypes = vm.template.types;
-        vm.showModelError = false;
-        vm.configPlaceholder = vm.template.configPlaceholder;
-        vm.outputPattern = vm.template.outputPattern;
-        vm.outputInputPlaceholder = vm.template.outputInputPlaceholder;
+      vm.modelTypes = vm.template.types;
+      vm.showModelError = false;
+      vm.configPlaceholder = vm.template.configPlaceholder;
+      vm.outputPattern = vm.template.outputPattern;
+      vm.outputInputPlaceholder = vm.template.outputInputPlaceholder;
 
-        if (vm.model.configuration.length == 0) {
-          changeDefaultConfiguration();
-        }
+      //if (vm.model.configuration.length == 0) {
+      //  changeDefaultConfiguration();
+      //}
       }
     }
 
@@ -56,5 +56,8 @@
         }
       }
     }
+
+
   }
-})();
+})
+();
