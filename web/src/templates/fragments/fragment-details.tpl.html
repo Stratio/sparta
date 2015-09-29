@@ -14,7 +14,7 @@
 					<label class="c-col c-col--12 c-label c-icon-radio__label" title="{{'_TYPE_' | translate}}:" for="dataSourceType">{{"_INPUT_WINDOW_FORM_TYPE_" | translate}}</label>
 					<label data-ng-repeat="fragmentData in vm.templateFragmentsData">
 						<input class="c-icon-radio__item" id="type-{{fragmentData.modelType | lowercase}}" type="radio" name="dataSourceTypeForm" data-ng-model="vm.dataSource.element.type" value="{{fragmentData.modelType}}" data-ng-click="vm.setProperties($index, fragmentData.modelType)">
-							<label class="c-icon-radio__label" for="type-{{fragmentData.modelType | lowercase}}" data-qa="fragment-detail-type-{{fragmentData.modelType | lowercase}}"><i class="c-icon c-icon--large c-icon-radio__icon icon-{{fragmentData.modelType | lowercase}}" tooltip="{{fragmentData.name | lowercase}}" tooltip-placement="top" tooltip-class="t-tooltip"></i></label>
+						<label class="c-icon-radio__label" for="type-{{fragmentData.modelType | lowercase}}" data-qa="fragment-detail-type-{{fragmentData.modelType | lowercase}}"><i class="c-icon c-icon--large c-icon-radio__icon icon-{{fragmentData.modelType | lowercase}}" tooltip="{{fragmentData.name | lowercase}}" tooltip-placement="top" tooltip-class="t-tooltip"></i><span class="c-icon-radio__text" data-ng-if="vm.dataSource.element.type === fragmentData.modelType">{{fragmentData.modelType}}</span></label>
 					</label>
 				</div>
 			</ng-form>

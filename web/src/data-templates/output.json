@@ -76,7 +76,7 @@
     },
     {
       "propertyId": "analyzer",
-      "propertyName": "_ANALYZER_",
+      "propertyName": "_LUCENE_ANALYZER_",
       "propertyType": "text",
       "regexp": "",
       "default": "english",
@@ -267,7 +267,7 @@
       "qa": "fragment-details-mongoDb-hosts",
       "fields": [
         {
-          "propertyId": "hostName",
+          "propertyId": "host",
           "propertyName": "_HOST_",
           "propertyType": "text",
           "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
@@ -320,7 +320,7 @@
     },
     {
       "propertyId": "idAsField",
-      "propertyName": "_ID_AS_FIELD_",
+      "propertyName": "_STORE_ROW_ID_AS_INDEPENDENT_FIELD_",
       "propertyType": "boolean",
       "regexp": "true|false",
       "default": false,
