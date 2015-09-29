@@ -113,7 +113,7 @@ $component-margin: 15px;
 $component-default-margin: .5em;
 
 $c-icon-default-margin: 0 $component-default-margin 0 0;
- 
+
 $c-icon-default-margin: 0 $component-default-margin 0 0;
 
 
@@ -370,6 +370,8 @@ $c-icon-radio__icon---color: get-color(c4);
 $c-icon-radio__item---margin: $c-icon-default-margin;
 $c-icon-radio__icon---padding: .4em;
 
+$c-icon-radio__text---margin: 0 $component-default-margin 0 (-$component-default-margin / 2);
+
 
 
 // c-msg
@@ -412,7 +414,7 @@ $c-table__tr--ntd-child--even---background: get-color(g2);
 
 
 // c-checkbox
-$c-checkbox---color: get-color(g3);
+$c-checkbox---color: get-color(g4);
 $c-checkbox---font-family: 'ico_stratio';
 
 $c-checkbox--checked---color: get-color(e1);
