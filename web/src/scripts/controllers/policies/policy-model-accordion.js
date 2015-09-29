@@ -7,32 +7,107 @@
     .controller('PolicyModelAccordionCtrl', PolicyModelAccordionCtrl);
 
   PolicyModelAccordionCtrl.$inject = ['PolicyModelFactory', 'AccordionStatusService',
-    'ModelFactory', '$scope'];
+    'ModelFactory', 'CubeService', 'ModalService', '$translate', '$q', '$scope'];
 
   function PolicyModelAccordionCtrl(PolicyModelFactory, AccordionStatusService,
-                                    ModelFactory, $scope) {
+                                    ModelFactory, CubeService, ModalService, $translate, $q, $scope) {
     var vm = this;
     var index = 0;
 
     vm.init = init;
+    vm.addModel = addModel;
+    vm.removeModel = removeModel;
     vm.previousStep = previousStep;
     vm.nextStep = nextStep;
-    vm.generateIndex = generateIndex;
+    vm.getIndex = getIndex;
+    vm.isLastModel = isLastModel;
 
     vm.init();
 
     function init() {
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      //ModelFactory.resetModel(vm.template);
+      ModelFactory.resetModel(vm.template);
+      //vm.newModel = ModelFactory.getModel(vm.template);
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
-      AccordionStatusService.resetAccordionStatus(vm.policy.transformations.length);
+      AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
       vm.helpLink = vm.template.helpLinks.models;
       vm.error = "";
     }
 
-    function generateIndex() {
+    function addModel() {
+      vm.error = "";
+
+      var modeToAdd = angular.copy(ModelFactory.getModel());
+      if (modeToAdd) {
+        modeToAdd.order = vm.policy.models.length + 1;
+        vm.policy.models.push(modeToAdd);
+        //ModelFactory.resetModel(vm.template);
+        AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
+      }
+    }
+
+    function removeModel(index) {
+      var defer = $q.defer();
+      if (index !== undefined && index !== null && index >= 0 && index < vm.policy.models.length) {
+        //check if there are cubes whose dimensions have model outputFields as fields
+        var cubeList = CubeService.findCubesUsingOutputs(vm.policy.cubes, vm.policy.models[index].outputFields);
+
+        showConfirmRemoveModel(cubeList.names).then(function () {
+          removeCubes(cubeList.positions);
+          vm.policy.models.splice(index, 1);
+          vm.newModelIndex = vm.policy.models.length;
+          AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
+          ModelFactory.resetModel(vm.template);
+          defer.resolve();
+        }, function () {
+          defer.reject()
+        });
+      } else {
+        defer.reject();
+      }
+      return defer.promise;
+    }
+
+    function showConfirmRemoveModel(cubeNames) {
+      var defer = $q.defer();
+      var templateUrl = "templates/modal/confirm-modal.tpl.html";
+      var controller = "ConfirmModalCtrl";
+      var message = "";
+      if (cubeNames.length > 0)
+        message = $translate('_REMOVE_MODEL_MESSAGE_', {modelList: cubeNames.toString()});
+      var resolve = {
+        title: function () {
+          return "_REMOVE_MODEL_CONFIRM_TITLE_"
+        },
+        message: function () {
+          return message;
+        }
+      };
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
+
+      modalInstance.result.then(function () {
+        defer.resolve();
+      }, function () {
+        defer.reject();
+      });
+      return defer.promise;
+    }
+
+    function removeCubes(cubePositions) {
+      var cubePosition = null;
+      for (var i = 0; i < cubePositions.length; ++i) {
+        cubePosition = cubePositions[i];
+        vm.policy.cubes.splice(cubePosition, 1);
+      }
+    }
+
+    function getIndex() {
       return index++;
+    }
+
+    function isLastModel(index) {
+      return index == vm.policy.models.length - 1;
     }
 
     function previousStep() {
@@ -40,7 +115,7 @@
     }
 
     function nextStep() {
-      if (vm.policy.transformations.length > 0) {
+      if (vm.policy.models.length > 0) {
         vm.error = "";
         PolicyModelFactory.nextStep();
       }
@@ -51,22 +126,17 @@
 
     $scope.$watchCollection(
       "vm.accordionStatus",
-      function (newValue) {
-        if (vm.accordionStatus && newValue) {
+      function (newValue, oldValue) {
+        if (vm.accordionStatus) {
           var selectedModelPosition = newValue.indexOf(true);
-          if (vm.policy.transformations.length > 0 && selectedModelPosition >= 0 && selectedModelPosition < vm.policy.transformations.length) {
-            var selectedModel = vm.policy.transformations[selectedModelPosition];
-            ModelFactory.setModel(selectedModel, selectedModelPosition);
-          } else {
-            var modelNumber = vm.policy.transformations.length;
-            var order = 0;
 
-            if (modelNumber > 0) {
-              order = vm.policy.transformations[modelNumber - 1].order + 1
+            if (selectedModelPosition >= 0 && selectedModelPosition < vm.policy.models.length) {
+              var selectedModel = vm.policy.models[selectedModelPosition];
+              ModelFactory.setModel(selectedModel);
+            }else{
+              ModelFactory.resetModel(vm.template);
             }
-            ModelFactory.resetModel(vm.template, order, vm.policy.transformations.length);
-          }
-          ModelFactory.updateModelInputs(vm.policy.transformations);
+          console.log(ModelFactory.getModel());
         }
       }
     );
