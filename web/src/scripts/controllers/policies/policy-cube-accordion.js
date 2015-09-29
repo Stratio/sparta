@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('PolicyCubeAccordionCtrl', PolicyCubeAccordionCtrl);
 
-  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'AccordionStatusService', 'CubeService', 'ModalService', '$q'];
+  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'AccordionStatusService', 'CubeService', 'ModalService', '$q', '$scope'];
 
-  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService, CubeService, ModalService, $q) {
+  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService, CubeService, ModalService, $q, $scope) {
     var vm = this;
     var index = 0;
     var createdCubes = 0;
@@ -29,8 +29,6 @@
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
       createdCubes = vm.policy.cubes.length;
       resetViewModel();
-
-      vm.newCube = CubeModelFactory.getCube(vm.template, createdCubes + 1);
       vm.helpLink = vm.template.helpLinks.cubes;
     }
 
@@ -40,9 +38,10 @@
     }
 
     function addCube() {
-      if (CubeService.isValidCube(vm.newCube, vm.policy.cubes)) {
+      var newCube = CubeModelFactory.getModel();
+      if (CubeService.isValidCube(newCube, vm.policy.cubes)) {
         vm.error = "";
-        vm.policy.cubes.push(angular.copy(vm.newCube));
+        vm.policy.cubes.push(angular.copy(newCube));
         createdCubes++;
         resetViewModel();
       } else {
@@ -102,5 +101,21 @@
         vm.error = "_POLICY_._CUBE_ERROR_";
       }
     }
+
+    $scope.$watchCollection(
+      "vm.accordionStatus",
+      function (newValue, oldValue) {
+        if (vm.accordionStatus) {
+          var selectedCubePosition = newValue.indexOf(true);
+
+          if (selectedCubePosition >= 0 && selectedCubePosition < vm.policy.cubes.length) {
+            var selectedCube = vm.policy.cubes[selectedCubePosition];
+            CubeModelFactory.setCube(selectedCube);
+          }else{
+            CubeModelFactory.resetCube(vm.template);
+          }
+        }
+      }
+    );
   }
 })();

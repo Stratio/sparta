@@ -34,6 +34,15 @@
         return cube;
       }
 
+      function setCube(c) {
+        cube.name = c.name;
+        cube.dimensions =  c.dimensions;
+        cube.operators =   c.operators;
+        cube.checkpointConfig =  c.checkpointConfig
+        cube.checkpointConfig =    c.checkpointConfig;
+        error.text= "";
+      }
+
       function getError() {
         return error;
       }
@@ -44,6 +53,7 @@
       return {
         resetCube: resetCube,
         getCube: getCube,
+        setCube: setCube,
         setError: setError,
         getError: getError
       }

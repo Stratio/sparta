@@ -81,12 +81,12 @@
       model.name = m.name;
       model.outputFields = m.outputFields;
       model.type = m.type;
-      if( !(m.configuration instanceof String) ) {
+      if( !(m.configuration instanceof String)) {
         m.configuration= JSON.stringify(m.configuration, null, 4);
       }
-      model.configuration =JSON.stringify(m.configuration, null, 4);
       model.inputList = m.inputList;
       model.inputField = m.inputField;
+      error.text = "";
     }
 
     function resetModel(template) {
