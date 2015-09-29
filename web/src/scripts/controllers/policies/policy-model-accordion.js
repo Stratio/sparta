@@ -37,9 +37,8 @@
 
     function addModel() {
       vm.error = "";
-
       var modeToAdd = angular.copy(ModelFactory.getModel());
-      if (modeToAdd) {
+      if (ModelFactory.isValidModel()) {
         modeToAdd.order = vm.policy.models.length + 1;
         vm.policy.models.push(modeToAdd);
         //ModelFactory.resetModel(vm.template);
@@ -136,7 +135,6 @@
             }else{
               ModelFactory.resetModel(vm.template);
             }
-          console.log(ModelFactory.getModel());
         }
       }
     );

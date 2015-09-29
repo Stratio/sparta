@@ -27,10 +27,6 @@
       vm.configPlaceholder = vm.template.configPlaceholder;
       vm.outputPattern = vm.template.outputPattern;
       vm.outputInputPlaceholder = vm.template.outputInputPlaceholder;
-
-      //if (vm.model.configuration.length == 0) {
-      //  changeDefaultConfiguration();
-      //}
       }
     }
 
