@@ -31,8 +31,7 @@
     }
 
     function changeDefaultConfiguration() {
-      var configString = JSON.stringify(getDefaultConfigurations(vm.model.type), null, 4);
-      vm.model.configuration = configString;
+      vm.model.configuration =  JSON.stringify(getDefaultConfigurations(vm.model.type), null, 4);
     }
 
     function getDefaultConfigurations(type) {

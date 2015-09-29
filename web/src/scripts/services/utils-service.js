@@ -10,6 +10,7 @@
     var vm = this;
     vm.findElementInJSONArray = findElementInJSONArray;
     vm.findValueInJSONArray = findValueInJSONArray;
+    vm.removeItemsFromArray = removeItemsFromArray;
 
     function findElementInJSONArray(array, element, attr) {
       var found = false;
@@ -45,6 +46,17 @@
         }
       }
       return position;
+    }
+
+    function removeItemsFromArray(array, positions) {
+      var position = null;
+      var arrayResult = array;
+      for (var i = 0; i < positions.length; ++i) {
+        position = positions[i];
+        arrayResult.splice(positions, 1);
+      }
+
+      return arrayResult;
     }
   }
 })();
