@@ -62,6 +62,7 @@ object SparktaClusterJob extends SparktaSerializer {
         } match {
           case Success(_) => {
             policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Started))
+            log.info(s"Starting Streaming Context for policy ${policy.id.get}")
           }
           case Failure(exception) => {
             log.error(exception.getLocalizedMessage, exception)
@@ -69,6 +70,9 @@ object SparktaClusterJob extends SparktaSerializer {
           }
         }
       } match {
+        case Success(_) => {
+          log.info("Policy started")
+        }
         case Failure(exception) => {
           log.error("Creating classpath and StatusActor")
           log.error(exception.getLocalizedMessage, exception)
