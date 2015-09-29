@@ -7,10 +7,10 @@
     .controller('PolicyModelAccordionCtrl', PolicyModelAccordionCtrl);
 
   PolicyModelAccordionCtrl.$inject = ['PolicyModelFactory', 'AccordionStatusService',
-    'ModelFactory', 'CubeService', 'ModalService', '$translate', '$q', '$scope'];
+    'ModelFactory', 'CubeService', 'ModelService','UtilsService', '$q', '$scope'];
 
   function PolicyModelAccordionCtrl(PolicyModelFactory, AccordionStatusService,
-                                    ModelFactory, CubeService, ModalService, $translate, $q, $scope) {
+                                    ModelFactory, CubeService, ModelService, UtilsService, $q, $scope) {
     var vm = this;
     var index = 0;
 
@@ -50,10 +50,9 @@
         //check if there are cubes whose dimensions have model outputFields as fields
         var cubeList = CubeService.findCubesUsingOutputs(vm.policy.cubes, vm.policy.models[index].outputFields);
 
-        showConfirmRemoveModel(cubeList.names).then(function () {
-          removeCubes(cubeList.positions);
+        ModelService.showConfirmRemoveModel(cubeList.names).then(function () {
+          vm.policy.cubes = UtilsService.removeItemsFromArray(vm.policy.cubes, cubeList.positions);
           vm.policy.models.splice(index, 1);
-          vm.newModelIndex = vm.policy.models.length;
           AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
           ModelFactory.resetModel(vm.template);
           defer.resolve();
@@ -64,39 +63,6 @@
         defer.reject();
       }
       return defer.promise;
-    }
-
-    function showConfirmRemoveModel(cubeNames) {
-      var defer = $q.defer();
-      var templateUrl = "templates/modal/confirm-modal.tpl.html";
-      var controller = "ConfirmModalCtrl";
-      var message = "";
-      if (cubeNames.length > 0)
-        message = $translate('_REMOVE_MODEL_MESSAGE_', {modelList: cubeNames.toString()});
-      var resolve = {
-        title: function () {
-          return "_REMOVE_MODEL_CONFIRM_TITLE_"
-        },
-        message: function () {
-          return message;
-        }
-      };
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
-
-      modalInstance.result.then(function () {
-        defer.resolve();
-      }, function () {
-        defer.reject();
-      });
-      return defer.promise;
-    }
-
-    function removeCubes(cubePositions) {
-      var cubePosition = null;
-      for (var i = 0; i < cubePositions.length; ++i) {
-        cubePosition = cubePositions[i];
-        vm.policy.cubes.splice(cubePosition, 1);
-      }
     }
 
     function generateIndex() {
