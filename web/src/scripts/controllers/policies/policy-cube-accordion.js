@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('PolicyCubeAccordionCtrl', PolicyCubeAccordionCtrl);
 
-  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'AccordionStatusService', 'CubeService', 'ModalService', '$q', '$scope'];
+  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'AccordionStatusService', 'CubeService', '$q', '$scope'];
 
-  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService, CubeService, ModalService, $q, $scope) {
+  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService, CubeService,  $q, $scope) {
     var vm = this;
     var index = 0;
     var createdCubes = 0;
@@ -18,7 +18,7 @@
     vm.nextStep = nextStep;
     vm.addCube = addCube;
     vm.removeCube = removeCube;
-    vm.getIndex = getIndex;
+    vm.generateIndex = generateIndex;
     vm.error = "";
 
     vm.init();
@@ -38,7 +38,7 @@
     }
 
     function addCube() {
-      var newCube = CubeModelFactory.getModel();
+      var newCube = angular.copy(CubeModelFactory.getCube());
       if (CubeService.isValidCube(newCube, vm.policy.cubes)) {
         vm.error = "";
         vm.policy.cubes.push(angular.copy(newCube));
@@ -51,10 +51,9 @@
 
     function removeCube(index) {
       var defer = $q.defer();
-      showConfirmRemoveCube().then(function () {
+      CubeService.showConfirmRemoveCube().then(function () {
         vm.policy.cubes.splice(index, 1);
         AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
-        AccordionStatusService.accordionStatus.newItem = true;
         defer.resolve();
       }, function () {
         defer.reject()
@@ -62,30 +61,7 @@
       return defer.promise;
     }
 
-    function showConfirmRemoveCube() {
-      var defer = $q.defer();
-      var controller = "ConfirmModalCtrl";
-      var templateUrl = "templates/modal/confirm-modal.tpl.html";
-      var title = "_REMOVE_CUBE_CONFIRM_TITLE_";
-      var message = "";
-      var resolve = {
-        title: function () {
-          return title
-        }, message: function () {
-          return message
-        }
-      };
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
-
-      modalInstance.result.then(function () {
-        defer.resolve();
-      }, function () {
-        defer.reject();
-      });
-      return defer.promise;
-    }
-
-    function getIndex() {
+      function generateIndex() {
       return index++;
     }
 
