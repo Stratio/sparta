@@ -34,7 +34,7 @@
 								<st-menu-element class-icon="icon-cross" data-ng-click="policies.deletePolicy(policyData.policy.id, policyData.status, $index)" data-qa="policy-context-menu-{{policyData.policy.id}}-delete">
 									{{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
 								</st-menu-element>
-				                <st-menu-element class-icon="icon-edit2" data-ng-click="policies.editPolicy('dashboard.editPolicy', policyData.policy.id, policyData.status)">
+				                <st-menu-element class-icon="icon-edit2" data-ng-click="policies.editPolicy('dashboard.editPolicy', policyData.policy.id, policyData.status)" data-qa="policy-context-menu-{{policyData.policy.id}}-edit">
 				                  {{"_OUTPUT_ACTIONS_MENU_EDIT_" | translate}}
 				                </st-menu-element>
 				                <st-menu-element class-icon="icon-download" data-href="/policy/find/{{policyData.policy.id}}" data-download-file-name="{{policyData.policy.name}}.json" data-qa="policy-context-menu-{{policyData.policy.id}}-download">
