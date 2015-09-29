@@ -27,5 +27,13 @@
   ],
   "helpLinks": {
     "description": "description"
+  },
+  "sparkStreamingWindow": "sparkStreamingWindow",
+  "checkpointInterval": "checkpointInterval",
+  "checkpointAvailability": "checkpointAvailability",
+  "partitionFormat": "partitionFormat",
+  "storageLevel": "storageLevel",
+  "helpLink": {
+    "description": "helpLink"
   }
 }
