@@ -16,10 +16,12 @@
 
 package com.stratio.sparkta.serving.api.helpers
 
+import akka.pattern.ask
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import akka.routing.RoundRobinPool
+import akka.util.Timeout
 import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.service.StreamingContextService
@@ -27,15 +29,19 @@ import com.stratio.sparkta.serving.api.actor._
 import com.stratio.sparkta.serving.core._
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
 import spray.can.Http
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
+
 
 /**
  * Helper with common operations used to create a Sparkta context used to run the application.
- * @author anistal
  */
 object SparktaHelper extends SLF4JLogging {
 
   implicit var system: ActorSystem = _
-
+  implicit val timeout: Timeout = Timeout(15.seconds)
   /**
    * Initializes Sparkta's akka system running an embedded http server with the REST API.
    * @param appName with the name of the application.
@@ -73,12 +79,22 @@ object SparktaHelper extends SLF4JLogging {
       val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)
         .props(Props(new ControllerActor(streamingContextService, actors))), AkkaConstant.ControllerActor)
 
-      IO(Http) ! Http.Bind(controllerActor, interface = SparktaConfig.apiConfig.get.getString("host"),
+      val sparkta = Http.Bind(controllerActor, interface = SparktaConfig.apiConfig.get.getString("host"),
         port = SparktaConfig.apiConfig.get.getInt("port"))
-      IO(Http) ! Http.Bind(swaggerActor, interface = SparktaConfig.swaggerConfig.get.getString("host"),
+
+      val swagger = Http.Bind(swaggerActor, interface = SparktaConfig.swaggerConfig.get.getString("host"),
         port = SparktaConfig.swaggerConfig.get.getInt("port"))
 
-      log.info("> Actors System UP!")
+      (for {
+        _ <- bind(sparkta)(timeout)
+        swaggerResult <- bind(swagger)(timeout)
+      } yield swaggerResult).onComplete {
+        case Success(_) => log.info("> Actors System UP!")
+        case Failure(e) => {
+          log.error("Sparkta failed because another instance is running !!!!!")
+          System.exit(1)
+        }
+      }
     } else log.info("Config for Sparkta is not defined")
   }
 
@@ -89,4 +105,11 @@ object SparktaHelper extends SLF4JLogging {
     SparkContextFactory.destroySparkContext
     system.shutdown
   }
+
+  def bind(bind: Http.Bind)(implicit timeout: Timeout): Future[Http.Bound] =
+    (IO(Http) ? bind) flatMap {
+      case b: Http.Bound => Future.successful(b)
+      case failed: Http.CommandFailed => Future.failed(new
+          RuntimeException("Binding failed"))
+    }
 }
