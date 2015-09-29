@@ -249,5 +249,4 @@ describe('Policy model controller', function () {
     expect(ctrl.isLastModel(1)).toBeFalsy();
     expect(ctrl.isLastModel(2)).toBeTruthy();
   })
-})
-;
+});

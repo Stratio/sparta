@@ -43,7 +43,7 @@ describe('Policy input controller', function () {
     rootScope.$digest(); // update state of init promise
   }));
 
-  it('should get a policy template from from policy factory', function () {
+  it('should get a policy template from policy factory', function () {
     expect(ctrl.template).toBe(fakeTemplate);
   });
 

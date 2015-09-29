@@ -1,4 +1,5 @@
 {
   "name": "fake model",
-  "outputFields":["output1", "output2"]
+  "outputFields":["output1", "output2"],
+  "configuration":{}
 }

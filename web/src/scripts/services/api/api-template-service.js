@@ -26,7 +26,7 @@
     }
 
     function getPolicyTemplate() {
-      return $resource('/data-templates/policy.json',
+      return $resource('/data-templates/policy.json',{},
         {
           'get': {
             method: 'GET',
