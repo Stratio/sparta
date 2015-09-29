@@ -1,6 +1,6 @@
 {
-  "name": "policy-websocket",
-  "description": "Input kafka, output print",
+  "name": "Policy-WebSocket-Print",
+  "description": "Input WebSocket, output Print",
   "sparkStreamingWindow": 2000,
   "rawData": {
     "enabled": "false",
@@ -8,13 +8,17 @@
     "path": "myTestParquetPath"
   },
   "checkpointPath": "checkpoint",
-  "input": {
-    "name": "in-ws",
-    "type": "WebSocket",
-    "configuration": {
-      "url": "ws://stream.meetup.com/2/rsvps"
+  "fragments": [
+    {
+      "id": "_input_id_",
+      "name": "WebSocket",
+      "fragmentType": "input",
+      "description": "description",
+      "shortDescription": "shortDescription",
+      "icon": "icon",
+      "element": null
     }
-  },
+  ],
   "transformations": [
     {
       "name": "morphline",

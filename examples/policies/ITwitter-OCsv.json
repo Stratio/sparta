@@ -157,7 +157,7 @@
       "type": "Csv",
       "configuration": {
         "isAutoCalculateId": "false",
-        "path": "/home/jcgarcia/yeah/",
+        "path": "/myOutputPath/",
         "header": "false",
         "delimiter": ","
       }
