@@ -8,14 +8,14 @@
   <div class="c-form-group c-col c-col--5">
     <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.cube.name"
                       data-label="{{'_NAME_' | translate}}" data-help="" data-pattern=""
-                      placeholder="Ex. Name 1" data-type="text" data-qa="policy-cube-name"
+                      placeholder="Ex. Name 1" data-type="text" data-qa="policy-cube-name" data-required = "true"
       aria-invalid="">
     </form-field-input>
   </div>
 
   <div class="c-form-group c-col c-col--5">
     <form-field-input data-form="vm.form" data-st-name="time-dimension-form"
-                      data-model="vm.cube.checkpointConfig.timeDimension"
+                      data-model="vm.cube.checkpointConfig.timeDimension" data-required = "true"
                       data-label="{{'_TIME_DIMENSION_' | translate}}" data-help="" data-pattern=""
                       placeholder="Ex. Name 1" data-type="text" data-qa="policy-cube-checkpoint-time-dimension">
     </form-field-input>
@@ -24,7 +24,7 @@
   <div class="c-form-group c-col c-col--5">
     <form-field-input data-form="vm.form" data-st-name="interval-form" data-model="vm.cube.checkpointConfig.interval"
                       data-label="{{'_CHECKPOINT_INTERVAL_' | translate}}" data-help="" data-pattern=""
-                      placeholder="Ex. 1" data-type="number"
+                      placeholder="Ex. 1" data-type="number" data-required = "true"
                       data-qa="policy-cube-checkpoint-interval"></form-field-input>
   </div>
 
@@ -32,7 +32,7 @@
     <form-field-input data-form="vm.form" data-st-name="time-availability-form"
                       data-model="vm.cube.checkpointConfig.timeAvailability"
                       data-label="{{'_TIME_AVAILABILITY_' | translate}}" data-help="" data-pattern=""
-                      placeholder="Ex. 1" data-type="number"
+                      placeholder="Ex. 1" data-type="number" data-required = "true"
                       data-qa="policy-cube-checkpoint-time-availability"></form-field-input>
   </div>
 
@@ -41,7 +41,7 @@
                        data-form="vm.form" data-st-name="granularity-form"
                        data-model="vm.cube.checkpointConfig.granularity"
                        data-options="vm.granularityOptions" data-field="label"
-                       data-label="{{'_GRANULARITY_' | translate}}"
+                       data-label="{{'_GRANULARITY_' | translate}}" data-required = "true"
                        data-help="" data-qa="policy-cube-checkpoint-granularity">
     </form-field-select>
   </div>
