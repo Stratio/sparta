@@ -46,7 +46,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
 
   def standAloneStreamingContext(apConfig: AggregationPoliciesModel, files: Seq[File]): Option[StreamingContext] = {
     runStatusListener(apConfig.id.get)
-    SparktaJob.runSparktaJob(getStandAloneSparkContext(apConfig, files), apConfig)
+    SparktaJob.runSparktaJob(apConfig)
     SparkContextFactory.sparkStreamingInstance
   }
 
@@ -55,7 +55,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
                               specifictConfig: Map[String, String]): Option[StreamingContext] = {
     val exitWhenStop = true
     runStatusListener(apConfig.id.get, exitWhenStop)
-    SparktaJob.runSparktaJob(getClusterSparkContext(apConfig, files, specifictConfig), apConfig)
+    SparktaJob.runSparktaJob(apConfig)
     SparkContextFactory.sparkStreamingInstance
   }
 
