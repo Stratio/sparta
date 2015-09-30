@@ -6,7 +6,7 @@
     </div>
     <div class="c-form-group">
       <div class="c-form-control c-form-control--full-width c-icon-radio" data-ng-model="model">
-        <label class="c-label c-icon-radio__label c-col c-col--12">{{"_TYPE_" | translate}}:</label>
+        <label class="c-label--required c-icon-radio__label c-col c-col--12">{{"_TYPE_" | translate}}:</label>
       <span data-ng-repeat="modelTypes in vm.modelTypes">
         <input data-ng-change="vm.changeDefaultConfiguration()" class="c-icon-radio__item"
                id="type-{{modelTypes.name + $parent.$index| lowercase}}" type="radio"
@@ -23,7 +23,7 @@
 
     <div class="c-form-group">
       <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.model.name"
-                        data-label="{{'_NAME_' | translate}}" data-help="" data-pattern=""
+                        data-label="{{'_NAME_' | translate}}" data-help="" data-pattern="" data-required = "true"
                         placeholder="Ex. Name 1" data-type="text" data-disabled="!editionMode"
                         data-qa="policy-model-name">
       </form-field-input>
@@ -51,13 +51,14 @@
                       data-text="'_CONFIGURATION_' | translate"
                       data-text-class=""
                       data-icon-url="vm.template.configHelpLink"
-                      data-test="policy-model-configuration-help">
+                      data-test="policy-model-configuration-help"
+                      data-required = "true">
         </c-icon-label>
         <p class = "c-label c-col c-col--12">{{"_CONFIGURATION_INFO_" | translate}}</p>
-        <textarea data-ng-if="editionMode" class="c-textarea c-textarea--full-width" data-ng-model="vm.model.configuration" data-qa="policy-model-configuration-textarea"
-              placeholder={{vm.configPlaceholder}}></textarea>
+        <textarea data-ng-if="editionMode" class="c-textarea c-textarea--required c-textarea--full-width" data-ng-model="vm.model.configuration" data-qa="policy-model-configuration-textarea"
+              placeholder={{vm.configPlaceholder}} ></textarea>
 
-        <pre ng-if="!editionMode" ng-model="vm.model.configuration"
+        <pre data-ng-if="!editionMode" data-ng-model="vm.model.configuration"
              class="c-textarea--disabled c-textarea--full-width" data-qa="policy-model-config">{{vm.model.configuration | json}}</pre>
       </div>
     </div>
@@ -67,7 +68,7 @@
         <c-input-list-field form-control-class="" data-inputs="vm.model.outputFields"
                             label-control-class="'c-label c-col c-col--12'"
                             label-control-text="'_OUTPUTS_FIELDS_' | translate" readonly="'true'"
-                            data-enable-delete="editionMode" data-qa="policy-model-output-list"></c-input-list-field>
+                            data-enable-delete="editionMode" data-qa="policy-model-output-list" data-required = "true"></c-input-list-field>
 
         <c-add-element data-ng-if="editionMode" model="vm.model.outputFields"
                        icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action c-info-text__icon icon-square-plus'"
