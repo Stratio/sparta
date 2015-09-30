@@ -58,7 +58,7 @@
         <textarea data-ng-if="editionMode" class="c-textarea c-textarea--required c-textarea--full-width" data-ng-model="vm.model.configuration" data-qa="policy-model-configuration-textarea"
               placeholder={{vm.configPlaceholder}} ></textarea>
 
-        <pre ng-if="!editionMode" ng-model="vm.model.configuration"
+        <pre data-ng-if="!editionMode" data-ng-model="vm.model.configuration"
              class="c-textarea--disabled c-textarea--full-width" data-qa="policy-model-config">{{vm.model.configuration | json}}</pre>
       </div>
     </div>
