@@ -15,12 +15,9 @@
     var index = 0;
 
     vm.init = init;
-    vm.addModel = addModel;
-    vm.removeModel = removeModel;
     vm.previousStep = previousStep;
     vm.nextStep = nextStep;
     vm.generateIndex = generateIndex;
-    vm.isLastModel = isLastModel;
 
     vm.init();
 
@@ -34,44 +31,10 @@
       vm.error = "";
     }
 
-    function addModel() {
-      vm.error = "";
-      var modeToAdd = angular.copy(ModelFactory.getModel());
-      if (ModelFactory.isValidModel()) {
-        modeToAdd.order = vm.policy.models.length + 1;
-        vm.policy.models.push(modeToAdd);
-        AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
-      }
-    }
-
-    function removeModel(index) {
-      var defer = $q.defer();
-      if (index !== undefined && index !== null && index >= 0 && index < vm.policy.models.length) {
-        //check if there are cubes whose dimensions have model outputFields as fields
-        var cubeList = CubeService.findCubesUsingOutputs(vm.policy.cubes, vm.policy.models[index].outputFields);
-
-        ModelService.showConfirmRemoveModel(cubeList.names).then(function () {
-          vm.policy.cubes = UtilsService.removeItemsFromArray(vm.policy.cubes, cubeList.positions);
-          vm.policy.models.splice(index, 1);
-          AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
-          ModelFactory.resetModel(vm.template);
-          defer.resolve();
-        }, function () {
-          defer.reject()
-        });
-      } else {
-        defer.reject();
-      }
-      return defer.promise;
-    }
-
     function generateIndex() {
       return index++;
     }
 
-    function isLastModel(index) {
-      return index == vm.policy.models.length - 1;
-    }
 
     function previousStep() {
       PolicyModelFactory.previousStep();

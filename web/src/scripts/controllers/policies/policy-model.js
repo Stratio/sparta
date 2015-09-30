@@ -6,32 +6,38 @@
     .module('webApp')
     .controller('PolicyModelCtrl', PolicyModelCtrl);
 
-  PolicyModelCtrl.$inject = ['ModelFactory', 'PolicyModelFactory'];
+  PolicyModelCtrl.$inject = ['ModelFactory', 'PolicyModelFactory', 'ModelService'];
 
-  function PolicyModelCtrl(ModelFactory, PolicyModelFactory) {
+  function PolicyModelCtrl(ModelFactory, PolicyModelFactory, ModelService) {
     var vm = this;
+
     vm.init = init;
     vm.changeDefaultConfiguration = changeDefaultConfiguration;
+    vm.addModel = addModel;
+    vm.removeModel = ModelService.removeModel;
+    vm.isLastModel = ModelService.isLastModel;
+    vm.isNewModel = ModelService.isNewModel;
 
     vm.init();
 
     function init() {
+      vm.error = false;
       vm.model = ModelFactory.getModel();
       if (vm.model) {
-      vm.policy = PolicyModelFactory.getCurrentPolicy();
-      vm.template = PolicyModelFactory.getTemplate();
-      vm.modelError = ModelFactory.getError();
+        vm.policy = PolicyModelFactory.getCurrentPolicy();
+        vm.template = PolicyModelFactory.getTemplate();
+        vm.modelError = ModelFactory.getError();
 
-      vm.modelTypes = vm.template.types;
-      vm.showModelError = false;
-      vm.configPlaceholder = vm.template.configPlaceholder;
-      vm.outputPattern = vm.template.outputPattern;
-      vm.outputInputPlaceholder = vm.template.outputInputPlaceholder;
+        vm.modelTypes = vm.template.types;
+        vm.showModelError = false;
+        vm.configPlaceholder = vm.template.configPlaceholder;
+        vm.outputPattern = vm.template.outputPattern;
+        vm.outputInputPlaceholder = vm.template.outputInputPlaceholder;
       }
     }
 
     function changeDefaultConfiguration() {
-      vm.model.configuration =  JSON.stringify(getDefaultConfigurations(vm.model.type), null, 4);
+      vm.model.configuration = getDefaultConfigurations(vm.model.type);
     }
 
     function getDefaultConfigurations(type) {
@@ -49,6 +55,17 @@
         {
           return vm.template.typeDefaultConfiguration;
         }
+      }
+    }
+
+
+    function addModel() {
+      vm.error = false;
+      console.log(vm.form.$valid)
+      if (vm.form.$valid) {
+        ModelService.addModel();
+      } else {
+        vm.error = true;
       }
     }
 
