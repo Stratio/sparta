@@ -1,8 +1,13 @@
 <section data-ng-controller="PolicyModelCtrl as vm" data-ng-init="vm.init()" data-ng-model="vm.model">
-  <form novalidate>
-    <div data-ng-show="vm.modelError.text!= ''" class="c-row c-msg c-msg--small c-msg--error" data-qa="policy-modal-error-msg-accordion">
+     <ng-form name="vm.form" novalidate>
+    <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error" data-qa="policy-model-error-msg">
       <i class="c-icon icon-circle-cross"></i>
       <span  data-ng-model = "vm.modelError" >{{vm.modelError.text | translate}}</span>
+    </div>
+    <div data-ng-show="vm.modelError.text!= ''" class="c-row c-msg c-msg--small c-msg--error"
+         data-qa="policy-modal-error-msg-accordion">
+      <i class="c-icon icon-circle-cross"></i>
+      <span data-ng-model="vm.modelError">{{vm.modelError.text | translate}}</span>
     </div>
     <div class="c-form-group">
       <div class="c-form-control c-form-control--full-width c-icon-radio" data-ng-model="model">
@@ -11,7 +16,8 @@
         <input data-ng-change="vm.changeDefaultConfiguration()" class="c-icon-radio__item"
                id="type-{{modelTypes.name + $parent.$index| lowercase}}" type="radio"
                data-ng-model="vm.model.type" value="{{modelTypes.name}}" data-ng-disabled="!editionMode">
-        <label data-ng-model="vm.model.type" class="c-icon-radio__label" data-qa="policy-model-type-{{modelTypes.name | lowercase}}"
+        <label data-ng-model="vm.model.type" class="c-icon-radio__label"
+               data-qa="policy-model-type-{{modelTypes.name | lowercase}}"
                for="type-{{modelTypes.name + $parent.$index| lowercase}}">
           <i class="c-icon c-icon--large c-icon-radio__icon icon-{{modelTypes.iconName | lowercase}}"
              tooltip="{{modelTypes.name | lowercase}}" tooltip-placement="top" tooltip-class="t-tooltip">
@@ -30,7 +36,8 @@
     </div>
 
     <div class="c-form-group">
-      <form-field-select data-ng-if="editionMode" data-ng-model="vm.model.inputList" data-form="vm.form" data-st-name="input-form"
+      <form-field-select data-ng-if="editionMode" data-ng-model="vm.model.inputList" data-form="vm.form"
+                         data-st-name="input-form"
                          data-model="vm.model.inputField"
                          data-options="vm.model.inputList"
                          data-field="label" data-label="{{'_INPUT_FIELD_' | translate}}" data-help=""
@@ -78,5 +85,18 @@
         </c-add-element>
       </div>
     </div>
-  </form>
+    <div class="c-form-group c-form-group--to-right">
+      <button data-ng-if="vm.isNewModel(index)" class="c-button c-button--call-to-action-1"
+              data-ng-click="vm.addModel()" data-qa="policy-model-add-button">
+        <i class="icon icon-circle-plus"></i>
+        <span>{{"_POLICY_._ADD_MODEL_" | translate}}</span>
+      </button>
+
+      <button class="c-button c-button--danger" data-ng-if="vm.isLastModel($index)"
+              data-ng-click="vm.removeModel(index, $event)" data-qa="policy-model-delete-button">
+        <i class="c-icon icon-cross"></i>
+        <span>{{"_DELETE_" | translate}}</span>
+      </button>
+    </div>
+  </ng-form>
 </section>

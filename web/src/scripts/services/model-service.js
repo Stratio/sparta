@@ -5,11 +5,16 @@
     .module('webApp')
     .service('ModelService', ModelService);
 
-  ModelService.$inject = ['ModalService', '$translate'];
+  ModelService.$inject = ['ModalService', 'PolicyModelFactory', '$translate', 'ModelFactory', 'CubeService', 'AccordionStatusService', 'UtilsService'];
 
-  function ModelService(ModalService, $translate) {
+  function ModelService(ModalService, PolicyModelFactory, $translate, ModelFactory, CubeService, AccordionStatusService, UtilsService) {
     var vm = this;
     vm.showConfirmRemoveModel = showConfirmRemoveModel;
+    vm.policy = PolicyModelFactory.getCurrentPolicy();
+    vm.addModel = addModel;
+    vm.removeModel = removeModel;
+    vm.isLastModel = isLastModel;
+    vm.isNewModel = isNewModel;
 
     function showConfirmRemoveModel(cubeNames) {
       var defer = $q.defer();
@@ -34,6 +39,46 @@
         defer.reject();
       });
       return defer.promise;
+    }
+
+    function addModel() {
+      vm.error = "";
+      var modelToAdd = angular.copy(ModelFactory.getModel());
+      console.log(modelToAdd);
+      if (ModelFactory.isValidModel()) {
+        modelToAdd.order = vm.policy.models.length + 1;
+        vm.policy.models.push(modelToAdd);
+        AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
+      }
+    }
+
+    function removeModel(index) {
+      var defer = $q.defer();
+      if (index !== undefined && index !== null && index >= 0 && index < vm.policy.models.length) {
+        //check if there are cubes whose dimensions have model outputFields as fields
+        var cubeList = CubeService.findCubesUsingOutputs(vm.policy.cubes, vm.policy.models[index].outputFields);
+
+        showConfirmRemoveModel(cubeList.names).then(function () {
+          vm.policy.cubes = UtilsService.removeItemsFromArray(vm.policy.cubes, cubeList.positions);
+          vm.policy.models.splice(index, 1);
+          AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
+          ModelFactory.resetModel(vm.template);
+          defer.resolve();
+        }, function () {
+          defer.reject()
+        });
+      } else {
+        defer.reject();
+      }
+      return defer.promise;
+    }
+
+    function isLastModel(index) {
+      return index == vm.policy.models.length - 1;
+    }
+
+    function isNewModel(index) {
+      return index == vm.policy.models.length;
     }
 
   }
