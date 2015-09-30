@@ -1,10 +1,8 @@
-<section data-ng-controller="PolicyModelCtrl as vm" data-ng-init="vm.init()" data-ng-model="vm.model">
-  <ng-form name="vm.form" novalidate data-ng-model="vm.model">
-
-    <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.modelError.text !==''"
-         data-qa="policy-model-error-msg">
+<section data-ng-controller="PolicyModelCtrl as vm" data-ng-init="vm.init(model)" data-ng-model="vm.model">
+  <form novalidate>
+    <div data-ng-show="vm.modelError.text!= ''" class="c-row c-msg c-msg--small c-msg--error" data-qa="policy-modal-error-msg-accordion">
       <i class="c-icon icon-circle-cross"></i>
-      <span>{{vm.modelError.text | translate}}</span>
+      <span  data-ng-model = "vm.modelError" >{{vm.modelError.text | translate}}</span>
     </div>
     <div class="c-form-group">
       <div class="c-form-control c-form-control--full-width c-icon-radio" data-ng-model="model">
@@ -13,8 +11,7 @@
         <input data-ng-change="vm.changeDefaultConfiguration()" class="c-icon-radio__item"
                id="type-{{modelTypes.name + $parent.$index| lowercase}}" type="radio"
                data-ng-model="vm.model.type" value="{{modelTypes.name}}" data-ng-disabled="!editionMode">
-        <label data-ng-model="vm.model.type" class="c-icon-radio__label"
-               data-qa="policy-model-type-{{modelTypes.name | lowercase}}"
+        <label data-ng-model="vm.model.type" class="c-icon-radio__label" data-qa="policy-model-type-{{modelTypes.name | lowercase}}"
                for="type-{{modelTypes.name + $parent.$index| lowercase}}">
           <i class="c-icon c-icon--large c-icon-radio__icon icon-{{modelTypes.iconName | lowercase}}"
              tooltip="{{modelTypes.name | lowercase}}" tooltip-placement="top" tooltip-class="t-tooltip">
@@ -26,17 +23,16 @@
 
     <div class="c-form-group">
       <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.model.name"
-                        data-label="{{'_NAME_' | translate}}" data-help="" data-pattern="" data-required="true"
+                        data-label="{{'_NAME_' | translate}}" data-help="" data-pattern="" data-required = "true"
                         placeholder="Ex. Name 1" data-type="text" data-disabled="!editionMode"
                         data-qa="policy-model-name">
       </form-field-input>
     </div>
 
     <div class="c-form-group">
-      <form-field-select data-ng-if="editionMode" data-form="vm.form"
-                         data-st-name="input-form"
+      <form-field-select data-ng-if="editionMode" data-ng-model="vm.model.inputList" data-form="vm.form" data-st-name="input-form"
                          data-model="vm.model.inputField"
-                         data-options="vm.modelInputs"
+                         data-options="vm.model.inputList"
                          data-field="label" data-label="{{'_INPUT_FIELD_' | translate}}" data-help=""
                          data-disabled="false"
                          data-required="true" data-qa="policy-description-raw-data-partition-format">
@@ -56,27 +52,23 @@
                       data-text-class=""
                       data-icon-url="vm.template.configHelpLink"
                       data-test="policy-model-configuration-help"
-                      data-required="true">
+                      data-required = "true">
         </c-icon-label>
-        <p class="c-label c-col c-col--12">{{"_CONFIGURATION_INFO_" | translate}}</p>
-        <textarea json-text name="model-configuration" data-form="vm.form" data-ng-disabled="!editionMode"
-                  class="c-textarea c-textarea--required c-textarea--full-width"
-                  data-ng-model="vm.model.configuration"
-                  ng-class="{'c-textarea--error': vm.form['model-configuration'].$error.invalidJson}"
-                  data-qa="policy-model-configuration-textarea"
-                  placeholder={{vm.configPlaceholder}}>
-        </textarea>
+        <p class = "c-label c-col c-col--12">{{"_CONFIGURATION_INFO_" | translate}}</p>
+        <textarea data-ng-if="editionMode" class="c-textarea c-textarea--required c-textarea--full-width" data-ng-model="vm.model.configuration" data-qa="policy-model-configuration-textarea"
+              placeholder={{vm.configPlaceholder}} ></textarea>
+
+        <pre ng-if="!editionMode" ng-model="vm.model.configuration"
+             class="c-textarea--disabled c-textarea--full-width" data-qa="policy-model-config">{{vm.model.configuration | json}}</pre>
       </div>
     </div>
 
     <div class="c-fom-group">
       <div class="c-form-control c-form-control--full-width">
-        <c-input-list-field name="model-outputs" form-control-class="" data-inputs="vm.model.outputFields"
+        <c-input-list-field form-control-class="" data-inputs="vm.model.outputFields"
                             label-control-class="'c-label c-col c-col--12'"
                             label-control-text="'_OUTPUTS_FIELDS_' | translate" readonly="'true'"
-                            data-enable-delete="editionMode" data-qa="policy-model-output-list"
-                            data-required="true" data-min-length="1" data-form="vm.form">
-        </c-input-list-field>
+                            data-enable-delete="editionMode" data-qa="policy-model-output-list" data-required = "true"></c-input-list-field>
 
         <c-add-element data-ng-if="editionMode" model="vm.model.outputFields"
                        icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action c-info-text__icon icon-square-plus'"
@@ -86,18 +78,5 @@
         </c-add-element>
       </div>
     </div>
-    <div class="c-form-group c-form-group--to-right">
-      <button data-ng-if="vm.isNewModel(vm.modelContext.position)" class="c-button c-button--call-to-action-1"
-              data-ng-click="vm.addModel()" data-qa="policy-model-add-button">
-        <i class="icon icon-circle-plus"></i>
-        <span>{{"_POLICY_._ADD_MODEL_" | translate}}</span>
-      </button>
-      <button class="c-button c-button--danger" data-ng-if="vm.isLastModel( vm.modelContext.position)"
-              type="submit" data-ng-click="vm.removeModel($event)"
-              data-qa="policy-model-delete-button">
-        <i class="c-icon icon-cross"></i>
-        <span>{{"_DELETE_" | translate}}</span>
-      </button>
-    </div>
-  </ng-form>
+  </form>
 </section>
