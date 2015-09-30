@@ -86,7 +86,10 @@ object SparktaHelper extends SLF4JLogging {
    * Destroys Spark's context.
    */
   def shutdown: Unit = {
-    SparkContextFactory.destroySparkContext
-    system.shutdown
+    synchronized {
+      SparkContextFactory.destroySparkContext
+      CuratorFactoryHolder.resetInstance()
+      system.shutdown
+    }
   }
 }
