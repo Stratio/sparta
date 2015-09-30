@@ -1,44 +1,49 @@
-# CHANGELOG
+# Changelog
 
-## v0.6 (upcoming)
+## 0.6.2 (September 2015)
 
+- Bugfix: DateTime now parses string formats
+- Bugfix: Permission issues running Sparkta service
+- Bugfix: Minor errors in user interface
 
-## v0.5 (July 2015)
+## 0.6.1 (September 2015)
 
-**Sdk**
+- Hotfix: User interface was not showing up
+
+## 0.6.0 (September 2015)
+
+- Upgrade Spark version to 1.4.1
+- User Interface to help create your cubes
+- Automatic deployment in Mesos cluster
+- Policy status lifecycle
+- New WebSocket input
+- Elasticsearch output updated to version 1.7
+- New EntityCount and TotalEntityCount operators
+- Filters in operators
+
+## 0.5.0 (July 2015)
+
 - Added compatibility with Apache Spark 1.4.x
 - Released a specific distribution for Apache Spark 1.3.x
-
-**Serving-Api**
 - Support for fragment composition in policies.
 - Policy refactor. Improved semantic of the JSON.
-
-**Plugins**
 - Parquet and CSV outputs.
 - Improved Twitter input. Possibility to filter tweets by hashtag.
 - Fixed important bug in Elasticsearch output. Fields are mapped according to their type.
 
-## v0.4 (May 2015)
+## 0.4.0 (May 2015)
 
-**Parent**
 - SandBox Stratio Sparkta
-
-**Sdk**
 - Integration with **Spark 1.3.1**
 - Auto create time series in outputs if not exist time dimension
 - Full integration in Outputs with **Spark DataFrames**
 - Auto create "Id" in DataFrames with dimensions
-
-**Driver**
 - Save Raw data in **Parquet** files
 - Auto detection schema with policies
 - Reflexions for native plugins
-- **Swagger API**:
-   - Interactive documentation
-   - Client SDK generation and discoverability
-   - Compatibility with multiple oputputs
-
-**Plugins**
+    - Interactive documentation
+    - Client SDK generation and discoverability
+    - Compatibility with multiple oputputs
 - Output **Cassandra**:
    - Auto tables creation
    - Auto primary key and column families detection

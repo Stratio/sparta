@@ -3,8 +3,8 @@
   "name": "Cassandra",
   "modelType": "Cassandra",
   "description": {
-    "short": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-    "long": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "short": "The Cassandra output uses the generic implementation with DataFrames.",
+    "long": "The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. Linear scalability and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#cassandra-label"
   },
   "properties": [
@@ -15,7 +15,8 @@
       "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
       "default": "localhost",
       "required": true,
-      "tooltip": ""
+      "tooltip": "",
+      "qa": "fragment-details-cassandra-connectionHost"
     },
     {
       "propertyId": "connectionPort",
@@ -25,7 +26,8 @@
       "default": "9042",
       "required": true,
       "tooltip": "Cassandra port",
-      "hidden": false
+      "hidden": false,
+      "qa": "fragment-details-cassandra-connectionPort"
     },
     {
       "propertyId": "keyspace",
@@ -34,7 +36,8 @@
       "regexp": "",
       "default": "Sparkta",
       "required": true,
-      "tooltip": "Keyspace name."
+      "tooltip": "Keyspace name.",
+      "qa": "fragment-details-cassandra-keyspace"
     },
     {
       "propertyId": "keyspaceClass",
@@ -48,7 +51,8 @@
       ],
       "default": "simpleStrategy",
       "required": true,
-      "tooltip": "KeySpace class."
+      "tooltip": "KeySpace class.",
+      "qa": "fragment-details-cassandra-keyspaceClass"
     },
     {
       "propertyId": "replication_factor",
@@ -57,7 +61,8 @@
       "regexp": "\\d*",
       "default": "1",
       "required": true,
-      "tooltip": "Specifies the number of replicas of data on multiple nodes."
+      "tooltip": "Specifies the number of replicas of data on multiple nodes.",
+      "qa": "fragment-details-cassandra-replication-factor"
     },
     {
       "propertyId": "compactStorage",
@@ -66,16 +71,18 @@
       "regexp": "true|false",
       "default": false,
       "required": false,
-      "tooltip": "The compact storage directive is used for backward compatibility of CQL 2 applications and data in the legacy (Thrift) storage engine format. To take advantage of CQL 3 capabilities, do not use this directive in new applications. When you create a table using compound primary keys, for every piece of data stored, he column name needs to be stored along with it. Instead of each non-primary key column being stored such that each column corresponds to one column on disk, an entire row is stored in a single column on disk, hence the name compact storage."
+      "tooltip": "The compact storage directive is used for backward compatibility of CQL 2 applications and data in the legacy (Thrift) storage engine format. To take advantage of CQL 3 capabilities, do not use this directive in new applications. When you create a table using compound primary keys, for every piece of data stored, he column name needs to be stored along with it. Instead of each non-primary key column being stored such that each column corresponds to one column on disk, an entire row is stored in a single column on disk, hence the name compact storage.",
+      "qa": "fragment-details-cassandra-compactStorage"
     },
     {
       "propertyId": "analyzer",
-      "propertyName": "_ANALYZER_",
+      "propertyName": "_LUCENE_ANALYZER_",
       "propertyType": "text",
       "regexp": "",
       "default": "english",
       "required": false,
-      "tooltip": "The analyzer for text index fields, this feature is for the Stratio’s Cassandra Lucene Index"
+      "tooltip": "The analyzer for text index fields, this feature is for the Stratio’s Cassandra Lucene Index",
+      "qa": "fragment-details-cassandra-analyzer"
     },
     {
       "propertyId": "refreshSeconds",
@@ -84,7 +91,8 @@
       "regexp": "\\d*",
       "default": "1",
       "required": false,
-      "tooltip": "The number of seconds between refresh lucene index operations, this feature is for the Stratio’s Cassandra Lucene Index"
+      "tooltip": "The number of seconds between refresh lucene index operations, this feature is for the Stratio’s Cassandra Lucene Index",
+      "qa": "fragment-details-cassandra-refreshSeconds"
     },
     {
       "propertyId": "dateFormat",
@@ -136,7 +144,8 @@
       ],
       "default": "yyyy-mm-dd HH:mm",
       "required": false,
-      "tooltip": "The date format for the date fields indexed, this feature is for the Stratio’s Cassandra Lucene Index"
+      "tooltip": "The date format for the date fields indexed, this feature is for the Stratio’s Cassandra Lucene Index",
+      "qa": "fragment-details-cassandra-dateFormat"
     }
   ]
 },
@@ -144,9 +153,9 @@
   "name": "CSV",
   "modelType": "Csv",
   "description": {
-    "short": "",
-    "long": "",
-    "learnMore": "http://docs.stratio.com"
+    "short": "Persist your data in HDFS with CSV format.",
+    "long": "Persist your data in HDFS with CSV format.",
+    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#csv-label"
   },
   "properties": [
     {
@@ -155,7 +164,8 @@
       "propertyType": "text",
       "regexp": "^[a-zA-Z0-9:_\\.\\-\\+/\\\\]{2,}\\.csv$",
       "default": "path_to_csv.csv",
-      "required": true
+      "required": true,
+      "qa": "fragment-details-csv-path"
     },
     {
       "propertyId": "header",
@@ -163,7 +173,8 @@
       "propertyType": "boolean",
       "regexp": "true|false",
       "default": false,
-      "required": false
+      "required": false,
+      "qa": "fragment-details-csv-header"
     },
     {
       "propertyId": "delimiter",
@@ -171,7 +182,8 @@
       "propertyType": "text",
       "regexp": "",
       "default": ",",
-      "required": false
+      "required": false,
+      "qa": "fragment-details-csv-delimiter"
     }
   ]
 },
@@ -179,8 +191,8 @@
   "name": "Elasticsearch",
   "modelType": "ElasticSearch",
   "description": {
-    "short": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-    "long": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "short": "The Elasticsearch output uses the generic implementation with DataFrames.",
+    "long": "Elasticsearch is a search server based on Lucene. It provides a distributed, multitenant-capable full-text search engine with a RESTful web interface and schema-free JSON documents.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#elasticsearch-label"
   },
   "properties": [
@@ -193,6 +205,7 @@
       "hidden": false,
       "limit": 0,
       "tooltip": "",
+      "qa": "fragment-details-elasticSearch-nodes",
       "fields":
       [
         {
@@ -201,7 +214,8 @@
           "propertyType": "text",
           "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
           "default": "localhost",
-          "required": true
+          "required": true,
+          "qa": "fragment-details-elasticSearch-node"
         },
         {
           "propertyId": "defaultPort",
@@ -209,7 +223,8 @@
           "propertyType": "text",
           "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
           "default": "9300",
-          "required": true
+          "required": true,
+          "qa": "fragment-details-elasticSearch-defaultPort"
         }
       ]
     },
@@ -219,7 +234,8 @@
       "propertyType": "text",
       "regexp": "",
       "default": "",
-      "required": false
+      "required": false,
+      "qa": "fragment-details-elasticSearch-idField"
     },
     {
       "propertyId": "indexMapping",
@@ -227,7 +243,8 @@
       "propertyType": "text",
       "regexp": "",
       "default": "sparkta",
-      "required": false
+      "required": false,
+      "qa": "fragment-details-elasticSearch-indexMapping"
     }
   ]
 },
@@ -247,15 +264,17 @@
       "default": "",
       "required": true,
       "tooltip": "This parameter connection routes specified the nodes of a cluster of MongoDB, with different replica set or with sharding.",
+      "qa": "fragment-details-mongoDb-hosts",
       "fields": [
         {
-          "propertyId": "hostName",
+          "propertyId": "host",
           "propertyName": "_HOST_",
           "propertyType": "text",
           "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
           "default": "localhost",
           "hidden": false,
-          "required": true
+          "required": true,
+          "qa": "fragment-details-mongoDb-hostName"
         },
         {
           "propertyId": "port",
@@ -264,7 +283,8 @@
           "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
           "default": "27017",
           "hidden": false,
-          "required": true
+          "required": true,
+          "qa": "fragment-details-mongoDb-port"
         }
       ]
     },
@@ -275,7 +295,8 @@
       "regexp": "",
       "default": "sparkta",
       "required": true,
-      "tooltip": "Name of the database."
+      "tooltip": "Name of the database.",
+      "qa": "fragment-details-mongoDb-dbName"
     },
     {
       "propertyId": "connectionsPerHost",
@@ -284,7 +305,8 @@
       "regexp": "\\d*",
       "default": "5",
       "required": false,
-      "tooltip": "Number of connections per host"
+      "tooltip": "Number of connections per host",
+      "qa": "fragment-details-mongoDb-connectionsPerHost"
     },
     {
       "propertyId": "threadsAllowedToBlock",
@@ -293,25 +315,91 @@
       "regexp": "\\d*",
       "default": "10",
       "required": false,
-      "tooltip": "This multiplier, multiplied with the connectionsPerHost setting, gives the maximum number of threads that may be waiting for a connection to become available from the pool."
+      "tooltip": "This multiplier, multiplied with the connectionsPerHost setting, gives the maximum number of threads that may be waiting for a connection to become available from the pool.",
+      "qa": "fragment-details-mongoDb-threadsAllowedToBlock"
     },
     {
       "propertyId": "idAsField",
-      "propertyName": "_ID_AS_FIELD_",
+      "propertyName": "_STORE_ROW_ID_AS_INDEPENDENT_FIELD_",
       "propertyType": "boolean",
       "regexp": "true|false",
       "default": false,
       "required": false,
-      "tooltip": "Is possible to save all fields that compound the unique key as a independent field."
+      "tooltip": "Is possible to save all fields that compound the unique key as a independent field.",
+      "qa": "fragment-details-mongoDb-idAsField"
     },
     {
       "propertyId": "language",
       "propertyName": "_LANGUAGE_",
-      "propertyType": "text",
+      "propertyType": "select",
       "regexp": "",
+      "values":
+      [
+        {
+          "label":"danish",
+          "value":"danish"
+        },
+        {
+          "label":"dutch",
+          "value":"dutch"
+        },
+        {
+          "label":"english",
+          "value":"english"
+        },
+        {
+          "label":"finnish",
+          "value":"finnish"
+        },
+        {
+          "label":"french",
+          "value":"french"
+        },
+        {
+          "label":"german",
+          "value":"german"
+        },
+        {
+          "label":"hungarian",
+          "value":"hungarian"
+        },
+        {
+          "label":"italian",
+          "value":"italian"
+        },
+        {
+          "label":"norwegian",
+          "value":"norwegian"
+        },
+        {
+          "label":"portuguese",
+          "value":"portuguese"
+        },
+        {
+          "label":"romanian",
+          "value":"romanian"
+        },
+        {
+          "label":"russian",
+          "value":"russian"
+        },
+        {
+          "label":"spanish",
+          "value":"spanish"
+        },
+        {
+          "label":"swedish",
+          "value":"swedish"
+        },
+        {
+          "label":"turkish",
+          "value":"turkish"
+        }
+      ],
       "default": "",
       "required": false,
-      "tooltip": "Specify the language of the tokenizer in the full-text index in MongoDB, each document inserted must have this key-value."
+      "tooltip": "Specify the language of the tokenizer in the full-text index in MongoDB, each document inserted must have this key-value.",
+      "qa": "fragment-details-mongoDb-language"
     },
     {
       "propertyId": "retrySleep",
@@ -320,7 +408,8 @@
       "regexp": "\\d*",
       "default": "1000",
       "required": false,
-      "tooltip": "The number of milliseconds to wait for reconnect with MongoDb nodes when the last client fails. It is recommendable to set less time to the slide interval of the streaming window."
+      "tooltip": "The number of milliseconds to wait for reconnect with MongoDb nodes when the last client fails. It is recommendable to set less time to the slide interval of the streaming window.",
+      "qa": "fragment-details-mongoDb-retrySleep"
     }
   ]
 },
@@ -328,8 +417,8 @@
   "name": "Parquet",
   "modelType": "Parquet",
   "description": {
-    "short": "Parquet's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-    "long": "Parquet's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "short": "Parquet output uses the generic implementation with DataFrames.",
+    "long": "Apache Parquet is a columnar storage format available to any project in the Hadoop ecosystem, regardless of the choice of data processing framework, data model or programming language.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#parquet-label"
   },
   "properties": [
@@ -340,7 +429,8 @@
       "regexp": "",
       "default": "",
       "required": true,
-      "tooltip": ""
+      "tooltip": "",
+      "qa": "fragment-details-parquet-path"
     }
   ]
 },
@@ -348,8 +438,8 @@
   "name": "Print",
   "modelType": "Print",
   "description": {
-    "short": "Print's output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
-    "long": "Print's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "short": "Print output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
+    "long": "Print output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#print-label"
   },
   "properties": [
@@ -359,8 +449,8 @@
   "name": "Redis",
   "modelType": "Redis",
   "description": {
-    "short": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-    "long": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "short": "The output of Redis use the generic implementation with DataFrames.",
+    "long": "The output of Redis use the generic implementation with DataFrames. Redis is an open source (BSD licensed), in-memory data structure store, used as database, cache and message broker.",
     "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#redis-label"
   },
   "properties": [
@@ -371,7 +461,8 @@
       "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
       "default": "localhost",
       "required": true,
-      "tooltip": "Hostname of the server"
+      "tooltip": "Hostname of the server",
+      "qa": "fragment-details-redis-hostname"
     },
     {
       "propertyId": "port",
@@ -380,7 +471,8 @@
       "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
       "default": "6379",
       "required": true,
-      "tooltip": "Port of the server"
+      "tooltip": "Port of the server",
+      "qa": "fragment-details-redis-port"
     },
     {
       "propertyId": "timeStampFieldName",
@@ -389,7 +481,8 @@
       "regexp": "",
       "default": "timestamp",
       "required": false,
-      "tooltip": ""
+      "tooltip": "",
+      "qa": "fragment-details-redis-timeStampFieldName"
     }
   ]
 }

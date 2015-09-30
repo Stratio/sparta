@@ -45,10 +45,12 @@ trait FragmentHttpService extends BaseHttpService {
     new ApiImplicitParam(name = "fragmentType",
       value = "type of fragment (input/output)",
       dataType = "string",
+      required = true,
       paramType = "path"),
     new ApiImplicitParam(name = "id",
       value = "id of the fragment",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
@@ -78,10 +80,12 @@ trait FragmentHttpService extends BaseHttpService {
     new ApiImplicitParam(name = "fragmentType",
       value = "type of fragment (input/output)",
       dataType = "string",
+      required = true,
       paramType = "path"),
     new ApiImplicitParam(name = "name",
       value = "name of the fragment",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
@@ -111,6 +115,7 @@ trait FragmentHttpService extends BaseHttpService {
     new ApiImplicitParam(name = "fragmentType",
       value = "type of fragment (input|output)",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(
@@ -187,10 +192,12 @@ trait FragmentHttpService extends BaseHttpService {
     new ApiImplicitParam(name = "fragmentType",
       value = "type of fragment (input/output)",
       dataType = "string",
+      required = true,
       paramType = "path"),
     new ApiImplicitParam(name = "id",
       value = "id of the fragment",
       dataType = "string",
+      required = true,
       paramType = "path")
   ))
   @ApiResponses(Array(

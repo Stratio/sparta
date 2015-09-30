@@ -26,6 +26,7 @@
     vm.errorText = '';
     vm.fragmentType = '';
     vm.fragmentTemplateData = {};
+    vm.policiesRunning = [];
 
     init();
 
@@ -55,7 +56,7 @@
       vm.dataSource.name = '';
 
       /*Init fragment.element*/
-      vm.dataSource.element.type = fragmentData[0].name;
+      vm.dataSource.element.type = fragmentData[0].modelType;
       vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
 
       /*Init fragment.element.configuration*/
@@ -67,7 +68,7 @@
     function createTypeModels(fragmentData) {
       /*Creating one properties model for each input type*/
       for (var i = 0; i < fragmentData.length; i++) {
-        var fragmentName = fragmentData[i].name;
+        var fragmentName = fragmentData[i].modelType;
         vm.properties[fragmentName] = {};
 
         /*Flag to check if there are any visible field*/
@@ -161,7 +162,7 @@
     };
 
     function createfragment() {
-      var newFragment = FragmentFactory.CreateFragment(vm.dataSource);
+      var newFragment = FragmentFactory.createFragment(vm.dataSource);
 
       newFragment.then(function (result) {
         var callBackData = result;

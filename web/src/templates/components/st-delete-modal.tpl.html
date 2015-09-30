@@ -1,18 +1,18 @@
 <aside data-qa="delete-modal">
 	<header class="c-titlebar">
 		<span class="c-titlebar__title" translate="{{vm.modalTexts.title}}"></span>
-		<i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
+		<i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" data-ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
 	</header>
 
-	<div class="c-modal-inner">
+	<div class="c-modal-inner" data-ng-if="vm.policiesRunning.length === 0">
 		<p class="c-modal-inner__title" translate="{{vm.modalTexts.mainText}}"></p>
 
-		<div class="c-row" ng-if="vm.outputs.policies.length > 0">
+		<div class="c-row" data-ng-if="vm.outputs.policies.length > 0" data-qa="fragment-delete-policies-affected">
 			<p translate="{{vm.modalTexts.secondaryText1}}"></p>
 			<p translate="{{vm.modalTexts.secondaryText2}}"></p>
 
 			<ul class="c-list c-list--dashed">
-				<li data-ng-repeat="item in vm.outputs.policies" data-qa="delete-modal-policy-{{item.id}}">- {{item.name}}</li>
+				<li data-ng-repeat="item in vm.outputs.policies" data-qa="delete-modal-policy-{{item.policy.id}}">- {{item.policy.name}}</li>
 			</ul>
 		</div>
 
@@ -31,6 +31,29 @@
 				<button data-ng-if="vm.outputs.type === 'input' || vm.outputs.policies.length === 0" class="c-button c-button--danger" data-ng-click="vm.ok()" data-qa="modal-ok-button">
 					<span class="icon icon-circle-check"></span>
 					<span>{{"_INPUT_BUTTON_DELETE_" | translate}}</span>
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="c-modal-inner" data-ng-if="vm.policiesRunning.length > 0">
+		<div class="c-row c-row--separated" data-qa="fragment-details-policies-affected">
+			<p class="c-modal-inner__title" translate="{{vm.modalTexts.policyRunningMain}}"></p>
+			<p translate="{{vm.modalTexts.policyRunningSecondary}}"></p>
+			<p translate="{{vm.modalTexts.policyRunningSecondary2}}"></p>
+
+			<ul class="c-list c-list--dashed">
+				<li data-ng-repeat="item in vm.policiesRunning" data-qa="fragment-details-policies-running-{{item.name}}">- {{item.name}}</li>
+			</ul>
+		</div>
+
+		<div class="c-row c-row--separated">
+			<div class="c-col c-col--6 c-col--vertical-centered">
+					<a data-ng-href="{{vm.templateFragmentsData[vm.selectedIndex].description.learnMore}}" class="c-info-text c-info-text--is-clickable" target="_blank" data-qa="fragment-detail-type-{{vm.dataSource.element.type | lowercase}}-help"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text c-info-text__text--is-link">{{"_INPUT_WINDOW_NEW_HELP_" | translate}}</span></a>
+			</div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
+				<button class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()" data-qa="modal-cancel-button">
+					<i class="c-icon icon-circle-cross"></i>
+					<span translate="_INPUT_BUTTON_CANCEL_"></span>
 				</button>
 			</div>
 		</div>

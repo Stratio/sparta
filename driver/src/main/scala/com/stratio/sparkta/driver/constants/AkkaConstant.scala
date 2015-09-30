@@ -22,6 +22,7 @@ package com.stratio.sparkta.driver.constants
  */
 object AkkaConstant {
 
+  final val StatusActor: String = "statusActor"
   final val FragmentActor   = "fragmentActor"
   final val TemplateActor   = "templateActor"
   final val PolicyActor     = "policyActor"

@@ -17,6 +17,7 @@
 package com.stratio.sparkta.serving.core.models
 
 import com.stratio.sparkta.sdk.DimensionType
+import com.stratio.sparkta.serving.core.AppConstant
 
 case class CubeModel(name: String,
                    checkpointConfig: CheckpointModel,
@@ -33,5 +34,8 @@ case class DimensionModel(name: String,
                         field: String,
                         precision: String = DimensionType.IdentityName,
                        `type`: String = DimensionType.DefaultDimensionClass,
-                        configuration: Option[Map[String, String]],
-                          jarFile: Option[String] = None)
+                        configuration: Option[Map[String, String]]) {
+
+  val jarFile = AppConstant.jarsFilesMap.get(`type`)
+
+}

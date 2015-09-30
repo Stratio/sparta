@@ -187,6 +187,13 @@ Outputs
 Here is where you decide where to persist your aggregated data. An output is equivalent to a datastore. You can
 have one or more outputs in your policy.
 
+Note: it is important to mark that the result of the cube is saved in a datastore table. The name of this table is
+built concatenating the dimension names of the cube.
+
+In the previous example the name of the table would be userName_tweet_responseTime. Be careful with not allowed
+characters or size of the names. For example Cassandra do not allow tables with more of 48 characters or capital
+letters in its name (then userName_tweet_responseTime is incorrect).
+
 Learn more about outputs `here <outputs.html>`__ .
 
 Example::
@@ -196,9 +203,10 @@ Example::
         "name": "out-mongo",
         "elementType": "MongoDb",
         "configuration": {
-          "hosts": "localhost:27017",
+          "hosts": [{"host": "localhost" , "port": "27017" }],
           "dbName": "sparkta"
         }
       }
     ]
+
 

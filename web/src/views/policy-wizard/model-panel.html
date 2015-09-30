@@ -1,0 +1,81 @@
+<section data-ng-controller="PolicyModelCtrl as vm" data-ng-init="vm.init(model)" data-ng-model="vm.model">
+  <form novalidate>
+    <div data-ng-show="vm.modelError.text!= ''" class="c-row c-msg c-msg--small c-msg--error" data-qa="policy-modal-error-msg-accordion">
+      <i class="c-icon icon-circle-cross"></i>
+      <span  data-ng-model = "vm.modelError" >{{vm.modelError.text | translate}}</span>
+    </div>
+    <div class="c-form-group">
+      <div class="c-form-control c-form-control--full-width c-icon-radio" data-ng-model="model">
+        <label class="c-label c-icon-radio__label c-col c-col--12">{{"_TYPE_" | translate}}:</label>
+      <span data-ng-repeat="modelTypes in vm.modelTypes">
+        <input data-ng-change="vm.changeDefaultConfiguration()" class="c-icon-radio__item"
+               id="type-{{modelTypes.name + $parent.$index| lowercase}}" type="radio"
+               data-ng-model="vm.model.type" value="{{modelTypes.name}}" data-ng-disabled="!editionMode">
+        <label data-ng-model="vm.model.type" class="c-icon-radio__label" data-qa="policy-model-type-{{modelTypes.name | lowercase}}"
+               for="type-{{modelTypes.name + $parent.$index| lowercase}}">
+          <i class="c-icon c-icon--large c-icon-radio__icon icon-{{modelTypes.iconName | lowercase}}"
+             tooltip="{{modelTypes.name | lowercase}}" tooltip-placement="top" tooltip-class="t-tooltip">
+          </i>
+        </label>
+      </span>
+      </div>
+    </div>
+
+    <div class="c-form-group">
+      <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.model.name"
+                        data-label="{{'_NAME_' | translate}}" data-help="" data-pattern=""
+                        placeholder="Ex. Name 1" data-type="text" data-disabled="!editionMode"
+                        data-qa="policy-model-name">
+      </form-field-input>
+    </div>
+
+    <div class="c-form-group">
+      <form-field-select data-ng-if="editionMode" data-ng-model="vm.model.inputList" data-form="vm.form" data-st-name="input-form"
+                         data-model="vm.model.inputField"
+                         data-options="vm.model.inputList"
+                         data-field="label" data-label="{{'_INPUT_FIELD_' | translate}}" data-help=""
+                         data-disabled="false"
+                         data-required="true" data-qa="policy-description-raw-data-partition-format">
+      </form-field-select>
+      <form-field-input data-ng-if="!editionMode" data-form="vm.form" data-st-name="input-form"
+                        data-model="vm.model.inputField | translate"
+                        data-label="{{'_INPUT_FIELD_' | translate}}"
+                        data-type="text" data-disabled="true" data-qa="policy-model-input">
+      </form-field-input>
+    </div>
+
+    <div class="c-form-group">
+      <div class="c-form-control c-form-control--full-width">
+        <c-icon-label data-wrapper-control-class="'c-label c-col c-col--12'"
+                      data-icon-class="'icon-info1'"
+                      data-text="'_CONFIGURATION_' | translate"
+                      data-text-class=""
+                      data-icon-url="vm.template.configHelpLink"
+                      data-test="policy-model-configuration-help">
+        </c-icon-label>
+        <p class = "c-label c-col c-col--12">{{"_CONFIGURATION_INFO_" | translate}}</p>
+        <textarea data-ng-if="editionMode" class="c-textarea c-textarea--full-width" data-ng-model="vm.model.configuration" data-qa="policy-model-configuration-textarea"
+              placeholder={{vm.configPlaceholder}}></textarea>
+
+        <pre ng-if="!editionMode" ng-model="vm.model.configuration"
+             class="c-textarea--disabled c-textarea--full-width" data-qa="policy-model-config">{{vm.model.configuration | json}}</pre>
+      </div>
+    </div>
+
+    <div class="c-fom-group">
+      <div class="c-form-control c-form-control--full-width">
+        <c-input-list-field form-control-class="" data-inputs="vm.model.outputFields"
+                            label-control-class="'c-label c-col c-col--12'"
+                            label-control-text="'_OUTPUTS_FIELDS_' | translate" readonly="'true'"
+                            data-enable-delete="editionMode" data-qa="policy-model-output-list"></c-input-list-field>
+
+        <c-add-element data-ng-if="editionMode" model="vm.model.outputFields"
+                       icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action c-info-text__icon icon-square-plus'"
+                       type="'text'" data-qa="policy-model-outputs" data-pattern="vm.outputPattern"
+                       data-error="vm.modelError.duplicatedOutput"
+                       data-placeholder="{{vm.outputInputPlaceholder | translate}}">
+        </c-add-element>
+      </div>
+    </div>
+  </form>
+</section>

@@ -1,0 +1,10 @@
+{
+  "name": "fake policy",
+  "rawData": {
+    "enabled": false,
+    "partitionFormat": "day",
+    "path": ""
+  },
+  "input": {},
+  "models":[]
+}

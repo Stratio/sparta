@@ -1,17 +1,20 @@
-(function() {
-    'use strict';
+(function () {
+  'use strict';
 
-    angular
-        .module('webApp')
-        .factory('TemplateFactory', TemplateFactory);
+  angular
+    .module('webApp')
+    .factory('TemplateFactory', TemplateFactory);
 
-    TemplateFactory.$inject = ['ApiTemplateService'];
+  TemplateFactory.$inject = ['ApiTemplateService'];
 
-    function TemplateFactory(ApiTemplateService) {
-        return {
-            GetNewFragmentTemplate: function(fragmentType) {
-                return ApiTemplateService.GetFragmentTemplateByType().get({'type': fragmentType + '.json'}).$promise;
-            }
-        };
+  function TemplateFactory(ApiTemplateService) {
+    return {
+      getNewFragmentTemplate: function (fragmentType) {
+        return ApiTemplateService.getFragmentTemplateByType().get({'type': fragmentType + '.json'}).$promise;
+      },
+      getPolicyTemplate: function () {
+        return ApiTemplateService.getPolicyTemplate().get().$promise;
+      }
     };
+  };
 })();

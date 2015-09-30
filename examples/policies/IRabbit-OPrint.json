@@ -17,9 +17,8 @@
       "host": "localhost",
       "port": "5672",
       "exchangeName": "twitterExchange",
-      "routingKeys": [{"routingKey": "routingKey1"},{"routingKey": "routingKey2"}]
-    },
-    "jarFile": "input-twitter-plugin.jar"
+      "routingKeys": [{"routingKey": "routingKey1"}]
+    }
   }
 ,
   "transformations": [
@@ -27,7 +26,6 @@
       "name": "morphline",
       "order": 0,
       "type": "Morphlines",
-      "jarFile": "parser-morphlines-plugin.jar",
       "outputFields": [
         "appName",
         "timestamp",
@@ -59,6 +57,18 @@
           ]
         }
       }
+    },
+    {
+      "name": "timestamp",
+      "order": 1,
+      "type": "DateTime",
+      "inputField": "timestamp",
+      "outputFields": [
+        "timestamp"
+      ],
+      "configuration": {
+        "inputFormat": "unixMillis"
+      }
     }
   ],
   "cubes": [
@@ -73,15 +83,13 @@
       "dimensions": [
         {
           "field": "appName",
-          "name": "appName",
-          "jarFile": "field-default-plugin.jar"
+          "name": "appName"
         }
       ],
       "operators": [
         {
           "name": "countoperator",
           "type": "Count",
-          "jarFile": "operator-count-plugin.jar",
           "configuration": {}
         }
       ]
@@ -91,7 +99,6 @@
     {
       "name": "out-print",
       "type": "Print",
-      "jarFile": "output-print-plugin.jar",
       "configuration": {}
     }
   ]

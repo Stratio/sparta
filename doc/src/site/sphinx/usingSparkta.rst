@@ -81,3 +81,17 @@ Example::
 
     curl -H "Content-Type: application/json" --data @examples/policies/ITwitter-OMongo.json http://localhost:9090/policyContext
 
+
+User interface
+==============
+
+You can use Sparkta with an user interface at the url http://localhost:9090
+
+
+Cluster
+======
+
+Sparkta can be executed in cluster mode, in this mode you can run more than one policy in the same Spark cluster.
+You can read more about cluster execution mode `here <cluster.html>`__
+
+

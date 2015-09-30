@@ -399,3 +399,14 @@ will write it into RabbitMQ. In a few seconds Sparkta will start to read the dat
     mvn -PvisitLog clean install benerator:generate
 
 
+Script Examples
+========================================
+
+We have added also some scripts to help you getting started with Sparkta. When you execute one of the scripts,
+it will create a policy with a WebSocket input and some database to storage the data. The policy will be displayed
+in the website, so you can skip the process of create a policy by yourself.
+
+The path to the scripts is::
+
+ /opt/sds/sparkta/examples/scripts/
+

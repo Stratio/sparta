@@ -11,21 +11,8 @@ function stMenuElement(TEMPLATE_URL, stPassAllAttributes){
 		scope: true,
 		templateUrl: TEMPLATE_URL('components', 'menuElement'),
 		transclude: true,
-		link: link,
 		link: stPassAllAttributes
 	};
 
 	return directive;
-
-	function link(scope, element, attributes){
-		if(!scope.forceBind)
-			return;
-
-		var bindable = scope.forceBind.split(' ');
-
-		for(var attr in bindable){
-			var attribute = bindable[attr];
-			scope[attribute] = scope.$parent[attribute];
-		}
-	}
 }

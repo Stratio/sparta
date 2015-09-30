@@ -3,8 +3,8 @@
     "name": "Flume",
     "modelType": "Flume",
     "description": {
-      "short": "Reads events from flume",
-      "long": "Reads events from flume",
+      "short": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data.",
+      "long": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data. It has a simple and flexible architecture based on streaming data flows.",
       "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#flume-label"
     },
     "properties": [
@@ -171,8 +171,8 @@
     "name": "Kafka",
     "modelType": "Kafka",
     "description": {
-      "short": "Reads events from apache-kafka",
-      "long": "Reads events from apache-kafka",
+      "short": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log.",
+      "long": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log. Based on the received-based approach (https://spark.apache.org/docs/latest/streaming-kafka-integration.html)",
       "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#kafka-label"
     },
     "properties": [
@@ -185,26 +185,29 @@
       "hidden": false,
       "limit": 0,
       "tooltip": "",
+      "qa": "fragment-details-kafka-zookeeper-connect",
       "fields": [
         {
           "propertyId": "host",
-          "propertyName": "_HOST_",
+          "propertyName": "_ZOOKEEPER_HOST_",
           "propertyType": "text",
           "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
           "default": "localhost",
           "required": true,
           "tooltip": "Zookeeper's address.",
-          "hidden": false
+          "hidden": false,
+          "qa": "fragment-details-kafka-host"
         },
         {
           "propertyId": "port",
-          "propertyName": "_PORT_",
+          "propertyName": "_ZOOKEEPER_PORT_",
           "propertyType": "text",
           "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
           "default": "2181",
           "required": true,
           "tooltip": "Zookeeper's port.",
-          "hidden": false
+          "hidden": false,
+          "qa": "fragment-details-kafka-port"
         }
       ]
       },
@@ -214,7 +217,8 @@
         "propertyType": "text",
         "regexp": "",
         "required": true,
-        "tooltip": ""
+        "tooltip": "",
+        "qa": "fragment-details-kafka-group-id"
       },
       {
       "propertyId": "topics",
@@ -225,6 +229,7 @@
       "hidden": false,
       "limit": 0,
       "tooltip": "",
+      "qa": "fragment-details-kafka-topics",
       "fields": [
         {
           "propertyId": "topic",
@@ -234,7 +239,8 @@
           "default": "",
           "required": true,
           "tooltip": "Topic to connect.",
-          "hidden": false
+          "hidden": false,
+          "qa": "fragment-details-kafka-topic"
         },
         {
           "propertyId": "partition",
@@ -244,7 +250,8 @@
           "default": "1",
           "required": true,
           "tooltip": "",
-          "hidden": false
+          "hidden": false,
+          "qa": "fragment-details-kafka-partition"
         }
       ]
       }
@@ -254,9 +261,9 @@
     "name": "Kafka Direct",
     "modelType": "KafkaDirect",
     "description": {
-      "short": "Reads events from apache-kafka",
-      "long": "Reads events from apache-kafka",
-      "learnMore": "http://docs.stratio.com"
+      "short": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log.",
+      "long": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log. Based on the direct approach (https://spark.apache.org/docs/latest/streaming-kafka-integration.html)",
+      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#kafkadirect-label"
     },
     "properties": [
       {
@@ -268,6 +275,7 @@
       "hidden": false,
       "limit": 0,
       "tooltip": "",
+      "qa": "fragment-details-kafkadirect-broker-list",
       "fields": [
         {
           "propertyId": "broker",
@@ -277,7 +285,8 @@
           "default": "localhost",
           "required": true,
           "tooltip": "Broker's address.",
-          "hidden": false
+          "hidden": false,
+          "qa": "fragment-details-kafkadirect-broker"
         },
         {
           "propertyId": "port",
@@ -287,7 +296,8 @@
           "default": "9092",
           "required": true,
           "tooltip": "Broker's port.",
-          "hidden": false
+          "hidden": false,
+          "qa": "fragment-details-kafkadirect-port"
         }
       ]
       },
@@ -297,7 +307,8 @@
         "propertyType": "text",
         "regexp": "",
         "required": true,
-        "tooltip": ""
+        "tooltip": "",
+        "qa": "fragment-details-kafkadirect-group-id"
       },
       {
       "propertyId": "topics",
@@ -308,6 +319,7 @@
       "hidden": false,
       "limit": 0,
       "tooltip": "",
+      "qa": "fragment-details-kafkadirect-topics",
       "fields": [
         {
           "propertyId": "topic",
@@ -317,7 +329,8 @@
           "default": "",
           "required": true,
           "tooltip": "Topic to connect.",
-          "hidden": false
+          "hidden": false,
+          "qa": "fragment-details-kafkadirect-topic"
         }
       ]
       }
@@ -327,9 +340,9 @@
     "name": "RabbitMQ",
     "modelType": "RabbitMQ",
     "description": {
-      "short": "Reads events from RabbitMQ",
-      "long": "Reads events from RabbitMQ",
-      "learnMore": "http://docs.stratio.com"
+      "short": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
+      "long": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
+      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#rabbitmq-label"
     },
     "properties": [
       {
@@ -338,7 +351,8 @@
         "propertyType": "text",
         "regexp": "",
         "required": false,
-        "tooltip": "RabbitMQ's name queue."
+        "tooltip": "RabbitMQ's name queue.",
+        "qa": "fragment-details-rabbitMQ-queue"
       },
       {
         "propertyId": "host",
@@ -347,7 +361,8 @@
         "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
         "default": "localhost",
         "required": true,
-        "tooltip": "RabbitMQ's hostname."
+        "tooltip": "RabbitMQ's hostname.",
+        "qa": "fragment-details-rabbitMQ-host"
       },
       {
         "propertyId": "port",
@@ -356,7 +371,8 @@
         "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
         "default": "5672",
         "required": true,
-        "tooltip": "RabbitMQ's port."
+        "tooltip": "RabbitMQ's port.",
+        "qa": "fragment-details-rabbitMQ-port"
       },
       {
         "propertyId": "exchangeName",
@@ -365,7 +381,8 @@
         "regexp": "",
         "default": "",
         "required": false,
-        "tooltip": "Name of the exchange where the data will be consumed"
+        "tooltip": "Name of the exchange where the data will be consumed",
+        "qa": "fragment-details-rabbitMQ-exchangeName"
       },
       {
       "propertyId": "routingKeys",
@@ -376,6 +393,7 @@
       "hidden": false,
       "limit": 0,
       "tooltip": "",
+      "qa": "fragment-details-rabbitMQ-routingKeys",
       "fields": [
         {
           "propertyId": "routingKey",
@@ -385,7 +403,8 @@
           "default": "",
           "required": false,
           "tooltip": "The exchange will delivery the messages to all the routing keys.",
-          "hidden": false
+          "hidden": false,
+          "qa": "fragment-details-rabbitMQ-routingKey"
         }
       ]
       }
@@ -395,8 +414,8 @@
     "name": "Socket",
     "modelType": "Socket",
     "description": {
-      "short": "Reads events from a socket.",
-      "long": "Reads events from a socket.",
+      "short": "A network socket is an endpoint of an inter-process communication across a computer network.",
+      "long": "A network socket is an endpoint of an inter-process communication across a computer network.",
       "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#socket-label"
     },
     "properties": [
@@ -407,7 +426,8 @@
         "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
         "default": "",
         "required": true,
-        "tooltip": "Socket hostname"
+        "tooltip": "Socket hostname",
+        "qa": "fragment-details-socket-hostname"
       },
       {
         "propertyId": "port",
@@ -416,16 +436,17 @@
         "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
         "default": "",
         "required": true,
-        "tooltip": "Socket port"
+        "tooltip": "Socket port",
+        "qa": "fragment-details-socket-port"
       }
     ]
   },
   {
-    "name": "Twitter",
-    "modelType": "Twitter",
+    "name": "TwitterJson",
+    "modelType": "TwitterJson",
     "description": {
-      "short": "Reads events from Twitter stream.",
-      "long": "Reads events from Twitter stream.",
+      "short": "Reads events from Twitter stream and return the status in a json.",
+      "long": "Reads events from Twitter stream and return the status in a json.",
       "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#twitter-label"
     },
     "properties": [
@@ -436,7 +457,8 @@
         "regexp": "",
         "default": "",
         "required": true,
-        "tooltip": "Twitter's consumer key."
+        "tooltip": "Twitter's consumer key.",
+        "qa": "fragment-details-twitter-consumerKey"
       },
       {
         "propertyId": "consumerSecret",
@@ -445,7 +467,8 @@
         "regexp": "",
         "default": "",
         "required": true,
-        "tooltip": "Twitter's consumer secret"
+        "tooltip": "Twitter's consumer secret",
+        "qa": "fragment-details-twitter-consumerSecret"
       },
       {
         "propertyId": "accessToken",
@@ -454,7 +477,8 @@
         "regexp": "",
         "default": "",
         "required": true,
-        "tooltip": "Twitter's access token."
+        "tooltip": "Twitter's access token.",
+        "qa": "fragment-details-twitter-accessToken"
       },
       {
         "propertyId": "accessTokenSecret",
@@ -463,7 +487,8 @@
         "regexp": "",
         "default": "",
         "required": true,
-        "tooltip": "Twitter's token secret."
+        "tooltip": "Twitter's token secret.",
+        "qa": "fragment-details-twitter-accessTokenSecret"
       },
       {
         "propertyId": "termsOfSearch",
@@ -472,18 +497,20 @@
         "regexp": "",
         "default": "",
         "required": false,
-        "tooltip": "It allows to search tweets based on the words of this field. If you donâ€™t use this field, it searches over global trending topics."
+        "tooltip": "It allows to search tweets based on the words of this field. If you donâ€™t use this field, it searches over global trending topics.",
+        "qa": "fragment-details-twitter-termsOfSearch"
       }
     ]
   },
   {
-    "name": "Websocket",
-    "modelType": "Websocket",
+    "name": "WebSocket",
+    "modelType": "WebSocket",
     "description": {
-      "short": "Reads events from a websocket stream.",
-      "long": "Reads events from websocket stream.",
-      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html"
+      "short": "WebSocket is a protocol providing full-duplex communication channels over a single TCP connection.",
+      "long": "WebSocket is a protocol providing full-duplex communication channels over a single TCP connection.",
+      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#websocket-label"
     },
+
     "properties": [
       {
         "propertyId": "url",
@@ -492,7 +519,8 @@
         "regexp": "",
         "default": "ws://stream.meetup.com/2/rsvps",
         "required": true,
-        "tooltip": "Websocket url."
+        "tooltip": "Websocket url.",
+        "qa": "fragment-details-websocket-url"
       }
     ]
   }
