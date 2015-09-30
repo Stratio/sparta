@@ -17,7 +17,7 @@
       model.name = "";
       model.outputFields = [];
       model.type = template.types[0].name;
-      model.configuration = JSON.stringify(template.morphlinesDefaultConfiguration, null, 4);
+      model.configuration = template.morphlinesDefaultConfiguration;
       model.inputList = getModelInputs();
       model.inputField = model.inputList[0].value;
       error.text = "";
@@ -53,14 +53,14 @@
     }
 
     function isValidConfiguration() {
-      var configuration = model.configuration;
-      try {
-        model.configuration = JSON.parse(configuration);
+      //var configuration = model.configuration;
+      //try {
+      //  model.configuration = JSON.parse(configuration);
         return true;
-      } catch (e) {
-        model.configuration = configuration;
-        return false;
-      }
+      //} catch (e) {
+      //  model.configuration = configuration;
+      //  return false;
+      //}
     }
 
     function isValidModel() {
@@ -81,7 +81,6 @@
       model.name = m.name;
       model.outputFields = m.outputFields;
       model.type = m.type;
-      console.log(typeof m.configuration)
       //if (!((typeof m.configuration) == "string")) {
       //  m.configuration = JSON.stringify(m.configuration, null, 4);
       //}
