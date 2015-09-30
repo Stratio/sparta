@@ -110,5 +110,4 @@ object CuratorFactoryHolderIT {
                         }
                       """
   lazy val basicConfig = Some(ConfigFactory.parseString(configString))
-  lazy val emptyConfig = Some(ConfigFactory.empty)
 }
