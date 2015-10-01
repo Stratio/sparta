@@ -11,6 +11,7 @@
     var model = {};
     var error = {text: "", duplicatedOutput: false};
     var template = null;
+    var context = {"position": null};
 
     function init(newTemplate) {
       template = newTemplate;
@@ -52,28 +53,17 @@
       return options;
     }
 
-    function isValidConfiguration() {
-      //var configuration = model.configuration;
-      //try {
-      //  model.configuration = JSON.parse(configuration);
-        return true;
-      //} catch (e) {
-      //  model.configuration = configuration;
-      //  return false;
-      //}
-    }
-
     function isValidModel() {
       var isValid = model.inputField != "" && model.outputFields.length > 0 &&
-        model.name != "" && model.type != "" && isValidConfiguration();
+        model.name != "" && model.type != "";
       if (!isValid) {
         error.text = "_GENERIC_FORM_ERROR_";
       } else  error.text = "";
       return isValid;
     }
 
-    function getModel(template) {
-      if (Object.keys(model).length == 0) init(template);
+    function getModel(template, position) {
+      if (Object.keys(model).length == 0) init(template, position);
       return model;
     }
 
@@ -81,29 +71,41 @@
       model.name = m.name;
       model.outputFields = m.outputFields;
       model.type = m.type;
-      //if (!((typeof m.configuration) == "string")) {
-      //  m.configuration = JSON.stringify(m.configuration, null, 4);
-      //}
       model.configuration = m.configuration;
       model.inputList = m.inputList;
       model.inputField = m.inputField;
       error.text = "";
     }
 
-    function resetModel(template) {
-      init(template);
+    function resetModel(template, p) {
+      init(template, p);
+    }
+
+    function getContext() {
+      return context;
+    }
+
+    function setPosition(p){
+      context.position = p;
     }
 
     function getError() {
       return error;
     }
 
+    function setError(e) {
+      error.text = e;
+    }
+
     return {
       resetModel: resetModel,
       getModel: getModel,
       setModel: setModel,
+      getContext: getContext,
+      setPosition: setPosition,
       isValidModel: isValidModel,
-      getError: getError
+      getError: getError,
+      setError: setError
     }
   }
 

@@ -24,11 +24,16 @@ module.exports = function (config) {
       'src/languages/en-US.json',
       // fixtures
       'test/mock/*.json',
-      'test/**/*.js'
+      'test/**/**/*.js'
     ],
 
     autoWatch: false,
 
+    reporters:[ 'coverage'],
+    coverageReporter: {
+      type : 'html',
+      dir : 'coverage/'
+    },
     frameworks: ['jasmine-jquery', 'jasmine'],
 
     browsers: ['PhantomJS'],
@@ -37,12 +42,14 @@ module.exports = function (config) {
       'karma-ng-json2js-preprocessor',
       'karma-phantomjs-launcher',
       'karma-jasmine',
-      'karma-jasmine-jquery'
+      'karma-jasmine-jquery',
+      'karma-coverage'
     ],
 
     preprocessors: {
       '**/*.html': ['ng-html2js'],
-      '**/*.json': ['ng-json2js']
+      '**/*.json': ['ng-json2js'],
+      'src/scripts/**/*.js': 'coverage'
     },
 
     junitReporter: {
