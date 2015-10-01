@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.test
+package com.stratio.sparkta.serving.api
 
 import java.io.File
 
