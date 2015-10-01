@@ -21,15 +21,15 @@
     vm.init();
 
     function init() {
-      vm.error = false;
       vm.model = ModelFactory.getModel();
+      vm.modelError = '';
       if (vm.model) {
         vm.policy = PolicyModelFactory.getCurrentPolicy();
         vm.template = PolicyModelFactory.getTemplate();
         vm.modelError = ModelFactory.getError();
+        vm.modelContext = ModelFactory.getContext();
 
         vm.modelTypes = vm.template.types;
-        vm.showModelError = false;
         vm.configPlaceholder = vm.template.configPlaceholder;
         vm.outputPattern = vm.template.outputPattern;
         vm.outputInputPlaceholder = vm.template.outputInputPlaceholder;
@@ -58,18 +58,13 @@
       }
     }
 
-
     function addModel() {
-      vm.error = false;
-      console.log(vm.form.$valid)
       if (vm.form.$valid) {
         ModelService.addModel();
       } else {
-        vm.error = true;
+        ModelFactory.setError("_GENERIC_FORM_ERROR_");
       }
     }
-
-
   }
 })
 ();
