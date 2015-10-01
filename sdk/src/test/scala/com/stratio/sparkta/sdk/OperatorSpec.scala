@@ -28,6 +28,40 @@ class OperatorSpec extends WordSpec with Matchers {
 
   "Operator" should {
 
+    "Operation properties must be " in {
+      val operator = new OperatorTest("opTest", Map())
+      operator.operationProps should be(Map())
+    }
+
+    "Operation type must be " in {
+      val operator = new OperatorTest("opTest", Map())
+      operator.defaultTypeOperation should be(TypeOp.Long)
+    }
+
+    "Operation key must be " in {
+      val operator = new OperatorTest("opTest", Map())
+      operator.key should be("opTest")
+    }
+
+    "Operation casting filter must be " in {
+      val operator = new OperatorTest("opTest", Map())
+      operator.castingFilterType should be(TypeOp.Number)
+    }
+
+    "Operation return type must be " in {
+      val operator = new OperatorTest("opTest", Map())
+      operator.returnType should be(TypeOp.Long)
+    }
+
+    "Operation number casting must be " in {
+      val operator = new OperatorTest("opTest", Map())
+      operator.getNumberFromSerializable(2) should be(Some(2))
+      operator.getNumberFromSerializable(2L) should be(Some(2))
+      operator.getNumberFromSerializable(2d) should be(Some(2))
+      operator.getNumberFromSerializable(2.asInstanceOf[Byte]) should be(Some(2))
+      operator.getNumberFromSerializable("2") should be(Some(2))
+    }
+
     "Distinct must be " in {
       val operator = new OperatorTest("opTest", Map())
       val distinct = operator.distinct
