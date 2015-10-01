@@ -24,7 +24,7 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class DimensionSpec extends WordSpec with Matchers {
 
-  "DimensionSpec" should {
+  "Dimension" should {
     val defaultDimensionType = new DimensionTypeTest(Map())
     val dimension = Dimension("dim1", "eventKey", "identity", defaultDimensionType)
 

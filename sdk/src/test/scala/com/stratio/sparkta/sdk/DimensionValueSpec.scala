@@ -24,13 +24,18 @@ import org.scalatest.{Matchers, WordSpec}
 @RunWith(classOf[JUnitRunner])
 class DimensionValueSpec extends WordSpec with Matchers {
 
-  "DimensionValueSpec" should {
+  "DimensionValue" should {
     val defaultDimensionType = new DimensionTypeTest(Map())
     val dimension = Dimension("dim1", "eventKey", "identity", defaultDimensionType)
     val dimensionValue = DimensionValue(dimension, "hola")
 
     "return the correct name" in {
-      dimensionValue.getNameDimension should be("eventKey")
+
+      val expected = "eventKey"
+
+      val result = dimensionValue.getNameDimension
+
+      result should be(expected)
     }
   }
 }

@@ -32,24 +32,39 @@ class DimensionTypeSpec extends WordSpec with Matchers {
 
     "the return operations properties" in {
       val dimensionTypeTest = new DimensionTypeTest(prop)
-      dimensionTypeTest.operationProps should be (prop)
+
+      val result = dimensionTypeTest.operationProps
+
+      result should be (prop)
     }
 
     "the return properties" in {
       val dimensionTypeTest = new DimensionTypeTest(prop)
-      dimensionTypeTest.properties should be (prop)
+
+      val result = dimensionTypeTest.properties
+
+      result should be (prop)
     }
 
     "the return precisionValue" in {
       val dimensionTypeTest = new DimensionTypeTest(prop)
-      dimensionTypeTest.precisionValue("", "hola") should be (
-        (DimensionType.getIdentity(None, dimensionTypeTest.defaultTypeOperation)), "hola")
+
+      val expected = (DimensionType.getIdentity(None, dimensionTypeTest.defaultTypeOperation), "hola")
+
+      val result = dimensionTypeTest.precisionValue("", "hola")
+
+      result should be (expected)
+
     }
 
     "the return precision" in {
       val dimensionTypeTest = new DimensionTypeTest(prop)
-      dimensionTypeTest.precision("") should be (
-        DimensionType.getIdentity(None, dimensionTypeTest.defaultTypeOperation))
+
+      val expected = (DimensionType.getIdentity(None, dimensionTypeTest.defaultTypeOperation))
+
+      val result = dimensionTypeTest.precision("")
+
+      result should be (expected)
     }
   }
 

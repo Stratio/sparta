@@ -16,24 +16,38 @@
 
 package com.stratio.sparkta.sdk
 
+import java.io.{Serializable => JSerializable}
+
+import com.stratio.sparkta.sdk.test.OutputTest
+import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
-class EventSpec extends WordSpec with Matchers {
+class OutputSpec extends WordSpec with Matchers {
 
-  "Event" should {
-    val event = new Event(Map("field" -> 1))
+  "Output" should {
 
-    "Return the associated string" in {
+    val tableSchema = TableSchema("outputName", "dim1_dim2", StructType(Array(
+      StructField("dim1", StringType, false),
+      StructField("dim2", StringType, false),
+      StructField("minute", DateType, false),
+      StructField("op1", LongType, true))), "minute")
+    val outputName = "outName"
 
-      val expected = "[Event, Properties=Map(field -> 1)]"
+    val output = new OutputTest(outputName,
+      Map(),
+      Some(Map("op1" -> (WriteOp.Set, TypeOp.Long))),
+      Some(Seq(tableSchema)))
 
-      val result = event.toString
+    "Name must be " in {
 
-     result should be(expected)
+      val expected = outputName
+
+      val result = output.getName
+
+      result should be equals Some(expected)
     }
   }
 }
-
