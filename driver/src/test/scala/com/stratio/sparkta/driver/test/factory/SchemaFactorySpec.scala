@@ -31,32 +31,24 @@ import org.scalatest.mock.MockitoSugar
 class SchemaFactorySpec extends FlatSpec with ShouldMatchers
 with MockitoSugar {
 
-  val dim1: Dimension = Dimension("dim1","field1","",new DimensionTypeTest)
-  val dim2: Dimension = Dimension("dim2","field2","",new DimensionTypeTest)
-
-  val op1: Operator = new OperatorTest("op1", Map())
-
-  val configOptions: Seq[(String, Map[String, String])] = Seq(("outputName", Map("" -> "")))
 
   "SchemaFactorySpec" should "return a list of schemas" in new CommonValues {
-    val cube = Cube(cubeName,Seq(dim1,dim2),Seq(op1),
-      false, "minute", checkpointInterval, checkpointGranularity,checkpointAvailable)
-
+    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1),
+      false, "minute", checkpointInterval, checkpointGranularity, checkpointAvailable)
     val cubes = Seq(cube)
-    val tableSchema = TableSchema("outputName",  "dim1_dim2", StructType(Array(
+    val tableSchema = TableSchema("outputName", "dim1_dim2", StructType(Array(
       StructField("dim1", StringType, false),
       StructField("dim2", StringType, false),
       StructField(checkpointGranularity, DateType, false),
       StructField("op1", LongType, true))), "minute")
 
-    val res = SchemaFactory.cubesOperatorsSchemas(cubes,configOptions)
+    val res = SchemaFactory.cubesOperatorsSchemas(cubes, configOptions)
 
-    res should be (Seq(tableSchema))
-
+    res should be(Seq(tableSchema))
   }
 
   "SchemaFactorySpec" should "return the operator and the type" in new CommonValues {
-    val expected = Map("op1" -> (WriteOp.Inc, TypeOp.Long))
+    val expected = Map("op1" ->(WriteOp.Inc, TypeOp.Long))
 
     val res = SchemaFactory.operatorsKeyOperation(Seq(op1))
 
@@ -97,6 +89,13 @@ with MockitoSugar {
   }
 
   trait CommonValues {
+    val dim1: Dimension = Dimension("dim1", "field1", "", new DimensionTypeTest)
+    val dim2: Dimension = Dimension("dim2", "field2", "", new DimensionTypeTest)
+
+    val op1: Operator = new OperatorTest("op1", Map())
+
+    val configOptions: Seq[(String, Map[String, String])] = Seq(("outputName", Map("" -> "")))
+
     val checkpointInterval = 10000
     val checkpointAvailable = 60000
     val checkpointGranularity = "minute"
@@ -115,4 +114,5 @@ with MockitoSugar {
     val fixedDimensions = Some(Seq(("dim3", "value3")))
     val fixedAggregation = Map("agg2" -> Some("2"))
   }
+
 }

@@ -22,26 +22,9 @@ import java.security.PrivilegedExceptionAction
 import org.apache.commons.io.IOUtils
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs._
-import org.apache.hadoop.fs.permission.FsPermission
 import org.apache.hadoop.security.UserGroupInformation
 
-import scala.util.Try
-
-class HdfsUtils(userName: String, hadoopConfDir: Option[String]) {
-
-  System.setProperty("HADOOP_USER_NAME", userName)
-  private val ugi: UserGroupInformation =
-    UserGroupInformation.createProxyUser(userName, UserGroupInformation.getLoginUser())
-  private val conf = new Configuration()
-  if (hadoopConfDir.isDefined) {
-    val confDir = if (hadoopConfDir.get.endsWith("/")) hadoopConfDir.get else hadoopConfDir.get + "/"
-    val hdfsCoreSitePath = new FileInputStream(new File(confDir + "core-site.xml"))
-    val hdfsHDFSSitePath = new FileInputStream(new File(confDir + "hdfs-site.xml"))
-
-    conf.addResource(hdfsCoreSitePath)
-    conf.addResource(hdfsHDFSSitePath)
-  }
-  private val dfs = FileSystem.get(conf)
+class HdfsUtils(ugi: UserGroupInformation, dfs: FileSystem) {
 
   def getFiles(path: String): Array[FileStatus] = {
     ugi.doAs(new PrivilegedExceptionAction[Array[FileStatus]]() {
@@ -56,75 +39,6 @@ class HdfsUtils(userName: String, hadoopConfDir: Option[String]) {
       def run: FSDataInputStream = {
         val path = new Path(filename)
         dfs.open(path)
-      }
-    })
-  }
-
-  def createFolder(folderPath: String): Unit = {
-    val path = new Path(folderPath)
-    if (!dfs.exists(path)) {
-      dfs.mkdirs(path)
-    }
-  }
-
-  def homeDir(user: String = userName): String = {
-    if (dfs.isDirectory(new Path("/user/" + user))) "/user/" + user else "/"
-  }
-
-  def setPermission(path: Path, mode: Short): Unit = {
-    ugi.doAs(new PrivilegedExceptionAction[Unit]() {
-      def run: Unit = {
-        dfs.setPermission(path, new FsPermission(mode))
-      }
-    })
-  }
-
-  //scalastyle:off
-  def setOwner(path: Path, username: Option[String], group: Option[String]): Unit = {
-    ugi.doAs(new PrivilegedExceptionAction[Unit]() {
-      def run: Unit = {
-        dfs.setOwner(path, username.getOrElse(null), group.getOrElse(null))
-      }
-    })
-  }
-  //scalastyle:on
-
-  def open(path: Path): FSDataInputStream = {
-    ugi.doAs(new PrivilegedExceptionAction[FSDataInputStream]() {
-      def run: FSDataInputStream = {
-        dfs.open(path)
-      }
-    })
-  }
-
-  def fileStatus(path: Path): FileStatus = {
-    ugi.doAs(new PrivilegedExceptionAction[FileStatus]() {
-      def run: FileStatus = {
-        dfs.getFileStatus(path)
-      }
-    })
-  }
-
-  def mkdir(path: Path): Boolean = {
-    ugi.doAs(new PrivilegedExceptionAction[Boolean]() {
-      def run: Boolean = {
-        dfs.mkdirs(path)
-      }
-    })
-  }
-
-  def create(path: Path, overwrite: Boolean = false): FSDataOutputStream = {
-    ugi.doAs(new PrivilegedExceptionAction[FSDataOutputStream]() {
-      def run: FSDataOutputStream = {
-        dfs.create(path, overwrite)
-      }
-    })
-  }
-
-  def rename(src: Path, dst: Path): Boolean = {
-    ugi.doAs(new PrivilegedExceptionAction[Boolean]() {
-      def run: Boolean = {
-        dfs.rename(src, dst)
       }
     })
   }
@@ -144,13 +58,26 @@ class HdfsUtils(userName: String, hadoopConfDir: Option[String]) {
     })
   }
 
-  def delete(path: Path, recursive: Boolean = false): Boolean = {
-    ugi.doAs(new PrivilegedExceptionAction[Boolean]() {
-      def run: Boolean = {
-        dfs.delete(path, recursive)
-      }
-    })
+}
+
+object HdfsUtils {
+
+  def hdfsConfiguration(hadoopConfDir: Option[String]): FileSystem = {
+    val conf = new Configuration()
+    if (hadoopConfDir.isDefined) {
+      val confDir = if (hadoopConfDir.get.endsWith("/")) hadoopConfDir.get else hadoopConfDir.get + "/"
+      val hdfsCoreSitePath = new FileInputStream(new File(confDir + "core-site.xml"))
+      val hdfsHDFSSitePath = new FileInputStream(new File(confDir + "hdfs-site.xml"))
+
+      conf.addResource(hdfsCoreSitePath)
+      conf.addResource(hdfsHDFSSitePath)
+    }
+    FileSystem.get(conf)
   }
 
-  def deletePath(path: String): Unit = getFiles(path).foreach(file => delete(file.getPath))
+  def ugi(userName: String): UserGroupInformation = {
+    System.setProperty("HADOOP_USER_NAME", userName)
+    UserGroupInformation.createProxyUser(userName, UserGroupInformation.getLoginUser())
+  }
+
 }
