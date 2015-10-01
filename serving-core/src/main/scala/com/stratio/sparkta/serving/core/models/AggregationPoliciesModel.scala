@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind._
 import com.github.fge.jsonschema.core.exceptions.InvalidSchemaException
 import com.github.fge.jsonschema.core.report.ProcessingReport
 import com.github.fge.jsonschema.main.{JsonSchema, JsonSchemaFactory}
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import scala.collection.JavaConversions._
@@ -44,6 +45,11 @@ case object AggregationPoliciesModel {
   val sparkStreamingWindow = 2000
   val storageDefaultValue = Some("MEMORY_AND_DISK_SER_2")
 }
+
+case class PolicyWithStatus(status: PolicyStatusEnum.Value,
+                            policy: AggregationPoliciesModel)
+
+case class PolicyResult(policyId: String, policyName: String)
 
 object AggregationPoliciesValidator extends SparktaSerializer {
 
