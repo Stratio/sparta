@@ -6,18 +6,15 @@
     .module('webApp')
     .controller('PolicyCubeAccordionCtrl', PolicyCubeAccordionCtrl);
 
-  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'AccordionStatusService', 'CubeService', '$q', '$scope'];
+  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'AccordionStatusService', 'CubeService', '$scope'];
 
-  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService, CubeService,  $q, $scope) {
+  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService, CubeService, $scope) {
     var vm = this;
     var index = 0;
-    var createdCubes = 0;
 
     vm.init = init;
     vm.previousStep = previousStep;
     vm.nextStep = nextStep;
-    vm.addCube = addCube;
-    vm.removeCube = removeCube;
     vm.generateIndex = generateIndex;
     vm.error = "";
 
@@ -27,41 +24,11 @@
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
-      createdCubes = vm.policy.cubes.length;
-      resetViewModel();
+      AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
       vm.helpLink = vm.template.helpLinks.cubes;
     }
 
-    function resetViewModel() {
-      CubeModelFactory.resetCube(vm.template, createdCubes + 1);
-      AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
-    }
-
-    function addCube() {
-      var newCube = angular.copy(CubeModelFactory.getCube());
-      if (CubeService.isValidCube(newCube, vm.policy.cubes)) {
-        vm.error = "";
-        vm.policy.cubes.push(angular.copy(newCube));
-        createdCubes++;
-        resetViewModel();
-      } else {
-        CubeModelFactory.setError("_GENERIC_FORM_ERROR_");
-      }
-    }
-
-    function removeCube(index) {
-      var defer = $q.defer();
-      CubeService.showConfirmRemoveCube().then(function () {
-        vm.policy.cubes.splice(index, 1);
-        AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
-        defer.resolve();
-      }, function () {
-        defer.reject()
-      });
-      return defer.promise;
-    }
-
-      function generateIndex() {
+    function generateIndex() {
       return index++;
     }
 
@@ -80,17 +47,20 @@
 
     $scope.$watchCollection(
       "vm.accordionStatus",
-      function (newValue, oldValue) {
+      function (newValue) {
         if (vm.accordionStatus) {
           var selectedCubePosition = newValue.indexOf(true);
-
-          if (selectedCubePosition >= 0 && selectedCubePosition < vm.policy.cubes.length) {
-            var selectedCube = vm.policy.cubes[selectedCubePosition];
-            CubeModelFactory.setCube(selectedCube);
-          }else{
-            CubeModelFactory.resetCube(vm.template);
+            var position = null;
+            if (selectedCubePosition >= 0 && selectedCubePosition < vm.policy.cubes.length) {
+              var selectedCube = vm.policy.cubes[selectedCubePosition];
+              CubeModelFactory.setCube(selectedCube);
+              position = selectedCubePosition;
+            } else {
+              CubeModelFactory.resetCube(vm.template, CubeService.getCreatedCubes() + 1);
+              position = vm.policy.cubes.length;
+            }
+            CubeModelFactory.setPosition(position);
           }
-        }
       }
     );
   }

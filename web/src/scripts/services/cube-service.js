@@ -5,14 +5,27 @@
     .module('webApp')
     .service('CubeService', CubeService);
 
-  CubeService.$inject = ['UtilsService', 'ModalService'];
+  CubeService.$inject = ['PolicyModelFactory', 'ModalService', 'AccordionStatusService', 'CubeModelFactory', '$q'];
 
-  function CubeService(UtilsService, ModalService) {
+  function CubeService(PolicyModelFactory, ModalService, AccordionStatusService, CubeModelFactory, $q) {
     var vm = this;
+    var createdCubes = null;
+
     vm.findCubesUsingOutputs = findCubesUsingOutputs;
-    vm.isValidCube = isValidCube;
     vm.areValidCubes = areValidCubes;
     vm.showConfirmRemoveCube = showConfirmRemoveCube;
+    vm.addCube = addCube;
+    vm.saveCube = saveCube;
+    vm.removeCube = removeCube;
+    vm.isNewCube = isNewCube;
+    vm.getCreatedCubes = getCreatedCubes;
+    vm.policy = PolicyModelFactory.getCurrentPolicy();
+
+    init();
+
+    function init() {
+      createdCubes = vm.policy.cubes.length;
+    }
 
     function findCubesUsingOutputs(cubes, outputs) {
       var cubeNames = [];
@@ -46,16 +59,6 @@
       return found;
     }
 
-    function isValidCube(cube, cubes, cubePosition) {
-      return cube.name !== "" && cube.checkpointConfig.timeDimension !== "" && cube.checkpointConfig.interval !== null
-        && cube.checkpointConfig.timeAvailability !== null && cube.checkpointConfig.granularity !== ""
-        && cube.dimensions.length > 0 && cube.operators.length > 0 && !nameExists(cube, cubes, cubePosition);
-    }
-
-    function nameExists(cube, cubes, cubePosition) {
-      var position = UtilsService.findElementInJSONArray(cubes, cube, "name");
-      return position !== -1 && (position != cubePosition);
-    }
 
     function areValidCubes(cubes) {
       var valid = true;
@@ -64,7 +67,7 @@
       if (cubes) {
         while (valid && i < cubes.length) {
           currentCube = cubes[i];
-          if (!isValidCube(currentCube, cubes, i)) {
+          if (!CubeModelFactory.isValidCube(currentCube, cubes, i)) {
             valid = false;
           } else {
             ++i;
@@ -97,6 +100,48 @@
         defer.reject();
       });
       return defer.promise;
+    }
+
+
+    function addCube() {
+      var newCube = angular.copy(CubeModelFactory.getCube());
+      if (CubeModelFactory.isValidCube(newCube, vm.policy.cubes, CubeModelFactory.getContext().position)) {
+        vm.policy.cubes.push(angular.copy(newCube));
+        createdCubes++;
+        AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
+      } else {
+        CubeModelFactory.setError("_GENERIC_FORM_ERROR_");
+      }
+    }
+
+    function saveCube() {
+      var cube = angular.copy(CubeModelFactory.getCube());
+      if (CubeModelFactory.isValidCube(cube, vm.policy.cubes, CubeModelFactory.getContext().position)) {
+        vm.policy.cubes[CubeModelFactory.getContext().position] = cube;
+        CubeModelFactory.setError("");
+      } else {
+        CubeModelFactory.setError("_GENERIC_FORM_ERROR_");
+      }
+    }
+
+    function removeCube(index) {
+      var defer = $q.defer();
+      showConfirmRemoveCube().then(function () {
+        vm.policy.cubes.splice(index, 1);
+        AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
+        defer.resolve();
+      }, function () {
+        defer.reject()
+      });
+      return defer.promise;
+    }
+
+    function isNewCube(index) {
+      return index == vm.policy.cubes.length;
+    }
+
+    function getCreatedCubes() {
+      return createdCubes;
     }
   }
 })();
