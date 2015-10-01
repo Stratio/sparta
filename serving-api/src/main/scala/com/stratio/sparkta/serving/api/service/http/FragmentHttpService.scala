@@ -175,8 +175,8 @@ trait FragmentHttpService extends BaseHttpService {
           complete {
             val future = supervisor ? new Update(fragment)
             Await.result(future, timeout.duration) match {
-              case Response(Failure(exception)) => throw exception
               case Response(Success(fragment)) => HttpResponse(StatusCodes.OK)
+              case Response(Failure(exception)) => throw exception
             }
           }
         }
