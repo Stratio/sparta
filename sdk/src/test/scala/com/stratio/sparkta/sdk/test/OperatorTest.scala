@@ -36,3 +36,20 @@ class OperatorTest(name: String, properties: Map[String, JSerializable]) extends
     None
   }
 }
+
+class OperatorTestString(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+
+  override val defaultTypeOperation = TypeOp.Long
+
+  override val writeOperation = WriteOp.Inc
+
+  override val castingFilterType = TypeOp.String
+
+  override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
+    None
+  }
+
+  override def processReduce(values: Iterable[Option[Any]]): Option[Long] = {
+    None
+  }
+}

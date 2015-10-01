@@ -18,7 +18,7 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.test.OperatorTest
+import com.stratio.sparkta.sdk.test.{OperatorTestString, OperatorTest}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -27,40 +27,6 @@ import org.scalatest.{Matchers, WordSpec}
 class OperatorSpec extends WordSpec with Matchers {
 
   "Operator" should {
-
-    "Operation properties must be " in {
-      val operator = new OperatorTest("opTest", Map())
-      operator.operationProps should be(Map())
-    }
-
-    "Operation type must be " in {
-      val operator = new OperatorTest("opTest", Map())
-      operator.defaultTypeOperation should be(TypeOp.Long)
-    }
-
-    "Operation key must be " in {
-      val operator = new OperatorTest("opTest", Map())
-      operator.key should be("opTest")
-    }
-
-    "Operation casting filter must be " in {
-      val operator = new OperatorTest("opTest", Map())
-      operator.castingFilterType should be(TypeOp.Number)
-    }
-
-    "Operation return type must be " in {
-      val operator = new OperatorTest("opTest", Map())
-      operator.returnType should be(TypeOp.Long)
-    }
-
-    "Operation number casting must be " in {
-      val operator = new OperatorTest("opTest", Map())
-      operator.getNumberFromSerializable(2) should be(Some(2))
-      operator.getNumberFromSerializable(2L) should be(Some(2))
-      operator.getNumberFromSerializable(2d) should be(Some(2))
-      operator.getNumberFromSerializable(2.asInstanceOf[Byte]) should be(Some(2))
-      operator.getNumberFromSerializable("2") should be(Some(2))
-    }
 
     "Distinct must be " in {
       val operator = new OperatorTest("opTest", Map())
@@ -215,6 +181,70 @@ class OperatorSpec extends WordSpec with Matchers {
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"fieldValue\":\"field2\", \"value\":2 }]"))
       val inputFields18 = Map("field1" -> 2.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
       operator18.applyFilters(inputFields18) should be (None)
+
+      val operator19 = new OperatorTestString("opTest",
+        Map("filters" -> "[{\"field\":\"field1\", \"type\": \"=\", \"value\":2}]"))
+      val inputFields19 = Map("field1" -> 2.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
+      operator19.applyFilters(inputFields19) should be (Some(inputFields19))
+
+      val operator20 = new OperatorTestString("opTest",
+        Map("filters" -> "[{\"field\":\"field1\", \"type\": \"=\",\"fieldValue\":\"field2\"}]"))
+      val inputFields20 = Map("field1" -> 2.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
+      operator20.applyFilters(inputFields20) should be (None)
+
+    }
+
+    "Operation compare with other operator must be less " in {
+      val operator = new OperatorTest("opTest", Map())
+      val operator2 = new OperatorTest("upTest", Map())
+      operator.compare(operator2) should be(-6)
+    }
+
+    "Operation compare with other operator must be equals " in {
+      val operator = new OperatorTest("opTest", Map())
+      val operator2 = new OperatorTest("opTest", Map())
+      operator.compare(operator2) should be(0)
+    }
+
+    "Operation compare with other operator must be higher " in {
+      val operator = new OperatorTest("opTest", Map())
+      val operator2 = new OperatorTest("apTest", Map())
+      operator.compare(operator2) should be(14)
+    }
+
+    "Operation properties must be " in {
+      val operator = new OperatorTest("opTest", Map())
+      operator.operationProps should be(Map())
+    }
+
+    "Operation type must be " in {
+      val operator = new OperatorTest("opTest", Map())
+      operator.defaultTypeOperation should be(TypeOp.Long)
+    }
+
+    "Operation key must be " in {
+      val operator = new OperatorTest("opTest", Map())
+      operator.key should be("opTest")
+    }
+
+    "Operation casting filter must be " in {
+      val operator = new OperatorTest("opTest", Map())
+      operator.castingFilterType should be(TypeOp.Number)
+    }
+
+    "Operation return type must be " in {
+      val operator = new OperatorTest("opTest", Map())
+      operator.returnType should be(TypeOp.Long)
+    }
+
+    "Operation number casting must be " in {
+      val operator = new OperatorTest("opTest", Map())
+      operator.getNumberFromSerializable(2) should be(Some(2))
+      operator.getNumberFromSerializable(2L) should be(Some(2))
+      operator.getNumberFromSerializable(2d) should be(Some(2))
+      operator.getNumberFromSerializable(2.asInstanceOf[Byte]) should be(Some(2))
+      operator.getNumberFromSerializable(2.asInstanceOf[Short]) should be(Some(2))
+      operator.getNumberFromSerializable(Option(2)) should be(None)
 
     }
 
