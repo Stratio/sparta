@@ -29,32 +29,34 @@ module.exports = function (config) {
 
     autoWatch: false,
 
-    reporters:[ 'coverage'],
+    reporters: ['junit', 'coverage', 'progress'],
+
     coverageReporter: {
-      type : 'html',
-      dir : 'coverage/'
+      type: 'lcov',
+      dir: 'target/coverage/'
     },
     frameworks: ['jasmine-jquery', 'jasmine'],
 
     browsers: ['PhantomJS'],
+    port: 8080,
 
-    plugins: [
-      'karma-ng-json2js-preprocessor',
-      'karma-phantomjs-launcher',
-      'karma-jasmine',
-      'karma-jasmine-jquery',
-      'karma-coverage'
-    ],
+    //plugins: [
+    //  'karma-ng-json2js-preprocessor',
+    //  'karma-phantomjs-launcher',
+    //  'karma-jasmine',
+    //  'karma-jasmine-jquery',
+    //  'karma-coverage'
+    //],
 
     preprocessors: {
-      '**/*.html': ['ng-html2js'],
       '**/*.json': ['ng-json2js'],
       'src/scripts/**/*.js': 'coverage'
     },
 
     junitReporter: {
-      outputFile: 'test_out/unit.xml',
-      suite: 'unit'
+      outputDir: 'target/failsafe-reports/',
+      outputFile: undefined,
+      suite: ''
     },
 
     ngJson2JsPreprocessor: {
@@ -62,7 +64,14 @@ module.exports = function (config) {
       stripPrefix: 'test/mock/',
       // prepend this to the
       prependPrefix: 'served/'
-    }
+    },
 
+    coverageReporter: {
+      type: "lcovonly",
+      dir: 'target/coverage',
+      file: '../lcov.info'
+    },
+    singleRun: true,
+    logLevel: config.LOG_INFO
   });
 };
