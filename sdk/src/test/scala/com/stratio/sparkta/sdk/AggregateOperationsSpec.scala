@@ -19,7 +19,7 @@ package com.stratio.sparkta.sdk
 import java.io.{Serializable => JSerializable}
 import java.sql.Timestamp
 
-import com.stratio.sparkta.sdk.test.DimensionTypeTest
+import com.stratio.sparkta.sdk.test.DimensionTypeMock
 import org.apache.spark.sql.Row
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -32,7 +32,7 @@ class AggregateOperationsSpec extends FlatSpec with ShouldMatchers {
 
     val timeDimension = "minute"
     val timestamp = 1L
-    val defaultDimension = new DimensionTypeTest(Map())
+    val defaultDimension = new DimensionTypeMock(Map())
     val dimensionValuesT = DimensionValuesTime(Seq(DimensionValue(
       Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
       DimensionValue(
@@ -46,91 +46,145 @@ class AggregateOperationsSpec extends FlatSpec with ShouldMatchers {
     val fixedAggregation = Map("agg2" -> Some("2"))
   }
 
-  "AggregateOperationsSpec" should "return a correct string" in new CommonValues {
-    val result = "dim1_dim2_minute DIMENSIONS: dim1|dim2|minute AGGREGATIONS: Map(field -> Some(value)) TIME: 1"
-    AggregateOperations.toString(dimensionValuesT, aggregations, timeDimension, fixedDimensionsName) should be(result)
+  "AggregateOperations" should "return a correct string" in new CommonValues {
+
+    val expect = "dim1_dim2_minute DIMENSIONS: dim1|dim2|minute AGGREGATIONS: Map(field -> Some(value)) TIME: 1"
+
+    val result = AggregateOperations.toString(dimensionValuesT, aggregations, timeDimension, fixedDimensionsName)
+
+    result should be(expect)
   }
 
   it should "return a correct keyString" in new CommonValues {
-    val result = "dim1_dim2_minute"
-    AggregateOperations.keyString(dimensionValuesT, timeDimension, fixedDimensionsName) should be(result)
+
+    val expect = "dim1_dim2_minute"
+
+    val result = AggregateOperations.keyString(dimensionValuesT, timeDimension, fixedDimensionsName)
+
+    result should be(expect)
   }
 
   it should "return a correct toKeyRow tuple" in new CommonValues {
-    val result = (Some("dim1_dim2_dim3_minute"), Row("value1", "value2", "value3", new Timestamp(1L), "2", "value"))
-    AggregateOperations.toKeyRow(
-      dimensionValuesT, aggregations, fixedAggregation, fixedDimensions, false) should be(result)
+
+    val expect = (Some("dim1_dim2_dim3_minute"), Row("value1", "value2", "value3", new Timestamp(1L), "2", "value"))
+
+    val result = AggregateOperations.toKeyRow(
+      dimensionValuesT, aggregations, fixedAggregation, fixedDimensions, false)
+
+    result should be(expect)
   }
 
   it should "return a correct toKeyRow tuple without fixedAggregation" in new CommonValues {
-    val result = (Some("dim1_dim2_dim3_minute"), Row("value1", "value2", "value3", new Timestamp(1L), "value"))
-    AggregateOperations.toKeyRow(
-      dimensionValuesT, aggregations, Map(), fixedDimensions, false) should be(result)
+
+    val expect = (Some("dim1_dim2_dim3_minute"), Row("value1", "value2", "value3", new Timestamp(1L), "value"))
+
+    val result = AggregateOperations.toKeyRow(
+      dimensionValuesT, aggregations, Map(), fixedDimensions, false)
+
+    result should be(expect)
   }
 
   it should "return a correct toKeyRow tuple without fixedDimensions" in new CommonValues {
-    val result = (Some("dim1_dim2_minute"), Row("value1", "value2", new Timestamp(1L), "2", "value"))
-    AggregateOperations.toKeyRow(
-      dimensionValuesT, aggregations, fixedAggregation, None, false) should be(result)
+
+    val expect = (Some("dim1_dim2_minute"), Row("value1", "value2", new Timestamp(1L), "2", "value"))
+
+    val result = AggregateOperations.toKeyRow(
+      dimensionValuesT, aggregations, fixedAggregation, None, false)
+
+    result should be(expect)
   }
 
   it should "return a correct toKeyRow tuple without fixedDimensions and fixedAggregation" in new CommonValues {
-    val result = (Some("dim1_dim2_minute"), Row("value1", "value2", new Timestamp(1L), "value"))
-    AggregateOperations.toKeyRow(
-      dimensionValuesT, aggregations, Map(), None, false) should be(result)
+
+    val expect = (Some("dim1_dim2_minute"), Row("value1", "value2", new Timestamp(1L), "value"))
+
+    val result = AggregateOperations.toKeyRow(
+      dimensionValuesT, aggregations, Map(), None, false)
+
+    result should be(expect)
   }
 
   it should "return a correct toKeyRow tuple without aggregations and  fixedDimensions and fixedAggregation" in
     new CommonValues {
-      val result = (Some("dim1_dim2_minute"), Row("value1", "value2", new Timestamp(1L)))
-      AggregateOperations.toKeyRow(
-        dimensionValuesT, Map(), Map(), None, false) should be(result)
+
+      val expect = (Some("dim1_dim2_minute"), Row("value1", "value2", new Timestamp(1L)))
+
+      val result = AggregateOperations.toKeyRow(dimensionValuesT, Map(), Map(), None, false)
+
+      result should be(expect)
     }
 
   it should "return a correct toKeyRow tuple without dimensions and aggregations and  fixedDimensions and " +
     "fixedAggregation" in
     new CommonValues {
-      val result = (Some("minute"), Row(new Timestamp(1L)))
-      AggregateOperations.toKeyRow(
-        DimensionValuesTime(Seq(), timestamp, timeDimension), Map(), Map(), None, false) should be(result)
+
+      val expect = (Some("minute"), Row(new Timestamp(1L)))
+
+      val result =
+        AggregateOperations.toKeyRow(DimensionValuesTime(Seq(), timestamp, timeDimension), Map(), Map(), None, false)
+
+      result should be(expect)
     }
 
   it should "return a correct sequence of values with aggregations and dimensions" in
     new CommonValues {
-      val result = (Seq("value1", "value2", 1L), Seq("value"))
-      AggregateOperations.toSeq(
-        dimensionValuesT.dimensionValues, aggregations) should be(result)
+
+      val expect = (Seq("value1", "value2", 1L), Seq("value"))
+
+      val result = AggregateOperations.toSeq(
+        dimensionValuesT.dimensionValues, aggregations)
+
+      result should be(expect)
     }
 
   it should "return a correct sequence of values with empty aggregations and dimensions" in
     new CommonValues {
-      val result = (Seq("value1", "value2", 1L), Seq())
-      AggregateOperations.toSeq(dimensionValuesT.dimensionValues, Map()) should be(result)
+
+      val expect = (Seq("value1", "value2", 1L), Seq())
+
+      val result = AggregateOperations.toSeq(dimensionValuesT.dimensionValues, Map())
+
+      result should be(expect)
     }
 
   it should "return a correct sequence of values with aggregations and empty dimensions" in
     new CommonValues {
-      val result =
-        (Seq(), Seq("value"))
-      AggregateOperations.toSeq(Seq(), aggregations) should be(result)
+
+      val expect = (Seq(), Seq("value"))
+
+      val result = AggregateOperations.toSeq(Seq(), aggregations)
+
+      result should be(expect)
     }
 
   it should "return a correct sequence of values with empty aggregations and empty dimensions" in
     new CommonValues {
-      val result = (Seq(), Seq())
-      AggregateOperations.toSeq(Seq(), Map()) should be(result)
+
+      val expect = (Seq(), Seq())
+
+      val result =  AggregateOperations.toSeq(Seq(), Map())
+
+      result should be(expect)
     }
 
   it should "return a correct names and values without idcalculated" in
     new CommonValues {
-      val result = (Seq(), Seq())
-      AggregateOperations.getNamesValues(Seq(), Seq(), false) should be(result)
+
+      val expect = (Seq(), Seq())
+
+      val result = AggregateOperations.getNamesValues(Seq(), Seq(), false)
+
+      result should be(expect)
     }
 
   it should "return a correct names and values with idcalculated" in
     new CommonValues {
-      val result = (Seq("id"), Seq(""))
-      AggregateOperations.getNamesValues(Seq(), Seq(), true) should be(result)
+
+      val expect = (Seq("id"), Seq(""))
+
+      val result = AggregateOperations.getNamesValues(Seq(), Seq(), true)
+
+      result should be(expect)
     }
 
 }

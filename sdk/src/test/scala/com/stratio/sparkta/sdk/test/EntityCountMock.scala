@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-case class DimensionValue(dimension : Dimension, value: JSerializable)
-  extends Ordered[DimensionValue] {
+import com.stratio.sparkta.sdk.{WriteOp, EntityCount}
+import com.stratio.sparkta.sdk.WriteOp._
 
-  def getNameDimension: String = dimension.name
+class EntityCountMock(name: String, properties: Map[String, JSerializable]) extends EntityCount(name, properties) {
 
-  def compare(dimensionValue: DimensionValue): Int = dimension compareTo dimensionValue.dimension
+  override def processReduce(values: Iterable[Option[Any]]): Option[Any] = values.head
 
-  override def toString: String = dimension.name
-
+  override def writeOperation: WriteOp = WriteOp.Inc
 }
