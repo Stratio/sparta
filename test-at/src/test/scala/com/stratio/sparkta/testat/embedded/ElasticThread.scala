@@ -22,5 +22,4 @@ object ElasticThread {
     ElasticsearchEmbeddedServer.cleanData
     ElasticsearchEmbeddedServer.start
   }
-
 }
