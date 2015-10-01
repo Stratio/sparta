@@ -14,25 +14,16 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.sdk.test
 
-case class Dimension(name: String, field: String, precisionKey: String, dimensionType: DimensionType)
-  extends Ordered[Dimension] {
+import java.io.{Serializable => JSerializable}
 
-  val precision = dimensionType.precision(precisionKey)
+import com.stratio.sparkta.sdk.{Event, Input}
+import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.streaming.dstream.DStream
 
-  def getNamePrecision: String = precision.id match {
-    case DimensionType.IdentityName => field
-    case _ => precision.id
-  }
+class InputTest (properties: Map[String, JSerializable]) extends Input(properties) {
 
-  def compare(dimension: Dimension): Int = name compareTo dimension.name
+  override def setUp(ssc: StreamingContext, storageLevel: String): DStream[Event] = ???
 
-  override def toString: String = name
-
-}
-
-case object Dimension {
-
-  final val FieldClassSuffix = "Field"
 }

@@ -25,4 +25,6 @@ case class DimensionValue(dimension : Dimension, value: JSerializable)
 
   def compare(dimensionValue: DimensionValue): Int = dimension compareTo dimensionValue.dimension
 
+  override def toString: String = dimension.name
+
 }
