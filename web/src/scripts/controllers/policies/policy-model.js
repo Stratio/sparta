@@ -14,18 +14,18 @@
     vm.init = init;
     vm.changeDefaultConfiguration = changeDefaultConfiguration;
     vm.addModel = addModel;
-    vm.removeModel = ModelService.removeModel;
+    vm.removeModel = removeModel;
     vm.isLastModel = ModelService.isLastModel;
     vm.isNewModel = ModelService.isNewModel;
 
     vm.init();
 
     function init() {
-      vm.model = ModelFactory.getModel();
+      vm.template = PolicyModelFactory.getTemplate();
+      vm.model = ModelFactory.getModel(vm.template);
       vm.modelError = '';
       if (vm.model) {
         vm.policy = PolicyModelFactory.getCurrentPolicy();
-        vm.template = PolicyModelFactory.getTemplate();
         vm.modelError = ModelFactory.getError();
         vm.modelContext = ModelFactory.getContext();
 
@@ -64,6 +64,12 @@
       } else {
         ModelFactory.setError("_GENERIC_FORM_ERROR_");
       }
+    }
+
+    function removeModel() {
+      ModelService.removeModel().then(function () {
+        vm.model = ModelFactory.resetModel(vm.template);
+      });
     }
   }
 })

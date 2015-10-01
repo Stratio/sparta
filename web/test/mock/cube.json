@@ -1,0 +1,6 @@
+{
+  "name": "fake cube",
+  "dimensions":[{"field": "output1"}],
+  "operators": [],
+  "checkpointConfig":{"timeDimension": "minute"}
+}

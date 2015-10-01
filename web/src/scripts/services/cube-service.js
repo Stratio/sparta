@@ -19,64 +19,13 @@
     vm.removeCube = removeCube;
     vm.isNewCube = isNewCube;
     vm.getCreatedCubes = getCreatedCubes;
-    vm.policy = PolicyModelFactory.getCurrentPolicy();
 
     init();
 
     function init() {
+      vm.policy = PolicyModelFactory.getCurrentPolicy();
+
       createdCubes = vm.policy.cubes.length;
-    }
-
-    function findCubesUsingOutputs(cubes, outputs) {
-      var cubeNames = [];
-      var cubePositions = [];
-      var currentCube = null;
-      var found = false;
-      for (var i = 0; i < cubes.length; ++i) {
-        found = false;
-        currentCube = cubes[i];
-        found = findDimensionUsingOutputs(currentCube, outputs);
-        if (found) {
-          cubeNames.push(currentCube.name);
-          cubePositions.push(i);
-        }
-      }
-      return {names: cubeNames, positions: cubePositions};
-    }
-
-    function findDimensionUsingOutputs(cube, outputs) {
-      var found = false;
-      var currentDimension = null;
-      var i = 0;
-      while (!found && i < cube.dimensions.length) {
-        currentDimension = cube.dimensions[i];
-        if (outputs.indexOf(currentDimension.field) != -1) {
-          found = true;
-        } else {
-          ++i;
-        }
-      }
-      return found;
-    }
-
-
-    function areValidCubes(cubes) {
-      var valid = true;
-      var i = 0;
-      var currentCube = null;
-      if (cubes) {
-        while (valid && i < cubes.length) {
-          currentCube = cubes[i];
-          if (!CubeModelFactory.isValidCube(currentCube, cubes, i)) {
-            valid = false;
-          } else {
-            ++i;
-          }
-        }
-      } else {
-        valid = false;
-      }
-      return valid;
     }
 
     function showConfirmRemoveCube() {
@@ -100,6 +49,61 @@
         defer.reject();
       });
       return defer.promise;
+    }
+
+    function findCubesUsingOutputs(outputs) {
+      var cubeNames = [];
+      var cubePositions = [];
+      var cubes = vm.policy.cubes;
+      if (cubes && outputs) {
+        var currentCube = null;
+        var found = false;
+        for (var i = 0; i < cubes.length; ++i) {
+          found = false;
+          currentCube = cubes[i];
+          found = findDimensionUsingOutputs(currentCube, outputs);
+          if (found) {
+            cubeNames.push(currentCube.name);
+            cubePositions.push(i);
+          }
+        }
+      }
+      return {names: cubeNames, positions: cubePositions};
+    }
+
+    function findDimensionUsingOutputs(cube, outputs) {
+      var found = false;
+      var currentDimension = null;
+      var i = 0;
+      while (!found && i < cube.dimensions.length) {
+        currentDimension = cube.dimensions[i];
+        if (outputs.indexOf(currentDimension.field) != -1) {
+          found = true;
+        } else {
+          ++i;
+        }
+      }
+      return found;
+    }
+
+    function areValidCubes() {
+      var valid = true;
+      var i = 0;
+      var currentCube = null;
+      if (vm.policy.cubes.length > 0) {
+        while (valid && i < vm.policy.cubes.length) {
+          currentCube = vm.policy.cubes[i];
+
+          if (!CubeModelFactory.isValidCube(currentCube, vm.policy.cubes, i)) {
+            valid = false;
+          } else {
+            ++i;
+          }
+        }
+      } else {
+        valid = false;
+      }
+      return valid;
     }
 
 
@@ -130,9 +134,9 @@
         vm.policy.cubes.splice(index, 1);
         AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
         defer.resolve();
-      }, function () {
+      }), function () {
         defer.reject()
-      });
+      };
       return defer.promise;
     }
 
