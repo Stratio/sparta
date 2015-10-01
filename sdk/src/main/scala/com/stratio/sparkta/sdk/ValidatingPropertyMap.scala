@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.sdk
 
 import scala.util.parsing.json.JSON
@@ -29,6 +30,10 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
 
   def getOption(key: K): Option[V] = m.get(key)
 
+  def getOptionAs[Y](key: K): Option[Y] =
+    if (m.get(key).isDefined) Some(m.get(key).get.asInstanceOf[Y])
+    else None
+
   def getString(key: K): String =
     m.get(key) match {
       case Some(value: String) => value
@@ -37,12 +42,11 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
         throw new IllegalStateException(s"$key is mandatory")
     }
 
-
   def getHostPortConfs(key: K, defaultHost: String, defaultPort: String): Seq[(String, Int)] = {
 
     val conObj = getConnectionChain(key)
     conObj.map(c =>
-      (c.get("node") match{
+      (c.get("node") match {
         case Some(value) => value.toString
         case None => defaultHost
       },
@@ -50,10 +54,9 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
           case Some(value) => value.toString.toInt
           case None => defaultPort.toInt
         }))
-
   }
 
-  def getConnectionChain(key: K): Seq[Map[String,String]] = {
+  def getConnectionChain(key: K): Seq[Map[String, String]] = {
     m.get(key) match {
       case Some(value) => JSON.parseFull(value.asInstanceOf[JsoneyString].string)
         .get.asInstanceOf[Seq[Map[String, String]]]
@@ -106,7 +109,7 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
     m.get(key) match {
       case Some(value: Int) => getInt(key)
       case Some(value: JsoneyString) => getInt(key)
-      case None => default
+      case _ => default
     }
   }
 
@@ -144,5 +147,4 @@ object ValidatingPropertyMap {
 
   implicit def map2ValidatingPropertyMap[K, V](m: Map[K, V]): ValidatingPropertyMap[K, V] =
     new ValidatingPropertyMap[K, V](m)
-
 }
