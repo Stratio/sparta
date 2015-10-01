@@ -19,8 +19,8 @@ package com.stratio.sparkta.sdk.exception
 import scala.util.control.NoStackTrace
 
 /**
- * This class id used to create custom exceptions that will be mostly used in tests
- * with the particularity that it has not trace.
+ * This class it's used to create custom exceptions that will be mostly used in tests
+ * To throw a MockException: new MockException(mockErrorMessage)
  */
 class MockException extends NoStackTrace {
 
