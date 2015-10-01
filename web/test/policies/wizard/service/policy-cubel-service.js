@@ -1,10 +1,10 @@
-describe('Cube service', function () {
+describe('service.cube', function () {
   beforeEach(module('webApp'));
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/cube.json'));
 
   var service, q, rootScope, httpBackend, translate, ModalServiceMock, PolicyModelFactoryMock, CubeModelFactoryMock,
-    AccordionStatusServiceMock, UtilsServiceMock, fakeCube2, fakeCube3,resolvedPromiseFunction,rejectedPromiseFunction,
+    AccordionStatusServiceMock, UtilsServiceMock, fakeCube2, fakeCube3, resolvedPromiseFunction, rejectedPromiseFunction,
     fakeCube = null;
   var fakePolicy = {};
 
@@ -186,9 +186,7 @@ describe('Cube service', function () {
       it("accordion status is reset with the current length of the cube list", function () {
         expect(AccordionStatusServiceMock.resetAccordionStatus).toHaveBeenCalledWith(service.policy.cubes.length);
       });
-
     });
-
   });
 
   describe("should be able to remove the cube of the factory by its id", function () {
@@ -202,8 +200,6 @@ describe('Cube service', function () {
     });
 
     it("cube is removed if confirmation modal is confirmed", function () {
-      spyOn(service, "showConfirmRemoveCube").and.callFake(resolvedPromiseFunction);
-
       service.removeCube(0).then(function () { // remove the first cube
         expect(service.policy.cubes.length).toBe(2);
         expect(service.policy.cubes[0]).toBe(fakeCube2);
@@ -212,21 +208,19 @@ describe('Cube service', function () {
     });
 
     it("cube is not removed if confirmation modal is cancelled", function () {
-      spyOn(service, "showConfirmRemoveCube").and.callFake(rejectedPromiseFunction);
-
+      ModalServiceMock.openModal.and.callFake(function () {
+        var defer = q.defer();
+        defer.reject();
+        return {"result": defer.promise};
+      });
       service.removeCube(0).then(function () { // remove the first cube
-
-        console.log("eeee")
-        expect(service.policy.cubes.length).toBe(24444);
-        expect(service.policy.cubes[0]).toBe(fakeCube2);
-        expect(service.policy.cubes[1]).toBe(fakeCube3);
-      }), function () {
-        expect(service.policy.cubes.length).toBe(2);
-        expect(service.policy.cubes[0]).toBe(fakeCube2);
-        expect(service.policy.cubes[1]).toBe(fakeCube3);
-      }
+      }, function () {
+        expect(service.policy.cubes.length).toBe(3);
+        expect(service.policy.cubes[0]).toBe(fakeCube);
+        expect(service.policy.cubes[1]).toBe(fakeCube2);
+        expect(service.policy.cubes[2]).toBe(fakeCube3);
+      })
     });
-
   });
 
   it("should be able to return if a cube is a new cube by its position", function () {
@@ -238,6 +232,20 @@ describe('Cube service', function () {
     expect(service.isNewCube(0)).toBeFalsy();
     expect(service.isNewCube(2)).toBeFalsy();
     expect(service.isNewCube(3)).toBeTruthy();
+  });
+
+  describe("should have a count of created cubes", function () {
+
+    it("it is equal to the cube list of policy when service it is initialized", function () {
+      expect(service.getCreatedCubes()).toBe(service.policy.cubes.length);
+    });
+    it("it is incremented when a cube is added", function () {
+
+      CubeModelFactoryMock.isValidCube.and.returnValue(true);
+      var expected = service.getCreatedCubes() + 1;
+      service.addCube();
+      expect(service.getCreatedCubes()).toBe(expected);
+    })
   });
 
 });
