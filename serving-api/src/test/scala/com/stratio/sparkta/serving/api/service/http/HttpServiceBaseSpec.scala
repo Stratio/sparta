@@ -84,7 +84,7 @@ trait HttpServiceBaseSpec extends WordSpec
     val cubes = Seq(CubeModel("cube1",
       checkpointModel,
       dimensionModel,
-      operators,
+      operators: Seq[OperatorModel],
       CubeModel.Multiplexer))
     val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
     val input = Some(PolicyElementModel("kafka", "Kafka",Map()))
