@@ -37,7 +37,7 @@
     }
 
     function nextStep() {
-      if (vm.policy.cubes.length > 0 && CubeService.areValidCubes(vm.policy.cubes)) {
+      if (vm.policy.cubes.length > 0 && CubeService.areValidCubes()) {
         PolicyModelFactory.nextStep();
       }
       else {
