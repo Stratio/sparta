@@ -20,7 +20,7 @@ import java.io.{Serializable => JSerializable}
 
 case class Event(keyMap: Map[String, JSerializable], rawData: Option[JSerializable] = None) {
 
-  if (keyMap == null) {
+  if (Option(keyMap).isEmpty) {
     throw new NullPointerException("keyMap")
   }
 

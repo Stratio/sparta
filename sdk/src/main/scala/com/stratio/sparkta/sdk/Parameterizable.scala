@@ -20,7 +20,7 @@ import java.io.Serializable
 
 abstract case class Parameterizable(properties: Map[String, Serializable]) {
 
-  if (properties == null) {
+  if (Option(properties).isEmpty) {
     throw new NullPointerException("properties")
   }
 

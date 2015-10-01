@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-case class DimensionValue(dimension : Dimension, value: JSerializable)
-  extends Ordered[DimensionValue] {
+import com.stratio.sparkta.sdk.{Parser, Event}
 
-  def getNameDimension: String = dimension.name
+class ParserMock (name: String,
+                  order: Integer,
+                  inputField: String,
+                  outputFields: Seq[String],
+                  properties: Map[String, JSerializable])
+  extends Parser(name, order, inputField, outputFields, properties){
 
-  def compare(dimensionValue: DimensionValue): Int = dimension compareTo dimensionValue.dimension
-
-  override def toString: String = dimension.name
+  override def parse(data: Event): Event = data
 
 }

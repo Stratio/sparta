@@ -23,12 +23,16 @@ import org.scalatest.{Matchers, WordSpec}
 @RunWith(classOf[JUnitRunner])
 class EventSpec extends WordSpec with Matchers {
 
-  "EventSpec" should {
+  "Event" should {
     val event = new Event(Map("field" -> 1))
 
-    val expected = "[Event, Properties=Map(field -> 1)]"
     "Return the associated string" in {
-      event.toString should be(expected)
+
+      val expected = "[Event, Properties=Map(field -> 1)]"
+
+      val result = event.toString
+
+     result should be(expected)
     }
   }
 }

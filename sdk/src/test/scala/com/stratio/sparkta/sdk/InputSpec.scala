@@ -16,15 +16,35 @@
 
 package com.stratio.sparkta.sdk
 
-import java.io.{Serializable => JSerializable}
+import com.stratio.sparkta.sdk.test.InputMock
+import org.apache.spark.storage.StorageLevel
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{Matchers, WordSpec}
 
-case class DimensionValue(dimension : Dimension, value: JSerializable)
-  extends Ordered[DimensionValue] {
+@RunWith(classOf[JUnitRunner])
+class InputSpec extends WordSpec with Matchers {
 
-  def getNameDimension: String = dimension.name
+  "Input" should {
+    val input = new InputMock(Map())
 
-  def compare(dimensionValue: DimensionValue): Int = dimension compareTo dimensionValue.dimension
+    val expected = StorageLevel.DISK_ONLY
 
-  override def toString: String = dimension.name
+    val result = input.storageLevel("DISK_ONLY")
 
+    "Return the associated storageLevel" in {
+
+     result should be(expected)
+    }
+  }
+
+  "classSuffix must be " in {
+
+    val expected = "Input"
+
+    val result = Input.ClassSuffix
+
+    result should be(expected)
+  }
 }
+
