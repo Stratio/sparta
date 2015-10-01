@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.test.helpers
+package com.stratio.sparkta.serving.api.helpers
 
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.api.helpers.PolicyHelper
