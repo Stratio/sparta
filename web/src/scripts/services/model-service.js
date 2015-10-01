@@ -5,16 +5,17 @@
     .module('webApp')
     .service('ModelService', ModelService);
 
-  ModelService.$inject = ['ModalService', 'PolicyModelFactory', '$translate', 'ModelFactory', 'CubeService', 'AccordionStatusService', 'UtilsService'];
+  ModelService.$inject = ['ModalService', 'PolicyModelFactory', '$translate', 'ModelFactory', 'CubeService', 'AccordionStatusService', 'UtilsService', '$q'];
 
-  function ModelService(ModalService, PolicyModelFactory, $translate, ModelFactory, CubeService, AccordionStatusService, UtilsService) {
+  function ModelService(ModalService, PolicyModelFactory, $translate, ModelFactory, CubeService, AccordionStatusService, UtilsService, $q) {
     var vm = this;
     vm.showConfirmRemoveModel = showConfirmRemoveModel;
-    vm.policy = PolicyModelFactory.getCurrentPolicy();
     vm.addModel = addModel;
     vm.removeModel = removeModel;
     vm.isLastModel = isLastModel;
     vm.isNewModel = isNewModel;
+
+    vm.policy = PolicyModelFactory.getCurrentPolicy();
 
     function showConfirmRemoveModel(cubeNames) {
       var defer = $q.defer();
@@ -44,7 +45,6 @@
     function addModel() {
       vm.error = "";
       var modelToAdd = angular.copy(ModelFactory.getModel());
-      console.log(modelToAdd);
       if (ModelFactory.isValidModel()) {
         modelToAdd.order = vm.policy.models.length + 1;
         vm.policy.models.push(modelToAdd);
