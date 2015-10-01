@@ -16,23 +16,21 @@
 
 package com.stratio.sparkta.sdk
 
-case class Dimension(name: String, field: String, precisionKey: String, dimensionType: DimensionType)
-  extends Ordered[Dimension] {
+import com.stratio.sparkta.sdk.test.DimensionTypeTest
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{Matchers, WordSpec}
 
-  val precision = dimensionType.precision(precisionKey)
+@RunWith(classOf[JUnitRunner])
+class DimensionValueSpec extends WordSpec with Matchers {
 
-  def getNamePrecision: String = precision.id match {
-    case DimensionType.IdentityName => field
-    case _ => precision.id
+  "DimensionValueSpec" should {
+    val defaultDimensionType = new DimensionTypeTest(Map())
+    val dimension = Dimension("dim1", "eventKey", "identity", defaultDimensionType)
+    val dimensionValue = DimensionValue(dimension, "hola")
+
+    "return the correct name" in {
+      dimensionValue.getNameDimension should be("eventKey")
+    }
   }
-
-  def compare(dimension: Dimension): Int = name compareTo dimension.name
-
-  override def toString: String = name
-
-}
-
-case object Dimension {
-
-  final val FieldClassSuffix = "Field"
 }
