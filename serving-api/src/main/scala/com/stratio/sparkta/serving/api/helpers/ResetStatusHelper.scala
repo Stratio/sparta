@@ -52,5 +52,4 @@ object ResetStatusHelper extends SparktaSerializer {
       case Success(())=> {}
     }
   }
-
 }
