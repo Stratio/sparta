@@ -1,19 +1,6 @@
 {
   "name": "fake cube",
-  "dimensions": [
-    {
-      "field": "output1"
-    }
-  ],
-  "operators": [
-    {
-      "fake attribute": ""
-    }
-  ],
-  "checkpointConfig": {
-    "timeDimension": "fake timeDimension",
-    "interval": "fake interval",
-    "timeAvailability": "fake timeAvailability",
-    "granularity": "fake granularity"
-  }
+  "dimensions":[{"field": "output1"}],
+  "operators": [],
+  "checkpointConfig":{"timeDimension": "minute"}
 }
