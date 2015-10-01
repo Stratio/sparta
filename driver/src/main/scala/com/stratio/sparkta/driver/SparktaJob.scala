@@ -42,7 +42,7 @@ import scala.util._
 
 object SparktaJob extends SLF4JLogging {
 
-  def runSparktaJob(apConfig: AggregationPoliciesModel): Any = {
+  def runSparktaJob(sc: SparkContext, apConfig: AggregationPoliciesModel): Any = {
     val checkpointPolicyPath = apConfig.checkpointPath.concat(File.separator).concat(apConfig.name)
     //TODO check the problem in the checkpoint and fault tolerance
     // deletePreviousCheckpointPath(checkpointPolicyPath)
