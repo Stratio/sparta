@@ -34,8 +34,6 @@ import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 @Api(value = HttpConstant.PolicyContextPath, description = "Operations about policy contexts.", position = 0)
 trait PolicyContextHttpService extends BaseHttpService {
 
-  case class Result(policyId: String, policyName: String)
-
   override def routes: Route = findAll ~ update ~ create
 
   @ApiOperation(value = "Finds all policy contexts",
@@ -56,7 +54,6 @@ trait PolicyContextHttpService extends BaseHttpService {
             case Response(Failure(exception)) => throw exception
             case Response(Success(policyStatuses)) => policyStatuses
           }
-
         }
       }
     }
@@ -97,7 +94,7 @@ trait PolicyContextHttpService extends BaseHttpService {
   @ApiOperation(value = "Creates a policy context.",
     notes = "Returns the result",
     httpMethod = "POST",
-    response = classOf[Result])
+    response = classOf[PolicyResult])
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "policy",
       value = "policy json",
@@ -123,7 +120,7 @@ trait PolicyContextHttpService extends BaseHttpService {
               } yield {
                 response match {
                   case Success(policy) =>
-                    Result(policy.id.getOrElse(""), p.name)
+                    PolicyResult(policy.id.getOrElse(""), p.name)
                   case Failure(e) => throw e
                 }
               }
@@ -133,5 +130,4 @@ trait PolicyContextHttpService extends BaseHttpService {
       }
     }
   }
-
 }
