@@ -23,36 +23,40 @@ import org.scalatest.{Matchers, WordSpec}
 @RunWith(classOf[JUnitRunner])
 class MultiplexerSpec extends WordSpec with Matchers {
 
-  "MultiplexerSpec" should {
+  "Multiplexer" should {
 
     "Return the combinations with the complex input" in {
-      val input = (Seq("hola", "holo", "adios"), "fixed1", "fixed2")
+      val input = (Seq("hello", "bye", "die"), "fixed1", "fixed2")
 
       val expected = Vector(
-        (Seq("hola"), "fixed1", "fixed2"),
-        (Seq("holo"), "fixed1", "fixed2"),
-        (Seq("adios"), "fixed1", "fixed2"),
-        (Seq("hola", "holo"), "fixed1", "fixed2"),
-        (Seq("hola", "adios"), "fixed1", "fixed2"),
-        (Seq("holo", "adios"), "fixed1", "fixed2"),
-        (Seq("hola", "holo", "adios"), "fixed1", "fixed2"))
+        (Seq("hello"), "fixed1", "fixed2"),
+        (Seq("bye"), "fixed1", "fixed2"),
+        (Seq("die"), "fixed1", "fixed2"),
+        (Seq("hello", "bye"), "fixed1", "fixed2"),
+        (Seq("hello", "die"), "fixed1", "fixed2"),
+        (Seq("bye", "die"), "fixed1", "fixed2"),
+        (Seq("hello", "bye", "die"), "fixed1", "fixed2"))
 
-      Multiplexer.combine(input) should be(expected)
+      val result = Multiplexer.combine(input)
+
+      result should be(expected)
     }
 
     "Return the combinations with the simple input" in {
-      val input = Seq("hola", "holo", "adios")
+      val input = Seq("hello", "bye", "die")
 
       val expected = Vector(
-        Seq("hola"),
-        Seq("holo"),
-        Seq("adios"),
-        Seq("hola", "holo"),
-        Seq("hola", "adios"),
-        Seq("holo", "adios"),
-        Seq("hola", "holo", "adios"))
+        Seq("hello"),
+        Seq("bye"),
+        Seq("die"),
+        Seq("hello", "bye"),
+        Seq("hello", "die"),
+        Seq("bye", "die"),
+        Seq("hello", "bye", "die"))
 
-      Multiplexer.combine(input) should be(expected)
+      val result = Multiplexer.combine(input)
+
+      result should be(expected)
     }
   }
 }

@@ -47,8 +47,6 @@ abstract class Output(keyName: String,
 
   def fixedDimensionsType: TypeOp.Value = TypeOp.String
 
-
-
   val supportedWriteOps = Seq(WriteOp.FullText, WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Range,
     WriteOp.AccSet, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.AccAvg, WriteOp.Median,
     WriteOp.AccMedian, WriteOp.Variance, WriteOp.AccVariance, WriteOp.Stddev, WriteOp.AccStddev,
@@ -71,7 +69,7 @@ abstract class Output(keyName: String,
 
   final val FieldsSeparator = ","
 
-  protected def isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
+  def isAutoCalculateId: Boolean = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
   def persist(streams: Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]]): Unit = {
     sqlContext = new SQLContext(streams.head.context.sparkContext)
@@ -112,7 +110,7 @@ abstract class Output(keyName: String,
         isAutoCalculateId)
     }
       .foreachRDD(rdd => {
-      bcSchema.get.filter(tschema => (tschema.outputName == keyName)).foreach(tschemaFiltered => {
+      bcSchema.get.filter(tschema => tschema.outputName == keyName).foreach(tschemaFiltered => {
         val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
         val dataFrame = sqlContext.createDataFrame(
           extractRow(rdd.filter { case (schema, row) => schema.exists(_ == tableSchemaTime.tableName) }),
@@ -127,17 +125,19 @@ abstract class Output(keyName: String,
   def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {}
 
   //TODO refactor for remove var types
-  protected def getTableSchemaFixedId(tbSchema: TableSchema): TableSchema = {
+  def getTableSchemaFixedId(tbSchema: TableSchema): TableSchema = {
     var tableName = tbSchema.tableName.split(Output.Separator)
-      .filter(name => !fixedDimensions.contains(name) && name != tbSchema.timeDimension) ++ Seq(tbSchema.timeDimension)
+      .filter(name  => name != tbSchema.timeDimension && !fixedDimensions.contains(name))
     var fieldsPk = getFields(tbSchema, false)
     var modifiedSchema = false
 
     if (!fixedDimensions.isEmpty) {
       fixedDimensions.foreach(fxdimension => {
+      if(!fieldsPk.map(stField => stField.name).contains(fxdimension)) {
         tableName = tableName ++ Array(fxdimension)
         fieldsPk = fieldsPk ++ Seq(Output.getFieldType(fixedDimensionsType, fxdimension, false))
         modifiedSchema = true
+      }
       })
     }
 
@@ -150,33 +150,29 @@ abstract class Output(keyName: String,
     fieldsPk = fieldsPk ++
       Seq(Output.getFieldType(dateType, tbSchema.timeDimension, false)) ++
       getFields(tbSchema, true)
+    tableName = tableName ++ Seq(tbSchema.timeDimension)
     new TableSchema(tbSchema.outputName,
       tableName.mkString(Output.Separator),
       StructType(fieldsPk),
       tbSchema.timeDimension)
   }
 
-  protected def getFields(tbSchema: TableSchema, nullables: Boolean): Seq[StructField] =
+  def getFields(tbSchema: TableSchema, nullables: Boolean): Seq[StructField] =
     tbSchema.schema.fields.toSeq.filter(field =>
       !fixedDimensions.contains(field.name) && field.name != tbSchema.timeDimension && field.nullable == nullables)
 
-  protected def genericRowSchema(rdd: RDD[(Option[String], Row)]): (Option[String], RDD[Row]) =
-    (Some(rdd.map(rowType => rowType._1.get.split(Output.Separator))
-      .reduce((names1, names2) => if (names1.length > names2.length) names1 else names2).mkString(Output.Separator)),
-      extractRow(rdd))
-
-  protected def extractRow(rdd: RDD[(Option[String], Row)]): RDD[Row] = rdd.map(rowType => rowType._2)
+  def extractRow(rdd: RDD[(Option[String], Row)]): RDD[Row] = rdd.map(rowType => rowType._2)
 
   def getFixedDimensions: Array[String] = fixedDimensions
 
-  protected def getFixedDimensions(dimensionValuesTime: DimensionValuesTime): Option[Seq[(String, Any)]] =
+  def getFixedDimensions(dimensionValuesTime: DimensionValuesTime): Option[Seq[(String, Any)]] =
     if (fixedDimensions.isEmpty) None
     else Some(fixedDimensions.flatMap(fxdimension => {
       dimensionValuesTime.dimensionValues.find(dimension => dimension.getNameDimension == fxdimension)
         .map(dimensionValue => (fxdimension, dimensionValue.value))
     }))
 
-  protected def filterDimensionValueTimeByFixedDimensions(dimensionValuesTime: DimensionValuesTime)
+  def filterDimensionValueTimeByFixedDimensions(dimensionValuesTime: DimensionValuesTime)
   : DimensionValuesTime =
     if (fixedDimensions.isEmpty) dimensionValuesTime
     else DimensionValuesTime(
@@ -186,7 +182,7 @@ abstract class Output(keyName: String,
       dimensionValuesTime.timeDimension
     )
 
-  protected def filterSchemaByFixedAndTimeDimensions(tbschemas: Seq[TableSchema]): Seq[TableSchema] =
+  def filterSchemaByFixedAndTimeDimensions(tbschemas: Seq[TableSchema]): Seq[TableSchema] =
     tbschemas.filter(schemaFilter => {
       val checkDimensions = getFixedDimensions ++ Array(schemaFilter.timeDimension)
       schemaFilter.outputName == keyName &&
@@ -195,10 +191,10 @@ abstract class Output(keyName: String,
         })
     })
 
-  protected def checkOperationTypes: Boolean =
+  def checkOperationTypes: Boolean =
     if (operationTypes.isDefined) {
       operationTypes.get.values.map(_._1).toSet.diff(supportedWriteOps.toSet).toSeq match {
-        case s if s.size == 0 => true
+        case s if s.isEmpty => true
         case badWriteOps => {
           log.info(s"The following write operators are not supported by this output: ${badWriteOps.mkString(", ")}")
           false

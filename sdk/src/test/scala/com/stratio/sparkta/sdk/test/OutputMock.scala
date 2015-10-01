@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-case class DimensionValue(dimension : Dimension, value: JSerializable)
-  extends Ordered[DimensionValue] {
+import com.stratio.sparkta.sdk.{WriteOp, Output, TableSchema}
+import com.stratio.sparkta.sdk.TypeOp._
+import com.stratio.sparkta.sdk.WriteOp._
 
-  def getNameDimension: String = dimension.name
+class OutputMock (keyName: String,
+                  properties: Map[String, JSerializable],
+                  operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
+                  bcSchema: Option[Seq[TableSchema]]) extends Output(keyName, properties, operationTypes, bcSchema){
 
-  def compare(dimensionValue: DimensionValue): Int = dimension compareTo dimensionValue.dimension
-
-  override def toString: String = dimension.name
-
+  override val supportedWriteOps = Seq(WriteOp.Set)
 }

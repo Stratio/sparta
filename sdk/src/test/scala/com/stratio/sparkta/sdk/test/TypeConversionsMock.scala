@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-case class DimensionValue(dimension : Dimension, value: JSerializable)
-  extends Ordered[DimensionValue] {
+import com.stratio.sparkta.sdk.{TypeOp, TypeConversions}
+import com.stratio.sparkta.sdk.TypeOp._
 
-  def getNameDimension: String = dimension.name
+class TypeConversionsMock extends TypeConversions {
 
-  def compare(dimensionValue: DimensionValue): Int = dimension compareTo dimensionValue.dimension
+  override def defaultTypeOperation: TypeOp = TypeOp.Int
 
-  override def toString: String = dimension.name
-
+  override def operationProps: Map[String, JSerializable] = Map("typeOp" -> "string")
 }
