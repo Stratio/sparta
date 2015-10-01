@@ -20,7 +20,6 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.aggregator.Cube
 import com.stratio.sparkta.driver.factory.SchemaFactory
-import com.stratio.sparkta.driver.test.factory.SchemaFactorySpec
 import com.stratio.sparkta.sdk._
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
@@ -67,7 +66,7 @@ with MockitoSugar {
           StructField("dim2", StringType, false),
           StructField(checkpointGranularity, DateType, false),
           StructField("op1", LongType, true))), "minute")
-        )
+    )
 
 
     val res = SchemaFactory.cubesOperatorsSchemas(cubes, multiplexerConfigOptions)
