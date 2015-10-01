@@ -28,7 +28,7 @@ object Sparkta extends App with SLF4JLogging {
   SparktaConfig.initApiConfig()
   SparktaConfig.initSwaggerConfig()
   SparktaHelper.initAkkaSystem(AppConstant.ConfigAppName)
-  ResetStatusHelper.ResetStatuses
+  ResetStatusHelper.resetStatuses
 
 
 }
