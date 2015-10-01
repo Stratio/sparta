@@ -61,6 +61,13 @@ class AccumulatorOperatorTestSpec extends WordSpec with Matchers {
 
       val inputFields4 = new AccumulatorOperator("accumulator", Map("typeOp" -> "string"))
       inputFields4.processReduce(Seq(Some(1), Some(1))) should be(Some("1_1"))
+
+      val inputFields5 = new AccumulatorOperator("accumulator", Map("typeOp" -> "string"))
+
+      //I know, null sucks, but it's the only way test the "Try" inner
+      //scalastyle:off
+      inputFields5.processReduce(null) should be(Some(""))
+      //scalastyle:on
     }
 
     "processReduce distinct must be " in {
