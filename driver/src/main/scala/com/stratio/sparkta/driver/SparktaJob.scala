@@ -40,6 +40,7 @@ import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.util._
 
+
 object SparktaJob extends SLF4JLogging {
 
   def runSparktaJob(sc: SparkContext, apConfig: AggregationPoliciesModel): Any = {
@@ -82,7 +83,7 @@ object SparktaJob extends SLF4JLogging {
   @tailrec
   def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
     parsers.headOption match {
-      case Some(headParser: Parser) => applyParsers(input.map(event =>
+      case Some(headParser: Parser) => applyParsers(input.map(event => {
         Try(headParser.parse(event)) match {
           case Success(okEvent) => Some(okEvent)
           case Failure(exception) => {
@@ -91,7 +92,8 @@ object SparktaJob extends SLF4JLogging {
             log.error(error, exception)
             None
           }
-        }).flatMap(event => event match {
+        }
+      }).flatMap(event => event match {
         case Some(value) => Seq(value)
         case None => Seq()
       }), parsers.drop(1))
@@ -237,4 +239,5 @@ object SparktaJob extends SLF4JLogging {
       }
     }
   }
+
 }

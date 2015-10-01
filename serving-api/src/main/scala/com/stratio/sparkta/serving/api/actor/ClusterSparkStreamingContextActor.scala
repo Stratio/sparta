@@ -67,9 +67,11 @@ class ClusterSparkStreamingContextActor(policy: AggregationPoliciesModel,
         else {
           val hadoopUserName =
             scala.util.Properties.envOrElse("HADOOP_USER_NAME", hdfsConfig.getString(AppConstant.HadoopUserName))
+          val hdfsUgi=HdfsUtils.ugi(hadoopUserName)
           val hadoopConfDir =
             Some(scala.util.Properties.envOrElse("HADOOP_CONF_DIR", hdfsConfig.getString(AppConstant.HadoopConfDir)))
-          val hdfsUtils = new HdfsUtils(hadoopUserName, hadoopConfDir)
+          val hdfsConf=HdfsUtils.hdfsConfiguration(hadoopConfDir)
+          val hdfsUtils = new HdfsUtils(hdfsUgi,hdfsConf)
           val pluginsJarsFiles = PolicyUtils.activeJarFiles(activeJars.right.get, jarsPlugins)
           val pluginsJarsPath =
             s"/user/$hadoopUserName/${policy.name}-${policy.id.get}/${
