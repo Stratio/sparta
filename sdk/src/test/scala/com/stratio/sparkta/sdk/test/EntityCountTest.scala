@@ -14,25 +14,16 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.sdk.test
 
-case class Dimension(name: String, field: String, precisionKey: String, dimensionType: DimensionType)
-  extends Ordered[Dimension] {
+import java.io.{Serializable => JSerializable}
 
-  val precision = dimensionType.precision(precisionKey)
+import com.stratio.sparkta.sdk.{WriteOp, EntityCount}
+import com.stratio.sparkta.sdk.WriteOp._
 
-  def getNamePrecision: String = precision.id match {
-    case DimensionType.IdentityName => field
-    case _ => precision.id
-  }
+class EntityCountTest(name: String, properties: Map[String, JSerializable]) extends EntityCount(name, properties) {
 
-  def compare(dimension: Dimension): Int = name compareTo dimension.name
+  override def processReduce(values: Iterable[Option[Any]]): Option[Any] = values.head
 
-  override def toString: String = name
-
-}
-
-case object Dimension {
-
-  final val FieldClassSuffix = "Field"
+  override def writeOperation: WriteOp = WriteOp.Inc
 }

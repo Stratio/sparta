@@ -18,29 +18,13 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparkta.sdk.test.OperatorTest
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
 class OperatorSpec extends WordSpec with Matchers {
-
-  class OperatorTest(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
-
-    override val defaultTypeOperation = TypeOp.Long
-
-    override val writeOperation = WriteOp.Inc
-
-    override val castingFilterType = TypeOp.Number
-
-    override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
-      None
-    }
-
-    override def processReduce(values: Iterable[Option[Any]]): Option[Long] = {
-      None
-    }
-  }
 
   "Operator" should {
 
