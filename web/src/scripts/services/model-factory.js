@@ -62,8 +62,8 @@
       return isValid;
     }
 
-    function getModel(template, position) {
-      if (Object.keys(model).length == 0) init(template, position);
+    function getModel(template) {
+      if (Object.keys(model).length == 0) init(template);
       return model;
     }
 

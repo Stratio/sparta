@@ -15,15 +15,21 @@
     vm.isLastModel = isLastModel;
     vm.isNewModel = isNewModel;
 
-    vm.policy = PolicyModelFactory.getCurrentPolicy();
+    init();
+
+    function init(){
+      vm.policy = PolicyModelFactory.getCurrentPolicy();
+    }
 
     function showConfirmRemoveModel(cubeNames) {
       var defer = $q.defer();
       var templateUrl = "templates/modal/confirm-modal.tpl.html";
       var controller = "ConfirmModalCtrl";
       var message = "";
-      if (cubeNames.length > 0)
-        message = $translate('_REMOVE_MODEL_MESSAGE_', {modelList: cubeNames.toString()});
+
+      if (cubeNames && cubeNames.length > 0) {
+        message = $translate.instant('_REMOVE_MODEL_MESSAGE_', {modelList: cubeNames.toString()});
+      }
       var resolve = {
         title: function () {
           return "_REMOVE_MODEL_CONFIRM_TITLE_"
@@ -52,24 +58,19 @@
       }
     }
 
-    function removeModel(index) {
+    function removeModel() {
       var defer = $q.defer();
-      if (index !== undefined && index !== null && index >= 0 && index < vm.policy.models.length) {
+      var modelPosition = ModelFactory.getContext().position;
         //check if there are cubes whose dimensions have model outputFields as fields
-        var cubeList = CubeService.findCubesUsingOutputs(vm.policy.cubes, vm.policy.models[index].outputFields);
+        var cubeList = CubeService.findCubesUsingOutputs(vm.policy.models[modelPosition].outputFields);
 
         showConfirmRemoveModel(cubeList.names).then(function () {
           vm.policy.cubes = UtilsService.removeItemsFromArray(vm.policy.cubes, cubeList.positions);
-          vm.policy.models.splice(index, 1);
-          AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
-          ModelFactory.resetModel(vm.template);
+          vm.policy.models.splice(modelPosition, 1);
           defer.resolve();
         }, function () {
           defer.reject()
         });
-      } else {
-        defer.reject();
-      }
       return defer.promise;
     }
 
