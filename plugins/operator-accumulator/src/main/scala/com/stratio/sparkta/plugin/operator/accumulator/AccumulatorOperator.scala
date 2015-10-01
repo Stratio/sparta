@@ -28,7 +28,7 @@ class AccumulatorOperator(name:String, properties: Map[String, JSerializable]) e
 
   override val defaultTypeOperation = TypeOp.ArrayString
 
-  private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
+  private val inputField = properties.getOptionAs[String]("inputField")
 
   override val writeOperation = WriteOp.AccSet
 
@@ -38,13 +38,7 @@ class AccumulatorOperator(name:String, properties: Map[String, JSerializable]) e
     else None
   }
 
-  override def processReduce(values : Iterable[Option[Any]]): Option[Any] = {
+  override def processReduce(values : Iterable[Option[Any]]): Option[Any] =
     Try(Some(transformValueByTypeOp(returnType, getDistinctValues(values.flatten.map(_.toString)))))
-      .getOrElse(AccumulatorOperator.SOME_EMPTY)
-  }
+      .getOrElse(Some(""))
 }
-
-private object AccumulatorOperator {
-  val SOME_EMPTY = Some("")
-}
-
