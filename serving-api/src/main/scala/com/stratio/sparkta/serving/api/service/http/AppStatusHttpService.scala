@@ -23,9 +23,8 @@ import com.stratio.sparkta.serving.core.models.ErrorModel
 import com.wordnik.swagger.annotations._
 import spray.routing._
 
-@Api(value = HttpConstant.AppStatus, description = "Operations about sparkta status.", position = 9)
+@Api(value = HttpConstant.AppStatus, description = "Operations about sparkta status.")
 trait AppStatusHttpService extends BaseHttpService {
-
 
   override def routes: Route = checkStatus
 
@@ -41,16 +40,12 @@ trait AppStatusHttpService extends BaseHttpService {
     path(HttpConstant.AppStatus) {
       get {
         complete {
-
           if (!CuratorFactoryHolder.getInstance().getZookeeperClient.getZooKeeper.getState.isConnected)
-
             throw new ServingApiException(ErrorModel.toString(
               new ErrorModel(ErrorModel.CodeUnknow, s"Zk isn't connected at" +
                 s" ${CuratorFactoryHolder.getInstance().getZookeeperClient.getCurrentConnectionString}.")
             ))
-
-          else
-            "OK"
+          else "OK"
         }
       }
     }

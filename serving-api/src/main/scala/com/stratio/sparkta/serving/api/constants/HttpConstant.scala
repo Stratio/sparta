@@ -16,45 +16,15 @@
 
 package com.stratio.sparkta.serving.api.constants
 
-/**
- * HttpConstants used in http services mainly.
- */
-object HttpConstant {
+object HttpConstant  {
 
-  /**
-   * Serving api prefix endpoints
-   */
   final val FragmentPath = "fragment"
   final val TemplatePath = "template"
   final val PolicyPath = "policy"
   final val PolicyContextPath = "policyContext"
   final val SwaggerPath = "swagger"
-  final val JobServerPath = "jobServer"
-  final val JobsPath = "jobs"
   final val ContextsPath = "contexts"
   final val AppStatus= "status"
-
-  /**
-   * Http codes.
-   */
   final val NotFound = 400
-  final val BadRequest = 500
-
-  /**
-   * Http messages.
-   */
   final val NotFoundMessage = "Not Found"
-  final val BadRequestMessage = "Bad Request"
-  final val JobServerOkMessage = "OK"
-
-  /**
-   * Exceptions messages.
-   */
-  final val JobServerHostPortExceptionMsg = "JobServer host and port is not defined in configuration file"
-
-  /**
-   * RequestTimeouts
-   */
-  final val ConnectionTimeout = 2000
-  final val ReadTimeout = 60000
 }

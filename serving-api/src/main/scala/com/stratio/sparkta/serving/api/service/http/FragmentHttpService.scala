@@ -126,6 +126,7 @@ trait FragmentHttpService extends BaseHttpService {
     path(HttpConstant.FragmentPath / Segment) { (fragmentType) =>
       get {
         complete {
+          HttpConstant.AppStatus
           val future = supervisor ? new FindByType(fragmentType)
           Await.result(future, timeout.duration) match {
             case ResponseFragments(Failure(exception)) => throw exception
@@ -176,8 +177,8 @@ trait FragmentHttpService extends BaseHttpService {
           complete {
             val future = supervisor ? new Update(fragment)
             Await.result(future, timeout.duration) match {
-              case Response(Failure(exception)) => throw exception
               case Response(Success(fragment)) => HttpResponse(StatusCodes.OK)
+              case Response(Failure(exception)) => throw exception
             }
           }
         }
