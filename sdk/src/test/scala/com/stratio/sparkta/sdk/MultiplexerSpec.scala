@@ -23,7 +23,7 @@ import org.scalatest.{Matchers, WordSpec}
 @RunWith(classOf[JUnitRunner])
 class MultiplexerSpec extends WordSpec with Matchers {
 
-  "MultiplexerSpec" should {
+  "Multiplexer" should {
 
     "Return the combinations with the complex input" in {
       val input = (Seq("hola", "holo", "adios"), "fixed1", "fixed2")
@@ -37,7 +37,9 @@ class MultiplexerSpec extends WordSpec with Matchers {
         (Seq("holo", "adios"), "fixed1", "fixed2"),
         (Seq("hola", "holo", "adios"), "fixed1", "fixed2"))
 
-      Multiplexer.combine(input) should be(expected)
+      val result = Multiplexer.combine(input)
+
+      result should be(expected)
     }
 
     "Return the combinations with the simple input" in {
@@ -52,7 +54,9 @@ class MultiplexerSpec extends WordSpec with Matchers {
         Seq("holo", "adios"),
         Seq("hola", "holo", "adios"))
 
-      Multiplexer.combine(input) should be(expected)
+      val result = Multiplexer.combine(input)
+
+      result should be(expected)
     }
   }
 }

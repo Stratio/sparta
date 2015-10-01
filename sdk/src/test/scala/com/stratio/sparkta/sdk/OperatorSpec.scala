@@ -197,55 +197,95 @@ class OperatorSpec extends WordSpec with Matchers {
     "Operation compare with other operator must be less " in {
       val operator = new OperatorTest("opTest", Map())
       val operator2 = new OperatorTest("upTest", Map())
-      operator.compare(operator2) should be(-6)
+
+      val expected = -6
+
+      val result = operator.compare(operator2)
+
+      result should be(expected)
     }
 
     "Operation compare with other operator must be equals " in {
       val operator = new OperatorTest("opTest", Map())
       val operator2 = new OperatorTest("opTest", Map())
-      operator.compare(operator2) should be(0)
+
+      val expected = 0
+
+      val result = operator.compare(operator2)
+
+      result should be(expected)
     }
 
     "Operation compare with other operator must be higher " in {
       val operator = new OperatorTest("opTest", Map())
       val operator2 = new OperatorTest("apTest", Map())
-      operator.compare(operator2) should be(14)
+
+      val expected = 14
+
+      val result = operator.compare(operator2)
+
+      result should be(expected)
     }
 
     "Operation properties must be " in {
       val operator = new OperatorTest("opTest", Map())
-      operator.operationProps should be(Map())
+
+      val expected = Map()
+
+      val result = operator.operationProps
+
+      result should be(expected)
     }
 
     "Operation type must be " in {
       val operator = new OperatorTest("opTest", Map())
-      operator.defaultTypeOperation should be(TypeOp.Long)
+
+      val expected = TypeOp.Long
+
+      val result = operator.defaultTypeOperation
+
+      result should be(expected)
     }
 
     "Operation key must be " in {
       val operator = new OperatorTest("opTest", Map())
-      operator.key should be("opTest")
+
+      val expected = "opTest"
+
+      val result = operator.key
+
+      result should be(expected)
     }
 
     "Operation casting filter must be " in {
       val operator = new OperatorTest("opTest", Map())
-      operator.castingFilterType should be(TypeOp.Number)
+
+      val expected = TypeOp.Number
+
+      val result = operator.castingFilterType
+
+      result should be(expected)
     }
 
     "Operation return type must be " in {
       val operator = new OperatorTest("opTest", Map())
-      operator.returnType should be(TypeOp.Long)
+
+      val expected = TypeOp.Long
+
+      val result = operator.returnType
+
+      result should be(expected)
     }
 
     "Operation number casting must be " in {
       val operator = new OperatorTest("opTest", Map())
+
       operator.getNumberFromSerializable(2) should be(Some(2))
       operator.getNumberFromSerializable(2L) should be(Some(2))
       operator.getNumberFromSerializable(2d) should be(Some(2))
       operator.getNumberFromSerializable(2.asInstanceOf[Byte]) should be(Some(2))
       operator.getNumberFromSerializable(2.asInstanceOf[Short]) should be(Some(2))
       operator.getNumberFromSerializable(Option(2)) should be(None)
-
     }
 
   }

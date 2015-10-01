@@ -25,13 +25,16 @@ import org.scalatest.{Matchers, WordSpec}
 @RunWith(classOf[JUnitRunner])
 class InputSpec extends WordSpec with Matchers {
 
-  "InputSpec" should {
+  "Input" should {
     val input = new InputTest(Map())
 
     val expected = StorageLevel.DISK_ONLY
 
+    val result = input.storageLevel("DISK_ONLY")
+
     "Return the associated storageLevel" in {
-      input.storageLevel("DISK_ONLY") should be(expected)
+
+     result should be(expected)
     }
   }
 }
