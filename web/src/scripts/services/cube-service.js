@@ -134,9 +134,9 @@
         vm.policy.cubes.splice(index, 1);
         AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
         defer.resolve();
-      }), function () {
+      }, function () {
         defer.reject()
-      };
+      });
       return defer.promise;
     }
 
