@@ -18,12 +18,12 @@ package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{Event, Input}
-import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
+import com.stratio.sparkta.sdk.{TypeOp, TypeConversions}
+import com.stratio.sparkta.sdk.TypeOp._
 
-class InputTest (properties: Map[String, JSerializable]) extends Input(properties) {
+class TypeConversionsMock extends TypeConversions {
 
-  override def setUp(ssc: StreamingContext, storageLevel: String): DStream[Event] = ???
+  override def defaultTypeOperation: TypeOp = TypeOp.Int
 
+  override def operationProps: Map[String, JSerializable] = Map("typeOp" -> "string")
 }

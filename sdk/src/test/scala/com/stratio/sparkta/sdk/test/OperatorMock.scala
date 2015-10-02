@@ -20,7 +20,7 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.sdk.{Operator, TypeOp, WriteOp}
 
-class OperatorTest(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+class OperatorMock(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
 
   override val defaultTypeOperation = TypeOp.Long
 
@@ -37,7 +37,7 @@ class OperatorTest(name: String, properties: Map[String, JSerializable]) extends
   }
 }
 
-class OperatorTestString(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+class OperatorMockString(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
 
   override val defaultTypeOperation = TypeOp.Long
 

@@ -18,13 +18,15 @@ package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{Output, TableSchema}
-import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk.WriteOp._
+import com.stratio.sparkta.sdk.{Parser, Event}
 
-class OutputTest (keyName: String,
-                  properties: Map[String, JSerializable],
-                  operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
-                  bcSchema: Option[Seq[TableSchema]]) extends Output(keyName, properties, operationTypes, bcSchema){
+class ParserMock (name: String,
+                  order: Integer,
+                  inputField: String,
+                  outputFields: Seq[String],
+                  properties: Map[String, JSerializable])
+  extends Parser(name, order, inputField, outputFields, properties){
+
+  override def parse(data: Event): Event = data
 
 }
