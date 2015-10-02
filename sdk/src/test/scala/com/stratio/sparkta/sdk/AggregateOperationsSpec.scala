@@ -19,7 +19,7 @@ package com.stratio.sparkta.sdk
 import java.io.{Serializable => JSerializable}
 import java.sql.Timestamp
 
-import com.stratio.sparkta.sdk.test.DimensionTypeTest
+import com.stratio.sparkta.sdk.test.DimensionTypeMock
 import org.apache.spark.sql.Row
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -32,7 +32,7 @@ class AggregateOperationsSpec extends FlatSpec with ShouldMatchers {
 
     val timeDimension = "minute"
     val timestamp = 1L
-    val defaultDimension = new DimensionTypeTest(Map())
+    val defaultDimension = new DimensionTypeMock(Map())
     val dimensionValuesT = DimensionValuesTime(Seq(DimensionValue(
       Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
       DimensionValue(

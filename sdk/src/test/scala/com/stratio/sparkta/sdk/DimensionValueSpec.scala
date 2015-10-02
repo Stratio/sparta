@@ -16,7 +16,7 @@
 
 package com.stratio.sparkta.sdk
 
-import com.stratio.sparkta.sdk.test.DimensionTypeTest
+import com.stratio.sparkta.sdk.test.DimensionTypeMock
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -25,13 +25,13 @@ import org.scalatest.{Matchers, WordSpec}
 class DimensionValueSpec extends WordSpec with Matchers {
 
   "DimensionValue" should {
-    val defaultDimensionType = new DimensionTypeTest(Map())
+    val defaultDimensionType = new DimensionTypeMock(Map())
     val dimension = Dimension("dim1", "eventKey", "identity", defaultDimensionType)
     val dimensionValue = DimensionValue(dimension, "hola")
 
     "return the correct name" in {
 
-      val expected = "eventKey"
+      val expected = "dim1"
 
       val result = dimensionValue.getNameDimension
 

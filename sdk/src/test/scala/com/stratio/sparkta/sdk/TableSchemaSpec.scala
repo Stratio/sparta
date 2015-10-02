@@ -16,15 +16,26 @@
 
 package com.stratio.sparkta.sdk
 
-import java.io.{Serializable => JSerializable}
+import org.apache.spark.sql.types._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{Matchers, WordSpec}
 
-case class DimensionValue(dimension : Dimension, value: JSerializable)
-  extends Ordered[DimensionValue] {
+@RunWith(classOf[JUnitRunner])
+class TableSchemaSpec extends WordSpec with Matchers {
 
-  def getNameDimension: String = dimension.name
+  "TableSchema" should {
 
-  def compare(dimensionValue: DimensionValue): Int = dimension compareTo dimensionValue.dimension
+    val tableSchema = TableSchema("outputName", "dim1", StructType(Array(
+      StructField("dim1", StringType, false))), "minute")
 
-  override def toString: String = dimension.name
+    "toString must be " in {
 
+      val expected = "OPERATOR: outputName - TABLE: dim1 - SCHEMA: StructType(StructField(dim1,StringType,false))"
+
+      val result = tableSchema.toString
+
+      result should be(expected)
+    }
+  }
 }

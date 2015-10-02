@@ -16,7 +16,7 @@
 
 package com.stratio.sparkta.sdk
 
-import com.stratio.sparkta.sdk.test.InputTest
+import com.stratio.sparkta.sdk.test.InputMock
 import org.apache.spark.storage.StorageLevel
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -26,7 +26,7 @@ import org.scalatest.{Matchers, WordSpec}
 class InputSpec extends WordSpec with Matchers {
 
   "Input" should {
-    val input = new InputTest(Map())
+    val input = new InputMock(Map())
 
     val expected = StorageLevel.DISK_ONLY
 
@@ -36,6 +36,15 @@ class InputSpec extends WordSpec with Matchers {
 
      result should be(expected)
     }
+  }
+
+  "classSuffix must be " in {
+
+    val expected = "Input"
+
+    val result = Input.ClassSuffix
+
+    result should be(expected)
   }
 }
 
