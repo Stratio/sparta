@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,26 +19,16 @@ package com.stratio.sparkta.plugin.operator.accumulator
 import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
-import com.stratio.sparkta.sdk.TypeOp
 import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.sdk.{TypeOp, _}
 
-class AccumulatorOperator(name:String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+class AccumulatorOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
 
   override val defaultTypeOperation = TypeOp.ArrayString
 
-  private val inputField = properties.getOptionAs[String]("inputField")
-
   override val writeOperation = WriteOp.AccSet
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
-    if (inputField.isDefined && inputFields.contains(inputField.get))
-      applyFilters(inputFields).flatMap(filteredFields => Some(filteredFields.get(inputField.get).get))
-    else None
-  }
-
-  override def processReduce(values : Iterable[Option[Any]]): Option[Any] =
+  override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
     Try(Some(transformValueByTypeOp(returnType, getDistinctValues(values.flatten.map(_.toString)))))
       .getOrElse(Some(""))
 }

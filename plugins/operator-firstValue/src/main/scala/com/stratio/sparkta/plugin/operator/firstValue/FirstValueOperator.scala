@@ -19,29 +19,16 @@ package com.stratio.sparkta.plugin.operator.firstValue
 import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
-import com.stratio.sparkta.sdk.TypeOp
 import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.sdk.{TypeOp, _}
 
 class FirstValueOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
 
   override val defaultTypeOperation = TypeOp.String
 
-  private val inputField = if (properties.contains("inputField")) properties.getString("inputField", None) else None
-
   override val writeOperation = WriteOp.Set
-
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Any] =
-    if (inputField.isDefined && inputFields.contains(inputField.get))
-      applyFilters(inputFields).flatMap(filteredFields => Some(filteredFields.get(inputField.get).get))
-    else None
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
     Try(Some(transformValueByTypeOp(returnType, values.flatten.head)))
-      .getOrElse(FirstValueOperator.Some_Empty)
-}
-
-private object FirstValueOperator {
-  val Some_Empty = Some("")
+      .getOrElse(Some(OperatorConstants.EmptyString))
 }
