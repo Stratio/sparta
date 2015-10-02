@@ -61,10 +61,17 @@
             ModelFactory.setModel(selectedModel);
             position = selectedModelPosition;
           } else {
-            ModelFactory.resetModel(vm.template, vm.policy.models.length);
+            var modelNumber = vm.policy.models.length;
+            var order = 0;
+
+            if (modelNumber > 0) {
+              order = vm.policy.models[modelNumber - 1].order + 1
+            }
+            ModelFactory.resetModel(vm.template, order);
             position = vm.policy.models.length;
           }
           ModelFactory.setPosition(position);
+          ModelFactory.updateModelInputs(vm.policy.models);
         }
       }
     );

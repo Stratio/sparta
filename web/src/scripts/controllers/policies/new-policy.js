@@ -16,7 +16,6 @@
 
     function init() {
       var defer = $q.defer();
-
       TemplateFactory.getPolicyTemplate().then(function (template) {
         PolicyModelFactory.setTemplate(template);
         vm.steps = template.steps;
