@@ -17,17 +17,17 @@
 package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
+import scala.collection.immutable.StringOps
+import scala.language.reflectiveCalls
+import scala.runtime.RichDouble
+import scala.util._
+
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
 
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
-
-import scala.collection.immutable.StringOps
-import scala.language.reflectiveCalls
-import scala.runtime.RichDouble
-import scala.util.Try
 
 abstract class Operator(name: String, properties: Map[String, JSerializable]) extends Parameterizable(properties)
 with Ordered[Operator] with TypeConversions {
@@ -45,7 +45,7 @@ with Ordered[Operator] with TypeConversions {
 
   def writeOperation: WriteOp
 
-  def processMap(inputFields: Map[String, JSerializable]): Option[Any]
+  protected val inputField = properties.getOptionAs[String]("inputField")
 
   def processReduce(values: Iterable[Option[Any]]): Option[Any]
 
@@ -60,21 +60,22 @@ with Ordered[Operator] with TypeConversions {
     case None => Array()
   }
 
-  //scalastyle:off
-  def getNumberFromSerializable(value: JSerializable): Option[Number] =
-    value match {
-      case value if value.isInstanceOf[String] =>
-        Try(Some(value.asInstanceOf[String].toDouble.asInstanceOf[Number])).getOrElse(None)
-      case value if value.isInstanceOf[Int] ||
-        value.isInstanceOf[Double] ||
-        value.isInstanceOf[Float] ||
-        value.isInstanceOf[Long] ||
-        value.isInstanceOf[Short] ||
-        value.isInstanceOf[Byte] => Some(value.asInstanceOf[Number])
-      case _ => None
+  /**
+   * This method tries to cast a value to Number, if it's possible.
+   *
+   * Serializable -> String -> Number
+   * Serializable -> Number
+   *
+   */
+  def getNumberFromSerializable(value: JSerializable): Option[Number] = {
+    Try(value.asInstanceOf[String].toDouble.asInstanceOf[Number]) match {
+      case Success(number) => Some(number)
+      case Failure(ex) => Try(value.asInstanceOf[Number]) match {
+        case Success(number) => Some(number)
+        case Failure(ex) => None
+      }
     }
-
-  //scalastyle:on
+  }
 
   def getDistinctValues[T](values: Iterable[T]): List[T] =
     if (distinct)
@@ -86,11 +87,17 @@ with Ordered[Operator] with TypeConversions {
       Some(inputFields)
     else None
 
+  def processMap(inputFields: Map[String, JSerializable]): Option[Any] =
+    if (inputField.isDefined && inputFields.contains(inputField.get))
+      applyFilters(inputFields)
+        .flatMap(filteredFields => getNumberFromSerializable(filteredFields.get(inputField.get).get))
+    else None
+
   private def doFiltering(inputField: (String, JSerializable),
-                               inputFields: Map[String, JSerializable]): Boolean = {
+                          inputFields: Map[String, JSerializable]): Boolean = {
     filters.map(filter =>
       if (inputField._1 == filter.field && (filter.fieldValue.isDefined || filter.value.isDefined)) {
-      castingFilterType match {
+        castingFilterType match {
           case TypeOp.Number => {
             val doubleValues = getDoubleValues(inputField._2, filter, inputFields)
             applyfilterCauses(filter, doubleValues._1, doubleValues._2, doubleValues._3)
@@ -106,36 +113,36 @@ with Ordered[Operator] with TypeConversions {
   }
 
   private def applyfilterCauses[T <: Ordered[U], U](filter: FilterModel,
-                                            value: T,
-                                            filterValue: Option[U],
-                                            dimensionValue: Option[U]): Boolean = {
+                                                    value: T,
+                                                    filterValue: Option[U],
+                                                    dimensionValue: Option[U]): Boolean = {
     Seq(
-      if(filter.value.isDefined && filterValue.isDefined)
+      if (filter.value.isDefined && filterValue.isDefined)
         doFilteringType(filter.`type`, value, filterValue.get)
       else true,
-      if(filter.fieldValue.isDefined && dimensionValue.isDefined)
+      if (filter.fieldValue.isDefined && dimensionValue.isDefined)
         doFilteringType(filter.`type`, value, dimensionValue.get)
       else true
     ).forall(result => result)
   }
 
   private def getDoubleValues(inputValue: JSerializable,
-                            filter: FilterModel,
-                            inputFields: Map[String, JSerializable]): (RichDouble, Option[Double], Option[Double]) = {
+                              filter: FilterModel,
+                              inputFields: Map[String, JSerializable]): (RichDouble, Option[Double], Option[Double]) = {
 
     (new RichDouble(inputValue.toString.toDouble),
-      if(filter.value.isDefined) Some(filter.value.get.toString.toDouble) else None,
+      if (filter.value.isDefined) Some(filter.value.get.toString.toDouble) else None,
       if (filter.fieldValue.isDefined && inputFields.contains(filter.fieldValue.get))
         Some(inputFields.get(filter.fieldValue.get).get.toString.toDouble)
       else None)
   }
 
   private def getStringValues(inputValue: JSerializable,
-                                filter: FilterModel,
-                                inputFields: Map[String, JSerializable])
+                              filter: FilterModel,
+                              inputFields: Map[String, JSerializable])
   : (StringOps, Option[String], Option[String]) = {
 
-    (new StringOps(inputValue.toString), if(filter.value.isDefined) Some(filter.value.get.toString) else None,
+    (new StringOps(inputValue.toString), if (filter.value.isDefined) Some(filter.value.get.toString) else None,
       if (filter.fieldValue.isDefined && inputFields.contains(filter.fieldValue.get))
         Some(inputFields.get(filter.fieldValue.get).get.toString)
       else None)

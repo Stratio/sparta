@@ -17,41 +17,22 @@
 package com.stratio.sparkta.plugin.operator.mode
 
 import java.io.{Serializable => JSerializable}
-import com.stratio.sparkta.sdk.TypeOp
-import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-
 import scala.util.Try
+
+import com.stratio.sparkta.sdk.TypeOp._
+import com.stratio.sparkta.sdk.{TypeOp, _}
 
 class ModeOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
 
   override val defaultTypeOperation = TypeOp.ArrayString
 
-  private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
-
   override val writeOperation = WriteOp.Mode
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
-    if (inputField.isDefined && inputFields.contains(inputField.get)) {
-      applyFilters(inputFields).flatMap(filteredFields => Some(filteredFields.get(inputField.get).get))
-    } else None
-  }
-
-
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] = {
-
     val tupla = values.groupBy(x => x).mapValues(_.size)
     if (!tupla.isEmpty) {
       val max = tupla.map(tuple => tuple._2).max
-
-      Try(Some(transformValueByTypeOp(returnType, tupla.filter(_._2 == max).flatMap(tuple => (tuple._1)))))
-        .getOrElse(ModeOperator.SOME_EMPTY)
-    } else ModeOperator.SOME_EMPTY
+      Try(Some(transformValueByTypeOp(returnType, tupla.filter(_._2 == max).flatMap(tuple => (tuple._1))))).get
+    } else Some(List())
   }
-
-}
-
-private object ModeOperator {
-  val SOME_EMPTY = Some(List())
 }
