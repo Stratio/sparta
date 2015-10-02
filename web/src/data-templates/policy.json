@@ -164,12 +164,12 @@
       "name": "Type"
     }
   ],
-  "defaultInput": [
+  "defaultInput":
     {
       "label": "_attachment_body",
       "value": "_attachment_body"
     }
-  ],
+  ,
   "configHelpLink": "http://docs.stratio.com/modules/sparkta/development/transformations.html",
   "outputPattern": "[a-zA-Z0-9]*",
   "outputInputPlaceholder": "_OUTPUT_INPUT_PLACEHOLDER_",

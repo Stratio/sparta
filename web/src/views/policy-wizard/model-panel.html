@@ -1,7 +1,7 @@
 <section data-ng-controller="PolicyModelCtrl as vm" data-ng-init="vm.init()" data-ng-model="vm.model">
   <ng-form name="vm.form" novalidate data-ng-model="vm.model">
 
-    <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.modelError.text !==''" data-qa="policy-model-error-msg"
+    <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.modelError.text !==''"
          data-qa="policy-model-error-msg">
       <i class="c-icon icon-circle-cross"></i>
       <span>{{vm.modelError.text | translate}}</span>
@@ -33,10 +33,10 @@
     </div>
 
     <div class="c-form-group">
-      <form-field-select data-ng-if="editionMode" data-ng-model="vm.model.inputList" data-form="vm.form"
+      <form-field-select data-ng-if="editionMode" data-form="vm.form"
                          data-st-name="input-form"
                          data-model="vm.model.inputField"
-                         data-options="vm.model.inputList"
+                         data-options="vm.modelInputs"
                          data-field="label" data-label="{{'_INPUT_FIELD_' | translate}}" data-help=""
                          data-disabled="false"
                          data-required="true" data-qa="policy-description-raw-data-partition-format">
@@ -64,7 +64,8 @@
                   data-ng-model="vm.model.configuration"
                   ng-class="{'c-textarea--error': vm.form['model-configuration'].$error.invalidJson}"
                   data-qa="policy-model-configuration-textarea"
-                  placeholder={{vm.configPlaceholder}}></textarea>
+                  placeholder={{vm.configPlaceholder}}>
+        </textarea>
       </div>
     </div>
 
@@ -84,7 +85,8 @@
                        data-placeholder="{{vm.outputInputPlaceholder | translate}}">
         </c-add-element>
       </div>
-    </div><div class="c-form-group c-form-group--to-right">
+    </div>
+    <div class="c-form-group c-form-group--to-right">
       <button data-ng-if="vm.isNewModel(vm.modelContext.position)" class="c-button c-button--call-to-action-1"
               data-ng-click="vm.addModel()" data-qa="policy-model-add-button">
         <i class="icon icon-circle-plus"></i>

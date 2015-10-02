@@ -13,11 +13,8 @@
     var context = {"position": null};
 
     function init(template, position) {
-      if (position === undefined) {
-        position = 0;
-      }
       setPosition(position);
-      cube.name = template.defaultCubeName + position;
+      cube.name = template.defaultCubeName + (position+1);
       cube.dimensions = [];
       cube.operators = [];
       cube.checkpointConfig = {};
@@ -66,6 +63,9 @@
     }
 
     function setPosition(p) {
+      if (p === undefined) {
+        p = 0;
+      }
       context.position = p;
     }
 

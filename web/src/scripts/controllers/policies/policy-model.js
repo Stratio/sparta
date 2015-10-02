@@ -18,17 +18,23 @@
     vm.isLastModel = ModelService.isLastModel;
     vm.isNewModel = ModelService.isNewModel;
 
+    vm.modelInputs = ModelFactory.getModelInputs();
     vm.init();
 
     function init() {
       vm.template = PolicyModelFactory.getTemplate();
-      vm.model = ModelFactory.getModel(vm.template);
+      vm.policy = PolicyModelFactory.getCurrentPolicy();
+      var modelNumber = vm.policy.models.length;
+      var order = 0;
+
+      if (modelNumber > 0) {
+        vm.policy.models[modelNumber - 1].order + 1
+      }
+      vm.model = ModelFactory.getModel(vm.template, order);
       vm.modelError = '';
       if (vm.model) {
-        vm.policy = PolicyModelFactory.getCurrentPolicy();
         vm.modelError = ModelFactory.getError();
         vm.modelContext = ModelFactory.getContext();
-
         vm.modelTypes = vm.template.types;
         vm.configPlaceholder = vm.template.configPlaceholder;
         vm.outputPattern = vm.template.outputPattern;
@@ -68,7 +74,13 @@
 
     function removeModel() {
       ModelService.removeModel().then(function () {
-        vm.model = ModelFactory.resetModel(vm.template);
+        var order = 0;
+        var modelNumber = vm.policy.models.length;
+        if (modelNumber > 0) {
+          order = vm.policy.models[modelNumber - 1].order + 1
+        }
+        vm.model = ModelFactory.resetModel(vm.template, order);
+        ModelFactory.updateModelInputs(vm.policy.models);
       });
     }
   }

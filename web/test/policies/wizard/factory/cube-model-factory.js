@@ -51,7 +51,7 @@ describe('factory.cube', function () {
     it("if there is not any cube, it initializes a new one using the introduced template a position", function () {
       var desiredOrder = 0;
       var cube = cleanFactory.getCube(fakePolicyTemplate, desiredOrder);
-      expect(cube.name).toEqual(fakePolicyTemplate.defaultCubeName + desiredOrder);
+      expect(cube.name).toEqual(fakePolicyTemplate.defaultCubeName + (desiredOrder + 1));
       expect(cube.dimensions).toEqual([]);
       expect(cube.operators).toEqual([]);
       expect(cube.checkpointConfig.timeDimension).toEqual(fakePolicyTemplate.defaultTimeDimension);
@@ -70,7 +70,7 @@ describe('factory.cube', function () {
     });
 
 
-    it ("if there is not any cube and no position is introduced, cube is initialized with position equal to 0", function(){
+    it("if there is not any cube and no position is introduced, cube is initialized with position equal to 0", function () {
       var cube = cleanFactory.getCube(fakePolicyTemplate);
       expect(factory.getContext().position).toBe(0);
     })
@@ -181,7 +181,7 @@ describe('factory.cube', function () {
       factory.resetCube(fakePolicyTemplate, newPosition);
 
       var cube = factory.getCube(fakePolicyTemplate, newPosition);
-      expect(cube.name).toEqual(fakePolicyTemplate.defaultCubeName + newPosition);
+      expect(cube.name).toEqual(fakePolicyTemplate.defaultCubeName + (newPosition + 1));
       expect(cube.dimensions).toEqual([]);
       expect(cube.operators).toEqual([]);
       expect(cube.checkpointConfig.timeDimension).toEqual(fakePolicyTemplate.defaultTimeDimension);
