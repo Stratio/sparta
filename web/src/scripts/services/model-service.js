@@ -52,7 +52,6 @@
       vm.error = "";
       var modelToAdd = angular.copy(ModelFactory.getModel());
       if (ModelFactory.isValidModel()) {
-        modelToAdd.order = vm.policy.models.length + 1;
         vm.policy.models.push(modelToAdd);
         AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
       }
@@ -81,6 +80,5 @@
     function isNewModel(index) {
       return index == vm.policy.models.length;
     }
-
   }
 })();

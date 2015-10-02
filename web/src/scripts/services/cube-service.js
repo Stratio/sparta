@@ -19,7 +19,7 @@
     vm.removeCube = removeCube;
     vm.isNewCube = isNewCube;
     vm.getCreatedCubes = getCreatedCubes;
-
+    vm.resetCreatedCubes = resetCreatedCubes;
     init();
 
     function init() {
@@ -146,6 +146,10 @@
 
     function getCreatedCubes() {
       return createdCubes;
+    }
+
+    function resetCreatedCubes() {
+      createdCubes = vm.policy.cubes.length;
     }
   }
 })();

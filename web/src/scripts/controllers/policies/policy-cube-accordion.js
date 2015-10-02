@@ -21,6 +21,7 @@
     vm.init();
 
     function init() {
+      CubeService.resetCreatedCubes();
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
@@ -54,9 +55,10 @@
               var selectedCube = vm.policy.cubes[selectedCubePosition];
               CubeModelFactory.setCube(selectedCube,selectedCubePosition );
             } else {
-              CubeModelFactory.resetCube(vm.template, CubeService.getCreatedCubes() + 1);
+              CubeModelFactory.resetCube(vm.template, CubeService.getCreatedCubes());
             }
-          }
+          }else{
+        }
       }
     );
   }
