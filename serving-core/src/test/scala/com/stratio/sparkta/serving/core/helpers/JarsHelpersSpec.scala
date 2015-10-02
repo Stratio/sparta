@@ -18,6 +18,12 @@ package com.stratio.sparkta.serving.core.helpers
 
 import java.io.File
 
+package com.stratio.sparkta.driver.helpers
+
+import java.io.File
+
+import com.stratio.sparkta.serving.core.helpers.JarsHelper
+import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
