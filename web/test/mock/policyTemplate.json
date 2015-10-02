@@ -40,5 +40,6 @@
   "defaultTimeDimension": "fake defaultTimeDimension",
   "defaultInterval": "fake defaultInterval",
   "defaultTimeAvailability": "fake defaultTimeAvailability",
-  "template": "fake template"
+  "template": "fake template",
+  "morphlinesDefaultConfiguration": "fake morphlinesDefaultConfiguration"
 }

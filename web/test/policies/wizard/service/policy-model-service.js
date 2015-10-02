@@ -117,7 +117,7 @@ describe('Model service', function () {
       it("it is added to policy with its order", function () {
         expect(service.policy.models.length).toBe(1);
         expect(service.policy.models[0].name).toEqual(fakeModel.name);
-        expect(service.policy.models[0].order).toEqual(1);
+        expect(service.policy.models[0].order).toEqual(fakeModel.order);
       });
 
       it("accordion status is reset with the current length of the model list", function () {
