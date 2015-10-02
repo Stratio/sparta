@@ -28,12 +28,17 @@
   "helpLinks": {
     "description": "description"
   },
-  "sparkStreamingWindow": "sparkStreamingWindow",
-  "checkpointInterval": "checkpointInterval",
-  "checkpointAvailability": "checkpointAvailability",
-  "partitionFormat": "partitionFormat",
-  "storageLevel": "storageLevel",
+  "sparkStreamingWindow": "fake sparkStreamingWindow",
+  "checkpointInterval": "fake checkpointInterval",
+  "checkpointAvailability": "fake checkpointAvailability",
+  "partitionFormat": "fake partitionFormat",
+  "storageLevel": "fake storageLevel",
   "helpLink": {
-    "description": "helpLink"
-  }
+    "description": "fake helpLink"
+  },
+  "defaultCubeName": "fake cube name",
+  "defaultTimeDimension": "fake defaultTimeDimension",
+  "defaultInterval": "fake defaultInterval",
+  "defaultTimeAvailability": "fake defaultTimeAvailability",
+  "template": "fake template"
 }
