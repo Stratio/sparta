@@ -161,6 +161,12 @@ describe('service.cube', function () {
       CubeModelFactoryMock.isValidCube.and.returnValue(true);
       expect(service.areValidCubes()).toBe(true);
     });
+
+    it("return false if cube list is empty", function () {
+      service.policy.cubes = [];
+      CubeModelFactoryMock.isValidCube.and.returnValue(true);
+      expect(service.areValidCubes()).toBe(false);
+    });
   });
 
 
@@ -246,6 +252,27 @@ describe('service.cube', function () {
       service.addCube();
       expect(service.getCreatedCubes()).toBe(expected);
     })
+  });
+
+  describe("should be able to save a modified cube", function(){
+    beforeEach(function(){
+      service.policy.cubes = [];
+    });
+    it ("is saved if it is valid and error is updated to empty text", function(){
+      CubeModelFactoryMock.isValidCube.and.returnValue(true);
+      service.saveCube();
+
+      expect(service.policy.cubes.length).toBe(1);
+      expect(CubeModelFactoryMock.setError).toHaveBeenCalledWith("");
+    });
+
+    it("is not saved if it is invalid and error is updated to a generic form error", function(){
+      CubeModelFactoryMock.isValidCube.and.returnValue(false);
+      service.saveCube();
+
+      expect(service.policy.cubes.length).toBe(0);
+      expect(CubeModelFactoryMock.setError).toHaveBeenCalledWith("_GENERIC_FORM_ERROR_");
+    });
   });
 
 });
