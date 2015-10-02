@@ -20,6 +20,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.Config
 import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
 import org.apache.curator.retry.ExponentialBackoffRetry
+import org.apache.curator.utils.CloseableUtils
 
 import scala.util.{Failure, Success, Try}
 
@@ -78,7 +79,12 @@ object CuratorFactoryHolder extends SLF4JLogging {
   /**
    * Resets the current instance of the curatorFramework.
    */
-  def resetInstance(): Unit = curatorFramework = None
+  def resetInstance(): Unit = {
+    if(curatorFramework.isDefined) {
+      CloseableUtils.closeQuietly(curatorFramework.get)
+      curatorFramework = None
+    }
+  }
 
   def existsPath(path : String) : Boolean = curatorFramework match {
     case Some(curator) => Option(curator.checkExists().forPath(path)).isDefined

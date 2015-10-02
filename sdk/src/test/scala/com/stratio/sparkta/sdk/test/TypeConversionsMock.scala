@@ -18,12 +18,12 @@ package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{WriteOp, EntityCount}
-import com.stratio.sparkta.sdk.WriteOp._
+import com.stratio.sparkta.sdk.{TypeOp, TypeConversions}
+import com.stratio.sparkta.sdk.TypeOp._
 
-class EntityCountTest(name: String, properties: Map[String, JSerializable]) extends EntityCount(name, properties) {
+class TypeConversionsMock extends TypeConversions {
 
-  override def processReduce(values: Iterable[Option[Any]]): Option[Any] = values.head
+  override def defaultTypeOperation: TypeOp = TypeOp.Int
 
-  override def writeOperation: WriteOp = WriteOp.Inc
+  override def operationProps: Map[String, JSerializable] = Map("typeOp" -> "string")
 }

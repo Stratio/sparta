@@ -18,21 +18,12 @@ package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{Operator, TypeOp, WriteOp}
+import com.stratio.sparkta.sdk.{Event, Input}
+import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.streaming.dstream.DStream
 
-class OperatorTest(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+class InputMock (properties: Map[String, JSerializable]) extends Input(properties) {
 
-  override val defaultTypeOperation = TypeOp.Long
+  override def setUp(ssc: StreamingContext, storageLevel: String): DStream[Event] = ???
 
-  override val writeOperation = WriteOp.Inc
-
-  override val castingFilterType = TypeOp.Number
-
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
-    None
-  }
-
-  override def processReduce(values: Iterable[Option[Any]]): Option[Long] = {
-    None
-  }
 }
