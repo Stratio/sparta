@@ -45,7 +45,7 @@ class SparkContextFactorySpec extends FlatSpec with ShouldMatchers with BeforeAn
     val wrongConfig = ConfigFactory.empty
     val seconds = 6
     val batchDuraction = Duration(seconds)
-    val specificConfig = Map("foo" -> "var")
+    val specificConfig = Map("spark.driver.allowMultipleContexts" -> "true")
   }
 
   "SparkContextFactorySpec" should "fails when properties is missing" in new WithConfig {

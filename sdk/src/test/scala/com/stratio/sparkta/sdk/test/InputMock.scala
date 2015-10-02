@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-case class DimensionValue(dimension : Dimension, value: JSerializable)
-  extends Ordered[DimensionValue] {
+import com.stratio.sparkta.sdk.{Event, Input}
+import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.streaming.dstream.DStream
 
-  def getNameDimension: String = dimension.name
+class InputMock (properties: Map[String, JSerializable]) extends Input(properties) {
 
-  def compare(dimensionValue: DimensionValue): Int = dimension compareTo dimensionValue.dimension
-
-  override def toString: String = dimension.name
+  override def setUp(ssc: StreamingContext, storageLevel: String): DStream[Event] = ???
 
 }

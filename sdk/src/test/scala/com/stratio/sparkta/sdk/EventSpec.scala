@@ -16,15 +16,24 @@
 
 package com.stratio.sparkta.sdk
 
-import java.io.{Serializable => JSerializable}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{Matchers, WordSpec}
 
-case class DimensionValue(dimension : Dimension, value: JSerializable)
-  extends Ordered[DimensionValue] {
+@RunWith(classOf[JUnitRunner])
+class EventSpec extends WordSpec with Matchers {
 
-  def getNameDimension: String = dimension.name
+  "Event" should {
+    val event = new Event(Map("field" -> 1))
 
-  def compare(dimensionValue: DimensionValue): Int = dimension compareTo dimensionValue.dimension
+    "Return the associated string" in {
 
-  override def toString: String = dimension.name
+      val expected = "[Event, Properties=Map(field -> 1)]"
 
+      val result = event.toString
+
+     result should be(expected)
+    }
+  }
 }
+

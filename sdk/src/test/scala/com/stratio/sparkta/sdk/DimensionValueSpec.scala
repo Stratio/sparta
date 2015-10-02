@@ -16,15 +16,26 @@
 
 package com.stratio.sparkta.sdk
 
-import java.io.{Serializable => JSerializable}
+import com.stratio.sparkta.sdk.test.DimensionTypeMock
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{Matchers, WordSpec}
 
-case class DimensionValue(dimension : Dimension, value: JSerializable)
-  extends Ordered[DimensionValue] {
+@RunWith(classOf[JUnitRunner])
+class DimensionValueSpec extends WordSpec with Matchers {
 
-  def getNameDimension: String = dimension.name
+  "DimensionValue" should {
+    val defaultDimensionType = new DimensionTypeMock(Map())
+    val dimension = Dimension("dim1", "eventKey", "identity", defaultDimensionType)
+    val dimensionValue = DimensionValue(dimension, "hola")
 
-  def compare(dimensionValue: DimensionValue): Int = dimension compareTo dimensionValue.dimension
+    "return the correct name" in {
 
-  override def toString: String = dimension.name
+      val expected = "dim1"
 
+      val result = dimensionValue.getNameDimension
+
+      result should be(expected)
+    }
+  }
 }

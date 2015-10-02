@@ -16,12 +16,58 @@
 
 package com.stratio.sparkta.sdk
 
+import java.io.{Serializable => JSerializable}
+
+import com.stratio.sparkta.sdk.test.DimensionTypeMock
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
 class DimensionTypeSpec extends WordSpec with Matchers {
+
+  val prop = Map("hello" -> "bye")
+
+  "DimensionType" should {
+
+    "the return operations properties" in {
+      val dimensionTypeTest = new DimensionTypeMock(prop)
+
+      val result = dimensionTypeTest.operationProps
+
+      result should be (prop)
+    }
+
+    "the return properties" in {
+      val dimensionTypeTest = new DimensionTypeMock(prop)
+
+      val result = dimensionTypeTest.properties
+
+      result should be (prop)
+    }
+
+    "the return precisionValue" in {
+      val dimensionTypeTest = new DimensionTypeMock(prop)
+
+      val expected = (DimensionType.getIdentity(None, dimensionTypeTest.defaultTypeOperation), "hello")
+
+      val result = dimensionTypeTest.precisionValue("", "hello")
+
+      result should be (expected)
+
+    }
+
+    "the return precision" in {
+      val dimensionTypeTest = new DimensionTypeMock(prop)
+
+      val expected = (DimensionType.getIdentity(None, dimensionTypeTest.defaultTypeOperation))
+
+      val result = dimensionTypeTest.precision("")
+
+      result should be (expected)
+    }
+  }
+
 
   "DimensionType object" should {
 

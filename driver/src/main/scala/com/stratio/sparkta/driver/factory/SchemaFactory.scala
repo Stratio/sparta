@@ -27,23 +27,21 @@ import com.stratio.sparkta.sdk._
 
 object SchemaFactory {
 
-  //scalastyle:off
-  def rowTypeFromOption(optionType: TypeOp): DataType =
-    optionType match {
-      case TypeOp.Long => LongType
-      case TypeOp.Double => DoubleType
-      case TypeOp.BigDecimal => DecimalType(None)
-      case TypeOp.Int => IntegerType
-      case TypeOp.Boolean => BooleanType
-      case TypeOp.Date => DateType
-      case TypeOp.DateTime | TypeOp.Timestamp => TimestampType
-      case TypeOp.ArrayDouble => ArrayType(DoubleType)
-      case TypeOp.ArrayString => ArrayType(StringType)
-      case TypeOp.String => StringType
-      case TypeOp.MapStringLong => MapType(StringType, LongType)
-      case _ => BinaryType
-    }
-  //scalastyle:on
+  val mapTypes = Map(
+    TypeOp.Long -> LongType,
+    TypeOp.Double -> DoubleType,
+    TypeOp.BigDecimal -> DecimalType(None),
+    TypeOp.Int -> IntegerType,
+    TypeOp.Boolean -> BooleanType,
+    TypeOp.Date -> DateType,
+    TypeOp.DateTime -> TimestampType,
+    TypeOp.Timestamp -> TimestampType,
+    TypeOp.ArrayDouble -> ArrayType(DoubleType),
+    TypeOp.ArrayString -> ArrayType(StringType),
+    TypeOp.String -> StringType,
+    TypeOp.MapStringLong -> MapType(StringType, LongType)
+  )
+
 
   def cubesOperatorsSchemas(cubes: Seq[Cube],
                               configOptions: Seq[(String, Map[String, String])]): Seq[TableSchema] = {
@@ -59,6 +57,14 @@ object SchemaFactory {
       } yield TableSchema(outputName, dimensionNames.mkString(Output.Separator), schema, timeDimension)
     }}.distinct
   }
+
+  def operatorsKeyOperation(operators: Seq[Operator]): Map[String, (WriteOp, TypeOp)] =
+    operators.map(operator => (operator.key ->(operator.writeOperation, operator.returnType))).toMap
+
+
+  // XXX Private methods.
+
+  private def rowTypeFromOption(optionType: TypeOp): DataType = mapTypes.get(optionType).getOrElse(BinaryType)
 
   private def getCombinationsWithOperators(configOptions: Map[String, String],
                                            dimensionsSorted: Seq[(Seq[Dimension], Seq[Operator], String)])
@@ -87,6 +93,5 @@ object SchemaFactory {
       case None => Seq()
     }
 
-  def operatorsKeyOperation(operators: Seq[Operator]): Map[String, (WriteOp, TypeOp)] =
-    operators.map(operator => (operator.key ->(operator.writeOperation, operator.returnType))).toMap
+
 }
