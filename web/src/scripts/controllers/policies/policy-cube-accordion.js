@@ -50,16 +50,12 @@
       function (newValue) {
         if (vm.accordionStatus) {
           var selectedCubePosition = newValue.indexOf(true);
-            var position = null;
             if (selectedCubePosition >= 0 && selectedCubePosition < vm.policy.cubes.length) {
               var selectedCube = vm.policy.cubes[selectedCubePosition];
-              CubeModelFactory.setCube(selectedCube);
-              position = selectedCubePosition;
+              CubeModelFactory.setCube(selectedCube,selectedCubePosition );
             } else {
               CubeModelFactory.resetCube(vm.template, CubeService.getCreatedCubes() + 1);
-              position = vm.policy.cubes.length;
             }
-            CubeModelFactory.setPosition(position);
           }
       }
     );

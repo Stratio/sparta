@@ -9,15 +9,14 @@
 
   function CubeModelFactory(UtilsService) {
     var cube = {};
-    var order = 0;
     var error = {text: ""};
     var context = {"position": null};
 
     function init(template, position) {
       if (position === undefined) {
-        position = order;
+        position = 0;
       }
-
+      setPosition(position);
       cube.name = template.defaultCubeName + position;
       cube.dimensions = [];
       cube.operators = [];
@@ -27,7 +26,6 @@
       cube.checkpointConfig.timeAvailability = template.defaultTimeAvailability;
       cube.checkpointConfig.granularity = template.defaultGranularity;
       error.text = "";
-      order = position;
     }
 
     function resetCube(template, position) {
@@ -41,18 +39,20 @@
       return cube;
     }
 
-    function setCube(c) {
+    function setCube(c, position) {
       cube.name = c.name;
       cube.dimensions = c.dimensions;
       cube.operators = c.operators;
       cube.checkpointConfig = c.checkpointConfig;
       error.text = "";
+      setPosition(position);
     }
 
     function isValidCube(cube, cubes, position) {
-      var isValid = cube.name !== ""  && cube.name !== undefined && cube.checkpointConfig.timeDimension !== "" && cube.checkpointConfig.interval !== null
-        && cube.checkpointConfig.timeAvailability !== null && cube.checkpointConfig.granularity !== ""
-        && cube.dimensions.length > 0 && cube.operators.length > 0 && !nameExists(cube,cubes, position);
+      var validName = cube.name !== undefined && cube.name !== "";
+      var validOperatorsAndDimensions = cube.operators.length > 0 && cube.dimensions.length > 0;
+      var validCheckpointConfig = Object.keys(cube.checkpointConfig).length > 0 && cube.checkpointConfig.granularity && cube.checkpointConfig.timeAvailability !== null && cube.checkpointConfig.interval !== null && cube.checkpointConfig.timeDimension !== "";
+      var isValid = validName && validOperatorsAndDimensions && validCheckpointConfig && !nameExists(cube, cubes, position);
       return isValid;
     }
 
@@ -65,7 +65,7 @@
       return context;
     }
 
-    function setPosition(p){
+    function setPosition(p) {
       context.position = p;
     }
 
@@ -81,8 +81,8 @@
       resetCube: resetCube,
       getCube: getCube,
       setCube: setCube,
-      getContext:getContext,
-      setPosition:setPosition,
+      getContext: getContext,
+      setPosition: setPosition,
       isValidCube: isValidCube,
       setError: setError,
       getError: getError
