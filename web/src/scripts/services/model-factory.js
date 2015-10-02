@@ -7,39 +7,41 @@
 
   ModelFactory.$inject = ['PolicyModelFactory'];
 
-  function ModelFactory(PolicyModelFactory) {
+  function ModelFactory() {
     var model = {};
     var error = {text: "", duplicatedOutput: false};
     var template = null;
     var context = {"position": null};
+    var inputList = [];
 
-    function init(newTemplate) {
+    function init(newTemplate, order) {
       template = newTemplate;
       model.name = "";
       model.outputFields = [];
       model.type = template.types[0].name;
       model.configuration = template.morphlinesDefaultConfiguration;
-      model.inputList = getModelInputs();
-      model.inputField = model.inputList[0].value;
+      model.order = order;
       error.text = "";
       error.duplicatedOutput = false;
     }
 
-    function getModelInputs() {
-      var models = PolicyModelFactory.getCurrentPolicy().models;
-      var result = [];
-      var index = models.length;
+    function updateModelInputs(models) {
+      inputList.length = 0;
+      var index = context.position;
       if (index >= 0) {
-        if (index == 0)
-          result = template.defaultInput;
-        else {
-          var model = models[--index];
-          var options = generateOutputOptions(model.outputFields);
-          var defaultOption = generateOutputOptions([model.inputField]);
-          result = defaultOption.concat(options);
+        if (index == 0) {
+          inputList.push(template.defaultInput);
+        } else {
+          var previousModel = models[--index];
+          var previousOutputs = generateOutputOptions(previousModel.outputFields);
+          if (previousModel.inputField != template.defaultInput.value) { // do not put the default input
+            var previousInputs = generateOutputOptions([previousModel.inputField]);
+            inputList.push.apply(inputList, previousInputs);
+          }
+          inputList.push.apply(inputList, previousOutputs);
         }
       }
-      return result;
+      model.inputField = inputList[0].value;
     }
 
     function generateOutputOptions(outputs) {
@@ -62,8 +64,8 @@
       return isValid;
     }
 
-    function getModel(template) {
-      if (Object.keys(model).length == 0) init(template);
+    function getModel(template, order) {
+      if (Object.keys(model).length == 0) init(template, order);
       return model;
     }
 
@@ -74,18 +76,19 @@
       model.configuration = m.configuration;
       model.inputList = m.inputList;
       model.inputField = m.inputField;
+      model.order = m.order;
       error.text = "";
     }
 
-    function resetModel(template, p) {
-      init(template, p);
+    function resetModel(template, order) {
+      init(template, order);
     }
 
     function getContext() {
       return context;
     }
 
-    function setPosition(p){
+    function setPosition(p) {
       context.position = p;
     }
 
@@ -97,6 +100,10 @@
       error.text = e;
     }
 
+    function getModelInputs() {
+      return inputList;
+    }
+
     return {
       resetModel: resetModel,
       getModel: getModel,
@@ -105,10 +112,11 @@
       setPosition: setPosition,
       isValidModel: isValidModel,
       getError: getError,
-      setError: setError
+      setError: setError,
+      getModelInputs: getModelInputs,
+      updateModelInputs: updateModelInputs
     }
   }
-
 })
 ();
 

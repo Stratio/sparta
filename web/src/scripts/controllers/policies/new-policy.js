@@ -6,8 +6,8 @@
     .module('webApp')
     .controller('NewPolicyCtrl', NewPolicyCtrl);
 
-  NewPolicyCtrl.$inject = ['TemplateFactory', 'PolicyModelFactory', 'PolicyFactory', 'ModalService', '$state'];
-  function NewPolicyCtrl(TemplateFactory, PolicyModelFactory, PolicyFactory, ModalService, $state) {
+  NewPolicyCtrl.$inject = ['TemplateFactory', 'PolicyModelFactory', 'PolicyFactory', '$q', 'ModalService', '$state'];
+  function NewPolicyCtrl(TemplateFactory, PolicyModelFactory, PolicyFactory, $q, ModalService, $state) {
     var vm = this;
 
     vm.confirmPolicy = confirmPolicy;
@@ -15,7 +15,8 @@
     init();
 
     function init() {
-      return TemplateFactory.getPolicyTemplate().then(function (template) {
+      var defer = $q.defer();
+      TemplateFactory.getPolicyTemplate().then(function (template) {
         PolicyModelFactory.setTemplate(template);
         vm.steps = template.steps;
         PolicyModelFactory.resetPolicy();
@@ -23,10 +24,13 @@
         vm.status = PolicyModelFactory.getProcessStatus();
         vm.successfullySentPolicy = false;
         vm.error = null;
+        defer.resolve();
       });
+      return defer.promise;
     }
 
     function confirmPolicy() {
+      var defer = $q.defer();
       var templateUrl = "templates/modal/confirm-modal.tpl.html";
       var controller = "ConfirmModalCtrl";
       var resolve = {
@@ -37,19 +41,27 @@
           return "";
         }
       };
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
 
-      return modalInstance.result.then(function () {
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
+      modalInstance.result.then(function () {
         var finalJSON = PolicyModelFactory.getFinalJSON();
         PolicyFactory.createPolicy(finalJSON).then(function () {
           PolicyModelFactory.resetPolicy();
           $state.go("dashboard.policies");
+
+          defer.resolve();
         }, function (error) {
           if (error) {
             vm.error = error.data;
           }
+          defer.reject();
         });
+
+      }, function () {
+        defer.resolve();
       });
-    }
-  }
+
+      return defer.promise;
+    };
+  };
 })();
