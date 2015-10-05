@@ -1,4 +1,4 @@
-describe('service.model', function () {
+describe('policies.wizard.service.policy-model-service', function () {
   beforeEach(module('webApp'));
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/model.json'));

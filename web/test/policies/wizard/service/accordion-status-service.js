@@ -1,4 +1,4 @@
-describe('service.accordionStatusService', function () {
+describe('policies.wizard.service.accordion-status-service', function () {
   beforeEach(module('webApp'));
 
   var service = null;

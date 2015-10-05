@@ -1,4 +1,4 @@
-describe('factory.template', function () {
+describe('policies.wizard.factory.template-factory', function () {
   beforeEach(module('webApp'));
 
   var factory, ApiTemplateService, q, promiseMock = null;
