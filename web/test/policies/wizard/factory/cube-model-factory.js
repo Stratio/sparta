@@ -1,4 +1,4 @@
-describe('factory.cube', function () {
+describe('policies.wizard.factory.cube-model-factory', function () {
   beforeEach(module('webApp'));
   beforeEach(module('served/cube.json'));
   beforeEach(module('served/policyTemplate.json'));
