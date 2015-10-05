@@ -16,10 +16,11 @@
 
 package com.stratio.sparkta.sdk
 
-import com.stratio.sparkta.sdk.test.DimensionTypeMock
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
+
+import com.stratio.sparkta.sdk.test.DimensionTypeMock
 
 @RunWith(classOf[JUnitRunner])
 class DimensionSpec extends WordSpec with Matchers {
@@ -31,77 +32,53 @@ class DimensionSpec extends WordSpec with Matchers {
     val dimensionNotIdentity = Dimension("dim1", "key", "key", defaultDimensionType)
 
     "Return the associated identity precision name" in {
-
       val expected = "identity"
-
       val result = dimensionIdentity.getNamePrecision
-
       result should be(expected)
     }
 
     "Return the associated name precision name" in {
-
       val expected = "key"
-
       val result = dimensionNotIdentity.getNamePrecision
-
       result should be(expected)
     }
 
     "Return the associated precision name" in {
-
       val expected = "eventKey"
-
       val result = dimension.getNamePrecision
-
       result should be(expected)
     }
 
     "Compare function with other dimension must be less" in {
       val dimension2 = Dimension("dim2", "eventKey", "identity", defaultDimensionType)
-
       val expected = -1
-
       val result = dimension.compare(dimension2)
-
-      result should be (expected)
+      result should be(expected)
     }
 
     "Compare function with other dimension must be equal" in {
       val dimension2 = Dimension("dim1", "eventKey", "identity", defaultDimensionType)
-
       val expected = 0
-
       val result = dimension.compare(dimension2)
-
-      result should be (expected)
+      result should be(expected)
     }
 
     "Compare function with other dimension must be higher" in {
       val dimension2 = Dimension("dim0", "eventKey", "identity", defaultDimensionType)
-
       val expected = 1
-
       val result = dimension.compare(dimension2)
-
-      result should be (expected)
+      result should be(expected)
     }
 
     "The string value must be the name" in {
-
       val expected = "dim1"
-
       val result = dimension.toString
-
-      result should be (expected)
+      result should be(expected)
     }
 
     "classSuffix must be " in {
-
       val expected = "Field"
-
       val result = Dimension.FieldClassSuffix
-
       result should be(expected)
     }
   }

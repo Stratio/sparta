@@ -18,11 +18,12 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.test.{DimensionTypeMock, OutputMock}
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
+
+import com.stratio.sparkta.sdk.test.{DimensionTypeMock, OutputMock}
 
 @RunWith(classOf[JUnitRunner])
 class OutputSpec extends WordSpec with Matchers {
@@ -77,279 +78,191 @@ class OutputSpec extends WordSpec with Matchers {
   "Output" should {
 
     "Name must be " in new CommonValues {
-
       val expected = outputName
-
       val result = output.getName
-
       result should be(expected)
     }
 
     "Date type must be " in new CommonValues {
-
       val expected = TypeOp.Timestamp
-
       val result = output.dateType
-
       result should be(expected)
     }
 
     "Fixed dimensions type must be " in new CommonValues {
-
       val expected = TypeOp.String
-
       val result = output.fixedDimensionsType
-
       result should be(expected)
     }
 
     "Supported write operations must be " in new CommonValues {
-
       val expected = Seq(WriteOp.Set)
-
       val result = output.supportedWriteOps
-
       result should be(expected)
     }
 
     "without multiplexer must be " in new CommonValues {
-
       val expected = false
-
       val result = output.multiplexer
-
       result should be(expected)
     }
 
     "with multiplexer must be " in new CommonValues {
-
       val expected = true
-
       val result = outputProps.multiplexer
-
       result should be(expected)
     }
 
     "without fixed Dimensions must be " in new CommonValues {
-
       val expected = Array()
-
       val result = output.fixedDimensions
-
       result should be(expected)
     }
 
     "with fixed dimensions must be " in new CommonValues {
-
       val expected = Array("dim2")
-
       val result = outputProps.fixedDimensions
-
       result should be(expected)
     }
 
     "without fixed aggregations must be " in new CommonValues {
-
       val expected = Map()
-
       val result = output.fixedAggregation
-
       result should be(expected)
     }
 
     "with fixed aggregations must be " in new CommonValues {
-
       val expected = Map("op2" -> Some("1"))
-
       val result = outputProps.fixedAggregation
-
       result should be(expected)
     }
 
     "without id autocalculated must be " in new CommonValues {
-
       val expected = false
-
       val result = output.isAutoCalculateId
-
       result should be(expected)
     }
 
     "with id autocalculated must be " in new CommonValues {
-
       val expected = true
-
       val result = outputProps.isAutoCalculateId
-
       result should be(expected)
     }
 
     "the correct table schema according to the empty properties must be " in new CommonValues {
-
       val expected = TableSchema("outputName", "dim1_dim2_minute", StructType(Array(
         StructField("dim1", StringType, false),
         StructField("dim2", StringType, false),
         StructField("minute", TimestampType, false),
         StructField("op1", LongType, true))), "minute")
-
       val result = output.getTableSchemaFixedId(tableSchema)
-
       result should be(expected)
     }
 
     "the correct table schema according to the properties must be " in new CommonValues {
-
       val expected = TableSchema("outputName", "id_dim1_dim2_minute", StructType(Array(
         StructField("id", StringType, false),
         StructField("dim1", StringType, false),
         StructField("dim2", StringType, false),
         StructField("minute", TimestampType, false),
         StructField("op1", LongType, true))), "minute")
-
       val result = outputProps.getTableSchemaFixedId(tableSchema)
-
       result should be(expected)
     }
 
     "the correct table schema according to the properties with fixed dimension must be " in new CommonValues {
-
       val expected = TableSchema("outputName", "id_dim1_dim2_minute", StructType(Array(
         StructField("id", StringType, false),
         StructField("dim1", StringType, false),
         StructField("dim2", StringType, false),
         StructField("minute", TimestampType, false),
         StructField("op1", LongType, true))), "minute")
-
       val result = outputProps.getTableSchemaFixedId(tableSchema)
-
       result should be(expected)
     }
 
     "the fixed dimensions according to the empty properties must be " in new CommonValues {
-
       val expected = None
-
       val result = output.getFixedDimensions(dimensionValuesT)
-
       result should be(expected)
     }
 
     "the fixed dimensions according to the properties must be " in new CommonValues {
-
       val expected = Some(Seq(("dim2", "value2")))
-
       val result = outputProps.getFixedDimensions(dimensionValuesT)
-
       result should be(expected)
     }
 
     "the filtered dimensions by fixed dimensions according to the empty properties must be " in new CommonValues {
-
       val expected = dimensionValuesT
-
       val result = output.filterDimensionValueTimeByFixedDimensions(dimensionValuesT)
-
       result should be(expected)
     }
 
     "the filtered dimensions by fixed dimensions according to the properties must be " in new CommonValues {
-
       val expected = dimensionValuesTFixed
-
       val result = outputProps.filterDimensionValueTimeByFixedDimensions(dimensionValuesT)
-
       result should be(expected)
     }
 
     "the filtered tableSchema by fixed dimensions according to the empty properties must be " in new CommonValues {
-
       val expected = Seq(tableSchema)
-
       val result = output.filterSchemaByFixedAndTimeDimensions(Seq(tableSchema))
-
       result should be(expected)
     }
 
     "the filtered tableSchema by fixed dimensions according to the properties must be " in new CommonValues {
-
       val expected = Seq(tableSchema)
-
       val result = outputProps.filterSchemaByFixedAndTimeDimensions(Seq(tableSchema))
-
       result should be(expected)
     }
 
     "the operations type supported must be " in new CommonValues {
-
       val expected = true
-
       val result = outputProps.checkOperationTypes
-
       result should be(expected)
     }
 
     "the operations type not supported must be " in new CommonValues {
-
       val expected = false
-
       val result = outputOperation.checkOperationTypes
-
       result should be(expected)
     }
 
     "the spark date field returned must be " in new CommonValues {
-
       val expected = Output.defaultDateField("field", false)
-
       val result = Output.getFieldType(TypeOp.Date, "field", false)
-
       result should be(expected)
     }
 
     "the spark timestamp field returned must be " in new CommonValues {
-
       val expected = Output.defaultTimeStampField("field", false)
-
       val result = Output.getFieldType(TypeOp.Timestamp, "field", false)
-
       result should be(expected)
     }
 
     "the spark string field returned must be " in new CommonValues {
-
       val expected = Output.defaultStringField("field", false)
-
       val result = Output.getFieldType(TypeOp.String, "field", false)
-
       result should be(expected)
     }
 
     "the spark other field returned must be " in new CommonValues {
-
       val expected = Output.defaultStringField("field", false)
-
       val result = Output.getFieldType(TypeOp.ArrayDouble, "field", false)
-
       result should be(expected)
     }
 
     "the spark geo field returned must be " in new CommonValues {
-
       val expected = StructField("field", ArrayType(DoubleType), false)
-
       val result = Output.defaultGeoField("field", false)
-
       result should be(expected)
     }
 
     "classSuffix must be " in {
-
       val expected = "Output"
-
       val result = Output.ClassSuffix
-
       result should be(expected)
     }
-
   }
 }

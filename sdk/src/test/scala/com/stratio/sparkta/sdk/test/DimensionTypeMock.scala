@@ -20,7 +20,7 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.sdk.{DimensionType, Precision, TypeOp}
 
-class DimensionTypeMock(prop :Map[String, JSerializable]) extends DimensionType {
+class DimensionTypeMock(prop: Map[String, JSerializable]) extends DimensionType {
 
   override val operationProps: Map[String, JSerializable] = prop
 

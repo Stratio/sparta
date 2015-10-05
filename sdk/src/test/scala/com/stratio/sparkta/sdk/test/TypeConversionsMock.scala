@@ -18,8 +18,8 @@ package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{TypeOp, TypeConversions}
 import com.stratio.sparkta.sdk.TypeOp._
+import com.stratio.sparkta.sdk.{TypeConversions, TypeOp}
 
 class TypeConversionsMock extends TypeConversions {
 

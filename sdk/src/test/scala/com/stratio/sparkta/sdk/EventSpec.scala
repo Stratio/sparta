@@ -28,11 +28,15 @@ class EventSpec extends WordSpec with Matchers {
 
     "Return the associated string" in {
 
-      val expected = "[Event, Properties=Map(field -> 1)]"
+      val expected = "Event(Map(field -> 1),None)"
 
       val result = event.toString
 
-     result should be(expected)
+      result should be(expected)
+    }
+
+    "It throw an exception when properties is null" in {
+      an[IllegalArgumentException] should be thrownBy new Event(null)
     }
   }
 }

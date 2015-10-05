@@ -18,8 +18,8 @@ package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{WriteOp, EntityCount}
 import com.stratio.sparkta.sdk.WriteOp._
+import com.stratio.sparkta.sdk.{EntityCount, WriteOp}
 
 class EntityCountMock(name: String, properties: Map[String, JSerializable]) extends EntityCount(name, properties) {
 

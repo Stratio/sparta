@@ -18,10 +18,11 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.test.ParserMock
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
+
+import com.stratio.sparkta.sdk.test.ParserMock
 
 @RunWith(classOf[JUnitRunner])
 class ParserSpec extends WordSpec with Matchers {
@@ -31,55 +32,36 @@ class ParserSpec extends WordSpec with Matchers {
     val parserTest = new ParserMock("parser", 1, "input", Seq("output"), Map())
 
     "Order must be " in {
-
       val expected = 1
-
       val result = parserTest.getOrder
-
       result should be(expected)
     }
 
     "Parse must be " in {
-
       val event = new Event(Map("field" -> "value"))
-
       val expected = event
-
       val result = parserTest.parse(event)
-
       result should be(expected)
     }
 
     "checked fields not be contained in outputs must be " in {
-
       val keyMap = Map("field" -> "value")
-
       val expected = Map()
-
       val result = parserTest.checkFields(keyMap)
-
       result should be(expected)
     }
 
     "checked fields are contained in outputs must be " in {
-
       val keyMap = Map("output" -> "value")
-
       val expected = keyMap
-
       val result = parserTest.checkFields(keyMap)
-
       result should be(expected)
     }
 
     "classSuffix must be " in {
-
       val expected = "Parser"
-
       val result = Parser.ClassSuffix
-
       result should be(expected)
     }
-
   }
 }
