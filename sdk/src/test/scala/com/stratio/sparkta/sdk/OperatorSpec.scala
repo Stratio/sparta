@@ -18,15 +18,20 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.test.{OperatorMockString, OperatorMock}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
+
+import com.stratio.sparkta.sdk.test.{OperatorMock, OperatorMockString}
 
 @RunWith(classOf[JUnitRunner])
 class OperatorSpec extends WordSpec with Matchers {
 
   "Operator" should {
+
+    "It throw an exception when properties is null" in {
+      an[IllegalArgumentException] should be thrownBy new OperatorMock("opTest", null)
+    }
 
     "Distinct must be " in {
       val operator = new OperatorMock("opTest", Map())
@@ -82,10 +87,10 @@ class OperatorSpec extends WordSpec with Matchers {
 
     "getDistinctValues must be " in {
       val operator = new OperatorMock("opTest", Map())
-      operator.getDistinctValues(List(1,2,1)) should be(List(1,2,1))
+      operator.getDistinctValues(List(1, 2, 1)) should be(List(1, 2, 1))
 
       val operator2 = new OperatorMock("opTest", Map("distinct" -> "true"))
-      operator2.getDistinctValues(List(1,2,1)) should be(List(1,2))
+      operator2.getDistinctValues(List(1, 2, 1)) should be(List(1, 2))
 
       val operator3 = new OperatorMock("opTest", Map())
       operator3.getDistinctValues(List()) should be(List())
@@ -97,183 +102,158 @@ class OperatorSpec extends WordSpec with Matchers {
     "applyFilters must be " in {
       val operator = new OperatorMock("opTest", Map())
       val inputFields = Map("field1" -> 2.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
-      operator.applyFilters(inputFields) should be (Some(inputFields))
+      operator.applyFilters(inputFields) should be(Some(inputFields))
 
       val operator2 = new OperatorMock("opTest", Map())
-      operator2.applyFilters(Map()) should be (Some(Map()))
+      operator2.applyFilters(Map()) should be(Some(Map()))
 
       val operator3 = new OperatorMock("opTest",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2}]"))
       val inputFields3 = Map("field1" -> 2.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
-      operator3.applyFilters(inputFields3) should be (None)
+      operator3.applyFilters(inputFields3) should be(None)
 
       val operator4 = new OperatorMock("opTest",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2}]"))
       val inputFields4 = Map("field1" -> 1.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
-      operator4.applyFilters(inputFields4) should be (Some(inputFields4))
+      operator4.applyFilters(inputFields4) should be(Some(inputFields4))
 
       val operator5 = new OperatorMock("opTest",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \">\", \"value\":2}]"))
       val inputFields5 = Map("field1" -> 3.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
-      operator5.applyFilters(inputFields5) should be (Some(inputFields5))
+      operator5.applyFilters(inputFields5) should be(Some(inputFields5))
 
       val operator6 = new OperatorMock("opTest",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \">\", \"value\":2}]"))
       val inputFields6 = Map("field1" -> 1.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
-      operator6.applyFilters(inputFields6) should be (None)
+      operator6.applyFilters(inputFields6) should be(None)
 
       val operator7 = new OperatorMock("opTest",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \">=\", \"value\":2}]"))
       val inputFields7 = Map("field1" -> 2.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
-      operator7.applyFilters(inputFields7) should be (Some(inputFields7))
+      operator7.applyFilters(inputFields7) should be(Some(inputFields7))
 
       val operator8 = new OperatorMock("opTest",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \">=\", \"value\":2}]"))
       val inputFields8 = Map("field1" -> 1.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
-      operator8.applyFilters(inputFields8) should be (None)
+      operator8.applyFilters(inputFields8) should be(None)
 
       val operator9 = new OperatorMock("opTest",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<=\", \"value\":2}]"))
       val inputFields9 = Map("field1" -> 2.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
-      operator9.applyFilters(inputFields9) should be (Some(inputFields9))
+      operator9.applyFilters(inputFields9) should be(Some(inputFields9))
 
       val operator10 = new OperatorMock("opTest",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<=\", \"value\":2}]"))
       val inputFields10 = Map("field1" -> 3.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
-      operator10.applyFilters(inputFields10) should be (None)
+      operator10.applyFilters(inputFields10) should be(None)
 
       val operator11 = new OperatorMock("opTest",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"=\", \"value\":2}]"))
       val inputFields11 = Map("field1" -> 1.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
-      operator11.applyFilters(inputFields11) should be (None)
+      operator11.applyFilters(inputFields11) should be(None)
 
       val operator12 = new OperatorMock("opTest",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"=\", \"value\":2}]"))
       val inputFields12 = Map("field1" -> 2.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
-      operator12.applyFilters(inputFields12) should be (Some(inputFields12))
+      operator12.applyFilters(inputFields12) should be(Some(inputFields12))
 
       val operator13 = new OperatorMock("opTest",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"!=\", \"value\":2}]"))
       val inputFields13 = Map("field1" -> 1.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
-      operator13.applyFilters(inputFields13) should be (Some(inputFields13))
+      operator13.applyFilters(inputFields13) should be(Some(inputFields13))
 
       val operator14 = new OperatorMock("opTest",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"!=\", \"value\":2}]"))
       val inputFields14 = Map("field1" -> 2.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
-      operator14.applyFilters(inputFields14) should be (None)
+      operator14.applyFilters(inputFields14) should be(None)
 
       val operator15 = new OperatorMock("opTest",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"fieldValue\":\"field2\"}]"))
       val inputFields15 = Map("field1" -> 2.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
-      operator15.applyFilters(inputFields15) should be (None)
+      operator15.applyFilters(inputFields15) should be(None)
 
       val operator16 = new OperatorMock("opTest",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"fieldValue\":\"field2\"}]"))
       val inputFields16 = Map("field1" -> 2.asInstanceOf[JSerializable], "field2" -> 3.asInstanceOf[JSerializable])
-      operator16.applyFilters(inputFields16) should be (Some(inputFields16))
+      operator16.applyFilters(inputFields16) should be(Some(inputFields16))
 
       val operator17 = new OperatorMock("opTest",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"fieldValue\":\"field2\", \"value\":2 }]"))
       val inputFields17 = Map("field1" -> 1.asInstanceOf[JSerializable], "field2" -> 4.asInstanceOf[JSerializable])
-      operator17.applyFilters(inputFields17) should be (Some(inputFields17))
+      operator17.applyFilters(inputFields17) should be(Some(inputFields17))
 
       val operator18 = new OperatorMock("opTest",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"fieldValue\":\"field2\", \"value\":2 }]"))
       val inputFields18 = Map("field1" -> 2.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
-      operator18.applyFilters(inputFields18) should be (None)
+      operator18.applyFilters(inputFields18) should be(None)
 
       val operator19 = new OperatorMockString("opTest",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"=\", \"value\":2}]"))
       val inputFields19 = Map("field1" -> 2.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
-      operator19.applyFilters(inputFields19) should be (Some(inputFields19))
+      operator19.applyFilters(inputFields19) should be(Some(inputFields19))
 
       val operator20 = new OperatorMockString("opTest",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"=\",\"fieldValue\":\"field2\"}]"))
       val inputFields20 = Map("field1" -> 2.asInstanceOf[JSerializable], "field2" -> 1.asInstanceOf[JSerializable])
-      operator20.applyFilters(inputFields20) should be (None)
-
+      operator20.applyFilters(inputFields20) should be(None)
     }
 
     "Operation compare with other operator must be less " in {
       val operator = new OperatorMock("opTest", Map())
       val operator2 = new OperatorMock("upTest", Map())
-
       val expected = -6
-
       val result = operator.compare(operator2)
-
       result should be(expected)
     }
 
     "Operation compare with other operator must be equals " in {
       val operator = new OperatorMock("opTest", Map())
       val operator2 = new OperatorMock("opTest", Map())
-
       val expected = 0
-
       val result = operator.compare(operator2)
-
       result should be(expected)
     }
 
     "Operation compare with other operator must be higher " in {
       val operator = new OperatorMock("opTest", Map())
       val operator2 = new OperatorMock("apTest", Map())
-
       val expected = 14
-
       val result = operator.compare(operator2)
-
       result should be(expected)
     }
 
     "Operation properties must be " in {
       val operator = new OperatorMock("opTest", Map())
-
       val expected = Map()
-
       val result = operator.operationProps
-
       result should be(expected)
     }
 
     "Operation type must be " in {
       val operator = new OperatorMock("opTest", Map())
-
       val expected = TypeOp.Long
-
       val result = operator.defaultTypeOperation
-
       result should be(expected)
     }
 
     "Operation key must be " in {
       val operator = new OperatorMock("opTest", Map())
-
       val expected = "opTest"
-
       val result = operator.key
-
       result should be(expected)
     }
 
     "Operation casting filter must be " in {
       val operator = new OperatorMock("opTest", Map())
-
       val expected = TypeOp.Number
-
       val result = operator.castingFilterType
-
       result should be(expected)
     }
 
     "Operation return type must be " in {
       val operator = new OperatorMock("opTest", Map())
-
       val expected = TypeOp.Long
-
       val result = operator.returnType
-
       result should be(expected)
     }
 
@@ -289,13 +269,9 @@ class OperatorSpec extends WordSpec with Matchers {
     }
 
     "classSuffix must be " in {
-
       val expected = "Operator"
-
       val result = Operator.ClassSuffix
-
       result should be(expected)
     }
-
   }
 }

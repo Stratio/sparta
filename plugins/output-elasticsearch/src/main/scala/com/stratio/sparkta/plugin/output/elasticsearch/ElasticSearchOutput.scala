@@ -21,7 +21,6 @@ import java.io.{Serializable => JSerializable}
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings._
-
 import org.apache.spark.sql._
 import org.apache.spark.sql.types._
 import org.apache.spark.streaming.dstream.DStream
@@ -50,7 +49,7 @@ class ElasticSearchOutput(keyName: String,
 
   override val dateType = getDateTimeType(properties.getString("dateType", None))
 
-  protected override def isAutoCalculateId = true
+  override def isAutoCalculateId: Boolean = true
 
   override val nodes = getHostPortConfs("nodes", DEFAULT_NODE, DEFAULT_PORT)
 
@@ -111,6 +110,7 @@ class ElasticSearchOutput(keyName: String,
       case _ => structField.name typed FieldType.BinaryType
     })
   }
+
   def getHostPortConfs(key: String, defaultHost: String, defaultPort: String): Seq[(String, Int)] = {
 
     val conObj = properties.getConnectionChain(key)

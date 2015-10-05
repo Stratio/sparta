@@ -18,15 +18,14 @@ package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{Parser, Event}
+import com.stratio.sparkta.sdk.{Event, Parser}
 
-class ParserMock (name: String,
-                  order: Integer,
-                  inputField: String,
-                  outputFields: Seq[String],
-                  properties: Map[String, JSerializable])
-  extends Parser(name, order, inputField, outputFields, properties){
+class ParserMock(name: String,
+                 order: Integer,
+                 inputField: String,
+                 outputFields: Seq[String],
+                 properties: Map[String, JSerializable])
+  extends Parser(name, order, inputField, outputFields, properties) {
 
   override def parse(data: Event): Event = data
-
 }

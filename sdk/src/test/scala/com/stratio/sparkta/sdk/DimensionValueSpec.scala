@@ -16,10 +16,11 @@
 
 package com.stratio.sparkta.sdk
 
-import com.stratio.sparkta.sdk.test.DimensionTypeMock
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
+
+import com.stratio.sparkta.sdk.test.DimensionTypeMock
 
 @RunWith(classOf[JUnitRunner])
 class DimensionValueSpec extends WordSpec with Matchers {
