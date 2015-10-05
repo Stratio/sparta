@@ -254,11 +254,11 @@ describe('service.cube', function () {
     })
   });
 
-  describe("should be able to save a modified cube", function(){
-    beforeEach(function(){
+  describe("should be able to save a modified cube", function () {
+    beforeEach(function () {
       service.policy.cubes = [];
     });
-    it ("is saved if it is valid and error is updated to empty text", function(){
+    it("is saved if it is valid and error is updated to empty text", function () {
       CubeModelFactoryMock.isValidCube.and.returnValue(true);
       service.saveCube();
 
@@ -266,7 +266,7 @@ describe('service.cube', function () {
       expect(CubeModelFactoryMock.setError).toHaveBeenCalledWith("");
     });
 
-    it("is not saved if it is invalid and error is updated to a generic form error", function(){
+    it("is not saved if it is invalid and error is updated to a generic form error", function () {
       CubeModelFactoryMock.isValidCube.and.returnValue(false);
       service.saveCube();
 
@@ -274,5 +274,12 @@ describe('service.cube', function () {
       expect(CubeModelFactoryMock.setError).toHaveBeenCalledWith("_GENERIC_FORM_ERROR_");
     });
   });
+
+  it("should be able to reset the created cube number in order to synchronize it with the cubes of the policy", function () {
+    service.policy.cubes.length = 5;
+    service.resetCreatedCubes();
+
+    expect(service.getCreatedCubes()).toBe(service.policy.cubes.length);
+  })
 
 });
