@@ -1,13 +1,20 @@
 {
+  "id": "fake policy id",
   "name": "fake policy",
   "rawData": {
-    "enabled": false,
+    "enabled": "false",
     "partitionFormat": "day",
     "path": ""
   },
   "input": {},
   "models":[],
-  "cubes": []
+  "cubes": [],
+  "transformations":[],
+  "fragments":[],
+  "defaultSparkStreamingWindow": 6000,
+  "defaultStorageLevel": "fake defaultStorageLevel",
+  "defaultCheckpointPath": "fake defaultCheckpointPath",
+  "defaultPartitionFormat": "fake defaultPartitionFormat"
 
 }
 

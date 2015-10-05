@@ -16,12 +16,12 @@
       status.currentStep = 0;
       policy.name = "";
       policy.description = "";
-      policy.sparkStreamingWindow = 6000;
-      policy.storageLevel = "MEMORY_AND_DISK_SER";
-      policy.checkpointPath = "/tmp/checkpoint";
+      policy.sparkStreamingWindow = template.defaultSparkStreamingWindow;
+      policy.storageLevel = template.defaultStorageLevel;
+      policy.checkpointPath = template.defaultCheckpointPath;
       policy.rawData = {};
       policy.rawData.enabled = false;
-      policy.rawData.partitionFormat = "day";
+      policy.rawData.partitionFormat = template.defaultPartitionFormat;
       policy.rawData.path = "";
       policy.input = {};
       policy.outputs = [];
@@ -75,7 +75,7 @@
     }
 
     function getCurrentPolicy() {
-      if (!policy)
+      if (Object.keys(policy).length == 0)
         initPolicy();
       return policy;
     }
