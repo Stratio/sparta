@@ -1,4 +1,4 @@
-describe('policies.wizard.factory.fragment-factory', function () {
+describe('factory.fragment', function () {
   beforeEach(module('webApp'));
 
   var factory, ApiFragmentService, q, promiseMock = null;
