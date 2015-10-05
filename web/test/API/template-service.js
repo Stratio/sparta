@@ -1,13 +1,10 @@
-describe('API Template service', function () {
+describe('API.template-service', function () {
   beforeEach(module('webApp'));
   beforeEach(module('served/inputTemplate.json'));
   beforeEach(module('served/outputTemplate.json'));
   beforeEach(module('served/policyTemplate.json'));
 
   var srv, rootScope, httpBackend, fakeFragmentTemplateByTypeInput, fakeFragmentTemplateByTypeOutput, fakePolicyTemplate = null;
-
-  // init mock modules
-  var apiConfigSettingsMock = jasmine.createSpyObj('apiConfigSettings',['timeout']);
 
   beforeEach(
     inject(function ($httpBackend, $resource, $rootScope,_servedInputTemplate_, _servedOutputTemplate_, _servedPolicyTemplate_, _ApiTemplateService_) {
@@ -53,7 +50,7 @@ describe('API Template service', function () {
       expect(JSON.stringify(result)).toEqual(JSON.stringify(fakePolicyTemplate));
     });
 
-    rootScope.$digest;
+    rootScope.$digest();
     httpBackend.flush();
   });
 
