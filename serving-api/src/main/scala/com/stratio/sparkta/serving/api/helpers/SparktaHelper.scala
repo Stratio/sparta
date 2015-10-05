@@ -22,7 +22,6 @@ import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import akka.routing.RoundRobinPool
 import akka.util.Timeout
-import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.Sparkta._
