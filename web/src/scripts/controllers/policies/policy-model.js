@@ -28,7 +28,7 @@
       var order = 0;
 
       if (modelNumber > 0) {
-        vm.policy.models[modelNumber - 1].order + 1
+        order = vm.policy.models[modelNumber - 1].order + 1
       }
       vm.model = ModelFactory.getModel(vm.template, order);
       vm.modelError = '';
