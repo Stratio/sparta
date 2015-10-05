@@ -46,6 +46,33 @@ with MockitoSugar {
 
     res should be(Seq(tableSchema))
   }
+  "SchemaFactorySpec2" should "return with multiplexer" in new CommonValues {
+    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1),
+      false, "minute", checkpointInterval, checkpointGranularity, checkpointAvailable)
+    val cubes = Seq(cube)
+    val tableSchema = Seq(TableSchema("outputName", "dim1",
+      StructType(Array(
+        StructField("dim1", StringType, false),
+        StructField(checkpointGranularity, DateType, false),
+        StructField("op1", LongType, true))), "minute"),
+      TableSchema("outputName", "dim2",
+        StructType(Array(
+          StructField("dim2", StringType, false),
+          StructField(checkpointGranularity, DateType, false),
+          StructField("op1", LongType, true))), "minute"),
+      TableSchema("outputName", "dim1_dim2",
+        StructType(Array(
+          StructField("dim1", StringType, false),
+          StructField("dim2", StringType, false),
+          StructField(checkpointGranularity, DateType, false),
+          StructField("op1", LongType, true))), "minute")
+    )
+
+
+    val res = SchemaFactory.cubesOperatorsSchemas(cubes, multiplexerConfigOptions)
+
+    res should be(tableSchema)
+  }
 
   "SchemaFactorySpec" should "return the operator and the type" in new CommonValues {
     val expected = Map("op1" ->(WriteOp.Inc, TypeOp.Long))
@@ -95,7 +122,7 @@ with MockitoSugar {
     val op1: Operator = new OperatorTest("op1", Map())
 
     val configOptions: Seq[(String, Map[String, String])] = Seq(("outputName", Map("" -> "")))
-
+    val multiplexerConfigOptions = Seq(("outputName", Map(Output.Multiplexer -> "true")))
     val checkpointInterval = 10000
     val checkpointAvailable = 60000
     val checkpointGranularity = "minute"
