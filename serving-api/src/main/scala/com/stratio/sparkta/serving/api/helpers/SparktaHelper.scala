@@ -22,10 +22,10 @@ import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import akka.routing.RoundRobinPool
 import akka.util.Timeout
-import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor._
+import com.stratio.sparkta.serving.api.constants.AkkaConstant
 import com.stratio.sparkta.serving.core._
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
 import spray.can.Http

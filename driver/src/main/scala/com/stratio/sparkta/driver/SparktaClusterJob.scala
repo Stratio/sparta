@@ -23,11 +23,10 @@ import akka.actor.{ActorSystem, Props}
 import akka.pattern.ask
 import akka.util.Timeout
 import com.stratio.sparkta.driver.SparktaJob._
-import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.driver.util.{HdfsUtils, PolicyUtils}
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
-import com.stratio.sparkta.serving.core.models.{SparktaSerializer, AggregationPoliciesModel, PolicyStatusModel}
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder, SparktaConfig}
@@ -54,7 +53,7 @@ object SparktaClusterJob extends SparktaSerializer {
         val pluginFiles = addHdfsFiles(hdfsUtils, args(1))
         val classPathFiles = addHdfsFiles(hdfsUtils, args(2))
         implicit val system = ActorSystem(s"${policy.id.get}")
-        val policyStatusActor = system.actorOf(Props[PolicyStatusActor], s"${AkkaConstant.PolicyStatusActor}")
+        val policyStatusActor = system.actorOf(Props[PolicyStatusActor], "supervisorContextActor")
         Try {
           policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting))
           val streamingContextService = new StreamingContextService(Some(policyStatusActor))
