@@ -41,5 +41,11 @@
   "defaultInterval": "fake defaultInterval",
   "defaultTimeAvailability": "fake defaultTimeAvailability",
   "template": "fake template",
-  "morphlinesDefaultConfiguration": "fake morphlinesDefaultConfiguration"
+  "morphlinesDefaultConfiguration": "fake morphlinesDefaultConfiguration",
+  "types": [{"name": "fake type"}],
+  "defaultInput":
+  {
+    "label": "fake default input label",
+    "value":  "fake default input value"
+  }
 }
