@@ -14,14 +14,16 @@
     vm.getAccordionStatus = getAccordionStatus;
 
     function resetAccordionStatus(length, truePosition) {
-      for (var i = 0; i <= length; ++i) {
-        if (i == truePosition)
-          accordionStatus[i] = true;
-        else
-          accordionStatus[i] = false;
-      }
-      if (truePosition == undefined){
-        accordionStatus[length] = true;
+      if (length !== undefined && length != null && length >= 0) {
+        for (var i = 0; i <= length; ++i) {
+          if (i == truePosition)
+            accordionStatus[i] = true;
+          else
+            accordionStatus[i] = false;
+        }
+        if (truePosition == undefined) {
+          accordionStatus[length] = true;
+        }
       }
     }
 
