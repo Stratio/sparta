@@ -30,7 +30,6 @@ describe('service.utils', function () {
         var fakeJson = {"name": "fake value"};
 
         expect(service.findElementInJSONArray(array, fakeJson, "name")).toBe(-1);
-
       });
 
       it("if array contains the element, returns -1", function () {
