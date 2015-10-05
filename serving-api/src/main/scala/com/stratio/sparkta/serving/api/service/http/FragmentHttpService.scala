@@ -19,10 +19,9 @@ package com.stratio.sparkta.serving.api.service.http
 import javax.ws.rs.Path
 
 import akka.pattern.ask
-import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.serving.api.actor.FragmentActor._
 import com.stratio.sparkta.serving.api.actor.PolicyActor.{Delete, FindByFragment, ResponsePolicies}
-import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.api.constants.{AkkaConstant, HttpConstant}
 import com.stratio.sparkta.serving.core.models.FragmentElementModel
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
