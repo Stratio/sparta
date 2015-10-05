@@ -31,6 +31,8 @@ class SumOperator(name: String, properties: Map[String, JSerializable]) extends 
 
   override val writeOperation = WriteOp.Inc
 
+  override val associative = true
+
   override val castingFilterType = TypeOp.Number
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
@@ -42,10 +44,13 @@ class SumOperator(name: String, properties: Map[String, JSerializable]) extends 
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     Try(
-      Some(transformValueByTypeOp(
-        returnType,
-        getDistinctValues(values.flatten.map(_.asInstanceOf[Number].doubleValue())).sum))
+      Some(
+        getDistinctValues(values.flatten.map(_.asInstanceOf[Number].doubleValue())).sum)
     ).getOrElse(SumOperator.SOME_ZERO)
+  }
+
+  override def processAssociative(values: Iterable[Option[Any]]): Option[Double] = {
+    Some(transformValueByTypeOp(returnType, values.flatten.map(_.asInstanceOf[Number].doubleValue()).sum))
   }
 }
 
