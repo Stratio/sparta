@@ -6,6 +6,10 @@
 	&--big {
 		min-height: $c-textarea--big--min-height;
 	}
+
+  &--error{
+    border-color:$c-textarea--error--border-color ;
+  }
   &--required:after {
     content: ' *';
   }

@@ -6,12 +6,16 @@
     .module('webApp')
     .controller('CubeCtrl', CubeCtrl);
 
-  CubeCtrl.$inject = ['CubeModelFactory', 'PolicyModelFactory', 'ModalService', '$q'];
+  CubeCtrl.$inject = ['CubeModelFactory', 'CubeService','PolicyModelFactory', 'ModalService', '$q'];
 
-  function CubeCtrl(CubeModelFactory, PolicyModelFactory, ModalService, $q) {
+  function CubeCtrl(CubeModelFactory,CubeService, PolicyModelFactory, ModalService, $q) {
     var vm = this;
 
     vm.init = init;
+    vm.addCube = addCube;
+    vm.removeCube = CubeService.removeCube;
+    vm.isNewCube = CubeService.isNewCube;
+    vm.saveCube = CubeService.saveCube;
     vm.addOutputToDimensions = addOutputToDimensions;
     vm.removeOutputFromDimensions = removeOutputFromDimensions;
     vm.addFunctionToOperators = addFunctionToOperators;
@@ -19,15 +23,16 @@
 
     vm.init();
 
-    function init(cube) {
-      if (cube) {
+    function init() {
+      vm.cube = CubeModelFactory.getCube();
+      if (vm.cube) {
         vm.template = PolicyModelFactory.getTemplate();
-        vm.cube = cube;
         vm.policy = PolicyModelFactory.getCurrentPolicy();
         vm.granularityOptions = vm.template.granularityOptions;
         vm.functionList = vm.template.functionNames;
         vm.outputList = PolicyModelFactory.getAllModelOutputs();
         vm.cubeError = CubeModelFactory.getError();
+        vm.cubeContext = CubeModelFactory.getContext();
       }
     }
 
@@ -129,6 +134,14 @@
         defer.reject();
       });
       return defer.promise;
+    }
+
+    function addCube() {
+      if (vm.form.$valid) {
+        CubeService.addCube();
+      } else {
+        CubeModelFactory.setError("_GENERIC_FORM_ERROR_");
+      }
     }
   }
 })();

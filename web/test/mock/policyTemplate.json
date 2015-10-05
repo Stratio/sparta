@@ -26,14 +26,27 @@
     }
   ],
   "helpLinks": {
-    "description": "description"
+    "description": "fake helplinks for description",
+    "models": "fake helplinks for models"
   },
-  "sparkStreamingWindow": "sparkStreamingWindow",
-  "checkpointInterval": "checkpointInterval",
-  "checkpointAvailability": "checkpointAvailability",
-  "partitionFormat": "partitionFormat",
-  "storageLevel": "storageLevel",
+  "sparkStreamingWindow": "fake sparkStreamingWindow",
+  "checkpointInterval": "fake checkpointInterval",
+  "checkpointAvailability": "fake checkpointAvailability",
+  "partitionFormat": "fake partitionFormat",
+  "storageLevel": "fake storageLevel",
   "helpLink": {
-    "description": "helpLink"
+    "description": "fake helpLink"
+  },
+  "defaultCubeName": "fake cube name",
+  "defaultTimeDimension": "fake defaultTimeDimension",
+  "defaultInterval": "fake defaultInterval",
+  "defaultTimeAvailability": "fake defaultTimeAvailability",
+  "template": "fake template",
+  "morphlinesDefaultConfiguration": "fake morphlinesDefaultConfiguration",
+  "types": [{"name": "fake type"}],
+  "defaultInput":
+  {
+    "label": "fake default input label",
+    "value":  "fake default input value"
   }
 }

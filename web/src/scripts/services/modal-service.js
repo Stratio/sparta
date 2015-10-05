@@ -21,7 +21,7 @@
         resolve: resolve
       });
       return modalInstance;
-    };
+    }
   }
 
 })();

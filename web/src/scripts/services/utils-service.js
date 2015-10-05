@@ -9,13 +9,13 @@
   function UtilsService() {
     var vm = this;
     vm.findElementInJSONArray = findElementInJSONArray;
-    vm.findValueInJSONArray = findValueInJSONArray;
+    vm.removeItemsFromArray = removeItemsFromArray;
 
     function findElementInJSONArray(array, element, attr) {
       var found = false;
+      var position = -1;
       if (array && element && attr) {
         var i = 0;
-        var position = -1;
         while (!found && i < array.length) {
           var currentElement = array[i];
           if (currentElement[attr] === element[attr]) {
@@ -29,22 +29,19 @@
       return position;
     }
 
-    function findValueInJSONArray(array, value, attr) {
-      var found = false;
-      if (array && element && attr) {
-        var i = 0;
-        var position = -1;
-        while (!found && i < array.length) {
-          var currentElement = array[i];
-          if (currentElement[attr] === value) {
-            found = true;
-            position = i;
-          } else {
-            ++i;
-          }
+    function removeItemsFromArray(array, positions) {
+      var position = null;
+      var arrayResult = array;
+      if (array && positions) {
+        positions = positions.sort();
+        var removedElements = 0;
+        for (var i = 0; i < positions.length; ++i) {
+          position = positions[i] - removedElements;
+          arrayResult.splice(position, 1);
+          removedElements++;
         }
       }
-      return position;
+      return arrayResult;
     }
   }
 })();
