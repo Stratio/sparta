@@ -1,4 +1,4 @@
-describe('Model service', function () {
+describe('service.model', function () {
   beforeEach(module('webApp'));
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/model.json'));
