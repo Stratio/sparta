@@ -17,7 +17,7 @@
 package com.stratio.sparkta.serving.api.service.http
 
 import akka.actor.{ActorContext, ActorRef, ActorRefFactory}
-import com.stratio.sparkta.driver.constants.AkkaConstant
+import com.stratio.sparkta.serving.api.constants.AkkaConstant
 import spray.routing._
 
 class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {

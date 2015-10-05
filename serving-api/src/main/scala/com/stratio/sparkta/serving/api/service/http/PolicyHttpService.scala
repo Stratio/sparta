@@ -28,11 +28,9 @@ import spray.http.HttpHeaders.`Content-Disposition`
 import spray.http.{HttpResponse, StatusCodes}
 import spray.httpx.marshalling.ToResponseMarshallable
 import spray.routing._
-
-import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor
-import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.api.constants.{AkkaConstant, HttpConstant}
 import com.stratio.sparkta.serving.api.helpers.PolicyHelper
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}

@@ -17,9 +17,8 @@
 package com.stratio.sparkta.serving.api.service.http
 
 import akka.pattern.ask
-import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.serving.api.actor.PolicyActor.ResponsePolicy
-import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.api.constants.{AkkaConstant, HttpConstant}
 import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.api.helpers.PolicyHelper
 import com.stratio.sparkta.serving.core.models._
