@@ -21,6 +21,7 @@ module.exports = function (config) {
       'src/scripts/constants/**/*.js',
       'src/scripts/controllers/**/*.js',
       'src/scripts/services/**/*.js',
+      'src/scripts/directives/**/*.js',
       'src/languages/en-US.json',
       // fixtures
       'test/mock/*.json',
@@ -50,7 +51,13 @@ module.exports = function (config) {
 
     preprocessors: {
       '**/*.json': ['ng-json2js'],
-      'src/scripts/**/*.js': 'coverage'
+     // 'src/scripts/**/*.js': 'coverage'
+      'src/scripts/constants/**/*.js': ['coverage'],
+      'src/scripts/controllers/**/*.js': ['coverage'],
+      'src/scripts/directives/**/*.js': ['coverage'],
+      'src/scripts/services/**/*.js': ['coverage'],
+      'src/scripts/filters/**/*.js': ['coverage'],
+      'src/scripts/app.js': ['coverage']
     },
 
     junitReporter: {
