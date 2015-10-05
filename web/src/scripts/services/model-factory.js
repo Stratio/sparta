@@ -5,8 +5,6 @@
     .module('webApp')
     .factory('ModelFactory', ModelFactory);
 
-  ModelFactory.$inject = ['PolicyModelFactory'];
-
   function ModelFactory() {
     var model = {};
     var error = {text: "", duplicatedOutput: false};
@@ -14,7 +12,8 @@
     var context = {"position": null};
     var inputList = [];
 
-    function init(newTemplate, order) {
+    function init(newTemplate, order, position) {
+      setPosition(position);
       template = newTemplate;
       model.name = "";
       model.outputFields = [];
@@ -64,24 +63,24 @@
       return isValid;
     }
 
-    function getModel(template, order) {
-      if (Object.keys(model).length == 0) init(template, order);
+    function getModel(template, order, position) {
+      if (Object.keys(model).length == 0) init(template, order, position);
       return model;
     }
 
-    function setModel(m) {
+    function setModel(m, position) {
       model.name = m.name;
       model.outputFields = m.outputFields;
       model.type = m.type;
       model.configuration = m.configuration;
-      model.inputList = m.inputList;
       model.inputField = m.inputField;
       model.order = m.order;
       error.text = "";
+      setPosition(position);
     }
 
-    function resetModel(template, order) {
-      init(template, order);
+    function resetModel(template, order, position) {
+      init(template, order, position);
     }
 
     function getContext() {
@@ -89,6 +88,9 @@
     }
 
     function setPosition(p) {
+      if (p === undefined) {
+        p = 0;
+      }
       context.position = p;
     }
 

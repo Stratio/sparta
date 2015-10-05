@@ -4,6 +4,5 @@
   "outputFields":["output1", "output2"],
   "configuration":{"fake attribute": "fake"},
   "inputField": "fake inputField",
-  "inputList": "fake inputList",
   "order": 0
 }

@@ -55,11 +55,9 @@
 
         if (vm.accordionStatus) {
           var selectedModelPosition = newValue.indexOf(true);
-          var position = null;
           if (vm.policy.models.length > 0 && selectedModelPosition >= 0 && selectedModelPosition < vm.policy.models.length) {
             var selectedModel = vm.policy.models[selectedModelPosition];
-            ModelFactory.setModel(selectedModel);
-            position = selectedModelPosition;
+            ModelFactory.setModel(selectedModel, selectedModelPosition);
           } else {
             var modelNumber = vm.policy.models.length;
             var order = 0;
@@ -67,10 +65,8 @@
             if (modelNumber > 0) {
               order = vm.policy.models[modelNumber - 1].order + 1
             }
-            ModelFactory.resetModel(vm.template, order);
-            position = vm.policy.models.length;
+            ModelFactory.resetModel(vm.template, order, vm.policy.models.length);
           }
-          ModelFactory.setPosition(position);
           ModelFactory.updateModelInputs(vm.policy.models);
         }
       }
