@@ -9,7 +9,6 @@ module.exports = function (config) {
       'bower_components/angular-resource/angular-resource.js',
       'bower_components/angular-route/angular-route.js',
       'bower_components/angular-ui-router/release/angular-ui-router.js',
-      'src/scripts/filters/angular-truncate-number.js',
 
       'src/stratio-ui/script/ui.stratio.js',
       'src/stratio-ui/script/helper/*.js',
@@ -21,8 +20,10 @@ module.exports = function (config) {
       'src/scripts/constants/**/*.js',
       'src/scripts/controllers/**/*.js',
       'src/scripts/services/**/*.js',
-      'src/scripts/directives/**/*.js',
+      'src/scripts/services/**/*.js',
       'src/languages/en-US.json',
+      'src/scripts/filters/truncate-number.js',
+
       // fixtures
       'test/mock/*.json',
       'test/**/**/*.js'

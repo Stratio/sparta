@@ -1,4 +1,4 @@
-describe('filter.truncate-number-filter', function () {
+describe('filter.truncateNum', function () {
   beforeEach(module('webApp'));
 
   var filter = null;
