@@ -17,11 +17,10 @@
 package com.stratio.sparkta.plugin.operator.entityCount
 
 import java.io.{Serializable => JSerializable}
+import scala.util.Try
 
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk._
-
-import scala.util.Try
 
 class EntityCountOperator(name: String, properties: Map[String, JSerializable]) extends EntityCount(name, properties) {
 
@@ -33,9 +32,9 @@ class EntityCountOperator(name: String, properties: Map[String, JSerializable]) 
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Map[String, Long]] = {
     Try {
-      val wordCounts = applyCount(getDistinctValues(values.flatten.flatMap(_.asInstanceOf[Seq[String]]))).toMap
+      val wordCounts = applyCount(getDistinctValues(values.flatten.flatMap(_.asInstanceOf[Seq[String]])))
       Some(transformValueByTypeOp(returnType, wordCounts))
-    }.getOrElse(Some_Empty)
+    }.get
   }
 
   private def applyCount(values: List[String]): Map[String, Long] =
