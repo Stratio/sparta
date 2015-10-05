@@ -1,4 +1,4 @@
-describe('Policy model controller', function () {
+describe('policies.wizard.controller.policy-model-accordion-controller', function () {
   beforeEach(module('webApp'));
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/policyTemplate.json'));

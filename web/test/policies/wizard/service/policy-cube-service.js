@@ -1,4 +1,4 @@
-describe('service.cube', function () {
+describe('policies.wizard.service.policy-cube-service', function () {
   beforeEach(module('webApp'));
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/cube.json'));
