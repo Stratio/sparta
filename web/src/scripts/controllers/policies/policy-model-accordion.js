@@ -52,8 +52,7 @@
     $scope.$watchCollection(
       "vm.accordionStatus",
       function (newValue) {
-
-        if (vm.accordionStatus) {
+        if (vm.accordionStatus && newValue) {
           var selectedModelPosition = newValue.indexOf(true);
           if (vm.policy.models.length > 0 && selectedModelPosition >= 0 && selectedModelPosition < vm.policy.models.length) {
             var selectedModel = vm.policy.models[selectedModelPosition];
