@@ -1,4 +1,4 @@
-describe('factory.model', function () {
+describe('policies.wizard.factory.model-factory', function () {
   beforeEach(module('webApp'));
   beforeEach(module('served/model.json'));
   beforeEach(module('served/policyTemplate.json'));

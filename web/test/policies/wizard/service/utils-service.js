@@ -1,4 +1,4 @@
-describe('service.utils', function () {
+describe('policies.wizard.service.utils-service', function () {
   beforeEach(module('webApp'));
 
   var service = null;
