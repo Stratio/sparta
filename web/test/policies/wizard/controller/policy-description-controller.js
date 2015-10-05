@@ -1,19 +1,21 @@
-describe('policies.wizard.controller.policy-description-controller', function () {
+describe('Policy description controller', function () {
   beforeEach(module('webApp'));
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/policyTemplate.json'));
 
-  var ctrl, fakePolicy, fakeTemplate, fakeAllPoliciesResponse, policyModelFactoryMock, scope = null;
+  var ctrl, fakePolicy, fakeTemplate, fakeAllPoliciesResponse, policyModelFactoryMock = null;
+
 
   // init mock modules
 
   var policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['getAllPolicies']);
 
-  beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope, _servedPolicy_, _servedPolicyTemplate_) {
-    scope = $rootScope.$new();
-    fakePolicy = _servedPolicy_;
-    fakeTemplate = _servedPolicyTemplate_;
-    fakeAllPoliciesResponse = [{policy: fakePolicy, status: "RUNNING"}];
+  beforeEach(inject(function ($controller, $q, $httpBackend) {
+    inject(function (_servedPolicy_, _servedPolicyTemplate_) {
+      fakePolicy = _servedPolicy_;
+      fakeTemplate = _servedPolicyTemplate_;
+      fakeAllPoliciesResponse = [{policy: fakePolicy, status: "RUNNING"}];
+    });
 
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
@@ -68,37 +70,33 @@ describe('policies.wizard.controller.policy-description-controller', function ()
         var policy = angular.copy(fakePolicy);
         policy.id = "new id";
         ctrl.policy = policy;
-        ctrl.validateForm();
-        scope.$digest();
-
-        expect(ctrl.error).toBe(true);
+        ctrl.validateForm().then(function () {
+          expect(ctrl.error).toBe(true);
+        });
       });
 
       it("It is valid if there is another policy with the same name and the same id", function () {
         var policy = angular.copy(fakePolicy);
         ctrl.policy = policy;
-        ctrl.validateForm();
-        scope.$digest();
-
-        expect(ctrl.error).toBe(false);
+        ctrl.validateForm().then(function () {
+          expect(ctrl.error).toBe(false);
+        });
       });
 
       it("It is valid if there is not any policy with the same name", function () {
         ctrl.policy = angular.copy(fakePolicy);
         ctrl.policy.name = "new name";
-        ctrl.validateForm();
-        scope.$digest();
-
-        expect(ctrl.error).toBe(false);
+        ctrl.validateForm().then(function () {
+          expect(ctrl.error).toBe(false);
+        });
       });
 
       it("It is valid if there is not any policy with the same name, next step is executed", function () {
         ctrl.policy = angular.copy(fakePolicy);
         ctrl.policy.name = "new name";
-        ctrl.validateForm();
-        scope.$digest();
-
-        expect(policyModelFactoryMock.nextStep).toHaveBeenCalled();
+        ctrl.validateForm().then(function () {
+          expect(policyModelFactoryMock.nextStep).toHaveBeenCalled();
+        });
       });
     });
 
@@ -108,12 +106,13 @@ describe('policies.wizard.controller.policy-description-controller', function ()
       });
       it("It is invalid and next step is not executed", function () {
         ctrl.policy = fakePolicy;
-        ctrl.validateForm();
-        scope.$digest();
-
-        expect(ctrl.error).toBe(false);
-        expect(policyModelFactoryMock.nextStep).not.toHaveBeenCalled();
+        ctrl.validateForm().then(function () {
+          expect(ctrl.error).toBe(false);
+          expect(policyModelFactoryMock.nextStep).not.toHaveBeenCalled();
+        });
       })
     });
   });
+
+
 });

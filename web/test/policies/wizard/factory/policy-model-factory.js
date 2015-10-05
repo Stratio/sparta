@@ -1,4 +1,4 @@
-describe('policies.wizard.factory.policy-model-factory', function () {
+describe('factory.policyModel', function () {
   beforeEach(module('webApp'));
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/input.json'));
@@ -16,7 +16,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
   beforeEach(inject(function (_PolicyModelFactory_, _servedPolicy_, _servedPolicyTemplate_, _servedInput_, _servedOutput_) {
     factory = _PolicyModelFactory_;
-    fakePolicy = angular.copy(_servedPolicy_);
+    fakePolicy = _servedPolicy_;
     fakePolicyTemplate = _servedPolicyTemplate_;
     fakeInput = _servedInput_;
     fakeOutput = _servedOutput_;
@@ -37,7 +37,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     expect(policy.checkpointPath).toBe(fakePolicy.checkpointPath);
     expect(policy.rawData).toBe(fakePolicy.rawData);
     expect(policy.rawData.enabled).toBe(fakePolicy.rawData.enabled);
-    expect(policy.transformations).toBe(fakePolicy.transformations);
+    expect(policy.models).toBe(fakePolicy.transformations);
     expect(policy.cubes).toBe(fakePolicy.cubes);
     expect(policy.input).toBe(fakeInput);
     expect(policy.outputs[0]).toBe(fakeOutput);
@@ -65,7 +65,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       expect(policy.rawData.path).toBe("");
       expect(policy.input).toEqual({});
       expect(policy.outputs).toEqual([]);
-      expect(policy.transformations).toEqual([]);
+      expect(policy.models).toEqual([]);
       expect(policy.cubes).toEqual([]);
     });
 
@@ -84,7 +84,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       expect(policy.rawData.path).toBe(fakePolicy.rawData.path);
       expect(policy.input).toEqual(fakeInput);
       expect(policy.outputs).toEqual([fakeOutput]);
-      expect(policy.transformations).toEqual(fakePolicy.transformations);
+      expect(policy.models).toEqual(fakePolicy.models);
       expect(policy.cubes).toEqual(fakePolicy.cubes);
     });
   });
@@ -107,7 +107,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     expect(policy.rawData.path).toBe("");
     expect(policy.input).toEqual({});
     expect(policy.outputs).toEqual([]);
-    expect(policy.transformations).toEqual([]);
+    expect(policy.models).toEqual([]);
     expect(policy.cubes).toEqual([]);
   });
 
