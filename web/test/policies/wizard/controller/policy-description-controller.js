@@ -1,4 +1,4 @@
-describe('Policy description controller', function () {
+describe('policies.wizard.controller.policy-description-controller', function () {
   beforeEach(module('webApp'));
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/policyTemplate.json'));
