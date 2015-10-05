@@ -1,4 +1,8 @@
 {
+  "defaultSparkStreamingWindow": 6000,
+  "defaultStorageLevel": "MEMORY_AND_DISK_SER",
+  "defaultCheckpointPath": "/tmp/checkpoint",
+  "defaultPartitionFormat": "day",
   "steps": [
     {
       "name": "_POLICY_._STEPS_._DESCRIPTION_",
@@ -164,12 +168,10 @@
       "name": "Type"
     }
   ],
-  "defaultInput":
-    {
-      "label": "_attachment_body",
-      "value": "_attachment_body"
-    }
-  ,
+  "defaultInput": {
+    "label": "_attachment_body",
+    "value": "_attachment_body"
+  },
   "configHelpLink": "http://docs.stratio.com/modules/sparkta/development/transformations.html",
   "outputPattern": "[a-zA-Z0-9]*",
   "outputInputPlaceholder": "_OUTPUT_INPUT_PLACEHOLDER_",
@@ -326,7 +328,9 @@
   "defaultTimeAvailability": 60000,
   "defaultGranularity": "minute",
   "defaultTimeDimension": "minute",
-  "defaultOperatorConfiguration": {"inputField": "field1"},
+  "defaultOperatorConfiguration": {
+    "inputField": "field1"
+  },
   "functionNames": [
     "Accumulator",
     "Avg",
