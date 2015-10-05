@@ -26,7 +26,8 @@
     }
   ],
   "helpLinks": {
-    "description": "description"
+    "description": "fake helplinks for description",
+    "models": "fake helplinks for models"
   },
   "sparkStreamingWindow": "fake sparkStreamingWindow",
   "checkpointInterval": "fake checkpointInterval",
