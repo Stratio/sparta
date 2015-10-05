@@ -33,10 +33,8 @@ with Matchers {
     }
     "be deserialized if its JSON" in {
       implicit val json4sJacksonFormats = DefaultFormats + new JsoneyStringSerializer()
-      val result = parse("""
-               { "foo": "bar" }
-        """).extract[JsoneyString]
-      assertResult(new JsoneyString("""{"foo":"bar"}"""))(result)
+      val result = parse( """{ "foo": "bar" }""").extract[JsoneyString]
+      assertResult(new JsoneyString( """{"foo":"bar"}"""))(result)
     }
     "be deserialized if it's a String" in {
       implicit val json4sJacksonFormats = DefaultFormats + new JsoneyStringSerializer()

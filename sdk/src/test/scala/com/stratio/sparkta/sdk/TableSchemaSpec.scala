@@ -30,11 +30,8 @@ class TableSchemaSpec extends WordSpec with Matchers {
       StructField("dim1", StringType, false))), "minute")
 
     "toString must be " in {
-
       val expected = "OPERATOR: outputName - TABLE: dim1 - SCHEMA: StructType(StructField(dim1,StringType,false))"
-
       val result = tableSchema.toString
-
       result should be(expected)
     }
   }

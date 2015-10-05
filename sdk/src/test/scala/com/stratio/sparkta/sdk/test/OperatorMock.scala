@@ -20,36 +20,26 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.sdk.{Operator, TypeOp, WriteOp}
 
-class OperatorMock(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+abstract class BaseOperatorMoc(name: String, properties: Map[String, JSerializable])
+  extends Operator(name, properties) {
 
   override val defaultTypeOperation = TypeOp.Long
 
   override val writeOperation = WriteOp.Inc
 
-  override val castingFilterType = TypeOp.Number
+  override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = None
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
-    None
-  }
-
-  override def processReduce(values: Iterable[Option[Any]]): Option[Long] = {
-    None
-  }
+  override def processReduce(values: Iterable[Option[Any]]): Option[Long] = None
 }
 
-class OperatorMockString(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+class OperatorMock(name: String, properties: Map[String, JSerializable])
+  extends BaseOperatorMoc(name: String, properties: Map[String, JSerializable]) {
 
-  override val defaultTypeOperation = TypeOp.Long
+  override val castingFilterType = TypeOp.Number
+}
 
-  override val writeOperation = WriteOp.Inc
+class OperatorMockString(name: String, properties: Map[String, JSerializable])
+  extends BaseOperatorMoc(name: String, properties: Map[String, JSerializable]) {
 
   override val castingFilterType = TypeOp.String
-
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
-    None
-  }
-
-  override def processReduce(values: Iterable[Option[Any]]): Option[Long] = {
-    None
-  }
 }

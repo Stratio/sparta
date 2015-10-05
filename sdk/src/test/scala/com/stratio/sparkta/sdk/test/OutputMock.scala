@@ -18,14 +18,14 @@ package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{WriteOp, Output, TableSchema}
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.WriteOp._
+import com.stratio.sparkta.sdk.{Output, TableSchema, WriteOp}
 
-class OutputMock (keyName: String,
-                  properties: Map[String, JSerializable],
-                  operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
-                  bcSchema: Option[Seq[TableSchema]]) extends Output(keyName, properties, operationTypes, bcSchema){
+class OutputMock(keyName: String,
+                 properties: Map[String, JSerializable],
+                 operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
+                 bcSchema: Option[Seq[TableSchema]]) extends Output(keyName, properties, operationTypes, bcSchema) {
 
   override val supportedWriteOps = Seq(WriteOp.Set)
 }

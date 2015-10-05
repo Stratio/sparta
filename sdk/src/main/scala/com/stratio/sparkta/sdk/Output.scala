@@ -167,7 +167,7 @@ abstract class Output(keyName: String,
 
   def getFixedDimensions(dimensionValuesTime: DimensionValuesTime): Option[Seq[(String, Any)]] =
     if (fixedDimensions.isEmpty) None
-    else Some(fixedDimensions.flatMap(fxdimension => {
+    else Some(fixedDimensions.flatMap(fximension => {
       dimensionValuesTime.dimensionValues.find(dimension => dimension.getNameDimension == fxdimension)
         .map(dimensionValue => (fxdimension, dimensionValue.value))
     }))

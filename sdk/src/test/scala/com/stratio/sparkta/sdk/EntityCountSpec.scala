@@ -18,10 +18,11 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.test.EntityCountMock
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
+
+import com.stratio.sparkta.sdk.test.EntityCountMock
 
 @RunWith(classOf[JUnitRunner])
 class EntityCountSpec extends WordSpec with Matchers {

@@ -16,6 +16,7 @@
 
 package com.stratio.sparkta.sdk
 
+import java.io.{Serializable => JSerializable}
 import java.sql.Timestamp
 import java.util.Date
 
@@ -24,7 +25,6 @@ import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
-import java.io.{Serializable => JSerializable}
 
 @RunWith(classOf[JUnitRunner])
 class DateOperationsSpec extends FlatSpec with ShouldMatchers {
@@ -86,7 +86,6 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
     val hourPatternResult = DateTimeFormat.forPattern(hourPattern).print(DateTime.now())
     val minutePatternResult = DateTimeFormat.forPattern(minutePattern).print(DateTime.now())
     val defaultPatternResult = DateTimeFormat.forPattern(defaultPattern).print(DateTime.now())
-
   }
 
   "DateOperations" should "return timestamp with correct parameters" in new CommonValues {
@@ -148,7 +147,6 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
     DateOperations.generateParquetPath(parquetPattern = Some(hourStr)) should be(hourPatternResult)
     DateOperations.generateParquetPath(parquetPattern = Some(minuteStr)) should be(minutePatternResult)
     DateOperations.generateParquetPath(parquetPattern = Some(defaultStr)) should be(defaultPatternResult)
-
   }
 
   it should "return millis from a Serializable date" in new CommonValues {
@@ -164,5 +162,4 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
     DateOperations.getMillisFromDateTime(timestamp.asInstanceOf[JSerializable]) should be(dt.getMillis)
     DateOperations.getMillisFromDateTime(date.asInstanceOf[JSerializable]) should be(dt.getMillis)
   }
-
 }
