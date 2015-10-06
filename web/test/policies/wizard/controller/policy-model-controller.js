@@ -65,16 +65,6 @@ describe('policies.wizard.controller.policy-model-controller', function () {
       expect(ctrl.policy).toBe(fakePolicy);
     });
 
-    describe ("should send the correct order for the current model to be used to initialize a new model if factory has not model", function(){
-      it ("if policy has not got models, the order of current model has to be 0", function(){
-
-      });
-
-      it ("if policy has got models, the order of current model has to be equal to the last model plus one", function(){
-
-      });
-    });
-
     describe("if factory model is not null", function () {
 
       it("it should load the model from the model factory", function () {
