@@ -20,7 +20,7 @@ module.exports = function (config) {
       'src/scripts/constants/**/*.js',
       'src/scripts/controllers/**/*.js',
       'src/scripts/services/**/*.js',
-      'src/scripts/services/**/*.js',
+      'src/scripts/directives/**/*.js',
       'src/languages/en-US.json',
       'src/scripts/filters/truncate-number.js',
 
@@ -42,17 +42,8 @@ module.exports = function (config) {
     browsers: ['PhantomJS'],
     port: 8080,
 
-    //plugins: [
-    //  'karma-ng-json2js-preprocessor',
-    //  'karma-phantomjs-launcher',
-    //  'karma-jasmine',
-    //  'karma-jasmine-jquery',
-    //  'karma-coverage'
-    //],
-
     preprocessors: {
       '**/*.json': ['ng-json2js'],
-     // 'src/scripts/**/*.js': 'coverage'
       'src/scripts/constants/**/*.js': ['coverage'],
       'src/scripts/controllers/**/*.js': ['coverage'],
       'src/scripts/directives/**/*.js': ['coverage'],

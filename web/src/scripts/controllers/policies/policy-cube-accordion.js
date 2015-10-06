@@ -51,11 +51,11 @@
       function (newValue) {
         if (vm.accordionStatus) {
           var selectedCubePosition = newValue.indexOf(true);
-            if (selectedCubePosition >= 0 && selectedCubePosition < vm.policy.cubes.length) {
+            if (vm.policy.cubes.length > 0 && selectedCubePosition >= 0 && selectedCubePosition < vm.policy.cubes.length ) {
               var selectedCube = vm.policy.cubes[selectedCubePosition];
               CubeModelFactory.setCube(selectedCube,selectedCubePosition );
             } else {
-              CubeModelFactory.resetCube(vm.template, CubeService.getCreatedCubes());
+              CubeModelFactory.resetCube(vm.template, CubeService.getCreatedCubes(), vm.policy.cubes.length);
             }
           }else{
         }
