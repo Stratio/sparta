@@ -165,7 +165,7 @@ describe('policies.wizard.factory.cube-model-factory', function () {
         });
 
         it("but it has not any cube with the same name, cube is valid", function () {
-          /  / / UtilsServiceMock.findElementInJSONArray.and.returnValue(-1);
+          UtilsServiceMock.findElementInJSONArray.and.returnValue(-1);
           var validCube = angular.copy(fakeCube);
           validCube.name = "new cube name";
           expect(factory.isValidCube(validCube, cubeList, 2)).toBeTruthy();
@@ -178,10 +178,11 @@ describe('policies.wizard.factory.cube-model-factory', function () {
       var oldPosition = 2;
       factory.setCube(fakeCube, oldPosition);
       var newPosition = 5;
-      factory.resetCube(fakePolicyTemplate, newPosition);
+      var nameIndex = 15;
+      factory.resetCube(fakePolicyTemplate, nameIndex, newPosition);
 
       var cube = factory.getCube(fakePolicyTemplate, newPosition);
-      expect(cube.name).toEqual(fakePolicyTemplate.defaultCubeName + (newPosition + 1));
+      expect(cube.name).toEqual(fakePolicyTemplate.defaultCubeName + (nameIndex + 1));
       expect(cube.dimensions).toEqual([]);
       expect(cube.operators).toEqual([]);
       expect(cube.checkpointConfig.timeDimension).toEqual(fakePolicyTemplate.defaultTimeDimension);
