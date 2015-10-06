@@ -18,7 +18,7 @@ package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{Operator, TypeOp, WriteOp}
+import com.stratio.sparkta.sdk._
 
 abstract class BaseOperatorMoc(name: String, properties: Map[String, JSerializable])
   extends Operator(name, properties) {
@@ -27,19 +27,17 @@ abstract class BaseOperatorMoc(name: String, properties: Map[String, JSerializab
 
   override val writeOperation = WriteOp.Inc
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = None
-
   override def processReduce(values: Iterable[Option[Any]]): Option[Long] = None
 }
 
 class OperatorMock(name: String, properties: Map[String, JSerializable])
-  extends BaseOperatorMoc(name: String, properties: Map[String, JSerializable]) {
+  extends BaseOperatorMoc(name: String, properties: Map[String, JSerializable]) with ProcessMapAsNumber {
 
   override val castingFilterType = TypeOp.Number
 }
 
 class OperatorMockString(name: String, properties: Map[String, JSerializable])
-  extends BaseOperatorMoc(name: String, properties: Map[String, JSerializable]) {
+  extends BaseOperatorMoc(name: String, properties: Map[String, JSerializable]) with ProcessMapAsAny {
 
   override val castingFilterType = TypeOp.String
 }
