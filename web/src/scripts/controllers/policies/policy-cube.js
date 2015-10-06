@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('CubeCtrl', CubeCtrl);
 
-  CubeCtrl.$inject = ['CubeModelFactory', 'CubeService','PolicyModelFactory', 'ModalService', '$q'];
+  CubeCtrl.$inject = ['CubeModelFactory', 'CubeService', 'PolicyModelFactory', 'ModalService'];
 
-  function CubeCtrl(CubeModelFactory,CubeService, PolicyModelFactory, ModalService, $q) {
+  function CubeCtrl(CubeModelFactory, CubeService, PolicyModelFactory, ModalService) {
     var vm = this;
 
     vm.init = init;
@@ -56,9 +56,8 @@
 
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
 
-      modalInstance.result.then(function (dimension) {
+      return modalInstance.result.then(function (dimension) {
         vm.cube.dimensions.push(dimension);
-      }, function () {
       });
     }
 
@@ -82,14 +81,12 @@
       };
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
 
-      modalInstance.result.then(function (operator) {
+      return modalInstance.result.then(function (operator) {
         vm.cube.operators.push(operator);
-      }, function () {
       });
     }
 
     function showConfirmModal(title, message) {
-      var defer = $q.defer();
       var templateUrl = "templates/modal/confirm-modal.tpl.html";
       var controller = "ConfirmModalCtrl";
       var resolve = {
@@ -101,39 +98,21 @@
         }
       };
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
-
-      modalInstance.result.then(function () {
-        defer.resolve();
-      }, function () {
-        defer.reject();
-      });
-      return defer.promise;
+      return modalInstance.result;
     }
 
     function removeOutputFromDimensions(dimensionIndex) {
-      var defer = $q.defer();
       var title = "_POLICY_._CUBE_._REMOVE_DIMENSION_CONFIRM_TITLE_";
-      showConfirmModal(title, "").then(function () {
+      return showConfirmModal(title, "").then(function () {
         vm.cube.dimensions.splice(dimensionIndex, 1);
-
-        defer.resolve();
-      }, function () {
-        defer.reject();
-      });
-      return defer.promise;
+      })
     }
 
     function removeFunctionFromOperators(operatorIndex) {
-      var defer = $q.defer();
       var title = "_POLICY_._CUBE_._REMOVE_OPERATOR_CONFIRM_TITLE_";
-      showConfirmModal(title, "").then(function () {
+      return showConfirmModal(title, "").then(function () {
         vm.cube.operators.splice(operatorIndex, 1);
-
-        defer.resolve();
-      }, function () {
-        defer.reject();
       });
-      return defer.promise;
     }
 
     function addCube() {
