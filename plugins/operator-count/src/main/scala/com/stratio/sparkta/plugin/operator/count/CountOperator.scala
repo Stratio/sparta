@@ -54,10 +54,10 @@ class CountOperator(name: String, properties: Map[String, JSerializable])
 
   //FIXME: We should refactor this code
   private def parseDistinctFields: Option[Seq[String]] = {
-    val distinct = properties.getOptionAs[String]("distinctFields")
-    if (distinct.isDefined && !distinct.get.isEmpty) {
+    val distinct = properties.getString("distinctFields", None)
+    if (distinct.isDefined && !distinct.get.isEmpty)
       Some(distinct.get.split(OperatorConstants.UnderscoreSeparator))
-    } else None
+    else None
   }
 }
 
