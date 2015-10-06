@@ -61,7 +61,8 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
   }
 
   private def getStandAloneSparkContext(apConfig: AggregationPoliciesModel, jars: Seq[File]): SparkContext = {
-    val pluginsSparkConfig = SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix,new ReflectionUtils())
+    val pluginsSparkConfig = SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix,
+      new ReflectionUtils())
     val standAloneConfig = Try(generalConfig.get.getConfig(AppConstant.ConfigLocal)) match {
       case Success(config) => Some(config)
       case _ => None
@@ -73,7 +74,8 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
                                      classPath: Seq[URI],
                                      specifictConfig: Map[String, String]): SparkContext = {
     val pluginsSparkConfig =
-      SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix,new ReflectionUtils) ++ specifictConfig
+      SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix,
+        new ReflectionUtils) ++ specifictConfig
     SparkContextFactory.sparkClusterContextInstance(pluginsSparkConfig, classPath)
   }
 
