@@ -67,5 +67,120 @@
   "defaultSparkStreamingWindow": 6000,
   "defaultStorageLevel": "fake defaultStorageLevel",
   "defaultCheckpointPath": "fake defaultCheckpointPath",
-  "defaultPartitionFormat": "fake defaultPartitionFormat"
+  "defaultPartitionFormat": "fake defaultPartitionFormat",
+  "cubeTypes": [
+    {
+      "label": "Default",
+      "value": "Default"
+    },
+    {
+      "label": "DateTime",
+      "value": "DateTime"
+    },
+    {
+      "label": "GeoHash",
+      "value": "GeoHash"
+    }
+  ],
+  "precisionOptions": [
+    {
+      "type": "DateTime",
+      "precisions": [
+        {
+          "label": "_SECOND_",
+          "value": "second"
+        },
+        {
+          "label": "_5_SECONDS_",
+          "value": "s5"
+        },
+        {
+          "label": "_10_SECONDS_",
+          "value": "s10"
+        },
+        {
+          "label": "_15_SECONDS_",
+          "value": "s15"
+        },
+        {
+          "label": "_MINUTE_",
+          "value": "minute"
+        },
+        {
+          "label": "_HOUR_",
+          "value": "hour"
+        },
+        {
+          "label": "_DAY_",
+          "value": "day"
+        },
+        {
+          "label": "_MONTH_",
+          "value": "month"
+        },
+        {
+          "label": "_YEAR_",
+          "value": "year"
+        }
+      ]
+    },
+    {
+      "type": "GeoHash",
+      "precisions": [
+        {
+          "label": "_PRECISION_1_",
+          "value": "precision1"
+        },
+        {
+          "label": "_PRECISION_2_",
+          "value": "precision2"
+        },
+        {
+          "label": "_PRECISION_3_",
+          "value": "precision3"
+        },
+        {
+          "label": "_PRECISION_4_",
+          "value": "precision4"
+        },
+        {
+          "label": "_PRECISION_5_",
+          "value": "precision5"
+        },
+        {
+          "label": "_PRECISION_6_",
+          "value": "precision6"
+        },
+        {
+          "label": "_PRECISION_7_",
+          "value": "precision7"
+        },
+        {
+          "label": "_PRECISION_8_",
+          "value": "precision8"
+        },
+        {
+          "label": "_PRECISION_9_",
+          "value": "precision9"
+        },
+        {
+          "label": "_PRECISION_10_",
+          "value": "precision10"
+        },
+        {
+          "label": "_PRECISION_11_",
+          "value": "precision11"
+        },
+        {
+          "label": "_PRECISION_12_",
+          "value": "precision12"
+        }
+      ]
+    },
+    {
+      "type": "Default",
+      "precisions": []
+    }
+  ]
+
 }

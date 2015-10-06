@@ -14,7 +14,7 @@
     function findElementInJSONArray(array, element, attr) {
       var found = false;
       var position = -1;
-      if (array && element && attr) {
+      if (array && array.length > 0 && element && attr) {
         var i = 0;
         while (!found && i < array.length) {
           var currentElement = array[i];
