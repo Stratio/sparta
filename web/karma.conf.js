@@ -20,7 +20,7 @@ module.exports = function (config) {
       'src/scripts/constants/**/*.js',
       'src/scripts/controllers/**/*.js',
       'src/scripts/services/**/*.js',
-      'src/scripts/services/**/*.js',
+      'src/scripts/directives/**/*.js',
       'src/languages/en-US.json',
       'src/scripts/filters/truncate-number.js',
 
