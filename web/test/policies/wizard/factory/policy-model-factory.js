@@ -16,7 +16,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
   beforeEach(inject(function (_PolicyModelFactory_, _servedPolicy_, _servedPolicyTemplate_, _servedInput_, _servedOutput_) {
     factory = _PolicyModelFactory_;
-    fakePolicy = _servedPolicy_;
+    fakePolicy = angular.copy(_servedPolicy_);
     fakePolicyTemplate = _servedPolicyTemplate_;
     fakeInput = _servedInput_;
     fakeOutput = _servedOutput_;

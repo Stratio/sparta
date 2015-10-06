@@ -24,13 +24,7 @@
     function init() {
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      var modelNumber = vm.policy.models.length;
-      var order = 0;
-
-      if (modelNumber > 0) {
-        order = vm.policy.models[modelNumber - 1].order + 1
-      }
-      vm.model = ModelFactory.getModel(vm.template, order);
+      vm.model = ModelFactory.getModel();
       vm.modelError = '';
       if (vm.model) {
         vm.modelError = ModelFactory.getError();
@@ -73,13 +67,13 @@
     }
 
     function removeModel() {
-      ModelService.removeModel().then(function () {
+     return  ModelService.removeModel().then(function () {
         var order = 0;
         var modelNumber = vm.policy.models.length;
         if (modelNumber > 0) {
           order = vm.policy.models[modelNumber - 1].order + 1
         }
-        vm.model = ModelFactory.resetModel(vm.template, order);
+        vm.model = ModelFactory.resetModel(vm.template, order, modelNumber);
         ModelFactory.updateModelInputs(vm.policy.models);
       });
     }

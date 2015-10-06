@@ -42,11 +42,30 @@
   "defaultInterval": "fake defaultInterval",
   "defaultTimeAvailability": "fake defaultTimeAvailability",
   "template": "fake template",
+  "types": [
+    {
+      "iconName": "fake morphlines",
+      "name": "Morphlines"
+    },
+    {
+      "iconName": "fake datetime",
+      "name": "DateTime"
+    },
+    {
+      "iconName": "fake type",
+      "name": "Type"
+    }
+  ],
   "morphlinesDefaultConfiguration": "fake morphlinesDefaultConfiguration",
-  "types": [{"name": "fake type"}],
+  "dateTimeDefaultConfiguration": "fake dateTimeDefaultConfiguration",
+  "typeDefaultConfiguration": "fake typeDefaultConfiguration",
   "defaultInput":
   {
     "label": "fake default input label",
     "value":  "fake default input value"
-  }
+  },
+  "defaultSparkStreamingWindow": 6000,
+  "defaultStorageLevel": "fake defaultStorageLevel",
+  "defaultCheckpointPath": "fake defaultCheckpointPath",
+  "defaultPartitionFormat": "fake defaultPartitionFormat"
 }
