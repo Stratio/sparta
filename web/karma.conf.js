@@ -42,17 +42,8 @@ module.exports = function (config) {
     browsers: ['PhantomJS'],
     port: 8080,
 
-    //plugins: [
-    //  'karma-ng-json2js-preprocessor',
-    //  'karma-phantomjs-launcher',
-    //  'karma-jasmine',
-    //  'karma-jasmine-jquery',
-    //  'karma-coverage'
-    //],
-
     preprocessors: {
       '**/*.json': ['ng-json2js'],
-     // 'src/scripts/**/*.js': 'coverage'
       'src/scripts/constants/**/*.js': ['coverage'],
       'src/scripts/controllers/**/*.js': ['coverage'],
       'src/scripts/directives/**/*.js': ['coverage'],

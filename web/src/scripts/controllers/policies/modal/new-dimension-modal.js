@@ -6,7 +6,8 @@
     .module('webApp')
     .controller('NewDimensionModalCtrl', NewDimensionModalCtrl);
 
-  NewDimensionModalCtrl.$inject = ['$modalInstance', 'dimensionName', 'fieldName', 'dimensions', '$filter', 'UtilsService', 'template'];
+  NewDimensionModalCtrl.$inject = ['$modalInstance', 'dimensionName', 'fieldName', 'dimensions',
+    '$filter', 'UtilsService', 'template'];
 
   function NewDimensionModalCtrl($modalInstance, dimensionName, fieldName, dimensions, $filter, UtilsService, template) {
     /*jshint validthis: true*/
@@ -25,7 +26,6 @@
       vm.cubeTypes = template.cubeTypes;
       vm.dimension.type = vm.cubeTypes[0].value;
       vm.precisionOptions = template.precisionOptions;
-
       vm.defaultType = template.cubeTypes[0].value;
       vm.errorText = "";
     }
@@ -36,7 +36,8 @@
       var result = $filter('filter')(vm.precisionOptions, {type: vm.dimension.type});
       if (result && result.length > 0) {
         return result[0].precisions;
-      }
+      }else
+      return []
     }
 
     function cleanPrecision() {
