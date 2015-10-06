@@ -20,8 +20,5 @@ import java.io.Serializable
 
 abstract case class Parameterizable(properties: Map[String, Serializable]) {
 
-  if (properties == null) {
-    throw new NullPointerException("properties")
-  }
-
+  require(Option(properties).isDefined, "The properties map cannot be null")
 }

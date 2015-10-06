@@ -14,30 +14,18 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.sdk.test
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, WordSpec}
+import java.io.{Serializable => JSerializable}
 
-@RunWith(classOf[JUnitRunner])
-class EventSpec extends WordSpec with Matchers {
+import com.stratio.sparkta.sdk.{Event, Parser}
 
-  "Event" should {
-    val event = new Event(Map("field" -> 1))
+class ParserMock(name: String,
+                 order: Integer,
+                 inputField: String,
+                 outputFields: Seq[String],
+                 properties: Map[String, JSerializable])
+  extends Parser(name, order, inputField, outputFields, properties) {
 
-    "Return the associated string" in {
-
-      val expected = "Event(Map(field -> 1),None)"
-
-      val result = event.toString
-
-      result should be(expected)
-    }
-
-    "It throw an exception when properties is null" in {
-      an[IllegalArgumentException] should be thrownBy new Event(null)
-    }
-  }
+  override def parse(data: Event): Event = data
 }
-

@@ -16,23 +16,23 @@
 
 package com.stratio.sparkta.sdk
 
-import com.stratio.sparkta.sdk.test.InputTest
-import org.apache.spark.storage.StorageLevel
+import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
-class InputSpec extends WordSpec with Matchers {
+class TableSchemaSpec extends WordSpec with Matchers {
 
-  "InputSpec" should {
-    val input = new InputTest(Map())
+  "TableSchema" should {
 
-    val expected = StorageLevel.DISK_ONLY
+    val tableSchema = TableSchema("outputName", "dim1", StructType(Array(
+      StructField("dim1", StringType, false))), "minute")
 
-    "Return the associated storageLevel" in {
-      input.storageLevel("DISK_ONLY") should be(expected)
+    "toString must be " in {
+      val expected = "OPERATOR: outputName - TABLE: dim1 - SCHEMA: StructType(StructField(dim1,StringType,false))"
+      val result = tableSchema.toString
+      result should be(expected)
     }
   }
 }
-

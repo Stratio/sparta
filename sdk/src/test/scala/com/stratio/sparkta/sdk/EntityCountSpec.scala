@@ -18,28 +18,36 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.test.EntityCountTest
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
+import com.stratio.sparkta.sdk.test.EntityCountMock
+
 @RunWith(classOf[JUnitRunner])
 class EntityCountSpec extends WordSpec with Matchers {
 
-  "EntityCountSpec" should {
+  "EntityCount" should {
     val props = Map("inputField" -> "field".asInstanceOf[JSerializable], "split" -> ",".asInstanceOf[JSerializable])
-    val entityCount = new EntityCountTest("op1", props)
-
-    val inputFields = Map("field" -> "hola,holo")
-
-    val expected = Option(Seq("hola", "holo"))
+    val entityCount = new EntityCountMock("op1", props)
+    val inputFields = Map("field" -> "hello,bye")
 
     "Return the associated precision name" in {
-      entityCount.processMap(inputFields) should be(expected)
+
+      val expected = Option(Seq("hello", "bye"))
+
+      val result = entityCount.processMap(inputFields)
+
+      result should be(expected)
     }
 
     "Return empty list" in {
-      entityCount.processMap(Map()) should be(None)
+
+      val expected = None
+
+      val result = entityCount.processMap(Map())
+
+      result should be(expected)
     }
   }
 }

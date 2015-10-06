@@ -18,21 +18,12 @@ package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{Operator, TypeOp, WriteOp}
+import com.stratio.sparkta.sdk.TypeOp._
+import com.stratio.sparkta.sdk.{TypeConversions, TypeOp}
 
-class OperatorTest(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+class TypeConversionsMock extends TypeConversions {
 
-  override val defaultTypeOperation = TypeOp.Long
+  override def defaultTypeOperation: TypeOp = TypeOp.Int
 
-  override val writeOperation = WriteOp.Inc
-
-  override val castingFilterType = TypeOp.Number
-
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
-    None
-  }
-
-  override def processReduce(values: Iterable[Option[Any]]): Option[Long] = {
-    None
-  }
+  override def operationProps: Map[String, JSerializable] = Map("typeOp" -> "string")
 }

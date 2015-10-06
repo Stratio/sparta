@@ -18,10 +18,10 @@ package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{WriteOp, EntityCount}
 import com.stratio.sparkta.sdk.WriteOp._
+import com.stratio.sparkta.sdk.{EntityCount, WriteOp}
 
-class EntityCountTest(name: String, properties: Map[String, JSerializable]) extends EntityCount(name, properties) {
+class EntityCountMock(name: String, properties: Map[String, JSerializable]) extends EntityCount(name, properties) {
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] = values.head
 

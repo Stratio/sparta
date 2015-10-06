@@ -14,30 +14,16 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.sdk.test
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, WordSpec}
+import java.io.{Serializable => JSerializable}
 
-@RunWith(classOf[JUnitRunner])
-class EventSpec extends WordSpec with Matchers {
+import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.streaming.dstream.DStream
 
-  "Event" should {
-    val event = new Event(Map("field" -> 1))
+import com.stratio.sparkta.sdk.{Event, Input}
 
-    "Return the associated string" in {
+class InputMock(properties: Map[String, JSerializable]) extends Input(properties) {
 
-      val expected = "Event(Map(field -> 1),None)"
-
-      val result = event.toString
-
-      result should be(expected)
-    }
-
-    "It throw an exception when properties is null" in {
-      an[IllegalArgumentException] should be thrownBy new Event(null)
-    }
-  }
+  override def setUp(ssc: StreamingContext, storageLevel: String): DStream[Event] = ???
 }
-

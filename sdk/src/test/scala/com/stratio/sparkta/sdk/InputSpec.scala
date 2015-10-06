@@ -16,28 +16,29 @@
 
 package com.stratio.sparkta.sdk
 
+import org.apache.spark.storage.StorageLevel
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
+import com.stratio.sparkta.sdk.test.InputMock
+
 @RunWith(classOf[JUnitRunner])
-class EventSpec extends WordSpec with Matchers {
+class InputSpec extends WordSpec with Matchers {
 
-  "Event" should {
-    val event = new Event(Map("field" -> 1))
+  "Input" should {
+    val input = new InputMock(Map())
+    val expected = StorageLevel.DISK_ONLY
+    val result = input.storageLevel("DISK_ONLY")
 
-    "Return the associated string" in {
-
-      val expected = "Event(Map(field -> 1),None)"
-
-      val result = event.toString
-
+    "Return the associated storageLevel" in {
       result should be(expected)
     }
+  }
 
-    "It throw an exception when properties is null" in {
-      an[IllegalArgumentException] should be thrownBy new Event(null)
-    }
+  "classSuffix must be " in {
+    val expected = "Input"
+    val result = Input.ClassSuffix
+    result should be(expected)
   }
 }
-
