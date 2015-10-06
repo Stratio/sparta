@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.driver.util
 
 import java.io.Serializable
@@ -40,6 +41,7 @@ class ReflectionUtils {
         "Generic error trying to instantiate " + classAndPackage, e)
     }
   }
+
   def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C =
     clazz.getDeclaredConstructor(classOf[Map[String, Serializable]]).newInstance(properties).asInstanceOf[C]
 

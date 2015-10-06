@@ -19,7 +19,6 @@ package com.stratio.sparkta.driver
 import java.io._
 import java.nio.file.{Files, Paths}
 
-import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.aggregator.{Cube, CubeMaker}
 import com.stratio.sparkta.driver.exception.DriverException
@@ -35,10 +34,8 @@ import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
-import org.reflections.Reflections
 
 import scala.annotation.tailrec
-import scala.collection.JavaConversions._
 import scala.util._
 
 
@@ -48,13 +45,13 @@ object SparktaJob extends SLF4JLogging {
     val checkpointPolicyPath = apConfig.checkpointPath.concat(File.separator).concat(apConfig.name)
     //TODO check the problem in the checkpoint and fault tolerance
     // deletePreviousCheckpointPath(checkpointPolicyPath)
-    val reflectionUtils=new ReflectionUtils
+    val reflectionUtils = new ReflectionUtils
     val ssc = SparkContextFactory.sparkStreamingInstance(
       new Duration(apConfig.sparkStreamingWindow), checkpointPolicyPath)
-    val input = SparktaJob.input(apConfig, ssc.get,reflectionUtils)
+    val input = SparktaJob.input(apConfig, ssc.get, reflectionUtils)
     val parsers =
-      SparktaJob.parsers(apConfig,reflectionUtils).sortWith((parser1, parser2) => parser1.getOrder < parser2.getOrder)
-    val cubes = SparktaJob.cubes(apConfig,reflectionUtils)
+      SparktaJob.parsers(apConfig, reflectionUtils).sortWith((parser1, parser2) => parser1.getOrder < parser2.getOrder)
+    val cubes = SparktaJob.cubes(apConfig, reflectionUtils)
     val operatorsKeyOperation: Option[Map[String, (WriteOp, TypeOp)]] = {
       val opKeyOp = SchemaFactory.operatorsKeyOperation(cubes.flatMap(cube => cube.operators))
       if (opKeyOp.nonEmpty) Some(opKeyOp) else None
@@ -74,7 +71,7 @@ object SparktaJob extends SLF4JLogging {
       if (cubeOpSchema.nonEmpty) Some(cubeOpSchema) else None
     }
 
-    val outputs = SparktaJob.outputs(apConfig, operatorsKeyOperation, bcCubeOperatorSchema,reflectionUtils)
+    val outputs = SparktaJob.outputs(apConfig, operatorsKeyOperation, bcCubeOperatorSchema, reflectionUtils)
     val inputEvent = input._2
     SparktaJob.saveRawData(apConfig, inputEvent)
     val parsed = SparktaJob.applyParsers(inputEvent, parsers)
@@ -86,17 +83,19 @@ object SparktaJob extends SLF4JLogging {
   def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
     parsers.headOption match {
       case Some(headParser: Parser) =>
-        applyParsers(input.map(event =>parseEvent(headParser, event))
-        .flatMap(eventToSeq(_)), parsers.drop(1))
+        applyParsers(input.map(event => parseEvent(headParser, event))
+          .flatMap(eventToSeq), parsers.drop(1))
       case None => input
     }
   }
-def eventToSeq(e:Option[Event]):Seq[Event]={
-  e  match {
-    case Some(value) => Seq(value)
-    case None => Seq()
+
+  def eventToSeq(e: Option[Event]): Seq[Event] = {
+    e match {
+      case Some(value) => Seq(value)
+      case None => Seq()
+    }
   }
-}
+
   def parseEvent(p: Parser, e: Event): Option[Event] = {
 
     Try(p.parse(e)) match {
@@ -111,8 +110,8 @@ def eventToSeq(e:Option[Event]):Seq[Event]={
   }
 
 
-
-  def getSparkConfigs(apConfig: AggregationPoliciesModel, methodName: String, suffix: String,refUtils:ReflectionUtils): Map[String, String] = {
+  def getSparkConfigs(apConfig: AggregationPoliciesModel, methodName: String, suffix: String,
+                      refUtils: ReflectionUtils): Map[String, String] = {
     log.info("Initializing reflection")
     apConfig.outputs.flatMap(o => {
       val clazzToInstance = refUtils.getClasspathMap.getOrElse(o.`type` + suffix, o.`type` + suffix)
@@ -128,15 +127,17 @@ def eventToSeq(e:Option[Event]):Seq[Event]={
     }).toMap
   }
 
-  def input(apConfig: AggregationPoliciesModel, ssc: StreamingContext,refUtils:ReflectionUtils) : (String, DStream[Event]) ={
-   val myInput = refUtils.tryToInstantiate[Input](apConfig.input.get.`type` + Input.ClassSuffix, (c) =>
+  def input(apConfig: AggregationPoliciesModel, ssc: StreamingContext, refUtils: ReflectionUtils):
+  (String, DStream[Event]) = {
+    val myInput = refUtils.tryToInstantiate[Input](apConfig.input.get.`type` + Input.ClassSuffix, (c) =>
       refUtils.instantiateParameterizable[Input](c, apConfig.input.get.configuration))
 
-  (apConfig.input.get.name,
-    myInput.setUp(ssc,
-    apConfig.storageLevel.get))
+    (apConfig.input.get.name,
+      myInput.setUp(ssc,
+        apConfig.storageLevel.get))
   }
-  def parsers(apConfig: AggregationPoliciesModel,refUtils:ReflectionUtils): Seq[Parser] =
+
+  def parsers(apConfig: AggregationPoliciesModel, refUtils: ReflectionUtils): Seq[Parser] =
     apConfig.transformations.map(parser =>
       refUtils.tryToInstantiate[Parser](parser.`type` + Parser.ClassSuffix, (c) =>
         c.getDeclaredConstructor(
@@ -148,19 +149,19 @@ def eventToSeq(e:Option[Event]):Seq[Event]={
           .newInstance(parser.name, parser.order, parser.inputField, parser.outputFields, parser.configuration)
           .asInstanceOf[Parser]))
 
-  private def createOperator(operatorModel: OperatorModel,refUtils:ReflectionUtils): Operator =
+  private def createOperator(operatorModel: OperatorModel, refUtils: ReflectionUtils): Operator =
     refUtils.tryToInstantiate[Operator](operatorModel.`type` + Operator.ClassSuffix, (c) =>
       c.getDeclaredConstructor(
         classOf[String],
         classOf[Map[String, Serializable]]
       ).newInstance(operatorModel.name, operatorModel.configuration).asInstanceOf[Operator])
 
-  def getOperators(operatorsModel: Seq[OperatorModel],refUtils:ReflectionUtils): Seq[Operator] =
-    operatorsModel.map(operator => createOperator(operator,refUtils))
+  def getOperators(operatorsModel: Seq[OperatorModel], refUtils: ReflectionUtils): Seq[Operator] =
+    operatorsModel.map(operator => createOperator(operator, refUtils))
 
   def outputs(apConfig: AggregationPoliciesModel,
               bcOperatorsKeyOperation: Option[Map[String, (WriteOp, TypeOp)]],
-              bcCubeOperatorSchema: Option[Seq[TableSchema]],refUtils:ReflectionUtils): Seq[(String, Output)] =
+              bcCubeOperatorSchema: Option[Seq[TableSchema]], refUtils: ReflectionUtils): Seq[(String, Output)] =
     apConfig.outputs.map(o => (o.name, refUtils.tryToInstantiate[Output](o.`type` + Output.ClassSuffix, (c) =>
       c.getDeclaredConstructor(
         classOf[String],
@@ -170,7 +171,7 @@ def eventToSeq(e:Option[Event]):Seq[Event]={
         .newInstance(o.name, o.configuration, bcOperatorsKeyOperation, bcCubeOperatorSchema)
         .asInstanceOf[Output])))
 
-  def cubes(apConfig: AggregationPoliciesModel,refUtils:ReflectionUtils): Seq[Cube] =
+  def cubes(apConfig: AggregationPoliciesModel, refUtils: ReflectionUtils): Seq[Cube] =
     apConfig.cubes.map(cube => {
       val name = cube.name.replaceAll(Output.Separator, "")
       val multiplexer = Try(cube.multiplexer.toBoolean)
@@ -179,9 +180,9 @@ def eventToSeq(e:Option[Event]):Seq[Event]={
         new Dimension(dimensionDto.name,
           dimensionDto.field,
           dimensionDto.precision,
-          instantiateDimensionType(dimensionDto.`type`, dimensionDto.configuration,refUtils ))
+          instantiateDimensionType(dimensionDto.`type`, dimensionDto.configuration, refUtils))
       })
-      val operators = SparktaJob.getOperators(cube.operators,refUtils)
+      val operators = SparktaJob.getOperators(cube.operators, refUtils)
 
       val datePrecision = if (cube.checkpointConfig.timeDimension.isEmpty) None
       else Some(cube.checkpointConfig.timeDimension)
@@ -197,10 +198,8 @@ def eventToSeq(e:Option[Event]):Seq[Event]={
         cube.checkpointConfig.timeAvailability)
     })
 
-
-
-
-  def instantiateDimensionType(dimensionType: String, configuration: Option[Map[String, String]],refUtils:ReflectionUtils): DimensionType =
+  def instantiateDimensionType(dimensionType: String, configuration: Option[Map[String, String]],
+                               refUtils: ReflectionUtils): DimensionType =
     refUtils.tryToInstantiate[DimensionType](dimensionType + Dimension.FieldClassSuffix, (c) => {
       configuration match {
         case Some(conf) => c.getDeclaredConstructor(classOf[Map[String, Serializable]])
