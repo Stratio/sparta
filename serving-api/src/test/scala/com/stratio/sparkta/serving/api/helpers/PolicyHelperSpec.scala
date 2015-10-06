@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.test.helpers
+package com.stratio.sparkta.serving.api.helpers
 
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.api.helpers.PolicyHelper
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
-
-/**
- * Tests over policy operations.
- * @author anistal
- */
 
 @RunWith(classOf[JUnitRunner])
 class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {

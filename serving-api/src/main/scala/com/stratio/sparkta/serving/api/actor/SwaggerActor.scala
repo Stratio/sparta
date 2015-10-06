@@ -61,7 +61,7 @@ class SwaggerActor(actorsMap: Map[String, ActorRef]) extends HttpServiceActor wi
 
   def swaggerUIroutes: Route =
     get {
-      pathPrefix(HttpConstant.SwaggerPath) {
+      pathPrefix(HttpConstant.SwaggerPath.toString) {
         pathEndOrSingleSlash {
           getFromResource("swagger-ui/index.html")
         }
