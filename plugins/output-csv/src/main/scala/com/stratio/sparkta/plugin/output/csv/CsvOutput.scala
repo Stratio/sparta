@@ -17,17 +17,15 @@
 package com.stratio.sparkta.plugin.output.csv
 
 import java.io.{Serializable => JSerializable}
-import scala.util.Try
-
-import com.databricks.spark.csv._
-import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.sql._
-import org.apache.spark.{Logging, SparkContext}
 
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
+import org.apache.spark.Logging
+import org.apache.spark.sql._
+
+import scala.util.Try
 
 /**
  * This output prints all AggregateOperations or DataFrames information on screen. Very useful to debug.
@@ -56,7 +54,13 @@ class CsvOutput(keyName: String,
     require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
     val pathParsed = if (path.get.endsWith("/")) path.get else path.get + "/"
     val subPath = DateOperations.subPath(dateGranularityFile, datePattern)
-    dataFrame.saveAsCsvFile(s"$pathParsed$tableName$subPath.csv",
+
+    saveAction(s"$pathParsed$tableName$subPath.csv", dataFrame)
+  }
+
+  protected[csv] def saveAction(path: String, dataFrame: DataFrame): Unit = {
+    import com.databricks.spark.csv.CsvSchemaRDD
+    dataFrame.saveAsCsvFile(path,
       Map("header" -> header.toString, "delimiter" -> delimiter))
   }
 }
