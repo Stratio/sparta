@@ -51,6 +51,15 @@ describe('policies.wizard.service.accordion-status-service', function () {
         expect(service.getAccordionStatus()[i]).toEqual(false);
       }
       expect(service.getAccordionStatus()[length]).toEqual(true);
+    });
+
+    it("accordion status length is adjusted to the new length if the new length is minor than accordion status one", function () {
+      var oldLength = 5;
+      var newLength = 3;
+      service.resetAccordionStatus(oldLength);
+      service.resetAccordionStatus(newLength);
+
+      expect(service.getAccordionStatus().length).toBe(newLength+1);
     })
   })
 
