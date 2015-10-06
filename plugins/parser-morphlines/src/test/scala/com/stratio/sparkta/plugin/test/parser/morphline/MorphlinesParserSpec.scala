@@ -56,11 +56,13 @@ class MorphlinesParserSpec extends WordSpecLike with Matchers with BeforeAndAfte
           ]
                         """
   val inputField = Input.RawDataKey
+  val wrongInputField = "_wrong_attachment_body"
   val outputsFields = Seq("col1", "col2")
   val props: Map[String, Serializable] = Map("morphline" -> morphlineConfig)
   val parser = new MorphlinesParser("name", 1, inputField, outputsFields, props)
 
   "A MorphlinesParser" should {
+
     "parse a simple json" in {
       val simpleJson =
         """{
@@ -69,10 +71,13 @@ class MorphlinesParserSpec extends WordSpecLike with Matchers with BeforeAndAfte
             }
         """.getBytes("UTF-8")
       val e1 = new Event(Map(inputField -> simpleJson.asInstanceOf[Serializable]))
+
       val e2 = parser.parse(e1)
+
       e2.keyMap should contain(("col1", "hello"))
       e2.keyMap.size should be(3)
     }
+
     "exclude not configured fields" in {
       val simpleJson =
         """{
@@ -82,10 +87,32 @@ class MorphlinesParserSpec extends WordSpecLike with Matchers with BeforeAndAfte
             }
         """.getBytes("UTF-8")
       val e1 = new Event(Map(inputField -> simpleJson.asInstanceOf[Serializable]))
+
       val e2 = parser.parse(e1)
+
       e2.keyMap should contain(("col1", "hello"))
       e2.keyMap should not contain(("col3", "!"))
       e2.keyMap.size should be(3)
+    }
+
+    "not cast input event to ByteArrayInputStream when _attachment_body is not coming" in {
+      val wrongParser = new MorphlinesParser("name", 1, wrongInputField, outputsFields, props)
+      val simpleJson =
+        """{
+            "col1":"hello",
+            "col2":"word",
+            "col3":"!"
+            }
+        """.getBytes("UTF-8")
+      val e1 = new Event(Map(inputField -> simpleJson.asInstanceOf[Serializable]))
+
+      val attachmentBodyValue = wrongParser
+        .parse(e1)
+        .keyMap
+        .get("_attachment_body")
+        .get
+
+      attachmentBodyValue.isInstanceOf[Array[Byte]] should be(true)
     }
   }
 }
