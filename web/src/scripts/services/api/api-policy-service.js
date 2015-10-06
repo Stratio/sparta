@@ -12,7 +12,7 @@
 
     vm.getPolicyById = getPolicyById;
     vm.getPolicyByFragmentId = getPolicyByFragmentId;
-    vm.getAllpolicies = getAllPolicies;
+    vm.getAllPolicies = getAllPolicies;
     vm.createPolicy = createPolicy;
     vm.deletePolicy = deletePolicy;
     vm.runPolicy = runPolicy;

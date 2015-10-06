@@ -1,4 +1,4 @@
-describe('Policy input controller', function () {
+describe('policies.wizard.controller.policy-input-controller', function () {
   beforeEach(module('webApp'));
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/policyTemplate.json'));

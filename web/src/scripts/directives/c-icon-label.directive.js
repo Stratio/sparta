@@ -13,11 +13,12 @@ function cIconLabel() {
     restrict: 'E',
     scope: {
       wrapperControlClass: "=",
-      iconClass: "=iconClass",
-      text: "=text",
-      textClass: "=textClass",
-      iconUrl: "=iconUrl",
-      test: "@"
+      iconClass: "=",
+      text: "=",
+      textClass: "=",
+      iconUrl: "=",
+      test: "@",
+      required : "@"
     },
     replace: true,
     templateUrl: 'templates/components/c-icon-label.tpl.html'

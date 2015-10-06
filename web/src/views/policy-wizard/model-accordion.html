@@ -1,51 +1,52 @@
 <section data-ng-controller="PolicyModelAccordionCtrl as vm">
 
-  <p class="c-info-text c-info-text--narrow c-info-text--bottom-margin"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._MODEL_INTRO_" | translate}}</span></p>
+  <p class="c-info-text c-info-text--narrow c-info-text--bottom-margin"><i
+    class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._MODEL_INTRO_" | translate}}</span>
+  </p>
 
-  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error != ''" data-qa="policy-model-error-msg">
+  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error != ''"
+       data-qa="policy-model-accordion-error-msg">
     <i class="c-icon icon-circle-cross"></i>
     <span>{{vm.error| translate}}</span>
   </div>
 
   <form class="c-form c-panel c-panel--framed" novalidate>
-    <accordion class="c-accordion" data-ng-model = "vm.policy.models">
+    <accordion class="c-accordion" data-ng-model="vm.policy.models">
       <div class="c-accordion-item">
-        <accordion-group is-open="vm.accordionStatus[$index]" data-ng-repeat="currentModel in vm.policy.models track by vm.getIndex()" data-ng-model="currentModel">
+        <accordion-group is-open="vm.accordionStatus[$index]"
+                         data-ng-repeat="currentModel in vm.policy.models track by vm.generateIndex()"
+                         data-ng-model="currentModel">
           <accordion-heading>
             <span class="c-accordion-header__step-number">{{$index + 1}}</span>
-            <i data-ng-if="currentModel.type" class="c-accordion-header__type c-icon icon-{{currentModel.type | lowercase}}"></i><span class="c-accordion-header__title">{{currentModel.type}}</span>
-            <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right" data-qa="policy-model-arrow-{{$index + 1}}"></i>
+            <i data-ng-if="currentModel.type"
+               class="c-accordion-header__type c-icon icon-{{currentModel.type | lowercase}}"></i><span
+            class="c-accordion-header__title">{{currentModel.type}}</span>
+            <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right"
+               data-qa="policy-model-arrow-{{$index + 1}}"></i>
           </accordion-heading>
 
-          <ng-include data-ng-if = "vm.accordionStatus[$index]" src="'views/policy-wizard/model-panel.html'" data-ng-init = "model = currentModel" data-ng-model="currentModel" data-qa="policy-model-{{$index}}"></ng-include>
+          <ng-include data-ng-if="vm.accordionStatus[$index]" src="'views/policy-wizard/model-panel.html'"
+                      data-ng-model="currentModel" data-qa="policy-model-{{$index}}"></ng-include>
 
-          <div data-ng-if = "vm.accordionStatus[$index]" class="c-form-group c-form-group--full-width c-form-group--to-right">
-            <button class="c-button c-button--danger" data-ng-if = "vm.isLastModel($index)" data-ng-click="vm.removeModel($index, $event)" data-qa="policy-model-delete-button">
-              <i class="c-icon icon-cross"></i>
-              <span>{{"_DELETE_" | translate}}</span>
-            </button>
-          </div>
+
         </accordion-group>
       </div>
-
       <div class="c-accordion-item c-accordion-item--new">
-        <accordion-group is-open= vm.accordionStatus.newItem data-ng-model="vm.newModel">
+        <accordion-group is-open=vm.accordionStatus[vm.policy.models.length]>
           <accordion-heading class="c-accordion-header">
-            <span class="c-accordion-header__step-number">{{(vm.policy.models.length + 1) }}</span><i data-ng-if="vm.newModel.type" class="c-accordion-header__type c-icon icon-{{vm.newModel.iconName | lowercase}}"></i><span class="c-accordion-header__title">{{"_POLICY_._NEW-MODEL-DEFINITION_" | translate}}</span>
+            <span class="c-accordion-header__step-number">{{(vm.policy.models.length + 1) }}</span><i
+            class="c-accordion-header__type c-icon"></i><span class="c-accordion-header__title">{{"_POLICY_._NEW-MODEL-DEFINITION_" | translate}}</span>
 
-            <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right" data-qa="policy-model-arrow-{{(vm.policy.models.length + 1) }}"></i>
+            <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right"
+               data-qa="policy-model-arrow-{{(vm.policy.models.length + 1) }}"></i>
           </accordion-heading>
 
-          <ng-include data-ng-show = "vm.accordionStatus.newItem"  data-ng-model="vm.newModel" src="'views/policy-wizard/model-panel.html'" data-ng-init = "model = vm.newModel; editionMode = true" data-qa="policy-model-new">
+          <ng-include data-ng-if="vm.accordionStatus[vm.policy.models.length]"
+                      src="'views/policy-wizard/model-panel.html'" data-ng-init="editionMode = true"
+                      data-qa="policy-model-new">
 
           </ng-include>
 
-          <div class="c-form-group c-form-group--to-right">
-            <button class="c-button c-button--call-to-action-1" data-ng-click="vm.addModel()"  data-qa="policy-model-add-button">
-              <i class="icon icon-circle-plus"></i>
-              <span>{{"_POLICY_._ADD_MODEL_" | translate}}</span>
-            </button>
-          </div>
         </accordion-group>
       </div>
     </accordion>
@@ -54,7 +55,8 @@
   <footer class="c-row c-row--footer">
     <div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">
       <div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">
-        <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" link-url="vm.helpLink" data-qa="policy-model-help"></c-icon-link>
+        <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" link-url="vm.helpLink"
+                     data-qa="policy-model-help"></c-icon-link>
       </div>
     </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
       <button class="c-button c-button--call-to-action-2" data-ng-click="vm.previousStep()"
@@ -62,7 +64,8 @@
         <i class="icon icon-arrow-left"></i>
         <span>{{"_PREVIOUS_" | translate}}</span>
       </button>
-      <button class="c-button c-button--call-to-action-1" data-ng-click="vm.nextStep()" data-qa="policy-model-next-button">
+      <button class="c-button c-button--call-to-action-1" data-ng-click="vm.nextStep()"
+              data-qa="policy-model-next-button">
         <i class="c-icon icon-arrow-right"></i>
         <span>{{"_CONTINUE_" | translate}}</span>
       </button>

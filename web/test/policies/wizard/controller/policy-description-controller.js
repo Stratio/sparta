@@ -1,4 +1,4 @@
-describe('Policy description controller', function () {
+describe('policies.wizard.controller.policy-description-controller', function () {
   beforeEach(module('webApp'));
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/policyTemplate.json'));
@@ -66,10 +66,20 @@ describe('Policy description controller', function () {
       beforeEach(function () {
         ctrl.form = {$valid: true}; //view validations have been passed
       });
-      it("It is invalid if there is another policy with the same name", function () {
-        ctrl.policy = fakePolicy;
+      it("It is invalid if there is another policy with the same name and different id", function () {
+        var policy = angular.copy(fakePolicy);
+        policy.id = "new id";
+        ctrl.policy = policy;
         ctrl.validateForm().then(function () {
           expect(ctrl.error).toBe(true);
+        });
+      });
+
+      it("It is valid if there is another policy with the same name and the same id", function () {
+        var policy = angular.copy(fakePolicy);
+        ctrl.policy = policy;
+        ctrl.validateForm().then(function () {
+          expect(ctrl.error).toBe(false);
         });
       });
 
