@@ -1,226 +1,169 @@
-//describe('policies.wizard.controller.policy-model-controller', function () {
-//  beforeEach(module('webApp'));
-//  beforeEach(module('served/policy.json'));
-//  beforeEach(module('served/policyTemplate.json'));
-//  beforeEach(module('served/model.json'));
-//
-//  var ctrl, rootScope, fakePolicy, fakeTemplate, fakeModel, policyModelFactoryMock,
-//    modelFactoryMock;
-//
-//  // init mock modules
-//
-//  beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope) {
-//    rootScope = $rootScope;
-//
-//    inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedModel_) {
-//      fakePolicy = _servedPolicy_;
-//      fakeTemplate = _servedPolicyTemplate_;
-//      fakeModel = _servedModel_;
-//    });
-//
-//    $httpBackend.when('GET', 'languages/en-US.json')
-//      .respond({});
-//
-//    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate']);
-//    policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
-//      return fakePolicy;
-//    });
-//
-//    policyModelFactoryMock.getTemplate.and.callFake(function () {
-//      return fakeTemplate;
-//    });
-//
-//
-//    modelFactoryMock = jasmine.createSpyObj('ModelFactory', ['getError']);
-//
-//    ctrl = $controller('PolicyModelCtrl', {
-//      'PolicyModelFactory': policyModelFactoryMock,
-//      'ModelFactory': modelFactoryMock
-//    });
-//  }));
-//
-//  describe("when it is initialized", function () {
-//    describe("if model introduced as param is not null", function () {
-//      beforeEach(function(){
-//        ctrl.init(fakeModel);
-//      });
-//      it('it should get a policy template from from policy factory', function () {
-//        expect(ctrl.template).toBe(fakeTemplate);
-//      });
-//
-//      it('it should get the policy that is being created or edited from policy factory', function () {
-//        expect(ctrl.policy).toBe(fakePolicy);
-//      });
-//
-//      it("it should load the introduced model as an owner model", function(){
-//        expect(ctrl.model).toBe(fakeModel);
-//      });
-//
-//      it("it should load the introduced model as an owner model", function(){
-//        expect(ctrl.model).toBe(fakeModel);
-//      });
-//
-//
-//    });
-//
-//    it ("if model introduced as param is null, no changes are executed", function(){
-//      ctrl.init();
-//      expect(ctrl.template).toBe(undefined);
-//      expect(ctrl.policy).toBe(undefined);
-//      expect(ctrl.model).toBe(undefined);
-//
-//    })
-//  });
-//
-//  //describe("should be able to add a model to the policy", function () {
-//  //
-//  //  it("model is not added if it is not valid", function () {
-//  //    modelFactoryMock.isValidModel.and.returnValue(false);
-//  //    ctrl.addModel();
-//  //
-//  //    expect(ctrl.policy.models.length).toBe(0);
-//  //  });
-//  //
-//  //  describe("if model is valid", function () {
-//  //    beforeEach(function () {
-//  //      modelFactoryMock.isValidModel.and.returnValue(true);
-//  //      ctrl.newModel = fakeModel;
-//  //      ctrl.addModel();
-//  //    });
-//  //
-//  //    it("it is added to policy with its order", function () {
-//  //      expect(ctrl.policy.models.length).toBe(1);
-//  //      expect(ctrl.policy.models[0].name).toEqual(fakeModel.name);
-//  //      expect(ctrl.policy.models[0].order).toEqual(1);
-//  //    });
-//  //
-//  //    it("model and accordion status are reset", function () {
-//  //      expect(modelFactoryMock.resetModel).toHaveBeenCalled();
-//  //      expect(accordionStatusServiceMock.resetAccordionStatus).toHaveBeenCalled();
-//  //    });
-//  //
-//  //    it("the status of new model accordion tab is expanded", function () {
-//  //      expect(ctrl.accordionStatus.newItem).toBeTruthy();
-//  //    });
-//  //  });
-//  //
-//  //});
-//  //
-//  //describe("should be able to remove a model from the policy using the position of the model", function () {
-//  //  beforeEach(inject(function ($rootScope) {
-//  //    ctrl.policy.models = [fakeModel];
-//  //    rootScope = $rootScope;
-//  //  }));
-//  //
-//  //  it("if position introduced as param is not valid, no model is removed", function () {
-//  //    var invalidPosition = -1;
-//  //    //position minor than 0
-//  //    ctrl.removeModel(invalidPosition).then(function () {
-//  //    }, function () {
-//  //      expect(ctrl.policy.models.length).toBe(1);
-//  //    });
-//  //    //position equal to model list length
-//  //    invalidPosition = ctrl.policy.models.length;
-//  //    ctrl.removeModel(invalidPosition).then(function () {
-//  //    }, function () {
-//  //      expect(ctrl.policy.models.length).toBe(1);
-//  //    });
-//  //
-//  //    //null position
-//  //    invalidPosition = null;
-//  //    ctrl.removeModel(invalidPosition).then(function () {
-//  //    }, function () {
-//  //      expect(ctrl.policy.models.length).toBe(1);
-//  //    });
-//  //
-//  //    //undefined position
-//  //    invalidPosition = undefined;
-//  //    ctrl.removeModel(invalidPosition).then(function () {
-//  //    }, function () {
-//  //      expect(ctrl.policy.models.length).toBe(1);
-//  //    });
-//  //    rootScope.$apply();
-//  //
-//  //  });
-//  //
-//  //  describe("if position is valid", function () {
-//  //    var validPosition = 0;
-//  //    var cubeMockWithModelOutput, fakeCubeNames = null;
-//  //
-//  //    beforeEach(function () {
-//  //      fakeCubeNames = [fakeModel.outputFields[0]];
-//  //      accordionStatusServiceMock.resetAccordionStatus.calls.reset();
-//  //      modelFactoryMock.resetModel.calls.reset();
-//  //
-//  //      cubeMockWithModelOutput = {
-//  //        "dimensions": [{"field": fakeModel.outputFields[0]}, {"field": "any"}]
-//  //      };
-//  //      var cubeMockWithoutModelOutput = {
-//  //        "dimensions": [{"field": "any"}, {"field": "another"}]
-//  //      };
-//  //      ctrl.policy.cubes = [cubeMockWithoutModelOutput, cubeMockWithModelOutput];
-//  //      cubeServiceMock.findCubesUsingOutputs.and.returnValue({names: fakeCubeNames, positions: [1]});
-//  //    });
-//  //
-//  //    afterEach(function () {
-//  //      rootScope.$apply();
-//  //    });
-//  //
-//  //    it("should find and remove all cubes which use the outputs of the model", function () {
-//  //      ctrl.removeModel(validPosition).then(function () {
-//  //        expect(ctrl.policy.models.length).toBe(0);
-//  //        expect(ctrl.policy.cubes.length).toBe(1);
-//  //      });
-//  //    });
-//  //
-//  //    it("should show a confirmation modal with the cubes which use some of the model outputs", function () {
-//  //      var expectedModalResolve = {
-//  //        title: function () {
-//  //          return "_REMOVE_MODEL_CONFIRM_TITLE_"
-//  //        },
-//  //        message: function () {
-//  //          return fakeTranslation;
-//  //        }
-//  //      };
-//  //      ctrl.removeModel(validPosition).then(function () {
-//  //        expect(modalServiceMock.openModal.calls.mostRecent().args[0]).toBe('ConfirmModalCtrl');
-//  //        expect(modalServiceMock.openModal.calls.mostRecent().args[1]).toBe('templates/modal/confirm-modal.tpl.html');
-//  //        expect(modalServiceMock.openModal.calls.mostRecent().args[2].title()).toEqual(expectedModalResolve.title());
-//  //        expect(modalServiceMock.openModal.calls.mostRecent().args[2].message()).toEqual(expectedModalResolve.message());
-//  //        expect(translate).toHaveBeenCalledWith('_REMOVE_MODEL_MESSAGE_', {modelList: fakeCubeNames.toString()});
-//  //      });
-//  //    });
-//  //
-//  //  })
-//  //});
-//  //
-//  //describe("should be able to validate the models created by user in order to change to the next step", function () {
-//  //  it("if no model is created, error is generated and step is not changed", function () {
-//  //    ctrl.policy.models = [];
-//  //    ctrl.nextStep();
-//  //
-//  //    expect(ctrl.error).toBe("_POLICY_._MODEL_ERROR_");
-//  //    expect(policyModelFactoryMock.nextStep).not.toHaveBeenCalled();
-//  //  });
-//  //
-//  //  it("if a model is created at least, error is not generated and step is changed", function () {
-//  //    ctrl.policy.models.push(fakeModel);
-//  //    ctrl.nextStep();
-//  //
-//  //    expect(ctrl.error).toBe("");
-//  //    expect(policyModelFactoryMock.nextStep).toHaveBeenCalled();
-//  //  });
-//  //
-//  //});
-//  //
-//  //it("should be able to return if a model is the last model in the model array by its position", function () {
-//  //  ctrl.policy.models = [];
-//  //  ctrl.policy.models.push(fakeModel);
-//  //  ctrl.policy.models.push(fakeModel);
-//  //  ctrl.policy.models.push(fakeModel);
-//  //
-//  //  expect(ctrl.isLastModel(0)).toBeFalsy();
-//  //  expect(ctrl.isLastModel(1)).toBeFalsy();
-//  //  expect(ctrl.isLastModel(2)).toBeTruthy();
-//  //})
-//});
+describe('policies.wizard.controller.policy-model-controller', function () {
+  beforeEach(module('webApp'));
+  beforeEach(module('served/policy.json'));
+  beforeEach(module('served/policyTemplate.json'));
+  beforeEach(module('served/model.json'));
+
+  var ctrl, scope, fakePolicy, fakeTemplate, fakeModel, policyModelFactoryMock,
+    modelFactoryMock, modelServiceMock, resolvedPromise, rejectedPromise;
+
+  // init mock modules
+
+  beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope) {
+    scope = $rootScope.$new();
+
+    inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedModel_) {
+      fakePolicy = angular.copy(_servedPolicy_);
+      fakeTemplate = _servedPolicyTemplate_;
+      fakeModel = _servedModel_;
+    });
+
+    $httpBackend.when('GET', 'languages/en-US.json')
+      .respond({});
+
+    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate']);
+    policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
+      return fakePolicy;
+    });
+
+    policyModelFactoryMock.getTemplate.and.callFake(function () {
+      return fakeTemplate;
+    });
+
+    modelServiceMock = jasmine.createSpyObj('ModelService', ['isLastModel', 'isNewModel', 'addModel', 'removeModel']);
+
+    modelFactoryMock = jasmine.createSpyObj('ModelFactory', ['getModel', 'getError', 'getModelInputs', 'getContext', 'setError', 'resetModel', 'updateModelInputs']);
+    modelFactoryMock.getModel.and.returnValue(fakeModel);
+    ctrl = $controller('PolicyModelCtrl', {
+      'PolicyModelFactory': policyModelFactoryMock,
+      'ModelFactory': modelFactoryMock,
+      'ModelService': modelServiceMock
+    });
+
+    resolvedPromise = function () {
+      var defer = $q.defer();
+      defer.resolve();
+
+      return defer.promise;
+    };
+
+    rejectedPromise = function () {
+      var defer = $q.defer();
+      defer.reject();
+
+      return defer.promise;
+    }
+  }));
+
+  describe("when it is initialized", function () {
+
+    it('it should get a policy template from from policy factory', function () {
+      expect(ctrl.template).toBe(fakeTemplate);
+    });
+
+    it('it should get the policy that is being created or edited from policy factory', function () {
+      expect(ctrl.policy).toBe(fakePolicy);
+    });
+
+    describe ("should send the correct order for the current model to be used to initialize a new model if factory has not model", function(){
+      it ("if policy has not got models, the order of current model has to be 0", function(){
+
+      });
+
+      it ("if policy has got models, the order of current model has to be equal to the last model plus one", function(){
+
+      });
+    });
+
+    describe("if factory model is not null", function () {
+
+      it("it should load the model from the model factory", function () {
+        expect(ctrl.model).toBe(fakeModel);
+      });
+    });
+
+    it("if factory model is null, no changes are executed", inject(function ($controller) {
+      var cleanCtrl = $controller('PolicyModelCtrl', {
+        'PolicyModelFactory': policyModelFactoryMock,
+        'ModelFactory': modelFactoryMock,
+        'ModelService': modelServiceMock
+      });
+      modelFactoryMock.getModel.and.returnValue(null);
+      cleanCtrl.init();
+      expect(cleanCtrl.model).toBe(null);
+      expect(cleanCtrl.modelError).toBe('');
+      expect(cleanCtrl.modelContext).toBe(undefined);
+      expect(cleanCtrl.configPlaceholder).toBe(undefined);
+      expect(cleanCtrl.outputPattern).toBe(undefined);
+      expect(cleanCtrl.outputInputPlaceholder).toBe(undefined);
+    }));
+  });
+
+  describe("should be able to change the default configuration when type is changed by user", function () {
+    it("if type is morphlines, it returns the morphlinesDefaultConfiguration", function () {
+      ctrl.model.type = fakeTemplate.types[0].name;  // it has to be Morphlines type
+      ctrl.changeDefaultConfiguration();
+
+      expect(ctrl.model.configuration).toEqual(fakeTemplate.morphlinesDefaultConfiguration);
+    });
+
+    it("if type is datetime, it returns the dateTimeDefaultConfiguration", function () {
+      ctrl.model.type = fakeTemplate.types[1].name;  // it has to be DateTime type
+      ctrl.changeDefaultConfiguration();
+
+      expect(ctrl.model.configuration).toEqual(fakeTemplate.dateTimeDefaultConfiguration);
+    });
+
+    it("if type is 'type', it returns the typeDefaultConfiguration", function () {
+      ctrl.model.type = fakeTemplate.types[2].name;  // it has to be 'type' type
+      ctrl.changeDefaultConfiguration();
+
+      expect(ctrl.model.configuration).toEqual(fakeTemplate.typeDefaultConfiguration);
+    });
+  });
+
+  describe("should be able to add a model to the policy", function () {
+    it("model is not added if view validations have not been passed and error is updated", function () {
+      ctrl.form = {$valid: false}; //view validations have not been passed
+      ctrl.addModel();
+
+      expect(modelServiceMock.addModel).not.toHaveBeenCalled();
+      expect(modelFactoryMock.setError).toHaveBeenCalledWith("_GENERIC_FORM_ERROR_");
+    });
+
+    it("model is added if view validations have been passed", function () {
+      ctrl.form = {$valid: true}; //view validations have been passed
+      ctrl.addModel();
+
+      expect(modelServiceMock.addModel).toHaveBeenCalled();
+    });
+  });
+
+
+  describe("should be able to remove the factory model from the policy", function () {
+    afterEach(function () {
+      scope.$digest();
+    });
+    it("if model service removes successfully the model, current model is reset with order equal to the last model more one and position equal to the model list length", function () {
+      modelServiceMock.removeModel.and.callFake(resolvedPromise);
+      var lastModelOrder = 1;
+      var fakeModel2 = angular.copy(fakeModel);
+      fakeModel2.order = lastModelOrder;
+      var models = [fakeModel, fakeModel2];
+      ctrl.policy.models = models;
+
+      ctrl.removeModel().then(function () {
+        expect(modelFactoryMock.resetModel).toHaveBeenCalledWith(fakeTemplate, lastModelOrder + 1, models.length);
+        expect(modelFactoryMock.updateModelInputs).toHaveBeenCalledWith(models);
+      });
+    });
+
+    it("if model service is not able to remove the model, controller do not do anything", function () {
+      modelServiceMock.removeModel.and.callFake(rejectedPromise);
+
+      ctrl.removeModel().then(function () {
+        expect(modelFactoryMock.resetModel).not.toHaveBeenCalled();
+      });
+    });
+  });
+});
