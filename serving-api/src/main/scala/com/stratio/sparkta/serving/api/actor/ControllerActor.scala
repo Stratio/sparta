@@ -18,7 +18,6 @@ package com.stratio.sparkta.serving.api.actor
 
 import akka.actor.{ActorContext, _}
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.api.service.http._
 import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer}
@@ -27,11 +26,9 @@ import spray.http.StatusCodes
 import spray.routing._
 import spray.util.LoggingContext
 
-class ControllerActor(streamingContextService: StreamingContextService,
-                      actorsMap: Map[String, ActorRef])
-  extends HttpServiceActor
-  with SLF4JLogging
-  with SparktaSerializer {
+class ControllerActor(actorsMap: Map[String, ActorRef]) extends HttpServiceActor
+with SLF4JLogging
+with SparktaSerializer {
 
   override implicit def actorRefFactory: ActorContext = context
 
