@@ -96,14 +96,4 @@ object AggregationPoliciesValidator extends SparktaSerializer {
         .replaceAll("/[0-9]/", "-").stripPrefix("/").capitalize}. ${message.getMessage.capitalize}."
     }).mkString("\n")
   }
-
-  private def checkCubeParameter(cubeNames: Seq[String], parameterNames: Seq[String], label: String):
-  (Boolean, String) = {
-    val parameterNotIn = cubeNames.filter(!parameterNames.contains(_))
-    val isParameterIn = parameterNotIn.isEmpty
-    val isCubeInMsg =
-      if (!isParameterIn) s"All references to $label in cubes should be declared in $label block" else ""
-
-    (isParameterIn, isCubeInMsg)
-  }
 }
