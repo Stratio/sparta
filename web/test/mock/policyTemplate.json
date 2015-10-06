@@ -59,10 +59,9 @@
   "morphlinesDefaultConfiguration": "fake morphlinesDefaultConfiguration",
   "dateTimeDefaultConfiguration": "fake dateTimeDefaultConfiguration",
   "typeDefaultConfiguration": "fake typeDefaultConfiguration",
-  "defaultInput":
-  {
+  "defaultInput": {
     "label": "fake default input label",
-    "value":  "fake default input value"
+    "value": "fake default input value"
   },
   "defaultSparkStreamingWindow": 6000,
   "defaultStorageLevel": "fake defaultStorageLevel",
@@ -181,6 +180,12 @@
       "type": "Default",
       "precisions": []
     }
-  ]
-
+  ],
+  "functionNames": [
+    "fakeFunctionName1",
+    "fakeFunctionName2",
+    "fakeFunctionName3",
+    "fakeFunctionName4"
+  ],
+  "defaultOperatorConfiguration": {"fake attribute": "fake value"}
 }
