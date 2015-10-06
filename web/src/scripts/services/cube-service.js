@@ -110,7 +110,7 @@
     function addCube() {
       var newCube = angular.copy(CubeModelFactory.getCube());
       if (CubeModelFactory.isValidCube(newCube, vm.policy.cubes, CubeModelFactory.getContext().position)) {
-        vm.policy.cubes.push(angular.copy(newCube));
+        vm.policy.cubes.push(newCube);
         createdCubes++;
         AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
       } else {
@@ -128,10 +128,11 @@
       }
     }
 
-    function removeCube(index) {
+    function removeCube() {
       var defer = $q.defer();
+      var cubePosition = CubeModelFactory.getContext().position;
       showConfirmRemoveCube().then(function () {
-        vm.policy.cubes.splice(index, 1);
+        vm.policy.cubes.splice(cubePosition, 1);
         AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
         defer.resolve();
       }, function () {

@@ -10,11 +10,6 @@
   "models":[],
   "cubes": [],
   "transformations":[],
-  "fragments":[],
-  "defaultSparkStreamingWindow": 6000,
-  "defaultStorageLevel": "fake defaultStorageLevel",
-  "defaultCheckpointPath": "fake defaultCheckpointPath",
-  "defaultPartitionFormat": "fake defaultPartitionFormat"
-
+  "fragments":[]
 }
 
