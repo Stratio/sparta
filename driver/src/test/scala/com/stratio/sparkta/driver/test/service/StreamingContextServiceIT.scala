@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.test
+package com.stratio.sparkta.driver.test.service
 
 import java.io.File
 
@@ -27,13 +27,11 @@ import org.json4s.native
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
-import spray.testkit.ScalatestRouteTest
 
 import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
 class StreamingContextServiceIT extends WordSpecLike
-with ScalatestRouteTest
 with Matchers
 with SLF4JLogging
 with SparktaSerializer {
