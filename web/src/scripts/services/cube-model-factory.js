@@ -12,9 +12,9 @@
     var error = {text: ""};
     var context = {"position": null};
 
-    function init(template, position) {
+    function init(template, nameIndex, position) {
       setPosition(position);
-      cube.name = template.defaultCubeName + (position+1);
+      cube.name = template.defaultCubeName + (nameIndex+1);
       cube.dimensions = [];
       cube.operators = [];
       cube.checkpointConfig = {};
@@ -25,13 +25,13 @@
       error.text = "";
     }
 
-    function resetCube(template, position) {
-      init(template, position);
+    function resetCube(template, nameIndex, position) {
+      init(template, nameIndex, position);
     }
 
-    function getCube(template, position) {
+    function getCube(template,nameIndex, position) {
       if (Object.keys(cube).length == 0) {
-        init(template, position)
+        init(template,nameIndex, position)
       }
       return cube;
     }
