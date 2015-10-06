@@ -55,7 +55,7 @@
               var selectedCube = vm.policy.cubes[selectedCubePosition];
               CubeModelFactory.setCube(selectedCube,selectedCubePosition );
             } else {
-              CubeModelFactory.resetCube(vm.template, CubeService.getCreatedCubes());
+              CubeModelFactory.resetCube(vm.template, CubeService.getCreatedCubes(), vm.policy.cubes.length);
             }
           }else{
         }
