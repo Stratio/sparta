@@ -21,7 +21,8 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, _}
 
-class AvgOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+class AvgOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
+with ProcessMapAsNumber {
 
   override val defaultTypeOperation = TypeOp.Double
 

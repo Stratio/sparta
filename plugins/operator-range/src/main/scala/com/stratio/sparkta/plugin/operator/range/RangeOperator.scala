@@ -18,11 +18,11 @@ package com.stratio.sparkta.plugin.operator.range
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.TypeOp
 import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.sdk.{TypeOp, _}
 
-class RangeOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+class RangeOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
+with ProcessMapAsNumber {
 
   override val defaultTypeOperation = TypeOp.Double
 

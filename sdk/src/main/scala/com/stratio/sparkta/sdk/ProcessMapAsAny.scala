@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.plugin.operator.firstValue
+package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
-import scala.util.Try
 
-import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk.{TypeOp, _}
+trait ProcessMapAsAny {
 
-class FirstValueOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
-with ProcessMapAsAny {
+  val inputField: Option[String]
 
-  override val defaultTypeOperation = TypeOp.String
+  def applyFilters(inputFields: Map[String, JSerializable]): Option[Map[String, JSerializable]]
 
-  override val writeOperation = WriteOp.Set
-
-  override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
-    Try(Some(transformValueByTypeOp(returnType, values.flatten.head)))
-      .getOrElse(Some(OperatorConstants.EmptyString))
+  def processMap(inputFields: Map[String, JSerializable]): Option[Any] =
+    if (inputField.isDefined && inputFields.contains(inputField.get)) {
+      applyFilters(inputFields).flatMap(filteredFields => Some(filteredFields.get(inputField.get).get))
+    } else None
 }
