@@ -45,7 +45,7 @@ with Ordered[Operator] with TypeConversions {
 
   def writeOperation: WriteOp
 
-  protected val inputField = properties.getOptionAs[String]("inputField")
+  val inputField = properties.getString("inputField", None)
 
   def processReduce(values: Iterable[Option[Any]]): Option[Any]
 
@@ -60,23 +60,6 @@ with Ordered[Operator] with TypeConversions {
     case None => Array()
   }
 
-  /**
-   * This method tries to cast a value to Number, if it's possible.
-   *
-   * Serializable -> String -> Number
-   * Serializable -> Number
-   *
-   */
-  def getNumberFromSerializable(value: JSerializable): Option[Number] = {
-    Try(value.asInstanceOf[String].toDouble.asInstanceOf[Number]) match {
-      case Success(number) => Some(number)
-      case Failure(ex) => Try(value.asInstanceOf[Number]) match {
-        case Success(number) => Some(number)
-        case Failure(ex) => None
-      }
-    }
-  }
-
   def getDistinctValues[T](values: Iterable[T]): List[T] =
     if (distinct)
       values.toList.distinct
@@ -87,11 +70,7 @@ with Ordered[Operator] with TypeConversions {
       Some(inputFields)
     else None
 
-  def processMap(inputFields: Map[String, JSerializable]): Option[Any] =
-    if (inputField.isDefined && inputFields.contains(inputField.get))
-      applyFilters(inputFields)
-        .flatMap(filteredFields => getNumberFromSerializable(filteredFields.get(inputField.get).get))
-    else None
+  def processMap(inputFields: Map[String, JSerializable]): Option[Any]
 
   private def doFiltering(inputField: (String, JSerializable),
                           inputFields: Map[String, JSerializable]): Boolean = {
@@ -162,4 +141,20 @@ with Ordered[Operator] with TypeConversions {
 object Operator {
 
   final val ClassSuffix = "Operator"
+
+  /**
+   * This method tries to cast a value to Number, if it's possible.
+   *
+   * Serializable -> String -> Number
+   * Serializable -> Number
+   *
+   */
+  def getNumberFromSerializable(value: JSerializable): Option[Number] =
+    Try(value.asInstanceOf[String].toDouble.asInstanceOf[Number]) match {
+      case Success(number) => Some(number)
+      case Failure(ex) => Try(value.asInstanceOf[Number]) match {
+        case Success(number) => Some(number)
+        case Failure(ex) => None
+      }
+    }
 }
