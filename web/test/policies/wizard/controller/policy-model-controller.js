@@ -140,7 +140,7 @@ describe('policies.wizard.controller.policy-model-controller', function () {
       var fakeModel2 = angular.copy(fakeModel);
       fakeModel2.order = lastModelOrder;
       var models = [fakeModel, fakeModel2];
-      ctrl.policy.models = models;
+      ctrl.policy.transformations = models;
 
       ctrl.removeModel().then(function () {
         expect(modelFactoryMock.resetModel).toHaveBeenCalledWith(fakeTemplate, lastModelOrder + 1, models.length);
