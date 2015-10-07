@@ -11,10 +11,10 @@
   </div>
 
   <form class="c-form c-panel c-panel--framed" novalidate>
-    <accordion class="c-accordion" data-ng-model="vm.policy.models">
+    <accordion class="c-accordion" data-ng-model="vm.policy.transformations">
       <div class="c-accordion-item">
         <accordion-group is-open="vm.accordionStatus[$index]"
-                         data-ng-repeat="currentModel in vm.policy.models track by vm.generateIndex()"
+                         data-ng-repeat="currentModel in vm.policy.transformations track by vm.generateIndex()"
                          data-ng-model="currentModel">
           <accordion-heading>
             <span class="c-accordion-header__step-number">{{$index + 1}}</span>
@@ -32,16 +32,16 @@
         </accordion-group>
       </div>
       <div class="c-accordion-item c-accordion-item--new">
-        <accordion-group is-open=vm.accordionStatus[vm.policy.models.length]>
+        <accordion-group is-open=vm.accordionStatus[vm.policy.transformations.length]>
           <accordion-heading class="c-accordion-header">
-            <span class="c-accordion-header__step-number">{{(vm.policy.models.length + 1) }}</span><i
+            <span class="c-accordion-header__step-number">{{(vm.policy.transformations.length + 1) }}</span><i
             class="c-accordion-header__type c-icon"></i><span class="c-accordion-header__title">{{"_POLICY_._NEW-MODEL-DEFINITION_" | translate}}</span>
 
             <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right"
-               data-qa="policy-model-arrow-{{(vm.policy.models.length + 1) }}"></i>
+               data-qa="policy-model-arrow-{{(vm.policy.transformations.length + 1) }}"></i>
           </accordion-heading>
 
-          <ng-include data-ng-if="vm.accordionStatus[vm.policy.models.length]"
+          <ng-include data-ng-if="vm.accordionStatus[vm.policy.transformations.length]"
                       src="'views/policy-wizard/model-panel.html'" data-ng-init="editionMode = true"
                       data-qa="policy-model-new">
 

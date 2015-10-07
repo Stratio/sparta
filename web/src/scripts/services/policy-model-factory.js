@@ -25,7 +25,7 @@
       policy.rawData.path = "";
       policy.input = {};
       policy.outputs = [];
-      policy.models = [];
+      policy.transformations = [];
       policy.cubes = [];
     }
 
@@ -39,7 +39,7 @@
       policy.checkpointPath = inputPolicyJSON.checkpointPath;
       policy.rawData = inputPolicyJSON.rawData;
       policy.rawData.enabled = (inputPolicyJSON.rawData.enabled == "true");
-      policy.models = inputPolicyJSON.transformations; //TODO Change policy models attribute to transformations
+      policy.transformations = inputPolicyJSON.transformations;
       policy.cubes = inputPolicyJSON.cubes;
 
       var policyFragments = separateFragments(inputPolicyJSON.fragments);
@@ -98,7 +98,7 @@
 
     function getAllModelOutputs() {
       var allModelOutputs = [];
-      var models = policy.models;
+      var models = policy.transformations;
       var outputs = [];
       var modelOutputs, output = null;
       for (var i = 0; i < models.length; ++i) {

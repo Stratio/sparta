@@ -43,17 +43,6 @@
       return finalJSON;
     }
 
-    function cleanModels(finalJSON){
-      var modelsJSON = finalJSON.models;
-     if (modelsJSON){
-       for (var i = 0; i < modelsJSON.length; ++i){
-         delete modelsJSON[i].inputList;
-       }
-     }
-      delete finalJSON.models;
-      return modelsJSON;
-    }
-
     function cleanPolicyJSON(finalJSON) {
       delete finalJSON.input;
       delete finalJSON.outputs;
@@ -61,8 +50,6 @@
         delete finalJSON.rawData['path'];
         delete finalJSON.rawData['partitionFormat'];
       }
-      finalJSON.transformations =  cleanModels(finalJSON);
-
       return finalJSON;
     }
   }
