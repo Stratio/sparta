@@ -105,7 +105,7 @@ describe('policies.wizard.service.policy-model-service', function () {
     it("model is not added if it is not valid", function () {
       ModelFactoryMock.isValidModel.and.returnValue(false);
       service.addModel();
-      expect(service.policy.models.length).toBe(0);
+      expect(service.policy.transformations.length).toBe(0);
     });
 
     describe("if model is valid", function () {
@@ -115,13 +115,13 @@ describe('policies.wizard.service.policy-model-service', function () {
       });
 
       it("it is added to policy with its order", function () {
-        expect(service.policy.models.length).toBe(1);
-        expect(service.policy.models[0].name).toEqual(fakeModel.name);
-        expect(service.policy.models[0].order).toEqual(fakeModel.order);
+        expect(service.policy.transformations.length).toBe(1);
+        expect(service.policy.transformations[0].name).toEqual(fakeModel.name);
+        expect(service.policy.transformations[0].order).toEqual(fakeModel.order);
       });
 
       it("accordion status is reset with the current length of the model list", function () {
-        expect(AccordionStatusServiceMock.resetAccordionStatus).toHaveBeenCalledWith(service.policy.models.length);
+        expect(AccordionStatusServiceMock.resetAccordionStatus).toHaveBeenCalledWith(service.policy.transformations.length);
       });
 
     });
@@ -138,7 +138,7 @@ describe('policies.wizard.service.policy-model-service', function () {
       var cubeMockWithoutModelOutput = {
         "dimensions": [{"field": "any"}, {"field": "another"}]
       };
-      service.policy.models = [fakeModel];
+      service.policy.transformations = [fakeModel];
       rootScope = $rootScope;
       service.policy.cubes = [cubeMockWithoutModelOutput, cubeMockWithModelOutput];
 
@@ -157,16 +157,16 @@ describe('policies.wizard.service.policy-model-service', function () {
       spyOn(service, "showConfirmRemoveModel").and.callFake(resolvedPromiseFunction);
       var cubesBefore = angular.copy(service.policy.cubes);
       service.removeModel().then(function () {
-        expect(service.policy.models.length).toBe(0);
+        expect(service.policy.transformations.length).toBe(0);
         expect(UtilsServiceMock.removeItemsFromArray).toHaveBeenCalledWith(cubesBefore, fakeFoundCubes.positions);
       });
     });
 
     it ("should be able to return if a model is the last model in the model array by its position", function(){
-      service.policy.models = [];
-      service.policy.models.push(fakeModel);
-      service.policy.models.push(fakeModel);
-      service.policy.models.push(fakeModel);
+      service.policy.transformations = [];
+      service.policy.transformations.push(fakeModel);
+      service.policy.transformations.push(fakeModel);
+      service.policy.transformations.push(fakeModel);
 
       expect(service.isLastModel(0)).toBeFalsy();
       expect(service.isLastModel(1)).toBeFalsy();
@@ -174,10 +174,10 @@ describe('policies.wizard.service.policy-model-service', function () {
     });
 
     it ("should be able to return if a model is a new model by its position", function(){
-      service.policy.models = [];
-      service.policy.models.push(fakeModel);
-      service.policy.models.push(fakeModel);
-      service.policy.models.push(fakeModel);
+      service.policy.transformations = [];
+      service.policy.transformations.push(fakeModel);
+      service.policy.transformations.push(fakeModel);
+      service.policy.transformations.push(fakeModel);
 
       expect(service.isNewModel(0)).toBeFalsy();
       expect(service.isNewModel(2)).toBeFalsy();
