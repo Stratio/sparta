@@ -113,6 +113,13 @@ describe('policies.wizard.controller.policy-input-controller', function () {
       expect(isSelected).toBeTruthy();
     });
 
+    it ("if policy input is undefined, returns false", function(){
+      var validName = fakeInputList[0].name;
+      ctrl.policy.input = null;
+      var isSelected = ctrl.isSelectedInput(validName);
+      expect(isSelected).toBeFalsy();
+    });
+
   });
 
   it ("should be able to change to previous step calling to policy model factory", function(){
