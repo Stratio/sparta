@@ -11,7 +11,7 @@ describe('policies.wizard.controller.policy-input-controller', function () {
   beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope) {
     rootScope = $rootScope;
     inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedInputList_) {
-      fakePolicy = _servedPolicy_;
+      fakePolicy = angular.copy(_servedPolicy_);
       fakeTemplate = _servedPolicyTemplate_;
       fakeInputList = _servedInputList_;
     });
