@@ -1,7 +1,7 @@
 {
-  "name": "policy-MongoDB-Financtial",
-  "description": "policy-MongoDB-Financtial",
-  "sparkStreamingWindow": 6000,
+  "name": "policy-websocket",
+  "description": "Input kafka, output print",
+  "sparkStreamingWindow": 2000,
   "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
@@ -9,75 +9,53 @@
     "path": "myTestParquetPath"
   },
   "input":
-    {
-      "name": "in-flume",
-      "type": "Flume",
-      "configuration": {
-        "type": "pull",
-        "addresses": [{"host": "localhost", "port": "10999"}],
-        "maxBatchSize": "500"
-      }
+  {
+    "name": "in-websocket",
+    "type": "WebSocket",
+    "configuration": {
+      "url": "ws://stream.meetup.com/2/rsvps"
     }
-  ,
+  },
   "transformations": [
     {
-      "name": "morphline-parser",
-      "order": 0,
+      "name": "morphline",
       "type": "Morphlines",
+      "order": 0,
       "outputFields": [
-        "timestamp",
-        "extra1"
+        "response"
       ],
       "configuration": {
         "morphline": {
           "id": "morphline1",
           "importCommands": [
-            "org.kitesdk.**",
-            "com.stratio.ingestion.morphline.**"
+            "org.kitesdk.**"
           ],
           "commands": [
             {
-              "readJson": {
-
-              }
+              "readJson": {}
             },
             {
               "extractJsonPaths": {
                 "paths": {
-                 "timestamp": "/timestamp",
-                  "extra1": "/extra1"
-
+                  "response": "/response"
                 }
               }
             },
             {
               "removeFields": {
                 "blacklist": [
-                  "literal:_attachment_body",
-                  "literal:message"
+                  "literal:_attachment_body"
                 ]
               }
             }
           ]
         }
       }
-    },
-    {
-      "name": "datetime",
-      "order": 1,
-      "inputField": "timestamp",
-      "outputFields": [
-        "timestamp"
-      ],
-      "type": "DateTime",
-      "configuration": {
-        "timestamp": "unix"
-      }
     }
   ],
   "cubes": [
     {
-      "name": "extra1",
+      "name": "testCube",
       "checkpointConfig": {
         "timeDimension": "minute",
         "granularity": "minute",
@@ -86,26 +64,19 @@
       },
       "dimensions": [
         {
-          "name": "extra1",
-          "field": "extra1"
-        },
-        {
-          "field": "timestamp",
-          "precision": "minute",
-          "type": "DateTime",
-          "name": "minute"
+          "field": "response",
+          "name": "response"
         }
       ],
       "operators": [
         {
           "name": "countoperator",
           "type": "Count",
-          "configuration": {
-          }
+          "configuration": {}
         }
       ]
     }
-  ],
+    ],
   "outputs": [
     {
       "name": "out-mongo",

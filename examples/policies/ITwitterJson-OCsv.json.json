@@ -1,45 +1,37 @@
 {
-  "name": "Policy-WebSocket-ElasticSearch",
-  "description": "Input WebSocket, output ElasticSearch",
-  "sparkStreamingWindow": 2000,
+  "name": "policy-TwitterJson-Csv",
+  "description": "policy-TwitterJson-Csv",
+  "sparkStreamingWindow": 6000,
+  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "partitionFormat": "day",
     "path": "myTestParquetPath"
   },
-  "checkpointPath": "checkpoint",
-   "fragments": [
-    {
-      "id": "_input_id_",
-      "name": "WebSocket",
-      "fragmentType": "input",
-      "description": "description",
-      "shortDescription": "shortDescription",
-      "icon": "icon",
-      "element": null
-    },
-    {
-      "id": "_output_id_",
-      "name": "Elasticsearch",
-      "fragmentType": "output",
-      "description": "description",
-      "shortDescription": "shortDescription",
-      "icon": "icon",
-      "element": null
+  "input": {
+    "name": "in-twitter-json",
+    "type": "TwitterJson",
+    "configuration": {
+      "consumerKey": "*********",
+      "consumerSecret": "*********",
+      "accessToken": "*********",
+      "accessTokenSecret": "*********"
     }
-  ],
-
+  },
   "transformations": [
     {
       "name": "morphline",
-      "type": "Morphlines",
       "order": 0,
+      "type": "Morphlines",
       "outputFields": [
-        "response"
+        "text",
+        "source",
+        "hashtags",
+        "retweets"
       ],
       "configuration": {
         "morphline": {
-          "id": "morphline1",
+          "id": "test1",
           "importCommands": [
             "org.kitesdk.**"
           ],
@@ -50,7 +42,10 @@
             {
               "extractJsonPaths": {
                 "paths": {
-                  "response": "/response"
+                  "text": "/text",
+                  "source": "/source",
+                  "hashtag": "/hashtagEntities/text",
+                  "retweets": "/retweetCount"
                 }
               }
             },
@@ -77,8 +72,8 @@
       },
       "dimensions": [
         {
-          "field": "response",
-          "name": "response"
+          "field": "retweets",
+          "name": "retweets"
         }
       ],
       "operators": [
@@ -88,6 +83,18 @@
           "configuration": {}
         }
       ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "out-csv",
+      "type": "Csv",
+      "configuration": {
+        "isAutoCalculateId": "false",
+        "path": "/tmp/",
+        "header": "false",
+        "delimiter": ","
+      }
     }
   ]
 }

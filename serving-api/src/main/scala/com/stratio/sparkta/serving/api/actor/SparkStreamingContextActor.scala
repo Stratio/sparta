@@ -172,7 +172,8 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
 
         if (zookeeperConfig.isDefined && hdfsConfig.isDefined) {
           Some(context.actorOf(Props(new ClusterSparkStreamingContextActor(
-            policy, streamingContextService, clusterConfig, hdfsConfig.get, zookeeperConfig.get, detailConfig)),
+            policy, streamingContextService, clusterConfig, hdfsConfig.get, zookeeperConfig.get, detailConfig,
+            policyStatusActor)),
             s"$SparkStreamingContextActorPrefix-${actorName}"))
         } else None
       }
