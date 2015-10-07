@@ -20,9 +20,11 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.plugin.field.arrayText.ArrayTextField
 import com.stratio.sparkta.sdk._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 
-
+@RunWith(classOf[JUnitRunner])
 class ArrayTextFieldSpec extends WordSpecLike with Matchers {
 
   val dimType = new ArrayTextField()
