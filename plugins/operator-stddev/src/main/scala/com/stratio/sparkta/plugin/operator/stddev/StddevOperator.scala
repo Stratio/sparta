@@ -23,7 +23,8 @@ import breeze.stats._
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, _}
 
-class StddevOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+class StddevOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
+with ProcessMapAsNumber {
 
   override val defaultTypeOperation = TypeOp.Double
 

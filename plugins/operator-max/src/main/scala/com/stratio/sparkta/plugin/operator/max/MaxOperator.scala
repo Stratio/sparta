@@ -22,7 +22,8 @@ import scala.util.Try
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, _}
 
-class MaxOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+class MaxOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
+with ProcessMapAsNumber {
 
   override val defaultTypeOperation = TypeOp.Double
 

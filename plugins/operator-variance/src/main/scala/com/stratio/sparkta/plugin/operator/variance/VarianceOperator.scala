@@ -20,11 +20,11 @@ import java.io.{Serializable => JSerializable}
 
 import breeze.stats._
 
-import com.stratio.sparkta.sdk.TypeOp
 import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.sdk.{TypeOp, _}
 
-class VarianceOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+class VarianceOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
+with ProcessMapAsNumber {
 
   override val defaultTypeOperation = TypeOp.Double
 

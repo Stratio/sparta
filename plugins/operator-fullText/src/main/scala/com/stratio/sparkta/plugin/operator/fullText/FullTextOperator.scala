@@ -22,7 +22,8 @@ import scala.util.Try
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, _}
 
-class FullTextOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+class FullTextOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
+with ProcessMapAsAny {
 
   override val defaultTypeOperation = TypeOp.String
 
