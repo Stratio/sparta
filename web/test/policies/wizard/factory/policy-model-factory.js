@@ -37,7 +37,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     expect(policy.checkpointPath).toBe(fakePolicy.checkpointPath);
     expect(policy.rawData).toBe(fakePolicy.rawData);
     expect(policy.rawData.enabled).toBe(fakePolicy.rawData.enabled);
-    expect(policy.models).toBe(fakePolicy.transformations);
+    expect(policy.transformations).toBe(fakePolicy.transformations);
     expect(policy.cubes).toBe(fakePolicy.cubes);
     expect(policy.input).toBe(fakeInput);
     expect(policy.outputs[0]).toBe(fakeOutput);
@@ -65,7 +65,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       expect(policy.rawData.path).toBe("");
       expect(policy.input).toEqual({});
       expect(policy.outputs).toEqual([]);
-      expect(policy.models).toEqual([]);
+      expect(policy.transformations).toEqual([]);
       expect(policy.cubes).toEqual([]);
     });
 
@@ -84,7 +84,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       expect(policy.rawData.path).toBe(fakePolicy.rawData.path);
       expect(policy.input).toEqual(fakeInput);
       expect(policy.outputs).toEqual([fakeOutput]);
-      expect(policy.models).toEqual(fakePolicy.models);
+      expect(policy.transformations).toEqual(fakePolicy.transformations);
       expect(policy.cubes).toEqual(fakePolicy.cubes);
     });
   });
@@ -107,7 +107,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     expect(policy.rawData.path).toBe("");
     expect(policy.input).toEqual({});
     expect(policy.outputs).toEqual([]);
-    expect(policy.models).toEqual([]);
+    expect(policy.transformations).toEqual([]);
     expect(policy.cubes).toEqual([]);
   });
 

@@ -26,7 +26,7 @@
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       //ModelFactory.resetModel(vm.template);
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
-      AccordionStatusService.resetAccordionStatus(vm.policy.models.length);
+      AccordionStatusService.resetAccordionStatus(vm.policy.transformations.length);
       vm.helpLink = vm.template.helpLinks.models;
       vm.error = "";
     }
@@ -40,7 +40,7 @@
     }
 
     function nextStep() {
-      if (vm.policy.models.length > 0) {
+      if (vm.policy.transformations.length > 0) {
         vm.error = "";
         PolicyModelFactory.nextStep();
       }
@@ -54,19 +54,19 @@
       function (newValue) {
         if (vm.accordionStatus && newValue) {
           var selectedModelPosition = newValue.indexOf(true);
-          if (vm.policy.models.length > 0 && selectedModelPosition >= 0 && selectedModelPosition < vm.policy.models.length) {
-            var selectedModel = vm.policy.models[selectedModelPosition];
+          if (vm.policy.transformations.length > 0 && selectedModelPosition >= 0 && selectedModelPosition < vm.policy.transformations.length) {
+            var selectedModel = vm.policy.transformations[selectedModelPosition];
             ModelFactory.setModel(selectedModel, selectedModelPosition);
           } else {
-            var modelNumber = vm.policy.models.length;
+            var modelNumber = vm.policy.transformations.length;
             var order = 0;
 
             if (modelNumber > 0) {
-              order = vm.policy.models[modelNumber - 1].order + 1
+              order = vm.policy.transformations[modelNumber - 1].order + 1
             }
-            ModelFactory.resetModel(vm.template, order, vm.policy.models.length);
+            ModelFactory.resetModel(vm.template, order, vm.policy.transformations.length);
           }
-          ModelFactory.updateModelInputs(vm.policy.models);
+          ModelFactory.updateModelInputs(vm.policy.transformations);
         }
       }
     );
