@@ -57,8 +57,7 @@
             } else {
               CubeModelFactory.resetCube(vm.template, CubeService.getCreatedCubes(), vm.policy.cubes.length);
             }
-          }else{
-        }
+          }
       }
     );
   }
