@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  /*POLICY INPUTS CONTROLLER*/
+  /*POLICY FINISH CONTROLLER*/
   angular
     .module('webApp')
     .controller('PolicyFinishCtrl', PolicyFinishCtrl);
@@ -43,26 +43,12 @@
       return finalJSON;
     }
 
-    function cleanModels(finalJSON){
-      var modelsJSON = finalJSON.models;
-     if (modelsJSON){
-       for (var i = 0; i < modelsJSON.length; ++i){
-         delete modelsJSON[i].inputList;
-       }
-     }
-      delete finalJSON.models;
-      return modelsJSON;
-    }
-
     function cleanPolicyJSON(finalJSON) {
       delete finalJSON.input;
-      delete finalJSON.outputs;
       if (finalJSON.rawData.enabled === 'false') {
         delete finalJSON.rawData['path'];
         delete finalJSON.rawData['partitionFormat'];
       }
-      finalJSON.transformations =  cleanModels(finalJSON);
-
       return finalJSON;
     }
   }

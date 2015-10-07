@@ -69,12 +69,12 @@
     function removeModel() {
      return  ModelService.removeModel().then(function () {
         var order = 0;
-        var modelNumber = vm.policy.models.length;
+        var modelNumber = vm.policy.transformations.length;
         if (modelNumber > 0) {
-          order = vm.policy.models[modelNumber - 1].order + 1
+          order = vm.policy.transformations[modelNumber - 1].order + 1
         }
         vm.model = ModelFactory.resetModel(vm.template, order, modelNumber);
-        ModelFactory.updateModelInputs(vm.policy.models);
+        ModelFactory.updateModelInputs(vm.policy.transformations);
       });
     }
   }
