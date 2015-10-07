@@ -78,11 +78,8 @@ class OperatorSpec extends WordSpec with Matchers {
     }
 
     "getNumberFromSerializable must be " in {
-      val operator = new OperatorMock("opTest", Map())
-      operator.getNumberFromSerializable(1.asInstanceOf[JSerializable]) should be(Some(1.asInstanceOf[Number]))
-
-      val operator2 = new OperatorMock("opTest", Map())
-      operator2.getNumberFromSerializable("1".asInstanceOf[JSerializable]) should be(Some(1.asInstanceOf[Number]))
+      Operator.getNumberFromSerializable(1.asInstanceOf[JSerializable]) should be(Some(1.asInstanceOf[Number]))
+      Operator.getNumberFromSerializable("1".asInstanceOf[JSerializable]) should be(Some(1.asInstanceOf[Number]))
     }
 
     "getDistinctValues must be " in {
@@ -258,14 +255,12 @@ class OperatorSpec extends WordSpec with Matchers {
     }
 
     "Operation number casting must be " in {
-      val operator = new OperatorMock("opTest", Map())
-
-      operator.getNumberFromSerializable(2) should be(Some(2))
-      operator.getNumberFromSerializable(2L) should be(Some(2))
-      operator.getNumberFromSerializable(2d) should be(Some(2))
-      operator.getNumberFromSerializable(2.asInstanceOf[Byte]) should be(Some(2))
-      operator.getNumberFromSerializable(2.asInstanceOf[Short]) should be(Some(2))
-      operator.getNumberFromSerializable(Option(2)) should be(None)
+      Operator.getNumberFromSerializable(2) should be(Some(2))
+      Operator.getNumberFromSerializable(2L) should be(Some(2))
+      Operator.getNumberFromSerializable(2d) should be(Some(2))
+      Operator.getNumberFromSerializable(2.asInstanceOf[Byte]) should be(Some(2))
+      Operator.getNumberFromSerializable(2.asInstanceOf[Short]) should be(Some(2))
+      Operator.getNumberFromSerializable(Option(2)) should be(None)
     }
 
     "classSuffix must be " in {
