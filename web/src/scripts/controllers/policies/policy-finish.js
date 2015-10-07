@@ -45,7 +45,6 @@
 
     function cleanPolicyJSON(finalJSON) {
       delete finalJSON.input;
-      delete finalJSON.outputs;
       if (finalJSON.rawData.enabled === 'false') {
         delete finalJSON.rawData['path'];
         delete finalJSON.rawData['partitionFormat'];
