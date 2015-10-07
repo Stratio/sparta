@@ -86,14 +86,14 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
 
   describe("should be able to change to next step calling to policy model factory", function () {
     it("if there is not any model added to policy, step is not changed", function () {
-      ctrl.policy.models = [];
+      ctrl.policy.transformations = [];
       ctrl.nextStep();
 
       expect(policyModelFactoryMock.nextStep).not.toHaveBeenCalled();
     });
 
     it("if there is a model added at least, step is changed", function () {
-      ctrl.policy.models = [fakeModel];
+      ctrl.policy.transformations = [fakeModel];
       ctrl.nextStep();
 
       expect(policyModelFactoryMock.nextStep).toHaveBeenCalled();
@@ -118,7 +118,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
         models = [fakeModel, fakeModel2];
       });
       it("if position is between 0 and policy models length, the factory model is updated with the model of that position in the policy model array", function () {
-        ctrl.policy.models = models;
+        ctrl.policy.transformations = models;
         accordionStatus[1] = true;
 
         scope.$digest();
@@ -131,13 +131,13 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
         fakeModel2.name = "fake model 2";
 
         var models = [fakeModel, fakeModel2];
-        ctrl.policy.models = models;
+        ctrl.policy.transformations = models;
         accordionStatus[2] = true;
 
         scope.$digest();
 
         expect(scope.$watchCollection).toHaveBeenCalled();
-        expect(modelFactoryMock.resetModel).toHaveBeenCalledWith(fakeTemplate, fakeModel2.order + 1, ctrl.policy.models.length);
+        expect(modelFactoryMock.resetModel).toHaveBeenCalledWith(fakeTemplate, fakeModel2.order + 1, ctrl.policy.transformations.length);
       })
     })
   });
