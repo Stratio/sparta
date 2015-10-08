@@ -1,10 +1,16 @@
-describe('directive.c-add-element-directive', function () {
+describe('direcive.c-add-element-directive', function () {
   beforeEach(module('webApp'));
   var directive, scope, fakeModel, fakeInputToAdd = null;
 
   beforeEach(inject(function ($httpBackend, $rootScope, $compile) {
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
+    var fakeIconClass = "'fake class'";
+    var fakeText = "'fake text'";
+    var fakeDataQA = "'fake data QA'";
+    var fakePattern = "[a-zA-Z0-9]*";
+    var fakeModelError = {"text": ""};
+    var fakePlaceholder = "'fake placeholder'";
     fakeInputToAdd = "fake input to add";
     fakeModel = [];
     $httpBackend.when('GET', 'templates/components/c-add-element.tpl.html')
@@ -13,7 +19,11 @@ describe('directive.c-add-element-directive', function () {
     scope = $rootScope.$new();
 
     scope.model = fakeModel;
-    directive = angular.element(' <c-add-element model="model"> </c-add-element>');
+    directive = angular.element(' <c-add-element model="model"' +
+      ' icon-class="' + fakeIconClass + '" type="' + fakeText + '" data-qa="' + fakeDataQA + '" data-pattern="\'' + fakePattern + '\'"' +
+      '  data-error="' + fakeModelError.text + "\"" +
+      '  data-placeholder="' + fakePlaceholder + '">      </c-add-element>');
+
     directive = $compile(directive)(scope);
     scope.$digest();
     $httpBackend.flush();
@@ -50,7 +60,7 @@ describe('directive.c-add-element-directive', function () {
         expect(isolatedScope.model.length).toBe(previousLength + 1);
       });
 
-      it("it is not added if the model array contains the element already", function () {
+      it("it is not added if the model array contains the element already", inject(function ($compile) {
         var fakeEvent = {
           "type": "click", preventDefault: function () {
           }
@@ -65,9 +75,9 @@ describe('directive.c-add-element-directive', function () {
         isolatedScope.addInput(fakeEvent);
 
         expect(isolatedScope.model.length).toBe(previousLength); // the same length because element has not been added
-      });
+      }));
 
-      it("it is added if the model array does not contain the element already", function () {
+      it("it is added if the model array does not contain the element already", inject(function ($compile) {
         var fakeEvent = {
           "type": "click", preventDefault: function () {
           }
@@ -83,7 +93,7 @@ describe('directive.c-add-element-directive', function () {
         isolatedScope.addInput(fakeEvent);
 
         expect(isolatedScope.model.length).toBe(previousLength+1); // the same length because element has not been added
-      });
+      }));
     });
   });
 
