@@ -1,16 +1,10 @@
-describe('direcive.c-add-element-directive', function () {
+describe('directive.c-add-element-directive', function () {
   beforeEach(module('webApp'));
   var directive, scope, fakeModel, fakeInputToAdd = null;
 
   beforeEach(inject(function ($httpBackend, $rootScope, $compile) {
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
-    var fakeIconClass = "'fake class'";
-    var fakeText = "'fake text'";
-    var fakeDataQA = "'fake data QA'";
-    var fakePattern = "[a-zA-Z0-9]*";
-    var fakeModelError = {"text": ""};
-    var fakePlaceholder = "'fake placeholder'";
     fakeInputToAdd = "fake input to add";
     fakeModel = [];
     $httpBackend.when('GET', 'templates/components/c-add-element.tpl.html')
@@ -19,11 +13,7 @@ describe('direcive.c-add-element-directive', function () {
     scope = $rootScope.$new();
 
     scope.model = fakeModel;
-    directive = angular.element(' <c-add-element model="model"' +
-      ' icon-class="' + fakeIconClass + '" type="' + fakeText + '" data-qa="' + fakeDataQA + '" data-pattern="\'' + fakePattern + '\'"' +
-      '  data-error="' + fakeModelError.text + "\"" +
-      '  data-placeholder="' + fakePlaceholder + '">      </c-add-element>');
-
+    directive = angular.element(' <c-add-element model="model"> </c-add-element>');
     directive = $compile(directive)(scope);
     scope.$digest();
     $httpBackend.flush();
