@@ -14,12 +14,30 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.constants
+package com.stratio.sparkta.sdk
 
-object JobServerConstant {
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{Matchers, WordSpec}
 
-  final val CpuCores = "cpuCores"
-  final val Memory = "memory"
-  final val DefaultCpuCores = 4
-  final val DefaultMemory = "512m"
+@RunWith(classOf[JUnitRunner])
+class EventSpec extends WordSpec with Matchers {
+
+  "Event" should {
+    val event = new Event(Map("field" -> 1))
+
+    "Return the associated string" in {
+
+      val expected = "Event(Map(field -> 1),None)"
+
+      val result = event.toString
+
+      result should be(expected)
+    }
+
+    "It throw an exception when properties is null" in {
+      an[IllegalArgumentException] should be thrownBy new Event(null)
+    }
+  }
 }
+

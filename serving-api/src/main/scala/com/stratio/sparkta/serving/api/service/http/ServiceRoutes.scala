@@ -17,7 +17,7 @@
 package com.stratio.sparkta.serving.api.service.http
 
 import akka.actor.{ActorContext, ActorRef, ActorRefFactory}
-import com.stratio.sparkta.driver.constants.AkkaConstant
+import com.stratio.sparkta.serving.api.constants.AkkaConstant
 import spray.routing._
 
 class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
@@ -30,6 +30,7 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
 
     override implicit def actorRefFactory: ActorRefFactory = context
   }.routes
+
   val templateRoute: Route = new TemplateHttpService {
     implicit val actors = actorsMap
     override val supervisor =
@@ -38,6 +39,7 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
 
     override implicit def actorRefFactory: ActorRefFactory = context
   }.routes
+
   val policyRoute: Route = new PolicyHttpService {
     implicit val actors = actorsMap
     override val supervisor =
@@ -46,6 +48,7 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
 
     override implicit def actorRefFactory: ActorRefFactory = context
   }.routes
+
   val policyContextRoute: Route = new PolicyContextHttpService {
     implicit val actors = actorsMap
     override val supervisor =
@@ -55,6 +58,7 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
 
     override implicit def actorRefFactory: ActorRefFactory = context
   }.routes
+
   val AppStatusRoute: Route = new AppStatusHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = if (actorsMap.contains(AkkaConstant.StatusActor))

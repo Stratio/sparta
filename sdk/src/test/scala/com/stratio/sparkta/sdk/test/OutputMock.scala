@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.actor
+package com.stratio.sparkta.sdk.test
 
-import akka.actor.ActorRef
-import com.stratio.sparkta.serving.core.models.StreamingContextStatusEnum
+import java.io.{Serializable => JSerializable}
 
-case class StatusContextActor(actor: ActorRef,
-                              policyName: String,
-                              status: StreamingContextStatusEnum.Status,
-                              description: Option[String])
+import com.stratio.sparkta.sdk.TypeOp._
+import com.stratio.sparkta.sdk.WriteOp._
+import com.stratio.sparkta.sdk.{Output, TableSchema, WriteOp}
+
+class OutputMock(keyName: String,
+                 properties: Map[String, JSerializable],
+                 operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
+                 bcSchema: Option[Seq[TableSchema]]) extends Output(keyName, properties, operationTypes, bcSchema) {
+
+  override val supportedWriteOps = Seq(WriteOp.Set)
+}

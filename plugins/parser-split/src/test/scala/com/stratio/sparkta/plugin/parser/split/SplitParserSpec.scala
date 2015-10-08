@@ -31,14 +31,14 @@ class SplitParserSpec extends WordSpec with Matchers {
 
   "The SplitParser" should {
     "add a tuple with a list" in {
-      val properties: Map[String, Serializable] = Map("splitter" -> " ", "resultField" -> "parsedText")
+      val properties: Map[String, Serializable] = Map(SplitParser.Splitter -> " ", "resultField" -> "parsedText")
         .asInstanceOf[Map[String, Serializable]]
       val parser = new SplitParser("name", 1, inputField, outputsFields, properties)
       val resultEvent = parser.parse(inputEvent)
       resultEvent.keyMap.get("parsedText") should be(Some(List("hola", "mundo", "hola", "mundito")))
     }
     "has the same keyMap if there is no text to split" in {
-      val properties: Map[String, Serializable] = Map("splitter" -> " ", "resultField" -> "parsedText")
+      val properties: Map[String, Serializable] = Map(SplitParser.Splitter -> " ", "resultField" -> "parsedText")
         .asInstanceOf[Map[String, Serializable]]
       val parser = new SplitParser("name", 1, inputField, outputsFields, properties)
       val resultEvent = parser.parse(inputEvent)

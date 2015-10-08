@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.sdk
 
 import org.junit.runner.RunWith
@@ -20,25 +21,25 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
-class HostPortConfSpec extends WordSpec with Matchers{
+class HostPortConfSpec extends WordSpec with Matchers {
 
   "getHostPortConf" should {
 
     "return a Seq of tuples (host,port) format" in {
 
       val conn = """[{"node":"localhost","defaultPort":"9200"}]"""
-      val validating: ValidatingPropertyMap[String,JsoneyString] =
+      val validating: ValidatingPropertyMap[String, JsoneyString] =
         new ValidatingPropertyMap[String, JsoneyString](Map("nodes" -> JsoneyString(conn)))
-      validating.getHostPortConfs("nodes", "localhost", "9200") should be (List(("localhost", 9200)))
+      validating.getHostPortConfs("nodes", "localhost", "9200") should be(List(("localhost", 9200)))
     }
 
     "return a tuple with a default port specified in the function (host,port) format" in {
 
       val conn = """[{"node":"localhost"}]"""
       val defaultPort: String = "9200"
-      val validating: ValidatingPropertyMap[String,JsoneyString] =
+      val validating: ValidatingPropertyMap[String, JsoneyString] =
         new ValidatingPropertyMap[String, JsoneyString](Map("nodes" -> JsoneyString(conn)))
-      validating.getHostPortConfs("nodes", "localhost", defaultPort) should be (List(("localhost", 9200)))
+      validating.getHostPortConfs("nodes", "localhost", defaultPort) should be(List(("localhost", 9200)))
     }
   }
 
@@ -46,28 +47,28 @@ class HostPortConfSpec extends WordSpec with Matchers{
 
     val conn = """[{"node":"localhost"},{"node":"localhost"},{"node":"localhost"}]"""
     val defaultPort: String = "9200"
-    val validating: ValidatingPropertyMap[String,JsoneyString] =
+    val validating: ValidatingPropertyMap[String, JsoneyString] =
       new ValidatingPropertyMap[String, JsoneyString](Map("nodes" -> JsoneyString(conn)))
     validating.getHostPortConfs("nodes", "localhost", defaultPort) should be
-    (List(("localhost", 9200),("localhost", 9200),("localhost", 9200)))
+    (List(("localhost", 9200), ("localhost", 9200), ("localhost", 9200)))
   }
 
   "return a tuple with a default host specified in the function (host,port) format" in {
 
     val conn = """[{"defaultPort":"9200"}]"""
     val defaultHost: String = "localhost"
-    val validating: ValidatingPropertyMap[String,JsoneyString] =
+    val validating: ValidatingPropertyMap[String, JsoneyString] =
       new ValidatingPropertyMap[String, JsoneyString](Map("nodes" -> JsoneyString(conn)))
-    validating.getHostPortConfs("nodes", defaultHost, "9200") should be (List(("localhost", 9200)))
+    validating.getHostPortConfs("nodes", defaultHost, "9200") should be(List(("localhost", 9200)))
   }
 
   "return a Seq of tuples with a default host specified in the function (host,port) format" in {
 
     val conn = """[{"defaultPort":"9200"},{"defaultPort":"9200"},{"defaultPort":"9200"}]"""
     val defaultHost: String = "localhost"
-    val validating: ValidatingPropertyMap[String,JsoneyString] =
+    val validating: ValidatingPropertyMap[String, JsoneyString] =
       new ValidatingPropertyMap[String, JsoneyString](Map("nodes" -> JsoneyString(conn)))
     validating.getHostPortConfs("nodes", defaultHost, "9200") should be
-    (List(("localhost", 9200),("localhost", 9200),("localhost", 9200)))
+    (List(("localhost", 9200), ("localhost", 9200), ("localhost", 9200)))
   }
 }

@@ -39,11 +39,11 @@ class TotalEntityCountOperatorSpec extends WordSpec with Matchers {
       inputFields4.processMap(Map("field1" -> "hola holo", "field2" -> 2)) should be(Some(Seq("hola holo")))
 
       val inputFields5 = new TotalEntityCountOperator("entityCount", Map("inputField" -> "field1", "split" -> "-"))
-      inputFields5.processMap(Map("field1" -> "hola-holo", "field2" -> 2)) should be(Some(Seq("hola","holo")))
+      inputFields5.processMap(Map("field1" -> "hola-holo", "field2" -> 2)) should be(Some(Seq("hola", "holo")))
 
       val inputFields6 = new TotalEntityCountOperator("entityCount", Map("inputField" -> "field1", "split" -> ","))
       inputFields6.processMap(Map("field1" -> "hola,holo adios", "field2" -> 2)) should be(
-        Some(Seq("hola","holo " + "adios")))
+        Some(Seq("hola", "holo " + "adios")))
 
       val inputFields7 = new TotalEntityCountOperator("entityCount",
         Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \"!=\", \"value\":\"hola\"}]"))
@@ -52,8 +52,7 @@ class TotalEntityCountOperatorSpec extends WordSpec with Matchers {
       val inputFields8 = new TotalEntityCountOperator("entityCount",
         Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \"!=\", \"value\":\"hola\"}]",
           "split" -> " "))
-      inputFields8.processMap(Map("field1" -> "hola holo", "field2" -> 2)) should be(Some(Seq("hola","holo")))
-
+      inputFields8.processMap(Map("field1" -> "hola holo", "field2" -> 2)) should be(Some(Seq("hola", "holo")))
     }
 
     "processReduce must be " in {
@@ -61,11 +60,13 @@ class TotalEntityCountOperatorSpec extends WordSpec with Matchers {
       inputFields.processReduce(Seq()) should be(Some(0L))
 
       val inputFields2 = new TotalEntityCountOperator("entityCount", Map())
-      inputFields2.processReduce(Seq(Some(Seq("hola", "holo")))) should be (Some(2L))
+      inputFields2.processReduce(Seq(Some(Seq("hola", "holo")))) should be(Some(2L))
 
       val inputFields3 = new TotalEntityCountOperator("entityCount", Map())
-      inputFields3.processReduce(Seq(Some(Seq("hola", "holo", "hola")))) should be (Some(3L))
+      inputFields3.processReduce(Seq(Some(Seq("hola", "holo", "hola")))) should be(Some(3L))
 
+      val inputFields4 = new TotalEntityCountOperator("entityCount", Map())
+      inputFields4.processReduce(Seq(Some(""))) should be(Some(0L))
     }
 
     "processReduce distinct must be " in {
@@ -73,9 +74,7 @@ class TotalEntityCountOperatorSpec extends WordSpec with Matchers {
       inputFields.processReduce(Seq()) should be(Some(0L))
 
       val inputFields2 = new TotalEntityCountOperator("entityCount", Map("distinct" -> "true"))
-      inputFields2.processReduce(Seq(Some(Seq("hola", "holo", "hola")))) should be (Some(2L))
-
+      inputFields2.processReduce(Seq(Some(Seq("hola", "holo", "hola")))) should be(Some(2L))
     }
   }
-
 }

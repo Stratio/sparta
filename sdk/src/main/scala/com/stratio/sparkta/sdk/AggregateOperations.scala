@@ -46,7 +46,7 @@ object AggregateOperations {
                fixedAggregation: Map[String, Option[Any]],
                fixedDimensions: Option[Seq[(String, Any)]],
                idCalculated: Boolean): (Option[String], Row) = {
-    val timeDimension = dimensionValuesT.timeDimension;
+    val timeDimension = dimensionValuesT.timeDimension
     val dimensionValuesFiltered =
       filterDimensionValuesByName(dimensionValuesT.dimensionValues,
       if (timeDimension.isEmpty) None else Some(timeDimension))
@@ -71,7 +71,7 @@ object AggregateOperations {
 
     val (keysId, rowId) = getNamesValues(namesFixed, valuesFixed, idCalculated)
 
-    if (keysId.length > 0)
+    if (keysId.nonEmpty)
       (Some(keysId.mkString(Output.Separator)), Row.fromSeq(rowId ++ valuesAgg))
     else
       (None, Row.fromSeq(rowId ++ valuesAgg))
@@ -95,6 +95,6 @@ object AggregateOperations {
   : Seq[DimensionValue] =
     dimensionName match {
       case None => dimensionValues
-      case Some(name) => dimensionValues.filter(cube => (cube.dimension.name != name))
+      case Some(name) => dimensionValues.filter(cube => cube.dimension.name != name)
     }
 }

@@ -33,7 +33,7 @@ with JSerializable with SLF4JLogging {
 
   override val defaultTypeOperation = TypeOp.String
 
-  override val operationProps : Map[String, JSerializable] = props
+  override val operationProps: Map[String, JSerializable] = props
 
   override val properties: Map[String, JSerializable] = props
 
@@ -54,12 +54,13 @@ with JSerializable with SLF4JLogging {
     case NameName => getPrecision(NameName, getTypeOperation(NameName))
     case LanguageName => getPrecision(LanguageName, getTypeOperation(LanguageName))
   }
+
   //scalastyle:on
 
   override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) = {
     val precisionKey = precision(keyName)
     (precisionKey, TypeOp.transformValueByTypeOp(precisionKey.typeOp,
-        TwitterStatusField.getPrecision(value.asInstanceOf[Status], precisionKey)))
+      TwitterStatusField.getPrecision(value.asInstanceOf[Status], precisionKey)))
   }
 }
 

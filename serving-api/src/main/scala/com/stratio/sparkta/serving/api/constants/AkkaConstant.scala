@@ -14,26 +14,23 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.constants
+package com.stratio.sparkta.serving.api.constants
 
 /**
  * Akka constants with Akka's actor paths.
  * @author anistal
  */
 object AkkaConstant {
-
-  final val StatusActor: String = "statusActor"
-  final val FragmentActor   = "fragmentActor"
-  final val TemplateActor   = "templateActor"
-  final val PolicyActor     = "policyActor"
-  final val SparkStreamingContextActor  = "sparkStreamingContextActor"
-  final val JobServerActor  = "jobServerActor"
+  final val StatusActor = "statusActor"
+  final val FragmentActor = "fragmentActor"
+  final val TemplateActor = "templateActor"
+  final val PolicyActor = "policyActor"
+  final val SparkStreamingContextActor = "sparkStreamingContextActor"
   final val ControllerActor = "controllerActor"
   final val SwaggerActor = "swaggerActor"
   final val PolicyStatusActor = "supervisorContextActor"
   final val ControllerActorInstances = "controllerActorInstances"
-  final val StreamingActorInstances = "streamingActorInstances"
-  final val SparkSubmitActor  = "sparkSubmitActor"
   final val DefaultControllerActorInstances = 5
   final val DefaultStreamingActorInstances = 3
+
 }

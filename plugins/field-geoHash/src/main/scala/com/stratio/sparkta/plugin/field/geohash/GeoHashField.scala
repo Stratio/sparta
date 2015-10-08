@@ -20,8 +20,7 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.github.davidmoten.geo.{GeoHash, LatLong}
-
-import GeoHashField._
+import com.stratio.sparkta.plugin.field.geohash.GeoHashField._
 import com.stratio.sparkta.sdk._
 
 /**
@@ -52,7 +51,7 @@ case class GeoHashField(props: Map[String, JSerializable])
 
   override val properties: Map[String, JSerializable] = props
 
-  override val operationProps : Map[String, JSerializable] = props
+  override val operationProps: Map[String, JSerializable] = props
 
   val coordinate = properties.get("coordinate")
 
@@ -81,16 +80,17 @@ case class GeoHashField(props: Map[String, JSerializable])
     case Precision11Name => getPrecision(Precision11Name, getTypeOperation(Precision11Name))
     case Precision12Name => getPrecision(Precision12Name, getTypeOperation(Precision12Name))
   }
+
   //scalastyle:on
 
   override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) =
     try {
       val defaultPrecision = getPrecision(Precision3Name, getTypeOperation(Precision3Name))
       if (value.isInstanceOf[Option[_]]) {
-        if (value.asInstanceOf[Option[_]] != None) {
+        if (value.asInstanceOf[Option[_]].isDefined) {
           val precisionKey = precision(keyName)
           val latLongArray = value.asInstanceOf[Option[_]].get.asInstanceOf[String]
-            .split(properties.get(GeoHashField.LatLongKey).getOrElse(GeoHashField.LatLongSepartor).toString)
+            .split(properties.getOrElse(GeoHashField.LatLongKey, GeoHashField.LatLongSepartor).toString)
           latLongArray match {
             case latLong if latLong.size == 2 =>
               (precisionKey, getPrecision(latLong(0).toDouble, latLong(1).toDouble, precisionKey))
@@ -105,11 +105,6 @@ case class GeoHashField(props: Map[String, JSerializable])
       }
     }
     catch {
-      case aobe: ArrayIndexOutOfBoundsException => {
-        log.error("geo problem")
-        throw aobe
-      }
-
       case cce: ClassCastException => {
         log.error("Error parsing " + value + " .")
         throw cce
@@ -141,11 +136,11 @@ case class GeoHashField(props: Map[String, JSerializable])
     val (latitude, longitude) = (geoDecoded.getLat, geoDecoded.getLon)
     coordinate match {
       case Some(coord) =>
-        if(coord.asInstanceOf[String] == "latitude"){
+        if (coord.asInstanceOf[String] == "latitude") {
           latitude.asInstanceOf[JSerializable]
         }
-        else{
-          if(coord.asInstanceOf[String] == "longitude") longitude.asInstanceOf[JSerializable]
+        else {
+          if (coord.asInstanceOf[String] == "longitude") longitude.asInstanceOf[JSerializable]
           else Seq(longitude, latitude).asInstanceOf[JSerializable]
         }
       case None => Seq(longitude, latitude).asInstanceOf[JSerializable]
