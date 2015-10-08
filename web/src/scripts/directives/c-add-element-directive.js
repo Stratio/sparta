@@ -30,7 +30,6 @@
 
     function link(scope) {
       scope.addInput = addInput;
-
       function addInput(event) {
         if (scope.inputToAdd !== '' && scope.inputToAdd !== undefined && (event.keyCode == '13' || event.type === "click")) {
           var inputExists = false;
@@ -39,7 +38,6 @@
               inputExists = true;
             }
           }
-
           if (inputExists) {
             scope.error = true;
           }
@@ -52,5 +50,5 @@
         }
       }
     }
-  };
+  }
 })();
