@@ -113,7 +113,6 @@ with SparktaSerializer {
       case Failure(ex: NoNodeException) => log.error("No Zookeeper node for /stratio/sparkta/contexts yet")
       case Failure(ex: Exception) => throw ex
       case Success(())=> {}
-
     }
   }
 }
