@@ -19,7 +19,7 @@ describe('directive.c-input-list-field-directive', function () {
     $httpBackend.flush();
   }));
 
-  describe("should be able to remove a item from the model by its index", function () {
+  describe("should be able to remove a item from the modelby its index", function () {
     var isolatedScope = null;
     var fakeInput1 = "fake input 1";
     var fakeInput2 = "fake input 2";
