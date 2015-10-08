@@ -60,7 +60,7 @@ describe('direcive.c-add-element-directive', function () {
         expect(isolatedScope.model.length).toBe(previousLength + 1);
       });
 
-      it("it is not added if the model array contains the element already", inject(function ($compile) {
+      it("it is not added if the model array contains the element already", function () {
         var fakeEvent = {
           "type": "click", preventDefault: function () {
           }
@@ -75,9 +75,9 @@ describe('direcive.c-add-element-directive', function () {
         isolatedScope.addInput(fakeEvent);
 
         expect(isolatedScope.model.length).toBe(previousLength); // the same length because element has not been added
-      }));
+      });
 
-      it("it is added if the model array does not contain the element already", inject(function ($compile) {
+      it("it is added if the model array does not contain the element already", function () {
         var fakeEvent = {
           "type": "click", preventDefault: function () {
           }
@@ -93,7 +93,7 @@ describe('direcive.c-add-element-directive', function () {
         isolatedScope.addInput(fakeEvent);
 
         expect(isolatedScope.model.length).toBe(previousLength+1); // the same length because element has not been added
-      }));
+      });
     });
   });
 
