@@ -16,12 +16,51 @@
 
 package com.stratio.sparkta.serving.api.actor
 
+import akka.actor.{ActorSystem, Props}
+import akka.testkit.{ImplicitSender, TestKit}
+import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.serving.api.constants.AkkaConstant
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
+import org.apache.curator.framework.CuratorFramework
 import org.junit.runner.RunWith
+import org.scalamock.scalatest.MockFactory
+import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class ControllerActorSpec {
+class ControllerActorSpec(_system: ActorSystem) extends TestKit(_system)
+with ImplicitSender
+with WordSpecLike
+with Matchers
+with BeforeAndAfterAll
+with MockFactory {
 
+  def this() = this(ActorSystem("ControllerActorSpec"))
 
+  val curatorFramework = mock[CuratorFramework]
+  val streamingContextService = mock[StreamingContextService]
 
+  val policyStatusActor = _system.actorOf(Props(new PolicyStatusActor))
+  val fragmentActor = _system.actorOf(Props(new FragmentActor(curatorFramework)))
+  val templateActor = _system.actorOf(Props(new TemplateActor()))
+  val policyActor = _system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActor)))
+  val sparkStreamingContextActor = _system.actorOf(
+    Props(new SparkStreamingContextActor(streamingContextService, policyStatusActor)))
+
+  implicit val actors = Map(
+    AkkaConstant.PolicyStatusActor -> policyStatusActor,
+    AkkaConstant.FragmentActor -> fragmentActor,
+    AkkaConstant.TemplateActor -> templateActor,
+    AkkaConstant.PolicyActor -> policyActor,
+    AkkaConstant.SparkStreamingContextActor -> sparkStreamingContextActor)
+
+  override def afterAll {
+    TestKit.shutdownActorSystem(system)
+  }
+
+  "ControllerActor" should {
+    "set up the controller actor that contains all sparkta's routes with any error" in {
+      _system.actorOf(Props(new ControllerActor(actors)))
+    }
+  }
 }

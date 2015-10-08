@@ -57,14 +57,6 @@ trait HttpServiceBaseSpec extends WordSpec
 
   protected def getPolicyModel(): AggregationPoliciesModel = {
     val rawData = new RawDataModel
-    val fragmentModel = new FragmentElementModel(
-      Some("id"),
-      "fragmentType",
-      "name",
-      "description",
-      "shortDescription",
-      PolicyElementModel("name", "type",Map()))
-    val fragmentType = FragmentType
     val transformations = Seq(TransformationsModel(
       name = "transformation1",
       "Morphlines",
@@ -84,7 +76,7 @@ trait HttpServiceBaseSpec extends WordSpec
     val cubes = Seq(CubeModel("cube1",
       checkpointModel,
       dimensionModel,
-      operators: Seq[OperatorModel],
+      operators,
       CubeModel.Multiplexer))
     val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
     val input = Some(PolicyElementModel("kafka", "Kafka",Map()))
