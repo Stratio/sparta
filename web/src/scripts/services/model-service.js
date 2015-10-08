@@ -40,7 +40,7 @@
       };
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
 
-      modalInstance.result.then(function () {
+      modalInstance.result.then(function () { //TODO Refactor
         defer.resolve();
       }, function () {
         defer.reject();
