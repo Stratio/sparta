@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('PolicyOutputCtrl', PolicyOutputCtrl);
 
-  PolicyOutputCtrl.$inject = ['FragmentFactory', 'PolicyModelFactory', '$q', 'UtilsService'];
+  PolicyOutputCtrl.$inject = ['FragmentFactory', 'PolicyModelFactory', 'UtilsService'];
 
-  function PolicyOutputCtrl(FragmentFactory, PolicyModelFactory, $q, UtilsService) {
+  function PolicyOutputCtrl(FragmentFactory, PolicyModelFactory, UtilsService) {
     var vm = this;
     vm.setOutput = setOutput;
     vm.previousStep = previousStep;
@@ -19,8 +19,6 @@
     ////////////////////////////////////
 
     function init() {
-      var defer = $q.defer();
-
       vm.template = PolicyModelFactory.getTemplate();
       vm.helpLink = vm.template.helpLinks.outputs;
       vm.formSubmmited = false;
@@ -29,17 +27,13 @@
       vm.policy = PolicyModelFactory.getCurrentPolicy();
 
       var outputList = FragmentFactory.getFragments("output");
-      outputList.then(function (result) {
+      return outputList.then(function (result) {
         vm.outputList = result;
-        initOutputs();
-        defer.resolve();
-      }, function () {
-        defer.reject();
+        sortCurrentOutputs();
       });
-      return defer.promise;
     }
 
-    function initOutputs() {
+    function sortCurrentOutputs() {
       var outputs = [];
       if (vm.policy.outputs) {
         for (var i = 0; i < vm.policy.outputs.length; ++i) {
@@ -60,9 +54,6 @@
       else {
         vm.policy.outputs[index] = vm.outputList[index];
       }
-
-      var outputsSelected = checkOutputsSelected();
-      vm.error = (outputsSelected > 0) ? false : true;
     }
 
     function previousStep() {
@@ -86,7 +77,7 @@
       var outputsCount = 0;
       var outputsLength = vm.policy.outputs.length;
 
-      for (var i = outputsLength - 1; i >= 0; i--) {
+      for (var i = 0; i < outputsLength; ++i) {
         if (vm.policy.outputs[i]) {
           outputsCount++;
         }

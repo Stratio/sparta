@@ -40,7 +40,7 @@
 
       function deleteInput(index) {
         scope.inputs.splice(index,1);
-      };
+      }
     }
-  };
+  }
 })();

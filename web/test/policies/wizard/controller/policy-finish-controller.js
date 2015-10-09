@@ -17,7 +17,7 @@ describe('policies.wizard.controller.policy-finish-controller', function () {
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
 
-    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate', 'nextStep', 'setFinalJSON']);
+    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate', 'nextStep', 'setFinalJSON', 'previousStep']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
       return fakePolicy;
     });
@@ -102,5 +102,9 @@ describe('policies.wizard.controller.policy-finish-controller', function () {
     })
   });
 
+  it("should be able to change to previous step calling to policy cube factory", function () {
+    ctrl.previousStep();
 
+    expect(policyModelFactoryMock.previousStep).toHaveBeenCalled();
+  });
 });
