@@ -16,6 +16,8 @@
        vm.createInput = createInput;
        vm.editInput = editInput;
        vm.duplicateInput = duplicateInput;
+       vm.deleteInputConfirm = deleteInputConfirm;
+       vm.getPolicyNames = getPolicyNames;
        vm.inputsData = undefined;
        vm.inputTypes = [];
        vm.error = false;
@@ -44,7 +46,7 @@
         };
 
         function createInput() {
-          var inputsList = UtilsService.getItemNames(vm.inputsData);
+          var inputsList = getFragmentsNames(vm.inputsData);
 
           var createInputData = {
             'fragmentType': 'input',
@@ -56,12 +58,12 @@
             }
           };
 
-          createInputModal(createInputData);
+          vm.createInputModal(createInputData);
         };
 
-        function editInput(inputName, inputId, index) {
+        function editInput(inputType, inputName, inputId, index) {
           var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {'id':inputId}, true)[0];
-          var inputsList = UtilsService.getItemNames(vm.inputsData);
+          var inputsList = getFragmentsNames(vm.inputsData);
 
           var editInputData = {
               'originalName': inputName,
@@ -80,11 +82,11 @@
               }
           };
 
-          editInputModal(editInputData);
+          vm.editInputModal(editInputData);
         };
 
         function deleteInput(fragmentType, fragmentId, index) {
-          var inputToDelete =
+                  var inputToDelete =
           {
             'type':fragmentType,
             'id': fragmentId,
@@ -99,16 +101,16 @@
               'policyRunningSecondary2': '_INTPUT_WINDOW_DELETE_POLICY_RUNNING_MESSAGE2_'
             }
           };
-          deleteInputConfirm(inputToDelete);
+          vm.deleteInputConfirm('lg', inputToDelete);
         };
 
         function duplicateInput(inputId) {
             var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {'id':inputId}, true)[0];
 
-            var newName = UtilsService.autoIncrementName(inputSelected.name);
+            var newName = autoIncrementName(inputSelected.name);
             inputSelected.name = newName;
 
-            var inputsList = UtilsService.getItemNames(vm.inputsData);
+            var inputsList = getFragmentsNames(vm.inputsData);
 
             var duplicateInputData = {
               'fragmentData': inputSelected,
@@ -117,7 +119,8 @@
                 'title': '_INPUT_WINDOW_DUPLICATE_TITLE_'
               }
             };
-            setDuplicatetedInput(duplicateInputData);
+
+            setDuplicatetedInput('sm', duplicateInputData);
         };
 
         function getInputTypes(inputs) {
@@ -157,15 +160,16 @@
               item: function () {
                 return newInputTemplateData;
               },
-              fragmentTemplates: function () {
+              fragmentTemplates: function (TemplateFactory) {
                 return TemplateFactory.getNewFragmentTemplate(newInputTemplateData.fragmentType);
               }
             }
           });
 
-          return modalInstance.result.then(function (newInputData) {
+          modalInstance.result.then(function (newInputData) {
             vm.inputsData.push(newInputData);
             vm.getInputTypes(vm.inputsData);
+          }, function () {
           });
         };
 
@@ -179,10 +183,10 @@
                    item: function () {
                       return editInputData;
                    },
-                   fragmentTemplates: function () {
+                   fragmentTemplates: function (TemplateFactory) {
                       return TemplateFactory.getNewFragmentTemplate(editInputData.fragmentSelected.fragmentType);
                    },
-                   policiesAffected: function () {
+                   policiesAffected: function (PolicyFactory) {
                       return PolicyFactory.getPolicyByFragmentId(editInputData.fragmentSelected.fragmentType, editInputData.fragmentSelected.id);
                    }
                }
@@ -191,28 +195,31 @@
           modalInstance.result.then(function (updatedInputData) {
             vm.inputsData[updatedInputData.index] = updatedInputData.data;
             vm.getInputTypes(vm.inputsData);
-          });
+
+              },function () {
+                     });
         };
 
-        function deleteInputConfirm(input) {
+        function deleteInputConfirm(size, input) {
           var modalInstance = $modal.open({
             animation: true,
             templateUrl: 'templates/components/st-delete-modal.tpl.html',
             controller: 'DeleteFragmentModalCtrl as vm',
-            size: 'lg',
+            size: size,
             resolve: {
-              item: function () {
-                  return input;
-              },
-              policiesAffected: function () {
-                return PolicyFactory.getPolicyByFragmentId(input.type, input.id);
-              }
+                item: function () {
+                    return input;
+                },
+                policiesAffected: function (PolicyFactory) {
+                  return PolicyFactory.getPolicyByFragmentId(input.type, input.id);
+                }
             }
           });
 
-          modalInstance.result.then(function (fragmentDeletedIndex) {
-            vm.inputsData.splice(fragmentDeletedIndex.index, 1);
+          modalInstance.result.then(function (selectedItem) {
+            vm.inputsData.splice(selectedItem.index, 1);
             vm.getInputTypes(vm.inputsData);
+          },function () {
           });
         };
 
