@@ -18,8 +18,11 @@
 package com.stratio.sparkta.serving.core
 
 import com.typesafe.config.ConfigFactory
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{WordSpec, Matchers}
 
+@RunWith(classOf[JUnitRunner])
 class ConfigFactorySpec extends WordSpec with Matchers with Serializable {
 
   "ConfigFactory" should {

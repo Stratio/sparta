@@ -19,18 +19,16 @@ package com.stratio.sparkta.plugin.output.cassandra
 import java.io.{Serializable => JSerializable}
 
 import com.datastax.spark.connector.cql.CassandraConnector
-import org.apache.spark.SparkContext
-import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.SaveMode._
-import org.apache.spark.sql._
-import org.apache.spark.streaming.dstream.DStream
-
 import com.stratio.sparkta.plugin.output.cassandra.dao.CassandraDAO
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
+import org.apache.spark.SparkConf
+import org.apache.spark.sql.SaveMode._
+import org.apache.spark.sql._
+import org.apache.spark.streaming.dstream.DStream
+import org.apache.spark.sql.DataFrameWriter
 
 class CassandraOutput(keyName: String,
                       properties: Map[String, JSerializable],
@@ -67,7 +65,8 @@ class CassandraOutput(keyName: String,
 
   override def setup: Unit = {
 
-    val connector = CassandraConnector(sqlContext.sparkContext.getConf)
+
+    val connector = getCassandraConnector()
 
     val keyspaceCreated = createKeypace(connector)
 
@@ -97,6 +96,10 @@ class CassandraOutput(keyName: String,
 
   override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
     val tableNameFinal = getTableName(tableName.toLowerCase)
+    write(dataFrame,tableNameFinal)
+  }
+
+  def write(dataFrame: DataFrame, tableNameFinal: String): Unit = {
     dataFrame.write
       .format("org.apache.spark.sql.cassandra")
       .mode(Append)
@@ -107,6 +110,10 @@ class CassandraOutput(keyName: String,
     if(table.size > MaxTableNameLength) table.substring(0,MaxTableNameLength) else table
   }
 
+  def getCassandraConnector(): CassandraConnector = {
+    val sparkConf = sqlContext.sparkContext.getConf
+    CassandraConnector(sparkConf)
+  }
 }
 
 object CassandraOutput {
