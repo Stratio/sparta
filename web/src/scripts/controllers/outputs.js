@@ -37,8 +37,8 @@
           getOutputTypes(result);
 
         },function (error) {
-          vm.error = true
-          vm.errorMessage = "_INPUT_ERROR_" + error.data.i18nCode + "_";;
+          vm.error = true;
+          vm.errorMessage = "_INPUT_ERROR_" + error.data.i18nCode + "_";
         });
 
       };
@@ -108,7 +108,7 @@
         };
 
         editOutputModal(editOutputData);
-      };
+      }
 
       function deleteOutput(fragmentType, fragmentId, index) {
                var outputToDelete =
@@ -128,7 +128,7 @@
           }
         };
         deleteOutputConfirm('lg', outputToDelete);
-      };
+      }
 
       function duplicateOutput(outputId) {
         var outputSelected = $filter('filter')(angular.copy(vm.outputsData), {'id':outputId}, true)[0];
