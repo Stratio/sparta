@@ -5,9 +5,9 @@
       .module('webApp')
       .controller('InputsCtrl', InputsCtrl);
 
-    InputsCtrl.$inject = ['FragmentFactory', '$filter', '$modal'];
+    InputsCtrl.$inject = ['FragmentFactory', '$filter', '$modal', 'UtilsService'];
 
-    function InputsCtrl(FragmentFactory, $filter, $modal) {
+    function InputsCtrl(FragmentFactory, $filter, $modal, UtilsService) {
         /*jshint validthis: true*/
        var vm = this;
 
@@ -20,7 +20,7 @@
        vm.editInputModal = editInputModal;
        vm.duplicateInput = duplicateInput;
        vm.deleteInputConfirm = deleteInputConfirm;
-       vm.getPolicyNames = getPolicyNames;
+       vm.getPolicyNames = UtilsService.getItemNames;
        vm.inputsData = undefined;
        vm.inputTypes = [];
        vm.error = false;
@@ -49,7 +49,7 @@
         };
 
         function createInput() {
-          var inputsList = getFragmentsNames(vm.inputsData);
+          var inputsList = UtilsService.getNamesJSONArray(vm.inputsData);
 
           var createInputData = {
             'fragmentType': 'input',
@@ -66,7 +66,7 @@
 
         function editInput(inputType, inputName, inputId, index) {
           var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {'id':inputId}, true)[0];
-          var inputsList = getFragmentsNames(vm.inputsData);
+          var inputsList = UtilsService.getNamesJSONArray(vm.inputsData);
 
           var editInputData = {
               'originalName': inputName,
@@ -110,10 +110,10 @@
         function duplicateInput(inputId) {
             var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {'id':inputId}, true)[0];
 
-            var newName = autoIncrementName(inputSelected.name);
+            var newName = UtilsService.autoIncrementName(inputSelected.name);
             inputSelected.name = newName;
 
-            var inputsList = getFragmentsNames(vm.inputsData);
+            var inputsList = UtilsService.getNamesJSONArray(vm.inputsData);
 
             var duplicateInputData = {
               'fragmentData': inputSelected,

@@ -10,6 +10,9 @@
     var vm = this;
     vm.findElementInJSONArray = findElementInJSONArray;
     vm.removeItemsFromArray = removeItemsFromArray;
+    vm.autoIncrementName = autoIncrementName;
+    vm.getNamesJSONArray = getNamesJSONArray;
+    vm.getItemNames = getItemNames;
 
     function findElementInJSONArray(array, element, attr) {
       var found = false;
@@ -43,5 +46,50 @@
       }
       return arrayResult;
     }
+
+    function autoIncrementName(input) {
+      var output = "";
+      var actual = 2;
+      var pattern = input.match(/\(\d+\)$/);
+
+      if (pattern) {
+        output = input.replace(pattern, "");
+        actual = parseInt(pattern[0].substring(1, pattern[0].length - 1)) + 1;
+      } else {
+        output = input;
+      }
+      output = output + '(' + actual + ')';
+
+      return output;
+    }
+
+    //function getItemNames(itemList) {
+    function getNamesJSONArray(itemList) {
+      var itemNames = [];
+      if (itemList) {
+        for (var i = 0; i < itemList.length; i++) {
+          if (itemList[i].name) {
+            var lowerCaseName = itemList[i].name.toLowerCase();
+            var fragment = {'name': lowerCaseName};
+            itemNames.push(fragment);
+          }
+        }
+      }
+      return itemNames;
+    }
+
+//getPolicyNames
+    function getItemNames(array) {
+      var names = [];
+      if (array) {
+        for (var i = 0; i < array.length; i++) {
+          if (array[i].name)
+            names.push(array[i].name);
+        }
+      }
+
+      return names;
+    }
   }
-})();
+})
+();
