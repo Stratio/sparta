@@ -44,7 +44,7 @@
         };
 
         function createInput() {
-          var inputsList = UtilsService.getItemNames(vm.inputsData);
+          var inputsList = UtilsService.getNamesJSONArray(vm.inputsData);
 
           var createInputData = {
             'fragmentType': 'input',
@@ -61,7 +61,7 @@
 
         function editInput(inputName, inputId, index) {
           var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {'id':inputId}, true)[0];
-          var inputsList = UtilsService.getItemNames(vm.inputsData);
+          var inputsList = UtilsService.getNamesJSONArray(vm.inputsData);
 
           var editInputData = {
               'originalName': inputName,
@@ -108,7 +108,7 @@
             var newName = UtilsService.autoIncrementName(inputSelected.name);
             inputSelected.name = newName;
 
-            var inputsList = UtilsService.getItemNames(vm.inputsData);
+            var inputsList = UtilsService.getNamesJSONArray(vm.inputsData);
 
             var duplicateInputData = {
               'fragmentData': inputSelected,
