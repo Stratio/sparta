@@ -17,9 +17,12 @@
 
 package com.stratio.sparkta.serving.core.models.test
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 import com.stratio.sparkta.serving.core.models.ErrorModel
 
+@RunWith(classOf[JUnitRunner])
 class ErrorsModelSpec extends WordSpec with Matchers {
 
   val error = new ErrorModel("100", "Error 100", None, None)
@@ -33,12 +36,13 @@ class ErrorsModelSpec extends WordSpec with Matchers {
 
     "toError method should return the number of the error and the error" in {
       val res = ErrorModel.toErrorModel(
-        """{
-          |input{
-          |"key" = "value"
+        """
+          |{
+          | "i18nCode": "100",
+          | "message": "Error 100"
           |}
-          |}""".stripMargin)
-      res should be ("""{"i18nCode":"100","message":"Error 100"}""")
+        """.stripMargin)
+      res should be (error)
     }
   }
 }

@@ -17,10 +17,13 @@
 package com.stratio.sparkta.serving.core.models.test
 
 import com.stratio.sparkta.sdk.DimensionType
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.sdk.{Input}
 
+@RunWith(classOf[JUnitRunner])
 class AggregationPolicySpec extends WordSpec with Matchers{
 
   val rawData = new RawDataModel
