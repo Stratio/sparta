@@ -31,21 +31,25 @@ with Matchers {
     "have toString equivalent to its internal string" in {
       assertResult("foo")(new JsoneyString("foo").toString)
     }
+
     "be deserialized if its JSON" in {
       implicit val json4sJacksonFormats = DefaultFormats + new JsoneyStringSerializer()
       val result = parse( """{ "foo": "bar" }""").extract[JsoneyString]
       assertResult(new JsoneyString( """{"foo":"bar"}"""))(result)
     }
+
     "be deserialized if it's a String" in {
       implicit val json4sJacksonFormats = DefaultFormats + new JsoneyStringSerializer()
       val result = parse("\"foo\"").extract[JsoneyString]
       assertResult(new JsoneyString("foo"))(result)
     }
+
     "be deserialized if it's an Int" in {
       implicit val json4sJacksonFormats = DefaultFormats + new JsoneyStringSerializer()
       val result = parse("1").extract[JsoneyString]
       assertResult(new JsoneyString("1"))(result)
     }
+
     "be serialized as JSON" in {
       implicit val json4sJacksonFormats = DefaultFormats + new JsoneyStringSerializer()
 
@@ -53,8 +57,17 @@ with Matchers {
       assertResult("\"foo\"")(result)
 
       result = write(new JsoneyString("{\"foo\":\"bar\"}"))
-      print(result)
       assertResult("\"{\\\"foo\\\":\\\"bar\\\"}\"")(result)
+    }
+
+    "be deserialized if it's an JBool" in {
+      implicit val json4sJacksonFormats = DefaultFormats + new JsoneyStringSerializer()
+      val result = parse("true").extract[JsoneyString]
+      assertResult(new JsoneyString("true"))(result)
+    }
+
+    "have toSeq equivalent to its internal string" in {
+      assertResult(Seq("o"))(new JsoneyString("foo").toSeq)
     }
   }
 }

@@ -16,23 +16,11 @@
 
 package com.stratio.sparkta.sdk
 
+import scala.language.implicitConversions
 import scala.util.parsing.json.JSON
 import scala.util.{Failure, Success, Try}
 
 class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
-
-  def getMandatory(key: K): V =
-    m.get(key) match {
-      case Some(value) => value
-      case None =>
-        throw new IllegalStateException(s"$key is mandatory")
-    }
-
-  def getOption(key: K): Option[V] = m.get(key)
-
-  def getOptionAs[Y](key: K): Option[Y] =
-    if (m.get(key).isDefined) Some(m.get(key).get.asInstanceOf[Y])
-    else None
 
   def getString(key: K): String =
     m.get(key) match {
@@ -83,7 +71,13 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
   def getBoolean(key: K): Boolean =
     m.get(key).getOrElse(throw new Exception(s"$key is mandatory")) match {
       case value: String => value.toBoolean
-      case value: Int => value.asInstanceOf[Boolean]
+      case value: Int => {
+        value.asInstanceOf[Int] match {
+          case 1 => true
+          case 0 => false
+          case _ => throw new IllegalStateException(s"$value is not parsable as boolean")
+        }
+      }
       case value: Boolean => value
     }
 
@@ -105,39 +99,10 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
         throw new IllegalStateException(s"$key is mandatory")
     }
 
-  def getInt(key: K, default: Int): Int = {
-    m.get(key) match {
-      case Some(value: Int) => getInt(key)
-      case Some(value: JsoneyString) => getInt(key)
-      case _ => default
-    }
-  }
-
-  def getLong(key: K): Long =
-    m.get(key) match {
-      case Some(value: String) =>
-        Try(value.toLong) match {
-          case Success(v) => v
-          case Failure(ex) => throw new IllegalStateException(s"Bad value for $key", ex)
-        }
-      case Some(value: Long) => value
-      case Some(value: Int) => value.toLong
-      case Some(value) =>
-        Try(value.toString.toLong) match {
-          case Success(v) => v
-          case Failure(ex) => throw new IllegalStateException(s"Bad value for $key", ex)
-        }
-      case None =>
-        throw new IllegalStateException(s"$key is mandatory")
-    }
-
   def getMap(prefix: String): Option[Map[String, V]] = {
     val subMap = m.filter(entry => entry._1.asInstanceOf[String].startsWith(prefix))
-    if (subMap.isEmpty) {
-      None
-    } else {
-      Some(subMap.map(entry => (entry._1.asInstanceOf[String].substring(prefix.length + 1), entry._2)))
-    }
+    if (subMap.isEmpty) None
+    else Some(subMap.map(entry => (entry._1.asInstanceOf[String].substring(prefix.length), entry._2)))
   }
 
   def hasKey(key: K): Boolean = !m.get(key).isEmpty
