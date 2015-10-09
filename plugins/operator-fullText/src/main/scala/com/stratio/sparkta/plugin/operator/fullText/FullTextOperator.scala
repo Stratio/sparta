@@ -19,34 +19,19 @@ package com.stratio.sparkta.plugin.operator.fullText
 import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
-import com.stratio.sparkta.sdk.TypeOp
 import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.sdk.{TypeOp, _}
 
-class FullTextOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+class FullTextOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
+with ProcessMapAsAny {
 
   override val defaultTypeOperation = TypeOp.String
 
-  private val inputField = if (properties.contains("inputField")) Some(properties.getString("inputField")) else None
-
   override val writeOperation = WriteOp.FullText
-
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
-    if (inputField.isDefined && inputFields.contains(inputField.get)) {
-      applyFilters(inputFields).flatMap(filteredFields => Some(filteredFields.get(inputField.get).get))
-    } else None
-  }
 
   override def processReduce(values: Iterable[Option[Any]]): Option[String] = {
     Try(Some(transformValueByTypeOp(returnType,
-      values.flatten.map(_.toString).reduce(_ + FullTextOperator.SEPARATOR + _))))
-      .getOrElse(FullTextOperator.SOME_EMPTY)
+      values.flatten.map(_.toString).reduce(_ + OperatorConstants.SpaceSeparator + _))))
+      .getOrElse(Some(OperatorConstants.EmptyString))
   }
-}
-
-private object FullTextOperator {
-
-  val SOME_EMPTY = Some("")
-  val SEPARATOR = " "
 }

@@ -25,11 +25,13 @@ import akka.util.Timeout
 import com.stratio.sparkta.serving.api.helpers.SparktaHelper
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, SparktaSerializer}
-import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
-import org.apache.curator.test.TestingServer
+import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, AppConstant, SparktaConfig}
+import com.typesafe.config.ConfigValueFactory
+import org.apache.curator.test.{TestingCluster, TestingServer}
+import org.apache.curator.utils.CloseableUtils
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import org.scalatest.{BeforeAndAfter, Matchers, WordSpecLike}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfter, Matchers, WordSpecLike}
 import spray.client.pipelining._
 import spray.http.StatusCodes._
 import spray.http._
@@ -50,12 +52,13 @@ trait SparktaATSuite
   with SLF4JLogging
   with BeforeAndAfter
   with Matchers
-  with SparktaSerializer {
+  with SparktaSerializer
+  with BeforeAndAfterAll{
 
   val policyFile: String
-  val Localhost = "127.0.0.1"
+  val Localhost = "localhost"
   val SparktaPort = 9090
-  val TestServerZKPort = 6666
+  val TestServerZKPort = 54646
   val SocketPort = 10666
   val SparktaSleep = 3000
   val PolicySleep = 30000
@@ -71,8 +74,17 @@ trait SparktaATSuite
    * Starts an embedded ZK server.
    */
   def zookeeperStart: Unit = {
-    zkTestServer = new TestingServer(TestServerZKPort)
+    zkTestServer = new TestingServer()
     zkTestServer.start()
+  }
+
+  /**
+   * Stop an embedded ZK server.
+   */
+  def zookeeperStop: Unit = {
+    CuratorFactoryHolder.resetInstance()
+    CloseableUtils.closeQuietly(zkTestServer)
+    zkTestServer.stop()
   }
 
   /**
@@ -91,6 +103,11 @@ trait SparktaATSuite
     SparktaConfig.initMainConfig()
     SparktaConfig.initApiConfig()
     SparktaConfig.initSwaggerConfig()
+
+    val clusterZkConfig = Some(SparktaConfig.getZookeeperConfig.get.withValue("connectionString",
+      ConfigValueFactory.fromAnyRef(zkTestServer.getConnectString)))
+    CuratorFactoryHolder.getInstance(clusterZkConfig)
+
     SparktaConfig.sparktaHome = getSparktaHome
     JarsHelper.findJarsByPath(
       new File(SparktaConfig.sparktaHome, AppConstant.JarPluginsFolder), Some("-plugin.jar"))
@@ -113,12 +130,19 @@ trait SparktaATSuite
   }
 
   /**
+   * Close a socket
+   */
+  def closeSocket: Unit = {
+    serverSocket.close()
+  }
+
+  /**
    * This is a workaround to find the jars either in the IDE or in a maven execution.
    * This test should be moved to acceptance tests when available
    * TODO: this is a unicorn shit and must be changed.
    */
   def getSparktaHome: String = {
-    var fileForIde = new File(".", "plugins")
+    val fileForIde = new File(".", "plugins")
 
     if (fileForIde.exists()) {
       new File(".").getCanonicalPath
@@ -163,8 +187,18 @@ trait SparktaATSuite
     out.flush()
   }
 
-  protected def sleep(millis: Long): Unit =
-    Thread.sleep(millis)
+  protected def sleep(millis: Long): Unit = Thread.sleep(millis)
+
+  def sparktaRunner: Unit = {
+    synchronized {
+      startSparkta
+      sendPolicy(pathToPolicy)
+      sendDataToSparkta(PathToCsv)
+      Thread.sleep(PolicyEndSleep)
+      closeSocket
+      SparktaHelper.shutdown
+    }
+  }
 
   before {
     zookeeperStart
@@ -172,17 +206,9 @@ trait SparktaATSuite
     extraBefore
   }
 
-  def sparktaRunner: Unit = {
-    startSparkta
-    sendPolicy(pathToPolicy)
-    sendDataToSparkta(PathToCsv)
-    Thread.sleep(PolicyEndSleep)
-    SparktaHelper.shutdown
-  }
+  override def afterAll {
 
-  after {
-    serverSocket.close()
-    zkTestServer.stop()
+    zookeeperStop
     extraAfter
   }
 

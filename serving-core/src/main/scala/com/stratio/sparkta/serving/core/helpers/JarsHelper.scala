@@ -27,15 +27,14 @@ object JarsHelper extends SLF4JLogging {
   /**
    * With the aim of having a pluggable system of plugins and given  a list of relative paths that contain jars (our
    * plugins). It tries to instance jars located in this paths and to load them in the classpath.
-   * @param relativeJarPaths that contains jar plugins.
-   * @param sparktaHome with Sparkta's base path.
+   * @param path base path when it starts to scan in order to find plugins.
+   * @param endsWith to specify the end of the file.
+   * @param contains to specify that the file has to contain whatever is in this parameter.
+   * @param notContains to specify that the file hasn't to contain whatever is in this parameter.
+   * @param excludeFolder path to exclude and not look for plugins.
+   * @param doAddToClassPath if it's true it will add the jars to the class path
    * @return a list of loaded jars.
    */
-  def initStandAloneJars(relativeJarPaths: Seq[String], sparktaHome: String): Seq[File] =
-    relativeJarPaths.flatMap(path => {
-      log.info(s"> Loading jars from $sparktaHome/$path")
-      findJarsByPath(new File(sparktaHome, path), Some("-plugin.jar"))
-    })
 
   def findJarsByPath(path: File,
                      endsWith: Option[String] = None,

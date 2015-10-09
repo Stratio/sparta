@@ -1,6 +1,6 @@
 {
-  "name": "policy-websocket",
-  "description": "Input kafka, output print",
+  "name": "Policy-WebSocket-Cassandra",
+  "description": "Input WebSocket, output Cassandra",
   "sparkStreamingWindow": 2000,
   "rawData": {
     "enabled": "false",
@@ -20,7 +20,7 @@
     },
     {
       "id": "_output_id_",
-      "name": "cassandra",
+      "name": "Cassandra",
       "fragmentType": "output",
       "description": "description",
       "shortDescription": "shortDescription",

@@ -22,17 +22,76 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>com.stratio.sparkta</groupId>
-        <version>0.6.1-RC1-SNAPSHOT</version>
+        <version>0.6.2-RC4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>parser-morphlines</artifactId>
 
+    <properties>
+        <morphline.version>0.17.0</morphline.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>
-            <version>4.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-codecs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-kuromoji</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-phonetic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-grouping</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-highlighter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-join</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-memory</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-misc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-queries</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-queryparser</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-sandbox</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-spatial</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-suggest</artifactId>
         </dependency>
         <dependency>
             <groupId>com.googlecode.concurrentlinkedhashmap</groupId>
@@ -42,57 +101,119 @@
         <dependency>
             <groupId>org.kitesdk</groupId>
             <artifactId>kite-morphlines-useragent</artifactId>
-            <version>0.17.0</version>
+            <version>${morphline.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kitesdk</groupId>
             <artifactId>kite-morphlines-avro</artifactId>
-            <version>0.17.0</version>
+            <version>${morphline.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kitesdk</groupId>
             <artifactId>kite-morphlines-solr-core</artifactId>
-            <version>0.17.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-codecs</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-analyzers-common</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-analyzers-kuromoji</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-analyzers-phonetic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-grouping</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-highlighter</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-join</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-memory</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-misc</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-queries</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-queryparser</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-sandbox</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-spatial</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-suggest</artifactId>
+                </exclusion>
+            </exclusions>
+            <version>${morphline.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kitesdk</groupId>
             <artifactId>kite-morphlines-saxon</artifactId>
-            <version>0.17.0</version>
+            <version>${morphline.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kitesdk</groupId>
             <artifactId>kite-morphlines-maxmind</artifactId>
-            <version>0.17.0</version>
+            <version>${morphline.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kitesdk</groupId>
             <artifactId>kite-morphlines-twitter</artifactId>
-            <version>0.17.0</version>
+            <version>${morphline.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kitesdk</groupId>
             <artifactId>kite-morphlines-tika-core</artifactId>
-            <version>0.17.0</version>
+            <version>${morphline.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kitesdk</groupId>
             <artifactId>kite-morphlines-protobuf</artifactId>
-            <version>0.17.0</version>
+            <version>${morphline.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kitesdk</groupId>
             <artifactId>kite-morphlines-solr-cell</artifactId>
-            <version>0.17.0</version>
+            <version>${morphline.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kitesdk</groupId>
             <artifactId>kite-morphlines-tika-decompress</artifactId>
-            <version>0.17.0</version>
+            <version>${morphline.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kitesdk</groupId>
             <artifactId>kite-morphlines-json</artifactId>
-            <version>0.17.0</version>
+            <version>${morphline.version}</version>
         </dependency>
     </dependencies>
 </project>

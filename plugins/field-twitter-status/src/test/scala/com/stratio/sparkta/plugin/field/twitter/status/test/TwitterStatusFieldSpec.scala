@@ -21,31 +21,87 @@ import org.junit.runner.RunWith
 import org.scalamock.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FlatSpec, Matchers}
-import twitter4j.Status
+import twitter4j.{User, Status}
 
 @RunWith(classOf[JUnitRunner])
 class TwitterStatusFieldSpec extends FlatSpec with MockFactory with Matchers {
 
-  /*"A status " should "have 13 dimensions" in {
-    val status: Status = getMockStatus
-    val toTest = new TwitterStatusDimension()
-    val expected = toTest.dimensionValues(status)
 
-    expected.size should be(13)
-    expected.get(toTest.precisions(TwitterStatusDimension.TextName)) should be equals ("Some text")
+  val toTest = new TwitterStatusField()
+  "A status " should "return text" in {
+    val result = getPrecision(TwitterStatusField.TextName)
+    result._2 should be("Some text")
   }
-
-  def getMockStatus: Status = {
+  it should "return contributors" in {
+    val result =getPrecision(TwitterStatusField.ContributorsName)
+    result._2 should be ("")
+  }
+  it should "return hashtags" in {
+    val result =getPrecision(TwitterStatusField.HashtagsName)
+    result._2 should be ("0")
+  }
+  it should "return first hashtags" in {
+    val result =getPrecision(TwitterStatusField.FirstHastagName)
+    result._2 should be ("")
+  }
+  it should "return place" in {
+    val result =getPrecision(TwitterStatusField.PlacesName)
+    result._2 should be ("")
+  }
+  it should "return RetweetsName" in {
+    val result =getPrecision(TwitterStatusField.RetweetsName)
+    result._2 should be ("1")
+  }
+  it should "return UrlsName" in {
+    val result =getPrecision(TwitterStatusField.UrlsName)
+    result._2 should be ("0")
+  }
+  it should "return MentionsName" in {
+    val result =getPrecision(TwitterStatusField.MentionsName)
+    result._2 should be ("")
+  }
+  it should "return IdentityName" in {
+    val result =getPrecision(TwitterStatusField.IdentityName)
+    result._2.isInstanceOf[String] should be (true)
+  }
+  it should "return WordsName" in {
+    val result =getPrecision(TwitterStatusField.WordsName)
+    result._2 should be ("2")
+  }
+  it should "return LocationName" in {
+    val result =getPrecision(TwitterStatusField.LocationName)
+    result._2 should be ("madrid")
+  }
+  it should "return NameName" in {
+    val result =getPrecision(TwitterStatusField.NameName)
+    result._2 should be ("madrid")
+  }
+  it should "return LanguageName" in {
+    val result =getPrecision(TwitterStatusField.LanguageName)
+    result._2 should be ("madrid")
+  }
+  it should "return to String" in {
+    val result=toTest.toString
+    result should be ("TwitterStatusField(Map())")
+  }
+  private def getPrecision(key:String) ={
+    toTest.precisionValue(key,getMockStatus)
+  }
+  //scalastyle:off
+  private def getMockStatus: Status = {
     val status = mock[Status]
     (status.getText _).expects().returning("Some text").anyNumberOfTimes()
-    (status.getContributors _).expects().returning(Array(0L)).anyNumberOfTimes()
+    (status.getContributors _).expects().returning(null).anyNumberOfTimes()
     (status.getHashtagEntities _).expects().returning(null).anyNumberOfTimes()
-    (status.getUser _).expects().returning(null).anyNumberOfTimes()
+    (status.getUser _).expects().returning(mock[User]).anyNumberOfTimes()
     (status.getRetweetCount _).expects().returning(1L).anyNumberOfTimes()
     (status.getPlace _).expects().returning(null).anyNumberOfTimes()
     (status.getURLEntities _).expects().returning(null).anyNumberOfTimes()
     (status.getUserMentionEntities _).expects().returning(null).anyNumberOfTimes()
     (status.getUser.getLocation _).expects().returning("madrid").anyNumberOfTimes()
+    (status.getUser.getLang _).expects().returning("madrid").anyNumberOfTimes()
+    (status.getUser.getName _).expects().returning("madrid").anyNumberOfTimes()
     status
-  }*/
+  }
+  //scalastyle:on
 }

@@ -39,6 +39,8 @@ class PolicyUtilsSpec extends FlatSpec with ShouldMatchers {
       "operator-count-plugin.jar",
       "field-default-plugin.jar")
     val jarFiles = jars.map(new File(_))
+
+    val policyFileWithNoJars = getClass.getClassLoader.getResource("policies/IKafka-OPrint.json").getPath
   }
 
   trait WrongData extends ValidData {
@@ -46,10 +48,20 @@ class PolicyUtilsSpec extends FlatSpec with ShouldMatchers {
     val invalidJars = jars.drop(1)
     val invalidjarFiles = invalidJars.map(new File(_))
     val missingJars = List("input-kafka-plugin.jar")
+     val wrongJars = List(
+      "output-print-plugin.jar",
+      "parser-morphlines-plugin.jar",
+      "operator-count-plugin.jar",
+      "field-default-plugin.jar")
   }
 
   "PolicyUtilsSpec" should "retrieve jars list from policy" in new ValidData {
     PolicyUtils.jarsFromPolicy(policy) should contain theSameElementsAs (jars)
+  }
+
+  "PolicyUtilsSpec" should "retrieve jars list empty" in new WrongData {
+    val policyWithNoJars = policy.copy(input = Some(policy.input.get.copy( `type` = "fakeInput")))
+    PolicyUtils.jarsFromPolicy(policyWithNoJars) should contain theSameElementsAs (wrongJars)
   }
 
   it should "validate policy jars" in new ValidData {

@@ -32,6 +32,7 @@ import scala.util.Try
 /**
  * Connects to Twitter's stream and generates stream events.
  */
+@deprecated
 class TwitterInput(properties: Map[String, JSerializable]) extends Input(properties) {
 
   System.setProperty("twitter4j.oauth.consumerKey", properties.getString("consumerKey"))

@@ -18,42 +18,26 @@ package com.stratio.sparkta.plugin.operator.stddev
 
 import java.io.{Serializable => JSerializable}
 
-import scala.util.Try
+import breeze.stats._
 
 import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk.{TypeOp, WriteOp, Operator}
-import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import breeze.stats._
-import breeze.linalg._
+import com.stratio.sparkta.sdk.{TypeOp, _}
 
-
-class StddevOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+class StddevOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
+with ProcessMapAsNumber {
 
   override val defaultTypeOperation = TypeOp.Double
-
-  private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
   override val writeOperation = WriteOp.Stddev
 
   override val castingFilterType = TypeOp.Number
-
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
-    if (inputField.isDefined && inputFields.contains(inputField.get))
-      applyFilters(inputFields)
-        .flatMap(filteredFields => getNumberFromSerializable(filteredFields.get(inputField.get).get))
-    else None
-  }
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     val valuesFiltered = getDistinctValues(values.flatten)
     valuesFiltered.size match {
       case (nz) if (nz != 0) =>
         Some(transformValueByTypeOp(returnType, stddev(valuesFiltered.map(_.asInstanceOf[Number].doubleValue()))))
-      case _ => StddevOperator.SOME_ZERO
+      case _ => Some(OperatorConstants.Zero.toDouble)
     }
   }
-}
-
-private object StddevOperator {
-  val SOME_ZERO = Some(0d)
 }

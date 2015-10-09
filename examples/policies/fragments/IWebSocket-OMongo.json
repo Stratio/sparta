@@ -1,6 +1,6 @@
 {
-  "name": "policy-websocket",
-  "description": "Input kafka, output print",
+  "name": "Policy-WebSocket-MongoDb",
+  "description": "Input WebSocket, output MongoDb",
   "sparkStreamingWindow": 2000,
   "rawData": {
     "enabled": "false",
@@ -11,7 +11,7 @@
   "fragments": [
     {
       "id": "_input_id_",
-      "name": "websocket",
+      "name": "WebSocket",
       "fragmentType": "input",
       "description": "description",
       "shortDescription": "shortDescription",
@@ -20,7 +20,7 @@
     },
     {
       "id": "_output_id_",
-      "name": "Mongo",
+      "name": "MongoDB",
       "fragmentType": "output",
       "description": "description",
       "shortDescription": "shortDescription",

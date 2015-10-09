@@ -17,37 +17,23 @@
 package com.stratio.sparkta.plugin.operator.min
 
 import java.io.{Serializable => JSerializable}
-import com.stratio.sparkta.sdk.TypeOp
-import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-
 import scala.util.Try
 
-class MinOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+import com.stratio.sparkta.sdk.TypeOp._
+import com.stratio.sparkta.sdk.{TypeOp, _}
+
+class MinOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
+with ProcessMapAsNumber {
 
   override val defaultTypeOperation = TypeOp.Double
-
-  private val inputField = if(properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
   override val writeOperation = WriteOp.Min
 
   override val castingFilterType = TypeOp.Number
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Number] = {
-    if (inputField.isDefined && inputFields.contains(inputField.get))
-      applyFilters(inputFields)
-        .flatMap(filteredFields => getNumberFromSerializable(filteredFields.get(inputField.get).get))
-    else None
-  }
-
-  override def processReduce(values : Iterable[Option[Any]]): Option[Double] = {
+  override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     Try(Some(transformValueByTypeOp(returnType,
       getDistinctValues(values.flatten.map(_.asInstanceOf[Number].doubleValue())).min)))
-      .getOrElse(MinOperator.SOME_ZERO)
+      .getOrElse(Some(OperatorConstants.Zero.toDouble))
   }
-}
-
-private object MinOperator {
-  val SOME_ZERO = Some(0d)
 }
