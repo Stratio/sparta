@@ -71,7 +71,7 @@
       };
 
       function createOutput() {
-        var outputsList = UtilsService.getItemNames(vm.outputsData);
+        var outputsList = UtilsService.getNamesJSONArray(vm.outputsData);
 
         var createOutputData = {
           'fragmentType': 'output',
@@ -88,7 +88,7 @@
 
       function editOutput(outputType, outputName, outputId, index) {
         var outputSelected = $filter('filter')(angular.copy(vm.outputsData), {'id':outputId}, true)[0];
-        var outputsList = UtilsService.getItemNames(vm.outputsData);
+        var outputsList = UtilsService.getNamesJSONArray(vm.outputsData);
 
         var editOutputData = {
             'originalName': outputName,
@@ -136,7 +136,7 @@
         var newName = UtilsService.autoIncrementName(outputSelected.name);
         outputSelected.name = newName;
 
-        var outputsList = UtilsService.getItemNames(vm.outputsData);
+        var outputsList = UtilsService.getNamesJSONArray(vm.outputsData);
 
         var duplicateOutputData = {
           'fragmentData': outputSelected,
