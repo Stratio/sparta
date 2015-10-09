@@ -5,9 +5,9 @@
       .module('webApp')
       .controller('OutputsCtrl', OutputsCtrl);
 
-    OutputsCtrl.$inject = ['FragmentFactory', '$filter', '$modal'];
+    OutputsCtrl.$inject = ['FragmentFactory', '$filter', '$modal', 'UtilsService'];
 
-    function OutputsCtrl(FragmentFactory, $filter, $modal) {
+    function OutputsCtrl(FragmentFactory, $filter, $modal, UtilsService) {
       /*jshint validthis: true*/
       var vm = this;
 
@@ -71,7 +71,7 @@
       };
 
       function createOutput() {
-        var outputsList = getFragmentsNames(vm.outputsData);
+        var outputsList = UtilsService.getItemNames(vm.outputsData);
 
         var createOutputData = {
           'fragmentType': 'output',
@@ -88,7 +88,7 @@
 
       function editOutput(outputType, outputName, outputId, index) {
         var outputSelected = $filter('filter')(angular.copy(vm.outputsData), {'id':outputId}, true)[0];
-        var outputsList = getFragmentsNames(vm.outputsData);
+        var outputsList = UtilsService.getItemNames(vm.outputsData);
 
         var editOutputData = {
             'originalName': outputName,
@@ -133,10 +133,10 @@
       function duplicateOutput(outputId) {
         var outputSelected = $filter('filter')(angular.copy(vm.outputsData), {'id':outputId}, true)[0];
 
-        var newName = autoIncrementName(outputSelected.name);
+        var newName = UtilsService.autoIncrementName(outputSelected.name);
         outputSelected.name = newName;
 
-        var outputsList = getFragmentsNames(vm.outputsData);
+        var outputsList = UtilsService.getItemNames(vm.outputsData);
 
         var duplicateOutputData = {
           'fragmentData': outputSelected,
