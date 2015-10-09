@@ -26,7 +26,7 @@
         value: "=value"
       },
       replace: "true",
-      templateUrl: 'templates/components/c-slider.tpl.html',
+      templateUrl: 'templates/components/c-slider.tpl.html'
     }
-  };
+  }
 })();

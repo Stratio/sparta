@@ -28,32 +28,24 @@
     }
 
     function validateForm() {
-      var defer = $q.defer();
       if (vm.form.$valid) {
         vm.error = false;
         /*Check if the name of the policy already exists*/
-        findPolicyWithSameName().then(function (found) {
+        return findPolicyWithSameName().then(function (found) {
           vm.error = found;
           if (!found) {
             vm.policy.rawData.enabled = vm.policy.rawData.enabled.toString();
             PolicyModelFactory.nextStep();
           }
-          defer.resolve();
-        }, function () {
-          defer.reject();
         });
-      } else {
-        defer.resolve();
       }
-      return defer.promise;
     }
 
     function findPolicyWithSameName() {
       var defer = $q.defer();
       var found = false;
       var policiesList = PolicyFactory.getAllPolicies();
-      policiesList.then(function (result) {
-        var policiesDataList = result;
+      policiesList.then(function (policiesDataList) {
         var filteredPolicies = $filter('filter')(policiesDataList, {'policy': {'name': vm.policy.name.toLowerCase()}}, true);
 
         if (filteredPolicies.length > 0) {
@@ -62,11 +54,9 @@
             found = true;
           }
         }
-
         defer.resolve(found);
       }, function () {
         defer.reject();
-        console.log('There was an error while getting the policies list');
       });
       return defer.promise;
     }
