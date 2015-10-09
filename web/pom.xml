@@ -19,6 +19,8 @@
 	</properties>
 
 	<build>
+    <sourceDirectory>src</sourceDirectory>
+    <testSourceDirectory>test</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>com.github.eirslett</groupId>
@@ -87,7 +89,7 @@
             <goals>
               <goal>karma</goal>
             </goals>
-            <phase>verify</phase>
+            <phase>test</phase>
           </execution>
 				</executions>
 			</plugin>
