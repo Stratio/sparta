@@ -1,69 +1,70 @@
 <section data-ng-controller="PolicyCubeAccordionCtrl as vm">
 
-  <p class="c-info-text c-info-text--narrow"><i class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._CUBE_INTRO_" | translate}}</span></p>
+  <p class="c-info-text c-info-text--narrow"><i class="c-icon c-info-text__icon icon-info1"></i><span
+    class="c-info-text__text">{{"_POLICY_._CUBE_INTRO_" | translate}}</span></p>
 
-  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error != ''" data-qa="policy-cube-error-msg">
+  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error != ''" data-qa="policy-cube-accordion-error-msg">
     <i class="c-icon icon-circle-cross"></i>
     <span>{{vm.error | translate}}</span>
   </div>
-
   <form class="c-form c-panel c-panel--framed" novalidate>
-    <accordion class="c-accordion" data-ng-model="vm.policy.cubes" close-others="true" data-ng-controller="PolicyCubeAccordionCtrl as vm" novalidate>
+    <accordion class="c-accordion" data-ng-model="vm.policy.cubes" close-others="true"
+               data-ng-controller="PolicyCubeAccordionCtrl as vm" novalidate>
       <div class="c-accordion-item">
-        <accordion-group is-open="vm.accordionStatus.items[$index]" data-ng-repeat="currentCube in vm.policy.cubes track by vm.getIndex()" data-ng-model = "currentCube" >
+        <accordion-group is-open="vm.accordionStatus[$index]"
+                         data-ng-repeat="currentCube in vm.policy.cubes track by vm.generateIndex()"
+                         data-ng-model="currentCube">
           <accordion-heading>
-            <span class="c-accordion-header__step-number">{{$index + 1}}</span><i data-ng-if="currentCube.type" class="c-accordion-header__type c-icon icon-{{currentCube.type | lowercase}}"></i><span class="c-accordion-header__title">{{currentCube.name}}</span>
+            <span class="c-accordion-header__step-number">{{$index + 1}}</span>
+            <i data-ng-if="currentCube.type"
+               class="c-accordion-header__type c-icon icon-{{currentCube.type | lowercase}}"></i><span
+            class="c-accordion-header__title">{{currentCube.name}}</span>
 
-            <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right" data-qa="policy-cube-arrow-{{$index + 1}}"></i>
+            <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right"
+               data-qa="policy-cube-arrow-{{$index + 1}}"></i>
           </accordion-heading>
 
-          <ng-include class="c-form-group" src="'views/policy-wizard/cube-panel.html'" data-ng-init="cube=currentCube" data-qa="policy-cube-{{$index}}"></ng-include>
-
-          <div class="c-form-group c-form-group--full-width c-form-group--to-right">
-            <button class="c-button c-button--danger" data-ng-click="vm.removeCube($index, $event)" data-qa="policy-cube-delete-button">
-              <i class="c-icon icon-cross"></i>
-              <span>{{"_DELETE_" | translate}}</span>
-            </button>
-          </div>
+          <ng-include data-ng-if="vm.accordionStatus[$index]" class="c-form-group"
+                      src="'views/policy-wizard/cube-panel.html'" data-qa="policy-cube-{{$index}}">
+          </ng-include>
         </accordion-group>
       </div>
 
       <div class="c-accordion-item c-accordion-item--new">
-        <accordion-group is-open="vm.accordionStatus.newItem" data-ng-model="vm.newCube">
+        <accordion-group is-open="vm.accordionStatus[vm.policy.cubes.length]">
           <accordion-heading>
-            <span class="c-accordion-header__step-number">{{vm.policy.cubes.length + 1}}</span><i data-ng-if="vm.newCube.type" class="c-accordion-header__type c-icon icon-{{vm.newCube.type | lowercase}}"></i><span class="c-accordion-header__title">{{"_POLICY_._NEW_CUBE_" | translate}}</span>
+            <span class="c-accordion-header__step-number">{{vm.policy.cubes.length + 1}}</span><i
+            class="c-accordion-header__type c-icon}}"></i><span class="c-accordion-header__title">{{"_POLICY_._NEW_CUBE_" | translate}}</span>
 
-            <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right" data-qa="policy-cube-arrow-{{(vm.policy.cubes.length + 1) }}"></i>
+            <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right"
+               data-qa="policy-cube-arrow-{{(vm.policy.cubes.length + 1) }}"></i>
           </accordion-heading>
 
-          <ng-include class="c-form-group" src="'views/policy-wizard/cube-panel.html'" data-ng-init="cube=vm.newCube" data-qa="policy-cube-new"></ng-include>
+          <ng-include data-ng-if="vm.accordionStatus[vm.policy.cubes.length]" class="c-form-group"
+                      src="'views/policy-wizard/cube-panel.html'" data-qa="policy-cube-new"></ng-include>
 
-          <div class="c-form-group c-form-group--full-width c-form-group--to-right">
-            <button class="c-button c-button--call-to-action-1" data-ng-click="vm.addCube()" data-qa="policy-cube-add-button">
-              <i class="icon icon-circle-plus"></i>
-              <span>{{"_POLICY_._ADD_CUBE_" | translate}}</span>
-            </button>
-          </div>
         </accordion-group>
       </div>
     </accordion>
 
 
-  <footer class="c-row c-row--footer">
+    <footer class="c-row c-row--footer">
 
-    <div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">
-      <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" text-class="" link-url="vm.helpLink"></c-icon-link>
-    </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
-      <button class="c-button c-button--call-to-action-2" data-ng-click="vm.previousStep()"
-              data-qa="policy-cube-previous-button">
-        <i class="icon icon-arrow-left"></i>
-        <span>{{"_PREVIOUS_" | translate}}</span>
-      </button>
-      <button class="c-button c-button--call-to-action-1" data-ng-click="vm.nextStep()" data-qa="policy-cube-next-button">
-        <i class="icon icon-arrow-right"></i>
-        <span>{{"_CONTINUE_" | translate}}</span>
-      </button>
-    </div>
-  </footer>
+      <div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">
+        <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" text-class=""
+                     link-url="vm.helpLink"></c-icon-link>
+      </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
+        <button class="c-button c-button--call-to-action-2" data-ng-click="vm.previousStep()"
+                data-qa="policy-cube-previous-button">
+          <i class="icon icon-arrow-left"></i>
+          <span>{{"_PREVIOUS_" | translate}}</span>
+        </button>
+        <button class="c-button c-button--call-to-action-1" data-ng-click="vm.nextStep()"
+                data-qa="policy-cube-next-button">
+          <i class="icon icon-arrow-right"></i>
+          <span>{{"_CONTINUE_" | translate}}</span>
+        </button>
+      </div>
+    </footer>
   </form>
 </section>

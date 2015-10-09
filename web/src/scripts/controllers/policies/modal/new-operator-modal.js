@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  /*DELETE INPUT MODALS CONTROLLER */
+  /*NEW OPERATOR MODAL CONTROLLER */
   angular
     .module('webApp')
     .controller('NewOperatorModalCtrl', NewOperatorModalCtrl);

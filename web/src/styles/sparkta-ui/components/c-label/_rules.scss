@@ -2,6 +2,7 @@
 	@include c-component;
 
 	margin: $c-label---margin;
+  color: $c-label---color;
 
 	@at-root &.c-col, &.o-wcag-hidden {
 		margin: 0;
@@ -11,6 +12,10 @@
 		display: inline-block;
 		margin: $c-form__c-label---margin;
 	}
+
+  &--required:after {
+    content: ' *';
+  }
 }
 
 .c-label {

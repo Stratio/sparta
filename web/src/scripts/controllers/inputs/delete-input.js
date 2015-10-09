@@ -60,7 +60,7 @@
             var fragmentToDelete = FragmentFactory.deleteFragment(vm.outputs.type, vm.outputs.id);
 
             fragmentToDelete.then(function (result) {
-                $modalInstance.close(vm.outputs);
+                $modalInstance.close({"index": vm.outputs.index});
 
             },function (error) {
                 vm.error = true;

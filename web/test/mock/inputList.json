@@ -11,7 +11,8 @@
     },
     "fragmentType": "input",
     "shortDescription": "Reads events from a socket.",
-    "name": "test_input_socket"
+    "name": "test_input_socket",
+    "id": "2581f20a-fd83-4315-be45-192bc5sEdhff"
   },
   {
     "description": "Reads events from flume",
@@ -27,29 +28,8 @@
     },
     "fragmentType": "input",
     "shortDescription": "Reads events from flume",
-    "name": "test_input_flume_type_push"
-  },
-  {
-    "description": "Reads events from RabbitMQ",
-    "element": {
-      "configuration": {
-        "queue": "",
-        "host": "localhost",
-        "port": "5672",
-        "exchangeName": "",
-        "routingKeys":
-        [
-          {
-            "routingKey":""
-          }
-        ]
-      },
-      "type": "RabbitMQ",
-      "name": "in-RabbitMQ"
-    },
-    "fragmentType": "input",
-    "shortDescription": "Reads events from RabbitMQ",
-    "name": "test_input_rabbitmq"
+    "name": "test_input_flume_type_push",
+    "id": "2581f20a-fd83-4315-be45-192bc5sEd0ff"
   },
   {
     "description": "Reads events from apache-kafka",
@@ -80,22 +60,23 @@
     },
     "fragmentType": "input",
     "shortDescription": "Reads events from apache-kafka",
-    "name": "test_input_kafka"
+    "name": "test_input_kafka",
+    "id": "2581f20a-fd83-4315-be45-1923c5sEFfl"
   },
   {
-    "description": "Reads events from apache-kafka",
+    "description": "Reads events from a socket.",
     "element": {
       "configuration": {
-        "kafkaParams.group.id": "eee",
-        "topics": [{"topic":"111"},{"topic":"222"},{"topic":"3333"}],
-        "metadata.broker.list": [{"broker":"localhost","port":"9092"}]
+        "hostname": "localhost",
+        "port": "123"
       },
-      "type": "KafkaDirect",
-      "name": "in-KafkaDirect"
+      "type": "Socket",
+      "name": "in-Socket"
     },
     "fragmentType": "input",
-    "shortDescription": "Reads events from apache-kafka",
-    "name": "test_input_kafkadirect"
+    "shortDescription": "Reads events from a socket.",
+    "name": "test_input_socket",
+    "id": "2500f20a-fd83-4315-be45-192bc5sEdhff"
   },
   {
     "description": "Reads events from flume",
@@ -111,19 +92,39 @@
     },
     "fragmentType": "input",
     "shortDescription": "Reads events from flume",
-    "name": "test_input_flume_type_pull"
+    "name": "test_input_flume_type_pull",
+    "id": "2581f20a-fd83-4315-be45-192bc5sE4Fff"
   },
   {
-    "fragmentType": "input",
-    "name": "test_input_Websocket",
-    "description": "Reads events from websocket stream.",
-    "shortDescription": "Reads events from a websocket stream.",
+    "description": "Reads events from apache-kafka",
     "element": {
-      "name": "in-WebSocket",
-      "type": "WebSocket",
       "configuration": {
-        "url": "ws://stream.meetup.com/2/rsvps"
-      }
-    }
+        "zookeeper.connect":
+        [
+          {
+            "host":"localhost",
+            "port":"2181"
+          }
+        ],
+        "topics":
+        [
+          {
+            "topic":"1111",
+            "partition":"1"
+          },
+          {
+            "topic":"2222",
+            "partition":"2"
+          }
+        ],
+        "kafkaParams.group.id": "aaaa"
+      },
+      "type": "Kafka",
+      "name": "in-Kafka"
+    },
+    "fragmentType": "input",
+    "shortDescription": "Reads events from apache-kafka",
+    "name": "test_input_kafka",
+    "id": "2581f20a-fd83-4315-bt05-1923c5sEFfl"
   }
 ]

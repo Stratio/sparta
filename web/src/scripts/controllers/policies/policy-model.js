@@ -6,37 +6,38 @@
     .module('webApp')
     .controller('PolicyModelCtrl', PolicyModelCtrl);
 
-  PolicyModelCtrl.$inject = ['ModelFactory', 'PolicyModelFactory'];
+  PolicyModelCtrl.$inject = ['ModelFactory', 'PolicyModelFactory', 'ModelService'];
 
-  function PolicyModelCtrl(ModelFactory, PolicyModelFactory) {
+  function PolicyModelCtrl(ModelFactory, PolicyModelFactory, ModelService) {
     var vm = this;
+
     vm.init = init;
     vm.changeDefaultConfiguration = changeDefaultConfiguration;
+    vm.addModel = addModel;
+    vm.removeModel = removeModel;
+    vm.isLastModel = ModelService.isLastModel;
+    vm.isNewModel = ModelService.isNewModel;
 
+    vm.modelInputs = ModelFactory.getModelInputs();
     vm.init();
 
-    function init(model) {
-      if (model) {
-        vm.model = model;
-        vm.policy = PolicyModelFactory.getCurrentPolicy();
-        vm.template = PolicyModelFactory.getTemplate();
+    function init() {
+      vm.template = PolicyModelFactory.getTemplate();
+      vm.policy = PolicyModelFactory.getCurrentPolicy();
+      vm.model = ModelFactory.getModel();
+      vm.modelError = '';
+      if (vm.model) {
         vm.modelError = ModelFactory.getError();
-
+        vm.modelContext = ModelFactory.getContext();
         vm.modelTypes = vm.template.types;
-        vm.showModelError = false;
         vm.configPlaceholder = vm.template.configPlaceholder;
         vm.outputPattern = vm.template.outputPattern;
         vm.outputInputPlaceholder = vm.template.outputInputPlaceholder;
-
-        if (vm.model.configuration.length == 0) {
-          changeDefaultConfiguration();
-        }
       }
     }
 
     function changeDefaultConfiguration() {
-      var configString = JSON.stringify(getDefaultConfigurations(vm.model.type), null, 4);
-      vm.model.configuration = configString;
+      vm.model.configuration = getDefaultConfigurations(vm.model.type);
     }
 
     function getDefaultConfigurations(type) {
@@ -56,5 +57,26 @@
         }
       }
     }
+
+    function addModel() {
+      if (vm.form.$valid) {
+        ModelService.addModel();
+      } else {
+        ModelFactory.setError("_GENERIC_FORM_ERROR_");
+      }
+    }
+
+    function removeModel() {
+     return  ModelService.removeModel().then(function () {
+        var order = 0;
+        var modelNumber = vm.policy.transformations.length;
+        if (modelNumber > 0) {
+          order = vm.policy.transformations[modelNumber - 1].order + 1
+        }
+        vm.model = ModelFactory.resetModel(vm.template, order, modelNumber);
+        ModelFactory.updateModelInputs(vm.policy.transformations);
+      });
+    }
   }
-})();
+})
+();
