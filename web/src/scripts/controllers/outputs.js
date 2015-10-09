@@ -37,8 +37,8 @@
           getOutputTypes(result);
 
         },function (error) {
-          vm.error = true
-          vm.errorMessage = "_INPUT_ERROR_" + error.data.i18nCode + "_";;
+          vm.error = true;
+          vm.errorMessage = "_INPUT_ERROR_" + error.data.i18nCode + "_";
         });
 
       };
@@ -71,7 +71,7 @@
       };
 
       function createOutput() {
-        var outputsList = UtilsService.getItemNames(vm.outputsData);
+        var outputsList = UtilsService.getNamesJSONArray(vm.outputsData);
 
         var createOutputData = {
           'fragmentType': 'output',
@@ -88,7 +88,7 @@
 
       function editOutput(outputType, outputName, outputId, index) {
         var outputSelected = $filter('filter')(angular.copy(vm.outputsData), {'id':outputId}, true)[0];
-        var outputsList = UtilsService.getItemNames(vm.outputsData);
+        var outputsList = UtilsService.getNamesJSONArray(vm.outputsData);
 
         var editOutputData = {
             'originalName': outputName,
@@ -108,7 +108,7 @@
         };
 
         editOutputModal(editOutputData);
-      };
+      }
 
       function deleteOutput(fragmentType, fragmentId, index) {
                var outputToDelete =
@@ -128,7 +128,7 @@
           }
         };
         deleteOutputConfirm('lg', outputToDelete);
-      };
+      }
 
       function duplicateOutput(outputId) {
         var outputSelected = $filter('filter')(angular.copy(vm.outputsData), {'id':outputId}, true)[0];
@@ -136,7 +136,7 @@
         var newName = UtilsService.autoIncrementName(outputSelected.name);
         outputSelected.name = newName;
 
-        var outputsList = UtilsService.getItemNames(vm.outputsData);
+        var outputsList = UtilsService.getNamesJSONArray(vm.outputsData);
 
         var duplicateOutputData = {
           'fragmentData': outputSelected,
