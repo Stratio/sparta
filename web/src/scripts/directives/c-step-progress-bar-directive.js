@@ -21,5 +21,5 @@ function stepsComponent() {
       };
     }
   };
-};
+}
 })();
