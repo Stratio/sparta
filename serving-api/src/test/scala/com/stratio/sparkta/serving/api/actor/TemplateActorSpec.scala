@@ -16,36 +16,114 @@
 
 package com.stratio.sparkta.serving.api.actor
 
+import java.io.{File, InputStreamReader}
+import java.net.{URI, URL}
+
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
-import com.stratio.sparkta.serving.api.actor.TemplateActor
-import com.stratio.sparkta.serving.api.actor.TemplateActor.FindByType
+import com.stratio.sparkta.serving.api.exception.ServingApiException
+import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer, TemplateModel}
+import org.apache.commons.io.IOUtils
+import org.json4s.jackson.Serialization._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+
+import scala.util.Success
 
 @RunWith(classOf[JUnitRunner])
 class TemplateActorSpec extends TestKit(ActorSystem("TemplateActorSpec"))
-                                with DefaultTimeout
-                                with ImplicitSender
-                                with WordSpecLike
-                                with Matchers
-                                with BeforeAndAfterAll {
+with DefaultTimeout
+with ImplicitSender
+with WordSpecLike
+with Matchers
+with BeforeAndAfterAll
+with MockitoSugar with SparktaSerializer {
 
-  val templateActor = system.actorOf(Props(classOf[TemplateActor]))
+  trait TestData {
 
-  override def afterAll {
-    shutdown()
+    val templateModelJson =
+      """
+       {
+        |  "name": "templateName",
+        |  "modelType": "input",
+        |  "description": {
+        |    "short": "short"
+        |  },
+        |  "icon": {
+        |    "url": "logo.png"
+        |  },
+        |  "properties": [
+        |    {
+        |      "propertyId": "templatePropertyId",
+        |      "propertyName": "templatePropertyName",
+        |      "propertyType": "templatePropertyType",
+        |      "regexp": "*",
+        |      "default": "localhost:2181",
+        |      "required": true,
+        |      "tooltip": ""
+        |    }
+        |  ]
+        |}
+      """.stripMargin
+
+    val servingApiException = new ServingApiException(
+      ErrorModel.toString(
+        new ErrorModel(ErrorModel.CodeNotExistsTemplatetWithName,
+          "No template of type input  with name templateName.json")))
+
+    val templateModel = read[TemplateModel](templateModelJson)
+
+    val templateActor = system.actorOf(Props(new TemplateActor() {
+      override protected def getResource(resource: String): URL =
+        new File("file.json").toURI.toURL
+
+      override protected def getInputStreamFromResource(resource: String): InputStreamReader =
+        new InputStreamReader(IOUtils.toInputStream(templateModelJson))
+
+      override protected def getFilesFromURI(uri: URI): Seq[File] =
+        Seq(new File("file.json"))
+    }))
+
+    val wrongTemplateActor = system.actorOf(Props(new TemplateActor() {
+      override protected def getInputStreamFromResource(resource: String): InputStreamReader =
+        throw new NullPointerException("expected null pointer exception")
+
+      override protected def getResource(resource: String): URL =
+        throw new NullPointerException("expected null pointer exception")
+    }))
+
   }
 
+  override def afterAll: Unit = shutdown()
 
-  "A template actor" must {
+  "TemplateActor" must {
 
-    "return to the sender a full list of existing  templates depending ot its type" in {
-      //within(500 millis) {
-        templateActor ! FindByType("input")
-        //expectMsg("hello world")
-      //}
+    // XXX findByType
+    "findByType: returns all templates by type" in new TestData {
+      templateActor ! TemplateActor.FindByType("input")
+
+      expectMsg(new TemplateActor.ResponseTemplates(Success(Seq(templateModel))))
+    }
+
+    "findByType: return a empty list when a null pointer exception is thrown" in new TestData {
+      wrongTemplateActor ! TemplateActor.FindByType("input")
+
+      expectMsg(new TemplateActor.ResponseTemplates(Success(Seq())))
+    }
+
+    // XXX findByTypeAndName
+    "findByTypeAndName: returns all templates by type and name" in new TestData {
+      templateActor ! TemplateActor.FindByTypeAndName("input", "templateName")
+
+      expectMsg(new TemplateActor.ResponseTemplate(Success(templateModel)))
+    }
+
+    "findByTypeAndName: return a empty list when a null pointer exception is thrown" in new TestData {
+      wrongTemplateActor ! TemplateActor.FindByTypeAndName("input", "templateName")
+
+      expectMsgAnyClassOf(classOf[TemplateActor.ResponseTemplate])
     }
   }
 }
