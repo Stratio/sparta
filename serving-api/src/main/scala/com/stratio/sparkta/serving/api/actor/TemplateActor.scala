@@ -17,6 +17,7 @@
 package com.stratio.sparkta.serving.api.actor
 
 import java.io.{File, InputStreamReader}
+import java.net.{URI, URL}
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
@@ -28,9 +29,6 @@ import spray.httpx.Json4sJacksonSupport
 
 import scala.util.Try
 
-/**
- * Implementation of supported CRUD operations over templates used to composite a policy.
- */
 class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging with SparktaSerializer {
 
   override def receive: Receive = {
@@ -41,27 +39,35 @@ class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging wi
 
   def doFindByType(t: String): Unit =
     sender ! ResponseTemplates(Try({
-      new File(this.getClass.getClassLoader.getResource(s"templates/${t}").toURI)
-        .listFiles
+      getFilesFromURI(getResource(s"templates/${t}").toURI)
         .filter(file => file.getName.endsWith(".json"))
         .map(file => {
-        log.info(s"> Retrieving template: ${file.getName}")
-        read[TemplateModel](new InputStreamReader(
-          this.getClass.getClassLoader.getResourceAsStream(s"templates/${t}/${file.getName}")))
-      }).toSeq
+          log.info(s"> Retrieving template: ${file.getName}")
+          read[TemplateModel](getInputStreamFromResource(s"templates/${t}/${file.getName}"))
+      })
     }).recover {
       case e: NullPointerException => Seq()
     })
 
   def doFindByTypeAndName(t: String, name: String): Unit =
     sender ! ResponseTemplate(Try({
-      read[TemplateModel](new InputStreamReader(
-        this.getClass.getClassLoader.getResourceAsStream(s"templates/${t}/${name.toLowerCase}.json")))
+      read[TemplateModel](getInputStreamFromResource(s"templates/${t}/${name.toLowerCase}.json"))
     }).recover {
       case e: NullPointerException => throw new ServingApiException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsTemplatetWithName, s"No template of type $t  with name ${name}.json")
       ))
     })
+
+  // XXX Protected methods
+  protected def getResource(resource: String): URL =
+    this.getClass.getClassLoader.getResource(resource)
+
+  protected def getInputStreamFromResource(resource: String): InputStreamReader =
+    new InputStreamReader(this.getClass.getClassLoader.getResourceAsStream(resource))
+
+  protected def getFilesFromURI(uri: URI): Seq[File] =
+    new File(uri).listFiles
+
 }
 
 object TemplateActor {
@@ -73,5 +79,4 @@ object TemplateActor {
   case class ResponseTemplates(templates: Try[Seq[TemplateModel]])
 
   case class ResponseTemplate(template: Try[TemplateModel])
-
 }

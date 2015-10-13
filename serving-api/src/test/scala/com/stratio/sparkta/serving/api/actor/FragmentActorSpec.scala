@@ -63,14 +63,31 @@ with MockitoSugar with SparktaSerializer {
         |  }
         |}
       """.stripMargin
+    val otherFragment =
+      """
+        |{
+        |  "id": "id2",
+        |  "fragmentType": "input",
+        |  "name": "inputname",
+        |  "description": "input description",
+        |  "shortDescription": "input description",
+        |  "element": {
+        |    "name": "input",
+        |    "type": "input",
+        |    "configuration": {
+        |      "configKey": "configValue"
+        |    }
+        |  }
+        |}
+      """.stripMargin
 
     val fragmentElementModel = read[FragmentElementModel](fragment)
-
     val curatorFramework = mock[CuratorFramework]
     val getChildrenBuilder = mock[GetChildrenBuilder]
     val getDataBuilder = mock[GetDataBuilder]
     val existsBuilder = mock[ExistsBuilder]
     val createBuilder = mock[CreateBuilder]
+    val deleteBuilder = mock[DeleteBuilder]
     val protectedACL = mock[ProtectACLCreateModePathAndBytesable[String]]
     val setDataBuilder = mock[SetDataBuilder]
     val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)))
@@ -265,11 +282,69 @@ with MockitoSugar with SparktaSerializer {
     when(curatorFramework.getChildren
       .forPath("/stratio/sparkta/fragments/input"))
       .thenReturn(util.Arrays.asList("id"))
+    when(curatorFramework.getData)
+      .thenReturn(getDataBuilder)
+    when(curatorFramework.getData
+      .forPath("/stratio/sparkta/fragments/input/id"))
+      .thenReturn(otherFragment.getBytes)
 
     fragmentActor ! FragmentActor.Update(fragmentElementModel)
 
     expectMsgAnyClassOf(classOf[FragmentActor.Response])
   }
 
-}
+  "update: tries to update a fragment but it is impossible because the fragment does not exist" in new TestData {
+    when(curatorFramework.checkExists())
+      .thenReturn(existsBuilder)
+    when(curatorFramework.checkExists()
+      .forPath("/stratio/sparkta/fragments/input"))
+      .thenReturn(new Stat())
+    when(curatorFramework.getChildren)
+      .thenReturn(getChildrenBuilder)
+    when(curatorFramework.getChildren
+      .forPath("/stratio/sparkta/fragments/input"))
+      .thenReturn(util.Arrays.asList("id"))
+    when(curatorFramework.getData)
+      .thenReturn(getDataBuilder)
+    when(curatorFramework.getData
+      .forPath("/stratio/sparkta/fragments/input/id"))
+      .thenReturn(fragment.getBytes)
 
+    when(curatorFramework.setData)
+      .thenReturn(setDataBuilder)
+    when(curatorFramework.setData
+      .forPath("/stratio/sparkta/fragments/input/element"))
+      .thenThrow(new NoNodeException)
+
+    fragmentActor ! FragmentActor.Update(fragmentElementModel)
+
+    expectMsgAnyClassOf(classOf[FragmentActor.Response])
+  }
+
+  // XXX deleteByTypeAndId
+  "deleteByTypeAndId: deletes a fragment by its type and its id" in new TestData {
+    // scalastyle:off null
+    when(curatorFramework.delete)
+      .thenReturn(deleteBuilder)
+    when(curatorFramework.delete
+      .forPath("/stratio/sparkta/fragments/input/id"))
+      .thenReturn(null)
+
+    fragmentActor ! FragmentActor.DeleteByTypeAndId("input", "id")
+
+    expectMsg(new Response(Success(null)))
+    // scalastyle:on null
+  }
+
+  "deleteByTypeAndId: deletes a fragment but it is impossible because the fragment does not exists" in new TestData {
+    when(curatorFramework.delete)
+      .thenReturn(deleteBuilder)
+    when(curatorFramework.delete
+      .forPath("/stratio/sparkta/fragments/input/id"))
+      .thenThrow(new NoNodeException)
+
+    fragmentActor ! FragmentActor.DeleteByTypeAndId("input", "id")
+
+    expectMsgAnyClassOf(classOf[FragmentActor.Response])
+  }
+}

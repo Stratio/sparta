@@ -175,7 +175,6 @@ object FragmentActor {
 
   case class Response(status: Try[_])
 
-
   def fragmentPath(fragmentType: String): String = {
     fragmentType match {
       case "input" => s"${AppConstant.BaseZKPath}/fragments/input"
