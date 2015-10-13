@@ -37,6 +37,7 @@
   "helpLink": {
     "description": "fake helpLink"
   },
+  "defaultModelName": "fake model name",
   "defaultCubeName": "fake cube name",
   "defaultTimeDimension": "fake defaultTimeDimension",
   "defaultInterval": "fake defaultInterval",

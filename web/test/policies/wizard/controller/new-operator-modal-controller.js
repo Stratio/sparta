@@ -31,7 +31,7 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
 
   it("when it is initialized it creates a operator with the injected params and a default configuration", function () {
     expect(ctrl.operator.name).toBe(fakeOperatorName);
-    expect(ctrl.operator.configuration).toEqual(JSON.stringify(fakePolicyTemplate.defaultOperatorConfiguration, null, 4));
+    expect(ctrl.operator.configuration).toEqual(fakePolicyTemplate.defaultOperatorConfiguration);
     expect(ctrl.operator.type).toBe(fakeOperatorType);
     expect(ctrl.configHelpLink).toBe(fakePolicyTemplate.configurationHelpLink);
     expect(ctrl.error).toBeFalsy();
@@ -68,30 +68,6 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
           expect(ctrl.errorText).toBe("_POLICY_._CUBE_._OPERATOR_NAME_EXISTS_");
         })
 
-      });
-
-      describe("configuration is validated", function () {
-        beforeEach(function () {
-          ctrl.operator.name = "fake operator name";
-          UtilsServiceMock.findElementInJSONArray.and.returnValue(-1);
-        });
-
-        it("configuration is valid if it can be parsed", function () {
-          ctrl.operator.configuration = '{"valid_key": "valid value"}';
-          ctrl.ok();
-
-          expect(modalInstanceMock.close).toHaveBeenCalledWith(ctrl.operator);
-        });
-
-        it("configuration is invalid if it can not be parsed", function () {
-          ctrl.operator.configuration = '{invalid json}';
-
-          ctrl.ok();
-
-          expect(ctrl.errorText).toBe("_POLICY_._CUBE_._INVALID_CONFIG_");
-          expect(modalInstanceMock.close).not.toHaveBeenCalledWith(ctrl.operator);
-
-        });
       });
     });
   });

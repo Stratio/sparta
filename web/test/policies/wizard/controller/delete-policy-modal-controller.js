@@ -32,7 +32,6 @@ describe('policies.wizard.controller.delete-policy-modal-controller', function (
       'PolicyFactory': policyFactoryMock
     });
 
-
   }));
 
   it("when it is initialized, it saves the introduced item as a policyData variable", function () {
