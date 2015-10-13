@@ -17,15 +17,13 @@
 package com.stratio.sparkta.plugin.output.cassandra
 
 import com.datastax.spark.connector.cql.CassandraConnector
-import com.stratio.sparkta.sdk.{TableSchema, TypeOp, WriteOp}
-import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import com.stratio.sparkta.plugin.output.cassandra.dao.CassandraDAO
+import com.stratio.sparkta.sdk.TableSchema
+import org.apache.spark.sql.types.{StringType, StructField, StructType, _}
 import org.junit.runner.RunWith
-import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{ FlatSpec, Matchers}
-import com.stratio.sparkta.plugin.output.cassandra.dao.CassandraDAO
-import org.apache.spark.sql.types._
+import org.scalatest.{FlatSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class CassandraDaoSpec extends FlatSpec with Matchers with MockitoSugar with CassandraDAO {
