@@ -1,4 +1,4 @@
-describe('com.stratio.sparkta.inputs.outputs.controller', function () {
+describe('com.stratio.sparkta.fragments.outputs.controller', function () {
 	beforeEach(module('webApp'));
 	beforeEach(module('served/output.json'));
 	beforeEach(module('served/outputDuplicated.json'));

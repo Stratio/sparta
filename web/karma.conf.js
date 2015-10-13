@@ -45,7 +45,7 @@ module.exports = function (config) {
       'src/scripts/directives/**/*.js': ['coverage'],
       'src/scripts/services/**/*.js': ['coverage'],
       'src/scripts/filters/**/*.js': ['coverage'],
-      'src/scripts/inputs/**/*.js': ['coverage'],
+      'src/scripts/fragments/**/*.js': ['coverage'],
       'src/scripts/app.js': ['coverage']
     },
 

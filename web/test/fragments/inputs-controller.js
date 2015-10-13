@@ -1,4 +1,4 @@
-describe('com.stratio.sparkta.inputs.inputs.controller', function () {
+describe('com.stratio.sparkta.fragments.inputs.controller', function () {
   beforeEach(module('webApp'));
   beforeEach(module('served/input.json'));
   beforeEach(module('served/inputList.json'));
