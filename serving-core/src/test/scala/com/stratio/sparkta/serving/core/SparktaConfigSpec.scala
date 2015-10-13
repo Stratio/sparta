@@ -17,8 +17,11 @@
 package com.stratio.sparkta.serving.core
 
 import com.typesafe.config.ConfigFactory
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
+@RunWith(classOf[JUnitRunner])
 class SparktaConfigSpec extends WordSpec with Matchers {
 
   "SparktaConfig class" should{
