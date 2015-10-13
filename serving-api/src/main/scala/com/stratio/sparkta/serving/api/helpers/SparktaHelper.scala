@@ -22,17 +22,24 @@ import akka.io.IO
 import akka.routing.RoundRobinPool
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.serving.api.Sparkta._
 import com.stratio.sparkta.serving.api.actor._
 import com.stratio.sparkta.serving.api.constants.AkkaConstant
 import com.stratio.sparkta.serving.core._
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
+import com.stratio.sparkta.serving.core.models.{SparktaSerializer, PolicyStatusModel}
+import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusEnum, PolicyStatusActor}
+import org.apache.zookeeper.KeeperException.NoNodeException
+import org.json4s.jackson.Serialization._
 import spray.can.Http
+
+import scala.collection.JavaConversions
+import scala.util.{Success, Failure, Try}
 
 /**
  * Helper with common operations used to create a Sparkta context used to run the application.
- * @author anistal
  */
-object SparktaHelper extends SLF4JLogging {
+object SparktaHelper extends SLF4JLogging
+with SparktaSerializer {
 
   implicit var system: ActorSystem = _
 
@@ -71,7 +78,7 @@ object SparktaHelper extends SLF4JLogging {
       val swaggerActor = system.actorOf(
         Props(new SwaggerActor(actors)), AkkaConstant.SwaggerActor)
       val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)
-        .props(Props(new ControllerActor(streamingContextService, actors))), AkkaConstant.ControllerActor)
+        .props(Props(new ControllerActor(actors))), AkkaConstant.ControllerActor)
 
       IO(Http) ! Http.Bind(controllerActor, interface = SparktaConfig.apiConfig.get.getString("host"),
         port = SparktaConfig.apiConfig.get.getInt("port"))
@@ -82,9 +89,33 @@ object SparktaHelper extends SLF4JLogging {
     } else log.info("Config for Sparkta is not defined")
   }
 
-  /**
-   * Destroys Spark's context.
-   */
+  // TODO (anistal) this should be refactored in an actor
+  def initPolicyContextStatus {
+    Try {
+      if (SparktaConfig.getClusterConfig.isEmpty) {
+        val curator = CuratorFactoryHolder.getInstance()
+        val contextPath = s"${AppConstant.ContextPath}"
+        val children = curator.getChildren.forPath(contextPath)
+        val statuses = JavaConversions.asScalaBuffer(children).toList.map(element =>
+          read[PolicyStatusModel](new String(curator.getData.forPath(
+            s"${AppConstant.ContextPath}/$element")))).toSeq
+        statuses.foreach(p => update(PolicyStatusModel(p.id, PolicyStatusEnum.NotStarted)))
+      }
+      def update(policyStatus: PolicyStatusModel): Unit = {
+        val curator = CuratorFactoryHolder.getInstance()
+        val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
+        val ips =
+          read[PolicyStatusModel](new String(curator.getData.forPath(statusPath)))
+        log.info(s">> Updating context ${policyStatus.id} : <${ips.status}> to <${policyStatus.status}>")
+        curator.setData().forPath(statusPath, write(policyStatus).getBytes)
+      }
+    } match {
+      case Failure(ex: NoNodeException) => log.error("No Zookeeper node for /stratio/sparkta/contexts yet")
+      case Failure(ex: Exception) => throw ex
+      case Success(())=> {}
+    }
+  }
+
   def shutdown: Unit = {
     synchronized {
       SparkContextFactory.destroySparkContext
