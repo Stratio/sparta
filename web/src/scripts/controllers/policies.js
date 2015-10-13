@@ -65,7 +65,7 @@
             vm.successMessage = value;
           });
       });
-    };
+    }
 
     function editPolicy(route, policyId, policyStatus) {
       if(policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' || policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
@@ -78,7 +78,7 @@
           vm.errorMessage = value;
         });
       }
-    };
+    }
 
     function deletePolicy(policyId, policyStatus, index) {
       if(policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' || policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
@@ -96,7 +96,7 @@
           vm.errorMessage = value;
         });
       }
-    };
+    }
 
     function runPolicy(policyId, policyStatus, policyName) {
       if (policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' || policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
@@ -126,7 +126,7 @@
           vm.errorMessage = value;
         });
       }
-    };
+    }
 
     function stopPolicy(policyId, policyStatus, policyName) {
       if (policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'stopped' && policyStatus.toLowerCase() !== 'stopping') {
@@ -163,7 +163,7 @@
           vm.errorMessage = value;
         });
       }
-    };
+    }
 
     function deletePolicyConfirm(size, policy) {
 
@@ -190,7 +190,7 @@
 
       },function () {
       });
-    };
+    }
 
   }
 })();
