@@ -22,8 +22,8 @@ import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.serving.api.actor.FragmentActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
+import com.stratio.sparkta.serving.core.AppConstant
 import com.stratio.sparkta.serving.core.models.{ErrorModel, FragmentElementModel, SparktaSerializer}
-import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.jackson.Serialization.{read, write}
@@ -97,7 +97,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
 
       val currentId: Option[String] = if(fragment.id.isDefined) fragment.id else Option(UUID.randomUUID.toString)
       val fragmentS = fragment.copy(id = currentId,
-                                    name = fragment.name.toLowerCase)
+        name = fragment.name.toLowerCase)
       curatorFramework.create().creatingParentsIfNeeded().forPath(
         s"${FragmentActor.fragmentPath(
           fragmentS.fragmentType)}/${fragmentS.id.get}", write(fragmentS).getBytes())
