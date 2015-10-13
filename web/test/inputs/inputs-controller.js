@@ -4,17 +4,18 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
   beforeEach(module('served/inputList.json'));
   beforeEach(module('served/inputTemplate.json'));
   beforeEach(module('served/policyList.json'));
+  beforeEach(module('served/inputDuplicated.json'));
 
-  var ctrl, scope, filter, modalMock, utilsServiceMock, templateFactoryMock, fakeNewInputTemplate, fakeInput,
+  var ctrl, scope, filter, modalMock, utilsServiceMock, templateFactoryMock, fakeNewInputTemplate, fakeInput, fakeInputDuplicated,
     fakeInputList, fakePolicyList, fragmentFactoryMock, policyFactoryMock = null;
 
-  beforeEach(inject(function ($controller, $q, $rootScope, $httpBackend, $filter, _servedInputList_, _servedInputTemplate_, _servedInput_, _servedPolicyList_) {
-    /*scope = $rootScope.$new();*/
+  beforeEach(inject(function ($controller, $q, $rootScope, $httpBackend, $filter, _servedInputList_, _servedInputTemplate_, _servedInput_, _servedPolicyList_, _servedInputDuplicated_) {
     scope = $rootScope;
     fakeInputList = _servedInputList_;
     fakeNewInputTemplate = _servedInputTemplate_;
     fakeInput = _servedInput_;
     fakePolicyList = _servedPolicyList_;
+		fakeInputDuplicated = _servedInputDuplicated_;
 
     resolvedInputListPromise = function () {
       var defer = $q.defer();
@@ -58,9 +59,16 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
       return {"result": defer.promise};
     };
 
-    resolverPolicyList = function () {
-      var defer = $q.defer();
-      defer.resolve(fakePolicyList);
+    resolvedDuplicatedInput = function () {
+    	var defer = $q.defer();
+			defer.resolve(fakeInputDuplicated);
+
+			return {"result": defer.promise};
+    };
+
+    resolverPolicyList = function() {
+    	var defer = $q.defer();
+    	defer.resolve(fakePolicyList);
 
       return defer.promise;
     };
@@ -135,7 +143,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
       expect(ctrl.errorMessage).toBe("_INPUT_ERROR_111_");
     }));
 
-    it('Should call getInputTypes function and create an array of the amount of each input types', function () {
+    it('Should call getOutputTypes function and create an array of the amount of each input types', function () {
       expect(ctrl.inputTypes).toEqual([{"type": "Socket", "count": 2}, {"type": "Flume", "count": 2}, {
         "type": "Kafka",
         "count": 2
@@ -272,62 +280,62 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
         }
       };
 
-      ctrl.deleteInput(fakeFragmentType, fakeFragmentId, fakeIndex);
+			ctrl.deleteInput(fakeFragmentType, fakeFragmentId, fakeIndex);
 
-      var params = modalMock.open.calls.mostRecent().args[0]
-      expect(params.resolve.item()).toEqual(fakeInputToDelete);
+			var params = modalMock.open.calls.mostRecent().args[0]
+	    expect(params.resolve.item()).toEqual(fakeInputToDelete);
 
-      params.resolve.policiesAffected();
-      expect(policyFactoryMock.getPolicyByFragmentId).toHaveBeenCalledWith(fakeInputToDelete.type, fakeInputToDelete.id);
-    });
+	    params.resolve.policiesAffected();
+			expect(policyFactoryMock.getPolicyByFragmentId).toHaveBeenCalledWith(fakeInputToDelete.type, fakeInputToDelete.id);
+		});
 
-    it('Should return OK when closing the delete modal', function () {
-      ctrl.deleteInput(fakeFragmentType, fakeFragmentId, fakeIndex);
-      scope.$digest();
-      expect(ctrl.inputsData[fakeIndex]).toEqual(fakeInputList[fakeIndex + 1]);
-    });
-  });
-  /*
-   describe('Duplicate an input', function() {
-   var fakeInputId, fakeNewName, fakeListOfNames, fakeInputSelected, fakeInputListIndex = null;
+		it('Should return OK when closing the delete modal', function() {
+			ctrl.deleteInput(fakeFragmentType, fakeFragmentId, fakeIndex);
+			scope.$digest();
+			expect(ctrl.inputsData[fakeIndex]).toEqual(fakeInputList[fakeIndex+1]);
+		});
+	});
 
-   beforeEach(function() {
-   fakeInputListIndex = 2;
-   fakeInputId = fakeInputList[fakeInputListIndex].id;
-   fakeNewName = 'test_input_kafka(1)';
-   fakeListOfNames = ['test_input_kafka','test_input_socket'];
-   fakeInputSelected = fakeInputList[fakeInputListIndex];
-   });
+	describe('Duplicate an input', function() {
+		var fakeInputId, fakeNewName, fakeListOfNames, fakeInputListIndex = null;
 
-   it('Should call duplicateInput function and show a duplicate input modal', function() {
-   utilsServiceMock.autoIncrementName.and.returnValue(fakeNewName);
-   utilsServiceMock.getNamesJSONArray.and.returnValue(fakeListOfNames);
+		beforeEach(function() {
+			modalMock.open.and.callFake(resolvedDuplicatedInput);
+			ctrl.inputsData = angular.copy(fakeInputList);
 
-   var fakeDuplicateInputData = {
-   'fragmentData': fakeInputSelected,
-   'fragmentNamesList': fakeListOfNames,
-   'texts': {
-   'title': '_INPUT_WINDOW_DUPLICATE_TITLE_'
-   }
-   };
+			fakeInputListIndex = 0;
+			fakeInputId = ctrl.inputsData[fakeInputListIndex].id;
+			fakeNewName = 'test_input_socket(1)';
+			fakeListOfNames = ['test_input_kafka','test_input_socket'];
+			fakeInputSelected = ctrl.inputsData[fakeInputListIndex];
+		});
 
-   ctrl.duplicateInput(fakeInputId);
+		it('Should call duplicateInput function and show a duplicate input modal', function() {
+			utilsServiceMock.autoIncrementName.and.returnValue(fakeNewName);
+			ctrl.inputsData[fakeInputListIndex].name = fakeNewName;
+			utilsServiceMock.getNamesJSONArray.and.returnValue(fakeListOfNames);
 
-   var params = modalMock.open.calls.mostRecent().args[0];
-   expect(params.resolve.item()).toEqual(fakeDuplicateInputData);
+      var fakeDuplicateInputData = {
+        'fragmentData': fakeInputSelected,
+        'fragmentNamesList': fakeListOfNames,
+        'texts': {
+          'title': '_INPUT_WINDOW_DUPLICATE_TITLE_'
+        }
+      };
 
-   scope.$digest();
+			ctrl.duplicateInput(fakeInputId);
 
-   expect(ctrl.inputsData[6]).toBe(fakeInputSelected);
-   });
+			var params = modalMock.open.calls.mostRecent().args[0];
+	    expect(params.resolve.item()).toEqual(fakeDuplicateInputData);
+		});
 
-   it('Should return OK when closing the duplicate modal', function() {
-   ctrl.duplicateInput(fakeInputId);
-   scope.$digest();
+		it('Should return OK when closing the duplicate modal', function() {
+			ctrl.duplicateInput(fakeInputId);
+			scope.$digest();
 
-   expect(ctrl.inputsData[6]).toBe(fakeInputSelected);
-   expect(ctrl.inputTypes).toEqual([{"type":"Socket","count": 1},{"type":"Flume","count": 3},{"type":"Kafka","count": 2},{"type":"RabbitMQ","count": 1}]);
-   });
-   });
-   */
+			expect(ctrl.inputsData[6]).toBe(fakeInputDuplicated);
+			expect(ctrl.inputTypes).toEqual([{"type":"Socket","count": 3},{"type":"Flume","count": 2},{"type":"Kafka","count": 2}]);
+		});
+	});
+
 });

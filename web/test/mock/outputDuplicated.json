@@ -1,4 +1,5 @@
 {
+  "id": "fake_output_id_1",
   "description": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
   "element": {
     "configuration": {
@@ -17,6 +18,5 @@
   },
   "fragmentType": "output",
   "shortDescription": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-  "name": "test_output_cassandra",
-  "id": "fake_output_id_7",
+  "name": "test_output_cassandra(1)"
 }

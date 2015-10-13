@@ -1,6 +1,6 @@
 [
   {
-    "id": "fake output id 1",
+    "id": "fake_output_id_1",
     "description": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
     "element": {
       "configuration": {
@@ -22,23 +22,7 @@
     "name": "test_output_cassandra"
   },
   {
-    "id": "fake output id 2",
-    "description": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-    "element": {
-      "configuration": {
-        "hostname": "localhost",
-        "port": "6379",
-        "timeStampFieldName": "timestamp"
-      },
-      "type": "Redis",
-      "name": "in-Redis"
-    },
-    "fragmentType": "output",
-    "shortDescription": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-    "name": "test_output_redis"
-  },
-  {
-    "id": "fake output id 3",
+    "id": "fake_output_id_2",
     "description": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
     "element": {
       "configuration": {
@@ -54,7 +38,7 @@
     "name": "test_output_elasticsearch"
   },
   {
-    "id": "fake output id 4",
+    "id": "fake_output_id_3",
     "description": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling.",
     "element": {
       "configuration": {
@@ -74,45 +58,61 @@
     "name": "test_output_mongodb"
   },
   {
-    "id": "fake output id 5",
-    "description": "Parquet's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "id": "fake_output_id_4",
+    "description": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
     "element": {
       "configuration": {
-        "Path": "dadada"
+        "connectionHost": "localhost",
+        "dateFormat": "yyyy-mm-dd HH:mm",
+        "compactStorage": true,
+        "analyzer": "english",
+        "connectionPort": "9042",
+        "keyspace": "Sparkta",
+        "keyspaceClass": "simpleStrategy",
+        "replication_factor": "1",
+        "refreshSeconds": "1"
       },
-      "type": "Parquet",
-      "name": "in-Parquet"
+      "type": "Cassandra",
+      "name": "in-Cassandra"
     },
     "fragmentType": "output",
-    "shortDescription": "Parquet's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-    "name": "test_output_parquet"
+    "shortDescription": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "name": "test_output_cassandra"
   },
   {
-    "id": "fake output id 6",
-    "description": "",
+    "id": "fake_output_id_5",
+    "description": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
     "element": {
       "configuration": {
-        "path": "path_to_csv.csv",
-        "delimiter": ",",
-        "header": true
+        "nodes": [{"node":"localhost","defaultPort":"9300"}],
+        "indexMapping": "sparkta",
+        "idField": ""
       },
-      "type": "Csv",
-      "name": "in-Csv"
+      "type": "ElasticSearch",
+      "name": "in-ElasticSearch"
     },
     "fragmentType": "output",
-    "shortDescription": "",
-    "name": "test_output_csv"
+    "shortDescription": "The output of ElasticSearch use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "name": "test_output_elasticsearch"
   },
   {
-    "id": "fake output id 7",
-    "description": "Print's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
+    "id": "fake_output_id_6",
+    "description": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling.",
     "element": {
-      "configuration": {},
-      "type": "Print",
-      "name": "in-Print"
+      "configuration": {
+        "threadsAllowedToBlock": "10",
+        "connectionsPerHost": "5",
+        "language": "",
+        "retrySleep": "1000",
+        "hosts": [{"hostName":"localhost","port":"27017"}],
+        "idAsField": true,
+        "dbName": "sparkta"
+      },
+      "type": "MongoDb",
+      "name": "in-MongoDb"
     },
     "fragmentType": "output",
-    "shortDescription": "Print's output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
-    "name": "test_output_print"
+    "shortDescription": "MongoDB is an open-source document database, and the leading NoSQL database.",
+    "name": "test_output_mongodb"
   }
 ]
