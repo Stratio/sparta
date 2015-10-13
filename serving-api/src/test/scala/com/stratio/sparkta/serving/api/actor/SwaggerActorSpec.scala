@@ -28,14 +28,14 @@ import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class ControllerActorSpec(_system: ActorSystem) extends TestKit(_system)
+class SwaggerActorSpec(_system: ActorSystem) extends TestKit(_system)
 with ImplicitSender
 with WordSpecLike
 with Matchers
 with BeforeAndAfterAll
 with MockFactory {
 
-  def this() = this(ActorSystem("ControllerActorSpec"))
+  def this() = this(ActorSystem("SwaggerActorSpec"))
 
   val curatorFramework = mock[CuratorFramework]
   val streamingContextService = mock[StreamingContextService]
@@ -60,7 +60,7 @@ with MockFactory {
 
   "ControllerActor" should {
     "set up the controller actor that contains all sparkta's routes without any error" in {
-      _system.actorOf(Props(new ControllerActor(actors)))
+      _system.actorOf(Props(new SwaggerActor(actors)))
     }
   }
 }
