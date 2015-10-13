@@ -19,12 +19,12 @@ package com.stratio.sparkta.driver
 import java.io._
 import java.nio.file.{Files, Paths}
 
-import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.aggregator.{Cube, CubeMaker}
 import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory.{SchemaFactory, SparkContextFactory}
 import com.stratio.sparkta.driver.service.RawDataStorageService
+import com.stratio.sparkta.driver.util.ReflectionUtils
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
@@ -34,11 +34,10 @@ import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
-import org.reflections.Reflections
 
 import scala.annotation.tailrec
-import scala.collection.JavaConversions._
 import scala.util._
+
 
 object SparktaJob extends SLF4JLogging {
 
@@ -46,12 +45,13 @@ object SparktaJob extends SLF4JLogging {
     val checkpointPolicyPath = apConfig.checkpointPath.concat(File.separator).concat(apConfig.name)
     //TODO check the problem in the checkpoint and fault tolerance
     // deletePreviousCheckpointPath(checkpointPolicyPath)
+    val reflectionUtils = new ReflectionUtils
     val ssc = SparkContextFactory.sparkStreamingInstance(
       new Duration(apConfig.sparkStreamingWindow), checkpointPolicyPath)
-    val input = SparktaJob.input(apConfig, ssc.get)
+    val input = SparktaJob.input(apConfig, ssc.get, reflectionUtils)
     val parsers =
-      SparktaJob.parsers(apConfig).sortWith((parser1, parser2) => parser1.getOrder < parser2.getOrder)
-    val cubes = SparktaJob.cubes(apConfig)
+      SparktaJob.parsers(apConfig, reflectionUtils).sortWith((parser1, parser2) => parser1.getOrder < parser2.getOrder)
+    val cubes = SparktaJob.cubes(apConfig, reflectionUtils)
     val operatorsKeyOperation: Option[Map[String, (WriteOp, TypeOp)]] = {
       val opKeyOp = SchemaFactory.operatorsKeyOperation(cubes.flatMap(cube => cube.operators))
       if (opKeyOp.nonEmpty) Some(opKeyOp) else None
@@ -71,7 +71,7 @@ object SparktaJob extends SLF4JLogging {
       if (cubeOpSchema.nonEmpty) Some(cubeOpSchema) else None
     }
 
-    val outputs = SparktaJob.outputs(apConfig, operatorsKeyOperation, bcCubeOperatorSchema)
+    val outputs = SparktaJob.outputs(apConfig, operatorsKeyOperation, bcCubeOperatorSchema, reflectionUtils)
     val inputEvent = input._2
     SparktaJob.saveRawData(apConfig, inputEvent)
     val parsed = SparktaJob.applyParsers(inputEvent, parsers)
@@ -82,38 +82,39 @@ object SparktaJob extends SLF4JLogging {
   @tailrec
   def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
     parsers.headOption match {
-      case Some(headParser: Parser) => applyParsers(input.map(event =>
-        Try(headParser.parse(event)) match {
-          case Success(okEvent) => Some(okEvent)
-          case Failure(exception) => {
-            val error = s"Failure[Parser]: ${event.toString} | Message: ${exception.getLocalizedMessage}" +
-              s" | Parser: ${headParser.getClass.getSimpleName}"
-            log.error(error, exception)
-            None
-          }
-        }).flatMap(event => event match {
-        case Some(value) => Seq(value)
-        case None => Seq()
-      }), parsers.drop(1))
+      case Some(headParser: Parser) =>
+        applyParsers(input.map(event => parseEvent(headParser, event))
+          .flatMap(eventToSeq), parsers.drop(1))
       case None => input
     }
   }
 
-  lazy val getClasspathMap: Map[String, String] = {
-    val reflections = new Reflections("com.stratio.sparkta")
-    val inputs = reflections.getSubTypesOf(classOf[Input]).toList
-    val dimensionTypes = reflections.getSubTypesOf(classOf[DimensionType]).toList
-    val operators = reflections.getSubTypesOf(classOf[Operator]).toList
-    val outputs = reflections.getSubTypesOf(classOf[Output]).toList
-    val parsers = reflections.getSubTypesOf(classOf[Parser]).toList
-    val plugins = inputs ++ dimensionTypes ++ operators ++ outputs ++ parsers
-    plugins map (t => t.getSimpleName -> t.getCanonicalName) toMap
+  def eventToSeq(e: Option[Event]): Seq[Event] = {
+    e match {
+      case Some(value) => Seq(value)
+      case None => Seq()
+    }
   }
 
-  def getSparkConfigs(apConfig: AggregationPoliciesModel, methodName: String, suffix: String): Map[String, String] = {
+  def parseEvent(p: Parser, e: Event): Option[Event] = {
+
+    Try(p.parse(e)) match {
+      case Success(okEvent) => Some(okEvent)
+      case Failure(exception) => {
+        val error = s"Failure[Parser]: ${e.toString} | Message: ${exception.getLocalizedMessage}" +
+          s" | Parser: ${p.getClass.getSimpleName}"
+        log.error(error, exception)
+        None
+      }
+    }
+  }
+
+
+  def getSparkConfigs(apConfig: AggregationPoliciesModel, methodName: String, suffix: String,
+                      refUtils: ReflectionUtils): Map[String, String] = {
     log.info("Initializing reflection")
     apConfig.outputs.flatMap(o => {
-      val clazzToInstance = SparktaJob.getClasspathMap.getOrElse(o.`type` + suffix, o.`type` + suffix)
+      val clazzToInstance = refUtils.getClasspathMap.getOrElse(o.`type` + suffix, o.`type` + suffix)
       val clazz = Class.forName(clazzToInstance)
       clazz.getMethods.find(p => p.getName == methodName) match {
         case Some(method) => {
@@ -126,13 +127,19 @@ object SparktaJob extends SLF4JLogging {
     }).toMap
   }
 
-  def input(apConfig: AggregationPoliciesModel, ssc: StreamingContext): (String, DStream[Event]) =
-    (apConfig.input.get.name, tryToInstantiate[Input](apConfig.input.get.`type` + Input.ClassSuffix, (c) =>
-      instantiateParameterizable[Input](c, apConfig.input.get.configuration)).setUp(ssc, apConfig.storageLevel.get))
+  def input(apConfig: AggregationPoliciesModel, ssc: StreamingContext, refUtils: ReflectionUtils):
+  (String, DStream[Event]) = {
+    val myInput = refUtils.tryToInstantiate[Input](apConfig.input.get.`type` + Input.ClassSuffix, (c) =>
+      refUtils.instantiateParameterizable[Input](c, apConfig.input.get.configuration))
 
-  def parsers(apConfig: AggregationPoliciesModel): Seq[Parser] =
+    (apConfig.input.get.name,
+      myInput.setUp(ssc,
+        apConfig.storageLevel.get))
+  }
+
+  def parsers(apConfig: AggregationPoliciesModel, refUtils: ReflectionUtils): Seq[Parser] =
     apConfig.transformations.map(parser =>
-      tryToInstantiate[Parser](parser.`type` + Parser.ClassSuffix, (c) =>
+      refUtils.tryToInstantiate[Parser](parser.`type` + Parser.ClassSuffix, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
           classOf[Integer],
@@ -142,20 +149,20 @@ object SparktaJob extends SLF4JLogging {
           .newInstance(parser.name, parser.order, parser.inputField, parser.outputFields, parser.configuration)
           .asInstanceOf[Parser]))
 
-  private def createOperator(operatorModel: OperatorModel): Operator =
-    tryToInstantiate[Operator](operatorModel.`type` + Operator.ClassSuffix, (c) =>
+  private def createOperator(operatorModel: OperatorModel, refUtils: ReflectionUtils): Operator =
+    refUtils.tryToInstantiate[Operator](operatorModel.`type` + Operator.ClassSuffix, (c) =>
       c.getDeclaredConstructor(
         classOf[String],
         classOf[Map[String, Serializable]]
       ).newInstance(operatorModel.name, operatorModel.configuration).asInstanceOf[Operator])
 
-  def getOperators(operatorsModel: Seq[OperatorModel]): Seq[Operator] =
-    operatorsModel.map(operator => createOperator(operator))
+  def getOperators(operatorsModel: Seq[OperatorModel], refUtils: ReflectionUtils): Seq[Operator] =
+    operatorsModel.map(operator => createOperator(operator, refUtils))
 
   def outputs(apConfig: AggregationPoliciesModel,
               bcOperatorsKeyOperation: Option[Map[String, (WriteOp, TypeOp)]],
-              bcCubeOperatorSchema: Option[Seq[TableSchema]]): Seq[(String, Output)] =
-    apConfig.outputs.map(o => (o.name, tryToInstantiate[Output](o.`type` + Output.ClassSuffix, (c) =>
+              bcCubeOperatorSchema: Option[Seq[TableSchema]], refUtils: ReflectionUtils): Seq[(String, Output)] =
+    apConfig.outputs.map(o => (o.name, refUtils.tryToInstantiate[Output](o.`type` + Output.ClassSuffix, (c) =>
       c.getDeclaredConstructor(
         classOf[String],
         classOf[Map[String, Serializable]],
@@ -164,7 +171,7 @@ object SparktaJob extends SLF4JLogging {
         .newInstance(o.name, o.configuration, bcOperatorsKeyOperation, bcCubeOperatorSchema)
         .asInstanceOf[Output])))
 
-  def cubes(apConfig: AggregationPoliciesModel): Seq[Cube] =
+  def cubes(apConfig: AggregationPoliciesModel, refUtils: ReflectionUtils): Seq[Cube] =
     apConfig.cubes.map(cube => {
       val name = cube.name.replaceAll(Output.Separator, "")
       val multiplexer = Try(cube.multiplexer.toBoolean)
@@ -173,9 +180,9 @@ object SparktaJob extends SLF4JLogging {
         new Dimension(dimensionDto.name,
           dimensionDto.field,
           dimensionDto.precision,
-          instantiateDimensionType(dimensionDto.`type`, dimensionDto.configuration))
+          instantiateDimensionType(dimensionDto.`type`, dimensionDto.configuration, refUtils))
       })
-      val operators = SparktaJob.getOperators(cube.operators)
+      val operators = SparktaJob.getOperators(cube.operators, refUtils)
 
       val datePrecision = if (cube.checkpointConfig.timeDimension.isEmpty) None
       else Some(cube.checkpointConfig.timeDimension)
@@ -191,28 +198,9 @@ object SparktaJob extends SLF4JLogging {
         cube.checkpointConfig.timeAvailability)
     })
 
-  def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C =
-    clazz.getDeclaredConstructor(classOf[Map[String, Serializable]]).newInstance(properties).asInstanceOf[C]
-
-  def tryToInstantiate[C](classAndPackage: String, block: Class[_] => C): C = {
-    val clazMap: Map[String, String] = SparktaJob.getClasspathMap
-    val finalClazzToInstance = clazMap.getOrElse(classAndPackage, classAndPackage)
-    try {
-      val clazz = Class.forName(finalClazzToInstance)
-      block(clazz)
-    } catch {
-      case cnfe: ClassNotFoundException =>
-        throw DriverException.create("Class with name " + classAndPackage + " Cannot be found in the classpath.", cnfe)
-      case ie: InstantiationException =>
-        throw DriverException.create(
-          "Class with name " + classAndPackage + " cannot be instantiated", ie)
-      case e: Exception => throw DriverException.create(
-        "Generic error trying to instantiate " + classAndPackage, e)
-    }
-  }
-
-  def instantiateDimensionType(dimensionType: String, configuration: Option[Map[String, String]]): DimensionType =
-    tryToInstantiate[DimensionType](dimensionType + Dimension.FieldClassSuffix, (c) => {
+  def instantiateDimensionType(dimensionType: String, configuration: Option[Map[String, String]],
+                               refUtils: ReflectionUtils): DimensionType =
+    refUtils.tryToInstantiate[DimensionType](dimensionType + Dimension.FieldClassSuffix, (c) => {
       configuration match {
         case Some(conf) => c.getDeclaredConstructor(classOf[Map[String, Serializable]])
           .newInstance(conf).asInstanceOf[DimensionType]
@@ -237,4 +225,5 @@ object SparktaJob extends SLF4JLogging {
       }
     }
   }
+
 }

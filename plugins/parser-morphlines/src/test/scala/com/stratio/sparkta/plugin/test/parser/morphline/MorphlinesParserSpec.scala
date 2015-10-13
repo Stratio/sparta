@@ -73,5 +73,19 @@ class MorphlinesParserSpec extends WordSpecLike with Matchers with BeforeAndAfte
       e2.keyMap should contain(("col1", "hello"))
       e2.keyMap.size should be(3)
     }
+    "exclude not configured fields" in {
+      val simpleJson =
+        """{
+            "col1":"hello",
+            "col2":"word",
+            "col3":"!"
+            }
+        """.getBytes("UTF-8")
+      val e1 = new Event(Map(inputField -> simpleJson.asInstanceOf[Serializable]))
+      val e2 = parser.parse(e1)
+      e2.keyMap should contain(("col1", "hello"))
+      e2.keyMap should not contain(("col3", "!"))
+      e2.keyMap.size should be(3)
+    }
   }
 }

@@ -21,7 +21,7 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>com.stratio.sparkta</groupId>
-        <version>0.6.1-RC1-SNAPSHOT</version>
+        <version>0.6.2-RC4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>stratio-sparkta</artifactId>
@@ -152,10 +152,12 @@
                             <contactEmail>sparkta@stratio.com</contactEmail>
                             <deb>
                                 <section>devel</section>
+                                <preDepends>jq</preDepends>
                             </deb>
                             <rpm>
                                 <group>stratio</group>
                                 <requires>bash</requires>
+                                <requires>jq</requires>
                             </rpm>
                             <name>Engine</name>
                             <excludeDirectoryAttributes>
@@ -184,15 +186,13 @@
                                 <mkdirs>
                                     <path>/var/run/sds</path>
                                     <attributes>
-                                        <user>stratio</user>
-                                        <group>stratio</group>
+                                        <mode>755</mode>
                                     </attributes>
                                 </mkdirs>
                                 <mkdirs>
                                     <path>/var/log/sds/sparkta</path>
                                     <attributes>
-                                        <user>stratio</user>
-                                        <group>stratio</group>
+                                        <mode>755</mode>
                                     </attributes>
                                 </mkdirs>
                                 <copyDirectory>
@@ -238,10 +238,14 @@
                             </assembly>
                             <defaults>
                                 <directoryAttributes>
+                                    <user>stratio</user>
+                                    <group>stratio</group>
                                     <mode>0755</mode>
                                 </directoryAttributes>
                                 <fileAttributes>
-                                    <mode>0644</mode>
+                                    <user>stratio</user>
+                                    <group>stratio</group>
+                                    <mode>0755</mode>
                                 </fileAttributes>
                             </defaults>
                         </configuration>

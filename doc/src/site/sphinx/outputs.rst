@@ -140,8 +140,8 @@ Cassandra Configuration
       }
     }
   ]
-The output of Cassandra uses the generic implementation with DataFrames, this implementation transform each
-UpdateMetricOperation to Row type of Spark and identify each row with his schema.
+
+The Cassandra output uses the generic implementation with DataFrames.
 
 
 +-----------------------+----------------------------------------------------------+----------+-----------------------+
@@ -223,8 +223,7 @@ ElasticSearch Configuration
       }
     }
    ]
-The output of ElasticSearch uses the generic implementation with DataFrames, this implementation transform each
-UpdateMetricOperation to Row type of Spark and identify each row with his schema.
+The Elasticsearch output uses the generic implementation with DataFrames.
 
 
 

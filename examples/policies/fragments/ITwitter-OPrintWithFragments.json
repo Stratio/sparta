@@ -1,6 +1,6 @@
 {
-  "name": "policy-Twitter-Print",
-  "description": "policy-Twitter-Print",
+  "name": "Policy-Twitter-Print",
+  "description": "Input Twitter, output Print",
   "sparkStreamingWindow": 6000,
   "checkpointPath": "checkpoint",
   "rawData": {
@@ -11,7 +11,7 @@
   "fragments": [
     {
       "id": "change with the id of the fragment",
-      "name": "twitter",
+      "name": "Twitter",
       "fragmentType": "input",
       "description": "description",
       "shortDescription": "shortDescription",

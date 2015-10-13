@@ -29,7 +29,6 @@ import scala.util.{Failure, Success}
 
 /**
  * Helper with operations over policies and policy fragments.
- * @author anistal
  */
 object PolicyHelper {
 

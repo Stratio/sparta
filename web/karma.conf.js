@@ -33,10 +33,6 @@ module.exports = function (config) {
 
     reporters: ['junit', 'coverage', 'progress'],
 
-    coverageReporter: {
-      type: 'lcov',
-      dir: 'target/coverage/'
-    },
     frameworks: ['jasmine-jquery', 'jasmine'],
 
     browsers: ['PhantomJS'],
@@ -54,7 +50,7 @@ module.exports = function (config) {
     },
 
     junitReporter: {
-      outputDir: 'target/failsafe-reports/',
+      outputDir: 'target/surefire-reports/',
       outputFile: undefined,
       suite: ''
     },
@@ -69,7 +65,7 @@ module.exports = function (config) {
     coverageReporter: {
       type: "lcovonly",
       dir: 'target/coverage',
-      file: '../lcov.info'
+      file: '../../lcovUT.info'
     },
     singleRun: true,
     logLevel: config.LOG_INFO

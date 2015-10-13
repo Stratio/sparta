@@ -3,12 +3,12 @@
 		<st-heading title="{{'_POLICY_HEADER_TITLE_MAIN_' | translate}}" subtitle="{{'_INPUT_HEADER_TITLE_SECONDARY' | translate}}:"></st-heading>
 	</header>
 
-	<div class="c-row c-msg c-msg--small c-msg--error c-msg--bottom-margin" data-ng-if="policies.error" data-qa="manage-policies-error-msg">
+	<div class="c-row c-msg c-msg--small c-msg--error c-msg--bottom-margin" data-ng-if="policies.errorMessage != ''" data-qa="manage-policies-error-msg">
     	<p><i class="c-icon icon-circle-cross"></i>{{policies.errorMessage}}</p>
     	<p>{{policies.errorMessageExtended}}</p>
   	</div>
 
-  	<div class="c-row c-msg c-msg--small c-msg--success c-msg--bottom-margin" data-ng-if="policies.success" data-qa="manage-policies-error-msg">
+  	<div class="c-row c-msg c-msg--small c-msg--success c-msg--bottom-margin" data-ng-if="policies.successMessage != ''" data-qa="manage-policies-success-msg">
     	<i class="c-icon icon-circle-check"></i>
     	<span>{{policies.successMessage}}</span>
   	</div>

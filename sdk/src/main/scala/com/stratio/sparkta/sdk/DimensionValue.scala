@@ -21,8 +21,10 @@ import java.io.{Serializable => JSerializable}
 case class DimensionValue(dimension : Dimension, value: JSerializable)
   extends Ordered[DimensionValue] {
 
-  def getNameDimension: String = dimension.getNamePrecision
+  def getNameDimension: String = dimension.name
 
   def compare(dimensionValue: DimensionValue): Int = dimension compareTo dimensionValue.dimension
+
+  override def toString: String = dimension.name
 
 }

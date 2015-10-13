@@ -16,6 +16,10 @@
 
 package com.stratio.sparkta.sdk
 
+import java.io.{Serializable => JSerializable}
+import java.sql.Timestamp
+import java.util.Date
+
 import com.github.nscala_time.time.Imports._
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
@@ -32,11 +36,16 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
     val expectedPath = "/" + DateTimeFormat.forPattern(datePattern) +
       DateOperations.dateFromGranularity(DateTime.now, granularity)
     val dt = DateTime.now
+    val date = new Date()
+    val timestamp = new Timestamp(dt.getMillis)
     val minuteDT = dt.withMillisOfSecond(0).withSecondOfMinute(0)
     val hourDT = minuteDT.withMinuteOfHour(0)
     val dayDT = hourDT.withHourOfDay(0)
     val monthDT = dayDT.withDayOfMonth(1)
     val yearDT = monthDT.withMonthOfYear(1)
+    val s15DT = DateOperations.roundDateTime(dt, Duration.standardSeconds(15))
+    val s10DT = DateOperations.roundDateTime(dt, Duration.standardSeconds(10))
+    val s5DT = DateOperations.roundDateTime(dt, Duration.standardSeconds(5))
     val wrongDT = 0L
     val expectedRawPath = "/year=1984/month=03/day=17/hour=13/minute=13/second=13"
   }
@@ -77,10 +86,12 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
     val hourPatternResult = DateTimeFormat.forPattern(hourPattern).print(DateTime.now())
     val minutePatternResult = DateTimeFormat.forPattern(minutePattern).print(DateTime.now())
     val defaultPatternResult = DateTimeFormat.forPattern(defaultPattern).print(DateTime.now())
-
   }
 
-  "DateOperationsSpec" should "return timestamp with correct parameters" in new CommonValues {
+  "DateOperations" should "return timestamp with correct parameters" in new CommonValues {
+    DateOperations.getTimeFromGranularity(Some(""), Some("s5")) should be(s5DT.getMillis)
+    DateOperations.getTimeFromGranularity(Some(""), Some("s10")) should be(s10DT.getMillis)
+    DateOperations.getTimeFromGranularity(Some(""), Some("s15")) should be(s15DT.getMillis)
     DateOperations.getTimeFromGranularity(Some(""), Some("minute")) should be(minuteDT.getMillis)
     DateOperations.getTimeFromGranularity(Some(""), Some("hour")) should be(hourDT.getMillis)
     DateOperations.getTimeFromGranularity(Some(""), Some("day")) should be(dayDT.getMillis)
@@ -91,7 +102,9 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
   }
 
   it should "return parsed timestamp with granularity" in new CommonValues {
-    DateOperations.dateFromGranularity(dt, "minute") should be(minuteDT.getMillis)
+    DateOperations.dateFromGranularity(dt, "s5") should be(s5DT.getMillis)
+    DateOperations.dateFromGranularity(dt, "s15") should be(s15DT.getMillis)
+    DateOperations.dateFromGranularity(dt, "s10") should be(s10DT.getMillis)
     DateOperations.dateFromGranularity(dt, "hour") should be(hourDT.getMillis)
     DateOperations.dateFromGranularity(dt, "day") should be(dayDT.getMillis)
     DateOperations.dateFromGranularity(dt, "month") should be(monthDT.getMillis)
@@ -134,7 +147,19 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
     DateOperations.generateParquetPath(parquetPattern = Some(hourStr)) should be(hourPatternResult)
     DateOperations.generateParquetPath(parquetPattern = Some(minuteStr)) should be(minutePatternResult)
     DateOperations.generateParquetPath(parquetPattern = Some(defaultStr)) should be(defaultPatternResult)
-
   }
 
+  it should "return millis from a Serializable date" in new CommonValues {
+    DateOperations.getMillisFromSerializable(dt.asInstanceOf[JSerializable]) should be(dt.getMillis)
+    DateOperations.getMillisFromSerializable(timestamp.asInstanceOf[JSerializable]) should be(dt.getMillis)
+    DateOperations.getMillisFromSerializable(date.asInstanceOf[JSerializable]) should be(dt.getMillis)
+    DateOperations.getMillisFromSerializable(1L.asInstanceOf[JSerializable]) should be(1L)
+    DateOperations.getMillisFromSerializable("1".asInstanceOf[JSerializable]) should be(1L)
+  }
+
+  it should "return millis from a Serializable dateTime" in new CommonValues {
+    DateOperations.getMillisFromDateTime(dt.asInstanceOf[JSerializable]) should be(dt.getMillis)
+    DateOperations.getMillisFromDateTime(timestamp.asInstanceOf[JSerializable]) should be(dt.getMillis)
+    DateOperations.getMillisFromDateTime(date.asInstanceOf[JSerializable]) should be(dt.getMillis)
+  }
 }

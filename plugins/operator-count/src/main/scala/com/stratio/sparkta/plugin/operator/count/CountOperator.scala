@@ -19,17 +19,14 @@ package com.stratio.sparkta.plugin.operator.count
 import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
-import com.stratio.sparkta.sdk.TypeOp
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.sdk.{TypeOp, _}
 
-class CountOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+class CountOperator(name: String, properties: Map[String, JSerializable])
+  extends Operator(name, properties) {
 
-  val distinctFields = if (properties.contains("distinctFields")) {
-    val fields = properties.getString("distinctFields").split(CountOperator.Separator)
-    if (fields.isEmpty) None else Some(fields)
-  } else None
+  val distinctFields = parseDistinctFields
 
   override val defaultTypeOperation = TypeOp.Long
 
@@ -39,9 +36,9 @@ class CountOperator(name: String, properties: Map[String, JSerializable]) extend
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
     applyFilters(inputFields).flatMap(filteredFields => distinctFields match {
-      case None => CountOperator.SomeOne
+      case None => Some(CountOperator.One.toLong)
       case Some(fields) => Some(fields.map(field => filteredFields.getOrElse(field, CountOperator.NullValue))
-        .mkString(CountOperator.Separator).toString)
+        .mkString(OperatorConstants.UnderscoreSeparator).toString)
     })
   }
 
@@ -49,17 +46,23 @@ class CountOperator(name: String, properties: Map[String, JSerializable]) extend
     Try {
       val longList = distinctFields match {
         case None => values.flatten.map(value => value.asInstanceOf[Number].longValue())
-        case Some(fields) => values.flatten.toList.distinct.map(value => CountOperator.SomeOne.get)
+        case Some(fields) => values.flatten.toList.distinct.map(value => CountOperator.One.toLong)
       }
       Some(transformValueByTypeOp(returnType, longList.sum))
-    }.getOrElse(CountOperator.SomeZero)
+    }.getOrElse(Some(OperatorConstants.Zero.toLong))
+  }
+
+  //FIXME: We should refactor this code
+  private def parseDistinctFields: Option[Seq[String]] = {
+    val distinct = properties.getOptionAs[String]("distinctFields")
+    if (distinct.isDefined && !distinct.get.isEmpty) {
+      Some(distinct.get.split(OperatorConstants.UnderscoreSeparator))
+    } else None
   }
 }
 
-private object CountOperator {
+object CountOperator {
 
-  val SomeOne = Some(1L)
-  val SomeZero = Some(0L)
-  val Separator = "_"
-  val NullValue = "None"
+  final val NullValue = "None"
+  final val One = 1
 }

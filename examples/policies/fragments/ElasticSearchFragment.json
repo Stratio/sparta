@@ -1,11 +1,11 @@
 {
   "fragmentType": "output",
   "name": "Elasticsearch",
-  "description": "Elasticsearch input",
-  "shortDescription": "Elasticsearch input",
+  "description": "Elasticsearch output",
+  "shortDescription": "Elasticsearch ",
   "element": {
     "name": "out-Elasticsearch",
-    "type": "Elasticsearch",
+    "type": "ElasticSearch",
     "configuration": {
       "nodes": [
         {

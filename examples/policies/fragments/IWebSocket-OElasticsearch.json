@@ -1,6 +1,6 @@
 {
-  "name": "policy-websocket",
-  "description": "Input kafka, output print",
+  "name": "Policy-WebSocket-ElasticSearch",
+  "description": "Input WebSocket, output ElasticSearch",
   "sparkStreamingWindow": 2000,
   "rawData": {
     "enabled": "false",
@@ -11,7 +11,7 @@
    "fragments": [
     {
       "id": "_input_id_",
-      "name": "websocket",
+      "name": "WebSocket",
       "fragmentType": "input",
       "description": "description",
       "shortDescription": "shortDescription",
@@ -88,22 +88,6 @@
           "configuration": {}
         }
       ]
-    }
-  ],
-  "outputs": [
-    {
-      "name": "out-elasticsearch",
-      "type": "ElasticSearch",
-      "configuration": {
-        "nodes": [
-          {
-            "node": "localhost",
-            "defaultPort": "9200"
-          }
-        ],
-        "isAutoCalculateId": "true",
-        "indexMapping": "day"
-      }
     }
   ]
 }

@@ -18,14 +18,13 @@ package com.stratio.sparkta.serving.api.actor
 
 import java.util.UUID
 
-import akka.actor.{ActorRef, Actor}
+import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
-import akka.pattern.ask
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
-import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, AppConstant}
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
+import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.jackson.Serialization.{read, write}

@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.stratio.sparkta</groupId>
 		<artifactId>parent</artifactId>
-		<version>0.6.1-RC1-SNAPSHOT</version>
+		<version>0.6.2-RC4-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>web</artifactId>
@@ -19,6 +19,8 @@
 	</properties>
 
 	<build>
+    <sourceDirectory>src</sourceDirectory>
+    <testSourceDirectory>test</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>com.github.eirslett</groupId>
@@ -65,7 +67,7 @@
 						<goals>
 							<goal>bower</goal>
 						</goals>
-						<phase>generate-resources</phase>
+            <phase>generate-resources</phase>
 						<configuration>
 							<arguments>install --allow-root</arguments>
               <skip.bower>${skip.bower}</skip.bower>
@@ -87,7 +89,7 @@
             <goals>
               <goal>karma</goal>
             </goals>
-            <phase>verify</phase>
+            <phase>test</phase>
           </execution>
 				</executions>
 			</plugin>

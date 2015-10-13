@@ -33,7 +33,7 @@ class ModeOperatorSpec extends WordSpec with Matchers {
       inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(None)
 
       val inputFields3 = new ModeOperator("mode", Map("inputField" -> "field1"))
-      inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be (Some(1))
+      inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
 
       val inputFields4 = new ModeOperator("mode",
         Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2}]"))
@@ -44,14 +44,16 @@ class ModeOperatorSpec extends WordSpec with Matchers {
       inputFields5.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
 
       val inputFields6 = new ModeOperator("mode",
-        Map("inputField" -> "field1", "filters" -> {"[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
-          "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"}))
+        Map("inputField" -> "field1", "filters" -> {
+          "[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
+            "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"
+        }))
       inputFields6.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
     }
 
     "processReduce must be " in {
       val inputFields = new ModeOperator("mode", Map())
-      inputFields.processReduce(Seq()) should be (ModeOperator.SOME_EMPTY)
+      inputFields.processReduce(Seq()) should be(Some(List()))
 
       val inputFields2 = new ModeOperator("mode", Map())
       inputFields2.processReduce(Seq(Some("hey"), Some("hey"), Some("hi"))) should be(Some(List("hey")))
@@ -61,15 +63,16 @@ class ModeOperatorSpec extends WordSpec with Matchers {
 
       val inputFields4 = new ModeOperator("mode", Map())
       inputFields4.processReduce(Seq(
-        Some("1"), Some("1"), Some("4"), Some("4"),Some("4"),Some("4"))) should be(Some(List("4")))
+        Some("1"), Some("1"), Some("4"), Some("4"), Some("4"), Some("4"))) should be(Some(List("4")))
 
       val inputFields5 = new ModeOperator("mode", Map())
       inputFields5.processReduce(Seq(
-        Some("1"), Some("1"), Some("2"), Some("2"),Some("4"),Some("4"))) should be(Some(List("1","2","4")))
+        Some("1"), Some("1"), Some("2"), Some("2"), Some("4"), Some("4"))) should be(Some(List("1", "2", "4")))
 
       val inputFields6 = new ModeOperator("mode", Map())
       inputFields6.processReduce(Seq(
-        Some("1"), Some("1"), Some("2"), Some("2"),Some("4"),Some("4"),Some("5"))) should be(Some(List("1","2","4")))
+        Some("1"), Some("1"), Some("2"), Some("2"), Some("4"), Some("4"), Some("5"))
+      ) should be(Some(List("1", "2", "4")))
     }
   }
 }

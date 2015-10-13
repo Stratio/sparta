@@ -64,7 +64,7 @@ object SparktaConfig extends SLF4JLogging {
       }
       case _ => configFactory.getConfig(node)
     }
-    assert(configResult.isDefined, "Fatal Error: configuration can not be loaded: $node")
+    assert(configResult.isDefined, s"Fatal Error: configuration can not be loaded: $node")
     configResult
   }
 

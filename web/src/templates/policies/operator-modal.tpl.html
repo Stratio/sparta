@@ -30,12 +30,19 @@
                       data-text="'_CONFIGURATION_' | translate"
                       data-text-class=""
                       data-icon-url="vm.configHelpLink"
-                      data-required = "true"
+                      data-required="true"
                       data-test="policy-operator-configuration-help">
         </c-icon-label>
         <p class="c-label c-col c-col--12">{{"_CONFIGURATION_INFO_" | translate}}</p>
-        <textarea class="c-textarea c-textarea--full-width" data-ng-model="vm.operator.configuration"
-                  placeholder={{vm.configPlaceholder}} data-qa="operator-modal-config"/>
+
+           <textarea json-text name="operator-configuration" data-form="vm.form"
+                     class="c-textarea c-textarea--required c-textarea--full-width"
+                     data-ng-model="vm.operator.configuration"
+                     ng-class="{'c-textarea--error': vm.form['operator-configuration'].$error.invalidJson}"
+                     data-qa="operator-configuration-textarea"
+                     placeholder={{vm.configPlaceholder}}>
+        </textarea>
+
       </div>
 
       <div class="c-row c-row--separated">
@@ -53,6 +60,6 @@
           </button>
         </div>
       </div>
+    </div>
   </form>
-  </div>
-  </form>
+</aside>
