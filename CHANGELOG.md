@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.6.2 (September 2015)
+## 0.6.2 (upcoming)
 
 - Bugfix: DateTime now parses string formats
 - Bugfix: Permission issues running Sparkta service
