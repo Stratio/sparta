@@ -143,7 +143,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
       expect(ctrl.errorMessage).toBe("_INPUT_ERROR_111_");
     }));
 
-    it('Should call getInputTypes function and create an array of the amount of each input types', function () {
+    it('Should call getOutputTypes function and create an array of the amount of each input types', function () {
       expect(ctrl.inputTypes).toEqual([{"type": "Socket", "count": 2}, {"type": "Flume", "count": 2}, {
         "type": "Kafka",
         "count": 2
@@ -337,4 +337,5 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
 			expect(ctrl.inputTypes).toEqual([{"type":"Socket","count": 3},{"type":"Flume","count": 2},{"type":"Kafka","count": 2}]);
 		});
 	});
+
 });
