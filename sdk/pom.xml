@@ -21,7 +21,7 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>com.stratio.sparkta</groupId>
-        <version>0.6.2</version>
+        <version>0.6.3-RC1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
