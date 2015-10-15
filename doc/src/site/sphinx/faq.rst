@@ -38,7 +38,7 @@ If it's already installed, to run Zookeeper just::
 
 **I'm checking the database that I'm using and only has the last event. The other data seems to be deleted. Why?**
 
-- If the time difference between your first data aggregation and the last is quiet big, it's possible that the checkpoint value is not big enough to process the old data, so it will be deleted because Sparkta can't find it. You will only see the new aggregations.
+- If the time between your first data aggregation to the last it's quiet big, it's possible that the checkpoint value is not big enough to process the old data, so it will be deleted because Sparkta can't find it. You will only see the new aggregations.
 
 **I'm trying to delete an input/output and I can't. Why?**
 
