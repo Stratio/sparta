@@ -4,8 +4,7 @@ Production Checklist & Troubleshooting Guide
 Production Checklist
 ====================
 
-This section shows a list of requirements and configurations with the aim of having a useful and clean production
-environment.
+In this section we provide you the production environment basic settings.
 
 First of all, you should check the different systems and services availability in your environment.
 
@@ -39,8 +38,8 @@ Finally you should check your inputs and outputs availability and their configur
 Troubleshooting
 ===============
 
-Common mistakes found by other users can be found here. Most of them are easily fixed checking the logs.
-Sparta logs are at `/var/log/sds/sparkta/sparkta.[out|err]` . Please if you find an error that belongs to Sparkta do not
+This section tries to group the common errors our users find. Most of them are easily fixed checking the logs.
+Sparta logs are at `/var/log/sds/sparkta/sparkta.[out|err]` . Please if you find an error that belongs to Sparkta don't
 hesitate in open an issue at |github_dl|
 
 .. |github_dl| raw:: html
@@ -59,7 +58,8 @@ hesitate in open an issue at |github_dl|
             at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:244)
             at scala.collection.immutable.List.foreach(List.scala:318)
 
-If the type of the dimensions has to be a date, you should use the right `parser <transformations.html#_datetime-transformation-label>`__.
+When one of your dimensions is of the type DateTime the field this dimension is pointing to must be a date. The
+solution is to `parse <transformations.html#_datetime-transformation-label>`__ this field to be in Date format.
 
 
 
