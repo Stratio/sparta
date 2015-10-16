@@ -4,10 +4,10 @@ Sparkta Configuration
 Overview
 ========
 
-This section shows how to configure Sparkta through Typesafe's Config standard.
+This section shows how to configure Sparkta through Typesafe's standard Config.
 
 By default the system will use the config file "reference.conf", but you can overwrite this values having and
-application.conf in your classpath. This is resume of all parameters that you can configure:
+application.conf in your classpath. This is the summary of all parameters that you could configure:
 
 * :ref:`zk-config`
 
@@ -25,14 +25,14 @@ application.conf in your classpath. This is resume of all parameters that you ca
 
    * :ref:`cluster-config-yarn`
 
-More deep documentation about it, can be found in |typesafe_config_repo|.
+More deep documentation about it, can be found at |typesafe_config_repo|.
 
 .. |typesafe_config_repo| raw:: html
 
    <a href="https://github.com/typesafehub/config"
    target="_blank">Github Typesafe's repository</a>
 
-A reference.conf with a full example of a configuration can be found in |github_sparkta_repo_reference_conf|.
+A reference.conf with a full example of a configuration can be found at |github_sparkta_repo_reference_conf|.
 
 .. |github_sparkta_repo_reference_conf| raw:: html
 
@@ -44,9 +44,9 @@ A reference.conf with a full example of a configuration can be found in |github_
 Zookeeper configuration
 =======================
 
-One of the most important requirements in Sparkta is to have configured Zookeeper that is used fiercely.
+One of the most important requirements in Sparkta is to have Zookeeper configured.
 
-For example:
+ZK is used intensely. For example:
 
 - To save fragments (inputs, outputs, etc.) that will be used by a policy.
 - Policies.
@@ -68,7 +68,6 @@ An example in the application.conf::
 +====================+===================================================================+
 | connectionString   | A connection string containing a comma separated list of          |
 |                    | host:port pairs, each corresponding to a ZooKeeper server.        |
-|                    | hdfs path will be /hadoopUserName.                                |
 +--------------------+-------------------------------------------------------------------+
 | connectionTimeout  | The maximum session timeout in milliseconds that the server will  |
 |                    | allow the client to negotiate.                                    |
@@ -91,7 +90,7 @@ Spray.io configuration
 Spray is a toolkit for building REST/HTTP-based integration layers on top of Scala and Akka and is the main door to
 offer a Sparkta API to the world.
 
-More deep documentation about it, can be found in |spray_io|.
+More deep documentation about it, can be found at |spray_io|.
 
 .. |spray_io| raw:: html
 
@@ -113,7 +112,7 @@ An example in the application.conf::
 API configuration
 =================
 
-Parameters related with the API REST.
+Parameters related to the API REST.
 
 An example in the application.conf::
 
@@ -137,7 +136,7 @@ Swagger configuration
 
 Swagger is a Spray.io's submodule that it is used to generate automatically documentation about API's endpoints.
 
-More deep documentation about it, can be found in |swagger|.
+More deep documentation about it, can be found at |swagger|.
 
 .. |swagger| raw:: html
 
@@ -168,10 +167,10 @@ If you have the need of to run Sparkta in a cluster, you have three possibilitie
 
 - Sparkta + Spark Standalone: only one policy per cluster. (*)
 - Sparkta + Apache Mesos: one or more policy/policies per cluster. (*)
-- Sparkta + Apache Yarn: one or more policy/policies per cluster. (*)
+- Sparkta + Apache YARN: one or more policy/policies per cluster. (*)
 
 (*) Note: it is impossible to run up several spark contexts in the same machine in Standalone mode because you just
-can run only one policy per cluster. However if you choose Mesos or Yarn each job is treated in an isolate environment,
+can run only one policy per cluster. However if you choose Mesos or YARN each job is treated in an isolate environment,
 therefore you could run up as many contexts as you wish.
 
 In any of the selected choices it is mandatory to have HDFS installed and configured in all of nodes of the cluster.
@@ -286,22 +285,13 @@ of the MesosClusterDispatcher (e.g: mesos://dispatcher:7077). You can view drive
 
 .. _cluster-config-yarn:
 
-Sparkta + Apache Yarn
+Sparkta + Apache YARN
 ---------------------
 
-You must have correctly configured and deployed Apache Yarn. You can obtain information about how to do it in
+You must have correctly configured and deployed Apache Yarn. You can obtain information about how to do it at
 |yarn_doc|.
 
 .. |yarn_doc| raw:: html
 
    <a href="https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html"
    target="_blank">here</a>
-
-The next step is set up Sparkta's Yarn configuration:
-
-  yarn {
-  }
-
-+--------------------------------+-------------------------------------------------------------------+
-| Property                       | Description                                                       |
-+================================+===================================================================+
