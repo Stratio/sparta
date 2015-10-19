@@ -1,4 +1,4 @@
-**I'm in the website and i'm trying to create an input or output but the "ADD NEW" button doesn't take effect.**
+**I'm in the website and I'm trying to create an input or output but the "ADD NEW" button doesn't take effect.**
 
 - This is because Zookeeper is not running. If you don't have Zookeeper installed you can download it |zookeeper_dl|, and here is |zookeeper_run|
 
@@ -13,7 +13,7 @@
    <a href="https://zookeeper.apache.org/doc/trunk/zookeeperStarted.html"
    target="_blank"> the execution guide.</a>
 
-If it's already installed to run Zookeeper just::
+If it's already installed, to run Zookeeper just::
 
     bin/zkServer.sh start
 
@@ -25,18 +25,18 @@ If it's already installed to run Zookeeper just::
 
 - The "timeAvailavility" might be wrong. If the size of the window is not big enough, your data might not be fitting in it. So you have to check this parameter value and also the timestamp of the event.
 
-**I'm trying to run two or more policies at the same time in standalone mode and i got an error**
+**I'm trying to run two or more policies at the same time in standalone mode and I got an error**
 
 - Actually in standalone mode, Spark just allow you to have one spark context running at the same time.
 
-**I'm using kafka as an input source, i'm sending data in json format but the parser is not working**
+**I'm using Apache Kafka as an input source, I'm sending data in json format but the parser is not working**
 
 - Probably this is because you are sending the JSON through kafka in the wrong format, you have to send the JSON in one line format.
 
 **I'm checking the database that I'm using and only has the last event. The other data seems to be deleted. Why?**
 
-- If the time between your first data aggregation to the last it's quiet big, it's possible that the checkpoint value is not big enough to process the old data, so it will be deleted because Sparkta can't find it. You will only see the new aggregations.
+- If the time difference between your first data aggregation and the last is quiet big, it's possible that the checkpoint value is not big enough to process the old data, so it will be deleted because Sparkta can't find it. You will only see the new aggregations.
 
-**I'm trying to delete an input/output and i can't. Why?**
+**I'm trying to delete an input/output and I can't. Why?**
 
 - You can't delete inputs or outputs if the policy is running. Also you can't delete outputs that are included in policies, even if they are stopped.
