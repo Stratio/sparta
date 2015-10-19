@@ -5,6 +5,7 @@ Contents:
     :numbered:
 
     about.rst
+    configuration.rst
     usingSparkta.rst
     policy.rst
     sandbox.rst
