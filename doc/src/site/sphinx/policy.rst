@@ -17,22 +17,26 @@ General configuration
 
 In this part you have to define the global parameters of your policy::
 
-  "name": "Twitter-Cassandra-policy",
+ {
+  "name": "policy-TwitterJson-Cassandra",
+  "description": "policy-TwitterJson-Cassandra",
   "sparkStreamingWindow": 6000,
-  "checkpointPath": "myCheckpointPath",
+  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "true",
     "partitionFormat": "day",
-    "path": "myParquetPath"
+    "path": "myTestParquetPath"
   }
-
-
 +--------------------------+-----------------------------------------------+----------+
 | Property                 | Description                                   | Optional |
 +==========================+===============================================+==========+
 | name                     | Policy name to identify it                    | No       |
 +--------------------------+-----------------------------------------------+----------+
 | sparkStreamingWindow     | Apache Spark Streaming window duration        | No       |
++--------------------------+-----------------------------------------------+----------+
+| checkpointPath           | The path to save the checkpoint               | No       |
++--------------------------+-----------------------------------------------+----------+
+| rawData                  | To specify if you want to save the raw data   | No       |
 +--------------------------+-----------------------------------------------+----------+
 
 The `rawData` block allow you to save the `raw data <rawdata.html>`__ into HDFS + Parquet.
@@ -47,22 +51,16 @@ about supported inputs, you can visit :doc:`inputs`
 
 Example::
 
-    "input":
-      {
-        "name": "in-twitter",
-        "elementType": "TwitterInput",
-        "configuration": {
-          "consumerKey": "*****",
-          "consumerSecret": "*****",
-          "accessToken": "*****",
-          "accessTokenSecret": "*****"
-        }
-      }
-    ]
-
-
-
-
+ "input": {
+    "name": "in-twitter-json",
+    "type": "TwitterJson",
+    "configuration": {
+      "consumerKey": "*********",
+      "consumerSecret": "*********",
+      "accessToken": "*********",
+      "accessTokenSecret": "*********"
+    }
+  }
 
 Transformations
 ***************
