@@ -8,7 +8,6 @@ Contents:
     configuration.rst
     usingSparkta.rst
     policy.rst
-    sandbox.rst
-    examples.rst
+    getStarted.rst
     versionFeatures.rst
     advanced.rst
