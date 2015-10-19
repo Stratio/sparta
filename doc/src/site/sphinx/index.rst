@@ -12,5 +12,6 @@ Contents:
     troubleshooting.rst
     examples.rst
     faq.rst
+    getStarted.rst
     versionFeatures.rst
     advanced.rst
