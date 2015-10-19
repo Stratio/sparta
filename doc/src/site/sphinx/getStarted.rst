@@ -1,6 +1,6 @@
 
 Get Started
-******************
+*****************
 
 
 Stratio Sparkta sandbox
