@@ -9,6 +9,8 @@ Contents:
     usingSparkta.rst
     policy.rst
     sandbox.rst
+    troubleshooting.rst
     examples.rst
+    faq.rst
     versionFeatures.rst
     advanced.rst

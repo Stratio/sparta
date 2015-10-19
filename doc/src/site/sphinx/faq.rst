@@ -1,3 +1,6 @@
+F.A.Q
+=====
+
 **I'm in the website and I'm trying to create an input or output but the "ADD NEW" button doesn't take effect.**
 
 - This is because Zookeeper is not running. If you don't have Zookeeper installed you can download it |zookeeper_dl|, and here is |zookeeper_run|

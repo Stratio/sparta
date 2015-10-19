@@ -1,2 +1,0 @@
-Cassandra Specifications
-******************
