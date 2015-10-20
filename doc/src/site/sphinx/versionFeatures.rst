@@ -1,12 +1,12 @@
-Version Features
+Release Notes
 ****************
 
-Version 0.6.0
+Version 0.6
 =============
 
 - Upgrade Spark version to 1.4.1
 
-- User Interface to help create your cubes
+- User Interface to help to create your policies
 
 - Automatic deployment in Mesos cluster
 
@@ -22,7 +22,7 @@ Version 0.6.0
 
 
 
-Version 0.5.0
+Version 0.5
 =============
 
 - Added compatibility with Spark 1.4
@@ -41,7 +41,7 @@ Version 0.5.0
 
 
 
-Version 0.4.0
+Version 0.4
 =============
 
 Driver

@@ -1,4 +1,4 @@
-F.A.Q
+FAQs
 =====
 
 **I'm in the website and I'm trying to create an input or output but the "ADD NEW" button doesn't take effect.**

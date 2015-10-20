@@ -1,4 +1,4 @@
-Sparkta Configuration
+Configuration
 *********************
 
 Overview
@@ -44,7 +44,11 @@ A reference.conf with a full example of a configuration can be found at |github_
 Zookeeper configuration
 =======================
 
-One of the most important requirements in Sparkta is to have Zookeeper configured.
+One of the necessities of Sparkta is to keep track of all policies running and their status. Since Zookeeper is a
+Sparkta dependency and a common piece in any Big Data architecture we save all this metadata in Zookeeper nodes.
+
+All this info is saved under the znode `/stratio/sparkta`. Under this root we save input and output fragments,
+policies and policy statuses.
 
 ZK is used intensely. For example:
 
@@ -295,3 +299,34 @@ You must have correctly configured and deployed Apache Yarn. You can obtain info
 
    <a href="https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html"
    target="_blank">here</a>
+
+Fragments
+=====
+
+Fragments are JSON blocks of inputs/outputs that will be included in a policy. If one fragment is changed, all policies that had included it, will be automatically changed too. In fact, it is a nice way to reuse inputs/outputs between policies. An example of an input fragment::
+
+  {
+    "fragmentType": "input",
+    "name": "twitter",
+    "description": "twitter input",
+    "shortDescription": "twitter input",
+    "icon": "icon.png",
+    "element": {
+      "name": "in-twitter",
+      "type": "Twitter",
+      "configuration": {
+        "consumerKey": "*",
+        "consumerSecret": "*",
+        "accessToken": "*",
+        "accessTokenSecret": "*"
+      }
+    }
+  }
+
+These fragments are saved in Zookeeper in the following paths `/stratio/sparkta/fragments/input` and
+`/stratio/sparkta/fragments/output`
+
+Policies are saved in the following path `/stratio/sparkta/policies`.
+
+Another useful information we save is the policy status. We save the current status of a policy. This status is
+persisted in path `/stratio/sparkta/contexts`
