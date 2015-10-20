@@ -31,7 +31,6 @@
         <module>field-dateTime</module>
         <module>field-default</module>
         <module>field-geoHash</module>
-        <module>field-twitter-status</module>
         <module>field-tag</module>
         <module>field-hierarchy</module>
         <module>field-arrayText</module>

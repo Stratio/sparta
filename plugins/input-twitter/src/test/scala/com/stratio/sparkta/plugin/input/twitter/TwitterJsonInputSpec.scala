@@ -24,18 +24,19 @@ import com.stratio.sparkta.sdk.{Event, Input}
 import org.scalatest._
 
 @RunWith(classOf[JUnitRunner])
-class TwitterInputSpec extends WordSpec {
+class TwitterJsonInputSpec extends WordSpec {
 
   "A TwitterInput" should {
 
     "fail without parameters" in {
       intercept[IllegalStateException] {
-        new TwitterInput(Map())
+        new TwitterJsonInput(Map())
       }
     }
     "fail with bad arguments argument" in {
       intercept[IllegalStateException] {
-        new TwitterInput(Map("hostname" -> "localhost", "port" -> "BADPORT").mapValues(_.asInstanceOf[JSerializable]))
+        new TwitterJsonInput(Map("hostname" -> "localhost", "port" -> "BADPORT")
+        .mapValues(_.asInstanceOf[JSerializable]))
       }
     }
   }
