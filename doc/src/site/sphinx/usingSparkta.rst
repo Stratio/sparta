@@ -416,21 +416,21 @@ What you will find in the sandbox
 +------------------+---------+-------------------------------+
 |    Name          | Version |         Command               |
 +==================+=========+===============================+
-| Spark            | 1.3.0   | service spark start           |
+| Spark            | 1.4.1   |                               |
 +------------------+---------+-------------------------------+
-| Cassandra        | 2.1.2   | service cassandra start       |
+| Cassandra        | 2.1.4.0 | service cassandra start       |
 +------------------+---------+-------------------------------+
-| MongoDB          | 2.6.9   | service mongod start          |
+| MongoDB          | 2.6.11  | service mongod start          |
 +------------------+---------+-------------------------------+
-| Elasticsearch    | 1.5.2   | service elasticearch start    |
+| Elasticsearch    | 1.5.2   | service elasticsearch start   |
 +------------------+---------+-------------------------------+
 | zookeeper        | 3.4.6   | service zookeeper start       |
 +------------------+---------+-------------------------------+
-| Kafka            | 0.8.1   |                               |
+| Kafka            | 0.8.1.1 |                               |
 +------------------+---------+-------------------------------+
-| scala            | 2.10.4  |                               |
+| scala            | 2.10    |                               |
 +------------------+---------+-------------------------------+
-| RabbitMQ         | 3.5.1   | service rabbitmq-server start |
+| RabbitMQ         | 3.1.5   | service rabbitmq-server start |
 +------------------+---------+-------------------------------+
 
 
