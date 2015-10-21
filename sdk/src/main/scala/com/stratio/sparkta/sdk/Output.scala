@@ -17,23 +17,23 @@
 package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
+import scala.util._
 
-import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk.ValidatingPropertyMap.map2ValidatingPropertyMap
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import org.apache.spark.Logging
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
 import org.apache.spark.streaming.dstream.DStream
 
-import scala.util._
+import com.stratio.sparkta.sdk.TypeOp._
+import com.stratio.sparkta.sdk.ValidatingPropertyMap.map2ValidatingPropertyMap
+import com.stratio.sparkta.sdk.WriteOp.WriteOp
 
 abstract class Output(keyName: String,
                       properties: Map[String, JSerializable],
                       operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
                       bcSchema: Option[Seq[TableSchema]])
-  extends Parameterizable(properties) with Multiplexer with Logging {
+  extends Parameterizable(properties) with Logging {
 
   if (operationTypes.isEmpty) {
     log.info("Operation types is empty, you don't have aggregations defined in your policy.")
@@ -51,8 +51,6 @@ abstract class Output(keyName: String,
     WriteOp.AccSet, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.AccAvg, WriteOp.Median,
     WriteOp.AccMedian, WriteOp.Variance, WriteOp.AccVariance, WriteOp.Stddev, WriteOp.AccStddev,
     WriteOp.WordCount, WriteOp.EntityCount, WriteOp.Mode)
-
-  val multiplexer = Try(properties.getString("multiplexer").toBoolean).getOrElse(false)
 
   val fixedDimensions: Array[String] = properties.getString("fixedDimensions", None) match {
     case None => Array()
@@ -86,8 +84,7 @@ abstract class Output(keyName: String,
   }
 
   protected def persistMetricOperation(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit =
-    getStreamsFromOptions(stream, multiplexer, getFixedDimensions)
-      .foreachRDD(rdd => rdd.foreachPartition(
+    stream.foreachRDD(rdd => rdd.foreachPartition(
       ops => {
         Try(upsert(ops)) match {
           case Success(value) => value
@@ -100,8 +97,7 @@ abstract class Output(keyName: String,
     ))
 
   protected def persistDataFrame(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
-    getStreamsFromOptions(stream, multiplexer, getFixedDimensions)
-      .map { case (dimensionValuesTime, aggregations) =>
+    stream.map { case (dimensionValuesTime, aggregations) =>
       AggregateOperations.toKeyRow(
         filterDimensionValueTimeByFixedDimensions(dimensionValuesTime),
         aggregations,
@@ -110,14 +106,14 @@ abstract class Output(keyName: String,
         isAutoCalculateId)
     }
       .foreachRDD(rdd => {
-      bcSchema.get.filter(tschema => tschema.outputName == keyName).foreach(tschemaFiltered => {
-        val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
-        val dataFrame = sqlContext.createDataFrame(
-          extractRow(rdd.filter { case (schema, row) => schema.exists(_ == tableSchemaTime.tableName) }),
-          tableSchemaTime.schema)
-        upsert(dataFrame, tableSchemaTime.tableName, tschemaFiltered.timeDimension)
+        bcSchema.get.filter(tschema => tschema.outputName == keyName).foreach(tschemaFiltered => {
+          val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
+          val dataFrame = sqlContext.createDataFrame(
+            extractRow(rdd.filter { case (schema, row) => schema.exists(_ == tableSchemaTime.tableName) }),
+            tableSchemaTime.schema)
+          upsert(dataFrame, tableSchemaTime.tableName, tschemaFiltered.timeDimension)
+        })
       })
-    })
   }
 
   def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {}
@@ -127,17 +123,17 @@ abstract class Output(keyName: String,
   //TODO refactor for remove var types
   def getTableSchemaFixedId(tbSchema: TableSchema): TableSchema = {
     var tableName = tbSchema.tableName.split(Output.Separator)
-      .filter(name  => name != tbSchema.timeDimension && !fixedDimensions.contains(name))
+      .filter(name => name != tbSchema.timeDimension && !fixedDimensions.contains(name))
     var fieldsPk = getFields(tbSchema, false)
     var modifiedSchema = false
 
     if (!fixedDimensions.isEmpty) {
       fixedDimensions.foreach(fxdimension => {
-      if(!fieldsPk.map(stField => stField.name).contains(fxdimension)) {
-        tableName = tableName ++ Array(fxdimension)
-        fieldsPk = fieldsPk ++ Seq(Output.getFieldType(fixedDimensionsType, fxdimension, false))
-        modifiedSchema = true
-      }
+        if (!fieldsPk.map(stField => stField.name).contains(fxdimension)) {
+          tableName = tableName ++ Array(fxdimension)
+          fieldsPk = fieldsPk ++ Seq(Output.getFieldType(fixedDimensionsType, fxdimension, false))
+          modifiedSchema = true
+        }
       })
     }
 
@@ -210,8 +206,6 @@ object Output {
   final val Id = "id"
   final val FixedAggregation = "fixedAggregation"
   final val FixedAggregationSeparator = ":"
-  final val Multiplexer = "multiplexer"
-  final val DefaultMultiplexer = "false"
 
   def getFieldType(dateTimeType: TypeOp, fieldName: String, nullable: Boolean): StructField =
     dateTimeType match {

@@ -66,7 +66,6 @@ class OutputSpec extends WordSpec with Matchers {
 
     val outputProps = new OutputMock(outputName,
       Map(
-        "multiplexer" -> "true",
         "fixedDimensions" -> "dim2",
         "fixedAggregation" -> "op2:1",
         "isAutoCalculateId" -> "true"
@@ -98,18 +97,6 @@ class OutputSpec extends WordSpec with Matchers {
     "Supported write operations must be " in new CommonValues {
       val expected = Seq(WriteOp.Set)
       val result = output.supportedWriteOps
-      result should be(expected)
-    }
-
-    "without multiplexer must be " in new CommonValues {
-      val expected = false
-      val result = output.multiplexer
-      result should be(expected)
-    }
-
-    "with multiplexer must be " in new CommonValues {
-      val expected = true
-      val result = outputProps.multiplexer
       result should be(expected)
     }
 

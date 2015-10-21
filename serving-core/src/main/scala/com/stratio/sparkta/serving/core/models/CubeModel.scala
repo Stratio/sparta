@@ -20,22 +20,15 @@ import com.stratio.sparkta.sdk.DimensionType
 import com.stratio.sparkta.serving.core.AppConstant
 
 case class CubeModel(name: String,
-                   checkpointConfig: CheckpointModel,
-                   dimensions: Seq[DimensionModel],
-                   operators: Seq[OperatorModel],
-                   multiplexer: String = CubeModel.Multiplexer)
-
-case object CubeModel {
-
-  val Multiplexer = "false"
-}
+                     checkpointConfig: CheckpointModel,
+                     dimensions: Seq[DimensionModel],
+                     operators: Seq[OperatorModel])
 
 case class DimensionModel(name: String,
-                        field: String,
-                        precision: String = DimensionType.IdentityName,
-                       `type`: String = DimensionType.DefaultDimensionClass,
-                        configuration: Option[Map[String, String]]) {
+                          field: String,
+                          precision: String = DimensionType.IdentityName,
+                          `type`: String = DimensionType.DefaultDimensionClass,
+                          configuration: Option[Map[String, String]]) {
 
   val jarFile = AppConstant.jarsFilesMap.get(`type`)
-
 }

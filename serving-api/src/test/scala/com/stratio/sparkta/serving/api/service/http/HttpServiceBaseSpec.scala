@@ -19,24 +19,26 @@ package com.stratio.sparkta.serving.api.service.http
 import akka.actor.{ActorRef, ActorRefFactory}
 import akka.testkit.TestActor.AutoPilot
 import akka.testkit.{TestActor, TestProbe}
+import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
+import spray.testkit.ScalatestRouteTest
+
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
-import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
-import spray.testkit.ScalatestRouteTest
 
 /**
  * Common operations for http service specs. All of them must extend from this class.
  */
 trait HttpServiceBaseSpec extends WordSpec
-                          with Matchers
-                          with BeforeAndAfterEach
-                          with ScalatestRouteTest
-                          with SparktaSerializer {
+with Matchers
+with BeforeAndAfterEach
+with ScalatestRouteTest
+with SparktaSerializer {
 
-  val testProbe : TestProbe = TestProbe()
+  val testProbe: TestProbe = TestProbe()
+
   def actorRefFactory: ActorRefFactory = system
-  
+
   val granularity = 30000
   val interval = 60000
 
@@ -46,7 +48,7 @@ trait HttpServiceBaseSpec extends WordSpec
     new TemplateModel("template", "input", Map(), Map(), Seq())
 
   protected def getFragmentModel(): FragmentElementModel =
-    new FragmentElementModel(None,"input", "name", "description", "shortDescription",
+    new FragmentElementModel(None, "input", "name", "description", "shortDescription",
       new PolicyElementModel("name", "input", Map()))
 
   protected def getPolicyStatusModel(): PolicyStatusModel =
@@ -76,10 +78,9 @@ trait HttpServiceBaseSpec extends WordSpec
     val cubes = Seq(CubeModel("cube1",
       checkpointModel,
       dimensionModel,
-      operators,
-      CubeModel.Multiplexer))
+      operators))
     val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
-    val input = Some(PolicyElementModel("kafka", "Kafka",Map()))
+    val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
     val policy = AggregationPoliciesModel(id = Option("id"),
       storageLevel = AggregationPoliciesModel.storageDefaultValue,
       name = "testpolicy",
@@ -107,12 +108,12 @@ trait HttpServiceBaseSpec extends WordSpec
                                autopilot: Option[AutoPilot] = None): Unit =
     currentTestProbe.setAutoPilot(
       autopilot.getOrElse(new TestActor.AutoPilot {
-      def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
-        msg match {
-          case x =>
-            sender ! message
-            TestActor.NoAutoPilot
-        }
+        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
+          msg match {
+            case x =>
+              sender ! message
+              TestActor.NoAutoPilot
+          }
       })
     )
 }

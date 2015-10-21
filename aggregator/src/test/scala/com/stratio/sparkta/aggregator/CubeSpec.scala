@@ -18,11 +18,12 @@ package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.plugin.field.default.DefaultField
 import org.apache.spark.streaming.TestSuiteBase
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+
+import com.stratio.sparkta.plugin.field.default.DefaultField
 import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.plugin.operator.sum.SumOperator
 import com.stratio.sparkta.sdk._
@@ -39,13 +40,11 @@ class CubeSpec extends TestSuiteBase {
     val checkpointGranularity = "minute"
     val eventGranularity = DateOperations.dateFromGranularity(DateTime.now(), "minute")
     val name = "cubeName"
-    val multiplexer = false
-    
-    val cube = new Cube(
+
+    val cube = Cube(
       name,
       Seq(Dimension("dim1", "foo", "identity", defaultDimension)),
       Seq(new CountOperator("count", Map()), new SumOperator("sum", Map("inputField" -> "n"))),
-      multiplexer,
       checkpointGranularity,
       checkpointInterval,
       checkpointGranularity,
