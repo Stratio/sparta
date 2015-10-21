@@ -18,11 +18,12 @@ package com.stratio.sparkta.plugin.field.geohash
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparkta.sdk.{Precision, TypeOp}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Ignore, Matchers, WordSpecLike}
+import org.scalatest.{Matchers, WordSpecLike}
 
-import com.stratio.sparkta.sdk.TypeOp
+import scala.util.{Failure, Try}
 
 @RunWith(classOf[JUnitRunner])
 class GeoHashFieldSpec extends WordSpecLike with Matchers {
@@ -57,6 +58,7 @@ class GeoHashFieldSpec extends WordSpecLike with Matchers {
       val precision12 =
         geoHashDimension.precisionValue(GeoHashField.Precision12Name, Some("40.1__30.2").asInstanceOf[JSerializable])
 
+
       precision1._1.id should be(GeoHashField.Precision1Name)
       precision2._1.id should be(GeoHashField.Precision2Name)
       precision3._1.id should be(GeoHashField.Precision3Name)
@@ -69,6 +71,28 @@ class GeoHashFieldSpec extends WordSpecLike with Matchers {
       precision10._1.id should be(GeoHashField.Precision10Name)
       precision11._1.id should be(GeoHashField.Precision11Name)
       precision12._1.id should be(GeoHashField.Precision12Name)
+
+      val precision13 =
+        geoHashDimension.precisionValue(GeoHashField.Precision12Name, "40.1__30.2".asInstanceOf[JSerializable])
+
+      precision13._1.id should be(GeoHashField.Precision3Name)
+
+      val precision14 =
+        geoHashDimension.precisionValue(GeoHashField.Precision12Name, None.asInstanceOf[JSerializable])
+      precision14._1.id should be(GeoHashField.Precision3Name)
+
+      val precision15 =
+        geoHashDimension.precisionValue(GeoHashField.Precision12Name, Some("40.1").asInstanceOf[JSerializable])
+
+      precision15._1.id should be(GeoHashField.Precision12Name)
+      val precision16 = Try(
+        geoHashDimension.precisionValue(GeoHashField.Precision12Name, Some(1).asInstanceOf[JSerializable]))
+      match {
+        case Failure(ex) => ex
+      }
+
+      precision16.isInstanceOf[ClassCastException] should be(true)
+
     }
 
     "Each precision have their output type, precision1 must be integer and the others long" in {
@@ -99,6 +123,29 @@ class GeoHashFieldSpec extends WordSpecLike with Matchers {
       geoHashDimensionDefault.precision(GeoHashField.Precision10Name).typeOp should be(TypeOp.ArrayDouble)
       geoHashDimensionDefault.precision(GeoHashField.Precision11Name).typeOp should be(TypeOp.ArrayDouble)
       geoHashDimensionDefault.precision(GeoHashField.Precision12Name).typeOp should be(TypeOp.ArrayDouble)
+    }
+    "latitude and longitude splited  tests " in {
+      val latitude = new GeoHashField(Map("precision1" -> "int", "typeOp" -> "long", "coordinate" -> "latitude"))
+      latitude.precision(GeoHashField.Precision12Name).typeOp should be(TypeOp.Long)
+      val longitude = new GeoHashField(Map("precision1" -> "int", "typeOp" -> "long", "coordinate" -> "longitude"))
+      longitude.precision(GeoHashField.Precision12Name).typeOp should be(TypeOp.Long)
+      val other = new GeoHashField(Map("precision1" -> "int", "typeOp" -> "long", "coordinate" -> "other"))
+      other.precision(GeoHashField.Precision12Name).typeOp should be(TypeOp.Long)
+
+      val latResult: (Precision, JSerializable) =
+        latitude.precisionValue(GeoHashField.Precision12Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+
+      latResult._1.id should be(GeoHashField.Precision12Name)
+
+      val lonResult: (Precision, JSerializable) =
+        longitude.precisionValue(GeoHashField.Precision12Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+
+      lonResult._1.id should be(GeoHashField.Precision12Name)
+
+      val otherResult: (Precision, JSerializable) =
+        other.precisionValue(GeoHashField.Precision12Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+
+      otherResult._1.id should be(GeoHashField.Precision12Name)
     }
   }
 }

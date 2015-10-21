@@ -18,14 +18,15 @@ package com.stratio.sparkta.serving.api.actor
 
 import java.io.File
 
-import akka.actor.ActorRef
+import akka.actor.{Actor, ActorRef}
+import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel}
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
@@ -36,7 +37,9 @@ import scala.util.{Failure, Success, Try}
 
 class LocalSparkStreamingContextActor(policy: AggregationPoliciesModel,
                                       streamingContextService: StreamingContextService,
-                                      policyStatusActor: ActorRef) extends InstrumentedActor {
+                                      policyStatusActor: ActorRef) extends Actor
+with SLF4JLogging
+with SparktaSerializer {
 
   private var ssc: Option[StreamingContext] = None
 

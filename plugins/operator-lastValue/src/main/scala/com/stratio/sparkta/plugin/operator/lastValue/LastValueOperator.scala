@@ -19,29 +19,17 @@ package com.stratio.sparkta.plugin.operator.lastValue
 import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
-import com.stratio.sparkta.sdk.TypeOp
 import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.sdk.{TypeOp, _}
 
-class LastValueOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+class LastValueOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
+with ProcessMapAsAny {
 
   override val defaultTypeOperation = TypeOp.String
 
-  private val inputField = if (properties.contains("inputField")) properties.getString("inputField", None) else None
-
   override val writeOperation = WriteOp.Set
-
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Any] =
-    if (inputField.isDefined && inputFields.contains(inputField.get)) {
-      applyFilters(inputFields).flatMap(filteredFields => Some(filteredFields.get(inputField.get).get))
-    } else None
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
     Try(Some(transformValueByTypeOp(returnType, values.flatten.last)))
-      .getOrElse(LastValueOperator.Some_Empty)
-}
-
-private object LastValueOperator {
-  val Some_Empty = Some("")
+      .getOrElse(Some(OperatorConstants.EmptyString))
 }

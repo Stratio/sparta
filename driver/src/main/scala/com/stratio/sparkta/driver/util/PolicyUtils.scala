@@ -38,8 +38,6 @@ object PolicyUtils extends SparktaSerializer {
    */
   def parseJson(json: String): AggregationPoliciesModel = parse(json).extract[AggregationPoliciesModel]
 
-  def toJson(policy: AggregationPoliciesModel): String = write(policy)
-
   def jarsFromPolicy(apConfig: AggregationPoliciesModel): Seq[String] = {
     val input = apConfig.input.get.jarFile match {
       case Some(file) => Seq(file)

@@ -29,7 +29,7 @@ import org.scalatest.junit.JUnitRunner
  * [Operators]: sum, avg.
  * @author gschiavon
  */
-@RunWith(classOf[JUnitRunner])
+//@RunWith(classOf[JUnitRunner])
 class ISocketOMongoDetectorIT extends MongoEmbedDatabase with SparktaATSuite {
 
   val TestMongoPort = 60000

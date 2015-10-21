@@ -50,7 +50,7 @@ class MorphlinesParser(name: String,
         record.put(e._1, e._2)
       }
     })
-    new Event(checkFields(MorphlinesParser(config).process(record).keyMap) ++ data.keyMap)
+    new Event(checkFields(MorphlinesParser(name, config).process(record).keyMap) ++ data.keyMap)
   }
 }
 
@@ -85,7 +85,6 @@ case class MorphlineImpl(config: String) {
       //Getting only the first element
       (m._1, m._2.asScala.headOption match {
         case Some(e) => e.asInstanceOf[JSerializable]
-        case None => null
       })
     }).toMap
     new Event(map)
@@ -96,13 +95,13 @@ object MorphlinesParser {
 
   private val instances: ConcurrentHashMap[String, MorphlineImpl] = new ConcurrentHashMap[String, MorphlineImpl]()
 
-  def apply(config: String): MorphlineImpl = {
-    instances.get(config) match {
-      case null =>
+  def apply(name: String,config: String): MorphlineImpl = {
+    Option(instances.get(config)) match {
+      case Some(m) => m
+      case None =>
         val morphlineImpl = new MorphlineImpl(config)
         instances.put(config, morphlineImpl)
         morphlineImpl
-      case m => m
     }
   }
 }

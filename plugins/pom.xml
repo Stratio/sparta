@@ -65,9 +65,7 @@
         <module>parser-datetime</module>
         <module>parser-morphlines</module>
         <module>input-rabbitMQ</module>
-        <module>parser-detector</module>
         <module>parser-type</module>
-        <module>parser-split</module>
     </modules>
 
     <dependencies>

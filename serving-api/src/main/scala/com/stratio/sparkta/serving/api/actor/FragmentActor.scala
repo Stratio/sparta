@@ -22,11 +22,10 @@ import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.serving.api.actor.FragmentActor._
 import com.stratio.sparkta.serving.api.exception.ServingApiException
-import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, AppConstant}
+import com.stratio.sparkta.serving.core.AppConstant
 import com.stratio.sparkta.serving.core.models.{ErrorModel, FragmentElementModel, SparktaSerializer}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
-import org.apache.zookeeper.data.Stat
 import org.json4s.jackson.Serialization.{read, write}
 import spray.httpx.Json4sJacksonSupport
 
@@ -95,8 +94,10 @@ class FragmentActor(curatorFramework: CuratorFramework)
             s"Fragment of type ${fragment.fragmentType} with name ${fragment.name} exists.")
         ))
       }
-      val fragmentS = fragment.copy(id = Some(s"${UUID.randomUUID.toString}"),
-                                    name = fragment.name.toLowerCase)
+
+      val currentId: Option[String] = if(fragment.id.isDefined) fragment.id else Option(UUID.randomUUID.toString)
+      val fragmentS = fragment.copy(id = currentId,
+        name = fragment.name.toLowerCase)
       curatorFramework.create().creatingParentsIfNeeded().forPath(
         s"${FragmentActor.fragmentPath(
           fragmentS.fragmentType)}/${fragmentS.id.get}", write(fragmentS).getBytes())
@@ -135,7 +136,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
   private def existsByTypeAndName(fragmentType: String, name: String, id: Option[String] = None): Boolean = {
     Try({
       val fragmentLocation = fragmentPath(fragmentType)
-      if(CuratorFactoryHolder.existsPath(fragmentLocation)) {
+      if(Option(curatorFramework.checkExists().forPath(fragmentLocation)).isDefined) {
         val children = curatorFramework.getChildren.forPath(fragmentLocation)
         JavaConversions.asScalaBuffer(children).toList.map(element =>
           read[FragmentElementModel](new String(curatorFramework.getData.forPath(s"$fragmentLocation/$element"))))
@@ -173,7 +174,6 @@ object FragmentActor {
   case class ResponseFragments(fragments: Try[Seq[FragmentElementModel]])
 
   case class Response(status: Try[_])
-
 
   def fragmentPath(fragmentType: String): String = {
     fragmentType match {

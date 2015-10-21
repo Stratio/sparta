@@ -18,7 +18,8 @@ package com.stratio.sparkta.serving.api.actor
 
 import java.io.File
 
-import akka.actor.ActorRef
+import akka.actor.{Actor, ActorRef}
+import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
 import com.stratio.sparkta.driver.service.StreamingContextService
@@ -35,7 +36,7 @@ import org.apache.commons.lang.StringEscapeUtils
 import scala.collection.JavaConversions._
 import scala.concurrent.duration._
 import scala.sys.process._
-import scala.util.{Success, Failure, Try}
+import scala.util.{Failure, Success, Try}
 
 class ClusterSparkStreamingContextActor(policy: AggregationPoliciesModel,
                                         streamingContextService: StreamingContextService,
@@ -43,7 +44,9 @@ class ClusterSparkStreamingContextActor(policy: AggregationPoliciesModel,
                                         hdfsConfig: Config,
                                         zookeeperConfig: Config,
                                         detailConfig: Option[Config],
-                                        policyStatusActor: ActorRef) extends InstrumentedActor with SparktaSerializer {
+                                        policyStatusActor: ActorRef) extends Actor
+with SLF4JLogging
+with SparktaSerializer {
 
   implicit val timeout: Timeout = Timeout(3.seconds)
 
@@ -67,9 +70,11 @@ class ClusterSparkStreamingContextActor(policy: AggregationPoliciesModel,
         else {
           val hadoopUserName =
             scala.util.Properties.envOrElse("HADOOP_USER_NAME", hdfsConfig.getString(AppConstant.HadoopUserName))
+          val hdfsUgi=HdfsUtils.ugi(hadoopUserName)
           val hadoopConfDir =
             Some(scala.util.Properties.envOrElse("HADOOP_CONF_DIR", hdfsConfig.getString(AppConstant.HadoopConfDir)))
-          val hdfsUtils = new HdfsUtils(hadoopUserName, hadoopConfDir)
+          val hdfsConf=HdfsUtils.hdfsConfiguration(hadoopConfDir)
+          val hdfsUtils = new HdfsUtils(hdfsUgi,hdfsConf)
           val pluginsJarsFiles = PolicyUtils.activeJarFiles(activeJars.right.get, jarsPlugins)
           val pluginsJarsPath =
             s"/user/$hadoopUserName/${policy.name}-${policy.id.get}/${

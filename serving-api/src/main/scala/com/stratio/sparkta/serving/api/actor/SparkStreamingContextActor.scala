@@ -20,6 +20,7 @@ import java.util.UUID
 
 import akka.actor.SupervisorStrategy.Escalate
 import akka.actor._
+import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
 import com.stratio.sparkta.driver.service.StreamingContextService
@@ -33,12 +34,14 @@ import org.json4s.jackson.Serialization.{read, write}
 
 import scala.collection.JavaConversions
 import scala.concurrent.Await
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits._
+import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
 class SparkStreamingContextActor(streamingContextService: StreamingContextService,
-                                 policyStatusActor: ActorRef) extends InstrumentedActor with SparktaSerializer {
+                                 policyStatusActor: ActorRef) extends Actor
+with SLF4JLogging
+with SparktaSerializer {
 
   val curatorFramework = CuratorFactoryHolder.getInstance()
 

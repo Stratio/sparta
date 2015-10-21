@@ -28,11 +28,9 @@ import spray.http.HttpHeaders.`Content-Disposition`
 import spray.http.{HttpResponse, StatusCodes}
 import spray.httpx.marshalling.ToResponseMarshallable
 import spray.routing._
-
-import com.stratio.sparkta.driver.constants.AkkaConstant
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor
-import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.api.constants.{AkkaConstant, HttpConstant}
 import com.stratio.sparkta.serving.api.helpers.PolicyHelper
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
@@ -43,9 +41,6 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
   case class Result(message: String, desc: Option[String] = None)
 
   override def routes: Route = find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download ~ findByName
-
-  def getPolicyWithFragments(policy: AggregationPoliciesModel): AggregationPoliciesModel =
-    PolicyHelper.parseFragments(PolicyHelper.fillFragments(policy, actors.get(AkkaConstant.FragmentActor).get, timeout))
 
   @Path("/find/{id}")
   @ApiOperation(value = "Find a policy from its id.",
@@ -143,33 +138,6 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     }
   }
 
-  def withStatus(policies: Seq[AggregationPoliciesModel]): ToResponseMarshallable = {
-
-    if (!policies.isEmpty) {
-      val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
-      for {
-        response <- (policyStatusActor ? PolicyStatusActor.FindAll)
-          .mapTo[PolicyStatusActor.Response]
-      } yield {
-        policies.map(policy => getPolicyWithStatus(policy, response.policyStatus.get))
-      }
-    } else {
-      Seq()
-    }
-  }
-
-  def getPolicyWithStatus(policy: AggregationPoliciesModel, statuses: Seq[PolicyStatusModel]): PolicyWithStatus = {
-    val status = statuses.find(_.id == policy.id.get) match {
-      case Some(statusPolicy) => statusPolicy.status
-      case None => PolicyStatusEnum.NotStarted
-    }
-    PolicyWithStatus(status, policy)
-  }
-
-  //TODO @dvallejo Refactor this case class to a better place
-  case class PolicyWithStatus(status: PolicyStatusEnum.Value,
-                              policy: AggregationPoliciesModel)
-
   @Path("/all")
   @ApiOperation(value = "Finds all policies.",
     notes = "Finds all policies.",
@@ -242,7 +210,7 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
               val future = supervisor ? new Update(policy)
               Await.result(future, timeout.duration) match {
                 case Response(Failure(exception)) => throw exception
-                case Response(Success(_)) => HttpResponse(StatusCodes.Created)
+                case Response(Success(_)) => HttpResponse(StatusCodes.OK)
               }
             }
           }
@@ -345,17 +313,45 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
           case ResponsePolicy(Success(policy)) => {
             val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(getPolicyWithFragments(policy))
             validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-              complete {
-                val tempFile = File.createTempFile(s"${policy.id.get}-${policy.name}-", ".json")
-                respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> s"${policy.name}.json"))) {
-                  scala.tools.nsc.io.File(tempFile).writeAll(write(policy))
-                  getFromFile(tempFile)
-                }
+              val tempFile = File.createTempFile(s"${policy.id.get}-${policy.name}-", ".json")
+              tempFile.deleteOnExit()
+              respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> s"${policy.name}.json"))) {
+                scala.tools.nsc.io.File(tempFile).writeAll(write(policy))
+                getFromFile(tempFile)
               }
             }
           }
         }
       }
     }
+  }
+
+  // XXX Protected methods
+
+  def getPolicyWithFragments(policy: AggregationPoliciesModel): AggregationPoliciesModel =
+    PolicyHelper.parseFragments(PolicyHelper.fillFragments(policy, actors.get(AkkaConstant.FragmentActor).get, timeout))
+
+  protected def withStatus(policies: Seq[AggregationPoliciesModel]): ToResponseMarshallable = {
+
+    if (!policies.isEmpty) {
+      val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
+      for {
+        response <- (policyStatusActor ? PolicyStatusActor.FindAll)
+          .mapTo[PolicyStatusActor.Response]
+      } yield {
+        policies.map(policy => getPolicyWithStatus(policy, response.policyStatus.get))
+      }
+    } else {
+      Seq()
+    }
+  }
+
+  protected def getPolicyWithStatus(policy: AggregationPoliciesModel, statuses: Seq[PolicyStatusModel])
+  : PolicyWithStatus = {
+    val status = statuses.find(_.id == policy.id.get) match {
+      case Some(statusPolicy) => statusPolicy.status
+      case None => PolicyStatusEnum.NotStarted
+    }
+    PolicyWithStatus(status, policy)
   }
 }
