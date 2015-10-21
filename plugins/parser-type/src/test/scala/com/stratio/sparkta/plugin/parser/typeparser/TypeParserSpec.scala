@@ -30,6 +30,7 @@ class TypeParserSpec extends WordSpecLike {
   val StringShortValue: String = "3"
   val StringByteValue: String = "1"
   val inputField = "stringField"
+  val otherInputField = "stringField2"
   val outputsFields = Seq("numericField")
 
   "A TypeParser" should {
@@ -38,11 +39,11 @@ class TypeParserSpec extends WordSpecLike {
       val e2 = new Event(Map("numericField" -> StringValue.toInt))
       assertResult (e2) (
         new TypeParser("name", 1, inputField, outputsFields, Map(
-            "type" -> "Int",
+            "type" -> "int",
             "newField" -> "numericField")).parse(e1))
     }
 
-    "parse string to long" in {
+    "parse string to long first letter in capital" in {
       val e1 = new Event(Map("stringField" -> StringValue))
       val e2 = new Event(Map("numericField" -> StringValue.toLong))
       assertResult (e2) (
@@ -51,7 +52,7 @@ class TypeParserSpec extends WordSpecLike {
           "newField" -> "numericField")).parse(e1))
     }
 
-    "parse string to float" in {
+    "parse string to float first letter in capital" in {
       val e1 = new Event(Map("stringField" -> StringDecimalValue))
       val e2 = new Event(Map("numericField" -> StringDecimalValue.toFloat))
       assertResult (e2) (
@@ -60,12 +61,39 @@ class TypeParserSpec extends WordSpecLike {
           "newField" -> "numericField")).parse(e1))
     }
 
-    "parse string to double" in {
+    "parse string to double first letter in capital" in {
       val e1 = new Event(Map("stringField" -> StringDecimalValue))
       val e2 = new Event(Map("numericField" -> StringDecimalValue.toDouble))
       assertResult (e2) (
         new TypeParser("name", 1, inputField, outputsFields, Map(
           "type" -> "Double",
+          "newField" -> "numericField")).parse(e1))
+    }
+
+    "parse string to long" in {
+      val e1 = new Event(Map("stringField" -> StringValue))
+      val e2 = new Event(Map("numericField" -> StringValue.toLong))
+      assertResult (e2) (
+        new TypeParser("name", 1, inputField, outputsFields, Map(
+          "type" -> "long",
+          "newField" -> "numericField")).parse(e1))
+    }
+
+    "parse string to float" in {
+      val e1 = new Event(Map("stringField" -> StringDecimalValue))
+      val e2 = new Event(Map("numericField" -> StringDecimalValue.toFloat))
+      assertResult (e2) (
+        new TypeParser("name", 1, inputField, outputsFields, Map(
+          "type" -> "float",
+          "newField" -> "numericField")).parse(e1))
+    }
+
+    "parse string to double" in {
+      val e1 = new Event(Map("stringField" -> StringDecimalValue))
+      val e2 = new Event(Map("numericField" -> StringDecimalValue.toDouble))
+      assertResult (e2) (
+        new TypeParser("name", 1, inputField, outputsFields, Map(
+          "type" -> "double",
           "newField" -> "numericField")).parse(e1))
     }
 
@@ -83,6 +111,28 @@ class TypeParserSpec extends WordSpecLike {
       val e2 = new Event(Map("numericField" -> StringByteValue.toByte))
       assertResult (e2) (
         new TypeParser("name", 1, inputField, outputsFields, Map(
+          "type" -> "byte",
+          "newField" -> "numericField")).parse(e1))
+    }
+
+    "parse string with wrong type should throw IllegalArgumentException" in {
+      val e1 = new Event(Map("stringField" -> StringByteValue))
+      val e2 = new Event(Map("numericField" -> StringByteValue.toByte))
+
+      val err = intercept[IllegalArgumentException] {
+        new TypeParser("name", 1, inputField, outputsFields, Map(
+          "type" -> "bytedd",
+          "newField" -> "numericField")).parse(e1)
+      }
+
+      assertResult (err.getMessage) ("Possible values for property type are: Byte, Short, Int, Long, Float and Double")
+    }
+
+    "not parse if the input field does not exist" in {
+      val e1 = new Event(Map("stringField" -> StringByteValue))
+      val e2 = new Event(Map("stringField" -> StringByteValue))
+      assertResult (e2) (
+        new TypeParser("name", 1, otherInputField, outputsFields, Map(
           "type" -> "byte",
           "newField" -> "numericField")).parse(e1))
     }

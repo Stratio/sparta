@@ -26,6 +26,7 @@ import scala.util.{Failure, Success, Try}
  * @author anistal
  */
 trait ConfigFactory extends SLF4JLogging {
+
   def getConfig(node: String, currentConfig: Option[Config] = None): Option[Config] =
     currentConfig match {
       case Some(config) => Try(config.getConfig(node)) match {

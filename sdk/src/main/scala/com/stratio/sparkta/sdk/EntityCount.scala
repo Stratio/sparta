@@ -18,11 +18,10 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 
 abstract class EntityCount(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
-
-  val inputField = if (properties.contains("inputField")) Some(properties.getString("inputField")) else None
 
   val split = if (properties.contains("split")) Some(properties.getString("split")) else None
 
@@ -46,5 +45,4 @@ abstract class EntityCount(name: String, properties: Map[String, JSerializable])
       case Some(regex) => value.replaceAll(regex, "")
       case None => value
     }
-
 }

@@ -172,6 +172,7 @@
         <guava.version>18.0</guava.version>
         <curator.version>2.9.0</curator.version>
         <scala.mock.version>3.2.2</scala.mock.version>
+        <easy.mock.version>2.5.2</easy.mock.version>
     </properties>
 
     <dependencyManagement>
