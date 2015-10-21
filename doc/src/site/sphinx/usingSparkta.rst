@@ -409,7 +409,7 @@ Now you are ready to test the :ref:`examples-label` with the sandbox
 What you will find in the sandbox
 ----------
 
--  OS: CentOS 6.5
+-  OS: CentOS 6.7
 -  3GB RAM - 2 CPU
 -  Two ethernet interfaces.
 
