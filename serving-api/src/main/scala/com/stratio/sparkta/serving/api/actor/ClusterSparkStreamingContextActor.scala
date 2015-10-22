@@ -25,11 +25,12 @@ import akka.util.Timeout
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.driver.util.{HdfsUtils, PolicyUtils}
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
+import com.stratio.sparkta.serving.core.SparktaConfig
+import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
-import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
 import com.typesafe.config.{Config, ConfigRenderOptions}
 import org.apache.commons.lang.StringEscapeUtils
 
@@ -70,19 +71,16 @@ with SparktaSerializer {
         else {
           val hadoopUserName =
             scala.util.Properties.envOrElse("HADOOP_USER_NAME", hdfsConfig.getString(AppConstant.HadoopUserName))
-          val hdfsUgi=HdfsUtils.ugi(hadoopUserName)
+          val hdfsUgi = HdfsUtils.ugi(hadoopUserName)
           val hadoopConfDir =
             Some(scala.util.Properties.envOrElse("HADOOP_CONF_DIR", hdfsConfig.getString(AppConstant.HadoopConfDir)))
-          val hdfsConf=HdfsUtils.hdfsConfiguration(hadoopConfDir)
-          val hdfsUtils = new HdfsUtils(hdfsUgi,hdfsConf)
+          val hdfsConf = HdfsUtils.hdfsConfiguration(hadoopConfDir)
+          val hdfsUtils = new HdfsUtils(hdfsUgi, hdfsConf)
           val pluginsJarsFiles = PolicyUtils.activeJarFiles(activeJars.right.get, jarsPlugins)
           val pluginsJarsPath =
-            s"/user/$hadoopUserName/${policy.name}-${policy.id.get}/${
-              hdfsConfig.getString(AppConstant
-                .PluginsFolder)
-            }/"
+            s"/user/$hadoopUserName/${policy.id.get.trim}/${hdfsConfig.getString(AppConstant.PluginsFolder)}/"
           val classpathJarsPath =
-            s"/user/$hadoopUserName/${policy.name}-${policy.id.get}/${hdfsConfig.getString(AppConstant.ClasspathFolder)}/"
+            s"/user/$hadoopUserName/${policy.id.get.trim}/${hdfsConfig.getString(AppConstant.ClasspathFolder)}/"
 
           pluginsJarsFiles.foreach(file => hdfsUtils.write(file.getAbsolutePath, pluginsJarsPath, true))
           log.info("Jars plugins uploaded to HDFS")
@@ -95,7 +93,7 @@ with SparktaSerializer {
           JarsHelper.findDriverByPath(
             new File(SparktaConfig.sparktaHome, AppConstant.ClusterExecutionJarFolder)).headOption match {
             case Some(driverJar) => {
-              val driverJarPath = s"/user/$hadoopUserName/${policy.name}-${policy.id.get}/" +
+              val driverJarPath = s"/user/$hadoopUserName/${policy.id.get.trim}/" +
                 s"${hdfsConfig.getString(AppConstant.ExecutionJarFolder)}/"
               val hdfsDriverFile =
                 s" hdfs://${hdfsConfig.getString(AppConstant.HdfsMaster)}$driverJarPath${driverJar.getName}"

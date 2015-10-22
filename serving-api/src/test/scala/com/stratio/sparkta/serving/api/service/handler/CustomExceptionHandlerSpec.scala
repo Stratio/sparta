@@ -17,10 +17,6 @@
 package com.stratio.sparkta.serving.api.service.handler
 
 import akka.actor.ActorSystem
-import com.stratio.sparkta.sdk.exception.MockException
-import com.stratio.sparkta.serving.api.exception.ServingApiException
-import com.stratio.sparkta.serving.api.service.handler.CustomExceptionHandler._
-import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -28,6 +24,11 @@ import spray.http.StatusCodes
 import spray.httpx.Json4sJacksonSupport
 import spray.routing.{Directives, HttpService, StandardRoute}
 import spray.testkit.ScalatestRouteTest
+
+import com.stratio.sparkta.sdk.exception.MockException
+import com.stratio.sparkta.serving.api.service.handler.CustomExceptionHandler._
+import com.stratio.sparkta.serving.core.exception.ServingException
+import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer}
 
 @RunWith(classOf[JUnitRunner])
 class CustomExceptionHandlerSpec extends WordSpec
@@ -42,7 +43,7 @@ with Json4sJacksonSupport with HttpService with SparktaSerializer {
     val route: StandardRoute = complete(throw exception)
   }
 
-  def route(throwable: Throwable) : StandardRoute = complete(throw throwable)
+  def route(throwable: Throwable): StandardRoute = complete(throw throwable)
 
   "CustomExceptionHandler" should {
     "encapsulate a unknow error in an error model and response with a 500 code" in new MyTestRoute {
@@ -53,7 +54,7 @@ with Json4sJacksonSupport with HttpService with SparktaSerializer {
       }
     }
     "encapsulate a serving api error in an error model and response with a 400 code" in new MyTestRoute {
-      val exception = ServingApiException.create(ErrorModel.toString(new ErrorModel("333", "testing exception")))
+      val exception = ServingException.create(ErrorModel.toString(new ErrorModel("333", "testing exception")))
       Get() ~> sealRoute(route) ~> check {
         status should be(StatusCodes.NotFound)
         response.entity.asString should be(ErrorModel.toString(new ErrorModel("333", "testing exception")))

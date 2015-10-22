@@ -18,9 +18,10 @@ package com.stratio.sparkta.serving.core.policy.status
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparkta.serving.core.CuratorFactoryHolder
+import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.models.{PolicyStatusModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor._
-import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder}
 import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
 import org.json4s.jackson.Serialization.{read, write}
 
@@ -70,7 +71,7 @@ class PolicyStatusActor extends Actor with SLF4JLogging with SparktaSerializer {
     }
   }
 
-  def setNotStartedStatus(policyStatus : PolicyStatusModel): Option[PolicyStatusModel] = {
+  def setNotStartedStatus(policyStatus: PolicyStatusModel): Option[PolicyStatusModel] = {
     val curator = CuratorFactoryHolder.getInstance()
     val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
 
@@ -79,7 +80,6 @@ class PolicyStatusActor extends Actor with SLF4JLogging with SparktaSerializer {
     curator.create.creatingParentsIfNeeded.forPath(statusPath, write(policyStatus).getBytes)
     Some(policyStatus)
   }
-
 
   def findAll(): Unit = {
     sender ! Response(Try({

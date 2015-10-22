@@ -18,12 +18,12 @@ package com.stratio.sparkta.serving.api.actor
 
 import akka.actor.{ActorContext, _}
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.serving.api.constants.AkkaConstant
-import com.stratio.sparkta.serving.api.service.http._
-import com.stratio.sparkta.serving.core.models.SparktaSerializer
 import spray.routing._
-import com.stratio.sparkta.serving.api.service.handler.CustomExceptionHandler._
 
+import com.stratio.sparkta.serving.api.service.handler.CustomExceptionHandler._
+import com.stratio.sparkta.serving.api.service.http._
+import com.stratio.sparkta.serving.core.constants.AkkaConstant
+import com.stratio.sparkta.serving.core.models.SparktaSerializer
 
 class ControllerActor(actorsMap: Map[String, ActorRef]) extends HttpServiceActor
 with SLF4JLogging
@@ -64,7 +64,7 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
 
   val templateRoute: Route = new TemplateHttpService {
     implicit val actors = actorsMap
-    override val supervisor =actorsMap.get(AkkaConstant.TemplateActor).get
+    override val supervisor = actorsMap.get(AkkaConstant.TemplateActor).get
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 

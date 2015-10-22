@@ -17,7 +17,7 @@
 package com.stratio.sparkta.serving.core.models
 
 import com.stratio.sparkta.sdk.JsoneyString
-import com.stratio.sparkta.serving.core.AppConstant
+import com.stratio.sparkta.serving.core.constants.AppConstant
 
 case class OperatorModel(`type`: String, name: String, configuration: Map[String, JsoneyString]) {
 

@@ -17,10 +17,9 @@
 package com.stratio.sparkta.serving.core.models
 
 import com.stratio.sparkta.sdk.JsoneyString
-import com.stratio.sparkta.serving.core.AppConstant
+import com.stratio.sparkta.serving.core.constants.AppConstant
 
 case class PolicyElementModel(name: String, `type`: String, configuration: Map[String, JsoneyString] = Map()) {
 
   val jarFile = AppConstant.jarsFilesMap.get(`type`)
-
 }

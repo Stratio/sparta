@@ -17,13 +17,14 @@
 package com.stratio.sparkta.serving.api.service.handler
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.serving.api.exception.ServingApiException
-import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer}
 import org.json4s.jackson.Serialization._
 import spray.http.StatusCodes
 import spray.routing.ExceptionHandler
 import spray.routing.directives.{MiscDirectives, RouteDirectives}
 import spray.util.LoggingContext
+
+import com.stratio.sparkta.serving.core.exception.ServingException
+import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer}
 
 /**
  * This exception handler will be used by all our services to return a [ErrorModel] that will be used by the frontend.
@@ -35,7 +36,7 @@ with SparktaSerializer {
 
   implicit def exceptionHandler(implicit logg: LoggingContext): ExceptionHandler = {
     ExceptionHandler {
-      case exception: ServingApiException =>
+      case exception: ServingException =>
         requestUri { uri =>
           log.error(exception.getLocalizedMessage)
           complete((StatusCodes.NotFound, write(ErrorModel.toErrorModel(exception.getLocalizedMessage))))

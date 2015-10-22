@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.actor
+package com.stratio.sparkta.serving.core.actor
 
 import java.util
+import scala.util.Success
 
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
-import com.stratio.sparkta.serving.api.actor.FragmentActor.{Response, ResponseFragment, ResponseFragments}
-import com.stratio.sparkta.serving.core.models.{FragmentElementModel, SparktaSerializer}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.api._
 import org.apache.zookeeper.KeeperException.NoNodeException
@@ -33,7 +32,8 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
-import scala.util.Success
+import com.stratio.sparkta.serving.core.actor.FragmentActor.{Response, ResponseFragment, ResponseFragments}
+import com.stratio.sparkta.serving.core.models.{FragmentElementModel, SparktaSerializer}
 
 @RunWith(classOf[JUnitRunner])
 class FragmentActorSpec extends TestKit(ActorSystem("FragmentActorSpec"))
@@ -128,7 +128,7 @@ with MockitoSugar with SparktaSerializer {
     }
 
     // XXX findByTypeAndId
-    "findByTypeAndId: returns a fragments by type and id" in new TestData{
+    "findByTypeAndId: returns a fragments by type and id" in new TestData {
       when(curatorFramework.getChildren)
         .thenReturn(getChildrenBuilder)
       when(curatorFramework.getChildren
@@ -158,7 +158,7 @@ with MockitoSugar with SparktaSerializer {
     }
 
     // XXX findByTypeAndName
-    "findByTypeAndName: returns a fragments by type and name" in new TestData{
+    "findByTypeAndName: returns a fragments by type and name" in new TestData {
       when(curatorFramework.getChildren)
         .thenReturn(getChildrenBuilder)
       when(curatorFramework.getChildren

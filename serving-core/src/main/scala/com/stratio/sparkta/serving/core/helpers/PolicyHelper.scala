@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.helpers
+package com.stratio.sparkta.serving.core.helpers
+
+import scala.concurrent.Await
+import scala.util.{Failure, Success}
 
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
-import com.stratio.sparkta.serving.api.actor.FragmentActor.{ResponseFragment, Response, FindByTypeAndId}
-import com.stratio.sparkta.serving.api.actor._
+
+import com.stratio.sparkta.serving.core.actor.FragmentActor.{FindByTypeAndId, ResponseFragment}
 import com.stratio.sparkta.serving.core.models.FragmentType._
 import com.stratio.sparkta.serving.core.models._
-
-import scala.concurrent.Await
-import scala.util.{Failure, Success}
 
 /**
  * Helper with operations over policies and policy fragments.
@@ -46,7 +46,7 @@ object PolicyHelper {
       ++ apConfig.outputs.map(output => FragmentType.output -> output)
       ).groupBy(_._1).mapValues(_.map(_._2))
 
-    if(mapInputsOutputs.get(FragmentType.output).isEmpty) {
+    if (mapInputsOutputs.get(FragmentType.output).isEmpty) {
       throw new IllegalStateException("It is mandatory to define at least one output in the policy.")
     }
 
@@ -86,18 +86,17 @@ object PolicyHelper {
    */
   private def getCurrentInput(mapInputsOutputs: Map[`type`, Seq[PolicyElementModel]],
                               apConfig: AggregationPoliciesModel): PolicyElementModel = {
-    val currentInputs = mapInputsOutputs.filter(x => if(x._1 == FragmentType.input) true else false)
+    val currentInputs = mapInputsOutputs.filter(x => if (x._1 == FragmentType.input) true else false)
 
-    if((currentInputs.nonEmpty && currentInputs.get(FragmentType.input).get.size > 1)
-      ||(currentInputs.nonEmpty && currentInputs.get(FragmentType.input).get.size == 1 && apConfig.input.isDefined)) {
+    if ((currentInputs.nonEmpty && currentInputs.get(FragmentType.input).get.size > 1)
+      || (currentInputs.nonEmpty && currentInputs.get(FragmentType.input).get.size == 1 && apConfig.input.isDefined)) {
       throw new IllegalStateException("Only one input is allowed in the policy.")
     }
 
-    if(currentInputs.isEmpty && apConfig.input.isDefined == false) {
+    if (currentInputs.isEmpty && apConfig.input.isDefined == false) {
       throw new IllegalStateException("It is mandatory to define one input in the policy.")
     }
 
     apConfig.input.getOrElse(mapInputsOutputs.get(FragmentType.input).get.head)
   }
-
 }

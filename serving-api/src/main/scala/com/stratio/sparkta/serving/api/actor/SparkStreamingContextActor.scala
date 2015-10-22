@@ -25,11 +25,12 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
-import com.stratio.sparkta.serving.api.exception.ServingApiException
+import com.stratio.sparkta.serving.core.constants.AppConstant
+import com.stratio.sparkta.serving.core.exception.ServingException
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{FindAll, Response, Update}
 import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
-import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder, SparktaConfig}
+import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, SparktaConfig}
 import org.json4s.jackson.Serialization.{read, write}
 
 import scala.collection.JavaConversions
@@ -51,7 +52,7 @@ with SparktaSerializer {
 
   override val supervisorStrategy =
     OneForOneStrategy() {
-      case _: ServingApiException => Escalate
+      case _: ServingException => Escalate
       case t =>
         super.supervisorStrategy.decider.applyOrElse(t, (_: Any) => Escalate)
     }
@@ -63,7 +64,7 @@ with SparktaSerializer {
   def isNotRunning(policy: AggregationPoliciesModel): Boolean = {
     val future = policyStatusActor ? FindAll
     val models = Await.result(future, timeout.duration) match {
-      case Response(Success(s)) => s.filter(s=>s.id==policy.id.get)
+      case Response(Success(s)) => s.filter(s => s.id == policy.id.get)
       case Response(Failure(ex)) => throw ex
     }
     models.asInstanceOf[Seq[PolicyStatusModel]].exists(p => p.status match {
@@ -103,7 +104,7 @@ with SparktaSerializer {
   }
 
   def existsByName(name: String, id: Option[String] = None): Boolean = {
-    val nameToCompare =name.toLowerCase
+    val nameToCompare = name.toLowerCase
     Try({
       val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
       JavaConversions.asScalaBuffer(children).toList.map(element =>
@@ -119,6 +120,7 @@ with SparktaSerializer {
       }
     }
   }
+
   def launchNewPolicy(policy: AggregationPoliciesModel): AggregationPoliciesModel = {
     val policyWithIdModel = policyWithId(policy)
 
@@ -140,7 +142,6 @@ with SparktaSerializer {
     policyWithIdModel
   }
 
-
   private def policyWithId(policy: AggregationPoliciesModel) =
     (
       policy.id match {
@@ -149,10 +150,8 @@ with SparktaSerializer {
       }
       ).copy(name = policy.name.toLowerCase)
 
-
   // XXX Private Methods.
   private def savePolicyInZk(policy: AggregationPoliciesModel): Unit = {
-
 
     Try({
       read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.forPath(

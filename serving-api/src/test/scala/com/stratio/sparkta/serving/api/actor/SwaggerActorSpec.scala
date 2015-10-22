@@ -18,14 +18,16 @@ package com.stratio.sparkta.serving.api.actor
 
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
-import com.stratio.sparkta.driver.service.StreamingContextService
-import com.stratio.sparkta.serving.api.constants.AkkaConstant
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
 import org.apache.curator.framework.CuratorFramework
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
+
+import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.serving.core.actor.FragmentActor
+import com.stratio.sparkta.serving.core.constants.AkkaConstant
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
 
 @RunWith(classOf[JUnitRunner])
 class SwaggerActorSpec(_system: ActorSystem) extends TestKit(_system)

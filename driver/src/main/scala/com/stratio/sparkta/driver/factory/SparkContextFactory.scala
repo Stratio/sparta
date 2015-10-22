@@ -20,7 +20,8 @@ import java.io.File
 import java.net.URI
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
+import com.stratio.sparkta.serving.core.SparktaConfig
+import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.typesafe.config.Config
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.{Duration, StreamingContext}
