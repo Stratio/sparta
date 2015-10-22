@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.exception
+package com.stratio.sparkta.serving.core.exception
 
-import com.stratio.sparkta.serving.api.constants.HttpConstant
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
-class ServerApiExceptionSpec extends WordSpec with Matchers {
+class ServingExceptionSpec extends WordSpec with Matchers {
 
-  "A ServingApiException" should {
+  "A ServingException" should {
     "create an exception with message" in {
-      ServingApiException.create("message").getMessage should be("message")
+      ServingException.create("message").getMessage should be("message")
     }
     "create an exception with message and a cause" in {
       val cause = new IllegalArgumentException("any exception")
-      val exception = ServingApiException.create("message", cause)
+      val exception = ServingException.create("message", cause)
       exception.getMessage should be("message")
       exception.getCause should be theSameInstanceAs(cause)
     }

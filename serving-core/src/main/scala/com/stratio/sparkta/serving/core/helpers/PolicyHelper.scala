@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.helpers
+package com.stratio.sparkta.serving.core.helpers
 
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
-import com.stratio.sparkta.serving.api.actor.FragmentActor.{ResponseFragment, Response, FindByTypeAndId}
-import com.stratio.sparkta.serving.api.actor._
+import com.stratio.sparkta.serving.core.actor.FragmentActor._
 import com.stratio.sparkta.serving.core.models.FragmentType._
 import com.stratio.sparkta.serving.core.models._
 

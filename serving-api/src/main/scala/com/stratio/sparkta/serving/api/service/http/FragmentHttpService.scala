@@ -19,9 +19,10 @@ package com.stratio.sparkta.serving.api.service.http
 import javax.ws.rs.Path
 
 import akka.pattern.ask
-import com.stratio.sparkta.serving.api.actor.FragmentActor._
 import com.stratio.sparkta.serving.api.actor.PolicyActor.{Delete, FindByFragment, ResponsePolicies}
-import com.stratio.sparkta.serving.api.constants.{AkkaConstant, HttpConstant}
+import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.core.actor.FragmentActor._
+import com.stratio.sparkta.serving.core.constants.AkkaConstant
 import com.stratio.sparkta.serving.core.models.FragmentElementModel
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
@@ -149,10 +150,10 @@ trait FragmentHttpService extends BaseHttpService {
     path(HttpConstant.FragmentPath) {
       post {
         entity(as[FragmentElementModel]) { fragment =>
-            val future = supervisor ? new Create(fragment)
-            Await.result(future, timeout.duration) match {
-              case ResponseFragment(Failure(exception)) => throw exception
-              case ResponseFragment(Success(fragment)) => complete(fragment)
+          val future = supervisor ? new Create(fragment)
+          Await.result(future, timeout.duration) match {
+            case ResponseFragment(Failure(exception)) => throw exception
+            case ResponseFragment(Success(fragment)) => complete(fragment)
           }
         }
       }
@@ -213,11 +214,11 @@ trait FragmentHttpService extends BaseHttpService {
             case Response(Success(_)) => {
               Await.result(
                 policyActor ? FindByFragment(fragmentType, id), timeout.duration) match {
-                  case ResponsePolicies(Failure(exception)) => throw exception
-                  case ResponsePolicies(Success(policies)) => {
-                    policies.map(policy => policyActor ! Delete(policy.id.get))
-                  }
+                case ResponsePolicies(Failure(exception)) => throw exception
+                case ResponsePolicies(Success(policies)) => {
+                  policies.map(policy => policyActor ! Delete(policy.id.get))
                 }
+              }
               HttpResponse(StatusCodes.OK)
             }
           }

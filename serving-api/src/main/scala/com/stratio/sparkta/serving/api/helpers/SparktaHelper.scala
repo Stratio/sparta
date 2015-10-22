@@ -16,24 +16,25 @@
 
 package com.stratio.sparkta.serving.api.helpers
 
-import akka.pattern.ask
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
+import akka.pattern.ask
 import akka.routing.RoundRobinPool
 import akka.util.Timeout
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor._
-import com.stratio.sparkta.serving.api.constants.AkkaConstant
 import com.stratio.sparkta.serving.core._
+import com.stratio.sparkta.serving.core.actor._
+import com.stratio.sparkta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
 import spray.can.Http
-import scala.concurrent.duration._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.concurrent.duration._
 import scala.util.{Failure, Success}
-
 
 /**
  * Helper with common operations used to create a Sparkta context used to run the application.
@@ -42,6 +43,7 @@ object SparktaHelper extends SLF4JLogging {
 
   implicit var system: ActorSystem = _
   implicit val timeout: Timeout = Timeout(15.seconds)
+
   /**
    * Initializes Sparkta's akka system running an embedded http server with the REST API.
    * @param appName with the name of the application.

@@ -17,7 +17,8 @@
 package com.stratio.sparkta.serving.api
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.serving.api.helpers.{ResetStatusHelper, SparktaHelper}
-import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
+import com.stratio.sparkta.serving.core.SparktaConfig
+import com.stratio.sparkta.serving.core.constants.AppConstant
 
 /**
  * Entry point of the application.
@@ -29,6 +30,5 @@ object Sparkta extends App with SLF4JLogging {
   SparktaConfig.initSwaggerConfig()
   SparktaHelper.initAkkaSystem(AppConstant.ConfigAppName)
   ResetStatusHelper.resetStatuses
-
 
 }

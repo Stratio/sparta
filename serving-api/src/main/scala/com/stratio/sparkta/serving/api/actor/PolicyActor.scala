@@ -21,10 +21,11 @@ import java.util.UUID
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
-import com.stratio.sparkta.serving.api.exception.ServingApiException
+import com.stratio.sparkta.serving.core.CuratorFactoryHolder
+import com.stratio.sparkta.serving.core.constants.AppConstant
+import com.stratio.sparkta.serving.core.exception.ServingException
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
-import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.jackson.Serialization.{read, write}
@@ -73,7 +74,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
     sender ! new ResponsePolicy(Try({
       byId(id)
     }).recover {
-      case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
+      case e: NoNodeException => throw new ServingException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsPolicytWithId, s"No policy with id ${id}.")
       ))
     })
@@ -87,10 +88,10 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
       JavaConversions.asScalaBuffer(children).toList.map(element =>
         byId(element)).filter(policy => policy.name == name).head
     }).recover {
-      case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
+      case e: NoNodeException => throw new ServingException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsPolicytWithName, s"No policy with name ${name}.")
       ))
-      case e: NoSuchElementException => throw new ServingApiException(ErrorModel.toString(
+      case e: NoSuchElementException => throw new ServingException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsPolicytWithName, s"No policy with name ${name}.")
       ))
     })
@@ -102,7 +103,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
   def create(policy: AggregationPoliciesModel): Unit =
     sender ! ResponsePolicy(Try({
       if (existsByName(policy.name)) {
-        throw new ServingApiException(ErrorModel.toString(
+        throw new ServingException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeExistsPolicytWithName,
             s"Policy with name ${policy.name} exists.")
         ))
@@ -120,7 +121,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
   def update(policy: AggregationPoliciesModel): Unit = {
     sender ! Response(Try({
       if (existsByName(policy.name, policy.id)) {
-        throw new ServingApiException(ErrorModel.toString(
+        throw new ServingException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeExistsPolicytWithName,
             s"Policy with name ${policy.name} exists.")
         ))
@@ -128,7 +129,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
       val policyS = policy.copy(name = policy.name.toLowerCase)
       curatorFramework.setData.forPath(s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
     }).recover {
-      case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
+      case e: NoNodeException => throw new ServingException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsPolicytWithId, s"No policy  with id ${policy.id.get}.")
       ))
     })
@@ -138,14 +139,14 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
     sender ! Response(Try({
       curatorFramework.delete().forPath(s"${AppConstant.PoliciesBasePath}/$id")
     }).recover {
-      case e: NoNodeException => throw new ServingApiException(ErrorModel.toString(
+      case e: NoNodeException => throw new ServingException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId,
           s"No policy with id $id.")
       ))
     })
 
-   def existsByName(name: String, id: Option[String] = None): Boolean = {
-    val nameToCompare =name.toLowerCase
+  def existsByName(name: String, id: Option[String] = None): Boolean = {
+    val nameToCompare = name.toLowerCase
     Try({
       val basePath = s"${AppConstant.PoliciesBasePath}"
       if (CuratorFactoryHolder.existsPath(basePath)) {

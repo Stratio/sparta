@@ -17,8 +17,8 @@
 package com.stratio.sparkta.serving.api.service.http
 
 import com.stratio.sparkta.serving.api.constants.HttpConstant
-import com.stratio.sparkta.serving.api.exception.ServingApiException
 import com.stratio.sparkta.serving.core.CuratorFactoryHolder
+import com.stratio.sparkta.serving.core.exception.ServingException
 import com.stratio.sparkta.serving.core.models.ErrorModel
 import com.wordnik.swagger.annotations._
 import spray.routing._
@@ -41,7 +41,7 @@ trait AppStatusHttpService extends BaseHttpService {
       get {
         complete {
           if (!CuratorFactoryHolder.getInstance().getZookeeperClient.getZooKeeper.getState.isConnected)
-            throw new ServingApiException(ErrorModel.toString(
+            throw new ServingException(ErrorModel.toString(
               new ErrorModel(ErrorModel.CodeUnknow, s"Zk isn't connected at" +
                 s" ${CuratorFactoryHolder.getInstance().getZookeeperClient.getCurrentConnectionString}.")
             ))

@@ -17,10 +17,11 @@
 package com.stratio.sparkta.serving.api.service.http
 
 import akka.pattern.ask
-import com.stratio.sparkta.serving.api.actor.PolicyActor.ResponsePolicy
-import com.stratio.sparkta.serving.api.constants.{AkkaConstant, HttpConstant}
-import com.stratio.sparkta.serving.api.exception.ServingApiException
-import com.stratio.sparkta.serving.api.helpers.PolicyHelper
+import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
+import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.core.constants.AkkaConstant
+import com.stratio.sparkta.serving.core.exception.ServingException
+import com.stratio.sparkta.serving.core.helpers.PolicyHelper
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{FindAll, Response, Update}
 import com.wordnik.swagger.annotations._
@@ -28,8 +29,7 @@ import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
 
 import scala.concurrent.Await
-import scala.util.{Try, Failure, Success}
-import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
+import scala.util.{Failure, Success, Try}
 
 @Api(value = HttpConstant.PolicyContextPath, description = "Operations about policy contexts.", position = 0)
 trait PolicyContextHttpService extends BaseHttpService {
@@ -80,7 +80,7 @@ trait PolicyContextHttpService extends BaseHttpService {
               if (response.isDefined)
                 HttpResponse(StatusCodes.Created)
               else
-                throw new ServingApiException(ErrorModel.toString(
+                throw new ServingException(ErrorModel.toString(
                   ErrorModel(ErrorModel.CodeNotExistsPolicytWithId,
                     s"No policy with id ${policyStatus.id}.")
                 ))

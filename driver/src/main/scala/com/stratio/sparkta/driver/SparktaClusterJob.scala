@@ -25,13 +25,16 @@ import akka.util.Timeout
 import com.stratio.sparkta.driver.SparktaJob._
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.driver.util.{HdfsUtils, PolicyUtils}
-import com.stratio.sparkta.serving.core.helpers.JarsHelper
+import com.stratio.sparkta.serving.core.actor.FragmentActor
+import com.stratio.sparkta.serving.core.constants.{AkkaConstant, AppConstant}
+import com.stratio.sparkta.serving.core.helpers.{JarsHelper, PolicyHelper}
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
-import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder, SparktaConfig}
+import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, SparktaConfig}
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.FileUtils
+import org.apache.curator.framework.CuratorFramework
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
@@ -44,30 +47,35 @@ object SparktaClusterJob extends SparktaSerializer {
     if (checkArgs(args)) {
       Try {
         initSparktaConfig(args(4), args(3))
-        val policy = getPolicyFromZookeeper(args(0))
+        val policyId = args(0)
+        val curatorFramework = CuratorFactoryHolder.getInstance()
+        val policyZk = getPolicyFromZookeeper(policyId, curatorFramework)
+        implicit val system = ActorSystem(policyId)
+        val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor)
+        val policy = PolicyHelper.parseFragments(
+          PolicyHelper.fillFragments(policyZk, fragmentActor, timeout))
         val hadoopUserName = scala.util.Properties.envOrElse("HADOOP_USER_NAME", AppConstant.DefaultHadoopUserName)
-        val hdfsUgi=HdfsUtils.ugi(hadoopUserName)
+        val hdfsUgi = HdfsUtils.ugi(hadoopUserName)
         val hadoopConfDir = scala.util.Properties.envOrNone("HADOOP_CONF_DIR")
-        val hdfsConf=HdfsUtils.hdfsConfiguration(hadoopConfDir)
+        val hdfsConf = HdfsUtils.hdfsConfiguration(hadoopConfDir)
         val hdfsUtils = new HdfsUtils(hdfsUgi, hdfsConf)
         val pluginFiles = addHdfsFiles(hdfsUtils, args(1))
         val classPathFiles = addHdfsFiles(hdfsUtils, args(2))
-        implicit val system = ActorSystem(s"${policy.id.get}")
-        val policyStatusActor = system.actorOf(Props[PolicyStatusActor], "supervisorContextActor")
+        val policyStatusActor = system.actorOf(Props[PolicyStatusActor], AkkaConstant.PolicyStatusActor)
         Try {
-          policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting))
+          policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Starting))
           val streamingContextService = new StreamingContextService(Some(policyStatusActor))
           val ssc = streamingContextService.clusterStreamingContext(
             policy, pluginFiles ++ classPathFiles, Map("spark.app.name" -> s"${policy.name}")).get
           ssc.start
         } match {
           case Success(_) => {
-            policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Started))
-            log.info(s"Starting Streaming Context for policy ${policy.id.get}")
+            policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Started))
+            log.info(s"Starting Streaming Context for policy ${policyId}")
           }
           case Failure(exception) => {
             log.error(exception.getLocalizedMessage, exception)
-            policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed))
+            policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Failed))
           }
         }
       } match {
@@ -101,9 +109,8 @@ object SparktaClusterJob extends SparktaSerializer {
     })
   }
 
-  def getPolicyFromZookeeper(policyId: String): AggregationPoliciesModel = {
+  def getPolicyFromZookeeper(policyId: String, curatorFramework: CuratorFramework): AggregationPoliciesModel = {
     Try {
-      val curatorFramework = CuratorFactoryHolder.getInstance()
       PolicyUtils.parseJson(new Predef.String(curatorFramework.getData.forPath(
         s"${AppConstant.PoliciesBasePath}/${policyId}")))
     } match {
