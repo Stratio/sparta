@@ -423,7 +423,7 @@
   },
   "properties": [
     {
-      "propertyId": "Path",
+      "propertyId": "path",
       "propertyName": "_PATH_",
       "propertyType": "text",
       "regexp": "",
