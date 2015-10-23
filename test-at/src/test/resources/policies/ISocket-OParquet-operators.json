@@ -203,8 +203,7 @@
       "type": "Parquet",
       "configuration": {
         "path": "/tmp/sparkta/operators/parquet",
-        "datePattern": "yyyy/MM/dd",
-        "multiplexer": "false"
+        "datePattern": "yyyy/MM/dd"
       }
     }
   ]

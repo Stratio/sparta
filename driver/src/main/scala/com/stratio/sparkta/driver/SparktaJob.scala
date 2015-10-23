@@ -18,10 +18,17 @@ package com.stratio.sparkta.driver
 
 import java.io._
 import java.nio.file.{Files, Paths}
+import scala.annotation.tailrec
+import scala.util._
 
 import akka.event.slf4j.SLF4JLogging
+import org.apache.commons.io.FileUtils
+import org.apache.spark.SparkContext
+import org.apache.spark.sql.SQLContext
+import org.apache.spark.streaming.dstream.DStream
+import org.apache.spark.streaming.{Duration, StreamingContext}
+
 import com.stratio.sparkta.aggregator.{Cube, CubeMaker}
-import com.stratio.sparkta.driver.exception.DriverException
 import com.stratio.sparkta.driver.factory.{SchemaFactory, SparkContextFactory}
 import com.stratio.sparkta.driver.service.RawDataStorageService
 import com.stratio.sparkta.driver.util.ReflectionUtils
@@ -29,15 +36,6 @@ import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, OperatorModel}
-import org.apache.commons.io.FileUtils
-import org.apache.spark.SparkContext
-import org.apache.spark.sql.SQLContext
-import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.streaming.{Duration, StreamingContext}
-
-import scala.annotation.tailrec
-import scala.util._
-
 
 object SparktaJob extends SLF4JLogging {
 
@@ -59,8 +57,6 @@ object SparktaJob extends SLF4JLogging {
 
     val outputsSchemaConfig: Seq[(String, Map[String, String])] = apConfig.outputs.map(o =>
       (o.name, Map(
-        Output.Multiplexer -> Try(o.configuration.get(Output.Multiplexer).get.string)
-          .getOrElse(Output.DefaultMultiplexer),
         Output.FixedAggregation ->
           Try(o.configuration.get(Output.FixedAggregation).get.string.split(Output.FixedAggregationSeparator).head)
             .getOrElse("")
@@ -108,7 +104,6 @@ object SparktaJob extends SLF4JLogging {
       }
     }
   }
-
 
   def getSparkConfigs(apConfig: AggregationPoliciesModel, methodName: String, suffix: String,
                       refUtils: ReflectionUtils): Map[String, String] = {
@@ -174,8 +169,6 @@ object SparktaJob extends SLF4JLogging {
   def cubes(apConfig: AggregationPoliciesModel, refUtils: ReflectionUtils): Seq[Cube] =
     apConfig.cubes.map(cube => {
       val name = cube.name.replaceAll(Output.Separator, "")
-      val multiplexer = Try(cube.multiplexer.toBoolean)
-        .getOrElse(throw DriverException.create("The multiplexer value must be boolean"))
       val dimensions = cube.dimensions.map(dimensionDto => {
         new Dimension(dimensionDto.name,
           dimensionDto.field,
@@ -188,10 +181,9 @@ object SparktaJob extends SLF4JLogging {
       else Some(cube.checkpointConfig.timeDimension)
       val timeName = if (datePrecision.isDefined) datePrecision.get else cube.checkpointConfig.granularity
 
-      new Cube(name,
+      Cube(name,
         dimensions,
         operators,
-        multiplexer,
         timeName,
         cube.checkpointConfig.interval,
         cube.checkpointConfig.granularity,
@@ -225,5 +217,4 @@ object SparktaJob extends SLF4JLogging {
       }
     }
   }
-
 }

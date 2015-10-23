@@ -48,8 +48,7 @@
                         "inputField": "field1"
                     }
                 }
-            ],
-            "multiplexer": "false"
+            ]
         }
     ]
 }
