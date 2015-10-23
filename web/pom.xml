@@ -48,7 +48,7 @@
             </goals>
             <phase>initialize</phase>
             <configuration>
-              <arguments>config set repository "http://sodio.stratio.com/nexus/content/repositories/npmjs/</arguments>
+              <arguments>config set registry http://sodio.stratio.com/nexus/content/repositories/npmjs/</arguments>
             </configuration>
           </execution>
 					<execution>
