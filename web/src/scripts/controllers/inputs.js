@@ -27,7 +27,7 @@
 
         function init() {
           getInputs();
-        };
+        }
 
         function getInputs() {
           var inputList = FragmentFactory.getFragments('input');
@@ -57,7 +57,7 @@
           };
 
           createInputModal(createInputData);
-        };
+        }
 
         function editInput(inputName, inputId, index) {
           var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {'id':inputId}, true)[0];
@@ -81,7 +81,7 @@
           };
 
           editInputModal(editInputData);
-        };
+        }
 
         function deleteInput(fragmentType, fragmentId, index) {
           var inputToDelete =
@@ -100,7 +100,7 @@
             }
           };
           deleteInputConfirm(inputToDelete);
-        };
+        }
 
         function duplicateInput(inputId) {
             var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {'id':inputId}, true)[0];
@@ -118,7 +118,7 @@
               }
             };
             setDuplicatetedInput(duplicateInputData);
-        };
+        }
 
         function getInputTypes(inputs) {
             vm.inputTypes = [];
@@ -145,7 +145,7 @@
                     }
                 }
             }
-        };
+        }
 
         function createInputModal(newInputTemplateData) {
           var modalInstance = $modal.open({
@@ -167,7 +167,7 @@
             vm.inputsData.push(newInputData);
             vm.getInputTypes(vm.inputsData);
           });
-        };
+        }
 
         function editInputModal(editInputData) {
            var modalInstance = $modal.open({
@@ -192,7 +192,7 @@
             vm.inputsData[updatedInputData.index] = updatedInputData.data;
             vm.getInputTypes(vm.inputsData);
           });
-        };
+        }
 
         function deleteInputConfirm(input) {
           var modalInstance = $modal.open({
@@ -214,7 +214,7 @@
             vm.inputsData.splice(fragmentDeletedIndex.index, 1);
             vm.getInputTypes(vm.inputsData);
           });
-        };
+        }
 
         function setDuplicatetedInput(InputData) {
           var modalInstance = $modal.open({
@@ -233,6 +233,6 @@
             vm.inputsData.push(newInput);
             vm.getInputTypes(vm.inputsData);
           });
-        };
-    };
+        }
+    }
 })();

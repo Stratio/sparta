@@ -33,10 +33,6 @@ module.exports = function (config) {
 
     reporters: ['junit', 'coverage', 'progress'],
 
-    coverageReporter: {
-      type: 'lcov',
-      dir: 'target/coverage/'
-    },
     frameworks: ['jasmine-jquery', 'jasmine'],
 
     browsers: ['PhantomJS'],
@@ -49,7 +45,7 @@ module.exports = function (config) {
       'src/scripts/directives/**/*.js': ['coverage'],
       'src/scripts/services/**/*.js': ['coverage'],
       'src/scripts/filters/**/*.js': ['coverage'],
-      'src/scripts/inputs/**/*.js': ['coverage'],
+      'src/scripts/fragments/**/*.js': ['coverage'],
       'src/scripts/app.js': ['coverage']
     },
 

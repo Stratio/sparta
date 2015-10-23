@@ -67,7 +67,7 @@
 						<goals>
 							<goal>bower</goal>
 						</goals>
-						<phase>process-sources</phase>
+                        <phase>generate-resources</phase>
 						<configuration>
 							<arguments>install --allow-root</arguments>
               <skip.bower>${skip.bower}</skip.bower>

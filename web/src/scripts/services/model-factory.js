@@ -15,7 +15,7 @@
     function init(newTemplate, order, position) {
       setPosition(position);
       template = newTemplate;
-      model.name = "";
+      model.name = template.defaultModelName + (order + 1);
       model.outputFields = [];
       model.type = template.types[0].name;
       model.configuration = template.morphlinesDefaultConfiguration;
