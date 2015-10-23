@@ -63,13 +63,11 @@ class CubeMakerSpec extends TestSuiteBase {
     val timestamp = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity)
     val name = "cubeName"
     val operator = new CountOperator("count", Map())
-    val multiplexer = false
     val defaultDimension = new DefaultField
     val dimension = Dimension("dim1", "eventKey", "identity", defaultDimension)
-    val cube = new Cube(name,
+    val cube = Cube(name,
       Seq(dimension),
       Seq(operator),
-      multiplexer,
       checkpointGranularity,
       checkpointInterval,
       checkpointGranularity,
