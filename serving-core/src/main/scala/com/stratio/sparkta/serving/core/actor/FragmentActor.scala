@@ -23,7 +23,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.serving.core.CuratorFactoryHolder
 import com.stratio.sparkta.serving.core.actor.FragmentActor._
 import com.stratio.sparkta.serving.core.constants.AppConstant
-import com.stratio.sparkta.serving.core.exception.ServingException
+import com.stratio.sparkta.serving.core.exception.ServingCoreException
 import com.stratio.sparkta.serving.core.models.{ErrorModel, FragmentElementModel, SparktaSerializer}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
@@ -64,7 +64,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
       read[FragmentElementModel](new String(curatorFramework.getData.forPath(
         s"${FragmentActor.fragmentPath(fragmentType)}/$id")))
     }).recover {
-      case e: NoNodeException => throw new ServingException(ErrorModel.toString(
+      case e: NoNodeException => throw new ServingCoreException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId, s"No fragment of type ${fragmentType} with id ${id}.")
       ))
     })
@@ -77,11 +77,11 @@ class FragmentActor(curatorFramework: CuratorFramework)
           s"${FragmentActor.fragmentPath(fragmentType)}/$element"))))
         .filter(fragment => fragment.name == name).head
     }).recover {
-      case e: NoNodeException => throw new ServingException(ErrorModel.toString(
+      case e: NoNodeException => throw new ServingCoreException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsFragmentWithName,
           s"No fragment of type ${fragmentType} with name ${name}.")
       ))
-      case e: NoSuchElementException => throw new ServingException(ErrorModel.toString(
+      case e: NoSuchElementException => throw new ServingCoreException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsPolicytWithName,
           s"No fragment of type ${fragmentType} with name ${name}")
       ))
@@ -90,7 +90,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
   def create(fragment: FragmentElementModel): Unit =
     sender ! ResponseFragment(Try({
       if (existsByTypeAndName(fragment.fragmentType, fragment.name.toLowerCase)) {
-        throw new ServingException(ErrorModel.toString(
+        throw new ServingCoreException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeExistsFragmentWithName,
             s"Fragment of type ${fragment.fragmentType} with name ${fragment.name} exists.")
         ))
@@ -108,7 +108,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
   def update(fragment: FragmentElementModel): Unit =
     sender ! Response(Try({
       if (existsByTypeAndName(fragment.fragmentType, fragment.name.toLowerCase, fragment.id)) {
-        throw new ServingException(ErrorModel.toString(
+        throw new ServingCoreException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeExistsFragmentWithName,
             s"Fragment of type ${fragment.fragmentType} with name ${fragment.name} exists.")
         ))
@@ -119,7 +119,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
       curatorFramework.setData.forPath(
         s"${FragmentActor.fragmentPath(fragmentS.fragmentType)}/${fragment.id.get}", write(fragmentS).getBytes)
     }).recover {
-      case e: NoNodeException => throw new ServingException(ErrorModel.toString(
+      case e: NoNodeException => throw new ServingCoreException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId,
           s"No fragment of type ${fragment.fragmentType} with id ${fragment.id.get}.")
       ))
@@ -129,7 +129,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
     sender ! Response(Try({
       curatorFramework.delete().forPath(s"${FragmentActor.fragmentPath(fragmentType)}/$id")
     }).recover {
-      case e: NoNodeException => throw new ServingException(ErrorModel.toString(
+      case e: NoNodeException => throw new ServingCoreException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId, s"No fragment of type ${fragmentType} with id ${id}.")
       ))
     })

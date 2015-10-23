@@ -16,11 +16,11 @@
 
 package com.stratio.sparkta.serving.core.exception
 
-class ServingException(msg: String) extends RuntimeException(msg)
+class ServingCoreException(msg: String) extends RuntimeException(msg)
 
-object ServingException {
+object ServingCoreException {
 
-  def create(msg: String): ServingException = new ServingException(msg)
+  def create(msg: String): ServingCoreException = new ServingCoreException(msg)
 
-  def create(msg: String, cause: Throwable): Throwable = new ServingException(msg).initCause(cause)
+  def create(msg: String, cause: Throwable): Throwable = new ServingCoreException(msg).initCause(cause)
 }

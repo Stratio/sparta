@@ -20,7 +20,7 @@ import akka.actor.{ActorContext, _}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.service.http._
-import com.stratio.sparkta.serving.core.exception.ServingException
+import com.stratio.sparkta.serving.core.exception.ServingCoreException
 import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer}
 import org.json4s.jackson.Serialization.write
 import spray.http.StatusCodes
@@ -37,7 +37,7 @@ class ControllerActor(streamingContextService: StreamingContextService,
 
   implicit def exceptionHandler(implicit logg: LoggingContext): ExceptionHandler =
     ExceptionHandler {
-      case exception: ServingException =>
+      case exception: ServingCoreException =>
         requestUri { uri =>
           log.error(exception.getLocalizedMessage)
           complete(StatusCodes.NotFound, write(ErrorModel.toErrorModel(exception.getLocalizedMessage)))
