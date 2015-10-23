@@ -20,7 +20,7 @@ import akka.pattern.ask
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.core.constants.AkkaConstant
-import com.stratio.sparkta.serving.core.exception.ServingException
+import com.stratio.sparkta.serving.core.exception.ServingCoreException
 import com.stratio.sparkta.serving.core.helpers.PolicyHelper
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{FindAll, Response, Update}
@@ -80,7 +80,7 @@ trait PolicyContextHttpService extends BaseHttpService {
               if (response.isDefined)
                 HttpResponse(StatusCodes.Created)
               else
-                throw new ServingException(ErrorModel.toString(
+                throw new ServingCoreException(ErrorModel.toString(
                   ErrorModel(ErrorModel.CodeNotExistsPolicytWithId,
                     s"No policy with id ${policyStatus.id}.")
                 ))

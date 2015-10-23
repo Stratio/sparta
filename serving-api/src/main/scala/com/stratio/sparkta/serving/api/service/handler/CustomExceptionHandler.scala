@@ -23,7 +23,7 @@ import spray.routing.ExceptionHandler
 import spray.routing.directives.{MiscDirectives, RouteDirectives}
 import spray.util.LoggingContext
 
-import com.stratio.sparkta.serving.core.exception.ServingException
+import com.stratio.sparkta.serving.core.exception.ServingCoreException
 import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer}
 
 /**
@@ -36,7 +36,7 @@ with SparktaSerializer {
 
   implicit def exceptionHandler(implicit logg: LoggingContext): ExceptionHandler = {
     ExceptionHandler {
-      case exception: ServingException =>
+      case exception: ServingCoreException =>
         requestUri { uri =>
           log.error(exception.getLocalizedMessage)
           complete((StatusCodes.NotFound, write(ErrorModel.toErrorModel(exception.getLocalizedMessage))))

@@ -21,6 +21,7 @@ import scala.reflect.runtime.universe._
 import akka.actor.{ActorContext, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.gettyimages.spray.swagger.SwaggerHttpService
+import com.stratio.sparkta.serving.core.exception.ServingCoreException
 import com.wordnik.swagger.model.ApiInfo
 import org.json4s.jackson.Serialization.write
 import spray.http.StatusCodes
@@ -29,7 +30,6 @@ import spray.util.LoggingContext
 
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.api.service.http._
-import com.stratio.sparkta.serving.core.exception.ServingException
 import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer}
 
 class SwaggerActor(actorsMap: Map[String, ActorRef]) extends HttpServiceActor with SLF4JLogging with SparktaSerializer {
@@ -38,7 +38,7 @@ class SwaggerActor(actorsMap: Map[String, ActorRef]) extends HttpServiceActor wi
 
   implicit def exceptionHandler(implicit logg: LoggingContext): ExceptionHandler =
     ExceptionHandler {
-      case exception: ServingException =>
+      case exception: ServingCoreException =>
         requestUri { uri =>
           log.error(exception.getLocalizedMessage)
           complete(StatusCodes.NotFound, write(ErrorModel.toErrorModel(exception.getLocalizedMessage)))

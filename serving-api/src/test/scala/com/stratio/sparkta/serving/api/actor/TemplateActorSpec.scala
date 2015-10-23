@@ -29,7 +29,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
-import com.stratio.sparkta.serving.core.exception.ServingException
+import com.stratio.sparkta.serving.core.exception.ServingCoreException
 import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer, TemplateModel}
 
 @RunWith(classOf[JUnitRunner])
@@ -68,7 +68,7 @@ with MockitoSugar with SparktaSerializer {
         |}
       """.stripMargin
 
-    val ServingException = new ServingException(
+    val ServingException = new ServingCoreException(
       ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsTemplatetWithName,
           "No template of type input  with name templateName.json")))

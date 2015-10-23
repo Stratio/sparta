@@ -27,7 +27,7 @@ import spray.testkit.ScalatestRouteTest
 
 import com.stratio.sparkta.sdk.exception.MockException
 import com.stratio.sparkta.serving.api.service.handler.CustomExceptionHandler._
-import com.stratio.sparkta.serving.core.exception.ServingException
+import com.stratio.sparkta.serving.core.exception.ServingCoreException
 import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer}
 
 @RunWith(classOf[JUnitRunner])
@@ -54,7 +54,7 @@ with Json4sJacksonSupport with HttpService with SparktaSerializer {
       }
     }
     "encapsulate a serving api error in an error model and response with a 400 code" in new MyTestRoute {
-      val exception = ServingException.create(ErrorModel.toString(new ErrorModel("333", "testing exception")))
+      val exception = ServingCoreException.create(ErrorModel.toString(new ErrorModel("333", "testing exception")))
       Get() ~> sealRoute(route) ~> check {
         status should be(StatusCodes.NotFound)
         response.entity.asString should be(ErrorModel.toString(new ErrorModel("333", "testing exception")))
