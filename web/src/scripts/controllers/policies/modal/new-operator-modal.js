@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  /*DELETE INPUT MODALS CONTROLLER */
+  /*NEW OPERATOR MODAL CONTROLLER */
   angular
     .module('webApp')
     .controller('NewOperatorModalCtrl', NewOperatorModalCtrl);
@@ -30,18 +30,6 @@
 
     ///////////////////////////////////////
 
-    function isValidConfiguration() {
-      var configuration = vm.operator.configuration;
-      try {
-        vm.operator.configuration = JSON.parse(configuration);
-        return true;
-      } catch (e) {
-        vm.errorText = "_POLICY_._CUBE_._INVALID_CONFIG_";
-        vm.operator.configuration = configuration;
-        return false;
-      }
-    }
-
     function isRepeated() {
       var position = UtilsService.findElementInJSONArray(operators, vm.operator, "name");
       var repeated = position != -1;
@@ -55,7 +43,7 @@
       var defaultConfiguration = '{}';
       var countType = template.functionNames[2];
       if (vm.operator.type !== countType) {
-        defaultConfiguration = JSON.stringify(template.defaultOperatorConfiguration, null, 4);
+        defaultConfiguration = template.defaultOperatorConfiguration;
       }
       vm.operator.configuration = defaultConfiguration;
     }
@@ -63,7 +51,7 @@
     function ok() {
       vm.errorText = "";
       if (vm.form.$valid) {
-        if (!isRepeated() && isValidConfiguration()) {
+        if (!isRepeated()) {
           $modalInstance.close(vm.operator);
         }
       } else {

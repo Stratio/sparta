@@ -21,11 +21,11 @@
 
     function ok() {
       $modalInstance.close();
-    };
+    }
 
     function cancel() {
       $modalInstance.dismiss('cancel');
-    };
-  };
+    }
+  }
 
 })();

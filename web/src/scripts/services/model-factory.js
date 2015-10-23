@@ -5,40 +5,42 @@
     .module('webApp')
     .factory('ModelFactory', ModelFactory);
 
-  ModelFactory.$inject = ['PolicyModelFactory'];
-
-  function ModelFactory(PolicyModelFactory) {
+  function ModelFactory() {
     var model = {};
     var error = {text: "", duplicatedOutput: false};
     var template = null;
+    var context = {"position": null};
+    var inputList = [];
 
-    function init(newTemplate) {
+    function init(newTemplate, order, position) {
+      setPosition(position);
       template = newTemplate;
-      model.name = "";
+      model.name = template.defaultModelName + (order + 1);
       model.outputFields = [];
       model.type = template.types[0].name;
-      model.configuration =  JSON.stringify(template.morphlinesDefaultConfiguration, null, 4);
-      model.inputList = getModelInputs();
-      model.inputField = model.inputList[0].value;
+      model.configuration = template.morphlinesDefaultConfiguration;
+      model.order = order;
       error.text = "";
       error.duplicatedOutput = false;
     }
 
-    function getModelInputs() {
-      var models = PolicyModelFactory.getCurrentPolicy().models;
-      var result = [];
-      var index = models.length;
+    function updateModelInputs(models) {
+      inputList.length = 0;
+      var index = context.position;
       if (index >= 0) {
-        if (index == 0)
-          result = template.defaultInput;
-        else {
-          var model = models[--index];
-          var options = generateOutputOptions(model.outputFields);
-          var defaultOption = generateOutputOptions([model.inputField]);
-          result = defaultOption.concat(options);
+        if (index == 0) {
+          inputList.push(template.defaultInput);
+        } else {
+          var previousModel = models[--index];
+          var previousOutputs = generateOutputOptions(previousModel.outputFields);
+          if (previousModel.inputField != template.defaultInput.value) { // do not put the default input
+            var previousInputs = generateOutputOptions([previousModel.inputField]);
+            inputList.push.apply(inputList, previousInputs);
+          }
+          inputList.push.apply(inputList, previousOutputs);
         }
       }
-      return result;
+      model.inputField = inputList[0].value;
     }
 
     function generateOutputOptions(outputs) {
@@ -52,47 +54,71 @@
       return options;
     }
 
-    function isValidConfiguration() {
-      var configuration = model.configuration;
-      try {
-        model.configuration = JSON.parse(configuration);
-        return true;
-      } catch (e) {
-        model.configuration = configuration;
-        return false;
-      }
-    }
-
     function isValidModel() {
       var isValid = model.inputField != "" && model.outputFields.length > 0 &&
-        model.name != "" && model.type != "" && isValidConfiguration();
+        model.name != "" && model.type != "";
       if (!isValid) {
         error.text = "_GENERIC_FORM_ERROR_";
       } else  error.text = "";
       return isValid;
     }
 
-    function getModel(template) {
-      if (Object.keys(model).length == 0) init(template);
+    function getModel(template, order, position) {
+      if (Object.keys(model).length == 0) init(template, order, position);
       return model;
     }
 
-    function resetModel(template) {
-      init(template);
+    function setModel(m, position) {
+      model.name = m.name;
+      model.outputFields = m.outputFields;
+      model.type = m.type;
+      model.configuration = m.configuration;
+      model.inputField = m.inputField;
+      model.order = m.order;
+      error.text = "";
+      setPosition(position);
+    }
+
+    function resetModel(template, order, position) {
+      init(template, order, position);
+    }
+
+    function getContext() {
+      return context;
+    }
+
+    function setPosition(p) {
+      if (p === undefined) {
+        p = 0;
+      }
+      context.position = p;
     }
 
     function getError() {
       return error;
     }
 
+    function setError(e) {
+      error.text = e;
+    }
+
+    function getModelInputs() {
+      return inputList;
+    }
+
     return {
       resetModel: resetModel,
       getModel: getModel,
+      setModel: setModel,
+      getContext: getContext,
+      setPosition: setPosition,
       isValidModel: isValidModel,
-      getError: getError
+      getError: getError,
+      setError: setError,
+      getModelInputs: getModelInputs,
+      updateModelInputs: updateModelInputs
     }
   }
-
 })
 ();
 

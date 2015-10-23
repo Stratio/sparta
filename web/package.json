@@ -17,21 +17,29 @@
     "jit-grunt": "0.9.1",
     "node-sass": "3.2.0",
     "grunt-contrib-clean": "0.6.0",
-    "time-grunt": "1.0.0"
+    "time-grunt": "1.0.0",
+    "karma": "0.13.10",
+    "jasmine-core": "2.3.4",
+    "karma-coverage": "^0.5.2",
+    "karma-jasmine":"0.3.6",
+    "karma-jasmine-jquery": "0.1.1",
+    "karma-junit-reporter": "0.3.7",
+    "phantomjs": "^1.9.18",
+    "karma-phantomjs-launcher": "0.2.1",
+    "karma-ng-json2js-preprocessor": "1.1.1"
+
+
   },
   "devDependencies": {
-    "grunt-contrib-connect": "0.7.1",
     "grunt-connect-proxy": "0.2.0",
+    "grunt-contrib-connect": "0.7.1",
     "grunt-contrib-watch": "0.6.1"
   },
   "engines": {
     "node": "0.12.2"
   },
-  "scripts": {
-    "test": "grunt test"
-  },
-   "repository": {
-      "type": "git",
-      "url": "https://github.com/Stratio/sparkta.git"
-   }
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Stratio/sparkta.git"
+  }
 }

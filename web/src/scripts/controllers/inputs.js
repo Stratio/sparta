@@ -5,22 +5,17 @@
       .module('webApp')
       .controller('InputsCtrl', InputsCtrl);
 
-    InputsCtrl.$inject = ['FragmentFactory', '$filter', '$modal'];
+    InputsCtrl.$inject = ['FragmentFactory', '$filter', '$modal', 'UtilsService', 'TemplateFactory', 'PolicyFactory'];
 
-    function InputsCtrl(FragmentFactory, $filter, $modal) {
+    function InputsCtrl(FragmentFactory, $filter, $modal, UtilsService, TemplateFactory, PolicyFactory) {
         /*jshint validthis: true*/
        var vm = this;
 
-       vm.getInputs = getInputs;
        vm.deleteInput = deleteInput;
        vm.getInputTypes = getInputTypes;
        vm.createInput = createInput;
        vm.editInput = editInput;
-       vm.createInputModal = createInputModal;
-       vm.editInputModal = editInputModal;
        vm.duplicateInput = duplicateInput;
-       vm.deleteInputConfirm = deleteInputConfirm;
-       vm.getPolicyNames = getPolicyNames;
        vm.inputsData = undefined;
        vm.inputTypes = [];
        vm.error = false;
@@ -32,7 +27,7 @@
 
         function init() {
           getInputs();
-        };
+        }
 
         function getInputs() {
           var inputList = FragmentFactory.getFragments('input');
@@ -49,7 +44,7 @@
         };
 
         function createInput() {
-          var inputsList = getFragmentsNames(vm.inputsData);
+          var inputsList = UtilsService.getNamesJSONArray(vm.inputsData);
 
           var createInputData = {
             'fragmentType': 'input',
@@ -61,12 +56,12 @@
             }
           };
 
-          vm.createInputModal(createInputData);
-        };
+          createInputModal(createInputData);
+        }
 
-        function editInput(inputType, inputName, inputId, index) {
+        function editInput(inputName, inputId, index) {
           var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {'id':inputId}, true)[0];
-          var inputsList = getFragmentsNames(vm.inputsData);
+          var inputsList = UtilsService.getNamesJSONArray(vm.inputsData);
 
           var editInputData = {
               'originalName': inputName,
@@ -85,11 +80,11 @@
               }
           };
 
-          vm.editInputModal(editInputData);
-        };
+          editInputModal(editInputData);
+        }
 
         function deleteInput(fragmentType, fragmentId, index) {
-                  var inputToDelete =
+          var inputToDelete =
           {
             'type':fragmentType,
             'id': fragmentId,
@@ -104,16 +99,16 @@
               'policyRunningSecondary2': '_INTPUT_WINDOW_DELETE_POLICY_RUNNING_MESSAGE2_'
             }
           };
-          vm.deleteInputConfirm('lg', inputToDelete);
-        };
+          deleteInputConfirm(inputToDelete);
+        }
 
         function duplicateInput(inputId) {
             var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {'id':inputId}, true)[0];
 
-            var newName = autoIncrementName(inputSelected.name);
+            var newName = UtilsService.autoIncrementName(inputSelected.name);
             inputSelected.name = newName;
 
-            var inputsList = getFragmentsNames(vm.inputsData);
+            var inputsList = UtilsService.getNamesJSONArray(vm.inputsData);
 
             var duplicateInputData = {
               'fragmentData': inputSelected,
@@ -122,9 +117,8 @@
                 'title': '_INPUT_WINDOW_DUPLICATE_TITLE_'
               }
             };
-
-            setDuplicatetedInput('sm', duplicateInputData);
-        };
+            setDuplicatetedInput(duplicateInputData);
+        }
 
         function getInputTypes(inputs) {
             vm.inputTypes = [];
@@ -151,7 +145,7 @@
                     }
                 }
             }
-        };
+        }
 
         function createInputModal(newInputTemplateData) {
           var modalInstance = $modal.open({
@@ -163,18 +157,17 @@
               item: function () {
                 return newInputTemplateData;
               },
-              fragmentTemplates: function (TemplateFactory) {
+              fragmentTemplates: function () {
                 return TemplateFactory.getNewFragmentTemplate(newInputTemplateData.fragmentType);
               }
             }
           });
 
-          modalInstance.result.then(function (newInputData) {
+          return modalInstance.result.then(function (newInputData) {
             vm.inputsData.push(newInputData);
             vm.getInputTypes(vm.inputsData);
-          }, function () {
           });
-        };
+        }
 
         function editInputModal(editInputData) {
            var modalInstance = $modal.open({
@@ -186,10 +179,10 @@
                    item: function () {
                       return editInputData;
                    },
-                   fragmentTemplates: function (TemplateFactory) {
+                   fragmentTemplates: function () {
                       return TemplateFactory.getNewFragmentTemplate(editInputData.fragmentSelected.fragmentType);
                    },
-                   policiesAffected: function (PolicyFactory) {
+                   policiesAffected: function () {
                       return PolicyFactory.getPolicyByFragmentId(editInputData.fragmentSelected.fragmentType, editInputData.fragmentSelected.id);
                    }
                }
@@ -198,52 +191,48 @@
           modalInstance.result.then(function (updatedInputData) {
             vm.inputsData[updatedInputData.index] = updatedInputData.data;
             vm.getInputTypes(vm.inputsData);
+          });
+        }
 
-              },function () {
-                     });
-        };
-
-        function deleteInputConfirm(size, input) {
+        function deleteInputConfirm(input) {
           var modalInstance = $modal.open({
             animation: true,
             templateUrl: 'templates/components/st-delete-modal.tpl.html',
             controller: 'DeleteFragmentModalCtrl as vm',
-            size: size,
+            size: 'lg',
             resolve: {
-                item: function () {
-                    return input;
-                },
-                policiesAffected: function (PolicyFactory) {
-                  return PolicyFactory.getPolicyByFragmentId(input.type, input.id);
-                }
+              item: function () {
+                  return input;
+              },
+              policiesAffected: function () {
+                return PolicyFactory.getPolicyByFragmentId(input.type, input.id);
+              }
             }
           });
 
-          modalInstance.result.then(function (selectedItem) {
-            vm.inputsData.splice(selectedItem.index, 1);
+          modalInstance.result.then(function (fragmentDeletedIndex) {
+            vm.inputsData.splice(fragmentDeletedIndex.index, 1);
             vm.getInputTypes(vm.inputsData);
-          },function () {
           });
-        };
+        }
 
-        function setDuplicatetedInput(size, InputData) {
+        function setDuplicatetedInput(InputData) {
           var modalInstance = $modal.open({
             animation: true,
             templateUrl: 'templates/components/st-duplicate-modal.tpl.html',
             controller: 'DuplicateFragmentModalCtrl as vm',
             size: 'lg',
             resolve: {
-                item: function () {
-                    return InputData;
-                }
+              item: function () {
+                  return InputData;
+              }
             }
           });
 
           modalInstance.result.then(function (newInput) {
             vm.inputsData.push(newInput);
             vm.getInputTypes(vm.inputsData);
-          },function () {
           });
-        };
-    };
+        }
+    }
 })();

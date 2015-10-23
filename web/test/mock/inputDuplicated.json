@@ -1,0 +1,15 @@
+{
+  "description": "Reads events from a socket.",
+  "element": {
+    "configuration": {
+      "hostname": "localhost",
+      "port": "123"
+    },
+    "type": "Socket",
+    "name": "in-Socket"
+  },
+  "fragmentType": "input",
+  "shortDescription": "Reads events from a socket.",
+  "name": "test_input_socket(1)",
+  "id": "2581f20a-fd83-4315-be45-192bc5sEddsfds"
+}
