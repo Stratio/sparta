@@ -17,7 +17,7 @@
 package com.stratio.sparkta.serving.core.models
 
 import com.stratio.sparkta.sdk.DimensionType
-import com.stratio.sparkta.serving.core.AppConstant
+import com.stratio.sparkta.serving.core.constants.AppConstant
 
 case class CubeModel(name: String,
                    checkpointConfig: CheckpointModel,

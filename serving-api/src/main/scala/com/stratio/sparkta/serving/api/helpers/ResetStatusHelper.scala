@@ -18,9 +18,10 @@ package com.stratio.sparkta.serving.api.helpers
 
 
 import com.stratio.sparkta.serving.api.Sparkta._
-import com.stratio.sparkta.serving.core.models.{SparktaSerializer, PolicyStatusModel}
+import com.stratio.sparkta.serving.core.constants.AppConstant
+import com.stratio.sparkta.serving.core.models.{PolicyStatusModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
-import com.stratio.sparkta.serving.core.{SparktaConfig, AppConstant, CuratorFactoryHolder}
+import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, SparktaConfig}
 import org.json4s.jackson.Serialization._
 
 import scala.collection.JavaConversions

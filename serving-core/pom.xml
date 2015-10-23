@@ -101,5 +101,15 @@
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.spray</groupId>
+            <artifactId>spray-can_${scala.binary.version}</artifactId>
+            <version>${spray.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.spray</groupId>
+            <artifactId>spray-routing_${scala.binary.version}</artifactId>
+            <version>${spray.version}</version>
+        </dependency>
     </dependencies>
 </project>

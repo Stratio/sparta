@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.helpers
+package com.stratio.sparkta.serving.core.helpers
 
 import com.stratio.sparkta.serving.core.models._
-import com.stratio.sparkta.serving.api.helpers.PolicyHelper
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
@@ -146,5 +145,4 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
     Then("the exception must have the message")
     assert(thrown.getMessage === "It is mandatory to define at least one output in the policy.")
   }
-
 }
