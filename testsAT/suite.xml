@@ -1,0 +1,7 @@
+<suite name="Sparkta" verbose="10" parallel="instances" thread-count="1">
+	<test name="sparkta acceptance tests">
+		<packages>
+			<package name="com.stratio.sparkta.testsAT.*"/>
+		</packages>
+	</test>
+</suite>
