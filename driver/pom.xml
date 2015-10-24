@@ -82,6 +82,30 @@
             <groupId>org.scalamock</groupId>
             <artifactId>scalamock-scalatest-support_${scala.binary.version}</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.stratio.sparkta</groupId>
+            <artifactId>input-kafka</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.sparkta</groupId>
+            <artifactId>output-print</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.sparkta</groupId>
+            <artifactId>parser-morphlines</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.sparkta</groupId>
+            <artifactId>field-default</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

@@ -18,8 +18,8 @@ package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
 
+import com.github.nscala_time.time.Imports._
 import org.apache.spark.streaming.TestSuiteBase
-import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
@@ -38,7 +38,7 @@ class CubeSpec extends TestSuiteBase {
     val checkpointInterval = 10000
     val checkpointTimeAvailability = 60000
     val checkpointGranularity = "minute"
-    val eventGranularity = DateOperations.dateFromGranularity(DateTime.now(), "minute")
+    val eventGranularity = DateOperations.dateFromGranularity(DateTime.now, "minute")
     val name = "cubeName"
 
     val cube = Cube(

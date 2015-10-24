@@ -84,7 +84,7 @@ object DateOperations {
    * Generates a parquet path with the format contained in ParquetPathPattern.
    * @return the object described above.
    */
-  def generateParquetPath(dateTime: Option[DateTime] = Option(DateTime.now()),
+  def generateParquetPath(dateTime: Option[DateTime] = Option(DateTime.now),
                           parquetPattern: Option[String] = Some(ParquetPathPattern)): String = {
     val pattern = parquetPattern.get match {
       case "year" => "/'year='yyyy/'"
@@ -97,7 +97,6 @@ object DateOperations {
     DateTimeFormat.forPattern(pattern).print(dateTime.get)
   }
 
-  def roundDateTime(t: DateTime, d: Duration) = {
+  def roundDateTime(t: DateTime, d: Duration): DateTime =
     t minus (t.getMillis - (t.getMillis.toDouble / d.getMillis).round * d.getMillis)
-  }
 }
