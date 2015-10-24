@@ -36,7 +36,7 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
     val expectedPath = "/" + DateTimeFormat.forPattern(datePattern) +
       DateOperations.dateFromGranularity(DateTime.now, granularity)
     val dt = DateTime.now
-    val date = new Date()
+    val date = new Date(dt.getMillis)
     val timestamp = new Timestamp(dt.getMillis)
     val minuteDT = dt.withMillisOfSecond(0).withSecondOfMinute(0)
     val hourDT = minuteDT.withMinuteOfHour(0)
@@ -89,15 +89,15 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
   }
 
   "DateOperations" should "return timestamp with correct parameters" in new CommonValues {
-    DateOperations.getTimeFromGranularity(Some(""), Some("s5")) should not be(wrongDT)
-    DateOperations.getTimeFromGranularity(Some(""), Some("s10")) should not be(wrongDT)
-    DateOperations.getTimeFromGranularity(Some(""), Some("s15")) should not be(wrongDT)
-    DateOperations.getTimeFromGranularity(Some(""), Some("minute")) should not be(wrongDT)
-    DateOperations.getTimeFromGranularity(Some(""), Some("hour")) should not be(wrongDT)
-    DateOperations.getTimeFromGranularity(Some(""), Some("day")) should not be(wrongDT)
-    DateOperations.getTimeFromGranularity(Some(""), Some("month")) should not be(wrongDT)
-    DateOperations.getTimeFromGranularity(Some(""), Some("year")) should not be(wrongDT)
-    DateOperations.getTimeFromGranularity(Some("asdasd"), Some("year")) should not be(wrongDT)
+    DateOperations.getTimeFromGranularity(Some(""), Some("s5")) should not be (wrongDT)
+    DateOperations.getTimeFromGranularity(Some(""), Some("s10")) should not be (wrongDT)
+    DateOperations.getTimeFromGranularity(Some(""), Some("s15")) should not be (wrongDT)
+    DateOperations.getTimeFromGranularity(Some(""), Some("minute")) should not be (wrongDT)
+    DateOperations.getTimeFromGranularity(Some(""), Some("hour")) should not be (wrongDT)
+    DateOperations.getTimeFromGranularity(Some(""), Some("day")) should not be (wrongDT)
+    DateOperations.getTimeFromGranularity(Some(""), Some("month")) should not be (wrongDT)
+    DateOperations.getTimeFromGranularity(Some(""), Some("year")) should not be (wrongDT)
+    DateOperations.getTimeFromGranularity(Some("asdasd"), Some("year")) should not be (wrongDT)
     DateOperations.getTimeFromGranularity(Some(""), Some("bad")) should be(wrongDT)
   }
 
@@ -122,23 +122,23 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
   }
 
   it should "create a raw data path" in new CommonValues {
-    val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
-    val now = Option(formatter.parseDateTime("1984-03-17 13:13:13"))
+    val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.ZZZ")
+    val now = Option(formatter.parseDateTime("1984-03-17 13:13:13.CET"))
     DateOperations.generateParquetPath(now) should be(expectedRawPath)
   }
   it should "round to 15 seconds" in new CommonValues {
-    val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
-    val now = formatter.parseDateTime("1984-03-17 13:13:17")
+    val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.ZZZ")
+    val now = formatter.parseDateTime("1984-03-17 13:13:17.CET")
     DateOperations.dateFromGranularity(now, "s15") should be(448373595000L)
   }
   it should "round to 10 seconds" in new CommonValues {
-    val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
-    val now = formatter.parseDateTime("1984-03-17 13:13:17")
+    val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.ZZZ")
+    val now = formatter.parseDateTime("1984-03-17 13:13:17.CET")
     DateOperations.dateFromGranularity(now, "s10") should be(448373600000L)
   }
   it should "round to 5 seconds" in new CommonValues {
-    val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
-    val now = formatter.parseDateTime("1984-03-17 13:13:17")
+    val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.ZZZ")
+    val now = formatter.parseDateTime("1984-03-17 13:13:17.CET")
     DateOperations.dateFromGranularity(now, "s5") should be(448373595000L)
   }
   it should "create the full parquet path with just a word" in new ParquetPath {
