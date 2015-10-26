@@ -39,19 +39,10 @@ case class DateTimeField(props: Map[String, JSerializable])
     if (!props.contains(GranularityPropertyName)) Map(GranularityPropertyName -> DefaultGranularity) else Map()
   }
 
-  final val PrecisionMap = Map(
-    SecondName -> getPrecision(SecondName, getTypeOperation(SecondName)),
-    MinuteName -> getPrecision(MinuteName, getTypeOperation(MinuteName)),
-    HourName -> getPrecision(HourName, getTypeOperation(HourName)),
-    DayName -> getPrecision(DayName, getTypeOperation(DayName)),
-    MonthName -> getPrecision(MonthName, getTypeOperation(MonthName)),
-    YearName -> getPrecision(YearName, getTypeOperation(YearName)),
-    s15Name -> getPrecision(s15Name, getTypeOperation(s15Name)),
-    s10Name -> getPrecision(s10Name, getTypeOperation(s10Name)),
-    s5Name -> getPrecision(s5Name, getTypeOperation(s5Name))
-  )
-  
-  override def precision(keyName: String): Precision = PrecisionMap.getOrElse(keyName, timestamp)
+  override def precision(keyName: String): Precision = {
+    if (DateTimeField.Precisions.contains(keyName)) getPrecision(keyName, getTypeOperation(keyName))
+    else timestamp
+  }
 
   @throws(classOf[ClassCastException])
   override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) =
@@ -81,6 +72,7 @@ object DateTimeField {
   final val s15Name = "s15"
   final val s10Name = "s10"
   final val s5Name = "s5"
+  final val Precisions = Seq(SecondName, MinuteName, HourName, DayName, MonthName, YearName, s15Name, s10Name, s5Name)
   final val timestamp = DimensionType.getTimestamp(Some(TypeOp.Timestamp), TypeOp.Timestamp)
 
   def getPrecision(value: Date, precision: Precision, properties: Map[String, JSerializable]): JSerializable = {

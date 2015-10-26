@@ -20,10 +20,10 @@ import java.io.{Serializable => JSerializable}
 import java.util.Date
 
 import com.stratio.sparkta.plugin.field.datetime.DateTimeField
+import com.stratio.sparkta.sdk.TypeOp
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
-import com.stratio.sparkta.sdk.TypeOp
 
 @RunWith(classOf[JUnitRunner])
 class DateTimeFieldSpec extends WordSpecLike with Matchers {
