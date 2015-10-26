@@ -20,10 +20,9 @@ import java.io.{Serializable => JSerializable}
 import java.util.Date
 
 import akka.event.slf4j.SLF4JLogging
-import org.joda.time.DateTime
-
-import DateTimeField._
+import com.stratio.sparkta.plugin.field.datetime.DateTimeField._
 import com.stratio.sparkta.sdk._
+import org.joda.time.DateTime
 
 case class DateTimeField(props: Map[String, JSerializable])
   extends DimensionType with JSerializable with SLF4JLogging {
@@ -40,24 +39,26 @@ case class DateTimeField(props: Map[String, JSerializable])
     if (!props.contains(GranularityPropertyName)) Map(GranularityPropertyName -> DefaultGranularity) else Map()
   }
 
-  override def precision(keyName: String): Precision = keyName match {
-    case SecondName => getPrecision(SecondName, getTypeOperation(SecondName))
-    case MinuteName => getPrecision(MinuteName, getTypeOperation(MinuteName))
-    case HourName => getPrecision(HourName, getTypeOperation(HourName))
-    case DayName => getPrecision(DayName, getTypeOperation(DayName))
-    case MonthName => getPrecision(MonthName, getTypeOperation(MonthName))
-    case YearName => getPrecision(YearName, getTypeOperation(YearName))
-    case s15Name => getPrecision(s15Name, getTypeOperation(s15Name))
-    case s10Name => getPrecision(s10Name, getTypeOperation(s10Name))
-    case s5Name => getPrecision(s5Name, getTypeOperation(s5Name))
-    case _ => timestamp
-  }
+  final val PrecisionMap = Map(
+    SecondName -> getPrecision(SecondName, getTypeOperation(SecondName)),
+    MinuteName -> getPrecision(MinuteName, getTypeOperation(MinuteName)),
+    HourName -> getPrecision(HourName, getTypeOperation(HourName)),
+    DayName -> getPrecision(DayName, getTypeOperation(DayName)),
+    MonthName -> getPrecision(MonthName, getTypeOperation(MonthName)),
+    YearName -> getPrecision(YearName, getTypeOperation(YearName)),
+    s15Name -> getPrecision(s15Name, getTypeOperation(s15Name)),
+    s10Name -> getPrecision(s10Name, getTypeOperation(s10Name)),
+    s5Name -> getPrecision(s5Name, getTypeOperation(s5Name))
+  )
+  
+  override def precision(keyName: String): Precision = PrecisionMap.getOrElse(keyName, timestamp)
 
   @throws(classOf[ClassCastException])
   override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) =
     try {
       val precisionKey = precision(keyName)
-      (precisionKey, DateTimeField.getPrecision(value.asInstanceOf[Date], precisionKey, properties))
+      (precisionKey, DateTimeField.getPrecision(TypeOp.transformValueByTypeOp(TypeOp.Date, value).asInstanceOf[Date],
+        precisionKey, properties))
     }
     catch {
       case cce: ClassCastException => {
