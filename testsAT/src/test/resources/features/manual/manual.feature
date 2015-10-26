@@ -1,4 +1,4 @@
-@ignore @unimplemented
+@ignore @manual
 
 Feature: Manual template
 
