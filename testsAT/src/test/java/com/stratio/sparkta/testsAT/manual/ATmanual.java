@@ -13,7 +13,7 @@ public class ATmanual extends BaseTest {
     public ATmanual() {
     }
 
-    @Test(enabled = true, groups = {"basic"})
+    @Test(enabled = true, groups = {"manual"})
     public void manualTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
