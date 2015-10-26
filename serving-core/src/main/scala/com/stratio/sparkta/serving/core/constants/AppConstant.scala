@@ -126,10 +126,8 @@ object AppConstant {
     "Parquet" -> s"output-parquet$pluginExtension",
     "Print" -> s"output-print$pluginExtension",
     "Redis" -> s"output-redis$pluginExtension",
-    s"Detector${Parser.ClassSuffix}" -> s"parser-detector$pluginExtension",
     s"DateTime${Parser.ClassSuffix}" -> s"parser-datetime$pluginExtension",
     s"Morphlines${Parser.ClassSuffix}" -> s"parser-morphlines$pluginExtension",
-    s"Split${Parser.ClassSuffix}" -> s"parser-split$pluginExtension",
     s"Type${Parser.ClassSuffix}" -> s"parser-type$pluginExtension"
   )
 }
