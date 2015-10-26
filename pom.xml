@@ -35,11 +35,11 @@
     <url>http://www.stratio.com</url>
 
     <modules>
+        <module>sdk</module>
+        <module>plugins</module>
         <module>driver</module>
         <module>aggregator</module>
         <module>serving-core</module>
-        <module>sdk</module>
-        <module>plugins</module>
         <module>serving-api</module>
         <module>doc</module>
         <module>web</module>
