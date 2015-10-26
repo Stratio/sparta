@@ -44,7 +44,6 @@
         <module>doc</module>
         <module>web</module>
         <module>dist</module>
-        <module>testsAT</module>
     </modules>
 
     <name>Stratio SpaRkTA</name>
