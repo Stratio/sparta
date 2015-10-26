@@ -32,12 +32,12 @@ chown -R ${USER}:${GROUP} $DIR_INSTALL
 chown -R ${USER}:${GROUP} $DIR_PID
 chown -R ${USER}:${GROUP} $DIR_LOG
 /bin/chmod 775 $DIR_INSTALL
-/bin/chmod 755 $DIR_PID
-/bin/chmod 755 $DIR_LOG
+/bin/chmod 775 $DIR_PID
+/bin/chmod 775 $DIR_LOG
 /bin/chmod 777 $PID_FILE
-/bin/chmod 755 $LOG_FILE
-/bin/chmod 755 $LOG_ERR_FILE
-/bin/chmod 755 $DIR_INSTALL/bin/run
+/bin/chmod 664 $LOG_FILE
+/bin/chmod 664 $LOG_ERR_FILE
+/bin/chmod 775 $DIR_INSTALL/bin/run
 /bin/chmod 755 /etc/init.d/sparkta
 echo "Adding sparkta service"
 update-rc.d sparkta defaults > /dev/null 2>&1
