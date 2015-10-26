@@ -25,7 +25,7 @@ import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
-
+@Ignore
 @RunWith(classOf[JUnitRunner])
 class DateOperationsSpec extends FlatSpec with ShouldMatchers {
 
