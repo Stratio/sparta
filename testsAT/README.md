@@ -15,6 +15,6 @@ Example:
 
 mvn verify -DSPARKTA_HOST=localhost -DSPARKTA_PORT=9090 -DSPARKTA_API_PORT=9091 -Dit.test=com.stratio.sparkta.tests_at.gui.inputs.AddNewSocket
 
-By default, in jenkins we will execute the group basic, which should contain a subset of tests, that are to key to the functioning of the module and the ones generated for the new feature.
+By default, in jenkins we will execute the group basic, which should contain a subset of tests, that are key to the functioning of the module and the ones generated for the new feature.
 
 All tests, that are not fully implemented, should belong to the group manual and be tagged with '@ignore @manual'
