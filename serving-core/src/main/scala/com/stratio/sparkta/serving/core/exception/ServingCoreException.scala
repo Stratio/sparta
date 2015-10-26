@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.exception
+package com.stratio.sparkta.serving.core.exception
 
-class ServingApiException(msg: String) extends RuntimeException(msg)
+class ServingCoreException(msg: String) extends RuntimeException(msg)
 
-object ServingApiException {
+object ServingCoreException {
 
-  def create(msg: String): ServingApiException = new ServingApiException(msg)
+  def create(msg: String): ServingCoreException = new ServingCoreException(msg)
 
-  def create(msg: String, cause: Throwable): Throwable = new ServingApiException(msg).initCause(cause)
+  def create(msg: String, cause: Throwable): Throwable = new ServingCoreException(msg).initCause(cause)
 }

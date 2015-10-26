@@ -19,7 +19,8 @@ package com.stratio.sparkta.aggregator
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
+import com.stratio.sparkta.serving.core.SparktaConfig
+import com.stratio.sparkta.serving.core.constants.AppConstant
 import org.apache.spark.HashPartitioner
 import org.apache.spark.streaming.Duration
 import org.apache.spark.streaming.dstream.DStream

@@ -19,9 +19,10 @@ package com.stratio.sparkta.serving.api.service.http
 import akka.actor.ActorRef
 import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparkta.sdk.exception.MockException
-import com.stratio.sparkta.serving.api.actor.FragmentActor._
 import com.stratio.sparkta.serving.api.actor.PolicyActor.{FindByFragment, ResponsePolicies}
-import com.stratio.sparkta.serving.api.constants.{AkkaConstant, HttpConstant}
+import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.core.actor.FragmentActor._
+import com.stratio.sparkta.serving.core.constants.AkkaConstant
 import com.stratio.sparkta.serving.core.models.FragmentElementModel
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
@@ -32,8 +33,8 @@ import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
 class FragmentHttpServiceSpec extends WordSpec
-                              with FragmentHttpService
-                              with HttpServiceBaseSpec {
+with FragmentHttpService
+with HttpServiceBaseSpec {
 
   val policyTestProbe = TestProbe()
 
@@ -130,7 +131,7 @@ class FragmentHttpServiceSpec extends WordSpec
       val policyAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case FindByFragment(input,id) =>
+            case FindByFragment(input, id) =>
               sender ! ResponsePolicies(Success(Seq(getPolicyModel())))
               TestActor.NoAutoPilot
             case Delete => TestActor.NoAutoPilot

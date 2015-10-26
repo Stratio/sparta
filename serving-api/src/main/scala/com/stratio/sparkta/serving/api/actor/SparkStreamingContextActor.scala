@@ -24,17 +24,18 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
-import com.stratio.sparkta.serving.api.exception.ServingApiException
+import com.stratio.sparkta.serving.core.constants.AppConstant
+import com.stratio.sparkta.serving.core.exception.ServingCoreException
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{FindAll, Response, Update}
 import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
-import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder, SparktaConfig}
+import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, SparktaConfig}
 import org.json4s.jackson.Serialization.{read, write}
 
 import scala.collection.JavaConversions
 import scala.concurrent.Await
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits._
+import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
 class SparkStreamingContextActor(streamingContextService: StreamingContextService,
@@ -48,7 +49,7 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
 
   override val supervisorStrategy =
     OneForOneStrategy() {
-      case _: ServingApiException => Escalate
+      case _: ServingCoreException => Escalate
       case t =>
         super.supervisorStrategy.decider.applyOrElse(t, (_: Any) => Escalate)
     }
@@ -60,7 +61,7 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
   def isNotRunning(policy: AggregationPoliciesModel): Boolean = {
     val future = policyStatusActor ? FindAll
     val models = Await.result(future, timeout.duration) match {
-      case Response(Success(s)) => s.filter(s=>s.id==policy.id.get)
+      case Response(Success(s)) => s.filter(s => s.id == policy.id.get)
       case Response(Failure(ex)) => throw ex
     }
     models.asInstanceOf[Seq[PolicyStatusModel]].exists(p => p.status match {
@@ -100,7 +101,7 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
   }
 
   def existsByName(name: String, id: Option[String] = None): Boolean = {
-    val nameToCompare =name.toLowerCase
+    val nameToCompare = name.toLowerCase
     Try({
       val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
       JavaConversions.asScalaBuffer(children).toList.map(element =>
@@ -116,6 +117,7 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
       }
     }
   }
+
   def launchNewPolicy(policy: AggregationPoliciesModel): AggregationPoliciesModel = {
     val policyWithIdModel = policyWithId(policy)
 
@@ -137,7 +139,6 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
     policyWithIdModel
   }
 
-
   private def policyWithId(policy: AggregationPoliciesModel) =
     (
       policy.id match {
@@ -146,10 +147,8 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
       }
       ).copy(name = policy.name.toLowerCase)
 
-
   // XXX Private Methods.
   private def savePolicyInZk(policy: AggregationPoliciesModel): Unit = {
-
 
     Try({
       read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.forPath(

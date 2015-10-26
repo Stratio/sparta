@@ -19,10 +19,12 @@ package com.stratio.sparkta.serving.api.service.http
 import akka.actor.ActorRef
 import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparkta.sdk.exception.MockException
-import com.stratio.sparkta.serving.api.actor.FragmentActor.ResponseFragment
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
-import com.stratio.sparkta.serving.api.actor.{FragmentActor, SparkStreamingContextActor}
-import com.stratio.sparkta.serving.api.constants.{AkkaConstant, HttpConstant}
+import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor
+import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.core.actor.FragmentActor
+import com.stratio.sparkta.serving.core.actor.FragmentActor.ResponseFragment
+import com.stratio.sparkta.serving.core.constants.AkkaConstant
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyWithStatus}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
 import org.junit.runner.RunWith
@@ -231,7 +233,7 @@ with HttpServiceBaseSpec {
       Get(s"/${HttpConstant.PolicyPath}/download/id") ~> routes ~> check {
         testProbe.expectMsgType[Find]
         status should be(StatusCodes.OK)
-        header("Content-Disposition").isDefined should be (true)
+        header("Content-Disposition").isDefined should be(true)
       }
     }
     "return a 500 if there was any error" in {

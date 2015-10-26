@@ -24,11 +24,12 @@ import akka.util.Timeout
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
+import com.stratio.sparkta.serving.core.SparktaConfig
+import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
-import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
 import org.apache.spark.streaming.StreamingContext
 
 import scala.concurrent.duration._

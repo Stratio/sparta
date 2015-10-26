@@ -17,7 +17,7 @@
 package com.stratio.sparkta.serving.core.models
 
 import com.stratio.sparkta.sdk.{Input, JsoneyString}
-import com.stratio.sparkta.serving.core.AppConstant
+import com.stratio.sparkta.serving.core.constants.AppConstant
 
 case class TransformationsModel(name: String,
                                 `type`: String,

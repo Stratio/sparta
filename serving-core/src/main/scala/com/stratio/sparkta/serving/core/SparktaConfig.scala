@@ -17,6 +17,7 @@
 package com.stratio.sparkta.serving.core
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.typesafe.config.Config
 
 import scala.util.{Success, Try}
