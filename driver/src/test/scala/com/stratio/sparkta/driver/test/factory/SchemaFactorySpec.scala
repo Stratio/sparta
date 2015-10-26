@@ -18,23 +18,23 @@ package com.stratio.sparkta.driver.test.factory
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.aggregator.Cube
-import com.stratio.sparkta.driver.factory.SchemaFactory
-import com.stratio.sparkta.sdk._
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 
+import com.stratio.sparkta.aggregator.Cube
+import com.stratio.sparkta.driver.factory.SchemaFactory
+import com.stratio.sparkta.sdk._
+
 @RunWith(classOf[JUnitRunner])
 class SchemaFactorySpec extends FlatSpec with ShouldMatchers
 with MockitoSugar {
 
-
   "SchemaFactorySpec" should "return a list of schemas" in new CommonValues {
     val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1),
-      false, "minute", checkpointInterval, checkpointGranularity, checkpointAvailable)
+      "minute", checkpointInterval, checkpointGranularity, checkpointAvailable)
     val cubes = Seq(cube)
     val tableSchema = TableSchema("outputName", "dim1_dim2", StructType(Array(
       StructField("dim1", StringType, false),
@@ -46,33 +46,6 @@ with MockitoSugar {
 
     res should be(Seq(tableSchema))
   }
-  "SchemaFactorySpec2" should "return with multiplexer" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1),
-      false, "minute", checkpointInterval, checkpointGranularity, checkpointAvailable)
-    val cubes = Seq(cube)
-    val tableSchema = Seq(TableSchema("outputName", "dim1",
-      StructType(Array(
-        StructField("dim1", StringType, false),
-        StructField(checkpointGranularity, DateType, false),
-        StructField("op1", LongType, true))), "minute"),
-      TableSchema("outputName", "dim2",
-        StructType(Array(
-          StructField("dim2", StringType, false),
-          StructField(checkpointGranularity, DateType, false),
-          StructField("op1", LongType, true))), "minute"),
-      TableSchema("outputName", "dim1_dim2",
-        StructType(Array(
-          StructField("dim1", StringType, false),
-          StructField("dim2", StringType, false),
-          StructField(checkpointGranularity, DateType, false),
-          StructField("op1", LongType, true))), "minute")
-    )
-
-
-    val res = SchemaFactory.cubesOperatorsSchemas(cubes, multiplexerConfigOptions)
-
-    res should be(tableSchema)
-  }
 
   "SchemaFactorySpec" should "return the operator and the type" in new CommonValues {
     val expected = Map("op1" ->(WriteOp.Inc, TypeOp.Long))
@@ -83,6 +56,7 @@ with MockitoSugar {
   }
 
   class OperatorTest(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+
     override val defaultTypeOperation = TypeOp.Long
 
     override val writeOperation = WriteOp.Inc
@@ -116,13 +90,13 @@ with MockitoSugar {
   }
 
   trait CommonValues {
+
     val dim1: Dimension = Dimension("dim1", "field1", "", new DimensionTypeTest)
     val dim2: Dimension = Dimension("dim2", "field2", "", new DimensionTypeTest)
 
     val op1: Operator = new OperatorTest("op1", Map())
 
     val configOptions: Seq[(String, Map[String, String])] = Seq(("outputName", Map("" -> "")))
-    val multiplexerConfigOptions = Seq(("outputName", Map(Output.Multiplexer -> "true")))
     val checkpointInterval = 10000
     val checkpointAvailable = 60000
     val checkpointGranularity = "minute"

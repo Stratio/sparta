@@ -17,15 +17,15 @@
 package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
+import scala.util.Try
 
-import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
 import org.apache.spark.HashPartitioner
 import org.apache.spark.streaming.Duration
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
-import scala.util.Try
+import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
 
 /**
  * Use this class to describe a cube that you want the multicube to keep.
@@ -38,7 +38,6 @@ import scala.util.Try
 case class Cube(name: String,
                 dimensions: Seq[Dimension],
                 operators: Seq[Operator],
-                multiplexer: Boolean,
                 checkpointTimeDimension: String,
                 checkpointInterval: Int,
                 checkpointGranularity: String,
@@ -47,24 +46,6 @@ case class Cube(name: String,
   private lazy val operatorsMap = operators.map(op => op.key -> op).toMap
   private lazy val rememberPartitioner =
     Try(SparktaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigRememberPartitioner)).getOrElse(true)
-
-  def this(name: String,
-           dimension: Dimension,
-           operators: Seq[Operator],
-           multiplexer: Boolean,
-           checkpointTimeDimension: String,
-           checkpointInterval: Int,
-           checkpointGranularity: String,
-           checkpointAvailable: Int) {
-    this(name,
-      Seq(dimension),
-      operators,
-      multiplexer,
-      checkpointTimeDimension,
-      checkpointInterval,
-      checkpointGranularity,
-      checkpointAvailable)
-  }
 
   def aggregate(dimensionsValues: DStream[(DimensionValuesTime,
     Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
@@ -94,8 +75,8 @@ case class Cube(name: String,
         dimensionsData._1.time >= eventTime
       })
         .flatMap { case (dimensionsKey, values, state) =>
-        updateFunction(values, state).map(result => (dimensionsKey, result))
-      }
+          updateFunction(values, state).map(result => (dimensionsKey, result))
+        }
     }
     dimensionsValues.updateStateByKey(
       newUpdateFunc, new HashPartitioner(dimensionsValues.context.sparkContext.defaultParallelism), rememberPartitioner)
@@ -115,28 +96,4 @@ case class Cube(name: String,
         .map { case (name, value) => (name, operatorsMap(name).processReduce(value.map(_._2))) }
     })
   }
-
-  override def toString: String = "[Cube over " + dimensions + "]"
-
-  def getDimensionsSorted: Seq[Dimension] = dimensions.sorted
-
-  def getDimensionsNames: Seq[String] = dimensions.map(dimension => dimension.name)
-
-  def getPrecisionsNames: Seq[String] = dimensions.map(dimension => dimension.getNamePrecision)
-
-  def getDimensionsNames(dimensions: Seq[Dimension]): Seq[String] = dimensions.map(dimension => dimension.name)
-
-  def getPrecisionsNames(dimensions: Seq[Dimension]): Seq[String] =
-    dimensions.map(dimension => dimension.getNamePrecision)
-
-  def getDimensionsNamesSorted: Seq[String] = getDimensionsNames(getDimensionsSorted)
-
-  def getOperatorsSorted: Seq[Operator] = operators.sorted
-
-  def getOperatorsNames(operatorsNames: Seq[Operator]): Seq[String] = operatorsNames.map(operator => operator.key)
-
-  def getOperatorsNames: Seq[String] = operators.map(operator => operator.key)
-
-  def getOperatorsNamesSorted: Seq[String] = getOperatorsNames(getOperatorsSorted)
 }
-

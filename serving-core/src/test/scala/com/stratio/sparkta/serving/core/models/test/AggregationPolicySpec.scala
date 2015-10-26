@@ -16,15 +16,15 @@
 
 package com.stratio.sparkta.serving.core.models.test
 
-import com.stratio.sparkta.sdk.DimensionType
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
+
+import com.stratio.sparkta.sdk.{DimensionType, Input}
 import com.stratio.sparkta.serving.core.models._
-import com.stratio.sparkta.sdk.{Input}
 
 @RunWith(classOf[JUnitRunner])
-class AggregationPolicySpec extends WordSpec with Matchers{
+class AggregationPolicySpec extends WordSpec with Matchers {
 
   val rawData = new RawDataModel
   val fragmentModel = new FragmentElementModel(
@@ -33,7 +33,7 @@ class AggregationPolicySpec extends WordSpec with Matchers{
     "name",
     "description",
     "shortDescription",
-    PolicyElementModel("name", "type",Map()))
+    PolicyElementModel("name", "type", Map()))
 
   val fragmentType = FragmentType
 
@@ -60,11 +60,10 @@ class AggregationPolicySpec extends WordSpec with Matchers{
   val cubes = Seq(CubeModel("cube1",
     checkpointModel,
     dimensionModel,
-    operators: Seq[OperatorModel],
-    CubeModel.Multiplexer))
+    operators: Seq[OperatorModel]))
 
   val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
-  val input = Some(PolicyElementModel("kafka", "Kafka",Map()))
+  val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
   val policy = AggregationPoliciesModel(id = None,
     storageLevel = AggregationPoliciesModel.storageDefaultValue,
     name = "testpolicy",
@@ -82,7 +81,7 @@ class AggregationPolicySpec extends WordSpec with Matchers{
 
     "AggregationPoliciesValidator should return a touple (True, ) if the policy is well formed" in {
       val res = AggregationPoliciesValidator.validateDto(policy)
-      res should be ((true,""))
+      res should be((true, ""))
     }
   }
 }

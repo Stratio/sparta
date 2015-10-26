@@ -147,8 +147,7 @@
       "type": "MongoDb",
       "configuration": {
         "hosts": [{"host": "localhost" , "port": "60000" }],
-        "dbName": "csvtest",
-        "multiplexer": "false"
+        "dbName": "csvtest"
       }
     }
   ]
