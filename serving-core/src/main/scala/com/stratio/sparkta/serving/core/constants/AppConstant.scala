@@ -16,6 +16,8 @@
 
 package com.stratio.sparkta.serving.core.constants
 
+import com.stratio.sparkta.sdk.Parser
+
 /**
  * Global constants of the application.
  */
@@ -124,10 +126,8 @@ object AppConstant {
     "Parquet" -> s"output-parquet$pluginExtension",
     "Print" -> s"output-print$pluginExtension",
     "Redis" -> s"output-redis$pluginExtension",
-    "Detector" -> s"parser-detector$pluginExtension",
-    "DateTime" -> s"parser-datetime$pluginExtension",
-    "Morphlines" -> s"parser-morphlines$pluginExtension",
-    "Split" -> s"parser-split$pluginExtension",
-    "Type" -> s"parser-type$pluginExtension"
+    s"DateTime${Parser.ClassSuffix}" -> s"parser-datetime$pluginExtension",
+    s"Morphlines${Parser.ClassSuffix}" -> s"parser-morphlines$pluginExtension",
+    s"Type${Parser.ClassSuffix}" -> s"parser-type$pluginExtension"
   )
 }
