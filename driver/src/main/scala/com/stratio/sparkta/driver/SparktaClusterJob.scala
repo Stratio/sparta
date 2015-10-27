@@ -63,7 +63,8 @@ object SparktaClusterJob extends SparktaSerializer {
       val policy = PolicyHelper.parseFragments(
         PolicyHelper.fillFragments(policyZk, fragmentActor, timeout))
       val pluginsClasspathFiles = addPluginsAndClasspath(args(PluginsPathIndex), args(ClassPathIndex))
-      val policyStatusActor = system.actorOf(Props[PolicyStatusActor], AkkaConstant.PolicyStatusActor)
+      val policyStatusActor = system.actorOf(Props(new PolicyStatusActor(curatorFramework)),
+        AkkaConstant.PolicyStatusActor)
 
       Try {
         policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Starting))
