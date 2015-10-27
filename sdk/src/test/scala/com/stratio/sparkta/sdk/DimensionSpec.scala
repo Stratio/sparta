@@ -70,12 +70,6 @@ class DimensionSpec extends WordSpec with Matchers {
       result should be(expected)
     }
 
-    "The string value must be the name" in {
-      val expected = "dim1"
-      val result = dimension.toString
-      result should be(expected)
-    }
-
     "classSuffix must be " in {
       val expected = "Field"
       val result = Dimension.FieldClassSuffix
