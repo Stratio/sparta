@@ -72,13 +72,12 @@ class CubeMakerSpec extends TestSuiteBase {
     val cube = Cube(name,
       Seq(dimension, timeDimension),
       Seq(operator),
-      multiplexer,
       checkpointGranularity,
       checkpointInterval,
       checkpointGranularity,
       checkpointTimeAvailability)
     val dataCube = new CubeOperations(cube, timeDimensionName, checkpointGranularity)
-    
+
     testOperation(getEventInput(sqlTimestamp), dataCube.extractDimensionsAggregations,
       getEventOutput(sqlTimestamp, millis), PreserverOrder)
   }

@@ -35,7 +35,6 @@ import com.stratio.sparkta.serving.core.constants.AppConstant
  * want to keep a total count for all (color, size) combinations, you'd specify that using a Cube or
  * multipelexer the output
  */
-
 case class Cube(name: String,
                 dimensions: Seq[Dimension],
                 operators: Seq[Operator],
