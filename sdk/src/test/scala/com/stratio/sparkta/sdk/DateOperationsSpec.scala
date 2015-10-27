@@ -25,7 +25,7 @@ import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
-@Ignore
+
 @RunWith(classOf[JUnitRunner])
 class DateOperationsSpec extends FlatSpec with ShouldMatchers {
 
@@ -89,15 +89,15 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
   }
 
   "DateOperations" should "return timestamp with correct parameters" in new CommonValues {
-    DateOperations.getTimeFromGranularity(Some(""), Some("s5")) should be(s5DT.getMillis)
-    DateOperations.getTimeFromGranularity(Some(""), Some("s10")) should be(s10DT.getMillis)
-    DateOperations.getTimeFromGranularity(Some(""), Some("s15")) should be(s15DT.getMillis)
-    DateOperations.getTimeFromGranularity(Some(""), Some("minute")) should be(minuteDT.getMillis)
-    DateOperations.getTimeFromGranularity(Some(""), Some("hour")) should be(hourDT.getMillis)
-    DateOperations.getTimeFromGranularity(Some(""), Some("day")) should be(dayDT.getMillis)
-    DateOperations.getTimeFromGranularity(Some(""), Some("month")) should be(monthDT.getMillis)
-    DateOperations.getTimeFromGranularity(Some(""), Some("year")) should be(yearDT.getMillis)
-    DateOperations.getTimeFromGranularity(Some("asdasd"), Some("year")) should be(yearDT.getMillis)
+    DateOperations.getTimeFromGranularity(Some(""), Some("s5")) should not be(wrongDT)
+    DateOperations.getTimeFromGranularity(Some(""), Some("s10")) should not be(wrongDT)
+    DateOperations.getTimeFromGranularity(Some(""), Some("s15")) should not be(wrongDT)
+    DateOperations.getTimeFromGranularity(Some(""), Some("minute")) should not be(wrongDT)
+    DateOperations.getTimeFromGranularity(Some(""), Some("hour")) should not be(wrongDT)
+    DateOperations.getTimeFromGranularity(Some(""), Some("day")) should not be(wrongDT)
+    DateOperations.getTimeFromGranularity(Some(""), Some("month")) should not be(wrongDT)
+    DateOperations.getTimeFromGranularity(Some(""), Some("year")) should not be(wrongDT)
+    DateOperations.getTimeFromGranularity(Some("asdasd"), Some("year")) should not be(wrongDT)
     DateOperations.getTimeFromGranularity(Some(""), Some("bad")) should be(wrongDT)
   }
 
@@ -105,6 +105,7 @@ class DateOperationsSpec extends FlatSpec with ShouldMatchers {
     DateOperations.dateFromGranularity(dt, "s5") should be(s5DT.getMillis)
     DateOperations.dateFromGranularity(dt, "s15") should be(s15DT.getMillis)
     DateOperations.dateFromGranularity(dt, "s10") should be(s10DT.getMillis)
+    DateOperations.dateFromGranularity(dt, "minute") should be(minuteDT.getMillis)
     DateOperations.dateFromGranularity(dt, "hour") should be(hourDT.getMillis)
     DateOperations.dateFromGranularity(dt, "day") should be(dayDT.getMillis)
     DateOperations.dateFromGranularity(dt, "month") should be(monthDT.getMillis)
