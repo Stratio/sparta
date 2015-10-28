@@ -95,13 +95,13 @@ class FragmentActor(curatorFramework: CuratorFramework)
             s"Fragment of type ${fragment.fragmentType} with name ${fragment.name} exists.")
         ))
       }
-      val fragmentS = fragment.copy(id = Some(s"${UUID.randomUUID.toString}"),
+
+      val currentId: Option[String] = if(fragment.id.isDefined) fragment.id else Option(UUID.randomUUID.toString)
+      val fragmentS = fragment.copy(id = currentId,
         name = fragment.name.toLowerCase)
       curatorFramework.create().creatingParentsIfNeeded().forPath(
-        s"${
-          FragmentActor.fragmentPath(
-            fragmentS.fragmentType)
-        }/${fragmentS.id.get}", write(fragmentS).getBytes())
+        s"${FragmentActor.fragmentPath(
+          fragmentS.fragmentType)}/${fragmentS.id.get}", write(fragmentS).getBytes())
       fragmentS
     }))
 
