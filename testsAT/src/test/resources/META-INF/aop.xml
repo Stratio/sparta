@@ -8,4 +8,8 @@
 		<aspect name="com.stratio.cucumber.aspects.BrowsersDataProviderAspect" />
 		<aspect name="com.stratio.cucumber.aspects.ReplacementAspect" />
 	</aspects>
+	<weaver
+		options="-Xlint:ignore -Xset:weaveJavaPackages=true,weaveJavaxPackages=true">
+		<dump within="com.stratio.specs..*" beforeandafter="true"/>
+	</weaver>	
 </aspectj>
