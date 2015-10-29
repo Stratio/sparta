@@ -26,6 +26,7 @@ import org.apache.curator.framework.api._
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.apache.zookeeper.data.Stat
 import org.json4s.jackson.Serialization.read
+import org.junit.Ignore
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
@@ -35,6 +36,7 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import com.stratio.sparkta.serving.core.actor.FragmentActor.{Response, ResponseFragment, ResponseFragments}
 import com.stratio.sparkta.serving.core.models.{FragmentElementModel, SparktaSerializer}
 
+@Ignore
 @RunWith(classOf[JUnitRunner])
 class FragmentActorSpec extends TestKit(ActorSystem("FragmentActorSpec"))
 with DefaultTimeout
