@@ -58,7 +58,7 @@
 						</goals>
 						<phase>generate-sources</phase>
 						<configuration>
-							<arguments>install --production</arguments>
+							<arguments>install --production --no-optional</arguments>
               <skip.npm>${skip.npm}</skip.npm>
 						</configuration>
 					</execution>
