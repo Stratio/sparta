@@ -41,9 +41,6 @@ These parameters can be set in the policy file:
 +-----------------------+----------------------------------------------------------+----------+-----------------------+
 | Property              | Description                                              | Optional | Default               |
 +=======================+==========================================================+==========+=======================+
-| multiplexer           | If it's enabled it will generate tables corresponding    | Yes      | false                 |
-|                       | to all possible combinations of the dimensions.          |          |                       |
-+-----------------------+----------------------------------------------------------+----------+-----------------------+
 | replication_factor    | Required if class is SimpleStrategy; otherwise, not used | Yes      | 1                     |
 |                       | The parameter specifies the number of replicas of data   |          |                       |
 |                       | on multiple nodes.                                       |          |                       |
@@ -304,8 +301,7 @@ Parquet Configuration
       "jarFile" : "output-parquet-plugin.jar",
       "configuration": {
         "path": "/tmp/sparkta/operators/parquet",
-        "datePattern": "yyyy/MM/dd",
-        "multiplexer": "false"
+        "datePattern": "yyyy/MM/dd"
       }
     }
   ]

@@ -5,9 +5,9 @@ Contents:
     :numbered:
 
     about.rst
+    configuration.rst
     usingSparkta.rst
-    policy.rst
-    sandbox.rst
-    examples.rst
+    cheatsheet.rst
+    troubleshooting.rst
+    faq.rst
     versionFeatures.rst
-    advanced.rst
