@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.7.0 (Upcoming)
+
 ## 0.6.3 (October 2015)
 
 - Bugfix: DateTime field and parser
