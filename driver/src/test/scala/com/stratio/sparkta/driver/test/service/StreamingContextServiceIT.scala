@@ -20,9 +20,10 @@ import java.io.File
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.serving.core.SparktaConfig
+import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, SparktaSerializer}
-import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
 import org.json4s.native
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -66,7 +67,7 @@ with SparktaSerializer {
       val json = Source.fromFile(new File(PathToPolicy)).mkString
       val apConfig = native.Serialization.read[AggregationPoliciesModel](json)
 
-      val ssc = streamingContextService.standAloneStreamingContext(apConfig.copy(id=Some("1")), jars)
+      val ssc = streamingContextService.standAloneStreamingContext(apConfig.copy(id = Some("1")), jars)
 
       ssc should not be None
     }

@@ -47,13 +47,7 @@ class AggregateOperationsSpec extends FlatSpec with ShouldMatchers {
     val fixedAggregation = Map("agg2" -> Some("2"))
   }
 
-  "AggregateOperations" should "return a correct string" in new CommonValues {
-    val expect = "dim1_dim2_minute DIMENSIONS: dim1|dim2|minute AGGREGATIONS: Map(field -> Some(value)) TIME: 1"
-    val result = AggregateOperations.toString(dimensionValuesT, aggregations, timeDimension, fixedDimensionsName)
-    result should be(expect)
-  }
-
-  it should "return a correct keyString" in new CommonValues {
+  "AggregateOperations" should "return a correct keyString" in new CommonValues {
     val expect = "dim1_dim2_minute"
     val result = AggregateOperations.keyString(dimensionValuesT, timeDimension, fixedDimensionsName)
     result should be(expect)

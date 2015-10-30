@@ -20,7 +20,8 @@ import akka.actor.ActorRef
 import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparkta.sdk.exception.MockException
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor
-import com.stratio.sparkta.serving.api.constants.{AkkaConstant, HttpConstant}
+import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.core.constants.AkkaConstant
 import com.stratio.sparkta.serving.core.models.PolicyStatusModel
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{FindAll, Update}

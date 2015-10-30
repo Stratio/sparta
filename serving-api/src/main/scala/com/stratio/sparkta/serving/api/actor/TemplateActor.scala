@@ -22,7 +22,7 @@ import java.net.{URI, URL}
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.serving.api.actor.TemplateActor._
-import com.stratio.sparkta.serving.api.exception.ServingApiException
+import com.stratio.sparkta.serving.core.exception.ServingCoreException
 import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer, TemplateModel}
 import org.json4s.jackson.Serialization.read
 import spray.httpx.Json4sJacksonSupport
@@ -53,7 +53,7 @@ class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging wi
     sender ! ResponseTemplate(Try({
       read[TemplateModel](getInputStreamFromResource(s"templates/${t}/${name.toLowerCase}.json"))
     }).recover {
-      case e: NullPointerException => throw new ServingApiException(ErrorModel.toString(
+      case e: NullPointerException => throw new ServingCoreException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsTemplatetWithName, s"No template of type $t  with name ${name}.json")
       ))
     })

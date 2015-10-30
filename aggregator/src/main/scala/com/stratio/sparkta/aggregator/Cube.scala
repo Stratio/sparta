@@ -25,7 +25,8 @@ import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
 import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
+import com.stratio.sparkta.serving.core.SparktaConfig
+import com.stratio.sparkta.serving.core.constants.AppConstant
 
 /**
  * Use this class to describe a cube that you want the multicube to keep.
@@ -34,7 +35,6 @@ import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
  * want to keep a total count for all (color, size) combinations, you'd specify that using a Cube or
  * multipelexer the output
  */
-
 case class Cube(name: String,
                 dimensions: Seq[Dimension],
                 operators: Seq[Operator],

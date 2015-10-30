@@ -16,7 +16,7 @@
         return ApiPolicyService.getPolicyByFragmentId().get({'type': fragmentType, 'id': fragmentId}).$promise;
       },
       getAllPolicies: function () {
-        return ApiPolicyService.getAllpolicies().get().$promise;
+        return ApiPolicyService.getAllPolicies().get().$promise;
       },
       createPolicy: function (newPolicyData) {
         return ApiPolicyService.createPolicy().create(newPolicyData).$promise;

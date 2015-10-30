@@ -16,24 +16,25 @@
 
 package com.stratio.sparkta.serving.api.helpers
 
+import scala.collection.JavaConversions
+import scala.util.{Failure, Success, Try}
+
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import akka.routing.RoundRobinPool
-import com.stratio.sparkta.driver.factory.SparkContextFactory
-import com.stratio.sparkta.driver.service.StreamingContextService
-import com.stratio.sparkta.serving.api.Sparkta._
-import com.stratio.sparkta.serving.api.actor._
-import com.stratio.sparkta.serving.api.constants.AkkaConstant
-import com.stratio.sparkta.serving.core._
-import com.stratio.sparkta.serving.core.models.{SparktaSerializer, PolicyStatusModel}
-import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusEnum, PolicyStatusActor}
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.jackson.Serialization._
 import spray.can.Http
 
-import scala.collection.JavaConversions
-import scala.util.{Success, Failure, Try}
+import com.stratio.sparkta.driver.factory.SparkContextFactory
+import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.serving.api.actor._
+import com.stratio.sparkta.serving.core._
+import com.stratio.sparkta.serving.core.actor.FragmentActor
+import com.stratio.sparkta.serving.core.constants.{AkkaConstant, AppConstant}
+import com.stratio.sparkta.serving.core.models.{PolicyStatusModel, SparktaSerializer}
+import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 
 /**
  * Helper with common operations used to create a Sparkta context used to run the application.
@@ -112,7 +113,7 @@ with SparktaSerializer {
     } match {
       case Failure(ex: NoNodeException) => log.error("No Zookeeper node for /stratio/sparkta/contexts yet")
       case Failure(ex: Exception) => throw ex
-      case Success(())=> {}
+      case Success(()) => {}
     }
   }
 

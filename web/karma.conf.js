@@ -9,7 +9,6 @@ module.exports = function (config) {
       'bower_components/angular-resource/angular-resource.js',
       'bower_components/angular-route/angular-route.js',
       'bower_components/angular-ui-router/release/angular-ui-router.js',
-      'src/scripts/filters/angular-truncate-number.js',
 
       'src/stratio-ui/script/ui.stratio.js',
       'src/stratio-ui/script/helper/*.js',
@@ -21,33 +20,43 @@ module.exports = function (config) {
       'src/scripts/constants/**/*.js',
       'src/scripts/controllers/**/*.js',
       'src/scripts/services/**/*.js',
+      'src/scripts/directives/**/*.js',
       'src/languages/en-US.json',
+      'src/scripts/filters/truncate-number.js',
+
       // fixtures
       'test/mock/*.json',
-      'test/**/*.js'
+      'test/**/**/*.js'
     ],
 
     autoWatch: false,
 
+    reporters: ['junit', 'coverage', 'progress'],
+
+    coverageReporter: {
+      type: 'lcov',
+      dir: 'target/coverage/'
+    },
     frameworks: ['jasmine-jquery', 'jasmine'],
 
     browsers: ['PhantomJS'],
-
-    plugins: [
-      'karma-ng-json2js-preprocessor',
-      'karma-phantomjs-launcher',
-      'karma-jasmine',
-      'karma-jasmine-jquery'
-    ],
+    port: 8080,
 
     preprocessors: {
-      '**/*.html': ['ng-html2js'],
-      '**/*.json': ['ng-json2js']
+      '**/*.json': ['ng-json2js'],
+      'src/scripts/constants/**/*.js': ['coverage'],
+      'src/scripts/controllers/**/*.js': ['coverage'],
+      'src/scripts/directives/**/*.js': ['coverage'],
+      'src/scripts/services/**/*.js': ['coverage'],
+      'src/scripts/filters/**/*.js': ['coverage'],
+      'src/scripts/inputs/**/*.js': ['coverage'],
+      'src/scripts/app.js': ['coverage']
     },
 
     junitReporter: {
-      outputFile: 'test_out/unit.xml',
-      suite: 'unit'
+      outputDir: 'target/surefire-reports/',
+      outputFile: undefined,
+      suite: ''
     },
 
     ngJson2JsPreprocessor: {
@@ -55,7 +64,14 @@ module.exports = function (config) {
       stripPrefix: 'test/mock/',
       // prepend this to the
       prependPrefix: 'served/'
-    }
+    },
 
+    coverageReporter: {
+      type: "lcovonly",
+      dir: 'target/coverage',
+      file: '../../lcovUT.info'
+    },
+    singleRun: true,
+    logLevel: config.LOG_INFO
   });
 };
