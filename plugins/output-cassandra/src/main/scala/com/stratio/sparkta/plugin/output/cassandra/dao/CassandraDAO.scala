@@ -94,7 +94,7 @@ trait CassandraDAO extends Closeable with Logging {
     val schemaPkCloumns: Option[String] = schemaToPkCcolumns(schema, clusteringTime, isAutoCalculateId)
     val compactSt = compactStorage match {
       case None => ""
-      case Some(compact) => s" WITH $compact"
+      case Some(compact) => if (compact.toBoolean) s" WITH COMPACT STORAGE" else ""
     }
     schemaPkCloumns match {
       case None => false

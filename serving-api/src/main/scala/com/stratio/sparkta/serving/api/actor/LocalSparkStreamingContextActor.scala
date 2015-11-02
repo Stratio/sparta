@@ -64,6 +64,8 @@ with SparktaSerializer {
       case Failure(exception) => {
         log.error(exception.getLocalizedMessage, exception)
         policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed))
+        SparkContextFactory.destroySparkStreamingContext
+        SparkContextFactory.destroySparkContext
       }
     }
   }

@@ -70,7 +70,7 @@ class PolicyStatusActor extends Actor with SLF4JLogging with SparktaSerializer {
     }
   }
 
-  def setNotStartedStatus(policyStatus : PolicyStatusModel): Option[PolicyStatusModel] = {
+  def setNotStartedStatus(policyStatus: PolicyStatusModel): Option[PolicyStatusModel] = {
     val curator = CuratorFactoryHolder.getInstance()
     val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
 
@@ -79,7 +79,6 @@ class PolicyStatusActor extends Actor with SLF4JLogging with SparktaSerializer {
     curator.create.creatingParentsIfNeeded.forPath(statusPath, write(policyStatus).getBytes)
     Some(policyStatus)
   }
-
 
   def findAll(): Unit = {
     sender ! Response(Try({
