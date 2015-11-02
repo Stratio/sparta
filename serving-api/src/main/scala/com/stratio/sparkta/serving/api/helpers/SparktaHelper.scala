@@ -77,9 +77,9 @@ with SparktaSerializer {
           AkkaConstant.SparkStreamingContextActor)
       )
       val swaggerActor = system.actorOf(
-        Props(new SwaggerActor(actors)), AkkaConstant.SwaggerActor)
+        Props(new SwaggerActor(actors, curatorFramework)), AkkaConstant.SwaggerActor)
       val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)
-        .props(Props(new ControllerActor(actors))), AkkaConstant.ControllerActor)
+        .props(Props(new ControllerActor(actors, curatorFramework))), AkkaConstant.ControllerActor)
 
       IO(Http) ! Http.Bind(controllerActor, interface = SparktaConfig.apiConfig.get.getString("host"),
         port = SparktaConfig.apiConfig.get.getInt("port"))

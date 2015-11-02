@@ -62,7 +62,7 @@ with MockFactory {
 
   "ControllerActor" should {
     "set up the controller actor that contains all sparkta's routes without any error" in {
-      _system.actorOf(Props(new SwaggerActor(actors)))
+      _system.actorOf(Props(new SwaggerActor(actors, curatorFramework)))
     }
   }
 }
