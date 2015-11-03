@@ -90,10 +90,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
             SparkContextFactory.destroySparkContext
             policyStatusActor.get ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopped))
             nodeCache.close()
-            if (exit) {
-              SparkContextFactory.destroySparkContext
-              System.exit(0)
-            }
+            if (exit) System.exit(0)
           }
         }
       })
