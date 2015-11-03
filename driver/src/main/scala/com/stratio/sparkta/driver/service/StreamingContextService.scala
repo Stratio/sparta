@@ -87,12 +87,10 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
           synchronized {
             log.info("Stopping message received from Zookeeper")
             SparkContextFactory.destroySparkStreamingContext
+            SparkContextFactory.destroySparkContext
             policyStatusActor.get ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopped))
             nodeCache.close()
-            if (exit) {
-              SparkContextFactory.destroySparkContext
-              System.exit(0)
-            }
+            if (exit) System.exit(0)
           }
         }
       })
