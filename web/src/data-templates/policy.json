@@ -110,7 +110,7 @@
     ]
   },
   "helpLinks": {
-    "description": "http://docs.stratio.com/modules/sparkta/development/policy.html#general-configuration",
+    "description": "http://docs.stratio.com/modules/sparkta/0.6/usingSparkta.html#policy",
     "inputs": "http://docs.stratio.com/modules/sparkta/development/policy.html#inputs",
     "models": "http://docs.stratio.com/modules/sparkta/development/policy.html#transformations",
     "cubes": "http://docs.stratio.com/modules/sparkta/development/policy.html#cubes",
