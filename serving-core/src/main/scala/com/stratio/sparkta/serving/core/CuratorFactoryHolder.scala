@@ -58,10 +58,6 @@ object CuratorFactoryHolder extends SLF4JLogging {
 
         Try {
 
-          if(defaultConnectionString == AppConstant.DefaultZookeeperConnection) {
-            throw new IllegalStateException("####################################!!!!!!##########@")
-          }
-
           curatorFramework = Some(CuratorFrameworkFactory.builder()
             .connectString(defaultConnectionString)
             .connectionTimeoutMs(connectionTimeout)

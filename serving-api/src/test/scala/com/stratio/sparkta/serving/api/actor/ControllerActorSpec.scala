@@ -47,7 +47,7 @@ with MockFactory {
   val templateActor = _system.actorOf(Props(new TemplateActor()))
   val policyActor = _system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActor)))
   val sparkStreamingContextActor = _system.actorOf(
-    Props(new SparkStreamingContextActor(streamingContextService, policyStatusActor)))
+    Props(new SparkStreamingContextActor(streamingContextService, policyStatusActor, curatorFramework)))
 
   implicit val actors = Map(
     AkkaConstant.PolicyStatusActor -> policyStatusActor,

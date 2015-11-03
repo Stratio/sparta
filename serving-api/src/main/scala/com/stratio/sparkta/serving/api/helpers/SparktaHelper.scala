@@ -74,7 +74,7 @@ with SparktaSerializer {
           system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActor)), AkkaConstant.PolicyActor),
         AkkaConstant.SparkStreamingContextActor -> system.actorOf(RoundRobinPool(streamingActorInstances).props(Props(
           new SparkStreamingContextActor(
-            streamingContextService, policyStatusActor))),
+            streamingContextService, policyStatusActor, curatorFramework))),
           AkkaConstant.SparkStreamingContextActor)
       )
       val swaggerActor = system.actorOf(
