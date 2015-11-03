@@ -27,7 +27,7 @@ import com.stratio.sparkta.driver.SparktaJob
 import com.stratio.sparkta.driver.factory._
 import com.stratio.sparkta.driver.util.ReflectionUtils
 import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.AppConstant
+import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{AddListener, Update}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum

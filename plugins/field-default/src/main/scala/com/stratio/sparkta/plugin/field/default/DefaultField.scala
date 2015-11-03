@@ -29,7 +29,7 @@ with JSerializable with SLF4JLogging {
     this(Map())
   }
 
-  override val operationProps : Map[String, JSerializable] = props
+  override val operationProps: Map[String, JSerializable] = props
 
   override val properties: Map[String, JSerializable] = props
 
@@ -40,7 +40,6 @@ with JSerializable with SLF4JLogging {
     (precision, TypeOp.transformValueByTypeOp(precision.typeOp, value))
   }
 
-  override def precision(keyName : String): Precision =
+  override def precision(keyName: String): Precision =
     DimensionType.getIdentity(getTypeOperation, defaultTypeOperation)
-
 }

@@ -19,8 +19,7 @@ angular
     'ui.bootstrap',
     'ui.bootstrap.modal',
     'ui.bootstrap.tpls',
-    'pascalprecht.translate',
-    'ngTruncateNumber'
+    'pascalprecht.translate'
   ])
 
   /*** TRANSLATING ***/

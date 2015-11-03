@@ -3,6 +3,5 @@
 DIR_PID=/var/run/sds
 
 update-rc.d -f sparkta remove > /dev/null 2>&1
-rm -fr $DIR_PID
 
 exit 0

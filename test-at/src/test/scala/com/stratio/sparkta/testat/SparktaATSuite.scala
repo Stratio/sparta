@@ -23,15 +23,16 @@ import java.nio.channels.ServerSocketChannel
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
 import com.stratio.sparkta.serving.api.helpers.SparktaHelper
+import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, SparktaSerializer}
-import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, AppConstant, SparktaConfig}
+import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, SparktaConfig}
 import com.typesafe.config.ConfigValueFactory
-import org.apache.curator.test.{TestingCluster, TestingServer}
+import org.apache.curator.test.TestingServer
 import org.apache.curator.utils.CloseableUtils
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfter, Matchers, WordSpecLike}
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
 import spray.client.pipelining._
 import spray.http.StatusCodes._
 import spray.http._
@@ -53,7 +54,7 @@ trait SparktaATSuite
   with BeforeAndAfter
   with Matchers
   with SparktaSerializer
-  with BeforeAndAfterAll{
+  with BeforeAndAfterAll {
 
   val policyFile: String
   val Localhost = "localhost"

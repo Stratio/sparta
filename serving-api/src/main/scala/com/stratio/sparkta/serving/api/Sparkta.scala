@@ -18,7 +18,8 @@ package com.stratio.sparkta.serving.api
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.serving.api.helpers.SparktaHelper
-import com.stratio.sparkta.serving.core.{AppConstant, SparktaConfig}
+import com.stratio.sparkta.serving.core.SparktaConfig
+import com.stratio.sparkta.serving.core.constants.AppConstant
 
 /**
  * Entry point of the application.

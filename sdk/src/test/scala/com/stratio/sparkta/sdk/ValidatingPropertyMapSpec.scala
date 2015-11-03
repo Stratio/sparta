@@ -77,9 +77,9 @@ class ValidatingPropertyMapSpec extends FlatSpec with ShouldMatchers {
     an[IllegalStateException] should be thrownBy data.getInt("theDouble")
   }
 
-    it should "returs value as map" in new ValuesMap {
-      data.getMap("one") should be(Some(Map("String" -> oneString)))
-      data.getMap("dummy") should be(None)
+  it should "returs value as map" in new ValuesMap {
+    data.getMap("one") should be(Some(Map("String" -> oneString)))
+    data.getMap("dummy") should be(None)
   }
 
   it should "check key" in new ValuesMap {

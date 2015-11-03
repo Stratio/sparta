@@ -18,9 +18,10 @@ package com.stratio.sparkta.serving.core.policy.status
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparkta.serving.core.CuratorFactoryHolder
+import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.models.{PolicyStatusModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor._
-import com.stratio.sparkta.serving.core.{AppConstant, CuratorFactoryHolder}
 import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
 import org.json4s.jackson.Serialization.{read, write}
 

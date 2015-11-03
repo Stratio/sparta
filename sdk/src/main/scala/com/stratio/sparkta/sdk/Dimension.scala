@@ -27,12 +27,9 @@ case class Dimension(name: String, field: String, precisionKey: String, dimensio
   }
 
   def compare(dimension: Dimension): Int = name compareTo dimension.name
-
-  override def toString: String = name
-
 }
 
-case object Dimension {
+object Dimension {
 
   final val FieldClassSuffix = "Field"
 }

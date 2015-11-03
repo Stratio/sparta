@@ -22,23 +22,21 @@
 
     function init() {
       vm.policyData = item;
-    };
+    }
 
     function ok() {
-      var policyToDelete = PolicyFactory.deletePolicy(vm.policyData.id);
-
-      policyToDelete.then(function () {
+      return PolicyFactory.deletePolicy(vm.policyData.id).then(function () {
         $modalInstance.close(vm.policyData);
 
       }, function (error) {
         vm.error = true;
         vm.errorText = "_INPUT_ERROR_" + error.data.i18nCode + "_";
       });
-    };
+    }
 
     function cancel() {
       $modalInstance.dismiss('cancel');
-    };
-  };
+    }
+  }
 
 })();

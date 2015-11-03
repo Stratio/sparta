@@ -1,136 +1,146 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>com.stratio.sparkta</groupId>
-		<artifactId>parent</artifactId>
-		<version>0.6.2-RC4-SNAPSHOT</version>
-	</parent>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.stratio.sparkta</groupId>
+        <artifactId>parent</artifactId>
+        <version>0.7.0-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>web</artifactId>
+    <artifactId>web</artifactId>
 
-	<name>Stratio Sparkta Front</name>
+    <name>Stratio Sparkta Front</name>
 
-	<properties>
-		<nodeVer>v0.12.2</nodeVer>
-		<npmVer>2.7.4</npmVer>
-		<nodeURL>http://sodio.stratio.com/nexus/content/repositories/thirdparty/node</nodeURL>
-	</properties>
+    <properties>
+        <nodeVer>v0.12.2</nodeVer>
+        <npmVer>2.7.4</npmVer>
+        <nodeURL>http://tools.stratio.com/buildtools</nodeURL>
+    </properties>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>com.github.eirslett</groupId>
-				<artifactId>frontend-maven-plugin</artifactId>
-				<version>0.0.23</version>
-				<executions>
-					<execution>
-						<id>install node and npm</id>
-						<goals>
-							<goal>install-node-and-npm</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<nodeVersion>${nodeVer}</nodeVersion>
-							<npmVersion>${npmVer}</npmVersion>
-							<nodeDownloadRoot>${nodeURL}/node/</nodeDownloadRoot>
-							<npmDownloadRoot>${nodeURL}/npm/2.7.4/</npmDownloadRoot>
-							<skip.installnodenpm>${skip.installnodenpm}</skip.installnodenpm>
-						</configuration>
-					</execution>
-					<execution>
-						<id>npm configure proxy</id>
-						<goals>
-							<goal>npm</goal>
-						</goals>
-						<phase>initialize</phase>
-						<configuration>
-							<arguments>config set repository "http://sodio.stratio.com/nexus/content/repositories/npmjs/</arguments>
-						</configuration>
-					</execution>
-					<execution>
-						<id>npm install</id>
-						<goals>
-							<goal>npm</goal>
-						</goals>
-						<phase>generate-sources</phase>
-						<configuration>
-							<arguments>install --production</arguments>
-							<skip.npm>${skip.npm}</skip.npm>
-						</configuration>
-					</execution>
-					<execution>
-						<id>bower install</id>
-						<goals>
-							<goal>bower</goal>
-						</goals>
-						<phase>generate-resources</phase>
-						<configuration>
-							<arguments>install --allow-root</arguments>
-							<skip.bower>${skip.bower}</skip.bower>
-						</configuration>
-					</execution>
-					<execution>
-						<id>grunt build</id>
-						<goals>
-							<goal>grunt</goal>
-						</goals>
-						<phase>compile</phase>
-						<configuration>
-							<arguments>build --no-color</arguments>
-							<skip.grunt>${skip.grunt}</skip.grunt>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.5</version>
-				<configuration>
-					<excludes>
-						<exclude>**/*.jar</exclude>
-					</excludes>
-					<classesDirectory>target</classesDirectory>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-	<profiles>
-		<profile>
-			<id>dev</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>com.github.eirslett</groupId>
-						<artifactId>frontend-maven-plugin</artifactId>
-						<version>0.0.23</version>
-						<executions>
-							<execution>
-								<id>npm install wizard</id>
-								<goals>
-									<goal>npm</goal>
-								</goals>
-								<phase>generate-resources</phase>
-								<configuration>
-									<arguments>install</arguments>
-								</configuration>
-							</execution>
-							<execution>
-								<id>grunt-serve</id>
-								<goals>
-									<goal>grunt</goal>
-								</goals>
-								<phase>generate-resources</phase>
-								<configuration>
-									<arguments>serve</arguments>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>test</testSourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>0.0.23</version>
+                <executions>
+                    <execution>
+                        <id>install node and npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <phase>validate</phase>
+                        <configuration>
+                            <nodeVersion>${nodeVer}</nodeVersion>
+                            <npmVersion>${npmVer}</npmVersion>
+                            <nodeDownloadRoot>${nodeURL}/node/</nodeDownloadRoot>
+                            <npmDownloadRoot>${nodeURL}/npm/${npmVer}/</npmDownloadRoot>
+                            <skip.installnodenpm>${skip.installnodenpm}</skip.installnodenpm>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm configure proxy</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <arguments>config set registry http://sodio.stratio.com/nexus/content/repositories/npmjs/
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <arguments>install --production --no-optional</arguments>
+                            <skip.npm>${skip.npm}</skip.npm>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>bower install</id>
+                        <goals>
+                            <goal>bower</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <arguments>install --allow-root</arguments>
+                            <skip.bower>${skip.bower}</skip.bower>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>grunt build</id>
+                        <goals>
+                            <goal>grunt</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <arguments>build --no-color</arguments>
+                            <skip.grunt>${skip.grunt}</skip.grunt>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>karma test</id>
+                        <goals>
+                            <goal>karma</goal>
+                        </goals>
+                        <phase>test</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*.jar</exclude>
+                    </excludes>
+                    <classesDirectory>target</classesDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <version>0.0.23</version>
+                        <executions>
+                            <execution>
+                                <id>npm install wizard</id>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                                <phase>generate-resources</phase>
+                                <configuration>
+                                    <arguments>install</arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>grunt-serve</id>
+                                <goals>
+                                    <goal>grunt</goal>
+                                </goals>
+                                <phase>generate-resources</phase>
+                                <configuration>
+                                    <arguments>serve</arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

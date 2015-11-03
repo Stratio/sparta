@@ -16,8 +16,8 @@
 
 package com.stratio.sparkta.serving.core.models
 
-import com.stratio.sparkta.sdk.{Input, JsoneyString}
-import com.stratio.sparkta.serving.core.AppConstant
+import com.stratio.sparkta.sdk.{Parser, Input, JsoneyString}
+import com.stratio.sparkta.serving.core.constants.AppConstant
 
 case class TransformationsModel(name: String,
                                 `type`: String,
@@ -26,6 +26,6 @@ case class TransformationsModel(name: String,
                                 outputFields: Seq[String],
                                 configuration: Map[String, JsoneyString] = Map()) {
 
-  val jarFile = AppConstant.jarsFilesMap.get(`type`)
+  val jarFile = AppConstant.jarsFilesMap.get(`type` + Parser.ClassSuffix)
 }
 
