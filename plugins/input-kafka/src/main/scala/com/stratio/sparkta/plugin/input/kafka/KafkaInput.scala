@@ -34,7 +34,7 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
   final val defaultHost = "localhost"
 
   override def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
-    val submap: Option[Map[String, JSerializable]] = properties.getMap("kafkaParams")
+    val submap: Option[Map[String, JSerializable]] = properties.getMap("kafkaParams.")
     val connection = Map(getZkConnectionConfs("zookeeper.connect", defaultHost, defaulPort))
     val kafkaParams = submap.get.map(entry => (entry._1, entry._2.toString))
 
