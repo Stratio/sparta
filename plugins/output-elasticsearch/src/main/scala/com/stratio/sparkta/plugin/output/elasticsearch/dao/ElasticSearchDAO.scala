@@ -24,11 +24,23 @@ trait ElasticSearchDAO {
   final val TimestampPattern = "@timestamp:"
   final val DefaultIndexType = "sparkta"
   final val DefaultNode = "localhost"
-  final val DefaultPort = "9200"
+  final val DefaultTcpPort = "9300"
+  final val DefaultHttpPort = "9200"
+  final val NodeName = "node"
+  final val NodesName = "nodes"
+  final val TcpPortName = "tcpPort"
+  final val HttpPortName = "httpPort"
+  final val DefaultCluster = "elasticsearch"
+  // this regex pretend validate all localhost loopback values including ipv6
+  final val LocalhostPattern = "^localhost$|^127(?:\\.[0-9]+){0,2}\\.[0-9]+$|^(?:0*\\:)*?:?0*1$".r.pattern
 
   val dateTypeMap = Map("timestamp" -> TypeOp.Timestamp, "date" -> TypeOp.Date, "datetime" -> TypeOp.DateTime)
 
-  def nodes: Seq[(String, Int)]
+  def tcpNodes: Seq[(String, Int)]
+
+  def httpNodes: Seq[(String, Int)]
+
+  def clusterName : String
 
   def idField: Option[String] = None
 
@@ -42,7 +54,7 @@ trait ElasticSearchDAO {
     else
       Map()
   } ++
-    Map("es.nodes" -> nodes(0)._1, "es.port" -> nodes(0)._2.toString, "es.index.auto.create" -> "no") ++ {
+    Map("es.nodes" -> httpNodes(0)._1, "es.port" -> httpNodes(0)._2.toString, "es.index.auto.create" -> "no") ++ {
     if (timeName.isEmpty) Map()
     else Map("es.mapping.names" -> s"$timeName:@timestamp")
   }

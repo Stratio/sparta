@@ -38,21 +38,24 @@ class ElasticSearchOutputSpec extends FlatSpec with ShouldMatchers {
     val output = getInstance()
     val outputMultipleNodes = new ElasticSearchOutput("ES-out",
       Map("nodes" ->
-        new JsoneyString( s"""[{"node":"host-a","defaultPort":"$remotePort"},{"node":"host-b","defaultPort":"9301"}]""")
-        , "dateType" -> "timestamp"),
-      None, None)
+        new JsoneyString(
+          s"""[{"node":"host-a","tcpPort":"$remotePort","httpPort":"$localPort"},{"node":"host-b",
+             |"tcpPort":"9301","httpPort":"9201"}]""".stripMargin),
+        "dateType" -> "timestamp"), None, None)
 
-    def getInstance(host: String = "localhost", port: Int = localPort): ElasticSearchOutput =
+    def getInstance(host: String = "localhost", httpPort: Int = localPort, tcpPort : Int = remotePort)
+    : ElasticSearchOutput =
       new ElasticSearchOutput("ES-out",
-        Map("nodes" -> new JsoneyString( s"""[{"node":"$host","defaultPort":"$port"}]"""), "dateType" -> "timestamp"),
-        None, None)
+        Map("nodes" -> new JsoneyString( s"""[{"node":"$host","httpPort":"$httpPort","tcpPort":"$tcpPort"}]"""),
+          "dateType" -> "timestamp",
+        "clusterName" -> "elasticsearch"), None, None)
   }
 
   trait NodeValues extends BaseValues {
 
-    val ipOutput = getInstance("127.0.0.1", localPort)
-    val ipv6Output = getInstance("0:0:0:0:0:0:0:1", localPort)
-    val remoteOutput = getInstance("dummy", remotePort)
+    val ipOutput = getInstance("127.0.0.1", localPort, remotePort)
+    val ipv6Output = getInstance("0:0:0:0:0:0:0:1", localPort, remotePort)
+    val remoteOutput = getInstance("dummy", localPort, remotePort)
   }
 
   trait TestingValues extends BaseValues {
@@ -65,8 +68,10 @@ class ElasticSearchOutputSpec extends FlatSpec with ShouldMatchers {
     val extraFields = Seq(StructField("id", StringType, false), StructField("timestamp", TimestampType, false))
     val expectedSchema = StructType(extraFields ++ baseFields)
     val expectedTableSchema = tableSchema.copy(tableName = "id_sparktaTable_timestamp", schema = expectedSchema)
-    val properties = Map("nodes" -> new JsoneyString( """[{"node":"localhost","defaultPort":"9200"}]"""), "dateType"
-      -> "timestamp")
+    val properties = Map("nodes" -> new JsoneyString(
+      """[{"node":"localhost","httpPort":"9200","tcpPort":"9300"}]""".stripMargin),
+      "dateType" -> "timestamp",
+      "clusterName" -> "elasticsearch")
     override val output = new ElasticSearchOutput("ES-out", properties, None, bcSchema = Some(Seq(tableSchema)))
   }
 
@@ -111,9 +116,12 @@ class ElasticSearchOutputSpec extends FlatSpec with ShouldMatchers {
   }
 
   "ElasticSearchOutput" should "format properties" in new NodeValues {
-    output.nodes should be(Seq(("localhost", 9200)))
-    outputMultipleNodes.nodes should be(Seq(("host-a", 9300),("host-b", 9301)))
+    output.tcpNodes should be(Seq(("localhost", 9300)))
+    output.httpNodes should be(Seq(("localhost", 9200)))
+    outputMultipleNodes.tcpNodes should be(Seq(("host-a", 9300),("host-b", 9301)))
+    outputMultipleNodes.httpNodes should be(Seq(("host-a", 9200),("host-b", 9201)))
     output.dateType should be(TypeOp.Timestamp)
+    output.clusterName should be("elasticsearch")
     output.isAutoCalculateId should be(true)
     output.isLocalhost should be(true)
     ipOutput.isLocalhost should be(true)
@@ -133,4 +141,15 @@ class ElasticSearchOutputSpec extends FlatSpec with ShouldMatchers {
   it should "get schema fixed id" in new TestingValues {
     output.getSchema should be(Seq(expectedTableSchema))
   }
+
+  it should "return a Seq of tuples (host,port) format" in new NodeValues{
+
+    output.getHostPortConfs("nodes", "localhost", "9200", "node", "httpPort") should be(List(("localhost", 9200)))
+    output.getHostPortConfs("nodes", "localhost", "9300", "node", "tcpPort") should be(List(("localhost", 9300)))
+    outputMultipleNodes.getHostPortConfs("nodes", "localhost", "9200", "node", "httpPort") should be(List(
+      ("host-a", 9200), ("host-b", 9201) ))
+    outputMultipleNodes.getHostPortConfs("nodes", "localhost", "9300", "node", "tcpPort") should be(List(
+      ("host-a", 9300), ("host-b", 9301) ))
+  }
+
 }

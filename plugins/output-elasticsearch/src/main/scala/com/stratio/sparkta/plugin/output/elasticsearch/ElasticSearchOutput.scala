@@ -18,20 +18,19 @@ package com.stratio.sparkta.plugin.output.elasticsearch
 
 import java.io.{Serializable => JSerializable}
 
-import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings._
-import org.apache.spark.sql._
-import org.apache.spark.sql.types._
-import org.apache.spark.streaming.dstream.DStream
-import org.elasticsearch.node.NodeBuilder
-import org.elasticsearch.spark.sql._
-
+import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import com.stratio.sparkta.plugin.output.elasticsearch.dao.ElasticSearchDAO
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
+import org.apache.spark.sql._
+import org.apache.spark.sql.types._
+import org.apache.spark.streaming.dstream.DStream
+import org.elasticsearch.common.settings._
+import org.elasticsearch.spark.sql._
 
 /**
  *
@@ -47,25 +46,31 @@ class ElasticSearchOutput(keyName: String,
                           bcSchema: Option[Seq[TableSchema]])
   extends Output(keyName, properties, operationTypes, bcSchema) with ElasticSearchDAO {
 
-  // this regex pretend validate all localhost loopback values including ipv6
-  final val LocalhostPattern = "^localhost$|^127(?:\\.[0-9]+){0,2}\\.[0-9]+$|^(?:0*\\:)*?:?0*1$".r.pattern
-
-  override val dateType = getDateTimeType(properties.getString("dateType", None))
-
-  override def isAutoCalculateId: Boolean = true
-
-  override val nodes = properties.getHostPortConfs("nodes", DefaultNode, DefaultPort)
-
-  @transient private lazy val elasticClient = {
-    if (isLocalhost) ElasticClient.fromNode(NodeBuilder.nodeBuilder().client(true).node())
-    else ElasticClient.remote(nodes(0)._1, nodes(0)._2)
-  }
-
-  val isLocalhost: Boolean = LocalhostPattern.matcher(nodes(0)._1).matches
-
   override val idField = properties.getString("idField", None)
 
   override val mappingType = properties.getString("indexMapping", Some(DefaultIndexType))
+
+  override val dateType = getDateTimeType(properties.getString("dateType", None))
+
+  override val clusterName = properties.getString("clusterName", DefaultCluster)
+
+  override def isAutoCalculateId: Boolean = true
+
+  override val tcpNodes = getHostPortConfs(NodesName, DefaultNode, DefaultTcpPort, NodeName, TcpPortName)
+
+  override val httpNodes = getHostPortConfs(NodesName, DefaultNode, DefaultHttpPort, NodeName, HttpPortName)
+
+  @transient private lazy val elasticClient = {
+    val settings = ImmutableSettings.settingsBuilder().put("cluster.name", clusterName).build()
+    if (isLocalhost) ElasticClient.local(settings)
+    else {
+      val hostsPorts = tcpNodes.map { case (host, port) => s"${host}:${port}" }.mkString(",")
+      val uri = s"elasticsearch://$hostsPorts"
+      ElasticClient.remote(settings, ElasticsearchClientUri(uri))
+    }
+  }
+
+  val isLocalhost: Boolean = LocalhostPattern.matcher(tcpNodes.head._1).matches
 
   def indexNameType(tableName: String): String = (tableName + "/" + mappingType.get).toLowerCase
 
@@ -80,7 +85,7 @@ class ElasticSearchOutput(keyName: String,
 
   private def createIndexAccordingToSchema(tableName: String, schema: StructType) =
     elasticClient.execute {
-      create index tableName shards 1 replicas 0 mappings (
+      create index tableName shards 5 replicas 1 mappings (
         mappingType.get.toLowerCase as (getElasticsearchFields(schema))
         )
     }
@@ -108,5 +113,20 @@ class ElasticSearchOutput(keyName: String,
       case StringType => structField.name typed FieldType.StringType index "not_analyzed"
       case _ => structField.name typed FieldType.BinaryType
     })
+  }
+
+  def getHostPortConfs(key: String, defaultHost: String, defaultPort: String, nodeName: String, portName: String)
+  : Seq[(String, Int)] = {
+
+    val conObj = properties.getConnectionChain(key)
+    conObj.map(c =>
+      (c.get(nodeName) match {
+        case Some(value) => value.toString
+        case None => defaultHost
+      },
+        c.get(portName) match {
+          case Some(value) => value.toString.toInt
+          case None => defaultPort.toInt
+        }))
   }
 }
