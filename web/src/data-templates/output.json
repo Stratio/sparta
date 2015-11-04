@@ -228,13 +228,22 @@
           "qa": "fragment-details-elasticSearch-node"
         },
         {
-          "propertyId": "defaultPort",
-          "propertyName": "_PORT_",
+          "propertyId": "tcpPort",
+          "propertyName": "_TCP_PORT_",
           "propertyType": "text",
           "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
           "default": "9300",
           "required": true,
-          "qa": "fragment-details-elasticSearch-defaultPort"
+          "qa": "fragment-details-elasticSearch-tcpPort"
+        },
+        {
+          "propertyId": "httpPort",
+          "propertyName": "_HTTP_PORT_",
+          "propertyType": "text",
+          "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
+          "default": "9200",
+          "required": true,
+          "qa": "fragment-details-elasticSearch-httpPort"
         }
       ]
     },

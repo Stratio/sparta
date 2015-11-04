@@ -27,9 +27,9 @@
     <artifactId>output-elasticsearch</artifactId>
 
     <properties>
-        <elasticsearch.version>1.7.0</elasticsearch.version>
+        <elasticsearch.version>2.0.0</elasticsearch.version>
         <elastic4s.version>1.7.4</elastic4s.version>
-        <elastic.spark.version>2.1.0</elastic.spark.version>
+        <elastic.spark.version>2.1.2</elastic.spark.version>
     </properties>
 
     <dependencies>
