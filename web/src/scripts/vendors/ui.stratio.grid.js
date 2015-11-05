@@ -138,7 +138,8 @@
          */
         function setTotalHeight() {
             var totalRows = Math.ceil(vm.totalItems/vm.actual.numColumns);
-            var totalHeight = totalRows*vm.actual.rowHeight + (totalRows-1)*vm.verticalGap+'px';
+            var totalHeight = ((totalRows*vm.actual.rowHeight + (totalRows-1)*vm.verticalGap)+45)+'px';
+            console.log(totalHeight);
             $element.css({height: totalHeight});
         }
     }
