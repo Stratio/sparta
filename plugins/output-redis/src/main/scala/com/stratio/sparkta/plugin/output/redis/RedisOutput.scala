@@ -55,15 +55,12 @@ class RedisOutput(keyName: String,
    */
   override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     metricOperations.toList.groupBy { case (dimensionsTime, aggregations) =>
-      AggregateOperations.keyString(dimensionsTime, dimensionsTime.timeDimension, fixedDimensions)
+      getHashKey(dimensionsTime)
     }.filter(_._1.nonEmpty).foreach { case (key, dimensionsAggreations) => {
       dimensionsAggreations.foreach { case (dimensionsTime, aggregations) => {
-        val hashKey = getHashKey(key, dimensionsTime)
-        if (hashKey.nonEmpty) {
           aggregations.foreach { case (aggregationName, aggregationValue) => {
             val currentOperation = operationTypes.get.get(aggregationName).get._1
-            if (supportedWriteOps.contains(currentOperation)) hset(hashKey, aggregationName, aggregationValue.get)
-          }
+            if (supportedWriteOps.contains(currentOperation)) hset(key, aggregationName, aggregationValue.get)
           }
         }
       }
@@ -72,16 +69,16 @@ class RedisOutput(keyName: String,
     }
   }
 
-  def getHashKey(key: String, dimensionsTime: DimensionValuesTime): String = {
+  def getHashKey(dimensionsTime: DimensionValuesTime): String = {
     if (dimensionsTime.dimensionValues.nonEmpty) {
       val hasValues = dimensionsTime.dimensionValues.exists(dimValue => dimValue.value.toString.nonEmpty)
       if (hasValues) {
-        key + IdSeparator + dimensionsTime.dimensionValues.map(dimVal =>
+        dimensionsTime.dimensionValues.map(dimVal =>
           List(dimVal.getNameDimension, dimVal.value.toString)).flatMap(_.toSeq).mkString(IdSeparator) +
           IdSeparator + dimensionsTime.timeDimension + IdSeparator + dimensionsTime.time
       } else ""
     } else {
-      key + IdSeparator + dimensionsTime.timeDimension + IdSeparator + dimensionsTime.time
+      dimensionsTime.timeDimension + IdSeparator + dimensionsTime.time
     }
   }
 }
