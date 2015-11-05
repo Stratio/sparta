@@ -30,8 +30,6 @@ trait AbstractRedisDAO {
 
   def port: Int
 
-  def eventTimeFieldName: String = "eventTime"
-
   val IdSeparator: String = ":"
 
   val DefaultRedisPort: String = "6379"

@@ -23,8 +23,6 @@ import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
-import org.apache.spark._
-import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.streaming.dstream.DStream
 
 /**
@@ -44,9 +42,8 @@ class RedisOutput(keyName: String,
 
   override val port = properties.getString("port", DefaultRedisPort).toInt
 
-  override val eventTimeFieldName = properties.getString("timestampFieldName", "timestamp")
-
-  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Max, WriteOp.Min)
+  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Max, WriteOp.Min, WriteOp.Set,
+    WriteOp.Range, WriteOp.Avg, WriteOp.Median, WriteOp.Variance, WriteOp.Stddev, WriteOp.Mode)
 
   override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     persistMetricOperation(stream)
@@ -57,20 +54,34 @@ class RedisOutput(keyName: String,
    * @param metricOperations that will be saved.
    */
   override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
-    metricOperations.toList.groupBy(upMetricOp =>
-      AggregateOperations.keyString(upMetricOp._1, upMetricOp._1.timeDimension, fixedDimensions))
-      .filter(_._1.size > 0).foreach(collMetricOp => {
-      collMetricOp._2.foreach(metricOp => {
-        val timeDimension = metricOp._1.timeDimension
-        val hashKey = collMetricOp._1 + IdSeparator + metricOp._1.dimensionValues
-          .map(dimVal => List(dimVal.getNameDimension, dimVal.value.toString))
-          .flatMap(_.toSeq).mkString(IdSeparator) + IdSeparator + timeDimension + IdSeparator + metricOp._1.time
+    metricOperations.toList.groupBy { case (dimensionsTime, aggregations) =>
+      AggregateOperations.keyString(dimensionsTime, dimensionsTime.timeDimension, fixedDimensions)
+    }.filter(_._1.nonEmpty).foreach { case (key, dimensionsAggreations) => {
+      dimensionsAggreations.foreach { case (dimensionsTime, aggregations) => {
+        val hashKey = getHashKey(key, dimensionsTime)
+        if (hashKey.nonEmpty) {
+          aggregations.foreach { case (aggregationName, aggregationValue) => {
+            val currentOperation = operationTypes.get.get(aggregationName).get._1
+            if (supportedWriteOps.contains(currentOperation)) hset(hashKey, aggregationName, aggregationValue.get)
+          }
+          }
+        }
+      }
+      }
+    }
+    }
+  }
 
-        metricOp._2.foreach(aggregation => {
-          val currentOperation = operationTypes.get.get(aggregation._1).get._1
-          hset(hashKey, aggregation._1, aggregation._2.get)
-        })
-      })
-    })
+  def getHashKey(key: String, dimensionsTime: DimensionValuesTime): String = {
+    if (dimensionsTime.dimensionValues.nonEmpty) {
+      val hasValues = dimensionsTime.dimensionValues.exists(dimValue => dimValue.value.toString.nonEmpty)
+      if (hasValues) {
+        key + IdSeparator + dimensionsTime.dimensionValues.map(dimVal =>
+          List(dimVal.getNameDimension, dimVal.value.toString)).flatMap(_.toSeq).mkString(IdSeparator) +
+          IdSeparator + dimensionsTime.timeDimension + IdSeparator + dimensionsTime.time
+      } else ""
+    } else {
+      key + IdSeparator + dimensionsTime.timeDimension + IdSeparator + dimensionsTime.time
+    }
   }
 }
