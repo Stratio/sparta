@@ -19,7 +19,9 @@
         qa: "@",
         pattern: "=",
         placeholder: "@",
-        error: '='
+        error: '=',
+        elementsLength: '=',
+        submittedForm: '='
       },
       replace: "true",
       templateUrl: 'templates/components/c-add-element.tpl.html',
