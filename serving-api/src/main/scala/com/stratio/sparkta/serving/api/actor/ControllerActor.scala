@@ -22,12 +22,13 @@ import com.stratio.sparkta.serving.api.service.http._
 import com.stratio.sparkta.serving.core.constants.AkkaConstant
 import com.stratio.sparkta.serving.core.exception.ServingCoreException
 import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer}
+import org.apache.curator.framework.CuratorFramework
 import org.json4s.jackson.Serialization.write
 import spray.http.StatusCodes
 import spray.routing._
 import spray.util.LoggingContext
 
-class ControllerActor(actorsMap: Map[String, ActorRef]) extends HttpServiceActor
+class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework : CuratorFramework) extends HttpServiceActor
 with SLF4JLogging
 with SparktaSerializer {
 
@@ -49,7 +50,7 @@ with SparktaSerializer {
         }
     }
 
-  val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context)
+  val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context, curatorFramework)
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
@@ -72,7 +73,7 @@ with SparktaSerializer {
     }
 }
 
-class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
+class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, curatorFramework : CuratorFramework) {
 
   val fragmentRoute: Route = new FragmentHttpService {
     implicit val actors = actorsMap
@@ -102,5 +103,6 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = context.self
     override val actorRefFactory: ActorRefFactory = context
+    override val curatorInstance = curatorFramework
   }.routes
 }
