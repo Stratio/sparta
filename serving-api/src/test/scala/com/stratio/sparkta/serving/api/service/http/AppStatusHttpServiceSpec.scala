@@ -17,24 +17,23 @@
 package com.stratio.sparkta.serving.api.service.http
 
 import akka.actor.ActorRef
-import com.stratio.sparkta.sdk.exception.MockException
-import com.stratio.sparkta.serving.api.actor.TemplateActor._
 import com.stratio.sparkta.serving.api.constants.HttpConstant
-import com.stratio.sparkta.serving.core.models.TemplateModel
+import org.apache.curator.framework.CuratorFramework
 import org.junit.runner.RunWith
+import org.scalamock.scalatest.MockFactory
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
 import spray.http.StatusCodes
 
-import scala.util.{Failure, Success}
-
 @RunWith(classOf[JUnitRunner])
 class AppStatusHttpServiceSpec extends WordSpec
                               with AppStatusHttpService
-                              with HttpServiceBaseSpec {
+                              with HttpServiceBaseSpec
+with MockFactory {
 
   override implicit val actors: Map[String, ActorRef] = Map()
   override val supervisor: ActorRef = testProbe.ref
+  override val curatorInstance = mock[CuratorFramework]
 
   "AppStatusHttpService" should {
     "check the status of the server" in {

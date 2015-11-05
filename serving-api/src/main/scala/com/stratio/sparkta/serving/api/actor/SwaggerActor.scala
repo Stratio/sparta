@@ -16,6 +16,8 @@
 
 package com.stratio.sparkta.serving.api.actor
 
+import org.apache.curator.framework.CuratorFramework
+
 import scala.reflect.runtime.universe._
 
 import akka.actor.{ActorContext, ActorRef}
@@ -32,7 +34,8 @@ import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.api.service.http._
 import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer}
 
-class SwaggerActor(actorsMap: Map[String, ActorRef]) extends HttpServiceActor with SLF4JLogging with SparktaSerializer {
+class SwaggerActor(actorsMap: Map[String, ActorRef], curatorFramework : CuratorFramework)
+  extends HttpServiceActor with SLF4JLogging with SparktaSerializer {
 
   override implicit def actorRefFactory: ActorContext = context
 
@@ -52,7 +55,7 @@ class SwaggerActor(actorsMap: Map[String, ActorRef]) extends HttpServiceActor wi
         }
     }
 
-  val serviceRoutes = new ServiceRoutes(actorsMap, context)
+  val serviceRoutes = new ServiceRoutes(actorsMap, context, curatorFramework)
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
