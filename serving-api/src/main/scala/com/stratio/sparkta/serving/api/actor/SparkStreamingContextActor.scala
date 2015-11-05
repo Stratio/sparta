@@ -31,6 +31,7 @@ import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, Policy
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{FindAll, Response, Update}
 import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, SparktaConfig}
+import org.apache.curator.framework.CuratorFramework
 import org.json4s.jackson.Serialization.{read, write}
 
 import scala.collection.JavaConversions
@@ -40,11 +41,9 @@ import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
 class SparkStreamingContextActor(streamingContextService: StreamingContextService,
-                                 policyStatusActor: ActorRef) extends Actor
+                                 policyStatusActor: ActorRef, curatorFramework: CuratorFramework) extends Actor
 with SLF4JLogging
 with SparktaSerializer {
-
-  val curatorFramework = CuratorFactoryHolder.getInstance()
 
   val SparkStreamingContextActorPrefix: String = "sparkStreamingContextActor"
 

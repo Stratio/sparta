@@ -21,12 +21,15 @@ import com.stratio.sparkta.serving.core.CuratorFactoryHolder
 import com.stratio.sparkta.serving.core.exception.ServingCoreException
 import com.stratio.sparkta.serving.core.models.ErrorModel
 import com.wordnik.swagger.annotations._
+import org.apache.curator.framework.CuratorFramework
 import spray.routing._
 
 @Api(value = HttpConstant.AppStatus, description = "Operations about sparkta status.")
 trait AppStatusHttpService extends BaseHttpService {
 
   override def routes: Route = checkStatus
+
+  val curatorInstance : CuratorFramework
 
   @ApiOperation(value = "Finds all policy contexts",
     notes = "Returns a policies list",
@@ -40,10 +43,10 @@ trait AppStatusHttpService extends BaseHttpService {
     path(HttpConstant.AppStatus) {
       get {
         complete {
-          if (!CuratorFactoryHolder.getInstance().getZookeeperClient.getZooKeeper.getState.isConnected)
+          if (!curatorInstance.getZookeeperClient.getZooKeeper.getState.isConnected)
             throw new ServingCoreException(ErrorModel.toString(
               new ErrorModel(ErrorModel.CodeUnknow, s"Zk isn't connected at" +
-                s" ${CuratorFactoryHolder.getInstance().getZookeeperClient.getCurrentConnectionString}.")
+                s" ${curatorInstance.getZookeeperClient.getCurrentConnectionString}.")
             ))
           else "OK"
         }
