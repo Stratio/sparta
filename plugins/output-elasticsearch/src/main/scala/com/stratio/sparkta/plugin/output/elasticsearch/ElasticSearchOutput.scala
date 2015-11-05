@@ -117,16 +117,7 @@ class ElasticSearchOutput(keyName: String,
 
   def getHostPortConfs(key: String, defaultHost: String, defaultPort: String, nodeName: String, portName: String)
   : Seq[(String, Int)] = {
-
-    val conObj = properties.getConnectionChain(key)
-    conObj.map(c =>
-      (c.get(nodeName) match {
-        case Some(value) => value.toString
-        case None => defaultHost
-      },
-        c.get(portName) match {
-          case Some(value) => value.toString.toInt
-          case None => defaultPort.toInt
-        }))
+    properties.getConnectionChain(key).map(c =>
+      (c.getOrElse(nodeName, defaultHost), c.getOrElse(portName, defaultPort).toInt))
   }
 }
