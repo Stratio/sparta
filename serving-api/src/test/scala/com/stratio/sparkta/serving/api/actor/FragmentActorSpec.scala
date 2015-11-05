@@ -36,7 +36,6 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import com.stratio.sparkta.serving.core.actor.FragmentActor.{Response, ResponseFragment, ResponseFragments}
 import com.stratio.sparkta.serving.core.models.{FragmentElementModel, SparktaSerializer}
 
-@Ignore
 @RunWith(classOf[JUnitRunner])
 class FragmentActorSpec extends TestKit(ActorSystem("FragmentActorSpec"))
 with DefaultTimeout

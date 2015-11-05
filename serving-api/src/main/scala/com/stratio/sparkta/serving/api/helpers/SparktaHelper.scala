@@ -61,7 +61,8 @@ with SparktaSerializer {
       else AkkaConstant.DefaultControllerActorInstances
       val streamingActorInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
       else AkkaConstant.DefaultStreamingActorInstances
-      val policyStatusActor = system.actorOf(Props(new PolicyStatusActor()), AkkaConstant.PolicyStatusActor)
+      val policyStatusActor = system.actorOf(Props(new PolicyStatusActor(curatorFramework)),
+        AkkaConstant.PolicyStatusActor)
       val streamingContextService = new StreamingContextService(Some(policyStatusActor), SparktaConfig.mainConfig)
       implicit val actors = Map(
         AkkaConstant.PolicyStatusActor -> policyStatusActor,
@@ -73,13 +74,13 @@ with SparktaSerializer {
           system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActor)), AkkaConstant.PolicyActor),
         AkkaConstant.SparkStreamingContextActor -> system.actorOf(RoundRobinPool(streamingActorInstances).props(Props(
           new SparkStreamingContextActor(
-            streamingContextService, policyStatusActor))),
+            streamingContextService, policyStatusActor, curatorFramework))),
           AkkaConstant.SparkStreamingContextActor)
       )
       val swaggerActor = system.actorOf(
-        Props(new SwaggerActor(actors)), AkkaConstant.SwaggerActor)
+        Props(new SwaggerActor(actors, curatorFramework)), AkkaConstant.SwaggerActor)
       val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)
-        .props(Props(new ControllerActor(actors))), AkkaConstant.ControllerActor)
+        .props(Props(new ControllerActor(actors, curatorFramework))), AkkaConstant.ControllerActor)
 
       IO(Http) ! Http.Bind(controllerActor, interface = SparktaConfig.apiConfig.get.getString("host"),
         port = SparktaConfig.apiConfig.get.getInt("port"))

@@ -57,6 +57,7 @@ object CuratorFactoryHolder extends SLF4JLogging {
         })
 
         Try {
+
           curatorFramework = Some(CuratorFrameworkFactory.builder()
             .connectString(defaultConnectionString)
             .connectionTimeoutMs(connectionTimeout)
