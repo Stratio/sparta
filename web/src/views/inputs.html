@@ -28,7 +28,7 @@
 		</div>
 
 		<ul br-ba-container="c-grid">
-			<li class="c-grid-item" data-ng-repeat="input in filteredInputsData = (inputs.inputsData | filter:inputs.filters:strict)" br-ba-item="{index:$index, total:filteredInputsData.length}">
+			<li class="c-grid-item" data-ng-repeat="input in filteredInputsData = (inputs.inputsData | filter:inputs.filters:true)" br-ba-item="{index:$index, total:filteredInputsData.length}">
 				<header class="title">
 					<span class="name">{{input.name}}</span>
 
