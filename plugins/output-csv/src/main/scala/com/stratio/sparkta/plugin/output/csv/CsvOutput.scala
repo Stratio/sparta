@@ -44,7 +44,7 @@ class CsvOutput(keyName: String,
 
   val header = Try(properties.getString("header").toBoolean).getOrElse(false)
 
-  val delimiter = properties.getString("delimiter", ",")
+  val delimiter = getValidDelimiter(properties.getString("delimiter", ","))
 
   val datePattern = properties.getString("datePattern", None)
 
@@ -62,5 +62,14 @@ class CsvOutput(keyName: String,
     import com.databricks.spark.csv.CsvSchemaRDD
     dataFrame.saveAsCsvFile(path,
       Map("header" -> header.toString, "delimiter" -> delimiter))
+  }
+
+  def getValidDelimiter(delimiter: String) : String = {
+    if(delimiter.size > 1){
+      val firstCharacter = delimiter.head.toString
+      log.warn(s"Invalid length to delimiter in csv: '$delimiter' . The system choose the first: '$firstCharacter'")
+      firstCharacter
+    }
+    else delimiter
   }
 }
