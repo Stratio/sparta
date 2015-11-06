@@ -33,20 +33,6 @@ class CassandraOutputSpec extends FlatSpec with Matchers with MockitoSugar with 
   val s = "sum"
   val operation = Some(Map(s ->(WriteOp.Inc, TypeOp.Int)))
   val properties = Map(("connectionHost", "127.0.0.1"), ("connectionPort", "9042"))
-  "getTableName" should "return the name of the table" in {
-
-    val table = new CassandraOutput("key", Some(1), properties, operation, None).getTableName("table_name")
-
-    table should be("table_name_V1")
-  }
-
-  "getTableName" should "return the first 48 chars of the name of the table" in {
-
-    val table = new CassandraOutput("key", Some(1), properties, operation, None).
-      getTableName("table_name_is_so_loooooooooooooooooooooooooooooooooooooooooooooong")
-
-    table should be("table_name_is_so_looooooooooooooooooooooooooo_V1")
-  }
 
   "getSparkConfiguration" should "return a Seq with the configuration" in {
     val configuration = Map(("connectionHost", "127.0.0.1"), ("connectionPort", "9042"))

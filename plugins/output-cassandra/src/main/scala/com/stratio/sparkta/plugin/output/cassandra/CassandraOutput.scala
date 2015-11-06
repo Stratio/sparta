@@ -64,6 +64,8 @@ class CassandraOutput(keyName: String,
     WriteOp.Set, WriteOp.Range, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.Median,
     WriteOp.Variance, WriteOp.Stddev, WriteOp.WordCount, WriteOp.EntityCount)
 
+  override val tableVersion = version
+
   override def setup: Unit = {
 
 
@@ -96,23 +98,15 @@ class CassandraOutput(keyName: String,
   }
 
   override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
-    val tableNameFinal = getTableName(tableName.toLowerCase)
-    write(dataFrame,tableNameFinal)
+    val tableNameVersioned = getTableName(tableName.toLowerCase)
+    write(dataFrame,tableNameVersioned)
   }
 
-  def write(dataFrame: DataFrame, tableNameFinal: String): Unit = {
+  def write(dataFrame: DataFrame, tableNameVersioned: String): Unit = {
     dataFrame.write
       .format("org.apache.spark.sql.cassandra")
       .mode(Append)
-      .options(Map("table" -> tableNameFinal, "keyspace" -> keyspace)).save()
-  }
-
-  def getTableName(table : String) : String = {
-    val tableNmeCutted = if(table.size > MaxTableNameLength - 3) table.substring(0,MaxTableNameLength - 3) else table
-    version match {
-      case Some(v) => tableNmeCutted + s"${Output.Separator}V$v"
-      case None => tableNmeCutted
-    }
+      .options(Map("table" -> tableNameVersioned, "keyspace" -> keyspace)).save()
   }
 
   def getCassandraConnector(): CassandraConnector = {
