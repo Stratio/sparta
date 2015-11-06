@@ -27,7 +27,7 @@ import org.apache.spark.streaming.dstream.DStream
 
 /**
  * Saves calculated cubes on Redis.
- * The hashkey will have this kind of structure -> A_B_C:A:valueA:B:valueB:C:valueC.It is important to see that
+ * The hashKey will have this kind of structure -> A:valueA:B:valueB:C:valueC.It is important to see that
  * values will be part of the key and the objective of it is to perform better searches in the hash.
  * @author anistal
  */
@@ -54,20 +54,27 @@ class RedisOutput(keyName: String,
    * @param metricOperations that will be saved.
    */
   override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
-    metricOperations.toList.groupBy { case (dimensionsTime, aggregations) =>
-      getHashKey(dimensionsTime)
-    }.filter(_._1.nonEmpty).foreach { case (key, dimensionsAggreations) => {
-      dimensionsAggreations.foreach { case (dimensionsTime, aggregations) => {
-          aggregations.foreach { case (aggregationName, aggregationValue) => {
-            val currentOperation = operationTypes.get.get(aggregationName).get._1
-            if (supportedWriteOps.contains(currentOperation)) hset(key, aggregationName, aggregationValue.get)
-            else log.warn(s"Operation not supported in cube: $aggregationName")
-          }
-        }
-      }
-      }
+    val dimAggGrouped = filterNonEmptyMetricOperations(groupMetricOperationsByHashKey(metricOperations.toList))
+
+    for {
+      (hashKey, dimensionsAggregations) <- dimAggGrouped
+      (dimensionsTime, aggregations) <- dimensionsAggregations
+      (aggregationName, aggregationValue) <- aggregations
+      currentOperation = operationTypes.get.get(aggregationName).get._1
+    } yield {
+      if (supportedWriteOps.contains(currentOperation)) hset(hashKey, aggregationName, aggregationValue.get)
+      else log.warn(s"Operation not supported in cube: $aggregationName")
     }
-    }
+  }
+
+  def groupMetricOperationsByHashKey(metricOp: List[(DimensionValuesTime, Map[String, Option[Any]])])
+  : Map[String, List[(DimensionValuesTime, Map[String, Option[Any]])]] = {
+    metricOp.groupBy { case (dimensionsTime, aggregations) => getHashKey(dimensionsTime) }
+  }
+
+  def filterNonEmptyMetricOperations(metricOp : Map[String, List[(DimensionValuesTime, Map[String, Option[Any]])]])
+  : Map[String, List[(DimensionValuesTime, Map[String, Option[Any]])]] = {
+    metricOp.filter { case (key, dimensionsAggreations) => key.nonEmpty }
   }
 
   def getHashKey(dimensionsTime: DimensionValuesTime): String = {
