@@ -61,6 +61,7 @@ class RedisOutput(keyName: String,
           aggregations.foreach { case (aggregationName, aggregationValue) => {
             val currentOperation = operationTypes.get.get(aggregationName).get._1
             if (supportedWriteOps.contains(currentOperation)) hset(key, aggregationName, aggregationValue.get)
+            else log.warn(s"Operation not supported in cube: $aggregationName")
           }
         }
       }
