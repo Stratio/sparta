@@ -41,10 +41,11 @@ import org.elasticsearch.spark.sql._
  *
  */
 class ElasticSearchOutput(keyName: String,
+                          version: Option[Int],
                           properties: Map[String, JSerializable],
                           operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
                           bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, properties, operationTypes, bcSchema) with ElasticSearchDAO {
+  extends Output(keyName, version, properties, operationTypes, bcSchema) with ElasticSearchDAO {
 
   override val idField = properties.getString("idField", None)
 

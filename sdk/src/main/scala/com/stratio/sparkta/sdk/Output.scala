@@ -30,6 +30,7 @@ import com.stratio.sparkta.sdk.ValidatingPropertyMap.map2ValidatingPropertyMap
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 
 abstract class Output(keyName: String,
+                      version: Option[Int],
                       properties: Map[String, JSerializable],
                       operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
                       bcSchema: Option[Seq[TableSchema]])

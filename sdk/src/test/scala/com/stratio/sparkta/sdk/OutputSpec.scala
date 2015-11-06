@@ -55,16 +55,19 @@ class OutputSpec extends WordSpec with Matchers {
     val outputName = "outputName"
 
     val output = new OutputMock(outputName,
+      None,
       Map(),
       Some(Map("op1" ->(WriteOp.Set, TypeOp.Long))),
       Some(Seq(tableSchema)))
 
     val outputOperation = new OutputMock(outputName,
+      None,
       Map(),
       Some(Map("op1" ->(WriteOp.Inc, TypeOp.Long))),
       Some(Seq(tableSchema)))
 
     val outputProps = new OutputMock(outputName,
+      None,
       Map(
         "fixedDimensions" -> "dim2",
         "fixedAggregation" -> "op2:1",

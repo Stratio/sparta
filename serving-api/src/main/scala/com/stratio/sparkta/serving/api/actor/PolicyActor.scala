@@ -102,14 +102,15 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
 
   def create(policy: AggregationPoliciesModel): Unit =
     sender ! ResponsePolicy(Try({
-      if (existsByName(policy.name)) {
+      val searchPolicy = existsByName(policy.name)
+      if (searchPolicy.isDefined) {
         throw new ServingCoreException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeExistsPolicytWithName,
-            s"Policy with name ${policy.name} exists.")
+            s"Policy with name ${policy.name} exists. The actual policty id is: ${searchPolicy.get.id}")
         ))
       }
       val policyS = policy.copy(id = Some(s"${UUID.randomUUID.toString}"),
-        name = policy.name.toLowerCase)
+        name = policy.name.toLowerCase, version = Some(1))
       curatorFramework.create().creatingParentsIfNeeded().forPath(
         s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
 
@@ -120,13 +121,15 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
 
   def update(policy: AggregationPoliciesModel): Unit = {
     sender ! Response(Try({
-      if (existsByName(policy.name, policy.id)) {
+      val searchPolicy = existsByName(policy.name, policy.id)
+      if (searchPolicy.isEmpty) {
         throw new ServingCoreException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeExistsPolicytWithName,
-            s"Policy with name ${policy.name} exists.")
+            s"Policy with name ${policy.name} not exists.")
         ))
       }
-      val policyS = policy.copy(name = policy.name.toLowerCase)
+      val policyS = policy.copy(name = policy.name.toLowerCase,
+        version = Some(searchPolicy.get.version.get + 1))
       curatorFramework.setData.forPath(s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
     }).recover {
       case e: NoNodeException => throw new ServingCoreException(ErrorModel.toString(
@@ -145,7 +148,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
       ))
     })
 
-  def existsByName(name: String, id: Option[String] = None): Boolean = {
+  def existsByName(name: String, id: Option[String] = None): Option[AggregationPoliciesModel] = {
     val nameToCompare = name.toLowerCase
     Try({
       val basePath = s"${AppConstant.PoliciesBasePath}"
@@ -153,14 +156,16 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
         val children = curatorFramework.getChildren.forPath(basePath)
         JavaConversions.asScalaBuffer(children).toList.map(element =>
           read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(s"$basePath/$element"))))
-          .filter(policy => if (id.isDefined) policy.name == nameToCompare && policy.id.get != id.get
-        else policy.name == nameToCompare).toSeq.nonEmpty
-      } else false
+          .find(policy => {
+          if (id.isDefined) policy.name == nameToCompare && policy.id.get != id.get
+          else policy.name == nameToCompare
+        })
+      } else None
     }) match {
       case Success(result) => result
       case Failure(exception) => {
         log.error(exception.getLocalizedMessage, exception)
-        false
+        None
       }
     }
   }

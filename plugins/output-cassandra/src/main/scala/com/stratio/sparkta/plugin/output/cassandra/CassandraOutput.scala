@@ -31,10 +31,11 @@ import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.sql.DataFrameWriter
 
 class CassandraOutput(keyName: String,
+                      version: Option[Int],
                       properties: Map[String, JSerializable],
                       operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
                       bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, properties, operationTypes, bcSchema)
+  extends Output(keyName, version, properties, operationTypes, bcSchema)
   with CassandraDAO {
 
   override val keyspace = properties.getString("keyspace", "sparkta")
@@ -70,7 +71,7 @@ class CassandraOutput(keyName: String,
 
     val keyspaceCreated = createKeypace(connector)
 
-    val schemaFiltered = bcSchema.get.filter(tschema => (tschema.outputName == keyName))
+    val schemaFiltered = bcSchema.get.filter(tschema => tschema.outputName == keyName)
       .map(tschemaFiltered => getTableSchemaFixedId(tschemaFiltered))
 
     val tablesCreated = if (keyspaceCreated) {
@@ -78,12 +79,12 @@ class CassandraOutput(keyName: String,
     } else false
 
     if (keyspaceCreated && tablesCreated) {
-      if (indexFields.isDefined && !indexFields.get.isEmpty) {
+      if (indexFields.isDefined && indexFields.get.nonEmpty) {
         bcSchema.exists(bc => createIndexes(connector, schemaFiltered, isAutoCalculateId))
       }
       if (textIndexFields.isDefined &&
-        !textIndexFields.isEmpty &&
-        !fixedAggregation.isEmpty &&
+        textIndexFields.nonEmpty &&
+        fixedAggregation.nonEmpty &&
         fixedAgg.get == textIndexName) {
         bcSchema.exists(bc => createTextIndexes(connector, schemaFiltered))
       }
@@ -107,7 +108,11 @@ class CassandraOutput(keyName: String,
   }
 
   def getTableName(table : String) : String = {
-    if(table.size > MaxTableNameLength) table.substring(0,MaxTableNameLength) else table
+    val tableNmeCutted = if(table.size > MaxTableNameLength - 3) table.substring(0,MaxTableNameLength - 3) else table
+    version match {
+      case Some(v) => tableNmeCutted + s"${Output.Separator}V$v"
+      case None => tableNmeCutted
+    }
   }
 
   def getCassandraConnector(): CassandraConnector = {

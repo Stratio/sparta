@@ -65,6 +65,7 @@ class AggregationPolicySpec extends WordSpec with Matchers {
   val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
   val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
   val policy = AggregationPoliciesModel(id = None,
+    version = None,
     storageLevel = AggregationPoliciesModel.storageDefaultValue,
     name = "testpolicy",
     description = "whatever",
