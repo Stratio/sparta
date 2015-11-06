@@ -63,7 +63,7 @@ class RedisOutput(keyName: String,
       currentOperation = operationTypes.get.get(aggregationName).get._1
     } yield {
       if (supportedWriteOps.contains(currentOperation)) hset(hashKey, aggregationName, aggregationValue.get)
-      else log.warn(s"Operation not supported in cube: $aggregationName")
+      else log.warn(s"Operation $currentOperation not supported in the cube with name $aggregationName")
     }
   }
 
