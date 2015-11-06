@@ -40,6 +40,16 @@
       "qa": "fragment-details-cassandra-keyspace"
     },
     {
+      "propertyId": "cluster",
+      "propertyName": "_CLUSTER_",
+      "propertyType": "text",
+      "regexp": "",
+      "default": "Sparkta",
+      "required": true,
+      "tooltip": "Cluster name.",
+      "qa": "fragment-details-cassandra-cluster"
+    },
+    {
       "propertyId": "keyspaceClass",
       "propertyName": "_KEYSPACE_CLASS_",
       "propertyType": "select",

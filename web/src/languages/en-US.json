@@ -35,6 +35,7 @@
   "_PARTITION_": "Partitions",
   "_CONTACT_POINT_": "Contact point",
   "_KEYSPACE_": "Keyspace",
+  "_CLUSTER_": "Cluster name",
   "_KEYSPACE_CLASS_": "keyspace class",
   "_REPLICATION_FACTOR_": "Replication factor",
   "_COMPACT_STORAGE_": "Compact storage",
