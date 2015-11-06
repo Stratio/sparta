@@ -35,6 +35,8 @@ $item-name-height: 70px;
             position: absolute;
             bottom: 10px;
             width: 90%;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .menu_actions {
             position: absolute;
