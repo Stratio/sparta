@@ -503,16 +503,6 @@
         "required": true,
         "tooltip": "Port of the server",
         "qa": "fragment-details-redis-port"
-      },
-      {
-        "propertyId": "timeStampFieldName",
-        "propertyName": "_TIME_STAMP_FIELD_NAME_",
-        "propertyType": "text",
-        "regexp": "",
-        "default": "timestamp",
-        "required": false,
-        "tooltip": "",
-        "qa": "fragment-details-redis-timeStampFieldName"
       }
     ]
   }
