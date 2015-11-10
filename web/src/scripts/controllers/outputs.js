@@ -101,7 +101,7 @@
                 'button': '_OUTPUT_WINDOW_MODIFY_BUTTON_',
                 'button_icon': 'icon-circle-check',
                 'secondaryText2': '_OUTPUT_WINDOW_EDIT_MESSAGE2_',
-                'policyRunningMain': '_OUTPUT_CANNOT_BE_DELETED_',
+                'policyRunningMain': '_OUTPUT_CANNOT_BE_MODIFIED_',
                 'policyRunningSecondary': '_OUTTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
                 'policyRunningSecondary2': '_OUTTPUT_WINDOW_POLICY_RUNNING_MESSAGE2_'
             }

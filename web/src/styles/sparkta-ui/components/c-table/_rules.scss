@@ -39,6 +39,12 @@
 		&--no-wrap {
 			white-space: nowrap;
 		}
+
+		&--ellipsis {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			max-width: 0;
+		}
 	}
 
 	@include full-width;

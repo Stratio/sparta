@@ -110,11 +110,11 @@
     ]
   },
   "helpLinks": {
-    "description": "http://docs.stratio.com/modules/sparkta/development/policy.html#general-configuration",
-    "inputs": "http://docs.stratio.com/modules/sparkta/development/policy.html#inputs",
-    "models": "http://docs.stratio.com/modules/sparkta/development/policy.html#transformations",
-    "cubes": "http://docs.stratio.com/modules/sparkta/development/policy.html#cubes",
-    "outputs": "http://docs.stratio.com/modules/sparkta/development/policy.html#outputs"
+    "description": "http://docs.stratio.com/modules/sparkta/0.6/usingSparkta.html#policy",
+    "inputs": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html",
+    "models": "http://docs.stratio.com/modules/sparkta/0.6/transformations.html",
+    "cubes": "http://docs.stratio.com/modules/sparkta/0.6/cube.html",
+    "outputs": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html"
   },
   "configPlaceholder": "{    \n    \"inputFormat\": \"unixMillis\", \n   \"dbName\": \"sparkta\"\n}",
   "configurationHelpLink": "http://docs.stratio.com/modules/sparkta/development/transformations.html",
@@ -309,6 +309,7 @@
       "precisions": []
     }
   ],
+  "defaultModelName": "model",
   "defaultCubeName": "cube",
   "cubeTypes": [
     {

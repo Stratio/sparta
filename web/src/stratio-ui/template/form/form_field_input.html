@@ -17,5 +17,9 @@
             <span data-ng-if="this[name][name].$error.match" data-qa="{{qa}}-error-match">The fields do not match. </span>
             <span data-ng-if="this[name][name].$error.custom" data-qa="{{qa}}-error-custom">{{customError}}</span>
         </div>
+        <!-- just for modals in wizard -->
+        <div data-ng-if="elementsLength == 0 && submittedForm" class="angular-forms__error">
+            <span data-qa="{{qa}}-error-outputs-length">At least one output must be created.</span>
+        </div>
     </div>
 </ng-form>

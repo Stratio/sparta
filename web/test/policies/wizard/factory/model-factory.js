@@ -46,7 +46,8 @@ describe('policies.wizard.factory.model-factory', function () {
       var desiredOrder = 0;
       var position = 1;
       var model = cleanFactory.getModel(fakePolicyTemplate, desiredOrder, position);
-      expect(model.name).toBe("");
+
+      expect(model.name).toBe(fakePolicyTemplate.defaultModelName + (desiredOrder + 1));
       expect(model.outputFields).toEqual([]);
       expect(model.type).toBe(fakePolicyTemplate.types[0].name);
       expect(model.configuration).toBe(fakePolicyTemplate.morphlinesDefaultConfiguration);
@@ -88,7 +89,7 @@ describe('policies.wizard.factory.model-factory', function () {
     it("if model position is 0, returns an option array with the default input", function () {
       var position = 0;
       var order = 5;
-      factory.resetModel(fakePolicyTemplate,order, position);
+      factory.resetModel(fakePolicyTemplate, order, position);
       factory.updateModelInputs(models);
 
       var inputList = factory.getModelInputs();
@@ -173,7 +174,7 @@ describe('policies.wizard.factory.model-factory', function () {
 
       var model = factory.getModel();
 
-      expect(model.name).toBe("");
+      expect(model.name).toBe(fakePolicyTemplate.defaultModelName + (desiredOrder + 1));
       expect(model.outputFields).toEqual([]);
       expect(model.type).toBe(fakePolicyTemplate.types[0].name);
       expect(model.configuration).toBe(fakePolicyTemplate.morphlinesDefaultConfiguration);
