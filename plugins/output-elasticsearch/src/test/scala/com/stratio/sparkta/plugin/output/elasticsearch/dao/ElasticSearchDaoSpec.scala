@@ -27,7 +27,7 @@ class ElasticSearchDAOSpec extends FlatSpec with ShouldMatchers {
 
   trait BaseValues {
 
-    val dao = new ESDaoMock(Seq(("localhost", 9200)))
+    val dao = new ESDaoMock(Seq(("localhost", 9200, 9300)), "elasticsearch")
   }
 
   trait ValuesMap extends BaseValues {
@@ -62,7 +62,11 @@ class ElasticSearchDAOSpec extends FlatSpec with ShouldMatchers {
   }
 }
 
-case class ESDaoMock(_nodes: Seq[(String, Int)] = Seq()) extends ElasticSearchDAO {
+case class ESDaoMock(_nodes: Seq[(String, Int, Int)] = Seq(), _clusterName: String) extends ElasticSearchDAO {
 
-  override def nodes: Seq[(String, Int)] = _nodes
+  override def tcpNodes: Seq[(String, Int)] = _nodes.map(x => (x._1, x._3))
+
+  override def httpNodes: Seq[(String, Int)] = _nodes.map(x => (x._1, x._2))
+
+  override def clusterName: String = clusterName
 }

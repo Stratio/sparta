@@ -42,7 +42,7 @@
     </repositories>
 
     <properties>
-        <elasticsearch.version>1.7.1</elasticsearch.version>
+        <elastic4s.version>1.7.4</elastic4s.version>
     </properties>
 
     <dependencies>
@@ -206,10 +206,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
-            <version>${elasticsearch.version}</version>
-    	</dependency>
+            <groupId>com.sksamuel.elastic4s</groupId>
+            <artifactId>elastic4s-core_${scala.binary.version}</artifactId>
+            <version>${elastic4s.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.cassandraunit</groupId>
             <artifactId>cassandra-unit-shaded</artifactId>

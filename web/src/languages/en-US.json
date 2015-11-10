@@ -12,6 +12,8 @@
   "_TYPE_": "Type",
   "_ADDRESS_": "Address",
   "_PORT_": "Port",
+  "_TCP_PORT_": "TCP Port",
+  "_HTTP_PORT_": "HTTP Port",
   "_GROUP_ID_": "Group ID",
   "_MAX_BATCH_SIZE": "Max batch size",
   "_PARALLELISM_": "Parallelism",
@@ -250,5 +252,6 @@
   "_POLICY_ERROR_DELETE_POLICY_": "The policy is not stopped! If you want to delete this policy, please stop it first.",
   "_POLICY_ERROR_EDIT_POLICY_": "The policy is not stopped! If you want to edit this policy, please stop it first.",
   "_POLICY_DELETE_OK_": "The policy has been deleted!",
-  "_attachment_body": "Your raw event"
+  "_attachment_body": "Your raw event",
+  "_CLUSTERNAME_": "Cluster name"
 }
