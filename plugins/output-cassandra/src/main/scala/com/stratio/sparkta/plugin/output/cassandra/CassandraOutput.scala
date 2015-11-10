@@ -68,7 +68,6 @@ class CassandraOutput(keyName: String,
 
   override def setup: Unit = {
 
-
     val connector = getCassandraConnector()
 
     val keyspaceCreated = createKeypace(connector)
