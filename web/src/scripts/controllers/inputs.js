@@ -59,15 +59,12 @@
           createInputModal(createInputData);
         };
 
-        function editInput(inputName, inputId, index) {
-          var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {'id':inputId}, true)[0];
+        function editInput(input) {
           var inputsList = UtilsService.getNamesJSONArray(vm.inputsData);
-
           var editInputData = {
-              'originalName': inputName,
+              'originalName': input.name,
               'fragmentType': 'input',
-              'index': index,
-              'fragmentSelected': inputSelected,
+              'fragmentSelected': input,
               'fragmentNamesList' : inputsList,
               'texts': {
                   'title': '_INPUT_WINDOW_MODIFY_TITLE_',
@@ -80,7 +77,7 @@
               }
           };
 
-          editInputModal(editInputData);
+          return editInputModal(editInputData);
         };
 
         function deleteInput(fragmentType, fragmentId, index) {
@@ -170,26 +167,27 @@
         };
 
         function editInputModal(editInputData) {
-           var modalInstance = $modal.open({
-               animation: true,
-               templateUrl: 'templates/fragments/fragment-details.tpl.html',
-               controller: 'EditFragmentModalCtrl as vm',
-               size: 'lg',
-               resolve: {
-                   item: function () {
-                      return editInputData;
-                   },
-                   fragmentTemplates: function () {
-                      return TemplateFactory.getNewFragmentTemplate(editInputData.fragmentSelected.fragmentType);
-                   },
-                   policiesAffected: function () {
-                      return PolicyFactory.getPolicyByFragmentId(editInputData.fragmentSelected.fragmentType, editInputData.fragmentSelected.id);
-                   }
-               }
-           });
+          var modalInstance = $modal.open({
+            animation: true,
+            templateUrl: 'templates/fragments/fragment-details.tpl.html',
+            controller: 'EditFragmentModalCtrl as vm',
+            size: 'lg',
+            resolve: {
+                item: function () {
+                   return editInputData;
+                },
+                fragmentTemplates: function () {
+                   return TemplateFactory.getNewFragmentTemplate(editInputData.fragmentSelected.fragmentType);
+                },
+                 policiesAffected: function () {
+                  return PolicyFactory.getPolicyByFragmentId(editInputData.fragmentSelected.fragmentType, editInputData.fragmentSelected.id);
+                }
+            }
+          });
 
-          modalInstance.result.then(function (updatedInputData) {
-            vm.inputsData[updatedInputData.index] = updatedInputData.data;
+          return modalInstance.result.then(function (editedInputData) {
+            for (var prop in editedInputData.originalFragment) delete editedInputData.originalFragment[prop];
+            for (var prop in editedInputData.editedFragment) editedInputData.originalFragment[prop] =  editedInputData.editedFragment[prop];
             vm.getInputTypes(vm.inputsData);
           });
         };
