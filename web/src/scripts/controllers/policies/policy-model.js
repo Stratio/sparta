@@ -59,7 +59,9 @@
     }
 
     function addModel() {
-      if (vm.form.$valid) {
+      vm.form.$submitted = true;
+      if (vm.form.$valid && vm.model.outputFields.length != 0) {
+        vm.form.$submitted = false;
         ModelService.addModel();
       } else {
         ModelFactory.setError("_GENERIC_FORM_ERROR_");

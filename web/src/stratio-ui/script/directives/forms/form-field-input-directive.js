@@ -33,7 +33,9 @@
                 required: '=',
                 disabled: '=',
                 qa: '@',
-                helpQa: '@'
+                helpQa: '@',
+                elementsLength: '=',
+                submittedForm: '='
             }
         };
         return directive;
