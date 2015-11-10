@@ -28,9 +28,8 @@
 		</div>
 
 		<ul br-ba-container="c-grid">
-			<li class="c-grid-item" data-ng-repeat="input in  filteredInputsData = (inputs.inputsData |
-			 filter:{'element':{'type':inputs.filters.element.type || undefined}}:true | filter:{ 'name': inputs.filters.name})"
-          br-ba-item="{index:$index, total:filteredInputsData.length}">
+			<li class="c-grid-item" data-ng-repeat="input in  filteredInputsData = (inputs.inputsData | filter:{'element':{'type':inputs.filters.element.type || undefined}}:true | filter:{ 'name': inputs.filters.name})" br-ba-item="{index:$index, total:filteredInputsData.length}">
+          	<!-- <li class="c-grid-item" data-ng-repeat="input in filteredInputsData = (inputs.inputsData | fragmentFilter:inputs.filters)" br-ba-item="{index:$index, total:filteredInputsData.length}"> -->
 				<header class="title">
 					<span class="name">{{input.name}}</span>
 
