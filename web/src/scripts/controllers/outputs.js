@@ -86,15 +86,12 @@
         createOutputModal(createOutputData);
       };
 
-      function editOutput(outputType, outputName, outputId, index) {
-        var outputSelected = $filter('filter')(angular.copy(vm.outputsData), {'id':outputId}, true)[0];
+      function editOutput(output) {
         var outputsList = UtilsService.getNamesJSONArray(vm.outputsData);
-
         var editOutputData = {
-            'originalName': outputName,
+            'originalName': output.name,
             'fragmentType': 'output',
-            'index': index,
-            'fragmentSelected': outputSelected,
+            'fragmentSelected': output,
             'fragmentNamesList' : outputsList,
             'texts': {
                 'title': '_OUTPUT_WINDOW_MODIFY_TITLE_',
@@ -174,30 +171,29 @@
       };
 
       function editOutputModal(editOutputData) {
-         var modalInstance = $modal.open({
-             animation: true,
-             templateUrl: 'templates/fragments/fragment-details.tpl.html',
-             controller: 'EditFragmentModalCtrl as vm',
-             size: 'lg',
-             resolve: {
-                 item: function () {
-                    return editOutputData;
-                 },
-                 fragmentTemplates: function (TemplateFactory) {
-                    return TemplateFactory.getNewFragmentTemplate(editOutputData.fragmentSelected.fragmentType);
-                 },
-                 policiesAffected: function (PolicyFactory) {
-                    return PolicyFactory.getPolicyByFragmentId(editOutputData.fragmentSelected.fragmentType, editOutputData.fragmentSelected.id);
-                 }
-             }
-         });
+        var modalInstance = $modal.open({
+            animation: true,
+            templateUrl: 'templates/fragments/fragment-details.tpl.html',
+            controller: 'EditFragmentModalCtrl as vm',
+            size: 'lg',
+            resolve: {
+              item: function () {
+                return editOutputData;
+              },
+              fragmentTemplates: function (TemplateFactory) {
+                return TemplateFactory.getNewFragmentTemplate(editOutputData.fragmentSelected.fragmentType);
+              },
+              policiesAffected: function (PolicyFactory) {
+                return PolicyFactory.getPolicyByFragmentId(editOutputData.fragmentSelected.fragmentType, editOutputData.fragmentSelected.id);
+              }
+            }
+      });
 
         modalInstance.result.then(function (updatedOutputData) {
-          vm.outputsData[updatedOutputData.index] = updatedOutputData.data;
+          for (var prop in updatedOutputData.originalFragment) delete updatedOutputData.originalFragment[prop];
+          for (var prop in updatedOutputData.editedFragment) updatedOutputData.originalFragment[prop] =  updatedOutputData.editedFragment[prop];
           getOutputTypes(vm.outputsData);
-
-        },function () {
-                });
+        });
       };
 
       function deleteOutputConfirm(size, output) {
@@ -219,7 +215,6 @@
         modalInstance.result.then(function (selectedItem) {
           vm.outputsData.splice(selectedItem.index, 1);
           getOutputTypes(vm.outputsData);
-        },function () {
         });
       };
 
@@ -240,7 +235,6 @@
           vm.outputsData.push(newOutput);
           getOutputTypes(vm.outputsData);
 
-        },function () {
         });
       };
 

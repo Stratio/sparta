@@ -38,7 +38,7 @@
 
       if (vm.policiesRunning.length === 0){
         vm.templateFragmentsData = fragmentTemplates;
-        vm.dataSource = item.fragmentSelected;
+        vm.dataSource = angular.copy(item.fragmentSelected);
 
         vm.createTypeModels(vm.templateFragmentsData);
         vm.selectedIndex = vm.index;
@@ -170,10 +170,9 @@
       var updateFragment = FragmentFactory.updateFragment(vm.dataSource);
 
       updateFragment.then(function (result) {
-        var callBackData = {
-          'index': item.index,
-          'data': result,
-        };
+        var callBackData = {};
+        callBackData.originalFragment = item.fragmentSelected;
+        callBackData.editedFragment = result;
 
         $modalInstance.close(callBackData);
 
