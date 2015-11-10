@@ -309,6 +309,7 @@
       "precisions": []
     }
   ],
+  "defaultModelName": "model",
   "defaultCubeName": "cube",
   "cubeTypes": [
     {
