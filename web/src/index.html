@@ -35,7 +35,8 @@
 <!-- build:js({.tmp,src}) scripts/scripts.js -->
 <script src="scripts/app.js"></script>
 <!-- Filters -------------------------------- -->
-<script src="scripts/filters/angular-truncate-number.js"></script>
+<script src="scripts/filters/truncate-number.js"></script>
+<script src="scripts/filters/fragment-filter.js"></script>
 <!-- Controllers -------------------------------- -->
 <script src="scripts/controllers/inputs.js"></script>
 <script src="scripts/controllers/outputs.js"></script>
@@ -65,8 +66,7 @@
 <!-- Directiva Angular UI - Tooltip -->
 <script src="scripts/vendors/ui-bootstrap-custom-0.13.4.min.js"></script>
 <script src="scripts/vendors/ui-bootstrap-custom-tpls-0.13.4.min.js"></script>
-<!-- Directivas Stratio - Tooltip -->
-<script src="scripts/directives/st-modal.directive.js"></script>
+
 <!-- Form directives -->
 <script src="stratio-ui/script/directives/forms/datasource-form-field-directive.js"></script>
 <script src="stratio-ui/script/directives/forms/form-field-input-directive.js"></script>
@@ -74,15 +74,15 @@
 <script src="stratio-ui/script/directives/forms/form-field-check-directive.js"></script>
 <script src="stratio-ui/script/directives/forms/form-field-list-directive.js"></script>
 <!-- HTML component directives -->
-<script src="scripts/directives/c-step.directive.js"></script>
-<script src="scripts/directives/c-step-progress-bar.directive.js"></script>
-<script src="scripts/directives/c-route-button.directive.js"></script>
-<script src="scripts/directives/c-slider.directive.js"></script>
-<script src="scripts/directives/c-icon-label.directive.js"></script>
-<script src="scripts/directives/c-icon-link.directive.js"></script>
-<script src="scripts/directives/c-input-field.directive.js"></script>
-<script src="scripts/directives/c-input-list-field.directive.js"></script>
-<script src="scripts/directives/c-add-element.directive.js"></script>
+<script src="scripts/directives/c-step-directive.js"></script>
+<script src="scripts/directives/c-step-progress-bar-directive.js"></script>
+<script src="scripts/directives/c-route-button-directive.js"></script>
+<script src="scripts/directives/c-slider-directive.js"></script>
+<script src="scripts/directives/c-icon-label-directive.js"></script>
+<script src="scripts/directives/c-icon-link-directive.js"></script>
+<script src="scripts/directives/c-input-list-field-directive.js"></script>
+<script src="scripts/directives/c-add-element-directive.js"></script>
+<script src="scripts/directives/c-json-text-directive.js"></script>
 <!-- Factories ----------------------------------- -->
 <script src="scripts/services/fragment-factory.js"></script>
 <script src="scripts/services/template-factory.js"></script>
@@ -96,14 +96,13 @@
 <script src="scripts/services/api/api-fragment-service.js"></script>
 <script src="scripts/services/accordion-status-service.js"></script>
 <script src="scripts/services/cube-service.js"></script>
+<script src="scripts/services/model-service.js"></script>
 <script src="scripts/services/utils-service.js"></script>
 <script src="scripts/services/modal-service.js"></script>
 <!-- Constants ----------------------------------- -->
 <script src="scripts/constants/api-config-settings.js"></script>
 <script src="scripts/constants/fragment-constants.js"></script>
 
-<!-- Tools ----------------------------------- -->
-<script src="scripts/lib/stratio.files.utils.js"></script>
 <!-- endbuild -->
 
 <!-- build:js({.tmp,src}) scripts/stratio-ui.js -->

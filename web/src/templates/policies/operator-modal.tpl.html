@@ -1,21 +1,27 @@
 <aside data-qa="operator-modal">
   <div class="c-titlebar">
     <span class="c-titlebar__title">{{"_POLICY_._CUBE_._OPERATOR_" | translate}}</span>
-    <i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" data-ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
+    <i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" data-ng-click="vm.cancel()"
+       data-qa="modal-cancel-icon"></i>
   </div>
 
   <form class="c-form" name="vm.form" novalidate>
-    <div class="c-row c-row--separated c-msg c-msg--small c-msg--error" data-ng-if=" vm.errorText != ''" data-qa="error-msg">
+    <div class="c-row c-row--separated c-msg c-msg--small c-msg--error" data-ng-if=" vm.errorText != ''"
+         data-qa="error-msg">
       <i class="c-icon icon-circle-cross"></i>
-      <span data-ng-model = "vm.errorText">{{vm.errorText |translate}}</span>
+      <span data-ng-model="vm.errorText">{{vm.errorText |translate}}</span>
     </div>
     <div class="c-modal-inner">
       <div class="c-form-group">
-        <form-field-input data-form="vm.form" data-st-name="type-form" data-model="vm.operator.type" data-label="{{'_TYPE_' | translate}}" data-help="" data-pattern="" data-required="true" required="true" disabled="true" data-qa="operator-modal-type"></form-field-input>
+        <form-field-input data-form="vm.form" data-st-name="type-form" data-model="vm.operator.type"
+                          data-label="{{'_TYPE_' | translate}}" data-help="" data-pattern="" data-required="true"
+                          required="true" disabled="true" data-qa="operator-modal-type"></form-field-input>
       </div>
 
       <div class="c-form-group">
-        <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.operator.name" data-label="{{'_NAME_' | translate}}" data-help="" data-pattern="" data-required="true" placeholder="Ex. Name 1" required="true" data-qa="operator-modal-name"></form-field-input>
+        <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.operator.name"
+                          data-label="{{'_NAME_' | translate}}" data-help="" data-pattern="" data-required="true"
+                          placeholder="Ex. Name 1" required="true" data-qa="operator-modal-name"></form-field-input>
       </div>
 
       <div class="c-form-group">
@@ -24,25 +30,36 @@
                       data-text="'_CONFIGURATION_' | translate"
                       data-text-class=""
                       data-icon-url="vm.configHelpLink"
+                      data-required="true"
                       data-test="policy-operator-configuration-help">
         </c-icon-label>
-        <p class = "c-label c-col c-col--12">{{"_CONFIGURATION_INFO_" | translate}}</p>
-        <textarea class="c-textarea c-textarea--full-width" data-ng-model="vm.operator.configuration" placeholder={{vm.configPlaceholder}} data-qa="operator-modal-config" />
+        <p class="c-label c-col c-col--12">{{"_CONFIGURATION_INFO_" | translate}}</p>
+
+        <textarea json-text name="operator-configuration" data-form="vm.form"
+                  class="c-textarea c-textarea--required c-textarea--full-width"
+                  data-ng-model="vm.operator.configuration"
+                  ng-class="{'c-textarea--error': vm.form['operator-configuration'].$error.invalidJson}"
+                  data-qa="operator-configuration-textarea"
+                  placeholder={{vm.configPlaceholder}}>
+       </textarea>
+
       </div>
 
       <div class="c-row c-row--separated">
         <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
-          <button type="button" class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()" data-qa="modal-cancel-button">
+          <button type="button" class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()"
+                  data-qa="modal-cancel-button">
             <span class="icon-circle-cross"></span>
             <span>{{"_INPUT_BUTTON_CANCEL_" | translate}}</span>
           </button>
 
-          <button type="submit" class="c-button c-button--call-to-action-1" data-ng-click="vm.ok()" data-qa="modal-ok-button">
+          <button type="submit" class="c-button c-button--call-to-action-1" data-ng-click="vm.ok()"
+                  data-qa="modal-ok-button">
             <span class="icon icon-circle-check"></span>
             <span>{{"_SAVE_" | translate}}</span>
           </button>
         </div>
       </div>
-    </form>
-  </div>
-</form>
+    </div>
+  </form>
+</aside>

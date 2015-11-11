@@ -18,20 +18,39 @@ package com.stratio.sparkta.serving.api.actor
 
 import akka.actor.{ActorContext, _}
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.serving.api.constants.AkkaConstant
 import com.stratio.sparkta.serving.api.service.http._
-import com.stratio.sparkta.serving.core.models.SparktaSerializer
+import com.stratio.sparkta.serving.core.constants.AkkaConstant
+import com.stratio.sparkta.serving.core.exception.ServingCoreException
+import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer}
+import org.apache.curator.framework.CuratorFramework
+import org.json4s.jackson.Serialization.write
+import spray.http.StatusCodes
 import spray.routing._
-import com.stratio.sparkta.serving.api.service.handler.CustomExceptionHandler._
+import spray.util.LoggingContext
 
-
-class ControllerActor(actorsMap: Map[String, ActorRef]) extends HttpServiceActor
+class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework : CuratorFramework) extends HttpServiceActor
 with SLF4JLogging
 with SparktaSerializer {
 
   override implicit def actorRefFactory: ActorContext = context
 
-  val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context)
+  implicit def exceptionHandler(implicit logg: LoggingContext): ExceptionHandler =
+    ExceptionHandler {
+      case exception: ServingCoreException =>
+        requestUri { uri =>
+          log.error(exception.getLocalizedMessage)
+          complete(StatusCodes.NotFound, write(ErrorModel.toErrorModel(exception.getLocalizedMessage)))
+        }
+      case exception: Throwable =>
+        requestUri { uri =>
+          log.error(exception.getLocalizedMessage, exception)
+          complete(StatusCodes.InternalServerError, write(
+            new ErrorModel(ErrorModel.CodeUnknow, exception.getLocalizedMessage)
+          ))
+        }
+    }
+
+  val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context, curatorFramework)
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
@@ -54,7 +73,7 @@ with SparktaSerializer {
     }
 }
 
-class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
+class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, curatorFramework : CuratorFramework) {
 
   val fragmentRoute: Route = new FragmentHttpService {
     implicit val actors = actorsMap
@@ -64,7 +83,7 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
 
   val templateRoute: Route = new TemplateHttpService {
     implicit val actors = actorsMap
-    override val supervisor =actorsMap.get(AkkaConstant.TemplateActor).get
+    override val supervisor = actorsMap.get(AkkaConstant.TemplateActor).get
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 
@@ -84,5 +103,6 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = context.self
     override val actorRefFactory: ActorRefFactory = context
+    override val curatorInstance = curatorFramework
   }.routes
 }

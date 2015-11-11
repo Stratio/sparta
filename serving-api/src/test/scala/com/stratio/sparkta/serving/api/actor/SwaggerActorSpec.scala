@@ -18,14 +18,16 @@ package com.stratio.sparkta.serving.api.actor
 
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
-import com.stratio.sparkta.driver.service.StreamingContextService
-import com.stratio.sparkta.serving.api.constants.AkkaConstant
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
 import org.apache.curator.framework.CuratorFramework
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
+
+import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.serving.core.actor.FragmentActor
+import com.stratio.sparkta.serving.core.constants.AkkaConstant
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
 
 @RunWith(classOf[JUnitRunner])
 class SwaggerActorSpec(_system: ActorSystem) extends TestKit(_system)
@@ -40,12 +42,12 @@ with MockFactory {
   val curatorFramework = mock[CuratorFramework]
   val streamingContextService = mock[StreamingContextService]
 
-  val policyStatusActor = _system.actorOf(Props(new PolicyStatusActor))
+  val policyStatusActor = _system.actorOf(Props(new PolicyStatusActor(curatorFramework)))
   val fragmentActor = _system.actorOf(Props(new FragmentActor(curatorFramework)))
   val templateActor = _system.actorOf(Props(new TemplateActor()))
   val policyActor = _system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActor)))
   val sparkStreamingContextActor = _system.actorOf(
-    Props(new SparkStreamingContextActor(streamingContextService, policyStatusActor)))
+    Props(new SparkStreamingContextActor(streamingContextService, policyStatusActor, curatorFramework)))
 
   implicit val actors = Map(
     AkkaConstant.PolicyStatusActor -> policyStatusActor,
@@ -60,7 +62,7 @@ with MockFactory {
 
   "ControllerActor" should {
     "set up the controller actor that contains all sparkta's routes without any error" in {
-      _system.actorOf(Props(new SwaggerActor(actors)))
+      _system.actorOf(Props(new SwaggerActor(actors, curatorFramework)))
     }
   }
 }

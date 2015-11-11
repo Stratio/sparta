@@ -18,11 +18,10 @@ package com.stratio.sparkta.serving.api.actor
 
 import java.io.{File, InputStreamReader}
 import java.net.{URI, URL}
+import scala.util.Success
 
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
-import com.stratio.sparkta.serving.api.exception.ServingApiException
-import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer, TemplateModel}
 import org.apache.commons.io.IOUtils
 import org.json4s.jackson.Serialization._
 import org.junit.runner.RunWith
@@ -30,7 +29,8 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
-import scala.util.Success
+import com.stratio.sparkta.serving.core.exception.ServingCoreException
+import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer, TemplateModel}
 
 @RunWith(classOf[JUnitRunner])
 class TemplateActorSpec extends TestKit(ActorSystem("TemplateActorSpec"))
@@ -68,7 +68,7 @@ with MockitoSugar with SparktaSerializer {
         |}
       """.stripMargin
 
-    val servingApiException = new ServingApiException(
+    val ServingException = new ServingCoreException(
       ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsTemplatetWithName,
           "No template of type input  with name templateName.json")))
@@ -93,7 +93,6 @@ with MockitoSugar with SparktaSerializer {
       override protected def getResource(resource: String): URL =
         throw new NullPointerException("expected null pointer exception")
     }))
-
   }
 
   override def afterAll: Unit = shutdown()

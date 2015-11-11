@@ -1,0 +1,125 @@
+[
+	{
+  "id": "3581f20a-fd83-4315-be45-192bc5sEdFff",
+  "name": "fake policy",
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": ""
+  },
+  "input": {},
+  "models":[],
+  "cubes": [],
+  "transformations":[],
+  "fragments":[
+    {
+      "description": "Reads events from RabbitMQ",
+      "element": {
+        "configuration": {
+          "queue": "",
+          "host": "localhost",
+          "port": "5672",
+          "exchangeName": "",
+          "routingKeys": [
+            {
+              "routingKey": ""
+            }
+          ]
+        },
+        "type": "RabbitMQ",
+        "name": "in-RabbitMQ"
+      },
+      "fragmentType": "input",
+      "shortDescription": "Reads events from RabbitMQ",
+      "name": "test_input_rabbitmq",
+      "id": "2581f20a-ay83-4315-be45-192bc5sEdFff"
+    }
+  ],
+  "defaultSparkStreamingWindow": 6000,
+  "defaultStorageLevel": "fake defaultStorageLevel",
+  "defaultCheckpointPath": "fake defaultCheckpointPath",
+  "defaultPartitionFormat": "fake defaultPartitionFormat"
+},
+{
+  "id": "4581f20a-fd83-4315-be45-192bc5sEdFff",
+  "name": "fake policy",
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": ""
+  },
+  "input": {},
+  "models":[],
+  "cubes": [],
+  "transformations":[],
+  "fragments":[
+    {
+      "description": "Reads events from RabbitMQ",
+      "element": {
+        "configuration": {
+          "queue": "",
+          "host": "localhost",
+          "port": "5672",
+          "exchangeName": "",
+          "routingKeys": [
+            {
+              "routingKey": ""
+            }
+          ]
+        },
+        "type": "RabbitMQ",
+        "name": "in-RabbitMQ"
+      },
+      "fragmentType": "input",
+      "shortDescription": "Reads events from RabbitMQ",
+      "name": "test_input_rabbitmq",
+      "id": "2581f20a-at83-4315-be45-192bc5sEdFff"
+    }
+  ],
+  "defaultSparkStreamingWindow": 6000,
+  "defaultStorageLevel": "fake defaultStorageLevel",
+  "defaultCheckpointPath": "fake defaultCheckpointPath",
+  "defaultPartitionFormat": "fake defaultPartitionFormat"
+},
+{
+  "id": "5581f20a-fd83-4315-be45-192bc5sEdFff",
+  "name": "fake policy",
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": ""
+  },
+  "input": {},
+  "models":[],
+  "cubes": [],
+  "transformations":[],
+  "fragments":[
+    {
+      "description": "Reads events from RabbitMQ",
+      "element": {
+        "configuration": {
+          "queue": "",
+          "host": "localhost",
+          "port": "5672",
+          "exchangeName": "",
+          "routingKeys": [
+            {
+              "routingKey": ""
+            }
+          ]
+        },
+        "type": "RabbitMQ",
+        "name": "in-RabbitMQ"
+      },
+      "fragmentType": "input",
+      "shortDescription": "Reads events from RabbitMQ",
+      "name": "test_input_rabbitmq",
+      "id": "2581f20a-aq83-4315-be45-192bc5sEdFff"
+    }
+  ],
+  "defaultSparkStreamingWindow": 6000,
+  "defaultStorageLevel": "fake defaultStorageLevel",
+  "defaultCheckpointPath": "fake defaultCheckpointPath",
+  "defaultPartitionFormat": "fake defaultPartitionFormat"
+}
+]

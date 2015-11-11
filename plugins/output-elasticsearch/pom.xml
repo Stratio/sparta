@@ -21,23 +21,18 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>com.stratio.sparkta</groupId>
-        <version>0.6.2-RC4-SNAPSHOT</version>
+        <version>0.7.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>output-elasticsearch</artifactId>
 
     <properties>
-        <elasticsearch.version>1.7.0</elasticsearch.version>
+        <elasticsearch.version>1.7.3</elasticsearch.version>
         <elastic4s.version>1.7.4</elastic4s.version>
-        <elastic.spark.version>2.1.0</elastic.spark.version>
+        <elastic.spark.version>2.1.2</elastic.spark.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
-            <version>${elasticsearch.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch-spark_${scala.binary.version}</artifactId>

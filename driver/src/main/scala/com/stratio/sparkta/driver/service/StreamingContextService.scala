@@ -25,8 +25,9 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.stratio.sparkta.driver.SparktaJob
 import com.stratio.sparkta.driver.factory._
+import com.stratio.sparkta.driver.util.ReflectionUtils
 import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.AppConstant
+import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{AddListener, Update}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
@@ -37,7 +38,6 @@ import org.apache.spark.streaming.StreamingContext
 
 import scala.concurrent.duration._
 import scala.util.{Success, Try}
-import com.stratio.sparkta.driver.util.ReflectionUtils
 
 case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, generalConfig: Option[Config] = None)
   extends SLF4JLogging {
@@ -87,12 +87,10 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
           synchronized {
             log.info("Stopping message received from Zookeeper")
             SparkContextFactory.destroySparkStreamingContext
+            SparkContextFactory.destroySparkContext
             policyStatusActor.get ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopped))
             nodeCache.close()
-            if (exit) {
-              SparkContextFactory.destroySparkContext
-              System.exit(0)
-            }
+            if (exit) System.exit(0)
           }
         }
       })

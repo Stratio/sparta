@@ -39,7 +39,7 @@ class CuratorFactoryHolderIT extends FlatSpec with Matchers with BeforeAndAfter 
 
   before {
     //zkTestServer = new TestingServer(CuratorFactoryHolderIT.TestServerZKPort)
-    zkTestServer = new TestingCluster(3)
+    zkTestServer = new TestingCluster(1)
     zkTestServer.start()
 
     clusterConfig = Some(CuratorFactoryHolderIT.basicConfig.get.withValue("sparkta.zk.connectionString",

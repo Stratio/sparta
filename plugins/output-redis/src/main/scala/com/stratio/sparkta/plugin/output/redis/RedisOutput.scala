@@ -23,13 +23,11 @@ import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
-import org.apache.spark._
-import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.streaming.dstream.DStream
 
 /**
  * Saves calculated cubes on Redis.
- * The hashkey will have this kind of structure -> A_B_C:A:valueA:B:valueB:C:valueC.It is important to see that
+ * The hashKey will have this kind of structure -> A:valueA:B:valueB:C:valueC.It is important to see that
  * values will be part of the key and the objective of it is to perform better searches in the hash.
  * @author anistal
  */
@@ -44,9 +42,8 @@ class RedisOutput(keyName: String,
 
   override val port = properties.getString("port", DefaultRedisPort).toInt
 
-  override val eventTimeFieldName = properties.getString("timestampFieldName", "timestamp")
-
-  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Max, WriteOp.Min)
+  override val supportedWriteOps = Seq(WriteOp.Inc, WriteOp.IncBig, WriteOp.Max, WriteOp.Min, WriteOp.Set,
+    WriteOp.Range, WriteOp.Avg, WriteOp.Median, WriteOp.Variance, WriteOp.Stddev, WriteOp.Mode)
 
   override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     persistMetricOperation(stream)
@@ -57,20 +54,39 @@ class RedisOutput(keyName: String,
    * @param metricOperations that will be saved.
    */
   override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
-    metricOperations.toList.groupBy(upMetricOp =>
-      AggregateOperations.keyString(upMetricOp._1, upMetricOp._1.timeDimension, fixedDimensions))
-      .filter(_._1.size > 0).foreach(collMetricOp => {
-      collMetricOp._2.foreach(metricOp => {
-        val timeDimension = metricOp._1.timeDimension
-        val hashKey = collMetricOp._1 + IdSeparator + metricOp._1.dimensionValues
-          .map(dimVal => List(dimVal.getNameDimension, dimVal.value.toString))
-          .flatMap(_.toSeq).mkString(IdSeparator) + IdSeparator + timeDimension + IdSeparator + metricOp._1.time
+    val dimAggGrouped = filterNonEmptyMetricOperations(groupMetricOperationsByHashKey(metricOperations.toList))
 
-        metricOp._2.foreach(aggregation => {
-          val currentOperation = operationTypes.get.get(aggregation._1).get._1
-          hset(hashKey, aggregation._1, aggregation._2.get)
-        })
-      })
-    })
+    for {
+      (hashKey, dimensionsAggregations) <- dimAggGrouped
+      (dimensionsTime, aggregations) <- dimensionsAggregations
+      (aggregationName, aggregationValue) <- aggregations
+      currentOperation = operationTypes.get.get(aggregationName).get._1
+    } yield {
+      if (supportedWriteOps.contains(currentOperation)) hset(hashKey, aggregationName, aggregationValue.get)
+      else log.warn(s"Operation $currentOperation not supported in the cube with name $aggregationName")
+    }
+  }
+
+  def groupMetricOperationsByHashKey(metricOp: List[(DimensionValuesTime, Map[String, Option[Any]])])
+  : Map[String, List[(DimensionValuesTime, Map[String, Option[Any]])]] = {
+    metricOp.groupBy { case (dimensionsTime, aggregations) => getHashKey(dimensionsTime) }
+  }
+
+  def filterNonEmptyMetricOperations(metricOp : Map[String, List[(DimensionValuesTime, Map[String, Option[Any]])]])
+  : Map[String, List[(DimensionValuesTime, Map[String, Option[Any]])]] = {
+    metricOp.filter { case (key, dimensionsAggreations) => key.nonEmpty }
+  }
+
+  def getHashKey(dimensionsTime: DimensionValuesTime): String = {
+    if (dimensionsTime.dimensionValues.nonEmpty) {
+      val hasValues = dimensionsTime.dimensionValues.exists(dimValue => dimValue.value.toString.nonEmpty)
+      if (hasValues) {
+        dimensionsTime.dimensionValues.map(dimVal =>
+          List(dimVal.getNameDimension, dimVal.value.toString)).flatMap(_.toSeq).mkString(IdSeparator) +
+          IdSeparator + dimensionsTime.timeDimension + IdSeparator + dimensionsTime.time
+      } else ""
+    } else {
+      dimensionsTime.timeDimension + IdSeparator + dimensionsTime.time
+    }
   }
 }

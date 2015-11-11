@@ -202,8 +202,9 @@
       "name": "out-elasticsearch",
       "type": "ElasticSearch",
       "configuration": {
-        "nodes": [{"node":"localhost","defaultPort":"9200"}],
+        "nodes": [{"node":"localhost","tcpPort":"9300","httpPort":"9200"}],
         "isAutoCalculateId": "false",
+        "clusterName": "sparkta-elasticsearch",
         "indexMapping": "day"
       }
     }

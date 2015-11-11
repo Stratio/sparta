@@ -16,23 +16,46 @@
 
 package com.stratio.sparkta.serving.api.actor
 
-import akka.actor.{ActorContext, ActorRef}
-import akka.event.slf4j.SLF4JLogging
-import com.gettyimages.spray.swagger.SwaggerHttpService
-import com.stratio.sparkta.serving.api.constants.HttpConstant
-import com.stratio.sparkta.serving.api.service.handler.CustomExceptionHandler._
-import com.stratio.sparkta.serving.api.service.http._
-import com.stratio.sparkta.serving.core.models.SparktaSerializer
-import com.wordnik.swagger.model.ApiInfo
-import spray.routing._
+import org.apache.curator.framework.CuratorFramework
 
 import scala.reflect.runtime.universe._
 
-class SwaggerActor(actorsMap: Map[String, ActorRef]) extends HttpServiceActor with SLF4JLogging with SparktaSerializer {
+import akka.actor.{ActorContext, ActorRef}
+import akka.event.slf4j.SLF4JLogging
+import com.gettyimages.spray.swagger.SwaggerHttpService
+import com.stratio.sparkta.serving.core.exception.ServingCoreException
+import com.wordnik.swagger.model.ApiInfo
+import org.json4s.jackson.Serialization.write
+import spray.http.StatusCodes
+import spray.routing._
+import spray.util.LoggingContext
+
+import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.api.service.http._
+import com.stratio.sparkta.serving.core.models.{ErrorModel, SparktaSerializer}
+
+class SwaggerActor(actorsMap: Map[String, ActorRef], curatorFramework : CuratorFramework)
+  extends HttpServiceActor with SLF4JLogging with SparktaSerializer {
 
   override implicit def actorRefFactory: ActorContext = context
 
-  val serviceRoutes = new ServiceRoutes(actorsMap, context)
+  implicit def exceptionHandler(implicit logg: LoggingContext): ExceptionHandler =
+    ExceptionHandler {
+      case exception: ServingCoreException =>
+        requestUri { uri =>
+          log.error(exception.getLocalizedMessage)
+          complete(StatusCodes.NotFound, write(ErrorModel.toErrorModel(exception.getLocalizedMessage)))
+        }
+      case exception: Throwable =>
+        requestUri { uri =>
+          log.error(exception.getLocalizedMessage, exception)
+          complete(StatusCodes.InternalServerError, write(
+            new ErrorModel(ErrorModel.CodeUnknow, exception.getLocalizedMessage)
+          ))
+        }
+    }
+
+  val serviceRoutes = new ServiceRoutes(actorsMap, context, curatorFramework)
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 

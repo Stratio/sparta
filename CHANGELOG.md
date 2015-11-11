@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.0 (Upcoming)
+
+## 0.6.3 (October 2015)
+
+- Bugfix: DateTime field and parser
+- Bugfix: Mesos execution
+
 ## 0.6.2 (September 2015)
 
 - Bugfix: DateTime now parses string formats

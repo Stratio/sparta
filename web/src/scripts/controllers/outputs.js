@@ -5,9 +5,9 @@
       .module('webApp')
       .controller('OutputsCtrl', OutputsCtrl);
 
-    OutputsCtrl.$inject = ['FragmentFactory', '$filter', '$modal'];
+    OutputsCtrl.$inject = ['FragmentFactory', '$filter', '$modal', 'UtilsService'];
 
-    function OutputsCtrl(FragmentFactory, $filter, $modal) {
+    function OutputsCtrl(FragmentFactory, $filter, $modal, UtilsService) {
       /*jshint validthis: true*/
       var vm = this;
 
@@ -71,7 +71,7 @@
       };
 
       function createOutput() {
-        var outputsList = getFragmentsNames(vm.outputsData);
+        var outputsList = UtilsService.getNamesJSONArray(vm.outputsData);
 
         var createOutputData = {
           'fragmentType': 'output',
@@ -88,7 +88,7 @@
 
       function editOutput(outputType, outputName, outputId, index) {
         var outputSelected = $filter('filter')(angular.copy(vm.outputsData), {'id':outputId}, true)[0];
-        var outputsList = getFragmentsNames(vm.outputsData);
+        var outputsList = UtilsService.getNamesJSONArray(vm.outputsData);
 
         var editOutputData = {
             'originalName': outputName,
@@ -101,7 +101,7 @@
                 'button': '_OUTPUT_WINDOW_MODIFY_BUTTON_',
                 'button_icon': 'icon-circle-check',
                 'secondaryText2': '_OUTPUT_WINDOW_EDIT_MESSAGE2_',
-                'policyRunningMain': '_OUTPUT_CANNOT_BE_DELETED_',
+                'policyRunningMain': '_OUTPUT_CANNOT_BE_MODIFIED_',
                 'policyRunningSecondary': '_OUTTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
                 'policyRunningSecondary2': '_OUTTPUT_WINDOW_POLICY_RUNNING_MESSAGE2_'
             }
@@ -133,10 +133,10 @@
       function duplicateOutput(outputId) {
         var outputSelected = $filter('filter')(angular.copy(vm.outputsData), {'id':outputId}, true)[0];
 
-        var newName = autoIncrementName(outputSelected.name);
+        var newName = UtilsService.autoIncrementName(outputSelected.name);
         outputSelected.name = newName;
 
-        var outputsList = getFragmentsNames(vm.outputsData);
+        var outputsList = UtilsService.getNamesJSONArray(vm.outputsData);
 
         var duplicateOutputData = {
           'fragmentData': outputSelected,

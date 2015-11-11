@@ -27,7 +27,7 @@ import org.elasticsearch.node.NodeBuilder.nodeBuilder
 object ElasticsearchEmbeddedServer {
 
   val DefaultDataDirectory = "target/elasticsearch-data"
-  val ClusterName = "sparktaAT-" + System.currentTimeMillis()
+  val ClusterName = "sparkta-elasticsearch"
   var node: Node = _
 
 
