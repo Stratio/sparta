@@ -16,17 +16,15 @@
 
 package com.stratio.sparkta.serving.core.helpers
 
-import scala.collection.immutable.Iterable
-import scala.concurrent.Await
-import scala.util.{Failure, Success}
-
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
-
 import com.stratio.sparkta.serving.core.actor.FragmentActor.{FindByTypeAndId, ResponseFragment}
 import com.stratio.sparkta.serving.core.models.FragmentType._
 import com.stratio.sparkta.serving.core.models._
+
+import scala.concurrent.Await
+import scala.util.{Failure, Success}
 
 /**
  * Helper with operations over policies and policy fragments.
@@ -40,7 +38,7 @@ object PolicyHelper {
    */
   def parseFragments(apConfig: AggregationPoliciesModel): AggregationPoliciesModel = {
 
-    val fragmentInputs= getFragmentFromType(apConfig.fragments, FragmentType.input)
+    val fragmentInputs = getFragmentFromType(apConfig.fragments, FragmentType.input)
     val fragmentOutputs = getFragmentFromType(apConfig.fragments, FragmentType.output)
 
     apConfig.copy(
@@ -71,10 +69,10 @@ object PolicyHelper {
 
   //////////////////////////////////////////// PRIVATE METHODS /////////////////////////////////////////////////////////
 
-  private def getFragmentFromType(fragments : Seq[FragmentElementModel], fragmentType : `type`)
+  private def getFragmentFromType(fragments: Seq[FragmentElementModel], fragmentType: `type`)
   : Seq[PolicyElementModel] = {
     fragments.flatMap(fragment =>
-      if(FragmentType.withName(fragment.fragmentType) == fragmentType) Some(fragment.element) else None)
+      if (FragmentType.withName(fragment.fragmentType) == fragmentType) Some(fragment.element) else None)
   }
 
   /**
@@ -96,7 +94,7 @@ object PolicyHelper {
       throw new IllegalStateException("Only one input is allowed in the policy.")
     }
 
-    if(fragmentsInputs.isEmpty) inputs.get else fragmentsInputs.head
+    if (fragmentsInputs.isEmpty) inputs.get else fragmentsInputs.head
   }
 
   private def getCurrentOutputs(fragmentsOutputs: Seq[PolicyElementModel],
@@ -106,12 +104,12 @@ object PolicyHelper {
       throw new IllegalStateException("It is mandatory to define at least one output in the policy.")
     }
 
-    val outputsTypesNames = fragmentsOutputs.map(element => (element.`type`, element.name)).toSeq
+    val outputsTypesNames = fragmentsOutputs.map(element => (element.`type`, element.name))
 
     val outputsNotIncluded = for {
       output <- outputs
       ouputTypeName = (output.`type`, output.name)
-    } yield if(outputsTypesNames.contains(ouputTypeName)) None else Some(output)
+    } yield if (outputsTypesNames.contains(ouputTypeName)) None else Some(output)
 
     fragmentsOutputs ++ outputsNotIncluded.flatten
   }
