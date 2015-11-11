@@ -18,5 +18,5 @@
   "fragmentType": "input",
   "shortDescription": "Reads events from RabbitMQ",
   "name": "test_input_rabbitmq",
-  "id": "2581f20a-fd83-4315-be45-192bc5sEdFff"
+  "id": "2581f20a-fd83-4315-be45-192bc5sEd0ff"
 }

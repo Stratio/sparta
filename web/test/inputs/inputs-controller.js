@@ -46,7 +46,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
 
     resolvedEditInput = function () {
       var defer = $q.defer();
-      defer.resolve({"index": 1, "data": fakeInput});
+      defer.resolve({"originalFragment":ctrl.inputsData[1], "editedFragment":fakeInput});
 
       return {"result": defer.promise};
     };
@@ -188,15 +188,12 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
   });
 
   describe('Edit an input', function () {
-    var fakeIndex, fakeInputName, fakeInputId, fakeInputSelected = null;
+    var fakeOriginalInput = null;
 
     beforeEach(function () {
       modalMock.open.and.callFake(resolvedEditInput);
       ctrl.inputsData = angular.copy(fakeInputList);
-      fakeIndex = 1;
-      fakeInputName = ctrl.inputsData[fakeIndex].name;
-      fakeInputId = ctrl.inputsData[fakeIndex].id;
-      fakeInputSelected = ctrl.inputsData[fakeIndex];
+      fakeOriginalInput = ctrl.inputsData[1];
     });
 
     it('Shuold call editInput function and show an edit input modal', function () {
@@ -204,10 +201,9 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
       utilsServiceMock.getNamesJSONArray.and.returnValue(fakeListOfNames);
 
       var fakeEditInputData = {
-        'originalName': fakeInputName,
+        'originalName': fakeOriginalInput.name,
         'fragmentType': 'input',
-        'index': fakeIndex,
-        'fragmentSelected': fakeInputSelected,
+        'fragmentSelected': fakeOriginalInput,
         'fragmentNamesList': fakeListOfNames,
         'texts': {
           'title': '_INPUT_WINDOW_MODIFY_TITLE_',
@@ -220,7 +216,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
         }
       };
 
-      ctrl.editInput(fakeInputName, fakeInputId, fakeIndex);
+      ctrl.editInput(fakeOriginalInput);
 
       var params = modalMock.open.calls.mostRecent().args[0];
       expect(params.resolve.item()).toEqual(fakeEditInputData);
@@ -232,15 +228,16 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
       expect(policyFactoryMock.getPolicyByFragmentId).toHaveBeenCalledWith(fakeEditInputData.fragmentSelected.fragmentType, fakeEditInputData.fragmentSelected.id);
     });
 
-    it('Should return OK when closing the edit modal', function () {
-      ctrl.editInput(fakeInputName, fakeInputId, fakeIndex);
+    it('Should return OK when closing the edit modal and upload the inputs type dropdown', function () {
+      ctrl.editInput(fakeOriginalInput).then(function(){
+        expect(ctrl.inputTypes).toEqual([
+          {"type": "Socket", "count": 2},
+          {"type": "RabbitMQ", "count": 1},
+          {"type": "Kafka", "count": 2},
+          {"type": "Flume", "count": 1}
+        ]);
+      });
       scope.$digest();
-
-      expect(ctrl.inputsData[fakeIndex]).toEqual(fakeInput);
-      expect(ctrl.inputTypes).toEqual([{"type": "Socket", "count": 2}, {
-        "type": "RabbitMQ",
-        "count": 1
-      }, {"type": "Kafka", "count": 2}, {"type": "Flume", "count": 1}]);
     });
   });
 

@@ -195,7 +195,9 @@
         "propertyName": "_DELIMITER_",
         "propertyType": "text",
         "regexp": "",
+        "maxlength": "1",
         "default": ",",
+        "trim": false,
         "required": false,
         "qa": "fragment-details-csv-delimiter"
       }
