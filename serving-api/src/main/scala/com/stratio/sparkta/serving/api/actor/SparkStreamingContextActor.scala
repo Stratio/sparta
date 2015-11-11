@@ -172,6 +172,7 @@ with SparktaSerializer {
         val detailConfig = SparktaConfig.getDetailConfig
 
         if (zookeeperConfig.isDefined && hdfsConfig.isDefined) {
+          log.info(s"launched -> $SparkStreamingContextActorPrefix-${actorName}")
           Some(context.actorOf(Props(new ClusterSparkStreamingContextActor(
             policy, streamingContextService, clusterConfig, hdfsConfig.get, zookeeperConfig.get, detailConfig,
             policyStatusActor)),

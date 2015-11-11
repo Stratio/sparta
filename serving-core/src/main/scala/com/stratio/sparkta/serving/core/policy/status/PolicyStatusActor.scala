@@ -16,8 +16,11 @@
 
 package com.stratio.sparkta.serving.core.policy.status
 
-import akka.actor.Actor
+import java.util.concurrent.TimeUnit
+
+import akka.actor.{ActorRef, Actor}
 import akka.event.slf4j.SLF4JLogging
+import akka.util.Timeout
 import com.stratio.sparkta.serving.core.CuratorFactoryHolder
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.models.{PolicyStatusModel, SparktaSerializer}
@@ -27,6 +30,7 @@ import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
 import org.json4s.jackson.Serialization.{read, write}
 
 import scala.collection.JavaConversions
+import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 class PolicyStatusActor(curatorFramework: CuratorFramework)
@@ -36,7 +40,23 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
     case Create(policyStatus) => sender ! create(policyStatus)
     case Update(policyStatus) => sender ! update(policyStatus)
     case FindAll => findAll
+    case Kill(name) => kill(name)
     case AddListener(name, callback) => addListener(name, callback)
+  }
+
+
+
+  def kill(policyName: String): Unit = {
+    val SparkStreamingContextActorPrefix: String = "sparkStreamingContextActor"
+    implicit  val timeout:Timeout=Timeout(2L,TimeUnit.SECONDS)
+    val pActor: Option[Try[ActorRef]] = context.
+      actorSelection(s"$SparkStreamingContextActorPrefix-${policyName.replace(" ", "_")}")
+      .resolveOne().value
+    pActor match {
+      case Some(Success(actor)) => context.stop(actor)
+      case Some(Failure(e)) => log.warn(s"there isn't $policyName actor to kill")
+      case None => log.warn(s"there isn't $policyName actor to kill")
+    }
   }
 
   def update(policyStatus: PolicyStatusModel): Option[PolicyStatusModel] = {
@@ -117,7 +137,7 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
 }
 
 object PolicyStatusActor {
-
+  case class Kill(name:String)
   case class Update(policyStatus: PolicyStatusModel)
 
   case class Create(policyStatus: PolicyStatusModel)
