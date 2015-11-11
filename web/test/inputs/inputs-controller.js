@@ -214,7 +214,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
           'button': '_INPUT_WINDOW_MODIFY_BUTTON_',
           'button_icon': 'icon-circle-check',
           'secondaryText2': '_INPUT_WINDOW_EDIT_MESSAGE2_',
-          'policyRunningMain': '_INPUT_CANNOT_BE_DELETED_',
+          'policyRunningMain': '_INPUT_CANNOT_BE_MODIFIED_',
           'policyRunningSecondary': '_INTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
           'policyRunningSecondary2': '_INTPUT_WINDOW_POLICY_RUNNING_MESSAGE2_'
         }
