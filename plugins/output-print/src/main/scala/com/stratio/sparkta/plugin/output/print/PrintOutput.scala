@@ -34,14 +34,16 @@ import com.stratio.sparkta.sdk._
  * @param bcSchema
  */
 class PrintOutput(keyName: String,
+                  version: Option[Int],
                   properties: Map[String, JSerializable],
                   operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
                   bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, properties, operationTypes, bcSchema) with Logging {
+  extends Output(keyName, version, properties, operationTypes, bcSchema) with Logging {
 
   override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
     if (log.isDebugEnabled) {
       log.debug(s"> Table name       : $tableName")
+      log.debug(s"> Version policy   : $version")
       log.debug(s"> Data frame count : " + dataFrame.count())
       log.debug(s"> DataFrame schema")
       dataFrame.printSchema()

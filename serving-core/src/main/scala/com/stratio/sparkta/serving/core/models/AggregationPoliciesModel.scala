@@ -28,6 +28,7 @@ import org.json4s.jackson.JsonMethods._
 import scala.collection.JavaConversions._
 
 case class AggregationPoliciesModel(id: Option[String] = None,
+                                    version: Option[Int] = None,
                                     storageLevel: Option[String] = AggregationPoliciesModel.storageDefaultValue,
                                     name: String,
                                     description: String = "default description",

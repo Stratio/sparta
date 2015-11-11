@@ -33,20 +33,6 @@ class CassandraOutputSpec extends FlatSpec with Matchers with MockitoSugar with 
   val s = "sum"
   val operation = Some(Map(s ->(WriteOp.Inc, TypeOp.Int)))
   val properties = Map(("connectionHost", "127.0.0.1"), ("connectionPort", "9042"))
-  "getTableName" should "return the name of the table" in {
-
-    val table = new CassandraOutput("key", properties, operation, None).getTableName("table_name")
-
-    table should be("table_name")
-  }
-
-  "getTableName" should "return the first 48 chars of the name of the table" in {
-
-    val table = new CassandraOutput("key", properties, operation, None).
-      getTableName("table_name_is_so_loooooooooooooooooooooooooooooooooooooooooooooong")
-
-    table should be("table_name_is_so_loooooooooooooooooooooooooooooo")
-  }
 
   "getSparkConfiguration" should "return a Seq with the configuration" in {
     val configuration = Map(("connectionHost", "127.0.0.1"), ("connectionPort", "9042"))
@@ -60,7 +46,7 @@ class CassandraOutputSpec extends FlatSpec with Matchers with MockitoSugar with 
     val tableSchema = Seq(TableSchema("outputName", "dim1", StructType(Array(
       StructField("dim1", StringType, false))), "minute"))
 
-    val out =  spy(new CassandraOutput("key", properties, operation, Option(tableSchema)))
+    val out =  spy(new CassandraOutput("key", None, properties, operation, Option(tableSchema)))
     val df: DataFrame = mock[DataFrame]
 
     doNothing().when(out).write(df,"tablename")
@@ -74,7 +60,7 @@ class CassandraOutputSpec extends FlatSpec with Matchers with MockitoSugar with 
 
     val cassandraConnector: CassandraConnector = mock[CassandraConnector]
 
-    val out =  new CassandraOutput("key", properties, operation, Option(tableSchema)) {
+    val out =  new CassandraOutput("key", Some(1), properties, operation, Option(tableSchema)) {
       override val textIndexFields = Option(Array("test"))
       override def getCassandraConnector(): CassandraConnector = {
         cassandraConnector

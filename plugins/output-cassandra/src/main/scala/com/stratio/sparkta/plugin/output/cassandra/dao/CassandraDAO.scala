@@ -54,6 +54,16 @@ trait CassandraDAO extends Closeable with Logging {
 
   def refreshSeconds: String
 
+  def tableVersion: Option[Int]
+
+  def getTableName(table : String) : String = {
+    val tableNameCut = if(table.size > MaxTableNameLength - 3) table.substring(0,MaxTableNameLength - 3) else table
+    tableVersion match {
+      case Some(v) => s"$tableNameCut${Output.Separator}v$v"
+      case None => tableNameCut
+    }
+  }
+
   def createKeypace(connector: CassandraConnector): Boolean = doCreateKeyspace(connector)
 
   def createTables(connector: CassandraConnector,
@@ -90,7 +100,7 @@ trait CassandraDAO extends Closeable with Logging {
                             schema: StructType,
                             clusteringTime: String,
                             isAutoCalculateId: Boolean): Boolean = {
-    val tableName = if(table.size > MaxTableNameLength) table.substring(0,MaxTableNameLength) else table
+    val tableName = getTableName(table)
     val schemaPkCloumns: Option[String] = schemaToPkCcolumns(schema, clusteringTime, isAutoCalculateId)
     val compactSt = compactStorage match {
       case None => ""
@@ -113,7 +123,7 @@ trait CassandraDAO extends Closeable with Logging {
           indexField <- fields
           primaryKey = getPartitionKey(tableSchema.schema, tableSchema.timeDimension, isAutoCalculateId)
           created = if (!primaryKey.contains(indexField)) {
-            createIndex(conn, tableSchema.tableName, indexField)
+            createIndex(conn, getTableName(tableSchema.tableName), indexField)
           } else {
             log.info(s"The indexed field: $indexField is part of primary key.")
             false
@@ -142,10 +152,11 @@ trait CassandraDAO extends Closeable with Logging {
       case Some(textFields) => {
         val seqResults = for {
           tableSchema <- tSchemas
+          tableName = getTableName(tableSchema.tableName)
           fields = textFields.filter(textField => tableSchema.schema.fieldNames.contains(textField.split(":").head))
-          indexName = s"$IndexPrefix${tableSchema.tableName}"
+          indexName = s"$IndexPrefix$tableName"
           command = s"CREATE CUSTOM INDEX IF NOT EXISTS $indexName " +
-            s"ON $keyspace.${tableSchema.tableName} ($textIndexName) USING 'com.stratio.cassandra.index.RowIndex' " +
+            s"ON $keyspace.$tableName ($textIndexName) USING 'com.stratio.cassandra.index.RowIndex' " +
             s"WITH OPTIONS = { 'refresh_seconds' : '$refreshSeconds', ${getTextIndexSentence(fields)} }"
           created = executeCommand(conn, command)
         } yield created

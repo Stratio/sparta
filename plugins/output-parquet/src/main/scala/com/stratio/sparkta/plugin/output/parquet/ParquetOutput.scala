@@ -36,10 +36,11 @@ import com.stratio.sparkta.sdk._
  * @param bcSchema
  */
 class ParquetOutput(keyName: String,
+                    version: Option[Int],
                     properties: Map[String, JSerializable],
                     operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
                     bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, properties, operationTypes, bcSchema) with Logging {
+  extends Output(keyName, version, properties, operationTypes, bcSchema) with Logging {
 
   override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
     val path = properties.getString("path", None)

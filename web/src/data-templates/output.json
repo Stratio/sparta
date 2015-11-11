@@ -30,16 +30,6 @@
         "qa": "fragment-details-cassandra-connectionPort"
       },
       {
-        "propertyId": "cluster",
-        "propertyName": "_CLUSTER_",
-        "propertyType": "text",
-        "regexp": "",
-        "default": "Sparkta",
-        "required": true,
-        "tooltip": "Cluster name.",
-        "qa": "fragment-details-cassandra-cluster"
-      },
-      {
         "propertyId": "keyspace",
         "propertyName": "_KEYSPACE_",
         "propertyType": "text",
@@ -48,6 +38,16 @@
         "required": true,
         "tooltip": "Keyspace name.",
         "qa": "fragment-details-cassandra-keyspace"
+      },
+      {
+        "propertyId": "cluster",
+        "propertyName": "_CLUSTER_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "Sparkta",
+        "required": true,
+        "tooltip": "Cluster name.",
+        "qa": "fragment-details-cassandra-cluster"
       },
       {
         "propertyId": "keyspaceClass",

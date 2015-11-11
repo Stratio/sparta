@@ -82,6 +82,7 @@ with SparktaSerializer {
     val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
     val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
     val policy = AggregationPoliciesModel(id = Option("id"),
+      version = None,
       storageLevel = AggregationPoliciesModel.storageDefaultValue,
       name = "testpolicy",
       description = "whatever",

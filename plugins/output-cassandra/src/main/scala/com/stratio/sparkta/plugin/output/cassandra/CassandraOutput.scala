@@ -31,10 +31,11 @@ import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.sql.DataFrameWriter
 
 class CassandraOutput(keyName: String,
+                      version: Option[Int],
                       properties: Map[String, JSerializable],
                       operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
                       bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, properties, operationTypes, bcSchema)
+  extends Output(keyName, version, properties, operationTypes, bcSchema)
   with CassandraDAO {
 
   override val keyspace = properties.getString("keyspace", "sparkta")
@@ -63,14 +64,15 @@ class CassandraOutput(keyName: String,
     WriteOp.Set, WriteOp.Range, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.Median,
     WriteOp.Variance, WriteOp.Stddev, WriteOp.WordCount, WriteOp.EntityCount)
 
-  override def setup: Unit = {
+  override val tableVersion = version
 
+  override def setup: Unit = {
 
     val connector = getCassandraConnector()
 
     val keyspaceCreated = createKeypace(connector)
 
-    val schemaFiltered = bcSchema.get.filter(tschema => (tschema.outputName == keyName))
+    val schemaFiltered = bcSchema.get.filter(tschema => tschema.outputName == keyName)
       .map(tschemaFiltered => getTableSchemaFixedId(tschemaFiltered))
 
     val tablesCreated = if (keyspaceCreated) {
@@ -78,12 +80,12 @@ class CassandraOutput(keyName: String,
     } else false
 
     if (keyspaceCreated && tablesCreated) {
-      if (indexFields.isDefined && !indexFields.get.isEmpty) {
+      if (indexFields.isDefined && indexFields.get.nonEmpty) {
         bcSchema.exists(bc => createIndexes(connector, schemaFiltered, isAutoCalculateId))
       }
       if (textIndexFields.isDefined &&
-        !textIndexFields.isEmpty &&
-        !fixedAggregation.isEmpty &&
+        textIndexFields.nonEmpty &&
+        fixedAggregation.nonEmpty &&
         fixedAgg.get == textIndexName) {
         bcSchema.exists(bc => createTextIndexes(connector, schemaFiltered))
       }
@@ -95,19 +97,15 @@ class CassandraOutput(keyName: String,
   }
 
   override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
-    val tableNameFinal = getTableName(tableName.toLowerCase)
-    write(dataFrame,tableNameFinal)
+    val tableNameVersioned = getTableName(tableName.toLowerCase)
+    write(dataFrame,tableNameVersioned)
   }
 
-  def write(dataFrame: DataFrame, tableNameFinal: String): Unit = {
+  def write(dataFrame: DataFrame, tableNameVersioned: String): Unit = {
     dataFrame.write
       .format("org.apache.spark.sql.cassandra")
       .mode(Append)
-      .options(Map("table" -> tableNameFinal, "keyspace" -> keyspace)).save()
-  }
-
-  def getTableName(table : String) : String = {
-    if(table.size > MaxTableNameLength) table.substring(0,MaxTableNameLength) else table
+      .options(Map("table" -> tableNameVersioned, "keyspace" -> keyspace)).save()
   }
 
   def getCassandraConnector(): CassandraConnector = {
