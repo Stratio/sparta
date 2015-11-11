@@ -1,5 +1,5 @@
 <div>
-    <form-field-input ng-attr-id="{{ngFormId}}" ng-if="(field.propertyType == 'text' || field.propertyType == 'password' || field.propertyType == 'number') && isVisible()" data-form="form" data-st-name="{{name}}" data-model="model[field.propertyId]" data-label="{{modify.propertyName || field.propertyName | translate}}" data-type="{{field.propertyType}}" data-help="{{modify.tooltip || field.tooltip}}" data-pattern="field.regexp" data-required="field.required" data-qa="{{qa}}"></form-field-input>
+    <form-field-input ng-attr-id="{{ngFormId}}" ng-if="(field.propertyType == 'text' || field.propertyType == 'password' || field.propertyType == 'number') && isVisible()" data-form="form" data-st-name="{{name}}" data-model="model[field.propertyId]" data-label="{{modify.propertyName || field.propertyName | translate}}" data-type="{{field.propertyType}}" data-help="{{modify.tooltip || field.tooltip}}" data-pattern="field.regexp" data-required="field.required" data-qa="{{qa}}" data-maxlength="field.maxlength" data-st-trim="field.trim"></form-field-input>
 <!--
     <form-field-input id="dataSourceName" data-model="vm.dataSource.name" data-label="{{'_INPUT_WINDOW_FORM_NAME_' | translate}}:" data-form="vm.form" data-st-name="dataSourceNameForm" data-required="true" data-autofocus="true"></form-field-input>
 -->
