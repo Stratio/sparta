@@ -16,16 +16,33 @@
 
 package com.stratio.sparkta.sdk
 
-import java.sql.{Timestamp, Date}
+import java.sql.Timestamp
+import java.util.Date
 import scala.util.Try
 
-import org.joda.time.DateTime
+import com.github.nscala_time.time.Imports._
 
 object TypeOp extends Enumeration {
 
   type TypeOp = Value
   val Number, BigDecimal, Long, Int, String, Double, Boolean, Binary, Date, DateTime, Timestamp, ArrayDouble,
   ArrayString, MapStringLong = Value
+
+  final val TypeOperationsNames = Map(
+    "bigdecimal" -> TypeOp.BigDecimal,
+    "long" -> TypeOp.Long,
+    "int" -> TypeOp.Int,
+    "string" -> TypeOp.String,
+    "double" -> TypeOp.Double,
+    "boolean" -> TypeOp.Boolean,
+    "binary" -> TypeOp.Binary,
+    "date" -> TypeOp.Date,
+    "datetime" -> TypeOp.DateTime,
+    "timestamp" -> TypeOp.Timestamp,
+    "arraydouble" -> TypeOp.ArrayDouble,
+    "arraystring" -> TypeOp.ArrayString,
+    "mapstringlong" -> TypeOp.MapStringLong
+  )
 
   def transformValueByTypeOp[T](typeOp: TypeOp, origValue: T): T = {
     typeOp match {
@@ -69,17 +86,31 @@ object TypeOp extends Enumeration {
 
   private def checkTimestampType[T](origValue : T) : T = origValue match {
     case value if value.isInstanceOf[Timestamp] => value
+    case value if value.isInstanceOf[Date] =>
+      Try(DateOperations.millisToTimeStamp(value.asInstanceOf[Date].getTime))
+        .getOrElse(DateOperations.millisToTimeStamp(0L)).asInstanceOf[T]
+    case value if value.isInstanceOf[DateTime] =>
+      Try(DateOperations.millisToTimeStamp(value.asInstanceOf[DateTime].getMillis))
+        .getOrElse(DateOperations.millisToTimeStamp(0L)).asInstanceOf[T]
     case _ => Try(DateOperations.millisToTimeStamp(origValue.toString.toLong))
       .getOrElse(DateOperations.millisToTimeStamp(0L)).asInstanceOf[T]
   }
 
   private def checkDateType[T](origValue : T) : T = origValue match {
     case value if value.isInstanceOf[Date] => value
+    case value if value.isInstanceOf[Timestamp] =>
+      Try(new Date(value.asInstanceOf[Timestamp].getTime)).getOrElse(new Date(0L)).asInstanceOf[T]
+    case value if value.isInstanceOf[DateTime] =>
+      Try(new Date(value.asInstanceOf[DateTime].getMillis)).getOrElse(new Date(0L)).asInstanceOf[T]
     case _ => Try(new Date(origValue.toString.toLong)).getOrElse(new Date(0L)).asInstanceOf[T]
   }
 
   private def checkDateTimeType[T](origValue : T) : T = origValue match {
     case value if value.isInstanceOf[DateTime] => value
+    case value if value.isInstanceOf[Timestamp] =>
+      Try(new DateTime(value.asInstanceOf[Timestamp].getTime)).getOrElse(new Date(0L)).asInstanceOf[T]
+    case value if value.isInstanceOf[Date] =>
+      Try(new DateTime(value.asInstanceOf[Date].getTime)).getOrElse(new Date(0L)).asInstanceOf[T]
     case _ => Try(new DateTime(origValue.toString)).getOrElse(new DateTime(0L)).asInstanceOf[T]
   }
 
@@ -88,24 +119,7 @@ object TypeOp extends Enumeration {
     case _ => Try(origValue.toString.toLong).getOrElse(0L).asInstanceOf[T]
   }
 
-  //scalastyle:off
   def getTypeOperationByName(nameOperation: String, defaultTypeOperation: TypeOp): TypeOp =
-    nameOperation.toLowerCase match {
-      case name if name == "bigdecimal" => TypeOp.BigDecimal
-      case name if name == "long" => TypeOp.Long
-      case name if name == "int" => TypeOp.Int
-      case name if name == "string" => TypeOp.String
-      case name if name == "double" => TypeOp.Double
-      case name if name == "boolean" => TypeOp.Boolean
-      case name if name == "binary" => TypeOp.Binary
-      case name if name == "date" => TypeOp.Date
-      case name if name == "datetime" => TypeOp.DateTime
-      case name if name == "timestamp" => TypeOp.Timestamp
-      case name if name == "arraydouble" => TypeOp.ArrayDouble
-      case name if name == "arraystring" => TypeOp.ArrayString
-      case name if name == "mapstringlong" => TypeOp.MapStringLong
-      case _ => defaultTypeOperation
-    }
+    TypeOperationsNames.getOrElse(nameOperation.toLowerCase, defaultTypeOperation)
 
-  //scalastyle:on
 }
