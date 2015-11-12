@@ -32,6 +32,7 @@ class JarsHelpersSpec extends FlatSpec with Matchers with MockitoSugar {
 
 
   val file =  mock[File]
+  when(file.exists).thenReturn(true)
   when(file.listFiles()).thenReturn(Array(
     new File("first.jar"),
     new File("second.jar"),
