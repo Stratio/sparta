@@ -1,18 +1,18 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+  * Copyright (C) 2015 Stratio (http://stratio.com)
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
 
 package com.stratio.sparkta.serving.api.actor
 
@@ -21,6 +21,7 @@ import java.util.UUID
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
+import com.stratio.sparkta.serving.api.constants.ActorsConstant
 import com.stratio.sparkta.serving.core.CuratorFactoryHolder
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.exception.ServingCoreException
@@ -34,14 +35,12 @@ import scala.collection.JavaConversions
 import scala.util.{Failure, Success, Try}
 
 /**
- * Implementation of supported CRUD operations over ZK needed to manage policies.
- */
+  * Implementation of supported CRUD operations over ZK needed to manage policies.
+  */
 class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRef)
   extends Actor
   with SLF4JLogging
   with SparktaSerializer {
-
-  final val UnitVersion = 1
 
   override def receive: Receive = {
     case Create(policy) => create(policy)
@@ -113,7 +112,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
       }
       val policyS = policy.copy(id = Some(s"${UUID.randomUUID.toString}"),
         name = policy.name.toLowerCase,
-        version = Some(UnitVersion))
+        version = Some(ActorsConstant.UnitVersion))
       curatorFramework.create().creatingParentsIfNeeded().forPath(
         s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
 
@@ -171,14 +170,13 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
     }
   }
 
-  def setVersion(lastPolicy: AggregationPoliciesModel, newPolicy: AggregationPoliciesModel) : Option[Int] = {
-    if(lastPolicy.cubes != newPolicy.cubes){
+  def setVersion(lastPolicy: AggregationPoliciesModel, newPolicy: AggregationPoliciesModel): Option[Int] = {
+    if (lastPolicy.cubes != newPolicy.cubes) {
       lastPolicy.version match {
-        case Some(version) => Some(version + UnitVersion)
-        case None => Some(UnitVersion)
+        case Some(version) => Some(version + ActorsConstant.UnitVersion)
+        case None => Some(ActorsConstant.UnitVersion)
       }
     } else lastPolicy.version
-
   }
 }
 
