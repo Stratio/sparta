@@ -313,7 +313,8 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
         Await.result(future, timeout.duration) match {
           case ResponsePolicy(Failure(exception)) => throw exception
           case ResponsePolicy(Success(policy)) => {
-            val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(getPolicyWithFragments(policy))
+            val policyFragments = getPolicyWithFragments(policy)
+            val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(policyFragments)
             validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
               val tempFile = File.createTempFile(s"${policy.id.get}-${policy.name}-", ".json")
               tempFile.deleteOnExit()
