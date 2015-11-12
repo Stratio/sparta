@@ -107,12 +107,12 @@
         editOutputModal(editOutputData);
       };
 
-      function deleteOutput(fragmentType, fragmentId, index) {
+      function deleteOutput(fragmentType, fragmentId, elementType) {
                var outputToDelete =
         {
           'type':fragmentType,
           'id': fragmentId,
-          'index': index,
+            'elementType': elementType,
           'texts': {
             'title': '_OUTPUT_WINDOW_DELETE_TITLE_',
             'mainText': '_OUTPUT_CANNOT_BE_DELETED_',
@@ -164,9 +164,7 @@
 
         modalInstance.result.then(function (newOutputData) {
           vm.outputsData.push(newOutputData);
-          getOutputTypes(vm.outputsData);
-
-        }, function () {
+          UtilsService.addFragmentCount(vm.outputTypes, newOutputData.element.type);
         });
       };
 
@@ -189,10 +187,16 @@
             }
       });
 
-        modalInstance.result.then(function (updatedOutputData) {
-          for (var prop in updatedOutputData.originalFragment) delete updatedOutputData.originalFragment[prop];
-          for (var prop in updatedOutputData.editedFragment) updatedOutputData.originalFragment[prop] =  updatedOutputData.editedFragment[prop];
-          getOutputTypes(vm.outputsData);
+        modalInstance.result.then(function (editedOutputData) {
+          var originalFragment = editedOutputData.originalFragment;
+          var editedFragment = editedOutputData.editedFragment;
+          if (originalFragment.element.type !== editedFragment.element.type) {
+            UtilsService.subtractFragmentCount(vm.outputTypes, originalFragment.element.type, vm.filters);
+            UtilsService.addFragmentCount(vm.outputTypes, editedFragment.element.type);
+          }
+
+          for (var prop in editedOutputData.originalFragment) delete editedOutputData.originalFragment[prop];
+          for (var prop in editedOutputData.editedFragment) editedOutputData.originalFragment[prop] =  editedOutputData.editedFragment[prop];
         });
       };
 
@@ -212,9 +216,13 @@
           }
         });
 
-        modalInstance.result.then(function (selectedItem) {
-          vm.outputsData.splice(selectedItem.index, 1);
-          getOutputTypes(vm.outputsData);
+        modalInstance.result.then(function (fragmentDeletedData) {
+          for (var i=0; i < vm.outputsData.length; i++) {
+            if (vm.outputsData[i].id === fragmentDeletedData.id) {
+              vm.outputsData.splice(i,1);
+            }
+          }
+          UtilsService.subtractFragmentCount(vm.outputTypes, fragmentDeletedData.type, vm.filters);
         });
       };
 
@@ -233,8 +241,7 @@
 
         modalInstance.result.then(function (newOutput) {
           vm.outputsData.push(newOutput);
-          getOutputTypes(vm.outputsData);
-
+          UtilsService.addFragmentCount(vm.outputTypes, newOutput.element.type);
         });
       };
 
