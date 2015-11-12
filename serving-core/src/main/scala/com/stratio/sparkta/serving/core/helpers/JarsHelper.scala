@@ -42,7 +42,7 @@ object JarsHelper extends SLF4JLogging {
                      notContains: Option[String] = None,
                      excludedDirectories: Option[Seq[String]] = None,
                      doAddToClassPath: Boolean = true): Seq[File] = {
-    if (path.exists && (!path.isDirectory || isExcludedDirectory(path, excludedDirectories))) {
+    if (isFileNotExluded(path, excludedDirectories)) {
       val these = path.listFiles()
       val good = these.filter(f => {
         val filter = endsWith.forall(ends => f.getName.endsWith(ends)) &&
@@ -55,7 +55,7 @@ object JarsHelper extends SLF4JLogging {
         }
         filter
       })
-      good ++ these.filter(file => file.isDirectory && isExcludedDirectory(file, excludedDirectories))
+      good ++ these.filter(file => isDirectoryNotExluded(file, excludedDirectories))
         .flatMap(path => findJarsByPath(path, endsWith, contains, notContains, excludedDirectories, doAddToClassPath))
     } else {
       log.warn(s"The file ${path.getName} not exists or is excluded")
@@ -100,8 +100,26 @@ object JarsHelper extends SLF4JLogging {
 
   /**
     *
+    * @param file file to search
+    * @param excludedDirectories list of directories names excluded from the search
+    * @return
+    */
+  private def isFileNotExluded(file: File, excludedDirectories: Option[Seq[String]]) : Boolean =
+    file.exists && (!file.isDirectory || isExcludedDirectory(file, excludedDirectories))
+
+  /**
+    *
+    * @param directory file to search
+    * @param excludedDirectories list of directories names excluded from the search
+    * @return
+    */
+  private def isDirectoryNotExluded(directory: File, excludedDirectories: Option[Seq[String]]) : Boolean =
+    directory.exists && (directory.isDirectory || isExcludedDirectory(directory, excludedDirectories))
+
+  /**
+    *
     * @param path to check if is excluded
-    * @param excludedDirectories list of directories names file
+    * @param excludedDirectories list of directories names excluded from the search
     * @return
     */
   private def isExcludedDirectory(path: File, excludedDirectories: Option[Seq[String]]) : Boolean =
