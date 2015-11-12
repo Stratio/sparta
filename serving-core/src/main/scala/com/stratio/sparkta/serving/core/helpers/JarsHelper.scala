@@ -42,24 +42,27 @@ object JarsHelper extends SLF4JLogging {
                      notContains: Option[String] = None,
                      excludeFolder: Option[Seq[String]] = None,
                      doAddToClassPath: Boolean = true): Seq[File] = {
-    if (!path.isDirectory ||
-      (path.isDirectory && excludeFolder.forall(folder => folder.forall(exFolder => path.getName != exFolder)))) {
+    if (path.exists && (!path.isDirectory ||
+      (path.isDirectory && excludeFolder.forall(folder => !folder.contains(path.getName))))) {
       val these = path.listFiles()
       val good = these.filter(f => {
         val filter = endsWith.forall(ends => f.getName.endsWith(ends)) &&
           contains.forall(cont => f.getName.contains(cont)) &&
           notContains.forall(ncont => !f.getName.contains(ncont))
+
         if (doAddToClassPath && filter) {
           addToClasspath(f)
           log.debug("File " + f.getName + " added")
         }
         filter
       })
-      good ++ these.filter(file => {
-        file.isDirectory &&
-          excludeFolder.forall(folder => folder.forall(exFolder => file.getName != exFolder))
-      }).flatMap(path => findJarsByPath(path, endsWith, contains, notContains, excludeFolder, doAddToClassPath))
-    } else Seq()
+      good ++ these.filter(file =>
+        file.isDirectory && excludeFolder.forall(folder => !folder.contains(path.getName)))
+        .flatMap(path => findJarsByPath(path, endsWith, contains, notContains, excludeFolder, doAddToClassPath))
+    } else {
+      log.warn(s"The file ${path.getName} not exists or is excluded")
+      Seq()
+    }
   }
 
   /**
@@ -68,12 +71,18 @@ object JarsHelper extends SLF4JLogging {
    * @return a list of jars.
    */
   def findDriverByPath(path: File): Seq[File] = {
-    val these = path.listFiles()
-    val good =
-      these.filter(f => f.getName.toLowerCase.contains("driver") &&
-        f.getName.toLowerCase.contains("plugin") &&
-        f.getName.endsWith(".jar"))
-    good ++ these.filter(_.isDirectory).flatMap(path => findDriverByPath(path))
+    if(path.exists) {
+      val these = path.listFiles()
+      val good =
+        these.filter(f => f.getName.toLowerCase.contains("driver") &&
+          f.getName.toLowerCase.contains("plugin") &&
+          f.getName.endsWith(".jar"))
+
+      good ++ these.filter(_.isDirectory).flatMap(path => findDriverByPath(path))
+    } else {
+      log.warn(s"The file ${path.getName} not exists.")
+      Seq()
+    }
   }
 
   /**
@@ -81,8 +90,13 @@ object JarsHelper extends SLF4JLogging {
    * @param file to add in the classpath.
    */
   def addToClasspath(file: File): Unit = {
-    val method: Method = classOf[URLClassLoader].getDeclaredMethod("addURL", classOf[URL])
-    method.setAccessible(true)
-    method.invoke(ClassLoader.getSystemClassLoader, file.toURI.toURL)
+    if(file.exists) {
+      val method: Method = classOf[URLClassLoader].getDeclaredMethod("addURL", classOf[URL])
+
+      method.setAccessible(true)
+      method.invoke(ClassLoader.getSystemClassLoader, file.toURI.toURL)
+    } else {
+      log.warn(s"The file ${file.getName} not exists.")
+    }
   }
 }
