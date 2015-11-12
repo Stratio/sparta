@@ -4,7 +4,7 @@
     class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._MODEL_INTRO_" | translate}}</span>
   </p>
 
-  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error != ''"
+  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error != '' && vm.policy.transformations.length === 0"
        data-qa="policy-model-accordion-error-msg">
     <i class="c-icon icon-circle-cross"></i>
     <span>{{vm.error| translate}}</span>
