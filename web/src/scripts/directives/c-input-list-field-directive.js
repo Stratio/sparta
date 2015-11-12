@@ -26,7 +26,9 @@
         readonly: "=",
         enableDelete: "=",
         required: "=",
-        qa: "@"
+        qa: "@",
+        help: '@',
+        helpQa: '@'
       },
       replace: "true",
       templateUrl: 'templates/components/c-input-list-field.tpl.html',
