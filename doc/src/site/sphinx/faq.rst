@@ -43,3 +43,7 @@ If it's already installed, to run Zookeeper just::
 **I'm trying to delete an input/output and I can't. Why?**
 
 - You can't delete inputs or outputs if the policy is running. Also you can't delete outputs that are included in policies, even if they are stopped.
+
+**I don't understand where the name of the database and the collections are coming from**
+
+- For the supported outputs the name of the collections are formed with the name of the dimensions of the cube. The name of the database/keyspace is created from one of the output parameter in the policy.
