@@ -1,8 +1,8 @@
 <section data-ng-controller="CubeCtrl as vm" data-ng-init="vm.init()" data-ng-model="vm.cube">
-  <ng-form name="vm.form" novalidate >
 
-    <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.cubeError.text !==''"
-         data-qa="policy-cube-error-msg">
+  <ng-form name="vm.form" novalidate>
+
+    <div class="c-row c-msg c-msg--small c-msg--error c-form c-form-group" data-ng-if="vm.form.$submitted && (vm.cube.operators.length === 0 || vm.cube.dimensions.length === 0)" data-qa="policy-cube-error-msg">
       <i class="c-icon icon-circle-cross"></i>
       <span>{{vm.cubeError.text | translate}}</span>
     </div>
@@ -135,7 +135,7 @@
         <span>{{"_POLICY_._ADD_CUBE_" | translate}}</span>
       </button>
       <button data-ng-if="!vm.isNewCube(vm.cubeContext.position)" class="c-button c-button--call-to-action-1"
-              data-ng-click="vm.saveCube()"
+              data-ng-click="vm.saveCube(vm.form)"
               data-qa="policy-cube-add-button">
         <i class="icon icon-circle-plus"></i>
         <span>{{"_POLICY_._SAVE_CUBE_" | translate}}</span>
