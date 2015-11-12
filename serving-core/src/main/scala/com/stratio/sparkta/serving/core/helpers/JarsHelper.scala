@@ -31,7 +31,7 @@ object JarsHelper extends SLF4JLogging {
    * @param endsWith to specify the end of the file.
    * @param contains to specify that the file has to contain whatever is in this parameter.
    * @param notContains to specify that the file hasn't to contain whatever is in this parameter.
-   * @param excludeFolder path to exclude and not look for plugins.
+   * @param excludedDirectories path to exclude and not look for plugins.
    * @param doAddToClassPath if it's true it will add the jars to the class path
    * @return a list of loaded jars.
    */
@@ -40,10 +40,9 @@ object JarsHelper extends SLF4JLogging {
                      endsWith: Option[String] = None,
                      contains: Option[String] = None,
                      notContains: Option[String] = None,
-                     excludeFolder: Option[Seq[String]] = None,
+                     excludedDirectories: Option[Seq[String]] = None,
                      doAddToClassPath: Boolean = true): Seq[File] = {
-    if (path.exists && (!path.isDirectory ||
-      (path.isDirectory && excludeFolder.forall(folder => !folder.contains(path.getName))))) {
+    if (path.exists && (!path.isDirectory || isExcludedDirectory(path, excludedDirectories))) {
       val these = path.listFiles()
       val good = these.filter(f => {
         val filter = endsWith.forall(ends => f.getName.endsWith(ends)) &&
@@ -56,9 +55,8 @@ object JarsHelper extends SLF4JLogging {
         }
         filter
       })
-      good ++ these.filter(file =>
-        file.isDirectory && excludeFolder.forall(folder => !folder.contains(path.getName)))
-        .flatMap(path => findJarsByPath(path, endsWith, contains, notContains, excludeFolder, doAddToClassPath))
+      good ++ these.filter(file => file.isDirectory && isExcludedDirectory(file, excludedDirectories))
+        .flatMap(path => findJarsByPath(path, endsWith, contains, notContains, excludedDirectories, doAddToClassPath))
     } else {
       log.warn(s"The file ${path.getName} not exists or is excluded")
       Seq()
@@ -99,4 +97,13 @@ object JarsHelper extends SLF4JLogging {
       log.warn(s"The file ${file.getName} not exists.")
     }
   }
+
+  /**
+    *
+    * @param path to check if is excluded
+    * @param excludedDirectories list of directories names file
+    * @return
+    */
+  private def isExcludedDirectory(path: File, excludedDirectories: Option[Seq[String]]) : Boolean =
+    path.isDirectory && excludedDirectories.forall(folder => !folder.contains(path.getName))
 }
