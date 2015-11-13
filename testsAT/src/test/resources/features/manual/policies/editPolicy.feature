@@ -1,6 +1,6 @@
 @ignore @manual
 
-Feature: Edit policies
+Feature: Edit policies. This should be tested several times repeatedly
 
   Scenario: Check whether a policy can be edited
     Given An existing policy is available
