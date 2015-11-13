@@ -5,7 +5,6 @@ describe('policies.wizard.service.utils-service', function () {
 
   beforeEach(inject(function (UtilsService) {
     service = UtilsService;
-
   }));
 
   describe("should be able to find an element in an JSON array telling him what attribute it has to used to search the element", function () {
@@ -133,6 +132,45 @@ describe('policies.wizard.service.utils-service', function () {
         expect(service.getNamesJSONArray(array)[1]).toEqual(fakeJson2);
       });
 
+    });
+
+    describe("Should increase the counter of the fragment provided", function () {
+      var fakeInputTypeList = null;
+      beforeEach(function () {
+        fakeInputTypeList = [{'type': 'Kafka', 'count': 2},{'type': 'Flume', 'count': 1}];
+      });
+
+      it("If the input type provided doesn't exist in the inputs list, a new one must be created", function() {
+        var fakeInputType = 'Socket';
+        service.addFragmentCount(fakeInputTypeList, fakeInputType);
+        expect(fakeInputTypeList[2]).toEqual({'type': fakeInputType, 'count': 1});
+      });
+
+      it("If the input type provided exists in the inputs list, its counter is increased by one", function() {
+        var fakeInputType = 'Flume';
+        service.addFragmentCount(fakeInputTypeList, fakeInputType);
+        expect(fakeInputTypeList[1]).toEqual({'type': fakeInputType, 'count': 2});
+      });
+    });
+
+    describe("Should decrease the counter of the fragment provided", function () {
+      var fakeInputTypeList, filter = null;
+      beforeEach(function () {
+        fakeInputTypeList = [{'type': 'Kafka', 'count': 2},{'type': 'Flume', 'count': 1}];
+        filter = {"name": "", "element": {"type": ""}};
+      });
+
+      it("If the counter of the input type provided is higher than 1, it is decreased by one", function() {
+        var fakeInputType = 'Kafka';
+        service.subtractFragmentCount(fakeInputTypeList, fakeInputType, filter);
+        expect(fakeInputTypeList[0]).toEqual({'type': fakeInputType, 'count': 1});
+      });
+
+      it("If the counter of the input type provided is equal than 1, it is decreased by one and the obejct is deleted", function() {
+        var fakeInputType = 'Flume';
+        service.subtractFragmentCount(fakeInputTypeList, fakeInputType, filter);
+        expect(fakeInputTypeList[1]).toEqual(undefined);
+      });
     });
   })
 });

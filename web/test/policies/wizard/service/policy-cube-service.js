@@ -258,20 +258,23 @@ describe('policies.wizard.service.policy-cube-service', function () {
     beforeEach(function () {
       service.policy.cubes = [];
     });
-    it("is saved if it is valid and error is updated to empty text", function () {
+
+    it("is saved if it is valid and error is hidden", function () {
+     var form = {};
       CubeModelFactoryMock.isValidCube.and.returnValue(true);
-      service.saveCube();
+      service.saveCube(form);
 
       expect(service.policy.cubes.length).toBe(1);
-      expect(CubeModelFactoryMock.setError).toHaveBeenCalledWith("");
+      expect(CubeModelFactoryMock.setError).not.toHaveBeenCalled();
     });
 
     it("is not saved if it is invalid and error is updated to a generic form error", function () {
+        var form = {};
       CubeModelFactoryMock.isValidCube.and.returnValue(false);
-      service.saveCube();
+      service.saveCube(form);
 
       expect(service.policy.cubes.length).toBe(0);
-      expect(CubeModelFactoryMock.setError).toHaveBeenCalledWith("_GENERIC_FORM_ERROR_");
+      expect(CubeModelFactoryMock.setError).toHaveBeenCalled();
     });
   });
 
