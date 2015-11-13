@@ -22,8 +22,8 @@ import java.net.UnknownHostException
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
-import com.mongodb.{DBObject, MongoClientOptions, MongoClientURI => JMongoClientURI, WriteConcern, casbah}
-import com.mongodb.casbah.{MongoClient, MongoDB}
+import com.mongodb.{casbah, DBObject, WriteConcern}
+import com.mongodb.casbah.MongoDB
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.{Imports, MongoDBObject}
 import com.stratio.sparkta.sdk._
@@ -213,11 +213,10 @@ private object MongoDbDAO extends Logging {
   private val clients: mutable.Map[String, MongoClient] = mutable.Map()
   private val dbs: mutable.Map[(String, String), MongoDB] = mutable.Map()
 
-  private def options(connectionsPerHost: Integer, threadsAllowedToBlock: Integer) =
-    MongoClientOptions.builder()
-      .connectionsPerHost(connectionsPerHost)
-      .writeConcern(casbah.WriteConcern.Unacknowledged)
-      .threadsAllowedToBlockForConnectionMultiplier(threadsAllowedToBlock)
+  private def options(connectionsPerHost: Integer, threadsAllowedToBlock: Integer) : MongoClientOptions =
+    MongoClientOptions(connectionsPerHost = connectionsPerHost,
+      writeConcern = casbah.WriteConcern.Unacknowledged,
+      threadsAllowedToBlockForConnectionMultiplier = threadsAllowedToBlock)
 
   private def client(mongoClientUri: String, connectionsPerHost: Integer,
                      threadsAllowedToBlock: Integer, force: Boolean): MongoClient = {
@@ -241,7 +240,7 @@ private object MongoDbDAO extends Logging {
           None
       }
     })
-    MongoClient(serverAddresses.toList, options(connectionsPerHost, threadsAllowedToBlock).build())
+    MongoClient(serverAddresses.toList, options(connectionsPerHost, threadsAllowedToBlock))
   }
 
   private def db(mongoClientUri: String, dbName: String,
