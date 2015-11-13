@@ -255,5 +255,8 @@
   "_POLICY_ERROR_EDIT_POLICY_": "The policy is not stopped! If you want to edit this policy, please stop it first.",
   "_POLICY_DELETE_OK_": "The policy has been deleted!",
   "_attachment_body": "Your raw event",
-  "_CLUSTERNAME_": "Cluster name"
+  "_CLUSTERNAME_": "Cluster name",
+  "_POLICY_CUBE_OPERATOR-DIMENSION_ERROR_": "There was an error. At least one operator and one dimension must be created",
+  "_POLICY_CUBE_OPERATOR_ERROR_": "There was an error. At least one operator must be created",
+  "_POLICY_CUBE_DIMENSION_ERROR_": "There was an error. At least one dimension must be created"
 }

@@ -36,6 +36,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
 
       val ap = new AggregationPoliciesModel(
         None,
+        None,
         storageLevel,
         "policy-test",
         "policy description",
@@ -83,6 +84,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
 
     val ap = new AggregationPoliciesModel(
       None,
+      None,
       storageLevel,
       "policy-test",
       "policy description",
@@ -123,6 +125,7 @@ class PolicyHelperSpec extends FeatureSpec with GivenWhenThen with Matchers {
     val checkpointDir = "checkpoint"
 
     val ap = new AggregationPoliciesModel(
+      None,
       None,
       storageLevel,
       "policy-test",

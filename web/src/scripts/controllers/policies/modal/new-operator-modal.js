@@ -40,7 +40,7 @@
     }
 
     function setDefaultConfiguration() {
-      var defaultConfiguration = '{}';
+      var defaultConfiguration = {};
       var countType = template.functionNames[2];
       if (vm.operator.type !== countType) {
         defaultConfiguration = template.defaultOperatorConfiguration;

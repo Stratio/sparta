@@ -31,10 +31,11 @@ import org.apache.spark.streaming.dstream.DStream
 import scala.util.Try
 
 class MongoDbOutput(keyName: String,
+                    version: Option[Int],
                     properties: Map[String, JSerializable],
                     operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
                     bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, properties, operationTypes, bcSchema) with MongoDbDAO {
+  extends Output(keyName, version, properties, operationTypes, bcSchema) with MongoDbDAO {
 
   RegisterJodaTimeConversionHelpers()
 

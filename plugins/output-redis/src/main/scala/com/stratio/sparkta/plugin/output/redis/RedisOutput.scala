@@ -32,10 +32,11 @@ import org.apache.spark.streaming.dstream.DStream
  * @author anistal
  */
 class RedisOutput(keyName: String,
+                  version: Option[Int],
                   properties: Map[String, Serializable],
                   operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
                   bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, properties, operationTypes, bcSchema)
+  extends Output(keyName, version, properties, operationTypes, bcSchema)
   with AbstractRedisDAO with Serializable {
 
   override val hostname = properties.getString("hostname", DefaultRedisHostname)

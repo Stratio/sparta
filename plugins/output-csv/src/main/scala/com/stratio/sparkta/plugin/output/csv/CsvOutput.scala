@@ -35,10 +35,11 @@ import scala.util.Try
  * @param bcSchema
  */
 class CsvOutput(keyName: String,
+                version: Option[Int],
                 properties: Map[String, JSerializable],
                 operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
                 bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, properties, operationTypes, bcSchema) with Logging {
+  extends Output(keyName, version, properties, operationTypes, bcSchema) with Logging {
 
   val path = properties.getString("path", None)
 

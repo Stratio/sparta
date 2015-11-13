@@ -56,7 +56,7 @@
             }
           };
 
-          createInputModal(createInputData);
+          return createInputModal(createInputData);
         };
 
         function editInput(input) {
@@ -80,12 +80,12 @@
           return editInputModal(editInputData);
         };
 
-        function deleteInput(fragmentType, fragmentId, index) {
+        function deleteInput(fragmentType, fragmentId, elementType) {
           var inputToDelete =
           {
             'type':fragmentType,
             'id': fragmentId,
-            'index': index,
+            'elementType': elementType,
             'texts': {
               'title': '_INPUT_WINDOW_DELETE_TITLE_',
               'mainText': '_ARE_YOU_COMPLETELY_SURE_',
@@ -96,25 +96,25 @@
               'policyRunningSecondary2': '_INTPUT_WINDOW_DELETE_POLICY_RUNNING_MESSAGE2_'
             }
           };
-          deleteInputConfirm(inputToDelete);
+          return deleteInputConfirm(inputToDelete);
         };
 
         function duplicateInput(inputId) {
-            var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {'id':inputId}, true)[0];
+          var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {'id':inputId}, true)[0];
 
-            var newName = UtilsService.autoIncrementName(inputSelected.name);
-            inputSelected.name = newName;
+          var newName = UtilsService.autoIncrementName(inputSelected.name);
+          inputSelected.name = newName;
 
-            var inputsList = UtilsService.getNamesJSONArray(vm.inputsData);
+          var inputsList = UtilsService.getNamesJSONArray(vm.inputsData);
 
-            var duplicateInputData = {
-              'fragmentData': inputSelected,
-              'fragmentNamesList': inputsList,
-              'texts': {
-                'title': '_INPUT_WINDOW_DUPLICATE_TITLE_'
-              }
-            };
-            setDuplicatetedInput(duplicateInputData);
+          var duplicateInputData = {
+            'fragmentData': inputSelected,
+            'fragmentNamesList': inputsList,
+            'texts': {
+              'title': '_INPUT_WINDOW_DUPLICATE_TITLE_'
+            }
+          };
+          return setDuplicatetedInput(duplicateInputData);
         };
 
         function getInputTypes(inputs) {
@@ -162,7 +162,7 @@
 
           return modalInstance.result.then(function (newInputData) {
             vm.inputsData.push(newInputData);
-            vm.getInputTypes(vm.inputsData);
+            UtilsService.addFragmentCount(vm.inputTypes, newInputData.element.type);
           });
         };
 
@@ -186,9 +186,15 @@
           });
 
           return modalInstance.result.then(function (editedInputData) {
+            var originalFragment = editedInputData.originalFragment;
+            var editedFragment = editedInputData.editedFragment;
+            if (originalFragment.element.type !== editedFragment.element.type) {
+              UtilsService.subtractFragmentCount(vm.inputTypes, originalFragment.element.type, vm.filters);
+              UtilsService.addFragmentCount(vm.inputTypes, editedFragment.element.type);
+            }
+
             for (var prop in editedInputData.originalFragment) delete editedInputData.originalFragment[prop];
             for (var prop in editedInputData.editedFragment) editedInputData.originalFragment[prop] =  editedInputData.editedFragment[prop];
-            vm.getInputTypes(vm.inputsData);
           });
         };
 
@@ -208,9 +214,13 @@
             }
           });
 
-          modalInstance.result.then(function (fragmentDeletedIndex) {
-            vm.inputsData.splice(fragmentDeletedIndex.index, 1);
-            vm.getInputTypes(vm.inputsData);
+          return modalInstance.result.then(function (fragmentDeletedData) {
+            for (var i=0; i < vm.inputsData.length; i++) {
+              if (vm.inputsData[i].id === fragmentDeletedData.id) {
+                vm.inputsData.splice(i,1);
+              }
+            }
+            UtilsService.subtractFragmentCount(vm.inputTypes, fragmentDeletedData.type, vm.filters);
           });
         };
 
@@ -227,9 +237,9 @@
             }
           });
 
-          modalInstance.result.then(function (newInput) {
-            vm.inputsData.push(newInput);
-            vm.getInputTypes(vm.inputsData);
+          return modalInstance.result.then(function (newInputData) {
+            vm.inputsData.push(newInputData);
+            UtilsService.addFragmentCount(vm.inputTypes, newInputData.element.type);
           });
         };
     };

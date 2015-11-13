@@ -54,6 +54,7 @@ with Matchers {
 
       val apd = new AggregationPoliciesModel(
         None,
+        None,
         storageLevel,
         "policy-name",
         "policy description",
@@ -72,6 +73,7 @@ with Matchers {
 
       val sparkStreamingWindowBad = 20000
       val apdBad = new AggregationPoliciesModel(
+        None,
         None,
         storageLevel,
         "policy-name",

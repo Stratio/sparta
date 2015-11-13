@@ -33,6 +33,22 @@ class CassandraDaoSpec extends FlatSpec with Matchers with MockitoSugar with Cas
     StructField("dim1", StringType, false))), "minute"))
   val structField = StructField("name", StringType, false)
   val schema: StructType = StructType(Array(structField))
+  val tableVersion = Some(1)
+
+  "getTableName" should "return the name of the table" in {
+
+    val table = getTableName("table_name")
+
+    table should be("table_name_v1")
+  }
+
+  "getTableName" should "return the first 48 chars of the name of the table" in {
+
+    val table = getTableName("table_name_is_so_loooooooooooooooooooooooooooooooooooooooooooooong")
+
+    table should be("table_name_is_so_looooooooooooooooooooooooooo_v1")
+  }
+
 
   "createIndex" should "return true" in {
 

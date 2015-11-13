@@ -23,9 +23,11 @@ import com.stratio.sparkta.sdk.WriteOp._
 import com.stratio.sparkta.sdk.{Output, TableSchema, WriteOp}
 
 class OutputMock(keyName: String,
+                 version: Option[Int],
                  properties: Map[String, JSerializable],
                  operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
-                 bcSchema: Option[Seq[TableSchema]]) extends Output(keyName, properties, operationTypes, bcSchema) {
+                 bcSchema: Option[Seq[TableSchema]])
+  extends Output(keyName, version, properties, operationTypes, bcSchema) {
 
   override val supportedWriteOps = Seq(WriteOp.Set)
 }

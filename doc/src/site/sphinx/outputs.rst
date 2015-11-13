@@ -197,6 +197,11 @@ The Cassandra output uses the generic implementation with DataFrames.
 |                       | feature is for the Stratio's Cassandra Lucene Index      |          |                       |
 +-----------------------+----------------------------------------------------------+----------+-----------------------+
 
+In Cassandra each cube define one table, but when you modify the policy that involve this cube, Sparkta create a new
+table with the next version. The name of all tables are "dimensions_v1" when modify the policy the new table in
+Cassandra are "dimensions_v2".
+
+
 .. _elasticsearch-label:
 
 ElasticSearch Configuration

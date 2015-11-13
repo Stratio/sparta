@@ -30,10 +30,40 @@ describe('policies.wizard.factory.cube-model-factory', function () {
     expect(factory.getContext().position).toBe(position);
   });
 
-  it("should be able to update the cube error", function () {
-    var error = "_NEW_ERROR_KEY";
-    factory.setError(error);
-    expect(factory.getError()).toEqual({"text": error});
+  describe("should be able to update the cube error", function () {
+    var validCube = null;
+    beforeEach(function(){
+       validCube = angular.copy(fakeCube);
+        validCube.operators = [{}];
+        validCube.dimensions = [{}];
+    });
+    it ("if there is not a operator, then set a operator error ", function(){
+      validCube.operators = [];
+      factory.setCube(validCube, 0);
+
+      factory.setError();
+
+       expect(factory.getError()).toEqual({"text": "_POLICY_CUBE_OPERATOR_ERROR_"});
+    });
+
+      it ("if there is not a dimension, then set a dimension error ", function(){
+      validCube.dimensions = [];
+      factory.setCube(validCube, 0);
+
+      factory.setError();
+
+       expect(factory.getError()).toEqual({"text": "_POLICY_CUBE_DIMENSION_ERROR_"});
+    });
+
+      it ("if there is neither a dimension nor operator, then set a dimension and operator error ", function(){
+       validCube.operators = [];
+      validCube.dimensions = [];
+      factory.setCube(validCube, 0);
+
+      factory.setError();
+
+       expect(factory.getError()).toEqual({"text": "_POLICY_CUBE_OPERATOR-DIMENSION_ERROR_"});
+    });
   });
 
   it("should be able to update the position of the cube", function () {

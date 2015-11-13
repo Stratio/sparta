@@ -57,12 +57,12 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
   trait WithEventData extends CommonValues {
 
     val properties = Map("path" -> tmpPath)
-    val output = new ParquetOutput("parquet-test", properties, None, None)
+    val output = new ParquetOutput("parquet-test", None, properties, None, None)
   }
 
   trait WithWrongOutput extends CommonValues {
 
-    val output = new ParquetOutput("parquet-test", Map(), None, None)
+    val output = new ParquetOutput("parquet-test", None, Map(), None, None)
   }
 
   trait WithDatePattern extends CommonValues {
@@ -70,7 +70,7 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
     val datePattern = "yyyy/MM/dd"
     val properties = Map("path" -> tmpPath, "datePattern" -> datePattern)
     val granularity = "minute"
-    val output = new ParquetOutput("parquet-test", properties, None, None)
+    val output = new ParquetOutput("parquet-test", None, properties, None, None)
     val dt = DateTime.now
     val expectedPath = "/" + DateTimeFormat.forPattern(datePattern).print(dt) + "/" + dt.withMillisOfSecond(0)
       .withSecondOfMinute(0).getMillis
@@ -80,7 +80,7 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
 
     val datePattern = "yyyy/MM/dd"
     val properties = Map("path" -> tmpPath, "datePattern" -> datePattern)
-    val output = new ParquetOutput("parquet-test", properties, None, None)
+    val output = new ParquetOutput("parquet-test", None, properties, None, None)
     val expectedPath = "/0"
   }
 
