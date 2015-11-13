@@ -353,16 +353,6 @@
         "qa": "fragment-details-mongoDb-threadsAllowedToBlock"
       },
       {
-        "propertyId": "idAsField",
-        "propertyName": "_STORE_ROW_ID_AS_INDEPENDENT_FIELD_",
-        "propertyType": "boolean",
-        "regexp": "true|false",
-        "default": false,
-        "required": false,
-        "tooltip": "Is possible to save all fields that compound the unique key as a independent field.",
-        "qa": "fragment-details-mongoDb-idAsField"
-      },
-      {
         "propertyId": "language",
         "propertyName": "_LANGUAGE_",
         "propertyType": "select",
