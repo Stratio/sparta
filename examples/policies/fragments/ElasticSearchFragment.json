@@ -9,8 +9,9 @@
     "configuration": {
       "nodes": [
         {
-          "node": "localhost",
-          "defaultPort": "9200"
+          "node":"localhost",
+          "tcpPort":"9300",
+          "httpPort":"9200"
         }
       ],
       "isAutoCalculateId": "true",
