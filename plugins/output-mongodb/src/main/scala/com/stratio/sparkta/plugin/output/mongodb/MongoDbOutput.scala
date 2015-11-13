@@ -51,19 +51,20 @@ class MongoDbOutput(keyName: String,
 
   override val retrySleep = properties.getString("retrySleep", DefaultRetrySleep).toInt
 
-  override val idAsField = Try(properties.getString("idAsField").toBoolean).getOrElse(false)
-
   override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(FieldsSeparator))
 
   override val language = properties.getString("language", None)
 
-  override def setup: Unit =
-    if (bcSchema.isDefined) {
+  override def setup: Unit = {
+    val db = connectToDatabase
+    if (bcSchema.isDefined && db.isDefined) {
       val schemasFiltered =
         bcSchema.get.filter(schemaFilter => schemaFilter.outputName == keyName).map(getTableSchemaFixedId(_))
       filterSchemaByFixedAndTimeDimensions(schemasFiltered)
-        .foreach(tableSchema => createPkTextIndex(tableSchema.tableName, tableSchema.timeDimension))
+        .foreach(tableSchema => createPkTextIndex(db.get, tableSchema.tableName, tableSchema.timeDimension))
+      db.get.close()
     }
+  }
 
   override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     persistDataFrame(stream)
@@ -87,17 +88,15 @@ class MongoDbOutput(keyName: String,
     }
 
   private def getPrimaryKeyOptions(timeDimension: String): Map[String, String] =
-    if (idAsField) Map("_idField" -> Output.Id)
-    else {
       if (!timeDimension.isEmpty) {
         Map("searchFields" -> Seq(Output.Id, timeDimension).mkString(","))
-      } else Map()
-    }
+      } else Map("searchFields" -> Output.Id)
+
   private def getConnectionConfs(key: String, firstJsonItem: String, secondJsonItem: String): String = {
     val conObj = properties.getConnectionChain(key)
     conObj.map(c => {
-      val host = c.get(firstJsonItem).getOrElse(DefaultHost)
-      val port = c.get(secondJsonItem).getOrElse(DefaultPort)
+      val host = c.getOrElse(firstJsonItem, DefaultHost)
+      val port = c.getOrElse(secondJsonItem, DefaultPort)
       s"$host:$port"
     }).mkString(",")
   }
