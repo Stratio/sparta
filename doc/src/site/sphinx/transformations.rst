@@ -88,7 +88,7 @@ would be::
 Morphline
 =========
 
-This is a very powerful tool to transform data. It uses Kite to make this transformations.
+This is a very powerful tool to transform data. It uses Kite to make these transformations. All the fields that you want to use later has to be declared in the "outputfields" parameter. In the "extractJsonPaths" is where this fields are going to receive their values.
 
 For more information visit the |kite_link|
 
