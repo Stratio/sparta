@@ -46,6 +46,10 @@ class ParquetOutput(keyName: String,
     val path = properties.getString("path", None)
     require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
     val subPath = DateOperations.generateParquetPath()
-    dataFrame.write.format("parquet").mode(Overwrite).save(s"${path.get}/$tableName$subPath")
+    val tableNameVersioned = version match {
+      case Some(v) => s"$tableName${Output.Separator}v$v"
+      case None => tableName
+    }
+    dataFrame.write.format("parquet").mode(Overwrite).save(s"${path.get}/$tableNameVersioned$subPath")
   }
 }
