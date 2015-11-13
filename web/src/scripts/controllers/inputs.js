@@ -56,7 +56,7 @@
             }
           };
 
-          createInputModal(createInputData);
+          return createInputModal(createInputData);
         };
 
         function editInput(input) {
@@ -96,25 +96,25 @@
               'policyRunningSecondary2': '_INTPUT_WINDOW_DELETE_POLICY_RUNNING_MESSAGE2_'
             }
           };
-          deleteInputConfirm(inputToDelete);
+          return deleteInputConfirm(inputToDelete);
         };
 
         function duplicateInput(inputId) {
-            var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {'id':inputId}, true)[0];
+          var inputSelected = $filter('filter')(angular.copy(vm.inputsData), {'id':inputId}, true)[0];
 
-            var newName = UtilsService.autoIncrementName(inputSelected.name);
-            inputSelected.name = newName;
+          var newName = UtilsService.autoIncrementName(inputSelected.name);
+          inputSelected.name = newName;
 
-            var inputsList = UtilsService.getNamesJSONArray(vm.inputsData);
+          var inputsList = UtilsService.getNamesJSONArray(vm.inputsData);
 
-            var duplicateInputData = {
-              'fragmentData': inputSelected,
-              'fragmentNamesList': inputsList,
-              'texts': {
-                'title': '_INPUT_WINDOW_DUPLICATE_TITLE_'
-              }
-            };
-            setDuplicatetedInput(duplicateInputData);
+          var duplicateInputData = {
+            'fragmentData': inputSelected,
+            'fragmentNamesList': inputsList,
+            'texts': {
+              'title': '_INPUT_WINDOW_DUPLICATE_TITLE_'
+            }
+          };
+          return setDuplicatetedInput(duplicateInputData);
         };
 
         function getInputTypes(inputs) {
@@ -214,7 +214,7 @@
             }
           });
 
-          modalInstance.result.then(function (fragmentDeletedData) {
+          return modalInstance.result.then(function (fragmentDeletedData) {
             for (var i=0; i < vm.inputsData.length; i++) {
               if (vm.inputsData[i].id === fragmentDeletedData.id) {
                 vm.inputsData.splice(i,1);
@@ -237,7 +237,7 @@
             }
           });
 
-          modalInstance.result.then(function (newInputData) {
+          return modalInstance.result.then(function (newInputData) {
             vm.inputsData.push(newInputData);
             UtilsService.addFragmentCount(vm.inputTypes, newInputData.element.type);
           });

@@ -53,7 +53,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
 
     resolvedDeleteInput = function () {
       var defer = $q.defer();
-      defer.resolve({"index": 2});
+      defer.resolve({"id": ctrl.inputsData[fakeIndex].id, "type": ctrl.inputsData[fakeIndex].element.type});
 
       return {"result": defer.promise};
     };
@@ -70,7 +70,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
     fragmentFactoryMock = jasmine.createSpyObj('FragmentFactory', ['getFragments']);
     fragmentFactoryMock.getFragments.and.callFake(resolvedInputListPromise);
 
-    utilsServiceMock = jasmine.createSpyObj('UtilsService', ['getNamesJSONArray', 'autoIncrementName']);
+    utilsServiceMock = jasmine.createSpyObj('UtilsService', ['getNamesJSONArray', 'autoIncrementName', 'addFragmentCount', 'subtractFragmentCount']);
 
     modalMock = jasmine.createSpyObj('$modal', ['open']);
 
@@ -176,24 +176,22 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
     });
 
     it('Should return OK when closing the create modal', function () {
-      ctrl.createInput();
+      ctrl.createInput().then(function() {
+        expect(ctrl.inputsData[6]).toBe(fakeInput);
+        expect(utilsServiceMock.addFragmentCount).toHaveBeenCalledWith(ctrl.inputTypes ,fakeInput.element.type);
+      });
       scope.$digest();
-
-      expect(ctrl.inputsData[6]).toBe(fakeInput);
-      expect(ctrl.inputTypes).toEqual([{"type": "Socket", "count": 2}, {"type": "Flume", "count": 2}, {
-        "type": "Kafka",
-        "count": 2
-      }, {"type": "RabbitMQ", "count": 1}]);
     });
   });
 
   describe('Edit an input', function () {
-    var fakeOriginalInput = null;
+    var fakeOriginalInput, fakeOriginalInputType = null;
 
     beforeEach(function () {
       modalMock.open.and.callFake(resolvedEditInput);
       ctrl.inputsData = angular.copy(fakeInputList);
       fakeOriginalInput = ctrl.inputsData[1];
+      fakeOriginalInputType = fakeOriginalInput.element.type;
     });
 
     it('Shuold call editInput function and show an edit input modal', function () {
@@ -230,12 +228,8 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
 
     it('Should return OK when closing the edit modal and upload the inputs type dropdown', function () {
       ctrl.editInput(fakeOriginalInput).then(function(){
-        expect(ctrl.inputTypes).toEqual([
-          {"type": "Socket", "count": 2},
-          {"type": "RabbitMQ", "count": 1},
-          {"type": "Kafka", "count": 2},
-          {"type": "Flume", "count": 1}
-        ]);
+        expect(utilsServiceMock.subtractFragmentCount).toHaveBeenCalledWith(ctrl.inputTypes, fakeOriginalInputType, ctrl.filters);
+        expect(utilsServiceMock.addFragmentCount).toHaveBeenCalledWith(ctrl.inputTypes, fakeInput.element.type);
       });
       scope.$digest();
     });
@@ -246,18 +240,19 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
 
     beforeEach(function () {
       modalMock.open.and.callFake(resolvedDeleteInput);
-      ctrl.inputsData = angular.copy(fakeInputList);
-
       fakeFragmentType = 'input';
-      fakeFragmentId = '2581f20a-fd83-4315-be45-1923c5sEFfl';
       fakeIndex = 2;
+      ctrl.inputsData = angular.copy(fakeInputList);
+      fakeFragmentId = ctrl.inputsData[fakeIndex].id;
+      fakeElementType = ctrl.inputsData[fakeIndex].element.type;
+
     });
 
     it('Should call deleteInput function and show a delete input modal', function () {
       var fakeInputToDelete = {
         'type': fakeFragmentType,
         'id': fakeFragmentId,
-        'index': fakeIndex,
+        'elementType': fakeElementType,
         'texts': {
           'title': '_INPUT_WINDOW_DELETE_TITLE_',
           'mainText': '_ARE_YOU_COMPLETELY_SURE_',
@@ -269,7 +264,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
         }
       };
 
-      ctrl.deleteInput(fakeFragmentType, fakeFragmentId, fakeIndex);
+      ctrl.deleteInput(fakeFragmentType, fakeFragmentId, fakeElementType);
 
       var params = modalMock.open.calls.mostRecent().args[0]
       expect(params.resolve.item()).toEqual(fakeInputToDelete);
@@ -279,9 +274,11 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
     });
 
     it('Should return OK when closing the delete modal', function () {
-      ctrl.deleteInput(fakeFragmentType, fakeFragmentId, fakeIndex);
+      ctrl.deleteInput(fakeFragmentType, fakeFragmentId, fakeElementType).then(function(){
+        expect(ctrl.inputsData[fakeIndex]).toEqual(fakeInputList[fakeIndex + 1]);
+        expect(utilsServiceMock.subtractFragmentCount).toHaveBeenCalledWith(ctrl.inputTypes, fakeElementType, ctrl.filters);
+      });
       scope.$digest();
-      expect(ctrl.inputsData[fakeIndex]).toEqual(fakeInputList[fakeIndex + 1]);
     });
   });
   /*
