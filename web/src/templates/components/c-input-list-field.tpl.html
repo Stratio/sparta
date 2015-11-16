@@ -1,5 +1,8 @@
 <div class="{{formControlClass}}">
-  <label class="{{labelControlClass}}" data-ng-class = "{'c-label--required': required, 'c-label': !required}">{{labelControlText}}:</label>
+  <span class="c-icon-label c-col c-col--12">
+  	<i class="c-icon-label__icon c-icon c-icon--is-clickable c-icon--call-to-action icon-info1" tooltip='{{help}}' tooltip-class="t-tooltip" tooltip-trigger="click" data-qa="{{helpQa}}"></i>
+  	<label class="{{labelControlClass}}" data-ng-class = "{'c-label--required': required, 'c-label': !required}">{{labelControlText}}:</label>
+  </span>
   <div data-ng-if="inputs.length > 0" class="c-form-group c-form-group--full-width">
     <span data-ng-repeat="input in inputs track by $index" data-ng-model="input" data-ng-value="(input)" class="c-tag" type="{{inputType}}">
     	<span class="c-tag__text" data-qa="{{qa}}-{{$index}}">{{input}}</span>

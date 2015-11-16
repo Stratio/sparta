@@ -41,7 +41,7 @@
 							<st-menu-element class-icon="icon-copy" data-ng-click="inputs.duplicateInput(input.id)" data-qa="input-context-menu-{{input.id}}-duplicate">
 								{{"_INPUT_ACTIONS_MENU_DUPLICATE_" | translate}}
 							</st-menu-element>
-							<st-menu-element class-icon="icon-cross" data-ng-click="inputs.deleteInput(input.fragmentType, input.id, $index)" data-qa="input-context-menu-{{input.id}}-delete">
+							<st-menu-element class-icon="icon-cross" data-ng-click="inputs.deleteInput(input.fragmentType, input.id, input.element.type)" data-qa="input-context-menu-{{input.id}}-delete">
 								{{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
 							</st-menu-element>
 						</st-floating-menu>
