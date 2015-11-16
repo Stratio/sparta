@@ -31,35 +31,36 @@ object JarsHelper extends SLF4JLogging {
    * @param endsWith to specify the end of the file.
    * @param contains to specify that the file has to contain whatever is in this parameter.
    * @param notContains to specify that the file hasn't to contain whatever is in this parameter.
-   * @param excludeFolder path to exclude and not look for plugins.
+   * @param excludedDirectories path to exclude and not look for plugins.
    * @param doAddToClassPath if it's true it will add the jars to the class path
    * @return a list of loaded jars.
    */
 
-  def findJarsByPath(path: File,
-                     endsWith: Option[String] = None,
-                     contains: Option[String] = None,
-                     notContains: Option[String] = None,
-                     excludeFolder: Option[Seq[String]] = None,
-                     doAddToClassPath: Boolean = true): Seq[File] = {
-    if (!path.isDirectory ||
-      (path.isDirectory && excludeFolder.forall(folder => folder.forall(exFolder => path.getName != exFolder)))) {
+  def findJarsByPath(path : File,
+                     endsWith : Option[String] = None,
+                     contains : Option[String] = None,
+                     notContains : Option[String] = None,
+                     excludedDirectories : Option[Seq[String]] = None,
+                     doAddToClassPath : Boolean = true) : Seq[File] = {
+    if (isFileNotExcluded(path, excludedDirectories)) {
       val these = path.listFiles()
       val good = these.filter(f => {
         val filter = endsWith.forall(ends => f.getName.endsWith(ends)) &&
           contains.forall(cont => f.getName.contains(cont)) &&
           notContains.forall(ncont => !f.getName.contains(ncont))
+
         if (doAddToClassPath && filter) {
           addToClasspath(f)
           log.debug("File " + f.getName + " added")
         }
         filter
       })
-      good ++ these.filter(file => {
-        file.isDirectory &&
-          excludeFolder.forall(folder => folder.forall(exFolder => file.getName != exFolder))
-      }).flatMap(path => findJarsByPath(path, endsWith, contains, notContains, excludeFolder, doAddToClassPath))
-    } else Seq()
+      good ++ these.filter(file => isDirectoryNotExluded(file, excludedDirectories))
+        .flatMap(path => findJarsByPath(path, endsWith, contains, notContains, excludedDirectories, doAddToClassPath))
+    } else {
+      log.warn(s"The file ${path.getName} not exists or is excluded")
+      Seq()
+    }
   }
 
   /**
@@ -67,22 +68,60 @@ object JarsHelper extends SLF4JLogging {
    * @param path base path when it starts to scan in order to find plugins.
    * @return a list of jars.
    */
-  def findDriverByPath(path: File): Seq[File] = {
-    val these = path.listFiles()
-    val good =
-      these.filter(f => f.getName.toLowerCase.contains("driver") &&
-        f.getName.toLowerCase.contains("plugin") &&
-        f.getName.endsWith(".jar"))
-    good ++ these.filter(_.isDirectory).flatMap(path => findDriverByPath(path))
+  def findDriverByPath(path : File) : Seq[File] = {
+    if (path.exists) {
+      val these = path.listFiles()
+      val good =
+        these.filter(f => f.getName.toLowerCase.contains("driver") &&
+          f.getName.toLowerCase.contains("plugin") &&
+          f.getName.endsWith(".jar"))
+
+      good ++ these.filter(_.isDirectory).flatMap(path => findDriverByPath(path))
+    } else {
+      log.warn(s"The file ${path.getName} not exists.")
+      Seq()
+    }
   }
 
   /**
    * Adds a file to the classpath of the application.
    * @param file to add in the classpath.
    */
-  def addToClasspath(file: File): Unit = {
-    val method: Method = classOf[URLClassLoader].getDeclaredMethod("addURL", classOf[URL])
-    method.setAccessible(true)
-    method.invoke(ClassLoader.getSystemClassLoader, file.toURI.toURL)
+  def addToClasspath(file : File) : Unit = {
+    if (file.exists) {
+      val method : Method = classOf[URLClassLoader].getDeclaredMethod("addURL", classOf[URL])
+
+      method.setAccessible(true)
+      method.invoke(ClassLoader.getSystemClassLoader, file.toURI.toURL)
+    } else {
+      log.warn(s"The file ${file.getName} not exists.")
+    }
   }
+
+  /**
+   *
+   * @param file file to search
+   * @param excludedDirectories list of directories names excluded from the search
+   * @return
+   */
+  private def isFileNotExcluded(file : File, excludedDirectories : Option[Seq[String]]) : Boolean =
+    file.exists && (!file.isDirectory || isExcludedDirectory(file, excludedDirectories))
+
+  /**
+   *
+   * @param directory file to search
+   * @param excludedDirectories list of directories names excluded from the search
+   * @return
+   */
+  private def isDirectoryNotExluded(directory : File, excludedDirectories : Option[Seq[String]]) : Boolean =
+    directory.exists && (directory.isDirectory || isExcludedDirectory(directory, excludedDirectories))
+
+  /**
+   *
+   * @param path to check if is excluded
+   * @param excludedDirectories list of directories names excluded from the search
+   * @return
+   */
+  private def isExcludedDirectory(path : File, excludedDirectories : Option[Seq[String]]) : Boolean =
+    path.isDirectory && excludedDirectories.forall(folder => !folder.contains(path.getName))
 }
