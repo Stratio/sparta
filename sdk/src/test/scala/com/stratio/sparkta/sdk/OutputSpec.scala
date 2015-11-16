@@ -31,6 +31,7 @@ class OutputSpec extends WordSpec with Matchers {
   trait CommonValues {
 
     val timeDimension = "minute"
+    val tableName = "table"
     val timestamp = 1L
     val defaultDimension = new DimensionTypeMock(Map())
     val dimensionValuesT = DimensionValuesTime(Seq(DimensionValue(
@@ -75,6 +76,14 @@ class OutputSpec extends WordSpec with Matchers {
       ),
       Some(Map("op1" ->(WriteOp.Set, TypeOp.Long))),
       Some(Seq(tableSchema)))
+
+
+    val outputVersioned = new OutputMock(outputName,
+      Option(1),
+      Map(),
+      Some(Map("op1" ->(WriteOp.Set, TypeOp.Long))),
+      Some(Seq(tableSchema)))
+
   }
 
   "Output" should {
@@ -252,6 +261,12 @@ class OutputSpec extends WordSpec with Matchers {
     "classSuffix must be " in {
       val expected = "Output"
       val result = Output.ClassSuffix
+      result should be(expected)
+    }
+
+    "the table name versioned must be " in new CommonValues {
+      val expected = "table_v1"
+      val result = outputVersioned.getTableNameVersioned(tableName)
       result should be(expected)
     }
   }
