@@ -359,3 +359,7 @@ Csv Configuration
 +--------------------------+-----------------------------------------------+----------+-----------------------+
 | dateGranularity          | Specify the granularity from second to year   | Yes      | Day                   |
 +--------------------------+-----------------------------------------------+----------+-----------------------+
+
+  In Csv each cube is storage in one path, but when you modify the policy that involve this cube, Sparkta create a
+new path with the next version. The name of all tables are the dimensions separated by '_' and the first version is
+"v1" when modify the policy the path is "dimensions_v2".
