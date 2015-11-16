@@ -320,6 +320,9 @@ The parquet output uses generic implementation of DataFrames.
 | path                     | Destination path to store info.               | No       |                       |
 +--------------------------+-----------------------------------------------+----------+-----------------------+
 
+In Parquet each cube is storage in one path, but when you modify the policy that involve this cube, Sparkta create a
+new path with the next version. The name of all tables are the dimensions separated by '_' and the first version is
+"v1" when modify the policy the path is "dimensions_v2".
 
 .. _csv-label:
 
