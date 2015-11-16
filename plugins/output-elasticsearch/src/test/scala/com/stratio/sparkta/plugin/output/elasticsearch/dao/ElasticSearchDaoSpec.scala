@@ -16,11 +16,10 @@
 
 package com.stratio.sparkta.plugin.output.elasticsearch.dao
 
+import com.stratio.sparkta.sdk.TypeOp
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FlatSpec, ShouldMatchers}
-
-import com.stratio.sparkta.sdk.TypeOp
 
 @RunWith(classOf[JUnitRunner])
 class ElasticSearchDAOSpec extends FlatSpec with ShouldMatchers {
@@ -58,15 +57,17 @@ class ElasticSearchDAOSpec extends FlatSpec with ShouldMatchers {
   it should "test extra methods for coverage" in new BaseValues {
     dao.idField should be(None)
     dao.defaultIndexMapping should be(None)
-    dao.mappingType should be(None)
+    dao.mappingType should be("sparkta")
   }
 }
 
-case class ESDaoMock(_nodes: Seq[(String, Int, Int)] = Seq(), _clusterName: String) extends ElasticSearchDAO {
+case class ESDaoMock(_nodes : Seq[(String, Int, Int)] = Seq(), _clusterName : String) extends ElasticSearchDAO {
 
-  override def tcpNodes: Seq[(String, Int)] = _nodes.map(x => (x._1, x._3))
+  override def tcpNodes : Seq[(String, Int)] = _nodes.map(x => (x._1, x._3))
 
-  override def httpNodes: Seq[(String, Int)] = _nodes.map(x => (x._1, x._2))
+  override def httpNodes : Seq[(String, Int)] = _nodes.map(x => (x._1, x._2))
 
-  override def clusterName: String = clusterName
+  override def clusterName : String = clusterName
+
+  override def mappingType : String = DefaultIndexType
 }

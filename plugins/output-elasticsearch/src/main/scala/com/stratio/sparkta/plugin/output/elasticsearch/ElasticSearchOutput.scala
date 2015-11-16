@@ -1,18 +1,18 @@
 /**
-  * Copyright (C) 2015 Stratio (http://stratio.com)
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  * http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+ * Copyright (C) 2015 Stratio (http://stratio.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.stratio.sparkta.plugin.output.elasticsearch
 
@@ -33,23 +33,23 @@ import org.elasticsearch.common.settings._
 import org.elasticsearch.spark.sql._
 
 /**
-  *
-  * Check for possible Elasticsearch-dataframe settings
-  *
-  * org/elasticsearch/hadoop/cfg/Settings.java
-  * org/elasticsearch/hadoop/cfg/ConfigurationOptions.java
-  *
-  */
-class ElasticSearchOutput(keyName: String,
-                          version: Option[Int],
-                          properties: Map[String, JSerializable],
-                          operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
-                          bcSchema: Option[Seq[TableSchema]])
+ *
+ * Check for possible Elasticsearch-dataframe settings
+ *
+ * org/elasticsearch/hadoop/cfg/Settings.java
+ * org/elasticsearch/hadoop/cfg/ConfigurationOptions.java
+ *
+ */
+class ElasticSearchOutput(keyName : String,
+                          version : Option[Int],
+                          properties : Map[String, JSerializable],
+                          operationTypes : Option[Map[String, (WriteOp, TypeOp)]],
+                          bcSchema : Option[Seq[TableSchema]])
   extends Output(keyName, version, properties, operationTypes, bcSchema) with ElasticSearchDAO {
 
   override val idField = properties.getString("idField", None)
 
-  override val mappingType = properties.getString("indexMapping", Some(DefaultIndexType))
+  override val mappingType = properties.getString("indexMapping", DefaultIndexType)
 
   override val dateType = getDateTimeType(properties.getString("dateType", None))
 
@@ -73,38 +73,35 @@ class ElasticSearchOutput(keyName: String,
 
   lazy val getSchema = bcSchema.get.filter(_.outputName == keyName).map(getTableSchemaFixedId)
 
-  lazy val isLocalhost: Boolean = LocalhostPattern.matcher(tcpNodes.head._1).matches
+  lazy val isLocalhost : Boolean = LocalhostPattern.matcher(tcpNodes.head._1).matches
 
-  lazy val mappingName = version match {
-    case Some(v) => s"${mappingType.get}${Output.Separator}v$v".toLowerCase
-    case None => mappingType.get
-  }
+  lazy val mappingName = getTableNameVersioned(mappingType).toLowerCase
 
-  override def setup: Unit = createIndices
+  override def setup : Unit = createIndices
 
-  private def createIndices: Unit = {
+  private def createIndices : Unit = {
     getSchema.map(tableSchemaTime => createIndexAccordingToSchema(tableSchemaTime.tableName, tableSchemaTime.schema))
     elasticClient.close
   }
 
-  private def createIndexAccordingToSchema(tableName: String, schema: StructType) =
+  private def createIndexAccordingToSchema(tableName : String, schema : StructType) =
     elasticClient.execute {
       create index tableName.toLowerCase shards 5 replicas 1 mappings (
         mappingName as getElasticsearchFields(schema))
     }
 
-  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit =
+  override def doPersist(stream : DStream[(DimensionValuesTime, Map[String, Option[Any]])]) : Unit =
     persistDataFrame(stream)
 
-  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
+  override def upsert(dataFrame : DataFrame, tableName : String, timeDimension : String) : Unit = {
     val sparkConfig = getSparkConfig(timeDimension, idField.isDefined || isAutoCalculateId)
     dataFrame.saveToEs(indexNameType(tableName), sparkConfig)
   }
 
-  def indexNameType(tableName: String): String = s"${tableName.toLowerCase}/$mappingName"
+  def indexNameType(tableName : String) : String = s"${tableName.toLowerCase}/$mappingName"
 
   //scalastyle:off
-  def getElasticsearchFields(schema: StructType): Seq[TypedFieldDefinition] = {
+  def getElasticsearchFields(schema : StructType) : Seq[TypedFieldDefinition] = {
     schema.map(structField => structField.dataType match {
       case LongType => structField.name typed FieldType.LongType
       case DoubleType => structField.name typed FieldType.DoubleType
@@ -122,11 +119,11 @@ class ElasticSearchOutput(keyName: String,
 
   //scalastyle:on
 
-  def getHostPortConfs(key: String,
-                       defaultHost: String,
-                       defaultPort: String,
-                       nodeName: String,
-                       portName: String): Seq[(String, Int)] = {
+  def getHostPortConfs(key : String,
+                       defaultHost : String,
+                       defaultPort : String,
+                       nodeName : String,
+                       portName : String) : Seq[(String, Int)] = {
     properties.getConnectionChain(key).map(c =>
       (c.getOrElse(nodeName, defaultHost), c.getOrElse(portName, defaultPort).toInt))
   }
