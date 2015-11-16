@@ -28,13 +28,11 @@ import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.SaveMode._
 import org.apache.spark.streaming.dstream.DStream
 
-import scala.util.Try
-
-class MongoDbOutput(keyName: String,
-                    version: Option[Int],
-                    properties: Map[String, JSerializable],
-                    operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
-                    bcSchema: Option[Seq[TableSchema]])
+class MongoDbOutput(keyName : String,
+                    version : Option[Int],
+                    properties : Map[String, JSerializable],
+                    operationTypes : Option[Map[String, (WriteOp, TypeOp)]],
+                    bcSchema : Option[Seq[TableSchema]])
   extends Output(keyName, version, properties, operationTypes, bcSchema) with MongoDbDAO {
 
   RegisterJodaTimeConversionHelpers()
@@ -55,7 +53,7 @@ class MongoDbOutput(keyName: String,
 
   override val language = properties.getString("language", None)
 
-  override def setup: Unit = {
+  override def setup : Unit = {
     val db = connectToDatabase
     if (bcSchema.isDefined && db.isDefined) {
       val schemasFiltered =
@@ -66,11 +64,11 @@ class MongoDbOutput(keyName: String,
     }
   }
 
-  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+  override def doPersist(stream : DStream[(DimensionValuesTime, Map[String, Option[Any]])]) : Unit = {
     persistDataFrame(stream)
   }
 
-  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
+  override def upsert(dataFrame : DataFrame, tableName : String, timeDimension : String) : Unit = {
     val options = getDataFrameOptions(tableName, timeDimension)
     dataFrame.write
       .format("com.stratio.provider.mongodb")
@@ -79,7 +77,7 @@ class MongoDbOutput(keyName: String,
       .save()
   }
 
-  private def getDataFrameOptions(tableName: String, timeDimension: String): Map[String, String] =
+  private def getDataFrameOptions(tableName : String, timeDimension : String) : Map[String, String] =
     Map(
       "host" -> hosts,
       "database" -> dbName,
@@ -87,12 +85,12 @@ class MongoDbOutput(keyName: String,
       if (language.isDefined) Map("language" -> language.get) else Map()
     }
 
-  private def getPrimaryKeyOptions(timeDimension: String): Map[String, String] =
-      if (!timeDimension.isEmpty) {
-        Map("searchFields" -> Seq(Output.Id, timeDimension).mkString(","))
-      } else Map("searchFields" -> Output.Id)
+  private def getPrimaryKeyOptions(timeDimension : String) : Map[String, String] =
+    if (!timeDimension.isEmpty) {
+      Map("searchFields" -> Seq(Output.Id, timeDimension).mkString(","))
+    } else Map("searchFields" -> Output.Id)
 
-  private def getConnectionConfs(key: String, firstJsonItem: String, secondJsonItem: String): String = {
+  private def getConnectionConfs(key : String, firstJsonItem : String, secondJsonItem : String) : String = {
     val conObj = properties.getConnectionChain(key)
     conObj.map(c => {
       val host = c.getOrElse(firstJsonItem, DefaultHost)
