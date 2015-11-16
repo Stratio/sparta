@@ -52,15 +52,15 @@ trait MongoDbDAO extends Logging {
 
   def retrySleep : Int
 
-  protected def connectToDatabase : Option[MongoClient] = {
+  protected def connectToDatabase : MongoClient = {
     val addresses = mongoAddresses(hosts.split(","))
     Try(MongoClient(addresses, clientOptions)) match {
-      case Success(database) => Option(database)
+      case Success(database) => database
       case Failure(e) => {
         Thread.sleep(retrySleep)
-        Try(Option(MongoClient(addresses, clientOptions))).getOrElse({
-          log.warn(e.getMessage)
-          None
+        Try(MongoClient(addresses, clientOptions)).getOrElse({
+          log.error(e.getMessage)
+          throw new MongoException(e.getMessage)
         })
       }
     }

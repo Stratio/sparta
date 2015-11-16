@@ -54,13 +54,13 @@ class MongoDbOutput(keyName : String,
   override val language = properties.getString("language", None)
 
   override def setup : Unit = {
-    val db = connectToDatabase
-    if (bcSchema.isDefined && db.isDefined) {
+    if (bcSchema.isDefined) {
+      val db = connectToDatabase
       val schemasFiltered =
         bcSchema.get.filter(schemaFilter => schemaFilter.outputName == keyName).map(getTableSchemaFixedId(_))
       filterSchemaByFixedAndTimeDimensions(schemasFiltered)
-        .foreach(tableSchema => createPkTextIndex(db.get, tableSchema.tableName, tableSchema.timeDimension))
-      db.get.close()
+        .foreach(tableSchema => createPkTextIndex(db, tableSchema.tableName, tableSchema.timeDimension))
+      db.close()
     }
   }
 
