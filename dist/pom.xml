@@ -78,7 +78,7 @@
                                             <fileset dir="../driver/target" includes="*.jar" />
                                         </copy>
                                         <copy todir="target/appassembler/repo/cluster">
-                                            <fileset dir="../driver/target/cluster" includes="**/*.jar" />
+                                            <fileset dir="../driver/target/cluster" includes="**/*.jar" excludes="**/input-rabbitMQ*.jar" />
                                             <mapper type="flatten" />
                                         </copy>
                                         <copy todir="target/appassembler/repo/serving-api">
@@ -86,7 +86,7 @@
                                             <mapper type="flatten" />
                                         </copy>
                                         <copy todir="target/appassembler/repo/plugins">
-                                            <fileset dir="../plugins" includes="**/*.jar" />
+                                            <fileset dir="../plugins" includes="**/*.jar" excludes="**/input-rabbitMQ*.jar" />
                                             <mapper type="flatten" />
                                         </copy>
                                         <copy todir="target/appassembler/repo/web">
