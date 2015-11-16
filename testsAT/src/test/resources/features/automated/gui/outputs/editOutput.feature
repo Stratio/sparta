@@ -44,14 +44,6 @@ Feature: Test editing an output in Sparkta GUI
 		Given '1' element exists with 'css:input[data-qa="fragment-detail-name"]'
 		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
 		
-		# Try empty Time stamp field name
-		Given '1' element exists with 'css:input[data-qa="fragment-details-redis-timeStampFieldName"]'
-		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
-		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
-		When I click on the element on index '0'
-		# Error message should appear
-		Then '0' element exists with 'css:span[data-qa="fragment-details-redis-timeStampFieldName-error-required"]'
-		
 		# Try with port using letters
 		Given '1' element exists with 'css:input[data-qa="fragment-details-redis-port"]'
 		Then I type 'port' on the element on index '0'

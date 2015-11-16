@@ -81,8 +81,6 @@ Feature: Test editting a policy in Sparkta GUI
 		And '1' element exists with 'css:button[data-qa="modal-ok-button"]'
 		And I click on the element on index '0'		
 		# Add
-		Given '1' element exists with 'css:input[data-qa="policy-model-name"]'
-		Then I type 'myModel2' on the element on index '0'
 		Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
 		Then I type 'myOutput2' on the element on index '0'
 		Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
