@@ -18,11 +18,10 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
-
-import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 
 @RunWith(classOf[JUnitRunner])
 class ValidatingPropertyMapSpec extends FlatSpec with ShouldMatchers {
@@ -87,4 +86,15 @@ class ValidatingPropertyMapSpec extends FlatSpec with ShouldMatchers {
     data.hasKey("dummy") should be(false)
   }
 
+  it should "parse to a connection chain" in {
+    val conn = """[{"host":"host1","port":"20304"},{"host":"host2","port":"20304"},{"host":"host3","port":"20304"}]"""
+    val validating: ValidatingPropertyMap[String, JsoneyString] =
+      new ValidatingPropertyMap[String, JsoneyString](Map("nodes" -> JsoneyString(conn)))
+
+    validating.getConnectionChain("nodes") should be(List(
+      Map("host" -> "host1", "port" -> "20304"),
+      Map("host" -> "host2", "port" -> "20304"),
+      Map("host" -> "host3", "port" -> "20304")
+    ))
+  }
 }
