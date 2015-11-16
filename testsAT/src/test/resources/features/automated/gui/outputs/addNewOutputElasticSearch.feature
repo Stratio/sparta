@@ -26,7 +26,7 @@ Feature: Test adding a new ElasticSearch output in Sparkta GUI
 
 		# Try name with spaces
 		Given '1' element exists with 'css:input[data-qa="fragment-detail-name"]'
-		Then I type 'valid Flume Input' on the element on index '0'
+		Then I type 'valid Elasticsearch Output' on the element on index '0'
 		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
 		When I click on the element on index '0'
 		# Error message should appear
@@ -38,13 +38,15 @@ Feature: Test adding a new ElasticSearch output in Sparkta GUI
 		Given '1' element exists with 'css:i[data-qa="fragment-details-elasticSearch-nodes-plus-0"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-node-1"]'
-		And '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-defaultPort-1"]'
+		And '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-tcpPort-1"]'
+		And '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-httpPort-1"]'
 		And '2' elements exist with 'css:i[data-qa^="fragment-details-elasticSearch-nodes-plus"]'
 		And '2' elements exist with 'css:i[data-qa^="fragment-details-elasticSearch-nodes-minus"]'
 		Then I wait '2' seconds
 		When I click on the element on index '1'
 		Then '0' elements exist with 'css:input[data-qa="fragment-details-elasticSearch-node-1"]'
-		And '0' elements exist with 'css:input[data-qa="fragment-details-elasticSearch-defaultPort-1"]'
+		And '0' elements exist with 'css:input[data-qa="fragment-details-elasticSearch-tcpPort-1"]'
+		And '0' elements exist with 'css:input[data-qa="fragment-details-elasticSearch-httpPort-1"]'
 		
 		# Try empty Index mapping
 		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-indexMapping"]'
@@ -54,44 +56,68 @@ Feature: Test adding a new ElasticSearch output in Sparkta GUI
 		# NO error message should appear
 		Then '0' element exists with 'css:span[data-qa="fragment-details-elasticSearch-indexMapping-error-required"]'
 		
-		# Try with port using letters
-		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-defaultPort-0"]'
+		# Try with tcp port using letters
+		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-tcpPort-0"]'
 		Then I type 'port' on the element on index '0'
 		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
 		When I click on the element on index '0'
 		# Error message should appear
-		Then '1' element exists with 'css:span[data-qa="fragment-details-elasticSearch-defaultPort-0-error-pattern"]'
+		Then '1' element exists with 'css:span[data-qa="fragment-details-elasticSearch-tcpPort-0-error-pattern"]'
+
+		# Try with http port using letters
+                Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-httpPort-0"]'
+                Then I type 'port' on the element on index '0'
+                Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
+                When I click on the element on index '0'
+                # Error message should appear
+                Then '1' element exists with 'css:span[data-qa="fragment-details-elasticSearch-httpPort-0-error-pattern"]'
 		
 		# Try with empty Host
 		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-node-0"]'
 		When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
-		# Try with empty Port
-		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-defaultPort-0"]'
+		# Try with empty tcp Port
+		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-tcpPort-0"]'
 		When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
+		# Try with empty http Port
+                Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-httpPort-0"]'
+                When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
 		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
 		When I click on the element on index '0'
 		# Error message should appear
 		Then '1' elements exist with 'css:span[data-qa="fragment-details-elasticSearch-node-0-error-required"]'
-		And '1' elements exist with 'css:span[data-qa="fragment-details-elasticSearch-defaultPort-0-error-required"]'
+		And '1' elements exist with 'css:span[data-qa="fragment-details-elasticSearch-tcpPort-0-error-required"]'
+		And '1' elements exist with 'css:span[data-qa="fragment-details-elasticSearch-httpPort-0-error-required"]'
 		
-		# Try with invalid port number
-		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-defaultPort-0"]'
+		# Try with invalid tcp port number
+		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-tcpPort-0"]'
 		Then I type '66666' on the element on index '0'
 		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
 		When I click on the element on index '0'
 		# Error message should appear
-		Then '1' elements exist with 'css:span[data-qa="fragment-details-elasticSearch-defaultPort-0-error-pattern"]'
+		Then '1' elements exist with 'css:span[data-qa="fragment-details-elasticSearch-tcpPort-0-error-pattern"]'
 		
+		# Try with invalid http port number
+                Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-httpPort-0"]'
+                Then I type '66666' on the element on index '0'
+                Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
+                When I click on the element on index '0'
+                # Error message should appear
+                Then '1' elements exist with 'css:span[data-qa="fragment-details-elasticSearch-httpPort-0-error-pattern"]'
+
 		# Fill in name field
 		Given '1' element exists with 'css:input[data-qa="fragment-detail-name"]'
 		Then I type 'validElasticSearchOutput' on the element on index '0'
 		# Fill in host field
 		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-node-0"]'
 		Then I type 'localhost' on the element on index '0'
-		# Fill in port field
-		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-defaultPort-0"]'
+		# Fill in tcp port field
+		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-tcpPort-0"]'
 		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
 		And I type '9300' on the element on index '0'
+		# Fill in http port field
+                Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-httpPort-0"]'
+                Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
+                And I type '9200' on the element on index '0'
 		# Fill in Index mapping
 		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-indexMapping"]'
 		Then I type 'myIndexMapping' on the element on index '0'
@@ -123,10 +149,14 @@ Feature: Test adding a new ElasticSearch output in Sparkta GUI
 		# Fill in host field
 		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-node-0"]'
 		Then I type 'localhost' on the element on index '0'
-		# Fill in port field
-		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-defaultPort-0"]'
+		# Fill in tcp port field
+		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-tcpPort-0"]'
 		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
 		And I type '9300' on the element on index '0'
+		# Fill in http port field
+                Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-httpPort-0"]'
+                Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
+                And I type '9200' on the element on index '0'
 		# Fill in Index mapping
 		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-indexMapping"]'
 		Then I type 'myIndexMapping' on the element on index '0'
