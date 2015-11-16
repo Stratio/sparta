@@ -17,16 +17,19 @@
 package com.stratio.sparkta.plugin.operator.count
 
 import java.io.{Serializable => JSerializable}
-import scala.util.Try
 
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.{TypeOp, _}
 
+import scala.util.Try
+
 class CountOperator(name: String, properties: Map[String, JSerializable])
   extends Operator(name, properties) {
 
   val distinctFields = parseDistinctFields
+
+  override val associativity = MathProperties.Associative
 
   override val defaultTypeOperation = TypeOp.Long
 
@@ -48,8 +51,12 @@ class CountOperator(name: String, properties: Map[String, JSerializable])
         case None => values.flatten.map(value => value.asInstanceOf[Number].longValue())
         case Some(fields) => values.flatten.toList.distinct.map(value => CountOperator.One.toLong)
       }
-      Some(transformValueByTypeOp(returnType, longList.sum))
+      Some(longList.sum)
     }.getOrElse(Some(OperatorConstants.Zero.toLong))
+  }
+
+  override def processAssociative(values: Iterable[Option[Any]]): Option[Long] = {
+    Some(transformValueByTypeOp(returnType, values.flatten.map(_.asInstanceOf[Number].longValue()).sum))
   }
 
   //FIXME: We should refactor this code

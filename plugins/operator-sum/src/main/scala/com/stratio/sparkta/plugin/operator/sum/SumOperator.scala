@@ -17,26 +17,31 @@
 package com.stratio.sparkta.plugin.operator.sum
 
 import java.io.{Serializable => JSerializable}
-import scala.util.Try
 
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk._
 
-class SumOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
+import scala.util.Try
+
+class SumOperator(name : String, properties : Map[String, JSerializable]) extends Operator(name, properties)
 with ProcessMapAsNumber {
 
   override val defaultTypeOperation = TypeOp.Double
 
   override val writeOperation = WriteOp.Inc
 
+  override val associativity = MathProperties.Associative
+
   override val castingFilterType = TypeOp.Number
 
-  override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
+  override def processReduce(values : Iterable[Option[Any]]) : Option[Double] = {
     Try(
-      Some(transformValueByTypeOp(
-        returnType,
-        getDistinctValues(values.flatten.map(_.asInstanceOf[Number].doubleValue())).sum))
+      Some(
+        getDistinctValues(values.flatten.map(_.asInstanceOf[Number].doubleValue())).sum)
     ).getOrElse(Some(OperatorConstants.Zero.toDouble))
   }
-}
 
+  override def processAssociative(values : Iterable[Option[Any]]) : Option[Double] = {
+    Some(transformValueByTypeOp(returnType, values.flatten.map(_.asInstanceOf[Number].doubleValue()).sum))
+  }
+}

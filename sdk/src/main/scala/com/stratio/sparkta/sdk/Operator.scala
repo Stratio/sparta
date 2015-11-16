@@ -17,17 +17,18 @@
 package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
+
+import com.stratio.sparkta.sdk.MathProperties.Associativity
+import com.stratio.sparkta.sdk.TypeOp.TypeOp
+import com.stratio.sparkta.sdk.ValidatingPropertyMap._
+import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+
 import scala.collection.immutable.StringOps
 import scala.language.reflectiveCalls
 import scala.runtime.RichDouble
 import scala.util._
-
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
-
-import com.stratio.sparkta.sdk.TypeOp.TypeOp
-import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
 
 abstract class Operator(name: String, properties: Map[String, JSerializable]) extends Parameterizable(properties)
 with Ordered[Operator] with TypeConversions {
@@ -41,6 +42,8 @@ with Ordered[Operator] with TypeConversions {
 
   def key: String = name
 
+  def associativity: Associativity = MathProperties.NonAssociative
+
   def distinct: Boolean = Try(properties.getString("distinct").toBoolean).getOrElse(false)
 
   def writeOperation: WriteOp
@@ -48,6 +51,8 @@ with Ordered[Operator] with TypeConversions {
   val inputField = properties.getString("inputField", None)
 
   def processReduce(values: Iterable[Option[Any]]): Option[Any]
+
+  def processAssociative(values: Iterable[Option[Any]]): Option[Any] = None
 
   def castingFilterType: TypeOp = TypeOp.String
 
