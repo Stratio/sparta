@@ -36,12 +36,12 @@ object JarsHelper extends SLF4JLogging {
    * @return a list of loaded jars.
    */
 
-  def findJarsByPath(path: File,
-                     endsWith: Option[String] = None,
-                     contains: Option[String] = None,
-                     notContains: Option[String] = None,
-                     excludedDirectories: Option[Seq[String]] = None,
-                     doAddToClassPath: Boolean = true): Seq[File] = {
+  def findJarsByPath(path : File,
+                     endsWith : Option[String] = None,
+                     contains : Option[String] = None,
+                     notContains : Option[String] = None,
+                     excludedDirectories : Option[Seq[String]] = None,
+                     doAddToClassPath : Boolean = true) : Seq[File] = {
     if (isFileNotExcluded(path, excludedDirectories)) {
       val these = path.listFiles()
       val good = these.filter(f => {
@@ -68,8 +68,8 @@ object JarsHelper extends SLF4JLogging {
    * @param path base path when it starts to scan in order to find plugins.
    * @return a list of jars.
    */
-  def findDriverByPath(path: File): Seq[File] = {
-    if(path.exists) {
+  def findDriverByPath(path : File) : Seq[File] = {
+    if (path.exists) {
       val these = path.listFiles()
       val good =
         these.filter(f => f.getName.toLowerCase.contains("driver") &&
@@ -87,9 +87,9 @@ object JarsHelper extends SLF4JLogging {
    * Adds a file to the classpath of the application.
    * @param file to add in the classpath.
    */
-  def addToClasspath(file: File): Unit = {
-    if(file.exists) {
-      val method: Method = classOf[URLClassLoader].getDeclaredMethod("addURL", classOf[URL])
+  def addToClasspath(file : File) : Unit = {
+    if (file.exists) {
+      val method : Method = classOf[URLClassLoader].getDeclaredMethod("addURL", classOf[URL])
 
       method.setAccessible(true)
       method.invoke(ClassLoader.getSystemClassLoader, file.toURI.toURL)
@@ -99,29 +99,29 @@ object JarsHelper extends SLF4JLogging {
   }
 
   /**
-    *
-    * @param file file to search
-    * @param excludedDirectories list of directories names excluded from the search
-    * @return
-    */
-  private def isFileNotExcluded(file: File, excludedDirectories: Option[Seq[String]]) : Boolean =
+   *
+   * @param file file to search
+   * @param excludedDirectories list of directories names excluded from the search
+   * @return
+   */
+  private def isFileNotExcluded(file : File, excludedDirectories : Option[Seq[String]]) : Boolean =
     file.exists && (!file.isDirectory || isExcludedDirectory(file, excludedDirectories))
 
   /**
-    *
-    * @param directory file to search
-    * @param excludedDirectories list of directories names excluded from the search
-    * @return
-    */
-  private def isDirectoryNotExluded(directory: File, excludedDirectories: Option[Seq[String]]) : Boolean =
+   *
+   * @param directory file to search
+   * @param excludedDirectories list of directories names excluded from the search
+   * @return
+   */
+  private def isDirectoryNotExluded(directory : File, excludedDirectories : Option[Seq[String]]) : Boolean =
     directory.exists && (directory.isDirectory || isExcludedDirectory(directory, excludedDirectories))
 
   /**
-    *
-    * @param path to check if is excluded
-    * @param excludedDirectories list of directories names excluded from the search
-    * @return
-    */
-  private def isExcludedDirectory(path: File, excludedDirectories: Option[Seq[String]]) : Boolean =
+   *
+   * @param path to check if is excluded
+   * @param excludedDirectories list of directories names excluded from the search
+   * @return
+   */
+  private def isExcludedDirectory(path : File, excludedDirectories : Option[Seq[String]]) : Boolean =
     path.isDirectory && excludedDirectories.forall(folder => !folder.contains(path.getName))
 }
