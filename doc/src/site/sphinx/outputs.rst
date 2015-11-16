@@ -100,9 +100,6 @@ parameters to connect to the DB and self-creation of indexes.
 |                       | number of threads that may be waiting for a        |          |                           |
 |                       | connection to become available from the pool.      |          |                           |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
-| idAsField             | It's possible to save all fields that compound the | Yes      | false                     |
-|                       | unique key as a independent field.                 |          |                           |
-+-----------------------+----------------------------------------------------+----------+---------------------------+
 | textIndexFields       | The system is capable of insert data in a full-text| Yes      |                           |
 |                       | index. All of this fields compound the index.      |          |                           |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
