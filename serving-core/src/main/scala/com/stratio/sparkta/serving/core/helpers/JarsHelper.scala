@@ -42,7 +42,7 @@ object JarsHelper extends SLF4JLogging {
                      notContains: Option[String] = None,
                      excludedDirectories: Option[Seq[String]] = None,
                      doAddToClassPath: Boolean = true): Seq[File] = {
-    if (isFileNotExluded(path, excludedDirectories)) {
+    if (isFileNotExcluded(path, excludedDirectories)) {
       val these = path.listFiles()
       val good = these.filter(f => {
         val filter = endsWith.forall(ends => f.getName.endsWith(ends)) &&
@@ -104,7 +104,7 @@ object JarsHelper extends SLF4JLogging {
     * @param excludedDirectories list of directories names excluded from the search
     * @return
     */
-  private def isFileNotExluded(file: File, excludedDirectories: Option[Seq[String]]) : Boolean =
+  private def isFileNotExcluded(file: File, excludedDirectories: Option[Seq[String]]) : Boolean =
     file.exists && (!file.isDirectory || isExcludedDirectory(file, excludedDirectories))
 
   /**
