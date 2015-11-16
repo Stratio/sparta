@@ -29,38 +29,38 @@ import org.apache.spark.streaming.dstream.DStream
 
 import scala.util._
 
-abstract class Output(keyName : String,
-                      version : Option[Int],
-                      properties : Map[String, JSerializable],
-                      operationTypes : Option[Map[String, (WriteOp, TypeOp)]],
-                      bcSchema : Option[Seq[TableSchema]])
+abstract class Output(keyName: String,
+                      version: Option[Int],
+                      properties: Map[String, JSerializable],
+                      operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
+                      bcSchema: Option[Seq[TableSchema]])
   extends Parameterizable(properties) with Logging {
 
   if (operationTypes.isEmpty) {
     log.info("Operation types is empty, you don't have aggregations defined in your policy.")
   }
 
-  var sqlContext : SQLContext = _
+  var sqlContext: SQLContext = _
 
-  def getName : String = keyName
+  def getName: String = keyName
 
-  def dateType : TypeOp.Value = TypeOp.Timestamp
+  def dateType: TypeOp.Value = TypeOp.Timestamp
 
-  def fixedDimensionsType : TypeOp.Value = TypeOp.String
+  def fixedDimensionsType: TypeOp.Value = TypeOp.String
 
   val supportedWriteOps = Seq(WriteOp.FullText, WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Range,
     WriteOp.AccSet, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.AccAvg, WriteOp.Median,
     WriteOp.AccMedian, WriteOp.Variance, WriteOp.AccVariance, WriteOp.Stddev, WriteOp.AccStddev,
     WriteOp.WordCount, WriteOp.EntityCount, WriteOp.Mode)
 
-  val fixedDimensions : Array[String] = properties.getString("fixedDimensions", None) match {
+  val fixedDimensions: Array[String] = properties.getString("fixedDimensions", None) match {
     case None => Array()
     case Some(fixDimensions) => fixDimensions.split(FieldsSeparator)
   }
 
   val fixedAgg = properties.getString("fixedAggregation", None)
 
-  val fixedAggregation : Map[String, Option[Any]] =
+  val fixedAggregation: Map[String, Option[Any]] =
     if (fixedAgg.isDefined) {
       val fixedAggSplited = fixedAgg.get.split(Output.FixedAggregationSeparator)
       Map(fixedAggSplited.head -> Some(fixedAggSplited.last))
@@ -68,23 +68,23 @@ abstract class Output(keyName : String,
 
   final val FieldsSeparator = ","
 
-  def isAutoCalculateId : Boolean = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
+  def isAutoCalculateId: Boolean = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
-  def persist(streams : Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]]) : Unit = {
+  def persist(streams: Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]]): Unit = {
     sqlContext = new SQLContext(streams.head.context.sparkContext)
     setup
     streams.foreach(stream => doPersist(stream))
   }
 
-  protected def setup : Unit = {}
+  protected def setup: Unit = {}
 
-  def doPersist(stream : DStream[(DimensionValuesTime, Map[String, Option[Any]])]) : Unit = {
+  def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     if (bcSchema.isDefined)
       persistDataFrame(stream)
     else persistMetricOperation(stream)
   }
 
-  protected def persistMetricOperation(stream : DStream[(DimensionValuesTime, Map[String, Option[Any]])]) : Unit =
+  protected def persistMetricOperation(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit =
     stream.foreachRDD(rdd => rdd.foreachPartition(
       ops => {
         Try(upsert(ops)) match {
@@ -97,7 +97,7 @@ abstract class Output(keyName : String,
       }
     ))
 
-  protected def persistDataFrame(stream : DStream[(DimensionValuesTime, Map[String, Option[Any]])]) : Unit = {
+  protected def persistDataFrame(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     stream.map { case (dimensionValuesTime, aggregations) =>
       AggregateOperations.toKeyRow(
         filterDimensionValueTimeByFixedDimensions(dimensionValuesTime),
@@ -117,12 +117,12 @@ abstract class Output(keyName : String,
       })
   }
 
-  def upsert(dataFrame : DataFrame, tableName : String, timeDimension : String) : Unit = {}
+  def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {}
 
-  def upsert(metricOperations : Iterator[(DimensionValuesTime, Map[String, Option[Any]])]) : Unit = {}
+  def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {}
 
   //TODO refactor for remove var types
-  def getTableSchemaFixedId(tbSchema : TableSchema) : TableSchema = {
+  def getTableSchemaFixedId(tbSchema: TableSchema): TableSchema = {
     var tableName = tbSchema.tableName.split(Output.Separator)
       .filter(name => name != tbSchema.timeDimension && !fixedDimensions.contains(name))
     var fieldsPk = getFields(tbSchema, false)
@@ -154,22 +154,22 @@ abstract class Output(keyName : String,
       tbSchema.timeDimension)
   }
 
-  def getFields(tbSchema : TableSchema, nullables : Boolean) : Seq[StructField] =
+  def getFields(tbSchema: TableSchema, nullables: Boolean): Seq[StructField] =
     tbSchema.schema.fields.toSeq.filter(field =>
       !fixedDimensions.contains(field.name) && field.name != tbSchema.timeDimension && field.nullable == nullables)
 
-  def extractRow(rdd : RDD[(Option[String], Row)]) : RDD[Row] = rdd.map(rowType => rowType._2)
+  def extractRow(rdd: RDD[(Option[String], Row)]): RDD[Row] = rdd.map(rowType => rowType._2)
 
-  def getFixedDimensions : Array[String] = fixedDimensions
+  def getFixedDimensions: Array[String] = fixedDimensions
 
-  def getFixedDimensions(dimensionValuesTime : DimensionValuesTime) : Option[Seq[(String, Any)]] =
+  def getFixedDimensions(dimensionValuesTime: DimensionValuesTime): Option[Seq[(String, Any)]] =
     if (fixedDimensions.isEmpty) None
     else Some(fixedDimensions.flatMap(fxdimension => {
       dimensionValuesTime.dimensionValues.find(dimension => dimension.getNameDimension == fxdimension)
         .map(dimensionValue => (fxdimension, dimensionValue.value))
     }))
 
-  def filterDimensionValueTimeByFixedDimensions(dimensionValuesTime : DimensionValuesTime)
+  def filterDimensionValueTimeByFixedDimensions(dimensionValuesTime: DimensionValuesTime)
   : DimensionValuesTime =
     if (fixedDimensions.isEmpty) dimensionValuesTime
     else DimensionValuesTime(
@@ -179,7 +179,7 @@ abstract class Output(keyName : String,
       dimensionValuesTime.timeDimension
     )
 
-  def filterSchemaByFixedAndTimeDimensions(tbschemas : Seq[TableSchema]) : Seq[TableSchema] =
+  def filterSchemaByFixedAndTimeDimensions(tbschemas: Seq[TableSchema]): Seq[TableSchema] =
     tbschemas.filter(schemaFilter => {
       val checkDimensions = getFixedDimensions ++ Array(schemaFilter.timeDimension)
       schemaFilter.outputName == keyName &&
@@ -188,7 +188,7 @@ abstract class Output(keyName : String,
         })
     })
 
-  def checkOperationTypes : Boolean =
+  def checkOperationTypes: Boolean =
     if (operationTypes.isDefined) {
       operationTypes.get.values.map(_._1).toSet.diff(supportedWriteOps.toSet).toSeq match {
         case s if s.isEmpty => true
@@ -199,7 +199,7 @@ abstract class Output(keyName : String,
       }
     } else false
 
-  def getTableNameVersioned(tableName : String) : String = {
+  def versionedTableName(tableName: String): String = {
     val versionChain = version match {
       case Some(v) => s"${Output.Separator}v$v"
       case None => ""
@@ -216,7 +216,7 @@ object Output {
   final val FixedAggregation = "fixedAggregation"
   final val FixedAggregationSeparator = ":"
 
-  def getFieldType(dateTimeType : TypeOp, fieldName : String, nullable : Boolean) : StructField =
+  def getFieldType(dateTimeType: TypeOp, fieldName: String, nullable: Boolean): StructField =
     dateTimeType match {
       case TypeOp.Date | TypeOp.DateTime => defaultDateField(fieldName, nullable)
       case TypeOp.Timestamp => defaultTimeStampField(fieldName, nullable)
@@ -224,15 +224,15 @@ object Output {
       case _ => defaultStringField(fieldName, nullable)
     }
 
-  def defaultTimeStampField(fieldName : String, nullable : Boolean) : StructField =
+  def defaultTimeStampField(fieldName: String, nullable: Boolean): StructField =
     StructField(fieldName, TimestampType, nullable)
 
-  def defaultDateField(fieldName : String, nullable : Boolean) : StructField =
+  def defaultDateField(fieldName: String, nullable: Boolean): StructField =
     StructField(fieldName, DateType, nullable)
 
-  def defaultStringField(fieldName : String, nullable : Boolean) : StructField =
+  def defaultStringField(fieldName: String, nullable: Boolean): StructField =
     StructField(fieldName, StringType, nullable)
 
-  def defaultGeoField(fieldName : String, nullable : Boolean) : StructField =
+  def defaultGeoField(fieldName: String, nullable: Boolean): StructField =
     StructField(fieldName, ArrayType(DoubleType), nullable)
 }

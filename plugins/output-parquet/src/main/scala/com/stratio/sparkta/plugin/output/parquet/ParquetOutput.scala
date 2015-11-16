@@ -18,15 +18,13 @@ package com.stratio.sparkta.plugin.output.parquet
 
 import java.io.{Serializable => JSerializable}
 
-import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.sql.SaveMode._
-import org.apache.spark.sql._
-import org.apache.spark.{Logging, SparkContext}
-
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
+import org.apache.spark.Logging
+import org.apache.spark.sql.SaveMode._
+import org.apache.spark.sql._
 
 /**
  * This output save as parquet file the information.
@@ -47,6 +45,6 @@ class ParquetOutput(keyName: String,
     require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
     val subPath = DateOperations.generateParquetPath()
 
-    dataFrame.write.format("parquet").mode(Overwrite).save(s"${path.get}/${getTableNameVersioned(tableName)}$subPath")
+    dataFrame.write.format("parquet").mode(Overwrite).save(s"${path.get}/${versionedTableName(tableName)}$subPath")
   }
 }

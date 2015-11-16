@@ -266,7 +266,7 @@ class OutputSpec extends WordSpec with Matchers {
 
     "the table name versioned must be " in new CommonValues {
       val expected = "table_v1"
-      val result = outputVersioned.getTableNameVersioned(tableName)
+      val result = outputVersioned.versionedTableName(tableName)
       result should be(expected)
     }
   }

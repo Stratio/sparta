@@ -61,13 +61,13 @@ class ElasticSearchDAOSpec extends FlatSpec with ShouldMatchers {
   }
 }
 
-case class ESDaoMock(_nodes : Seq[(String, Int, Int)] = Seq(), _clusterName : String) extends ElasticSearchDAO {
+case class ESDaoMock(_nodes: Seq[(String, Int, Int)] = Seq(), _clusterName: String) extends ElasticSearchDAO {
 
-  override def tcpNodes : Seq[(String, Int)] = _nodes.map(x => (x._1, x._3))
+  override def tcpNodes: Seq[(String, Int)] = _nodes.map(x => (x._1, x._3))
 
-  override def httpNodes : Seq[(String, Int)] = _nodes.map(x => (x._1, x._2))
+  override def httpNodes: Seq[(String, Int)] = _nodes.map(x => (x._1, x._2))
 
-  override def clusterName : String = clusterName
+  override def clusterName: String = clusterName
 
-  override def mappingType : String = DefaultIndexType
+  override def mappingType: String = DefaultIndexType
 }
