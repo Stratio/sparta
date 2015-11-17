@@ -1,4 +1,4 @@
-  
+
 Outputs Configurations
 ************************
 
@@ -319,6 +319,12 @@ The parquet output uses generic implementation of DataFrames.
 +==========================+===============================================+==========+=======================+
 | path                     | Destination path to store info.               | No       |                       |
 +--------------------------+-----------------------------------------------+----------+-----------------------+
+
+When you are using Parquet as output, it will save the result in a path concatenating a base path, the dimension names
+ of the cube and a version starting in one.
+Example: if the basePath is /user/stratio, the cube has 2 dimensions (name, price) and it is the first time that
+ you save the policy then the final path will be /user/stratio/name_price_v1.
+If you modify some dimension of this cube then the version will be increased in one: /user/stratio/name_price_v2
 
 
 .. _csv-label:

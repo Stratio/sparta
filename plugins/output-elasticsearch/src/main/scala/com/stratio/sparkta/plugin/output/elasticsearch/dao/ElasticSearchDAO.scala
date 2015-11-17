@@ -40,13 +40,13 @@ trait ElasticSearchDAO {
 
   def httpNodes: Seq[(String, Int)]
 
-  def clusterName : String
+  def clusterName: String
 
   def idField: Option[String] = None
 
   def defaultIndexMapping: Option[String] = None
 
-  def mappingType: Option[String] = None
+  def mappingType: String
 
   def getSparkConfig(timeName: String, idProvided: Boolean): Map[String, String] = {
     if (idProvided)
