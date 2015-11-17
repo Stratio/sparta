@@ -104,6 +104,13 @@ Feature: Test adding a new ElasticSearch output in Sparkta GUI
                 # Error message should appear
                 Then '1' elements exist with 'css:span[data-qa="fragment-details-elasticSearch-httpPort-0-error-pattern"]'
 
+		# Try with empty Cluster name
+		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-clusterName"]'
+		When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
+		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
+                When I click on the element on index '0'
+		Then '1' elements exist with 'css:span[data-qa="fragment-details-elasticSearch-clusterName-error-required"]'
+
 		# Fill in name field
 		Given '1' element exists with 'css:input[data-qa="fragment-detail-name"]'
 		Then I type 'validElasticSearchOutput' on the element on index '0'
@@ -118,6 +125,9 @@ Feature: Test adding a new ElasticSearch output in Sparkta GUI
                 Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-httpPort-0"]'
                 Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
                 And I type '9200' on the element on index '0'
+		# Fill in Cluster name
+		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-clusterName"]'
+                Then I type 'elasticsearch' on the element on index '0'
 		# Fill in Index mapping
 		Given '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-indexMapping"]'
 		Then I type 'myIndexMapping' on the element on index '0'

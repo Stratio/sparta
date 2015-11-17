@@ -66,6 +66,19 @@ Feature: Test adding a new CSV output in Sparkta GUI
 		When I click on the element on index '0'
 		# NO error message should appear
 		Then '0' element exists with 'css:span[data-qa="fragment-details-csv-delimiter-error-required"]'
+
+		# Try with invalid Delimiter (\|#|")
+		Given '1' element exists with 'css:input[data-qa="fragment-details-csv-delimiter"]'
+		When I type '\' on the element on index '0'
+		Then '1' element exists with 'css:span[data-qa="fragment-details-csv-delimiter-error-pattern"]'
+		Given '1' element exists with 'css:input[data-qa="fragment-details-csv-delimiter"]'
+		When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
+		And I type '#' on the element on index '0'
+		Then '1' element exists with 'css:span[data-qa="fragment-details-csv-delimiter-error-pattern"]'
+		Given '1' element exists with 'css:input[data-qa="fragment-details-csv-delimiter"]'
+		When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
+                And I type '"' on the element on index '0'
+                Then '1' element exists with 'css:span[data-qa="fragment-details-csv-delimiter-error-pattern"]'
 		
 		# Select and deselect Header
 		Given '1' element exists with 'css:label[data-qa="fragment-details-csv-header"]'
@@ -81,7 +94,8 @@ Feature: Test adding a new CSV output in Sparkta GUI
 		And I type 'mypath.csv' on the element on index '0'
 		# Fill in Delimiter field
 		Given '1' element exists with 'css:input[data-qa="fragment-details-csv-delimiter"]'
-		Then I type ',' on the element on index '0'
+		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
+		And I type ',' on the element on index '0'
 		
 		# Create
 		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
