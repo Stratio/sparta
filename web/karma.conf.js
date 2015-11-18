@@ -4,11 +4,11 @@ module.exports = function (config) {
     basePath: '',
 
     files: [
-      'bower_components/angular/angular.js',
-      'bower_components/angular-mocks/angular-mocks.js',
-      'bower_components/angular-resource/angular-resource.js',
-      'bower_components/angular-route/angular-route.js',
-      'bower_components/angular-ui-router/release/angular-ui-router.js',
+      'node_modules/angular/angular.js',
+      'node_modules/angular-mocks/angular-mocks.js',
+      'node_modules/angular-resource/angular-resource.js',
+      'node_modules/angular-route/angular-route.js',
+      'node_modules/angular-ui-router/release/angular-ui-router.js',
 
       'src/stratio-ui/script/ui.stratio.js',
       'src/stratio-ui/script/helper/*.js',
