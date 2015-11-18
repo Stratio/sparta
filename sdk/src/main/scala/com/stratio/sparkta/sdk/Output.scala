@@ -17,17 +17,17 @@
 package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
-import scala.util._
 
+import com.stratio.sparkta.sdk.TypeOp._
+import com.stratio.sparkta.sdk.ValidatingPropertyMap.map2ValidatingPropertyMap
+import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import org.apache.spark.Logging
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
 import org.apache.spark.streaming.dstream.DStream
 
-import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk.ValidatingPropertyMap.map2ValidatingPropertyMap
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import scala.util._
 
 abstract class Output(keyName: String,
                       version: Option[Int],
@@ -198,6 +198,14 @@ abstract class Output(keyName: String,
         }
       }
     } else false
+
+  def versionedTableName(tableName: String): String = {
+    val versionChain = version match {
+      case Some(v) => s"${Output.Separator}v$v"
+      case None => ""
+    }
+    s"$tableName$versionChain"
+  }
 }
 
 object Output {

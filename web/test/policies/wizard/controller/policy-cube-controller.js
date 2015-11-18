@@ -219,7 +219,7 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       ctrl.addCube();
 
       expect(cubeServiceMock.addCube).not.toHaveBeenCalled();
-      expect(cubeModelFactoryMock.setError).toHaveBeenCalledWith("_GENERIC_FORM_ERROR_");
+      expect(cubeModelFactoryMock.setError).toHaveBeenCalled();
     });
 
     it("cube is added if view validations have been passed", function () {

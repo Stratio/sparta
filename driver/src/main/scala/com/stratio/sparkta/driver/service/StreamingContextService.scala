@@ -29,7 +29,7 @@ import com.stratio.sparkta.driver.util.ReflectionUtils
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.models._
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{AddListener, Update}
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{Kill, AddListener, Update}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 import com.typesafe.config.Config
 import org.apache.curator.framework.recipes.cache.NodeCache
@@ -46,7 +46,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
   final val OutputsSparkConfiguration = "getSparkConfiguration"
 
   def standAloneStreamingContext(apConfig: AggregationPoliciesModel, files: Seq[File]): Option[StreamingContext] = {
-    runStatusListener(apConfig.id.get)
+    runStatusListener(apConfig.id.get, apConfig.name)
     SparktaJob.runSparktaJob(getStandAloneSparkContext(apConfig, files), apConfig)
     SparkContextFactory.sparkStreamingInstance
   }
@@ -55,7 +55,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
                               files: Seq[URI],
                               specifictConfig: Map[String, String]): Option[StreamingContext] = {
     val exitWhenStop = true
-    runStatusListener(apConfig.id.get, exitWhenStop)
+    runStatusListener(apConfig.id.get, apConfig.name, exitWhenStop)
     SparktaJob.runSparktaJob(getClusterSparkContext(apConfig, files, specifictConfig), apConfig)
     SparkContextFactory.sparkStreamingInstance
   }
@@ -79,7 +79,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
     SparkContextFactory.sparkClusterContextInstance(pluginsSparkConfig, classPath)
   }
 
-  private def runStatusListener(policyId: String, exit: Boolean = false): Unit = {
+  private def runStatusListener(policyId: String, name: String, exit: Boolean = false): Unit = {
     if (policyStatusActor.isDefined) {
       log.info(s"Listener added for: $policyId")
       policyStatusActor.get ? AddListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
@@ -88,6 +88,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
             log.info("Stopping message received from Zookeeper")
             SparkContextFactory.destroySparkStreamingContext
             SparkContextFactory.destroySparkContext
+            policyStatusActor.get ! Kill (name)
             policyStatusActor.get ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopped))
             nodeCache.close()
             if (exit) System.exit(0)

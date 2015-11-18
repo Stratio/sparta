@@ -194,7 +194,8 @@
         "propertyId": "delimiter",
         "propertyName": "_DELIMITER_",
         "propertyType": "text",
-        "regexp": "",
+        "tooltip": "Any character is accepted except: \\ \" #",
+        "regexp": "[^\"#\\\\]",
         "maxlength": "1",
         "default": ",",
         "trim": false,
@@ -350,16 +351,6 @@
         "required": false,
         "tooltip": "This multiplier, multiplied with the connectionsPerHost setting, gives the maximum number of threads that may be waiting for a connection to become available from the pool.",
         "qa": "fragment-details-mongoDb-threadsAllowedToBlock"
-      },
-      {
-        "propertyId": "idAsField",
-        "propertyName": "_STORE_ROW_ID_AS_INDEPENDENT_FIELD_",
-        "propertyType": "boolean",
-        "regexp": "true|false",
-        "default": false,
-        "required": false,
-        "tooltip": "Is possible to save all fields that compound the unique key as a independent field.",
-        "qa": "fragment-details-mongoDb-idAsField"
       },
       {
         "propertyId": "language",
