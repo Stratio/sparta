@@ -22,6 +22,7 @@ import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
+import com.google.common.io.BaseEncoding
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.driver.util.{HdfsUtils, PolicyUtils}
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
@@ -32,7 +33,6 @@ import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, Policy
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 import com.typesafe.config.{Config, ConfigRenderOptions}
-import org.apache.commons.lang.StringEscapeUtils
 
 import scala.collection.JavaConversions._
 import scala.concurrent.duration._
@@ -228,13 +228,13 @@ with SparktaSerializer {
 
   private def getZookeeperCommand: String = {
     val config = zookeeperConfig.atKey("zk").root.render(ConfigRenderOptions.concise)
-    StringEscapeUtils.escapeJavaScript(config)
+    BaseEncoding.base64().encode(config.getBytes)
   }
 
   private def getDetailConfigCommand: String = {
     if (detailConfig.isDefined) {
       val config = detailConfig.get.atKey("config").root.render(ConfigRenderOptions.concise)
-      StringEscapeUtils.escapeJavaScript(config)
+      BaseEncoding.base64().encode(config.getBytes)
     } else ""
   }
 

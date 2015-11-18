@@ -22,6 +22,7 @@ import java.net.URI
 import akka.actor.{ActorSystem, Props}
 import akka.pattern.ask
 import akka.util.Timeout
+import com.google.common.io.BaseEncoding
 import com.stratio.sparkta.driver.SparktaJob._
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.driver.util.{HdfsUtils, PolicyUtils}
@@ -35,7 +36,6 @@ import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, Policy
 import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, SparktaConfig}
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.FileUtils
-import org.apache.commons.lang.StringEscapeUtils
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.{DefaultFormats, Formats}
@@ -55,8 +55,9 @@ object SparktaClusterJob {
   def main(args: Array[String]): Unit = {
     assert(args.length == 5, s"Invalid number of params: ${args.length}, args: $args")
     Try {
-      initSparktaConfig(StringEscapeUtils.unescapeJavaScript(args(DetailConfigurationIndex)),
-        StringEscapeUtils.unescapeJavaScript(args(ZookeperConfigurationIndex)))
+      val detailConfiguration = new String(BaseEncoding.base64().decode(args(DetailConfigurationIndex)))
+      val zookeperConfiguration = new String(BaseEncoding.base64().decode(args(ZookeperConfigurationIndex)))
+      initSparktaConfig(detailConfiguration, zookeperConfiguration)
 
       val policyId = args(PolicyIdIndex)
       val curatorFramework = CuratorFactoryHolder.getInstance()
@@ -84,6 +85,7 @@ object SparktaClusterJob {
           policy, pluginsClasspathFiles, Map("spark.app.name" -> s"${policy.name}")).get
 
         ssc.start
+        ssc.awaitTermination()
       } match {
         case Success(_) => {
           policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Started))
