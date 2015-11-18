@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.common
 
 import akka.event.slf4j.SLF4JLogging
 import org.json4s._
