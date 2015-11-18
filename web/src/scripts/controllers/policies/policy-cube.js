@@ -115,11 +115,14 @@
       });
     }
 
-    function addCube() {
-      if (vm.form.$valid) {
+    function addCube(){
+      vm.form.$submitted = true;
+      if (vm.form.$valid && vm.cube.operators.length > 0 && vm.cube.dimensions.length > 0) {
+        vm.form.$submitted = false;
         CubeService.addCube();
-      } else {
-        CubeModelFactory.setError("_GENERIC_FORM_ERROR_");
+      }
+      else {
+        CubeModelFactory.setError();
       }
     }
   }

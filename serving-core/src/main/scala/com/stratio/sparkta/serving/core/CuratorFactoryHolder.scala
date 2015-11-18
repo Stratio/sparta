@@ -1,18 +1,18 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+  * Copyright (C) 2015 Stratio (http://stratio.com)
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
 
 package com.stratio.sparkta.serving.core
 
@@ -26,17 +26,17 @@ import org.apache.curator.utils.CloseableUtils
 import scala.util.{Failure, Success, Try}
 
 /**
- * Customized factory that encapsulates the real CuratorFrameworkFactory and creates a singleton instance of it.
- */
+  * Customized factory that encapsulates the real CuratorFrameworkFactory and creates a singleton instance of it.
+  */
 object CuratorFactoryHolder extends SLF4JLogging {
 
   private var curatorFramework: Option[CuratorFramework] = None
   final val ZKConfigPrefix = "zk"
 
   /**
-   * Gets a new instance of a CuratorFramework if it was not created before.
-   * @return a singleton instance of CuratorFramework.
-   */
+    * Gets a new instance of a CuratorFramework if it was not created before.
+    * @return a singleton instance of CuratorFramework.
+    */
   def getInstance(config: Option[Config] = SparktaConfig.getZookeeperConfig): CuratorFramework = {
     curatorFramework match {
       case None => {
@@ -79,34 +79,37 @@ object CuratorFactoryHolder extends SLF4JLogging {
   }
 
   /**
-   * Resets the current instance of the curatorFramework.
-   */
+    * Resets the current instance of the curatorFramework.
+    */
   def resetInstance(): Unit = {
-    if(curatorFramework.isDefined) {
+    if (curatorFramework.isDefined) {
       CloseableUtils.closeQuietly(curatorFramework.get)
       curatorFramework = None
     }
   }
 
-  def existsPath(path : String) : Boolean = curatorFramework match {
+  def existsPath(path: String): Boolean = curatorFramework match {
     case Some(curator) => Option(curator.checkExists().forPath(path)).isDefined
     case None => false
   }
 
+  def deletePath(path: String): Boolean = curatorFramework match {
+    case Some(curator) => Option(curator.delete().deletingChildrenIfNeeded().forPath(path)).isDefined
+    case None => false
+  }
+
   /**
-   * Tries to instantiate a configuration value depending of its type.
-   * @param configKey with the name of the property instead of configuration file.
-   * @param config with the global configuration.
-   * @param defaultValue if there is not configuration or any error appears a default value must be set.
-   * @tparam U generic type of the value.
-   * @return the parsed value of the configuration.
-   */
+    * Tries to instantiate a configuration value depending of its type.
+    * @param configKey with the name of the property instead of configuration file.
+    * @param config with the global configuration.
+    * @param defaultValue if there is not configuration or any error appears a default value must be set.
+    * @tparam U generic type of the value.
+    * @return the parsed value of the configuration.
+    */
   protected def getPathValue[U](configKey: String, config: Config, defaultValue: Class[U]): U =
     config.getAnyRef(configKey).asInstanceOf[U]
-
 
   protected def getStringConfigValue(config: Config, key: String): String = getPathValue(key, config, classOf[String])
 
   protected def getIntConfigValue(config: Config, key: String): Int = getPathValue(key, config, classOf[Int])
-
 }

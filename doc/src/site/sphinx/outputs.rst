@@ -1,4 +1,4 @@
-  
+
 Outputs Configurations
 ************************
 
@@ -100,9 +100,6 @@ parameters to connect to the DB and self-creation of indexes.
 |                       | number of threads that may be waiting for a        |          |                           |
 |                       | connection to become available from the pool.      |          |                           |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
-| idAsField             | It's possible to save all fields that compound the | Yes      | false                     |
-|                       | unique key as a independent field.                 |          |                           |
-+-----------------------+----------------------------------------------------+----------+---------------------------+
 | textIndexFields       | The system is capable of insert data in a full-text| Yes      |                           |
 |                       | index. All of this fields compound the index.      |          |                           |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
@@ -199,7 +196,7 @@ The Cassandra output uses the generic implementation with DataFrames.
 
 In Cassandra each cube define one table, but when you modify the policy that involve this cube, Sparkta create a new
 table with the next version. The name of all tables are "dimensions_v1" when modify the policy the new table in
-Cassandra are "dimensions_v2".
+Cassandra is "dimensions_v2".
 
 
 .. _elasticsearch-label:
@@ -242,6 +239,10 @@ The Elasticsearch output uses the generic implementation with DataFrames.
 +--------------------------+-----------------------------------------------+----------+-----------------------+
 | dateType                 | The type of the date fields.                  | Yes      | None                  |
 +--------------------------+-----------------------------------------------+----------+-----------------------+
+
+In ElasticSearch each cube define one index, but when you modify the policy that involve this cube, Sparkta create a new
+mapping with the next version. The name of all tables are the dimensions separated by '_' and the default mapping is
+"sparkta_v1" when modify the policy the new mapping in ElasticSearch is "sparkta_v2".
 
 
 .. _redis-label:
@@ -319,6 +320,12 @@ The parquet output uses generic implementation of DataFrames.
 | path                     | Destination path to store info.               | No       |                       |
 +--------------------------+-----------------------------------------------+----------+-----------------------+
 
+When you are using Parquet as output, it will save the result in a path concatenating a base path, the dimension names
+ of the cube and a version starting in one.
+Example: if the basePath is /user/stratio, the cube has 2 dimensions (name, price) and it is the first time that
+ you save the policy then the final path will be /user/stratio/name_price_v1.
+If you modify some dimension of this cube then the version will be increased in one: /user/stratio/name_price_v2
+
 
 .. _csv-label:
 
@@ -352,3 +359,9 @@ Csv Configuration
 +--------------------------+-----------------------------------------------+----------+-----------------------+
 | dateGranularity          | Specify the granularity from second to year   | Yes      | Day                   |
 +--------------------------+-----------------------------------------------+----------+-----------------------+
+
+When you are using CSV as output, it will save the result in a path concatenating a base path, the dimension names
+ of the cube and a version starting in one.
+Example: if the basePath is /user/stratio, the cube has 2 dimensions (name, price) and it is the first time that
+ you save the policy then the final path will be /user/stratio/name_price_v1.
+If you modify some dimension of this cube then the version will be increased in one: /user/stratio/name_price_v2

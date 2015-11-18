@@ -5,14 +5,17 @@
     .module('webApp')
     .service('UtilsService', UtilsService);
 
+  UtilsService.$inject = ['$filter'];
 
-  function UtilsService() {
+  function UtilsService($filter) {
     var vm = this;
     vm.findElementInJSONArray = findElementInJSONArray;
     vm.removeItemsFromArray = removeItemsFromArray;
     vm.autoIncrementName = autoIncrementName;
     vm.getNamesJSONArray = getNamesJSONArray;
     vm.getItemNames = getItemNames;
+    vm.addFragmentCount = addFragmentCount;
+    vm.subtractFragmentCount = subtractFragmentCount;
 
     function findElementInJSONArray(array, element, attr) {
       var found = false;
@@ -78,7 +81,7 @@
       return itemNames;
     }
 
-//getPolicyNames
+    //getPolicyNames
     function getItemNames(array) {
       var names = [];
       if (array) {
@@ -90,6 +93,31 @@
 
       return names;
     }
+
+    function addFragmentCount(inputTypeList, inputType) {
+      var newInputCount = $filter('filter')(inputTypeList, {'type':inputType}, true)[0];
+      if (!newInputCount) {
+        var newInpuntCount = {'type': inputType, 'count': 1};
+        inputTypeList.push(newInpuntCount);
+      }
+      else {
+        newInputCount.count++;
+      }
+    };
+
+    function subtractFragmentCount(inputTypeList, inputType, filter) {
+      var newInputCount = $filter('filter')(inputTypeList, {'type':inputType}, true)[0];
+      newInputCount.count--;
+      if (newInputCount.count === 0) {
+        for (var i=0; i < inputTypeList.length; i++) {
+          if (inputTypeList[i].type === inputType) {
+            inputTypeList.splice(i,1);
+            filter.element.type = "";
+            filter.name = "";
+          }
+        }
+      }
+    };
   }
 })
 ();
