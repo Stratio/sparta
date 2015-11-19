@@ -16,6 +16,7 @@
 
 package com.stratio.sparkta.plugin.operator.range
 
+import com.stratio.sparkta.sdk.Operator
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -65,36 +66,51 @@ class RangeOperatorTest extends WordSpec with Matchers {
 
     "processReduce must be " in {
       val inputFields = new RangeOperator("range", Map())
-      inputFields.processReduce(Seq()) should be(Some(0d))
+      inputFields.processReduce(Seq()) should be(Some((0d, 0d)))
 
       val inputFields2 = new RangeOperator("range", Map())
-      inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some(0))
+      inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some((1d, 1d)))
 
       val inputFields3 = new RangeOperator("range", Map())
-      inputFields3.processReduce(Seq(Some(1), Some(2), Some(4))) should be(Some(3))
+      inputFields3.processReduce(Seq(Some(1), Some(2), Some(4))) should be((Some(4d, 1d)))
 
       val inputFields4 = new RangeOperator("range", Map())
-      inputFields4.processReduce(Seq(None)) should be(Some(0d))
+      inputFields4.processReduce(Seq(None)) should be(Some((0d, 0d)))
 
-      val inputFields5 = new RangeOperator("range", Map("typeOp" -> "string"))
-      inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("6.0"))
     }
 
     "processReduce distinct must be " in {
       val inputFields = new RangeOperator("range", Map("distinct" -> "true"))
-      inputFields.processReduce(Seq()) should be(Some(0d))
+      inputFields.processReduce(Seq()) should be(Some((0d, 0d)))
 
       val inputFields2 = new RangeOperator("range", Map("distinct" -> "true"))
-      inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some(0))
+      inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some((1d, 1d)))
 
       val inputFields3 = new RangeOperator("range", Map("distinct" -> "true"))
-      inputFields3.processReduce(Seq(Some(1), Some(2), Some(4))) should be(Some(3))
+      inputFields3.processReduce(Seq(Some(1), Some(2), Some(4))) should be(Some((4d, 1d)))
 
       val inputFields4 = new RangeOperator("range", Map("distinct" -> "true"))
-      inputFields4.processReduce(Seq(None)) should be(Some(0d))
+      inputFields4.processReduce(Seq(None)) should be(Some((0d, 0d)))
 
-      val inputFields5 = new RangeOperator("range", Map("typeOp" -> "string", "distinct" -> "true"))
-      inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("6.0"))
+    }
+
+    "associative process must be " in {
+      val inputFields = new RangeOperator("range", Map())
+      val resultInput = Seq((Operator.OldValuesKey, Some((1d, 1d))),
+        (Operator.NewValuesKey, Some((2d, 1d))),
+        (Operator.NewValuesKey, None))
+      inputFields.associativity(resultInput) should be(Some(1d))
+
+      val inputFields2 = new RangeOperator("range", Map())
+      val resultInput2 = Seq((Operator.OldValuesKey, Some((10d, 2d))),
+        (Operator.NewValuesKey, Some((6d, 1d))))
+      inputFields2.associativity(resultInput2) should be(Some(9d))
+
+      val inputFields3 = new RangeOperator("range", Map())
+      val resultInput3 = Seq((Operator.OldValuesKey, Some((5d, 1d))),
+        (Operator.NewValuesKey, Some((10d, 5d))))
+      inputFields3.associativity(resultInput3) should be(Some(9d))
+
     }
   }
 }

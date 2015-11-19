@@ -17,21 +17,28 @@
 package com.stratio.sparkta.plugin.operator.fullText
 
 import java.io.{Serializable => JSerializable}
-import scala.util.Try
 
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, _}
 
+import scala.util.Try
+
 class FullTextOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
-with ProcessMapAsAny {
+with ProcessMapAsAny with Associative {
 
   override val defaultTypeOperation = TypeOp.String
 
   override val writeOperation = WriteOp.FullText
 
   override def processReduce(values: Iterable[Option[Any]]): Option[String] = {
-    Try(Some(transformValueByTypeOp(returnType,
-      values.flatten.map(_.toString).reduce(_ + OperatorConstants.SpaceSeparator + _))))
+    Try(Option(values.flatten.map(_.toString).mkString(OperatorConstants.SpaceSeparator)))
+      .getOrElse(Some(OperatorConstants.EmptyString))
+  }
+
+  def associativity(values: Iterable[(String, Option[Any])]): Option[String] = {
+    val newValues = extractValues(values, None).map(_.toString).mkString(OperatorConstants.SpaceSeparator)
+
+    Try(Option(transformValueByTypeOp(returnType, newValues)))
       .getOrElse(Some(OperatorConstants.EmptyString))
   }
 }

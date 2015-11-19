@@ -18,6 +18,5 @@ package com.stratio.sparkta.sdk
 
 trait Associative {
 
-  self: Operator =>
     def associativity(values: Iterable[(String, Option[Any])]): Option[Any]
 }

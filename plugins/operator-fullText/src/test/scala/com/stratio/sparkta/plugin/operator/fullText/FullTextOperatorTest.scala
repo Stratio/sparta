@@ -16,7 +16,7 @@
 
 package com.stratio.sparkta.plugin.operator.fullText
 
-import com.stratio.sparkta.sdk.OperatorConstants
+import com.stratio.sparkta.sdk.{Operator, OperatorConstants}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -61,9 +61,21 @@ class FullTextOperatorTest extends WordSpec with Matchers {
 
       val inputFields3 = new FullTextOperator("fullText", Map())
       inputFields3.processReduce(Seq(Some("a"), Some("b"))) should be(Some(s"a${OperatorConstants.SpaceSeparator}b"))
+    }
 
-      val inputFields4 = new FullTextOperator("fullText", Map("typeOp" -> "arraystring"))
-      inputFields4.processReduce(Seq(Some(1), Some(1))) should be(Some(Seq(s"1${OperatorConstants.SpaceSeparator}1")))
+    "associative process must be " in {
+      val inputFields = new FullTextOperator("fullText", Map())
+      val resultInput = Seq((Operator.OldValuesKey, Some(2)), (Operator.NewValuesKey, None))
+      inputFields.associativity(resultInput) should be(Some("2"))
+
+      val inputFields2 = new FullTextOperator("fullText", Map("typeOp" -> "arraystring"))
+      val resultInput2 = Seq((Operator.OldValuesKey, Some(2)),
+        (Operator.NewValuesKey, Some(1)))
+      inputFields2.associativity(resultInput2) should be(Some(Seq(s"2${OperatorConstants.SpaceSeparator}1")))
+
+      val inputFields3 = new FullTextOperator("fullText", Map("typeOp" -> null))
+      val resultInput3 = Seq((Operator.OldValuesKey, Some(2)), (Operator.OldValuesKey, Some(3)))
+      inputFields3.associativity(resultInput3) should be(Some(s"2${OperatorConstants.SpaceSeparator}3"))
     }
   }
 }

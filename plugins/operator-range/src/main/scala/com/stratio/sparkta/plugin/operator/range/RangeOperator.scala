@@ -21,8 +21,10 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, _}
 
+import scala.util.Try
+
 class RangeOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
-with ProcessMapAsNumber {
+with ProcessMapAsNumber with Associative{
 
   override val defaultTypeOperation = TypeOp.Double
 
@@ -30,14 +32,26 @@ with ProcessMapAsNumber {
 
   override val castingFilterType = TypeOp.Number
 
-  override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
+  override def processReduce(values: Iterable[Option[Any]]): Option[(Double, Double)] = {
     val valuesFiltered = getDistinctValues(values.flatten)
     valuesFiltered.size match {
-      case (nz) if (nz != 0) => {
+      case (nz) if nz != 0 => {
         val valuesConverted = valuesFiltered.map(_.asInstanceOf[Number].doubleValue())
-        Some(transformValueByTypeOp(returnType, valuesConverted.max - valuesConverted.min))
+        Option((valuesConverted.max, valuesConverted.min))
       }
-      case _ => Some(OperatorConstants.Zero.toDouble)
+      case _ => Option((OperatorConstants.Zero.toDouble, OperatorConstants.Zero.toDouble))
     }
+  }
+
+  def associativity(values: Iterable[(String, Option[Any])]): Option[Double] = {
+    val newValues = extractValues(values, None).map(value => {
+      val numberValue = value.asInstanceOf[(Number, Number)]
+      (numberValue._1.doubleValue(), numberValue._2.doubleValue())
+    })
+    val maxValue = newValues.map{ case (max, min) => max}.max
+    val minValue = newValues.map{ case (max, min) => min}.min
+
+    Try(Option(transformValueByTypeOp(returnType, maxValue - minValue)))
+      .getOrElse(Option(OperatorConstants.Zero.toDouble))
   }
 }
