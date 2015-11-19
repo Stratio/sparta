@@ -4,11 +4,13 @@ Contents:
     :maxdepth: 4
     :numbered:
 
-    about.rst
-    configuration.rst
-    usingSparkta.rst
-    cheatsheet.rst
-    troubleshooting.rst
+    new_Introduction.rst
+    new_FeaturesGuide.rst
+    new_ArchitectureGuide.rst
+    new_GettingStarted.rst
+    new_UserInterface.rst
+    new_Configuration.rst
+    new_SparktaInProduction.rst
+    new_BestPracticesAndRecommendationConfiguration.rst
+    new_SparktaInPlatform.rst
     faq.rst
-    versionFeatures.rst
-    policyWithGUI.rst
