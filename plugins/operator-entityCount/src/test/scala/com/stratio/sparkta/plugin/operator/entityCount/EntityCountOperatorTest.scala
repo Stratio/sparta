@@ -16,6 +16,7 @@
 
 package com.stratio.sparkta.plugin.operator.entityCount
 
+import com.stratio.sparkta.sdk.Operator
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -39,11 +40,11 @@ class EntityCountOperatorTest extends WordSpec with Matchers {
       inputFields4.processMap(Map("field1" -> "hola holo", "field2" -> 2)) should be(Some(Seq("hola holo")))
 
       val inputFields5 = new EntityCountOperator("entityCount", Map("inputField" -> "field1", "split" -> "-"))
-      inputFields5.processMap(Map("field1" -> "hola-holo", "field2" -> 2)) should be(Some(Seq("hola","holo")))
+      inputFields5.processMap(Map("field1" -> "hola-holo", "field2" -> 2)) should be(Some(Seq("hola", "holo")))
 
       val inputFields6 = new EntityCountOperator("entityCount", Map("inputField" -> "field1", "split" -> ","))
       inputFields6.processMap(Map("field1" -> "hola,holo adios", "field2" -> 2)) should be(
-        Some(Seq("hola","holo " + "adios")))
+        Some(Seq("hola", "holo " + "adios")))
 
       val inputFields7 = new EntityCountOperator("entityCount",
         Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \"!=\", \"value\":\"hola\"}]"))
@@ -52,8 +53,7 @@ class EntityCountOperatorTest extends WordSpec with Matchers {
       val inputFields8 = new EntityCountOperator("entityCount",
         Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \"!=\", \"value\":\"hola\"}]",
           "split" -> " "))
-      inputFields8.processMap(Map("field1" -> "hola holo", "field2" -> 2)) should be(Some(Seq("hola","holo")))
-
+      inputFields8.processMap(Map("field1" -> "hola holo", "field2" -> 2)) should be(Some(Seq("hola", "holo")))
     }
 
     "processReduce must be " in {
@@ -61,10 +61,10 @@ class EntityCountOperatorTest extends WordSpec with Matchers {
       inputFields.processReduce(Seq()) should be(Some(Map()))
 
       val inputFields2 = new EntityCountOperator("entityCount", Map())
-      inputFields2.processReduce(Seq(Some(Seq("hola", "holo")))) should be (Some(Map("hola" -> 1, "holo" -> 1)))
+      inputFields2.processReduce(Seq(Some(Seq("hola", "holo")))) should be(Some(Map("hola" -> 1, "holo" -> 1)))
 
       val inputFields3 = new EntityCountOperator("entityCount", Map())
-      inputFields3.processReduce(Seq(Some(Seq("hola", "holo", "hola")))) should be (Some(Map("hola" -> 2, "holo" -> 1)))
+      inputFields3.processReduce(Seq(Some(Seq("hola", "holo", "hola")))) should be(Some(Map("hola" -> 2, "holo" -> 1)))
     }
 
     "processReduce distinct must be " in {
@@ -72,9 +72,22 @@ class EntityCountOperatorTest extends WordSpec with Matchers {
       inputFields.processReduce(Seq()) should be(Some(Map()))
 
       val inputFields2 = new EntityCountOperator("entityCount", Map("distinct" -> "true"))
-      inputFields2.processReduce(Seq(Some(Seq("hola", "holo", "hola")))) should be (Some(Map("hola" -> 1, "holo" -> 1)))
+      inputFields2.processReduce(Seq(Some(Seq("hola", "holo", "hola")))) should be(Some(Map("hola" -> 1, "holo" -> 1)))
+    }
 
+    "associative process must be " in {
+      val inputFields = new EntityCountOperator("entityCount", Map())
+      val resultInput = Seq((Operator.OldValuesKey, Some(Seq("hola", "holo"))), (Operator.NewValuesKey, None))
+      inputFields.associativity(resultInput) should be(Some(Map("hola" -> 1, "holo" -> 1)))
+
+      val inputFields2 = new EntityCountOperator("entityCount", Map("typeOp" -> "int"))
+      val resultInput2 = Seq((Operator.OldValuesKey, Some(Seq("hola", "holo"))),
+        (Operator.NewValuesKey, Some(Seq("hola"))))
+      inputFields2.associativity(resultInput2) should be(Some(Map("hola" -> 2, "holo" -> 1)))
+
+      val inputFields3 = new EntityCountOperator("entityCount", Map("typeOp" -> null))
+      val resultInput3 = Seq((Operator.OldValuesKey, Some(Seq("hola", "holo"))))
+      inputFields3.associativity(resultInput3) should be(Some(Map("hola" -> 1, "holo" -> 1)))
     }
   }
-
 }

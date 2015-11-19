@@ -56,8 +56,10 @@ class VarianceOperatorTest extends WordSpec with Matchers {
       inputFields9.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
 
       val inputFields10 = new VarianceOperator("variance",
-        Map("inputField" -> "field1", "filters" -> {"[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
-          "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"}))
+        Map("inputField" -> "field1", "filters" -> {
+          "[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
+            "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"
+        }))
       inputFields10.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
     }
 
@@ -76,7 +78,6 @@ class VarianceOperatorTest extends WordSpec with Matchers {
 
       val inputFields5 = new VarianceOperator("variance", Map("typeOp" -> "string"))
       inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("8.0"))
-
     }
 
     "processReduce distinct must be " in {
@@ -94,7 +95,6 @@ class VarianceOperatorTest extends WordSpec with Matchers {
 
       val inputFields5 = new VarianceOperator("variance", Map("typeOp" -> "string", "distinct" -> "true"))
       inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("6.916666666666667"))
-
     }
   }
 }

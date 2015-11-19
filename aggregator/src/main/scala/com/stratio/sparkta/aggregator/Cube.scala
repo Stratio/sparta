@@ -44,35 +44,36 @@ case class Cube(name: String,
                 checkpointGranularity: String,
                 checkpointTimeAvailability: Long) extends SLF4JLogging {
 
-  private lazy val associativeOperators = operators.filter(op => op.associativity == MathProperties.Associative)
+  private val associativeOperators = operators.filter(op => op.isAssociative)
   private lazy val associativeOperatorsMap = associativeOperators.map(op => op.key -> op).toMap
-  private lazy val nonAssociativeOperators = operators.filter(op => op.associativity == MathProperties.NonAssociative)
+  private val nonAssociativeOperators = operators.filter(op => !op.isAssociative)
   private lazy val nonAssociativeOperatorsMap = nonAssociativeOperators.map(op => op.key -> op).toMap
   private lazy val rememberPartitioner =
-    Try(SparktaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigRememberPartitioner)).getOrElse(true)
+    Try(SparktaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigRememberPartitioner))
+      .getOrElse(AppConstant.DefaultRememberPartitioner)
 
   def aggregate(dimensionsValues: DStream[(DimensionValuesTime,
     Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
-    val valuesFiltered = filterDimensionValues(dimensionsValues)
-    val withAssociative = operators.exists(op => op.associativity == MathProperties.Associative)
-    val withNonAssociative = operators.exists(op => op.associativity == MathProperties.NonAssociative)
 
-    (withAssociative, withNonAssociative) match {
-      case (true, true) => {
-        val nonAssociativeValues = aggregateNonAssociativeValues(updateNonAssociativeState(valuesFiltered))
-        val associativeValues = updateAssociativeState(associativeAggregation(valuesFiltered))
+    val filteredValues = filterDimensionValues(dimensionsValues)
+    val associatives = if (associativeOperators.nonEmpty)
+      Left(updateAssociativeState(associativeAggregation(filteredValues)))
+    else Right(None)
+    val nonAssociatives = if (nonAssociativeOperators.nonEmpty)
+      Left(aggregateNonAssociativeValues(updateNonAssociativeState(filteredValues)))
+    else Right(None)
 
+    (associatives, nonAssociatives) match {
+      case (Left(associativeValues), Left(nonAssociativeValues)) =>
         associativeValues.cogroup(nonAssociativeValues)
           .mapValues { case (associativeAggregations, nonAssociativeAggregations) =>
             (associativeAggregations.flatten ++ nonAssociativeAggregations.flatten).toMap
           }
-      }
-      case (true, false) => updateAssociativeState(associativeAggregation(valuesFiltered))
-      case (false, true) => aggregateNonAssociativeValues(updateNonAssociativeState(valuesFiltered))
-      case _ => {
+      case (Left(associativeValues), Right(nonAssociativeValues)) => associativeValues
+      case (Right(associativeValues), Left(nonAssociativeValues)) => nonAssociativeValues
+      case _ =>
         log.warn("You should define operators for aggregate input values")
         noAggregationsState(dimensionsValues)
-      }
     }
   }
 
@@ -155,6 +156,7 @@ case class Cube(name: String,
           .map { case (nameOp, valuesOp) =>
             val op = associativeOperatorsMap(nameOp)
             val values = valuesOp.map(_._2)
+
             (nameOp, op.processReduce(values))
           }.toSeq
 
@@ -164,13 +166,15 @@ case class Cube(name: String,
   protected def updateAssociativeFunction(values: Seq[Seq[(String, Option[Any])]],
                                           state: Option[Map[String, Option[Any]]])
   : Option[Map[String, Option[Any]]] = {
-    val actualState = state.getOrElse(Map()).toSeq
-    val processAssociative = (values.flatten ++ actualState)
+    val actualState = state.getOrElse(Map()).toSeq.map { case (key, value) => (key, (Operator.OldValuesKey, value)) }
+    val newValues = values.flatten.map { case (key, value) => (key, (Operator.NewValuesKey, value)) }
+    val processAssociative = (newValues ++ actualState)
       .groupBy { case (key, value) => key }
       .map { case (opKey, opValues) =>
-        val op = associativeOperatorsMap(opKey)
-
-        (opKey, op.processAssociative(opValues.map { case (nameOp, valuesOp) => valuesOp }))
+        associativeOperatorsMap(opKey) match {
+          case op: Associative => (opKey, op.associativity(opValues.map { case (nameOp, valuesOp) => valuesOp }))
+          case _ => (opKey, None)
+        }
       }
 
     Some(processAssociative)

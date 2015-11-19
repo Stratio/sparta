@@ -17,19 +17,25 @@
 package com.stratio.sparkta.plugin.operator.accumulator
 
 import java.io.{Serializable => JSerializable}
-import scala.util.Try
 
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, _}
 
+import scala.util.Try
+
 class AccumulatorOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
-with ProcessMapAsAny {
+with ProcessMapAsAny with Associative {
 
   override val defaultTypeOperation = TypeOp.ArrayString
 
   override val writeOperation = WriteOp.AccSet
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
-    Try(Some(transformValueByTypeOp(returnType, getDistinctValues(values.flatten.map(_.toString)))))
-      .getOrElse(Some(""))
+    Try(Option(getDistinctValues(values.flatten.map(_.toString)))).getOrElse(Some(""))
+
+  def associativity(values: Iterable[(String, Option[Any])]): Option[Any] = {
+    val newValues = getDistinctValues(extractValues(values, None))
+
+    Try(Option(transformValueByTypeOp(returnType, newValues.map(_.toString)))).getOrElse(Some(""))
+  }
 }

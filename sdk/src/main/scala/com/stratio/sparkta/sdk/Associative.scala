@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2015 Stratio (http://stratio.com)
  *
@@ -17,8 +16,8 @@
 
 package com.stratio.sparkta.sdk
 
-object MathProperties extends Enumeration {
+trait Associative {
 
-  type Associativity = Value
-  val Associative, NonAssociative = Value
+  self: Operator =>
+    def associativity(values: Iterable[(String, Option[Any])]): Option[Any]
 }

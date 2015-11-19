@@ -16,11 +16,10 @@
 
 package com.stratio.sparkta.plugin.operator.fullText
 
+import com.stratio.sparkta.sdk.OperatorConstants
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
-
-import com.stratio.sparkta.sdk.OperatorConstants
 
 @RunWith(classOf[JUnitRunner])
 class FullTextOperatorTest extends WordSpec with Matchers {
@@ -46,8 +45,10 @@ class FullTextOperatorTest extends WordSpec with Matchers {
       inputFields5.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
 
       val inputFields6 = new FullTextOperator("fullText",
-        Map("inputField" -> "field1", "filters" -> {"[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
-          "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"}))
+        Map("inputField" -> "field1", "filters" -> {
+          "[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
+            "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"
+        }))
       inputFields6.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
     }
 

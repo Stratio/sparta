@@ -18,7 +18,6 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.MathProperties.Associativity
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
@@ -42,8 +41,6 @@ with Ordered[Operator] with TypeConversions {
 
   def key: String = name
 
-  def associativity: Associativity = MathProperties.NonAssociative
-
   def distinct: Boolean = Try(properties.getString("distinct").toBoolean).getOrElse(false)
 
   def writeOperation: WriteOp
@@ -51,8 +48,6 @@ with Ordered[Operator] with TypeConversions {
   val inputField = properties.getString("inputField", None)
 
   def processReduce(values: Iterable[Option[Any]]): Option[Any]
-
-  def processAssociative(values: Iterable[Option[Any]]): Option[Any] = None
 
   def castingFilterType: TypeOp = TypeOp.String
 
@@ -141,11 +136,23 @@ with Ordered[Operator] with TypeConversions {
       case ">" => value > filterValue
       case ">=" => value >= filterValue
     }
+
+  def isAssociative: Boolean = this.isInstanceOf[Associative]
+
+  def extractValues(values: Iterable[(String, Option[Any])], filterKey: Option[String]): Iterable[Any] =
+    values.flatMap { case (key, value) =>
+      filterKey match {
+        case Some(filter) => if (key == filter) value else None
+        case None => value
+      }
+    }
 }
 
 object Operator {
 
   final val ClassSuffix = "Operator"
+  final val OldValuesKey = "old"
+  final val NewValuesKey = "new"
 
   /**
    * This method tries to cast a value to Number, if it's possible.

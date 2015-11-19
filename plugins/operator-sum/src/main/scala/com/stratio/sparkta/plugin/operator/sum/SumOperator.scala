@@ -23,25 +23,24 @@ import com.stratio.sparkta.sdk._
 
 import scala.util.Try
 
-class SumOperator(name : String, properties : Map[String, JSerializable]) extends Operator(name, properties)
-with ProcessMapAsNumber {
+class SumOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
+with ProcessMapAsNumber with Associative {
 
   override val defaultTypeOperation = TypeOp.Double
 
   override val writeOperation = WriteOp.Inc
 
-  override val associativity = MathProperties.Associative
-
   override val castingFilterType = TypeOp.Number
 
-  override def processReduce(values : Iterable[Option[Any]]) : Option[Double] = {
-    Try(
-      Some(
-        getDistinctValues(values.flatten.map(_.asInstanceOf[Number].doubleValue())).sum)
-    ).getOrElse(Some(OperatorConstants.Zero.toDouble))
+  override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
+    Try(Option(getDistinctValues(values.flatten.map(_.asInstanceOf[Number].doubleValue())).sum))
+      .getOrElse(Some(OperatorConstants.Zero.toDouble))
   }
 
-  override def processAssociative(values : Iterable[Option[Any]]) : Option[Double] = {
-    Some(transformValueByTypeOp(returnType, values.flatten.map(_.asInstanceOf[Number].doubleValue()).sum))
+  def associativity(values: Iterable[(String, Option[Any])]): Option[Double] = {
+    val newValues = extractValues(values, None)
+
+    Try(Option(transformValueByTypeOp(returnType, newValues.map(_.asInstanceOf[Number].doubleValue()).sum)))
+      .getOrElse(Some(OperatorConstants.Zero.toDouble))
   }
 }

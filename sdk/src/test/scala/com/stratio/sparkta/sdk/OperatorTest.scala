@@ -18,11 +18,10 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparkta.sdk.test.{OperatorMock, OperatorMockString}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
-
-import com.stratio.sparkta.sdk.test.{OperatorMock, OperatorMockString}
 
 @RunWith(classOf[JUnitRunner])
 class OperatorTest extends WordSpec with Matchers {
@@ -251,6 +250,48 @@ class OperatorTest extends WordSpec with Matchers {
       val operator = new OperatorMock("opTest", Map())
       val expected = TypeOp.Long
       val result = operator.returnType
+      result should be(expected)
+    }
+
+    "Operation associativity must be " in {
+      val operator = new OperatorMock("opTest", Map())
+      val expected = false
+      val result = operator.isAssociative
+      result should be(expected)
+    }
+
+    "Operation extract old values must be " in {
+      val operator = new OperatorMock("opTest", Map())
+      val expected = Seq(1)
+      val result = operator.extractValues(Seq((Operator.OldValuesKey, Some(1))), Some(Operator.OldValuesKey))
+      result should be(expected)
+    }
+
+    "Operation extract new values must be " in {
+      val operator = new OperatorMock("opTest", Map())
+      val expected = Seq(1)
+      val result = operator.extractValues(Seq((Operator.NewValuesKey, Some(1))), Some(Operator.NewValuesKey))
+      result should be(expected)
+    }
+
+    "Operation extract old values must be empty " in {
+      val operator = new OperatorMock("opTest", Map())
+      val expected = Seq()
+      val result = operator.extractValues(Seq((Operator.NewValuesKey, Some(1))), Some(Operator.OldValuesKey))
+      result should be(expected)
+    }
+
+    "Operation extract new values must be empty " in {
+      val operator = new OperatorMock("opTest", Map())
+      val expected = Seq()
+      val result = operator.extractValues(Seq((Operator.OldValuesKey, Some(1))), Some(Operator.NewValuesKey))
+      result should be(expected)
+    }
+
+    "Operation extract values must be " in {
+      val operator = new OperatorMock("opTest", Map())
+      val expected = Seq(1)
+      val result = operator.extractValues(Seq((Operator.OldValuesKey, Some(1))), None)
       result should be(expected)
     }
 

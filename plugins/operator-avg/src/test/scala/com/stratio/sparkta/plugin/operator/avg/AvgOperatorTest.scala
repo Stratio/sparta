@@ -56,8 +56,10 @@ class AvgOperatorTest extends WordSpec with Matchers {
       inputFields9.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
 
       val inputFields10 = new AvgOperator("avg",
-        Map("inputField" -> "field1", "filters" -> {"[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
-          "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"}))
+        Map("inputField" -> "field1", "filters" -> {
+          "[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
+            "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"
+        }))
       inputFields10.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
     }
 
@@ -76,7 +78,6 @@ class AvgOperatorTest extends WordSpec with Matchers {
 
       val inputFields5 = new AvgOperator("avg", Map("typeOp" -> "string"))
       inputFields5.processReduce(Seq(Some(1), Some(1))) should be(Some("1.0"))
-
     }
 
     "processReduce distinct must be " in {
@@ -94,7 +95,6 @@ class AvgOperatorTest extends WordSpec with Matchers {
 
       val inputFields5 = new AvgOperator("avg", Map("typeOp" -> "string", "distinct" -> "true"))
       inputFields5.processReduce(Seq(Some(1), Some(1))) should be(Some("1.0"))
-
     }
   }
 }

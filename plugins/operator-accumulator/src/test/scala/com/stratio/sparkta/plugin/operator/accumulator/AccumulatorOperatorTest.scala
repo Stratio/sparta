@@ -16,6 +16,7 @@
 
 package com.stratio.sparkta.plugin.operator.accumulator
 
+import com.stratio.sparkta.sdk.Operator
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -59,15 +60,6 @@ class AccumulatorOperatorTest extends WordSpec with Matchers {
       val inputFields3 = new AccumulatorOperator("accumulator", Map())
       inputFields3.processReduce(Seq(Some("a"), Some("b"))) should be(Some(Seq("a", "b")))
 
-      val inputFields4 = new AccumulatorOperator("accumulator", Map("typeOp" -> "string"))
-      inputFields4.processReduce(Seq(Some(1), Some(1))) should be(Some("1_1"))
-
-      val inputFields5 = new AccumulatorOperator("accumulator", Map("typeOp" -> "string"))
-
-      //I know, null sucks, but it's the only way test the "Try" inner
-      //scalastyle:off
-      inputFields5.processReduce(null) should be(Some(""))
-      //scalastyle:on
     }
 
     "processReduce distinct must be " in {
@@ -80,8 +72,25 @@ class AccumulatorOperatorTest extends WordSpec with Matchers {
       val inputFields3 = new AccumulatorOperator("accumulator", Map("distinct" -> "true"))
       inputFields3.processReduce(Seq(Some("a"), Some("b"))) should be(Some(Seq("a", "b")))
 
-      val inputFields4 = new AccumulatorOperator("accumulator", Map("typeOp" -> "string", "distinct" -> "true"))
-      inputFields4.processReduce(Seq(Some(1), Some(1))) should be(Some("1"))
+    }
+
+    "associative process must be " in {
+      val inputFields = new AccumulatorOperator("accumulator", Map())
+      val resultInput = Seq((Operator.OldValuesKey, Some(1L)),
+        (Operator.NewValuesKey, Some(2L)),
+        (Operator.NewValuesKey, None))
+      inputFields.associativity(resultInput) should be(Some(Seq("1", "2")))
+
+      val inputFields2 = new AccumulatorOperator("accumulator", Map("typeOp" -> "arraydouble"))
+      val resultInput2 = Seq((Operator.OldValuesKey, Some(1)),
+        (Operator.NewValuesKey, Some(3)))
+      inputFields2.associativity(resultInput2) should be(Some(Seq(1d, 3d)))
+
+      val inputFields3 = new AccumulatorOperator("accumulator", Map("typeOp" -> null))
+      val resultInput3 = Seq((Operator.OldValuesKey, Some(1)),
+        (Operator.NewValuesKey, Some(1)))
+      inputFields3.associativity(resultInput3) should be(Some(Seq("1", "1")))
+
     }
   }
 }

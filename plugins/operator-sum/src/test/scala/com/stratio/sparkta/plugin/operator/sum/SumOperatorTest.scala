@@ -16,6 +16,7 @@
 
 package com.stratio.sparkta.plugin.operator.sum
 
+import com.stratio.sparkta.sdk.Operator
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -87,10 +88,16 @@ class SumOperatorTest extends WordSpec with Matchers {
 
     "associative process must be " in {
       val inputFields = new SumOperator("count", Map())
-      inputFields.processAssociative(Seq(Some(1L), Some(1L), None)) should be(Some(2d))
+      val resultInput = Seq((Operator.OldValuesKey, Some(1L)),
+        (Operator.NewValuesKey, Some(1L)),
+        (Operator.NewValuesKey, None))
+      inputFields.associativity(resultInput) should be(Some(2d))
 
       val inputFields2 = new SumOperator("count", Map("typeOp" -> "string"))
-      inputFields2.processAssociative(Seq(Some(1), Some(1))) should be(Some("2.0"))
+      val resultInput2 = Seq((Operator.OldValuesKey, Some(1L)),
+        (Operator.NewValuesKey, Some(1L)),
+        (Operator.NewValuesKey, None))
+      inputFields2.associativity(resultInput2) should be(Some("2.0"))
     }
   }
 }
