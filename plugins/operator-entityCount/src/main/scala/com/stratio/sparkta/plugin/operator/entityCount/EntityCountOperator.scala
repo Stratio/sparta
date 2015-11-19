@@ -32,18 +32,24 @@ class EntityCountOperator(name: String, properties: Map[String, JSerializable])
 
   override val writeOperation = WriteOp.EntityCount
 
-  override def processReduce(values: Iterable[Option[Any]]): Option[Map[String, Long]] =
-    Try(Option(applyCount(getDistinctValues(values.flatten.flatMap(_.asInstanceOf[Seq[String]])))))
-      .getOrElse(Option(Map()))
+  override def processReduce(values: Iterable[Option[Any]]): Option[Seq[String]] =
+    Try(Option(values.flatten.flatMap(_.asInstanceOf[Seq[String]]).toSeq))
+      .getOrElse(None)
 
   def associativity(values: Iterable[(String, Option[Any])]): Option[Map[String, Long]] = {
-    val newValues = getDistinctValues(extractValues(values, None).flatMap(_.asInstanceOf[Seq[String]]))
+    val oldValues = extractValues(values, Option(Operator.OldValuesKey))
+      .flatMap(_.asInstanceOf[Map[String, Long]]).toList
+    val newValues = applyCount(extractValues(values, Option(Operator.NewValuesKey))
+      .flatMap(_.asInstanceOf[Seq[String]]).toList).toList
 
-    Try(Option(transformValueByTypeOp(returnType, applyCount(newValues)))).getOrElse(Option(Map()))
+    Try(Option(transformValueByTypeOp(returnType, applyCountMerge(oldValues ++ newValues)))).getOrElse(Option(Map()))
   }
 
   private def applyCount(values: List[String]): Map[String, Long] =
     values.groupBy((word: String) => word).mapValues(_.length.toLong)
+
+  private def applyCountMerge(values: List[(String, Long)]): Map[String, Long] =
+    values.groupBy { case (word, count) => word }.mapValues(_.map { case (key, value) => value }.sum)
 }
 
 

@@ -10,15 +10,15 @@
     "path": "myTestParquetPath"
   },
   "input":
-    {
-      "name": "in-socket",
-      "type": "Socket",
-      "configuration": {
-        "hostname": "localhost",
-        "port": "10666"
-      }
+  {
+    "name": "in-socket",
+    "type": "Socket",
+    "configuration": {
+      "hostname": "localhost",
+      "port": "10666"
     }
-  ,
+  }
+,
   "transformations": [
     {
       "name": "morphline-parser",
@@ -176,14 +176,6 @@
           "type": "Variance",
           "configuration": {
             "inputField": "price"
-          }
-        },
-        {
-          "name": "entityCount_text",
-          "type": "EntityCount",
-          "configuration": {
-            "inputField": "text",
-            "split": " "
           }
         },
         {

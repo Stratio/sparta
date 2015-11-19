@@ -16,7 +16,6 @@
 
 package com.stratio.sparkta.plugin.operator.range
 
-import com.stratio.sparkta.sdk.Operator
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -76,7 +75,6 @@ class RangeOperatorTest extends WordSpec with Matchers {
 
       val inputFields4 = new RangeOperator("range", Map())
       inputFields4.processReduce(Seq(None)) should be(Some((0d, 0d)))
-
     }
 
     "processReduce distinct must be " in {
@@ -91,26 +89,6 @@ class RangeOperatorTest extends WordSpec with Matchers {
 
       val inputFields4 = new RangeOperator("range", Map("distinct" -> "true"))
       inputFields4.processReduce(Seq(None)) should be(Some((0d, 0d)))
-
-    }
-
-    "associative process must be " in {
-      val inputFields = new RangeOperator("range", Map())
-      val resultInput = Seq((Operator.OldValuesKey, Some((1d, 1d))),
-        (Operator.NewValuesKey, Some((2d, 1d))),
-        (Operator.NewValuesKey, None))
-      inputFields.associativity(resultInput) should be(Some(1d))
-
-      val inputFields2 = new RangeOperator("range", Map())
-      val resultInput2 = Seq((Operator.OldValuesKey, Some((10d, 2d))),
-        (Operator.NewValuesKey, Some((6d, 1d))))
-      inputFields2.associativity(resultInput2) should be(Some(9d))
-
-      val inputFields3 = new RangeOperator("range", Map())
-      val resultInput3 = Seq((Operator.OldValuesKey, Some((5d, 1d))),
-        (Operator.NewValuesKey, Some((10d, 5d))))
-      inputFields3.associativity(resultInput3) should be(Some(9d))
-
     }
   }
 }

@@ -31,11 +31,11 @@ with ProcessMapAsAny with Associative {
   override val writeOperation = WriteOp.AccSet
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
-    Try(Option(getDistinctValues(values.flatten.map(_.toString)))).getOrElse(Some(""))
+    Try(Option(values.flatten.map(_.toString))).getOrElse(None)
 
   def associativity(values: Iterable[(String, Option[Any])]): Option[Any] = {
-    val newValues = getDistinctValues(extractValues(values, None))
+    val newValues = getDistinctValues(extractValues(values, None).asInstanceOf[Seq[Seq[String]]].flatten)
 
-    Try(Option(transformValueByTypeOp(returnType, newValues.map(_.toString)))).getOrElse(Some(""))
+    Try(Option(transformValueByTypeOp(returnType, newValues))).getOrElse(Option(Seq()))
   }
 }

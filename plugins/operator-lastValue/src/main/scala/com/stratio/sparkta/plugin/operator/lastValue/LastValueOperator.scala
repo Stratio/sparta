@@ -34,8 +34,10 @@ with ProcessMapAsAny with Associative {
     Try(Option(values.flatten.last)).getOrElse(Some(OperatorConstants.EmptyString))
 
   def associativity(values: Iterable[(String, Option[Any])]): Option[Any] = {
-    val oldValues = getDistinctValues(extractValues(values, Option(Operator.NewValuesKey)))
+    val newValues = extractValues(values, Option(Operator.NewValuesKey))
+    val lastValue = if(newValues.nonEmpty) newValues
+    else extractValues(values, Option(Operator.OldValuesKey))
 
-    Try(Option(transformValueByTypeOp(returnType, oldValues.last))).getOrElse(Option(OperatorConstants.EmptyString))
+    Try(Option(transformValueByTypeOp(returnType, lastValue.last))).getOrElse(Option(OperatorConstants.EmptyString))
   }
 }

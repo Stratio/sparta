@@ -51,6 +51,10 @@
             <artifactId>serving-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.stratio.sparkta</groupId>
+            <artifactId>sdk</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.fge</groupId>
             <artifactId>json-schema-validator</artifactId>
             <version>2.2.6</version>
