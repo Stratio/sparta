@@ -64,17 +64,6 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>bower install</id>
-                        <goals>
-                            <goal>bower</goal>
-                        </goals>
-                        <phase>generate-resources</phase>
-                        <configuration>
-                            <arguments>install --allow-root</arguments>
-                            <skip.bower>${skip.bower}</skip.bower>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>grunt build</id>
                         <goals>
                             <goal>grunt</goal>
