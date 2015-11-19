@@ -20,9 +20,9 @@ import org.apache.spark.sql.types.StructType
 import java.io.Serializable
 
 
-case class TableSchema(outputName: String, tableName: String,
+case class TableSchema(outputName: String, cubeName: String,
                        schema: StructType, timeDimension: String) extends Serializable {
 
-  override val toString = s"OPERATOR: $outputName - TABLE: $tableName - SCHEMA: $schema"
+  override val toString = s"OPERATOR: $outputName - TABLE: $cubeName - SCHEMA: $schema"
 
 }

@@ -80,7 +80,7 @@ class ElasticSearchOutput(keyName: String,
   override def setup: Unit = createIndices
 
   private def createIndices: Unit = {
-    getSchema.map(tableSchemaTime => createIndexAccordingToSchema(tableSchemaTime.tableName, tableSchemaTime.schema))
+    getSchema.map(tableSchemaTime => createIndexAccordingToSchema(tableSchemaTime.cubeName, tableSchemaTime.schema))
     elasticClient.close
   }
 

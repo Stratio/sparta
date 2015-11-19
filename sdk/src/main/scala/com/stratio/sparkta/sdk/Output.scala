@@ -110,9 +110,9 @@ abstract class Output(keyName: String,
         bcSchema.get.filter(tschema => tschema.outputName == keyName).foreach(tschemaFiltered => {
           val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
           val dataFrame = sqlContext.createDataFrame(
-            extractRow(rdd.filter { case (schema, row) => schema.exists(_ == tableSchemaTime.tableName) }),
+            extractRow(rdd.filter { case (schema, row) => schema.exists(_ == tableSchemaTime.cubeName) }),
             tableSchemaTime.schema)
-          upsert(dataFrame, tableSchemaTime.tableName, tschemaFiltered.timeDimension)
+          upsert(dataFrame, tableSchemaTime.cubeName, tschemaFiltered.timeDimension)
         })
       })
   }
@@ -123,7 +123,7 @@ abstract class Output(keyName: String,
 
   //TODO refactor for remove var types
   def getTableSchemaFixedId(tbSchema: TableSchema): TableSchema = {
-    var tableName = tbSchema.tableName.split(Output.Separator)
+    var tableName = tbSchema.cubeName.split(Output.Separator)
       .filter(name => name != tbSchema.timeDimension && !fixedDimensions.contains(name))
     var fieldsPk = getFields(tbSchema, false)
     var modifiedSchema = false
@@ -220,6 +220,7 @@ object Output {
     dateTimeType match {
       case TypeOp.Date | TypeOp.DateTime => defaultDateField(fieldName, nullable)
       case TypeOp.Timestamp => defaultTimeStampField(fieldName, nullable)
+      case TypeOp.Long => defaultLongField(fieldName, nullable)
       case TypeOp.String => defaultStringField(fieldName, nullable)
       case _ => defaultStringField(fieldName, nullable)
     }
@@ -235,4 +236,7 @@ object Output {
 
   def defaultGeoField(fieldName: String, nullable: Boolean): StructField =
     StructField(fieldName, ArrayType(DoubleType), nullable)
+
+  def defaultLongField(fieldName: String, nullable: Boolean): StructField =
+    StructField(fieldName, LongType, nullable)
 }
