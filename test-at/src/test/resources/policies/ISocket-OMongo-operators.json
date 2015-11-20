@@ -185,6 +185,14 @@
             "inputField": "text",
             "split": " "
           }
+        },
+        {
+          "name": "entityCount_text",
+          "type": "EntityCount",
+          "configuration": {
+            "inputField": "text",
+            "split": " "
+          }
         }
       ]
     }
