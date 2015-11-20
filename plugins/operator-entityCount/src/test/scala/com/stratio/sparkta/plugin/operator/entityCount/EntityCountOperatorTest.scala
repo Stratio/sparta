@@ -58,36 +58,29 @@ class EntityCountOperatorTest extends WordSpec with Matchers {
 
     "processReduce must be " in {
       val inputFields = new EntityCountOperator("entityCount", Map())
-      inputFields.processReduce(Seq()) should be(Some(Map()))
+      inputFields.processReduce(Seq()) should be(Some(Seq()))
 
       val inputFields2 = new EntityCountOperator("entityCount", Map())
-      inputFields2.processReduce(Seq(Some(Seq("hola", "holo")))) should be(Some(Map("hola" -> 1, "holo" -> 1)))
+      inputFields2.processReduce(Seq(Some(Seq("hola", "holo")))) should be(Some(Seq("hola", "holo")))
 
       val inputFields3 = new EntityCountOperator("entityCount", Map())
-      inputFields3.processReduce(Seq(Some(Seq("hola", "holo", "hola")))) should be(Some(Map("hola" -> 2, "holo" -> 1)))
-    }
-
-    "processReduce distinct must be " in {
-      val inputFields = new EntityCountOperator("entityCount", Map("distinct" -> "true"))
-      inputFields.processReduce(Seq()) should be(Some(Map()))
-
-      val inputFields2 = new EntityCountOperator("entityCount", Map("distinct" -> "true"))
-      inputFields2.processReduce(Seq(Some(Seq("hola", "holo", "hola")))) should be(Some(Map("hola" -> 1, "holo" -> 1)))
+      inputFields3.processReduce(Seq(Some(Seq("hola", "holo", "hola")))) should be(Some(Seq("hola", "holo", "hola")))
     }
 
     "associative process must be " in {
       val inputFields = new EntityCountOperator("entityCount", Map())
-      val resultInput = Seq((Operator.OldValuesKey, Some(Seq("hola", "holo"))), (Operator.NewValuesKey, None))
-      inputFields.associativity(resultInput) should be(Some(Map("hola" -> 1, "holo" -> 1)))
+      val resultInput = Seq((Operator.OldValuesKey, Some(Map("hola" -> 1L, "holo" -> 1L))),
+        (Operator.NewValuesKey, None))
+      inputFields.associativity(resultInput) should be(Some(Map("hola" -> 1L, "holo" -> 1L)))
 
       val inputFields2 = new EntityCountOperator("entityCount", Map("typeOp" -> "int"))
-      val resultInput2 = Seq((Operator.OldValuesKey, Some(Seq("hola", "holo"))),
+      val resultInput2 = Seq((Operator.OldValuesKey, Some(Map("hola" -> 1L, "holo" -> 1L))),
         (Operator.NewValuesKey, Some(Seq("hola"))))
-      inputFields2.associativity(resultInput2) should be(Some(Map("hola" -> 2, "holo" -> 1)))
+      inputFields2.associativity(resultInput2) should be(Some(Map("hola" -> 2L, "holo" -> 1L)))
 
       val inputFields3 = new EntityCountOperator("entityCount", Map("typeOp" -> null))
-      val resultInput3 = Seq((Operator.OldValuesKey, Some(Seq("hola", "holo"))))
-      inputFields3.associativity(resultInput3) should be(Some(Map("hola" -> 1, "holo" -> 1)))
+      val resultInput3 = Seq((Operator.OldValuesKey, Some(Map("hola" -> 1L, "holo" -> 1L))))
+      inputFields3.associativity(resultInput3) should be(Some(Map("hola" -> 1L, "holo" -> 1L)))
     }
   }
 }

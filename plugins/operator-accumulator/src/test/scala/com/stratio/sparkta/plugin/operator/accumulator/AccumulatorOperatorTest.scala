@@ -62,33 +62,21 @@ class AccumulatorOperatorTest extends WordSpec with Matchers {
 
     }
 
-    "processReduce distinct must be " in {
-      val inputFields = new AccumulatorOperator("accumulator", Map("distinct" -> "true"))
-      inputFields.processReduce(Seq()) should be(Some(Seq()))
-
-      val inputFields2 = new AccumulatorOperator("accumulator", Map("distinct" -> "true"))
-      inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some(Seq("1")))
-
-      val inputFields3 = new AccumulatorOperator("accumulator", Map("distinct" -> "true"))
-      inputFields3.processReduce(Seq(Some("a"), Some("b"))) should be(Some(Seq("a", "b")))
-
-    }
-
     "associative process must be " in {
       val inputFields = new AccumulatorOperator("accumulator", Map())
-      val resultInput = Seq((Operator.OldValuesKey, Some(1L)),
-        (Operator.NewValuesKey, Some(2L)),
+      val resultInput = Seq((Operator.OldValuesKey, Some(Seq(1L))),
+        (Operator.NewValuesKey, Some(Seq(2L))),
         (Operator.NewValuesKey, None))
       inputFields.associativity(resultInput) should be(Some(Seq("1", "2")))
 
       val inputFields2 = new AccumulatorOperator("accumulator", Map("typeOp" -> "arraydouble"))
-      val resultInput2 = Seq((Operator.OldValuesKey, Some(1)),
-        (Operator.NewValuesKey, Some(3)))
+      val resultInput2 = Seq((Operator.OldValuesKey, Some(Seq(1))),
+        (Operator.NewValuesKey, Some(Seq(3))))
       inputFields2.associativity(resultInput2) should be(Some(Seq(1d, 3d)))
 
       val inputFields3 = new AccumulatorOperator("accumulator", Map("typeOp" -> null))
-      val resultInput3 = Seq((Operator.OldValuesKey, Some(1)),
-        (Operator.NewValuesKey, Some(1)))
+      val resultInput3 = Seq((Operator.OldValuesKey, Some(Seq(1))),
+        (Operator.NewValuesKey, Some(Seq(1))))
       inputFields3.associativity(resultInput3) should be(Some(Seq("1", "1")))
 
     }

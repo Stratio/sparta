@@ -41,15 +41,19 @@ class EntityCountOperator(name: String, properties: Map[String, JSerializable])
       .flatMap(_.asInstanceOf[Map[String, Long]]).toList
     val newValues = applyCount(extractValues(values, Option(Operator.NewValuesKey))
       .flatMap(_.asInstanceOf[Seq[String]]).toList).toList
+    val wordCounts = applyCountMerge(oldValues ++ newValues)
 
-    Try(Option(transformValueByTypeOp(returnType, applyCountMerge(oldValues ++ newValues)))).getOrElse(Option(Map()))
+    Try(Option(transformValueByTypeOp(returnType, wordCounts)))
+      .getOrElse(Option(Map()))
   }
 
   private def applyCount(values: List[String]): Map[String, Long] =
     values.groupBy((word: String) => word).mapValues(_.length.toLong)
 
   private def applyCountMerge(values: List[(String, Long)]): Map[String, Long] =
-    values.groupBy { case (word, count) => word }.mapValues(_.map { case (key, value) => value }.sum)
+    values.groupBy { case (word, count) => word }.mapValues {
+      listValues => listValues.map { case (key, value) => value }.sum
+    }
 }
 
 
