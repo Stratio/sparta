@@ -91,7 +91,7 @@ trait CassandraDAO extends Closeable with Logging {
                                tSchemas: Seq[TableSchema],
                                isAutoCalculateId: Boolean): Boolean = {
     tSchemas.map(tableSchema =>
-      createTable(conn, tableSchema.cubeName, tableSchema.schema, tableSchema.timeDimension, isAutoCalculateId))
+      createTable(conn, tableSchema.tableName, tableSchema.schema, tableSchema.timeDimension, isAutoCalculateId))
       .forall(result => result)
   }
 
@@ -123,7 +123,7 @@ trait CassandraDAO extends Closeable with Logging {
           indexField <- fields
           primaryKey = getPartitionKey(tableSchema.schema, tableSchema.timeDimension, isAutoCalculateId)
           created = if (!primaryKey.contains(indexField)) {
-            createIndex(conn, getTableName(tableSchema.cubeName), indexField)
+            createIndex(conn, getTableName(tableSchema.tableName), indexField)
           } else {
             log.info(s"The indexed field: $indexField is part of primary key.")
             false
@@ -152,7 +152,7 @@ trait CassandraDAO extends Closeable with Logging {
       case Some(textFields) => {
         val seqResults = for {
           tableSchema <- tSchemas
-          tableName = getTableName(tableSchema.cubeName)
+          tableName = getTableName(tableSchema.tableName)
           fields = textFields.filter(textField => tableSchema.schema.fieldNames.contains(textField.split(":").head))
           indexName = s"$IndexPrefix$tableName"
           command = s"CREATE CUSTOM INDEX IF NOT EXISTS $indexName " +

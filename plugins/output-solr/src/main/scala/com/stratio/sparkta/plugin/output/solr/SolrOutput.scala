@@ -61,7 +61,7 @@ class SolrOutput(keyName: String,
   private val solrClients: Map[String, SolrClient] = {
     bcSchema.get.filter(tschema => tschema.outputName == keyName).map(tschemaFiltered => {
       val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
-      tableSchemaTime.cubeName -> getSolrServer(connection, isCloud)
+      tableSchemaTime.tableName -> getSolrServer(connection, isCloud)
     }).toMap
   }
 
@@ -71,8 +71,8 @@ class SolrOutput(keyName: String,
     val coreList = getCoreList(connection, isCloud)
     bcSchema.get.filter(tschema => tschema.outputName == keyName).foreach(tschemaFiltered => {
       val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
-      if (!coreList.contains(tableSchemaTime.cubeName)) {
-        createCoreAccordingToSchema(solrClients, tableSchemaTime.cubeName, tableSchemaTime.schema)
+      if (!coreList.contains(tableSchemaTime.tableName)) {
+        createCoreAccordingToSchema(solrClients, tableSchemaTime.tableName, tableSchemaTime.schema)
       }
     })
   }

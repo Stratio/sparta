@@ -110,9 +110,9 @@ abstract class Output(keyName: String,
         bcSchema.get.filter(tschema => tschema.outputName == keyName).foreach(tschemaFiltered => {
           val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
           val dataFrame = sqlContext.createDataFrame(
-            extractRow(rdd.filter { case (schema, row) => schema.exists(_ == tableSchemaTime.cubeName) }),
+            extractRow(rdd.filter { case (schema, row) => schema.exists(_ == tableSchemaTime.tableName) }),
             tableSchemaTime.schema)
-          upsert(dataFrame, tableSchemaTime.cubeName, tschemaFiltered.timeDimension)
+          upsert(dataFrame, tableSchemaTime.tableName, tschemaFiltered.timeDimension)
         })
       })
   }
@@ -123,7 +123,7 @@ abstract class Output(keyName: String,
 
   //TODO refactor for remove var types
   def getTableSchemaFixedId(tbSchema: TableSchema): TableSchema = {
-    var tableName = tbSchema.cubeName.split(Output.Separator)
+    var tableName = tbSchema.tableName.split(Output.Separator)
       .filter(name => name != tbSchema.timeDimension && !fixedDimensions.contains(name))
     var fieldsPk = getFields(tbSchema, false)
     var modifiedSchema = false
