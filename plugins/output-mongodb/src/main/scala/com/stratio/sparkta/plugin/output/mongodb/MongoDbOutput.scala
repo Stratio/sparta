@@ -87,8 +87,8 @@ class MongoDbOutput(keyName : String,
 
   private def getPrimaryKeyOptions(timeDimension : String) : Map[String, String] =
     if (!timeDimension.isEmpty) {
-      Map("searchFields" -> Seq(Output.Id, timeDimension).mkString(","))
-    } else Map("searchFields" -> Output.Id)
+      Map("updateFields" -> Seq(Output.Id, timeDimension).mkString(","))
+    } else Map("updateFields" -> Output.Id)
 
   private def getConnectionConfs(key : String, firstJsonItem : String, secondJsonItem : String) : String = {
     val conObj = properties.getMapFromJsoneyString(key)
