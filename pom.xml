@@ -503,4 +503,21 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>zinc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>net.alchim31.maven</groupId>
+                        <artifactId>scala-maven-plugin</artifactId>
+                        <configuration>
+                            <recompileMode>incremental</recompileMode>
+                            <useZincServer>true</useZincServer>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

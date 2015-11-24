@@ -85,6 +85,8 @@ object SparktaClusterJob {
           policy, pluginsClasspathFiles, Map("spark.app.name" -> s"${policy.name}")).get
 
         ssc.start
+        policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Started))
+        log.info(s"Starting Streaming Context for policy $policyId")
         ssc.awaitTermination()
       } match {
         case Success(_) => {
