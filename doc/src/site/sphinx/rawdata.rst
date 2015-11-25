@@ -15,7 +15,6 @@ The following code is an example of the policy block that is needed to setup the
 
   "rawData": {
     "enabled": "true",
-    "partitionFormat": "day",
     "path": "myParquetPath"
   }
 
@@ -27,6 +26,4 @@ The following code is an example of the policy block that is needed to setup the
 | path              | This is the path where the temporal data is going to be saved, this path| Yes (default:default)  |
 |                   | should point to a distributed file system as HDFS, S3,...               |                        |
 +-------------------+-------------------------------------------------------------------------+------------------------+
-| partitionFormat   | This is the granularity to make partitions into folders in the          | Yes (default: day)     |
-|                   | distributed file system. The path will be /year/month/day/ by default.  |                        |
-+-------------------+-------------------------------------------------------------------------+------------------------+
+

@@ -24,8 +24,6 @@ import com.github.nscala_time.time.Imports._
 
 object DateOperations {
 
-  val ParquetPathPattern = "/'year='yyyy/'month='MM/'day='dd/'hour='HH/'minute='mm/'second='ss"
-
   def getTimeFromGranularity(timeDimension: Option[String], granularity: Option[String]): Long =
     (timeDimension, granularity) match {
       case (Some(time), Some(granularity)) => dateFromGranularity(DateTime.now, granularity)
@@ -77,23 +75,6 @@ object DateOperations {
     val suffix = dateFromGranularity(DateTime.now, granularity)
     if (!datePattern.isDefined || suffix.equals(0L)) s"/$suffix"
     else s"/${DateTimeFormat.forPattern(datePattern.get).print(new DateTime(suffix))}/$suffix"
-  }
-
-  /**
-   * Generates a parquet path with the format contained in ParquetPathPattern.
-   * @return the object described above.
-   */
-  def generateParquetPath(dateTime: Option[DateTime] = Option(DateTime.now),
-                          parquetPattern: Option[String] = Some(ParquetPathPattern)): String = {
-    val pattern = parquetPattern.get match {
-      case "year" => "/'year='yyyy/'"
-      case "month" => "/'year='yyyy/'month='MM/'"
-      case "day" => "/'year='yyyy/'month='MM/'day='dd/'"
-      case "hour" => "/'year='yyyy/'month='MM/'day='dd/'hour='HH/'"
-      case "minute" => "/'year='yyyy/'month='MM/'day='dd/'hour='HH/'minute='mm/'"
-      case _ => ParquetPathPattern
-    }
-    DateTimeFormat.forPattern(pattern).print(dateTime.get)
   }
 
   def roundDateTime(t: DateTime, d: Duration): DateTime =

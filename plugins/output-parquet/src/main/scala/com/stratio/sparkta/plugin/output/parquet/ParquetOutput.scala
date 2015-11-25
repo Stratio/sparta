@@ -43,8 +43,10 @@ class ParquetOutput(keyName: String,
   override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
     val path = properties.getString("path", None)
     require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
-    val subPath = DateOperations.generateParquetPath()
 
-    dataFrame.write.format("parquet").mode(Overwrite).save(s"${path.get}/${versionedTableName(tableName)}$subPath")
+    dataFrame.write.format("parquet")
+      .partitionBy(timeDimension)
+      .mode(Overwrite)
+      .save(s"${path.get}/${versionedTableName(tableName)}")
   }
 }

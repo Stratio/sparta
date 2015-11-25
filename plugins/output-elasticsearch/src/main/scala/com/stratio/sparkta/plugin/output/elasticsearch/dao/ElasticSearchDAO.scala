@@ -21,7 +21,6 @@ import com.stratio.sparkta.sdk.{TypeOp, _}
 
 trait ElasticSearchDAO {
 
-  final val TimestampPattern = "@timestamp:"
   final val DefaultIndexType = "sparkta"
   final val DefaultNode = "localhost"
   final val DefaultTcpPort = "9300"
@@ -34,7 +33,8 @@ trait ElasticSearchDAO {
   // this regex pretend validate all localhost loopback values including ipv6
   final val LocalhostPattern = "^localhost$|^127(?:\\.[0-9]+){0,2}\\.[0-9]+$|^(?:0*\\:)*?:?0*1$".r.pattern
 
-  val dateTypeMap = Map("timestamp" -> TypeOp.Timestamp, "date" -> TypeOp.Date, "datetime" -> TypeOp.DateTime)
+  val dateTypeMap = Map("timestamp" -> TypeOp.Timestamp, "date" -> TypeOp.Date, "datetime" -> TypeOp.DateTime,
+    "long" -> TypeOp.Long, "string" -> TypeOp.String)
 
   def tcpNodes: Seq[(String, Int)]
 
@@ -56,13 +56,13 @@ trait ElasticSearchDAO {
   } ++
     Map("es.nodes" -> httpNodes(0)._1, "es.port" -> httpNodes(0)._2.toString, "es.index.auto.create" -> "no") ++ {
     if (timeName.isEmpty) Map()
-    else Map("es.mapping.names" -> s"$timeName:@timestamp")
+    else Map("es.mapping.timestamp" -> timeName)
   }
 
   def getDateTimeType(dateType: Option[String]): TypeOp = {
     dateType match {
-      case None => TypeOp.String
-      case Some(date) => dateTypeMap.get(date.toLowerCase).getOrElse(TypeOp.String)
+      case None => TypeOp.Long
+      case Some(date) => dateTypeMap.getOrElse(date.toLowerCase, TypeOp.String)
     }
   }
 }

@@ -108,7 +108,7 @@ abstract class Output(keyName: String,
         aggregations,
         fixedAggregation,
         getFixedDimensions(dimensionValuesTime),
-        isAutoCalculateId)
+        isAutoCalculateId, dateType)
     }
       .foreachRDD(rdd => {
         if (rdd.take(1).length > 0) {
@@ -225,6 +225,7 @@ object Output {
   def getFieldType(dateTimeType: TypeOp, fieldName: String, nullable: Boolean): StructField =
     dateTimeType match {
       case TypeOp.Date | TypeOp.DateTime => defaultDateField(fieldName, nullable)
+      case TypeOp.Long => defaultLongField(fieldName, nullable)
       case TypeOp.Timestamp => defaultTimeStampField(fieldName, nullable)
       case TypeOp.Long => defaultLongField(fieldName, nullable)
       case TypeOp.String => defaultStringField(fieldName, nullable)
@@ -236,6 +237,9 @@ object Output {
 
   def defaultDateField(fieldName: String, nullable: Boolean): StructField =
     StructField(fieldName, DateType, nullable)
+
+  def defaultLongField(fieldName: String, nullable: Boolean): StructField =
+    StructField(fieldName, LongType, nullable)
 
   def defaultStringField(fieldName: String, nullable: Boolean): StructField =
     StructField(fieldName, StringType, nullable)

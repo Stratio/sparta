@@ -65,17 +65,6 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
     val output = new ParquetOutput("parquet-test", None, Map(), None, None)
   }
 
-  trait WithDatePattern extends CommonValues {
-
-    val datePattern = "yyyy/MM/dd"
-    val properties = Map("path" -> tmpPath, "datePattern" -> datePattern)
-    val granularity = "minute"
-    val output = new ParquetOutput("parquet-test", None, properties, None, None)
-    val dt = DateTime.now
-    val expectedPath = "/" + DateTimeFormat.forPattern(datePattern).print(dt) + "/" + dt.withMillisOfSecond(0)
-      .withSecondOfMinute(0).getMillis
-  }
-
   trait WithoutGranularity extends CommonValues {
 
     val datePattern = "yyyy/MM/dd"
@@ -86,7 +75,7 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
 
   "ParquetOutputIT" should "save a dataframe" in new WithEventData {
     output.upsert(data, "person", "minute")
-    val read = sqlContext.parquetFile(tmpPath).toDF
+    val read = sqlContext.read.parquet(tmpPath).toDF
     read.count should be(3)
     read should be eq (data)
     File(tmpPath).deleteRecursively
@@ -96,13 +85,6 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
     an[Exception] should be thrownBy output.upsert(data, "person", "minute")
   }
 
-  it should "format path with pattern" in new WithDatePattern {
-    DateOperations.subPath(granularity, Some(datePattern)) should be(expectedPath)
-  }
-
-  it should "format path ignoring pattern" in new WithoutGranularity {
-    DateOperations.subPath("", Some(datePattern)) should be(expectedPath)
-  }
 }
 
 object ParquetOutputIT {
