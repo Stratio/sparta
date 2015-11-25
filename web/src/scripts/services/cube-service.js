@@ -114,17 +114,18 @@
         createdCubes++;
         AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
       } else {
-        CubeModelFactory.setError("_GENERIC_FORM_ERROR_");
+        CubeModelFactory.setError();
       }
     }
 
-    function saveCube() {
+    function saveCube(cubeForm) {
+      cubeForm.$submitted = true;
       var cube = angular.copy(CubeModelFactory.getCube());
       if (CubeModelFactory.isValidCube(cube, vm.policy.cubes, CubeModelFactory.getContext().position)) {
+        cubeForm.$submitted = false;
         vm.policy.cubes[CubeModelFactory.getContext().position] = cube;
-        CubeModelFactory.setError("");
       } else {
-        CubeModelFactory.setError("_GENERIC_FORM_ERROR_");
+        CubeModelFactory.setError();
       }
     }
 

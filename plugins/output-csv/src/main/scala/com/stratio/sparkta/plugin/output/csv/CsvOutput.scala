@@ -55,8 +55,7 @@ class CsvOutput(keyName: String,
     require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
     val pathParsed = if (path.get.endsWith("/")) path.get else path.get + "/"
     val subPath = DateOperations.subPath(dateGranularityFile, datePattern)
-
-    saveAction(s"$pathParsed$tableName$subPath.csv", dataFrame)
+    saveAction(s"$pathParsed${versionedTableName(tableName)}$subPath.csv", dataFrame)
   }
 
   protected[csv] def saveAction(path: String, dataFrame: DataFrame): Unit = {

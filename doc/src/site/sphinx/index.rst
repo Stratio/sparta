@@ -11,3 +11,4 @@ Contents:
     troubleshooting.rst
     faq.rst
     versionFeatures.rst
+    policyWithGUI.rst

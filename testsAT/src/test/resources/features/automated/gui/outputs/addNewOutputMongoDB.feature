@@ -101,12 +101,7 @@ Feature: Test adding a new MongoDB output in Sparkta GUI
 		When I click on the element on index '0'
 		# NO error message should appear
 		Then '0' element exists with 'css:span[data-qa="fragment-details-mongoDb-retrySleep-error-required"]'
-		
-		# Select and deselect Id as field
-		Given '1' element exists with 'css:label[data-qa="fragment-details-mongoDb-idAsField"]'
-		Then I click on the element on index '0'
-		And I click on the element on index '0'
-		
+
 		# Try with port using letters
 		Given '1' element exists with 'css:input[data-qa="fragment-details-mongoDb-port-0"]'
 		Then I type 'port' on the element on index '0'

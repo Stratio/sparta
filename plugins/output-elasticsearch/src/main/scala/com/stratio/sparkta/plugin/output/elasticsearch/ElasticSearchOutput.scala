@@ -49,13 +49,13 @@ class ElasticSearchOutput(keyName: String,
 
   override val idField = properties.getString("idField", None)
 
-  override val mappingType = properties.getString("indexMapping", Some(DefaultIndexType))
+  override val mappingType = properties.getString("indexMapping", DefaultIndexType)
 
   override val dateType = getDateTimeType(properties.getString("dateType", None))
 
   override val clusterName = properties.getString("clusterName", DefaultCluster)
 
-  override def isAutoCalculateId: Boolean = true
+  override val isAutoCalculateId = true
 
   override val tcpNodes = getHostPortConfs(NodesName, DefaultNode, DefaultTcpPort, NodeName, TcpPortName)
 
@@ -65,30 +65,29 @@ class ElasticSearchOutput(keyName: String,
     val settings = ImmutableSettings.settingsBuilder().put("cluster.name", clusterName).build()
     if (isLocalhost) ElasticClient.local(settings)
     else {
-      val hostsPorts = tcpNodes.map { case (host, port) => s"${host}:${port}" }.mkString(",")
+      val hostsPorts = tcpNodes.map { case (host, port) => s"$host:$port" }.mkString(",")
       val uri = s"elasticsearch://$hostsPorts"
       ElasticClient.remote(settings, ElasticsearchClientUri(uri))
     }
   }
 
-  val isLocalhost: Boolean = LocalhostPattern.matcher(tcpNodes.head._1).matches
+  lazy val getSchema = bcSchema.get.filter(_.outputName == keyName).map(getTableSchemaFixedId)
 
-  def indexNameType(tableName: String): String = (tableName + "/" + mappingType.get).toLowerCase
+  lazy val isLocalhost: Boolean = LocalhostPattern.matcher(tcpNodes.head._1).matches
+
+  lazy val mappingName = versionedTableName(mappingType).toLowerCase
 
   override def setup: Unit = createIndices
 
   private def createIndices: Unit = {
     getSchema.map(tableSchemaTime => createIndexAccordingToSchema(tableSchemaTime.tableName, tableSchemaTime.schema))
-    elasticClient.close()
+    elasticClient.close
   }
-
-  def getSchema: Seq[TableSchema] = bcSchema.get.filter(_.outputName == keyName).map(getTableSchemaFixedId)
 
   private def createIndexAccordingToSchema(tableName: String, schema: StructType) =
     elasticClient.execute {
-      create index tableName shards 5 replicas 1 mappings (
-        mappingType.get.toLowerCase as (getElasticsearchFields(schema))
-        )
+      create index tableName.toLowerCase shards 5 replicas 1 mappings (
+        mappingName as getElasticsearchFields(schema))
     }
 
   override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit =
@@ -98,6 +97,8 @@ class ElasticSearchOutput(keyName: String,
     val sparkConfig = getSparkConfig(timeDimension, idField.isDefined || isAutoCalculateId)
     dataFrame.saveToEs(indexNameType(tableName), sparkConfig)
   }
+
+  def indexNameType(tableName: String): String = s"${tableName.toLowerCase}/$mappingName"
 
   //scalastyle:off
   def getElasticsearchFields(schema: StructType): Seq[TypedFieldDefinition] = {
@@ -116,8 +117,13 @@ class ElasticSearchOutput(keyName: String,
     })
   }
 
-  def getHostPortConfs(key: String, defaultHost: String, defaultPort: String, nodeName: String, portName: String)
-  : Seq[(String, Int)] = {
+  //scalastyle:on
+
+  def getHostPortConfs(key: String,
+                       defaultHost: String,
+                       defaultPort: String,
+                       nodeName: String,
+                       portName: String): Seq[(String, Int)] = {
     properties.getConnectionChain(key).map(c =>
       (c.getOrElse(nodeName, defaultHost), c.getOrElse(portName, defaultPort).toInt))
   }

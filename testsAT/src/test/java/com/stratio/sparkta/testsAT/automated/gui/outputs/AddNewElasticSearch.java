@@ -9,7 +9,7 @@ import com.stratio.sparkta.testsAT.utils.BaseTest;
 
 import cucumber.api.CucumberOptions;
 
-@CucumberOptions(features = { "src/test/resources/features/gui/automated/outputs/addNewOutputElasticSearch.feature" })
+@CucumberOptions(features = { "src/test/resources/features/automated/gui/outputs/addNewOutputElasticSearch.feature" })
 public class AddNewElasticSearch extends BaseTest {
     
     @Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")

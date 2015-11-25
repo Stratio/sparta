@@ -114,19 +114,14 @@ Feature: Test adding a new policy in Sparkta GUI
 		# Screen 3/6 Model
 		Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
 		When I click on the element on index '0'
-		Then '1' element exists with 'css:div[data-qa="policy-model-error-msg"]'
-		
-		
-		Given '1' element exists with 'css:input[data-qa="policy-model-name"]'
-		Then I type 'myModel' on the element on index '0'
+		Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-outputs-length"]'
 		
 		# Try with empty Configuration
 		Given '1' element exists with 'css:textarea[data-qa="policy-model-configuration-textarea"]'
 		Then I clear the content on text input at index '0'
 		Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
 		When I click on the element on index '0'
-		Then '1' element exists with 'css:div[data-qa="policy-model-error-msg"]'
-		
+		Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-outputs-length"]'
 		
 		# Fill Configuration
 		Given '1' element exists with 'css:textarea[data-qa="policy-model-configuration-textarea"]'
@@ -176,18 +171,14 @@ Feature: Test adding a new policy in Sparkta GUI
 		
 		Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
 		When I click on the element on index '0'
-		Then '1' element exists with 'css:div[data-qa="policy-model-error-msg"]'
-		
-		
-		Given '1' element exists with 'css:input[data-qa="policy-model-name"]'
-		Then I type 'myModel' on the element on index '0'		
+		Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-outputs-length"]'
 		
 		# Try with empty Configuration
 		Given '1' element exists with 'css:textarea[data-qa="policy-model-configuration-textarea"]'
 		Then I clear the content on text input at index '0'
 		Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
 		When I click on the element on index '0'
-		Then '1' element exists with 'css:div[data-qa="policy-model-error-msg"]'
+		Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-outputs-length"]'
 		
 		# Fill Configuration
 		Given '1' element exists with 'css:textarea[data-qa="policy-model-configuration-textarea"]'
@@ -235,18 +226,14 @@ Feature: Test adding a new policy in Sparkta GUI
 		Then I click on the element on index '0'
 		Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
 		When I click on the element on index '0'
-		Then '1' element exists with 'css:div[data-qa="policy-model-error-msg"]'
-		
-		Given '1' element exists with 'css:input[data-qa="policy-model-name"]'
-		Then I type 'myModel' on the element on index '0'
+		Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-outputs-length"]'
 		
 		# Try with empty Configuration
 		Given '1' element exists with 'css:textarea[data-qa="policy-model-configuration-textarea"]'
 		Then I clear the content on text input at index '0'
 		Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
 		When I click on the element on index '0'
-		#Then '1' element exists with 'css:div[data-qa="policy-modal-error-msg-accordion"]'
-		Then '1' element exists with 'css:div[data-qa="policy-model-error-msg"]'
+		Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-outputs-length"]'
 		
 		# Fill Configuration
 		Given '1' element exists with 'css:textarea[data-qa="policy-model-configuration-textarea"]'
@@ -393,15 +380,7 @@ Feature: Test adding a new policy in Sparkta GUI
 		# Fill Name
 		Given '1' element exists with 'css:input[data-qa="operator-modal-name"]'
 		Then I type 'myOperator' on the element on index '0'
-		# Try with empty config
-		Given '1' element exists with 'css:textarea[data-qa="operator-modal-config"]'
-		Then I clear the content on text input at index '0'
-		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
-		When I click on the element on index '0'
-		Then '1' element exists with 'css:div[data-qa="error-msg"]'
-		# Fill Config
-		Given '1' element exists with 'css:textarea[data-qa="operator-modal-config"]'
-		Then I type '{}' on the element on index '0'
+		# Create
 		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:div[data-qa^="policy-cube-operatorlist-"]'
