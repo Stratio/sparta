@@ -57,20 +57,20 @@ case class Cube(name: String,
 
     val filteredValues = filterDimensionValues(dimensionsValues)
     val associatives = if (associativeOperators.nonEmpty)
-      Left(updateAssociativeState(associativeAggregation(filteredValues)))
-    else Right(None)
+      Option(updateAssociativeState(associativeAggregation(filteredValues)))
+    else None
     val nonAssociatives = if (nonAssociativeOperators.nonEmpty)
-      Left(aggregateNonAssociativeValues(updateNonAssociativeState(filteredValues)))
-    else Right(None)
+      Option(aggregateNonAssociativeValues(updateNonAssociativeState(filteredValues)))
+    else None
 
     (associatives, nonAssociatives) match {
-      case (Left(associativeValues), Left(nonAssociativeValues)) =>
+      case (Some(associativeValues), Some(nonAssociativeValues)) =>
         associativeValues.cogroup(nonAssociativeValues)
           .mapValues { case (associativeAggregations, nonAssociativeAggregations) =>
             (associativeAggregations.flatten ++ nonAssociativeAggregations.flatten).toMap
           }
-      case (Left(associativeValues), Right(nonAssociativeValues)) => associativeValues
-      case (Right(associativeValues), Left(nonAssociativeValues)) => nonAssociativeValues
+      case (Some(associativeValues), None) => associativeValues
+      case (None, Some(nonAssociativeValues)) => nonAssociativeValues
       case _ =>
         log.warn("You should define operators for aggregate input values")
         noAggregationsState(dimensionsValues)
