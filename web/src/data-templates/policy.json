@@ -2,7 +2,6 @@
   "defaultSparkStreamingWindow": 6000,
   "defaultStorageLevel": "MEMORY_AND_DISK_SER",
   "defaultCheckpointPath": "/tmp/checkpoint",
-  "defaultPartitionFormat": "day",
   "steps": [
     {
       "name": "_POLICY_._STEPS_._DESCRIPTION_",

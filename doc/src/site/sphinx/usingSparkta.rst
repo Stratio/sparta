@@ -89,7 +89,6 @@ In this part you have to define the global parameters of your policy::
   "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "true",
-    "partitionFormat": "day",
     "path": "myTestParquetPath"
   }
 +--------------------------+-----------------------------------------------+----------+

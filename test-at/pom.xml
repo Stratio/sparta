@@ -223,7 +223,7 @@
         <dependency>
             <groupId>com.datastax.spark</groupId>
             <artifactId>spark-cassandra-connector_${scala.binary.version}</artifactId>
-            <version>1.4.0-M3</version>
+            <version>1.5.0-M2</version>
         </dependency>
         <dependency>
             <groupId>com.databricks</groupId>

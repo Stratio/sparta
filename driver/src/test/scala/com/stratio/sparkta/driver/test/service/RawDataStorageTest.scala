@@ -25,9 +25,9 @@ import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class RawDataStorageTest extends FlatSpec with ShouldMatchers {
-  val service = new RawDataStorageService(null, "", "")
+  val service = new RawDataStorageService(null, "")
   "RawDataStorage" should "return a event" in {
-    val service = new RawDataStorageService(null, "", "")
+    val service = new RawDataStorageService(null, "")
     val inputEvent = new Event(Map(Input.RawDataKey -> "hola"))
 
     val result = service.extractRawFromEvent(inputEvent)
@@ -35,13 +35,13 @@ class RawDataStorageTest extends FlatSpec with ShouldMatchers {
     result should be("hola")
   }
   it should "return a raw event" in {
-    val service = new RawDataStorageService(null, "", "")
+    val service = new RawDataStorageService(null, "")
     val inputEvent = new Event(Map(Input.RawDataKey -> "hola"), Some("rawData"))
     val result = service.extractRawFromEvent(inputEvent)
     result should be("rawData")
   }
   it should "return a raw " in {
-    val service = new RawDataStorageService(null, "", "")
+    val service = new RawDataStorageService(null, "")
     val inputEvent = new Event(Map("other key" -> "hola","other one" -> "adios"))
     val result = service.extractRawFromEvent(inputEvent)
     result should be("hola###adios")

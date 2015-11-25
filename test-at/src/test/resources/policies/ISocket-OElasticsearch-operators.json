@@ -6,7 +6,6 @@
   "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
-    "partitionFormat": "day",
     "path": ""
   },
   "input":

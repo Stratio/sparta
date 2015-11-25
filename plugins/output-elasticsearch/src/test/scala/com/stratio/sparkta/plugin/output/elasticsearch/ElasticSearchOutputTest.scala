@@ -41,13 +41,13 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
         new JsoneyString(
           s"""[{"node":"host-a","tcpPort":"$remotePort","httpPort":"$localPort"},{"node":"host-b",
              |"tcpPort":"9301","httpPort":"9201"}]""".stripMargin),
-        "dateType" -> "timestamp"), None, None)
+        "dateType" -> "long"), None, None)
 
     def getInstance(host: String = "localhost", httpPort: Int = localPort, tcpPort : Int = remotePort)
     : ElasticSearchOutput =
       new ElasticSearchOutput("ES-out", None,
         Map("nodes" -> new JsoneyString( s"""[{"node":"$host","httpPort":"$httpPort","tcpPort":"$tcpPort"}]"""),
-          "dateType" -> "timestamp",
+          "dateType" -> "long",
         "clusterName" -> "elasticsearch"), None, None)
   }
 
@@ -65,14 +65,18 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
     val baseFields = Seq(StructField("string", StringType), StructField("int", IntegerType))
     val schema = StructType(baseFields)
     val tableSchema = TableSchema("ES-out", tableName, schema, "timestamp")
-    val extraFields = Seq(StructField("id", StringType, false), StructField("timestamp", TimestampType, false))
+    val extraFields = Seq(StructField("id", StringType, false), StructField("timestamp", LongType, false))
     val expectedSchema = StructType(extraFields ++ baseFields)
     val expectedTableSchema = tableSchema.copy(tableName = "id_sparktaTable_timestamp", schema = expectedSchema)
     val properties = Map("nodes" -> new JsoneyString(
       """[{"node":"localhost","httpPort":"9200","tcpPort":"9300"}]""".stripMargin),
-      "dateType" -> "timestamp",
+      "dateType" -> "long",
       "clusterName" -> "elasticsearch")
     override val output = new ElasticSearchOutput("ES-out", None, properties, None, bcSchema = Some(Seq(tableSchema)))
+    val dateField = StructField("timestamp", TimestampType, false)
+    val expectedDateField = StructField("timestamp", LongType, false)
+    val stringField = StructField("string", StringType)
+    val expectedStringField = StructField("string", StringType)
   }
 
   trait SchemaValues extends BaseValues {
@@ -80,7 +84,7 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
     val fields = Seq(
       StructField("long", LongType),
       StructField("double", DoubleType),
-      StructField("decimal", DecimalType()),
+      StructField("decimal", DecimalType(10, 0)),
       StructField("int", IntegerType),
       StructField("boolean", BooleanType),
       StructField("date", DateType),
@@ -90,6 +94,7 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
       StructField("string", StringType),
       StructField("binary", BinaryType))
     val completeSchema = StructType(fields)
+    val completeTableSchema = TableSchema("elasticsearch", "table", completeSchema, "timestamp")
     val definitions = Seq(
       "long".typed(FieldType.LongType),
       "double".typed(FieldType.DoubleType),
@@ -97,7 +102,7 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
       "int".typed(FieldType.IntegerType),
       "boolean".typed(FieldType.BooleanType),
       "date".typed(FieldType.DateType),
-      "timestamp".typed(FieldType.DateType),
+      "timestamp".typed(FieldType.LongType),
       "array".typed(FieldType.MultiFieldType),
       "map".typed(FieldType.ObjectType),
       "string" typed FieldType.StringType index "not_analyzed",
@@ -120,7 +125,7 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
     output.httpNodes should be(Seq(("localhost", 9200)))
     outputMultipleNodes.tcpNodes should be(Seq(("host-a", 9300),("host-b", 9301)))
     outputMultipleNodes.httpNodes should be(Seq(("host-a", 9200),("host-b", 9201)))
-    output.dateType should be(TypeOp.Timestamp)
+    output.dateType should be(TypeOp.Long)
     output.clusterName should be("elasticsearch")
     output.isAutoCalculateId should be(true)
     output.isLocalhost should be(true)
@@ -130,11 +135,19 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
   }
 
   it should "return correct types" in new SchemaValues {
-    val result = output.getElasticsearchFields(completeSchema)
+    val result = output.getElasticsearchFields(completeTableSchema)
     equals(result, definitions) should be(true)
   }
 
-  it should "parse correct index name type" in new TestingValues {
+  it should "return a correct date type" in new TestingValues {
+    val result = output.filterDateTypeMapping(dateField, "timestamp") should be (expectedDateField)
+  }
+
+  it should "return a correct type" in new TestingValues {
+    val result = output.filterDateTypeMapping(stringField, "timestamp") should be (expectedStringField)
+  }
+
+  it should "parse correct index name type" in new TestingValues{
     output.indexNameType(tableName) should be(indexNameType)
   }
 
