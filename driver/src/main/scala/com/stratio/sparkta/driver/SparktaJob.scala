@@ -206,7 +206,7 @@ object SparktaJob extends SLF4JLogging {
       require(!apConfig.rawData.path.equals("default"), "The parquet path must be set")
       val sqlContext = sqc.getOrElse(SparkContextFactory.sparkSqlContextInstance.get)
       def rawDataStorage: RawDataStorageService =
-        new RawDataStorageService(sqlContext, apConfig.rawData.path, apConfig.rawData.partitionFormat)
+        new RawDataStorageService(sqlContext, apConfig.rawData.path)
       rawDataStorage.save(input)
     }
 

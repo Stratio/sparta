@@ -18,12 +18,10 @@ package com.stratio.sparkta.serving.core.models
 
 
 case class RawDataModel(enabled: String = RawDataModel.Enabled,
-                      partitionFormat: String = RawDataModel.PartitionFormat,
                       path: String = RawDataModel.Path)
 
 case object RawDataModel {
 
   val Enabled = "false"
-  val PartitionFormat = "day"
   val Path = "default"
 }

@@ -121,11 +121,6 @@ class DateOperationsTest extends FlatSpec with ShouldMatchers {
     DateOperations.subPath(granularity, datePattern) should be(expectedGranularityWithPattern)
   }
 
-  it should "create a raw data path" in new CommonValues {
-    val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.ZZZ")
-    val now = Option(formatter.parseDateTime("1984-03-17 13:13:13.CET"))
-    DateOperations.generateParquetPath(now) should be(expectedRawPath)
-  }
   it should "round to 15 seconds" in new CommonValues {
     val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.ZZZ")
     val now = formatter.parseDateTime("1984-03-17 13:13:17.CET")
@@ -140,14 +135,6 @@ class DateOperationsTest extends FlatSpec with ShouldMatchers {
     val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.ZZZ")
     val now = formatter.parseDateTime("1984-03-17 13:13:17.CET")
     DateOperations.dateFromGranularity(now, "s5") should be(448373595000L)
-  }
-  it should "create the full parquet path with just a word" in new ParquetPath {
-    DateOperations.generateParquetPath(parquetPattern = Some(yearStr)) should be(yearPatternResult)
-    DateOperations.generateParquetPath(parquetPattern = Some(monthStr)) should be(monthPatternResult)
-    DateOperations.generateParquetPath(parquetPattern = Some(dayStr)) should be(dayPatternResult)
-    DateOperations.generateParquetPath(parquetPattern = Some(hourStr)) should be(hourPatternResult)
-    DateOperations.generateParquetPath(parquetPattern = Some(minuteStr)) should be(minutePatternResult)
-    DateOperations.generateParquetPath(parquetPattern = Some(defaultStr)) should be(defaultPatternResult)
   }
 
   it should "return millis from a Serializable date" in new CommonValues {
