@@ -43,6 +43,7 @@ object AppConstant {
   final val PoliciesBasePath = s"${AppConstant.BaseZKPath}/policies"
   final val ContextPath = s"${AppConstant.BaseZKPath}/contexts"
   final val ConfigRememberPartitioner = "rememberPartitioner"
+  final val DefaultRememberPartitioner = true
   final val ConfigStopGracefully = "stopGracefully"
 
   //Hdfs Options

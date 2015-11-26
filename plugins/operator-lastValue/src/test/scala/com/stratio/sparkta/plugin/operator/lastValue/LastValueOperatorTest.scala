@@ -16,6 +16,7 @@
 
 package com.stratio.sparkta.plugin.operator.lastValue
 
+import com.stratio.sparkta.sdk.Operator
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -53,14 +54,29 @@ class LastValueOperatorTest extends WordSpec with Matchers {
       val inputFields = new LastValueOperator("lastValue", Map())
       inputFields.processReduce(Seq()) should be(Some(""))
 
-      val inputFields2 = new LastValueOperator("lastValue", Map("typeOp" -> "int"))
+      val inputFields2 = new LastValueOperator("lastValue", Map())
       inputFields2.processReduce(Seq(Some(1), Some(2))) should be(Some(2))
-
-      val inputFields4 = new LastValueOperator("lastValue", Map("typeOp" -> "string"))
-      inputFields4.processReduce(Seq(Some(1), Some(2))) should be(Some("2"))
 
       val inputFields3 = new LastValueOperator("lastValue", Map())
       inputFields3.processReduce(Seq(Some("a"), Some("b"))) should be(Some("b"))
+    }
+
+    "associative process must be " in {
+      val inputFields = new LastValueOperator("lastValue", Map())
+      val resultInput = Seq((Operator.OldValuesKey, Some(1L)),
+        (Operator.NewValuesKey, Some(1L)),
+        (Operator.NewValuesKey, None))
+      inputFields.associativity(resultInput) should be(Some("1"))
+
+      val inputFields2 = new LastValueOperator("lastValue", Map("typeOp" -> "int"))
+      val resultInput2 = Seq((Operator.OldValuesKey, Some(1L)),
+        (Operator.NewValuesKey, Some(1L)))
+      inputFields2.associativity(resultInput2) should be(Some(1))
+
+      val inputFields3 = new LastValueOperator("lastValue", Map("typeOp" -> null))
+      val resultInput3 = Seq((Operator.OldValuesKey, Some(1)),
+        (Operator.NewValuesKey, Some(2)))
+      inputFields3.associativity(resultInput3) should be(Some("2"))
     }
   }
 }

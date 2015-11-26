@@ -16,6 +16,7 @@
 
 package com.stratio.sparkta.plugin.operator.min
 
+import com.stratio.sparkta.sdk.Operator
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -74,10 +75,6 @@ class MinOperatorTest extends WordSpec with Matchers {
       val inputFields4 = new MinOperator("min", Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
-      val inputFields5 = new MinOperator("min", Map("typeOp" -> "string"))
-      inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("1.0"))
-
-
     }
 
     "processReduce disctinct must be " in {
@@ -93,10 +90,29 @@ class MinOperatorTest extends WordSpec with Matchers {
       val inputFields4 = new MinOperator("min", Map("distinct" -> "true"))
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
-      val inputFields5 = new MinOperator("min", Map("typeOp" -> "string", "distinct" -> "true"))
-      inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("1.0"))
+    }
 
+    "associative process must be " in {
+      val inputFields = new MinOperator("max", Map())
+      val resultInput = Seq((Operator.OldValuesKey, Some(1L)),
+        (Operator.NewValuesKey, Some(2L)),
+        (Operator.NewValuesKey, None))
+      inputFields.associativity(resultInput) should be(Some(1d))
 
+      val inputFields2 = new MinOperator("max", Map("typeOp" -> "int"))
+      val resultInput2 = Seq((Operator.OldValuesKey, Some(1)),
+        (Operator.NewValuesKey, Some(2)))
+      inputFields2.associativity(resultInput2) should be(Some(1))
+
+      val inputFields3 = new MinOperator("max", Map("typeOp" -> null))
+      val resultInput3 = Seq((Operator.OldValuesKey, Some(1)),
+        (Operator.NewValuesKey, Some(1)))
+      inputFields3.associativity(resultInput3) should be(Some(1d))
+
+      val inputFields4 = new MinOperator("max", Map("typeOp" -> "string"))
+      val resultInput4 = Seq((Operator.OldValuesKey, Some(1)),
+        (Operator.NewValuesKey, Some(3)))
+      inputFields4.associativity(resultInput4) should be(Some("1.0"))
     }
   }
 }

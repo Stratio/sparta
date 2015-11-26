@@ -17,17 +17,17 @@
 package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
-import scala.collection.immutable.StringOps
-import scala.language.reflectiveCalls
-import scala.runtime.RichDouble
-import scala.util._
-
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
 
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+
+import scala.collection.immutable.StringOps
+import scala.language.reflectiveCalls
+import scala.runtime.RichDouble
+import scala.util._
 
 abstract class Operator(name: String, properties: Map[String, JSerializable]) extends Parameterizable(properties)
 with Ordered[Operator] with TypeConversions {
@@ -136,11 +136,23 @@ with Ordered[Operator] with TypeConversions {
       case ">" => value > filterValue
       case ">=" => value >= filterValue
     }
+
+  def isAssociative: Boolean = this.isInstanceOf[Associative]
+
+  def extractValues(values: Iterable[(String, Option[Any])], filterKey: Option[String]): Iterable[Any] =
+    values.flatMap { case (key, value) =>
+      filterKey match {
+        case Some(filter) => if (key == filter) value else None
+        case None => value
+      }
+    }
 }
 
 object Operator {
 
   final val ClassSuffix = "Operator"
+  final val OldValuesKey = "old"
+  final val NewValuesKey = "new"
 
   /**
    * This method tries to cast a value to Number, if it's possible.

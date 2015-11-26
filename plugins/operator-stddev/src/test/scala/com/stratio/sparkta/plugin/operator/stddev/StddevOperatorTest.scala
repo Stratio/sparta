@@ -56,8 +56,10 @@ class StddevOperatorTest extends WordSpec with Matchers {
       inputFields9.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
 
       val inputFields10 = new StddevOperator("stdev",
-        Map("inputField" -> "field1", "filters" -> {"[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
-          "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"}))
+        Map("inputField" -> "field1", "filters" -> {
+          "[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
+            "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"
+        }))
       inputFields10.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
     }
 
@@ -79,7 +81,6 @@ class StddevOperatorTest extends WordSpec with Matchers {
       val inputFields5 = new StddevOperator("stdev", Map("typeOp" -> "string"))
       inputFields5.processReduce(
         Seq(Some(1), Some(2), Some(3), Some(6.5), Some(7.5))) should be(Some("2.850438562747845"))
-
     }
 
     "processReduce distinct must be " in {
@@ -100,7 +101,6 @@ class StddevOperatorTest extends WordSpec with Matchers {
       val inputFields5 = new StddevOperator("stdev", Map("typeOp" -> "string", "distinct" -> "true"))
       inputFields5.processReduce(
         Seq(Some(1), Some(1), Some(2), Some(3), Some(6.5), Some(7.5))) should be(Some("2.850438562747845"))
-
     }
   }
 }

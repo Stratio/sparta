@@ -16,11 +16,10 @@
 
 package com.stratio.sparkta.plugin.operator.count
 
+import com.stratio.sparkta.sdk._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
-
-import com.stratio.sparkta.sdk.OperatorConstants
 
 @RunWith(classOf[JUnitRunner])
 class CountOperatorTest extends WordSpec with Matchers {
@@ -88,7 +87,7 @@ class CountOperatorTest extends WordSpec with Matchers {
         Some(s"field1${OperatorConstants.UnderscoreSeparator}field3"))) should be(Some(2L))
 
       val inputFields5 = new CountOperator("count", Map("typeOp" -> "string"))
-      inputFields5.processReduce(Seq(Some(1), Some(1))) should be(Some("2"))
+      inputFields5.processReduce(Seq(Some(1), Some(1))) should be(Some(2))
 
       val inputFields6 =
         new CountOperator("count", Map("distinctFields" -> s"field1${OperatorConstants.UnderscoreSeparator}field2"))
@@ -97,7 +96,23 @@ class CountOperatorTest extends WordSpec with Matchers {
         Some(s"field1${OperatorConstants.UnderscoreSeparator}field3"))) should be(Some(2L))
 
       val inputFields7 = new CountOperator("count", Map("typeOp" -> null))
-      inputFields7.processReduce(Seq(Some(1), Some(1))) should be(Some(0))
+      inputFields7.processReduce(Seq(Some(1), Some(1))) should be(Some(2))
+    }
+
+    "associative process must be " in {
+      val inputFields = new CountOperator("count", Map())
+      val resultInput = Seq((Operator.OldValuesKey, Some(1L)),
+        (Operator.NewValuesKey, Some(1L)),
+        (Operator.NewValuesKey, None))
+      inputFields.associativity(resultInput) should be(Some(2L))
+
+      val inputFields2 = new CountOperator("count", Map("typeOp" -> "string"))
+      val resultInput2 = Seq((Operator.OldValuesKey, Some(1L)), (Operator.NewValuesKey, Some(1L)))
+      inputFields2.associativity(resultInput2) should be(Some("2"))
+
+      val inputFields3 = new CountOperator("count", Map("typeOp" -> null))
+      val resultInput3 = Seq((Operator.OldValuesKey, Some(1L)), (Operator.NewValuesKey, Some(1L)))
+      inputFields3.associativity(resultInput3) should be(Some(2))
     }
   }
 }

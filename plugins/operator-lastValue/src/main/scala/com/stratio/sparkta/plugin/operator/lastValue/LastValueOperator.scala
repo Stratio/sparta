@@ -17,19 +17,27 @@
 package com.stratio.sparkta.plugin.operator.lastValue
 
 import java.io.{Serializable => JSerializable}
-import scala.util.Try
 
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, _}
 
+import scala.util.Try
+
 class LastValueOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
-with ProcessMapAsAny {
+with ProcessMapAsAny with Associative {
 
   override val defaultTypeOperation = TypeOp.String
 
   override val writeOperation = WriteOp.Set
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
-    Try(Some(transformValueByTypeOp(returnType, values.flatten.last)))
-      .getOrElse(Some(OperatorConstants.EmptyString))
+    Try(Option(values.flatten.last)).getOrElse(Some(OperatorConstants.EmptyString))
+
+  def associativity(values: Iterable[(String, Option[Any])]): Option[Any] = {
+    val newValues = extractValues(values, Option(Operator.NewValuesKey))
+    val lastValue = if(newValues.nonEmpty) newValues
+    else extractValues(values, Option(Operator.OldValuesKey))
+
+    Try(Option(transformValueByTypeOp(returnType, lastValue.last))).getOrElse(Option(OperatorConstants.EmptyString))
+  }
 }
