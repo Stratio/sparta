@@ -16,7 +16,7 @@
 
 package com.stratio.sparkta.plugin.output.parquet
 
-import scala.reflect.io.File
+import java.sql.Timestamp
 
 import com.github.nscala_time.time.Imports._
 import org.apache.log4j.{Level, Logger}
@@ -26,7 +26,7 @@ import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 
-import com.stratio.sparkta.sdk.DateOperations
+import scala.reflect.io.File
 
 @RunWith(classOf[JUnitRunner])
 class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAll {
@@ -50,7 +50,10 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
 
     import sqlContext.implicits._
 
-    val data = sc.parallelize(Seq(Person("Kevin", 18), Person("Kira", 21), Person("Ariadne", 26))).toDF
+    val time = new Timestamp(DateTime.now.getMillis)
+
+    val data = sc.parallelize(Seq(Person("Kevin", 18, time), Person("Kira", 21, time), Person("Ariadne", 26, time)))
+      .toDF
     val tmpPath: String = File.makeTemp().name
   }
 
@@ -84,7 +87,6 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
   it should "throw an exception when path is not present" in new WithWrongOutput {
     an[Exception] should be thrownBy output.upsert(data, "person", "minute")
   }
-
 }
 
 object ParquetOutputIT {
@@ -93,4 +95,4 @@ object ParquetOutputIT {
     new SparkContext(s"local[$numExecutors]", title)
 }
 
-case class Person(name: String, age: Int) extends Serializable
+case class Person(name: String, age: Int, minute: Timestamp) extends Serializable
