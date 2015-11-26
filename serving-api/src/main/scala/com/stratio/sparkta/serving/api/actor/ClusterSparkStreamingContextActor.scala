@@ -211,7 +211,10 @@ with SparktaSerializer {
       case Some(queue) => s"--queue $queue"
       case None => ""
     }
-    master + queue
+
+    log.info(s"YARN config: $master $queue")
+
+    s"$master $queue"
   }
 
   private def getStandAloneCommandString: String = {
