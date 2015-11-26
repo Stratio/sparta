@@ -57,6 +57,8 @@ class RawDataStorageService(sc: SQLContext, path: String) extends Serializable {
       .foreachRDD(rdd => rdd.toDF()
         .write
         .format("parquet")
+        //FIXME when .partitionBy is stable in Spark we can activate this line
+        //.partitionBy("timeStamp")
         .mode(SaveMode.Append)
         .save(s"$path"))
     raw

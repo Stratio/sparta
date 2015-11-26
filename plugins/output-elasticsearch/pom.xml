@@ -29,7 +29,7 @@
     <properties>
         <elasticsearch.version>1.7.3</elasticsearch.version>
         <elastic4s.version>1.7.4</elastic4s.version>
-        <elastic.spark.version>2.1.2</elastic.spark.version>
+        <elastic.spark.version>2.2.0-beta1</elastic.spark.version>
     </properties>
 
     <dependencies>
