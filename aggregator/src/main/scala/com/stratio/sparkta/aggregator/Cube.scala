@@ -56,14 +56,14 @@ case class Cube(name: String,
     Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
 
     val filteredValues = filterDimensionValues(dimensionsValues)
-    val associatives = if (associativeOperators.nonEmpty)
+    val associativesCalculated = if (associativeOperators.nonEmpty)
       Option(updateAssociativeState(associativeAggregation(filteredValues)))
     else None
-    val nonAssociatives = if (nonAssociativeOperators.nonEmpty)
+    val nonAssociativesCalculated = if (nonAssociativeOperators.nonEmpty)
       Option(aggregateNonAssociativeValues(updateNonAssociativeState(filteredValues)))
     else None
 
-    (associatives, nonAssociatives) match {
+    (associativesCalculated, nonAssociativesCalculated) match {
       case (Some(associativeValues), Some(nonAssociativeValues)) =>
         associativeValues.cogroup(nonAssociativeValues)
           .mapValues { case (associativeAggregations, nonAssociativeAggregations) =>
@@ -152,10 +152,11 @@ case class Cube(name: String,
       associativeOperators.flatMap(op => op.processMap(inputFields).map(values => op.key -> Some(values))).toMap)
       .groupByKey()
       .map { case (dimValues, aggregations) =>
-        val aggregatedValues = aggregations.flatMap(_.toSeq).groupBy { case (opKey, opValue) => opKey }
+        val aggregatedValues = aggregations.flatMap(aggregationsMap => aggregationsMap.toSeq)
+          .groupBy { case (opKey, opValue) => opKey }
           .map { case (nameOp, valuesOp) =>
             val op = associativeOperatorsMap(nameOp)
-            val values = valuesOp.map(_._2)
+            val values = valuesOp.map{ case (key, value) => value }
 
             (nameOp, op.processReduce(values))
           }.toSeq
