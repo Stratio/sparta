@@ -34,7 +34,7 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>com.stratio.sparkta</groupId>
-        <version>0.7.0-RC3-SNAPSHOT</version>
+        <version>0.7.0</version>
     </parent>
 
 
