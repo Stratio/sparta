@@ -191,6 +191,15 @@
         "qa": "fragment-details-csv-header"
       },
       {
+        "propertyId": "inferSchema",
+        "propertyName": "_INFER_SCHEMA_",
+        "propertyType": "boolean",
+        "regexp": "true|false",
+        "default": false,
+        "required": false,
+        "qa": "fragment-details-csv-inferSchema"
+      },
+      {
         "propertyId": "delimiter",
         "propertyName": "_DELIMITER_",
         "propertyType": "text",

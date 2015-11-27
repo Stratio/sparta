@@ -16,6 +16,8 @@
 
 package com.stratio.sparkta.sdk
 
+import java.sql.{Timestamp, Date}
+
 import org.apache.spark.sql._
 
 object AggregateOperations {
@@ -45,7 +47,8 @@ object AggregateOperations {
                aggregations: Map[String, Option[Any]],
                fixedAggregation: Map[String, Option[Any]],
                fixedDimensions: Option[Seq[(String, Any)]],
-               idCalculated: Boolean): (Option[String], Row) = {
+               idCalculated: Boolean,
+               dateType: TypeOp.Value): (Option[String], Row) = {
     val timeDimension = dimensionValuesT.timeDimension
     val dimensionValuesFiltered =
       filterDimensionValuesByName(dimensionValuesT.dimensionValues,
@@ -61,12 +64,12 @@ object AggregateOperations {
         .sortWith((dimension1, dimension2) => dimension1._1 < dimension2._1)
       (
         namesDim ++ fixedDimensionsSorted.map(_._1) ++ Seq(timeDimension),
-        valuesDim ++ fixedDimensionsSorted.map(_._2) ++ Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time))
+        valuesDim ++ fixedDimensionsSorted.map(_._2) ++ Seq(getTimeFromDateType(dimensionValuesT.time, dateType))
       )
     } else
       (
         namesDim ++ Seq(timeDimension),
-        valuesDim ++ Seq(DateOperations.millisToTimeStamp(dimensionValuesT.time))
+        valuesDim ++ Seq(getTimeFromDateType(dimensionValuesT.time, dateType))
       )
 
     val (keysId, rowId) = getNamesValues(namesFixed, valuesFixed, idCalculated)
@@ -97,4 +100,13 @@ object AggregateOperations {
       case None => dimensionValues
       case Some(name) => dimensionValues.filter(cube => cube.dimension.name != name)
     }
+
+  def getTimeFromDateType[T](time : Long, dateType : TypeOp.Value) : Any = {
+    dateType match {
+        case TypeOp.Date | TypeOp.DateTime => new Date(time)
+        case TypeOp.Long => time
+        case TypeOp.Timestamp => new Timestamp(time)
+        case _ => time.toString
+      }
+  }
 }

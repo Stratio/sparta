@@ -45,6 +45,8 @@ class CsvOutput(keyName: String,
 
   val header = Try(properties.getString("header").toBoolean).getOrElse(false)
 
+  val inferSchema = Try(properties.getString("inferSchema").toBoolean).getOrElse(false)
+
   val delimiter = getValidDelimiter(properties.getString("delimiter", ","))
 
   val datePattern = properties.getString("datePattern", None)
@@ -61,7 +63,7 @@ class CsvOutput(keyName: String,
   protected[csv] def saveAction(path: String, dataFrame: DataFrame): Unit = {
     import com.databricks.spark.csv.CsvSchemaRDD
     dataFrame.saveAsCsvFile(path,
-      Map("header" -> header.toString, "delimiter" -> delimiter))
+      Map("header" -> header.toString, "delimiter" -> delimiter, "inferSchema" -> inferSchema.toString))
   }
 
   def getValidDelimiter(delimiter: String) : String = {

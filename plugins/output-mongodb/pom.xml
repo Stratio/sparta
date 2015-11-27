@@ -1,13 +1,13 @@
 
 <!--
 
-    Copyright (C) 2014 Stratio (http://stratio.com)
+    Copyright (C) 2015 Stratio (http://stratio.com)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
 
-            http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,12 +26,17 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <properties>
+        <casbah.version>2.8.0</casbah.version>
+        <mongodb.spark.version>0.10.1</mongodb.spark.version>
+    </properties>
+
     <artifactId>output-mongodb</artifactId>
     <dependencies>
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>casbah-core_${scala.binary.version}</artifactId>
-            <version>2.8.0</version>
+            <version>${casbah.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
@@ -39,9 +44,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.stratio</groupId>
-            <artifactId>spark-mongodb-core</artifactId>
-            <version>0.8.7</version>
+            <groupId>com.stratio.datasource</groupId>
+            <artifactId>spark-mongodb_${scala.binary.version}</artifactId>
+            <version>${mongodb.spark.version}</version>
         </dependency>
     </dependencies>
 </project>

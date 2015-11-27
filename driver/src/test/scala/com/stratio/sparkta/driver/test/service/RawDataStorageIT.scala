@@ -39,7 +39,7 @@ class RawDataStorageIT extends TestSuiteBase {
   val SleepTime: Long = 2000
 
   test("Write and read events in/from parquet") {
-    val rds = new RawDataStorageService(sparktaTestSQLContext, path, "day")
+    val rds = new RawDataStorageService(sparktaTestSQLContext, path)
     //This is not a test, This is a way to feed parquet
     intercept[SparkException] {
       //ArrayStoreException:BoxedUnit
@@ -55,11 +55,11 @@ class RawDataStorageIT extends TestSuiteBase {
     Thread.sleep(SleepTime)
 
     try {
-      val pqFile = sparktaTestSQLContext.read.parquet(path + rds.timeSuffix)
+      val pqFile = sparktaTestSQLContext.read.parquet(path)
       assert(pqFile.count() == ExpectedResult)
     } finally {
       //We can't use the before method
-      val file = new File(path + rds.timeSuffix)
+      val file = new File(path)
       deleteParquetFiles(file)
     }
   }
@@ -106,7 +106,7 @@ class RawDataStorageIT extends TestSuiteBase {
 
   private def deleteParquetFiles(file: File): Unit = {
     if (file.exists() && file.isDirectory)
-      Option(file.listFiles).map(_.toList).getOrElse(Nil).foreach(deleteParquetFiles(_))
+      Option(file.listFiles).map(_.toList).getOrElse(Nil).foreach(deleteParquetFiles)
     file.delete()
   }
 }

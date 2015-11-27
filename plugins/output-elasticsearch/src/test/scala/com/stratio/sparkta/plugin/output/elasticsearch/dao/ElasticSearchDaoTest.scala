@@ -33,7 +33,7 @@ class ElasticSearchDAOTest extends FlatSpec with ShouldMatchers {
 
     val baseMap = Map("es.nodes" -> "localhost", "es.port" -> "9200", "es.index.auto.create" -> "no")
     val providedMap = Map("es.mapping.id" -> "id")
-    val tsMap = Map("es.mapping.names" -> "minutes:@timestamp")
+    val tsMap = Map("es.mapping.timestamp" -> "minutes")
     val expectedProvided = providedMap ++ baseMap
     val expectedWithTs = baseMap ++ tsMap
     val expectedProvidedWithTs = expectedProvided ++ tsMap
@@ -47,7 +47,7 @@ class ElasticSearchDAOTest extends FlatSpec with ShouldMatchers {
   }
 
   it should "return a valid TypeOp from dateType" in new BaseValues {
-    dao.getDateTimeType(None) should be(TypeOp.String)
+    dao.getDateTimeType(None) should be(TypeOp.Long)
     dao.getDateTimeType(Some("timestamp")) should be(TypeOp.Timestamp)
     dao.getDateTimeType(Some("date")) should be(TypeOp.Date)
     dao.getDateTimeType(Some("datetime")) should be(TypeOp.DateTime)

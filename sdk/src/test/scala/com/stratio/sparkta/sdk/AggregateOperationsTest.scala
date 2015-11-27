@@ -56,34 +56,39 @@ class AggregateOperationsTest extends FlatSpec with ShouldMatchers {
   it should "return a correct toKeyRow tuple" in new CommonValues {
     val expect = (Some("dim1_dim2_dim3_minute"), Row("value1", "value2", "value3", new Timestamp(1L), "2", "value"))
     val result = AggregateOperations.toKeyRow(
-      dimensionValuesT, aggregations, fixedAggregation, fixedDimensions, false)
+      dimensionValuesT, aggregations, fixedAggregation, fixedDimensions, false, TypeOp.Timestamp)
     result should be(expect)
   }
 
   it should "return a correct toKeyRow tuple without fixedAggregation" in new CommonValues {
     val expect = (Some("dim1_dim2_dim3_minute"), Row("value1", "value2", "value3", new Timestamp(1L), "value"))
-    val result = AggregateOperations.toKeyRow(dimensionValuesT, aggregations, Map(), fixedDimensions, false)
+    val result = AggregateOperations.toKeyRow(dimensionValuesT,
+      aggregations,
+      Map(),
+      fixedDimensions,
+      false,
+      TypeOp.Timestamp)
     result should be(expect)
   }
 
   it should "return a correct toKeyRow tuple without fixedDimensions" in new CommonValues {
     val expect = (Some("dim1_dim2_minute"), Row("value1", "value2", new Timestamp(1L), "2", "value"))
     val result = AggregateOperations.toKeyRow(
-      dimensionValuesT, aggregations, fixedAggregation, None, false)
+      dimensionValuesT, aggregations, fixedAggregation, None, false, TypeOp.Timestamp)
     result should be(expect)
   }
 
   it should "return a correct toKeyRow tuple without fixedDimensions and fixedAggregation" in new CommonValues {
     val expect = (Some("dim1_dim2_minute"), Row("value1", "value2", new Timestamp(1L), "value"))
     val result = AggregateOperations.toKeyRow(
-      dimensionValuesT, aggregations, Map(), None, false)
+      dimensionValuesT, aggregations, Map(), None, false, TypeOp.Timestamp)
     result should be(expect)
   }
 
   it should "return a correct toKeyRow tuple without aggregations and  fixedDimensions and fixedAggregation" in
     new CommonValues {
       val expect = (Some("dim1_dim2_minute"), Row("value1", "value2", new Timestamp(1L)))
-      val result = AggregateOperations.toKeyRow(dimensionValuesT, Map(), Map(), None, false)
+      val result = AggregateOperations.toKeyRow(dimensionValuesT, Map(), Map(), None, false, TypeOp.Timestamp)
       result should be(expect)
     }
 
@@ -92,7 +97,12 @@ class AggregateOperationsTest extends FlatSpec with ShouldMatchers {
     new CommonValues {
       val expect = (Some("minute"), Row(new Timestamp(1L)))
       val result =
-        AggregateOperations.toKeyRow(DimensionValuesTime(Seq(), timestamp, timeDimension), Map(), Map(), None, false)
+        AggregateOperations.toKeyRow(DimensionValuesTime(Seq(), timestamp, timeDimension),
+          Map(),
+          Map(),
+          None,
+          false,
+          TypeOp.Timestamp)
       result should be(expect)
     }
 

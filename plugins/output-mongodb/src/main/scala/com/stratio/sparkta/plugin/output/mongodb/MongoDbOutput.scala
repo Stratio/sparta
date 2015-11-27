@@ -19,6 +19,7 @@ package com.stratio.sparkta.plugin.output.mongodb
 import java.io.{Serializable => JSerializable}
 
 import com.mongodb.casbah.commons.conversions.scala._
+import com.stratio.datasource.mongodb.MongodbConfig
 import com.stratio.sparkta.plugin.output.mongodb.dao.MongoDbDAO
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
@@ -28,11 +29,11 @@ import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.SaveMode._
 import org.apache.spark.streaming.dstream.DStream
 
-class MongoDbOutput(keyName : String,
-                    version : Option[Int],
-                    properties : Map[String, JSerializable],
-                    operationTypes : Option[Map[String, (WriteOp, TypeOp)]],
-                    bcSchema : Option[Seq[TableSchema]])
+class MongoDbOutput(keyName: String,
+                    version: Option[Int],
+                    properties: Map[String, JSerializable],
+                    operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
+                    bcSchema: Option[Seq[TableSchema]])
   extends Output(keyName, version, properties, operationTypes, bcSchema) with MongoDbDAO {
 
   RegisterJodaTimeConversionHelpers()
@@ -53,7 +54,7 @@ class MongoDbOutput(keyName : String,
 
   override val language = properties.getString("language", None)
 
-  override def setup : Unit = {
+  override def setup: Unit = {
     if (bcSchema.isDefined) {
       val db = connectToDatabase
       val schemasFiltered =
@@ -64,33 +65,33 @@ class MongoDbOutput(keyName : String,
     }
   }
 
-  override def doPersist(stream : DStream[(DimensionValuesTime, Map[String, Option[Any]])]) : Unit = {
+  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     persistDataFrame(stream)
   }
 
-  override def upsert(dataFrame : DataFrame, tableName : String, timeDimension : String) : Unit = {
+  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
     val options = getDataFrameOptions(tableName, timeDimension)
     dataFrame.write
-      .format("com.stratio.provider.mongodb")
+      .format(MongoDbSparkDatasource)
       .mode(Append)
       .options(options)
       .save()
   }
 
-  private def getDataFrameOptions(tableName : String, timeDimension : String) : Map[String, String] =
+  private def getDataFrameOptions(tableName: String, timeDimension: String): Map[String, String] =
     Map(
-      "host" -> hosts,
-      "database" -> dbName,
-      "collection" -> tableName) ++ getPrimaryKeyOptions(timeDimension) ++ {
-      if (language.isDefined) Map("language" -> language.get) else Map()
+      MongodbConfig.Host -> hosts,
+      MongodbConfig.Database -> dbName,
+      MongodbConfig.Collection -> tableName) ++ getPrimaryKeyOptions(timeDimension) ++ {
+      if (language.isDefined) Map(MongodbConfig.Language -> language.get) else Map()
     }
 
-  private def getPrimaryKeyOptions(timeDimension : String) : Map[String, String] =
+  private def getPrimaryKeyOptions(timeDimension: String): Map[String, String] =
     if (!timeDimension.isEmpty) {
-      Map("searchFields" -> Seq(Output.Id, timeDimension).mkString(","))
-    } else Map("searchFields" -> Output.Id)
+      Map(MongodbConfig.UpdateFields -> Seq(Output.Id, timeDimension).mkString(","))
+    } else Map(MongodbConfig.UpdateFields -> Output.Id)
 
-  private def getConnectionConfs(key : String, firstJsonItem : String, secondJsonItem : String) : String = {
+  private def getConnectionConfs(key: String, firstJsonItem: String, secondJsonItem: String): String = {
     val conObj = properties.getConnectionChain(key)
     conObj.map(c => {
       val host = c.getOrElse(firstJsonItem, DefaultHost)

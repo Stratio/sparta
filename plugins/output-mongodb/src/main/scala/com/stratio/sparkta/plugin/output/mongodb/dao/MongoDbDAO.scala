@@ -37,6 +37,7 @@ trait MongoDbDAO extends Logging {
   final val DefaultWriteConcern = casbah.WriteConcern.Unacknowledged
   final val DefaultHost = "localhost"
   final val DefaultPort = "27017"
+  final val MongoDbSparkDatasource = "com.stratio.datasource.mongodb"
 
   def hosts : String
 

@@ -16,6 +16,8 @@
 
 package com.stratio.sparkta.driver.service
 
+import java.sql.Timestamp
+
 import com.stratio.sparkta.sdk.{DateOperations, Event, Input}
 import org.apache.spark.sql._
 import org.apache.spark.streaming.dstream.DStream
@@ -24,19 +26,17 @@ import org.apache.spark.streaming.dstream.DStream
  * Saves the raw data from a stream in Parquet.
  * @author arincon
  */
-class RawDataStorageService(sc: SQLContext, path: String, partitionFormat: String) extends Serializable {
+class RawDataStorageService(sc: SQLContext, path: String) extends Serializable {
 
   import sc.implicits._
 
-  case class RawEvent(timeStamp: String, data: String)
-
-  val timeSuffix = DateOperations.generateParquetPath(parquetPattern = Some((partitionFormat)))
+  case class RawEvent(timeStamp: Timestamp, data: String)
 
   /**
    * From an event, it tries to parse the raw data in this order:
-   *   it looks if exists Raw field.
-   *   it looks if exists RawDataKey field.
-   *   It compose all values from the event separated with ###
+   * it looks if exists Raw field.
+   * it looks if exists RawDataKey field.
+   * It compose all values from the event separated with ###
    * @param event to parse
    * @return the raw data as a string.
    */
@@ -44,7 +44,7 @@ class RawDataStorageService(sc: SQLContext, path: String, partitionFormat: Strin
     event.rawData.getOrElse(
       if (event.keyMap.size == 1 && event.keyMap.head._1.equals(Input.RawDataKey))
         event.keyMap.head._2.toString
-      else event.keyMap.map(e => e._2).mkString("###")
+      else event.keyMap.values.mkString("###")
     ).toString
 
   /**
@@ -53,13 +53,14 @@ class RawDataStorageService(sc: SQLContext, path: String, partitionFormat: Strin
    * @return the original stream.
    */
   def save(raw: DStream[Event]): DStream[Event] = {
-    raw.map(event => {
-      RawEvent(System.currentTimeMillis().toString, extractRawFromEvent(event))
-    }).foreachRDD(_.toDF()
-      .write
-      .format("parquet")
-      .mode(SaveMode.Append)
-      .save(s"$path$timeSuffix"))
+    raw.map(event => RawEvent(DateOperations.millisToTimeStamp(System.currentTimeMillis()), extractRawFromEvent(event)))
+      .foreachRDD(rdd => rdd.toDF()
+        .write
+        .format("parquet")
+        //FIXME when .partitionBy is stable in Spark we can activate this line
+        //.partitionBy("timeStamp")
+        .mode(SaveMode.Append)
+        .save(s"$path"))
     raw
   }
 }

@@ -6,7 +6,6 @@
   "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "true",
-    "partitionFormat": "day",
     "path": "/tmp/sparkta/raw"
   },
   "input":
