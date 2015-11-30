@@ -17,19 +17,27 @@
 package com.stratio.sparkta.plugin.operator.firstValue
 
 import java.io.{Serializable => JSerializable}
-import scala.util.Try
 
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, _}
 
+import scala.util.Try
+
 class FirstValueOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
-with ProcessMapAsAny {
+with ProcessMapAsAny with Associative {
 
   override val defaultTypeOperation = TypeOp.String
 
   override val writeOperation = WriteOp.Set
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
-    Try(Some(transformValueByTypeOp(returnType, values.flatten.head)))
-      .getOrElse(Some(OperatorConstants.EmptyString))
+    Try(Option(values.flatten.head)).getOrElse(Some(OperatorConstants.EmptyString))
+
+  def associativity(values: Iterable[(String, Option[Any])]): Option[Any] = {
+    val oldValues = extractValues(values, Option(Operator.OldValuesKey))
+    val firstValue = if(oldValues.nonEmpty) oldValues
+    else extractValues(values, Option(Operator.NewValuesKey))
+
+    Try(Option(transformValueByTypeOp(returnType, firstValue.head))).getOrElse(Option(OperatorConstants.EmptyString))
+  }
 }

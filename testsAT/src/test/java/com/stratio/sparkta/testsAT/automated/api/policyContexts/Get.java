@@ -14,7 +14,7 @@ public class Get extends BaseTest {
     }
 
     @Test(enabled = true, groups = {"api","basic"})
-    public void fragmentsTest() throws Exception {
+    public void policyContextsTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
 }

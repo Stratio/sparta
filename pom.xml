@@ -503,4 +503,36 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>zinc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>net.alchim31.maven</groupId>
+                        <artifactId>scala-maven-plugin</artifactId>
+                        <configuration>
+                            <recompileMode>incremental</recompileMode>
+                            <useZincServer>true</useZincServer>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>spark-1.5</id>
+            <properties>
+                <spark.version.folder>1.5</spark.version.folder>
+            </properties>
+        </profile>
+        <profile>
+            <id>spark-1.4</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <spark.version.folder>1.4</spark.version.folder>
+            </properties>
+        </profile>
+    </profiles>
 </project>

@@ -16,6 +16,7 @@
 
 package com.stratio.sparkta.plugin.operator.sum
 
+import com.stratio.sparkta.sdk.Operator
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -56,10 +57,11 @@ class SumOperatorTest extends WordSpec with Matchers {
       inputFields9.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
 
       val inputFields10 = new SumOperator("sum",
-        Map("inputField" -> "field1", "filters" -> {"[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
-          "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"}))
+        Map("inputField" -> "field1", "filters" -> {
+          "[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
+            "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"
+        }))
       inputFields10.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
-
     }
 
     "processReduce must be " in {
@@ -67,19 +69,13 @@ class SumOperatorTest extends WordSpec with Matchers {
       inputFields.processReduce(Seq()) should be(Some(0d))
 
       val inputFields2 = new SumOperator("sum", Map())
-      inputFields2.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be (Some(20d))
+      inputFields2.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some(20d))
 
       val inputFields3 = new SumOperator("sum", Map())
-      inputFields3.processReduce(Seq(Some(1), Some(2), Some(3), Some(6.5), Some(7.5))) should be (Some(20d))
+      inputFields3.processReduce(Seq(Some(1), Some(2), Some(3), Some(6.5), Some(7.5))) should be(Some(20d))
 
       val inputFields4 = new SumOperator("sum", Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
-
-      val inputFields5 = new SumOperator("sum", Map("typeOp" -> "string"))
-      inputFields5.processReduce(Seq(Some(1), Some(2), Some(3))) should be(Some("6.0"))
-
-      val inputFields6 = new SumOperator("sum", Map("typeOp" -> "string"))
-      inputFields6.processReduce(Seq(Some("1"), Some(2), Some(3))) should be(Some(0.0))
     }
 
     "processReduce distinct must be " in {
@@ -87,8 +83,21 @@ class SumOperatorTest extends WordSpec with Matchers {
       inputFields.processReduce(Seq()) should be(Some(0d))
 
       val inputFields2 = new SumOperator("sum", Map("distinct" -> "true"))
-      inputFields2.processReduce(Seq(Some(1), Some(2), Some(1))) should be (Some(3d))
+      inputFields2.processReduce(Seq(Some(1), Some(2), Some(1))) should be(Some(3d))
+    }
 
+    "associative process must be " in {
+      val inputFields = new SumOperator("count", Map())
+      val resultInput = Seq((Operator.OldValuesKey, Some(1L)),
+        (Operator.NewValuesKey, Some(1L)),
+        (Operator.NewValuesKey, None))
+      inputFields.associativity(resultInput) should be(Some(2d))
+
+      val inputFields2 = new SumOperator("count", Map("typeOp" -> "string"))
+      val resultInput2 = Seq((Operator.OldValuesKey, Some(1L)),
+        (Operator.NewValuesKey, Some(1L)),
+        (Operator.NewValuesKey, None))
+      inputFields2.associativity(resultInput2) should be(Some("2.0"))
     }
   }
 }

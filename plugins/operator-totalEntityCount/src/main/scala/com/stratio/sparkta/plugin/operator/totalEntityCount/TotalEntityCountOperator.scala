@@ -24,7 +24,7 @@ import com.stratio.sparkta.sdk._
 import scala.util.Try
 
 class TotalEntityCountOperator(name: String, properties: Map[String, JSerializable])
-  extends EntityCount(name, properties) {
+  extends EntityCount(name, properties) with Associative {
 
   final val Some_Empty = Some(0)
 
@@ -32,11 +32,15 @@ class TotalEntityCountOperator(name: String, properties: Map[String, JSerializab
 
   override val writeOperation = WriteOp.WordCount
 
-  override def processReduce(values: Iterable[Option[Any]]): Option[Int] = {
-    Try {
-      val wordCounts = getDistinctValues(values.flatten.flatMap(_.asInstanceOf[Seq[String]])).size
-      Some(transformValueByTypeOp(returnType, wordCounts))
-    }.getOrElse(Some_Empty)
+  override def processReduce(values: Iterable[Option[Any]]): Option[Int] =
+    Try(Option(getDistinctValues(values.flatten.flatMap(_.asInstanceOf[Seq[String]])).size))
+      .getOrElse(Some_Empty)
+
+  def associativity(values: Iterable[(String, Option[Any])]): Option[Int] = {
+    val newValues = extractValues(values, None).map(_.asInstanceOf[Number].intValue()).sum
+
+    Try(Option(transformValueByTypeOp(returnType, newValues)))
+      .getOrElse(Some_Empty)
   }
 }
 

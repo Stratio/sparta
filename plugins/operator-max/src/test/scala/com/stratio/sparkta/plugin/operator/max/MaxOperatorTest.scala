@@ -16,6 +16,7 @@
 
 package com.stratio.sparkta.plugin.operator.max
 
+import com.stratio.sparkta.sdk.Operator
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -73,10 +74,6 @@ class MaxOperatorTest extends WordSpec with Matchers {
 
       val inputFields4 = new MaxOperator("max", Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
-
-      val inputFields5 = new MaxOperator("max", Map("typeOp" -> "string"))
-      inputFields5.processReduce(Seq(Some(1), Some(2))) should be(Some("2.0"))
-
     }
 
     "processReduce distinct must be " in {
@@ -92,9 +89,30 @@ class MaxOperatorTest extends WordSpec with Matchers {
       val inputFields4 = new MaxOperator("max", Map("distinct" -> "true"))
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
-      val inputFields5 = new MaxOperator("max", Map("typeOp" -> "string", "distinct" -> "true"))
-      inputFields5.processReduce(Seq(Some(1), Some(2), Some(1))) should be(Some("2.0"))
-
     }
+
+    "associative process must be " in {
+      val inputFields = new MaxOperator("max", Map())
+      val resultInput = Seq((Operator.OldValuesKey, Some(1L)),
+        (Operator.NewValuesKey, Some(2L)),
+        (Operator.NewValuesKey, None))
+      inputFields.associativity(resultInput) should be(Some(2d))
+
+      val inputFields2 = new MaxOperator("max", Map("typeOp" -> "int"))
+      val resultInput2 = Seq((Operator.OldValuesKey, Some(1)),
+        (Operator.NewValuesKey, Some(3)))
+      inputFields2.associativity(resultInput2) should be(Some(3))
+
+      val inputFields3 = new MaxOperator("max", Map("typeOp" -> null))
+      val resultInput3 = Seq((Operator.OldValuesKey, Some(1)),
+        (Operator.NewValuesKey, Some(1)))
+      inputFields3.associativity(resultInput3) should be(Some(1d))
+
+      val inputFields4 = new MaxOperator("max", Map("typeOp" -> "string"))
+      val resultInput4 = Seq((Operator.OldValuesKey, Some(1)),
+        (Operator.NewValuesKey, Some(3)))
+      inputFields4.associativity(resultInput4) should be(Some("3.0"))
+    }
+
   }
 }

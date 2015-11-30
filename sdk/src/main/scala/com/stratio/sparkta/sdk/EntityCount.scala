@@ -18,7 +18,6 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 
 abstract class EntityCount(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
@@ -31,13 +30,13 @@ abstract class EntityCount(name: String, properties: Map[String, JSerializable])
   override def processMap(inputFields: Map[String, JSerializable]): Option[Seq[String]] = {
     if (inputField.isDefined && inputFields.contains(inputField.get))
       applyFilters(inputFields)
-        .flatMap(filteredFields => filteredFields.get(inputField.get).map(applySplitters(_)))
+        .flatMap(filteredFields => filteredFields.get(inputField.get).map(applySplitters))
     else None
   }
 
   private def applySplitters(value: JSerializable): Seq[String] = {
     val replacedValue = applyReplaceRegex(value.toString)
-    if (!split.isEmpty) replacedValue.split(split.get) else Seq(replacedValue)
+    if (split.isDefined) replacedValue.split(split.get) else Seq(replacedValue)
   }
 
   private def applyReplaceRegex(value: String): String =

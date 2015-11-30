@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.8.0 (Upcoming)
+
 ## 0.7.0 (November 2015)
 - Bugfix: Front Minors
 - Bugfix: Back Minors

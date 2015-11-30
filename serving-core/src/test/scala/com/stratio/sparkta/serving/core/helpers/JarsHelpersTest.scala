@@ -65,8 +65,7 @@ class JarsHelpersTest extends FlatSpec with Matchers with MockitoSugar {
   }
 
   it should
-    """return first.jar and driver-plugin.jar because we specified it excluding second.jar
-      | in the exclude parameter"""".stripMargin in {
+    "return first.jar and driver-plugin.jar because we specified it excluding second.jar in the exclude parameter" in {
 
     val seqofJars = JarsHelper.findJarsByPath(
       file,
@@ -78,7 +77,7 @@ class JarsHelpersTest extends FlatSpec with Matchers with MockitoSugar {
 
     seqofJars should be (mutable.ArraySeq(new File("first.jar"), new File("driver-plugin.jar")))
   }
-  it should """add the jars to the classpath and return first.jar and driver-plugin.jar"""" in {
+  it should "add the jars to the classpath and return first.jar and driver-plugin.jar" in {
 
     val seqofJars = JarsHelper.findJarsByPath(
       file,
@@ -91,7 +90,7 @@ class JarsHelpersTest extends FlatSpec with Matchers with MockitoSugar {
     seqofJars should be (mutable.ArraySeq(new File("first.jar"), new File("driver-plugin.jar")))
   }
 
-  it should """find the driver jar"""" in {
+  it should "find the driver jar" in {
 
     val seqofJars = JarsHelper.findDriverByPath(
       file)
