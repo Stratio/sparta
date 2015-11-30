@@ -140,9 +140,9 @@ In a centOS distribution:
 
 Sandbox
 -------------
-- [All about how to start running the sandbox] (http://docs.stratio.com/modules/sparkta/development/sandbox.html)
+- [All about how to start running the sandbox] (https://stratio.atlassian.net/wiki/pages/viewpage.action?pageId=2982423#id-4.HowdoIgetstarted?-4.8.2.Sandbox)
 
 Documentation
 -------------
 
-- [Stratio Sparkta](http://docs.stratio.com/modules/sparkta/development/)
+- [Stratio Sparkta](https://stratio.atlassian.net/wiki/display/SPARKTA0x7/)
