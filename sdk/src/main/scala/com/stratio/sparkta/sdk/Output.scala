@@ -85,17 +85,21 @@ abstract class Output(keyName: String,
   }
 
   protected def persistMetricOperation(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit =
-    stream.foreachRDD(rdd => rdd.foreachPartition(
-      ops => {
-        Try(upsert(ops)) match {
-          case Success(value) => value
-          case Failure(exception) => {
-            val error = s"Failure[Output]: ${ops.toString} | Message: ${exception.getLocalizedMessage}"
-            log.error(error, exception)
+    stream.foreachRDD(rdd => {
+      if (rdd.take(1).length > 0) {
+        rdd.foreachPartition(
+          ops => {
+            Try(upsert(ops)) match {
+              case Success(value) => value
+              case Failure(exception) => {
+                val error = s"Failure[Output]: ${ops.toString} | Message: ${exception.getLocalizedMessage}"
+                log.error(error, exception)
+              }
+            }
           }
-        }
-      }
-    ))
+        )
+      } else log.info("Empty event received")
+    })
 
   protected def persistDataFrame(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
     stream.map { case (dimensionValuesTime, aggregations) =>
@@ -107,13 +111,15 @@ abstract class Output(keyName: String,
         isAutoCalculateId)
     }
       .foreachRDD(rdd => {
-        bcSchema.get.filter(tschema => tschema.outputName == keyName).foreach(tschemaFiltered => {
-          val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
-          val dataFrame = sqlContext.createDataFrame(
-            extractRow(rdd.filter { case (schema, row) => schema.exists(_ == tableSchemaTime.tableName) }),
-            tableSchemaTime.schema)
-          upsert(dataFrame, tableSchemaTime.tableName, tschemaFiltered.timeDimension)
-        })
+        if (rdd.take(1).length > 0) {
+          bcSchema.get.filter(tschema => tschema.outputName == keyName).foreach(tschemaFiltered => {
+            val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
+            val dataFrame = sqlContext.createDataFrame(
+              extractRow(rdd.filter { case (schema, row) => schema.exists(_ == tableSchemaTime.tableName) }),
+              tableSchemaTime.schema)
+            upsert(dataFrame, tableSchemaTime.tableName, tschemaFiltered.timeDimension)
+          })
+        } else log.info("Empty event received")
       })
   }
 

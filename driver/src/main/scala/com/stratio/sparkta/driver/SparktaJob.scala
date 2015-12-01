@@ -69,6 +69,7 @@ object SparktaJob extends SLF4JLogging {
 
     val outputs = SparktaJob.outputs(apConfig, operatorsKeyOperation, bcCubeOperatorSchema, reflectionUtils)
     val inputEvent = input._2
+
     SparktaJob.saveRawData(apConfig, inputEvent)
     val parsed = SparktaJob.applyParsers(inputEvent, parsers)
     val dataCube = new CubeMaker(cubes).setUp(parsed)
@@ -124,11 +125,11 @@ object SparktaJob extends SLF4JLogging {
 
   def input(apConfig: AggregationPoliciesModel, ssc: StreamingContext, refUtils: ReflectionUtils):
   (String, DStream[Event]) = {
-    val myInput = refUtils.tryToInstantiate[Input](apConfig.input.get.`type` + Input.ClassSuffix, (c) =>
+    val inputInstance = refUtils.tryToInstantiate[Input](apConfig.input.get.`type` + Input.ClassSuffix, (c) =>
       refUtils.instantiateParameterizable[Input](c, apConfig.input.get.configuration))
 
     (apConfig.input.get.name,
-      myInput.setUp(ssc,
+      inputInstance.setUp(ssc,
         apConfig.storageLevel.get))
   }
 
