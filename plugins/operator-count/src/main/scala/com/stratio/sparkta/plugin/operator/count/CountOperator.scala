@@ -33,7 +33,7 @@ class CountOperator(name: String, properties: Map[String, JSerializable])
 
   override val writeOperation = WriteOp.Inc
 
-  override val castingFilterType = TypeOp.Number
+  override val defaultCastingFilterType = TypeOp.Number
 
   override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
     applyFilters(inputFields).flatMap(filteredFields => distinctFields match {

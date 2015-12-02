@@ -30,7 +30,7 @@ with ProcessMapAsNumber with Associative {
 
   override val writeOperation = WriteOp.Min
 
-  override val castingFilterType = TypeOp.Number
+  override val defaultCastingFilterType = TypeOp.Number
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     Try(Option(getDistinctValues(values.flatten.map(_.asInstanceOf[Number].doubleValue())).min))

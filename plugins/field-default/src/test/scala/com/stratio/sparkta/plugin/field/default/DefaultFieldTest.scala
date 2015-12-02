@@ -31,9 +31,9 @@ class DefaultFieldTest extends WordSpecLike with Matchers {
 
   "A DefaultDimension" should {
     "In default implementation, get one precisions for a specific time" in {
-      val precision: (Precision, JSerializable) = defaultDimension.precisionValue("", "foo".asInstanceOf[JSerializable])
+      val precision: (Precision, JSerializable) = defaultDimension.precisionValue("", "1".asInstanceOf[JSerializable])
 
-      precision._2 should be("foo")
+      precision._2 should be(1)
 
       precision._1.id should be(DimensionType.IdentityName)
     }

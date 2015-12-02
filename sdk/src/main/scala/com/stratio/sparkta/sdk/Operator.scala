@@ -18,7 +18,7 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.TypeOp.TypeOp
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import org.json4s._
@@ -49,7 +49,7 @@ with Ordered[Operator] with TypeConversions {
 
   def processReduce(values: Iterable[Option[Any]]): Option[Any]
 
-  def castingFilterType: TypeOp = TypeOp.String
+  def defaultCastingFilterType: TypeOp = TypeOp.String
 
   def returnType: TypeOp = getTypeOperation.getOrElse(defaultTypeOperation)
 
@@ -76,8 +76,8 @@ with Ordered[Operator] with TypeConversions {
                           inputFields: Map[String, JSerializable]): Boolean = {
     filters.map(filter =>
       if (inputField._1 == filter.field && (filter.fieldValue.isDefined || filter.value.isDefined)) {
-        castingFilterType match {
-          case TypeOp.Number => {
+        filterCastingType(filter.fieldType) match {
+          case TypeOp.Number | TypeOp.Long | TypeOp.Double | TypeOp.Int => {
             val doubleValues = getDoubleValues(inputField._2, filter, inputFields)
             applyfilterCauses(filter, doubleValues._1, doubleValues._2, doubleValues._3)
           }
@@ -90,6 +90,12 @@ with Ordered[Operator] with TypeConversions {
       else true
     ).forall(result => result)
   }
+
+  private def filterCastingType(fieldType: Option[String]) : TypeOp =
+    fieldType match {
+      case Some(typeName) => getTypeOperationByName(typeName, defaultCastingFilterType)
+      case None => defaultCastingFilterType
+    }
 
   private def applyfilterCauses[T <: Ordered[U], U](filter: FilterModel,
                                                     value: T,

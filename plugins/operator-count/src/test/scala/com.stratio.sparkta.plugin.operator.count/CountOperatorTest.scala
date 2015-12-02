@@ -66,6 +66,29 @@ class CountOperatorTest extends WordSpec with Matchers {
             "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"
         }))
       inputFields6.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
+
+      val inputFields7 = new CountOperator("count",
+        Map("filters" -> {
+          "[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\", \"fieldType\":\"int\"}," +
+            "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\", \"fieldType\":\"int\"}]"
+        }))
+      inputFields7.processMap(Map("field1" -> 1L, "field2" -> 2L)) should be(None)
+
+      val inputFields8 = new CountOperator("count",
+        Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2, \"fieldType\":\"int\"}]"))
+      inputFields8.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(CountOperator.One.toLong))
+
+      val inputFields9 = new CountOperator("count",
+        Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2, \"fieldType\":\"int\"}]"))
+      inputFields9.processMap(Map("field1" -> 1L, "field2" -> 2L)) should be(Some(CountOperator.One.toLong))
+
+      val inputFields10 = new CountOperator("count",
+        Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2, \"fieldType\":\"int\"}]"))
+      inputFields10.processMap(Map("field1" -> 1d, "field2" -> 2d)) should be(Some(CountOperator.One.toLong))
+
+      val inputFields11 = new CountOperator("count",
+        Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2, \"fieldType\":\"int\"}]"))
+      inputFields11.processMap(Map("field1" -> "1", "field2" -> "2")) should be(Some(CountOperator.One.toLong))
     }
 
     "processReduce must be " in {

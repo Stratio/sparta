@@ -18,5 +18,6 @@ package com.stratio.sparkta.sdk
 
 case class FilterModel(field: String,
                        `type`: String,
-                       value : Option[String],
-                       fieldValue: Option[String])
+                       value: Option[String],
+                       fieldValue: Option[String],
+                       fieldType: Option[String] = None)
