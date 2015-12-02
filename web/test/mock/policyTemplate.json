@@ -32,7 +32,6 @@
   "sparkStreamingWindow": "fake sparkStreamingWindow",
   "checkpointInterval": "fake checkpointInterval",
   "checkpointAvailability": "fake checkpointAvailability",
-  "partitionFormat": "fake partitionFormat",
   "storageLevel": "fake storageLevel",
   "helpLink": {
     "description": "fake helpLink"

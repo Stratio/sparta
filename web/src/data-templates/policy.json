@@ -41,30 +41,6 @@
     "min": 0,
     "max": 10000
   },
-  "partitionFormat": {
-    "values": [
-      {
-        "label": "year",
-        "value": "year"
-      },
-      {
-        "label": "month",
-        "value": "month"
-      },
-      {
-        "label": "day",
-        "value": "day"
-      },
-      {
-        "label": "hour",
-        "value": "hour"
-      },
-      {
-        "label": "minute",
-        "value": "minute"
-      }
-    ]
-  },
   "storageLevel": {
     "values": [
       {
