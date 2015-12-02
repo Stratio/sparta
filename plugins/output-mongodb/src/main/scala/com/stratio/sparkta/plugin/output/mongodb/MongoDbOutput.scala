@@ -91,7 +91,7 @@ class MongoDbOutput(keyName : String,
     } else Map("searchFields" -> Output.Id)
 
   private def getConnectionConfs(key : String, firstJsonItem : String, secondJsonItem : String) : String = {
-    val conObj = properties.getConnectionChain(key)
+    val conObj = properties.getMapFromJsoneyString(key)
     conObj.map(c => {
       val host = c.getOrElse(firstJsonItem, DefaultHost)
       val port = c.getOrElse(secondJsonItem, DefaultPort)

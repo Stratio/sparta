@@ -66,7 +66,7 @@ class FlumeInput(properties: Map[String, Serializable]) extends Input(properties
 
   private def getAddresses(): Seq[InetSocketAddress] =
     properties
-      .getConnectionChain("addresses")
+      .getMapFromJsoneyString("addresses")
       .map(mapValues => {
         val host: Option[String] = mapValues.get("host")
         val port: Option[String] = mapValues.get("port")

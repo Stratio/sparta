@@ -258,5 +258,7 @@
   "_CLUSTERNAME_": "Cluster name",
   "_POLICY_CUBE_OPERATOR-DIMENSION_ERROR_": "There was an error. At least one operator and one dimension must be created",
   "_POLICY_CUBE_OPERATOR_ERROR_": "There was an error. At least one operator must be created",
-  "_POLICY_CUBE_DIMENSION_ERROR_": "There was an error. At least one dimension must be created"
+  "_POLICY_CUBE_DIMENSION_ERROR_": "There was an error. At least one dimension must be created",
+  "_SPARK_PROPERTY_KEY_": "Spark property",
+  "_SPARK_PROPERTY_VALUE_": "Value"
 }

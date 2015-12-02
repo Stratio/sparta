@@ -69,7 +69,7 @@ class RabbitMQInput(properties: Map[String, JSerializable]) extends Input(proper
     if (!properties.hasKey("routingKeys")) {
       Seq()
     }else {
-      val conObj = properties.getConnectionChain(key)
+      val conObj = properties.getMapFromJsoneyString(key)
       val routingKeys = conObj.map(routingKeys => routingKeys.get("routingKey").get.toString)
       routingKeys
     }
