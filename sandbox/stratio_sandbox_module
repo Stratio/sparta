@@ -36,11 +36,10 @@ cd /etc/nginx/conf.d/
 sed -i "s|/usr/share/nginx/html|/opt/sds/kibana-3.1.2|g" default.conf
 /sbin/service nginx start
 
-rm /etc/udev/rules.d/70-persistent-net.rules
+rm -f /etc/udev/rules.d/70-persistent-net.rules
 echo "> Installing Sparkta"
 /usr/bin/yum -y install stratio-sparkta
 update-rc.d zookeeper defaults
-/sbin/chkconfig --add zookeeper
 update-rc.d sparkta defaults
 /sbin/chkconfig --add sparkta
 /sbin/chkconfig  zookeeper on
