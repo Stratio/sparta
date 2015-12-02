@@ -42,10 +42,9 @@ describe('policies.wizard.controller.policy-finish-controller', function () {
 
       beforeEach(function () {
         fakePolicy.rawData.path = fakePath;
-        fakePolicy.rawData.partitionFormat = fakePartitionFormat;
       });
 
-      it("if raw data is not enabled, it should remove the attributes path and partitionFormat from rawData", inject(function ($controller) {
+      it("if raw data is not enabled, it should remove the attribute path from rawData", inject(function ($controller) {
         fakePolicy.rawData.enabled = "false";
 
         ctrl = $controller('PolicyFinishCtrl', {
@@ -53,11 +52,10 @@ describe('policies.wizard.controller.policy-finish-controller', function () {
         });
         var resultJSON = JSON.parse(ctrl.testingpolcyData);
         expect(resultJSON.rawData.path).toBe(undefined);
-        expect(resultJSON.rawData.partitionFormat).toBe(undefined);
       }));
 
 
-      it("if raw data is enabled, it should not remove the attributes path and partitionFormat from rawData", inject(function ($controller) {
+      it("if raw data is enabled, it should not remove the attribute path from rawData", inject(function ($controller) {
         fakePolicy.rawData.enabled = "true";
         ctrl = $controller('PolicyFinishCtrl', {
           'PolicyModelFactory': policyModelFactoryMock
@@ -65,7 +63,6 @@ describe('policies.wizard.controller.policy-finish-controller', function () {
 
         var resultJSON = JSON.parse(ctrl.testingpolcyData);
         expect(resultJSON.rawData.path).toBe(fakePath);
-        expect(resultJSON.rawData.partitionFormat).toBe(fakePartitionFormat);
       }));
 
       it("should introduce in a fragment array the output list and the input of the policy", inject(function ($controller) {
