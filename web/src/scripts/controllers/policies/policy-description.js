@@ -21,7 +21,6 @@
       vm.sparkStreamingWindowData = vm.template.sparkStreamingWindow;
       vm.checkpointIntervalData = vm.template.checkpointInterval;
       vm.checkpointAvailabilityData = vm.template.checkpointAvailability;
-      vm.partitionFormatData = vm.template.partitionFormat;
       vm.storageLevelData = vm.template.storageLevel;
       vm.helpLink = vm.template.helpLinks.description;
       vm.error = false;
