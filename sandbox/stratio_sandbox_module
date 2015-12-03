@@ -42,7 +42,6 @@ echo "> Installing Sparkta"
 update-rc.d zookeeper defaults
 update-rc.d sparkta defaults
 /sbin/chkconfig --add sparkta
-/sbin/chkconfig  zookeeper on
 /sbin/chkconfig  sparkta on
 /sbin/chkconfig --list
 service zookeeper start
