@@ -60,6 +60,8 @@ class CassandraOutput(keyName: String,
 
   override val textIndexName = properties.getString("textIndexName", "lucene")
 
+  val cluster = properties.getString("cluster", "default")
+
   override val supportedWriteOps: Seq[WriteOp.Value] = Seq(WriteOp.FullText, WriteOp.Inc, WriteOp.IncBig,
     WriteOp.Set, WriteOp.Range, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.Median,
     WriteOp.Variance, WriteOp.Stddev, WriteOp.WordCount, WriteOp.EntityCount)
@@ -105,7 +107,7 @@ class CassandraOutput(keyName: String,
     dataFrame.write
       .format("org.apache.spark.sql.cassandra")
       .mode(Append)
-      .options(Map("table" -> tableNameVersioned, "keyspace" -> keyspace)).save()
+      .options(Map("table" -> tableNameVersioned, "keyspace" -> keyspace, "cluster" -> cluster)).save()
   }
 
   def getCassandraConnector(): CassandraConnector = {
@@ -123,7 +125,8 @@ object CassandraOutput {
     val connectionHost = configuration.getString("connectionHost", DefaultHost)
     val connectionPort = configuration.getString("connectionPort", DefaultPort)
 
-    Seq(
+    configuration.filter(_._1.indexOf("spark.cassandra") == 0).toSeq.asInstanceOf[Seq[(String, String)]] ++
+      Seq(
       ("spark.cassandra.connection.host", connectionHost),
       ("spark.cassandra.connection.port", connectionPort)
     )

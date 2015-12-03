@@ -16,6 +16,8 @@
 
 package com.stratio.sparkta.plugin.output.cassandra
 
+import java.io.{Serializable => JSerializable}
+
 import com.datastax.spark.connector.cql.CassandraConnector
 import com.stratio.sparkta.sdk.{TableSchema, TypeOp, WriteOp}
 import org.apache.spark.SparkConf
@@ -67,5 +69,17 @@ class CassandraOutputTest extends FlatSpec with Matchers with MockitoSugar with 
       }
     }
     out.setup
+  }
+
+  "getSparkConfiguration" should "return all cassandra-spark config" in {
+    val config: Map[String, JSerializable] = Map(
+      ("spark.cassandra.input.fetch.size_in_rows" -> "2000"),
+      ("anotherProperty" -> "true")
+    )
+
+    val sparkConfig = CassandraOutput.getSparkConfiguration(config)
+
+    sparkConfig.exists(_ == ("spark.cassandra.input.fetch.size_in_rows" -> "2000")) should be(true)
+    sparkConfig.exists(_ == ("anotherProperty" -> "true")) should be(false)
   }
 }
