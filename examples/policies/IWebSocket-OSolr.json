@@ -1,0 +1,93 @@
+{
+  "name": "policy-websocket",
+  "description": "Input kafka, output print",
+  "sparkStreamingWindow": 2000,
+  "checkpointPath": "checkpoint",
+  "rawData": {
+    "enabled": "false",
+    "partitionFormat": "day",
+    "path": "myTestParquetPath"
+  },
+  "input":
+  {
+    "name": "in-websocket",
+    "type": "WebSocket",
+    "configuration": {
+      "url": "ws://stream.meetup.com/2/rsvps"
+    }
+  },
+  "transformations": [
+    {
+      "name": "morphline",
+      "type": "Morphlines",
+      "order": 0,
+      "outputFields": [
+        "response"
+      ],
+      "configuration": {
+        "morphline": {
+          "id": "morphline1",
+          "importCommands": [
+            "org.kitesdk.**"
+          ],
+          "commands": [
+            {
+              "readJson": {}
+            },
+            {
+              "extractJsonPaths": {
+                "paths": {
+                  "response": "/response"
+                }
+              }
+            },
+            {
+              "removeFields": {
+                "blacklist": [
+                  "literal:_attachment_body"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "cubes": [
+    {
+      "name": "testCube",
+      "checkpointConfig": {
+        "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
+      "dimensions": [
+        {
+          "field": "response",
+          "name": "response"
+        }
+      ],
+      "operators": [
+        {
+          "name": "countoperator",
+          "type": "Count",
+          "configuration": {}
+        }
+      ]
+    }
+    ],
+
+  "outputs": [
+    {
+      "name": "out-solr",
+      "type": "Solr",
+      "configuration": {
+        "connection": "localhost:2181",
+        "createSchema": "true",
+        "isCloud": "true",
+        "cloudDataDir": "/tmp/solr-data",
+        "fixedAggregation": "_indexed_at_tdt:0"
+      }
+    }]
+}
