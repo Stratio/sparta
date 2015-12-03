@@ -29,6 +29,7 @@ object TypeOp extends Enumeration {
   ArrayString, MapStringLong = Value
 
   final val TypeOperationsNames = Map(
+    "number" -> TypeOp.Number,
     "bigdecimal" -> TypeOp.BigDecimal,
     "long" -> TypeOp.Long,
     "int" -> TypeOp.Int,
@@ -44,9 +45,12 @@ object TypeOp extends Enumeration {
     "mapstringlong" -> TypeOp.MapStringLong
   )
 
+  //scalastyle:off
   def transformValueByTypeOp[T](typeOp: TypeOp, origValue: T): T = {
     typeOp match {
       case TypeOp.String => checkStringType(origValue)
+      case TypeOp.Double | TypeOp.Number => checkDoubleType(origValue)
+      case TypeOp.Int => checkIntType(origValue)
       case TypeOp.ArrayDouble => checkArrayDoubleType(origValue)
       case TypeOp.ArrayString => checkArrayStringType(origValue)
       case TypeOp.Timestamp => checkTimestampType(origValue)
@@ -57,6 +61,8 @@ object TypeOp extends Enumeration {
       case _ => origValue
     }
   }
+
+  //scalastyle:on
 
   private def checkStringType[T](origValue : T) : T = origValue match {
     case value if value.isInstanceOf[String] => value
@@ -116,7 +122,23 @@ object TypeOp extends Enumeration {
 
   private def checkLongType[T](origValue : T) : T = origValue match {
     case value if value.isInstanceOf[Long] => value
+    case value if value.isInstanceOf[Double] => Try(origValue.asInstanceOf[Double].toLong).getOrElse(0).asInstanceOf[T]
+    case value if value.isInstanceOf[Int] => Try(origValue.asInstanceOf[Int].toLong).getOrElse(0).asInstanceOf[T]
     case _ => Try(origValue.toString.toLong).getOrElse(0L).asInstanceOf[T]
+  }
+
+  private def checkDoubleType[T](origValue : T) : T = origValue match {
+    case value if value.isInstanceOf[Double] => value
+    case value if value.isInstanceOf[Int] => Try(origValue.asInstanceOf[Int].toDouble).getOrElse(0).asInstanceOf[T]
+    case value if value.isInstanceOf[Long] => Try(origValue.asInstanceOf[Long].toDouble).getOrElse(0).asInstanceOf[T]
+    case _ => Try(origValue.toString.toDouble).getOrElse(0d).asInstanceOf[T]
+  }
+
+  private def checkIntType[T](origValue : T) : T = origValue match {
+    case value if value.isInstanceOf[Int] => value
+    case value if value.isInstanceOf[Double] => Try(origValue.asInstanceOf[Double].toInt).getOrElse(0).asInstanceOf[T]
+    case value if value.isInstanceOf[Long] => Try(origValue.asInstanceOf[Long].toInt).getOrElse(0).asInstanceOf[T]
+    case _ => Try(origValue.toString.toInt).getOrElse(0).asInstanceOf[T]
   }
 
   def getTypeOperationByName(nameOperation: String, defaultTypeOperation: TypeOp): TypeOp =

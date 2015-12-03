@@ -31,7 +31,7 @@ with ProcessMapAsNumber {
 
   override val writeOperation = WriteOp.Median
 
-  override val castingFilterType = TypeOp.Number
+  override val defaultCastingFilterType = TypeOp.Number
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     val valuesFiltered = getDistinctValues(values.flatten)

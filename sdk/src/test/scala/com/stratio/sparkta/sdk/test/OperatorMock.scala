@@ -33,11 +33,11 @@ abstract class BaseOperatorMoc(name: String, properties: Map[String, JSerializab
 class OperatorMock(name: String, properties: Map[String, JSerializable])
   extends BaseOperatorMoc(name: String, properties: Map[String, JSerializable]) with ProcessMapAsNumber {
 
-  override val castingFilterType = TypeOp.Number
+  override val defaultCastingFilterType = TypeOp.Number
 }
 
 class OperatorMockString(name: String, properties: Map[String, JSerializable])
   extends BaseOperatorMoc(name: String, properties: Map[String, JSerializable]) with ProcessMapAsAny {
 
-  override val castingFilterType = TypeOp.String
+  override val defaultCastingFilterType = TypeOp.String
 }

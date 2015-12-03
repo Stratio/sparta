@@ -242,7 +242,7 @@ class OperatorTest extends WordSpec with Matchers {
     "Operation casting filter must be " in {
       val operator = new OperatorMock("opTest", Map())
       val expected = TypeOp.Number
-      val result = operator.castingFilterType
+      val result = operator.defaultCastingFilterType
       result should be(expected)
     }
 

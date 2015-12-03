@@ -76,7 +76,7 @@ class EntityCountOperatorTest extends WordSpec with Matchers {
       val inputFields2 = new EntityCountOperator("entityCount", Map("typeOp" -> "int"))
       val resultInput2 = Seq((Operator.OldValuesKey, Some(Map("hola" -> 1L, "holo" -> 1L))),
         (Operator.NewValuesKey, Some(Seq("hola"))))
-      inputFields2.associativity(resultInput2) should be(Some(Map("hola" -> 2L, "holo" -> 1L)))
+      inputFields2.associativity(resultInput2) should be(Some(0))
 
       val inputFields3 = new EntityCountOperator("entityCount", Map("typeOp" -> null))
       val resultInput3 = Seq((Operator.OldValuesKey, Some(Map("hola" -> 1L, "holo" -> 1L))))
