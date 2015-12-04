@@ -25,11 +25,8 @@
       "order": 0,
       "type": "Morphlines",
       "outputFields": [
-        "appName",
-        "timestamp",
-        "geo",
-        "tag",
-        "twitterStatus"
+        "product",
+        "price"
       ],
       "configuration": {
         "morphline": {
@@ -39,17 +36,16 @@
           ],
           "commands": [
             {
-              "readJson": {}
-            },
-            {
-              "extractJsonPaths": {
-                "paths": {
-                  "appName": "/appName",
-                  "timestamp": "/timestamp",
-                  "geo": "/geo",
-                  "tag": "/tag",
-                  "twitterStatus": "/twitterStatus"
-                }
+              "readCSV": {
+                "separator": ",",
+                "columns": [
+                  "product",
+                  "price"
+                ],
+                "trim": "true",
+                "charset": "UTF-8",
+                "quoteChar": "\"",
+                "commentPrefix": "#"
               }
             }
           ]
@@ -68,15 +64,31 @@
       },
       "dimensions": [
         {
-          "field": "appName",
-          "name": "appName"
+          "name": "product",
+          "field": "product"
         }
       ],
       "operators": [
         {
-          "name": "countoperator",
-          "type": "Count",
-          "configuration": {}
+          "name": "max_price",
+          "type": "Max",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "min_price",
+          "type": "Min",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "sum_price",
+          "type": "Sum",
+          "configuration": {
+            "inputField": "price"
+          }
         }
       ]
     }

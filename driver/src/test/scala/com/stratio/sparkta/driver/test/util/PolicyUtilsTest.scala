@@ -36,7 +36,9 @@ class PolicyUtilsTest extends FlatSpec with ShouldMatchers {
       "input-kafka-plugin.jar",
       "output-print-plugin.jar",
       "parser-morphlines-plugin.jar",
-      "operator-count-plugin.jar",
+      "operator-max-plugin.jar",
+      "operator-min-plugin.jar",
+      "operator-sum-plugin.jar",
       "field-default-plugin.jar")
     val jarFiles = jars.map(new File(_))
 
@@ -49,10 +51,12 @@ class PolicyUtilsTest extends FlatSpec with ShouldMatchers {
     val invalidjarFiles = invalidJars.map(new File(_))
     val missingJars = List("input-kafka-plugin.jar")
      val wrongJars = List(
-      "output-print-plugin.jar",
-      "parser-morphlines-plugin.jar",
-      "operator-count-plugin.jar",
-      "field-default-plugin.jar")
+       "output-print-plugin.jar",
+       "parser-morphlines-plugin.jar",
+       "operator-max-plugin.jar",
+       "operator-min-plugin.jar",
+       "operator-sum-plugin.jar",
+       "field-default-plugin.jar")
   }
 
   "PolicyUtilsSpec" should "retrieve jars list from policy" in new ValidData {
