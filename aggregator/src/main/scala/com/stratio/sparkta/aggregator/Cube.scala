@@ -111,7 +111,10 @@ case class Cube(name: String,
                                              state: Option[Seq[(String, Option[Any])]])
   : Option[Seq[(String, Option[Any])]] = {
     val proccessMapValues = values.flatMap(inputFields =>
-      nonAssociativeOperators.flatMap(op => op.processMap(inputFields).map(op.key -> Some(_))))
+      nonAssociativeOperators.map(op => op.processMap(inputFields) match {
+        case Some(values) => op.key -> Some(values)
+        case None => op.key -> None
+      }))
 
     Some(state.getOrElse(Seq()) ++ proccessMapValues)
   }
@@ -149,10 +152,15 @@ case class Cube(name: String,
   def associativeAggregation(dimensionsValues: DStream[(DimensionValuesTime, Map[String, JSerializable])]):
   DStream[(DimensionValuesTime, Seq[(String, Option[Any])])] =
     dimensionsValues.mapValues(inputFields =>
-      associativeOperators.flatMap(op => op.processMap(inputFields).map(values => op.key -> Some(values))).toMap)
+      associativeOperators.map(op => {
+        op.processMap(inputFields) match {
+          case Some(values) => op.key -> Some(values)
+          case None => op.key -> None
+        }
+      }))
       .groupByKey()
       .map { case (dimValues, aggregations) =>
-        val aggregatedValues = aggregations.flatMap(aggregationsMap => aggregationsMap.toSeq)
+        val aggregatedValues = aggregations.flatMap(aggregationsMap => aggregationsMap)
           .groupBy { case (opKey, opValue) => opKey }
           .map { case (nameOp, valuesOp) =>
             val op = associativeOperatorsMap(nameOp)
