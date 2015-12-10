@@ -1,7 +1,7 @@
 {
   "name": "ATSocketCassandra",
   "description": "No description",
-  "sparkStreamingWindow": 2000,
+  "sparkStreamingWindow": 10000,
   "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
@@ -71,8 +71,8 @@
       "checkpointConfig": {
         "timeDimension": "minute",
         "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
+        "interval": 100000,
+        "timeAvailability": 90000
       },
       "dimensions": [
         {

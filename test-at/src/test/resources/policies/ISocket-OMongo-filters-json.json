@@ -1,8 +1,8 @@
 {
 
-  "name": "ATSocketMongoFilters",
+  "name": "ATSocketMongoFiltersJSON",
   "description": "No description",
-  "sparkStreamingWindow": 2000,
+  "sparkStreamingWindow": 10000,
   "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
@@ -21,55 +21,40 @@
 ,
   "transformations": [
     {
-      "name": "morphline-parser",
+      "name": "morphline",
       "order": 0,
       "type": "Morphlines",
       "outputFields": [
-        "idTweet",
-        "text",
-        "userMention",
         "hashtag",
-        "url",
-        "media",
-        "currentUserRetweetId",
-        "user",
         "locationFirstLevel",
         "locationSecondLevel",
-        "followersCount",
-        "retweetCount",
-        "favorited",
         "unique"
       ],
       "configuration": {
         "morphline": {
           "id": "morphline1",
           "importCommands": [
-            "org.kitesdk.**"
+            "org.kitesdk.**","com.stratio.**"
           ],
           "commands": [
             {
-              "readCSV": {
-                "separator": ",",
-                "columns": [
-                  "idTweet",
-                  "text",
-                  "userMention",
-                  "hashtag",
-                  "url",
-                  "media",
-                  "currentUserRetweetId",
-                  "user",
-                  "locationFirstLevel",
-                  "locationSecondLevel",
-                  "followersCount",
-                  "retweetCount",
-                  "favorited",
-                  "unique"
-                ],
-                "trim": "true",
-                "charset": "UTF-8",
-                "quoteChar": "\"",
-                "commentPrefix": "#"
+              "readJson": {}
+            },
+            {
+              "extractJsonPaths": {
+                "paths": {
+                  "hashtag": "/hashtag",
+                  "locationFirstLevel": "/locationFirstLevel",
+                  "locationSecondLevel": "/locationSecondLevel",
+                  "unique": "/unique"
+                }
+              }
+            },
+            {
+              "removeFields": {
+                "blacklist": [
+                  "literal:_attachment_body"
+                ]
               }
             }
           ]
@@ -89,58 +74,6 @@
     }
   ],
   "cubes": [
-    {
-      "name": "favorited",
-      "dimensions": [
-        {
-          "name": "idTweet",
-          "field": "idTweet",
-          "precision": "identity",
-          "type": "Default"
-        },
-        {
-          "name": "text",
-          "field": "text",
-          "precision": "identity",
-          "type": "Default"
-        },
-        {
-          "name": "location",
-          "field": "locationFirstLevel",
-          "precision": "identity",
-          "type": "Default"
-        },
-        {
-          "name": "province",
-          "field": "locationSecondLevel",
-          "precision": "identity",
-          "type": "Default"
-        }
-      ],
-      "operators": [
-        {
-          "name": "sum1",
-          "configuration": {
-            "inputField": "favorited",
-            "filters": [
-              {
-                "field": "unique",
-                "type": "=",
-                "value": "true",
-                "fieldType": "string"
-              }
-            ]
-          },
-          "type": "Sum"
-        }
-      ],
-      "checkpointConfig": {
-        "timeDimension": "time",
-        "interval": 300000,
-        "timeAvailability": 90000,
-        "granularity": "minute"
-      }
-    },
     {
       "name": "basic-hashtag",
       "dimensions": [
@@ -171,7 +104,7 @@
               {
                 "field": "hashtag",
                 "type": "!=",
-                "value": " ",
+                "value": "",
                 "fieldType": "string"
               },
               {
@@ -188,7 +121,7 @@
       "checkpointConfig": {
         "timeDimension": "time",
         "granularity": "minute",
-        "interval": 300000,
+        "interval": 100000,
         "timeAvailability": 90000
       }
     }

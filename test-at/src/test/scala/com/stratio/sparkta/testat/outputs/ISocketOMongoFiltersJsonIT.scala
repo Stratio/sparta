@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.testat.internal
+package com.stratio.sparkta.testat.outputs
 
 import com.github.simplyscala.{MongoEmbedDatabase, MongodProps}
-import com.mongodb.casbah.{MongoClientURI, MongoCollection, MongoConnection}
-import com.mongodb.{BasicDBList, BasicDBObject}
+import com.mongodb.BasicDBObject
+import com.mongodb.casbah.{MongoCollection, MongoConnection}
 import com.stratio.sparkta.testat.SparktaATSuite
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-
-import scala.collection.JavaConversions._
 
 /**
  * Acceptance test:
@@ -32,15 +30,12 @@ import scala.collection.JavaConversions._
  * [Operators]: count
  */
 @RunWith(classOf[JUnitRunner])
-class ISocketOMongoFiltersIT extends MongoEmbedDatabase with SparktaATSuite {
+class ISocketOMongoFiltersJsonIT extends MongoEmbedDatabase with SparktaATSuite {
 
-  override val PolicyEndSleep = 60000
-  override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-filters.csv").getPath
-  override val policyFile = "policies/ISocket-OMongo-filters.json"
+  override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-filters-json").getPath
+  override val policyFile = "policies/ISocket-OMongo-filters-json.json"
   val TestMongoPort = 60000
   var mongoProps: MongodProps = _
-
-  val NumEventsExpected: Int = 8
 
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in mongodb with filters in operators" in {
@@ -57,19 +52,6 @@ class ISocketOMongoFiltersIT extends MongoEmbedDatabase with SparktaATSuite {
 
       mongoColl.size should be(2)
 
-      val mongoColl2: MongoCollection =
-        MongoConnection(Localhost, TestMongoPort)("csvtest")("id_idTweet_location_province_text_time")
-
-      val favorited = mongoColl2.find(new BasicDBObject("idTweet", "1")).next()
-      favorited.get("sum1") should be(2)
-
-      mongoColl2.size should be(1)
-
-    }
-
-    def checkMongoDb: Unit = {
-      val mongoClientURI = MongoClientURI(s"mongodb://$Localhost:$TestMongoPort/local")
-      mongoClientURI.database should be(Some("local"))
     }
   }
 

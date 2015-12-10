@@ -35,7 +35,6 @@ import com.stratio.sparkta.testat.SparktaATSuite
 @RunWith(classOf[JUnitRunner])
 class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
 
-  override val PolicyEndSleep = 60000
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-operators.csv").getPath
   override val policyFile = "policies/ISocket-OMongo-operators.json"
   val TestMongoPort = 60000

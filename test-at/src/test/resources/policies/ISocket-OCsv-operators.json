@@ -1,7 +1,7 @@
 {
   "name": "ATSocketCSV",
   "description": "No description",
-  "sparkStreamingWindow": 2000,
+  "sparkStreamingWindow": 10000,
   "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
@@ -61,8 +61,8 @@
       "checkpointConfig": {
         "timeDimension": "timestamp",
         "granularity": "day",
-        "interval": 30000,
-        "timeAvailability": 600000
+        "interval": 100000,
+        "timeAvailability": 90000
       },
       "dimensions": [
         {
