@@ -198,7 +198,18 @@ checkAppStarted() {
 	fi
 }
 
+checkPidFolder() {
+	# Create Run directory
+  if [ ! -d "$PID_DIR" ]; then
+    mkdir -p "$PID_DIR"
+    chown "$USER":"$GROUP" $PID_DIR
+    chmod 775 $PID_DIR
+    if [ $? -ne 0 ]; then exit 1; fi
+  fi
+}
+
 createPidFile() {
+	checkPidFolder
   /bin/touch $PID_FILE
 	/bin/chmod 777 $PID_FILE
 }
@@ -249,6 +260,7 @@ case "${COMMAND}" in
 			echoOK "PID=$PID"
 			#save PID
 			echoProgress "Saving PID $PID in $PID_FILE"
+			createPidFile
 			echo $PID > $PID_FILE
 		fi
 	;;
@@ -261,6 +273,7 @@ case "${COMMAND}" in
 			1) echoOK "$(printPid) running"
 			 exit 0;;
 			2) echoError "process dead but RUNNING_PID file exists"
+			 rm $PID_FILE
 			 exit 1;;
 		esac
 	;;
