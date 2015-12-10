@@ -62,8 +62,8 @@ trait SparktaATSuite
   val TestServerZKPort = 54646
   val SocketPort = 10666
   val SparktaSleep = 3000
-  val PolicySleep = 30000
-  val PolicyEndSleep = 30000
+  val PolicySleep = 20000
+  val PolicyEndSleep = 20000
 
   val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data.csv").getPath
 
@@ -195,7 +195,7 @@ trait SparktaATSuite
       startSparkta
       sendPolicy(pathToPolicy)
       sendDataToSparkta(PathToCsv)
-      Thread.sleep(PolicyEndSleep)
+      sleep(PolicyEndSleep)
       closeSocket
       SparktaHelper.shutdown
     }

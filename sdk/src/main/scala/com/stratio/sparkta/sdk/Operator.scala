@@ -21,8 +21,8 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
-import org.json4s._
 import org.json4s.jackson.JsonMethods._
+import org.json4s.{DefaultFormats, Formats}
 
 import scala.collection.immutable.StringOps
 import scala.language.reflectiveCalls
@@ -33,7 +33,7 @@ abstract class Operator(name: String, properties: Map[String, JSerializable]) ex
 with Ordered[Operator] with TypeConversions {
 
   @transient
-  implicit val formats = DefaultFormats
+  implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
 
   override def operationProps: Map[String, JSerializable] = properties
 
@@ -47,6 +47,11 @@ with Ordered[Operator] with TypeConversions {
 
   val inputField = properties.getString("inputField", None)
 
+  val filters = properties.getString("filters", None) match {
+    case Some(jsonFilters) => parse(jsonFilters).extract[Seq[FilterModel]]
+    case None => Seq()
+  }
+
   def processReduce(values: Iterable[Option[Any]]): Option[Any]
 
   def defaultCastingFilterType: TypeOp = TypeOp.String
@@ -54,11 +59,6 @@ with Ordered[Operator] with TypeConversions {
   def returnType: TypeOp = getTypeOperation.getOrElse(defaultTypeOperation)
 
   def compare(operator: Operator): Int = key compareTo operator.key
-
-  def filters: Array[FilterModel] = properties.getString("filters", None) match {
-    case Some(filters) => Try(parse(filters).extract[Array[FilterModel]]).getOrElse(Array())
-    case None => Array()
-  }
 
   def getDistinctValues[T](values: Iterable[T]): List[T] =
     if (distinct)
@@ -91,7 +91,7 @@ with Ordered[Operator] with TypeConversions {
     ).forall(result => result)
   }
 
-  private def filterCastingType(fieldType: Option[String]) : TypeOp =
+  private def filterCastingType(fieldType: Option[String]): TypeOp =
     fieldType match {
       case Some(typeName) => getTypeOperationByName(typeName, defaultCastingFilterType)
       case None => defaultCastingFilterType

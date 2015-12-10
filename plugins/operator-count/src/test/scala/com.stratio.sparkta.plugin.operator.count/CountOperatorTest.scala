@@ -89,6 +89,40 @@ class CountOperatorTest extends WordSpec with Matchers {
       val inputFields11 = new CountOperator("count",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2, \"fieldType\":\"int\"}]"))
       inputFields11.processMap(Map("field1" -> "1", "field2" -> "2")) should be(Some(CountOperator.One.toLong))
+
+
+      val inputFields12 = new CountOperator("count",
+        Map("filters" -> "[{\"field\":\"field1\", \"type\": \"=\", \"value\":1, \"fieldType\":\"int\"}]"))
+      inputFields12.processMap(Map("field1" -> "1", "field2" -> "2")) should be(Some(CountOperator.One.toLong))
+
+      val inputFields13 = new CountOperator("count",
+        Map("filters" -> "[{\"field\":\"field1\", \"type\": \"=\", \"value\":\"1\", \"fieldType\":\"string\"}]"))
+      inputFields13.processMap(Map("field1" -> "1", "field2" -> "2")) should be(Some(CountOperator.One.toLong))
+
+      val inputFields14 = new CountOperator("count",
+        Map("filters" -> "[{\"field\":\"field1\", \"type\": \"!=\", \"value\":\"1\", \"fieldType\":\"string\"}]"))
+      inputFields14.processMap(Map("field1" -> "1", "field2" -> "2")) should be(None)
+
+      val inputFields15 = new CountOperator("count",
+        Map("filters" -> ("[{\"field\":\"field1\", \"type\": \"=\", \"value\":\"1\", \"fieldType\":\"string\"}," +
+          "{\"field\":\"field2\", \"type\": \"=\", \"value\":\"1\", \"fieldType\":\"string\"}]")))
+      inputFields15.processMap(Map("field1" -> "1", "field2" -> "2")) should be(None)
+
+      val inputFields16 = new CountOperator("count",
+        Map("filters" -> ("[{\"field\":\"field1\", \"type\": \"=\", \"value\":\"1\", \"fieldType\":\"string\"}," +
+          "{\"field\":\"field2\", \"type\": \"!=\", \"value\":\"1\", \"fieldType\":\"string\"}]")))
+      inputFields16.processMap(Map("field1" -> "1", "field2" -> "2")) should be(Some(CountOperator.One.toLong))
+
+      val inputFields17 = new CountOperator("count",
+        Map("filters" -> ("[{\"field\":\"hashtag\", \"type\": \"!=\", \"value\":\"\", \"fieldType\":\"string\"}," +
+          "{\"field\":\"unique\", \"type\": \"=\", \"value\":\"false\", \"fieldType\":\"string\"}]")))
+      inputFields17.processMap(Map("hashtag" -> "sparkta", "unique" -> "false")) should be(Some(CountOperator.One
+        .toLong))
+
+      val inputFields18 = new CountOperator("count",
+        Map("filters" -> ("[{\"field\":\"hashtag\", \"type\": \"!=\", \"value\":\"\", \"fieldType\":\"string\"}," +
+          "{\"field\":\"unique\", \"type\": \"=\", \"value\":\"false\", \"fieldType\":\"string\"}]")))
+      inputFields18.processMap(Map("hashtag" -> "", "unique" -> "false")) should be(None)
     }
 
     "processReduce must be " in {
@@ -120,6 +154,7 @@ class CountOperatorTest extends WordSpec with Matchers {
 
       val inputFields7 = new CountOperator("count", Map("typeOp" -> null))
       inputFields7.processReduce(Seq(Some(1), Some(1))) should be(Some(2))
+
     }
 
     "associative process must be " in {

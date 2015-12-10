@@ -38,7 +38,6 @@ import scala.reflect.ClassTag
 @RunWith(classOf[JUnitRunner])
 class ISocketOCassandraOperatorsIT extends SparktaATSuite {
 
-  override val PolicyEndSleep = 60000
   override val policyFile = "policies/ISocket-OCassandra-operators.json"
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-operators.csv").getPath
 

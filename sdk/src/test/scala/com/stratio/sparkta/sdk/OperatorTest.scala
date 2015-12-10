@@ -54,7 +54,8 @@ class OperatorTest extends WordSpec with Matchers {
       filters2.size should be(0)
       filters2 should be equals Array()
 
-      val operator3 = new OperatorMock("opTest", Map("filters" -> "[\"field\":\"]"))
+      val operator3 = new OperatorMock("opTest",
+        Map("filters" -> """[{"field":"field1", "type":"=", "value": "1"}]""""))
       val filters3 = operator2.filters
       filters3.size should be(0)
       filters3 should be equals Array()

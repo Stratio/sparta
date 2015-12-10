@@ -38,7 +38,6 @@ import scala.util.parsing.json.JSON
 @RunWith(classOf[JUnitRunner])
 class ISocketOElasticsearchOperatorsIT extends SparktaATSuite {
 
-  override val PolicyEndSleep = 60000
   val NumExecutors = 4
   val TimeElastisearchStarts: Long = 5000
 

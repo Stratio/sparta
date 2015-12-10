@@ -34,7 +34,6 @@ import scala.reflect.io.File
  */
 class ISocketOCsvOperatorsIT extends SparktaATSuite {
 
-  override val PolicyEndSleep = 30000
   override val policyFile = "policies/ISocket-OCsv-operators.json"
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-operators.csv").getPath
   val csvOutputPath = policyDto.outputs(0).configuration("path").toString
