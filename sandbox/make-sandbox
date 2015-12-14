@@ -72,7 +72,7 @@ vagrant ssh
 vagrant halt
 cd ..
 echo 1<&2 "INFO: ${0}: Creating tar.gz file"
-tar -cvzf package.box ${tarFile}
+tar -cvzf ${tarFile} package.box
 if [ $? != 0 ]; then
     echo 1<&2 "ERROR: Something gone wrong, exiting :("
     exit 1
