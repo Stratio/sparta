@@ -60,8 +60,8 @@ class KafkaDirectInput(properties: Map[String, JSerializable]) extends Input(pro
 
   def getDirectTopicPartition(key: String,
                               firstJsonItem: String): String = {
-    val conObj = properties.getConnectionChain(key)
-    conObj.map(c => {
+    val conObj = properties.getMapFromJsoneyString(key)
+    conObj.map(c =>{
       val topic = c.get(firstJsonItem) match {
         case Some(value) => value.toString
         case None => throw new IllegalStateException(s"$key is mandatory")
@@ -71,7 +71,7 @@ class KafkaDirectInput(properties: Map[String, JSerializable]) extends Input(pro
   }
 
   def getMetaDataBrokerList(key: String, defaultHost: String, defaultPort: String): (String, String) = {
-    val conObj = properties.getConnectionChain(key)
+    val conObj = properties.getMapFromJsoneyString(key)
     val value = conObj.map(c => {
       val host = c.get("broker") match {
         case Some(hostValue) => hostValue.toString

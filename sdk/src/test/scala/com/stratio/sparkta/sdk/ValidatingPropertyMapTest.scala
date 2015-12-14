@@ -91,7 +91,7 @@ class ValidatingPropertyMapTest extends FlatSpec with ShouldMatchers {
     val validating: ValidatingPropertyMap[String, JsoneyString] =
       new ValidatingPropertyMap[String, JsoneyString](Map("nodes" -> JsoneyString(conn)))
 
-    validating.getConnectionChain("nodes") should be(List(
+    validating.getMapFromJsoneyString("nodes") should be(List(
       Map("host" -> "host1", "port" -> "20304"),
       Map("host" -> "host2", "port" -> "20304"),
       Map("host" -> "host3", "port" -> "20304")

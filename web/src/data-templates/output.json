@@ -160,6 +160,37 @@
         "required": false,
         "tooltip": "The date format for the date fields indexed, this feature is for the Stratio’s Cassandra Lucene Index",
         "qa": "fragment-details-cassandra-dateFormat"
+      },
+      {
+        "propertyId": "sparkProperties",
+        "propertyName": "",
+        "propertyType": "list",
+        "default": "",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-cassandra-spark",
+        "fields": [
+          {
+            "propertyId": "sparkPropertyKey",
+            "propertyName": "_SPARK_PROPERTY_KEY_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "spark.cassandra.input.fetch.size_in_rows",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-mongoDb-sparkPropertyKey"
+          },
+          {
+            "propertyId": "sparkPropertyValue",
+            "propertyName": "_SPARK_PROPERTY_VALUE_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "1000",
+            "hidden": false,
+            "required": true,
+            "qa": "fragment-details-mongoDb-sparkPropertyValue"
+          }
+        ]
       }
     ]
   },

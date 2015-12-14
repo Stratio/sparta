@@ -24,6 +24,7 @@ import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SaveMode._
 import org.apache.spark.sql._
@@ -59,6 +60,8 @@ class CassandraOutput(keyName: String,
   override val refreshSeconds = properties.getString("refreshSeconds", DefaultRefreshSeconds)
 
   override val textIndexName = properties.getString("textIndexName", "lucene")
+
+  val cluster = properties.getString("cluster", "default")
 
   override val supportedWriteOps: Seq[WriteOp.Value] = Seq(WriteOp.FullText, WriteOp.Inc, WriteOp.IncBig,
     WriteOp.Set, WriteOp.Range, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.Median,
@@ -105,13 +108,14 @@ class CassandraOutput(keyName: String,
     dataFrame.write
       .format("org.apache.spark.sql.cassandra")
       .mode(Append)
-      .options(Map("table" -> tableNameVersioned, "keyspace" -> keyspace)).save()
+      .options(Map("table" -> tableNameVersioned, "keyspace" -> keyspace, "cluster" -> cluster)).save()
   }
 
   def getCassandraConnector(): CassandraConnector = {
     val sparkConf = sqlContext.sparkContext.getConf
     CassandraConnector(sparkConf)
   }
+
 }
 
 object CassandraOutput {
@@ -123,9 +127,27 @@ object CassandraOutput {
     val connectionHost = configuration.getString("connectionHost", DefaultHost)
     val connectionPort = configuration.getString("connectionPort", DefaultPort)
 
+    val sparkProperties = getSparkCassandraProperties(configuration)
+
+    sparkProperties ++
     Seq(
       ("spark.cassandra.connection.host", connectionHost),
       ("spark.cassandra.connection.port", connectionPort)
     )
   }
+
+  private def getSparkCassandraProperties(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
+    configuration.get("sparkProperties") match {
+      case Some(properties) =>
+        val conObj = configuration.getMapFromJsoneyString("sparkProperties")
+        conObj.map(propKeyPair => {
+          val key = propKeyPair("sparkPropertyKey")
+          val value = propKeyPair("sparkPropertyValue")
+          (key, value)
+        })
+      case None => Seq()
+    }
+
+  }
+
 }

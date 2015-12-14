@@ -124,7 +124,7 @@ class ElasticSearchOutput(keyName: String,
                        defaultPort: String,
                        nodeName: String,
                        portName: String): Seq[(String, Int)] = {
-    properties.getConnectionChain(key).map(c =>
+    properties.getMapFromJsoneyString(key).map(c =>
       (c.getOrElse(nodeName, defaultHost), c.getOrElse(portName, defaultPort).toInt))
   }
 }

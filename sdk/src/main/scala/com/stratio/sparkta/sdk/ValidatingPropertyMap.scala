@@ -36,7 +36,7 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
 
 
   def getHostPortConfs(key: K, defaultHost: String, defaultPort: String): Seq[(String, Int)] = {
-    val conObj = getConnectionChain(key)
+    val conObj = getMapFromJsoneyString(key)
     conObj.map(c =>
       (c.get("node") match {
         case Some(value) => value.toString
@@ -48,7 +48,7 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
         }))
   }
 
-  def getConnectionChain(key: K): Seq[Map[String, String]] = {
+  def getMapFromJsoneyString(key: K): Seq[Map[String, String]] = {
     m.get(key) match {
       case Some(value) =>
 

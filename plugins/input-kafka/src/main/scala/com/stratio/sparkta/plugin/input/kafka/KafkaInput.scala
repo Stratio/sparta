@@ -57,8 +57,8 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
     }
   }
 
-  def getTopicPartition(key: String, defaultPartition: Int): Seq[(String, Int)] = {
-    val conObj = properties.getConnectionChain(key)
+  def getTopicPartition(key: String, defaultPartition: Int): Seq[(String, Int)] ={
+    val conObj = properties.getMapFromJsoneyString(key)
     conObj.map(c =>
       (c.get("topic") match {
         case Some(value) => value.toString
@@ -71,7 +71,7 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
   }
 
   def getZkConnectionConfs(key: String, defaultHost: String, defaultPort: String): (String, String) = {
-    val conObj = properties.getConnectionChain(key)
+    val conObj = properties.getMapFromJsoneyString(key)
     val value = conObj.map(c => {
       val host = c.get("host") match {
         case Some(hostValue) => hostValue.toString
