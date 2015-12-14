@@ -70,6 +70,9 @@ Feature: Test adding a new Cassandra output in Sparkta GUI
 		# Try with empty Keyspace
 		Given '1' element exists with 'css:input[data-qa="fragment-details-cassandra-keyspace"]'
 		When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
+		# Try with empty Cluster name
+		Given '1' element exists with 'css:input[data-qa="fragment-details-cassandra-cluster"]'
+                When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
 		# Try with empty Replication factor
 		Given '1' element exists with 'css:input[data-qa="fragment-details-cassandra-replication-factor"]'
 		When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'		
@@ -79,6 +82,7 @@ Feature: Test adding a new Cassandra output in Sparkta GUI
 		Then '1' elements exist with 'css:span[data-qa="fragment-details-cassandra-connectionHost-error-required"]'
 		And '1' elements exist with 'css:span[data-qa="fragment-details-cassandra-connectionPort-error-required"]'
 		And '1' elements exist with 'css:span[data-qa="fragment-details-cassandra-keyspace-error-required"]'
+		And '1' elements exist with 'css:span[data-qa="fragment-details-cassandra-cluster-error-required"]'
 		And '1' elements exist with 'css:span[data-qa="fragment-details-cassandra-replication-factor-error-required"]'
 		
 		# Try with invalid port number
@@ -126,6 +130,10 @@ Feature: Test adding a new Cassandra output in Sparkta GUI
 		Given '1' element exists with 'css:input[data-qa="fragment-details-cassandra-keyspace"]'
 		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
 		And I type 'myKeyspace' on the element on index '0'
+		# Fill in Keyspace field
+                Given '1' element exists with 'css:input[data-qa="fragment-details-cassandra-cluster"]'
+                Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
+                And I type 'myClusterName' on the element on index '0'
 		# Fill in Replication factor field
 		Given '1' element exists with 'css:input[data-qa="fragment-details-cassandra-replication-factor"]'
 		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
