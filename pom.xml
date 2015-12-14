@@ -35,6 +35,7 @@
     <url>http://www.stratio.com</url>
 
     <modules>
+        <module>common</module>
         <module>sdk</module>
         <module>plugins</module>
         <module>serving-core</module>
@@ -42,6 +43,7 @@
         <module>driver</module>
         <module>web</module>
         <module>serving-api</module>
+        <module>repositories</module>
         <module>doc</module>
         <module>dist</module>
     </modules>
@@ -146,6 +148,14 @@
                 <role>developer</role>
             </roles>
         </developer>
+        <developer>
+            <id>dvallejo</id>
+            <name>David Vallejo</name>
+            <email>dvallejo@stratio.com</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
     </developers>
 
     <properties>
@@ -179,6 +189,11 @@
         <dependencies>
             <dependency>
                 <groupId>com.stratio.sparkta</groupId>
+                <artifactId>common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stratio.sparkta</groupId>
                 <artifactId>web</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -190,6 +205,11 @@
             <dependency>
                 <groupId>com.stratio.sparkta</groupId>
                 <artifactId>serving-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stratio.sparkta</groupId>
+                <artifactId>repositories</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -452,14 +472,14 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-failsafe-plugin</artifactId>
+                <artifactId>maven-failsafe-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
                 <version>3.2.0</version>
                 <configuration>
-               	    <checkMultipleScalaVersions>false</checkMultipleScalaVersions>
+                    <checkMultipleScalaVersions>false</checkMultipleScalaVersions>
                     <recompileMode>modified-only</recompileMode>
                     <useZincServer>false</useZincServer>
                 </configuration>

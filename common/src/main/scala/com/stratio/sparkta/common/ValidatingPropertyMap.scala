@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.common
 
 import akka.event.slf4j.SLF4JLogging
 import org.json4s._
@@ -36,7 +36,7 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
 
 
   def getHostPortConfs(key: K, defaultHost: String, defaultPort: String): Seq[(String, Int)] = {
-    val conObj = getMapFromJsoneyString(key)
+    val conObj = getConnectionChain(key)
     conObj.map(c =>
       (c.get("node") match {
         case Some(value) => value.toString
@@ -48,7 +48,7 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
         }))
   }
 
-  def getMapFromJsoneyString(key: K): Seq[Map[String, String]] = {
+  def getConnectionChain(key: K): Seq[Map[String, String]] = {
     m.get(key) match {
       case Some(value) =>
 
