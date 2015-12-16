@@ -129,6 +129,7 @@ object AppConstant {
     "Redis" -> s"output-redis$pluginExtension",
     s"DateTime${Parser.ClassSuffix}" -> s"parser-datetime$pluginExtension",
     s"Morphlines${Parser.ClassSuffix}" -> s"parser-morphlines$pluginExtension",
+    s"Ingestion${Parser.ClassSuffix}" -> s"parser-ingestion$pluginExtension",
     s"Type${Parser.ClassSuffix}" -> s"parser-type$pluginExtension"
   )
 }
