@@ -41,12 +41,6 @@ Feature: Test adding a new policy in Sparkta GUI
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:input[data-qa="policy-description-raw-data-path"]'
 		And '1' element exists with 'css:span[data-qa="policy-description-raw-data-path-error-required"]'
-		And '1' element exists with 'css:select[data-qa="policy-description-raw-data-partition-format"]'
-		And I select 'year' on the element on index '0'
-		And I select 'month' on the element on index '0'
-		And I select 'day' on the element on index '0'
-		And I select 'hour' on the element on index '0'
-		And I select 'minute' on the element on index '0'		
 		Given '1' element exists with 'css:label[data-qa="policy-description-persist-raw-data"]'
 		Then I click on the element on index '0'
 		
