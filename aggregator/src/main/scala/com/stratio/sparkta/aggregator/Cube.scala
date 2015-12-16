@@ -17,17 +17,17 @@
 package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
+import scala.util.Try
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.SparktaConfig
-import com.stratio.sparkta.serving.core.constants.AppConstant
 import org.apache.spark.HashPartitioner
 import org.apache.spark.streaming.Duration
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
-import scala.util.Try
+import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.serving.core.SparktaConfig
+import com.stratio.sparkta.serving.core.constants.AppConstant
 
 /**
  * Use this class to describe a cube that you want the multicube to keep.
@@ -83,7 +83,8 @@ case class Cube(name: String,
       val dimensionsFiltered = dimensionsValuesTime.dimensionValues.filter(dimVal =>
         dimensions.exists(comp => comp.name == dimVal.dimension.name))
 
-      (DimensionValuesTime(dimensionsFiltered, dimensionsValuesTime.time, checkpointTimeDimension), aggregationValues)
+      (dimensionsValuesTime.copy(dimensionValues = dimensionsFiltered, timeDimension = checkpointTimeDimension),
+        aggregationValues)
     }
   }
 
@@ -164,8 +165,7 @@ case class Cube(name: String,
           .groupBy { case (opKey, opValue) => opKey }
           .map { case (nameOp, valuesOp) =>
             val op = associativeOperatorsMap(nameOp)
-            val values = valuesOp.map{ case (key, value) => value }
-
+            val values = valuesOp.map { case (key, value) => value }
             (nameOp, op.processReduce(values))
           }.toSeq
 

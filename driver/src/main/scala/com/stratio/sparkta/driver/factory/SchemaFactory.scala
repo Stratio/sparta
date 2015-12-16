@@ -46,15 +46,18 @@ object SchemaFactory {
   def cubesOperatorsSchemas(cubes: Seq[Cube],
                             configOptions: Seq[(String, Map[String, String])]): Seq[TableSchema] = {
     val dimensionsSorted = cubes.map(cube =>
-      (cube.dimensions.sorted, cube.operators, cube.checkpointTimeDimension))
+      (cube.dimensions.sorted, cube.operators, cube.checkpointTimeDimension, cube.name))
     configOptions.flatMap { case (outputName, configOptions) => {
       for {
-        (dimensionCombinations, operators, timeDimension) <- getCombinationsWithOperators(configOptions,
+        (dimensionCombinations, operators, timeDimension, cubeName) <- getCombinationsWithOperators(configOptions,
           dimensionsSorted)
-        dimensionNames = dimensionCombinations.map(_.name)
-        schema = StructType(getDimensionsFields(dimensionCombinations) ++ timeDimensionFieldType(timeDimension) ++
-          (getOperatorsFields(operators) ++ getFixedFieldAggregation(configOptions)).sortWith(_.name < _.name))
-      } yield TableSchema(outputName, dimensionNames.mkString(Output.Separator), schema, timeDimension)
+        extraFields = (getOperatorsFields(operators) ++
+          getFixedFieldAggregation(configOptions)).sortWith(_.name < _.name)
+        structFields = getDimensionsFields(dimensionCombinations) ++
+          timeDimensionFieldType(timeDimension) ++
+          extraFields
+        schema = StructType(structFields)
+      } yield TableSchema(outputName, cubeName, schema, timeDimension)
     }
     }.distinct
   }
@@ -67,10 +70,10 @@ object SchemaFactory {
   private def rowTypeFromOption(optionType: TypeOp): DataType = mapTypes.get(optionType).getOrElse(BinaryType)
 
   private def getCombinationsWithOperators(configOptions: Map[String, String],
-                                           dimensionsSorted: Seq[(Seq[Dimension], Seq[Operator], String)])
-  : Seq[(Seq[Dimension], Seq[Operator], String)] =
-    dimensionsSorted.map { case (compSorted, operators, timeDimension) =>
-      (compSorted, operators, timeDimension)
+                                           dimensionsSorted: Seq[(Seq[Dimension], Seq[Operator], String, String)])
+  : Seq[(Seq[Dimension], Seq[Operator], String, String)] =
+    dimensionsSorted.map { case (compSorted, operators, timeDimension, cubeName) =>
+      (compSorted, operators, timeDimension, cubeName)
     }.distinct
 
   def timeDimensionFieldType(timeDimension: String): Seq[StructField] = {

@@ -49,7 +49,7 @@ class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
     }
 
     def checkMongoData(): Unit = {
-      val mongoColl: MongoCollection = MongoConnection(Localhost, TestMongoPort)("csvtest")("id_product_minute")
+      val mongoColl: MongoCollection = MongoConnection(Localhost, TestMongoPort)("csvtest")("testCube")
       mongoColl.size should be(2)
 
       val productA = mongoColl.find(new BasicDBObject("product", "producta")).next()

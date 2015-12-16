@@ -19,9 +19,9 @@ package com.stratio.sparkta.plugin.output.solr
 import java.io.{Closeable, File}
 import java.nio.file.Paths
 import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
+import javax.xml.transform.{OutputKeys, TransformerFactory}
 
 import org.apache.commons.io.FileUtils
 import org.apache.solr.client.solrj.SolrClient
@@ -50,14 +50,12 @@ trait SolrDAO extends Closeable with Logging {
 
   def tokenizedFields: Boolean
 
-  def localDataDir: Option[String]
+  def dataDir: Option[String]
 
-  def cloudDataDir: Option[String]
-
-  def validConfiguration: Boolean = (!isCloud && localDataDir.isDefined) || (isCloud && cloudDataDir.isDefined)
+  def validConfiguration: Boolean = dataDir.isDefined
 
   def getConfig(host: String, collection: String): Map[String, String] =
-    Map("zkhost" -> host, "collection" -> collection)
+    Map("zkhost" -> host, "collection" -> collection, "skip_default_index" -> "true")
 
   def createCoreAccordingToSchema(solrClients: Map[String, SolrClient],
                                   tableName: String,
@@ -76,22 +74,17 @@ trait SolrDAO extends Closeable with Logging {
     createCore.setCoreName(core)
     createCore.setSchemaName(SolrSchemaFile)
     createCore.setConfigName(SolrConfigFile)
-    if (cloudDataDir.isDefined) {
-
-      val clusterDataPath = s"${cloudDataDir.get}/$core/data"
-
-      createCore.setDataDir(clusterDataPath)
-      createCore.setInstanceDir(s"${cloudDataDir.get}/$core")
+    val dataPath = s"${dataDir.get}/$core/data"
+    if (isCloud) {
+      createCore.setDataDir(dataPath)
+      createCore.setInstanceDir(s"${dataDir.get}/$core")
       solrClient.asInstanceOf[CloudSolrClient].uploadConfig(Paths.get(tempConfPath), core)
-    } else if (localDataDir.isDefined) {
-
-      val localDataPath = s"${localDataDir.get}/$core/data"
-      val localConfPath = s"${localDataDir.get}/$core/conf"
-
-      createDir(localDataPath)
+    } else if (dataDir.isDefined) {
+      val localConfPath = s"${dataDir.get}/$core/conf"
+      createDir(dataPath)
       createDir(localConfPath)
-      createCore.setDataDir(localDataPath)
-      createCore.setInstanceDir(s"${localDataDir.get}/$core")
+      createCore.setDataDir(dataPath)
+      createCore.setInstanceDir(s"${dataDir.get}/$core")
       FileUtils.copyFile(new File(s"$tempConfPath/$SolrConfigFile"), new File(s"$localConfPath/$SolrConfigFile"))
       FileUtils.copyFile(new File(s"$tempConfPath/$SolrSchemaFile"), new File(s"$localConfPath/$SolrSchemaFile"))
     }
@@ -128,6 +121,8 @@ trait SolrDAO extends Closeable with Logging {
 
     val transformerFactory = TransformerFactory.newInstance
     val transformer = transformerFactory.newTransformer
+    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+    transformer.setOutputProperty(OutputKeys.METHOD, "xml");
     val source = new DOMSource(doc)
     val streamResult = new StreamResult(new File(path + s"/$SolrSchemaFile"))
     transformer.transform(source, streamResult)
@@ -148,6 +143,7 @@ trait SolrDAO extends Closeable with Logging {
       case _ => "string"
     }
   }
+
   //scalastyle:on
 
   override def close(): Unit = {}
@@ -163,7 +159,7 @@ trait SolrDAO extends Closeable with Logging {
     val solrClient = getSolrServer(zkHost, isCloud)
     val coreAdminRequest: CoreAdminRequest = new CoreAdminRequest()
     coreAdminRequest.setAction(CoreAdminParams.CoreAdminAction.STATUS)
-    val cores  = coreAdminRequest.process(solrClient)
+    val cores = coreAdminRequest.process(solrClient)
 
     for (i <- 0 until cores.getCoreStatus.size())
       yield cores.getCoreStatus().getName(i)

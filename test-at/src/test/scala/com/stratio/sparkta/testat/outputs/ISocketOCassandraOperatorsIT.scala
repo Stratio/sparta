@@ -56,7 +56,7 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
       val cluster = Cluster.builder().addContactPoints(Localhost).withPort(CassandraPort).build()
       val session: Session = cluster.connect("sparkta")
 
-      val resultProductA: ResultSet = session.execute("select * from product_minute_v1 where product = 'producta'")
+      val resultProductA: ResultSet = session.execute("select * from testCube_v1 where product = 'producta'")
       val rowProductA = resultProductA.iterator().next()
 
       rowProductA.getDouble("avg_price") should be(639.0d)
@@ -75,7 +75,7 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
       counts should be(Map("hola" -> new lang.Long(16), "holo" -> new lang.Long(8)))
       rowProductA.getInt("totalentity_text") should be(24)
 
-      val resultProductB: ResultSet = session.execute("select * from product_minute_v1 where product = 'productb'")
+      val resultProductB: ResultSet = session.execute("select * from testCube_v1 where product = 'productb'")
       val rowProductB = resultProductB.iterator().next()
 
       rowProductB.getDouble("avg_price") should be(758.25d)

@@ -111,9 +111,9 @@ class CubeMakerTest extends TestSuiteBase {
     val valuesMap3 = Map("eventKey" -> "value3") ++ tsMap
 
     Seq(Seq(
-      (DimensionValuesTime(Seq(dimensionValueString1, dimensionValueTs), millis, "minute"), valuesMap1),
-      (DimensionValuesTime(Seq(dimensionValueString2, dimensionValueTs), millis, "minute"), valuesMap2),
-      (DimensionValuesTime(Seq(dimensionValueString3, dimensionValueTs), millis, "minute"), valuesMap3)
+      (DimensionValuesTime("cubeName",Seq(dimensionValueString1, dimensionValueTs), millis, "minute"), valuesMap1),
+      (DimensionValuesTime("cubeName",Seq(dimensionValueString2, dimensionValueTs), millis, "minute"), valuesMap2),
+      (DimensionValuesTime("cubeName",Seq(dimensionValueString3, dimensionValueTs), millis, "minute"), valuesMap3)
     ))
   }
 }

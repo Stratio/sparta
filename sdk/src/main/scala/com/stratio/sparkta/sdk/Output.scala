@@ -118,7 +118,14 @@ abstract class Output(keyName: String,
             val dataFrame = sqlContext.createDataFrame(
               extractRow(rdd.filter { case (schema, row) => schema.exists(_ == tableSchemaTime.tableName) }),
               tableSchemaTime.schema)
-            upsert(dataFrame, tableSchemaTime.tableName, tschemaFiltered.timeDimension)
+            Try(upsert(dataFrame, tableSchemaTime.tableName, tschemaFiltered.timeDimension)) match {
+              case Success(_) => log.debug(s"Data stored in ${tableSchemaTime.tableName}")
+              case Failure(_) => {
+                log.error(s"Something goes wrong. Table: ${tableSchemaTime.tableName}")
+                log.error(s"Schema. ${dataFrame.schema}")
+                log.error(s"Head element. ${dataFrame.head}")
+              }
+            }
           })
         } else log.info("Empty event received")
       })
@@ -130,15 +137,12 @@ abstract class Output(keyName: String,
 
   //TODO refactor for remove var types
   def getTableSchemaFixedId(tbSchema: TableSchema): TableSchema = {
-    var tableName = tbSchema.tableName.split(Output.Separator)
-      .filter(name => name != tbSchema.timeDimension && !fixedDimensions.contains(name))
     var fieldsPk = getFields(tbSchema, false)
     var modifiedSchema = false
 
     if (!fixedDimensions.isEmpty) {
       fixedDimensions.foreach(fxdimension => {
         if (!fieldsPk.map(stField => stField.name).contains(fxdimension)) {
-          tableName = tableName ++ Array(fxdimension)
           fieldsPk = fieldsPk ++ Seq(Output.getFieldType(fixedDimensionsType, fxdimension, false))
           modifiedSchema = true
         }
@@ -146,7 +150,6 @@ abstract class Output(keyName: String,
     }
 
     if (isAutoCalculateId && !tbSchema.schema.fieldNames.contains(Output.Id)) {
-      tableName = Array(Output.Id) ++ tableName
       fieldsPk = Seq(Output.defaultStringField(Output.Id, false)) ++ fieldsPk
       modifiedSchema = true
     }
@@ -154,9 +157,8 @@ abstract class Output(keyName: String,
     fieldsPk = fieldsPk ++
       Seq(Output.getFieldType(dateType, tbSchema.timeDimension, false)) ++
       getFields(tbSchema, true)
-    tableName = tableName ++ Seq(tbSchema.timeDimension)
     new TableSchema(tbSchema.outputName,
-      tableName.mkString(Output.Separator),
+      tbSchema.tableName,
       StructType(fieldsPk),
       tbSchema.timeDimension)
   }
@@ -179,11 +181,9 @@ abstract class Output(keyName: String,
   def filterDimensionValueTimeByFixedDimensions(dimensionValuesTime: DimensionValuesTime)
   : DimensionValuesTime =
     if (fixedDimensions.isEmpty) dimensionValuesTime
-    else DimensionValuesTime(
-      dimensionValuesTime.dimensionValues
-        .filter(dimensionValue => !fixedDimensions.contains(dimensionValue.getNameDimension)),
-      dimensionValuesTime.time,
-      dimensionValuesTime.timeDimension
+    else dimensionValuesTime.copy(
+      dimensionValues = dimensionValuesTime.dimensionValues
+        .filter(dimensionValue => !fixedDimensions.contains(dimensionValue.getNameDimension))
     )
 
   def filterSchemaByFixedAndTimeDimensions(tbschemas: Seq[TableSchema]): Seq[TableSchema] =

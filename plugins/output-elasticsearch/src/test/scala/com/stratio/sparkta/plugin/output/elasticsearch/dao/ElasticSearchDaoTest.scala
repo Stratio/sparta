@@ -67,7 +67,7 @@ case class ESDaoMock(_nodes: Seq[(String, Int, Int)] = Seq(), _clusterName: Stri
 
   override def httpNodes: Seq[(String, Int)] = _nodes.map(x => (x._1, x._2))
 
-  override def clusterName: String = clusterName
+  override def clusterName: String = _clusterName
 
   override def mappingType: String = DefaultIndexType
 }

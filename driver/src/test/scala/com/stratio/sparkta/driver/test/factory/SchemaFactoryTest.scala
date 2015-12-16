@@ -36,7 +36,7 @@ with MockitoSugar {
     val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1),
       "minute", checkpointInterval, checkpointGranularity, checkpointAvailable)
     val cubes = Seq(cube)
-    val tableSchema = TableSchema("outputName", "dim1_dim2", StructType(Array(
+    val tableSchema = TableSchema("outputName", "cubeTest", StructType(Array(
       StructField("dim1", StringType, false),
       StructField("dim2", StringType, false),
       StructField(checkpointGranularity, DateType, false),
@@ -103,7 +103,7 @@ with MockitoSugar {
     val cubeName = "cubeTest"
     val timestamp = 1L
     val defaultDimension = new DimensionTypeTest
-    val dimensionValuesT = DimensionValuesTime(Seq(DimensionValue(
+    val dimensionValuesT = DimensionValuesTime("testCube",Seq(DimensionValue(
       Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
       DimensionValue(
         Dimension("dim2", "eventKey", "identity", defaultDimension), "value2"),

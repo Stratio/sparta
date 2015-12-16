@@ -45,7 +45,7 @@ class ISocketOMongoFiltersJsonIT extends MongoEmbedDatabase with SparktaATSuite 
 
     def checkMongoData(): Unit = {
       val mongoColl: MongoCollection =
-        MongoConnection(Localhost, TestMongoPort)("csvtest")("id_hashtag_location_province_time")
+        MongoConnection(Localhost, TestMongoPort)("csvtest")("basic-hashtag")
 
       val hashtag = mongoColl.find(new BasicDBObject("hashtag", "sparktaHashtag")).next()
       hashtag.get("count1") should be(1)

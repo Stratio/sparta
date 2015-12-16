@@ -17,14 +17,15 @@
 package com.stratio.sparkta.driver.util
 
 import java.io.Serializable
-
-import com.stratio.sparkta.driver.SparktaJob
-import com.stratio.sparkta.driver.exception.DriverException
-import com.stratio.sparkta.sdk._
-import org.reflections.Reflections
 import scala.collection.JavaConversions._
 
+import org.reflections.Reflections
+
+import com.stratio.sparkta.driver.exception.DriverException
+import com.stratio.sparkta.sdk._
+
 class ReflectionUtils {
+
   def tryToInstantiate[C](classAndPackage: String, block: Class[_] => C): C = {
     val clazMap: Map[String, String] = getClasspathMap
     val finalClazzToInstance = clazMap.getOrElse(classAndPackage, classAndPackage)
@@ -45,7 +46,7 @@ class ReflectionUtils {
   def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C =
     clazz.getDeclaredConstructor(classOf[Map[String, Serializable]]).newInstance(properties).asInstanceOf[C]
 
-  def getClasspathMap: Map[String, String] = {
+  lazy val getClasspathMap: Map[String, String] = {
     val reflections = new Reflections("com.stratio.sparkta")
     val inputs = reflections.getSubTypesOf(classOf[Input]).toList
     val dimensionTypes = reflections.getSubTypesOf(classOf[DimensionType]).toList

@@ -16,13 +16,9 @@
 
 package com.stratio.sparkta.sdk
 
-import org.apache.spark.sql.types.StructType
 import java.io.Serializable
 
+import org.apache.spark.sql.types.StructType
 
-case class TableSchema(outputName: String, tableName: String,
-                       schema: StructType, timeDimension: String) extends Serializable {
-
-  override val toString = s"OPERATOR: $outputName - TABLE: $tableName - SCHEMA: $schema"
-
-}
+case class TableSchema(outputName: String, tableName: String, schema: StructType, timeDimension: String)
+  extends Serializable {}
