@@ -46,12 +46,12 @@ class ISocketOElasticsearchJsonAT extends SparktaATSuite {
     numberOfEventsGrouped(indexName = "id_smfprocess_minute",
       mappingName = "day_v1",
       field = "id",
-      value = "P0001_2015-06-24 11:58:00.0") should be(2d)
+      value = "P0001_1435139880000") should be(2d)
 
     numberOfEventsGrouped(indexName = "id_minute",
       mappingName = "day_v1",
       field = "id",
-      value = "2015-06-24 11:58:00.0") should be(2d)
+      value = "1435139880000") should be(2d)
   }
 
   private def numberOfEventsGrouped(indexName: String, mappingName: String, field: String, value: Any): Double = {

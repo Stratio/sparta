@@ -61,7 +61,6 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       expect(policy.storageLevel).toBe(fakePolicyTemplate.defaultStorageLevel);
       expect(policy.checkpointPath).toBe(fakePolicyTemplate.defaultCheckpointPath);
       expect(policy.rawData.enabled).toBe(false);
-      expect(policy.rawData.partitionFormat).toBe(fakePolicyTemplate.defaultPartitionFormat);
       expect(policy.rawData.path).toBe("");
       expect(policy.input).toEqual({});
       expect(policy.outputs).toEqual([]);
@@ -80,7 +79,6 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       expect(policy.storageLevel).toBe(fakePolicy.storageLevel);
       expect(policy.checkpointPath).toBe(fakePolicy.checkpointPath);
       expect(policy.rawData.enabled).toBe(fakePolicy.rawData.enabled);
-      expect(policy.rawData.partitionFormat).toBe(fakePolicy.rawData.partitionFormat);
       expect(policy.rawData.path).toBe(fakePolicy.rawData.path);
       expect(policy.input).toEqual(fakeInput);
       expect(policy.outputs).toEqual([fakeOutput]);
@@ -103,7 +101,6 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     expect(policy.storageLevel).toBe(fakePolicyTemplate.defaultStorageLevel);
     expect(policy.checkpointPath).toBe(fakePolicyTemplate.defaultCheckpointPath);
     expect(policy.rawData.enabled).toBe(false);
-    expect(policy.rawData.partitionFormat).toBe(fakePolicyTemplate.defaultPartitionFormat);
     expect(policy.rawData.path).toBe("");
     expect(policy.input).toEqual({});
     expect(policy.outputs).toEqual([]);

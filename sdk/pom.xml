@@ -32,6 +32,12 @@
             <artifactId>spark-streaming_${scala.binary.version}</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- Dependency needed by Spark. We should check why now is needed -->
+        <dependency>
+            <groupId>commons-configuration</groupId>
+            <artifactId>commons-configuration</artifactId>
+            <version>1.6</version>
+        </dependency>
         <dependency>
             <groupId>org.spark-project.akka</groupId>
             <artifactId>akka-slf4j_${scala.binary.version}</artifactId>

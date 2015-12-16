@@ -80,14 +80,14 @@ class ElasticSearchOutput(keyName: String,
   override def setup: Unit = createIndices
 
   private def createIndices: Unit = {
-    getSchema.map(tableSchemaTime => createIndexAccordingToSchema(tableSchemaTime.tableName, tableSchemaTime.schema))
+    getSchema.map(tableSchemaTime => createIndexAccordingToSchema(tableSchemaTime))
     elasticClient.close
   }
 
-  private def createIndexAccordingToSchema(tableName: String, schema: StructType) =
+  private def createIndexAccordingToSchema(tableSchemaTime: TableSchema) =
     elasticClient.execute {
-      create index tableName.toLowerCase shards 5 replicas 1 mappings (
-        mappingName as getElasticsearchFields(schema))
+      create index tableSchemaTime.tableName.toLowerCase shards 5 replicas 1 mappings (
+        mappingName as getElasticsearchFields(tableSchemaTime))
     }
 
   override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit =
@@ -101,23 +101,29 @@ class ElasticSearchOutput(keyName: String,
   def indexNameType(tableName: String): String = s"${tableName.toLowerCase}/$mappingName"
 
   //scalastyle:off
-  def getElasticsearchFields(schema: StructType): Seq[TypedFieldDefinition] = {
-    schema.map(structField => structField.dataType match {
-      case LongType => structField.name typed FieldType.LongType
-      case DoubleType => structField.name typed FieldType.DoubleType
-      case DecimalType() => structField.name typed FieldType.DoubleType
-      case IntegerType => structField.name typed FieldType.IntegerType
-      case BooleanType => structField.name typed FieldType.BooleanType
-      case DateType => structField.name typed FieldType.DateType
-      case TimestampType => structField.name typed FieldType.DateType
-      case ArrayType(_, _) => structField.name typed FieldType.MultiFieldType
-      case MapType(_, _, _) => structField.name typed FieldType.ObjectType
-      case StringType => structField.name typed FieldType.StringType index "not_analyzed"
-      case _ => structField.name typed FieldType.BinaryType
-    })
+  def getElasticsearchFields(tableSchemaTime: TableSchema): Seq[TypedFieldDefinition] = {
+    tableSchemaTime.schema.map(structField =>
+      filterDateTypeMapping(structField, tableSchemaTime.timeDimension).dataType match {
+        case LongType => structField.name typed FieldType.LongType
+        case DoubleType => structField.name typed FieldType.DoubleType
+        case DecimalType() => structField.name typed FieldType.DoubleType
+        case IntegerType => structField.name typed FieldType.IntegerType
+        case BooleanType => structField.name typed FieldType.BooleanType
+        case DateType => structField.name typed FieldType.DateType
+        case TimestampType => structField.name typed FieldType.DateType
+        case ArrayType(_, _) => structField.name typed FieldType.MultiFieldType
+        case MapType(_, _, _) => structField.name typed FieldType.ObjectType
+        case StringType => structField.name typed FieldType.StringType index "not_analyzed"
+        case _ => structField.name typed FieldType.BinaryType
+      })
   }
 
   //scalastyle:on
+
+  def filterDateTypeMapping(structField: StructField, timeField: String): StructField = {
+    if (structField.name.equals(timeField)) Output.getFieldType(dateType, structField.name, structField.nullable)
+    else structField
+  }
 
   def getHostPortConfs(key: String,
                        defaultHost: String,

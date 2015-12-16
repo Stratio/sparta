@@ -51,24 +51,25 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
     def checkData(): Unit = {
       val sqc = new SQLContext(new SparkContext(s"local[$NumExecutors]", "ISocketOParquet-operators"))
       val df = sqc.read.parquet(parquetPath).toDF
+
       val mapValues = df.map(row => Map(
         "product" -> row.getString(0),
-        "acc_price" -> row.getSeq[String](2),
-        "avg_price" -> row.getDouble(3),
-        "count_price" -> row.getLong(4),
-        "first_price" -> row.getString(6),
-        "fulltext_price" -> row.getString(7),
-        "last_price" -> row.getString(8),
-        "max_price" -> row.getDouble(9),
-        "median_price" -> row.getDouble(10),
-        "min_price" -> row.getDouble(11),
-        "range_price" -> row.getDouble(13),
-        "stddev_price" -> row.getDouble(14),
-        "sum_price" -> row.getDouble(15),
-        "variance_price" -> row.getDouble(17),
-        "mode_price" -> row.getList(12).toArray(),
-        "entityCount_text" -> row.getMap(5),
-        "totalEntity_text" -> row.getInt(16)))
+        "acc_price" -> row.getSeq[String](1),
+        "avg_price" -> row.getDouble(2),
+        "count_price" -> row.getLong(3),
+        "first_price" -> row.getString(5),
+        "fulltext_price" -> row.getString(6),
+        "last_price" -> row.getString(7),
+        "max_price" -> row.getDouble(8),
+        "median_price" -> row.getDouble(9),
+        "min_price" -> row.getDouble(10),
+        "range_price" -> row.getDouble(12),
+        "stddev_price" -> row.getDouble(13),
+        "sum_price" -> row.getDouble(14),
+        "variance_price" -> row.getDouble(16),
+        "mode_price" -> row.getList(11).toArray(),
+        "entityCount_text" -> row.getMap(4),
+        "totalEntity_text" -> row.getInt(15)))
 
       val productA = mapValues.filter(value => value("product") == "producta").take(1)(0)
       productA("acc_price") should be(Seq("10", "500", "1000", "500", "1000", "500", "1002", "600"))

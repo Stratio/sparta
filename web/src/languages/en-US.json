@@ -46,6 +46,7 @@
   "_DATE_FORMAT_": "Date format",
   "_PATH_": "Path",
   "_HEADER_": "Header",
+  "_INFER_SCHEMA_": "Infer schema",
   "_DELIMITER_": "Delimiter",
   "_ID_FIELD_": "Id field",
   "_INDEX_MAPPING_": "Index mapping",

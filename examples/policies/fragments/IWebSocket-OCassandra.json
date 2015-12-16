@@ -4,7 +4,6 @@
   "sparkStreamingWindow": 2000,
   "rawData": {
     "enabled": "false",
-    "partitionFormat": "day",
     "path": "myTestParquetPath"
   },
   "checkpointPath": "checkpoint",

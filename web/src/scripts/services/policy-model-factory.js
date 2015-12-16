@@ -21,7 +21,6 @@
       policy.checkpointPath = template.defaultCheckpointPath;
       policy.rawData = {};
       policy.rawData.enabled = false;
-      policy.rawData.partitionFormat = template.defaultPartitionFormat;
       policy.rawData.path = "";
       policy.input = {};
       policy.outputs = [];

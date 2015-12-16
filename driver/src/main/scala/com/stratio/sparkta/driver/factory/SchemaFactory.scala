@@ -25,10 +25,13 @@ import com.stratio.sparkta.sdk._
 
 object SchemaFactory {
 
+  final val Default_Precision = 10
+  final val Default_Scale = 0
+
   val mapTypes = Map(
     TypeOp.Long -> LongType,
     TypeOp.Double -> DoubleType,
-    TypeOp.BigDecimal -> DecimalType(None),
+    TypeOp.BigDecimal -> DecimalType(Default_Precision, Default_Scale),
     TypeOp.Int -> IntegerType,
     TypeOp.Boolean -> BooleanType,
     TypeOp.Date -> DateType,
