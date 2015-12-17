@@ -63,12 +63,11 @@ case class Cube(name: String,
   def aggregate(dimensionsValues: DStream[(DimensionValuesTime, InputFieldsValues)])
   : DStream[(DimensionValuesTime, MeasuresValues)] = {
 
-    val filteredValues = filterDimensionValues(dimensionsValues)
     val associativesCalculated = if (associativeOperators.nonEmpty)
-      Option(updateAssociativeState(associativeAggregation(filteredValues)))
+      Option(updateAssociativeState(associativeAggregation(dimensionsValues)))
     else None
     val nonAssociativesCalculated = if (nonAssociativeOperators.nonEmpty)
-      Option(aggregateNonAssociativeValues(updateNonAssociativeState(filteredValues)))
+      Option(aggregateNonAssociativeValues(updateNonAssociativeState(addUpdatedState(dimensionsValues))))
     else None
 
     (associativesCalculated, nonAssociativesCalculated) match {
@@ -90,17 +89,11 @@ case class Cube(name: String,
    * Filter dimension values that correspond with the current cube dimensions
    */
 
-  protected def filterDimensionValues(dimensionValues: DStream[(DimensionValuesTime, InputFieldsValues)])
-  : DStream[(DimensionValuesTime, InputFields)] = {
-
+  protected def addUpdatedState(dimensionValues: DStream[(DimensionValuesTime, InputFieldsValues)])
+  : DStream[(DimensionValuesTime, InputFields)] =
     dimensionValues.map { case (dimensionsValuesTime, aggregationValues) =>
-      val dimensionsFiltered = dimensionsValuesTime.dimensionValues.filter(dimVal =>
-        dimensions.exists(comp => comp.name == dimVal.dimension.name))
-
-      (DimensionValuesTime(dimensionsFiltered, dimensionsValuesTime.time, checkpointTimeDimension),
-        InputFields(aggregationValues, UpdatedValues))
+      (dimensionsValuesTime, InputFields(aggregationValues, UpdatedValues))
     }
-  }
 
   protected def updateNonAssociativeState(dimensionsValues: DStream[(DimensionValuesTime, InputFields)])
   : DStream[(DimensionValuesTime, Seq[Aggregation])] = {
@@ -170,12 +163,12 @@ case class Cube(name: String,
     filterUpdatedMeasures(valuesCheckpointed)
   }
 
-  def associativeAggregation(dimensionsValues: DStream[(DimensionValuesTime, InputFields)])
+  def associativeAggregation(dimensionsValues: DStream[(DimensionValuesTime, InputFieldsValues)])
   : DStream[(DimensionValuesTime, AggregationsValues)] =
     dimensionsValues.mapValues(inputFieldsValues =>
-      associativeOperators.map(op => op.key -> op.processMap(inputFieldsValues.fieldsValues)))
+      associativeOperators.map(op => op.key -> op.processMap(inputFieldsValues)))
       .groupByKey()
-      .map { case (dimValues, aggregations) =>
+      .mapValues(aggregations => {
         val aggregatedValues = aggregations.flatMap(aggregationsMap => aggregationsMap)
           .groupBy { case (opKey, _) => opKey }
           .map { case (nameOp, valuesOp) =>
@@ -185,8 +178,8 @@ case class Cube(name: String,
             Aggregation(nameOp, op.processReduce(values))
           }.toSeq
 
-        (dimValues, AggregationsValues(aggregatedValues, UpdatedValues))
-      }
+        AggregationsValues(aggregatedValues, UpdatedValues)
+      })
 
   //scalastyle:off
   protected def updateAssociativeFunction(values: Seq[AggregationsValues], state: Option[Measures])

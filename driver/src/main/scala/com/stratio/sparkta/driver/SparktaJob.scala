@@ -57,8 +57,8 @@ object SparktaJob extends SLF4JLogging {
 
     val outputsSchemaConfig: Seq[(String, Map[String, String])] = apConfig.outputs.map(o =>
       (o.name, Map(
-        Output.FixedAggregation ->
-          Try(o.configuration.get(Output.FixedAggregation).get.string.split(Output.FixedAggregationSeparator).head)
+        Output.FixedMeasure ->
+          Try(o.configuration.get(Output.FixedMeasure).get.string.split(Output.FixedMeasureSeparator).head)
             .getOrElse("")
       )))
 

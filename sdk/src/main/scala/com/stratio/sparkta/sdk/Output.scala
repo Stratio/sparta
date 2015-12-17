@@ -62,8 +62,8 @@ abstract class Output(keyName: String,
 
   val fixedMeasures: MeasuresValues =
     if (fixedMeasure.isDefined) {
-      val fixedAggSplited = fixedMeasure.get.split(Output.FixedAggregationSeparator)
-      MeasuresValues(Map(fixedAggSplited.head -> Some(fixedAggSplited.last)))
+      val fixedMeasureSplitted = fixedMeasure.get.split(Output.FixedMeasureSeparator)
+      MeasuresValues(Map(fixedMeasureSplitted.head -> Some(fixedMeasureSplitted.last)))
     } else MeasuresValues(Map.empty)
 
   final val FieldsSeparator = ","
@@ -220,8 +220,8 @@ object Output {
   final val ClassSuffix = "Output"
   final val Separator = "_"
   final val Id = "id"
-  final val FixedAggregation = "fixedAggregation"
-  final val FixedAggregationSeparator = ":"
+  final val FixedMeasure = "fixedMeasure"
+  final val FixedMeasureSeparator = ":"
 
   def getFieldType(dateTimeType: TypeOp, fieldName: String, nullable: Boolean): StructField =
     dateTimeType match {

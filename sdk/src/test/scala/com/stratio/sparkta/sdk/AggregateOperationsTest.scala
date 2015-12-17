@@ -19,12 +19,11 @@ package com.stratio.sparkta.sdk
 import java.io.{Serializable => JSerializable}
 import java.sql.Timestamp
 
+import com.stratio.sparkta.sdk.test.DimensionTypeMock
 import org.apache.spark.sql.Row
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
-
-import com.stratio.sparkta.sdk.test.DimensionTypeMock
 
 @RunWith(classOf[JUnitRunner])
 class AggregateOperationsTest extends FlatSpec with ShouldMatchers {
@@ -44,7 +43,7 @@ class AggregateOperationsTest extends FlatSpec with ShouldMatchers {
     val aggregations = MeasuresValues(Map("field" -> Some("value")))
     val fixedDimensionsName = Seq("dim2")
     val fixedDimensions = Some(Seq(("dim3", "value3")))
-    val fixedAggregation = MeasuresValues(Map("agg2" -> Some("2")))
+    val fixedMeasures = MeasuresValues(Map("agg2" -> Some("2")))
     val measureEmpty = MeasuresValues(Map())
   }
 
@@ -57,7 +56,7 @@ class AggregateOperationsTest extends FlatSpec with ShouldMatchers {
   it should "return a correct toKeyRow tuple" in new CommonValues {
     val expect = (Some("dim1_dim2_dim3_minute"), Row("value1", "value2", "value3", new Timestamp(1L), "2", "value"))
     val result = AggregateOperations.toKeyRow(
-      dimensionValuesT, aggregations, fixedAggregation, fixedDimensions, false, TypeOp.Timestamp)
+      dimensionValuesT, aggregations, fixedMeasures, fixedDimensions, false, TypeOp.Timestamp)
     result should be(expect)
   }
 
@@ -75,7 +74,7 @@ class AggregateOperationsTest extends FlatSpec with ShouldMatchers {
   it should "return a correct toKeyRow tuple without fixedDimensions" in new CommonValues {
     val expect = (Some("dim1_dim2_minute"), Row("value1", "value2", new Timestamp(1L), "2", "value"))
     val result = AggregateOperations.toKeyRow(
-      dimensionValuesT, aggregations, fixedAggregation, None, false, TypeOp.Timestamp)
+      dimensionValuesT, aggregations, fixedMeasures, None, false, TypeOp.Timestamp)
     result should be(expect)
   }
 
