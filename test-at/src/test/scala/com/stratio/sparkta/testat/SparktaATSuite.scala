@@ -19,6 +19,7 @@ package com.stratio.sparkta.testat
 import java.io.{File, PrintStream}
 import java.net._
 import java.nio.channels.ServerSocketChannel
+import java.nio.file.{Paths, Files}
 
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
@@ -28,6 +29,7 @@ import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, SparktaConfig}
 import com.typesafe.config.ConfigValueFactory
+import org.apache.commons.io.FileUtils
 import org.apache.curator.test.TestingServer
 import org.apache.curator.utils.CloseableUtils
 import org.json4s._
@@ -41,11 +43,10 @@ import spray.testkit.ScalatestRouteTest
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.io.Source
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 /**
  * Common operations that will be used in Acceptance Tests. All AT must extends from it.
- * @author arincon
  */
 trait SparktaATSuite
   extends WordSpecLike
@@ -62,10 +63,13 @@ trait SparktaATSuite
   val TestServerZKPort = 54646
   val SocketPort = 10666
   val SparktaSleep = 3000
-  val PolicySleep = 20000
-  val PolicyEndSleep = 20000
+  val PolicySleep = 30000
+  val PolicyEndSleep = 30000
 
   val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data.csv").getPath
+  val CheckpointPath = "checkpoint"
+  val LogsPath = "logs"
+  val DataPath = "data"
 
   var zkTestServer: TestingServer = _
   var serverSocket: ServerSocketChannel = _
@@ -207,9 +211,20 @@ trait SparktaATSuite
     extraBefore
   }
 
-  override def afterAll {
+  def deletePath(path: String): Unit = {
+    if (Files.exists(Paths.get(path))) {
+      Try(FileUtils.deleteDirectory(new File(path))) match {
+        case Success(_) => log.info(s"Path deleted: $path")
+        case Failure(e) => log.error(s"Cannot delete: $path", e)
+      }
+    }
+  }
 
+  override def afterAll {
     zookeeperStop
+    deletePath(CheckpointPath)
+    deletePath(LogsPath)
+    deletePath(DataPath)
     extraAfter
   }
 

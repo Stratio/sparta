@@ -23,12 +23,12 @@ import org.apache.spark.sql._
 object AggregateOperations {
 
   def toString(dimensionValuesT: DimensionValuesTime,
-               aggregations: Map[String, Option[Any]],
+               measures: MeasuresValues,
                timeDimension: String,
                fixedDimensions: Seq[String]): String =
     keyString(dimensionValuesT, timeDimension, fixedDimensions) +
       " DIMENSIONS: " + dimensionValuesT.dimensionValues.mkString("|") +
-      " AGGREGATIONS: " + aggregations +
+      " MEASURES: " + measures +
       " TIME: " + dimensionValuesT.time
 
   def keyString(dimensionValuesT: DimensionValuesTime, timeDimension: String, fixedDimensions: Seq[String]): String = {
@@ -44,19 +44,19 @@ object AggregateOperations {
   * Id field we need calculate the value with all other values
   */
   def toKeyRow(dimensionValuesT: DimensionValuesTime,
-               aggregations: Map[String, Option[Any]],
-               fixedAggregation: Map[String, Option[Any]],
+               measures: MeasuresValues,
+               fixedMeasures: MeasuresValues,
                fixedDimensions: Option[Seq[(String, Any)]],
                idCalculated: Boolean,
                dateType: TypeOp.Value): (Option[String], Row) = {
     val timeDimension = dimensionValuesT.timeDimension
-    val filtered = dimensionValuesT.dimensionValues.filter(cube => (cube.dimension.name == timeDimension)).nonEmpty
     val dimensionValuesFiltered =
       filterDimensionValuesByName(dimensionValuesT.dimensionValues,
         if (timeDimension.isEmpty) None else Some(timeDimension))
 
     val namesDim = dimensionValuesT.cube
-    val (valuesDim, valuesAgg) = toSeq(dimensionValuesFiltered, aggregations ++ fixedAggregation)
+
+    val (valuesDim, valuesAgg) = toSeq(dimensionValuesFiltered, measures.values ++ fixedMeasures.values)
 
     val (namesFixed, valuesFixed) = if (fixedDimensions.isDefined) {
       val fixedDimensionsSorted = fixedDimensions.get
@@ -91,7 +91,7 @@ object AggregateOperations {
   : Seq[DimensionValue] =
     dimensionName match {
       case None => dimensionValues
-      case Some(name) => dimensionValues.filter(cube => (cube.dimension.name != name))
+      case Some(name) => dimensionValues.filter(cube => cube.dimension.name != name)
     }
 
   def getTimeFromDateType[T](time: Long, dateType: TypeOp.Value): Any = {

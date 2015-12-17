@@ -42,87 +42,95 @@ class CountOperatorTest extends WordSpec with Matchers {
 
     "processMap must be " in {
       val inputFields = new CountOperator("count", Map())
-      inputFields.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(CountOperator.One.toLong))
+      inputFields.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be
+      (Some(CountOperator.One.toLong))
 
       val inputFields2 =
         new CountOperator("count", Map("distinctFields" -> s"field1${OperatorConstants.UnderscoreSeparator}field2"))
-      inputFields2.processMap(Map("field1" -> 1, "field2" -> 2)).get.toString should be
+      inputFields2.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))).get.toString should be
       s"field1${OperatorConstants.UnderscoreSeparator}field2"
 
       val inputFields3 = new CountOperator("count", Map("distinctFields" -> ""))
-      inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(CountOperator.One))
+      inputFields3.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(Some(CountOperator.One))
 
       val inputFields4 = new CountOperator("count",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2}]"))
-      inputFields4.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(CountOperator.One.toLong))
+      inputFields4.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be
+      (Some(CountOperator.One.toLong))
 
       val inputFields5 = new CountOperator("count",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \">\", \"value\":\"2\"}]"))
-      inputFields5.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
+      inputFields5.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(None)
 
       val inputFields6 = new CountOperator("count",
         Map("filters" -> {
           "[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
             "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"
         }))
-      inputFields6.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
+      inputFields6.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(None)
 
       val inputFields7 = new CountOperator("count",
         Map("filters" -> {
           "[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\", \"fieldType\":\"int\"}," +
             "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\", \"fieldType\":\"int\"}]"
         }))
-      inputFields7.processMap(Map("field1" -> 1L, "field2" -> 2L)) should be(None)
+      inputFields7.processMap(InputFieldsValues(Map("field1" -> 1L, "field2" -> 2L))) should be(None)
 
       val inputFields8 = new CountOperator("count",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2, \"fieldType\":\"int\"}]"))
-      inputFields8.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(CountOperator.One.toLong))
+      inputFields8.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be
+      (Some(CountOperator.One.toLong))
 
       val inputFields9 = new CountOperator("count",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2, \"fieldType\":\"int\"}]"))
-      inputFields9.processMap(Map("field1" -> 1L, "field2" -> 2L)) should be(Some(CountOperator.One.toLong))
+      inputFields9.processMap(InputFieldsValues(Map("field1" -> 1L, "field2" -> 2L))) should be
+      (Some(CountOperator.One.toLong))
 
       val inputFields10 = new CountOperator("count",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2, \"fieldType\":\"int\"}]"))
-      inputFields10.processMap(Map("field1" -> 1d, "field2" -> 2d)) should be(Some(CountOperator.One.toLong))
+      inputFields10.processMap(InputFieldsValues(Map("field1" -> 1d, "field2" -> 2d))) should be
+      (Some(CountOperator.One.toLong))
 
       val inputFields11 = new CountOperator("count",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2, \"fieldType\":\"int\"}]"))
-      inputFields11.processMap(Map("field1" -> "1", "field2" -> "2")) should be(Some(CountOperator.One.toLong))
-
+      inputFields11.processMap(InputFieldsValues(Map("field1" -> "1", "field2" -> "2"))) should be
+      (Some(CountOperator.One.toLong))
 
       val inputFields12 = new CountOperator("count",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"=\", \"value\":1, \"fieldType\":\"int\"}]"))
-      inputFields12.processMap(Map("field1" -> "1", "field2" -> "2")) should be(Some(CountOperator.One.toLong))
+      inputFields12.processMap(InputFieldsValues(Map("field1" -> "1", "field2" -> "2"))) should be(Some(CountOperator
+        .One.toLong))
 
       val inputFields13 = new CountOperator("count",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"=\", \"value\":\"1\", \"fieldType\":\"string\"}]"))
-      inputFields13.processMap(Map("field1" -> "1", "field2" -> "2")) should be(Some(CountOperator.One.toLong))
+      inputFields13.processMap(InputFieldsValues(Map("field1" -> "1", "field2" -> "2"))) should be
+      (Some(CountOperator.One.toLong))
 
       val inputFields14 = new CountOperator("count",
         Map("filters" -> "[{\"field\":\"field1\", \"type\": \"!=\", \"value\":\"1\", \"fieldType\":\"string\"}]"))
-      inputFields14.processMap(Map("field1" -> "1", "field2" -> "2")) should be(None)
+      inputFields14.processMap(InputFieldsValues(Map("field1" -> "1", "field2" -> "2"))) should be(None)
 
       val inputFields15 = new CountOperator("count",
         Map("filters" -> ("[{\"field\":\"field1\", \"type\": \"=\", \"value\":\"1\", \"fieldType\":\"string\"}," +
           "{\"field\":\"field2\", \"type\": \"=\", \"value\":\"1\", \"fieldType\":\"string\"}]")))
-      inputFields15.processMap(Map("field1" -> "1", "field2" -> "2")) should be(None)
+      inputFields15.processMap(InputFieldsValues(Map("field1" -> "1", "field2" -> "2"))) should be(None)
 
       val inputFields16 = new CountOperator("count",
         Map("filters" -> ("[{\"field\":\"field1\", \"type\": \"=\", \"value\":\"1\", \"fieldType\":\"string\"}," +
           "{\"field\":\"field2\", \"type\": \"!=\", \"value\":\"1\", \"fieldType\":\"string\"}]")))
-      inputFields16.processMap(Map("field1" -> "1", "field2" -> "2")) should be(Some(CountOperator.One.toLong))
+      inputFields16.processMap(InputFieldsValues(Map("field1" -> "1", "field2" -> "2"))) should be
+      (Some(CountOperator.One.toLong))
 
       val inputFields17 = new CountOperator("count",
         Map("filters" -> ("[{\"field\":\"hashtag\", \"type\": \"!=\", \"value\":\"\", \"fieldType\":\"string\"}," +
           "{\"field\":\"unique\", \"type\": \"=\", \"value\":\"false\", \"fieldType\":\"string\"}]")))
-      inputFields17.processMap(Map("hashtag" -> "sparkta", "unique" -> "false")) should be(Some(CountOperator.One
-        .toLong))
+      inputFields17.processMap(InputFieldsValues(Map("hashtag" -> "sparkta", "unique" -> "false"))) should be
+      (Some(CountOperator.One.toLong))
 
       val inputFields18 = new CountOperator("count",
         Map("filters" -> ("[{\"field\":\"hashtag\", \"type\": \"!=\", \"value\":\"\", \"fieldType\":\"string\"}," +
           "{\"field\":\"unique\", \"type\": \"=\", \"value\":\"false\", \"fieldType\":\"string\"}]")))
-      inputFields18.processMap(Map("hashtag" -> "", "unique" -> "false")) should be(None)
+      inputFields18.processMap(InputFieldsValues(Map("hashtag" -> "", "unique" -> "false"))) should be(None)
     }
 
     "processReduce must be " in {

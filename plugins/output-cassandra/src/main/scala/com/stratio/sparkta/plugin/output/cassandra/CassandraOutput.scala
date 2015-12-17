@@ -88,14 +88,14 @@ class CassandraOutput(keyName: String,
       }
       if (textIndexFields.isDefined &&
         textIndexFields.nonEmpty &&
-        fixedAggregation.nonEmpty &&
-        fixedAgg.get == textIndexName) {
+        fixedMeasures.values.nonEmpty &&
+        fixedMeasure.get == textIndexName) {
         bcSchema.exists(bc => createTextIndexes(connector, schemaFiltered))
       }
     }
   }
 
-  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+  override def doPersist(stream: DStream[(DimensionValuesTime, MeasuresValues)]): Unit = {
     persistDataFrame(stream)
   }
 

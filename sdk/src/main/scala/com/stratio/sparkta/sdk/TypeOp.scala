@@ -122,15 +122,15 @@ object TypeOp extends Enumeration {
 
   private def checkLongType[T](origValue : T) : T = origValue match {
     case value if value.isInstanceOf[Long] => value
-    case value if value.isInstanceOf[Double] => Try(origValue.asInstanceOf[Double].toLong).getOrElse(0).asInstanceOf[T]
-    case value if value.isInstanceOf[Int] => Try(origValue.asInstanceOf[Int].toLong).getOrElse(0).asInstanceOf[T]
+    case value if value.isInstanceOf[Double] => Try(origValue.asInstanceOf[Double].toLong).getOrElse(0L).asInstanceOf[T]
+    case value if value.isInstanceOf[Int] => Try(origValue.asInstanceOf[Int].toLong).getOrElse(0L).asInstanceOf[T]
     case _ => Try(origValue.toString.toLong).getOrElse(0L).asInstanceOf[T]
   }
 
   private def checkDoubleType[T](origValue : T) : T = origValue match {
     case value if value.isInstanceOf[Double] => value
-    case value if value.isInstanceOf[Int] => Try(origValue.asInstanceOf[Int].toDouble).getOrElse(0).asInstanceOf[T]
-    case value if value.isInstanceOf[Long] => Try(origValue.asInstanceOf[Long].toDouble).getOrElse(0).asInstanceOf[T]
+    case value if value.isInstanceOf[Int] => Try(origValue.asInstanceOf[Int].toDouble).getOrElse(0d).asInstanceOf[T]
+    case value if value.isInstanceOf[Long] => Try(origValue.asInstanceOf[Long].toDouble).getOrElse(0d).asInstanceOf[T]
     case _ => Try(origValue.toString.toDouble).getOrElse(0d).asInstanceOf[T]
   }
 

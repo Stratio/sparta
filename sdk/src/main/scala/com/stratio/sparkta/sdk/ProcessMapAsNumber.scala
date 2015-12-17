@@ -24,9 +24,9 @@ trait ProcessMapAsNumber {
 
   def applyFilters(inputFields: Map[String, JSerializable]): Option[Map[String, JSerializable]]
 
-  def processMap(inputFields: Map[String, JSerializable]): Option[Number] =
-    if (inputField.isDefined && inputFields.contains(inputField.get))
-      applyFilters(inputFields)
+  def processMap(inputFieldsValues: InputFieldsValues): Option[Number] =
+    if (inputField.isDefined && inputFieldsValues.values.contains(inputField.get))
+      applyFilters(inputFieldsValues.values)
         .flatMap(filteredFields => Operator.getNumberFromSerializable(filteredFields.get(inputField.get).get))
     else None
 }

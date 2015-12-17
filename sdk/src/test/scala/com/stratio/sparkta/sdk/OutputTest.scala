@@ -71,7 +71,7 @@ class OutputTest extends WordSpec with Matchers {
       None,
       Map(
         "fixedDimensions" -> "dim2",
-        "fixedAggregation" -> "op2:1",
+        "fixedMeasure" -> "op2:1",
         "isAutoCalculateId" -> "true"
       ),
       Some(Map("op1" ->(WriteOp.Set, TypeOp.Long))),
@@ -124,15 +124,15 @@ class OutputTest extends WordSpec with Matchers {
       result should be(expected)
     }
 
-    "without fixed aggregations must be " in new CommonValues {
-      val expected = Map()
-      val result = output.fixedAggregation
+    "without fixed measures must be " in new CommonValues {
+      val expected = MeasuresValues(Map())
+      val result = output.fixedMeasures
       result should be(expected)
     }
 
-    "with fixed aggregations must be " in new CommonValues {
-      val expected = Map("op2" -> Some("1"))
-      val result = outputProps.fixedAggregation
+    "with fixed measures must be " in new CommonValues {
+      val expected = MeasuresValues(Map("op2" -> Some("1")))
+      val result = outputProps.fixedMeasures
       result should be(expected)
     }
 

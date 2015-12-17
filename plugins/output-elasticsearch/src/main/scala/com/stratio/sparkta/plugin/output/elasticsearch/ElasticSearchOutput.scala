@@ -90,7 +90,7 @@ class ElasticSearchOutput(keyName: String,
         mappingName as getElasticsearchFields(tableSchemaTime))
     }
 
-  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit =
+  override def doPersist(stream: DStream[(DimensionValuesTime, MeasuresValues)]): Unit =
     persistDataFrame(stream)
 
   override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
