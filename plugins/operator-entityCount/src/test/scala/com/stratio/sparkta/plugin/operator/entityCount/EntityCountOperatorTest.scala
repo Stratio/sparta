@@ -16,7 +16,7 @@
 
 package com.stratio.sparkta.plugin.operator.entityCount
 
-import com.stratio.sparkta.sdk.Operator
+import com.stratio.sparkta.sdk.{InputFieldsValues, Operator}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -28,32 +28,36 @@ class EntityCountOperatorTest extends WordSpec with Matchers {
 
     "processMap must be " in {
       val inputField = new EntityCountOperator("entityCount", Map())
-      inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
+      inputField.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(None)
 
       val inputFields2 = new EntityCountOperator("entityCount", Map("inputField" -> "field1"))
-      inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(None)
+      inputFields2.processMap(InputFieldsValues(Map("field3" -> 1, "field2" -> 2))) should be(None)
 
       val inputFields3 = new EntityCountOperator("entityCount", Map("inputField" -> "field1"))
-      inputFields3.processMap(Map("field1" -> "hola holo", "field2" -> 2)) should be(Some(Seq("hola holo")))
+      inputFields3.processMap(InputFieldsValues(Map("field1" -> "hola holo", "field2" -> 2))) should be
+      (Some(Seq("hola holo")))
 
       val inputFields4 = new EntityCountOperator("entityCount", Map("inputField" -> "field1", "split" -> ","))
-      inputFields4.processMap(Map("field1" -> "hola holo", "field2" -> 2)) should be(Some(Seq("hola holo")))
+      inputFields4.processMap(InputFieldsValues(Map("field1" -> "hola holo", "field2" -> 2))) should be
+      (Some(Seq("hola holo")))
 
       val inputFields5 = new EntityCountOperator("entityCount", Map("inputField" -> "field1", "split" -> "-"))
-      inputFields5.processMap(Map("field1" -> "hola-holo", "field2" -> 2)) should be(Some(Seq("hola", "holo")))
+      inputFields5.processMap(InputFieldsValues(Map("field1" -> "hola-holo", "field2" -> 2))) should be
+      (Some(Seq("hola", "holo")))
 
       val inputFields6 = new EntityCountOperator("entityCount", Map("inputField" -> "field1", "split" -> ","))
-      inputFields6.processMap(Map("field1" -> "hola,holo adios", "field2" -> 2)) should be(
-        Some(Seq("hola", "holo " + "adios")))
+      inputFields6.processMap(InputFieldsValues(Map("field1" -> "hola,holo adios", "field2" -> 2))) should be
+      (Some(Seq("hola", "holo " + "adios")))
 
       val inputFields7 = new EntityCountOperator("entityCount",
         Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \"!=\", \"value\":\"hola\"}]"))
-      inputFields7.processMap(Map("field1" -> "hola", "field2" -> 2)) should be(None)
+      inputFields7.processMap(InputFieldsValues(Map("field1" -> "hola", "field2" -> 2))) should be(None)
 
       val inputFields8 = new EntityCountOperator("entityCount",
         Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \"!=\", \"value\":\"hola\"}]",
           "split" -> " "))
-      inputFields8.processMap(Map("field1" -> "hola holo", "field2" -> 2)) should be(Some(Seq("hola", "holo")))
+      inputFields8.processMap(InputFieldsValues(Map("field1" -> "hola holo", "field2" -> 2))) should be
+      (Some(Seq("hola", "holo")))
     }
 
     "processReduce must be " in {

@@ -77,7 +77,7 @@ class SolrOutput(keyName: String,
     })
   }
 
-  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+  override def doPersist(stream: DStream[(DimensionValuesTime, MeasuresValues)]): Unit = {
     if (validConfiguration) persistDataFrame(stream) else log.info(SolrConfigurationError)
   }
 

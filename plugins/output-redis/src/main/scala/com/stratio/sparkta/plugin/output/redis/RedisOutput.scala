@@ -48,7 +48,7 @@ class RedisOutput(keyName: String,
     WriteOp.AccAvg, WriteOp.AccMedian, WriteOp.AccStddev, WriteOp.AccVariance, WriteOp.EntityCount, WriteOp.WordCount,
   WriteOp.FullText)
 
-  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+  override def doPersist(stream: DStream[(DimensionValuesTime, MeasuresValues)]): Unit = {
     persistMetricOperation(stream)
   }
 
@@ -56,13 +56,13 @@ class RedisOutput(keyName: String,
    * Saves in Redis' hash cubes values.
    * @param metricOperations that will be saved.
    */
-  override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+  override def upsert(metricOperations: Iterator[(DimensionValuesTime, MeasuresValues)]): Unit = {
     val dimAggGrouped = filterNonEmptyMetricOperations(groupMetricOperationsByHashKey(metricOperations.toList))
 
     for {
-      (hashKey, dimensionsAggregations) <- dimAggGrouped
-      (dimensionsTime, aggregations) <- dimensionsAggregations
-      (aggregationName, aggregationValue) <- aggregations
+      (hashKey, dimensionsMeasures) <- dimAggGrouped
+      (dimensionsTime, measures) <- dimensionsMeasures
+      (aggregationName, aggregationValue) <- measures.values
       currentOperation = operationTypes.get.get(aggregationName).get._1
     } yield {
       if (supportedWriteOps.contains(currentOperation)) hset(hashKey, aggregationName, aggregationValue.get)
@@ -70,14 +70,14 @@ class RedisOutput(keyName: String,
     }
   }
 
-  def groupMetricOperationsByHashKey(metricOp: List[(DimensionValuesTime, Map[String, Option[Any]])])
-  : Map[String, List[(DimensionValuesTime, Map[String, Option[Any]])]] = {
-    metricOp.groupBy { case (dimensionsTime, aggregations) => getHashKey(dimensionsTime) }
+  def groupMetricOperationsByHashKey(metricOp: List[(DimensionValuesTime, MeasuresValues)])
+  : Map[String, List[(DimensionValuesTime, MeasuresValues)]] = {
+    metricOp.groupBy { case (dimensionsTime, _) => getHashKey(dimensionsTime) }
   }
 
-  def filterNonEmptyMetricOperations(metricOp : Map[String, List[(DimensionValuesTime, Map[String, Option[Any]])]])
-  : Map[String, List[(DimensionValuesTime, Map[String, Option[Any]])]] = {
-    metricOp.filter { case (key, dimensionsAggreations) => key.nonEmpty }
+  def filterNonEmptyMetricOperations(metricOp : Map[String, List[(DimensionValuesTime, MeasuresValues)]])
+  : Map[String, List[(DimensionValuesTime, MeasuresValues)]] = {
+    metricOp.filter { case (key, _) => key.nonEmpty }
   }
 
   def getHashKey(dimensionsTime: DimensionValuesTime): String = {

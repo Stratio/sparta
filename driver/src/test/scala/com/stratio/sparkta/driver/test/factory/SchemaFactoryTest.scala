@@ -63,7 +63,7 @@ with MockitoSugar {
 
     override val defaultCastingFilterType = TypeOp.Number
 
-    override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
+    override def processMap(inputFields: InputFieldsValues): Option[Any] = {
       None
     }
 
