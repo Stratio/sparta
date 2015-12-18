@@ -16,18 +16,12 @@
 
 package com.stratio.benchmark.generator.threads
 
-import akka.actor.Actor
-import akka.event.slf4j.SLF4JLogging
+
 
 import scala.io.Source
 
 
-class MetricsActor(path: String) extends Actor with SLF4JLogging {
-
-  override def receive: Receive = {
-    case FileReader(path) => sender ! parseCSVtoMap(path)
-  }
-
+class MetricsActor(path: String) {
 
   def parseCSVtoMap(path: String): Map[String, String] = {
     val processingTime: Map[String, String] =
@@ -40,18 +34,15 @@ class MetricsActor(path: String) extends Actor with SLF4JLogging {
     processingTime
   }
 
-  def processingTime(startTime: Map[String, String], endTime: Map[String, String]): Unit ={
+  def processingTime(startTime: Map[String, String], endTime: Map[String, String]): Unit = {
   }
 
   def getTuple(s: String): (String, String) = {
     val stringSplit = s.split(",")
-    if(stringSplit.size == 2)
+    if (stringSplit.size == 2)
       (stringSplit(0), stringSplit(1))
     else
       throw new Exception("Invalid format")
   }
-
 }
-
-case class FileReader(path: String)
 

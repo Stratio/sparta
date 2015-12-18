@@ -18,8 +18,9 @@ package com.stratio.benchmark.generator.runners
 
 import java.io.File
 
-import com.stratio.benchmark.generator.threads.GeneratorThread
 import com.stratio.benchmark.generator.constants.BenchmarkConstants
+import com.stratio.benchmark.generator.threads.GeneratorThread
+import com.stratio.benchmark.generator.utils.HttpUtils
 import com.stratio.kafka.benchmark.generator.kafka.KafkaProducer
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.log4j.Logger
@@ -29,6 +30,7 @@ import scala.util.{Failure, Success, Try}
 object GeneratorRunner {
 
   private val logger = Logger.getLogger(this.getClass)
+
 
   def main(args: Array[String]) {
     if (args.size == 0) {
@@ -49,6 +51,7 @@ object GeneratorRunner {
     val threadTimeout = config.getLong("threadTimeout")
     val kafkaTopic = config.getString("kafkaTopic")
     val stoppedThreads = new StoppedThreads(numberOfThreads, 0)
+    val sparktaEndPoint = config.getString("sparktaEndPoint")
 
     (1 to numberOfThreads).foreach(i =>
       new Thread(
@@ -59,6 +62,7 @@ object GeneratorRunner {
       Thread.sleep(BenchmarkConstants.PoolingManagerGeneratorActorTimeout)
     }
 
+    HttpUtils.post(BenchmarkConstants.PolicyName, sparktaEndPoint)
     logger.info(s">> Number of events sent to Kafka: ${stoppedThreads.numberOfEvents}")
   }
 }

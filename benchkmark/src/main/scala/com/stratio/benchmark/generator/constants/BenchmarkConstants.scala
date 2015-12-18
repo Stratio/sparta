@@ -19,4 +19,5 @@ package com.stratio.benchmark.generator.constants
 object BenchmarkConstants {
 
   val PoolingManagerGeneratorActorTimeout = 1000L
+  val PolicyName ="benchmark.json"
 }
