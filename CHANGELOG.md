@@ -1,8 +1,23 @@
 # Changelog
 
-## 0.8.0 (Upcoming)
+## 0.8.0 (December 2015)
+
+- Solved issue related to PID folder creation.
+- New parser Stratio Ingestion
+- Upgrade to Spark 1.5.2
+- Possibility to package two Spark versions: 1.4.1 and 1.5.2
+- MongoDb output updated to version 0.10.1
+- New Solr output
+- Migration of doc to confluence: https://stratio.atlassian.net/wiki/display/SPARKTA0x8/
+- Solved issue when a policy is stopped in the cluster
+- Improve performance in associative operators
+- Automatic deploy of policies in clusters: Spark Standalone, Mesos and YARN
+- Improve Cassandra Output. Possibility to introduce Spark properties
+- Solved issue related to stopping Sparkta service
+- bug corrected in aggregations, Array Index out of bounds
 
 ## 0.7.0 (November 2015)
+
 - Bugfix: Front Minors
 - Bugfix: Back Minors
 - Bugfixes Cassandra
