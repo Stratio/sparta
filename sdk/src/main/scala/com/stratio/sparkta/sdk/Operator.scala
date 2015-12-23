@@ -70,7 +70,7 @@ with Ordered[Operator] with TypeConversions {
       Some(inputFields)
     else None
 
-  def processMap(inputFields: Map[String, JSerializable]): Option[Any]
+  def processMap(inputFieldsValues: InputFieldsValues): Option[Any]
 
   private def doFiltering(inputField: (String, JSerializable),
                           inputFields: Map[String, JSerializable]): Boolean = {

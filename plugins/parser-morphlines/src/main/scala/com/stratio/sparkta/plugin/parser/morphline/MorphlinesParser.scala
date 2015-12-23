@@ -96,12 +96,14 @@ object MorphlinesParser {
   private val instances: ConcurrentHashMap[String, MorphlineImpl] = new ConcurrentHashMap[String, MorphlineImpl]()
 
   def apply(name: String,config: String): MorphlineImpl = {
-    Option(instances.get(config)) match {
-      case Some(m) => m
-      case None =>
-        val morphlineImpl = new MorphlineImpl(config)
-        instances.put(config, morphlineImpl)
-        morphlineImpl
+    synchronized {
+      Option(instances.get(config)) match {
+        case Some(m) => m
+        case None =>
+          val morphlineImpl = new MorphlineImpl(config)
+          instances.put(config, morphlineImpl)
+          morphlineImpl
+      }
     }
   }
 }

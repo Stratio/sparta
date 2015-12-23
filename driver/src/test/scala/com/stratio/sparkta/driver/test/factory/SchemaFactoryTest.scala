@@ -63,7 +63,7 @@ with MockitoSugar {
 
     override val defaultCastingFilterType = TypeOp.Number
 
-    override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
+    override def processMap(inputFields: InputFieldsValues): Option[Any] = {
       None
     }
 
@@ -113,7 +113,7 @@ with MockitoSugar {
     val aggregations = Map("field" -> Some("value"))
     val fixedDimensionsName = Seq("dim2")
     val fixedDimensions = Some(Seq(("dim3", "value3")))
-    val fixedAggregation = Map("agg2" -> Some("2"))
+    val fixedMeasure = Map("agg2" -> Some("2"))
   }
 
 }

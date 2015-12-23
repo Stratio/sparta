@@ -84,7 +84,7 @@ object SchemaFactory {
     fields.map(field => StructField(field.name, rowTypeFromOption(field.precision.typeOp), false))
 
   private def getFixedFieldAggregation(options: Map[String, String]): Seq[StructField] =
-    options.get(Output.FixedAggregation) match {
+    options.get(Output.FixedMeasure) match {
       case Some(field) => if (!field.isEmpty && field != "") Seq(Output.defaultStringField(field, true)) else Seq()
       case None => Seq()
     }

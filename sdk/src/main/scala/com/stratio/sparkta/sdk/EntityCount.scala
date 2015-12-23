@@ -27,9 +27,9 @@ abstract class EntityCount(name: String, properties: Map[String, JSerializable])
   val replaceRegex =
     if (properties.contains("replaceRegex")) Some(properties.getString("replaceRegex")) else None
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Seq[String]] = {
-    if (inputField.isDefined && inputFields.contains(inputField.get))
-      applyFilters(inputFields)
+  override def processMap(inputFieldsValues: InputFieldsValues): Option[Seq[String]] = {
+    if (inputField.isDefined && inputFieldsValues.values.contains(inputField.get))
+      applyFilters(inputFieldsValues.values)
         .flatMap(filteredFields => filteredFields.get(inputField.get).map(applySplitters))
     else None
   }

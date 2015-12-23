@@ -16,6 +16,7 @@
 
 package com.stratio.sparkta.testat.outputs
 
+/*
 import com.redis.RedisClientPool
 import com.stratio.sparkta.testat.SparktaATSuite
 import org.junit.runner.RunWith
@@ -41,7 +42,6 @@ class ISocketORedisOperatorsIT extends SparktaATSuite {
   var redisPool: RedisClientPool = _
   var redisServer: RedisServer = _
 
-  val NumExecutors = 4
   val NumEventsExpected = 2
 
   "Sparkta" should {
@@ -106,3 +106,4 @@ class ISocketORedisOperatorsIT extends SparktaATSuite {
 
   override def extraAfter: Unit = redisServer.stop()
 }
+*/

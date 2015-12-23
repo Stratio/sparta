@@ -58,19 +58,19 @@ abstract class Output(keyName: String,
     case Some(fixDimensions) => fixDimensions.split(FieldsSeparator)
   }
 
-  val fixedAgg = properties.getString("fixedAggregation", None)
+  val fixedMeasure = properties.getString("fixedMeasures", None)
 
-  val fixedAggregation: Map[String, Option[Any]] =
-    if (fixedAgg.isDefined) {
-      val fixedAggSplited = fixedAgg.get.split(Output.FixedAggregationSeparator)
-      Map(fixedAggSplited.head -> Some(fixedAggSplited.last))
-    } else Map()
+  val fixedMeasures: MeasuresValues =
+    if (fixedMeasure.isDefined) {
+      val fixedMeasureSplitted = fixedMeasure.get.split(Output.FixedMeasureSeparator)
+      MeasuresValues(Map(fixedMeasureSplitted.head -> Some(fixedMeasureSplitted.last)))
+    } else MeasuresValues(Map.empty)
 
   final val FieldsSeparator = ","
 
   def isAutoCalculateId: Boolean = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
-  def persist(streams: Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]]): Unit = {
+  def persist(streams: Seq[DStream[(DimensionValuesTime, MeasuresValues)]]): Unit = {
     sqlContext = new SQLContext(streams.head.context.sparkContext)
     setup
     streams.foreach(stream => doPersist(stream))
@@ -78,13 +78,13 @@ abstract class Output(keyName: String,
 
   protected def setup: Unit = {}
 
-  def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+  def doPersist(stream: DStream[(DimensionValuesTime, MeasuresValues)]): Unit = {
     if (bcSchema.isDefined)
       persistDataFrame(stream)
     else persistMetricOperation(stream)
   }
 
-  protected def persistMetricOperation(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit =
+  protected def persistMetricOperation(stream: DStream[(DimensionValuesTime, MeasuresValues)]): Unit =
     stream.foreachRDD(rdd => {
       if (rdd.take(1).length > 0) {
         rdd.foreachPartition(
@@ -101,12 +101,12 @@ abstract class Output(keyName: String,
       } else log.info("Empty event received")
     })
 
-  protected def persistDataFrame(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+  protected def persistDataFrame(stream: DStream[(DimensionValuesTime, MeasuresValues)]): Unit = {
     stream.map { case (dimensionValuesTime, aggregations) =>
       AggregateOperations.toKeyRow(
         filterDimensionValueTimeByFixedDimensions(dimensionValuesTime),
         aggregations,
-        fixedAggregation,
+        fixedMeasures,
         getFixedDimensions(dimensionValuesTime),
         isAutoCalculateId,
         dateType)
@@ -126,7 +126,7 @@ abstract class Output(keyName: String,
 
   def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {}
 
-  def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {}
+  def upsert(metricOperations: Iterator[(DimensionValuesTime, MeasuresValues)]): Unit = {}
 
   //TODO refactor for remove var types
   def getTableSchemaFixedId(tbSchema: TableSchema): TableSchema = {
@@ -220,8 +220,8 @@ object Output {
   final val ClassSuffix = "Output"
   final val Separator = "_"
   final val Id = "id"
-  final val FixedAggregation = "fixedAggregation"
-  final val FixedAggregationSeparator = ":"
+  final val FixedMeasure = "fixedMeasure"
+  final val FixedMeasureSeparator = ":"
 
   def getFieldType(dateTimeType: TypeOp, fieldName: String, nullable: Boolean): StructField =
     dateTimeType match {

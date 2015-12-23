@@ -16,8 +16,6 @@
 
 package com.stratio.sparkta.aggregator
 
-import java.io.{Serializable => JSerializable}
-
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.SparktaConfig
@@ -51,23 +49,33 @@ case class Cube(name: String,
   private lazy val rememberPartitioner =
     Try(SparktaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigRememberPartitioner))
       .getOrElse(AppConstant.DefaultRememberPartitioner)
+  private final val NotUpdatedValues = 0
+  private final val UpdatedValues = 1
 
-  def aggregate(dimensionsValues: DStream[(DimensionValuesTime,
-    Map[String, JSerializable])]): DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
+  /**
+   * Aggregation process that have 4 ways:
+   * 1. Cube with associative operators only.
+   * 2. Cube with non associative operators only.
+   * 3. Cube with associtaive and non associative operators.
+   * 4. Cube with no operators.
+   */
 
-    val filteredValues = filterDimensionValues(dimensionsValues)
+  def aggregate(dimensionsValues: DStream[(DimensionValuesTime, InputFieldsValues)])
+  : DStream[(DimensionValuesTime, MeasuresValues)] = {
+
     val associativesCalculated = if (associativeOperators.nonEmpty)
-      Option(updateAssociativeState(associativeAggregation(filteredValues)))
+      Option(updateAssociativeState(associativeAggregation(dimensionsValues)))
     else None
     val nonAssociativesCalculated = if (nonAssociativeOperators.nonEmpty)
-      Option(aggregateNonAssociativeValues(updateNonAssociativeState(filteredValues)))
+      Option(aggregateNonAssociativeValues(updateNonAssociativeState(addUpdatedState(dimensionsValues))))
     else None
 
     (associativesCalculated, nonAssociativesCalculated) match {
       case (Some(associativeValues), Some(nonAssociativeValues)) =>
         associativeValues.cogroup(nonAssociativeValues)
-          .mapValues { case (associativeAggregations, nonAssociativeAggregations) =>
-            (associativeAggregations.flatten ++ nonAssociativeAggregations.flatten).toMap
+          .mapValues { case (associativeAggregations, nonAssociativeAggregations) => MeasuresValues(
+            (associativeAggregations.flatMap(_.values) ++ nonAssociativeAggregations.flatMap(_.values))
+              .toMap)
           }
       case (Some(associativeValues), None) => associativeValues
       case (None, Some(nonAssociativeValues)) => nonAssociativeValues
@@ -77,121 +85,162 @@ case class Cube(name: String,
     }
   }
 
-  protected def filterDimensionValues(dimensionValues: DStream[(DimensionValuesTime, Map[String, JSerializable])])
-  : DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
+  /**
+   * Filter dimension values that correspond with the current cube dimensions
+   */
+
+  protected def addUpdatedState(dimensionValues: DStream[(DimensionValuesTime, InputFieldsValues)])
+  : DStream[(DimensionValuesTime, InputFields)] =
     dimensionValues.map { case (dimensionsValuesTime, aggregationValues) =>
-      val dimensionsFiltered = dimensionsValuesTime.dimensionValues.filter(dimVal =>
-        dimensions.exists(comp => comp.name == dimVal.dimension.name))
-
-      (DimensionValuesTime(dimensionsFiltered, dimensionsValuesTime.time, checkpointTimeDimension), aggregationValues)
+      (dimensionsValuesTime, InputFields(aggregationValues, UpdatedValues))
     }
-  }
 
-  protected def updateNonAssociativeState(dimensionsValues: DStream[(DimensionValuesTime, Map[String, JSerializable])])
-  : DStream[(DimensionValuesTime, Seq[(String, Option[Any])])] = {
+  protected def updateNonAssociativeState(dimensionsValues: DStream[(DimensionValuesTime, InputFields)])
+  : DStream[(DimensionValuesTime, Seq[Aggregation])] = {
+
     dimensionsValues.checkpoint(new Duration(checkpointInterval))
 
-    val newUpdateFunc = (iterator: Iterator[(DimensionValuesTime,
-      Seq[Map[String, JSerializable]],
-      Option[Seq[(String, Option[Any])]])]) => {
+    val newUpdateFunc = (iterator: Iterator[(DimensionValuesTime, Seq[InputFields], Option[AggregationsValues])]) => {
+
       val eventTime =
         DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity) - checkpointTimeAvailability
 
-      iterator.filter(dimensionsData => dimensionsData._1.time >= eventTime)
+      iterator.filter { case (dimensionValueTime, _, _) => dimensionValueTime.time >= eventTime }
         .flatMap { case (dimensionsKey, values, state) =>
           updateNonAssociativeFunction(values, state).map(result => (dimensionsKey, result))
         }
     }
-
-    dimensionsValues.updateStateByKey(
+    val valuesCheckpointed = dimensionsValues.updateStateByKey(
       newUpdateFunc, new HashPartitioner(dimensionsValues.context.sparkContext.defaultParallelism), rememberPartitioner)
+
+    filterUpdatedAggregationsValues(valuesCheckpointed)
   }
 
-  protected def updateNonAssociativeFunction(values: Seq[Map[String, JSerializable]],
-                                             state: Option[Seq[(String, Option[Any])]])
-  : Option[Seq[(String, Option[Any])]] = {
-    val proccessMapValues = values.flatMap(inputFields =>
-      nonAssociativeOperators.map(op => op.processMap(inputFields) match {
-        case Some(values) => op.key -> Some(values)
-        case None => op.key -> None
-      }))
+  protected def updateNonAssociativeFunction(values: Seq[InputFields], state: Option[AggregationsValues])
+  : Option[AggregationsValues] = {
 
-    Some(state.getOrElse(Seq()) ++ proccessMapValues)
+    val proccessMapValues = values.flatMap(aggregationsValues =>
+      nonAssociativeOperators.map(op => Aggregation(op.key, op.processMap(aggregationsValues.fieldsValues))))
+    val lastState = state match {
+      case Some(measures) => measures.values
+      case None => Seq.empty
+    }
+    val (aggregations, newValues) = getUpdatedAggregations(lastState ++ proccessMapValues, values.nonEmpty)
+
+    Option(AggregationsValues(aggregations, newValues))
   }
 
-  protected def aggregateNonAssociativeValues(dimensionsValues: DStream[(DimensionValuesTime,
-    Seq[(String, Option[Any])])])
-  : DStream[(DimensionValuesTime, Map[String, Option[Any]])] =
+  protected def aggregateNonAssociativeValues(dimensionsValues: DStream[(DimensionValuesTime, Seq[Aggregation])])
+  : DStream[(DimensionValuesTime, MeasuresValues)] =
+
     dimensionsValues.mapValues(aggregationValues => {
-      aggregationValues.groupBy { case (key, value) => key }
-        .map { case (name, value) =>
-          (name, nonAssociativeOperatorsMap(name).processReduce(value.map { case (opKey, opValue) => opValue }))
+      val measures = aggregationValues.groupBy(aggregation => aggregation.name)
+        .map { case (name, aggregations) =>
+          (name, nonAssociativeOperatorsMap(name).processReduce(aggregations.map(aggregation => aggregation.value)))
         }
+      MeasuresValues(measures)
     })
 
-  protected def updateAssociativeState(dimensionsValues: DStream[(DimensionValuesTime, Seq[(String, Option[Any])])]):
-  DStream[(DimensionValuesTime, Map[String, Option[Any]])] = {
+  protected def updateAssociativeState(dimensionsValues: DStream[(DimensionValuesTime, AggregationsValues)])
+  : DStream[(DimensionValuesTime, MeasuresValues)] = {
+
     dimensionsValues.checkpoint(new Duration(checkpointInterval))
 
-    val newUpdateFunc = (iterator: Iterator[(DimensionValuesTime,
-      Seq[Seq[(String, Option[Any])]],
-      Option[Map[String, Option[Any]]])]) => {
+    val newUpdateFunc = (iterator: Iterator[(DimensionValuesTime, Seq[AggregationsValues], Option[Measures])]) => {
+
       val eventTime =
         DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity) - checkpointTimeAvailability
 
-      iterator.filter(dimensionsData => dimensionsData._1.time >= eventTime)
+      iterator.filter { case (dimensionValueTime, _, _) => dimensionValueTime.time >= eventTime }
         .flatMap { case (dimensionsKey, values, state) =>
           updateAssociativeFunction(values, state).map(result => (dimensionsKey, result))
         }
     }
 
-    dimensionsValues.updateStateByKey(
+    val valuesCheckpointed = dimensionsValues.updateStateByKey(
       newUpdateFunc, new HashPartitioner(dimensionsValues.context.sparkContext.defaultParallelism), rememberPartitioner)
+
+    filterUpdatedMeasures(valuesCheckpointed)
   }
 
-  def associativeAggregation(dimensionsValues: DStream[(DimensionValuesTime, Map[String, JSerializable])]):
-  DStream[(DimensionValuesTime, Seq[(String, Option[Any])])] =
-    dimensionsValues.mapValues(inputFields =>
-      associativeOperators.map(op => {
-        op.processMap(inputFields) match {
-          case Some(values) => op.key -> Some(values)
-          case None => op.key -> None
-        }
-      }))
+  def associativeAggregation(dimensionsValues: DStream[(DimensionValuesTime, InputFieldsValues)])
+  : DStream[(DimensionValuesTime, AggregationsValues)] =
+    dimensionsValues.mapValues(inputFieldsValues =>
+      associativeOperators.map(op => op.key -> op.processMap(inputFieldsValues)))
       .groupByKey()
-      .map { case (dimValues, aggregations) =>
+      .mapValues(aggregations => {
         val aggregatedValues = aggregations.flatMap(aggregationsMap => aggregationsMap)
-          .groupBy { case (opKey, opValue) => opKey }
+          .groupBy { case (opKey, _) => opKey }
           .map { case (nameOp, valuesOp) =>
             val op = associativeOperatorsMap(nameOp)
-            val values = valuesOp.map{ case (key, value) => value }
+            val values = valuesOp.map { case (_, value) => value }
 
-            (nameOp, op.processReduce(values))
+            Aggregation(nameOp, op.processReduce(values))
           }.toSeq
 
-        (dimValues, aggregatedValues)
-      }
+        AggregationsValues(aggregatedValues, UpdatedValues)
+      })
 
-  protected def updateAssociativeFunction(values: Seq[Seq[(String, Option[Any])]],
-                                          state: Option[Map[String, Option[Any]]])
-  : Option[Map[String, Option[Any]]] = {
-    val actualState = state.getOrElse(Map()).toSeq.map { case (key, value) => (key, (Operator.OldValuesKey, value)) }
-    val newValues = values.flatten.map { case (key, value) => (key, (Operator.NewValuesKey, value)) }
+  //scalastyle:off
+  protected def updateAssociativeFunction(values: Seq[AggregationsValues], state: Option[Measures])
+  : Option[Measures] = {
+
+    val stateWithoutUpdateVar = state match {
+      case Some(measures) => measures.measuresValues.values
+      case None => Map.empty
+    }
+    val actualState = stateWithoutUpdateVar.toSeq.map { case (key, value) => (key, (Operator.OldValuesKey, value)) }
+    val newWithoutUpdateVar = values.map(aggregationsValues => aggregationsValues.values)
+    val newValues = newWithoutUpdateVar.flatten.map(aggregation =>
+      (aggregation.name, (Operator.NewValuesKey, aggregation.value)))
     val processAssociative = (newValues ++ actualState)
-      .groupBy { case (key, value) => key }
+      .groupBy { case (key, _) => key }
       .map { case (opKey, opValues) =>
         associativeOperatorsMap(opKey) match {
           case op: Associative => (opKey, op.associativity(opValues.map { case (nameOp, valuesOp) => valuesOp }))
           case _ => (opKey, None)
         }
       }
+    val (measuresValues, isNewMeasure) =
+      getUpdatedAggregations(MeasuresValues(processAssociative), values.nonEmpty)
 
-    Some(processAssociative)
+    Option(Measures(measuresValues, isNewMeasure))
   }
 
-  def noAggregationsState(dimensionsValues: DStream[(DimensionValuesTime, Map[String, JSerializable])])
-  : DStream[(DimensionValuesTime, Map[String, Option[Any]])] =
+  //scalastyle:on
+
+  def noAggregationsState(dimensionsValues: DStream[(DimensionValuesTime, InputFieldsValues)])
+  : DStream[(DimensionValuesTime, MeasuresValues)] =
     dimensionsValues.map {
-      case (dimensionValueTime, aggregations) => (dimensionValueTime, operators.map(op => op.key -> None).toMap)
+      case (dimensionValueTime, aggregations) =>
+        (dimensionValueTime, MeasuresValues(operators.map(op => op.key -> None).toMap))
     }
+
+  /**
+   * Filter measuresValues that are been changed in this window
+   */
+
+  def filterUpdatedMeasures(values: DStream[(DimensionValuesTime, Measures)])
+  : DStream[(DimensionValuesTime, MeasuresValues)] =
+    values.filter { case (_, measures) => measures.newValues == UpdatedValues }
+      .map { case (dimensions, measures) => (dimensions, measures.measuresValues) }
+
+  /**
+   * Filter aggregationsValues that are been changed in this window
+   */
+
+  def filterUpdatedAggregationsValues(values: DStream[(DimensionValuesTime, AggregationsValues)])
+  : DStream[(DimensionValuesTime, Seq[Aggregation])] =
+    values.filter { case (_, aggregationsValues) => aggregationsValues.newValues == UpdatedValues }
+      .map { case (dimensions, aggregationsValues) => (dimensions, aggregationsValues.values) }
+
+  /**
+   * Return the aggregations with the correct key in case of the actual streaming window have new values for the
+   * dimensions values.
+   */
+
+  def getUpdatedAggregations[T](aggregations: T, haveNewValues: Boolean): (T, Int) =
+    if (haveNewValues)
+      (aggregations, UpdatedValues)
+    else (aggregations, NotUpdatedValues)
 }

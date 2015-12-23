@@ -23,12 +23,12 @@ import org.apache.spark.sql._
 object AggregateOperations {
 
   def toString(dimensionValuesT: DimensionValuesTime,
-               aggregations: Map[String, Option[Any]],
+               measures: MeasuresValues,
                timeDimension: String,
                fixedDimensions: Seq[String]): String =
     keyString(dimensionValuesT, timeDimension, fixedDimensions) +
       " DIMENSIONS: " + dimensionValuesT.dimensionValues.mkString("|") +
-      " AGGREGATIONS: " + aggregations +
+      " MEASURES: " + measures +
       " TIME: " + dimensionValuesT.time
 
   def keyString(dimensionValuesT: DimensionValuesTime, timeDimension: String, fixedDimensions: Seq[String]): String = {
@@ -44,8 +44,8 @@ object AggregateOperations {
   * Id field we need calculate the value with all other values
   */
   def toKeyRow(dimensionValuesT: DimensionValuesTime,
-               aggregations: Map[String, Option[Any]],
-               fixedAggregation: Map[String, Option[Any]],
+               measures: MeasuresValues,
+               fixedMeasures: MeasuresValues,
                fixedDimensions: Option[Seq[(String, Any)]],
                idCalculated: Boolean,
                dateType: TypeOp.Value): (Option[String], Row) = {
@@ -56,7 +56,7 @@ object AggregateOperations {
 
     val namesDim = dimensionValuesNames(dimensionValuesFiltered.sorted)
 
-    val (valuesDim, valuesAgg) = toSeq(dimensionValuesFiltered, aggregations ++ fixedAggregation)
+    val (valuesDim, valuesAgg) = toSeq(dimensionValuesFiltered, measures.values ++ fixedMeasures.values)
 
     val (namesFixed, valuesFixed) = if (fixedDimensions.isDefined) {
       val fixedDimensionsSorted = fixedDimensions.get

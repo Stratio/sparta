@@ -42,7 +42,7 @@ case class CubeMaker(cubes: Seq[Cube]) {
    * @param inputStream with the original stream of data.
    * @return the built Cube.
    */
-  def setUp(inputStream: DStream[Event]): Seq[DStream[(DimensionValuesTime, Map[String, Option[Any]])]] = {
+  def setUp(inputStream: DStream[Event]): Seq[DStream[(DimensionValuesTime, MeasuresValues)]] = {
     cubes.map(cube => {
       val currentCube = new CubeOperations(cube, cube.checkpointTimeDimension, cube.checkpointGranularity)
       val extractedDimensionsStream = currentCube.extractDimensionsAggregations(inputStream)
@@ -69,8 +69,7 @@ protected case class CubeOperations(cube : Cube,
    * @param inputStream with the original stream of data.
    * @return a modified stream after join dimensions, cubes and operations.
    */
-  def extractDimensionsAggregations(inputStream: DStream[Event])
-  : DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
+  def extractDimensionsAggregations(inputStream: DStream[Event]): DStream[(DimensionValuesTime, InputFieldsValues)] = {
     inputStream.map(event => Try({
         val dimensionValues = for {
           dimension <- cube.dimensions
@@ -78,7 +77,7 @@ protected case class CubeOperations(cube : Cube,
           (precision, dimValue) = dimension.dimensionType.precisionValue(dimension.precisionKey, value)
         } yield DimensionValue(dimension, TypeOp.transformValueByTypeOp(precision.typeOp, dimValue))
         val eventTime = extractEventTime(dimensionValues)
-        (DimensionValuesTime(dimensionValues, eventTime, timeDimension), event.keyMap)
+        (DimensionValuesTime(dimensionValues, eventTime, timeDimension), InputFieldsValues(event.keyMap))
       }) match {
         case Success(dimensionValuesTime) => Some(dimensionValuesTime)
         case Failure(exception) => {

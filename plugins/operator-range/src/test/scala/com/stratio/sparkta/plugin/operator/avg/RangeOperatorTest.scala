@@ -16,6 +16,7 @@
 
 package com.stratio.sparkta.plugin.operator.range
 
+import com.stratio.sparkta.sdk.InputFieldsValues
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -27,38 +28,38 @@ class RangeOperatorTest extends WordSpec with Matchers {
 
     "processMap must be " in {
       val inputField = new RangeOperator("range", Map())
-      inputField.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
+      inputField.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(None)
 
       val inputFields2 = new RangeOperator("range", Map("inputField" -> "field1"))
-      inputFields2.processMap(Map("field3" -> 1, "field2" -> 2)) should be(None)
+      inputFields2.processMap(InputFieldsValues(Map("field3" -> 1, "field2" -> 2))) should be(None)
 
       val inputFields3 = new RangeOperator("range", Map("inputField" -> "field1"))
-      inputFields3.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
+      inputFields3.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(Some(1))
 
       val inputFields4 = new RangeOperator("range", Map("inputField" -> "field1"))
-      inputFields3.processMap(Map("field1" -> "1", "field2" -> 2)) should be(Some(1))
+      inputFields3.processMap(InputFieldsValues(Map("field1" -> "1", "field2" -> 2))) should be(Some(1))
 
       val inputFields5 = new RangeOperator("range", Map("inputField" -> "field1"))
-      inputFields5.processMap(Map("field1" -> "foo", "field2" -> 2)) should be(None)
+      inputFields5.processMap(InputFieldsValues(Map("field1" -> "foo", "field2" -> 2))) should be(None)
 
       val inputFields6 = new RangeOperator("range", Map("inputField" -> "field1"))
-      inputFields6.processMap(Map("field1" -> 1.5, "field2" -> 2)) should be(Some(1.5))
+      inputFields6.processMap(InputFieldsValues(Map("field1" -> 1.5, "field2" -> 2))) should be(Some(1.5))
 
       val inputFields7 = new RangeOperator("range", Map("inputField" -> "field1"))
-      inputFields7.processMap(Map("field1" -> 5L, "field2" -> 2)) should be(Some(5L))
+      inputFields7.processMap(InputFieldsValues(Map("field1" -> 5L, "field2" -> 2))) should be(Some(5L))
 
       val inputFields8 = new RangeOperator("range",
         Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2}]"))
-      inputFields8.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1L))
+      inputFields8.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(Some(1L))
 
       val inputFields9 = new RangeOperator("range",
         Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \">\", \"value\":\"2\"}]"))
-      inputFields9.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
+      inputFields9.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(None)
 
       val inputFields10 = new RangeOperator("range",
         Map("inputField" -> "field1", "filters" -> {"[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
           "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"}))
-      inputFields10.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
+      inputFields10.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(None)
     }
 
     "processReduce must be " in {

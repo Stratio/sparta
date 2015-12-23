@@ -201,7 +201,7 @@
       "name": "out-parquet",
       "type": "Parquet",
       "configuration": {
-        "path": "/tmp/sparkta/operators/parquet",
+        "path": "checkpoint/sparkta/operators/parquet",
         "datePattern": "yyyy/MM/dd"
       }
     }
