@@ -145,4 +145,4 @@ Sandbox
 Documentation
 -------------
 
-- [Stratio Sparkta](https://stratio.atlassian.net/wiki/display/SPARKTA0x7/)
+- [Stratio Sparkta](https://stratio.atlassian.net/wiki)
