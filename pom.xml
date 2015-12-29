@@ -523,6 +523,8 @@
             <properties>
                 <spark.version>1.4.1</spark.version>
                 <spark.version.folder>1.4</spark.version.folder>
+                <mongodb.spark.version>0.9.2</mongodb.spark.version>
+                <elastic.spark.version>2.1.2</elastic.spark.version>
             </properties>
         </profile>
         <profile>
@@ -533,6 +535,8 @@
             <properties>
                 <spark.version.folder>1.5</spark.version.folder>
                 <spark.version>1.5.2</spark.version>
+                <mongodb.spark.version>0.10.1</mongodb.spark.version>
+                <elastic.spark.version>2.2.0-beta1</elastic.spark.version>
             </properties>
         </profile>
     </profiles>
