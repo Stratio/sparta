@@ -521,9 +521,6 @@
         </profile>
         <profile>
             <id>spark-1.4</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <properties>
                 <spark.version>1.4.1</spark.version>
                 <spark.version.folder>1.4</spark.version.folder>
@@ -531,6 +528,9 @@
         </profile>
         <profile>
             <id>spark-1.5</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <properties>
                 <spark.version.folder>1.5</spark.version.folder>
                 <spark.version>1.5.2</spark.version>
