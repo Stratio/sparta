@@ -26,24 +26,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>output-elasticsearch</artifactId>
 
-    <profiles>
-        <profile>
-            <id>spark-1.4</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <elastic.spark.version>2.1.2</elastic.spark.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>spark-1.5</id>
-            <properties>
-                <elastic.spark.version>2.2.0-beta1</elastic.spark.version>
-            </properties>
-        </profile>
-    </profiles>
-
     <dependencies>
         <dependency>
             <groupId>org.elasticsearch</groupId>
