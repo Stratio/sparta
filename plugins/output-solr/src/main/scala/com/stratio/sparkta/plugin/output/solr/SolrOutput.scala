@@ -15,28 +15,26 @@
  */
 
 package com.stratio.sparkta.plugin.output.solr
+
 import java.io.{Serializable => JSerializable}
+import scala.util.Try
 
 import com.lucidworks.spark.SolrRelation
-import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
-import com.stratio.sparkta.sdk._
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.streaming.dstream.DStream
 
-import scala.util.Try
+import com.stratio.sparkta.sdk.TypeOp._
+import com.stratio.sparkta.sdk.ValidatingPropertyMap._
+import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import com.stratio.sparkta.sdk._
 
 class SolrOutput(keyName: String,
-                  version: Option[Int],
-                  properties: Map[String, Serializable],
-                  operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
-                  bcSchema: Option[Seq[TableSchema]])
+                 version: Option[Int],
+                 properties: Map[String, Serializable],
+                 operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
+                 bcSchema: Option[Seq[TableSchema]])
   extends Output(keyName, version, properties, operationTypes, bcSchema) with SolrDAO {
-
-
-
 
   override val supportedWriteOps = Seq(WriteOp.FullText, WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Range,
     WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.Median, WriteOp.Variance, WriteOp.Stddev)
@@ -51,11 +49,11 @@ class SolrOutput(keyName: String,
 
   override val isCloud = Try(properties.getString("isCloud").toBoolean).getOrElse(true)
 
-  override val localDataDir = properties.getString("localDataDir", None)
-
-  override val cloudDataDir = properties.getString("cloudDataDir", None)
+  override val dataDir = properties.getString("dataDir", None)
 
   override val tokenizedFields = Try(properties.getString("tokenizedFields").toBoolean).getOrElse(false)
+
+  override def dateType: TypeOp.Value = TypeOp.Long
 
   @transient
   private val solrClients: Map[String, SolrClient] = {
@@ -77,9 +75,9 @@ class SolrOutput(keyName: String,
     })
   }
 
-  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
-    if (validConfiguration) persistDataFrame(stream) else log.info(SolrConfigurationError)
-  }
+  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit =
+    if (validConfiguration) persistDataFrame(stream)
+    else log.info(SolrConfigurationError)
 
   override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
     val slrRelation = new SolrRelation(sqlContext, getConfig(connection, tableName), dataFrame)

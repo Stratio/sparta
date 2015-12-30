@@ -67,7 +67,8 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
     val tableSchema = TableSchema("ES-out", tableName, schema, "timestamp")
     val extraFields = Seq(StructField("id", StringType, false), StructField("timestamp", LongType, false))
     val expectedSchema = StructType(extraFields ++ baseFields)
-    val expectedTableSchema = tableSchema.copy(tableName = "id_sparktaTable_timestamp", schema = expectedSchema)
+    val expectedTableSchema =
+      tableSchema.copy(tableName = tableName, schema = expectedSchema)
     val properties = Map("nodes" -> new JsoneyString(
       """[{"node":"localhost","httpPort":"9200","tcpPort":"9300"}]""".stripMargin),
       "dateType" -> "long",
@@ -155,14 +156,13 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
     output.getSchema should be(Seq(expectedTableSchema))
   }
 
-  it should "return a Seq of tuples (host,port) format" in new NodeValues{
+  it should "return a Seq of tuples (host,port) format" in new NodeValues {
 
     output.getHostPortConfs("nodes", "localhost", "9200", "node", "httpPort") should be(List(("localhost", 9200)))
     output.getHostPortConfs("nodes", "localhost", "9300", "node", "tcpPort") should be(List(("localhost", 9300)))
     outputMultipleNodes.getHostPortConfs("nodes", "localhost", "9200", "node", "httpPort") should be(List(
-      ("host-a", 9200), ("host-b", 9201) ))
+      ("host-a", 9200), ("host-b", 9201)))
     outputMultipleNodes.getHostPortConfs("nodes", "localhost", "9300", "node", "tcpPort") should be(List(
-      ("host-a", 9300), ("host-b", 9301) ))
+      ("host-a", 9300), ("host-b", 9301)))
   }
-
 }

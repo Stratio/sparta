@@ -26,11 +26,11 @@ class TableSchemaTest extends WordSpec with Matchers {
 
   "TableSchema" should {
 
-    val tableSchema = TableSchema("outputName", "dim1", StructType(Array(
+    val tableSchema = TableSchema("outputName", "myCube", StructType(Array(
       StructField("dim1", StringType, false))), "minute")
 
     "toString must be " in {
-      val expected = "OPERATOR: outputName - TABLE: dim1 - SCHEMA: StructType(StructField(dim1,StringType,false))"
+      val expected = "TableSchema(outputName,myCube,StructType(StructField(dim1,StringType,false)),minute)"
       val result = tableSchema.toString
       result should be(expected)
     }

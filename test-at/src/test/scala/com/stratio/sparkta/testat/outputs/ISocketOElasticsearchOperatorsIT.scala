@@ -93,7 +93,7 @@ class ISocketOElasticsearchOperatorsIT extends SparktaATSuite {
     def getData(productName: String): Map[String, Any] = {
       val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
       val productArequest: Future[HttpResponse] =
-        pipeline(Get(s"http://$Localhost:9200/id_product_minute/day_v1/_search?q=product:$productName"))
+        pipeline(Get(s"http://$Localhost:9200/testcube/day_v1/_search?q=product:$productName"))
       val response: HttpResponse = Await.result(productArequest, Timeout(5.seconds).duration)
       JSON.globalNumberParser = { input: String => input.toDouble }
       val json = JSON.parseFull(response.entity.data.asString)

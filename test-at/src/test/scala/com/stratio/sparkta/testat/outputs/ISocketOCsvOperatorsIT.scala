@@ -47,7 +47,7 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
 
 
     def checkCsvData(path : String): Unit ={
-      val pathProductTimestamp = path + s"product_timestamp${DateOperations.subPath("day", None)}.csv"
+      val pathProductTimestamp = path + s"testCube_v1${DateOperations.subPath("day", None)}.csv"
       val sqlContext = new SQLContext(new SparkContext(s"local[$NumExecutors]", "ISocketOCsv"))
       val df = sqlContext.read.format("com.databricks.spark.csv").option("header", "true").load(pathProductTimestamp)
 

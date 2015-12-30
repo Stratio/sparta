@@ -34,7 +34,7 @@ class OutputTest extends WordSpec with Matchers {
     val tableName = "table"
     val timestamp = 1L
     val defaultDimension = new DimensionTypeMock(Map())
-    val dimensionValuesT = DimensionValuesTime(Seq(DimensionValue(
+    val dimensionValuesT = DimensionValuesTime("testCube",Seq(DimensionValue(
       Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
       DimensionValue(
         Dimension("dim2", "eventKey", "identity", defaultDimension), "value2"),
@@ -42,13 +42,13 @@ class OutputTest extends WordSpec with Matchers {
         Dimension("minute", "eventKey", "identity", defaultDimension), 1L)),
       timestamp, timeDimension)
 
-    val dimensionValuesTFixed = DimensionValuesTime(Seq(DimensionValue(
+    val dimensionValuesTFixed = DimensionValuesTime("testCube",Seq(DimensionValue(
       Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
       DimensionValue(
         Dimension("minute", "eventKey", "identity", defaultDimension), 1L)),
       timestamp, timeDimension)
 
-    val tableSchema = TableSchema("outputName", "dim1_dim2", StructType(Array(
+    val tableSchema = TableSchema("outputName", "myCube", StructType(Array(
       StructField("dim1", StringType, false),
       StructField("dim2", StringType, false),
       StructField("minute", DateType, false),
@@ -149,7 +149,7 @@ class OutputTest extends WordSpec with Matchers {
     }
 
     "the correct table schema according to the empty properties must be " in new CommonValues {
-      val expected = TableSchema("outputName", "dim1_dim2_minute", StructType(Array(
+      val expected = TableSchema("outputName", "myCube", StructType(Array(
         StructField("dim1", StringType, false),
         StructField("dim2", StringType, false),
         StructField("minute", TimestampType, false),
@@ -159,7 +159,7 @@ class OutputTest extends WordSpec with Matchers {
     }
 
     "the correct table schema according to the properties must be " in new CommonValues {
-      val expected = TableSchema("outputName", "id_dim1_dim2_minute", StructType(Array(
+      val expected = TableSchema("outputName", "myCube", StructType(Array(
         StructField("id", StringType, false),
         StructField("dim1", StringType, false),
         StructField("dim2", StringType, false),
@@ -170,7 +170,7 @@ class OutputTest extends WordSpec with Matchers {
     }
 
     "the correct table schema according to the properties with fixed dimension must be " in new CommonValues {
-      val expected = TableSchema("outputName", "id_dim1_dim2_minute", StructType(Array(
+      val expected = TableSchema("outputName", "myCube", StructType(Array(
         StructField("id", StringType, false),
         StructField("dim1", StringType, false),
         StructField("dim2", StringType, false),

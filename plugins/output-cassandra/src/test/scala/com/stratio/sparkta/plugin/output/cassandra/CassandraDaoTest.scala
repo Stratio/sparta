@@ -29,7 +29,7 @@ import org.scalatest.{FlatSpec, Matchers}
 class CassandraDaoTest extends FlatSpec with Matchers with MockitoSugar with CassandraDAO {
 
   val cassandraConector = mock[CassandraConnector]
-  val tableSchema = Seq(TableSchema("outputName", "dim1", StructType(Array(
+  val tableSchema = Seq(TableSchema("outputName", "myCube", StructType(Array(
     StructField("dim1", StringType, false))), "minute"))
   val structField = StructField("name", StringType, false)
   val schema: StructType = StructType(Array(structField))

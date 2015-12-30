@@ -17,14 +17,13 @@
 package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
+import scala.util.{Failure, Success, Try}
 
 import akka.event.slf4j.SLF4JLogging
 import org.apache.spark.streaming.dstream.DStream
-
-import com.stratio.sparkta.sdk._
 import org.joda.time.DateTime
 
-import scala.util.{Failure, Success, Try}
+import com.stratio.sparkta.sdk._
 
 /**
  * It builds a pre-calculated DataCube with dimension/s, cube/s and operation/s defined by the user in the policy.
@@ -49,7 +48,6 @@ case class CubeMaker(cubes: Seq[Cube]) {
       cube.aggregate(extractedDimensionsStream)
     })
   }
-
 }
 
 /**
@@ -60,9 +58,9 @@ case class CubeMaker(cubes: Seq[Cube]) {
  *                              dimensionType is not present.
  */
 
-protected case class CubeOperations(cube : Cube,
-                          timeDimension: String,
-                          checkpointGranularity: String)  extends SLF4JLogging {
+protected case class CubeOperations(cube: Cube,
+                                    timeDimension: String,
+                                    checkpointGranularity: String) extends SLF4JLogging {
 
   /**
    * Extract a modified stream that will be needed to calculate aggregations.
@@ -72,21 +70,21 @@ protected case class CubeOperations(cube : Cube,
   def extractDimensionsAggregations(inputStream: DStream[Event])
   : DStream[(DimensionValuesTime, Map[String, JSerializable])] = {
     inputStream.map(event => Try({
-        val dimensionValues = for {
-          dimension <- cube.dimensions
-          value <- event.keyMap.get(dimension.field).toSeq
-          (precision, dimValue) = dimension.dimensionType.precisionValue(dimension.precisionKey, value)
-        } yield DimensionValue(dimension, TypeOp.transformValueByTypeOp(precision.typeOp, dimValue))
-        val eventTime = extractEventTime(dimensionValues)
-        (DimensionValuesTime(dimensionValues, eventTime, timeDimension), event.keyMap)
-      }) match {
-        case Success(dimensionValuesTime) => Some(dimensionValuesTime)
-        case Failure(exception) => {
-          val error = s"Failure[Aggregations]: ${event.toString} | ${exception.getLocalizedMessage}"
-          log.error(error, exception)
-          None
-        }
+      val dimensionValues = for {
+        dimension <- cube.dimensions
+        value <- event.keyMap.get(dimension.field).toSeq
+        (precision, dimValue) = dimension.dimensionType.precisionValue(dimension.precisionKey, value)
+      } yield DimensionValue(dimension, TypeOp.transformValueByTypeOp(precision.typeOp, dimValue))
+      val eventTime = extractEventTime(dimensionValues)
+      (DimensionValuesTime(cube.name, dimensionValues, eventTime, timeDimension), event.keyMap)
+    }) match {
+      case Success(dimensionValuesTime) => Some(dimensionValuesTime)
+      case Failure(exception) => {
+        val error = s"Failure[Aggregations]: ${event.toString} | ${exception.getLocalizedMessage}"
+        log.error(error, exception)
+        None
       }
+    }
     ).flatMap(event => event match {
       case Some(value) => Seq(value)
       case None => Seq()
@@ -94,15 +92,14 @@ protected case class CubeOperations(cube : Cube,
   }
 
   private def extractEventTime(dimensionValues: Seq[DimensionValue]) = {
-      val dimensionsDates =
-        dimensionValues.filter(dimensionValue => dimensionValue.dimension.name == timeDimension)
+    val dimensionsDates =
+      dimensionValues.filter(dimensionValue => dimensionValue.dimension.name == timeDimension)
 
-      if (dimensionsDates.isEmpty)
-        getDate
-      else
-        DateOperations.getMillisFromSerializable(dimensionsDates.head.value)
+    if (dimensionsDates.isEmpty)
+      getDate
+    else
+      DateOperations.getMillisFromSerializable(dimensionsDates.head.value)
   }
 
   private def getDate: Long = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity)
-
 }
