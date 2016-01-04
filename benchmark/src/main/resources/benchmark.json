@@ -14,9 +14,7 @@
     "type": "Kafka",
     "configuration": {
       "topics": [{"topic": "benchmark", "partition" : "1"}],
-      "zookeeper.connect": [{"host": "devsparkta-b-01", "port": "2181"},
-        {"host": "devsparkta-b-02", "port": "2181"},
-        {"host": "devsparkta-b-03", "port": "2181"}],
+      "zookeeper.connect": [{"host": "localhost", "port": "2181"}],
       "kafkaParams.group.id": "KafkaCluster"
     }
   }
@@ -115,13 +113,10 @@
   ],
   "outputs": [
     {
-      "name": "out-mongo",
-      "type": "MongoDb",
+      "name": "out-print",
+      "type": "Print",
       "configuration": {
-        "hosts": [{"host": "devsparkta-b-01" , "port": "27017" },
-          {"host": "devsparkta-b-02" , "port": "27017" },
-          {"host": "devsparkta-b-03" , "port": "27017" }],
-        "dbName": "sparkta"
+
       }
     }
   ]
