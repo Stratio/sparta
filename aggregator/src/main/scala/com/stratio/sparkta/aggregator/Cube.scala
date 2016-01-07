@@ -16,7 +16,6 @@
 
 package com.stratio.sparkta.aggregator
 
-import java.io.{Serializable => JSerializable}
 import scala.util.Try
 
 import akka.event.slf4j.SLF4JLogging

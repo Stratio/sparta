@@ -53,25 +53,19 @@ object AggregateOperations {
     val dimensionValuesFiltered =
       filterDimensionValuesByName(dimensionValuesT.dimensionValues,
         if (timeDimension.isEmpty) None else Some(timeDimension))
-
     val namesDim = dimensionValuesT.cube
-
     val (valuesDim, valuesAgg) = toSeq(dimensionValuesFiltered, measures.values ++ fixedMeasures.values)
-
     val (namesFixed, valuesFixed) = if (fixedDimensions.isDefined) {
       val fixedDimensionsSorted = fixedDimensions.get
         .filter(fb => fb._1 != timeDimension)
         .sortWith((dimension1, dimension2) => dimension1._1 < dimension2._1)
-      (
-        namesDim,
-        valuesDim ++ fixedDimensionsSorted.map(_._2) ++ Seq(getTimeFromDateType(dimensionValuesT.time, dateType))
-        )
+      (namesDim,
+        valuesDim ++ fixedDimensionsSorted.map(_._2) ++ Seq(getTimeFromDateType(dimensionValuesT.time, dateType)))
     } else
-      (
-        namesDim,
-        valuesDim ++ Seq(getTimeFromDateType(dimensionValuesT.time, dateType))
-        )
+      (namesDim,
+        valuesDim ++ Seq(getTimeFromDateType(dimensionValuesT.time, dateType)))
     val (keysId, rowId) = getNamesValues(namesFixed, valuesFixed, idCalculated)
+
     (Some(keysId), Row.fromSeq(rowId ++ valuesAgg))
   }
 
