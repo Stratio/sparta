@@ -85,13 +85,22 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
       policyStatusActor.get ? AddListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
         if (policyStatus.status.id equals PolicyStatusEnum.Stopping.id) {
           synchronized {
-            log.info("Stopping message received from Zookeeper")
-            SparkContextFactory.destroySparkStreamingContext
-            SparkContextFactory.destroySparkContext
-            policyStatusActor.get ! Kill (name)
-            policyStatusActor.get ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopped))
-            nodeCache.close()
-            if (exit) System.exit(0)
+            try {
+              log.info("Stopping message received from Zookeeper")
+              SparkContextFactory.destroySparkStreamingContext
+              SparkContextFactory.destroySparkContext
+            } finally {
+              Try(policyStatusActor.get ! Kill (name))
+                .getOrElse(log.warn(s"The actor with name: $name could not be stopped correctly"))
+              Try(policyStatusActor.get ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopped)))
+                .getOrElse(log.warn(s"The policy status could be wrong"))
+              Try(nodeCache.close())
+                .getOrElse(log.warn(s"The nodeCache in Zookeeper is not closed correctly"))
+              if (exit){
+                log.info("Close the application")
+                System.exit(0)
+              }
+            }
           }
         }
       })
