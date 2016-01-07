@@ -116,8 +116,9 @@ abstract class Output(keyName: String,
           bcSchema.get.filter(tschema => tschema.outputName == keyName).foreach(tschemaFiltered => {
             val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
             val dataFrame = sqlContext.createDataFrame(
-              extractRow(rdd.filter { case (schema, row) => schema.exists(_ == tableSchemaTime.tableName) }),
-              tableSchemaTime.schema)
+              extractRow(rdd.filter { case (schema, row) =>
+                schema.exists(_ == tableSchemaTime.tableName) && row.size == tableSchemaTime.schema.length
+              }), tableSchemaTime.schema)
             Try(upsert(dataFrame, tableSchemaTime.tableName, tschemaFiltered.timeDimension)) match {
               case Success(_) => log.debug(s"Data stored in ${tableSchemaTime.tableName}")
               case Failure(_) => {
