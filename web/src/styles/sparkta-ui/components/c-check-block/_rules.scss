@@ -4,6 +4,16 @@
 	color: $c-check-block---color;
 	cursor: pointer;
 	padding: $c-check-block---padding;
+  overflow: hidden;
+
+  &__title{
+    max-width: 90%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    line-height:20px;
+    height: 20px;
+    white-space: nowrap;
+  }
 
 	.c-form-control {
 		background: $c-check-block__form-control---background;
@@ -28,7 +38,7 @@
 		position: absolute;
 
 		&:before {
-			color: $c-check-block__checkbox---color;			
+			color: $c-check-block__checkbox---color;
 		}
 	}
 }
