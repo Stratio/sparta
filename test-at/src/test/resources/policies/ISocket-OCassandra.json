@@ -103,7 +103,13 @@
         "connectionHost": "127.0.0.1",
         "connectionPort": "9142",
         "cluster": "Test Cluster",
-        "keyspace": "sparkta"
+        "keyspace": "sparkta",
+        "sparkProperties": [
+          {
+            "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
+            "sparkPropertyValue": "180000"
+          }
+        ]
       }
     }
   ]
