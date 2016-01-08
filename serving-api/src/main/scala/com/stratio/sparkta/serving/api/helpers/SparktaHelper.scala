@@ -120,9 +120,13 @@ with SparktaSerializer {
 
   def shutdown: Unit = {
     synchronized {
-      SparkContextFactory.destroySparkContext
-      CuratorFactoryHolder.resetInstance()
-      system.shutdown
+      try {
+        SparkContextFactory.destroySparkStreamingContext
+      } finally {
+        SparkContextFactory.destroySparkContext
+        CuratorFactoryHolder.resetInstance()
+        system.shutdown
+      }
     }
   }
 }
