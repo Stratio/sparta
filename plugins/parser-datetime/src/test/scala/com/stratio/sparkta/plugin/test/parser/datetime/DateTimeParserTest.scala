@@ -123,5 +123,18 @@ class DateTimeParserTest extends WordSpecLike with Matchers {
 
       assertResult(e1)(resultantEvent)
     }
+    "parse dateTime in hive format" in {
+      val e1 = new Event(Map("ts" -> "2015-11-08 15:58:58"))
+      val e2 = new Event(Map("ts" -> new DateTime(ISOChronology.getInstanceUTC)
+        .withYear(2015).withMonthOfYear(11).withDayOfMonth(8)
+        .withHourOfDay(15).withMinuteOfHour(58).withSecondOfMinute(58).withMillisOfSecond(0)
+        .toDate
+      ))
+
+      val resultantEvent = new DateTimeParser("name", 1, inputField, outputsFields, Map("inputFormat" -> "hive"))
+        .parse(e1)
+
+      assertResult(e2.keyMap.get("ts").get.asInstanceOf[Date].getTime)(resultantEvent.keyMap.get("ts").get.asInstanceOf[Date].getTime)
+    }
   }
 }
