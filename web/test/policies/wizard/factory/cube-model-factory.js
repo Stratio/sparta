@@ -3,13 +3,15 @@ describe('policies.wizard.factory.cube-model-factory', function () {
   beforeEach(module('served/cube.json'));
   beforeEach(module('served/policyTemplate.json'));
 
-  var factory, fakeCube, UtilsServiceMock, fakePolicyTemplate = null;
+  var factory, fakeCube, UtilsServiceMock, fakePolicyTemplate, PolicyModelFactoryMock = null;
 
   beforeEach(module(function ($provide) {
     UtilsServiceMock = jasmine.createSpyObj('UtilsService', ['removeItemsFromArray', 'findElementInJSONArray']);
-
+    PolicyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getAllModelOutputs']);
     // inject mocks
     $provide.value('UtilsService', UtilsServiceMock);
+    $provide.value('PolicyModelFactory', PolicyModelFactoryMock);
+
   }));
 
   beforeEach(inject(function (_CubeModelFactory_, _servedCube_, _servedPolicyTemplate_) {
@@ -32,37 +34,37 @@ describe('policies.wizard.factory.cube-model-factory', function () {
 
   describe("should be able to update the cube error", function () {
     var validCube = null;
-    beforeEach(function(){
-       validCube = angular.copy(fakeCube);
-        validCube.operators = [{}];
-        validCube.dimensions = [{}];
+    beforeEach(function () {
+      validCube = angular.copy(fakeCube);
+      validCube.operators = [{}];
+      validCube.dimensions = [{}];
     });
-    it ("if there is not a operator, then set a operator error ", function(){
+    it("if there is not a operator, then set a operator error ", function () {
       validCube.operators = [];
       factory.setCube(validCube, 0);
 
       factory.setError();
 
-       expect(factory.getError()).toEqual({"text": "_POLICY_CUBE_OPERATOR_ERROR_"});
+      expect(factory.getError()).toEqual({"text": "_POLICY_CUBE_OPERATOR_ERROR_"});
     });
 
-      it ("if there is not a dimension, then set a dimension error ", function(){
+    it("if there is not a dimension, then set a dimension error ", function () {
       validCube.dimensions = [];
       factory.setCube(validCube, 0);
 
       factory.setError();
 
-       expect(factory.getError()).toEqual({"text": "_POLICY_CUBE_DIMENSION_ERROR_"});
+      expect(factory.getError()).toEqual({"text": "_POLICY_CUBE_DIMENSION_ERROR_"});
     });
 
-      it ("if there is neither a dimension nor operator, then set a dimension and operator error ", function(){
-       validCube.operators = [];
+    it("if there is neither a dimension nor operator, then set a dimension and operator error ", function () {
+      validCube.operators = [];
       validCube.dimensions = [];
       factory.setCube(validCube, 0);
 
       factory.setError();
 
-       expect(factory.getError()).toEqual({"text": "_POLICY_CUBE_OPERATOR-DIMENSION_ERROR_"});
+      expect(factory.getError()).toEqual({"text": "_POLICY_CUBE_OPERATOR-DIMENSION_ERROR_"});
     });
   });
 
@@ -107,6 +109,9 @@ describe('policies.wizard.factory.cube-model-factory', function () {
   });
 
   describe("should be able to validate a cube", function () {
+    beforeEach(function () {
+      PolicyModelFactoryMock.getAllModelOutputs.and.returnValue([fakeCube.dimensions[0].field]);
+    });
 
     describe("all its attributes can not be empty", function () {
       beforeEach(function () {
@@ -123,6 +128,15 @@ describe('policies.wizard.factory.cube-model-factory', function () {
       it("if empty dimensions, cube is invalid", function () {
         var invalidCube = angular.copy(fakeCube);
         invalidCube.dimensions = [];
+
+        expect(factory.isValidCube(invalidCube, {})).toBeFalsy();
+      });
+
+      it("if dimension field is not included in the current model output list, it is invalid", function () {
+        var invalidCube = angular.copy(fakeCube);
+        invalidCube.operators = [];
+        invalidCube.dimensions = [{field: "invented"}];
+
 
         expect(factory.isValidCube(invalidCube, {})).toBeFalsy();
       });

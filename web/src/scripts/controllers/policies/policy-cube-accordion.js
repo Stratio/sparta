@@ -21,7 +21,6 @@
     vm.init();
 
     function init() {
-      CubeService.resetCreatedCubes();
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
