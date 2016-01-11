@@ -57,17 +57,5 @@ describe('directive.c-json-text-directive', function () {
         expect(scope.testJson).toEqual({});
       });
     });
-
-    it("should update the view and model when user goes out from the text container only if the text is a valid JSON", function(){
-      var newValue = '{"key": "value"}';
-      directive.val(newValue).trigger('blur');
-
-      expect(scope.testJson).toEqual(JSON.parse(newValue));
-
-      var invalidJson = '{"invalidJSON": ddd}';
-      directive.val(invalidJson).trigger('blur');
-
-      expect(scope.testJson).toEqual(JSON.parse(newValue));
-    });
   });
 });
