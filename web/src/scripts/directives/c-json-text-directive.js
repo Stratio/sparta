@@ -15,19 +15,6 @@
           ngModelCtrl.$parsers.push(fromUser);
           ngModelCtrl.$formatters.push(toUser);
 
-          // clear any invalid changes on blur
-          element.bind('blur', function () {
-            try {
-               var newValue = angular.fromJson(element[0].value);
-              lastValid = lastValid || newValue;
-
-              ngModelCtrl.$setViewValue(toUser(newValue));
-              ngModelCtrl.$render();
-            }
-            catch (e) {
-            }
-          });
-
           function fromUser(text) {
             // Beware: trim() is not available in old browsers
             if (!text || text.trim() === '') {
