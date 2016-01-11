@@ -4,6 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>com.stratio</groupId>
+        <artifactId>parent</artifactId>
+        <version>0.5.0</version>
+    </parent>
+
     <groupId>com.stratio</groupId>
     <artifactId>benchmark</artifactId>
     <version>1.0</version>
@@ -78,10 +84,8 @@
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
-                <version>3.2.0</version>
                 <configuration>
                     <recompileMode>incremental</recompileMode>
-                    <useZincServer>true</useZincServer>
                 </configuration>
                 <executions>
                     <execution>
