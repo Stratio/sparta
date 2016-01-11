@@ -24,7 +24,6 @@
     function init() {
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      //ModelFactory.resetModel(vm.template);
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
       AccordionStatusService.resetAccordionStatus(vm.policy.transformations.length);
       vm.helpLink = vm.template.helpLinks.models;
