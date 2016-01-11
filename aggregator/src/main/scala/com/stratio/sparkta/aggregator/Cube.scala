@@ -171,23 +171,42 @@ case class Cube(name: String,
     filterUpdatedMeasures(valuesCheckpointed)
   }
 
-  def associativeAggregation(dimensionsValues: DStream[(DimensionValuesTime, InputFields)])
-  : DStream[(DimensionValuesTime, AggregationsValues)] =
-    dimensionsValues.mapValues(inputFieldsValues =>
-      associativeOperators.map(op => op.key -> op.processMap(inputFieldsValues.fieldsValues)))
-      .groupByKey()
-      .mapValues(aggregations => {
-        val aggregatedValues = aggregations.flatMap(aggregationsMap => aggregationsMap)
-          .groupBy { case (opKey, _) => opKey }
-          .map { case (nameOp, valuesOp) =>
-            val op = associativeOperatorsMap(nameOp)
-            val values = valuesOp.map { case (_, value) => value }
+  protected def associativeAggregation(dimensionsValues: DStream[(DimensionValuesTime, InputFields)])
+  : DStream[(DimensionValuesTime, AggregationsValues)] = {
 
-            Aggregation(nameOp, op.processReduce(values))
-          }.toSeq
+    val initialAggregation = (inputFields: InputFields) => {
+      AggregationsValues(extractAssociativeAggregations(inputFields.fieldsValues), inputFields.newValues)
+    }
 
-        AggregationsValues(aggregatedValues, UpdatedValues)
-      })
+    val combineAggregations = (aggregations: AggregationsValues, inputFields: InputFields) => {
+      val combinedAggregations = aggregations.values ++ extractAssociativeAggregations(inputFields.fieldsValues)
+      groupAssociativeAggregations(combinedAggregations)
+    }
+
+    val mergeAggregationValues = (agg1: AggregationsValues, agg2: AggregationsValues) => {
+      val combinedAggregations = agg1.values ++ agg2.values
+      groupAssociativeAggregations(combinedAggregations)
+    }
+
+    dimensionsValues.combineByKey(initialAggregation,
+      combineAggregations,
+      mergeAggregationValues,
+      new HashPartitioner(dimensionsValues.context.sparkContext.defaultParallelism))
+  }
+
+  protected def extractAssociativeAggregations(inputFieldsValues: InputFieldsValues) : Seq[Aggregation] =
+    associativeOperators.map(op => Aggregation(op.key, op.processMap(inputFieldsValues)))
+
+  protected def groupAssociativeAggregations(aggregations: Seq[Aggregation]) : AggregationsValues = {
+    val aggregationsGrouped = aggregations.groupBy { aggregation => aggregation.name }
+      .map { case (nameOp, valuesOp) =>
+        val op = associativeOperatorsMap(nameOp)
+        val values = valuesOp.map { aggregation => aggregation.value }
+        Aggregation(nameOp, op.processReduce(values))
+      }.toSeq
+    AggregationsValues(aggregationsGrouped, UpdatedValues)
+  }
+
 
   //scalastyle:off
   protected def updateAssociativeFunction(values: Seq[AggregationsValues], state: Option[Measures])
