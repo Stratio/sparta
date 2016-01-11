@@ -264,7 +264,7 @@
         "createSchema": "true",
         "isCloud": "true",
         "dataDir": "/tmp/solr-data",
-        "fixedAggregation": "_indexed_at_tdt:0"
+        "fixedMeasure": "_indexed_at_tdt:0"
       }
     }
   ]

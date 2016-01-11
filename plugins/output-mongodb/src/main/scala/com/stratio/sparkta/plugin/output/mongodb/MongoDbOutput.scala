@@ -65,7 +65,7 @@ class MongoDbOutput(keyName: String,
     }
   }
 
-  override def doPersist(stream: DStream[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+  override def doPersist(stream : DStream[(DimensionValuesTime, MeasuresValues)]) : Unit = {
     persistDataFrame(stream)
   }
 

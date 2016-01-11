@@ -52,7 +52,7 @@ class PrintOutput(keyName: String,
     dataFrame.foreach(frame => log.info(frame.toString()))
   }
 
-  override def upsert(metricOperations: Iterator[(DimensionValuesTime, Map[String, Option[Any]])]): Unit = {
+  override def upsert(metricOperations: Iterator[(DimensionValuesTime, MeasuresValues)]): Unit = {
     metricOperations.foreach(metricOp =>
       log.info(AggregateOperations.toString(metricOp._1, metricOp._2, metricOp._1.timeDimension, fixedDimensions)))
   }

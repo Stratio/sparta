@@ -35,8 +35,8 @@ class CountOperator(name: String, properties: Map[String, JSerializable])
 
   override val defaultCastingFilterType = TypeOp.Number
 
-  override def processMap(inputFields: Map[String, JSerializable]): Option[Any] = {
-    applyFilters(inputFields).flatMap(filteredFields => distinctFields match {
+  override def processMap(inputFieldsValues: InputFieldsValues): Option[Any] = {
+    applyFilters(inputFieldsValues.values).flatMap(filteredFields => distinctFields match {
       case None => Option(CountOperator.One.toLong)
       case Some(fields) => Option(fields.map(field => filteredFields.getOrElse(field, CountOperator.NullValue))
         .mkString(OperatorConstants.UnderscoreSeparator).toString)

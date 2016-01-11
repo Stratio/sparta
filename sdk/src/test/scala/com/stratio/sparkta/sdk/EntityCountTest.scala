@@ -30,7 +30,7 @@ class EntityCountTest extends WordSpec with Matchers {
   "EntityCount" should {
     val props = Map("inputField" -> "field".asInstanceOf[JSerializable], "split" -> ",".asInstanceOf[JSerializable])
     val entityCount = new EntityCountMock("op1", props)
-    val inputFields = Map("field" -> "hello,bye")
+    val inputFields = InputFieldsValues(Map("field" -> "hello,bye"))
 
     "Return the associated precision name" in {
 
@@ -45,7 +45,7 @@ class EntityCountTest extends WordSpec with Matchers {
 
       val expected = None
 
-      val result = entityCount.processMap(Map())
+      val result = entityCount.processMap(InputFieldsValues(Map()))
 
       result should be(expected)
     }

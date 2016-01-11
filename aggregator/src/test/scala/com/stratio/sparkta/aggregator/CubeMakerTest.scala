@@ -98,7 +98,7 @@ class CubeMakerTest extends TestSuiteBase {
    * @return the expected result to test
    */
   def getEventOutput(timestamp: Timestamp, millis: Long):
-  Seq[Seq[(DimensionValuesTime, Map[String, JSerializable])]] = {
+  Seq[Seq[(DimensionValuesTime, InputFieldsValues)]] = {
     val dimensionString = Dimension("dim1", "eventKey", "identity", new DefaultField)
     val dimensionTime = Dimension("minute", "minute", "minute", new DateTimeField)
     val dimensionValueString1 = DimensionValue(dimensionString, "value1")
@@ -106,9 +106,9 @@ class CubeMakerTest extends TestSuiteBase {
     val dimensionValueString3 = dimensionValueString1.copy(value = "value3")
     val dimensionValueTs = DimensionValue(dimensionTime, timestamp)
     val tsMap = Map("minute" -> timestamp)
-    val valuesMap1 = Map("eventKey" -> "value1") ++ tsMap
-    val valuesMap2 = Map("eventKey" -> "value2") ++ tsMap
-    val valuesMap3 = Map("eventKey" -> "value3") ++ tsMap
+    val valuesMap1 = InputFieldsValues(Map("eventKey" -> "value1") ++ tsMap)
+    val valuesMap2 = InputFieldsValues(Map("eventKey" -> "value2") ++ tsMap)
+    val valuesMap3 = InputFieldsValues(Map("eventKey" -> "value3") ++ tsMap)
 
     Seq(Seq(
       (DimensionValuesTime("cubeName",Seq(dimensionValueString1, dimensionValueTs), millis, "minute"), valuesMap1),

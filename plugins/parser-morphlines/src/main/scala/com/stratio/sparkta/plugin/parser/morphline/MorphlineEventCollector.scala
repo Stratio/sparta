@@ -28,15 +28,19 @@ class MorphlineEventCollector extends Command {
 
   override def notify(p1: Record): Unit = {}
 
-  def reset() = {
-    records.clear()
+  def reset(): Unit = {
+    synchronized {
+      records.clear()
+    }
   }
 
   override def getParent: Command = null
 
   override def process(p1: Record): Boolean = {
-    Preconditions.checkNotNull(p1)
-    records += p1
-    true
+    synchronized {
+      Preconditions.checkNotNull(p1)
+      records += p1
+      true
+    }
   }
 }

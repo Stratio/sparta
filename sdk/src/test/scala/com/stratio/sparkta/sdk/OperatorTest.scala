@@ -313,10 +313,10 @@ class OperatorTest extends WordSpec with Matchers {
 
     "processMap must be " in {
       val inputFields = new OperatorMock("opTest", Map())
-      inputFields.processMap(Map("field1" -> 1, "field2" -> 2)) should be(None)
+      inputFields.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(None)
 
       val inputFields2 = new OperatorMock("opTest", Map("inputField" -> "field1"))
-      inputFields2.processMap(Map("field1" -> 1, "field2" -> 2)) should be(Some(1))
+      inputFields2.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(Some(1))
     }
   }
 }
