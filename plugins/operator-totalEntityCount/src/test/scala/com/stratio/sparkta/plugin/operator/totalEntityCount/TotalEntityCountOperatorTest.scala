@@ -71,7 +71,7 @@ class TotalEntityCountOperatorTest extends WordSpec with Matchers {
       inputFields3.processReduce(Seq(Some(Seq("hola", "holo", "hola")))) should be(Some(3L))
 
       val inputFields4 = new TotalEntityCountOperator("totalEntityCount", Map())
-      inputFields4.processReduce(Seq(Some(""))) should be(Some(0L))
+      inputFields4.processReduce(Seq(None)) should be(Some(0L))
     }
 
     "processReduce distinct must be " in {

@@ -33,8 +33,12 @@ class TotalEntityCountOperator(name: String, properties: Map[String, JSerializab
   override val writeOperation = WriteOp.WordCount
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Int] =
-    Try(Option(getDistinctValues(values.flatten.flatMap(_.asInstanceOf[Seq[String]])).size))
-      .getOrElse(Some_Empty)
+    Try(Option(values.flatten.map(value => {
+      value match {
+        case value if value.isInstanceOf[Seq[_]] => getDistinctValues(value.asInstanceOf[Seq[_]]).size
+        case _ => value.asInstanceOf[Int]
+      }
+    }).sum)).getOrElse(Some_Empty)
 
   def associativity(values: Iterable[(String, Option[Any])]): Option[Int] = {
     val newValues = extractValues(values, None).map(_.asInstanceOf[Number].intValue()).sum
