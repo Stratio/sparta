@@ -16,11 +16,13 @@
 
 package com.stratio.sparkta.serving.core
 
+import scala.util.Success
+import scala.util.Try
+
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.typesafe.config.Config
 
-import scala.util.{Success, Try}
+import com.stratio.sparkta.serving.core.constants.AppConstant
 
 /**
  * Helper with common operations used to create a Sparkta context used to run the application.

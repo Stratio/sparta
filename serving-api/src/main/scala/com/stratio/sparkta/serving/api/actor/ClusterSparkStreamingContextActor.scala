@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,27 +17,34 @@
 package com.stratio.sparkta.serving.api.actor
 
 import java.io.File
+import scala.collection.JavaConversions._
+import scala.concurrent.duration._
+import scala.sys.process._
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.Actor
+import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
 import com.google.common.io.BaseEncoding
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigRenderOptions
+
 import com.stratio.sparkta.driver.service.StreamingContextService
-import com.stratio.sparkta.driver.util.{HdfsUtils, PolicyUtils}
+import com.stratio.sparkta.driver.util.HdfsUtils
+import com.stratio.sparkta.driver.util.PolicyUtils
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
+import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.PolicyStatusModel
+import com.stratio.sparkta.serving.core.models.SparktaSerializer
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
-import com.typesafe.config.{Config, ConfigRenderOptions}
-
-import scala.collection.JavaConversions._
-import scala.concurrent.duration._
-import scala.sys.process._
-import scala.util.{Failure, Success, Try}
 
 class ClusterSparkStreamingContextActor(policy: AggregationPoliciesModel,
                                         streamingContextService: StreamingContextService,
@@ -70,13 +77,8 @@ with SparktaSerializer {
         }
         else {
           val policyId = policy.id.get.trim
-          val hadoopUserName =
-            scala.util.Properties.envOrElse("HADOOP_USER_NAME", hdfsConfig.getString(AppConstant.HadoopUserName))
-          val hdfsUgi = HdfsUtils.ugi(hadoopUserName)
-          val hadoopConfDir =
-            Some(scala.util.Properties.envOrElse("HADOOP_CONF_DIR", hdfsConfig.getString(AppConstant.HadoopConfDir)))
-          val hdfsConf = HdfsUtils.hdfsConfiguration(hadoopConfDir)
-          val hdfsUtils = new HdfsUtils(hdfsUgi, hdfsConf)
+          val hdfsUtils = HdfsUtils(hdfsConfig)
+          val hadoopUserName = hdfsUtils.userName
           val pluginsJarsFiles = PolicyUtils.activeJarFiles(activeJars.right.get, jarsPlugins)
           val pluginsJarsPath =
             s"/user/$hadoopUserName/$policyId/${hdfsConfig.getString(AppConstant.PluginsFolder)}/"

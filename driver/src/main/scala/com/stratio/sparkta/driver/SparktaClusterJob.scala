@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,30 +18,41 @@ package com.stratio.sparkta.driver
 
 import java.io.File
 import java.net.URI
+import scala.concurrent.duration._
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.ActorSystem
+import akka.actor.Props
 import akka.pattern.ask
 import akka.util.Timeout
 import com.google.common.io.BaseEncoding
-import com.stratio.sparkta.driver.SparktaJob._
-import com.stratio.sparkta.driver.service.StreamingContextService
-import com.stratio.sparkta.driver.util.{HdfsUtils, PolicyUtils}
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
-import com.stratio.sparkta.serving.core.actor.FragmentActor
-import com.stratio.sparkta.serving.core.constants.{AkkaConstant, AppConstant}
-import com.stratio.sparkta.serving.core.helpers.{JarsHelper, PolicyHelper}
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, StreamingContextStatusEnum}
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
-import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
-import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, SparktaConfig}
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.FileUtils
 import org.apache.curator.framework.CuratorFramework
+import org.json4s.DefaultFormats
+import org.json4s.Formats
 import org.json4s.ext.EnumNameSerializer
-import org.json4s.{DefaultFormats, Formats}
 
-import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
+import com.stratio.sparkta.driver.SparktaJob._
+import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.driver.util.HdfsUtils
+import com.stratio.sparkta.driver.util.PolicyUtils
+import com.stratio.sparkta.sdk.JsoneyStringSerializer
+import com.stratio.sparkta.serving.core.CuratorFactoryHolder
+import com.stratio.sparkta.serving.core.SparktaConfig
+import com.stratio.sparkta.serving.core.actor.FragmentActor
+import com.stratio.sparkta.serving.core.constants.AkkaConstant
+import com.stratio.sparkta.serving.core.constants.AppConstant
+import com.stratio.sparkta.serving.core.helpers.JarsHelper
+import com.stratio.sparkta.serving.core.helpers.PolicyHelper
+import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.PolicyStatusModel
+import com.stratio.sparkta.serving.core.models.StreamingContextStatusEnum
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 
 object SparktaClusterJob {
 
@@ -111,11 +122,8 @@ object SparktaClusterJob {
   }
 
   def addPluginsAndClasspath(pluginsPath: String, classPath: String): Seq[URI] = {
-    val hadoopUserName = scala.util.Properties.envOrElse("HADOOP_USER_NAME", AppConstant.DefaultHadoopUserName)
-    val hdfsUgi = HdfsUtils.ugi(hadoopUserName)
-    val hadoopConfDir = scala.util.Properties.envOrNone("HADOOP_CONF_DIR")
-    val hdfsConf = HdfsUtils.hdfsConfiguration(hadoopConfDir)
-    val hdfsUtils = new HdfsUtils(hdfsUgi, hdfsConf)
+    val config = SparktaConfig.getHdfsConfig.get
+    val hdfsUtils = HdfsUtils(config)
     val pluginFiles = addHdfsFiles(hdfsUtils, pluginsPath)
     val classPathFiles = addHdfsFiles(hdfsUtils, classPath)
 
