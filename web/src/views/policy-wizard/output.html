@@ -13,7 +13,7 @@
       <div class="c-check-block" data-ng-click="vm.setOutput($index)"  data-qa="policy-output-item-{{output.id}}">
         <div class="c-form-control c-form-control--full-width">
           <div class="c-row">
-            <label class="c-label">{{output.name}}</label>
+            <label class="c-label c-check-block__title">{{output.name}}</label>
           </div>
           <div class="c-row">
             <input id="output-{{$index}}" class="c-checkbox" type="checkbox" data-ng-model="vm.policy.outputs[$index]"

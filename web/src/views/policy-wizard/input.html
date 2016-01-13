@@ -14,7 +14,7 @@
       <div class="c-check-block" data-ng-click="vm.setInput($index)" data-qa="policy-input-item-{{input.id}}">
         <div class="c-form-control c-form-control--full-width">
           <div class="c-row">
-            <label class="c-label">{{input.name}}</label>
+            <label class="c-label c-check-block__title">{{input.name}}</label>
           </div>
           <div class="c-row">
             <input class="c-checkbox" type="checkbox" data-ng-checked="vm.isSelectedInput(input.name)"><label class="c-label" data-qa="policy-input-checkbox-{{input.id}}"></label>
