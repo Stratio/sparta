@@ -26,12 +26,19 @@ import scala.util.Try
 class AccumulatorOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
 with ProcessMapAsAny with Associative {
 
+  final val Separator = " "
+
   override val defaultTypeOperation = TypeOp.ArrayString
 
   override val writeOperation = WriteOp.AccSet
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
-    Try(Option(values.flatten.map(_.toString))).getOrElse(None)
+    Try(Option(values.flatten.flatMap(value => {
+      value match {
+        case value if value.isInstanceOf[Seq[Any]] => value.asInstanceOf[Seq[Any]].map(_.toString)
+        case _ => Seq(value.toString)
+      }
+    }))).getOrElse(None)
 
   def associativity(values: Iterable[(String, Option[Any])]): Option[Any] = {
     val newValues = getDistinctValues(extractValues(values, None).asInstanceOf[Seq[Seq[String]]].flatten)
