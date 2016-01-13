@@ -85,9 +85,6 @@ object AppConstant {
   final val ZookeeperRetryInterval = "retryInterval"
   final val DefaultZookeeperRetryInterval = 10000
 
-  //HDFS
-  final val DefaultHadoopUserName = "stratio"
-
   final val pluginExtension = "-plugin.jar"
   final val jarsFilesMap = Map(
     "ArrayText" -> s"field-arrayText$pluginExtension",
