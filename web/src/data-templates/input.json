@@ -5,7 +5,7 @@
     "description": {
       "short": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data.",
       "long": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data. It has a simple and flexible architecture based on streaming data flows.",
-      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#flume-label"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/7.1+Inputs#id-7.1Inputs-8.1.1Input-flume"
     },
     "properties": [
       {
@@ -173,7 +173,7 @@
     "description": {
       "short": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log.",
       "long": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log. Based on the received-based approach (https://spark.apache.org/docs/latest/streaming-kafka-integration.html)",
-      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#kafka-label"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/7.1+Inputs#id-7.1Inputs-8.1.2Input-kafka"
     },
     "properties": [
       {
@@ -263,7 +263,7 @@
     "description": {
       "short": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log.",
       "long": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log. Based on the direct approach (https://spark.apache.org/docs/latest/streaming-kafka-integration.html)",
-      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#kafkadirect-label"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/7.1+Inputs#id-7.1Inputs-8.1.3Input-KafkaDirect"
     },
     "properties": [
       {
@@ -342,7 +342,7 @@
     "description": {
       "short": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
       "long": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
-      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#rabbitmq-label"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/7.1+Inputs#id-7.1Inputs-8.1.4Input-rabbitMQ"
     },
     "properties": [
       {
@@ -416,7 +416,7 @@
     "description": {
       "short": "A network socket is an endpoint of an inter-process communication across a computer network.",
       "long": "A network socket is an endpoint of an inter-process communication across a computer network.",
-      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#socket-label"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/7.1+Inputs#id-7.1Inputs-8.1.5Input-Socket"
     },
     "properties": [
       {
@@ -447,7 +447,7 @@
     "description": {
       "short": "Reads events from Twitter stream and return the status in a json.",
       "long": "Reads events from Twitter stream and return the status in a json.",
-      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#twitter-label"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/7.1+Inputs#id-7.1Inputs-8.1.6Input-Twitter"
     },
     "properties": [
       {
@@ -508,7 +508,7 @@
     "description": {
       "short": "WebSocket is a protocol providing full-duplex communication channels over a single TCP connection.",
       "long": "WebSocket is a protocol providing full-duplex communication channels over a single TCP connection.",
-      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#websocket-label"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/7.1+Inputs#id-7.1Inputs-8.1.7Input-WebSocket"
     },
 
     "properties": [

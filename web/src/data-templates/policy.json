@@ -1,7 +1,7 @@
 {
   "defaultSparkStreamingWindow": 6000,
   "defaultStorageLevel": "MEMORY_AND_DISK_SER",
-  "defaultCheckpointPath": "/tmp/checkpoint",
+  "defaultCheckpointPath": "checkpoint",
   "steps": [
     {
       "name": "_POLICY_._STEPS_._DESCRIPTION_",
@@ -85,14 +85,14 @@
     ]
   },
   "helpLinks": {
-    "description": "http://docs.stratio.com/modules/sparkta/0.6/usingSparkta.html#policy",
-    "inputs": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html",
-    "models": "http://docs.stratio.com/modules/sparkta/0.6/transformations.html",
-    "cubes": "http://docs.stratio.com/modules/sparkta/0.6/cube.html",
-    "outputs": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html"
+    "description": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/5.+Create+and+Submit+Policy",
+    "inputs": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/5.+Create+and+Submit+Policy#id-5.CreateandSubmitPolicy-Step4.Selectinganinput",
+    "models": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/5.+Create+and+Submit+Policy#id-5.CreateandSubmitPolicy-Step5.Modelingthedata",
+    "cubes": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/5.+Create+and+Submit+Policy#id-5.CreateandSubmitPolicy-Step6.Creatingthecubes",
+    "outputs": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/5.+Create+and+Submit+Policy#id-5.CreateandSubmitPolicy-Step10.Selectinganoutput"
   },
   "configPlaceholder": "{    \n    \"inputFormat\": \"unixMillis\", \n   \"dbName\": \"sparkta\"\n}",
-  "configurationHelpLink": "http://docs.stratio.com/modules/sparkta/development/transformations.html",
+  "configurationHelpLink": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/7.2+Transformations",
   "morphlinesDefaultConfiguration": {
     "morphline": {
       "id": "morphline1",
@@ -147,7 +147,7 @@
     "label": "_attachment_body",
     "value": "_attachment_body"
   },
-  "configHelpLink": "http://docs.stratio.com/modules/sparkta/development/transformations.html",
+  "configHelpLink": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/7.2+Transformations",
   "outputPattern": "[a-zA-Z0-9]*",
   "outputInputPlaceholder": "_OUTPUT_INPUT_PLACEHOLDER_",
   "granularityOptions": [

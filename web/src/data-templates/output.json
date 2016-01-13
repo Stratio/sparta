@@ -5,7 +5,7 @@
     "description": {
       "short": "The Cassandra output uses the generic implementation with DataFrames.",
       "long": "The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. Linear scalability and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data.",
-      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#cassandra-label"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/7.4+Outputs#id-7.4Outputs-8.4.3CassandraConfiguration"
     },
     "properties": [
       {
@@ -200,7 +200,7 @@
     "description": {
       "short": "Persist your data in HDFS with CSV format.",
       "long": "Persist your data in HDFS with CSV format.",
-      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#csv-label"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/7.4+Outputs#id-7.4Outputs-8.4.8CsvConfiguration"
     },
     "properties": [
       {
@@ -250,7 +250,7 @@
     "description": {
       "short": "The Elasticsearch output uses the generic implementation with DataFrames.",
       "long": "Elasticsearch is a search server based on Lucene. It provides a distributed, multitenant-capable full-text search engine with a RESTful web interface and schema-free JSON documents.",
-      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#elasticsearch-label"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/7.4+Outputs#id-7.4Outputs-8.4.4ElasticsearchConfiguration"
     },
     "properties": [
       {
@@ -328,7 +328,7 @@
     "description": {
       "short": "MongoDB is an open-source document database, and the leading NoSQL database.",
       "long": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling.",
-      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#mongodb-label"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/7.4+Outputs#id-7.4Outputs-8.4.2MongoDBConfiguration"
     },
     "properties": [
       {
@@ -482,7 +482,7 @@
     "description": {
       "short": "Parquet output uses the generic implementation with DataFrames.",
       "long": "Apache Parquet is a columnar storage format available to any project in the Hadoop ecosystem, regardless of the choice of data processing framework, data model or programming language.",
-      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#parquet-label"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/7.4+Outputs#id-7.4Outputs-8.4.7ParquetConfiguration"
     },
     "properties": [
       {
@@ -503,7 +503,7 @@
     "description": {
       "short": "Print output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
       "long": "Print output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
-      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#print-label"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/7.4+Outputs#id-7.4Outputs-8.4.6PrintConfiguration"
     },
     "properties": [
     ]
@@ -514,7 +514,7 @@
     "description": {
       "short": "The output of Redis use the generic implementation with DataFrames.",
       "long": "The output of Redis use the generic implementation with DataFrames. Redis is an open source (BSD licensed), in-memory data structure store, used as database, cache and message broker.",
-      "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#redis-label"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/7.4+Outputs#id-7.4Outputs-8.4.5RedisConfiguration"
     },
     "properties": [
       {
