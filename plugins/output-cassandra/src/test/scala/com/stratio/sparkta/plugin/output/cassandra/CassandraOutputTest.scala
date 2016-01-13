@@ -19,7 +19,7 @@ package com.stratio.sparkta.plugin.output.cassandra
 import java.io.{Serializable => JSerializable}
 
 import com.datastax.spark.connector.cql.CassandraConnector
-import com.stratio.sparkta.sdk.{JsoneyString, TableSchema, TypeOp, WriteOp}
+import com.stratio.sparkta.sdk._
 import org.apache.spark.SparkConf
 import org.apache.spark.sql._
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
@@ -49,7 +49,8 @@ class CassandraOutputTest extends FlatSpec with Matchers with MockitoSugar with 
     val tableSchema = Seq(TableSchema("outputName", "dim1", StructType(Array(
       StructField("dim1", StringType, false))), "minute"))
 
-    val out =  spy(new CassandraOutput("key", None, properties, operation, Option(tableSchema)))
+    val out =  spy(new CassandraOutput[DimensionValuesTime](
+      "key", None, properties, operation, Option(tableSchema)))
     val df: DataFrame = mock[DataFrame]
 
     doNothing().when(out).write(df,"tablename")

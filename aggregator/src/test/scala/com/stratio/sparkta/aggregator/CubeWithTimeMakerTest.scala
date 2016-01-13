@@ -30,7 +30,7 @@ import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.sdk._
 
 @RunWith(classOf[JUnitRunner])
-class CubeMakerTest extends TestSuiteBase {
+class CubeWithTimeMakerTest extends TestSuiteBase {
 
   val PreserverOrder = false
 
@@ -64,19 +64,18 @@ class CubeMakerTest extends TestSuiteBase {
     val sqlTimestamp = new Timestamp(millis)
     val name = "cubeName"
     val operator = new CountOperator("count", Map())
-    val multiplexer = false
     val defaultDimension = new DefaultField
     val timeField = new DateTimeField
     val dimension = Dimension("dim1", "eventKey", "identity", defaultDimension)
     val timeDimension = Dimension("minute", "minute", "minute", timeField)
-    val cube = Cube(name,
+    val cube = CubeWithTime(name,
       Seq(dimension, timeDimension),
       Seq(operator),
       checkpointGranularity,
       checkpointInterval,
       checkpointGranularity,
       checkpointTimeAvailability)
-    val dataCube = new CubeOperations(cube, timeDimensionName, checkpointGranularity)
+    val dataCube = new CubeOperationsWithTime(cube, timeDimensionName, checkpointGranularity)
 
     testOperation(getEventInput(sqlTimestamp), dataCube.extractDimensionsAggregations,
       getEventOutput(sqlTimestamp, millis), PreserverOrder)

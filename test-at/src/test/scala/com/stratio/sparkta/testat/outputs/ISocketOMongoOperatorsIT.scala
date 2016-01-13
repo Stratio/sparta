@@ -39,17 +39,18 @@ class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
   override val policyFile = "policies/ISocket-OMongo-operators.json"
   val TestMongoPort = 60000
   var mongoProps: MongodProps = _
-  var mongoConnection: MongoConnection = _
+
   val NumEventsExpected: Int = 8
 
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in mongodb" in {
       sparktaRunner
-      checkMongoData
+      checkMongoData("testCubeWithTime")
+      checkMongoData("testCubeWithoutTime")
     }
 
-    def checkMongoData(): Unit = {
-      val mongoColl: MongoCollection = mongoConnection("csvtest")("testCube")
+    def checkMongoData(tableName: String): Unit = {
+      val mongoColl: MongoCollection = MongoConnection(Localhost, TestMongoPort)("csvtest")(tableName)
       mongoColl.size should be(2)
 
       val productA = mongoColl.find(new BasicDBObject("product", "producta")).next()
@@ -91,15 +92,14 @@ class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
         Map("hola" -> 16L, "holo" -> 8L))
       productB.get("totalEntity_text") should be(24)
     }
+
+    def checkMongoDb: Unit = {
+      val mongoClientURI = MongoClientURI(s"mongodb://$Localhost:$TestMongoPort/local")
+      mongoClientURI.database should be(Some("local"))
+    }
   }
 
-  override def extraBefore: Unit = {
-    mongoProps = mongoStart(TestMongoPort)
-    mongoConnection = MongoConnection(Localhost, TestMongoPort)
-  }
+  override def extraBefore: Unit = mongoProps = mongoStart(TestMongoPort)
 
-  override def extraAfter: Unit = {
-    mongoConnection.close()
-    mongoStop(mongoProps)
-  }
+  override def extraAfter: Unit = mongoStop(mongoProps)
 }

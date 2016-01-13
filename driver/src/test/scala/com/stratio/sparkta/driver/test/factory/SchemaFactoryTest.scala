@@ -24,7 +24,7 @@ import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 
-import com.stratio.sparkta.aggregator.Cube
+import com.stratio.sparkta.aggregator.CubeWithTime
 import com.stratio.sparkta.driver.factory.SchemaFactory
 import com.stratio.sparkta.sdk._
 
@@ -33,7 +33,7 @@ class SchemaFactoryTest extends FlatSpec with ShouldMatchers
 with MockitoSugar {
 
   "SchemaFactorySpec" should "return a list of schemas" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1),
+    val cube = CubeWithTime(cubeName, Seq(dim1, dim2), Seq(op1),
       "minute", checkpointInterval, checkpointGranularity, checkpointAvailable)
     val cubes = Seq(cube)
     val tableSchema = TableSchema("outputName", "cubeTest", StructType(Array(

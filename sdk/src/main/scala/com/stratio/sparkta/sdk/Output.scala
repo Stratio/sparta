@@ -29,7 +29,7 @@ import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap.map2ValidatingPropertyMap
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 
-abstract class Output(keyName: String,
+abstract class Output[T](keyName: String,
                       version: Option[Int],
                       properties: Map[String, JSerializable],
                       operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
@@ -70,7 +70,7 @@ abstract class Output(keyName: String,
 
   def isAutoCalculateId: Boolean = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
-  def persist(streams: Seq[DStream[(DimensionValuesTime, MeasuresValues)]]): Unit = {
+  def persist(streams: Seq[DStream[(T, MeasuresValues)]]): Unit = {
     sqlContext = new SQLContext(streams.head.context.sparkContext)
     setup
     streams.foreach(stream => doPersist(stream))
@@ -78,13 +78,13 @@ abstract class Output(keyName: String,
 
   protected def setup: Unit = {}
 
-  def doPersist(stream: DStream[(DimensionValuesTime, MeasuresValues)]): Unit = {
+  def doPersist(stream: DStream[(T, MeasuresValues)]): Unit = {
     if (bcSchema.isDefined)
       persistDataFrame(stream)
     else persistMetricOperation(stream)
   }
 
-  protected def persistMetricOperation(stream: DStream[(DimensionValuesTime, MeasuresValues)]): Unit =
+  protected def persistMetricOperation(stream: DStream[(T, MeasuresValues)]): Unit =
     stream.foreachRDD(rdd => {
       if (rdd.take(1).length > 0) {
         rdd.foreachPartition(
@@ -101,15 +101,25 @@ abstract class Output(keyName: String,
       } else log.info("Empty event received")
     })
 
-  protected def persistDataFrame(stream: DStream[(DimensionValuesTime, MeasuresValues)]): Unit = {
-    stream.map { case (dimensionValuesTime, measures) =>
-      AggregateOperations.toKeyRow(
-        filterDimensionValueTimeByFixedDimensions(dimensionValuesTime),
+  protected def persistDataFrame(stream: DStream[(T, MeasuresValues)]): Unit = {
+    stream.map {
+      case (dimensionValuesTime: DimensionValuesTime, measures) =>
+      AggregateOperations.toKeyRowWithTime(
+        filterDimensionValueTimeByFixedDimensionsWithTime(dimensionValuesTime),
         measures,
         fixedMeasures,
-        getFixedDimensions(dimensionValuesTime),
+        getFixedDimensionsWithTime(dimensionValuesTime),
         isAutoCalculateId,
         dateType)
+
+      case (dimensionValuesWithoutTime: DimensionValuesWithoutTime, measures) =>
+        AggregateOperations.toKeyRowWithoutTime(
+          filterDimensionValueTimeByFixedDimensionsWithoutTime(dimensionValuesWithoutTime),
+          measures,
+          fixedMeasures,
+          getFixedDimensionsWithoutTime(dimensionValuesWithoutTime),
+          isAutoCalculateId,
+          dateType)
     }
       .foreachRDD(rdd => {
         if (rdd.take(1).length > 0) {
@@ -134,7 +144,7 @@ abstract class Output(keyName: String,
 
   def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {}
 
-  def upsert(metricOperations: Iterator[(DimensionValuesTime, MeasuresValues)]): Unit = {}
+  def upsert(metricOperations: Iterator[(T, MeasuresValues)]): Unit = {}
 
   //TODO refactor for remove var types
   def getTableSchemaFixedId(tbSchema: TableSchema): TableSchema = {
@@ -155,9 +165,10 @@ abstract class Output(keyName: String,
       modifiedSchema = true
     }
 
-    fieldsPk = fieldsPk ++
-      Seq(Output.getFieldType(dateType, tbSchema.timeDimension, false)) ++
-      getFields(tbSchema, true)
+    fieldsPk = fieldsPk ++ {
+      if (tbSchema.timeDimension == "") Seq.empty
+      else Seq(Output.getFieldType(dateType, tbSchema.timeDimension, false))
+    } ++ getFields(tbSchema, true)
     new TableSchema(tbSchema.outputName,
       tbSchema.tableName,
       StructType(fieldsPk),
@@ -170,16 +181,24 @@ abstract class Output(keyName: String,
 
   def extractRow(rdd: RDD[(Option[String], Row)]): RDD[Row] = rdd.map(rowType => rowType._2)
 
-  def getFixedDimensions: Array[String] = fixedDimensions
+  def getFixedDimensionsWithTime: Array[String] = fixedDimensions
 
-  def getFixedDimensions(dimensionValuesTime: DimensionValuesTime): Option[Seq[(String, Any)]] =
+  def getFixedDimensionsWithTime(dimensionValuesTime: DimensionValuesTime): Option[Seq[(String, Any)]] =
     if (fixedDimensions.isEmpty) None
     else Some(fixedDimensions.flatMap(fxdimension => {
       dimensionValuesTime.dimensionValues.find(dimension => dimension.getNameDimension == fxdimension)
         .map(dimensionValue => (fxdimension, dimensionValue.value))
     }))
 
-  def filterDimensionValueTimeByFixedDimensions(dimensionValuesTime: DimensionValuesTime)
+  def getFixedDimensionsWithoutTime(dimensionValuesWithoutTime: DimensionValuesWithoutTime):
+  Option[Seq[(String, Any)]] =
+    if (fixedDimensions.isEmpty) None
+    else Some(fixedDimensions.flatMap(fxdimension => {
+      dimensionValuesWithoutTime.dimensionValues.find(dimension => dimension.getNameDimension == fxdimension)
+        .map(dimensionValue => (fxdimension, dimensionValue.value))
+    }))
+
+  def filterDimensionValueTimeByFixedDimensionsWithTime(dimensionValuesTime: DimensionValuesTime)
   : DimensionValuesTime =
     if (fixedDimensions.isEmpty) dimensionValuesTime
     else dimensionValuesTime.copy(
@@ -187,9 +206,17 @@ abstract class Output(keyName: String,
         .filter(dimensionValue => !fixedDimensions.contains(dimensionValue.getNameDimension))
     )
 
+  def filterDimensionValueTimeByFixedDimensionsWithoutTime(dimensionValuesWithoutTime: DimensionValuesWithoutTime)
+  : DimensionValuesWithoutTime =
+    if (fixedDimensions.isEmpty) dimensionValuesWithoutTime
+    else dimensionValuesWithoutTime.copy(
+      dimensionValues = dimensionValuesWithoutTime.dimensionValues
+        .filter(dimensionValue => !fixedDimensions.contains(dimensionValue.getNameDimension))
+    )
+
   def filterSchemaByFixedAndTimeDimensions(tbschemas: Seq[TableSchema]): Seq[TableSchema] =
     tbschemas.filter(schemaFilter => {
-      val checkDimensions = getFixedDimensions ++ Array(schemaFilter.timeDimension)
+      val checkDimensions = getFixedDimensionsWithTime ++ Array(schemaFilter.timeDimension)
       schemaFilter.outputName == keyName &&
         checkDimensions.forall({
           schemaFilter.schema.fieldNames.contains(_)

@@ -28,7 +28,7 @@ import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 
-import com.stratio.sparkta.aggregator.{Cube, CubeMaker}
+import com.stratio.sparkta.aggregator._
 import com.stratio.sparkta.driver.factory.{SchemaFactory, SparkContextFactory}
 import com.stratio.sparkta.driver.service.RawDataStorageService
 import com.stratio.sparkta.driver.util.ReflectionUtils
@@ -39,6 +39,7 @@ import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, Operat
 
 object SparktaJob extends SLF4JLogging {
 
+ //scalastyle:off
   def runSparktaJob(sc: SparkContext, apConfig: AggregationPoliciesModel): Any = {
     val checkpointPolicyPath = apConfig.checkpointPath.concat(File.separator).concat(apConfig.name)
     //FIXME: check the problem in the checkpoint and fault tolerance
@@ -67,13 +68,42 @@ object SparktaJob extends SLF4JLogging {
       if (cubeOpSchema.nonEmpty) Option(cubeOpSchema) else None
     }
 
-    val outputs = SparktaJob.outputs(apConfig, operatorsKeyOperation, bcCubeOperatorSchema, reflectionUtils)
-
     SparktaJob.saveRawData(apConfig, inputDStream)
     val parsed = applyParsers(inputDStream, parsers)
-    val dataCube = new CubeMaker(cubes).setUp(parsed)
-    outputs.foreach(_.persist(dataCube))
+
+    val cubesWithTime: Seq[DStream[(DimensionValuesTime, MeasuresValues)]] =
+      cubes
+        .flatMap(cube => cube match {
+          case cubeWithTime: CubeWithTime =>  new CubeMakerWithTime(cubeWithTime).setUp(parsed)
+          case _ =>  None
+    })
+
+    val cubesWithoutTime: Seq[DStream[(DimensionValuesWithoutTime, MeasuresValues)]] =
+      cubes
+        .flatMap(cube => cube match {
+          case cubeWithoutTime: CubeWithoutTime => new CubeMakerWithoutTime(cubeWithoutTime).setUp(parsed)
+          case _ =>  None
+    })
+
+   if(!cubesWithTime.isEmpty) {
+     val outputsWithTime =
+       SparktaJob.outputs[DimensionValuesTime](apConfig, operatorsKeyOperation, bcCubeOperatorSchema, reflectionUtils)
+
+     outputsWithTime.foreach(outputWithTime => {
+       outputWithTime.persist(cubesWithTime)
+     })
+   }
+   if(!cubesWithoutTime.isEmpty){
+     val outputsWithoutTime =
+       SparktaJob
+         .outputs[DimensionValuesWithoutTime](apConfig, operatorsKeyOperation, bcCubeOperatorSchema, reflectionUtils)
+
+     outputsWithoutTime.foreach(outputWithoutTime => {
+       outputWithoutTime.persist(cubesWithoutTime)
+     })
+   }
   }
+  //scalastyle:on
 
   @tailrec
   def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
@@ -150,10 +180,10 @@ object SparktaJob extends SLF4JLogging {
   def getOperators(operatorsModel: Seq[OperatorModel], refUtils: ReflectionUtils): Seq[Operator] =
     operatorsModel.map(operator => createOperator(operator, refUtils))
 
-  def outputs(apConfig: AggregationPoliciesModel,
+  def outputs[T](apConfig: AggregationPoliciesModel,
               bcOperatorsKeyOperation: Option[Map[String, (WriteOp, TypeOp)]],
-              bcCubeOperatorSchema: Option[Seq[TableSchema]], refUtils: ReflectionUtils): Seq[Output] =
-    apConfig.outputs.map(o => refUtils.tryToInstantiate[Output](o.`type` + Output.ClassSuffix, (c) =>
+              bcCubeOperatorSchema: Option[Seq[TableSchema]], refUtils: ReflectionUtils): Seq[Output[T]] =
+    apConfig.outputs.map(o => refUtils.tryToInstantiate[Output[T]](o.`type` + Output.ClassSuffix, (c) =>
       c.getDeclaredConstructor(
         classOf[String],
         classOf[Option[Int]],
@@ -161,7 +191,7 @@ object SparktaJob extends SLF4JLogging {
         classOf[Option[Map[String, (WriteOp, TypeOp)]]],
         classOf[Option[Seq[TableSchema]]])
         .newInstance(o.name, apConfig.version, o.configuration, bcOperatorsKeyOperation, bcCubeOperatorSchema)
-        .asInstanceOf[Output]))
+        .asInstanceOf[Output[T]]))
 
   def cubes(apConfig: AggregationPoliciesModel, refUtils: ReflectionUtils): Seq[Cube] =
     apConfig.cubes.map(cube => {
@@ -174,17 +204,27 @@ object SparktaJob extends SLF4JLogging {
       })
       val operators = SparktaJob.getOperators(cube.operators, refUtils)
 
-      val datePrecision = if (cube.checkpointConfig.timeDimension.isEmpty) None
-      else Some(cube.checkpointConfig.timeDimension)
-      val timeName = if (datePrecision.isDefined) datePrecision.get else cube.checkpointConfig.granularity
+      if (cube.checkpointConfig.timeDimension.equalsIgnoreCase("none")){
+        CubeWithoutTime(name,
+          dimensions,
+          operators,
+          cube.checkpointConfig.interval)
 
-      Cube(name,
-        dimensions,
-        operators,
-        timeName,
-        cube.checkpointConfig.interval,
-        cube.checkpointConfig.granularity,
-        cube.checkpointConfig.timeAvailability)
+      }else {
+
+        val datePrecision = if (cube.checkpointConfig.timeDimension.isEmpty) None
+        else Some(cube.checkpointConfig.timeDimension)
+        val timeName = if (datePrecision.isDefined) datePrecision.get else cube.checkpointConfig.granularity
+
+        CubeWithTime(name,
+          dimensions,
+          operators,
+          timeName,
+          cube.checkpointConfig.interval,
+          cube.checkpointConfig.granularity,
+          cube.checkpointConfig.timeAvailability)
+      }
+
     })
 
   def instantiateDimensionType(dimensionType: String, configuration: Option[Map[String, String]],

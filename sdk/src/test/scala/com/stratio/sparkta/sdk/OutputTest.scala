@@ -182,25 +182,25 @@ class OutputTest extends WordSpec with Matchers {
 
     "the fixed dimensions according to the empty properties must be " in new CommonValues {
       val expected = None
-      val result = output.getFixedDimensions(dimensionValuesT)
+      val result = output.getFixedDimensionsWithTime(dimensionValuesT)
       result should be(expected)
     }
 
     "the fixed dimensions according to the properties must be " in new CommonValues {
       val expected = Some(Seq(("dim2", "value2")))
-      val result = outputProps.getFixedDimensions(dimensionValuesT)
+      val result = outputProps.getFixedDimensionsWithTime(dimensionValuesT)
       result should be(expected)
     }
 
     "the filtered dimensions by fixed dimensions according to the empty properties must be " in new CommonValues {
       val expected = dimensionValuesT
-      val result = output.filterDimensionValueTimeByFixedDimensions(dimensionValuesT)
+      val result = output.filterDimensionValueTimeByFixedDimensionsWithTime(dimensionValuesT)
       result should be(expected)
     }
 
     "the filtered dimensions by fixed dimensions according to the properties must be " in new CommonValues {
       val expected = dimensionValuesTFixed
-      val result = outputProps.filterDimensionValueTimeByFixedDimensions(dimensionValuesT)
+      val result = outputProps.filterDimensionValueTimeByFixedDimensionsWithTime(dimensionValuesT)
       result should be(expected)
     }
 

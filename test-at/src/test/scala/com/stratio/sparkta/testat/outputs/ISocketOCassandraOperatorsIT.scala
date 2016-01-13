@@ -1,18 +1,18 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+  * Copyright (C) 2015 Stratio (http://stratio.com)
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
 
 package com.stratio.sparkta.testat.outputs
 
@@ -29,19 +29,18 @@ import scala.collection.JavaConversions._
 import scala.reflect.ClassTag
 
 /**
- * Acceptance test:
- * [Input]: Socket.
- * [Output]: Cassandra.
- * [Operators]: avg, count, firsValue, fullText, lastValue, max,
- * median, min, range, stddev, sum, variance.
- */
+  * Acceptance test:
+  * [Input]: Socket.
+  * [Output]: Cassandra.
+  * [Operators]: avg, count, firsValue, fullText, lastValue, max,
+  * median, min, range, stddev, sum, variance.
+  */
 @RunWith(classOf[JUnitRunner])
 class ISocketOCassandraOperatorsIT extends SparktaATSuite {
 
   override val policyFile = "policies/ISocket-OCassandra-operators.json"
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-operators.csv").getPath
-  var cluster: Cluster = _
-  var session: Session = _
+
   val CassandraPort = 9142
 
   val NumEventsExpected: Int = 8
@@ -49,13 +48,16 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in cassandra" in {
       sparktaRunner
-      checkData
+      checkData("testCubeWithTime_v1")
+      checkData("testCubeWithoutTime_v1")
     }
 
-    def checkData: Unit = {
-      session = cluster.connect("sparkta")
+    def checkData(tableName: String): Unit = {
 
-      val resultProductA: ResultSet = session.execute("select * from testCube_v1 where product = 'producta'")
+      val cluster = Cluster.builder().addContactPoints(Localhost).withPort(CassandraPort).build()
+      val session: Session = cluster.connect("sparkta")
+
+      val resultProductA: ResultSet = session.execute(s"select * from $tableName where product = 'producta'")
       val rowProductA = resultProductA.iterator().next()
 
       rowProductA.getDouble("avg_price") should be(639.0d)
@@ -74,7 +76,7 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
       counts should be(Map("hola" -> new lang.Long(16), "holo" -> new lang.Long(8)))
       rowProductA.getInt("totalentity_text") should be(24)
 
-      val resultProductB: ResultSet = session.execute("select * from testCube_v1 where product = 'productb'")
+      val resultProductB: ResultSet = session.execute(s"select * from $tableName where product = 'productb'")
       val rowProductB = resultProductB.iterator().next()
 
       rowProductB.getDouble("avg_price") should be(758.25d)
@@ -91,19 +93,11 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
       val counts2 = mapAsScalaMap(rowProductB.getMap("entitycount_text", classOf[String], classOf[java.lang.Integer]))
       counts2 should be(Map("hola" -> new java.lang.Long(16), "holo" -> new java.lang.Long(8)))
       rowProductB.getInt("totalentity_text") should be(24)
-
     }
   }
 
-  override def extraBefore: Unit = {
-    EmbeddedCassandraServerHelper.startEmbeddedCassandra()
-    cluster = Cluster.builder().addContactPoints(Localhost).withPort(CassandraPort).build()
-  }
+  override def extraBefore: Unit = EmbeddedCassandraServerHelper.startEmbeddedCassandra()
 
-  override def extraAfter: Unit = {
-    session.close()
-    cluster.close()
-    EmbeddedCassandraServerHelper.cleanEmbeddedCassandra()
-  }
+  override def extraAfter: Unit = EmbeddedCassandraServerHelper.cleanEmbeddedCassandra()
 }
 
