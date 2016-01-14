@@ -27,13 +27,12 @@ object AppConstant {
   final val ClasspathJarFolder = "repo"
   final val ClusterExecutionJarFolder = "driver"
   final val ExecutionMode = "executionMode"
-  final val DefaultExecutionMode = "local"
   final val ConfigAppName = "sparkta"
   final val ConfigApi = "api"
   final val ConfigHdfs = "hdfs"
   final val ConfigDetail = "config"
   final val ConfigLocal = "local"
-  final val ConfigStandAlone = "standAlone"
+  final val ConfigStandAlone = "standalone"
   final val ConfigMesos = "mesos"
   final val ConfigYarn = "yarn"
   final val ConfigAkka = "akka"
@@ -71,11 +70,11 @@ object AppConstant {
 
   //StandAlone
   final val StandAloneSupervise = "supervise"
-  final val StandAloneMasterNode = "master"
-
   //Yarn
   final val YarnQueue = "queue"
-  final val YarnMaster = "master"
+
+  // Common
+  final val Master = "master"
 
   //Zookeeper
   final val ZookeeperConnection = "connectionString"

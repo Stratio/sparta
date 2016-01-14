@@ -1,6 +1,6 @@
 {
   "name": "policy-websocket",
-  "description": "Input kafka, output print",
+  "description": "Input ws, output mongo",
   "sparkStreamingWindow": 2000,
   "checkpointPath": "checkpoint",
   "rawData": {

@@ -17,22 +17,27 @@
 package com.stratio.sparkta.driver.util
 
 import java.io.File
+import scala.util.Either
+import scala.util.Left
+import scala.util.Right
 
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, SparktaSerializer}
+import akka.event.slf4j.SLF4JLogging
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import org.json4s.jackson.Serialization.write
 
-import scala.util.{Either, Left, Right}
+import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.SparktaSerializer
 
 /**
  * Utils for policies.
+ *
  * @author sgomezg
  */
-object PolicyUtils extends SparktaSerializer {
+object PolicyUtils extends SparktaSerializer with SLF4JLogging {
 
   /**
    * Method to parse AggregationPoliciesModel from JSON string
+   *
    * @param json The policy as JSON string
    * @return AggregationPoliciesModel
    */
