@@ -39,6 +39,7 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
   val csvOutputPath = policyDto.outputs(0).configuration("path").toString
   val NumExecutors = 4
   val NumEventsExpected : String= "8"
+
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in csv" in {
       sparktaRunner
@@ -47,9 +48,10 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
 
 
     def checkCsvData(path : String): Unit ={
+      val sc = new SparkContext(s"local[$NumExecutors]", "ISocketOCsv")
       val pathProductTimestamp = path + s"testCube_v1${DateOperations.subPath("day", None)}.csv"
-      val sqlContext = new SQLContext(new SparkContext(s"local[$NumExecutors]", "ISocketOCsv"))
-      val df = sqlContext.read.format("com.databricks.spark.csv").option("header", "true").load(pathProductTimestamp)
+      val sqlContext = new SQLContext(sc)
+      val df = sqlContext.read.format("com.databricks.spark.csv").option("header", "true").load (pathProductTimestamp)
 
       df.count should be (2)
       df.collect.foreach(row => {
@@ -93,6 +95,8 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
           }
         }
       })
+
+      sc.stop()
     }
 
     def extractProductValues(row : Row) : Map[String, Any] = Map(

@@ -104,5 +104,8 @@ class ISocketORedisOperatorsIT extends SparktaATSuite {
     redisPool = new RedisClientPool(TestRedisHost, TestRedisPort)
   }
 
-  override def extraAfter: Unit = redisServer.stop()
+  override def extraAfter: Unit = {
+    redisPool.close
+    redisServer.stop()
+  }
 }

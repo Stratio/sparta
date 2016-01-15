@@ -40,7 +40,8 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
 
   override val policyFile = "policies/ISocket-OCassandra-operators.json"
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-operators.csv").getPath
-
+  var cluster: Cluster = _
+  var session: Session = _
   val CassandraPort = 9142
 
   val NumEventsExpected: Int = 8
@@ -52,9 +53,7 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
     }
 
     def checkData: Unit = {
-
-      val cluster = Cluster.builder().addContactPoints(Localhost).withPort(CassandraPort).build()
-      val session: Session = cluster.connect("sparkta")
+      session = cluster.connect("sparkta")
 
       val resultProductA: ResultSet = session.execute("select * from testCube_v1 where product = 'producta'")
       val rowProductA = resultProductA.iterator().next()
@@ -92,11 +91,19 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
       val counts2 = mapAsScalaMap(rowProductB.getMap("entitycount_text", classOf[String], classOf[java.lang.Integer]))
       counts2 should be(Map("hola" -> new java.lang.Long(16), "holo" -> new java.lang.Long(8)))
       rowProductB.getInt("totalentity_text") should be(24)
+
     }
   }
 
-  override def extraBefore: Unit = EmbeddedCassandraServerHelper.startEmbeddedCassandra()
+  override def extraBefore: Unit = {
+    EmbeddedCassandraServerHelper.startEmbeddedCassandra()
+    cluster = Cluster.builder().addContactPoints(Localhost).withPort(CassandraPort).build()
+  }
 
-  override def extraAfter: Unit = EmbeddedCassandraServerHelper.cleanEmbeddedCassandra()
+  override def extraAfter: Unit = {
+    session.close()
+    cluster.close()
+    EmbeddedCassandraServerHelper.cleanEmbeddedCassandra()
+  }
 }
 

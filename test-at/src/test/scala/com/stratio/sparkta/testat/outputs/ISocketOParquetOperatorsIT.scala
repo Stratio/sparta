@@ -49,7 +49,8 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
 
     // scalastyle:off
     def checkData(): Unit = {
-      val sqc = new SQLContext(new SparkContext(s"local[$NumExecutors]", "ISocketOParquet-operators"))
+      val sc = new SparkContext(s"local[$NumExecutors]", "ISocketOParquet-operators")
+      val sqc = new SQLContext(sc)
       val df = sqc.read.parquet(parquetPath).toDF
 
       val mapValues = df.map(row => Map(
@@ -105,7 +106,7 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
       productB("entityCount_text") should be(Map("hola" -> 16L, "holo" -> 8L))
       productB("totalEntity_text") should be(24)
 
-      sqc.sparkContext.stop
+      sc.stop()
     }
   }
 

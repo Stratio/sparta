@@ -36,6 +36,7 @@ class ISocketOMongoFiltersJsonIT extends MongoEmbedDatabase with SparktaATSuite 
   override val policyFile = "policies/ISocket-OMongo-filters-json.json"
   val TestMongoPort = 60000
   var mongoProps: MongodProps = _
+  var mongoConnection: MongoConnection = _
 
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in mongodb with filters in operators" in {
@@ -44,18 +45,22 @@ class ISocketOMongoFiltersJsonIT extends MongoEmbedDatabase with SparktaATSuite 
     }
 
     def checkMongoData(): Unit = {
-      val mongoColl: MongoCollection =
-        MongoConnection(Localhost, TestMongoPort)("csvtest")("basic-hashtag")
+      val mongoColl: MongoCollection = mongoConnection("csvtest")("basic-hashtag")
 
       val hashtag = mongoColl.find(new BasicDBObject("hashtag", "sparktaHashtag")).next()
       hashtag.get("count1") should be(1)
 
       mongoColl.size should be(2)
-
     }
   }
 
-  override def extraBefore: Unit = mongoProps = mongoStart(TestMongoPort)
+  override def extraBefore: Unit = {
+    mongoProps = mongoStart(TestMongoPort)
+    mongoConnection = MongoConnection(Localhost, TestMongoPort)
+  }
 
-  override def extraAfter: Unit = mongoStop(mongoProps)
+  override def extraAfter: Unit = {
+    mongoConnection.close()
+    mongoStop(mongoProps)
+  }
 }
