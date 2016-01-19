@@ -33,6 +33,7 @@ import com.google.common.io.BaseEncoding
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigRenderOptions
 
+import com.stratio.sparkta.driver.repository.ClusterConfigRepositoryComponent
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.driver.util.HdfsUtils
 import com.stratio.sparkta.driver.util.PolicyUtils
@@ -66,6 +67,7 @@ with SparktaSerializer {
   def doInitSparktaContext: Unit = {
     Try {
       log.info("Init new cluster streamingContext with name " + policy.name)
+      saveHdfsConfig
       val jarsPlugins = JarsHelper.findJarsByPath(
         new File(SparktaConfig.sparktaHome, AppConstant.JarPluginsFolder), Some("-plugin.jar"), None, None, None, false)
       val activeJars = PolicyUtils.activeJars(policy, jarsPlugins)
@@ -123,6 +125,12 @@ with SparktaSerializer {
   }
 
   //scalastyle:on
+
+  def saveHdfsConfig: Unit = {
+    val zkDao = new ClusterConfigRepositoryComponent(zookeeperConfig.atKey(AppConstant.ConfigZookeeper))
+    val configRendered = render(hdfsConfig, AppConstant.HdfsId)
+    zkDao.upsert(AppConstant.ConfigZkPath, AppConstant.HdfsId, configRendered.getBytes)
+  }
 
   private def setErrorStatus: Unit = {
     policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed))
@@ -232,7 +240,7 @@ with SparktaSerializer {
   }
 
   private def getZookeeperCommand: String = {
-    val config = zookeeperConfig.atKey("zk").root.render(ConfigRenderOptions.concise)
+    val config = zookeeperConfig.atKey("zookeeper").root.render(ConfigRenderOptions.concise)
     BaseEncoding.base64().encode(config.getBytes)
   }
 
@@ -255,4 +263,6 @@ with SparktaSerializer {
     case Some(config) => config.getString(AppConstant.ExecutionMode)
     case None => AppConstant.DefaultExecutionMode
   }
+
+  private def render(config: Config, key: String): String = config.atKey(key).root.render(ConfigRenderOptions.concise)
 }

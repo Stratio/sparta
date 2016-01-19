@@ -31,7 +31,7 @@ import scala.util.{Failure, Success, Try}
 object CuratorFactoryHolder extends SLF4JLogging {
 
   private var curatorFramework: Option[CuratorFramework] = None
-  final val ZKConfigPrefix = "zk"
+  final val ZKConfigPrefix = AppConstant.ConfigZookeeper
 
   /**
     * Gets a new instance of a CuratorFramework if it was not created before.

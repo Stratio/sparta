@@ -38,13 +38,17 @@ object AppConstant {
   final val ConfigYarn = "yarn"
   final val ConfigAkka = "akka"
   final val ConfigSwagger = "swagger"
-  final val ConfigZookeeper = "zk"
-  final val BaseZKPath = "/stratio/sparkta"
-  final val PoliciesBasePath = s"${AppConstant.BaseZKPath}/policies"
-  final val ContextPath = s"${AppConstant.BaseZKPath}/contexts"
+  final val ConfigZookeeper = "zookeeper"
+  final val BaseZKPath = "stratio/sparkta"
+  final val ConfigZkPath = s"$BaseZKPath/config"
+  final val PoliciesBasePath = s"/${AppConstant.BaseZKPath}/policies"
+  final val ContextPath = s"/${AppConstant.BaseZKPath}/contexts"
   final val ConfigRememberPartitioner = "rememberPartitioner"
   final val DefaultRememberPartitioner = true
   final val ConfigStopGracefully = "stopGracefully"
+
+  // ZK id's
+  final val HdfsId = "hdfs"
 
   //Hdfs Options
   final val HadoopUserName = "hadoopUserName"

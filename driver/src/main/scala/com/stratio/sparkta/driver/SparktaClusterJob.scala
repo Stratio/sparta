@@ -36,6 +36,7 @@ import org.json4s.Formats
 import org.json4s.ext.EnumNameSerializer
 
 import com.stratio.sparkta.driver.SparktaJob._
+import com.stratio.sparkta.driver.repository.ClusterConfigRepositoryComponent
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.driver.util.HdfsUtils
 import com.stratio.sparkta.driver.util.PolicyUtils
@@ -122,7 +123,9 @@ object SparktaClusterJob {
   }
 
   def addPluginsAndClasspath(pluginsPath: String, classPath: String): Seq[URI] = {
-    val config = SparktaConfig.getHdfsConfig.get
+    val zk = new ClusterConfigRepositoryComponent(SparktaConfig.mainConfig.get)
+    val hdfsJsonConfig = new String(zk.repository.get(AppConstant.ConfigZkPath,AppConstant.HdfsId).get)
+    val config = ConfigFactory.parseString(hdfsJsonConfig).getConfig(AppConstant.HdfsId)
     val hdfsUtils = HdfsUtils(config)
     val pluginFiles = addHdfsFiles(hdfsUtils, pluginsPath)
     val classPathFiles = addHdfsFiles(hdfsUtils, classPath)

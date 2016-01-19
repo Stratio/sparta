@@ -178,8 +178,8 @@ object FragmentActor {
 
   def fragmentPath(fragmentType: String): String = {
     fragmentType match {
-      case "input" => s"${AppConstant.BaseZKPath}/fragments/input"
-      case "output" => s"${AppConstant.BaseZKPath}/fragments/output"
+      case "input" => s"/${AppConstant.BaseZKPath}/fragments/input"
+      case "output" => s"/${AppConstant.BaseZKPath}/fragments/output"
       case _ => throw new IllegalArgumentException("The fragment type must be input|output")
     }
   }

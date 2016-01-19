@@ -217,7 +217,7 @@ class SparktaConfigTest extends WordSpec with Matchers {
       val configZk = ConfigFactory.parseString(
         """
           |sparkta {
-          |  zk {
+          |  zookeeper {
           |    "connectionString" : "localhost:6666"
           |    "connectionTimeout": 15000
           |    "sessionTimeout": 60000
