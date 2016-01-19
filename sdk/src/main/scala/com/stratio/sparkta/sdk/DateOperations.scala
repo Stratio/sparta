@@ -30,32 +30,12 @@ object DateOperations {
       case _ => 0L
     }
 
-  def dateFromGranularity(value: DateTime, granularity: String): Long = {
-    val secondsDate = value.withMillisOfSecond(0)
-    val minutesDate = secondsDate.withSecondOfMinute(0)
-    val hourDate = minutesDate.withMinuteOfHour(0)
-    val dayDate = hourDate.withHourOfDay(0)
-    val monthDate = dayDate.withDayOfMonth(1)
-    val yearDate = monthDate.withMonthOfYear(1)
-    val s15 = roundDateTime(value, Duration.standardSeconds(15))
-    val s10 = roundDateTime(value, Duration.standardSeconds(10))
-    val s5 = roundDateTime(value, Duration.standardSeconds(5))
-
-    granularity.toLowerCase match {
-      case "minute" => minutesDate.getMillis
-      case "hour" => hourDate.getMillis
-      case "day" => dayDate.getMillis
-      case "month" => monthDate.getMillis
-      case "year" => yearDate.getMillis
-      case "second" => secondsDate.getMillis
-      case "s15" => s15.getMillis
-      case "s10" => s10.getMillis
-      case "s5" => s5.getMillis
-      case _ => 0L
-    }
+  def dateFromGranularity(date: DateTime, granularity: String): Long = {
+    AggregationTime.truncateDate(date, granularity)
   }
 
   def millisToTimeStamp(date: Long): Timestamp = new Timestamp(date)
+
 
   def getMillisFromSerializable(date: JSerializable): Long = date match {
     case value if value.isInstanceOf[Timestamp] || value.isInstanceOf[Date]
