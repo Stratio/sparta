@@ -106,6 +106,10 @@
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.stratio.common</groupId>
+            <artifactId>common-utils</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

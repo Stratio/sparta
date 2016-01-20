@@ -42,7 +42,7 @@ class CuratorFactoryHolderIT extends FlatSpec with Matchers with BeforeAndAfter 
     zkTestServer = new TestingCluster(1)
     zkTestServer.start()
 
-    clusterConfig = Some(CuratorFactoryHolderIT.basicConfig.get.withValue("sparkta.zk.connectionString",
+    clusterConfig = Some(CuratorFactoryHolderIT.basicConfig.get.withValue("sparkta.zookeeper.connectionString",
       ConfigValueFactory.fromAnyRef(zkTestServer.getConnectString)))
 
     SparktaConfig.initMainConfig(clusterConfig)
@@ -100,7 +100,7 @@ object CuratorFactoryHolderIT {
   val PathTestNode = "/test"
   val configString = s"""
                         "sparkta": {
-                          "zk": {
+                          "zookeeper": {
                             "connectionString": "localhost:$TestServerZKPort",
                             "connectionTimeout": 15000,
                             "sessionTimeout": 60000

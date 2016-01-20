@@ -172,6 +172,7 @@
         <curator.version>2.9.0</curator.version>
         <scala.mock.version>3.2.2</scala.mock.version>
         <easy.mock.version>2.5.2</easy.mock.version>
+        <stratio.common.utils.version>0.3.0</stratio.common.utils.version>
     </properties>
 
     <dependencyManagement>
@@ -408,6 +409,11 @@
                 <groupId>org.scalamock</groupId>
                 <artifactId>scalamock-scalatest-support_${scala.binary.version}</artifactId>
                 <version>${scala.mock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stratio.common</groupId>
+                <artifactId>common-utils</artifactId>
+                <version>${stratio.common.utils.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
