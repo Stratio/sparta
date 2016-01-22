@@ -24,7 +24,7 @@ Feature: Test policy with Socket input and Cassandra output
     Then the service response status must be '200' and its response must contain the text '{"message":"Creating new context'
 
     # Send Data
-    Given I send data from file 'src/test/resources/schemas/data/info.csv' to socket
+    Given I send data from file 'src/test/resources/schemas/dataInput/info.csv' to socket
     And I wait '10' seconds
 
     # Check Data
