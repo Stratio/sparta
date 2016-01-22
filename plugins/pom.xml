@@ -42,6 +42,7 @@
         <module>output-csv</module>
         <module>output-parquet</module>
         <module>output-solr</module>
+        <module>output-kafka</module>
         <module>operator-count</module>
         <module>operator-sum</module>
         <module>operator-max</module>
