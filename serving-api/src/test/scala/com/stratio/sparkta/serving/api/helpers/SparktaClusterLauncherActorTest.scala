@@ -29,7 +29,7 @@ import org.scalatest.junit.JUnitRunner
  * @author anistal
  */
 @RunWith(classOf[JUnitRunner])
-class SparktaHelperTest extends FlatSpec with MockFactory with ShouldMatchers with Matchers {
+class SparktaClusterLauncherActorTest extends FlatSpec with MockFactory with ShouldMatchers with Matchers {
 
   it should "init SparktaConfig from a file with a configuration" in {
     val config = ConfigFactory.parseString(

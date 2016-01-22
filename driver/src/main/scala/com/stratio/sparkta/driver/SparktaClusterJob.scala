@@ -31,16 +31,12 @@ import com.google.common.io.BaseEncoding
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.FileUtils
 import org.apache.curator.framework.CuratorFramework
-import org.json4s.DefaultFormats
-import org.json4s.Formats
-import org.json4s.ext.EnumNameSerializer
 
 import com.stratio.sparkta.driver.SparktaJob._
 import com.stratio.sparkta.driver.repository.ClusterConfigRepositoryComponent
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.driver.util.HdfsUtils
 import com.stratio.sparkta.driver.util.PolicyUtils
-import com.stratio.sparkta.sdk.JsoneyStringSerializer
 import com.stratio.sparkta.serving.core.CuratorFactoryHolder
 import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.actor.FragmentActor
@@ -50,12 +46,12 @@ import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.helpers.PolicyHelper
 import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
 import com.stratio.sparkta.serving.core.models.PolicyStatusModel
-import com.stratio.sparkta.serving.core.models.StreamingContextStatusEnum
+import com.stratio.sparkta.serving.core.models.SparktaSerializer
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 
-object SparktaClusterJob {
+object SparktaClusterJob extends SparktaSerializer {
 
   implicit val timeout: Timeout = Timeout(3.seconds)
   final val PolicyIdIndex = 0
@@ -78,13 +74,10 @@ object SparktaClusterJob {
       val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor)
       val policy = PolicyHelper.parseFragments(
         PolicyHelper.fillFragments(policyZk, fragmentActor, timeout))
-      val pluginsClasspathFiles = addPluginsAndClasspath(args(PluginsPathIndex), args(ClassPathIndex))
-
-      implicit val json4sJacksonFormats: Formats =
-        DefaultFormats +
-          new EnumNameSerializer(StreamingContextStatusEnum) +
-          new JsoneyStringSerializer() +
-          new EnumNameSerializer(PolicyStatusEnum)
+      val pluginsClasspathFiles = Try(addPluginsAndClasspath(args(PluginsPathIndex), args(ClassPathIndex))) match {
+        case Success(files) => files
+        case Failure(ex) => throw new RuntimeException("Someting goes wrong when trying to retrieve jars from HDFS", ex)
+      }
 
       val policyStatusActor = system.actorOf(Props(new PolicyStatusActor(curatorFramework)),
         AkkaConstant.PolicyStatusActor)
@@ -123,8 +116,8 @@ object SparktaClusterJob {
   }
 
   def addPluginsAndClasspath(pluginsPath: String, classPath: String): Seq[URI] = {
-    val zk = new ClusterConfigRepositoryComponent(SparktaConfig.mainConfig.get)
-    val hdfsJsonConfig = new String(zk.repository.get(AppConstant.ConfigZkPath,AppConstant.HdfsId).get)
+    val zkRepository = new ClusterConfigRepositoryComponent(SparktaConfig.mainConfig.get)
+    val hdfsJsonConfig = new String(zkRepository.repository.get(AppConstant.ConfigZkPath, AppConstant.HdfsId).get)
     val config = ConfigFactory.parseString(hdfsJsonConfig).getConfig(AppConstant.HdfsId)
     val hdfsUtils = HdfsUtils(config)
     val pluginFiles = addHdfsFiles(hdfsUtils, pluginsPath)
