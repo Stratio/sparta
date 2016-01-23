@@ -48,15 +48,17 @@ trait ElasticSearchDAO {
 
   def mappingType: String
 
-  def getSparkConfig(timeName: String, idProvided: Boolean): Map[String, String] = {
+  def getSparkConfig(timeName: Option[String], idProvided: Boolean): Map[String, String] = {
     if (idProvided)
       Map("es.mapping.id" -> idField.getOrElse(Output.Id))
     else
       Map()
   } ++
     Map("es.nodes" -> httpNodes(0)._1, "es.port" -> httpNodes(0)._2.toString, "es.index.auto.create" -> "no") ++ {
-    if (timeName.isEmpty) Map()
-    else Map("es.mapping.timestamp" -> timeName)
+    timeName match {
+      case Some(timeNameValue) if !timeNameValue.isEmpty =>  Map("es.mapping.timestamp" -> timeNameValue)
+      case _ => Map()
+    }
   }
 
   def getDateTimeType(dateType: Option[String]): TypeOp = {

@@ -30,13 +30,13 @@ import org.scalatest.{FlatSpec, Matchers}
 @RunWith(classOf[JUnitRunner])
 class CsvOutputTest extends FlatSpec with Matchers with MockitoSugar {
   "CsvOutput" should "upsert a file" in {
-    val opTypes = Some(Map("sum" ->(WriteOp.Inc, TypeOp.Int)))
+    val opTypes = Option(Map("sum" ->(WriteOp.Inc, TypeOp.Int)))
     val out = spy(new CsvOutput("keyName", None, Map("path" -> "path"), opTypes, None))
     val dataframe = mock[DataFrame]
     implicit val savemock = mock[CsvSchemaRDD]
     doNothing().when(out).saveAction(any[String], meq(dataframe))
 
-    out.upsert(dataframe, "tableName", "")
+    out.upsert(dataframe, "tableName", Some(""))
 
     verify(out).saveAction(any[String], meq(dataframe))
   }

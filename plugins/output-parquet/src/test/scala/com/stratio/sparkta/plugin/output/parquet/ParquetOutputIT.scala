@@ -77,7 +77,7 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
   }
 
   "ParquetOutputIT" should "save a dataframe" in new WithEventData {
-    output.upsert(data, "person", "minute")
+    output.upsert(data, "person", Option("minute"))
     val read = sqlContext.read.parquet(tmpPath).toDF
     read.count should be(3)
     read should be eq (data)
@@ -85,7 +85,7 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
   }
 
   it should "throw an exception when path is not present" in new WithWrongOutput {
-    an[Exception] should be thrownBy output.upsert(data, "person", "minute")
+    an[Exception] should be thrownBy output.upsert(data, "person", Option("minute"))
   }
 }
 

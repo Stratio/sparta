@@ -99,7 +99,7 @@ class CassandraOutput(keyName: String,
     persistDataFrame(stream)
   }
 
-  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
+  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: Option[String]): Unit = {
     val tableNameVersioned = getTableName(tableName.toLowerCase)
     write(dataFrame,tableNameVersioned)
   }

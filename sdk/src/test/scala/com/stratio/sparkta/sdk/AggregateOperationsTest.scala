@@ -33,17 +33,18 @@ class AggregateOperationsTest extends FlatSpec with ShouldMatchers {
     val timeDimension = "minute"
     val timestamp = 1L
     val defaultDimension = new DimensionTypeMock(Map())
-    val dimensionValuesT = DimensionValuesTime("testCube",Seq(DimensionValue(
-      Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
-      DimensionValue(
-        Dimension("dim2", "eventKey", "identity", defaultDimension), "value2"),
-      DimensionValue(
-        Dimension("minute", "eventKey", "identity", defaultDimension), 1L)),
-      timestamp, timeDimension)
-    val measures = MeasuresValues(Map("field" -> Some("value")))
+    val dimensionValuesT = DimensionValuesTime(
+      "testCube",
+      Seq(
+        DimensionValue(Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
+        DimensionValue(Dimension("dim2", "eventKey", "identity", defaultDimension), "value2"),
+        DimensionValue(Dimension("minute", "eventKey", "identity", defaultDimension), 1L)
+      ),
+      Option(TimeConfig(timestamp, timeDimension)))
+    val measures = MeasuresValues(Map("field" -> Option("value")))
     val fixedDimensionsName = Seq("dim2")
-    val fixedDimensions = Some(Seq(("dim3", "value3")))
-    val fixedMeasures = MeasuresValues(Map("agg2" -> Some("2")))
+    val fixedDimensions = Option(Seq(("dim3", "value3")))
+    val fixedMeasures = MeasuresValues(Map("agg2" -> Option("2")))
     val measureEmpty = MeasuresValues(Map())
   }
 
@@ -54,14 +55,14 @@ class AggregateOperationsTest extends FlatSpec with ShouldMatchers {
   }
 
   it should "return a correct toKeyRow tuple" in new CommonValues {
-    val expect = (Some("testCube"), Row("value1", "value2", "value3", new Timestamp(1L), "2", "value"))
+    val expect = (Option("testCube"), Row("value1", "value2", "value3", new Timestamp(1L), "2", "value"))
     val result = AggregateOperations.toKeyRow(
       dimensionValuesT, measures, fixedMeasures, fixedDimensions, false, TypeOp.Timestamp)
     result should be(expect)
   }
 
   it should "return a correct toKeyRow tuple without fixedMeasure" in new CommonValues {
-    val expect = (Some("testCube"), Row("value1", "value2", "value3", new Timestamp(1L), "value"))
+    val expect = (Option("testCube"), Row("value1", "value2", "value3", new Timestamp(1L), "value"))
     val result = AggregateOperations.toKeyRow(dimensionValuesT,
       measures,
       measureEmpty,
@@ -72,14 +73,14 @@ class AggregateOperationsTest extends FlatSpec with ShouldMatchers {
   }
 
   it should "return a correct toKeyRow tuple without fixedDimensions" in new CommonValues {
-    val expect = (Some("testCube"), Row("value1", "value2", new Timestamp(1L), "2", "value"))
+    val expect = (Option("testCube"), Row("value1", "value2", new Timestamp(1L), "2", "value"))
     val result = AggregateOperations.toKeyRow(
       dimensionValuesT, measures, fixedMeasures, None, false, TypeOp.Timestamp)
     result should be(expect)
   }
 
   it should "return a correct toKeyRow tuple without fixedDimensions and fixedMeasure" in new CommonValues {
-    val expect = (Some("testCube"), Row("value1", "value2", new Timestamp(1L), "value"))
+    val expect = (Option("testCube"), Row("value1", "value2", new Timestamp(1L), "value"))
     val result = AggregateOperations.toKeyRow(
       dimensionValuesT, measures, measureEmpty, None, false, TypeOp.Timestamp)
     result should be(expect)
@@ -87,7 +88,7 @@ class AggregateOperationsTest extends FlatSpec with ShouldMatchers {
 
   it should "return a correct toKeyRow tuple without measures and  fixedDimensions and fixedMeasure" in
     new CommonValues {
-      val expect = (Some("testCube"), Row("value1", "value2", new Timestamp(1L)))
+      val expect = (Option("testCube"), Row("value1", "value2", new Timestamp(1L)))
       val result = AggregateOperations.toKeyRow(dimensionValuesT,
         measureEmpty,
         measureEmpty,
@@ -100,14 +101,18 @@ class AggregateOperationsTest extends FlatSpec with ShouldMatchers {
   it should "return a correct toKeyRow tuple without dimensions and aggregations and  fixedDimensions and " +
     "fixedMeasure" in
     new CommonValues {
-      val expect = (Some("testCube"), Row(new Timestamp(1L)))
+      val expect = (Option("testCube"), Row(new Timestamp(1L)))
+
       val result =
-        AggregateOperations.toKeyRow(DimensionValuesTime("testCube",Seq(), timestamp, timeDimension),
-          measureEmpty,
-          measureEmpty,
-          None,
-          false,
-          TypeOp.Timestamp)
+        AggregateOperations
+          .toKeyRow(
+            DimensionValuesTime("testCube", Seq(), Option(TimeConfig(timestamp, timeDimension))),
+            measureEmpty,
+            measureEmpty,
+            None,
+            false,
+            TypeOp.Timestamp)
+
       result should be(expect)
     }
 

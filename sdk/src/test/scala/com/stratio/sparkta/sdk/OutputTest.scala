@@ -34,38 +34,36 @@ class OutputTest extends WordSpec with Matchers {
     val tableName = "table"
     val timestamp = 1L
     val defaultDimension = new DimensionTypeMock(Map())
-    val dimensionValuesT = DimensionValuesTime("testCube",Seq(DimensionValue(
-      Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
-      DimensionValue(
-        Dimension("dim2", "eventKey", "identity", defaultDimension), "value2"),
-      DimensionValue(
-        Dimension("minute", "eventKey", "identity", defaultDimension), 1L)),
-      timestamp, timeDimension)
+    val dimensionValuesT = DimensionValuesTime("testCube", Seq(DimensionValue(
+              Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
+              DimensionValue(
+                Dimension("dim2", "eventKey", "identity", defaultDimension), "value2"),
+              DimensionValue(
+                Dimension("minute", "eventKey", "identity", defaultDimension), 1L)))
 
-    val dimensionValuesTFixed = DimensionValuesTime("testCube",Seq(DimensionValue(
-      Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
-      DimensionValue(
-        Dimension("minute", "eventKey", "identity", defaultDimension), 1L)),
-      timestamp, timeDimension)
+    val dimensionValuesTFixed = DimensionValuesTime("testCube", Seq(DimensionValue(
+              Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
+              DimensionValue(
+                Dimension("minute", "eventKey", "identity", defaultDimension), 1L)))
 
     val tableSchema = TableSchema("outputName", "myCube", StructType(Array(
-      StructField("dim1", StringType, false),
-      StructField("dim2", StringType, false),
-      StructField("minute", DateType, false),
-      StructField("op1", LongType, true))), "minute")
+          StructField("dim1", StringType, false),
+          StructField("dim2", StringType, false),
+          StructField("minute", DateType, false),
+          StructField("op1", LongType, true))), Option("minute"))
     val outputName = "outputName"
 
     val output = new OutputMock(outputName,
       None,
       Map(),
-      Some(Map("op1" ->(WriteOp.Set, TypeOp.Long))),
-      Some(Seq(tableSchema)))
+      Option(Map("op1" ->(WriteOp.Set, TypeOp.Long))),
+      Option(Seq(tableSchema)))
 
     val outputOperation = new OutputMock(outputName,
       None,
       Map(),
-      Some(Map("op1" ->(WriteOp.Inc, TypeOp.Long))),
-      Some(Seq(tableSchema)))
+      Option(Map("op1" ->(WriteOp.Inc, TypeOp.Long))),
+      Option(Seq(tableSchema)))
 
     val outputProps = new OutputMock(outputName,
       None,
@@ -74,15 +72,15 @@ class OutputTest extends WordSpec with Matchers {
         "fixedMeasure" -> "op2:1",
         "isAutoCalculateId" -> "true"
       ),
-      Some(Map("op1" ->(WriteOp.Set, TypeOp.Long))),
-      Some(Seq(tableSchema)))
+      Option(Map("op1" ->(WriteOp.Set, TypeOp.Long))),
+      Option(Seq(tableSchema)))
 
 
     val outputVersioned = new OutputMock(outputName,
       Option(1),
       Map(),
-      Some(Map("op1" ->(WriteOp.Set, TypeOp.Long))),
-      Some(Seq(tableSchema)))
+      Option(Map("op1" ->(WriteOp.Set, TypeOp.Long))),
+      Option(Seq(tableSchema)))
 
   }
 
@@ -131,7 +129,7 @@ class OutputTest extends WordSpec with Matchers {
     }
 
     "with fixed measures must be " in new CommonValues {
-      val expected = MeasuresValues(Map("op2" -> Some("1")))
+      val expected = MeasuresValues(Map("op2" -> Option("1")))
       val result = outputProps.fixedMeasures
       result should be(expected)
     }
@@ -153,29 +151,30 @@ class OutputTest extends WordSpec with Matchers {
         StructField("dim1", StringType, false),
         StructField("dim2", StringType, false),
         StructField("minute", TimestampType, false),
-        StructField("op1", LongType, true))), "minute")
+        StructField("op1", LongType, true))), Option("minute"))
+
       val result = output.getTableSchemaFixedId(tableSchema)
       result should be(expected)
     }
 
     "the correct table schema according to the properties must be " in new CommonValues {
       val expected = TableSchema("outputName", "myCube", StructType(Array(
-        StructField("id", StringType, false),
-        StructField("dim1", StringType, false),
-        StructField("dim2", StringType, false),
-        StructField("minute", TimestampType, false),
-        StructField("op1", LongType, true))), "minute")
+              StructField("id", StringType, false),
+              StructField("dim1", StringType, false),
+              StructField("dim2", StringType, false),
+              StructField("minute", TimestampType, false),
+              StructField("op1", LongType, true))), Option("minute"))
       val result = outputProps.getTableSchemaFixedId(tableSchema)
       result should be(expected)
     }
 
     "the correct table schema according to the properties with fixed dimension must be " in new CommonValues {
       val expected = TableSchema("outputName", "myCube", StructType(Array(
-        StructField("id", StringType, false),
-        StructField("dim1", StringType, false),
-        StructField("dim2", StringType, false),
-        StructField("minute", TimestampType, false),
-        StructField("op1", LongType, true))), "minute")
+              StructField("id", StringType, false),
+              StructField("dim1", StringType, false),
+              StructField("dim2", StringType, false),
+              StructField("minute", TimestampType, false),
+              StructField("op1", LongType, true))), Option("minute"))
       val result = outputProps.getTableSchemaFixedId(tableSchema)
       result should be(expected)
     }
@@ -187,7 +186,7 @@ class OutputTest extends WordSpec with Matchers {
     }
 
     "the fixed dimensions according to the properties must be " in new CommonValues {
-      val expected = Some(Seq(("dim2", "value2")))
+      val expected = Option(Seq(("dim2", "value2")))
       val result = outputProps.getFixedDimensions(dimensionValuesT)
       result should be(expected)
     }

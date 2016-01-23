@@ -35,7 +35,7 @@ import com.stratio.sparkta.driver.util.ReflectionUtils
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, OperatorModel}
+import com.stratio.sparkta.serving.core.models.{CheckpointModel, AggregationPoliciesModel, OperatorModel}
 
 object SparktaJob extends SLF4JLogging {
 
@@ -175,16 +175,17 @@ object SparktaJob extends SLF4JLogging {
       val operators = SparktaJob.getOperators(cube.operators, refUtils)
 
       val datePrecision = if (cube.checkpointConfig.timeDimension.isEmpty) None
-      else Some(cube.checkpointConfig.timeDimension)
+      else Option(cube.checkpointConfig.timeDimension)
       val timeName = if (datePrecision.isDefined) datePrecision.get else cube.checkpointConfig.granularity
 
-      Cube(name,
-        dimensions,
-        operators,
-        timeName,
-        cube.checkpointConfig.interval,
-        cube.checkpointConfig.granularity,
-        cube.checkpointConfig.timeAvailability)
+      val expiringDataConfig = timeName.toLowerCase() match {
+        case "none" => None
+        case _ => Option(ExpiringDataConfig(timeName,
+          cube.checkpointConfig.granularity,
+          cube.checkpointConfig.timeAvailability))
+      }
+
+      Cube(name, dimensions, operators, cube.checkpointConfig.interval, expiringDataConfig)
     })
 
   def instantiateDimensionType(dimensionType: String, configuration: Option[Map[String, String]],

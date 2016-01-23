@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.plugin.output.kafka
 
 import java.io.{Serializable => JSerializable}
@@ -31,7 +32,7 @@ class KafkaOutput(keyName: String,
                   bcSchema: Option[Seq[TableSchema]])
   extends Output(keyName, version, properties, operationTypes, bcSchema) with KafkaProducer {
 
-  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
+  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: Option[String]): Unit = {
     dataFrame.toJSON.foreachPartition {
       messages => messages.foreach(message =>
         send(properties, tableName, message))

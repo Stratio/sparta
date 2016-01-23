@@ -17,6 +17,7 @@
 package com.stratio.sparkta.plugin.output.redis
 
 import java.io.Serializable
+import java.util.UUID
 
 import com.stratio.sparkta.plugin.output.redis.dao.AbstractRedisDAO
 import com.stratio.sparkta.sdk.TypeOp._
@@ -29,7 +30,8 @@ import org.apache.spark.streaming.dstream.DStream
  * Saves calculated cubes on Redis.
  * The hashKey will have this kind of structure -> A:valueA:B:valueB:C:valueC.It is important to see that
  * values will be part of the key and the objective of it is to perform better searches in the hash.
- * @author anistal
+  *
+  * @author anistal
  */
 class RedisOutput(keyName: String,
                   version: Option[Int],
@@ -49,7 +51,8 @@ class RedisOutput(keyName: String,
 
   /**
    * Saves in Redis' hash cubes values.
-   * @param metricOperations that will be saved.
+    *
+    * @param metricOperations that will be saved.
    */
   override def upsert(metricOperations: Iterator[(DimensionValuesTime, MeasuresValues)]): Unit = {
     val dimAggGrouped = filterNonEmptyMetricOperations(groupMetricOperationsByHashKey(metricOperations.toList))
@@ -81,10 +84,18 @@ class RedisOutput(keyName: String,
       if (hasValues) {
         dimensionsTime.dimensionValues.map(dimVal =>
           List(dimVal.getNameDimension, dimVal.value.toString)).flatMap(_.toSeq).mkString(IdSeparator) +
-          IdSeparator + dimensionsTime.timeDimension + IdSeparator + dimensionsTime.time
+          {dimensionsTime.timeConfig match {
+            case None => ""
+            case Some(timeConfig) => IdSeparator + timeConfig.timeDimension + IdSeparator + timeConfig.eventTime
+          }}
+
       } else ""
     } else {
-      dimensionsTime.timeDimension + IdSeparator + dimensionsTime.time
+      dimensionsTime.timeConfig match {
+        case None => ""
+        case Some(timeConfig) => timeConfig.timeDimension + IdSeparator + timeConfig.eventTime
+      }
+
     }
   }
 }

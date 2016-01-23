@@ -49,11 +49,12 @@ class ISocketOElasticsearchOperatorsIT extends SparktaATSuite {
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in Elasticsearch" in {
       sparktaRunner
-      checkData
+      checkData("testcubewithtime")
+      checkData("testcubewithouttime")
     }
 
-    def checkData: Unit = {
-      val productA = getData("producta")
+    def checkData(tableName: String): Unit = {
+      val productA = getData("producta", tableName)
       productA("acc_price") should be(
         Seq("10", "500", "1000", "500", "1000", "500", "1002", "600"))
       productA("avg_price") should be(639.0d)
@@ -71,7 +72,7 @@ class ISocketOElasticsearchOperatorsIT extends SparktaATSuite {
       productA("entityCount_text") should be(Map("hola" -> 16L, "holo" -> 8L))
       productA("totalEntity_text") should be(24)
 
-      val productB = getData("productb")
+      val productB = getData("productb", tableName)
       productB("acc_price") should be(
         Seq("15", "1000", "1000", "1000", "1000", "1000", "1001", "50"))
       productB("avg_price") should be(758.25d)
@@ -90,10 +91,10 @@ class ISocketOElasticsearchOperatorsIT extends SparktaATSuite {
       productB("totalEntity_text") should be(24)
     }
 
-    def getData(productName: String): Map[String, Any] = {
+    def getData(productName: String, tableName: String): Map[String, Any] = {
       val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
       val productArequest: Future[HttpResponse] =
-        pipeline(Get(s"http://$Localhost:9200/testcube/day_v1/_search?q=product:$productName"))
+        pipeline(Get(s"http://$Localhost:9200/$tableName/day_v1/_search?q=product:$productName"))
       val response: HttpResponse = Await.result(productArequest, Timeout(5.seconds).duration)
       JSON.globalNumberParser = { input: String => input.toDouble }
       val json = JSON.parseFull(response.entity.data.asString)

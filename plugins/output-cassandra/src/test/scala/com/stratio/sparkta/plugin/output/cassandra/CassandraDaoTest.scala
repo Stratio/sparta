@@ -30,10 +30,10 @@ class CassandraDaoTest extends FlatSpec with Matchers with MockitoSugar with Cas
 
   val cassandraConector = mock[CassandraConnector]
   val tableSchema = Seq(TableSchema("outputName", "myCube", StructType(Array(
-    StructField("dim1", StringType, false))), "minute"))
+      StructField("dim1", StringType, false))), Option("minute")))
   val structField = StructField("name", StringType, false)
   val schema: StructType = StructType(Array(structField))
-  val tableVersion = Some(1)
+  val tableVersion = Option(1)
 
   "getTableName" should "return the name of the table" in {
 
@@ -84,13 +84,13 @@ class CassandraDaoTest extends FlatSpec with Matchers with MockitoSugar with Cas
 
   "schemaToPkCcolumns" should "return the schema" in {
 
-    val res = schemaToPkCcolumns(schema, "cluster", false)
-    res should be (Some("(name text, PRIMARY KEY (name))"))
+    val res = schemaToPkCcolumns(schema, Option("cluster"), false)
+    res should be (Option("(name text, PRIMARY KEY (name))"))
   }
 
   "createTable" should "return true" in {
 
-    val res = createTable(cassandraConector, "tablename", schema, "cluster", false)
+    val res = createTable(cassandraConector, "tablename", schema, Option("cluster"), false)
     res should be (true)
   }
   override def keyspace: String = "sparkta"

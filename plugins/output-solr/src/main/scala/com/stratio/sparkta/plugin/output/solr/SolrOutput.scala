@@ -79,7 +79,7 @@ class SolrOutput(keyName: String,
     if (validConfiguration) persistDataFrame(stream)
     else log.info(SolrConfigurationError)
 
-  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
+  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: Option[String]): Unit = {
     val slrRelation = new SolrRelation(sqlContext, getConfig(connection, tableName), dataFrame)
     slrRelation.insert(dataFrame, true)
   }

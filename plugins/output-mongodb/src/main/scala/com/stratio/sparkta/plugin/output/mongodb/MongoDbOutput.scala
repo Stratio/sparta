@@ -69,7 +69,7 @@ class MongoDbOutput(keyName: String,
     persistDataFrame(stream)
   }
 
-  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
+  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: Option[String]): Unit = {
     val options = getDataFrameOptions(tableName, timeDimension)
     dataFrame.write
       .format(MongoDbSparkDatasource)
@@ -78,7 +78,7 @@ class MongoDbOutput(keyName: String,
       .save()
   }
 
-  private def getDataFrameOptions(tableName: String, timeDimension: String): Map[String, String] =
+  private def getDataFrameOptions(tableName: String, timeDimension: Option[String]): Map[String, String] =
     Map(
       MongodbConfig.Host -> hosts,
       MongodbConfig.Database -> dbName,
@@ -86,10 +86,13 @@ class MongoDbOutput(keyName: String,
       if (language.isDefined) Map(MongodbConfig.Language -> language.get) else Map()
     }
 
-  private def getPrimaryKeyOptions(timeDimension: String): Map[String, String] =
-    if (!timeDimension.isEmpty) {
-      Map(MongodbConfig.UpdateFields -> Seq(Output.Id, timeDimension).mkString(","))
-    } else Map(MongodbConfig.UpdateFields -> Output.Id)
+  private def getPrimaryKeyOptions(timeDimension: Option[String]): Map[String, String] = {
+    timeDimension match {
+      case Some(timeDimensionValue) if !timeDimensionValue.isEmpty =>
+        Map(MongodbConfig.UpdateFields -> Seq(Output.Id, timeDimensionValue).mkString(","))
+      case _ => Map(MongodbConfig.UpdateFields -> Output.Id)
+    }
+  }
 
   private def getConnectionConfs(key : String, firstJsonItem : String, secondJsonItem : String) : String = {
     val conObj = properties.getMapFromJsoneyString(key)

@@ -72,11 +72,8 @@ class CubeMakerTest extends TestSuiteBase {
     val cube = Cube(name,
       Seq(dimension, timeDimension),
       Seq(operator),
-      checkpointGranularity,
-      checkpointInterval,
-      checkpointGranularity,
-      checkpointTimeAvailability)
-    val dataCube = new CubeOperations(cube, timeDimensionName, checkpointGranularity)
+      checkpointInterval)
+    val dataCube = new CubeOperations(cube)
 
     testOperation(getEventInput(sqlTimestamp), dataCube.extractDimensionsAggregations,
       getEventOutput(sqlTimestamp, millis), PreserverOrder)
@@ -111,9 +108,9 @@ class CubeMakerTest extends TestSuiteBase {
     val valuesMap3 = InputFieldsValues(Map("eventKey" -> "value3") ++ tsMap)
 
     Seq(Seq(
-      (DimensionValuesTime("cubeName",Seq(dimensionValueString1, dimensionValueTs), millis, "minute"), valuesMap1),
-      (DimensionValuesTime("cubeName",Seq(dimensionValueString2, dimensionValueTs), millis, "minute"), valuesMap2),
-      (DimensionValuesTime("cubeName",Seq(dimensionValueString3, dimensionValueTs), millis, "minute"), valuesMap3)
+      (DimensionValuesTime("cubeName", Seq(dimensionValueString1, dimensionValueTs)), valuesMap1),
+      (DimensionValuesTime("cubeName", Seq(dimensionValueString2, dimensionValueTs)), valuesMap2),
+      (DimensionValuesTime("cubeName", Seq(dimensionValueString3, dimensionValueTs)), valuesMap3)
     ))
   }
 }

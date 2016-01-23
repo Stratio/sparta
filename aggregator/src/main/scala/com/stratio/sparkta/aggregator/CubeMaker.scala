@@ -42,7 +42,7 @@ case class CubeMaker(cubes: Seq[Cube]) {
    */
   def setUp(inputStream: DStream[Event]): Seq[DStream[(DimensionValuesTime, MeasuresValues)]] = {
     cubes.map(cube => {
-      val currentCube = new CubeOperations(cube, cube.checkpointTimeDimension, cube.checkpointGranularity)
+      val currentCube = new CubeOperations(cube)
       val extractedDimensionsStream = currentCube.extractDimensionsAggregations(inputStream)
       cube.aggregate(extractedDimensionsStream)
     })
@@ -51,19 +51,16 @@ case class CubeMaker(cubes: Seq[Cube]) {
 
 /**
  * This class is necessary because we need test extractDimensionsAggregations with Spark testSuite for Dstreams.
- * @param cube that will be contain the current cube.
- * @param timeDimension that will be contain the dimensionType id that contain the date.
- * @param checkpointGranularity that will be contain the granularity to calculate the time, only if this
- *                              dimensionType is not present.
+  *
+  * @param cube that will be contain the current cube.
  */
 
-protected case class CubeOperations(cube: Cube,
-                                    timeDimension: String,
-                                    checkpointGranularity: String) extends SLF4JLogging {
+protected case class CubeOperations(cube: Cube) extends SLF4JLogging {
 
   /**
    * Extract a modified stream that will be needed to calculate aggregations.
-   * @param inputStream with the original stream of data.
+    *
+    * @param inputStream with the original stream of data.
    * @return a modified stream after join dimensions, cubes and operations.
    */
   def extractDimensionsAggregations(inputStream: DStream[Event]): DStream[(DimensionValuesTime, InputFieldsValues)] = {
@@ -73,8 +70,22 @@ protected case class CubeOperations(cube: Cube,
           value <- event.keyMap.get(dimension.field).toSeq
           (precision, dimValue) = dimension.dimensionType.precisionValue(dimension.precisionKey, value)
         } yield DimensionValue(dimension, TypeOp.transformValueByTypeOp(precision.typeOp, dimValue))
-        val eventTime = extractEventTime(dimensionValues)
-        (DimensionValuesTime(cube.name, dimensionValues, eventTime, timeDimension), InputFieldsValues(event.keyMap))
+
+
+        cube.expiringDataConfig match {
+          case None =>
+            (DimensionValuesTime(cube.name, dimensionValues), InputFieldsValues(event.keyMap))
+          case Some(expiringDataConfig) => {
+            val eventTime = extractEventTime(dimensionValues)
+            val timeDimension = expiringDataConfig.timeDimension
+            (DimensionValuesTime(cube.name, dimensionValues, Option(TimeConfig(eventTime, timeDimension))),
+              InputFieldsValues(event.keyMap))
+          }
+        }
+
+
+
+
       }) match {
         case Success(dimensionValuesTime) => Some(dimensionValuesTime)
         case Failure(exception) => {
@@ -90,6 +101,8 @@ protected case class CubeOperations(cube: Cube,
   }
 
   private def extractEventTime(dimensionValues: Seq[DimensionValue]) = {
+
+    val timeDimension = cube.expiringDataConfig.get.timeDimension
     val dimensionsDates =
       dimensionValues.filter(dimensionValue => dimensionValue.dimension.name == timeDimension)
 
@@ -99,5 +112,8 @@ protected case class CubeOperations(cube: Cube,
       DateOperations.getMillisFromSerializable(dimensionsDates.head.value)
   }
 
-  private def getDate: Long = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity)
+  private def getDate: Long = {
+    val checkpointGranularity = cube.expiringDataConfig.get.granularity
+    DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity)
+  }
 }

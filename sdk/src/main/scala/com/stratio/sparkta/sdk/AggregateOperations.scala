@@ -25,11 +25,19 @@ object AggregateOperations {
   def toString(dimensionValuesT: DimensionValuesTime,
                measures: MeasuresValues,
                timeDimension: String,
-               fixedDimensions: Seq[String]): String =
+               fixedDimensions: Seq[String]): String = {
+
+    val timeString = dimensionValuesT.timeConfig match {
+      case None => ""
+      case Some(timeConfig) => " TIME: " + timeConfig.eventTime
+    }
+
     keyString(dimensionValuesT, timeDimension, fixedDimensions) +
       " DIMENSIONS: " + dimensionValuesT.dimensionValues.mkString("|") +
       " MEASURES: " + measures +
-      " TIME: " + dimensionValuesT.time
+      timeString
+  }
+
 
   def keyString(dimensionValuesT: DimensionValuesTime, timeDimension: String, fixedDimensions: Seq[String]): String = {
     val dimensionsNames = dimensionValuesNamesSorted(dimensionValuesT.dimensionValues)
@@ -49,24 +57,48 @@ object AggregateOperations {
                fixedDimensions: Option[Seq[(String, Any)]],
                idCalculated: Boolean,
                dateType: TypeOp.Value): (Option[String], Row) = {
-    val timeDimension = dimensionValuesT.timeDimension
-    val dimensionValuesFiltered =
-      filterDimensionValuesByName(dimensionValuesT.dimensionValues,
-        if (timeDimension.isEmpty) None else Some(timeDimension))
-    val namesDim = dimensionValuesT.cube
-    val (valuesDim, valuesAgg) = toSeq(dimensionValuesFiltered, measures.values ++ fixedMeasures.values)
-    val (namesFixed, valuesFixed) = if (fixedDimensions.isDefined) {
-      val fixedDimensionsSorted = fixedDimensions.get
-        .filter(fb => fb._1 != timeDimension)
-        .sortWith((dimension1, dimension2) => dimension1._1 < dimension2._1)
-      (namesDim,
-        valuesDim ++ fixedDimensionsSorted.map(_._2) ++ Seq(getTimeFromDateType(dimensionValuesT.time, dateType)))
-    } else
-      (namesDim,
-        valuesDim ++ Seq(getTimeFromDateType(dimensionValuesT.time, dateType)))
-    val (keysId, rowId) = getNamesValues(namesFixed, valuesFixed, idCalculated)
 
-    (Some(keysId), Row.fromSeq(rowId ++ valuesAgg))
+    val namesDim = dimensionValuesT.cube
+
+    dimensionValuesT.timeConfig match {
+      case None => {
+        val dimensionValuesFiltered = dimensionValuesT.dimensionValues
+
+        val (valuesDim, valuesAgg) = toSeq(dimensionValuesFiltered, measures.values ++ fixedMeasures.values)
+        val (namesFixed, valuesFixed) = if (fixedDimensions.isDefined) {
+          val fixedDimensionsSorted = fixedDimensions.get
+            .sortWith((dimension1, dimension2) => dimension1._1 < dimension2._1)
+          (namesDim,
+            valuesDim ++ fixedDimensionsSorted.map(_._2))
+        } else
+          (namesDim, valuesDim)
+
+        val (keysId, rowId) = getNamesValues(namesFixed, valuesFixed, idCalculated)
+
+        (Option(keysId), Row.fromSeq(rowId ++ valuesAgg))
+      }
+      case Some(timeConfig) => {
+        val timeDimension = timeConfig.timeDimension
+        val dimensionValuesFiltered =
+          filterDimensionValuesByName(dimensionValuesT.dimensionValues,
+            if (timeDimension.isEmpty) None else Option(timeDimension))
+        val (valuesDim, valuesAgg) = toSeq(dimensionValuesFiltered, measures.values ++ fixedMeasures.values)
+        val (namesFixed, valuesFixed) = if (fixedDimensions.isDefined) {
+          val fixedDimensionsSorted = fixedDimensions.get
+            .filter(fb => fb._1 != timeDimension)
+            .sortWith((dimension1, dimension2) => dimension1._1 < dimension2._1)
+          (namesDim,
+            valuesDim ++ fixedDimensionsSorted.map(_._2) ++
+              Seq(getTimeFromDateType(timeConfig.eventTime, dateType)))
+        } else
+          (namesDim, valuesDim ++ Seq(getTimeFromDateType(timeConfig.eventTime, dateType)))
+
+        val (keysId, rowId) = getNamesValues(namesFixed, valuesFixed, idCalculated)
+
+        (Option(keysId), Row.fromSeq(rowId ++ valuesAgg))
+      }
+    }
+
   }
 
   def toSeq(dimensionValues: Seq[DimensionValue], aggregations: Map[String, Option[Any]]): (Seq[Any], Seq[Any]) =
