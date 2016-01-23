@@ -44,12 +44,13 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
         "dateType" -> "long"), None, None)
 
     def getInstance(host: String = "localhost", httpPort: Int = localPort, tcpPort : Int = remotePort)
-    : ElasticSearchOutput =
+    : ElasticSearchOutput[DimensionValuesTime] =
       new ElasticSearchOutput("ES-out", None,
         Map("nodes" -> new JsoneyString( s"""[{"node":"$host","httpPort":"$httpPort","tcpPort":"$tcpPort"}]"""),
           "dateType" -> "long",
-        "clusterName" -> "elasticsearch"), None, None)
-  }
+          "clusterName" -> "elasticsearch"), None, None)
+
+    }
 
   trait NodeValues extends BaseValues {
 
@@ -73,7 +74,12 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
       """[{"node":"localhost","httpPort":"9200","tcpPort":"9300"}]""".stripMargin),
       "dateType" -> "long",
       "clusterName" -> "elasticsearch")
-    override val output = new ElasticSearchOutput("ES-out", None, properties, None, bcSchema = Some(Seq(tableSchema)))
+    override val output = new ElasticSearchOutput[DimensionValuesTime](
+      "ES-out",
+      None,
+      properties,
+      None,
+      bcSchema = Some(Seq(tableSchema)))
     val dateField = StructField("timestamp", TimestampType, false)
     val expectedDateField = StructField("timestamp", LongType, false)
     val stringField = StructField("string", StringType)

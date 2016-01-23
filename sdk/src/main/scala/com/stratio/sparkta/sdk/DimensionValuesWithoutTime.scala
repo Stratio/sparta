@@ -16,24 +16,23 @@
 
 package com.stratio.sparkta.sdk
 
-case class DimensionValuesTime(cube: String, dimensionValues: Seq[DimensionValue], time: Long, timeDimension: String)
-      extends DimensionValues {
+case class DimensionValuesWithoutTime(cube: String,
+                                      dimensionValues: Seq[DimensionValue])
+  extends DimensionValues {
 
   override def toString(measuresValues: MeasuresValues, fixedDimensions: Array[String]): String = {
-    keyString(this, timeDimension, fixedDimensions) +
-    " DIMENSIONS: " + this.dimensionValues.mkString("|") +
-    " MEASURES: " + measuresValues + ""
-    " TIME: " + this.time
+    keyString(this, fixedDimensions) +
+      " DIMENSIONS: " + this.dimensionValues.mkString("|") +
+      " MEASURES: " + measuresValues
   }
 
-  def keyString(dimensionValuesT: DimensionValuesTime, timeDimension: String, fixedDimensions: Seq[String]):
+  def keyString(dimensionValuesT: DimensionValuesWithoutTime, fixedDimensions: Seq[String]):
   String = {
     val dimensionsNames = AggregateOperations.dimensionValuesNamesSorted(dimensionValuesT.dimensionValues)
-      .filter(dimName => dimName.nonEmpty && dimName != timeDimension && !fixedDimensions.contains(dimName)) ++
-      fixedDimensions ++ Seq(timeDimension)
+      .filter(dimName => dimName.nonEmpty && !fixedDimensions.contains(dimName)) ++
+      fixedDimensions
+
     dimensionsNames.mkString(Output.Separator)
   }
 
 }
-
-

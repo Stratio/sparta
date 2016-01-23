@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,33 +22,17 @@ import org.apache.spark.sql._
 
 object AggregateOperations {
 
-  def toString(dimensionValuesT: DimensionValuesTime,
-               measures: MeasuresValues,
-               timeDimension: String,
-               fixedDimensions: Seq[String]): String =
-    keyString(dimensionValuesT, timeDimension, fixedDimensions) +
-      " DIMENSIONS: " + dimensionValuesT.dimensionValues.mkString("|") +
-      " MEASURES: " + measures +
-      " TIME: " + dimensionValuesT.time
-
-  def keyString(dimensionValuesT: DimensionValuesTime, timeDimension: String, fixedDimensions: Seq[String]): String = {
-    val dimensionsNames = dimensionValuesNamesSorted(dimensionValuesT.dimensionValues)
-      .filter(dimName => dimName.nonEmpty && dimName != timeDimension && !fixedDimensions.contains(dimName)) ++
-      fixedDimensions ++ Seq(timeDimension)
-    dimensionsNames.mkString(Output.Separator)
-  }
-
   /*
   * By default transform an UpdateMetricOperation in a Row with description.
   * If fixedDimensions is defined add fields and values to the original values and fields.
   * Id field we need calculate the value with all other values
   */
-  def toKeyRow(dimensionValuesT: DimensionValuesTime,
-               measures: MeasuresValues,
-               fixedMeasures: MeasuresValues,
-               fixedDimensions: Option[Seq[(String, Any)]],
-               idCalculated: Boolean,
-               dateType: TypeOp.Value): (Option[String], Row) = {
+  def toKeyRowWithTime(dimensionValuesT: DimensionValuesTime,
+                       measures: MeasuresValues,
+                       fixedMeasures: MeasuresValues,
+                       fixedDimensions: Option[Seq[(String, Any)]],
+                       idCalculated: Boolean,
+                       dateType: TypeOp.Value): (Option[String], Row) = {
     val timeDimension = dimensionValuesT.timeDimension
     val dimensionValuesFiltered =
       filterDimensionValuesByName(dimensionValuesT.dimensionValues,
@@ -68,6 +52,33 @@ object AggregateOperations {
 
     (Some(keysId), Row.fromSeq(rowId ++ valuesAgg))
   }
+
+  /*
+  * By default transform an UpdateMetricOperation in a Row with description.
+  * If fixedDimensions is defined add fields and values to the original values and fields.
+  * Id field we need calculate the value with all other values
+  */
+  def toKeyRowWithoutTime(dimensionValuesT: DimensionValuesWithoutTime,
+               measures: MeasuresValues,
+               fixedMeasures: MeasuresValues,
+               fixedDimensions: Option[Seq[(String, Any)]],
+               idCalculated: Boolean,
+               dateType: TypeOp.Value): (Option[String], Row) = {
+    val dimensionValuesFiltered = dimensionValuesT.dimensionValues
+    val namesDim = dimensionValuesT.cube
+    val (valuesDim, valuesAgg) = toSeq(dimensionValuesFiltered, measures.values ++ fixedMeasures.values)
+    val (namesFixed, valuesFixed) = if (fixedDimensions.isDefined) {
+      val fixedDimensionsSorted = fixedDimensions.get
+        .sortWith((dimension1, dimension2) => dimension1._1 < dimension2._1)
+      (namesDim,
+        valuesDim ++ fixedDimensionsSorted.map(_._2))
+    } else
+      (namesDim, valuesDim)
+    val (keysId, rowId) = getNamesValues(namesFixed, valuesFixed, idCalculated)
+
+    (Some(keysId), Row.fromSeq(rowId ++ valuesAgg))
+  }
+
 
   def toSeq(dimensionValues: Seq[DimensionValue], aggregations: Map[String, Option[Any]]): (Seq[Any], Seq[Any]) =
     (dimensionValues.sorted.map(dimVal => dimVal.value),

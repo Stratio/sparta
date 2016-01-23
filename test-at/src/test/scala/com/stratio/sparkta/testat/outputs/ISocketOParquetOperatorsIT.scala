@@ -44,14 +44,14 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in parquet" in {
       sparktaRunner
-      checkData
+      checkData("testCubeWithTime_v1")
+      checkData("testCubeWithoutTime_v1")
     }
 
     // scalastyle:off
-    def checkData(): Unit = {
-      val sc = new SparkContext(s"local[$NumExecutors]", "ISocketOParquet-operators")
-      val sqc = new SQLContext(sc)
-      val df = sqc.read.parquet(parquetPath).toDF
+    def checkData(cubeName: String): Unit = {
+      val sqc = new SQLContext(new SparkContext(s"local[$NumExecutors]", "ISocketOParquet-operators"))
+      val df = sqc.read.parquet(parquetPath + s"/$cubeName").toDF
 
       val mapValues = df.map(row => Map(
         "product" -> row.getString(0),
@@ -106,7 +106,7 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
       productB("entityCount_text") should be(Map("hola" -> 16L, "holo" -> 8L))
       productB("totalEntity_text") should be(24)
 
-      sc.stop()
+      sqc.sparkContext.stop
     }
   }
 
