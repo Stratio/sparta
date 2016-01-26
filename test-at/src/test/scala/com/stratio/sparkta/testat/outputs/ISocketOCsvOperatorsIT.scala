@@ -50,7 +50,7 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
     def checkCsvData(path : String): Unit ={
       val sc = new SparkContext(s"local[$NumExecutors]", "ISocketOCsv")
       val pathProductTimestamp = path + s"testCube_v1${DateOperations.subPath("day", None)}.csv"
-      val sqlContext = new SQLContext(sc)
+      val sqlContext = SQLContext.getOrCreate(sc)
       val df = sqlContext.read.format("com.databricks.spark.csv").option("header", "true").load (pathProductTimestamp)
 
       df.count should be (2)

@@ -71,7 +71,7 @@ abstract class Output(keyName: String,
   def isAutoCalculateId: Boolean = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
   def persist(streams: Seq[DStream[(DimensionValuesTime, MeasuresValues)]]): Unit = {
-    sqlContext = new SQLContext(streams.head.context.sparkContext)
+    sqlContext = SQLContext.getOrCreate(streams.head.context.sparkContext)
     setup
     streams.foreach(stream => doPersist(stream))
   }

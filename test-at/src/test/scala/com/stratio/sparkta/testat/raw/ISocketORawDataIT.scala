@@ -41,7 +41,7 @@ class ISocketORawDataIT extends SparktaATSuite {
 
     def checkData(): Unit = {
       val sc = new SparkContext(s"local[$NumExecutors]", "ISocketORawDataAT")
-      val sqc = new SQLContext(sc)
+      val sqc = SQLContext.getOrCreate(sc)
       val result = sqc.read.parquet(parquetPath)
       result.registerTempTable("rawLines")
 
