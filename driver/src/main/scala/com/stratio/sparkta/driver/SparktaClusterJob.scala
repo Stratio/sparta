@@ -33,7 +33,7 @@ import org.apache.commons.io.FileUtils
 import org.apache.curator.framework.CuratorFramework
 
 import com.stratio.sparkta.driver.SparktaJob._
-import com.stratio.sparkta.driver.repository.ClusterConfigRepositoryComponent
+import com.stratio.sparkta.driver.dao.ZookeeperDAO
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.driver.util.HdfsUtils
 import com.stratio.sparkta.driver.util.PolicyUtils
@@ -116,8 +116,8 @@ object SparktaClusterJob extends SparktaSerializer {
   }
 
   def addPluginsAndClasspath(pluginsPath: String, classPath: String): Seq[URI] = {
-    val zkRepository = new ClusterConfigRepositoryComponent(SparktaConfig.mainConfig.get)
-    val hdfsJsonConfig = new String(zkRepository.repository.get(AppConstant.ConfigZkPath, AppConstant.HdfsId).get)
+    val zkDAO = new ZookeeperDAO(SparktaConfig.mainConfig.get)
+    val hdfsJsonConfig = zkDAO.dao.get(AppConstant.HdfsId).get
     val config = ConfigFactory.parseString(hdfsJsonConfig).getConfig(AppConstant.HdfsId)
     val hdfsUtils = HdfsUtils(config)
     val pluginFiles = addHdfsFiles(hdfsUtils, pluginsPath)

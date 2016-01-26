@@ -34,7 +34,7 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigRenderOptions
 import org.apache.spark.launcher.SparkLauncher
 
-import com.stratio.sparkta.driver.repository.ClusterConfigRepositoryComponent
+import com.stratio.sparkta.driver.dao.ZookeeperDAO
 import com.stratio.sparkta.driver.util.HdfsUploader
 import com.stratio.sparkta.driver.util.HdfsUtils
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
@@ -100,9 +100,9 @@ class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: 
   }
 
   def saveHdfsConfig: Unit = {
-    val zkRepository = new ClusterConfigRepositoryComponent(ZookeeperConfig.atKey("zookeeper"))
+    val zkDao = new ZookeeperDAO(ZookeeperConfig.atKey("zookeeper"))
     val configRendered = render(HdfsConfig, "hdfs")
-    zkRepository.upsert(AppConstant.ConfigZkPath, AppConstant.HdfsId, configRendered.getBytes)
+    zkDao.dao.upsert(AppConstant.HdfsId, configRendered)
   }
 
   private def setErrorStatus: Unit =
