@@ -28,7 +28,7 @@ Feature: Test policy with Socket input and Cassandra output
     And I wait '10' seconds
 
     # Check Data
-    Given I connect to Cassandra cluster at '${CASSANDRA_HOST}'
+    Given I connect to 'Cassandra' cluster at '${CASSANDRA_HOST}'
     When I execute a query over fields '*' with schema 'schemas/queries/where.conf' of type 'string' with magic_column 'empty' from table: 'testcube_v1' using keyspace: 'sparkta' with:
       | column | UPDATE | product |
       | value  | UPDATE | producta |
