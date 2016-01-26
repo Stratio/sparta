@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>com.stratio</groupId>
-    <artifactId>benchmark</artifactId>
+    <artifactId>benchmark_2.10</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
