@@ -39,7 +39,7 @@ import com.stratio.sparkta.serving.core.models.{CheckpointModel, AggregationPoli
 
 object SparktaJob extends SLF4JLogging {
 
-  def runSparktaJob(sc: SparkContext, apConfig: AggregationPoliciesModel): Any = {
+  def runSparktaJob(sc: SparkContext, apConfig: AggregationPoliciesModel): StreamingContext = {
     val checkpointPolicyPath = apConfig.checkpointPath.concat(File.separator).concat(apConfig.name)
     //FIXME: check the problem in the checkpoint and fault tolerance
     // deletePreviousCheckpointPath(checkpointPolicyPath)
@@ -73,6 +73,8 @@ object SparktaJob extends SLF4JLogging {
     val parsed = applyParsers(inputDStream, parsers)
     val dataCube = new CubeMaker(cubes).setUp(parsed)
     outputs.foreach(_.persist(dataCube))
+
+    ssc.get
   }
 
   @tailrec

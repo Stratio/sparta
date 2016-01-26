@@ -80,7 +80,7 @@ class SolrOutput(keyName: String,
     else log.info(SolrConfigurationError)
 
   override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: Option[String]): Unit = {
-    val slrRelation = new SolrRelation(sqlContext, getConfig(connection, tableName), dataFrame)
+    val slrRelation = new SolrRelation(dataFrame.sqlContext, getConfig(connection, tableName), dataFrame)
     slrRelation.insert(dataFrame, true)
   }
 }

@@ -115,7 +115,7 @@ abstract class Output(keyName: String,
         if (rdd.take(1).length > 0) {
           bcSchema.get.filter(tschema => tschema.outputName == keyName).foreach(tschemaFiltered => {
             val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
-            val dataFrame = sqlContext.createDataFrame(
+            val dataFrame = SQLContext.getOrCreate(rdd.context).createDataFrame(
               extractRow(rdd.filter { case (schema, row) =>
                 schema.exists(_ == tableSchemaTime.tableName) && row.size == tableSchemaTime.schema.length
               }), tableSchemaTime.schema)
