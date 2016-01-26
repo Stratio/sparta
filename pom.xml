@@ -146,14 +146,6 @@
                 <role>developer</role>
             </roles>
         </developer>
-        <developer>
-            <id>sgomezg</id>
-            <name>Sergio Gómez</name>
-            <email>sgomez@stratio.com</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-        </developer>
     </developers>
 
     <properties>
