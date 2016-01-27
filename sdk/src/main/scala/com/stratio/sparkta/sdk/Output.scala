@@ -40,8 +40,6 @@ abstract class Output(keyName: String,
     log.info("Operation types is empty, you don't have aggregations defined in your policy.")
   }
 
-  var sqlContext: SQLContext = _
-
   def getName: String = keyName
 
   def dateType: TypeOp.Value = TypeOp.Timestamp
@@ -71,7 +69,6 @@ abstract class Output(keyName: String,
   def isAutoCalculateId: Boolean = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(false)
 
   def persist(streams: Seq[DStream[(DimensionValuesTime, MeasuresValues)]]): Unit = {
-    sqlContext = SQLContext.getOrCreate(streams.head.context.sparkContext)
     setup
     streams.foreach(stream => doPersist(stream))
   }

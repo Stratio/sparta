@@ -112,7 +112,7 @@ class CassandraOutput(keyName: String,
   }
 
   def getCassandraConnector(): CassandraConnector = {
-    val sparkConf = sqlContext.sparkContext.getConf
+    val sparkConf = new SparkConf().setAll(CassandraOutput.getSparkConfiguration(properties))
     CassandraConnector(sparkConf)
   }
 

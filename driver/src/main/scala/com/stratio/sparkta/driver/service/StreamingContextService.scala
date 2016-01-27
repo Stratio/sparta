@@ -57,10 +57,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
     SparkContextFactory.setSparkContext(ssc.sparkContext)
     SparkContextFactory.setSparkStreamingContext(ssc)
 
-
     Option(ssc)
-
-
   }
 
   def clusterStreamingContext(apConfig: AggregationPoliciesModel,

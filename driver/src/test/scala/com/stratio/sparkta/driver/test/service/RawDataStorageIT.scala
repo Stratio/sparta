@@ -79,7 +79,7 @@ class RawDataStorageIT extends TestSuiteBase {
   private def sparktaTestSQLContext: SQLContext = {
     configureContext
     val sc = new SparkContext(conf)
-    SQLContext.getOrCreate(sc)
+    new SQLContext(sc)
   }
 
   private def rawDataInput: Seq[Seq[Event]] =
