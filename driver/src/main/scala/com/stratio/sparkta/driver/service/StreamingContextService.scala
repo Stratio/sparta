@@ -16,29 +16,31 @@
 
 package com.stratio.sparkta.driver.service
 
-import java.io.{File, Serializable}
+import java.io.File
 import java.net.URI
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.util.Success
+import scala.util.Try
 
 import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
-import com.stratio.sparkta.driver.SparktaJob
-import com.stratio.sparkta.driver.factory._
-import com.stratio.sparkta.driver.util.ReflectionUtils
-import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.constants.AppConstant
-import com.stratio.sparkta.serving.core.models._
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{AddListener, Kill, Update}
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 import com.typesafe.config.Config
 import org.apache.curator.framework.recipes.cache.NodeCache
 import org.apache.spark.SparkContext
 import org.apache.spark.streaming.StreamingContext
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
-import scala.util.{Success, Try}
+import com.stratio.sparkta.driver.SparktaJob
+import com.stratio.sparkta.driver.factory._
+import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.serving.core.constants.AppConstant
+import com.stratio.sparkta.serving.core.models._
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.AddListener
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Kill
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 
 case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, generalConfig: Option[Config] = None)
   extends SLF4JLogging {
@@ -51,7 +53,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
 
     val ssc = StreamingContext.getOrCreate(AggregationPoliciesModel.checkpointPath(apConfig), () => {
       log.info(s"Nothing in checkpoint path: ${AggregationPoliciesModel.checkpointPath(apConfig)}")
-      SparktaJob.run(getStandAloneSparkContext(apConfig, files), apConfig)
+      SparktaJob(apConfig).run(getStandAloneSparkContext(apConfig, files))
     })
 
     SparkContextFactory.setSparkContext(ssc.sparkContext)
@@ -68,7 +70,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
 
     val ssc = StreamingContext.getOrCreate(AggregationPoliciesModel.checkpointPath(apConfig), () => {
       log.info(s"Nothing in checkpoint path: ${AggregationPoliciesModel.checkpointPath(apConfig)}")
-      SparktaJob.run(getClusterSparkContext(apConfig, files, detailConfig), apConfig)
+      SparktaJob(apConfig).run(getClusterSparkContext(apConfig, files, detailConfig))
     })
 
     SparkContextFactory.setSparkContext(ssc.sparkContext)
@@ -78,8 +80,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
   }
 
   private def getStandAloneSparkContext(apConfig: AggregationPoliciesModel, jars: Seq[File]): SparkContext = {
-    val pluginsSparkConfig =
-      sparkConfigFromOutputs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix, new ReflectionUtils())
+    val pluginsSparkConfig = SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
     val standAloneConfig = Try(generalConfig.get.getConfig(AppConstant.ConfigLocal)) match {
       case Success(config) => Some(config)
       case _ => None
@@ -90,11 +91,8 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
   private def getClusterSparkContext(apConfig: AggregationPoliciesModel,
                                      classPath: Seq[URI],
                                      detailConfig: Map[String, String]): SparkContext = {
-    val pluginsSparkConfig = sparkConfigFromOutputs(apConfig,
-      OutputsSparkConfiguration,
-      Output.ClassSuffix,
-      new ReflectionUtils
-    ) ++ detailConfig
+    val pluginsSparkConfig =
+      SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix) ++ detailConfig
     SparkContextFactory.sparkClusterContextInstance(pluginsSparkConfig, classPath)
   }
 
@@ -132,24 +130,5 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
         }
       })
     }
-  }
-
-  private def sparkConfigFromOutputs(apConfig: AggregationPoliciesModel,
-                                     methodName: String,
-                                     suffix: String,
-                                     refUtils: ReflectionUtils): Map[String, String] = {
-    log.info("Initializing reflection")
-    apConfig.outputs.flatMap(o => {
-      val clazzToInstance = refUtils.getClasspathMap.getOrElse(o.`type` + suffix, o.`type` + suffix)
-      val clazz = Class.forName(clazzToInstance)
-      clazz.getMethods.find(p => p.getName == methodName) match {
-        case Some(method) => {
-          method.setAccessible(true)
-          method.invoke(clazz, o.configuration.asInstanceOf[Map[String, Serializable]])
-            .asInstanceOf[Seq[(String, String)]]
-        }
-        case None => Seq()
-      }
-    }).toMap
   }
 }

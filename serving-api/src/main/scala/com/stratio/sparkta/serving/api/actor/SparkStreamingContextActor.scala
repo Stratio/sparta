@@ -38,22 +38,23 @@ import org.json4s.jackson.Serialization.write
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.api.constants.ActorsConstant
+import com.stratio.sparkta.serving.core.CuratorFactoryHolder
 import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.exception.ServingCoreException
 import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
 import com.stratio.sparkta.serving.core.models.PolicyStatusModel
 import com.stratio.sparkta.serving.core.models.SparktaSerializer
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.FindAll
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Response
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 
 class SparkStreamingContextActor(streamingContextService: StreamingContextService,
                                  policyStatusActor: ActorRef, curatorFramework: CuratorFramework) extends Actor
-with SLF4JLogging
-with SparktaSerializer {
+  with SLF4JLogging
+  with SparktaSerializer {
 
   val SparkStreamingContextActorPrefix: String = "sparkStreamingContextActor"
 
@@ -101,13 +102,17 @@ with SparktaSerializer {
 
   /**
    * Tries to create a spark streaming context with a given configuration.
+   *
    * @param policy that contains the configuration to run.
    */
   private def create(policy: AggregationPoliciesModel): Try[AggregationPoliciesModel] = Try {
     if (policy.id.isDefined)
       launch(policy)
     else {
-      if (existsByName(policy.name)) throw new Exception(s"${policy.name} already exists")
+      if (existsByName(policy.name)) {
+        log.error(s"${policy.name} already exists. Try deleting first or choosing another name.")
+        throw new RuntimeException(s"${policy.name} already exists")
+      }
       launchNewPolicy(policy)
     }
   }
@@ -115,12 +120,17 @@ with SparktaSerializer {
   def existsByName(name: String, id: Option[String] = None): Boolean = {
     val nameToCompare = name.toLowerCase
     Try({
-      val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
-      JavaConversions.asScalaBuffer(children).toList.map(element =>
-        read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
-          s"${AppConstant.PoliciesBasePath}/$element"))))
-        .filter(policy => if (id.isDefined) policy.name == nameToCompare && policy.id.get != id.get
-        else policy.name == nameToCompare).toSeq.nonEmpty
+      if (CuratorFactoryHolder.existsPath(AppConstant.PoliciesBasePath)) {
+        val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
+        JavaConversions.asScalaBuffer(children).toList.map(element =>
+          read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
+            s"${AppConstant.PoliciesBasePath}/$element"))))
+          .filter(policy => if (id.isDefined) policy.name == nameToCompare && policy.id.get != id.get
+          else policy.name == nameToCompare).toSeq.nonEmpty
+      } else {
+        log.warn(s"Zookeeper path for policies doesn't exists. It will be created.")
+        false
+      }
     }) match {
       case Success(result) => result
       case Failure(exception) => {

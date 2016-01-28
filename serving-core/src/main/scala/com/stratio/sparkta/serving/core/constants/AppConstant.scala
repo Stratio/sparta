@@ -41,8 +41,9 @@ object AppConstant {
   final val ConfigZookeeper = "zookeeper"
   final val BaseZKPath = "stratio/sparkta"
   final val ConfigZkPath = s"$BaseZKPath/config"
-  final val PoliciesBasePath = s"/${AppConstant.BaseZKPath}/policies"
-  final val ContextPath = s"/${AppConstant.BaseZKPath}/contexts"
+  final val PoliciesBasePath = s"/$BaseZKPath/policies"
+  final val ContextPath = s"/$BaseZKPath/contexts"
+  final val ErrorsZkPath = s"$BaseZKPath/error"
   final val ConfigRememberPartitioner = "rememberPartitioner"
   final val DefaultRememberPartitioner = true
   final val ConfigStopGracefully = "stopGracefully"
@@ -50,7 +51,7 @@ object AppConstant {
   final val DefaultStopTimeout = 30000
 
   // ZK id's
-  final val HdfsId = "hdfs"
+  final val HdfsID = "hdfs"
 
   //Hdfs Options
   final val HadoopUserName = "hadoopUserName"

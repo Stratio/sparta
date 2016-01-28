@@ -33,7 +33,6 @@ import org.apache.commons.io.FileUtils
 import org.apache.curator.framework.CuratorFramework
 
 import com.stratio.sparkta.driver.SparktaJob._
-import com.stratio.sparkta.driver.dao.ZookeeperDAO
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.driver.util.HdfsUtils
 import com.stratio.sparkta.driver.util.PolicyUtils
@@ -42,6 +41,8 @@ import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.actor.FragmentActor
 import com.stratio.sparkta.serving.core.constants.AkkaConstant
 import com.stratio.sparkta.serving.core.constants.AppConstant
+import com.stratio.sparkta.serving.core.dao.ConfigDAO
+import com.stratio.sparkta.serving.core.dao.ErrorDAO
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.helpers.PolicyHelper
 import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
@@ -84,6 +85,7 @@ object SparktaClusterJob extends SparktaSerializer {
 
       Try {
         policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Starting))
+        Try(ErrorDAO().dao.delete(policy.id.get))
 
         val streamingContextService = new StreamingContextService(Some(policyStatusActor))
         val ssc = streamingContextService.clusterStreamingContext(
@@ -113,12 +115,12 @@ object SparktaClusterJob extends SparktaSerializer {
     val configStr = s"${detailConfig.stripPrefix("{").stripSuffix("}")}\n${zKConfig.stripPrefix("{").stripSuffix("}")}"
     log.info(s"Parsed config: sparkta { $configStr }")
     SparktaConfig.initMainConfig(Option(ConfigFactory.parseString(s"sparkta{$configStr}")))
+    SparktaConfig.initDAOs
   }
 
   def addPluginsAndClasspath(pluginsPath: String, classPath: String): Seq[URI] = {
-    val zkDAO = new ZookeeperDAO(SparktaConfig.mainConfig.get)
-    val hdfsJsonConfig = zkDAO.dao.get(AppConstant.HdfsId).get
-    val config = ConfigFactory.parseString(hdfsJsonConfig).getConfig(AppConstant.HdfsId)
+    val hdfsJsonConfig = ConfigDAO().dao.get(AppConstant.HdfsID).get
+    val config = ConfigFactory.parseString(hdfsJsonConfig).getConfig(AppConstant.HdfsID)
     val hdfsUtils = HdfsUtils(config)
     val pluginFiles = addHdfsFiles(hdfsUtils, pluginsPath)
     val classPathFiles = addHdfsFiles(hdfsUtils, classPath)

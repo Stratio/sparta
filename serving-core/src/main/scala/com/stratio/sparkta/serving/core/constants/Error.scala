@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api
+package com.stratio.sparkta.serving.core.constants
 
-import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.serving.api.helpers.SparktaHelper
-import com.stratio.sparkta.serving.core.SparktaConfig
-import com.stratio.sparkta.serving.core.constants.AppConstant
+object ErrorCodes {
 
-/**
- * Entry point of the application.
- */
-object Sparkta extends App with SLF4JLogging {
+  object Policy {
 
-  SparktaConfig.initMainConfig()
-  SparktaConfig.initDAOs
-  SparktaConfig.initApiConfig()
-  SparktaConfig.initSwaggerConfig()
-  SparktaHelper.initAkkaSystem(AppConstant.ConfigAppName)
-  SparktaHelper.initPolicyContextStatus
+    val ParsingInput = 1
+    val ParsingParser = 2
+    val ParsingOperator = 3
+    val ParsingCube = 4
+    val ParsingOutput = 5
+  }
+
 }

@@ -67,7 +67,7 @@ object CuratorFactoryHolder extends SLF4JLogging {
 
 
           curatorFramework.get.start()
-          log.info(s"Zookeeper connection to $defaultConnectionString was successful.")
+          log.info(s"Zookeeper connection to $defaultConnectionString was STARTED.")
           curatorFramework.get
         } match {
           case Success(curatorFk) => curatorFk
