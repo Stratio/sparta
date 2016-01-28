@@ -21,6 +21,7 @@ import java.sql.Timestamp
 import java.util.Date
 
 import com.github.nscala_time.time.Imports._
+import com.stratio.sparkta.sdk.DateOperations
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -86,37 +87,38 @@ class DateOperationsTest extends FlatSpec with ShouldMatchers {
     val hourPatternResult = DateTimeFormat.forPattern(hourPattern).print(DateTime.now())
     val minutePatternResult = DateTimeFormat.forPattern(minutePattern).print(DateTime.now())
     val defaultPatternResult = DateTimeFormat.forPattern(defaultPattern).print(DateTime.now())
+
   }
 
   "DateOperations" should "return timestamp with correct parameters" in new CommonValues {
-    DateOperations.getTimeFromGranularity(Some(""), Some("s5")) should not be (wrongDT)
-    DateOperations.getTimeFromGranularity(Some(""), Some("s10")) should not be (wrongDT)
-    DateOperations.getTimeFromGranularity(Some(""), Some("s15")) should not be (wrongDT)
+    DateOperations.getTimeFromGranularity(Some(""), Some("5s")) should not be (wrongDT)
+    DateOperations.getTimeFromGranularity(Some(""), Some("10s")) should not be (wrongDT)
+    DateOperations.getTimeFromGranularity(Some(""), Some("15s")) should not be (wrongDT)
     DateOperations.getTimeFromGranularity(Some(""), Some("minute")) should not be (wrongDT)
     DateOperations.getTimeFromGranularity(Some(""), Some("hour")) should not be (wrongDT)
     DateOperations.getTimeFromGranularity(Some(""), Some("day")) should not be (wrongDT)
     DateOperations.getTimeFromGranularity(Some(""), Some("month")) should not be (wrongDT)
     DateOperations.getTimeFromGranularity(Some(""), Some("year")) should not be (wrongDT)
     DateOperations.getTimeFromGranularity(Some("asdasd"), Some("year")) should not be (wrongDT)
-    DateOperations.getTimeFromGranularity(Some(""), Some("bad")) should be(wrongDT)
+    an[IllegalArgumentException] should be thrownBy DateOperations.getTimeFromGranularity(Some(""), Some("bad"))
   }
 
   it should "return parsed timestamp with granularity" in new CommonValues {
-    DateOperations.dateFromGranularity(dt, "s5") should be(s5DT.getMillis)
-    DateOperations.dateFromGranularity(dt, "s15") should be(s15DT.getMillis)
-    DateOperations.dateFromGranularity(dt, "s10") should be(s10DT.getMillis)
+    DateOperations.dateFromGranularity(dt, "5s") should be(s5DT.getMillis)
+    DateOperations.dateFromGranularity(dt, "15s") should be(s15DT.getMillis)
+    DateOperations.dateFromGranularity(dt, "10s") should be(s10DT.getMillis)
     DateOperations.dateFromGranularity(dt, "minute") should be(minuteDT.getMillis)
     DateOperations.dateFromGranularity(dt, "hour") should be(hourDT.getMillis)
     DateOperations.dateFromGranularity(dt, "day") should be(dayDT.getMillis)
     DateOperations.dateFromGranularity(dt, "month") should be(monthDT.getMillis)
     DateOperations.dateFromGranularity(dt, "year") should be(yearDT.getMillis)
-    DateOperations.dateFromGranularity(dt, "bad") should be(wrongDT)
+    an[IllegalArgumentException] should be thrownBy DateOperations.dateFromGranularity(dt, "bad")
   }
 
   it should "format path ignoring pattern" in new FailValues {
-    DateOperations.subPath(badGranularity, datePattern) should be(expectedPath)
-    DateOperations.subPath(badGranularity, datePattern) should be(expectedPath)
-    DateOperations.subPath(badGranularity, emptyPattern) should be(expectedPath)
+    an[IllegalArgumentException] should be thrownBy  DateOperations.subPath(badGranularity, datePattern)
+    an[IllegalArgumentException] should be thrownBy  DateOperations.subPath(badGranularity, datePattern)
+    an[IllegalArgumentException] should be thrownBy  DateOperations.subPath(badGranularity, emptyPattern)
     DateOperations.subPath(granularity, emptyPattern) should be(expectedGranularityPath)
     DateOperations.subPath(granularity, datePattern) should be(expectedGranularityWithPattern)
   }
@@ -124,17 +126,17 @@ class DateOperationsTest extends FlatSpec with ShouldMatchers {
   it should "round to 15 seconds" in new CommonValues {
     val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.ZZZ")
     val now = formatter.parseDateTime("1984-03-17 13:13:17.CET")
-    DateOperations.dateFromGranularity(now, "s15") should be(448373595000L)
+    DateOperations.dateFromGranularity(now, "15s") should be(448373595000L)
   }
   it should "round to 10 seconds" in new CommonValues {
     val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.ZZZ")
     val now = formatter.parseDateTime("1984-03-17 13:13:17.CET")
-    DateOperations.dateFromGranularity(now, "s10") should be(448373600000L)
+    DateOperations.dateFromGranularity(now, "10s") should be(448373600000L)
   }
   it should "round to 5 seconds" in new CommonValues {
     val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.ZZZ")
     val now = formatter.parseDateTime("1984-03-17 13:13:17.CET")
-    DateOperations.dateFromGranularity(now, "s5") should be(448373595000L)
+    DateOperations.dateFromGranularity(now, "5s") should be(448373595000L)
   }
 
   it should "return millis from a Serializable date" in new CommonValues {
