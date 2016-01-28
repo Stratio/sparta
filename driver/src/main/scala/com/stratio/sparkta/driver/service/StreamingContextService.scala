@@ -95,7 +95,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
             } finally {
 
               Try(Await.result(policyStatusActor.get ? Kill(name), timeout.duration) match {
-                case false => log.warn(s"The actor with name: $name are stopped previously")
+                case false => log.warn(s"The actor with name: $name has been stopped previously")
               }).getOrElse(log.warn(s"The actor with name: $name could not be stopped correctly"))
 
               Try(Await.result(policyStatusActor.get ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopped)),

@@ -101,8 +101,8 @@ object SparktaClusterJob {
         ssc.awaitTermination()
       } match {
         case Success(_) => {
-          policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Started))
-          log.info(s"Starting Streaming Context for policy $policyId")
+          policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopped))
+          log.info(s"Stopped Streaming Context for policy $policyId")
         }
         case Failure(exception) => {
           log.error(exception.getLocalizedMessage, exception)
@@ -110,7 +110,7 @@ object SparktaClusterJob {
         }
       }
     } match {
-      case Success(_) => log.info("Policy started")
+      case Success(_) => log.info("Streaming context is running")
       case Failure(exception) => log.error(exception.getLocalizedMessage, exception)
     }
   }

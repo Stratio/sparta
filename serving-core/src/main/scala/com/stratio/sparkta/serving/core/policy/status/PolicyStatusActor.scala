@@ -59,11 +59,11 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
         Stopped
       }
       case Some(Failure(e)) => {
-        log.warn(s"There isn't $policyName actor to kill")
+        log.warn(s"There is no policy actor with name: $policyName actor to kill")
         NotStopped
       }
       case None => {
-        log.warn(s"there isn't $policyName actor to kill")
+        log.warn(s"There is no policy actor with name: $policyName actor to kill")
         NotStopped
       }
     }
