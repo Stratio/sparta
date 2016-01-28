@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.plugin.output.kafka.producer
 
 import java.io.{Serializable => JSerializable}
 import java.util.Properties
+import com.stratio.sparkta.plugin.output.kafka.KafkaOutputFormat
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 
 import kafka.producer.{KeyedMessage, Producer, ProducerConfig}
@@ -25,6 +27,7 @@ import scala.collection.mutable
 import scala.util.{Success, Failure, Try}
 
 trait KafkaProducer {
+
   def send(properties: Map[String, JSerializable], topic: String, message: String): Unit = {
     val keyedMessage: KeyedMessage[String, String] = new KeyedMessage[String, String](topic, message)
     KafkaProducer.getProducer(topic, properties).send(keyedMessage)

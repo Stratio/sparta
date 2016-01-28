@@ -22,6 +22,8 @@ import com.stratio.sparkta.plugin.output.kafka.producer.KafkaProducer
 import com.stratio.sparkta.sdk.Output._
 import com.stratio.sparkta.sdk._
 import org.apache.spark.sql._
+import KafkaOutputFormat._
+import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 
 class KafkaOutput(keyName: String,
                   version: Option[Int],
@@ -29,12 +31,19 @@ class KafkaOutput(keyName: String,
                   schemas: Seq[TableSchema])
   extends Output(keyName, version, properties, schemas) with KafkaProducer {
 
+  val ouputFormat = KafkaOutputFormat.withName(properties.getString("format", "json").toUpperCase)
+
+  val rowSeparator = properties.getString("rowSeparator", ",")
+
   override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
 
-    dataFrame.toJSON.foreachPartition {
-      messages => messages.foreach(message =>
-        send(properties, tableName, message))
+    ouputFormat match {
+      case KafkaOutputFormat.ROW => dataFrame.rdd.foreachPartition(messages =>
+        messages.foreach(message => send(properties, tableName, message.mkString(rowSeparator))))
+      case _ => dataFrame.toJSON.foreachPartition { messages =>
+        messages.foreach(message => send(properties, tableName, message))
+      }
     }
   }
 }
