@@ -29,12 +29,12 @@ import scala.collection.JavaConversions._
 import scala.reflect.ClassTag
 
 /**
- * Acceptance test:
- * [Input]: Socket.
- * [Output]: Cassandra.
- * [Operators]: avg, count, firsValue, fullText, lastValue, max,
- * median, min, range, stddev, sum, variance.
- */
+  * Acceptance test:
+  * [Input]: Socket.
+  * [Output]: Cassandra.
+  * [Operators]: avg, count, firsValue, fullText, lastValue, max,
+  * median, min, range, stddev, sum, variance.
+  */
 @RunWith(classOf[JUnitRunner])
 class ISocketOCassandraOperatorsIT extends SparktaATSuite {
 
@@ -49,13 +49,15 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in cassandra" in {
       sparktaRunner
-      checkData
+      checkData("testCubeWithTime_v1")
+      checkData("testCubeWithoutTime_v1")
     }
 
-    def checkData: Unit = {
+    def checkData(tableName: String): Unit = {
+
       session = cluster.connect("sparkta")
 
-      val resultProductA: ResultSet = session.execute("select * from testCube_v1 where product = 'producta'")
+      val resultProductA: ResultSet = session.execute(s"select * from $tableName where product = 'producta'")
       val rowProductA = resultProductA.iterator().next()
 
       rowProductA.getDouble("avg_price") should be(639.0d)
@@ -74,7 +76,7 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
       counts should be(Map("hola" -> new lang.Long(16), "holo" -> new lang.Long(8)))
       rowProductA.getInt("totalentity_text") should be(24)
 
-      val resultProductB: ResultSet = session.execute("select * from testCube_v1 where product = 'productb'")
+      val resultProductB: ResultSet = session.execute(s"select * from $tableName where product = 'productb'")
       val rowProductB = resultProductB.iterator().next()
 
       rowProductB.getDouble("avg_price") should be(758.25d)

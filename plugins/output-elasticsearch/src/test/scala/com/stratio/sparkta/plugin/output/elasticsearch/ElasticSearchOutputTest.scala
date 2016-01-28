@@ -64,7 +64,7 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
     val tableName = "sparktaTable"
     val baseFields = Seq(StructField("string", StringType), StructField("int", IntegerType))
     val schema = StructType(baseFields)
-    val tableSchema = TableSchema("ES-out", tableName, schema, "timestamp")
+    val tableSchema = TableSchema("ES-out", tableName, schema, Option("timestamp"))
     val extraFields = Seq(StructField("id", StringType, false), StructField("timestamp", LongType, false))
     val expectedSchema = StructType(extraFields ++ baseFields)
     val expectedTableSchema =
@@ -73,7 +73,7 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
       """[{"node":"localhost","httpPort":"9200","tcpPort":"9300"}]""".stripMargin),
       "dateType" -> "long",
       "clusterName" -> "elasticsearch")
-    override val output = new ElasticSearchOutput("ES-out", None, properties, None, bcSchema = Some(Seq(tableSchema)))
+    override val output = new ElasticSearchOutput("ES-out", None, properties, None, bcSchema = Option(Seq(tableSchema)))
     val dateField = StructField("timestamp", TimestampType, false)
     val expectedDateField = StructField("timestamp", LongType, false)
     val stringField = StructField("string", StringType)
@@ -95,7 +95,7 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
       StructField("string", StringType),
       StructField("binary", BinaryType))
     val completeSchema = StructType(fields)
-    val completeTableSchema = TableSchema("elasticsearch", "table", completeSchema, "timestamp")
+    val completeTableSchema = TableSchema("elasticsearch", "table", completeSchema, Option("timestamp"))
     val definitions = Seq(
       "long".typed(FieldType.LongType),
       "double".typed(FieldType.DoubleType),
@@ -141,11 +141,11 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
   }
 
   it should "return a correct date type" in new TestingValues {
-    val result = output.filterDateTypeMapping(dateField, "timestamp") should be (expectedDateField)
+    val result = output.filterDateTypeMapping(dateField, Option("timestamp")) should be (expectedDateField)
   }
 
   it should "return a correct type" in new TestingValues {
-    val result = output.filterDateTypeMapping(stringField, "timestamp") should be (expectedStringField)
+    val result = output.filterDateTypeMapping(stringField, Option("timestamp")) should be (expectedStringField)
   }
 
   it should "parse correct index name type" in new TestingValues{

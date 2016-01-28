@@ -132,7 +132,7 @@ abstract class Output(keyName: String,
       })
   }
 
-  def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {}
+  def upsert(dataFrame: DataFrame, tableName: String, timeDimension: Option[String]): Unit = {}
 
   def upsert(metricOperations: Iterator[(DimensionValuesTime, MeasuresValues)]): Unit = {}
 
@@ -155,18 +155,23 @@ abstract class Output(keyName: String,
       modifiedSchema = true
     }
 
-    fieldsPk = fieldsPk ++
-      Seq(Output.getFieldType(dateType, tbSchema.timeDimension, false)) ++
-      getFields(tbSchema, true)
-    new TableSchema(tbSchema.outputName,
-      tbSchema.tableName,
-      StructType(fieldsPk),
-      tbSchema.timeDimension)
+    fieldsPk = fieldsPk ++ {
+      if (tbSchema.timeDimension.isEmpty) Seq.empty
+      else Seq(Output.getFieldType(dateType, tbSchema.timeDimension.get, false))
+    } ++ getFields(tbSchema, true)
+
+    new TableSchema(tbSchema.outputName, tbSchema.tableName, StructType(fieldsPk), tbSchema.timeDimension)
   }
 
-  def getFields(tbSchema: TableSchema, nullables: Boolean): Seq[StructField] =
-    tbSchema.schema.fields.toSeq.filter(field =>
-      !fixedDimensions.contains(field.name) && field.name != tbSchema.timeDimension && field.nullable == nullables)
+  def getFields(tbSchema: TableSchema, nullables: Boolean): Seq[StructField] = {
+    tbSchema.timeDimension match {
+      case Some(timeDimension) => tbSchema.schema.fields.toSeq.filter(field =>
+        !fixedDimensions.contains(field.name) && field.name != timeDimension && field.nullable == nullables)
+      case None => tbSchema.schema.fields.toSeq.filter(field =>
+        !fixedDimensions.contains(field.name) && field.nullable == nullables)
+    }
+  }
+
 
   def extractRow(rdd: RDD[(Option[String], Row)]): RDD[Row] = rdd.map(rowType => rowType._2)
 
@@ -182,17 +187,19 @@ abstract class Output(keyName: String,
   def filterDimensionValueTimeByFixedDimensions(dimensionValuesTime: DimensionValuesTime)
   : DimensionValuesTime =
     if (fixedDimensions.isEmpty) dimensionValuesTime
-    else dimensionValuesTime.copy(
-      dimensionValues = dimensionValuesTime.dimensionValues
-        .filter(dimensionValue => !fixedDimensions.contains(dimensionValue.getNameDimension))
-    )
+    else dimensionValuesTime.copy(dimensionValues = dimensionValuesTime.dimensionValues
+                .filter(dimensionValue => !fixedDimensions.contains(dimensionValue.getNameDimension)))
 
   def filterSchemaByFixedAndTimeDimensions(tbschemas: Seq[TableSchema]): Seq[TableSchema] =
-    tbschemas.filter(schemaFilter => {
-      val checkDimensions = getFixedDimensions ++ Array(schemaFilter.timeDimension)
-      schemaFilter.outputName == keyName &&
+    tbschemas.filter(tableSchema => {
+      val checkDimensions = tableSchema.timeDimension match {
+        case Some(timeDimension) => getFixedDimensions ++ Array(timeDimension)
+        case None => getFixedDimensions
+      }
+
+      tableSchema.outputName == keyName &&
         checkDimensions.forall({
-          schemaFilter.schema.fieldNames.contains(_)
+          tableSchema.schema.fieldNames.contains(_)
         })
     })
 

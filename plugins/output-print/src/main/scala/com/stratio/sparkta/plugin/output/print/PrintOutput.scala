@@ -28,7 +28,8 @@ import com.stratio.sparkta.sdk._
 
 /**
  * This output prints all AggregateOperations or DataFrames information on screen. Very useful to debug.
- * @param keyName
+  *
+  * @param keyName
  * @param properties
  * @param operationTypes
  * @param bcSchema
@@ -40,7 +41,7 @@ class PrintOutput(keyName: String,
                   bcSchema: Option[Seq[TableSchema]])
   extends Output(keyName, version, properties, operationTypes, bcSchema) with Logging {
 
-  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
+  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: Option[String]): Unit = {
     if (log.isDebugEnabled) {
       log.debug(s"> Table name       : $tableName")
       log.debug(s"> Version policy   : $version")
@@ -53,7 +54,16 @@ class PrintOutput(keyName: String,
   }
 
   override def upsert(metricOperations: Iterator[(DimensionValuesTime, MeasuresValues)]): Unit = {
-    metricOperations.foreach(metricOp =>
-      log.info(AggregateOperations.toString(metricOp._1, metricOp._2, metricOp._1.timeDimension, fixedDimensions)))
+    metricOperations.foreach(
+      metricOp => metricOp match {
+        case (dimensionValues, measuresValues) =>
+          val timeDimension = dimensionValues.timeConfig match {
+            case None => ""
+            case Some(timeConfig) => timeConfig.timeDimension
+          }
+          log.info(AggregateOperations.toString(dimensionValues, measuresValues, timeDimension, fixedDimensions))
+      }
+    )
+
   }
 }

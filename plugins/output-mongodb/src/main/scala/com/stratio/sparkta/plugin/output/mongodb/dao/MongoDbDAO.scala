@@ -87,7 +87,7 @@ trait MongoDbDAO extends Logging {
 
   protected def createPkTextIndex(mongoDatabase : MongoClient,
                                   collection : String,
-                                  timeDimension : String) : (Boolean, Boolean) = {
+                                  timeDimension : Option[String]) : (Boolean, Boolean) = {
     val textIndexCreated = if (textIndexFields.isDefined && language.isDefined) {
       if (textIndexFields.get.length > 0) {
         createTextIndex(mongoDatabase,
@@ -99,10 +99,13 @@ trait MongoDbDAO extends Logging {
       } else false
     } else false
 
-    if (!timeDimension.isEmpty) {
-      createIndex(mongoDatabase, collection, Output.Id + Output.Separator + timeDimension,
-        Map(Output.Id -> 1, timeDimension -> 1), true, true)
-    } else createIndex(mongoDatabase, collection, Output.Id, Map(Output.Id -> 1), true, true)
+    timeDimension match {
+      case Some(timeDimensionValue) if !timeDimensionValue.isEmpty =>
+        createIndex(mongoDatabase, collection, Output.Id + Output.Separator + timeDimension,
+          Map(Output.Id -> 1, timeDimensionValue -> 1), true, true)
+      case _ =>
+        createIndex(mongoDatabase, collection, Output.Id, Map(Output.Id -> 1), true, true)
+    }
 
     (!timeDimension.isEmpty, textIndexCreated)
   }

@@ -34,7 +34,7 @@ import org.scalatest.{FlatSpec, Matchers}
 class CassandraOutputTest extends FlatSpec with Matchers with MockitoSugar with AnswerSugar {
 
   val s = "sum"
-  val operation = Some(Map(s ->(WriteOp.Inc, TypeOp.Int)))
+  val operation = Option(Map(s ->(WriteOp.Inc, TypeOp.Int)))
   val properties = Map(("connectionHost", "127.0.0.1"), ("connectionPort", "9042"))
 
   "getSparkConfiguration" should "return a Seq with the configuration" in {
@@ -47,23 +47,23 @@ class CassandraOutputTest extends FlatSpec with Matchers with MockitoSugar with 
   "doPersist" should "return nothing because DataFramWriter are imposible to mock since it is a final class" in {
 
     val tableSchema = Seq(TableSchema("outputName", "dim1", StructType(Array(
-      StructField("dim1", StringType, false))), "minute"))
+          StructField("dim1", StringType, false))), Option("minute")))
 
     val out =  spy(new CassandraOutput("key", None, properties, operation, Option(tableSchema)))
     val df: DataFrame = mock[DataFrame]
 
     doNothing().when(out).write(df,"tablename")
-    out.upsert(df,"tablename","minute")
+    out.upsert(df, "tablename", Option("minute"))
   }
 
   "setup" should "return X" in {
 
     val tableSchema = Seq(TableSchema("outputName", "dim1", StructType(Array(
-      StructField("dim1", StringType, false))), "minute"))
+          StructField("dim1", StringType, false))), Option("minute")))
 
     val cassandraConnector: CassandraConnector = mock[CassandraConnector]
 
-    val out =  new CassandraOutput("key", Some(1), properties, operation, Option(tableSchema)) {
+    val out =  new CassandraOutput("key", Option(1), properties, operation, Option(tableSchema)) {
       override val textIndexFields = Option(Array("test"))
       override def getCassandraConnector(): CassandraConnector = {
         cassandraConnector

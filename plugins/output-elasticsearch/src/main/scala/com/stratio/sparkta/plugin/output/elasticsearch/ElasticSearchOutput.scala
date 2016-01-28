@@ -93,7 +93,7 @@ class ElasticSearchOutput(keyName: String,
   override def doPersist(stream: DStream[(DimensionValuesTime, MeasuresValues)]): Unit =
     persistDataFrame(stream)
 
-  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
+  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: Option[String]): Unit = {
     val sparkConfig = getSparkConfig(timeDimension, idField.isDefined || isAutoCalculateId)
     dataFrame.saveToEs(indexNameType(tableName), sparkConfig)
   }
@@ -120,9 +120,13 @@ class ElasticSearchOutput(keyName: String,
 
   //scalastyle:on
 
-  def filterDateTypeMapping(structField: StructField, timeField: String): StructField = {
-    if (structField.name.equals(timeField)) Output.getFieldType(dateType, structField.name, structField.nullable)
-    else structField
+  def filterDateTypeMapping(structField: StructField, timeField: Option[String]): StructField = {
+    timeField match {
+      case Some(timeFieldValue) if structField.name.equals(timeFieldValue) =>
+        Output.getFieldType(dateType, structField.name, structField.nullable)
+      case _ => structField
+
+    }
   }
 
   def getHostPortConfs(key: String,

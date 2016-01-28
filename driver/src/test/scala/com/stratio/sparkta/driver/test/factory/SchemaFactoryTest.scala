@@ -33,14 +33,17 @@ class SchemaFactoryTest extends FlatSpec with ShouldMatchers
 with MockitoSugar {
 
   "SchemaFactorySpec" should "return a list of schemas" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1),
-      "minute", checkpointInterval, checkpointGranularity, checkpointAvailable)
+    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), checkpointInterval,
+      Option(ExpiringDataConfig("minute", checkpointGranularity, checkpointInterval)))
     val cubes = Seq(cube)
-    val tableSchema = TableSchema("outputName", "cubeTest", StructType(Array(
-      StructField("dim1", StringType, false),
-      StructField("dim2", StringType, false),
-      StructField(checkpointGranularity, DateType, false),
-      StructField("op1", LongType, true))), "minute")
+    val tableSchema = TableSchema(
+      "outputName",
+      "cubeTest", StructType(Array(
+          StructField("dim1", StringType, false),
+          StructField("dim2", StringType, false),
+          StructField(checkpointGranularity, DateType, false),
+          StructField("op1", LongType, true))),
+      Option("minute"))
 
     val res = SchemaFactory.cubesOperatorsSchemas(cubes, configOptions)
 
@@ -103,17 +106,16 @@ with MockitoSugar {
     val cubeName = "cubeTest"
     val timestamp = 1L
     val defaultDimension = new DimensionTypeTest
-    val dimensionValuesT = DimensionValuesTime("testCube",Seq(DimensionValue(
-      Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
-      DimensionValue(
-        Dimension("dim2", "eventKey", "identity", defaultDimension), "value2"),
-      DimensionValue(
-        Dimension("minute", "eventKey", "identity", defaultDimension), 1L)),
-      timestamp, checkpointGranularity)
-    val measures = Map("field" -> Some("value"))
+    val dimensionValuesT = DimensionValuesTime("testCube", Seq(DimensionValue(
+              Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
+              DimensionValue(
+                Dimension("dim2", "eventKey", "identity", defaultDimension), "value2"),
+              DimensionValue(
+                Dimension("minute", "eventKey", "identity", defaultDimension), 1L)))
+    val measures = Map("field" -> Option("value"))
     val fixedDimensionsName = Seq("dim2")
-    val fixedDimensions = Some(Seq(("dim3", "value3")))
-    val fixedMeasure = Map("agg2" -> Some("2"))
+    val fixedDimensions = Option(Seq(("dim3", "value3")))
+    val fixedMeasure = Map("agg2" -> Option("2"))
   }
 
 }

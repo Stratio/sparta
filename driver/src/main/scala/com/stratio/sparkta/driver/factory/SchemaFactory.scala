@@ -45,8 +45,14 @@ object SchemaFactory {
 
   def cubesOperatorsSchemas(cubes: Seq[Cube],
                             configOptions: Seq[(String, Map[String, String])]): Seq[TableSchema] = {
-    val dimensionsSorted = cubes.map(cube =>
-      (cube.dimensions.sorted, cube.operators, cube.checkpointTimeDimension, cube.name))
+    val dimensionsSorted = cubes
+      .map(cube => cube.expiringDataConfig match {
+        case Some(expiringDataConfig) =>
+          (cube.dimensions.sorted, cube.operators, Option(expiringDataConfig.timeDimension), cube.name)
+        case None =>
+          (cube.dimensions.sorted, cube.operators, None, cube.name)
+      })
+
     configOptions.flatMap { case (outputName, configOptions) => {
       for {
         (dimensionCombinations, operators, timeDimension, cubeName) <- getCombinationsWithOperators(configOptions,
@@ -70,14 +76,20 @@ object SchemaFactory {
   private def rowTypeFromOption(optionType: TypeOp): DataType = mapTypes.get(optionType).getOrElse(BinaryType)
 
   private def getCombinationsWithOperators(configOptions: Map[String, String],
-                                           dimensionsSorted: Seq[(Seq[Dimension], Seq[Operator], String, String)])
-  : Seq[(Seq[Dimension], Seq[Operator], String, String)] =
-    dimensionsSorted.map { case (compSorted, operators, timeDimension, cubeName) =>
-      (compSorted, operators, timeDimension, cubeName)
+                                           dimensionsSorted:
+                                           Seq[(Seq[Dimension], Seq[Operator], Option[String], String)])
+  : Seq[(Seq[Dimension], Seq[Operator], Option[String], String)] =
+    dimensionsSorted
+      .map {
+        case (compSorted, operators, timeDimension, cubeName) => (compSorted, operators, timeDimension, cubeName)
     }.distinct
 
-  def timeDimensionFieldType(timeDimension: String): Seq[StructField] = {
-    Seq(Output.getFieldType(TypeOp.DateTime, timeDimension, false))
+  def timeDimensionFieldType(timeDimension: Option[String]): Seq[StructField] = {
+    timeDimension match {
+      case None => Seq()
+      case Some(timeDimensionValue) => Seq(Output.getFieldType(TypeOp.DateTime, timeDimensionValue, false))
+    }
+
   }
 
   private def getOperatorsFields(operators: Seq[Operator]): Seq[StructField] =

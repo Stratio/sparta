@@ -98,7 +98,7 @@ trait CassandraDAO extends Closeable with Logging {
   protected def createTable(conn: CassandraConnector,
                             table: String,
                             schema: StructType,
-                            clusteringTime: String,
+                            clusteringTime: Option[String],
                             isAutoCalculateId: Boolean): Boolean = {
     val tableName = getTableName(table)
     val schemaPkCloumns: Option[String] = schemaToPkCcolumns(schema, clusteringTime, isAutoCalculateId)
@@ -196,15 +196,19 @@ trait CassandraDAO extends Closeable with Logging {
   }
   //scalastyle:on
 
-  protected def pkConditions(field: StructField, clusteringTime: String): Boolean =
-    !field.nullable && field.name != clusteringTime && clusteringPrecisions.forall(!_.contains(field.name))
+  protected def pkConditions(field: StructField, clusteringTime: Option[String]): Boolean =
+    !field.nullable &&
+      field.name != clusteringTime.getOrElse("") &&
+      clusteringPrecisions.forall(!_.contains(field.name))
 
-  protected def clusteringConditions(field: StructField, clusteringTime: String): Boolean =
-    !field.nullable && (field.name == clusteringTime || clusteringPrecisions.exists(_.contains(field.name)))
+  protected def clusteringConditions(field: StructField, clusteringTime: Option[String]): Boolean =
+    !field.nullable &&
+      (field.name == clusteringTime.getOrElse("") ||
+        clusteringPrecisions.exists(_.contains(field.name)))
 
   //scalastyle:off
   protected def schemaToPkCcolumns(schema: StructType,
-                                   clusteringTime: String,
+                                   clusteringTime: Option[String],
                                    isAutoCalculateId: Boolean): Option[String] = {
     val fields = schema.map(field => field.name + " " + dataTypeToCassandraType(field.dataType)).mkString(",")
     val partitionKey = getPartitionKey(schema, clusteringTime, isAutoCalculateId).mkString(",")
@@ -222,7 +226,7 @@ trait CassandraDAO extends Closeable with Logging {
   //scalastyle:on
 
   protected def getPartitionKey(schema: StructType,
-                              clusteringTime: String,
+                              clusteringTime: Option[String],
                               isAutoCalculateId: Boolean): Seq[String] = {
     val pkfields = if (isAutoCalculateId) {
       schema.filter(field => field.name == Output.Id)

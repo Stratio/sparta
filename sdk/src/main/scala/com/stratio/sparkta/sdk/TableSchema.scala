@@ -20,5 +20,5 @@ import java.io.Serializable
 
 import org.apache.spark.sql.types.StructType
 
-case class TableSchema(outputName: String, tableName: String, schema: StructType, timeDimension: String)
+case class TableSchema(outputName: String, tableName: String, schema: StructType, timeDimension: Option[String] = None)
   extends Serializable {}

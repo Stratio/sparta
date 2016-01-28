@@ -8,15 +8,15 @@
     "path": ""
   },
   "input":
-    {
-      "name": "in-socket",
-      "type": "Socket",
-      "configuration": {
-        "hostname": "localhost",
-        "port": "10666"
-      }
+  {
+    "name": "in-socket",
+    "type": "Socket",
+    "configuration": {
+      "hostname": "localhost",
+      "port": "10666"
     }
-  ,
+  }
+,
   "transformations": [
     {
       "name": "morphline-parser",
@@ -66,9 +66,124 @@
   ],
   "cubes": [
     {
-      "name": "testCube",
+      "name": "testCubeWithTime",
       "checkpointConfig": {
         "timeDimension": "minute",
+        "granularity": "minute",
+        "interval": 100000,
+        "timeAvailability": 90000
+      },
+      "dimensions": [
+        {
+          "name": "product",
+          "field": "product"
+        }
+      ],
+      "operators": [
+        {
+          "name": "avg_price",
+          "type": "Avg",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "count_price",
+          "type": "Count",
+          "configuration": {}
+        },
+        {
+          "name": "first_price",
+          "type": "FirstValue",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "fulltext_price",
+          "type": "FullText",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "last_price",
+          "type": "LastValue",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "max_price",
+          "type": "Max",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "median_price",
+          "type": "Median",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "min_price",
+          "type": "Min",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "range_price",
+          "type": "Range",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "stddev_price",
+          "type": "Stddev",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "sum_price",
+          "type": "Sum",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "variance_price",
+          "type": "Variance",
+          "configuration": {
+            "inputField": "price"
+          }
+        },
+        {
+          "name": "entitycount_text",
+          "type": "EntityCount",
+          "configuration": {
+            "inputField": "text",
+            "split": " "
+          }
+        },
+        {
+          "name": "totalentity_text",
+          "type": "TotalEntityCount",
+          "configuration": {
+            "inputField": "text",
+            "split": " "
+          }
+        }
+      ]
+    },
+    {
+      "name": "testCubeWithoutTime",
+      "checkpointConfig": {
+        "timeDimension": "none",
         "granularity": "minute",
         "interval": 100000,
         "timeAvailability": 90000

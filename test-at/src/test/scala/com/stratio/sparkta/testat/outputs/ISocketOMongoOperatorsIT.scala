@@ -45,11 +45,12 @@ class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in mongodb" in {
       sparktaRunner
-      checkMongoData
+      checkMongoData("testCubeWithTime")
+      checkMongoData("testCubeWithoutTime")
     }
 
-    def checkMongoData(): Unit = {
-      val mongoColl: MongoCollection = mongoConnection("csvtest")("testCube")
+    def checkMongoData(tableName: String): Unit = {
+      val mongoColl: MongoCollection = mongoConnection("csvtest")(tableName)
       mongoColl.size should be(2)
 
       val productA = mongoColl.find(new BasicDBObject("product", "producta")).next()
