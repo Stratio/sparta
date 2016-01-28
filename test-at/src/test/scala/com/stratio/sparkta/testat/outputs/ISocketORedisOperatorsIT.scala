@@ -74,10 +74,10 @@ class ISocketORedisOperatorsIT extends SparktaATSuite {
       productA.get.get("range_price").get should be("992.0")
       productA.get.get("sum_price").get should be("5112.0")
       productA.get.get("avg_price").get should be("639.0")
-      productA.get.get("acc_price").get should be("List(10, 500, 1000, 500, 1000, 500, 1002, 600)")
+      productA.get.get("acc_price").get should be("WrappedArray(10, 500, 1000, 500, 1000, 500, 1002, 600)")
       productA.get.get("count_price").get should be("8")
       productA.get.get("min_price").get should be("10.0")
-      productA.get.get("mode_price").get should be("List(500)")
+      productA.get.get("mode_price").get should be("WrappedArray(500)")
 
       val productBKey = redisPool.withClient(client => client.keys("product:productb:minute:*")).get.head.get
       val productB = redisPool.withClient(client => client.hgetall(productBKey))
@@ -91,10 +91,10 @@ class ISocketORedisOperatorsIT extends SparktaATSuite {
       productB.get.get("range_price").get should be("986.0")
       productB.get.get("sum_price").get should be("6066.0")
       productB.get.get("avg_price").get should be("758.25")
-      productB.get.get("acc_price").get should be("List(15, 1000, 1000, 1000, 1000, 1000, 1001, 50)")
+      productB.get.get("acc_price").get should be("WrappedArray(15, 1000, 1000, 1000, 1000, 1000, 1001, 50)")
       productB.get.get("count_price").get should be("8")
       productB.get.get("min_price").get should be("15.0")
-      productB.get.get("mode_price").get should be("List(1000)")
+      productB.get.get("mode_price").get should be("WrappedArray(1000)")
     }
   }
 
