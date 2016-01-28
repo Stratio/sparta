@@ -140,13 +140,11 @@ class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: 
     // Driver (Sparkta) params
     driverParams.map(sparkLauncher.addAppArgs(_))
     val spark = sparkLauncher.launch()
+    val loggerThread = new ClusterLogger(spark)
+    loggerThread.run()
     spark.waitFor()
     val exit = spark.exitValue()
     log.debug(s"Spark exit status: $exit")
-    // TODO: This should be done in another thread. At this point, you only see the error when job is terminated
-    val in = Source.fromInputStream(spark.getErrorStream)
-    in.getLines().foreach(log.error)
-    in.close()
     if (exit != 0) setErrorStatus
   }
 
@@ -183,4 +181,13 @@ object ClusterLauncherActor extends SLF4JLogging {
         Map.empty[String, String]
       }
     }
+}
+
+class ClusterLogger(spark: Process) extends Runnable with SLF4JLogging {
+
+  override def run(): Unit = {
+    val in = Source.fromInputStream(spark.getErrorStream)
+    while (spark.isAlive) in.getLines.foreach(log.info)
+    in.close()
+  }
 }
