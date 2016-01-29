@@ -38,6 +38,8 @@ import scala.reflect.ClassTag
 @RunWith(classOf[JUnitRunner])
 class ISocketOCassandraOperatorsIT extends SparktaATSuite {
 
+  System.setProperty("jna.nosys","true")
+
   override val policyFile = "policies/ISocket-OCassandra-operators.json"
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-operators.csv").getPath
   var cluster: Cluster = _
