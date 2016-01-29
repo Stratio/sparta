@@ -28,7 +28,7 @@ import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
+import com.stratio.sparkta.serving.core.models.{CommonPoliciesModel, PolicyStatusModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 import org.apache.spark.streaming.StreamingContext
@@ -36,7 +36,7 @@ import org.apache.spark.streaming.StreamingContext
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
-class LocalSparkStreamingContextActor(policy: AggregationPoliciesModel,
+class LocalSparkStreamingContextActor(policy: CommonPoliciesModel,
                                       streamingContextService: StreamingContextService,
                                       policyStatusActor: ActorRef) extends Actor
 with SLF4JLogging

@@ -1,0 +1,285 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://sparkta.stratio.com",
+  "type": "object",
+  "properties": {
+    "transformations": {
+      "id": "http://sparkta.stratio.com/transformations",
+      "type": "array",
+      "items": {
+        "id": "http://sparkta.stratio.com/transformations/",
+        "type": "object",
+        "properties": {
+          "name": {
+            "id": "http://sparkta.stratio.com/transformations/name",
+            "type": "string"
+          },
+          "order": {
+            "id": "http://sparkta.stratio.com/transformations/order",
+            "type": "integer"
+          },
+          "inputField": {
+            "id": "http://sparkta.stratio.com/transformations/inputField",
+            "type": "string"
+          },
+          "outputFields": {
+            "id": "http://sparkta.stratio.com/transformations/outputFields",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "id": "http://sparkta.stratio.com/transformations/outputFields/",
+              "type": "string"
+            }
+          },
+          "type": {
+            "id": "http://sparkta.stratio.com/transformations/type",
+            "type": "string"
+          },
+          "configuration": {
+            "id": "http://sparkta.stratio.com/transformations/configuration",
+            "type": "object"
+          }
+        },
+        "required": [
+          "name",
+          "order",
+          "outputFields"
+        ]
+      }
+    },
+    "description": {
+      "id": "http://sparkta.stratio.com/description",
+      "type": "string"
+    },
+    "name": {
+      "id": "http://sparkta.stratio.com/name",
+      "type": "string"
+    },
+    "storageLevel": {
+      "id": "http://sparkta.stratio.com/storageLevel",
+      "type": "string"
+    },
+    "sparkStreamingWindow": {
+      "id": "http://sparkta.stratio.com/sparkStreamingWindow",
+      "type": "integer"
+    },
+    "checkpointPath": {
+      "id": "http://sparkta.stratio.com/checkpointPath",
+      "type": "string"
+    },
+    "rawData": {
+      "id": "http://sparkta.stratio.com/rawData",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "id": "http://sparkta.stratio.com/rawData/enabled",
+          "type": "string"
+        },
+        "path": {
+          "id": "http://sparkta.stratio.com/rawData/path",
+          "type": "string"
+        }
+      }
+    },
+    "input": {
+      "id": "http://sparkta.stratio.com/input",
+      "type": "object",
+      "properties": {
+        "name": {
+          "id": "http://sparkta.stratio.com/input/name",
+          "type": "string"
+        },
+        "type": {
+          "id": "http://sparkta.stratio.com/input/type",
+          "type": "string"
+        },
+        "configuration": {
+          "id": "http://sparkta.stratio.com/input/configuration",
+          "type": "object"
+        }
+      },
+      "required": [
+        "name",
+        "type"
+      ]
+    },
+    "cubes": {
+      "id": "http://sparkta.stratio.com/cubes",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "id": "http://sparkta.stratio.com/cubes/",
+        "type": "object",
+        "properties": {
+          "name": {
+            "id": "http://sparkta.stratio.com/cubes/name",
+            "type": "string"
+          },
+          "checkpointConfig": {
+            "id": "http://sparkta.stratio.com/cubes/checkpointConfig",
+            "type": "object",
+            "properties": {
+              "timeDimension": {
+                "id": "http://sparkta.stratio.com/cubes/checkpointConfig/timeDimension",
+                "type": "string"
+              },
+              "granularity": {
+                "id": "http://sparkta.stratio.com/cubes/checkpointConfig/granularity",
+                "type": "string"
+              },
+              "interval": {
+                "id": "http://sparkta.stratio.com/cubes/checkpointConfig/interval",
+                "type": "integer"
+              },
+              "timeAvailability": {
+                "id": "http://sparkta.stratio.com/cubes/checkpointConfig/timeAvailability",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "timeDimension",
+              "granularity",
+              "interval",
+              "timeAvailability"
+            ]
+          },
+          "dimensions": {
+            "id": "http://sparkta.stratio.com/cubes/dimensions",
+            "type": "array",
+            "minItems": 1,
+            "items": [
+              {
+                "id": "http://sparkta.stratio.com/cubes/dimensions/",
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "id": "http://sparkta.stratio.com/cubes/dimensions/name",
+                    "type": "string"
+                  },
+                  "field": {
+                    "id": "http://sparkta.stratio.com/cubes/dimensions/field",
+                    "type": "string"
+                  },
+                  "type": {
+                    "id": "http://sparkta.stratio.com/cubes/dimensions/type",
+                    "type": "string"
+                  },
+                  "precision": {
+                    "id": "http://sparkta.stratio.com/cubes/dimensions/precision",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "field"
+                ]
+              }
+            ]
+          },
+          "operators": {
+            "id": "http://sparkta.stratio.com/cubes/operators",
+            "type": "array",
+            "items": {
+              "id": "http://sparkta.stratio.com/cubes/operators/",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "id": "http://sparkta.stratio.com/cubes/operators/name",
+                  "type": "string"
+                },
+                "type": {
+                  "id": "http://sparkta.stratio.com/cubes/operators/type",
+                  "type": "string"
+                },
+                "configuration": {
+                  "id": "http://sparkta.stratio.com/cubes/operators/configuration",
+                  "type": "object"
+                }
+              },
+              "required": [
+                "name",
+                "type"
+              ]
+            }
+          }
+        },
+        "required": [
+          "name",
+          "checkpointConfig",
+          "dimensions"
+        ]
+      }
+    },
+    "outputs": {
+      "id": "http://sparkta.stratio.com/outputs",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "id": "http://sparkta.stratio.com/outputs/",
+        "type": "object",
+        "properties": {
+          "name": {
+            "id": "http://sparkta.stratio.com/outputs/name",
+            "type": "string"
+          },
+          "type": {
+            "id": "http://sparkta.stratio.com/outputs/type",
+            "type": "string"
+          },
+          "configuration": {
+            "id": "http://sparkta.stratio.com/outputs/configuration",
+            "type": "object"
+          }
+        },
+        "required": [
+          "name",
+          "type"
+        ]
+      }
+    },
+    "fragments": {
+      "id": "http://sparkta.stratio.com/fragments",
+      "type": "array",
+      "items": {
+        "id": "http://sparkta.stratio.com/fragments/",
+        "type": "object",
+        "properties": {
+          "id": {
+            "id": "http://sparkta.stratio.com/fragments/id",
+            "type": "string"
+          },
+          "fragmentType": {
+            "id": "http://sparkta.stratio.com/fragments/fragmentType",
+            "type": "string"
+          },
+          "name": {
+            "id": "http://sparkta.stratio.com/fragments/name",
+            "type": "string"
+          },
+          "description": {
+            "id": "http://sparkta.stratio.com/fragments/description",
+            "type": "string"
+          },
+          "shortDescription": {
+            "id": "http://sparkta.stratio.com/fragments/shortDescription",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "fragmentType",
+          "name",
+          "shortDescription",
+          "description"
+        ]
+      }
+    }
+  },
+  "required": [
+    "name",
+    "checkpointPath",
+    "input",
+    "cubes",
+    "outputs"
+  ]
+}

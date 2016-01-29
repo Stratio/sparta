@@ -25,7 +25,8 @@ import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.core.actor.FragmentActor
 import com.stratio.sparkta.serving.core.actor.FragmentActor.ResponseFragment
 import com.stratio.sparkta.serving.core.constants.AkkaConstant
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyWithStatus}
+import com.stratio.sparkta.serving.core.helpers.ParseAggregationToCommonModel
+import com.stratio.sparkta.serving.core.models.{AggregationOldPoliciesModel, CommonPoliciesModel, PolicyWithStatus}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
@@ -56,7 +57,7 @@ with HttpServiceBaseTest {
       startAutopilot(ResponsePolicy(Success(getPolicyModel())))
       Get(s"/${HttpConstant.PolicyPath}/find/id") ~> routes ~> check {
         testProbe.expectMsgType[Find]
-        responseAs[AggregationPoliciesModel] should equal(getPolicyModel())
+        responseAs[CommonPoliciesModel] should equal(getPolicyModel())
       }
     }
     "return a 500 if there was any error" in {
@@ -73,7 +74,7 @@ with HttpServiceBaseTest {
       startAutopilot(ResponsePolicy(Success(getPolicyModel())))
       Get(s"/${HttpConstant.PolicyPath}/findByName/name") ~> routes ~> check {
         testProbe.expectMsgType[FindByName]
-        responseAs[AggregationPoliciesModel] should equal(getPolicyModel())
+        responseAs[CommonPoliciesModel] should equal(getPolicyModel())
       }
     }
     "return a 500 if there was any error" in {
@@ -151,15 +152,16 @@ with HttpServiceBaseTest {
 
   "PolicyHttpService.create" should {
     "return the policy that was created" in {
-      startAutopilot(ResponsePolicy(Success(getPolicyModel())))
-      Post(s"/${HttpConstant.PolicyPath}", getPolicyModel) ~> routes ~> check {
+      startAutopilot(ResponsePolicy(Success(ParseAggregationToCommonModel.parsePolicyToCommonPolicy(
+        getPolicyModelOld()))))
+      Post(s"/${HttpConstant.PolicyPath}", getPolicyModelOld) ~> routes ~> check {
         testProbe.expectMsgType[Create]
-        responseAs[AggregationPoliciesModel] should equal(getPolicyModel())
+        responseAs[CommonPoliciesModel] should equal(getPolicyModel())
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(Response(Failure(new MockException())))
-      Post(s"/${HttpConstant.PolicyPath}", getPolicyModel) ~> routes ~> check {
+      Post(s"/${HttpConstant.PolicyPath}", getPolicyModelOld) ~> routes ~> check {
         testProbe.expectMsgType[Create]
         status should be(StatusCodes.InternalServerError)
       }

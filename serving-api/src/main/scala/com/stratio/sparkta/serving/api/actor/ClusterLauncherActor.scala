@@ -40,13 +40,13 @@ import com.stratio.sparkta.driver.util.HdfsUtils
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.constants.AppConstant
-import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.CommonPoliciesModel
 import com.stratio.sparkta.serving.core.models.PolicyStatusModel
 import com.stratio.sparkta.serving.core.models.SparktaSerializer
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 
-class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: ActorRef) extends Actor
+class ClusterLauncherActor(policy: CommonPoliciesModel, policyStatusActor: ActorRef) extends Actor
   with SLF4JLogging
   with SparktaSerializer {
 

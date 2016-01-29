@@ -39,8 +39,8 @@ with SparktaSerializer {
 
   def actorRefFactory: ActorRefFactory = system
 
-  val granularity = 30000
-  val interval = 60000
+  val granularity = "30000"
+  val interval = "600000"
 
   // XXX Protected methods.
 
@@ -57,7 +57,7 @@ with SparktaSerializer {
   protected def getPolicyWithStatus(): PolicyWithStatus =
     PolicyWithStatus(PolicyStatusEnum.Launched, getPolicyModel())
 
-  protected def getPolicyModel(): AggregationPoliciesModel = {
+  protected def getPolicyModel(): CommonPoliciesModel = {
     val rawData = new RawDataModel
     val transformations = Seq(TransformationsModel(
       name = "transformation1",
@@ -66,7 +66,51 @@ with SparktaSerializer {
       Input.RawDataKey,
       Seq("out1", "out2"),
       Map()))
-    val checkpointModel = CheckpointModel("minute", "minute", None, interval)
+    val checkpointModel = CommonCheckpointModel("minute", "minute", Some(granularity), Some(interval))
+    val dimensionModel = Seq(CommonDimensionModel(
+      "dimensionName",
+      "field1",
+      DimensionType.IdentityName,
+      DimensionType.DefaultDimensionClass,
+      Some(Map())
+    ))
+    val operators = Seq(OperatorModel("Count", "countoperator", Map()))
+    val cubes = Seq(CommonCubeModel("cube1",
+      checkpointModel,
+      dimensionModel,
+      operators))
+    val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
+    val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
+    val policy = CommonPoliciesModel(
+      id = Option("id"),
+      version = None,
+      storageLevel = CommonPoliciesModel.storageDefaultValue,
+      name = "testpolicy",
+      description = "whatever",
+      sparkStreamingWindow = CommonPoliciesModel.sparkStreamingWindow,
+      checkpointPath = "test/test",
+      rawData,
+      transformations,
+      cubes,
+      input,
+      outputs,
+      Seq())
+    policy
+  }
+
+
+  protected def getPolicyModelOld(): AggregationOldPoliciesModel = {
+    val granularity = 30000
+    val computeLast = 600000
+    val rawData = new RawDataModel
+    val transformations = Seq(TransformationsModel(
+      name = "transformation1",
+      "Morphlines",
+      0,
+      Input.RawDataKey,
+      Seq("out1", "out2"),
+      Map()))
+    val checkpointModel = CheckpointModel("minute", "minute", Some(granularity), computeLast)
     val dimensionModel = Seq(DimensionModel(
       "dimensionName",
       "field1",
@@ -81,12 +125,13 @@ with SparktaSerializer {
       operators))
     val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
     val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
-    val policy = AggregationPoliciesModel(id = Option("id"),
+    val policy = AggregationOldPoliciesModel(
+      id = Option("id"),
       version = None,
-      storageLevel = AggregationPoliciesModel.storageDefaultValue,
+      storageLevel = CommonPoliciesModel.storageDefaultValue,
       name = "testpolicy",
       description = "whatever",
-      sparkStreamingWindow = AggregationPoliciesModel.sparkStreamingWindow,
+      sparkStreamingWindow = CommonPoliciesModel.sparkStreamingWindow,
       checkpointPath = "test/test",
       rawData,
       transformations,
@@ -96,6 +141,8 @@ with SparktaSerializer {
       Seq())
     policy
   }
+
+
 
   /**
    * Starts and actor used to reply messages though the akka system. By default it can send a message to reply and it

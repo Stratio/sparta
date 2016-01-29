@@ -153,15 +153,15 @@
   "granularityOptions": [
     {
       "label": "5 seconds",
-      "value": "5 seconds"
+      "value": "5s"
     },
     {
       "label": "_10_SECONDS_",
-      "value": "10 seconds"
+      "value": "10s"
     },
     {
       "label": "_15_SECONDS_",
-      "value": "15 seconds"
+      "value": "15s"
     },
     {
       "label": "_MINUTE_",

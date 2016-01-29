@@ -61,7 +61,7 @@ class SwaggerActor(actorsMap: Map[String, ActorRef], curatorFramework : CuratorF
 
   def getRoutes: Route = swaggerService ~ swaggerUIroutes ~ serviceRoutes.fragmentRoute ~
     serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~ serviceRoutes.templateRoute ~
-    serviceRoutes.AppStatusRoute
+    serviceRoutes.AppStatusRoute ~ serviceRoutes.policyContextRouteNew
 
   def swaggerUIroutes: Route =
     get {
@@ -77,7 +77,8 @@ class SwaggerActor(actorsMap: Map[String, ActorRef], curatorFramework : CuratorF
       typeOf[FragmentHttpService],
       typeOf[TemplateHttpService],
       typeOf[PolicyHttpService],
-      typeOf[PolicyContextHttpService])
+      typeOf[PolicyContextHttpService],
+      typeOf[PolicyContextHttpServiceWorkflow])
 
     override def apiVersion: String = "1.0"
 

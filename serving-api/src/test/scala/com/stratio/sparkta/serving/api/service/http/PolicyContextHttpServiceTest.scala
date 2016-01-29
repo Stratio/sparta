@@ -50,85 +50,86 @@ with HttpServiceBaseTest {
   override val supervisor: ActorRef = testProbe.ref
 
   "PolicyContextHttpService.findAll" should {
-    "find all policy contexts" in {
-      val policyStatusActorAutoPilot = Option(new TestActor.AutoPilot {
-        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
-          msg match {
-            case FindAll =>
-              sender ! PolicyStatusActor.Response(Success(Seq(getPolicyStatusModel())))
-              TestActor.NoAutoPilot
+        "find all policy contexts" in {
+          val policyStatusActorAutoPilot = Option(new TestActor.AutoPilot {
+            def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
+              msg match {
+                case FindAll =>
+                  sender ! PolicyStatusActor.Response(Success(Seq(getPolicyStatusModel())))
+                  TestActor.NoAutoPilot
+              }
+          })
+          startAutopilot(None, policyStatusActorTestProbe, policyStatusActorAutoPilot)
+          Get(s"/${HttpConstant.PolicyContextPath}") ~> routes ~> check {
+            policyStatusActorTestProbe.expectMsg(FindAll)
+            responseAs[PolicyStatusModel] should equal(getPolicyStatusModel())
           }
-      })
-      startAutopilot(None, policyStatusActorTestProbe, policyStatusActorAutoPilot)
-      Get(s"/${HttpConstant.PolicyContextPath}") ~> routes ~> check {
-        policyStatusActorTestProbe.expectMsg(FindAll)
-        responseAs[PolicyStatusModel] should equal(getPolicyStatusModel())
-      }
-    }
-    "return a 500 if there was any error" in {
-      val policyStatusActorAutoPilot = Option(new TestActor.AutoPilot {
-        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
-          msg match {
-            case FindAll =>
-              sender ! PolicyStatusActor.Response(Failure(new MockException))
-              TestActor.NoAutoPilot
+        }
+        "return a 500 if there was any error" in {
+          val policyStatusActorAutoPilot = Option(new TestActor.AutoPilot {
+            def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
+              msg match {
+                case FindAll =>
+                  sender ! PolicyStatusActor.Response(Failure(new MockException))
+                  TestActor.NoAutoPilot
+              }
+          })
+          startAutopilot(None, policyStatusActorTestProbe, policyStatusActorAutoPilot)
+          Get(s"/${HttpConstant.PolicyContextPath}") ~> routes ~> check {
+            policyStatusActorTestProbe.expectMsg(FindAll)
+            status should be(StatusCodes.InternalServerError)
           }
-      })
-      startAutopilot(None, policyStatusActorTestProbe, policyStatusActorAutoPilot)
-      Get(s"/${HttpConstant.PolicyContextPath}") ~> routes ~> check {
-        policyStatusActorTestProbe.expectMsg(FindAll)
-        status should be(StatusCodes.InternalServerError)
+        }
       }
-    }
-  }
 
-  "PolicyContextHttpService.update" should {
-    "update a policy context when the id of the contexts exists" in {
-      val policyStatusActorAutoPilot = Option(new TestActor.AutoPilot {
-        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
-          msg match {
-            case Update(policyStatus) =>
-              sender ! Option(policyStatus)
-              TestActor.NoAutoPilot
+      "PolicyContextHttpService.update" should {
+        "update a policy context when the id of the contexts exists" in {
+          val policyStatusActorAutoPilot = Option(new TestActor.AutoPilot {
+            def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
+              msg match {
+                case Update(policyStatus) =>
+                  sender ! Option(policyStatus)
+                  TestActor.NoAutoPilot
+              }
+          })
+          startAutopilot(None, policyStatusActorTestProbe, policyStatusActorAutoPilot)
+          Put(s"/${HttpConstant.PolicyContextPath}", getPolicyStatusModel()) ~> routes ~> check {
+            policyStatusActorTestProbe.expectMsgType[Update]
+            status should be(StatusCodes.Created)
           }
-      })
-      startAutopilot(None, policyStatusActorTestProbe, policyStatusActorAutoPilot)
-      Put(s"/${HttpConstant.PolicyContextPath}", getPolicyStatusModel()) ~> routes ~> check {
-        policyStatusActorTestProbe.expectMsgType[Update]
-        status should be(StatusCodes.Created)
-      }
-    }
-    "return a 500 if there was any error" in {
-      val policyStatusActorAutoPilot = Option(new TestActor.AutoPilot {
-        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
-          msg match {
-            case Update(policyStatus) =>
-              sender ! None
-              TestActor.NoAutoPilot
+        }
+        "return a 500 if there was any error" in {
+          val policyStatusActorAutoPilot = Option(new TestActor.AutoPilot {
+            def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
+              msg match {
+                case Update(policyStatus) =>
+                  sender ! None
+                  TestActor.NoAutoPilot
+              }
+          })
+          startAutopilot(None, policyStatusActorTestProbe, policyStatusActorAutoPilot)
+          Put(s"/${HttpConstant.PolicyContextPath}", getPolicyStatusModel()) ~> routes ~> check {
+            policyStatusActorTestProbe.expectMsgType[Update]
+            status should be(StatusCodes.InternalServerError)
           }
-      })
-      startAutopilot(None, policyStatusActorTestProbe, policyStatusActorAutoPilot)
-      Put(s"/${HttpConstant.PolicyContextPath}", getPolicyStatusModel()) ~> routes ~> check {
-        policyStatusActorTestProbe.expectMsgType[Update]
-        status should be(StatusCodes.InternalServerError)
+        }
       }
-    }
-  }
+//
+//    "PolicyContextHttpService.create" should {
+//      "creates a policy context when the id of the contexts exists" in {
+//        startAutopilot(Success(getPolicyModel()))
+//        Post(s"/${HttpConstant.PolicyContextPath}", getPolicyModel()) ~> routes ~> check {
+//          testProbe.expectMsgType[SparkStreamingContextActor.Create]
+//          status should be(StatusCodes.OK)
+//        }
+//      }
+//          "return a 500 if there was any error" in {
+//            startAutopilot(Failure(new MockException))
+//            Post(s"/${HttpConstant.PolicyContextPath}", getPolicyModel()) ~> routes ~> check {
+//              testProbe.expectMsgType[SparkStreamingContextActor.Create]
+//              status should be(StatusCodes.InternalServerError)
+//            }
+//          }
+//    }
 
-  "PolicyContextHttpService.create" should {
-    "creates a policy context when the id of the contexts exists" in {
-      startAutopilot(Success(getPolicyModel()))
-      Post(s"/${HttpConstant.PolicyContextPath}", getPolicyModel()) ~> routes ~> check {
-        testProbe.expectMsgType[SparkStreamingContextActor.Create]
-        status should be(StatusCodes.OK)
-      }
-    }
-    "return a 500 if there was any error" in {
-      startAutopilot(Failure(new MockException))
-      Post(s"/${HttpConstant.PolicyContextPath}", getPolicyModel()) ~> routes ~> check {
-        testProbe.expectMsgType[SparkStreamingContextActor.Create]
-        status should be(StatusCodes.InternalServerError)
-      }
-    }
-  }
 }

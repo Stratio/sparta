@@ -57,9 +57,9 @@
       "name": "testCube",
       "checkpointConfig": {
         "timeDimension": "minute",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
+        "granularity": "30s",
+        "interval": 300000,
+        "timeAvailability": 600000
       },
       "dimensions": [
         {
@@ -94,9 +94,12 @@
   ],
   "outputs": [
     {
-      "name": "out-print",
-      "type": "Print",
-      "configuration": {}
+      "name": "out-mongo",
+      "type": "MongoDb",
+      "configuration": {
+        "hosts": [{"host": "localhost" , "port": "27017" }],
+        "dbName": "sparkta"
+      }
     }
   ]
 }

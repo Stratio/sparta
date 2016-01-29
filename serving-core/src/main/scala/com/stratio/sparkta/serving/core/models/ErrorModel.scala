@@ -42,6 +42,7 @@ object ErrorModel extends SparktaSerializer{
   val CodeNotExistsPolicytWithId      = "201"
   val CodeNotExistsPolicytWithName    = "202"
   val CodeNotExistsTemplatetWithName  = "300"
+  val CodePolicyIsWrong               = "305"
   val CodeUnknow                      = "666"
 
   def toString(errorModel: ErrorModel): String = {
