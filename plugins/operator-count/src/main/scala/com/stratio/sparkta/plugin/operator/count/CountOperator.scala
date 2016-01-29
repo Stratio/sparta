@@ -39,7 +39,7 @@ class CountOperator(name: String, properties: Map[String, JSerializable])
     applyFilters(inputFieldsValues.values).flatMap(filteredFields => distinctFields match {
       case None => Option(CountOperator.One.toLong)
       case Some(fields) => Option(fields.map(field => filteredFields.getOrElse(field, CountOperator.NullValue))
-        .mkString(OperatorConstants.UnderscoreSeparator).toString)
+        .mkString(Operator.UnderscoreSeparator).toString)
     })
   }
 
@@ -50,21 +50,21 @@ class CountOperator(name: String, properties: Map[String, JSerializable])
         case Some(fields) => values.flatten.toList.distinct.map(value => CountOperator.One.toLong)
       }
       Option(longList.sum)
-    }.getOrElse(Option(OperatorConstants.Zero.toLong))
+    }.getOrElse(Option(Operator.Zero.toLong))
   }
 
   def associativity(values: Iterable[(String, Option[Any])]): Option[Long] = {
     val newValues = extractValues(values, None).map(_.asInstanceOf[Number].longValue()).sum
 
     Try(Option(transformValueByTypeOp(returnType, newValues)))
-      .getOrElse(Option(OperatorConstants.Zero.toLong))
+      .getOrElse(Option(Operator.Zero.toLong))
   }
 
   //FIXME: We should refactor this code
   private def parseDistinctFields: Option[Seq[String]] = {
     val distinct = properties.getString("distinctFields", None)
     if (distinct.isDefined && !distinct.get.isEmpty)
-      Option(distinct.get.split(OperatorConstants.UnderscoreSeparator))
+      Option(distinct.get.split(Operator.UnderscoreSeparator))
     else None
   }
 }

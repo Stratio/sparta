@@ -30,7 +30,6 @@ import org.scalatest.{FlatSpec, ShouldMatchers}
 
 import scala.util.{Failure, Try}
 
-
 @RunWith(classOf[JUnitRunner])
 class SparktaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
@@ -42,27 +41,13 @@ class SparktaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
   val myOutput: PolicyElementModel = mock[PolicyElementModel]
 
-  "SparktaJob" should "return configs" in {
-    when(myOutput.`type`).thenReturn("Test")
-    when(aggModel.outputs).thenReturn(Seq(myOutput))
-    val reflecMoc = mock[ReflectionUtils]
-    when(reflecMoc.getClasspathMap).thenReturn(Map("TestOutput" -> "TestOutput"))
-    val result = Try(SparktaJob.getSparkConfigs(aggModel, method, suffix, reflecMoc)) match {
-      case Failure(ex) => {
-        ex
-      }
-    }
-    result.isInstanceOf[ClassNotFoundException] should be(true)
-  }
-
-
   it should "parse a event" in {
     val parser: Parser = mock[Parser]
     val event: Event = mock[Event]
     val parsedEvent = mock[Event]
     when(parser.parse(event)).thenReturn(parsedEvent)
 
-    val result = SparktaJob.parseEvent(parser, event)
+    val result = SparktaJob.parseEvent(event, parser)
     result should be(Some(parsedEvent))
   }
   it should "return none if a parse Event fails" in {
@@ -70,23 +55,9 @@ class SparktaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     val event: Event = mock[Event]
     when(parser.parse(event)).thenThrow(new RuntimeException("testEx"))
 
-    val result = SparktaJob.parseEvent(parser, event)
+    val result = SparktaJob.parseEvent(event, parser)
     result should be(None)
   }
-
-
-  it should "return a event Seq" in {
-    val mockedEvent = mock[Event]
-    val event: Option[Event] = Some(mockedEvent)
-    val result = SparktaJob.eventToSeq(event)
-    result should be(Seq(mockedEvent))
-  }
-  it should "return a void Seq" in {
-    val event: Option[Event] = None
-    val result = SparktaJob.eventToSeq(event)
-    result should be(Seq())
-  }
-
 
   it should "create a input" in {
     val myInput = Some(mock[PolicyElementModel])
@@ -104,7 +75,7 @@ class SparktaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
         (c, Map("" -> JsoneyString(""))))).thenReturn(myInputClass)
 
 
-    val result = Try(SparktaJob.input(aggModel, ssc, reflection)) match {
+    val result = Try(SparktaJob.getInput(aggModel, ssc, reflection)) match {
       case Failure(ex) => ex
     }
     result.isInstanceOf[NullPointerException] should be(true)

@@ -22,7 +22,7 @@ import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, _}
 
 class AvgOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
-with ProcessMapAsNumber {
+with OperatorProcessMapAsNumber {
 
   override val defaultTypeOperation = TypeOp.Double
 
@@ -35,7 +35,7 @@ with ProcessMapAsNumber {
     distinctValues.size match {
       case (nz) if (nz != 0) => Some(transformValueByTypeOp(returnType,
         distinctValues.map(_.asInstanceOf[Number].doubleValue()).sum / distinctValues.size))
-      case _ => Some(OperatorConstants.Zero.toDouble)
+      case _ => Some(Operator.Zero.toDouble)
     }
   }
 }

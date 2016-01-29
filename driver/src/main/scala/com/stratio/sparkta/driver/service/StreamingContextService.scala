@@ -16,7 +16,7 @@
 
 package com.stratio.sparkta.driver.service
 
-import java.io.File
+import java.io.{File, Serializable}
 import java.net.URI
 
 import akka.actor.ActorRef
@@ -51,7 +51,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
 
     val ssc = StreamingContext.getOrCreate(AggregationPoliciesModel.checkpointPath(apConfig), () => {
       log.info(s"Nothing in checkpoint path: ${AggregationPoliciesModel.checkpointPath(apConfig)}")
-      SparktaJob.runSparktaJob(getStandAloneSparkContext(apConfig, files), apConfig)
+      SparktaJob.run(getStandAloneSparkContext(apConfig, files), apConfig)
     })
 
     SparkContextFactory.setSparkContext(ssc.sparkContext)
@@ -65,13 +65,13 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
                               detailConfig: Map[String, String]): Option[StreamingContext] = {
     val exitWhenStop = true
     runStatusListener(apConfig.id.get, apConfig.name, exitWhenStop)
-    SparktaJob.runSparktaJob(getClusterSparkContext(apConfig, files, detailConfig), apConfig)
+    SparktaJob.run(getClusterSparkContext(apConfig, files, detailConfig), apConfig)
     SparkContextFactory.sparkStreamingInstance
   }
 
   private def getStandAloneSparkContext(apConfig: AggregationPoliciesModel, jars: Seq[File]): SparkContext = {
-    val pluginsSparkConfig = SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix,
-      new ReflectionUtils())
+    val pluginsSparkConfig =
+      sparkConfigFromOutputs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix, new ReflectionUtils())
     val standAloneConfig = Try(generalConfig.get.getConfig(AppConstant.ConfigLocal)) match {
       case Success(config) => Some(config)
       case _ => None
@@ -82,9 +82,11 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
   private def getClusterSparkContext(apConfig: AggregationPoliciesModel,
                                      classPath: Seq[URI],
                                      detailConfig: Map[String, String]): SparkContext = {
-    val pluginsSparkConfig =
-      SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix,
-        new ReflectionUtils) ++ detailConfig
+    val pluginsSparkConfig = sparkConfigFromOutputs(apConfig,
+      OutputsSparkConfiguration,
+      Output.ClassSuffix,
+      new ReflectionUtils
+    ) ++ detailConfig
     SparkContextFactory.sparkClusterContextInstance(pluginsSparkConfig, classPath)
   }
 
@@ -122,5 +124,24 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
         }
       })
     }
+  }
+
+  private def sparkConfigFromOutputs(apConfig: AggregationPoliciesModel,
+                                     methodName: String,
+                                     suffix: String,
+                                     refUtils: ReflectionUtils): Map[String, String] = {
+    log.info("Initializing reflection")
+    apConfig.outputs.flatMap(o => {
+      val clazzToInstance = refUtils.getClasspathMap.getOrElse(o.`type` + suffix, o.`type` + suffix)
+      val clazz = Class.forName(clazzToInstance)
+      clazz.getMethods.find(p => p.getName == methodName) match {
+        case Some(method) => {
+          method.setAccessible(true)
+          method.invoke(clazz, o.configuration.asInstanceOf[Map[String, Serializable]])
+            .asInstanceOf[Seq[(String, String)]]
+        }
+        case None => Seq()
+      }
+    }).toMap
   }
 }

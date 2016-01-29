@@ -19,10 +19,9 @@ package com.stratio.sparkta.plugin.output.cassandra.dao
 import java.io.Closeable
 
 import com.datastax.spark.connector.cql.CassandraConnector
-import org.apache.spark.sql.types._
-import org.apache.spark.{Logging, SparkConf}
-
 import com.stratio.sparkta.sdk.{Output, TableSchema}
+import org.apache.spark.Logging
+import org.apache.spark.sql.types._
 
 trait CassandraDAO extends Closeable with Logging {
 
@@ -57,7 +56,7 @@ trait CassandraDAO extends Closeable with Logging {
   def tableVersion: Option[Int]
 
   def getTableName(table : String) : String = {
-    val tableNameCut = if(table.size > MaxTableNameLength - 3) table.substring(0,MaxTableNameLength - 3) else table
+    val tableNameCut = if(table.length > MaxTableNameLength - 3) table.substring(0,MaxTableNameLength - 3) else table
     tableVersion match {
       case Some(v) => s"$tableNameCut${Output.Separator}v$v"
       case None => tableNameCut
@@ -66,15 +65,11 @@ trait CassandraDAO extends Closeable with Logging {
 
   def createKeypace(connector: CassandraConnector): Boolean = doCreateKeyspace(connector)
 
-  def createTables(connector: CassandraConnector,
-                   tSchemas: Seq[TableSchema],
-                   isAutoCalculateId: Boolean): Boolean =
-    doCreateTables(connector, tSchemas, isAutoCalculateId)
+  def createTables(connector: CassandraConnector, tSchemas: Seq[TableSchema]): Boolean =
+    doCreateTables(connector, tSchemas)
 
-  def createIndexes(connector: CassandraConnector,
-                    tSchemas: Seq[TableSchema],
-                    isAutoCalculateId: Boolean): Boolean =
-    doCreateIndexes(connector, tSchemas, isAutoCalculateId)
+  def createIndexes(connector: CassandraConnector, tSchemas: Seq[TableSchema]): Boolean =
+    doCreateIndexes(connector, tSchemas)
 
   def createTextIndexes(connector: CassandraConnector,
                         tSchemas: Seq[TableSchema]): Boolean =
@@ -88,11 +83,15 @@ trait CassandraDAO extends Closeable with Logging {
   }
 
   protected def doCreateTables(conn: CassandraConnector,
-                               tSchemas: Seq[TableSchema],
-                               isAutoCalculateId: Boolean): Boolean = {
+                               tSchemas: Seq[TableSchema]): Boolean = {
     tSchemas.map(tableSchema =>
-      createTable(conn, tableSchema.tableName, tableSchema.schema, tableSchema.timeDimension, isAutoCalculateId))
-      .forall(result => result)
+        createTable(conn,
+          tableSchema.tableName,
+          tableSchema.schema,
+          tableSchema.timeDimension,
+          tableSchema.isAutoCalculateId
+        )
+    ).forall(result => result)
   }
 
   protected def createTable(conn: CassandraConnector,
@@ -114,14 +113,13 @@ trait CassandraDAO extends Closeable with Logging {
   }
 
   protected def doCreateIndexes(conn: CassandraConnector,
-                                tSchemas: Seq[TableSchema],
-                                isAutoCalculateId: Boolean): Boolean = {
+                                tSchemas: Seq[TableSchema]): Boolean = {
     indexFields match {
       case Some(fields) => {
         val seqResults = for {
           tableSchema <- tSchemas
           indexField <- fields
-          primaryKey = getPartitionKey(tableSchema.schema, tableSchema.timeDimension, isAutoCalculateId)
+          primaryKey = getPartitionKey(tableSchema.schema, tableSchema.timeDimension, tableSchema.isAutoCalculateId)
           created = if (!primaryKey.contains(indexField)) {
             createIndex(conn, getTableName(tableSchema.tableName), indexField)
           } else {

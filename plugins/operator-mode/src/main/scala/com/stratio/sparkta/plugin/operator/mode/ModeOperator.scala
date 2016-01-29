@@ -23,7 +23,7 @@ import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, _}
 
 class ModeOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
-with ProcessMapAsAny {
+with OperatorProcessMapAsAny {
 
   override val defaultTypeOperation = TypeOp.ArrayString
 

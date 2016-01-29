@@ -50,7 +50,7 @@ class ISocketOMongoFiltersJsonIT extends MongoEmbedDatabase with SparktaATSuite 
       val hashtag = mongoColl.find(new BasicDBObject("hashtag", "sparktaHashtag")).next()
       hashtag.get("count1") should be(1)
 
-      mongoColl.size should be(2)
+      mongoColl.size should be(1)
     }
   }
 

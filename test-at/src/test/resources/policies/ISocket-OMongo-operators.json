@@ -74,6 +74,9 @@
         "interval": 100000,
         "timeAvailability": 90000
       },
+      "writer": {
+        "isAutoCalculateId": true
+      },
       "dimensions": [
         {
           "name": "product",

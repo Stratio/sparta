@@ -19,20 +19,19 @@ package com.stratio.sparkta.plugin.output.kafka
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.plugin.output.kafka.producer.KafkaProducer
-import com.stratio.sparkta.sdk.TypeOp.TypeOp
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import com.stratio.sparkta.sdk.Output._
 import com.stratio.sparkta.sdk._
 import org.apache.spark.sql._
-
 
 class KafkaOutput(keyName: String,
                   version: Option[Int],
                   properties: Map[String, JSerializable],
-                  operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
-                  bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, version, properties, operationTypes, bcSchema) with KafkaProducer {
+                  schemas: Seq[TableSchema])
+  extends Output(keyName, version, properties, schemas) with KafkaProducer {
 
-  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: Option[String]): Unit = {
+  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+    val tableName = getTableNameFromOptions(options)
+
     dataFrame.toJSON.foreachPartition {
       messages => messages.foreach(message =>
         send(properties, tableName, message))

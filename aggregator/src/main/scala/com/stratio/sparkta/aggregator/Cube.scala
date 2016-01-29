@@ -16,19 +16,16 @@
 
 package com.stratio.sparkta.aggregator
 
-import com.stratio.sparkta.serving.core.models.CheckpointModel
-
-import scala.util.Try
-
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.serving.core.SparktaConfig
+import com.stratio.sparkta.serving.core.constants.AppConstant
 import org.apache.spark.HashPartitioner
 import org.apache.spark.streaming.Duration
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
-import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.SparktaConfig
-import com.stratio.sparkta.serving.core.constants.AppConstant
+import scala.util.Try
 
 /**
  * Use this class to describe a cube that you want the multicube to keep.
@@ -76,8 +73,7 @@ case class Cube(name: String,
       case (Some(associativeValues), Some(nonAssociativeValues)) =>
         associativeValues.cogroup(nonAssociativeValues)
           .mapValues { case (associativeAggregations, nonAssociativeAggregations) => MeasuresValues(
-            (associativeAggregations.flatMap(_.values) ++ nonAssociativeAggregations.flatMap(_.values))
-              .toMap)
+            (associativeAggregations.flatMap(_.values) ++ nonAssociativeAggregations.flatMap(_.values)).toMap)
           }
       case (Some(associativeValues), None) => associativeValues
       case (None, Some(nonAssociativeValues)) => nonAssociativeValues

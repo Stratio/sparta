@@ -24,7 +24,7 @@ import com.stratio.sparkta.sdk.{TypeOp, _}
 import scala.util.Try
 
 class AccumulatorOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
-with ProcessMapAsAny with Associative {
+with OperatorProcessMapAsAny with Associative {
 
   final val Separator = " "
 

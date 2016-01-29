@@ -22,7 +22,7 @@ import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, _}
 
 class RangeOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
-with ProcessMapAsNumber {
+with OperatorProcessMapAsNumber {
 
   override val defaultTypeOperation = TypeOp.Double
 
@@ -36,7 +36,7 @@ with ProcessMapAsNumber {
       case (nz) if nz != 0 =>
         val valuesConverted = valuesFiltered.map(_.asInstanceOf[Number].doubleValue())
         Some(transformValueByTypeOp(returnType, valuesConverted.max - valuesConverted.min))
-      case _ => Some(OperatorConstants.Zero.toDouble)
+      case _ => Some(Operator.Zero.toDouble)
     }
   }
 }

@@ -18,7 +18,7 @@ package com.stratio.sparkta.testat.outputs
 
 import scala.reflect.io.File
 
-import org.apache.spark.SparkContext
+import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.SQLContext
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -44,16 +44,18 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in parquet" in {
       sparktaRunner
-      checkData("testCubeWithTime_v1")
-      checkData("testCubeWithoutTime_v1")
+      val conf = new SparkConf().setMaster(s"local[$NumExecutors]").setAppName( "ISocketOParquet-operators")
+      val sc = SparkContext.getOrCreate(conf)
+      val sqc = SQLContext.getOrCreate(sc)
+      checkData("testCubeWithTime_v1", sqc)
+      checkData("testCubeWithoutTime_v1", sqc)
+      sc.stop()
     }
 
     // scalastyle:off
-    def checkData(cubeName: String): Unit = {
-      val sc = new SparkContext(s"local[$NumExecutors]", "ISocketOParquet-operators")
-      val sqc = new SQLContext(sc)
-      val df = sqc.read.parquet(parquetPath + s"/$cubeName").toDF
+    def checkData(cubeName: String, sqc: SQLContext): Unit = {
 
+      val df = sqc.read.parquet(parquetPath + s"/$cubeName").toDF
       val mapValues = df.map(row => Map(
         "product" -> row.getString(0),
         "acc_price" -> row.getSeq[String](1),
@@ -107,7 +109,6 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
       productB("entityCount_text") should be(Map("hola" -> 16L, "holo" -> 8L))
       productB("totalEntity_text") should be(24)
 
-      sc.stop()
     }
   }
 

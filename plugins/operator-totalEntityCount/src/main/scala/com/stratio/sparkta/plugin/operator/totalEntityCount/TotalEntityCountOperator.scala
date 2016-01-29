@@ -24,7 +24,7 @@ import com.stratio.sparkta.sdk._
 import scala.util.Try
 
 class TotalEntityCountOperator(name: String, properties: Map[String, JSerializable])
-  extends EntityCount(name, properties) with Associative {
+  extends OperatorEntityCount(name, properties) with Associative {
 
   final val Some_Empty = Some(0)
 

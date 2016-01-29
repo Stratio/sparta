@@ -14,16 +14,9 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.sdk.test
+package com.stratio.sparkta.serving.core.models
 
-import java.io.{Serializable => JSerializable}
-
-import com.stratio.sparkta.sdk.WriteOp._
-import com.stratio.sparkta.sdk.{EntityCount, WriteOp}
-
-class EntityCountMock(name: String, properties: Map[String, JSerializable]) extends EntityCount(name, properties) {
-
-  override def processReduce(values: Iterable[Option[Any]]): Option[Any] = values.head
-
-  override def writeOperation: WriteOp = WriteOp.Inc
-}
+case class WriterModel(outputs: Seq[String] = Seq.empty,
+                       fixedMeasure: Option[String] = None,
+                       dateType: Option[String] = None,
+                       isAutoCalculateId: Option[Boolean] = None)
