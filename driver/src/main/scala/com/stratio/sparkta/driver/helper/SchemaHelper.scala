@@ -19,6 +19,7 @@ package com.stratio.sparkta.driver.helper
 import com.stratio.sparkta.aggregator.{Cube, CubeWriter}
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.serving.core.helpers.OperationsHelper
 import com.stratio.sparkta.serving.core.models._
 import org.apache.spark.sql.types._
 
@@ -47,7 +48,7 @@ object SchemaHelper {
   )
 
   def getSchemasFromCubes(cubes: Seq[Cube],
-                          cubeModels: Seq[CubeModel],
+                          cubeModels: Seq[CommonCubeModel],
                           outputModels: Seq[PolicyElementModel]): Seq[TableSchema] = {
     for {
       (cube, cubeModel) <- cubes.zip(cubeModels)
@@ -64,20 +65,23 @@ object SchemaHelper {
     } yield TableSchema(outputs, cube.name, schema, timeDimension, dateType, isAutoCalculatedId)
   }
 
-  def getExpiringData(checkpointModel: CheckpointModel): Option[ExpiringDataConfig] = {
+  def getExpiringData(checkpointModel: CommonCheckpointModel): Option[ExpiringDataConfig] = {
     val timeName = if (checkpointModel.timeDimension.isEmpty)
-      checkpointModel.granularity
+      checkpointModel.precision
     else checkpointModel.timeDimension
 
     timeName.toLowerCase() match {
       case "none" => None
-      case _ => Option(ExpiringDataConfig(timeName, checkpointModel.granularity, checkpointModel.timeAvailability))
+      case _ => Option(ExpiringDataConfig(
+        timeName,
+        checkpointModel.precision,
+        OperationsHelper.parseValueToMilliSeconds(checkpointModel.computeLast.get)))
     }
   }
 
   // XXX Private methods.
 
-  private def outputsFromOptions(cubeModel: CubeModel, outputsNames: Seq[String]): Seq[String] =
+  private def outputsFromOptions(cubeModel: CommonCubeModel, outputsNames: Seq[String]): Seq[String] =
     cubeModel.writer.fold(outputsNames) { writerModel =>
       if (writerModel.outputs.isEmpty) outputsNames else writerModel.outputs
     }

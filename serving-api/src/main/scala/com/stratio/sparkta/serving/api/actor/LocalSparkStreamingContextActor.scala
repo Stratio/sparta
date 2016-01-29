@@ -36,13 +36,13 @@ import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.dao.ErrorDAO
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
-import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.CommonPoliciesModel
 import com.stratio.sparkta.serving.core.models.PolicyStatusModel
 import com.stratio.sparkta.serving.core.models.SparktaSerializer
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 
-class LocalSparkStreamingContextActor(policy: AggregationPoliciesModel,
+class LocalSparkStreamingContextActor(policy: CommonPoliciesModel,
                                       streamingContextService: StreamingContextService,
                                       policyStatusActor: ActorRef) extends Actor
   with SLF4JLogging
