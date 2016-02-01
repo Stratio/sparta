@@ -29,13 +29,14 @@ import com.stratio.sparkta.driver.util.ReflectionUtils
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.models._
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{Kill, AddListener, Update}
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{AddListener, Kill, Update}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 import com.typesafe.config.Config
 import org.apache.curator.framework.recipes.cache.NodeCache
 import org.apache.spark.SparkContext
 import org.apache.spark.streaming.StreamingContext
 
+import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{Success, Try}
 
@@ -53,10 +54,10 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
 
   def clusterStreamingContext(apConfig: AggregationPoliciesModel,
                               files: Seq[URI],
-                              specifictConfig: Map[String, String]): Option[StreamingContext] = {
+                              detailConfig: Map[String, String]): Option[StreamingContext] = {
     val exitWhenStop = true
     runStatusListener(apConfig.id.get, apConfig.name, exitWhenStop)
-    SparktaJob.runSparktaJob(getClusterSparkContext(apConfig, files, specifictConfig), apConfig)
+    SparktaJob.runSparktaJob(getClusterSparkContext(apConfig, files, detailConfig), apConfig)
     SparkContextFactory.sparkStreamingInstance
   }
 
@@ -72,10 +73,10 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
 
   private def getClusterSparkContext(apConfig: AggregationPoliciesModel,
                                      classPath: Seq[URI],
-                                     specifictConfig: Map[String, String]): SparkContext = {
+                                     detailConfig: Map[String, String]): SparkContext = {
     val pluginsSparkConfig =
       SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix,
-        new ReflectionUtils) ++ specifictConfig
+        new ReflectionUtils) ++ detailConfig
     SparkContextFactory.sparkClusterContextInstance(pluginsSparkConfig, classPath)
   }
 
@@ -83,15 +84,32 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
     if (policyStatusActor.isDefined) {
       log.info(s"Listener added for: $policyId")
       policyStatusActor.get ? AddListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
-        if (policyStatus.status.id equals PolicyStatusEnum.Stopping.id) {
-          synchronized {
-            log.info("Stopping message received from Zookeeper")
-            SparkContextFactory.destroySparkStreamingContext
-            SparkContextFactory.destroySparkContext
-            policyStatusActor.get ! Kill (name)
-            policyStatusActor.get ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopped))
-            nodeCache.close()
-            if (exit) System.exit(0)
+        synchronized {
+          if (policyStatus.status.id equals PolicyStatusEnum.Stopping.id) {
+            try {
+
+              log.info("Stopping message received from Zookeeper")
+              SparkContextFactory.destroySparkStreamingContext
+              SparkContextFactory.destroySparkContext
+
+            } finally {
+
+              Try(Await.result(policyStatusActor.get ? Kill(name), timeout.duration) match {
+                case false => log.warn(s"The actor with name: $name has been stopped previously")
+              }).getOrElse(log.warn(s"The actor with name: $name could not be stopped correctly"))
+
+              Try(Await.result(policyStatusActor.get ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopped)),
+                timeout.duration) match {
+                case None => log.warn(s"The policy status can not be changed")
+              }).getOrElse(log.warn(s"The policy status could be wrong"))
+
+              Try(nodeCache.close()).getOrElse(log.warn(s"The nodeCache in Zookeeper is not closed correctly"))
+
+              if (exit) {
+                log.info("Closing the application")
+                System.exit(0)
+              }
+            }
           }
         }
       })

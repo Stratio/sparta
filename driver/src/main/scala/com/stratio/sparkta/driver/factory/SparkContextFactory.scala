@@ -110,14 +110,17 @@ object SparkContextFactory extends SLF4JLogging {
   def destroySparkStreamingContext: Unit = {
     synchronized {
       if (ssc.isDefined) {
-        val stopGracefully =
-          Try(SparktaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigStopGracefully)).getOrElse(true)
-        log.info(s"Stopping streamingContext with name: ${ssc.get.sparkContext.appName}")
-        ssc.get.stop(false, stopGracefully)
-        log.info(s"Stopped streamingContext with name: ${ssc.get.sparkContext.appName}")
-        ssc = None
+        try {
+          val stopGracefully =
+            Try(SparktaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigStopGracefully)).getOrElse(true)
+          log.info(s"Stopping streamingContext with name: ${ssc.get.sparkContext.appName}")
+          Try(ssc.get.stop(false, stopGracefully)).getOrElse(ssc.get.stop(false, false))
+          log.info(s"Stopped streamingContext with name: ${ssc.get.sparkContext.appName}")
+        } finally {
+          ssc = None
+        }
       } else {
-        log.warn("Cannot destroy Spark Streaming Context")
+        log.warn("Spark Streaming Context is empty")
       }
     }
   }
@@ -126,10 +129,15 @@ object SparkContextFactory extends SLF4JLogging {
     synchronized {
       destroySparkStreamingContext
       if (sc.isDefined) {
-        log.debug("Stopping SparkContext with name: " + sc.get.appName)
-        sc.get.stop()
-        log.debug("Stopped SparkContext with name: " + sc.get.appName)
-        sc = None
+        try {
+          log.debug("Stopping SparkContext with name: " + sc.get.appName)
+          sc.get.stop()
+          log.debug("Stopped SparkContext with name: " + sc.get.appName)
+        } finally {
+          sc = None
+        }
+      } else {
+        log.warn("Spark Context is empty")
       }
     }
   }
