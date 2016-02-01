@@ -45,6 +45,9 @@ case object AggregationPoliciesModel {
 
   val sparkStreamingWindow = 2000
   val storageDefaultValue = Some("MEMORY_AND_DISK_SER_2")
+
+  def checkpointPath(policy: AggregationPoliciesModel): String =
+    s"${policy.checkpointPath}/${policy.name}"
 }
 
 case class PolicyWithStatus(status: PolicyStatusEnum.Value,

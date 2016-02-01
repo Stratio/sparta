@@ -49,8 +49,8 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
   def standAloneStreamingContext(apConfig: AggregationPoliciesModel, files: Seq[File]): Option[StreamingContext] = {
     runStatusListener(apConfig.id.get, apConfig.name)
 
-    val ssc = StreamingContext.getOrCreate(s"${apConfig.checkpointPath}/${apConfig.name}", () => {
-      log.info(s"Nothing in checkpoint path: ${apConfig.checkpointPath}/${apConfig.name}")
+    val ssc = StreamingContext.getOrCreate(AggregationPoliciesModel.checkpointPath(apConfig), () => {
+      log.info(s"Nothing in checkpoint path: ${AggregationPoliciesModel.checkpointPath(apConfig)}")
       SparktaJob.runSparktaJob(getStandAloneSparkContext(apConfig, files), apConfig)
     })
 

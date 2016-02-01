@@ -36,6 +36,10 @@ case class HdfsUtils(dfs: FileSystem, userName: String) {
 
   def getFile(filename: String): InputStream = dfs.open(new Path(filename))
 
+  def delete(path: String): Unit = {
+    dfs.delete(new Path(path), true)
+  }
+
   def write(path: String, destPath: String, overwrite: Boolean = false): Int = {
     val file = new File(path)
     val out = dfs.create(new Path(s"$destPath${file.getName}"))
