@@ -16,6 +16,8 @@
 
 package com.stratio.sparkta.driver.test
 
+import scala.util.Success
+
 import com.stratio.sparkta.driver.SparktaJob
 import com.stratio.sparkta.driver.util.ReflectionUtils
 import com.stratio.sparkta.sdk.{Event, Input, JsoneyString, Parser}
@@ -107,6 +109,6 @@ class SparktaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     val result = Try(SparktaJob.input(aggModel, ssc, reflection)) match {
       case Failure(ex) => ex
     }
-    result.isInstanceOf[NullPointerException] should be(true)
+    result.isInstanceOf[MatchError] should be(true)
   }
 }
