@@ -10,7 +10,7 @@
 
     <groupId>com.stratio.sparkta</groupId>
     <artifactId>sparkta-test</artifactId>
-    <version>0.9.0-SNAPSHOT}</version>
+    <version>0.9.0-SNAPSHOT</version>
     <name>sparkta-test-cucumber</name>
 
     <build>
