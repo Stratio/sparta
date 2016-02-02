@@ -46,7 +46,7 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
 
   trait CommonValues {
 
-    val sqlContext = new SQLContext(sc)
+    val sqlContext = SQLContext.getOrCreate(sc)
 
     import sqlContext.implicits._
 

@@ -40,7 +40,7 @@ object SparkContextFactory extends SLF4JLogging {
     synchronized {
       sqlContext match {
         case Some(_) => sqlContext
-        case None => if (sc.isDefined) sqlContext = Some(new SQLContext(sc.get))
+        case None => if (sc.isDefined) sqlContext = Some(SQLContext.getOrCreate(sc.get))
       }
     }
     sqlContext
@@ -58,7 +58,9 @@ object SparkContextFactory extends SLF4JLogging {
     ssc
   }
 
-  def setSparkContext(createdContext: SparkContext): Unit = sc = Some(createdContext)
+  def setSparkContext(createdContext: SparkContext): Unit = sc = Option(createdContext)
+
+  def setSparkStreamingContext(createdContext: StreamingContext): Unit = ssc = Option(createdContext)
 
   private def getNewStreamingContext(batchDuration: Duration, checkpointDir: String): StreamingContext = {
     val ssc = new StreamingContext(sc.get, batchDuration)

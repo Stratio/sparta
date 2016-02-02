@@ -228,6 +228,7 @@ trait SparktaATSuite
     extraAfter
   }
 
+
   def extraBefore: Unit
 
   def extraAfter: Unit
