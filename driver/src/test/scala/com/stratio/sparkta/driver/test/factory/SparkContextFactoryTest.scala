@@ -30,13 +30,7 @@ class SparkContextFactoryTest extends FlatSpec with ShouldMatchers with BeforeAn
   self: FlatSpec =>
 
   override def afterAll {
-    SparkContextFactory.destroySparkContext
-  }
-
-  object LocalSparkContext {
-
-    def getNewLocalSparkContext(numExecutors: Int = 1, title: String): SparkContext =
-      new SparkContext(s"local[$numExecutors]", title)
+    SparkContextFactory.destroySparkContext()
   }
 
   trait WithConfig {
@@ -49,14 +43,14 @@ class SparkContextFactoryTest extends FlatSpec with ShouldMatchers with BeforeAn
   }
 
   "SparkContextFactorySpec" should "fails when properties is missing" in new WithConfig {
-    an[Exception] should be thrownBy (SparkContextFactory.sparkStandAloneContextInstance(None, specificConfig, Seq()))
+    an[Exception] should be thrownBy SparkContextFactory.sparkStandAloneContextInstance(None, specificConfig, Seq())
   }
 
   it should "create and reuse same context" in new WithConfig {
     val sc = SparkContextFactory.sparkStandAloneContextInstance(config, specificConfig, Seq())
     val otherSc = SparkContextFactory.sparkStandAloneContextInstance(config, specificConfig, Seq())
     sc should be equals (otherSc)
-    SparkContextFactory.destroySparkContext
+    SparkContextFactory.destroySparkContext()
   }
 
   it should "create and reuse same SQLContext" in new WithConfig {
@@ -65,7 +59,7 @@ class SparkContextFactoryTest extends FlatSpec with ShouldMatchers with BeforeAn
     sqc shouldNot be equals (None)
     val otherSqc = SparkContextFactory.sparkSqlContextInstance
     sqc should be equals (otherSqc)
-    SparkContextFactory.destroySparkContext
+    SparkContextFactory.destroySparkContext()
   }
 
   it should "create and reuse same SparkStreamingContext" in new WithConfig {

@@ -77,5 +77,6 @@ class ISocketOElasticsearchJsonAT extends SparktaATSuite {
   override def extraAfter: Unit = {
     JVMProcess.shutdown()
     ElasticsearchEmbeddedServer.cleanData
+    deletePath(s"$CheckpointPath/${"ATSocketElasticsearch".toLowerCase}")
   }
 }

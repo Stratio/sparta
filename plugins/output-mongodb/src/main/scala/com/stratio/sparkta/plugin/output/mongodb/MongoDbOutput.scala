@@ -59,9 +59,9 @@ class MongoDbOutput(keyName: String,
 
   override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
-    val isAutoCalculateId = getIsAutoCalculatedIdFromOptions(options)
+    val isAutoCalculatedId = getIsAutoCalculatedIdFromOptions(options)
     val timeDimension = getTimeFromOptions(options)
-    val dataFrameOptions = getDataFrameOptions(tableName, dataFrame.schema, timeDimension, isAutoCalculateId)
+    val dataFrameOptions = getDataFrameOptions(tableName, dataFrame.schema, timeDimension, isAutoCalculatedId)
 
     dataFrame.write
       .format(MongoDbSparkDatasource)
@@ -73,24 +73,21 @@ class MongoDbOutput(keyName: String,
   private def getDataFrameOptions(tableName: String,
                                   schema: StructType,
                                   timeDimension: Option[String],
-                                  isAutoCalculateId: Boolean): Map[String, String] =
+                                  isAutoCalculatedId: Boolean): Map[String, String] =
     Map(
       MongodbConfig.Host -> hosts,
       MongodbConfig.Database -> dbName,
-      MongodbConfig.Collection -> tableName) ++ getPrimaryKeyOptions(schema, timeDimension, isAutoCalculateId) ++ {
-      if (language.isDefined) Map(MongodbConfig.Language -> language.get) else Map()
+      MongodbConfig.Collection -> tableName
+    ) ++ getPrimaryKeyOptions(schema, timeDimension, isAutoCalculatedId) ++ {
+      if (language.isDefined) Map(MongodbConfig.Language -> language.get) else Map.empty
     }
 
   private def getPrimaryKeyOptions(schema: StructType,
                                    timeDimension: Option[String],
-                                   isAutoCalculateId: Boolean): Map[String, String] = {
-    val updateFields = timeDimension match {
-      case Some(timeDimensionValue) if !timeDimensionValue.isEmpty =>
-        Seq(Output.Id, timeDimensionValue).mkString(",")
-      case _ =>
-        if (isAutoCalculateId) Output.Id
-        else schema.fields.filter(stField => !stField.nullable).map(_.name).mkString(",")
-    }
+                                   isAutoCalculatedId: Boolean): Map[String, String] = {
+    val updateFields = if (isAutoCalculatedId) Output.Id
+      else schema.fields.filter(stField => !stField.nullable).map(_.name).mkString(",")
+
     Map(MongodbConfig.UpdateFields -> updateFields)
   }
 

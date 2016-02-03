@@ -85,34 +85,25 @@ trait MongoDbDAO extends Logging {
     writeConcern = casbah.WriteConcern.Unacknowledged,
     threadsAllowedToBlockForConnectionMultiplier = threadsAllowedB)
 
-  //scalastyle:off
   protected def createPkTextIndex(mongoDatabase: MongoClient, tableSchema: TableSchema): Unit = {
-    val textIndexCreated = if (textIndexFields.isDefined && language.isDefined) {
+    if (textIndexFields.isDefined && language.isDefined) {
       if (textIndexFields.get.length > 0) {
         createTextIndex(mongoDatabase,
           tableSchema.tableName,
           textIndexFields.mkString(Output.Separator),
           textIndexFields.get,
-          language.get)
-        true
-      } else false
-    } else false
+          language.get
+        )
+      }
+    }
 
-    tableSchema.timeDimension match {
-      case Some(timeDimensionValue) if !timeDimensionValue.isEmpty && tableSchema.isAutoCalculateId =>
-        createIndex(mongoDatabase, tableSchema.tableName, Output.Id + Output.Separator + timeDimensionValue,
-          Map(Output.Id -> 1, timeDimensionValue -> 1), true, true)
-      case _ =>
-        if (tableSchema.isAutoCalculateId)
-          createIndex(mongoDatabase, tableSchema.tableName, Output.Id, Map(Output.Id -> 1), true, true)
-        else {
-          val fields = tableSchema.schema.filter(stField => !stField.nullable).map(stField => stField.name -> 1).toMap
-          createIndex(mongoDatabase, tableSchema.tableName, fields.keySet.mkString(Output.Separator), fields, true, true)
-        }
+    if (tableSchema.isAutoCalculatedId)
+      createIndex(mongoDatabase, tableSchema.tableName, Output.Id, Map(Output.Id -> 1), true, true)
+    else {
+      val fields = tableSchema.schema.filter(stField => !stField.nullable).map(stField => stField.name -> 1).toMap
+      createIndex(mongoDatabase, tableSchema.tableName, fields.keySet.mkString(Output.Separator), fields, true, true)
     }
   }
-
-  //scalastyle:on
 
   protected def indexExists(mongoDatabase: MongoClient, collection: String, indexName: String): Boolean = {
     var indexExists = false

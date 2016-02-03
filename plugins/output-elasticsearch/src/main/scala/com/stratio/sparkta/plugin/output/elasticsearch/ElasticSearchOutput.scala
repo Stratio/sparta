@@ -82,10 +82,10 @@ class ElasticSearchOutput(keyName: String,
     }
 
   override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
-    val isAutoCalculateId = dataFrame.schema.fieldNames.contains(Output.Id)
+    val isAutoCalculatedId = dataFrame.schema.fieldNames.contains(Output.Id)
     val tableName = getTableNameFromOptions(options)
     val timeDimension = getTimeFromOptions(options)
-    val sparkConfig = getSparkConfig(timeDimension, idField.isDefined || isAutoCalculateId)
+    val sparkConfig = getSparkConfig(timeDimension, idField.isDefined || isAutoCalculatedId)
     val dataFrameSchema = dataFrame.schema
 
     //Necessary this dataFrame transformation because ES not support java.sql.TimeStamp in the row values: use

@@ -67,7 +67,7 @@ class OutputTest extends WordSpec with Matchers {
       Map(
         "fixedDimensions" -> "dim2",
         "fixedMeasure" -> "op2:1",
-        "isAutoCalculateId" -> "true"
+        "isAutoCalculatedId" -> "true"
       ),
       Seq(tableSchema))
 

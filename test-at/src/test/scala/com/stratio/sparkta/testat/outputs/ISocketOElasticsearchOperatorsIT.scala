@@ -38,12 +38,11 @@ import scala.util.parsing.json.JSON
 @RunWith(classOf[JUnitRunner])
 class ISocketOElasticsearchOperatorsIT extends SparktaATSuite {
 
-  val NumExecutors = 4
-  val TimeElastisearchStarts: Long = 5000
-
   override val policyFile = "policies/ISocket-OElasticsearch-operators.json"
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-operators.csv").getPath
 
+  val NumExecutors = 4
+  val TimeElastisearchStarts: Long = 5000
   val NumEventsExpected: Int = 8
 
   "Sparkta" should {
@@ -116,5 +115,6 @@ class ISocketOElasticsearchOperatorsIT extends SparktaATSuite {
   override def extraAfter: Unit = {
     JVMProcess.shutdown()
     ElasticsearchEmbeddedServer.cleanData
+    deletePath(s"$CheckpointPath/${"ATSocketElasticsearch".toLowerCase}")
   }
 }

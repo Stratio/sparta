@@ -25,4 +25,4 @@ case class TableSchema(outputs: Seq[String],
                        schema: StructType,
                        timeDimension: Option[String] = None,
                        dateType: TypeOp.Value = TypeOp.Timestamp,
-                       isAutoCalculateId: Boolean = false) extends Serializable
+                       isAutoCalculatedId: Boolean = false) extends Serializable

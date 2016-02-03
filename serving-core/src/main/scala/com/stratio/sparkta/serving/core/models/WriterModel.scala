@@ -19,4 +19,4 @@ package com.stratio.sparkta.serving.core.models
 case class WriterModel(outputs: Seq[String] = Seq.empty,
                        fixedMeasure: Option[String] = None,
                        dateType: Option[String] = None,
-                       isAutoCalculateId: Option[Boolean] = None)
+                       isAutoCalculatedId: Option[Boolean] = None)

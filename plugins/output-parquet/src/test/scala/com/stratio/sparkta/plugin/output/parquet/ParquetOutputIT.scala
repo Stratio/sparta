@@ -21,7 +21,7 @@ import java.sql.Timestamp
 import com.github.nscala_time.time.Imports._
 import com.stratio.sparkta.sdk.Output
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.SparkContext
+import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.SQLContext
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -94,8 +94,10 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
 
 object ParquetOutputIT {
 
-  def getNewLocalSparkContext(numExecutors: Int = 1, title: String): SparkContext =
-    new SparkContext(s"local[$numExecutors]", title)
+  def getNewLocalSparkContext(numExecutors: Int = 1, title: String): SparkContext = {
+    val conf = new SparkConf().setMaster(s"local[$numExecutors]").setAppName(title)
+    SparkContext.getOrCreate(conf)
+  }
 }
 
 case class Person(name: String, age: Int, minute: Timestamp) extends Serializable

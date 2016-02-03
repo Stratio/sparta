@@ -16,14 +16,13 @@
 
 package com.stratio.sparkta.testat.outputs
 
-import scala.reflect.io.File
-
-import org.apache.spark.{SparkConf, SparkContext}
+import com.stratio.sparkta.testat.SparktaATSuite
 import org.apache.spark.sql.SQLContext
+import org.apache.spark.{SparkConf, SparkContext}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
-import com.stratio.sparkta.testat.SparktaATSuite
+import scala.reflect.io.File
 
 /**
  * Acceptance test:
@@ -37,6 +36,7 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
 
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-operators.csv").getPath
   override val policyFile = "policies/ISocket-OParquet-operators.json"
+
   val parquetPath = policyDto.outputs(0).configuration("path").toString
   val NumExecutors = 4
   val NumEventsExpected = 8
@@ -44,12 +44,11 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in parquet" in {
       sparktaRunner
-      val conf = new SparkConf().setMaster(s"local[$NumExecutors]").setAppName( "ISocketOParquet-operators")
+      val conf = new SparkConf().setMaster(s"local[$NumExecutors]").setAppName("ISocketOParquet-operators")
       val sc = SparkContext.getOrCreate(conf)
       val sqc = SQLContext.getOrCreate(sc)
       checkData("testCubeWithTime_v1", sqc)
       checkData("testCubeWithoutTime_v1", sqc)
-      sc.stop()
     }
 
     // scalastyle:off
@@ -108,11 +107,13 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
       productB("mode_price") should be(List("1000"))
       productB("entityCount_text") should be(Map("hola" -> 16L, "holo" -> 8L))
       productB("totalEntity_text") should be(24)
-
     }
   }
 
-  override def extraAfter: Unit = File(parquetPath).deleteRecursively
+  override def extraAfter: Unit = {
+    File(parquetPath).deleteRecursively
+    deletePath(s"$CheckpointPath/${"ATSocketParquet".toLowerCase}")
+  }
 
   override def extraBefore: Unit = {}
 }

@@ -127,7 +127,7 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
     outputMultipleNodes.httpNodes should be(Seq(("host-a", 9200), ("host-b", 9201)))
     completeTableSchema.dateType should be(TypeOp.Timestamp)
     output.clusterName should be("elasticsearch")
-    completeTableSchema.isAutoCalculateId should be(false)
+    completeTableSchema.isAutoCalculatedId should be(false)
     output.isLocalhost should be(true)
     ipOutput.isLocalhost should be(true)
     remoteOutput.isLocalhost should be(false)

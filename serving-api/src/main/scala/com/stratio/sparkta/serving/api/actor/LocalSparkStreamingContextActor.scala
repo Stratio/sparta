@@ -65,8 +65,8 @@ with SparktaSerializer {
       case Failure(exception) => {
         log.error(exception.getLocalizedMessage, exception)
         policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed))
-        SparkContextFactory.destroySparkStreamingContext
-        SparkContextFactory.destroySparkContext
+        SparkContextFactory.destroySparkStreamingContext()
+        SparkContextFactory.destroySparkContext()
       }
     }
   }
@@ -74,7 +74,7 @@ with SparktaSerializer {
   override def postStop(): Unit = {
     ssc match {
       case Some(sc: StreamingContext) =>
-        SparkContextFactory.destroySparkStreamingContext
+        SparkContextFactory.destroySparkStreamingContext()
       case x => log.warn("Unrecognized Standalone StreamingContext to stop!", x)
     }
     super.postStop()

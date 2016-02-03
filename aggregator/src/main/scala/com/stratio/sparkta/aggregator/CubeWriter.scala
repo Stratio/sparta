@@ -29,7 +29,7 @@ import scala.util.{Failure, Success, Try}
 case class WriterOptions(outputs: Seq[String],
                          dateType: TypeOp.Value = TypeOp.Timestamp,
                          fixedMeasures: MeasuresValues = MeasuresValues(Map.empty),
-                         isAutoCalculateId: Boolean = false)
+                         isAutoCalculatedId: Boolean = false)
 
 case class CubeWriter(cube: Cube,
                       tableSchema: TableSchema,
@@ -39,7 +39,7 @@ case class CubeWriter(cube: Cube,
   val upsertOptions = tableSchema.timeDimension.fold(Map.empty[String, String]) { timeName =>
     Map(Output.TimeDimensionKey -> timeName)
   } ++ Map(Output.TableNameKey -> tableSchema.tableName,
-    Output.IdAutoCalculatedKey -> tableSchema.isAutoCalculateId.toString)
+    Output.IdAutoCalculatedKey -> tableSchema.isAutoCalculatedId.toString)
 
   def write(stream: DStream[(DimensionValuesTime, MeasuresValues)]): Unit = {
     stream.map { case (dimensionValuesTime, measuresValues) =>
@@ -53,10 +53,11 @@ case class CubeWriter(cube: Cube,
             case Some(outputWriter) => Try(outputWriter.upsert(dataFrame, upsertOptions)) match {
               case Success(_) =>
                 log.debug(s"Data stored in ${tableSchema.tableName}")
-              case Failure(_) =>
+              case Failure(e) =>
                 log.error(s"Something goes wrong. Table: ${tableSchema.tableName}")
                 log.error(s"Schema. ${dataFrame.schema}")
                 log.error(s"Head element. ${dataFrame.head}")
+                log.error(s"Error message : ${e.getMessage}")
             }
             case None => log.warn(s"The output in the cube : $outputName not match in the outputs")
           })
@@ -90,7 +91,7 @@ case class CubeWriter(cube: Cube,
     measures.toSeq.sortWith(_._1 < _._1).map(measure => measure._2.getOrElse(0))
 
   private def dimensionValuesWithId(values: Seq[Any]): Seq[Any] =
-    if (options.isAutoCalculateId) Seq(values.mkString(Output.Separator)) ++ values
+    if (options.isAutoCalculatedId) Seq(values.mkString(Output.Separator)) ++ values
     else values
 
   private def filterDimensionsByTime(dimensionValues: Seq[DimensionValue], timeDimension: String): Seq[DimensionValue] =

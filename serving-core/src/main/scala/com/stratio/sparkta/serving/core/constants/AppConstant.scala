@@ -46,6 +46,8 @@ object AppConstant {
   final val ConfigRememberPartitioner = "rememberPartitioner"
   final val DefaultRememberPartitioner = true
   final val ConfigStopGracefully = "stopGracefully"
+  final val StopTimeout = "stopTimeout"
+  final val DefaultStopTimeout = 30000
 
   // ZK id's
   final val HdfsId = "hdfs"

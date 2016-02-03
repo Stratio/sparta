@@ -2,7 +2,7 @@
 
   "name": "ATSocketMongoFiltersJSON",
   "description": "No description",
-  "sparkStreamingWindow": 10000,
+  "sparkStreamingWindow": 5000,
   "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
@@ -75,7 +75,7 @@
   ],
   "cubes": [
     {
-      "name": "basic-hashtag",
+      "name": "hashtagfilter",
       "dimensions": [
         {
           "name": "location",
@@ -131,8 +131,8 @@
       "name": "out-mongo",
       "type": "MongoDb",
       "configuration": {
-        "hosts": [{"host": "localhost" , "port": "60000" }],
-        "dbName": "csvtest"
+        "hosts": [{"host": "localhost" , "port": "60001" }],
+        "dbName": "csvtestfilter"
       }
     }
   ]

@@ -37,10 +37,8 @@ class ISocketORedisOperatorsIT extends SparktaATSuite {
 
   val TestRedisHost = "localhost"
   val TestRedisPort = 63790
-
   var redisPool: RedisClientPool = _
   var redisServer: RedisServer = _
-
   val NumExecutors = 4
   val NumEventsExpected = 2
 
@@ -107,5 +105,6 @@ class ISocketORedisOperatorsIT extends SparktaATSuite {
   override def extraAfter: Unit = {
     redisPool.close
     redisServer.stop()
+    deletePath(s"$CheckpointPath/${"ATSocketRedis".toLowerCase}")
   }
 }

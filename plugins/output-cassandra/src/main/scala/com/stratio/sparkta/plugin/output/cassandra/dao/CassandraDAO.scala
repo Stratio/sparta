@@ -89,7 +89,7 @@ trait CassandraDAO extends Closeable with Logging {
           tableSchema.tableName,
           tableSchema.schema,
           tableSchema.timeDimension,
-          tableSchema.isAutoCalculateId
+          tableSchema.isAutoCalculatedId
         )
     ).forall(result => result)
   }
@@ -98,9 +98,9 @@ trait CassandraDAO extends Closeable with Logging {
                             table: String,
                             schema: StructType,
                             clusteringTime: Option[String],
-                            isAutoCalculateId: Boolean): Boolean = {
+                            isAutoCalculatedId: Boolean): Boolean = {
     val tableName = getTableName(table)
-    val schemaPkCloumns: Option[String] = schemaToPkCcolumns(schema, clusteringTime, isAutoCalculateId)
+    val schemaPkCloumns: Option[String] = schemaToPkCcolumns(schema, clusteringTime, isAutoCalculatedId)
     val compactSt = compactStorage match {
       case None => ""
       case Some(compact) => if (compact.toBoolean) " WITH COMPACT STORAGE" else ""
@@ -119,7 +119,7 @@ trait CassandraDAO extends Closeable with Logging {
         val seqResults = for {
           tableSchema <- tSchemas
           indexField <- fields
-          primaryKey = getPartitionKey(tableSchema.schema, tableSchema.timeDimension, tableSchema.isAutoCalculateId)
+          primaryKey = getPartitionKey(tableSchema.schema, tableSchema.timeDimension, tableSchema.isAutoCalculatedId)
           created = if (!primaryKey.contains(indexField)) {
             createIndex(conn, getTableName(tableSchema.tableName), indexField)
           } else {
@@ -207,9 +207,9 @@ trait CassandraDAO extends Closeable with Logging {
   //scalastyle:off
   protected def schemaToPkCcolumns(schema: StructType,
                                    clusteringTime: Option[String],
-                                   isAutoCalculateId: Boolean): Option[String] = {
+                                   isAutoCalculatedId: Boolean): Option[String] = {
     val fields = schema.map(field => field.name + " " + dataTypeToCassandraType(field.dataType)).mkString(",")
-    val partitionKey = getPartitionKey(schema, clusteringTime, isAutoCalculateId).mkString(",")
+    val partitionKey = getPartitionKey(schema, clusteringTime, isAutoCalculatedId).mkString(",")
     val clusteringColumns =
       schema.filter(field => clusteringConditions(field, clusteringTime)).map(_.name).mkString(",")
     val pkCcolumns = clusteringColumns match {
@@ -224,9 +224,9 @@ trait CassandraDAO extends Closeable with Logging {
   //scalastyle:on
 
   protected def getPartitionKey(schema: StructType,
-                              clusteringTime: Option[String],
-                              isAutoCalculateId: Boolean): Seq[String] = {
-    val pkfields = if (isAutoCalculateId) {
+                                clusteringTime: Option[String],
+                                isAutoCalculatedId: Boolean): Seq[String] = {
+    val pkfields = if (isAutoCalculatedId) {
       schema.filter(field => field.name == Output.Id)
     } else {
       schema.filter(field => pkConditions(field, clusteringTime))

@@ -65,8 +65,16 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
                               detailConfig: Map[String, String]): Option[StreamingContext] = {
     val exitWhenStop = true
     runStatusListener(apConfig.id.get, apConfig.name, exitWhenStop)
-    SparktaJob.run(getClusterSparkContext(apConfig, files, detailConfig), apConfig)
-    SparkContextFactory.sparkStreamingInstance
+
+    val ssc = StreamingContext.getOrCreate(AggregationPoliciesModel.checkpointPath(apConfig), () => {
+      log.info(s"Nothing in checkpoint path: ${AggregationPoliciesModel.checkpointPath(apConfig)}")
+      SparktaJob.run(getClusterSparkContext(apConfig, files, detailConfig), apConfig)
+    })
+
+    SparkContextFactory.setSparkContext(ssc.sparkContext)
+    SparkContextFactory.setSparkStreamingContext(ssc)
+
+    Option(ssc)
   }
 
   private def getStandAloneSparkContext(apConfig: AggregationPoliciesModel, jars: Seq[File]): SparkContext = {
@@ -99,8 +107,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
             try {
 
               log.info("Stopping message received from Zookeeper")
-              SparkContextFactory.destroySparkStreamingContext
-              SparkContextFactory.destroySparkContext
+              SparkContextFactory.destroySparkStreamingContext()
 
             } finally {
 
@@ -116,6 +123,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
               Try(nodeCache.close()).getOrElse(log.warn(s"The nodeCache in Zookeeper is not closed correctly"))
 
               if (exit) {
+                SparkContextFactory.destroySparkContext()
                 log.info("Closing the application")
                 System.exit(0)
               }

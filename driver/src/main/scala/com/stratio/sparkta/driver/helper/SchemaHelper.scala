@@ -54,14 +54,14 @@ object SchemaHelper {
       measuresMerged = (measuresFields(cube.operators) ++ getFixedMeasure(cubeModel.writer)).sortWith(_.name < _.name)
       timeDimension = getExpiringData(cubeModel.checkpointConfig).map(config => config.timeDimension)
       dimensions = filterDimensionsByTime(cube.dimensions.sorted, timeDimension)
-      (dimensionsWithId, isAutoCalculateId) = dimensionFieldsWithId(dimensions, cubeModel.writer)
+      (dimensionsWithId, isAutoCalculatedId) = dimensionFieldsWithId(dimensions, cubeModel.writer)
       dateType = Output.getTimeTypeFromString(cubeModel.writer.fold(DefaultTimeStampTypeString) { options =>
         options.dateType.getOrElse(DefaultTimeStampTypeString)
       })
       structFields = dimensionsWithId ++ timeDimensionFieldType(timeDimension, dateType) ++ measuresMerged
       schema = StructType(structFields)
       outputs = outputsFromOptions(cubeModel, outputModels.map(_.name))
-    } yield TableSchema(outputs, cube.name, schema, timeDimension, dateType, isAutoCalculateId)
+    } yield TableSchema(outputs, cube.name, schema, timeDimension, dateType, isAutoCalculatedId)
   }
 
   def getExpiringData(checkpointModel: CheckpointModel): Option[ExpiringDataConfig] = {
@@ -87,7 +87,7 @@ object SchemaHelper {
     val dimensionFields = dimensionsFields(dimensions)
 
     writerModel match {
-      case Some(writer) => writer.isAutoCalculateId.fold((dimensionFields, false)) { autoId =>
+      case Some(writer) => writer.isAutoCalculatedId.fold((dimensionFields, false)) { autoId =>
         if (autoId)
           (Seq(Output.defaultStringField(Output.Id, NotNullable)) ++ dimensionFields.filter(_.name != Output.Id), true)
         else (dimensionFields, false)

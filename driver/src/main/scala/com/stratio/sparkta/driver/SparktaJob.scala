@@ -188,7 +188,7 @@ object SparktaJob extends SLF4JLogging {
         val fixedMeasureSplitted = fixedMeasure.split(CubeWriter.FixedMeasureSeparator)
         MeasuresValues(Map(fixedMeasureSplitted.head -> Some(fixedMeasureSplitted.last)))
       }
-      val isAutoCalculatedId = writerModel.isAutoCalculateId.getOrElse(false)
+      val isAutoCalculatedId = writerModel.isAutoCalculatedId.getOrElse(false)
 
       WriterOptions(writerOutputs, dateType, fixedMeasures, isAutoCalculatedId)
     }
