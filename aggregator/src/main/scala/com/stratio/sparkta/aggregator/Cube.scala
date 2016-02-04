@@ -37,7 +37,6 @@ import scala.util.Try
 case class Cube(name: String,
                 dimensions: Seq[Dimension],
                 operators: Seq[Operator],
-                checkpointInterval: Int,
                 expiringDataConfig: Option[ExpiringDataConfig] = None) extends SLF4JLogging {
 
   private val associativeOperators = operators.filter(op => op.isAssociative)
@@ -124,7 +123,6 @@ case class Cube(name: String,
 
   protected def updateNonAssociativeState(dimensionsValues: DStream[(DimensionValuesTime, InputFields)])
   : DStream[(DimensionValuesTime, Seq[Aggregation])] = {
-    dimensionsValues.checkpoint(new Duration(checkpointInterval))
 
     val newUpdateFunc = expiringDataConfig match {
       case None => updateFuncNonAssociativeWithoutTime
@@ -183,7 +181,6 @@ case class Cube(name: String,
 
   protected def updateAssociativeState(dimensionsValues: DStream[(DimensionValuesTime, AggregationsValues)])
   : DStream[(DimensionValuesTime, MeasuresValues)] = {
-    dimensionsValues.checkpoint(new Duration(checkpointInterval))
 
     val newUpdateFunc = expiringDataConfig match {
       case None => updateFuncAssociativeWithoutTime

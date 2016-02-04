@@ -18,5 +18,5 @@ package com.stratio.sparkta.serving.core.models
 
 case class CheckpointModel(timeDimension: String,
                           granularity: String,
-                          interval: Integer,
+                          interval: Option[Integer],
                           timeAvailability: Long)

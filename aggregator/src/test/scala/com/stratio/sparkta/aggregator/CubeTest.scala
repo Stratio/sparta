@@ -35,7 +35,6 @@ class CubeTest extends TestSuiteBase {
 
     val PreserverOrder = true
     val defaultDimension = new DefaultField
-    val checkpointInterval = 10000
     val checkpointTimeAvailability = 60000
     val checkpointGranularity = "minute"
     val eventGranularity = DateOperations.dateFromGranularity(DateTime.now(), "minute")
@@ -50,7 +49,6 @@ class CubeTest extends TestSuiteBase {
       name,
       Seq(Dimension("dim1", "foo", "identity", defaultDimension)),
       Seq(new CountOperator("count", Map()),new SumOperator("sum", Map("inputField" -> "n"))),
-      checkpointInterval,
       Option(expiringDataConfig)
     )
 
@@ -117,15 +115,13 @@ class CubeTest extends TestSuiteBase {
 
     val PreserverOrder = true
     val defaultDimension = new DefaultField
-    val checkpointInterval = 10000
     val name = "cubeName"
 
 
     val cube = Cube(
       name,
       Seq(Dimension("dim1", "foo", "identity", defaultDimension)),
-      Seq(new CountOperator("count", Map()),new SumOperator("sum", Map("inputField" -> "n"))),
-      checkpointInterval
+      Seq(new CountOperator("count", Map()),new SumOperator("sum", Map("inputField" -> "n")))
     )
 
     testOperation(getInput, cube.aggregate, getOutput, PreserverOrder)

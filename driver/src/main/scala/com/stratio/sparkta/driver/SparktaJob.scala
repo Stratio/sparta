@@ -140,7 +140,7 @@ object SparktaJob extends SLF4JLogging {
       val operators = SparktaJob.getOperators(cube.operators, refUtils)
       val expiringDataConfig = SchemaHelper.getExpiringData(cube.checkpointConfig)
 
-      Cube(name, dimensions, operators, cube.checkpointConfig.interval, expiringDataConfig)
+      Cube(name, dimensions, operators, expiringDataConfig)
     })
 
   private def instantiateDimensionType(dimensionType: String, configuration: Option[Map[String, String]],

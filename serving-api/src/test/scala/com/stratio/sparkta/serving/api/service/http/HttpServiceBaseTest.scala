@@ -66,7 +66,7 @@ with SparktaSerializer {
       Input.RawDataKey,
       Seq("out1", "out2"),
       Map()))
-    val checkpointModel = CheckpointModel("minute", "minute", granularity, interval)
+    val checkpointModel = CheckpointModel("minute", "minute", None, interval)
     val dimensionModel = Seq(DimensionModel(
       "dimensionName",
       "field1",

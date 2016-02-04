@@ -30,8 +30,8 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
   "CubeWriterTest" should "return a row with values and timeDimension" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), checkpointInterval,
-        Option(ExpiringDataConfig("minute", checkpointGranularity, checkpointInterval)))
+      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1),
+        Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)))
       val tableSchema = TableSchema(
         Seq("outputName"),
         "cubeTest",
@@ -56,7 +56,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
   "CubeWriterTest" should "return a row with values without timeDimension" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), checkpointInterval, None)
+      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), None)
       val tableSchema = TableSchema(
         Seq("outputName"),
         "cubeTest",
@@ -80,7 +80,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
   "CubeWriterTest" should "return a row with values with noTime and idAutoCalculated" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), checkpointInterval, None)
+      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), None)
       val tableSchema = TableSchema(
         Seq("outputName"),
         "cubeTest",
@@ -104,7 +104,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
   "CubeWriterTest" should "return a row with values with time and idAutoCalculated" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), checkpointInterval, None)
+      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), None)
       val tableSchema = TableSchema(
         Seq("outputName"),
         "cubeTest",
@@ -128,7 +128,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
   "CubeWriterTest" should "return a row with values with time, idAutoCalculated and fixedMeasure" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), checkpointInterval, None)
+      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), None)
       val tableSchema = TableSchema(
         Seq("outputName"),
         "cubeTest",
@@ -199,7 +199,6 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
     val dim2: Dimension = Dimension("dim2", "field2", "", new DimensionTypeTest)
     val dimId: Dimension = Dimension("id", "field2", "", new DimensionTypeTest)
     val op1: Operator = new OperatorTest("op1", Map())
-    val checkpointInterval = 10000
     val checkpointAvailable = 60000
     val checkpointGranularity = "minute"
     val cubeName = "cubeTest"

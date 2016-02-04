@@ -58,18 +58,13 @@ case class PolicyResult(policyId: String, policyName: String)
 object AggregationPoliciesValidator extends SparktaSerializer {
 
   final val MessageCubeName = "All cubes must have a non empty name\n"
-  final val MessageDurationGranularity = "The duration must be less than checkpoint interval\n"
 
   def validateDto(aggregationPoliciesDto: AggregationPoliciesModel): (Boolean, String) = {
     val (isValidAgainstSchema: Boolean, isValidAgainstSchemaMsg: String) = validateAgainstSchema(aggregationPoliciesDto)
 
-    val isValidDurationGranularity = aggregationPoliciesDto.cubes
-      .forall(cube => aggregationPoliciesDto.sparkStreamingWindow < cube.checkpointConfig.interval)
 
-    val isValidDurationGranularityMsg = if (!isValidDurationGranularity) MessageDurationGranularity else ""
-
-    val isValid = isValidAgainstSchema && isValidDurationGranularity
-    val errorMsg = isValidAgainstSchemaMsg ++ isValidDurationGranularityMsg
+    val isValid = isValidAgainstSchema
+    val errorMsg = isValidAgainstSchemaMsg
     (isValid, errorMsg)
   }
 

@@ -33,8 +33,8 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
 with MockitoSugar {
 
   "SchemaHelperTest" should "return a list of schemas" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), checkpointInterval,
-      Option(ExpiringDataConfig("minute", checkpointGranularity, checkpointInterval)))
+    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1),
+      Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)))
     val cubeModel = CubeModel(cubeName, checkpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model))
     val cubes = Seq(cube)
     val cubesModel = Seq(cubeModel)
@@ -54,7 +54,7 @@ with MockitoSugar {
   }
 
   "SchemaFactorySpec" should "return a list of schemas without time" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), checkpointInterval, None)
+    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), None)
     val cubeModel = CubeModel(cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model))
     val cubes = Seq(cube)
     val cubesModel = Seq(cubeModel)
@@ -73,7 +73,7 @@ with MockitoSugar {
   }
 
   "SchemaFactorySpec" should "return a list of schemas with id" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), checkpointInterval, None)
+    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), None)
     val cubeModel =
       CubeModel(cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModelId)
     val cubes = Seq(cube)
@@ -96,7 +96,7 @@ with MockitoSugar {
   }
 
   "SchemaFactorySpec" should "return a list of schemas with field id" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dimId), Seq(op1), checkpointInterval, None)
+    val cube = Cube(cubeName, Seq(dim1, dimId), Seq(op1), None)
     val cubeModel =
       CubeModel(cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModelId)
     val cubes = Seq(cube)
@@ -118,7 +118,7 @@ with MockitoSugar {
   }
 
   "SchemaFactorySpec" should "return a list of schemas with field id but not in writer" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dimId), Seq(op1), checkpointInterval, None)
+    val cube = Cube(cubeName, Seq(dim1, dimId), Seq(op1), None)
     val cubeModel =
       CubeModel(cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model))
     val cubes = Seq(cube)
@@ -141,8 +141,8 @@ with MockitoSugar {
 
   "SchemaFactorySpec" should "return a list of schemas with field id and timeDimension with DateFormat" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), checkpointInterval,
-        Option(ExpiringDataConfig("minute", checkpointGranularity, checkpointInterval)))
+      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1),
+        Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)))
       val cubeModel = CubeModel(cubeName,
         checkpointModel,
         Seq(dimension1Model, dimension2Model),
@@ -171,8 +171,8 @@ with MockitoSugar {
 
   "SchemaFactorySpec" should "return a list of schemas with field id and timeDimension with DateFormat and measure" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), checkpointInterval,
-        Option(ExpiringDataConfig("minute", checkpointGranularity, checkpointInterval)))
+      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1),
+        Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)))
       val cubeModel = CubeModel(cubeName,
         checkpointModel,
         Seq(dimension1Model, dimension2Model),
@@ -263,13 +263,12 @@ with MockitoSugar {
     )
     val operator1Model = OperatorModel("Count", "op1", Map())
     val output1Model = PolicyElementModel("outputName", "MongoDb", Map())
-    val checkpointModel = CheckpointModel("minute", checkpointGranularity, checkpointInterval, checkpointInterval)
-    val noCheckpointModel = CheckpointModel("none", checkpointGranularity, checkpointInterval, checkpointInterval)
+    val checkpointModel = CheckpointModel("minute", checkpointGranularity, None, 10000)
+    val noCheckpointModel = CheckpointModel("none", checkpointGranularity, None, 10000)
     val writerModelId = Option(WriterModel(Seq("outputName"), None, None, Option(true)))
     val writerModelTimeDate = Option(WriterModel(Seq("outputName"), None, Option("date"), Option(true)))
     val writerModelTimeDateAndMeasure =
       Option(WriterModel(Seq("outputName"), Option("measureName:1"), Option("date"), Option(true)))
-    val checkpointInterval = 10000
     val checkpointAvailable = 60000
     val checkpointGranularity = "minute"
     val cubeName = "cubeTest"
