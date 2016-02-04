@@ -5,16 +5,16 @@
     .module('webApp')
     .factory('CubeModelFactory', CubeModelFactory);
 
-  CubeModelFactory.$inject = ['UtilsService'];
+  CubeModelFactory.$inject = ['UtilsService', 'PolicyModelFactory'];
 
-  function CubeModelFactory(UtilsService) {
+  function CubeModelFactory(UtilsService, PolicyModelFactory) {
     var cube = {};
     var error = {text: ""};
     var context = {"position": null};
 
     function init(template, nameIndex, position) {
       setPosition(position);
-      cube.name = template.defaultCubeName + (nameIndex+1);
+      cube.name = template.defaultCubeName + (nameIndex + 1);
       cube.dimensions = [];
       cube.operators = [];
       cube.checkpointConfig = {};
@@ -29,9 +29,9 @@
       init(template, nameIndex, position);
     }
 
-    function getCube(template,nameIndex, position) {
+    function getCube(template, nameIndex, position) {
       if (Object.keys(cube).length == 0) {
-        init(template,nameIndex, position)
+        init(template, nameIndex, position)
       }
       return cube;
     }
@@ -45,11 +45,20 @@
       setPosition(position);
     }
 
+    function areValidOperatorsAndDimensions(cube) {
+      var validOperatorsAndDimensionsLength = cube.operators.length > 0 && cube.dimensions.length > 0;
+      var validFieldList = PolicyModelFactory.getAllModelOutputs();
+      for (var i = 0; i < cube.dimensions.length; ++i) {
+        if (validFieldList.indexOf(cube.dimensions[i].field) == -1)
+          return false;
+      }
+      return validOperatorsAndDimensionsLength;
+    }
+
     function isValidCube(cube, cubes, position) {
       var validName = cube.name !== undefined && cube.name !== "";
-      var validOperatorsAndDimensions = cube.operators.length > 0 && cube.dimensions.length > 0;
       var validCheckpointConfig = Object.keys(cube.checkpointConfig).length > 0 && cube.checkpointConfig.granularity && cube.checkpointConfig.timeAvailability !== null && cube.checkpointConfig.interval !== null && cube.checkpointConfig.timeDimension !== "";
-      var isValid = validName && validOperatorsAndDimensions && validCheckpointConfig && !nameExists(cube, cubes, position);
+      var isValid = validName && areValidOperatorsAndDimensions(cube) && validCheckpointConfig && !nameExists(cube, cubes, position);
       return isValid;
     }
 

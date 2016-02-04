@@ -62,10 +62,6 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
 
   describe("when it is initialized", function () {
 
-    it("count of created cubes is reset", function () {
-      expect(cubeServiceMock.resetCreatedCubes).toHaveBeenCalled();
-    })
-
     it('it should get a policy template from from policy factory', function () {
       expect(ctrl.template).toBe(fakeTemplate);
     });

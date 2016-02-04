@@ -122,6 +122,21 @@ describe('policies.wizard.factory.model-factory', function () {
         value: model1.outputFields[1]
       });
     });
+
+    it("if input of model is empty, it is updated with the first input of the list", function () {
+      var position = 1;
+      var order = 5;
+      factory.resetModel(fakePolicyTemplate,order, position);
+      factory.getModel().inputField = null;
+      var updatedInputList = factory.updateModelInputs(models);
+
+      expect( factory.getModel().inputField).toEqual(updatedInputList[0].value);
+
+      factory.getModel().inputField = "non empty";
+      updatedInputList = factory.updateModelInputs(models);
+
+      expect( factory.getModel().inputField).not.toEqual(updatedInputList[0].value);
+    });
   });
 
   describe("should be able to validate a model", function () {

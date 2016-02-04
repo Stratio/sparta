@@ -22,7 +22,7 @@
     "node-sass": "3.2.0",
     "grunt-contrib-clean": "0.6.0",
     "time-grunt": "1.0.0",
-    "karma": "0.13.10",
+    "karma": "0.13.19",
     "jasmine-core": "2.3.4",
     "karma-coverage": "^0.5.2",
     "karma-jasmine": "0.3.6",
