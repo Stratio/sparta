@@ -18,6 +18,7 @@ package com.stratio.sparkta.aggregator
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.sdk._
+import org.apache.spark.sql.Row
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
@@ -39,7 +40,7 @@ case class CubeMaker(cubes: Seq[Cube]) {
    * @param inputStream with the original stream of data.
    * @return the built Cube.
    */
-  def setUp(inputStream: DStream[Event]): Seq[(String, DStream[(DimensionValuesTime, MeasuresValues)])] = {
+  def setUp(inputStream: DStream[Row]): Seq[(String, DStream[(DimensionValuesTime, MeasuresValues)])] = {
     cubes.map(cube => {
       val currentCube = new CubeOperations(cube)
       val extractedDimensionsStream = currentCube.extractDimensionsAggregations(inputStream)
@@ -62,28 +63,28 @@ protected case class CubeOperations(cube: Cube) extends SLF4JLogging {
    * @param inputStream with the original stream of data.
    * @return a modified stream after join dimensions, cubes and operations.
    */
-  def extractDimensionsAggregations(inputStream: DStream[Event]): DStream[(DimensionValuesTime, InputFieldsValues)] = {
-    inputStream.flatMap(event => Try {
+  def extractDimensionsAggregations(inputStream: DStream[Row]): DStream[(DimensionValuesTime, InputFieldsValues)] = {
+    inputStream.flatMap(row => Try {
       val dimensionValues = for {
         dimension <- cube.dimensions
-        value <- event.keyMap.get(dimension.field).toSeq
+        value = row.get(cube.initSchema.fieldIndex(dimension.field))
         (precision, dimValue) = dimension.dimensionType.precisionValue(dimension.precisionKey, value)
       } yield DimensionValue(dimension, TypeOp.transformValueByTypeOp(precision.typeOp, dimValue))
 
 
       cube.expiringDataConfig match {
         case None =>
-          (DimensionValuesTime(cube.name, dimensionValues), InputFieldsValues(event.keyMap))
+          (DimensionValuesTime(cube.name, dimensionValues), InputFieldsValues(row))
         case Some(expiringDataConfig) =>
           val eventTime = extractEventTime(dimensionValues)
           val timeDimension = expiringDataConfig.timeDimension
           (DimensionValuesTime(cube.name, dimensionValues, Option(TimeConfig(eventTime, timeDimension))),
-            InputFieldsValues(event.keyMap))
+            InputFieldsValues(row))
       }
     } match {
       case Success(dimensionValuesTime) => Some(dimensionValuesTime)
       case Failure(exception) =>
-        val error = s"Failure[Aggregations]: ${event.toString} | ${exception.getLocalizedMessage}"
+        val error = s"Failure[Aggregations]: ${row.toString} | ${exception.getLocalizedMessage}"
         log.error(error, exception)
         None
     })

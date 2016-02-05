@@ -18,6 +18,8 @@ package com.stratio.sparkta.plugin.test.parser.datetime
 
 import java.util.Date
 
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.junit.runner.RunWith
 import org.scalactic.TolerantNumerics
 import org.scalatest.junit.JUnitRunner
@@ -36,105 +38,115 @@ class DateTimeParserTest extends WordSpecLike with Matchers {
   val inputField = "ts"
   val outputsFields = Seq("ts")
 
+  //scalastyle:off
   "A DateTimeParser" should {
     "parse unixMillis" in {
-      val e1 = new Event(Map("ts" -> 1416330788000L))
-      val e2 = new Event(Map("ts" -> new Date(1416330788000L)))
+      val e1 = Row(1416330788000L)
+      val e2 = Row(new Date(1416330788000L))
+      val schema = StructType(Seq(StructField("ts", StringType)))
 
-      val resultantEvent = new DateTimeParser("name", 1, inputField, outputsFields, Map("inputFormat" -> "unixMillis"))
-        .parse(e1)
+      val resultantEvent =
+        new DateTimeParser("name", 1, inputField, outputsFields, schema, Map("inputFormat" -> "unixMillis")).parse(e1)
 
       assertResult(e2)(resultantEvent)
     }
     "parse unixMillis string" in {
-      val e1 = new Event(Map("ts" -> "1416330788000"))
-      val e2 = new Event(Map("ts" -> new Date(1416330788000L)))
+      val e1 = Row("1416330788000")
+      val e2 = Row(new Date(1416330788000L))
+      val schema = StructType(Seq(StructField("ts", StringType)))
 
-      val resultantEvent = new DateTimeParser("name", 1, inputField, outputsFields, Map("inputFormat" -> "unixMillis"))
-        .parse(e1)
+      val resultantEvent =
+        new DateTimeParser("name", 1, inputField, outputsFields, schema, Map("inputFormat" -> "unixMillis")).parse(e1)
 
       assertResult(e2)(resultantEvent)
     }
     "parse unix" in {
-      val e1 = new Event(Map("ts" -> "1416330788"))
-      val e2 = new Event(Map("ts" -> new Date(1416330788000L)))
 
-      val resultantEvent = new DateTimeParser("name", 1, inputField, outputsFields, Map("inputFormat" -> "unix"))
-        .parse(e1)
+      val e1 = Row("1416330788")
+      val e2 = Row(new Date(1416330788000L))
+      val schema = StructType(Seq(StructField("ts", StringType)))
+
+      val resultantEvent =
+        new DateTimeParser("name", 1, inputField, outputsFields, schema, Map("inputFormat" -> "unix")).parse(e1)
 
       assertResult(e2)(resultantEvent)
     }
     "parse unix string" in {
-      val e1 = new Event(Map("ts" -> "1416330788"))
-      val e2 = new Event(Map("ts" -> new Date(1416330788000L)))
 
-      val resultantEvent = new DateTimeParser("name", 1, inputField, outputsFields, Map("inputFormat" -> "unix"))
-        .parse(e1)
+      val e1 = Row("1416330788")
+      val e2 = Row(new Date(1416330788000L))
+      val schema = StructType(Seq(StructField("ts", StringType)))
+
+      val resultantEvent =
+        new DateTimeParser("name", 1, inputField, outputsFields, schema, Map("inputFormat" -> "unix")).parse(e1)
 
       assertResult(e2)(resultantEvent)
     }
     "parse dateTime" in {
-      val e1 = new Event(Map("ts" -> "2014-05-23T21:22:23.250Z"))
-      val e2 = new Event(Map("ts" -> new DateTime(ISOChronology.getInstanceUTC)
-        .withYear(2014).withMonthOfYear(5).withDayOfMonth(23)
+
+      val e1 = Row("2014-05-23T21:22:23.250Z")
+      val e2 = Row(new DateTime(ISOChronology.getInstanceUTC).withYear(2014).withMonthOfYear(5).withDayOfMonth(23)
         .withHourOfDay(21).withMinuteOfHour(22).withSecondOfMinute(23).withMillisOfSecond(250)
         .toDate
-      ))
+      )
+      val schema = StructType(Seq(StructField("ts", StringType)))
 
-      val resultantEvent = new DateTimeParser("name", 1, inputField, outputsFields, Map("inputFormat" -> "dateTime"))
-        .parse(e1)
+      val resultantEvent =
+        new DateTimeParser("name", 1, inputField, outputsFields, schema, Map("inputFormat" -> "dateTime")).parse(e1)
 
       assertResult(e2)(resultantEvent)
     }
     "not parse if the field does not match" in {
-      val e1 = new Event(Map("otherField" -> "1212"))
-      val e2 = new Event(Map("otherField" -> "1212"))
 
-      val resultantEvent = new DateTimeParser("name", 1, inputField, outputsFields, Map("inputFormat" -> "unixMillis"))
-        .parse(e1)
+      val e1 = Row("1212")
+      val e2 = Row("1212")
+      val schema = StructType(Seq(StructField("otherField", StringType)))
+
+      val resultantEvent =
+        new DateTimeParser("name", 1, inputField, outputsFields, schema, Map("inputFormat" -> "unixMillis")).parse(e1)
 
       assertResult(e2)(resultantEvent)
     }
     "not parse and generate a new Date" in {
-      val e1 = new Event(Map("ts" -> "1416330788"))
-      val e2 = new Event(Map("ts" -> new Date()))
+
+      val e1 = Row("1416330788")
+      val e2 = Row(new Date())
+      val schema = StructType(Seq(StructField("ts", StringType)))
 
       val resultantEvent =
-        new DateTimeParser("name", 1, inputField, outputsFields, Map("inputFormat" -> "autoGenerated"))
+        new DateTimeParser("name", 1, inputField, outputsFields, schema, Map("inputFormat" -> "autoGenerated"))
           .parse(e1)
-          .keyMap
-          .get("ts")
-          .get
+          .get(0)
           .asInstanceOf[Date]
           .getTime
 
-      e2
-        .keyMap
-        .get("ts")
-        .get
-        .asInstanceOf[Date]
-        .getTime should be <=(resultantEvent)
+      e2.get(0).asInstanceOf[Date].getTime should be <=(resultantEvent)
     }
-    "not parse if inputFormat does not exist" in {
-      val e1 = new Event(Map("ts" -> "1416330788"))
 
-      val resultantEvent = new DateTimeParser("name", 1, inputField, outputsFields, Map())
-        .parse(e1)
+    "not parse if inputFormat does not exist" in {
+
+      val e1 = Row("1416330788")
+      val schema = StructType(Seq(StructField("ts", StringType)))
+
+      val resultantEvent =
+        new DateTimeParser("name", 1, inputField, outputsFields, schema, Map()).parse(e1)
 
       assertResult(e1)(resultantEvent)
     }
+
     "parse dateTime in hive format" in {
-      val e1 = new Event(Map("ts" -> "2015-11-08 15:58:58"))
-      val e2 = new Event(Map("ts" -> new DateTime(ISOChronology.getInstanceUTC)
-        .withYear(2015).withMonthOfYear(11).withDayOfMonth(8)
+
+      val e1 = Row("2015-11-08 15:58:58")
+      val e2 = Row(new DateTime(ISOChronology.getInstanceUTC).withYear(2015).withMonthOfYear(11).withDayOfMonth(8)
         .withHourOfDay(15).withMinuteOfHour(58).withSecondOfMinute(58).withMillisOfSecond(0)
         .toDate
-      ))
+      )
+      val schema = StructType(Seq(StructField("ts", StringType)))
 
-      val resultantEvent = new DateTimeParser("name", 1, inputField, outputsFields, Map("inputFormat" -> "hive"))
-        .parse(e1)
+      val resultantEvent =
+        new DateTimeParser("name", 1, inputField, outputsFields, schema, Map("inputFormat" -> "hive")).parse(e1)
 
-      assertResult(e2.keyMap.get("ts").get.asInstanceOf[Date].getTime)(resultantEvent.keyMap.get("ts").get.asInstanceOf[Date].getTime)
+      assertResult(e2.get(0).asInstanceOf[Date].getTime)(resultantEvent.get(0).asInstanceOf[Date].getTime)
     }
   }
 }

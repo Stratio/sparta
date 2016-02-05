@@ -23,9 +23,10 @@ case class TransformationsModel(name: String,
                                 `type`: String,
                                 order: Integer,
                                 inputField: String = Input.RawDataKey,
-                                outputFields: Seq[String],
+                                outputFields: Seq[OutputFieldsModel],
                                 configuration: Map[String, JsoneyString] = Map()) {
 
   val jarFile = AppConstant.jarsFilesMap.get(`type` + Parser.ClassSuffix)
 }
 
+case class OutputFieldsModel(name: String, `type`: String = Parser.DefaultOutputType)

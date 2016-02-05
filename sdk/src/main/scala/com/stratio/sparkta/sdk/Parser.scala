@@ -18,14 +18,17 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
 
 abstract class Parser(name: String,
                       order: Integer,
                       inputField: String,
                       outputFields: Seq[String],
+                      schema: StructType,
                       properties: Map[String, JSerializable]) extends Parameterizable(properties) {
 
-  def parse(data: Event): Event
+  def parse(data: Row): Row
 
   def getOrder: Integer = order
 
@@ -36,4 +39,5 @@ abstract class Parser(name: String,
 
 object Parser {
   final val ClassSuffix = "Parser"
+  final val DefaultOutputType = "string"
 }

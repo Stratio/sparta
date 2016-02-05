@@ -18,6 +18,8 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
@@ -25,15 +27,17 @@ import org.apache.spark.streaming.dstream.DStream
 
 abstract class Input(properties: Map[String, JSerializable]) extends Parameterizable(properties) {
 
-  def setUp(ssc: StreamingContext, storageLevel: String): DStream[Event]
+  def setUp(ssc: StreamingContext, storageLevel: String): DStream[Row]
+
   def storageLevel(sparkStorageLevel: String): StorageLevel = {
     StorageLevel.fromString(sparkStorageLevel)
   }
 }
 
 object Input {
-  //TODO it´s ok?
+
   final val ClassSuffix = "Input"
   final val RawDataKey = "_attachment_body"
+  final val InitSchema = Map(Input.RawDataKey -> StructType(Seq(StructField(Input.RawDataKey, StringType))))
 }
 

@@ -28,7 +28,8 @@ import com.stratio.sparkta.driver.util.ReflectionUtils
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, CubeModel, OperatorModel}
 import org.apache.spark.SparkContext
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.{Row, SQLContext}
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 
@@ -41,14 +42,19 @@ object SparktaJob extends SLF4JLogging {
     val reflectionUtils = new ReflectionUtils
     val ssc = SparkContextFactory.sparkStreamingInstance(
       new Duration(apConfig.sparkStreamingWindow), checkpointPolicyPath)
-    val parsers = SparktaJob.getParsers(apConfig, reflectionUtils).sortWith((parser1, parser2) =>
+
+    val parserSchemas = SchemaHelper.getSchemasFromParsers(apConfig.transformations, Input.InitSchema)
+    val parsers = SparktaJob.getParsers(apConfig, reflectionUtils, parserSchemas).sortWith((parser1, parser2) =>
       parser1.getOrder < parser2.getOrder)
-    val cubes = SparktaJob.getCubes(apConfig, reflectionUtils)
+    val cubes = SparktaJob.getCubes(apConfig, reflectionUtils, parserSchemas.values.last)
     val cubeSchemas = SchemaHelper.getSchemasFromCubes(cubes, apConfig.cubes, apConfig.outputs)
     val outputs = SparktaJob.getOutputs(apConfig, cubeSchemas, reflectionUtils)
     outputs.foreach(output => output.setup())
     val inputDStream = SparktaJob.getInput(apConfig, ssc.get, reflectionUtils)
-    SparktaJob.saveRawData(apConfig, inputDStream)
+
+    //TODO change for save dataframe from row and initSchema
+    //SparktaJob.saveRawData(apConfig, inputDStream)
+
     val dataParsed = applyParsers(inputDStream, parsers)
     val dataCube = CubeMaker(cubes).setUp(dataParsed)
 
@@ -58,57 +64,67 @@ object SparktaJob extends SLF4JLogging {
     ssc.get
   }
 
-  def getInput(apConfig: AggregationPoliciesModel, ssc: StreamingContext, refUtils: ReflectionUtils): DStream[Event] = {
+  def getInput(apConfig: AggregationPoliciesModel, ssc: StreamingContext, refUtils: ReflectionUtils): DStream[Row] = {
     val inputInstance = refUtils.tryToInstantiate[Input](apConfig.input.get.`type` + Input.ClassSuffix, (c) =>
       refUtils.instantiateParameterizable[Input](c, apConfig.input.get.configuration))
     inputInstance.setUp(ssc, apConfig.storageLevel.get)
   }
 
-  def getParsers(apConfig: AggregationPoliciesModel, refUtils: ReflectionUtils): Seq[Parser] =
-    apConfig.transformations.map(parser =>
+  def getParsers(apConfig: AggregationPoliciesModel,
+                 refUtils: ReflectionUtils,
+                 schemas: Map[String, StructType]): Seq[Parser] =
+    apConfig.transformations.map(parser => {
+      val schema = schemas.getOrElse(parser.name, throw new Exception("Can not find parser schema"))
       refUtils.tryToInstantiate[Parser](parser.`type` + Parser.ClassSuffix, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
           classOf[Integer],
           classOf[String],
           classOf[Seq[String]],
-          classOf[Map[String, Serializable]])
-          .newInstance(parser.name, parser.order, parser.inputField, parser.outputFields, parser.configuration)
-          .asInstanceOf[Parser]))
+          classOf[StructType],
+          classOf[Map[String, Serializable]]
+        ).newInstance(parser.name, parser.order, parser.inputField, parser.outputFields, schema, parser.configuration)
+          .asInstanceOf[Parser])
+    })
 
-  def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
+  def applyParsers(input: DStream[Row], parsers: Seq[Parser]): DStream[Row] = {
     if (parsers.isEmpty)
       input
     else {
-      input.flatMap(event => executeParsers(event, parsers))
+      input.flatMap(row => executeParsers(row, parsers))
     }
   }
 
-  def executeParsers(event: Event, parsers: Seq[Parser]): Option[Event] =
-    parsers.headOption.fold(Option(event)) { parser => {
-      parseEvent(event, parser).flatMap(eventParsed => executeParsers(eventParsed, parsers.drop(1)))
+  def executeParsers(row: Row, parsers: Seq[Parser]): Option[Row] =
+    parsers.headOption.fold(Option(row)) { parser => {
+      parseEvent(row, parser).flatMap(eventParsed => executeParsers(eventParsed, parsers.drop(1)))
     }
     }
 
-  def parseEvent(event: Event, parser: Parser): Option[Event] = {
+  def parseEvent(row: Row, parser: Parser): Option[Row] = {
 
-    Try(parser.parse(event)) match {
+    Try(parser.parse(row)) match {
       case Success(okEvent) => Some(okEvent)
       case Failure(exception) =>
-        val error = s"Failure[Parser]: ${event.toString} | Message: ${exception.getLocalizedMessage}" +
+        val error = s"Failure[Parser]: ${row.mkString(",")} | Message: ${exception.getLocalizedMessage}" +
           s" | Parser: ${parser.getClass.getSimpleName}"
         log.error(error, exception)
         None
     }
   }
 
-  def getOperators(operatorsModel: Seq[OperatorModel], refUtils: ReflectionUtils): Seq[Operator] =
-    operatorsModel.map(operator => createOperator(operator, refUtils))
+  def getOperators(operatorsModel: Seq[OperatorModel],
+                   refUtils: ReflectionUtils,
+                   initSchema: StructType): Seq[Operator] =
+    operatorsModel.map(operator => createOperator(operator, refUtils, initSchema))
 
-  private def createOperator(operatorModel: OperatorModel, refUtils: ReflectionUtils): Operator =
+  private def createOperator(operatorModel: OperatorModel,
+                             refUtils: ReflectionUtils,
+                             initSchema: StructType): Operator =
     refUtils.tryToInstantiate[Operator](operatorModel.`type` + Operator.ClassSuffix, (c) =>
       c.getDeclaredConstructor(
         classOf[String],
+        classOf[StructType],
         classOf[Map[String, Serializable]]
       ).newInstance(operatorModel.name, operatorModel.configuration).asInstanceOf[Operator])
 
@@ -128,7 +144,7 @@ object SparktaJob extends SLF4JLogging {
     })
   }
 
-  def getCubes(apConfig: AggregationPoliciesModel, refUtils: ReflectionUtils): Seq[Cube] =
+  def getCubes(apConfig: AggregationPoliciesModel, refUtils: ReflectionUtils, initSchema: StructType): Seq[Cube] =
     apConfig.cubes.map(cube => {
       val name = cube.name
       val dimensions = cube.dimensions.map(dimensionDto => {
@@ -137,10 +153,10 @@ object SparktaJob extends SLF4JLogging {
           dimensionDto.precision,
           instantiateDimensionType(dimensionDto.`type`, dimensionDto.configuration, refUtils))
       })
-      val operators = SparktaJob.getOperators(cube.operators, refUtils)
+      val operators = SparktaJob.getOperators(cube.operators, refUtils, initSchema)
       val expiringDataConfig = SchemaHelper.getExpiringData(cube.checkpointConfig)
 
-      Cube(name, dimensions, operators, expiringDataConfig)
+      Cube(name, dimensions, operators, initSchema, expiringDataConfig)
     })
 
   private def instantiateDimensionType(dimensionType: String, configuration: Option[Map[String, String]],

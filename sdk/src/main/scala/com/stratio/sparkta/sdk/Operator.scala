@@ -21,6 +21,8 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.StructType
 import org.json4s.jackson.JsonMethods._
 import org.json4s.{DefaultFormats, Formats}
 
@@ -29,7 +31,9 @@ import scala.language.reflectiveCalls
 import scala.runtime.RichDouble
 import scala.util._
 
-abstract class Operator(name: String, properties: Map[String, JSerializable]) extends Parameterizable(properties)
+abstract class Operator(name: String,
+                        schema: StructType,
+                        properties: Map[String, JSerializable]) extends Parameterizable(properties)
 with Ordered[Operator] with TypeConversions {
 
   @transient
@@ -65,15 +69,18 @@ with Ordered[Operator] with TypeConversions {
       values.toList.distinct
     else values.toList
 
-  def applyFilters(inputFields: Map[String, JSerializable]): Option[Map[String, JSerializable]] =
-    if (inputFields.map(inputField => doFiltering(inputField, inputFields)).forall(result => result))
-      Some(inputFields)
+  def applyFilters(row: Row): Option[Map[String, Any]] = {
+    val mapRow = schema.fieldNames.zip(row.toSeq).toMap
+
+    if (mapRow.map(inputField => doFiltering(inputField, mapRow)).forall(result => result))
+      Some(mapRow)
     else None
+  }
 
   def processMap(inputFieldsValues: InputFieldsValues): Option[Any]
 
-  private def doFiltering(inputField: (String, JSerializable),
-                          inputFields: Map[String, JSerializable]): Boolean = {
+  private def doFiltering(inputField: (String, Any),
+                          inputFields: Map[String, Any]): Boolean = {
     filters.map(filter =>
       if (inputField._1 == filter.field && (filter.fieldValue.isDefined || filter.value.isDefined)) {
         filterCastingType(filter.fieldType) match {
@@ -111,9 +118,9 @@ with Ordered[Operator] with TypeConversions {
     ).forall(result => result)
   }
 
-  private def getDoubleValues(inputValue: JSerializable,
+  private def getDoubleValues(inputValue: Any,
                               filter: FilterModel,
-                              inputFields: Map[String, JSerializable]): (RichDouble, Option[Double], Option[Double]) = {
+                              inputFields: Map[String, Any]): (RichDouble, Option[Double], Option[Double]) = {
 
     (new RichDouble(inputValue.toString.toDouble),
       if (filter.value.isDefined) Some(filter.value.get.toString.toDouble) else None,
@@ -122,9 +129,9 @@ with Ordered[Operator] with TypeConversions {
       else None)
   }
 
-  private def getStringValues(inputValue: JSerializable,
+  private def getStringValues(inputValue: Any,
                               filter: FilterModel,
-                              inputFields: Map[String, JSerializable])
+                              inputFields: Map[String, Any])
   : (StringOps, Option[String], Option[String]) = {
 
     (new StringOps(inputValue.toString), if (filter.value.isDefined) Some(filter.value.get.toString) else None,
