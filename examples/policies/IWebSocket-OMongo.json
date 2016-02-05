@@ -21,7 +21,7 @@
       "type": "Morphlines",
       "order": 0,
       "outputFields": [
-        "response"
+        {"name":"response"}
       ],
       "configuration": {
         "morphline": {

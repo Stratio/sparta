@@ -19,18 +19,21 @@ package com.stratio.sparkta.driver.test
 import scala.util.Failure
 import scala.util.Try
 
+import com.stratio.sparkta.driver.SparktaJob
+import com.stratio.sparkta.driver.util.ReflectionUtils
+import com.stratio.sparkta.sdk.{Input, JsoneyString, Parser}
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyElementModel}
+import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.FlatSpec
-import org.scalatest.ShouldMatchers
+import org.scalatest.{FlatSpec, ShouldMatchers}
 
 import com.stratio.sparkta.driver.SparktaJob
 import com.stratio.sparkta.driver.util.ReflectionUtils
-import com.stratio.sparkta.sdk.Event
 import com.stratio.sparkta.sdk.Input
 import com.stratio.sparkta.sdk.JsoneyString
 import com.stratio.sparkta.sdk.Parser
@@ -64,17 +67,17 @@ class SparktaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
   it should "parse a event" in {
     val parser: Parser = mock[Parser]
-    val event: Event = mock[Event]
-    val parsedEvent = mock[Event]
-    when(parser.parse(event)).thenReturn(parsedEvent)
+    val event: Row = mock[Row]
+    val parsedEvent = mock[Row]
+    when(parser.parse(event, false)).thenReturn(parsedEvent)
 
     val result = SparktaJob.parseEvent(event, parser)
     result should be(Some(parsedEvent))
   }
   it should "return none if a parse Event fails" in {
     val parser: Parser = mock[Parser]
-    val event: Event = mock[Event]
-    when(parser.parse(event)).thenThrow(new RuntimeException("testEx"))
+    val event: Row = mock[Row]
+    when(parser.parse(event, false)).thenThrow(new RuntimeException("testEx"))
 
     val result = SparktaJob.parseEvent(event, parser)
     result should be(None)
@@ -90,7 +93,7 @@ class SparktaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     when(myInput.get.name).thenReturn("myInput")
     when(myInput.get.`type`).thenReturn("Input")
     when(myInput.get.configuration).thenReturn(Map("" -> JsoneyString("")))
-    when(myInputClass.setUp(ssc, aggModel.storageLevel.get)).thenReturn(mock[DStream[Event]])
+    when(myInputClass.setUp(ssc, aggModel.storageLevel.get)).thenReturn(mock[DStream[Row]])
     when(reflection.tryToInstantiate[Input]("InputInput",
       (c) => reflection.instantiateParameterizable[Input]
         (c, Map("" -> JsoneyString(""))))).thenReturn(myInputClass)

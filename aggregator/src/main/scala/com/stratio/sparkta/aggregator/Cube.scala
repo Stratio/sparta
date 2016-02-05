@@ -21,6 +21,8 @@ import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import org.apache.spark.HashPartitioner
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.Duration
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
@@ -37,6 +39,7 @@ import scala.util.Try
 case class Cube(name: String,
                 dimensions: Seq[Dimension],
                 operators: Seq[Operator],
+                initSchema: StructType,
                 expiringDataConfig: Option[ExpiringDataConfig] = None) extends SLF4JLogging {
 
   private val associativeOperators = operators.filter(op => op.isAssociative)
@@ -57,7 +60,7 @@ case class Cube(name: String,
    * 4. Cube with no operators.
    */
 
-  def aggregate(dimensionsValues: DStream[(DimensionValuesTime, InputFieldsValues)])
+  def aggregate(dimensionsValues: DStream[(DimensionValuesTime, Row)])
   : DStream[(DimensionValuesTime, MeasuresValues)] = {
 
     val filteredValues = filterDimensionValues(dimensionsValues)
@@ -65,6 +68,7 @@ case class Cube(name: String,
       Option(updateAssociativeState(associativeAggregation(filteredValues)))
     else None
     val nonAssociativesCalculated = if (nonAssociativeOperators.nonEmpty)
+
       Option(aggregateNonAssociativeValues(updateNonAssociativeState(filteredValues)))
     else None
 
@@ -86,7 +90,7 @@ case class Cube(name: String,
    * Filter dimension values that correspond with the current cube dimensions
    */
 
-  protected def filterDimensionValues(dimensionValues: DStream[(DimensionValuesTime, InputFieldsValues)])
+  protected def filterDimensionValues(dimensionValues: DStream[(DimensionValuesTime, Row)])
   : DStream[(DimensionValuesTime, InputFields)] = {
     dimensionValues.map { case (dimensionsValuesTime, aggregationValues) =>
       val dimensionsFiltered = dimensionsValuesTime.dimensionValues.filter(dimVal =>
@@ -216,7 +220,7 @@ case class Cube(name: String,
       new HashPartitioner(dimensionsValues.context.sparkContext.defaultParallelism))
   }
 
-  protected def extractAssociativeAggregations(inputFieldsValues: InputFieldsValues) : Seq[Aggregation] =
+  protected def extractAssociativeAggregations(inputFieldsValues: Row) : Seq[Aggregation] =
     associativeOperators.map(op => Aggregation(op.key, op.processMap(inputFieldsValues)))
 
   protected def groupAssociativeAggregations(aggregations: Seq[Aggregation]) : AggregationsValues = {
@@ -258,7 +262,7 @@ case class Cube(name: String,
 
   //scalastyle:on
 
-  protected def noAggregationsState(dimensionsValues: DStream[(DimensionValuesTime, InputFieldsValues)])
+  protected def noAggregationsState(dimensionsValues: DStream[(DimensionValuesTime, Row)])
   : DStream[(DimensionValuesTime, MeasuresValues)] =
     dimensionsValues.mapValues(aggregations =>
       MeasuresValues(operators.map(op => op.key -> None).toMap))

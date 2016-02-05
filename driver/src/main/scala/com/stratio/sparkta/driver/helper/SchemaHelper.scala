@@ -46,6 +46,64 @@ object SchemaHelper {
     TypeOp.MapStringLong -> MapType(StringType, LongType)
   )
 
+  val mapSparkTypes : Map[DataType, TypeOp] = Map(
+    LongType -> TypeOp.Long,
+    DoubleType -> TypeOp.Double ,
+    DecimalType(Default_Precision, Default_Scale) -> TypeOp.BigDecimal,
+    IntegerType -> TypeOp.Int,
+    BooleanType -> TypeOp.Boolean,
+    DateType -> TypeOp.Date,
+    TimestampType -> TypeOp.Timestamp,
+    ArrayType(DoubleType) -> TypeOp.ArrayDouble,
+    ArrayType(StringType) -> TypeOp.ArrayString,
+    StringType -> TypeOp.String,
+    MapType(StringType, LongType) -> TypeOp.MapStringLong
+  )
+
+  val mapStringSparkTypes = Map(
+    "long" -> LongType,
+    "double" -> DoubleType,
+    "int" -> IntegerType,
+    "integer" -> IntegerType,
+    "bool" -> BooleanType,
+    "boolean" -> BooleanType,
+    "date" -> DateType,
+    "datetime" -> TimestampType,
+    "timestamp" -> TimestampType,
+    "string" -> StringType,
+    "arraydouble" -> ArrayType(DoubleType),
+    "arraystring" -> ArrayType(StringType),
+    "text" -> StringType
+  )
+
+  def getSchemasFromParsers(transformationsModel: Seq[TransformationsModel],
+                            initSchema: Map[String, StructType]): Map[String, StructType] = {
+    initSchema ++ searchSchemasFromParsers(transformationsModel, initSchema)
+  }
+
+  private def searchSchemasFromParsers(transformationsModel: Seq[TransformationsModel],
+                                       schemas: Map[String, StructType]): Map[String, StructType] = {
+    transformationsModel.headOption match {
+      case Some(transformationModel) =>
+        val schema = transformationModel.outputFieldsTransformed.map(outputField =>
+          outputField.name -> StructField(outputField.name,
+            mapStringSparkTypes.getOrElse(outputField.`type`.toLowerCase, StringType),
+            Nullable
+          )
+        )
+        val fields = schemas.values.flatMap(structType => structType.fields) ++
+          schema.map { case (key, value) => value }
+
+        if(transformationsModel.size == 1){
+          val fieldsWithoutRaw = fields.filter(structField => structField.name != Input.RawDataKey)
+          schemas ++ Map(transformationModel.name -> StructType(fieldsWithoutRaw.toSeq))
+        } else schemas ++ searchSchemasFromParsers(transformationsModel.drop(1),
+            Map(transformationModel.name -> StructType(fields.toSeq))
+        )
+      case None => schemas
+    }
+  }
+
   def getSchemasFromCubes(cubes: Seq[Cube],
                           cubeModels: Seq[CubeModel],
                           outputModels: Seq[PolicyElementModel]): Seq[TableSchema] = {
@@ -102,8 +160,6 @@ object SchemaHelper {
       case None => dimensions
     }
 
-  private def rowTypeFromOption(optionType: TypeOp): DataType = mapTypes.getOrElse(optionType, BinaryType)
-
   private def timeDimensionFieldType(timeDimension: Option[String], dateType: TypeOp.Value): Seq[StructField] = {
     timeDimension match {
       case None => Seq.empty[StructField]
@@ -116,6 +172,8 @@ object SchemaHelper {
 
   private def dimensionsFields(fields: Seq[Dimension]): Seq[StructField] =
     fields.map(field => StructField(field.name, rowTypeFromOption(field.precision.typeOp), NotNullable))
+
+  private def rowTypeFromOption(optionType: TypeOp): DataType = mapTypes.getOrElse(optionType, StringType)
 
   private def getFixedMeasure(writerModel: Option[WriterModel]): Seq[StructField] =
     writerModel match {

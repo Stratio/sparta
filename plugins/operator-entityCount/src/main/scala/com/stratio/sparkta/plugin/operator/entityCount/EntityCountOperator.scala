@@ -20,11 +20,14 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk._
+import org.apache.spark.sql.types.StructType
 
 import scala.util.Try
 
-class EntityCountOperator(name: String, properties: Map[String, JSerializable])
-  extends OperatorEntityCount(name, properties) with Associative {
+class EntityCountOperator(name: String,
+                          schema: StructType,
+                          properties: Map[String, JSerializable])
+  extends OperatorEntityCount(name, schema, properties) with Associative {
 
   final val Some_Empty = Some(Map("" -> 0L))
 

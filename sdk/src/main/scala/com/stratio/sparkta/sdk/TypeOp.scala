@@ -18,9 +18,11 @@ package com.stratio.sparkta.sdk
 
 import java.sql.Timestamp
 import java.util.Date
-import scala.util.Try
 
 import com.github.nscala_time.time.Imports._
+import org.apache.spark.sql.types._
+
+import scala.util.Try
 
 object TypeOp extends Enumeration {
 
@@ -58,90 +60,133 @@ object TypeOp extends Enumeration {
       case TypeOp.DateTime => checkDateTimeType(origValue)
       case TypeOp.Long => checkLongType(origValue)
       case TypeOp.MapStringLong => checkMapStringLongType(origValue)
+      case TypeOp.Boolean => checkBooleanType(origValue)
+      case _ => origValue
+    }
+  }
+
+  def transformValueByTypeOp[T](typeOp: DataType, origValue: T): T = {
+    typeOp match {
+      case StringType => checkStringType(origValue)
+      case DoubleType => checkDoubleType(origValue)
+      case IntegerType => checkIntType(origValue)
+      case TimestampType => checkTimestampType(origValue)
+      case DateType => checkDateType(origValue)
+      case LongType => checkLongType(origValue)
+      case BooleanType => checkBooleanType(origValue)
       case _ => origValue
     }
   }
 
   //scalastyle:on
 
-  private def checkStringType[T](origValue : T) : T = origValue match {
-    case value if value.isInstanceOf[String] => value
+  private def checkStringType[T](origValue: T): T = origValue match {
+    case value if value.isInstanceOf[String] =>
+      value
     case value if value.isInstanceOf[Seq[Any]] =>
       value.asInstanceOf[Seq[Any]].mkString(Output.Separator).asInstanceOf[T]
-    case _ => origValue.toString.asInstanceOf[T]
+    case _ =>
+      origValue.toString.asInstanceOf[T]
   }
 
-  private def checkArrayDoubleType[T](origValue : T) : T = origValue match {
+  private def checkArrayDoubleType[T](origValue: T): T = origValue match {
     case value if value.isInstanceOf[Seq[Any]] =>
       Try(value.asInstanceOf[Seq[Any]].map(_.toString.toDouble)).getOrElse(Seq()).asInstanceOf[T]
-    case _ => Try(Seq(origValue.toString.toDouble)).getOrElse(Seq()).asInstanceOf[T]
+    case _ =>
+      Try(Seq(origValue.toString.toDouble)).getOrElse(Seq()).asInstanceOf[T]
   }
 
-  private def checkMapStringLongType[T](origValue : T) : T = origValue match {
+  private def checkMapStringLongType[T](origValue: T): T = origValue match {
     case value if value.isInstanceOf[Map[Any, Any]] =>
-      Try(value.asInstanceOf[Map[Any, Any]].map( cast => cast._1.toString -> cast._2.toString.toLong))
+      Try(value.asInstanceOf[Map[Any, Any]].map(cast => cast._1.toString -> cast._2.toString.toLong))
         .getOrElse(Map()).asInstanceOf[T]
-    case _ => Try(origValue.asInstanceOf[Map[String, Long]]).getOrElse(Map()).asInstanceOf[T]
+    case _ =>
+      Try(origValue.asInstanceOf[Map[String, Long]]).getOrElse(Map()).asInstanceOf[T]
   }
 
-  private def checkArrayStringType[T](origValue : T) : T = origValue match {
+  private def checkArrayStringType[T](origValue: T): T = origValue match {
     case value if value.isInstanceOf[Seq[Any]] =>
       Try(value.asInstanceOf[Seq[Any]].map(_.toString)).getOrElse(Seq()).asInstanceOf[T]
-    case _ => Try(Seq(origValue.toString)).getOrElse(Seq()).asInstanceOf[T]
+    case _ =>
+      Try(Seq(origValue.toString)).getOrElse(Seq()).asInstanceOf[T]
   }
 
-  private def checkTimestampType[T](origValue : T) : T = origValue match {
-    case value if value.isInstanceOf[Timestamp] => value
+  private def checkTimestampType[T](origValue: T): T = origValue match {
+    case value if value.isInstanceOf[Timestamp] =>
+      value
     case value if value.isInstanceOf[Date] =>
       Try(DateOperations.millisToTimeStamp(value.asInstanceOf[Date].getTime))
         .getOrElse(DateOperations.millisToTimeStamp(0L)).asInstanceOf[T]
     case value if value.isInstanceOf[DateTime] =>
       Try(DateOperations.millisToTimeStamp(value.asInstanceOf[DateTime].getMillis))
         .getOrElse(DateOperations.millisToTimeStamp(0L)).asInstanceOf[T]
-    case _ => Try(DateOperations.millisToTimeStamp(origValue.toString.toLong))
-      .getOrElse(DateOperations.millisToTimeStamp(0L)).asInstanceOf[T]
+    case _ =>
+      Try(DateOperations.millisToTimeStamp(origValue.toString.toLong))
+        .getOrElse(DateOperations.millisToTimeStamp(0L)).asInstanceOf[T]
   }
 
-  private def checkDateType[T](origValue : T) : T = origValue match {
-    case value if value.isInstanceOf[Date] => value
+  private def checkDateType[T](origValue: T): T = origValue match {
+    case value if value.isInstanceOf[Date] =>
+      value
     case value if value.isInstanceOf[Timestamp] =>
       Try(new Date(value.asInstanceOf[Timestamp].getTime)).getOrElse(new Date(0L)).asInstanceOf[T]
     case value if value.isInstanceOf[DateTime] =>
       Try(new Date(value.asInstanceOf[DateTime].getMillis)).getOrElse(new Date(0L)).asInstanceOf[T]
-    case _ => Try(new Date(origValue.toString.toLong)).getOrElse(new Date(0L)).asInstanceOf[T]
+    case _ =>
+      Try(new Date(origValue.toString.toLong)).getOrElse(new Date(0L)).asInstanceOf[T]
   }
 
-  private def checkDateTimeType[T](origValue : T) : T = origValue match {
-    case value if value.isInstanceOf[DateTime] => value
+  private def checkDateTimeType[T](origValue: T): T = origValue match {
+    case value if value.isInstanceOf[DateTime] =>
+      value
     case value if value.isInstanceOf[Timestamp] =>
       Try(new DateTime(value.asInstanceOf[Timestamp].getTime)).getOrElse(new Date(0L)).asInstanceOf[T]
     case value if value.isInstanceOf[Date] =>
       Try(new DateTime(value.asInstanceOf[Date].getTime)).getOrElse(new Date(0L)).asInstanceOf[T]
-    case _ => Try(new DateTime(origValue.toString)).getOrElse(new DateTime(0L)).asInstanceOf[T]
+    case _ =>
+      Try(new DateTime(origValue.toString)).getOrElse(new DateTime(0L)).asInstanceOf[T]
   }
 
-  private def checkLongType[T](origValue : T) : T = origValue match {
-    case value if value.isInstanceOf[Long] => value
-    case value if value.isInstanceOf[Double] => Try(origValue.asInstanceOf[Double].toLong).getOrElse(0L).asInstanceOf[T]
-    case value if value.isInstanceOf[Int] => Try(origValue.asInstanceOf[Int].toLong).getOrElse(0L).asInstanceOf[T]
-    case _ => Try(origValue.toString.toLong).getOrElse(0L).asInstanceOf[T]
+  private def checkLongType[T](origValue: T): T = origValue match {
+    case value if value.isInstanceOf[Long] =>
+      value
+    case value if value.isInstanceOf[Double] =>
+      Try(origValue.asInstanceOf[Double].toLong).getOrElse(0L).asInstanceOf[T]
+    case value if value.isInstanceOf[Int] =>
+      Try(origValue.asInstanceOf[Int].toLong).getOrElse(0L).asInstanceOf[T]
+    case _ =>
+      Try(origValue.toString.toLong).getOrElse(0L).asInstanceOf[T]
   }
 
-  private def checkDoubleType[T](origValue : T) : T = origValue match {
-    case value if value.isInstanceOf[Double] => value
-    case value if value.isInstanceOf[Int] => Try(origValue.asInstanceOf[Int].toDouble).getOrElse(0d).asInstanceOf[T]
-    case value if value.isInstanceOf[Long] => Try(origValue.asInstanceOf[Long].toDouble).getOrElse(0d).asInstanceOf[T]
-    case _ => Try(origValue.toString.toDouble).getOrElse(0d).asInstanceOf[T]
+  private def checkDoubleType[T](origValue: T): T = origValue match {
+    case value if value.isInstanceOf[Double] =>
+      value
+    case value if value.isInstanceOf[Int] =>
+      Try(origValue.asInstanceOf[Int].toDouble).getOrElse(0d).asInstanceOf[T]
+    case value if value.isInstanceOf[Long] =>
+      Try(origValue.asInstanceOf[Long].toDouble).getOrElse(0d).asInstanceOf[T]
+    case _ =>
+      Try(origValue.toString.toDouble).getOrElse(0d).asInstanceOf[T]
   }
 
-  private def checkIntType[T](origValue : T) : T = origValue match {
-    case value if value.isInstanceOf[Int] => value
-    case value if value.isInstanceOf[Double] => Try(origValue.asInstanceOf[Double].toInt).getOrElse(0).asInstanceOf[T]
-    case value if value.isInstanceOf[Long] => Try(origValue.asInstanceOf[Long].toInt).getOrElse(0).asInstanceOf[T]
-    case _ => Try(origValue.toString.toInt).getOrElse(0).asInstanceOf[T]
+  private def checkIntType[T](origValue: T): T = origValue match {
+    case value if value.isInstanceOf[Int] =>
+      value
+    case value if value.isInstanceOf[Double] =>
+      Try(origValue.asInstanceOf[Double].toInt).getOrElse(0).asInstanceOf[T]
+    case value if value.isInstanceOf[Long] =>
+      Try(origValue.asInstanceOf[Long].toInt).getOrElse(0).asInstanceOf[T]
+    case _ =>
+      Try(origValue.toString.toInt).getOrElse(0).asInstanceOf[T]
+  }
+
+  private def checkBooleanType[T](origValue: T): T = origValue match {
+    case value if value.isInstanceOf[Boolean] =>
+      value
+    case _ =>
+      Try(origValue.toString.toBoolean).getOrElse(false).asInstanceOf[T]
   }
 
   def getTypeOperationByName(nameOperation: String, defaultTypeOperation: TypeOp): TypeOp =
     TypeOperationsNames.getOrElse(nameOperation.toLowerCase, defaultTypeOperation)
-
 }

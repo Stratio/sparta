@@ -18,18 +18,20 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparkta.sdk.test.ParserMock
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
-
-import com.stratio.sparkta.sdk.test.ParserMock
 
 @RunWith(classOf[JUnitRunner])
 class ParserTest extends WordSpec with Matchers {
 
   "Parser" should {
 
-    val parserTest = new ParserMock("parser", 1, "input", Seq("output"), Map())
+    val parserTest = new ParserMock("parser", 1, "input", Seq("output"),
+      StructType(Seq(StructField("some", StringType))), Map())
 
     "Order must be " in {
       val expected = 1
@@ -38,9 +40,9 @@ class ParserTest extends WordSpec with Matchers {
     }
 
     "Parse must be " in {
-      val event = new Event(Map("field" -> "value"))
+      val event = Row("value")
       val expected = event
-      val result = parserTest.parse(event)
+      val result = parserTest.parse(event, false)
       result should be(expected)
     }
 

@@ -19,7 +19,9 @@ package com.stratio.sparkta.plugin.test.parser.morphline
 import java.io.Serializable
 
 import com.stratio.sparkta.plugin.parser.morphline.MorphlinesParser
-import com.stratio.sparkta.sdk.{Event, Input}
+import com.stratio.sparkta.sdk.Input
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
@@ -56,10 +58,12 @@ class MorphlinesParserTest extends WordSpecLike with Matchers with BeforeAndAfte
           ]
                         """
   val inputField = Input.RawDataKey
-  val wrongInputField = "_wrong_attachment_body"
   val outputsFields = Seq("col1", "col2")
   val props: Map[String, Serializable] = Map("morphline" -> morphlineConfig)
-  val parser = new MorphlinesParser("name", 1, inputField, outputsFields, props)
+
+  val schema = StructType(Seq(StructField("col1", StringType), StructField("col2", StringType)))
+
+  val parser = new MorphlinesParser("name", 1, inputField, outputsFields, schema, props)
 
   "A MorphlinesParser" should {
 
@@ -69,13 +73,28 @@ class MorphlinesParserTest extends WordSpecLike with Matchers with BeforeAndAfte
             "col1":"hello",
             "col2":"word"
             }
-        """.getBytes("UTF-8")
-      val e1 = new Event(Map(inputField -> simpleJson.asInstanceOf[Serializable]))
+        """
+      val input = Row(simpleJson)
+      val result = parser.parse(input, false)
 
-      val e2 = parser.parse(e1)
+      val expected = Row(simpleJson, "hello", "world")
 
-      e2.keyMap should contain(("col1", "hello"))
-      e2.keyMap.size should be(3)
+      result should be eq(expected)
+    }
+
+    "parse a simple json removing raw" in {
+      val simpleJson =
+        """{
+            "col1":"hello",
+            "col2":"word"
+            }
+        """
+      val input = Row(simpleJson)
+      val result = parser.parse(input, true)
+
+      val expected = Row("hello", "world")
+
+      result should be eq(expected)
     }
 
     "exclude not configured fields" in {
@@ -85,34 +104,13 @@ class MorphlinesParserTest extends WordSpecLike with Matchers with BeforeAndAfte
             "col2":"word",
             "col3":"!"
             }
-        """.getBytes("UTF-8")
-      val e1 = new Event(Map(inputField -> simpleJson.asInstanceOf[Serializable]))
+        """
+      val input = Row(simpleJson)
+      val result = parser.parse(input, false)
 
-      val e2 = parser.parse(e1)
+      val expected = Row(simpleJson, "hello", "world")
 
-      e2.keyMap should contain(("col1", "hello"))
-      e2.keyMap should not contain(("col3", "!"))
-      e2.keyMap.size should be(3)
-    }
-
-    "not cast input event to ByteArrayInputStream when _attachment_body is not coming" in {
-      val wrongParser = new MorphlinesParser("name", 1, wrongInputField, outputsFields, props)
-      val simpleJson =
-        """{
-            "col1":"hello",
-            "col2":"word",
-            "col3":"!"
-            }
-        """.getBytes("UTF-8")
-      val e1 = new Event(Map(inputField -> simpleJson.asInstanceOf[Serializable]))
-
-      val attachmentBodyValue = wrongParser
-        .parse(e1)
-        .keyMap
-        .get("_attachment_body")
-        .get
-
-      attachmentBodyValue.isInstanceOf[Array[Byte]] should be(true)
+      result should be eq(expected)
     }
   }
 }
