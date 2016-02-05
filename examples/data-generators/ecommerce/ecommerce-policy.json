@@ -118,6 +118,9 @@
         "interval": 30000,
         "timeAvailability": 60000
       },
+      "writer": {
+        "isAutoCalculatedId": true
+      },
       "dimensions": [
         {
           "name": "purchaseDateOL",
@@ -170,6 +173,9 @@
         "interval": 30000,
         "timeAvailability": 60000
       },
+      "writer": {
+        "isAutoCalculatedId": true
+      },
       "dimensions": [
         {
           "name": "timestampVL",
@@ -221,6 +227,9 @@
         "granularity": "minute",
         "interval": 30000,
         "timeAvailability": 60000
+      },
+      "writer": {
+        "isAutoCalculatedId": true
       },
       "dimensions": [
         {
@@ -278,6 +287,9 @@
         "interval": 30000,
         "timeAvailability": 60000
       },
+      "writer": {
+        "isAutoCalculatedId": true
+      },
       "dimensions": [
         {
           "name": "cityOL",
@@ -328,6 +340,9 @@
         "interval": 30000,
         "timeAvailability": 60000
       },
+      "writer": {
+        "isAutoCalculatedId": true
+      },
       "dimensions": [
         {
           "name": "stateOL",
@@ -377,7 +392,6 @@
       "type": "ElasticSearch",
       "configuration": {
         "nodes": [{"node":"localhost","defaultPort":"9200"}],
-        "isAutoCalculateId": "true",
         "indexMapping": "day"
       }
     }

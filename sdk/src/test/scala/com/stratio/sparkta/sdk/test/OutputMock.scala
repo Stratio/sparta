@@ -18,16 +18,14 @@ package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk.WriteOp._
-import com.stratio.sparkta.sdk.{Output, TableSchema, WriteOp}
+import com.stratio.sparkta.sdk.{Output, TableSchema}
+import org.apache.spark.sql.DataFrame
 
 class OutputMock(keyName: String,
                  version: Option[Int],
                  properties: Map[String, JSerializable],
-                 operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
-                 bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, version, properties, operationTypes, bcSchema) {
+                 schemas: Seq[TableSchema])
+  extends Output(keyName, version, properties, schemas) {
 
-  override val supportedWriteOps = Seq(WriteOp.Set)
+  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {}
 }

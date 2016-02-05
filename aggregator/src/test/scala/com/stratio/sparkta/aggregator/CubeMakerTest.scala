@@ -56,7 +56,6 @@ class CubeMakerTest extends TestSuiteBase {
    */
   test("DataCube extracts dimensions from events") {
 
-    val checkpointInterval = 10000
     val checkpointTimeAvailability = 600000
     val checkpointGranularity = "minute"
     val timeDimensionName = "minute"
@@ -71,8 +70,7 @@ class CubeMakerTest extends TestSuiteBase {
     val timeDimension = Dimension("minute", "minute", "minute", timeField)
     val cube = Cube(name,
       Seq(dimension, timeDimension),
-      Seq(operator),
-      checkpointInterval)
+      Seq(operator))
     val dataCube = new CubeOperations(cube)
 
     testOperation(getEventInput(sqlTimestamp), dataCube.extractDimensionsAggregations,

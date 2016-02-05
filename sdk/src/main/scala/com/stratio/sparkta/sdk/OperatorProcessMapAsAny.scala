@@ -16,11 +16,17 @@
 
 package com.stratio.sparkta.sdk
 
-object OperatorConstants {
+import java.io.{Serializable => JSerializable}
 
-  //FIXME: Do we really need this?
-  final val EmptyString = ""
-  final val SpaceSeparator = " "
-  final val Zero = 0
-  final val UnderscoreSeparator = "_"
+trait OperatorProcessMapAsAny {
+
+  val inputField: Option[String]
+
+  def applyFilters(inputFields: Map[String, JSerializable]): Option[Map[String, JSerializable]]
+
+  def processMap(inputFieldsValues: InputFieldsValues): Option[Any] =
+    if (inputField.isDefined && inputFieldsValues.values.contains(inputField.get)) {
+      applyFilters(inputFieldsValues.values).flatMap(filteredFields => Some(filteredFields.get(inputField.get)
+        .get))
+    } else None
 }

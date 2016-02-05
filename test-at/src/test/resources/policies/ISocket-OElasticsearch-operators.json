@@ -2,7 +2,7 @@
 
   "name": "ATSocketElasticsearch",
   "description": "No description",
-  "sparkStreamingWindow": 10000,
+  "sparkStreamingWindow": 5000,
   "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
@@ -331,7 +331,6 @@
       "type": "ElasticSearch",
       "configuration": {
         "nodes": [{"node":"localhost","tcpPort":"9300","httpPort":"9200"}],
-        "isAutoCalculateId": "false",
         "clusterName": "sparkta-elasticsearch",
         "indexMapping": "day"
       }

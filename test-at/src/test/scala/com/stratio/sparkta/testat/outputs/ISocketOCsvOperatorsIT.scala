@@ -14,31 +14,30 @@
  * limitations under the License.
  */
 
-
 package com.stratio.sparkta.testat
 
-
 import com.stratio.sparkta.sdk.DateOperations
-import org.apache.spark.SparkContext
+import com.stratio.sparkta.serving.api.helpers.SparktaHelper
 import org.apache.spark.sql.{Row, SQLContext}
+import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.reflect.io.File
 
-
 /**
  * Acceptance test:
- *   [Input]: Socket.
- *   [Output]: MongoDB.
- *   [Operators]: sum, avg.
+ * [Input]: Socket.
+ * [Output]: MongoDB.
+ * [Operators]: sum, avg.
  * @author gschiavon
  */
 class ISocketOCsvOperatorsIT extends SparktaATSuite {
 
   override val policyFile = "policies/ISocket-OCsv-operators.json"
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-operators.csv").getPath
+
   val csvOutputPath = policyDto.outputs(0).configuration("path").toString
   val NumExecutors = 4
-  val NumEventsExpected : String= "8"
+  val NumEventsExpected: String = "8"
 
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in csv" in {
@@ -46,19 +45,17 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
       checkCsvData(csvOutputPath)
     }
 
-
-    def checkCsvData(path : String): Unit ={
-      val sc = new SparkContext(s"local[$NumExecutors]", "ISocketOCsv")
+    def checkCsvData(path: String): Unit = {
+      val conf = new SparkConf().setMaster(s"local[$NumExecutors]").setAppName("ISocketOParquet-operators")
+      val sc = SparkContext.getOrCreate(conf)
+      val sqlContext = SQLContext.getOrCreate(sc)
       val pathProductTimestamp = path + s"testCube_v1${DateOperations.subPath("day", None)}.csv"
-      val sqlContext = new SQLContext(sc)
-      val df = sqlContext.read.format("com.databricks.spark.csv").option("header", "true").load (pathProductTimestamp)
-
-      df.count should be (2)
+      val df = sqlContext.read.format("com.databricks.spark.csv").option("header", "true").load(pathProductTimestamp)
+      df.count should be(2)
       df.collect.foreach(row => {
         row.getAs[String]("product").toString match {
           case "producta" => {
             val aValues = extractProductValues(row)
-
             aValues("avg") should be("639.0")
             aValues("sum") should be("5112.0")
             aValues("count") should be(NumEventsExpected)
@@ -66,7 +63,7 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
             aValues("last") should be("600")
             aValues("max") should be("1002.0")
             aValues("min") should be("10.0")
-            aValues("mode") should be (List(500).toString())
+            aValues("mode") should be(List(500).toString())
             aValues("fulltext") should be("10 500 1000 500 1000 500 1002 600")
             aValues("stddev") should be("347.9605889013459")
             aValues("variance") should be("121076.57142857143")
@@ -77,17 +74,16 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
           }
           case "productb" => {
             val bValues = extractProductValues(row)
-
             bValues("avg") should be("758.25")
             bValues("sum") should be("6066.0")
-            bValues("count")  should be(NumEventsExpected)
+            bValues("count") should be(NumEventsExpected)
             bValues("first") should be("15")
             bValues("last") should be("50")
             bValues("max") should be("1001.0")
             bValues("min") should be("15.0")
-            bValues("mode") should be (List(1000).toString())
+            bValues("mode") should be(List(1000).toString())
             bValues("fulltext") should be("15 1000 1000 1000 1000 1000 1001 50")
-            bValues("stddev")  should be("448.04041590655")
+            bValues("stddev") should be("448.04041590655")
             bValues("variance") should be("200740.2142857143")
             bValues("range") should be("986.0")
             bValues("entitycount") should be("Map(hola -> 16, holo -> 8)")
@@ -95,11 +91,9 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
           }
         }
       })
-
-      sc.stop()
     }
 
-    def extractProductValues(row : Row) : Map[String, Any] = Map(
+    def extractProductValues(row: Row): Map[String, Any] = Map(
       "avg" -> row.getAs[String]("avg_price"),
       "sum" -> row.getAs[String]("sum_price"),
       "count" -> row.getAs[String]("count_price"),
@@ -116,10 +110,10 @@ class ISocketOCsvOperatorsIT extends SparktaATSuite {
       "totalentity" -> row.getAs[String]("totalEntity_text"))
   }
 
-
-
-  override def extraAfter: Unit = File(csvOutputPath).deleteRecursively
+  override def extraAfter: Unit = {
+    File(csvOutputPath).deleteRecursively
+    deletePath(s"$CheckpointPath/${"ATSocketCSV".toLowerCase}")
+  }
 
   override def extraBefore: Unit = {}
-
 }

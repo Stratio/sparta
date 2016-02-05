@@ -17,6 +17,7 @@
 package com.stratio.sparkta.serving.core.constants
 
 import com.stratio.sparkta.sdk.Parser
+import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
 
 /**
  * Global constants of the application.
@@ -45,6 +46,8 @@ object AppConstant {
   final val ConfigRememberPartitioner = "rememberPartitioner"
   final val DefaultRememberPartitioner = true
   final val ConfigStopGracefully = "stopGracefully"
+  final val StopTimeout = "stopTimeout"
+  final val DefaultStopTimeout = 30000
 
   // ZK id's
   final val HdfsId = "hdfs"

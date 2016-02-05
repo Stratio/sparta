@@ -29,8 +29,8 @@ import org.scalatest.{FlatSpec, Matchers}
 class CassandraDaoTest extends FlatSpec with Matchers with MockitoSugar with CassandraDAO {
 
   val cassandraConector = mock[CassandraConnector]
-  val tableSchema = Seq(TableSchema("outputName", "myCube", StructType(Array(
-      StructField("dim1", StringType, false))), Option("minute")))
+  val tableSchema = Seq(TableSchema(Seq("outputName"), "myCube", StructType(Array(
+    StructField("dim1", StringType, false))), Option("minute")))
   val structField = StructField("name", StringType, false)
   val schema: StructType = StructType(Array(structField))
   val tableVersion = Option(1)
@@ -53,19 +53,19 @@ class CassandraDaoTest extends FlatSpec with Matchers with MockitoSugar with Cas
   "createIndex" should "return true" in {
 
     val res = createIndex(cassandraConector, "tablename", "fieldname")
-    res should be (true)
+    res should be(true)
   }
 
   "createIndexes" should "return true" in {
 
-    val res = createIndexes(cassandraConector, tableSchema, false)
-    res should be (true)
+    val res = createIndexes(cassandraConector, tableSchema)
+    res should be(true)
   }
 
   "createTextIndexes" should "return true" in {
 
     val res = createTextIndexes(cassandraConector, tableSchema)
-    res should be (true)
+    res should be(true)
   }
 
   "getTextIndexSentence" should "return the schema" in {
@@ -73,26 +73,27 @@ class CassandraDaoTest extends FlatSpec with Matchers with MockitoSugar with Cas
     val fields = Array("field1", "field2")
     val res = getTextIndexSentence(fields)
 
-    res should be ("""'schema' :'{ fields : { field1 : {type : "field1" },field2 : {type : "field2" } } }'""")
+    res should be( """'schema' :'{ fields : { field1 : {type : "field1" },field2 : {type : "field2" } } }'""")
   }
 
   "dataTypeToCassandraType" should "return the type" in {
 
     val res = dataTypeToCassandraType(dataType = TimestampType)
-    res should be ("timestamp")
+    res should be("timestamp")
   }
 
   "schemaToPkCcolumns" should "return the schema" in {
 
     val res = schemaToPkCcolumns(schema, Option("cluster"), false)
-    res should be (Option("(name text, PRIMARY KEY (name))"))
+    res should be(Option("(name text, PRIMARY KEY (name))"))
   }
 
   "createTable" should "return true" in {
 
     val res = createTable(cassandraConector, "tablename", schema, Option("cluster"), false)
-    res should be (true)
+    res should be(true)
   }
+
   override def keyspace: String = "sparkta"
 
   override def keyspaceClass: String = "sparktaCLass"

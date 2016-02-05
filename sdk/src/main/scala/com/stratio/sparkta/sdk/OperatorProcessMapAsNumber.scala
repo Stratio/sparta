@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.sdk.test
+package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.WriteOp._
-import com.stratio.sparkta.sdk.{EntityCount, WriteOp}
+trait OperatorProcessMapAsNumber {
 
-class EntityCountMock(name: String, properties: Map[String, JSerializable]) extends EntityCount(name, properties) {
+  val inputField: Option[String]
 
-  override def processReduce(values: Iterable[Option[Any]]): Option[Any] = values.head
+  def applyFilters(inputFields: Map[String, JSerializable]): Option[Map[String, JSerializable]]
 
-  override def writeOperation: WriteOp = WriteOp.Inc
+  def processMap(inputFieldsValues: InputFieldsValues): Option[Number] =
+    if (inputField.isDefined && inputFieldsValues.values.contains(inputField.get))
+      applyFilters(inputFieldsValues.values)
+        .flatMap(filteredFields => Operator.getNumberFromSerializable(filteredFields.get(inputField.get).get))
+    else None
 }

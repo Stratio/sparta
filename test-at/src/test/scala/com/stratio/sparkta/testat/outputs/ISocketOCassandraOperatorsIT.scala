@@ -42,10 +42,10 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
 
   override val policyFile = "policies/ISocket-OCassandra-operators.json"
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-operators.csv").getPath
+
   var cluster: Cluster = _
   var session: Session = _
   val CassandraPort = 9142
-
   val NumEventsExpected: Int = 8
 
   "Sparkta" should {
@@ -108,6 +108,7 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
     session.close()
     cluster.close()
     EmbeddedCassandraServerHelper.cleanEmbeddedCassandra()
+    deletePath(s"$CheckpointPath/${"ATSocketCassandra".toLowerCase}")
   }
 }
 

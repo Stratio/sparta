@@ -2,7 +2,7 @@
 
   "name": "ATSocketRedis",
   "description": "No description",
-  "sparkStreamingWindow": 10000,
+  "sparkStreamingWindow": 5000,
   "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",

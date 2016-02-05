@@ -89,7 +89,6 @@
       "name": "out-csv",
       "type": "Csv",
       "configuration": {
-        "isAutoCalculateId": "false",
         "path": "/tmp/",
         "header": "false",
         "delimiter": ","

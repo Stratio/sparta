@@ -464,7 +464,7 @@
                 <artifactId>scala-maven-plugin</artifactId>
                 <configuration>
                     <checkMultipleScalaVersions>false</checkMultipleScalaVersions>
-                    <recompileMode>incremental</recompileMode>
+                    <recompileMode>modified-only</recompileMode>
                 </configuration>
                 <executions>
                     <execution>

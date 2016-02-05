@@ -20,23 +20,18 @@ import java.io.{Serializable => JSerializable}
 
 import com.datastax.spark.connector.cql.CassandraConnector
 import com.stratio.sparkta.plugin.output.cassandra.dao.CassandraDAO
-import com.stratio.sparkta.sdk.TypeOp._
+import com.stratio.sparkta.sdk.Output._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SaveMode._
 import org.apache.spark.sql._
-import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.sql.DataFrameWriter
 
 class CassandraOutput(keyName: String,
                       version: Option[Int],
                       properties: Map[String, JSerializable],
-                      operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
-                      bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, version, properties, operationTypes, bcSchema)
+                      schemas: Seq[TableSchema])
+  extends Output(keyName, version, properties, schemas)
   with CassandraDAO {
 
   override val keyspace = properties.getString("keyspace", "sparkta")
@@ -63,45 +58,28 @@ class CassandraOutput(keyName: String,
 
   val cluster = properties.getString("cluster", "default")
 
-  override val supportedWriteOps: Seq[WriteOp.Value] = Seq(WriteOp.FullText, WriteOp.Inc, WriteOp.IncBig,
-    WriteOp.Set, WriteOp.Range, WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.Median,
-    WriteOp.Variance, WriteOp.Stddev, WriteOp.WordCount, WriteOp.EntityCount)
-
   override val tableVersion = version
 
-  override def setup: Unit = {
-
-    val connector = getCassandraConnector()
-
+  override def setup(options: Map[String, String]): Unit = {
+    val connector = getCassandraConnector
     val keyspaceCreated = createKeypace(connector)
-
-    val schemaFiltered = bcSchema.get.filter(tschema => tschema.outputName == keyName)
-      .map(tschemaFiltered => getTableSchemaFixedId(tschemaFiltered))
-
     val tablesCreated = if (keyspaceCreated) {
-      bcSchema.exists(bc => createTables(connector, schemaFiltered, isAutoCalculateId))
+      createTables(connector, schemas)
     } else false
-
     if (keyspaceCreated && tablesCreated) {
       if (indexFields.isDefined && indexFields.get.nonEmpty) {
-        bcSchema.exists(bc => createIndexes(connector, schemaFiltered, isAutoCalculateId))
+        createIndexes(connector, schemas)
       }
       if (textIndexFields.isDefined &&
-        textIndexFields.nonEmpty &&
-        fixedMeasures.values.nonEmpty &&
-        fixedMeasure.get == textIndexName) {
-        bcSchema.exists(bc => createTextIndexes(connector, schemaFiltered))
+        textIndexFields.nonEmpty) {
+        createTextIndexes(connector, schemas)
       }
     }
   }
 
-  override def doPersist(stream: DStream[(DimensionValuesTime, MeasuresValues)]): Unit = {
-    persistDataFrame(stream)
-  }
-
-  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: Option[String]): Unit = {
-    val tableNameVersioned = getTableName(tableName.toLowerCase)
-    write(dataFrame,tableNameVersioned)
+  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+    val tableNameVersioned = getTableName(getTableNameFromOptions(options).toLowerCase)
+    write(dataFrame, tableNameVersioned)
   }
 
   def write(dataFrame: DataFrame, tableNameVersioned: String): Unit = {
@@ -111,11 +89,10 @@ class CassandraOutput(keyName: String,
       .options(Map("table" -> tableNameVersioned, "keyspace" -> keyspace, "cluster" -> cluster)).save()
   }
 
-  def getCassandraConnector(): CassandraConnector = {
-    val sparkConf = sqlContext.sparkContext.getConf
+  def getCassandraConnector: CassandraConnector = {
+    val sparkConf = new SparkConf().setAll(CassandraOutput.getSparkConfiguration(properties))
     CassandraConnector(sparkConf)
   }
-
 }
 
 object CassandraOutput {
@@ -130,10 +107,10 @@ object CassandraOutput {
     val sparkProperties = getSparkCassandraProperties(configuration)
 
     sparkProperties ++
-    Seq(
-      ("spark.cassandra.connection.host", connectionHost),
-      ("spark.cassandra.connection.port", connectionPort)
-    )
+      Seq(
+        ("spark.cassandra.connection.host", connectionHost),
+        ("spark.cassandra.connection.port", connectionPort)
+      )
   }
 
   private def getSparkCassandraProperties(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
@@ -147,7 +124,5 @@ object CassandraOutput {
         })
       case None => Seq()
     }
-
   }
-
 }

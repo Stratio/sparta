@@ -16,17 +16,22 @@
 
 package com.stratio.sparkta.serving.api.actor
 
+import java.io.File
 import java.util.UUID
 
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparkta.driver.dao.ZookeeperDAO
+import com.stratio.sparkta.driver.util.HdfsUtils
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
 import com.stratio.sparkta.serving.api.constants.ActorsConstant
-import com.stratio.sparkta.serving.core.CuratorFactoryHolder
+import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, SparktaConfig}
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.exception.ServingCoreException
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
+import com.typesafe.config.ConfigFactory
+import org.apache.commons.io.FileUtils
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.jackson.Serialization.{read, write}
@@ -130,8 +135,10 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
             s"Policy with name ${policy.name} not exists.")
         ))
       } else {
-        val policyS = policy.copy(name = policy.name.toLowerCase,
+        val policyS = policy.copy(
+          name = policy.name.toLowerCase,
           version = setVersion(searchPolicy.get, policy))
+        deleteCheckpointPath(policy)
         curatorFramework.setData.forPath(s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
       }
     }).recover {
@@ -202,4 +209,14 @@ object PolicyActor {
 
   case class ResponsePolicy(policy: Try[AggregationPoliciesModel])
 
+  def deleteCheckpointPath(policy: AggregationPoliciesModel): Unit = {
+    if(SparktaConfig.getClusterConfig.isDefined) {
+      val zkDAO = new ZookeeperDAO(SparktaConfig.mainConfig.get)
+      val hdfsJsonConfig = zkDAO.dao.get(AppConstant.HdfsId).get
+      val config = ConfigFactory.parseString(hdfsJsonConfig).getConfig(AppConstant.HdfsId)
+      HdfsUtils(config).delete(AggregationPoliciesModel.checkpointPath(policy))
+    } else {
+      FileUtils.deleteDirectory(new File(AggregationPoliciesModel.checkpointPath(policy)))
+    }
+  }
 }

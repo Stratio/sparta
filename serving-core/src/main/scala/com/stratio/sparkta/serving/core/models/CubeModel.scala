@@ -22,7 +22,8 @@ import com.stratio.sparkta.serving.core.constants.AppConstant
 case class CubeModel(name: String,
                      checkpointConfig: CheckpointModel,
                      dimensions: Seq[DimensionModel],
-                     operators: Seq[OperatorModel])
+                     operators: Seq[OperatorModel],
+                     writer: Option[WriterModel] = None)
 
 case class DimensionModel(name: String,
                           field: String,

@@ -14,19 +14,9 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.serving.core.models
 
-import java.io.{Serializable => JSerializable}
-
-trait ProcessMapAsAny {
-
-  val inputField: Option[String]
-
-  def applyFilters(inputFields: Map[String, JSerializable]): Option[Map[String, JSerializable]]
-
-  def processMap(inputFieldsValues: InputFieldsValues): Option[Any] =
-    if (inputField.isDefined && inputFieldsValues.values.contains(inputField.get)) {
-      applyFilters(inputFieldsValues.values).flatMap(filteredFields => Some(filteredFields.get(inputField.get)
-        .get))
-    } else None
-}
+case class WriterModel(outputs: Seq[String] = Seq.empty,
+                       fixedMeasure: Option[String] = None,
+                       dateType: Option[String] = None,
+                       isAutoCalculatedId: Option[Boolean] = None)

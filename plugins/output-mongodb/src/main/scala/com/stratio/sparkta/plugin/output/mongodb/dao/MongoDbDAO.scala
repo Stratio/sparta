@@ -39,21 +39,21 @@ trait MongoDbDAO extends Logging {
   final val DefaultPort = "27017"
   final val MongoDbSparkDatasource = "com.stratio.datasource.mongodb"
 
-  def hosts : String
+  def hosts: String
 
-  def dbName : String
+  def dbName: String
 
-  def connectionsPerHost : Int
+  def connectionsPerHost: Int
 
-  def threadsAllowedB : Int
+  def threadsAllowedB: Int
 
-  def language : Option[String]
+  def language: Option[String]
 
-  def textIndexFields : Option[Array[String]]
+  def textIndexFields: Option[Array[String]]
 
-  def retrySleep : Int
+  def retrySleep: Int
 
-  protected def connectToDatabase : MongoClient = {
+  protected def connectToDatabase: MongoClient = {
     val addresses = mongoAddresses(hosts.split(","))
     Try(MongoClient(addresses, clientOptions)) match {
       case Success(database) => database
@@ -67,52 +67,47 @@ trait MongoDbDAO extends Logging {
     }
   }
 
-  protected def mongoAddresses(addresses : Seq[String]) : List[Imports.ServerAddress] = {
+  protected def mongoAddresses(addresses: Seq[String]): List[Imports.ServerAddress] = {
     addresses.flatMap(address => {
       Try(new ServerAddress(address)) match {
         case Success(serverAddress) => Some(serverAddress)
-        case Failure(e : IllegalArgumentException) =>
+        case Failure(e: IllegalArgumentException) =>
           log.warn("EndPoint " + address + e.getMessage)
           None
-        case Failure(e : UnknownHostException) =>
+        case Failure(e: UnknownHostException) =>
           log.warn("Unable to connect to " + address + e.getMessage)
           None
       }
     }).toList
   }
 
-  protected def clientOptions : MongoClientOptions = MongoClientOptions(connectionsPerHost = connectionsPerHost,
+  protected def clientOptions: MongoClientOptions = MongoClientOptions(connectionsPerHost = connectionsPerHost,
     writeConcern = casbah.WriteConcern.Unacknowledged,
     threadsAllowedToBlockForConnectionMultiplier = threadsAllowedB)
 
-  protected def createPkTextIndex(mongoDatabase : MongoClient,
-                                  collection : String,
-                                  timeDimension : Option[String]) : (Boolean, Boolean) = {
-    val textIndexCreated = if (textIndexFields.isDefined && language.isDefined) {
+  protected def createPkTextIndex(mongoDatabase: MongoClient, tableSchema: TableSchema): Unit = {
+    if (textIndexFields.isDefined && language.isDefined) {
       if (textIndexFields.get.length > 0) {
         createTextIndex(mongoDatabase,
-          collection,
+          tableSchema.tableName,
           textIndexFields.mkString(Output.Separator),
           textIndexFields.get,
-          language.get)
-        true
-      } else false
-    } else false
-
-    timeDimension match {
-      case Some(timeDimensionValue) if !timeDimensionValue.isEmpty =>
-        createIndex(mongoDatabase, collection, Output.Id + Output.Separator + timeDimension,
-          Map(Output.Id -> 1, timeDimensionValue -> 1), true, true)
-      case _ =>
-        createIndex(mongoDatabase, collection, Output.Id, Map(Output.Id -> 1), true, true)
+          language.get
+        )
+      }
     }
 
-    (!timeDimension.isEmpty, textIndexCreated)
+    if (tableSchema.isAutoCalculatedId)
+      createIndex(mongoDatabase, tableSchema.tableName, Output.Id, Map(Output.Id -> 1), true, true)
+    else {
+      val fields = tableSchema.schema.filter(stField => !stField.nullable).map(stField => stField.name -> 1).toMap
+      createIndex(mongoDatabase, tableSchema.tableName, fields.keySet.mkString(Output.Separator), fields, true, true)
+    }
   }
 
-  protected def indexExists(mongoDatabase : MongoClient, collection : String, indexName : String) : Boolean = {
+  protected def indexExists(mongoDatabase: MongoClient, collection: String, indexName: String): Boolean = {
     var indexExists = false
-    val itObjects = mongoDatabase.getDB(dbName).getCollection(collection).getIndexInfo().iterator()
+    val itObjects = mongoDatabase.getDB(dbName).getCollection(collection).getIndexInfo.iterator()
 
     while (itObjects.hasNext && !indexExists) {
       val indexObject = itObjects.next()
@@ -121,11 +116,11 @@ trait MongoDbDAO extends Logging {
     indexExists
   }
 
-  protected def createTextIndex(mongoDatabase : MongoClient,
-                                collection : String,
-                                indexName : String,
-                                indexFields : Array[String],
-                                language : String) : Unit = {
+  protected def createTextIndex(mongoDatabase: MongoClient,
+                                collection: String,
+                                indexName: String,
+                                indexFields: Array[String],
+                                language: String): Unit = {
     if (collection.nonEmpty &&
       indexFields.nonEmpty &&
       indexName.nonEmpty &&
@@ -140,12 +135,12 @@ trait MongoDbDAO extends Logging {
     }
   }
 
-  protected def createIndex(mongoDatabase : MongoClient,
-                            collection : String,
-                            indexName : String,
-                            indexFields : Map[String, Int],
-                            unique : Boolean,
-                            background : Boolean) : Unit = {
+  protected def createIndex(mongoDatabase: MongoClient,
+                            collection: String,
+                            indexName: String,
+                            indexFields: Map[String, Int],
+                            unique: Boolean,
+                            background: Boolean): Unit = {
     if (collection.nonEmpty &&
       indexFields.nonEmpty &&
       indexName.nonEmpty &&

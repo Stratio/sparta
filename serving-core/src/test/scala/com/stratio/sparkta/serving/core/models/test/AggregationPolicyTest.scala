@@ -45,7 +45,7 @@ class AggregationPolicyTest extends WordSpec with Matchers {
     Seq("out1", "out2"),
     Map()))
 
-  val checkpointModel = CheckpointModel("minute", "minute", 30000, 60000)
+  val checkpointModel = CheckpointModel("minute", "minute", None, 60000)
 
   val dimensionModel = Seq(DimensionModel(
     "dimensionName",

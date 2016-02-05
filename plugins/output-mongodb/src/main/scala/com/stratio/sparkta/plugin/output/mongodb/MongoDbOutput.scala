@@ -21,24 +21,20 @@ import java.io.{Serializable => JSerializable}
 import com.mongodb.casbah.commons.conversions.scala._
 import com.stratio.datasource.mongodb.MongodbConfig
 import com.stratio.sparkta.plugin.output.mongodb.dao.MongoDbDAO
-import com.stratio.sparkta.sdk.TypeOp._
+import com.stratio.sparkta.sdk.Output._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.SaveMode._
-import org.apache.spark.streaming.dstream.DStream
+import org.apache.spark.sql.types.StructType
 
 class MongoDbOutput(keyName: String,
                     version: Option[Int],
                     properties: Map[String, JSerializable],
-                    operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
-                    bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, version, properties, operationTypes, bcSchema) with MongoDbDAO {
+                    schemas: Seq[TableSchema])
+  extends Output(keyName, version, properties, schemas) with MongoDbDAO {
 
   RegisterJodaTimeConversionHelpers()
-
-  override val isAutoCalculateId = true
 
   override val hosts = getConnectionConfs("hosts", "host", "port")
 
@@ -54,47 +50,48 @@ class MongoDbOutput(keyName: String,
 
   override val language = properties.getString("language", None)
 
-  override def setup: Unit = {
-    if (bcSchema.isDefined) {
-      val db = connectToDatabase
-      val schemasFiltered =
-        bcSchema.get.filter(schemaFilter => schemaFilter.outputName == keyName).map(getTableSchemaFixedId(_))
-      filterSchemaByFixedAndTimeDimensions(schemasFiltered)
-        .foreach(tableSchema => createPkTextIndex(db, tableSchema.tableName, tableSchema.timeDimension))
-      db.close()
-    }
+  override def setup(options: Map[String, String]): Unit = {
+    val db = connectToDatabase
+
+    schemas.foreach(tableSchema => createPkTextIndex(db, tableSchema))
+    db.close()
   }
 
-  override def doPersist(stream : DStream[(DimensionValuesTime, MeasuresValues)]) : Unit = {
-    persistDataFrame(stream)
-  }
+  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+    val tableName = getTableNameFromOptions(options)
+    val isAutoCalculatedId = getIsAutoCalculatedIdFromOptions(options)
+    val timeDimension = getTimeFromOptions(options)
+    val dataFrameOptions = getDataFrameOptions(tableName, dataFrame.schema, timeDimension, isAutoCalculatedId)
 
-  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: Option[String]): Unit = {
-    val options = getDataFrameOptions(tableName, timeDimension)
     dataFrame.write
       .format(MongoDbSparkDatasource)
       .mode(Append)
-      .options(options)
+      .options(dataFrameOptions)
       .save()
   }
 
-  private def getDataFrameOptions(tableName: String, timeDimension: Option[String]): Map[String, String] =
+  private def getDataFrameOptions(tableName: String,
+                                  schema: StructType,
+                                  timeDimension: Option[String],
+                                  isAutoCalculatedId: Boolean): Map[String, String] =
     Map(
       MongodbConfig.Host -> hosts,
       MongodbConfig.Database -> dbName,
-      MongodbConfig.Collection -> tableName) ++ getPrimaryKeyOptions(timeDimension) ++ {
-      if (language.isDefined) Map(MongodbConfig.Language -> language.get) else Map()
+      MongodbConfig.Collection -> tableName
+    ) ++ getPrimaryKeyOptions(schema, timeDimension, isAutoCalculatedId) ++ {
+      if (language.isDefined) Map(MongodbConfig.Language -> language.get) else Map.empty
     }
 
-  private def getPrimaryKeyOptions(timeDimension: Option[String]): Map[String, String] = {
-    timeDimension match {
-      case Some(timeDimensionValue) if !timeDimensionValue.isEmpty =>
-        Map(MongodbConfig.UpdateFields -> Seq(Output.Id, timeDimensionValue).mkString(","))
-      case _ => Map(MongodbConfig.UpdateFields -> Output.Id)
-    }
+  private def getPrimaryKeyOptions(schema: StructType,
+                                   timeDimension: Option[String],
+                                   isAutoCalculatedId: Boolean): Map[String, String] = {
+    val updateFields = if (isAutoCalculatedId) Output.Id
+      else schema.fields.filter(stField => !stField.nullable).map(_.name).mkString(",")
+
+    Map(MongodbConfig.UpdateFields -> updateFields)
   }
 
-  private def getConnectionConfs(key : String, firstJsonItem : String, secondJsonItem : String) : String = {
+  private def getConnectionConfs(key: String, firstJsonItem: String, secondJsonItem: String): String = {
     val conObj = properties.getMapFromJsoneyString(key)
     conObj.map(c => {
       val host = c.getOrElse(firstJsonItem, DefaultHost)

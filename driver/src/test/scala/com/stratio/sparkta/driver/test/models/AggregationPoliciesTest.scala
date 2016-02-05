@@ -32,13 +32,12 @@ with Matchers {
     "validate dimensions are required and have at least 1 element" in {
 
       val sparkStreamingWindow = 2000
-      val checkpointInterval = 10000
       val checkpointAvailable = 60000
       val storageLevel = Some("MEMORY_AND_DISK_SER_2")
       val checkpointGranularity = "minute"
       val checkpointDir = "checkpoint"
       val checkpointDto =
-        new CheckpointModel(checkpointGranularity, checkpointGranularity, checkpointInterval, checkpointAvailable)
+        new CheckpointModel(checkpointGranularity, checkpointGranularity, None, checkpointAvailable)
 
       val configuration: Map[String, JsoneyString] =
         Map(("topics", new JsoneyString("zion2:1")), ("kafkaParams.group.id", new JsoneyString("kafka-pruebas")))
@@ -70,28 +69,6 @@ with Matchers {
       val test = AggregationPoliciesValidator.validateDto(apd)
 
       test._1 should equal(true)
-
-      val sparkStreamingWindowBad = 20000
-      val apdBad = new AggregationPoliciesModel(
-        None,
-        None,
-        storageLevel,
-        "policy-name",
-        "policy-description",
-        sparkStreamingWindowBad,
-        checkpointDir,
-        rawDataDto,
-        Seq(),
-        Seq(cubeDto),
-        Some(input),
-        Seq(mock[PolicyElementModel]),
-        Seq(mock[FragmentElementModel]))
-
-      val test2 = AggregationPoliciesValidator.validateDto(apdBad)
-
-      test2._1 should equal(false)
-
-
     }
   }
 }

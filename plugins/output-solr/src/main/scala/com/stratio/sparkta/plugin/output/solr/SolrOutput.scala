@@ -17,11 +17,13 @@
 package com.stratio.sparkta.plugin.output.solr
 
 import java.io.{Serializable => JSerializable}
+import com.stratio.sparkta.sdk.Output._
+
 import scala.util.Try
 
 import com.lucidworks.spark.SolrRelation
 import org.apache.solr.client.solrj.SolrClient
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{SQLContext, DataFrame}
 import org.apache.spark.streaming.dstream.DStream
 
 import com.stratio.sparkta.sdk.TypeOp._
@@ -32,14 +34,8 @@ import com.stratio.sparkta.sdk._
 class SolrOutput(keyName: String,
                  version: Option[Int],
                  properties: Map[String, Serializable],
-                 operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
-                 bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, version, properties, operationTypes, bcSchema) with SolrDAO {
-
-  override val supportedWriteOps = Seq(WriteOp.FullText, WriteOp.Inc, WriteOp.IncBig, WriteOp.Set, WriteOp.Range,
-    WriteOp.Max, WriteOp.Min, WriteOp.Avg, WriteOp.Median, WriteOp.Variance, WriteOp.Stddev)
-
-  override val isAutoCalculateId = Try(properties.getString("isAutoCalculateId").toBoolean).getOrElse(true)
+                 schemas: Seq[TableSchema])
+  extends Output(keyName, version, properties, schemas) with SolrDAO {
 
   override val idField = properties.getString("idField", None)
 
@@ -53,34 +49,29 @@ class SolrOutput(keyName: String,
 
   override val tokenizedFields = Try(properties.getString("tokenizedFields").toBoolean).getOrElse(false)
 
-  override def dateType: TypeOp.Value = TypeOp.Long
-
   @transient
   private val solrClients: Map[String, SolrClient] = {
-    bcSchema.get.filter(tschema => tschema.outputName == keyName).map(tschemaFiltered => {
-      val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
-      tableSchemaTime.tableName -> getSolrServer(connection, isCloud)
-    }).toMap
+    schemas.map(tschemaFiltered =>
+      tschemaFiltered.tableName -> getSolrServer(connection, isCloud)).toMap
   }
 
-  override def setup: Unit = if (validConfiguration) createCores else log.info(SolrConfigurationError)
+  override def setup(options: Map[String, String]): Unit = {
+    if (validConfiguration) createCores else log.info(SolrConfigurationError)
+  }
 
   private def createCores: Unit = {
     val coreList = getCoreList(connection, isCloud)
-    bcSchema.get.filter(tschema => tschema.outputName == keyName).foreach(tschemaFiltered => {
-      val tableSchemaTime = getTableSchemaFixedId(tschemaFiltered)
-      if (!coreList.contains(tableSchemaTime.tableName)) {
-        createCoreAccordingToSchema(solrClients, tableSchemaTime.tableName, tableSchemaTime.schema)
+    schemas.filter(tschema => tschema.outputs.contains(keyName)).foreach(tschemaFiltered => {
+      if (!coreList.contains(tschemaFiltered.tableName)) {
+        createCoreAccordingToSchema(solrClients, tschemaFiltered.tableName, tschemaFiltered.schema)
       }
     })
   }
 
-  override def doPersist(stream: DStream[(DimensionValuesTime, MeasuresValues)]): Unit =
-    if (validConfiguration) persistDataFrame(stream)
-    else log.info(SolrConfigurationError)
+  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+    val tableName = getTableNameFromOptions(options)
+    val slrRelation = new SolrRelation(dataFrame.sqlContext, getConfig(connection, tableName), dataFrame)
 
-  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: Option[String]): Unit = {
-    val slrRelation = new SolrRelation(sqlContext, getConfig(connection, tableName), dataFrame)
     slrRelation.insert(dataFrame, true)
   }
 }

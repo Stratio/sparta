@@ -2,7 +2,7 @@
 
   "name": "ATSocketMongo",
   "description": "No description",
-  "sparkStreamingWindow": 10000,
+  "sparkStreamingWindow": 5000,
   "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
@@ -73,6 +73,9 @@
         "granularity": "minute",
         "interval": 100000,
         "timeAvailability": 90000
+      },
+      "writer": {
+        "isAutoCalculatedId": true
       },
       "dimensions": [
         {

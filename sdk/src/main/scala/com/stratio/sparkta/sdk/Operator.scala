@@ -159,6 +159,10 @@ object Operator {
   final val ClassSuffix = "Operator"
   final val OldValuesKey = "old"
   final val NewValuesKey = "new"
+  final val EmptyString = ""
+  final val SpaceSeparator = " "
+  final val Zero = 0
+  final val UnderscoreSeparator = "_"
 
   /**
    * This method tries to cast a value to Number, if it's possible.
