@@ -31,9 +31,7 @@
         <module>field-dateTime</module>
         <module>field-default</module>
         <module>field-geoHash</module>
-        <module>field-tag</module>
         <module>field-hierarchy</module>
-        <module>field-arrayText</module>
         <module>output-mongodb</module>
         <module>output-elasticsearch</module>
         <module>output-cassandra</module>
@@ -68,7 +66,6 @@
         <module>parser-datetime</module>
         <module>parser-morphlines</module>
         <module>input-rabbitMQ</module>
-        <module>parser-type</module>
         <module>parser-ingestion</module>
     </modules>
 
@@ -81,6 +78,16 @@
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_${scala.binary.version}</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_${scala.binary.version}</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

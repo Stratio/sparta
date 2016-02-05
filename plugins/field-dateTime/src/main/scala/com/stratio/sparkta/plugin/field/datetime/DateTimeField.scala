@@ -21,17 +21,25 @@ import java.util.Date
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.plugin.field.datetime.DateTimeField._
+import com.stratio.sparkta.sdk.TypeOp
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk._
 import org.joda.time.DateTime
 
-case class DateTimeField(props: Map[String, JSerializable])
+case class DateTimeField(props: Map[String, JSerializable], override val defaultTypeOperation : TypeOp)
   extends DimensionType with JSerializable with SLF4JLogging {
 
-  def this() {
-    this(Map())
+  def this(defaultTypeOperation : TypeOp) {
+    this(Map(), defaultTypeOperation)
   }
 
-  override val defaultTypeOperation = TypeOp.Timestamp
+  def this(props: Map[String, JSerializable]) {
+    this(props,  TypeOp.Timestamp)
+  }
+
+  def this() {
+    this(Map(), TypeOp.Timestamp)
+  }
 
   override val operationProps: Map[String, JSerializable] = props
 
@@ -45,7 +53,7 @@ case class DateTimeField(props: Map[String, JSerializable])
   }
 
   @throws(classOf[ClassCastException])
-  override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) =
+  override def precisionValue(keyName: String, value: Any): (Precision, Any) =
     try {
       val precisionKey = precision(keyName)
       (precisionKey, DateTimeField.getPrecision(TypeOp.transformValueByTypeOp(TypeOp.Date, value).asInstanceOf[Date],
@@ -75,13 +83,13 @@ object DateTimeField {
   final val Precisions = Seq(SecondName, MinuteName, HourName, DayName, MonthName, YearName, s15Name, s10Name, s5Name)
   final val timestamp = DimensionType.getTimestamp(Some(TypeOp.Timestamp), TypeOp.Timestamp)
 
-  def getPrecision(value: Date, precision: Precision, properties: Map[String, JSerializable]): JSerializable = {
+  def getPrecision(value: Date, precision: Precision, properties: Map[String, JSerializable]): Any = {
     TypeOp.transformValueByTypeOp(precision.typeOp,
       DateOperations.dateFromGranularity(new DateTime(value), precision match {
         case t if t == timestamp => if (properties.contains(GranularityPropertyName))
           properties.get(GranularityPropertyName).get.toString
         else DefaultGranularity
         case _ => precision.id
-      })).asInstanceOf[JSerializable]
+      })).asInstanceOf[Any]
   }
 }

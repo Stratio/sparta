@@ -16,7 +16,6 @@
 
 package com.stratio.sparkta.plugin.field.datetime.test
 
-import java.io.{Serializable => JSerializable}
 import java.util.Date
 
 import com.stratio.sparkta.plugin.field.datetime.DateTimeField
@@ -35,23 +34,23 @@ class DateTimeFieldTest extends WordSpecLike with Matchers {
     "In default implementation, get 6 dimensions for a specific time" in {
       val newDate = new Date()
       val precision5s =
-        dateTimeDimension.precisionValue(DateTimeField.s5Name, newDate.asInstanceOf[JSerializable])
+        dateTimeDimension.precisionValue(DateTimeField.s5Name, newDate.asInstanceOf[Any])
       val precision10s =
-        dateTimeDimension.precisionValue(DateTimeField.s10Name, newDate.asInstanceOf[JSerializable])
+        dateTimeDimension.precisionValue(DateTimeField.s10Name, newDate.asInstanceOf[Any])
       val precision15s =
-        dateTimeDimension.precisionValue(DateTimeField.s15Name, newDate.asInstanceOf[JSerializable])
+        dateTimeDimension.precisionValue(DateTimeField.s15Name, newDate.asInstanceOf[Any])
       val precisionSecond =
-        dateTimeDimension.precisionValue(DateTimeField.SecondName, newDate.asInstanceOf[JSerializable])
+        dateTimeDimension.precisionValue(DateTimeField.SecondName, newDate.asInstanceOf[Any])
       val precisionMinute =
-        dateTimeDimension.precisionValue(DateTimeField.MinuteName, newDate.asInstanceOf[JSerializable])
+        dateTimeDimension.precisionValue(DateTimeField.MinuteName, newDate.asInstanceOf[Any])
       val precisionHour =
-        dateTimeDimension.precisionValue(DateTimeField.HourName, newDate.asInstanceOf[JSerializable])
+        dateTimeDimension.precisionValue(DateTimeField.HourName, newDate.asInstanceOf[Any])
       val precisionDay =
-        dateTimeDimension.precisionValue(DateTimeField.DayName, newDate.asInstanceOf[JSerializable])
+        dateTimeDimension.precisionValue(DateTimeField.DayName, newDate.asInstanceOf[Any])
       val precisionMonth =
-        dateTimeDimension.precisionValue(DateTimeField.MonthName, newDate.asInstanceOf[JSerializable])
+        dateTimeDimension.precisionValue(DateTimeField.MonthName, newDate.asInstanceOf[Any])
       val precisionYear =
-        dateTimeDimension.precisionValue(DateTimeField.YearName, newDate.asInstanceOf[JSerializable])
+        dateTimeDimension.precisionValue(DateTimeField.YearName, newDate.asInstanceOf[Any])
 
       precision5s._1.id should be(DateTimeField.s5Name)
       precision10s._1.id should be(DateTimeField.s10Name)

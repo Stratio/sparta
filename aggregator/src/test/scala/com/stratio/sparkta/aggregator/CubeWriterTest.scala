@@ -30,7 +30,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
   "CubeWriterTest" should "return a row with values and timeDimension" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1),
+      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema,
         Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)))
       val tableSchema = TableSchema(
         Seq("outputName"),
@@ -56,7 +56,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
   "CubeWriterTest" should "return a row with values without timeDimension" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), None)
+      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema,  None)
       val tableSchema = TableSchema(
         Seq("outputName"),
         "cubeTest",
@@ -80,7 +80,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
   "CubeWriterTest" should "return a row with values with noTime and idAutoCalculated" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), None)
+      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None)
       val tableSchema = TableSchema(
         Seq("outputName"),
         "cubeTest",
@@ -104,7 +104,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
   "CubeWriterTest" should "return a row with values with time and idAutoCalculated" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), None)
+      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None)
       val tableSchema = TableSchema(
         Seq("outputName"),
         "cubeTest",
@@ -128,7 +128,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
   "CubeWriterTest" should "return a row with values with time, idAutoCalculated and fixedMeasure" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), None)
+      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None)
       val tableSchema = TableSchema(
         Seq("outputName"),
         "cubeTest",
@@ -150,7 +150,8 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
       res should be(Row.fromSeq(Seq("value1_value2_1", "value1", "value2", 1L, "2", "value")))
     }
 
-  class OperatorTest(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
+  class OperatorTest(name: String, schema: StructType, properties: Map[String, JSerializable])
+    extends Operator(name, schema, properties) {
 
     override val defaultTypeOperation = TypeOp.Long
 
@@ -158,7 +159,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
     override val defaultCastingFilterType = TypeOp.Number
 
-    override def processMap(inputFields: InputFieldsValues): Option[Any] = {
+    override def processMap(inputFields: Row): Option[Any] = {
       None
     }
 
@@ -184,7 +185,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
     override val defaultTypeOperation = TypeOp.String
 
-    override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) = {
+    override def precisionValue(keyName: String, value: Any): (Precision, Any) = {
       val precision = DimensionType.getIdentity(getTypeOperation, defaultTypeOperation)
       (precision, TypeOp.transformValueByTypeOp(precision.typeOp, value))
     }
@@ -198,7 +199,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
     val dim1: Dimension = Dimension("dim1", "field1", "", new DimensionTypeTest)
     val dim2: Dimension = Dimension("dim2", "field2", "", new DimensionTypeTest)
     val dimId: Dimension = Dimension("id", "field2", "", new DimensionTypeTest)
-    val op1: Operator = new OperatorTest("op1", Map())
+    val op1: Operator = new OperatorTest("op1", StructType(Seq(StructField("n", LongType, false))), Map())
     val checkpointAvailable = 60000
     val checkpointGranularity = "minute"
     val cubeName = "cubeTest"
@@ -217,6 +218,8 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
     val fixedMeasure = MeasuresValues(Map("agg2" -> Option("2")))
     val measures = MeasuresValues(Map("field" -> Option("value")))
+    val initSchema = StructType(Seq(StructField("n", StringType, false)))
+
   }
 
 }

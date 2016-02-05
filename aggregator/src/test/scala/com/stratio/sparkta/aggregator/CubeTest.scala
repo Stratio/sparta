@@ -18,6 +18,8 @@ package com.stratio.sparkta.aggregator
 
 import java.io.{Serializable => JSerializable}
 
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.{LongType, TimestampType, StringType, StructField, StructType}
 import org.apache.spark.streaming.TestSuiteBase
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
@@ -44,48 +46,44 @@ class CubeTest extends TestSuiteBase {
     val expiringDataConfig = ExpiringDataConfig(
       checkpointGranularity, checkpointGranularity, checkpointTimeAvailability
     )
+    val initSchema = StructType(Seq(
+      StructField("n", LongType, false)
+    ))
+    val operatorCount = new CountOperator("count", StructType(Seq(StructField("count", LongType, true))), Map())
+    val operatorSum =
+      new SumOperator("sum", StructType(Seq(StructField("n", LongType, true))), Map("inputField" -> "n"))
+
 
     val cube = Cube(
       name,
       Seq(Dimension("dim1", "foo", "identity", defaultDimension)),
-      Seq(new CountOperator("count", Map()),new SumOperator("sum", Map("inputField" -> "n"))),
+      Seq(operatorCount, operatorSum),
+      initSchema,
       Option(expiringDataConfig)
     )
 
     testOperation(getInput, cube.aggregate, getOutput, PreserverOrder)
 
-    def getInput: Seq[Seq[(DimensionValuesTime, InputFieldsValues)]] = Seq(Seq(
+    def getInput: Seq[Seq[(DimensionValuesTime, Row)]] = Seq(Seq(
       (DimensionValuesTime("testCube",
         Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar")),
-        timeConfig
-      ),
-        InputFieldsValues(Map[String, JSerializable]("n" -> 4))),
+        timeConfig), Row(4)),
 
       (DimensionValuesTime("testCube",
-        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar")),
-        timeConfig),
-        InputFieldsValues(Map[String, JSerializable]("n" -> 3))),
+        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar")), timeConfig), Row(3)),
 
       (DimensionValuesTime("testCube",
-        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "foo")),
-        timeConfig),
-        InputFieldsValues(Map[String, JSerializable]("n" -> 3)))),
+        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "foo")), timeConfig), Row(3))),
 
       Seq(
         (DimensionValuesTime("testCube",
-          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar")),
-          timeConfig),
-          InputFieldsValues(Map[String, JSerializable]("n" -> 4))),
+          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar")), timeConfig), Row(4)),
 
         (DimensionValuesTime("testCube",
-          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar")),
-          timeConfig),
-          InputFieldsValues(Map[String, JSerializable]("n" -> 3))),
+          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar")), timeConfig), Row(3)),
 
         (DimensionValuesTime("testCube",
-          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "foo")),
-          timeConfig),
-          InputFieldsValues(Map[String, JSerializable]("n" -> 3)))))
+          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "foo")), timeConfig), Row(3))))
 
     def getOutput: Seq[Seq[(DimensionValuesTime, MeasuresValues)]] = Seq(
       Seq(
@@ -117,41 +115,41 @@ class CubeTest extends TestSuiteBase {
     val defaultDimension = new DefaultField
     val name = "cubeName"
 
+    val initSchema = StructType(Seq(
+      StructField("n", StringType, false)
+    ))
+    val operatorCount = new CountOperator("count", StructType(Seq(StructField("count", LongType, true))), Map())
+    val operatorSum =
+      new SumOperator("sum", StructType(Seq(StructField("n", LongType, true))), Map("inputField" -> "n"))
 
     val cube = Cube(
       name,
       Seq(Dimension("dim1", "foo", "identity", defaultDimension)),
-      Seq(new CountOperator("count", Map()),new SumOperator("sum", Map("inputField" -> "n")))
+      Seq(operatorCount, operatorSum),
+    initSchema
     )
 
     testOperation(getInput, cube.aggregate, getOutput, PreserverOrder)
 
-    def getInput: Seq[Seq[(DimensionValuesTime, InputFieldsValues)]] = Seq(Seq(
+    def getInput: Seq[Seq[(DimensionValuesTime, Row)]] = Seq(Seq(
       (DimensionValuesTime("testCube",
-        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar"))
-      ),
-        InputFieldsValues(Map[String, JSerializable]("n" -> 4))),
+        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar"))), Row(4)),
 
       (DimensionValuesTime("testCube",
-        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar"))),
-        InputFieldsValues(Map[String, JSerializable]("n" -> 3))),
+        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar"))), Row(3)),
 
       (DimensionValuesTime("testCube",
-        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "foo"))),
-        InputFieldsValues(Map[String, JSerializable]("n" -> 3)))),
+        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "foo"))), Row(3))),
 
       Seq(
         (DimensionValuesTime("testCube",
-          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar"))),
-          InputFieldsValues(Map[String, JSerializable]("n" -> 4))),
+          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar"))), Row(4)),
 
         (DimensionValuesTime("testCube",
-          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar"))),
-          InputFieldsValues(Map[String, JSerializable]("n" -> 3))),
+          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar"))), Row(3)),
 
         (DimensionValuesTime("testCube",
-          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "foo"))),
-          InputFieldsValues(Map[String, JSerializable]("n" -> 3)))))
+          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "foo"))), Row(3))))
 
     def getOutput: Seq[Seq[(DimensionValuesTime, MeasuresValues)]] = Seq(
       Seq(

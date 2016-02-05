@@ -16,8 +16,6 @@
 
 package com.stratio.sparkta.plugin.field.default
 
-import java.io.{Serializable => JSerializable}
-
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
@@ -31,7 +29,7 @@ class DefaultFieldTest extends WordSpecLike with Matchers {
 
   "A DefaultDimension" should {
     "In default implementation, get one precisions for a specific time" in {
-      val precision: (Precision, JSerializable) = defaultDimension.precisionValue("", "1".asInstanceOf[JSerializable])
+      val precision: (Precision, Any) = defaultDimension.precisionValue("", "1".asInstanceOf[Any])
 
       precision._2 should be(1)
 

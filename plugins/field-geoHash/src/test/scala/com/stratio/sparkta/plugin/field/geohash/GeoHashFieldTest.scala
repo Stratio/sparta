@@ -16,8 +16,6 @@
 
 package com.stratio.sparkta.plugin.field.geohash
 
-import java.io.{Serializable => JSerializable}
-
 import com.stratio.sparkta.sdk.{Precision, TypeOp}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -34,29 +32,29 @@ class GeoHashFieldTest extends WordSpecLike with Matchers {
   "A GeoHashDimension" should {
     "In default implementation, get 12 precisions for all precision sizes" in {
       val precision1 =
-        geoHashDimension.precisionValue(GeoHashField.Precision1Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+        geoHashDimension.precisionValue(GeoHashField.Precision1Name, Some("40.1__30.2").asInstanceOf[Any])
       val precision2 =
-        geoHashDimension.precisionValue(GeoHashField.Precision2Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+        geoHashDimension.precisionValue(GeoHashField.Precision2Name, Some("40.1__30.2").asInstanceOf[Any])
       val precision3 =
-        geoHashDimension.precisionValue(GeoHashField.Precision3Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+        geoHashDimension.precisionValue(GeoHashField.Precision3Name, Some("40.1__30.2").asInstanceOf[Any])
       val precision4 =
-        geoHashDimension.precisionValue(GeoHashField.Precision4Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+        geoHashDimension.precisionValue(GeoHashField.Precision4Name, Some("40.1__30.2").asInstanceOf[Any])
       val precision5 =
-        geoHashDimension.precisionValue(GeoHashField.Precision5Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+        geoHashDimension.precisionValue(GeoHashField.Precision5Name, Some("40.1__30.2").asInstanceOf[Any])
       val precision6 =
-        geoHashDimension.precisionValue(GeoHashField.Precision6Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+        geoHashDimension.precisionValue(GeoHashField.Precision6Name, Some("40.1__30.2").asInstanceOf[Any])
       val precision7 =
-        geoHashDimension.precisionValue(GeoHashField.Precision7Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+        geoHashDimension.precisionValue(GeoHashField.Precision7Name, Some("40.1__30.2").asInstanceOf[Any])
       val precision8 =
-        geoHashDimension.precisionValue(GeoHashField.Precision8Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+        geoHashDimension.precisionValue(GeoHashField.Precision8Name, Some("40.1__30.2").asInstanceOf[Any])
       val precision9 =
-        geoHashDimension.precisionValue(GeoHashField.Precision9Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+        geoHashDimension.precisionValue(GeoHashField.Precision9Name, Some("40.1__30.2").asInstanceOf[Any])
       val precision10 =
-        geoHashDimension.precisionValue(GeoHashField.Precision10Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+        geoHashDimension.precisionValue(GeoHashField.Precision10Name, Some("40.1__30.2").asInstanceOf[Any])
       val precision11 =
-        geoHashDimension.precisionValue(GeoHashField.Precision11Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+        geoHashDimension.precisionValue(GeoHashField.Precision11Name, Some("40.1__30.2").asInstanceOf[Any])
       val precision12 =
-        geoHashDimension.precisionValue(GeoHashField.Precision12Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+        geoHashDimension.precisionValue(GeoHashField.Precision12Name, Some("40.1__30.2").asInstanceOf[Any])
 
 
       precision1._1.id should be(GeoHashField.Precision1Name)
@@ -73,20 +71,20 @@ class GeoHashFieldTest extends WordSpecLike with Matchers {
       precision12._1.id should be(GeoHashField.Precision12Name)
 
       val precision13 =
-        geoHashDimension.precisionValue(GeoHashField.Precision12Name, "40.1__30.2".asInstanceOf[JSerializable])
+        geoHashDimension.precisionValue(GeoHashField.Precision12Name, "40.1__30.2".asInstanceOf[Any])
 
       precision13._1.id should be(GeoHashField.Precision3Name)
 
       val precision14 =
-        geoHashDimension.precisionValue(GeoHashField.Precision12Name, None.asInstanceOf[JSerializable])
+        geoHashDimension.precisionValue(GeoHashField.Precision12Name, None.asInstanceOf[Any])
       precision14._1.id should be(GeoHashField.Precision3Name)
 
       val precision15 =
-        geoHashDimension.precisionValue(GeoHashField.Precision12Name, Some("40.1").asInstanceOf[JSerializable])
+        geoHashDimension.precisionValue(GeoHashField.Precision12Name, Some("40.1").asInstanceOf[Any])
 
       precision15._1.id should be(GeoHashField.Precision12Name)
       val precision16 = Try(
-        geoHashDimension.precisionValue(GeoHashField.Precision12Name, Some(1).asInstanceOf[JSerializable]))
+        geoHashDimension.precisionValue(GeoHashField.Precision12Name, Some(1).asInstanceOf[Any]))
       match {
         case Failure(ex) => ex
       }
@@ -132,18 +130,18 @@ class GeoHashFieldTest extends WordSpecLike with Matchers {
       val other = new GeoHashField(Map("precision1" -> "int", "typeOp" -> "long", "coordinate" -> "other"))
       other.precision(GeoHashField.Precision12Name).typeOp should be(TypeOp.Long)
 
-      val latResult: (Precision, JSerializable) =
-        latitude.precisionValue(GeoHashField.Precision12Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+      val latResult: (Precision, Any) =
+        latitude.precisionValue(GeoHashField.Precision12Name, Some("40.1__30.2").asInstanceOf[Any])
 
       latResult._1.id should be(GeoHashField.Precision12Name)
 
-      val lonResult: (Precision, JSerializable) =
-        longitude.precisionValue(GeoHashField.Precision12Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+      val lonResult: (Precision, Any) =
+        longitude.precisionValue(GeoHashField.Precision12Name, Some("40.1__30.2").asInstanceOf[Any])
 
       lonResult._1.id should be(GeoHashField.Precision12Name)
 
-      val otherResult: (Precision, JSerializable) =
-        other.precisionValue(GeoHashField.Precision12Name, Some("40.1__30.2").asInstanceOf[JSerializable])
+      val otherResult: (Precision, Any) =
+        other.precisionValue(GeoHashField.Precision12Name, Some("40.1__30.2").asInstanceOf[Any])
 
       otherResult._1.id should be(GeoHashField.Precision12Name)
     }

@@ -23,10 +23,10 @@
       "order": 0,
       "type": "Morphlines",
       "outputFields": [
-        "text",
-        "source",
-        "hashtags",
-        "retweets"
+        {"name":"text"},
+        {"name":"source"},
+        {"name":"hashtags"},
+        {"name":"retweets"}
       ],
       "configuration": {
         "morphline": {

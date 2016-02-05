@@ -21,17 +21,25 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 
 import HierarchyField._
+import com.stratio.sparkta.sdk.TypeOp
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk._
 
-case class HierarchyField(props: Map[String, JSerializable])
+case class HierarchyField(props: Map[String, JSerializable], override val defaultTypeOperation : TypeOp)
   extends DimensionType with JSerializable with SLF4JLogging {
 
-  def this() {
-    this(Map())
+  def this(defaultTypeOperation : TypeOp) {
+    this(Map(), defaultTypeOperation)
   }
 
-  override val defaultTypeOperation = TypeOp.ArrayString
+  def this(props: Map[String, JSerializable]) {
+    this(props,  TypeOp.ArrayString)
+  }
+
+  def this() {
+    this(Map(), TypeOp.ArrayString)
+  }
 
   override val operationProps : Map[String, JSerializable] = props
 
@@ -58,7 +66,7 @@ case class HierarchyField(props: Map[String, JSerializable])
   val splitter = properties.getString(SplitterPropertyName)
   val wildcard = properties.getString(WildCardPropertyName)
 
-  override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) = {
+  override def precisionValue(keyName: String, value: Any): (Precision, JSerializable) = {
     val precisionKey = precision(keyName)
       (precisionKey, TypeOp.transformValueByTypeOp(precisionKey.typeOp,
         getPrecision(value.asInstanceOf[String], precisionKey).asInstanceOf[JSerializable]))

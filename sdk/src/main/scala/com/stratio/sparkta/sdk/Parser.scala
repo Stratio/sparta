@@ -18,13 +18,24 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.StructType
+
+import scala.util.Try
+
 abstract class Parser(name: String,
                       order: Integer,
                       inputField: String,
                       outputFields: Seq[String],
-                      properties: Map[String, JSerializable]) extends Parameterizable(properties) with Ordered[Parser] {
+                      schema: StructType,
+                      properties: Map[String, JSerializable])
+  extends Parameterizable(properties) with Ordered[Parser] {
 
-  def parse(data: Event): Event
+  val outputFieldsSchema = schema.fields.filter(field => outputFields.contains(field.name))
+
+  val inputFieldIndex = Try(schema.fieldIndex(inputField)).getOrElse(0)
+
+  def parse(data: Row, removeRaw: Boolean): Row
 
   def getOrder: Integer = order
 
@@ -37,4 +48,6 @@ abstract class Parser(name: String,
 object Parser {
 
   final val ClassSuffix = "Parser"
+  final val DefaultOutputType = "string"
+  final val TypesFromParserClass = Map("datetime" -> "timestamp")
 }

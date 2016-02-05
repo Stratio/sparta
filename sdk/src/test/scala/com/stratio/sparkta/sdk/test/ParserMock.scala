@@ -18,14 +18,17 @@ package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.{Event, Parser}
+import com.stratio.sparkta.sdk.Parser
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.StructType
 
 class ParserMock(name: String,
                  order: Integer,
                  inputField: String,
                  outputFields: Seq[String],
+                 schema: StructType,
                  properties: Map[String, JSerializable])
-  extends Parser(name, order, inputField, outputFields, properties) {
+  extends Parser(name, order, inputField, outputFields, schema, properties) {
 
-  override def parse(data: Event): Event = data
+  override def parse(row: Row, removeRaw: Boolean): Row = row
 }

@@ -17,33 +17,35 @@
 package com.stratio.sparkta.plugin.parser.ingestion
 
 import java.io.{Serializable => JSerializable}
+
+import com.stratio.sparkta.sdk.Parser
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.StructType
+
 import scala.annotation.tailrec
 import scala.util.Try
 import scala.util.parsing.json.JSON
-
-import com.stratio.sparkta.sdk.Event
-import com.stratio.sparkta.sdk.Parser
 
 class IngestionParser(name: String,
                       order: Integer,
                       inputField: String,
                       outputFields: Seq[String],
+                      schema: StructType,
                       properties: Map[String, JSerializable])
-  extends Parser(name, order, inputField, outputFields, properties) {
+  extends Parser(name, order, inputField, outputFields, schema, properties) {
 
-  private val DatetimePattern = "yyyy-MM-dd HH:mm:ss"
-
-  override def parse(data: Event): Event = {
-    val input = data.keyMap.get(inputField).get
+  override def parse(data: Row, removeRaw: Boolean): Row = {
+    val input = data.get(schema.fieldIndex(inputField))
     JSON.globalNumberParser = { input: String => (input).toLong }
     val rawData = Try(input.asInstanceOf[String]).getOrElse(new String(input.asInstanceOf[Array[Byte]]))
-    val ingestionModel = JSON.parseFull(rawData)
-      .get.asInstanceOf[Map[String, JSerializable]]
+    val ingestionModel = JSON.parseFull(rawData).get.asInstanceOf[Map[String, JSerializable]]
     val columnList = ingestionModel.get("columns").get.asInstanceOf[List[Map[String, String]]]
     val columnPairs = extractColumnPairs(columnList)
     val allParsedPairs = parseWithSchema(columnPairs, Map())._2
     val filteredParsedPairs = allParsedPairs.filter(element => outputFields.contains(element._1))
-    new Event(filteredParsedPairs)
+    val prevData = if(removeRaw) data.toSeq.drop(1) else data.toSeq
+
+    Row.fromSeq(prevData ++ filteredParsedPairs.values.toSeq)
   }
 
   // XXX Private methods.

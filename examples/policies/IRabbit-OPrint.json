@@ -26,11 +26,11 @@
       "order": 0,
       "type": "Morphlines",
       "outputFields": [
-        "appName",
-        "timestamp",
-        "geo",
-        "tag",
-        "twitterStatus"
+        {"name":"appName"},
+        {"name":"timestamp"},
+        {"name":"geo"},
+        {"name":"tag"},
+        {"name":"twitterStatus"}
       ],
       "configuration": {
         "morphline": {
@@ -63,7 +63,7 @@
       "type": "DateTime",
       "inputField": "timestamp",
       "outputFields": [
-        "timestamp"
+        {"name":"timestamp"}
       ],
       "configuration": {
         "inputFormat": "unixMillis"
