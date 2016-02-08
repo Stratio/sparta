@@ -26,6 +26,7 @@ import org.scalatest.junit.JUnitRunner
 
 import scala.util.Try
 
+
 @RunWith(classOf[JUnitRunner])
 class KafkaProducerTest extends FlatSpec with Matchers {
 
