@@ -41,7 +41,7 @@ import com.stratio.sparkta.serving.api.constants.ActorsConstant
 import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.exception.ServingCoreException
-import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.CommonPoliciesModel
 import com.stratio.sparkta.serving.core.models.PolicyStatusModel
 import com.stratio.sparkta.serving.core.models.SparktaSerializer
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.FindAll
@@ -70,7 +70,7 @@ with SparktaSerializer {
     case Create(policy) => sender ! create(policy)
   }
 
-  def isNotRunning(policy: AggregationPoliciesModel): Boolean = {
+  def isNotRunning(policy: CommonPoliciesModel): Boolean = {
     val future = policyStatusActor ? FindAll
     val models = Await.result(future, timeout.duration) match {
       case Response(Success(s)) => s.filter(s => s.id == policy.id.get)
@@ -84,7 +84,7 @@ with SparktaSerializer {
     })
   }
 
-  def launch(policy: AggregationPoliciesModel): AggregationPoliciesModel = {
+  def launch(policy: CommonPoliciesModel): CommonPoliciesModel = {
     if (isNotRunning(policy)) {
       policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Launched))
       getStreamingContextActor(policy) match {
@@ -103,7 +103,7 @@ with SparktaSerializer {
    * Tries to create a spark streaming context with a given configuration.
    * @param policy that contains the configuration to run.
    */
-  private def create(policy: AggregationPoliciesModel): Try[AggregationPoliciesModel] = Try {
+  private def create(policy: CommonPoliciesModel): Try[CommonPoliciesModel] = Try {
     if (policy.id.isDefined)
       launch(policy)
     else {
@@ -117,7 +117,7 @@ with SparktaSerializer {
     Try({
       val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
       JavaConversions.asScalaBuffer(children).toList.map(element =>
-        read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
+        read[CommonPoliciesModel](new String(curatorFramework.getData.forPath(
           s"${AppConstant.PoliciesBasePath}/$element"))))
         .filter(policy => if (id.isDefined) policy.name == nameToCompare && policy.id.get != id.get
         else policy.name == nameToCompare).toSeq.nonEmpty
@@ -130,7 +130,7 @@ with SparktaSerializer {
     }
   }
 
-  def launchNewPolicy(policy: AggregationPoliciesModel): AggregationPoliciesModel = {
+  def launchNewPolicy(policy: CommonPoliciesModel): CommonPoliciesModel = {
     val policyWithIdModel = policyWithId(policy)
 
     for {
@@ -151,7 +151,7 @@ with SparktaSerializer {
     policyWithIdModel
   }
 
-  private def policyWithId(policy: AggregationPoliciesModel) =
+  private def policyWithId(policy: CommonPoliciesModel) =
     (
       policy.id match {
         case None => policy.copy(id = Some(UUID.randomUUID.toString))
@@ -160,10 +160,10 @@ with SparktaSerializer {
       ).copy(name = policy.name.toLowerCase, version = Some(ActorsConstant.UnitVersion))
 
   // XXX Private Methods.
-  private def savePolicyInZk(policy: AggregationPoliciesModel): Unit = {
+  private def savePolicyInZk(policy: CommonPoliciesModel): Unit = {
 
     Try({
-      read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.forPath(
+      read[CommonPoliciesModel](new Predef.String(curatorFramework.getData.forPath(
         s"${AppConstant.PoliciesBasePath}/${policy.id.get}")))
     }) match {
       case Success(_) => log.info(s"Policy ${policy.id.get} already in zookeeper. Updating it...")
@@ -173,7 +173,7 @@ with SparktaSerializer {
     }
   }
 
-  private def getStreamingContextActor(policy: AggregationPoliciesModel): Option[ActorRef] = {
+  private def getStreamingContextActor(policy: CommonPoliciesModel): Option[ActorRef] = {
     val actorName = s"$SparkStreamingContextActorPrefix-${policy.name.replace(" ", "_")}"
     SparktaConfig.getClusterConfig match {
       case Some(clusterConfig) => {
@@ -194,7 +194,7 @@ with SparktaSerializer {
 
 object SparkStreamingContextActor {
 
-  case class Create(policy: AggregationPoliciesModel)
+  case class Create(policy: CommonPoliciesModel)
 
   case class CreateConfig(config: Config)
 

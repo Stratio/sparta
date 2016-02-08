@@ -17,27 +17,36 @@
 package com.stratio.sparkta.driver
 
 import java.io._
+import java.nio.file.{Files, Paths}
+import scala.annotation.tailrec
+import scala.util._
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.aggregator.{Cube, CubeMaker, CubeWriter, WriterOptions}
-import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.helper.SchemaHelper
 import com.stratio.sparkta.driver.helper.SchemaHelper._
-import com.stratio.sparkta.driver.service.RawDataStorageService
-import com.stratio.sparkta.driver.util.ReflectionUtils
-import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, CubeModel, OperatorModel}
+import com.stratio.sparkta.serving.core.models._
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 
-import scala.util._
+import com.stratio.sparkta.aggregator.{Cube, CubeMaker}
+import com.stratio.sparkta.driver.factory.SparkContextFactory
+import com.stratio.sparkta.driver.service.RawDataStorageService
+import com.stratio.sparkta.driver.util.ReflectionUtils
+import com.stratio.sparkta.sdk.TypeOp.TypeOp
+import com.stratio.sparkta.sdk.WriteOp.WriteOp
+import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.serving.core.models.{CommonPoliciesModel, OperatorModel}
+import com.stratio.sparkta.serving.core.helpers
 
 object SparktaJob extends SLF4JLogging {
 
-  def run(sc: SparkContext, apConfig: AggregationPoliciesModel): StreamingContext = {
+  def run(sc: SparkContext, apConfig: CommonPoliciesModel): StreamingContext = {
     val checkpointPolicyPath = apConfig.checkpointPath.concat(File.separator).concat(apConfig.name)
+    //FIXME: check the problem in the checkpoint and fault tolerance
+    // deletePreviousCheckpointPath(checkpointPolicyPath)
     val reflectionUtils = new ReflectionUtils
     val ssc = SparkContextFactory.sparkStreamingInstance(
       new Duration(apConfig.sparkStreamingWindow), checkpointPolicyPath)
@@ -58,13 +67,13 @@ object SparktaJob extends SLF4JLogging {
     ssc.get
   }
 
-  def getInput(apConfig: AggregationPoliciesModel, ssc: StreamingContext, refUtils: ReflectionUtils): DStream[Event] = {
+  def getInput(apConfig: CommonPoliciesModel, ssc: StreamingContext, refUtils: ReflectionUtils): DStream[Event] = {
     val inputInstance = refUtils.tryToInstantiate[Input](apConfig.input.get.`type` + Input.ClassSuffix, (c) =>
       refUtils.instantiateParameterizable[Input](c, apConfig.input.get.configuration))
     inputInstance.setUp(ssc, apConfig.storageLevel.get)
   }
 
-  def getParsers(apConfig: AggregationPoliciesModel, refUtils: ReflectionUtils): Seq[Parser] =
+  def getParsers(apConfig: CommonPoliciesModel, refUtils: ReflectionUtils): Seq[Parser] =
     apConfig.transformations.map(parser =>
       refUtils.tryToInstantiate[Parser](parser.`type` + Parser.ClassSuffix, (c) =>
         c.getDeclaredConstructor(
@@ -112,7 +121,7 @@ object SparktaJob extends SLF4JLogging {
         classOf[Map[String, Serializable]]
       ).newInstance(operatorModel.name, operatorModel.configuration).asInstanceOf[Operator])
 
-  def getOutputs(apConfig: AggregationPoliciesModel,
+  def getOutputs(apConfig: CommonPoliciesModel,
                  cubesOperatorsSchema: Seq[TableSchema],
                  refUtils: ReflectionUtils): Seq[Output] = {
     apConfig.outputs.map(o => {
@@ -128,7 +137,7 @@ object SparktaJob extends SLF4JLogging {
     })
   }
 
-  def getCubes(apConfig: AggregationPoliciesModel, refUtils: ReflectionUtils): Seq[Cube] =
+  def getCubes(apConfig: CommonPoliciesModel, refUtils: ReflectionUtils): Seq[Cube] =
     apConfig.cubes.map(cube => {
       val name = cube.name
       val dimensions = cube.dimensions.map(dimensionDto => {
@@ -153,7 +162,7 @@ object SparktaJob extends SLF4JLogging {
       }
     })
 
-  def saveRawData(apConfig: AggregationPoliciesModel, input: DStream[Event], sqc: Option[SQLContext] = None): Unit =
+  def saveRawData(apConfig: CommonPoliciesModel, input: DStream[Event], sqc: Option[SQLContext] = None): Unit =
     if (apConfig.rawData.enabled.toBoolean) {
       require(!apConfig.rawData.path.equals("default"), "The parquet path must be set")
       val sqlContext = sqc.getOrElse(SparkContextFactory.sparkSqlContextInstance.get)
@@ -165,7 +174,7 @@ object SparktaJob extends SLF4JLogging {
   def getCubeWriter(cubeName: String,
                     cubes: Seq[Cube],
                     schemas: Seq[TableSchema],
-                    cubeModels: Seq[CubeModel],
+                    cubeModels: Seq[CommonCubeModel],
                     outputs: Seq[Output]): CubeWriter = {
     val cubeWriter = cubes.find(cube => cube.name == cubeName)
       .getOrElse(throw new Exception("Is mandatory one cube in the cube writer"))
@@ -178,7 +187,7 @@ object SparktaJob extends SLF4JLogging {
     CubeWriter(cubeWriter, schemaWriter, writerOp, outputs)
   }
 
-  def getWriterOptions(cubeName: String, outputsWriter: Seq[Output], cubeModel: CubeModel): WriterOptions =
+  def getWriterOptions(cubeName: String, outputsWriter: Seq[Output], cubeModel: CommonCubeModel): WriterOptions =
     cubeModel.writer.fold(WriterOptions(outputsWriter.map(_.name))) { writerModel =>
       val writerOutputs = if (writerModel.outputs.isEmpty) outputsWriter.map(_.name) else writerModel.outputs
       val dateType = Output.getTimeTypeFromString(cubeModel.writer.fold(DefaultTimeStampTypeString) { options =>

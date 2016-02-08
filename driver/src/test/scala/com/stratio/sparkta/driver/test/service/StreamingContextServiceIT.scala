@@ -23,7 +23,7 @@ import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, SparktaSerializer}
+import com.stratio.sparkta.serving.core.models.{CommonPoliciesModel, SparktaSerializer}
 import org.json4s.native
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -37,7 +37,7 @@ with Matchers
 with SLF4JLogging
 with SparktaSerializer {
 
-  val PathToPolicy = getClass.getClassLoader.getResource("policies/IKafka-OPrint.json").getPath
+  val PathToPolicy = getClass.getClassLoader.getResource("policies/IKafka-OMongo-Common.json").getPath
 
   /**
    * This is a workaround to find the jars either in the IDE or in a maven execution.
@@ -65,7 +65,7 @@ with SparktaSerializer {
 
       val streamingContextService = new StreamingContextService(None, sparktaConfig)
       val json = Source.fromFile(new File(PathToPolicy)).mkString
-      val apConfig = native.Serialization.read[AggregationPoliciesModel](json)
+      val apConfig = native.Serialization.read[CommonPoliciesModel](json)
 
       val ssc = streamingContextService.standAloneStreamingContext(apConfig.copy(id = Some("1")), jars)
 

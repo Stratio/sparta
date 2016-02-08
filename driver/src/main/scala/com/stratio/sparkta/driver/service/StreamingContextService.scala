@@ -46,11 +46,11 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
   implicit val timeout: Timeout = Timeout(3.seconds)
   final val OutputsSparkConfiguration = "getSparkConfiguration"
 
-  def standAloneStreamingContext(apConfig: AggregationPoliciesModel, files: Seq[File]): Option[StreamingContext] = {
+  def standAloneStreamingContext(apConfig: CommonPoliciesModel, files: Seq[File]): Option[StreamingContext] = {
     runStatusListener(apConfig.id.get, apConfig.name)
 
-    val ssc = StreamingContext.getOrCreate(AggregationPoliciesModel.checkpointPath(apConfig), () => {
-      log.info(s"Nothing in checkpoint path: ${AggregationPoliciesModel.checkpointPath(apConfig)}")
+    val ssc = StreamingContext.getOrCreate(CommonPoliciesModel.checkpointPath(apConfig), () => {
+      log.info(s"Nothing in checkpoint path: ${CommonPoliciesModel.checkpointPath(apConfig)}")
       SparktaJob.run(getStandAloneSparkContext(apConfig, files), apConfig)
     })
 
@@ -60,14 +60,14 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
     Option(ssc)
   }
 
-  def clusterStreamingContext(apConfig: AggregationPoliciesModel,
+  def clusterStreamingContext(apConfig: CommonPoliciesModel,
                               files: Seq[URI],
                               detailConfig: Map[String, String]): Option[StreamingContext] = {
     val exitWhenStop = true
     runStatusListener(apConfig.id.get, apConfig.name, exitWhenStop)
 
-    val ssc = StreamingContext.getOrCreate(AggregationPoliciesModel.checkpointPath(apConfig), () => {
-      log.info(s"Nothing in checkpoint path: ${AggregationPoliciesModel.checkpointPath(apConfig)}")
+    val ssc = StreamingContext.getOrCreate(CommonPoliciesModel.checkpointPath(apConfig), () => {
+      log.info(s"Nothing in checkpoint path: ${CommonPoliciesModel.checkpointPath(apConfig)}")
       SparktaJob.run(getClusterSparkContext(apConfig, files, detailConfig), apConfig)
     })
 
@@ -77,7 +77,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
     Option(ssc)
   }
 
-  private def getStandAloneSparkContext(apConfig: AggregationPoliciesModel, jars: Seq[File]): SparkContext = {
+  private def getStandAloneSparkContext(apConfig: CommonPoliciesModel, jars: Seq[File]): SparkContext = {
     val pluginsSparkConfig =
       sparkConfigFromOutputs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix, new ReflectionUtils())
     val standAloneConfig = Try(generalConfig.get.getConfig(AppConstant.ConfigLocal)) match {
@@ -87,7 +87,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
     SparkContextFactory.sparkStandAloneContextInstance(standAloneConfig, pluginsSparkConfig, jars)
   }
 
-  private def getClusterSparkContext(apConfig: AggregationPoliciesModel,
+  private def getClusterSparkContext(apConfig: CommonPoliciesModel,
                                      classPath: Seq[URI],
                                      detailConfig: Map[String, String]): SparkContext = {
     val pluginsSparkConfig = sparkConfigFromOutputs(apConfig,
@@ -134,7 +134,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
     }
   }
 
-  private def sparkConfigFromOutputs(apConfig: AggregationPoliciesModel,
+  private def sparkConfigFromOutputs(apConfig: CommonPoliciesModel,
                                      methodName: String,
                                      suffix: String,
                                      refUtils: ReflectionUtils): Map[String, String] = {

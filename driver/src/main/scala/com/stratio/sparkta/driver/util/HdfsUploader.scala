@@ -23,9 +23,9 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
-import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.CommonPoliciesModel
 
-case class HdfsUploader(policy: AggregationPoliciesModel, hdfs: HdfsUtils) extends SLF4JLogging {
+case class HdfsUploader(policy: CommonPoliciesModel, hdfs: HdfsUtils) extends SLF4JLogging {
 
   private val hdfsConfig = SparktaConfig.getHdfsConfig.get
   private val jarsPlugins = JarsHelper.findJarsByPath(

@@ -19,13 +19,15 @@ package com.stratio.sparkta.testat
 import java.io.{File, PrintStream}
 import java.net._
 import java.nio.channels.ServerSocketChannel
-import java.nio.file.{Files, Paths}
+import java.nio.file.{Paths, Files}
 
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
 import com.stratio.sparkta.serving.api.helpers.SparktaHelper
 import com.stratio.sparkta.serving.core.constants.AppConstant
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, SparktaSerializer}
+import com.stratio.sparkta.serving.core.helpers.{ParseAggregationToCommonModel,JarsHelper}
+import com.stratio.sparkta.serving.core.models._
+import com.stratio.sparkta.serving.core.models.SparktaSerializer
 import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, SparktaConfig}
 import com.typesafe.config.ConfigValueFactory
 import org.apache.commons.io.FileUtils
@@ -114,6 +116,8 @@ trait SparktaATSuite
     CuratorFactoryHolder.getInstance(clusterZkConfig)
 
     SparktaConfig.sparktaHome = getSparktaHome
+    JarsHelper.findJarsByPath(
+      new File(SparktaConfig.sparktaHome, AppConstant.JarPluginsFolder), Some("-plugin.jar"))
 
     val sparktaPort = SparktaConfig.apiConfig.get.getInt("port")
 
@@ -167,7 +171,7 @@ trait SparktaATSuite
       pipeline(Post(s"http://${Localhost}:${SparktaPort}/policyContext",
         HttpEntity(ContentType(MediaTypes.`application/json`, HttpCharsets.`UTF-8`), policy)))
 
-    val response: HttpResponse = Await.result(promise, Timeout(5.seconds).duration)
+    val response: HttpResponse = Await.result(promise, Timeout(10.seconds).duration)
 
     response.status should be(OK)
     sleep(PolicySleep)
@@ -215,6 +219,7 @@ trait SparktaATSuite
 
   override def afterAll {
     zookeeperStop
+    deletePath(CheckpointPath)
     deletePath(LogsPath)
     deletePath(DataPath)
     extraAfter
@@ -234,7 +239,9 @@ trait SparktaATSuite
 
   def pathToPolicy: String = policy.getPath
 
-  def policyDto: AggregationPoliciesModel = {
-    parse(policy.openStream()).extract[AggregationPoliciesModel]
+  def policyDto: CommonPoliciesModel = {
+    ParseAggregationToCommonModel
+      .parsePolicyToCommonPolicy(parse(policy.openStream()).extract[AggregationOldPoliciesModel])
+
   }
 }

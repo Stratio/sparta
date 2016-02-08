@@ -19,7 +19,7 @@ package com.stratio.sparkta.driver.test
 import com.stratio.sparkta.driver.SparktaJob
 import com.stratio.sparkta.driver.util.ReflectionUtils
 import com.stratio.sparkta.sdk.{Event, Input, JsoneyString, Parser}
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyElementModel}
+import com.stratio.sparkta.serving.core.models.{CommonPoliciesModel, PolicyElementModel}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.junit.runner.RunWith
@@ -33,7 +33,7 @@ import scala.util.{Failure, Try}
 @RunWith(classOf[JUnitRunner])
 class SparktaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
-  val aggModel: AggregationPoliciesModel = mock[AggregationPoliciesModel]
+  val aggModel: CommonPoliciesModel = mock[CommonPoliciesModel]
 
   val method: String = "getSparkConfiguration"
 

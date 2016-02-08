@@ -35,7 +35,8 @@ with MockitoSugar {
   "SchemaHelperTest" should "return a list of schemas" in new CommonValues {
     val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1),
       Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)))
-    val cubeModel = CubeModel(cubeName, checkpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model))
+    val cubeModel = CommonCubeModel(
+      cubeName, checkpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model))
     val cubes = Seq(cube)
     val cubesModel = Seq(cubeModel)
     val tableSchema = TableSchema(
@@ -55,7 +56,8 @@ with MockitoSugar {
 
   "SchemaFactorySpec" should "return a list of schemas without time" in new CommonValues {
     val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), None)
-    val cubeModel = CubeModel(cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model))
+    val cubeModel = CommonCubeModel(
+      cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model))
     val cubes = Seq(cube)
     val cubesModel = Seq(cubeModel)
     val tableSchema = TableSchema(
@@ -75,7 +77,8 @@ with MockitoSugar {
   "SchemaFactorySpec" should "return a list of schemas with id" in new CommonValues {
     val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), None)
     val cubeModel =
-      CubeModel(cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModelId)
+      CommonCubeModel(
+        cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModelId)
     val cubes = Seq(cube)
     val cubesModel = Seq(cubeModel)
     val tableSchema = TableSchema(
@@ -98,7 +101,8 @@ with MockitoSugar {
   "SchemaFactorySpec" should "return a list of schemas with field id" in new CommonValues {
     val cube = Cube(cubeName, Seq(dim1, dimId), Seq(op1), None)
     val cubeModel =
-      CubeModel(cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModelId)
+      CommonCubeModel(
+        cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModelId)
     val cubes = Seq(cube)
     val cubesModel = Seq(cubeModel)
     val tableSchema = TableSchema(
@@ -120,7 +124,7 @@ with MockitoSugar {
   "SchemaFactorySpec" should "return a list of schemas with field id but not in writer" in new CommonValues {
     val cube = Cube(cubeName, Seq(dim1, dimId), Seq(op1), None)
     val cubeModel =
-      CubeModel(cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model))
+      CommonCubeModel(cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model))
     val cubes = Seq(cube)
     val cubesModel = Seq(cubeModel)
     val tableSchema = TableSchema(
@@ -143,7 +147,7 @@ with MockitoSugar {
     new CommonValues {
       val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1),
         Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)))
-      val cubeModel = CubeModel(cubeName,
+      val cubeModel = CommonCubeModel(cubeName,
         checkpointModel,
         Seq(dimension1Model, dimension2Model),
         Seq(operator1Model),
@@ -173,7 +177,7 @@ with MockitoSugar {
     new CommonValues {
       val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1),
         Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)))
-      val cubeModel = CubeModel(cubeName,
+      val cubeModel = CommonCubeModel(cubeName,
         checkpointModel,
         Seq(dimension1Model, dimension2Model),
         Seq(operator1Model),
@@ -240,21 +244,21 @@ with MockitoSugar {
     val dim2: Dimension = Dimension("dim2", "field2", "", new DimensionTypeTest)
     val dimId: Dimension = Dimension("id", "field2", "", new DimensionTypeTest)
     val op1: Operator = new OperatorTest("op1", Map())
-    val dimension1Model = DimensionModel(
+    val dimension1Model = CommonDimensionModel(
       "dim1",
       "field1",
       DimensionType.IdentityName,
       DimensionType.DefaultDimensionClass,
       Some(Map())
     )
-    val dimension2Model = DimensionModel(
+    val dimension2Model = CommonDimensionModel(
       "dim2",
       "field2",
       DimensionType.IdentityName,
       DimensionType.DefaultDimensionClass,
       Some(Map())
     )
-    val dimensionId = DimensionModel(
+    val dimensionId = CommonDimensionModel(
       "id",
       "field2",
       DimensionType.IdentityName,
@@ -263,8 +267,8 @@ with MockitoSugar {
     )
     val operator1Model = OperatorModel("Count", "op1", Map())
     val output1Model = PolicyElementModel("outputName", "MongoDb", Map())
-    val checkpointModel = CheckpointModel("minute", checkpointGranularity, None, 10000)
-    val noCheckpointModel = CheckpointModel("none", checkpointGranularity, None, 10000)
+    val checkpointModel = CommonCheckpointModel("minute", checkpointGranularity, None, Some("10000"))
+    val noCheckpointModel = CommonCheckpointModel("none", checkpointGranularity, None, Some("10000"))
     val writerModelId = Option(WriterModel(Seq("outputName"), None, None, Option(true)))
     val writerModelTimeDate = Option(WriterModel(Seq("outputName"), None, Option("date"), Option(true)))
     val writerModelTimeDateAndMeasure =
