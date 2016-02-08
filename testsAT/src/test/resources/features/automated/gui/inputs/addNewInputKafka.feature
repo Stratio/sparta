@@ -81,7 +81,7 @@ Feature: Test adding a new Kafka input in Sparkta GUI
 		When I click on the element on index '0'
 		# Error message should appear
 		Then '1' elements exist with 'css:span[data-qa="fragment-details-kafka-host-0-error-required"]'
-		And '1' elements exist with 'css:span[data-qa="fragment-details-kafka-host-0-error-required"]'
+		And '1' elements exist with 'css:span[data-qa="fragment-details-kafka-port-0-error-required"]'
 		And '1' elements exist with 'css:span[data-qa="fragment-details-kafka-partition-0-error-required"]'
 		
 		# Try with invalid port number
@@ -133,13 +133,13 @@ Feature: Test adding a new Kafka input in Sparkta GUI
 		When I click on the element on index '0'
 		Then I wait '1' second
 		# Fill in name field
-		Given '1' element exists with 'id:dataSourceNameForm'
+		Given '1' element exists with 'css:input[data-qa="fragment-detail-name"]'
 		Then I type 'validKafkaInput' on the element on index '0'
 		# Fill in Group ID
-		Given '1' element exists with 'id:dataSource_GROUP_ID_Form'
+		Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-group-id"]'
 		Then I type 'myGroupID' on the element on index '0'
 		# Fill in Topic
-		Given '1' element exists with 'id:dataSourceForm0-topic'
+		Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-topic-0"]'
 		Then I type 'myTopic' on the element on index '0'
 		# Create
 		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
