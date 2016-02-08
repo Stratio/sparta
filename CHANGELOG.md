@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.1 (February 2016)
+
+- New hive format in DateTime parser 
+- Ingestion parser bug fixing
+- User interface bug fixing
+
 ## 0.8.0 (December 2015)
 
 - Solved issue related to PID folder creation.
