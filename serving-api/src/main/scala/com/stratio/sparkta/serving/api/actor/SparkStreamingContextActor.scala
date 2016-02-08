@@ -21,9 +21,7 @@ import scala.collection.JavaConversions
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.duration._
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 import akka.actor.SupervisorStrategy.Escalate
 import akka.actor._
@@ -32,24 +30,17 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.config.Config
 import org.apache.curator.framework.CuratorFramework
-import org.json4s.jackson.Serialization.read
-import org.json4s.jackson.Serialization.write
+import org.json4s.jackson.Serialization.{read, write}
 
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.api.constants.ActorsConstant
-import com.stratio.sparkta.serving.core.CuratorFactoryHolder
-import com.stratio.sparkta.serving.core.SparktaConfig
+import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, SparktaConfig}
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.exception.ServingCoreException
-import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
-import com.stratio.sparkta.serving.core.models.PolicyStatusModel
-import com.stratio.sparkta.serving.core.models.SparktaSerializer
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.FindAll
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Response
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{FindAll, Response, Update}
+import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 
 class SparkStreamingContextActor(streamingContextService: StreamingContextService,
                                  policyStatusActor: ActorRef, curatorFramework: CuratorFramework) extends Actor
@@ -100,22 +91,23 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
     policy
   }
 
+  def createNewPolicy(policy: AggregationPoliciesModel): AggregationPoliciesModel =
+    existsByName(policy.name) match {
+      case true => log.error(s"${policy.name} already exists. Try deleting first or choosing another name.")
+        throw new RuntimeException(s"${policy.name} already exists")
+      case false => launchNewPolicy(policy)
+    }
+
   /**
    * Tries to create a spark streaming context with a given configuration.
    *
    * @param policy that contains the configuration to run.
    */
-  private def create(policy: AggregationPoliciesModel): Try[AggregationPoliciesModel] = Try {
-    if (policy.id.isDefined)
-      launch(policy)
-    else {
-      if (existsByName(policy.name)) {
-        log.error(s"${policy.name} already exists. Try deleting first or choosing another name.")
-        throw new RuntimeException(s"${policy.name} already exists")
-      }
-      launchNewPolicy(policy)
-    }
-  }
+  private def create(policy: AggregationPoliciesModel): Try[AggregationPoliciesModel] =
+    Try(policy.id match {
+      case Some(_) => launch(policy)
+      case None => createNewPolicy(policy)
+    })
 
   def existsByName(name: String, id: Option[String] = None): Boolean = {
     val nameToCompare = name.toLowerCase

@@ -70,7 +70,7 @@ with MockitoSugar with SparktaSerializer {
 
     val ServingException = new ServingCoreException(
       ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsTemplatetWithName,
+        new ErrorModel(ErrorModel.CodeNotExistsTemplateWithName,
           "No template of type input  with name templateName.json")))
 
     val templateModel = read[TemplateModel](templateModelJson)

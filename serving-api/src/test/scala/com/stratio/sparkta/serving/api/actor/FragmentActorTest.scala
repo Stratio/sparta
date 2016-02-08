@@ -16,9 +16,13 @@
 
 package com.stratio.sparkta.serving.core.actor
 
-import java.util
-import scala.util.Success
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
+import java.util
+import scala.util.{Try, Success}
+import akka.pattern.ask
+import akka.util.Timeout
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import org.apache.curator.framework.CuratorFramework
@@ -26,7 +30,7 @@ import org.apache.curator.framework.api._
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.apache.zookeeper.data.Stat
 import org.json4s.jackson.Serialization.read
-import org.junit.Ignore
+import org.junit.{Assert, Ignore}
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
@@ -38,12 +42,12 @@ import com.stratio.sparkta.serving.core.models.{FragmentElementModel, SparktaSer
 
 @RunWith(classOf[JUnitRunner])
 class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
-with DefaultTimeout
-with ImplicitSender
-with WordSpecLike
-with Matchers
-with BeforeAndAfterAll
-with MockitoSugar with SparktaSerializer {
+  with DefaultTimeout
+  with ImplicitSender
+  with WordSpecLike
+  with Matchers
+  with BeforeAndAfterAll
+  with MockitoSugar with SparktaSerializer {
 
   trait TestData {
 
@@ -92,6 +96,7 @@ with MockitoSugar with SparktaSerializer {
     val protectedACL = mock[ProtectACLCreateModePathAndBytesable[String]]
     val setDataBuilder = mock[SetDataBuilder]
     val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)))
+    implicit val timeout: Timeout = Timeout(15.seconds)
   }
 
   override def afterAll: Unit = shutdown()
@@ -226,7 +231,7 @@ with MockitoSugar with SparktaSerializer {
 
       fragmentActor ! FragmentActor.Create(fragmentElementModel)
 
-      expectMsg(new ResponseFragment(Success(read[FragmentElementModel](fragment))))
+      expectMsgAnyClassOf(classOf[ResponseFragment])
     }
 
     "create: tries to create a fragment but it is impossible because the fragment exists" in new TestData {

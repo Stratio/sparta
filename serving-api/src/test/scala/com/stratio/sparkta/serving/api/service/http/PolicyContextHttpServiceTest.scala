@@ -20,7 +20,10 @@ import akka.actor.ActorRef
 import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparkta.sdk.exception.MockException
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor
+import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor.Create
 import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.core.actor.FragmentActor
+import com.stratio.sparkta.serving.core.actor.FragmentActor.ResponseFragment
 import com.stratio.sparkta.serving.core.constants.AkkaConstant
 import com.stratio.sparkta.serving.core.models.PolicyStatusModel
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
@@ -115,13 +118,29 @@ with HttpServiceBaseTest {
     }
   }
 
+
   "PolicyContextHttpService.create" should {
     "creates a policy context when the id of the contexts exists" in {
+      val fragmentAutopilot = Option(new TestActor.AutoPilot {
+        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot = {
+          msg match {
+            case FragmentActor.FindByTypeAndId(fragmentType, id) =>
+              sender ! ResponseFragment(Success(getFragmentModel()))
+            case FragmentActor.Create(fragment) => sender ! None
+          }
+          TestActor.KeepRunning
+        }
+      })
+
+      startAutopilot(None, fragmentActorTestProbe, fragmentAutopilot)
       startAutopilot(Success(getPolicyModel()))
+
       Post(s"/${HttpConstant.PolicyContextPath}", getPolicyModel()) ~> routes ~> check {
         testProbe.expectMsgType[SparkStreamingContextActor.Create]
         status should be(StatusCodes.OK)
       }
+
+      fragmentAutopilot.foreach(_.noAutoPilot)
     }
     "return a 500 if there was any error" in {
       startAutopilot(Failure(new MockException))
