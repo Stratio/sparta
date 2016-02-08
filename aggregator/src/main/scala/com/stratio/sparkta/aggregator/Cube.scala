@@ -21,6 +21,7 @@ import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import org.apache.spark.HashPartitioner
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.Duration
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
@@ -37,6 +38,7 @@ import scala.util.Try
 case class Cube(name: String,
                 dimensions: Seq[Dimension],
                 operators: Seq[Operator],
+                initSchema: StructType,
                 expiringDataConfig: Option[ExpiringDataConfig] = None) extends SLF4JLogging {
 
   private val associativeOperators = operators.filter(op => op.isAssociative)

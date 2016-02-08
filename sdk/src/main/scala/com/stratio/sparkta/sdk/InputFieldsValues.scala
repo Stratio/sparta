@@ -16,6 +16,6 @@
 
 package com.stratio.sparkta.sdk
 
-import java.io.{Serializable => JSerializable}
+import org.apache.spark.sql.Row
 
-case class InputFieldsValues(values : Map[String, JSerializable])
+case class InputFieldsValues(row : Row)

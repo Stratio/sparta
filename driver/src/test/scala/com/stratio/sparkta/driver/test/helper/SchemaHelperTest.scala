@@ -53,7 +53,7 @@ with MockitoSugar {
     res should be(Seq(tableSchema))
   }
 
-  "SchemaFactorySpec" should "return a list of schemas without time" in new CommonValues {
+  it should "return a list of schemas without time" in new CommonValues {
     val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), None)
     val cubeModel = CubeModel(cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model))
     val cubes = Seq(cube)
@@ -72,7 +72,7 @@ with MockitoSugar {
     res should be(Seq(tableSchema))
   }
 
-  "SchemaFactorySpec" should "return a list of schemas with id" in new CommonValues {
+  it should "return a list of schemas with id" in new CommonValues {
     val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), None)
     val cubeModel =
       CubeModel(cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModelId)
@@ -95,7 +95,7 @@ with MockitoSugar {
     res should be(Seq(tableSchema))
   }
 
-  "SchemaFactorySpec" should "return a list of schemas with field id" in new CommonValues {
+  it should "return a list of schemas with field id" in new CommonValues {
     val cube = Cube(cubeName, Seq(dim1, dimId), Seq(op1), None)
     val cubeModel =
       CubeModel(cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModelId)
@@ -117,7 +117,7 @@ with MockitoSugar {
     res should be(Seq(tableSchema))
   }
 
-  "SchemaFactorySpec" should "return a list of schemas with field id but not in writer" in new CommonValues {
+  it should "return a list of schemas with field id but not in writer" in new CommonValues {
     val cube = Cube(cubeName, Seq(dim1, dimId), Seq(op1), None)
     val cubeModel =
       CubeModel(cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model))
@@ -139,7 +139,7 @@ with MockitoSugar {
     res should be(Seq(tableSchema))
   }
 
-  "SchemaFactorySpec" should "return a list of schemas with field id and timeDimension with DateFormat" in
+  it should "return a list of schemas with field id and timeDimension with DateFormat" in
     new CommonValues {
       val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1),
         Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)))
@@ -169,7 +169,7 @@ with MockitoSugar {
       res should be(Seq(tableSchema))
     }
 
-  "SchemaFactorySpec" should "return a list of schemas with field id and timeDimension with DateFormat and measure" in
+  it should "return a list of schemas with field id and timeDimension with DateFormat and measure" in
     new CommonValues {
       val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1),
         Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)))
@@ -199,6 +199,23 @@ with MockitoSugar {
 
       res should be(Seq(tableSchema))
     }
+
+
+  it should "return a map with the name of the transformation and the schema" in
+    new CommonValues {
+      val transformationsModel = Seq(transformationModel1, transformationModel2)
+
+      val res = SchemaHelper.getSchemasFromParsers(transformationsModel, Map())
+
+      val expected = Map(
+        "parser1" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType))),
+        "parser2" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType),
+          StructField("field3", StringType), StructField("field4", StringType)))
+      )
+
+      res should be(expected)
+    }
+  
 
   class OperatorTest(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties) {
 
@@ -272,6 +289,26 @@ with MockitoSugar {
     val checkpointAvailable = 60000
     val checkpointGranularity = "minute"
     val cubeName = "cubeTest"
+
+    val outputFieldModel1 = OutputFieldsModel("field1", "long")
+    val outputFieldModel2 = OutputFieldsModel("field2", "int")
+    val outputFieldModel3 = OutputFieldsModel("field3", "fake")
+    val outputFieldModel4 = OutputFieldsModel("field4", "string")
+    val transformationModel1 = TransformationsModel(
+      "parser1",
+      "Parser",
+      0,
+      Input.RawDataKey,
+      Seq(outputFieldModel1, outputFieldModel2))
+
+    val transformationModel2 = TransformationsModel(
+      "parser2",
+      "Parser",
+      1,
+      "field1",
+      Seq(outputFieldModel3, outputFieldModel4))
+
+
   }
 
 }

@@ -22,6 +22,8 @@ import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.models._
 import org.apache.spark.sql.types._
 
+import scala.annotation.tailrec
+
 object SchemaHelper {
 
   final val Default_Precision = 10
@@ -45,6 +47,48 @@ object SchemaHelper {
     TypeOp.String -> StringType,
     TypeOp.MapStringLong -> MapType(StringType, LongType)
   )
+
+  val mapStringTypes = Map(
+    "long" -> LongType,
+    "double" -> DoubleType,
+    "bigdecimal" -> DecimalType(Default_Precision, Default_Scale),
+    "int" -> IntegerType,
+    "integer" -> IntegerType,
+    "bool" -> BooleanType,
+    "boolean" -> BooleanType,
+    "date" -> DateType,
+    "datetime" -> TimestampType,
+    "timestamp" -> TimestampType,
+    "arraydouble" -> ArrayType(DoubleType),
+    "arraystring" -> ArrayType(StringType),
+    "string" -> StringType,
+    "text" -> StringType,
+    "mapstringlong" -> MapType(StringType, LongType)
+  )
+
+  def getSchemasFromParsers(transformationsModel: Seq[TransformationsModel],
+                            initSchema: Map[String, StructType]): Map[String, StructType] = {
+    initSchema ++ searchSchemasFromParsers(transformationsModel, initSchema)
+  }
+
+  private def searchSchemasFromParsers(transformationsModel: Seq[TransformationsModel],
+                                       schemas: Map[String, StructType]): Map[String, StructType] = {
+    transformationsModel.headOption match {
+      case Some(transformationModel) =>
+        val schema = transformationModel.outputFields.map(outputField =>
+          outputField.name -> StructField(outputField.name,
+            mapStringTypes.getOrElse(outputField.`type`.toLowerCase, StringType),
+            Nullable
+          )
+        )
+        val fields = schemas.values.flatMap(structType => structType.fields) ++
+          schema.map { case (key, value) => value }
+        val schemaTuple = Map(transformationModel.name -> StructType(fields.toSeq))
+
+        schemas ++ searchSchemasFromParsers(transformationsModel.drop(1), schemaTuple)
+      case None => schemas
+    }
+  }
 
   def getSchemasFromCubes(cubes: Seq[Cube],
                           cubeModels: Seq[CubeModel],

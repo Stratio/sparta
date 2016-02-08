@@ -19,9 +19,12 @@ package com.stratio.sparkta.sdk
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
+import org.apache.spark.sql.types.StructType
 
-abstract class OperatorEntityCount(name: String, properties: Map[String, JSerializable])
-  extends Operator(name, properties) {
+abstract class OperatorEntityCount(name: String,
+                                   schema: StructType,
+                                   properties: Map[String, JSerializable])
+  extends Operator(name, schema, properties) {
 
   val split = if (properties.contains("split")) Some(properties.getString("split")) else None
 
@@ -29,13 +32,13 @@ abstract class OperatorEntityCount(name: String, properties: Map[String, JSerial
     if (properties.contains("replaceRegex")) Some(properties.getString("replaceRegex")) else None
 
   override def processMap(inputFieldsValues: InputFieldsValues): Option[Seq[String]] = {
-    if (inputField.isDefined && inputFieldsValues.values.contains(inputField.get))
-      applyFilters(inputFieldsValues.values)
+    if (inputField.isDefined && schema.fieldNames.contains(inputField.get))
+      applyFilters(inputFieldsValues.row)
         .flatMap(filteredFields => filteredFields.get(inputField.get).map(applySplitters))
     else None
   }
 
-  private def applySplitters(value: JSerializable): Seq[String] = {
+  private def applySplitters(value: Any): Seq[String] = {
     val replacedValue = applyReplaceRegex(value.toString)
     if (split.isDefined) replacedValue.split(split.get) else Seq(replacedValue)
   }
