@@ -54,7 +54,7 @@ class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging wi
       read[TemplateModel](getInputStreamFromResource(s"templates/${t}/${name.toLowerCase}.json"))
     }).recover {
       case e: NullPointerException => throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsTemplatetWithName, s"No template of type $t  with name ${name}.json")
+        new ErrorModel(ErrorModel.CodeNotExistsTemplateWithName, s"No template of type $t  with name ${name}.json")
       ))
     })
 

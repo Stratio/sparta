@@ -45,7 +45,7 @@ trait AppStatusHttpService extends BaseHttpService {
         complete {
           if (!curatorInstance.getZookeeperClient.getZooKeeper.getState.isConnected)
             throw new ServingCoreException(ErrorModel.toString(
-              new ErrorModel(ErrorModel.CodeUnknow, s"Zk isn't connected at" +
+              new ErrorModel(ErrorModel.CodeUnknown, s"Zk isn't connected at" +
                 s" ${curatorInstance.getZookeeperClient.getCurrentConnectionString}.")
             ))
           else "OK"
