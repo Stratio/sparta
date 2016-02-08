@@ -538,7 +538,8 @@
         "qa": "fragment-details-redis-port"
       }
     ]
-  },{
+  },
+  {
   "name": "Kafka",
   "modelType": "Kafka",
   "description": {
@@ -622,5 +623,26 @@
       "qa": "fragment-details-kafka-batch-num-messages"
     }
   ]
-}
+  },
+  {
+    "name": "Jdbc",
+    "modelType": "Jdbc",
+    "description": {
+      "short": "With one jdbc connection is possible to write data into SQL Databases.",
+      "long": "With one jdbc connection is possible to write data into SQL Databases. Using the generic implementation provided by Spark Datasources Api.",
+      "learnMore": "http://spark.apache.org/docs/latest/sql-programming-guide.html#data-sources"
+    },
+    "properties": [
+      {
+        "propertyId": "url",
+        "propertyName": "_JDBC_URL_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "jdbc:postgresql:dbserver",
+        "required": true,
+        "tooltip": "Url to connect to one relational Database with jdbc",
+        "qa": "fragment-details-jdbc-url"
+      }
+    ]
+  }
 ]
