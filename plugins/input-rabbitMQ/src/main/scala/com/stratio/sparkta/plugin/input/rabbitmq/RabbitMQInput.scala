@@ -19,6 +19,7 @@ package com.stratio.sparkta.plugin.input.rabbitmq
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.receiver.RabbitMQUtils
+import org.apache.spark.sql.Row
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
@@ -38,30 +39,30 @@ class RabbitMQInput(properties: Map[String, JSerializable]) extends Input(proper
   val RabbitMQPort = properties.getString("port", DefaultRabbitMQPort).toInt
   val ExchangeName = properties.getString("exchangeName", "")
 
-  override def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
+  def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
     RoutingKeys match {
       case Seq() => createStreamFromAQueue(ssc, sparkStorageLevel)
       case _ => createStreamFromRoutingKeys(ssc, sparkStorageLevel)
     }
   }
 
-  private def createStreamFromRoutingKeys(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
+  private def createStreamFromRoutingKeys(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
     RabbitMQUtils.createStreamFromRoutingKeys(ssc,
       RabbitMQHost,
       RabbitMQPort,
       ExchangeName,
       RoutingKeys,
       storageLevel(sparkStorageLevel))
-      .map(data => new Event(Map(RawDataKey -> data.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
+      .map(data => Row(data))
   }
 
-  private def createStreamFromAQueue(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
+  private def createStreamFromAQueue(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
     RabbitMQUtils.createStreamFromAQueue(ssc,
       RabbitMQHost,
       RabbitMQPort,
       RabbitMQQueueName,
       storageLevel(sparkStorageLevel))
-      .map(data => new Event(Map(RawDataKey -> data.getBytes("UTF-8").asInstanceOf[java.io.Serializable])))
+      .map(data => Row(data))
   }
 
   def getRabbitRoutingKeys(key: String): Seq[String] = {

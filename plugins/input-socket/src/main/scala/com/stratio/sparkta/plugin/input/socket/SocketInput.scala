@@ -30,7 +30,7 @@ class SocketInput(properties: Map[String, JSerializable]) extends Input(properti
   private val hostname : String = properties.getString("hostname")
   private val port : Int = properties.getInt("port")
 
-  override def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
+  def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
     ssc.socketTextStream(
       hostname,
       port,

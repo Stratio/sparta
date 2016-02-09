@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.plugin.input.websocket
 
 import java.io.{Serializable => JSerializable}
@@ -20,14 +21,15 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparkta.sdk.Input._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.{Event, Input}
+import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
 class WebSocketInput(properties: Map[String, JSerializable]) extends Input(properties) {
 
-  override def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
-    ssc.receiverStream(new WebSocketReceiver(properties.getString("url"), storageLevel(sparkStorageLevel))).map(data =>
-      new Event(Map(RawDataKey -> data.asInstanceOf[JSerializable])))
+  def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
+    ssc.receiverStream(new WebSocketReceiver(properties.getString("url"), storageLevel(sparkStorageLevel)))
+      .map(data => Row(data))
   }
 
 }

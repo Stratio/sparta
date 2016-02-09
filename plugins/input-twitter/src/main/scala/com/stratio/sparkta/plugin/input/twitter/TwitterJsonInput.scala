@@ -22,6 +22,7 @@ import com.google.gson.Gson
 import com.stratio.sparkta.sdk.Input._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.{Event, Input}
+import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.twitter.TwitterUtils
@@ -51,12 +52,11 @@ class TwitterJsonInput(properties: Map[String, JSerializable]) extends Input(pro
   }
   val search = terms.getOrElse(trends.toSeq)
 
-  override def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
-    TwitterUtils.createStream(ssc, None, search, storageLevel(sparkStorageLevel)).map(d => {
+  def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
+    TwitterUtils.createStream(ssc, None, search, storageLevel(sparkStorageLevel))
+      .map(stream => {
       val gson = new Gson()
-      new Event(
-        Map(RawDataKey -> gson.toJson(d.asInstanceOf[JSerializable])
-          .asInstanceOf[JSerializable]))
+      Row(gson.toJson(stream))
     }
     )
   }
