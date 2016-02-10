@@ -18,22 +18,23 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
-
 abstract class Parser(name: String,
                       order: Integer,
                       inputField: String,
                       outputFields: Seq[String],
-                      properties: Map[String, JSerializable]) extends Parameterizable(properties) {
+                      properties: Map[String, JSerializable]) extends Parameterizable(properties) with Ordered[Parser] {
 
   def parse(data: Event): Event
 
   def getOrder: Integer = order
 
-  def checkFields(keyMap: Map[String, JSerializable]) : Map[String, JSerializable] =
-    keyMap.flatMap(key => if(outputFields.contains(key._1)) Some(key) else None)
+  def checkFields(keyMap: Map[String, JSerializable]): Map[String, JSerializable] =
+    keyMap.flatMap(key => if (outputFields.contains(key._1)) Some(key) else None)
 
+  def compare(that: Parser): Int = this.getOrder.compareTo(that.getOrder)
 }
 
 object Parser {
+
   final val ClassSuffix = "Parser"
 }

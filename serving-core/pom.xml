@@ -111,5 +111,9 @@
             <artifactId>spray-routing_${scala.binary.version}</artifactId>
             <version>${spray.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.stratio.common</groupId>
+            <artifactId>common-utils</artifactId>
+        </dependency>
     </dependencies>
 </project>

@@ -16,19 +16,26 @@
 
 package com.stratio.sparkta.driver.test
 
-import com.stratio.sparkta.driver.SparktaJob
-import com.stratio.sparkta.driver.util.ReflectionUtils
-import com.stratio.sparkta.sdk.{Event, Input, JsoneyString, Parser}
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyElementModel}
+import scala.util.Failure
+import scala.util.Try
+
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{FlatSpec, ShouldMatchers}
+import org.scalatest.FlatSpec
+import org.scalatest.ShouldMatchers
 
-import scala.util.{Failure, Try}
+import com.stratio.sparkta.driver.SparktaJob
+import com.stratio.sparkta.driver.util.ReflectionUtils
+import com.stratio.sparkta.sdk.Event
+import com.stratio.sparkta.sdk.Input
+import com.stratio.sparkta.sdk.JsoneyString
+import com.stratio.sparkta.sdk.Parser
+import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.PolicyElementModel
 
 @RunWith(classOf[JUnitRunner])
 class SparktaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
@@ -40,6 +47,20 @@ class SparktaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
   val suffix: String = "Output"
 
   val myOutput: PolicyElementModel = mock[PolicyElementModel]
+
+  "SparktaJob" should "return configs" in {
+    when(myOutput.`type`).thenReturn("Test")
+    when(aggModel.outputs).thenReturn(Seq(myOutput))
+    val reflecMoc = mock[ReflectionUtils]
+    when(reflecMoc.getClasspathMap).thenReturn(Map("TestOutput" -> "TestOutput"))
+    val result = Try(SparktaJob.getSparkConfigs(aggModel, method, suffix, Some(reflecMoc))) match {
+      case Failure(ex) => {
+        ex
+      }
+    }
+    result.isInstanceOf[ClassNotFoundException] should be(true)
+  }
+
 
   it should "parse a event" in {
     val parser: Parser = mock[Parser]

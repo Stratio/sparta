@@ -17,9 +17,12 @@
 package com.stratio.sparkta.serving.api.helpers
 
 import scala.collection.JavaConversions
-import scala.util.{Failure, Success, Try}
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.ActorSystem
+import akka.actor.Props
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import akka.routing.RoundRobinPool
@@ -32,20 +35,26 @@ import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor._
 import com.stratio.sparkta.serving.core._
 import com.stratio.sparkta.serving.core.actor.FragmentActor
-import com.stratio.sparkta.serving.core.constants.{AkkaConstant, AppConstant}
-import com.stratio.sparkta.serving.core.models.{PolicyStatusModel, SparktaSerializer}
-import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
+import com.stratio.sparkta.serving.core.constants.AkkaConstant
+import com.stratio.sparkta.serving.core.constants.AppConstant
+import com.stratio.sparkta.serving.core.dao.ConfigDAO
+import com.stratio.sparkta.serving.core.dao.ErrorDAO
+import com.stratio.sparkta.serving.core.models.PolicyStatusModel
+import com.stratio.sparkta.serving.core.models.SparktaSerializer
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 
 /**
  * Helper with common operations used to create a Sparkta context used to run the application.
  */
 object SparktaHelper extends SLF4JLogging
-with SparktaSerializer {
+  with SparktaSerializer {
 
   implicit var system: ActorSystem = _
 
   /**
    * Initializes Sparkta's akka system running an embedded http server with the REST API.
+   *
    * @param appName with the name of the application.
    */
 

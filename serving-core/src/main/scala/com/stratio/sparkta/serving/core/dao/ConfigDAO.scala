@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.driver.dao
+package com.stratio.sparkta.serving.core.dao
 
 import com.typesafe.config.Config
 
@@ -23,9 +23,26 @@ import com.stratio.common.utils.components.dao.GenericDAOComponent
 import com.stratio.common.utils.components.logger.impl.Slf4jLoggerComponent
 import com.stratio.sparkta.serving.core.constants.AppConstant
 
-class ZookeeperDAO(conf: Config) extends GenericDAOComponent[String] with TypesafeConfigComponent with
+class ConfigDAO(conf: Config) extends GenericDAOComponent[String] with TypesafeConfigComponent with
   Slf4jLoggerComponent {
 
   override val config = new TypesafeConfig(Option(conf))
   override val dao: DAO = new GenericDAO(Option(AppConstant.ConfigZkPath))
+}
+
+object ConfigDAO {
+
+  private var instance: Option[ConfigDAO] = None
+
+  def getInstance: ConfigDAO = {
+    require(instance.isDefined, "The instance was not created. You need to specify ZookeeperConfig")
+    instance.get
+  }
+
+  def apply(): ConfigDAO = getInstance
+
+  def apply(conf: Config): ConfigDAO = {
+    instance = Some(new ConfigDAO(conf))
+    instance.get
+  }
 }
