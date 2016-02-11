@@ -17,7 +17,6 @@
 package com.stratio.sparkta.serving.core.constants
 
 import com.stratio.sparkta.sdk.Parser
-import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
 
 /**
  * Global constants of the application.

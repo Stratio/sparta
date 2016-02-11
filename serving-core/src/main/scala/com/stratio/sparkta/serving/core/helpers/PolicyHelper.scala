@@ -36,7 +36,7 @@ object PolicyHelper {
    * @param apConfig with the policy.
    * @return a parsed policy with fragments included in input/outputs.
    */
-  def parseFragments(apConfig: AggregationPoliciesModel): AggregationPoliciesModel = {
+  def parseFragments(apConfig: CommonPoliciesModel): CommonPoliciesModel = {
 
     val fragmentInputs = getFragmentFromType(apConfig.fragments, FragmentType.input)
     val fragmentOutputs = getFragmentFromType(apConfig.fragments, FragmentType.output)
@@ -52,9 +52,9 @@ object PolicyHelper {
    * @param apConfig with the policy.
    * @return a fragment with all fields filled.
    */
-  def fillFragments(apConfig: AggregationPoliciesModel,
+  def fillFragments(apConfig: CommonPoliciesModel,
                     actor: ActorRef,
-                    currentTimeout: Timeout): AggregationPoliciesModel = {
+                    currentTimeout: Timeout): CommonPoliciesModel = {
     implicit val timeout = currentTimeout
 
     val currentFragments: Seq[FragmentElementModel] = apConfig.fragments.map(fragment => {

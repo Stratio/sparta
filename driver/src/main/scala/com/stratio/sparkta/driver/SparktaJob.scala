@@ -21,15 +21,12 @@ import scala.util.Try
 import scala.util._
 
 import akka.event.slf4j.SLF4JLogging
-import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
-import org.apache.spark.streaming.Duration
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.json4s.native.Serialization.write
 
 import com.stratio.sparkta.aggregator.Cube
-import com.stratio.sparkta.aggregator.CubeMaker
 import com.stratio.sparkta.aggregator.CubeWriter
 import com.stratio.sparkta.aggregator.WriterOptions
 import com.stratio.sparkta.driver.factory.SparkContextFactory
@@ -42,7 +39,19 @@ import com.stratio.sparkta.serving.core.constants.ErrorCodes
 import com.stratio.sparkta.serving.core.dao.ErrorDAO
 import com.stratio.sparkta.serving.core.models._
 
-class SparktaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
+class SparktaJob(policy: CommonPoliciesModel) extends SLF4JLogging {
+  import java.io._
+
+  import org.apache.spark.SparkContext
+
+  import org.apache.spark.streaming.Duration
+  import org.apache.spark.streaming.StreamingContext
+
+  import com.stratio.sparkta.aggregator.CubeMaker
+
+  import com.stratio.sparkta.driver.factory.SparkContextFactory
+  import com.stratio.sparkta.driver.helper.SchemaHelper
+
 
   private val ReflectionUtils = SparktaJob.ReflectionUtils
 
@@ -71,7 +80,7 @@ object SparktaJob extends SLF4JLogging with SparktaSerializer {
 
   lazy val ReflectionUtils = new ReflectionUtils
 
-  def getSparkConfigs(policy: AggregationPoliciesModel, methodName: String, suffix: String,
+  def getSparkConfigs(policy: CommonPoliciesModel, methodName: String, suffix: String,
                       refUtils: Option[ReflectionUtils] = None): Map[String, String] = {
     log.info("Initializing reflection")
     policy.outputs.flatMap(o => {
@@ -88,7 +97,7 @@ object SparktaJob extends SLF4JLogging with SparktaSerializer {
     }).toMap
   }
 
-  def apply(policy: AggregationPoliciesModel): SparktaJob = new SparktaJob(policy)
+  def apply(policy: CommonPoliciesModel): SparktaJob = new SparktaJob(policy)
 
   def logAndCreateEx(message: String, json: String, ex: Throwable, policyId: String, code: Int):
   IllegalArgumentException = {
@@ -131,7 +140,7 @@ object SparktaJob extends SLF4JLogging with SparktaSerializer {
     }
   }
 
-  def getInput(policy: AggregationPoliciesModel, ssc: StreamingContext,
+  def getInput(policy: CommonPoliciesModel, ssc: StreamingContext,
                refUtils: ReflectionUtils): DStream[Event] = {
     Try(createInput(policy, ssc, refUtils)) match {
       case Success(input) => {
@@ -146,7 +155,7 @@ object SparktaJob extends SLF4JLogging with SparktaSerializer {
     }
   }
 
-  private def createInput(policy: AggregationPoliciesModel, ssc: StreamingContext,
+  private def createInput(policy: CommonPoliciesModel, ssc: StreamingContext,
                           refUtils: ReflectionUtils): DStream[Event] = {
     require(policy.input.isDefined, "You need at least one input in your policy")
     val inputInstance = refUtils.tryToInstantiate[Input](policy.input.get.`type` + Input.ClassSuffix, (c) =>
@@ -154,7 +163,7 @@ object SparktaJob extends SLF4JLogging with SparktaSerializer {
     inputInstance.setUp(ssc, policy.storageLevel.get)
   }
 
-  def getParsers(policy: AggregationPoliciesModel, refUtils: ReflectionUtils): Seq[Parser] =
+  def getParsers(policy: CommonPoliciesModel, refUtils: ReflectionUtils): Seq[Parser] =
     policy.transformations.map(parser => createParser(parser, refUtils, policy.id.get))
 
   private def createParser(model: TransformationsModel, refUtils: ReflectionUtils, policyId: String): Parser = {
@@ -204,7 +213,7 @@ object SparktaJob extends SLF4JLogging with SparktaSerializer {
   def getOperators(operatorsModel: Seq[OperatorModel], refUtils: ReflectionUtils, policyId: String): Seq[Operator] =
     operatorsModel.map(operator => createOperator(operator, refUtils, policyId))
 
-  def getOutputs(policy: AggregationPoliciesModel, cubesOperatorsSchema: Seq[TableSchema], refUtils: ReflectionUtils):
+  def getOutputs(policy: CommonPoliciesModel, cubesOperatorsSchema: Seq[TableSchema], refUtils: ReflectionUtils):
   Seq[Output] = policy.outputs.map(o => {
     val schemasAssociated = cubesOperatorsSchema.filter(tableSchema => tableSchema.outputs.contains(o.name))
     createOutput(o, schemasAssociated, refUtils, policy.version)
@@ -232,12 +241,12 @@ object SparktaJob extends SLF4JLogging with SparktaSerializer {
     }
   }
 
-  def getCubes(policy: AggregationPoliciesModel, refUtils: ReflectionUtils): Seq[Cube] = {
+  def getCubes(policy: CommonPoliciesModel, refUtils: ReflectionUtils): Seq[Cube] = {
     require(policy.cubes.nonEmpty, "You need at least one cube in your policy")
     policy.cubes.map(cube => createCube(cube, refUtils, policy.id.get))
   }
 
-  private def createCube(cube: CubeModel, refUtils: ReflectionUtils, policyId: String): Cube =
+  private def createCube(cube: CommonCubeModel, refUtils: ReflectionUtils, policyId: String): Cube =
     Try({
       val name = cube.name.replaceAll(Output.Separator, "")
       val dimensions = cube.dimensions.map(dimensionDto => {
@@ -272,7 +281,7 @@ object SparktaJob extends SLF4JLogging with SparktaSerializer {
       }
     })
 
-  def saveRawData(policy: AggregationPoliciesModel, input: DStream[Event], sqc: Option[SQLContext] = None): Unit =
+  def saveRawData(policy: CommonPoliciesModel, input: DStream[Event], sqc: Option[SQLContext] = None): Unit =
     if (policy.rawData.enabled.toBoolean) {
       require(!policy.rawData.path.equals("default"), "The parquet path must be set")
       val sqlContext = sqc.getOrElse(SparkContextFactory.sparkSqlContextInstance.get)
@@ -284,7 +293,7 @@ object SparktaJob extends SLF4JLogging with SparktaSerializer {
   def getCubeWriter(cubeName: String,
                     cubes: Seq[Cube],
                     schemas: Seq[TableSchema],
-                    cubeModels: Seq[CubeModel],
+                    cubeModels: Seq[CommonCubeModel],
                     outputs: Seq[Output]): CubeWriter = {
     val cubeWriter = cubes.find(cube => cube.name == cubeName)
       .getOrElse(throw new Exception("Is mandatory one cube in the cube writer"))
@@ -297,7 +306,7 @@ object SparktaJob extends SLF4JLogging with SparktaSerializer {
     CubeWriter(cubeWriter, schemaWriter, writerOp, outputs)
   }
 
-  def getWriterOptions(cubeName: String, outputsWriter: Seq[Output], cubeModel: CubeModel): WriterOptions =
+  def getWriterOptions(cubeName: String, outputsWriter: Seq[Output], cubeModel: CommonCubeModel): WriterOptions =
     cubeModel.writer.fold(WriterOptions(outputsWriter.map(_.name))) { writerModel =>
       val writerOutputs = if (writerModel.outputs.isEmpty) outputsWriter.map(_.name) else writerModel.outputs
       val dateType = Output.getTimeTypeFromString(cubeModel.writer.fold(DefaultTimeStampTypeString) { options =>

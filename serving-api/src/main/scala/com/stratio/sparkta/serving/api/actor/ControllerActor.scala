@@ -56,7 +56,7 @@ with SparktaSerializer {
 
   def getRoutes: Route = webRoutes ~ serviceRoutes.fragmentRoute ~
     serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~
-    serviceRoutes.templateRoute ~ serviceRoutes.AppStatusRoute
+    serviceRoutes.templateRoute ~ serviceRoutes.AppStatusRoute ~ serviceRoutes.policyContextRouteNew
 
   def webRoutes: Route =
     get {
@@ -94,6 +94,12 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   }.routes
 
   val policyContextRoute: Route = new PolicyContextHttpService {
+    implicit val actors = actorsMap
+    override val supervisor = actorsMap.get(AkkaConstant.SparkStreamingContextActor).get
+    override val actorRefFactory: ActorRefFactory = context
+  }.routes
+
+  val policyContextRouteNew: Route = new PolicyContextHttpServiceWorkflow {
     implicit val actors = actorsMap
     override val supervisor = actorsMap.get(AkkaConstant.SparkStreamingContextActor).get
     override val actorRefFactory: ActorRefFactory = context

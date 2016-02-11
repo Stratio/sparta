@@ -1,5 +1,5 @@
 {
-  "name": "Kafka-Mongo-Policy",
+  "name": "Workflow-30s",
   "description": "No description",
   "sparkStreamingWindow": 2000,
   "checkpointPath": "checkpoint",
@@ -66,39 +66,29 @@
   "cubes": [
     {
       "name": "testCube",
-      "checkpointConfig": {
-        "timeDimension": "minute",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
-      },
+      "checkpointEvery": "1h",
       "dimensions": [
         {
           "name": "product",
           "field": "product"
+        },
+        {
+          "name": "timestamp",
+          "field": "timestamp",
+          "type": "DateTime",
+          "precision": "30s",
+          "computeLast": "1h"
+        },
+        {
+          "name": "price",
+          "field": "price"
         }
       ],
       "operators": [
         {
-          "name": "max_price",
-          "type": "Max",
-          "configuration": {
-            "inputField": "price"
-          }
-        },
-        {
-          "name": "min_price",
-          "type": "Min",
-          "configuration": {
-            "inputField": "price"
-          }
-        },
-        {
-          "name": "sum_price",
-          "type": "Sum",
-          "configuration": {
-            "inputField": "price"
-          }
+          "name": "count",
+          "type": "Count",
+          "configuration": {}
         }
       ]
     }
