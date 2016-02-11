@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,7 @@ package com.stratio.sparkta.plugin.output.cassandra
 import java.io.{Serializable => JSerializable}
 
 import com.datastax.spark.connector.cql.CassandraConnector
-import com.stratio.sparkta.sdk.{JsoneyString, TableSchema, TypeOp, WriteOp}
-import org.apache.spark.SparkConf
+import com.stratio.sparkta.sdk._
 import org.apache.spark.sql._
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.junit.runner.RunWith
@@ -29,12 +28,11 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FlatSpec, Matchers}
 
-
 @RunWith(classOf[JUnitRunner])
 class CassandraOutputTest extends FlatSpec with Matchers with MockitoSugar with AnswerSugar {
 
   val s = "sum"
-  val operation = Some(Map(s ->(WriteOp.Inc, TypeOp.Int)))
+  val operation = Option(Map(s ->(WriteOp.Inc, TypeOp.Int)))
   val properties = Map(("connectionHost", "127.0.0.1"), ("connectionPort", "9042"))
 
   "getSparkConfiguration" should "return a Seq with the configuration" in {
@@ -46,37 +44,38 @@ class CassandraOutputTest extends FlatSpec with Matchers with MockitoSugar with 
 
   "doPersist" should "return nothing because DataFramWriter are imposible to mock since it is a final class" in {
 
-    val tableSchema = Seq(TableSchema("outputName", "dim1", StructType(Array(
-      StructField("dim1", StringType, false))), "minute"))
+    val tableSchema = Seq(TableSchema(Seq("outputName"), "dim1", StructType(Array(
+      StructField("dim1", StringType, false))), Option("minute")))
 
-    val out =  spy(new CassandraOutput("key", None, properties, operation, Option(tableSchema)))
+    val out = spy(new CassandraOutput("key", None, properties, tableSchema))
     val df: DataFrame = mock[DataFrame]
 
-    doNothing().when(out).write(df,"tablename")
-    out.upsert(df,"tablename","minute")
+    doNothing().when(out).write(df, "tablename")
+    out.upsert(df, Map(Output.TableNameKey -> "tablename", Output.TimeDimensionKey -> "minute"))
   }
 
   "setup" should "return X" in {
 
-    val tableSchema = Seq(TableSchema("outputName", "dim1", StructType(Array(
-      StructField("dim1", StringType, false))), "minute"))
+    val tableSchema = Seq(TableSchema(Seq("outputName"), "dim1", StructType(Array(
+      StructField("dim1", StringType, false))), Option("minute")))
 
     val cassandraConnector: CassandraConnector = mock[CassandraConnector]
 
-    val out =  new CassandraOutput("key", Some(1), properties, operation, Option(tableSchema)) {
+    val out = new CassandraOutput("key", Option(1), properties, tableSchema) {
       override val textIndexFields = Option(Array("test"))
+
       override def getCassandraConnector(): CassandraConnector = {
         cassandraConnector
       }
     }
-    out.setup
+    out.setup()
   }
 
   "getSparkConfiguration" should "return all cassandra-spark config" in {
     val config: Map[String, JSerializable] = Map(
       ("sparkProperties" -> JsoneyString(
         "[{\"sparkPropertyKey\":\"spark.cassandra.input.fetch.size_in_rows\",\"sparkPropertyValue\":\"2000\"}," +
-        "{\"sparkPropertyKey\":\"spark.cassandra.input.split.size_in_mb\",\"sparkPropertyValue\":\"64\"}]")),
+          "{\"sparkPropertyKey\":\"spark.cassandra.input.split.size_in_mb\",\"sparkPropertyValue\":\"64\"}]")),
       ("anotherProperty" -> "true")
     )
 
@@ -101,6 +100,4 @@ class CassandraOutputTest extends FlatSpec with Matchers with MockitoSugar with 
     sparkConfig.exists(_ == ("spark.cassandra.input.split.size_in_mb" -> "64")) should be(false)
     sparkConfig.exists(_ == ("anotherProperty" -> "true")) should be(false)
   }
-
-
 }

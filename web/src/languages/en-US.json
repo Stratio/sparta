@@ -188,6 +188,7 @@
   "_STATUS_": "Status",
   "_STORAGELEVEL_": "Storage level",
   "_URL_": "Url",
+  "_JDBC_URL_": "url",
   "_OUTPUT_CANNOT_BE_DELETED_": "Output cannot be deleted",
   "_OUTPUT_CANNOT_BE_MODIFIED_": "Output cannot be modified",
   "_INPUT_CANNOT_BE_DELETED_": "Input cannot be deleted",
@@ -261,5 +262,11 @@
   "_POLICY_CUBE_OPERATOR_ERROR_": "There was an error. At least one operator must be created",
   "_POLICY_CUBE_DIMENSION_ERROR_": "There was an error. At least one dimension must be created",
   "_SPARK_PROPERTY_KEY_": "Spark property",
-  "_SPARK_PROPERTY_VALUE_": "Value"
+  "_SPARK_PROPERTY_VALUE_": "Value",
+  "_SERIALIZER_": "Serializer class for messages",
+  "_REQUIRED_ACKS_": "Specify whether kafka producer waits for an acknowledgement from the broker (1), or not (0)",
+  "_KAFKA_HOST_": "Zookeeper host",
+  "_KAFKA_PORT_": "Kafka port",
+  "_PRODUCER_TYPE_": "Producer type (sync/async)",
+  "_BATCH_NUM_MESSAGES_": "Batch num messages"
 }

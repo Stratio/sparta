@@ -1,5 +1,5 @@
 /**
-  * Copyright (C) 2015 Stratio (http://stratio.com)
+  * Copyright (C) 2016 Stratio (http://stratio.com)
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -77,5 +77,6 @@ class ISocketOElasticsearchJsonAT extends SparktaATSuite {
   override def extraAfter: Unit = {
     JVMProcess.shutdown()
     ElasticsearchEmbeddedServer.cleanData
+    deletePath(s"$CheckpointPath/${"ATSocketElasticsearch".toLowerCase}")
   }
 }

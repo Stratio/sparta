@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,16 @@ package com.stratio.sparkta.plugin.output.redis
 import java.io.Serializable
 
 import com.stratio.sparkta.plugin.output.redis.dao.AbstractRedisDAO
+import com.stratio.sparkta.sdk.Output._
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
+import org.apache.spark.sql.types.{StructField, StructType}
+import org.apache.spark.sql.{Row, DataFrame}
 import org.apache.spark.streaming.dstream.DStream
+
+import scala.collection.immutable.Iterable
 
 /**
  * Saves calculated cubes on Redis.
@@ -34,57 +39,48 @@ import org.apache.spark.streaming.dstream.DStream
 class RedisOutput(keyName: String,
                   version: Option[Int],
                   properties: Map[String, Serializable],
-                  operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
-                  bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, version, properties, operationTypes, bcSchema)
+                  schemas: Seq[TableSchema])
+  extends Output(keyName, version, properties, schemas)
   with AbstractRedisDAO with Serializable {
 
   override val hostname = properties.getString("hostname", DefaultRedisHostname)
 
   override val port = properties.getString("port", DefaultRedisPort).toInt
 
-  override def doPersist(stream: DStream[(DimensionValuesTime, MeasuresValues)]): Unit = {
-    persistMetricOperation(stream)
-  }
-
-  /**
-   * Saves in Redis' hash cubes values.
-   * @param metricOperations that will be saved.
-   */
-  override def upsert(metricOperations: Iterator[(DimensionValuesTime, MeasuresValues)]): Unit = {
-    val dimAggGrouped = filterNonEmptyMetricOperations(groupMetricOperationsByHashKey(metricOperations.toList))
-
-    for {
-      (hashKey, dimensionsMeasures) <- dimAggGrouped
-      (dimensionsTime, measures) <- dimensionsMeasures
-      (aggregationName, aggregationValue) <- measures.values
-      currentOperation = operationTypes.get.get(aggregationName).get._1
-    } yield {
-      if (supportedWriteOps.contains(currentOperation)) hset(hashKey, aggregationName, aggregationValue.get)
-      else log.warn(s"Operation $currentOperation not supported in the cube with name $aggregationName")
+  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+    val tableName = getTableNameFromOptions(options)
+    val timeDimension = getTimeFromOptions(options)
+    val schema = dataFrame.schema
+    dataFrame.foreachPartition{ rowList =>
+      rowList.foreach{ row =>
+        val valuesList = getValuesList(row,schema.fieldNames)
+        val hashKey = getHashKeyFromRow(valuesList, schema, timeDimension)
+        getMeasuresFromRow(valuesList, schema, timeDimension).foreach { case (measure, value) =>
+          hset(hashKey, measure.name, value)
+        }
+      }
     }
   }
 
-  def groupMetricOperationsByHashKey(metricOp: List[(DimensionValuesTime, MeasuresValues)])
-  : Map[String, List[(DimensionValuesTime, MeasuresValues)]] = {
-    metricOp.groupBy { case (dimensionsTime, _) => getHashKey(dimensionsTime) }
-  }
+  def getHashKeyFromRow(valuesList: Seq[(String, String)], schema: StructType, timeDimension: Option[String]): String =
+    valuesList.flatMap{ case (key, value) =>
+      val fieldSearch = schema.fields.find(structField =>
+        (!structField.nullable && structField.name == key) ||
+          timeDimension.exists(name => structField.name == name))
+      fieldSearch.map(structField => s"${structField.name}$IdSeparator$value")
+    }.mkString(IdSeparator)
 
-  def filterNonEmptyMetricOperations(metricOp : Map[String, List[(DimensionValuesTime, MeasuresValues)]])
-  : Map[String, List[(DimensionValuesTime, MeasuresValues)]] = {
-    metricOp.filter { case (key, _) => key.nonEmpty }
-  }
-
-  def getHashKey(dimensionsTime: DimensionValuesTime): String = {
-    if (dimensionsTime.dimensionValues.nonEmpty) {
-      val hasValues = dimensionsTime.dimensionValues.exists(dimValue => dimValue.value.toString.nonEmpty)
-      if (hasValues) {
-        dimensionsTime.dimensionValues.map(dimVal =>
-          List(dimVal.getNameDimension, dimVal.value.toString)).flatMap(_.toSeq).mkString(IdSeparator) +
-          IdSeparator + dimensionsTime.timeDimension + IdSeparator + dimensionsTime.time
-      } else ""
-    } else {
-      dimensionsTime.timeDimension + IdSeparator + dimensionsTime.time
+  def getMeasuresFromRow(valuesList: Seq[(String, String)],
+                         schema: StructType,
+                         timeDimension: Option[String]): Seq[(StructField, String)] =
+    valuesList.flatMap{ case (key, value) =>
+      val fieldSearch = schema.fields.find(structField =>
+        structField.nullable &&
+          structField.name == key &&
+          timeDimension.forall(name => structField.name != name))
+      fieldSearch.map(field => (field, value))
     }
-  }
+
+  def getValuesList(row: Row, fieldNames: Array[String]): Seq[(String, String)] =
+    fieldNames.zip(row.toSeq).map{ case (key, value) => (key, value.toString)}.toSeq
 }

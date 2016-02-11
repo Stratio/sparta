@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,13 @@
 
 package com.stratio.sparkta.testat.outputs
 
-import scala.reflect.io.File
-
-import org.apache.spark.SparkContext
+import com.stratio.sparkta.testat.SparktaATSuite
 import org.apache.spark.sql.SQLContext
+import org.apache.spark.{SparkConf, SparkContext}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
-import com.stratio.sparkta.testat.SparktaATSuite
+import scala.reflect.io.File
 
 /**
  * Acceptance test:
@@ -37,6 +36,7 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
 
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-operators.csv").getPath
   override val policyFile = "policies/ISocket-OParquet-operators.json"
+
   val parquetPath = policyDto.outputs(0).configuration("path").toString
   val NumExecutors = 4
   val NumEventsExpected = 8
@@ -44,15 +44,17 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in parquet" in {
       sparktaRunner
-      checkData
+      val conf = new SparkConf().setMaster(s"local[$NumExecutors]").setAppName("ISocketOParquet-operators")
+      val sc = SparkContext.getOrCreate(conf)
+      val sqc = SQLContext.getOrCreate(sc)
+      checkData("testCubeWithTime_v1", sqc)
+      checkData("testCubeWithoutTime_v1", sqc)
     }
 
     // scalastyle:off
-    def checkData(): Unit = {
-      val sc = new SparkContext(s"local[$NumExecutors]", "ISocketOParquet-operators")
-      val sqc = new SQLContext(sc)
-      val df = sqc.read.parquet(parquetPath).toDF
+    def checkData(cubeName: String, sqc: SQLContext): Unit = {
 
+      val df = sqc.read.parquet(parquetPath + s"/$cubeName").toDF
       val mapValues = df.map(row => Map(
         "product" -> row.getString(0),
         "acc_price" -> row.getSeq[String](1),
@@ -105,12 +107,13 @@ class ISocketOParquetOperatorsIT extends SparktaATSuite {
       productB("mode_price") should be(List("1000"))
       productB("entityCount_text") should be(Map("hola" -> 16L, "holo" -> 8L))
       productB("totalEntity_text") should be(24)
-
-      sc.stop()
     }
   }
 
-  override def extraAfter: Unit = File(parquetPath).deleteRecursively
+  override def extraAfter: Unit = {
+    File(parquetPath).deleteRecursively
+    deletePath(s"$CheckpointPath/${"ATSocketParquet".toLowerCase}")
+  }
 
   override def extraBefore: Unit = {}
 }

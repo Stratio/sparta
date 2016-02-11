@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,9 @@ package com.stratio.sparkta.plugin.output.parquet
 import java.sql.Timestamp
 
 import com.github.nscala_time.time.Imports._
+import com.stratio.sparkta.sdk.Output
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.SparkContext
+import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.SQLContext
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -46,38 +47,39 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
 
   trait CommonValues {
 
-    val sqlContext = new SQLContext(sc)
+    val sqlContext = SQLContext.getOrCreate(sc)
 
     import sqlContext.implicits._
 
     val time = new Timestamp(DateTime.now.getMillis)
 
-    val data = sc.parallelize(Seq(Person("Kevin", 18, time), Person("Kira", 21, time), Person("Ariadne", 26, time)))
-      .toDF
+    val data =
+      sc.parallelize(Seq(Person("Kevin", 18, time), Person("Kira", 21, time), Person("Ariadne", 26, time))).toDF
+
     val tmpPath: String = File.makeTemp().name
   }
 
   trait WithEventData extends CommonValues {
 
     val properties = Map("path" -> tmpPath)
-    val output = new ParquetOutput("parquet-test", None, properties, None, None)
+    val output = new ParquetOutput("parquet-test", None, properties, Seq())
   }
 
   trait WithWrongOutput extends CommonValues {
 
-    val output = new ParquetOutput("parquet-test", None, Map(), None, None)
+    val output = new ParquetOutput("parquet-test", None, Map(), Seq())
   }
 
   trait WithoutGranularity extends CommonValues {
 
     val datePattern = "yyyy/MM/dd"
     val properties = Map("path" -> tmpPath, "datePattern" -> datePattern)
-    val output = new ParquetOutput("parquet-test", None, properties, None, None)
+    val output = new ParquetOutput("parquet-test", None, properties, Seq())
     val expectedPath = "/0"
   }
 
   "ParquetOutputIT" should "save a dataframe" in new WithEventData {
-    output.upsert(data, "person", "minute")
+    output.upsert(data, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
     val read = sqlContext.read.parquet(tmpPath).toDF
     read.count should be(3)
     read should be eq (data)
@@ -85,14 +87,17 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
   }
 
   it should "throw an exception when path is not present" in new WithWrongOutput {
-    an[Exception] should be thrownBy output.upsert(data, "person", "minute")
+    an[Exception] should be thrownBy output
+      .upsert(data, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
   }
 }
 
 object ParquetOutputIT {
 
-  def getNewLocalSparkContext(numExecutors: Int = 1, title: String): SparkContext =
-    new SparkContext(s"local[$numExecutors]", title)
+  def getNewLocalSparkContext(numExecutors: Int = 1, title: String): SparkContext = {
+    val conf = new SparkConf().setMaster(s"local[$numExecutors]").setAppName(title)
+    SparkContext.getOrCreate(conf)
+  }
 }
 
 case class Person(name: String, age: Int, minute: Timestamp) extends Serializable

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,12 @@ package com.stratio.sparkta.testat
 import java.io.{File, PrintStream}
 import java.net._
 import java.nio.channels.ServerSocketChannel
-import java.nio.file.{Paths, Files}
+import java.nio.file.{Files, Paths}
 
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
 import com.stratio.sparkta.serving.api.helpers.SparktaHelper
 import com.stratio.sparkta.serving.core.constants.AppConstant
-import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, SparktaConfig}
 import com.typesafe.config.ConfigValueFactory
@@ -63,8 +62,9 @@ trait SparktaATSuite
   val TestServerZKPort = 54646
   val SocketPort = 10666
   val SparktaSleep = 3000
-  val PolicySleep = 30000
+  val PolicySleep = 20000
   val PolicyEndSleep = 30000
+  val CheckSleep = 30000
 
   val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data.csv").getPath
   val CheckpointPath = "checkpoint"
@@ -114,8 +114,6 @@ trait SparktaATSuite
     CuratorFactoryHolder.getInstance(clusterZkConfig)
 
     SparktaConfig.sparktaHome = getSparktaHome
-    JarsHelper.findJarsByPath(
-      new File(SparktaConfig.sparktaHome, AppConstant.JarPluginsFolder), Some("-plugin.jar"))
 
     val sparktaPort = SparktaConfig.apiConfig.get.getInt("port")
 
@@ -201,14 +199,9 @@ trait SparktaATSuite
       sendDataToSparkta(PathToCsv)
       sleep(PolicyEndSleep)
       closeSocket
-      SparktaHelper.shutdown
+      SparktaHelper.shutdown(false)
+      sleep(CheckSleep)
     }
-  }
-
-  before {
-    zookeeperStart
-    socketStart
-    extraBefore
   }
 
   def deletePath(path: String): Unit = {
@@ -222,10 +215,15 @@ trait SparktaATSuite
 
   override def afterAll {
     zookeeperStop
-    deletePath(CheckpointPath)
     deletePath(LogsPath)
     deletePath(DataPath)
     extraAfter
+  }
+
+  override def beforeAll: Unit = {
+    zookeeperStart
+    socketStart
+    extraBefore
   }
 
   def extraBefore: Unit

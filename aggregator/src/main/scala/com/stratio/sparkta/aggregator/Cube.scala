@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,16 @@
 
 package com.stratio.sparkta.aggregator
 
-import scala.util.Try
-
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.serving.core.SparktaConfig
+import com.stratio.sparkta.serving.core.constants.AppConstant
 import org.apache.spark.HashPartitioner
 import org.apache.spark.streaming.Duration
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
-import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.SparktaConfig
-import com.stratio.sparkta.serving.core.constants.AppConstant
+import scala.util.Try
 
 /**
  * Use this class to describe a cube that you want the multicube to keep.
@@ -38,10 +37,7 @@ import com.stratio.sparkta.serving.core.constants.AppConstant
 case class Cube(name: String,
                 dimensions: Seq[Dimension],
                 operators: Seq[Operator],
-                checkpointTimeDimension: String,
-                checkpointInterval: Int,
-                checkpointGranularity: String,
-                checkpointTimeAvailability: Long) extends SLF4JLogging {
+                expiringDataConfig: Option[ExpiringDataConfig] = None) extends SLF4JLogging {
 
   private val associativeOperators = operators.filter(op => op.isAssociative)
   private lazy val associativeOperatorsMap = associativeOperators.map(op => op.key -> op).toMap
@@ -76,8 +72,7 @@ case class Cube(name: String,
       case (Some(associativeValues), Some(nonAssociativeValues)) =>
         associativeValues.cogroup(nonAssociativeValues)
           .mapValues { case (associativeAggregations, nonAssociativeAggregations) => MeasuresValues(
-            (associativeAggregations.flatMap(_.values) ++ nonAssociativeAggregations.flatMap(_.values))
-              .toMap)
+            (associativeAggregations.flatMap(_.values) ++ nonAssociativeAggregations.flatMap(_.values)).toMap)
           }
       case (Some(associativeValues), None) => associativeValues
       case (None, Some(nonAssociativeValues)) => nonAssociativeValues
@@ -93,31 +88,47 @@ case class Cube(name: String,
 
   protected def filterDimensionValues(dimensionValues: DStream[(DimensionValuesTime, InputFieldsValues)])
   : DStream[(DimensionValuesTime, InputFields)] = {
-
     dimensionValues.map { case (dimensionsValuesTime, aggregationValues) =>
       val dimensionsFiltered = dimensionsValuesTime.dimensionValues.filter(dimVal =>
         dimensions.exists(comp => comp.name == dimVal.dimension.name))
 
-      (dimensionsValuesTime.copy(dimensionValues = dimensionsFiltered, timeDimension = checkpointTimeDimension),
-        InputFields(aggregationValues, UpdatedValues))
+      (dimensionsValuesTime.copy(dimensionValues = dimensionsFiltered), InputFields(aggregationValues, UpdatedValues))
     }
   }
 
-  protected def updateNonAssociativeState(dimensionsValues: DStream[(DimensionValuesTime, InputFields)])
-  : DStream[(DimensionValuesTime, Seq[Aggregation])] = {
+  private def updateFuncNonAssociativeWithTime =
+    (iterator: Iterator[(DimensionValuesTime, Seq[InputFields], Option[AggregationsValues])]) => {
 
-    dimensionsValues.checkpoint(new Duration(checkpointInterval))
+    iterator.filter {
+      case (DimensionValuesTime(_, _, Some(timeConfig)), _, _) => timeConfig.eventTime >= dateFromGranularity
+      case (DimensionValuesTime(_, _, None), _, _) => throw new IllegalArgumentException("Time configuration expected")
+    }.flatMap { case (dimensionsKey, values, state) =>
+        updateNonAssociativeFunction(values, state).map(result => (dimensionsKey, result))
+      }
+  }
 
-    val newUpdateFunc = (iterator: Iterator[(DimensionValuesTime, Seq[InputFields], Option[AggregationsValues])]) => {
+  def dateFromGranularity: Long = {
+    DateOperations
+      .dateFromGranularity(DateTime.now(),
+        expiringDataConfig.get.granularity) - expiringDataConfig.get.timeAvailability
+  }
 
-      val eventTime =
-        DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity) - checkpointTimeAvailability
-
-      iterator.filter { case (dimensionValueTime, _, _) => dimensionValueTime.time >= eventTime }
+  private def updateFuncNonAssociativeWithoutTime =
+    (iterator: Iterator[(DimensionValuesTime, Seq[InputFields], Option[AggregationsValues])]) => {
+      iterator
         .flatMap { case (dimensionsKey, values, state) =>
           updateNonAssociativeFunction(values, state).map(result => (dimensionsKey, result))
         }
     }
+
+  protected def updateNonAssociativeState(dimensionsValues: DStream[(DimensionValuesTime, InputFields)])
+  : DStream[(DimensionValuesTime, Seq[Aggregation])] = {
+
+    val newUpdateFunc = expiringDataConfig match {
+      case None => updateFuncNonAssociativeWithoutTime
+      case Some(_) => updateFuncNonAssociativeWithTime
+    }
+
     val valuesCheckpointed = dimensionsValues.updateStateByKey(
       newUpdateFunc, new HashPartitioner(dimensionsValues.context.sparkContext.defaultParallelism), rememberPartitioner)
 
@@ -126,7 +137,6 @@ case class Cube(name: String,
 
   protected def updateNonAssociativeFunction(values: Seq[InputFields], state: Option[AggregationsValues])
   : Option[AggregationsValues] = {
-
     val proccessMapValues = values.flatMap(aggregationsValues =>
       nonAssociativeOperators.map(op => Aggregation(op.key, op.processMap(aggregationsValues.fieldsValues))))
     val lastState = state match {
@@ -149,20 +159,32 @@ case class Cube(name: String,
       MeasuresValues(measures)
     })
 
-  protected def updateAssociativeState(dimensionsValues: DStream[(DimensionValuesTime, AggregationsValues)])
-  : DStream[(DimensionValuesTime, MeasuresValues)] = {
-
-    dimensionsValues.checkpoint(new Duration(checkpointInterval))
-
-    val newUpdateFunc = (iterator: Iterator[(DimensionValuesTime, Seq[AggregationsValues], Option[Measures])]) => {
-
-      val eventTime =
-        DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity) - checkpointTimeAvailability
-
-      iterator.filter { case (dimensionValueTime, _, _) => dimensionValueTime.time >= eventTime }
+  private def updateFuncAssociativeWithTime =
+    (iterator: Iterator[(DimensionValuesTime, Seq[AggregationsValues], Option[Measures])]) => {
+      iterator.filter {
+          case (DimensionValuesTime(_,_, Some(timeConfig)), _, _) => timeConfig.eventTime >= dateFromGranularity
+          case (DimensionValuesTime(_,_, None), _, _) =>
+            throw new IllegalArgumentException("Time configuration expected")
+        }
         .flatMap { case (dimensionsKey, values, state) =>
           updateAssociativeFunction(values, state).map(result => (dimensionsKey, result))
         }
+    }
+
+  private def updateFuncAssociativeWithoutTime =
+    (iterator: Iterator[(DimensionValuesTime, Seq[AggregationsValues], Option[Measures])]) => {
+      iterator
+        .flatMap { case (dimensionsKey, values, state) =>
+          updateAssociativeFunction(values, state).map(result => (dimensionsKey, result))
+        }
+    }
+
+  protected def updateAssociativeState(dimensionsValues: DStream[(DimensionValuesTime, AggregationsValues)])
+  : DStream[(DimensionValuesTime, MeasuresValues)] = {
+
+    val newUpdateFunc = expiringDataConfig match {
+      case None => updateFuncAssociativeWithoutTime
+      case Some(_) => updateFuncAssociativeWithTime
     }
 
     val valuesCheckpointed = dimensionsValues.updateStateByKey(

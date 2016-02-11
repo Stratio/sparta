@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,15 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
-trait ProcessMapAsAny {
+trait OperatorProcessMapAsNumber {
 
   val inputField: Option[String]
 
   def applyFilters(inputFields: Map[String, JSerializable]): Option[Map[String, JSerializable]]
 
-  def processMap(inputFieldsValues: InputFieldsValues): Option[Any] =
-    if (inputField.isDefined && inputFieldsValues.values.contains(inputField.get)) {
-      applyFilters(inputFieldsValues.values).flatMap(filteredFields => Some(filteredFields.get(inputField.get)
-        .get))
-    } else None
+  def processMap(inputFieldsValues: InputFieldsValues): Option[Number] =
+    if (inputField.isDefined && inputFieldsValues.values.contains(inputField.get))
+      applyFilters(inputFieldsValues.values)
+        .flatMap(filteredFields => Operator.getNumberFromSerializable(filteredFields.get(inputField.get).get))
+    else None
 }

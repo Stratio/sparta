@@ -1,7 +1,7 @@
 {
   "name": "ATSocketCSV",
   "description": "No description",
-  "sparkStreamingWindow": 10000,
+  "sparkStreamingWindow": 5000,
   "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
@@ -190,7 +190,6 @@
       "name": "out-csv",
       "type": "Csv",
       "configuration": {
-        "isAutoCalculateId": "false",
         "path": "/tmp/sparkta/operators/csv/",
         "header": "true",
         "delimiter": ","

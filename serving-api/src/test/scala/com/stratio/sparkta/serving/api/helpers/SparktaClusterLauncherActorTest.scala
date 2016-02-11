@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.scalatest.junit.JUnitRunner
  * @author anistal
  */
 @RunWith(classOf[JUnitRunner])
-class SparktaHelperTest extends FlatSpec with MockFactory with ShouldMatchers with Matchers {
+class SparktaClusterLauncherActorTest extends FlatSpec with MockFactory with ShouldMatchers with Matchers {
 
   it should "init SparktaConfig from a file with a configuration" in {
     val config = ConfigFactory.parseString(

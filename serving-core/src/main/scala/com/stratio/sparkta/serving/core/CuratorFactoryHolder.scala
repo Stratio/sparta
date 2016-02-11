@@ -1,5 +1,5 @@
 /**
-  * Copyright (C) 2015 Stratio (http://stratio.com)
+  * Copyright (C) 2016 Stratio (http://stratio.com)
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import scala.util.{Failure, Success, Try}
 object CuratorFactoryHolder extends SLF4JLogging {
 
   private var curatorFramework: Option[CuratorFramework] = None
-  final val ZKConfigPrefix = "zk"
+  final val ZKConfigPrefix = AppConstant.ConfigZookeeper
 
   /**
     * Gets a new instance of a CuratorFramework if it was not created before.
@@ -67,7 +67,7 @@ object CuratorFactoryHolder extends SLF4JLogging {
 
 
           curatorFramework.get.start()
-          log.info(s"Zookeeper connection to $defaultConnectionString was successful.")
+          log.info(s"Zookeeper connection to $defaultConnectionString was STARTED.")
           curatorFramework.get
         } match {
           case Success(curatorFk) => curatorFk

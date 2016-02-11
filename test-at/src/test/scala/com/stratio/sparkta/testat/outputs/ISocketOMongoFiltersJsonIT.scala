@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,8 @@ class ISocketOMongoFiltersJsonIT extends MongoEmbedDatabase with SparktaATSuite 
 
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-filters-json").getPath
   override val policyFile = "policies/ISocket-OMongo-filters-json.json"
-  val TestMongoPort = 60000
+
+  val TestMongoPort = 60001
   var mongoProps: MongodProps = _
   var mongoConnection: MongoConnection = _
 
@@ -45,12 +46,14 @@ class ISocketOMongoFiltersJsonIT extends MongoEmbedDatabase with SparktaATSuite 
     }
 
     def checkMongoData(): Unit = {
-      val mongoColl: MongoCollection = mongoConnection("csvtest")("basic-hashtag")
 
-      val hashtag = mongoColl.find(new BasicDBObject("hashtag", "sparktaHashtag")).next()
-      hashtag.get("count1") should be(1)
+      val mongoColl = mongoConnection("csvtestfilter")("hashtagfilter")
 
       mongoColl.size should be(2)
+
+      val hashtag = mongoColl.find(new BasicDBObject("hashtag", "sparktaHashtag"))
+      val register = hashtag.next()
+      register.get("count1") should be(1)
     }
   }
 
@@ -62,5 +65,6 @@ class ISocketOMongoFiltersJsonIT extends MongoEmbedDatabase with SparktaATSuite 
   override def extraAfter: Unit = {
     mongoConnection.close()
     mongoStop(mongoProps)
+    deletePath(s"$CheckpointPath/${"ATSocketMongoFiltersJSON".toLowerCase}")
   }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import com.stratio.sparkta.serving.core.constants.AppConstant
 object Sparkta extends App with SLF4JLogging {
 
   SparktaConfig.initMainConfig()
+  SparktaConfig.initDAOs
   SparktaConfig.initApiConfig()
   SparktaConfig.initSwaggerConfig()
   SparktaHelper.initAkkaSystem(AppConstant.ConfigAppName)

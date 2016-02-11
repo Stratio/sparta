@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ object SparkContextFactory extends SLF4JLogging {
     synchronized {
       sqlContext match {
         case Some(_) => sqlContext
-        case None => if (sc.isDefined) sqlContext = Some(new SQLContext(sc.get))
+        case None => if (sc.isDefined) sqlContext = Some(SQLContext.getOrCreate(sc.get))
       }
     }
     sqlContext
@@ -58,7 +58,9 @@ object SparkContextFactory extends SLF4JLogging {
     ssc
   }
 
-  def setSparkContext(createdContext: SparkContext): Unit = sc = Some(createdContext)
+  def setSparkContext(createdContext: SparkContext): Unit = sc = Option(createdContext)
+
+  def setSparkStreamingContext(createdContext: StreamingContext): Unit = ssc = Option(createdContext)
 
   private def getNewStreamingContext(batchDuration: Duration, checkpointDir: String): StreamingContext = {
     val ssc = new StreamingContext(sc.get, batchDuration)
@@ -81,14 +83,14 @@ object SparkContextFactory extends SLF4JLogging {
   private def instantiateStandAloneContext(generalConfig: Option[Config],
                                            specificConfig: Map[String, String],
                                            jars: Seq[File]): SparkContext = {
-    sc = Some(new SparkContext(configToSparkConf(generalConfig, specificConfig)))
+    sc = Some(SparkContext.getOrCreate(configToSparkConf(generalConfig, specificConfig)))
     jars.foreach(f => sc.get.addJar(f.getAbsolutePath))
     sc.get
   }
 
   private def instantiateClusterContext(specificConfig: Map[String, String],
                                         jars: Seq[URI]): SparkContext = {
-    sc = Some(new SparkContext(configToSparkConf(None, specificConfig)))
+    sc = Some(SparkContext.getOrCreate(configToSparkConf(None, specificConfig)))
     jars.foreach(f => sc.get.addJar(f.toString))
     sc.get
   }
@@ -102,34 +104,42 @@ object SparkContextFactory extends SLF4JLogging {
           conf.set(e.getKey, generalConfig.get.getString(e.getKey))
       })
     }
-    specificConfig.foreach(e => conf.set(e._1, e._2))
+    specificConfig.foreach { case (key, value) => conf.set(key, value) }
 
     conf
   }
 
-  def destroySparkStreamingContext: Unit = {
+  def destroySparkStreamingContext(): Unit = {
     synchronized {
-      if (ssc.isDefined) {
-        val stopGracefully =
-          Try(SparktaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigStopGracefully)).getOrElse(true)
-        log.info(s"Stopping streamingContext with name: ${ssc.get.sparkContext.appName}")
-        ssc.get.stop(false, stopGracefully)
-        log.info(s"Stopped streamingContext with name: ${ssc.get.sparkContext.appName}")
-        ssc = None
-      } else {
-        log.warn("Cannot destroy Spark Streaming Context")
+      ssc.fold(log.warn("Spark Streaming Context is empty")) { streamingContext =>
+        try {
+          val stopGracefully = Try(SparktaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigStopGracefully))
+            .getOrElse(true)
+          val stopTimeout = Try(SparktaConfig.getDetailConfig.get.getInt(AppConstant.StopTimeout))
+            .getOrElse(AppConstant.DefaultStopTimeout)
+          log.info(s"Stopping streamingContext with name: ${streamingContext.sparkContext.appName}")
+          Try(streamingContext.stop(false, stopGracefully)).getOrElse(streamingContext.stop(false, false))
+          if (streamingContext.awaitTerminationOrTimeout(stopTimeout))
+            log.info(s"Stopped streamingContext with name: ${streamingContext.sparkContext.appName}")
+          else log.info(s"StreamingContext with name: ${streamingContext.sparkContext.appName} not Stopped: timeout")
+        } finally {
+          ssc = None
+        }
       }
     }
   }
 
-  def destroySparkContext: Unit = {
+  def destroySparkContext(): Unit = {
     synchronized {
-      destroySparkStreamingContext
-      if (sc.isDefined) {
-        log.debug("Stopping SparkContext with name: " + sc.get.appName)
-        sc.get.stop()
-        log.debug("Stopped SparkContext with name: " + sc.get.appName)
-        sc = None
+      destroySparkStreamingContext()
+      sc.fold(log.warn("Spark Context is empty")) { sparkContext =>
+        try {
+          log.info("Stopping SparkContext with name: " + sparkContext.appName)
+          sparkContext.stop()
+          log.info("Stopped SparkContext with name: " + sparkContext.appName)
+        } finally {
+          sc = None
+        }
       }
     }
   }

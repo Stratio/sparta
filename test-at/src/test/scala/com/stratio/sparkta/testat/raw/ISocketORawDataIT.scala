@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 
 package com.stratio.sparkta.testat
 
-import scala.io.Source
-import scala.reflect.io.File
-
-import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
+import org.apache.spark.{SparkConf, SparkContext}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+
+import scala.io.Source
+import scala.reflect.io.File
 
 @RunWith(classOf[JUnitRunner])
 class ISocketORawDataIT extends SparktaATSuite {
@@ -30,7 +30,6 @@ class ISocketORawDataIT extends SparktaATSuite {
   val NumExecutors = 4
   val policyFile = "policies/ISocket-ORawData.json"
   val CsvLines = Source.fromFile(PathToCsv).getLines().toList.map(line => line).toSeq.sortBy(_.toString)
-
   val parquetPath = policyDto.rawData.path
 
   "Sparkta" should {
@@ -40,8 +39,9 @@ class ISocketORawDataIT extends SparktaATSuite {
     }
 
     def checkData(): Unit = {
-      val sc = new SparkContext(s"local[$NumExecutors]", "ISocketORawDataAT")
-      val sqc = new SQLContext(sc)
+      val conf = new SparkConf().setMaster(s"local[$NumExecutors]").setAppName("ISocketOParquet-rawData")
+      val sc = SparkContext.getOrCreate(conf)
+      val sqc = SQLContext.getOrCreate(sc)
       val result = sqc.read.parquet(parquetPath)
       result.registerTempTable("rawLines")
 
@@ -50,11 +50,13 @@ class ISocketORawDataIT extends SparktaATSuite {
         .map(_.get(0))
         .toSeq
         .sortBy(_.toString) should be(CsvLines)
-      sc.stop
     }
   }
 
-  override def extraAfter: Unit = File(parquetPath).deleteRecursively
+  override def extraAfter: Unit = {
+    File(parquetPath).deleteRecursively
+    deletePath(s"$CheckpointPath/${"ATRawData".toLowerCase}")
+  }
 
   override def extraBefore: Unit = {}
 }

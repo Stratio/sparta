@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.sdk
+package com.stratio.sparkta.serving.core.models
 
-object OperatorConstants {
-
-  //FIXME: Do we really need this?
-  final val EmptyString = ""
-  final val SpaceSeparator = " "
-  final val Zero = 0
-  final val UnderscoreSeparator = "_"
-}
+case class WriterModel(outputs: Seq[String] = Seq.empty,
+                       fixedMeasure: Option[String] = None,
+                       dateType: Option[String] = None,
+                       isAutoCalculatedId: Option[Boolean] = None)

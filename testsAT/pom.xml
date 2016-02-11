@@ -60,7 +60,7 @@
                         </property>
                     </properties>
                     <argLine>-Xmx1024m -XX:+HeapDumpOnOutOfMemoryError
-                        -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/1.8.2/aspectjweaver-1.8.2.jar</argLine>
+                        -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/1.8.8/aspectjweaver-1.8.8.jar</argLine>
                     <useSystemClassloader>true</useSystemClassloader>
                 </configuration>
             </plugin>

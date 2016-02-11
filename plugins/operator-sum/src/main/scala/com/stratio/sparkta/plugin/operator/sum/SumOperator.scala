@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import com.stratio.sparkta.sdk._
 import scala.util.Try
 
 class SumOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
-with ProcessMapAsNumber with Associative {
+with OperatorProcessMapAsNumber with Associative {
 
   override val defaultTypeOperation = TypeOp.Double
 
@@ -34,13 +34,13 @@ with ProcessMapAsNumber with Associative {
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     Try(Option(getDistinctValues(values.flatten.map(_.asInstanceOf[Number].doubleValue())).sum))
-      .getOrElse(Some(OperatorConstants.Zero.toDouble))
+      .getOrElse(Some(Operator.Zero.toDouble))
   }
 
   def associativity(values: Iterable[(String, Option[Any])]): Option[Double] = {
     val newValues = extractValues(values, None)
 
     Try(Option(transformValueByTypeOp(returnType, newValues.map(_.asInstanceOf[Number].doubleValue()).sum)))
-      .getOrElse(Some(OperatorConstants.Zero.toDouble))
+      .getOrElse(Some(Operator.Zero.toDouble))
   }
 }

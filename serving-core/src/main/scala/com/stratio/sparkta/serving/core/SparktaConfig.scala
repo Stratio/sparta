@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,12 @@ import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.Config
 
 import com.stratio.sparkta.serving.core.constants.AppConstant
+import com.stratio.sparkta.serving.core.dao.ConfigDAO
+import com.stratio.sparkta.serving.core.dao.ErrorDAO
 
 /**
  * Helper with common operations used to create a Sparkta context used to run the application.
+ *
  * @author danielcsant
  */
 object SparktaConfig extends SLF4JLogging {
@@ -36,6 +39,7 @@ object SparktaConfig extends SLF4JLogging {
 
   /**
    * Initializes Sparkta's base path.
+   *
    * @return the object described above.
    */
   var sparktaHome: String = {
@@ -52,8 +56,9 @@ object SparktaConfig extends SLF4JLogging {
 
   /**
    * Initializes base configuration.
+   *
    * @param currentConfig if it is setted the function tries to load a node from a loaded config.
-   * @param node with the node needed to load the configuration.
+   * @param node          with the node needed to load the configuration.
    * @return the loaded configuration.
    */
   def initConfig(node: String,
@@ -112,8 +117,9 @@ object SparktaConfig extends SLF4JLogging {
 
   /**
    * Initializes base configuration.
+   *
    * @param currentConfig if it is setted the function tries to load a node from a loaded config.
-   * @param node with the node needed to load the configuration.
+   * @param node          with the node needed to load the configuration.
    * @return the optional loaded configuration.
    */
   def initOptionalConfig(node: String,
@@ -140,5 +146,11 @@ object SparktaConfig extends SLF4JLogging {
       case Success(config) => Some(config)
       case _ => None
     }
+  }
+
+  def initDAOs: Unit = {
+    val zkConfig = SparktaConfig.getZookeeperConfig.get.atKey("zookeeper")
+    ConfigDAO(zkConfig)
+    ErrorDAO(zkConfig)
   }
 }

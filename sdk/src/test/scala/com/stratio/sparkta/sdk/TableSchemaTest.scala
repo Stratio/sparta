@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,12 @@ class TableSchemaTest extends WordSpec with Matchers {
 
   "TableSchema" should {
 
-    val tableSchema = TableSchema("outputName", "myCube", StructType(Array(
-      StructField("dim1", StringType, false))), "minute")
+    val tableSchema = TableSchema(Seq("outputName"), "myCube", StructType(Array(
+      StructField("dim1", StringType, false))), Some("minute"))
 
     "toString must be " in {
-      val expected = "TableSchema(outputName,myCube,StructType(StructField(dim1,StringType,false)),minute)"
+      val expected = "TableSchema(List(outputName),myCube,StructType(StructField(dim1,StringType,false)),Some(minute)" +
+        ",Timestamp,false)"
       val result = tableSchema.toString
       result should be(expected)
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import akka.actor.{ActorRef, Actor}
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
 import com.stratio.sparkta.serving.core.CuratorFactoryHolder
-import com.stratio.sparkta.serving.core.constants.AppConstant
+import com.stratio.sparkta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparkta.serving.core.models.{PolicyStatusModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor._
 import org.apache.curator.framework.CuratorFramework
@@ -40,22 +40,32 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
     case Create(policyStatus) => sender ! create(policyStatus)
     case Update(policyStatus) => sender ! update(policyStatus)
     case FindAll => findAll
-    case Kill(name) => kill(name)
+    case Kill(name) => sender ! kill(name)
     case AddListener(name, callback) => addListener(name, callback)
   }
 
 
 
-  def kill(policyName: String): Unit = {
-    val SparkStreamingContextActorPrefix: String = "sparkStreamingContextActor"
-    implicit  val timeout:Timeout=Timeout(2L,TimeUnit.SECONDS)
-    val pActor: Option[Try[ActorRef]] = context.
-      actorSelection(s"$SparkStreamingContextActorPrefix-${policyName.replace(" ", "_")}")
-      .resolveOne().value
+  def kill(policyName: String): Boolean = {
+    implicit val timeout:Timeout = Timeout(2L, TimeUnit.SECONDS)
+    val Stopped = true
+    val NotStopped = false
+    val pActor = context.actorSelection(s"${AkkaConstant.SparkStreamingContextActor}-${policyName.replace(" ", "_")}")
+        .resolveOne().value
+
     pActor match {
-      case Some(Success(actor)) => context.stop(actor)
-      case Some(Failure(e)) => log.warn(s"there isn't $policyName actor to kill")
-      case None => log.warn(s"there isn't $policyName actor to kill")
+      case Some(Success(actor)) => {
+        context.stop(actor)
+        Stopped
+      }
+      case Some(Failure(e)) => {
+        log.warn(s"There is no policy actor with name: $policyName actor to kill")
+        NotStopped
+      }
+      case None => {
+        log.warn(s"There is no policy actor with name: $policyName actor to kill")
+        NotStopped
+      }
     }
   }
 
@@ -137,7 +147,9 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
 }
 
 object PolicyStatusActor {
+
   case class Kill(name:String)
+
   case class Update(policyStatus: PolicyStatusModel)
 
   case class Create(policyStatus: PolicyStatusModel)

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,33 +29,37 @@ import scala.collection.JavaConversions._
 import scala.reflect.ClassTag
 
 /**
- * Acceptance test:
- * [Input]: Socket.
- * [Output]: Cassandra.
- * [Operators]: avg, count, firsValue, fullText, lastValue, max,
- * median, min, range, stddev, sum, variance.
- */
+  * Acceptance test:
+  * [Input]: Socket.
+  * [Output]: Cassandra.
+  * [Operators]: avg, count, firsValue, fullText, lastValue, max,
+  * median, min, range, stddev, sum, variance.
+  */
 @RunWith(classOf[JUnitRunner])
 class ISocketOCassandraOperatorsIT extends SparktaATSuite {
 
+  System.setProperty("jna.nosys","true")
+
   override val policyFile = "policies/ISocket-OCassandra-operators.json"
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-operators.csv").getPath
+
   var cluster: Cluster = _
   var session: Session = _
   val CassandraPort = 9142
-
   val NumEventsExpected: Int = 8
 
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in cassandra" in {
       sparktaRunner
-      checkData
+      checkData("testCubeWithTime_v1")
+      checkData("testCubeWithoutTime_v1")
     }
 
-    def checkData: Unit = {
+    def checkData(tableName: String): Unit = {
+
       session = cluster.connect("sparkta")
 
-      val resultProductA: ResultSet = session.execute("select * from testCube_v1 where product = 'producta'")
+      val resultProductA: ResultSet = session.execute(s"select * from $tableName where product = 'producta'")
       val rowProductA = resultProductA.iterator().next()
 
       rowProductA.getDouble("avg_price") should be(639.0d)
@@ -74,7 +78,7 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
       counts should be(Map("hola" -> new lang.Long(16), "holo" -> new lang.Long(8)))
       rowProductA.getInt("totalentity_text") should be(24)
 
-      val resultProductB: ResultSet = session.execute("select * from testCube_v1 where product = 'productb'")
+      val resultProductB: ResultSet = session.execute(s"select * from $tableName where product = 'productb'")
       val rowProductB = resultProductB.iterator().next()
 
       rowProductB.getDouble("avg_price") should be(758.25d)
@@ -104,6 +108,7 @@ class ISocketOCassandraOperatorsIT extends SparktaATSuite {
     session.close()
     cluster.close()
     EmbeddedCassandraServerHelper.cleanEmbeddedCassandra()
+    deletePath(s"$CheckpointPath/${"ATSocketCassandra".toLowerCase}")
   }
 }
 

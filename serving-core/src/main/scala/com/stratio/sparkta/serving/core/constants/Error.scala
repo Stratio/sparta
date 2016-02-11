@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.sdk.test
+package com.stratio.sparkta.serving.core.constants
 
-import java.io.{Serializable => JSerializable}
+object ErrorCodes {
 
-import com.stratio.sparkta.sdk.WriteOp._
-import com.stratio.sparkta.sdk.{EntityCount, WriteOp}
+  object Policy {
 
-class EntityCountMock(name: String, properties: Map[String, JSerializable]) extends EntityCount(name, properties) {
+    val ParsingInput = 1
+    val ParsingParser = 2
+    val ParsingOperator = 3
+    val ParsingCube = 4
+    val ParsingOutput = 5
+  }
 
-  override def processReduce(values: Iterable[Option[Any]]): Option[Any] = values.head
-
-  override def writeOperation: WriteOp = WriteOp.Inc
 }

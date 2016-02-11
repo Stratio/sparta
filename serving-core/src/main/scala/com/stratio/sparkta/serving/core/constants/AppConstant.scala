@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.stratio.sparkta.serving.core.constants
 
 import com.stratio.sparkta.sdk.Parser
+import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
 
 /**
  * Global constants of the application.
@@ -27,24 +28,30 @@ object AppConstant {
   final val ClasspathJarFolder = "repo"
   final val ClusterExecutionJarFolder = "driver"
   final val ExecutionMode = "executionMode"
-  final val DefaultExecutionMode = "local"
   final val ConfigAppName = "sparkta"
   final val ConfigApi = "api"
   final val ConfigHdfs = "hdfs"
   final val ConfigDetail = "config"
   final val ConfigLocal = "local"
-  final val ConfigStandAlone = "standAlone"
+  final val ConfigStandAlone = "standalone"
   final val ConfigMesos = "mesos"
   final val ConfigYarn = "yarn"
   final val ConfigAkka = "akka"
   final val ConfigSwagger = "swagger"
-  final val ConfigZookeeper = "zk"
-  final val BaseZKPath = "/stratio/sparkta"
-  final val PoliciesBasePath = s"${AppConstant.BaseZKPath}/policies"
-  final val ContextPath = s"${AppConstant.BaseZKPath}/contexts"
+  final val ConfigZookeeper = "zookeeper"
+  final val BaseZKPath = "stratio/sparkta"
+  final val ConfigZkPath = s"$BaseZKPath/config"
+  final val PoliciesBasePath = s"/$BaseZKPath/policies"
+  final val ContextPath = s"/$BaseZKPath/contexts"
+  final val ErrorsZkPath = s"$BaseZKPath/error"
   final val ConfigRememberPartitioner = "rememberPartitioner"
   final val DefaultRememberPartitioner = true
   final val ConfigStopGracefully = "stopGracefully"
+  final val StopTimeout = "stopTimeout"
+  final val DefaultStopTimeout = 30000
+
+  // ZK id's
+  final val HdfsID = "hdfs"
 
   //Hdfs Options
   final val HadoopUserName = "hadoopUserName"
@@ -67,11 +74,11 @@ object AppConstant {
 
   //StandAlone
   final val StandAloneSupervise = "supervise"
-  final val StandAloneMasterNode = "master"
-
   //Yarn
   final val YarnQueue = "queue"
-  final val YarnMaster = "master"
+
+  // Common
+  final val Master = "master"
 
   //Zookeeper
   final val ZookeeperConnection = "connectionString"

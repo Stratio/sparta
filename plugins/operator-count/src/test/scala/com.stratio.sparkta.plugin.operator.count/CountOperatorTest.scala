@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,9 +46,9 @@ class CountOperatorTest extends WordSpec with Matchers {
       (Some(CountOperator.One.toLong))
 
       val inputFields2 =
-        new CountOperator("count", Map("distinctFields" -> s"field1${OperatorConstants.UnderscoreSeparator}field2"))
+        new CountOperator("count", Map("distinctFields" -> s"field1${Operator.UnderscoreSeparator}field2"))
       inputFields2.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))).get.toString should be
-      s"field1${OperatorConstants.UnderscoreSeparator}field2"
+      s"field1${Operator.UnderscoreSeparator}field2"
 
       val inputFields3 = new CountOperator("count", Map("distinctFields" -> ""))
       inputFields3.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(Some(CountOperator.One))
@@ -138,27 +138,27 @@ class CountOperatorTest extends WordSpec with Matchers {
       inputFields.processReduce(Seq(Some(1L), Some(1L), None)) should be(Some(2L))
 
       val inputFields2 =
-        new CountOperator("count", Map("distinctFields" -> s"field1${OperatorConstants.UnderscoreSeparator}field2"))
+        new CountOperator("count", Map("distinctFields" -> s"field1${Operator.UnderscoreSeparator}field2"))
       inputFields2.processReduce(Seq(Some("field1_field2"))) should be(Some(CountOperator.One.toLong))
 
       val inputFields3 =
-        new CountOperator("count", Map("distinctFields" -> s"field1${OperatorConstants.UnderscoreSeparator}field2"))
-      inputFields3.processReduce(Seq(Some(s"field1${OperatorConstants.UnderscoreSeparator}field2"),
-        Some(s"field1${OperatorConstants.UnderscoreSeparator}field2"))) should be(Some(CountOperator.One.toLong))
+        new CountOperator("count", Map("distinctFields" -> s"field1${Operator.UnderscoreSeparator}field2"))
+      inputFields3.processReduce(Seq(Some(s"field1${Operator.UnderscoreSeparator}field2"),
+        Some(s"field1${Operator.UnderscoreSeparator}field2"))) should be(Some(CountOperator.One.toLong))
 
       val inputFields4 =
-        new CountOperator("count", Map("distinctFields" -> s"field1${OperatorConstants.UnderscoreSeparator}field2"))
-      inputFields4.processReduce(Seq(Some(s"field1${OperatorConstants.UnderscoreSeparator}field2"),
-        Some(s"field1${OperatorConstants.UnderscoreSeparator}field3"))) should be(Some(2L))
+        new CountOperator("count", Map("distinctFields" -> s"field1${Operator.UnderscoreSeparator}field2"))
+      inputFields4.processReduce(Seq(Some(s"field1${Operator.UnderscoreSeparator}field2"),
+        Some(s"field1${Operator.UnderscoreSeparator}field3"))) should be(Some(2L))
 
       val inputFields5 = new CountOperator("count", Map("typeOp" -> "string"))
       inputFields5.processReduce(Seq(Some(1), Some(1))) should be(Some(2))
 
       val inputFields6 =
-        new CountOperator("count", Map("distinctFields" -> s"field1${OperatorConstants.UnderscoreSeparator}field2"))
-      inputFields6.processReduce(Seq(Some(s"field1${OperatorConstants.UnderscoreSeparator}field2"),
-        Some(s"field1${OperatorConstants.UnderscoreSeparator}field3"),
-        Some(s"field1${OperatorConstants.UnderscoreSeparator}field3"))) should be(Some(2L))
+        new CountOperator("count", Map("distinctFields" -> s"field1${Operator.UnderscoreSeparator}field2"))
+      inputFields6.processReduce(Seq(Some(s"field1${Operator.UnderscoreSeparator}field2"),
+        Some(s"field1${Operator.UnderscoreSeparator}field3"),
+        Some(s"field1${Operator.UnderscoreSeparator}field3"))) should be(Some(2L))
 
       val inputFields7 = new CountOperator("count", Map("typeOp" -> null))
       inputFields7.processReduce(Seq(Some(1), Some(1))) should be(Some(2))

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,99 +17,65 @@
 package com.stratio.sparkta.driver
 
 import java.io._
-import java.nio.file.{Files, Paths}
-import scala.annotation.tailrec
+import scala.util.Try
 import scala.util._
 
 import akka.event.slf4j.SLF4JLogging
-import org.apache.commons.io.FileUtils
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
+import org.apache.spark.streaming.Duration
+import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.streaming.{Duration, StreamingContext}
+import org.json4s.native.Serialization.write
 
-import com.stratio.sparkta.aggregator.{Cube, CubeMaker}
-import com.stratio.sparkta.driver.factory.{SchemaFactory, SparkContextFactory}
+import com.stratio.sparkta.aggregator.Cube
+import com.stratio.sparkta.aggregator.CubeMaker
+import com.stratio.sparkta.aggregator.CubeWriter
+import com.stratio.sparkta.aggregator.WriterOptions
+import com.stratio.sparkta.driver.factory.SparkContextFactory
+import com.stratio.sparkta.driver.helper.SchemaHelper
+import com.stratio.sparkta.driver.helper.SchemaHelper._
 import com.stratio.sparkta.driver.service.RawDataStorageService
 import com.stratio.sparkta.driver.util.ReflectionUtils
-import com.stratio.sparkta.sdk.TypeOp.TypeOp
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, OperatorModel}
+import com.stratio.sparkta.serving.core.constants.ErrorCodes
+import com.stratio.sparkta.serving.core.dao.ErrorDAO
+import com.stratio.sparkta.serving.core.models._
 
-object SparktaJob extends SLF4JLogging {
+class SparktaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
 
-  def runSparktaJob(sc: SparkContext, apConfig: AggregationPoliciesModel): Any = {
-    val checkpointPolicyPath = apConfig.checkpointPath.concat(File.separator).concat(apConfig.name)
-    //FIXME: check the problem in the checkpoint and fault tolerance
-    // deletePreviousCheckpointPath(checkpointPolicyPath)
-    val reflectionUtils = new ReflectionUtils
+  private val ReflectionUtils = SparktaJob.ReflectionUtils
+
+  def run(sc: SparkContext): StreamingContext = {
+    val checkpointPolicyPath = policy.checkpointPath.concat(File.separator).concat(policy.name)
     val ssc = SparkContextFactory.sparkStreamingInstance(
-      new Duration(apConfig.sparkStreamingWindow), checkpointPolicyPath)
-    val inputDStream = SparktaJob.input(apConfig, ssc.get, reflectionUtils)
-    val parsers =
-      SparktaJob.parsers(apConfig, reflectionUtils).sortWith((parser1, parser2) => parser1.getOrder < parser2.getOrder)
-    val cubes = SparktaJob.cubes(apConfig, reflectionUtils)
-    val operatorsKeyOperation: Option[Map[String, (WriteOp, TypeOp)]] = {
-      val opKeyOp = SchemaFactory.operatorsKeyOperation(cubes.flatMap(cube => cube.operators))
-      if (opKeyOp.nonEmpty) Some(opKeyOp) else None
+      new Duration(policy.sparkStreamingWindow), checkpointPolicyPath)
+    val inputDStream = SparktaJob.getInput(policy, ssc.get, ReflectionUtils)
+    val parsers = SparktaJob.getParsers(policy, ReflectionUtils).sorted
+    val cubes = SparktaJob.getCubes(policy, ReflectionUtils)
+    val cubeSchemas = SchemaHelper.getSchemasFromCubes(cubes, policy.cubes, policy.outputs)
+    val outputs = SparktaJob.getOutputs(policy, cubeSchemas, ReflectionUtils)
+    outputs.foreach(output => output.setup())
+    SparktaJob.saveRawData(policy, inputDStream)
+    val dataParsed = SparktaJob.applyParsers(inputDStream, parsers)
+    val dataCube = CubeMaker(cubes).setUp(dataParsed)
+
+    dataCube.foreach { case (cubeName, aggregatedData) =>
+      SparktaJob.getCubeWriter(cubeName, cubes, cubeSchemas, policy.cubes, outputs).write(aggregatedData)
     }
-
-    val outputsSchemaConfig: Seq[(String, Map[String, String])] = apConfig.outputs.map(o =>
-      (o.name, Map(
-        Output.FixedMeasure ->
-          Try(o.configuration.get(Output.FixedMeasure).get.string.split(Output.FixedMeasureSeparator).head)
-            .getOrElse("")
-      )))
-
-    val bcCubeOperatorSchema: Option[Seq[TableSchema]] = {
-      val cubeOpSchema = SchemaFactory.cubesOperatorsSchemas(cubes, outputsSchemaConfig)
-      if (cubeOpSchema.nonEmpty) Option(cubeOpSchema) else None
-    }
-
-    val outputs = SparktaJob.outputs(apConfig, operatorsKeyOperation, bcCubeOperatorSchema, reflectionUtils)
-
-    SparktaJob.saveRawData(apConfig, inputDStream)
-    val parsed = applyParsers(inputDStream, parsers)
-    val dataCube = new CubeMaker(cubes).setUp(parsed)
-    outputs.foreach(_.persist(dataCube))
+    ssc.get
   }
+}
 
-  @tailrec
-  def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
-    parsers.headOption match {
-      case Some(headParser: Parser) =>
-        applyParsers(input.map(event => parseEvent(headParser, event))
-          .flatMap(eventToSeq), parsers.drop(1))
-      case None => input
-    }
-  }
+object SparktaJob extends SLF4JLogging with SparktaSerializer {
 
-  def eventToSeq(e: Option[Event]): Seq[Event] = {
-    e match {
-      case Some(value) => Seq(value)
-      case None => Seq()
-    }
-  }
+  lazy val ReflectionUtils = new ReflectionUtils
 
-  def parseEvent(p: Parser, e: Event): Option[Event] = {
-
-    Try(p.parse(e)) match {
-      case Success(okEvent) => Some(okEvent)
-      case Failure(exception) => {
-        val error = s"Failure[Parser]: ${e.toString} | Message: ${exception.getLocalizedMessage}" +
-          s" | Parser: ${p.getClass.getSimpleName}"
-        log.error(error, exception)
-        None
-      }
-    }
-  }
-
-  def getSparkConfigs(apConfig: AggregationPoliciesModel, methodName: String, suffix: String,
-                      refUtils: ReflectionUtils): Map[String, String] = {
+  def getSparkConfigs(policy: AggregationPoliciesModel, methodName: String, suffix: String,
+                      refUtils: Option[ReflectionUtils] = None): Map[String, String] = {
     log.info("Initializing reflection")
-    apConfig.outputs.flatMap(o => {
-      val clazzToInstance = refUtils.getClasspathMap.getOrElse(o.`type` + suffix, o.`type` + suffix)
+    policy.outputs.flatMap(o => {
+      val clazzToInstance = ReflectionUtils.getClasspathMap.getOrElse(o.`type` + suffix, o.`type` + suffix)
       val clazz = Class.forName(clazzToInstance)
       clazz.getMethods.find(p => p.getName == methodName) match {
         case Some(method) => {
@@ -122,49 +88,157 @@ object SparktaJob extends SLF4JLogging {
     }).toMap
   }
 
-  def input(apConfig: AggregationPoliciesModel, ssc: StreamingContext, refUtils: ReflectionUtils): DStream[Event] = {
-    val inputInstance = refUtils.tryToInstantiate[Input](apConfig.input.get.`type` + Input.ClassSuffix, (c) =>
-      refUtils.instantiateParameterizable[Input](c, apConfig.input.get.configuration))
-    inputInstance.setUp(ssc, apConfig.storageLevel.get)
+  def apply(policy: AggregationPoliciesModel): SparktaJob = new SparktaJob(policy)
+
+  def logAndCreateEx(message: String, json: String, ex: Throwable, policyId: String, code: Int):
+  IllegalArgumentException = {
+    log.error(message)
+    log.error(s"JSON: $json")
+    ex.getCause match {
+      case cause: ClassNotFoundException =>
+        log.error("The component couldn't be found in classpath. Please check the type.")
+    }
+    saveErrorZK(policyId, code)
+    new IllegalArgumentException(message, ex)
   }
 
-  def parsers(apConfig: AggregationPoliciesModel, refUtils: ReflectionUtils): Seq[Parser] =
-    apConfig.transformations.map(parser =>
-      refUtils.tryToInstantiate[Parser](parser.`type` + Parser.ClassSuffix, (c) =>
+  def saveErrorZK(policyId: String, code: Int): Unit = ErrorDAO().dao.create(policyId, code.toString)
+
+  def applyParsers(input: DStream[Event], parsers: Seq[Parser]): DStream[Event] = {
+    if (parsers.isEmpty)
+      input
+    else {
+      input.flatMap(event => executeParsers(event, parsers))
+    }
+  }
+
+  def executeParsers(event: Event, parsers: Seq[Parser]): Option[Event] =
+    parsers.headOption.fold(Option(event)) {
+      parser => {
+        SparktaJob.parseEvent(event, parser).flatMap(eventParsed => executeParsers(eventParsed, parsers.drop(1)))
+      }
+    }
+
+  def parseEvent(event: Event, parser: Parser): Option[Event] = {
+
+    Try(parser.parse(event)) match {
+      case Success(okEvent) => Some(okEvent)
+      case Failure(exception) =>
+        val error = s"Failure[Parser]: ${event.toString} | Message: ${exception.getLocalizedMessage}" +
+          s" | Parser: ${parser.getClass.getSimpleName}"
+        log.error(error, exception)
+        None
+    }
+  }
+
+  def getInput(policy: AggregationPoliciesModel, ssc: StreamingContext,
+               refUtils: ReflectionUtils): DStream[Event] = {
+    Try(createInput(policy, ssc, refUtils)) match {
+      case Success(input) => {
+        log.debug(s"Input: ${policy.input.get.`type`} created correctly.")
+        input
+      }
+      case Failure(ex) => {
+        throw SparktaJob.logAndCreateEx(
+          s"Something gone wrong creating the input: ${policy.input.get.name}. Please re-check the policy.",
+          write(policy.input.get), ex, policy.id.get, ErrorCodes.Policy.ParsingInput)
+      }
+    }
+  }
+
+  private def createInput(policy: AggregationPoliciesModel, ssc: StreamingContext,
+                          refUtils: ReflectionUtils): DStream[Event] = {
+    require(policy.input.isDefined, "You need at least one input in your policy")
+    val inputInstance = refUtils.tryToInstantiate[Input](policy.input.get.`type` + Input.ClassSuffix, (c) =>
+      refUtils.instantiateParameterizable[Input](c, policy.input.get.configuration))
+    inputInstance.setUp(ssc, policy.storageLevel.get)
+  }
+
+  def getParsers(policy: AggregationPoliciesModel, refUtils: ReflectionUtils): Seq[Parser] =
+    policy.transformations.map(parser => createParser(parser, refUtils, policy.id.get))
+
+  private def createParser(model: TransformationsModel, refUtils: ReflectionUtils, policyId: String): Parser = {
+    Try({
+      refUtils.tryToInstantiate[Parser](model.`type` + Parser.ClassSuffix, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
           classOf[Integer],
           classOf[String],
           classOf[Seq[String]],
           classOf[Map[String, Serializable]])
-          .newInstance(parser.name, parser.order, parser.inputField, parser.outputFields, parser.configuration)
-          .asInstanceOf[Parser]))
+          .newInstance(model.name, model.order, model.inputField, model.outputFields, model.configuration)
+          .asInstanceOf[Parser])
+    }
+    ) match {
+      case Success(transformer) => {
+        log.debug(s"Parser: ${model.`type`} created correctly.")
+        transformer
+      }
+      case Failure(ex) => {
+        throw SparktaJob.logAndCreateEx(
+          s"Something gone wrong creating the parser: ${model.`type`}. Please re-check the policy.",
+          write(model), ex, policyId, ErrorCodes.Policy.ParsingParser)
+      }
+    }
+  }
 
-  private def createOperator(operatorModel: OperatorModel, refUtils: ReflectionUtils): Operator =
-    refUtils.tryToInstantiate[Operator](operatorModel.`type` + Operator.ClassSuffix, (c) =>
-      c.getDeclaredConstructor(
-        classOf[String],
-        classOf[Map[String, Serializable]]
-      ).newInstance(operatorModel.name, operatorModel.configuration).asInstanceOf[Operator])
+  private def createOperator(model: OperatorModel, refUtils: ReflectionUtils, policyId: String): Operator =
+    Try(
+      refUtils.tryToInstantiate[Operator](model.`type` + Operator.ClassSuffix, (c) =>
+        c.getDeclaredConstructor(
+          classOf[String],
+          classOf[Map[String, Serializable]]
+        ).newInstance(model.name, model.configuration).asInstanceOf[Operator])
+    ) match {
+      case Success(transformer) => {
+        log.debug(s"Operator: ${model.`type`} created correctly.")
+        transformer
+      }
+      case Failure(ex) => {
+        throw SparktaJob.logAndCreateEx(
+          s"Something gone wrong creating the operator: ${model.`type`}. Please re-check the policy.",
+          write(model), ex, policyId, ErrorCodes.Policy.ParsingOperator)
+      }
+    }
 
-  def getOperators(operatorsModel: Seq[OperatorModel], refUtils: ReflectionUtils): Seq[Operator] =
-    operatorsModel.map(operator => createOperator(operator, refUtils))
+  def getOperators(operatorsModel: Seq[OperatorModel], refUtils: ReflectionUtils, policyId: String): Seq[Operator] =
+    operatorsModel.map(operator => createOperator(operator, refUtils, policyId))
 
-  def outputs(apConfig: AggregationPoliciesModel,
-              bcOperatorsKeyOperation: Option[Map[String, (WriteOp, TypeOp)]],
-              bcCubeOperatorSchema: Option[Seq[TableSchema]], refUtils: ReflectionUtils): Seq[Output] =
-    apConfig.outputs.map(o => refUtils.tryToInstantiate[Output](o.`type` + Output.ClassSuffix, (c) =>
+  def getOutputs(policy: AggregationPoliciesModel, cubesOperatorsSchema: Seq[TableSchema], refUtils: ReflectionUtils):
+  Seq[Output] = policy.outputs.map(o => {
+    val schemasAssociated = cubesOperatorsSchema.filter(tableSchema => tableSchema.outputs.contains(o.name))
+    createOutput(o, schemasAssociated, refUtils, policy.version)
+  })
+
+  def createOutput(model: PolicyElementModel, schemasAssociated: Seq[TableSchema], refUtils: ReflectionUtils,
+                   version: Option[Int]): Output = Try(
+    refUtils.tryToInstantiate[Output](model.`type` + Output.ClassSuffix, (c) =>
       c.getDeclaredConstructor(
         classOf[String],
         classOf[Option[Int]],
         classOf[Map[String, Serializable]],
-        classOf[Option[Map[String, (WriteOp, TypeOp)]]],
-        classOf[Option[Seq[TableSchema]]])
-        .newInstance(o.name, apConfig.version, o.configuration, bcOperatorsKeyOperation, bcCubeOperatorSchema)
-        .asInstanceOf[Output]))
+        classOf[Seq[TableSchema]])
+        .newInstance(model.name, version, model.configuration, schemasAssociated)
+        .asInstanceOf[Output])
+  ) match {
+    case Success(transformer) => {
+      log.debug(s"Output: ${model.`type`} created correctly.")
+      transformer
+    }
+    case Failure(ex) => {
+      throw SparktaJob.logAndCreateEx(
+        s"Something gone wrong creating the output: ${model.`type`}. Please re-check the policy.",
+        write(model), ex, "aa", ErrorCodes.Policy.ParsingOutput)
+    }
+  }
 
-  def cubes(apConfig: AggregationPoliciesModel, refUtils: ReflectionUtils): Seq[Cube] =
-    apConfig.cubes.map(cube => {
+  def getCubes(policy: AggregationPoliciesModel, refUtils: ReflectionUtils): Seq[Cube] = {
+    require(policy.cubes.nonEmpty, "You need at least one cube in your policy")
+    policy.cubes.map(cube => createCube(cube, refUtils, policy.id.get))
+  }
+
+  private def createCube(cube: CubeModel, refUtils: ReflectionUtils, policyId: String): Cube =
+    Try({
       val name = cube.name.replaceAll(Output.Separator, "")
       val dimensions = cube.dimensions.map(dimensionDto => {
         new Dimension(dimensionDto.name,
@@ -172,20 +246,21 @@ object SparktaJob extends SLF4JLogging {
           dimensionDto.precision,
           instantiateDimensionType(dimensionDto.`type`, dimensionDto.configuration, refUtils))
       })
-      val operators = SparktaJob.getOperators(cube.operators, refUtils)
+      val operators = getOperators(cube.operators, refUtils, policyId)
+      val expiringDataConfig = SchemaHelper.getExpiringData(cube.checkpointConfig)
 
-      val datePrecision = if (cube.checkpointConfig.timeDimension.isEmpty) None
-      else Some(cube.checkpointConfig.timeDimension)
-      val timeName = if (datePrecision.isDefined) datePrecision.get else cube.checkpointConfig.granularity
-
-      Cube(name,
-        dimensions,
-        operators,
-        timeName,
-        cube.checkpointConfig.interval,
-        cube.checkpointConfig.granularity,
-        cube.checkpointConfig.timeAvailability)
-    })
+      Cube(name, dimensions, operators, expiringDataConfig)
+    }) match {
+      case Success(created) => {
+        log.debug(s"Cube: ${created} created correctly.")
+        created
+      }
+      case Failure(ex) => {
+        throw SparktaJob.logAndCreateEx(
+          s"Something gone wrong creating the cube: ${cube.name}. Please re-check the policy.",
+          write(cube), ex, policyId, ErrorCodes.Policy.ParsingCube)
+      }
+    }
 
   def instantiateDimensionType(dimensionType: String, configuration: Option[Map[String, String]],
                                refUtils: ReflectionUtils): DimensionType =
@@ -197,21 +272,43 @@ object SparktaJob extends SLF4JLogging {
       }
     })
 
-  def saveRawData(apConfig: AggregationPoliciesModel, input: DStream[Event], sqc: Option[SQLContext] = None): Unit =
-    if (apConfig.rawData.enabled.toBoolean) {
-      require(!apConfig.rawData.path.equals("default"), "The parquet path must be set")
+  def saveRawData(policy: AggregationPoliciesModel, input: DStream[Event], sqc: Option[SQLContext] = None): Unit =
+    if (policy.rawData.enabled.toBoolean) {
+      require(!policy.rawData.path.equals("default"), "The parquet path must be set")
       val sqlContext = sqc.getOrElse(SparkContextFactory.sparkSqlContextInstance.get)
       def rawDataStorage: RawDataStorageService =
-        new RawDataStorageService(sqlContext, apConfig.rawData.path)
+        new RawDataStorageService(sqlContext, policy.rawData.path)
       rawDataStorage.save(input)
     }
 
-  def deletePreviousCheckpointPath(checkpointPolicyPath: String): Unit = {
-    if (Files.exists(Paths.get(checkpointPolicyPath))) {
-      Try(FileUtils.deleteDirectory(new File(checkpointPolicyPath))) match {
-        case Success(_) => log.info(s"Found path for this policy. Path deleted: $checkpointPolicyPath")
-        case Failure(e) => log.error(s"Found path for this policy. Cannot delete: $checkpointPolicyPath", e)
-      }
-    }
+  def getCubeWriter(cubeName: String,
+                    cubes: Seq[Cube],
+                    schemas: Seq[TableSchema],
+                    cubeModels: Seq[CubeModel],
+                    outputs: Seq[Output]): CubeWriter = {
+    val cubeWriter = cubes.find(cube => cube.name == cubeName)
+      .getOrElse(throw new Exception("Is mandatory one cube in the cube writer"))
+    val schemaWriter = schemas.find(schema => schema.tableName == cubeName)
+      .getOrElse(throw new Exception("Is mandatory one schema in the cube writer"))
+    val cubeModel = cubeModels.find(cube => cube.name == cubeName)
+      .getOrElse(throw new Exception("Is mandatory one cubeModel in the cube writer"))
+    val writerOp = getWriterOptions(cubeName, outputs, cubeModel)
+
+    CubeWriter(cubeWriter, schemaWriter, writerOp, outputs)
   }
+
+  def getWriterOptions(cubeName: String, outputsWriter: Seq[Output], cubeModel: CubeModel): WriterOptions =
+    cubeModel.writer.fold(WriterOptions(outputsWriter.map(_.name))) { writerModel =>
+      val writerOutputs = if (writerModel.outputs.isEmpty) outputsWriter.map(_.name) else writerModel.outputs
+      val dateType = Output.getTimeTypeFromString(cubeModel.writer.fold(DefaultTimeStampTypeString) { options =>
+        options.dateType.getOrElse(DefaultTimeStampTypeString)
+      })
+      val fixedMeasures: MeasuresValues = writerModel.fixedMeasure.fold(MeasuresValues(Map.empty)) { fixedMeasure =>
+        val fixedMeasureSplitted = fixedMeasure.split(CubeWriter.FixedMeasureSeparator)
+        MeasuresValues(Map(fixedMeasureSplitted.head -> Some(fixedMeasureSplitted.last)))
+      }
+      val isAutoCalculatedId = writerModel.isAutoCalculatedId.getOrElse(false)
+
+      WriterOptions(writerOutputs, dateType, fixedMeasures, isAutoCalculatedId)
+    }
 }

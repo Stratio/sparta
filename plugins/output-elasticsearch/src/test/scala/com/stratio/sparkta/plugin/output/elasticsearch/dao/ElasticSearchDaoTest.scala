@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,18 +40,18 @@ class ElasticSearchDAOTest extends FlatSpec with ShouldMatchers {
   }
 
   "ElasticSearchDao" should "return a valid configuration" in new ValuesMap {
-    dao.getSparkConfig("", false) should be(baseMap)
-    dao.getSparkConfig("", true) should be(expectedProvided)
-    dao.getSparkConfig("minutes", false) should be(expectedWithTs)
-    dao.getSparkConfig("minutes", true) should be(expectedProvidedWithTs)
+    dao.getSparkConfig(Option(""), false) should be(baseMap)
+    dao.getSparkConfig(Option(""), true) should be(expectedProvided)
+    dao.getSparkConfig(Option("minutes"), false) should be(expectedWithTs)
+    dao.getSparkConfig(Option("minutes"), true) should be(expectedProvidedWithTs)
   }
 
   it should "return a valid TypeOp from dateType" in new BaseValues {
     dao.getDateTimeType(None) should be(TypeOp.Long)
-    dao.getDateTimeType(Some("timestamp")) should be(TypeOp.Timestamp)
-    dao.getDateTimeType(Some("date")) should be(TypeOp.Date)
-    dao.getDateTimeType(Some("datetime")) should be(TypeOp.DateTime)
-    dao.getDateTimeType(Some("fake")) should be(TypeOp.String)
+    dao.getDateTimeType(Option("timestamp")) should be(TypeOp.Timestamp)
+    dao.getDateTimeType(Option("date")) should be(TypeOp.Date)
+    dao.getDateTimeType(Option("datetime")) should be(TypeOp.DateTime)
+    dao.getDateTimeType(Option("fake")) should be(TypeOp.String)
   }
 
   it should "test extra methods for coverage" in new BaseValues {

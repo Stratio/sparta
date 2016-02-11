@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -159,6 +159,10 @@ object Operator {
   final val ClassSuffix = "Operator"
   final val OldValuesKey = "old"
   final val NewValuesKey = "new"
+  final val EmptyString = ""
+  final val SpaceSeparator = " "
+  final val Zero = 0
+  final val UnderscoreSeparator = "_"
 
   /**
    * This method tries to cast a value to Number, if it's possible.

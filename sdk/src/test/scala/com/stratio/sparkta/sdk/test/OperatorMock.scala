@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,13 +31,13 @@ abstract class BaseOperatorMoc(name: String, properties: Map[String, JSerializab
 }
 
 class OperatorMock(name: String, properties: Map[String, JSerializable])
-  extends BaseOperatorMoc(name: String, properties: Map[String, JSerializable]) with ProcessMapAsNumber {
+  extends BaseOperatorMoc(name: String, properties: Map[String, JSerializable]) with OperatorProcessMapAsNumber {
 
   override val defaultCastingFilterType = TypeOp.Number
 }
 
 class OperatorMockString(name: String, properties: Map[String, JSerializable])
-  extends BaseOperatorMoc(name: String, properties: Map[String, JSerializable]) with ProcessMapAsAny {
+  extends BaseOperatorMoc(name: String, properties: Map[String, JSerializable]) with OperatorProcessMapAsAny {
 
   override val defaultCastingFilterType = TypeOp.String
 }

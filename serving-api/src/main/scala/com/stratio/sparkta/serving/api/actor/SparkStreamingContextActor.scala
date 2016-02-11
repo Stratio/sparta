@@ -1,50 +1,60 @@
 /**
-  * Copyright (C) 2015 Stratio (http://stratio.com)
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  * http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+ * Copyright (C) 2016 Stratio (http://stratio.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.stratio.sparkta.serving.api.actor
 
 import java.util.UUID
+import scala.collection.JavaConversions
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits._
+import scala.concurrent.duration._
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
 import akka.actor.SupervisorStrategy.Escalate
 import akka.actor._
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
+import com.typesafe.config.Config
+import org.apache.curator.framework.CuratorFramework
+import org.json4s.jackson.Serialization.read
+import org.json4s.jackson.Serialization.write
+
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.api.constants.ActorsConstant
+import com.stratio.sparkta.serving.core.CuratorFactoryHolder
 import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.exception.ServingCoreException
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{FindAll, Response, Update}
-import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
-import org.apache.curator.framework.CuratorFramework
-import org.json4s.jackson.Serialization.{read, write}
-
-import scala.collection.JavaConversions
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits._
-import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
+import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.PolicyStatusModel
+import com.stratio.sparkta.serving.core.models.SparktaSerializer
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.FindAll
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Response
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 
 class SparkStreamingContextActor(streamingContextService: StreamingContextService,
                                  policyStatusActor: ActorRef, curatorFramework: CuratorFramework) extends Actor
-with SLF4JLogging
-with SparktaSerializer {
+  with SLF4JLogging
+  with SparktaSerializer {
 
   val SparkStreamingContextActorPrefix: String = "sparkStreamingContextActor"
 
@@ -91,14 +101,18 @@ with SparktaSerializer {
   }
 
   /**
-    * Tries to create a spark streaming context with a given configuration.
-    * @param policy that contains the configuration to run.
-    */
+   * Tries to create a spark streaming context with a given configuration.
+   *
+   * @param policy that contains the configuration to run.
+   */
   private def create(policy: AggregationPoliciesModel): Try[AggregationPoliciesModel] = Try {
     if (policy.id.isDefined)
       launch(policy)
     else {
-      if (existsByName(policy.name)) throw new Exception(s"${policy.name} already exists")
+      if (existsByName(policy.name)) {
+        log.error(s"${policy.name} already exists. Try deleting first or choosing another name.")
+        throw new RuntimeException(s"${policy.name} already exists")
+      }
       launchNewPolicy(policy)
     }
   }
@@ -106,12 +120,17 @@ with SparktaSerializer {
   def existsByName(name: String, id: Option[String] = None): Boolean = {
     val nameToCompare = name.toLowerCase
     Try({
-      val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
-      JavaConversions.asScalaBuffer(children).toList.map(element =>
-        read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
-          s"${AppConstant.PoliciesBasePath}/$element"))))
-        .filter(policy => if (id.isDefined) policy.name == nameToCompare && policy.id.get != id.get
-        else policy.name == nameToCompare).toSeq.nonEmpty
+      if (CuratorFactoryHolder.existsPath(AppConstant.PoliciesBasePath)) {
+        val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
+        JavaConversions.asScalaBuffer(children).toList.map(element =>
+          read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(
+            s"${AppConstant.PoliciesBasePath}/$element"))))
+          .filter(policy => if (id.isDefined) policy.name == nameToCompare && policy.id.get != id.get
+          else policy.name == nameToCompare).toSeq.nonEmpty
+      } else {
+        log.warn(s"Zookeeper path for policies doesn't exists. It will be created.")
+        false
+      }
     }) match {
       case Success(result) => result
       case Failure(exception) => {
@@ -168,22 +187,16 @@ with SparktaSerializer {
     val actorName = s"$SparkStreamingContextActorPrefix-${policy.name.replace(" ", "_")}"
     SparktaConfig.getClusterConfig match {
       case Some(clusterConfig) => {
-        val zookeeperConfig = SparktaConfig.getZookeeperConfig
-        val hdfsConfig = SparktaConfig.getHdfsConfig
-        val detailConfig = SparktaConfig.getDetailConfig
 
-        if (zookeeperConfig.isDefined && hdfsConfig.isDefined) {
-          log.info(s"launched -> $actorName")
-          Some(context.actorOf(Props(new ClusterSparkStreamingContextActor(
-            policy, streamingContextService, clusterConfig, hdfsConfig.get, zookeeperConfig.get, detailConfig,
-            policyStatusActor)), actorName))
-        } else None
+        log.info(s"launched -> $actorName")
+        Some(context.actorOf(Props(new ClusterLauncherActor(
+          policy, policyStatusActor)), actorName))
       }
       case None => {
         policyStatusActor ! PolicyStatusActor.Kill(actorName)
         Some(context.actorOf(
-        Props(new LocalSparkStreamingContextActor(
-          policy, streamingContextService, policyStatusActor)), actorName))
+          Props(new LocalSparkStreamingContextActor(
+            policy, streamingContextService, policyStatusActor)), actorName))
       }
     }
   }
@@ -192,6 +205,8 @@ with SparktaSerializer {
 object SparkStreamingContextActor {
 
   case class Create(policy: AggregationPoliciesModel)
+
+  case class CreateConfig(config: Config)
 
   case object Start
 

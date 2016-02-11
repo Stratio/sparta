@@ -139,7 +139,6 @@
             "required": [
               "timeDimension",
               "granularity",
-              "interval",
               "timeAvailability"
             ]
           },

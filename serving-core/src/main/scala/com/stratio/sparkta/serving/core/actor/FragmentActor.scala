@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -178,8 +178,8 @@ object FragmentActor {
 
   def fragmentPath(fragmentType: String): String = {
     fragmentType match {
-      case "input" => s"${AppConstant.BaseZKPath}/fragments/input"
-      case "output" => s"${AppConstant.BaseZKPath}/fragments/output"
+      case "input" => s"/${AppConstant.BaseZKPath}/fragments/input"
+      case "output" => s"/${AppConstant.BaseZKPath}/fragments/output"
       case _ => throw new IllegalArgumentException("The fragment type must be input|output")
     }
   }

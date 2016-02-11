@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,20 +24,20 @@ import com.stratio.sparkta.sdk.{TypeOp, _}
 import scala.util.Try
 
 class FirstValueOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
-with ProcessMapAsAny with Associative {
+with OperatorProcessMapAsAny with Associative {
 
   override val defaultTypeOperation = TypeOp.String
 
   override val writeOperation = WriteOp.Set
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
-    Try(Option(values.flatten.head)).getOrElse(Some(OperatorConstants.EmptyString))
+    Try(Option(values.flatten.head)).getOrElse(Some(Operator.EmptyString))
 
   def associativity(values: Iterable[(String, Option[Any])]): Option[Any] = {
     val oldValues = extractValues(values, Option(Operator.OldValuesKey))
     val firstValue = if(oldValues.nonEmpty) oldValues
     else extractValues(values, Option(Operator.NewValuesKey))
 
-    Try(Option(transformValueByTypeOp(returnType, firstValue.head))).getOrElse(Option(OperatorConstants.EmptyString))
+    Try(Option(transformValueByTypeOp(returnType, firstValue.head))).getOrElse(Option(Operator.EmptyString))
   }
 }

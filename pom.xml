@@ -152,8 +152,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <scala.binary.version>2.10</scala.binary.version>
         <scala.version>2.10.4</scala.version>
         <slf4j.version>1.7.7</slf4j.version>
@@ -172,6 +172,7 @@
         <curator.version>2.9.0</curator.version>
         <scala.mock.version>3.2.2</scala.mock.version>
         <easy.mock.version>2.5.2</easy.mock.version>
+        <stratio.common.utils.version>0.4.0</stratio.common.utils.version>
     </properties>
 
     <dependencyManagement>
@@ -409,6 +410,11 @@
                 <artifactId>scalamock-scalatest-support_${scala.binary.version}</artifactId>
                 <version>${scala.mock.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.stratio.common</groupId>
+                <artifactId>common-utils</artifactId>
+                <version>${stratio.common.utils.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -458,7 +464,7 @@
                 <artifactId>scala-maven-plugin</artifactId>
                 <configuration>
                     <checkMultipleScalaVersions>false</checkMultipleScalaVersions>
-                    <recompileMode>incremental</recompileMode>
+                    <recompileMode>modified-only</recompileMode>
                 </configuration>
                 <executions>
                     <execution>

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,36 +18,40 @@ package com.stratio.sparkta.plugin.output.parquet
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparkta.sdk.Output._
+import com.stratio.sparkta.sdk.ValidatingPropertyMap._
+import com.stratio.sparkta.sdk._
 import org.apache.spark.Logging
 import org.apache.spark.sql.SaveMode._
 import org.apache.spark.sql._
-
-import com.stratio.sparkta.sdk.TypeOp._
-import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
-import com.stratio.sparkta.sdk._
 
 /**
  * This output save as parquet file the information.
  * @param keyName
  * @param properties
- * @param operationTypes
- * @param bcSchema
+ * @param schemas
  */
 class ParquetOutput(keyName: String,
                     version: Option[Int],
                     properties: Map[String, JSerializable],
-                    operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
-                    bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, version, properties, operationTypes, bcSchema) with Logging {
+                    schemas: Seq[TableSchema])
+  extends Output(keyName, version, properties, schemas) with Logging {
 
-  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
+  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+    val tableName = getTableNameFromOptions(options)
+    val timeDimension = getTimeFromOptions(options)
     val path = properties.getString("path", None)
     require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
 
-    dataFrame.write.format("parquet")
-      .partitionBy(timeDimension)
+    val dataFrameWriter = dataFrame
+      .write
+      .format("parquet")
       .mode(Append)
-      .save(s"${path.get}/${versionedTableName(tableName)}")
+
+    if (timeDimension.isDefined) {
+      dataFrameWriter.partitionBy(timeDimension.get)
+    }
+
+    dataFrameWriter.save(s"${path.get}/${versionedTableName(tableName)}")
   }
 }

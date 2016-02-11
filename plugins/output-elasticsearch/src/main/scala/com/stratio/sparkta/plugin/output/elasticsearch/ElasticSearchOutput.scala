@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,11 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import com.stratio.sparkta.plugin.output.elasticsearch.dao.ElasticSearchDAO
-import com.stratio.sparkta.sdk.TypeOp._
+import com.stratio.sparkta.sdk.Output._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 import org.apache.spark.sql._
 import org.apache.spark.sql.types._
-import org.apache.spark.streaming.dstream.DStream
 import org.elasticsearch.common.settings._
 import org.elasticsearch.spark.sql._
 
@@ -43,19 +41,14 @@ import org.elasticsearch.spark.sql._
 class ElasticSearchOutput(keyName: String,
                           version: Option[Int],
                           properties: Map[String, JSerializable],
-                          operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
-                          bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, version, properties, operationTypes, bcSchema) with ElasticSearchDAO {
+                          schemas: Seq[TableSchema])
+  extends Output(keyName, version, properties, schemas) with ElasticSearchDAO {
 
   override val idField = properties.getString("idField", None)
 
   override val mappingType = properties.getString("indexMapping", DefaultIndexType)
 
-  override val dateType = getDateTimeType(properties.getString("dateType", None))
-
   override val clusterName = properties.getString("clusterName", DefaultCluster)
-
-  override val isAutoCalculateId = true
 
   override val tcpNodes = getHostPortConfs(NodesName, DefaultNode, DefaultTcpPort, NodeName, TcpPortName)
 
@@ -71,16 +64,14 @@ class ElasticSearchOutput(keyName: String,
     }
   }
 
-  lazy val getSchema = bcSchema.get.filter(_.outputName == keyName).map(getTableSchemaFixedId)
-
   lazy val isLocalhost: Boolean = LocalhostPattern.matcher(tcpNodes.head._1).matches
 
   lazy val mappingName = versionedTableName(mappingType).toLowerCase
 
-  override def setup: Unit = createIndices
+  override def setup(options: Map[String, String]): Unit = createIndices
 
   private def createIndices: Unit = {
-    getSchema.map(tableSchemaTime => createIndexAccordingToSchema(tableSchemaTime))
+    schemas.map(tableSchemaTime => createIndexAccordingToSchema(tableSchemaTime))
     elasticClient.close
   }
 
@@ -90,12 +81,34 @@ class ElasticSearchOutput(keyName: String,
         mappingName as getElasticsearchFields(tableSchemaTime))
     }
 
-  override def doPersist(stream: DStream[(DimensionValuesTime, MeasuresValues)]): Unit =
-    persistDataFrame(stream)
+  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+    val isAutoCalculatedId = dataFrame.schema.fieldNames.contains(Output.Id)
+    val tableName = getTableNameFromOptions(options)
+    val timeDimension = getTimeFromOptions(options)
+    val sparkConfig = getSparkConfig(timeDimension, idField.isDefined || isAutoCalculatedId)
+    val dataFrameSchema = dataFrame.schema
 
-  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
-    val sparkConfig = getSparkConfig(timeDimension, idField.isDefined || isAutoCalculateId)
-    dataFrame.saveToEs(indexNameType(tableName), sparkConfig)
+    //Necessary this dataFrame transformation because ES not support java.sql.TimeStamp in the row values: use
+    // dateType in the cube writer options and set to long, date or dateTime
+    val newDataFrame = if (dataFrameSchema.fields.exists(stField => stField.dataType == TimestampType)) {
+      val rdd = dataFrame.map(row => {
+        val seqOfValues = row.toSeq.map { value =>
+          value match {
+            case value: java.sql.Timestamp => value.asInstanceOf[java.sql.Timestamp].getTime
+            case _ => value
+          }
+        }
+        Row.fromSeq(seqOfValues)
+      })
+      val newSchema = StructType(dataFrameSchema.map(structField =>
+        if (structField.dataType == TimestampType) structField.copy(dataType = LongType)
+        else structField)
+      )
+      SQLContext.getOrCreate(dataFrame.rdd.sparkContext).createDataFrame(rdd, newSchema)
+    }
+    else dataFrame
+
+    newDataFrame.saveToEs(indexNameType(tableName), sparkConfig)
   }
 
   def indexNameType(tableName: String): String = s"${tableName.toLowerCase}/$mappingName"
@@ -103,14 +116,14 @@ class ElasticSearchOutput(keyName: String,
   //scalastyle:off
   def getElasticsearchFields(tableSchemaTime: TableSchema): Seq[TypedFieldDefinition] = {
     tableSchemaTime.schema.map(structField =>
-      filterDateTypeMapping(structField, tableSchemaTime.timeDimension).dataType match {
+      filterDateTypeMapping(structField, tableSchemaTime.timeDimension, tableSchemaTime.dateType).dataType match {
         case LongType => structField.name typed FieldType.LongType
         case DoubleType => structField.name typed FieldType.DoubleType
         case DecimalType() => structField.name typed FieldType.DoubleType
         case IntegerType => structField.name typed FieldType.IntegerType
         case BooleanType => structField.name typed FieldType.BooleanType
         case DateType => structField.name typed FieldType.DateType
-        case TimestampType => structField.name typed FieldType.DateType
+        case TimestampType => structField.name typed FieldType.LongType
         case ArrayType(_, _) => structField.name typed FieldType.MultiFieldType
         case MapType(_, _, _) => structField.name typed FieldType.ObjectType
         case StringType => structField.name typed FieldType.StringType index "not_analyzed"
@@ -120,9 +133,14 @@ class ElasticSearchOutput(keyName: String,
 
   //scalastyle:on
 
-  def filterDateTypeMapping(structField: StructField, timeField: String): StructField = {
-    if (structField.name.equals(timeField)) Output.getFieldType(dateType, structField.name, structField.nullable)
-    else structField
+  def filterDateTypeMapping(structField: StructField,
+                            timeField: Option[String],
+                            dateType: TypeOp.Value): StructField = {
+    timeField match {
+      case Some(timeFieldValue) if structField.name.equals(timeFieldValue) =>
+        Output.getTimeFieldType(dateType, structField.name, structField.nullable)
+      case _ => structField
+    }
   }
 
   def getHostPortConfs(key: String,

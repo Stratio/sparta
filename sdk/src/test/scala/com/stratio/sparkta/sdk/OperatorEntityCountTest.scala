@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,14 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
-import com.stratio.sparkta.sdk.test.EntityCountMock
+import com.stratio.sparkta.sdk.test.OperatorEntityCountMock
 
 @RunWith(classOf[JUnitRunner])
-class EntityCountTest extends WordSpec with Matchers {
+class OperatorEntityCountTest extends WordSpec with Matchers {
 
   "EntityCount" should {
     val props = Map("inputField" -> "field".asInstanceOf[JSerializable], "split" -> ",".asInstanceOf[JSerializable])
-    val entityCount = new EntityCountMock("op1", props)
+    val entityCount = new OperatorEntityCountMock("op1", props)
     val inputFields = InputFieldsValues(Map("field" -> "hello,bye"))
 
     "Return the associated precision name" in {

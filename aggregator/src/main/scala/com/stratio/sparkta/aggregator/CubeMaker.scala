@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,12 @@
 
 package com.stratio.sparkta.aggregator
 
-import scala.util.{Failure, Success, Try}
-
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparkta.sdk._
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
-import com.stratio.sparkta.sdk._
+import scala.util.{Failure, Success, Try}
 
 /**
  * It builds a pre-calculated DataCube with dimension/s, cube/s and operation/s defined by the user in the policy.
@@ -40,56 +39,59 @@ case class CubeMaker(cubes: Seq[Cube]) {
    * @param inputStream with the original stream of data.
    * @return the built Cube.
    */
-  def setUp(inputStream: DStream[Event]): Seq[DStream[(DimensionValuesTime, MeasuresValues)]] = {
+  def setUp(inputStream: DStream[Event]): Seq[(String, DStream[(DimensionValuesTime, MeasuresValues)])] = {
     cubes.map(cube => {
-      val currentCube = new CubeOperations(cube, cube.checkpointTimeDimension, cube.checkpointGranularity)
+      val currentCube = new CubeOperations(cube)
       val extractedDimensionsStream = currentCube.extractDimensionsAggregations(inputStream)
-      cube.aggregate(extractedDimensionsStream)
+      (cube.name, cube.aggregate(extractedDimensionsStream))
     })
   }
 }
 
 /**
  * This class is necessary because we need test extractDimensionsAggregations with Spark testSuite for Dstreams.
+ *
  * @param cube that will be contain the current cube.
- * @param timeDimension that will be contain the dimensionType id that contain the date.
- * @param checkpointGranularity that will be contain the granularity to calculate the time, only if this
- *                              dimensionType is not present.
  */
 
-protected case class CubeOperations(cube: Cube,
-                                    timeDimension: String,
-                                    checkpointGranularity: String) extends SLF4JLogging {
+protected case class CubeOperations(cube: Cube) extends SLF4JLogging {
 
   /**
    * Extract a modified stream that will be needed to calculate aggregations.
+   *
    * @param inputStream with the original stream of data.
    * @return a modified stream after join dimensions, cubes and operations.
    */
   def extractDimensionsAggregations(inputStream: DStream[Event]): DStream[(DimensionValuesTime, InputFieldsValues)] = {
-    inputStream.map(event => Try({
-        val dimensionValues = for {
-          dimension <- cube.dimensions
-          value <- event.keyMap.get(dimension.field).toSeq
-          (precision, dimValue) = dimension.dimensionType.precisionValue(dimension.precisionKey, value)
-        } yield DimensionValue(dimension, TypeOp.transformValueByTypeOp(precision.typeOp, dimValue))
-        val eventTime = extractEventTime(dimensionValues)
-        (DimensionValuesTime(cube.name, dimensionValues, eventTime, timeDimension), InputFieldsValues(event.keyMap))
-      }) match {
-        case Success(dimensionValuesTime) => Some(dimensionValuesTime)
-        case Failure(exception) => {
-          val error = s"Failure[Aggregations]: ${event.toString} | ${exception.getLocalizedMessage}"
-          log.error(error, exception)
-          None
-        }
+    inputStream.flatMap(event => Try {
+      val dimensionValues = for {
+        dimension <- cube.dimensions
+        value <- event.keyMap.get(dimension.field).toSeq
+        (precision, dimValue) = dimension.dimensionType.precisionValue(dimension.precisionKey, value)
+      } yield DimensionValue(dimension, TypeOp.transformValueByTypeOp(precision.typeOp, dimValue))
+
+
+      cube.expiringDataConfig match {
+        case None =>
+          (DimensionValuesTime(cube.name, dimensionValues), InputFieldsValues(event.keyMap))
+        case Some(expiringDataConfig) =>
+          val eventTime = extractEventTime(dimensionValues)
+          val timeDimension = expiringDataConfig.timeDimension
+          (DimensionValuesTime(cube.name, dimensionValues, Option(TimeConfig(eventTime, timeDimension))),
+            InputFieldsValues(event.keyMap))
       }
-    ).flatMap(event => event match {
-      case Some(value) => Seq(value)
-      case None => Seq()
+    } match {
+      case Success(dimensionValuesTime) => Some(dimensionValuesTime)
+      case Failure(exception) =>
+        val error = s"Failure[Aggregations]: ${event.toString} | ${exception.getLocalizedMessage}"
+        log.error(error, exception)
+        None
     })
   }
 
   private def extractEventTime(dimensionValues: Seq[DimensionValue]) = {
+
+    val timeDimension = cube.expiringDataConfig.get.timeDimension
     val dimensionsDates =
       dimensionValues.filter(dimensionValue => dimensionValue.dimension.name == timeDimension)
 
@@ -99,5 +101,8 @@ protected case class CubeOperations(cube: Cube,
       DateOperations.getMillisFromSerializable(dimensionsDates.head.value)
   }
 
-  private def getDate: Long = DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity)
+  private def getDate: Long = {
+    val checkpointGranularity = cube.expiringDataConfig.get.granularity
+    DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity)
+  }
 }

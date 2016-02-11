@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,8 +78,8 @@ class RawDataStorageIT extends TestSuiteBase {
 
   private def sparktaTestSQLContext: SQLContext = {
     configureContext
-    val sc = new SparkContext(conf)
-    new SQLContext(sc)
+    val sc = SparkContext.getOrCreate(conf)
+    SQLContext.getOrCreate(sc)
   }
 
   private def rawDataInput: Seq[Seq[Event]] =

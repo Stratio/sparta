@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,10 @@ package com.stratio.sparkta.testat.outputs
 import com.github.simplyscala.{MongoEmbedDatabase, MongodProps}
 import com.mongodb.casbah.{MongoClientURI, MongoCollection, MongoConnection}
 import com.mongodb.{BasicDBList, BasicDBObject}
+import com.stratio.sparkta.testat.SparktaATSuite
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+
 import scala.collection.JavaConversions._
 
 import com.stratio.sparkta.testat.SparktaATSuite
@@ -37,19 +39,21 @@ class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
 
   override val PathToCsv = getClass.getClassLoader.getResource("fixtures/at-data-operators.csv").getPath
   override val policyFile = "policies/ISocket-OMongo-operators.json"
+
   val TestMongoPort = 60000
   var mongoProps: MongodProps = _
   var mongoConnection: MongoConnection = _
-  val NumEventsExpected: Int = 8
+  val NumEventsExpected = 8
 
   "Sparkta" should {
     "starts and executes a policy that reads from a socket and writes in mongodb" in {
       sparktaRunner
-      checkMongoData
+      checkMongoData("testCubeWithTime")
+      checkMongoData("testCubeWithoutTime")
     }
 
-    def checkMongoData(): Unit = {
-      val mongoColl: MongoCollection = mongoConnection("csvtest")("testCube")
+    def checkMongoData(tableName: String): Unit = {
+      val mongoColl: MongoCollection = mongoConnection("csvtest")(tableName)
       mongoColl.size should be(2)
 
       val productA = mongoColl.find(new BasicDBObject("product", "producta")).next()
@@ -62,7 +66,7 @@ class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
       productA.get("last_price") should be("600")
       productA.get("max_price") should be(1002.0d)
       productA.get("min_price") should be(10.0d)
-      productA.get("mode_price").asInstanceOf[BasicDBList].toArray should be (Seq("500").toArray)
+      productA.get("mode_price").asInstanceOf[BasicDBList].toArray should be(Seq("500").toArray)
       productA.get("fulltext_price") should be("10 500 1000 500 1000 500 1002 600")
       productA.get("stddev_price") should be(347.9605889013459d)
       productA.get("variance_price") should be(121076.57142857143d)
@@ -82,7 +86,7 @@ class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
       productB.get("last_price") should be("50")
       productB.get("max_price") should be(1001.0d)
       productB.get("min_price") should be(15.0d)
-      productB.get("mode_price").asInstanceOf[BasicDBList].toArray should be (Seq("1000").toArray)
+      productB.get("mode_price").asInstanceOf[BasicDBList].toArray should be(Seq("1000").toArray)
       productB.get("fulltext_price") should be("15 1000 1000 1000 1000 1000 1001 50")
       productB.get("stddev_price") should be(448.04041590655d)
       productB.get("variance_price") should be(200740.2142857143d)
@@ -101,5 +105,6 @@ class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SparktaATSuite {
   override def extraAfter: Unit = {
     mongoConnection.close()
     mongoStop(mongoProps)
+    deletePath(s"$CheckpointPath/${"ATSocketMongo".toLowerCase}")
   }
 }

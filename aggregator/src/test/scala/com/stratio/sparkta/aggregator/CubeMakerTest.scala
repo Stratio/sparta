@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,6 @@ class CubeMakerTest extends TestSuiteBase {
    */
   test("DataCube extracts dimensions from events") {
 
-    val checkpointInterval = 10000
     val checkpointTimeAvailability = 600000
     val checkpointGranularity = "minute"
     val timeDimensionName = "minute"
@@ -71,12 +70,8 @@ class CubeMakerTest extends TestSuiteBase {
     val timeDimension = Dimension("minute", "minute", "minute", timeField)
     val cube = Cube(name,
       Seq(dimension, timeDimension),
-      Seq(operator),
-      checkpointGranularity,
-      checkpointInterval,
-      checkpointGranularity,
-      checkpointTimeAvailability)
-    val dataCube = new CubeOperations(cube, timeDimensionName, checkpointGranularity)
+      Seq(operator))
+    val dataCube = new CubeOperations(cube)
 
     testOperation(getEventInput(sqlTimestamp), dataCube.extractDimensionsAggregations,
       getEventOutput(sqlTimestamp, millis), PreserverOrder)
@@ -111,9 +106,9 @@ class CubeMakerTest extends TestSuiteBase {
     val valuesMap3 = InputFieldsValues(Map("eventKey" -> "value3") ++ tsMap)
 
     Seq(Seq(
-      (DimensionValuesTime("cubeName",Seq(dimensionValueString1, dimensionValueTs), millis, "minute"), valuesMap1),
-      (DimensionValuesTime("cubeName",Seq(dimensionValueString2, dimensionValueTs), millis, "minute"), valuesMap2),
-      (DimensionValuesTime("cubeName",Seq(dimensionValueString3, dimensionValueTs), millis, "minute"), valuesMap3)
+      (DimensionValuesTime("cubeName", Seq(dimensionValueString1, dimensionValueTs)), valuesMap1),
+      (DimensionValuesTime("cubeName", Seq(dimensionValueString2, dimensionValueTs)), valuesMap2),
+      (DimensionValuesTime("cubeName", Seq(dimensionValueString3, dimensionValueTs)), valuesMap3)
     ))
   }
 }

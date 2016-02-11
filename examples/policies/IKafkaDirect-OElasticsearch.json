@@ -52,6 +52,9 @@
         "interval": 30000,
         "timeAvailability": 60000
       },
+      "writer": {
+        "isAutoCalculatedId": true
+      },
       "dimensions": [
         {
           "name": "message",
@@ -73,7 +76,6 @@
       "type": "ElasticSearch",
       "configuration": {
         "nodes": [{"node":"localhost","tcpPort":"9300","httpPort":"9200"}],
-        "isAutoCalculateId": "true",
         "indexMapping": "day"
       }
     }

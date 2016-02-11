@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,5 +20,9 @@ import java.io.Serializable
 
 import org.apache.spark.sql.types.StructType
 
-case class TableSchema(outputName: String, tableName: String, schema: StructType, timeDimension: String)
-  extends Serializable {}
+case class TableSchema(outputs: Seq[String],
+                       tableName: String,
+                       schema: StructType,
+                       timeDimension: Option[String] = None,
+                       dateType: TypeOp.Value = TypeOp.Timestamp,
+                       isAutoCalculatedId: Boolean = false) extends Serializable

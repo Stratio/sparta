@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,26 @@
 
 package com.stratio.sparkta.driver.test
 
-import com.stratio.sparkta.driver.SparktaJob
-import com.stratio.sparkta.driver.util.ReflectionUtils
-import com.stratio.sparkta.sdk.{Event, Input, JsoneyString, Parser}
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyElementModel}
+import scala.util.Failure
+import scala.util.Try
+
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{FlatSpec, ShouldMatchers}
+import org.scalatest.FlatSpec
+import org.scalatest.ShouldMatchers
 
-import scala.util.{Failure, Try}
-
+import com.stratio.sparkta.driver.SparktaJob
+import com.stratio.sparkta.driver.util.ReflectionUtils
+import com.stratio.sparkta.sdk.Event
+import com.stratio.sparkta.sdk.Input
+import com.stratio.sparkta.sdk.JsoneyString
+import com.stratio.sparkta.sdk.Parser
+import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.PolicyElementModel
 
 @RunWith(classOf[JUnitRunner])
 class SparktaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
@@ -47,7 +53,7 @@ class SparktaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     when(aggModel.outputs).thenReturn(Seq(myOutput))
     val reflecMoc = mock[ReflectionUtils]
     when(reflecMoc.getClasspathMap).thenReturn(Map("TestOutput" -> "TestOutput"))
-    val result = Try(SparktaJob.getSparkConfigs(aggModel, method, suffix, reflecMoc)) match {
+    val result = Try(SparktaJob.getSparkConfigs(aggModel, method, suffix, Some(reflecMoc))) match {
       case Failure(ex) => {
         ex
       }
@@ -62,7 +68,7 @@ class SparktaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     val parsedEvent = mock[Event]
     when(parser.parse(event)).thenReturn(parsedEvent)
 
-    val result = SparktaJob.parseEvent(parser, event)
+    val result = SparktaJob.parseEvent(event, parser)
     result should be(Some(parsedEvent))
   }
   it should "return none if a parse Event fails" in {
@@ -70,23 +76,9 @@ class SparktaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     val event: Event = mock[Event]
     when(parser.parse(event)).thenThrow(new RuntimeException("testEx"))
 
-    val result = SparktaJob.parseEvent(parser, event)
+    val result = SparktaJob.parseEvent(event, parser)
     result should be(None)
   }
-
-
-  it should "return a event Seq" in {
-    val mockedEvent = mock[Event]
-    val event: Option[Event] = Some(mockedEvent)
-    val result = SparktaJob.eventToSeq(event)
-    result should be(Seq(mockedEvent))
-  }
-  it should "return a void Seq" in {
-    val event: Option[Event] = None
-    val result = SparktaJob.eventToSeq(event)
-    result should be(Seq())
-  }
-
 
   it should "create a input" in {
     val myInput = Some(mock[PolicyElementModel])
@@ -104,7 +96,7 @@ class SparktaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
         (c, Map("" -> JsoneyString(""))))).thenReturn(myInputClass)
 
 
-    val result = Try(SparktaJob.input(aggModel, ssc, reflection)) match {
+    val result = Try(SparktaJob.getInput(aggModel, ssc, reflection)) match {
       case Failure(ex) => ex
     }
     result.isInstanceOf[NullPointerException] should be(true)

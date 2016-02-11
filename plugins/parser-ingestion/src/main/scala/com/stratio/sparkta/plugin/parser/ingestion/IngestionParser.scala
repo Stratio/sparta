@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,12 @@
 package com.stratio.sparkta.plugin.parser.ingestion
 
 import java.io.{Serializable => JSerializable}
-
-import com.stratio.sparkta.sdk.{Event, Parser}
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
-
 import scala.annotation.tailrec
+import scala.util.Try
 import scala.util.parsing.json.JSON
+
+import com.stratio.sparkta.sdk.Event
+import com.stratio.sparkta.sdk.Parser
 
 class IngestionParser(name: String,
                       order: Integer,
@@ -35,8 +34,11 @@ class IngestionParser(name: String,
   private val DatetimePattern = "yyyy-MM-dd HH:mm:ss"
 
   override def parse(data: Event): Event = {
-    val ingestionModel = JSON.parseFull(data.keyMap.get(inputField).get.asInstanceOf[String])
-      .get.asInstanceOf[Map[String,JSerializable]]
+    val input = data.keyMap.get(inputField).get
+    JSON.globalNumberParser = { input: String => (input).toLong }
+    val rawData = Try(input.asInstanceOf[String]).getOrElse(new String(input.asInstanceOf[Array[Byte]]))
+    val ingestionModel = JSON.parseFull(rawData)
+      .get.asInstanceOf[Map[String, JSerializable]]
     val columnList = ingestionModel.get("columns").get.asInstanceOf[List[Map[String, String]]]
     val columnPairs = extractColumnPairs(columnList)
     val allParsedPairs = parseWithSchema(columnPairs, Map())._2
@@ -56,9 +58,9 @@ class IngestionParser(name: String,
 
   @tailrec
   private def extractColumnPairElement(columnList: List[Map[String, String]],
-                                       result: List[(String,String)])
-  : (List[Map[String,String]], List[(String,String)]) = {
-    if(columnList.isEmpty) {
+                                       result: List[(String, String)])
+  : (List[Map[String, String]], List[(String, String)]) = {
+    if (columnList.isEmpty) {
       (columnList, result)
     } else {
       val currentValue = columnList.last.head._2
@@ -71,9 +73,9 @@ class IngestionParser(name: String,
 
   @tailrec
   private def parseWithSchema(elementList: List[(String, String)],
-                              currentMap: Map[String,JSerializable])
-  : (List[(String, JSerializable)],Map[String,JSerializable]) = {
-    if(elementList.isEmpty) {
+                              currentMap: Map[String, JSerializable])
+  : (List[(String, JSerializable)], Map[String, JSerializable]) = {
+    if (elementList.isEmpty) {
       (elementList, currentMap)
     } else {
       val currentElement = elementList.last

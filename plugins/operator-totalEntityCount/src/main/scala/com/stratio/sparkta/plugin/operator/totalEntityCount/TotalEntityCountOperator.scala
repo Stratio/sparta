@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import com.stratio.sparkta.sdk._
 import scala.util.Try
 
 class TotalEntityCountOperator(name: String, properties: Map[String, JSerializable])
-  extends EntityCount(name, properties) with Associative {
+  extends OperatorEntityCount(name, properties) with Associative {
 
   final val Some_Empty = Some(0)
 

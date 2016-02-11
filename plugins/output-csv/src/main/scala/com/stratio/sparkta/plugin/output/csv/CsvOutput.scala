@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,8 @@ package com.stratio.sparkta.plugin.output.csv
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.TypeOp._
+import com.stratio.sparkta.sdk.Output._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk.WriteOp.WriteOp
 import com.stratio.sparkta.sdk._
 import org.apache.spark.Logging
 import org.apache.spark.sql._
@@ -31,15 +30,13 @@ import scala.util.Try
  * This output prints all AggregateOperations or DataFrames information on screen. Very useful to debug.
  * @param keyName
  * @param properties
- * @param operationTypes
- * @param bcSchema
+ * @param schemas
  */
 class CsvOutput(keyName: String,
                 version: Option[Int],
                 properties: Map[String, JSerializable],
-                operationTypes: Option[Map[String, (WriteOp, TypeOp)]],
-                bcSchema: Option[Seq[TableSchema]])
-  extends Output(keyName, version, properties, operationTypes, bcSchema) with Logging {
+                schemas: Seq[TableSchema])
+  extends Output(keyName, version, properties, schemas) with Logging {
 
   val path = properties.getString("path", None)
 
@@ -53,10 +50,11 @@ class CsvOutput(keyName: String,
 
   val dateGranularityFile = properties.getString("dateGranularityFile", "day")
 
-  override def upsert(dataFrame: DataFrame, tableName: String, timeDimension: String): Unit = {
+  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
     require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
     val pathParsed = if (path.get.endsWith("/")) path.get else path.get + "/"
     val subPath = DateOperations.subPath(dateGranularityFile, datePattern)
+    val tableName = getTableNameFromOptions(options)
     saveAction(s"$pathParsed${versionedTableName(tableName)}$subPath.csv", dataFrame)
   }
 
@@ -66,8 +64,8 @@ class CsvOutput(keyName: String,
       Map("header" -> header.toString, "delimiter" -> delimiter, "inferSchema" -> inferSchema.toString))
   }
 
-  def getValidDelimiter(delimiter: String) : String = {
-    if(delimiter.size > 1){
+  def getValidDelimiter(delimiter: String): String = {
+    if (delimiter.size > 1) {
       val firstCharacter = delimiter.head.toString
       log.warn(s"Invalid length to delimiter in csv: '$delimiter' . The system choose the first: '$firstCharacter'")
       firstCharacter

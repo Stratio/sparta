@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ with SparktaSerializer {
       Input.RawDataKey,
       Seq("out1", "out2"),
       Map()))
-    val checkpointModel = CheckpointModel("minute", "minute", granularity, interval)
+    val checkpointModel = CheckpointModel("minute", "minute", None, interval)
     val dimensionModel = Seq(DimensionModel(
       "dimensionName",
       "field1",

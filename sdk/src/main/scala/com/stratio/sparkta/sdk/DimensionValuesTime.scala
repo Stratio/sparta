@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,4 +16,6 @@
 
 package com.stratio.sparkta.sdk
 
-case class DimensionValuesTime(cube: String, dimensionValues: Seq[DimensionValue], time: Long, timeDimension: String)
+case class DimensionValuesTime(cube: String,
+                               dimensionValues: Seq[DimensionValue],
+                               timeConfig: Option[TimeConfig] = None)

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.stratio.sparkta.plugin.output.csv
 
 import com.databricks.spark.csv._
-import com.stratio.sparkta.sdk.{TypeOp, WriteOp}
+import com.stratio.sparkta.sdk.Output
 import org.apache.spark.sql._
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, eq => meq}
@@ -30,13 +30,12 @@ import org.scalatest.{FlatSpec, Matchers}
 @RunWith(classOf[JUnitRunner])
 class CsvOutputTest extends FlatSpec with Matchers with MockitoSugar {
   "CsvOutput" should "upsert a file" in {
-    val opTypes = Some(Map("sum" ->(WriteOp.Inc, TypeOp.Int)))
-    val out = spy(new CsvOutput("keyName", None, Map("path" -> "path"), opTypes, None))
+    val out = spy(new CsvOutput("keyName", None, Map("path" -> "path"), Seq()))
     val dataframe = mock[DataFrame]
     implicit val savemock = mock[CsvSchemaRDD]
     doNothing().when(out).saveAction(any[String], meq(dataframe))
 
-    out.upsert(dataframe, "tableName", "")
+    out.upsert(dataframe, Map(Output.TableNameKey -> "tableName"))
 
     verify(out).saveAction(any[String], meq(dataframe))
   }

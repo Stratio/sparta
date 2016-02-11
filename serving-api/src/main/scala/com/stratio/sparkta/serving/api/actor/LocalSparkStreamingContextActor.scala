@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,30 +17,36 @@
 package com.stratio.sparkta.serving.api.actor
 
 import java.io.File
+import scala.concurrent.duration._
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.Actor
+import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
+import org.apache.spark.streaming.StreamingContext
+
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.service.StreamingContextService
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.constants.AppConstant
+import com.stratio.sparkta.serving.core.dao.ErrorDAO
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
-import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
+import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.PolicyStatusModel
+import com.stratio.sparkta.serving.core.models.SparktaSerializer
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
-import org.apache.spark.streaming.StreamingContext
-
-import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
 
 class LocalSparkStreamingContextActor(policy: AggregationPoliciesModel,
                                       streamingContextService: StreamingContextService,
                                       policyStatusActor: ActorRef) extends Actor
-with SLF4JLogging
-with SparktaSerializer {
+  with SLF4JLogging
+  with SparktaSerializer {
 
   private var ssc: Option[StreamingContext] = None
 
@@ -56,6 +62,7 @@ with SparktaSerializer {
 
     Try({
       policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting))
+      Try(ErrorDAO().dao.delete(policy.id.get))
       ssc = streamingContextService.standAloneStreamingContext(policy, jars)
       ssc.get.start
     }) match {
@@ -65,8 +72,8 @@ with SparktaSerializer {
       case Failure(exception) => {
         log.error(exception.getLocalizedMessage, exception)
         policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed))
-        SparkContextFactory.destroySparkStreamingContext
-        SparkContextFactory.destroySparkContext
+        SparkContextFactory.destroySparkStreamingContext()
+        SparkContextFactory.destroySparkContext()
       }
     }
   }
@@ -74,7 +81,7 @@ with SparktaSerializer {
   override def postStop(): Unit = {
     ssc match {
       case Some(sc: StreamingContext) =>
-        SparkContextFactory.destroySparkStreamingContext
+        SparkContextFactory.destroySparkStreamingContext()
       case x => log.warn("Unrecognized Standalone StreamingContext to stop!", x)
     }
     super.postStop()

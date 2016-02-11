@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,9 +69,9 @@ object DateTimeField {
   final val DayName = "day"
   final val MonthName = "month"
   final val YearName = "year"
-  final val s15Name = "s15"
-  final val s10Name = "s10"
-  final val s5Name = "s5"
+  final val s15Name = "15s"
+  final val s10Name = "10s"
+  final val s5Name = "5s"
   final val Precisions = Seq(SecondName, MinuteName, HourName, DayName, MonthName, YearName, s15Name, s10Name, s5Name)
   final val timestamp = DimensionType.getTimestamp(Some(TypeOp.Timestamp), TypeOp.Timestamp)
 

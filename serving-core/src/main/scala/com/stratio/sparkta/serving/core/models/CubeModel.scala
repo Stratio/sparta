@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Stratio (http://stratio.com)
+ * Copyright (C) 2016 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,8 @@ import com.stratio.sparkta.serving.core.constants.AppConstant
 case class CubeModel(name: String,
                      checkpointConfig: CheckpointModel,
                      dimensions: Seq[DimensionModel],
-                     operators: Seq[OperatorModel])
+                     operators: Seq[OperatorModel],
+                     writer: Option[WriterModel] = None)
 
 case class DimensionModel(name: String,
                           field: String,

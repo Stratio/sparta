@@ -1,46 +1,57 @@
 /**
-  * Copyright (C) 2015 Stratio (http://stratio.com)
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  * http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+ * Copyright (C) 2016 Stratio (http://stratio.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.stratio.sparkta.serving.api.actor
 
+import java.io.File
 import java.util.UUID
+import scala.collection.JavaConversions
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.Actor
+import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.serving.api.actor.PolicyActor._
-import com.stratio.sparkta.serving.api.constants.ActorsConstant
-import com.stratio.sparkta.serving.core.CuratorFactoryHolder
-import com.stratio.sparkta.serving.core.constants.AppConstant
-import com.stratio.sparkta.serving.core.exception.ServingCoreException
-import com.stratio.sparkta.serving.core.models._
-import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
+import com.typesafe.config.ConfigFactory
+import org.apache.commons.io.FileUtils
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
-import org.json4s.jackson.Serialization.{read, write}
+import org.json4s.jackson.Serialization.read
+import org.json4s.jackson.Serialization.write
 
-import scala.collection.JavaConversions
-import scala.util.{Failure, Success, Try}
+import com.stratio.sparkta.driver.util.HdfsUtils
+import com.stratio.sparkta.serving.api.actor.PolicyActor._
+import com.stratio.sparkta.serving.api.constants.ActorsConstant
+import com.stratio.sparkta.serving.core.constants.AppConstant
+import com.stratio.sparkta.serving.core.dao.ConfigDAO
+import com.stratio.sparkta.serving.core.exception.ServingCoreException
+import com.stratio.sparkta.serving.core.models._
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
+import com.stratio.sparkta.serving.core.CuratorFactoryHolder
+import com.stratio.sparkta.serving.core.SparktaConfig
 
 /**
-  * Implementation of supported CRUD operations over ZK needed to manage policies.
-  */
+ * Implementation of supported CRUD operations over ZK needed to manage policies.
+ */
 class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRef)
   extends Actor
-  with SLF4JLogging
-  with SparktaSerializer {
+    with SLF4JLogging
+    with SparktaSerializer {
 
   override def receive: Receive = {
     case Create(policy) => create(policy)
@@ -130,8 +141,10 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
             s"Policy with name ${policy.name} not exists.")
         ))
       } else {
-        val policyS = policy.copy(name = policy.name.toLowerCase,
+        val policyS = policy.copy(
+          name = policy.name.toLowerCase,
           version = setVersion(searchPolicy.get, policy))
+        deleteCheckpointPath(policy)
         curatorFramework.setData.forPath(s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
       }
     }).recover {
@@ -202,4 +215,14 @@ object PolicyActor {
 
   case class ResponsePolicy(policy: Try[AggregationPoliciesModel])
 
+  def deleteCheckpointPath(policy: AggregationPoliciesModel): Unit = {
+    if (SparktaConfig.getClusterConfig.isDefined) {
+      val configDAO = ConfigDAO(SparktaConfig.mainConfig.get)
+      val hdfsJsonConfig = configDAO.dao.get(AppConstant.HdfsID).get
+      val config = ConfigFactory.parseString(hdfsJsonConfig).getConfig(AppConstant.HdfsID)
+      HdfsUtils(config).delete(AggregationPoliciesModel.checkpointPath(policy))
+    } else {
+      FileUtils.deleteDirectory(new File(AggregationPoliciesModel.checkpointPath(policy)))
+    }
+  }
 }
