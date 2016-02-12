@@ -25,7 +25,7 @@ import akka.event.slf4j.SLF4JLogging
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
-import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.CommonPoliciesModel
 import com.stratio.sparkta.serving.core.models.SparktaSerializer
 
 /**
@@ -36,14 +36,14 @@ import com.stratio.sparkta.serving.core.models.SparktaSerializer
 object PolicyUtils extends SparktaSerializer with SLF4JLogging {
 
   /**
-   * Method to parse AggregationPoliciesModel from JSON string
+   * Method to parse CommonPoliciesModel from JSON string
    *
    * @param json The policy as JSON string
-   * @return AggregationPoliciesModel
+   * @return CommonPoliciesModel
    */
-  def parseJson(json: String): AggregationPoliciesModel = parse(json).extract[AggregationPoliciesModel]
+  def parseJson(json: String): CommonPoliciesModel = parse(json).extract[CommonPoliciesModel]
 
-  def jarsFromPolicy(apConfig: AggregationPoliciesModel): Seq[String] = {
+  def jarsFromPolicy(apConfig: CommonPoliciesModel): Seq[String] = {
     val input = apConfig.input.get.jarFile match {
       case Some(file) => Seq(file)
       case None => Seq()
@@ -55,7 +55,7 @@ object PolicyUtils extends SparktaSerializer with SLF4JLogging {
     Seq(input, outputs, transformations, operators, dimensionsType).flatten.distinct
   }
 
-  def activeJars(apConfig: AggregationPoliciesModel, jars: Seq[File]): Either[Seq[String], Seq[String]] = {
+  def activeJars(apConfig: CommonPoliciesModel, jars: Seq[File]): Either[Seq[String], Seq[String]] = {
     val policyJars = jarsFromPolicy(apConfig)
     val names = jars.map(file => file.getName)
     val missing = for (name <- policyJars if !names.contains(name)) yield name

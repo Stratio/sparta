@@ -28,16 +28,18 @@ class AggregationPoliciesTest extends WordSpecLike
 with MockitoSugar
 with Matchers {
 
-  "A AggregationPoliciesValidator should" should {
+  "A CommonPoliciesValidator should" should {
     "validate dimensions are required and have at least 1 element" in {
 
       val sparkStreamingWindow = 2000
-      val checkpointAvailable = 60000
+      val checkpointInterval = "10000"
+      val checkpointAvailable = "600000"
       val storageLevel = Some("MEMORY_AND_DISK_SER_2")
       val checkpointGranularity = "minute"
       val checkpointDir = "checkpoint"
       val checkpointDto =
-        new CheckpointModel(checkpointGranularity, checkpointGranularity, None, checkpointAvailable)
+        new CommonCheckpointModel(checkpointGranularity, checkpointGranularity,
+          Some(checkpointInterval), Some(checkpointAvailable))
 
       val configuration: Map[String, JsoneyString] =
         Map(("topics", new JsoneyString("zion2:1")), ("kafkaParams.group.id", new JsoneyString("kafka-pruebas")))
@@ -45,13 +47,22 @@ with Matchers {
 
       val cubeName = "cubeTest"
       val DimensionToCube = "dimension2"
-      val cubeDto = new CubeModel(cubeName, checkpointDto, Seq(new DimensionModel(
+      val cubeDto = new CommonCubeModel(cubeName, checkpointDto, Seq(new CommonDimensionModel(
         DimensionToCube, "field1", DimensionType.IdentityName, DimensionType.DefaultDimensionClass, None)),
         Seq())
-
+      val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
       val rawDataDto = new RawDataModel()
 
-      val apd = new AggregationPoliciesModel(
+      val fragmentModel = new FragmentElementModel(
+        Some("id"),
+        "fragmentType",
+        "name",
+        "description",
+        "shortDescription",
+        PolicyElementModel("name", "type", Map()))
+
+      val fragmentType = FragmentType
+      val apd = new CommonPoliciesModel(
         None,
         None,
         storageLevel,
@@ -63,12 +74,31 @@ with Matchers {
         Seq(),
         Seq(cubeDto),
         Some(input),
-        Seq(mock[PolicyElementModel]),
-        Seq(mock[FragmentElementModel]))
+        outputs,
+        Seq(fragmentModel))
+      val test = CommonPoliciesValidator.validateDto(apd)
 
-      val test = AggregationPoliciesValidator.validateDto(apd)
+      test should be((true, ""))
 
-      test._1 should equal(true)
+      val sparkStreamingWindowBad = 20000
+      val apdBad = new CommonPoliciesModel(
+        None,
+        None,
+        storageLevel,
+        "policy-name",
+        "policy-description",
+        sparkStreamingWindowBad,
+        checkpointDir,
+        rawDataDto,
+        Seq(),
+        Seq(cubeDto),
+        Some(input),
+        outputs,
+        Seq(fragmentModel))
+
+      val test2 = CommonPoliciesValidator.validateDto(apdBad)
+
+      test2 should be (false, """{"i18nCode":"305","message":"The Checkpoint interval has to be at least 5 times greater than the Spark Streaming Window and also they have to be multiples\n"}""")
     }
   }
 }

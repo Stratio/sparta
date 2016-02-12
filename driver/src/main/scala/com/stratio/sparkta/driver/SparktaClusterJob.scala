@@ -45,7 +45,7 @@ import com.stratio.sparkta.serving.core.dao.ConfigDAO
 import com.stratio.sparkta.serving.core.dao.ErrorDAO
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.helpers.PolicyHelper
-import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparkta.serving.core.models.CommonPoliciesModel
 import com.stratio.sparkta.serving.core.models.PolicyStatusModel
 import com.stratio.sparkta.serving.core.models.SparktaSerializer
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
@@ -139,7 +139,7 @@ object SparktaClusterJob extends SparktaSerializer {
     })
   }
 
-  def getPolicyFromZookeeper(policyId: String, curatorFramework: CuratorFramework): AggregationPoliciesModel = {
+  def getPolicyFromZookeeper(policyId: String, curatorFramework: CuratorFramework): CommonPoliciesModel = {
     Try {
       PolicyUtils.parseJson(new Predef.String(curatorFramework.getData.forPath(
         s"${AppConstant.PoliciesBasePath}/${policyId}")))

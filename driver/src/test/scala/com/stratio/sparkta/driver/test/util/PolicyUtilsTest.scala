@@ -30,19 +30,20 @@ class PolicyUtilsTest extends FlatSpec with ShouldMatchers {
 
   trait ValidData {
 
-    val policyFile = getClass.getClassLoader.getResource("policies/IKafka-OPrint.json").getPath
+    val policyFile = getClass.getClassLoader.getResource("policies/IKafka-OMongo-Common.json").getPath
     val policy = PolicyUtils.parseJson(Source.fromFile(new File(policyFile)).mkString)
     val jars = List(
       "input-kafka-plugin.jar",
       "output-print-plugin.jar",
       "parser-morphlines-plugin.jar",
+      "parser-datetime-plugin.jar",
       "operator-max-plugin.jar",
-      "operator-min-plugin.jar",
-      "operator-sum-plugin.jar",
-      "field-default-plugin.jar")
+      "field-default-plugin.jar",
+      "field-dateTime-plugin.jar")
+
     val jarFiles = jars.map(new File(_))
 
-    val policyFileWithNoJars = getClass.getClassLoader.getResource("policies/IKafka-OPrint.json").getPath
+    val policyFileWithNoJars = getClass.getClassLoader.getResource("policies/IKafka-OMongo-Common.json").getPath
   }
 
   trait WrongData extends ValidData {
@@ -53,10 +54,10 @@ class PolicyUtilsTest extends FlatSpec with ShouldMatchers {
      val wrongJars = List(
        "output-print-plugin.jar",
        "parser-morphlines-plugin.jar",
+       "parser-datetime-plugin.jar",
        "operator-max-plugin.jar",
-       "operator-min-plugin.jar",
-       "operator-sum-plugin.jar",
-       "field-default-plugin.jar")
+       "field-default-plugin.jar",
+       "field-dateTime-plugin.jar")
   }
 
   "PolicyUtilsSpec" should "retrieve jars list from policy" in new ValidData {

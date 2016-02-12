@@ -34,7 +34,7 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
       Given("a policy with an input, an output and a fragment with an input")
       val checkpointDir = "checkpoint"
 
-      val ap = new AggregationPoliciesModel(
+      val ap = new CommonPoliciesModel(
         None,
         None,
         storageLevel,
@@ -82,7 +82,7 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
     Given("a policy with an input, an output and a fragment with an input")
     val checkpointDir = "checkpoint"
 
-    val ap = new AggregationPoliciesModel(
+    val ap = new CommonPoliciesModel(
       None,
       None,
       storageLevel,
@@ -124,7 +124,7 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
     Given("a policy with an input and no outputs")
     val checkpointDir = "checkpoint"
 
-    val ap = new AggregationPoliciesModel(
+    val ap = new CommonPoliciesModel(
       None,
       None,
       storageLevel,
