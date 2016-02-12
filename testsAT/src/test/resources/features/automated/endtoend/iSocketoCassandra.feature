@@ -27,22 +27,39 @@ Feature: Test policy with Socket input and Cassandra output
     Given I send data from file 'src/test/resources/schemas/dataInput/info.csv' to socket
     And I wait '10' seconds
 
-    # Check Data
+    # Check Data: Aggregation by time
     Given I connect to 'Cassandra' cluster at '${CASSANDRA_HOST}'
-    When I execute a query over fields '*' with schema 'schemas/queries/where.conf' of type 'string' with magic_column 'empty' from table: 'testcube_v1' using keyspace: 'sparkta' with:
+    When I execute a query over fields '*' with schema 'schemas/queries/where.conf' of type 'string' with magic_column 'empty' from table: 'testCubeWithTime_v1' using keyspace: 'sparkta' with:
       | column | UPDATE | product |
       | value  | UPDATE | producta |
     Then There are results found with:
       | avg_price | sum_price | count_price | first_price | last_price | max_price | min_price | fulltext_price | stddev_price | variance_price | range_price | totalentity_text | entitycount_text | occurrences |
       | 639.0     | 5112.0    | 8           | 10          | 600        | 1002.0     | 10.0     | 10 500 1000 500 1000 500 1002 600 | 347.9605889013459 | 121076.57142857143 | 992.0 | 24 | {hola=16, holo=8} | 1 |
-    When I execute a query over fields '*' with schema 'schemas/queries/where.conf' of type 'string' with magic_column 'empty' from table: 'testcube_v1' using keyspace: 'sparkta' with:
+    When I execute a query over fields '*' with schema 'schemas/queries/where.conf' of type 'string' with magic_column 'empty' from table: 'testCubeWithTime_v1' using keyspace: 'sparkta' with:
       | column | UPDATE | product |
       | value  | UPDATE | productb |
     Then There are results found with:
       | avg_price | sum_price | count_price | first_price | last_price | max_price | min_price | fulltext_price | stddev_price | variance_price | range_price | totalentity_text | entitycount_text | occurrences |
       | 758.25    | 6066.0    | 8           | 15          | 50        | 1001.0     | 15.0     | 15 1000 1000 1000 1000 1000 1001 50 | 448.04041590655 | 200740.2142857143 | 986.0 | 24 | {hola=16, holo=8} | 1 |
 
-    # Clean everything up
+    # Check Data: Aggregation without time
+    Given I connect to 'Cassandra' cluster at '${CASSANDRA_HOST}'
+    When I execute a query over fields '*' with schema 'schemas/queries/where.conf' of type 'string' with magic_column 'empty' from table: 'testCubeWithoutTime_v1' using keyspace: 'sparkta' with:
+      | column | UPDATE | product |
+      | value  | UPDATE | producta |
+    Then There are results found with:
+      | avg_price | sum_price | count_price | first_price | last_price | max_price | min_price | fulltext_price | stddev_price | variance_price | range_price | totalentity_text | entitycount_text | occurrences |
+      | 639.0     | 5112.0    | 8           | 10          | 600        | 1002.0     | 10.0     | 10 500 1000 500 1000 500 1002 600 | 347.9605889013459 | 121076.57142857143 | 992.0 | 24 | {hola=16, holo=8} | 1 |
+    When I execute a query over fields '*' with schema 'schemas/queries/where.conf' of type 'string' with magic_column 'empty' from table: 'testCubeWithoutTime_v1' using keyspace: 'sparkta' with:
+      | column | UPDATE | product |
+      | value  | UPDATE | productb |
+    Then There are results found with:
+      | avg_price | sum_price | count_price | first_price | last_price | max_price | min_price | fulltext_price | stddev_price | variance_price | range_price | totalentity_text | entitycount_text | occurrences |
+      | 758.25    | 6066.0    | 8           | 15          | 50        | 1001.0     | 15.0     | 15 1000 1000 1000 1000 1000 1001 50 | 448.04041590655 | 200740.2142857143 | 986.0 | 24 | {hola=16, holo=8} | 1 |
+
+
+  # Clean everything up
+  Scenario: Clean up
     When I send a 'PUT' request to '/policyContext' based on 'schemas/policies/policyStatusModel.conf' as 'json' with:
       | id | UPDATE | !{previousPolicyID} |
       | status | UPDATE | Stopping |
@@ -50,4 +67,5 @@ Feature: Test policy with Socket input and Cassandra output
     And I wait '5' seconds
     When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
     Then the service response status must be '200'.
-    And I truncate a Cassandra table named 'testcube_v1' using keyspace 'sparkta'
+    And I truncate a Cassandra table named 'testCubeWithTime_v1' using keyspace 'sparkta'
+    And I truncate a Cassandra table named 'testCubeWithoutTime_v1' using keyspace 'sparkta'

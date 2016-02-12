@@ -27,20 +27,34 @@ Feature: Test policy with Socket input and Elasticsearch output
     Given I send data from file 'src/test/resources/schemas/dataInput/info.csv' to socket
     And I wait '10' seconds
 
-    # Check Data
+    # Check Data aggregated by time
     Given I connect to 'Elasticsearch' cluster at '${ELASTICSEARCH_HOST}'
-    When I execute query 'schemas/queries/elasticsearch.conf' of type 'string' in 'elasticsearch' database 'testcube' using collection 'day_v1' with:
+    When I execute query 'schemas/queries/elasticsearch.conf' of type 'string' in 'elasticsearch' database 'testcubewithtime' using collection 'day_v1' with:
       | productValue | UPDATE | producta |
     Then There are results found with:
       | avg_price | sum_price | count_price | first_price | last_price | max_price | min_price | fulltext_price | stddev_price | variance_price | range_price | totalEntity_text | entityCount_text | occurrences |
-      | 639.0     | 5112.0    | 8           | 10          | 600        | 1002.0     | 10.0     | 10 500 1000 500 1000 500 1002 600 | 347.9605889013459 | 121076.57142857143 | 992.0 | 24 | {"hola":16,"holo":8} | 1 |
-    When I execute query 'schemas/queries/elasticsearch.conf' of type 'string' in 'elasticsearch' database 'testcube' using collection 'day_v1' with:
+      | 639.0     | 5112.0    | 8           | 10          | 600        | 1002.0    | 10.0      | 10 500 1000 500 1000 500 1002 600 | 347.9605889013459 | 121076.57142857143 | 992.0 | 24 | {"holo":8,"hola":16} | 1 |
+    When I execute query 'schemas/queries/elasticsearch.conf' of type 'string' in 'elasticsearch' database 'testcubewithtime' using collection 'day_v1' with:
       | productValue | UPDATE | productb |
     Then There are results found with:
       | avg_price | sum_price | count_price | first_price | last_price | max_price | min_price | fulltext_price | stddev_price | variance_price | range_price | totalEntity_text | entityCount_text | occurrences |
-      | 758.25     | 6066.0    | 8           | 15          | 50        | 1001.0     | 15.0     | 15 1000 1000 1000 1000 1000 1001 50 | 448.04041590655 | 200740.2142857143 | 986.0 | 24 | {"hola":16,"holo":8} | 1 |
+      | 758.25     | 6066.0   | 8           | 15          | 50         | 1001.0    | 15.0      | 15 1000 1000 1000 1000 1000 1001 50 | 448.04041590655 | 200740.2142857143 | 986.0 | 24 | {"holo":8,"hola":16} | 1 |
 
-    # Clean everything up
+    # Check Data aggregated without time
+    Given I connect to 'Elasticsearch' cluster at '${ELASTICSEARCH_HOST}'
+    When I execute query 'schemas/queries/elasticsearch.conf' of type 'string' in 'elasticsearch' database 'testcubewithouttime' using collection 'day_v1' with:
+      | productValue | UPDATE | producta |
+    Then There are results found with:
+      | avg_price | sum_price | count_price | first_price | last_price | max_price | min_price | fulltext_price | stddev_price | variance_price | range_price | totalEntity_text | entityCount_text | occurrences |
+      | 639.0     | 5112.0    | 8           | 10          | 600        | 1002.0    | 10.0      | 10 500 1000 500 1000 500 1002 600 | 347.9605889013459 | 121076.57142857143 | 992.0 | 24 | {"holo":8,"hola":16} | 1 |
+    When I execute query 'schemas/queries/elasticsearch.conf' of type 'string' in 'elasticsearch' database 'testcubewithouttime' using collection 'day_v1' with:
+      | productValue | UPDATE | productb |
+    Then There are results found with:
+      | avg_price | sum_price | count_price | first_price | last_price | max_price | min_price | fulltext_price | stddev_price | variance_price | range_price | totalEntity_text | entityCount_text | occurrences |
+      | 758.25     | 6066.0   | 8           | 15          | 50         | 1001.0    | 15.0      | 15 1000 1000 1000 1000 1000 1001 50 | 448.04041590655 | 200740.2142857143 | 986.0 | 24 | {"holo":8,"hola":16} | 1 |
+
+  # Clean everything up
+  Scenario: Clean up
     When I send a 'PUT' request to '/policyContext' based on 'schemas/policies/policyStatusModel.conf' as 'json' with:
       | id | UPDATE | !{previousPolicyID} |
       | status | UPDATE | Stopping |
