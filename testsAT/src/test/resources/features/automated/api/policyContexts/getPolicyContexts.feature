@@ -1,8 +1,8 @@
 @rest
-Feature: Test all Get operations for policyContexts in Sparkta Swagger API
+Feature: Test all Get operations for policyContexts in Sparta Swagger API
 
-	Background: Setup Sparkta REST client
-		Given I send requests to '${SPARKTA_HOST}:${SPARKTA_API_PORT}'
+	Background: Setup Sparta REST client
+		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 		
 	Scenario: Get all policyContexts when none available
 		When I send a 'GET' request to '/policyContext'

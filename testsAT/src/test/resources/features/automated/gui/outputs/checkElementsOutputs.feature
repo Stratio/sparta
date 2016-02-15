@@ -1,9 +1,9 @@
 @web @rest
-Feature: Test all expected elements are present in Sparkta GUI for outputs
+Feature: Test all expected elements are present in Sparta GUI for outputs
 
-	Background: Setup Sparkta GUI
-		Given I set web base url to '${SPARKTA_HOST}:${SPARKTA_PORT}'
-		And I send requests to '${SPARKTA_HOST}:${SPARKTA_API_PORT}'
+	Background: Setup Sparta GUI
+		Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
+		And I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 				
 	Scenario: Check all expected elements are available for outputs
 		Given I browse to '/#/dashboard/outputs'
