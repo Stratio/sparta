@@ -23,8 +23,7 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-import akka.actor.Actor
-import akka.actor.ActorRef
+import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.FileUtils
