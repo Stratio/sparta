@@ -8,10 +8,10 @@
         <stratio-test-bdd.version>0.2.0-SNAPSHOT</stratio-test-bdd.version>
     </properties>
 
-    <groupId>com.stratio.sparkta</groupId>
-    <artifactId>sparkta-test</artifactId>
+    <groupId>com.stratio.sparta</groupId>
+    <artifactId>sparta-test</artifactId>
     <version>0.9.0-SNAPSHOT</version>
-    <name>sparkta-test-cucumber</name>
+    <name>sparta-test-cucumber</name>
 
     <build>
         <plugins>

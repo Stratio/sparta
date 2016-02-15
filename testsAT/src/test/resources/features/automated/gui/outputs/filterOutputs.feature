@@ -1,9 +1,9 @@
 @web @rest
-Feature: Test filtering outputs in Sparkta GUI
+Feature: Test filtering outputs in Sparta GUI
 		
-	Background: Setup Sparkta GUI
-		Given I set web base url to '${SPARKTA_HOST}:${SPARKTA_PORT}'
-		Given I send requests to '${SPARKTA_HOST}:${SPARKTA_API_PORT}'
+	Background: Setup Sparta GUI
+		Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
+		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 		
 	Scenario: Try to filter existing outputs
 		# Create one output fragment

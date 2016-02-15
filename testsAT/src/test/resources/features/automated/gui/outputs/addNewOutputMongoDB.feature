@@ -1,9 +1,9 @@
 @web @rest
-Feature: Test adding a new MongoDB output in Sparkta GUI
+Feature: Test adding a new MongoDB output in Sparta GUI
 		
-	Background: Setup Sparkta GUI
-		Given I set web base url to '${SPARKTA_HOST}:${SPARKTA_PORT}'
-		Given I send requests to '${SPARKTA_HOST}:${SPARKTA_API_PORT}'
+	Background: Setup Sparta GUI
+		Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
+		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 		
 	Scenario: Try to add a new input
 		Given I browse to '/#/dashboard/outputs'
@@ -142,7 +142,7 @@ Feature: Test adding a new MongoDB output in Sparkta GUI
 		And I type '27017' on the element on index '0'
 		# Fill in Database name field
 		Given '1' element exists with 'css:input[data-qa="fragment-details-mongoDb-dbName"]'
-		Then I type 'sparkta' on the element on index '0'
+		Then I type 'sparta' on the element on index '0'
 		
 		# Create
 		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
