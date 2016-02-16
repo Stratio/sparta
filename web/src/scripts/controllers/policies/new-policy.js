@@ -10,6 +10,7 @@
   function NewPolicyCtrl(PolicyModelFactory, PolicyFactory, ModalService, $state) {
     var vm = this;
 
+    vm.changeStepNavigationVisibility = changeStepNavigationVisibility;
     vm.confirmPolicy = confirmPolicy;
 
     init();
@@ -29,7 +30,7 @@
       });
     }
 
-    function changeStepNavigationVisibility(){
+    function changeStepNavigationVisibility() {
       vm.showStepNavigation = !vm.showStepNavigation;
     }
 
