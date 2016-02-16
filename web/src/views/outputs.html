@@ -3,29 +3,45 @@
         <i class="c-icon icon-circle-cross"></i>
         <span translate="{{outputs.errorMessage}}"></span>
     </div>
-
     <div class="c-panel c-panel--fix-overflow" data-ng-if="outputs.outputsData.length > 0">
-        <div class="c-toolbar c-form-group c-form-group--to-right">
-            <div class="c-col c-col--2 c-form-control">
-                <label class="c-label o-wcag-hidden" for="type">{{"_INPUT_FILTER_TYPE_" | translate}}:</label>
-                <select id="type" class="c-combobox c-combobox--no-border c-combobox--full-width" data-ng-model="outputs.filters.element.type" data-qa="output-filter-type">
-                    <option value="" data-qa="output-filter-type-allTypes">{{"_INPUT_FILTER_TYPE_DEFAULT_" | translate}}</option>
-                    <option value="{{outputType.type}}" data-ng-repeat="outputType in outputs.outputTypes" data-qa="output-filter-type-{{outputType.type | lowercase}}">
-                        {{outputType.type}} ({{outputType.count}})
-                    </option>
-                </select>
+        <aside class="c-toolbar--filter">
+            <div class="c-col c-col--9">
+                <div class="c-toolbar--filter__item c-toolbar--filter__item--padding-right">
+                    <i class="icon icon-filter "></i>
+                    <span class="c-toolbar--filter__item__label">
+                        {{"_FILTER_BY_TYPE_" | translate}}
+                    </span>
+                    <div class="c-combobox--right-margin  c-toolbar--filter__item__input">
+                        <select id="type" class="c-combobox c-combobox--filter" data-ng-model="outputs.filters.element.type" data-qa="output-filter-type">
+                            <option value="" data-qa="output-filter-type-allTypes">{{"_INPUT_FILTER_TYPE_DEFAULT_" | translate}}</option>
+                            <option value="{{outputType.type}}" data-ng-repeat="outputType in outputs.outputTypes" data-qa="output-filter-type-{{outputType.type | lowercase}}">
+                                {{outputType.type}} ({{outputType.count}})
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="c-toolbar--filter__item">
+                    <i class="icon  icon-filter "></i>
+                    <span class="c-toolbar--filter__item__label">
+                        {{"_FILTER_BY_NAME_"| translate}}
+                    </span>
+                    <div class="quick-search quick-search__filter">
+                        <input type="text" id="name" class="quick-search__input" data-ng-model="outputs.filters.name" data-qa="output-filter-name"/>
+                        <i class="quick-search__ico icon-search"></i>
+                    </div>
+                </div>
             </div><!--
-
-         --><div class="c-col c-col--10 c-form-control">
-                <label class="c-label o-wcag-hidden" for="name">{{"_INPUT_FILTER_NAME_" | translate}}:</label>
-                <i class="icon-search c-icon c-icon--in-input-right"></i>
-                <input type="text" id="name" class="c-searchbox c-searchbox--left-icon c-searchbox--no-border c-searchbox--full-width" data-ng-model="outputs.filters.name" data-qa="output-filter-name"/>
+         --><div class="c-col c-col--3 c-form-group--to-right">
+                <button class="c-button c-button--toolbar c-button--call-to-action-1  c-button--left-margin" data-ng-click="outputs.createOutput()"
+                        data-qa="output-filter-new-output">
+                    <span class="icon icon-circle-plus"></span>
+                    <span>{{"_OUTPUT_WINDOW_NEW_TITLE_" | translate |uppercase}}</span>
+                </button>
             </div>
-        </div>
+        </aside>
         <ul br-ba-container="c-grid">
             <li class="c-grid-item" data-ng-repeat="output in filteredoutputsData  = (outputs.outputsData |
 			 filter:{'element':{'type':outputs.filters.element.type || undefined}}:true | filter:{ 'name': outputs.filters.name})" br-ba-item="{index:$index, total:filteredoutputsData.length}">
-             <!-- <li class="c-grid-item" data-ng-repeat="output in filteredoutputsData = (outputs.outputsData | fragmentFilter:outputs.filters)" br-ba-item="{index:$index, total:filteredInputsData.length}"> -->
                 <header class="title">
                     <span class="name">{{output.name}}</span>
 
