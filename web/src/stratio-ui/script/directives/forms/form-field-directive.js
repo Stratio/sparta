@@ -1,14 +1,30 @@
+/*
+ * Copyright (C) 2015 Stratio (http://stratio.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 (function () {
 	 'use strict';
 
 	 angular
 		  .module('webApp')
-		  .directive('datasourceFormField', datasourceFormField);
+		  .directive('formField', formField);
 
-	 function datasourceFormField() {
+	formField.$inject = ['$timeout'];
+	function formField($timeout) {
 		  var directive = {
 				link: link,
-				templateUrl: 'stratio-ui/template/form/datasource_form_field.html',
+				templateUrl: 'stratio-ui/template/form/form_field.html',
 				restrict: 'AE',
 				replace: true,
 				scope: {
@@ -17,18 +33,31 @@
 					 field: '=',
 					 form: '=',
 					 model: '=',
-					 qa: '@'
+					 listCompressed: '=',
+					 qa: '@',
+					 modal: "="
 				}
-		  }
+		  };
 		  return directive;
 
 		  function link(scope, element, attrs) {
+		  	$timeout(function(){
+			  	if (scope.field.propertyType !== 'list') {
+					var defaultValue = scope.field.default;
+
+					if (defaultValue !== undefined && scope.model[scope.ngFormId] === undefined) {
+						scope.model[scope.ngFormId] = defaultValue;
+					}
+			  	}
+
 				scope.mimeType = getMimeType();
 				scope.uploadFrom = '';
+
 				scope.isVisible = function () {
 		            scope.modify = {};
 		            if (scope.field && scope.field.hasOwnProperty('hidden') && scope.field.hidden) {
-		               return false;
+	                    scope.model[scope.field.propertyId] = null;
+						return false;
 		            }
 		            if (scope.field && scope.field.hasOwnProperty('visible')) {
 		               for (var i = 0; i < scope.field.visible.length; i++) {
@@ -47,17 +76,19 @@
 		                        }
 		                     } else {
 		                        allTrue = false;
+	                            scope.model[scope.field.propertyId] = null;
 		                        break; //TODO: check this break
 		                     }
 		                  }
 		                  if (allTrue) {
-		                     return true;
+		                    return true;
 		                  }
 		               }
 		               return false;
 		            }
 		            return true;
-		         };
+		        };
+	        });
 
             function getMimeType (){
                 var splited = scope.field.propertyType == 'file'? scope.field.propertyName.split(' ') : null;
