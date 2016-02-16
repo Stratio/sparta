@@ -73,6 +73,7 @@ describe('policies.wizard.controller.new-policy-controller', function () {
       '$state': stateMock
     });
 
+
     scope.$digest();
   }));
 
@@ -91,25 +92,23 @@ describe('policies.wizard.controller.new-policy-controller', function () {
       expect(ctrl.status).toEqual(fakeCreationStatus);
     });
 
-    describe("if policy is null or undefined", function () {
-      beforeEach(inject(function ($controller) {
-        policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
-          return null;
-        });
+    describe("should open a modal when user wants to create a policy", function () {
+      it("Policy modal is open", function () {
+        var expectedController = "PolicyCreationModalCtrl";
+        var expectedTemplateUrl = "templates/modal/policy-creation-modal.tpl.html";
+        var expectedResolve = {};
+        var expectedExtraClass = "";
+        var expectedSize = "lg";
 
-        ctrl = $controller('NewPolicyCtrl', {
-          'PolicyModelFactory': policyModelFactoryMock,
-          'TemplateFactory': templateFactoryMock,
-          'PolicyFactory': policyFactoryMock,
-          'ModalService': modalServiceMock,
-          '$state': stateMock
-        });
-      }));
+        var openModalArgs = modalServiceMock.openModal.calls.mostRecent().args;
 
-      it("user is redirected to policy list page", function () {
-        expect(stateMock.go).toHaveBeenCalledWith("dashboard.policies");
+        expect(openModalArgs[0]).toEqual(expectedController);
+        expect(openModalArgs[1]).toEqual(expectedTemplateUrl);
+        expect(openModalArgs[2]).toEqual(expectedResolve);
+        expect(openModalArgs[3]).toEqual(expectedExtraClass);
+        expect(openModalArgs[4]).toEqual(expectedSize);
       })
-    });
+    })
   });
 
   describe("should be able to confirm the sent of the created policy", function () {
