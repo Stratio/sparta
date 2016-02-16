@@ -1,52 +1,52 @@
 <section>
-  <c-step-progress-bar steps="wizard.steps" class="c-slider-content"
-                       data-ng-if="wizard.showStepNavigation"
-                       current-step="(wizard.status.currentStep)"
-                       next-step-available="(wizard.status.nextStepAvailable)">
-  </c-step-progress-bar>
-  <div class="c-slider-content--to-up c-panel--white" data-ng-switch on="wizard.status.currentStep">
-    <div class="c-slider-content__button c-icon" data-ng-click="wizard.changeStepNavigationVisibility()"
-         data-ng-class="{'icon-arrow2_up':  wizard.showStepNavigation, 'icon-arrow2_down':  !wizard.showStepNavigation}">
-    </div>
+  <c-step-progress-bar steps="wizard.steps" current-step="(wizard.status.currentStep)"></c-step-progress-bar>
 
-    <div class="c-step-content">
-      <header class="alignleft">
-        <h1 class="c-step-content__title">
-          <i class="c-icon {{wizard.steps[wizard.status.currentStep].icon}}"></i>
+  <div class="c-step-content">
+    <div data-ng-switch on="wizard.status.currentStep">
+      <header class="c-step-content__title c-step-content__title--underlined">
+        <h1>
+          <span class="c-step-counter">{{wizard.status.currentStep + 1}}/{{wizard.steps.length}}</span>
+          <i class="c-step-counter__icon c-icon c-icon--small icon-arrow2_right"></i>
           <span class="c-step-content__title-text">{{wizard.steps[wizard.status.currentStep].name | translate}}</span>
         </h1>
       </header>
+
       <div data-ng-switch-when="0">
-        <ng-include src="'views/policy-wizard/input.html'"></ng-include>
+        <ng-include src="'views/policy-wizard/description.html'"></ng-include>
       </div>
       <div data-ng-switch-when="1">
-        <ng-include src="'views/policy-wizard/model-accordion.html'"></ng-include>
+        <ng-include src="'views/policy-wizard/input.html'"></ng-include>
       </div>
       <div data-ng-switch-when="2">
-        <ng-include src="'views/policy-wizard/cube-accordion.html'"></ng-include>
+        <ng-include src="'views/policy-wizard/model-accordion.html'"></ng-include>
       </div>
       <div data-ng-switch-when="3">
+        <ng-include src="'views/policy-wizard/cube-accordion.html'"></ng-include>
+      </div>
+      <div data-ng-switch-when="4">
+        <ng-include src="'views/policy-wizard/output.html'"></ng-include>
+      </div>
+      <div data-ng-switch-when="5">
         <ng-include src="'views/policy-wizard/finish.html'"></ng-include>
         <footer class="c-row c-row--footer">
           <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
-            <button class="c-button c-button--call-to-action-1" data-ng-click="wizard.confirmPolicy()"
-                    data-qa="policy-save-button">
+            <button class="c-button c-button--call-to-action-1" data-ng-click="wizard.confirmPolicy()" data-qa="policy-save-button">
               <i class="icon icon-rocket"></i>
               <span>{{"_SAVE_" | translate}}</span>
             </button>
           </div>
         </footer>
       </div>
-    </div>
-    <div data-ng-if="wizard.error" class="c-row c-msg c-msg--small c-msg--error" data-qa="error-msg">
-      <i class="c-icon icon-circle-cross"></i>
-      <span>{{wizard.error | translate}}</span>
-    </div>
 
-    <div data-ng-show="wizard.successfullySentPolicy" class="c-row c-msg c-msg--small c-msg--success"
-         data-qa="success-msg">
-      <i class="c-icon icon-circle-check"></i>
-      <span>{{"_POLICY_._SUCCESS_SENT_" | translate}}</span>
+      <div data-ng-if="wizard.error" class="c-row c-msg c-msg--small c-msg--error" data-qa="error-msg">
+        <i class="c-icon icon-circle-cross"></i>
+        <span>{{wizard.error | translate}}</span>
+      </div>
+
+      <div data-ng-show="wizard.successfullySentPolicy" class="c-row c-msg c-msg--small c-msg--success" data-qa="success-msg">
+        <i class="c-icon icon-circle-check"></i>
+        <span>{{"_POLICY_._SUCCESS_SENT_" | translate}}</span>
+      </div>
     </div>
   </div>
 </section>

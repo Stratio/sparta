@@ -1,4 +1,9 @@
 <section>
+  <header>
+    <st-heading title="{{'_POLICY_HEADER_TITLE_MAIN_' | translate}}"
+                subtitle="{{'_INPUT_HEADER_TITLE_SECONDARY' | translate}}:"></st-heading>
+  </header>
+
   <div class="c-row c-msg c-msg--small c-msg--error c-msg--bottom-margin" data-ng-if="policies.errorMessage != ''"
        data-qa="manage-policies-error-msg">
     <p><i class="c-icon icon-circle-cross"></i>{{policies.errorMessage}}</p>
@@ -74,9 +79,9 @@
     <span class="c-msg__text">{{"_POLICY_CREATE_FIRST_ONE_" | translate}}</span>
   </div>
 
-  <hr class="c-line-separator" data-ng-if="policies.policiesData.list.length > 0"/>
+  <hr class="c-line-separator" data-ng-if="policies.policiesData.list.length === 0"/>
 
-  <footer class="c-row c-row--to-right c-row--footer" data-ng-if="policies.policiesData.list.length > 0">
+  <footer class="c-row c-row--separated c-row--to-right c-row--footer">
     <c-route-button button-class="'c-button c-button--call-to-action-1'" route="'editor.newPolicy'"
                     text="'_INPUT_BUTTON_NEW_' | translate" data-qa="policies-new-button"></c-route-button>
   </footer>
