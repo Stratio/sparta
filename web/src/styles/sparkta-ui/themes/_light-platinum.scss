@@ -265,7 +265,7 @@ $c-form-control---padding: 0 0 0 $component-margin;
 
 
 // c-toolbar
-$c-toolbar---background: get-color(a2);
+$c-toolbar---background: get-color(b3);
 $c-toolbar---padding: 11px 25px;
 
 
@@ -361,6 +361,7 @@ $c-list---line-height: get-line-height(large);
 //c-icon-radio
 $c-icon-radio__icon--selected---background: get-color(n0);
 $c-icon-radio__icon--selected---color: get-color(a1);
+$c-icon-radio__icon--selected---font-weight: get-font-weight(semibold);
 
 $c-icon-radio__item--checked---border: 1px solid get-color(b1);
 
@@ -424,7 +425,7 @@ $c-checkbox__label---margin: 0 0 2px;
 
 
 // c-step-progress-bar
-$c-step-progress-bar---background: transparent;
+$c-step-progress-bar---background: get-color(n0);
 $c-step-progress-bar---padding: $component-margin 0 ($component-margin * 2);
 
 
@@ -447,12 +448,12 @@ $c-step__section-name---text-transform: uppercase;
 
 
 // c-step-content
-$c-step-content---background: white;
-$c-step-content---margin: 0;
-$c-step-content---padding: 0 $stratio-ui---base-padding;
+$c-step-content---background: get-color(b3);
+$c-step-content---margin: 0 (-$stratio-ui---base-padding) (-$stratio-ui---base-padding);
+$c-step-content---padding: $stratio-ui---base-padding;
 
 $c-step-content__title---color: get-color(b1);
-$c-step-content__title---font-size: get-font-size(large);
+$c-step-content__title---font-size: get-font-size(medium-alpha);
 $c-step-content__title---font-weight: get-font-weight(normal);
 $c-step-content__title---margin: 0 0 $component-margin;
 $c-step-content__title---text-transform: uppercase;
