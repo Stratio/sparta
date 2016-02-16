@@ -72,11 +72,15 @@ describe('policies.wizard.controller.new-policy-controller', function () {
       '$scope': scope
     });
 
+
     scope.$digest();
   }));
 
-
   describe("should open a modal when user wants to create a policy", function () {
+    beforeEach(function () {
+      ctrl.createPolicy();
+    });
+
     it("Policy modal is open", function () {
       var expectedController = "PolicyCreationModalCtrl";
       var expectedTemplateUrl = "templates/modal/policy-creation-modal.tpl.html";
@@ -84,25 +88,13 @@ describe('policies.wizard.controller.new-policy-controller', function () {
       var expectedExtraClass = "";
       var expectedSize = "lg";
 
-      ctrl.createPolicy();
-
-      var openModalArgs = modalServiceMock.openModal.calls.mostRecent().args;
+      var openModalArgs=  modalServiceMock.openModal.calls.mostRecent().args;
 
       expect(openModalArgs[0]).toEqual(expectedController);
       expect(openModalArgs[1]).toEqual(expectedTemplateUrl);
       expect(openModalArgs[2]).toEqual(expectedResolve);
       expect(openModalArgs[3]).toEqual(expectedExtraClass);
       expect(openModalArgs[4]).toEqual(expectedSize);
-    });
-
-    it("should redirect user to policy creation wizard when modal is confirmed", function(){
-      ctrl.createPolicy().then(function(){
-
-        expect(stateMock.go).toHaveBeenCalledWith('wizard.newPolicy');
-      });
-
-    });
-  });
-
-
+    })
+  })
 });
