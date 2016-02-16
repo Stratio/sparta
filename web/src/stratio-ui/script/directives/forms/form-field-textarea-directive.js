@@ -18,76 +18,45 @@
 
     angular
         .module('webApp')
-        .directive('formFieldInput', formFieldInput);
+        .directive('formFieldTextarea', formFieldTextarea);
 
-    formFieldInput.$inject = ['$document'];
-    function formFieldInput($document) {
+    formFieldTextarea.$inject = ['$document'];
+    function formFieldTextarea($document) {
         var directive = {
             link: link,
-            templateUrl: 'stratio-ui/template/form/form_field_input.html',
+            templateUrl: 'stratio-ui/template/form/form_field_textarea.html',
             restrict: 'AE',
             replace: true,
             scope: {
-                customError: '@',
-                help: '@',
-                label: '@',
-                name: '@stName',
-                placeholder: '@',
-                type: '@',
-                autofocus: '=',
-                form: '=',
-                match: '=',
-                maxlength: '=',
-                minlength: '=',
-                max: '=',
-                min: '=',
-                step: '=',
-                stTrim: '=',
-                model: '=',
-                pattern: '=',
-                required: '=',
-                disabled: '=',
-                qa: '@',
-                helpQa: '@',
-                elementsLength: '=',
-                listCompressed: "=",
-                submittedForm: '=',
-                inputDefault: '=',
-                outputField: '='
+                    help: '@',
+                    label: '@',
+                    name: '@stName',
+                    form: '=',
+                    model: '=',
+                    listCompressed: "=",
+                    required: '=',
+                    json:'=',
+                helpQa: '='
             }
-        };
+        }
         return directive;
 
         function link(scope, element, attrs) {
-            scope.customError = "";
             scope.help = "";
             scope.label = "";
             scope.name = "";
             scope.placeholder = "";
-            scope.type = "text";
 
             scope.isFocused = false;
             scope.showHelp = false;
 
             scope.$watch('autofocus', function(newValue, oldValue) {
                 if (newValue) {
-                    var tags = element.find('input');
+                    var tags = element.find('textarea');
                     if (tags.length>0) {
                         tags[0].focus();
                     }
                 }
-            });
-
-            scope.$watch('customError', function(newValue, oldValue) {
-                if (newValue) {
-                    scope[scope.name][scope.name].$setValidity('custom', false);
-                } else if (oldValue !== newValue) {
-                    scope[scope.name][scope.name].$setValidity('custom', true);
-                }
-            });
-
-            scope.$watch('model', function(newValue, oldValue){
-                    scope.customError = '';
             });
 
             scope.toggleHelp = function(event) {
