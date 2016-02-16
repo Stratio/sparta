@@ -1,378 +1,155 @@
 {
-  "defaultSparkStreamingWindow": 6000,
-  "defaultStorageLevel": "MEMORY_AND_DISK_SER",
-  "defaultCheckpointPath": "checkpoint",
-  "steps": [
+  "basicSettings": [
     {
-      "name": "_POLICY_._STEPS_._DESCRIPTION_",
-      "icon": "icon-tag_left"
+      "propertyId": "name",
+      "propertyName": "_INSERT_NAME_",
+      "propertyType": "text",
+      "required": true,
+      "qa": "policy-name"
     },
     {
-      "name": "_POLICY_._STEPS_._INPUT_",
-      "icon": "icon-import"
-    },
-    {
-      "name": "_POLICY_._STEPS_._MODEL_",
-      "icon": "icon-content-left"
-    },
-    {
-      "name": "_POLICY_._STEPS_._CUBES_",
-      "icon": "icon-box"
-    },
-    {
-      "name": "_POLICY_._STEPS_._OUTPUTS_",
-      "icon": "icon-export"
-    },
-    {
-      "name": "_POLICY_._STEPS_._FINISH_",
-      "icon": "icon-paper"
+      "propertyId": "description",
+      "propertyName": "_INSERT_DESCRIPTION_",
+      "propertyType": "text",
+      "required": true,
+      "qa": "policy-description"
     }
   ],
-  "sparkStreamingWindow": {
-    "min": 0,
-    "max": 10000
-  },
-  "checkpointInterval": {
-    "min": 0,
-    "max": 10000
-  },
-  "checkpointAvailability": {
-    "min": 0,
-    "max": 10000
-  },
-  "storageLevel": {
-    "values": [
-      {
-        "label": "DISK_ONLY",
-        "value": "DISK_ONLY"
-      },
-      {
-        "label": "DISK_ONLY_2",
-        "value": "DISK_ONLY_2"
-      },
-      {
-        "label": "MEMORY_ONLY",
-        "value": "MEMORY_ONLY"
-      },
-      {
-        "label": "MEMORY_ONLY_2",
-        "value": "MEMORY_ONLY_2"
-      },
-      {
-        "label": "MEMORY_ONLY_SER",
-        "value": "MEMORY_ONLY_SER"
-      },
-      {
-        "label": "MEMORY_ONLY_SER_2",
-        "value": "MEMORY_ONLY_SER_2"
-      },
-      {
-        "label": "MEMORY_AND_DISK",
-        "value": "MEMORY_AND_DISK"
-      },
-      {
-        "label": "MEMORY_AND_DISK_2",
-        "value": "MEMORY_AND_DISK_2"
-      },
-      {
-        "label": "MEMORY_AND_DISK_SER",
-        "value": "MEMORY_AND_DISK_SER"
-      },
-      {
-        "label": "MEMORY_AND_DISK_SER_2",
-        "value": "MEMORY_AND_DISK_SER_2"
-      }
-    ]
-  },
-  "helpLinks": {
-    "description": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/5.+Create+and+Submit+Policy",
-    "inputs": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/5.+Create+and+Submit+Policy#id-5.CreateandSubmitPolicy-Step4.Selectinganinput",
-    "models": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/5.+Create+and+Submit+Policy#id-5.CreateandSubmitPolicy-Step5.Modelingthedata",
-    "cubes": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/5.+Create+and+Submit+Policy#id-5.CreateandSubmitPolicy-Step6.Creatingthecubes",
-    "outputs": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/5.+Create+and+Submit+Policy#id-5.CreateandSubmitPolicy-Step10.Selectinganoutput"
-  },
-  "configPlaceholder": "{    \n    \"inputFormat\": \"unixMillis\", \n   \"dbName\": \"sparkta\"\n}",
-  "configurationHelpLink": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/7.2+Transformations",
-  "morphlinesDefaultConfiguration": {
-    "morphline": {
-      "id": "morphline1",
-      "importCommands": [
-        "org.kitesdk.**"
+  "advancedSettings": [
+    {
+      "propertyId": "checkpointPath",
+      "propertyName": "_CHECKPOINT_PATH_",
+      "propertyType": "text",
+      "required": true,
+      "default": "/tmp/checkpoint",
+      "qa": "policy-checkpoint-path"
+    },
+    {
+      "propertyId": "sparkStreamingWindow",
+      "propertyName": "_SPARK_STREAMING_WINDOW_",
+      "propertyType": "number",
+      "required": true,
+      "default": 6000,
+      "qa": "policy-spark-streaming-window",
+      "min": 0,
+      "max": 10000
+    },
+    {
+      "propertyId": "storageLevel",
+      "propertyName": "_STORAGELEVEL_",
+      "propertyType": "select",
+      "required": true,
+      "default": "MEMORY_AND_DISK_SER",
+      "qa": "policy-storage-level",
+      "values": [
+        {
+          "label": "DISK_ONLY",
+          "value": "DISK_ONLY"
+        },
+        {
+          "label": "DISK_ONLY_2",
+          "value": "DISK_ONLY_2"
+        },
+        {
+          "label": "MEMORY_ONLY",
+          "value": "MEMORY_ONLY"
+        },
+        {
+          "label": "MEMORY_ONLY_2",
+          "value": "MEMORY_ONLY_2"
+        },
+        {
+          "label": "MEMORY_ONLY_SER",
+          "value": "MEMORY_ONLY_SER"
+        },
+        {
+          "label": "MEMORY_ONLY_SER_2",
+          "value": "MEMORY_ONLY_SER_2"
+        },
+        {
+          "label": "MEMORY_AND_DISK",
+          "value": "MEMORY_AND_DISK"
+        },
+        {
+          "label": "MEMORY_AND_DISK_2",
+          "value": "MEMORY_AND_DISK_2"
+        },
+        {
+          "label": "MEMORY_AND_DISK_SER",
+          "value": "MEMORY_AND_DISK_SER"
+        },
+        {
+          "label": "MEMORY_AND_DISK_SER_2",
+          "value": "MEMORY_AND_DISK_SER_2"
+        }
+      ]
+    },
+    {
+      "propertyId": "rawData",
+      "propertyName": "_PERSIST_RAW_DATA_",
+      "propertyType": "boolean",
+      "default": false,
+      "qa": "policy-raw-data"
+    },
+    {
+      "propertyId": "rawDataPath",
+      "propertyName": "_PATH_",
+      "propertyType": "text",
+      "required": true,
+      "visible": [
+        [
+          {
+            "propertyId": "rawData",
+            "value": true
+          }
+        ]
       ],
-      "commands": [
-        {
-          "readJson": {}
-        },
-        {
-          "extractJsonPaths": {
-            "paths": {
-              "field1": "/field-in-json1",
-              "field2": "/field-in-json2"
-            }
-          }
-        },
-        {
-          "removeFields": {
-            "blacklist": [
-              "literal:_attachment_body",
-              "literal:message"
-            ]
-          }
-        }
-      ]
-    }
-  },
-  "dateTimeDefaultConfiguration": {
-    "inputFormat": "unix"
-  },
-  "typeDefaultConfiguration": {
-    "type": "long",
-    "newField": "newFieldLong"
-  },
-  "types": [
-    {
-      "iconName": "morphlines",
-      "name": "Morphlines"
-    },
-    {
-      "iconName": "datetime",
-      "name": "DateTime"
-    },
-    {
-      "iconName": "type",
-      "name": "Type"
+      "default": "/tmp/checkpoint",
+      "qa": "raw-data-path"
     }
   ],
-  "defaultInput": {
-    "label": "_attachment_body",
-    "value": "_attachment_body"
-  },
-  "configHelpLink": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/7.2+Transformations",
-  "outputPattern": "[a-zA-Z0-9]*",
-  "outputInputPlaceholder": "_OUTPUT_INPUT_PLACEHOLDER_",
-  "granularityOptions": [
+  "fragments": [],
+  "transformations": [
     {
-      "label": "5 seconds",
-      "value": "5 seconds"
-    },
-    {
-      "label": "_10_SECONDS_",
-      "value": "10 seconds"
-    },
-    {
-      "label": "_15_SECONDS_",
-      "value": "15 seconds"
-    },
-    {
-      "label": "_MINUTE_",
-      "value": "minute"
-    },
-    {
-      "label": "_HOUR_",
-      "value": "hour"
-    },
-    {
-      "label": "_DAY_",
-      "value": "day"
-    },
-    {
-      "label": "_MONTH_",
-      "value": "month"
-    },
-    {
-      "label": "_YEAR_",
-      "value": "year"
-    }
-  ],
-  "precisionOptions": [
-    {
+      "name": "adfdfsdf",
       "type": "DateTime",
-      "precisions": [
-        {
-          "label": "_SECOND_",
-          "value": "second"
-        },
-        {
-          "label": "_5_SECONDS_",
-          "value": "s5"
-        },
-        {
-          "label": "_10_SECONDS_",
-          "value": "s10"
-        },
-        {
-          "label": "_15_SECONDS_",
-          "value": "s15"
-        },
-        {
-          "label": "_MINUTE_",
-          "value": "minute"
-        },
-        {
-          "label": "_HOUR_",
-          "value": "hour"
-        },
-        {
-          "label": "_DAY_",
-          "value": "day"
-        },
-        {
-          "label": "_MONTH_",
-          "value": "month"
-        },
-        {
-          "label": "_YEAR_",
-          "value": "year"
-        }
-      ]
-    },
-    {
-      "type": "GeoHash",
-      "precisions": [
-        {
-          "label": "_PRECISION_1_",
-          "value": "precision1"
-        },
-        {
-          "label": "_PRECISION_2_",
-          "value": "precision2"
-        },
-        {
-          "label": "_PRECISION_3_",
-          "value": "precision3"
-        },
-        {
-          "label": "_PRECISION_4_",
-          "value": "precision4"
-        },
-        {
-          "label": "_PRECISION_5_",
-          "value": "precision5"
-        },
-        {
-          "label": "_PRECISION_6_",
-          "value": "precision6"
-        },
-        {
-          "label": "_PRECISION_7_",
-          "value": "precision7"
-        },
-        {
-          "label": "_PRECISION_8_",
-          "value": "precision8"
-        },
-        {
-          "label": "_PRECISION_9_",
-          "value": "precision9"
-        },
-        {
-          "label": "_PRECISION_10_",
-          "value": "precision10"
-        },
-        {
-          "label": "_PRECISION_11_",
-          "value": "precision11"
-        },
-        {
-          "label": "_PRECISION_12_",
-          "value": "precision12"
-        }
-      ]
-    },
-    {
-      "type": "Default",
-      "precisions": []
+      "order": 1,
+      "inputField": "raw",
+      "outputFields": [
+        "sdf",
+        "dsfdsf"
+      ],
+      "configuration": {
+        "inputFormat": "unix"
+      }
     }
   ],
-  "defaultModelName": "model",
-  "defaultCubeName": "cube",
-  "cubeTypes": [
+  "cubes": [
     {
-      "label": "Default",
-      "value": "Default"
-    },
-    {
-      "label": "DateTime",
-      "value": "DateTime"
-    },
-    {
-      "label": "GeoHash",
-      "value": "GeoHash"
-    }
-  ],
-  "defaultInterval": 30000,
-  "defaultTimeAvailability": 60000,
-  "defaultGranularity": "minute",
-  "defaultTimeDimension": "minute",
-  "defaultOperatorConfiguration": {
-    "inputField": "field1"
-  },
-  "functionNames": [
-    "Accumulator",
-    "Avg",
-    "Count",
-    "EntityCount",
-    "FirstValue",
-    "FullText",
-    "LastValue",
-    "Max",
-    "Median",
-    "Min",
-    "Mode",
-    "Range",
-    "Stddev",
-    "Sum",
-    "Variance",
-    "TotalEntityCount"
-  ],
-  "defaultType": {
-    "label": "Default",
-    "value": "Default"
-  },
-  "outputFieldTypes": [
-    {
-      "label": "string",
-      "value": "string"
-    },
-    {
-      "label": "long",
-      "value": "long"
-    },
-    {
-      "label": "double",
-      "value": "double"
-    },
-    {
-      "label": "integer",
-      "value": "integer"
-    },
-    {
-      "label": "boolean",
-      "value": "boolean"
-    },
-    {
-      "label": "date",
-      "value": "date"
-    },
-    {
-      "label": "datetime",
-      "value": "datetime"
-    },
-    {
-      "label": "timestamp",
-      "value": "timestamp"
-    },
-    {
-      "label": "arraydouble",
-      "value": "arraydouble"
-    },
-    {
-      "label": "arraystring",
-      "value": "arraystring"
-    },
-    {
-      "label": "text",
-      "value": "text"
+      "name": "sdf",
+      "checkpointConfig": {
+        "timeDimension": "minutesdf",
+        "granularity": "minute",
+        "interval": 30000,
+        "timeAvailability": 60000
+      },
+      "dimensions": [
+        {
+          "name": "dsfdsf1",
+          "field": "dsfdsf",
+          "precision": "identity",
+          "type": "Default"
+        }
+      ],
+      "operators": [
+        {
+          "type": "Avg",
+          "name": "avg1",
+          "configuration": {
+            "inputField": "field1"
+          }
+        }
+      ]
     }
   ]
 }
