@@ -20,13 +20,25 @@
     <div id="base-content-wrapper" ui-view="content"></div>
 </div>
 
+<!--
+<st-dashboard
+  module-logo="images/app-logo.png"
+  module-name="Stratio Sparkta">
+
+  <div st-menu-tab data-title="dashboard" data-route="dashboard.inputs" data-sref="dashboard.inputs"
+       data-icon="icon-grid" data-visible="true" data-qaref="app-main-menu-dashboard"></div>
+  <div st-menu-tab data-title="settings" data-route="settings" data-sref="settings" data-icon="icon-cog"
+       data-visible="false" data-qaref="app-main-menu-settings"></div>
+</st-dashboard>
+
+-->
+
 <!-- build:js(.) scripts/vendors.js -->
 <script src="node_modules/jquery/dist/jquery.js"></script>
 <script src="node_modules/angular/angular.js"></script>
 <script src="node_modules/angular-resource/angular-resource.js"></script>
 <script src="node_modules/angular-route/angular-route.js"></script>
 <script src="node_modules/angular-ui-router/release/angular-ui-router.js"></script>
-<script src="node_modules/angular-animate/angular-animate.js"></script>
 <!-- endbuild -->
 
 <!-- build:js({.tmp,src}) scripts/scripts.js -->
@@ -44,10 +56,10 @@
 <script src="scripts/controllers/inputs/duplicate-input.js"></script>
 <script src="scripts/controllers/inputs/delete-input.js"></script>
 <script src="scripts/controllers/policies/new-policy.js"></script>
+<script src="scripts/controllers/policies/policy-description.js"></script>
 <script src="scripts/controllers/policies/policy-inputs.js"></script>
 <script src="scripts/controllers/policies/policy-outputs.js"></script>
 <script src="scripts/controllers/policies/policy-finish.js"></script>
-<script src="scripts/controllers/policies/policy-wizard-header.js"></script>
 <script src="scripts/controllers/policies/modal/delete-policy-modal.js"></script>
 <script src="scripts/controllers/policies/modal/new-dimension-modal.js"></script>
 <script src="scripts/controllers/policies/modal/new-operator-modal.js"></script>
@@ -57,7 +69,6 @@
 <script src="scripts/controllers/policies/policy-model-accordion.js"></script>
 <script src="scripts/controllers/policies/edit-policy.js"></script>
 <script src="scripts/controllers/modal/confirm-modal.js"></script>
-<script src="scripts/controllers/policies/modal/policy-creation-modal.js"></script>
 <!-- Directives ----------------------------------------- -->
 <script src="scripts/vendors/angular-translate.js"></script>
 <script src="scripts/vendors/ui.stratio.grid.js"></script>
@@ -66,7 +77,7 @@
 <script src="scripts/vendors/ui-bootstrap-custom-tpls-0.13.4.min.js"></script>
 
 <!-- Form directives -->
-<script src="stratio-ui/script/directives/forms/form-field-directive.js"></script>
+<script src="stratio-ui/script/directives/forms/datasource-form-field-directive.js"></script>
 <script src="stratio-ui/script/directives/forms/form-field-input-directive.js"></script>
 <script src="stratio-ui/script/directives/forms/form-field-select-directive.js"></script>
 <script src="stratio-ui/script/directives/forms/form-field-check-directive.js"></script>
