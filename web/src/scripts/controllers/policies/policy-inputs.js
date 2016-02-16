@@ -19,13 +19,15 @@
     init();
 
     function init() {
-      vm.template = PolicyModelFactory.getTemplate();
-      vm.helpLink = vm.template.helpLinks.inputs;
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      var inputList = FragmentFactory.getFragments("input");
-      return inputList.then(function (result) {
-        vm.inputList = result;
-      });
+      vm.template = PolicyModelFactory.getTemplate();
+      if (vm.policy &&  vm.template) {
+        vm.helpLink = vm.template.helpLinks.inputs;
+        var inputList = FragmentFactory.getFragments("input");
+        return inputList.then(function (result) {
+          vm.inputList = result;
+        });
+      }
     }
 
     function setInput(index) {

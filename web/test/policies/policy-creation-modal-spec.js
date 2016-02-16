@@ -18,7 +18,7 @@ describe('policy-creation-modal-controller', function () {
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/policyTemplate.json'));
 
-  var ctrl, $q, PolicyFactoryMock, PolicyModelFactoryMock, TemplateFactoryMock,fakePolicy,fakePolicyTemplate, modalInstanceMock, scope = null;
+  var ctrl, $q, PolicyFactoryMock, PolicyModelFactoryMock, TemplateFactoryMock, fakePolicy, fakePolicyTemplate, modalInstanceMock, scope = null;
 
   beforeEach(inject(function ($controller, _$q_, $httpBackend, $rootScope, _servedPolicy_, _servedPolicyTemplate_) {
     $httpBackend.when('GET', 'languages/en-US.json')
@@ -28,9 +28,9 @@ describe('policy-creation-modal-controller', function () {
     fakePolicy = _servedPolicy_;
     fakePolicyTemplate = _servedPolicyTemplate_;
     PolicyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['existsPolicy']);
-    PolicyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['setTemplate','resetPolicy','getCurrentPolicy']);
+    PolicyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['setTemplate', 'resetPolicy', 'getCurrentPolicy', 'nextStep']);
     TemplateFactoryMock = jasmine.createSpyObj('TemplateFactory', ['getPolicyTemplate']);
-    modalInstanceMock = jasmine.createSpyObj('$modalInstance',['close']);
+    modalInstanceMock = jasmine.createSpyObj('$modalInstance', ['close']);
     TemplateFactoryMock.getPolicyTemplate.and.callFake(function () {
       var defer = $q.defer();
       defer.resolve(fakePolicyTemplate);
@@ -58,6 +58,12 @@ describe('policy-creation-modal-controller', function () {
     it('should get the policy that is being created or edited from policy factory', function () {
       expect(ctrl.policy).toBe(fakePolicy);
     });
+
+    it('it should get the policy template from from a template factory and put it to the policy model factory', function () {
+      expect(TemplateFactoryMock.getPolicyTemplate).toHaveBeenCalled();
+      expect(PolicyModelFactoryMock.setTemplate).toHaveBeenCalledWith(fakePolicyTemplate);
+    });
+
   });
 
   describe("should validate form and policy before to close modal", function () {
@@ -92,7 +98,7 @@ describe('policy-creation-modal-controller', function () {
         expect(modalInstanceMock.close).not.toHaveBeenCalled();
       });
 
-      it("It is valid if there is not another policy with the same name", function () {
+      it("and there is not another policy with the same name, policy model is reset, modal is closed and current step is added one", function () {
         PolicyFactoryMock.existsPolicy.and.callFake(function () {
           var defer = $q.defer();
           defer.resolve(false);
@@ -103,8 +109,8 @@ describe('policy-creation-modal-controller', function () {
         ctrl.validateForm();
         scope.$digest();
 
-
         expect(modalInstanceMock.close).toHaveBeenCalled();
+        expect(PolicyModelFactoryMock.resetPolicy).toHaveBeenCalled();
       });
 
     });
