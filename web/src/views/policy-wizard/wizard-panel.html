@@ -1,7 +1,13 @@
 <section>
-  <c-step-progress-bar steps="wizard.steps" current-step="(wizard.status.currentStep)"></c-step-progress-bar>
+  <c-step-progress-bar class="c-slider-content" steps="wizard.steps"
+                       data-ng-class="{'c-slider-content--show': wizard.showStepNavigation,'c-slider-content--hide': !wizard.showStepNavigation }"
+                       current-step="(wizard.status.currentStep)">
+  </c-step-progress-bar>
 
-  <div class="c-step-content">
+  <div class="">
+    <div class="c-slider-content__line" data-ng-click="wizard.changeStepNavigationVisibility()">
+      <div class="c-slider-content__button"></div>
+    </div>
     <div data-ng-switch on="wizard.status.currentStep">
       <header class="c-step-content__title c-step-content__title--underlined">
         <h1>
@@ -27,7 +33,8 @@
         <ng-include src="'views/policy-wizard/finish.html'"></ng-include>
         <footer class="c-row c-row--footer">
           <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
-            <button class="c-button c-button--call-to-action-1" data-ng-click="wizard.confirmPolicy()" data-qa="policy-save-button">
+            <button class="c-button c-button--call-to-action-1" data-ng-click="wizard.confirmPolicy()"
+                    data-qa="policy-save-button">
               <i class="icon icon-rocket"></i>
               <span>{{"_SAVE_" | translate}}</span>
             </button>
@@ -40,7 +47,8 @@
         <span>{{wizard.error | translate}}</span>
       </div>
 
-      <div data-ng-show="wizard.successfullySentPolicy" class="c-row c-msg c-msg--small c-msg--success" data-qa="success-msg">
+      <div data-ng-show="wizard.successfullySentPolicy" class="c-row c-msg c-msg--small c-msg--success"
+           data-qa="success-msg">
         <i class="c-icon icon-circle-check"></i>
         <span>{{"_POLICY_._SUCCESS_SENT_" | translate}}</span>
       </div>
