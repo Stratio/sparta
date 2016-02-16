@@ -74,7 +74,7 @@
   </div>
 
   <div class="c-msg--noitems c-msg--giant" data-ng-if="policies.policiesData.list.length === 0"
-       ui-sref="dashboard.newPolicy" data-qa="policy-first-message">
+       ui-sref="editor.newPolicy" data-qa="policy-first-message">
     <i class="c-icon icon-marquee-plus"></i>
     <span class="c-msg__text">{{"_POLICY_CREATE_FIRST_ONE_" | translate}}</span>
   </div>
@@ -82,7 +82,7 @@
   <hr class="c-line-separator" data-ng-if="policies.policiesData.list.length === 0"/>
 
   <footer class="c-row c-row--separated c-row--to-right c-row--footer">
-    <c-route-button button-class="'c-button c-button--call-to-action-1'" route="'dashboard.newPolicy'"
+    <c-route-button button-class="'c-button c-button--call-to-action-1'" route="'editor.newPolicy'"
                     text="'_INPUT_BUTTON_NEW_' | translate" data-qa="policies-new-button"></c-route-button>
   </footer>
 </section>
