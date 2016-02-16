@@ -1,9 +1,0 @@
-@mixin c-slider {
-	@include c-component;
-
-	margin: $c-slider---margin;
-}
-
-.c-slider {
-	@include c-slider;
-}
