@@ -79,11 +79,6 @@ describe('policies.wizard.controller.new-policy-controller', function () {
 
   describe("when it is initialized", function () {
 
-    it('it should get the policy template from from a template factory and put it to the policy model factory', function () {
-      expect(templateFactoryMock.getPolicyTemplate).toHaveBeenCalled();
-      expect(policyModelFactoryMock.setTemplate).toHaveBeenCalledWith(fakeTemplate);
-    });
-
     it('it should get the policy from policy factory that will be created', function () {
       expect(ctrl.policy).toBe(fakePolicy);
     });
@@ -92,14 +87,28 @@ describe('policies.wizard.controller.new-policy-controller', function () {
       expect(ctrl.steps).toBe(fakeTemplate.steps);
     });
 
-    it("should call to reset the current policy in order to initialize all attributes", function () {
-      expect(policyModelFactoryMock.resetPolicy).toHaveBeenCalled();
-    });
-
     it("should load the creation status from the policy model factory", function () {
       expect(policyModelFactoryMock.getProcessStatus).toHaveBeenCalled();
       expect(ctrl.status).toEqual(fakeCreationStatus);
     });
+
+    describe("should open a modal when user wants to create a policy", function () {
+      it("Policy modal is open", function () {
+        var expectedController = "PolicyCreationModalCtrl";
+        var expectedTemplateUrl = "templates/modal/policy-creation-modal.tpl.html";
+        var expectedResolve = {};
+        var expectedExtraClass = "";
+        var expectedSize = "lg";
+
+        var openModalArgs = modalServiceMock.openModal.calls.mostRecent().args;
+
+        expect(openModalArgs[0]).toEqual(expectedController);
+        expect(openModalArgs[1]).toEqual(expectedTemplateUrl);
+        expect(openModalArgs[2]).toEqual(expectedResolve);
+        expect(openModalArgs[3]).toEqual(expectedExtraClass);
+        expect(openModalArgs[4]).toEqual(expectedSize);
+      })
+    })
   });
 
   describe("should be able to confirm the sent of the created policy", function () {
