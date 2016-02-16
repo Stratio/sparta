@@ -108,48 +108,11 @@
       "qa": "raw-data-path"
     }
   ],
-  "fragments": [],
-  "transformations": [
-    {
-      "name": "adfdfsdf",
-      "type": "DateTime",
-      "order": 1,
-      "inputField": "raw",
-      "outputFields": [
-        "sdf",
-        "dsfdsf"
-      ],
-      "configuration": {
-        "inputFormat": "unix"
-      }
-    }
-  ],
-  "cubes": [
-    {
-      "name": "sdf",
-      "checkpointConfig": {
-        "timeDimension": "minutesdf",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
-      },
-      "dimensions": [
-        {
-          "name": "dsfdsf1",
-          "field": "dsfdsf",
-          "precision": "identity",
-          "type": "Default"
-        }
-      ],
-      "operators": [
-        {
-          "type": "Avg",
-          "name": "avg1",
-          "configuration": {
-            "inputField": "field1"
-          }
-        }
-      ]
-    }
-  ]
+  "helpLinks": {
+    "description": "http://docs.stratio.com/modules/sparkta/0.6/usingSparkta.html#policy",
+    "inputs": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html",
+    "models": "http://docs.stratio.com/modules/sparkta/0.6/transformations.html",
+    "cubes": "http://docs.stratio.com/modules/sparkta/0.6/cube.html",
+    "outputs": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html"
+  }
 }
