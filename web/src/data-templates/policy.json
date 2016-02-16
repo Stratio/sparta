@@ -108,6 +108,32 @@
       "qa": "raw-data-path"
     }
   ],
+  "steps": [
+    {
+      "name": "_POLICY_._STEPS_._DESCRIPTION_",
+      "icon": "icon-tag_left"
+    },
+    {
+      "name": "_POLICY_._STEPS_._INPUT_",
+      "icon": "icon-import"
+    },
+    {
+      "name": "_POLICY_._STEPS_._MODEL_",
+      "icon": "icon-content-left"
+    },
+    {
+      "name": "_POLICY_._STEPS_._CUBES_",
+      "icon": "icon-box"
+    },
+    {
+      "name": "_POLICY_._STEPS_._OUTPUTS_",
+      "icon": "icon-export"
+    },
+    {
+      "name": "_POLICY_._STEPS_._FINISH_",
+      "icon": "icon-paper"
+    }
+  ],
   "helpLinks": {
     "description": "http://docs.stratio.com/modules/sparkta/0.6/usingSparkta.html#policy",
     "inputs": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html",
