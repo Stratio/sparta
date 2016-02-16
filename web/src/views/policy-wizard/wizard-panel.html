@@ -6,7 +6,8 @@
 
   <div class="">
     <div class="c-slider-content__line" data-ng-click="wizard.changeStepNavigationVisibility()">
-      <div class="c-slider-content__button"></div>
+      <div class="c-slider-content__button c-icon c-col c-col--12" data-ng-class = "{'icon-arrow2_up':  wizard.showStepNavigation, 'icon-arrow2_down':  !wizard.showStepNavigation}">
+      </div>
     </div>
     <div data-ng-switch on="wizard.status.currentStep">
       <header class="c-step-content__title c-step-content__title--underlined">

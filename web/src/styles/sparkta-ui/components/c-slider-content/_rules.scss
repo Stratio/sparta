@@ -1,31 +1,49 @@
 @mixin c-slider-content {
   @include c-component;
+  overflow: hidden;
 
   &__button {
     border-radius: 50%;
-    width: 27px;
+    width: 34px;
+    height: 34px;
+    line-height: 32px;
     background: white;
-    border: 1px solid black;
-    height: 27px;
+    border: 1px solid getColor(n4);
     background: white;
     text-align: center;
     position: relative;
-    margin-top: -14px;
+    font-size: 13px;
+    top: -17px;
+    color: getColor(n6);
+    cursor: pointer;
   }
 
   &__line {
     text-align: center;
-    border-top: 1px solid black;
-    height: 28px;
+    border-top: 1px solid getColor(n6);
+    height: 1px;
+    margin-top: 4px;
+    margin-bottom: 4px;
     width: 100%;
+    -webkit-box-shadow: 0px -5px 11px 0px getColor(n4);
+    -moz-box-shadow: 0px -5px 11px 0px getColor(n4);
+    box-shadow: 0px -5px 11px 0px getColor(n4);
   }
 
   &--hide {
-    height: 0px;
+    max-height: 0px;
+    overflow: hidden;
+    -webkit-transition: max-height 0.8s;
+    -moz-transition: max-height 0.8s;
+    transition: max-height 0.8s;
   }
 
   &--show {
-    height: 100%;
+    -webkit-transition: max-height 0.8s;
+    -moz-transition: max-height 0.8s;
+    transition: max-height 0.8s;
+    max-height: 200px;
+    overflow: hidden;
   }
 
 }
