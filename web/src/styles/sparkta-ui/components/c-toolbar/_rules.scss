@@ -1,6 +1,6 @@
 @mixin c-toolbar {
-	@include c-panel;
-	@include no-paddings();
+  @include c-panel;
+  @include no-paddings();
 
   background: $c-toolbar---background;
   padding: $c-toolbar---padding;
@@ -60,5 +60,5 @@
 }
 
 .c-toolbar {
-	@include c-toolbar;
+  @include c-toolbar;
 }
