@@ -76,19 +76,33 @@ angular
         controllerAs: 'policies',
         templateUrl: 'views/policies.html'
     })
-      .state('dashboard.newPolicy', {
-        url: '/policies/new',
+    /******* POLICY EDITOR *******/
+    .state('editor', {
+        url: '/editor',
+        views: {
+            'header': {
+                templateUrl: 'views/editor/editor_header.html',
+                controller: 'PolicyEditorHeaderCtrl',
+                controllerAs: 'editor'
+            },
+            'content': {
+                templateUrl:  'views/dashboard/dashboard_content.html'
+            }
+        }
+    })
+    .state('editor.newPolicy', {
+        url: '/editor/new_policy',
         controller: 'NewPolicyCtrl',
         controllerAs: 'wizard',
         templateUrl: 'views/policy-wizard/wizard-panel.html'
-      })
-      .state('dashboard.editPolicy', {
-        url: '/policies/edit/:id',
+    })
+    .state('editor.editPolicy', {
+        url: '/editor/edit_policy/:id',
         params: { id: null },
         controller: 'EditPolicyCtrl',
         controllerAs: 'wizard',
         templateUrl: 'views/policy-wizard/wizard-panel.html'
-      })
+    })
     /*******  SETINGS *******/
     .state('settings', {
         url: '/settings',
@@ -100,6 +114,4 @@ angular
             }
         }
     });
-
-
   }]);
