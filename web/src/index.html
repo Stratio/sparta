@@ -14,6 +14,13 @@
 </head>
 
 <body data-ng-app="webApp" class="stratio-app stratio-app--sparkta">
+
+<div id="stratio-base">
+    <header class="stratio-base-header" ui-view="header"></header>
+    <div id="base-content-wrapper" ui-view="content"></div>
+</div>
+
+<!--
 <st-dashboard
   module-logo="images/app-logo.png"
   module-name="Stratio Sparkta">
@@ -23,6 +30,8 @@
   <div st-menu-tab data-title="settings" data-route="settings" data-sref="settings" data-icon="icon-cog"
        data-visible="false" data-qaref="app-main-menu-settings"></div>
 </st-dashboard>
+
+-->
 
 <!-- build:js(.) scripts/vendors.js -->
 <script src="node_modules/jquery/dist/jquery.js"></script>

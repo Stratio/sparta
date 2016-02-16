@@ -1,0 +1,105 @@
+@mixin stratio-base-header {
+
+	position: relative;
+
+	.top {
+		height: $stratio-base-header_top---height;
+		background-color: $stratio-base-header_top---background-color;
+	}
+
+	.login {
+		position: $stratio-base-header_login---position;
+		top: $stratio-base-header_login---top;
+		right: $stratio-base-header_login---right;
+		padding: $stratio-base-header_login---padding;
+		background-color: $stratio-base-header_login---background-color;
+		border-bottom-left-radius: $stratio-base-header_login---border-bottom-left-radius;
+		z-index: $stratio-base-header_login---z-index;
+		color: $stratio-base-header_login---color;
+
+		.user {
+			position: relative;
+			display: inline-block;
+			padding-right: 20px;
+
+			.icon {
+				color: getColor(n7);
+
+				&.icon_xxsmall {
+					font-size: 13px;
+				}
+
+				&.icon_xxxsmall {
+					font-size: 11px;
+				}
+			}
+
+			.user-name {
+				padding: 0 10px 0 5px;
+
+				&.head_xxsmall {
+					font-size: 15px;
+				}
+			}
+		}
+
+		.app-menu {
+			position: relative;
+			display: inline-block;
+
+			.icon_xsmall {
+				font-size: 15px;
+			}
+		}
+	}
+
+	.main {
+		background-color: $stratio-base-header_main---background-color;
+		height: auto;
+
+		.menu-cont {
+
+			.logo {
+				color: getColor(a1);
+				padding: 15px 0 5px 30px;
+				text-transform: uppercase;
+
+				.icon_xsmall {
+					font-size: 15px;
+				}
+
+				.head_xxsmall {
+					font-size: 15px;
+				}
+			}
+
+			.module-title {
+				color: $stratio-base-header_main_menu-cont_modeule-title---color;
+				font-size: $stratio-base-header_main_menu-cont_modeule-title---font-size;
+				text-transform: $stratio-base-header_main_menu-cont_modeule-title---text-transform;
+				padding: $stratio-base-header_main_menu-cont_modeule-title---padding;
+				cursor: $stratio-base-header_main_menu-cont_modeule-title---cursor;
+			}
+		}
+
+		.menu-element {
+			border-bottom: 0;
+
+			a {
+				padding: $stratio-base-header_main_menu-element_a---padding;
+			}
+
+			&.selected a {
+				color: #ffffff;
+
+				.title {
+					color: #ffffff;
+				}
+			}
+		}
+	}
+}
+
+#stratio-base .stratio-base-header {
+  @include stratio-base-header;
+}

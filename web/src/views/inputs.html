@@ -30,10 +30,8 @@
 		<ul br-ba-container="c-grid">
 			<li class="c-grid-item" data-ng-repeat="input in  filteredInputsData = (inputs.inputsData
 			| filter:{'element':{'type':inputs.filters.element.type || undefined}}:true | filter:{ 'name': inputs.filters.name})" br-ba-item="{index:$index, total:filteredInputsData.length}">
-          	<!-- <li class="c-grid-item" data-ng-repeat="input in filteredInputsData = (inputs.inputsData | fragmentFilter:inputs.filters)" br-ba-item="{index:$index, total:filteredInputsData.length}"> -->
 				<header class="title">
 					<span class="name">{{input.name}}</span>
-
 					<span class="icon-actions menu_actions" data-ng-click="$root.stToggleFloatingMenu[input.id]()" data-qa="input-context-menu-{{input.id}}">
 						<st-floating-menu toggle-id="{{input.id}}" align="right">
 							<st-menu-element class-icon="icon-edit2" data-ng-click="inputs.editInput(input)" data-qa="input-context-menu-{{input.id}}-edit">
