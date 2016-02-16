@@ -270,5 +270,8 @@
   "_KAFKA_HOST_": "Zookeeper host",
   "_KAFKA_PORT_": "Kafka port",
   "_PRODUCER_TYPE_": "Producer type (sync/async)",
-  "_BATCH_NUM_MESSAGES_": "Batch num messages"
+  "_BATCH_NUM_MESSAGES_": "Batch num messages",
+  "_FILTER_BY_TYPE_": "Filter by type",
+  "_FILTER_BY_NAME_": "Filter by name",
+  "_SELECT_AN_OPTION_": "Please select an option"
 }
