@@ -1,0 +1,35 @@
+@mixin c-slider-content {
+  @include c-component;
+
+  &__button {
+    border-radius: 50%;
+    width: 27px;
+    background: white;
+    border: 1px solid black;
+    height: 27px;
+    background: white;
+    text-align: center;
+    position: relative;
+    margin-top: -14px;
+  }
+
+  &__line {
+    text-align: center;
+    border-top: 1px solid black;
+    height: 28px;
+    width: 100%;
+  }
+
+  &--hide {
+    height: 0px;
+  }
+
+  &--show {
+    height: 100%;
+  }
+
+}
+
+.c-slider-content {
+  @include c-slider-content;
+}
