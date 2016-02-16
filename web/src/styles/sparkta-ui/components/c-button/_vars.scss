@@ -3,40 +3,40 @@ $c-button---min-width: 180px !default;
 $c-button---padding: 0 20px !default;
 $c-button---text-align: center !default;
 $c-button---text-transform: uppercase !default;
- 
-$c-button--call-to-action-1---background: get-color(c1) !default;
+
+$c-button--call-to-action-1---background: get-color(a1) !default;
 $c-button--call-to-action-1---border: 0 !default;
-$c-button--call-to-action-1---color: get-color(g0) !default;
-$c-button--call-to-action-1--hover---background: get-color(c1b) !default;
+$c-button--call-to-action-1---color: get-color(n0) !default;
+$c-button--call-to-action-1--hover---background: get-color(a1_dark) !default;
 $c-button--call-to-action-1--hover---border: 0 !default;
-$c-button--call-to-action-1--hover---color: get-color(g0) !default;
+$c-button--call-to-action-1--hover---color: get-color(n0) !default;
 
-$c-button--call-to-action-2---background: get-color(c2) !default;
+$c-button--call-to-action-2---background: get-color(a2) !default;
 $c-button--call-to-action-2---border: 0 !default;
-$c-button--call-to-action-2---color: get-color(g0) !default;
-$c-button--call-to-action-2--hover---background: get-color(c2b) !default;
+$c-button--call-to-action-2---color: get-color(n0) !default;
+$c-button--call-to-action-2--hover---background: get-color(a2_dark) !default;
 $c-button--call-to-action-2--hover---border: 0 !default;
-$c-button--call-to-action-2--hover---color: get-color(g0) !default;
+$c-button--call-to-action-2--hover---color: get-color(n0) !default;
 
-$c-button--call-to-action-3---background: get-color(c3) !default;
+$c-button--call-to-action-3---background: get-color(a3) !default;
 $c-button--call-to-action-3---border: 0 !default;
-$c-button--call-to-action-3---color: get-color(g0) !default;
-$c-button--call-to-action-3--hover---background: get-color(c3b) !default;
+$c-button--call-to-action-3---color: get-color(n0) !default;
+$c-button--call-to-action-3--hover---background: get-color(a3_dark) !default;
 $c-button--call-to-action-3--hover---border: 0 !default;
-$c-button--call-to-action-3--hover---color: get-color(g0) !default;
+$c-button--call-to-action-3--hover---color: get-color(n0) !default;
 
-$c-button--call-to-action-4---background: get-color(g0) !default;
-$c-button--call-to-action-4---border: 2px solid get-color(g3) !default;
-$c-button--call-to-action-4---color: get-color(g4) !default;
-$c-button--call-to-action-4--hover---background: get-color(g0) !default;
-$c-button--call-to-action-4--hover---border: 2px solid get-color(g4) !default;
-$c-button--call-to-action-4--hover---color: get-color(g5) !default;
+$c-button--call-to-action-4---background: get-color(n0) !default;
+$c-button--call-to-action-4---border: 2px solid get-color(n3) !default;
+$c-button--call-to-action-4---color: get-color(n4) !default;
+$c-button--call-to-action-4--hover---background: get-color(n0) !default;
+$c-button--call-to-action-4--hover---border: 2px solid get-color(n4) !default;
+$c-button--call-to-action-4--hover---color: get-color(n5) !default;
 
-$c-button--danger---background: get-color(e3) !default;
+$c-button--danger---background: get-color(s3) !default;
 $c-button--danger---border: 0 !default;
-$c-button--danger---color: get-color(g0) !default;
-$c-button--danger--hover---background: get-color(e3b) !default;
+$c-button--danger---color: get-color(n0) !default;
+$c-button--danger--hover---background: get-color(s3_dark) !default;
 $c-button--danger--hover---border: 0 !default;
-$c-button--danger--hover---color: get-color(g0) !default;
+$c-button--danger--hover---color: get-color(n0) !default;
 
 $c-button__c-icon---margin: 0 .5em 0 0 !default;
