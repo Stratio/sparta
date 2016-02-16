@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2015 Stratio (http://stratio.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 (function () {
   'use strict';
 
@@ -21,13 +36,14 @@
         trackBy: '@',
         selectClass: '@',
         autofocus: '=',
-        defaultValue: '=',
+        defaultvalue: '=',
         form: '=',
         model: '=',
         options: '=',
         required: '=',
         disabled: '=',
         changeAction: '&',
+        listCompressed: "=",
         qa: '@'
       }
     };
@@ -38,38 +54,33 @@
       scope.label = "";
       scope.name = "";
       scope.placeholder = "";
-
       scope.isFocused = false;
       scope.showHelp = false;
 
-      if (scope.defaultValue) {
-        scope.model = scope.defaultValue;
-      }
-
-      scope.$watch('autofocus', function (newValue, oldValue) {
+      scope.$watch('autofocus', function(newValue, oldValue) {
         if (newValue) {
           var tags = element.find('input');
-          if (tags.length > 0) {
+          if (tags.length>0) {
             tags[0].focus();
           }
         }
       });
 
-      scope.changeActionHandler = function () {
-        $timeout(function () {
+      scope.changeActionHandler = function() {
+        $timeout(function() {
           scope.changeAction();
         }, 0);
       };
 
-      scope.keyupHandler = function ($event) {
+      scope.keyupHandler = function($event) {
         if (scope.model) {
-          $timeout(function () {
+          $timeout(function() {
             angular.element($event.target).triggerHandler('change');
           }, 0, false);
         }
       };
 
-      scope.toggleHelp = function (event) {
+      scope.toggleHelp = function(event) {
         if (scope.showHelp) {
           scope.showHelp = false;
           $document.unbind('click', externalClickHandler);
@@ -79,8 +90,21 @@
         }
       };
 
+      scope.focusOnInput = function() {
+        $('#'+scope.name).focus();
+      };
+
+      scope.mouseleaveTooltip = function() {
+        var tooltipParent = document.querySelector('#'+scope.name).parentNode;
+        if (tooltipParent.querySelector('.tooltip')) {
+          tooltipParent.querySelector('.tooltip').addEventListener("mouseleave", function() {
+            tooltipParent.removeChild(this);
+          });
+        }
+      };
+
       function externalClickHandler(event) {
-        if (event.target.id == "help-" + scope.name)
+        if (event.target.id == "help-"+scope.name)
           return;
         $document.unbind('click', externalClickHandler);
         scope.showHelp = false;
