@@ -127,6 +127,8 @@
       return finalJSON = json;
     }
 
+
+
     return {
       setPolicy: setPolicy,
       setTemplate: setTemplate,

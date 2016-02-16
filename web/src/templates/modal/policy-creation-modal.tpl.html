@@ -5,16 +5,15 @@
        data-qa="modal-cancel-icon"></i>
   </div>
   <div class="c-modal-inner">
-    <!-- POLICY NAME ALREADY EXISTS ERROR -->
-    <div class="c-row c-row--separated-bottom angular-forms__error" data-ng-if="vm.error" data-qa="error-msg">
-      <i class="c-icon icon-circle-cross"></i>
-      <span translate="{{vm.errorText}}"></span>
-    </div>
+
+    <p class="c-info-text c-info-text--narrow c-info-text--bottom-margin"><i
+      class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._DESCRIPTION_INTRO_" | translate}}</span>
+    </p>
+
     <form class="c-form" name="vm.form" id="configurationForm" novalidate data-ng-class={'c-accordion-tool--items-hide-left':!(vm.compositionStatus.getConfigurationVisibility())}>
+
       <form-field
         data-ng-repeat="properties in vm.template.basicSettings"
-        class="c-form-gutter c-col c-col--vertical-top"
-        data-ng-class="{'c-col--{{properties.col}}': properties.col}"
         data-ng-form-id="{{properties.propertyId}}"
         data-field="properties"
         data-model="vm.policy"
@@ -23,36 +22,26 @@
         data-list-compressed = "true"
         data-qa="{{properties.qa}}">
       </form-field>
-      <ng-form class="c-form-group c-form-gutter" data-qa="fragment-details-mongoDb-hosts">
-        <div class="c-form-control c-form-control--full-width">
-          <div class="c-label c-icon-label__text c-label--margin-list c-col c-col--12">
-                <span>
-                  {{"_ADVANCED_SETTINGS_" | translate}}
-                </span>
-          </div>
 
-          <div class="c-form-group c-form-group--list-compressed">
-            <form-field
-              data-ng-repeat="properties in vm.template.advancedSettings"
-              data-ng-form-id="{{properties.propertyId}}"
-              class="c-form-gutter c-col c-col--6 c-col--vertical-top"
-              data-field="properties"
-              data-model="vm.policy"
-              data-form="vm.form"
-              data-st-name="dataSource{{properties.propertyName}}Form"
-              data-list-compressed = "true"
-              data-qa="{{properties.qa}}">
-            </form-field>
-          </div>
-        </div>
-      </ng-form>
+      <form-field
+        data-ng-repeat="properties in vm.template.advancedSettings"
+        data-ng-form-id="{{properties.propertyId}}"
+        data-field="properties"
+        data-model="vm.policy"
+        data-form="vm.form"
+        data-st-name="dataSource{{properties.propertyName}}Form"
+        data-list-compressed = "true"
+        data-qa="{{properties.qa}}">
+      </form-field>
+
+    </form>
       <footer class="c-row c-row--footer">
         <div class="c-col c-col--6 c-col--vertical-centered">
           <c-icon-link icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action icon-help1'"
-                       text="'_INPUT_WINDOW_NEW_HELP_' | translate" link-url="vm.helpLink"
+                       text="'_INPUT_WINDOW_NEW_HELP_' | translate" text-class="" link-url="vm.helpLink"
                        data-qa="policy-description-help"></c-icon-link>
-        </div><!--
-     --><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
+        </div>
+        <div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
           <button class="c-button c-button--call-to-action-1" data-ng-click="vm.validateForm()"
                   data-qa="policy-description-next-button">
             <i class="icon icon-arrow-right"></i>
@@ -61,5 +50,6 @@
         </div>
       </footer>
     </form>
+
   </div>
 </aside>
