@@ -1,8 +1,4 @@
 <section>
-	<header>
-		<st-heading title="{{'_OUTPUT_HEADER_TITLE_MAIN' | translate}}" subtitle="{{'_INPUT_HEADER_TITLE_SECONDARY' | translate}}:"></st-heading>
-	</header>
-
     <div class="c-row c-msg c-msg--small c-msg--error c-msg--bottom-margin" data-ng-if="outputs.error" data-qa="manage-policies-error-msg">
         <i class="c-icon icon-circle-cross"></i>
         <span translate="{{outputs.errorMessage}}"></span>
@@ -68,9 +64,9 @@
         <span class="c-msg__text">{{"_OUTPUT_CREATE_FIRST_ONE_" | translate}}</span>
     </div>
 
-    <hr class="c-line-separator" />
+    <hr class="c-line-separator" data-ng-if="outputs.outputsData.length > 0"/>
 
-    <footer class="c-row c-row--to-right c-row--footer">
+    <footer class="c-row c-row--to-right c-row--footer" data-ng-if="outputs.outputsData.length > 0">
     	<button class="c-button c-button--call-to-action-1" data-ng-click="outputs.createOutput()" data-qa="outputs-new-button">
     		<span class="icon icon-circle-plus"></span>
     		<span>{{"_INPUT_BUTTON_NEW_" | translate}}</span>
