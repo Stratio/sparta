@@ -1,108 +1,191 @@
-describe('policies.wizard.controller.new-policy-controller', function () {
-  beforeEach(module('webApp'));
-  beforeEach(module('served/policy.json'));
+(function () {
+  'use strict';
 
-  var ctrl, scope, fakePolicy, fakeTemplate, fakeError, policyModelFactoryMock, templateFactoryMock, policyFactoryMock,
-    stateMock, fakeCreationStatus, modalServiceMock, resolvedPromise, rejectedPromise, fakeFinalPolicyJSON;
+  angular
+    .module('webApp')
+    .controller('PoliciesCtrl', PoliciesCtrl);
 
-  // init mock modules
+  PoliciesCtrl.$inject = ['PolicyFactory', 'ModalService', '$state', '$translate', '$interval', '$filter', '$scope', '$timeout'];
 
-  beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope, _servedPolicy_) {
-    scope = $rootScope.$new();
+  function PoliciesCtrl(PolicyFactory, ModalService, $state, $translate, $interval, $filter, $scope, $timeout) {
+    /*jshint validthis: true*/
+    var vm = this;
 
-    fakePolicy = angular.copy(_servedPolicy_);
+    vm.createPolicy = createPolicy;
+    vm.deletePolicy = deletePolicy;
+    vm.runPolicy = runPolicy;
+    vm.stopPolicy = stopPolicy;
+    vm.editPolicy = editPolicy;
 
-    resolvedPromise = function () {
-      var defer = $q.defer();
-      defer.resolve();
+    vm.policiesData = {};
+    vm.policiesData.list = undefined;
+    vm.policiesJsonData = {};
+    vm.error = false;
+    vm.success = false;
+    vm.errorMessage = '';
+    vm.successMessage = '';
+    init();
 
-      return defer.promise;
-    };
+    /////////////////////////////////
 
-    fakeError = {"data": {"i18nCode": "fake error message"}};
-    rejectedPromise = function () {
-      var defer = $q.defer();
-      defer.reject(fakeError);
+    function init() {
+      getPolicies();
 
-      return defer.promise;
-    };
-
-    $httpBackend.when('GET', 'languages/en-US.json')
-      .respond({});
-    fakeCreationStatus = {"currentStep": 0};
-    templateFactoryMock = jasmine.createSpyObj('TemplateFactory', ['getPolicyTemplate']);
-    templateFactoryMock.getPolicyTemplate.and.callFake(function () {
-      var defer = $q.defer();
-      defer.resolve(fakeTemplate);
-      return defer.promise;
-    });
-    policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['createPolicy', 'getAllPolicies']);
-    policyFactoryMock.getAllPolicies.and.callFake(resolvedPromise);
-    policyFactoryMock.createPolicy.and.callFake(resolvedPromise);
-
-    stateMock = jasmine.createSpyObj('$state', ['go']);
-
-    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getFinalJSON', 'setTemplate', 'getTemplate', 'getProcessStatus', 'resetPolicy']);
-    policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
-      return fakePolicy;
-    });
-
-    policyModelFactoryMock.getTemplate.and.callFake(function () {
-      return fakeTemplate;
-    });
-
-    fakeFinalPolicyJSON = {"fake_attribute": "fake value"};
-    policyModelFactoryMock.getFinalJSON.and.returnValue(fakeFinalPolicyJSON);
-
-    policyModelFactoryMock.getProcessStatus.and.returnValue(fakeCreationStatus);
-
-    modalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
-
-    modalServiceMock.openModal.and.callFake(function () {
-      var defer = $q.defer();
-      defer.resolve();
-      return {"result": defer.promise};
-    });
-
-    ctrl = $controller('PoliciesCtrl', {
-      'PolicyModelFactory': policyModelFactoryMock,
-      'PolicyFactory': policyFactoryMock,
-      'ModalService': modalServiceMock,
-      '$state': stateMock,
-      '$scope': scope
-    });
-
-    scope.$digest();
-  }));
-
-
-  describe("should open a modal when user wants to create a policy", function () {
-    it("Policy modal is open", function () {
-      var expectedController = "PolicyCreationModalCtrl";
-      var expectedTemplateUrl = "templates/modal/policy-creation-modal.tpl.html";
-      var expectedResolve = {};
-      var expectedExtraClass = "";
-      var expectedSize = "lg";
-
-      ctrl.createPolicy();
-
-      var openModalArgs = modalServiceMock.openModal.calls.mostRecent().args;
-
-      expect(openModalArgs[0]).toEqual(expectedController);
-      expect(openModalArgs[1]).toEqual(expectedTemplateUrl);
-      expect(openModalArgs[2]).toEqual(expectedResolve);
-      expect(openModalArgs[3]).toEqual(expectedExtraClass);
-      expect(openModalArgs[4]).toEqual(expectedSize);
-    });
-
-    it("should redirect user to policy creation wizard when modal is confirmed", function(){
-      ctrl.createPolicy().then(function(){
-
-        expect(stateMock.go).toHaveBeenCalledWith('wizard.newPolicy');
+      /*Stop $interval when changing the view*/
+      $scope.$on("$destroy", function () {
+        if (angular.isDefined(vm.checkPoliciesStatus)) {
+          $interval.cancel(vm.checkPoliciesStatus);
+        }
       });
+    }
 
-    });
-  });
+    function createPolicy() {
+      var controller = 'PolicyCreationModalCtrl';
+      var templateUrl = "templates/modal/policy-creation-modal.tpl.html";
+      var resolve = {};
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
+      return modalInstance.result.then(function () {
+        $state.go('wizard.newPolicy');
+      });
+    }
 
+    function editPolicy(route, policyId, policyStatus) {
+      vm.errorMessage = "";
+      if (policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' || policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
+        $state.go(route, {"id": policyId});
+      }
+      else {
+        $translate('_POLICY_ERROR_EDIT_POLICY_').then(function (value) {
+          vm.errorMessage = value;
+        });
+      }
+    }
 
-});
+    function deletePolicy(policyId, policyStatus, index) {
+      if (policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' || policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
+        var policyToDelete =
+        {
+          'id': policyId,
+          'index': index
+        };
+        deletePolicyConfirm('lg', policyToDelete);
+      }
+      else {
+        $translate('_POLICY_ERROR_DELETE_POLICY_').then(function (value) {
+          vm.error = true;
+          vm.success = false;
+          vm.errorMessage = value;
+        });
+      }
+    }
+
+    function runPolicy(policyId, policyStatus, policyName) {
+      if (policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' || policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
+        var policyRunning = PolicyFactory.runPolicy(policyId);
+
+        policyRunning.then(function () {
+          $translate('_RUN_POLICY_OK_', {policyName: policyName}).then(function (value) {
+            vm.successMessage = value;
+          });
+          $timeout(function () {
+            vm.success = false
+          }, 5000);
+
+        }, function (error) {
+          $translate('_INPUT_ERROR_' + error.data.i18nCode + '_').then(function (value) {
+            vm.errorMessage = value;
+            vm.errorMessageExtended = 'Error: ' + error.data.message;
+          });
+        });
+      }
+      else {
+        $translate('_RUN_POLICY_KO_', {policyName: policyName}).then(function (value) {
+          vm.errorMessage = value;
+        });
+      }
+    }
+
+    function stopPolicy(policyId, policyStatus, policyName) {
+      if (policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'stopped' && policyStatus.toLowerCase() !== 'stopping') {
+
+        var stopPolicy =
+        {
+          "id": policyId,
+          "status": "Stopping"
+        };
+
+        var policyStopping = PolicyFactory.stopPolicy(stopPolicy);
+
+        policyStopping.then(function () {
+          $translate('_STOP_POLICY_OK_', {policyName: policyName}).then(function (value) {
+            vm.successMessage = value;
+          });
+          $timeout(function () {
+            vm.success = false
+          }, 5000);
+
+        }, function (error) {
+          $translate('_INPUT_ERROR_' + error.data.i18nCode + '_').then(function (value) {
+            vm.errorMessage = value;
+            vm.errorMessageExtended = 'Error: ' + error.data.message;
+          });
+        });
+      }
+      else {
+        $translate('_STOP_POLICY_KO_', {policyName: policyName}).then(function (value) {
+          vm.errorMessage = value;
+        });
+      }
+    }
+
+    function deletePolicyConfirm(size, policy) {
+      vm.errorMessage = "";
+
+      var controller = 'DeletePolicyModalCtrl';
+      var templateUrl = "'templates/policies/st-delete-policy-modal.tpl.html";
+      var resolve = {
+        item: function () {
+          return policy;
+        }
+      };
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', size);
+
+      modalInstance.result.then(function (selectedPolicy) {
+        vm.policiesData.list.splice(selectedPolicy.index, 1);
+        $translate('_POLICY_DELETE_OK_').then(function (value) {
+          vm.successMessage = value;
+          $timeout(function () {
+            vm.success = false
+          }, 5000);
+        });
+      });
+    }
+
+    function getPolicies() {
+      vm.errorMessage = "";
+      var policiesList = PolicyFactory.getAllPolicies();
+
+      policiesList.then(function (result) {
+        vm.policiesData.list = result;
+
+        vm.checkPoliciesStatus = $interval(function () {
+          var policiesStatus = PolicyFactory.getPoliciesStatus();
+
+          policiesStatus.then(function (result) {
+            for (var i = 0; i < result.length; i++) {
+              var policyData = $filter('filter')(vm.policiesData.list, {'policy': {'id': result[i].id}}, true)[0];
+              if (policyData) {
+                policyData.status = result[i].status;
+              }
+            }
+          });
+        }, 5000);
+
+      }, function (error) {
+        $translate('_INPUT_ERROR_' + error.data.i18nCode + '_').then(function (value) {
+          vm.successMessage = value;
+        });
+      });
+    }
+  }
+})();
