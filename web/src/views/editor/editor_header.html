@@ -1,0 +1,38 @@
+<div class="c-toolbar c-toolbar--no-padding">
+	<div class="c-toolbar-container">
+		<!-- TODO: SET EXIT EDITOR BEHAVIOUR -->
+		<div class="c-toolbar-container--button"  data-qa="editor-toolbar-exit" ui-sref="dashboard.policies">
+			<button class="c-button c-button--rounded c-button--rounded--call-to-action-1"
+					qaref="workflow-list"
+					data-qa="workflow-list-reply-button">
+				<span class="icon-reply"></span>
+			</button>
+		</div>
+		<div class="c-toolbar-container--header">
+			<i class="icon icon-lego icon--header"></i>
+			<span>{{editor.policyName}}</span>
+		</div>
+	</div><!--
+			TODO: SET POLICY PREVIOUS STEP
+	--><div class="c-toolbar-container c-toolbar-container--to-right c-toolbar-container--padding c-toolbar-container--border-left">
+	    <button class="c-button c-button--toolbar c-button--call-to-action-5" data-ng-click="" data-qa="editor-toolbar-previous">
+	    	<span class="c-icon icon-arrow-left"></span>
+	    	<span class="ng-binding">{{'_PREVIOUS_' | translate}}</span>
+	    </button>
+	    <!-- TODO: SET POLICY NEXT STEP -->
+		<button class="c-button c-button--toolbar c-button--call-to-action-1 c-button--left-margin" ng-click = "" data-qa="editor-toolbar-continue">
+	    	<span class="c-icon icon-arrow-right"></span>
+	    	<span class="ng-binding" translate>{{'_CONTINUE_' | translate}}</span>
+	    </button>
+	    <!-- TODO: SET POLICY ADVANCED SETTINGS MODAL -->
+	    <button class="c-button c-button--rounded c-button--rounded--call-to-action-2 c-button--left-margin" data-ng-click="" data-qa="editor-toolbar-settings">
+	    	<i class="c-icon icon-cog"></i>
+		</button>
+	</div>
+	<div class="c-toolbar-container c-toolbar-container--to-right c-toolbar-container--padding">
+		<a data-ng-href="https://stratio.atlassian.net/wiki/display/SPARKTA0x8/5.+Create+and+Submit+Policy" class="c-icon-link c-icon-link__toolbar" target="_blank" data-qa="editor-toolbar-help">
+			<i class="c-icon c-icon-link__icon c-icon--is-clickable c-icon--call-to-action icon-help1"></i>
+			<span class="c-icon-link__text c-icon-link__text--is-link">{{'_INPUT_WINDOW_NEW_HELP_' | translate}}</span>
+		</a>
+	</div>
+</div>
