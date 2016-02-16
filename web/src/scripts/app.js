@@ -19,8 +19,7 @@ angular
     'ui.bootstrap',
     'ui.bootstrap.modal',
     'ui.bootstrap.tpls',
-    'pascalprecht.translate',
-    'ngAnimate'
+    'pascalprecht.translate'
   ])
 
   /*** TRANSLATING ***/
@@ -77,28 +76,28 @@ angular
         controllerAs: 'policies',
         templateUrl: 'views/policies.html'
     })
-    /******* POLICY WIZARD *******/
-    .state('wizard', {
-        url: '/wizard',
+    /******* POLICY EDITOR *******/
+    .state('editor', {
+        url: '/editor',
         views: {
             'header': {
-                templateUrl: 'views/policy-wizard/header.html',
-                controller: 'PolicyWizardHeaderCtrl',
-                controllerAs: 'header'
+                templateUrl: 'views/editor/editor_header.html',
+                controller: 'PolicyEditorHeaderCtrl',
+                controllerAs: 'editor'
             },
             'content': {
                 templateUrl:  'views/dashboard/dashboard_content.html'
             }
         }
     })
-    .state('wizard.newPolicy', {
-        url: '/wizard/new_policy',
+    .state('editor.newPolicy', {
+        url: '/editor/new_policy',
         controller: 'NewPolicyCtrl',
         controllerAs: 'wizard',
         templateUrl: 'views/policy-wizard/wizard-panel.html'
     })
-    .state('wizard.editPolicy', {
-        url: '/wizard/edit_policy/:id',
+    .state('editor.editPolicy', {
+        url: '/editor/edit_policy/:id',
         params: { id: null },
         controller: 'EditPolicyCtrl',
         controllerAs: 'wizard',
