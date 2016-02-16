@@ -12,7 +12,7 @@
         .directive('brBaContainer', brBaContainer)
         .directive('brBaItem', brBaItem)
         .constant('BrBaConfig', {
-            columns: 3,         // columns: number of columns. When 0 is based on itemWidth.
+            columns: 4,         // columns: number of columns. When 0 is based on itemWidth.
             itemHeight: 210,    // itemHeight: item height in pixels. If columns > 0 used to get aspect/ratio.
             itemWidth: 300,     // itemWidth: item width in pixels. If columns > 0 takes priority over 'columns' as minimum width.
             horizontalGap: 30,  // horizontalGap: gap between columns.
