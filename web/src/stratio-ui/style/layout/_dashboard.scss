@@ -58,8 +58,7 @@ html{
 		@extend .t-normal;
 
 		width: 100%;
-		padding-left: $layout-base-left;
-		padding-right: 0;
+		padding: 30px;
 
 		#dashboard-main-content{
 			padding: $base-padding;

@@ -53,11 +53,12 @@
 @import 'sparkta-ui/components/c-tag/index';
 @import 'sparkta-ui/components/c-cube/index';
 @import 'sparkta-ui/components/c-policy-status-badge/index';
+@import 'sparkta-ui/components/c-header/index';
 @import 'sparkta-ui/objects/o-media';
 @import 'sparkta-ui/objects/o-wcag-hidden';
 // Vendor customizations
 @import 'custom/angular-ui/components/tooltip';
 @import 'custom/angular-ui/components/c-accordion/index';
 @import 'custom/stratio-ui/components/c-grid-item/index';
-
+@import 'custom/stratio-ui/components/stratio-base-header/index';
 // End vendor customizations

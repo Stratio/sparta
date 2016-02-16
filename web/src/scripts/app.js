@@ -50,8 +50,8 @@ angular
     .state('dashboard', {
         url: '/dashboard',
         views: {
-            'menu': {
-                templateUrl:  'views/dashboard/dashboard_menu.html'
+            'header': {
+                templateUrl: 'views/dashboard/dashboard_header.html'
             },
             'content': {
                 templateUrl:  'views/dashboard/dashboard_content.html'

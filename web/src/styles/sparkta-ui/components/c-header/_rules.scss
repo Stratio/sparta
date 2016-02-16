@@ -1,0 +1,14 @@
+@mixin c-header {
+
+  &__menu {
+    padding: 25px 0 20px 30px;
+
+    &__logo {
+      padding-right: 15px;
+    }
+  }
+}
+
+.c-header {
+  @include c-header;
+}
