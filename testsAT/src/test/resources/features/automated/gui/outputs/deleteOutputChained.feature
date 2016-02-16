@@ -1,9 +1,9 @@
 @web @rest
-Feature: Test deleting an output with a policy referencing it in Sparkta GUI
+Feature: Test deleting an output with a policy referencing it in Sparta GUI
 		
-	Background: Setup Sparkta GUI
-		Given I set web base url to '${SPARKTA_HOST}:${SPARKTA_PORT}'
-		Given I send requests to '${SPARKTA_HOST}:${SPARKTA_API_PORT}'
+	Background: Setup Sparta GUI
+		Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
+		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 		
 	Scenario: Try to delete an existing input
 		# Create input fragment

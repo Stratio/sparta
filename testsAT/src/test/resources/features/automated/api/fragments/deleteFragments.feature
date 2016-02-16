@@ -1,8 +1,8 @@
 @rest
-Feature: Test all DELETE operations for fragments in Sparkta Swagger API
+Feature: Test all DELETE operations for fragments in Sparta Swagger API
 
-	Background: Setup Sparkta REST client
-		Given I send requests to '${SPARKTA_HOST}:${SPARKTA_API_PORT}'
+	Background: Setup Sparta REST client
+		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 
 	Scenario: Delete a fragment with type empty and name invalid with empty list
 		When I send a 'DELETE' request to '/fragment//invalid'

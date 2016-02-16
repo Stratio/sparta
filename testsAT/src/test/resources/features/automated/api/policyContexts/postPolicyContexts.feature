@@ -1,8 +1,9 @@
 @rest
-Feature: Test all POST operations for policyContexts in Sparkta Swagger API
+Feature: Test all POST operations for policyContexts in Sparta Swagger API
 
-	Background: Setup Sparkta REST client
-		Given I send requests to '${SPARKTA_HOST}:${SPARKTA_API_PORT}'
+	Background: Setup Sparta REST client
+		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
+		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 
 	Scenario: Add a policyContext with empty parameter
 		When I send a 'POST' request to '/policyContext' as 'json'
