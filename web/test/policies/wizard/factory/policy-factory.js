@@ -1,7 +1,8 @@
 describe('policies.wizard.factory.policy-factory', function () {
   beforeEach(module('webApp'));
+  beforeEach(module('served/policyList.json'));
 
-  var factory, ApiPolicyService, q, promiseMock = null;
+  var factory, ApiPolicyService, scope, q, promiseMock, fakePolicyList, fakePolicy = null;
 
   beforeEach(module(function ($provide) {
     ApiPolicyService = jasmine.createSpyObj('ApiPolicyService', ['getPolicyByFragmentId', 'getPolicyById',
@@ -11,11 +12,14 @@ describe('policies.wizard.factory.policy-factory', function () {
     $provide.value('ApiPolicyService', ApiPolicyService);
   }));
 
-  beforeEach(inject(function (PolicyFactory, $q) {
+  beforeEach(inject(function (PolicyFactory, $httpBackend, $q, _servedPolicyList_, $rootScope) {
+    $httpBackend.when('GET', 'languages/en-US.json')
+      .respond({});
     factory = PolicyFactory;
     q = $q;
-
-
+    scope = $rootScope.$new();
+    fakePolicyList = _servedPolicyList_;
+    fakePolicy = fakePolicyList[0].policy;
     promiseMock = jasmine.createSpy('promise').and.callFake(function () {
       return {"$promise": q.defer()};
     });
@@ -142,6 +146,48 @@ describe('policies.wizard.factory.policy-factory', function () {
       expect(promiseMock).toHaveBeenCalledWith();
     });
   });
+
+
+  describe("should be able to find if there is a policy with the introduced name", function () {
+
+    beforeEach(function () {
+
+      ApiPolicyService.getAllPolicies.and.callFake(
+        function () {
+          return {
+            "get": function () {
+              var defer = q.defer();
+              defer.resolve(fakePolicyList);
+
+              return {"$promise": defer.promise};
+            }
+          }
+        });
+    });
+
+
+    afterEach(function () {
+      scope.$apply();
+    });
+
+    it("It returns true if there is another policy with the same name and different id", function () {
+      factory.existsPolicy(fakePolicy.name, "fake another id").then(function (result) {
+        expect(result).toBe(true);
+      });
+    });
+
+    it("It returns false if there is another policy with the same name and the same id", function () {
+      factory.existsPolicy(fakePolicy.name, fakePolicy.id).then(function (result) {
+        expect(result).toBe(false);
+      });
+    });
+
+    it("It returns false if there is not any policy with the same name", function () {
+      factory.existsPolicy("fake new name").then(function (result) {
+        expect(result).toBe(false);
+      });
+    });
+  })
 
 
 })

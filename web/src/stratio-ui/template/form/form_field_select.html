@@ -1,17 +1,26 @@
-<ng-form name="{{name}}" class="c-form-group" ng-class="{empty: !model, focus: isFocused, placeholder: placeholder && !label, error: this[name][name].$invalid && form.$submitted, disabled: disabled}">
+<ng-form name="{{name}}" class="c-form-group" ng-class="{empty: !model, focus: isFocused, placeholder: placeholder && !label, error: this[name][name].$invalid && form.$submitted, disabled: disabled, submitted: form.$submitted, dirty: this[name][name].$dirty, 'c-form-group--compressed': listCompressed}">
     <div class="c-form-control c-form-control--full-width">
-        <label ng-if="label" class="c-col c-col--12 c-label" ng-class = "{'c-label--required': required}" title="{{label}}" for="{{name}}">{{label | translate}}</label>
-        <div ng-if="placeholder" class="st-form-field-placeholder">{{placeholder}}</div>
-
-        <!-- <select ng-attr-id="{{name}}" name="{{name}}" class="st-form-field-select" ng-model="model" ng-options="item[field] for item in options track by item[trackBy]" ng-change="changeActionHandler()" ng-disabled="disabled" ng-required="required" ng-focus="isFocused=true" ng-blur="isFocused=false" ng-keyup="keyupHandler($event)" ng-show="trackBy" ></select> -->
-
-        <select ng-attr-id="{{name}}" name="{{name}}" class="st-form-field-select c-combobox {{selectClass}}" ng-model="model" ng-options="item.value as item[field] | translate for item in options" ng-change="changeActionHandler()" ng-required="required" ng-disabled="disabled" ng-focus="isFocused=true" ng-blur="isFocused=false" ng-keyup="keyupHandler($event)" ng-show="!trackBy" data-qa="{{qa}}"></select>
-        <div ng-if="this[name][name].$invalid && form.$submitted" class="st-form-field-error"  data-qa="{{qa}}-error">
-            <span ng-if="this[name][name].$error.required">This field is required. </span>
+        <span class="c-icon-label c-col c-col--12" data-ng-if="label">
+            <label class="c-icon-label__text c-label" title="{{label}}" for="{{name}}">
+                {{label}}
+                <span data-ng-if="required === false" class="c-label__optional">
+                    {{'_OPTIONAL_' | translate}}
+                </span>
+                <i data-ng-if="help" class="c-icon icon-help2 c-icon--is-clickable c-icon--in-label" data-ng-click="focusOnInput()" data-qa="{{helpQa}}"></i>
+            </label>
+        </span>
+        <div ng-if="placeholder" class="st-form-field-placeholder">
+            {{placeholder}}
         </div>
-        <div ng-if="help" class="st-form-field-help">
-            <div class="st-form-field-help-button button"><i id="help-{{name}}" class="fa fa-question-circle" ng-click="toggleHelp($event)"></i></div>
-            <div class="st-form-field-help-text" ng-show="showHelp">{{help}}</div>
+        <select ng-attr-id="{{name}}" name="{{name}}" class="st-form-field-select c-combobox {{selectClass}}" ng-model="model" ng-change="changeActionHandler()" ng-required="true" ng-disabled="disabled" ng-blur="isFocused=false" ng-keyup="keyupHandler($event)" ng-show="!trackBy" data-qa="{{qa}}" tooltip='{{help}}' tooltip-class="tooltip--bottom" tooltip-trigger="focus" tooltip-placement="bottom" data-ng-focus="mouseleaveTooltip()">
+            <option value="" class="placeholder">{{"_SELECT_AN_OPTION_" | translate}}</option>
+            <option value="{{item.value}}" data-ng-repeat="item in options" data-ng-selected="{{item.value == model}}">
+                {{item.label | translate}}
+            </option>
+        </select>
+        <div ng-if="this[name][name].$invalid && form.$submitted" class="angular-forms__error" data-qa="{{qa}}-error">
+            <i class="icon icon-circle-cross"></i>
+            <span ng-if="this[name][name].$error.required">This field is required. </span>
         </div>
     </div>
 </ng-form>
