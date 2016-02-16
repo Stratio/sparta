@@ -1,16 +1,28 @@
-<div class="c-form-group">
-    <div ng-if="!field.limit == 1" class="list-label">{{field.propertyName}}</div>
-    <div class="st-form-field-help">
-        <div class="st-form-field-help-button button"><i id="help-{{name}}" class="fa fa-question-circle" ng-click="toggleHelp($event)"></i></div>
-        <div class="st-form-field-help-text" ng-show="showHelp">{{field.tooltip}}</div>
-    </div>
-    <div class="c-form-group c-form-group--with-gutter" ng-repeat="row in model[field.propertyId]">
-        <div ng-repeat="item in field.fields" class="st-form-list-column c-col c-col--{{(10 / field.fields.length) | number: 0}}" ng-class="{'c-col--vertical-top': ($index <= (field.fields.length - 2))}">
-            <form-field-input ng-attr-id="ng-{{name}}{{$parent.$index}}-{{item.propertyId}}" data-form="form" data-st-name="{{name}}{{$parent.$index}}-{{item.propertyId}}" data-model="row[item.propertyId]" data-label="{{item.propertyName | translate}}" data-type="{{item.propertyType}}" data-pattern="item.regexp" data-required="item.required" data-qa="{{item.qa}}-{{$parent.$index}}"></form-field-input>
-        </div><!--
-     --><div class="c-col c-col--2">
-            <i class="c-icon c-icon--is-clickable c-icon--danger icon-square-cross" ng-if="!($first && $last)" ng-click="removeItem($index)" data-qa="{{qa}}-minus-{{$parent.$index}}"></i>
-            <i class="c-icon c-icon--is-clickable c-icon--call-to-action icon-square-plus" ng-if="!field.limit || model[field.propertyId].length < field.limit" ng-click="addItem()" data-qa="{{qa}}-plus-{{$parent.$index}}"></i>
+<ng-form name="{{name}}" class="c-form-group">
+    <div class="c-form-control c-form-control--full-width">
+        <div ng-if="!field.limit == 1 || listCompressed" class="c-label c-icon-label__text c-label--margin-list c-col c-col--12">
+            <span>
+                {{field.propertyName | translate}}
+            </span>
+        </div>
+        <div class="st-form-field-help">
+            <div class="st-form-field-help-button button"><i id="help-{{name}}" class="fa fa-question-circle" ng-click="toggleHelp($event)"></i></div>
+            <div class="st-form-field-help-text" ng-show="showHelp">{{field.tooltip}}</div>
+        </div>
+        <div class="c-form-group" data-ng-class="{'c-form-group--list-compressed': listCompressed, 'c-form-group--with-gutter': modal}" data-ng-repeat="row in model[field.propertyId] track by $index" data-ng-init="indexRow = $index">
+            <div data-ng-repeat="item in field.fields track by $index" class="st-form-list-column c-col" ng-class="{'c-col--vertical-top': ($index <= (field.fields.length - 2)), 'c-col--12': (listCompressed && !modal), 'c-col--{{(12 / field.fields.length) | number: 0}}': (!listCompressed && !modal) || (listCompressed && modal)}">
+                <!-- input text -->
+                <form-field-input ng-attr-id="ng-{{name}}{{$parent.$index}}-{{item.propertyId}}" data-ng-if="(item.propertyType == 'text' || item.propertyType == 'password' || item.propertyType == 'number')" data-form="form" data-st-name="{{name}}-{{indexRow}}-{{item.propertyId}}" data-model="row[item.propertyId]" data-label="{{item.propertyName | translate}}" data-type="{{item.propertyType}}" data-pattern="item.regexp" data-required="item.required" data-col="item.col" data-output-field="item.outputField" data-qa="{{item.qa}}-{{indexRow}}"></form-field-input>
+                <!-- checkbox -->
+                <form-field-check ng-attr-id="{{ngFormId}}" data-ng-if="item.propertyType == 'boolean'" data-form="form" data-st-name="{{name}}-{{indexRow}}-{{item.propertyId}}" data-model="row[item.propertyId]" data-label="{{item.propertyName | translate}}" data-type="{{item.propertyType}}" data-help="{{item.tooltip}}" data-pattern="item.regexp" data-required="item.required" data-list-compressed="listCompressed" data-qa="{{item.qa}}-{{indexRow}}"></form-field-check>
+            </div>
+            <i class="c-icon c-icon--is-clickable c-icon--list-compressed icon-square-cross" data-ng-if="!($first && $last)" ng-click="removeItem($index)" data-qa="{{qa}}-minus-{{$parent.$index}}"></i>
+        </div>
+        <div class="c-label c-label--content-to-right c-label__add-button c-col c-col--12" data-ng-class="{'c-label__secondary_button': multipleList}">
+            <span class="c-icon-label__text">
+                {{"_ADD_" | translate}}
+            </span>
+            <i class="c-icon icon-square-plus c-icon--is-clickable" data-ng-click="addItem()"></i>
         </div>
     </div>
-</div>
+</ng-form>
