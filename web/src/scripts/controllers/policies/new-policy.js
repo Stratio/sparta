@@ -6,8 +6,8 @@
     .module('webApp')
     .controller('NewPolicyCtrl', NewPolicyCtrl);
 
-  NewPolicyCtrl.$inject = ['TemplateFactory', 'PolicyModelFactory', 'PolicyFactory', 'ModalService', '$state'];
-  function NewPolicyCtrl(TemplateFactory, PolicyModelFactory, PolicyFactory, ModalService, $state) {
+  NewPolicyCtrl.$inject = ['PolicyModelFactory', 'PolicyFactory', 'ModalService', '$state'];
+  function NewPolicyCtrl(PolicyModelFactory, PolicyFactory, ModalService, $state) {
     var vm = this;
 
     vm.confirmPolicy = confirmPolicy;
@@ -15,10 +15,12 @@
     init();
 
     function init() {
-      return TemplateFactory.getPolicyTemplate().then(function (template) {
-        PolicyModelFactory.setTemplate(template);
-        vm.steps = template.steps;
-        PolicyModelFactory.resetPolicy();
+      var controller = 'PolicyCreationModalCtrl';
+      var templateUrl = "templates/modal/policy-creation-modal.tpl.html";
+      var resolve = {};
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
+      modalInstance.result.then(function () {
+        vm.steps = PolicyModelFactory.getTemplate().steps;
         vm.policy = PolicyModelFactory.getCurrentPolicy();
         vm.status = PolicyModelFactory.getProcessStatus();
         vm.successfullySentPolicy = false;
