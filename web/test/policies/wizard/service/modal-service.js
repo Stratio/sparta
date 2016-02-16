@@ -20,15 +20,11 @@ describe('policies.wizard.service.model-service', function () {
 
     service.openModal(fakeController, fakeTemplate, fakeResolve);
 
-    var expectedParams = {
-      animation: true,
-      templateUrl: fakeTemplate,
-      controller: fakeController + ' as vm',
-      size: 'lg',
-      resolve: fakeResolve
-    };
+    var openModalArgs = ModalMock.open.calls.mostRecent().args[0];
 
-    expect(ModalMock.open).toHaveBeenCalledWith(expectedParams);
+    expect(openModalArgs.templateUrl).toEqual(fakeTemplate);
+    expect(openModalArgs.controller).toEqual(fakeController + " as vm");
+    expect(openModalArgs.resolve).toEqual(fakeResolve);
   });
 
 
