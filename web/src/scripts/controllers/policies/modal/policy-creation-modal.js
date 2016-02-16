@@ -11,6 +11,7 @@
   function PolicyCreationModalCtrl(PolicyModelFactory, PolicyFactory, TemplateFactory, $modalInstance) {
     /*jshint validthis: true*/
     var vm = this;
+    vm.ok = ok;
     vm.cancel = cancel;
     vm.validateForm = validateForm;
 
@@ -24,7 +25,6 @@
         PolicyModelFactory.resetPolicy();
         vm.policy = PolicyModelFactory.getCurrentPolicy();
         vm.template = template;
-        vm.helpLink = template.helpLinks.description;
       });
     }
 
@@ -34,28 +34,16 @@
         /*Check if the name of the policy already exists*/
         return PolicyFactory.existsPolicy(vm.policy.name).then(function (found) {
           vm.error = found;
-          /* Policy name doesn't exist */
           if (!found) {
-            vm.policy.rawData.enabled = vm.policy.rawDataEnabled.toString();
-            vm.policy.rawData.path = (vm.policy.rawDataEnabled)? vm.policy.rawDataPath : null;
-            delete vm.policy['rawDataPath'];
-            delete vm.policy['rawDataEnabled'];
-
-            PolicyModelFactory.nextStep();
+            vm.policy.rawData.enabled = vm.policy.rawData.enabled.toString();
             $modalInstance.close();
-          }
-          /* Policy name exists */
-          else {
-            var policyName = vm.template.basicSettings[0];
-            document.querySelector('#dataSource'+policyName.propertyName+'Form').focus();
-            vm.errorText = "_INPUT_ERROR_200_";
           }
         });
       }
-      else{
-        /*Focus on the first invalid input*/
-        document.querySelector('input.ng-invalid').focus();
-      }
+    }
+
+    function ok() {
+      $modalInstance.close();
     }
 
     function cancel() {
