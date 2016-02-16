@@ -1,11 +1,10 @@
-<div>hola {{visible}}</div>
 <div class="menu-element"
 	ng-if="visible == 'true'"
-	id="menu-element-{{title | lowercase}}"
-	ng-class="{ selected: (route.indexOf(title) > -1)}">
+	id="menu-element-{{title.toLowerCase()}}"
+	ng-class="{selected: $state.includes(route)}">
 
-	<a href ui-sref="{{sref}}" data-qa="{{qaref}}">
-		<i class="ico {{icon}}"></i>
+	<a href ui-sref="{{sref}}">
+		<span class="ico {{icon}}"></span>
 		<span class="title">{{title}}</span>
 		<span class="label" ng-if="label && !isNaN(label) && label > 0">
 			{{label}}
