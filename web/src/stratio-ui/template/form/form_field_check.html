@@ -1,13 +1,17 @@
-<ng-form name="{{name}}" class="c-form-group" ng-class="{empty: !model && model !== 0, focus: isFocused, placeholder: placeholder && !label, error: this[name][name].$invalid && form.$submitted, small: type=='number', disabled: disabled}">
-
+<ng-form name="{{name}}" class="c-form-group" ng-class="{empty: !model && model !== 0, focus: isFocused, placeholder: placeholder && !label, error: this[name][name].$invalid && form.$submitted, small: type=='number', disabled: disabled, submitted: form.$submitted, dirty: this[name][name].$dirty, 'c-form-group--compressed': listCompressed}">
     <div class="c-form-control c-form-control--full-width">
-        <div class="c-row">
-            <label class="c-label">{{label | translate}}</label>
-        </div>
+        <span class="c-icon-label c-col c-col--12" data-ng-if="label">
+            <label class="c-icon-label__text c-label" title="{{label}}" for="{{name}}">
+                {{label}}
+                <span data-ng-if="required === false" class="c-label__optional">{{'_OPTIONAL_' | translate}}</span>
+                <i data-ng-if="help" id="tooltip-{{name}}" class="c-icon icon-help2 c-icon--is-clickable c-icon--in-label" data-qa="{{helpQa}}" tooltip='{{help}}' tooltip-class="tooltip--bottom" tooltip-trigger="click" tooltip-placement="bottom" data-ng-click="mouseleaveTooltip()"></i>
+            </label>
+        </span>
         <div class="c-row">
             <input id="{{name}}" ng-attr-id="{{name}}" name="{{name}}" class="c-input c-checkbox" type="checkbox" data-ng-model="model" data-ng-required="required" data-ng-disabled="disabled" data-ng-pattern="pattern"><label class="c-label" for="{{name}}" data-qa="{{qa}}"></label>
         </div>
         <div data-ng-if="this[name][name].$invalid && form.$submitted" class="angular-forms__error" data-qa="{{qa}}-error">
+            <i class="icon icon-circle-cross"></i>
             <span data-ng-if="this[name][name].$error.required">This field is required. </span>
             <span data-ng-if="this[name][name].$error.pattern">Invalid format. </span>
             <span data-ng-if="this[name][name].$error.email">Invalid email. </span>
@@ -18,10 +22,6 @@
             <span data-ng-if="this[name][name].$error.min">{{label}} must be greate than or equal to {{min}}. </span>
             <span data-ng-if="this[name][name].$error.match">The fields do not match. </span>
             <span data-ng-if="this[name][name].$error.custom">{{customError}}</span>
-        </div>
-        <div data-ng-if="help" class="st-form-field-help">
-            <div class="st-form-field-help-button button"><i id="help-{{name}}" class="fa fa-question-circle" data-ng-click="toggleHelp($event)"></i></div>
-            <div class="st-form-field-help-text" data-ng-show="showHelp">{{help}}</div>
         </div>
     </div>
 </ng-form>

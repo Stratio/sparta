@@ -18,13 +18,13 @@
 
     angular
         .module('webApp')
-        .directive('formFieldList', formFieldList);
+        .directive('formFieldMultipleList', formFieldMultipleList);
 
-    formFieldList.$inject = ['$document'];
-    function formFieldList($document) {
+    formFieldMultipleList.$inject = ['$document'];
+    function formFieldMultipleList($document) {
         var directive = {
             link: link,
-            templateUrl: 'stratio-ui/template/form/form_field_list.html',
+            templateUrl: 'stratio-ui/template/form/form_field_multiple_list.html',
             restrict: 'AE',
             replace: true,
             scope: {
@@ -32,9 +32,7 @@
                 field: '=',
                 form: '=',
                 model: '=',
-                modal: '=',
                 listCompressed: "=",
-                multipleList: "=",
                 qa: '@'
             }
         }
@@ -46,25 +44,36 @@
             init();
 
             function init() {
-                /* init array element if doesn't exit */
-                if (!scope.model[scope.field.propertyId] || scope.model[scope.field.propertyId].length === 0) {
+                /* init array element */
+                if (!scope.model[scope.field.propertyId]) {
                     scope.model[scope.field.propertyId] = [];
 
                     var objectData = {};
+
                     for (var i=0; i<scope.field.fields.length; i++){
-                        objectData[scope.field.fields[i].propertyId] = (scope.field.fields[i].default !== "")? scope.field.fields[i].default : "";
+                        if (scope.field.fields[i].propertyType !== 'list') {
+                            objectData[scope.field.fields[i].propertyId] = (scope.field.fields[i].default !== "")? scope.field.fields[i].default : "";
+                        }
+                        else if (scope.field.fields[i].propertyType == 'list') {
+                            objectData[scope.field.fields[i].propertyId] = [];
+                        }
                     }
+
                     scope.model[scope.field.propertyId].push(objectData);
                 }
             };
 
             scope.addItem = function() {
                 var item = {};
-
-                for (var i=0; i<scope.field.fields.length; i++) {
-                    var value = scope.field.fields[i].propertyType == "number" ? Number(scope.field.fields[i].default) : scope.field.fields[i].default;
-                    item[scope.field.fields[i].propertyId] = value;
+                for (var i=0; i<scope.field.fields.length; i++){
+                    if (scope.field.fields[i].propertyType !== 'list') {
+                        item[scope.field.fields[i].propertyId] = (scope.field.fields[i].default !== "")? scope.field.fields[i].default : "";
+                    }
+                    else if (scope.field.fields[i].propertyType == 'list') {
+                        item[scope.field.fields[i].propertyId] = [];
+                    }
                 }
+
                 scope.model[scope.field.propertyId].push(item);
             };
 
