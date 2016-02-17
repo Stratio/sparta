@@ -73,13 +73,13 @@ describe('policies.wizard.factory.model-factory', function () {
     beforeEach(function () {
       model1 = angular.copy(fakeModel);
       model1.inputField = "fake inputfield of model 1";
-      model1.outputFields = ["model1 output1", "model1output 2"];
+      model1.outputFields = [{name:"model1 output1"},{name: "model1output 2"}];
       model2 = angular.copy(fakeModel);
       model2.inputField = "fake inputfield of model 2";
-      model2.outputFields = ["model2 output1", "model2 output 2"];
+      model2.outputFields = [{name:"model2 output1"}, {name:"model2 output 2"}];
       model3 = angular.copy(fakeModel);
       model3.inputField = "fake inputfield of model 3";
-      model3.outputFields = ["model3 output1", "model3 output 2"];
+      model3.outputFields = [{name:"model3 output1"}, {name:"model3 output 2"}];
 
       models = [model1, model2, model3];
     });
@@ -106,18 +106,19 @@ describe('policies.wizard.factory.model-factory', function () {
       factory.updateModelInputs(models);
 
       var inputList = factory.getModelInputs();
+
       expect(inputList.length).toEqual(model1.outputFields.length + 1);
       expect(inputList[0]).toEqual({
         label: model1.inputField,
         value: model1.inputField
       });
       expect(inputList[1]).toEqual({
-        label: model1.outputFields[0],
-        value: model1.outputFields[0]
+        label: model1.outputFields[0].name,
+        value: model1.outputFields[0].name
       });
       expect(inputList[2]).toEqual({
-        label: model1.outputFields[1],
-        value: model1.outputFields[1]
+        label: model1.outputFields[1].name,
+        value: model1.outputFields[1].name
       });
     });
 

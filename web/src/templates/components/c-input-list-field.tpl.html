@@ -4,8 +4,8 @@
   	<label class="{{labelControlClass}}" data-ng-class = "{'c-label--required': required, 'c-label': !required}">{{labelControlText}}:</label>
   </span>
   <div data-ng-if="inputs.length > 0" class="c-form-group c-form-group--full-width">
-    <span data-ng-repeat="input in inputs track by $index" data-ng-model="input" data-ng-value="(input)" class="c-tag" type="{{inputType}}">
-    	<span class="c-tag__text" data-qa="{{qa}}-{{$index}}">{{input}}</span>
+    <span data-ng-repeat="input in inputs track by $index" data-ng-model="input" data-ng-value="(input.name)" class="c-tag" type="{{inputType}}">
+    	<span class="c-tag__text" data-qa="{{qa}}-{{$index}}">{{input.name}}</span>
     	<i class="c-tag__close-icon c-icon c-icon--is-clickable icon-cross" data-ng-click="deleteInput($index)" data-ng-if="enableDelete" data-qa="{{qa}}-{{$index}}-remove"></i>
     </span>
   </div>

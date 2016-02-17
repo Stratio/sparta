@@ -50,7 +50,7 @@
       var options = [];
       var output, option = "";
       for (var i = 0; i < outputs.length; ++i) {
-        output = outputs[i];
+        output = outputs[i].name || outputs[i];
         option = {label: output, value: output};
         options.push(option);
       }
