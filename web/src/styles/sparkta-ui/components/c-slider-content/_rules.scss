@@ -3,37 +3,36 @@
   overflow: hidden;
 
   &__button {
-    border-radius: 50%;
-    width: 34px;
-    height: 34px;
-    line-height: 32px;
-    background: white;
-    border: 1px solid getColor(n4);
-    background: white;
-    text-align: center;
-    position: relative;
-    font-size: 13px;
-    top: -17px;
-    color: getColor(n6);
-    cursor: pointer;
+    border-radius: $c-slider-content__button---border-radius;
+    width: $c-slider-content__button---width;
+    height: $c-slider-content__button---width;
+    line-height: $c-slider-content__button---line-height;
+    background: $c-slider-content__button---background;
+    border: $c-slider-content__button---border;
+    background: $c-slider-content__button---background;
+    text-align: $c-slider-content__button---text-align;
+    position: $c-slider-content__button---position;
+    font-size: $c-slider-content__button---font-size;
+    top: $c-slider-content__button---top;
+    color: $c-slider-content__button---color;
+    cursor: $c-slider-content__button---cursor;
+    margin:$c-slider-content__button---margin
   }
 
-  &__line {
-    text-align: center;
-    border-top: 1px solid getColor(n6);
-    height: 1px;
-    margin-top: 4px;
-    margin-bottom: 4px;
-    width: 100%;
-    -webkit-box-shadow: 0px -6px 10px 1px getColor(n4);
-    -moz-box-shadow: 0px -6px 10px 1px getColor(n4);
-    box-shadow: 0px -6px 10px 1px getColor(n4);
+  &--to-up {
+    border-top: $c-slider-content--to-up---border-top;
+    width: $c-slider-content--to-up---width;
+    -webkit-box-shadow: $c-slider-content--to-up---shadow;
+    -moz-box-shadow: $c-slider-content--to-up---shadow;
+    box-shadow: $c-slider-content--to-up---shadow;
+    position: $c-slider-content--to-up---position;
+    left: $c-slider-content--to-up---left;
   }
 
   &.ng-enter,
   &.ng-leave {
-    -webkit-transition: all linear 0.3s;
-    transition: all linear 0.3s;
+    -webkit-transition: $c-slider-content---transition;
+    transition: $c-slider-content---transition;
   }
 
   &.ng-leave.ng-leave-active,
