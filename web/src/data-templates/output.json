@@ -163,7 +163,7 @@
       },
       {
         "propertyId": "sparkProperties",
-        "propertyName": "",
+        "propertyName": "_SPARK_PROPERTIES_",
         "propertyType": "list",
         "default": "",
         "required": false,
@@ -255,7 +255,7 @@
     "properties": [
       {
         "propertyId": "nodes",
-        "propertyName": "",
+        "propertyName": "_NODES_",
         "propertyType": "list",
         "default": "",
         "required": true,
@@ -333,7 +333,7 @@
     "properties": [
       {
         "propertyId": "hosts",
-        "propertyName": "",
+        "propertyName": "_HOSTS_",
         "propertyType": "list",
         "default": "",
         "required": true,
@@ -550,7 +550,7 @@
   "properties": [
     {
       "propertyId": "metadata.broker.list",
-      "propertyName": "",
+      "propertyName": "_METADATA_BROKER_LIST_",
       "propertyType": "list",
       "regexp": "",
       "default": "",
