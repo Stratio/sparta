@@ -33,7 +33,7 @@
         vm.configPlaceholder = vm.template.configPlaceholder;
         vm.outputPattern = vm.template.outputPattern;
         vm.outputInputPlaceholder = vm.template.outputInputPlaceholder;
-        vm.outputFieldTypes =  vm.template.model.outputFieldTypes;
+        vm.outputFieldTypes =  vm.template.outputFieldTypes;
       }
     }
 
