@@ -25,27 +25,28 @@
     margin-top: 4px;
     margin-bottom: 4px;
     width: 100%;
-    -webkit-box-shadow: 0px -5px 11px 0px getColor(n4);
-    -moz-box-shadow: 0px -5px 11px 0px getColor(n4);
-    box-shadow: 0px -5px 11px 0px getColor(n4);
+    -webkit-box-shadow: 0px -6px 10px 1px getColor(n4);
+    -moz-box-shadow: 0px -6px 10px 1px getColor(n4);
+    box-shadow: 0px -6px 10px 1px getColor(n4);
   }
 
-  &--hide {
-    max-height: 0px;
-    overflow: hidden;
-    -webkit-transition: max-height 0.8s;
-    -moz-transition: max-height 0.8s;
-    transition: max-height 0.8s;
+  &.ng-enter,
+  &.ng-leave {
+    -webkit-transition: all linear 0.3s;
+    transition: all linear 0.3s;
   }
 
-  &--show {
-    -webkit-transition: max-height 0.8s;
-    -moz-transition: max-height 0.8s;
-    transition: max-height 0.8s;
-    max-height: 200px;
-    overflow: hidden;
+  &.ng-leave.ng-leave-active,
+  &.ng-move,
+  &.ng-enter {
+    height: 0px;
   }
 
+  &.ng-leave,
+  &.ng-move.ng-move-active,
+  &.ng-enter.ng-enter-active {
+    height: 100px;
+  }
 }
 
 .c-slider-content {

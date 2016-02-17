@@ -1,12 +1,15 @@
 <section>
-  <c-step-progress-bar class="c-slider-content" steps="wizard.steps"
-                       data-ng-class="{'c-slider-content--show': wizard.showStepNavigation,'c-slider-content--hide': !wizard.showStepNavigation }"
+
+  <c-step-progress-bar steps="wizard.steps" class="c-slider-content"
+                       data-ng-if="wizard.showStepNavigation"
                        current-step="(wizard.status.currentStep)">
   </c-step-progress-bar>
 
+
   <div class="">
     <div class="c-slider-content__line" data-ng-click="wizard.changeStepNavigationVisibility()">
-      <div class="c-slider-content__button c-icon c-col c-col--12" data-ng-class = "{'icon-arrow2_up':  wizard.showStepNavigation, 'icon-arrow2_down':  !wizard.showStepNavigation}">
+      <div class="c-slider-content__button c-icon c-col c-col--12"
+           data-ng-class="{'icon-arrow2_up':  wizard.showStepNavigation, 'icon-arrow2_down':  !wizard.showStepNavigation}">
       </div>
     </div>
     <div data-ng-switch on="wizard.status.currentStep">
