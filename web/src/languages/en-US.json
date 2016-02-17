@@ -11,6 +11,7 @@
   "_DESCRIPTION_": "Description",
   "_TYPE_": "Type",
   "_ADDRESS_": "Address",
+  "_ADDRESSES_": "Addresses",
   "_PORT_": "Port",
   "_TCP_PORT_": "TCP Port",
   "_HTTP_PORT_": "HTTP Port",
@@ -19,6 +20,7 @@
   "_PARALLELISM_": "Parallelism",
   "_HOST_NAME_": "Host name",
   "_HOST_": "Host",
+  "_HOSTS_": "Hosts",
   "_DECOMPRESSION_": "Decompression",
   "_ZOOKEEPER_HOST_": "Zookeeper host",
   "_ZOOKEEPER_PORT_": "Zookeeper port",
@@ -273,5 +275,11 @@
   "_BATCH_NUM_MESSAGES_": "Batch num messages",
   "_FILTER_BY_TYPE_": "Filter by type",
   "_FILTER_BY_NAME_": "Filter by name",
-  "_SELECT_AN_OPTION_": "Please select an option"
+  "_SELECT_AN_OPTION_": "Please select an option",
+  "_OPTIONAL_": "(Optional)",
+  "_ADD_": "Add",
+  "_ZOOKEEPER_CONNECT_": "Zookeeper connect",
+  "_METADATA_BROKER_LIST_": "Metadata broker list",
+  "_SPARK_PROPERTIES_": "Spark properties",
+  "_NODES_": "Nodes"
 }

@@ -36,6 +36,14 @@
 	&__text {
 		margin: $c-icon-radio__text---margin;
 		vertical-align: text-bottom;
+
+		&.ng-enter, .ng-leave {
+			-webkit-transition: 1s linear all;
+		    -moz-transition: 1s linear all;
+		    -ms-transition: 1s linear all;
+		    -o-transition: 1s linear all;
+		    transition: 1s linear all;
+		}
 	}
 }
 
