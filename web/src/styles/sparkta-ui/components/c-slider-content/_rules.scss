@@ -1,0 +1,54 @@
+@mixin c-slider-content {
+  @include c-component;
+  overflow: hidden;
+
+  &__button {
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    line-height: 32px;
+    background: white;
+    border: 1px solid getColor(n4);
+    background: white;
+    text-align: center;
+    position: relative;
+    font-size: 13px;
+    top: -17px;
+    color: getColor(n6);
+    cursor: pointer;
+  }
+
+  &__line {
+    text-align: center;
+    border-top: 1px solid getColor(n6);
+    height: 1px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    width: 100%;
+    -webkit-box-shadow: 0px -6px 10px 1px getColor(n4);
+    -moz-box-shadow: 0px -6px 10px 1px getColor(n4);
+    box-shadow: 0px -6px 10px 1px getColor(n4);
+  }
+
+  &.ng-enter,
+  &.ng-leave {
+    -webkit-transition: all linear 0.3s;
+    transition: all linear 0.3s;
+  }
+
+  &.ng-leave.ng-leave-active,
+  &.ng-move,
+  &.ng-enter {
+    height: 0px;
+  }
+
+  &.ng-leave,
+  &.ng-move.ng-move-active,
+  &.ng-enter.ng-enter-active {
+    height: 100px;
+  }
+}
+
+.c-slider-content {
+  @include c-slider-content;
+}
