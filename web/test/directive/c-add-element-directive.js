@@ -13,7 +13,7 @@ describe('directive.c-add-element-directive', function () {
     scope = $rootScope.$new();
 
     scope.model = fakeModel;
-    directive = angular.element(' <c-add-element model="model"> </c-add-element>');
+    directive = angular.element('<c-add-element model="model"> </c-add-element>');
     directive = $compile(directive)(scope);
     scope.$digest();
     $httpBackend.flush();
@@ -58,7 +58,7 @@ describe('directive.c-add-element-directive', function () {
         isolatedScope = directive.isolateScope();
         isolatedScope.inputToAdd = fakeInputToAdd;
 
-        fakeModel.push(fakeInputToAdd);
+        fakeModel.push({name:fakeInputToAdd});
         var previousLength = fakeModel.length;
 
         // user tries to add the same element again
@@ -76,7 +76,7 @@ describe('directive.c-add-element-directive', function () {
 
         isolatedScope = directive.isolateScope();
         isolatedScope.inputToAdd = fakeInputToAdd;
-        fakeModel.push(newInputToAdd);
+        fakeModel.push({name:newInputToAdd});
         var previousLength = fakeModel.length;
 
         // user tries to add another element
