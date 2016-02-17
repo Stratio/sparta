@@ -105,7 +105,7 @@
         for (var j = 0; j < modelOutputs.length; ++j) {
           output = modelOutputs[j];
           if (outputs.indexOf(output) == -1) {
-            allModelOutputs.push(output);
+            allModelOutputs.push(output.name);
           }
         }
       }
