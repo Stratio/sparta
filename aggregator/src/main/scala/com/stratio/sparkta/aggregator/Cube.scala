@@ -60,16 +60,14 @@ case class Cube(name: String,
    * 4. Cube with no operators.
    */
 
-  def aggregate(dimensionsValues: DStream[(DimensionValuesTime, Row)])
+  def aggregate(dimensionsValues: DStream[(DimensionValuesTime, InputFields)])
   : DStream[(DimensionValuesTime, MeasuresValues)] = {
 
-    val filteredValues = filterDimensionValues(dimensionsValues)
     val associativesCalculated = if (associativeOperators.nonEmpty)
-      Option(updateAssociativeState(associativeAggregation(filteredValues)))
+      Option(updateAssociativeState(associativeAggregation(dimensionsValues)))
     else None
     val nonAssociativesCalculated = if (nonAssociativeOperators.nonEmpty)
-
-      Option(aggregateNonAssociativeValues(updateNonAssociativeState(filteredValues)))
+      Option(aggregateNonAssociativeValues(updateNonAssociativeState(dimensionsValues)))
     else None
 
     (associativesCalculated, nonAssociativesCalculated) match {
@@ -83,20 +81,6 @@ case class Cube(name: String,
       case _ =>
         log.warn("You should define operators for aggregate input values")
         noAggregationsState(dimensionsValues)
-    }
-  }
-
-  /**
-   * Filter dimension values that correspond with the current cube dimensions
-   */
-
-  protected def filterDimensionValues(dimensionValues: DStream[(DimensionValuesTime, Row)])
-  : DStream[(DimensionValuesTime, InputFields)] = {
-    dimensionValues.map { case (dimensionsValuesTime, aggregationValues) =>
-      val dimensionsFiltered = dimensionsValuesTime.dimensionValues.filter(dimVal =>
-        dimensions.exists(comp => comp.name == dimVal.dimension.name))
-
-      (dimensionsValuesTime.copy(dimensionValues = dimensionsFiltered), InputFields(aggregationValues, UpdatedValues))
     }
   }
 
@@ -262,7 +246,7 @@ case class Cube(name: String,
 
   //scalastyle:on
 
-  protected def noAggregationsState(dimensionsValues: DStream[(DimensionValuesTime, Row)])
+  protected def noAggregationsState(dimensionsValues: DStream[(DimensionValuesTime, InputFields)])
   : DStream[(DimensionValuesTime, MeasuresValues)] =
     dimensionsValues.mapValues(aggregations =>
       MeasuresValues(operators.map(op => op.key -> None).toMap))
