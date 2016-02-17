@@ -1,4 +1,4 @@
-describe('directive.c-input-list-field-directive', function () {
+describe('directive.c-output-field-list-directive', function () {
   beforeEach(module('webApp'));
   var directive, scope, fakeInputList = null;
 
@@ -6,13 +6,13 @@ describe('directive.c-input-list-field-directive', function () {
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
 
-    $httpBackend.when('GET', 'templates/components/c-input-list-field.tpl.html')
+    $httpBackend.when('GET', 'templates/components/c-output-field-list.tpl.html')
       .respond("<div></div>");
 
     scope = $rootScope.$new();
     fakeInputList = [];
     scope.inputs = fakeInputList;
-    directive = angular.element(' <c-input-list-field data-inputs="inputs"> </c-input-list-field>');
+    directive = angular.element(' <c-output-field-list data-inputs="inputs"> </c-output-field-list>');
 
     directive = $compile(directive)(scope);
     scope.$digest();
