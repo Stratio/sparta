@@ -32,6 +32,12 @@
 	}
 }
 
+@mixin container-to-center() {
+	&--content-to-center {
+		text-align: center;
+	}
+}
+
 @mixin container-to-bottom() {
 	&--to-bottom {
 		bottom: 0;

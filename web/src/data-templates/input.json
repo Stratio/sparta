@@ -30,7 +30,7 @@
       },
       {
       "propertyId": "addresses",
-      "propertyName": "",
+      "propertyName": "_ADDRESSES_",
       "propertyType": "list",
       "default": "",
       "required": true,
@@ -178,7 +178,7 @@
     "properties": [
       {
       "propertyId": "zookeeper.connect",
-      "propertyName": "",
+      "propertyName": "_ZOOKEEPER_CONNECT_",
       "propertyType": "list",
       "default": "",
       "required": true,
@@ -222,7 +222,7 @@
       },
       {
       "propertyId": "topics",
-      "propertyName": "",
+      "propertyName": "_TOPICS_",
       "propertyType": "list",
       "default": "",
       "required": true,
@@ -268,7 +268,7 @@
     "properties": [
       {
       "propertyId": "metadata.broker.list",
-      "propertyName": "",
+      "propertyName": "_METADATA_BROKER_LIST_",
       "propertyType": "list",
       "default": "",
       "required": true,
@@ -312,7 +312,7 @@
       },
       {
       "propertyId": "topics",
-      "propertyName": "",
+      "propertyName": "_TOPICS_",
       "propertyType": "list",
       "default": "",
       "required": true,
@@ -386,7 +386,7 @@
       },
       {
       "propertyId": "routingKeys",
-      "propertyName": "",
+      "propertyName": "_ROUTING_KEYS_",
       "propertyType": "list",
       "default": "",
       "required": false,

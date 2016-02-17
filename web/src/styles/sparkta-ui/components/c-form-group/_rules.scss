@@ -5,6 +5,20 @@
 
 	@at-root .c-form & {
 		margin: $c-form__c-form-group---margin;
+
+		&--compressed {
+			margin-bottom: 40px;
+
+			&--no-margin-bottom {
+				margin-bottom: 0px;
+			}
+		}
+
+		&--list-compressed {
+			background-color: getColor(n3);
+			padding: 15px 20px;
+			margin-bottom: 5px;
+		}
 	}
 }
 

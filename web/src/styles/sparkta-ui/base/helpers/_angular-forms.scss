@@ -1,19 +1,27 @@
-$angular-forms--ng-invalid---border: 1px solid red !default;
-$angular-forms--ng-invalid__label---color: red !default;
-$angular-forms--ng-invalid__error---color: red !default;
-$angular-forms--ng-invalid__error---font-style: italic !default;
+$angular-forms--ng-invalid__input---color: #e23b2b !default;
+$angular-forms--ng-invalid__input---color: #e23b2b !default;
+$angular-forms--ng-invalid__error---color: #ffffff !default;
+$angular-forms--ng-invalid__error---background-color: #e23b2b !default;
+$angular-forms--ng-invalid__error---padding: 0.5em !default;
+$angular-forms--ng-invalid__error---font-size: 14px !default;
+$angular-forms--ng-invalid__error--icon---font-size: 12px !default;
 
-.c-form-group.ng-invalid.submited {
-	& input {
-		border: $angular-forms--ng-invalid---border;
+.c-form-group.ng-invalid.submitted {
+	& label {
+		color: $angular-forms--ng-invalid__input---color;
 	}
 
-	& label {
-		color: $angular-forms--ng-invalid__label---color;
+	& input {
+		/*color: $angular-forms--ng-invalid__input---color;*/
 	}
 }
-
 .angular-forms__error {
 	color: $angular-forms--ng-invalid__error---color;
-	font-style: $angular-forms--ng-invalid__error---font-style;
+	background-color: $angular-forms--ng-invalid__error---background-color;
+	padding: $angular-forms--ng-invalid__error---padding;
+	font-size: $angular-forms--ng-invalid__error---font-size;
+
+	.icon {
+		font-size: $angular-forms--ng-invalid__error--icon---font-size;
+	}
 }
