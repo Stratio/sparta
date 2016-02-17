@@ -91,10 +91,9 @@ class IngestionParser(name: String,
     val key = element._1
     val value = element._2.toString
 
-    val dataType: Option[String] = (properties.get(key) match {
-      case Some(value) => Some(value.toString.toLowerCase)
-      case _ => None
-    })
+    val dataType: Option[String] =
+      properties.get(key)
+        .map(_.toString.toLowerCase)
 
     dataType match {
       case Some("long") =>
