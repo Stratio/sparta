@@ -5,10 +5,10 @@
 
   angular
     .module('webApp')
-    .directive('cInputListField', cInputListField);
+    .directive('cOutputFieldList', cOutputFieldList);
 
 
-  function cInputListField() {
+  function cOutputFieldList() {
     var directive = {
       restrict: 'E',
       scope: {
@@ -26,12 +26,13 @@
         readonly: "=",
         enableDelete: "=",
         required: "=",
+        outputTypes: "=",
         qa: "@",
         help: '@',
         helpQa: '@'
       },
       replace: "true",
-      templateUrl: 'templates/components/c-input-list-field.tpl.html',
+      templateUrl: 'templates/components/c-output-field-list.tpl.html',
       link: link
     };
 
