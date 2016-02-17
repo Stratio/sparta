@@ -73,7 +73,7 @@
     }
 
     function removeModel() {
-     return  ModelService.removeModel().then(function () {
+      return  ModelService.removeModel().then(function () {
         var order = 0;
         var modelNumber = vm.policy.transformations.length;
         if (modelNumber > 0) {
