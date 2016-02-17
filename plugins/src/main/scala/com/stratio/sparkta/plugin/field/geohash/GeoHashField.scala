@@ -25,6 +25,8 @@ import com.stratio.sparkta.sdk.TypeOp
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk._
 
+import scala.util.Try
+
 /**
  *
  * Aggregation by geoposition
@@ -76,9 +78,9 @@ case class GeoHashField(props: Map[String, JSerializable], override val defaultT
   override val operationProps: Map[String, JSerializable] = props
 
   val coordinate = properties.get("coordinate")
-
+  
   //scalastyle:off
-  override def precision(keyName: String): Precision = keyName match {
+  def precision(keyName: String): Precision = keyName match {
     case Precision1Name => getPrecision(Precision1Name, getTypeOperation(Precision1Name))
     case Precision2Name => getPrecision(Precision2Name, getTypeOperation(Precision2Name))
     case Precision3Name => getPrecision(Precision3Name, getTypeOperation(Precision3Name))
@@ -93,69 +95,66 @@ case class GeoHashField(props: Map[String, JSerializable], override val defaultT
     case Precision12Name => getPrecision(Precision12Name, getTypeOperation(Precision12Name))
   }
 
-  //scalastyle:on
 
-  override def precisionValue(keyName: String, value: Any): (Precision, Any) =
-    try {
-      val defaultPrecision = getPrecision(Precision3Name, getTypeOperation(Precision3Name))
-      if (value.isInstanceOf[Option[_]]) {
-        if (value.asInstanceOf[Option[_]].isDefined) {
-          val precisionKey = precision(keyName)
-          val latLongArray = value.asInstanceOf[Option[_]].get.asInstanceOf[String]
-            .split(properties.getOrElse(GeoHashField.LatLongKey, GeoHashField.LatLongSepartor).toString)
-          latLongArray match {
-            case latLong if latLong.size == 2 =>
-              (precisionKey, getPrecision(latLong(0).toDouble, latLong(1).toDouble, precisionKey))
-            case _ => (precisionKey, "")
-          }
-        } else {
-          (defaultPrecision, getPrecision(0, 0, defaultPrecision))
-        }
-      } else {
-        log.info("The geolocation precision can not be casted to Option")
-        (defaultPrecision, getPrecision(0, 0, defaultPrecision))
+  def precisionValue(keyName: String, value: Any): (Precision, Any) =
+    Try {
+      Option(value) match {
+        case Some(latLongValue: String) => extractPrecision(keyName, latLongValue)
+        case None => defaultPrecisionTuple
+        case _ =>
+          log.error("Error trying to extract the latitude and longitude values")
+          defaultPrecisionTuple
       }
-    }
-    catch {
-      case cce: ClassCastException => {
-        log.error("Error parsing " + value + " .")
+    }.recover{
+      case cce: ClassCastException =>
+        log.error(s"Error parsing $value.")
         throw cce
-      }
-    }
+    }.get
 
-  //scalastyle:off
-  def getPrecision(lat: Double, long: Double, precision: Precision): Any = {
-    TypeOp.transformValueByTypeOp(precision.typeOp, precision.id match {
-      case p if p == Precision1Name => decodeHash(GeoHash.encodeHash(lat, long, 1))
-      case p if p == Precision2Name => decodeHash(GeoHash.encodeHash(lat, long, 2))
-      case p if p == Precision3Name => decodeHash(GeoHash.encodeHash(lat, long, 3))
-      case p if p == Precision4Name => decodeHash(GeoHash.encodeHash(lat, long, 4))
-      case p if p == Precision5Name => decodeHash(GeoHash.encodeHash(lat, long, 5))
-      case p if p == Precision6Name => decodeHash(GeoHash.encodeHash(lat, long, 6))
-      case p if p == Precision7Name => decodeHash(GeoHash.encodeHash(lat, long, 7))
-      case p if p == Precision8Name => decodeHash(GeoHash.encodeHash(lat, long, 8))
-      case p if p == Precision9Name => decodeHash(GeoHash.encodeHash(lat, long, 9))
-      case p if p == Precision10Name => decodeHash(GeoHash.encodeHash(lat, long, 10))
-      case p if p == Precision11Name => decodeHash(GeoHash.encodeHash(lat, long, 11))
-      case p if p == Precision12Name => decodeHash(GeoHash.encodeHash(lat, long, 12))
-    })
+  def extractPrecision(keyName: String, latLongValue: String): (Precision, Any) = {
+    val precisionKey = precision(keyName)
+    val latLongArray =
+      latLongValue.split(
+        properties.getOrElse(GeoHashField.LatLongKey, GeoHashField.LatLongSeparator)
+          .toString
+      )
+
+    latLongArray match {
+      case Array(lat, long) =>
+        (precisionKey, getPrecision(lat.toDouble, long.toDouble, precisionKey))
+      case _ => (precisionKey, "")
+    }
   }
 
-  //scalastyle:on
+  val defaultPrecisionTuple = {
+    val defaultPrecision = getPrecision(Precision3Name, getTypeOperation(Precision3Name))
+    (defaultPrecision, getPrecision(0, 0, defaultPrecision))
+  }
+
+  //scalastyle:off
+  def getPrecision(lat: Double, long: Double, precision: Precision): Any =
+    TypeOp.transformValueByTypeOp(precision.typeOp, precision.id match {
+      case Precision1Name => decodeHash(GeoHash.encodeHash(lat, long, 1))
+      case Precision2Name => decodeHash(GeoHash.encodeHash(lat, long, 2))
+      case Precision3Name => decodeHash(GeoHash.encodeHash(lat, long, 3))
+      case Precision4Name => decodeHash(GeoHash.encodeHash(lat, long, 4))
+      case Precision5Name => decodeHash(GeoHash.encodeHash(lat, long, 5))
+      case Precision6Name => decodeHash(GeoHash.encodeHash(lat, long, 6))
+      case Precision7Name => decodeHash(GeoHash.encodeHash(lat, long, 7))
+      case Precision8Name => decodeHash(GeoHash.encodeHash(lat, long, 8))
+      case Precision9Name => decodeHash(GeoHash.encodeHash(lat, long, 9))
+      case Precision10Name => decodeHash(GeoHash.encodeHash(lat, long, 10))
+      case Precision11Name => decodeHash(GeoHash.encodeHash(lat, long, 11))
+      case Precision12Name => decodeHash(GeoHash.encodeHash(lat, long, 12))
+    })
 
   def decodeHash(geoLocHash: String): Any = {
     val geoDecoded: LatLong = GeoHash.decodeHash(geoLocHash)
     val (latitude, longitude) = (geoDecoded.getLat, geoDecoded.getLon)
     coordinate match {
-      case Some(coord) =>
-        if (coord.asInstanceOf[String] == "latitude") {
-          latitude.asInstanceOf[Any]
-        }
-        else {
-          if (coord.asInstanceOf[String] == "longitude") longitude.asInstanceOf[Any]
-          else Seq(longitude, latitude).asInstanceOf[Any]
-        }
-      case None => Seq(longitude, latitude).asInstanceOf[Any]
+      case Some("latitude") => latitude.asInstanceOf[Any]
+      case Some("longitude") => longitude.asInstanceOf[Any]
+      case _ => Seq(longitude, latitude).asInstanceOf[Any]
     }
   }
 }
@@ -174,7 +173,7 @@ object GeoHashField {
   final val Precision10Name = "precision10"
   final val Precision11Name = "precision11"
   final val Precision12Name = "precision12"
-  final val LatLongSepartor = "__"
+  final val LatLongSeparator = "__"
   final val LatLongKey = "separator"
 
 }
