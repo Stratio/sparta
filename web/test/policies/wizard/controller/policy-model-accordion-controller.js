@@ -4,7 +4,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
   beforeEach(module('served/policyTemplate.json'));
   beforeEach(module('served/model.json'));
 
-  var ctrl, scope, translate, fakeTranslation, fakePolicy, fakeTemplate, fakeModel, policyModelFactoryMock,
+  var ctrl, scope, translate, fakeTranslation, fakePolicy, fakePolicyTemplate, fakeModel, policyModelFactoryMock,
     accordionStatusServiceMock, modelFactoryMock, cubeServiceMock, modalServiceMock, accordionStatus = null;
 
   // init mock modules
@@ -16,7 +16,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
 
     inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedModel_) {
       fakePolicy = angular.copy(_servedPolicy_);
-      fakeTemplate = _servedPolicyTemplate_;
+      fakePolicyTemplate = _servedPolicyTemplate_;
       fakeModel = _servedModel_;
     });
 
@@ -29,7 +29,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
     });
 
     policyModelFactoryMock.getTemplate.and.callFake(function () {
-      return fakeTemplate;
+      return fakePolicyTemplate;
     });
 
 
@@ -65,7 +65,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
   describe("when it is initialized", function () {
 
     it('it should get a policy template from from policy factory', function () {
-      expect(ctrl.template).toBe(fakeTemplate);
+      expect(ctrl.template).toBe(fakePolicyTemplate);
     });
 
     it('it should get the policy that is being created or edited from policy factory', function () {
@@ -137,7 +137,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
         scope.$digest();
 
         expect(scope.$watchCollection).toHaveBeenCalled();
-        expect(modelFactoryMock.resetModel).toHaveBeenCalledWith(fakeTemplate, fakeModel2.order + 1, ctrl.policy.transformations.length);
+        expect(modelFactoryMock.resetModel).toHaveBeenCalledWith(fakePolicyTemplate.model, fakeModel2.order + 1, ctrl.policy.transformations.length);
       })
     })
   });

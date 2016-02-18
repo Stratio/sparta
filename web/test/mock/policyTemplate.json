@@ -36,7 +36,6 @@
   "helpLink": {
     "description": "fake helpLink"
   },
-  "defaultModelName": "fake model name",
   "defaultCubeName": "fake cube name",
   "defaultTimeDimension": "fake defaultTimeDimension",
   "defaultInterval": "fake defaultInterval",
@@ -187,5 +186,67 @@
     "fakeFunctionName3",
     "fakeFunctionName4"
   ],
-  "defaultOperatorConfiguration": {"fake attribute": "fake value"}
+  "defaultOperatorConfiguration": {"fake attribute": "fake value"},
+
+
+
+  "model": {
+    "defaultName": "fake model name",
+    "types": [
+      {
+        "iconName": "morphlines",
+        "name": "Morphlines"
+      },
+      {
+        "iconName": "datetime",
+        "name": "DateTime"
+      },
+      {
+        "iconName": "type",
+        "name": "Type"
+      }
+    ],
+    "defaultInput": {
+      "label": "_attachment_body",
+      "value": "_attachment_body"
+    },
+    "defaultConfiguration": {
+      "morphlinesDefaultConfiguration": {
+        "morphline": {
+          "id": "morphline1",
+          "importCommands": [
+            "org.kitesdk.**"
+          ],
+          "commands": [
+            {
+              "readJson": {}
+            },
+            {
+              "extractJsonPaths": {
+                "paths": {
+                  "field1": "/field-in-json1",
+                  "field2": "/field-in-json2"
+                }
+              }
+            },
+            {
+              "removeFields": {
+                "blacklist": [
+                  "literal:_attachment_body",
+                  "literal:message"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "dateTimeDefaultConfiguration": {
+        "inputFormat": "unix"
+      },
+      "typeDefaultConfiguration": {
+        "type": "long",
+        "newField": "newFieldLong"
+      }
+    }
+  }
 }
