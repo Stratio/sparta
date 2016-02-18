@@ -109,6 +109,7 @@
   &--visited {
     & .c-step__box {
       border: $c-step__box--visited---border;
+      color: $c-step--active---color;
     }
   }
 
