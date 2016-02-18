@@ -34,7 +34,9 @@ module.exports = function (grunt) {
         }
       },
       sass: {
-        files: ['<%= stratio.app %>/styles/{,*/}*.{scss,sass}'],
+        files: ['<%= stratio.app %>/styles/{,*/}*.{scss,sass}',
+          '<%= stratio.app %>/styles/**/*.scss'
+        ],
         tasks: ['sass', 'autoprefixer']
       },
       gruntfile: {
@@ -172,7 +174,7 @@ module.exports = function (grunt) {
     wiredep: {
       app: {
         src: ['<%= stratio.app %>/index.html'],
-        ignorePath:  /\.\.\//
+        ignorePath: /\.\.\//
       }
     },
 
@@ -369,8 +371,8 @@ module.exports = function (grunt) {
     'connect:test'
   ]);
 
-  grunt.registerTask('build', 'Build if target is empty', function() {
-    if (fs.existsSync(appConfig.dist+'/index.html')) {
+  grunt.registerTask('build', 'Build if target is empty', function () {
+    if (fs.existsSync(appConfig.dist + '/index.html')) {
       grunt.log.warn('Target already exists. If you want to force build run task `clean:dist` first');
       return true;
     }
