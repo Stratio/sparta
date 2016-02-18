@@ -1,3 +1,0 @@
-export SPARKTA_CONF="/etc/sds/sparkta"
-export SPARKTA_HOME="/opt/sds/sparkta"
-export SPARKTA_LOGS="/var/log/sds/sparkta"
