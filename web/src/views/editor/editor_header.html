@@ -3,8 +3,7 @@
 		<!-- TODO: SET EXIT EDITOR BEHAVIOUR -->
 		<div class="c-toolbar-container--button"  data-qa="editor-toolbar-exit" ui-sref="dashboard.policies">
 			<button class="c-button c-button--rounded c-button--rounded--call-to-action-1"
-					qaref="workflow-list"
-					data-qa="workflow-list-reply-button">
+					data-qa="editor-toolbar-back-button">
 				<span class="icon-reply"></span>
 			</button>
 		</div>
@@ -20,7 +19,7 @@
 		</button>
 	</div>
 	<div class="c-toolbar-container c-toolbar-container--to-right c-toolbar-container--padding">
-		<a data-ng-href="https://stratio.atlassian.net/wiki/display/SPARKTA0x8/5.+Create+and+Submit+Policy" class="c-icon-link c-icon-link__toolbar" target="_blank" data-qa="editor-toolbar-help">
+		<a data-ng-href="{{editor.helpLink}}" class="c-icon-link c-icon-link__toolbar" target="_blank" data-qa="editor-toolbar-help">
 			<i class="c-icon c-icon-link__icon c-icon--is-clickable c-icon--call-to-action icon-help1"></i>
 			<span class="c-icon-link__text c-icon-link__text--is-link">{{'_INPUT_WINDOW_NEW_HELP_' | translate}}</span>
 		</a>
