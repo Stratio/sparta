@@ -133,7 +133,7 @@
     }
   ],
   "helpLinks": {
-    "description": "http://docs.stratio.com/modules/sparkta/0.6/usingSparkta.html#policy",
+    "description": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/5.+Create+and+Submit+Policy",
     "inputs": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html",
     "models": "http://docs.stratio.com/modules/sparkta/0.6/transformations.html",
     "cubes": "http://docs.stratio.com/modules/sparkta/0.6/cube.html",
