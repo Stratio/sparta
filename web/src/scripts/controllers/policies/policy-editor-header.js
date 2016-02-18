@@ -6,8 +6,8 @@
     .module('webApp')
     .controller('PolicyEditorHeaderCtrl', PolicyEditorHeaderCtrl);
 
-  PolicyEditorHeaderCtrl.$inject = [];
-  function PolicyEditorHeaderCtrl() {
+  PolicyEditorHeaderCtrl.$inject = ['TemplateFactory'];
+  function PolicyEditorHeaderCtrl(TemplateFactory) {
     var vm = this;
 
     init();
@@ -15,6 +15,10 @@
     function init() {
       /*TODO: SET POLICY NAME*/
       vm.policyName = 'TODO: policy name';
+
+      return TemplateFactory.getPolicyTemplate().then(function (template) {
+        vm.helpLink = template.helpLinks.description;
+      });
     }
   }
 })();
