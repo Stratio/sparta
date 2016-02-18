@@ -18,7 +18,7 @@
       model.name = template.defaultModelName + (order + 1);
       model.outputFields = [];
       model.inputField = "";
-      model.type = template.types[0].name;
+      model.type = template.model.types[0].name;
       model.configuration = template.morphlinesDefaultConfiguration;
       model.order = order;
       error.text = "";
@@ -30,7 +30,7 @@
       var index = context.position;
       if (index >= 0) {
         if (index == 0) {
-          inputList.push(template.defaultInput);
+          inputList.push(template.model.defaultInput);
         } else {
           var previousModel = models[--index];
           var previousOutputs = generateOutputOptions(previousModel.outputFields);
@@ -41,7 +41,7 @@
           inputList.push.apply(inputList, previousOutputs);
         }
       }
-
+console.log(inputList)
       if (!model.inputField) {
         model.inputField = inputList[0].value
       }
