@@ -15,10 +15,11 @@
     function init(newTemplate, order, position) {
       setPosition(position);
       template = newTemplate;
+      model.name = template.defaultModelName + (order + 1);
       model.outputFields = [];
       model.inputField = "";
-      model.type = template.types[0].name;
-      model.configuration = template.defaultConfiguration.morphlinesDefaultConfiguration;
+      model.type = template.model.types[0].name;
+      model.configuration = template.morphlinesDefaultConfiguration;
       model.order = order;
       error.text = "";
       error.duplicatedOutput = false;
@@ -29,7 +30,7 @@
       var index = context.position;
       if (index >= 0) {
         if (index == 0) {
-          inputList.push(template.defaultInput);
+          inputList.push(template.model.defaultInput);
         } else {
           var previousModel = models[--index];
           var previousOutputs = generateOutputOptions(previousModel.outputFields);
@@ -40,6 +41,7 @@
           inputList.push.apply(inputList, previousOutputs);
         }
       }
+console.log(inputList)
       if (!model.inputField) {
         model.inputField = inputList[0].value
       }
@@ -58,7 +60,8 @@
     }
 
     function isValidModel() {
-      var isValid = model.inputField != "" && model.outputFields.length > 0 && model.type != "";
+      var isValid = model.inputField != "" && model.outputFields.length > 0 &&
+        model.name != "" && model.type != "";
       if (!isValid) {
         error.text = "_GENERIC_FORM_ERROR_";
       } else  error.text = "";
@@ -71,6 +74,7 @@
     }
 
     function setModel(m, position) {
+      model.name = m.name;
       model.outputFields = m.outputFields;
       model.type = m.type;
       model.configuration = m.configuration;
