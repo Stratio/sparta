@@ -34,11 +34,25 @@
         /*Check if the name of the policy already exists*/
         return PolicyFactory.existsPolicy(vm.policy.name).then(function (found) {
           vm.error = found;
+          /* Policy name doesn't exist */
           if (!found) {
-            vm.policy.rawData.enabled = vm.policy.rawData.enabled.toString();
+            vm.policy.rawData.enabled = vm.policy.rawDataEnabled.toString();
+            vm.policy.rawData.path = (vm.policy.rawDataEnabled)? vm.policy.rawDataPath : null;
+            delete vm.policy['rawDataPath'];
+            delete vm.policy['rawDataEnabled'];
             $modalInstance.close();
           }
+          /* Policy name exists */
+          else {
+            var policyName = vm.template.basicSettings[0];
+            document.querySelector('#dataSource'+policyName.propertyName+'Form').focus();
+            vm.errorText = "_INPUT_ERROR_200_";
+          }
         });
+      }
+      else{
+        /*Focus on the first invalid input*/
+        document.querySelector('input.ng-invalid').focus();
       }
     }
 

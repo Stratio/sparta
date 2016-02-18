@@ -17,6 +17,10 @@
 		border: 0;
 	}
 
+	&__outputField {
+		padding-right: 85px;
+	}
+
 	&:disabled,
 	&--disabled {
 		background: $c-input--disabled---background;

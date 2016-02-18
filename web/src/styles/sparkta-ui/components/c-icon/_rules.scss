@@ -1,27 +1,49 @@
 @mixin c-icon {
-	@include c-component;
-	@include is-clickable();
-	@include is-coloured($c-icon---colors);
+  @include c-component;
+  @include is-clickable();
+  @include is-coloured($c-icon---colors);
+  & {
+    font-family: "ico_stratio";
+    vertical-align: middle;
+  }
 
-	&--in-input {
-		position: absolute;
-		top: $c-icon--in-input---top;
-		left: $c-icon--in-input---left;
-		color: $c-icon--in-input---color;
-	}
+  &--in-input {
+    position: absolute;
+    top: $c-icon--in-input---top;
+    left: $c-icon--in-input---left;
+    color: $c-icon--in-input---color;
+  }
 
-	&--in-input-right {
-		position: absolute;
-		top: $c-icon--in-input---top;
-		right: $c-icon--in-input-right---right;
-		color: $c-icon--in-input---color;
-	}
- 
-	@include item-to-right();
+  &--in-input-right {
+    position: absolute;
+    top: $c-icon--in-input---top;
+    right: $c-icon--in-input-right---right;
+    color: $c-icon--in-input---color;
+  }
 
-	@include font-sizes();
+  &--in-label {
+    color: getColor(n5);
+    font-size: 14px;
+  }
+
+  &--center-element {
+    position: absolute;
+    right: 5px;
+    top: 12px;
+  }
+
+  &--list-compressed {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    color: getColor(n6);
+  }
+
+  @include item-to-right();
+
+  @include font-sizes();
 }
 
 .c-icon {
-	@include c-icon;
+  @include c-icon;
 }
