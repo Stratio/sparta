@@ -11,7 +11,7 @@
          data-ng-click="deleteInput($index)" data-ng-if="enableDelete" data-qa="{{qa}}-{{$index}}-remove"></i>
       <label class="c-col c-col--12 c-label c-panel--x-small__title" data-qa="{{qa}}-{{$index}}">{{input.name}}</label>
     	 <form-field-select select-class="c-combobox--full-width"
-                          data-form="vm.form" data-st-name="output-field-{{input.name}}-type"
+                          data-form="vm.form" data-st-name="policy-model-output-list-{{$index}}-type"
                           data-model="input.type"
                           data-options="outputTypes"
                           data-field="label"
@@ -19,7 +19,7 @@
                           data-default-value="outputTypes[0].value"
                           data-help=""
                           data-required="true"
-                          data-qa="output-field-{{input.name}}-type">
+                          data-qa="policy-model-output-list-{{$index}}-type">
        </form-field-select>
     </span>
   </div>
