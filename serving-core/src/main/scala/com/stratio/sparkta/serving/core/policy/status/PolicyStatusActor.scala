@@ -17,21 +17,21 @@
 package com.stratio.sparkta.serving.core.policy.status
 
 import java.util.concurrent.TimeUnit
+import scala.collection.JavaConversions
+import scala.util.{Failure, Success, Try}
 
-import akka.actor.{ActorRef, Actor}
+import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
-import com.stratio.sparkta.serving.core.CuratorFactoryHolder
-import com.stratio.sparkta.serving.core.constants.{AkkaConstant, AppConstant}
-import com.stratio.sparkta.serving.core.models.{PolicyStatusModel, SparktaSerializer}
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor._
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
 import org.json4s.jackson.Serialization.{read, write}
 
-import scala.collection.JavaConversions
-import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import com.stratio.sparkta.serving.core.CuratorFactoryHolder
+import com.stratio.sparkta.serving.core.constants.{AkkaConstant, AppConstant}
+import com.stratio.sparkta.serving.core.exception.ServingCoreException
+import com.stratio.sparkta.serving.core.models._
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor._
 
 class PolicyStatusActor(curatorFramework: CuratorFramework)
   extends Actor with SLF4JLogging with SparktaSerializer {
@@ -42,16 +42,15 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
     case FindAll => findAll
     case Kill(name) => sender ! kill(name)
     case AddListener(name, callback) => addListener(name, callback)
+    case Delete(id) => sender ! delete(id)
   }
 
-
-
   def kill(policyName: String): Boolean = {
-    implicit val timeout:Timeout = Timeout(2L, TimeUnit.SECONDS)
+    implicit val timeout: Timeout = Timeout(2L, TimeUnit.SECONDS)
     val Stopped = true
     val NotStopped = false
     val pActor = context.actorSelection(s"${AkkaConstant.SparkStreamingContextActor}-${policyName.replace(" ", "_")}")
-        .resolveOne().value
+      .resolveOne().value
 
     pActor match {
       case Some(Success(actor)) => {
@@ -123,9 +122,24 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
     }))
   }
 
+  def delete(id: String): ResponseDelete =
+    ResponseDelete(
+      Try {
+        val statusPath = s"${AppConstant.ContextPath}/$id"
+        if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined) {
+          log.info(s">> Deleting context $id >")
+          curatorFramework.delete().forPath(statusPath)
+        } else {
+          throw new ServingCoreException(ErrorModel.toString(new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId,
+            s"No policy context with id $id.")))
+        }
+      }
+    )
+
   /**
    * Adds a listener to one policy and executes the callback when it changed.
-   * @param id of the policy.
+   *
+   * @param id       of the policy.
    * @param callback with a function that will be executed.
    */
   def addListener(id: String, callback: (PolicyStatusModel, NodeCache) => Unit): Unit = {
@@ -148,7 +162,7 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
 
 object PolicyStatusActor {
 
-  case class Kill(name:String)
+  case class Kill(name: String)
 
   case class Update(policyStatus: PolicyStatusModel)
 
@@ -156,9 +170,13 @@ object PolicyStatusActor {
 
   case class AddListener(name: String, callback: (PolicyStatusModel, NodeCache) => Unit)
 
+  case class Delete(id: String)
+
   case object FindAll
 
   case class Response(policyStatus: Try[Seq[PolicyStatusModel]])
+
+  case class ResponseDelete(value: Try[Unit])
 
   /**
    * This map represents the state machine of one context.
@@ -177,8 +195,9 @@ object PolicyStatusActor {
 
   /**
    * Validates with the StateMachine if one status could be changed to another.
+   *
    * @param initialStatus that contains the currently status.
-   * @param finalStatus to change. If not one exception will be thrown.
+   * @param finalStatus   to change. If not one exception will be thrown.
    */
   def validate(initialStatus: Option[PolicyStatusEnum.Value], finalStatus: PolicyStatusEnum.Value): Unit = {
     if (!StateMachine.exists(_._1 == initialStatus)) {

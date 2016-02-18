@@ -18,15 +18,10 @@ package com.stratio.sparkta.serving.api.service.http
 
 import java.io.File
 import javax.ws.rs.Path
+import scala.concurrent.Await
+import scala.util.{Failure, Success}
 
 import akka.pattern.ask
-import com.stratio.sparkta.serving.api.actor.PolicyActor._
-import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor
-import com.stratio.sparkta.serving.api.constants.HttpConstant
-import com.stratio.sparkta.serving.core.constants.AkkaConstant
-import com.stratio.sparkta.serving.core.helpers.PolicyHelper
-import com.stratio.sparkta.serving.core.models._
-import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
 import spray.http.HttpHeaders.`Content-Disposition`
@@ -34,8 +29,14 @@ import spray.http.{HttpResponse, StatusCodes}
 import spray.httpx.marshalling.ToResponseMarshallable
 import spray.routing._
 
-import scala.concurrent.Await
-import scala.util.{Failure, Success}
+import com.stratio.sparkta.serving.api.actor.PolicyActor._
+import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor
+import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.core.constants.AkkaConstant
+import com.stratio.sparkta.serving.core.helpers.PolicyHelper
+import com.stratio.sparkta.serving.core.models._
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.ResponseDelete
+import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 
 @Api(value = HttpConstant.PolicyPath, description = "Operations over policies.")
 trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
@@ -239,10 +240,14 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
     path(HttpConstant.PolicyPath / Segment) { (id) =>
       delete {
         complete {
-          val future = supervisor ? new Delete(id)
-          Await.result(future, timeout.duration) match {
-            case Response(Failure(exception)) => throw exception
-            case Response(Success(_)) => HttpResponse(StatusCodes.OK)
+          for {
+            Response(Success(_)) <- (supervisor ? Delete(id)).mapTo[Response]
+            policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
+            deleteContextResponse <- (policyStatusActor ? PolicyStatusActor.Delete(id))
+              .mapTo[PolicyStatusActor.ResponseDelete]
+          } yield deleteContextResponse match {
+            case PolicyStatusActor.ResponseDelete(Success(_)) => StatusCodes.OK
+            case PolicyStatusActor.ResponseDelete(Failure(exception)) => throw exception
           }
         }
       }
