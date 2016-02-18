@@ -1,6 +1,7 @@
-<li class="c-step " data-ng-class="{'c-step--active': isSelected(), 'c-step--visited': (index < current), 'c-step--enabled': (index == current+1 &&  isAvailable)}">
+<li class="c-step " data-ng-class="{'c-step--active': isSelected(), 'c-step--visited': (index < current)}">
   <div class="c-step__box">
     <span class="c-step__section-name"><i class="c-icon c-step__section-icon {{icon}}"></i>{{name | translate}}</span>
     <hr class="c-step__progress-line"/>
   </div>
+
 </li>

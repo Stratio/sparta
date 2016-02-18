@@ -1,8 +1,5 @@
 <aside class="c-panel">
 	<ul class="c-step-progress-bar">
-	  <c-step data-ng-click = "chooseStep($index)" class="c-col c-col--{{12 / steps.length | truncatenum }}"
-            data-ng-repeat="step in steps" name="step.name" icon="step.icon" index="($index)" current-step="(current)"
-            is-available="(nextStepAvailable)">
-    </c-step>
+	  <c-step data-ng-click = "chooseStep($index)" class="c-col c-col--{{12 / steps.length | truncatenum }}" data-ng-repeat="step in steps" name="step.name" icon="step.icon" index="($index)" current-step="(current)"></c-step>
 	</ul>
 </aside>
