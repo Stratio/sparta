@@ -4,7 +4,7 @@
     	<span translate="{{inputs.errorMessage}}"></span>
   	</div>
 	<div class="c-panel c-panel--fix-overflow" data-ng-if="inputs.inputsData.length > 0">
-		<aside class="c-toolbar--filter">
+		<aside class="c-toolbar--filter c-toolbar--fixed">
 		    <div class="c-col c-col--9">
 		        <div class="c-toolbar--filter__item c-toolbar--filter__item--padding-right">
 		            <i class="icon icon-filter "></i>
@@ -73,18 +73,8 @@
 			</li>
 	    </ul>
     </div>
-
     <div class="c-msg--noitems c-msg--giant" data-ng-if="inputs.inputsData.length === 0" data-ng-click="inputs.createInput()" data-qa="input-first-message">
 		<i class="c-icon icon-marquee-plus"></i>
     	<span class="c-msg__text">{{"_INPUT_CREATE_FIRST_ONE_" | translate}}</span>
 	</div>
-
-    <hr class="c-line-separator" data-ng-if="inputs.inputsData.length > 0"/>
-
-    <footer class="c-row c-row--to-right c-row--footer" data-ng-if="inputs.inputsData.length > 0">
-    	<button class="c-button c-button--call-to-action-1" data-ng-click="inputs.createInput()" data-qa="inputs-new-button">
-    		<span class="icon icon-circle-plus"></span>
-    		<span>{{"_INPUT_BUTTON_NEW_" | translate}}</span>
-    	</button>
-    </footer>
 </section>
