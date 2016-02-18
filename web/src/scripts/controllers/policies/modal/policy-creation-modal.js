@@ -25,6 +25,7 @@
         PolicyModelFactory.resetPolicy();
         vm.policy = PolicyModelFactory.getCurrentPolicy();
         vm.template = template;
+        vm.helpLink = template.helpLinks.description;
       });
     }
 
