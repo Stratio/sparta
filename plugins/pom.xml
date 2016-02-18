@@ -65,6 +65,7 @@
         <module>input-websocket</module>
         <module>parser-datetime</module>
         <module>parser-morphlines</module>
+        <module>parser-geo</module>
         <module>input-rabbitMQ</module>
         <module>parser-ingestion</module>
     </modules>

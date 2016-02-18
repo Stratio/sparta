@@ -134,6 +134,7 @@ object AppConstant {
     s"DateTime${Parser.ClassSuffix}" -> s"parser-datetime$pluginExtension",
     s"Morphlines${Parser.ClassSuffix}" -> s"parser-morphlines$pluginExtension",
     s"Ingestion${Parser.ClassSuffix}" -> s"parser-ingestion$pluginExtension",
-    s"Type${Parser.ClassSuffix}" -> s"parser-type$pluginExtension"
+    s"Type${Parser.ClassSuffix}" -> s"parser-type$pluginExtension",
+    s"Geo${Parser.ClassSuffix}" -> s"parser-geo$pluginExtension"
   )
 }
