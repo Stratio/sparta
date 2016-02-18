@@ -1,49 +1,47 @@
-#!/bin/sh
-
+#!/bin/bash
+ 
 set -e
-
-USER=stratio
-GROUP=stratio
-DIR_INSTALL=/opt/sds/sparkta
-INIT_DEAMON=/etc/init.d/sparkta
-DIR_CONF=$DIR_INSTALL/conf
-CONF_FILE_BACKUP=$DIR_INSTALL/conf.tar.gz
-
-###
-# UTILs
-###
-backup () {
-    if [ -d "$2" ]; then
-        echo "Creating backup $1"
-        tar -czf $1 $2 > /dev/null 2>&1
-    fi
-}
-
-###
-# USER / GROUP
-###
-# Add stratio group if it doesn't already exists
-if ! getent group $GROUP >/dev/null 2>&1; then
-    groupadd ${GROUP}
-fi
-
-# Add stratio user if it doesn't already exists
-if ! getent passwd $USER >/dev/null 2>&1; then
-    [ -d /opt ] || mkdir /opt
-    useradd -M -d /opt/sds -g ${GROUP} -s /bin/bash ${USER}
-else
-    usermod -G $GROUP $USER
-fi
-
-###
-# STOP
-###
-if [ -f "$INIT_DEAMON" ]
-then
-    service sparkta stop
-fi
-
-###
-# BACKUP conf & public
-###
-backup $CONF_FILE_BACKUP $DIR_CONF
+ 
+# summary of how this script can be called:
+#        * <new-preinst> `install'
+#        * <new-preinst> `install' <old-version>
+#        * <new-preinst> `upgrade' <old-version>
+#        * <old-preinst> `abort-upgrade' <new-version>
+ 
+GROUP='stratio'
+ 
+case "$1" in
+    install|upgrade)
+        if ! getent group ${GROUP} >/dev/null 2>&1; then
+            groupadd ${GROUP}
+        fi
+        if [ ! -d /etc/sds ]; then
+            mkdir /etc/sds
+            chown root:${GROUP} /etc/sds
+            chmod 775 /etc/sds
+        fi
+        if [ ! -d /var/log/sds ]; then
+        mkdir /var/log/sds
+            chown root:${GROUP} /var/log/sds
+            chmod 775 /var/log/sds
+        fi
+        if [ ! -d /var/run/sds ]; then
+            mkdir /var/run/sds
+            chown root:${GROUP} /var/run/sds
+            chmod 775 /var/run/sds
+        fi
+        if [ ! -d /opt/sds ]; then
+            mkdir /opt/sds
+            chown root:${GROUP} /opt/sds
+            chmod 775 /opt/sds
+        fi
+    ;;
+    abort-upgrade)
+    ;;
+    *)
+        echo "preinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+ 
+exit 0

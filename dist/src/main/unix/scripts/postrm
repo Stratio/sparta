@@ -1,7 +1,3 @@
 #!/bin/sh
-
-DIR_PID=/var/run/sds
-
-update-rc.d -f sparkta remove > /dev/null 2>&1
-
-exit 0
+ 
+# In Stratio Sparkta we do not need to use this postrm script

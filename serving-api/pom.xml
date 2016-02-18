@@ -34,9 +34,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
-                    <!-- DO NOT include log4j.properties file in your Jar -->
+                    <!-- DO NOT include logback file in your Jar -->
                     <excludes>
-                        <exclude>**/log4j.*</exclude>
+                        <exclude>**/logback.*</exclude>
                     </excludes>
                 </configuration>
             </plugin>
