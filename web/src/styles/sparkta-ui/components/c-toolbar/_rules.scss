@@ -27,6 +27,8 @@
   &--filter {
     padding: $c-toolbar--filter---padding;
     border-bottom: $c-toolbar--filter---border-bottom;
+    background-color: $c-toolbar--filter---background-color;
+    z-index: $c-toolbar--filter---z-index;
   }
 
   &--filter__item__label {
@@ -56,6 +58,11 @@
 
   &--filter__item--to-right {
     float: right;
+  }
+
+  &--fixed {
+    position: fixed;
+    width: calc(100% - 60px);
   }
 }
 
