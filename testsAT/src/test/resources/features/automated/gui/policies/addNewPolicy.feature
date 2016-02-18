@@ -124,21 +124,38 @@ Feature: Test adding a new policy in Sparta GUI
 		# Add empty output field
 		Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
 		When I click on the element on index '0'
-		Then '0' elements exist with 'css:span[data-qa="policy-model-output-list-0"]'
+		Then '0' elements exist with 'css:label[data-qa="policy-model-output-list-0"]'
 		# Add output field
 		Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
-		Then I type 'myOutput' on the element on index '0'
+		Then I type 'myOutput2' on the element on index '0'
 		Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
 		When I click on the element on index '0'
-		Then '1' element exists with 'css:span[data-qa="policy-model-output-list-0"]'
+		Then '1' element exists with 'css:label[data-qa="policy-model-output-list-0"]'
+	  	And '1' element exists with 'css:select[data-qa="policy-model-output-list-0-type"]'
 		
 		# Add same output field
 		Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
-		Then I type 'myOutput' on the element on index '0'
+		Then I type 'myOutput2' on the element on index '0'
 		Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:div[data-qa="policy-modal-error-msg-outputs"]'
-		And '1' element exists with 'css:span[data-qa^="policy-model-output-list-"]'
+		And '1' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
+
+	    # Add second output field
+	  	Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
+		Then I type 'myOutput' on the element on index '0'
+		Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
+		When I click on the element on index '0'
+		Then '1' element exists with 'css:label[data-qa="policy-model-output-list-1"]'
+	  	And '1' element exists with 'css:select[data-qa="policy-model-output-list-1-type"]'
+	    And '2' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
+
+	    # Delete first output field
+	    Given '1' element exists with 'css:i[data-qa="policy-model-output-list-0-remove"]'
+		When I click on the element on index '0'
+	    Then '1' element exists with 'css:label[data-qa="policy-model-output-list-0"]'
+	  	And '1' element exists with 'css:select[data-qa="policy-model-output-list-0-type"]'
+	    And '1' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
 		
 		# Add model (Morphline)
 		Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
@@ -184,13 +201,13 @@ Feature: Test adding a new policy in Sparta GUI
 		Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
 		When I click on the element on index '0'
 		
-		Then '0' elements exist with 'css:span[data-qa="policy-model-output-list-0"]'
+		Then '0' elements exist with 'css:label[data-qa="policy-model-output-list-0"]'
 		# Add output field
 		Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
 		Then I type 'myOutput' on the element on index '0'
 		Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
 		When I click on the element on index '0'
-		Then '1' element exists with 'css:span[data-qa="policy-model-output-list-0"]'
+		Then '1' element exists with 'css:label[data-qa="policy-model-output-list-0"]'
 		
 		# Add same output field
 		Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
@@ -198,7 +215,7 @@ Feature: Test adding a new policy in Sparta GUI
 		Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:div[data-qa="policy-modal-error-msg-outputs"]'
-		And '1' element exists with 'css:span[data-qa^="policy-model-output-list-"]'
+		And '1' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
 		
 		# Add model
 		Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
@@ -206,7 +223,9 @@ Feature: Test adding a new policy in Sparta GUI
 		
 		# Delete model
 		Given '1' element exists with 'css:i[data-qa="policy-model-arrow-2"]'
-		Then I click on the element on index '0'
+	  	Then I send 'PAGE_UP'
+	  	And I wait '5' seconds
+		And I click on the element on index '0'
 		Given '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
 		Then I click on the element on index '0'
 		Given '1' element exists with 'css:button[data-qa="policy-model-delete-button"]'
@@ -238,13 +257,13 @@ Feature: Test adding a new policy in Sparta GUI
 		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
 		Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
 		When I click on the element on index '0'
-		Then '0' elements exists with 'css:span[data-qa="policy-model-output-list-0"]'
+		Then '0' elements exists with 'css:label[data-qa="policy-model-output-list-0"]'
 		# Add output field
 		Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
 		Then I type 'myOutput' on the element on index '0'
 		Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
 		When I click on the element on index '0'
-		Then '1' element exists with 'css:span[data-qa="policy-model-output-list-0"]'
+		Then '1' element exists with 'css:label[data-qa="policy-model-output-list-0"]'
 		
 		# Add same output field
 		Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
@@ -252,7 +271,7 @@ Feature: Test adding a new policy in Sparta GUI
 		Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:div[data-qa="policy-modal-error-msg-outputs"]'
-		And '1' element exists with 'css:span[data-qa^="policy-model-output-list-"]'
+		And '1' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
 		
 		# Add model
 		Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
