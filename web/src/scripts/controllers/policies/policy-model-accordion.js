@@ -63,7 +63,7 @@
             if (modelNumber > 0) {
               order = vm.policy.transformations[modelNumber - 1].order + 1
             }
-            ModelFactory.resetModel(vm.template, order, vm.policy.transformations.length);
+            ModelFactory.resetModel(vm.template.model, order, vm.policy.transformations.length);
           }
           ModelFactory.updateModelInputs(vm.policy.transformations);
         }
