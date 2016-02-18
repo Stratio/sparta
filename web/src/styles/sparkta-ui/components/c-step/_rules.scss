@@ -1,100 +1,119 @@
 @mixin c-step {
-	@include c-component;
-	@include is-clickable;
+  @include c-component;
+  @include is-clickable;
 
-	color: $c-step---color;
-	display: inline-block;
-	text-align: center;
-	padding: $c-step---padding;
-	position: relative;
+  color: $c-step---color;
+  display: inline-block;
+  text-align: center;
+  padding: $c-step---padding;
+  position: relative;
 
-	&:first-child {
-		padding-left: 0;
+  &:first-child {
+    padding-left: 0;
 
-		& .c-step__progress-line {
-			left: 50%;
-			width: 50%;
-		}
+    & .c-step__progress-line {
+      left: 50%;
+      width: 50%;
+    }
 
-		&.c-step--active {
-			& .c-step__progress-line {
-				background: $c-step---color;
-			}
-		}
-	}
+    &.c-step--active {
+      & .c-step__progress-line {
+        background: $c-step---color;
+      }
+    }
+  }
 
-	&:last-child {
-		padding-right: 0;
+  &:last-child {
+    padding-right: 0;
 
-		& .c-step__progress-line {
-			right: 50%;
-			width: 50%;
-		}
+    & .c-step__progress-line {
+      right: 50%;
+      width: 50%;
+    }
 
-		&.c-step--active {
-			.c-step__progress-line {
-				background: $c-step--active---color;
-			}
-		}
-	}
+    &.c-step--active {
+      .c-step__progress-line {
+        background: $c-step--active---color;
+      }
+    }
+  }
 
-	&__section-icon,
-	&__section-name {
-		display: block;
-	}
+  &__section-icon {
+    vertical-align: sub;
+  }
+  &__section-icon,
+  &__section-name {
+    margin: $c-step__section-name---margin;
+    vertical-align: middle;
 
-	&__section-icon {
-		font-size: $c-step__section-icon---font-size;
-		font-weight: $c-step__section-icon---font-weight;
-	}
+  }
 
-	&__section-name {
-		font-size: $c-step__section-name---font-size;
-		font-weight: $c-step__section-name---font-weight;
-		text-transform: $c-step__section-name---text-transform;
-	}
+  &__section-icon {
+    font-size: $c-step__section-icon---font-size;
+    font-weight: $c-step__section-icon---font-weight;
+  }
 
-	&__progress-mark {
-		margin: ($c-step---separation / 2) (-$c-step---separation);
-		position: relative;
-		z-index: get-layer(base);
-	}
+  &__section-name {
+    font-size: $c-step__section-name---font-size;
+    font-weight: $c-step__section-name---font-weight;
+    text-transform: $c-step__section-name---text-transform;
+  }
 
-	&__selector {
-		&--active,
-		&--visited {
-			background: $c-step-progress-bar---background;
-		}
-	}
+  &__progress-mark {
+    margin: ($c-step---separation / 2) (-$c-step---separation);
+    position: relative;
+    z-index: get-layer(base);
+  }
 
-	&__progress-line {
-		background: $c-step---color;
-		border: 0;
-		height: $c-step__progress-line---height;
-		position: absolute;
-		top: 0;
-		vertical-align: middle;
-		width: 100%;
-		z-index: get-layer(bottom);
-	}
+  &__box {
+    background: white;
+    border: $c-step__box---border;
+    background: $c-step__box---background;
+    line-height: $c-step__box---line-height;
+    height: $c-step__box---height;
+    width: $c-step__box---width;
+    border-radius: $c-step__box---border-radius;
+    padding: $c-step__box---padding;
+    cursor: $c-step__box---cursor;
+  }
 
-	&--active {
-		color: $c-step--active---color;
+  &__box--active {
+    background: white;
+    color: $c-step--active---color;
+    border: $c-step__box--active---border;
+  }
 
-		& .c-step__progress-line {
-			background: linear-gradient(90deg, $c-step--active---color 50%, $c-step---color 50%, $c-step---color);
-		}
-	}
+  &__progress-line {
+    background: $c-step---color;
+    border: 0;
+    height: $c-step__progress-line---height;
+    position: absolute;
+    top: 25%;
+    vertical-align: middle;
+    width: 100%;
+    z-index: get-layer(bottom);
+  }
 
-	&--visited {
-		color: $c-step--active---color;
+  &--active {
+    color: $c-step--active---color;
 
-		& .c-step__progress-line {
-			background: $c-step--active---color;
-		}
-	}
+    & .c-step__progress-line {
+      background: linear-gradient(90deg, $c-step--active---color 50%, $c-step---color 50%, $c-step---color);
+    }
+
+    & .c-step__box {
+      border: $c-step__box--active---border;
+    }
+  }
+
+  &--visited {
+    & .c-step__box {
+      border: $c-step__box--visited---border;
+    }
+  }
+
 }
 
 .c-step {
-	@include c-step;
+  @include c-step;
 }

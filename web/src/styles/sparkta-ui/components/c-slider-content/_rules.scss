@@ -38,13 +38,13 @@
   &.ng-leave.ng-leave-active,
   &.ng-move,
   &.ng-enter {
-    height: 0px;
+    max-height: 0px;
   }
 
   &.ng-leave,
   &.ng-move.ng-move-active,
   &.ng-enter.ng-enter-active {
-    height: 100px;
+    max-height: $c-slider-content---max-height;
   }
 }
 

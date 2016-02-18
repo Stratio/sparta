@@ -1,10 +1,7 @@
-<li class="c-step" data-ng-class="{'c-step--active': isSelected(), 'c-step--visited': (index < current)}">
-	<i class="c-icon c-step__section-icon {{icon}}"></i>
+<li class="c-step " data-ng-class="{'c-step--active': isSelected(), 'c-step--visited': (index < current)}">
+  <div class="c-step__box">
+    <span class="c-step__section-name"><i class="c-icon c-step__section-icon {{icon}}"></i>{{name | translate}}</span>
+    <hr class="c-step__progress-line"/>
+  </div>
 
-	<div class="c-step__progress-mark">
-		<i class="c-icon c-step__selector" data-ng-class="{'c-step__selector--active': isSelected() ,'icon-dot_selected': isSelected() ,'icon-dot': !isSelected()}"></i>
-		<hr class="c-step__progress-line" />
-	</div>
-
-	<span class="c-step__section-name">{{name | translate}}</span>
 </li>
