@@ -8,6 +8,10 @@
 		margin: $c-row--separated---margin;
 	}
 
+	&--separated-bottom {
+		margin: $c-row--separated-bottom---margin;
+	}
+
 	&--with-gutter {
 		& > .c-col {
 			padding: 0 $c-row---gutter;

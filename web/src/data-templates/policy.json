@@ -2,14 +2,14 @@
   "basicSettings": [
     {
       "propertyId": "name",
-      "propertyName": "_INSERT_NAME_",
+      "propertyName": "_NAME_",
       "propertyType": "text",
       "required": true,
       "qa": "policy-name"
     },
     {
       "propertyId": "description",
-      "propertyName": "_INSERT_DESCRIPTION_",
+      "propertyName": "_DESCRIPTION_",
       "propertyType": "text",
       "required": true,
       "qa": "policy-description"
@@ -85,9 +85,10 @@
       ]
     },
     {
-      "propertyId": "rawData",
+      "propertyId": "rawDataEnabled",
       "propertyName": "_PERSIST_RAW_DATA_",
       "propertyType": "boolean",
+      "required": false,
       "default": false,
       "qa": "policy-raw-data"
     },
@@ -99,7 +100,7 @@
       "visible": [
         [
           {
-            "propertyId": "rawData",
+            "propertyId": "rawDataEnabled",
             "value": true
           }
         ]
