@@ -3,20 +3,19 @@ describe('policies.wizard.factory.model-factory', function () {
   beforeEach(module('served/model.json'));
   beforeEach(module('served/policyTemplate.json'));
 
-  var factory, fakeModel, fakePolicyTemplate = null;
+  var factory, fakeModel, fakeModelTemplate = null;
 
 
   beforeEach(inject(function (ModelFactory, _servedModel_, _servedPolicyTemplate_) {
     factory = ModelFactory;
     fakeModel = _servedModel_;
-    fakePolicyTemplate = _servedPolicyTemplate_;
+    fakeModelTemplate = _servedPolicyTemplate_.model;
   }));
 
   it("should be able to load a model from a json and a position", function () {
     var position = 0;
     factory.setModel(fakeModel, position);
     var model = factory.getModel();
-    expect(model.name).toBe(fakeModel.name);
     expect(model.outputFields).toBe(fakeModel.outputFields);
     expect(model.type).toBe(fakeModel.type);
     expect(model.inputField).toBe(fakeModel.inputField);
@@ -45,12 +44,11 @@ describe('policies.wizard.factory.model-factory', function () {
     it("if there is not any model, it initializes a new one using the introduced template a position", function () {
       var desiredOrder = 0;
       var position = 1;
-      var model = cleanFactory.getModel(fakePolicyTemplate, desiredOrder, position);
+      var model = cleanFactory.getModel(fakeModelTemplate, desiredOrder, position);
 
-      expect(model.name).toBe(fakePolicyTemplate.defaultModelName + (desiredOrder + 1));
       expect(model.outputFields).toEqual([]);
-      expect(model.type).toBe(fakePolicyTemplate.types[0].name);
-      expect(model.configuration).toBe(fakePolicyTemplate.morphlinesDefaultConfiguration);
+      expect(model.type).toBe(fakeModelTemplate.types[0].name);
+      expect(model.configuration).toBe(fakeModelTemplate.defaultConfiguration.morphlinesDefaultConfiguration);
       expect(model.order).toBe(desiredOrder);
       expect(factory.getError()).toEqual({"text": "", "duplicatedOutput": false});
       expect(factory.getContext().position).toBe(position);
@@ -60,12 +58,12 @@ describe('policies.wizard.factory.model-factory', function () {
       var desiredOrder = 0;
       factory.setModel(fakeModel, desiredOrder);
 
-      expect(factory.getModel(fakePolicyTemplate)).toEqual(fakeModel);
+      expect(factory.getModel(fakeModelTemplate)).toEqual(fakeModel);
     });
 
 
     it("if there is not any model and no position is introduced, model is initialized with position equal to 0", function () {
-      var model = cleanFactory.getModel(fakePolicyTemplate);
+      var model = cleanFactory.getModel(fakeModelTemplate);
       expect(factory.getContext().position).toBe(0);
     })
   });
@@ -89,14 +87,14 @@ describe('policies.wizard.factory.model-factory', function () {
     it("if model position is 0, returns an option array with the default input", function () {
       var position = 0;
       var order = 5;
-      factory.resetModel(fakePolicyTemplate, order, position);
+      factory.resetModel(fakeModelTemplate, order, position);
       factory.updateModelInputs(models);
 
       var inputList = factory.getModelInputs();
       expect(inputList.length).toEqual(1);
       expect(inputList[0]).toEqual({
-        label: fakePolicyTemplate.defaultInput.label,
-        value: fakePolicyTemplate.defaultInput.value
+        label: fakeModelTemplate.defaultInput.label,
+        value: fakeModelTemplate.defaultInput.value
       });
 
     });
@@ -104,7 +102,7 @@ describe('policies.wizard.factory.model-factory', function () {
     it("if model position is != 0, returns an option array with the input and outputs the previous model", function () {
       var position = 1;
       var order = 5;
-      factory.resetModel(fakePolicyTemplate,order, position);
+      factory.resetModel(fakeModelTemplate,order, position);
       factory.updateModelInputs(models);
 
       var inputList = factory.getModelInputs();
@@ -127,7 +125,7 @@ describe('policies.wizard.factory.model-factory', function () {
     it("if input of model is empty, it is updated with the first input of the list", function () {
       var position = 1;
       var order = 5;
-      factory.resetModel(fakePolicyTemplate,order, position);
+      factory.resetModel(fakeModelTemplate,order, position);
       factory.getModel().inputField = null;
       var updatedInputList = factory.updateModelInputs(models);
 
@@ -143,13 +141,6 @@ describe('policies.wizard.factory.model-factory', function () {
   describe("should be able to validate a model", function () {
 
     describe("all its attributes can not be empty", function () {
-
-      it("if empty name, model is invalid", function () {
-        var invalidModel = angular.copy(fakeModel);
-        invalidModel.name = "";
-        factory.setModel(invalidModel);
-        expect(factory.isValidModel()).toBeFalsy();
-      });
 
       it("if empty inputField, model is invalid", function () {
         var invalidModel = angular.copy(fakeModel);
@@ -186,14 +177,13 @@ describe('policies.wizard.factory.model-factory', function () {
       factory.setModel(fakeModel, oldPosition);
       var newPosition = 5;
       var desiredOrder = 5;
-      factory.resetModel(fakePolicyTemplate, desiredOrder, newPosition);
+      factory.resetModel(fakeModelTemplate, desiredOrder, newPosition);
 
       var model = factory.getModel();
 
-      expect(model.name).toBe(fakePolicyTemplate.defaultModelName + (desiredOrder + 1));
       expect(model.outputFields).toEqual([]);
-      expect(model.type).toBe(fakePolicyTemplate.types[0].name);
-      expect(model.configuration).toBe(fakePolicyTemplate.morphlinesDefaultConfiguration);
+      expect(model.type).toBe(fakeModelTemplate.types[0].name);
+      expect(model.configuration).toBe(fakeModelTemplate.defaultConfiguration.morphlinesDefaultConfiguration);
       expect(model.order).toBe(desiredOrder);
       expect(factory.getError()).toEqual({"text": "", "duplicatedOutput": false});
       expect(factory.getContext().position).toBe(newPosition);
