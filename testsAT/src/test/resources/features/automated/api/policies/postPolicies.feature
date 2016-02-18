@@ -1,8 +1,8 @@
 @rest
-Feature: Test all POST operations for policies in Sparkta Swagger API
+Feature: Test all POST operations for policies in Sparta Swagger API
 
-	Background: Setup Sparkta REST client
-		Given I send requests to '${SPARKTA_HOST}:${SPARKTA_API_PORT}'
+	Background: Setup Sparta REST client
+		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 
 	Scenario: Add a policy with empty data
 		Given I send a 'POST' request to '/policy' as 'json'
