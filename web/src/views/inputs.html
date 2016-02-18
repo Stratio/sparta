@@ -12,7 +12,7 @@
 		        	    {{"_FILTER_BY_TYPE_" | translate}}
 		        	</span>
 		            <div class="c-combobox--right-margin  c-toolbar--filter__item__input">
-		                <select id="type" class="c-combobox c-combobox--filter" data-ng-model="inputs.filters.element.type" data-qa="input-filter-type">
+		                <select id="type" class="c-combobox c-combobox__filter c-combobox--filter" data-ng-model="inputs.filters.element.type" data-qa="input-filter-type">
 							<option value="" data-qa="input-filter-type-allTypes">{{"_INPUT_FILTER_TYPE_DEFAULT_" | translate}}</option>
 							<option value="{{inputType.type}}" data-ng-repeat="inputType in inputs.inputTypes" data-qa="input-filter-type-{{inputType.type | lowercase}}">
 								{{inputType.type}} ({{inputType.count}})
