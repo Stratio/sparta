@@ -138,5 +138,63 @@
     "models": "http://docs.stratio.com/modules/sparkta/0.6/transformations.html",
     "cubes": "http://docs.stratio.com/modules/sparkta/0.6/cube.html",
     "outputs": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html"
+  },
+  "model": {
+    "types": [
+      {
+        "iconName": "morphlines",
+        "name": "Morphlines"
+      },
+      {
+        "iconName": "datetime",
+        "name": "DateTime"
+      },
+      {
+        "iconName": "type",
+        "name": "Type"
+      }
+    ],
+    "defaultInput": {
+      "label": "_attachment_body",
+      "value": "_attachment_body"
+    },
+    "defaultConfiguration": {
+      "morphlinesDefaultConfiguration": {
+        "morphline": {
+          "id": "morphline1",
+          "importCommands": [
+            "org.kitesdk.**"
+          ],
+          "commands": [
+            {
+              "readJson": {}
+            },
+            {
+              "extractJsonPaths": {
+                "paths": {
+                  "field1": "/field-in-json1",
+                  "field2": "/field-in-json2"
+                }
+              }
+            },
+            {
+              "removeFields": {
+                "blacklist": [
+                  "literal:_attachment_body",
+                  "literal:message"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "dateTimeDefaultConfiguration": {
+        "inputFormat": "unix"
+      },
+      "typeDefaultConfiguration": {
+        "type": "long",
+        "newField": "newFieldLong"
+      }
+    }
   }
 }
