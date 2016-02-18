@@ -12,8 +12,8 @@
     padding-left: 0;
 
     & .c-step__progress-line {
-      left: 28%;
-      width: 73%;
+      left: 50%;
+      width: 50%;
     }
 
     &.c-step--active {
@@ -27,7 +27,8 @@
     padding-right: 0;
 
     & .c-step__progress-line {
-      width: 0px;
+      right: 50%;
+      width: 50%;
     }
 
     &.c-step--active {
@@ -105,20 +106,9 @@
     }
   }
 
-  &--enabled{
-     & .c-step__progress-line {
-      background: linear-gradient(90deg, $c-step--active---color 50%, $c-step---color 50%, $c-step---color);
-    }
-
-    & .c-step__box {
-      border: $c-step__box--enabled---border;
-    }
-  }
-
   &--visited {
     & .c-step__box {
       border: $c-step__box--visited---border;
-      color: $c-step--active---color;
     }
   }
 

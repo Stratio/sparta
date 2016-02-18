@@ -110,24 +110,21 @@
   ],
   "steps": [
     {
-      "name": "_POLICY_._STEPS_._DESCRIPTION_",
-      "icon": "icon-tag_left"
-    },
-    {
       "name": "_POLICY_._STEPS_._INPUT_",
-      "icon": "icon-import"
+      "icon": "icon-input"
     },
     {
-      "name": "_POLICY_._STEPS_._MODEL_",
+        "name": "_POLICY_._STEPS_._TRANSFORMATION_",
       "icon": "icon-content-left"
     },
     {
       "name": "_POLICY_._STEPS_._CUBES_",
       "icon": "icon-box"
     },
+
     {
-      "name": "_POLICY_._STEPS_._OUTPUTS_",
-      "icon": "icon-export"
+      "name": "_POLICY_._STEPS_._TRIGGER_",
+      "icon": "icon-bell"
     },
     {
       "name": "_POLICY_._STEPS_._FINISH_",
