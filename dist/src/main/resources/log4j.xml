@@ -16,21 +16,51 @@
     limitations under the License.
 
 -->
+
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
     <appender name="dayAppender" class="org.apache.log4j.DailyRollingFileAppender">
         <param name="DatePattern" value="'.'yyyy-MM-dd"/>
         <param name="File" value="/var/log/sds/sparkta/sparkta.log"/>
-
+        <param name="maxFileSize" value="10m" />
+        <param name="maxBackupIndex" value="100" />
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%-5p-%d -%C.%M:%L %m%n"/>
         </layout>
     </appender>
 
+    <appender name="rollingAppender" class="org.apache.log4j.RollingFileAppender">
+        <param name="append" value="false" />
+        <param name="maxFileSize" value="10M" />
+        <param name="maxBackupIndex" value="10" />
+        <param name="file" value="/var/log/sds/sparkta/sparkta.log" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                   value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
+        </layout>
+    </appender>
+
+    <logger name="log4j.logger.org.jboss">
+        <level value="error" />
+    </logger>
+    <logger name="log4j.logger.org.mortbay">
+        <level value="error" />
+    </logger>
+    <logger name="log4j.logger.org.apache.avro.ipc.NettyTransceiver">
+        <level value="error" />
+    </logger>
+    <logger name="log4j.logger.org.apache.hadoop">
+        <level value="error" />
+    </logger>
+    <logger name="log4j.logger.org.apache.spark">
+        <level value="error" />
+    </logger>
+
     <root>
         <priority value ="info" />
         <appender-ref ref="dayAppender" />
+        <appender-ref ref="rollingAppender" />
     </root>
 
 </log4j:configuration>
