@@ -45,7 +45,7 @@ with SparktaSerializer {
         requestUri { uri =>
           log.error(exception.getLocalizedMessage, exception)
           complete((StatusCodes.InternalServerError, write(
-            new ErrorModel(ErrorModel.CodeUnknow, Option(exception.getLocalizedMessage).getOrElse("unknown"))
+            new ErrorModel(ErrorModel.CodeUnknown, Option(exception.getLocalizedMessage).getOrElse("unknown"))
           )))
         }
     }

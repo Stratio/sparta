@@ -35,9 +35,9 @@ import scala.util.{Failure, Success, Try}
 
 class FragmentActor(curatorFramework: CuratorFramework)
   extends Actor
-  with Json4sJacksonSupport
-  with SLF4JLogging
-  with SparktaSerializer {
+    with Json4sJacksonSupport
+    with SLF4JLogging
+    with SparktaSerializer {
 
   override def receive: Receive = {
     case FindByTypeAndId(fragmentType, id) => findByTypeAndId(fragmentType, id)
@@ -82,28 +82,39 @@ class FragmentActor(curatorFramework: CuratorFramework)
           s"No fragment of type ${fragmentType} with name ${name}.")
       ))
       case e: NoSuchElementException => throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsPolicytWithName,
+        new ErrorModel(ErrorModel.CodeNotExistsPolicyWithName,
           s"No fragment of type ${fragmentType} with name ${name}")
       ))
     })
 
+  def createNewFragment(fragment: FragmentElementModel): FragmentElementModel = {
+    val newFragment = fragment.copy(
+      id = Option(UUID.randomUUID.toString),
+      name = fragment.name.toLowerCase)
+    curatorFramework.create().creatingParentsIfNeeded().forPath(
+      s"${FragmentActor.fragmentPath(newFragment.fragmentType)}/${newFragment.id.get}", write(newFragment).getBytes())
+    newFragment
+  }
+
   def create(fragment: FragmentElementModel): Unit =
     sender ! ResponseFragment(Try({
-      if (existsByTypeAndName(fragment.fragmentType, fragment.name.toLowerCase)) {
-        throw new ServingCoreException(ErrorModel.toString(
-          new ErrorModel(ErrorModel.CodeExistsFragmentWithName,
-            s"Fragment of type ${fragment.fragmentType} with name ${fragment.name} exists.")
-        ))
+      val maybeExistingFragment: Option[FragmentElementModel] = existsByTypeAndName(
+        fragment.fragmentType,
+        fragment.name.toLowerCase) match {
+        case true => getExistingFragment(fragment)
+        case _ => None
       }
-
-      val currentId: Option[String] = if(fragment.id.isDefined) fragment.id else Option(UUID.randomUUID.toString)
-      val fragmentS = fragment.copy(id = currentId,
-        name = fragment.name.toLowerCase)
-      curatorFramework.create().creatingParentsIfNeeded().forPath(
-        s"${FragmentActor.fragmentPath(
-          fragmentS.fragmentType)}/${fragmentS.id.get}", write(fragmentS).getBytes())
-      fragmentS
+      maybeExistingFragment.getOrElse(createNewFragment(fragment))
     }))
+
+  def getExistingFragment(fragment: FragmentElementModel): Option[FragmentElementModel] = {
+    listByPath(fragmentPath(fragment.fragmentType))
+      .dropWhile(currentFragment => !fragment.equals(currentFragment))
+      .headOption
+      .orElse(throw new ServingCoreException(ErrorModel.toString(
+        new ErrorModel(ErrorModel.CodeExistsFragmentWithName,
+          s"Fragment of type ${fragment.fragmentType} with name ${fragment.name} already exists."))))
+  }
 
   def update(fragment: FragmentElementModel): Unit =
     sender ! Response(Try({
@@ -153,6 +164,17 @@ class FragmentActor(curatorFramework: CuratorFramework)
         false
       }
     }
+  }
+
+  private def listByPath(fragmentLocation: String): List[FragmentElementModel] = {
+    Try {
+      if (CuratorFactoryHolder.existsPath(fragmentLocation)) {
+        val children = curatorFramework.getChildren.forPath(fragmentLocation)
+        JavaConversions.asScalaBuffer(children).toList.map(element =>
+          read[FragmentElementModel](new String(curatorFramework.getData.forPath(s"$fragmentLocation/$element"))))
+      }
+      else List.empty[FragmentElementModel]
+    }.getOrElse(List.empty[FragmentElementModel])
   }
 }
 

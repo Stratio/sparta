@@ -38,11 +38,12 @@ object ErrorModel extends SparktaSerializer{
   val CodeExistsFragmentWithName      = "100"
   val CodeNotExistsFragmentWithId     = "101"
   val CodeNotExistsFragmentWithName   = "102"
-  val CodeExistsPolicytWithName       = "200"
-  val CodeNotExistsPolicytWithId      = "201"
-  val CodeNotExistsPolicytWithName    = "202"
-  val CodeNotExistsTemplatetWithName  = "300"
-  val CodeUnknow                      = "666"
+  val CodeExistsPolicyWithName        = "200"
+  val CodeNotExistsPolicyWithId       = "201"
+  val CodeNotExistsPolicyWithName     = "202"
+  val CodeErrorCreatingPolicy         = "203"
+  val CodeNotExistsTemplateWithName   = "300"
+  val CodeUnknown                     = "666"
 
   def toString(errorModel: ErrorModel): String = {
     write(errorModel)
