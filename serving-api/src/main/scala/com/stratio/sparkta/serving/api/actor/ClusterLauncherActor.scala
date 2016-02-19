@@ -132,12 +132,18 @@ class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: 
       .setAppResource(hdfsDriverFile)
       .setMainClass(main)
       .setMaster(master)
+      .setVerbose(true)
     args.map({ case (k: String, v: String) => sparkLauncher.addSparkArg(k, v) })
     if (isStandaloneSupervise) sparkLauncher.addSparkArg(StandaloneSupervise)
     //Spark params (everything starting with spark.)
     sparkConf.map({ case (key: String, value: String) => sparkLauncher.setConf(key, value) })
     // Driver (Sparkta) params
     driverParams.map(sparkLauncher.addAppArgs(_))
+
+    log.info(s"$sparkHome/bin/spark-submit --master $master " ++ args.foldLeft("") {
+      (s: String, pair: (String, String)) =>  s"$s ${pair._1} ${pair._2}"
+    })
+
     val spark = sparkLauncher.launch()
     val loggerThread = new ClusterLogger(spark)
     loggerThread.run()
@@ -165,10 +171,10 @@ class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: 
   private def detailConfigEncoded: String = encode(render(DetailConfig, "config"))
 
   private def sparkConf: Seq[(String, String)] = ClusterConfig.entrySet()
-    .filter(_.getKey.startsWith("spark."))
-    .toSeq
-    .map(e => (e.getKey, e.getValue.toString))
-}
+      .filter(_.getKey.startsWith("spark."))
+      .toSeq
+      .map(e => (e.getKey, e.getValue.unwrapped.toString))
+  }
 
 object ClusterLauncherActor extends SLF4JLogging {
 
