@@ -19,23 +19,17 @@
     vm.nextStep = nextStep;
     vm.generateIndex = generateIndex;
     vm.isActiveModelCreationPanel = ModelService.isActiveModelCreationPanel;
-    vm.activateModelCreationPanel = activateModelCreationPanel
-
+    vm.activateModelCreationPanel = activateModelCreationPanel;
     vm.init();
 
     function init() {
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
-      AccordionStatusService.resetAccordionStatus(vm.policy.transformations.length, vm.policy.transformations.length);
+      AccordionStatusService.resetAccordionStatus(vm.policy.transformations.length, 0);
       vm.helpLink = vm.template.helpLinks.models;
       vm.error = "";
-
-      if (vm.policy.transformations.length > 0){
-        PolicyModelFactory.enableNextStep();
-      }else{
-        ModelService.changeModelCreationPanelVisibility(true);
-      }
+      ModelService.changeModelCreationPanelVisibility(true);
     }
 
     function generateIndex() {

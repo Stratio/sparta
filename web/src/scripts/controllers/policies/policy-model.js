@@ -70,6 +70,7 @@
       } else {
         ModelFactory.setError("_GENERIC_FORM_ERROR_");
       }
+      ModelService.changeModelCreationPanelVisibility(false);
     }
 
     function removeModel() {

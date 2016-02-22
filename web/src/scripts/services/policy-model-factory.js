@@ -14,7 +14,6 @@
 
     function initPolicy() {
       status.currentStep = -1;
-      status.nextStepAvailable = false;
       policy.name = "";
       policy.description = "";
       policy.rawData = {};
@@ -83,15 +82,6 @@
 
     function nextStep() {
       status.currentStep++;
-      status.nextStepAvailable = false;
-    }
-
-    function enableNextStep(){
-      status.nextStepAvailable = true;
-    }
-
-    function disableNextStep(){
-      status.nextStepAvailable = false;
     }
 
     function getProcessStatus() {
@@ -136,8 +126,6 @@
       getCurrentPolicy: getCurrentPolicy,
       previousStep: previousStep,
       nextStep: nextStep,
-      enableNextStep:enableNextStep,
-      disableNextStep:disableNextStep,
       getProcessStatus: getProcessStatus,
       resetPolicy: resetPolicy,
       getAllModelOutputs: getAllModelOutputs,
