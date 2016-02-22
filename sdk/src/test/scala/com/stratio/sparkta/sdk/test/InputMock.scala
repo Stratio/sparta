@@ -18,12 +18,12 @@ package com.stratio.sparkta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparkta.sdk.Input
+import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
-import com.stratio.sparkta.sdk.{Event, Input}
-
 class InputMock(properties: Map[String, JSerializable]) extends Input(properties) {
 
-  override def setUp(ssc: StreamingContext, storageLevel: String): DStream[Event] = ???
+  override def setUp(ssc: StreamingContext, storageLevel: String): DStream[Row] = ???
 }

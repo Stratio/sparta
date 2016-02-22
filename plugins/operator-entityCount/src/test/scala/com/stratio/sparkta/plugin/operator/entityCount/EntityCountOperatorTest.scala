@@ -16,7 +16,9 @@
 
 package com.stratio.sparkta.plugin.operator.entityCount
 
-import com.stratio.sparkta.sdk.{InputFieldsValues, Operator}
+import com.stratio.sparkta.sdk.Operator
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -26,63 +28,68 @@ class EntityCountOperatorTest extends WordSpec with Matchers {
 
   "Entity Count Operator" should {
 
+    val initSchema = StructType(Seq(
+      StructField("field1", IntegerType, false),
+      StructField("field2", IntegerType, false),
+      StructField("field3", IntegerType, false)
+    ))
+
+    val initSchemaFail = StructType(Seq(
+      StructField("field2", IntegerType, false)
+    ))
+
     "processMap must be " in {
-      val inputField = new EntityCountOperator("entityCount", Map())
-      inputField.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(None)
+      val inputField = new EntityCountOperator("entityCount", initSchema, Map())
+      inputField.processMap(Row(1, 2)) should be(None)
 
-      val inputFields2 = new EntityCountOperator("entityCount", Map("inputField" -> "field1"))
-      inputFields2.processMap(InputFieldsValues(Map("field3" -> 1, "field2" -> 2))) should be(None)
+      val inputFields2 = new EntityCountOperator("entityCount", initSchemaFail, Map("inputField" -> "field1"))
+      inputFields2.processMap(Row(1, 2)) should be(None)
 
-      val inputFields3 = new EntityCountOperator("entityCount", Map("inputField" -> "field1"))
-      inputFields3.processMap(InputFieldsValues(Map("field1" -> "hola holo", "field2" -> 2))) should be
-      (Some(Seq("hola holo")))
+      val inputFields3 = new EntityCountOperator("entityCount", initSchema, Map("inputField" -> "field1"))
+      inputFields3.processMap(Row("hola holo", 2)) should be(Some(Seq("hola holo")))
 
-      val inputFields4 = new EntityCountOperator("entityCount", Map("inputField" -> "field1", "split" -> ","))
-      inputFields4.processMap(InputFieldsValues(Map("field1" -> "hola holo", "field2" -> 2))) should be
-      (Some(Seq("hola holo")))
+      val inputFields4 = new EntityCountOperator("entityCount", initSchema, Map("inputField" -> "field1", "split" -> ","))
+      inputFields4.processMap(Row("hola holo", 2)) should be(Some(Seq("hola holo")))
 
-      val inputFields5 = new EntityCountOperator("entityCount", Map("inputField" -> "field1", "split" -> "-"))
-      inputFields5.processMap(InputFieldsValues(Map("field1" -> "hola-holo", "field2" -> 2))) should be
-      (Some(Seq("hola", "holo")))
+      val inputFields5 = new EntityCountOperator("entityCount", initSchema, Map("inputField" -> "field1", "split" -> "-"))
+      inputFields5.processMap(Row("hola-holo", 2)) should be(Some(Seq("hola", "holo")))
 
-      val inputFields6 = new EntityCountOperator("entityCount", Map("inputField" -> "field1", "split" -> ","))
-      inputFields6.processMap(InputFieldsValues(Map("field1" -> "hola,holo adios", "field2" -> 2))) should be
-      (Some(Seq("hola", "holo " + "adios")))
+      val inputFields6 = new EntityCountOperator("entityCount", initSchema, Map("inputField" -> "field1", "split" -> ","))
+      inputFields6.processMap(Row("hola,holo adios", 2)) should be(Some(Seq("hola", "holo " + "adios")))
 
-      val inputFields7 = new EntityCountOperator("entityCount",
+      val inputFields7 = new EntityCountOperator("entityCount", initSchema,
         Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \"!=\", \"value\":\"hola\"}]"))
-      inputFields7.processMap(InputFieldsValues(Map("field1" -> "hola", "field2" -> 2))) should be(None)
+      inputFields7.processMap(Row("hola", 2)) should be(None)
 
-      val inputFields8 = new EntityCountOperator("entityCount",
+      val inputFields8 = new EntityCountOperator("entityCount", initSchema,
         Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \"!=\", \"value\":\"hola\"}]",
           "split" -> " "))
-      inputFields8.processMap(InputFieldsValues(Map("field1" -> "hola holo", "field2" -> 2))) should be
-      (Some(Seq("hola", "holo")))
+      inputFields8.processMap(Row("hola holo", 2)) should be(Some(Seq("hola", "holo")))
     }
 
     "processReduce must be " in {
-      val inputFields = new EntityCountOperator("entityCount", Map())
+      val inputFields = new EntityCountOperator("entityCount", initSchema, Map())
       inputFields.processReduce(Seq()) should be(Some(Seq()))
 
-      val inputFields2 = new EntityCountOperator("entityCount", Map())
+      val inputFields2 = new EntityCountOperator("entityCount", initSchema, Map())
       inputFields2.processReduce(Seq(Some(Seq("hola", "holo")))) should be(Some(Seq("hola", "holo")))
 
-      val inputFields3 = new EntityCountOperator("entityCount", Map())
+      val inputFields3 = new EntityCountOperator("entityCount", initSchema, Map())
       inputFields3.processReduce(Seq(Some(Seq("hola", "holo", "hola")))) should be(Some(Seq("hola", "holo", "hola")))
     }
 
     "associative process must be " in {
-      val inputFields = new EntityCountOperator("entityCount", Map())
+      val inputFields = new EntityCountOperator("entityCount", initSchema, Map())
       val resultInput = Seq((Operator.OldValuesKey, Some(Map("hola" -> 1L, "holo" -> 1L))),
         (Operator.NewValuesKey, None))
       inputFields.associativity(resultInput) should be(Some(Map("hola" -> 1L, "holo" -> 1L)))
 
-      val inputFields2 = new EntityCountOperator("entityCount", Map("typeOp" -> "int"))
+      val inputFields2 = new EntityCountOperator("entityCount", initSchema, Map("typeOp" -> "int"))
       val resultInput2 = Seq((Operator.OldValuesKey, Some(Map("hola" -> 1L, "holo" -> 1L))),
         (Operator.NewValuesKey, Some(Seq("hola"))))
       inputFields2.associativity(resultInput2) should be(Some(0))
 
-      val inputFields3 = new EntityCountOperator("entityCount", Map("typeOp" -> null))
+      val inputFields3 = new EntityCountOperator("entityCount", initSchema, Map("typeOp" -> null))
       val resultInput3 = Seq((Operator.OldValuesKey, Some(Map("hola" -> 1L, "holo" -> 1L))))
       inputFields3.associativity(resultInput3) should be(Some(Map("hola" -> 1L, "holo" -> 1L)))
     }

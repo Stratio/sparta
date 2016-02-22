@@ -42,7 +42,7 @@ class AggregationPolicyTest extends WordSpec with Matchers {
     "Morphlines",
     0,
     Input.RawDataKey,
-    Seq("out1", "out2"),
+    Seq(OutputFieldsModel("out1"), OutputFieldsModel("out2")),
     Map()))
 
   val checkpointModel = CheckpointModel("minute", "minute", None, 60000)

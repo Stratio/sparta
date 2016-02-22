@@ -20,9 +20,14 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, _}
+import org.apache.spark.sql.types.StructType
 
-class RangeOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
+class RangeOperator(name: String,
+                    schema: StructType,
+                    properties: Map[String, JSerializable]) extends Operator(name, schema, properties)
 with OperatorProcessMapAsNumber {
+
+  val inputSchema = schema
 
   override val defaultTypeOperation = TypeOp.Double
 

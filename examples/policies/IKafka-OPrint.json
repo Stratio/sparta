@@ -24,8 +24,8 @@
       "order": 0,
       "type": "Morphlines",
       "outputFields": [
-        "product",
-        "price"
+        {"name":"product"},
+        {"name":"price"}
       ],
       "configuration": {
         "morphline": {

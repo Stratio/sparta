@@ -36,7 +36,7 @@
         if (scope.inputToAdd !== '' && scope.inputToAdd !== undefined && (event.keyCode == '13' || event.type === "click")) {
           var inputExists = false;
           for (var i = 0; i < scope.model.length; i++) {
-            if (scope.model[i] === scope.inputToAdd) {
+            if (scope.model[i].name === scope.inputToAdd) {
               inputExists = true;
             }
           }
@@ -45,7 +45,7 @@
           }
           else {
             scope.error = false;
-            scope.model.push(scope.inputToAdd);
+            scope.model.push({name:scope.inputToAdd});
             scope.inputToAdd = '';
           }
           event.preventDefault();

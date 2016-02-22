@@ -21,6 +21,8 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.github.davidmoten.geo.{GeoHash, LatLong}
 import com.stratio.sparkta.plugin.field.geohash.GeoHashField._
+import com.stratio.sparkta.sdk.TypeOp
+import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk._
 
 /**
@@ -42,11 +44,31 @@ import com.stratio.sparkta.sdk._
  * 12 - 3.7cm x 1.9cm
  *
  */
-case class GeoHashField(props: Map[String, JSerializable])
+case class GeoHashField(props: Map[String, JSerializable], override val defaultTypeOperation : TypeOp)
   extends DimensionType with JSerializable with SLF4JLogging {
 
+  def this(defaultTypeOperation : TypeOp) {
+    this(Map(), defaultTypeOperation)
+  }
+
+  def this(props: Map[String, JSerializable]) {
+    this(props, {
+      val coordinate = props.get("coordinate")
+
+      coordinate match {
+        case Some(coord) =>
+          if (coord.asInstanceOf[String] == "latitude") TypeOp.Double
+          else {
+            if (coord.asInstanceOf[String] == "longitude") TypeOp.Double
+            else TypeOp.ArrayDouble
+          }
+        case None => TypeOp.ArrayDouble
+      }
+    })
+  }
+
   def this() {
-    this(Map())
+    this(Map(), TypeOp.ArrayDouble)
   }
 
   override val properties: Map[String, JSerializable] = props
@@ -54,16 +76,6 @@ case class GeoHashField(props: Map[String, JSerializable])
   override val operationProps: Map[String, JSerializable] = props
 
   val coordinate = properties.get("coordinate")
-
-  override val defaultTypeOperation = coordinate match {
-    case Some(coord) =>
-      if (coord.asInstanceOf[String] == "latitude") TypeOp.Double
-      else {
-        if (coord.asInstanceOf[String] == "longitude") TypeOp.Double
-        else TypeOp.ArrayDouble
-      }
-    case None => TypeOp.ArrayDouble
-  }
 
   //scalastyle:off
   override def precision(keyName: String): Precision = keyName match {
@@ -83,7 +95,7 @@ case class GeoHashField(props: Map[String, JSerializable])
 
   //scalastyle:on
 
-  override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) =
+  override def precisionValue(keyName: String, value: Any): (Precision, Any) =
     try {
       val defaultPrecision = getPrecision(Precision3Name, getTypeOperation(Precision3Name))
       if (value.isInstanceOf[Option[_]]) {
@@ -112,7 +124,7 @@ case class GeoHashField(props: Map[String, JSerializable])
     }
 
   //scalastyle:off
-  def getPrecision(lat: Double, long: Double, precision: Precision): JSerializable = {
+  def getPrecision(lat: Double, long: Double, precision: Precision): Any = {
     TypeOp.transformValueByTypeOp(precision.typeOp, precision.id match {
       case p if p == Precision1Name => decodeHash(GeoHash.encodeHash(lat, long, 1))
       case p if p == Precision2Name => decodeHash(GeoHash.encodeHash(lat, long, 2))
@@ -131,19 +143,19 @@ case class GeoHashField(props: Map[String, JSerializable])
 
   //scalastyle:on
 
-  def decodeHash(geoLocHash: String): JSerializable = {
+  def decodeHash(geoLocHash: String): Any = {
     val geoDecoded: LatLong = GeoHash.decodeHash(geoLocHash)
     val (latitude, longitude) = (geoDecoded.getLat, geoDecoded.getLon)
     coordinate match {
       case Some(coord) =>
         if (coord.asInstanceOf[String] == "latitude") {
-          latitude.asInstanceOf[JSerializable]
+          latitude.asInstanceOf[Any]
         }
         else {
-          if (coord.asInstanceOf[String] == "longitude") longitude.asInstanceOf[JSerializable]
-          else Seq(longitude, latitude).asInstanceOf[JSerializable]
+          if (coord.asInstanceOf[String] == "longitude") longitude.asInstanceOf[Any]
+          else Seq(longitude, latitude).asInstanceOf[Any]
         }
-      case None => Seq(longitude, latitude).asInstanceOf[JSerializable]
+      case None => Seq(longitude, latitude).asInstanceOf[Any]
     }
   }
 }

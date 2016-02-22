@@ -24,9 +24,9 @@
       "type": "Morphlines",
       "order": 0,
       "outputFields": [
-        "tpe",
-        "smfProcess",
-        "millis"
+        {"name":"tpe"},
+        {"name":"smfProcess"},
+        {"name":"millis"}
       ],
       "configuration": {
         "morphline": {
@@ -84,7 +84,7 @@
       "type": "DateTime",
       "inputField": "millis",
       "outputFields": [
-        "millis"
+        {"name":"millis", "type": "long"}
       ],
       "configuration": {
         "inputFormat": "unixMillis"
@@ -95,7 +95,7 @@
     {
       "name": "cubeSmfProcess",
       "checkpointConfig": {
-        "timeDimension": "minute",
+        "timeDimension": "millis",
         "granularity": "minute",
         "interval": 100000,
         "timeAvailability": 90000
@@ -126,7 +126,7 @@
     {
       "name": "cubeMillis",
       "checkpointConfig": {
-        "timeDimension": "minute",
+        "timeDimension": "millis",
         "granularity": "minute",
         "interval": 100000,
         "timeAvailability": 90000

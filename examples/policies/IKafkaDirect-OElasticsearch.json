@@ -23,7 +23,7 @@
       "name": "morphline",
       "order": 0,
       "outputFields": [
-        "message"
+        {"name":"message"}
       ],
       "type": "Morphlines",
       "configuration": {

@@ -16,8 +16,6 @@
 
 package com.stratio.sparkta.plugin.field.hierarchy.test
 
-import java.io.{Serializable => JSerializable}
-
 import com.stratio.sparkta.plugin.field.hierarchy.HierarchyField
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -73,7 +71,7 @@ with TableDrivenPropertyChecks {
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.get.precisionValue(HierarchyField.RightToLeftWithWildCardName, i.asInstanceOf[JSerializable])
+        val result = hbs.get.precisionValue(HierarchyField.RightToLeftWithWildCardName, i.asInstanceOf[Any])
         assertResult(o)(result._2)
       }
     }
@@ -85,7 +83,7 @@ with TableDrivenPropertyChecks {
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.get.precisionValue(HierarchyField.RightToLeftName, i.asInstanceOf[JSerializable])
+        val result = hbs.get.precisionValue(HierarchyField.RightToLeftName, i.asInstanceOf[Any])
         assertResult(o)(result._2)
       }
     }
@@ -97,7 +95,7 @@ with TableDrivenPropertyChecks {
       )
 
       forAll(data) { (i: String, o: Seq[String]) =>
-        val result = hbs.get.precisionValue(HierarchyField.LeftToRightName, i.asInstanceOf[JSerializable])
+        val result = hbs.get.precisionValue(HierarchyField.LeftToRightName, i.asInstanceOf[Any])
         assertResult(o)(result._2)
       }
     }

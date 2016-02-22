@@ -25,10 +25,19 @@
           "outputFields": {
             "id": "http://sparkta.stratio.com/transformations/outputFields",
             "type": "array",
-            "minItems": 1,
             "items": {
               "id": "http://sparkta.stratio.com/transformations/outputFields/",
-              "type": "string"
+              "type": "object",
+              "properties": {
+                "name": {
+                  "id": "http://sparkta.stratio.com/transformations/outputFields/name",
+                  "type": "string"
+                },
+                "type": {
+                  "id": "http://sparkta.stratio.com/transformations/outputFields/type",
+                  "type": "string"
+                }
+              }
             }
           },
           "type": {

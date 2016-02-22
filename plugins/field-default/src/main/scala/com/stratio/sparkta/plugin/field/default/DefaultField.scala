@@ -19,23 +19,30 @@ package com.stratio.sparkta.plugin.field.default
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparkta.sdk.TypeOp.TypeOp
 
 import com.stratio.sparkta.sdk._
 
-case class DefaultField(props: Map[String, JSerializable]) extends DimensionType
-with JSerializable with SLF4JLogging {
+case class DefaultField(props: Map[String, JSerializable], override val defaultTypeOperation : TypeOp)
+  extends DimensionType with JSerializable with SLF4JLogging {
+
+  def this(defaultTypeOperation : TypeOp) {
+    this(Map(), defaultTypeOperation)
+  }
+
+  def this(props: Map[String, JSerializable]) {
+    this(props,  TypeOp.String)
+  }
 
   def this() {
-    this(Map())
+    this(Map(), TypeOp.String)
   }
 
   override val operationProps: Map[String, JSerializable] = props
 
   override val properties: Map[String, JSerializable] = props
 
-  override val defaultTypeOperation = TypeOp.String
-
-  override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) = {
+  override def precisionValue(keyName: String, value: Any): (Precision, Any) = {
     val precision = DimensionType.getIdentity(getTypeOperation, defaultTypeOperation)
     (precision, TypeOp.transformValueByTypeOp(precision.typeOp, value))
   }

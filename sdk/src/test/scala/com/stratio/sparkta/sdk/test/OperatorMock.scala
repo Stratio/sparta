@@ -19,9 +19,10 @@ package com.stratio.sparkta.sdk.test
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparkta.sdk._
+import org.apache.spark.sql.types.StructType
 
-abstract class BaseOperatorMoc(name: String, properties: Map[String, JSerializable])
-  extends Operator(name, properties) {
+abstract class BaseOperatorMock(name: String, schema: StructType, properties: Map[String, JSerializable])
+  extends Operator(name, schema, properties) {
 
   override val defaultTypeOperation = TypeOp.Long
 
@@ -30,14 +31,17 @@ abstract class BaseOperatorMoc(name: String, properties: Map[String, JSerializab
   override def processReduce(values: Iterable[Option[Any]]): Option[Long] = None
 }
 
-class OperatorMock(name: String, properties: Map[String, JSerializable])
-  extends BaseOperatorMoc(name: String, properties: Map[String, JSerializable]) with OperatorProcessMapAsNumber {
+class OperatorMock(name: String, schema: StructType, properties: Map[String, JSerializable])
+  extends BaseOperatorMock(name: String, schema, properties: Map[String, JSerializable])
+    with OperatorProcessMapAsNumber {
 
   override val defaultCastingFilterType = TypeOp.Number
+  override val inputSchema: StructType = schema
 }
 
-class OperatorMockString(name: String, properties: Map[String, JSerializable])
-  extends BaseOperatorMoc(name: String, properties: Map[String, JSerializable]) with OperatorProcessMapAsAny {
+class OperatorMockString(name: String, schema: StructType, properties: Map[String, JSerializable])
+  extends BaseOperatorMock(name: String, schema, properties: Map[String, JSerializable]) with OperatorProcessMapAsAny {
 
   override val defaultCastingFilterType = TypeOp.String
+  override val inputSchema: StructType = schema
 }

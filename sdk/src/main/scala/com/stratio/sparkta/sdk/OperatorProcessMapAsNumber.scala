@@ -18,15 +18,20 @@ package com.stratio.sparkta.sdk
 
 import java.io.{Serializable => JSerializable}
 
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.StructType
+
 trait OperatorProcessMapAsNumber {
+
+  val inputSchema: StructType
 
   val inputField: Option[String]
 
-  def applyFilters(inputFields: Map[String, JSerializable]): Option[Map[String, JSerializable]]
+  def applyFilters(row: Row): Option[Map[String, Any]]
 
-  def processMap(inputFieldsValues: InputFieldsValues): Option[Number] =
-    if (inputField.isDefined && inputFieldsValues.values.contains(inputField.get))
-      applyFilters(inputFieldsValues.values)
+  def processMap(inputFieldsValues: Row): Option[Number] =
+    if (inputField.isDefined && inputSchema.fieldNames.contains(inputField.get))
+      applyFilters(inputFieldsValues)
         .flatMap(filteredFields => Operator.getNumberFromSerializable(filteredFields.get(inputField.get).get))
     else None
 }

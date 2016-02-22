@@ -133,9 +133,9 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
   describe("should be able to return an array with all outputs of the policy models", function () {
     it("if policy has model, return all outpus of these models", function () {
-      var fakeModel1 = {"outputFields": ["fake output1 of model 1", "fake output2 of model 1"]};
-      var fakeModel2 = {"outputFields": ["fake output1 of model 2", "fake output2 of model 2"]};
-      var fakeModel3 = {"outputFields": ["fake output1 of model 3", "fake output2 of model 3"]};
+      var fakeModel1 = {"outputFields": [{name:"fake output1 of model 1"}, {name:"fake output2 of model 1"}]};
+      var fakeModel2 = {"outputFields": [{name:"fake output1 of model 2"},{name: "fake output2 of model 2"}]};
+      var fakeModel3 = {"outputFields": [{name:"fake output1 of model 3"}, {name:"fake output2 of model 3"}]};
 
       var policy = angular.copy(fakePolicy);
       policy.transformations = [fakeModel1, fakeModel2, fakeModel3];
@@ -144,7 +144,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       var modelOutputs = factory.getAllModelOutputs();
 
       expect(modelOutputs.length).toBe(fakeModel1.outputFields.length + fakeModel2.outputFields.length + fakeModel3.outputFields.length);
-      expect(modelOutputs).toEqual(fakeModel1.outputFields.concat(fakeModel2.outputFields, fakeModel3.outputFields));
+      expect(modelOutputs).toEqual([fakeModel1.outputFields[0].name,fakeModel1.outputFields[1].name,fakeModel2.outputFields[0].name,fakeModel2.outputFields[1].name, fakeModel3.outputFields[0].name, fakeModel3.outputFields[1].name]);
     });
   });
 

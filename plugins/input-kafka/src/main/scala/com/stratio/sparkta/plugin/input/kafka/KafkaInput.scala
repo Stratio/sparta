@@ -18,10 +18,10 @@ package com.stratio.sparkta.plugin.input.kafka
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.sdk.Input._
+import com.stratio.sparkta.sdk.Input
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk.{Event, Input}
 import kafka.serializer.StringDecoder
+import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.kafka.KafkaUtils
@@ -32,7 +32,7 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
   final val DefaulPort = "2181"
   final val DefaultHost = "localhost"
 
-  override def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
+  def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
     val submap = properties.getMap("kafkaParams.")
     val connection = Map(getZkConnectionConfs("zookeeper.connect", DefaultHost, DefaulPort))
     val kafkaParams = submap.get.map { case (entry, value) => (entry, value.toString) }
@@ -42,9 +42,7 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
       connection ++ kafkaParams,
       extractTopicsMap(),
       storageLevel(sparkStorageLevel))
-      .map(data => new Event(Map(RawDataKey -> {
-        data._2.getBytes("UTF-8").asInstanceOf[JSerializable]
-      })))
+      .map(data => Row(data._2))
   }
 
   def extractTopicsMap(): Map[String, Int] = {
@@ -57,7 +55,7 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
     }
   }
 
-  def getTopicPartition(key: String, defaultPartition: Int): Seq[(String, Int)] ={
+  def getTopicPartition(key: String, defaultPartition: Int): Seq[(String, Int)] = {
     val conObj = properties.getMapFromJsoneyString(key)
     conObj.map(c =>
       (c.get("topic") match {
