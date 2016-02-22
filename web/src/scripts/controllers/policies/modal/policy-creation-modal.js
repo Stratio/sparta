@@ -11,7 +11,6 @@
   function PolicyCreationModalCtrl(PolicyModelFactory, PolicyFactory, TemplateFactory, $modalInstance) {
     /*jshint validthis: true*/
     var vm = this;
-    vm.ok = ok;
     vm.cancel = cancel;
     vm.validateForm = validateForm;
 
@@ -41,6 +40,8 @@
             vm.policy.rawData.path = (vm.policy.rawDataEnabled)? vm.policy.rawDataPath : null;
             delete vm.policy['rawDataPath'];
             delete vm.policy['rawDataEnabled'];
+
+            PolicyModelFactory.nextStep();
             $modalInstance.close();
           }
           /* Policy name exists */
@@ -55,10 +56,6 @@
         /*Focus on the first invalid input*/
         document.querySelector('input.ng-invalid').focus();
       }
-    }
-
-    function ok() {
-      $modalInstance.close();
     }
 
     function cancel() {
