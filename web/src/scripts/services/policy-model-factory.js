@@ -13,12 +13,9 @@
     var template = {};
 
     function initPolicy() {
-      status.currentStep = 0;
+      status.currentStep = -1;
       policy.name = "";
       policy.description = "";
-      policy.sparkStreamingWindow = template.defaultSparkStreamingWindow;
-      policy.storageLevel = template.defaultStorageLevel;
-      policy.checkpointPath = template.defaultCheckpointPath;
       policy.rawData = {};
       policy.rawData.enabled = false;
       policy.rawData.path = "";
@@ -29,7 +26,7 @@
     }
 
     function setPolicy(inputPolicyJSON) {
-      status.currentStep = 0;
+      status.currentStep = -1;
       policy.id = inputPolicyJSON.id;
       policy.name = inputPolicyJSON.name;
       policy.description = inputPolicyJSON.description;

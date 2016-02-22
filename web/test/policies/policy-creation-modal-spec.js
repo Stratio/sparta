@@ -39,6 +39,10 @@ describe('policy-creation-modal-controller', function () {
     PolicyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
       return fakePolicy;
     });
+    spyOn(document, "querySelector").and.callFake(function () {
+      return {"focus": jasmine.createSpy()}
+    });
+
     ctrl = $controller('PolicyCreationModalCtrl', {
       'PolicyModelFactory': PolicyModelFactoryMock,
       'PolicyFactory': PolicyFactoryMock,
@@ -81,7 +85,9 @@ describe('policy-creation-modal-controller', function () {
     describe("if view validations have been passed", function () {
       beforeEach(function () {
         ctrl.form = {$valid: true}; //view validations have been passed
+        ctrl.policy.rawDataEnabled = false;
       });
+
       it("but there is another policy with the same name and different id, modal is not closed", function () {
         PolicyFactoryMock.existsPolicy.and.callFake(function () {
           var defer = $q.defer();
@@ -98,23 +104,48 @@ describe('policy-creation-modal-controller', function () {
         expect(modalInstanceMock.close).not.toHaveBeenCalled();
       });
 
-      it("and there is not another policy with the same name, policy model is reset, modal is closed and current step is added one", function () {
-        PolicyFactoryMock.existsPolicy.and.callFake(function () {
-          var defer = $q.defer();
-          defer.resolve(false);
-          return defer.promise;
+      describe("and there is not another policy with the same name", function () {
+        beforeEach(function () {
+          PolicyFactoryMock.existsPolicy.and.callFake(function () {
+            var defer = $q.defer();
+            defer.resolve(false);
+            return defer.promise;
+          });
+          var policy = angular.copy(fakePolicy);
+          ctrl.policy = policy;
         });
-        var policy = angular.copy(fakePolicy);
-        ctrl.policy = policy;
-        ctrl.validateForm();
-        scope.$digest();
 
-        expect(modalInstanceMock.close).toHaveBeenCalled();
-        expect(PolicyModelFactoryMock.resetPolicy).toHaveBeenCalled();
+        it("policy model is reset, modal is closed and current step is added one", function () {
+          ctrl.validateForm();
+          scope.$digest();
+
+          expect(PolicyModelFactoryMock.resetPolicy).toHaveBeenCalled();
+          expect(PolicyModelFactoryMock.nextStep).toHaveBeenCalled();
+          expect(modalInstanceMock.close).toHaveBeenCalled();
+        });
+
+        it("rawData attribute is converted to the expected format", function () {
+          ctrl.policy.rawDataEnabled = false;
+          ctrl.validateForm();
+          scope.$digest();
+
+          // raw data path is null if raw data is disabled
+          expect(ctrl.policy.rawData.path).toBe(null);
+
+          // temporal attributes are removed
+          expect(ctrl.policy.rawDataPath).toBe(undefined);
+          expect(ctrl.policy.rawDataEnabled).toBe(undefined);
+
+          ctrl.policy.rawDataEnabled = true;
+          var fakeRawDataPath = "fake/path";
+          ctrl.policy.rawDataPath = fakeRawDataPath;
+          ctrl.validateForm();
+          scope.$digest();
+
+          expect(ctrl.policy.rawData.path).toBe(fakeRawDataPath);
+        });
       });
-
     });
-
     describe("if view validations have not been passed", function () {
       beforeEach(function () {
         ctrl.form = {$valid: false}; //view validations have been passed

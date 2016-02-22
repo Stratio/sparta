@@ -21,9 +21,7 @@
           else
             accordionStatus[i] = false;
         }
-        if (truePosition == undefined) {
-          accordionStatus[length] = true;
-        }
+
         var currentLength = accordionStatus.length;
         while(accordionStatus.length > length+1){
           accordionStatus.pop();

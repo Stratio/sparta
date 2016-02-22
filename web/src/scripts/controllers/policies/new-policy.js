@@ -16,18 +16,17 @@
     init();
 
     function init() {
-      var controller = 'PolicyCreationModalCtrl';
-      var templateUrl = "templates/modal/policy-creation-modal.tpl.html";
-      var resolve = {};
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
-      modalInstance.result.then(function () {
+      vm.policy = PolicyModelFactory.getCurrentPolicy();
+      if (vm.policy && PolicyModelFactory.getProcessStatus().currentStep == 0) {
         vm.steps = PolicyModelFactory.getTemplate().steps;
-        vm.policy = PolicyModelFactory.getCurrentPolicy();
         vm.status = PolicyModelFactory.getProcessStatus();
         vm.successfullySentPolicy = false;
         vm.error = null;
         vm.showStepNavigation = true;
-      });
+      }
+      else {
+        $state.go('dashboard.policies');
+      }
     }
 
     function changeStepNavigationVisibility() {

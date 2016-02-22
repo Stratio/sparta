@@ -29,7 +29,7 @@
       if (vm.model) {
         vm.modelError = ModelFactory.getError();
         vm.modelContext = ModelFactory.getContext();
-        vm.modelTypes = vm.template.types;
+        vm.modelTypes = vm.template.model.types;
         vm.configPlaceholder = vm.template.configPlaceholder;
         vm.outputPattern = vm.template.outputPattern;
         vm.outputInputPlaceholder = vm.template.outputInputPlaceholder;
@@ -41,19 +41,20 @@
     }
 
     function getDefaultConfigurations(type) {
-      var types = vm.template.types;
+      var types = vm.template.model.types;
+      var defaultConfigurations =  vm.template.model.defaultConfiguration;
       switch (type) {
         case types[0].name:
         {
-          return vm.template.morphlinesDefaultConfiguration;
+          return defaultConfigurations.morphlinesDefaultConfiguration;
         }
         case types[1].name:
         {
-          return vm.template.dateTimeDefaultConfiguration;
+          return defaultConfigurations.dateTimeDefaultConfiguration;
         }
         case types[2].name:
         {
-          return vm.template.typeDefaultConfiguration;
+          return defaultConfigurations.typeDefaultConfiguration;
         }
       }
     }
@@ -66,6 +67,7 @@
       } else {
         ModelFactory.setError("_GENERIC_FORM_ERROR_");
       }
+      ModelService.changeModelCreationPanelVisibility(false);
     }
 
     function removeModel() {
@@ -75,7 +77,7 @@
         if (modelNumber > 0) {
           order = vm.policy.transformations[modelNumber - 1].order + 1
         }
-        vm.model = ModelFactory.resetModel(vm.template, order, modelNumber);
+        vm.model = ModelFactory.resetModel(vm.template.model, order, modelNumber);
         ModelFactory.updateModelInputs(vm.policy.transformations);
       });
     }

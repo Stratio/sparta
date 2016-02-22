@@ -1,0 +1,15 @@
+@mixin c-text {
+	@include c-component;
+
+ &--bold{
+   font-weight: get-font-weight(bold);
+ }
+
+  &--margin-left{
+    margin-left: $c-text---margin-left;
+  }
+}
+
+.c-text {
+	@include c-text;
+}
