@@ -28,14 +28,15 @@
 				restrict: 'AE',
 				replace: true,
 				scope: {
-					 ngFormId: '@',
-					 name: '@stName',
-					 field: '=',
-					 form: '=',
-					 model: '=',
-					 listCompressed: '=',
-					 qa: '@',
-					 modal: "="
+					ngFormId: '@',
+					name: '@stName',
+					field: '=',
+					form: '=',
+					model: '=',
+					listCompressed: '=',
+					qa: '@',
+					modal: "=",
+					deleteClass: "="
 				}
 		  };
 		  return directive;
@@ -57,6 +58,9 @@
 		            scope.modify = {};
 		            if (scope.field && scope.field.hasOwnProperty('hidden') && scope.field.hidden) {
 	                    scope.model[scope.field.propertyId] = null;
+	                    if (scope.deleteClass) {
+	                    	element.removeClass('c-col');
+	                    }
 						return false;
 		            }
 		            if (scope.field && scope.field.hasOwnProperty('visible')) {
@@ -81,11 +85,20 @@
 		                     }
 		                  }
 		                  if (allTrue) {
+		                  	if (scope.deleteClass) {
+	                    		element.addClass('c-col');
+	                    	}
 		                    return true;
 		                  }
 		               }
+		              	if (scope.deleteClass) {
+	                    	element.removeClass('c-col');
+	                    }
 		               return false;
 		            }
+		            if (scope.deleteClass) {
+	                    element.addClass('c-col');
+	                }
 		            return true;
 		        };
 	        });
