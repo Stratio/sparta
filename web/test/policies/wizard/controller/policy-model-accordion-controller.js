@@ -23,7 +23,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
 
-    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate', 'previousStep', 'nextStep']);
+    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate', 'previousStep', 'nextStep', 'enableNextStep']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
       return fakePolicy;
     });
@@ -76,6 +76,21 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
       expect(ctrl.accordionStatus).toEqual(accordionStatusServiceMock.getAccordionStatus());
       expect(accordionStatusServiceMock.resetAccordionStatus).toHaveBeenCalled();
     });
+
+    it ("if policy has a model at least, next step is enabled", inject(function ($controller){
+      fakePolicy.transformations = [fakeModel];
+      ctrl = $controller('PolicyModelAccordionCtrl  as vm', {
+        'PolicyModelFactory': policyModelFactoryMock,
+        'AccordionStatusService': accordionStatusServiceMock,
+        'ModelFactory': modelFactoryMock,
+        'CubeService': cubeServiceMock,
+        'ModalService': modalServiceMock,
+        '$translate': translate,
+        '$scope': scope
+      });
+
+      expect(policyModelFactoryMock.enableNextStep).toHaveBeenCalled();
+    }));
   });
 
   it("should be able to change to previous step calling to policy model factory", function () {
