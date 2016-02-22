@@ -15,7 +15,6 @@
     vm.previousStep = previousStep;
     vm.validateForm = validateForm;
     vm.inputList = [];
-    vm.error = false;
     init();
 
     function init() {
@@ -35,7 +34,7 @@
     function setInput(index) {
       if (index >= 0 && index < vm.inputList.length) {
         vm.policy.input = vm.inputList[index];
-        vm.error = false
+        PolicyModelFactory.enableNextStep();
       }
     }
 

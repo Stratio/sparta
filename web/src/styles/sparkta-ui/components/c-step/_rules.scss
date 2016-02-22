@@ -105,6 +105,16 @@
     }
   }
 
+  &--enabled{
+     & .c-step__progress-line {
+      background: linear-gradient(90deg, $c-step--active---color 50%, $c-step---color 50%, $c-step---color);
+    }
+
+    & .c-step__box {
+      border: $c-step__box--enabled---border;
+    }
+  }
+
   &--visited {
     & .c-step__box {
       border: $c-step__box--visited---border;
