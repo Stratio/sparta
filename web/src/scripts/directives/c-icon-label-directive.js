@@ -18,7 +18,9 @@ function cIconLabel() {
       textClass: "=",
       iconUrl: "=",
       test: "@",
-      required : "@"
+      required : "@",
+      help: "=",
+      helpQa: "="
     },
     replace: true,
     templateUrl: 'templates/components/c-icon-label.tpl.html'

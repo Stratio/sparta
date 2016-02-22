@@ -2,32 +2,40 @@
   <ng-form name="vm.form" novalidate data-ng-model="vm.model">
     <div class="c-form-group">
       <div class="c-form-control c-form-control--full-width c-icon-radio" data-ng-model="model">
-        <label class="c-label--required c-icon-radio__label c-col c-col--12">{{"_TYPE_" | translate}}:</label>
-      <span data-ng-repeat="modelTypes in vm.modelTypes">
-        <input data-ng-change="vm.changeDefaultConfiguration()" class="c-icon-radio__item"
+        <span class="c-icon-label c-col c-col--12">
+          <label class="c-icon-label__text c-label">
+            {{"_TYPE_" | translate}}
+          </label>
+        </span>
+        <span data-ng-repeat="modelTypes in vm.modelTypes">
+          <input data-ng-change="vm.changeDefaultConfiguration()" class="c-icon-radio__item"
                id="type-{{modelTypes.name + $parent.$index| lowercase}}" type="radio"
                data-ng-model="vm.model.type" value="{{modelTypes.name}}" data-ng-disabled="!editionMode">
-        <label data-ng-model="vm.model.type" class="c-icon-radio__label"
+          <label data-ng-model="vm.model.type" class="c-icon-radio__label"
                data-qa="policy-model-type-{{modelTypes.name | lowercase}}"
                for="type-{{modelTypes.name + $parent.$index| lowercase}}">
-          <i class="c-icon c-icon--large c-icon-radio__icon icon-{{modelTypes.iconName | lowercase}}"
-             tooltip="{{modelTypes.name | lowercase}}" tooltip-placement="top" tooltip-class="t-tooltip">
-          </i>
-        </label>
-      </span>
+            <i class="c-icon c-icon--large c-icon-radio__icon icon-{{modelTypes.iconName | lowercase}}"
+             tooltip="{{modelTypes.name | lowercase}}" tooltip-placement="top" tooltip-class="tooltip--top">
+            </i>
+          </label>
+        </span>
       </div>
     </div>
 
     <div class="c-form-group">
-      <form-field-select data-ng-if="editionMode" data-form="vm.form"
-                         data-st-name="input-form"
-                         data-model="vm.model.inputField"
-                         data-options="vm.modelInputs"
-                         data-field="label" data-label="{{'_INPUT_FIELD_' | translate}}" data-help=""
-                         data-disabled="false"
-                         data-required="true" data-qa="policy-description-raw-data-partition-format">
+      <form-field-select  class="c-col c-col--2"
+                          data-ng-if="editionMode"
+                          data-form="vm.form"
+                          data-st-name="input-form"
+                          data-model="vm.model.inputField"
+                          data-options="vm.modelInputs"
+                          data-field="label"
+                          data-label="{{'_INPUT_FIELD_' | translate}}"
+                          data-disabled="false"
+                          data-required="true"
+                          data-qa="policy-description-raw-data-partition-format">
       </form-field-select>
-      <form-field-input data-ng-if="!editionMode" data-form="vm.form" data-st-name="input-form"
+      <form-field-input class="c-col c-col--2" data-ng-if="!editionMode" data-form="vm.form" data-st-name="input-form"
                         data-model="vm.model.inputField | translate"
                         data-label="{{'_INPUT_FIELD_' | translate}}"
                         data-type="text" data-disabled="true" data-qa="policy-model-input">
@@ -36,15 +44,16 @@
 
     <div class="c-form-group" data-ng-class="{'submited': vm.form['model-configuration'].$error.invalidJson && vm.form.$submitted, 'ng-invalid': vm.form['model-configuration'].$error.invalidJson && vm.form.$submitted}">
       <div class="c-form-control c-form-control--full-width">
-        <c-icon-label data-wrapper-control-class="'c-label c-col c-col--12'"
-                      data-icon-class="'icon-info1'"
+        <c-icon-label data-wrapper-control-class="'c-col c-col--12'"
+                      data-icon-class="'icon-help2'"
                       data-text="'_CONFIGURATION_' | translate"
-                      data-text-class=""
                       data-icon-url="vm.template.configHelpLink"
                       data-test="policy-model-configuration-help"
-                      data-required="true">
+                      data-required="true"
+                      data-help="'_CONFIGURATION_INFO_' | translate"
+                      data-help-qa="policy-model-configuration-label-help">
         </c-icon-label>
-        <p class="c-label c-col c-col--12">{{"_CONFIGURATION_INFO_" | translate}}</p>
+        <!-- <p class="c-label c-col c-col--12">{{"_CONFIGURATION_INFO_" | translate}}</p> -->
         <textarea json-text name="model-configuration" data-form="vm.form" data-ng-disabled="!editionMode"
                   class="c-textarea c-textarea--required c-textarea--full-width"
                   data-ng-model="vm.model.configuration"
