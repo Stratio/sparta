@@ -9,15 +9,18 @@
 
   function ModelService(ModalService, PolicyModelFactory, $translate, ModelFactory, CubeService, AccordionStatusService, UtilsService, $q) {
     var vm = this;
+    vm.showModelCreationPanel = true;
+
     vm.showConfirmRemoveModel = showConfirmRemoveModel;
     vm.addModel = addModel;
     vm.removeModel = removeModel;
     vm.isLastModel = isLastModel;
     vm.isNewModel = isNewModel;
-
+    vm.changeModelCreationPanelVisibility = changeModelCreationPanelVisibility;
+    vm.isActiveModelCreationPanel = isActiveModelCreationPanel;
     init();
 
-    function init(){
+    function init() {
       vm.policy = PolicyModelFactory.getCurrentPolicy();
     }
 
@@ -53,23 +56,23 @@
       var modelToAdd = angular.copy(ModelFactory.getModel());
       if (ModelFactory.isValidModel()) {
         vm.policy.transformations.push(modelToAdd);
-        AccordionStatusService.resetAccordionStatus(vm.policy.transformations.length);
+        AccordionStatusService.resetAccordionStatus(vm.policy.transformations.length)
       }
     }
 
     function removeModel() {
       var defer = $q.defer();
       var modelPosition = ModelFactory.getContext().position;
-        //check if there are cubes whose dimensions have model outputFields as fields
-        var cubeList = CubeService.findCubesUsingOutputs(vm.policy.transformations[modelPosition].outputFields);
+      //check if there are cubes whose dimensions have model outputFields as fields
+      var cubeList = CubeService.findCubesUsingOutputs(vm.policy.transformations[modelPosition].outputFields);
 
-        showConfirmRemoveModel(cubeList.names).then(function () {
-          vm.policy.cubes = UtilsService.removeItemsFromArray(vm.policy.cubes, cubeList.positions);
-          vm.policy.transformations.splice(modelPosition, 1);
-          defer.resolve();
-        }, function () {
-          defer.reject()
-        });
+      showConfirmRemoveModel(cubeList.names).then(function () {
+        vm.policy.cubes = UtilsService.removeItemsFromArray(vm.policy.cubes, cubeList.positions);
+        vm.policy.transformations.splice(modelPosition, 1);
+        defer.resolve();
+      }, function () {
+        defer.reject()
+      });
       return defer.promise;
     }
 
@@ -79,6 +82,15 @@
 
     function isNewModel(index) {
       return index == vm.policy.transformations.length;
+    }
+
+    function changeModelCreationPanelVisibility(isVisible) {
+      vm.showModelCreationPanel = isVisible;
+      //AccordionStatusService.resetAccordionStatus(vm.policy.transformations.length, vm.policy.transformations.length)
+    }
+
+    function isActiveModelCreationPanel() {
+      return vm.showModelCreationPanel;
     }
   }
 })();

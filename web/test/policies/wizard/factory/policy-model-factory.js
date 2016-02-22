@@ -28,16 +28,10 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
     var policy = factory.getCurrentPolicy();
 
-    expect(factory.getProcessStatus().currentStep).toBe(0);
+    expect(factory.getProcessStatus().currentStep).toBe(-1);
     expect(policy.id).toBe(fakePolicy.id);
     expect(policy.name).toBe(fakePolicy.name);
     expect(policy.description).toBe(fakePolicy.description);
-    expect(policy.sparkStreamingWindow).toBe(fakePolicy.sparkStreamingWindow);
-    expect(policy.storageLevel).toBe(fakePolicy.storageLevel);
-    expect(policy.checkpointPath).toBe(fakePolicy.checkpointPath);
-    expect(policy.rawData).toBe(fakePolicy.rawData);
-    expect(policy.rawData.enabled).toBe(fakePolicy.rawData.enabled);
-    expect(policy.transformations).toBe(fakePolicy.transformations);
     expect(policy.cubes).toBe(fakePolicy.cubes);
     expect(policy.input).toBe(fakeInput);
     expect(policy.outputs[0]).toBe(fakeOutput);
@@ -54,12 +48,9 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     it("if there is not any policy, it initializes a new one using the introduced template", function () {
       var policy = cleanFactory.getCurrentPolicy();
 
-      expect(cleanFactory.getProcessStatus().currentStep).toBe(0);
+      expect(cleanFactory.getProcessStatus().currentStep).toBe(-1);
       expect(policy.name).toBe("");
       expect(policy.description).toBe("");
-      expect(policy.sparkStreamingWindow).toBe(fakePolicyTemplate.defaultSparkStreamingWindow);
-      expect(policy.storageLevel).toBe(fakePolicyTemplate.defaultStorageLevel);
-      expect(policy.checkpointPath).toBe(fakePolicyTemplate.defaultCheckpointPath);
       expect(policy.rawData.enabled).toBe(false);
       expect(policy.rawData.path).toBe("");
       expect(policy.input).toEqual({});
@@ -94,12 +85,9 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     factory.resetPolicy();
 
     var policy = factory.getCurrentPolicy();
-    expect(factory.getProcessStatus().currentStep).toBe(0);
+    expect(factory.getProcessStatus().currentStep).toBe(-1);
     expect(policy.name).toBe("");
     expect(policy.description).toBe("");
-    expect(policy.sparkStreamingWindow).toBe(fakePolicyTemplate.defaultSparkStreamingWindow);
-    expect(policy.storageLevel).toBe(fakePolicyTemplate.defaultStorageLevel);
-    expect(policy.checkpointPath).toBe(fakePolicyTemplate.defaultCheckpointPath);
     expect(policy.rawData.enabled).toBe(false);
     expect(policy.rawData.path).toBe("");
     expect(policy.input).toEqual({});
