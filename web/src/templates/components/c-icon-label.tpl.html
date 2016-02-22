@@ -1,6 +1,14 @@
 <span class="c-icon-label {{wrapperControlClass}}">
-  <a data-ng-href="{{iconUrl}}" class="{{linkClass}}" target="_blank" data-qa="{{test}}">
-    <i class="c-icon-label__icon c-icon c-icon--is-clickable c-icon--call-to-action {{iconClass}}"></i>
-  </a>
-  <label class="c-label {{textClass}}" data-ng-class = "{'c-label--required':required}">{{text}}</label>
+    <label class="c-label c-icon-label__text c-icon-label__full-width">
+        {{text}}
+        <span data-ng-if="required === false" class="c-label__optional">
+            {{'_OPTIONAL_' | translate}}
+        </span>
+<!--
+        <i data-ng-if="help" class="c-icon icon-help2 c-icon--is-clickable c-icon--in-label" tooltip='{{help}}' tooltip-class="tooltip--bottom" tooltip-trigger="click" tooltip-placement="bottom" data-qa="{{helpQa}}"></i>
+-->
+    </label>
+    <span class="c-label c-icon-label__help c-icon-label__full-width">
+    	{{help}}
+   	</span>
 </span>
