@@ -13,6 +13,8 @@
     <form class="c-form" name="vm.form" id="configurationForm" novalidate data-ng-class={'c-accordion-tool--items-hide-left':!(vm.compositionStatus.getConfigurationVisibility())}>
       <form-field
         data-ng-repeat="properties in vm.template.basicSettings"
+        class="c-form-gutter c-col c-col--vertical-top"
+        data-ng-class="{'c-col--{{properties.col}}': properties.col}"
         data-ng-form-id="{{properties.propertyId}}"
         data-field="properties"
         data-model="vm.policy"
@@ -21,7 +23,7 @@
         data-list-compressed = "true"
         data-qa="{{properties.qa}}">
       </form-field>
-      <ng-form class="c-form-group" data-qa="fragment-details-mongoDb-hosts">
+      <ng-form class="c-form-group c-form-gutter" data-qa="fragment-details-mongoDb-hosts">
         <div class="c-form-control c-form-control--full-width">
           <div class="c-label c-icon-label__text c-label--margin-list c-col c-col--12">
                 <span>
@@ -33,6 +35,7 @@
             <form-field
               data-ng-repeat="properties in vm.template.advancedSettings"
               data-ng-form-id="{{properties.propertyId}}"
+              class="c-form-gutter c-col c-col--6 c-col--vertical-top"
               data-field="properties"
               data-model="vm.policy"
               data-form="vm.form"
