@@ -31,7 +31,7 @@ describe('policies.wizard.controller.policy-model-controller', function () {
       return fakePolicyTemplate;
     });
 
-    modelServiceMock = jasmine.createSpyObj('ModelService', ['isLastModel', 'isNewModel', 'addModel', 'removeModel']);
+    modelServiceMock = jasmine.createSpyObj('ModelService', ['isLastModel', 'isNewModel', 'addModel', 'removeModel', 'changeModelCreationPanelVisibility']);
 
     modelFactoryMock = jasmine.createSpyObj('ModelFactory', ['getModel', 'getError', 'getModelInputs', 'getContext', 'setError', 'resetModel', 'updateModelInputs']);
     modelFactoryMock.getModel.and.returnValue(fakeModel);

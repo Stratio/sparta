@@ -72,14 +72,37 @@ describe('policies.wizard.controller.new-policy-controller', function () {
       '$scope': scope
     });
 
-
     scope.$digest();
   }));
 
 
-  it("should redirect user to policy creation wizard", function(){
-    ctrl.createPolicy();
+  describe("should open a modal when user wants to create a policy", function () {
+    it("Policy modal is open", function () {
+      var expectedController = "PolicyCreationModalCtrl";
+      var expectedTemplateUrl = "templates/modal/policy-creation-modal.tpl.html";
+      var expectedResolve = {};
+      var expectedExtraClass = "";
+      var expectedSize = "lg";
 
-    expect(stateMock.go).toHaveBeenCalledWith('editor.newPolicy');
+      ctrl.createPolicy();
+
+      var openModalArgs = modalServiceMock.openModal.calls.mostRecent().args;
+
+      expect(openModalArgs[0]).toEqual(expectedController);
+      expect(openModalArgs[1]).toEqual(expectedTemplateUrl);
+      expect(openModalArgs[2]).toEqual(expectedResolve);
+      expect(openModalArgs[3]).toEqual(expectedExtraClass);
+      expect(openModalArgs[4]).toEqual(expectedSize);
+    });
+
+    it("should redirect user to policy creation wizard when modal is confirmed", function(){
+      ctrl.createPolicy().then(function(){
+
+        expect(stateMock.go).toHaveBeenCalledWith('wizard.newPolicy');
+      });
+
+    });
   });
+
+
 });
