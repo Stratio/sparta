@@ -7,9 +7,9 @@
 	<div class="c-modal-inner">
 		<form class="c-form" name="vm.form" novalidate data-ng-if="vm.policiesRunning.length === 0">
 
-			<form-field-input id="dataSourceName" data-model="vm.dataSource.name" data-label="{{'_NAME_' | translate}}" data-form="vm.form" data-st-name="dataSourceNameForm" data-required="true" data-autofocus="true" data-pattern="'\\S+'" data-placeholder='{{"_FRAGMENT_WINDOW_PLACEHOLDER_NAME_" | translate}}' data-qa="fragment-detail-name" data-help='{{"_NAME_HELP_" | translate}}' data-help-qa="fragment-detail-name-help"></form-field-input>
+			<form-field-input class="c-form-gutter" id="dataSourceName" data-model="vm.dataSource.name" data-label="{{'_NAME_' | translate}}" data-form="vm.form" data-st-name="dataSourceNameForm" data-required="true" data-autofocus="true" data-pattern="'\\S+'" data-placeholder='{{"_FRAGMENT_WINDOW_PLACEHOLDER_NAME_" | translate}}' data-qa="fragment-detail-name" data-help='{{"_NAME_HELP_" | translate}}' data-help-qa="fragment-detail-name-help"></form-field-input>
 
-			<ng-form name="dataSourceTypeForm" class="c-form-group">
+			<ng-form name="dataSourceTypeForm" class="c-form-group c-form-gutter">
 				<div class="c-form-control c-form-control--full-width c-icon-radio">
 					<label class="c-col c-col--12 c-label c-icon-label__text c-icon-radio__label" title="{{'_TYPE_' | translate}}:" for="dataSourceType">{{"_INPUT_WINDOW_FORM_TYPE_" | translate}}</label>
 					<label data-ng-repeat="fragmentData in vm.templateFragmentsData">
@@ -20,6 +20,9 @@
 			</ng-form>
 
 			<form-field data-ng-repeat="item in vm.templateFragmentsData[vm.selectedIndex].properties"
+				class="c-form-gutter c-col c-col--vertical-top"
+				data-ng-class="{'c-col--12': item.propertyType === 'list' || item.propertyType === 'multiple-list',
+		    'c-col--6': item.propertyType !== 'list' && item.propertyType !== 'multiple-list'}"
 				data-ng-form-id="{{item.propertyId}}"
 				data-field="item"
 				data-model="vm.dataSource.element.configuration"
@@ -28,6 +31,7 @@
 				data-ng-if="item.propertyId !== 'name'"
 				data-list-compressed="true"
 				data-modal="true"
+				data-delete-class="true"
 				data-qa="{{item.qa}}"></form-field>
 
 			<div class="c-row c-row--separated" data-ng-if="vm.policiesAffected.length > 0" data-qa="fragment-details-policies-affected">
