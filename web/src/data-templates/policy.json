@@ -122,11 +122,6 @@
       "name": "_POLICY_._STEPS_._CUBES_",
       "icon": "icon-box"
     },
-
-    {
-      "name": "_POLICY_._STEPS_._TRIGGER_",
-      "icon": "icon-bell"
-    },
     {
       "name": "_POLICY_._STEPS_._FINISH_",
       "icon": "icon-paper"

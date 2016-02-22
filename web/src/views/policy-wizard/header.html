@@ -20,6 +20,8 @@
 	    	<i class="c-icon icon-cog"></i>
 		</button>
 
+
+
 </div>
   <div class="c-toolbar-container c-toolbar-container--to-right c-toolbar-container--padding">
     <a data-ng-href="{{header.helpLink}}" class="c-icon-link c-icon-link__toolbar" target="_blank"
@@ -27,6 +29,18 @@
       <i class="c-icon c-icon-link__icon c-icon--is-clickable c-icon--call-to-action icon-help1"></i>
       <span class="c-icon-link__text c-icon-link__text--is-link">{{'_INPUT_WINDOW_NEW_HELP_' | translate}}</span>
     </a>
+  </div>
+  <div class="c-toolbar-container c-toolbar-container--to-right c-toolbar-container--padding c-toolbar-container--border-left">
+    <button class="c-button c-button--call-to-action-2" data-ng-click="vm.previousStep()"
+            data-qa="policy-cube-previous-button">
+      <i class="icon icon-arrow-left"></i>
+      <span>{{"_PREVIOUS_" | translate}}</span>
+    </button>
+    <button class="c-button c-button--call-to-action-1" data-ng-click="vm.nextStep()"
+            data-qa="policy-model-next-button">
+      <i class="c-icon icon-arrow-right"></i>
+      <span>{{"_CONTINUE_" | translate}}</span>
+    </button>
   </div>
 
 </div>
