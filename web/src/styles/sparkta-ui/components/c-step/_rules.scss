@@ -12,8 +12,8 @@
     padding-left: 0;
 
     & .c-step__progress-line {
-      left: 50%;
-      width: 50%;
+      left: 28%;
+      width: 73%;
     }
 
     &.c-step--active {
@@ -27,8 +27,7 @@
     padding-right: 0;
 
     & .c-step__progress-line {
-      right: 50%;
-      width: 50%;
+      width: 0px;
     }
 
     &.c-step--active {

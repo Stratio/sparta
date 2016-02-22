@@ -1,15 +1,14 @@
 <section data-ng-controller="PolicyModelAccordionCtrl as vm">
-
   <p class="c-info-text c-info-text--narrow c-info-text--bottom-margin"><i
     class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._MODEL_INTRO_" | translate}}</span>
   </p>
 
-  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error != '' && vm.policy.transformations.length === 0"
+  <div class="c-row c-msg c-msg--small c-msg--error"
+       data-ng-if="vm.error != '' && vm.policy.transformations.length === 0"
        data-qa="policy-model-accordion-error-msg">
     <i class="c-icon icon-circle-cross"></i>
     <span>{{vm.error| translate}}</span>
   </div>
-
   <form class="c-form c-panel c-panel--framed" novalidate>
     <accordion class="c-accordion" data-ng-model="vm.policy.transformations">
       <div class="c-accordion-item">
@@ -27,15 +26,15 @@
 
           <ng-include data-ng-if="vm.accordionStatus[$index]" src="'views/policy-wizard/model-panel.html'"
                       data-ng-model="currentModel" data-qa="policy-model-{{$index}}"></ng-include>
-
-
         </accordion-group>
       </div>
-      <div class="c-accordion-item c-accordion-item--new">
+      <div class="c-accordion-item c-accordion-item--new" ng-if ="vm.isActiveModelCreationPanel()">
         <accordion-group is-open=vm.accordionStatus[vm.policy.transformations.length]>
           <accordion-heading class="c-accordion-header">
             <span class="c-accordion-header__step-number">{{(vm.policy.transformations.length + 1) }}</span><i
-            class="c-accordion-header__type c-icon"></i><span class="c-accordion-header__title">{{"_POLICY_._NEW-MODEL-DEFINITION_" | translate}}</span>
+            class="c-accordion-header__type c-icon"></i>
+            <p class="c-accordion-header__title">{{"_POLICY_._NEW-MODEL-DEFINITION_" | translate}}<span
+              class="c-text--margin-left c-text--bold">[{{"_POLICY_._MODEL_NOT_SAVED_" | translate}}]</span></p>
 
             <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right"
                data-qa="policy-model-arrow-{{(vm.policy.transformations.length + 1) }}"></i>
@@ -58,17 +57,12 @@
         <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" link-url="vm.helpLink"
                      data-qa="policy-model-help"></c-icon-link>
       </div>
-    </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
-      <button class="c-button c-button--call-to-action-2" data-ng-click="vm.previousStep()"
-              data-qa="policy-cube-previous-button">
-        <i class="icon icon-arrow-left"></i>
-        <span>{{"_PREVIOUS_" | translate}}</span>
-      </button>
-      <button class="c-button c-button--call-to-action-1" data-ng-click="vm.nextStep()"
-              data-qa="policy-model-next-button">
-        <i class="c-icon icon-arrow-right"></i>
-        <span>{{"_CONTINUE_" | translate}}</span>
-      </button>
     </div>
+
+    <button class="c-button c-button--call-to-action-1"  ng-if = "!vm.isActiveModelCreationPanel()"
+            data-ng-click="vm.activateModelCreationPanel()" data-qa="policy-model-add-new-transformation-button">
+      <i class="icon icon-circle-plus"></i>
+      <span>{{"_POLICY_._ADD_TRANSFORMATION_" | translate}}</span>
+    </button>
   </footer>
 </section>
