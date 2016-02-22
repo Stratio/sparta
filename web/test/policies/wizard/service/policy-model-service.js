@@ -15,7 +15,7 @@ describe('policies.wizard.service.policy-model-service', function () {
 
   beforeEach(module(function ($provide) {
     ModalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
-    PolicyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy']);
+    PolicyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'enableNextStep', 'disableNextStep']);
     ModelFactoryMock = jasmine.createSpyObj('ModelFactory', ['getModel', 'isValidModel', 'resetModel', 'getContext']);
     CubeServiceMock = jasmine.createSpyObj('CubeService', ['findCubesUsingOutputs']);
     AccordionStatusServiceMock = jasmine.createSpyObj('AccordionStatusService', ['resetAccordionStatus']);
@@ -124,6 +124,10 @@ describe('policies.wizard.service.policy-model-service', function () {
         expect(AccordionStatusServiceMock.resetAccordionStatus).toHaveBeenCalledWith(service.policy.transformations.length);
       });
 
+      it("next step is enabled", function () {
+        expect(PolicyModelFactoryMock.enableNextStep).toHaveBeenCalled();
+      });
+
     });
 
   });
@@ -142,10 +146,10 @@ describe('policies.wizard.service.policy-model-service', function () {
       rootScope = $rootScope;
       service.policy.cubes = [cubeMockWithoutModelOutput, cubeMockWithModelOutput];
 
-     fakeFoundCubes = {
-       names: [service.policy.cubes[1].field],
-       positions: [1]
-     };
+      fakeFoundCubes = {
+        names: [service.policy.cubes[1].field],
+        positions: [1]
+      };
       CubeServiceMock.findCubesUsingOutputs.and.returnValue(fakeFoundCubes);
     }));
 
@@ -162,26 +166,36 @@ describe('policies.wizard.service.policy-model-service', function () {
       });
     });
 
-    it ("should be able to return if a model is the last model in the model array by its position", function(){
+    it("should disable next step if model list is empty after removing a model", function () {
       service.policy.transformations = [];
       service.policy.transformations.push(fakeModel);
-      service.policy.transformations.push(fakeModel);
-      service.policy.transformations.push(fakeModel);
+      service.removeModel().then(function () {
+        expect(PolicyModelFactoryMock.disableNextStep).toHaveBeenCalled();
+      });
 
-      expect(service.isLastModel(0)).toBeFalsy();
-      expect(service.isLastModel(1)).toBeFalsy();
-      expect(service.isLastModel(2)).toBeTruthy();
-    });
-
-    it ("should be able to return if a model is a new model by its position", function(){
-      service.policy.transformations = [];
-      service.policy.transformations.push(fakeModel);
-      service.policy.transformations.push(fakeModel);
-      service.policy.transformations.push(fakeModel);
-
-      expect(service.isNewModel(0)).toBeFalsy();
-      expect(service.isNewModel(2)).toBeFalsy();
-      expect(service.isNewModel(3)).toBeTruthy();
-    });
+    })
   });
+  it("should be able to return if a model is the last model in the model array by its position", function () {
+    service.policy.transformations = [];
+    service.policy.transformations.push(fakeModel);
+    service.policy.transformations.push(fakeModel);
+    service.policy.transformations.push(fakeModel);
+
+    expect(service.isLastModel(0)).toBeFalsy();
+    expect(service.isLastModel(1)).toBeFalsy();
+    expect(service.isLastModel(2)).toBeTruthy();
+  });
+
+  it("should be able to return if a model is a new model by its position", function () {
+    service.policy.transformations = [];
+    service.policy.transformations.push(fakeModel);
+    service.policy.transformations.push(fakeModel);
+    service.policy.transformations.push(fakeModel);
+
+    expect(service.isNewModel(0)).toBeFalsy();
+    expect(service.isNewModel(2)).toBeFalsy();
+    expect(service.isNewModel(3)).toBeTruthy();
+  });
+
+
 });

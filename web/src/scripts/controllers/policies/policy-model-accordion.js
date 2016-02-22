@@ -30,6 +30,10 @@
       vm.helpLink = vm.template.helpLinks.models;
       vm.error = "";
       ModelService.changeModelCreationPanelVisibility(true);
+
+      if (vm.policy.transformations.length > 0){
+        PolicyModelFactory.enableNextStep();
+      }
     }
 
     function generateIndex() {
