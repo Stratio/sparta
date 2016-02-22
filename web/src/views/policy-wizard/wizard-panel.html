@@ -9,13 +9,13 @@
          data-ng-class="{'icon-arrow2_up':  wizard.showStepNavigation, 'icon-arrow2_down':  !wizard.showStepNavigation}">
     </div>
 
-    <div class="c-fieldset--left-margin">
-      <header class="c-step-content__title c-step-content__title--underlined alignleft">
-        <h1>
-          <span class="c-step-counter">{{wizard.status.currentStep + 1}}/{{wizard.steps.length}}</span>
-          <i class="c-step-counter__icon c-icon c-icon--small icon-arrow2_right"></i>
+    <div class="c-step-content">
+      <header class="alignleft">
+        <h1 class ="c-step-content__title">
+          <i class="c-icon {{wizard.steps[wizard.status.currentStep].icon}}"></i>
           <span class="c-step-content__title-text">{{wizard.steps[wizard.status.currentStep].name | translate}}</span>
         </h1>
+
       </header>
       <div data-ng-switch-when="0">
         <ng-include src="'views/policy-wizard/input.html'"></ng-include>
@@ -25,9 +25,6 @@
       </div>
       <div data-ng-switch-when="2">
         <ng-include src="'views/policy-wizard/cube-accordion.html'"></ng-include>
-      </div>
-      <div data-ng-switch-when="3">
-        <ng-include src="'views/policy-wizard/output.html'"></ng-include>
       </div>
       <div data-ng-switch-when="4">
         <ng-include src="'views/policy-wizard/finish.html'"></ng-include>
