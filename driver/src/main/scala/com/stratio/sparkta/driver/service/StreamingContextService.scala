@@ -63,14 +63,13 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
   }
 
   def clusterStreamingContext(apConfig: AggregationPoliciesModel,
-                              files: Seq[URI],
                               detailConfig: Map[String, String]): Option[StreamingContext] = {
     val exitWhenStop = true
     runStatusListener(apConfig.id.get, apConfig.name, exitWhenStop)
 
     val ssc = StreamingContext.getOrCreate(AggregationPoliciesModel.checkpointPath(apConfig), () => {
       log.info(s"Nothing in checkpoint path: ${AggregationPoliciesModel.checkpointPath(apConfig)}")
-      SparktaJob(apConfig).run(getClusterSparkContext(apConfig, files, detailConfig))
+      SparktaJob(apConfig).run(getClusterSparkContext(apConfig, detailConfig))
     })
 
     SparkContextFactory.setSparkContext(ssc.sparkContext)
@@ -89,11 +88,10 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
   }
 
   private def getClusterSparkContext(apConfig: AggregationPoliciesModel,
-                                     classPath: Seq[URI],
                                      detailConfig: Map[String, String]): SparkContext = {
     val pluginsSparkConfig =
       SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix) ++ detailConfig
-    SparkContextFactory.sparkClusterContextInstance(pluginsSparkConfig, classPath)
+    SparkContextFactory.sparkClusterContextInstance(pluginsSparkConfig)
   }
 
   private def runStatusListener(policyId: String, name: String, exit: Boolean = false): Unit = {
