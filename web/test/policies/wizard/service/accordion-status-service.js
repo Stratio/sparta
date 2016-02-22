@@ -42,17 +42,6 @@ describe('policies.wizard.service.accordion-status-service', function () {
       expect(service.getAccordionStatus()[4]).toEqual(true);
     });
 
-    it("if the second param is not introduced, the last position of the accordion status array is set to true", function () {
-      var length = 5;
-      service.resetAccordionStatus(length);
-
-      expect(service.getAccordionStatus().length).toEqual(length + 1);
-      for (var i = 0; i < length; ++i) {
-        expect(service.getAccordionStatus()[i]).toEqual(false);
-      }
-      expect(service.getAccordionStatus()[length]).toEqual(true);
-    });
-
     it("accordion status length is adjusted to the new length if the new length is minor than accordion status one", function () {
       var oldLength = 5;
       var newLength = 3;
