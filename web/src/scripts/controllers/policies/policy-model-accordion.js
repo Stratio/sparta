@@ -26,13 +26,14 @@
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
-      AccordionStatusService.resetAccordionStatus(vm.policy.transformations.length, 0);
+      AccordionStatusService.resetAccordionStatus(vm.policy.transformations.length, vm.policy.transformations.length);
       vm.helpLink = vm.template.helpLinks.models;
       vm.error = "";
-      ModelService.changeModelCreationPanelVisibility(true);
 
       if (vm.policy.transformations.length > 0){
         PolicyModelFactory.enableNextStep();
+      }else{
+        ModelService.changeModelCreationPanelVisibility(true);
       }
     }
 
