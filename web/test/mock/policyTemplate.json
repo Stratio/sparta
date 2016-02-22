@@ -1,4 +1,90 @@
 {
+  "basicSettings": [
+    {
+      "propertyId": "name",
+      "propertyName": "_NAME_",
+      "propertyType": "text",
+      "required": true,
+      "qa": "policy-name"
+    },
+    {
+      "propertyId": "description",
+      "propertyName": "_DESCRIPTION_",
+      "propertyType": "text",
+      "required": true,
+      "qa": "policy-description"
+    }
+  ],
+  "advancedSettings": [
+    {
+      "propertyId": "checkpointPath",
+      "propertyName": "_CHECKPOINT_PATH_",
+      "propertyType": "text",
+      "required": true,
+      "default": "/tmp/checkpoint",
+      "qa": "policy-checkpoint-path"
+    },
+    {
+      "propertyId": "sparkStreamingWindow",
+      "propertyName": "_SPARK_STREAMING_WINDOW_",
+      "propertyType": "number",
+      "required": true,
+      "default": 6000,
+      "qa": "policy-spark-streaming-window",
+      "min": 0,
+      "max": 10000
+    },
+    {
+      "propertyId": "storageLevel",
+      "propertyName": "_STORAGELEVEL_",
+      "propertyType": "select",
+      "required": true,
+      "default": "MEMORY_AND_DISK_SER",
+      "qa": "policy-storage-level",
+      "values": [
+        {
+          "label": "DISK_ONLY",
+          "value": "DISK_ONLY"
+        },
+        {
+          "label": "DISK_ONLY_2",
+          "value": "DISK_ONLY_2"
+        },
+        {
+          "label": "MEMORY_ONLY",
+          "value": "MEMORY_ONLY"
+        },
+        {
+          "label": "MEMORY_ONLY_2",
+          "value": "MEMORY_ONLY_2"
+        },
+        {
+          "label": "MEMORY_ONLY_SER",
+          "value": "MEMORY_ONLY_SER"
+        },
+        {
+          "label": "MEMORY_ONLY_SER_2",
+          "value": "MEMORY_ONLY_SER_2"
+        },
+        {
+          "label": "MEMORY_AND_DISK",
+          "value": "MEMORY_AND_DISK"
+        },
+        {
+          "label": "MEMORY_AND_DISK_2",
+          "value": "MEMORY_AND_DISK_2"
+        },
+        {
+          "label": "MEMORY_AND_DISK_SER",
+          "value": "MEMORY_AND_DISK_SER"
+        },
+        {
+          "label": "MEMORY_AND_DISK_SER_2",
+          "value": "MEMORY_AND_DISK_SER_2"
+        }
+      ]
+    }
+  ],
   "steps": [
     {
       "name": "_POLICY_._STEPS_._DESCRIPTION_",
@@ -186,10 +272,9 @@
     "fakeFunctionName3",
     "fakeFunctionName4"
   ],
-  "defaultOperatorConfiguration": {"fake attribute": "fake value"},
-
-
-
+  "defaultOperatorConfiguration": {
+    "fake attribute": "fake value"
+  },
   "model": {
     "defaultName": "fake model name",
     "types": [
