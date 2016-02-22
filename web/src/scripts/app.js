@@ -77,28 +77,28 @@ angular
         controllerAs: 'policies',
         templateUrl: 'views/policies.html'
     })
-    /******* POLICY EDITOR *******/
-    .state('editor', {
-        url: '/editor',
+    /******* POLICY WIZARD *******/
+    .state('wizard', {
+        url: '/wizard',
         views: {
             'header': {
-                templateUrl: 'views/editor/editor_header.html',
-                controller: 'PolicyEditorHeaderCtrl',
-                controllerAs: 'editor'
+                templateUrl: 'views/policy-wizard/header.html',
+                controller: 'PolicyWizardHeaderCtrl',
+                controllerAs: 'header'
             },
             'content': {
                 templateUrl:  'views/dashboard/dashboard_content.html'
             }
         }
     })
-    .state('editor.newPolicy', {
-        url: '/editor/new_policy',
+    .state('wizard.newPolicy', {
+        url: '/wizard/new_policy',
         controller: 'NewPolicyCtrl',
         controllerAs: 'wizard',
         templateUrl: 'views/policy-wizard/wizard-panel.html'
     })
-    .state('editor.editPolicy', {
-        url: '/editor/edit_policy/:id',
+    .state('wizard.editPolicy', {
+        url: '/wizard/edit_policy/:id',
         params: { id: null },
         controller: 'EditPolicyCtrl',
         controllerAs: 'wizard',
