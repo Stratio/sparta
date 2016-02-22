@@ -447,12 +447,12 @@ $c-step__section-name---text-transform: uppercase;
 
 
 // c-step-content
-$c-step-content---background: get-color(b3);
-$c-step-content---margin: 0 (-$stratio-ui---base-padding) (-$stratio-ui---base-padding);
-$c-step-content---padding: $stratio-ui---base-padding;
+$c-step-content---background: white;
+$c-step-content---margin: 0;
+$c-step-content---padding: 0 $stratio-ui---base-padding;
 
 $c-step-content__title---color: get-color(b1);
-$c-step-content__title---font-size: get-font-size(medium-alpha);
+$c-step-content__title---font-size: get-font-size(large);
 $c-step-content__title---font-weight: get-font-weight(normal);
 $c-step-content__title---margin: 0 0 $component-margin;
 $c-step-content__title---text-transform: uppercase;
