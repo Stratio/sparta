@@ -126,7 +126,7 @@ trait PolicyContextHttpService extends BaseHttpService {
                     createFragments(fragmentActor, outputs.toList ::: inputs.toList)
                     PolicyResult(policy.id.getOrElse(""), p.name)
                   case Failure(ex: Throwable) => throw new ServingCoreException(ErrorModel.toString(
-                    ErrorModel(ErrorModel.CodeErrorCreatingPolicy, s"Can't create policy")
+                    ErrorModel(ErrorModel.CodeErrorCreatingPolicy, "Can't create policy")
                   ))
                 }
               }
