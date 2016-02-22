@@ -56,7 +56,8 @@
       var modelToAdd = angular.copy(ModelFactory.getModel());
       if (ModelFactory.isValidModel()) {
         vm.policy.transformations.push(modelToAdd);
-        AccordionStatusService.resetAccordionStatus(vm.policy.transformations.length)
+        AccordionStatusService.resetAccordionStatus(vm.policy.transformations.length);
+        PolicyModelFactory.enableNextStep();
       }
     }
 
@@ -69,6 +70,9 @@
       showConfirmRemoveModel(cubeList.names).then(function () {
         vm.policy.cubes = UtilsService.removeItemsFromArray(vm.policy.cubes, cubeList.positions);
         vm.policy.transformations.splice(modelPosition, 1);
+        if (vm.policy.transformations.length == 0){
+          PolicyModelFactory.disableNextStep();
+        }
         defer.resolve();
       }, function () {
         defer.reject()
@@ -86,7 +90,6 @@
 
     function changeModelCreationPanelVisibility(isVisible) {
       vm.showModelCreationPanel = isVisible;
-      //AccordionStatusService.resetAccordionStatus(vm.policy.transformations.length, vm.policy.transformations.length)
     }
 
     function isActiveModelCreationPanel() {

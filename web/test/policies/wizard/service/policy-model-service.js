@@ -172,8 +172,8 @@ describe('policies.wizard.service.policy-model-service', function () {
       service.removeModel().then(function () {
         expect(PolicyModelFactoryMock.disableNextStep).toHaveBeenCalled();
       });
-    });
 
+    })
   });
   it("should be able to return if a model is the last model in the model array by its position", function () {
     service.policy.transformations = [];
