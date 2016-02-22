@@ -19,43 +19,37 @@ package com.stratio.sparkta.driver.util
 import java.io.File
 
 import akka.event.slf4j.SLF4JLogging
-
 import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
 
-case class HdfsUploader(policy: AggregationPoliciesModel, hdfs: HdfsUtils) extends SLF4JLogging {
+case class ClusterSparkFiles(policy: AggregationPoliciesModel) extends SLF4JLogging {
 
-  private val hdfsConfig = SparktaConfig.getHdfsConfig.get
   private val jarsPlugins = JarsHelper.findJarsByPath(
     new File(SparktaConfig.sparktaHome, AppConstant.JarPluginsFolder),
     Some(AppConstant.pluginExtension), None, None, None, false)
   private val activeJars = PolicyUtils.activeJars(policy, jarsPlugins)
 
-  def uploadPlugins(pluginsJarsPath: String): Unit = {
-    validate
-    val pluginsJarsFiles = PolicyUtils.activeJarFiles(activeJars.right.get, jarsPlugins)
-    pluginsJarsFiles.foreach(file => hdfs.write(file.getAbsolutePath, pluginsJarsPath, true))
-    log.info("Jars plugins uploaded to HDFS")
+  def getPluginsFiles: Map[String, String] = {
+    validate()
+    PolicyUtils.activeJarFiles(activeJars.right.get, jarsPlugins)
+      .filter(file => !file.getName.contains("driver")).map(file => file.getName -> file.getAbsolutePath).toMap
   }
 
-  def uploadClasspath(classpathJarsPath: String): Unit = {
+  def getClasspathFiles: Map[String, String] = {
     JarsHelper.findJarsByPath(new File(SparktaConfig.sparktaHome, AppConstant.ClasspathJarFolder),
       Some(".jar"), None, Some("driver"), Some(Seq("plugins", "spark", "driver", "web", "serving-api")), false)
-      .foreach(file => hdfs.write(file.getAbsolutePath, classpathJarsPath, true))
-    log.info("Classpath uploaded to HDFS")
+      .distinct.map(file => file.getName -> file.getAbsolutePath).toMap
   }
 
-  def uploadDriver(driverJarPath: String): String = {
-    val driveFolder = new File(SparktaConfig.sparktaHome, AppConstant.ClusterExecutionJarFolder)
-    val driverJar = JarsHelper.findDriverByPath(driveFolder).head
-    hdfs.write(driverJar.getAbsolutePath, driverJarPath, true)
-    log.info("Jar driver uploaded to HDFS")
-    s"hdfs://${hdfsConfig.getString(AppConstant.HdfsMaster)}$driverJarPath${driverJar.getName}"
+  def getDriverFile: String = {
+    val driverJar =
+      JarsHelper.findDriverByPath(new File(SparktaConfig.sparktaHome, AppConstant.ClusterExecutionJarFolder)).head
+    driverJar.getAbsolutePath
   }
 
-  def validate: Unit = {
+  def validate(): Unit = {
     if (activeJars.isLeft) {
       activeJars.left.get.foreach(log.error)
       require(activeJars.isRight, s"The policy have jars witch cannot be found in classpath:")

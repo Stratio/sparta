@@ -124,7 +124,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.3</version>
+                <version>2.4.1</version>
                 <configuration>
                     <finalName>${project.name}-plugin</finalName>
                     <filters>
@@ -147,6 +147,10 @@
                         </excludes>
                     </artifactSet>
                     <transformers>
+                        <transformer
+                            implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <mainClass>com.stratio.sparkta.driver.SparktaClusterJob</mainClass>
+                        </transformer>
                         <transformer
                                 implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                         <!--
