@@ -1,9 +1,9 @@
 <section>
   <c-step-progress-bar steps="wizard.steps" class="c-slider-content"
                        data-ng-if="wizard.showStepNavigation"
-                       current-step="(wizard.status.currentStep)">
+                       current-step="(wizard.status.currentStep)"
+                       next-step-available="(wizard.status.nextStepAvailable)">
   </c-step-progress-bar>
-
   <div class="c-slider-content--to-up c-panel--white" data-ng-switch on="wizard.status.currentStep">
     <div class="c-slider-content__button c-icon" data-ng-click="wizard.changeStepNavigationVisibility()"
          data-ng-class="{'icon-arrow2_up':  wizard.showStepNavigation, 'icon-arrow2_down':  !wizard.showStepNavigation}">
@@ -11,11 +11,10 @@
 
     <div class="c-step-content">
       <header class="alignleft">
-        <h1 class ="c-step-content__title">
+        <h1 class="c-step-content__title">
           <i class="c-icon {{wizard.steps[wizard.status.currentStep].icon}}"></i>
           <span class="c-step-content__title-text">{{wizard.steps[wizard.status.currentStep].name | translate}}</span>
         </h1>
-
       </header>
       <div data-ng-switch-when="0">
         <ng-include src="'views/policy-wizard/input.html'"></ng-include>
@@ -26,7 +25,7 @@
       <div data-ng-switch-when="2">
         <ng-include src="'views/policy-wizard/cube-accordion.html'"></ng-include>
       </div>
-      <div data-ng-switch-when="4">
+      <div data-ng-switch-when="3">
         <ng-include src="'views/policy-wizard/finish.html'"></ng-include>
         <footer class="c-row c-row--footer">
           <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
