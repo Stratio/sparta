@@ -5,14 +5,16 @@
       "propertyName": "_NAME_",
       "propertyType": "text",
       "required": true,
-      "qa": "policy-name"
+      "qa": "policy-name",
+      "col": 5
     },
     {
       "propertyId": "description",
       "propertyName": "_DESCRIPTION_",
       "propertyType": "text",
       "required": true,
-      "qa": "policy-description"
+      "qa": "policy-description",
+      "col": 7
     }
   ],
   "advancedSettings": [
