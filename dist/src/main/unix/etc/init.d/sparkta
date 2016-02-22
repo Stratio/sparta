@@ -245,10 +245,8 @@ case "${COMMAND}" in
 		fi
 
 		# * * * Run the Play application * * *
-		LOG=$SPARKTA_LOGS/sparkta.out
-		LOG_ERR=$SPARKTA_LOGS/sparkta.err
 		cd $APP_DIR
-		PID=`sh $SCRIPT_TO_RUN >> $LOG 2>> $LOG_ERR & echo $!`
+		PID=`sh $SCRIPT_TO_RUN  > /dev/null 2>&1 & echo $!`
 
 		# Check if successfully started
 		if [ $? != 0 ]
