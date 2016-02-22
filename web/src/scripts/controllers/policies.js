@@ -40,7 +40,13 @@
     }
 
     function createPolicy() {
-        $state.go('editor.newPolicy');
+      var controller = 'PolicyCreationModalCtrl';
+      var templateUrl = "templates/modal/policy-creation-modal.tpl.html";
+      var resolve = {};
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
+      return modalInstance.result.then(function () {
+        $state.go('wizard.newPolicy');
+      });
     }
 
     function editPolicy(route, policyId, policyStatus) {
