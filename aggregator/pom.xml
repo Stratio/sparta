@@ -19,21 +19,21 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>parent</artifactId>
+        <artifactId>parent_2.10</artifactId>
         <groupId>com.stratio.sparkta</groupId>
         <version>0.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>aggregator</artifactId>
+    <artifactId>aggregator_2.10</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
-            <artifactId>sdk</artifactId>
+            <artifactId>sdk_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
-            <artifactId>serving-core</artifactId>
+            <artifactId>serving-core_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
@@ -65,25 +65,25 @@
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
-            <artifactId>field-default</artifactId>
+            <artifactId>field-default_${scala.binary.version}</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
-            <artifactId>operator-count</artifactId>
+            <artifactId>operator-count_${scala.binary.version}</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
-            <artifactId>operator-sum</artifactId>
+            <artifactId>operator-sum_${scala.binary.version}</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
-            <artifactId>field-dateTime</artifactId>
+            <artifactId>field-dateTime_${scala.binary.version}</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

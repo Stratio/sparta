@@ -19,16 +19,16 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>parent</artifactId>
+        <artifactId>parent_2.10</artifactId>
         <groupId>com.stratio.sparkta</groupId>
         <version>0.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>driver</artifactId>
+    <artifactId>driver_2.10</artifactId>
     <dependencies>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
-            <artifactId>aggregator</artifactId>
+            <artifactId>aggregator_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.fge</groupId>
@@ -84,25 +84,25 @@
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
-            <artifactId>input-kafka</artifactId>
+            <artifactId>input-kafka_${scala.binary.version}</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
-            <artifactId>output-print</artifactId>
+            <artifactId>output-print_${scala.binary.version}</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
-            <artifactId>parser-morphlines</artifactId>
+            <artifactId>parser-morphlines_${scala.binary.version}</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
-            <artifactId>field-default</artifactId>
+            <artifactId>field-default_${scala.binary.version}</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
