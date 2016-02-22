@@ -90,6 +90,10 @@
       status.nextStepAvailable = true;
     }
 
+    function disableNextStep(){
+      status.nextStepAvailable = false;
+    }
+
     function getProcessStatus() {
       return status;
     }
@@ -123,8 +127,6 @@
       return finalJSON = json;
     }
 
-
-
     return {
       setPolicy: setPolicy,
       setTemplate: setTemplate,
@@ -133,6 +135,7 @@
       previousStep: previousStep,
       nextStep: nextStep,
       enableNextStep:enableNextStep,
+      disableNextStep:disableNextStep,
       getProcessStatus: getProcessStatus,
       resetPolicy: resetPolicy,
       getAllModelOutputs: getAllModelOutputs,
