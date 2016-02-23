@@ -2,7 +2,7 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
   beforeEach(module('webApp'));
   beforeEach(module('served/policyTemplate.json'));
 
-  var ctrl, modalInstanceMock, UtilsServiceMock, fakeOperatorName, fakeOperatorType, fakeFieldName, fakeOperators, fakePolicyTemplate = null;
+  var ctrl, modalInstanceMock, UtilsServiceMock, fakeOperatorName, fakeOperatorType, fakeFieldName, fakeOperators, fakeCubeTemplate = null;
 
   beforeEach(inject(function ($controller) {
 
@@ -15,7 +15,7 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
     fakeOperators = [];
 
     inject(function (_servedPolicyTemplate_) {
-      fakePolicyTemplate = _servedPolicyTemplate_;
+      fakeCubeTemplate = _servedPolicyTemplate_.cube;
     });
 
     ctrl = $controller('NewOperatorModalCtrl', {
@@ -24,16 +24,16 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
       'operatorType': fakeOperatorType,
       'operators': fakeOperators,
       'UtilsService': UtilsServiceMock,
-      'template': fakePolicyTemplate
+      'template': fakeCubeTemplate
     });
 
   }));
 
   it("when it is initialized it creates a operator with the injected params and a default configuration", function () {
     expect(ctrl.operator.name).toBe(fakeOperatorName);
-    expect(ctrl.operator.configuration).toEqual(fakePolicyTemplate.defaultOperatorConfiguration);
+    expect(ctrl.operator.configuration).toEqual(fakeCubeTemplate.defaultOperatorConfiguration);
     expect(ctrl.operator.type).toBe(fakeOperatorType);
-    expect(ctrl.configHelpLink).toBe(fakePolicyTemplate.configurationHelpLink);
+    expect(ctrl.configHelpLink).toBe(fakeCubeTemplate.configurationHelpLink);
     expect(ctrl.error).toBeFalsy();
     expect(ctrl.errorText).toBe("");
   });

@@ -19,7 +19,8 @@
     vm.nextStep = nextStep;
     vm.generateIndex = generateIndex;
     vm.isActiveModelCreationPanel = ModelService.isActiveModelCreationPanel;
-    vm.activateModelCreationPanel = activateModelCreationPanel;
+    vm.activateModelCreationPanel = activateModelCreationPanel
+
     vm.init();
 
     function init() {

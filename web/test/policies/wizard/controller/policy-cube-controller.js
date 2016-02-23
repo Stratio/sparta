@@ -4,7 +4,7 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
   beforeEach(module('served/policyTemplate.json'));
   beforeEach(module('served/cube.json'));
 
-  var ctrl, scope, fakePolicy, fakeTemplate, fakeCube, policyModelFactoryMock, fakeOutputs,
+  var ctrl, scope, fakePolicy, fakeCubeTemplate, fakeCube, policyModelFactoryMock, fakeOutputs,fakePolicyTemplate,
     cubeModelFactoryMock, cubeServiceMock, modalServiceMock, resolvedPromise, rejectedPromise;
 
   // init mock modules
@@ -14,7 +14,8 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
 
     inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedCube_) {
       fakePolicy = angular.copy(_servedPolicy_);
-      fakeTemplate = _servedPolicyTemplate_;
+      fakePolicyTemplate = _servedPolicyTemplate_;
+      fakeCubeTemplate = _servedPolicyTemplate_.cube;
       fakeCube = angular.copy(_servedCube_);
     });
 
@@ -27,10 +28,10 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
     });
 
     policyModelFactoryMock.getTemplate.and.callFake(function () {
-      return fakeTemplate;
+      return fakePolicyTemplate;
     });
 
-    cubeServiceMock = jasmine.createSpyObj('CubeService', ['isLastCube', 'isNewCube', 'addCube', 'removeCube']);
+    cubeServiceMock = jasmine.createSpyObj('CubeService', ['isLastCube', 'isNewCube', 'addCube', 'removeCube', 'changeCubeCreationPanelVisibility']);
     modalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
 
     cubeModelFactoryMock = jasmine.createSpyObj('CubeFactory', ['getCube', 'getError', 'getCubeInputs', 'getContext', 'setError', 'resetCube', 'updateCubeInputs']);
@@ -72,7 +73,7 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
     describe("if factory cube is not null", function () {
 
       it('it should get a policy template from from policy factory', function () {
-        expect(ctrl.template).toBe(fakeTemplate);
+        expect(ctrl.template).toBe(fakeCubeTemplate);
       });
 
       it('it should get the policy that is being created or edited from policy factory', function () {
@@ -119,7 +120,7 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       expect(resolve.fieldName()).toBe(fakeOutputName);
       expect(resolve.dimensionName()).toBe(fakeOutputName);
       expect(resolve.dimensions()).toBe(ctrl.cube.dimensions);
-      expect(resolve.template()).toBe(fakeTemplate);
+      expect(resolve.template()).toBe(fakeCubeTemplate);
     });
 
     it("when modal is closed, the created dimension is added to cube", function () {
@@ -173,7 +174,7 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       expect(resolve.operatorType()).toBe(fakeFunctionName);
       expect(resolve.operatorName()).toBe(fakeFunctionName.toLowerCase() + (ctrl.cube.operators.length + 1));
       expect(resolve.operators()).toBe(ctrl.cube.operators);
-      expect(resolve.template()).toBe(fakeTemplate);
+      expect(resolve.template()).toBe(fakeCubeTemplate);
     });
 
     it("when modal is closed, the created operator is added to cube", function () {
