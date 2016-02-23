@@ -17,6 +17,7 @@
     vm.addFragmentCount = addFragmentCount;
     vm.subtractFragmentCount = subtractFragmentCount;
     vm.getInCamelCase = getInCamelCase;
+    vm.convertDottedPropertiesToJson = convertDottedPropertiesToJson;
 
     function findElementInJSONArray(array, element, attr) {
       var found = false;
@@ -136,6 +137,22 @@
         return result;
       }
       return string;
+    }
+
+    function convertDottedPropertiesToJson(object) {
+      for (var key in object) {
+        var splittedKey = key.split(".");
+        if (splittedKey.length > 1) {
+          var tempProperty = "";
+          tempProperty = object;
+          for (var i = 0; i < splittedKey.length - 1; ++i) {
+            tempProperty = tempProperty[splittedKey[i]];
+          }
+          tempProperty[splittedKey[splittedKey.length - 1]] = object[key];
+          delete object[key];
+        }
+      }
+      return object;
     }
   }
 })
