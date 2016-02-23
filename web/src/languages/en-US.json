@@ -282,5 +282,7 @@
   "_ZOOKEEPER_CONNECT_": "Zookeeper connect",
   "_METADATA_BROKER_LIST_": "Metadata broker list",
   "_SPARK_PROPERTIES_": "Spark properties",
-  "_NODES_": "Nodes"
+  "_NODES_": "Nodes",
+  "_ADD_OUTPUTS_":"Add outputs",
+  "_OUTPUTS_": "Outputs"
 }
