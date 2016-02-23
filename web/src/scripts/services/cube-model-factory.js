@@ -14,14 +14,10 @@
 
     function init(template, nameIndex, position) {
       setPosition(position);
-      cube.name = template.defaultCubeName + (nameIndex + 1);
+      cube.name = template.defaultName + (nameIndex + 1);
       cube.dimensions = [];
       cube.operators = [];
       cube.checkpointConfig = {};
-      cube.checkpointConfig.timeDimension = template.defaultTimeDimension;
-      cube.checkpointConfig.interval = template.defaultInterval;
-      cube.checkpointConfig.timeAvailability = template.defaultTimeAvailability;
-      cube.checkpointConfig.granularity = template.defaultGranularity;
       error.text = "";
     }
 
@@ -57,7 +53,8 @@
 
     function isValidCube(cube, cubes, position) {
       var validName = cube.name !== undefined && cube.name !== "";
-      var validCheckpointConfig = Object.keys(cube.checkpointConfig).length > 0 && cube.checkpointConfig.granularity && cube.checkpointConfig.timeAvailability !== null && cube.checkpointConfig.interval !== null && cube.checkpointConfig.timeDimension !== "";
+      var validCheckpointConfig = Object.keys(cube.checkpointConfig).length > 0 && cube.checkpointConfig.granularity &&
+        cube.checkpointConfig.timeAvailability !== null && cube.checkpointConfig.interval !== null && cube.checkpointConfig.timeDimension !== "";
       var isValid = validName && areValidOperatorsAndDimensions(cube) && validCheckpointConfig && !nameExists(cube, cubes, position);
       return isValid;
     }

@@ -7,44 +7,18 @@
       <span>{{vm.cubeError.text | translate}}</span>
     </div>
     <div class="c-form-group c-col c-col--5">
-      <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.cube.name"
-                        data-label="{{'_NAME_' | translate}}" data-help="" data-pattern=""
-                        placeholder="Ex. Name 1" data-type="text" data-qa="policy-cube-name" data-required="true"
-                        aria-invalid="">
-      </form-field-input>
-    </div>
-
-    <div class="c-form-group c-col c-col--5">
-      <form-field-input data-form="vm.form" data-st-name="time-dimension-form"
-                        data-model="vm.cube.checkpointConfig.timeDimension" data-required="true"
-                        data-label="{{'_TIME_DIMENSION_' | translate}}" data-help="" data-pattern=""
-                        placeholder="Ex. Name 1" data-type="text" data-qa="policy-cube-checkpoint-time-dimension">
-      </form-field-input>
-    </div>
-
-    <div class="c-form-group c-col c-col--5">
-      <form-field-input data-form="vm.form" data-st-name="interval-form" data-model="vm.cube.checkpointConfig.interval"
-                        data-label="{{'_CHECKPOINT_INTERVAL_' | translate}}" data-help="" data-pattern=""
-                        placeholder="Ex. 1" data-type="number" data-required="true"
-                        data-qa="policy-cube-checkpoint-interval"></form-field-input>
-    </div>
-
-    <div class="c-form-group c-col c-col--5">
-      <form-field-input data-form="vm.form" data-st-name="time-availability-form"
-                        data-model="vm.cube.checkpointConfig.timeAvailability"
-                        data-label="{{'_TIME_AVAILABILITY_' | translate}}" data-help="" data-pattern=""
-                        placeholder="Ex. 1" data-type="number" data-required="true"
-                        data-qa="policy-cube-checkpoint-time-availability"></form-field-input>
-    </div>
-
-    <div class="c-form-group c-col c-col--5">
-      <form-field-select select-class="c-combobox--full-width"
-                         data-form="vm.form" data-st-name="granularity-form"
-                         data-model="vm.cube.checkpointConfig.granularity"
-                         data-options="vm.granularityOptions" data-field="label"
-                         data-label="{{'_GRANULARITY_' | translate}}" data-required="true"
-                         data-help="" data-qa="policy-cube-checkpoint-granularity">
-      </form-field-select>
+      <form-field
+        data-ng-repeat="properties in vm.template.properties"
+        class="c-form-gutter c-col c-col--vertical-top"
+        data-ng-class="{'c-col--{{properties.col}}': properties.col}"
+        data-ng-form-id="{{properties.propertyId}}"
+        data-field="properties"
+        data-model="vm.cube"
+        data-form="vm.form"
+        data-st-name="dataSource{{properties.propertyName}}Form"
+        data-list-compressed = "true"
+        data-qa="{{properties.qa}}">
+      </form-field>
     </div>
 
     <div class="c-row c-row--flex">
@@ -132,7 +106,7 @@
               data-ng-click="vm.addCube()"
               data-qa="policy-cube-add-button">
         <i class="icon icon-circle-plus"></i>
-        <span>{{"_POLICY_._ADD_CUBE_" | translate}}</span>
+        <span>{{"_POLICY_._SAVE_CUBE_" | translate}}</span>
       </button>
       <button data-ng-if="!vm.isNewCube(vm.cubeContext.position)" class="c-button c-button--call-to-action-1"
               data-ng-click="vm.saveCube(vm.form)"

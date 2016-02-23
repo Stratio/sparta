@@ -26,7 +26,7 @@
     function init() {
       vm.cube = CubeModelFactory.getCube();
       if (vm.cube) {
-        vm.template = PolicyModelFactory.getTemplate();
+        vm.template = PolicyModelFactory.getTemplate().cube;
         vm.policy = PolicyModelFactory.getCurrentPolicy();
         vm.granularityOptions = vm.template.granularityOptions;
         vm.functionList = vm.template.functionNames;
@@ -120,6 +120,8 @@
       if (vm.form.$valid && vm.cube.operators.length > 0 && vm.cube.dimensions.length > 0) {
         vm.form.$submitted = false;
         CubeService.addCube();
+
+        CubeService.changeCubeCreationPanelVisibility(false);
       }
       else {
         CubeModelFactory.setError();
