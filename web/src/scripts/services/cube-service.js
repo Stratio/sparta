@@ -5,9 +5,9 @@
     .module('webApp')
     .service('CubeService', CubeService);
 
-  CubeService.$inject = ['PolicyModelFactory', 'ModalService', 'AccordionStatusService', 'CubeModelFactory', '$q'];
+  CubeService.$inject = ['PolicyModelFactory', 'ModalService', 'AccordionStatusService', 'CubeModelFactory', 'UtilsService', '$q'];
 
-  function CubeService(PolicyModelFactory, ModalService, AccordionStatusService, CubeModelFactory, $q) {
+  function CubeService(PolicyModelFactory, ModalService, AccordionStatusService, CubeModelFactory, UtilsService, $q) {
     var vm = this;
     var createdCubes = null;
 
@@ -20,6 +20,9 @@
     vm.isNewCube = isNewCube;
     vm.getCreatedCubes = getCreatedCubes;
     vm.resetCreatedCubes = resetCreatedCubes;
+    vm.changeCubeCreationPanelVisibility = changeCubeCreationPanelVisibility;
+    vm.isActiveCubeCreationPanel = isActiveCubeCreationPanel;
+
     init();
 
     function init() {
@@ -106,13 +109,14 @@
       return valid;
     }
 
-
     function addCube() {
       var newCube = angular.copy(CubeModelFactory.getCube());
+      newCube =  UtilsService.convertDottedPropertiesToJson(newCube);
       if (CubeModelFactory.isValidCube(newCube, vm.policy.cubes, CubeModelFactory.getContext().position)) {
         vm.policy.cubes.push(newCube);
         createdCubes++;
         AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
+        PolicyModelFactory.enableNextStep();
       } else {
         CubeModelFactory.setError();
       }
@@ -135,6 +139,9 @@
       showConfirmRemoveCube().then(function () {
         vm.policy.cubes.splice(cubePosition, 1);
         AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
+        if (vm.policy.cubes.length == 0){
+          PolicyModelFactory.disableNextStep();
+        }
         defer.resolve();
       }, function () {
         defer.reject()
@@ -148,6 +155,14 @@
 
     function getCreatedCubes() {
       return createdCubes;
+    }
+
+    function changeCubeCreationPanelVisibility(isVisible) {
+      vm.showCubeCreationPanel = isVisible;
+    }
+
+    function isActiveCubeCreationPanel() {
+      return vm.showCubeCreationPanel;
     }
 
     function resetCreatedCubes() {
