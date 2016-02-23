@@ -62,19 +62,20 @@
   }],
   "cubes": [{
     "name": "testCubeWithTime",
-    "checkpointConfig": {
-      "timeDimension": "timestamp",
-      "granularity": "minute",
-      "interval": 100000,
-      "timeAvailability": 90000
-    },
     "writer": {
       "isAutoCalculatedId": true
     },
     "dimensions": [{
       "name": "product",
       "field": "product"
-    }],
+    },
+      {
+        "name": "minute",
+        "field": "timestamp",
+        "type": "DateTime",
+        "precision": "minute",
+        "computeLast": "10m"
+      }],
     "operators": [{
       "name": "acc_price",
       "type": "Accumulator",
@@ -174,16 +175,17 @@
     }]
   }, {
     "name": "testCubeWithoutTime",
-    "checkpointConfig": {
-      "timeDimension": "none",
-      "granularity": "minute",
-      "interval": 100000,
-      "timeAvailability": 90000
-    },
     "dimensions": [{
       "name": "product",
       "field": "product"
-    }],
+    },
+      {
+        "name": "minute",
+        "field": "timestamp",
+        "type": "DateTime",
+        "precision": "minute",
+        "computeLast": "10m"
+      }],
     "operators": [{
       "name": "acc_price",
       "type": "Accumulator",

@@ -124,33 +124,6 @@
             "id": "http://sparkta.stratio.com/cubes/name",
             "type": "string"
           },
-          "checkpointConfig": {
-            "id": "http://sparkta.stratio.com/cubes/checkpointConfig",
-            "type": "object",
-            "properties": {
-              "timeDimension": {
-                "id": "http://sparkta.stratio.com/cubes/checkpointConfig/timeDimension",
-                "type": "string"
-              },
-              "granularity": {
-                "id": "http://sparkta.stratio.com/cubes/checkpointConfig/granularity",
-                "type": "string"
-              },
-              "interval": {
-                "id": "http://sparkta.stratio.com/cubes/checkpointConfig/interval",
-                "type": "integer"
-              },
-              "timeAvailability": {
-                "id": "http://sparkta.stratio.com/cubes/checkpointConfig/timeAvailability",
-                "type": "integer"
-              }
-            },
-            "required": [
-              "timeDimension",
-              "granularity",
-              "timeAvailability"
-            ]
-          },
           "dimensions": {
             "id": "http://sparkta.stratio.com/cubes/dimensions",
             "type": "array",
@@ -213,7 +186,6 @@
         },
         "required": [
           "name",
-          "checkpointConfig",
           "dimensions"
         ]
       }

@@ -22,12 +22,6 @@
   "cubes": [
     {
       "name": "testCube1",
-      "checkpointConfig": {
-        "timeDimension": "hour",
-        "granularity": "hour",
-        "interval": 30000,
-        "timeAvailability": 60000
-      },
       "dimensions": [
         {
           "name": "hashtags",
@@ -50,12 +44,6 @@
         {
           "name": "userLocation",
           "field": "userLocation"
-        },
-        {
-          "name": "minute",
-          "field": "timestamp",
-          "type": "DateTime",
-          "precision": "minute"
         }
       ],
       "operators": [
@@ -138,12 +126,6 @@
     },
     {
       "name": "testCube2",
-      "checkpointConfig": {
-        "timeDimension": "minute",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
-      },
       "dimensions": [
         {
           "name": "hashtags",
@@ -168,12 +150,6 @@
           "field": "geolocation",
           "type": "GeoHash",
           "precision": "precision3"
-        },
-        {
-          "name": "minute",
-          "field": "timestamp",
-          "type": "DateTime",
-          "precision": "minute"
         }
       ],
       "operators": [
