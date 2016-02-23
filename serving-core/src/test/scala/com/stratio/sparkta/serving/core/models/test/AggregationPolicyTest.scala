@@ -16,12 +16,11 @@
 
 package com.stratio.sparkta.serving.core.models.test
 
+import com.stratio.sparkta.sdk.{DimensionType, Input}
+import com.stratio.sparkta.serving.core.models._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
-
-import com.stratio.sparkta.sdk.{DimensionType, Input}
-import com.stratio.sparkta.serving.core.models._
 
 @RunWith(classOf[JUnitRunner])
 class AggregationPolicyTest extends WordSpec with Matchers {
@@ -45,22 +44,45 @@ class AggregationPolicyTest extends WordSpec with Matchers {
     Seq(OutputFieldsModel("out1"), OutputFieldsModel("out2")),
     Map()))
 
-  val checkpointModel = CheckpointModel("minute", "minute", None, 60000)
+  val dimensionModel = Seq(
+    DimensionModel(
+      "dimensionName",
+      "field1",
+      DimensionType.IdentityName,
+      DimensionType.DefaultDimensionClass,
+      configuration = Some(Map())),
+    DimensionModel(
+      "dimensionName2",
+      "field2",
+      "minute",
+      "DateTime",
+      Option("61s"),
+      configuration = Some(Map())))
 
-  val dimensionModel = Seq(DimensionModel(
-    "dimensionName",
-    "field1",
-    DimensionType.IdentityName,
-    DimensionType.DefaultDimensionClass,
-    Some(Map())
-  ))
   val operators = Seq(OperatorModel("Count", "countoperator", Map()
   ))
 
-  val cubes = Seq(CubeModel("cube1",
-    checkpointModel,
-    dimensionModel,
-    operators: Seq[OperatorModel]))
+  val wrongDimensionModel = Seq(
+    DimensionModel(
+      "dimensionName2",
+      "field2",
+      "9s",
+      "DateTime",
+      Option("minute"),
+      configuration = Some(Map())))
+
+  val wrongComputeLastModel = Seq(
+    DimensionModel(
+      "dimensionName2",
+      "field2",
+      "minute",
+      "DateTime",
+      Option("59s"),
+      configuration = Some(Map())))
+
+  val cubes = Seq(CubeModel("cube1", dimensionModel, operators: Seq[OperatorModel]))
+  val wrongPrecisionCubes = Seq(CubeModel("cube1", wrongDimensionModel, operators: Seq[OperatorModel]))
+  val wrongComputeLastCubes = Seq(CubeModel("cube1", wrongComputeLastModel, operators: Seq[OperatorModel]))
 
   val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
   val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
@@ -79,12 +101,35 @@ class AggregationPolicyTest extends WordSpec with Matchers {
     Seq(),
     userPluginsJars = Seq.empty[String])
 
-  "AggregationPolicySpec" should {
+  val wrongComputeLastPolicy = AggregationPoliciesModel(id = None,
+    version = None,
+    storageLevel = AggregationPoliciesModel.storageDefaultValue,
+    name = "testpolicy",
+    description = "whatever",
+    sparkStreamingWindow = AggregationPoliciesModel.sparkStreamingWindow,
+    checkpointPath = "test/test",
+    rawData,
+    transformations,
+    wrongComputeLastCubes,
+    input,
+    outputs,
+    Seq())
 
-    "AggregationPoliciesValidator should return a touple (True, ) if the policy is well formed" in {
+
+
+  "AggregationPoliciesValidator" should {
+
+    "return a tuple (True, ) if the policy is well formed" in {
       val res = AggregationPoliciesValidator.validateDto(policy)
       res should be((true, ""))
     }
+
+    "return a tuple (False, ) if the computeLast is wrong" in {
+      val res = AggregationPoliciesValidator.validateDto(wrongComputeLastPolicy)
+      res should be((false,
+        """{"i18nCode":"305","message":"computeLast value has to be greater than the precision in order to prevent data loss\n"}"""))
+    }
+
   }
 }
 

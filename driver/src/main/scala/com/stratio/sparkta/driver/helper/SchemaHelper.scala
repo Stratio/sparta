@@ -19,6 +19,7 @@ package com.stratio.sparkta.driver.helper
 import com.stratio.sparkta.aggregator.{Cube, CubeWriter}
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.serving.core.helpers.OperationsHelper
 import com.stratio.sparkta.serving.core.models._
 import org.apache.spark.sql.types._
 
@@ -110,7 +111,7 @@ object SchemaHelper {
     for {
       (cube, cubeModel) <- cubes.zip(cubeModels)
       measuresMerged = (measuresFields(cube.operators) ++ getFixedMeasure(cubeModel.writer)).sortWith(_.name < _.name)
-      timeDimension = getExpiringData(cubeModel.checkpointConfig).map(config => config.timeDimension)
+      timeDimension = getExpiringData(cubeModel).map(config => config.timeDimension)
       dimensions = filterDimensionsByTime(cube.dimensions.sorted, timeDimension)
       (dimensionsWithId, isAutoCalculatedId) = dimensionFieldsWithId(dimensions, cubeModel.writer)
       dateType = Output.getTimeTypeFromString(cubeModel.writer.fold(DefaultTimeStampTypeString) { options =>
@@ -122,14 +123,19 @@ object SchemaHelper {
     } yield TableSchema(outputs, cube.name, schema, timeDimension, dateType, isAutoCalculatedId)
   }
 
-  def getExpiringData(checkpointModel: CheckpointModel): Option[ExpiringDataConfig] = {
-    val timeName = if (checkpointModel.timeDimension.isEmpty)
-      checkpointModel.granularity
-    else checkpointModel.timeDimension
+  def getExpiringData(cubeModel: CubeModel): Option[ExpiringDataConfig] = {
+    val timeDimension = cubeModel.dimensions
+      .filter(dimensionModel => dimensionModel.computeLast.isDefined)
+        .headOption
 
-    timeName.toLowerCase() match {
-      case "none" => None
-      case _ => Option(ExpiringDataConfig(timeName, checkpointModel.granularity, checkpointModel.timeAvailability))
+    timeDimension match {
+      case Some(dimensionModelValue) => {
+        Option(ExpiringDataConfig(
+          dimensionModelValue.name,
+          dimensionModelValue.precision,
+          OperationsHelper.parseValueToMilliSeconds(dimensionModelValue.computeLast.get)))
+      }
+      case _ => None
     }
   }
 
