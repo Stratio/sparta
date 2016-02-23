@@ -117,7 +117,7 @@
       "icon": "icon-input"
     },
     {
-        "name": "_POLICY_._STEPS_._TRANSFORMATION_",
+      "name": "_POLICY_._STEPS_._TRANSFORMATION_",
       "icon": "icon-content-left"
     },
     {
@@ -149,6 +149,52 @@
       {
         "iconName": "type",
         "name": "Type"
+      }
+    ],
+    "outputFieldTypes": [
+      {
+        "label": "string",
+        "value": "string"
+      },
+      {
+        "label": "long",
+        "value": "long"
+      },
+      {
+        "label": "double",
+        "value": "double"
+      },
+      {
+        "label": "integer",
+        "value": "integer"
+      },
+      {
+        "label": "boolean",
+        "value": "boolean"
+      },
+      {
+        "label": "date",
+        "value": "date"
+      },
+      {
+        "label": "datetime",
+        "value": "datetime"
+      },
+      {
+        "label": "timestamp",
+        "value": "timestamp"
+      },
+      {
+        "label": "arraydouble",
+        "value": "arraydouble"
+      },
+      {
+        "label": "arraystring",
+        "value": "arraystring"
+      },
+      {
+        "label": "text",
+        "value": "text"
       }
     ],
     "defaultInput": {
