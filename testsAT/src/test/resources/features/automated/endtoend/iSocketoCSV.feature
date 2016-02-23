@@ -1,8 +1,8 @@
 @rest
 Feature: Test policy with Socket input and CSV output
 
-  Background: Setup Sparkta REST client
-    Given I send requests to '${SPARKTA_HOST}:${SPARKTA_API_PORT}'
+  Background: Setup Sparta REST client
+    Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 
   Scenario: Start socket
     Given I start a socket in '@{IP.${IFACE}}:10666'
@@ -27,7 +27,7 @@ Feature: Test policy with Socket input and CSV output
     And I wait '10' seconds
 
     # Check Data
-    Given I open remote ssh connection to host '${SPARKTA_HOST}' with user 'root' and password 'stratio'
+    Given I open remote ssh connection to host '${SPARTA_HOST}' with user 'root' and password 'stratio'
     When I execute command 'cat ${CSV_PATH}/testCube_v1/*.csv/part* | sort -ui > ${CSV_PATH}/final.csv' in remote ssh connection
     And I copy '${CSV_PATH}/final.csv' from remote ssh connection and store it in '/tmp'
     When I read info from csv file '/tmp/final.csv'

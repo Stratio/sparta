@@ -29,7 +29,10 @@ import spray.httpx.Json4sJacksonSupport
 
 import scala.util.Try
 
-class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging with SparktaSerializer {
+class TemplateActor extends Actor
+  with Json4sJacksonSupport
+  with SLF4JLogging
+  with SparktaSerializer {
 
   override def receive: Receive = {
 
@@ -44,7 +47,7 @@ class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging wi
         .map(file => {
           log.info(s"> Retrieving template: ${file.getName}")
           read[TemplateModel](getInputStreamFromResource(s"templates/${t}/${file.getName}"))
-      })
+        })
     }).recover {
       case e: NullPointerException => Seq()
     })
@@ -54,7 +57,7 @@ class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging wi
       read[TemplateModel](getInputStreamFromResource(s"templates/${t}/${name.toLowerCase}.json"))
     }).recover {
       case e: NullPointerException => throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsTemplatetWithName, s"No template of type $t  with name ${name}.json")
+        new ErrorModel(ErrorModel.CodeNotExistsTemplateWithName, s"No template of type $t  with name ${name}.json")
       ))
     })
 
@@ -67,7 +70,6 @@ class TemplateActor extends Actor with Json4sJacksonSupport with SLF4JLogging wi
 
   protected def getFilesFromURI(uri: URI): Seq[File] =
     new File(uri).listFiles
-
 }
 
 object TemplateActor {
@@ -79,4 +81,5 @@ object TemplateActor {
   case class ResponseTemplates(templates: Try[Seq[TemplateModel]])
 
   case class ResponseTemplate(template: Try[TemplateModel])
+
 }

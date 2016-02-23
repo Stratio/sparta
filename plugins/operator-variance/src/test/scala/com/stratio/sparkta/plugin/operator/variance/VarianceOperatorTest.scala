@@ -16,7 +16,8 @@
 
 package com.stratio.sparkta.plugin.operator.variance
 
-import com.stratio.sparkta.sdk.InputFieldsValues
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -27,74 +28,113 @@ class VarianceOperatorTest extends WordSpec with Matchers {
   "Variance operator" should {
 
     "processMap must be " in {
-      val inputField = new VarianceOperator("variance", Map())
-      inputField.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(None)
+      val schema1 = StructType(Seq(StructField("field1", IntegerType), StructField("field2", IntegerType)))
+      val inputField = new VarianceOperator("variance", schema1, Map())
+      inputField.processMap(Row(1, 2)) should be(None)
 
-      val inputFields2 = new VarianceOperator("variance", Map("inputField" -> "field1"))
-      inputFields2.processMap(InputFieldsValues(Map("field3" -> 1, "field2" -> 2))) should be(None)
+      val schema2 = StructType(Seq(StructField("field3", IntegerType), StructField("field2", IntegerType)))
+      val inputFields2 = new VarianceOperator("variance", schema2, Map("inputField" -> "field1"))
+      inputFields2.processMap(Row(1, 2)) should be(None)
 
-      val inputFields3 = new VarianceOperator("variance", Map("inputField" -> "field1"))
-      inputFields3.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(Some(1))
+      val schema3 = StructType(Seq(StructField("field1", IntegerType), StructField("field2", IntegerType)))
+      val inputFields3 = new VarianceOperator("variance", schema3, Map("inputField" -> "field1"))
+      inputFields3.processMap(Row(1, 2)) should be(Some(1))
 
-      val inputFields4 = new VarianceOperator("variance", Map("inputField" -> "field1"))
-      inputFields3.processMap(InputFieldsValues(Map("field1" -> "1", "field2" -> 2))) should be(Some(1))
+      val schema4 = StructType(Seq(StructField("field1", IntegerType), StructField("field2", IntegerType)))
+      val inputFields4 = new VarianceOperator("variance", schema4, Map("inputField" -> "field1"))
+      inputFields3.processMap(Row(1, 2)) should be(Some(1))
 
-      val inputFields5 = new VarianceOperator("variance", Map("inputField" -> "field1"))
-      inputFields5.processMap(InputFieldsValues(Map("field1" -> "foo", "field2" -> 2))) should be(None)
+      val schema5 = StructType(Seq(StructField("field1", StringType), StructField("field2", IntegerType)))
+      val inputFields5 = new VarianceOperator("variance", schema5, Map("inputField" -> "field1"))
+      inputFields5.processMap(Row("foo", 2)) should be(None)
 
-      val inputFields6 = new VarianceOperator("variance", Map("inputField" -> "field1"))
-      inputFields6.processMap(InputFieldsValues(Map("field1" -> 1.5, "field2" -> 2))) should be(Some(1.5))
+      val schema6 = StructType(Seq(StructField("field1", FloatType), StructField("field2", IntegerType)))
+      val inputFields6 = new VarianceOperator("variance", schema6, Map("inputField" -> "field1"))
+      inputFields6.processMap(Row(1.5, 2)) should be(Some(1.5))
 
-      val inputFields7 = new VarianceOperator("variance", Map("inputField" -> "field1"))
-      inputFields7.processMap(InputFieldsValues(Map("field1" -> 5L, "field2" -> 2))) should be(Some(5L))
+      val schema7 = StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType)))
+      val inputFields7 = new VarianceOperator("variance", schema7, Map("inputField" -> "field1"))
+      inputFields7.processMap(Row(5L, 2)) should be(Some(5L))
 
-      val inputFields8 = new VarianceOperator("variance",
+
+      val schema8 = StructType(Seq(StructField("field1", IntegerType), StructField("field2", IntegerType)))
+      val inputFields8 = new VarianceOperator("variance", schema8,
         Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2}]"))
-      inputFields8.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(Some(1L))
+      inputFields8.processMap(Row(1, 2)) should be(Some(1L))
 
-      val inputFields9 = new VarianceOperator("variance",
+      val schema9 = StructType(Seq(StructField("field1", IntegerType), StructField("field2", IntegerType)))
+      val inputFields9 = new VarianceOperator("variance", schema9,
         Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \">\", \"value\":\"2\"}]"))
-      inputFields9.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(None)
+      inputFields9.processMap(Row(1, 2)) should be(None)
 
-      val inputFields10 = new VarianceOperator("variance",
+      val schema10 = StructType(Seq(StructField("field1", IntegerType), StructField("field2", IntegerType)))
+      val inputFields10 = new VarianceOperator("variance", schema10,
         Map("inputField" -> "field1", "filters" -> {
           "[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
             "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"
         }))
-      inputFields10.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(None)
+      inputFields10.processMap(Row(1, 2)) should be(None)
     }
 
     "processReduce must be " in {
-      val inputFields = new VarianceOperator("variance", Map())
+      val schema11 = StructType(Seq(StructField("field1", DoubleType)))
+      val inputFields = new VarianceOperator("variance", schema11, Map())
       inputFields.processReduce(Seq()) should be(Some(0d))
 
-      val inputFields2 = new VarianceOperator("variance", Map())
+      val schema12 = StructType(Seq(
+        StructField("field1", IntegerType),
+        StructField("field2", IntegerType),
+        StructField("field3", IntegerType),
+        StructField("field4", IntegerType),
+        StructField("field5", IntegerType)
+      ))
+      val inputFields2 = new VarianceOperator("variance", schema12, Map())
       inputFields2.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some(8))
 
-      val inputFields3 = new VarianceOperator("variance", Map())
+      val schema13 = StructType(Seq(
+        StructField("field1", IntegerType),
+        StructField("field2", IntegerType),
+        StructField("field3", IntegerType),
+        StructField("field4", FloatType),
+        StructField("field5", FloatType)
+      ))
+      val inputFields3 = new VarianceOperator("variance", schema13, Map())
       inputFields3.processReduce(Seq(Some(1), Some(2), Some(3), Some(6.5), Some(7.5))) should be(Some(8.125))
 
-      val inputFields4 = new VarianceOperator("variance", Map())
+      val schema14 = StructType(Seq())
+      val inputFields4 = new VarianceOperator("variance", schema14, Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
-      val inputFields5 = new VarianceOperator("variance", Map("typeOp" -> "string"))
+      val schema15 = StructType(Seq(
+        StructField("field1", IntegerType),
+        StructField("field2", IntegerType),
+        StructField("field3", IntegerType),
+        StructField("field4", IntegerType),
+        StructField("field5", IntegerType)
+      ))
+      val inputFields5 = new VarianceOperator("variance", schema15, Map("typeOp" -> "string"))
       inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("8.0"))
     }
 
     "processReduce distinct must be " in {
-      val inputFields = new VarianceOperator("variance", Map("distinct" -> "true"))
+      val schema16 = StructType(Seq(StructField("field1", IntegerType), StructField("field", IntegerType)))
+      val inputFields = new VarianceOperator("variance", schema16, Map("distinct" -> "true"))
       inputFields.processReduce(Seq()) should be(Some(0d))
 
-      val inputFields2 = new VarianceOperator("variance", Map("distinct" -> "true"))
+      val schema17 = StructType(Seq(StructField("field1", IntegerType), StructField("field", IntegerType)))
+      val inputFields2 = new VarianceOperator("variance", schema17, Map("distinct" -> "true"))
       inputFields2.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some(6.916666666666667))
 
-      val inputFields3 = new VarianceOperator("variance", Map("distinct" -> "true"))
+      val schema18 = StructType(Seq(StructField("field1", IntegerType), StructField("field", IntegerType)))
+      val inputFields3 = new VarianceOperator("variance", schema18, Map("distinct" -> "true"))
       inputFields3.processReduce(Seq(Some(1), Some(1), Some(2), Some(3), Some(6.5), Some(7.5))) should be(Some(8.125))
 
-      val inputFields4 = new VarianceOperator("variance", Map("distinct" -> "true"))
+      val schema19 = StructType(Seq(StructField("field1", IntegerType), StructField("field", IntegerType)))
+      val inputFields4 = new VarianceOperator("variance", schema19, Map("distinct" -> "true"))
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
-      val inputFields5 = new VarianceOperator("variance", Map("typeOp" -> "string", "distinct" -> "true"))
+      val schema20 = StructType(Seq(StructField("field1", IntegerType), StructField("field", IntegerType)))
+      val inputFields5 = new VarianceOperator("variance", schema20, Map("typeOp" -> "string", "distinct" -> "true"))
       inputFields5.processReduce(Seq(Some(1), Some(2), Some(3), Some(7), Some(7))) should be(Some("6.916666666666667"))
     }
   }

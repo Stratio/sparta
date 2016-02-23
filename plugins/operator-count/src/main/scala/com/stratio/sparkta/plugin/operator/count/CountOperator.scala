@@ -21,11 +21,13 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
 import com.stratio.sparkta.sdk.{TypeOp, _}
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.StructType
 
 import scala.util.Try
 
-class CountOperator(name: String, properties: Map[String, JSerializable])
-  extends Operator(name, properties) with Associative {
+class CountOperator(name: String, schema: StructType, properties: Map[String, JSerializable])
+  extends Operator(name, schema, properties) with Associative {
 
   val distinctFields = parseDistinctFields
 
@@ -35,8 +37,8 @@ class CountOperator(name: String, properties: Map[String, JSerializable])
 
   override val defaultCastingFilterType = TypeOp.Number
 
-  override def processMap(inputFieldsValues: InputFieldsValues): Option[Any] = {
-    applyFilters(inputFieldsValues.values).flatMap(filteredFields => distinctFields match {
+  override def processMap(inputFieldsValues: Row): Option[Any] = {
+    applyFilters(inputFieldsValues).flatMap(filteredFields => distinctFields match {
       case None => Option(CountOperator.One.toLong)
       case Some(fields) => Option(fields.map(field => filteredFields.getOrElse(field, CountOperator.NullValue))
         .mkString(Operator.UnderscoreSeparator).toString)

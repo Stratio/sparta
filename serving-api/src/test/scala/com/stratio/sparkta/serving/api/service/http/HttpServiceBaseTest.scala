@@ -59,12 +59,15 @@ with SparktaSerializer {
 
   protected def getPolicyModel(): AggregationPoliciesModel = {
     val rawData = new RawDataModel
+    val outputFieldModel1 = OutputFieldsModel("out1")
+    val outputFieldModel2 = OutputFieldsModel("out2")
+
     val transformations = Seq(TransformationsModel(
       name = "transformation1",
       "Morphlines",
       0,
       Input.RawDataKey,
-      Seq("out1", "out2"),
+      Seq(outputFieldModel1, outputFieldModel2),
       Map()))
     val checkpointModel = CheckpointModel("minute", "minute", None, interval)
     val dimensionModel = Seq(DimensionModel(

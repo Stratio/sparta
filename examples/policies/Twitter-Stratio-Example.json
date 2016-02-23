@@ -25,7 +25,7 @@
       "order": 0,
       "type": "Morphlines",
       "outputFields": [
-        "text"
+        {"name":"text"}
       ],
       "configuration": {
         "morphline": {

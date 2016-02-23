@@ -17,13 +17,19 @@
 package com.stratio.sparkta.plugin.operator.mode
 
 import java.io.{Serializable => JSerializable}
+import org.apache.spark.sql.types.StructType
+
 import scala.util.Try
 
 import com.stratio.sparkta.sdk.TypeOp._
 import com.stratio.sparkta.sdk.{TypeOp, _}
 
-class ModeOperator(name: String, properties: Map[String, JSerializable]) extends Operator(name, properties)
+class ModeOperator(name: String,
+                   schema: StructType,
+                   properties: Map[String, JSerializable]) extends Operator(name, schema, properties)
 with OperatorProcessMapAsAny {
+
+  val inputSchema = schema
 
   override val defaultTypeOperation = TypeOp.ArrayString
 

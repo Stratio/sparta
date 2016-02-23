@@ -16,7 +16,8 @@
 
 package com.stratio.sparkta.plugin.operator.avg
 
-import com.stratio.sparkta.sdk.InputFieldsValues
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -26,75 +27,85 @@ class AvgOperatorTest extends WordSpec with Matchers {
 
   "Avg operator" should {
 
+    val initSchema = StructType(Seq(
+      StructField("field1", IntegerType, false),
+      StructField("field2", IntegerType, false),
+      StructField("field3", IntegerType, false)
+    ))
+
+    val initSchemaFail = StructType(Seq(
+      StructField("field2", IntegerType, false)
+    ))
+
     "processMap must be " in {
-      val inputField = new AvgOperator("avg", Map())
-      inputField.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(None)
+      val inputField = new AvgOperator("avg", initSchema, Map())
+      inputField.processMap(Row(1, 2)) should be(None)
 
-      val inputFields2 = new AvgOperator("avg", Map("inputField" -> "field1"))
-      inputFields2.processMap(InputFieldsValues(Map("field3" -> 1, "field2" -> 2))) should be(None)
+      val inputFields2 = new AvgOperator("avg", initSchemaFail, Map("inputField" -> "field1"))
+      inputFields2.processMap(Row(1, 2)) should be(None)
 
-      val inputFields3 = new AvgOperator("avg", Map("inputField" -> "field1"))
-      inputFields3.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(Some(1))
+      val inputFields3 = new AvgOperator("avg", initSchema, Map("inputField" -> "field1"))
+      inputFields3.processMap(Row(1, 2)) should be(Some(1))
 
-      val inputFields4 = new AvgOperator("avg", Map("inputField" -> "field1"))
-      inputFields4.processMap(InputFieldsValues(Map("field1" -> "1", "field2" -> 2))) should be(Some(1))
+      val inputFields4 = new AvgOperator("avg", initSchema, Map("inputField" -> "field1"))
+      inputFields4.processMap(Row("1", 2)) should be(Some(1))
 
-      val inputFields5 = new AvgOperator("avg", Map("inputField" -> "field1"))
-      inputFields5.processMap(InputFieldsValues(Map("field1" -> "foo", "field2" -> 2))) should be(None)
+      val inputFields5 = new AvgOperator("avg", initSchema, Map("inputField" -> "field1"))
+      inputFields5.processMap(Row("foo", 2)) should be(None)
 
-      val inputFields6 = new AvgOperator("avg", Map("inputField" -> "field1"))
-      inputFields6.processMap(InputFieldsValues(Map("field1" -> 1.5, "field2" -> 2))) should be(Some(1.5))
+      val inputFields6 = new AvgOperator("avg", initSchema, Map("inputField" -> "field1"))
+      inputFields6.processMap(Row(1.5, 2)) should be(Some(1.5))
 
-      val inputFields7 = new AvgOperator("avg", Map("inputField" -> "field1"))
-      inputFields7.processMap(InputFieldsValues(Map("field1" -> 5L, "field2" -> 2))) should be(Some(5L))
+      val inputFields7 = new AvgOperator("avg", initSchema, Map("inputField" -> "field1"))
+      inputFields7.processMap(Row(5L, 2)) should be(Some(5L))
 
-      val inputFields8 = new AvgOperator("avg",
+      val inputFields8 = new AvgOperator("avg", initSchema,
         Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2}]"))
-      inputFields8.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(Some(1L))
+      inputFields8.processMap(Row(1, 2)) should be(Some(1L))
 
-      val inputFields9 = new AvgOperator("avg",
+      val inputFields9 = new AvgOperator("avg", initSchema,
         Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \">\", \"value\":\"2\"}]"))
-      inputFields9.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(None)
+      inputFields9.processMap(Row(1, 2)) should be(None)
 
-      val inputFields10 = new AvgOperator("avg",
+      val inputFields10 = new AvgOperator("avg", initSchema,
         Map("inputField" -> "field1", "filters" -> {
           "[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
             "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"
         }))
-      inputFields10.processMap(InputFieldsValues(Map("field1" -> 1, "field2" -> 2))) should be(None)
+      inputFields10.processMap(Row(1, 2)) should be(None)
     }
 
     "processReduce must be " in {
-      val inputFields = new AvgOperator("avg", Map())
+      val inputFields = new AvgOperator("avg", initSchema, Map())
       inputFields.processReduce(Seq()) should be(Some(0d))
 
-      val inputFields2 = new AvgOperator("avg", Map())
+      val inputFields2 = new AvgOperator("avg", initSchema, Map())
       inputFields2.processReduce(Seq(Some(1), Some(1), None)) should be(Some(1))
 
-      val inputFields3 = new AvgOperator("avg", Map())
+      val inputFields3 = new AvgOperator("avg", initSchema, Map())
       inputFields3.processReduce(Seq(Some(1), Some(2), Some(3), None)) should be(Some(2))
 
-      val inputFields4 = new AvgOperator("avg", Map())
+      val inputFields4 = new AvgOperator("avg", initSchema, Map())
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
-      val inputFields5 = new AvgOperator("avg", Map("typeOp" -> "string"))
+      val inputFields5 = new AvgOperator("avg", initSchema, Map("typeOp" -> "string"))
       inputFields5.processReduce(Seq(Some(1), Some(1))) should be(Some("1.0"))
     }
 
     "processReduce distinct must be " in {
-      val inputFields = new AvgOperator("avg", Map("distinct" -> "true"))
+      val inputFields = new AvgOperator("avg", initSchema, Map("distinct" -> "true"))
       inputFields.processReduce(Seq()) should be(Some(0d))
 
-      val inputFields2 = new AvgOperator("avg", Map("distinct" -> "true"))
+      val inputFields2 = new AvgOperator("avg", initSchema, Map("distinct" -> "true"))
       inputFields2.processReduce(Seq(Some(1), Some(1), None)) should be(Some(1))
 
-      val inputFields3 = new AvgOperator("avg", Map("distinct" -> "true"))
+      val inputFields3 = new AvgOperator("avg", initSchema, Map("distinct" -> "true"))
       inputFields3.processReduce(Seq(Some(1), Some(3), Some(1), None)) should be(Some(2))
 
-      val inputFields4 = new AvgOperator("avg", Map("distinct" -> "true"))
+      val inputFields4 = new AvgOperator("avg", initSchema, Map("distinct" -> "true"))
       inputFields4.processReduce(Seq(None)) should be(Some(0d))
 
-      val inputFields5 = new AvgOperator("avg", Map("typeOp" -> "string", "distinct" -> "true"))
+      val inputFields5 = new AvgOperator("avg", initSchema, Map("typeOp" -> "string", "distinct" -> "true"))
       inputFields5.processReduce(Seq(Some(1), Some(1))) should be(Some("1.0"))
     }
   }

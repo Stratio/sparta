@@ -20,6 +20,8 @@ import java.io.{Serializable => JSerializable}
 import java.sql.Timestamp
 
 import com.github.nscala_time.time.Imports._
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.{TimestampType, StringType, LongType, StructField, StructType}
 import org.apache.spark.streaming.TestSuiteBase
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -62,15 +64,21 @@ class CubeMakerTest extends TestSuiteBase {
     val millis = DateOperations.dateFromGranularity(DateTime.now, checkpointGranularity)
     val sqlTimestamp = new Timestamp(millis)
     val name = "cubeName"
-    val operator = new CountOperator("count", Map())
+    val operator = new CountOperator("count", StructType(Seq(StructField("count", LongType, true))), Map())
     val multiplexer = false
     val defaultDimension = new DefaultField
     val timeField = new DateTimeField
     val dimension = Dimension("dim1", "eventKey", "identity", defaultDimension)
     val timeDimension = Dimension("minute", "minute", "minute", timeField)
+    val initSchema = StructType(Seq(
+      StructField("eventKey", StringType, false),
+      StructField("minute", TimestampType, false)
+    ))
     val cube = Cube(name,
       Seq(dimension, timeDimension),
-      Seq(operator))
+      Seq(operator),
+      initSchema
+    )
     val dataCube = new CubeOperations(cube)
 
     testOperation(getEventInput(sqlTimestamp), dataCube.extractDimensionsAggregations,
@@ -81,11 +89,11 @@ class CubeMakerTest extends TestSuiteBase {
    * It gets a stream of data to test.
    * @return a stream of data.
    */
-  def getEventInput(ts: Timestamp): Seq[Seq[Event]] =
+  def getEventInput(ts: Timestamp): Seq[Seq[Row]] =
     Seq(Seq(
-      Event(Map("eventKey" -> "value1", "minute" -> ts)),
-      Event(Map("eventKey" -> "value2", "minute" -> ts)),
-      Event(Map("eventKey" -> "value3", "minute" -> ts))
+      Row("value1", ts),
+      Row("value2", ts),
+      Row("value3", ts)
     ))
 
   /**
@@ -93,17 +101,17 @@ class CubeMakerTest extends TestSuiteBase {
    * @return the expected result to test
    */
   def getEventOutput(timestamp: Timestamp, millis: Long):
-  Seq[Seq[(DimensionValuesTime, InputFieldsValues)]] = {
+  Seq[Seq[(DimensionValuesTime, Row)]] = {
     val dimensionString = Dimension("dim1", "eventKey", "identity", new DefaultField)
     val dimensionTime = Dimension("minute", "minute", "minute", new DateTimeField)
     val dimensionValueString1 = DimensionValue(dimensionString, "value1")
     val dimensionValueString2 = dimensionValueString1.copy(value = "value2")
     val dimensionValueString3 = dimensionValueString1.copy(value = "value3")
     val dimensionValueTs = DimensionValue(dimensionTime, timestamp)
-    val tsMap = Map("minute" -> timestamp)
-    val valuesMap1 = InputFieldsValues(Map("eventKey" -> "value1") ++ tsMap)
-    val valuesMap2 = InputFieldsValues(Map("eventKey" -> "value2") ++ tsMap)
-    val valuesMap3 = InputFieldsValues(Map("eventKey" -> "value3") ++ tsMap)
+    val tsMap = Row(timestamp)
+    val valuesMap1 = Row("value1", timestamp)
+    val valuesMap2 = Row("value2", timestamp)
+    val valuesMap3 = Row("value3", timestamp)
 
     Seq(Seq(
       (DimensionValuesTime("cubeName", Seq(dimensionValueString1, dimensionValueTs)), valuesMap1),

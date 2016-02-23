@@ -56,7 +56,7 @@ class ISocketORedisOperatorsIT extends SparktaATSuite {
       productSize.get.size should be(NumEventsExpected)
 
       val productAKey = redisPool.withClient(client =>
-        client.keys("product:producta:minute:*")
+        client.keys("product:producta:timestamp:*")
       ).get.head.get
 
       val productA = redisPool.withClient(client =>
@@ -77,7 +77,7 @@ class ISocketORedisOperatorsIT extends SparktaATSuite {
       productA.get.get("min_price").get should be("10.0")
       productA.get.get("mode_price").get should be("WrappedArray(500)")
 
-      val productBKey = redisPool.withClient(client => client.keys("product:productb:minute:*")).get.head.get
+      val productBKey = redisPool.withClient(client => client.keys("product:productb:timestamp:*")).get.head.get
       val productB = redisPool.withClient(client => client.hgetall(productBKey))
       productB.get.get("stddev_price").get should be("448.04041590655")
       productB.get.get("first_price").get should be("15")

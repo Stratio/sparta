@@ -28,9 +28,9 @@ class DimensionTypeMock(prop: Map[String, JSerializable]) extends DimensionType 
 
   override val defaultTypeOperation = TypeOp.String
 
-  override def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable) = {
+  override def precisionValue(keyName: String, value: Any): (Precision, JSerializable) = {
     val precision = DimensionType.getIdentity(getTypeOperation, defaultTypeOperation)
-    (precision, TypeOp.transformValueByTypeOp(precision.typeOp, value))
+    (precision, TypeOp.transformValueByTypeOp(precision.typeOp, value.asInstanceOf[JSerializable]))
   }
 
   override def precision(keyName: String): Precision =

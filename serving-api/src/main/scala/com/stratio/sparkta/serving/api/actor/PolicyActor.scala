@@ -23,8 +23,7 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-import akka.actor.Actor
-import akka.actor.ActorRef
+import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.FileUtils
@@ -87,7 +86,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
       byId(id)
     }).recover {
       case e: NoNodeException => throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsPolicytWithId, s"No policy with id $id.")
+        new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy with id $id.")
       ))
     })
 
@@ -101,10 +100,10 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
         byId(element)).filter(policy => policy.name == name).head
     }).recover {
       case e: NoNodeException => throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsPolicytWithName, s"No policy with name $name.")
+        new ErrorModel(ErrorModel.CodeNotExistsPolicyWithName, s"No policy with name $name.")
       ))
       case e: NoSuchElementException => throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsPolicytWithName, s"No policy with name $name.")
+        new ErrorModel(ErrorModel.CodeNotExistsPolicyWithName, s"No policy with name $name.")
       ))
     })
 
@@ -117,7 +116,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
       val searchPolicy = existsByNameId(policy.name)
       if (searchPolicy.isDefined) {
         throw new ServingCoreException(ErrorModel.toString(
-          new ErrorModel(ErrorModel.CodeExistsPolicytWithName,
+          new ErrorModel(ErrorModel.CodeExistsPolicyWithName,
             s"Policy with name ${policy.name} exists. The actual policty id is: ${searchPolicy.get.id}")
         ))
       }
@@ -137,7 +136,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
       val searchPolicy = existsByNameId(policy.name, policy.id)
       if (searchPolicy.isEmpty) {
         throw new ServingCoreException(ErrorModel.toString(
-          new ErrorModel(ErrorModel.CodeExistsPolicytWithName,
+          new ErrorModel(ErrorModel.CodeExistsPolicyWithName,
             s"Policy with name ${policy.name} not exists.")
         ))
       } else {
@@ -149,7 +148,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
       }
     }).recover {
       case e: NoNodeException => throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsPolicytWithId, s"No policy with id ${policy.id.get}.")
+        new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy with id ${policy.id.get}.")
       ))
     })
   }

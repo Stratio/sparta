@@ -1,9 +1,9 @@
 @web @rest
-Feature: Test stopping a policy in Sparkta GUI
+Feature: Test stopping a policy in Sparta GUI
 
-	Background: Setup Sparkta GUI
-		Given I set web base url to '${SPARKTA_HOST}:${SPARKTA_PORT}'
-		Given I send requests to '${SPARKTA_HOST}:${SPARKTA_API_PORT}'
+	Background: Setup Sparta GUI
+		Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
+		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 			
 	Scenario: Stop a policy
 		# Create input fragment

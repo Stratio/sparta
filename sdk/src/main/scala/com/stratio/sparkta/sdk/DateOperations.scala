@@ -37,7 +37,7 @@ object DateOperations {
   def millisToTimeStamp(date: Long): Timestamp = new Timestamp(date)
 
 
-  def getMillisFromSerializable(date: JSerializable): Long = date match {
+  def getMillisFromSerializable(date: Any): Long = date match {
     case value if value.isInstanceOf[Timestamp] || value.isInstanceOf[Date]
       || value.isInstanceOf[DateTime] => getMillisFromDateTime(date)
     case value if value.isInstanceOf[Long] => value.asInstanceOf[Long]
@@ -45,7 +45,7 @@ object DateOperations {
     case _ => new DateTime().getMillis
   }
 
-  def getMillisFromDateTime(value: JSerializable): Long = value match {
+  def getMillisFromDateTime(value: Any): Long = value match {
     case value if value.isInstanceOf[Timestamp] => value.asInstanceOf[Timestamp].getTime
     case value if value.isInstanceOf[Date] => value.asInstanceOf[Date].getTime
     case value if value.isInstanceOf[DateTime] => value.asInstanceOf[DateTime].getMillis

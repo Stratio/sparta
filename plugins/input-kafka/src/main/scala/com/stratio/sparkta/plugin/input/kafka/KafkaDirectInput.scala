@@ -19,10 +19,10 @@ package com.stratio.sparkta.plugin.input.kafka
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.sdk.Input._
+import com.stratio.sparkta.sdk.Input
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk.{Event, Input}
 import kafka.serializer.StringDecoder
+import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.kafka.KafkaUtils
@@ -32,7 +32,7 @@ class KafkaDirectInput(properties: Map[String, JSerializable]) extends Input(pro
   final val DefaultHost = "localhost"
   final val DefaulPort = "2182"
 
-  override def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Event] = {
+  def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
 
     val submap = properties.getMap("kafkaParams")
     val metaDataBrokerList = Map(getMetaDataBrokerList("metadata.broker.list", DefaultHost, DefaulPort))
@@ -44,7 +44,7 @@ class KafkaDirectInput(properties: Map[String, JSerializable]) extends Input(pro
         ssc,
         metaDataBrokerList ++ kafkaParams,
         extractTopicsSet())
-        .map(data => new Event(Map(RawDataKey -> data._2.getBytes("UTF-8").asInstanceOf[JSerializable])))
+        .map(data => Row(data._2))
     } else {
       throw new IllegalStateException(s"kafkaParams is necessary for KafkaDirectInput receiver")
     }
@@ -61,7 +61,7 @@ class KafkaDirectInput(properties: Map[String, JSerializable]) extends Input(pro
   def getDirectTopicPartition(key: String,
                               firstJsonItem: String): String = {
     val conObj = properties.getMapFromJsoneyString(key)
-    conObj.map(c =>{
+    conObj.map(c => {
       val topic = c.get(firstJsonItem) match {
         case Some(value) => value.toString
         case None => throw new IllegalStateException(s"$key is mandatory")

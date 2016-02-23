@@ -1,8 +1,8 @@
 @rest
-Feature: Test all PUT operations for policyContexts in Sparkta Swagger API
+Feature: Test all PUT operations for policyContexts in Sparta Swagger API
 
-	Background: Setup Sparkta REST client
-		Given I send requests to '${SPARKTA_HOST}:${SPARKTA_API_PORT}'
+	Background: Setup Sparta REST client
+		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 
 	Scenario: Update a policyContext using empty parameter
 		Given I send a 'PUT' request to '/policyContext' as 'json'
@@ -43,3 +43,19 @@ Feature: Test all PUT operations for policyContexts in Sparkta Swagger API
 	Scenario: Clean up
 		When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
 		Then the service response status must be '200'.
+	   	# Delete fragments
+	  	When I send a 'GET' request to '/fragment/input/name/name'
+	  	Then the service response status must be '200'.
+	  	And I save element '$.id' in attribute 'previousFragmentID'
+	  	When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
+	  	Then the service response status must be '200'.
+	  	When I send a 'GET' request to '/fragment/output/name/name'
+	  	Then the service response status must be '200'.
+	  	And I save element '$.id' in attribute 'previousFragmentID_2'
+	  	When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
+	  	Then the service response status must be '200'.
+	  	When I send a 'GET' request to '/fragment/output/name/name2'
+	  	Then the service response status must be '200'.
+	  	And I save element '$.id' in attribute 'previousFragmentID_2'
+	  	When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
+	  	Then the service response status must be '200'.

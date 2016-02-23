@@ -16,8 +16,11 @@
 
 package com.stratio.sparkta.serving.core.models
 
+import com.stratio.sparkta.serving.core.exception.ServingCoreException
+
 /**
  * A fragmentElementDto represents a piece of policy that will be composed with other fragments before.
+ *
  * @param fragmentType that could be inputs/outputs/parsers
  * @param name that will be used as an identifier of the fragment.
  * @param element with all config parameters of the fragment.
@@ -28,7 +31,17 @@ case class FragmentElementModel(id: Option[String] = None,
                                 name: String,
                                 description: String,
                                 shortDescription: String,
-                                element:PolicyElementModel)
+                                element:PolicyElementModel){
+
+  def getIdIfEquals: (FragmentElementModel) => Option[String] = {
+    currentFragment => this.equals(currentFragment) match {
+      case true => currentFragment.id
+      case false => throw new ServingCoreException(ErrorModel.toString(
+        new ErrorModel(ErrorModel.CodeExistsFragmentWithName,
+          s"Fragment of type ${this.fragmentType} with name ${this.name} exists.")))
+    }
+  }
+}
 
 object FragmentType extends Enumeration {
   type `type` = Value

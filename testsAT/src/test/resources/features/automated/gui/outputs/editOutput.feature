@@ -1,9 +1,9 @@
 @web @rest
-Feature: Test editing an output in Sparkta GUI
+Feature: Test editing an output in Sparta GUI
 		
-	Background: Setup Sparkta GUI
-		Given I set web base url to '${SPARKTA_HOST}:${SPARKTA_PORT}'
-		Given I send requests to '${SPARKTA_HOST}:${SPARKTA_API_PORT}'
+	Background: Setup Sparta GUI
+		Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
+		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 		
 	Scenario: Try to edit an existing output
 		Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:

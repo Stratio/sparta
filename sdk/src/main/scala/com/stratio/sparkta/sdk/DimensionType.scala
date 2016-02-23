@@ -38,7 +38,7 @@ trait DimensionType extends TypeConversions {
    * @param value Used to generate the different precisions
    * @return Map with all generated precisions and a sequence with all values
    */
-  def precisionValue(keyName: String, value: JSerializable): (Precision, JSerializable)
+  def precisionValue(keyName: String, value: Any): (Precision, Any)
 
   /**
    * All precisions supported into this dimensionType
@@ -68,4 +68,5 @@ object DimensionType {
 
   def getTimestamp(typeOperation: Option[TypeOp], default: TypeOp): Precision =
     new Precision(TimestampName, typeOperation.getOrElse(default))
+
 }

@@ -1,9 +1,9 @@
 @web @rest
-Feature: Test editting a policy in Sparkta GUI
+Feature: Test editting a policy in Sparta GUI
 
-	Background: Setup Sparkta GUI
-		Given I set web base url to '${SPARKTA_HOST}:${SPARKTA_PORT}'
-		Given I send requests to '${SPARKTA_HOST}:${SPARKTA_API_PORT}'
+	Background: Setup Sparta GUI
+		Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
+		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 			
 	Scenario: Edit a policy
 		# Create input fragment
@@ -85,7 +85,8 @@ Feature: Test editting a policy in Sparkta GUI
 		Then I type 'myOutput2' on the element on index '0'
 		Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
 		When I click on the element on index '0'
-		Then '1' element exists with 'css:span[data-qa="policy-model-output-list-0"]'
+		Then '1' element exists with 'css:label[data-qa="policy-model-output-list-0"]'
+	  	And '1' element exists with 'css:select[data-qa="policy-model-output-list-0-type"]'
 		Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
 		Then I click on the element on index '0'
 		# Continue

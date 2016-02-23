@@ -16,9 +16,7 @@
 
 package com.stratio.sparkta.sdk
 
-import java.io.{Serializable => JSerializable}
-
-case class DimensionValue(dimension: Dimension, value: JSerializable) extends Ordered[DimensionValue] {
+case class DimensionValue(dimension: Dimension, value: Any) extends Ordered[DimensionValue] {
 
   def getNameDimension: String = dimension.name
 

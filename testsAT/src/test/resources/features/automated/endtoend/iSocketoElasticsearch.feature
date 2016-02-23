@@ -1,8 +1,8 @@
 @rest
 Feature: Test policy with Socket input and Elasticsearch output
 
-  Background: Setup Sparkta REST client
-    Given I send requests to '${SPARKTA_HOST}:${SPARKTA_API_PORT}'
+  Background: Setup Sparta REST client
+    Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 
   Scenario: Start socket
     Given I start a socket in '@{IP.${IFACE}}:10666'

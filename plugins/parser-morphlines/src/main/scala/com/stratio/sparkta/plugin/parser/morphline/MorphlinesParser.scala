@@ -19,11 +19,12 @@ package com.stratio.sparkta.plugin.parser.morphline
 import java.io.{ByteArrayInputStream, Serializable => JSerializable}
 import java.util.concurrent.ConcurrentHashMap
 
+import com.stratio.sparkta.sdk.Parser
 import com.stratio.sparkta.sdk.ValidatingPropertyMap._
-import com.stratio.sparkta.sdk.{Event, Parser}
 import com.typesafe.config.ConfigFactory
-import org.kitesdk.morphline.api.{Command, MorphlineContext, Record}
-import org.kitesdk.morphline.base.Compiler
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.{StructField, StructType}
+import org.kitesdk.morphline.api.Record
 
 import scala.collection.JavaConverters._
 
@@ -31,79 +32,41 @@ class MorphlinesParser(name: String,
                        order: Integer,
                        inputField: String,
                        outputFields: Seq[String],
+                       schema: StructType,
                        properties: Map[String, JSerializable])
-  extends Parser(name, order, inputField, outputFields, properties) {
+  extends Parser(name, order, inputField, outputFields, schema, properties) {
 
   private val config: String = properties.getString("morphline")
 
-  override def parse(data: Event): Event = {
+  override def parse(row: Row, removeRaw: Boolean): Row = {
     val record = new Record()
-    data.keyMap.foreach(e => {
-      if (inputField.equals(e._1)) {
-        //TODO: This actually needs getting raw bytes from the origin
-        val result = e._2 match {
-          case s: String => new ByteArrayInputStream(s.getBytes("UTF-8"))
-          case b: Array[Byte] => new ByteArrayInputStream(b)
-        }
-        record.put(e._1, result)
-      } else {
-        record.put(e._1, e._2)
-      }
-    })
-    new Event(checkFields(MorphlinesParser(name, config).process(record).keyMap) ++ data.keyMap)
-  }
-}
-
-case class MorphlineImpl(config: String) {
-
-  private val morphlineContext: MorphlineContext = new MorphlineContext.Builder().build()
-
-  private val collector: ThreadLocal[MorphlineEventCollector] = new ThreadLocal[MorphlineEventCollector]() {
-    override def initialValue(): MorphlineEventCollector = new MorphlineEventCollector
-  }
-
-  private val morphline: ThreadLocal[Command] = new ThreadLocal[Command]() {
-    override def initialValue(): Command = new Compiler()
-      .compile(
-        ConfigFactory.parseString(config),
-        morphlineContext,
-        collector.get())
-  }
-
-  def process(inputRecord: Record): Event = {
-    val coll = collector.get()
-    coll.reset()
-    morphline.get().process(inputRecord)
-    coll.records.headOption match {
-      case None => new Event(Map())
-      case Some(record) => toEvent(record)
+    val inputValue = row.get(inputFieldIndex)
+    val result = inputValue match {
+      case s: String => new ByteArrayInputStream(s.getBytes("UTF-8"))
+      case b: Array[Byte] => new ByteArrayInputStream(b)
     }
-  }
 
-  private def toEvent(record: Record): Event = {
-    val map = record.getFields.asMap().asScala.map(m => {
-      //Getting only the first element
-      (m._1, m._2.asScala.headOption match {
-        case Some(e) => e.asInstanceOf[JSerializable]
-      })
-    }).toMap
-    new Event(map)
+    record.put(inputField, result)
+
+    val morphlineResult = MorphlinesParser(name, config, outputFieldsSchema).process(record)
+    val prevData = if (removeRaw) Row.fromSeq(row.toSeq.drop(1)) else row
+
+    Row.merge(prevData, morphlineResult)
   }
 }
 
 object MorphlinesParser {
 
-  private val instances: ConcurrentHashMap[String, MorphlineImpl] = new ConcurrentHashMap[String, MorphlineImpl]()
+  private val instances = new ConcurrentHashMap[String, KiteMorphlineImpl].asScala
 
-  def apply(name: String,config: String): MorphlineImpl = {
-    synchronized {
-      Option(instances.get(config)) match {
-        case Some(m) => m
-        case None =>
-          val morphlineImpl = new MorphlineImpl(config)
-          instances.put(config, morphlineImpl)
-          morphlineImpl
-      }
+  def apply(name: String, config: String, outputFieldsSchema: Array[StructField]): KiteMorphlineImpl = {
+    instances.get(config) match {
+      case Some(kiteMorphlineImpl) =>
+        kiteMorphlineImpl
+      case None =>
+        val kiteMorphlineImpl = KiteMorphlineImpl(ConfigFactory.parseString(config), outputFieldsSchema)
+        instances.putIfAbsent(config, kiteMorphlineImpl)
+        kiteMorphlineImpl
     }
   }
 }
