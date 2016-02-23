@@ -228,7 +228,7 @@ object SparktaJob extends SLF4JLogging with SparktaSerializer {
           instantiateDimensionType(dimensionDto.`type`, dimensionDto.configuration, refUtils, defaultType))
       })
       val operators = SparktaJob.getOperators(cube.operators, refUtils, policyId, initSchema)
-      val expiringDataConfig = SchemaHelper.getExpiringData(cube.checkpointConfig)
+      val expiringDataConfig = SchemaHelper.getExpiringData(cube)
 
       Cube(name, dimensions, operators, initSchema, expiringDataConfig)
     } match {

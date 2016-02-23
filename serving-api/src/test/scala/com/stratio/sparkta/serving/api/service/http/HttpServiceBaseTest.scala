@@ -70,18 +70,9 @@ with SparktaSerializer {
       Seq(outputFieldModel1, outputFieldModel2),
       Map()))
     val checkpointModel = CheckpointModel("minute", "minute", None, interval)
-    val dimensionModel = Seq(DimensionModel(
-      "dimensionName",
-      "field1",
-      DimensionType.IdentityName,
-      DimensionType.DefaultDimensionClass,
-      Some(Map())
-    ))
+    val dimensionModel = Seq(DimensionModel("dimensionName", "field1", DimensionType.IdentityName, DimensionType.DefaultDimensionClass, configuration = Some(Map())))
     val operators = Seq(OperatorModel("Count", "countoperator", Map()))
-    val cubes = Seq(CubeModel("cube1",
-      checkpointModel,
-      dimensionModel,
-      operators))
+    val cubes = Seq(CubeModel("cube1", dimensionModel, operators))
     val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
     val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
     val policy = AggregationPoliciesModel(id = Option("id"),
