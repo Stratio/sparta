@@ -34,6 +34,11 @@
       }else{
         CubeService.changeCubeCreationPanelVisibility(true);
       }
+      CubeService.generateOutputList().then(function (outputList) {
+        vm.policyOutputList = outputList;
+        console.log(vm.policyOutputList);
+      });
+
     }
 
     function generateIndex() {
