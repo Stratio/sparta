@@ -49,14 +49,6 @@
         {
           return defaultConfigurations.morphlinesDefaultConfiguration;
         }
-        case types[1].name:
-        {
-          return defaultConfigurations.dateTimeDefaultConfiguration;
-        }
-        case types[2].name:
-        {
-          return defaultConfigurations.typeDefaultConfiguration;
-        }
       }
     }
 

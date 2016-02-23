@@ -284,5 +284,6 @@
   "_SPARK_PROPERTIES_": "Spark properties",
   "_NODES_": "Nodes",
   "_ADD_OUTPUTS_":"Add outputs",
-  "_OUTPUTS_": "Outputs"
+  "_OUTPUTS_": "Outputs",
+  "_INPUT_FORMAT_": "Input format"
 }
