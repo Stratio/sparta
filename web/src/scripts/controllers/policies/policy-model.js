@@ -65,10 +65,11 @@
       if (vm.form.$valid && vm.model.outputFields.length != 0) {
         vm.form.$submitted = false;
         ModelService.addModel();
+
+        ModelService.changeModelCreationPanelVisibility(false);
       } else {
         ModelFactory.setError("_GENERIC_FORM_ERROR_");
       }
-      ModelService.changeModelCreationPanelVisibility(false);
     }
 
     function removeModel() {

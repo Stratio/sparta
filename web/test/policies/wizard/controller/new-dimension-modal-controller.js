@@ -2,7 +2,7 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
   beforeEach(module('webApp'));
   beforeEach(module('served/policyTemplate.json'));
 
-  var ctrl, modalInstanceMock, UtilsServiceMock, fakeDimensionName, fakeFieldName, fakeDimensions, fakePolicyTemplate = null;
+  var ctrl, modalInstanceMock, UtilsServiceMock, fakeDimensionName, fakeFieldName, fakeDimensions, fakeCubeTemplate = null;
 
   beforeEach(inject(function ($controller) {
 
@@ -14,7 +14,7 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
     fakeDimensions = [];
 
     inject(function (_servedPolicyTemplate_) {
-      fakePolicyTemplate = _servedPolicyTemplate_;
+      fakeCubeTemplate = _servedPolicyTemplate_.cube;
     });
 
     ctrl = $controller('NewDimensionModalCtrl', {
@@ -23,7 +23,7 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
       'fieldName': fakeFieldName,
       'dimensions': fakeDimensions,
       'UtilsService': UtilsServiceMock,
-      'template': fakePolicyTemplate
+      'template': fakeCubeTemplate
     });
 
   }));
@@ -31,10 +31,10 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
   it("when it is initialized it creates a dimension with the injected params", function () {
     expect(ctrl.dimension.name).toBe(fakeDimensionName);
     expect(ctrl.dimension.field).toBe(fakeFieldName);
-    expect(ctrl.cubeTypes).toBe(fakePolicyTemplate.cubeTypes);
-    expect(ctrl.dimension.type).toBe(fakePolicyTemplate.cubeTypes[0].value);
-    expect(ctrl.precisionOptions).toBe(fakePolicyTemplate.precisionOptions);
-    expect(ctrl.defaultType).toBe(fakePolicyTemplate.cubeTypes[0].value);
+    expect(ctrl.cubeTypes).toBe(fakeCubeTemplate.types);
+    expect(ctrl.dimension.type).toBe(fakeCubeTemplate.types[0].value);
+    expect(ctrl.precisionOptions).toBe(fakeCubeTemplate.precisionOptions);
+    expect(ctrl.defaultType).toBe(fakeCubeTemplate.types[0].value);
     expect(ctrl.errorText).toBe("");
   });
 
@@ -46,11 +46,11 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
     });
 
     it("if dimension type is not null, should return a precision list of that type", function () {
-      ctrl.dimension.type = fakePolicyTemplate.precisionOptions[0].type;
-      expect(ctrl.getPrecisionsOfType()).toEqual(fakePolicyTemplate.precisionOptions[0].precisions);
+      ctrl.dimension.type = fakeCubeTemplate.precisionOptions[0].type;
+      expect(ctrl.getPrecisionsOfType()).toEqual(fakeCubeTemplate.precisionOptions[0].precisions);
 
-      ctrl.dimension.type = fakePolicyTemplate.precisionOptions[1].type;
-      expect(ctrl.getPrecisionsOfType()).toEqual(fakePolicyTemplate.precisionOptions[1].precisions);
+      ctrl.dimension.type = fakeCubeTemplate.precisionOptions[1].type;
+      expect(ctrl.getPrecisionsOfType()).toEqual(fakeCubeTemplate.precisionOptions[1].precisions);
     })
   });
 

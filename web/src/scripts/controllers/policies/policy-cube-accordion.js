@@ -16,6 +16,9 @@
     vm.previousStep = previousStep;
     vm.nextStep = nextStep;
     vm.generateIndex = generateIndex;
+    vm.isActiveCubeCreationPanel = CubeService.isActiveCubeCreationPanel;
+    vm.activateCubeCreationPanel = activateCubeCreationPanel;
+
     vm.error = "";
 
     vm.init();
@@ -24,8 +27,13 @@
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.accordionStatus = AccordionStatusService.getAccordionStatus();
-      AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
+      AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length, vm.policy.cubes.length);
       vm.helpLink = vm.template.helpLinks.cubes;
+      if (vm.policy.cubes.length > 0){
+        PolicyModelFactory.enableNextStep();
+      }else{
+        CubeService.changeCubeCreationPanelVisibility(true);
+      }
     }
 
     function generateIndex() {
@@ -45,6 +53,11 @@
       }
     }
 
+    function activateCubeCreationPanel() {
+      CubeService.changeCubeCreationPanelVisibility(true);
+      AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length, vm.policy.cubes.length);
+    }
+
     $scope.$watchCollection(
       "vm.accordionStatus",
       function (newValue) {
@@ -54,7 +67,7 @@
               var selectedCube = vm.policy.cubes[selectedCubePosition];
               CubeModelFactory.setCube(selectedCube,selectedCubePosition );
             } else {
-              CubeModelFactory.resetCube(vm.template, CubeService.getCreatedCubes(), vm.policy.cubes.length);
+              CubeModelFactory.resetCube(vm.template.cube, CubeService.getCreatedCubes(), vm.policy.cubes.length);
             }
           }
       }

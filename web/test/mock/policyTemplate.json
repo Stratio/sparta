@@ -5,14 +5,16 @@
       "propertyName": "_NAME_",
       "propertyType": "text",
       "required": true,
-      "qa": "policy-name"
+      "qa": "policy-name",
+      "col": 5
     },
     {
       "propertyId": "description",
       "propertyName": "_DESCRIPTION_",
       "propertyType": "text",
       "required": true,
-      "qa": "policy-description"
+      "qa": "policy-description",
+      "col": 7
     }
   ],
   "advancedSettings": [
@@ -83,19 +85,39 @@
           "value": "MEMORY_AND_DISK_SER_2"
         }
       ]
+    },
+    {
+      "propertyId": "rawDataEnabled",
+      "propertyName": "_PERSIST_RAW_DATA_",
+      "propertyType": "boolean",
+      "required": false,
+      "default": false,
+      "qa": "policy-raw-data"
+    },
+    {
+      "propertyId": "rawDataPath",
+      "propertyName": "_PATH_",
+      "propertyType": "text",
+      "required": true,
+      "visible": [
+        [
+          {
+            "propertyId": "rawDataEnabled",
+            "value": true
+          }
+        ]
+      ],
+      "default": "/tmp/checkpoint",
+      "qa": "raw-data-path"
     }
   ],
   "steps": [
     {
-      "name": "_POLICY_._STEPS_._DESCRIPTION_",
-      "icon": "icon-tag_left"
-    },
-    {
       "name": "_POLICY_._STEPS_._INPUT_",
-      "icon": "icon-import"
+      "icon": "icon-input"
     },
     {
-      "name": "_POLICY_._STEPS_._MODEL_",
+      "name": "_POLICY_._STEPS_._TRANSFORMATION_",
       "icon": "icon-content-left"
     },
     {
@@ -103,183 +125,21 @@
       "icon": "icon-box"
     },
     {
-      "name": "_POLICY_._STEPS_._OUTPUTS_",
-      "icon": "icon-export"
-    },
-    {
       "name": "_POLICY_._STEPS_._FINISH_",
       "icon": "icon-paper"
     }
   ],
   "helpLinks": {
-    "description": "fake helplinks for description",
-    "models": "fake helplinks for models"
-  },
-  "sparkStreamingWindow": "fake sparkStreamingWindow",
-  "checkpointInterval": "fake checkpointInterval",
-  "checkpointAvailability": "fake checkpointAvailability",
-  "storageLevel": "fake storageLevel",
-  "helpLink": {
-    "description": "fake helpLink"
-  },
-  "defaultCubeName": "fake cube name",
-  "defaultTimeDimension": "fake defaultTimeDimension",
-  "defaultInterval": "fake defaultInterval",
-  "defaultTimeAvailability": "fake defaultTimeAvailability",
-  "template": "fake template",
-  "types": [
-    {
-      "iconName": "fake morphlines",
-      "name": "Morphlines"
-    },
-    {
-      "iconName": "fake datetime",
-      "name": "DateTime"
-    },
-    {
-      "iconName": "fake type",
-      "name": "Type"
-    }
-  ],
-  "morphlinesDefaultConfiguration": "fake morphlinesDefaultConfiguration",
-  "dateTimeDefaultConfiguration": "fake dateTimeDefaultConfiguration",
-  "typeDefaultConfiguration": "fake typeDefaultConfiguration",
-  "defaultInput": {
-    "label": "fake default input label",
-    "value": "fake default input value"
-  },
-  "defaultSparkStreamingWindow": 6000,
-  "defaultStorageLevel": "fake defaultStorageLevel",
-  "defaultCheckpointPath": "fake defaultCheckpointPath",
-  "defaultPartitionFormat": "fake defaultPartitionFormat",
-  "cubeTypes": [
-    {
-      "label": "Default",
-      "value": "Default"
-    },
-    {
-      "label": "DateTime",
-      "value": "DateTime"
-    },
-    {
-      "label": "GeoHash",
-      "value": "GeoHash"
-    }
-  ],
-  "precisionOptions": [
-    {
-      "type": "DateTime",
-      "precisions": [
-        {
-          "label": "_SECOND_",
-          "value": "second"
-        },
-        {
-          "label": "_5_SECONDS_",
-          "value": "s5"
-        },
-        {
-          "label": "_10_SECONDS_",
-          "value": "s10"
-        },
-        {
-          "label": "_15_SECONDS_",
-          "value": "s15"
-        },
-        {
-          "label": "_MINUTE_",
-          "value": "minute"
-        },
-        {
-          "label": "_HOUR_",
-          "value": "hour"
-        },
-        {
-          "label": "_DAY_",
-          "value": "day"
-        },
-        {
-          "label": "_MONTH_",
-          "value": "month"
-        },
-        {
-          "label": "_YEAR_",
-          "value": "year"
-        }
-      ]
-    },
-    {
-      "type": "GeoHash",
-      "precisions": [
-        {
-          "label": "_PRECISION_1_",
-          "value": "precision1"
-        },
-        {
-          "label": "_PRECISION_2_",
-          "value": "precision2"
-        },
-        {
-          "label": "_PRECISION_3_",
-          "value": "precision3"
-        },
-        {
-          "label": "_PRECISION_4_",
-          "value": "precision4"
-        },
-        {
-          "label": "_PRECISION_5_",
-          "value": "precision5"
-        },
-        {
-          "label": "_PRECISION_6_",
-          "value": "precision6"
-        },
-        {
-          "label": "_PRECISION_7_",
-          "value": "precision7"
-        },
-        {
-          "label": "_PRECISION_8_",
-          "value": "precision8"
-        },
-        {
-          "label": "_PRECISION_9_",
-          "value": "precision9"
-        },
-        {
-          "label": "_PRECISION_10_",
-          "value": "precision10"
-        },
-        {
-          "label": "_PRECISION_11_",
-          "value": "precision11"
-        },
-        {
-          "label": "_PRECISION_12_",
-          "value": "precision12"
-        }
-      ]
-    },
-    {
-      "type": "Default",
-      "precisions": []
-    }
-  ],
-  "functionNames": [
-    "fakeFunctionName1",
-    "fakeFunctionName2",
-    "fakeFunctionName3",
-    "fakeFunctionName4"
-  ],
-  "defaultOperatorConfiguration": {
-    "fake attribute": "fake value"
+    "description": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/5.+Create+and+Submit+Policy",
+    "inputs": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html",
+    "models": "http://docs.stratio.com/modules/sparkta/0.6/transformations.html",
+    "cubes": "http://docs.stratio.com/modules/sparkta/0.6/cube.html",
+    "outputs": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html"
   },
   "model": {
-    "defaultName": "fake model name",
     "types": [
       {
-        "iconName": "morphlines",
+        "iconName": "kite",
         "name": "Morphlines"
       },
       {
@@ -333,5 +193,222 @@
         "newField": "newFieldLong"
       }
     }
+  },
+  "cube": {
+    "defaultName": "cube",
+    "types": [
+      {
+        "label": "Default",
+        "value": "Default"
+      },
+      {
+        "label": "DateTime",
+        "value": "DateTime"
+      },
+      {
+        "label": "GeoHash",
+        "value": "GeoHash"
+      }
+    ],
+    "precisionOptions": [
+      {
+        "type": "DateTime",
+        "precisions": [
+          {
+            "label": "_SECOND_",
+            "value": "second"
+          },
+          {
+            "label": "_5_SECONDS_",
+            "value": "s5"
+          },
+          {
+            "label": "_10_SECONDS_",
+            "value": "s10"
+          },
+          {
+            "label": "_15_SECONDS_",
+            "value": "s15"
+          },
+          {
+            "label": "_MINUTE_",
+            "value": "minute"
+          },
+          {
+            "label": "_HOUR_",
+            "value": "hour"
+          },
+          {
+            "label": "_DAY_",
+            "value": "day"
+          },
+          {
+            "label": "_MONTH_",
+            "value": "month"
+          },
+          {
+            "label": "_YEAR_",
+            "value": "year"
+          }
+        ]
+      },
+      {
+        "type": "GeoHash",
+        "precisions": [
+          {
+            "label": "_PRECISION_1_",
+            "value": "precision1"
+          },
+          {
+            "label": "_PRECISION_2_",
+            "value": "precision2"
+          },
+          {
+            "label": "_PRECISION_3_",
+            "value": "precision3"
+          },
+          {
+            "label": "_PRECISION_4_",
+            "value": "precision4"
+          },
+          {
+            "label": "_PRECISION_5_",
+            "value": "precision5"
+          },
+          {
+            "label": "_PRECISION_6_",
+            "value": "precision6"
+          },
+          {
+            "label": "_PRECISION_7_",
+            "value": "precision7"
+          },
+          {
+            "label": "_PRECISION_8_",
+            "value": "precision8"
+          },
+          {
+            "label": "_PRECISION_9_",
+            "value": "precision9"
+          },
+          {
+            "label": "_PRECISION_10_",
+            "value": "precision10"
+          },
+          {
+            "label": "_PRECISION_11_",
+            "value": "precision11"
+          },
+          {
+            "label": "_PRECISION_12_",
+            "value": "precision12"
+          }
+        ]
+      },
+      {
+        "type": "Default",
+        "precisions": []
+      }
+    ],
+    "properties": [
+      {
+        "propertyId": "name",
+        "propertyName": "_NAME_",
+        "propertyType": "text",
+        "required": true,
+        "qa": "cube-name",
+        "col": 12
+      },
+      {
+        "propertyId": "checkpointConfig.interval",
+        "propertyName": "_CHECKPOINT_INTERVAL_",
+        "propertyType": "number",
+        "default": 30000,
+        "required": true,
+        "qa": "cube-name",
+        "col": 12
+      },
+      {
+        "propertyId": "checkpointConfig.timeDimension",
+        "propertyName": "_TIME_DIMENSION_",
+        "propertyType": "text",
+        "default": "minute",
+        "required": true,
+        "qa": "cube-name",
+        "col": 12
+      },
+      {
+        "propertyId": "checkpointConfig.timeAvailability",
+        "propertyName": "_CHECKPOINT_AVAILABILITY_",
+        "propertyType": "number",
+        "min": 0,
+        "max": 1000,
+        "default": 60000,
+        "required": true,
+        "qa": "cube-name",
+        "col": 12
+      },
+      {
+        "propertyId": "checkpointConfig.granularity",
+        "propertyName": "_GRANULARITY_",
+        "propertyType": "select",
+        "default": "minute",
+        "required": true,
+        "qa": "cube-name",
+        "col": 5,
+        "values": [
+          {
+            "label": "5 seconds",
+            "value": "5 seconds"
+          },
+          {
+            "label": "_10_SECONDS_",
+            "value": "10 seconds"
+          },
+          {
+            "label": "_15_SECONDS_",
+            "value": "15 seconds"
+          },
+          {
+            "label": "_MINUTE_",
+            "value": "minute"
+          },
+          {
+            "label": "_HOUR_",
+            "value": "hour"
+          },
+          {
+            "label": "_DAY_",
+            "value": "day"
+          },
+          {
+            "label": "_MONTH_",
+            "value": "month"
+          },
+          {
+            "label": "_YEAR_",
+            "value": "year"
+          }
+        ]
+      }
+    ],
+    "functionNames": [
+      "Accumulator",
+      "Avg",
+      "Count",
+      "EntityCount",
+      "FirstValue",
+      "FullText",
+      "LastValue",
+      "Max",
+      "Median",
+      "Min",
+      "Mode",
+      "Range",
+      "Stddev",
+      "Sum",
+      "Variance",
+      "TotalEntityCount"
+    ]
   }
 }

@@ -23,10 +23,10 @@
       vm.dimension = {};
       vm.dimension.name = dimensionName;
       vm.dimension.field = fieldName;
-      vm.cubeTypes = template.cubeTypes;
+      vm.cubeTypes = template.types;
       vm.dimension.type = vm.cubeTypes[0].value;
       vm.precisionOptions = template.precisionOptions;
-      vm.defaultType = template.cubeTypes[0].value;
+      vm.defaultType =  vm.cubeTypes[0].value;
       vm.errorText = "";
     }
 

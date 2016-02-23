@@ -1,5 +1,4 @@
 <section data-ng-controller="PolicyCubeAccordionCtrl as vm">
-
   <p class="c-info-text c-info-text--narrow c-info-text--bottom-margin"><i class="c-icon c-info-text__icon icon-info1"></i><span
     class="c-info-text__text">{{"_POLICY_._CUBE_INTRO_" | translate}}</span></p>
 
@@ -30,7 +29,7 @@
         </accordion-group>
       </div>
 
-      <div class="c-accordion-item c-accordion-item--new">
+      <div class="c-accordion-item c-accordion-item--new"  ng-if ="vm.isActiveCubeCreationPanel()">
         <accordion-group is-open="vm.accordionStatus[vm.policy.cubes.length]">
           <accordion-heading>
             <span class="c-accordion-header__step-number">{{vm.policy.cubes.length + 1}}</span><i
@@ -40,31 +39,27 @@
                data-qa="policy-cube-arrow-{{(vm.policy.cubes.length + 1) }}"></i>
           </accordion-heading>
 
-          <ng-include data-ng-if="vm.accordionStatus[vm.policy.cubes.length]" class="c-form-group"
+          <ng-include  data-ng-if="vm.accordionStatus[vm.policy.cubes.length]" class="c-form-group"
                       src="'views/policy-wizard/cube-panel.html'" data-qa="policy-cube-new"></ng-include>
 
         </accordion-group>
       </div>
     </accordion>
 
-
-    <footer class="c-row c-row--footer">
-
-      <div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">
-        <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" text-class=""
-                     link-url="vm.helpLink"></c-icon-link>
-      </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
-        <button class="c-button c-button--call-to-action-2" data-ng-click="vm.previousStep()"
-                data-qa="policy-cube-previous-button">
-          <i class="icon icon-arrow-left"></i>
-          <span>{{"_PREVIOUS_" | translate}}</span>
-        </button>
-        <button class="c-button c-button--call-to-action-1" data-ng-click="vm.nextStep()"
-                data-qa="policy-cube-next-button">
-          <i class="icon icon-arrow-right"></i>
-          <span>{{"_CONTINUE_" | translate}}</span>
-        </button>
-      </div>
-    </footer>
   </form>
+
+  <footer class="c-row c-row--footer">
+    <div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">
+      <div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">
+        <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" link-url="vm.helpLink"
+                     data-qa="policy-cube-help"></c-icon-link>
+      </div>
+    </div>
+
+    <button class="c-button c-button--call-to-action-1"  ng-if = "!vm.isActiveCubeCreationPanel()"
+            data-ng-click="vm.activateCubeCreationPanel()" data-qa="policy-model-add-new-transformation-button">
+      <i class="icon icon-circle-plus"></i>
+      <span>{{"_POLICY_._ADD_CUBE_" | translate}}</span>
+    </button>
+  </footer>
 </section>
