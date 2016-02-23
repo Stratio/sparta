@@ -67,16 +67,17 @@
   "cubes": [
     {
       "name": "testCube",
-      "checkpointConfig": {
-        "timeDimension": "timestamp",
-        "granularity": "day",
-        "interval": 100000,
-        "timeAvailability": 90000
-      },
       "dimensions": [
         {
           "name": "product",
           "field": "product"
+        },
+        {
+          "name": "minute",
+          "field": "timestamp",
+          "type": "DateTime",
+          "precision": "minute",
+          "computeLast": "10m"
         }
       ],
       "operators": [

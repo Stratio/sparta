@@ -16,7 +16,28 @@
 
 package com.stratio.sparkta.serving.core.models
 
+import java.io._
+
+import com.fasterxml.jackson.databind._
+import com.github.fge.jsonschema.core.exceptions.InvalidSchemaException
+import com.github.fge.jsonschema.core.report.ProcessingReport
+import com.github.fge.jsonschema.main.{JsonSchema, JsonSchemaFactory}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+import scala.collection.JavaConversions._
+import java.io._
+
+import com.fasterxml.jackson.databind._
+import com.github.fge.jsonschema.core.exceptions.InvalidSchemaException
+import com.github.fge.jsonschema.core.report.ProcessingReport
+import com.github.fge.jsonschema.main.{JsonSchema, JsonSchemaFactory}
+import com.stratio.sparkta.serving.core.helpers.OperationsHelper
+import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+import org.json4s.jackson.Serialization._
+import scala.collection.JavaConversions._
 
 case class AggregationPoliciesModel(id: Option[String] = None,
                                     version: Option[Int] = None,

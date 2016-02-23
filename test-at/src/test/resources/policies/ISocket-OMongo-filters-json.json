@@ -94,6 +94,13 @@
           "field": "hashtag",
           "precision": "identity",
           "type": "Default"
+        },
+        {
+          "name": "minute",
+          "field": "time",
+          "type": "DateTime",
+          "precision": "minute",
+          "computeLast": "10m"
         }
       ],
       "operators": [
