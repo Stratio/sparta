@@ -5,22 +5,19 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
   beforeEach(module('served/cube.json'));
 
   var ctrl, scope, fakePolicy, fakeCubeTemplate, fakeCube, policyModelFactoryMock, fakeOutputs,fakePolicyTemplate,
-    cubeModelFactoryMock, cubeServiceMock, modalServiceMock, resolvedPromise, rejectedPromise;
+    cubeModelFactoryMock, cubeServiceMock, modalServiceMock;
 
   // init mock modules
 
   beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope) {
     scope = $rootScope.$new();
-
+    $httpBackend.when('GET', 'languages/en-US.json').respond({});
     inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedCube_) {
       fakePolicy = angular.copy(_servedPolicy_);
       fakePolicyTemplate = _servedPolicyTemplate_;
       fakeCubeTemplate = _servedPolicyTemplate_.cube;
       fakeCube = angular.copy(_servedCube_);
     });
-
-    $httpBackend.when('GET', 'languages/en-US.json')
-      .respond({});
 
     policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate', 'getAllModelOutputs']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
@@ -44,7 +41,6 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       var defer = $q.defer();
       defer.resolve();
       return {"result": defer.promise};
-
     });
 
     ctrl = $controller('CubeCtrl', {
