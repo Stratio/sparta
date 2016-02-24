@@ -49,9 +49,6 @@ object AppConstant {
   final val StopTimeout = "stopTimeout"
   final val DefaultStopTimeout = 30000
 
-  // ZK id's
-  final val HdfsID = "hdfs"
-
   //Hdfs Options
   final val HadoopUserName = "hadoopUserName"
   final val HadoopConfDir = "hadoopConfDir"

@@ -17,13 +17,14 @@
 package com.stratio.sparkta.serving.api.actor
 
 import java.io.{OutputStream, ByteArrayOutputStream}
+import java.util.concurrent.TimeUnit
 
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
 import com.google.common.io.BaseEncoding
-import com.stratio.sparkta.driver.util.ClusterSparkFiles
+import com.stratio.sparkta.driver.util.{HdfsUtils, ClusterSparkFiles}
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.dao.ConfigDAO
@@ -53,9 +54,14 @@ with SparktaSerializer {
   private val HdfsConfig = SparktaConfig.getHdfsConfig.get
   private val DetailConfig = SparktaConfig.getDetailConfig.get
 
-  private val Uploader = ClusterSparkFiles(policy)
+  private val Hdfs = HdfsUtils(HdfsConfig)
+  private val Uploader = ClusterSparkFiles(policy, Hdfs)
   private val PolicyId = policy.id.get.trim
   private val Master = ClusterConfig.getString(AppConstant.Master)
+  private val BasePath = s"/user/${Hdfs.userName}/${AppConstant.ConfigAppName}/$PolicyId"
+  private val PluginsJarsPath = s"$BasePath/${HdfsConfig.getString(AppConstant.PluginsFolder)}/"
+  private val ClasspathJarsPath = s"$BasePath/${HdfsConfig.getString(AppConstant.ClasspathFolder)}/"
+  private val DriverJarPath = s"$BasePath/${HdfsConfig.getString(AppConstant.ExecutionJarFolder)}/"
 
   implicit val timeout: Timeout = Timeout(3.seconds)
 
@@ -67,9 +73,8 @@ with SparktaSerializer {
     Try {
       log.info("Init new cluster streamingContext with name " + policy.name)
       validateSparkHome()
-      saveHdfsConfig()
-      val driverPath = Uploader.getDriverFile
-      val clusterFiles = Uploader.getClasspathFiles ++ Uploader.getPluginsFiles
+      val driverPath = Uploader.getDriverFile(DriverJarPath)
+      val clusterFiles = Uploader.getClasspathFiles(ClasspathJarsPath) ++ Uploader.getPluginsFiles(PluginsJarsPath)
       val driverParams = Seq(PolicyId, zkConfigEncoded, detailConfigEncoded)
       launch(SparktaDriver, driverPath, Master, sparkArgs, driverParams, clusterFiles.values.toSeq)
     } match {
@@ -79,11 +84,6 @@ with SparktaSerializer {
       case Success(_) =>
       //TODO add more statuses for the policies
     }
-  }
-
-  def saveHdfsConfig(): Unit = {
-    val configRendered = render(HdfsConfig, "hdfs")
-    ConfigDAO().dao.upsert(AppConstant.HdfsID, configRendered)
   }
 
   private def setErrorStatus(): Unit =
@@ -107,6 +107,7 @@ with SparktaSerializer {
       Try(ClusterConfig.getBoolean(AppConstant.StandAloneSupervise)).getOrElse(false)
     } else false
 
+  //scalastyle:off
   private def launch(main: String, hdfsDriverFile: String, master: String, args: Map[String, String],
                      driverParams: Seq[String], clusterFiles: Seq[String]): Unit = {
     val sparkLauncher = new SparkLauncher()
@@ -114,7 +115,6 @@ with SparktaSerializer {
       .setAppResource(hdfsDriverFile)
       .setMainClass(main)
       .setMaster(master)
-      .setVerbose(true)
     clusterFiles.foreach(file => sparkLauncher.addJar(file))
     args.map({ case (k: String, v: String) => sparkLauncher.addSparkArg(k, v) })
     if (isStandaloneSupervise) sparkLauncher.addSparkArg(StandaloneSupervise)
@@ -125,32 +125,43 @@ with SparktaSerializer {
     // Driver (Sparkta) params
     driverParams.map(sparkLauncher.addAppArgs(_))
 
-    log.info(s"$sparkHome/bin/spark-submit --master $master " ++ args.foldLeft("") {
-      (s: String, pair: (String, String)) =>  s"$s ${pair._1} ${pair._2}"
-    })
-
-    Future[(Int, Process, BufferedSource, OutputStream)] {
+    log.info(sparkLauncher.toString)
+    Future[(Boolean, Process)] {
       val sparkProcess = sparkLauncher.launch()
-      val inputStream = Source.fromInputStream(sparkProcess.getInputStream)
-      val outputStream = sparkProcess.getOutputStream
-
-      Source.fromInputStream(sparkProcess.getErrorStream).close()
-      (sparkProcess.waitFor(), sparkProcess, inputStream, outputStream)
+      (sparkProcess.waitFor(10, TimeUnit.SECONDS), sparkProcess)
     } onComplete {
-      case Success((0, sparkProcess, inputStream, out)) =>
-        log.info("Spark process launched")
-        inputStream.getLines.foreach(log.info)
-        val outStream = new ByteArrayOutputStream()
-        out.write(outStream.toByteArray)
-        log.info(outStream.toString)
+      case Success((true, sparkProcess)) =>
         log.info("Spark process exited successfully")
-      case Success((exitCode, sparkProcess, inputStream, out)) =>
-        log.info("Spark process launched")
-        inputStream.getLines.foreach(log.info)
-        log.error(s"Spark process exited with code $exitCode")
+        log.info("InputStream:")
+        val input = Source.fromInputStream(sparkProcess.getInputStream)
+          input.getLines.foreach(log.info)
+        input.close()
+        log.info("OutputStream:")
         val outStream = new ByteArrayOutputStream()
-        out.write(outStream.toByteArray)
+        val output = sparkProcess.getOutputStream
+          output.write(outStream.toByteArray)
         log.info(outStream.toString)
+        output.close()
+        log.info("ErrorStream:")
+        val error = Source.fromInputStream(sparkProcess.getErrorStream)
+          error.getLines.foreach(log.info)
+        error.close()
+      case Success((exitCode, sparkProcess)) =>
+        log.info("Spark process with timeout")
+        log.info("InputStream:")
+        val input = Source.fromInputStream(sparkProcess.getInputStream)
+        input.getLines.foreach(log.info)
+        input.close()
+        log.info("OutputStream:")
+        val outStream = new ByteArrayOutputStream()
+        val output = sparkProcess.getOutputStream
+        output.write(outStream.toByteArray)
+        log.info(outStream.toString)
+        output.close()
+        log.info("ErrorStream:")
+        val error = Source.fromInputStream(sparkProcess.getErrorStream)
+        error.getLines.foreach(log.info)
+        error.close()
       case Failure(exception) =>
         log.error(exception.getMessage)
         throw exception

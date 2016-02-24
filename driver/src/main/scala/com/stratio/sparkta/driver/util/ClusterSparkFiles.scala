@@ -24,29 +24,37 @@ import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
 import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
 
-case class ClusterSparkFiles(policy: AggregationPoliciesModel) extends SLF4JLogging {
+case class ClusterSparkFiles(policy: AggregationPoliciesModel, hdfs: HdfsUtils) extends SLF4JLogging {
 
+  private val hdfsConfig = SparktaConfig.getHdfsConfig.get
   private val jarsPlugins = JarsHelper.findJarsByPath(
     new File(SparktaConfig.sparktaHome, AppConstant.JarPluginsFolder),
     Some(AppConstant.pluginExtension), None, None, None, false)
   private val activeJars = PolicyUtils.activeJars(policy, jarsPlugins)
 
-  def getPluginsFiles: Map[String, String] = {
+  def getPluginsFiles(pluginsJarsPath: String): Map[String, String] = {
     validate()
     PolicyUtils.activeJarFiles(activeJars.right.get, jarsPlugins)
-      .filter(file => !file.getName.contains("driver")).map(file => file.getName -> file.getAbsolutePath).toMap
+      .filter(file => !file.getName.contains("driver")).map(file => {
+      hdfs.write(file.getAbsolutePath, pluginsJarsPath, true)
+      file.getName -> s"hdfs://${hdfsConfig.getString(AppConstant.HdfsMaster)}$pluginsJarsPath${file.getName}"
+    }).toMap
   }
 
-  def getClasspathFiles: Map[String, String] = {
+  def getClasspathFiles(classpathJarsPath: String): Map[String, String] = {
     JarsHelper.findJarsByPath(new File(SparktaConfig.sparktaHome, AppConstant.ClasspathJarFolder),
       Some(".jar"), None, Some("driver"), Some(Seq("plugins", "spark", "driver", "web", "serving-api")), false)
-      .distinct.map(file => file.getName -> file.getAbsolutePath).toMap
+      .distinct.map(file => {
+      hdfs.write(file.getAbsolutePath, classpathJarsPath, true)
+      file.getName -> s"hdfs://${hdfsConfig.getString(AppConstant.HdfsMaster)}$classpathJarsPath${file.getName}"
+    }).toMap
   }
 
-  def getDriverFile: String = {
+  def getDriverFile(driverJarPath: String): String = {
     val driverJar =
       JarsHelper.findDriverByPath(new File(SparktaConfig.sparktaHome, AppConstant.ClusterExecutionJarFolder)).head
-    driverJar.getAbsolutePath
+    hdfs.write(driverJar.getAbsolutePath, driverJarPath, true)
+    s"hdfs://${hdfsConfig.getString(AppConstant.HdfsMaster)}$driverJarPath${driverJar.getName}"
   }
 
   def validate(): Unit = {

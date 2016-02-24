@@ -221,11 +221,8 @@ object PolicyActor {
   case class ResponsePolicy(policy: Try[AggregationPoliciesModel])
 
   def deleteCheckpointPath(policy: AggregationPoliciesModel): Unit = {
-    if (SparktaConfig.getClusterConfig.isDefined) {
-      val configDAO = ConfigDAO(SparktaConfig.mainConfig.get)
-      val hdfsJsonConfig = configDAO.dao.get(AppConstant.HdfsID).get
-      val config = ConfigFactory.parseString(hdfsJsonConfig).getConfig(AppConstant.HdfsID)
-      HdfsUtils(config).delete(AggregationPoliciesModel.checkpointPath(policy))
+    if (SparktaConfig.getHdfsConfig.isDefined) {
+      HdfsUtils(SparktaConfig.getHdfsConfig.get).delete(AggregationPoliciesModel.checkpointPath(policy))
     } else {
       FileUtils.deleteDirectory(new File(AggregationPoliciesModel.checkpointPath(policy)))
     }
