@@ -28,15 +28,18 @@
             restrict: 'AE',
             replace: true,
             scope: {
-                    help: '@',
-                    label: '@',
-                    name: '@stName',
-                    form: '=',
-                    model: '=',
-                    listCompressed: "=",
-                    required: '=',
-                    json:'=',
-                helpQa: '='
+                help: '@',
+                label: '@',
+                name: '@stName',
+                form: '=',
+                model: '=',
+                listCompressed: "=",
+                required: '=',
+                json:'=',
+                helpQa: '=',
+                placeholder: '=',
+                extraInfo: '=',
+                disabled: '='
             }
         }
         return directive;

@@ -17,6 +17,7 @@
     vm.removeModel = removeModel;
     vm.isLastModel = ModelService.isLastModel;
     vm.isNewModel = ModelService.isNewModel;
+    vm.resetOutputFields = resetOutputFields;
 
     vm.modelInputs = ModelFactory.getModelInputs();
     vm.init();
@@ -26,6 +27,7 @@
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.model = ModelFactory.getModel();
       vm.modelError = '';
+      vm.lastType = vm.template.model.types[0].name;
       if (vm.model) {
         vm.modelError = ModelFactory.getError();
         vm.modelContext = ModelFactory.getContext();
@@ -45,7 +47,7 @@
       var types = vm.template.model.types;
       var defaultConfigurations =  vm.template.model.defaultConfiguration;
       switch (type) {
-        case types[0].name:
+        case types[1].name:
         {
           return defaultConfigurations.morphlinesDefaultConfiguration;
         }
@@ -74,6 +76,13 @@
         vm.model = ModelFactory.resetModel(vm.template.model, order, modelNumber);
         ModelFactory.updateModelInputs(vm.policy.transformations);
       });
+    }
+
+    function resetOutputFields() {
+      if (vm.model.type !== vm.lastType) {
+        vm.model.outputFields = [];
+        vm.lastType = vm.model.type;
+      }
     }
   }
 })
