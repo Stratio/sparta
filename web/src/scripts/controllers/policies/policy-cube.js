@@ -20,6 +20,7 @@
     vm.removeOutputFromDimensions = removeOutputFromDimensions;
     vm.addFunctionToOperators = addFunctionToOperators;
     vm.removeFunctionFromOperators = removeFunctionFromOperators;
+    vm.addOutput = addOutput;
 
     vm.init();
 
@@ -33,6 +34,7 @@
         vm.outputList = PolicyModelFactory.getAllModelOutputs();
         vm.cubeError = CubeModelFactory.getError();
         vm.cubeContext = CubeModelFactory.getContext();
+        vm.selectedPolicyOutput = "";
       }
     }
 
@@ -115,16 +117,21 @@
       });
     }
 
-    function addCube(){
+    function addCube() {
       vm.form.$submitted = true;
       if (vm.form.$valid && vm.cube.operators.length > 0 && vm.cube.dimensions.length > 0) {
         vm.form.$submitted = false;
         CubeService.addCube();
-
         CubeService.changeCubeCreationPanelVisibility(false);
       }
       else {
         CubeModelFactory.setError();
+      }
+    }
+
+    function addOutput() {
+      if (vm.selectedPolicyOutput && vm.cube.writer.outputs.indexOf(vm.selectedPolicyOutput) == -1) {
+        vm.cube.writer.outputs.push(vm.selectedPolicyOutput);
       }
     }
   }

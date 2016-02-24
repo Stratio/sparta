@@ -1,13 +1,11 @@
 describe('policies.wizard.controller.policy-model-accordion-controller', function () {
+  var ctrl, scope, translate, fakeTranslation, fakePolicy, fakePolicyTemplate, fakeModel, policyModelFactoryMock,
+    accordionStatusServiceMock, modelFactoryMock, cubeServiceMock, ModelServiceMock, accordionStatus = null;
+
   beforeEach(module('webApp'));
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/policyTemplate.json'));
   beforeEach(module('served/model.json'));
-
-  var ctrl, scope, translate, fakeTranslation, fakePolicy, fakePolicyTemplate, fakeModel, policyModelFactoryMock,
-    accordionStatusServiceMock, modelFactoryMock, cubeServiceMock, modalServiceMock, accordionStatus = null;
-
-  // init mock modules
 
   beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope) {
     scope = $rootScope.$new();
@@ -41,13 +39,8 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
     accordionStatusServiceMock.getAccordionStatus.and.returnValue(accordionStatus);
     cubeServiceMock = jasmine.createSpyObj('CubeService', ['findCubesUsingOutputs']);
 
-    modalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
-    modalServiceMock.openModal.and.callFake(function () {
-      var defer = $q.defer();
-      defer.resolve();
-      return {"result": defer.promise};
+    ModelServiceMock = jasmine.createSpyObj('ModelService', ['isActiveModelCreationPanel', 'changeModelCreationPanelVisibility']);
 
-    });
     spyOn(scope, "$watchCollection").and.callThrough();
 
     ctrl = $controller('PolicyModelAccordionCtrl  as vm', {
@@ -55,7 +48,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
       'AccordionStatusService': accordionStatusServiceMock,
       'ModelFactory': modelFactoryMock,
       'CubeService': cubeServiceMock,
-      'ModalService': modalServiceMock,
+      'ModelService': ModelServiceMock,
       '$translate': translate,
       '$scope': scope
     });
@@ -84,7 +77,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
         'AccordionStatusService': accordionStatusServiceMock,
         'ModelFactory': modelFactoryMock,
         'CubeService': cubeServiceMock,
-        'ModalService': modalServiceMock,
+        'ModelService': ModelServiceMock,
         '$translate': translate,
         '$scope': scope
       });
@@ -155,6 +148,23 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
         expect(modelFactoryMock.resetModel).toHaveBeenCalledWith(fakePolicyTemplate.model, fakeModel2.order + 1, ctrl.policy.transformations.length);
       })
     })
+  });
+
+  describe("should be able to activate the panel to create a new model", function () {
+    var modelLength = null;
+    beforeEach(function () {
+      modelLength = ctrl.policy.transformations.length;
+      ctrl.activateModelCreationPanel();
+    });
+
+    it("visibility of model creation panel is changed to true", function () {
+      expect(ModelServiceMock.changeModelCreationPanelVisibility).toHaveBeenCalledWith(true);
+    });
+
+    it("Accordion status is reset to show the last position", function () {
+      expect(accordionStatusServiceMock.resetAccordionStatus).toHaveBeenCalledWith(modelLength, modelLength);
+    });
+
   });
 });
 

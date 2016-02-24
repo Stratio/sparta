@@ -5,9 +5,9 @@
     .module('webApp')
     .service('CubeService', CubeService);
 
-  CubeService.$inject = ['PolicyModelFactory', 'ModalService', 'AccordionStatusService', 'CubeModelFactory', 'UtilsService', '$q'];
+  CubeService.$inject = ['PolicyModelFactory', 'ModalService', 'AccordionStatusService', 'CubeModelFactory', 'FragmentFactory', 'UtilsService', '$q'];
 
-  function CubeService(PolicyModelFactory, ModalService, AccordionStatusService, CubeModelFactory, UtilsService, $q) {
+  function CubeService(PolicyModelFactory, ModalService, AccordionStatusService, CubeModelFactory, FragmentFactory, UtilsService, $q) {
     var vm = this;
     var createdCubes = null;
 
@@ -22,6 +22,7 @@
     vm.resetCreatedCubes = resetCreatedCubes;
     vm.changeCubeCreationPanelVisibility = changeCubeCreationPanelVisibility;
     vm.isActiveCubeCreationPanel = isActiveCubeCreationPanel;
+    vm.generateOutputList = generateOutputList;
 
     init();
 
@@ -111,7 +112,7 @@
 
     function addCube() {
       var newCube = angular.copy(CubeModelFactory.getCube());
-      newCube =  UtilsService.convertDottedPropertiesToJson(newCube);
+      newCube = UtilsService.convertDottedPropertiesToJson(newCube);
       if (CubeModelFactory.isValidCube(newCube, vm.policy.cubes, CubeModelFactory.getContext().position)) {
         vm.policy.cubes.push(newCube);
         createdCubes++;
@@ -139,7 +140,7 @@
       showConfirmRemoveCube().then(function () {
         vm.policy.cubes.splice(cubePosition, 1);
         AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
-        if (vm.policy.cubes.length == 0){
+        if (vm.policy.cubes.length == 0) {
           PolicyModelFactory.disableNextStep();
         }
         defer.resolve();
@@ -167,6 +168,19 @@
 
     function resetCreatedCubes() {
       createdCubes = vm.policy.cubes.length;
+    }
+
+    function generateOutputList() {
+      var defer = $q.defer();
+      var outputList = [];
+      FragmentFactory.getFragments("output").then(function (result) {
+        for (var i = 0; i < result.length; ++i) {
+          outputList.push({"label": result[i].name, "value": result[i].name});
+        }
+        defer.resolve(outputList);
+      });
+
+      return defer.promise;
     }
   }
 })();

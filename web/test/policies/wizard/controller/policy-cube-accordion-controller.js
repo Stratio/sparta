@@ -3,27 +3,37 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/policyTemplate.json'));
   beforeEach(module('served/cube.json'));
+  beforeEach(module('served/output.json'));
 
-  var ctrl, scope, translate, fakeTranslation, fakePolicy, fakeCubeTemplate, fakeCube, policyModelFactoryMock,fakePolicyTemplate,
-    accordionStatusServiceMock, cubeModelFactoryMock, cubeServiceMock, modalServiceMock, accordionStatus = null;
+  var ctrl, scope, q, translate, fakeTranslation, fakePolicy, fakeCubeTemplate, fakeCube, policyModelFactoryMock, fakePolicyTemplate,
+    accordionStatusServiceMock, $controller, cubeModelFactoryMock, cubeServiceMock, modalServiceMock, accordionStatus, resolvedPromise, fakeOutput = null;
 
   // init mock modules
 
-  beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope) {
+  beforeEach(inject(function (_$controller_, $q, $httpBackend, $rootScope) {
     scope = $rootScope.$new();
+    q = $q;
     fakeTranslation = "fake translation";
+    $controller = _$controller_;
     translate = jasmine.createSpy().and.returnValue(fakeTranslation);
 
-    inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedCube_) {
+    inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedCube_, _servedOutput_) {
       fakePolicy = angular.copy(_servedPolicy_);
       fakePolicyTemplate = _servedPolicyTemplate_;
       fakeCubeTemplate = _servedPolicyTemplate_.cube;
       fakeCube = _servedCube_;
+      fakeOutput = _servedOutput_;
     });
 
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
 
+    resolvedPromise = function () {
+      var defer = $q.defer();
+      defer.resolve();
+
+      return defer.promise;
+    };
     policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate', 'previousStep', 'nextStep', 'enableNextStep']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
       return fakePolicy;
@@ -33,22 +43,23 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
       return fakePolicyTemplate;
     });
 
-
     cubeModelFactoryMock = jasmine.createSpyObj('CubeFactory', ['resetCube', 'getCube', 'setCube', 'isValidCube', 'updateCubeInputs']);
     cubeModelFactoryMock.getCube.and.returnValue(fakeCube);
 
     accordionStatusServiceMock = jasmine.createSpyObj('AccordionStatusService', ['getAccordionStatus', 'resetAccordionStatus']);
     accordionStatus = [false, false];
     accordionStatusServiceMock.getAccordionStatus.and.returnValue(accordionStatus);
-    cubeServiceMock = jasmine.createSpyObj('CubeService', ['findCubesUsingOutputs', 'resetCreatedCubes', 'areValidCubes', 'getCreatedCubes', 'changeCubeCreationPanelVisibility']);
+    cubeServiceMock = jasmine.createSpyObj('CubeService', ['findCubesUsingOutputs', 'resetCreatedCubes', 'areValidCubes',
+      'getCreatedCubes', 'changeCubeCreationPanelVisibility', 'generateOutputList']);
 
+    cubeServiceMock.generateOutputList.and.callFake(resolvedPromise);
     modalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
     modalServiceMock.openModal.and.callFake(function () {
       var defer = $q.defer();
       defer.resolve();
       return {"result": defer.promise};
-
     });
+
     spyOn(scope, "$watchCollection").and.callThrough();
 
     ctrl = $controller('PolicyCubeAccordionCtrl  as vm', {
@@ -63,6 +74,7 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
 
   describe("when it is initialized", function () {
 
+
     it('it should get a policy template from from policy factory', function () {
       expect(ctrl.template).toBe(fakePolicyTemplate);
     });
@@ -76,7 +88,7 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
       expect(accordionStatusServiceMock.resetAccordionStatus).toHaveBeenCalled();
     });
 
-    it ("if policy has a cube at least, next step is enabled", inject(function ($controller){
+    it("if policy has a cube at least, next step is enabled", function () {
       fakePolicy.cubes = [fakeCube];
       ctrl = $controller('PolicyCubeAccordionCtrl  as vm', {
         'PolicyModelFactory': policyModelFactoryMock,
@@ -87,7 +99,40 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
       });
 
       expect(policyModelFactoryMock.enableNextStep).toHaveBeenCalled();
-    }));
+    });
+
+    it("if policy has not any cube, panel of cube creation is shown", function () {
+      fakePolicy.cubes = [];
+      ctrl = $controller('PolicyCubeAccordionCtrl  as vm', {
+        'PolicyModelFactory': policyModelFactoryMock,
+        'AccordionStatusService': accordionStatusServiceMock,
+        'CubeModelFactory': cubeModelFactoryMock,
+        'CubeService': cubeServiceMock,
+        '$scope': scope
+      });
+
+      expect(cubeServiceMock.changeCubeCreationPanelVisibility).toHaveBeenCalled();
+    });
+
+    it("list of available outputs is loaded to be used in cube creation", function () {
+      var fakeOutputList = [fakeOutput];
+      cubeServiceMock.generateOutputList.and.callFake(function () {
+        var defer = q.defer();
+        defer.resolve(fakeOutputList);
+        return defer.promise;
+      });
+      ctrl = $controller('PolicyCubeAccordionCtrl  as vm', {
+        'PolicyModelFactory': policyModelFactoryMock,
+        'AccordionStatusService': accordionStatusServiceMock,
+        'CubeModelFactory': cubeModelFactoryMock,
+        'CubeService': cubeServiceMock,
+        '$scope': scope
+      });
+
+      scope.$digest();
+
+      expect(ctrl.policyOutputList).toBe(fakeOutputList);
+    })
   });
 
   it("should be able to change to previous step calling to policy cube factory", function () {
@@ -148,7 +193,7 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
         expect(cubeModelFactoryMock.setCube).toHaveBeenCalledWith(fakeCube2, 1);
       });
       it("if position is not between 0 and policy cubes length, the factory cube is reset with the order of the previous cube", function () {
-       var fakeCreatedCubes = 5;
+        var fakeCreatedCubes = 5;
         cubeServiceMock.getCreatedCubes.and.returnValue(fakeCreatedCubes);
         var fakeCube2 = angular.copy(fakeCube);
         fakeCube2.name = "fake cube 2";
@@ -163,6 +208,23 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
         expect(cubeModelFactoryMock.resetCube).toHaveBeenCalledWith(fakeCubeTemplate, fakeCreatedCubes, ctrl.policy.cubes.length);
       })
     })
+  });
+
+  describe("should be able to activate the panel to create a new cube", function () {
+    var cubeLength = null;
+    beforeEach(function () {
+      cubeLength = ctrl.policy.cubes.length;
+      ctrl.activateCubeCreationPanel();
+    });
+
+    it("visibility of cube creation panel is changed to true", function () {
+      expect(cubeServiceMock.changeCubeCreationPanelVisibility).toHaveBeenCalledWith(true);
+    });
+
+    it("Accordion status is reset to show the last position", function () {
+      expect(accordionStatusServiceMock.resetAccordionStatus).toHaveBeenCalledWith(cubeLength, cubeLength);
+    });
+
   });
 });
 
