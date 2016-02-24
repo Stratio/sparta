@@ -20,6 +20,7 @@
     vm.resetOutputFields = resetOutputFields;
 
     vm.modelInputs = ModelFactory.getModelInputs();
+
     vm.init();
 
     function init() {
@@ -35,7 +36,7 @@
         vm.configPlaceholder = vm.template.configPlaceholder;
         vm.outputPattern = vm.template.outputPattern;
         vm.outputInputPlaceholder = vm.template.outputInputPlaceholder;
-        vm.outputFieldTypes =  vm.template.model.outputFieldTypes;
+        vm.outputFieldTypes = vm.template.model.outputFieldTypes;
       }
     }
 
@@ -45,7 +46,7 @@
 
     function getDefaultConfigurations(type) {
       var types = vm.template.model.types;
-      var defaultConfigurations =  vm.template.model.defaultConfiguration;
+      var defaultConfigurations = vm.template.model.defaultConfiguration;
       switch (type) {
         case types[1].name:
         {
@@ -67,7 +68,7 @@
     }
 
     function removeModel() {
-      return  ModelService.removeModel().then(function () {
+      return ModelService.removeModel().then(function () {
         var order = 0;
         var modelNumber = vm.policy.transformations.length;
         if (modelNumber > 0) {

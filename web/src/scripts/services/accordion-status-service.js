@@ -8,12 +8,10 @@
 
   function AccordionStatusService() {
     var vm = this;
-    var accordionStatus = [];
 
     vm.resetAccordionStatus = resetAccordionStatus;
-    vm.getAccordionStatus = getAccordionStatus;
 
-    function resetAccordionStatus(length, truePosition) {
+    function resetAccordionStatus(accordionStatus, length, truePosition) {
       if (length !== undefined && length != null && length >= 0) {
         for (var i = 0; i <= length; ++i) {
           if (i == truePosition)
@@ -28,10 +26,6 @@
           currentLength--;
         }
       }
-    }
-
-    function getAccordionStatus() {
-      return accordionStatus;
     }
   }
 })();

@@ -5,11 +5,12 @@
     .module('webApp')
     .service('ModelService', ModelService);
 
-  ModelService.$inject = ['ModalService', 'PolicyModelFactory', '$translate', 'ModelFactory', 'CubeService', 'AccordionStatusService', 'UtilsService', '$q'];
+  ModelService.$inject = ['ModalService', 'PolicyModelFactory', '$translate', 'ModelFactory', 'CubeService', 'UtilsService', '$q'];
 
-  function ModelService(ModalService, PolicyModelFactory, $translate, ModelFactory, CubeService, AccordionStatusService, UtilsService, $q) {
+  function ModelService(ModalService, PolicyModelFactory, $translate, ModelFactory, CubeService, UtilsService, $q) {
     var vm = this;
-    vm.showModelCreationPanel = true;
+
+    var showModelCreationPanel = null;
 
     vm.showConfirmRemoveModel = showConfirmRemoveModel;
     vm.addModel = addModel;
@@ -18,10 +19,18 @@
     vm.isNewModel = isNewModel;
     vm.changeModelCreationPanelVisibility = changeModelCreationPanelVisibility;
     vm.isActiveModelCreationPanel = isActiveModelCreationPanel;
+    vm.activateModelCreationPanel = activateModelCreationPanel;
+
     init();
 
     function init() {
       vm.policy = PolicyModelFactory.getCurrentPolicy();
+      showModelCreationPanel = true;
+    }
+
+
+    function activateModelCreationPanel() {
+      showModelCreationPanel = true;
     }
 
     function showConfirmRemoveModel(cubeNames) {
@@ -56,7 +65,6 @@
       var modelToAdd = angular.copy(ModelFactory.getModel());
       if (ModelFactory.isValidModel()) {
         vm.policy.transformations.push(modelToAdd);
-        AccordionStatusService.resetAccordionStatus(vm.policy.transformations.length);
         PolicyModelFactory.enableNextStep();
       }
     }
@@ -70,7 +78,7 @@
       showConfirmRemoveModel(cubeList.names).then(function () {
         vm.policy.cubes = UtilsService.removeItemsFromArray(vm.policy.cubes, cubeList.positions);
         vm.policy.transformations.splice(modelPosition, 1);
-        if (vm.policy.transformations.length == 0){
+        if (vm.policy.transformations.length == 0) {
           PolicyModelFactory.disableNextStep();
         }
         defer.resolve();
@@ -89,11 +97,11 @@
     }
 
     function changeModelCreationPanelVisibility(isVisible) {
-      vm.showModelCreationPanel = isVisible;
+      showModelCreationPanel = isVisible;
     }
 
     function isActiveModelCreationPanel() {
-      return vm.showModelCreationPanel;
+      return showModelCreationPanel;
     }
   }
 })();
