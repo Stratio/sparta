@@ -1,5 +1,4 @@
 <section data-ng-controller="CubeCtrl as vm" data-ng-init="vm.init()" data-ng-model="vm.cube">
-
   <ng-form name="vm.form" novalidate>
 
     <div class="c-row c-msg c-msg--small c-msg--error c-form c-form-group"
@@ -107,7 +106,7 @@
     <div class="c-cube c-col c-col--3 c-col--vertical-top">
       <label>{{"_ADD_OUTPUTS_" | translate}}</label>
       <form-field-select data-form="vm.form" data-st-name="cube-outputs" data-model="vm.selectedPolicyOutput"
-                         data-options="$parent.vm.policyOutputList" data-field="label"
+                         data-options="vm.policyOutputList" data-field="label"
                          data-label="{{'_OUTPUTS_' | translate}}" data-help="" data-required="true"
                          data-qa="cube-output-select" data-ng-click="vm.addOutput()">
       </form-field-select>

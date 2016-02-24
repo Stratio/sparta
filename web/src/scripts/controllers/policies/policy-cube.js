@@ -35,6 +35,9 @@
         vm.cubeError = CubeModelFactory.getError();
         vm.cubeContext = CubeModelFactory.getContext();
         vm.selectedPolicyOutput = "";
+        return CubeService.generateOutputList().then(function (outputList) {
+          vm.policyOutputList = outputList;
+        });
       }
     }
 
