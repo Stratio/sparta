@@ -1,6 +1,6 @@
 describe('policies.wizard.controller.policy-model-accordion-controller', function () {
   var ctrl, scope, translate, fakeTranslation, fakePolicy, fakePolicyTemplate, fakeModel, policyModelFactoryMock,
-    accordionStatusServiceMock, modelFactoryMock, cubeServiceMock, ModelServiceMock, accordionStatus = null;
+     modelFactoryMock, cubeServiceMock, ModelServiceMock, accordionStatus = null;
 
   beforeEach(module('webApp'));
   beforeEach(module('served/policy.json'));
@@ -30,13 +30,9 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
       return fakePolicyTemplate;
     });
 
-
     modelFactoryMock = jasmine.createSpyObj('ModelFactory', ['resetModel', 'getModel', 'setModel', 'isValidModel', 'updateModelInputs']);
     modelFactoryMock.getModel.and.returnValue(fakeModel);
 
-    accordionStatusServiceMock = jasmine.createSpyObj('AccordionStatusService', ['getAccordionStatus', 'resetAccordionStatus']);
-    accordionStatus = [false, false];
-    accordionStatusServiceMock.getAccordionStatus.and.returnValue(accordionStatus);
     cubeServiceMock = jasmine.createSpyObj('CubeService', ['findCubesUsingOutputs']);
 
     ModelServiceMock = jasmine.createSpyObj('ModelService', ['isActiveModelCreationPanel', 'changeModelCreationPanelVisibility']);
@@ -45,7 +41,6 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
 
     ctrl = $controller('PolicyModelAccordionCtrl  as vm', {
       'PolicyModelFactory': policyModelFactoryMock,
-      'AccordionStatusService': accordionStatusServiceMock,
       'ModelFactory': modelFactoryMock,
       'CubeService': cubeServiceMock,
       'ModelService': ModelServiceMock,
@@ -65,16 +60,10 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
       expect(ctrl.policy).toBe(fakePolicy);
     });
 
-    it('it should reset the accordion status and saved it as a variable', function () {
-      expect(ctrl.accordionStatus).toEqual(accordionStatusServiceMock.getAccordionStatus());
-      expect(accordionStatusServiceMock.resetAccordionStatus).toHaveBeenCalled();
-    });
-
     it ("if policy has a model at least, next step is enabled", inject(function ($controller){
       fakePolicy.transformations = [fakeModel];
       ctrl = $controller('PolicyModelAccordionCtrl  as vm', {
         'PolicyModelFactory': policyModelFactoryMock,
-        'AccordionStatusService': accordionStatusServiceMock,
         'ModelFactory': modelFactoryMock,
         'CubeService': cubeServiceMock,
         'ModelService': ModelServiceMock,
@@ -106,14 +95,6 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
 
       expect(policyModelFactoryMock.nextStep).toHaveBeenCalled();
     })
-
-  });
-
-  it("should be able to generate an index for each model", function () {
-    expect(ctrl.generateIndex()).toBe(0);
-    expect(ctrl.generateIndex()).toBe(1);
-    expect(ctrl.generateIndex()).toBe(2);
-    expect(ctrl.generateIndex()).toBe(3);
   });
 
   describe("should be able to see changes in the accordion status to update the model of the model factory", function () {
@@ -127,7 +108,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
       });
       it("if position is between 0 and policy models length, the factory model is updated with the model of that position in the policy model array", function () {
         ctrl.policy.transformations = models;
-        accordionStatus[1] = true;
+        ctrl.modelAccordionStatus[1] = true;
 
         scope.$digest();
 
@@ -140,7 +121,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
 
         var models = [fakeModel, fakeModel2];
         ctrl.policy.transformations = models;
-        accordionStatus[2] = true;
+        ctrl.modelAccordionStatus[2] = true;
 
         scope.$digest();
 
@@ -150,21 +131,5 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
     })
   });
 
-  describe("should be able to activate the panel to create a new model", function () {
-    var modelLength = null;
-    beforeEach(function () {
-      modelLength = ctrl.policy.transformations.length;
-      ctrl.activateModelCreationPanel();
-    });
-
-    it("visibility of model creation panel is changed to true", function () {
-      expect(ModelServiceMock.changeModelCreationPanelVisibility).toHaveBeenCalledWith(true);
-    });
-
-    it("Accordion status is reset to show the last position", function () {
-      expect(accordionStatusServiceMock.resetAccordionStatus).toHaveBeenCalledWith(modelLength, modelLength);
-    });
-
-  });
 });
 
