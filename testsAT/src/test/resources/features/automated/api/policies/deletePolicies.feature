@@ -6,7 +6,7 @@ Feature: Test all DELETE operations for policies in Sparta Swagger API
 		
 	Scenario: Delete a policy when no policies available
 		When I send a 'DELETE' request to '/policy/nonExistingId'
-		Then the service response status must be '404'.
+		Then the service response status must be '500'.
 	
 	Scenario: Delete a non-existing policy when policies available
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
@@ -19,7 +19,7 @@ Feature: Test all DELETE operations for policies in Sparta Swagger API
 		When I send a 'GET' request to '/policy/all'	
 		Then the service response status must be '200' and its response length must be '1'
 		When I send a 'DELETE' request to '/policy/nonExistingId'
-		Then the service response status must be '404'.
+		Then the service response status must be '500'.
 		
 	Scenario: Delete a existing policy
 		When I send a 'DELETE' request to '/policy/!{previousPolicyID}'

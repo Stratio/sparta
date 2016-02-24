@@ -103,6 +103,28 @@
         </dependency>
         <dependency>
             <groupId>io.spray</groupId>
+            <artifactId>spray-testkit_${scala.binary.version}</artifactId>
+            <version>${spray.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.specs2</groupId>
+                    <artifactId>specs2_${scala.binary.version}</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.typesafe.akka</groupId>
+                    <artifactId>akka-testkit_${scala.binary.version}</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.spark-project.akka</groupId>
+            <artifactId>akka-testkit_${scala.binary.version}</artifactId>
+            <version>${akka.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.spray</groupId>
             <artifactId>spray-can_${scala.binary.version}</artifactId>
             <version>${spray.version}</version>
         </dependency>

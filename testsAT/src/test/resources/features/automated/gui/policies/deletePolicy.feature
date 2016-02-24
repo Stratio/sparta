@@ -64,6 +64,10 @@ Feature: Test deleting a policy in Sparta GUI
 		Then '1' element exists with 'css:div[data-qa="manage-policies-success-msg"]'
 		And a text 'The policy has been deleted!' exists
 		And '0' elements exist with 'css:i[data-qa^="policy-context-menu-"]'
+		# Check that policyContext has disappeared
+		When I send a 'GET' request to '/policyContext'
+		Then the service response status must be '200'.
+		And the service response must NOT contain the text '!{previousPolicyID}'
 
 		
 		Scenario: Delete fragments

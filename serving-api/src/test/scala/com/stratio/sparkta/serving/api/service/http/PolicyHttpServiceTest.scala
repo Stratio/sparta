@@ -185,7 +185,16 @@ with HttpServiceBaseTest {
 
   "PolicyHttpService.remove" should {
     "return an OK because the policy was deleted" in {
+      val policyStatusActorAutoPilot = Option(new TestActor.AutoPilot {
+        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
+          msg match {
+            case PolicyStatusActor.Delete(id) =>
+              sender ! PolicyStatusActor.ResponseDelete(Success(true))
+              TestActor.NoAutoPilot
+          }
+      })
       startAutopilot(Response(Success(getFragmentModel())))
+      startAutopilot(None, policyStatusActorTestProbe, policyStatusActorAutoPilot)
       Delete(s"/${HttpConstant.PolicyPath}/id") ~> routes ~> check {
         testProbe.expectMsgType[Delete]
         status should be(StatusCodes.OK)
@@ -193,6 +202,16 @@ with HttpServiceBaseTest {
     }
     "return a 500 if there was any error" in {
       startAutopilot(Response(Failure(new MockException())))
+      val policyStatusActorAutoPilot = Option(new TestActor.AutoPilot {
+        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
+          msg match {
+            case PolicyStatusActor.Delete(id) =>
+              sender ! PolicyStatusActor.ResponseDelete(Success(true))
+              TestActor.NoAutoPilot
+          }
+      })
+      startAutopilot(Response(Failure(new MockException())))
+      startAutopilot(None, policyStatusActorTestProbe, policyStatusActorAutoPilot)
       Delete(s"/${HttpConstant.PolicyPath}/id") ~> routes ~> check {
         testProbe.expectMsgType[Delete]
         status should be(StatusCodes.InternalServerError)
@@ -219,9 +238,19 @@ with HttpServiceBaseTest {
       }
     }
     "return a 500 if there was any error" in {
+      val policyAutoPilot = Option(new TestActor.AutoPilot {
+        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
+          msg match {
+            case SparkStreamingContextActor.Create(policy) =>
+              sender ! Success(getPolicyModel())
+              TestActor.NoAutoPilot
+            case Delete => TestActor.NoAutoPilot
+          }
+      })
       startAutopilot(Response(Failure(new MockException())))
-      Delete(s"/${HttpConstant.PolicyPath}/id") ~> routes ~> check {
-        testProbe.expectMsgType[Delete]
+      startAutopilot(None, sparkStreamingTestProbe, policyAutoPilot)
+      Get(s"/${HttpConstant.PolicyPath}/run/id") ~> routes ~> check {
+        testProbe.expectMsgType[Find]
         status should be(StatusCodes.InternalServerError)
       }
     }
@@ -238,8 +267,8 @@ with HttpServiceBaseTest {
     }
     "return a 500 if there was any error" in {
       startAutopilot(Response(Failure(new MockException())))
-      Delete(s"/${HttpConstant.PolicyPath}/id") ~> routes ~> check {
-        testProbe.expectMsgType[Delete]
+      Get(s"/${HttpConstant.PolicyPath}/download/id") ~> routes ~> check {
+        testProbe.expectMsgType[Find]
         status should be(StatusCodes.InternalServerError)
       }
     }
