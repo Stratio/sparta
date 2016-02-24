@@ -6,40 +6,31 @@
     .module('webApp')
     .controller('PolicyModelAccordionCtrl', PolicyModelAccordionCtrl);
 
-  PolicyModelAccordionCtrl.$inject = ['PolicyModelFactory', 'AccordionStatusService',
-    'ModelFactory', 'ModelService', '$scope'];
+  PolicyModelAccordionCtrl.$inject = ['PolicyModelFactory', 'ModelFactory', 'ModelService', '$scope'];
 
-  function PolicyModelAccordionCtrl(PolicyModelFactory, AccordionStatusService,
-                                    ModelFactory, ModelService, $scope) {
+  function PolicyModelAccordionCtrl(PolicyModelFactory, ModelFactory, ModelService, $scope) {
     var vm = this;
-    var index = 0;
 
     vm.init = init;
     vm.previousStep = previousStep;
     vm.nextStep = nextStep;
-    vm.generateIndex = generateIndex;
     vm.isActiveModelCreationPanel = ModelService.isActiveModelCreationPanel;
-    vm.activateModelCreationPanel = activateModelCreationPanel;
+    vm.activateModelCreationPanel = ModelService.activateModelCreationPanel;
 
     vm.init();
-
+    
     function init() {
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      vm.accordionStatus = AccordionStatusService.getAccordionStatus();
-      AccordionStatusService.resetAccordionStatus(vm.policy.transformations.length, vm.policy.transformations.length);
       vm.helpLink = vm.template.helpLinks.models;
       vm.error = "";
+      vm.modelAccordionStatus = [];
 
-      if (vm.policy.transformations.length > 0){
+      if (vm.policy.transformations.length > 0) {
         PolicyModelFactory.enableNextStep();
-      }else{
+      } else {
         ModelService.changeModelCreationPanelVisibility(true);
       }
-    }
-
-    function generateIndex() {
-      return index++;
     }
 
     function previousStep() {
@@ -56,13 +47,8 @@
       }
     }
 
-    function activateModelCreationPanel() {
-      ModelService.changeModelCreationPanelVisibility(true);
-      AccordionStatusService.resetAccordionStatus(vm.policy.transformations.length, vm.policy.transformations.length);
-    }
-
     $scope.$watchCollection(
-      "vm.accordionStatus",
+      "vm.modelAccordionStatus",
       function (newAccordionStatus) {
         if (newAccordionStatus) {
           var selectedModelPosition = newAccordionStatus.indexOf(true);
