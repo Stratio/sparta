@@ -1,14 +1,15 @@
-$c-accordion-header__step-number---margin: -10px 10px -10px -14px !default;
 $c-accordion-header__step-number---font-size: 2rem !default;
 $c-accordion-header__step-number---width: 47px !default;
 $c-accordion-header__step-number---height: $c-accordion-header__step-number---width !default;
 $c-accordion-header__step-number---padding: 7px 0 0 !default;
+$c-accordion-header__step-number---vertical-align: middle !default;
 
 $c-accordion-header__step-number---color: white !default;
 $c-accordion-header__step-number---background: black !default;
 
 $c-accordion__type---font-size: 1rem !default;
 $c-accordion__type---margin: 0 10px !default;
+$c-accordion__type---vertical-align: middle !default;
 
 $c-accordion__open-mark---margin: 7px 0 0 !default;
 $c-accordion__open-mark---rotation: 90deg !default;
@@ -18,3 +19,4 @@ $c-accordion-item--new---color: white !default;
 
 $c-accordion-header--new__step-number---background: white !default;
 $c-accordion-header--new__step-number---color: black !default;
+$c-accordion-header--new__step-number---vertical-align: middle !default;

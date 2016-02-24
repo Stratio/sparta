@@ -12,6 +12,8 @@
     var directive = {
       restrict: 'E',
       scope: {
+        label: '=',
+        editionMode: '=',
         labelControlText: "=",
         labelControlClass: '=',
         inputControlClass: '=',

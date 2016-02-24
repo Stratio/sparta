@@ -139,16 +139,16 @@
   "model": {
     "types": [
       {
+        "iconName": "cross",
+        "name": "Ingestion"
+      },
+      {
         "iconName": "kite",
         "name": "Morphlines"
       },
       {
         "iconName": "datetime",
         "name": "DateTime"
-      },
-      {
-        "iconName": "cross",
-        "name": "Ingestion"
       }
     ],
     "outputFieldTypes": [

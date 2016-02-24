@@ -49,7 +49,6 @@
                 disabled: '=',
                 qa: '@',
                 helpQa: '@',
-                elementsLength: '=',
                 listCompressed: "=",
                 submittedForm: '=',
                 inputDefault: '=',
