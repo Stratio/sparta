@@ -65,6 +65,12 @@
         <dependency>
             <groupId>com.github.fge</groupId>
             <artifactId>json-schema-validator</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.mail</groupId>
+                    <artifactId>mailapi</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.json4s</groupId>
@@ -83,6 +89,12 @@
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql_${scala.binary.version}</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mailapi</artifactId>
+            <version>1.4.3</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
