@@ -19,6 +19,16 @@
 			padding: 15px 20px;
 			margin-bottom: 5px;
 		}
+
+		&--inline {
+			display: inline-block;
+			margin-bottom: 0;
+		}
+	}
+
+	.add-element-icon {
+		position: relative;
+		display: inline-block;
 	}
 }
 

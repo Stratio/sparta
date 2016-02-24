@@ -43,8 +43,10 @@
         required: '=',
         disabled: '=',
         changeAction: '&',
-        listCompressed: "=",
-        qa: '@'
+        listCompressed: '=',
+        hideMessage: '@',
+        qa: '@',
+        disabled: '='
       }
     };
     return directive;
@@ -56,6 +58,10 @@
       scope.placeholder = "";
       scope.isFocused = false;
       scope.showHelp = false;
+
+      if (scope.defaultvalue !== undefined && scope.model === undefined) {
+          scope.model = scope.defaultvalue;
+      }
 
       scope.$watch('autofocus', function(newValue, oldValue) {
         if (newValue) {

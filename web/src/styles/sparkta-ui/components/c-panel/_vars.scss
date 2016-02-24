@@ -1,6 +1,9 @@
 $c-panel--framed---padding: 15px !default;
-$c-panel--x-small---background: getColor(f3);
-$c-panel--x-small---border: 1px solid getColor(c1b);
+$c-panel--x-small---border: 1px solid getColor(n3);
 $c-panel--x-small---padding: 4px;
 $c-panel--x-small---border-radius: 4px;
-$c-panel--x-small---margin: 6px;
+$c-panel--x-small---margin: 5px;
+
+$c-panel--x-small__container---padding: 10px 10px 5px 10px;
+$c-panel--x-small__container-title---background-color: #2d96bd;
+$c-panel--x-small__container-title--c-label---color: getColor(n0);

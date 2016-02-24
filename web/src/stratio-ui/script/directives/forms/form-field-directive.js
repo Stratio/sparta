@@ -36,7 +36,8 @@
         listCompressed: '=',
         qa: '@',
         modal: "=",
-        deleteClass: "="
+        deleteClass: "=",
+        disabled: '='
       }
     };
     return directive;
