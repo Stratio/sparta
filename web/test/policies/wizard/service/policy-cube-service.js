@@ -4,7 +4,7 @@ describe('policies.wizard.service.policy-cube-service', function () {
   beforeEach(module('served/cube.json'));
 
   var service, q, rootScope, httpBackend, translate, ModalServiceMock, PolicyModelFactoryMock, CubeModelFactoryMock,
-    AccordionStatusServiceMock, UtilsServiceMock, fakeCube2, fakeCube3, resolvedPromiseFunction, rejectedPromiseFunction,
+    UtilsServiceMock, fakeCube2, fakeCube3, resolvedPromiseFunction, rejectedPromiseFunction,
     fakeCube = null;
   var fakePolicy = {};
 
@@ -12,7 +12,6 @@ describe('policies.wizard.service.policy-cube-service', function () {
     ModalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
     PolicyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'enableNextStep', 'disableNextStep']);
     CubeModelFactoryMock = jasmine.createSpyObj('CubeFactory', ['getCube', 'isValidCube', 'resetCube', 'getContext', 'setError']);
-    AccordionStatusServiceMock = jasmine.createSpyObj('AccordionStatusService', ['resetAccordionStatus']);
     UtilsServiceMock = jasmine.createSpyObj('UtilsService', ['removeItemsFromArray', 'convertDottedPropertiesToJson']);
     UtilsServiceMock.convertDottedPropertiesToJson.and.callFake(function (cube) {
       return cube
@@ -23,7 +22,6 @@ describe('policies.wizard.service.policy-cube-service', function () {
     $provide.value('ModalService', ModalServiceMock);
     $provide.value('PolicyModelFactory', PolicyModelFactoryMock);
     $provide.value('CubeModelFactory', CubeModelFactoryMock);
-    $provide.value('AccordionStatusService', AccordionStatusServiceMock);
     $provide.value('UtilsService', UtilsServiceMock);
   }));
 
@@ -191,10 +189,6 @@ describe('policies.wizard.service.policy-cube-service', function () {
         expect(service.policy.cubes[0].name).toEqual(fakeCube.name);
       });
 
-      it("accordion status is reset with the current length of the cube list", function () {
-        expect(AccordionStatusServiceMock.resetAccordionStatus).toHaveBeenCalledWith(service.policy.cubes.length);
-      });
-
       it("next step is enabled", function () {
         expect(PolicyModelFactoryMock.enableNextStep).toHaveBeenCalled();
       });
@@ -299,4 +293,15 @@ describe('policies.wizard.service.policy-cube-service', function () {
     expect(service.getCreatedCubes()).toBe(service.policy.cubes.length);
   })
 
+  describe("should be able to activate the panel to create a new cube", function () {
+    var cubeLength = null;
+    beforeEach(function () {
+      cubeLength = fakePolicy.cubes.length;
+      service.activateCubeCreationPanel();
+    });
+
+    it("visibility of cube creation panel is changed to true", function () {
+      expect(service.isActiveCubeCreationPanel()).toBe(true);
+    });
+  });
 });

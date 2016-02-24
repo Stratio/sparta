@@ -26,6 +26,7 @@
           currentLength--;
         }
       }
+      return accordionStatus;
     }
   }
 })();

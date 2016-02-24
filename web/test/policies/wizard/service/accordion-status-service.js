@@ -10,45 +10,47 @@ describe('policies.wizard.service.accordion-status-service', function () {
   }));
 
   describe("should be able to reset the accordion status", function () {
-    it("if the first param is null or undefined, accordion status is not reset", function () {
+    var accordionStatus = [false, true, false];
+    it("if length param is null or undefined, accordion status is not reset", function () {
       var length = null;
-      service.resetAccordionStatus(length);
 
-      expect(service.getAccordionStatus()).toEqual([]);
+      var resetAccordionStatus = service.resetAccordionStatus(angular.copy(accordionStatus), length);
+
+      expect(resetAccordionStatus).toEqual(accordionStatus);
 
       length = undefined;
-      service.resetAccordionStatus(length);
+      resetAccordionStatus = service.resetAccordionStatus(angular.copy(accordionStatus),length);
 
-      expect(service.getAccordionStatus()).toEqual([]);
+      expect(resetAccordionStatus).toEqual(accordionStatus);
     });
 
-    it("if the first param is a valid length, accordion status is reset with the that length more one position", function () {
+    it("if the length param is valid, accordion status is reset with the that length more one position", function () {
       var length = 5;
-      service.resetAccordionStatus(length);
+     var resetAccordionStatus= service.resetAccordionStatus(angular.copy(accordionStatus),length);
 
-      expect(service.getAccordionStatus().length).toEqual(length + 1);
+      expect(resetAccordionStatus.length).toEqual(length + 1);
     });
 
-    it("if the second param is introduced, that param is used to specify the position that has to be true", function () {
+    it("if the third param is introduced, that param is used to specify the position that has to be true", function () {
       var length = 5;
       var truePosition = 4;
-      service.resetAccordionStatus(length, truePosition);
+      var resetAccordionStatus = service.resetAccordionStatus(angular.copy(accordionStatus),length, truePosition);
 
-      expect(service.getAccordionStatus().length).toEqual(length + 1);
+      expect(resetAccordionStatus.length).toEqual(length + 1);
       for (var i = 0; i <= length; ++i) {
         if (i != truePosition)
-          expect(service.getAccordionStatus()[i]).toEqual(false);
+          expect(resetAccordionStatus[i]).toEqual(false);
       }
-      expect(service.getAccordionStatus()[4]).toEqual(true);
+      expect(resetAccordionStatus[4]).toEqual(true);
     });
 
     it("accordion status length is adjusted to the new length if the new length is minor than accordion status one", function () {
       var oldLength = 5;
       var newLength = 3;
-      service.resetAccordionStatus(oldLength);
-      service.resetAccordionStatus(newLength);
+      var resetAccordionStatus =service.resetAccordionStatus(angular.copy(accordionStatus),oldLength);
+      var resetAccordionStatus = service.resetAccordionStatus(angular.copy(accordionStatus),newLength);
 
-      expect(service.getAccordionStatus().length).toBe(newLength+1);
+      expect(resetAccordionStatus.length).toBe(newLength+1);
     })
   })
 

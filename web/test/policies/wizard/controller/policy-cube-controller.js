@@ -5,7 +5,7 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
   beforeEach(module('served/cube.json'));
 
   var ctrl, scope, fakePolicy, fakeCubeTemplate, fakeCube, policyModelFactoryMock, fakeOutputs,fakePolicyTemplate,
-    cubeModelFactoryMock, cubeServiceMock, modalServiceMock;
+    cubeModelFactoryMock, cubeServiceMock, modalServiceMock, resolvedPromise;
 
   // init mock modules
 
@@ -28,7 +28,15 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       return fakePolicyTemplate;
     });
 
-    cubeServiceMock = jasmine.createSpyObj('CubeService', ['isLastCube', 'isNewCube', 'addCube', 'removeCube', 'changeCubeCreationPanelVisibility']);
+    resolvedPromise = function () {
+      var defer = $q.defer();
+      defer.resolve();
+
+      return defer.promise;
+    };
+    cubeServiceMock = jasmine.createSpyObj('CubeService', ['isLastCube', 'isNewCube', 'addCube', 'removeCube', 'changeCubeCreationPanelVisibility','generateOutputList']);
+    cubeServiceMock.generateOutputList.and.callFake(resolvedPromise);
+
     modalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
 
     cubeModelFactoryMock = jasmine.createSpyObj('CubeFactory', ['getCube', 'getError', 'getCubeInputs', 'getContext', 'setError', 'resetCube', 'updateCubeInputs']);
