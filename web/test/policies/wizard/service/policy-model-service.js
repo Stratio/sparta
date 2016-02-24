@@ -4,7 +4,7 @@ describe('policies.wizard.service.policy-model-service', function () {
   beforeEach(module('served/model.json'));
 
   var service, q, rootScope, httpBackend, translate, ModalServiceMock, PolicyModelFactoryMock, ModelFactoryMock, CubeServiceMock,
-    AccordionStatusServiceMock, UtilsServiceMock,
+    UtilsServiceMock,
     fakeModel, fakePolicy = null;
 
   var resolvedPromiseFunction = function () {
@@ -18,7 +18,6 @@ describe('policies.wizard.service.policy-model-service', function () {
     PolicyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'enableNextStep', 'disableNextStep']);
     ModelFactoryMock = jasmine.createSpyObj('ModelFactory', ['getModel', 'isValidModel', 'resetModel', 'getContext']);
     CubeServiceMock = jasmine.createSpyObj('CubeService', ['findCubesUsingOutputs']);
-    AccordionStatusServiceMock = jasmine.createSpyObj('AccordionStatusService', ['resetAccordionStatus']);
     UtilsServiceMock = jasmine.createSpyObj('UtilsService', ['removeItemsFromArray']);
 
     PolicyModelFactoryMock.getCurrentPolicy.and.returnValue(fakePolicy);
@@ -28,7 +27,6 @@ describe('policies.wizard.service.policy-model-service', function () {
     $provide.value('PolicyModelFactory', PolicyModelFactoryMock);
     $provide.value('ModelFactory', ModelFactoryMock);
     $provide.value('CubeService', CubeServiceMock);
-    $provide.value('AccordionStatusService', AccordionStatusServiceMock);
     $provide.value('UtilsService', UtilsServiceMock);
   }));
 
@@ -120,10 +118,6 @@ describe('policies.wizard.service.policy-model-service', function () {
         expect(service.policy.transformations[0].order).toEqual(fakeModel.order);
       });
 
-      it("accordion status is reset with the current length of the model list", function () {
-        expect(AccordionStatusServiceMock.resetAccordionStatus).toHaveBeenCalledWith(service.policy.transformations.length);
-      });
-
       it("next step is enabled", function () {
         expect(PolicyModelFactoryMock.enableNextStep).toHaveBeenCalled();
       });
@@ -198,4 +192,15 @@ describe('policies.wizard.service.policy-model-service', function () {
   });
 
 
+  describe("should be able to activate the panel to create a new model", function () {
+    var modelLength = null;
+    beforeEach(function () {
+      modelLength =fakePolicy.transformations.length;
+      service.activateModelCreationPanel();
+    });
+
+    it("visibility of model creation panel is changed to true", function () {
+      expect(service.isActiveModelCreationPanel()).toBe(true);
+    });
+  });
 });
