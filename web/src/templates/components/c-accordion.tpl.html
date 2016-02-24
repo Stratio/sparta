@@ -1,0 +1,40 @@
+<aside>
+<accordion class="c-accordion" data-ng-model="items">
+  <div class="c-accordion-item">
+    <accordion-group is-open="accordionStatus[$index]"
+                     data-ng-repeat="item in items track by generateIndex()"
+                     data-ng-model="item">
+      <accordion-heading>
+        <span class="c-accordion-header__step-number">{{$index + 1}}</span>
+        <i data-ng-if="item.type"
+           class="c-accordion-header__type c-icon icon-{{item[itemAttributeInHeader] | lowercase}}"></i><span
+        class="c-accordion-header__title">{{item[itemAttributeInHeader]}}</span>
+        <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right"
+           data-qa="policy-model-arrow-{{$index + 1}}"></i>
+      </accordion-heading>
+
+      <ng-include data-ng-if="accordionStatus[$index]" src="itemTemplate"
+                  data-ng-model="item" data-qa="{{itemQaTag}}-{{$index}}"></ng-include>
+    </accordion-group>
+  </div>
+  <div class="c-accordion-item c-accordion-item--new" ng-if="showNewItemPanel">
+    <accordion-group is-open=showNewItemPanel>
+      <accordion-heading class="c-accordion-header">
+        <span class="c-accordion-header__step-number">{{(items.length + 1) }}</span>
+        <i class="c-accordion-header__type c-icon"></i>
+        <p class="c-accordion-header__title">{{"_POLICY_._NEW-MODEL-DEFINITION_" | translate}}<span
+          class="c-text--margin-left c-text--bold">[{{"_POLICY_._MODEL_NOT_SAVED_" | translate}}]</span></p>
+
+        <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right"
+           data-qa="policy-model-arrow-{{(items.length + 1) }}"></i>
+      </accordion-heading>
+
+      <ng-include data-ng-if="showNewItemPanel"
+                  src="itemTemplate" data-ng-init="editionMode = true"
+                  data-qa="policy-model-new">
+      </ng-include>
+
+    </accordion-group>
+  </div>
+</accordion>
+</aside>

@@ -1,0 +1,34 @@
+<section data-ng-controller="PolicyCubeAccordionCtrl as vm">
+  <p class="c-info-text c-info-text--narrow c-info-text--bottom-margin"><i class="c-icon c-info-text__icon icon-info1"></i><span
+    class="c-info-text__text">{{"_POLICY_._CUBE_INTRO_" | translate}}</span></p>
+
+  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error != '' && vm.policy.cubes.length === 0" data-qa="policy-cube-accordion-error-msg">
+    <i class="c-icon icon-circle-cross"></i>
+    <span>{{vm.error | translate}}</span>
+  </div>
+  <form class="c-form c-panel c-panel--framed" novalidate>
+    <c-accordion items="vm.policy.cubes"
+                 item-template="'views/policy-wizard/cube-panel.html'"
+                 on-change-opened-element="vm.changeOpenedElement"
+                 item-qa-tag="policy-cube"
+                 show-new-item-panel="vm.isActiveCubeCreationPanel()"
+                 accordion-status="vm.cubeAccordionStatus"
+                 item-attribute-in-header="name">
+    </c-accordion>
+  </form>
+
+  <footer class="c-row c-row--footer">
+    <div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">
+      <div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">
+        <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" link-url="vm.helpLink"
+                     data-qa="policy-cube-help"></c-icon-link>
+      </div>
+    </div>
+
+    <button class="c-button c-button--call-to-action-1"  ng-if = "!vm.isActiveCubeCreationPanel()"
+            data-ng-click="vm.activateCubeCreationPanel()" data-qa="policy-model-add-new-transformation-button">
+      <i class="icon icon-circle-plus"></i>
+      <span>{{"_POLICY_._ADD_CUBE_" | translate}}</span>
+    </button>
+  </footer>
+</section>
