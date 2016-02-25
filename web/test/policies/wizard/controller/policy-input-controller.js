@@ -26,7 +26,7 @@ describe('policies.wizard.controller.policy-input-controller', function () {
       return defer.promise;
     });
 
-    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate','previousStep', 'nextStep']);
+    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate','previousStep', 'nextStep', 'enableNextStep']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
       return fakePolicy;
     });
@@ -70,12 +70,14 @@ describe('policies.wizard.controller.policy-input-controller', function () {
       expect(ctrl.policy.input).toEqual({});
     });
 
-    it("if position is valid, input is changed", function () {
+    it("if position is valid, input is changed and next step is enabled", function () {
       var validPosition = fakeInputList.length - 1;
       var expectedInput = fakeInputList[validPosition];
       ctrl.setInput(validPosition);
 
       expect(ctrl.policy.input).toBe(expectedInput);
+
+      expect(policyModelFactoryMock.enableNextStep).toHaveBeenCalled();
     });
 
   });

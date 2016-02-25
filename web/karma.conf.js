@@ -9,6 +9,7 @@ module.exports = function (config) {
       'node_modules/angular-resource/angular-resource.js',
       'node_modules/angular-route/angular-route.js',
       'node_modules/angular-ui-router/release/angular-ui-router.js',
+      'node_modules/angular-animate/angular-animate.js',
 
       'src/stratio-ui/script/ui.stratio.js',
       'src/stratio-ui/script/helper/*.js',

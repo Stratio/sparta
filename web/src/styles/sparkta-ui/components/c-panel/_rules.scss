@@ -13,16 +13,27 @@
 		padding: $c-panel--framed---padding;
 	}
 
-  &--x-small{
-    background: $c-panel--x-small---background;
+  &--x-small {
     border: $c-panel--x-small---border;
     display: inline-block;
-    padding: $c-panel--x-small---padding;
     border-radius: $c-panel--x-small---border-radius;
     margin:$c-panel--x-small---margin;
-    &__title{
-      text-align: center;
-    }
+
+	&__container {
+		padding: $c-panel--x-small__container---padding;
+
+		&__title {
+			background-color: $c-panel--x-small__container-title---background-color;
+
+			.c-label {
+				color: $c-panel--x-small__container-title--c-label---color;
+			}
+		}
+	}
+  }
+
+  &__fit {
+  	display: inline-block;
   }
 }
 

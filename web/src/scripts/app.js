@@ -19,7 +19,8 @@ angular
     'ui.bootstrap',
     'ui.bootstrap.modal',
     'ui.bootstrap.tpls',
-    'pascalprecht.translate'
+    'pascalprecht.translate',
+    'ngAnimate'
   ])
 
   /*** TRANSLATING ***/
@@ -50,8 +51,8 @@ angular
     .state('dashboard', {
         url: '/dashboard',
         views: {
-            'menu': {
-                templateUrl:  'views/dashboard/dashboard_menu.html'
+            'header': {
+                templateUrl: 'views/dashboard/dashboard_header.html'
             },
             'content': {
                 templateUrl:  'views/dashboard/dashboard_content.html'
@@ -76,19 +77,33 @@ angular
         controllerAs: 'policies',
         templateUrl: 'views/policies.html'
     })
-      .state('dashboard.newPolicy', {
-        url: '/policies/new',
+    /******* POLICY WIZARD *******/
+    .state('wizard', {
+        url: '/wizard',
+        views: {
+            'header': {
+                templateUrl: 'views/policy-wizard/header.html',
+                controller: 'PolicyWizardHeaderCtrl',
+                controllerAs: 'header'
+            },
+            'content': {
+                templateUrl:  'views/dashboard/dashboard_content.html'
+            }
+        }
+    })
+    .state('wizard.newPolicy', {
+        url: '/wizard/new_policy',
         controller: 'NewPolicyCtrl',
         controllerAs: 'wizard',
         templateUrl: 'views/policy-wizard/wizard-panel.html'
-      })
-      .state('dashboard.editPolicy', {
-        url: '/policies/edit/:id',
+    })
+    .state('wizard.editPolicy', {
+        url: '/wizard/edit_policy/:id',
         params: { id: null },
         controller: 'EditPolicyCtrl',
         controllerAs: 'wizard',
         templateUrl: 'views/policy-wizard/wizard-panel.html'
-      })
+    })
     /*******  SETINGS *******/
     .state('settings', {
         url: '/settings',
@@ -100,6 +115,4 @@ angular
             }
         }
     });
-
-
   }]);

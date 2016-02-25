@@ -6,24 +6,31 @@
     .module('webApp')
     .controller('NewPolicyCtrl', NewPolicyCtrl);
 
-  NewPolicyCtrl.$inject = ['TemplateFactory', 'PolicyModelFactory', 'PolicyFactory', 'ModalService', '$state'];
-  function NewPolicyCtrl(TemplateFactory, PolicyModelFactory, PolicyFactory, ModalService, $state) {
+  NewPolicyCtrl.$inject = ['PolicyModelFactory', 'PolicyFactory', 'ModalService', '$state'];
+  function NewPolicyCtrl(PolicyModelFactory, PolicyFactory, ModalService, $state) {
     var vm = this;
 
+    vm.changeStepNavigationVisibility = changeStepNavigationVisibility;
     vm.confirmPolicy = confirmPolicy;
 
     init();
 
     function init() {
-      return TemplateFactory.getPolicyTemplate().then(function (template) {
-        PolicyModelFactory.setTemplate(template);
-        vm.steps = template.steps;
-        PolicyModelFactory.resetPolicy();
-        vm.policy = PolicyModelFactory.getCurrentPolicy();
+      vm.policy = PolicyModelFactory.getCurrentPolicy();
+      if (vm.policy && PolicyModelFactory.getProcessStatus().currentStep == 0) {
+        vm.steps = PolicyModelFactory.getTemplate().steps;
         vm.status = PolicyModelFactory.getProcessStatus();
         vm.successfullySentPolicy = false;
         vm.error = null;
-      });
+        vm.showStepNavigation = true;
+      }
+      else {
+        $state.go('dashboard.policies');
+      }
+    }
+
+    function changeStepNavigationVisibility() {
+      vm.showStepNavigation = !vm.showStepNavigation;
     }
 
     function confirmPolicy() {

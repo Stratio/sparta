@@ -15,23 +15,26 @@
     vm.previousStep = previousStep;
     vm.validateForm = validateForm;
     vm.inputList = [];
-    vm.error = false;
     init();
 
     function init() {
-      vm.template = PolicyModelFactory.getTemplate();
-      vm.helpLink = vm.template.helpLinks.inputs;
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      var inputList = FragmentFactory.getFragments("input");
-      return inputList.then(function (result) {
-        vm.inputList = result;
-      });
+      if (Object.keys(vm.policy).length > 0) {
+        vm.template = PolicyModelFactory.getTemplate();
+        if (vm.policy &&  Object.keys(vm.template).length > 0) {
+          vm.helpLink = vm.template.helpLinks.inputs;
+          var inputList = FragmentFactory.getFragments("input");
+          return inputList.then(function (result) {
+            vm.inputList = result;
+          });
+        }
+      }
     }
 
     function setInput(index) {
       if (index >= 0 && index < vm.inputList.length) {
         vm.policy.input = vm.inputList[index];
-        vm.error = false
+        PolicyModelFactory.enableNextStep();
       }
     }
 

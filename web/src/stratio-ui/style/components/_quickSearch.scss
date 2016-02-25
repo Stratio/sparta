@@ -4,15 +4,16 @@ $quick-search---height: 30px;
 $quick-search__input---bckground: #dfe2e3;
 
 .quick-search{
-	width: 100%;
 	position: relative;
+	display: inline-block;
 	height: $quick-search---height;
 
 	&__input{
 		@extend %t-normal;
 
+		position: relative;
+		display: inline-block;
 		border-radius: 3px;
-		width: 100%;
 		height: $quick-search---height;
 		line-height: $quick-search---height;
 		box-shadow: none;
@@ -33,7 +34,7 @@ $quick-search__input---bckground: #dfe2e3;
 		right: 10px;
 		top: 0;
 		color: #9c9c9c;
-		
+
 		&:before{
 			line-height: $quick-search---height;
 			font-size: 14px;

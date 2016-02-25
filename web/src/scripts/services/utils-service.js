@@ -16,6 +16,8 @@
     vm.getItemNames = getItemNames;
     vm.addFragmentCount = addFragmentCount;
     vm.subtractFragmentCount = subtractFragmentCount;
+    vm.getInCamelCase = getInCamelCase;
+    vm.convertDottedPropertiesToJson = convertDottedPropertiesToJson;
 
     function findElementInJSONArray(array, element, attr) {
       var found = false;
@@ -95,7 +97,7 @@
     }
 
     function addFragmentCount(inputTypeList, inputType) {
-      var newInputCount = $filter('filter')(inputTypeList, {'type':inputType}, true)[0];
+      var newInputCount = $filter('filter')(inputTypeList, {'type': inputType}, true)[0];
       if (!newInputCount) {
         var newInpuntCount = {'type': inputType, 'count': 1};
         inputTypeList.push(newInpuntCount);
@@ -106,18 +108,52 @@
     };
 
     function subtractFragmentCount(inputTypeList, inputType, filter) {
-      var newInputCount = $filter('filter')(inputTypeList, {'type':inputType}, true)[0];
+      var newInputCount = $filter('filter')(inputTypeList, {'type': inputType}, true)[0];
       newInputCount.count--;
       if (newInputCount.count === 0) {
-        for (var i=0; i < inputTypeList.length; i++) {
+        for (var i = 0; i < inputTypeList.length; i++) {
           if (inputTypeList[i].type === inputType) {
-            inputTypeList.splice(i,1);
+            inputTypeList.splice(i, 1);
             filter.element.type = "";
             filter.name = "";
           }
         }
       }
-    };
+    }
+
+    function getInCamelCase(string, separator, firstUpperCase) {
+      if (string && separator) {
+        var words = string.split(separator);
+
+        var result = words[0].toLowerCase();
+        if (firstUpperCase) {
+          result = result[0].toUpperCase() + result.substring(1);
+        }
+        for (var i = 1; i < words.length; ++i) {
+          var word = words[i].toLowerCase();
+          result = result + word[0].toUpperCase() + word.substring(1);
+        }
+
+        return result;
+      }
+      return string;
+    }
+
+    function convertDottedPropertiesToJson(object) {
+      for (var key in object) {
+        var splittedKey = key.split(".");
+        if (splittedKey.length > 1) {
+          var tempProperty = "";
+          tempProperty = object;
+          for (var i = 0; i < splittedKey.length - 1; ++i) {
+            tempProperty = tempProperty[splittedKey[i]];
+          }
+          tempProperty[splittedKey[splittedKey.length - 1]] = object[key];
+          delete object[key];
+        }
+      }
+      return object;
+    }
   }
 })
 ();

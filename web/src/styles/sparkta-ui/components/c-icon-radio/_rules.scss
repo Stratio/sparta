@@ -1,7 +1,6 @@
 %c-icon-radio__icon--selected {
 	background: $c-icon-radio__icon--selected---background;
 	color: $c-icon-radio__icon--selected---color;
-	font-weight: $c-icon-radio__icon--selected---font-weight;
 }
 
 @mixin c-icon-radio {
@@ -37,6 +36,14 @@
 	&__text {
 		margin: $c-icon-radio__text---margin;
 		vertical-align: text-bottom;
+
+		&.ng-enter, .ng-leave {
+			-webkit-transition: 1s linear all;
+		    -moz-transition: 1s linear all;
+		    -ms-transition: 1s linear all;
+		    -o-transition: 1s linear all;
+		    transition: 1s linear all;
+		}
 	}
 }
 

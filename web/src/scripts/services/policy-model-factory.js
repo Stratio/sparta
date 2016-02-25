@@ -13,12 +13,10 @@
     var template = {};
 
     function initPolicy() {
-      status.currentStep = 0;
+      status.currentStep = -1;
+      status.nextStepAvailable = false;
       policy.name = "";
       policy.description = "";
-      policy.sparkStreamingWindow = template.defaultSparkStreamingWindow;
-      policy.storageLevel = template.defaultStorageLevel;
-      policy.checkpointPath = template.defaultCheckpointPath;
       policy.rawData = {};
       policy.rawData.enabled = false;
       policy.rawData.path = "";
@@ -29,7 +27,7 @@
     }
 
     function setPolicy(inputPolicyJSON) {
-      status.currentStep = 0;
+      status.currentStep = -1;
       policy.id = inputPolicyJSON.id;
       policy.name = inputPolicyJSON.name;
       policy.description = inputPolicyJSON.description;
@@ -85,6 +83,15 @@
 
     function nextStep() {
       status.currentStep++;
+      status.nextStepAvailable = false;
+    }
+
+    function enableNextStep(){
+      status.nextStepAvailable = true;
+    }
+
+    function disableNextStep(){
+      status.nextStepAvailable = false;
     }
 
     function getProcessStatus() {
@@ -120,6 +127,8 @@
       return finalJSON = json;
     }
 
+
+
     return {
       setPolicy: setPolicy,
       setTemplate: setTemplate,
@@ -127,6 +136,8 @@
       getCurrentPolicy: getCurrentPolicy,
       previousStep: previousStep,
       nextStep: nextStep,
+      enableNextStep:enableNextStep,
+      disableNextStep:disableNextStep,
       getProcessStatus: getProcessStatus,
       resetPolicy: resetPolicy,
       getAllModelOutputs: getAllModelOutputs,

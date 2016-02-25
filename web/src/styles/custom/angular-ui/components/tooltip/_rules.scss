@@ -1,0 +1,100 @@
+@mixin tooltip {
+
+  z-index: 300;
+
+  &.tooltip--top:before {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    border-color: getColor(n4) transparent transparent transparent;
+    border-style: solid;
+    border-width: 7px;
+    margin-left: -7px;
+  }
+
+  &.tooltip--right:before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: -8px;
+    border-color: transparent getColor(n4) transparent transparent;
+    border-style: solid;
+    border-width: 7px;
+    margin-top: -7px;
+  }
+
+  &.tooltip--bottom:before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    border-color: transparent transparent getColor(n4) transparent;
+    border-style: solid;
+    border-width: 7px;
+    margin-left: -7px;
+  }
+
+  &.tooltip--left:before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: -8px;
+    border-color: transparent transparent transparent getColor(n4);
+    border-style: solid;
+    border-width: 7px;
+    margin-top: -7px;
+  }
+
+	.tooltip-inner {
+		background-color: getColor(n0);
+		color: getColor(n8);
+		border: 1px solid getColor(n4);
+    text-align: left;
+    padding: 5px 10px;
+	}
+}
+
+.tooltip.top .tooltip-arrow {
+  border-top-color: getColor(n0);
+  border-width: 6px 5px 0;
+}
+
+.tooltip.top-left .tooltip-arrow {
+  border-top-color: getColor(n0);
+}
+
+.tooltip.top-right .tooltip-arrow {
+  border-top-color: getColor(n0);
+}
+
+.tooltip.right .tooltip-arrow {
+  border-right-color: getColor(n0);
+  border-width: 5px 6px 5px 0;
+}
+
+.tooltip.left .tooltip-arrow {
+  border-left-color: getColor(n0);
+  border-width: 5px 0 5px 6px;
+}
+
+.tooltip.bottom .tooltip-arrow {
+  border-bottom-color: getColor(n0);
+  border-width: 0 5px 6px;
+}
+
+.tooltip.bottom-left .tooltip-arrow {
+  border-bottom-color: getColor(n0);
+}
+
+.tooltip.bottom-right .tooltip-arrow {
+  border-bottom-color: getColor(n0);
+}
+
+.tooltip {
+	@include tooltip;
+}
