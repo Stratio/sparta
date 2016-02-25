@@ -12,13 +12,12 @@
     var vm = this;
 
     vm.init = init;
-    vm.changeDefaultConfiguration = changeDefaultConfiguration;
     vm.addModel = addModel;
     vm.removeModel = removeModel;
+    vm.resetOutputFields = resetOutputFields;
+    vm.onChangeType= onChangeType;
     vm.isLastModel = ModelService.isLastModel;
     vm.isNewModel = ModelService.isNewModel;
-    vm.resetOutputFields = resetOutputFields;
-
     vm.modelInputs = ModelFactory.getModelInputs();
 
     vm.init();
@@ -40,17 +39,11 @@
       }
     }
 
-    function changeDefaultConfiguration() {
-      vm.model.configuration = getDefaultConfigurations(vm.model.type);
-    }
-
-    function getDefaultConfigurations(type) {
-      var types = vm.template.model.types;
-      var defaultConfigurations = vm.template.model.defaultConfiguration;
-      switch (type) {
-        case types[1].name:
-        {
-          return defaultConfigurations.morphlinesDefaultConfiguration;
+    function onChangeType(){
+      switch (vm.model.type) {
+        case "Morphlines":{
+          vm.model.configuration = vm.template.model.morphlines.defaultConfiguration;
+          console.log(vm.model.configuration);
         }
       }
     }
@@ -60,7 +53,6 @@
       if (vm.form.$valid && vm.model.outputFields.length != 0) {
         vm.form.$submitted = false;
         ModelService.addModel();
-
         ModelService.changeModelCreationPanelVisibility(false);
       } else {
         ModelFactory.setError("_GENERIC_FORM_ERROR_");
