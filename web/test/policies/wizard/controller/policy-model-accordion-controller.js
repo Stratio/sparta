@@ -108,11 +108,11 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
       });
       it("if position is between 0 and policy models length, the factory model is updated with the model of that position in the policy model array", function () {
         ctrl.policy.transformations = models;
-        ctrl.modelAccordionStatus[1] = true;
+        var position = 1;
+        ctrl.modelAccordionStatus[position] = true;
 
-        scope.$digest();
+        ctrl.changeOpenedElement(position);
 
-        expect(scope.$watchCollection).toHaveBeenCalled();
         expect(modelFactoryMock.setModel).toHaveBeenCalledWith(fakeModel2, 1);
       });
       it("if position is not between 0 and policy models length, the factory model is reset with the order of the previous model", function () {
@@ -121,11 +121,11 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
 
         var models = [fakeModel, fakeModel2];
         ctrl.policy.transformations = models;
-        ctrl.modelAccordionStatus[2] = true;
+        var position = 2;
+        ctrl.modelAccordionStatus[position] = true;
 
-        scope.$digest();
+        ctrl.changeOpenedElement(position);
 
-        expect(scope.$watchCollection).toHaveBeenCalled();
         expect(modelFactoryMock.resetModel).toHaveBeenCalledWith(fakePolicyTemplate.model, fakeModel2.order + 1, ctrl.policy.transformations.length);
       })
     })

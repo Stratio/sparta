@@ -63,7 +63,7 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
       'PolicyModelFactory': policyModelFactoryMock,
       'CubeModelFactory': cubeModelFactoryMock,
       'CubeService': cubeServiceMock,
-      '$scope': scope
+      '$scope':scope
     });
 
   }));
@@ -84,7 +84,7 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
         'PolicyModelFactory': policyModelFactoryMock,
         'CubeModelFactory': cubeModelFactoryMock,
         'CubeService': cubeServiceMock,
-        '$scope': scope
+        '$scope':scope
       });
 
       expect(policyModelFactoryMock.enableNextStep).toHaveBeenCalled();
@@ -96,7 +96,7 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
         'PolicyModelFactory': policyModelFactoryMock,
         'CubeModelFactory': cubeModelFactoryMock,
         'CubeService': cubeServiceMock,
-        '$scope': scope
+        '$scope':scope
       });
 
       expect(cubeServiceMock.changeCubeCreationPanelVisibility).toHaveBeenCalled();
@@ -135,7 +135,7 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
 
   });
 
-  describe("should be able to see changes in the accordion status to update the cube of the cube factory", function () {
+  describe("should be able to act accordingly the accordion status to update the cube of the cube factory", function () {
     describe("if the new value of the accordion status is not null should find the cube that has been opened by user, and send it to the cube factory ", function () {
       var cubes, fakeCube2 = null;
       beforeEach(function () {
@@ -146,26 +146,26 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
       });
       it("if position is between 0 and policy cubes length, the factory cube is updated with the cube of that position in the policy cube array", function () {
         ctrl.policy.cubes = cubes;
-        ctrl.cubeAccordionStatus[1] = true;
+        var position = 1;
+        ctrl.cubeAccordionStatus[position] = true;
 
-        scope.$digest();
+        ctrl.changeOpenedElement(position);
 
-        expect(scope.$watchCollection).toHaveBeenCalled();
         expect(cubeModelFactoryMock.setCube).toHaveBeenCalledWith(fakeCube2, 1);
       });
       it("if position is not between 0 and policy cubes length, the factory cube is reset with the order of the previous cube", function () {
         var fakeCreatedCubes = 5;
+        var position = 2;
         cubeServiceMock.getCreatedCubes.and.returnValue(fakeCreatedCubes);
         var fakeCube2 = angular.copy(fakeCube);
         fakeCube2.name = "fake cube 2";
 
         var cubes = [fakeCube, fakeCube2];
         ctrl.policy.cubes = cubes;
-        ctrl.cubeAccordionStatus[2] = true;
+        ctrl.cubeAccordionStatus[position] = true;
 
-        scope.$digest();
+        ctrl.changeOpenedElement(position);
 
-        expect(scope.$watchCollection).toHaveBeenCalled();
         expect(cubeModelFactoryMock.resetCube).toHaveBeenCalledWith(fakeCubeTemplate, fakeCreatedCubes, ctrl.policy.cubes.length);
       })
     })
