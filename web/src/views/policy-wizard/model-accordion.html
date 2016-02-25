@@ -12,26 +12,24 @@
   <form class="c-form c-panel c-panel--framed" novalidate>
     <accordion class="c-accordion" data-ng-model="vm.policy.transformations">
       <div class="c-accordion-item">
-        <accordion-group is-open="vm.accordionStatus[$index]"
-                         data-ng-repeat="currentModel in vm.policy.transformations track by vm.generateIndex()"
-                         data-ng-model="currentModel">
-          <accordion-heading>
+        <accordion-group is-open="vm.accordionStatus[$index]" data-ng-repeat="currentModel in vm.policy.transformations track by vm.generateIndex()" data-ng-model="currentModel">
+          <accordion-heading class="c-accordion-header">
             <div class="c-col c-col--11">
               <span class="c-accordion-header__step-number">{{$index + 1}}</span>
               <i data-ng-if="currentModel.type" class="c-accordion-header__type c-icon icon-{{currentModel.type | lowercase}}"></i>
-              <spanclass="c-accordion-header__title">{{currentModel.type}}</span>
+              <span class="c-accordion-header__title">{{currentModel.type}}</span>
             </div><!--
          --><div class="c-col c-col--1 c-col--to-right">
               <i class="c-accordion-header__open-mark c-icon icon-arrow2_right" data-qa="policy-model-arrow-{{$index + 1}}"></i>
             </div>
           </accordion-heading>
-
           <ng-include data-ng-if="vm.accordionStatus[$index]" src="'views/policy-wizard/model-panel.html'"
-                      data-ng-model="currentModel" data-qa="policy-model-{{$index}}" data-ng-init="editionMode = false"></ng-include>
+            data-ng-model="currentModel" data-qa="policy-model-{{$index}}" data-ng-init="editionMode = false">
+          </ng-include>
         </accordion-group>
       </div>
       <div class="c-accordion-item c-accordion-item--new" ng-if ="vm.isActiveModelCreationPanel()">
-        <accordion-group is-open=vm.accordionStatus[vm.policy.transformations.length]>
+        <accordion-group is-open="vm.accordionStatus[vm.policy.transformations.length]">
           <accordion-heading class="c-accordion-header">
             <div class="c-col c-col--11">
               <span class="c-accordion-header__step-number">{{(vm.policy.transformations.length + 1) }}</span><i
@@ -43,13 +41,11 @@
               <i class="c-accordion-header__open-mark c-icon icon-arrow2_right" data-qa="policy-model-arrow-{{(vm.policy.transformations.length + 1) }}"></i>
             </div>
           </accordion-heading>
-
           <ng-include data-ng-if="vm.accordionStatus[vm.policy.transformations.length]"
             src="'views/policy-wizard/model-panel.html'"
             data-ng-init="editionMode = true"
             data-qa="policy-model-new">
           </ng-include>
-
         </accordion-group>
       </div>
     </accordion>
