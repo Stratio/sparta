@@ -15,7 +15,7 @@ Feature: Test all Get operations for policyContexts in Sparta Swagger API
 		| outputs[1] | DELETE | N/A |
 		| id | DELETE | N/A |
 		Then the service response status must be '200' and its response must contain the text '"policyName":"policyContextAvailable"'
-		And I save element '$.policyId' in attribute 'previousPolicyID'
+		And I save element '$.policyId' in environment variable 'previousPolicyID'
 		When I send a 'GET' request to '/policyContext'
 		Then the service response status must be '200' and its response must contain the text '"id":"!{previousPolicyID}"'
 		
@@ -25,11 +25,11 @@ Feature: Test all Get operations for policyContexts in Sparta Swagger API
 	 	# Delete fragments
 	 	When I send a 'GET' request to '/fragment/input/name/name'
 	  	Then the service response status must be '200'.
-	  	And I save element '$.id' in attribute 'previousFragmentID'
+	  	And I save element '$.id' in environment variable 'previousFragmentID'
 	  	When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
 	  	Then the service response status must be '200'.
 	  	When I send a 'GET' request to '/fragment/output/name/name'
 	  	Then the service response status must be '200'.
-	  	And I save element '$.id' in attribute 'previousFragmentID_2'
+	  	And I save element '$.id' in environment variable 'previousFragmentID_2'
 	  	When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
 	  	Then the service response status must be '200'.

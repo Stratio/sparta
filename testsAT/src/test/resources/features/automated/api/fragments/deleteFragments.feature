@@ -34,7 +34,7 @@ Feature: Test all DELETE operations for fragments in Sparta Swagger API
 	
 	Scenario: Delete a fragment with type input and name inputfragment1
 		When I send a 'GET' request to '/fragment/input/name/inputfragment1'
-		Given I save element '$.id' in attribute 'previousFragmentID'
+		Given I save element '$.id' in environment variable 'previousFragmentID'
 		When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
 		Then the service response status must be '200'.
 		When I send a 'GET' request to '/fragment/input'
@@ -45,7 +45,7 @@ Feature: Test all DELETE operations for fragments in Sparta Swagger API
 		| id | DELETE | N/A |
 		| name | UPDATE | outputfragment1 |
 		| fragmentType | UPDATE | output |
-		And I save element '$.id' in attribute 'previousFragmentID'
+		And I save element '$.id' in environment variable 'previousFragmentID'
 		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID}'	
 		Then the service response status must be '200'.
 		When I send a 'GET' request to '/fragment/output'
@@ -59,7 +59,7 @@ Feature: Test all DELETE operations for fragments in Sparta Swagger API
 		| fragmentType | UPDATE | input |
 		# Save fragment id
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID'
+		And I save element '$.id' in environment variable 'previousFragmentID'
 		# Create policy referencing previously created fragment
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| fragments[0].id | UPDATE | !{previousFragmentID} |
@@ -69,7 +69,7 @@ Feature: Test all DELETE operations for fragments in Sparta Swagger API
 		| id | DELETE | N/A |
 		| input | DELETE | N/A |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousPolicyID'
+		And I save element '$.id' in environment variable 'previousPolicyID'
 		# Delete fragment
 		When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
 		Then the service response status must be '200'.
@@ -85,7 +85,7 @@ Feature: Test all DELETE operations for fragments in Sparta Swagger API
 		| fragmentType | UPDATE | output |
 		# Save fragment id
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID'
+		And I save element '$.id' in environment variable 'previousFragmentID'
 		# Create policy referencing previously created fragment
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| fragments[0].id | UPDATE | !{previousFragmentID} |
@@ -94,7 +94,7 @@ Feature: Test all DELETE operations for fragments in Sparta Swagger API
 		| fragments[1] | DELETE | N/A |
 		| id | DELETE | N/A |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousPolicyID'
+		And I save element '$.id' in environment variable 'previousPolicyID'
 		# Delete fragment
 		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID}'
 		Then the service response status must be '200'.

@@ -12,7 +12,7 @@ Feature: Test adding a new policy in Sparta GUI
 		| outputs[1] | DELETE | N/A |
 		| id | DELETE | N/A |
 	Then the service response status must be '200'.
-	And I save element '$.policyId' in attribute 'previousPolicyID'
+	And I save element '$.policyId' in environment variable 'previousPolicyID'
 	# Check that is listed
 	When I send a 'GET' request to '/policy/all'
 	Then the service response status must be '200' and its response length must be '1'
@@ -65,7 +65,7 @@ Feature: Test adding a new policy in Sparta GUI
 		| outputs[1] | DELETE | N/A |
 		| id | DELETE | N/A |
 	 Then the service response status must be '200'.
-	 And I save element '$.policyId' in attribute 'previousPolicyID_2'
+	 And I save element '$.policyId' in environment variable 'previousPolicyID_2'
 
 	# Browse to inputs
     Given I browse to '/#/dashboard/inputs'
@@ -88,11 +88,11 @@ Feature: Test adding a new policy in Sparta GUI
 	# Delete fragments
   	When I send a 'GET' request to '/fragment/input/name/name'
 	Then the service response status must be '200'.
-	And I save element '$.id' in attribute 'previousFragmentID'
+	And I save element '$.id' in environment variable 'previousFragmentID'
 	When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
 	Then the service response status must be '200'.
 	When I send a 'GET' request to '/fragment/output/name/name'
 	Then the service response status must be '200'.
-	And I save element '$.id' in attribute 'previousFragmentID_2'
+	And I save element '$.id' in environment variable 'previousFragmentID_2'
 	When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
 	Then the service response status must be '200'.

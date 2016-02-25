@@ -30,7 +30,7 @@ Feature: Test all PUT operations for policyContexts in Sparta Swagger API
 		Given I wait '10' seconds
 		When I send a 'GET' request to '/policy/findByName/policycontextvalid'
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousPolicyID'
+		And I save element '$.id' in environment variable 'previousPolicyID'
 		# Update policy context
 		When I send a 'PUT' request to '/policyContext' based on 'schemas/policyContexts/status.conf' as 'json' with:
 		| id | UPDATE | !{previousPolicyID} |
@@ -46,16 +46,16 @@ Feature: Test all PUT operations for policyContexts in Sparta Swagger API
 	   	# Delete fragments
 	  	When I send a 'GET' request to '/fragment/input/name/name'
 	  	Then the service response status must be '200'.
-	  	And I save element '$.id' in attribute 'previousFragmentID'
+	  	And I save element '$.id' in environment variable 'previousFragmentID'
 	  	When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
 	  	Then the service response status must be '200'.
 	  	When I send a 'GET' request to '/fragment/output/name/name'
 	  	Then the service response status must be '200'.
-	  	And I save element '$.id' in attribute 'previousFragmentID_2'
+	  	And I save element '$.id' in environment variable 'previousFragmentID_2'
 	  	When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
 	  	Then the service response status must be '200'.
 	  	When I send a 'GET' request to '/fragment/output/name/name2'
 	  	Then the service response status must be '200'.
-	  	And I save element '$.id' in attribute 'previousFragmentID_2'
+	  	And I save element '$.id' in environment variable 'previousFragmentID_2'
 	  	When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
 	  	Then the service response status must be '200'.

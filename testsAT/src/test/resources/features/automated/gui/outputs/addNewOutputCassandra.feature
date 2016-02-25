@@ -147,7 +147,7 @@ Feature: Test adding a new Cassandra output in Sparta GUI
 		# Retrieve output fragment id using api
 		When I send a 'GET' request to '/fragment/output/name/validcassandraoutput'
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID'
+		And I save element '$.id' in environment variable 'previousFragmentID'
 		# Check that an output element has been created
 		Then '1' element exists with 'css:span[data-qa="output-context-menu-!{previousFragmentID}"]'
 		
