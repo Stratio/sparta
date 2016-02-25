@@ -111,7 +111,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
         var position = 1;
         ctrl.modelAccordionStatus[position] = true;
 
-        ctrl.changeOpenedElement(position);
+        ctrl.changeOpenedModel(position);
 
         expect(modelFactoryMock.setModel).toHaveBeenCalledWith(fakeModel2, 1);
       });
@@ -124,7 +124,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
         var position = 2;
         ctrl.modelAccordionStatus[position] = true;
 
-        ctrl.changeOpenedElement(position);
+        ctrl.changeOpenedModel(position);
 
         expect(modelFactoryMock.resetModel).toHaveBeenCalledWith(fakePolicyTemplate.model, fakeModel2.order + 1, ctrl.policy.transformations.length);
       })

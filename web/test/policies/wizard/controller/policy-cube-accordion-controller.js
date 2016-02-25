@@ -149,7 +149,7 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
         var position = 1;
         ctrl.cubeAccordionStatus[position] = true;
 
-        ctrl.changeOpenedElement(position);
+        ctrl.changeOpenedCube(position);
 
         expect(cubeModelFactoryMock.setCube).toHaveBeenCalledWith(fakeCube2, 1);
       });
@@ -164,7 +164,7 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
         ctrl.policy.cubes = cubes;
         ctrl.cubeAccordionStatus[position] = true;
 
-        ctrl.changeOpenedElement(position);
+        ctrl.changeOpenedCube(position);
 
         expect(cubeModelFactoryMock.resetCube).toHaveBeenCalledWith(fakeCubeTemplate, fakeCreatedCubes, ctrl.policy.cubes.length);
       })
