@@ -21,8 +21,8 @@
       link: function (scope) {
         scope.visited = [];
         scope.chooseStep = function (index) {
-          if ((index == scope.current + 1 && scope.nextStepAvailable) || (index < scope.current) || visited[index]) {
-            visited[scope.current] = true;
+          if ((index == scope.current + 1 && scope.nextStepAvailable) || (index < scope.current) || scope.visited[index]) {
+            scope.visited[scope.current] = true;
             scope.current = index;
             scope.nextStepAvailable = false;
           }
