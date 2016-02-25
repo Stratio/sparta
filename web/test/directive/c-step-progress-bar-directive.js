@@ -1,4 +1,4 @@
-describe('directive.c-step-directive', function () {
+describe('directive.c-step-progress-bar-directive', function () {
   beforeEach(module('webApp'));
   var directive, scope = null;
 
@@ -14,24 +14,47 @@ describe('directive.c-step-directive', function () {
     $httpBackend.flush();
   }));
 
-  it("should be able to set the current step", inject(function ($compile, $httpBackend) {
+  describe("should be able to set the current step only if it is available", function () {
     var newCurrentStep = 5;
-    directive = angular.element(' <c-step-progress-bar current-step = "currentStep"> </c-step-progress-bar>');
+    var isolatedScope = null;
+    var currentStep = 4;
+    beforeEach( inject(function ($compile, $httpBackend){
+      scope.currentStep = currentStep;
+      directive = angular.element('<c-step-progress-bar current-step = "currentStep"> </c-step-progress-bar>');
+      directive = $compile(directive)(scope);
 
-    directive = $compile(directive)(scope);
-    scope.$digest();
-    $httpBackend.flush();
+      scope.$digest();
+      $httpBackend.flush();
 
-    var isolatedScope = directive.isolateScope();
-    isolatedScope.chooseStep(newCurrentStep);
-    scope.$digest();
-    expect(isolatedScope.current).toBe(newCurrentStep);
+      isolatedScope = directive.isolateScope();
+    }));
 
-    newCurrentStep = 4;
-    isolatedScope.chooseStep(newCurrentStep);
+    it("if selected step is not the next to the current, current step is not changed", function () {
+      newCurrentStep= 7;
+      isolatedScope.chooseStep(newCurrentStep);
+      scope.$digest();
+      expect(isolatedScope.current).toBe(currentStep);
+    });
 
-    expect(isolatedScope.current).toBe(newCurrentStep);
+    it("if selected step is minor to the current, current step is changed", function () {
+      newCurrentStep= 2;
+      isolatedScope.chooseStep(newCurrentStep);
+      scope.$digest();
+      expect(isolatedScope.current).toBe(newCurrentStep);
+    });
 
-  }));
+    it("if selected step is just the follow to the current, only if it is available, current step is changed", function () {
+      newCurrentStep= 5;
+      isolatedScope.nextStepAvailable= false;
+
+      isolatedScope.chooseStep(newCurrentStep);
+      scope.$digest();
+      expect(isolatedScope.current).toBe(currentStep);
+
+      isolatedScope.nextStepAvailable= true;
+      isolatedScope.chooseStep(newCurrentStep);
+      expect(isolatedScope.current).toBe(newCurrentStep);
+    });
+  });
 
 });
