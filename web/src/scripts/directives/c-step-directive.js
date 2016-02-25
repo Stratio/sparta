@@ -23,6 +23,14 @@
         scope.isSelected = function () {
           return scope.index == scope.current;
         };
+
+        scope.isVisited = function () {
+          return (scope.index < scope.current || (scope.hasBeenVisited && !scope.isSelected() ));
+        };
+
+        scope.isEnabled = function(){
+          return (scope.index == scope.current+1 &&  scope.isAvailable);
+        };
       }
     };
   }
