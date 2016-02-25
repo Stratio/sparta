@@ -14,13 +14,22 @@
         name: '=name',
         icon: '=icon',
         current: '=currentStep',
-        isAvailable: '='
+        isAvailable: '=',
+        hasBeenVisited: "="
       },
       replace: 'true',
       templateUrl: 'templates/components/c-step.tpl.html',
       link: function (scope) {
         scope.isSelected = function () {
           return scope.index == scope.current;
+        };
+
+        scope.isVisited = function () {
+          return (scope.index < scope.current || (scope.hasBeenVisited && !scope.isSelected() ));
+        };
+
+        scope.isEnabled = function(){
+          return (scope.index == scope.current+1 &&  scope.isAvailable);
         };
       }
     };

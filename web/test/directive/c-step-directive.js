@@ -19,7 +19,7 @@ describe('directive.c-step-directive', function () {
     it("if current and index are the same, returns true", inject(function ($compile, $httpBackend) {
       scope.index = 0;
       scope.currentStep = 0;
-      directive = angular.element(' <c-step index = "index" current-step = "currentStep"> </c-step>');
+      directive = angular.element(' <c-step index = "index" current-step = "currentStep"></c-step>');
 
       directive = $compile(directive)(scope);
       scope.$digest();
@@ -43,5 +43,32 @@ describe('directive.c-step-directive', function () {
     }));
   });
 
+  describe("should be able to return if an step has been visited", function () {
+    var isolatedScope;
+    beforeEach( inject(function ($compile, $httpBackend) {
+      directive = angular.element('<c-step index = "index" current-step = "currentStep"> </c-step>');
+
+      directive = $compile(directive)(scope);
+      scope.$digest();
+      $httpBackend.flush();
+      isolatedScope = directive.isolateScope();
+      isolatedScope.hasBeenVisited = false;
+
+    }));
+
+    it("a step is visited if current step is major than it", function () {
+      isolatedScope.index = 2;
+      isolatedScope.current = 3;
+      expect(isolatedScope.isVisited()).toBeTruthy();
+    });
+
+    it("a step is visited if hasBeenVisited variable is true and it is not the current step", function () {
+      isolatedScope.hasBeenVisited = true;
+      isolatedScope.index = 4;
+      isolatedScope.current = 3;
+
+      expect(isolatedScope.isVisited()).toBeTruthy();
+    });
+  });
 
 });
