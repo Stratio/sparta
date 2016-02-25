@@ -20,6 +20,7 @@
     vm.changeModelCreationPanelVisibility = changeModelCreationPanelVisibility;
     vm.isActiveModelCreationPanel = isActiveModelCreationPanel;
     vm.activateModelCreationPanel = activateModelCreationPanel;
+    vm.disableModelCreationPanel = disableModelCreationPanel;
 
     init();
 
@@ -31,6 +32,10 @@
 
     function activateModelCreationPanel() {
       showModelCreationPanel = true;
+    }
+
+    function disableModelCreationPanel() {
+      showModelCreationPanel = false;
     }
 
     function showConfirmRemoveModel(cubeNames) {

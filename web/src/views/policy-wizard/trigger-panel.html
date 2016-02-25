@@ -1,0 +1,75 @@
+<section data-ng-controller="TriggerCtrl as vm" data-ng-init="vm.init()" data-ng-model="vm.trigger">
+  <ng-form name="vm.form" novalidate>
+
+    <div class="c-row c-msg c-msg--small c-msg--error c-form c-form-group"
+         data-ng-if="vm.form.$submitted && (vm.trigger.operators.length === 0 || vm.trigger.dimensions.length === 0)"
+         data-qa="policy-trigger-error-msg">
+      <i class="c-icon icon-circle-cross"></i>
+      <span>{{vm.triggerError.text | translate}}</span>
+    </div>
+    <div class="c-form-group c-col c-col--6">
+      <form-field
+        data-ng-repeat="properties in vm.template.properties"
+        class="c-form-gutter c-col c-col--vertical-top"
+        data-ng-class="{'c-col--{{properties.col}}': properties.col}"
+        data-ng-form-id="{{properties.propertyId}}"
+        data-field="properties"
+        data-model="vm.trigger"
+        data-form="vm.form"
+        data-st-name="dataSource{{properties.propertyName}}Form"
+        data-list-compressed="true"
+        data-qa="{{properties.qa}}">
+      </form-field>
+    </div>
+
+    <form-field-textarea data-json = "true"
+                         data-label="{{'_CONFIGURATION_' | translate}}"
+                         data-form="vm.form"
+                         data-st-name="trigger-configuration"
+                         data-model="vm.trigger.configuration"
+                         data-required="true"
+                         data-disabled="!editionMode"
+                         data-extra-info="'_CONFIGURATION_INFO_' | translate"
+                         data-placeholder="vm.configPlaceholder"
+                         data-qa="policy-trigger-configuration-textarea">
+
+    <div class="c-trigger c-col c-col--3 c-col--vertical-top">
+      <label>{{"_ADD_OUTPUTS_" | translate}}</label>
+      <form-field-select data-form="vm.form" data-st-name="trigger-outputs" data-model="vm.selectedPolicyOutput"
+                         data-options="vm.policyOutputList" data-field="label"
+                         data-label="{{'_OUTPUTS_' | translate}}" data-help="" data-required="true"
+                         data-qa="trigger-output-select" data-ng-click="vm.addOutput()">
+      </form-field-select>
+
+      <c-tag-list name="trigger-outputs" form-control-class="" data-tags="vm.trigger.outputs"
+                  label-control-class="'c-label c-col'"
+                  readonly="'true'"
+                  data-enable-delete="true" data-qa="policy-trigger-output-list"
+                  show-label = "false"
+                  data-help="Note: Make sure output fields match with the ones in the configuration"
+                  data-required="true" data-min-length="1" data-form="vm.form">
+      </c-tag-list>
+    </div>
+
+    <div class="c-form-group c-form-group--full-width c-form-group--to-right">
+      <button data-ng-if="vm.isNewTrigger(vm.triggerContext.position)" class="c-button c-button--call-to-action-1"
+              data-ng-click="vm.addTrigger()"
+              data-qa="policy-trigger-add-button">
+        <i class="icon icon-circle-plus"></i>
+        <span>{{"_POLICY_._SAVE_CUBE_" | translate}}</span>
+      </button>
+      <button data-ng-if="!vm.isNewTrigger(vm.triggerContext.position)" class="c-button c-button--call-to-action-1"
+              data-ng-click="vm.saveTrigger(vm.form)"
+              data-qa="policy-trigger-add-button">
+        <i class="icon icon-circle-plus"></i>
+        <span>{{"_POLICY_._SAVE_CUBE_" | translate}}</span>
+      </button>
+      <button class="c-button c-button--danger" data-ng-if="!vm.isNewTrigger(vm.triggerContext.position)"
+              type="submit" data-ng-click="vm.removeTrigger(vm.triggerContext.position, $event)"
+              data-qa="policy-trigger-delete-button">
+        <i class="c-icon icon-cross"></i>
+        <span>{{"_DELETE_" | translate}}</span>
+      </button>
+    </div>
+  </ng-form>
+</section>
