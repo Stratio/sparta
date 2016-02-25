@@ -12,7 +12,7 @@ Feature: Test editing an output in Sparta GUI
 		| name | UPDATE | outputfragment1 |
 		| element.type | UPDATE | Redis |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID'
+		And I save element '$.id' in environment variable 'previousFragmentID'
 		When I send a 'GET' request to '/fragment/output'
 		Then the service response status must be '200' and its response length must be '1'
 
@@ -92,7 +92,7 @@ Feature: Test editing an output in Sparta GUI
 		# Retrieve output fragment id using api
 		When I send a 'GET' request to '/fragment/output/name/outputfragment1new'
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID_2'
+		And I save element '$.id' in environment variable 'previousFragmentID_2'
 		# Check that an output element has been created
 		Then '1' element exists with 'css:span[data-qa="output-context-menu-!{previousFragmentID_2}"]'
 		

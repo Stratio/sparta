@@ -16,7 +16,7 @@ Feature: Test policy with Socket input and MongoDB output
       | outputs[0].configuration.hosts[0].host | UPDATE | ${MONGO_HOST} |
       | outputs[0].configuration.hosts[0].port | UPDATE | ${MONGO_PORT} |
     Then the service response status must be '200'.
-    And I save element '$.id' in attribute 'previousPolicyID'
+    And I save element '$.id' in environment variable 'previousPolicyID'
     And I wait '10' seconds
 
     # Start the policy

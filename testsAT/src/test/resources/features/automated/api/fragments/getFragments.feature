@@ -50,7 +50,7 @@ Feature: Test all GET operations for fragments in Sparta Swagger API
 		| name | UPDATE | inputfragment1 |
 		| fragmentType | UPDATE | input |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID'
+		And I save element '$.id' in environment variable 'previousFragmentID'
 		When I send a 'GET' request to '/fragment/input'
 		Then the service response status must be '200' and its response length must be '1'
 	
@@ -60,7 +60,7 @@ Feature: Test all GET operations for fragments in Sparta Swagger API
 		| name | UPDATE | outputfragment1 |
 		| fragmentType | UPDATE | output |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID_2'
+		And I save element '$.id' in environment variable 'previousFragmentID_2'
 		When I send a 'GET' request to '/fragment/output'
 		Then the service response status must be '200' and its response length must be '1'
 		
