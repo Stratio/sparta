@@ -6,7 +6,6 @@
 	&-header {
 		&__step-number {
 		    display: inline-block;
-		    margin: $c-accordion-header__step-number---margin;
 		    font-size: $c-accordion-header__step-number---font-size;
 		    color: $c-accordion-header__step-number---color;
 		    background: $c-accordion-header__step-number---background;
@@ -14,21 +13,22 @@
 		    height: $c-accordion-header__step-number---height;
 		    text-align: center;
 		    padding: $c-accordion-header__step-number---padding;
+			vertical-align: $c-accordion-header__step-number---vertical-align;
 		}
 
 		&__title {
 			display: inline-block;
-			vertical-align: super;
+			vertical-align: middle;
 		}
 
 		&__type {
 			font-size: $c-accordion__type---font-size;
 			margin: $c-accordion__type---margin;
+			vertical-align: $c-accordion__type---vertical-align;
 		}
 
 		&__open-mark {
 			transition: transform 1s;
-			margin: $c-accordion__open-mark---margin;
 		}
 	}
 
