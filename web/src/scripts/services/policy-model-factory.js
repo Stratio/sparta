@@ -24,6 +24,7 @@
       policy.outputs = [];
       policy.transformations = [];
       policy.cubes = [];
+      policy.streamTriggers = [];
     }
 
     function setPolicy(inputPolicyJSON) {
