@@ -92,25 +92,12 @@ describe('policies.wizard.controller.policy-model-controller', function () {
 
   describe("should be able to change the default configuration when type is changed by user", function () {
     it("if type is morphlines, it returns the morphlinesDefaultConfiguration", function () {
-      ctrl.model.type = fakeModelTemplate.types[0].name;  // it has to be Morphlines type
-      ctrl.changeDefaultConfiguration();
+      ctrl.model.type = "Morphlines";
+      ctrl.onChangeType();
 
-      expect(ctrl.model.configuration).toEqual(fakeModelTemplate.defaultConfiguration.morphlinesDefaultConfiguration);
+      expect(ctrl.model.configuration).toEqual(fakeModelTemplate.morphlines.defaultConfiguration);
     });
 
-    it("if type is datetime, it returns the dateTimeDefaultConfiguration", function () {
-      ctrl.model.type = fakeModelTemplate.types[1].name;  // it has to be DateTime type
-      ctrl.changeDefaultConfiguration();
-
-      expect(ctrl.model.configuration).toEqual(fakeModelTemplate.defaultConfiguration.dateTimeDefaultConfiguration);
-    });
-
-    it("if type is 'type', it returns the typeDefaultConfiguration", function () {
-      ctrl.model.type = fakeModelTemplate.types[2].name;  // it has to be 'type' type
-      ctrl.changeDefaultConfiguration();
-
-      expect(ctrl.model.configuration).toEqual(fakeModelTemplate.defaultConfiguration.typeDefaultConfiguration);
-    });
   });
 
   describe("should be able to add a model to the policy", function () {

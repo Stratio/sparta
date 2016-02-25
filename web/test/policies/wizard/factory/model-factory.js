@@ -48,7 +48,6 @@ describe('policies.wizard.factory.model-factory', function () {
 
       expect(model.outputFields).toEqual([]);
       expect(model.type).toBe(fakeModelTemplate.types[0].name);
-      expect(model.configuration).toBe(fakeModelTemplate.defaultConfiguration.morphlinesDefaultConfiguration);
       expect(model.order).toBe(desiredOrder);
       expect(factory.getError()).toEqual({"text": "", "duplicatedOutput": false});
       expect(factory.getContext().position).toBe(position);
@@ -183,7 +182,6 @@ describe('policies.wizard.factory.model-factory', function () {
 
       expect(model.outputFields).toEqual([]);
       expect(model.type).toBe(fakeModelTemplate.types[0].name);
-      expect(model.configuration).toBe(fakeModelTemplate.defaultConfiguration.morphlinesDefaultConfiguration);
       expect(model.order).toBe(desiredOrder);
       expect(factory.getError()).toEqual({"text": "", "duplicatedOutput": false});
       expect(factory.getContext().position).toBe(newPosition);

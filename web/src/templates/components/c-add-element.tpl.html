@@ -18,15 +18,15 @@
         <i class="{{iconClass}}" data-ng-click="addInput($event)" data-qa="{{qa}}-add-button"></i>
       </div>
     </div>
-    <div data-ng-if="elementsLength == 0 && submittedForm" class="c-col c-col--3 angular-forms__error">
+    <div data-ng-if="model.length == 0 && submittedForm" class="c-col c-col--3 angular-forms__error">
         <i class="icon icon-circle-cross"></i>
         <span data-qa="{{qa}}-error-outputs-length">{{"_POLICY_MODEL_OUTPUT_ERROR_" | translate}}</span>
     </div>
-    <div data-ng-if="error && elementsLength > 0 && submittedForm" class="c-col c-col--3  angular-forms__error">
+    <div data-ng-if="error && model.length > 0 && submittedForm" class="c-col c-col--3  angular-forms__error">
         <i class="c-icon icon-circle-cross"></i>
         <span data-qa="{{qa}}-error-outputs-duplicated">{{"_ERROR_INPUT_DUPLICATED_" | translate}}</span>
     </div>
-    <div data-ng-if="errorLimit && elementsLength > 0 && submittedForm" class="c-col c-col--3  angular-forms__error">
+    <div data-ng-if="errorLimit && model.length > 0 && submittedForm" class="c-col c-col--3  angular-forms__error">
         <i class="c-icon icon-circle-cross"></i>
         <span data-qa="{{qa}}-error-outputs-duplicated">{{"_ERROR_OUTPUT_LIMIT_" | translate}}{{limit}}</span>
     </div>

@@ -18,7 +18,6 @@
       model.outputFields = [];
       model.inputField = "";
       model.type = template.types[0].name;
-      model.configuration = template.defaultConfiguration.morphlinesDefaultConfiguration;
       model.order = order;
       error.text = "";
       error.duplicatedOutput = false;

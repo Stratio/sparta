@@ -201,8 +201,8 @@
       "label": "_attachment_body",
       "value": "_attachment_body"
     },
-    "defaultConfiguration": {
-      "morphlinesDefaultConfiguration": {
+    "morphlines": {
+      "defaultConfiguration": {
         "morphline": {
           "id": "morphline1",
           "importCommands": [
