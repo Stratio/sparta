@@ -55,14 +55,14 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		| name | UPDATE | inputfragment1 |
 		| fragmentType | UPDATE | input |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID'
+		And I save element '$.id' in environment variable 'previousFragmentID'
 		# Create second input fragment
 		Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
 		| id | DELETE | N/A |
 		| name | UPDATE | inputfragment2 |
 		| fragmentType | UPDATE | input |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID_2'
+		And I save element '$.id' in environment variable 'previousFragmentID_2'
 		# Create policy referencing these input fragments
 		When I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | policyContext2InputFragments |
@@ -92,7 +92,7 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		Then the service response status must be '200'.
-		And I save element '$.policyId' in attribute 'previousPolicyID'
+		And I save element '$.policyId' in environment variable 'previousPolicyID'
 		# One policyContext created
 		When I send a 'GET' request to '/policyContext'
 		Then the service response status must be '200' and its response must contain the text '"id":"!{previousPolicyID}"'
@@ -117,7 +117,7 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		| id | DELETE | N/A |
 		| input | DELETE | N/A |
 		Then the service response status must be '200' and its response must contain the text '"policyName":"policyContext1InputFragment"'
-		And I save element '$.policyId' in attribute 'previousPolicyID_2'
+		And I save element '$.policyId' in environment variable 'previousPolicyID_2'
 		# One policyContext created
 		When I send a 'GET' request to '/policyContext'
 		Then the service response status must be '200' and its response must contain the text '"id":"!{previousPolicyID_2}"'
@@ -140,14 +140,14 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		| name | UPDATE | outputfragment1 |
 		| fragmentType | UPDATE | output |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID'
+		And I save element '$.id' in environment variable 'previousFragmentID'
 		# Create second output fragment
 		Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
 		| id | DELETE | N/A |
 		| name | UPDATE | outputfragment2 |
 		| fragmentType | UPDATE | output |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID_2'
+		And I save element '$.id' in environment variable 'previousFragmentID_2'
 		# Create policy using these output fragments
 		When I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
 		| fragments[0].id | UPDATE | !{previousFragmentID} |
@@ -160,7 +160,7 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		| outputs | DELETE | N/A |
 		| name | UPDATE | policyContextTwoOutputFragment |	
 		Then the service response status must be '200' and its response must contain the text '"policyName":"policyContextTwoOutputFragment"'
-		And I save element '$.policyId' in attribute 'previousPolicyID_2'
+		And I save element '$.policyId' in environment variable 'previousPolicyID_2'
 		# One policyContext created
 		When I send a 'GET' request to '/policyContext'
 		Then the service response status must be '200' and its response must contain the text '"id":"!{previousPolicyID_2}"'
@@ -182,26 +182,26 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		# Delete fragments
 	  	When I send a 'GET' request to '/fragment/input/name/name'
 	  	Then the service response status must be '200'.
-	  	And I save element '$.id' in attribute 'previousFragmentID'
+	  	And I save element '$.id' in environment variable 'previousFragmentID'
 	  	When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
 	  	Then the service response status must be '200'.
 	  	When I send a 'GET' request to '/fragment/input/name/elementname'
 	  	Then the service response status must be '200'.
-	  	And I save element '$.id' in attribute 'previousFragmentID'
+	  	And I save element '$.id' in environment variable 'previousFragmentID'
 	  	When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
 	  	Then the service response status must be '200'.
 	  	When I send a 'GET' request to '/fragment/output/name/name'
 	  	Then the service response status must be '200'.
-	  	And I save element '$.id' in attribute 'previousFragmentID_2'
+	  	And I save element '$.id' in environment variable 'previousFragmentID_2'
 	  	When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
 	  	Then the service response status must be '200'.
 	  	When I send a 'GET' request to '/fragment/output/name/name2'
 	  	Then the service response status must be '200'.
-	  	And I save element '$.id' in attribute 'previousFragmentID_2'
+	  	And I save element '$.id' in environment variable 'previousFragmentID_2'
 	  	When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
 	  	Then the service response status must be '200'.
 	  	When I send a 'GET' request to '/fragment/output/name/elementname'
 	  	Then the service response status must be '200'.
-	  	And I save element '$.id' in attribute 'previousFragmentID_2'
+	  	And I save element '$.id' in environment variable 'previousFragmentID_2'
 	  	When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
 	  	Then the service response status must be '200'.

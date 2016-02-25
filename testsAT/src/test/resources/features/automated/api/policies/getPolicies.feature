@@ -81,7 +81,7 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 		| name | UPDATE | outputfragment1 |
 		| fragmentType | UPDATE | output |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID'
+		And I save element '$.id' in environment variable 'previousFragmentID'
 		# Create policy using fragment
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| fragments[0].id | UPDATE | !{previousFragmentID} |
@@ -91,7 +91,7 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 		| id | DELETE | N/A |
 		| name | UPDATE | policyOneOutputFragment |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousPolicyID'
+		And I save element '$.id' in environment variable 'previousPolicyID'
 		# Get policies with fragmentType input and id !{previousFragmentID}
 		When I send a 'GET' request to '/policy/fragment/input/!{previousFragmentID}'
 		Then the service response status must be '200' and its response length must be '1'
@@ -107,7 +107,7 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 		| name | UPDATE | outputfragment2 |
 		| fragmentType | UPDATE | output |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID_2'
+		And I save element '$.id' in environment variable 'previousFragmentID_2'
 		# Create policy using fragments
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| fragments[0].id | UPDATE | !{previousFragmentID} |
@@ -120,7 +120,7 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 		| outputs | DELETE | N/A |
 		| name | UPDATE | policyTwoOutputFragment |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousPolicyID_2'
+		And I save element '$.id' in environment variable 'previousPolicyID_2'
 		# Run policy	
 		When I send a 'GET' request to '/policy/run/!{previousPolicyID_2}'
 		Then the service response status must be '200' and its response must contain the text '{"message":"Creating new context'

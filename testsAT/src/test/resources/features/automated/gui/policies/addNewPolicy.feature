@@ -86,7 +86,7 @@ Feature: Test adding a new policy in Sparta GUI
 		| name | UPDATE | flumeinput |
 		| element.type | UPDATE | Flume |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID'
+		And I save element '$.id' in environment variable 'previousFragmentID'
 		When I send a 'GET' request to '/fragment/input'
 		Then the service response status must be '200' and its response length must be '1'
 		
@@ -495,7 +495,7 @@ Feature: Test adding a new policy in Sparta GUI
 		| name | UPDATE | printoutput |
 		| element.type | UPDATE | Print |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID_2'
+		And I save element '$.id' in environment variable 'previousFragmentID_2'
 		When I send a 'GET' request to '/fragment/output'
 		Then the service response status must be '200' and its response length must be '1'
 		
