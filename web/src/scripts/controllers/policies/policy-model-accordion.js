@@ -14,7 +14,7 @@
     vm.init = init;
     vm.previousStep = previousStep;
     vm.nextStep = nextStep;
-    vm.changeOpenedElement = changeOpenedElement;
+    vm.changeOpenedModel = changeOpenedModel;
     vm.isActiveModelCreationPanel = ModelService.isActiveModelCreationPanel;
     vm.activateModelCreationPanel = ModelService.activateModelCreationPanel;
 
@@ -48,7 +48,7 @@
       }
     }
 
-    function changeOpenedElement(selectedModelPosition) {
+    function changeOpenedModel(selectedModelPosition) {
       if (vm.policy.transformations.length > 0 && selectedModelPosition >= 0 && selectedModelPosition < vm.policy.transformations.length) {
         var selectedModel = vm.policy.transformations[selectedModelPosition];
         ModelFactory.setModel(selectedModel, selectedModelPosition);
