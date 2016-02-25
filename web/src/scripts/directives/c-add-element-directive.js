@@ -20,7 +20,6 @@
         pattern: "=",
         placeholder: "@",
         error: '=',
-        elementsLength: '=',
         submittedForm: '=',
         label: '=',
         help: '=',
@@ -41,7 +40,7 @@
         if (scope.inputToAdd !== '' && scope.inputToAdd !== undefined && (event.keyCode == '13' || event.type === "click")) {
           var inputExists = false;
           scope.errorLimit = false;
-          if (scope.limit === 0 || scope.elementsLength < scope.limit) {
+          if (scope.limit === 0 || scope.model.length < scope.limit) {
             for (var i = 0; i < scope.model.length; i++) {
               if (scope.model[i].name === scope.inputToAdd) {
                 inputExists = true;
@@ -60,6 +59,7 @@
             event.preventDefault();
           }
           else {
+            scope.submittedForm = true;
             scope.errorLimit = true;
           }
         }
