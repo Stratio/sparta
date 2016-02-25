@@ -14,7 +14,8 @@
         name: '=name',
         icon: '=icon',
         current: '=currentStep',
-        isAvailable: '='
+        isAvailable: '=',
+        hasBeenVisited: "="
       },
       replace: 'true',
       templateUrl: 'templates/components/c-step.tpl.html',
