@@ -13,7 +13,7 @@
   <form class="c-form c-panel c-panel--framed" novalidate>
     <c-accordion items="vm.policy.transformations"
                  item-template="'views/policy-wizard/model-panel.html'"
-                 on-change-opened-element="vm.changeOpenedElement"
+                 on-change-opened-element="vm.changeOpenedElement(selectedItemPosition)"
                  item-qa-tag="policy-model"
                  show-new-item-panel="vm.isActiveModelCreationPanel()"
                  accordion-status="vm.modelAccordionStatus"

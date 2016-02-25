@@ -6,14 +6,15 @@
     .module('webApp')
     .controller('PolicyCubeAccordionCtrl', PolicyCubeAccordionCtrl);
 
-  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'CubeService', '$scope'];
+  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'CubeService'];
 
-  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory,  CubeService, $scope) {
+  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, CubeService) {
     var vm = this;
 
     vm.init = init;
     vm.previousStep = previousStep;
     vm.nextStep = nextStep;
+    vm.changeOpenedElement = changeOpenedElement;
     vm.isActiveCubeCreationPanel = CubeService.isActiveCubeCreationPanel;
     vm.activateCubeCreationPanel = CubeService.activateCubeCreationPanel;
 
@@ -26,9 +27,9 @@
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.cubeAccordionStatus = [];
       vm.helpLink = vm.template.helpLinks.cubes;
-      if (vm.policy.cubes.length > 0){
+      if (vm.policy.cubes.length > 0) {
         PolicyModelFactory.enableNextStep();
-      }else{
+      } else {
         CubeService.changeCubeCreationPanelVisibility(true);
       }
     }
@@ -46,19 +47,16 @@
       }
     }
 
-    $scope.$watchCollection(
-      "vm.cubeAccordionStatus",
-      function () {
-        if (vm.cubeAccordionStatus) {
-          var selectedCubePosition = vm.cubeAccordionStatus.indexOf(true);
-            if (vm.policy.cubes.length > 0 && selectedCubePosition >= 0 && selectedCubePosition < vm.policy.cubes.length ) {
-              var selectedCube = vm.policy.cubes[selectedCubePosition];
-              CubeModelFactory.setCube(selectedCube,selectedCubePosition );
-            } else {
-              CubeModelFactory.resetCube(vm.template.cube, CubeService.getCreatedCubes(), vm.policy.cubes.length);
-            }
-          }
-      }
-    );
+    function changeOpenedElement(selectedCubePosition) {
+
+        if (vm.policy.cubes.length > 0 && selectedCubePosition >= 0 && selectedCubePosition < vm.policy.cubes.length) {
+          var selectedCube = vm.policy.cubes[selectedCubePosition];
+          CubeModelFactory.setCube(selectedCube, selectedCubePosition);
+        } else {
+          CubeModelFactory.resetCube(vm.template.cube, CubeService.getCreatedCubes(), vm.policy.cubes.length);
+        }
+
+    }
+
   }
 })();

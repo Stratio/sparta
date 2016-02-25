@@ -9,7 +9,7 @@
   <form class="c-form c-panel c-panel--framed" novalidate>
     <c-accordion items="vm.policy.cubes"
                  item-template="'views/policy-wizard/cube-panel.html'"
-                 on-change-opened-element="vm.changeOpenedElement"
+                 on-change-opened-element="vm.changeOpenedElement(selectedItemPosition)"
                  item-qa-tag="policy-cube"
                  show-new-item-panel="vm.isActiveCubeCreationPanel()"
                  accordion-status="vm.cubeAccordionStatus"
