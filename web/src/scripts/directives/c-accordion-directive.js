@@ -49,6 +49,16 @@
             AccordionStatusService.resetAccordionStatus(scope.accordionStatus, scope.items.length);
           }
         });
+
+      scope.$watchCollection(
+        "accordionStatus",
+        function () {
+
+          if (scope.accordionStatus) {
+            var selectedItemPosition = scope.accordionStatus.indexOf(true);
+            scope.onChangeOpenedElement({selectedItemPosition:selectedItemPosition});
+          }
+        });
     }
   }
 })();
