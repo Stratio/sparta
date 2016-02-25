@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('CubeCtrl', CubeCtrl);
 
-  CubeCtrl.$inject = ['CubeModelFactory', 'CubeService', 'PolicyModelFactory', 'ModalService'];
+  CubeCtrl.$inject = ['CubeModelFactory', 'CubeService','OutputService', 'PolicyModelFactory', 'ModalService'];
 
-  function CubeCtrl(CubeModelFactory, CubeService, PolicyModelFactory, ModalService) {
+  function CubeCtrl(CubeModelFactory, CubeService,OutputService, PolicyModelFactory, ModalService) {
     var vm = this;
 
     vm.init = init;
@@ -35,7 +35,7 @@
         vm.cubeError = CubeModelFactory.getError();
         vm.cubeContext = CubeModelFactory.getContext();
         vm.selectedPolicyOutput = "";
-        return CubeService.generateOutputList().then(function (outputList) {
+        return OutputService.generateOutputList().then(function (outputList) {
           vm.policyOutputList = outputList;
         });
       }
