@@ -8,14 +8,14 @@
           </label>
         </span>
         <span data-ng-repeat="modelTypes in vm.modelTypes">
-          <input data-ng-change="vm.changeDefaultConfiguration()" class="c-icon-radio__item"
-               id="type-{{modelTypes.name + $parent.$index| lowercase}}" type="radio"
-               data-ng-model="vm.model.type" value="{{modelTypes.name}}" data-ng-disabled="!editionMode" data-ng-click="vm.resetOutputFields()">
+          <input data-ng-change="vm.onChangeType()" class="c-icon-radio__item"
+                 id="type-{{modelTypes.name + $parent.$index| lowercase}}" type="radio"
+                 data-ng-model="vm.model.type" value="{{modelTypes.name}}" data-ng-disabled="!editionMode"  data-ng-click="vm.resetOutputFields()">
           <label data-ng-model="vm.model.type" class="c-icon-radio__label"
-               data-qa="policy-model-type-{{modelTypes.name | lowercase}}"
-               for="type-{{modelTypes.name + $parent.$index| lowercase}}">
+                 data-qa="policy-model-type-{{modelTypes.name | lowercase}}"
+                 for="type-{{modelTypes.name + $parent.$index| lowercase}}">
             <i class="c-icon c-icon--large c-icon-radio__icon icon-{{modelTypes.iconName | lowercase}}"
-             tooltip="{{modelTypes.name | lowercase}}" tooltip-placement="top" tooltip-class="tooltip--top">
+               tooltip="{{modelTypes.name | lowercase}}" tooltip-placement="top" tooltip-class="tooltip--top">
             </i>
           </label>
         </span>
@@ -35,6 +35,7 @@
         <ng-include src="'templates/policies/transformation/ingestion-panel.tpl.html'"></ng-include>
       </div>
     </div>
+
     <div class="c-form-group c-form-group--to-right">
       <button data-ng-if="vm.isNewModel(vm.modelContext.position)" class="c-button c-button--call-to-action-1"
               data-ng-click="vm.addModel()" data-qa="policy-model-add-button">

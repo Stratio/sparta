@@ -5,11 +5,11 @@
     .module('webApp')
     .service('CubeService', CubeService);
 
-  CubeService.$inject = ['PolicyModelFactory', 'ModalService', 'AccordionStatusService', 'CubeModelFactory', 'FragmentFactory', 'UtilsService', '$q'];
+  CubeService.$inject = ['PolicyModelFactory', 'ModalService', 'CubeModelFactory', 'FragmentFactory', 'UtilsService', '$q'];
 
-  function CubeService(PolicyModelFactory, ModalService, AccordionStatusService, CubeModelFactory, FragmentFactory, UtilsService, $q) {
+  function CubeService(PolicyModelFactory, ModalService, CubeModelFactory, FragmentFactory, UtilsService, $q) {
     var vm = this;
-    var createdCubes = null;
+    var createdCubes, showCubeCreationPanel, outputList = null;
 
     vm.findCubesUsingOutputs = findCubesUsingOutputs;
     vm.areValidCubes = areValidCubes;
@@ -23,13 +23,18 @@
     vm.changeCubeCreationPanelVisibility = changeCubeCreationPanelVisibility;
     vm.isActiveCubeCreationPanel = isActiveCubeCreationPanel;
     vm.generateOutputList = generateOutputList;
+    vm.activateCubeCreationPanel = activateCubeCreationPanel;
 
     init();
 
     function init() {
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-
       createdCubes = vm.policy.cubes.length;
+      showCubeCreationPanel = true;
+    }
+
+    function activateCubeCreationPanel() {
+      showCubeCreationPanel = true;
     }
 
     function showConfirmRemoveCube() {
@@ -116,7 +121,6 @@
       if (CubeModelFactory.isValidCube(newCube, vm.policy.cubes, CubeModelFactory.getContext().position)) {
         vm.policy.cubes.push(newCube);
         createdCubes++;
-        AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
         PolicyModelFactory.enableNextStep();
       } else {
         CubeModelFactory.setError();
@@ -139,7 +143,6 @@
       var cubePosition = CubeModelFactory.getContext().position;
       showConfirmRemoveCube().then(function () {
         vm.policy.cubes.splice(cubePosition, 1);
-        AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
         if (vm.policy.cubes.length == 0) {
           PolicyModelFactory.disableNextStep();
         }
@@ -159,11 +162,11 @@
     }
 
     function changeCubeCreationPanelVisibility(isVisible) {
-      vm.showCubeCreationPanel = isVisible;
+      showCubeCreationPanel = isVisible;
     }
 
     function isActiveCubeCreationPanel() {
-      return vm.showCubeCreationPanel;
+      return showCubeCreationPanel;
     }
 
     function resetCreatedCubes() {
@@ -172,14 +175,17 @@
 
     function generateOutputList() {
       var defer = $q.defer();
-      var outputList = [];
-      FragmentFactory.getFragments("output").then(function (result) {
-        for (var i = 0; i < result.length; ++i) {
-          outputList.push({"label": result[i].name, "value": result[i].name});
-        }
+      if (outputList) {
         defer.resolve(outputList);
-      });
-
+      } else {
+        outputList = [];
+        FragmentFactory.getFragments("output").then(function (result) {
+          for (var i = 0; i < result.length; ++i) {
+            outputList.push({"label": result[i].name, "value": result[i].name});
+          }
+          defer.resolve(outputList);
+        });
+      }
       return defer.promise;
     }
   }

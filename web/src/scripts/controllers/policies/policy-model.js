@@ -12,14 +12,14 @@
     var vm = this;
 
     vm.init = init;
-    vm.changeDefaultConfiguration = changeDefaultConfiguration;
     vm.addModel = addModel;
     vm.removeModel = removeModel;
+    vm.resetOutputFields = resetOutputFields;
+    vm.onChangeType= onChangeType;
     vm.isLastModel = ModelService.isLastModel;
     vm.isNewModel = ModelService.isNewModel;
-    vm.resetOutputFields = resetOutputFields;
-
     vm.modelInputs = ModelFactory.getModelInputs();
+
     vm.init();
 
     function init() {
@@ -35,21 +35,15 @@
         vm.configPlaceholder = vm.template.configPlaceholder;
         vm.outputPattern = vm.template.outputPattern;
         vm.outputInputPlaceholder = vm.template.outputInputPlaceholder;
-        vm.outputFieldTypes =  vm.template.model.outputFieldTypes;
+        vm.outputFieldTypes = vm.template.model.outputFieldTypes;
       }
     }
 
-    function changeDefaultConfiguration() {
-      vm.model.configuration = getDefaultConfigurations(vm.model.type);
-    }
-
-    function getDefaultConfigurations(type) {
-      var types = vm.template.model.types;
-      var defaultConfigurations =  vm.template.model.defaultConfiguration;
-      switch (type) {
-        case types[1].name:
-        {
-          return defaultConfigurations.morphlinesDefaultConfiguration;
+    function onChangeType(){
+      switch (vm.model.type) {
+        case "Morphlines":{
+          vm.model.configuration = vm.template.model.morphlines.defaultConfiguration;
+          console.log(vm.model.configuration);
         }
       }
     }
@@ -59,7 +53,6 @@
       if (vm.form.$valid && vm.model.outputFields.length != 0) {
         vm.form.$submitted = false;
         ModelService.addModel();
-
         ModelService.changeModelCreationPanelVisibility(false);
       } else {
         ModelFactory.setError("_GENERIC_FORM_ERROR_");
@@ -67,7 +60,7 @@
     }
 
     function removeModel() {
-      return  ModelService.removeModel().then(function () {
+      return ModelService.removeModel().then(function () {
         var order = 0;
         var modelNumber = vm.policy.transformations.length;
         if (modelNumber > 0) {

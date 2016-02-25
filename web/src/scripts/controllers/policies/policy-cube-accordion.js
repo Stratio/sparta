@@ -6,18 +6,17 @@
     .module('webApp')
     .controller('PolicyCubeAccordionCtrl', PolicyCubeAccordionCtrl);
 
-  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'AccordionStatusService', 'CubeService', '$scope'];
+  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'CubeService'];
 
-  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, AccordionStatusService, CubeService, $scope) {
+  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, CubeService) {
     var vm = this;
-    var index = 0;
 
     vm.init = init;
     vm.previousStep = previousStep;
     vm.nextStep = nextStep;
-    vm.generateIndex = generateIndex;
+    vm.changeOpenedCube = changeOpenedCube;
     vm.isActiveCubeCreationPanel = CubeService.isActiveCubeCreationPanel;
-    vm.activateCubeCreationPanel = activateCubeCreationPanel;
+    vm.activateCubeCreationPanel = CubeService.activateCubeCreationPanel;
 
     vm.error = "";
 
@@ -26,21 +25,13 @@
     function init() {
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      vm.accordionStatus = AccordionStatusService.getAccordionStatus();
-      AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length, vm.policy.cubes.length);
+      vm.cubeAccordionStatus = [];
       vm.helpLink = vm.template.helpLinks.cubes;
-      if (vm.policy.cubes.length > 0){
+      if (vm.policy.cubes.length > 0) {
         PolicyModelFactory.enableNextStep();
-      }else{
+      } else {
         CubeService.changeCubeCreationPanelVisibility(true);
       }
-      return CubeService.generateOutputList().then(function (outputList) {
-        vm.policyOutputList = outputList;
-      });
-    }
-
-    function generateIndex() {
-      return index++;
     }
 
     function previousStep() {
@@ -56,24 +47,16 @@
       }
     }
 
-    function activateCubeCreationPanel() {
-      CubeService.changeCubeCreationPanelVisibility(true);
-      AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length, vm.policy.cubes.length);
+    function changeOpenedCube(selectedCubePosition) {
+
+        if (vm.policy.cubes.length > 0 && selectedCubePosition >= 0 && selectedCubePosition < vm.policy.cubes.length) {
+          var selectedCube = vm.policy.cubes[selectedCubePosition];
+          CubeModelFactory.setCube(selectedCube, selectedCubePosition);
+        } else {
+          CubeModelFactory.resetCube(vm.template.cube, CubeService.getCreatedCubes(), vm.policy.cubes.length);
+        }
+
     }
 
-    $scope.$watchCollection(
-      "vm.accordionStatus",
-      function (newValue) {
-        if (vm.accordionStatus) {
-          var selectedCubePosition = newValue.indexOf(true);
-            if (vm.policy.cubes.length > 0 && selectedCubePosition >= 0 && selectedCubePosition < vm.policy.cubes.length ) {
-              var selectedCube = vm.policy.cubes[selectedCubePosition];
-              CubeModelFactory.setCube(selectedCube,selectedCubePosition );
-            } else {
-              CubeModelFactory.resetCube(vm.template.cube, CubeService.getCreatedCubes(), vm.policy.cubes.length);
-            }
-          }
-      }
-    );
   }
 })();
