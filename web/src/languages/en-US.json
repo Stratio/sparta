@@ -116,10 +116,11 @@
       "_TRIGGER_": "Trigger",
       "_FINISH_": "Finish"
     },
-    "_MODEL_NOT_SAVED_": "not saved",
     "_MODAL_CREATION_TITLE_":"Create policy",
     "_RAW_": "Raw",
-    "_NEW-MODEL-DEFINITION_": "New model definition",
+    "_NEW_MODEL_DEFINITION_": "New model definition",
+    "_NEW_CUBE_DEFINITION_": "New cube definition",
+    "_NEW_TRIGGER_DEFINITION_": "New trigger definition",
     "_DESCRIPTION_INTRO_": "Introduce a name and description for your policy. You can also edit the advanced settings of the policy",
     "_INPUTS_INTRO_":"You have to select an input from your list to continue configuring the policy. You can only add one input to policy.",
     "_MODEL_INTRO_":"You have to create, at least, one model to be able to configure a cube in the next step.",
@@ -164,6 +165,7 @@
       "_REMOVE_OPERATOR_CONFIRM_TITLE_": "Remove operator"
     },
     "_ADD_MODEL_": "Add model",
+    "_ADD_TRIGGER_":"Add trigger",
     "_DIMENSIONS_": "Dimensions",
     "_OPERATORS_": "Operators",
     "_FIELDS_": "Fields",
@@ -287,5 +289,8 @@
   "_NODES_": "Nodes",
   "_ADD_OUTPUTS_":"Add outputs",
   "_OUTPUTS_": "Outputs",
-  "_INPUT_FORMAT_": "Input format"
+  "_INPUT_FORMAT_": "Input format",
+  "_NOT_SAVED_": "not saved",
+  "_SQL_": "SQL",
+  "_TRIGGERS_": "Triggers"
 }

@@ -581,5 +581,26 @@
       "Variance",
       "TotalEntityCount"
     ]
+  },
+  "trigger": {
+    "defaultName": "trigger",
+    "properties": [
+      {
+        "propertyId": "name",
+        "propertyName": "_NAME_",
+        "propertyType": "text",
+        "required": true,
+        "qa": "trigger-name",
+        "col": 12
+      },
+      {
+        "propertyId": "sql",
+        "propertyName": "_SQL_",
+        "propertyType": "textarea",
+        "required": true,
+        "qa": "trigger-sql",
+        "col": 12
+      }
+    ]
   }
 }

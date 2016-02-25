@@ -2,6 +2,9 @@
   <p class="c-info-text c-info-text--narrow c-info-text--bottom-margin"><i
     class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._MODEL_INTRO_" | translate}}</span>
   </p>
+  <button class="c-button--to-right" data-ng-click = "vm.activateTriggerCreationPanel()"><i
+    class="c-icon c-info-text__icon icon-circle-plus"></i><span class="c-info-text__text">{{"_POLICY_._ADD_TRIGGER_" | translate}}</span>
+  </button>
 
   <div class="c-row c-msg c-msg--small c-msg--error"
        data-ng-if="vm.error != '' && vm.policy.transformations.length === 0"
@@ -17,9 +20,25 @@
                  item-qa-tag="policy-model"
                  show-new-item-panel="vm.isActiveModelCreationPanel()"
                  accordion-status="vm.modelAccordionStatus"
-                 item-attribute-in-header="type">
+                 item-attribute-in-header="type"
+                 new-item-header="_POLICY_._NEW_MODEL_DEFINITION_">
     </c-accordion>
   </form>
+
+  <h2 class="panel-title">
+    <i class="c-icon icon-bell"></i>
+    <span class="c-step-content__title-text">{{"_TRIGGERS_" | translate}}</span>
+  </h2>
+
+  <c-accordion items="vm.policy.streamTriggers"
+               item-template="'views/policy-wizard/trigger-panel.html'"
+               on-change-opened-element="vm.changeOpenedTrigger(selectedItemPosition)"
+               item-qa-tag="policy-triggers"
+               show-new-item-panel="vm.isActiveTriggerCreationPanel()"
+               accordion-status="vm.triggerAccordionStatus"
+               item-attribute-in-header="name"
+               new-item-header="_POLICY_._NEW_TRIGGER_DEFINITION_">
+  </c-accordion>
 
   <footer class="c-row c-row--footer">
     <div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">

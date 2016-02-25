@@ -21,7 +21,8 @@
         itemQaTag: "=",
         showNewItemPanel: "=",
         accordionStatus:"=",
-        itemAttributeInHeader:"@"
+        itemAttributeInHeader:"@",
+        newItemHeader: "@"
       },
       replace: "true",
       templateUrl: 'templates/components/c-accordion.tpl.html',
@@ -39,6 +40,10 @@
 
       scope.onClickItem = function () {
         scope.onChangeOpenedElement();
+      };
+
+      scope.closeAll = function(){
+
       };
 
       scope.$watchCollection(
