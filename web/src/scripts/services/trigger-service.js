@@ -5,26 +5,35 @@
     .module('webApp')
     .service('TriggerService', TriggerService);
 
-  TriggerService.$inject = ['PolicyModelFactory', 'ModalService', 'TriggerModelFactory', '$q'];
+  TriggerService.$inject = ['PolicyModelFactory', 'ModalService', 'TriggerModelFactory', 'triggerConstants', '$q'];
 
-  function TriggerService(PolicyModelFactory, ModalService, TriggerModelFactory, $q) {
+  function TriggerService(PolicyModelFactory, ModalService, TriggerModelFactory, triggerConstants, $q) {
     var vm = this;
     var showTriggerCreationPanel = null;
+    var triggerContainer = null;
+    var triggerContainerType = "";
 
     vm.showConfirmRemoveTrigger = showConfirmRemoveTrigger;
     vm.addTrigger = addTrigger;
     vm.saveTrigger = saveTrigger;
     vm.removeTrigger = removeTrigger;
     vm.isNewTrigger = isNewTrigger;
+    vm.setTriggerContainer = setTriggerContainer;
     vm.isActiveTriggerCreationPanel = isActiveTriggerCreationPanel;
     vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
     vm.disableTriggerCreationPanel = disableTriggerCreationPanel;
+    vm.getSqlSourceItems = getSqlSourceItems;
 
     init();
 
     function init() {
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       showTriggerCreationPanel = false;
+    }
+
+    function setTriggerContainer(_triggerContainer, _triggerContainerType) {
+      triggerContainer = _triggerContainer;
+      triggerContainerType = _triggerContainerType;
     }
 
     function activateTriggerCreationPanel() {
@@ -61,8 +70,8 @@
 
     function addTrigger() {
       var newTrigger = angular.copy(TriggerModelFactory.getTrigger());
-      if (TriggerModelFactory.isValidTrigger(newTrigger, vm.policy.streamTriggers, TriggerModelFactory.getContext().position)) {
-        vm.policy.streamTriggers.push(newTrigger);
+      if (TriggerModelFactory.isValidTrigger(newTrigger, triggerContainer, TriggerModelFactory.getContext().position)) {
+        triggerContainer.push(newTrigger);
       } else {
         TriggerModelFactory.setError();
       }
@@ -71,9 +80,9 @@
     function saveTrigger(triggerForm) {
       triggerForm.$submitted = true;
       var trigger = angular.copy(TriggerModelFactory.getTrigger());
-      if (TriggerModelFactory.isValidTrigger(trigger, vm.policy.streamTriggers, TriggerModelFactory.getContext().position)) {
+      if (TriggerModelFactory.isValidTrigger(trigger, triggerContainer, TriggerModelFactory.getContext().position)) {
         triggerForm.$submitted = false;
-        vm.policy.streamTriggers[TriggerModelFactory.getContext().position] = trigger;
+        triggerContainer[TriggerModelFactory.getContext().position] = trigger;
       } else {
         TriggerModelFactory.setError();
       }
@@ -83,7 +92,7 @@
       var defer = $q.defer();
       var triggerPosition = TriggerModelFactory.getContext().position;
       showConfirmRemoveTrigger().then(function () {
-        vm.policy.streamTriggers.splice(triggerPosition, 1);
+        triggerContainer.splice(triggerPosition, 1);
         defer.resolve();
       }, function () {
         defer.reject()
@@ -92,11 +101,50 @@
     }
 
     function isNewTrigger(index) {
-      return index == vm.policy.streamTriggers.length;
+      return index == triggerContainer.length;
     }
 
     function isActiveTriggerCreationPanel() {
       return showTriggerCreationPanel;
+    }
+
+    function generateSqlSourceItemsFieldsByContainerType(item) {
+      var sqlSourceItemsFields = [];
+      var fields = [];
+      if (triggerContainerType == triggerConstants.TRANSFORMATION) {
+        fields = item.outputFields;
+      } else {
+        // TODO Pending cube triggers
+        //fields = item.dimensions;
+        //angular.extend(fields, item.operators);
+      }
+      for (var i = 0; i < fields.length; ++i) {
+        var outputField = item.outputFields[i];
+        sqlSourceItemsFields.push({name: outputField.name, type: outputField.type});
+      }
+
+      return sqlSourceItemsFields;
+    }
+
+    function getSqlSourceItems() {
+      var sqlSourceItems = [];
+      var sourceContainer = [];
+      if (triggerContainerType == triggerConstants.TRANSFORMATION) {
+        sourceContainer = vm.policy.transformations;
+      }
+      else {
+        sourceContainer = vm.policy.cubes;
+      }
+      for (var i = 0; i < sourceContainer.length; ++i) {
+        var currentItem = sourceContainer[i];
+        var sourceSqlItem = {};
+        sourceSqlItem.name =  triggerConstants.TRANSFORMATION + " " + i;
+        sourceSqlItem.fields = generateSqlSourceItemsFieldsByContainerType(currentItem);
+
+        sqlSourceItems.push(sourceSqlItem);
+      }
+
+      return sqlSourceItems;
     }
   }
 })();
