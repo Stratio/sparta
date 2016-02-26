@@ -75,28 +75,6 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
     }));
   });
 
-  it("should be able to change to previous step calling to policy model factory", function () {
-    ctrl.previousStep();
-
-    expect(policyModelFactoryMock.previousStep).toHaveBeenCalled();
-  });
-
-  describe("should be able to change to next step calling to policy model factory", function () {
-    it("if there is not any model added to policy, step is not changed", function () {
-      ctrl.policy.transformations = [];
-      ctrl.nextStep();
-
-      expect(policyModelFactoryMock.nextStep).not.toHaveBeenCalled();
-    });
-
-    it("if there is a model added at least, step is changed", function () {
-      ctrl.policy.transformations = [fakeModel];
-      ctrl.nextStep();
-
-      expect(policyModelFactoryMock.nextStep).toHaveBeenCalled();
-    })
-  });
-
   describe("should be able to see changes in the accordion status to update the model of the model factory", function () {
     describe("if the new value of the accordion status is not null should find the model that has been opened by user, and send it to the model factory ", function () {
       var models, fakeModel2 = null;
