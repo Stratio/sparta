@@ -98,19 +98,13 @@
             <groupId>org.scalamock</groupId>
             <artifactId>scalamock-scalatest-support_${scala.binary.version}</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.stratio.sparkta</groupId>
-            <artifactId>plugins</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.1</version>
+                <version>2.4.3</version>
                 <configuration>
                     <finalName>${project.name}-plugin</finalName>
                     <filters>
@@ -160,34 +154,4 @@
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>package</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>appassembler-maven-plugin</artifactId>
-                        <version>1.8.1</version>
-                        <configuration>
-                            <repositoryLayout>flat</repositoryLayout>
-                            <target>${project.build.directory}/cluster</target>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>engine</id>
-                                <configuration>
-                                    <assembleDirectory>target/cluster</assembleDirectory>
-                                </configuration>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>create-repository</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

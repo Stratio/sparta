@@ -16,7 +16,6 @@
 
 package com.stratio.sparkta.serving.api.actor
 
-import java.io.{OutputStream, ByteArrayOutputStream}
 import java.util.concurrent.TimeUnit
 
 import akka.actor.{Actor, ActorRef}
@@ -24,10 +23,9 @@ import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
 import com.google.common.io.BaseEncoding
-import com.stratio.sparkta.driver.util.{HdfsUtils, ClusterSparkFiles}
+import com.stratio.sparkta.driver.util.{ClusterSparkFiles, HdfsUtils}
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.core.SparktaConfig
-import com.stratio.sparkta.serving.core.dao.ConfigDAO
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
@@ -39,7 +37,7 @@ import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.io.{BufferedSource, Source}
+import scala.io.Source
 import scala.util.{Failure, Properties, Success, Try}
 
 class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: ActorRef) extends Actor
@@ -60,7 +58,6 @@ with SparktaSerializer {
   private val Master = ClusterConfig.getString(AppConstant.Master)
   private val BasePath = s"/user/${Hdfs.userName}/${AppConstant.ConfigAppName}/$PolicyId"
   private val PluginsJarsPath = s"$BasePath/${HdfsConfig.getString(AppConstant.PluginsFolder)}/"
-  private val ClasspathJarsPath = s"$BasePath/${HdfsConfig.getString(AppConstant.ClasspathFolder)}/"
   private val DriverJarPath = s"$BasePath/${HdfsConfig.getString(AppConstant.ExecutionJarFolder)}/"
 
   implicit val timeout: Timeout = Timeout(3.seconds)
@@ -74,11 +71,10 @@ with SparktaSerializer {
       log.info("Init new cluster streamingContext with name " + policy.name)
       validateSparkHome()
       val driverPath = Uploader.getDriverFile(DriverJarPath)
-      val classPathFiles = Uploader.getClasspathFiles(ClasspathJarsPath)
       val pluginsFiles = Uploader.getPluginsFiles(PluginsJarsPath)
       val driverParams = Seq(PolicyId, zkConfigEncoded, detailConfigEncoded, pluginsEncoded(pluginsFiles))
 
-      launch(SparktaDriver, driverPath, Master, sparkArgs, driverParams, classPathFiles, pluginsFiles)
+      launch(SparktaDriver, driverPath, Master, sparkArgs, driverParams, pluginsFiles)
     } match {
       case Failure(exception) =>
         log.error(exception.getLocalizedMessage, exception)
@@ -109,68 +105,60 @@ with SparktaSerializer {
       Try(ClusterConfig.getBoolean(AppConstant.StandAloneSupervise)).getOrElse(false)
     } else false
 
-  //scalastyle:off
   private def launch(main: String, hdfsDriverFile: String, master: String, args: Map[String, String],
                      driverParams: Seq[String],
-                     classpathFiles: Seq[String],
-                    pluginsFiles: Seq[String]): Unit = {
+                     pluginsFiles: Seq[String]): Unit = {
     val sparkLauncher = new SparkLauncher()
       .setSparkHome(sparkHome)
       .setAppResource(hdfsDriverFile)
       .setMainClass(main)
       .setMaster(master)
-    classpathFiles.foreach(file => sparkLauncher.addJar(file))
     pluginsFiles.foreach(file => sparkLauncher.addJar(file))
     args.map({ case (k: String, v: String) => sparkLauncher.addSparkArg(k, v) })
     if (isStandaloneSupervise) sparkLauncher.addSparkArg(StandaloneSupervise)
     //Spark params (everything starting with spark.)
     sparkConf.map({ case (key: String, value: String) =>
-      sparkLauncher.setConf(key, if(key == "spark.app.name")  s"$value-${policy.name}" else value)
+      sparkLauncher.setConf(key, if (key == "spark.app.name") s"$value-${policy.name}" else value)
     })
     // Driver (Sparkta) params
     driverParams.map(sparkLauncher.addAppArgs(_))
 
-    log.info(sparkLauncher.toString)
+    log.info("Executing SparkLauncher...")
+
     Future[(Boolean, Process)] {
       val sparkProcess = sparkLauncher.launch()
-      (sparkProcess.waitFor(10, TimeUnit.SECONDS), sparkProcess)
+      (sparkProcess.waitFor(20, TimeUnit.SECONDS), sparkProcess)
     } onComplete {
-      case Success((true, sparkProcess)) =>
-        log.info("Spark process exited successfully")
-        log.info("InputStream:")
-        val input = Source.fromInputStream(sparkProcess.getInputStream)
-          input.getLines.foreach(log.info)
-        input.close()
-        log.info("OutputStream:")
-        val outStream = new ByteArrayOutputStream()
-        val output = sparkProcess.getOutputStream
-          output.write(outStream.toByteArray)
-        log.info(outStream.toString)
-        output.close()
-        log.info("ErrorStream:")
-        val error = Source.fromInputStream(sparkProcess.getErrorStream)
-          error.getLines.foreach(log.info)
-        error.close()
       case Success((exitCode, sparkProcess)) =>
-        log.info("Spark process with timeout")
-        log.info("InputStream:")
-        val input = Source.fromInputStream(sparkProcess.getInputStream)
-        input.getLines.foreach(log.info)
-        input.close()
-        log.info("OutputStream:")
-        val outStream = new ByteArrayOutputStream()
-        val output = sparkProcess.getOutputStream
-        output.write(outStream.toByteArray)
-        log.info(outStream.toString)
-        output.close()
-        log.info("ErrorStream:")
-        val error = Source.fromInputStream(sparkProcess.getErrorStream)
-        error.getLines.foreach(log.info)
-        error.close()
+        sparkLauncherStreams(exitCode, sparkProcess)
+      case Success((exitCode, sparkProcess)) =>
+        sparkLauncherStreams(exitCode, sparkProcess)
       case Failure(exception) =>
         log.error(exception.getMessage)
         throw exception
     }
+  }
+
+  private def sparkLauncherStreams(exitCode: Boolean, sparkProcess: Process): Unit = {
+
+    def recursiveErrors(it: Iterator[String], count : Int): Unit = {
+      log.info(it.next())
+      if(it.hasNext && count < 50){
+        recursiveErrors(it, count + 1)
+      }
+    }
+
+    if(exitCode) log.info("Spark process exited successfully")
+    else log.info("Spark process exited with timeout")
+
+    Source.fromInputStream(sparkProcess.getInputStream).close()
+    sparkProcess.getOutputStream.close()
+
+    log.info("ErrorStream:")
+
+    val error = Source.fromInputStream(sparkProcess.getErrorStream)
+    recursiveErrors(error.getLines(), 0)
+    error.close()
   }
 
   private def sparkArgs: Map[String, String] =
@@ -190,7 +178,7 @@ with SparktaSerializer {
 
   private def detailConfigEncoded: String = encode(render(DetailConfig, "config"))
 
-  private def pluginsEncoded(plugins: Seq[String]): String = encode(plugins.mkString(","))
+  private def pluginsEncoded(plugins: Seq[String]): String = encode((Seq(" ") ++ plugins).mkString(","))
 
   private def sparkConf: Seq[(String, String)] =
     ClusterConfig.entrySet()

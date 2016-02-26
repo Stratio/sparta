@@ -51,7 +51,8 @@ object SparktaClusterJob extends SparktaSerializer {
       val policyId = args(PolicyIdIndex)
       val detailConfiguration = new String(BaseEncoding.base64().decode(args(DetailConfigurationIndex)))
       val zookeperConfiguration = new String(BaseEncoding.base64().decode(args(ZookeperConfigurationIndex)))
-      val pluginsFiles = new String(BaseEncoding.base64().decode(args(PluginsFilesIndex))).split(",")
+      val pluginsFiles = new String(BaseEncoding.base64().decode(args(PluginsFilesIndex)))
+        .split(",").filter(s => s != " " && s.nonEmpty && s != "")
 
       initSparktaConfig(detailConfiguration, zookeperConfiguration)
 
