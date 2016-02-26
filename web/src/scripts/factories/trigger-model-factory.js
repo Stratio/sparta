@@ -36,7 +36,9 @@
       trigger.name = _trigger.name;
       trigger.sql = _trigger.sql;
       trigger.outputs = _trigger.outputs;
-      trigger.configuration = _trigger.configuration;
+      if (_trigger.configuration) {
+        trigger.configuration = _trigger.configuration;
+      }
       setPosition(position);
     }
 
@@ -48,11 +50,10 @@
     }
 
     function isValidTrigger(trigger, triggers, position) {
-      var isValid = trigger.name != "" && trigger.sql != "" && trigger.outputs.length > 0 && trigger.configuration != "";
+      var isValid = trigger.name != "" && trigger.sql != "" && !nameExists(trigger, triggers, position);
       if (!isValid) {
         error.text = "_GENERIC_FORM_ERROR_";
       } else {
-        if (!nameExists(trigger, triggers, position))
           error.text = "";
       }
       return isValid;
@@ -65,13 +66,6 @@
 
     function getContext() {
       return context;
-    }
-
-    function setPosition(p) {
-      if (p === undefined) {
-        p = 0;
-      }
-      context.position = p;
     }
 
     function getError() {

@@ -16,7 +16,6 @@
     vm.saveTrigger = saveTrigger;
     vm.removeTrigger = removeTrigger;
     vm.isNewTrigger = isNewTrigger;
-    vm.changeTriggerCreationPanelVisibility = changeTriggerCreationPanelVisibility;
     vm.isActiveTriggerCreationPanel = isActiveTriggerCreationPanel;
     vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
     vm.disableTriggerCreationPanel = disableTriggerCreationPanel;
@@ -41,7 +40,7 @@
       var defer = $q.defer();
       var controller = "ConfirmModalCtrl";
       var templateUrl = "templates/modal/confirm-modal.tpl.html";
-      var title = "_REMOVE_CUBE_CONFIRM_TITLE_";
+      var title = "_REMOVE_TRIGGER_CONFIRM_TITLE_";
       var message = "";
       var resolve = {
         title: function () {
@@ -85,9 +84,6 @@
       var triggerPosition = TriggerModelFactory.getContext().position;
       showConfirmRemoveTrigger().then(function () {
         vm.policy.streamTriggers.splice(triggerPosition, 1);
-        if (vm.policy.streamTriggers.length == 0) {
-          PolicyModelFactory.disableNextStep();
-        }
         defer.resolve();
       }, function () {
         defer.reject()
@@ -97,10 +93,6 @@
 
     function isNewTrigger(index) {
       return index == vm.policy.streamTriggers.length;
-    }
-
-    function changeTriggerCreationPanelVisibility(isVisible) {
-      showTriggerCreationPanel = isVisible;
     }
 
     function isActiveTriggerCreationPanel() {
