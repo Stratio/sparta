@@ -31,27 +31,12 @@
       }
     }
 
-    function showConfirmModal(title, message) {
-      var templateUrl = "templates/modal/confirm-modal.tpl.html";
-      var controller = "ConfirmModalCtrl";
-      var resolve = {
-        title: function () {
-          return title
-        },
-        message: function () {
-          return message;
-        }
-      };
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
-      return modalInstance.result;
-    }
-
     function addTrigger() {
       vm.form.$submitted = true;
       if (vm.form.$valid) {
         vm.form.$submitted = false;
         TriggerService.addTrigger();
-        TriggerService.changeTriggerCreationPanelVisibility(false);
+        TriggerService.disableTriggerCreationPanel(false);
       }
     }
 

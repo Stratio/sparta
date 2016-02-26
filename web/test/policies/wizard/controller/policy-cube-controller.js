@@ -12,6 +12,9 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
   beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope) {
     scope = $rootScope.$new();
     $httpBackend.when('GET', 'languages/en-US.json').respond({});
+    $httpBackend.when('GET', '/fragment/output').respond({});
+
+
     inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedCube_) {
       fakePolicy = angular.copy(_servedPolicy_);
       fakePolicyTemplate = _servedPolicyTemplate_;

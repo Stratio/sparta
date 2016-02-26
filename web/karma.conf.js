@@ -21,6 +21,7 @@ module.exports = function (config) {
       'src/scripts/constants/**/*.js',
       'src/scripts/controllers/**/*.js',
       'src/scripts/services/**/*.js',
+      'src/scripts/factories/**/*.js',
       'src/scripts/directives/**/*.js',
       'src/languages/en-US.json',
       'src/scripts/filters/truncate-number.js',
@@ -45,6 +46,7 @@ module.exports = function (config) {
       'src/scripts/controllers/**/*.js': ['coverage'],
       'src/scripts/directives/**/*.js': ['coverage'],
       'src/scripts/services/**/*.js': ['coverage'],
+      'src/scripts/factories/**/*.js': ['coverage'],
       'src/scripts/filters/**/*.js': ['coverage'],
       'src/scripts/inputs/**/*.js': ['coverage'],
       'src/scripts/app.js': ['coverage']
