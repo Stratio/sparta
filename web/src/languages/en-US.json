@@ -292,5 +292,6 @@
   "_INPUT_FORMAT_": "Input format",
   "_NOT_SAVED_": "not saved",
   "_SQL_": "SQL",
-  "_TRIGGERS_": "Triggers"
+  "_TRIGGERS_": "Triggers",
+  "_HELP_FOR_SQL_QUERIES_": "Help for yuor SQL queries"
 }

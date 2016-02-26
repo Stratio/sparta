@@ -1,5 +1,4 @@
 <section data-ng-controller="TriggerCtrl as vm" data-ng-init="vm.init()" data-ng-model="vm.trigger">
-
   <ng-form name="vm.form" novalidate>
     <div class="c-row c-msg c-msg--small c-msg--error c-form c-form-group"
          data-ng-if="vm.form.$submitted && (vm.trigger.operators.length === 0 || vm.trigger.dimensions.length === 0)"
@@ -22,6 +21,15 @@
       </form-field>
     </div>
 
+    <button class="c-button--call-to-action-6">{{"_HELP_FOR_SQL_QUERIES_" | translate}}</button>
+    <div class=" c-row--flex">
+      <div data-ng-repeat="item in vm.sqlSourceItems" class="c-panel--x-small">
+        <label class="c-panel--x-small__container__title">{{item.name}}</label>
+        <ul data-ng-repeat="field in item.fields" class="c-panel--x-small__container">
+          <li>{{field.name}} ({{field.type}})</li>
+        </ul>
+      </div>
+    </div>
     <form-field-textarea data-json="true"
                          data-label="{{'_CONFIGURATION_' | translate}}"
                          data-form="vm.form"
@@ -45,11 +53,10 @@
                   readonly="'true'"
                   data-enable-delete="true" data-qa="policy-trigger-output-list"
                   show-label="false"
-                  data-help="Note: Make sure output fields match with the ones in the configuration"
                   data-required="false" data-min-length="0" data-form="vm.form">
       </c-tag-list>
-    </div>
 
+    </div>
     <div class="c-form-group c-form-group--full-width c-form-group--to-right">
       <button data-ng-if="vm.isNewTrigger(vm.triggerContext.position)" class="c-button c-button--call-to-action-1"
               data-ng-click="vm.addTrigger()"
