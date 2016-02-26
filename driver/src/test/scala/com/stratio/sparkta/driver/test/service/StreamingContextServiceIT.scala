@@ -20,6 +20,7 @@ import java.io.File
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.driver.util.PolicyUtils
 import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
@@ -58,15 +59,14 @@ with SparktaSerializer {
 
   "A StreamingContextService should" should {
     "create spark streaming context from a policy" in {
-      val sparktaConfig = SparktaConfig.initConfig("sparkta")
-      SparktaConfig.sparktaHome = getSparktaHome
-      val jars = JarsHelper.findJarsByPath(
-        new File(SparktaConfig.sparktaHome, AppConstant.JarPluginsFolder), Some("-plugin.jar"))
-
-      val streamingContextService = new StreamingContextService(None, sparktaConfig)
       val json = Source.fromFile(new File(PathToPolicy)).mkString
       val apConfig = native.Serialization.read[AggregationPoliciesModel](json)
+      val sparktaConfig = SparktaConfig.initConfig("sparkta")
 
+      SparktaConfig.sparktaHome = getSparktaHome
+
+      val jars = PolicyUtils.jarsFromPolicy(apConfig)
+      val streamingContextService = new StreamingContextService(None, sparktaConfig)
       val ssc = streamingContextService.standAloneStreamingContext(apConfig.copy(id = Some("1")), jars)
 
       ssc should not be None

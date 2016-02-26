@@ -76,7 +76,8 @@ class AggregationPolicyTest extends WordSpec with Matchers {
     cubes,
     input,
     outputs,
-    Seq())
+    Seq(),
+    userPluginsJars = Seq.empty[String])
 
   "AggregationPolicySpec" should {
 

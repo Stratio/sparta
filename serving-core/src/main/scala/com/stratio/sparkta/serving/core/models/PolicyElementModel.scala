@@ -22,8 +22,6 @@ import com.stratio.sparkta.serving.core.models.FragmentType.`type`
 
 case class PolicyElementModel(name: String, `type`: String, configuration: Map[String, JsoneyString] = Map()) {
 
-  val jarFile = AppConstant.jarsFilesMap.get(`type`)
-
   def parseToFragment(fragmentType: `type`): FragmentElementModel = {
     FragmentElementModel(
       id = None,

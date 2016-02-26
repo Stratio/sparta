@@ -96,7 +96,8 @@ with SparktaSerializer {
       cubes,
       input,
       outputs,
-      Seq())
+      Seq(),
+      userPluginsJars = Seq.empty[String])
     policy
   }
 

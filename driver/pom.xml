@@ -31,6 +31,10 @@
             <artifactId>aggregator</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.stratio.sparkta</groupId>
+            <artifactId>plugins</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.fge</groupId>
             <artifactId>json-schema-validator</artifactId>
             <exclusions>
@@ -96,26 +100,8 @@
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
-            <artifactId>input-kafka</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.sparkta</groupId>
-            <artifactId>output-print</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.sparkta</groupId>
-            <artifactId>parser-morphlines</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.sparkta</groupId>
-            <artifactId>field-default</artifactId>
-            <version>${project.parent.version}</version>
+            <artifactId>plugins</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

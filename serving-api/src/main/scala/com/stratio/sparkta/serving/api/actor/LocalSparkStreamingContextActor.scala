@@ -17,6 +17,8 @@
 package com.stratio.sparkta.serving.api.actor
 
 import java.io.File
+import com.stratio.sparkta.driver.util.PolicyUtils
+
 import scala.concurrent.duration._
 import scala.util.Failure
 import scala.util.Success
@@ -57,24 +59,21 @@ class LocalSparkStreamingContextActor(policy: AggregationPoliciesModel,
   private def doInitSparktaContext: Unit = {
 
     implicit val timeout: Timeout = Timeout(3.seconds)
-    val jars = JarsHelper.findJarsByPath(
-      new File(SparktaConfig.sparktaHome, AppConstant.JarPluginsFolder), Some("-plugin.jar"))
+    val jars = PolicyUtils.jarsFromPolicy(policy)
 
     Try({
       policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting))
       Try(ErrorDAO().dao.delete(policy.id.get))
       ssc = streamingContextService.standAloneStreamingContext(policy, jars)
-      ssc.get.start
+      ssc.get.start()
     }) match {
-      case Success(_) => {
+      case Success(_) =>
         policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Started))
-      }
-      case Failure(exception) => {
+      case Failure(exception) =>
         log.error(exception.getLocalizedMessage, exception)
         policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed))
         SparkContextFactory.destroySparkStreamingContext()
         SparkContextFactory.destroySparkContext()
-      }
     }
   }
 

@@ -54,6 +54,10 @@
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
+            <artifactId>plugins</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.sparkta</groupId>
             <artifactId>driver</artifactId>
         </dependency>
         <dependency>
