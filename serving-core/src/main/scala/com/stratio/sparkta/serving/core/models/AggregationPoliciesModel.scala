@@ -19,9 +19,6 @@ package com.stratio.sparkta.serving.core.models
 import java.io._
 
 import com.fasterxml.jackson.databind._
-import com.github.fge.jsonschema.core.exceptions.InvalidSchemaException
-import com.github.fge.jsonschema.core.report.ProcessingReport
-import com.github.fge.jsonschema.main.{JsonSchema, JsonSchemaFactory}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -60,45 +57,21 @@ object AggregationPoliciesValidator extends SparktaSerializer {
   final val MessageCubeName = "All cubes must have a non empty name\n"
 
   def validateDto(aggregationPoliciesDto: AggregationPoliciesModel): (Boolean, String) = {
-    val (isValidAgainstSchema: Boolean, isValidAgainstSchemaMsg: String) = validateAgainstSchema(aggregationPoliciesDto)
+    //TODO Validate policy according to the old schema validation rules
+    // https://stratio.atlassian.net/browse/SPARKTA-458
 
+    val cubesHaveAtLeastOneDimension = aggregationPoliciesDto.cubes.forall( cube =>
+      !cube.dimensions.isEmpty
+    )
 
-    val isValid = isValidAgainstSchema
-    val errorMsg = isValidAgainstSchemaMsg
-    (isValid, errorMsg)
-  }
+    val msg =
+      if (cubesHaveAtLeastOneDimension)
+        ""
+      else
+        """No usable value for Cubes-dimensions.
+          |Array is too short: must have at least 1 elements
+          |but instance has 0 elements.""".stripMargin
 
-  def validateAgainstSchema(aggregationPoliciesDto: AggregationPoliciesModel): (Boolean, String) = {
-
-    var isValid: Boolean = false
-    var msg: String = ""
-
-    val policyJsonAST = Extraction.decompose(aggregationPoliciesDto)
-
-    val mapper: ObjectMapper = new ObjectMapper()
-    val policy: JsonNode = mapper.readTree(pretty(policyJsonAST))
-
-    val fileReader: BufferedReader =
-      new BufferedReader(new InputStreamReader(AggregationPoliciesValidator
-        .getClass.getClassLoader.getResourceAsStream("policy_schema.json")))
-    val jsonSchema: JsonNode = mapper.readTree(fileReader)
-    val schema: JsonSchema = JsonSchemaFactory.byDefault.getJsonSchema(jsonSchema)
-
-    try {
-      val report: ProcessingReport = schema.validate(policy)
-      isValid = report.isSuccess
-      msg = getMessageErrorFromValidation(report)
-    } catch {
-      case ise: InvalidSchemaException => isValid = false; msg = ise.getLocalizedMessage
-    }
-
-    (isValid, msg)
-  }
-
-  private def getMessageErrorFromValidation(report: ProcessingReport) : String = {
-    report.iterator().map(message => {
-      s"No usable value for ${message.asJson().findValue("instance").findValue("pointer").asText()
-        .replaceAll("/[0-9]/", "-").stripPrefix("/").capitalize}. ${message.getMessage.capitalize}."
-    }).mkString("\n")
+    (cubesHaveAtLeastOneDimension, msg)
   }
 }

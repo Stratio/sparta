@@ -32,14 +32,6 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		| outputs | DELETE | N/A |	
 		Then the service response status must be '500' and its response must contain the text 'It is mandatory to define at least one output in the policy.'
 		
-	Scenario: Add a policyContext with no cubes
-		Given I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
-		| name | UPDATE | policyContextNoCubes |
-		| fragments | DELETE | N/A |
-		| id | DELETE | N/A |
-		| cubes | DELETE | N/A |	
-		Then the service response status must be '400' and its response must contain the text 'No usable value for Cubes. Array is too short: must have at least 1 elements but instance has 0 elements.'
-	
 	Scenario: Add a policyContext with non-existing fragment
 		When I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | policyContextNonExistingFragment |
