@@ -28,6 +28,7 @@
       vm.precisionOptions = template.precisionOptions;
       vm.defaultType =  vm.cubeTypes[0].value;
       vm.errorText = "";
+      vm.dateTimeConfiguration = template.DateTime;
     }
 
     ///////////////////////////////////////
@@ -46,6 +47,7 @@
     }
 
     function validatePrecision() {
+      console.log(vm.dimension);
       var validPrecision = (vm.dimension.type == vm.defaultType) || (!(vm.dimension.type == vm.defaultType) && vm.dimension.precision);
       if (!validPrecision) {
         vm.errorText = "_POLICY_._CUBE_._INVALID_DIMENSION_PRECISION_";
@@ -69,8 +71,6 @@
           cleanPrecision();
           $modalInstance.close(vm.dimension);
         }
-      } else {
-        vm.errorText = "_GENERIC_FORM_ERROR_";
       }
     }
 
