@@ -6,12 +6,6 @@
   </div>
 
   <form class="c-form" name="vm.form" novalidate>
-    <div class="c-row c-row--separated c-msg c-msg--small c-msg--error" data-ng-if="vm.errorText != ''"
-         data-qa="error-msg">
-      <i class="c-icon icon-circle-cross"></i>
-      <span translate="{{vm.errorText | translate}}"></span>
-    </div>
-
     <div class="c-modal-inner">
       <div class="c-form-group">
         <form-field-input data-form="vm.form" data-st-name="field-form"
@@ -38,19 +32,28 @@
         </form-field-select>
 
       </div>
-      <div class="c-form-group">
-        <form-field-select data-ng-if=" vm.dimension.type != vm.defaultType" select-class="c-combobox--full-width"
-                           data-form="vm.form" data-st-name="precision-form"
-                           data-model="vm.dimension.precision"
-                           data-options="vm.getPrecisionsOfType()"
-                           data-field="label"
-                           data-label="{{'_POLICY_._CUBE_._PRECISION_' | translate}}"
-                           data-help=""
-                           data-required = "true"
-                           data-qa="dimension-modal-precision">
+      <div class="c-form-group" data-ng-if="vm.dimension.type !== 'DateTime'">
+        <form-field-select data-ng-if="vm.dimension.type !== vm.defaultType" select-class="c-combobox--full-width"
+          data-form="vm.form" data-st-name="precision-form"
+          data-model="vm.dimension.precision"
+          data-options="vm.getPrecisionsOfType()"
+          data-field="label"
+          data-label="{{'_POLICY_._CUBE_._PRECISION_' | translate}}"
+          data-help=""
+          data-required = "true"
+          data-qa="dimension-modal-precision">
         </form-field-select>
       </div>
-
+      <form-field data-ng-if="vm.dimension.type === 'DateTime'"
+        data-ng-repeat="item in vm.dateTimeConfiguration"
+        data-ng-class="{'c-col c-col--{{item.width}} c-form-gutter c-form-gutter__{{item.position}} c-col--vertical-top': item.width}"
+        data-ng-form-id="{{item.propertyId}}"
+        data-field="item"
+        data-model="vm.dimension"
+        data-form="vm.form"
+        data-st-name="dateTime{{item.propertyName}}Form"
+        data-qa="{{item.qa}}">
+      </form-field>
       <div class="c-row c-row--separated">
         <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
           <button type="button" class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()"

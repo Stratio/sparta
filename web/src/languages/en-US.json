@@ -299,5 +299,10 @@
   "_IS_AUTO_CALCULATED_ID_": "Is auto calculated id",
   "_DATE_TYPE_": "Date type",
   "_FIXED_MEASURE_": "Fixed measure",
-  "_POLICY_CUBES_OUTPUT_ERROR_": "At least one output must be added!"
+  "_POLICY_CUBES_OUTPUT_ERROR_": "At least one output must be added!",
+  "_PRECISION_NUMBER_": "Precision number",
+  "_PRECISION_TIME_": "Precision time",
+  "_IS_TIME_DIMENSION_": "Is time dimension",
+  "_COMPUTE_LAST_": "Compute last",
+  "_COMPUTE_LAST_TIME_": "Compute last time"
 }

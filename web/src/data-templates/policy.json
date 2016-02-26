@@ -383,47 +383,6 @@
     ],
     "precisionOptions": [
       {
-        "type": "DateTime",
-        "precisions": [
-          {
-            "label": "_SECOND_",
-            "value": "second"
-          },
-          {
-            "label": "_5_SECONDS_",
-            "value": "s5"
-          },
-          {
-            "label": "_10_SECONDS_",
-            "value": "s10"
-          },
-          {
-            "label": "_15_SECONDS_",
-            "value": "s15"
-          },
-          {
-            "label": "_MINUTE_",
-            "value": "minute"
-          },
-          {
-            "label": "_HOUR_",
-            "value": "hour"
-          },
-          {
-            "label": "_DAY_",
-            "value": "day"
-          },
-          {
-            "label": "_MONTH_",
-            "value": "month"
-          },
-          {
-            "label": "_YEAR_",
-            "value": "year"
-          }
-        ]
-      },
-      {
         "type": "GeoHash",
         "precisions": [
           {
@@ -479,6 +438,107 @@
       {
         "type": "Default",
         "precisions": []
+      }
+    ],
+    "DateTime": [
+      {
+        "propertyId": "precisionNumber",
+        "propertyName": "_PRECISION_NUMBER_",
+        "propertyType": "number",
+        "default": 1,
+        "width": 6,
+        "position": "left",
+        "required": true,
+        "qa": "policy-cube-dimension-dateTime-precisionNumber"
+      },
+      {
+        "propertyId": "precisionTime",
+        "propertyName": "_PRECISION_TIME_",
+        "propertyType": "select",
+        "width": 6,
+        "position": "right",
+        "qa": "policy-cube-dimension-dateTime-precisionTime",
+        "default": "m",
+        "required": true,
+        "values": [
+          {
+            "label": "Seconds",
+            "value": "s"
+          },
+          {
+            "label": "Minutes",
+            "value": "m"
+          },
+          {
+            "label": "Hours",
+            "value": "h"
+          },
+          {
+            "label": "Days",
+            "value": "d"
+          }
+        ]
+      },
+      {
+        "propertyId": "isTimeDimension",
+        "propertyName": "_IS_TIME_DIMENSION_",
+        "propertyType": "boolean",
+        "required": false,
+        "qa": "policy-cube-dimension-dateTime-isTimeDimension"
+      },
+      {
+        "propertyId": "computeLast",
+        "propertyName": "_COMPUTE_LAST_",
+        "propertyType": "number",
+        "width": 6,
+        "position": "left",
+        "default": 10,
+        "required": true,
+        "qa": "policy-cube-dimension-dateTime-computeLast",
+        "visible": [
+          [
+            {
+              "propertyId": "isTimeDimension",
+              "value": true
+            }
+          ]
+        ]
+      },
+      {
+        "propertyId": "computeLastTime",
+        "propertyName": "_COMPUTE_LAST_TIME_",
+        "propertyType": "select",
+        "width": 6,
+        "position": "right",
+        "qa": "policy-cube-dimension-dateTime-computeLastTime",
+        "default": "m",
+        "required": true,
+        "values": [
+          {
+            "label": "Seconds",
+            "value": "s"
+          },
+          {
+            "label": "Minutes",
+            "value": "m"
+          },
+          {
+            "label": "Hours",
+            "value": "h"
+          },
+          {
+            "label": "Days",
+            "value": "d"
+          }
+        ],
+        "visible": [
+          [
+            {
+              "propertyId": "isTimeDimension",
+              "value": true
+            }
+          ]
+        ]
       }
     ],
     "properties": [
