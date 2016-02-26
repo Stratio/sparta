@@ -25,12 +25,13 @@
         <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" link-url="vm.helpLink"
                      data-qa="policy-cube-help"></c-icon-link>
       </div>
+    </div><!--
+ --><div class="c-col c-col--6 c-col--to-right">
+      <button class="c-button c-button--call-to-action-1"  ng-if = "!vm.isActiveCubeCreationPanel()"
+              data-ng-click="vm.activateCubeCreationPanel()" data-qa="policy-model-add-new-transformation-button">
+        <i class="icon icon-circle-plus"></i>
+        <span>{{"_POLICY_._ADD_CUBE_" | translate}}</span>
+      </button>
     </div>
-
-    <button class="c-button c-button--call-to-action-1"  ng-if = "!vm.isActiveCubeCreationPanel()"
-            data-ng-click="vm.activateCubeCreationPanel()" data-qa="policy-model-add-new-transformation-button">
-      <i class="icon icon-circle-plus"></i>
-      <span>{{"_POLICY_._ADD_CUBE_" | translate}}</span>
-    </button>
   </footer>
 </section>
