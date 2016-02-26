@@ -1,6 +1,6 @@
 describe('policies.wizard.controller.policy-model-accordion-controller', function () {
   var ctrl, scope, translate, fakeTranslation, fakePolicy, fakePolicyTemplate, fakeModel, policyModelFactoryMock,
-     modelFactoryMock, cubeServiceMock, ModelServiceMock, accordionStatus = null;
+     modelFactoryMock, cubeServiceMock, ModelServiceMock, triggerServiceMock = null;
 
   beforeEach(module('webApp'));
   beforeEach(module('served/policy.json'));
@@ -36,8 +36,8 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
     cubeServiceMock = jasmine.createSpyObj('CubeService', ['findCubesUsingOutputs']);
 
     ModelServiceMock = jasmine.createSpyObj('ModelService', ['isActiveModelCreationPanel', 'changeModelCreationPanelVisibility']);
+    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['setTriggerContainer']);
 
-    spyOn(scope, "$watchCollection").and.callThrough();
 
     ctrl = $controller('PolicyModelAccordionCtrl  as vm', {
       'PolicyModelFactory': policyModelFactoryMock,
@@ -45,6 +45,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
       'CubeService': cubeServiceMock,
       'ModelService': ModelServiceMock,
       '$translate': translate,
+      'TriggerService': triggerServiceMock,
       '$scope': scope
     });
 
@@ -58,6 +59,10 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
 
     it('it should get the policy that is being created or edited from policy factory', function () {
       expect(ctrl.policy).toBe(fakePolicy);
+    });
+
+    it('it should put as trigger container the attribute streamTriggers of policy', function () {
+      expect(triggerServiceMock.setTriggerContainer).toHaveBeenCalledWith(ctrl.policy.streamTriggers, "transformation");
     });
 
     it ("if policy has a model at least, next step is enabled", inject(function ($controller){

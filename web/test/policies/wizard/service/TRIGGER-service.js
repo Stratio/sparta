@@ -99,12 +99,16 @@ describe('policies.wizard.service.policy-trigger-service', function () {
     });
   });
 
-  describe("should be able to add a trigger to the policy", function () {
+  describe("should be able to add a trigger to the trigger container", function () {
+    var triggerContainer = [];
+    beforeEach(function () {
+      service.setTriggerContainer(triggerContainer);
+    });
 
     it("trigger is not added if it is not valid", function () {
       TriggerModelFactoryMock.isValidTrigger.and.returnValue(false);
       service.addTrigger();
-      expect(service.policy.streamTriggers.length).toBe(0);
+      expect(triggerContainer.length).toBe(0);
     });
 
     describe("if trigger is valid", function () {
@@ -114,15 +118,17 @@ describe('policies.wizard.service.policy-trigger-service', function () {
       });
 
       it("it is added to policy with its position", function () {
-        expect(service.policy.streamTriggers.length).toBe(1);
-        expect(service.policy.streamTriggers[0].name).toEqual(fakeTrigger.name);
+        expect(triggerContainer.length).toBe(1);
+        expect(triggerContainer[0].name).toEqual(fakeTrigger.name);
       });
     });
   });
 
   describe("should be able to remove the trigger of the factory by its id", function () {
+    var triggerContainer = [];
     beforeEach(inject(function ($rootScope) {
-      service.policy.streamTriggers = [fakeTrigger, fakeTrigger2, fakeTrigger3];
+      triggerContainer = [fakeTrigger, fakeTrigger2, fakeTrigger3];
+      service.setTriggerContainer(triggerContainer);
       rootScope = $rootScope;
     }));
 
@@ -132,9 +138,9 @@ describe('policies.wizard.service.policy-trigger-service', function () {
 
     it("trigger is removed if confirmation modal is confirmed", function () {
       service.removeTrigger(0).then(function () { // remove the first trigger
-        expect(service.policy.streamTriggers.length).toBe(2);
-        expect(service.policy.streamTriggers[0]).toBe(fakeTrigger2);
-        expect(service.policy.streamTriggers[1]).toBe(fakeTrigger3);
+        expect(triggerContainer.length).toBe(2);
+        expect(triggerContainer[0]).toBe(fakeTrigger2);
+        expect(triggerContainer[1]).toBe(fakeTrigger3);
       })
     });
 
@@ -146,19 +152,21 @@ describe('policies.wizard.service.policy-trigger-service', function () {
       });
       service.removeTrigger(0).then(function () { // remove the first trigger
       }, function () {
-        expect(service.policy.streamTriggers.length).toBe(3);
-        expect(service.policy.streamTriggers[0]).toBe(fakeTrigger);
-        expect(service.policy.streamTriggers[1]).toBe(fakeTrigger2);
-        expect(service.policy.streamTriggers[2]).toBe(fakeTrigger3);
+        expect(triggerContainer.length).toBe(3);
+        expect(triggerContainer[0]).toBe(fakeTrigger);
+        expect(triggerContainer[1]).toBe(fakeTrigger2);
+        expect(triggerContainer[2]).toBe(fakeTrigger3);
       })
     });
   });
 
   it("should be able to return if a trigger is a new trigger by its position", function () {
-    service.policy.streamTriggers = [];
-    service.policy.streamTriggers.push(fakeTrigger);
-    service.policy.streamTriggers.push(fakeTrigger);
-    service.policy.streamTriggers.push(fakeTrigger);
+    var triggerContainer = [];
+    triggerContainer.push(fakeTrigger);
+    triggerContainer.push(fakeTrigger);
+    triggerContainer.push(fakeTrigger);
+
+    service.setTriggerContainer(triggerContainer);
 
     expect(service.isNewTrigger(0)).toBeFalsy();
     expect(service.isNewTrigger(2)).toBeFalsy();
@@ -166,16 +174,17 @@ describe('policies.wizard.service.policy-trigger-service', function () {
   });
 
   describe("should be able to save a modified trigger", function () {
+    var triggerContainer = null;
     beforeEach(function () {
-      service.policy.streamTriggers = [];
+      triggerContainer = [];
+      service.setTriggerContainer(triggerContainer);
     });
-
     it("is saved if it is valid and error is hidden", function () {
       var form = {};
       TriggerModelFactoryMock.isValidTrigger.and.returnValue(true);
       service.saveTrigger(form);
 
-      expect(service.policy.streamTriggers.length).toBe(1);
+      expect(triggerContainer.length).toBe(1);
       expect(TriggerModelFactoryMock.setError).not.toHaveBeenCalled();
     });
 
@@ -184,7 +193,7 @@ describe('policies.wizard.service.policy-trigger-service', function () {
       TriggerModelFactoryMock.isValidTrigger.and.returnValue(false);
       service.saveTrigger(form);
 
-      expect(service.policy.streamTriggers.length).toBe(0);
+      expect(triggerContainer.length).toBe(0);
       expect(TriggerModelFactoryMock.setError).toHaveBeenCalled();
     });
   });
