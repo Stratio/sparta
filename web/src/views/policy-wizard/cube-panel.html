@@ -7,7 +7,7 @@
       <i class="c-icon icon-circle-cross"></i>
       <span>{{vm.cubeError.text | translate}}</span>
     </div>
-    <div class="c-form-group c-col c-col--6">
+    <div class="c-form-group c-col c-col--4">
       <form-field
         data-ng-repeat="properties in vm.template.properties"
         class="c-form-gutter c-col c-col--vertical-top"
@@ -17,89 +17,112 @@
         data-model="vm.cube"
         data-form="vm.form"
         data-st-name="dataSource{{properties.propertyName}}Form"
-        data-list-compressed="true"
         data-qa="{{properties.qa}}">
       </form-field>
     </div>
-    <div class="c-col c-col--8">
-      <div class="c-row c-row--flex">
-        <div class="c-cube c-col c-col--6 c-col--vertical-top">
-          <label class="c-cube__title c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._FIELDS_" |
-            translate}}</label>
+    <div class="c-row c-form-group">
+      <div class="c-col c-col--8">
+        <div class="c-row c-row--flex">
+          <div class="c-cube c-col c-col--6 c-col--vertical-top">
+            <label class="c-cube__title c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._FIELDS_" |
+              translate}}</label>
 
-          <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
-            <!--OUTPUTS-->
-            <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered"
-                 data-ng-click="vm.addOutputToDimensions(output)"
-                 data-ng-repeat="output in vm.outputList track by $index"
-                 data-qa="policy-cube-outputlist-{{$index}}-add">
-              <div class="c-cube__field">
-                <span class="c-cube__field-name">{{output}}</span><!--
-            --><span class="c-cube__field-icon c-icon icon-circle-plus"></span>
+            <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
+              <!--OUTPUTS-->
+              <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered"
+                   data-ng-click="vm.addOutputToDimensions(output)"
+                   data-ng-repeat="output in vm.outputList track by $index"
+                   data-qa="policy-cube-outputlist-{{$index}}-add">
+                <div class="c-cube__field">
+                  <span class="c-cube__field-name">{{output}}</span><!--
+              --><span class="c-cube__field-icon c-icon icon-circle-plus"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--
+
+              -->
+          <div class="c-cube c-col c-col--6 c-col--vertical-top">
+            <label class="c-cube__title c-cube__title--2 c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._DIMENSIONS_"
+              |
+              translate}}</label>
+
+            <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
+              <!--DIMENSIONS-->
+              <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered"
+                   data-ng-click="vm.removeOutputFromDimensions($index)"
+                   data-ng-repeat="dimension in  vm.cube.dimensions track by $index"
+                   data-qa="policy-cube-dimensionslist-{{$index}}-remove">
+                <div class="c-cube__field">
+                  <span class="c-cube__field-name">{{dimension.name}}</span><!--
+              --><span class="c-cube__field-icon c-icon icon-circle-minus"></span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <!--
 
-            -->
-        <div class="c-cube c-col c-col--6 c-col--vertical-top">
-          <label class="c-cube__title c-cube__title--2 c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._DIMENSIONS_"
-            |
-            translate}}</label>
+        <div class="c-row c-row--flex">
+          <div class="c-cube c-col c-col--6 c-col--vertical-top">
+            <label class="c-cube__title c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._FUNCTIONS_" |
+              translate}}</label>
 
-          <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
-            <!--DIMENSIONS-->
-            <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered"
-                 data-ng-click="vm.removeOutputFromDimensions($index)"
-                 data-ng-repeat="dimension in  vm.cube.dimensions track by $index"
-                 data-qa="policy-cube-dimensionslist-{{$index}}-remove">
-              <div class="c-cube__field">
-                <span class="c-cube__field-name">{{dimension.name}}</span><!--
-            --><span class="c-cube__field-icon c-icon icon-circle-minus"></span>
+            <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
+              <!--_FUNCTIONS_-->
+              <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered"
+                   data-ng-click="vm.addFunctionToOperators(function)"
+                   data-ng-repeat="function in  vm.functionList track by $index"
+                   data-qa="policy-cube-functionlist-{{$index}}-add">
+                <div class="c-cube__field">
+                  <span class="c-cube__field-name">{{function}}</span>
+                  <span class="c-cube__field-icon c-icon icon-circle-plus"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--
+
+              -->
+          <div class="c-cube c-col c-col--6 c-col--vertical-top">
+            <label class="c-cube__title c-cube__title--2 c-col c-col--12 c-col--vertical-centered">
+              {{"_POLICY_._OPERATORS_"| translate}}</label>
+
+            <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
+              <!--OPERATORS-->
+              <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered"
+                   data-ng-click="vm.removeFunctionFromOperators($index)"
+                   data-ng-repeat="operator in vm.cube.operators track by $index"
+                   data-qa="policy-cube-operatorlist-{{$index}}-remove">
+                <div class="c-cube__field">
+                  <span class="c-cube__field-name">{{operator.name}}</span>
+                  <span class="c-cube__field-icon c-icon icon-circle-minus"></span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="c-row c-row--flex">
-        <div class="c-cube c-col c-col--6 c-col--vertical-top">
-          <label class="c-cube__title c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._FUNCTIONS_" |
-            translate}}</label>
-
-          <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
-            <!--_FUNCTIONS_-->
-            <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered"
-                 data-ng-click="vm.addFunctionToOperators(function)"
-                 data-ng-repeat="function in  vm.functionList track by $index"
-                 data-qa="policy-cube-functionlist-{{$index}}-add">
-              <div class="c-cube__field">
-                <span class="c-cube__field-name">{{function}}</span>
-                <span class="c-cube__field-icon c-icon icon-circle-plus"></span>
-              </div>
-            </div>
+      </div><!--
+   --><div class="c-cube--padding c-col c-col--4 c-col--vertical-top">
+        <div>
+          <label class="heading__cube">{{"_ADD_OUTPUTS_" | translate}}</label>
+          <form-field-select class="c-col c-col--10 c-form-group--inline" data-form="vm.form" data-st-name="cubeOutputs" data-model="vm.selectedPolicyOutput"
+           data-options="vm.policyOutputList" data-field="label" data-label="{{'_OUTPUTS_' | translate}}"
+           data-qa="cube-output-select" data-submitted-form="vm.form.$submitted" data-ng-click="vm.addOutput()" data-outputs-length="vm.cube.writer.outputs.length" >
+          </form-field-select>
+          <div data-ng-if="vm.cube.writer.outputs.length == 0 && vm.form.$submitted" class="c-col c-col--10 angular-forms__error">
+            <i class="icon icon-circle-cross"></i>
+            <span data-qa="{{qa}}-error-outputs-length">{{"_POLICY_CUBES_OUTPUT_ERROR_" | translate}}</span>
           </div>
-        </div>
-        <!--
-
-            -->
-        <div class="c-cube c-col c-col--6 c-col--vertical-top">
-          <label class="c-cube__title c-cube__title--2 c-col c-col--12 c-col--vertical-centered">
-            {{"_POLICY_._OPERATORS_"| translate}}</label>
-
-          <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
-            <!--OPERATORS-->
-            <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered"
-                 data-ng-click="vm.removeFunctionFromOperators($index)"
-                 data-ng-repeat="operator in vm.cube.operators track by $index"
-                 data-qa="policy-cube-operatorlist-{{$index}}-remove">
-              <div class="c-cube__field">
-                <span class="c-cube__field-name">{{operator.name}}</span>
-                <span class="c-cube__field-icon c-icon icon-circle-minus"></span>
-              </div>
-            </div>
-          </div>
+          <c-tag-list name="cube-outputs" data-tags="vm.cube.writer.outputs"
+            data-form-control-class="'c-form-group--margin'"
+            label-control-class="'c-label c-col'"
+            readonly="'true'"
+            data-enable-delete="true" data-qa="policy-cube-output-list"
+            show-label = "false"
+            data-help="Note: Make sure output fields match with the ones in the configuration"
+            data-required="true" data-min-length="1" data-form="vm.form">
+          </c-tag-list>
         </div>
       </div>
     </div>
@@ -122,7 +145,6 @@
 
       <ng-include src="'views/policy-wizard/trigger-accordion.html'" novalidate></ng-include>
     </div>
-
     <div class="c-form-group c-form-group--full-width c-form-group--to-right">
       <button data-ng-if="vm.isNewCube(vm.cubeContext.position)" class="c-button c-button--call-to-action-1"
               data-ng-click="vm.addCube()"

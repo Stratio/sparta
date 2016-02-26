@@ -50,6 +50,15 @@
 			right: $c-cube__field-name---right;
 		}
 	}
+
+	&--padding {
+		padding: 15px 50px 0;
+	}
+
+	&--b-bottom {
+		border-bottom: solid 1px getColor(n7);
+		padding-bottom: 10px;
+	}
 }
 
 .c-cube {

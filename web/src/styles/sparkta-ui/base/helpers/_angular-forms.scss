@@ -6,7 +6,7 @@ $angular-forms--ng-invalid__error---padding: 0.5em !default;
 $angular-forms--ng-invalid__error---font-size: 14px !default;
 $angular-forms--ng-invalid__error--icon---font-size: 12px !default;
 
-.c-form-group.ng-invalid.submitted {
+.c-form-group.ng-invalid.submitted, .c-form-group.selectInvalid.submitted {
 	& label {
 		color: $angular-forms--ng-invalid__input---color;
 	}
