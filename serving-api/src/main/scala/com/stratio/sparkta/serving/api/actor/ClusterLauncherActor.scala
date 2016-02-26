@@ -74,9 +74,11 @@ with SparktaSerializer {
       log.info("Init new cluster streamingContext with name " + policy.name)
       validateSparkHome()
       val driverPath = Uploader.getDriverFile(DriverJarPath)
-      val clusterFiles = Uploader.getClasspathFiles(ClasspathJarsPath) ++ Uploader.getPluginsFiles(PluginsJarsPath)
-      val driverParams = Seq(PolicyId, zkConfigEncoded, detailConfigEncoded)
-      launch(SparktaDriver, driverPath, Master, sparkArgs, driverParams, clusterFiles.values.toSeq)
+      val classPathFiles = Uploader.getClasspathFiles(ClasspathJarsPath)
+      val pluginsFiles = Uploader.getPluginsFiles(PluginsJarsPath)
+      val driverParams = Seq(PolicyId, zkConfigEncoded, detailConfigEncoded, pluginsEncoded(pluginsFiles))
+
+      launch(SparktaDriver, driverPath, Master, sparkArgs, driverParams, classPathFiles, pluginsFiles)
     } match {
       case Failure(exception) =>
         log.error(exception.getLocalizedMessage, exception)
@@ -109,13 +111,16 @@ with SparktaSerializer {
 
   //scalastyle:off
   private def launch(main: String, hdfsDriverFile: String, master: String, args: Map[String, String],
-                     driverParams: Seq[String], clusterFiles: Seq[String]): Unit = {
+                     driverParams: Seq[String],
+                     classpathFiles: Seq[String],
+                    pluginsFiles: Seq[String]): Unit = {
     val sparkLauncher = new SparkLauncher()
       .setSparkHome(sparkHome)
       .setAppResource(hdfsDriverFile)
       .setMainClass(main)
       .setMaster(master)
-    clusterFiles.foreach(file => sparkLauncher.addJar(file))
+    classpathFiles.foreach(file => sparkLauncher.addJar(file))
+    pluginsFiles.foreach(file => sparkLauncher.addJar(file))
     args.map({ case (k: String, v: String) => sparkLauncher.addSparkArg(k, v) })
     if (isStandaloneSupervise) sparkLauncher.addSparkArg(StandaloneSupervise)
     //Spark params (everything starting with spark.)
@@ -184,6 +189,8 @@ with SparktaSerializer {
   private def zkConfigEncoded: String = encode(render(ZookeeperConfig, "zookeeper"))
 
   private def detailConfigEncoded: String = encode(render(DetailConfig, "config"))
+
+  private def pluginsEncoded(plugins: Seq[String]): String = encode(plugins.mkString(","))
 
   private def sparkConf: Seq[(String, String)] =
     ClusterConfig.entrySet()

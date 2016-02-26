@@ -43,13 +43,15 @@ object SparktaClusterJob extends SparktaSerializer {
   final val PolicyIdIndex = 0
   final val ZookeperConfigurationIndex = 1
   final val DetailConfigurationIndex = 2
+  final val PluginsFilesIndex = 3
 
   def main(args: Array[String]): Unit = {
-    assert(args.length == 3, s"Invalid number of params: ${args.length}, args: $args")
+    assert(args.length == 4, s"Invalid number of params: ${args.length}, args: $args")
     Try {
       val policyId = args(PolicyIdIndex)
       val detailConfiguration = new String(BaseEncoding.base64().decode(args(DetailConfigurationIndex)))
       val zookeperConfiguration = new String(BaseEncoding.base64().decode(args(ZookeperConfigurationIndex)))
+      val pluginsFiles = new String(BaseEncoding.base64().decode(args(PluginsFilesIndex))).split(",")
 
       initSparktaConfig(detailConfiguration, zookeperConfiguration)
 
@@ -67,22 +69,23 @@ object SparktaClusterJob extends SparktaSerializer {
         Try(ErrorDAO().dao.delete(policy.id.get))
 
         val streamingContextService = new StreamingContextService(Some(policyStatusActor))
-        val ssc =
-          streamingContextService.clusterStreamingContext(policy, Map("spark.app.name" -> s"${policy.name}")).get
+        val ssc = streamingContextService.clusterStreamingContext(
+          policy,
+          pluginsFiles,
+          Map("spark.app.name" -> s"${policy.name}")
+        ).get
 
         ssc.start
         policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Started))
         log.info(s"Starting Streaming Context for policy $policyId")
         ssc.awaitTermination()
       } match {
-        case Success(_) => {
+        case Success(_) =>
           policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopped))
           log.info(s"Stopped Streaming Context for policy $policyId")
-        }
-        case Failure(exception) => {
+        case Failure(exception) =>
           log.error(exception.getLocalizedMessage, exception)
           policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Failed))
-        }
       }
     } match {
       case Success(_) => log.info("Streaming context is running")
@@ -100,7 +103,7 @@ object SparktaClusterJob extends SparktaSerializer {
   def getPolicyFromZookeeper(policyId: String, curatorFramework: CuratorFramework): AggregationPoliciesModel = {
     Try {
       PolicyUtils.parseJson(new Predef.String(curatorFramework.getData.forPath(
-        s"${AppConstant.PoliciesBasePath}/${policyId}")))
+        s"${AppConstant.PoliciesBasePath}/$policyId")))
     } match {
       case Success(policy) => policy
       case Failure(e) => log.error(s"Cannot load policy $policyId", e); throw e

@@ -16,33 +16,23 @@
 
 package com.stratio.sparkta.serving.api.actor
 
-import java.io.File
-import com.stratio.sparkta.driver.util.PolicyUtils
-
-import scala.concurrent.duration._
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
-
-import akka.actor.Actor
-import akka.actor.ActorRef
+import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
-import org.apache.spark.streaming.StreamingContext
-
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.driver.util.PolicyUtils
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
-import com.stratio.sparkta.serving.core.SparktaConfig
-import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.dao.ErrorDAO
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
-import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
-import com.stratio.sparkta.serving.core.models.PolicyStatusModel
-import com.stratio.sparkta.serving.core.models.SparktaSerializer
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
+import org.apache.spark.streaming.StreamingContext
+
+import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
 
 class LocalSparkStreamingContextActor(policy: AggregationPoliciesModel,
                                       streamingContextService: StreamingContextService,
@@ -60,6 +50,7 @@ class LocalSparkStreamingContextActor(policy: AggregationPoliciesModel,
 
     implicit val timeout: Timeout = Timeout(3.seconds)
     val jars = PolicyUtils.jarsFromPolicy(policy)
+    jars.foreach(file => JarsHelper.addToClasspath(file))
 
     Try({
       policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting))

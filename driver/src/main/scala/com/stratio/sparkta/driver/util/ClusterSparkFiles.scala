@@ -28,21 +28,21 @@ case class ClusterSparkFiles(policy: AggregationPoliciesModel, hdfs: HdfsUtils) 
 
   private val hdfsConfig = SparktaConfig.getHdfsConfig.get
 
-  def getPluginsFiles(pluginsJarsPath: String): Map[String, String] = {
+  def getPluginsFiles(pluginsJarsPath: String): Seq[String] = {
     PolicyUtils.jarsFromPolicy(policy)
       .filter(file => !file.getName.contains("driver")).map(file => {
       hdfs.write(file.getAbsolutePath, pluginsJarsPath, true)
-      file.getName -> s"hdfs://${hdfsConfig.getString(AppConstant.HdfsMaster)}$pluginsJarsPath${file.getName}"
-    }).toMap
+      s"hdfs://${hdfsConfig.getString(AppConstant.HdfsMaster)}$pluginsJarsPath${file.getName}"
+    })
   }
 
-  def getClasspathFiles(classpathJarsPath: String): Map[String, String] = {
+  def getClasspathFiles(classpathJarsPath: String): Seq[String] = {
     JarsHelper.findJarsByPath(new File(SparktaConfig.sparktaHome, AppConstant.ClasspathJarFolder),
       Some(".jar"), None, Some("driver"), Some(Seq("plugins", "spark", "driver", "web", "serving-api")), false)
       .distinct.map(file => {
       hdfs.write(file.getAbsolutePath, classpathJarsPath, true)
-      file.getName -> s"hdfs://${hdfsConfig.getString(AppConstant.HdfsMaster)}$classpathJarsPath${file.getName}"
-    }).toMap
+      s"hdfs://${hdfsConfig.getString(AppConstant.HdfsMaster)}$classpathJarsPath${file.getName}"
+    })
   }
 
   def getDriverFile(driverJarPath: String): String = {
