@@ -36,4 +36,13 @@ $heading__content---padding-bottom: 12px;
 	&__border{
 		border-bottom: 1px solid getColor(a3);
 	}
+
+	&__cube {
+		position: relative;
+		display: inline-block;
+		text-transform: uppercase;
+		font-size: 1.75rem;
+		color: getColor(n7);
+		padding-bottom: 20px;
+	}
 }
