@@ -12,34 +12,43 @@
     var error = {text: ""};
     var context = {"position": null};
 
-    function init() {
+    function init(position) {
+      setPosition(position);
       trigger.name = "";
       trigger.sql = "";
       trigger.outputs = [];
-      trigger.configuration = {};
+      delete trigger.configuration;
       error.text = "";
     }
 
-    function resetTrigger() {
-      init();
+    function resetTrigger(position) {
+      init(position);
     }
 
-    function getTrigger() {
+    function getTrigger(position) {
       if (Object.keys(trigger).length == 0) {
-        init()
+        init(position)
       }
       return trigger;
     }
 
-    function setTrigger(_trigger) {
+    function setTrigger(_trigger, position) {
       trigger.name = _trigger.name;
       trigger.sql = _trigger.sql;
       trigger.outputs = _trigger.outputs;
       trigger.configuration = _trigger.configuration;
+      setPosition(position);
+    }
+
+    function setPosition(p) {
+      if (p === undefined) {
+        p = 0;
+      }
+      context.position = p;
     }
 
     function isValidTrigger(trigger, triggers, position) {
-      var isValid = trigger.name != "" && trigger.sql != "" && trigger.outputs.length > 0 && trigger.condifuration != "";
+      var isValid = trigger.name != "" && trigger.sql != "" && trigger.outputs.length > 0 && trigger.configuration != "";
       if (!isValid) {
         error.text = "_GENERIC_FORM_ERROR_";
       } else {
@@ -69,7 +78,6 @@
       return error;
     }
 
-
     return {
       resetTrigger: resetTrigger,
       getTrigger: getTrigger,
@@ -80,8 +88,5 @@
       getError: getError
     }
   }
-
 })
 ();
-
-

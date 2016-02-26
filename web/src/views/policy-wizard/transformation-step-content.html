@@ -2,9 +2,6 @@
   <p class="c-info-text c-info-text--narrow c-info-text--bottom-margin"><i
     class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._MODEL_INTRO_" | translate}}</span>
   </p>
-  <button class="c-button--to-right" data-ng-click = "vm.activateTriggerCreationPanel()"><i
-    class="c-icon c-info-text__icon icon-circle-plus"></i><span class="c-info-text__text">{{"_POLICY_._ADD_TRIGGER_" | translate}}</span>
-  </button>
 
   <div class="c-row c-msg c-msg--small c-msg--error"
        data-ng-if="vm.error != '' && vm.policy.transformations.length === 0"
@@ -14,6 +11,7 @@
   </div>
 
   <form class="c-form c-panel c-panel--framed" novalidate>
+
     <c-accordion items="vm.policy.transformations"
                  item-template="'views/policy-wizard/model-panel.html'"
                  on-change-opened-element="vm.changeOpenedModel(selectedItemPosition)"
@@ -23,23 +21,41 @@
                  item-attribute-in-header="type"
                  new-item-header="_POLICY_._NEW_MODEL_DEFINITION_">
     </c-accordion>
+
+    <button class="c-button c-button--call-to-action-1 c-button--to-right" ng-if="!vm.isActiveModelCreationPanel()"
+            data-ng-click="vm.activateModelCreationPanel()" data-qa="policy-model-add-new-transformation-button">
+      <i class="icon icon-circle-plus"></i>
+      <span>{{"_POLICY_._ADD_TRANSFORMATION_" | translate}}</span>
+    </button>
+
   </form>
 
-  <h2 class="panel-title">
-    <i class="c-icon icon-bell"></i>
-    <span class="c-step-content__title-text">{{"_TRIGGERS_" | translate}}</span>
-  </h2>
 
-  <c-accordion items="vm.policy.streamTriggers"
-               item-template="'views/policy-wizard/trigger-panel.html'"
-               on-change-opened-element="vm.changeOpenedTrigger(selectedItemPosition)"
-               item-qa-tag="policy-triggers"
-               show-new-item-panel="vm.isActiveTriggerCreationPanel()"
-               accordion-status="vm.triggerAccordionStatus"
-               item-attribute-in-header="name"
-               new-item-header="_POLICY_._NEW_TRIGGER_DEFINITION_">
-  </c-accordion>
+  <form class="c-form c-panel c-panel--framed" novalidate>
 
+    <h2 class="panel-title">
+      <i class="c-icon icon-bell"></i>
+      <span class="c-step-content__title-text">{{"_TRIGGERS_" | translate}}</span>
+    </h2>
+    <button class="c-button c-button--call-to-action-6" ng-if="!vm.isActiveTriggerCreationPanel()"
+            data-ng-click="vm.activateTriggerCreationPanel()" data-qa="policy-model-add-new-trigger-button">
+      <i class="icon icon-circle-plus"></i>
+      <span>{{"_POLICY_._ADD_TRIGGER_" | translate}}</span>
+    </button>
+
+    <c-accordion items="vm.policy.streamTriggers"
+                 item-template="'views/policy-wizard/trigger-panel.html'"
+                 on-change-opened-element="vm.changeOpenedTrigger(selectedItemPosition)"
+                 item-qa-tag="policy-triggers"
+                 show-new-item-panel="vm.isActiveTriggerCreationPanel()"
+                 accordion-status="vm.triggerAccordionStatus"
+                 item-attribute-in-header="name"
+                 new-item-header="_POLICY_._NEW_TRIGGER_DEFINITION_">
+    </c-accordion>
+
+
+
+  </form>
   <footer class="c-row c-row--footer">
     <div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">
       <div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">
@@ -48,10 +64,6 @@
       </div>
     </div>
 
-    <button class="c-button c-button--call-to-action-1" ng-if="!vm.isActiveModelCreationPanel()"
-            data-ng-click="vm.activateModelCreationPanel()" data-qa="policy-model-add-new-transformation-button">
-      <i class="icon icon-circle-plus"></i>
-      <span>{{"_POLICY_._ADD_TRANSFORMATION_" | translate}}</span>
-    </button>
+
   </footer>
 </section>
