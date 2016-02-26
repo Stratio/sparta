@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('TriggerCtrl', TriggerCtrl);
 
-  TriggerCtrl.$inject = ['PolicyModelFactory','TriggerModelFactory', 'TriggerService', 'ModalService', 'OutputService'];
+  TriggerCtrl.$inject = ['PolicyModelFactory', 'TriggerModelFactory', 'TriggerService', 'OutputService'];
 
-  function TriggerCtrl(PolicyModelFactory,TriggerModelFactory, TriggerService,  ModalService, OutputService) {
+  function TriggerCtrl(PolicyModelFactory, TriggerModelFactory, TriggerService, OutputService) {
     var vm = this;
 
     vm.init = init;
@@ -25,6 +25,7 @@
       if (vm.trigger) {
         vm.triggerContext = TriggerModelFactory.getContext();
         vm.template = PolicyModelFactory.getTemplate().trigger;
+        vm.sqlSourceItems = TriggerService.getSqlSourceItems();
         return OutputService.generateOutputList().then(function (outputList) {
           vm.policyOutputList = outputList;
         });

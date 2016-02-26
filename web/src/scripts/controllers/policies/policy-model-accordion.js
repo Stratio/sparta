@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('PolicyModelAccordionCtrl', PolicyModelAccordionCtrl);
 
-  PolicyModelAccordionCtrl.$inject = ['PolicyModelFactory', 'ModelFactory', 'ModelService','TriggerModelFactory', 'TriggerService'];
+  PolicyModelAccordionCtrl.$inject = ['PolicyModelFactory', 'ModelFactory', 'ModelService','TriggerModelFactory', 'TriggerService', 'triggerConstants'];
 
-  function PolicyModelAccordionCtrl(PolicyModelFactory, ModelFactory, ModelService,TriggerModelFactory, TriggerService) {
+  function PolicyModelAccordionCtrl(PolicyModelFactory, ModelFactory, ModelService,TriggerModelFactory, TriggerService, triggerConstants) {
     var vm = this;
 
     vm.init = init;
@@ -24,6 +24,7 @@
     function init() {
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
+      TriggerService.setTriggerContainer(vm.policy.streamTriggers, triggerConstants.TRANSFORMATION);
       vm.helpLink = vm.template.helpLinks.models;
       vm.error = "";
       vm.modelAccordionStatus = [];

@@ -5,7 +5,7 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
   beforeEach(module('served/trigger.json'));
 
   var ctrl, scope, fakePolicy, fakeTriggerTemplate, fakeTrigger, policyModelFactoryMock, fakeOutputs, fakePolicyTemplate,
-    triggerModelFactoryMock, outputServiceMock, triggerServiceMock, modalServiceMock, resolvedPromise, rejectedPromise;
+    triggerModelFactoryMock, outputServiceMock, triggerServiceMock, resolvedPromise, rejectedPromise;
 
   // init mock modules
 
@@ -49,26 +49,16 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
       return fakePolicyTemplate;
     });
 
-    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['isLastTrigger', 'isNewTrigger', 'addTrigger', 'removeTrigger', 'disableTriggerCreationPanel', 'generateOutputList']);
+    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['isLastTrigger', 'isNewTrigger', 'addTrigger', 'removeTrigger', 'disableTriggerCreationPanel', 'generateOutputList', 'getSqlSourceItems']);
     triggerServiceMock.generateOutputList.and.callFake(resolvedPromise);
-
-    modalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
 
     triggerModelFactoryMock = jasmine.createSpyObj('TriggerFactory', ['getTrigger', 'getError', 'getTriggerInputs', 'getContext', 'setError', 'resetTrigger', 'updateTriggerInputs', 'setError']);
     triggerModelFactoryMock.getTrigger.and.returnValue(fakeTrigger);
-
-
-    modalServiceMock.openModal.and.callFake(function () {
-      var defer = $q.defer();
-      defer.resolve();
-      return {"result": defer.promise};
-    });
 
     ctrl = $controller('TriggerCtrl', {
       'PolicyModelFactory': policyModelFactoryMock,
       'TriggerModelFactory': triggerModelFactoryMock,
       'TriggerService': triggerServiceMock,
-      'ModalService': modalServiceMock,
       'OutputService': outputServiceMock
     });
 
@@ -110,16 +100,11 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
       var cleanCtrl = $controller('TriggerCtrl', {
         'PolicyModelFactory': policyModelFactoryMock,
         'TriggerModelFactory': triggerModelFactoryMock,
-        'TriggerService': triggerServiceMock,
-        'ModalService': modalServiceMock
+        'TriggerService': triggerServiceMock
       });
       expect(cleanCtrl.template).toBe(undefined);
-      expect(cleanCtrl.policy).toBe(undefined);
-      expect(cleanCtrl.granularityOptions).toBe(undefined);
-      expect(cleanCtrl.triggerError).toBe(undefined);
       expect(cleanCtrl.triggerContext).toBe(undefined);
-      expect(cleanCtrl.functionList).toBe(undefined);
-      expect(cleanCtrl.outputList).toBe(undefined);
+      expect(cleanCtrl.policyOutputList).toBe(undefined);
     }));
   });
 
@@ -165,8 +150,6 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
       ctrl.addOutput(); // I try to add the same output
 
       expect(ctrl.trigger.outputs.length).toBe(1); // output is not added again
-
     })
-
   })
 });
