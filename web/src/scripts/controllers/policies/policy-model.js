@@ -43,7 +43,6 @@
       switch (vm.model.type) {
         case "Morphlines":{
           vm.model.configuration = vm.template.model.morphlines.defaultConfiguration;
-          console.log(vm.model.configuration);
         }
       }
     }

@@ -19,6 +19,7 @@
     vm.changeTriggerCreationPanelVisibility = changeTriggerCreationPanelVisibility;
     vm.isActiveTriggerCreationPanel = isActiveTriggerCreationPanel;
     vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
+    vm.disableTriggerCreationPanel = disableTriggerCreationPanel;
 
     init();
 
@@ -30,6 +31,11 @@
     function activateTriggerCreationPanel() {
       showTriggerCreationPanel = true;
     }
+
+    function disableTriggerCreationPanel() {
+      showTriggerCreationPanel = false;
+    }
+
 
     function showConfirmRemoveTrigger() {
       var defer = $q.defer();

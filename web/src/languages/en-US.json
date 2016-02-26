@@ -133,7 +133,6 @@
     "_MODEL_ERROR_": "There was an error. You must create one model at least!",
     "_CUBE_ERROR_": "There was an error. You must create one cube at least and they can not have the same name",
     "_MODEL_NAME_": "Model name",
-    "_ADD_MODEL_": "Add model",
     "_ADD_TRANSFORMATION_": "Add transformation",
     "_SAVE_TRANSFORMATION_": "Save transformation",
     "_CUBE_NAME_": "Cube name",
@@ -141,6 +140,7 @@
     "_NEW_CUBE_": "New cube",
     "_ADD_CUBE_": "Add cube",
     "_SAVE_CUBE_": "Save cube",
+    "_SAVE_TRIGGER_": "Save trigger",
     "_WINDOW_": {
       "_CONFIRM_": {
         "_TITLE_" : "Create policy"
