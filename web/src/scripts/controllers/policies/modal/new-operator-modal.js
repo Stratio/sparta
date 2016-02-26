@@ -49,13 +49,10 @@
     }
 
     function ok() {
-      vm.errorText = "";
       if (vm.form.$valid) {
         if (!isRepeated()) {
           $modalInstance.close(vm.operator);
         }
-      } else {
-        vm.errorText = "_GENERIC_FORM_ERROR_";
       }
     };
 
