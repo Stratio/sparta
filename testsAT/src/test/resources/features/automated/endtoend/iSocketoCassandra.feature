@@ -16,7 +16,7 @@ Feature: Test policy with Socket input and Cassandra output
       | outputs[0].configuration.connectionHost | UPDATE | ${CASSANDRA_HOST} |
       | outputs[0].configuration.connectionPort | UPDATE | ${CASSANDRA_PORT} |
     Then the service response status must be '200'.
-    And I save element '$.id' in attribute 'previousPolicyID'
+    And I save element '$.id' in environment variable 'previousPolicyID'
     And I wait '10' seconds
 
     # Start the policy

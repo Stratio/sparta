@@ -5,12 +5,6 @@ import java.net.Socket;
 import java.nio.channels.ServerSocketChannel;
 
 public class Common extends CommonG {
-
-    public static String previousFragmentID = "";
-    public static String previousFragmentID_2 = "";
-    public static String previousPolicyID = "";
-    public static String previousPolicyID_2 = "";
-
     private ServerSocketChannel serverSocket;
     private Socket socket;
 

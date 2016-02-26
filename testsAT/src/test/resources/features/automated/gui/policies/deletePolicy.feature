@@ -13,7 +13,7 @@ Feature: Test deleting a policy in Sparta GUI
 		| name | UPDATE | flumeinput |
 		| element.type | UPDATE | Flume |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID'
+		And I save element '$.id' in environment variable 'previousFragmentID'
 		When I send a 'GET' request to '/fragment/input'
 		Then the service response status must be '200' and its response length must be '1'
 		
@@ -24,7 +24,7 @@ Feature: Test deleting a policy in Sparta GUI
 		| name | UPDATE | printoutput |
 		| element.type | UPDATE | Print |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID_2'
+		And I save element '$.id' in environment variable 'previousFragmentID_2'
 		When I send a 'GET' request to '/fragment/output'
 		Then the service response status must be '200' and its response length must be '1'
 		
@@ -41,7 +41,7 @@ Feature: Test deleting a policy in Sparta GUI
 		| outputs | DELETE | N/A |
 		| name | UPDATE | myPolicy |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousPolicyID'
+		And I save element '$.id' in environment variable 'previousPolicyID'
 		# Check list of policies
 		When I send a 'GET' request to '/policy/all'	
 		Then the service response status must be '200' and its response length must be '1'		
