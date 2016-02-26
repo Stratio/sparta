@@ -114,13 +114,12 @@
       if (triggerContainerType == triggerConstants.TRANSFORMATION) {
         fields = item.outputFields;
       } else {
-        // TODO Pending cube triggers
-        //fields = item.dimensions;
-        //angular.extend(fields, item.operators);
+        fields = item.dimensions;
+        angular.extend(fields, item.operators);
       }
       for (var i = 0; i < fields.length; ++i) {
-        var outputField = item.outputFields[i];
-        sqlSourceItemsFields.push({name: outputField.name, type: outputField.type});
+        var item = fields[i];
+        sqlSourceItemsFields.push({name: item.name, type: item.type});
       }
 
       return sqlSourceItemsFields;
