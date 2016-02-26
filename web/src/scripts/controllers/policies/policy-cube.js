@@ -60,6 +60,9 @@
     function addOutputToDimensions(outputName) {
       var templateUrl = "templates/policies/dimension-modal.tpl.html";
       var controller = "NewDimensionModalCtrl";
+      var extraClass = null;
+      var size = 'lg';
+
       var resolve = {
         fieldName: function () {
           return outputName;
@@ -75,7 +78,7 @@
         }
       };
 
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, extraClass, size);
 
       return modalInstance.result.then(function (dimension) {
         vm.cube.dimensions.push(dimension);
@@ -85,6 +88,8 @@
     function addFunctionToOperators(functionName) {
       var templateUrl = "templates/policies/operator-modal.tpl.html";
       var controller = "NewOperatorModalCtrl";
+      var extraClass = null;
+      var size = 'lg';
       var resolve = {
         operatorType: function () {
           return functionName;
@@ -100,7 +105,7 @@
           return vm.template;
         }
       };
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, extraClass, size);
 
       return modalInstance.result.then(function (operator) {
         vm.cube.operators.push(operator);
@@ -110,6 +115,8 @@
     function showConfirmModal(title, message) {
       var templateUrl = "templates/modal/confirm-modal.tpl.html";
       var controller = "ConfirmModalCtrl";
+      var extraClass = null;
+      var size = 'lg';
       var resolve = {
         title: function () {
           return title
@@ -118,7 +125,7 @@
           return message;
         }
       };
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, extraClass, size);
       return modalInstance.result;
     }
 

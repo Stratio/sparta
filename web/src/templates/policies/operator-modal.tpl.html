@@ -4,47 +4,30 @@
     <i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" data-ng-click="vm.cancel()"
        data-qa="modal-cancel-icon"></i>
   </div>
-
   <form class="c-form" name="vm.form" novalidate>
-    <div class="c-row c-row--separated c-msg c-msg--small c-msg--error" data-ng-if=" vm.errorText != ''"
-         data-qa="error-msg">
-      <i class="c-icon icon-circle-cross"></i>
-      <span data-ng-model="vm.errorText">{{vm.errorText |translate}}</span>
-    </div>
     <div class="c-modal-inner">
       <div class="c-form-group">
         <form-field-input data-form="vm.form" data-st-name="type-form" data-model="vm.operator.type"
-                          data-label="{{'_TYPE_' | translate}}" data-help="" data-pattern="" data-required="true"
-                          required="true" disabled="true" data-qa="operator-modal-type"></form-field-input>
+          data-label="{{'_TYPE_' | translate}}" data-help="" data-pattern="" data-required="true"
+          required="true" disabled="true" data-qa="operator-modal-type">
+        </form-field-input>
       </div>
-
       <div class="c-form-group">
         <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.operator.name"
-                          data-label="{{'_NAME_' | translate}}" data-help="" data-pattern="" data-required="true"
-                          placeholder="Ex. Name 1" required="true" data-qa="operator-modal-name"></form-field-input>
+          data-label="{{'_NAME_' | translate}}" data-help="" data-pattern="" data-required="true"
+          placeholder="Ex. Name 1" required="true" data-qa="operator-modal-name">
+        </form-field-input>
       </div>
-
-      <div class="c-form-group">
-        <c-icon-label data-wrapper-control-class="'c-label c-col c-col--12'"
-                      data-icon-class="'icon-info1'"
-                      data-text="'_CONFIGURATION_' | translate"
-                      data-text-class=""
-                      data-icon-url="vm.configHelpLink"
-                      data-required="true"
-                      data-test="policy-operator-configuration-help">
-        </c-icon-label>
-        <p class="c-label c-col c-col--12">{{"_CONFIGURATION_INFO_" | translate}}</p>
-
-        <textarea json-text name="operator-configuration" data-form="vm.form"
-                  class="c-textarea c-textarea--required c-textarea--full-width"
-                  data-ng-model="vm.operator.configuration"
-                  ng-class="{'c-textarea--error': vm.form['operator-configuration'].$error.invalidJson}"
-                  data-qa="operator-configuration-textarea"
-                  placeholder={{vm.configPlaceholder}}>
-       </textarea>
-
-      </div>
-
+      <form-field-textarea data-json = "true"
+        data-label="{{'_CONFIGURATION_' | translate}}"
+        data-form="vm.form"
+        data-st-name="operator-configuration"
+        data-model="vm.operator.configuration"
+        data-required="true"
+        data-extra-info="'_CONFIGURATION_INFO_' | translate"
+        data-placeholder="vm.configPlaceholder"
+        data-qa="operator-configuration-textarea">
+      </form-field-textarea>
       <div class="c-row c-row--separated">
         <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
           <button type="button" class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()"
