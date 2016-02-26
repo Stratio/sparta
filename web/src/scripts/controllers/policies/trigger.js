@@ -23,6 +23,7 @@
     function init() {
       vm.trigger = TriggerModelFactory.getTrigger();
       if (vm.trigger) {
+        vm.triggerContext = TriggerModelFactory.getContext();
         vm.template = PolicyModelFactory.getTemplate().trigger;
         return OutputService.generateOutputList().then(function (outputList) {
           vm.policyOutputList = outputList;
@@ -47,13 +48,10 @@
 
     function addTrigger() {
       vm.form.$submitted = true;
-      if (vm.form.$valid && vm.trigger.operators.length > 0 && vm.trigger.dimensions.length > 0) {
+      if (vm.form.$valid) {
         vm.form.$submitted = false;
         TriggerService.addTrigger();
         TriggerService.changeTriggerCreationPanelVisibility(false);
-      }
-      else {
-        TriggerModelFactory.setError();
       }
     }
 
