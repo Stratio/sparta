@@ -24,6 +24,7 @@
       policy.outputs = [];
       policy.transformations = [];
       policy.cubes = [];
+      policy.streamTriggers = [];
     }
 
     function setPolicy(inputPolicyJSON) {
@@ -38,6 +39,7 @@
       policy.rawData.enabled = (inputPolicyJSON.rawData.enabled == "true");
       policy.transformations = inputPolicyJSON.transformations;
       policy.cubes = inputPolicyJSON.cubes;
+      policy.streamTriggers = inputPolicyJSON.streamTriggers;
 
       var policyFragments = separateFragments(inputPolicyJSON.fragments);
       policy.input = policyFragments.input;

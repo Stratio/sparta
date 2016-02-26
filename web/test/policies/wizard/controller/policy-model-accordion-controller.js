@@ -1,6 +1,6 @@
 describe('policies.wizard.controller.policy-model-accordion-controller', function () {
   var ctrl, scope, translate, fakeTranslation, fakePolicy, fakePolicyTemplate, fakeModel, policyModelFactoryMock,
-     modelFactoryMock, cubeServiceMock, ModelServiceMock, accordionStatus = null;
+     modelFactoryMock, cubeServiceMock, ModelServiceMock, triggerServiceMock = null;
 
   beforeEach(module('webApp'));
   beforeEach(module('served/policy.json'));
@@ -36,8 +36,8 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
     cubeServiceMock = jasmine.createSpyObj('CubeService', ['findCubesUsingOutputs']);
 
     ModelServiceMock = jasmine.createSpyObj('ModelService', ['isActiveModelCreationPanel', 'changeModelCreationPanelVisibility']);
+    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['setTriggerContainer']);
 
-    spyOn(scope, "$watchCollection").and.callThrough();
 
     ctrl = $controller('PolicyModelAccordionCtrl  as vm', {
       'PolicyModelFactory': policyModelFactoryMock,
@@ -45,6 +45,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
       'CubeService': cubeServiceMock,
       'ModelService': ModelServiceMock,
       '$translate': translate,
+      'TriggerService': triggerServiceMock,
       '$scope': scope
     });
 
@@ -60,6 +61,10 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
       expect(ctrl.policy).toBe(fakePolicy);
     });
 
+    it('it should put as trigger container the attribute streamTriggers of policy', function () {
+      expect(triggerServiceMock.setTriggerContainer).toHaveBeenCalledWith(ctrl.policy.streamTriggers, "transformation");
+    });
+
     it ("if policy has a model at least, next step is enabled", inject(function ($controller){
       fakePolicy.transformations = [fakeModel];
       ctrl = $controller('PolicyModelAccordionCtrl  as vm', {
@@ -73,28 +78,6 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
 
       expect(policyModelFactoryMock.enableNextStep).toHaveBeenCalled();
     }));
-  });
-
-  it("should be able to change to previous step calling to policy model factory", function () {
-    ctrl.previousStep();
-
-    expect(policyModelFactoryMock.previousStep).toHaveBeenCalled();
-  });
-
-  describe("should be able to change to next step calling to policy model factory", function () {
-    it("if there is not any model added to policy, step is not changed", function () {
-      ctrl.policy.transformations = [];
-      ctrl.nextStep();
-
-      expect(policyModelFactoryMock.nextStep).not.toHaveBeenCalled();
-    });
-
-    it("if there is a model added at least, step is changed", function () {
-      ctrl.policy.transformations = [fakeModel];
-      ctrl.nextStep();
-
-      expect(policyModelFactoryMock.nextStep).toHaveBeenCalled();
-    })
   });
 
   describe("should be able to see changes in the accordion status to update the model of the model factory", function () {
