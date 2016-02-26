@@ -21,6 +21,4 @@ import com.stratio.sparkta.serving.core.constants.AppConstant
 
 case class OperatorModel(`type`: String, name: String, configuration: Map[String, JsoneyString]) {
 
-  val jarFile = AppConstant.jarsFilesMap.get(`type`)
-
 }

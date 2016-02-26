@@ -64,7 +64,8 @@ with Matchers {
         Seq(cubeDto),
         Some(input),
         Seq(mock[PolicyElementModel]),
-        Seq(mock[FragmentElementModel]))
+        Seq(mock[FragmentElementModel]),
+        userPluginsJars = Seq.empty[String])
 
       val test = AggregationPoliciesValidator.validateDto(apd)
 

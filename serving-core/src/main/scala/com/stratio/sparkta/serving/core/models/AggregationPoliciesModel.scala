@@ -19,6 +19,9 @@ package com.stratio.sparkta.serving.core.models
 import java.io._
 
 import com.fasterxml.jackson.databind._
+import com.github.fge.jsonschema.core.exceptions.InvalidSchemaException
+import com.github.fge.jsonschema.core.report.ProcessingReport
+import com.github.fge.jsonschema.main.{JsonSchema, JsonSchemaFactory}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -36,7 +39,8 @@ case class AggregationPoliciesModel(id: Option[String] = None,
                                     cubes: Seq[CubeModel],
                                     input: Option[PolicyElementModel] = None,
                                     outputs: Seq[PolicyElementModel],
-                                    fragments: Seq[FragmentElementModel])
+                                    fragments: Seq[FragmentElementModel],
+                                    userPluginsJars: Seq[String])
 
 case object AggregationPoliciesModel {
 

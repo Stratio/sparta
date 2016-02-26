@@ -20,6 +20,7 @@ import java.io.{Serializable => JSerializable}
 import java.sql.Timestamp
 
 import com.github.nscala_time.time.Imports._
+import com.stratio.sparkta.plugin.default.DefaultField
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{TimestampType, StringType, LongType, StructField, StructType}
 import org.apache.spark.streaming.TestSuiteBase
@@ -27,7 +28,6 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
 import com.stratio.sparkta.plugin.field.datetime.DateTimeField
-import com.stratio.sparkta.plugin.field.default.DefaultField
 import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.sdk._
 

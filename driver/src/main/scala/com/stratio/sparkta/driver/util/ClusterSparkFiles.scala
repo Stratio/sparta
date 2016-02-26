@@ -27,14 +27,9 @@ import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
 case class ClusterSparkFiles(policy: AggregationPoliciesModel, hdfs: HdfsUtils) extends SLF4JLogging {
 
   private val hdfsConfig = SparktaConfig.getHdfsConfig.get
-  private val jarsPlugins = JarsHelper.findJarsByPath(
-    new File(SparktaConfig.sparktaHome, AppConstant.JarPluginsFolder),
-    Some(AppConstant.pluginExtension), None, None, None, false)
-  private val activeJars = PolicyUtils.activeJars(policy, jarsPlugins)
 
   def getPluginsFiles(pluginsJarsPath: String): Map[String, String] = {
-    validate()
-    PolicyUtils.activeJarFiles(activeJars.right.get, jarsPlugins)
+    PolicyUtils.jarsFromPolicy(policy)
       .filter(file => !file.getName.contains("driver")).map(file => {
       hdfs.write(file.getAbsolutePath, pluginsJarsPath, true)
       file.getName -> s"hdfs://${hdfsConfig.getString(AppConstant.HdfsMaster)}$pluginsJarsPath${file.getName}"
@@ -55,13 +50,5 @@ case class ClusterSparkFiles(policy: AggregationPoliciesModel, hdfs: HdfsUtils) 
       JarsHelper.findDriverByPath(new File(SparktaConfig.sparktaHome, AppConstant.ClusterExecutionJarFolder)).head
     hdfs.write(driverJar.getAbsolutePath, driverJarPath, true)
     s"hdfs://${hdfsConfig.getString(AppConstant.HdfsMaster)}$driverJarPath${driverJar.getName}"
-  }
-
-  def validate(): Unit = {
-    if (activeJars.isLeft) {
-      activeJars.left.get.foreach(log.error)
-      require(activeJars.isRight, s"The policy have jars witch cannot be found in classpath:")
-    }
-    require(activeJars.right.get.nonEmpty, s"The policy don't have jars in the plugins")
   }
 }
