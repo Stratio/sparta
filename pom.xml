@@ -146,6 +146,22 @@
                 <role>developer</role>
             </roles>
         </developer>
+        <developer>
+            <id>eambrosio</id>
+            <name>Emilio Ambrosio</name>
+            <email>eambrosio@stratio.com</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>dcastro</id>
+            <name>Daniel Castro</name>
+            <email>dcastro@stratio.com</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
     </developers>
 
     <properties>

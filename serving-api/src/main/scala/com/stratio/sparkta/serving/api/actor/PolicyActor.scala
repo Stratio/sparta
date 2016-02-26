@@ -155,6 +155,17 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
 
   def delete(id: String): Unit =
     sender ! Response(Try({
+      val policyModel = byId(id)
+      Try {
+        if (SparktaConfig.getDetailConfig.get.getString(AppConstant.ExecutionMode) == "local") {
+          FileUtils.deleteDirectory(new File(policyModel.checkpointPath))
+        } else {
+          deleteCheckpointPath(policyModel)
+        }
+      } match {
+        case Failure(ex) => log.info(s"No checkpoint path for policy ${policyModel.name}")
+        case _ => log.info(s"Deleted checkpoint path ${policyModel.checkpointPath}")
+      }
       curatorFramework.delete().forPath(s"${AppConstant.PoliciesBasePath}/$id")
     }).recover {
       case e: NoNodeException => throw new ServingCoreException(ErrorModel.toString(
