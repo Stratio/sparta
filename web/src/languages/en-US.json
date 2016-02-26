@@ -298,5 +298,6 @@
   "_PRIMARY_KEY_":"Primary key",
   "_IS_AUTO_CALCULATED_ID_": "Is auto calculated id",
   "_DATE_TYPE_": "Date type",
-  "_FIXED_MEASURE_": "Fixed measure"
+  "_FIXED_MEASURE_": "Fixed measure",
+  "_POLICY_CUBES_OUTPUT_ERROR_": "At least one output must be added!"
 }
