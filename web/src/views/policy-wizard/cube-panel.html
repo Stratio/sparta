@@ -1,12 +1,5 @@
 <section data-ng-controller="CubeCtrl as vm" data-ng-init="vm.init()" data-ng-model="vm.cube">
   <ng-form name="vm.form" novalidate>
-
-    <div class="c-row c-msg c-msg--small c-msg--error c-form c-form-group"
-         data-ng-if="vm.form.$submitted && (vm.cube.operators.length === 0 || vm.cube.dimensions.length === 0)"
-         data-qa="policy-cube-error-msg">
-      <i class="c-icon icon-circle-cross"></i>
-      <span>{{vm.cubeError.text | translate}}</span>
-    </div>
     <div class="c-form-group c-col c-col--4">
       <form-field
         data-ng-repeat="properties in vm.template.properties"
@@ -123,27 +116,16 @@
             data-help="Note: Make sure output fields match with the ones in the configuration"
             data-required="true" data-min-length="1" data-form="vm.form">
           </c-tag-list>
+
+          <ng-include src="'views/policy-wizard/trigger-accordion.html'" novalidate></ng-include>
         </div>
       </div>
     </div>
-    <div class="c-cube c-col c-col--3 c-col--vertical-top">
-      <label>{{"_ADD_OUTPUTS_" | translate}}</label>
-      <form-field-select data-form="vm.form" data-st-name="cube-outputs" data-model="vm.selectedPolicyOutput"
-                         data-options="vm.policyOutputList" data-field="label"
-                         data-label="{{'_OUTPUTS_' | translate}}" data-help="" data-required="true"
-                         data-qa="cube-output-select" data-ng-click="vm.addOutput()">
-      </form-field-select>
-
-      <c-tag-list name="cube-outputs" form-control-class="" data-tags="vm.cube.writer.outputs"
-                  label-control-class="'c-label c-col'"
-                  readonly="'true'"
-                  data-enable-delete="true" data-qa="policy-cube-output-list"
-                  show-label = "false"
-                  data-help="Note: Make sure output fields match with the ones in the configuration"
-                  data-required="true" data-min-length="1" data-form="vm.form">
-      </c-tag-list>
-
-      <ng-include src="'views/policy-wizard/trigger-accordion.html'" novalidate></ng-include>
+    <div class="c-row c-msg c-msg--small c-msg--error c-form c-form-group"
+       data-ng-if="vm.form.$submitted && (vm.cube.operators.length === 0 || vm.cube.dimensions.length === 0)"
+       data-qa="policy-cube-error-msg">
+      <i class="c-icon icon-circle-cross"></i>
+      <span>{{vm.cubeError.text | translate}}</span>
     </div>
     <div class="c-form-group c-form-group--full-width c-form-group--to-right">
       <button data-ng-if="vm.isNewCube(vm.cubeContext.position)" class="c-button c-button--call-to-action-1"
