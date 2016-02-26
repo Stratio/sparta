@@ -67,13 +67,7 @@
         var selectedTrigger = vm.policy.streamTriggers[selectedTriggerPosition];
         TriggerModelFactory.setTrigger(selectedTrigger, selectedTriggerPosition);
       } else {
-        var triggerNumber = vm.policy.streamTriggers.length;
-        var order = 0;
-
-        if (triggerNumber > 0) {
-          order = vm.policy.streamTriggers[triggerNumber - 1].order + 1
-        }
-        TriggerModelFactory.resetTrigger(vm.template.trigger, order, vm.policy.streamTriggers.length);
+        TriggerModelFactory.resetTrigger(vm.policy.streamTriggers.length);
       }
     }
   }
