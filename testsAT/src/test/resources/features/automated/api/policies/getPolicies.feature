@@ -30,7 +30,7 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousPolicyID'
+		And I save element '$.id' in environment variable 'previousPolicyID'
 		When I send a 'GET' request to '/policy/findByName/nonExistingPolicy'
 		Then the service response status must be '404' and its response must contain the text 'No policy with name nonexistingpolicy'
 	
