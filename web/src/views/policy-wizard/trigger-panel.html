@@ -1,5 +1,5 @@
 <section data-ng-controller="TriggerCtrl as vm" data-ng-init="vm.init()" data-ng-model="vm.trigger">
-  <ng-form name="vm.form" novalidate>
+  <ng-form name="vm.form" novalidate data-ng-submit = "vm.addTrigger()">
     <div class="c-row c-msg c-msg--small c-msg--error c-form c-form-group"
          data-ng-if="vm.form.$submitted && (vm.trigger.operators.length === 0 || vm.trigger.dimensions.length === 0)"
          data-qa="policy-trigger-error-msg">
@@ -22,6 +22,7 @@
     </div>
 
     <button class="c-button--call-to-action-6">{{"_HELP_FOR_SQL_QUERIES_" | translate}}</button>
+
     <div class=" c-row--flex">
       <div data-ng-repeat="item in vm.sqlSourceItems" class="c-panel--x-small">
         <label class="c-panel--x-small__container__title">{{item.name}}</label>
@@ -30,6 +31,27 @@
         </ul>
       </div>
     </div>
+
+    <c-add-element
+      data-icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action c-info-text__icon icon-square-plus'"
+      data-model="vm.trigger.primaryKey"
+      data-type="'text'"
+      data-label="'_PRIMARY_KEY_' | translate"
+      data-qa="trigger-primary-key"
+      data-submitted-form="vm.form.$submitted"
+      data-is-object = false
+      data-limit="0"
+      data-required=false>
+    </c-add-element>
+
+    <c-tag-list name="trigger-primary-key" form-control-class="" data-tags="vm.trigger.primaryKey"
+                label-control-class="'c-label c-col'"
+                readonly="'true'"
+                data-enable-delete="true" data-qa="trigger-primary-key"
+                show-label = "false"
+                data-required="true" data-form="vm.form">
+    </c-tag-list>
+
     <form-field-textarea data-json="true"
                          data-label="{{'_CONFIGURATION_' | translate}}"
                          data-form="vm.form"
@@ -58,8 +80,9 @@
 
     </div>
     <div class="c-form-group c-form-group--full-width c-form-group--to-right">
-      <button data-ng-if="vm.isNewTrigger(vm.triggerContext.position)" class="c-button c-button--call-to-action-1"
+      <button  data-ng-if="vm.isNewTrigger(vm.triggerContext.position)" class="c-button c-button--call-to-action-1"
               data-ng-click="vm.addTrigger()"
+              type = "submit"
               data-qa="policy-trigger-add-button">
         <i class="icon icon-circle-plus"></i>
         <span>{{"_POLICY_._SAVE_TRIGGER_" | translate}}</span>

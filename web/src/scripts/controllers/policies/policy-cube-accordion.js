@@ -12,8 +12,6 @@
     var vm = this;
 
     vm.init = init;
-    vm.previousStep = previousStep;
-    vm.nextStep = nextStep;
     vm.changeOpenedCube = changeOpenedCube;
     vm.isActiveCubeCreationPanel = CubeService.isActiveCubeCreationPanel;
     vm.activateCubeCreationPanel = CubeService.activateCubeCreationPanel;
@@ -27,7 +25,6 @@
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.cubeAccordionStatus = [];
       vm.helpLink = vm.template.helpLinks.cubes;
-      //vm.setTriggerContainer(vm.cubes.cubesTriggers);
       if (vm.policy.cubes.length > 0) {
         PolicyModelFactory.enableNextStep();
       } else {
@@ -35,26 +32,13 @@
       }
     }
 
-    function previousStep() {
-      PolicyModelFactory.previousStep();
-    }
-
-    function nextStep() {
-      if (vm.policy.cubes.length > 0 && CubeService.areValidCubes()) {
-        PolicyModelFactory.nextStep();
-      }
-      else {
-        vm.error = "_POLICY_._CUBE_ERROR_";
-      }
-    }
-
     function changeOpenedCube(selectedCubePosition) {
-        if (vm.policy.cubes.length > 0 && selectedCubePosition >= 0 && selectedCubePosition < vm.policy.cubes.length) {
-          var selectedCube = vm.policy.cubes[selectedCubePosition];
-          CubeModelFactory.setCube(selectedCube, selectedCubePosition);
-        } else {
-          CubeModelFactory.resetCube(vm.template.cube, CubeService.getCreatedCubes(), vm.policy.cubes.length);
-        }
+      if (vm.policy.cubes.length > 0 && selectedCubePosition >= 0 && selectedCubePosition < vm.policy.cubes.length) {
+        var selectedCube = vm.policy.cubes[selectedCubePosition];
+        CubeModelFactory.setCube(selectedCube, selectedCubePosition);
+      } else {
+        CubeModelFactory.resetCube(vm.template.cube, CubeService.getCreatedCubes(), vm.policy.cubes.length);
+      }
     }
 
   }
