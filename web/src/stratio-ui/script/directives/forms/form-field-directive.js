@@ -37,7 +37,8 @@
         qa: '@',
         modal: "=",
         deleteClass: "=",
-        disabled: '='
+        disabled: '=',
+        extraMessage: '='
       }
     };
     return directive;

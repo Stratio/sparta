@@ -7,21 +7,25 @@
     .controller('NewDimensionModalCtrl', NewDimensionModalCtrl);
 
   NewDimensionModalCtrl.$inject = ['$modalInstance', 'dimensionName', 'fieldName', 'dimensions',
-    '$filter', 'UtilsService', 'template'];
+    '$filter', 'UtilsService', 'template', 'isTimeDimension'];
 
-  function NewDimensionModalCtrl($modalInstance, dimensionName, fieldName, dimensions, $filter, UtilsService, template) {
+  function NewDimensionModalCtrl($modalInstance, dimensionName, fieldName, dimensions, $filter, UtilsService, template, isTimeDimension) {
     /*jshint validthis: true*/
     var vm = this;
 
     vm.ok = ok;
     vm.cancel = cancel;
     vm.getPrecisionsOfType = getPrecisionsOfType;
+    vm.setPropertyDisabled = setPropertyDisabled;
+    vm.setExtraMessage = setExtraMessage;
+    vm.isTimeDimesion = null;
 
     init();
 
     function init() {
       vm.dimension = {};
       vm.dimension.name = dimensionName;
+      vm.isTimeDimesion = isTimeDimension;
       vm.dimension.field = fieldName;
       vm.cubeTypes = template.types;
       vm.dimension.type = vm.cubeTypes[0].value;
@@ -47,7 +51,19 @@
     }
 
     function validatePrecision() {
-      console.log(vm.dimension);
+      if(vm.dimension.type === 'DateTime') {
+        vm.dimension.precision = vm.dimension.precisionNumber + vm.dimension.precisionTime;
+        delete vm.dimension.precisionNumber;
+        delete vm.dimension.precisionTime;
+        if (vm.dimension.isTimeDimension) {
+          vm.dimension.computeLast = vm.dimension.computeLastNumber + vm.dimension.computeLastTime;
+          /* Set unique cube timeDimension */
+          vm.isTimeDimesion = true;
+          delete vm.dimension.computeLastNumber;
+          delete vm.dimension.computeLastTime;
+          delete vm.dimension.isTimeDimension;
+        }
+      }
       var validPrecision = (vm.dimension.type == vm.defaultType) || (!(vm.dimension.type == vm.defaultType) && vm.dimension.precision);
       if (!validPrecision) {
         vm.errorText = "_POLICY_._CUBE_._INVALID_DIMENSION_PRECISION_";
@@ -60,8 +76,19 @@
       var repeated = position != -1;
       if (repeated) {
         vm.errorText = "_POLICY_._CUBE_._DIMENSION_NAME_EXISTS_";
+        document.querySelector('#nameForm').focus();
       }
       return repeated;
+    }
+
+    function setPropertyDisabled (propertyId, isTimeDimesion) {
+      var disabled = (propertyId === 'isTimeDimension' && isTimeDimesion === true)? true : false;
+      return disabled;
+    }
+
+    function setExtraMessage (isTimeDimesion) {
+      var message = (isTimeDimesion)? "_ONE_IS_TIME_DIMENSION_ALLOWED_" : "";
+      return message;
     }
 
     function ok() {
@@ -69,7 +96,10 @@
       if (vm.form.$valid) {
         if (validatePrecision() && !isRepeated()) {
           cleanPrecision();
-          $modalInstance.close(vm.dimension);
+          var dimesionData = {};
+          dimesionData.dimesion = vm.dimension;
+          dimesionData.isTimeDimesion = vm.isTimeDimesion;
+          $modalInstance.close(dimesionData);
         }
       }
     }
