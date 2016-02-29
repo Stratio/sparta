@@ -66,19 +66,9 @@ with MockitoSugar {
     val outputFieldModel2 = OutputFieldsModel("field2", Some("int"))
     val outputFieldModel3 = OutputFieldsModel("field3", Some("fake"))
     val outputFieldModel4 = OutputFieldsModel("field4", Some("string"))
-    val transformationModel1 = TransformationsModel(
-      "parser1",
-      "Parser",
-      0,
-      Input.RawDataKey,
-      Seq(outputFieldModel1, outputFieldModel2))
+    val transformationModel1 = TransformationsModel("Parser", 0, Input.RawDataKey, Seq(outputFieldModel1, outputFieldModel2))
 
-    val transformationModel2 = TransformationsModel(
-      "parser2",
-      "Parser",
-      1,
-      "field1",
-      Seq(outputFieldModel3, outputFieldModel4))
+    val transformationModel2 = TransformationsModel("Parser", 1, "field1", Seq(outputFieldModel3, outputFieldModel4))
   }
 
   "SchemaHelperTest" should "return a list of schemas" in new CommonValues {

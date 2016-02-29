@@ -19,8 +19,7 @@ package com.stratio.sparkta.serving.core.models
 import com.stratio.sparkta.sdk.{Parser, Input, JsoneyString}
 import com.stratio.sparkta.serving.core.constants.AppConstant
 
-case class TransformationsModel(name: String,
-                                `type`: String,
+case class TransformationsModel(`type`: String,
                                 order: Integer,
                                 inputField: String = Input.RawDataKey,
                                 outputFields: Seq[OutputFieldsModel],

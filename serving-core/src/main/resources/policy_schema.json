@@ -10,10 +10,6 @@
         "id": "http://sparkta.stratio.com/transformations/",
         "type": "object",
         "properties": {
-          "name": {
-            "id": "http://sparkta.stratio.com/transformations/name",
-            "type": "string"
-          },
           "order": {
             "id": "http://sparkta.stratio.com/transformations/order",
             "type": "integer"
@@ -50,7 +46,6 @@
           }
         },
         "required": [
-          "name",
           "order",
           "outputFields"
         ]

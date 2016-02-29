@@ -28,13 +28,12 @@ import org.kitesdk.morphline.api.Record
 
 import scala.collection.JavaConverters._
 
-class MorphlinesParser(name: String,
-                       order: Integer,
+class MorphlinesParser(order: Integer,
                        inputField: String,
                        outputFields: Seq[String],
                        schema: StructType,
                        properties: Map[String, JSerializable])
-  extends Parser(name, order, inputField, outputFields, schema, properties) {
+  extends Parser(order, inputField, outputFields, schema, properties) {
 
   private val config: String = properties.getString("morphline")
 
@@ -48,7 +47,7 @@ class MorphlinesParser(name: String,
 
     record.put(inputField, result)
 
-    val morphlineResult = MorphlinesParser(name, config, outputFieldsSchema).process(record)
+    val morphlineResult = MorphlinesParser(order, config, outputFieldsSchema).process(record)
     val prevData = if (removeRaw) Row.fromSeq(row.toSeq.drop(1)) else row
 
     Row.merge(prevData, morphlineResult)
@@ -59,7 +58,7 @@ object MorphlinesParser {
 
   private val instances = new ConcurrentHashMap[String, KiteMorphlineImpl].asScala
 
-  def apply(name: String, config: String, outputFieldsSchema: Array[StructField]): KiteMorphlineImpl = {
+  def apply(order: Integer, config: String, outputFieldsSchema: Array[StructField]): KiteMorphlineImpl = {
     instances.get(config) match {
       case Some(kiteMorphlineImpl) =>
         kiteMorphlineImpl
