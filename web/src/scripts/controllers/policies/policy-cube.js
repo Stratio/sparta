@@ -55,6 +55,7 @@
       vm.triggerAccordionStatus = [];
       TriggerService.disableTriggerCreationPanel();
       TriggerService.setTriggerContainer(vm.cube.triggers, triggerConstants.CUBE);
+      TriggerService.changeVisibilityOfHelpForSql(false);
       vm.triggerContainer = vm.cube.triggers;
     }
 

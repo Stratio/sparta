@@ -21,9 +21,9 @@
       </form-field>
     </div>
 
-    <button class="c-button--call-to-action-6">{{"_HELP_FOR_SQL_QUERIES_" | translate}}</button>
+    <button  data-ng-if = "vm.sqlSourceItems" class="c-button--call-to-action-6">{{"_HELP_FOR_SQL_QUERIES_" | translate}}</button>
 
-    <div class=" c-row--flex">
+    <div class=" c-row--flex" data-ng-if = "vm.sqlSourceItems">
       <div data-ng-repeat="item in vm.sqlSourceItems" class="c-panel--x-small">
         <label class="c-panel--x-small__container__title">{{item.name}}</label>
         <ul data-ng-repeat="field in item.fields" class="c-panel--x-small__container">

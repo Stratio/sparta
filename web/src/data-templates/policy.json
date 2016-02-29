@@ -604,7 +604,6 @@
         "propertyId": "isAutoCalculatedId",
         "propertyName": "_IS_AUTO_CALCULATED_ID_",
         "propertyType": "boolean",
-        "required": true,
         "default": false,
         "qa": "cube-is-auto-calculated-id",
         "col": 12

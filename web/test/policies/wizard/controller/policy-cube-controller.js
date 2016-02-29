@@ -50,7 +50,7 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
 
     triggerModelFactoryMock = jasmine.createSpyObj('TriggerFactory', ['getTrigger', 'getError', 'getTriggerInputs', 'getContext', 'setError', 'resetTrigger', 'updateTriggerInputs', 'setError']);
 
-    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['isLastTrigger','setTriggerContainer', 'isNewTrigger', 'addTrigger', 'removeTrigger', 'disableTriggerCreationPanel', 'generateOutputList', 'getSqlSourceItems']);
+    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['isLastTrigger','setTriggerContainer', 'isNewTrigger', 'addTrigger', 'changeVisibilityOfHelpForSql', 'disableTriggerCreationPanel', 'generateOutputList', 'getSqlSourceItems']);
     triggerServiceMock.generateOutputList.and.callFake(resolvedPromise);
 
     modalServiceMock.openModal.and.callFake(function () {
