@@ -103,38 +103,6 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
     });
   });
 
-  it("should be able to change to previous step calling to policy cube factory", function () {
-    ctrl.previousStep();
-
-    expect(policyModelFactoryMock.previousStep).toHaveBeenCalled();
-  });
-
-  describe("should be able to change to next step calling to policy cube factory", function () {
-    it("if there is not any cube added to policy, step is not changed", function () {
-      ctrl.policy.cubes = [];
-      ctrl.nextStep();
-
-      expect(policyModelFactoryMock.nextStep).not.toHaveBeenCalled();
-    });
-
-    it("if there is a cube not valid, step is not changed", function () {
-      ctrl.policy.cubes = [fakeCube, fakeCube];
-      cubeServiceMock.areValidCubes.and.returnValue(false);
-      ctrl.nextStep();
-
-      expect(policyModelFactoryMock.nextStep).not.toHaveBeenCalled();
-    });
-
-    it("if policy have a cube at least and all them are valid, step is changed", function () {
-      ctrl.policy.cubes = [fakeCube, fakeCube];
-      cubeServiceMock.areValidCubes.and.returnValue(true);
-      ctrl.nextStep();
-
-      expect(policyModelFactoryMock.nextStep).toHaveBeenCalled();
-    })
-
-  });
-
   describe("should be able to act accordingly the accordion status to update the cube of the cube factory", function () {
     describe("if the new value of the accordion status is not null should find the cube that has been opened by user, and send it to the cube factory ", function () {
       var cubes, fakeCube2 = null;

@@ -10,7 +10,7 @@
     <span>{{"_POLICY_._ADD_TRIGGER_" | translate}}</span>
   </button>
 
-  <c-accordion items="vm.policy.streamTriggers"
+  <c-accordion items="vm.triggerContainer"
                item-template="'views/policy-wizard/trigger-panel.html'"
                on-change-opened-element="vm.changeOpenedTrigger(selectedItemPosition)"
                item-qa-tag="policy-triggers"

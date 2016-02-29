@@ -19,6 +19,7 @@
     vm.removeTrigger = removeTrigger;
     vm.isNewTrigger = isNewTrigger;
     vm.setTriggerContainer = setTriggerContainer;
+    vm.getTriggerContainer = getTriggerContainer;
     vm.isActiveTriggerCreationPanel = isActiveTriggerCreationPanel;
     vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
     vm.disableTriggerCreationPanel = disableTriggerCreationPanel;
@@ -34,6 +35,10 @@
     function setTriggerContainer(_triggerContainer, _triggerContainerType) {
       triggerContainer = _triggerContainer;
       triggerContainerType = _triggerContainerType;
+    }
+
+    function getTriggerContainer() {
+      return triggerContainer;
     }
 
     function activateTriggerCreationPanel() {
@@ -115,7 +120,7 @@
         fields = item.outputFields;
       } else {
         fields = fields.concat(item.dimensions);
-        fields =  fields.concat(item.operators);
+        fields = fields.concat(item.operators);
       }
       for (var i = 0; i < fields.length; ++i) {
         var item = fields[i];
@@ -137,7 +142,7 @@
       for (var i = 0; i < sourceContainer.length; ++i) {
         var currentItem = sourceContainer[i];
         var sourceSqlItem = {};
-        sourceSqlItem.name =  triggerConstants.TRANSFORMATION + " " + i;
+        sourceSqlItem.name = triggerConstants.TRANSFORMATION + " " + i;
         sourceSqlItem.fields = generateSqlSourceItemsFieldsByContainerType(currentItem);
 
         sqlSourceItems.push(sourceSqlItem);

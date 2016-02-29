@@ -561,6 +561,65 @@
             "value": "year"
           }
         ]
+      },
+      {
+        "propertyId": "fixedMeasure",
+        "propertyName": "_FIXED_MEASURE_",
+        "propertyType": "text",
+        "required": true,
+        "qa": "cube-fixed-measure",
+        "col": 12
+      },
+      {
+        "propertyId": "dateType",
+        "propertyName": "_DATE_TYPE_",
+        "propertyType": "select",
+        "required": true,
+        "qa": "cube-date-type",
+        "values": [
+          {
+            "label": "5 seconds",
+            "value": "5 seconds"
+          },
+          {
+            "label": "_10_SECONDS_",
+            "value": "10 seconds"
+          },
+          {
+            "label": "_15_SECONDS_",
+            "value": "15 seconds"
+          },
+          {
+            "label": "_MINUTE_",
+            "value": "minute"
+          },
+          {
+            "label": "_HOUR_",
+            "value": "hour"
+          },
+          {
+            "label": "_DAY_",
+            "value": "day"
+          },
+          {
+            "label": "_MONTH_",
+            "value": "month"
+          },
+          {
+            "label": "_YEAR_",
+            "value": "year"
+          }
+        ],
+        "col": 12
+      },
+      {
+        "propertyId": "isAutoCalculatedId",
+        "propertyName": "_IS_AUTO_CALCULATED_ID_",
+        "propertyType": "boolean",
+        "required": true,
+        "default": false,
+        "qa": "cube-is-auto-calculated-id",
+        "col": 12
       }
     ],
     "functionNames": [
