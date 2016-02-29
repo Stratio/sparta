@@ -12,6 +12,7 @@
     var showTriggerCreationPanel = null;
     var triggerContainer = null;
     var triggerContainerType = "";
+    var showHelpForSql = false;
 
     vm.showConfirmRemoveTrigger = showConfirmRemoveTrigger;
     vm.addTrigger = addTrigger;
@@ -23,8 +24,9 @@
     vm.isActiveTriggerCreationPanel = isActiveTriggerCreationPanel;
     vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
     vm.disableTriggerCreationPanel = disableTriggerCreationPanel;
-    vm.getSqlSourceItems = getSqlSourceItems;
-
+    vm.getSqlHelpSourceItems = getSqlHelpSourceItems;
+    vm.changeVisibilityOfHelpForSql = changeVisibilityOfHelpForSql;
+    vm.isEnabledHelpForSql = isEnabledHelpForSql;
     init();
 
     function init() {
@@ -113,42 +115,29 @@
       return showTriggerCreationPanel;
     }
 
-    function generateSqlSourceItemsFieldsByContainerType(item) {
-      var sqlSourceItemsFields = [];
-      var fields = [];
-      if (triggerContainerType == triggerConstants.TRANSFORMATION) {
-        fields = item.outputFields;
-      } else {
-        fields = fields.concat(item.dimensions);
-        fields = fields.concat(item.operators);
-      }
-      for (var i = 0; i < fields.length; ++i) {
-        var item = fields[i];
-        sqlSourceItemsFields.push({name: item.name, type: item.type});
-      }
-
-      return sqlSourceItemsFields;
-    }
-
-    function getSqlSourceItems() {
+    function getSqlHelpSourceItems() {
       var sqlSourceItems = [];
       var sourceContainer = [];
       if (triggerContainerType == triggerConstants.TRANSFORMATION) {
         sourceContainer = vm.policy.transformations;
-      }
-      else {
-        sourceContainer = vm.policy.cubes;
-      }
-      for (var i = 0; i < sourceContainer.length; ++i) {
-        var currentItem = sourceContainer[i];
         var sourceSqlItem = {};
-        sourceSqlItem.name = triggerConstants.TRANSFORMATION + " " + i;
-        sourceSqlItem.fields = generateSqlSourceItemsFieldsByContainerType(currentItem);
-
+        sourceSqlItem.name = "stream";
+        sourceSqlItem.fields = [];
+        for (var i = 0; i < sourceContainer.length; ++i) {
+          var currentItem = sourceContainer[i];
+          sourceSqlItem.fields = sourceSqlItem.fields.concat(currentItem.outputFields);
+        }
         sqlSourceItems.push(sourceSqlItem);
       }
-
       return sqlSourceItems;
+    }
+
+    function changeVisibilityOfHelpForSql(visibility) {
+      showHelpForSql = visibility;
+    }
+
+    function isEnabledHelpForSql() {
+      return showHelpForSql;
     }
   }
 })();

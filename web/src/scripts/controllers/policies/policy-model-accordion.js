@@ -30,6 +30,7 @@
       vm.error = "";
       vm.modelAccordionStatus = [];
       vm.triggerAccordionStatus = [];
+      TriggerService.changeVisibilityOfHelpForSql(true);
 
       if (vm.policy.transformations.length > 0) {
         PolicyModelFactory.enableNextStep();

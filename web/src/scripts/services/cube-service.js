@@ -5,11 +5,11 @@
     .module('webApp')
     .service('CubeService', CubeService);
 
-  CubeService.$inject = ['PolicyModelFactory', 'ModalService', 'CubeModelFactory', 'FragmentFactory', 'UtilsService', '$q'];
+  CubeService.$inject = ['PolicyModelFactory', 'ModalService', 'CubeModelFactory', 'UtilsService', '$q'];
 
-  function CubeService(PolicyModelFactory, ModalService, CubeModelFactory, FragmentFactory, UtilsService, $q) {
+  function CubeService(PolicyModelFactory, ModalService, CubeModelFactory,  UtilsService, $q) {
     var vm = this;
-    var createdCubes, showCubeCreationPanel, outputList = null;
+    var createdCubes, showCubeCreationPanel = null;
 
     vm.findCubesUsingOutputs = findCubesUsingOutputs;
     vm.areValidCubes = areValidCubes;
@@ -22,9 +22,7 @@
     vm.resetCreatedCubes = resetCreatedCubes;
     vm.changeCubeCreationPanelVisibility = changeCubeCreationPanelVisibility;
     vm.isActiveCubeCreationPanel = isActiveCubeCreationPanel;
-    vm.generateOutputList = generateOutputList;
     vm.activateCubeCreationPanel = activateCubeCreationPanel;
-    vm.disableCubeCreationPanel = disableCubeCreationPanel;
 
     init();
 
@@ -36,11 +34,6 @@
 
     function activateCubeCreationPanel() {
       showCubeCreationPanel = true;
-    }
-
-
-    function disableCubeCreationPanel() {
-      showCubeCreationPanel = false;
     }
 
     function showConfirmRemoveCube() {
@@ -177,22 +170,6 @@
 
     function resetCreatedCubes() {
       createdCubes = vm.policy.cubes.length;
-    }
-
-    function generateOutputList() {
-      var defer = $q.defer();
-      if (outputList) {
-        defer.resolve(outputList);
-      } else {
-        outputList = [];
-        FragmentFactory.getFragments("output").then(function (result) {
-          for (var i = 0; i < result.length; ++i) {
-            outputList.push({"label": result[i].name, "value": result[i].name});
-          }
-          defer.resolve(outputList);
-        });
-      }
-      return defer.promise;
     }
   }
 })();

@@ -49,7 +49,7 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
       return fakePolicyTemplate;
     });
 
-    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['isLastTrigger', 'isNewTrigger', 'addTrigger', 'removeTrigger', 'disableTriggerCreationPanel', 'generateOutputList', 'getSqlSourceItems']);
+    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['isLastTrigger', 'isNewTrigger', 'addTrigger', 'removeTrigger', 'disableTriggerCreationPanel', 'generateOutputList', 'getSqlSourceItems', 'isEnabledHelpForSql']);
     triggerServiceMock.generateOutputList.and.callFake(resolvedPromise);
 
     triggerModelFactoryMock = jasmine.createSpyObj('TriggerFactory', ['getTrigger', 'getError', 'getTriggerInputs', 'getContext', 'setError', 'resetTrigger', 'updateTriggerInputs', 'setError']);
