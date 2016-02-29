@@ -38,8 +38,13 @@
         <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" link-url="vm.helpLink"
                      data-qa="policy-model-help"></c-icon-link>
       </div>
+    </div><!--
+ --><div class="c-col c-col--6 c-col--to-right">
+      <button class="c-button c-button--call-to-action-1"  ng-if = "!vm.isActiveModelCreationPanel()"
+              data-ng-click="vm.activateModelCreationPanel()" data-qa="policy-model-add-new-transformation-button">
+        <i class="icon icon-circle-plus"></i>
+        <span>{{"_POLICY_._ADD_TRANSFORMATION_" | translate}}</span>
+      </button>
     </div>
-
-
   </footer>
 </section>

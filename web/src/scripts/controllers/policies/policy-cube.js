@@ -27,6 +27,7 @@
     vm.removeFunctionFromOperators = removeFunctionFromOperators;
     vm.addOutput = addOutput;
     vm.changeOpenedTrigger = changeOpenedTrigger;
+    vm.isTimeDimension = null;
 
     vm.init();
 
@@ -60,6 +61,9 @@
     function addOutputToDimensions(outputName) {
       var templateUrl = "templates/policies/dimension-modal.tpl.html";
       var controller = "NewDimensionModalCtrl";
+      var extraClass = null;
+      var size = 'lg';
+
       var resolve = {
         fieldName: function () {
           return outputName;
@@ -72,19 +76,25 @@
         },
         template: function () {
           return vm.template;
+        },
+        isTimeDimension: function() {
+          return vm.isTimeDimension;
         }
       };
 
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, extraClass, size);
 
-      return modalInstance.result.then(function (dimension) {
-        vm.cube.dimensions.push(dimension);
+      return modalInstance.result.then(function (dimensionData) {
+        vm.cube.dimensions.push(dimensionData.dimesion);
+        vm.isTimeDimension = dimensionData.isTimeDimesion;
       });
     }
 
     function addFunctionToOperators(functionName) {
       var templateUrl = "templates/policies/operator-modal.tpl.html";
       var controller = "NewOperatorModalCtrl";
+      var extraClass = null;
+      var size = 'lg';
       var resolve = {
         operatorType: function () {
           return functionName;
@@ -100,7 +110,7 @@
           return vm.template;
         }
       };
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, extraClass, size);
 
       return modalInstance.result.then(function (operator) {
         vm.cube.operators.push(operator);
@@ -110,6 +120,8 @@
     function showConfirmModal(title, message) {
       var templateUrl = "templates/modal/confirm-modal.tpl.html";
       var controller = "ConfirmModalCtrl";
+      var extraClass = null;
+      var size = 'lg';
       var resolve = {
         title: function () {
           return title
@@ -118,14 +130,18 @@
           return message;
         }
       };
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, extraClass, size);
       return modalInstance.result;
     }
 
-    function removeOutputFromDimensions(dimensionIndex) {
+    function removeOutputFromDimensions(dimensionIndex, computeLast) {
       var title = "_POLICY_._CUBE_._REMOVE_DIMENSION_CONFIRM_TITLE_";
       return showConfirmModal(title, "").then(function () {
+        if (computeLast) {
+          vm.isTimeDimension = false;
+        }
         vm.cube.dimensions.splice(dimensionIndex, 1);
+
       })
     }
 
@@ -138,13 +154,17 @@
 
     function addCube() {
       vm.form.$submitted = true;
-      if (vm.form.$valid && vm.cube.operators.length > 0 && vm.cube.dimensions.length > 0) {
+      vm.form.cubeOutputs.$invalid = (vm.cube.writer.outputs.length === 0)? true : false;
+      if (vm.form.$valid && vm.cube.operators.length > 0 && vm.cube.dimensions.length > 0 && vm.cube.writer.outputs.length > 0) {
         vm.form.$submitted = false;
         CubeService.addCube();
         CubeService.changeCubeCreationPanelVisibility(false);
       }
       else {
         CubeModelFactory.setError();
+        if (vm.cube.writer.outputs.length === 0) {
+          document.querySelector('#cubeOutputs').focus();
+        }
       }
     }
 

@@ -298,5 +298,12 @@
   "_PRIMARY_KEY_":"Primary key",
   "_IS_AUTO_CALCULATED_ID_": "Is auto calculated id",
   "_DATE_TYPE_": "Date type",
-  "_FIXED_MEASURE_": "Fixed measure"
+  "_FIXED_MEASURE_": "Fixed measure",
+  "_POLICY_CUBES_OUTPUT_ERROR_": "At least one output must be added!",
+  "_PRECISION_": "Precision",
+  "_IS_TIME_DIMENSION_": "Is time dimension",
+  "_COMPUTE_LAST_": "Compute last",
+  "_ONE_IS_TIME_DIMENSION_ALLOWED_": "- Just one time dimension field is allowed for each cube",
+  "_WHITE_SPACE_": " ",
+  "_COMMANDS_": "Commands"
 }
