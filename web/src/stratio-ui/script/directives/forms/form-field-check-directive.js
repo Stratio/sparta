@@ -38,7 +38,8 @@
                 pattern: '=',
                 required: '=',
                 disabled: '=',
-                listCompressed: "=",
+                listCompressed: '=',
+                extraMessage: '@',
                 qa: '@'
             }
         };

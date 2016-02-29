@@ -443,7 +443,7 @@
     "DateTime": [
       {
         "propertyId": "precisionNumber",
-        "propertyName": "_PRECISION_NUMBER_",
+        "propertyName": "_PRECISION_",
         "propertyType": "number",
         "default": 1,
         "width": 6,
@@ -453,7 +453,7 @@
       },
       {
         "propertyId": "precisionTime",
-        "propertyName": "_PRECISION_TIME_",
+        "propertyName": "_WHITE_SPACE_",
         "propertyType": "select",
         "width": 6,
         "position": "right",
@@ -487,14 +487,14 @@
         "qa": "policy-cube-dimension-dateTime-isTimeDimension"
       },
       {
-        "propertyId": "computeLast",
+        "propertyId": "computeLastNumber",
         "propertyName": "_COMPUTE_LAST_",
         "propertyType": "number",
         "width": 6,
         "position": "left",
         "default": 10,
         "required": true,
-        "qa": "policy-cube-dimension-dateTime-computeLast",
+        "qa": "policy-cube-dimension-dateTime-computeLastNumber",
         "visible": [
           [
             {
@@ -506,7 +506,7 @@
       },
       {
         "propertyId": "computeLastTime",
-        "propertyName": "_COMPUTE_LAST_TIME_",
+        "propertyName": "_WHITE_SPACE_",
         "propertyType": "select",
         "width": 6,
         "position": "right",
