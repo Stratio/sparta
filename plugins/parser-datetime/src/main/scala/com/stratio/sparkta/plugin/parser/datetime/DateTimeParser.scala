@@ -25,13 +25,12 @@ import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
 
-class DateTimeParser(name: String,
-                     order: Integer,
+class DateTimeParser(order: Integer,
                      inputField: String,
                      outputFields: Seq[String],
                      schema: StructType,
                      properties: Map[String, JSerializable])
-  extends Parser(name, order, inputField, outputFields, schema, properties) {
+  extends Parser(order, inputField, outputFields, schema, properties) {
 
   val formats = properties.get("inputFormat")
 

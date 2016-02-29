@@ -36,9 +36,7 @@ class AggregationPolicyTest extends WordSpec with Matchers {
 
   val fragmentType = FragmentType
 
-  val transformations = Seq(TransformationsModel(
-    name = "transformation1",
-    "Morphlines",
+  val transformations = Seq(TransformationsModel("Morphlines",
     0,
     Input.RawDataKey,
     Seq(OutputFieldsModel("out1"), OutputFieldsModel("out2")),

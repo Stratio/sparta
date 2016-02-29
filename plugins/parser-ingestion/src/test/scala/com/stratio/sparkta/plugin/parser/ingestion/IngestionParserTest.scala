@@ -72,8 +72,7 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
       val inputEvent = Row(json)
       val schema = StructType(Seq(StructField(Input.RawDataKey, StringType)))
 
-      val ingestionParser = new IngestionParser(
-        ParserName, ParserOrder, InputField, OutputsFields, schema, ParserConfig)
+      val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, schema, ParserConfig)
       val event = ingestionParser.parse(inputEvent, false)
 
       event should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
@@ -99,8 +98,7 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
       val inputEvent = Row(json)
       val schema = StructType(Seq(StructField(Input.RawDataKey, StringType)))
 
-      val ingestionParser = new IngestionParser(
-        ParserName, ParserOrder, InputField, OutputsFields, schema, ParserConfig)
+      val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, schema, ParserConfig)
       val event = ingestionParser.parse(inputEvent, false)
 
       event should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
@@ -127,8 +125,7 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
       val inputEvent = Row(json)
       val schema = StructType(Seq(StructField(Input.RawDataKey, StringType)))
 
-      val ingestionParser = new IngestionParser(
-        ParserName, ParserOrder, InputField, OutputsFields, schema, ParserConfig)
+      val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, schema, ParserConfig)
       val event = ingestionParser.parse(inputEvent, false)
 
       event should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
@@ -155,8 +152,7 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
       val inputEvent = Row(json)
       val schema = StructType(Seq(StructField(Input.RawDataKey, StringType)))
 
-      val ingestionParser = new IngestionParser(
-        ParserName, ParserOrder, InputField, OutputsFields, schema, ParserConfig)
+      val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, schema, ParserConfig)
       val event = ingestionParser.parse(inputEvent, true)
 
       event should be eq Row.fromSeq(event.toSeq)
@@ -181,8 +177,7 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
       val inputEvent = Row(json)
       val schema = StructType(Seq(StructField(Input.RawDataKey, StringType)))
 
-      val ingestionParser = new IngestionParser(
-        ParserName, ParserOrder, InputField, OutputsFields, schema, WrongParserConfig)
+      val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, schema, WrongParserConfig)
 
       an[NoSuchElementException] should be thrownBy ingestionParser.parse(inputEvent, false)
     }
