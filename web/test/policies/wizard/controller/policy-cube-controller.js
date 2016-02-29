@@ -4,13 +4,15 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
   beforeEach(module('served/policyTemplate.json'));
   beforeEach(module('served/cube.json'));
 
-  var ctrl, scope, fakePolicy, fakeCubeTemplate, fakeCube, policyModelFactoryMock, fakeOutputs, fakePolicyTemplate,
-    cubeModelFactoryMock, cubeServiceMock, modalServiceMock, resolvedPromise, triggerModelFactoryMock, triggerServiceMock;
+  var ctrl, scope, q, fakePolicy, fakeCubeTemplate, fakeCube, policyModelFactoryMock, fakeOutputs, fakePolicyTemplate,
+    cubeModelFactoryMock, cubeServiceMock, modalServiceMock, resolvedPromise, triggerModelFactoryMock,
+    fakeDimension,fakeOperator, triggerServiceMock, rejectedPromise;
 
   // init mock modules
 
   beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope) {
     scope = $rootScope.$new();
+    q = $q;
     $httpBackend.when('GET', 'languages/en-US.json').respond({});
     $httpBackend.when('GET', '/fragment/output').respond({});
 
@@ -37,6 +39,11 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
 
       return defer.promise;
     };
+
+    spyOn(document, "querySelector").and.callFake(function () {
+      return {"focus": jasmine.createSpy()}
+    });
+
     cubeServiceMock = jasmine.createSpyObj('CubeService', ['isLastCube', 'isNewCube', 'addCube', 'removeCube', 'changeCubeCreationPanelVisibility', 'generateOutputList']);
     cubeServiceMock.generateOutputList.and.callFake(resolvedPromise);
 
@@ -50,7 +57,7 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
 
     triggerModelFactoryMock = jasmine.createSpyObj('TriggerFactory', ['getTrigger', 'getError', 'getTriggerInputs', 'getContext', 'setError', 'resetTrigger', 'updateTriggerInputs', 'setError']);
 
-    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['isLastTrigger','setTriggerContainer', 'isNewTrigger', 'addTrigger', 'changeVisibilityOfHelpForSql', 'disableTriggerCreationPanel', 'generateOutputList', 'getSqlSourceItems']);
+    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['isLastTrigger', 'setTriggerContainer', 'isNewTrigger', 'addTrigger', 'changeVisibilityOfHelpForSql', 'disableTriggerCreationPanel', 'generateOutputList', 'getSqlSourceItems']);
     triggerServiceMock.generateOutputList.and.callFake(resolvedPromise);
 
     modalServiceMock.openModal.and.callFake(function () {
@@ -80,7 +87,10 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       defer.reject();
 
       return defer.promise;
-    }
+    };
+
+    fakeDimension = {name: "fake dimension", type: "DateTime", precision: "1m" };
+    fakeOperator = {type: "Accumulator", name: "fake operator name", configuration:{}};
   }));
 
   describe("when it is initialized", function () {
@@ -102,7 +112,7 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
         expect(ctrl.outputList).toBe(fakeOutputs);
       });
 
-      it ("trigger accordion is initialized", function(){
+      it("trigger accordion is initialized", function () {
         expect(triggerServiceMock.disableTriggerCreationPanel).toHaveBeenCalled();
         expect(triggerServiceMock.setTriggerContainer).toHaveBeenCalledWith(fakeCube.triggers, "cube");
         expect(ctrl.triggerContainer).toBe(fakeCube.triggers);
@@ -131,7 +141,6 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
     var fakeOutputName = "fake output name";
 
     it("modal is opened with the correct params", function () {
-
       ctrl.addOutputToDimensions(fakeOutputName);
 
       expect(modalServiceMock.openModal.calls.mostRecent().args[0]).toBe("NewDimensionModalCtrl");
@@ -144,6 +153,13 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
     });
 
     it("when modal is closed, the created dimension is added to cube", function () {
+
+      modalServiceMock.openModal.and.callFake(function () {
+        var defer = q.defer();
+        defer.resolve({dimension: fakeDimension, isTimeDimension: true});
+
+        return  {"result": defer.promise};
+      });
       var currentDimensionLength = ctrl.cube.dimensions.length;
       ctrl.addOutputToDimensions(fakeOutputName).then(function () {
         expect(ctrl.cube.dimensions.length).toBe(currentDimensionLength + 1);
@@ -236,15 +252,19 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
 
   describe("should be able to add a cube to the policy", function () {
     it("cube is not added if view validations have not been passed and error is updated", function () {
-      ctrl.form = {$valid: false}; //view validations have not been passed
+      ctrl.form = {$valid: false, cubeOutputs:[]}; //view validations have not been passed
       ctrl.addCube();
 
       expect(cubeServiceMock.addCube).not.toHaveBeenCalled();
       expect(cubeModelFactoryMock.setError).toHaveBeenCalled();
     });
 
-    it("cube is added if view validations have been passed", function () {
+    it("cube is added if view validations have been passed and there is a dimension, an operator and an output at least", function () {
       ctrl.form = {$valid: true}; //view validations have been passed
+      ctrl.cube.dimensions = [fakeDimension];
+      ctrl.cube.operators = [fakeOperator];
+      ctrl.cube.writer.outputs = ["fake output"];
+
       ctrl.addCube();
 
       expect(cubeServiceMock.addCube).toHaveBeenCalled();
