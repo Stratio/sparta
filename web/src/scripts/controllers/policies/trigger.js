@@ -23,6 +23,7 @@
     function init() {
       vm.trigger = TriggerModelFactory.getTrigger();
       if (vm.trigger) {
+        //vm.trigger.overLast = PolicyModelFactory.getCurrentPolicy().streamWindow; //TODO Change stream window to number and select
         vm.triggerContext = TriggerModelFactory.getContext();
         vm.template = PolicyModelFactory.getTemplate().trigger;
         vm.sqlSourceItems = TriggerService.getSqlSourceItems();
