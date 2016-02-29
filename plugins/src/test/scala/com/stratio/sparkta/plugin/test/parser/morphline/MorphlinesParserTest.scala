@@ -63,7 +63,7 @@ class MorphlinesParserTest extends WordSpecLike with Matchers with BeforeAndAfte
 
   val schema = StructType(Seq(StructField("col1", StringType), StructField("col2", StringType)))
 
-  val parser = new MorphlinesParser("name", 1, inputField, outputsFields, schema, props)
+  val parser = new MorphlinesParser(1, inputField, outputsFields, schema, props)
 
   "A MorphlinesParser" should {
 
