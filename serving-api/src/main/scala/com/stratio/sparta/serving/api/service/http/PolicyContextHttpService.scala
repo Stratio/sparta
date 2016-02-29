@@ -13,23 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.api.service.http
+
+package com.stratio.sparkta.serving.api.service.http
 
 import akka.actor.ActorRef
 import akka.pattern.ask
-import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor._
+import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.api.service.http.BaseHttpService
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.PolicyHelper
 import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.{FindAll, Response, Update}
+import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.{FindAll, _}
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
 
-import scala.concurrent.{Future, Await}
+import scala.concurrent.Await
 import scala.util.{Failure, Success, Try}
 
 @Api(value = HttpConstant.PolicyContextPath, description = "Operations about policy contexts.", position = 0)
@@ -116,7 +118,8 @@ trait PolicyContextHttpService extends BaseHttpService {
           validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
             complete {
               for {
-                policyResponseTry <- (supervisor ? Create(parsedP)).mapTo[Try[AggregationPoliciesModel]]
+                policyResponseTry <- (supervisor ? SparkStreamingContextActor.Create(parsedP))
+                  .mapTo[Try[AggregationPoliciesModel]]
               } yield {
                 policyResponseTry match {
                   case Success(policy) =>

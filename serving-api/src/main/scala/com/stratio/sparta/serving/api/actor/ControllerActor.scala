@@ -13,21 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{ActorContext, _}
 import akka.event.slf4j.SLF4JLogging
-import org.apache.curator.framework.CuratorFramework
-import spray.routing._
-
+import com.stratio.sparkta.serving.api.service.http.{PolicyContextHttpService, TemplateHttpService}
+import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport}
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.spray.oauth2.client.OauthClient
+import org.apache.curator.framework.CuratorFramework
+import spray.routing._
 
 class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: CuratorFramework) extends HttpServiceActor
   with SLF4JLogging
-  with SpartaSerializer {
+  with SpartaSerializer
+  with CorsSupport
+  with CacheSupport
+  with OauthClient {
 
   override implicit def actorRefFactory: ActorContext = context
 
@@ -35,20 +41,34 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
-  def getRoutes: Route = webRoutes ~ serviceRoutes.fragmentRoute ~
-    serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~
-    serviceRoutes.templateRoute ~ serviceRoutes.AppStatusRoute
+  def getRoutes: Route =
+    cors {
+      secRoute ~ webRoutes ~
+        authorized { user =>
+          serviceRoutes.fragmentRoute ~
+            serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~
+            serviceRoutes.templateRoute ~ serviceRoutes.AppStatusRoute
+        }
+    }
 
   def webRoutes: Route =
     get {
       pathPrefix("") {
         pathEndOrSingleSlash {
-          getFromResource("classes/web/index.html")
+          noCache {
+            secured { user =>
+              getFromResource("classes/web/index.html")
+            }
+          }
         }
       } ~ getFromResourceDirectory("classes/web") ~
         pathPrefix("") {
           pathEndOrSingleSlash {
-            getFromResource("web/index.html")
+            noCache {
+              secured { user =>
+                getFromResource("web/index.html")
+              }
+            }
           }
         } ~ getFromResourceDirectory("web")
     }
