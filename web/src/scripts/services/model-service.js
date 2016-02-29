@@ -69,6 +69,7 @@
       vm.error = "";
       var modelToAdd = angular.copy(ModelFactory.getModel());
       if (ModelFactory.isValidModel()) {
+        console.log(modelToAdd)
         vm.policy.transformations.push(modelToAdd);
         PolicyModelFactory.enableNextStep();
       }
