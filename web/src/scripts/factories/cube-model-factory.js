@@ -18,6 +18,7 @@
         cube.dimensions = [];
         cube.operators = [];
         cube.checkpointConfig = {};
+        cube.triggers = [];
         cube.writer = {
           outputs: []
         };
@@ -40,7 +41,9 @@
         cube.dimensions = c.dimensions;
         cube.operators = c.operators;
         cube.checkpointConfig = c.checkpointConfig;
+        cube.triggers = c.triggers;
         error.text = "";
+
         setPosition(position);
       }
 

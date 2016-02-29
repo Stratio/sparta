@@ -25,6 +25,7 @@
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       TriggerService.setTriggerContainer(vm.policy.streamTriggers, triggerConstants.TRANSFORMATION);
+      vm.triggerContainer = vm.policy.streamTriggers;
       vm.helpLink = vm.template.helpLinks.models;
       vm.error = "";
       vm.modelAccordionStatus = [];
