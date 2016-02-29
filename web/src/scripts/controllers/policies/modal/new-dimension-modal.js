@@ -50,7 +50,7 @@
         delete vm.dimension.precision;
     }
 
-    function validatePrecision() {
+    function formatAttributes(){
       if(vm.dimension.type === 'DateTime') {
         vm.dimension.precision = vm.dimension.precisionNumber + vm.dimension.precisionTime;
         delete vm.dimension.precisionNumber;
@@ -64,6 +64,9 @@
           delete vm.dimension.isTimeDimension;
         }
       }
+    }
+
+    function validatePrecision() {
       var validPrecision = (vm.dimension.type == vm.defaultType) || (!(vm.dimension.type == vm.defaultType) && vm.dimension.precision);
       if (!validPrecision) {
         vm.errorText = "_POLICY_._CUBE_._INVALID_DIMENSION_PRECISION_";
@@ -81,8 +84,8 @@
       return repeated;
     }
 
-    function setPropertyDisabled (propertyId, isTimeDimesion) {
-      var disabled = (propertyId === 'isTimeDimension' && isTimeDimesion === true)? true : false;
+    function setPropertyDisabled (propertyId, isTimeDimension) {
+      var disabled = (propertyId === 'isTimeDimension' && isTimeDimension === true)? true : false;
       return disabled;
     }
 
@@ -94,12 +97,13 @@
     function ok() {
       vm.errorText = "";
       if (vm.form.$valid) {
+        formatAttributes();
         if (validatePrecision() && !isRepeated()) {
           cleanPrecision();
-          var dimesionData = {};
-          dimesionData.dimesion = vm.dimension;
-          dimesionData.isTimeDimesion = vm.isTimeDimesion;
-          $modalInstance.close(dimesionData);
+          var dimensionData = {};
+          dimensionData.dimension = vm.dimension;
+          dimensionData.isTimeDimension = vm.isTimeDimesion;
+          $modalInstance.close(dimensionData);
         }
       }
     }
