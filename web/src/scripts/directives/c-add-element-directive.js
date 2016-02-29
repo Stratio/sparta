@@ -23,7 +23,10 @@
         submittedForm: '=',
         label: '=',
         help: '=',
-        limit: '='
+        limit: '=',
+        isObject: "=",
+        attribute: "@",
+        required:"="
       },
       replace: "true",
       templateUrl: 'templates/components/c-add-element.tpl.html',
@@ -35,7 +38,6 @@
     function link(scope) {
       scope.addInput = addInput;
       scope.errorLimit = false;
-
       function addInput(event) {
         if (scope.inputToAdd !== '' && scope.inputToAdd !== undefined && (event.keyCode == '13' || event.type === "click")) {
           var inputExists = false;
@@ -53,7 +55,13 @@
             else {
               scope.submittedForm = false;
               scope.error = false;
-              scope.model.push({name:scope.inputToAdd});
+
+              if (scope.isObject) {
+                var objectToAdd = {};
+                objectToAdd[scope.attribute] =  scope.inputToAdd;
+                scope.model.push(objectToAdd);
+              } else
+                scope.model.push(scope.inputToAdd);
               scope.inputToAdd = '';
             }
             event.preventDefault();
