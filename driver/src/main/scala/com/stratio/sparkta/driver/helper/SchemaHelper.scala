@@ -92,13 +92,15 @@ object SchemaHelper {
             Nullable
           )
         )
+        val fields = schemas.values.flatMap(structType => structType.fields) ++
+          schema.map { case (key, value) => value }
 
         val fields = schemas.values.flatMap(structType => structType.fields) ++ schema.map(_._2)
 
         if (transformationsModel.size == 1)
-          schemas ++ Map(transformationModel.name -> StructType(fields.toSeq))
+          schemas ++ Map(transformationModel.order.toString -> StructType(fields.toSeq))
         else schemas ++ searchSchemasFromParsers(transformationsModel.drop(1),
-          Map(transformationModel.name -> StructType(fields.toSeq))
+          Map(transformationModel.order.toString -> StructType(fields.toSeq))
         )
       case None => schemas
     }

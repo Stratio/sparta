@@ -26,13 +26,12 @@ import scala.annotation.tailrec
 import scala.util.Try
 import scala.util.parsing.json.JSON
 
-class IngestionParser(name: String,
-                      order: Integer,
+class IngestionParser(order: Integer,
                       inputField: String,
                       outputFields: Seq[String],
                       schema: StructType,
                       properties: Map[String, JSerializable])
-  extends Parser(name, order, inputField, outputFields, schema, properties) {
+  extends Parser(order, inputField, outputFields, schema, properties) {
 
   override def parse(data: Row, removeRaw: Boolean): Row = {
     val input = data.get(schema.fieldIndex(inputField))

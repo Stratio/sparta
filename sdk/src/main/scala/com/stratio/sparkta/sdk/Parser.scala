@@ -23,8 +23,7 @@ import org.apache.spark.sql.types.StructType
 
 import scala.util.Try
 
-abstract class Parser(name: String,
-                      order: Integer,
+abstract class Parser(order: Integer,
                       inputField: String,
                       outputFields: Seq[String],
                       schema: StructType,

@@ -106,16 +106,15 @@ object SparktaJob extends SLF4JLogging with SparktaSerializer {
                            schemas: Map[String, StructType]): Parser = {
     Try {
       val outputFieldsNames = model.outputFieldsTransformed.map(_.name)
-      val schema = schemas.getOrElse(model.name, throw new Exception("Can not find transformation schema"))
+      val schema = schemas.getOrElse(model.order.toString, throw new Exception("Can not find transformation schema"))
       refUtils.tryToInstantiate[Parser](model.`type` + Parser.ClassSuffix, (c) =>
         c.getDeclaredConstructor(
-          classOf[String],
           classOf[Integer],
           classOf[String],
           classOf[Seq[String]],
           classOf[StructType],
           classOf[Map[String, Serializable]])
-          .newInstance(model.name, model.order, model.inputField, outputFieldsNames, schema, model.configuration)
+          .newInstance(model.order, model.inputField, outputFieldsNames, schema, model.configuration)
           .asInstanceOf[Parser])
     } match {
       case Success(transformer) =>
