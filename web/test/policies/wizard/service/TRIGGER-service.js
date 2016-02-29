@@ -207,4 +207,30 @@ describe('policies.wizard.service.policy-trigger-service', function () {
 
     expect(service.isActiveTriggerCreationPanel()).toBe(false);
   });
+
+  describe("should be able to generate a help for sql queries", function () {
+    it("if trigger is for transformations, help is created with an only item with 'stream' as name and all output fields of transformations as fields", function () {
+      service.setTriggerContainer(fakePolicy.streamTriggers, "transformation");
+
+      var fakeTransformation1 = {
+        outputFields: [{name: "outputField1.1", type: "string"}, {
+          name: "outputField1.2",
+          type: "string"
+        }]
+      };
+      var fakeTransformation2 = {
+        outputFields: [{name: "outputField2.1", type: "string"}, {
+          name: "outputField2.2",
+          type: "string"
+        }]
+      };
+      fakePolicy.transformations = [fakeTransformation1, fakeTransformation2];
+
+      var sqlHelpItems = service.getSqlHelpSourceItems();
+
+      expect(sqlHelpItems.length).toBe(1);
+      expect(sqlHelpItems[0].name).toBe("stream");
+      expect(sqlHelpItems[0].fields).toEqual(fakeTransformation1.outputFields.concat(fakeTransformation2.outputFields));
+    })
+  })
 });
