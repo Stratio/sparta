@@ -155,13 +155,16 @@
     function addCube() {
       vm.form.$submitted = true;
       vm.form.cubeOutputs.$invalid = (vm.cube.writer.outputs.length === 0)? true : false;
-      if (vm.form.$valid && vm.cube.operators.length > 0 && vm.cube.dimensions.length > 0) {
+      if (vm.form.$valid && vm.cube.operators.length > 0 && vm.cube.dimensions.length > 0 && vm.cube.writer.outputs.length > 0) {
         vm.form.$submitted = false;
         CubeService.addCube();
         CubeService.changeCubeCreationPanelVisibility(false);
       }
       else {
         CubeModelFactory.setError();
+        if (vm.cube.writer.outputs.length === 0) {
+          document.querySelector('#cubeOutputs').focus();
+        }
       }
     }
 
