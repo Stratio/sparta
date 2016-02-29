@@ -594,6 +594,55 @@
         "col": 12
       },
       {
+        "propertyId": "overLast",
+        "propertyName": "_OVER_LAST_",
+
+        "propertyType": "select",
+        "qa": "trigger-over-last",
+        "values": [
+          {
+            "label": "_SECOND_",
+            "value": "second"
+          },
+          {
+            "label": "_5_SECONDS_",
+            "value": "s5"
+          },
+          {
+            "label": "_10_SECONDS_",
+            "value": "s10"
+          },
+          {
+            "label": "_15_SECONDS_",
+            "value": "s15"
+          },
+          {
+            "label": "_MINUTE_",
+            "value": "minute"
+          },
+          {
+            "label": "_HOUR_",
+            "value": "hour"
+          },
+          {
+            "label": "_DAY_",
+            "value": "day"
+          },
+          {
+            "label": "_MONTH_",
+            "value": "month"
+          },
+          {
+            "label": "_YEAR_",
+            "value": "year"
+          }
+        ],
+        "default": "second",
+        "required": true,
+        "qa": "trigger-over-last",
+        "col": 12
+      },
+      {
         "propertyId": "sql",
         "propertyName": "_SQL_",
         "propertyType": "textarea",

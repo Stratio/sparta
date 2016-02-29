@@ -6,17 +6,17 @@
     .module('webApp')
     .controller('PolicyCubeAccordionCtrl', PolicyCubeAccordionCtrl);
 
-  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'CubeService'];
+  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'CubeService','TriggerService', 'triggerConstants'];
 
-  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, CubeService) {
+  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, CubeService, TriggerService, triggerConstants) {
     var vm = this;
 
     vm.init = init;
-    vm.previousStep = previousStep;
-    vm.nextStep = nextStep;
     vm.changeOpenedCube = changeOpenedCube;
     vm.isActiveCubeCreationPanel = CubeService.isActiveCubeCreationPanel;
     vm.activateCubeCreationPanel = CubeService.activateCubeCreationPanel;
+    vm.isActiveTriggerCreationPanel = TriggerService.isActiveTriggerCreationPanel;
+    vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
 
     vm.error = "";
 
@@ -25,9 +25,10 @@
     function init() {
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
+      TriggerService.setTriggerContainer(vm.policy.cubeProcess.cubesTriggers, triggerConstants.CUBE);
       vm.cubeAccordionStatus = [];
+      vm.triggerAccordionStatus = [];
       vm.helpLink = vm.template.helpLinks.cubes;
-      //vm.setTriggerContainer(vm.cubes.cubesTriggers);
       if (vm.policy.cubes.length > 0) {
         PolicyModelFactory.enableNextStep();
       } else {
@@ -35,18 +36,16 @@
       }
     }
 
-    function previousStep() {
-      PolicyModelFactory.previousStep();
+    function activateCubeCreationPanel(){
+     CubeService.activateCubeCreationPanel();
+      TriggerService.disableTriggerCreationPanel();
     }
 
-    function nextStep() {
-      if (vm.policy.cubes.length > 0 && CubeService.areValidCubes()) {
-        PolicyModelFactory.nextStep();
-      }
-      else {
-        vm.error = "_POLICY_._CUBE_ERROR_";
-      }
+    function activateTriggerCreationPanel(){
+      TriggerService.activateTriggerCreationPanel();
+      CubeService.disableCubeCreationPanel();
     }
+
 
     function changeOpenedCube(selectedCubePosition) {
         if (vm.policy.cubes.length > 0 && selectedCubePosition >= 0 && selectedCubePosition < vm.policy.cubes.length) {

@@ -239,7 +239,7 @@
   "SELECT_PLACEHOLDER": "Select one",
   "_GENERIC_FORM_ERROR_": "There are some errors in the introduced data. Please, check them and try it again",
   "_ERROR_ALL_FIELDS_REQUIRED_": "All fields are required! Please check them and try to sumbit the form.",
-  "_ERROR_INPUT_DUPLICATED_": "Output field already exists!",
+  "_ERROR_ELEMENT_DUPLICATED_": "Item already exists!",
   "_ERROR_OUTPUT_LIMIT_": "Maximum number of Output Fields is" ,
   "_OUTPUT_ACTIONS_MENU_RUN_" : "Run",
   "_OUTPUT_ACTIONS_MENU_DOWNLOAD_" : "Download",
@@ -269,7 +269,7 @@
   "_POLICY_CUBE_OPERATOR-DIMENSION_ERROR_": "There was an error. At least one operator and one dimension must be created",
   "_POLICY_CUBE_OPERATOR_ERROR_": "There was an error. At least one operator must be created",
   "_POLICY_CUBE_DIMENSION_ERROR_": "There was an error. At least one dimension must be created",
-  "_POLICY_MODEL_OUTPUT_ERROR_": "At least one output field must be created",
+  "_ADD_ELEMENT_ERROR_": "At least one item must be added",
   "_SPARK_PROPERTY_KEY_": "Spark property",
   "_SPARK_PROPERTY_VALUE_": "Value",
   "_SERIALIZER_": "Serializer class for messages",
@@ -293,5 +293,7 @@
   "_NOT_SAVED_": "not saved",
   "_SQL_": "SQL",
   "_TRIGGERS_": "Triggers",
-  "_HELP_FOR_SQL_QUERIES_": "Help for yuor SQL queries"
+  "_HELP_FOR_SQL_QUERIES_": "Help for your SQL queries",
+  "_OVER_LAST_": "Over last",
+  "_PRIMARY_KEY_":"Primary key"
 }

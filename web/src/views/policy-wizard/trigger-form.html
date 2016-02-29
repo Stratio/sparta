@@ -1,0 +1,22 @@
+<form class="c-form c-panel c-panel--framed">
+
+  <h2 class="panel-title">
+    <i class="c-icon icon-bell"></i>
+    <span class="c-step-content__title-text">{{"_TRIGGERS_" | translate}}</span>
+  </h2>
+  <button class="c-button c-button--call-to-action-6" ng-if="!vm.isActiveTriggerCreationPanel()"
+          data-ng-click="vm.activateTriggerCreationPanel()" data-qa="policy-model-add-new-trigger-button">
+    <i class="icon icon-circle-plus"></i>
+    <span>{{"_POLICY_._ADD_TRIGGER_" | translate}}</span>
+  </button>
+
+  <c-accordion items="vm.policy.streamTriggers"
+               item-template="'views/policy-wizard/trigger-panel.html'"
+               on-change-opened-element="vm.changeOpenedTrigger(selectedItemPosition)"
+               item-qa-tag="policy-triggers"
+               show-new-item-panel="vm.isActiveTriggerCreationPanel()"
+               accordion-status="vm.triggerAccordionStatus"
+               item-attribute-in-header="name"
+               new-item-header="_POLICY_._NEW_TRIGGER_DEFINITION_">
+  </c-accordion>
+</form>
