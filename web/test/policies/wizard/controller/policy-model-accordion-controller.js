@@ -36,7 +36,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
     cubeServiceMock = jasmine.createSpyObj('CubeService', ['findCubesUsingOutputs']);
 
     ModelServiceMock = jasmine.createSpyObj('ModelService', ['isActiveModelCreationPanel', 'changeModelCreationPanelVisibility']);
-    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['setTriggerContainer']);
+    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['setTriggerContainer', 'changeVisibilityOfHelpForSql']);
 
 
     ctrl = $controller('PolicyModelAccordionCtrl  as vm', {
