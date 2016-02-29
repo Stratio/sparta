@@ -19,6 +19,8 @@ package com.stratio.sparkta.serving.api.service.http
 import akka.pattern.ask
 import com.stratio.sparkta.serving.api.constants.HttpConstant
 import com.stratio.sparkta.serving.core.models.TemplateModel
+import com.stratio.spray.oauth2.client.OauthClient
+import com.stratio.spray.oauth2.client.OauthClientHelper._
 import com.wordnik.swagger.annotations._
 import spray.routing._
 
@@ -29,7 +31,7 @@ import com.stratio.sparkta.serving.api.actor.TemplateActor._
 @Api(value = HttpConstant.TemplatePath,
   description = "Operations about templates. One template will have an abstract" +
     " element that represents a validation, a tip, an icon over it.")
-trait TemplateHttpService extends BaseHttpService {
+trait TemplateHttpService extends BaseHttpService with OauthClient {
 
   override def routes: Route = findByType ~ findByTypeAndName
 
@@ -50,13 +52,17 @@ trait TemplateHttpService extends BaseHttpService {
       message = HttpConstant.NotFoundMessage)
   ))
   def findByType: Route = {
-    path(HttpConstant.TemplatePath / Segment) { (templateType) =>
-      get {
-        complete {
-          val future = supervisor ? new FindByType(templateType)
-          Await.result(future, timeout.duration) match {
-            case ResponseTemplates(Failure(exception)) => throw exception
-            case ResponseTemplates(Success(templates)) => templates
+    secured { user =>
+      path(HttpConstant.TemplatePath / Segment) { (templateType) =>
+        authorize(hasRole(Seq("*"), user)) {
+          get {
+            complete {
+              val future = supervisor ? new FindByType(templateType)
+              Await.result(future, timeout.duration) match {
+                case ResponseTemplates(Failure(exception)) => throw exception
+                case ResponseTemplates(Success(templates)) => templates
+              }
+            }
           }
         }
       }
@@ -84,13 +90,17 @@ trait TemplateHttpService extends BaseHttpService {
       message = HttpConstant.NotFoundMessage)
   ))
   def findByTypeAndName: Route = {
-    path(HttpConstant.TemplatePath / Segment / Segment ) { (templateType, name) =>
-      get {
-        complete {
-          val future = supervisor ? new FindByTypeAndName(templateType, name)
-          Await.result(future, timeout.duration) match {
-            case ResponseTemplate(Failure(exception)) => throw exception
-            case ResponseTemplate(Success(template)) => template
+    secured { user =>
+      path(HttpConstant.TemplatePath / Segment / Segment) { (templateType, name) =>
+        authorize(hasRole(Seq("*"), user)) {
+          get {
+            complete {
+              val future = supervisor ? new FindByTypeAndName(templateType, name)
+              Await.result(future, timeout.duration) match {
+                case ResponseTemplate(Failure(exception)) => throw exception
+                case ResponseTemplate(Success(template)) => template
+              }
+            }
           }
         }
       }

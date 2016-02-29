@@ -18,10 +18,17 @@ package com.stratio.sparkta.serving.api.service.http
 
 import java.io.File
 import javax.ws.rs.Path
-import scala.concurrent.Await
-import scala.util.{Failure, Success}
 
 import akka.pattern.ask
+import com.stratio.sparkta.serving.api.actor.PolicyActor._
+import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor
+import com.stratio.sparkta.serving.api.constants.HttpConstant
+
+import com.stratio.sparkta.serving.core.constants.AkkaConstant
+import com.stratio.sparkta.serving.core.helpers.PolicyHelper
+import com.stratio.sparkta.serving.core.models._
+import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
+import com.stratio.spray.oauth2.client.{OauthClient, OauthClientHelper}
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
 import spray.http.HttpHeaders.`Content-Disposition`
@@ -29,21 +36,18 @@ import spray.http.{HttpResponse, StatusCodes}
 import spray.httpx.marshalling.ToResponseMarshallable
 import spray.routing._
 
-import com.stratio.sparkta.serving.api.actor.PolicyActor._
-import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor
-import com.stratio.sparkta.serving.api.constants.HttpConstant
-import com.stratio.sparkta.serving.core.constants.AkkaConstant
-import com.stratio.sparkta.serving.core.helpers.PolicyHelper
-import com.stratio.sparkta.serving.core.models._
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.ResponseDelete
-import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
+import scala.concurrent.Await
+import scala.util.{Failure, Success}
+import OauthClientHelper._
 
 @Api(value = HttpConstant.PolicyPath, description = "Operations over policies.")
-trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
+trait PolicyHttpService extends BaseHttpService with SparktaSerializer  with OauthClient {
+
 
   case class Result(message: String, desc: Option[String] = None)
 
-  override def routes: Route = find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download ~ findByName
+  override def routes: Route =
+    secRoute ~ find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download ~ findByName
 
   @Path("/find/{id}")
   @ApiOperation(value = "Find a policy from its id.",
@@ -62,13 +66,17 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
       message = HttpConstant.NotFoundMessage)
   ))
   def find: Route = {
-    path(HttpConstant.PolicyPath / "find" / Segment) { (id) =>
-      get {
-        complete {
-          val future = supervisor ? new Find(id)
-          Await.result(future, timeout.duration) match {
-            case ResponsePolicy(Failure(exception)) => throw exception
-            case ResponsePolicy(Success(policy)) => getPolicyWithFragments(policy)
+    secured { user =>
+      path(HttpConstant.PolicyPath / "find" / Segment) { (id) =>
+        authorize(hasRole(Seq("*"), user)) {
+          get {
+            complete {
+              val future = supervisor ? new Find(id)
+              Await.result(future, timeout.duration) match {
+                case ResponsePolicy(Failure(exception)) => throw exception
+                case ResponsePolicy(Success(policy)) => getPolicyWithFragments(policy)
+              }
+            }
           }
         }
       }
@@ -92,13 +100,17 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
       message = HttpConstant.NotFoundMessage)
   ))
   def findByName: Route = {
-    path(HttpConstant.PolicyPath / "findByName" / Segment) { (name) =>
-      get {
-        complete {
-          val future = supervisor ? new FindByName(name)
-          Await.result(future, timeout.duration) match {
-            case ResponsePolicy(Failure(exception)) => throw exception
-            case ResponsePolicy(Success(policy)) => getPolicyWithFragments(policy)
+    secured { user =>
+      path(HttpConstant.PolicyPath / "findByName" / Segment) { (name) =>
+        authorize(hasRole(Seq("*"), user)) {
+          get {
+            complete {
+              val future = supervisor ? new FindByName(name)
+              Await.result(future, timeout.duration) match {
+                case ResponsePolicy(Failure(exception)) => throw exception
+                case ResponsePolicy(Success(policy)) => getPolicyWithFragments(policy)
+              }
+            }
           }
         }
       }
@@ -127,14 +139,18 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
       message = HttpConstant.NotFoundMessage)
   ))
   def findByFragment: Route = {
-    path(HttpConstant.PolicyPath / "fragment" / Segment / Segment) { (fragmentType, id) =>
-      get {
-        complete {
-          val future = supervisor ? new FindByFragment(fragmentType, id)
-          Await.result(future, timeout.duration) match {
-            case ResponsePolicies(Failure(exception)) => throw exception
-            case ResponsePolicies(Success(policies)) =>
-              withStatus(policies)
+    secured { user =>
+      path(HttpConstant.PolicyPath / "fragment" / Segment / Segment) { (fragmentType, id) =>
+        authorize(hasRole(Seq("*"), user)) {
+          get {
+            complete {
+              val future = supervisor ? new FindByFragment(fragmentType, id)
+              Await.result(future, timeout.duration) match {
+                case ResponsePolicies(Failure(exception)) => throw exception
+                case ResponsePolicies(Success(policies)) =>
+                  withStatus(policies)
+              }
+            }
           }
         }
       }
@@ -151,13 +167,17 @@ trait PolicyHttpService extends BaseHttpService with SparktaSerializer {
       message = HttpConstant.NotFoundMessage)
   ))
   def findAll: Route = {
-    path(HttpConstant.PolicyPath / "all") {
-      get {
-        complete {
-          val future = supervisor ? new FindAll()
-          Await.result(future, timeout.duration) match {
-            case ResponsePolicies(Failure(exception)) => throw exception
-            case ResponsePolicies(Success(policies)) => withStatus(policies)
+    secured { user =>
+      path(HttpConstant.PolicyPath / "all") {
+        authorize(hasRole(Seq("*"), user)) {
+          get {
+            complete {
+              val future = supervisor ? new FindAll()
+              Await.result(future, timeout.duration) match {
+                case ResponsePolicies(Failure(exception)) => throw exception
+                case ResponsePolicies(Success(policies)) => withStatus(policies)
+              }
+            }
           }
         }
       }

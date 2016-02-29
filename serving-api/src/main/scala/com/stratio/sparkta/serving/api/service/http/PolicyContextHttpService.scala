@@ -26,15 +26,17 @@ import com.stratio.sparkta.serving.core.exception.ServingCoreException
 import com.stratio.sparkta.serving.core.helpers.PolicyHelper
 import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.{FindAll, Response, Update}
+import com.stratio.spray.oauth2.client.OauthClient
+import com.stratio.spray.oauth2.client.OauthClientHelper._
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
 
-import scala.concurrent.{Future, Await}
+import scala.concurrent.Await
 import scala.util.{Failure, Success, Try}
 
 @Api(value = HttpConstant.PolicyContextPath, description = "Operations about policy contexts.", position = 0)
-trait PolicyContextHttpService extends BaseHttpService {
+trait PolicyContextHttpService extends BaseHttpService with OauthClient {
 
   override def routes: Route = findAll ~ update ~ create
 
@@ -47,14 +49,18 @@ trait PolicyContextHttpService extends BaseHttpService {
     Array(new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)))
   def findAll: Route = {
-    path(HttpConstant.PolicyContextPath) {
-      get {
-        complete {
-          val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
-          val future = policyStatusActor ? FindAll
-          Await.result(future, timeout.duration) match {
-            case Response(Failure(exception)) => throw exception
-            case Response(Success(policyStatuses)) => policyStatuses
+    secured { user =>
+      path(HttpConstant.PolicyContextPath) {
+        authorize(hasRole(Seq("*"), user)) {
+          get {
+            complete {
+              val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
+              val future = policyStatusActor ? FindAll
+              Await.result(future, timeout.duration) match {
+                case Response(Failure(exception)) => throw exception
+                case Response(Success(policyStatuses)) => policyStatuses
+              }
+            }
           }
         }
       }
@@ -71,21 +77,25 @@ trait PolicyContextHttpService extends BaseHttpService {
       required = true,
       paramType = "body")))
   def update: Route = {
-    path(HttpConstant.PolicyContextPath) {
-      put {
-        entity(as[PolicyStatusModel]) { policyStatus =>
-          complete {
-            val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
-            for {
-              response <- (policyStatusActor ? Update(policyStatus)).mapTo[Option[PolicyStatusModel]]
-            } yield {
-              if (response.isDefined)
-                HttpResponse(StatusCodes.Created)
-              else
-                throw new ServingCoreException(ErrorModel.toString(
-                  ErrorModel(ErrorModel.CodeNotExistsPolicyWithId,
-                    s"No policy with id ${policyStatus.id}.")
-                ))
+    secured { user =>
+      path(HttpConstant.PolicyContextPath) {
+        authorize(hasRole(Seq("*"), user)) {
+          put {
+            entity(as[PolicyStatusModel]) { policyStatus =>
+              complete {
+                val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
+                for {
+                  response <- (policyStatusActor ? Update(policyStatus)).mapTo[Option[PolicyStatusModel]]
+                } yield {
+                  if (response.isDefined)
+                    HttpResponse(StatusCodes.Created)
+                  else
+                    throw new ServingCoreException(ErrorModel.toString(
+                      ErrorModel(ErrorModel.CodeNotExistsPolicyWithId,
+                        s"No policy with id ${policyStatus.id}.")
+                    ))
+                }
+              }
             }
           }
         }
@@ -107,27 +117,31 @@ trait PolicyContextHttpService extends BaseHttpService {
     Array(new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)))
   def create: Route = {
-    path(HttpConstant.PolicyContextPath) {
-      post {
-        entity(as[AggregationPoliciesModel]) { p =>
-          val parsedP = getPolicyWithFragments(p)
-          val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
-          val fragmentActor: ActorRef = actors.getOrElse(AkkaConstant.FragmentActor, throw new ServingCoreException
-          (ErrorModel.toString(ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor"))))
-          validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-            complete {
-              for {
-                policyResponseTry <- (supervisor ? Create(parsedP)).mapTo[Try[AggregationPoliciesModel]]
-              } yield {
-                policyResponseTry match {
-                  case Success(policy) =>
-                    val inputs = PolicyHelper.populateFragmentFromPolicy(policy, FragmentType.input)
-                    val outputs = PolicyHelper.populateFragmentFromPolicy(policy, FragmentType.output)
-                    createFragments(fragmentActor, outputs.toList ::: inputs.toList)
-                    PolicyResult(policy.id.getOrElse(""), p.name)
-                  case Failure(ex: Throwable) => throw new ServingCoreException(ErrorModel.toString(
-                    ErrorModel(ErrorModel.CodeErrorCreatingPolicy, s"Can't create policy")
-                  ))
+    secured { user =>
+      path(HttpConstant.PolicyContextPath) {
+        authorize(hasRole(Seq("*"), user)) {
+          post {
+            entity(as[AggregationPoliciesModel]) { p =>
+              val parsedP = getPolicyWithFragments(p)
+              val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
+              val fragmentActor: ActorRef = actors.getOrElse(AkkaConstant.FragmentActor, throw new ServingCoreException
+              (ErrorModel.toString(ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor"))))
+              validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
+                complete {
+                  for {
+                    policyResponseTry <- (supervisor ? Create(parsedP)).mapTo[Try[AggregationPoliciesModel]]
+                  } yield {
+                    policyResponseTry match {
+                      case Success(policy) =>
+                        val inputs = PolicyHelper.populateFragmentFromPolicy(policy, FragmentType.input)
+                        val outputs = PolicyHelper.populateFragmentFromPolicy(policy, FragmentType.output)
+                        createFragments(fragmentActor, outputs.toList ::: inputs.toList)
+                        PolicyResult(policy.id.getOrElse(""), p.name)
+                      case Failure(ex: Throwable) => throw new ServingCoreException(ErrorModel.toString(
+                        ErrorModel(ErrorModel.CodeErrorCreatingPolicy, s"Can't create policy")
+                      ))
+                    }
+                  }
                 }
               }
             }
