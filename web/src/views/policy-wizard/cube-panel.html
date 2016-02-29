@@ -119,6 +119,9 @@
                   data-help="Note: Make sure output fields match with the ones in the configuration"
                   data-required="true" data-min-length="1" data-form="vm.form">
       </c-tag-list>
+
+      <ng-include src="'views/policy-wizard/trigger-form.html'" novalidate ng-if = "vm.policy.cubes.length > 0"></ng-include>
+
     </div>
     <div class="c-form-group c-form-group--full-width c-form-group--to-right">
       <button data-ng-if="vm.isNewCube(vm.cubeContext.position)" class="c-button c-button--call-to-action-1"
