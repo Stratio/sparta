@@ -4,8 +4,8 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
   beforeEach(module('served/policyTemplate.json'));
   beforeEach(module('served/cube.json'));
 
-  var ctrl, scope, fakePolicy, fakeCubeTemplate, fakeCube, policyModelFactoryMock, fakeOutputs,fakePolicyTemplate,
-    cubeModelFactoryMock, cubeServiceMock, modalServiceMock, resolvedPromise;
+  var ctrl, scope, fakePolicy, fakeCubeTemplate, fakeCube, policyModelFactoryMock, fakeOutputs, fakePolicyTemplate,
+    cubeModelFactoryMock, cubeServiceMock, modalServiceMock, resolvedPromise, triggerModelFactoryMock, triggerServiceMock;
 
   // init mock modules
 
@@ -37,7 +37,7 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
 
       return defer.promise;
     };
-    cubeServiceMock = jasmine.createSpyObj('CubeService', ['isLastCube', 'isNewCube', 'addCube', 'removeCube', 'changeCubeCreationPanelVisibility','generateOutputList']);
+    cubeServiceMock = jasmine.createSpyObj('CubeService', ['isLastCube', 'isNewCube', 'addCube', 'removeCube', 'changeCubeCreationPanelVisibility', 'generateOutputList']);
     cubeServiceMock.generateOutputList.and.callFake(resolvedPromise);
 
     modalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
@@ -47,6 +47,11 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
 
     fakeOutputs = ["output1", "output2", "output3", "output4", "output5"];
     policyModelFactoryMock.getAllModelOutputs.and.returnValue(fakeOutputs);
+
+    triggerModelFactoryMock = jasmine.createSpyObj('TriggerFactory', ['getTrigger', 'getError', 'getTriggerInputs', 'getContext', 'setError', 'resetTrigger', 'updateTriggerInputs', 'setError']);
+
+    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['isLastTrigger','setTriggerContainer', 'isNewTrigger', 'addTrigger', 'removeTrigger', 'disableTriggerCreationPanel', 'generateOutputList', 'getSqlSourceItems']);
+    triggerServiceMock.generateOutputList.and.callFake(resolvedPromise);
 
     modalServiceMock.openModal.and.callFake(function () {
       var defer = $q.defer();
@@ -58,7 +63,9 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       'PolicyModelFactory': policyModelFactoryMock,
       'CubeModelFactory': cubeModelFactoryMock,
       'CubeService': cubeServiceMock,
-      'ModalService': modalServiceMock
+      'ModalService': modalServiceMock,
+      'TriggerModelFactory': triggerModelFactoryMock,
+      'TriggerService': triggerServiceMock
     });
 
     resolvedPromise = function () {
@@ -94,6 +101,12 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       it("it should load an output list with all outputs of the models", function () {
         expect(ctrl.outputList).toBe(fakeOutputs);
       });
+
+      it ("trigger accordion is initialized", function(){
+        expect(triggerServiceMock.disableTriggerCreationPanel).toHaveBeenCalled();
+        expect(triggerServiceMock.setTriggerContainer).toHaveBeenCalledWith(fakeCube.triggers, "cube");
+        expect(ctrl.triggerContainer).toBe(fakeCube.triggers);
+      })
     });
 
     it("if factory cube is null, no changes are executed", inject(function ($controller) {

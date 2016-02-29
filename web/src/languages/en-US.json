@@ -295,5 +295,8 @@
   "_TRIGGERS_": "Triggers",
   "_HELP_FOR_SQL_QUERIES_": "Help for your SQL queries",
   "_OVER_LAST_": "Over last",
-  "_PRIMARY_KEY_":"Primary key"
+  "_PRIMARY_KEY_":"Primary key",
+  "_IS_AUTO_CALCULATED_ID_": "Is auto calculated id",
+  "_DATE_TYPE_": "Date type",
+  "_FIXED_MEASURE_": "Fixed measure"
 }

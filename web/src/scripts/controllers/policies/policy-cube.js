@@ -6,9 +6,11 @@
     .module('webApp')
     .controller('CubeCtrl', CubeCtrl);
 
-  CubeCtrl.$inject = ['CubeModelFactory', 'CubeService','OutputService', 'PolicyModelFactory', 'ModalService'];
+  CubeCtrl.$inject = ['CubeModelFactory', 'CubeService', 'OutputService', 'PolicyModelFactory', 'ModalService',
+    'TriggerModelFactory', 'TriggerService', 'triggerConstants'];
 
-  function CubeCtrl(CubeModelFactory, CubeService,OutputService, PolicyModelFactory, ModalService) {
+  function CubeCtrl(CubeModelFactory, CubeService, OutputService, PolicyModelFactory, ModalService,
+                    TriggerModelFactory, TriggerService, triggerConstants ) {
     var vm = this;
 
     vm.init = init;
@@ -16,11 +18,15 @@
     vm.removeCube = CubeService.removeCube;
     vm.isNewCube = CubeService.isNewCube;
     vm.saveCube = CubeService.saveCube;
+    vm.isActiveTriggerCreationPanel = TriggerService.isActiveTriggerCreationPanel;
+    vm.activateTriggerCreationPanel = TriggerService.activateTriggerCreationPanel;
+
     vm.addOutputToDimensions = addOutputToDimensions;
     vm.removeOutputFromDimensions = removeOutputFromDimensions;
     vm.addFunctionToOperators = addFunctionToOperators;
     vm.removeFunctionFromOperators = removeFunctionFromOperators;
     vm.addOutput = addOutput;
+    vm.changeOpenedTrigger = changeOpenedTrigger;
 
     vm.init();
 
@@ -34,11 +40,21 @@
         vm.outputList = PolicyModelFactory.getAllModelOutputs();
         vm.cubeError = CubeModelFactory.getError();
         vm.cubeContext = CubeModelFactory.getContext();
-        vm.selectedPolicyOutput = "";
+
+        initTriggerAccordion();
+
         return OutputService.generateOutputList().then(function (outputList) {
           vm.policyOutputList = outputList;
         });
       }
+    }
+
+    function initTriggerAccordion() {
+      vm.selectedPolicyOutput = "";
+      vm.triggerAccordionStatus = [];
+      TriggerService.disableTriggerCreationPanel();
+      TriggerService.setTriggerContainer(vm.cube.triggers, triggerConstants.CUBE);
+      vm.triggerContainer = vm.cube.triggers;
     }
 
     function addOutputToDimensions(outputName) {
@@ -135,6 +151,16 @@
     function addOutput() {
       if (vm.selectedPolicyOutput && vm.cube.writer.outputs.indexOf(vm.selectedPolicyOutput) == -1) {
         vm.cube.writer.outputs.push(vm.selectedPolicyOutput);
+      }
+    }
+
+
+    function changeOpenedTrigger(selectedTriggerPosition) {
+      if (vm.cube.triggers.length > 0 && selectedTriggerPosition >= 0 && selectedTriggerPosition < vm.cube.triggers.length) {
+        var selectedTrigger = vm.cube.triggers[selectedTriggerPosition];
+        TriggerModelFactory.setTrigger(selectedTrigger, selectedTriggerPosition);
+      } else {
+        TriggerModelFactory.resetTrigger(vm.cube.triggers.length);
       }
     }
   }
