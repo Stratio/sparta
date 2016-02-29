@@ -304,5 +304,6 @@
   "_IS_TIME_DIMENSION_": "Is time dimension",
   "_COMPUTE_LAST_": "Compute last",
   "_ONE_IS_TIME_DIMENSION_ALLOWED_": "- Just one time dimension field is allowed for each cube",
-  "_WHITE_SPACE_": " "
+  "_WHITE_SPACE_": " ",
+  "_COMMANDS_": "Commands"
 }
