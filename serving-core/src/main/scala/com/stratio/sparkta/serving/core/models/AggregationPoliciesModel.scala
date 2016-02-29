@@ -22,9 +22,11 @@ import com.fasterxml.jackson.databind._
 import com.github.fge.jsonschema.core.exceptions.InvalidSchemaException
 import com.github.fge.jsonschema.core.report.ProcessingReport
 import com.github.fge.jsonschema.main.{JsonSchema, JsonSchemaFactory}
+import com.stratio.sparkta.serving.core.helpers.OperationsHelper
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
+import org.json4s.jackson.Serialization._
 import scala.collection.JavaConversions._
 
 case class AggregationPoliciesModel(id: Option[String] = None,
@@ -58,17 +60,50 @@ case class PolicyResult(policyId: String, policyName: String)
 object AggregationPoliciesValidator extends SparktaSerializer {
 
   final val MessageCubeName = "All cubes must have a non empty name\n"
+  final val MessageComputeLast = "computeLast value has to be greater than the precision in order to prevent" +
+    " data loss\n"
+
+  private def errorFormat(message: String): String = {
+    write(new ErrorModel(ErrorModel.CodePolicyIsWrong, message))
+  }
 
   def validateDto(aggregationPoliciesDto: AggregationPoliciesModel): (Boolean, String) = {
     val (isValidAgainstSchema: Boolean, isValidAgainstSchemaMsg: String) = validateAgainstSchema(aggregationPoliciesDto)
 
+    val isValidComputeLast = aggregationPoliciesDto
+      .cubes
+      .forall(cube => {
+        val dateTimeDimension = cube.dimensions
+          .filter(dimensionModel => dimensionModel.computeLast.isDefined).headOption
 
-    val isValid = isValidAgainstSchema
-    val errorMsg = isValidAgainstSchemaMsg
+        dateTimeDimension.forall(dateTimeDimensionValue => {
+          checkValidComputeLastValue(
+            dateTimeDimensionValue.computeLast,
+            Option(dateTimeDimensionValue.precision))
+        })
+      })
+
+    val isValidComputeLastMsg = if(!isValidComputeLast) errorFormat(MessageComputeLast) else ""
+    val isValid = isValidAgainstSchema && isValidComputeLast
+    val errorMsg = isValidAgainstSchemaMsg ++ isValidComputeLastMsg
     (isValid, errorMsg)
   }
 
-  def validateAgainstSchema(aggregationPoliciesDto: AggregationPoliciesModel): (Boolean, String) = {
+   /**
+    * ComputeLast value has to be greater than the precision in order to prevent data loss
+ *
+    * @param  computeLast Time of the data before expires.
+    * @param  precision Precision of time to aggregate data.
+    */
+  private def checkValidComputeLastValue(computeLast: Option[String], precision: Option[String]): Boolean =
+    if(computeLast.isDefined && precision.isDefined){
+      OperationsHelper.parseValueToMilliSeconds(computeLast.get) >
+        OperationsHelper.parseValueToMilliSeconds(precision.get)
+    } else {
+      true
+    }
+
+  private def validateAgainstSchema(aggregationPoliciesDto: AggregationPoliciesModel): (Boolean, String) = {
 
     var isValid: Boolean = false
     var msg: String = ""

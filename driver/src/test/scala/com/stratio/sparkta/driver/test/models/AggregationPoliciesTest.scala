@@ -32,12 +32,8 @@ with Matchers {
     "validate dimensions are required and have at least 1 element" in {
 
       val sparkStreamingWindow = 2000
-      val checkpointAvailable = 60000
       val storageLevel = Some("MEMORY_AND_DISK_SER_2")
-      val checkpointGranularity = "minute"
       val checkpointDir = "checkpoint"
-      val checkpointDto =
-        new CheckpointModel(checkpointGranularity, checkpointGranularity, None, checkpointAvailable)
 
       val configuration: Map[String, JsoneyString] =
         Map(("topics", new JsoneyString("zion2:1")), ("kafkaParams.group.id", new JsoneyString("kafka-pruebas")))
@@ -45,8 +41,9 @@ with Matchers {
 
       val cubeName = "cubeTest"
       val DimensionToCube = "dimension2"
-      val cubeDto = new CubeModel(cubeName, checkpointDto, Seq(new DimensionModel(
-        DimensionToCube, "field1", DimensionType.IdentityName, DimensionType.DefaultDimensionClass, None)),
+      val cubeDto = new CubeModel(
+        cubeName,
+        Seq(new DimensionModel(DimensionToCube, "field1", DimensionType.IdentityName, DimensionType.DefaultDimensionClass, configuration = None)),
         Seq())
 
       val rawDataDto = new RawDataModel()

@@ -86,12 +86,6 @@
   "cubes": [
     {
       "name": "testCube",
-      "checkpointConfig": {
-        "timeDimension": "timestamp",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
-      },
       "dimensions": [
         {
           "name": "payment_method",
@@ -100,6 +94,13 @@
         {
           "name": "shopping_center",
           "field": "shoppingCenter"
+        },
+        {
+          "name": "minute",
+          "field": "timestamp",
+          "type": "DateTime",
+          "precision": "minute",
+          "computeLast": "10m"
         }
       ],
       "operators": [
