@@ -16,5 +16,6 @@
     "timeAvailability": "fake timeAvailability",
     "granularity": "fake granularity"
   },
-  "triggers":[]
+  "triggers":[],
+  "writer":{"outputs": []}
 }

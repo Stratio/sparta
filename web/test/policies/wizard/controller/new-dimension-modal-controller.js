@@ -2,7 +2,7 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
   beforeEach(module('webApp'));
   beforeEach(module('served/policyTemplate.json'));
 
-  var ctrl, modalInstanceMock, UtilsServiceMock, fakeDimensionName, fakeFieldName, fakeDimensions, fakeCubeTemplate = null;
+  var ctrl, modalInstanceMock, UtilsServiceMock, fakeDimensionName, fakeFieldName, fakeDimensions, fakeCubeTemplate, fakeIsNewDimension = null;
 
   beforeEach(inject(function ($controller) {
 
@@ -12,6 +12,11 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
     fakeDimensionName = "fake dimension name";
     fakeFieldName = "fake field name";
     fakeDimensions = [];
+    fakeIsNewDimension = true;
+
+    spyOn(document, "querySelector").and.callFake(function () {
+      return {"focus": jasmine.createSpy()}
+    });
 
     inject(function (_servedPolicyTemplate_) {
       fakeCubeTemplate = _servedPolicyTemplate_.cube;
@@ -23,7 +28,8 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
       'fieldName': fakeFieldName,
       'dimensions': fakeDimensions,
       'UtilsService': UtilsServiceMock,
-      'template': fakeCubeTemplate
+      'template': fakeCubeTemplate,
+      'isTimeDimension': fakeIsNewDimension
     });
 
   }));
@@ -55,21 +61,16 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
   });
 
   describe("should be able to accept the modal", function () {
-    it("if view validations have not been passed, generic form error is shown", function () {
-      ctrl.form = {"$valid": false};
-      ctrl.ok();
-
-      expect(ctrl.errorText).toBe("_GENERIC_FORM_ERROR_");
-    });
-
     describe("if view validations have been passed", function () {
       beforeEach(function () {
         ctrl.form = {"$valid": true};
       });
+
       describe("precision is validated", function () {
         beforeEach(function () {
           UtilsServiceMock.findElementInJSONArray.and.returnValue(-1);
         });
+
         it("if type is not 'Default', precision can not be empty", function () {
           ctrl.dimension.type = "not default";
           ctrl.dimension.precision = "";
@@ -98,7 +99,7 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
           expect(ctrl.errorText).toBe("");
         });
 
-        it("name is invalid if there is another dimension with irs name", function () {
+        it("name is invalid if there is another dimension with its name", function () {
           UtilsServiceMock.findElementInJSONArray.and.returnValue(2);
 
           ctrl.ok();
@@ -124,10 +125,11 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
           });
         });
 
-        it("modal is closed", function () {
+        it("modal is closed passing dimension and if it is time dimension", function () {
           ctrl.ok();
 
-          expect(modalInstanceMock.close).toHaveBeenCalledWith(ctrl.dimension);
+          expect(modalInstanceMock.close).toHaveBeenCalled();
+          expect(modalInstanceMock.close.calls.mostRecent().args[0]).toEqual({dimension: ctrl.dimension, isTimeDimension: fakeIsNewDimension});
         });
       })
     });

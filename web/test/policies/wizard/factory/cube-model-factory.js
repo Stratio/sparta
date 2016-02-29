@@ -86,10 +86,6 @@ describe('policies.wizard.factory.cube-model-factory', function () {
       expect(cube.name).toEqual(fakePolicyTemplate.defaultCubeName + (desiredOrder + 1));
       expect(cube.dimensions).toEqual([]);
       expect(cube.operators).toEqual([]);
-      expect(cube.checkpointConfig.timeDimension).toEqual(fakePolicyTemplate.defaultTimeDimension);
-      expect(cube.checkpointConfig.interval).toEqual(fakePolicyTemplate.defaultInterval);
-      expect(cube.checkpointConfig.timeAvailability).toEqual(fakePolicyTemplate.defaultTimeAvailability);
-      expect(cube.checkpointConfig.granularity).toEqual(fakePolicyTemplate.defaultGranularity);
       expect(cleanFactory.getError()).toEqual({"text": ""});
       expect(factory.getContext().position).toBe(desiredOrder);
     });
@@ -145,28 +141,6 @@ describe('policies.wizard.factory.cube-model-factory', function () {
         var invalidCube = angular.copy(fakeCube);
         invalidCube.operators = [];
 
-        expect(factory.isValidCube(invalidCube, {})).toBeFalsy();
-      });
-
-      it("if some of the checkpointConfig attributes are empty, cube is invalid", function () {
-        var invalidCube = angular.copy(fakeCube);
-        invalidCube.checkpointConfig = {};
-        expect(factory.isValidCube(invalidCube, {})).toBeFalsy();
-
-        invalidCube.checkpointConfig = angular.copy(fakeCube.checkpointConfig);
-        invalidCube.checkpointConfig.timeDimension = "";
-        expect(factory.isValidCube(invalidCube, {})).toBeFalsy();
-
-        invalidCube.checkpointConfig = angular.copy(fakeCube.checkpointConfig);
-        invalidCube.checkpointConfig.interval = null;
-        expect(factory.isValidCube(invalidCube, {})).toBeFalsy();
-
-        invalidCube.checkpointConfig = angular.copy(fakeCube.checkpointConfig);
-        invalidCube.checkpointConfig.timeAvailability = null;
-        expect(factory.isValidCube(invalidCube, {})).toBeFalsy();
-
-        invalidCube.checkpointConfig = angular.copy(fakeCube.checkpointConfig);
-        invalidCube.checkpointConfig.granularity = "";
         expect(factory.isValidCube(invalidCube, {})).toBeFalsy();
       });
 
@@ -229,10 +203,6 @@ describe('policies.wizard.factory.cube-model-factory', function () {
       expect(cube.name).toEqual(fakePolicyTemplate.defaultCubeName + (nameIndex + 1));
       expect(cube.dimensions).toEqual([]);
       expect(cube.operators).toEqual([]);
-      expect(cube.checkpointConfig.timeDimension).toEqual(fakePolicyTemplate.defaultTimeDimension);
-      expect(cube.checkpointConfig.interval).toEqual(fakePolicyTemplate.defaultInterval);
-      expect(cube.checkpointConfig.timeAvailability).toEqual(fakePolicyTemplate.defaultTimeAvailability);
-      expect(cube.checkpointConfig.granularity).toEqual(fakePolicyTemplate.defaultGranularity);
       expect(factory.getError()).toEqual({"text": ""});
       expect(factory.getContext().position).toBe(newPosition);
     });
