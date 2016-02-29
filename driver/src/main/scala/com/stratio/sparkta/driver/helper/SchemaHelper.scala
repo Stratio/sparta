@@ -97,9 +97,9 @@ object SchemaHelper {
 
         if(transformationsModel.size == 1){
           val fieldsWithoutRaw = fields.filter(structField => structField.name != Input.RawDataKey)
-          schemas ++ Map(transformationModel.name -> StructType(fieldsWithoutRaw.toSeq))
+          schemas ++ Map(transformationModel.order.toString -> StructType(fieldsWithoutRaw.toSeq))
         } else schemas ++ searchSchemasFromParsers(transformationsModel.drop(1),
-            Map(transformationModel.name -> StructType(fields.toSeq))
+            Map(transformationModel.order.toString -> StructType(fields.toSeq))
         )
       case None => schemas
     }
