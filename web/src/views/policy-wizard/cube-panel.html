@@ -27,8 +27,8 @@
                    data-ng-repeat="output in vm.outputList track by $index"
                    data-qa="policy-cube-outputlist-{{$index}}-add">
                 <div class="c-cube__field">
-                  <span class="c-cube__field-name">{{output}}</span><!--
-              --><span class="c-cube__field-icon c-icon icon-circle-plus"></span>
+                  <span class="c-cube__field-icon c-icon icon-circle-plus"></span>
+                  <span class="c-cube__field-name">{{output}}</span>
                 </div>
               </div>
             </div>
@@ -37,19 +37,19 @@
 
               -->
           <div class="c-cube c-col c-col--6 c-col--vertical-top">
-            <label class="c-cube__title c-cube__title--2 c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._DIMENSIONS_"
-              |
-              translate}}</label>
+            <label class="c-cube__title c-cube__title--2 c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._DIMENSIONS_" | translate}}</label>
 
             <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
               <!--DIMENSIONS-->
               <div class="c-cube__field-wrapper c-col c-col--6 c-col--vertical-centered"
-                   data-ng-click="vm.removeOutputFromDimensions($index)"
-                   data-ng-repeat="dimension in  vm.cube.dimensions track by $index"
-                   data-qa="policy-cube-dimensionslist-{{$index}}-remove">
+                  data-ng-click="vm.removeOutputFromDimensions($index, dimension.computeLast)"
+                  data-ng-repeat="dimension in  vm.cube.dimensions track by $index"
+                  data-ng-class="{'c-cube__field__unique': dimension.computeLast}"
+                  data-qa="policy-cube-dimensionslist-{{$index}}-remove">
                 <div class="c-cube__field">
-                  <span class="c-cube__field-name">{{dimension.name}}</span><!--
-              --><span class="c-cube__field-icon c-icon icon-circle-minus"></span>
+                  <span class="c-cube__field-icon c-icon icon-circle-minus"></span>
+                  <span class="c-cube__field-name">{{dimension.name}}</span>
+                  <span class="c-cube__field-name c-cube__field-name__secondary" data-ng-if="dimension.computeLast">({{"_IS_TIME_DIMENSION_" | translate}})</span>
                 </div>
               </div>
             </div>
@@ -68,8 +68,8 @@
                    data-ng-repeat="function in  vm.functionList track by $index"
                    data-qa="policy-cube-functionlist-{{$index}}-add">
                 <div class="c-cube__field">
-                  <span class="c-cube__field-name">{{function}}</span>
                   <span class="c-cube__field-icon c-icon icon-circle-plus"></span>
+                  <span class="c-cube__field-name">{{function}}</span>
                 </div>
               </div>
             </div>
@@ -88,8 +88,8 @@
                    data-ng-repeat="operator in vm.cube.operators track by $index"
                    data-qa="policy-cube-operatorlist-{{$index}}-remove">
                 <div class="c-cube__field">
-                  <span class="c-cube__field-name">{{operator.name}}</span>
                   <span class="c-cube__field-icon c-icon icon-circle-minus"></span>
+                  <span class="c-cube__field-name">{{operator.name}}</span>
                 </div>
               </div>
             </div>

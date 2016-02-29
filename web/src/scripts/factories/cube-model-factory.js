@@ -59,9 +59,10 @@
 
       function isValidCube(cube, cubes, position) {
         var validName = cube.name !== undefined && cube.name !== "";
-        var validCheckpointConfig = Object.keys(cube.checkpointConfig).length > 0 && cube.checkpointConfig.granularity &&
-          cube.checkpointConfig.timeAvailability !== null && cube.checkpointConfig.interval !== null && cube.checkpointConfig.timeDimension !== "";
-        var isValid = validName && areValidOperatorsAndDimensions(cube) && validCheckpointConfig && !nameExists(cube, cubes, position);
+        /*var validCheckpointConfig = Object.keys(cube.checkpointConfig).length > 0 && cube.checkpointConfig.granularity &&
+          cube.checkpointConfig.timeAvailability !== null && cube.checkpointConfig.interval !== null && cube.checkpointConfig.timeDimension !== "";*/
+        /*var isValid = validName && areValidOperatorsAndDimensions(cube) && validCheckpointConfig && !nameExists(cube, cubes, position);*/
+        var isValid = validName && areValidOperatorsAndDimensions(cube) && !nameExists(cube, cubes, position);
         return isValid;
       }
 
