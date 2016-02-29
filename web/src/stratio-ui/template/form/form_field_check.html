@@ -3,7 +3,8 @@
         <span class="c-icon-label c-col c-col--12" data-ng-if="label">
             <label class="c-icon-label__text c-label" title="{{label}}" for="{{name}}">
                 {{label}}
-                <span data-ng-if="required === false" class="c-label__optional">{{'_OPTIONAL_' | translate}}</span>
+                <span data-ng-if="required === false && !extraMessage" class="c-label__optional">{{'_OPTIONAL_' | translate}}</span>
+                <span data-ng-if="extraMessage" class="c-label__optional">{{extraMessage}}</span>
                 <i data-ng-if="help" id="tooltip-{{name}}" class="c-icon icon-help2 c-icon--is-clickable c-icon--in-label" data-qa="{{helpQa}}" tooltip='{{help}}' tooltip-class="tooltip--bottom" tooltip-trigger="click" tooltip-placement="bottom" data-ng-click="mouseleaveTooltip()"></i>
             </label>
         </span>

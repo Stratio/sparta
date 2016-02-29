@@ -28,26 +28,30 @@
 	&__field {
 		cursor: pointer;
 		position: relative;
+		background: getColor(n0);
 
 		&-wrapper {
-			padding: $c-cube__field-wrapper---padding;
+			margin: $c-cube__field-wrapper---padding;
 		}
 
 		&-icon, &-name {
 			display: inline-block;
 			padding: $c-cube__field-icon---padding;
 			vertical-align: middle;
+
+			&__secondary {
+				color: getColor(n5);
+				font-size: 0.875rem;
+				padding-left: 0;
+			}
 		}
 
 		&-icon {
 			background: $c-cube__field-icon---background;
 		}
 
-		&-name {
-			background: $c-cube__field-name---background;
-			left: $c-cube__field-name---left;
-			position: absolute;
-			right: $c-cube__field-name---right;
+		&__unique {
+			border: 2px solid getColor(n5);
 		}
 	}
 

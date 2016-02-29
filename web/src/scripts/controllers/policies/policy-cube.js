@@ -27,6 +27,7 @@
     vm.removeFunctionFromOperators = removeFunctionFromOperators;
     vm.addOutput = addOutput;
     vm.changeOpenedTrigger = changeOpenedTrigger;
+    vm.isTimeDimension = null;
 
     vm.init();
 
@@ -75,13 +76,17 @@
         },
         template: function () {
           return vm.template;
+        },
+        isTimeDimension: function() {
+          return vm.isTimeDimension;
         }
       };
 
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve, extraClass, size);
 
-      return modalInstance.result.then(function (dimension) {
-        vm.cube.dimensions.push(dimension);
+      return modalInstance.result.then(function (dimensionData) {
+        vm.cube.dimensions.push(dimensionData.dimesion);
+        vm.isTimeDimension = dimensionData.isTimeDimesion;
       });
     }
 
@@ -129,10 +134,14 @@
       return modalInstance.result;
     }
 
-    function removeOutputFromDimensions(dimensionIndex) {
+    function removeOutputFromDimensions(dimensionIndex, computeLast) {
       var title = "_POLICY_._CUBE_._REMOVE_DIMENSION_CONFIRM_TITLE_";
       return showConfirmModal(title, "").then(function () {
+        if (computeLast) {
+          vm.isTimeDimension = false;
+        }
         vm.cube.dimensions.splice(dimensionIndex, 1);
+
       })
     }
 
