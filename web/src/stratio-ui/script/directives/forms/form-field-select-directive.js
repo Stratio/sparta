@@ -45,8 +45,7 @@
         changeAction: '&',
         listCompressed: '=',
         hideMessage: '@',
-        qa: '@',
-        disabled: '='
+        qa: '@'
       }
     };
     return directive;
