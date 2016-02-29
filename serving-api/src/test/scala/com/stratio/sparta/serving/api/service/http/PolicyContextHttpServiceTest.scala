@@ -17,6 +17,7 @@ package com.stratio.sparta.serving.api.service.http
 
 import akka.actor.ActorRef
 import akka.testkit.{TestActor, TestProbe}
+import com.stratio.sparkta.serving.api.service.http.PolicyContextHttpService
 import com.stratio.sparta.sdk.exception.MockException
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor.Create

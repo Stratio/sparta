@@ -15,18 +15,33 @@
  */
 (function () {
   'use strict';
-
   angular
     .module('webApp')
-    .factory('requestInterceptor', function ($q, $rootScope) {
+    .factory('requestInterceptor', requestInterceptor);
 
-      return {
-        'responseError': function (rejection) {
-          if (rejection.status == 0) {
+  requestInterceptor.$inject = ['$q', '$rootScope', '$location', '$window'];
+
+  function requestInterceptor($q, $rootScope, $location, $window) {
+
+    return {
+      'responseError': function (rejection) {
+        switch (rejection.status) {
+          case 0:
+          {
             $rootScope.error = "_UNAVAILABLE_SERVER_ERROR_";
+            break;
           }
-          return $q.reject(rejection);
+          case 401:
+          {
+            var host = $location.protocol() + "://"+ $location.host() + ":" + $location.port()+ "/";
+            $window.location.href = host;
+            break;
+          }
+          default:
+            break;
         }
+        return $q.reject(rejection);
       }
-    })
+    }
+  }
 })();

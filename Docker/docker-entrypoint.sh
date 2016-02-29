@@ -22,11 +22,6 @@ fi
 if [[ "${SSH}" == "true" ]]; then
    /usr/sbin/sshd -e
 fi
-if [[ "${SSL}" == "on" ]]; then
-   sed -i "s|ssl-encryption.*|ssl-encryption = \""${SSL}"\"|" /etc/sds/sparta/application.conf
-   sed -i "s|certificate-file.*|certificate-file = \""${CERTIFICATE_FILE}"\"|" /etc/sds/sparta/application.conf
-   sed -i "s|certificate-password.*|certificate-password = \""${CERTIFICATE_PASSWORD}"\"|" /etc/sds/sparta/application.conf
-fi
 
 /etc/init.d/sparta start
 tail -F /var/log/sds/sparta/sparta.log

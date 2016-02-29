@@ -27,6 +27,7 @@ import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor._
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.FragmentElementModel
+import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing.Route
@@ -36,10 +37,10 @@ import scala.util.{Failure, Success}
 
 @Api(value = HttpConstant.FragmentPath, description = "Operations over fragments: inputs and outputs that will be " +
   "included in a policy")
-trait FragmentHttpService extends BaseHttpService
-  with PolicyUtils {
+trait FragmentHttpService extends BaseHttpService with OauthClient with PolicyUtils {
 
-  override def routes: Route = findByTypeAndId ~ findAllByType ~ create ~ update ~ deleteByTypeAndId ~ findByTypeAndName
+  override def routes: Route =
+    findByTypeAndId ~ findAllByType ~ create ~ update ~ deleteByTypeAndId ~ findByTypeAndName
 
   @ApiOperation(value = "Find a fragment depending of its type and id.",
     notes = "Find a fragment depending of its type and id.",
