@@ -16,31 +16,23 @@
 
 package com.stratio.sparkta.serving.api.actor
 
-import java.io.File
-import scala.concurrent.duration._
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
-
-import akka.actor.Actor
-import akka.actor.ActorRef
+import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
-import org.apache.spark.streaming.StreamingContext
-
 import com.stratio.sparkta.driver.factory.SparkContextFactory
 import com.stratio.sparkta.driver.service.StreamingContextService
+import com.stratio.sparkta.driver.util.PolicyUtils
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
-import com.stratio.sparkta.serving.core.SparktaConfig
-import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.dao.ErrorDAO
 import com.stratio.sparkta.serving.core.helpers.JarsHelper
-import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
-import com.stratio.sparkta.serving.core.models.PolicyStatusModel
-import com.stratio.sparkta.serving.core.models.SparktaSerializer
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
+import org.apache.spark.streaming.StreamingContext
+
+import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
 
 class LocalSparkStreamingContextActor(policy: AggregationPoliciesModel,
                                       streamingContextService: StreamingContextService,
@@ -57,24 +49,22 @@ class LocalSparkStreamingContextActor(policy: AggregationPoliciesModel,
   private def doInitSparktaContext: Unit = {
 
     implicit val timeout: Timeout = Timeout(3.seconds)
-    val jars = JarsHelper.findJarsByPath(
-      new File(SparktaConfig.sparktaHome, AppConstant.JarPluginsFolder), Some("-plugin.jar"))
+    val jars = PolicyUtils.jarsFromPolicy(policy)
+    jars.foreach(file => JarsHelper.addToClasspath(file))
 
     Try({
       policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting))
       Try(ErrorDAO().dao.delete(policy.id.get))
       ssc = streamingContextService.standAloneStreamingContext(policy, jars)
-      ssc.get.start
+      ssc.get.start()
     }) match {
-      case Success(_) => {
+      case Success(_) =>
         policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Started))
-      }
-      case Failure(exception) => {
+      case Failure(exception) =>
         log.error(exception.getLocalizedMessage, exception)
         policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed))
         SparkContextFactory.destroySparkStreamingContext()
         SparkContextFactory.destroySparkContext()
-      }
     }
   }
 

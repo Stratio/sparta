@@ -25,7 +25,7 @@ import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
-import com.stratio.sparkta.plugin.field.default.DefaultField
+import com.stratio.sparkta.plugin.default.DefaultField
 import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.plugin.operator.sum.SumOperator
 import com.stratio.sparkta.sdk._

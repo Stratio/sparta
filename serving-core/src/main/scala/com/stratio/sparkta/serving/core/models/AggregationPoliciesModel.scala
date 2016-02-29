@@ -16,13 +16,7 @@
 
 package com.stratio.sparkta.serving.core.models
 
-import java.io._
-
-import com.fasterxml.jackson.databind._
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
-import scala.collection.JavaConversions._
 
 case class AggregationPoliciesModel(id: Option[String] = None,
                                     version: Option[Int] = None,
@@ -36,7 +30,8 @@ case class AggregationPoliciesModel(id: Option[String] = None,
                                     cubes: Seq[CubeModel],
                                     input: Option[PolicyElementModel] = None,
                                     outputs: Seq[PolicyElementModel],
-                                    fragments: Seq[FragmentElementModel])
+                                    fragments: Seq[FragmentElementModel],
+                                    userPluginsJars: Seq[String])
 
 case object AggregationPoliciesModel {
 
@@ -60,7 +55,7 @@ object AggregationPoliciesValidator extends SparktaSerializer {
     //TODO Validate policy according to the old schema validation rules
     // https://stratio.atlassian.net/browse/SPARKTA-458
 
-    val cubesHaveAtLeastOneDimension = aggregationPoliciesDto.cubes.forall( cube =>
+    val cubesHaveAtLeastOneDimension = aggregationPoliciesDto.cubes.forall(cube =>
       !cube.dimensions.isEmpty
     )
 

@@ -63,7 +63,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
   }
 
   def clusterStreamingContext(apConfig: AggregationPoliciesModel,
-                              files: Seq[URI],
+                              files: Seq[String],
                               detailConfig: Map[String, String]): Option[StreamingContext] = {
     val exitWhenStop = true
     runStatusListener(apConfig.id.get, apConfig.name, exitWhenStop)
@@ -89,7 +89,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
   }
 
   private def getClusterSparkContext(apConfig: AggregationPoliciesModel,
-                                     classPath: Seq[URI],
+                                     classPath: Seq[String],
                                      detailConfig: Map[String, String]): SparkContext = {
     val pluginsSparkConfig =
       SparktaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix) ++ detailConfig

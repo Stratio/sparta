@@ -18,39 +18,34 @@ package com.stratio.sparkta.serving.api.actor
 
 import java.io.File
 import java.util.UUID
-import scala.collection.JavaConversions
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
 
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
-import com.typesafe.config.ConfigFactory
-import org.apache.commons.io.FileUtils
-import org.apache.curator.framework.CuratorFramework
-import org.apache.zookeeper.KeeperException.NoNodeException
-import org.json4s.jackson.Serialization.read
-import org.json4s.jackson.Serialization.write
-
 import com.stratio.sparkta.driver.util.HdfsUtils
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
 import com.stratio.sparkta.serving.api.constants.ActorsConstant
+import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, SparktaConfig}
 import com.stratio.sparkta.serving.core.constants.AppConstant
 import com.stratio.sparkta.serving.core.dao.ConfigDAO
 import com.stratio.sparkta.serving.core.exception.ServingCoreException
 import com.stratio.sparkta.serving.core.models._
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
-import com.stratio.sparkta.serving.core.CuratorFactoryHolder
-import com.stratio.sparkta.serving.core.SparktaConfig
+import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
+import com.typesafe.config.ConfigFactory
+import org.apache.commons.io.FileUtils
+import org.apache.curator.framework.CuratorFramework
+import org.apache.zookeeper.KeeperException.NoNodeException
+import org.json4s.jackson.Serialization.{read, write}
+
+import scala.collection.JavaConversions
+import scala.util.{Failure, Success, Try}
 
 /**
  * Implementation of supported CRUD operations over ZK needed to manage policies.
  */
 class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRef)
   extends Actor
-    with SLF4JLogging
-    with SparktaSerializer {
+  with SLF4JLogging
+  with SparktaSerializer {
 
   override def receive: Receive = {
     case Create(policy) => create(policy)
@@ -215,11 +210,8 @@ object PolicyActor {
   case class ResponsePolicy(policy: Try[AggregationPoliciesModel])
 
   def deleteCheckpointPath(policy: AggregationPoliciesModel): Unit = {
-    if (SparktaConfig.getClusterConfig.isDefined) {
-      val configDAO = ConfigDAO(SparktaConfig.mainConfig.get)
-      val hdfsJsonConfig = configDAO.dao.get(AppConstant.HdfsID).get
-      val config = ConfigFactory.parseString(hdfsJsonConfig).getConfig(AppConstant.HdfsID)
-      HdfsUtils(config).delete(AggregationPoliciesModel.checkpointPath(policy))
+    if (SparktaConfig.getHdfsConfig.isDefined) {
+      HdfsUtils(SparktaConfig.getHdfsConfig.get).delete(AggregationPoliciesModel.checkpointPath(policy))
     } else {
       FileUtils.deleteDirectory(new File(AggregationPoliciesModel.checkpointPath(policy)))
     }
