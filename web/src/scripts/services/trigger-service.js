@@ -114,8 +114,8 @@
       if (triggerContainerType == triggerConstants.TRANSFORMATION) {
         fields = item.outputFields;
       } else {
-        fields = item.dimensions;
-        angular.extend(fields, item.operators);
+        fields = fields.concat(item.dimensions);
+        fields =  fields.concat(item.operators);
       }
       for (var i = 0; i < fields.length; ++i) {
         var item = fields[i];

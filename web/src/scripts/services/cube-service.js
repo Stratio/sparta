@@ -24,6 +24,7 @@
     vm.isActiveCubeCreationPanel = isActiveCubeCreationPanel;
     vm.generateOutputList = generateOutputList;
     vm.activateCubeCreationPanel = activateCubeCreationPanel;
+    vm.disableCubeCreationPanel = disableCubeCreationPanel;
 
     init();
 
@@ -35,6 +36,11 @@
 
     function activateCubeCreationPanel() {
       showCubeCreationPanel = true;
+    }
+
+
+    function disableCubeCreationPanel() {
+      showCubeCreationPanel = false;
     }
 
     function showConfirmRemoveCube() {
