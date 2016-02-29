@@ -15,5 +15,6 @@
     "interval": "fake interval",
     "timeAvailability": "fake timeAvailability",
     "granularity": "fake granularity"
-  }
+  },
+  "triggers":[]
 }
