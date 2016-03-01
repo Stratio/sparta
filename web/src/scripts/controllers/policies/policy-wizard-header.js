@@ -34,6 +34,8 @@
       function (newStatus) {
         if (newStatus && newStatus && newStatus.currentStep >= 0 && newStatus.currentStep  < policyTemplate.helpLinks.length-1 ) {
           header.helpLink = policyTemplate.helpLinks[newStatus.currentStep + 1];
+        }else{
+          header.helpLink = null;
         }
       }
     );
