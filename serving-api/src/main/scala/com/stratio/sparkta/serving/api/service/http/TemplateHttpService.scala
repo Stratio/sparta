@@ -18,6 +18,7 @@ package com.stratio.sparkta.serving.api.service.http
 
 import akka.pattern.ask
 import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.api.service.cors.CorsSupport
 import com.stratio.sparkta.serving.core.models.TemplateModel
 import com.stratio.spray.oauth2.client.OauthClient
 import com.stratio.spray.oauth2.client.OauthClientHelper._
@@ -31,9 +32,11 @@ import com.stratio.sparkta.serving.api.actor.TemplateActor._
 @Api(value = HttpConstant.TemplatePath,
   description = "Operations about templates. One template will have an abstract" +
     " element that represents a validation, a tip, an icon over it.")
-trait TemplateHttpService extends BaseHttpService with OauthClient {
+trait TemplateHttpService extends BaseHttpService with OauthClient with CorsSupport {
 
-  override def routes: Route = findByType ~ findByTypeAndName
+  override def routes: Route = cors {
+    findByType ~ findByTypeAndName
+  }
 
   @ApiOperation(value = "Find all templates depending ot its type. (input|output)",
     notes             = "Find all templates depending ot its type. (input|output)",

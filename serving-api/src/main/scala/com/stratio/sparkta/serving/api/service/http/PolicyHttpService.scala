@@ -23,6 +23,7 @@ import akka.pattern.ask
 import com.stratio.sparkta.serving.api.actor.PolicyActor._
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor
 import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.api.service.cors.CorsSupport
 
 import com.stratio.sparkta.serving.core.constants.AkkaConstant
 import com.stratio.sparkta.serving.core.helpers.PolicyHelper
@@ -41,13 +42,14 @@ import scala.util.{Failure, Success}
 import OauthClientHelper._
 
 @Api(value = HttpConstant.PolicyPath, description = "Operations over policies.")
-trait PolicyHttpService extends BaseHttpService with SparktaSerializer  with OauthClient {
+trait PolicyHttpService extends BaseHttpService with SparktaSerializer  with OauthClient with CorsSupport {
 
 
   case class Result(message: String, desc: Option[String] = None)
 
-  override def routes: Route =
+  override def routes: Route = cors {
     secRoute ~ find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download ~ findByName
+  }
 
   @Path("/find/{id}")
   @ApiOperation(value = "Find a policy from its id.",

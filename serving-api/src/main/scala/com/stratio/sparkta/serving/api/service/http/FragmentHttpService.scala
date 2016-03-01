@@ -17,6 +17,7 @@
 package com.stratio.sparkta.serving.api.service.http
 
 import javax.ws.rs.Path
+import com.stratio.sparkta.serving.api.service.cors.CorsSupport
 import com.stratio.spray.oauth2.client.OauthClient
 import com.stratio.spray.oauth2.client.OauthClientHelper._
 
@@ -36,9 +37,11 @@ import com.stratio.sparkta.serving.core.models.FragmentElementModel
 
 @Api(value = HttpConstant.FragmentPath, description = "Operations over fragments: inputs and outputs that will be " +
   "included in a policy")
-trait FragmentHttpService extends BaseHttpService with OauthClient {
+trait FragmentHttpService extends BaseHttpService with OauthClient with CorsSupport {
 
-  override def routes: Route = findByTypeAndId ~ findAllByType ~ create ~ update ~ deleteByTypeAndId ~ findByTypeAndName
+  override def routes: Route = cors {
+    findByTypeAndId ~ findAllByType ~ create ~ update ~ deleteByTypeAndId ~ findByTypeAndName
+  }
 
   @ApiOperation(value = "Find a fragment depending of its type and id.",
     notes = "Find a fragment depending of its type and id.",

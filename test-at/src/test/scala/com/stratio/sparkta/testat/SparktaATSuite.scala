@@ -101,7 +101,7 @@ trait SparktaATSuite
   }
 
   /**
-   * Starts an instance of Sparkta with a given configuration (application.conf in our resources folder).
+   * Starts an instance of Sparkta with a given configuration (reference.conf in our resources folder).
    */
   def startSparkta: Unit = {
 

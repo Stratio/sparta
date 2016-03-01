@@ -20,6 +20,7 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.api.constants.HttpConstant
+import com.stratio.sparkta.serving.api.service.cors.CorsSupport
 import com.stratio.sparkta.serving.core.actor.FragmentActor
 import com.stratio.sparkta.serving.core.constants.AkkaConstant
 import com.stratio.sparkta.serving.core.exception.ServingCoreException
@@ -36,9 +37,11 @@ import scala.concurrent.Await
 import scala.util.{Failure, Success, Try}
 
 @Api(value = HttpConstant.PolicyContextPath, description = "Operations about policy contexts.", position = 0)
-trait PolicyContextHttpService extends BaseHttpService with OauthClient {
+trait PolicyContextHttpService extends BaseHttpService with OauthClient with CorsSupport {
 
-  override def routes: Route = findAll ~ update ~ create
+  override def routes: Route = cors {
+    findAll ~ update ~ create
+  }
 
   @ApiOperation(value = "Finds all policy contexts",
     notes = "Returns a policies list",

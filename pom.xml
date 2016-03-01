@@ -550,8 +550,8 @@
 
     <repositories>
         <repository>
-            <id>asdf</id>
-            <name>asdf</name>
+            <id>sodio</id>
+            <name>sodio</name>
             <url>http://sodio.stratio.com/nexus/content/groups/public</url>
         </repository>
     </repositories>
