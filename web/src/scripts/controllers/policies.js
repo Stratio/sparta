@@ -5,9 +5,9 @@
     .module('webApp')
     .controller('PoliciesCtrl', PoliciesCtrl);
 
-  PoliciesCtrl.$inject = ['PolicyFactory', 'ModalService', '$state', '$translate', '$interval', '$filter', '$scope', '$timeout'];
+  PoliciesCtrl.$inject = ['PolicyFactory', 'PolicyModelFactory', 'ModalService', '$state', '$translate', '$interval', '$filter', '$scope', '$timeout'];
 
-  function PoliciesCtrl(PolicyFactory, ModalService, $state, $translate, $interval, $filter, $scope, $timeout) {
+  function PoliciesCtrl(PolicyFactory, PolicyModelFactory, ModalService, $state, $translate, $interval, $filter, $scope, $timeout) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -40,11 +40,13 @@
     }
 
     function createPolicy() {
+      PolicyModelFactory.resetPolicy();
       var controller = 'PolicyCreationModalCtrl';
       var templateUrl = "templates/modal/policy-creation-modal.tpl.html";
       var resolve = {};
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
       return modalInstance.result.then(function () {
+        PolicyModelFactory.nextStep();
         $state.go('wizard.newPolicy');
       });
     }
