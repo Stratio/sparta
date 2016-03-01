@@ -17,6 +17,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
   beforeEach(inject(function (_PolicyModelFactory_, _servedPolicy_, _servedPolicyTemplate_, _servedInput_, _servedOutput_) {
     factory = _PolicyModelFactory_;
     fakePolicy = angular.copy(_servedPolicy_);
+    fakePolicy.rawData={enabled: 'false'};
     fakePolicyTemplate = _servedPolicyTemplate_;
     fakeInput = _servedInput_;
     fakeOutput = _servedOutput_;
@@ -24,6 +25,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
   it("should be able to load a policy from a json", function () {
     fakePolicy.fragments = [fakeInput, fakeOutput];
+    fakePolicy.rawData={enabled: 'false'};
     factory.setPolicy(fakePolicy);
 
     var policy = factory.getCurrentPolicy();
@@ -51,8 +53,8 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       expect(cleanFactory.getProcessStatus().currentStep).toBe(-1);
       expect(policy.name).toBe("");
       expect(policy.description).toBe("");
-      expect(policy.rawData.enabled).toBe(false);
-      expect(policy.rawData.path).toBe("");
+      expect(policy.rawDataEnabled).toBe(false);
+      expect(policy.rawDataPath).toBe("/tmp/checkpoint");
       expect(policy.input).toEqual({});
       expect(policy.outputs).toEqual([]);
       expect(policy.transformations).toEqual([]);
@@ -61,6 +63,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
     it("if there is a policy, returns that policy", function () {
       fakePolicy.fragments = [fakeInput, fakeOutput];
+      fakePolicy.rawData={enabled: 'false'};
       cleanFactory.setPolicy(fakePolicy);
       var policy = cleanFactory.getCurrentPolicy();
 
@@ -81,6 +84,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
   it("should be able to reset its policy to set all attributes with default values", function () {
     factory.setTemplate(fakePolicyTemplate);
+
     factory.setPolicy(fakePolicy);
     factory.resetPolicy();
 
@@ -88,8 +92,8 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     expect(factory.getProcessStatus().currentStep).toBe(-1);
     expect(policy.name).toBe("");
     expect(policy.description).toBe("");
-    expect(policy.rawData.enabled).toBe(false);
-    expect(policy.rawData.path).toBe("");
+    expect(policy.rawDataEnabled).toBe(false);
+    expect(policy.rawDataPath).toBe("/tmp/checkpoint");
     expect(policy.input).toEqual({});
     expect(policy.outputs).toEqual([]);
     expect(policy.transformations).toEqual([]);
