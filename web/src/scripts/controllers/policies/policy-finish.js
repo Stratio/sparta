@@ -18,10 +18,9 @@
 
     function init() {
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-
       var finalJSON = generateFinalJSON();
       PolicyModelFactory.setFinalJSON(finalJSON);
-      vm.testingpolcyData = JSON.stringify(finalJSON, null, 4);
+      vm.policyJson = JSON.stringify(finalJSON, null, 4);
     }
 
     function previousStep() {
@@ -31,6 +30,11 @@
     function generateFinalJSON() {
       var fragments = [];
       var finalJSON = angular.copy(vm.policy);
+      finalJSON.rawData = {};
+      finalJSON.rawData.enabled = vm.policy.rawDataEnabled.toString();
+      if (vm.policy.rawDataEnabled) {
+        finalJSON.rawData.path = (vm.policy.rawDataEnabled) ? vm.policy.rawDataPath : null;
+      }
       fragments.push(finalJSON.input);
       for (var i = 0; i < finalJSON.outputs.length; ++i) {
         if (finalJSON.outputs[i]) {
@@ -46,7 +50,10 @@
     function cleanPolicyJSON(finalJSON) {
       delete finalJSON.input;
       delete finalJSON.outputs;
-      if (finalJSON.rawData.enabled === 'false') {
+      delete finalJSON['rawDataPath'];
+      delete finalJSON['rawDataEnabled'];
+
+      if (finalJSON.rawData.enabled == 'false') {
         delete finalJSON.rawData['path'];
       }
       return finalJSON;

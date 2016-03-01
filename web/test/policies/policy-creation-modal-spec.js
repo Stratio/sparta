@@ -115,35 +115,13 @@ describe('policy-creation-modal-controller', function () {
           ctrl.policy = policy;
         });
 
-        it("policy model is reset, modal is closed and current step is added one", function () {
+        it("modal is closed", function () {
           ctrl.validateForm();
           scope.$digest();
 
-          expect(PolicyModelFactoryMock.resetPolicy).toHaveBeenCalled();
-          expect(PolicyModelFactoryMock.nextStep).toHaveBeenCalled();
           expect(modalInstanceMock.close).toHaveBeenCalled();
         });
 
-        it("rawData attribute is converted to the expected format", function () {
-          ctrl.policy.rawDataEnabled = false;
-          ctrl.validateForm();
-          scope.$digest();
-
-          // raw data path is null if raw data is disabled
-          expect(ctrl.policy.rawData.path).toBe(null);
-
-          // temporal attributes are removed
-          expect(ctrl.policy.rawDataPath).toBe(undefined);
-          expect(ctrl.policy.rawDataEnabled).toBe(undefined);
-
-          ctrl.policy.rawDataEnabled = true;
-          var fakeRawDataPath = "fake/path";
-          ctrl.policy.rawDataPath = fakeRawDataPath;
-          ctrl.validateForm();
-          scope.$digest();
-
-          expect(ctrl.policy.rawData.path).toBe(fakeRawDataPath);
-        });
       });
     });
     describe("if view validations have not been passed", function () {
