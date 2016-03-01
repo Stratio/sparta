@@ -1,6 +1,6 @@
 describe('directive.c-step-directive', function () {
   beforeEach(module('webApp'));
-  var directive, scope = null;
+  var directive, scope, isolatedScope = null;
 
   beforeEach(inject(function ($httpBackend, $rootScope) {
     $httpBackend.when('GET', 'languages/en-US.json')
@@ -44,8 +44,8 @@ describe('directive.c-step-directive', function () {
   });
 
   describe("should be able to return if an step has been visited", function () {
-    var isolatedScope;
-    beforeEach( inject(function ($compile, $httpBackend) {
+
+    beforeEach(inject(function ($compile, $httpBackend) {
       directive = angular.element('<c-step index = "index" current-step = "currentStep"> </c-step>');
 
       directive = $compile(directive)(scope);
@@ -68,6 +68,38 @@ describe('directive.c-step-directive', function () {
       isolatedScope.current = 3;
 
       expect(isolatedScope.isVisited()).toBeTruthy();
+    });
+  });
+
+  describe("should be able to return if an step has been enabled", function () {
+    beforeEach(inject(function ($compile, $httpBackend) {
+      directive = angular.element('<c-step index = "index" current-step = "currentStep"> </c-step>');
+
+      directive = $compile(directive)(scope);
+      scope.$digest();
+      $httpBackend.flush();
+      isolatedScope = directive.isolateScope();
+      isolatedScope.hasBeenVisited = false;
+
+    }));
+
+    it("step is enabled if it is the next to the current step and isAvailable variable is true", function () {
+      isolatedScope.index = 2;
+      isolatedScope.current = 1;
+      isolatedScope.isAvailable = true;
+
+      expect(isolatedScope.isEnabled()).toBeTruthy();
+
+
+      isolatedScope.isAvailable = false;
+
+      expect(isolatedScope.isEnabled()).toBeFalsy();
+
+      isolatedScope.index = 2;
+      isolatedScope.current = 2;
+      isolatedScope.isAvailable = true;
+
+      expect(isolatedScope.isEnabled()).toBeFalsy();
     });
   });
 
