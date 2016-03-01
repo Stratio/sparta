@@ -96,6 +96,21 @@ class OperationsHelperTest extends WordSpec with Matchers with MockitoSugar {
       res should be(172800000)
     }
 
+    "parseValueToMilliSeconds should return 6 milliseconds" in {
+      val res = OperationsHelper.parseValueToMilliSeconds("6ms")
+      res should be(6)
+    }
+
+    "parseValueToMilliSeconds should return 6 seconds" in {
+      val res = OperationsHelper.parseValueToMilliSeconds("6000ms")
+      res should be(6000)
+    }
+
+    "parseValueToMilliSeconds should return 6500 milliseconds" in {
+      val res = OperationsHelper.parseValueToMilliSeconds("6500")
+      res should be(6500)
+    }
+
   }
 
 }
