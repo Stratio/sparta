@@ -18,9 +18,21 @@
 		}
 	}
 
+	&__subtitle {
+		color: getColor(n10);
+		font-size: 1.25rem;
+		font-weight: 500;
+		padding: 15px 0;
+		text-transform: uppercase;
+
+		&--text {
+			vertical-align: middle;
+		}
+	}
+
 	&__title-text {
 		display: inline-block;
-    vertical-align: bottom;
+    	vertical-align: bottom;
 	}
 }
 

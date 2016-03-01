@@ -48,6 +48,10 @@
       "required": true,
       "values": [
         {
+          "label": "Milliseconds",
+          "value": "ms"
+        },
+        {
           "label": "Seconds",
           "value": "s"
         },
@@ -258,14 +262,6 @@
                   "field1": "/field-in-json1",
                   "field2": "/field-in-json2"
                 }
-              }
-            },
-            {
-              "removeFields": {
-                "blacklist": [
-                  "literal:_attachment_body",
-                  "literal:message"
-                ]
               }
             }
           ]
@@ -502,6 +498,10 @@
         "required": true,
         "values": [
           {
+            "label": "Milliseconds",
+            "value": "ms"
+          },
+          {
             "label": "Seconds",
             "value": "s"
           },
@@ -555,6 +555,10 @@
         "required": true,
         "values": [
           {
+            "label": "Milliseconds",
+            "value": "ms"
+          },
+          {
             "label": "Seconds",
             "value": "s"
           },
@@ -588,7 +592,8 @@
         "propertyType": "text",
         "required": true,
         "qa": "cube-name",
-        "col": 12
+        "width": 6,
+        "position": "left"
       },
       {
         "propertyId": "fixedMeasure",
@@ -596,7 +601,8 @@
         "propertyType": "text",
         "required": true,
         "qa": "cube-fixed-measure",
-        "col": 12
+        "width": 6,
+        "position": "right"
       },
       {
         "propertyId": "dateType",
@@ -638,7 +644,8 @@
             "value": "year"
           }
         ],
-        "col": 12
+        "width": 6,
+        "position": "left"
       },
       {
         "propertyId": "isAutoCalculatedId",
@@ -646,7 +653,8 @@
         "propertyType": "boolean",
         "default": false,
         "qa": "cube-is-auto-calculated-id",
-        "col": 12
+        "width": 6,
+        "position": "right"
       }
     ],
     "functionNames": [
@@ -677,55 +685,47 @@
         "propertyType": "text",
         "required": true,
         "qa": "trigger-name",
-        "col": 12
+        "width": 12
       },
       {
-        "propertyId": "overLast",
+        "propertyId": "overLastNumber",
         "propertyName": "_OVER_LAST_",
+        "propertyType": "number",
+        "width": 6,
+        "position": "left",
+        "required": true,
+        "qa": "trigger-overLastNumber"
+      },
+      {
+        "propertyId": "overLastTime",
+        "propertyName": "_WHITE_SPACE_",
         "propertyType": "select",
-        "qa": "trigger-over-last",
+        "width": 6,
+        "position": "right",
+        "qa": "trigger-overLastTime",
+        "required": true,
         "values": [
           {
-            "label": "_SECOND_",
-            "value": "second"
+            "label": "Milliseconds",
+            "value": "ms"
           },
           {
-            "label": "_5_SECONDS_",
-            "value": "s5"
+            "label": "Seconds",
+            "value": "s"
           },
           {
-            "label": "_10_SECONDS_",
-            "value": "s10"
+            "label": "Minutes",
+            "value": "m"
           },
           {
-            "label": "_15_SECONDS_",
-            "value": "s15"
+            "label": "Hours",
+            "value": "h"
           },
           {
-            "label": "_MINUTE_",
-            "value": "minute"
-          },
-          {
-            "label": "_HOUR_",
-            "value": "hour"
-          },
-          {
-            "label": "_DAY_",
-            "value": "day"
-          },
-          {
-            "label": "_MONTH_",
-            "value": "month"
-          },
-          {
-            "label": "_YEAR_",
-            "value": "year"
+            "label": "Days",
+            "value": "d"
           }
-        ],
-        "default": "second",
-        "required": true,
-        "qa": "trigger-over-last",
-        "col": 12
+        ]
       },
       {
         "propertyId": "sql",
@@ -733,7 +733,7 @@
         "propertyType": "textarea",
         "required": true,
         "qa": "trigger-sql",
-        "col": 12
+        "width": 12
       }
     ]
   }

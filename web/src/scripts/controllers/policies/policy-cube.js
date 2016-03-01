@@ -32,6 +32,7 @@
     vm.init();
 
     function init() {
+      vm.outputsWidth = "lg";
       vm.cube = CubeModelFactory.getCube();
       if (vm.cube) {
         vm.template = PolicyModelFactory.getTemplate().cube;

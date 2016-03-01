@@ -63,6 +63,29 @@
     }
   }
 
+  @at-root .secondary-accordion & {
+    .panel-default {
+      border-width: 0;
+
+      &:not(.panel-open) {
+        border-bottom: 1px solid getColor(n3);
+      }
+
+      .panel-heading {
+        background: transparent;
+
+        .c-accordion-header__step-number {
+          background-color: getColor(n3);
+          color: getColor(n10);
+        }
+      }
+
+      .panel-body {
+        background-color: getColor(n2);
+      }
+    }
+  }
+
   @for $item from 1 through 10 {
     &-item--indented > .panel:nth-child(#{$item}) {
       margin-left: $item * $c-accordion-item--indented__panel---margin;

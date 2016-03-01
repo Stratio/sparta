@@ -1,5 +1,6 @@
 @mixin c-form-group {
 	@include c-row;
+	@include no-paddings();
 
 	user-select: none;
 
@@ -12,6 +13,15 @@
 			&--no-margin-bottom {
 				margin-bottom: 0px;
 			}
+
+			&__container {
+				padding: 20px 15px;
+				background-color: getColor(n2);
+			}
+		}
+
+		&--margin-top {
+			margin-top: 20px;
 		}
 
 		&--list-compressed {
