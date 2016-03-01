@@ -23,7 +23,7 @@
         PolicyModelFactory.setTemplate(template);
         vm.policy = PolicyModelFactory.getCurrentPolicy();
         vm.template = template;
-        vm.helpLink = template.helpLinks.description;
+        vm.helpLink = template.helpLinks[0];
       });
     }
 
