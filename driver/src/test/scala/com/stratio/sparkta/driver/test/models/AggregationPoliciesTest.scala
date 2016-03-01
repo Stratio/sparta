@@ -31,7 +31,6 @@ with Matchers {
   "A AggregationPoliciesValidator should" should {
     "validate dimensions are required and have at least 1 element" in {
 
-      val sparkStreamingWindow = 2000
       val storageLevel = Some("MEMORY_AND_DISK_SER_2")
       val checkpointDir = "checkpoint"
 
@@ -54,7 +53,7 @@ with Matchers {
         storageLevel,
         "policy-name",
         "policy description",
-        sparkStreamingWindow,
+        AggregationPoliciesModel.sparkStreamingWindow,
         checkpointDir,
         rawDataDto,
         Seq(),
