@@ -41,11 +41,11 @@ class IngestionParser(name: String,
     val ingestionModel = JSON.parseFull(rawData).get.asInstanceOf[Map[String, JSerializable]]
     val columnList = ingestionModel.get("columns").get.asInstanceOf[List[Map[String, String]]]
     val columnPairs = extractColumnPairs(columnList)
-    val allParsedPairs = parseWithSchema(columnPairs, Map())._2
+    val (_, allParsedPairs) = parseWithSchema(columnPairs, List.empty[(String, JSerializable)])
     val filteredParsedPairs = allParsedPairs.filter(element => outputFields.contains(element._1))
     val prevData = if(removeRaw) data.toSeq.drop(1) else data.toSeq
 
-    Row.fromSeq(prevData ++ filteredParsedPairs.values.toSeq)
+    Row.fromSeq(prevData ++ filteredParsedPairs.map(_._2).toSeq)
   }
 
   // XXX Private methods.
@@ -75,10 +75,10 @@ class IngestionParser(name: String,
 
   @tailrec
   private def parseWithSchema(elementList: List[(String, String)],
-                              currentMap: Map[String, JSerializable])
-  : (List[(String, JSerializable)], Map[String, JSerializable]) = {
+                              currentMap: List[(String, JSerializable)])
+  : (List[(String, JSerializable)], List[(String, JSerializable)]) = {
     if (elementList.isEmpty) {
-      (elementList, currentMap)
+      (elementList, currentMap.reverse)
     } else {
       val currentElement = elementList.last
       val newElementList = elementList.init
@@ -87,7 +87,7 @@ class IngestionParser(name: String,
     }
   }
 
-  private def parseElementWithSchema(element: (String, JSerializable)): Map[String, JSerializable] = {
+  private def parseElementWithSchema(element: (String, JSerializable)): List[(String, JSerializable)] = {
     val key = element._1
     val value = element._2.toString
 
@@ -95,20 +95,22 @@ class IngestionParser(name: String,
       properties.get(key)
         .map(_.toString.toLowerCase)
 
-    dataType match {
+    val list = dataType match {
       case Some("long") =>
-        Map(key -> value.toLong)
+        List((key, value.toLong))
       case Some("int") | Some("integer") =>
-        Map(key -> value.toInt)
+        List((key, value.toInt))
       case Some("string") =>
-        Map(key -> value)
+        List((key, value))
       case Some("float") =>
-        Map(key -> value.toFloat)
+        List((key, value.toFloat))
       case Some("double") =>
-        Map(key -> value.toDouble)
+        List((key, value.toDouble))
       case None =>
-        Map()
+        List.empty[(String, JSerializable)]
       case _ => throw new NoSuchElementException(s"The dataType $dataType does not exists in the schema.")
     }
+
+    list.map{ case (x, y) => (x, y.asInstanceOf[JSerializable])}
   }
 }
