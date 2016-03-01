@@ -29,7 +29,6 @@
     vm.showConfirmDialog = showConfirmDialog;
 
     function openModal(controller, templateUrl, resolve, extraClass, size) {
-
       var modalInstance = $modal.open({
         animation: true,
         templateUrl: templateUrl,

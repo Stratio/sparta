@@ -25,6 +25,13 @@
       policy.transformations = [];
       policy.cubes = [];
       policy.streamTriggers = [];
+      /* Reset policy advanced settings */
+      policy.checkpointPath = "/tmp/checkpoint";
+      policy.sparkStreamingWindowNumber = 6;
+      policy.sparkStreamingWindowTime = "s";
+      policy.storageLevel = "MEMORY_AND_DISK_SER";
+      policy.rawDataEnabled = false;
+      policy.rawDataPath = "/tmp/checkpoint";
     }
 
     function setPolicy(inputPolicyJSON) {
