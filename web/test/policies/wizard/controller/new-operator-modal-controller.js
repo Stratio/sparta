@@ -39,13 +39,6 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
   });
 
   describe("should be able to accept the modal", function () {
-    it("if view validations have not been passed, generic form error is shown", function () {
-      ctrl.form = {"$valid": false};
-      ctrl.ok();
-
-      expect(ctrl.errorText).toBe("_GENERIC_FORM_ERROR_");
-    });
-
     describe("if view validations have been passed", function () {
       beforeEach(function () {
         ctrl.form = {"$valid": true};

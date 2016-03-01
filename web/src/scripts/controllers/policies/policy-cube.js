@@ -86,7 +86,7 @@
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve, extraClass, size);
 
       return modalInstance.result.then(function (dimensionData) {
-        vm.cube.dimensions.push(dimensionData.dimesion);
+        vm.cube.dimensions.push(dimensionData.dimension);
         vm.isTimeDimension = dimensionData.isTimeDimesion;
       });
     }
@@ -155,7 +155,6 @@
 
     function addCube() {
       vm.form.$submitted = true;
-      vm.form.cubeOutputs.$invalid = (vm.cube.writer.outputs.length === 0)? true : false;
       if (vm.form.$valid && vm.cube.operators.length > 0 && vm.cube.dimensions.length > 0 && vm.cube.writer.outputs.length > 0) {
         vm.form.$submitted = false;
         CubeService.addCube();
