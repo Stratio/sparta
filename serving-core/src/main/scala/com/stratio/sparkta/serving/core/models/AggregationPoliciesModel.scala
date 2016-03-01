@@ -34,7 +34,7 @@ case class AggregationPoliciesModel(id: Option[String] = None,
                                     storageLevel: Option[String] = AggregationPoliciesModel.storageDefaultValue,
                                     name: String,
                                     description: String = "default description",
-                                    sparkStreamingWindow: Long = AggregationPoliciesModel.sparkStreamingWindow,
+                                    sparkStreamingWindow: String = AggregationPoliciesModel.sparkStreamingWindow,
                                     checkpointPath: String,
                                     rawData: RawDataModel,
                                     transformations: Seq[TransformationsModel],
@@ -45,7 +45,7 @@ case class AggregationPoliciesModel(id: Option[String] = None,
 
 case object AggregationPoliciesModel {
 
-  val sparkStreamingWindow = 2000
+  val sparkStreamingWindow = "2s"
   val storageDefaultValue = Some("MEMORY_AND_DISK_SER_2")
 
   def checkpointPath(policy: AggregationPoliciesModel): String =

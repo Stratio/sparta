@@ -29,6 +29,7 @@ import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.constants.ErrorCodes
 import com.stratio.sparkta.serving.core.dao.ErrorDAO
+import com.stratio.sparkta.serving.core.helpers.OperationsHelper
 import com.stratio.sparkta.serving.core.models._
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.Row
@@ -45,7 +46,8 @@ class SparktaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
 
   def run(sc: SparkContext): StreamingContext = {
     val checkpointPolicyPath = policy.checkpointPath.concat(File.separator).concat(policy.name)
-    val ssc = sparkStreamingInstance(new Duration(policy.sparkStreamingWindow), checkpointPolicyPath)
+    val sparkStreamingWindow = OperationsHelper.parseValueToMilliSeconds(policy.sparkStreamingWindow)
+    val ssc = sparkStreamingInstance(new Duration(sparkStreamingWindow), checkpointPolicyPath)
     val parserSchemas = SchemaHelper.getSchemasFromParsers(policy.transformations, Input.InitSchema)
     val parsers = SparktaJob.getParsers(policy, ReflectionUtils, parserSchemas).sorted
     val cubes = SparktaJob.getCubes(policy, ReflectionUtils, parserSchemas.values.last)
