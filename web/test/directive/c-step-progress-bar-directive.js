@@ -55,6 +55,22 @@ describe('directive.c-step-progress-bar-directive', function () {
       isolatedScope.chooseStep(newCurrentStep);
       expect(isolatedScope.current).toBe(newCurrentStep);
     });
+
+    it ("should be able to hide the floating message", function(){
+      isolatedScope.showHelp = true;
+
+      isolatedScope.hideHelp();
+
+      expect(isolatedScope.showHelp).toBeFalsy();
+    });
+
+    it ("should see if next step is available and if it is available, show its message", function(){
+      isolatedScope.showHelp = false;
+      isolatedScope.nextStepAvailable = true;
+      scope.$digest();
+
+      expect(isolatedScope.showHelp).toBeTruthy();
+    });
   });
 
 });
