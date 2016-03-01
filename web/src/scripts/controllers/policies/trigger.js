@@ -17,6 +17,7 @@
     vm.removeTrigger = TriggerService.removeTrigger;
     vm.isNewTrigger = TriggerService.isNewTrigger;
     vm.saveTrigger = TriggerService.saveTrigger;
+    vm.changeSqlHelpVisibility = changeSqlHelpVisibility;
 
     vm.init();
 
@@ -26,6 +27,7 @@
         //vm.trigger.overLast = PolicyModelFactory.getCurrentPolicy().streamWindow; //TODO Change stream window to number and select
         vm.triggerContext = TriggerModelFactory.getContext();
         vm.template = PolicyModelFactory.getTemplate().trigger;
+        vm.showSqlHelp = false;
         if (TriggerService.isEnabledHelpForSql()) {
           vm.sqlSourceItems = TriggerService.getSqlHelpSourceItems();
         }
@@ -33,6 +35,10 @@
           vm.policyOutputList = outputList;
         });
       }
+    }
+
+    function changeSqlHelpVisibility() {
+      vm.showSqlHelp = !vm.showSqlHelp;
     }
 
     function addTrigger() {
