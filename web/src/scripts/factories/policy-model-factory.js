@@ -17,9 +17,6 @@
       status.nextStepAvailable = false;
       policy.name = "";
       policy.description = "";
-      policy.rawData = {};
-      policy.rawData.enabled = false;
-      policy.rawData.path = "";
       policy.input = {};
       policy.outputs = [];
       policy.transformations = [];
@@ -43,10 +40,11 @@
       policy.storageLevel = inputPolicyJSON.storageLevel;
       policy.checkpointPath = inputPolicyJSON.checkpointPath;
       policy.rawData = inputPolicyJSON.rawData;
-      policy.rawData.enabled = (inputPolicyJSON.rawData.enabled == "true");
+      policy.rawDataEnabled = (inputPolicyJSON.rawData.enabled == "true");
       policy.transformations = inputPolicyJSON.transformations;
       policy.cubes = inputPolicyJSON.cubes;
       policy.streamTriggers = inputPolicyJSON.streamTriggers;
+      policy.rawDataPath = inputPolicyJSON.rawData.path;
 
       var policyFragments = separateFragments(inputPolicyJSON.fragments);
       policy.input = policyFragments.input;

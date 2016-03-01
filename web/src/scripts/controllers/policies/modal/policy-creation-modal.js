@@ -35,13 +35,6 @@
           vm.error = found;
           /* Policy name doesn't exist */
           if (!found) {
-            //TODO: Set rawData object in finish step
-
-            // vm.policy.rawData.enabled = vm.policy.rawDataEnabled.toString();
-            // vm.policy.rawData.path = (vm.policy.rawDataEnabled)? vm.policy.rawDataPath : null;
-            // delete vm.policy['rawDataPath'];
-            // delete vm.policy['rawDataEnabled'];
-
             $modalInstance.close();
           }
           /* Policy name exists */

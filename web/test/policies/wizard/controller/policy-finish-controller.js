@@ -41,32 +41,56 @@ describe('policies.wizard.controller.policy-finish-controller', function () {
       var fakePartitionFormat = "fake partition format";
 
       beforeEach(function () {
-        fakePolicy.rawData.path = fakePath;
+        fakePolicy.rawDataPath = fakePath;
       });
 
       it("if raw data is not enabled, it should remove the attribute path from rawData", inject(function ($controller) {
-        fakePolicy.rawData.enabled = "false";
+        fakePolicy.rawDataEnabled = false;
 
         ctrl = $controller('PolicyFinishCtrl', {
           'PolicyModelFactory': policyModelFactoryMock
         });
-        var resultJSON = JSON.parse(ctrl.testingpolcyData);
+        var resultJSON = JSON.parse(ctrl.policyJson);
         expect(resultJSON.rawData.path).toBe(undefined);
       }));
 
 
       it("if raw data is enabled, it should not remove the attribute path from rawData", inject(function ($controller) {
-        fakePolicy.rawData.enabled = "true";
+        fakePolicy.rawDataEnabled = true;
+        fakePolicy.rawDataPath = fakePath;
         ctrl = $controller('PolicyFinishCtrl', {
           'PolicyModelFactory': policyModelFactoryMock
         });
 
-        var resultJSON = JSON.parse(ctrl.testingpolcyData);
+        var resultJSON = JSON.parse(ctrl.policyJson);
         expect(resultJSON.rawData.path).toBe(fakePath);
       }));
 
+      it("rawData attribute is converted to the expected format",  inject(function ($controller) {
+        ctrl.policy.rawDataEnabled = false;
+        ctrl = $controller('PolicyFinishCtrl', {
+          'PolicyModelFactory': policyModelFactoryMock
+        });
+        // raw data path is null if raw data is disabled
+        var resultJSON = JSON.parse(ctrl.policyJson);
+        expect(resultJSON.rawData.path).toBe(undefined);
+
+        // temporal attributes are removed
+        expect(ctrl.policyJson.rawDataPath).toBe(undefined);
+        expect(ctrl.policyJson.rawDataEnabled).toBe(undefined);
+
+        ctrl.policy.rawDataEnabled = true;
+        var fakeRawDataPath = "fake/path";
+        ctrl.policy.rawDataPath = fakeRawDataPath;
+        ctrl = $controller('PolicyFinishCtrl', {
+          'PolicyModelFactory': policyModelFactoryMock
+        });
+        var resultJSON = JSON.parse(ctrl.policyJson);
+        expect(resultJSON.rawData.path).toBe(fakeRawDataPath);
+      }));
+
       it("should introduce in a fragment array the output list and the input of the policy", inject(function ($controller) {
-        fakePolicy.rawData.enabled = "true";
+        fakePolicy.rawDataEnabled = true;
         fakePolicy.input = fakeInput;
         var fakeOutput2 = angular.copy(fakeOutput);
         fakeOutput2.name = "fake output 2";
@@ -77,12 +101,12 @@ describe('policies.wizard.controller.policy-finish-controller', function () {
           'PolicyModelFactory': policyModelFactoryMock
         });
 
-        var resultJSON = JSON.parse(ctrl.testingpolcyData);
+        var resultJSON = JSON.parse(ctrl.policyJson);
         expect(resultJSON.fragments).toEqual(expectedFragments);
       }));
 
       it("should clean the input and outputs keys", inject(function ($controller) {
-        fakePolicy.rawData.enabled = "true";
+        fakePolicy.rawDataEnabled = true;
         fakePolicy.input = fakeInput;
         var fakeOutput2 = angular.copy(fakeOutput);
         fakeOutput2.name = "fake output 2";
@@ -92,7 +116,7 @@ describe('policies.wizard.controller.policy-finish-controller', function () {
           'PolicyModelFactory': policyModelFactoryMock
         });
 
-        var resultJSON = JSON.parse(ctrl.testingpolcyData);
+        var resultJSON = JSON.parse(ctrl.policyJson);
         expect(resultJSON.outputs).toEqual(undefined);
         expect(resultJSON.input).toEqual(undefined);
       }));
