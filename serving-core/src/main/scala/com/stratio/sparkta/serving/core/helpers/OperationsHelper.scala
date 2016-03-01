@@ -24,7 +24,8 @@ object OperationsHelper {
     */
   //scalastyle:off
   def parseValueToMilliSeconds(value: String): Long = {
-    val Prefix: Seq[String] = Seq("[1-9][0-9]*s", "[1-9][0-9]*m", "[1-9][0-9]*h", "[1-9][0-9]*d", "[1-9][0-9]*y",
+    val Prefix: Seq[String] = Seq("[1-9][0-9]*ms","[1-9][0-9]*s", "[1-9][0-9]*m", "[1-9][0-9]*h", "[1-9][0-9]*d",
+      "[1-9][0-9]*y",
       "[1-9][0-9]*M", "second", "minute", "hour", "day", "month", "year")
 
     val prefix = for {
@@ -33,6 +34,7 @@ object OperationsHelper {
     } yield (prefix)
 
     prefix.headOption match {
+      case Some("[1-9][0-9]*ms") => value.replace("ms", "").toLong
       case Some("[1-9][0-9]*s") => value.replace("s", "").toLong * 1000
       case Some("[1-9][0-9]*m") => value.replace("m", "").toLong * 60000
       case Some("[1-9][0-9]*h") => value.replace("h", "").toLong * 3600000
@@ -53,6 +55,7 @@ object OperationsHelper {
       case "day"    => 86400000
       case "month"  => 2628000000L
       case "year"   => 31557600000L
+      case _ => value.toLong
     }
   }
 
