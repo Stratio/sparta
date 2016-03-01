@@ -22,19 +22,48 @@
       "propertyId": "checkpointPath",
       "propertyName": "_CHECKPOINT_PATH_",
       "propertyType": "text",
+      "width": 12,
       "required": true,
       "default": "/tmp/checkpoint",
       "qa": "policy-checkpoint-path"
     },
     {
-      "propertyId": "sparkStreamingWindow",
+      "propertyId": "sparkStreamingWindowNumber",
       "propertyName": "_SPARK_STREAMING_WINDOW_",
       "propertyType": "number",
+      "default": 6,
+      "width": 6,
+      "position": "left",
       "required": true,
-      "default": 6000,
-      "qa": "policy-spark-streaming-window",
-      "min": 0,
-      "max": 10000
+      "qa": "policy-spark-streaming-window-sparkStreamingWindowNumber"
+    },
+    {
+      "propertyId": "sparkStreamingWindowTime",
+      "propertyName": "_WHITE_SPACE_",
+      "propertyType": "select",
+      "width": 6,
+      "position": "right",
+      "qa": "policy-spark-streaming-window-sparkStreamingWindowTime",
+      "default": "s",
+      "required": true,
+      "values": [
+        {
+          "label": "Seconds",
+          "value": "s"
+        },
+        {
+          "label": "Minutes",
+          "value": "m"
+        },
+        {
+          "label": "Hours",
+          "value": "h"
+        },
+        {
+          "label": "Days",
+          "value": "d"
+        }
+      ]
     },
     {
       "propertyId": "storageLevel",
@@ -42,6 +71,8 @@
       "propertyType": "select",
       "required": true,
       "default": "MEMORY_AND_DISK_SER",
+      "width": 6,
+      "position": "left",
       "qa": "policy-storage-level",
       "values": [
         {
@@ -90,13 +121,16 @@
       "propertyId": "rawDataEnabled",
       "propertyName": "_PERSIST_RAW_DATA_",
       "propertyType": "boolean",
-      "required": false,
+      "width": 6,
+      "position": "right",
       "default": false,
       "qa": "policy-raw-data"
     },
     {
       "propertyId": "rawDataPath",
       "propertyName": "_PATH_",
+      "width": 6,
+      "position": "left",
       "propertyType": "text",
       "required": true,
       "visible": [
@@ -114,28 +148,35 @@
   "steps": [
     {
       "name": "_POLICY_._STEPS_._INPUT_",
-      "icon": "icon-input"
+      "icon": "icon-input",
+      "currentMessage": "_INPUT_STEP_MESSAGE_"
     },
     {
       "name": "_POLICY_._STEPS_._TRANSFORMATION_",
-      "icon": "icon-content-left"
+      "icon": "icon-content-left",
+      "currentMessage": "_TRANSFORMATION_STEP_MESSAGE_",
+      "availableMessage": "_TRANSFORMATION_STEP_AVAILABLE_"
     },
     {
       "name": "_POLICY_._STEPS_._CUBES_",
-      "icon": "icon-box"
+      "icon": "icon-box",
+      "currentMessage": "_CUBE_STEP_MESSAGE_",
+      "availableMessage": "_CUBE_STEP_AVAILABLE_"
     },
     {
       "name": "_POLICY_._STEPS_._FINISH_",
-      "icon": "icon-paper"
+      "icon": "icon-paper",
+      "currentMessage": "_FINISH_STEP_MESSAGE_",
+      "availableMessage": "_FINISH_STEP_AVAILABLE_"
     }
   ],
-  "helpLinks": {
-    "description": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/5.+Create+and+Submit+Policy",
-    "inputs": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html",
-    "models": "http://docs.stratio.com/modules/sparkta/0.6/transformations.html",
-    "cubes": "http://docs.stratio.com/modules/sparkta/0.6/cube.html",
-    "outputs": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html"
-  },
+  "helpLinks": [
+    "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/5.+Create+and+Submit+Policy",
+    "http://docs.stratio.com/modules/sparkta/0.6/inputs.html",
+    "http://docs.stratio.com/modules/sparkta/0.6/transformations.html",
+    "http://docs.stratio.com/modules/sparkta/0.6/cube.html",
+    "http://docs.stratio.com/modules/sparkta/0.6/outputs.html"
+  ],
   "model": {
     "types": [
       {
@@ -383,47 +424,6 @@
     ],
     "precisionOptions": [
       {
-        "type": "DateTime",
-        "precisions": [
-          {
-            "label": "_SECOND_",
-            "value": "second"
-          },
-          {
-            "label": "_5_SECONDS_",
-            "value": "s5"
-          },
-          {
-            "label": "_10_SECONDS_",
-            "value": "s10"
-          },
-          {
-            "label": "_15_SECONDS_",
-            "value": "s15"
-          },
-          {
-            "label": "_MINUTE_",
-            "value": "minute"
-          },
-          {
-            "label": "_HOUR_",
-            "value": "hour"
-          },
-          {
-            "label": "_DAY_",
-            "value": "day"
-          },
-          {
-            "label": "_MONTH_",
-            "value": "month"
-          },
-          {
-            "label": "_YEAR_",
-            "value": "year"
-          }
-        ]
-      },
-      {
         "type": "GeoHash",
         "precisions": [
           {
@@ -481,6 +481,107 @@
         "precisions": []
       }
     ],
+    "DateTime": [
+      {
+        "propertyId": "precisionNumber",
+        "propertyName": "_PRECISION_",
+        "propertyType": "number",
+        "default": 1,
+        "width": 6,
+        "position": "left",
+        "required": true,
+        "qa": "policy-cube-dimension-dateTime-precisionNumber"
+      },
+      {
+        "propertyId": "precisionTime",
+        "propertyName": "_WHITE_SPACE_",
+        "propertyType": "select",
+        "width": 6,
+        "position": "right",
+        "qa": "policy-cube-dimension-dateTime-precisionTime",
+        "default": "m",
+        "required": true,
+        "values": [
+          {
+            "label": "Seconds",
+            "value": "s"
+          },
+          {
+            "label": "Minutes",
+            "value": "m"
+          },
+          {
+            "label": "Hours",
+            "value": "h"
+          },
+          {
+            "label": "Days",
+            "value": "d"
+          }
+        ]
+      },
+      {
+        "propertyId": "isTimeDimension",
+        "propertyName": "_IS_TIME_DIMENSION_",
+        "propertyType": "boolean",
+        "required": false,
+        "qa": "policy-cube-dimension-dateTime-isTimeDimension"
+      },
+      {
+        "propertyId": "computeLastNumber",
+        "propertyName": "_COMPUTE_LAST_",
+        "propertyType": "number",
+        "width": 6,
+        "position": "left",
+        "default": 10,
+        "required": true,
+        "qa": "policy-cube-dimension-dateTime-computeLastNumber",
+        "visible": [
+          [
+            {
+              "propertyId": "isTimeDimension",
+              "value": true
+            }
+          ]
+        ]
+      },
+      {
+        "propertyId": "computeLastTime",
+        "propertyName": "_WHITE_SPACE_",
+        "propertyType": "select",
+        "width": 6,
+        "position": "right",
+        "qa": "policy-cube-dimension-dateTime-computeLastTime",
+        "default": "m",
+        "required": true,
+        "values": [
+          {
+            "label": "Seconds",
+            "value": "s"
+          },
+          {
+            "label": "Minutes",
+            "value": "m"
+          },
+          {
+            "label": "Hours",
+            "value": "h"
+          },
+          {
+            "label": "Days",
+            "value": "d"
+          }
+        ],
+        "visible": [
+          [
+            {
+              "propertyId": "isTimeDimension",
+              "value": true
+            }
+          ]
+        ]
+      }
+    ],
     "properties": [
       {
         "propertyId": "name",
@@ -491,42 +592,19 @@
         "col": 12
       },
       {
-        "propertyId": "checkpointConfig.interval",
-        "propertyName": "_CHECKPOINT_INTERVAL_",
-        "propertyType": "number",
-        "default": 30000,
-        "required": true,
-        "qa": "cube-name",
-        "col": 12
-      },
-      {
-        "propertyId": "checkpointConfig.timeDimension",
-        "propertyName": "_TIME_DIMENSION_",
+        "propertyId": "fixedMeasure",
+        "propertyName": "_FIXED_MEASURE_",
         "propertyType": "text",
-        "default": "minute",
         "required": true,
-        "qa": "cube-name",
+        "qa": "cube-fixed-measure",
         "col": 12
       },
       {
-        "propertyId": "checkpointConfig.timeAvailability",
-        "propertyName": "_CHECKPOINT_AVAILABILITY_",
-        "propertyType": "number",
-        "min": 0,
-        "max": 1000,
-        "default": 60000,
-        "required": true,
-        "qa": "cube-name",
-        "col": 12
-      },
-      {
-        "propertyId": "checkpointConfig.granularity",
-        "propertyName": "_GRANULARITY_",
+        "propertyId": "dateType",
+        "propertyName": "_DATE_TYPE_",
         "propertyType": "select",
-        "default": "minute",
         "required": true,
-        "qa": "cube-name",
-        "col": 5,
+        "qa": "cube-date-type",
         "values": [
           {
             "label": "5 seconds",
@@ -560,7 +638,16 @@
             "label": "_YEAR_",
             "value": "year"
           }
-        ]
+        ],
+        "col": 12
+      },
+      {
+        "propertyId": "isAutoCalculatedId",
+        "propertyName": "_IS_AUTO_CALCULATED_ID_",
+        "propertyType": "boolean",
+        "default": false,
+        "qa": "cube-is-auto-calculated-id",
+        "col": 12
       }
     ],
     "functionNames": [
@@ -580,6 +667,75 @@
       "Sum",
       "Variance",
       "TotalEntityCount"
+    ]
+  },
+  "trigger": {
+    "defaultName": "trigger",
+    "properties": [
+      {
+        "propertyId": "name",
+        "propertyName": "_NAME_",
+        "propertyType": "text",
+        "required": true,
+        "qa": "trigger-name",
+        "col": 12
+      },
+      {
+        "propertyId": "overLast",
+        "propertyName": "_OVER_LAST_",
+        "propertyType": "select",
+        "qa": "trigger-over-last",
+        "values": [
+          {
+            "label": "_SECOND_",
+            "value": "second"
+          },
+          {
+            "label": "_5_SECONDS_",
+            "value": "s5"
+          },
+          {
+            "label": "_10_SECONDS_",
+            "value": "s10"
+          },
+          {
+            "label": "_15_SECONDS_",
+            "value": "s15"
+          },
+          {
+            "label": "_MINUTE_",
+            "value": "minute"
+          },
+          {
+            "label": "_HOUR_",
+            "value": "hour"
+          },
+          {
+            "label": "_DAY_",
+            "value": "day"
+          },
+          {
+            "label": "_MONTH_",
+            "value": "month"
+          },
+          {
+            "label": "_YEAR_",
+            "value": "year"
+          }
+        ],
+        "default": "second",
+        "required": true,
+        "qa": "trigger-over-last",
+        "col": 12
+      },
+      {
+        "propertyId": "sql",
+        "propertyName": "_SQL_",
+        "propertyType": "textarea",
+        "required": true,
+        "qa": "trigger-sql",
+        "col": 12
+      }
     ]
   }
 }

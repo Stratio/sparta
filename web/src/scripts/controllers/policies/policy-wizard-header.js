@@ -6,27 +6,36 @@
     .module('webApp')
     .controller('PolicyWizardHeaderCtrl', PolicyWizardHeaderCtrl);
 
-  PolicyWizardHeaderCtrl.$inject = ['PolicyModelFactory', 'ModalService'];
-  function PolicyWizardHeaderCtrl(PolicyModelFactory, ModalService) {
-    var vm = this;
+  PolicyWizardHeaderCtrl.$inject = ['PolicyModelFactory', 'ModalService', '$scope'];
+  function PolicyWizardHeaderCtrl(PolicyModelFactory, ModalService, $scope) {
+    var header = this;
 
-    vm.policy = PolicyModelFactory.getCurrentPolicy();
-    vm.showPolicyData = showPolicyData;
+    var policyTemplate = null;
+    header.policy = PolicyModelFactory.getCurrentPolicy();
+    header.wizardStatus = PolicyModelFactory.getProcessStatus();
+
+    header.showPolicyData = showPolicyData;
 
     init();
 
     function init() {
-      var policyTemplate =  PolicyModelFactory.getTemplate();
-      if (vm.policy && policyTemplate.helpLinks) {
-        vm.helpLink = PolicyModelFactory.getTemplate().helpLinks.description;
-      }
+      policyTemplate = PolicyModelFactory.getTemplate();
     }
 
     function showPolicyData() {
       var controller = 'PolicyCreationModalCtrl';
       var templateUrl = "templates/modal/policy-creation-modal.tpl.html";
       var resolve = {};
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
+      ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
     }
+
+    $scope.$watchCollection(
+      "header.wizardStatus",
+      function (newStatus) {
+        if (newStatus && newStatus && newStatus.currentStep >= 0 && newStatus.currentStep  < policyTemplate.helpLinks.length-1 ) {
+          header.helpLink = policyTemplate.helpLinks[newStatus.currentStep + 1];
+        }
+      }
+    );
   }
 })();

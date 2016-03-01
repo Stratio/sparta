@@ -149,34 +149,33 @@
     {
       "name": "_POLICY_._STEPS_._INPUT_",
       "icon": "icon-input",
-      "currentMessage":"_INPUT_STEP_MESSAGE_"
+      "currentMessage": "_INPUT_STEP_MESSAGE_"
     },
     {
       "name": "_POLICY_._STEPS_._TRANSFORMATION_",
       "icon": "icon-content-left",
-      "currentMessage":"_TRANSFORMATION_STEP_MESSAGE_",
+      "currentMessage": "_TRANSFORMATION_STEP_MESSAGE_",
       "availableMessage": "_TRANSFORMATION_STEP_AVAILABLE_"
     },
     {
       "name": "_POLICY_._STEPS_._CUBES_",
       "icon": "icon-box",
-      "currentMessage":"_CUBE_STEP_MESSAGE_",
+      "currentMessage": "_CUBE_STEP_MESSAGE_",
       "availableMessage": "_CUBE_STEP_AVAILABLE_"
     },
     {
       "name": "_POLICY_._STEPS_._FINISH_",
       "icon": "icon-paper",
-      "currentMessage":"_FINISH_STEP_MESSAGE_",
+      "currentMessage": "_FINISH_STEP_MESSAGE_",
       "availableMessage": "_FINISH_STEP_AVAILABLE_"
     }
   ],
-  "helpLinks": {
-    "description": "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/5.+Create+and+Submit+Policy",
-    "inputs": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html",
-    "models": "http://docs.stratio.com/modules/sparkta/0.6/transformations.html",
-    "cubes": "http://docs.stratio.com/modules/sparkta/0.6/cube.html",
-    "outputs": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html"
-  },
+  "helpLinks": [
+    "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/5.+Create+and+Submit+Policy",
+    "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.1+Inputs",
+    "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.2+Transformations",
+    "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.3+Cubes"
+  ],
   "model": {
     "types": [
       {
@@ -683,7 +682,6 @@
       {
         "propertyId": "overLast",
         "propertyName": "_OVER_LAST_",
-
         "propertyType": "select",
         "qa": "trigger-over-last",
         "values": [
