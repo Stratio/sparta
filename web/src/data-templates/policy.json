@@ -22,19 +22,48 @@
       "propertyId": "checkpointPath",
       "propertyName": "_CHECKPOINT_PATH_",
       "propertyType": "text",
+      "width": 12,
       "required": true,
       "default": "/tmp/checkpoint",
       "qa": "policy-checkpoint-path"
     },
     {
-      "propertyId": "sparkStreamingWindow",
+      "propertyId": "sparkStreamingWindowNumber",
       "propertyName": "_SPARK_STREAMING_WINDOW_",
       "propertyType": "number",
+      "default": 6,
+      "width": 6,
+      "position": "left",
       "required": true,
-      "default": 6000,
-      "qa": "policy-spark-streaming-window",
-      "min": 0,
-      "max": 10000
+      "qa": "policy-spark-streaming-window-sparkStreamingWindowNumber"
+    },
+    {
+      "propertyId": "sparkStreamingWindowTime",
+      "propertyName": "_WHITE_SPACE_",
+      "propertyType": "select",
+      "width": 6,
+      "position": "right",
+      "qa": "policy-spark-streaming-window-sparkStreamingWindowTime",
+      "default": "s",
+      "required": true,
+      "values": [
+        {
+          "label": "Seconds",
+          "value": "s"
+        },
+        {
+          "label": "Minutes",
+          "value": "m"
+        },
+        {
+          "label": "Hours",
+          "value": "h"
+        },
+        {
+          "label": "Days",
+          "value": "d"
+        }
+      ]
     },
     {
       "propertyId": "storageLevel",
@@ -42,6 +71,8 @@
       "propertyType": "select",
       "required": true,
       "default": "MEMORY_AND_DISK_SER",
+      "width": 6,
+      "position": "left",
       "qa": "policy-storage-level",
       "values": [
         {
@@ -90,13 +121,16 @@
       "propertyId": "rawDataEnabled",
       "propertyName": "_PERSIST_RAW_DATA_",
       "propertyType": "boolean",
-      "required": false,
+      "width": 6,
+      "position": "right",
       "default": false,
       "qa": "policy-raw-data"
     },
     {
       "propertyId": "rawDataPath",
       "propertyName": "_PATH_",
+      "width": 6,
+      "position": "left",
       "propertyType": "text",
       "required": true,
       "visible": [

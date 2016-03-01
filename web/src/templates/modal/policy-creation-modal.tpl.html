@@ -30,12 +30,11 @@
                   {{"_ADVANCED_SETTINGS_" | translate}}
                 </span>
           </div>
-
           <div class="c-form-group c-form-group--list-compressed">
             <form-field
               data-ng-repeat="properties in vm.template.advancedSettings"
+              data-ng-class="{'c-col c-col--{{properties.width}}': properties.width, 'c-form-gutter c-form-gutter__{{properties.position}} c-col--vertical-top': properties.position}"
               data-ng-form-id="{{properties.propertyId}}"
-              class="c-form-gutter c-col c-col--6 c-col--vertical-top"
               data-field="properties"
               data-model="vm.policy"
               data-form="vm.form"
