@@ -21,7 +21,6 @@
     function init() {
       return TemplateFactory.getPolicyTemplate().then(function (template) {
         PolicyModelFactory.setTemplate(template);
-        PolicyModelFactory.resetPolicy();
         vm.policy = PolicyModelFactory.getCurrentPolicy();
         vm.template = template;
         vm.helpLink = template.helpLinks.description;
@@ -36,12 +35,13 @@
           vm.error = found;
           /* Policy name doesn't exist */
           if (!found) {
-            vm.policy.rawData.enabled = vm.policy.rawDataEnabled.toString();
-            vm.policy.rawData.path = (vm.policy.rawDataEnabled)? vm.policy.rawDataPath : null;
-            delete vm.policy['rawDataPath'];
-            delete vm.policy['rawDataEnabled'];
+            //TODO: Set rawData object in finish step
 
-            PolicyModelFactory.nextStep();
+            // vm.policy.rawData.enabled = vm.policy.rawDataEnabled.toString();
+            // vm.policy.rawData.path = (vm.policy.rawDataEnabled)? vm.policy.rawDataPath : null;
+            // delete vm.policy['rawDataPath'];
+            // delete vm.policy['rawDataEnabled'];
+
             $modalInstance.close();
           }
           /* Policy name exists */
