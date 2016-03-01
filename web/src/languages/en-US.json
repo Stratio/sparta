@@ -175,9 +175,9 @@
   "_SHORT_": "Short",
   "_LONG_": "Long",
   "_CUSTOM_": "Custom",
-  "_SPARK_STREAMING_WINDOW_": "Spark streaming window (in milliseconds)",
-  "_CHECKPOINT_AVAILABILITY_": "Checkpoint availability",
-  "_CHECKPOINT_PATH_": "Checkpoint path",
+  "_SPARK_STREAMING_WINDOW_": "Spark streaming window",
+  "_CHECKPOINT_AVAILABILITY_":"Checkpoint availability",
+  "_CHECKPOINT_PATH_":"Checkpoint path",
   "_PERSIST_RAW_DATA_": "Persist raw data",
   "_PARTITION_FORMAT_": "Partition format",
   "_ADVANCED_SETTINGS_": "Advanced settings",
@@ -312,5 +312,6 @@
   "_CUBE_STEP_AVAILABLE_": "Go to CUBES. You have to create, at least, one cube",
   "_CUBE_STEP_MESSAGE_": "You have to add a cube to the policy and configure at least, one dimension and one operator with the output fields configured in the model.",
   "_FINISH_STEP_AVAILABLE_": "Now, you can finish the policy and see how it will be created",
-  "_FINISH_STEP_MESSAGE_": "Now you can see how your policy will be created"
+  "_FINISH_STEP_MESSAGE_": "Now you can see how your policy will be created",
+  "_ERROR_ELEMENT_LIMIT_": "Maximun number of outputs for this transformation is "
 }

@@ -26,7 +26,8 @@
         limit: '=',
         isObject: "=",
         attribute: "@",
-        required:"="
+        required:"=",
+        width: '='
       },
       replace: "true",
       templateUrl: 'templates/components/c-add-element.tpl.html',

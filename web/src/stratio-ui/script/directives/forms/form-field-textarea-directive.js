@@ -39,7 +39,8 @@
                 helpQa: '=',
                 placeholder: '=',
                 extraInfo: '=',
-                disabled: '='
+                disabled: '=',
+                largeSize: '='
             }
         }
         return directive;
