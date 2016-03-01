@@ -55,7 +55,6 @@
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
             <artifactId>plugins</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
