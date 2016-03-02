@@ -59,7 +59,8 @@ class CubeTest extends TestSuiteBase {
       Seq(Dimension("dim1", "foo", "identity", defaultDimension)),
       Seq(operatorCount, operatorSum),
       initSchema,
-      Option(expiringDataConfig)
+      Option(expiringDataConfig),
+      Seq.empty[Trigger]
     )
 
     testOperation(getInput, cube.aggregate, getOutput, PreserverOrder)
@@ -131,7 +132,9 @@ class CubeTest extends TestSuiteBase {
       name,
       Seq(Dimension("dim1", "foo", "identity", defaultDimension)),
       Seq(operatorCount, operatorSum),
-    initSchema
+    initSchema,
+      expiringDataConfig = None,
+      Seq.empty[Trigger]
     )
 
     testOperation(getInput, cube.aggregate, getOutput, PreserverOrder)

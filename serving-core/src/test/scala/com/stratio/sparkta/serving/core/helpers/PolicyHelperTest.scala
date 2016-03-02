@@ -33,9 +33,9 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
       Given("a policy with an input, an output and a fragment with an input")
       val checkpointDir = "checkpoint"
 
-      val ap = new AggregationPoliciesModel(
-        None,
-        None,
+      val ap = AggregationPoliciesModel(
+        id = None,
+        version = None,
         storageLevel,
         "policy-test",
         "policy description",
@@ -43,6 +43,7 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
         checkpointDir,
         new RawDataModel(),
         transformations = Seq(),
+        streamTriggers = Seq(),
         cubes = Seq(),
         input = None,
         outputs = Seq(
@@ -83,8 +84,8 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
     val checkpointDir = "checkpoint"
 
     val ap = new AggregationPoliciesModel(
-      None,
-      None,
+      id = None,
+      version = None,
       storageLevel,
       "policy-test",
       "policy description",
@@ -92,6 +93,7 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
       checkpointDir,
       new RawDataModel(),
       transformations = Seq(),
+      streamTriggers = Seq(),
       cubes = Seq(),
       input = Some(PolicyElementModel("input1", "input", Map())),
       outputs = Seq(
@@ -126,8 +128,8 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
     val checkpointDir = "checkpoint"
 
     val ap = new AggregationPoliciesModel(
-      None,
-      None,
+      id = None,
+      version = None,
       storageLevel,
       "policy-test",
       "policy description",
@@ -135,6 +137,7 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
       checkpointDir,
       new RawDataModel(),
       transformations = Seq(),
+      streamTriggers = Seq(),
       cubes = Seq(),
       input = Some(PolicyElementModel("input1", "input", Map())),
       outputs = Seq(),

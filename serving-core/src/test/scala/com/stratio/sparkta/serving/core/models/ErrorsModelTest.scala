@@ -15,7 +15,7 @@
  */
 
 
-package com.stratio.sparkta.serving.core.models.test
+package com.stratio.sparkta.serving.core.models
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
