@@ -22,13 +22,13 @@
       policy.transformations = [];
       policy.cubes = [];
       policy.streamTriggers = [];
-      /* Reset policy advanced settings */
-      policy.checkpointPath = "/tmp/checkpoint";
-      policy.sparkStreamingWindowNumber = 6;
-      policy.sparkStreamingWindowTime = "s";
-      policy.storageLevel = "MEMORY_AND_DISK_SER";
-      policy.rawDataEnabled = false;
-      policy.rawDataPath = "/tmp/checkpoint";
+      ///* Reset policy advanced settings to be loaded from template automatically */
+      delete policy.checkpointPath;
+      delete policy.sparkStreamingWindowNumber;
+      delete policy.sparkStreamingWindowTime;
+      delete  policy.storageLevel;
+      delete  policy.rawDataEnabled;
+      delete  policy.rawDataPath;
     }
 
     function setPolicy(inputPolicyJSON) {
@@ -39,7 +39,6 @@
       policy.sparkStreamingWindow = inputPolicyJSON.sparkStreamingWindow;
       policy.storageLevel = inputPolicyJSON.storageLevel;
       policy.checkpointPath = inputPolicyJSON.checkpointPath;
-      policy.rawData = inputPolicyJSON.rawData;
       policy.rawDataEnabled = (inputPolicyJSON.rawData.enabled == "true");
       policy.transformations = inputPolicyJSON.transformations;
       policy.cubes = inputPolicyJSON.cubes;
@@ -51,12 +50,12 @@
       policy.outputs = policyFragments.outputs;
     }
 
-    function setTemplate(newTemplate){
+    function setTemplate(newTemplate) {
       template = newTemplate;
     }
 
-    function getTemplate(){
-     return template;
+    function getTemplate() {
+      return template;
     }
 
     function separateFragments(fragments) {
@@ -93,11 +92,11 @@
       status.nextStepAvailable = false;
     }
 
-    function enableNextStep(){
+    function enableNextStep() {
       status.nextStepAvailable = true;
     }
 
-    function disableNextStep(){
+    function disableNextStep() {
       status.nextStepAvailable = false;
     }
 
@@ -135,7 +134,6 @@
     }
 
 
-
     return {
       setPolicy: setPolicy,
       setTemplate: setTemplate,
@@ -143,8 +141,8 @@
       getCurrentPolicy: getCurrentPolicy,
       previousStep: previousStep,
       nextStep: nextStep,
-      enableNextStep:enableNextStep,
-      disableNextStep:disableNextStep,
+      enableNextStep: enableNextStep,
+      disableNextStep: disableNextStep,
       getProcessStatus: getProcessStatus,
       resetPolicy: resetPolicy,
       getAllModelOutputs: getAllModelOutputs,
