@@ -27,6 +27,7 @@
         //vm.trigger.overLast = PolicyModelFactory.getCurrentPolicy().streamWindow; //TODO Change stream window to number and select
         vm.triggerContext = TriggerModelFactory.getContext();
         vm.template = PolicyModelFactory.getTemplate().trigger;
+        vm.templateHelpLinks = PolicyModelFactory.getTemplate().helpLinks;
         vm.showSqlHelp = false;
         if (TriggerService.isEnabledHelpForSql()) {
           vm.sqlSourceItems = TriggerService.getSqlHelpSourceItems();

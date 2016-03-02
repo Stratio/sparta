@@ -58,6 +58,7 @@
       var templateUrl = "templates/modal/confirm-modal.tpl.html";
       var title = "_REMOVE_TRIGGER_CONFIRM_TITLE_";
       var message = "";
+      var size = "lg";
       var resolve = {
         title: function () {
           return title
@@ -65,7 +66,7 @@
           return message
         }
       };
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', size);
 
       modalInstance.result.then(function () {
         defer.resolve();

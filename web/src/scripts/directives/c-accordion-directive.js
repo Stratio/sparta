@@ -23,7 +23,8 @@
         accordionStatus:"=",
         itemAttributeInHeader:"@",
         newItemHeader: "@",
-        additionalModifierClass:"@"
+        additionalModifierClass:"@",
+        width: '@'
       },
       replace: "true",
       templateUrl: 'templates/components/c-accordion.tpl.html',

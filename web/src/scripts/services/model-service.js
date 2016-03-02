@@ -43,6 +43,8 @@
       var templateUrl = "templates/modal/confirm-modal.tpl.html";
       var controller = "ConfirmModalCtrl";
       var message = "";
+      var extraClass = "";
+      var size = "lg";
 
       if (cubeNames && cubeNames.length > 0) {
         message = $translate.instant('_REMOVE_MODEL_MESSAGE_', {modelList: cubeNames.toString()});
@@ -55,7 +57,7 @@
           return message;
         }
       };
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, extraClass, size);
 
       modalInstance.result.then(function () { //TODO Refactor
         defer.resolve();

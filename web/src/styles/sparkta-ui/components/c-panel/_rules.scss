@@ -13,6 +13,14 @@
 		padding: $c-panel--framed---padding;
 	}
 
+	&--border-top {
+		border-top: 1px solid getColor(n5);
+	}
+
+	&--padding-top {
+		padding-top: 10px;
+	}
+
   &--x-small {
     border: $c-panel--x-small---border;
     display: inline-block;

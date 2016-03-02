@@ -2,7 +2,7 @@
 	@include c-input;
 
 	font-family: 'bariol-regular';
-    font-size: 1rem;
+  font-size: 1rem;
 	background-color: $c-textarea--background-color;
 	color: $c-textarea--color;
 	border-top: $c-textarea--border-top;
@@ -56,6 +56,10 @@
   }
   &--required:after {
     content: ' *';
+  }
+
+  &--large {
+    height: 250px;
   }
 }
 

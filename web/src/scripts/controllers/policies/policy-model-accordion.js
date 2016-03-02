@@ -18,10 +18,10 @@
     vm.activateModelCreationPanel = activateModelCreationPanel;
     vm.isActiveTriggerCreationPanel = TriggerService.isActiveTriggerCreationPanel;
     vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
-
     vm.init();
 
     function init() {
+      vm.outputsWidth = "m";
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       TriggerService.setTriggerContainer(vm.policy.streamTriggers, triggerConstants.TRANSFORMATION);
