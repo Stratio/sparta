@@ -23,7 +23,6 @@ import com.stratio.sparkta.serving.core.constants.AppConstant
 import org.apache.spark.HashPartitioner
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
-import org.apache.spark.streaming.Duration
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
 
@@ -40,7 +39,8 @@ case class Cube(name: String,
                 dimensions: Seq[Dimension],
                 operators: Seq[Operator],
                 initSchema: StructType,
-                expiringDataConfig: Option[ExpiringDataConfig] = None) extends SLF4JLogging {
+                expiringDataConfig: Option[ExpiringDataConfig] = None,
+                triggers: Seq[Trigger]) extends SLF4JLogging {
 
   private val associativeOperators = operators.filter(op => op.isAssociative)
   private lazy val associativeOperatorsMap = associativeOperators.map(op => op.key -> op).toMap
@@ -103,13 +103,13 @@ case class Cube(name: String,
   private def updateFuncNonAssociativeWithTime =
     (iterator: Iterator[(DimensionValuesTime, Seq[InputFields], Option[AggregationsValues])]) => {
 
-    iterator.filter {
-      case (DimensionValuesTime(_, _, Some(timeConfig)), _, _) => timeConfig.eventTime >= dateFromGranularity
-      case (DimensionValuesTime(_, _, None), _, _) => throw new IllegalArgumentException("Time configuration expected")
-    }.flatMap { case (dimensionsKey, values, state) =>
+      iterator.filter {
+        case (DimensionValuesTime(_, _, Some(timeConfig)), _, _) => timeConfig.eventTime >= dateFromGranularity
+        case (DimensionValuesTime(_, _, None), _, _) => throw new IllegalArgumentException("Time configuration expected")
+      }.flatMap { case (dimensionsKey, values, state) =>
         updateNonAssociativeFunction(values, state).map(result => (dimensionsKey, result))
       }
-  }
+    }
 
   def dateFromGranularity: Long = {
     DateOperations
@@ -166,10 +166,10 @@ case class Cube(name: String,
   private def updateFuncAssociativeWithTime =
     (iterator: Iterator[(DimensionValuesTime, Seq[AggregationsValues], Option[Measures])]) => {
       iterator.filter {
-          case (DimensionValuesTime(_,_, Some(timeConfig)), _, _) => timeConfig.eventTime >= dateFromGranularity
-          case (DimensionValuesTime(_,_, None), _, _) =>
-            throw new IllegalArgumentException("Time configuration expected")
-        }
+        case (DimensionValuesTime(_, _, Some(timeConfig)), _, _) => timeConfig.eventTime >= dateFromGranularity
+        case (DimensionValuesTime(_, _, None), _, _) =>
+          throw new IllegalArgumentException("Time configuration expected")
+      }
         .flatMap { case (dimensionsKey, values, state) =>
           updateAssociativeFunction(values, state).map(result => (dimensionsKey, result))
         }
@@ -220,10 +220,10 @@ case class Cube(name: String,
       new HashPartitioner(dimensionsValues.context.sparkContext.defaultParallelism))
   }
 
-  protected def extractAssociativeAggregations(inputFieldsValues: Row) : Seq[Aggregation] =
+  protected def extractAssociativeAggregations(inputFieldsValues: Row): Seq[Aggregation] =
     associativeOperators.map(op => Aggregation(op.key, op.processMap(inputFieldsValues)))
 
-  protected def groupAssociativeAggregations(aggregations: Seq[Aggregation]) : AggregationsValues = {
+  protected def groupAssociativeAggregations(aggregations: Seq[Aggregation]): AggregationsValues = {
     val aggregationsGrouped = aggregations.groupBy { aggregation => aggregation.name }
       .map { case (nameOp, valuesOp) =>
         val op = associativeOperatorsMap(nameOp)
@@ -232,7 +232,6 @@ case class Cube(name: String,
       }.toSeq
     AggregationsValues(aggregationsGrouped, UpdatedValues)
   }
-
 
   //scalastyle:off
   protected def updateAssociativeFunction(values: Seq[AggregationsValues], state: Option[Measures])

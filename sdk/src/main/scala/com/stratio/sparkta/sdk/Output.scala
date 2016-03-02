@@ -70,15 +70,6 @@ object Output extends Logging {
       throw new NoSuchElementException("Autocalculated not found in options")
     }).toBoolean).getOrElse(throw new NoSuchElementException("Autocalculated with ilegal value"))
 
-  def getTimeTypeFromString(timeType: String): TypeOp =
-    timeType.toLowerCase match {
-      case "timestamp" => TypeOp.Timestamp
-      case "date" => TypeOp.Date
-      case "datetime" => TypeOp.DateTime
-      case "long" => TypeOp.Long
-      case _ => TypeOp.String
-    }
-
   def getTimeFieldType(dateTimeType: TypeOp, fieldName: String, nullable: Boolean): StructField =
     dateTimeType match {
       case TypeOp.Date | TypeOp.DateTime => defaultDateField(fieldName, nullable)

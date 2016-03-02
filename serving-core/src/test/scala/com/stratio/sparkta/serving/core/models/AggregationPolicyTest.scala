@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.core.models.test
+package com.stratio.sparkta.serving.core.models
 
+import com.stratio.sparkta.sdk.{JsoneyString, DimensionType, Input}
+import com.stratio.sparkta.serving.core.models._
 import com.stratio.sparkta.sdk.{DimensionType, Input}
 import com.stratio.sparkta.serving.core.models._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
-class AggregationPolicyTest extends WordSpec with Matchers {
+class AggregationPolicyTest extends WordSpec with Matchers with MockitoSugar{
 
   val rawData = new RawDataModel
   val fragmentModel = new FragmentElementModel(
@@ -93,6 +96,7 @@ class AggregationPolicyTest extends WordSpec with Matchers {
     checkpointPath = "test/test",
     rawData,
     transformations,
+    streamTriggers = Seq(),
     cubes,
     input,
     outputs,
@@ -108,6 +112,7 @@ class AggregationPolicyTest extends WordSpec with Matchers {
     checkpointPath = "test/test",
     rawData,
     transformations,
+    streamTriggers = Seq(),
     wrongComputeLastCubes,
     input,
     outputs,

@@ -77,6 +77,7 @@ with SparktaSerializer {
       checkpointPath = "test/test",
       rawData,
       transformations,
+      Seq(),
       cubes,
       input,
       outputs,

@@ -18,7 +18,7 @@ package com.stratio.sparkta.driver.test.helper
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparkta.aggregator.Cube
+import com.stratio.sparkta.aggregator.{Trigger, Cube}
 import com.stratio.sparkta.driver.helper.SchemaHelper
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.models._
@@ -73,7 +73,7 @@ with MockitoSugar {
 
   "SchemaHelperTest" should "return a list of schemas" in new CommonValues {
     val cube = Cube(cubeName, Seq(dim1, dim2, dimensionTime), Seq(op1), initSchema,
-      Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)))
+      Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)), Seq.empty[Trigger])
     val cubeModel = CubeModel(cubeName, Seq(dimension1Model, dimension2Model, dimensionTimeModel), Seq(operator1Model))
     val cubes = Seq(cube)
     val cubesModel = Seq(cubeModel)
@@ -93,7 +93,7 @@ with MockitoSugar {
   }
 
   it should "return a list of schemas without time" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None)
+    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None, Seq.empty[Trigger])
     val cubeModel = CubeModel(cubeName, Seq(dimension1Model, dimension2Model), Seq(operator1Model))
     val cubes = Seq(cube)
     val cubesModel = Seq(cubeModel)
@@ -112,7 +112,7 @@ with MockitoSugar {
   }
 
   it should "return a list of schemas with id" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None)
+    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None, Seq.empty[Trigger])
     val cubeModel =
       CubeModel(cubeName, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModelId)
     val cubes = Seq(cube)
@@ -135,7 +135,7 @@ with MockitoSugar {
   }
 
   it should "return a list of schemas with field id" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dimId), Seq(op1), initSchema, None)
+    val cube = Cube(cubeName, Seq(dim1, dimId), Seq(op1), initSchema, None, Seq.empty[Trigger])
     val cubeModel =
       CubeModel(cubeName, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModelId)
     val cubes = Seq(cube)
@@ -157,7 +157,7 @@ with MockitoSugar {
   }
 
   it should "return a list of schemas with field id but not in writer" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dimId), Seq(op1), initSchema, None)
+    val cube = Cube(cubeName, Seq(dim1, dimId), Seq(op1), initSchema, None, Seq.empty[Trigger])
     val cubeModel =
       CubeModel(cubeName, Seq(dimension1Model, dimension2Model), Seq(operator1Model))
     val cubes = Seq(cube)
@@ -181,7 +181,7 @@ with MockitoSugar {
   it should "return a list of schemas with field id and timeDimension with DateFormat" in
     new CommonValues {
       val cube = Cube(cubeName, Seq(dim1, dim2, dimensionTime), Seq(op1), initSchema,
-        Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)))
+        Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)), Seq.empty[Trigger])
       val cubeModel = CubeModel(cubeName, Seq(dimension1Model, dimension2Model, dimensionTimeModel), Seq(operator1Model), writerModelTimeDate)
       val cubes = Seq(cube)
       val cubesModel = Seq(cubeModel)
@@ -206,7 +206,7 @@ with MockitoSugar {
   it should "return a list of schemas with field id and timeDimension with DateFormat and measure" in
     new CommonValues {
       val cube = Cube(cubeName, Seq(dim1, dim2, dimensionTime), Seq(op1), initSchema,
-        Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)))
+        Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)), Seq.empty[Trigger])
       val cubeModel = CubeModel(cubeName, Seq(dimension1Model, dimension2Model, dimensionTimeModel), Seq(operator1Model), writerModelTimeDateAndMeasure)
       val cubes = Seq(cube)
       val cubesModel = Seq(cubeModel)

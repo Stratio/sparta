@@ -31,7 +31,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
   "CubeWriterTest" should "return a row with values and timeDimension" in
     new CommonValues {
       val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema,
-        Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)))
+        Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)), Seq.empty[Trigger])
       val tableSchema = TableSchema(
         Seq("outputName"),
         "cubeTest",
@@ -48,7 +48,8 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
         Map(),
         Seq(tableSchema)
       )
-      val cubeWriter = CubeWriter(cube, tableSchema, writerOptions, Seq(output))
+      val cubeWriter =
+        CubeWriter(cube, tableSchema, writerOptions, Seq(output), Seq.empty[Output], Seq.empty[TableSchema])
       val res = cubeWriter.toRow(dimensionValuesT, measures)
 
       res should be(Row.fromSeq(Seq("value1", "value2", 1L, "value")))
@@ -56,7 +57,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
   "CubeWriterTest" should "return a row with values without timeDimension" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema,  None)
+      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema,  None, Seq.empty[Trigger])
       val tableSchema = TableSchema(
         Seq("outputName"),
         "cubeTest",
@@ -72,7 +73,8 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
         Map(),
         Seq(tableSchema)
       )
-      val cubeWriter = CubeWriter(cube, tableSchema, writerOptions, Seq(output))
+      val cubeWriter =
+        CubeWriter(cube, tableSchema, writerOptions, Seq(output), Seq.empty[Output], Seq.empty[TableSchema])
       val res = cubeWriter.toRow(dimensionValuesNoTime, measures)
 
       res should be(Row.fromSeq(Seq("value1", "value2", "value")))
@@ -80,7 +82,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
   "CubeWriterTest" should "return a row with values with noTime and idAutoCalculated" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None)
+      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None, Seq.empty[Trigger])
       val tableSchema = TableSchema(
         Seq("outputName"),
         "cubeTest",
@@ -96,7 +98,8 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
         Map(),
         Seq(tableSchema)
       )
-      val cubeWriter = CubeWriter(cube, tableSchema, writerOptions, Seq(output))
+      val cubeWriter =
+        CubeWriter(cube, tableSchema, writerOptions, Seq(output), Seq.empty[Output], Seq.empty[TableSchema])
       val res = cubeWriter.toRow(dimensionValuesNoTime, measures)
 
       res should be(Row.fromSeq(Seq("value1_value2", "value1", "value2", "value")))
@@ -104,7 +107,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
   "CubeWriterTest" should "return a row with values with time and idAutoCalculated" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None)
+      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None, Seq.empty[Trigger])
       val tableSchema = TableSchema(
         Seq("outputName"),
         "cubeTest",
@@ -120,7 +123,8 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
         Map(),
         Seq(tableSchema)
       )
-      val cubeWriter = CubeWriter(cube, tableSchema, writerOptions, Seq(output))
+      val cubeWriter =
+        CubeWriter(cube, tableSchema, writerOptions, Seq(output), Seq.empty[Output], Seq.empty[TableSchema])
       val res = cubeWriter.toRow(dimensionValuesT, measures)
 
       res should be(Row.fromSeq(Seq("value1_value2_1", "value1", "value2", 1L, "value")))
@@ -128,7 +132,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
   "CubeWriterTest" should "return a row with values with time, idAutoCalculated and fixedMeasure" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None)
+      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None, Seq.empty[Trigger])
       val tableSchema = TableSchema(
         Seq("outputName"),
         "cubeTest",
@@ -144,7 +148,8 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
         Map(),
         Seq(tableSchema)
       )
-      val cubeWriter = CubeWriter(cube, tableSchema, writerOptions, Seq(output))
+      val cubeWriter =
+        CubeWriter(cube, tableSchema, writerOptions, Seq(output), Seq.empty[Output], Seq.empty[TableSchema])
       val res = cubeWriter.toRow(dimensionValuesT, measures)
 
       res should be(Row.fromSeq(Seq("value1_value2_1", "value1", "value2", 1L, "2", "value")))

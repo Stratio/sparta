@@ -20,7 +20,6 @@ import java.sql.{Date, Timestamp}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.sdk._
-import org.apache.spark.SparkContext
 import org.apache.spark.sql._
 import org.apache.spark.streaming.dstream.DStream
 
@@ -34,7 +33,10 @@ case class WriterOptions(outputs: Seq[String],
 case class CubeWriter(cube: Cube,
                       tableSchema: TableSchema,
                       options: WriterOptions,
-                      outputs: Seq[Output]) extends SLF4JLogging {
+                      outputs: Seq[Output],
+                      triggerOutputs: Seq[Output],
+                      triggerSchemas: Seq[TableSchema])
+  extends TriggerWriter with SLF4JLogging {
 
   val upsertOptions = tableSchema.timeDimension.fold(Map.empty[String, String]) { timeName =>
     Map(Output.TimeDimensionKey -> timeName)
@@ -45,22 +47,25 @@ case class CubeWriter(cube: Cube,
     stream.map { case (dimensionValuesTime, measuresValues) =>
       toRow(dimensionValuesTime, measuresValues)
     }.foreachRDD(rdd => {
-      if (rdd.take(1).length > 0) {
-        val dataFrame = SQLContext.getOrCreate(rdd.context).createDataFrame(rdd, tableSchema.schema)
+      if (options.outputs.nonEmpty && rdd.take(1).length > 0) {
+        val sqlContext = SQLContext.getOrCreate(rdd.context)
+        val cubeDataFrame = sqlContext.createDataFrame(rdd, tableSchema.schema)
 
         options.outputs.foreach(outputName =>
           outputs.find(output => output.name == outputName) match {
-            case Some(outputWriter) => Try(outputWriter.upsert(dataFrame, upsertOptions)) match {
+            case Some(outputWriter) => Try(outputWriter.upsert(cubeDataFrame, upsertOptions)) match {
               case Success(_) =>
                 log.debug(s"Data stored in ${tableSchema.tableName}")
               case Failure(e) =>
                 log.error(s"Something goes wrong. Table: ${tableSchema.tableName}")
-                log.error(s"Schema. ${dataFrame.schema}")
-                log.error(s"Head element. ${dataFrame.head}")
+                log.error(s"Schema. ${cubeDataFrame.schema}")
+                log.error(s"Head element. ${cubeDataFrame.head}")
                 log.error(s"Error message : ${e.getMessage}")
             }
             case None => log.warn(s"The output in the cube : $outputName not match in the outputs")
           })
+
+        writeTriggers(cubeDataFrame, cube.triggers, tableSchema.tableName, triggerSchemas, triggerOutputs)
       } else log.debug("Empty event received")
     })
   }
