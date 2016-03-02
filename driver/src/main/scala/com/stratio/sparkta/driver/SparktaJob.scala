@@ -19,7 +19,7 @@ package com.stratio.sparkta.driver
 import java.io._
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.aggregator.{Cube, CubeMaker, CubeWriter, WriterOptions}
+import com.stratio.sparkta.aggregator._
 import com.stratio.sparkta.driver.factory.SparkContextFactory._
 import com.stratio.sparkta.driver.helper.SchemaHelper
 import com.stratio.sparkta.driver.helper.SchemaHelper._
@@ -51,20 +51,45 @@ class SparktaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
     val parserSchemas = SchemaHelper.getSchemasFromParsers(policy.transformations, Input.InitSchema)
     val parsers = SparktaJob.getParsers(policy, ReflectionUtils, parserSchemas).sorted
     val cubes = SparktaJob.getCubes(policy, ReflectionUtils, getSchemaWithoutRaw(parserSchemas))
-    val cubeSchemas = SchemaHelper.getSchemasFromCubes(cubes, policy.cubes, policy.outputs)
-    val outputs = SparktaJob.getOutputs(policy, cubeSchemas, ReflectionUtils)
+    val cubesSchemas = SchemaHelper.getSchemasFromCubes(cubes, policy.cubes, policy.outputs)
+    val cubesOutputs = SparktaJob.getOutputs(policy, cubesSchemas, ReflectionUtils)
+    val cubesTriggersSchemas = SchemaHelper.getSchemasFromCubeTrigger(policy.cubes, policy.outputs)
+    val cubesTriggersOutputs = SparktaJob.getOutputs(policy, cubesTriggersSchemas, ReflectionUtils)
+    val streamTriggersSchemas = SchemaHelper.getSchemasFromTriggers(policy.streamTriggers, policy.outputs)
+    val streamTriggersOutputs = SparktaJob.getOutputs(policy, streamTriggersSchemas, ReflectionUtils)
 
-    outputs.foreach(output => output.setup())
+    cubesOutputs.foreach(output => output.setup())
 
     val inputDStream = SparktaJob.getInput(policy, ssc.get, ReflectionUtils)
 
     SparktaJob.saveRawData(policy.rawData, inputDStream)
 
-    val dataParsed = SparktaJob.applyParsers(inputDStream, parsers)
-    val dataCube = CubeMaker(cubes).setUp(dataParsed)
+    val parsedData = SparktaJob.applyParsers(inputDStream, parsers)
+
+    SparktaJob.getTriggers(policy.streamTriggers, policy.id.get)
+      .groupBy(trigger => trigger.overLast)
+      .foreach { case (overLast, triggers) =>
+        SparktaJob.getStreamWriter(
+          triggers,
+          streamTriggersSchemas,
+          overLast,
+          sparkStreamingWindow,
+          parserSchemas.values.last,
+          streamTriggersOutputs
+        ).write(parsedData)
+      }
+
+    val dataCube = CubeMaker(cubes).setUp(parsedData)
 
     dataCube.foreach { case (cubeName, aggregatedData) =>
-      SparktaJob.getCubeWriter(cubeName, cubes, cubeSchemas, policy.cubes, outputs).write(aggregatedData)
+      SparktaJob.getCubeWriter(cubeName,
+        cubes,
+        cubesSchemas,
+        cubesTriggersSchemas,
+        policy.cubes,
+        cubesOutputs,
+        cubesTriggersOutputs
+      ).write(aggregatedData)
     }
     ssc.get
   }

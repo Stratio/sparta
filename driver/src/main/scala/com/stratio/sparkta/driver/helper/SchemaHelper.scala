@@ -92,8 +92,6 @@ object SchemaHelper {
             Nullable
           )
         )
-        val fields = schemas.values.flatMap(structType => structType.fields) ++
-          schema.map { case (key, value) => value }
 
         val fields = schemas.values.flatMap(structType => structType.fields) ++ schema.map(_._2)
 
@@ -118,7 +116,7 @@ object SchemaHelper {
       timeDimension = getExpiringData(cubeModel).map(config => config.timeDimension)
       dimensions = filterDimensionsByTime(cube.dimensions.sorted, timeDimension)
       (dimensionsWithId, isAutoCalculatedId) = dimensionFieldsWithId(dimensions, cubeModel.writer)
-      dateType = Output.getTimeTypeFromString(cubeModel.writer.fold(DefaultTimeStampTypeString) { options =>
+      dateType = getTimeTypeFromString(cubeModel.writer.fold(DefaultTimeStampTypeString) { options =>
         options.dateType.getOrElse(DefaultTimeStampTypeString)
       })
       structFields = dimensionsWithId ++ timeDimensionFieldType(timeDimension, dateType) ++ measuresMerged
@@ -129,16 +127,14 @@ object SchemaHelper {
 
   def getExpiringData(cubeModel: CubeModel): Option[ExpiringDataConfig] = {
     val timeDimension = cubeModel.dimensions
-      .filter(dimensionModel => dimensionModel.computeLast.isDefined)
-        .headOption
+      .find(dimensionModel => dimensionModel.computeLast.isDefined)
 
     timeDimension match {
-      case Some(dimensionModelValue) => {
+      case Some(dimensionModelValue) =>
         Option(ExpiringDataConfig(
           dimensionModelValue.name,
           dimensionModelValue.precision,
           OperationsHelper.parseValueToMilliSeconds(dimensionModelValue.computeLast.get)))
-      }
       case _ => None
     }
   }

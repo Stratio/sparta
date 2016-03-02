@@ -66,7 +66,9 @@ class CubeMakerTest extends TestSuiteBase {
     val cube = Cube(name,
       Seq(dimension, timeDimension),
       Seq(operator),
-      initSchema
+      initSchema,
+      expiringDataConfig = None,
+      Seq.empty[Trigger]
     )
     val dataCube = new CubeOperations(cube)
 
