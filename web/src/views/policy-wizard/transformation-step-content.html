@@ -16,7 +16,8 @@
                  show-new-item-panel="vm.isActiveModelCreationPanel()"
                  accordion-status="vm.modelAccordionStatus"
                  item-attribute-in-header="type"
-                 new-item-header="_POLICY_._NEW_MODEL_DEFINITION_">
+                 new-item-header="_POLICY_._NEW_MODEL_DEFINITION_"
+                 data-additional-modifier-class = "--indented">
     </c-accordion>
 
     <button class="c-button c-button--call-to-action-1 c-button--to-right" ng-if="!vm.isActiveModelCreationPanel()"

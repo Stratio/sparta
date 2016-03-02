@@ -1,69 +1,91 @@
 @mixin c-accordion {
-	@include c-component;
+  @include c-component;
 
-	user-select: none;
+  user-select: none;
 
-	&-header {
-		&__step-number {
-		    display: inline-block;
-		    font-size: $c-accordion-header__step-number---font-size;
-		    color: $c-accordion-header__step-number---color;
-		    background: $c-accordion-header__step-number---background;
-		    width: $c-accordion-header__step-number---width;
-		    height: $c-accordion-header__step-number---height;
-		    text-align: center;
-		    padding: $c-accordion-header__step-number---padding;
-			vertical-align: $c-accordion-header__step-number---vertical-align;
-		}
+  &-header {
+    &__step-number {
+      display: inline-block;
+      font-size: $c-accordion-header__step-number---font-size;
+      color: $c-accordion-header__step-number---color;
+      background: $c-accordion-header__step-number---background;
+      width: $c-accordion-header__step-number---width;
+      height: $c-accordion-header__step-number---height;
+      text-align: center;
+      padding: $c-accordion-header__step-number---padding;
+      vertical-align: $c-accordion-header__step-number---vertical-align;
+    }
 
-		&__title {
-			display: inline-block;
-			vertical-align: middle;
-		}
+    &__title {
+      display: inline-block;
+      vertical-align: middle;
+    }
 
-		&__type {
-			font-size: $c-accordion__type---font-size;
-			margin: $c-accordion__type---margin;
-			vertical-align: $c-accordion__type---vertical-align;
-		}
+    &__type {
+      font-size: $c-accordion__type---font-size;
+      margin: $c-accordion__type---margin;
+      vertical-align: $c-accordion__type---vertical-align;
+    }
 
-		&__open-mark {
-			transition: transform 1s;
-			margin-top: 15px;
-		}
-	}
+    &__open-mark {
+      transition: transform 1s;
+      margin-top: 15px;
+    }
+  }
 
-	@at-root .panel-group {
-		.panel + .panel {
-			margin-top: 0;
-		}
+  @at-root .panel-group {
+    .panel + .panel {
+      margin-top: 0;
+    }
 
-		.panel:not(:first-child) {
-			border-top: 0;
-		}
-	}
+    .panel:not(:first-child) {
+      border-top: 0;
+    }
+  }
 
-	.panel-open {
-		.c-accordion-header__open-mark {
-			transform: rotate($c-accordion__open-mark---rotation);
-		}
-	}
+  .panel-open {
+    .c-accordion-header__open-mark {
+      transform: rotate($c-accordion__open-mark---rotation);
+    }
+  }
 
-	&-item {
-		&--new {
-			.panel-heading {
-				background: $c-accordion-item--new---background;
-				color: $c-accordion-item--new---color;
-			}
+  &-item {
+    &--new {
+      .panel-heading {
+        background: $c-accordion-item--new---background;
+        color: $c-accordion-item--new---color;
+      }
 
-			.c-accordion-header__step-number {
-			    background: $c-accordion-header--new__step-number---background;
-			    color: $c-accordion-header--new__step-number---color;
-			}
-		}
-	}
+      .c-accordion-header__step-number {
+        background: $c-accordion-header--new__step-number---background;
+        color: $c-accordion-header--new__step-number---color;
+      }
+    }
+  }
+
+  @for $item from 1 through 10 {
+    &-item--indented > .panel:nth-child(#{$item}) {
+      margin-left: $item * $c-accordion-item--indented__panel---margin;
+      margin-top:$c-accordion-item--indented---margin-top;
+    }
+  }
+
+  &-item--indented > .panel:nth-child(n+10) {
+    margin-left: 10 * $c-accordion-item--indented__panel---margin;
+  }
+
+  &-item--indented > .panel:nth-child(n+2):before {
+    content: "";
+    border-left: $c-accordion-item--indented__panel---border;
+    border-bottom: $c-accordion-item--indented__panel---border;
+    height: $c-accordion-item--indented__panel---height;
+    float: $c-accordion-item--indented__panel---float;
+    width: $c-accordion-item--indented__panel---width;
+    margin-left: $c-accordion-item--indented__panel---margin-left;
+    margin-top: $c-accordion-item--indented__panel---margin-top;
+  }
 }
 
 .c-accordion {
-	@include c-accordion;
+  @include c-accordion;
 }

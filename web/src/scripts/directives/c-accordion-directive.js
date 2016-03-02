@@ -22,7 +22,8 @@
         showNewItemPanel: "=",
         accordionStatus:"=",
         itemAttributeInHeader:"@",
-        newItemHeader: "@"
+        newItemHeader: "@",
+        additionalModifierClass:"@"
       },
       replace: "true",
       templateUrl: 'templates/components/c-accordion.tpl.html',
