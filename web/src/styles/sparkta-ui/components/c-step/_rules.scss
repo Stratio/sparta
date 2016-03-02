@@ -7,20 +7,19 @@
   text-align: center;
   padding: $c-step---padding;
   position: relative;
+  & .c-step__progress-line {
+    left: 54%;
+    width: 46%;
+    z-index: 1;
+  }
 
+  &.c-step--active {
+    & .c-step__progress-line {
+      background: $c-step---color;
+    }
+  }
   &:first-child {
     padding-left: 0;
-
-    & .c-step__progress-line {
-      left: 28%;
-      width: 73%;
-    }
-
-    &.c-step--active {
-      & .c-step__progress-line {
-        background: $c-step---color;
-      }
-    }
   }
 
   &:last-child {
@@ -44,7 +43,6 @@
   &__section-name {
     margin: $c-step__section-name---margin;
     vertical-align: middle;
-
   }
 
   &__section-icon {
@@ -74,6 +72,8 @@
     border-radius: $c-step__box---border-radius;
     padding: $c-step__box---padding;
     cursor: $c-step__box---cursor;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &__box--active {
@@ -95,27 +95,21 @@
 
   &--active {
     color: $c-step--active---color;
-
-    & .c-step__progress-line {
-      background: linear-gradient(90deg, $c-step--active---color 50%, $c-step---color 50%, $c-step---color);
-    }
-
     & .c-step__box {
       border: $c-step__box--active---border;
     }
   }
 
-  &--enabled{
-     & .c-step__progress-line {
-      background: linear-gradient(90deg, $c-step--active---color 50%, $c-step---color 50%, $c-step---color);
-    }
-
+  &--enabled {
     & .c-step__box {
       border: $c-step__box--enabled---border;
     }
   }
 
   &--visited {
+    & .c-step__progress-line {
+      background: linear-gradient(90deg, $c-step--active---color 80%, $c-step--active---color 50%, $c-step---color);
+    }
     & .c-step__box {
       border: $c-step__box--visited---border;
       color: $c-step--active---color;

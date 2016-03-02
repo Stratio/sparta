@@ -24,14 +24,14 @@ angular
   ])
 
   /*** TRANSLATING ***/
-  .config(['$translateProvider', function($translateProvider) {
-/*
-    var getLanguage = function() {
-      var language = (navigator.language) ? navigator.language : navigator.browserLanguage;
-      return (language.indexOf('es') === 0) ? 'es-ES' : 'en-US';
-    };
-    var language = getLanguage();
-*/
+  .config(['$translateProvider', function ($translateProvider) {
+    /*
+     var getLanguage = function() {
+     var language = (navigator.language) ? navigator.language : navigator.browserLanguage;
+     return (language.indexOf('es') === 0) ? 'es-ES' : 'en-US';
+     };
+     var language = getLanguage();
+     */
     var language = 'en-US';
 
     $translateProvider.useStaticFilesLoader({
@@ -42,77 +42,87 @@ angular
   }])
 
   /*ROUTER*/
-  .config(['$stateProvider','$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
+  .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
     // For any unmatched url, redirect to /dashboard/inputs
     $urlRouterProvider.otherwise('/dashboard/inputs');
 
     $stateProvider
     /*******  DASHBOARD *******/
-    .state('dashboard', {
+      .state('dashboard', {
         url: '/dashboard',
         views: {
-            'header': {
-                templateUrl: 'views/dashboard/dashboard_header.html'
-            },
-            'content': {
-                templateUrl:  'views/dashboard/dashboard_content.html'
-            }
+          'header': {
+            templateUrl: 'views/dashboard/dashboard_header.html'
+          },
+          'content': {
+            templateUrl: 'views/dashboard/dashboard_content.html'
+          }
         }
-    })
-    .state('dashboard.inputs', {
+      })
+      .state('dashboard.inputs', {
         url: '/inputs',
         controller: 'InputsCtrl',
         controllerAs: 'inputs',
         templateUrl: 'views/inputs.html'
-    })
-    .state('dashboard.outputs', {
+      })
+      .state('dashboard.outputs', {
         url: '/outputs',
         controller: 'OutputsCtrl',
         controllerAs: 'outputs',
         templateUrl: 'views/outputs.html'
-    })
-    .state('dashboard.policies', {
+      })
+      .state('dashboard.policies', {
         url: '/policies',
         controller: 'PoliciesCtrl',
         controllerAs: 'policies',
         templateUrl: 'views/policies.html'
-    })
-    /******* POLICY WIZARD *******/
-    .state('wizard', {
+      })
+      /******* POLICY WIZARD *******/
+      .state('wizard', {
         url: '/wizard',
+
         views: {
-            'header': {
-                templateUrl: 'views/policy-wizard/header.html',
-                controller: 'PolicyWizardHeaderCtrl',
-                controllerAs: 'header'
-            },
-            'content': {
-                templateUrl:  'views/dashboard/dashboard_content.html'
-            }
+          'header': {
+            templateUrl: 'views/policy-wizard/header.html',
+            controller: 'PolicyWizardHeaderCtrl',
+            controllerAs: 'header'
+          },
+          'content': {
+            templateUrl: 'views/dashboard/dashboard_content.html'
+          }
         }
-    })
-    .state('wizard.newPolicy', {
+      })
+      .state('wizard.newPolicy', {
+        containerClass: 'c-slider-content__backdrop',
         url: '/wizard/new_policy',
         controller: 'NewPolicyCtrl',
         controllerAs: 'wizard',
         templateUrl: 'views/policy-wizard/wizard-panel.html'
-    })
-    .state('wizard.editPolicy', {
+      })
+      .state('wizard.editPolicy', {
+        containerClass: 'c-slider-content__backdrop',
         url: '/wizard/edit_policy/:id',
-        params: { id: null },
+        params: {id: null},
         controller: 'EditPolicyCtrl',
         controllerAs: 'wizard',
         templateUrl: 'views/policy-wizard/wizard-panel.html'
-    })
-    /*******  SETINGS *******/
-    .state('settings', {
+      })
+      /*******  SETINGS *******/
+      .state('settings', {
         url: '/settings',
         views: {
-            'content': {
-                controller:   'SettingsCtrl',
-                controllerAs: 'settings',
-                templateUrl:  'views/settings/settings_content.html'
-            }
+          'content': {
+            controller: 'SettingsCtrl',
+            controllerAs: 'settings',
+            templateUrl: 'views/settings/settings_content.html'
+          }
         }
+      })
+
+  }])
+
+  .run(['$rootScope', function ($rootScope) {
+    $rootScope.$on('$stateChangeSuccess', function (event, toState) {
+      $rootScope.containerClass = toState.containerClass;
     });
   }]);
