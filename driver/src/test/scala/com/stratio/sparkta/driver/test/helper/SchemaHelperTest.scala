@@ -237,8 +237,8 @@ with MockitoSugar {
       val res = SchemaHelper.getSchemasFromParsers(transformationsModel, Map())
 
       val expected = Map(
-        "parser1" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType))),
-        "parser2" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType),
+        "0" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType))),
+        "1" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType),
           StructField("field3", StringType), StructField("field4", StringType)))
       )
 
@@ -253,11 +253,11 @@ with MockitoSugar {
 
       val expected = Map(
         Input.RawDataKey -> StructType(Seq(StructField(Input.RawDataKey, StringType))),
-        "parser1" -> StructType(Seq(StructField(Input.RawDataKey, StringType),
+        "0" -> StructType(Seq(StructField(Input.RawDataKey, StringType),
           StructField("field1", LongType),
           StructField("field2", IntegerType))
         ),
-        "parser2" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType),
+        "1" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType),
           StructField("field3", StringType), StructField("field4", StringType)))
       )
 
