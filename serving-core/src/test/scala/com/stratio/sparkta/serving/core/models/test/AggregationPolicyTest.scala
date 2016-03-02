@@ -111,21 +111,14 @@ class AggregationPolicyTest extends WordSpec with Matchers {
     wrongComputeLastCubes,
     input,
     outputs,
+    Seq(),
     Seq())
-
-
 
   "AggregationPoliciesValidator" should {
 
     "return a tuple (True, ) if the policy is well formed" in {
       val res = AggregationPoliciesValidator.validateDto(policy)
       res should be((true, ""))
-    }
-
-    "return a tuple (False, ) if the computeLast is wrong" in {
-      val res = AggregationPoliciesValidator.validateDto(wrongComputeLastPolicy)
-      res should be((false,
-        """{"i18nCode":"305","message":"computeLast value has to be greater than the precision in order to prevent data loss\n"}"""))
     }
 
   }
