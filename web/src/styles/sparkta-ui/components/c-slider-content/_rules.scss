@@ -2,6 +2,9 @@
   @include c-component;
   overflow: hidden;
 
+  &__backdrop{
+    background-color: $c-slider-content__backdrop---background-color;
+  }
   &__button {
     border-radius: $c-slider-content__button---border-radius;
     width: $c-slider-content__button---width;

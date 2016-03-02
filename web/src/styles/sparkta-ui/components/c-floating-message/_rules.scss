@@ -17,11 +17,11 @@
       transition: $c-floating-message---transition;
       opacity: 1;
     }
-    &.ng-leave.ng-leave-active {
+    &.ng-leave.ng-leave-active,   &__text.ng-leave.ng-leave-active {
       opacity: 0;
     }
 
-    &.ng-enter {
+    &.ng-enter, &__text.ng-enter {
       -webkit-transition:$c-floating-message---transition;
       -moz-transition:$c-floating-message---transition;
       -ms-transition: $c-floating-message---transition;
@@ -30,7 +30,7 @@
       opacity: 0;
     }
 
-    &.ng-enter.ng-enter-active {
+    &.ng-enter.ng-enter-active,   &__text.ng-enter.ng-enter-active {
       opacity: 1;
     }
   }

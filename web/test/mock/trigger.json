@@ -1,0 +1,6 @@
+{
+  "name": "fake cube",
+  "sql": "SELECT x FROM y",
+  "outputs" : [],
+  "configuration":{"fake_key": "fake_value"}
+}
