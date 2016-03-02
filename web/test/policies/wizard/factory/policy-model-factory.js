@@ -47,14 +47,14 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       cleanFactory.setTemplate(fakePolicyTemplate);
     }));
 
-    it("if there is not any policy, it initializes a new one using the introduced template", function () {
+    it("if there is not any policy, it initializes a new one with empty attributes and removing attributes loaded from template", function () {
       var policy = cleanFactory.getCurrentPolicy();
 
       expect(cleanFactory.getProcessStatus().currentStep).toBe(-1);
       expect(policy.name).toBe("");
       expect(policy.description).toBe("");
-      expect(policy.rawDataEnabled).toBe(false);
-      expect(policy.rawDataPath).toBe("/tmp/checkpoint");
+      expect(policy.rawDataEnabled).toBe(undefined);
+      expect(policy.rawDataPath).toBe(undefined);
       expect(policy.input).toEqual({});
       expect(policy.outputs).toEqual([]);
       expect(policy.transformations).toEqual([]);
@@ -72,8 +72,6 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       expect(policy.sparkStreamingWindow).toBe(fakePolicy.sparkStreamingWindow);
       expect(policy.storageLevel).toBe(fakePolicy.storageLevel);
       expect(policy.checkpointPath).toBe(fakePolicy.checkpointPath);
-      expect(policy.rawData.enabled).toBe(fakePolicy.rawData.enabled);
-      expect(policy.rawData.path).toBe(fakePolicy.rawData.path);
       expect(policy.input).toEqual(fakeInput);
       expect(policy.outputs).toEqual([fakeOutput]);
       expect(policy.transformations).toEqual(fakePolicy.transformations);
@@ -92,8 +90,8 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     expect(factory.getProcessStatus().currentStep).toBe(-1);
     expect(policy.name).toBe("");
     expect(policy.description).toBe("");
-    expect(policy.rawDataEnabled).toBe(false);
-    expect(policy.rawDataPath).toBe("/tmp/checkpoint");
+    expect(policy.rawDataEnabled).toBe(undefined);
+    expect(policy.rawDataPath).toBe(undefined);
     expect(policy.input).toEqual({});
     expect(policy.outputs).toEqual([]);
     expect(policy.transformations).toEqual([]);
