@@ -22,7 +22,6 @@ import java.util.UUID
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.driver.util.HdfsUtils
-import com.stratio.sparkta.serving.api.actor.PolicyActor._
 import com.stratio.sparkta.serving.api.constants.ActorsConstant
 import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, SparktaConfig}
 import com.stratio.sparkta.serving.core.constants.AppConstant
@@ -39,13 +38,15 @@ import org.json4s.jackson.Serialization.{read, write}
 import scala.collection.JavaConversions
 import scala.util.{Failure, Success, Try}
 
+
 /**
  * Implementation of supported CRUD operations over ZK needed to manage policies.
  */
 class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRef)
   extends Actor
-  with SLF4JLogging
   with SparktaSerializer {
+
+  import PolicyActor._
 
   override def receive: Receive = {
     case Create(policy) => create(policy)
@@ -198,7 +199,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
   }
 }
 
-object PolicyActor {
+object PolicyActor extends SLF4JLogging {
 
   case class Create(policy: AggregationPoliciesModel)
 
@@ -221,10 +222,23 @@ object PolicyActor {
   case class ResponsePolicy(policy: Try[AggregationPoliciesModel])
 
   def deleteCheckpointPath(policy: AggregationPoliciesModel): Unit = {
-    if (SparktaConfig.getHdfsConfig.isDefined) {
-      HdfsUtils(SparktaConfig.getHdfsConfig.get).delete(AggregationPoliciesModel.checkpointPath(policy))
-    } else {
-      FileUtils.deleteDirectory(new File(AggregationPoliciesModel.checkpointPath(policy)))
+    Try {
+      if (!isLocalMode || checkpointGoesToHDFS(policy)) {
+        HdfsUtils(SparktaConfig.getHdfsConfig.get).delete(AggregationPoliciesModel.checkpointPath(policy))
+      } else {
+        FileUtils.deleteDirectory(new File(AggregationPoliciesModel.checkpointPath(policy)))
+      }
+    } match {
+      case Success(_) => log.info(s"Checkpoint deleted in folder: ${AggregationPoliciesModel.checkpointPath(policy)}")
+      case Failure(ex) => log.error("Cannot delete checkpoint folder", ex)
     }
+  }
+
+  def checkpointGoesToHDFS(policy: AggregationPoliciesModel): Boolean = {
+    policy.checkpointPath.startsWith("hdfs://")
+  }
+
+  def isLocalMode: Boolean = {
+    SparktaConfig.getDetailConfig.get.getString(AppConstant.ExecutionMode).equalsIgnoreCase("local")
   }
 }
