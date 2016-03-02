@@ -47,9 +47,9 @@ object SchemaHelper {
     TypeOp.MapStringLong -> MapType(StringType, LongType)
   )
 
-  val mapSparkTypes : Map[DataType, TypeOp] = Map(
+  val mapSparkTypes: Map[DataType, TypeOp] = Map(
     LongType -> TypeOp.Long,
-    DoubleType -> TypeOp.Double ,
+    DoubleType -> TypeOp.Double,
     DecimalType(Default_Precision, Default_Scale) -> TypeOp.BigDecimal,
     IntegerType -> TypeOp.Int,
     BooleanType -> TypeOp.Boolean,
@@ -95,7 +95,7 @@ object SchemaHelper {
         val fields = schemas.values.flatMap(structType => structType.fields) ++
           schema.map { case (key, value) => value }
 
-        if(transformationsModel.size == 1){
+        if (transformationsModel.size == 1) {
           val fieldsWithoutRaw = fields.filter(structField => structField.name != Input.RawDataKey)
           schemas ++ Map(transformationModel.order.toString -> StructType(fieldsWithoutRaw.toSeq))
         } else schemas ++ searchSchemasFromParsers(transformationsModel.drop(1),
@@ -114,7 +114,7 @@ object SchemaHelper {
       timeDimension = getExpiringData(cubeModel).map(config => config.timeDimension)
       dimensions = filterDimensionsByTime(cube.dimensions.sorted, timeDimension)
       (dimensionsWithId, isAutoCalculatedId) = dimensionFieldsWithId(dimensions, cubeModel.writer)
-      dateType = Output.getTimeTypeFromString(cubeModel.writer.fold(DefaultTimeStampTypeString) { options =>
+      dateType = getTimeTypeFromString(cubeModel.writer.fold(DefaultTimeStampTypeString) { options =>
         options.dateType.getOrElse(DefaultTimeStampTypeString)
       })
       structFields = dimensionsWithId ++ timeDimensionFieldType(timeDimension, dateType) ++ measuresMerged
@@ -125,16 +125,14 @@ object SchemaHelper {
 
   def getExpiringData(cubeModel: CubeModel): Option[ExpiringDataConfig] = {
     val timeDimension = cubeModel.dimensions
-      .filter(dimensionModel => dimensionModel.computeLast.isDefined)
-        .headOption
+      .find(dimensionModel => dimensionModel.computeLast.isDefined)
 
     timeDimension match {
-      case Some(dimensionModelValue) => {
+      case Some(dimensionModelValue) =>
         Option(ExpiringDataConfig(
           dimensionModelValue.name,
           dimensionModelValue.precision,
           OperationsHelper.parseValueToMilliSeconds(dimensionModelValue.computeLast.get)))
-      }
       case _ => None
     }
   }
@@ -173,6 +171,15 @@ object SchemaHelper {
     }
   }
 
+  def getTimeTypeFromString(timeType: String): TypeOp =
+    timeType.toLowerCase match {
+      case "timestamp" => TypeOp.Timestamp
+      case "date" => TypeOp.Date
+      case "datetime" => TypeOp.DateTime
+      case "long" => TypeOp.Long
+      case _ => TypeOp.String
+    }
+
   private def measuresFields(operators: Seq[Operator]): Seq[StructField] =
     operators.map(operator => StructField(operator.key, rowTypeFromOption(operator.returnType), Nullable))
 
@@ -190,4 +197,27 @@ object SchemaHelper {
       }
       case None => Seq.empty[StructField]
     }
+
+  def getSchemasFromTriggers(triggers: Seq[TriggerModel], outputModels: Seq[PolicyElementModel]): Seq[TableSchema] = {
+    for {
+      trigger <- triggers
+      structFields = trigger.primaryKey.map(field => Output.defaultStringField(field, false))
+      schema = StructType(structFields)
+    } yield TableSchema(
+      outputs = trigger.outputs,
+      tableName = trigger.name,
+      schema = schema,
+      timeDimension = None,
+      dateType = TypeOp.Timestamp,
+      isAutoCalculatedId = false
+    )
+  }
+
+  def getSchemasFromCubeTrigger(cubeModels: Seq[CubeModel], outputModels: Seq[PolicyElementModel]): Seq[TableSchema] = {
+    val tableSchemas = for {
+      cube <- cubeModels
+      tableSchemas = getSchemasFromTriggers(cube.triggers, outputModels)
+    } yield tableSchemas
+    tableSchemas.flatten
+  }
 }

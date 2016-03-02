@@ -22,7 +22,8 @@ import com.stratio.sparkta.serving.core.constants.AppConstant
 case class CubeModel(name: String,
                      dimensions: Seq[DimensionModel],
                      operators: Seq[OperatorModel],
-                     writer: Option[WriterModel] = None)
+                     writer: Option[WriterModel] = None,
+                     triggers: Seq[TriggerModel] = Seq.empty[TriggerModel])
 
 case class DimensionModel(name: String,
                           field: String,

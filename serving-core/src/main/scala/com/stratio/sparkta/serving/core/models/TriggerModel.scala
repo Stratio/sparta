@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.core.constants
+package com.stratio.sparkta.serving.core.models
 
-object ErrorCodes {
+import com.stratio.sparkta.sdk.JsoneyString
 
-  object Policy {
-
-    val ParsingInput = 1
-    val ParsingParser = 2
-    val ParsingOperator = 3
-    val ParsingCube = 4
-    val ParsingOutput = 5
-    val ParsingTrigger = 6
-  }
-
-}
+case class TriggerModel(name: String,
+                        sql: String,
+                        outputs: Seq[String] = Seq(),
+                        overLast: Option[String] = None,
+                        primaryKey: Seq[String],
+                        configuration: Map[String, JsoneyString] = Map())
