@@ -178,7 +178,8 @@
     "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/5.+Create+and+Submit+Policy",
     "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.1+Inputs",
     "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.2+Transformations",
-    "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.3+Cubes"
+    "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.3+Cubes",
+    "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.4+Outputs"
   ],
   "model": {
     "types": [
@@ -596,7 +597,7 @@
         "position": "left"
       },
       {
-        "propertyId": "fixedMeasure",
+        "propertyId": "writer.fixedMeasure",
         "propertyName": "_FIXED_MEASURE_",
         "propertyType": "text",
         "required": true,
@@ -605,50 +606,39 @@
         "position": "right"
       },
       {
-        "propertyId": "dateType",
+        "propertyId": "writer.dateType",
         "propertyName": "_DATE_TYPE_",
         "propertyType": "select",
         "required": true,
+        "default": "timestamp",
         "qa": "cube-date-type",
         "values": [
           {
-            "label": "5 seconds",
-            "value": "5 seconds"
+            "label": "_TIMESTAMP_",
+            "value": "timestamp"
           },
           {
-            "label": "_10_SECONDS_",
-            "value": "10 seconds"
+            "label": "_DATE_",
+            "value": "date"
           },
           {
-            "label": "_15_SECONDS_",
-            "value": "15 seconds"
+            "label": "_DATE_TIME_",
+            "value": "datetime"
           },
           {
-            "label": "_MINUTE_",
-            "value": "minute"
+            "label": "_LONG_",
+            "value": "long"
           },
           {
-            "label": "_HOUR_",
-            "value": "hour"
-          },
-          {
-            "label": "_DAY_",
-            "value": "day"
-          },
-          {
-            "label": "_MONTH_",
-            "value": "month"
-          },
-          {
-            "label": "_YEAR_",
-            "value": "year"
+            "label": "_STRING_",
+            "value": "string"
           }
         ],
         "width": 6,
         "position": "left"
       },
       {
-        "propertyId": "isAutoCalculatedId",
+        "propertyId": "writer.isAutoCalculatedId",
         "propertyName": "_IS_AUTO_CALCULATED_ID_",
         "propertyType": "boolean",
         "default": false,

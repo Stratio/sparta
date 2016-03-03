@@ -20,7 +20,7 @@ describe('policies.wizard.factory.cube-model-factory', function () {
     fakePolicyTemplate = _servedPolicyTemplate_;
   }));
 
-  it("should be able to load a cube from a json and a position", function () {
+  it("should be able to load a cube from a json and a position and remove attributes which are loaded from its template", function () {
     var position = 0;
     factory.setCube(fakeCube, position);
     var cube = factory.getCube();
@@ -30,6 +30,11 @@ describe('policies.wizard.factory.cube-model-factory', function () {
     expect(cube.checkpointConfig).toBe(fakeCube.checkpointConfig);
     expect(factory.getError()).toEqual({"text": ""});
     expect(factory.getContext().position).toBe(position);
+
+    // check if attributes which are loaded from its template have been removed
+    expect(cube.fixedMeasure).toBe(undefined);
+    expect(cube.isAutoCalculatedId).toBe(undefined);
+    expect(cube.dateType).toBe(undefined);
   });
 
   describe("should be able to update the cube error", function () {

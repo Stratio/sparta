@@ -18,6 +18,8 @@
     vm.subtractFragmentCount = subtractFragmentCount;
     vm.getInCamelCase = getInCamelCase;
     vm.convertDottedPropertiesToJson = convertDottedPropertiesToJson;
+    vm.getFilteredJSONByArray = getFilteredJSONByArray;
+    vm.removeDuplicatedJSONs = removeDuplicatedJSONs;
 
     function findElementInJSONArray(array, element, attr) {
       var found = false;
@@ -148,11 +150,41 @@
           for (var i = 0; i < splittedKey.length - 1; ++i) {
             tempProperty = tempProperty[splittedKey[i]];
           }
+          if (!tempProperty[splittedKey[splittedKey.length - 1]]) {
+            tempProperty[splittedKey[splittedKey.length - 1]] = {};
+          }
+
           tempProperty[splittedKey[splittedKey.length - 1]] = object[key];
           delete object[key];
         }
       }
       return object;
+    }
+
+
+    function getFilteredJSONByArray(JsonArray, array, attribute) {
+      var filteredElements = [];
+      for (var i = 0; i < array.length; ++i) {
+        var filter = {};
+        filter[attribute] = array[i];
+        filteredElements.push($filter('filter')(JsonArray, filter, true)[0]);
+      }
+      return filteredElements;
+    }
+
+    function removeDuplicatedJSONs(array, attribute) {
+      var resultArray = [];
+      for (var i = 0; i < array.length; ++i) {
+        var filter = {};
+        filter[attribute] = array[i][attribute];
+        var foundElement = $filter('filter')(resultArray, filter, true)[0];
+        console.log(foundElement)
+        if (!foundElement) {
+          resultArray.push(array[i]);
+        }
+      }
+      console.log(resultArray);
+      return resultArray;
     }
   }
 })

@@ -5,32 +5,41 @@
     .module('webApp')
     .service('OutputService', OutputService);
 
-  OutputService.$inject = ['PolicyModelFactory', 'FragmentFactory',  '$q'];
+  OutputService.$inject = ['FragmentFactory',  '$q'];
 
-  function OutputService(PolicyModelFactory,   FragmentFactory,  $q) {
+  function OutputService(  FragmentFactory,  $q) {
     var vm = this;
+    var outputNameList = null;
     var outputList = null;
 
-    vm.generateOutputList = generateOutputList;
+    vm.generateOutputNameList = generateOutputNameList;
+    vm.getOutputList = getOutputList;
 
-    init();
-
-    function init() {
-      vm.policy = PolicyModelFactory.getCurrentPolicy();
-
+    function generateOutputNameList() {
+      var defer = $q.defer();
+      if (outputNameList) {
+        defer.resolve(outputNameList);
+      } else {
+        outputNameList = [];
+        FragmentFactory.getFragments("output").then(function (result) {
+          for (var i = 0; i < result.length; ++i) {
+            outputNameList.push({"label": result[i].name, "value": result[i].name});
+          }
+          defer.resolve(outputNameList);
+        });
+      }
+      return defer.promise;
     }
 
-    function generateOutputList() {
+
+    function getOutputList(){
       var defer = $q.defer();
       if (outputList) {
         defer.resolve(outputList);
       } else {
         outputList = [];
         FragmentFactory.getFragments("output").then(function (result) {
-          for (var i = 0; i < result.length; ++i) {
-            outputList.push({"label": result[i].name, "value": result[i].name});
-          }
-          defer.resolve(outputList);
+          defer.resolve(result);
         });
       }
       return defer.promise;
