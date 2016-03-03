@@ -48,6 +48,10 @@
       "required": true,
       "values": [
         {
+          "label": "Milliseconds",
+          "value": "ms"
+        },
+        {
           "label": "Seconds",
           "value": "s"
         },
@@ -171,16 +175,16 @@
     }
   ],
   "helpLinks": [
-    "https://stratio.atlassian.net/wiki/display/SPARKTA0x8/5.+Create+and+Submit+Policy",
-    "http://docs.stratio.com/modules/sparkta/0.6/inputs.html",
-    "http://docs.stratio.com/modules/sparkta/0.6/transformations.html",
-    "http://docs.stratio.com/modules/sparkta/0.6/cube.html",
-    "http://docs.stratio.com/modules/sparkta/0.6/outputs.html"
+    "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/5.+Create+and+Submit+Policy",
+    "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.1+Inputs",
+    "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.2+Transformations",
+    "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.3+Cubes",
+    "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.4+Outputs"
   ],
   "model": {
     "types": [
       {
-        "iconName": "cross",
+        "iconName": "ingestion",
         "name": "Ingestion"
       },
       {
@@ -259,14 +263,6 @@
                   "field1": "/field-in-json1",
                   "field2": "/field-in-json2"
                 }
-              }
-            },
-            {
-              "removeFields": {
-                "blacklist": [
-                  "literal:_attachment_body",
-                  "literal:message"
-                ]
               }
             }
           ]
@@ -503,6 +499,10 @@
         "required": true,
         "values": [
           {
+            "label": "Milliseconds",
+            "value": "ms"
+          },
+          {
             "label": "Seconds",
             "value": "s"
           },
@@ -556,6 +556,10 @@
         "required": true,
         "values": [
           {
+            "label": "Milliseconds",
+            "value": "ms"
+          },
+          {
             "label": "Seconds",
             "value": "s"
           },
@@ -589,65 +593,58 @@
         "propertyType": "text",
         "required": true,
         "qa": "cube-name",
-        "col": 12
-      },
+        "width": 12,
+        "position": "left"
+      }
+    ],
+    "outputProperties":[
       {
-        "propertyId": "fixedMeasure",
+        "propertyId": "writer.fixedMeasure",
         "propertyName": "_FIXED_MEASURE_",
         "propertyType": "text",
-        "required": true,
         "qa": "cube-fixed-measure",
-        "col": 12
+        "width": 12
       },
       {
-        "propertyId": "dateType",
+        "propertyId": "writer.dateType",
         "propertyName": "_DATE_TYPE_",
         "propertyType": "select",
         "required": true,
+        "default": "timestamp",
         "qa": "cube-date-type",
         "values": [
           {
-            "label": "5 seconds",
-            "value": "5 seconds"
+            "label": "_TIMESTAMP_",
+            "value": "timestamp"
           },
           {
-            "label": "_10_SECONDS_",
-            "value": "10 seconds"
+            "label": "_DATE_",
+            "value": "date"
           },
           {
-            "label": "_15_SECONDS_",
-            "value": "15 seconds"
+            "label": "_DATE_TIME_",
+            "value": "datetime"
           },
           {
-            "label": "_MINUTE_",
-            "value": "minute"
+            "label": "_LONG_",
+            "value": "long"
           },
           {
-            "label": "_HOUR_",
-            "value": "hour"
-          },
-          {
-            "label": "_DAY_",
-            "value": "day"
-          },
-          {
-            "label": "_MONTH_",
-            "value": "month"
-          },
-          {
-            "label": "_YEAR_",
-            "value": "year"
+            "label": "_STRING_",
+            "value": "string"
           }
         ],
-        "col": 12
+        "width": 6,
+        "position": "left"
       },
       {
-        "propertyId": "isAutoCalculatedId",
+        "propertyId": "writer.isAutoCalculatedId",
         "propertyName": "_IS_AUTO_CALCULATED_ID_",
         "propertyType": "boolean",
         "default": false,
         "qa": "cube-is-auto-calculated-id",
-        "col": 12
+        "width": 6,
+        "position": "right"
       }
     ],
     "functionNames": [
@@ -678,55 +675,47 @@
         "propertyType": "text",
         "required": true,
         "qa": "trigger-name",
-        "col": 12
+        "width": 12
       },
       {
-        "propertyId": "overLast",
+        "propertyId": "overLastNumber",
         "propertyName": "_OVER_LAST_",
+        "propertyType": "number",
+        "width": 6,
+        "position": "left",
+        "required": true,
+        "qa": "trigger-overLastNumber"
+      },
+      {
+        "propertyId": "overLastTime",
+        "propertyName": "_WHITE_SPACE_",
         "propertyType": "select",
-        "qa": "trigger-over-last",
+        "width": 6,
+        "position": "right",
+        "qa": "trigger-overLastTime",
+        "required": true,
         "values": [
           {
-            "label": "_SECOND_",
-            "value": "second"
+            "label": "Milliseconds",
+            "value": "ms"
           },
           {
-            "label": "_5_SECONDS_",
-            "value": "s5"
+            "label": "Seconds",
+            "value": "s"
           },
           {
-            "label": "_10_SECONDS_",
-            "value": "s10"
+            "label": "Minutes",
+            "value": "m"
           },
           {
-            "label": "_15_SECONDS_",
-            "value": "s15"
+            "label": "Hours",
+            "value": "h"
           },
           {
-            "label": "_MINUTE_",
-            "value": "minute"
-          },
-          {
-            "label": "_HOUR_",
-            "value": "hour"
-          },
-          {
-            "label": "_DAY_",
-            "value": "day"
-          },
-          {
-            "label": "_MONTH_",
-            "value": "month"
-          },
-          {
-            "label": "_YEAR_",
-            "value": "year"
+            "label": "Days",
+            "value": "d"
           }
-        ],
-        "default": "second",
-        "required": true,
-        "qa": "trigger-over-last",
-        "col": 12
+        ]
       },
       {
         "propertyId": "sql",
@@ -734,7 +723,7 @@
         "propertyType": "textarea",
         "required": true,
         "qa": "trigger-sql",
-        "col": 12
+        "width": 12
       }
     ]
   }

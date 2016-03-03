@@ -104,11 +104,21 @@
             <span class="c-step-content__title-text">{{"_ADD_OUTPUTS_" | translate}}</span>
           </h1>
           <div class="c-col c-col--12 c-form-group--compressed__container">
+            <form-field
+              data-ng-repeat="properties in vm.template.outputProperties"
+              data-ng-class="{'c-col c-col--{{properties.width}}': properties.width, 'c-form-gutter c-form-gutter__{{properties.position}} c-col--vertical-top': properties.position}"
+              data-ng-form-id="{{properties.propertyId}}"
+              data-field="properties"
+              data-model="vm.cube"
+              data-form="vm.form"
+              data-st-name="dataSource{{properties.propertyName}}Form"
+              data-qa="{{properties.qa}}">
+            </form-field>
             <form-field-select class="c-col c-col--6 c-form-group--inline" data-form="vm.form" data-st-name="cubeOutputs" data-model="vm.selectedPolicyOutput"
              data-options="vm.policyOutputList" data-field="label" data-label="{{'_OUTPUTS_' | translate}}"
              data-qa="cube-output-select" data-submitted-form="vm.form.$submitted" data-ng-click="vm.addOutput()" data-outputs-length="vm.cube.writer.outputs.length" >
             </form-field-select>
-            <div data-ng-if="vm.cube.writer.outputs.length == 0 && vm.form.$submitted" class="c-col c-col--10 angular-forms__error">
+            <div data-ng-if="vm.cube.writer.outputs.length == 0 && vm.form.$submitted" class="c-col c-col--6 angular-forms__error">
               <i class="icon icon-circle-cross"></i>
               <span data-qa="{{qa}}-error-outputs-length">{{"_POLICY_CUBES_OUTPUT_ERROR_" | translate}}</span>
             </div>
@@ -126,7 +136,7 @@
         <ng-include data-ng-model = "vm.cube.triggers" src="'views/policy-wizard/trigger-accordion.html'" novalidate></ng-include>
       </div>
     </div>
-    <div class="c-row c-msg c-msg--small c-msg--error c-form c-form-group"
+    <div class="c-col c-col--6 c-msg c-msg--small c-msg--error c-form c-form-group"
        data-ng-if="vm.form.$submitted && (vm.cube.operators.length === 0 || vm.cube.dimensions.length === 0)"
        data-qa="policy-cube-error-msg">
       <i class="c-icon icon-circle-cross"></i>

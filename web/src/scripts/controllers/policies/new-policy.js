@@ -12,6 +12,7 @@
 
     vm.changeStepNavigationVisibility = changeStepNavigationVisibility;
     vm.confirmPolicy = confirmPolicy;
+    vm.closeErrorMessage = closeErrorMessage;
 
     init();
 
@@ -28,6 +29,10 @@
       else {
         $state.go('dashboard.policies');
       }
+    }
+
+    function closeErrorMessage() {
+      vm.error = null;
     }
 
     function changeStepNavigationVisibility() {
@@ -54,7 +59,11 @@
           $state.go("dashboard.policies");
         }, function (error) {
           if (error) {
-            vm.error = error.data;
+            if (error.data.message) {
+              vm.error = error.data.message;
+            }
+            else
+             vm.error = error.data;
           }
         });
       });

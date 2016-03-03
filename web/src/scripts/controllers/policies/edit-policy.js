@@ -12,6 +12,7 @@
 
     vm.changeStepNavigationVisibility = changeStepNavigationVisibility;
     vm.confirmPolicy = confirmPolicy;
+    vm.closeErrorMessage = closeErrorMessage;
 
     init();
 
@@ -37,6 +38,10 @@
       });
     }
 
+    function closeErrorMessage() {
+      vm.error = null;
+    }
+
     function changeStepNavigationVisibility() {
       vm.showStepNavigation = !vm.showStepNavigation;
     }
@@ -52,7 +57,7 @@
           return "";
         }
       };
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
 
       return modalInstance.result.then(function () {
         var finalJSON = PolicyModelFactory.getFinalJSON();
@@ -62,7 +67,11 @@
           $state.go("dashboard.policies");
         }, function (error) {
           if (error) {
-            vm.error = error.data;
+            if (error.data.message) {
+              vm.error = error.data.message;
+            }
+            else
+             vm.error = error.data;
           }
         });
 

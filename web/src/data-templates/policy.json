@@ -593,17 +593,17 @@
         "propertyType": "text",
         "required": true,
         "qa": "cube-name",
-        "width": 6,
+        "width": 12,
         "position": "left"
-      },
+      }
+    ],
+    "outputProperties":[
       {
         "propertyId": "writer.fixedMeasure",
         "propertyName": "_FIXED_MEASURE_",
         "propertyType": "text",
-        "required": true,
         "qa": "cube-fixed-measure",
-        "width": 6,
-        "position": "right"
+        "width": 12
       },
       {
         "propertyId": "writer.dateType",

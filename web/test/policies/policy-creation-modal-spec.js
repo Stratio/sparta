@@ -18,7 +18,7 @@ describe('policy-creation-modal-controller', function () {
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/policyTemplate.json'));
 
-  var ctrl, $q, PolicyFactoryMock, PolicyModelFactoryMock, TemplateFactoryMock, fakePolicy, fakePolicyTemplate, modalInstanceMock, scope = null;
+  var ctrl, $q, titleMock, PolicyFactoryMock, PolicyModelFactoryMock, TemplateFactoryMock, fakePolicy, fakePolicyTemplate, modalInstanceMock, scope, fakeTitle = null;
 
   beforeEach(inject(function ($controller, _$q_, $httpBackend, $rootScope, _servedPolicy_, _servedPolicyTemplate_) {
     $httpBackend.when('GET', 'languages/en-US.json')
@@ -42,12 +42,15 @@ describe('policy-creation-modal-controller', function () {
     spyOn(document, "querySelector").and.callFake(function () {
       return {"focus": jasmine.createSpy()}
     });
+    fakeTitle = 'Fake title';
+    titleMock = jasmine.createSpy().and.returnValue(fakeTitle);
 
     ctrl = $controller('PolicyCreationModalCtrl', {
       'PolicyModelFactory': PolicyModelFactoryMock,
       'PolicyFactory': PolicyFactoryMock,
       'TemplateFactory': TemplateFactoryMock,
-      '$modalInstance': modalInstanceMock
+      '$modalInstance': modalInstanceMock,
+      'title': titleMock
     });
 
     scope.$apply();

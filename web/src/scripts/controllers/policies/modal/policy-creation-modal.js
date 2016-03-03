@@ -6,9 +6,9 @@
     .module('webApp')
     .controller('PolicyCreationModalCtrl', PolicyCreationModalCtrl);
 
-  PolicyCreationModalCtrl.$inject = ['PolicyModelFactory','PolicyFactory', 'TemplateFactory', '$modalInstance'];
+  PolicyCreationModalCtrl.$inject = ['PolicyModelFactory', 'title', 'PolicyFactory', 'TemplateFactory', '$modalInstance'];
 
-  function PolicyCreationModalCtrl(PolicyModelFactory, PolicyFactory, TemplateFactory, $modalInstance) {
+  function PolicyCreationModalCtrl(PolicyModelFactory, title, PolicyFactory, TemplateFactory, $modalInstance) {
     /*jshint validthis: true*/
     var vm = this;
     vm.cancel = cancel;
@@ -19,6 +19,7 @@
     ///////////////////////////////////////
 
     function init() {
+      vm.title = title;
       return TemplateFactory.getPolicyTemplate().then(function (template) {
         PolicyModelFactory.setTemplate(template);
         vm.policy = PolicyModelFactory.getCurrentPolicy();

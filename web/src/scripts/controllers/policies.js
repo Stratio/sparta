@@ -49,7 +49,11 @@
       PolicyModelFactory.resetPolicy();
       var controller = 'PolicyCreationModalCtrl';
       var templateUrl = "templates/modal/policy-creation-modal.tpl.html";
-      var resolve = {};
+      var resolve = {
+        title: function () {
+          return "_POLICY_._MODAL_CREATION_TITLE_";
+        }
+      };
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve, null, 'lg');
       return modalInstance.result.then(function () {
         PolicyModelFactory.nextStep();

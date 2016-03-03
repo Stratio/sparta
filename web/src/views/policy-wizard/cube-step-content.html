@@ -1,6 +1,4 @@
 <section data-ng-controller="PolicyCubeAccordionCtrl as vm">
-  <p class="c-info-text c-info-text--narrow c-info-text--bottom-margin"><i class="c-icon c-info-text__icon icon-info1"></i><span
-    class="c-info-text__text">{{"_POLICY_._CUBE_INTRO_" | translate}}</span></p>
   <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error != '' && vm.policy.cubes.length === 0" data-qa="policy-cube-accordion-error-msg">
     <i class="c-icon icon-circle-cross"></i>
     <span>{{vm.error | translate}}</span>
@@ -16,16 +14,8 @@
                  new-item-header="_POLICY_._NEW_CUBE_DEFINITION_">
     </c-accordion>
   </form>
-
-
   <footer class="c-row c-row--footer">
-    <div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">
-      <div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">
-        <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" link-url="vm.helpLink"
-                     data-qa="policy-cube-help"></c-icon-link>
-      </div>
-    </div><!--
- --><div class="c-col c-col--6 c-col--to-right">
+    <div class="c-col c-col--12 c-col--to-right">
       <button class="c-button c-button--call-to-action-1"  ng-if = "!vm.isActiveCubeCreationPanel()"
               data-ng-click="vm.activateCubeCreationPanel()" data-qa="policy-model-add-new-transformation-button">
         <i class="icon icon-circle-plus"></i>
