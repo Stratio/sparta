@@ -2,7 +2,7 @@
   "name": "benchmark",
   "description": "No description",
   "sparkStreamingWindow": 2000,
-  "checkpointPath": "checkpoint",
+  "checkpointPath": "/tmp/checkpoint",
   "rawData": {
     "enabled": "false",
     "partitionFormat": "day",
