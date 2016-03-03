@@ -52,8 +52,8 @@ hesitate in open an issue at |github_dl|
 
     java.lang.ClassCastException: java.lang.Long cannot be cast to java.util.Date
             at com.stratio.sparkta.plugin.field.datetime.DateTimeField.precisionValue(DateTimeField.scala:58)
-            at com.stratio.sparkta.aggregator.CubeOperations$$anonfun$extractDimensionsAggregations$1$$anonfun$1$$anonfun$apply$1.apply(CubeMaker.scala:75)
-            at com.stratio.sparkta.aggregator.CubeOperations$$anonfun$extractDimensionsAggregations$1$$anonfun$1$$anonfun$apply$1.apply(CubeMaker.scala:74)
+            at com.stratio.sparkta.aggregator.cube.CubeOperations$$anonfun$extractDimensionsAggregations$1$$anonfun$1$$anonfun$apply$1.apply(CubeMaker.scala:75)
+            at com.stratio.sparkta.aggregator.cube.CubeOperations$$anonfun$extractDimensionsAggregations$1$$anonfun$1$$anonfun$apply$1.apply(CubeMaker.scala:74)
             at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:244)
             at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:244)
             at scala.collection.immutable.List.foreach(List.scala:318)

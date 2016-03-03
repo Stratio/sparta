@@ -81,9 +81,10 @@ class AggregationPolicyTest extends WordSpec with Matchers with MockitoSugar{
       Option("59s"),
       configuration = Some(Map())))
 
-  val cubes = Seq(CubeModel("cube1", dimensionModel, operators: Seq[OperatorModel]))
-  val wrongPrecisionCubes = Seq(CubeModel("cube1", wrongDimensionModel, operators: Seq[OperatorModel]))
-  val wrongComputeLastCubes = Seq(CubeModel("cube1", wrongComputeLastModel, operators: Seq[OperatorModel]))
+  val cubeWriter = WriterModel(outputs = Seq("mongo"))
+  val cubes = Seq(CubeModel("cube1", dimensionModel, operators: Seq[OperatorModel], cubeWriter))
+  val wrongPrecisionCubes = Seq(CubeModel("cube1", wrongDimensionModel, operators: Seq[OperatorModel], cubeWriter))
+  val wrongComputeLastCubes = Seq(CubeModel("cube1", wrongComputeLastModel, operators: Seq[OperatorModel], cubeWriter))
 
   val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
   val input = Some(PolicyElementModel("kafka", "Kafka", Map()))

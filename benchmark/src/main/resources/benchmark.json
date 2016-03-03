@@ -59,13 +59,6 @@
                   "employee": "/employee"
                 }
               }
-            },
-            {
-              "removeFields": {
-                "blacklist": [
-                  "literal:_attachment_body"
-                ]
-              }
             }
           ]
         }
@@ -86,6 +79,9 @@
   "cubes": [
     {
       "name": "testCube",
+      "writer": {
+        "outputs" : ["out-print"]
+      },
       "dimensions": [
         {
           "name": "payment_method",

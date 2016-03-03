@@ -40,13 +40,6 @@
                   "response": "/response"
                 }
               }
-            },
-            {
-              "removeFields": {
-                "blacklist": [
-                  "literal:_attachment_body"
-                ]
-              }
             }
           ]
         }
@@ -56,6 +49,9 @@
   "cubes": [
     {
       "name": "testCube",
+      "writer": {
+        "outputs" : ["out-solr"]
+      },
       "dimensions": [
         {
           "field": "response",

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.aggregator
+package com.stratio.sparkta.driver.trigger
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.aggregator.StreamWriter._
 import com.stratio.sparkta.sdk.{Output, TableSchema}
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{Row, SQLContext}
 import org.apache.spark.streaming.Seconds
 import org.apache.spark.streaming.dstream.DStream
+import StreamWriter._
 
 case class StreamWriterOptions(overLast: Option[String],
                                sparkStreamingWindow: Long,

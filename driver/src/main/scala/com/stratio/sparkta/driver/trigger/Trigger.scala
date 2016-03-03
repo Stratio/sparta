@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.aggregator
+package com.stratio.sparkta.driver.trigger
 
 import java.io._
 
