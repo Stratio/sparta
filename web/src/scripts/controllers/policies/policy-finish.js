@@ -67,7 +67,6 @@
     }
 
     function getTriggerOutputs(allOutputs) {
-      var usedOutputs = [];
       var outputs = [];
       var triggers = vm.policy.streamTriggers;
       var triggerOutputs = [];
@@ -77,9 +76,7 @@
       if (allOutputs && triggerOutputs) {
         outputs = UtilsService.getFilteredJSONByArray(allOutputs, triggerOutputs, 'name');
       }
-      usedOutputs.push(outputs);
-
-      return usedOutputs;
+      return outputs;
     }
 
     function convertTriggerAttributes(policyJson) {

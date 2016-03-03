@@ -168,7 +168,10 @@
         for (var i = 0; i < array.length; ++i) {
           var filter = {};
           filter[attribute] = array[i];
-          filteredElements.push($filter('filter')(JsonArray, filter, true)[0]);
+          var filteredOutput= $filter('filter')(JsonArray, filter, true)[0];
+          if (filteredOutput){
+            filteredElements.push(filteredOutput);
+          }
         }
       }
       return filteredElements;
