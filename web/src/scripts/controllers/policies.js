@@ -16,6 +16,7 @@
     vm.runPolicy = runPolicy;
     vm.stopPolicy = stopPolicy;
     vm.editPolicy = editPolicy;
+    vm.deleteErrorMessage = deleteErrorMessage;
 
     vm.policiesData = {};
     vm.policiesData.list = undefined;
@@ -37,6 +38,11 @@
           $interval.cancel(vm.checkPoliciesStatus);
         }
       });
+    }
+
+    function deleteErrorMessage() {
+      vm.errorMessage = '';
+      vm.errorMessageExtended = '';
     }
 
     function createPolicy() {
@@ -88,6 +94,9 @@
         policyRunning.then(function () {
           $translate('_RUN_POLICY_OK_', {policyName: policyName}).then(function (value) {
             vm.successMessage = value;
+            $timeout(function () {
+              vm.successMessage = '';
+            }, 3000);
           });
           $timeout(function () {
             vm.success = false
@@ -121,6 +130,9 @@
         policyStopping.then(function () {
           $translate('_STOP_POLICY_OK_', {policyName: policyName}).then(function (value) {
             vm.successMessage = value;
+            $timeout(function () {
+              vm.successMessage = '';
+            }, 3000);
           });
           $timeout(function () {
             vm.success = false
@@ -157,6 +169,9 @@
         $translate('_POLICY_DELETE_OK_').then(function (value) {
           vm.successMessage = value;
           $timeout(function () {
+            vm.successMessage = '';
+          }, 3000);
+          $timeout(function () {
             vm.success = false
           }, 5000);
         });
@@ -186,6 +201,9 @@
       }, function (error) {
         $translate('_INPUT_ERROR_' + error.data.i18nCode + '_').then(function (value) {
           vm.successMessage = value;
+          $timeout(function () {
+            vm.successMessage = '';
+          }, 3000);
         });
       });
     }

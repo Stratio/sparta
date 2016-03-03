@@ -34,7 +34,7 @@
         "propertyName": "_KEYSPACE_",
         "propertyType": "text",
         "regexp": "",
-        "default": "Sparkta",
+        "default": "sparkta",
         "required": true,
         "tooltip": "Keyspace name.",
         "qa": "fragment-details-cassandra-keyspace"
@@ -44,7 +44,7 @@
         "propertyName": "_CLUSTER_",
         "propertyType": "text",
         "regexp": "",
-        "default": "Sparkta",
+        "default": "sparkta",
         "required": true,
         "tooltip": "Cluster name.",
         "qa": "fragment-details-cassandra-cluster"
