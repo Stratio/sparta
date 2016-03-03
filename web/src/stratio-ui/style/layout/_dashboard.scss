@@ -57,6 +57,7 @@ html{
 	#base-content-wrapper{
 		@extend .t-normal;
 
+    transition: all 0.0s;
 		width: 100%;
 		padding: 0 30px;
 
