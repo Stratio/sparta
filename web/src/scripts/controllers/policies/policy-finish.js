@@ -10,7 +10,6 @@
 
   function PolicyFinishCtrl(PolicyModelFactory, OutputService, UtilsService, $q) {
     var vm = this;
-    vm.previousStep = previousStep;
 
     init();
 
@@ -22,10 +21,6 @@
         PolicyModelFactory.setFinalJSON(finalJSON);
         vm.policyJson = JSON.stringify(finalJSON, null, 4);
       });
-    }
-
-    function previousStep() {
-      PolicyModelFactory.previousStep();
     }
 
     function generateFinalJSON() {
