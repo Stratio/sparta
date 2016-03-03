@@ -178,12 +178,10 @@
         var filter = {};
         filter[attribute] = array[i][attribute];
         var foundElement = $filter('filter')(resultArray, filter, true)[0];
-        console.log(foundElement)
         if (!foundElement) {
           resultArray.push(array[i]);
         }
       }
-      console.log(resultArray);
       return resultArray;
     }
   }

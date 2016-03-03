@@ -44,7 +44,7 @@
       var controller = 'PolicyCreationModalCtrl';
       var templateUrl = "templates/modal/policy-creation-modal.tpl.html";
       var resolve = {};
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, null, 'lg');
       return modalInstance.result.then(function () {
         PolicyModelFactory.nextStep();
         $state.go('wizard.newPolicy');

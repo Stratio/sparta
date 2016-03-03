@@ -44,7 +44,7 @@
           return "";
         }
       };
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, "", "lg");
 
       return modalInstance.result.then(function () {
         var finalJSON = PolicyModelFactory.getFinalJSON();
