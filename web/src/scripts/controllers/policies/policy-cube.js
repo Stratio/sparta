@@ -175,7 +175,6 @@
       }
     }
 
-
     function changeOpenedTrigger(selectedTriggerPosition) {
       if (vm.cube.triggers.length > 0 && selectedTriggerPosition >= 0 && selectedTriggerPosition < vm.cube.triggers.length) {
         var selectedTrigger = vm.cube.triggers[selectedTriggerPosition];

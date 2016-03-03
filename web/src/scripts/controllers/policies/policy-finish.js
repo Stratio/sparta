@@ -51,37 +51,44 @@
 
     function getCubeOutputs(allOutputs) {
       var cubes = vm.policy.cubes;
+      var outputs = [];
       for (var c = 0; c < cubes.length; ++c) {
         var cubeOutputs = cubes[c].writer.outputs;
-        for (var t = 0; t <  cubes[c].triggers.length; ++t) {
+
+        for (var t = 0; t < cubes[c].triggers.length; ++t) {
           cubeOutputs.concat(cubes[c].triggers[t].outputs);
         }
       }
-      var outputs = UtilsService.getFilteredJSONByArray(allOutputs, cubeOutputs, 'name');
+
+      if (allOutputs && cubeOutputs) {
+        outputs = UtilsService.getFilteredJSONByArray(allOutputs, cubeOutputs, 'name');
+      }
       return outputs;
     }
 
     function getTriggerOutputs(allOutputs) {
       var usedOutputs = [];
-
+      var outputs = [];
       var triggers = vm.policy.streamTriggers;
       var triggerOutputs = [];
       for (var t = 0; t < triggers.length; ++t) {
         triggerOutputs.push(triggers[t].outputs);
       }
-      var outputs = UtilsService.getFilteredJSONByArray(allOutputs, triggerOutputs, 'name');
+      if (allOutputs && triggerOutputs) {
+        outputs = UtilsService.getFilteredJSONByArray(allOutputs, triggerOutputs, 'name');
+      }
       usedOutputs.push(outputs);
 
       return usedOutputs;
     }
 
-    function convertTriggerAttributes(policyJson){
+    function convertTriggerAttributes(policyJson) {
       var triggers = policyJson.streamTriggers;
       for (var i = 0; i < policyJson.cubes.length; ++i) {
-       triggers = triggers.concat(policyJson.cubes[i].triggers);
+        triggers = triggers.concat(policyJson.cubes[i].triggers);
       }
       for (var i = 0; i < triggers.length; ++i) {
-        triggers[i].overLast =  triggers[i].overLastNumber +  triggers[i].overLastTime;
+        triggers[i].overLast = triggers[i].overLastNumber + triggers[i].overLastTime;
         delete triggers[i].overLastNumber;
         delete triggers[i].overLastTime;
       }

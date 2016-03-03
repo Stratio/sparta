@@ -164,22 +164,26 @@
 
     function getFilteredJSONByArray(JsonArray, array, attribute) {
       var filteredElements = [];
-      for (var i = 0; i < array.length; ++i) {
-        var filter = {};
-        filter[attribute] = array[i];
-        filteredElements.push($filter('filter')(JsonArray, filter, true)[0]);
+      if (array) {
+        for (var i = 0; i < array.length; ++i) {
+          var filter = {};
+          filter[attribute] = array[i];
+          filteredElements.push($filter('filter')(JsonArray, filter, true)[0]);
+        }
       }
       return filteredElements;
     }
 
     function removeDuplicatedJSONs(array, attribute) {
       var resultArray = [];
-      for (var i = 0; i < array.length; ++i) {
-        var filter = {};
-        filter[attribute] = array[i][attribute];
-        var foundElement = $filter('filter')(resultArray, filter, true)[0];
-        if (!foundElement) {
-          resultArray.push(array[i]);
+      if (array) {
+        for (var i = 0; i < array.length; ++i) {
+          var filter = {};
+          filter[attribute] = array[i][attribute];
+          var foundElement = $filter('filter')(resultArray, filter, true)[0];
+          if (!foundElement) {
+            resultArray.push(array[i]);
+          }
         }
       }
       return resultArray;

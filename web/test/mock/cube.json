@@ -17,5 +17,5 @@
     "granularity": "fake granularity"
   },
   "triggers":[],
-  "writer":{"outputs": []}
+  "writer":{"outputs": ["cube output 1", "cube output 2"]}
 }
