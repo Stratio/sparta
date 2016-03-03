@@ -117,6 +117,7 @@
       "_FINISH_": "Finish"
     },
     "_MODAL_CREATION_TITLE_": "Create policy",
+    "_MODAL_SETTINGS_TITLE_": "Policy settings",
     "_RAW_": "Raw",
     "_NEW_MODEL_DEFINITION_": "New model definition",
     "_NEW_CUBE_DEFINITION_": "New cube definition",
@@ -141,6 +142,7 @@
     "_ADD_CUBE_": "Add cube",
     "_SAVE_CUBE_": "Save cube",
     "_SAVE_TRIGGER_": "Save trigger",
+    "_EXIT_CONFIRMATION_": "If you leave the editor, you will lose the changes.",
     "_WINDOW_": {
       "_CONFIRM_": {
         "_TITLE_": "Create policy"
@@ -150,6 +152,9 @@
       },
       "_EDIT_": {
         "_TITLE_": "Edit policy"
+      },
+      "_EXIT_": {
+        "_TITLE_": "Exit policy"
       }
     },
     "_CUBE_": {

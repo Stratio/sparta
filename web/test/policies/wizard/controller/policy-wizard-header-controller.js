@@ -3,7 +3,7 @@ describe('policies.wizard.controller.policy-wizard-header-controller', function 
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/policyTemplate.json'));
 
-  var ctrl, scope, fakePolicy, fakeTemplate, policyModelFactoryMock, fakeWizardStatus,  modalServiceMock;
+  var ctrl, scope, fakePolicy, fakeTemplate, policyModelFactoryMock, fakeWizardStatus,  modalServiceMock, fakeTitle, titleMock;
 
   // init mock modules
 
@@ -50,7 +50,15 @@ describe('policies.wizard.controller.policy-wizard-header-controller', function 
   it ("should be able to open the policy description modal", function(){
     ctrl.showPolicyData();
 
-    expect(modalServiceMock.openModal).toHaveBeenCalledWith('PolicyCreationModalCtrl','templates/modal/policy-creation-modal.tpl.html',{}, '', 'lg');
+
+    expect(modalServiceMock.openModal).toHaveBeenCalled();
+    var callParams = modalServiceMock.openModal.calls.mostRecent().args;
+    expect(callParams[0]).toBe('PolicyCreationModalCtrl');
+    expect(callParams[1]).toBe('templates/modal/policy-creation-modal.tpl.html');
+    expect(callParams[2].title()).toBe("_POLICY_._MODAL_SETTINGS_TITLE_");
+    expect(callParams[3]).toEqual('');
+    expect(callParams[4]).toEqual('lg');
+
   });
 
   describe ("should be any change in wizard status and update the help link according to the current step", function(){

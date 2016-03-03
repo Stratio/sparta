@@ -28,7 +28,7 @@
       </div>
       <div data-ng-switch-when="3">
         <ng-include src="'views/policy-wizard/finish.html'"></ng-include>
-        <footer class="c-row c-row--footer">
+        <footer class="c-row c-row--separated-bottom c-row--footer">
           <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
             <button class="c-button c-button--call-to-action-1" data-ng-click="wizard.confirmPolicy()"
                     data-qa="policy-save-button">
@@ -38,16 +38,17 @@
           </div>
         </footer>
       </div>
-    </div>
-    <div data-ng-if="wizard.error" class="c-row c-msg c-msg--small c-msg--error" data-qa="error-msg">
-      <i class="c-icon icon-circle-cross"></i>
-      <span>{{wizard.error | translate}}</span>
-    </div>
 
-    <div data-ng-show="wizard.successfullySentPolicy" class="c-row c-msg c-msg--small c-msg--success"
-         data-qa="success-msg">
-      <i class="c-icon icon-circle-check"></i>
-      <span>{{"_POLICY_._SUCCESS_SENT_" | translate}}</span>
+      <div data-ng-if="wizard.error" class="c-col c-col--12 c-msg c-msg--small c-msg--error" data-qa="error-msg">
+        <i class="c-icon c-icon--is-clickable icon-circle-cross" data-ng-click="wizard.closeErrorMessage()"></i>
+        <span>{{wizard.error | translate}}</span>
+      </div>
+
+      <div data-ng-show="wizard.successfullySentPolicy" class="c-row c-msg c-msg--small c-msg--success"
+           data-qa="success-msg">
+        <i class="c-icon icon-circle-check"></i>
+        <span>{{"_POLICY_._SUCCESS_SENT_" | translate}}</span>
+      </div>
     </div>
   </div>
 </section>
