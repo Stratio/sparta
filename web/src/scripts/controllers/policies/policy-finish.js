@@ -39,7 +39,6 @@
         var triggerOutputs = getTriggerOutputs(allOutputs);
         fragments = fragments.concat(cubeOutputs);
         fragments = fragments.concat(triggerOutputs);
-        console.log(fragments)
         fragments = UtilsService.removeDuplicatedJSONs(fragments, 'id');
         finalJSON.fragments = fragments;
         finalJSON = cleanPolicyJSON(finalJSON);
