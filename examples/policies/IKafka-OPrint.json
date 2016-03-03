@@ -55,6 +55,9 @@
   "cubes": [
     {
       "name": "testCube",
+      "writer": {
+        "outputs" : ["out-print"]
+      },
       "dimensions": [
         {
           "name": "product",

@@ -68,6 +68,9 @@
   "cubes": [
     {
       "name": "testCubeWithTime",
+      "writer": {
+        "outputs" : ["out-parquet"]
+      },
       "dimensions": [
         {
           "name": "product",
@@ -198,11 +201,8 @@
     },
     {
       "name": "testCubeWithoutTime",
-      "checkpointConfig": {
-        "timeDimension": "none",
-        "granularity": "minute",
-        "interval": 100000,
-        "timeAvailability": 90000
+      "writer": {
+        "outputs" : ["out-parquet"]
       },
       "dimensions": [
         {

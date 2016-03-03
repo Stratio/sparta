@@ -16,7 +16,7 @@
 
 package com.stratio.sparkta.driver.helper
 
-import com.stratio.sparkta.aggregator.{Cube, CubeWriter}
+import com.stratio.sparkta.driver.cube.{Cube, CubeWriter}
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.helpers.OperationsHelper
@@ -99,27 +99,24 @@ object SchemaHelper {
           val fieldsWithoutRaw = fields.filter(structField => structField.name != Input.RawDataKey)
           schemas ++ Map(transformationModel.order.toString -> StructType(fieldsWithoutRaw.toSeq))
         } else schemas ++ searchSchemasFromParsers(transformationsModel.drop(1),
-            Map(transformationModel.order.toString -> StructType(fields.toSeq))
+          Map(transformationModel.order.toString -> StructType(fields.toSeq))
         )
       case None => schemas
     }
   }
 
   def getSchemasFromCubes(cubes: Seq[Cube],
-                          cubeModels: Seq[CubeModel],
-                          outputModels: Seq[PolicyElementModel]): Seq[TableSchema] = {
+                          cubeModels: Seq[CubeModel]): Seq[TableSchema] = {
     for {
       (cube, cubeModel) <- cubes.zip(cubeModels)
       measuresMerged = (measuresFields(cube.operators) ++ getFixedMeasure(cubeModel.writer)).sortWith(_.name < _.name)
       timeDimension = getExpiringData(cubeModel).map(config => config.timeDimension)
       dimensions = filterDimensionsByTime(cube.dimensions.sorted, timeDimension)
       (dimensionsWithId, isAutoCalculatedId) = dimensionFieldsWithId(dimensions, cubeModel.writer)
-      dateType = getTimeTypeFromString(cubeModel.writer.fold(DefaultTimeStampTypeString) { options =>
-        options.dateType.getOrElse(DefaultTimeStampTypeString)
-      })
+      dateType = getTimeTypeFromString(cubeModel.writer.dateType.getOrElse(DefaultTimeStampTypeString))
       structFields = dimensionsWithId ++ timeDimensionFieldType(timeDimension, dateType) ++ measuresMerged
       schema = StructType(structFields)
-      outputs = outputsFromOptions(cubeModel, outputModels.map(_.name))
+      outputs = cubeModel.writer.outputs
     } yield TableSchema(outputs, cube.name, schema, timeDimension, dateType, isAutoCalculatedId)
   }
 
@@ -139,22 +136,14 @@ object SchemaHelper {
 
   // XXX Private methods.
 
-  private def outputsFromOptions(cubeModel: CubeModel, outputsNames: Seq[String]): Seq[String] =
-    cubeModel.writer.fold(outputsNames) { writerModel =>
-      if (writerModel.outputs.isEmpty) outputsNames else writerModel.outputs
-    }
-
   private def dimensionFieldsWithId(dimensions: Seq[Dimension],
-                                    writerModel: Option[WriterModel]): (Seq[StructField], Boolean) = {
+                                    writerModel: WriterModel): (Seq[StructField], Boolean) = {
     val dimensionFields = dimensionsFields(dimensions)
 
-    writerModel match {
-      case Some(writer) => writer.isAutoCalculatedId.fold((dimensionFields, false)) { autoId =>
-        if (autoId)
-          (Seq(Output.defaultStringField(Output.Id, NotNullable)) ++ dimensionFields.filter(_.name != Output.Id), true)
-        else (dimensionFields, false)
-      }
-      case None => (dimensionFields, false)
+    writerModel.isAutoCalculatedId.fold((dimensionFields, false)) { autoId =>
+      if (autoId)
+        (Seq(Output.defaultStringField(Output.Id, NotNullable)) ++ dimensionFields.filter(_.name != Output.Id), true)
+      else (dimensionFields, false)
     }
   }
 
@@ -188,14 +177,11 @@ object SchemaHelper {
 
   private def rowTypeFromOption(optionType: TypeOp): DataType = mapTypes.getOrElse(optionType, StringType)
 
-  private def getFixedMeasure(writerModel: Option[WriterModel]): Seq[StructField] =
-    writerModel match {
-      case Some(writer) => writer.fixedMeasure.fold(Seq.empty[StructField]) { fixedMeasure =>
-        fixedMeasure.split(CubeWriter.FixedMeasureSeparator).headOption.fold(Seq.empty[StructField]) { measureName =>
-          Seq(Output.defaultStringField(measureName, Nullable))
-        }
+  private def getFixedMeasure(writerModel: WriterModel): Seq[StructField] =
+    writerModel.fixedMeasure.fold(Seq.empty[StructField]) { fixedMeasure =>
+      fixedMeasure.split(CubeWriter.FixedMeasureSeparator).headOption.fold(Seq.empty[StructField]) { measureName =>
+        Seq(Output.defaultStringField(measureName, Nullable))
       }
-      case None => Seq.empty[StructField]
     }
 
   def getSchemasFromTriggers(triggers: Seq[TriggerModel], outputModels: Seq[PolicyElementModel]): Seq[TableSchema] = {

@@ -39,13 +39,6 @@
                   "response": "/response"
                 }
               }
-            },
-            {
-              "removeFields": {
-                "blacklist": [
-                  "literal:_attachment_body"
-                ]
-              }
             }
           ]
         }
@@ -55,6 +48,9 @@
   "cubes": [
     {
       "name": "testCube",
+      "writer": {
+        "outputs" : ["out-mongo"]
+      },
       "dimensions": [
         {
           "field": "response",

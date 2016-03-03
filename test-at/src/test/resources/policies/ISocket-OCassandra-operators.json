@@ -67,6 +67,9 @@
   "cubes": [
     {
       "name": "testCubeWithTime",
+      "writer": {
+        "outputs" : ["out-cassandra"]
+      },
       "dimensions": [
         {
           "name": "product",
@@ -183,11 +186,8 @@
     },
     {
       "name": "testCubeWithoutTime",
-      "checkpointConfig": {
-        "timeDimension": "none",
-        "granularity": "minute",
-        "interval": 100000,
-        "timeAvailability": 90000
+      "writer": {
+        "outputs" : ["out-cassandra"]
       },
       "dimensions": [
         {

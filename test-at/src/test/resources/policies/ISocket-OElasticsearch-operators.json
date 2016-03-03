@@ -68,6 +68,11 @@
   "cubes": [
     {
       "name": "testCubeWithTime",
+      "writer": {
+        "outputs" : ["out-elasticsearch"],
+        "dateType": "long",
+        "isAutoCalculatedId": true
+      },
       "dimensions": [
         {
           "name": "product",
@@ -198,6 +203,11 @@
     },
     {
       "name": "testCubeWithoutTime",
+      "writer": {
+        "outputs" : ["out-elasticsearch"],
+        "dateType": "long",
+        "isAutoCalculatedId": true
+      },
       "dimensions": [
         {
           "name": "product",

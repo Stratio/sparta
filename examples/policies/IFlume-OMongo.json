@@ -77,6 +77,10 @@
   "cubes": [
     {
       "name": "extra1",
+      "writer": {
+        "outputs" : ["out-mongo"],
+        "isAutoCalculatedId": true
+      },
       "dimensions": [
         {
           "name": "extra1",

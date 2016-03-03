@@ -47,6 +47,8 @@
     {
       "name": "testCube",
       "writer": {
+        "outputs" : ["out-elasticsearch"],
+        "dateType": "long",
         "isAutoCalculatedId": true
       },
       "dimensions": [

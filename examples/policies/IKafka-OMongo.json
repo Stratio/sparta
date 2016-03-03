@@ -66,6 +66,10 @@
   "cubes": [
     {
       "name": "testCube",
+      "writer": {
+        "outputs" : ["out-mongo"],
+        "isAutoCalculatedId": true
+      },
       "dimensions": [
         {
           "name": "product",

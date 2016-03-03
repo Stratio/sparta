@@ -71,19 +71,21 @@
     "cubes": [
       {
         "name": "testCubeWithTime",
-        "checkpointConfig": {
-          "timeDimension": "timestamp",
-          "granularity": "minute",
-          "interval": 100000,
-          "timeAvailability": 90000
-        },
         "writer": {
+          "outputs" : ["out-mongo"],
           "isAutoCalculatedId": true
         },
         "dimensions": [
           {
             "name": "product",
             "field": "product"
+          },
+          {
+            "name": "minute",
+            "field": "timestamp",
+            "type": "DateTime",
+            "precision": "minute",
+            "computeLast": "10m"
           }
         ],
         "operators": [
