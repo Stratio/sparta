@@ -14,25 +14,27 @@
     vm.init = init;
     vm.addTrigger = addTrigger;
     vm.addOutput = addOutput;
+    vm.changeSqlHelpVisibility = changeSqlHelpVisibility;
+
     vm.removeTrigger = TriggerService.removeTrigger;
     vm.isNewTrigger = TriggerService.isNewTrigger;
     vm.saveTrigger = TriggerService.saveTrigger;
-    vm.changeSqlHelpVisibility = changeSqlHelpVisibility;
 
     vm.init();
 
     function init() {
       vm.trigger = TriggerModelFactory.getTrigger();
       if (vm.trigger) {
-        //vm.trigger.overLast = PolicyModelFactory.getCurrentPolicy().streamWindow; //TODO Change stream window to number and select
+        vm.trigger.overLastNumber = PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowNumber;
+        vm.trigger.overLastTime = PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowTime;
         vm.triggerContext = TriggerModelFactory.getContext();
         vm.template = PolicyModelFactory.getTemplate().trigger;
-        vm.templateHelpLinks = PolicyModelFactory.getTemplate().helpLinks;
+        vm.outputsHelpLinks = PolicyModelFactory.getTemplate().helpLinks[4];
         vm.showSqlHelp = false;
         if (TriggerService.isEnabledHelpForSql()) {
           vm.sqlSourceItems = TriggerService.getSqlHelpSourceItems();
         }
-        return OutputService.generateOutputList().then(function (outputList) {
+        return OutputService.generateOutputNameList().then(function (outputList) {
           vm.policyOutputList = outputList;
         });
       }
