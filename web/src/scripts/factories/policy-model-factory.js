@@ -32,7 +32,7 @@
     }
 
     function setPolicy(inputPolicyJSON) {
-      status.currentStep = -1;
+      status.currentStep = 0;
       policy.id = inputPolicyJSON.id;
       policy.name = inputPolicyJSON.name;
       policy.description = inputPolicyJSON.description;
@@ -40,14 +40,21 @@
       policy.storageLevel = inputPolicyJSON.storageLevel;
       policy.checkpointPath = inputPolicyJSON.checkpointPath;
       policy.rawDataEnabled = (inputPolicyJSON.rawData.enabled == "true");
+      policy.rawDataPath = inputPolicyJSON.rawData.path;
       policy.transformations = inputPolicyJSON.transformations;
       policy.cubes = inputPolicyJSON.cubes;
       policy.streamTriggers = inputPolicyJSON.streamTriggers;
-      policy.rawDataPath = inputPolicyJSON.rawData.path;
-
+      status.nextStepAvailable = true;
+      formatAttributes();
       var policyFragments = separateFragments(inputPolicyJSON.fragments);
       policy.input = policyFragments.input;
-      policy.outputs = policyFragments.outputs;
+    }
+
+    function formatAttributes() {
+      var sparkStreamingWindow = policy.sparkStreamingWindow.split(/([0-9]+)/);
+      policy.sparkStreamingWindowNumber = Number(sparkStreamingWindow[1]);
+      policy.sparkStreamingWindowTime = sparkStreamingWindow[2];
+      delete policy.sparkStreamingWindowTime;
     }
 
     function setTemplate(newTemplate) {
@@ -68,14 +75,16 @@
         fragment = fragments[i];
         if (fragment.fragmentType == fragmentConstants.OUTPUT) {
           outputs.push(fragment);
-        } else
+        } else {
           input = fragment;
+        }
       }
 
       result.input = input;
       result.outputs = outputs;
       return result;
     }
+
 
     function getCurrentPolicy() {
       if (Object.keys(policy).length == 0)

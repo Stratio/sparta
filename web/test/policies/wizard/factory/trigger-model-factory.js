@@ -1,18 +1,24 @@
 describe('policies.wizard.factory.trigger-model-factory', function () {
   beforeEach(module('webApp'));
   beforeEach(module('served/trigger.json'));
+  beforeEach(module('served/policy.json'));
 
-  var factory, UtilsServiceMock, fakeTrigger = null;
+  var factory, UtilsServiceMock,PolicyModelFactoryMock, fakeTrigger, fakePolicy = null;
 
   beforeEach(module(function ($provide) {
     UtilsServiceMock = jasmine.createSpyObj('UtilsService', ['removeItemsFromArray', 'findElementInJSONArray']);
+    PolicyModelFactoryMock =  jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy']);
+    PolicyModelFactoryMock.getCurrentPolicy.and.returnValue(fakePolicy);
     // inject mocks
     $provide.value('UtilsService', UtilsServiceMock);
+    $provide.value('PolicyModelFactory', PolicyModelFactoryMock);
+
   }));
 
-  beforeEach(inject(function (TriggerModelFactory, _servedTrigger_) {
+  beforeEach(inject(function (TriggerModelFactory, _servedTrigger_, _servedPolicy_) {
     factory = TriggerModelFactory;
     fakeTrigger = _servedTrigger_;
+    fakePolicy = _servedPolicy_;
   }));
 
   it("should be able to load a trigger from a json and a position", function () {
@@ -53,7 +59,23 @@ describe('policies.wizard.factory.trigger-model-factory', function () {
     it("if there is a trigger, returns that trigger", function () {
       factory.setTrigger(fakeTrigger, desiredPosition);
 
-      expect(factory.getTrigger(desiredPosition)).toEqual(fakeTrigger);
+      var trigger = factory.getTrigger(desiredPosition);
+
+      expect(trigger.name).toEqual(fakeTrigger.name);
+      expect(trigger.sql).toEqual(fakeTrigger.sql);
+      expect(trigger.outputs).toEqual(fakeTrigger.outputs);
+      expect(trigger.configuration).toEqual(fakeTrigger.configuration);
+
+      expect(trigger.primaryKey).toEqual(fakeTrigger.primaryKey);
+      expect(trigger.overLastNumber).toEqual(fakePolicy.sparkStreamingWindowNumber);
+      expect(trigger.overLastTime).toEqual(fakePolicy.sparkStreamingWindowTime);
+
+      trigger.name = "";
+      trigger.sql = "";
+      trigger.outputs = [];
+      trigger.primaryKey = [];
+      trigger.overLastNumber =fakePolicy.sparkStreamingWindowNumber;
+      trigger.overLastTime = fakePolicy.sparkStreamingWindowTime;
     });
 
     it("if there is not any trigger and no position is introduced, trigger is initialized with position equal to 0", function () {

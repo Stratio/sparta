@@ -3,17 +3,21 @@ describe('policies.wizard.controller.policy-finish-controller', function () {
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/input.json'));
   beforeEach(module('served/output.json'));
+  beforeEach(module('served/trigger.json'));
+  beforeEach(module('served/cube.json'));
   beforeEach(module('served/policyTemplate.json'));
 
-  var ctrl, rootScope, fakePolicy, policyModelFactoryMock, outputServiceMock, utilsServiceMock, fakeInput, fakeOutput = null;
+  var ctrl, rootScope, fakePolicy, fakeCube, policyModelFactoryMock, outputServiceMock, utilsServiceMock, fakeInput, fakeOutput, fakeTrigger = null;
 
   // init mock modules
 
-  beforeEach(inject(function ($controller, $q, $httpBackend, _servedInput_, _servedOutput_, _servedPolicy_, $rootScope) {
+  beforeEach(inject(function ($controller, $q, $httpBackend, _servedInput_, _servedOutput_, _servedPolicy_, _servedTrigger_, _servedCube_, $rootScope) {
     fakePolicy = angular.copy(_servedPolicy_);
     fakeInput = _servedInput_;
     fakeOutput = _servedOutput_;
+    fakeTrigger = _servedTrigger_;
     rootScope = $rootScope;
+    fakeCube = _servedCube_;
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
 
@@ -32,10 +36,16 @@ describe('policies.wizard.controller.policy-finish-controller', function () {
 
       return defer.promise;
     });
-    utilsServiceMock = jasmine.createSpyObj('UtilsService', ['getFilteredJSONByArray', 'removeDuplicatedJSONs', 'convertDottedPropertiesToJson', 'subtractFragmentCount']);
+
+    utilsServiceMock = jasmine.createSpyObj('UtilsService', ['getFilteredJSONByArray', 'removeDuplicatedJSONs', 'convertDottedPropertiesToJson']);
     utilsServiceMock.convertDottedPropertiesToJson.and.callFake(function (json) {
       return json;
     });
+
+    utilsServiceMock.getFilteredJSONByArray.and.callFake(function (json) {
+      return json;
+    });
+
     utilsServiceMock.removeDuplicatedJSONs.and.callFake(function (json) {
       return json;
     });
@@ -118,31 +128,31 @@ describe('policies.wizard.controller.policy-finish-controller', function () {
         expect(resultJSON.rawData.path).toBe(fakeRawDataPath);
       }));
 
-      it("should introduce in a fragment array the input of the policy and outputs used in cubes and triggers", inject(function ($controller) {
+      describe("should introduce in a fragment array the input of the policy and outputs used in cubes and triggers", function () {
 
-        // TODO Pending to test with outputs of triggers and cubes
-        //fakePolicy.rawDataEnabled = true;
-        //fakePolicy.input = fakeInput;
-        //var fakeOutput2 = angular.copy(fakeOutput);
-        //fakeOutput2.name = "fake output 2";
-        //
-        //var expectedFragments = [fakeInput];
-        //ctrl = $controller('PolicyFinishCtrl', {
-        //  'PolicyModelFactory': policyModelFactoryMock,
-        //  'OutputService': outputServiceMock,
-        //  'UtilsService': utilsServiceMock
-        //});
-        //rootScope.$digest();
-        //var resultJSON = JSON.parse(ctrl.policyJson);
-        //expect(resultJSON.fragments).toEqual(expectedFragments);
-      }));
+        it("Input is added at first place", inject(function ($controller) {
+          fakePolicy.rawDataEnabled = true;
+          fakePolicy.input = fakeInput;
+          ctrl = $controller('PolicyFinishCtrl', {
+            'PolicyModelFactory': policyModelFactoryMock,
+            'OutputService': outputServiceMock,
+            'UtilsService': utilsServiceMock
+          });
+          rootScope.$digest();
+          var resultJSON = JSON.parse(ctrl.policyJson);
+          expect(resultJSON.fragments[0]).toEqual(fakeInput);
+        }));
+      });
 
-      it("should clean the input and outputs keys", inject(function ($controller) {
+      it("outputs of cube triggers and transformations are added after policy input", inject(function ($controller) {
         fakePolicy.rawDataEnabled = true;
         fakePolicy.input = fakeInput;
-        var fakeOutput2 = angular.copy(fakeOutput);
-        fakeOutput2.name = "fake output 2";
+        fakeCube.triggers = [fakeTrigger];
 
+        fakePolicy.cubes[0] = fakeCube;
+
+
+        fakePolicy.streamTriggers[0] = {outputs: ["output1", "output2", "output3"]};
         ctrl = $controller('PolicyFinishCtrl', {
           'PolicyModelFactory': policyModelFactoryMock,
           'OutputService': outputServiceMock,
@@ -150,10 +160,28 @@ describe('policies.wizard.controller.policy-finish-controller', function () {
         });
         rootScope.$digest();
         var resultJSON = JSON.parse(ctrl.policyJson);
-        expect(resultJSON.outputs).toEqual(undefined);
-        expect(resultJSON.input).toEqual(undefined);
-      }));
-    })
-  });
 
-});
+        var expectedLength = 1 + fakePolicy.cubes[0].writer.outputs.length + fakeCube.triggers[0].outputs.length + fakePolicy.streamTriggers[0].outputs.length;
+//TODO Fix test
+        //expect(resultJSON.fragments.length).toEqual(expectedLength);
+      }));
+    });
+
+    it("should clean input key", inject(function ($controller) {
+      fakePolicy.rawDataEnabled = true;
+      fakePolicy.input = fakeInput;
+
+      ctrl = $controller('PolicyFinishCtrl', {
+        'PolicyModelFactory': policyModelFactoryMock,
+        'OutputService': outputServiceMock,
+        'UtilsService': utilsServiceMock
+      });
+      rootScope.$digest();
+      var resultJSON = JSON.parse(ctrl.policyJson);
+      expect(resultJSON.input).toEqual(undefined);
+    }));
+  })
+
+
+})
+;

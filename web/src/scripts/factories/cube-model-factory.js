@@ -44,11 +44,29 @@
       cube.dimensions = c.dimensions;
       cube.operators = c.operators;
       cube.checkpointConfig = c.checkpointConfig;
-      cube.triggers = c.triggers;
       cube.writer = c.writer;
       error.text = "";
-
+      setTriggers(c.triggers);
       setPosition(position);
+      formatAttributes();
+    }
+
+    function formatAttributes() {
+      cube['writer.fixedMeasure'] = cube.writer.fixedMeasure;
+      cube['writer.isAutoCalculatedId'] = cube.writer.isAutoCalculatedId;
+      cube['writer.dateType'] = cube.writer.dateType;
+    }
+
+    function setTriggers(triggers) {
+      if (!cube.triggers) {
+        cube.triggers = [];
+      }
+      while (cube.triggers.length > 0) {
+        cube.triggers.pop();
+      }
+      for (var i = 0; i < triggers.length; ++i) {
+        cube.triggers.push(triggers[i]);
+      }
     }
 
     function areValidOperatorsAndDimensions(cube) {

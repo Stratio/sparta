@@ -40,6 +40,5 @@
         CubeModelFactory.resetCube(vm.template.cube, CubeService.getCreatedCubes(), vm.policy.cubes.length);
       }
     }
-
   }
 })();

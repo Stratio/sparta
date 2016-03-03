@@ -31,7 +31,7 @@
       if (vm.form.$valid) {
         vm.error = false;
         /*Check if the name of the policy already exists*/
-        return PolicyFactory.existsPolicy(vm.policy.name).then(function (found) {
+        return PolicyFactory.existsPolicy(vm.policy.name, vm.policy.id).then(function (found) {
           vm.error = found;
           /* Policy name doesn't exist */
           if (!found) {
