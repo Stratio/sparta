@@ -48,7 +48,7 @@ class SparktaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
     val ssc = sparkStreamingInstance(new Duration(policy.sparkStreamingWindow), checkpointPolicyPath)
     val parserSchemas = SchemaHelper.getSchemasFromParsers(policy.transformations, Input.InitSchema)
     val parsers = SparktaJob.getParsers(policy, ReflectionUtils, parserSchemas).sorted
-    val cubes = SparktaJob.getCubes(policy, ReflectionUtils, parserSchemas.values.last)
+    val cubes = SparktaJob.getCubes(policy, ReflectionUtils, getSchemaWithoutRaw(parserSchemas))
     val cubeSchemas = SchemaHelper.getSchemasFromCubes(cubes, policy.cubes, policy.outputs)
     val outputs = SparktaJob.getOutputs(policy, cubeSchemas, ReflectionUtils)
 
