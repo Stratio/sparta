@@ -39,6 +39,7 @@
         var triggerOutputs = getTriggerOutputs(allOutputs);
         fragments = fragments.concat(cubeOutputs);
         fragments = fragments.concat(triggerOutputs);
+        console.log(fragments)
         fragments = UtilsService.removeDuplicatedJSONs(fragments, 'id');
         finalJSON.fragments = fragments;
         finalJSON = cleanPolicyJSON(finalJSON);
@@ -67,7 +68,6 @@
     }
 
     function getTriggerOutputs(allOutputs) {
-      var usedOutputs = [];
       var outputs = [];
       var triggers = vm.policy.streamTriggers;
       var triggerOutputs = [];
@@ -77,9 +77,7 @@
       if (allOutputs && triggerOutputs) {
         outputs = UtilsService.getFilteredJSONByArray(allOutputs, triggerOutputs, 'name');
       }
-      usedOutputs.push(outputs);
-
-      return usedOutputs;
+      return outputs;
     }
 
     function convertTriggerAttributes(policyJson) {
