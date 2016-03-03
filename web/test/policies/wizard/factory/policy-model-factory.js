@@ -30,13 +30,12 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
     var policy = factory.getCurrentPolicy();
 
-    expect(factory.getProcessStatus().currentStep).toBe(-1);
+    expect(factory.getProcessStatus().currentStep).toBe(0);
     expect(policy.id).toBe(fakePolicy.id);
     expect(policy.name).toBe(fakePolicy.name);
     expect(policy.description).toBe(fakePolicy.description);
-    expect(policy.cubes).toBe(fakePolicy.cubes);
+    expect(policy.cubes).toEqual(fakePolicy.cubes);
     expect(policy.input).toBe(fakeInput);
-    expect(policy.outputs[0]).toBe(fakeOutput);
   });
 
 
@@ -73,7 +72,6 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       expect(policy.storageLevel).toBe(fakePolicy.storageLevel);
       expect(policy.checkpointPath).toBe(fakePolicy.checkpointPath);
       expect(policy.input).toEqual(fakeInput);
-      expect(policy.outputs).toEqual([fakeOutput]);
       expect(policy.transformations).toEqual(fakePolicy.transformations);
       expect(policy.cubes).toEqual(fakePolicy.cubes);
     });

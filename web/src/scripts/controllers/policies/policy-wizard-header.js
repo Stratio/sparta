@@ -16,12 +16,6 @@
 
     header.showPolicyData = showPolicyData;
 
-    init();
-
-    function init() {
-      policyTemplate = PolicyModelFactory.getTemplate();
-    }
-
     function showPolicyData() {
       var controller = 'PolicyCreationModalCtrl';
       var templateUrl = "templates/modal/policy-creation-modal.tpl.html";
@@ -32,6 +26,7 @@
     $scope.$watchCollection(
       "header.wizardStatus",
       function (newStatus) {
+        policyTemplate = PolicyModelFactory.getTemplate();
         if (newStatus && newStatus && newStatus.currentStep >= 0 && newStatus.currentStep  < policyTemplate.helpLinks.length-1 ) {
           header.helpLink = policyTemplate.helpLinks[newStatus.currentStep + 1];
         }else{

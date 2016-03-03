@@ -156,7 +156,7 @@
       vm.errorMessage = "";
 
       var controller = 'DeletePolicyModalCtrl';
-      var templateUrl = "'templates/policies/st-delete-policy-modal.tpl.html";
+      var templateUrl = "templates/policies/st-delete-policy-modal.tpl.html";
       var resolve = {
         item: function () {
           return policy;

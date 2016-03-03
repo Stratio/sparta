@@ -1,6 +1,9 @@
 {
   "id": "2581f20a-fd83-4315-be45-192bc5sEdFff",
   "name": "fake policy",
+  "sparkStreamingWindow": "1s",
+  "sparkStreamingWindowNumber": 1,
+  "sparkStreamingWindowTime": "s",
   "rawDataEnabled": true,
   "rawDataPath": "",
   "input": {},
@@ -30,7 +33,6 @@
       "id": "2581f20a-av83-4315-be45-192bc5sEdFff"
     }
   ],
-  "outputs":[],
   "streamTriggers":[]
 }
 
