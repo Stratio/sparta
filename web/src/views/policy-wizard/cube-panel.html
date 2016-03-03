@@ -123,7 +123,7 @@
             </c-tag-list>
           </div>
         </div>
-        <ng-include src="'views/policy-wizard/trigger-accordion.html'" novalidate></ng-include>
+        <ng-include data-ng-model = "vm.cube.triggers" src="'views/policy-wizard/trigger-accordion.html'" novalidate></ng-include>
       </div>
     </div>
     <div class="c-row c-msg c-msg--small c-msg--error c-form c-form-group"

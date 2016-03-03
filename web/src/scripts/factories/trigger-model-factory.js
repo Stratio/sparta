@@ -5,9 +5,9 @@
     .module('webApp')
     .factory('TriggerModelFactory', TriggerModelFactory);
 
-  TriggerModelFactory.$inject = ['UtilsService'];
+  TriggerModelFactory.$inject = ['UtilsService', 'PolicyModelFactory'];
 
-  function TriggerModelFactory(UtilsService) {
+  function TriggerModelFactory(UtilsService, PolicyModelFactory) {
     var trigger = {};
     var error = {text: ""};
     var context = {"position": null};
@@ -18,6 +18,8 @@
       trigger.sql = "";
       trigger.outputs = [];
       trigger.primaryKey = [];
+      trigger.overLastNumber = PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowNumber;
+      trigger.overLastTime = PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowTime;
       delete trigger.configuration;
       error.text = "";
     }
@@ -37,10 +39,12 @@
       trigger.name = _trigger.name;
       trigger.sql = _trigger.sql;
       trigger.outputs = _trigger.outputs;
+      trigger.overLast = _trigger.overLast;
       if (_trigger.configuration) {
         trigger.configuration = _trigger.configuration;
       }
       setPosition(position);
+      formatAttributes();
     }
 
     function setPosition(p) {
@@ -48,6 +52,14 @@
         p = 0;
       }
       context.position = p;
+    }
+
+
+    function formatAttributes() {
+      var overLast = trigger.overLast.split(/([0-9]+)/);
+      trigger.overLastNumber = Number(overLast[1]);
+      trigger.overLastTime = overLast[2];
+      delete trigger.overLast;
     }
 
     function isValidTrigger(trigger, triggers, position) {

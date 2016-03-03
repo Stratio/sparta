@@ -23,6 +23,7 @@
         vm.successfullySentPolicy = false;
         vm.error = null;
         vm.showStepNavigation = true;
+        vm.editionMode  = false;
       }
       else {
         $state.go('dashboard.policies');

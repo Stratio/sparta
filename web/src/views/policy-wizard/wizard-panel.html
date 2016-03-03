@@ -1,8 +1,9 @@
 <section>
   <c-step-progress-bar steps="wizard.steps" class="c-slider-content"
                        data-ng-if="wizard.showStepNavigation"
-                       current-step="(wizard.status.currentStep)"
-                       next-step-available="(wizard.status.nextStepAvailable)">
+                       data-current-step="(wizard.status.currentStep)"
+                       data-next-step-available="(wizard.status.nextStepAvailable)"
+                       data-edition-mode="wizard.editionMode">
   </c-step-progress-bar>
   <div class="c-slider-content--to-up c-panel--white" data-ng-switch on="wizard.status.currentStep">
     <div class="c-slider-content__button c-icon" data-ng-click="wizard.changeStepNavigationVisibility()"
