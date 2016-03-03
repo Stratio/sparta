@@ -156,9 +156,4 @@ describe('policies.wizard.controller.policy-finish-controller', function () {
     })
   });
 
-  it("should be able to change to previous step calling to policy cube factory", function () {
-    ctrl.previousStep();
-
-    expect(policyModelFactoryMock.previousStep).toHaveBeenCalled();
-  });
 });
