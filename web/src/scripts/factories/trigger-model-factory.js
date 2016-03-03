@@ -56,10 +56,12 @@
 
 
     function formatAttributes() {
-      var overLast = trigger.overLast.split(/([0-9]+)/);
-      trigger.overLastNumber = Number(overLast[1]);
-      trigger.overLastTime = overLast[2];
-      delete trigger.overLast;
+      if (trigger.overLast) {
+        var overLast = trigger.overLast.split(/([0-9]+)/);
+        trigger.overLastNumber = Number(overLast[1]);
+        trigger.overLastTime = overLast[2];
+        delete trigger.overLast;
+      }
     }
 
     function isValidTrigger(trigger, triggers, position) {
@@ -67,7 +69,7 @@
       if (!isValid) {
         error.text = "_GENERIC_FORM_ERROR_";
       } else {
-          error.text = "";
+        error.text = "";
       }
       return isValid;
     }
