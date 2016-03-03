@@ -28,11 +28,15 @@
     <dependencies>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
-            <artifactId>aggregator</artifactId>
+            <artifactId>plugins</artifactId>
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
-            <artifactId>plugins</artifactId>
+            <artifactId>sdk</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.sparkta</groupId>
+            <artifactId>serving-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.fge</groupId>

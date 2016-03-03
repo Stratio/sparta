@@ -19,11 +19,12 @@ package com.stratio.sparkta.driver
 import java.io._
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.aggregator._
+import com.stratio.sparkta.driver.cube.{Cube, CubeMaker, CubeWriter, CubeWriterOptions}
 import com.stratio.sparkta.driver.factory.SparkContextFactory._
 import com.stratio.sparkta.driver.helper.SchemaHelper
 import com.stratio.sparkta.driver.helper.SchemaHelper._
 import com.stratio.sparkta.driver.service.RawDataStorageService
+import com.stratio.sparkta.driver.trigger.{StreamWriter, StreamWriterOptions, Trigger}
 import com.stratio.sparkta.driver.util.ReflectionUtils
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk._
@@ -51,7 +52,7 @@ class SparktaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
     val parserSchemas = SchemaHelper.getSchemasFromParsers(policy.transformations, Input.InitSchema)
     val parsers = SparktaJob.getParsers(policy, ReflectionUtils, parserSchemas).sorted
     val cubes = SparktaJob.getCubes(policy, ReflectionUtils, parserSchemas.values.last)
-    val cubesSchemas = SchemaHelper.getSchemasFromCubes(cubes, policy.cubes, policy.outputs)
+    val cubesSchemas = SchemaHelper.getSchemasFromCubes(cubes, policy.cubes)
     val cubesOutputs = SparktaJob.getOutputs(policy, cubesSchemas, ReflectionUtils)
     val cubesTriggersSchemas = SchemaHelper.getSchemasFromCubeTrigger(policy.cubes, policy.outputs)
     val cubesTriggersOutputs = SparktaJob.getOutputs(policy, cubesTriggersSchemas, ReflectionUtils)
@@ -336,20 +337,16 @@ object SparktaJob extends SLF4JLogging with SparktaSerializer {
     CubeWriter(cubeWriter, schemaWriter, writerOp, outputs, triggersOuputs, triggerSchemas)
   }
 
-  def getWriterOptions(cubeName: String, outputsWriter: Seq[Output], cubeModel: CubeModel): WriterOptions =
-    cubeModel.writer.fold(WriterOptions(outputsWriter.map(_.name))) { writerModel =>
-      val writerOutputs = if (writerModel.outputs.isEmpty) outputsWriter.map(_.name) else writerModel.outputs
-      val dateType = SchemaHelper.getTimeTypeFromString(cubeModel.writer.fold(DefaultTimeStampTypeString) { options =>
-        options.dateType.getOrElse(DefaultTimeStampTypeString)
-      })
-      val fixedMeasures: MeasuresValues = writerModel.fixedMeasure.fold(MeasuresValues(Map.empty)) { fixedMeasure =>
-        val fixedMeasureSplitted = fixedMeasure.split(CubeWriter.FixedMeasureSeparator)
-        MeasuresValues(Map(fixedMeasureSplitted.head -> Some(fixedMeasureSplitted.last)))
-      }
-      val isAutoCalculatedId = writerModel.isAutoCalculatedId.getOrElse(false)
-
-      WriterOptions(writerOutputs, dateType, fixedMeasures, isAutoCalculatedId)
+  def getWriterOptions(cubeName: String, outputsWriter: Seq[Output], cubeModel: CubeModel): CubeWriterOptions = {
+    val dateType = SchemaHelper.getTimeTypeFromString(cubeModel.writer.dateType.getOrElse(DefaultTimeStampTypeString))
+    val fixedMeasures = cubeModel.writer.fixedMeasure.fold(MeasuresValues(Map.empty)) { fixedMeasure =>
+      val fixedMeasureSplitted = fixedMeasure.split(CubeWriter.FixedMeasureSeparator)
+      MeasuresValues(Map(fixedMeasureSplitted.head -> Some(fixedMeasureSplitted.last)))
     }
+    val isAutoCalculatedId = cubeModel.writer.isAutoCalculatedId.getOrElse(CubeWriter.DefaultIsAutocalculatedId)
+
+    CubeWriterOptions(cubeModel.writer.outputs, dateType, fixedMeasures, isAutoCalculatedId)
+  }
 
   def getStreamWriter(triggers: Seq[Trigger],
                       tableSchemas: Seq[TableSchema],

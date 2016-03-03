@@ -52,13 +52,6 @@
                   "response": "/response"
                 }
               }
-            },
-            {
-              "removeFields": {
-                "blacklist": [
-                  "literal:_attachment_body"
-                ]
-              }
             }
           ]
         }
@@ -79,6 +72,11 @@
   "cubes": [
     {
       "name": "testCube",
+      "writer": {
+        "outputs" : ["Elasticsearch"],
+        "dateType": "long",
+        "isAutoCalculatedId": true
+      },
       "dimensions": [
         {
           "field": "response",

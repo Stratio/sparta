@@ -51,13 +51,6 @@
                   "response": "/response"
                 }
               }
-            },
-            {
-              "removeFields": {
-                "blacklist": [
-                  "literal:_attachment_body"
-                ]
-              }
             }
           ]
         }
@@ -78,6 +71,9 @@
   "cubes": [
     {
       "name": "testCube",
+      "writer": {
+        "outputs" : ["Cassandra"]
+      },
       "dimensions": [
         {
           "field": "response",

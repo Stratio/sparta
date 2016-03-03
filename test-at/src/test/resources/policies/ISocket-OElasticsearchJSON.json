@@ -48,13 +48,6 @@
               }
             },
             {
-              "removeFields": {
-                "blacklist": [
-                  "literal:_attachment_body"
-                ]
-              }
-            },
-            {
               "if": {
                 "conditions": [
                   {
@@ -95,6 +88,8 @@
     {
       "name": "cubeSmfProcess",
       "writer": {
+        "outputs" : ["out-elasticsearch"],
+        "dateType": "long",
         "isAutoCalculatedId": true
       },
       "dimensions": [

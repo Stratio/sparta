@@ -16,28 +16,7 @@
 
 package com.stratio.sparkta.serving.core.models
 
-import java.io._
-
-import com.fasterxml.jackson.databind._
-import com.github.fge.jsonschema.core.exceptions.InvalidSchemaException
-import com.github.fge.jsonschema.core.report.ProcessingReport
-import com.github.fge.jsonschema.main.{JsonSchema, JsonSchemaFactory}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
-import scala.collection.JavaConversions._
-import java.io._
-
-import com.fasterxml.jackson.databind._
-import com.github.fge.jsonschema.core.exceptions.InvalidSchemaException
-import com.github.fge.jsonschema.core.report.ProcessingReport
-import com.github.fge.jsonschema.main.{JsonSchema, JsonSchemaFactory}
-import com.stratio.sparkta.serving.core.helpers.OperationsHelper
-import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
-import org.json4s.jackson.Serialization._
-import scala.collection.JavaConversions._
 
 case class AggregationPoliciesModel(id: Option[String] = None,
                                     version: Option[Int] = None,
@@ -71,24 +50,72 @@ case class PolicyResult(policyId: String, policyName: String)
 
 object AggregationPoliciesValidator extends SparktaSerializer {
 
-  final val MessageCubeName = "All cubes must have a non empty name\n"
-
+  //scalastyle:off
   def validateDto(aggregationPoliciesDto: AggregationPoliciesModel): (Boolean, String) = {
     //TODO Validate policy according to the old schema validation rules
     // https://stratio.atlassian.net/browse/SPARKTA-458
-
-    val cubesHaveAtLeastOneDimension = aggregationPoliciesDto.cubes.forall(cube =>
-      !cube.dimensions.isEmpty
-    )
-
-    val msg =
+    val validCubeName = aggregationPoliciesDto.cubes.forall(cube => cube.name.nonEmpty)
+    val cubesHaveAtLeastOneDimension = aggregationPoliciesDto.cubes.forall(cube => cube.dimensions.nonEmpty)
+    val policyHaveAtLeastOneOutput = aggregationPoliciesDto.outputs.nonEmpty
+    val policyHaveAtLeastOneAction =
+      aggregationPoliciesDto.cubes.nonEmpty || aggregationPoliciesDto.streamTriggers.nonEmpty
+    val outputsNames = aggregationPoliciesDto.outputs.map(_.name)
+    val cubeOutputsLinks = aggregationPoliciesDto.cubes.forall(cube =>
+      cube.writer.outputs.forall(outputName => outputsNames.contains(outputName)))
+    val cubeTriggersOutputsLinks = aggregationPoliciesDto.cubes.forall(cube =>
+      cube.triggers.forall(trigger =>
+        trigger.outputs.forall(outputName => outputsNames.contains(outputName))))
+    val streamTriggersOutputsLinks = aggregationPoliciesDto.streamTriggers.forall(trigger =>
+      trigger.outputs.forall(outputName => outputsNames.contains(outputName)))
+    val msgCubeName =
+      if (validCubeName)
+        ""
+      else
+        """No usable value for cubes names.
+          |Must be non empty.""".stripMargin
+    val msgOneAction =
+      if (policyHaveAtLeastOneAction)
+        ""
+      else
+        """No usable value for cubes and streamTriggers.
+          |Must have at least 1 elements cubes or streamTriggers arrays.""".stripMargin
+    val msgOneDimension =
       if (cubesHaveAtLeastOneDimension)
         ""
       else
         """No usable value for Cubes-dimensions.
           |Array is too short: must have at least 1 elements
           |but instance has 0 elements.""".stripMargin
+    val msgOneOutput =
+      if (policyHaveAtLeastOneOutput)
+        ""
+      else
+        """No usable value for outputs.
+          |Array is too short: must have at least 1 elements
+          |but instance has 0 elements.""".stripMargin
+    val msgCubeOtputsLinks =
+      if (cubeOutputsLinks)
+        ""
+      else
+        """No usable value for outputs names in cube writers.
+          |Must be included in the output array.""".stripMargin
+    val msgStreamTriggersOtputsLinks =
+      if (streamTriggersOutputsLinks)
+        ""
+      else
+        """No usable value for outputs names in stream triggers.
+          |Must be included in the output array.""".stripMargin
+    val msgCubeTriggersOtputsLinks =
+      if (cubeTriggersOutputsLinks)
+        ""
+      else
+        """No usable value for outputs names in stream triggers.
+          |Must be included in the output array.""".stripMargin
 
-    (cubesHaveAtLeastOneDimension, msg)
+    (validCubeName && cubesHaveAtLeastOneDimension && policyHaveAtLeastOneOutput && policyHaveAtLeastOneAction &&
+      cubeOutputsLinks && streamTriggersOutputsLinks && cubeTriggersOutputsLinks,
+      msgCubeName ++ msgOneAction ++ msgOneDimension ++ msgOneOutput ++ msgCubeOtputsLinks ++
+        msgStreamTriggersOtputsLinks ++ msgCubeTriggersOtputsLinks)
   }
+  //scalastyle:on
 }

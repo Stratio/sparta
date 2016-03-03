@@ -67,6 +67,9 @@
   "cubes": [
     {
       "name": "testCube",
+      "writer": {
+        "outputs" : ["out-csv"]
+      },
       "dimensions": [
         {
           "name": "product",

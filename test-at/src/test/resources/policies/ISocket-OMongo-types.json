@@ -63,6 +63,7 @@
   "cubes": [{
     "name": "testCubeWithTime",
     "writer": {
+      "outputs" : ["out-mongo"],
       "isAutoCalculatedId": true
     },
     "dimensions": [
