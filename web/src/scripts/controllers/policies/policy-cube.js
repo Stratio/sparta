@@ -45,7 +45,7 @@
 
         initTriggerAccordion();
 
-        return OutputService.generateOutputList().then(function (outputList) {
+        return OutputService.generateOutputNameList().then(function (outputList) {
           vm.policyOutputList = outputList;
         });
       }

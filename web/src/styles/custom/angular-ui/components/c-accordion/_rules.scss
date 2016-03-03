@@ -86,18 +86,20 @@
     }
   }
 
-  @for $item from 1 through 10 {
+  @for $item from 2 through 9 {
     &-item--indented > .panel:nth-child(#{$item}) {
-      margin-left: $item * $c-accordion-item--indented__panel---margin;
-      margin-top:$c-accordion-item--indented---margin-top;
+      margin-left: ($item - 1) * $c-accordion-item--indented__panel---margin;
+      margin-top: $c-accordion-item--indented---margin-top;
     }
   }
 
   &-item--indented > .panel:nth-child(n+10) {
-    margin-left: 10 * $c-accordion-item--indented__panel---margin;
+
+    margin-left: 9 * $c-accordion-item--indented__panel---margin;
+    margin-top: $c-accordion-item--indented---margin-top;
   }
 
-  &-item--indented > .panel:nth-child(n+2):before {
+  &-item--indented > .panel:nth-child(n+2):not(:nth-child(n + 11)):before {
     content: "";
     border-left: $c-accordion-item--indented__panel---border;
     border-bottom: $c-accordion-item--indented__panel---border;
@@ -108,6 +110,7 @@
     margin-top: $c-accordion-item--indented__panel---margin-top;
   }
 }
+
 
 .c-accordion {
   @include c-accordion;

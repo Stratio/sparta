@@ -49,8 +49,6 @@
 
     function addModel() {
       vm.form.$submitted = true;
-      console.log(vm.form)
-      console.log(vm.form.$valid)
       if (vm.form.$valid && vm.model.outputFields.length != 0) {
         vm.form.$submitted = false;
         ModelService.addModel();
