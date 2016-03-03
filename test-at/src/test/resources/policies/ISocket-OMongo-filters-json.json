@@ -49,13 +49,6 @@
                   "unique": "/unique"
                 }
               }
-            },
-            {
-              "removeFields": {
-                "blacklist": [
-                  "literal:_attachment_body"
-                ]
-              }
             }
           ]
         }
@@ -76,6 +69,10 @@
   "cubes": [
     {
       "name": "hashtagfilter",
+      "writer": {
+        "outputs" : ["out-mongo"],
+        "isAutoCalculatedId": true
+      },
       "dimensions": [
         {
           "name": "location",

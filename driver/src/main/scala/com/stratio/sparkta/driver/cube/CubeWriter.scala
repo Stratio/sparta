@@ -14,25 +14,26 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.aggregator
+package com.stratio.sparkta.driver.cube
 
 import java.sql.{Date, Timestamp}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparkta.driver.trigger.TriggerWriter
 import com.stratio.sparkta.sdk._
 import org.apache.spark.sql._
 import org.apache.spark.streaming.dstream.DStream
 
 import scala.util.{Failure, Success, Try}
 
-case class WriterOptions(outputs: Seq[String],
-                         dateType: TypeOp.Value = TypeOp.Timestamp,
-                         fixedMeasures: MeasuresValues = MeasuresValues(Map.empty),
-                         isAutoCalculatedId: Boolean = false)
+case class CubeWriterOptions(outputs: Seq[String],
+                             dateType: TypeOp.Value = TypeOp.Timestamp,
+                             fixedMeasures: MeasuresValues = MeasuresValues(Map.empty),
+                             isAutoCalculatedId: Boolean = false)
 
 case class CubeWriter(cube: Cube,
                       tableSchema: TableSchema,
-                      options: WriterOptions,
+                      options: CubeWriterOptions,
                       outputs: Seq[Output],
                       triggerOutputs: Seq[Output],
                       triggerSchemas: Seq[TableSchema])
@@ -47,7 +48,7 @@ case class CubeWriter(cube: Cube,
     stream.map { case (dimensionValuesTime, measuresValues) =>
       toRow(dimensionValuesTime, measuresValues)
     }.foreachRDD(rdd => {
-      if (options.outputs.nonEmpty && rdd.take(1).length > 0) {
+      if (rdd.take(1).length > 0) {
         val sqlContext = SQLContext.getOrCreate(rdd.context)
         val cubeDataFrame = sqlContext.createDataFrame(rdd, tableSchema.schema)
 
@@ -62,7 +63,7 @@ case class CubeWriter(cube: Cube,
                 log.error(s"Head element. ${cubeDataFrame.head}")
                 log.error(s"Error message : ${e.getMessage}")
             }
-            case None => log.warn(s"The output in the cube : $outputName not match in the outputs")
+            case None => log.error(s"The output in the cube : $outputName not match in the outputs")
           })
 
         writeTriggers(cubeDataFrame, cube.triggers, tableSchema.tableName, triggerSchemas, triggerOutputs)
@@ -115,4 +116,5 @@ case class CubeWriter(cube: Cube,
 object CubeWriter {
 
   final val FixedMeasureSeparator = ":"
+  final val DefaultIsAutocalculatedId  = false
 }

@@ -66,6 +66,9 @@
   "cubes": [
     {
       "name": "testCube",
+      "writer": {
+        "outputs" : ["out-redis"]
+      },
       "dimensions": [
         {
           "name": "product",

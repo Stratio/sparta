@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.aggregator
+package com.stratio.sparkta.driver.test.cube
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparkta.driver.cube.{CubeWriterOptions, CubeWriter, Cube}
+import com.stratio.sparkta.driver.trigger.Trigger
 import com.stratio.sparkta.sdk._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row}
@@ -42,7 +44,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
           StructField("op1", LongType, true))),
         Option("minute")
       )
-      val writerOptions = WriterOptions(Seq("outputName"))
+      val writerOptions = CubeWriterOptions(Seq("outputName"))
       val output = new OutputMock("outputName",
         None,
         Map(),
@@ -67,7 +69,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
           StructField("op1", LongType, true))),
         None
       )
-      val writerOptions = WriterOptions(Seq("outputName"))
+      val writerOptions = CubeWriterOptions(Seq("outputName"))
       val output = new OutputMock("outputName",
         None,
         Map(),
@@ -92,7 +94,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
           StructField("op1", LongType, true))),
         None
       )
-      val writerOptions = WriterOptions(Seq("outputName"), TypeOp.Timestamp, MeasuresValues(Map.empty), true)
+      val writerOptions = CubeWriterOptions(Seq("outputName"), TypeOp.Timestamp, MeasuresValues(Map.empty), true)
       val output = new OutputMock("outputName",
         None,
         Map(),
@@ -117,7 +119,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
           StructField("op1", LongType, true))),
         None
       )
-      val writerOptions = WriterOptions(Seq("outputName"), TypeOp.Timestamp, MeasuresValues(Map.empty), true)
+      val writerOptions = CubeWriterOptions(Seq("outputName"), TypeOp.Timestamp, MeasuresValues(Map.empty), true)
       val output = new OutputMock("outputName",
         None,
         Map(),
@@ -142,7 +144,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
           StructField("op1", LongType, true))),
         None
       )
-      val writerOptions = WriterOptions(Seq("outputName"), TypeOp.Timestamp, fixedMeasure, true)
+      val writerOptions = CubeWriterOptions(Seq("outputName"), TypeOp.Timestamp, fixedMeasure, true)
       val output = new OutputMock("outputName",
         None,
         Map(),

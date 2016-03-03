@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.aggregator
+package com.stratio.sparkta.driver.cube
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparkta.driver.trigger.Trigger
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.constants.AppConstant
@@ -88,8 +89,10 @@ case class Cube(name: String,
     (iterator: Iterator[(DimensionValuesTime, Seq[InputFields], Option[AggregationsValues])]) => {
 
       iterator.filter {
-        case (DimensionValuesTime(_, _, Some(timeConfig)), _, _) => timeConfig.eventTime >= dateFromGranularity
-        case (DimensionValuesTime(_, _, None), _, _) => throw new IllegalArgumentException("Time configuration expected")
+        case (DimensionValuesTime(_, _, Some(timeConfig)), _, _) =>
+          timeConfig.eventTime >= dateFromGranularity
+        case (DimensionValuesTime(_, _, None), _, _) =>
+          throw new IllegalArgumentException("Time configuration expected")
       }.flatMap { case (dimensionsKey, values, state) =>
         updateNonAssociativeFunction(values, state).map(result => (dimensionsKey, result))
       }

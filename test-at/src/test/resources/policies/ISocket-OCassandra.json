@@ -65,6 +65,9 @@
   "cubes": [
     {
       "name": "testCube",
+      "writer": {
+        "outputs" : ["out-cassandra"]
+      },
       "dimensions": [
         {
           "name": "product",

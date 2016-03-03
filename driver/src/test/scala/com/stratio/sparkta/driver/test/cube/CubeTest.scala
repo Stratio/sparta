@@ -14,21 +14,22 @@
   * limitations under the License.
   */
 
-package com.stratio.sparkta.aggregator
+package com.stratio.sparkta.driver.test.cube
 
 import java.io.{Serializable => JSerializable}
 
-import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.{LongType, TimestampType, StringType, StructField, StructType}
-import org.apache.spark.streaming.TestSuiteBase
-import org.joda.time.DateTime
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-
+import com.stratio.sparkta.driver.cube.Cube
+import com.stratio.sparkta.driver.trigger.Trigger
 import com.stratio.sparkta.plugin.default.DefaultField
 import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.plugin.operator.sum.SumOperator
 import com.stratio.sparkta.sdk._
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.{LongType, StringType, StructField, StructType}
+import org.apache.spark.streaming.TestSuiteBase
+import org.joda.time.DateTime
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class CubeTest extends TestSuiteBase {

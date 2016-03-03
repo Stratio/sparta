@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.aggregator
+package com.stratio.sparkta.driver.trigger
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.sdk.{Output, TableSchema}
@@ -40,7 +40,7 @@ trait TriggerWriter extends SLF4JLogging {
           Output.IdAutoCalculatedKey -> schema.isAutoCalculatedId.toString)
       }
 
-      if(outputs.nonEmpty && queryDataFrame.take(1).length > 0) {
+      if(queryDataFrame.take(1).length > 0) {
         queryDataFrame.registerTempTable(trigger.name)
         trigger.outputs.foreach(outputName =>
           outputs.find(output => output.name == outputName) match {
@@ -53,7 +53,7 @@ trait TriggerWriter extends SLF4JLogging {
                 log.error(s"Head element. ${queryDataFrame.head}")
                 log.error(s"Error message : ${e.getMessage}")
             }
-            case None => log.warn(s"The output in the trigger : $outputName not match in the outputs")
+            case None => log.error(s"The output in the trigger : $outputName not match in the outputs")
           })
         Option(trigger.name)
       } else None
