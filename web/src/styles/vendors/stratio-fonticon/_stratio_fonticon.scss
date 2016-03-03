@@ -1,10 +1,10 @@
 @font-face {
 	font-family: 'ico_stratio';
-	src:url('vendors/stratio-fonticon/ico_stratio.eot?ahqcr');
-	src:url('vendors/stratio-fonticon/ico_stratio.eot?ahqcr#iefix') format('embedded-opentype'),
-		url('vendors/stratio-fonticon/ico_stratio.ttf?ahqcr') format('truetype'),
-		url('vendors/stratio-fonticon/ico_stratio.woff?ahqcr') format('woff'),
-		url('vendors/stratio-fonticon/ico_stratio.svg?ahqcr#ico_stratio') format('svg');
+	src:url('vendors/stratio-fonticon/ico_stratio.eot?yqimu5');
+	src:url('vendors/stratio-fonticon/ico_stratio.eot?yqimu5#iefix') format('embedded-opentype'),
+		url('vendors/stratio-fonticon/ico_stratio.ttf?yqimu5') format('truetype'),
+		url('vendors/stratio-fonticon/ico_stratio.woff?yqimu5') format('woff'),
+		url('vendors/stratio-fonticon/ico_stratio.svg?yqimu5#ico_stratio') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -122,6 +122,9 @@
 .icon-kite:before {
     content: "\e91c";
 }
+.icon-morphlines:before {
+    content: "\e91c";
+}
 .icon-type:before {
     content: "\e64f";
 }
@@ -170,7 +173,13 @@
 .icon-twitter:before {
     content: "\e637";
 }
+.icon-twitterjson:before {
+    content: "\e637";
+}
 .icon-stratio_small:before {
+    content: "\e633";
+}
+.icon-ingestion:before {
     content: "\e633";
 }
 .icon-stratio_standard:before {
@@ -782,3 +791,4 @@
 .icon-lego:before {
     content: "\e904";
 }
+
