@@ -5,6 +5,10 @@
 	border-collapse: collapse;
 	line-height: $c-table---line-height;
 
+	&--margin-bottom {
+		margin-bottom: 250px;
+	}
+
 	@at-root &__thead {
 		background: $c-table__thead---background;
 		color: $c-table__thead---color;

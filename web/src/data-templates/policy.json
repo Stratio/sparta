@@ -184,7 +184,7 @@
   "model": {
     "types": [
       {
-        "iconName": "cross",
+        "iconName": "ingestion",
         "name": "Ingestion"
       },
       {
