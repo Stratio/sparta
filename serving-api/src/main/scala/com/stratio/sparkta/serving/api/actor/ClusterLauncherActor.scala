@@ -16,39 +16,33 @@
 
 package com.stratio.sparkta.serving.api.actor
 
-import scala.collection.JavaConversions._
-import scala.concurrent.duration._
-import scala.io.Source
-import scala.util.Failure
-import scala.util.Properties
-import scala.util.Success
-import scala.util.Try
+import java.util.concurrent.TimeUnit
 
-import akka.actor.Actor
-import akka.actor.ActorRef
+import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
 import com.google.common.io.BaseEncoding
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigRenderOptions
-import org.apache.spark.launcher.SparkLauncher
-
-import com.stratio.sparkta.driver.util.HdfsUploader
-import com.stratio.sparkta.driver.util.HdfsUtils
+import com.stratio.sparkta.driver.util.{ClusterSparkFiles, HdfsUtils}
 import com.stratio.sparkta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparkta.serving.core.SparktaConfig
 import com.stratio.sparkta.serving.core.constants.AppConstant
-import com.stratio.sparkta.serving.core.dao.ConfigDAO
-import com.stratio.sparkta.serving.core.models.AggregationPoliciesModel
-import com.stratio.sparkta.serving.core.models.PolicyStatusModel
-import com.stratio.sparkta.serving.core.models.SparktaSerializer
+import com.stratio.sparkta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SparktaSerializer}
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparkta.serving.core.policy.status.PolicyStatusEnum
+import com.typesafe.config.{Config, ConfigRenderOptions}
+import org.apache.spark.launcher.SparkLauncher
+
+import scala.collection.JavaConversions._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.io.Source
+import scala.util.{Failure, Properties, Success, Try}
 
 class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: ActorRef) extends Actor
-  with SLF4JLogging
-  with SparktaSerializer {
+with SLF4JLogging
+with SparktaSerializer {
 
   private val SparktaDriver = "com.stratio.sparkta.driver.SparktaClusterJob"
   private val StandaloneSupervise = "--supervise"
@@ -59,52 +53,38 @@ class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: 
   private val DetailConfig = SparktaConfig.getDetailConfig.get
 
   private val Hdfs = HdfsUtils(HdfsConfig)
-  private val Uploader = HdfsUploader(policy, Hdfs)
+  private val Uploader = ClusterSparkFiles(policy, Hdfs)
   private val PolicyId = policy.id.get.trim
-  private val BasePath = s"/user/${Hdfs.userName}/$PolicyId"
-  private val PluginsJarsPath = s"$BasePath/${HdfsConfig.getString(AppConstant.PluginsFolder)}/"
-  private val ClasspathJarsPath = s"$BasePath/${HdfsConfig.getString(AppConstant.ClasspathFolder)}/"
-  private val DriverJarPath = s"$BasePath/${HdfsConfig.getString(AppConstant.ExecutionJarFolder)}/"
   private val Master = ClusterConfig.getString(AppConstant.Master)
+  private val BasePath = s"/user/${Hdfs.userName}/${AppConstant.ConfigAppName}/$PolicyId"
+  private val PluginsJarsPath = s"$BasePath/${HdfsConfig.getString(AppConstant.PluginsFolder)}/"
+  private val DriverJarPath = s"$BasePath/${HdfsConfig.getString(AppConstant.ExecutionJarFolder)}/"
 
   implicit val timeout: Timeout = Timeout(3.seconds)
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Start => doInitSparktaContext
+    case Start => doInitSparktaContext()
   }
 
-  def doInitSparktaContext: Unit = {
+  def doInitSparktaContext(): Unit = {
     Try {
       log.info("Init new cluster streamingContext with name " + policy.name)
-      validateSparkHome
-      saveHdfsConfig
-      Uploader.uploadPlugins(PluginsJarsPath)
-      Uploader.uploadClasspath(ClasspathJarsPath)
-      val hdfsDriverPath = Uploader.uploadDriver(DriverJarPath)
-      val driverParams = Seq(
-        PolicyId,
-        PluginsJarsPath,
-        ClasspathJarsPath,
-        zkConfigEncoded,
-        detailConfigEncoded)
-      launch(SparktaDriver, hdfsDriverPath, Master, sparkArgs, driverParams)
+      validateSparkHome()
+      val driverPath = Uploader.getDriverFile(DriverJarPath)
+      val pluginsFiles = Uploader.getPluginsFiles(PluginsJarsPath)
+      val driverParams = Seq(PolicyId, zkConfigEncoded, detailConfigEncoded, pluginsEncoded(pluginsFiles))
+
+      launch(SparktaDriver, driverPath, Master, sparkArgs, driverParams, pluginsFiles)
     } match {
-      case Failure(exception) => {
+      case Failure(exception) =>
         log.error(exception.getLocalizedMessage, exception)
-        setErrorStatus
-      }
-      case Success(_) => {
-        //TODO add more statuses for the policies
-      }
+        setErrorStatus()
+      case Success(_) =>
+      //TODO add more statuses for the policies
     }
   }
 
-  def saveHdfsConfig: Unit = {
-    val configRendered = render(HdfsConfig, "hdfs")
-    ConfigDAO().dao.upsert(AppConstant.HdfsID, configRendered)
-  }
-
-  private def setErrorStatus: Unit =
+  private def setErrorStatus(): Unit =
     policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed))
 
   private def sparkHome: String = Properties.envOrElse("SPARK_HOME", ClusterConfig.getString(AppConstant.SparkHome))
@@ -112,7 +92,7 @@ class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: 
   /**
    * Checks if we have a valid Spark home.
    */
-  private def validateSparkHome: Unit = require(Try(sparkHome).isSuccess,
+  private def validateSparkHome(): Unit = require(Try(sparkHome).isSuccess,
     "You must set the $SPARK_HOME path in configuration or environment")
 
   /**
@@ -126,25 +106,59 @@ class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: 
     } else false
 
   private def launch(main: String, hdfsDriverFile: String, master: String, args: Map[String, String],
-                     driverParams: Seq[String]): Unit = {
+                     driverParams: Seq[String],
+                     pluginsFiles: Seq[String]): Unit = {
     val sparkLauncher = new SparkLauncher()
       .setSparkHome(sparkHome)
       .setAppResource(hdfsDriverFile)
       .setMainClass(main)
       .setMaster(master)
+    pluginsFiles.foreach(file => sparkLauncher.addJar(file))
     args.map({ case (k: String, v: String) => sparkLauncher.addSparkArg(k, v) })
     if (isStandaloneSupervise) sparkLauncher.addSparkArg(StandaloneSupervise)
     //Spark params (everything starting with spark.)
-    sparkConf.map({ case (key: String, value: String) => sparkLauncher.setConf(key, value) })
+    sparkConf.map({ case (key: String, value: String) =>
+      sparkLauncher.setConf(key, if (key == "spark.app.name") s"$value-${policy.name}" else value)
+    })
     // Driver (Sparkta) params
     driverParams.map(sparkLauncher.addAppArgs(_))
-    val spark = sparkLauncher.launch()
-    val loggerThread = new ClusterLogger(spark)
-    loggerThread.run()
-    spark.waitFor()
-    val exit = spark.exitValue()
-    log.debug(s"Spark exit status: $exit")
-    if (exit != 0) setErrorStatus
+
+    log.info("Executing SparkLauncher...")
+
+    Future[(Boolean, Process)] {
+      val sparkProcess = sparkLauncher.launch()
+      (sparkProcess.waitFor(20, TimeUnit.SECONDS), sparkProcess)
+    } onComplete {
+      case Success((exitCode, sparkProcess)) =>
+        sparkLauncherStreams(exitCode, sparkProcess)
+      case Success((exitCode, sparkProcess)) =>
+        sparkLauncherStreams(exitCode, sparkProcess)
+      case Failure(exception) =>
+        log.error(exception.getMessage)
+        throw exception
+    }
+  }
+
+  private def sparkLauncherStreams(exitCode: Boolean, sparkProcess: Process): Unit = {
+
+    def recursiveErrors(it: Iterator[String], count : Int): Unit = {
+      log.info(it.next())
+      if(it.hasNext && count < 50){
+        recursiveErrors(it, count + 1)
+      }
+    }
+
+    if(exitCode) log.info("Spark process exited successfully")
+    else log.info("Spark process exited with timeout")
+
+    Source.fromInputStream(sparkProcess.getInputStream).close()
+    sparkProcess.getOutputStream.close()
+
+    log.info("ErrorStream:")
+
+    val error = Source.fromInputStream(sparkProcess.getErrorStream)
+    recursiveErrors(error.getLines(), 0)
+    error.close()
   }
 
   private def sparkArgs: Map[String, String] =
@@ -164,29 +178,22 @@ class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: 
 
   private def detailConfigEncoded: String = encode(render(DetailConfig, "config"))
 
-  private def sparkConf: Seq[(String, String)] = ClusterConfig.entrySet()
-    .filter(_.getKey.startsWith("spark."))
-    .toSeq
-    .map(e => (e.getKey, e.getValue.toString))
+  private def pluginsEncoded(plugins: Seq[String]): String = encode((Seq(" ") ++ plugins).mkString(","))
+
+  private def sparkConf: Seq[(String, String)] =
+    ClusterConfig.entrySet()
+      .filter(_.getKey.startsWith("spark.")).toSeq
+      .map(e => (e.getKey, e.getValue.unwrapped.toString))
 }
 
 object ClusterLauncherActor extends SLF4JLogging {
 
   def toMap(key: String, newKey: String, config: Config): Map[String, String] =
     Try(config.getString(key)) match {
-      case Success(value) => Map(newKey -> value)
-      case Failure(_) => {
+      case Success(value) =>
+        Map(newKey -> value)
+      case Failure(_) =>
         log.debug(s"The key $key was not defined in config.")
         Map.empty[String, String]
-      }
     }
-}
-
-class ClusterLogger(spark: Process) extends Runnable with SLF4JLogging {
-
-  override def run(): Unit = {
-    val in = Source.fromInputStream(spark.getErrorStream)
-    while (spark.isAlive) in.getLines.foreach(log.info)
-    in.close()
-  }
 }

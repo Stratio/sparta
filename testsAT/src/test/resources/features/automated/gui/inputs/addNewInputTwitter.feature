@@ -61,7 +61,7 @@ Feature: Test adding a new Twitter input in Sparta GUI
 		# Retrieve input fragment id using api
 		When I send a 'GET' request to '/fragment/input/name/validtwitterinput'
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID'
+		And I save element '$.id' in environment variable 'previousFragmentID'
 		# Check that an input element has been created
 		Then '1' element exists with 'css:span[data-qa="input-context-menu-!{previousFragmentID}"]'
 		

@@ -26,8 +26,6 @@ case class TransformationsModel(name: String,
                                 outputFields: Seq[OutputFieldsModel],
                                 configuration: Map[String, JsoneyString] = Map()) {
 
-  val jarFile = AppConstant.jarsFilesMap.get(`type` + Parser.ClassSuffix)
-
   val outputFieldsTransformed = outputFields.map(field =>
     OutputFieldsTransformedModel(field.name,
       field.`type`.getOrElse(Parser.TypesFromParserClass.getOrElse(`type`.toLowerCase, Parser.DefaultOutputType))

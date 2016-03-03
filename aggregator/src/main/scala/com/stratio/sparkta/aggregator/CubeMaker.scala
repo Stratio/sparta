@@ -57,14 +57,16 @@ case class CubeMaker(cubes: Seq[Cube]) {
 
 protected case class CubeOperations(cube: Cube) extends SLF4JLogging {
 
+  private final val UpdatedValues = 1
+
   /**
    * Extract a modified stream that will be needed to calculate aggregations.
    *
    * @param inputStream with the original stream of data.
    * @return a modified stream after join dimensions, cubes and operations.
    */
-  def extractDimensionsAggregations(inputStream: DStream[Row]): DStream[(DimensionValuesTime, Row)] = {
-    inputStream.flatMap(row => Try {
+  def extractDimensionsAggregations(inputStream: DStream[Row]): DStream[(DimensionValuesTime, InputFields)] = {
+    inputStream.mapPartitions(rows => rows.flatMap(row => Try {
       val dimensionValues = for {
         dimension <- cube.dimensions
         value = row.get(cube.initSchema.fieldIndex(dimension.field))
@@ -73,19 +75,21 @@ protected case class CubeOperations(cube: Cube) extends SLF4JLogging {
 
       cube.expiringDataConfig match {
         case None =>
-          (DimensionValuesTime(cube.name, dimensionValues), row)
+          (DimensionValuesTime(cube.name, dimensionValues), InputFields(row, UpdatedValues))
         case Some(expiringDataConfig) =>
           val eventTime = extractEventTime(dimensionValues)
           val timeDimension = expiringDataConfig.timeDimension
-          (DimensionValuesTime(cube.name, dimensionValues, Option(TimeConfig(eventTime, timeDimension))), row)
+          (DimensionValuesTime(cube.name, dimensionValues, Option(TimeConfig(eventTime, timeDimension))),
+            InputFields(row, UpdatedValues))
       }
     } match {
-      case Success(dimensionValuesTime) => Some(dimensionValuesTime)
+      case Success(dimensionValuesTime) =>
+        Some(dimensionValuesTime)
       case Failure(exception) =>
         val error = s"Failure[Aggregations]: ${row.toString} | ${exception.getLocalizedMessage}"
         log.error(error, exception)
         None
-    })
+    }), true)
   }
 
   private def extractEventTime(dimensionValues: Seq[DimensionValue]) = {

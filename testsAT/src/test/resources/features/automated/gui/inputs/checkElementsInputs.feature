@@ -68,7 +68,7 @@ Feature: Test all expected elements are present in Sparta GUI for inputs
 		# Retrieve input fragment id using api
 		When I send a 'GET' request to '/fragment/input/name/validflumeinput'
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID'
+		And I save element '$.id' in environment variable 'previousFragmentID'
 		# Check that an input element has been created
 		Then '1' element exists with 'css:span[data-qa="input-context-menu-!{previousFragmentID}"]'
 		And '1' element exists with 'css:select[data-qa="input-filter-type"]'

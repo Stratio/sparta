@@ -11,12 +11,13 @@ Feature: Test policy with Socket input and MongoDB output
     # Add the policy
     When I send a 'POST' request to '/policy' based on 'schemas/policies/iSocketoMongoDB.conf' as 'json' with:
       | id | DELETE | N/A |
+      | checkpointPath | UPDATE | /tmp/checkpoint |
       | input.configuration.hostname | UPDATE | @{IP.${IFACE}} |
       | input.configuration.port | UPDATE | 10666 |
       | outputs[0].configuration.hosts[0].host | UPDATE | ${MONGO_HOST} |
       | outputs[0].configuration.hosts[0].port | UPDATE | ${MONGO_PORT} |
     Then the service response status must be '200'.
-    And I save element '$.id' in attribute 'previousPolicyID'
+    And I save element '$.id' in environment variable 'previousPolicyID'
     And I wait '10' seconds
 
     # Start the policy

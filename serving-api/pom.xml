@@ -28,6 +28,21 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>serving-api</artifactId>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <!-- DO NOT include logback file in your Jar -->
+                    <excludes>
+                        <exclude>**/logback.*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
@@ -36,6 +51,10 @@
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
             <artifactId>serving-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.sparkta</groupId>
+            <artifactId>plugins</artifactId>
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>

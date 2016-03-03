@@ -12,7 +12,7 @@ Feature: Test deleting an input in Sparta GUI
 		| name | UPDATE | inputfragment1 |
 		| element.type | UPDATE | Flume |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID'
+		And I save element '$.id' in environment variable 'previousFragmentID'
 		When I send a 'GET' request to '/fragment/input'
 		Then the service response status must be '200' and its response length must be '1'
 

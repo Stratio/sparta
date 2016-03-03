@@ -68,7 +68,7 @@ Feature: Test all expected elements are present in Sparta GUI for outputs
 		# Retrieve output fragment id using api
 		When I send a 'GET' request to '/fragment/output/name/validcassandraoutput'
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID'
+		And I save element '$.id' in environment variable 'previousFragmentID'
 		# Check that an output element has been created
 		Then '1' element exists with 'css:span[data-qa="output-context-menu-!{previousFragmentID}"]'
 		And '1' element exists with 'css:select[data-qa="output-filter-type"]'

@@ -1,50 +1,38 @@
-#!/bin/sh
+#!/bin/bash
 
-USER=stratio
-GROUP=stratio
-DIR_INSTALL=/opt/sds/sparkta
-DIR_PID=/var/run/sds
-DIR_LOG=/var/log/sds/sparkta
-PID_FILE=$PID_DIR/sparkta.pid
-CONF_FILE_BACKUP=$DIR_INSTALL/conf.tar.gz
-LOG_FILE=$DIR_LOG/sparkta.out
-LOG_ERR_FILE=$DIR_LOG/sparkta.err
+set -e
 
-###
-# UTILs
-###
-restoreAndPurge () {
-    if [ -f "$1" ]; then
-        echo "Restoring $1"
-        tar xzf $1 > /dev/null 2>&1
-        echo "Removing $1"
-        rm $1
+GROUP='stratio'
+USER='sparkta'
+
+case "$1" in
+    configure)
+    if ! getent group ${GROUP} >/dev/null 2>&1; then
+       groupadd ${GROUP}
     fi
-}
+    if ! getent passwd ${USER} >/dev/null 2>&1; then
+       useradd -M -d /opt/sds/sparkta -g ${GROUP} -s /sbin/nologin ${USER}
+    fi
 
-###
-# EXECUTION CONFIGURATION
-###
-/bin/touch $PID_FILE
-/bin/touch $LOG_FILE
-/bin/touch $LOG_ERR_FILE
-chown -R ${USER}:${GROUP} $DIR_INSTALL
-chown -R ${USER}:${GROUP} $DIR_PID
-chown -R ${USER}:${GROUP} $DIR_LOG
-/bin/chmod 775 $DIR_INSTALL
-/bin/chmod 775 $DIR_PID
-/bin/chmod 775 $DIR_LOG
-/bin/chmod 777 $PID_FILE
-/bin/chmod 664 $LOG_FILE
-/bin/chmod 664 $LOG_ERR_FILE
-/bin/chmod 775 $DIR_INSTALL/bin/run
-/bin/chmod 755 /etc/init.d/sparkta
-echo "Adding sparkta service"
-update-rc.d sparkta defaults > /dev/null 2>&1
+    chown root:root /etc/init.d/sparkta
 
-###
-# RESTORE conf
-###
-restoreAndPurge $CONF_FILE_BACKUP
+    chown -R ${USER}:${GROUP} /etc/sds/sparkta
+
+    chown ${USER}:${GROUP} /etc/default/sparkta-functions
+    chown ${USER}:${GROUP} /etc/default/sparkta-variables
+
+    chown -R ${USER}:${GROUP} /var/log/sds/sparkta
+    chown -R ${USER}:${GROUP} /opt/sds/sparkta
+
+    chmod 755 /etc/init.d/sparkta
+
+    chmod 750 /etc/sds/sparkta
+    chmod 775 /var/log/sds/sparkta
+    chmod 750 /opt/sds/sparkta
+    chmod 750 /opt/sds/sparkta/bin/*
+
+    update-rc.d sparkta defaults
+  ;;
+esac
 
 exit 0

@@ -1,3 +1,8 @@
 #!/bin/sh
-
-exit 0
+ 
+set -e
+ 
+/etc/init.d/sparkta stop
+if [ "$1" = remove ]; then
+    invoke-rc.d sparkta stop || true
+fi

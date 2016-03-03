@@ -14,7 +14,7 @@ Feature: Test all DELETE operations for policies in Sparta Swagger API
 		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousPolicyID'
+		And I save element '$.id' in environment variable 'previousPolicyID'
 		# Check that is listed
 		When I send a 'GET' request to '/policy/all'	
 		Then the service response status must be '200' and its response length must be '1'
@@ -34,7 +34,7 @@ Feature: Test all DELETE operations for policies in Sparta Swagger API
 		| name | UPDATE | inputfragment1 |
 		| fragmentType | UPDATE | input |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousFragmentID'
+		And I save element '$.id' in environment variable 'previousFragmentID'
 		# Create policy
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | policy1InputFragment |
@@ -45,7 +45,7 @@ Feature: Test all DELETE operations for policies in Sparta Swagger API
 		| id | DELETE | N/A |
 		| input | DELETE | N/A |
 		Then the service response status must be '200'.
-		And I save element '$.id' in attribute 'previousPolicyID'
+		And I save element '$.id' in environment variable 'previousPolicyID'
 		When I send a 'GET' request to '/policy/all'	
 		Then the service response status must be '200' and its response length must be '1'
 		# Delete policy

@@ -224,6 +224,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.stratio.sparkta</groupId>
+                <artifactId>plugins</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.github.nscala-time</groupId>
                 <artifactId>nscala-time_${scala.binary.version}</artifactId>
                 <version>${nscala.time.version}</version>

@@ -27,11 +27,9 @@
     <artifactId>stratio-sparkta</artifactId>
     <properties>
         <classpath.directory>lib</classpath.directory>
-        <plugins.directory>plugins</plugins.directory>
         <config.directory>src/main/resources</config.directory>
         <binary.name>sparkta-${project.version}</binary.name>
         <driver.mainclass>com.stratio.sparkta.serving.api.Sparkta</driver.mainclass>
-        <outputFileName>stratio-sparkta</outputFileName>
     </properties>
     <dependencies>
         <dependency>
@@ -77,16 +75,8 @@
                                         <copy todir="target/appassembler/repo/driver">
                                             <fileset dir="../driver/target" includes="*.jar" />
                                         </copy>
-                                        <copy todir="target/appassembler/repo/cluster">
-                                            <fileset dir="../driver/target/cluster" includes="**/*.jar" excludes="**/input-rabbitMQ*.jar" />
-                                            <mapper type="flatten" />
-                                        </copy>
                                         <copy todir="target/appassembler/repo/serving-api">
                                             <fileset dir="../serving-api" includes="**/*.jar" />
-                                            <mapper type="flatten" />
-                                        </copy>
-                                        <copy todir="target/appassembler/repo/plugins">
-                                            <fileset dir="../plugins" includes="**/*.jar" excludes="**/input-rabbitMQ*.jar" />
                                             <mapper type="flatten" />
                                         </copy>
                                         <copy todir="target/appassembler/repo/web">
@@ -107,7 +97,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>appassembler-maven-plugin</artifactId>
-                        <version>1.8.1</version>
+                        <version>1.10</version>
                         <executions>
                             <execution>
                                 <id>engine</id>
@@ -148,11 +138,13 @@
                         <extensions>true</extensions>
                         <inherited>false</inherited>
                         <configuration>
+                            <outputFileName>stratio-sparkta</outputFileName>
                             <contact><![CDATA[Stratio SpaRkTA<sparkta@stratio.com>]]></contact>
                             <contactEmail>sparkta@stratio.com</contactEmail>
                             <deb>
                                 <section>devel</section>
                                 <preDepends>jq</preDepends>
+                                <preDepends>lockfile-progs</preDepends>
                             </deb>
                             <rpm>
                                 <group>stratio</group>
@@ -164,36 +156,59 @@
                                 <dir>/etc</dir>
                                 <dir>/etc/init.d</dir>
                                 <dir>/etc/default</dir>
-                                <dir>/var</dir>
+                                <dir>/var/run</dir>
+                                <dir>/var/log</dir>
                                 <dir>/opt</dir>
                                 <dir>/usr</dir>
                                 <dir>/bin</dir>
                             </excludeDirectoryAttributes>
+                            <defaults>
+                                <directoryAttributes>
+                                    <user>sparkta</user>
+                                    <group>stratio</group>
+                                    <mode>0750</mode>
+                                </directoryAttributes>
+                                <fileAttributes>
+                                    <user>sparkta</user>
+                                    <group>stratio</group>
+                                    <mode>0644</mode>
+                                </fileAttributes>
+                            </defaults>
                             <assembly>
-                                <copyFile>
-                                    <path>src/main/unix/etc/init.d/sparkta</path>
-                                    <toFile>/etc/init.d/sparkta</toFile>
-                                    <attributes>
-                                        <user>root</user>
-                                        <group>root</group>
-                                        <mode>755</mode>
-                                    </attributes>
-                                </copyFile>
-                                <copyDirectory>
-                                    <from>src/main/unix/etc/default</from>
-                                    <to>/etc/default</to>
-                                </copyDirectory>
                                 <mkdirs>
                                     <path>/var/run/sds</path>
                                     <attributes>
-                                        <mode>755</mode>
+                                        <user>root</user>
+                                        <group>stratio</group>
+                                        <mode>0775</mode>
+                                    </attributes>
+                                </mkdirs>
+                                <mkdirs>
+                                    <path>/var/log/sds</path>
+                                    <attributes>
+                                        <user>root</user>
+                                        <group>stratio</group>
+                                        <mode>0775</mode>
+                                    </attributes>
+                                </mkdirs>
+                                <mkdirs>
+                                    <path>/opt/sds</path>
+                                    <attributes>
+                                        <user>root</user>
+                                        <group>stratio</group>
+                                        <mode>0775</mode>
+                                    </attributes>
+                                </mkdirs>
+                                <mkdirs>
+                                    <path>/etc/sds</path>
+                                    <attributes>
+                                        <user>root</user>
+                                        <group>stratio</group>
+                                        <mode>0775</mode>
                                     </attributes>
                                 </mkdirs>
                                 <mkdirs>
                                     <path>/var/log/sds/sparkta</path>
-                                    <attributes>
-                                        <mode>755</mode>
-                                    </attributes>
                                 </mkdirs>
                                 <copyDirectory>
                                     <from>target/appassembler/bin</from>
@@ -208,24 +223,12 @@
                                     <to>/etc/sds/sparkta</to>
                                 </copyDirectory>
                                 <copyDirectory>
-                                    <from>target/appassembler/repo/plugins</from>
-                                    <to>/opt/sds/sparkta/plugins</to>
-                                </copyDirectory>
-                                <copyDirectory>
                                     <from>target/appassembler/repo/driver</from>
                                     <to>/opt/sds/sparkta/driver</to>
                                 </copyDirectory>
                                 <copyDirectory>
-                                    <from>target/appassembler/repo/cluster</from>
-                                    <to>/opt/sds/sparkta/cluster</to>
-                                </copyDirectory>
-                                <copyDirectory>
                                     <from>target/appassembler/repo/serving-api</from>
                                     <to>/opt/sds/sparkta/serving-api</to>
-                                </copyDirectory>
-                                <copyDirectory>
-                                    <from>target/appassembler/repo/web</from>
-                                    <to>/opt/sds/sparkta/plugins</to>
                                 </copyDirectory>
                                 <copyDirectory>
                                     <from>target/appassembler/repo/benchmark</from>
@@ -235,19 +238,11 @@
                                     <from>target/appassembler/repo/examples</from>
                                     <to>/opt/sds/sparkta/examples</to>
                                 </copyDirectory>
+                                <copyDirectory>
+                                    <from>src/main/unix/files_and_dirs/bin</from>
+                                    <to>/opt/sds/sparkta/bin</to>
+                                </copyDirectory>
                             </assembly>
-                            <defaults>
-                                <directoryAttributes>
-                                    <user>stratio</user>
-                                    <group>stratio</group>
-                                    <mode>0755</mode>
-                                </directoryAttributes>
-                                <fileAttributes>
-                                    <user>stratio</user>
-                                    <group>stratio</group>
-                                    <mode>0755</mode>
-                                </fileAttributes>
-                            </defaults>
                         </configuration>
                         <executions>
                             <execution>
@@ -258,6 +253,32 @@
                                 </goals>
                                 <configuration>
                                     <architecture>all</architecture>
+                                    <assembly>
+                                        <copyFile>
+                                            <path>src/main/unix/files_and_dirs/etc/default/sparkta-functions</path>
+                                            <toFile>/etc/default/sparkta-functions</toFile>
+                                            <attributes>
+                                                <user>sparkta</user>
+                                                <group>stratio</group>
+                                            </attributes>
+                                        </copyFile>
+                                        <copyFile>
+                                            <path>src/main/unix/files_and_dirs/etc/default/sparkta-variables</path>
+                                            <toFile>/etc/default/sparkta-variables</toFile>
+                                            <attributes>
+                                                <user>sparkta</user>
+                                                <group>stratio</group>
+                                            </attributes>
+                                        </copyFile>
+                                        <copyFile>
+                                            <path>src/main/unix/files_and_dirs/etc/init.d/sparkta-deb.sh</path>
+                                            <toFile>/etc/init.d/sparkta</toFile>
+                                            <attributes>
+                                                <user>root</user>
+                                                <group>root</group>
+                                            </attributes>
+                                        </copyFile>
+                                    </assembly>
                                 </configuration>
                             </execution>
                             <execution>
@@ -268,6 +289,32 @@
                                 </goals>
                                 <configuration>
                                     <architecture>noarch</architecture>
+                                    <assembly>
+                                        <copyFile>
+                                            <path>src/main/unix/files_and_dirs/etc/default/sparkta-functions</path>
+                                            <toFile>/etc/default/sparkta-functions</toFile>
+                                            <attributes>
+                                                <user>sparkta</user>
+                                                <group>stratio</group>
+                                            </attributes>
+                                        </copyFile>
+                                        <copyFile>
+                                            <path>src/main/unix/files_and_dirs/etc/default/sparkta-variables</path>
+                                            <toFile>/etc/default/sparkta-variables</toFile>
+                                            <attributes>
+                                                <user>sparkta</user>
+                                                <group>stratio</group>
+                                            </attributes>
+                                        </copyFile>
+                                        <copyFile>
+                                            <path>src/main/unix/files_and_dirs/etc/init.d/sparkta-rpm.sh</path>
+                                            <toFile>/etc/init.d/sparkta</toFile>
+                                            <attributes>
+                                                <user>root</user>
+                                                <group>root</group>
+                                            </attributes>
+                                        </copyFile>
+                                    </assembly>
                                 </configuration>
                             </execution>
                         </executions>

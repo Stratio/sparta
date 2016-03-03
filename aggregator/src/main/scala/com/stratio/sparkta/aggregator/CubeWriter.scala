@@ -61,7 +61,7 @@ case class CubeWriter(cube: Cube,
             }
             case None => log.warn(s"The output in the cube : $outputName not match in the outputs")
           })
-      } else log.info("Empty event received")
+      } else log.debug("Empty event received")
     })
   }
 

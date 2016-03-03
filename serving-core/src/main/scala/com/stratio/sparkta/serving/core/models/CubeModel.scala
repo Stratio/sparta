@@ -31,5 +31,4 @@ case class DimensionModel(name: String,
                           `type`: String = DimensionType.DefaultDimensionClass,
                           configuration: Option[Map[String, String]]) {
 
-  val jarFile = AppConstant.jarsFilesMap.get(`type`)
 }

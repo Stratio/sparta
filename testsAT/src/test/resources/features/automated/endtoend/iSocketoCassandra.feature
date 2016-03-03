@@ -11,12 +11,13 @@ Feature: Test policy with Socket input and Cassandra output
     # Add the policy
     When I send a 'POST' request to '/policy' based on 'schemas/policies/iSocketoCassandra.conf' as 'json' with:
       | id | DELETE | N/A |
+      | checkpointPath | UPDATE | /tmp/checkpoint |
       | input.configuration.hostname | UPDATE | @{IP.${IFACE}} |
       | input.configuration.port | UPDATE | 10666 |
       | outputs[0].configuration.connectionHost | UPDATE | ${CASSANDRA_HOST} |
       | outputs[0].configuration.connectionPort | UPDATE | ${CASSANDRA_PORT} |
     Then the service response status must be '200'.
-    And I save element '$.id' in attribute 'previousPolicyID'
+    And I save element '$.id' in environment variable 'previousPolicyID'
     And I wait '10' seconds
 
     # Start the policy

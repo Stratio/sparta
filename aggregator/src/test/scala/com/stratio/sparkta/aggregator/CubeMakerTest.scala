@@ -20,6 +20,7 @@ import java.io.{Serializable => JSerializable}
 import java.sql.Timestamp
 
 import com.github.nscala_time.time.Imports._
+import com.stratio.sparkta.plugin.default.DefaultField
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{TimestampType, StringType, LongType, StructField, StructType}
 import org.apache.spark.streaming.TestSuiteBase
@@ -27,7 +28,6 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
 import com.stratio.sparkta.plugin.field.datetime.DateTimeField
-import com.stratio.sparkta.plugin.field.default.DefaultField
 import com.stratio.sparkta.plugin.operator.count.CountOperator
 import com.stratio.sparkta.sdk._
 
@@ -43,18 +43,7 @@ class CubeMakerTest extends TestSuiteBase {
     - O = No operator for the cube
     - R = Cube with D+B+O
 
-    This test should produce Seq[(Seq[DimensionValue], Map[String, JSerializable])] with values:
-
-    List(
-     ((DimensionValuesTime(Seq(DimensionValue(
-        Dimension("dim1", "eventKey", "identity", defaultDimension), "value1")), timestamp), Map("eventKey" -> "value1")
-        ),
-      (DimensionValuesTime(Seq(DimensionValue(
-        Dimension("dim1", "eventKey", "identity", defaultDimension), "value2")), timestamp), Map("eventKey" -> "value2")
-        ),
-      (DimensionValuesTime(Seq(DimensionValue(
-        Dimension("dim1", "eventKey", "identity", defaultDimension), "value3")), timestamp), Map("eventKey" -> "value3")
-        ))
+    This test should produce Seq[(Seq[DimensionValue], Map[String, JSerializable])]
    */
   test("DataCube extracts dimensions from events") {
 
@@ -101,7 +90,7 @@ class CubeMakerTest extends TestSuiteBase {
    * @return the expected result to test
    */
   def getEventOutput(timestamp: Timestamp, millis: Long):
-  Seq[Seq[(DimensionValuesTime, Row)]] = {
+  Seq[Seq[(DimensionValuesTime, InputFields)]] = {
     val dimensionString = Dimension("dim1", "eventKey", "identity", new DefaultField)
     val dimensionTime = Dimension("minute", "minute", "minute", new DateTimeField)
     val dimensionValueString1 = DimensionValue(dimensionString, "value1")
@@ -109,9 +98,9 @@ class CubeMakerTest extends TestSuiteBase {
     val dimensionValueString3 = dimensionValueString1.copy(value = "value3")
     val dimensionValueTs = DimensionValue(dimensionTime, timestamp)
     val tsMap = Row(timestamp)
-    val valuesMap1 = Row("value1", timestamp)
-    val valuesMap2 = Row("value2", timestamp)
-    val valuesMap3 = Row("value3", timestamp)
+    val valuesMap1 = InputFields(Row("value1", timestamp), 1)
+    val valuesMap2 = InputFields(Row("value2", timestamp), 1)
+    val valuesMap3 = InputFields(Row("value3", timestamp), 1)
 
     Seq(Seq(
       (DimensionValuesTime("cubeName", Seq(dimensionValueString1, dimensionValueTs)), valuesMap1),

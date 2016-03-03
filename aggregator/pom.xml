@@ -65,25 +65,7 @@
         </dependency>
         <dependency>
             <groupId>com.stratio.sparkta</groupId>
-            <artifactId>field-default</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.sparkta</groupId>
-            <artifactId>operator-count</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.sparkta</groupId>
-            <artifactId>operator-sum</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.sparkta</groupId>
-            <artifactId>field-dateTime</artifactId>
+            <artifactId>plugins</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
