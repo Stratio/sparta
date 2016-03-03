@@ -27,13 +27,14 @@ import com.stratio.kafka.benchmark.generator.kafka.KafkaProducer
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.commons.io.FileUtils
 import org.apache.log4j.Logger
-import org.json4s._
 import org.json4s.native.Serialization.{read, writePretty}
 
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
-object GeneratorRunner {
+import org.json4s.DefaultFormats
+
+object GeneratorRunner extends HttpUtil {
 
   private val logger = Logger.getLogger(this.getClass)
 
@@ -44,6 +45,8 @@ object GeneratorRunner {
    * @param args where you must pass the path of the config file.
    */
   def main(args: Array[String]) {
+
+
     if (args.size == 0) {
       logger.info("Use: java -jar benchmark.jar <config file>")
       System.exit(1)
@@ -51,29 +54,72 @@ object GeneratorRunner {
 
     Try(ConfigFactory.parseFile(new File(args(0)))) match {
       case Success(config) =>
-        generatePost(config)
+        preCleanup(config)
+        val policyId = generatePost(config)
         generateEvents(config)
         generateReports(config)
+        postCleanup(policyId, config)
       case Failure(exception) =>
         logger.error(exception.getLocalizedMessage, exception)
     }
   }
 
   /**
+   * Deletes the spark metrics path
+   * @param config with the needed parameters.
+   */
+  def preCleanup(config: Config): Unit = {
+    val sparkMetricsPath = config.getString("sparkMetricsPath")
+    val resultMetricsPath = config.getString("resultMetricsPath")
+
+    val sparkMetricsFile = new File(sparkMetricsPath)
+    val resultMetricsFile = new File(resultMetricsPath)
+
+    if(!sparkMetricsFile.exists()) {
+      sparkMetricsFile.mkdir()
+    }
+
+    if(!resultMetricsFile.exists()) {
+      resultMetricsFile.mkdir()
+    }
+
+    FileUtils.cleanDirectory(new File(sparkMetricsPath))
+  }
+
+  /**
+   * Stops and deletes the policy. Also it deletes the spark metrics path
+   * @param id of the policy.
+   * @param config with the needed parameters.
+   */
+  def postCleanup(id: String, config: Config): Unit = {
+    val sparktaEndpoint = config.getString("sparktaEndpoint")
+    val sparkMetricsPath = config.getString("sparkMetricsPath")
+
+    stopPolicy(id, sparktaEndpoint)
+    deletePolicy(id, sparktaEndpoint)
+    FileUtils.cleanDirectory(new File(sparkMetricsPath))
+  }
+
+  /**
    * Looks for a policy and send a post to Sparkta.
    * @param config with the needed parameters.
    */
-  def generatePost(config: Config): Unit = {
-    val sparktaEndPoint = config.getString("sparktaEndPoint")
+  def generatePost(config: Config): String = {
+    val sparktaEndpoint = config.getString("sparktaEndpoint")
     val postTimeout = config.getLong("postTimeout")
     val policyPath = config.getString("policyPath")
 
+    val policyContent = Source.fromFile(policyPath).getLines().mkString
+
     logger.info(s">> Sparkta benchmark started.")
-    logger.info(s"   Step 1/6 Sending policy $policyPath to $sparktaEndPoint")
-    HttpUtil.post(policyPath, sparktaEndPoint)
+    logger.info(s"   Step 1/6 Sending policy $policyPath to $sparktaEndpoint")
+
+    val policyId = createPolicy(policyContent, s"$sparktaEndpoint")
 
     logger.info(s"   Step 2/6 Waiting $postTimeout milliseconds to run the policy.")
     Thread.sleep(postTimeout)
+
+    policyId
   }
 
   /**

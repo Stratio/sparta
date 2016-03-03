@@ -11,6 +11,7 @@ Feature: Test policy with Socket input and Cassandra output
     # Add the policy
     When I send a 'POST' request to '/policy' based on 'schemas/policies/iSocketoCassandra.conf' as 'json' with:
       | id | DELETE | N/A |
+      | checkpointPath | UPDATE | /tmp/checkpoint |
       | input.configuration.hostname | UPDATE | @{IP.${IFACE}} |
       | input.configuration.port | UPDATE | 10666 |
       | outputs[0].configuration.connectionHost | UPDATE | ${CASSANDRA_HOST} |

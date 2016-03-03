@@ -17,28 +17,85 @@
 package com.stratio.benchmark.generator.utils
 
 import org.apache.http.HttpStatus
-import org.apache.http.client.methods.HttpPost
+import org.apache.http.client.methods.{HttpDelete, HttpGet, HttpPost, HttpPut}
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClientBuilder
+import org.apache.http.util.EntityUtils
+import org.apache.log4j.Logger
+import org.json4s.DefaultFormats
+import org.json4s.native.JsonMethods._
 
 import scala.io.Source
 
-object HttpUtil   {
+trait HttpUtil   {
+
+  private val logger = Logger.getLogger(this.getClass)
 
   /**
    * Given a policy it makes an http request to start it on Sparkta.
-   * @param  policyPath with the path of the policy.
-   * @param  endPoint to perform the post.
+   * @param  policyContent with the policy in string format.
+   * @param  endpoint to perform the post.
    */
-  def post(policyPath: String, endPoint: String): Unit = {
-    val policyContent = Source.fromFile(policyPath).getLines().mkString
+  def createPolicy(policyContent: String, endpoint: String)(implicit defaultFormats: DefaultFormats): String = {
+
+    val policyName = (parse(policyContent) \ "name").extract[String]
+
+    // If the policy exists when it launches the benchmark, it should stop and delete it.
+    getPolicyId(policyName, endpoint) match {
+      case Some(id) =>
+        stopPolicy(id, endpoint)
+        deletePolicy(id, endpoint)
+      case None => logger.debug(s"No policy with name $policyName exists in Sparta yet.")
+    }
+
     val client = HttpClientBuilder.create().build()
-    val post = new HttpPost(endPoint)
+    val post = new HttpPost(s"$endpoint/policyContext")
     post.setHeader("Content-type", "application/json")
     post.setEntity(new StringEntity(policyContent))
     val response = client.execute(post)
 
    if(response.getStatusLine.getStatusCode != HttpStatus.SC_OK)
      throw new IllegalStateException(s"Sparkta status code is not OK: ${response.getStatusLine.getStatusCode}")
+   else {
+     val entity = response.getEntity
+     val policyId = (parse(EntityUtils.toString(entity)) \ "policyId").extract[String]
+     policyId
+   }
+  }
+
+  def getPolicyId(name: String, endpoint: String)(implicit defaultFormats: DefaultFormats): Option[String] = {
+    val client = HttpClientBuilder.create().build()
+    val get = new HttpGet(s"$endpoint/policy/findByName/$name")
+
+    val response = client.execute(get)
+
+    response.getStatusLine.getStatusCode match {
+      case HttpStatus.SC_OK =>
+        Option((parse(EntityUtils.toString(response.getEntity)) \ "id").extract[String])
+      case _ => None
+    }
+  }
+
+  def stopPolicy(id: String, endpoint: String): Unit = {
+    val client = HttpClientBuilder.create().build()
+    val put = new HttpPut(s"$endpoint/policyContext")
+    put.setHeader("Content-Type", "application/json")
+    val entity = new StringEntity(s"""{"id":"$id", "status":"Stopping"}""")
+    put.setEntity(entity)
+    val response = client.execute(put)
+
+    if(response.getStatusLine.getStatusCode != HttpStatus.SC_CREATED) {
+      logger.info(Source.fromInputStream(response.getEntity.getContent).mkString(""))
+      logger.info(s"Sparkta status code is not OK: ${response.getStatusLine.getStatusCode}")
+    }
+  }
+
+  def deletePolicy(id: String, endpoint: String): Unit = {
+    val client = HttpClientBuilder.create().build()
+    val delete = new HttpDelete(s"$endpoint/policy/$id")
+    val response = client.execute(delete)
+
+    if(response.getStatusLine.getStatusCode != HttpStatus.SC_OK)
+      logger.info(s"Sparkta status code is not OK: ${response.getStatusLine.getStatusCode}")
   }
 }
