@@ -17,7 +17,6 @@
       trigger.name = "";
       trigger.sql = "";
       trigger.outputs = [];
-      trigger.overLast = "";
       trigger.primaryKey = [];
       delete trigger.configuration;
       error.text = "";

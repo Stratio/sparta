@@ -32,8 +32,8 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
       value: "output3"
     }, {label: "output4", value: "output4"}, {label: "output5", value: "output5"}];
 
-    outputServiceMock = jasmine.createSpyObj('OutputService', ['generateOutputList']);
-    outputServiceMock.generateOutputList.and.callFake(function () {
+    outputServiceMock = jasmine.createSpyObj('OutputService', ['generateOutputNameList']);
+    outputServiceMock.generateOutputNameList.and.callFake(function () {
       var defer = $q.defer();
       defer.resolve(fakeOutputs);
 
@@ -49,8 +49,7 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
       return fakePolicyTemplate;
     });
 
-    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['isLastTrigger', 'isNewTrigger', 'addTrigger', 'removeTrigger', 'disableTriggerCreationPanel', 'generateOutputList', 'getSqlSourceItems', 'isEnabledHelpForSql']);
-    triggerServiceMock.generateOutputList.and.callFake(resolvedPromise);
+    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['isLastTrigger', 'isNewTrigger', 'addTrigger', 'removeTrigger', 'disableTriggerCreationPanel',  'getSqlSourceItems', 'isEnabledHelpForSql']);
 
     triggerModelFactoryMock = jasmine.createSpyObj('TriggerFactory', ['getTrigger', 'getError', 'getTriggerInputs', 'getContext', 'setError', 'resetTrigger', 'updateTriggerInputs', 'setError']);
     triggerModelFactoryMock.getTrigger.and.returnValue(fakeTrigger);

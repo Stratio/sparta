@@ -14,6 +14,7 @@
 
     function init(template, nameIndex, position) {
       setPosition(position);
+      error.text = "";
       cube.name = template.defaultName + (nameIndex + 1);
       cube.dimensions = [];
       cube.operators = [];
@@ -22,7 +23,9 @@
       cube.writer = {
         outputs: []
       };
-      error.text = "";
+      delete cube['writer.fixedMeasure'];
+      delete cube['writer.isAutoCalculatedId'];
+      delete cube['writer.dateType'];
     }
 
     function resetCube(template, nameIndex, position) {
