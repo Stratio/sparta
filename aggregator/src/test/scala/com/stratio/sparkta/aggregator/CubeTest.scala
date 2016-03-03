@@ -64,26 +64,31 @@ class CubeTest extends TestSuiteBase {
 
     testOperation(getInput, cube.aggregate, getOutput, PreserverOrder)
 
-    def getInput: Seq[Seq[(DimensionValuesTime, Row)]] = Seq(Seq(
+    def getInput: Seq[Seq[(DimensionValuesTime, InputFields)]] = Seq(Seq(
       (DimensionValuesTime("testCube",
         Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar")),
-        timeConfig), Row(4)),
+        timeConfig), InputFields(Row(4), 1)),
 
       (DimensionValuesTime("testCube",
-        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar")), timeConfig), Row(3)),
+        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar")), timeConfig),
+        InputFields(Row(3), 1)),
 
       (DimensionValuesTime("testCube",
-        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "foo")), timeConfig), Row(3))),
+        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "foo")), timeConfig),
+        InputFields(Row(3), 1))),
 
       Seq(
         (DimensionValuesTime("testCube",
-          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar")), timeConfig), Row(4)),
+          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar")), timeConfig),
+          InputFields(Row(4), 1)),
 
         (DimensionValuesTime("testCube",
-          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar")), timeConfig), Row(3)),
+          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar")), timeConfig),
+          InputFields(Row(3), 1)),
 
         (DimensionValuesTime("testCube",
-          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "foo")), timeConfig), Row(3))))
+          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "foo")), timeConfig),
+          InputFields(Row(3), 1))))
 
     def getOutput: Seq[Seq[(DimensionValuesTime, MeasuresValues)]] = Seq(
       Seq(
@@ -131,25 +136,25 @@ class CubeTest extends TestSuiteBase {
 
     testOperation(getInput, cube.aggregate, getOutput, PreserverOrder)
 
-    def getInput: Seq[Seq[(DimensionValuesTime, Row)]] = Seq(Seq(
+    def getInput: Seq[Seq[(DimensionValuesTime, InputFields)]] = Seq(Seq(
       (DimensionValuesTime("testCube",
-        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar"))), Row(4)),
+        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar"))), InputFields(Row(4), 1)),
 
       (DimensionValuesTime("testCube",
-        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar"))), Row(3)),
+        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar"))), InputFields(Row(3), 1)),
 
       (DimensionValuesTime("testCube",
-        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "foo"))), Row(3))),
+        Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "foo"))), InputFields(Row(3), 1))),
 
       Seq(
         (DimensionValuesTime("testCube",
-          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar"))), Row(4)),
+          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar"))), InputFields(Row(4), 1)),
 
         (DimensionValuesTime("testCube",
-          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar"))), Row(3)),
+          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "bar"))), InputFields(Row(3), 1)),
 
         (DimensionValuesTime("testCube",
-          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "foo"))), Row(3))))
+          Seq(DimensionValue(Dimension("dim1", "foo", "identity", defaultDimension), "foo"))), InputFields(Row(3), 1))))
 
     def getOutput: Seq[Seq[(DimensionValuesTime, MeasuresValues)]] = Seq(
       Seq(
