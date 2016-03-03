@@ -161,6 +161,21 @@
             <version>${spray.test.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.stratio.spray.auth</groupId>
+            <artifactId>spray-oauth2-client_2.10</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.spray</groupId>
+            <artifactId>spray-client_2.10</artifactId>
+            <version>${spray.version}</version>
+        </dependency>
+
+
+
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming_${scala.binary.version}</artifactId>
