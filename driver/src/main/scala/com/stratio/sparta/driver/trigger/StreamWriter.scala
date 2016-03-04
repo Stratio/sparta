@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.driver.trigger
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.{Output, TableSchema}
+import com.stratio.sparta.serving.core.helpers.OperationsHelper
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{Row, SQLContext}
-import org.apache.spark.streaming.Seconds
+import org.apache.spark.streaming.Milliseconds
 import org.apache.spark.streaming.dstream.DStream
 import StreamWriter._
 
@@ -34,7 +36,8 @@ case class StreamWriter(triggers: Seq[Trigger],
 
   def write(streamData: DStream[Row]): Unit = {
     val dStream = options.overLast.fold(streamData) { over =>
-      streamData.window(Seconds(over.toLong), Seconds(options.sparkStreamingWindow))
+      streamData.window(Milliseconds(OperationsHelper.parseValueToMilliSeconds(over)),
+        Milliseconds(options.sparkStreamingWindow))
     }
 
     dStream.foreachRDD(rdd => {
