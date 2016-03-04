@@ -17,8 +17,8 @@
 package com.stratio.sparkta.driver.test.helper
 
 import java.io.{Serializable => JSerializable}
-
-import com.stratio.sparkta.aggregator.Cube
+import com.stratio.sparkta.driver.cube.Cube
+import com.stratio.sparkta.driver.trigger.Trigger
 import com.stratio.sparkta.driver.helper.SchemaHelper
 import com.stratio.sparkta.sdk._
 import com.stratio.sparkta.serving.core.models._
@@ -33,10 +33,56 @@ import org.scalatest.mock.MockitoSugar
 class SchemaHelperTest extends FlatSpec with ShouldMatchers
 with MockitoSugar {
 
+  trait CommonValues {
+
+    val initSchema = StructType(Array(
+      StructField("field1", LongType, false),
+      StructField("field2", IntegerType, false),
+      StructField("field3", StringType, false),
+      StructField("field4", StringType, false)))
+
+    val dim1: Dimension = Dimension("dim1", "field1", "", new DimensionTypeTest)
+    val dim2: Dimension = Dimension("dim2", "field2", "", new DimensionTypeTest)
+    val dimensionTime: Dimension = Dimension("minute", "field3", "minute", new TimeDimensionTypeTest)
+    val dimId: Dimension = Dimension("id", "field2", "", new DimensionTypeTest)
+    val op1: Operator = new OperatorTest("op1", initSchema, Map())
+    val dimension1Model = DimensionModel(
+      "dim1", "field1", DimensionType.IdentityName, DimensionType.DefaultDimensionClass, configuration = Some(Map())
+    )
+    val dimension2Model =
+      DimensionModel("dim2", "field2", DimensionType.IdentityName, DimensionType.DefaultDimensionClass)
+    val dimensionTimeModel =
+      DimensionModel("minute", "field3", DimensionType.TimestampName, DimensionType.TimestampName, Option("10m"))
+    val dimensionId = DimensionModel("id", "field2", DimensionType.IdentityName, DimensionType.DefaultDimensionClass)
+    val operator1Model = OperatorModel("Count", "op1", Map())
+    val output1Model = PolicyElementModel("outputName", "MongoDb", Map())
+    val checkpointModel = CheckpointModel("minute", checkpointGranularity, None, 10000)
+    val noCheckpointModel = CheckpointModel("none", checkpointGranularity, None, 10000)
+    val writerModelId = WriterModel(Seq("outputName"), None, None, Option(true))
+    val writerModelTimeDate = WriterModel(Seq("outputName"), None, Option("date"), Option(true))
+    val writerModelTimeDateAndMeasure =
+      WriterModel(Seq("outputName"), Option("measureName:1"), Option("date"), Option(true))
+    val checkpointAvailable = 60000
+    val checkpointGranularity = "minute"
+    val cubeName = "cubeTest"
+
+    val outputFieldModel1 = OutputFieldsModel("field1", Some("long"))
+    val outputFieldModel2 = OutputFieldsModel("field2", Some("int"))
+    val outputFieldModel3 = OutputFieldsModel("field3", Some("fake"))
+    val outputFieldModel4 = OutputFieldsModel("field4", Some("string"))
+    val transformationModel1 =
+      TransformationsModel("Parser", 0, Input.RawDataKey, Seq(outputFieldModel1, outputFieldModel2))
+
+    val transformationModel2 = TransformationsModel("Parser", 1, "field1", Seq(outputFieldModel3, outputFieldModel4))
+    val writerModel = WriterModel(Seq("outputName"))
+  }
+
   "SchemaHelperTest" should "return a list of schemas" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema,
-      Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)))
-    val cubeModel = CubeModel(cubeName, checkpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model))
+    val cube = Cube(cubeName, Seq(dim1, dim2, dimensionTime), Seq(op1), initSchema,
+      Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)), Seq.empty[Trigger])
+
+    val cubeModel =
+      CubeModel(cubeName, Seq(dimension1Model, dimension2Model, dimensionTimeModel), Seq(operator1Model), writerModel)
     val cubes = Seq(cube)
     val cubesModel = Seq(cubeModel)
     val tableSchema = TableSchema(
@@ -49,14 +95,14 @@ with MockitoSugar {
         StructField("op1", LongType, true))),
       Option("minute"))
 
-    val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel, Seq(output1Model))
+    val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
 
     res should be(Seq(tableSchema))
   }
 
   it should "return a list of schemas without time" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None)
-    val cubeModel = CubeModel(cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model))
+    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None, Seq.empty[Trigger])
+    val cubeModel = CubeModel(cubeName, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModel)
     val cubes = Seq(cube)
     val cubesModel = Seq(cubeModel)
     val tableSchema = TableSchema(
@@ -68,15 +114,15 @@ with MockitoSugar {
         StructField("op1", LongType, true))),
       None)
 
-    val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel, Seq(output1Model))
+    val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
 
     res should be(Seq(tableSchema))
   }
 
   it should "return a list of schemas with id" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None)
+    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None, Seq.empty[Trigger])
     val cubeModel =
-      CubeModel(cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModelId)
+      CubeModel(cubeName, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModelId)
     val cubes = Seq(cube)
     val cubesModel = Seq(cubeModel)
     val tableSchema = TableSchema(
@@ -91,15 +137,15 @@ with MockitoSugar {
       TypeOp.Timestamp,
       true)
 
-    val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel, Seq(output1Model))
+    val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
 
     res should be(Seq(tableSchema))
   }
 
   it should "return a list of schemas with field id" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dimId), Seq(op1), initSchema, None)
+    val cube = Cube(cubeName, Seq(dim1, dimId), Seq(op1), initSchema, None, Seq.empty[Trigger])
     val cubeModel =
-      CubeModel(cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModelId)
+      CubeModel(cubeName, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModelId)
     val cubes = Seq(cube)
     val cubesModel = Seq(cubeModel)
     val tableSchema = TableSchema(
@@ -113,15 +159,15 @@ with MockitoSugar {
       TypeOp.Timestamp,
       true)
 
-    val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel, Seq(output1Model))
+    val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
 
     res should be(Seq(tableSchema))
   }
 
   it should "return a list of schemas with field id but not in writer" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dimId), Seq(op1), initSchema, None)
+    val cube = Cube(cubeName, Seq(dim1, dimId), Seq(op1), initSchema, None, Seq.empty[Trigger])
     val cubeModel =
-      CubeModel(cubeName, noCheckpointModel, Seq(dimension1Model, dimension2Model), Seq(operator1Model))
+      CubeModel(cubeName, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModel)
     val cubes = Seq(cube)
     val cubesModel = Seq(cubeModel)
     val tableSchema = TableSchema(
@@ -135,20 +181,17 @@ with MockitoSugar {
       TypeOp.Timestamp,
       false)
 
-    val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel, Seq(output1Model))
+    val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
 
     res should be(Seq(tableSchema))
   }
 
   it should "return a list of schemas with field id and timeDimension with DateFormat" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema,
-        Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)))
-      val cubeModel = CubeModel(cubeName,
-        checkpointModel,
-        Seq(dimension1Model, dimension2Model),
-        Seq(operator1Model),
-        writerModelTimeDate
+      val cube = Cube(cubeName, Seq(dim1, dim2, dimensionTime), Seq(op1), initSchema,
+        Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)), Seq.empty[Trigger])
+      val cubeModel = CubeModel(
+        cubeName, Seq(dimension1Model, dimension2Model, dimensionTimeModel), Seq(operator1Model), writerModelTimeDate
       )
       val cubes = Seq(cube)
       val cubesModel = Seq(cubeModel)
@@ -165,18 +208,18 @@ with MockitoSugar {
         TypeOp.Date,
         true)
 
-      val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel, Seq(output1Model))
+      val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
 
       res should be(Seq(tableSchema))
     }
 
   it should "return a list of schemas with field id and timeDimension with DateFormat and measure" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema,
-        Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)))
-      val cubeModel = CubeModel(cubeName,
-        checkpointModel,
-        Seq(dimension1Model, dimension2Model),
+      val cube = Cube(cubeName, Seq(dim1, dim2, dimensionTime), Seq(op1), initSchema,
+        Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)), Seq.empty[Trigger])
+      val cubeModel = CubeModel(
+        cubeName,
+        Seq(dimension1Model, dimension2Model, dimensionTimeModel),
         Seq(operator1Model),
         writerModelTimeDateAndMeasure
       )
@@ -196,7 +239,7 @@ with MockitoSugar {
         TypeOp.Date,
         true)
 
-      val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel, Seq(output1Model))
+      val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
 
       res should be(Seq(tableSchema))
     }
@@ -209,8 +252,8 @@ with MockitoSugar {
       val res = SchemaHelper.getSchemasFromParsers(transformationsModel, Map())
 
       val expected = Map(
-        "parser1" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType))),
-        "parser2" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType),
+        "0" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType))),
+        "1" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType),
           StructField("field3", StringType), StructField("field4", StringType)))
       )
 
@@ -225,11 +268,11 @@ with MockitoSugar {
 
       val expected = Map(
         Input.RawDataKey -> StructType(Seq(StructField(Input.RawDataKey, StringType))),
-        "parser1" -> StructType(Seq(StructField(Input.RawDataKey, StringType),
+        "0" -> StructType(Seq(StructField(Input.RawDataKey, StringType),
           StructField("field1", LongType),
           StructField("field2", IntegerType))
         ),
-        "parser2" -> StructType(Seq(StructField(Input.RawDataKey, StringType),
+        "1" -> StructType(Seq(StructField(Input.RawDataKey, StringType),
           StructField("field1", LongType), StructField("field2", IntegerType),
           StructField("field3", StringType), StructField("field4", StringType)))
       )
@@ -290,68 +333,21 @@ with MockitoSugar {
       DimensionType.getIdentity(getTypeOperation, defaultTypeOperation)
   }
 
-  trait CommonValues {
+  class TimeDimensionTypeTest extends DimensionType {
 
-    val initSchema = StructType(Array(
-      StructField("field1", LongType, false),
-      StructField("field2", IntegerType, false),
-      StructField("field3", StringType, false),
-      StructField("field4", StringType, false)))
+    override val operationProps: Map[String, JSerializable] = Map()
 
-    val dim1: Dimension = Dimension("dim1", "field1", "", new DimensionTypeTest)
-    val dim2: Dimension = Dimension("dim2", "field2", "", new DimensionTypeTest)
-    val dimId: Dimension = Dimension("id", "field2", "", new DimensionTypeTest)
-    val op1: Operator = new OperatorTest("op1", initSchema, Map())
-    val dimension1Model = DimensionModel(
-      "dim1",
-      "field1",
-      DimensionType.IdentityName,
-      DimensionType.DefaultDimensionClass,
-      Some(Map())
-    )
-    val dimension2Model = DimensionModel(
-      "dim2",
-      "field2",
-      DimensionType.IdentityName,
-      DimensionType.DefaultDimensionClass,
-      Some(Map())
-    )
-    val dimensionId = DimensionModel(
-      "id",
-      "field2",
-      DimensionType.IdentityName,
-      DimensionType.DefaultDimensionClass,
-      Some(Map())
-    )
-    val operator1Model = OperatorModel("Count", "op1", Map())
-    val output1Model = PolicyElementModel("outputName", "MongoDb", Map())
-    val checkpointModel = CheckpointModel("minute", checkpointGranularity, None, 10000)
-    val noCheckpointModel = CheckpointModel("none", checkpointGranularity, None, 10000)
-    val writerModelId = Option(WriterModel(Seq("outputName"), None, None, Option(true)))
-    val writerModelTimeDate = Option(WriterModel(Seq("outputName"), None, Option("date"), Option(true)))
-    val writerModelTimeDateAndMeasure =
-      Option(WriterModel(Seq("outputName"), Option("measureName:1"), Option("date"), Option(true)))
-    val checkpointAvailable = 60000
-    val checkpointGranularity = "minute"
-    val cubeName = "cubeTest"
+    override val properties: Map[String, JSerializable] = Map()
 
-    val outputFieldModel1 = OutputFieldsModel("field1", Some("long"))
-    val outputFieldModel2 = OutputFieldsModel("field2", Some("int"))
-    val outputFieldModel3 = OutputFieldsModel("field3", Some("fake"))
-    val outputFieldModel4 = OutputFieldsModel("field4", Some("string"))
-    val transformationModel1 = TransformationsModel(
-      "parser1",
-      "Parser",
-      0,
-      Input.RawDataKey,
-      Seq(outputFieldModel1, outputFieldModel2))
+    override val defaultTypeOperation = TypeOp.Timestamp
 
-    val transformationModel2 = TransformationsModel(
-      "parser2",
-      "Parser",
-      1,
-      "field1",
-      Seq(outputFieldModel3, outputFieldModel4))
+    override def precisionValue(keyName: String, value: Any): (Precision, Any) = {
+      val precision = DimensionType.getIdentity(getTypeOperation, defaultTypeOperation)
+      (precision, TypeOp.transformValueByTypeOp(precision.typeOp, value))
+    }
+
+    override def precision(keyName: String): Precision =
+      DimensionType.getIdentity(getTypeOperation, defaultTypeOperation)
   }
 
 }

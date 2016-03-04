@@ -14,15 +14,11 @@
 </head>
 
 <body data-ng-app="webApp" class="stratio-app stratio-app--sparkta">
-<st-dashboard
-  module-logo="images/app-logo.png"
-  module-name="Stratio Sparkta">
 
-  <div st-menu-tab data-title="dashboard" data-route="dashboard.inputs" data-sref="dashboard.inputs"
-       data-icon="icon-grid" data-visible="true" data-qaref="app-main-menu-dashboard"></div>
-  <div st-menu-tab data-title="settings" data-route="settings" data-sref="settings" data-icon="icon-cog"
-       data-visible="false" data-qaref="app-main-menu-settings"></div>
-</st-dashboard>
+<div id="stratio-base">
+    <header class="stratio-base-header" ui-view="header"></header>
+    <div id="base-content-wrapper" data-ng-class="containerClass" ui-view="content"></div>
+</div>
 
 <!-- build:js(.) scripts/vendors.js -->
 <script src="node_modules/jquery/dist/jquery.js"></script>
@@ -30,6 +26,7 @@
 <script src="node_modules/angular-resource/angular-resource.js"></script>
 <script src="node_modules/angular-route/angular-route.js"></script>
 <script src="node_modules/angular-ui-router/release/angular-ui-router.js"></script>
+<script src="node_modules/angular-animate/angular-animate.js"></script>
 <!-- endbuild -->
 
 <!-- build:js({.tmp,src}) scripts/scripts.js -->
@@ -47,10 +44,9 @@
 <script src="scripts/controllers/inputs/duplicate-input.js"></script>
 <script src="scripts/controllers/inputs/delete-input.js"></script>
 <script src="scripts/controllers/policies/new-policy.js"></script>
-<script src="scripts/controllers/policies/policy-description.js"></script>
 <script src="scripts/controllers/policies/policy-inputs.js"></script>
-<script src="scripts/controllers/policies/policy-outputs.js"></script>
 <script src="scripts/controllers/policies/policy-finish.js"></script>
+<script src="scripts/controllers/policies/policy-wizard-header.js"></script>
 <script src="scripts/controllers/policies/modal/delete-policy-modal.js"></script>
 <script src="scripts/controllers/policies/modal/new-dimension-modal.js"></script>
 <script src="scripts/controllers/policies/modal/new-operator-modal.js"></script>
@@ -60,6 +56,8 @@
 <script src="scripts/controllers/policies/policy-model-accordion.js"></script>
 <script src="scripts/controllers/policies/edit-policy.js"></script>
 <script src="scripts/controllers/modal/confirm-modal.js"></script>
+<script src="scripts/controllers/policies/modal/policy-creation-modal.js"></script>
+<script src="scripts/controllers/policies/trigger.js"></script>
 <!-- Directives ----------------------------------------- -->
 <script src="scripts/vendors/angular-translate.js"></script>
 <script src="scripts/vendors/ui.stratio.grid.js"></script>
@@ -68,11 +66,12 @@
 <script src="scripts/vendors/ui-bootstrap-custom-tpls-0.13.4.min.js"></script>
 
 <!-- Form directives -->
-<script src="stratio-ui/script/directives/forms/datasource-form-field-directive.js"></script>
+<script src="stratio-ui/script/directives/forms/form-field-directive.js"></script>
 <script src="stratio-ui/script/directives/forms/form-field-input-directive.js"></script>
 <script src="stratio-ui/script/directives/forms/form-field-select-directive.js"></script>
 <script src="stratio-ui/script/directives/forms/form-field-check-directive.js"></script>
 <script src="stratio-ui/script/directives/forms/form-field-list-directive.js"></script>
+<script src="stratio-ui/script/directives/forms/form-field-textarea-directive.js"></script>
 <!-- HTML component directives -->
 <script src="scripts/directives/c-step-directive.js"></script>
 <script src="scripts/directives/c-step-progress-bar-directive.js"></script>
@@ -83,13 +82,16 @@
 <script src="scripts/directives/c-output-field-list-directive.js"></script>
 <script src="scripts/directives/c-add-element-directive.js"></script>
 <script src="scripts/directives/c-json-text-directive.js"></script>
+<script src="scripts/directives/c-tag-list-directive.js"></script>
+<script src="scripts/directives/c-accordion-directive.js"></script>
 <!-- Factories ----------------------------------- -->
-<script src="scripts/services/fragment-factory.js"></script>
-<script src="scripts/services/template-factory.js"></script>
-<script src="scripts/services/policy-factory.js"></script>
-<script src="scripts/services/policy-model-factory.js"></script>
-<script src="scripts/services/model-factory.js"></script>
-<script src="scripts/services/cube-model-factory.js"></script>
+<script src="scripts/factories/fragment-factory.js"></script>
+<script src="scripts/factories/template-factory.js"></script>
+<script src="scripts/factories/policy-factory.js"></script>
+<script src="scripts/factories/policy-model-factory.js"></script>
+<script src="scripts/factories/model-factory.js"></script>
+<script src="scripts/factories/cube-model-factory.js"></script>
+<script src="scripts/factories/trigger-model-factory.js"></script>
 <!-- Services ----------------------------------- -->
 <script src="scripts/services/api/api-policy-service.js"></script>
 <script src="scripts/services/api/api-template-service.js"></script>
@@ -97,11 +99,14 @@
 <script src="scripts/services/accordion-status-service.js"></script>
 <script src="scripts/services/cube-service.js"></script>
 <script src="scripts/services/model-service.js"></script>
+<script src="scripts/services/trigger-service.js"></script>
 <script src="scripts/services/utils-service.js"></script>
 <script src="scripts/services/modal-service.js"></script>
+<script src="scripts/services/output-service.js"></script>
 <!-- Constants ----------------------------------- -->
 <script src="scripts/constants/api-config-settings.js"></script>
 <script src="scripts/constants/fragment-constants.js"></script>
+<script src="scripts/constants/trigger-constants.js"></script>
 
 <!-- endbuild -->
 

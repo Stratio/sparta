@@ -49,13 +49,6 @@
                   "unique": "/unique"
                 }
               }
-            },
-            {
-              "removeFields": {
-                "blacklist": [
-                  "literal:_attachment_body"
-                ]
-              }
             }
           ]
         }
@@ -76,6 +69,10 @@
   "cubes": [
     {
       "name": "hashtagfilter",
+      "writer": {
+        "outputs" : ["out-mongo"],
+        "isAutoCalculatedId": true
+      },
       "dimensions": [
         {
           "name": "location",
@@ -94,6 +91,13 @@
           "field": "hashtag",
           "precision": "identity",
           "type": "Default"
+        },
+        {
+          "name": "minute",
+          "field": "time",
+          "type": "DateTime",
+          "precision": "minute",
+          "computeLast": "10m"
         }
       ],
       "operators": [

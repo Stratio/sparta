@@ -47,13 +47,6 @@
                   "retweets": "/retweetCount"
                 }
               }
-            },
-            {
-              "removeFields": {
-                "blacklist": [
-                  "literal:_attachment_body"
-                ]
-              }
             }
           ]
         }
@@ -63,11 +56,8 @@
   "cubes": [
     {
       "name": "testCube",
-      "checkpointConfig": {
-        "timeDimension": "minute",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
+      "writer": {
+        "outputs" : ["out-cassandra"]
       },
       "dimensions": [
         {

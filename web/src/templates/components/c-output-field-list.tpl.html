@@ -1,26 +1,33 @@
 <div class="{{formControlClass}}">
-  <span class="c-icon-label c-col c-col--12">
-  	<i class="c-icon-label__icon c-icon c-icon--is-clickable c-icon--call-to-action icon-info1" tooltip='{{help}}'
-       tooltip-class="t-tooltip" tooltip-trigger="click" data-qa="{{helpQa}}"></i>
-  	<label class="{{labelControlClass}}" data-ng-class="{'c-label--required': required, 'c-label': !required}">{{labelControlText}}:</label>
+  <span class="c-icon-label c-col c-col--12" data-ng-if="!editionMode">
+    <label class="c-icon-label__text c-label">
+      {{label}}
+    </label>
   </span>
   <div data-ng-if="inputs.length > 0" class="c-form-group c-form-group--full-width">
     <span data-ng-repeat="input in inputs track by $index" data-ng-model="input" data-ng-value="(input.name)"
           class="c-panel--x-small" type="{{inputType}}">
-    	<i class=" c-panel__close-icon c-icon--to-right c-icon c-icon--is-clickable icon-cross"
-         data-ng-click="deleteInput($index)" data-ng-if="enableDelete" data-qa="{{qa}}-{{$index}}-remove"></i>
-      <label class="c-col c-col--12 c-label c-panel--x-small__title" data-qa="{{qa}}-{{$index}}">{{input.name}}</label>
-    	 <form-field-select select-class="c-combobox--full-width"
-                          data-form="vm.form" data-st-name="policy-model-output-list-{{$index}}-type"
-                          data-model="input.type"
-                          data-options="outputTypes"
-                          data-field="label"
-                          data-label="{{'_TYPE_' | translate}}"
-                          data-default-value="outputTypes[0].value"
-                          data-help=""
-                          data-required="true"
-                          data-qa="policy-model-output-list-{{$index}}-type">
-       </form-field-select>
+    	<div class="c-col c-col--12 c-panel--x-small__container c-panel--x-small__container__title">
+        <i class="c-panel__close-icon c-icon--to-right c-icon c-icon--is-clickable icon-cross"
+           data-ng-click="deleteInput($index)" data-qa="{{qa}}-{{$index}}-remove" data-ng-if="editionMode"></i>
+        <label class="c-label" data-qa="{{qa}}-{{$index}}">
+          {{input.name}}
+        </label>
+      </div>
+      <div class="c-col c-col--12 c-panel--x-small__container">
+      	<form-field-select select-class="c-combobox--full-width"
+          data-form="vm.form"
+          data-st-name="policy-model-output-list-{{$index}}-type"
+          data-model="input.type"
+          data-options="outputTypes"
+          data-field="label"
+          data-defaultvalue="outputTypes[0].value"
+          data-required="true"
+          data-hide-message="true"
+          data-disabled="!editionMode"
+          data-qa="policy-model-output-list-{{$index}}-type">
+        </form-field-select>
+      </div>
     </span>
   </div>
 </div>

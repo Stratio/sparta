@@ -24,7 +24,6 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
 
-  val SparkStreamingWindow = 2000
   val storageLevel = Some("MEMORY_AND_DISK_SER_2")
 
   feature("A policy that contains fragments must parse these fragments and join them to input/outputs depending of " +
@@ -34,16 +33,17 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
       Given("a policy with an input, an output and a fragment with an input")
       val checkpointDir = "checkpoint"
 
-      val ap = new AggregationPoliciesModel(
-        None,
-        None,
+      val ap = AggregationPoliciesModel(
+        id = None,
+        version = None,
         storageLevel,
         "policy-test",
         "policy description",
-        sparkStreamingWindow = SparkStreamingWindow,
+        sparkStreamingWindow = AggregationPoliciesModel.sparkStreamingWindow,
         checkpointDir,
         new RawDataModel(),
         transformations = Seq(),
+        streamTriggers = Seq(),
         cubes = Seq(),
         input = None,
         outputs = Seq(
@@ -56,7 +56,7 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
             shortDescription = "short description",
             element = PolicyElementModel("inputF", "input", Map())),
           FragmentElementModel(
-            name = "fragment1",
+            name = "fragment2",
             fragmentType = "output",
             description = "description",
             shortDescription = "short description",
@@ -69,11 +69,11 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
 
       Then("outputs must have the existing outputs and the parsed input fragment and the first input")
 
-      result.input should equal(Some(PolicyElementModel("inputF", "input", Map())))
+      result.input should equal(Some(PolicyElementModel("fragment1", "input", Map())))
 
       result.outputs.toSet should equal(Seq(
         PolicyElementModel("output1", "output", Map()),
-        PolicyElementModel("outputF", "output", Map())).toSet
+        PolicyElementModel("fragment2", "output", Map())).toSet
       )
     }
   }
@@ -84,15 +84,16 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
     val checkpointDir = "checkpoint"
 
     val ap = new AggregationPoliciesModel(
-      None,
-      None,
+      id = None,
+      version = None,
       storageLevel,
       "policy-test",
       "policy description",
-      sparkStreamingWindow = SparkStreamingWindow,
+      sparkStreamingWindow = AggregationPoliciesModel.sparkStreamingWindow,
       checkpointDir,
       new RawDataModel(),
       transformations = Seq(),
+      streamTriggers = Seq(),
       cubes = Seq(),
       input = Some(PolicyElementModel("input1", "input", Map())),
       outputs = Seq(
@@ -127,15 +128,16 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
     val checkpointDir = "checkpoint"
 
     val ap = new AggregationPoliciesModel(
-      None,
-      None,
+      id = None,
+      version = None,
       storageLevel,
       "policy-test",
       "policy description",
-      sparkStreamingWindow = SparkStreamingWindow,
+      sparkStreamingWindow = AggregationPoliciesModel.sparkStreamingWindow,
       checkpointDir,
       new RawDataModel(),
       transformations = Seq(),
+      streamTriggers = Seq(),
       cubes = Seq(),
       input = Some(PolicyElementModel("input1", "input", Map())),
       outputs = Seq(),

@@ -34,7 +34,7 @@
         "propertyName": "_KEYSPACE_",
         "propertyType": "text",
         "regexp": "",
-        "default": "Sparkta",
+        "default": "sparkta",
         "required": true,
         "tooltip": "Keyspace name.",
         "qa": "fragment-details-cassandra-keyspace"
@@ -44,7 +44,7 @@
         "propertyName": "_CLUSTER_",
         "propertyType": "text",
         "regexp": "",
-        "default": "Sparkta",
+        "default": "sparkta",
         "required": true,
         "tooltip": "Cluster name.",
         "qa": "fragment-details-cassandra-cluster"
@@ -163,7 +163,7 @@
       },
       {
         "propertyId": "sparkProperties",
-        "propertyName": "",
+        "propertyName": "_SPARK_PROPERTIES_",
         "propertyType": "list",
         "default": "",
         "required": false,
@@ -255,7 +255,7 @@
     "properties": [
       {
         "propertyId": "nodes",
-        "propertyName": "",
+        "propertyName": "_NODES_",
         "propertyType": "list",
         "default": "",
         "required": true,
@@ -333,7 +333,7 @@
     "properties": [
       {
         "propertyId": "hosts",
-        "propertyName": "",
+        "propertyName": "_HOSTS_",
         "propertyType": "list",
         "default": "",
         "required": true,
@@ -550,7 +550,7 @@
   "properties": [
     {
       "propertyId": "metadata.broker.list",
-      "propertyName": "",
+      "propertyName": "_METADATA_BROKER_LIST_",
       "propertyType": "list",
       "regexp": "",
       "default": "",

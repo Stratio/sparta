@@ -77,11 +77,9 @@
   "cubes": [
     {
       "name": "extra1",
-      "checkpointConfig": {
-        "timeDimension": "minute",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
+      "writer": {
+        "outputs" : ["out-mongo"],
+        "isAutoCalculatedId": true
       },
       "dimensions": [
         {
@@ -92,7 +90,8 @@
           "field": "timestamp",
           "precision": "minute",
           "type": "DateTime",
-          "name": "minute"
+          "name": "minute",
+          "computeLast": "10m"
         }
       ],
       "operators": [

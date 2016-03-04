@@ -16,9 +16,10 @@
 
 package com.stratio.sparkta.driver.helper
 
-import com.stratio.sparkta.aggregator.{Cube, CubeWriter}
+import com.stratio.sparkta.driver.cube.{Cube, CubeWriter}
 import com.stratio.sparkta.sdk.TypeOp.TypeOp
 import com.stratio.sparkta.sdk._
+import com.stratio.sparkta.serving.core.helpers.OperationsHelper
 import com.stratio.sparkta.serving.core.models._
 import org.apache.spark.sql.types._
 
@@ -95,9 +96,9 @@ object SchemaHelper {
         val fields = schemas.values.flatMap(structType => structType.fields) ++ schema.map(_._2)
 
         if (transformationsModel.size == 1)
-          schemas ++ Map(transformationModel.name -> StructType(fields.toSeq))
+          schemas ++ Map(transformationModel.order.toString -> StructType(fields.toSeq))
         else schemas ++ searchSchemasFromParsers(transformationsModel.drop(1),
-          Map(transformationModel.name -> StructType(fields.toSeq))
+          Map(transformationModel.order.toString -> StructType(fields.toSeq))
         )
       case None => schemas
     }
@@ -107,52 +108,44 @@ object SchemaHelper {
     StructType(schemas.values.last.filter(_.name != Input.RawDataKey))
 
   def getSchemasFromCubes(cubes: Seq[Cube],
-                          cubeModels: Seq[CubeModel],
-                          outputModels: Seq[PolicyElementModel]): Seq[TableSchema] = {
+                          cubeModels: Seq[CubeModel]): Seq[TableSchema] = {
     for {
       (cube, cubeModel) <- cubes.zip(cubeModels)
       measuresMerged = (measuresFields(cube.operators) ++ getFixedMeasure(cubeModel.writer)).sortWith(_.name < _.name)
-      timeDimension = getExpiringData(cubeModel.checkpointConfig).map(config => config.timeDimension)
+      timeDimension = getExpiringData(cubeModel).map(config => config.timeDimension)
       dimensions = filterDimensionsByTime(cube.dimensions.sorted, timeDimension)
       (dimensionsWithId, isAutoCalculatedId) = dimensionFieldsWithId(dimensions, cubeModel.writer)
-      dateType = Output.getTimeTypeFromString(cubeModel.writer.fold(DefaultTimeStampTypeString) { options =>
-        options.dateType.getOrElse(DefaultTimeStampTypeString)
-      })
+      dateType = getTimeTypeFromString(cubeModel.writer.dateType.getOrElse(DefaultTimeStampTypeString))
       structFields = dimensionsWithId ++ timeDimensionFieldType(timeDimension, dateType) ++ measuresMerged
       schema = StructType(structFields)
-      outputs = outputsFromOptions(cubeModel, outputModels.map(_.name))
+      outputs = cubeModel.writer.outputs
     } yield TableSchema(outputs, cube.name, schema, timeDimension, dateType, isAutoCalculatedId)
   }
 
-  def getExpiringData(checkpointModel: CheckpointModel): Option[ExpiringDataConfig] = {
-    val timeName = if (checkpointModel.timeDimension.isEmpty)
-      checkpointModel.granularity
-    else checkpointModel.timeDimension
+  def getExpiringData(cubeModel: CubeModel): Option[ExpiringDataConfig] = {
+    val timeDimension = cubeModel.dimensions
+      .find(dimensionModel => dimensionModel.computeLast.isDefined)
 
-    timeName.toLowerCase() match {
-      case "none" => None
-      case _ => Option(ExpiringDataConfig(timeName, checkpointModel.granularity, checkpointModel.timeAvailability))
+    timeDimension match {
+      case Some(dimensionModelValue) =>
+        Option(ExpiringDataConfig(
+          dimensionModelValue.name,
+          dimensionModelValue.precision,
+          OperationsHelper.parseValueToMilliSeconds(dimensionModelValue.computeLast.get)))
+      case _ => None
     }
   }
 
   // XXX Private methods.
 
-  private def outputsFromOptions(cubeModel: CubeModel, outputsNames: Seq[String]): Seq[String] =
-    cubeModel.writer.fold(outputsNames) { writerModel =>
-      if (writerModel.outputs.isEmpty) outputsNames else writerModel.outputs
-    }
-
   private def dimensionFieldsWithId(dimensions: Seq[Dimension],
-                                    writerModel: Option[WriterModel]): (Seq[StructField], Boolean) = {
+                                    writerModel: WriterModel): (Seq[StructField], Boolean) = {
     val dimensionFields = dimensionsFields(dimensions)
 
-    writerModel match {
-      case Some(writer) => writer.isAutoCalculatedId.fold((dimensionFields, false)) { autoId =>
-        if (autoId)
-          (Seq(Output.defaultStringField(Output.Id, NotNullable)) ++ dimensionFields.filter(_.name != Output.Id), true)
-        else (dimensionFields, false)
-      }
-      case None => (dimensionFields, false)
+    writerModel.isAutoCalculatedId.fold((dimensionFields, false)) { autoId =>
+      if (autoId)
+        (Seq(Output.defaultStringField(Output.Id, NotNullable)) ++ dimensionFields.filter(_.name != Output.Id), true)
+      else (dimensionFields, false)
     }
   }
 
@@ -169,6 +162,15 @@ object SchemaHelper {
     }
   }
 
+  def getTimeTypeFromString(timeType: String): TypeOp =
+    timeType.toLowerCase match {
+      case "timestamp" => TypeOp.Timestamp
+      case "date" => TypeOp.Date
+      case "datetime" => TypeOp.DateTime
+      case "long" => TypeOp.Long
+      case _ => TypeOp.String
+    }
+
   private def measuresFields(operators: Seq[Operator]): Seq[StructField] =
     operators.map(operator => StructField(operator.key, rowTypeFromOption(operator.returnType), Nullable))
 
@@ -177,13 +179,33 @@ object SchemaHelper {
 
   private def rowTypeFromOption(optionType: TypeOp): DataType = mapTypes.getOrElse(optionType, StringType)
 
-  private def getFixedMeasure(writerModel: Option[WriterModel]): Seq[StructField] =
-    writerModel match {
-      case Some(writer) => writer.fixedMeasure.fold(Seq.empty[StructField]) { fixedMeasure =>
-        fixedMeasure.split(CubeWriter.FixedMeasureSeparator).headOption.fold(Seq.empty[StructField]) { measureName =>
-          Seq(Output.defaultStringField(measureName, Nullable))
-        }
+  private def getFixedMeasure(writerModel: WriterModel): Seq[StructField] =
+    writerModel.fixedMeasure.fold(Seq.empty[StructField]) { fixedMeasure =>
+      fixedMeasure.split(CubeWriter.FixedMeasureSeparator).headOption.fold(Seq.empty[StructField]) { measureName =>
+        Seq(Output.defaultStringField(measureName, Nullable))
       }
-      case None => Seq.empty[StructField]
     }
+
+  def getSchemasFromTriggers(triggers: Seq[TriggerModel], outputModels: Seq[PolicyElementModel]): Seq[TableSchema] = {
+    for {
+      trigger <- triggers
+      structFields = trigger.primaryKey.map(field => Output.defaultStringField(field, false))
+      schema = StructType(structFields)
+    } yield TableSchema(
+      outputs = trigger.outputs,
+      tableName = trigger.name,
+      schema = schema,
+      timeDimension = None,
+      dateType = TypeOp.Timestamp,
+      isAutoCalculatedId = false
+    )
+  }
+
+  def getSchemasFromCubeTrigger(cubeModels: Seq[CubeModel], outputModels: Seq[PolicyElementModel]): Seq[TableSchema] = {
+    val tableSchemas = for {
+      cube <- cubeModels
+      tableSchemas = getSchemasFromTriggers(cube.triggers, outputModels)
+    } yield tableSchemas
+    tableSchemas.flatten
+  }
 }

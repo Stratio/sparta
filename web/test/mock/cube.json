@@ -15,5 +15,7 @@
     "interval": "fake interval",
     "timeAvailability": "fake timeAvailability",
     "granularity": "fake granularity"
-  }
+  },
+  "triggers":[],
+  "writer":{"outputs": ["cube output 1", "cube output 2"]}
 }

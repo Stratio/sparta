@@ -18,6 +18,9 @@
           function fromUser(text) {
             // Beware: trim() is not available in old browsers
             if (!text || text.trim() === '') {
+              if (scope.required == false) {
+                ngModelCtrl.$setValidity('invalidJson', true);
+              }
               return {};
             } else {
               try {

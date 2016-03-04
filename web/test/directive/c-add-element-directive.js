@@ -27,7 +27,8 @@ describe('directive.c-add-element-directive', function () {
         isolatedScope = directive.isolateScope();
         isolatedScope.inputToAdd = "fake input to add";
       });
-      it("it is added when user press the enter key", function () {
+      it("it is added when user presses the enter key if element limit is not achieved yet", function () {
+        isolatedScope.limit = 1;
         var fakeEvent = {
           "keyCode": '13', preventDefault: function () {
           }
@@ -40,7 +41,8 @@ describe('directive.c-add-element-directive', function () {
         expect(isolatedScope.model.length).toBe(1); // input is not added
       });
 
-      it("it is added when user press a button which has been implemented to add the input", function () {
+      it("it is added when user press a button which has been implemented to add the input and limit is not achieved yet", function () {
+        isolatedScope.limit = 1;
         var fakeEvent = {
           "type": "click", preventDefault: function () {
           }
@@ -51,6 +53,7 @@ describe('directive.c-add-element-directive', function () {
       });
 
       it("it is not added if the model array contains the element already", function () {
+        isolatedScope.limit = 6;
         var fakeEvent = {
           "type": "click", preventDefault: function () {
           }
@@ -58,7 +61,7 @@ describe('directive.c-add-element-directive', function () {
         isolatedScope = directive.isolateScope();
         isolatedScope.inputToAdd = fakeInputToAdd;
 
-        fakeModel.push({name:fakeInputToAdd});
+        fakeModel.push({name: fakeInputToAdd});
         var previousLength = fakeModel.length;
 
         // user tries to add the same element again
@@ -67,7 +70,8 @@ describe('directive.c-add-element-directive', function () {
         expect(isolatedScope.model.length).toBe(previousLength); // the same length because element has not been added
       });
 
-      it("it is added if the model array does not contain the element already", function () {
+      it("it is added if the model array does not contain the element already and limit of elements is not achieved", function () {
+        isolatedScope.limit = 6;
         var fakeEvent = {
           "type": "click", preventDefault: function () {
           }
@@ -76,14 +80,34 @@ describe('directive.c-add-element-directive', function () {
 
         isolatedScope = directive.isolateScope();
         isolatedScope.inputToAdd = fakeInputToAdd;
-        fakeModel.push({name:newInputToAdd});
+        fakeModel.push({name: newInputToAdd});
         var previousLength = fakeModel.length;
 
         // user tries to add another element
         isolatedScope.addInput(fakeEvent);
 
-        expect(isolatedScope.model.length).toBe(previousLength+1); // the same length because element has not been added
+        expect(isolatedScope.model.length).toBe(previousLength + 1); // the same length because element has not been added
       });
+
+      it("if limit of elements is 0, user can add all elements he wants", function () {
+        isolatedScope.limit = 0;
+        var fakeEvent = {
+          "type": "click", preventDefault: function () {
+          }
+        };
+        isolatedScope.inputToAdd = {name: "input 1"};
+        isolatedScope.addInput(fakeEvent);
+        isolatedScope.inputToAdd = {name: "input 2"};
+        isolatedScope.addInput(fakeEvent);
+        isolatedScope.inputToAdd = {name: "input 3"};
+        isolatedScope.addInput(fakeEvent);
+        isolatedScope.inputToAdd = {name: "input 4"};
+        isolatedScope.addInput(fakeEvent);
+        isolatedScope.inputToAdd = {name: "input 5"};
+        isolatedScope.addInput(fakeEvent);
+
+        expect(isolatedScope.model.length).toBe(5);
+      })
     });
   });
 

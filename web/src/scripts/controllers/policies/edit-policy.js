@@ -10,24 +10,40 @@
   function EditPolicyCtrl(TemplateFactory, PolicyModelFactory, PolicyFactory, ModalService, $state, $stateParams) {
     var vm = this;
 
+    vm.changeStepNavigationVisibility = changeStepNavigationVisibility;
     vm.confirmPolicy = confirmPolicy;
+    vm.closeErrorMessage = closeErrorMessage;
 
     init();
 
     function init() {
       return TemplateFactory.getPolicyTemplate().then(function (template) {
         PolicyModelFactory.setTemplate(template);
+
         var id = $stateParams.id;
-        vm.steps = template.steps;
+        vm.steps = PolicyModelFactory.getTemplate().steps;
         vm.status = PolicyModelFactory.getProcessStatus();
         vm.successfullySentPolicy = false;
+        vm.showStepNavigation = true;
         vm.error = null;
+        vm.editionMode  = true;
         PolicyFactory.getPolicyById(id).then(
           function (policyJSON) {
             PolicyModelFactory.setPolicy(policyJSON);
             vm.policy = PolicyModelFactory.getCurrentPolicy();
+            //PolicyModelFactory.nextStep();
+          }, function () {
+            $state.go('dashboard.policies');
           });
       });
+    }
+
+    function closeErrorMessage() {
+      vm.error = null;
+    }
+
+    function changeStepNavigationVisibility() {
+      vm.showStepNavigation = !vm.showStepNavigation;
     }
 
     function confirmPolicy() {
@@ -41,7 +57,7 @@
           return "";
         }
       };
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
 
       return modalInstance.result.then(function () {
         var finalJSON = PolicyModelFactory.getFinalJSON();
@@ -51,7 +67,11 @@
           $state.go("dashboard.policies");
         }, function (error) {
           if (error) {
-            vm.error = error.data;
+            if (error.data.message) {
+              vm.error = error.data.message;
+            }
+            else
+             vm.error = error.data;
           }
         });
 

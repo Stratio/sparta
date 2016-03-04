@@ -85,9 +85,9 @@ object PolicyHelper {
   //////////////////////////////////////////// PRIVATE METHODS /////////////////////////////////////////////////////////
 
   private def getFragmentFromType(fragments: Seq[FragmentElementModel], fragmentType: `type`)
-  : Seq[PolicyElementModel] = {
+  : Seq[FragmentElementModel] = {
     fragments.flatMap(fragment =>
-      if (FragmentType.withName(fragment.fragmentType) == fragmentType) Some(fragment.element) else None)
+      if (FragmentType.withName(fragment.fragmentType) == fragmentType) Some(fragment) else None)
   }
 
   /**
@@ -97,7 +97,7 @@ object PolicyHelper {
     * @param inputs          with the current configuration.
     * @return A policyElementModel with the input.
     */
-  private def getCurrentInput(fragmentsInputs: Seq[PolicyElementModel],
+  private def getCurrentInput(fragmentsInputs: Seq[FragmentElementModel],
                               inputs: Option[PolicyElementModel]): PolicyElementModel = {
 
     if (fragmentsInputs.isEmpty && inputs.isEmpty) {
@@ -106,27 +106,28 @@ object PolicyHelper {
 
     if ((fragmentsInputs.size > 1) ||
       (fragmentsInputs.size == 1 && inputs.isDefined &&
-        ((fragmentsInputs.head.name != inputs.get.name) || (fragmentsInputs.head.`type` != inputs.get.`type`)))) {
+        ((fragmentsInputs.head.name != inputs.get.name) ||
+          (fragmentsInputs.head.element.`type` != inputs.get.`type`)))) {
       throw new IllegalStateException("Only one input is allowed in the policy.")
     }
 
-    if (fragmentsInputs.isEmpty) inputs.get else fragmentsInputs.head
+    if (fragmentsInputs.isEmpty) inputs.get else fragmentsInputs.head.element.copy(name = fragmentsInputs.head.name)
   }
 
-  private def getCurrentOutputs(fragmentsOutputs: Seq[PolicyElementModel],
+  private def getCurrentOutputs(fragmentsOutputs: Seq[FragmentElementModel],
                                 outputs: Seq[PolicyElementModel]): Seq[PolicyElementModel] = {
 
     if (fragmentsOutputs.isEmpty && outputs.isEmpty) {
       throw new IllegalStateException("It is mandatory to define at least one output in the policy.")
     }
 
-    val outputsTypesNames = fragmentsOutputs.map(element => (element.`type`, element.name))
+    val outputsTypesNames = fragmentsOutputs.map(fragment => (fragment.element.`type`, fragment.name))
 
     val outputsNotIncluded = for {
       output <- outputs
       ouputTypeName = (output.`type`, output.name)
     } yield if (outputsTypesNames.contains(ouputTypeName)) None else Some(output)
 
-    fragmentsOutputs ++ outputsNotIncluded.flatten
+    fragmentsOutputs.map(fragment => fragment.element.copy(name = fragment.name)) ++ outputsNotIncluded.flatten
   }
 }

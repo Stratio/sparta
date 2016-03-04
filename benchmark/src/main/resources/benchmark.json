@@ -59,13 +59,6 @@
                   "employee": "/employee"
                 }
               }
-            },
-            {
-              "removeFields": {
-                "blacklist": [
-                  "literal:_attachment_body"
-                ]
-              }
             }
           ]
         }
@@ -86,11 +79,8 @@
   "cubes": [
     {
       "name": "testCube",
-      "checkpointConfig": {
-        "timeDimension": "timestamp",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
+      "writer": {
+        "outputs" : ["out-print"]
       },
       "dimensions": [
         {
@@ -100,6 +90,13 @@
         {
           "name": "shopping_center",
           "field": "shoppingCenter"
+        },
+        {
+          "name": "minute",
+          "field": "timestamp",
+          "type": "DateTime",
+          "precision": "minute",
+          "computeLast": "10m"
         }
       ],
       "operators": [

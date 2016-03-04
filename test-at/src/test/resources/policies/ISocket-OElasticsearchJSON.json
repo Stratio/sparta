@@ -48,13 +48,6 @@
               }
             },
             {
-              "removeFields": {
-                "blacklist": [
-                  "literal:_attachment_body"
-                ]
-              }
-            },
-            {
               "if": {
                 "conditions": [
                   {
@@ -94,13 +87,9 @@
   "cubes": [
     {
       "name": "cubeSmfProcess",
-      "checkpointConfig": {
-        "timeDimension": "millis",
-        "granularity": "minute",
-        "interval": 100000,
-        "timeAvailability": 90000
-      },
       "writer": {
+        "outputs" : ["out-elasticsearch"],
+        "dateType": "long",
         "isAutoCalculatedId": true
       },
       "dimensions": [
@@ -109,10 +98,11 @@
           "name": "smfProcess"
         },
         {
-          "field": "millis",
           "name": "minute",
+          "field": "millis",
           "type": "DateTime",
-          "precision": "minute"
+          "precision": "minute",
+          "computeLast": "10m"
         }
       ],
       "operators": [

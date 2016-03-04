@@ -120,28 +120,26 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText"))
     val outputFieldModel2 = OutputFieldsModel("out2")
 
     val transformations = Seq(TransformationsModel(
-      name = "transformation1",
       "Morphlines",
       0,
       Input.RawDataKey,
       Seq(outputFieldModel1, outputFieldModel2),
       Map()))
-    val checkpointModel = CheckpointModel("minute", "minute", None, interval)
     val dimensionModel = Seq(DimensionModel(
       "dimensionName",
       "field1",
       DimensionType.IdentityName,
-      DimensionType.DefaultDimensionClass,
-      Some(Map())
-    ))
+      DimensionType.DefaultDimensionClass)
+    )
     val operators = Seq(OperatorModel("Count", "countoperator", Map()))
     val cubes = Seq(CubeModel("cube1",
-      checkpointModel,
       dimensionModel,
-      operators))
+      operators, WriterModel(Seq(outputFieldModel1.name, outputFieldModel2.name)) , Seq()
+      ))
     val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
     val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
-    val policy = AggregationPoliciesModel(id = Option("id"),
+    val policy = AggregationPoliciesModel(
+      id = Option("id"),
       version = None,
       storageLevel = AggregationPoliciesModel.storageDefaultValue,
       name = id,
@@ -150,6 +148,7 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText"))
       checkpointPath = "test/test",
       rawData,
       transformations,
+      Seq(),
       cubes,
       input,
       outputs,

@@ -20,8 +20,14 @@
         pattern: "=",
         placeholder: "@",
         error: '=',
-        elementsLength: '=',
-        submittedForm: '='
+        submittedForm: '=',
+        label: '=',
+        help: '=',
+        limit: '=',
+        isObject: "=",
+        attribute: "@",
+        required:"=",
+        width: '='
       },
       replace: "true",
       templateUrl: 'templates/components/c-add-element.tpl.html',
@@ -32,23 +38,39 @@
 
     function link(scope) {
       scope.addInput = addInput;
+      scope.errorLimit = false;
       function addInput(event) {
         if (scope.inputToAdd !== '' && scope.inputToAdd !== undefined && (event.keyCode == '13' || event.type === "click")) {
           var inputExists = false;
-          for (var i = 0; i < scope.model.length; i++) {
-            if (scope.model[i].name === scope.inputToAdd) {
-              inputExists = true;
+          scope.errorLimit = false;
+          if (scope.limit === 0 || scope.model.length < scope.limit) {
+            for (var i = 0; i < scope.model.length; i++) {
+              if (scope.model[i].name === scope.inputToAdd) {
+                inputExists = true;
+              }
             }
-          }
-          if (inputExists) {
-            scope.error = true;
+            if (inputExists) {
+              scope.submittedForm = true;
+              scope.error = true;
+            }
+            else {
+              scope.submittedForm = false;
+              scope.error = false;
+
+              if (scope.isObject) {
+                var objectToAdd = {};
+                objectToAdd[scope.attribute] =  scope.inputToAdd;
+                scope.model.push(objectToAdd);
+              } else
+                scope.model.push(scope.inputToAdd);
+              scope.inputToAdd = '';
+            }
+            event.preventDefault();
           }
           else {
-            scope.error = false;
-            scope.model.push({name:scope.inputToAdd});
-            scope.inputToAdd = '';
+            scope.submittedForm = true;
+            scope.errorLimit = true;
           }
-          event.preventDefault();
         }
       }
     }

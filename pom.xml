@@ -38,7 +38,6 @@
         <module>sdk</module>
         <module>plugins</module>
         <module>serving-core</module>
-        <module>aggregator</module>
         <module>driver</module>
         <module>web</module>
         <module>serving-api</module>

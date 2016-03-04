@@ -25,6 +25,7 @@ object ErrorCodes {
     val ParsingOperator = 3
     val ParsingCube = 4
     val ParsingOutput = 5
+    val ParsingTrigger = 6
   }
 
 }

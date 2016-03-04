@@ -57,9 +57,9 @@ html{
 	#base-content-wrapper{
 		@extend .t-normal;
 
+    transition: all 0.0s;
 		width: 100%;
-		padding-left: $layout-base-left;
-		padding-right: 0;
+		padding: 0 30px;
 
 		#dashboard-main-content{
 			padding: $base-padding;

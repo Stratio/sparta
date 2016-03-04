@@ -46,13 +46,9 @@
   "cubes": [
     {
       "name": "testCube",
-      "checkpointConfig": {
-        "timeDimension": "minute",
-        "granularity": "minute",
-        "interval": 30000,
-        "timeAvailability": 60000
-      },
       "writer": {
+        "outputs" : ["out-elasticsearch"],
+        "dateType": "long",
         "isAutoCalculatedId": true
       },
       "dimensions": [

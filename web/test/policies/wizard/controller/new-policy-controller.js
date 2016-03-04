@@ -73,16 +73,10 @@ describe('policies.wizard.controller.new-policy-controller', function () {
       '$state': stateMock
     });
 
-
     scope.$digest();
   }));
 
   describe("when it is initialized", function () {
-
-    it('it should get the policy template from from a template factory and put it to the policy model factory', function () {
-      expect(templateFactoryMock.getPolicyTemplate).toHaveBeenCalled();
-      expect(policyModelFactoryMock.setTemplate).toHaveBeenCalledWith(fakeTemplate);
-    });
 
     it('it should get the policy from policy factory that will be created', function () {
       expect(ctrl.policy).toBe(fakePolicy);
@@ -92,13 +86,29 @@ describe('policies.wizard.controller.new-policy-controller', function () {
       expect(ctrl.steps).toBe(fakeTemplate.steps);
     });
 
-    it("should call to reset the current policy in order to initialize all attributes", function () {
-      expect(policyModelFactoryMock.resetPolicy).toHaveBeenCalled();
-    });
-
     it("should load the creation status from the policy model factory", function () {
       expect(policyModelFactoryMock.getProcessStatus).toHaveBeenCalled();
       expect(ctrl.status).toEqual(fakeCreationStatus);
+    });
+
+    describe("if policy is null or undefined", function () {
+      beforeEach(inject(function ($controller) {
+        policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
+          return null;
+        });
+
+        ctrl = $controller('NewPolicyCtrl', {
+          'PolicyModelFactory': policyModelFactoryMock,
+          'TemplateFactory': templateFactoryMock,
+          'PolicyFactory': policyFactoryMock,
+          'ModalService': modalServiceMock,
+          '$state': stateMock
+        });
+      }));
+
+      it("user is redirected to policy list page", function () {
+        expect(stateMock.go).toHaveBeenCalledWith("dashboard.policies");
+      })
     });
   });
 

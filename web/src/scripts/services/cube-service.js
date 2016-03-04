@@ -5,11 +5,11 @@
     .module('webApp')
     .service('CubeService', CubeService);
 
-  CubeService.$inject = ['PolicyModelFactory', 'ModalService', 'AccordionStatusService', 'CubeModelFactory', '$q'];
+  CubeService.$inject = ['PolicyModelFactory', 'ModalService', 'CubeModelFactory', 'UtilsService', '$q'];
 
-  function CubeService(PolicyModelFactory, ModalService, AccordionStatusService, CubeModelFactory, $q) {
+  function CubeService(PolicyModelFactory, ModalService, CubeModelFactory,  UtilsService, $q) {
     var vm = this;
-    var createdCubes = null;
+    var createdCubes, showCubeCreationPanel = null;
 
     vm.findCubesUsingOutputs = findCubesUsingOutputs;
     vm.areValidCubes = areValidCubes;
@@ -20,12 +20,20 @@
     vm.isNewCube = isNewCube;
     vm.getCreatedCubes = getCreatedCubes;
     vm.resetCreatedCubes = resetCreatedCubes;
+    vm.changeCubeCreationPanelVisibility = changeCubeCreationPanelVisibility;
+    vm.isActiveCubeCreationPanel = isActiveCubeCreationPanel;
+    vm.activateCubeCreationPanel = activateCubeCreationPanel;
+
     init();
 
     function init() {
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-
       createdCubes = vm.policy.cubes.length;
+      showCubeCreationPanel = true;
+    }
+
+    function activateCubeCreationPanel() {
+      showCubeCreationPanel = true;
     }
 
     function showConfirmRemoveCube() {
@@ -106,13 +114,13 @@
       return valid;
     }
 
-
     function addCube() {
       var newCube = angular.copy(CubeModelFactory.getCube());
+      newCube = UtilsService.convertDottedPropertiesToJson(newCube);
       if (CubeModelFactory.isValidCube(newCube, vm.policy.cubes, CubeModelFactory.getContext().position)) {
         vm.policy.cubes.push(newCube);
         createdCubes++;
-        AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
+        PolicyModelFactory.enableNextStep();
       } else {
         CubeModelFactory.setError();
       }
@@ -134,7 +142,9 @@
       var cubePosition = CubeModelFactory.getContext().position;
       showConfirmRemoveCube().then(function () {
         vm.policy.cubes.splice(cubePosition, 1);
-        AccordionStatusService.resetAccordionStatus(vm.policy.cubes.length);
+        if (vm.policy.cubes.length == 0) {
+          PolicyModelFactory.disableNextStep();
+        }
         defer.resolve();
       }, function () {
         defer.reject()
@@ -148,6 +158,14 @@
 
     function getCreatedCubes() {
       return createdCubes;
+    }
+
+    function changeCubeCreationPanelVisibility(isVisible) {
+      showCubeCreationPanel = isVisible;
+    }
+
+    function isActiveCubeCreationPanel() {
+      return showCubeCreationPanel;
     }
 
     function resetCreatedCubes() {

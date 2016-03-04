@@ -4,22 +4,25 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
   beforeEach(module('served/policyTemplate.json'));
   beforeEach(module('served/cube.json'));
 
-  var ctrl, scope, fakePolicy, fakeTemplate, fakeCube, policyModelFactoryMock, fakeOutputs,
-    cubeModelFactoryMock, cubeServiceMock, modalServiceMock, resolvedPromise, rejectedPromise;
+  var ctrl, scope, q, fakePolicy, fakeCubeTemplate, fakeCube, policyModelFactoryMock, fakeOutputs, fakePolicyTemplate,
+    cubeModelFactoryMock, cubeServiceMock, modalServiceMock, resolvedPromise, triggerModelFactoryMock,
+    fakeDimension,fakeOperator, triggerServiceMock, rejectedPromise;
 
   // init mock modules
 
   beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope) {
     scope = $rootScope.$new();
+    q = $q;
+    $httpBackend.when('GET', 'languages/en-US.json').respond({});
+    $httpBackend.when('GET', '/fragment/output').respond({});
+
 
     inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedCube_) {
       fakePolicy = angular.copy(_servedPolicy_);
-      fakeTemplate = _servedPolicyTemplate_;
+      fakePolicyTemplate = _servedPolicyTemplate_;
+      fakeCubeTemplate = _servedPolicyTemplate_.cube;
       fakeCube = angular.copy(_servedCube_);
     });
-
-    $httpBackend.when('GET', 'languages/en-US.json')
-      .respond({});
 
     policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate', 'getAllModelOutputs']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
@@ -27,10 +30,23 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
     });
 
     policyModelFactoryMock.getTemplate.and.callFake(function () {
-      return fakeTemplate;
+      return fakePolicyTemplate;
     });
 
-    cubeServiceMock = jasmine.createSpyObj('CubeService', ['isLastCube', 'isNewCube', 'addCube', 'removeCube']);
+    resolvedPromise = function () {
+      var defer = $q.defer();
+      defer.resolve();
+
+      return defer.promise;
+    };
+
+    spyOn(document, "querySelector").and.callFake(function () {
+      return {"focus": jasmine.createSpy()}
+    });
+
+    cubeServiceMock = jasmine.createSpyObj('CubeService', ['isLastCube', 'isNewCube', 'addCube', 'removeCube', 'changeCubeCreationPanelVisibility', 'generateOutputList']);
+    cubeServiceMock.generateOutputList.and.callFake(resolvedPromise);
+
     modalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
 
     cubeModelFactoryMock = jasmine.createSpyObj('CubeFactory', ['getCube', 'getError', 'getCubeInputs', 'getContext', 'setError', 'resetCube', 'updateCubeInputs']);
@@ -39,18 +55,24 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
     fakeOutputs = ["output1", "output2", "output3", "output4", "output5"];
     policyModelFactoryMock.getAllModelOutputs.and.returnValue(fakeOutputs);
 
+    triggerModelFactoryMock = jasmine.createSpyObj('TriggerFactory', ['getTrigger', 'getError', 'getTriggerInputs', 'getContext', 'setError', 'resetTrigger', 'updateTriggerInputs', 'setError']);
+
+    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['isLastTrigger', 'setTriggerContainer', 'isNewTrigger', 'addTrigger', 'changeVisibilityOfHelpForSql', 'disableTriggerCreationPanel', 'generateOutputList', 'getSqlSourceItems']);
+    triggerServiceMock.generateOutputList.and.callFake(resolvedPromise);
+
     modalServiceMock.openModal.and.callFake(function () {
       var defer = $q.defer();
       defer.resolve();
       return {"result": defer.promise};
-
     });
 
     ctrl = $controller('CubeCtrl', {
       'PolicyModelFactory': policyModelFactoryMock,
       'CubeModelFactory': cubeModelFactoryMock,
       'CubeService': cubeServiceMock,
-      'ModalService': modalServiceMock
+      'ModalService': modalServiceMock,
+      'TriggerModelFactory': triggerModelFactoryMock,
+      'TriggerService': triggerServiceMock
     });
 
     resolvedPromise = function () {
@@ -65,14 +87,17 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       defer.reject();
 
       return defer.promise;
-    }
+    };
+
+    fakeDimension = {name: "fake dimension", type: "DateTime", precision: "1m" };
+    fakeOperator = {type: "Accumulator", name: "fake operator name", configuration:{}};
   }));
 
   describe("when it is initialized", function () {
     describe("if factory cube is not null", function () {
 
       it('it should get a policy template from from policy factory', function () {
-        expect(ctrl.template).toBe(fakeTemplate);
+        expect(ctrl.template).toBe(fakeCubeTemplate);
       });
 
       it('it should get the policy that is being created or edited from policy factory', function () {
@@ -86,6 +111,12 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       it("it should load an output list with all outputs of the models", function () {
         expect(ctrl.outputList).toBe(fakeOutputs);
       });
+
+      it("trigger accordion is initialized", function () {
+        expect(triggerServiceMock.disableTriggerCreationPanel).toHaveBeenCalled();
+        expect(triggerServiceMock.setTriggerContainer).toHaveBeenCalledWith(fakeCube.triggers, "cube");
+        expect(ctrl.triggerContainer).toBe(fakeCube.triggers);
+      })
     });
 
     it("if factory cube is null, no changes are executed", inject(function ($controller) {
@@ -110,7 +141,6 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
     var fakeOutputName = "fake output name";
 
     it("modal is opened with the correct params", function () {
-
       ctrl.addOutputToDimensions(fakeOutputName);
 
       expect(modalServiceMock.openModal.calls.mostRecent().args[0]).toBe("NewDimensionModalCtrl");
@@ -119,10 +149,17 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       expect(resolve.fieldName()).toBe(fakeOutputName);
       expect(resolve.dimensionName()).toBe(fakeOutputName);
       expect(resolve.dimensions()).toBe(ctrl.cube.dimensions);
-      expect(resolve.template()).toBe(fakeTemplate);
+      expect(resolve.template()).toBe(fakeCubeTemplate);
     });
 
     it("when modal is closed, the created dimension is added to cube", function () {
+
+      modalServiceMock.openModal.and.callFake(function () {
+        var defer = q.defer();
+        defer.resolve({dimension: fakeDimension, isTimeDimension: true});
+
+        return  {"result": defer.promise};
+      });
       var currentDimensionLength = ctrl.cube.dimensions.length;
       ctrl.addOutputToDimensions(fakeOutputName).then(function () {
         expect(ctrl.cube.dimensions.length).toBe(currentDimensionLength + 1);
@@ -173,7 +210,7 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       expect(resolve.operatorType()).toBe(fakeFunctionName);
       expect(resolve.operatorName()).toBe(fakeFunctionName.toLowerCase() + (ctrl.cube.operators.length + 1));
       expect(resolve.operators()).toBe(ctrl.cube.operators);
-      expect(resolve.template()).toBe(fakeTemplate);
+      expect(resolve.template()).toBe(fakeCubeTemplate);
     });
 
     it("when modal is closed, the created operator is added to cube", function () {
@@ -215,15 +252,19 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
 
   describe("should be able to add a cube to the policy", function () {
     it("cube is not added if view validations have not been passed and error is updated", function () {
-      ctrl.form = {$valid: false}; //view validations have not been passed
+      ctrl.form = {$valid: false, cubeOutputs:[]}; //view validations have not been passed
       ctrl.addCube();
 
       expect(cubeServiceMock.addCube).not.toHaveBeenCalled();
       expect(cubeModelFactoryMock.setError).toHaveBeenCalled();
     });
 
-    it("cube is added if view validations have been passed", function () {
+    it("cube is added if view validations have been passed and there is a dimension, an operator and an output at least", function () {
       ctrl.form = {$valid: true}; //view validations have been passed
+      ctrl.cube.dimensions = [fakeDimension];
+      ctrl.cube.operators = [fakeOperator];
+      ctrl.cube.writer.outputs = ["fake output"];
+
       ctrl.addCube();
 
       expect(cubeServiceMock.addCube).toHaveBeenCalled();

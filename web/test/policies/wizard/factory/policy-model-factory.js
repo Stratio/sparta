@@ -17,6 +17,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
   beforeEach(inject(function (_PolicyModelFactory_, _servedPolicy_, _servedPolicyTemplate_, _servedInput_, _servedOutput_) {
     factory = _PolicyModelFactory_;
     fakePolicy = angular.copy(_servedPolicy_);
+    fakePolicy.rawData={enabled: 'false'};
     fakePolicyTemplate = _servedPolicyTemplate_;
     fakeInput = _servedInput_;
     fakeOutput = _servedOutput_;
@@ -24,6 +25,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
   it("should be able to load a policy from a json", function () {
     fakePolicy.fragments = [fakeInput, fakeOutput];
+    fakePolicy.rawData={enabled: 'false'};
     factory.setPolicy(fakePolicy);
 
     var policy = factory.getCurrentPolicy();
@@ -32,15 +34,8 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     expect(policy.id).toBe(fakePolicy.id);
     expect(policy.name).toBe(fakePolicy.name);
     expect(policy.description).toBe(fakePolicy.description);
-    expect(policy.sparkStreamingWindow).toBe(fakePolicy.sparkStreamingWindow);
-    expect(policy.storageLevel).toBe(fakePolicy.storageLevel);
-    expect(policy.checkpointPath).toBe(fakePolicy.checkpointPath);
-    expect(policy.rawData).toBe(fakePolicy.rawData);
-    expect(policy.rawData.enabled).toBe(fakePolicy.rawData.enabled);
-    expect(policy.transformations).toBe(fakePolicy.transformations);
-    expect(policy.cubes).toBe(fakePolicy.cubes);
+    expect(policy.cubes).toEqual(fakePolicy.cubes);
     expect(policy.input).toBe(fakeInput);
-    expect(policy.outputs[0]).toBe(fakeOutput);
   });
 
 
@@ -51,17 +46,14 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       cleanFactory.setTemplate(fakePolicyTemplate);
     }));
 
-    it("if there is not any policy, it initializes a new one using the introduced template", function () {
+    it("if there is not any policy, it initializes a new one with empty attributes and removing attributes loaded from template", function () {
       var policy = cleanFactory.getCurrentPolicy();
 
-      expect(cleanFactory.getProcessStatus().currentStep).toBe(0);
+      expect(cleanFactory.getProcessStatus().currentStep).toBe(-1);
       expect(policy.name).toBe("");
       expect(policy.description).toBe("");
-      expect(policy.sparkStreamingWindow).toBe(fakePolicyTemplate.defaultSparkStreamingWindow);
-      expect(policy.storageLevel).toBe(fakePolicyTemplate.defaultStorageLevel);
-      expect(policy.checkpointPath).toBe(fakePolicyTemplate.defaultCheckpointPath);
-      expect(policy.rawData.enabled).toBe(false);
-      expect(policy.rawData.path).toBe("");
+      expect(policy.rawDataEnabled).toBe(undefined);
+      expect(policy.rawDataPath).toBe(undefined);
       expect(policy.input).toEqual({});
       expect(policy.outputs).toEqual([]);
       expect(policy.transformations).toEqual([]);
@@ -70,6 +62,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
     it("if there is a policy, returns that policy", function () {
       fakePolicy.fragments = [fakeInput, fakeOutput];
+      fakePolicy.rawData={enabled: 'false'};
       cleanFactory.setPolicy(fakePolicy);
       var policy = cleanFactory.getCurrentPolicy();
 
@@ -78,10 +71,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       expect(policy.sparkStreamingWindow).toBe(fakePolicy.sparkStreamingWindow);
       expect(policy.storageLevel).toBe(fakePolicy.storageLevel);
       expect(policy.checkpointPath).toBe(fakePolicy.checkpointPath);
-      expect(policy.rawData.enabled).toBe(fakePolicy.rawData.enabled);
-      expect(policy.rawData.path).toBe(fakePolicy.rawData.path);
       expect(policy.input).toEqual(fakeInput);
-      expect(policy.outputs).toEqual([fakeOutput]);
       expect(policy.transformations).toEqual(fakePolicy.transformations);
       expect(policy.cubes).toEqual(fakePolicy.cubes);
     });
@@ -90,18 +80,16 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
   it("should be able to reset its policy to set all attributes with default values", function () {
     factory.setTemplate(fakePolicyTemplate);
+
     factory.setPolicy(fakePolicy);
     factory.resetPolicy();
 
     var policy = factory.getCurrentPolicy();
-    expect(factory.getProcessStatus().currentStep).toBe(0);
+    expect(factory.getProcessStatus().currentStep).toBe(-1);
     expect(policy.name).toBe("");
     expect(policy.description).toBe("");
-    expect(policy.sparkStreamingWindow).toBe(fakePolicyTemplate.defaultSparkStreamingWindow);
-    expect(policy.storageLevel).toBe(fakePolicyTemplate.defaultStorageLevel);
-    expect(policy.checkpointPath).toBe(fakePolicyTemplate.defaultCheckpointPath);
-    expect(policy.rawData.enabled).toBe(false);
-    expect(policy.rawData.path).toBe("");
+    expect(policy.rawDataEnabled).toBe(undefined);
+    expect(policy.rawDataPath).toBe(undefined);
     expect(policy.input).toEqual({});
     expect(policy.outputs).toEqual([]);
     expect(policy.transformations).toEqual([]);

@@ -4,7 +4,7 @@ describe('policies.wizard.controller.policy-model-controller', function () {
   beforeEach(module('served/policyTemplate.json'));
   beforeEach(module('served/model.json'));
 
-  var ctrl, scope, fakePolicy, fakeTemplate, fakeModel, policyModelFactoryMock,
+  var ctrl, scope, fakePolicy, fakePolicyTemplate, fakeModelTemplate, fakeModel, policyModelFactoryMock,
     modelFactoryMock, modelServiceMock, resolvedPromise, rejectedPromise;
 
   // init mock modules
@@ -14,7 +14,8 @@ describe('policies.wizard.controller.policy-model-controller', function () {
 
     inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedModel_) {
       fakePolicy = angular.copy(_servedPolicy_);
-      fakeTemplate = _servedPolicyTemplate_;
+      fakePolicyTemplate = _servedPolicyTemplate_;
+      fakeModelTemplate = fakePolicyTemplate.model;
       fakeModel = _servedModel_;
     });
 
@@ -27,10 +28,10 @@ describe('policies.wizard.controller.policy-model-controller', function () {
     });
 
     policyModelFactoryMock.getTemplate.and.callFake(function () {
-      return fakeTemplate;
+      return fakePolicyTemplate;
     });
 
-    modelServiceMock = jasmine.createSpyObj('ModelService', ['isLastModel', 'isNewModel', 'addModel', 'removeModel']);
+    modelServiceMock = jasmine.createSpyObj('ModelService', ['isLastModel', 'isNewModel', 'addModel', 'removeModel', 'changeModelCreationPanelVisibility']);
 
     modelFactoryMock = jasmine.createSpyObj('ModelFactory', ['getModel', 'getError', 'getModelInputs', 'getContext', 'setError', 'resetModel', 'updateModelInputs']);
     modelFactoryMock.getModel.and.returnValue(fakeModel);
@@ -58,7 +59,7 @@ describe('policies.wizard.controller.policy-model-controller', function () {
   describe("when it is initialized", function () {
 
     it('it should get a policy template from from policy factory', function () {
-      expect(ctrl.template).toBe(fakeTemplate);
+      expect(ctrl.template).toBe(fakePolicyTemplate);
     });
 
     it('it should get the policy that is being created or edited from policy factory', function () {
@@ -91,25 +92,12 @@ describe('policies.wizard.controller.policy-model-controller', function () {
 
   describe("should be able to change the default configuration when type is changed by user", function () {
     it("if type is morphlines, it returns the morphlinesDefaultConfiguration", function () {
-      ctrl.model.type = fakeTemplate.types[0].name;  // it has to be Morphlines type
-      ctrl.changeDefaultConfiguration();
+      ctrl.model.type = "Morphlines";
+      ctrl.onChangeType();
 
-      expect(ctrl.model.configuration).toEqual(fakeTemplate.morphlinesDefaultConfiguration);
+      expect(ctrl.model.configuration).toEqual(fakeModelTemplate.morphlines.defaultConfiguration);
     });
 
-    it("if type is datetime, it returns the dateTimeDefaultConfiguration", function () {
-      ctrl.model.type = fakeTemplate.types[1].name;  // it has to be DateTime type
-      ctrl.changeDefaultConfiguration();
-
-      expect(ctrl.model.configuration).toEqual(fakeTemplate.dateTimeDefaultConfiguration);
-    });
-
-    it("if type is 'type', it returns the typeDefaultConfiguration", function () {
-      ctrl.model.type = fakeTemplate.types[2].name;  // it has to be 'type' type
-      ctrl.changeDefaultConfiguration();
-
-      expect(ctrl.model.configuration).toEqual(fakeTemplate.typeDefaultConfiguration);
-    });
   });
 
   describe("should be able to add a model to the policy", function () {
@@ -143,7 +131,7 @@ describe('policies.wizard.controller.policy-model-controller', function () {
       ctrl.policy.transformations = models;
 
       ctrl.removeModel().then(function () {
-        expect(modelFactoryMock.resetModel).toHaveBeenCalledWith(fakeTemplate, lastModelOrder + 1, models.length);
+        expect(modelFactoryMock.resetModel).toHaveBeenCalledWith(fakeModelTemplate, lastModelOrder + 1, models.length);
         expect(modelFactoryMock.updateModelInputs).toHaveBeenCalledWith(models);
       });
     });

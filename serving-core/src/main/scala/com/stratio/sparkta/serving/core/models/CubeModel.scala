@@ -20,15 +20,16 @@ import com.stratio.sparkta.sdk.DimensionType
 import com.stratio.sparkta.serving.core.constants.AppConstant
 
 case class CubeModel(name: String,
-                     checkpointConfig: CheckpointModel,
                      dimensions: Seq[DimensionModel],
                      operators: Seq[OperatorModel],
-                     writer: Option[WriterModel] = None)
+                     writer: WriterModel,
+                     triggers: Seq[TriggerModel] = Seq.empty[TriggerModel])
 
 case class DimensionModel(name: String,
                           field: String,
                           precision: String = DimensionType.IdentityName,
                           `type`: String = DimensionType.DefaultDimensionClass,
-                          configuration: Option[Map[String, String]]) {
+                          computeLast: Option[String] = None,
+                          configuration: Option[Map[String, String]] = None) {
 
 }

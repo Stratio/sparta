@@ -5,6 +5,7 @@
     "angular": "1.4.3",
     "angular-resource": "1.4.3",
     "angular-route": "1.4.3",
+    "angular-animate": "1.4.3",
     "angular-ui-router": "0.2.15",
     "angular-mocks": "1.4.3",
     "grunt": "0.4.5",
@@ -31,7 +32,8 @@
     "karma-junit-reporter": "0.3.7",
     "phantomjs": "^1.9.18",
     "karma-phantomjs-launcher": "0.2.1",
-    "karma-ng-json2js-preprocessor": "1.1.1"
+    "karma-ng-json2js-preprocessor": "1.1.1",
+    "angular-animate": "1.4.3"
   },
   "devDependencies": {
     "grunt-connect-proxy": "0.2.0",

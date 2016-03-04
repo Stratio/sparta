@@ -1,14 +1,8 @@
 <section data-ng-controller="PolicyInputCtrl as vm">
-
-  <p class="c-info-text c-info-text--narrow c-info-text--bottom-margin"><i
-    class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text">{{"_POLICY_._INPUTS_INTRO_" | translate}}</span>
-  </p>
-
   <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error" data-qa="error-msg">
     <i class="c-icon icon-circle-cross"></i>
     <span>{{"_POLICY_._INPUTS_ERROR_" | translate}}</span>
   </div>
-
   <form name="vm.form" class="c-form c-panel c-panel--framed" novalidate>
     <div class="c-col c-col--4" data-ng-repeat="input in vm.inputList">
       <div class="c-check-block" data-ng-click="vm.setInput($index)" data-qa="policy-input-item-{{input.id}}">
@@ -24,26 +18,5 @@
         <i class="c-icon icon-{{input.element.type | lowercase}}"></i>
       </div>
     </div>
-
-    <footer class="c-row c-row--footer c-row--separated">
-
-      <div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">
-        <div class="c-col c-col--6 c-col--vertical-centered c-col--to-left">
-          <c-icon-link icon-class="'icon-help1'" text="'_HELP_' | translate" text-class="" link-url="vm.helpLink"
-                       link-class="" data-qa="policy-input-help"></c-icon-link>
-        </div>
-      </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
-        <button class="c-button c-button--call-to-action-2" data-ng-click="vm.previousStep()"
-                data-qa="policy-cube-previous-button">
-          <i class="icon icon-arrow-left"></i>
-          <span>{{"_PREVIOUS_" | translate}}</span>
-        </button>
-        <button class="c-button c-button--call-to-action-1" data-ng-click="vm.validateForm()"
-                data-qa="policy-new-next-button">
-          <i class="icon icon-arrow-right"></i>
-          <span>{{"_CONTINUE_" | translate}}</span>
-        </button>
-      </div>
-    </footer>
   </form>
 </section>

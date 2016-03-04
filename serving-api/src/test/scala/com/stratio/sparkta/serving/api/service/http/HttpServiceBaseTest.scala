@@ -62,26 +62,18 @@ with SparktaSerializer {
     val outputFieldModel1 = OutputFieldsModel("out1")
     val outputFieldModel2 = OutputFieldsModel("out2")
 
-    val transformations = Seq(TransformationsModel(
-      name = "transformation1",
-      "Morphlines",
-      0,
-      Input.RawDataKey,
-      Seq(outputFieldModel1, outputFieldModel2),
-      Map()))
-    val checkpointModel = CheckpointModel("minute", "minute", None, interval)
+    val transformations =
+      Seq(TransformationsModel("Morphlines", 0, Input.RawDataKey, Seq(outputFieldModel1, outputFieldModel2), Map()))
     val dimensionModel = Seq(DimensionModel(
       "dimensionName",
       "field1",
       DimensionType.IdentityName,
       DimensionType.DefaultDimensionClass,
-      Some(Map())
-    ))
+      configuration = Some(Map()))
+    )
+    val writerModel = WriterModel(Seq("mongo"))
     val operators = Seq(OperatorModel("Count", "countoperator", Map()))
-    val cubes = Seq(CubeModel("cube1",
-      checkpointModel,
-      dimensionModel,
-      operators))
+    val cubes = Seq(CubeModel("cube1", dimensionModel, operators, writerModel))
     val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
     val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
     val policy = AggregationPoliciesModel(id = Option("id"),
@@ -93,6 +85,7 @@ with SparktaSerializer {
       checkpointPath = "test/test",
       rawData,
       transformations,
+      Seq(),
       cubes,
       input,
       outputs,
