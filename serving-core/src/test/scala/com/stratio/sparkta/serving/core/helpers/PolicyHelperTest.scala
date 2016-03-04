@@ -56,7 +56,7 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
             shortDescription = "short description",
             element = PolicyElementModel("inputF", "input", Map())),
           FragmentElementModel(
-            name = "fragment1",
+            name = "fragment2",
             fragmentType = "output",
             description = "description",
             shortDescription = "short description",
@@ -69,11 +69,11 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
 
       Then("outputs must have the existing outputs and the parsed input fragment and the first input")
 
-      result.input should equal(Some(PolicyElementModel("inputF", "input", Map())))
+      result.input should equal(Some(PolicyElementModel("fragment1", "input", Map())))
 
       result.outputs.toSet should equal(Seq(
         PolicyElementModel("output1", "output", Map()),
-        PolicyElementModel("outputF", "output", Map())).toSet
+        PolicyElementModel("fragment2", "output", Map())).toSet
       )
     }
   }
