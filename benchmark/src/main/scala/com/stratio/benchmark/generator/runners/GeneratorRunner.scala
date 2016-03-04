@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2016 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.stratio.benchmark.generator.runners
 
 import java.io.File
@@ -92,29 +91,29 @@ object GeneratorRunner extends HttpUtil {
    * @param config with the needed parameters.
    */
   def postCleanup(id: String, config: Config): Unit = {
-    val sparktaEndpoint = config.getString("sparktaEndpoint")
+    val spartaEndpoint = config.getString("spartaEndpoint")
     val sparkMetricsPath = config.getString("sparkMetricsPath")
 
-    stopPolicy(id, sparktaEndpoint)
-    deletePolicy(id, sparktaEndpoint)
+    stopPolicy(id, spartaEndpoint)
+    deletePolicy(id, spartaEndpoint)
     FileUtils.cleanDirectory(new File(sparkMetricsPath))
   }
 
   /**
-   * Looks for a policy and send a post to Sparkta.
+   * Looks for a policy and send a post to Sparta.
    * @param config with the needed parameters.
    */
   def generatePost(config: Config): String = {
-    val sparktaEndpoint = config.getString("sparktaEndpoint")
+    val spartaEndpoint = config.getString("spartaEndpoint")
     val postTimeout = config.getLong("postTimeout")
     val policyPath = config.getString("policyPath")
 
     val policyContent = Source.fromFile(policyPath).getLines().mkString
 
-    logger.info(s">> Sparkta benchmark started.")
-    logger.info(s"   Step 1/6 Sending policy $policyPath to $sparktaEndpoint")
+    logger.info(s">> Sparta benchmark started.")
+    logger.info(s"   Step 1/6 Sending policy $policyPath to $spartaEndpoint")
 
-    val policyId = createPolicy(policyContent, s"$sparktaEndpoint")
+    val policyId = createPolicy(policyContent, s"$spartaEndpoint")
 
     logger.info(s"   Step 2/6 Waiting $postTimeout milliseconds to run the policy.")
     Thread.sleep(postTimeout)
@@ -180,7 +179,7 @@ object GeneratorRunner extends HttpUtil {
     FileUtils.writeStringToFile((fileAverageReport), writePretty(avgStatisticalModels))
 
     logger.info(s"")
-    logger.info(s">> Sparkta summary results:")
+    logger.info(s">> Sparta summary results:")
 
     avgStatisticalModels.foreach(element => {
       logger.info(s"   MetricName        Type               Value")
@@ -196,7 +195,7 @@ object GeneratorRunner extends HttpUtil {
       logger.info("")
     })
 
-    logger.info(s">>Sparkta benchmark ended.")
+    logger.info(s">>Sparta benchmark ended.")
   }
 }
 

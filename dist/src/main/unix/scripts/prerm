@@ -2,7 +2,7 @@
  
 set -e
  
-/etc/init.d/sparkta stop
+/etc/init.d/sparta stop
 if [ "$1" = remove ]; then
-    invoke-rc.d sparkta stop || true
+    invoke-rc.d sparta stop || true
 fi

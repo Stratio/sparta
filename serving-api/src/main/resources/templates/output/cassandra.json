@@ -4,7 +4,7 @@
   "description": {
     "short": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
     "long": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#cassandra-label"
+    "learnMore": "http://docs.stratio.com/modules/sparta/0.6/outputs.html#cassandra-label"
   },
   "icon": {
     "url": "logo_cassandra.png"
@@ -25,7 +25,7 @@
       "propertyName": "Keyspace",
       "propertyType": "text",
       "regexp": "",
-      "default": "sparkta",
+      "default": "sparta",
       "required": true,
       "tooltip": "The name of the KeySpace."
     },

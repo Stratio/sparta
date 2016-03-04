@@ -10,9 +10,9 @@ function usageHelp ()
 {
     echo 1>&2 "Usage: ${0} -v <version>"
     echo 1>&2 "Parameters:"
-    echo 1>&2 "    -v <version>: Version of Sparkta to use, is mandatory"
+    echo 1>&2 "    -v <version>: Version of Sparta to use, is mandatory"
     echo 1>&2 "Examples:"
-    echo 1>&2 "    ${0} -v 0.7.0  -- Creates and packages the sandbox for Stratio Sparkta 0.7.0"
+    echo 1>&2 "    ${0} -v 0.7.0  -- Creates and packages the sandbox for Stratio Sparta 0.7.0"
 }
 
 # Check if number of parameters is the expected
@@ -32,7 +32,7 @@ fi
 
 tarFile="stratio-spartka-sandbox-${version}.tar.gz"
 sanboxZip="https://github.com/Stratio/sandbox/archive/develop.zip"
-name="sparkta-sandbox"
+name="sparta-sandbox"
 
 echo 1<&2 "INFO: ${0}: Running with following parameters: "
 echo 1>&2 "    version: ${version}"
@@ -40,8 +40,8 @@ echo 1>&2 "    version: ${version}"
 echo 1<&2 "INFO: ${0}: Cleaning data from previous executions"
 deleteIfExists "develop.zip"
 deleteIfExists "sandbox-develop"
-VBoxManage unregistervm --delete stratio-sandbox-sparkta
-VBoxManage unregistervm --delete stratio-sandbox-Sparkta
+VBoxManage unregistervm --delete stratio-sandbox-sparta
+VBoxManage unregistervm --delete stratio-sandbox-Sparta
 deleteIfExists "package.box"
 deleteIfExists "tmp"
 
@@ -53,7 +53,7 @@ echo 1<&2 "INFO: ${0}: Preparing vagrant config file from template"
 template="vagrant_settings.yml.template"
 file="vagrant_settings.yml"
 cp ${file} ${template}
-sed -e "s:\${sparkta_version}:$version:" ${template} > $file
+sed -e "s:\${sparta_version}:$version:" ${template} > $file
 echo 1<&2 "INFO: ${0}: Running vagrant"
 vagrant up
 echo 1<&2 "INFO: ${0}: Stopping vagrant"

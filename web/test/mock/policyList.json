@@ -110,7 +110,7 @@
       "checkpointPath": "checkpoint",
       "rawData": {
         "enabled": "true",
-        "path": "checkpoint/sparkta/raw"
+        "path": "checkpoint/sparta/raw"
       },
       "transformations": [
         {

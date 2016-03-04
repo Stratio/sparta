@@ -23,7 +23,7 @@ Outputs Configurations
    :height: 400 px
    :width: 420 px
    :align: center
-   :alt: Outputs in Sparkta
+   :alt: Outputs in Sparta
 
 
 
@@ -75,7 +75,7 @@ MongoDB Configuration
       "type": "MongoDb",
       "configuration": {
         "hosts": [{"host": "localhost" , "port": "27017" }],
-        "dbName": "sparkta",
+        "dbName": "sparta",
         "identitiesSaved": "true",
         "idAsField": "true"
       }
@@ -91,7 +91,7 @@ parameters to connect to the DB and self-creation of indexes.
 |                       | nodes of a cluster of MongoDB, with different      |          |                           |
 |                       | replica set or with sharding.                      |          |                           |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
-| dbName                | The name of the database                           | Yes      | "sparkta"                 |
+| dbName                | The name of the database                           | Yes      | "sparta"                 |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
 | connectionsPerHost    | Number of connections per host                     | Yes      | 5                         |
 +-----------------------+----------------------------------------------------+----------+---------------------------+
@@ -130,7 +130,7 @@ Cassandra Configuration
         "connectionHost": "127.0.0.1",
         "connectionPort": "9142",
         "cluster": "Test Cluster",
-        "keyspace": "sparkta"
+        "keyspace": "sparta"
       }
     }
   ]
@@ -194,7 +194,7 @@ The Cassandra output uses the generic implementation with DataFrames.
 |                       | feature is for the Stratio's Cassandra Lucene Index      |          |                       |
 +-----------------------+----------------------------------------------------------+----------+-----------------------+
 
-In Cassandra each cube define one table, but when you modify the policy that involve this cube, Sparkta create a new
+In Cassandra each cube define one table, but when you modify the policy that involve this cube, Sparta create a new
 table with the next version. The name of all tables are "dimensions_v1" when modify the policy the new table in
 Cassandra is "dimensions_v2".
 
@@ -235,14 +235,14 @@ The Elasticsearch output uses the generic implementation with DataFrames.
 +--------------------------+-----------------------------------------------+----------+-----------------------+
 | idField                  | Field used as unique id for the row.          | Yes      | "id"                  |
 +--------------------------+-----------------------------------------------+----------+-----------------------+
-| indexMapping             | Field used as mapping for the index.          | Yes      | "sparkta"             |
+| indexMapping             | Field used as mapping for the index.          | Yes      | "sparta"             |
 +--------------------------+-----------------------------------------------+----------+-----------------------+
 | dateType                 | The type of the date fields.                  | Yes      | None                  |
 +--------------------------+-----------------------------------------------+----------+-----------------------+
 
-In ElasticSearch each cube define one index, but when you modify the policy that involve this cube, Sparkta create a new
+In ElasticSearch each cube define one index, but when you modify the policy that involve this cube, Sparta create a new
 mapping with the next version. The name of all tables are the dimensions separated by '_' and the default mapping is
-"sparkta_v1" when modify the policy the new mapping in ElasticSearch is "sparkta_v2".
+"sparta_v1" when modify the policy the new mapping in ElasticSearch is "sparta_v2".
 
 
 .. _redis-label:
@@ -306,7 +306,7 @@ Parquet Configuration
       "type": "Parquet",
       "jarFile" : "output-parquet-plugin.jar",
       "configuration": {
-        "path": "/tmp/sparkta/operators/parquet",
+        "path": "/tmp/sparta/operators/parquet",
         "datePattern": "yyyy/MM/dd"
       }
     }
@@ -339,7 +339,7 @@ Csv Configuration
       "name": "out-csv",
       "type": "Csv",
       "configuration": {
-        "path": "/tmp/sparkta/operators/csv/",
+        "path": "/tmp/sparta/operators/csv/",
         "header": "true",
         "delimiter": ","
       }

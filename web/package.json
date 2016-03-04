@@ -1,5 +1,5 @@
 {
-  "name": "sparkta_web",
+  "name": "sparta_web",
   "private": true,
   "dependencies": {
     "angular": "1.4.3",
@@ -45,6 +45,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Stratio/sparkta.git"
+    "url": "https://github.com/Stratio/sparta.git"
   }
 }

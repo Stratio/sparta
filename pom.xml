@@ -27,7 +27,7 @@
         <version>0.5.0</version>
     </parent>
 
-    <groupId>com.stratio.sparkta</groupId>
+    <groupId>com.stratio.sparta</groupId>
     <artifactId>parent</artifactId>
     <version>0.9.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -45,9 +45,9 @@
         <module>dist</module>
     </modules>
 
-    <name>Stratio SpaRkTA</name>
+    <name>Stratio SpaRTA</name>
     <description>Spark Real-Time Analytics</description>
-    <inceptionYear>2014</inceptionYear>
+    <inceptionYear>2015</inceptionYear>
 
     <licenses>
         <license>
@@ -58,12 +58,12 @@
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/Stratio/sparkta/issues</url>
+        <url>https://github.com/Stratio/sparta/issues</url>
     </issueManagement>
     <scm>
-        <url>https://github.com/Stratio/sparkta</url>
-        <connection>scm:git:git://github.com/Stratio/sparkta.git</connection>
-        <developerConnection>scm:git:git@github.com:Stratio/sparkta.git</developerConnection>
+        <url>https://github.com/Stratio/sparta</url>
+        <connection>scm:git:git://github.com/Stratio/sparta.git</connection>
+        <developerConnection>scm:git:git@github.com:Stratio/sparta.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
@@ -201,37 +201,37 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.stratio.sparkta</groupId>
+                <groupId>com.stratio.sparta</groupId>
                 <artifactId>web</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.stratio.sparkta</groupId>
+                <groupId>com.stratio.sparta</groupId>
                 <artifactId>aggregator</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.stratio.sparkta</groupId>
+                <groupId>com.stratio.sparta</groupId>
                 <artifactId>serving-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.stratio.sparkta</groupId>
+                <groupId>com.stratio.sparta</groupId>
                 <artifactId>serving-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.stratio.sparkta</groupId>
+                <groupId>com.stratio.sparta</groupId>
                 <artifactId>driver</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.stratio.sparkta</groupId>
+                <groupId>com.stratio.sparta</groupId>
                 <artifactId>sdk</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.stratio.sparkta</groupId>
+                <groupId>com.stratio.sparta</groupId>
                 <artifactId>plugins</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -521,6 +521,43 @@
                         <goals>
                             <goal>check</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/README</exclude>
+                        <exclude>**/src/test/resources/**</exclude>
+                        <exclude>**/src/main/resources/**</exclude>
+                        <exclude>**/*.csv</exclude>
+                        <exclude>**/*.json</exclude>
+                        <exclude>**/*.conf</exclude>
+                        <exclude>**/*.txt</exclude>
+                        <exclude>**/*.properties</exclude>
+                        <exclude>**/jetty*</exclude>
+                        <exclude>**/node*/**</exclude>
+                        <exclude>**/.tmp/**</exclude>
+                        <exclude>**/*.scss</exclude>
+                        <exclude>**/*.woff</exclude>
+                        <exclude>**/*.woff2</exclude>
+                        <exclude>**/*.ttf</exclude>
+                        <exclude>**/*.svg</exclude>
+                        <exclude>**/*.eot</exclude>
+                        <exclude>**/*.otf</exclude>
+                        <exclude>**/*.htaccess</exclude>
+                        <exclude>**/*.jshintrc</exclude>
+                        <exclude>**/*.html</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>validate</phase>
                     </execution>
                 </executions>
             </plugin>

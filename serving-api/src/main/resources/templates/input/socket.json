@@ -4,7 +4,7 @@
   "description": {
     "short": "Reads events from a socket.",
     "long": "Reads events from a socket.",
-    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#socket-label"
+    "learnMore": "http://docs.stratio.com/modules/sparta/0.6/inputs.html#socket-label"
   },
   "icon": {
     "url": "logo_socket.png"

@@ -4,7 +4,7 @@
   "description": {
     "short": "Print's output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
     "long": "Print's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
-    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/outputs.html#print-label"
+    "learnMore": "http://docs.stratio.com/modules/sparta/0.6/outputs.html#print-label"
   },
   "icon": {
     "url": "logo_print.png"

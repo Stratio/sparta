@@ -4,7 +4,7 @@
   "description": {
     "short": "Reads events from RabbitMQ",
     "long": "Reads events from RabbitMQ",
-    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#rabbitmq-label"
+    "learnMore": "http://docs.stratio.com/modules/sparta/0.6/inputs.html#rabbitmq-label"
   },
   "icon": {
     "url": "logo_rabbitmq.png"

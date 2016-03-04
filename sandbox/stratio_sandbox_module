@@ -37,14 +37,14 @@ sed -i "s|/usr/share/nginx/html|/opt/sds/kibana-3.1.2|g" default.conf
 /sbin/service nginx start
 
 rm -f /etc/udev/rules.d/70-persistent-net.rules
-echo "> Installing Sparkta"
-/usr/bin/yum -y install stratio-sparkta
-/sbin/chkconfig --add sparkta
-/sbin/chkconfig  sparkta on
+echo "> Installing Sparta"
+/usr/bin/yum -y install stratio-sparta
+/sbin/chkconfig --add sparta
+/sbin/chkconfig  sparta on
 /sbin/chkconfig  zookeeper on
 /sbin/chkconfig --list
 service zookeeper start
-service sparkta start
+service sparta start
 
 yum clean all
 dd if=/dev/zero of=/EMPTY bs=1M

@@ -118,7 +118,7 @@ Select **Product** and click in **SAVE**.
 
 * Step 12:
 
-As you already should now, operators are one of the most powerful features that Sparkta can offer. In this example we are going to use the Max operator. The output field that we want to apply the Max operator will be the **Price**. Click **SAVE**.
+As you already should now, operators are one of the most powerful features that Sparta can offer. In this example we are going to use the Max operator. The output field that we want to apply the Max operator will be the **Price**. Click **SAVE**.
 
 .. image:: images/policyWithGUI/12.png
    :height: 700 px
