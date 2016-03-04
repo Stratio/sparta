@@ -24,13 +24,12 @@ import org.apache.spark.sql.types.StructType
 import scala.util.Try
 
 class GeoParser(
-  name: String,
   order: Integer,
   inputField: String,
   outputFields: Seq[String],
   schema: StructType,
   properties: Map[String, JSerializable]
-) extends Parser(name, order, inputField, outputFields, schema, properties) {
+) extends Parser(order, inputField, outputFields, schema, properties) {
 
   val defaultLatitudeField = "latitude"
   val defaultLongitudeField = "longitude"
