@@ -20,9 +20,10 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparkta.sdk.{Output, TableSchema}
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{Row, SQLContext}
-import org.apache.spark.streaming.Seconds
+import org.apache.spark.streaming.{Milliseconds, Seconds}
 import org.apache.spark.streaming.dstream.DStream
 import StreamWriter._
+import com.stratio.sparkta.serving.core.helpers.OperationsHelper
 
 case class StreamWriterOptions(overLast: Option[String],
                                sparkStreamingWindow: Long,
@@ -35,7 +36,8 @@ case class StreamWriter(triggers: Seq[Trigger],
 
   def write(streamData: DStream[Row]): Unit = {
     val dStream = options.overLast.fold(streamData) { over =>
-      streamData.window(Seconds(over.toLong), Seconds(options.sparkStreamingWindow))
+      streamData.window(Milliseconds(OperationsHelper.parseValueToMilliSeconds(over)),
+        Milliseconds(options.sparkStreamingWindow))
     }
 
     dStream.foreachRDD(rdd => {
