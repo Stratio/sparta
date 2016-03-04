@@ -4,7 +4,7 @@
   "description": {
     "short": "Reads events from flume",
     "long": "Reads events from flume",
-    "learnMore": "http://docs.stratio.com/modules/sparkta/0.6/inputs.html#flume-label"
+    "learnMore": "http://docs.stratio.com/modules/sparta/0.6/inputs.html#flume-label"
   },
   "icon": {
     "url": "logo_flume.png"

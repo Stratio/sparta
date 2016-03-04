@@ -206,11 +206,11 @@ It counts words from the input field and shows how many times a word has appeare
           }
         }
 
-With the text "Sparkta is the best real time aggregator of the world. Sparkta now support real time word count" the
+With the text "Sparta is the best real time aggregator of the world. Sparta now support real time word count" the
 output would be::
 
     "entityCount_text" = Map(
-      Sparkta: 2,
+      Sparta: 2,
       is: 1,
       the: 2,
       best: 1,
@@ -244,7 +244,7 @@ It counts words from the input field. It is possible to select the string to spl
         }
 
 
-With the text "Sparkta is the best real time aggregator of the world. Sparkta now support real time word count" the
+With the text "Sparta is the best real time aggregator of the world. Sparta now support real time word count" the
 output would be::
 
       "totalEntityCount": 17

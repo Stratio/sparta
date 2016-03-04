@@ -118,9 +118,9 @@ Parent
     - Serving-core: Simple library to read aggregation data.
     - Serving-api: REST api implementing serving-core.
     - Plugins: Now, the platform is **pluggable**. This module contains all **official** plugins.
-    - Sdk: This library can be used to develop new plugins to adapt Sparkta to your necessities.
+    - Sdk: This library can be used to develop new plugins to adapt Sparta to your necessities.
 - Now a distribution is generated
-- SandBox Stratio Sparkta
+- SandBox Stratio Sparta
 
 Sdk
 ---

@@ -4,7 +4,7 @@ Configuration
 Overview
 ========
 
-This section shows how to configure Sparkta through Typesafe's standard Config.
+This section shows how to configure Sparta through Typesafe's standard Config.
 
 By default the system will use the config file "reference.conf", but you can overwrite this values having and
 application.conf in your classpath. This is the summary of all parameters that you could configure:
@@ -32,22 +32,22 @@ More deep documentation about it, can be found at |typesafe_config_repo|.
    <a href="https://github.com/typesafehub/config"
    target="_blank">Github Typesafe's repository</a>
 
-A reference.conf with a full example of a configuration can be found at |github_sparkta_repo_reference_conf|.
+A reference.conf with a full example of a configuration can be found at |github_sparta_repo_reference_conf|.
 
-.. |github_sparkta_repo_reference_conf| raw:: html
+.. |github_sparta_repo_reference_conf| raw:: html
 
-   <a href="https://github.com/Stratio/Sparkta/blob/master/serving-api/src/main/resources/reference.conf"
-   target="_blank">Sparkta repository</a>
+   <a href="https://github.com/Stratio/Sparta/blob/master/serving-api/src/main/resources/reference.conf"
+   target="_blank">Sparta repository</a>
 
 .. _zk-config:
 
 Zookeeper configuration
 =======================
 
-One of the necessities of Sparkta is to keep track of all policies running and their status. Since Zookeeper is a
-Sparkta dependency and a common piece in any Big Data architecture we save all this metadata in Zookeeper nodes.
+One of the necessities of Sparta is to keep track of all policies running and their status. Since Zookeeper is a
+Sparta dependency and a common piece in any Big Data architecture we save all this metadata in Zookeeper nodes.
 
-All this info is saved under the znode `/stratio/sparkta`. Under this root we save input and output fragments,
+All this info is saved under the znode `/stratio/sparta`. Under this root we save input and output fragments,
 policies and policy statuses.
 
 ZK is used intensely. For example:
@@ -92,7 +92,7 @@ Spray.io configuration
 ======================
 
 Spray is a toolkit for building REST/HTTP-based integration layers on top of Scala and Akka and is the main door to
-offer a Sparkta API to the world.
+offer a Sparta API to the world.
 
 More deep documentation about it, can be found at |spray_io|.
 
@@ -167,18 +167,18 @@ An example in the application.conf::
 Cluster configuration
 =====================
 
-If you have the need of to run Sparkta in a cluster, you have three possibilities:
+If you have the need of to run Sparta in a cluster, you have three possibilities:
 
-- Sparkta + Spark Standalone: only one policy per cluster. (*)
-- Sparkta + Apache Mesos: one or more policy/policies per cluster. (*)
-- Sparkta + Apache YARN: one or more policy/policies per cluster. (*)
+- Sparta + Spark Standalone: only one policy per cluster. (*)
+- Sparta + Apache Mesos: one or more policy/policies per cluster. (*)
+- Sparta + Apache YARN: one or more policy/policies per cluster. (*)
 
 (*) Note: it is impossible to run up several spark contexts in the same machine in Standalone mode because you just
 can run only one policy per cluster. However if you choose Mesos or YARN each job is treated in an isolate environment,
 therefore you could run up as many contexts as you wish.
 
 In any of the selected choices it is mandatory to have HDFS installed and configured in all of nodes of the cluster.
-Once this requirement is done, you must configure Sparkta in your application.conf::
+Once this requirement is done, you must configure Sparta in your application.conf::
 
   hdfs {
     hadoopUserName = stratio
@@ -209,7 +209,7 @@ Once this requirement is done, you must configure Sparkta in your application.co
 
 .. _cluster-config-standalone:
 
-Sparkta + Spark Standalone
+Sparta + Spark Standalone
 --------------------------
 
 You must have correctly configured and deployed Spark Standalone. You can obtain information about how to do it
@@ -222,7 +222,7 @@ You must have correctly configured and deployed Spark Standalone. You can obtain
 
 .. _cluster-config-mesos:
 
-Sparkta + Apache Mesos
+Sparta + Apache Mesos
 ----------------------
 
 You must have correctly configured and deployed Apache Mesos. You can obtain information about how to do it
@@ -233,7 +233,7 @@ You must have correctly configured and deployed Apache Mesos. You can obtain inf
    <a href="http://mesos.apache.org"
    target="_blank">here</a>
 
-The next step is set up Sparkta's Mesos configuration::
+The next step is set up Sparta's Mesos configuration::
 
   mesos {
     sparkHome = "/home/ubuntu/Descargas/spark-1.4.1-bin-hadoop2.6/"
@@ -289,7 +289,7 @@ of the MesosClusterDispatcher (e.g: mesos://dispatcher:7077). You can view drive
 
 .. _cluster-config-yarn:
 
-Sparkta + Apache YARN
+Sparta + Apache YARN
 ---------------------
 
 You must have correctly configured and deployed Apache Yarn. You can obtain information about how to do it at
@@ -323,10 +323,10 @@ Fragments are JSON blocks of inputs/outputs that will be included in a policy. I
     }
   }
 
-These fragments are saved in Zookeeper in the following paths `/stratio/sparkta/fragments/input` and
-`/stratio/sparkta/fragments/output`
+These fragments are saved in Zookeeper in the following paths `/stratio/sparta/fragments/input` and
+`/stratio/sparta/fragments/output`
 
-Policies are saved in the following path `/stratio/sparkta/policies`.
+Policies are saved in the following path `/stratio/sparta/policies`.
 
 Another useful information we save is the policy status. We save the current status of a policy. This status is
-persisted in path `/stratio/sparkta/contexts`
+persisted in path `/stratio/sparta/contexts`

@@ -114,7 +114,7 @@
       "type": "MongoDb",
       "configuration": {
         "hosts": [{"host": "localhost" , "port": "27017" }],
-        "dbName": "sparkta"
+        "dbName": "sparta"
       }
     }
   ]

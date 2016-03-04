@@ -10,12 +10,12 @@
 - Possibility to package two Spark versions: 1.4.1 and 1.5.2
 - MongoDb output updated to version 0.10.1
 - New Solr output
-- Migration of doc to confluence: https://stratio.atlassian.net/wiki/display/SPARKTA0x8/
+- Migration of doc to confluence: https://stratio.atlassian.net/wiki/display/SPARTA0x8/
 - Solved issue when a policy is stopped in the cluster
 - Improve performance in associative operators
 - Automatic deploy of policies in clusters: Spark Standalone, Mesos and YARN
 - Improve Cassandra Output. Possibility to introduce Spark properties
-- Solved issue related to stopping Sparkta service
+- Solved issue related to stopping Sparta service
 - bug corrected in aggregations, Array Index out of bounds
 
 ## 0.7.0 (November 2015)
@@ -30,7 +30,7 @@
 ## 0.6.2 (September 2015)
 
 - Bugfix: DateTime now parses string formats
-- Bugfix: Permission issues running Sparkta service
+- Bugfix: Permission issues running Sparta service
 - Bugfix: Minor errors in user interface
 
 ## 0.6.1 (September 2015)
@@ -60,7 +60,7 @@
 
 ## 0.4.0 (May 2015)
 
-- SandBox Stratio Sparkta
+- SandBox Stratio Sparta
 - Integration with **Spark 1.3.1**
 - Auto create time series in outputs if not exist time dimension
 - Full integration in Outputs with **Spark DataFrames**

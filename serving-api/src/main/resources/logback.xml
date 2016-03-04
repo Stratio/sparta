@@ -42,7 +42,7 @@
     <logger name="org.apache.spark">
         <level value="WARN" />
     </logger>
-    <logger name="com.stratio.sparkta">
+    <logger name="com.stratio.sparta">
         <level value="DEBUG" />
     </logger>
 
