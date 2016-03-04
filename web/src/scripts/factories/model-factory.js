@@ -34,6 +34,7 @@
       model.inputField = "";
       model.type = template.types[0].name;
       model.order = order;
+      model.configuration = {};
       error.text = "";
       error.duplicatedOutput = false;
     }
@@ -47,7 +48,7 @@
         } else {
           var previousModel = models[--index];
           var previousOutputs = generateOutputOptions(previousModel.outputFields);
-          if (previousModel.inputField != template.defaultInput.value) { // do not put the default input
+          if (previousModel.inputField && previousModel.inputField != template.defaultInput.value) { // do not put the default input
             var previousInputs = generateOutputOptions([previousModel.inputField]);
             inputList.push.apply(inputList, previousInputs);
           }

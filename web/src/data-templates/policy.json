@@ -198,47 +198,47 @@
     ],
     "outputFieldTypes": [
       {
-        "label": "string",
+        "label": "String",
         "value": "string"
       },
       {
-        "label": "long",
+        "label": "Long",
         "value": "long"
       },
       {
-        "label": "double",
+        "label": "Double",
         "value": "double"
       },
       {
-        "label": "integer",
+        "label": "Integer",
         "value": "integer"
       },
       {
-        "label": "boolean",
+        "label": "Boolean",
         "value": "boolean"
       },
       {
-        "label": "date",
+        "label": "Date",
         "value": "date"
       },
       {
-        "label": "datetime",
+        "label": "Datetime",
         "value": "datetime"
       },
       {
-        "label": "timestamp",
+        "label": "Timestamp",
         "value": "timestamp"
       },
       {
-        "label": "arraydouble",
+        "label": "Array Double",
         "value": "arraydouble"
       },
       {
-        "label": "arraystring",
+        "label": "Array String",
         "value": "arraystring"
       },
       {
-        "label": "text",
+        "label": "Text",
         "value": "text"
       }
     ],

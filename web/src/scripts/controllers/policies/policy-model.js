@@ -54,11 +54,14 @@
       }
     }
 
-    function onChangeType(){
+    function onChangeType() {
       switch (vm.model.type) {
-        case "Morphlines":{
+        case "Morphlines":
           vm.model.configuration = vm.template.model.morphlines.defaultConfiguration;
-        }
+          break;
+
+        default:
+          vm.model.configuration = {};
       }
     }
 
