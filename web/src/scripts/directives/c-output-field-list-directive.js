@@ -46,7 +46,9 @@
         outputTypes: "=",
         qa: "@",
         help: '@',
-        helpQa: '@'
+        helpQa: '@',
+        defaultType: '=',
+        disabledType: '='
       },
       replace: "true",
       templateUrl: 'templates/components/c-output-field-list.tpl.html',
