@@ -537,6 +537,19 @@
                         <exclude>**/*.conf</exclude>
                         <exclude>**/*.txt</exclude>
                         <exclude>**/*.properties</exclude>
+                        <exclude>**/jetty*</exclude>
+                        <exclude>**/node*/**</exclude>
+                        <exclude>**/.tmp/**</exclude>
+                        <exclude>**/*.scss</exclude>
+                        <exclude>**/*.woff</exclude>
+                        <exclude>**/*.woff2</exclude>
+                        <exclude>**/*.ttf</exclude>
+                        <exclude>**/*.svg</exclude>
+                        <exclude>**/*.eot</exclude>
+                        <exclude>**/*.otf</exclude>
+                        <exclude>**/*.htaccess</exclude>
+                        <exclude>**/*.jshintrc</exclude>
+                        <exclude>**/*.html</exclude>
                     </excludes>
                 </configuration>
                 <executions>
