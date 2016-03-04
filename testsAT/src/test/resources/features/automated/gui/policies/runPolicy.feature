@@ -10,8 +10,14 @@ Feature: Test running a policy in Sparta GUI
 		Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
 		| id | DELETE | N/A |
 		| fragmentType | UPDATE | input |
-		| name | UPDATE | flumeinput |
-		| element.type | UPDATE | Flume |
+		| name | UPDATE | websocketinput |
+                | element.name | UPDATE | in-WebSocket |
+		| element.type | UPDATE | WebSocket |
+		| element.configuration.url | ADD | ws://stream.meetup.com/2/rsvps |
+		| element.configuration.consumerKey | DELETE | N/A |
+		| element.configuration.consumerSecret | DELETE | N/A |
+		| element.configuration.accessToken | DELETE | N/A |
+		| element.configuration.accessTokenSecret | DELETE | N/A |
 		Then the service response status must be '200'.
 		And I save element '$.id' in environment variable 'previousFragmentID'
 		When I send a 'GET' request to '/fragment/input'
@@ -23,6 +29,7 @@ Feature: Test running a policy in Sparta GUI
 		| fragmentType | UPDATE | output |
 		| name | UPDATE | printoutput |
 		| element.type | UPDATE | Print |
+		| element.configuration | DELETE | N/A |
 		Then the service response status must be '200'.
 		And I save element '$.id' in environment variable 'previousFragmentID_2'
 		When I send a 'GET' request to '/fragment/output'
@@ -40,11 +47,18 @@ Feature: Test running a policy in Sparta GUI
 		| input | DELETE | N/A |
 		| outputs | DELETE | N/A |
 		| name | UPDATE | myPolicy |
+		| checkpointPath | UPDATE | /tmp/checkpoint |
+		| cubes[0].dimensions[0].name | UPDATE | field1 |
+		| cubes[0].dimensions[0].field | UPDATE | field1 |
+		| cubes[0].dimensions[0].type | UPDATE | Default |
+		| cubes[0].dimensions[0].precision | DELETE | N/A |
+		| transformations[0].outputFields[0].name | UPDATE | field1 |
+		| transformations[0].outputFields[0].type | ADD | string |
 		Then the service response status must be '200'.
 		And I save element '$.id' in environment variable 'previousPolicyID'
 		# Check list of policies
-		When I send a 'GET' request to '/policy/all'	
-		Then the service response status must be '200' and its response length must be '1'	
+		When I send a 'GET' request to '/policy/all'
+		Then the service response status must be '200' and its response length must be '1'
 		
 		# Browse to policies
 		Given I browse to '/#/dashboard/policies'
@@ -59,6 +73,7 @@ Feature: Test running a policy in Sparta GUI
 		When I click on the element on index '0'
 		And I wait '1' second
 		Then a text 'is running!' exists
+	    And I wait '5' seconds
 		
 		Given '1' element exists with 'css:i[data-qa="policy-context-menu-!{previousPolicyID}"]'
 		And I click on the element on index '0'
@@ -67,8 +82,21 @@ Feature: Test running a policy in Sparta GUI
 		When I click on the element on index '0'
 		Then I wait '1' second
 		And a text 'is already running! Please stop it and try again later.' exists
+
+	  	# Stop policy
+  		Given '1' element exists with 'css:i[data-qa="policy-context-menu-!{previousPolicyID}"]'
+		And I click on the element on index '0'
+		And I wait '1' second
+		And '1' element exists with 'css:st-menu-element[data-qa="policy-context-menu-!{previousPolicyID}-stop"]'
+		When I click on the element on index '0'
+		Then I wait '1' second
+		And a text 'is stopping!' exists
 		
 		Scenario: Delete fragments
+		When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
+		Then the service response status must be '200'.
+		When I send a 'GET' request to '/policy/all'
+		Then the service response status must be '200' and its response must contain the text '[]'
 		When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
 		Then the service response status must be '200'.
 		When I send a 'GET' request to '/fragment/input'
