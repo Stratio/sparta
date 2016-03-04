@@ -17,7 +17,7 @@
 package com.stratio.sparkta.driver.cube
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.sdk.{DateOperations, DimensionValue, DimensionValuesTime, TimeConfig, TypeOp}
+import com.stratio.sparkta.sdk._
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
