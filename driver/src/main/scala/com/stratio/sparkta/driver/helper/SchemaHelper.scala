@@ -46,9 +46,9 @@ object SchemaHelper {
     TypeOp.MapStringLong -> MapType(StringType, LongType)
   )
 
-  val mapSparkTypes : Map[DataType, TypeOp] = Map(
+  val mapSparkTypes: Map[DataType, TypeOp] = Map(
     LongType -> TypeOp.Long,
-    DoubleType -> TypeOp.Double ,
+    DoubleType -> TypeOp.Double,
     DecimalType(Default_Precision, Default_Scale) -> TypeOp.BigDecimal,
     IntegerType -> TypeOp.Int,
     BooleanType -> TypeOp.Boolean,
@@ -78,7 +78,7 @@ object SchemaHelper {
 
   def getSchemasFromParsers(transformationsModel: Seq[TransformationsModel],
                             initSchema: Map[String, StructType]): Map[String, StructType] = {
-    initSchema ++ searchSchemasFromParsers(transformationsModel, initSchema)
+    initSchema ++ searchSchemasFromParsers(transformationsModel.sortBy(_.order), initSchema)
   }
 
   private def searchSchemasFromParsers(transformationsModel: Seq[TransformationsModel],
@@ -91,18 +91,20 @@ object SchemaHelper {
             Nullable
           )
         )
-        val fields = schemas.values.flatMap(structType => structType.fields) ++
-          schema.map { case (key, value) => value }
 
-        if(transformationsModel.size == 1){
-          val fieldsWithoutRaw = fields.filter(structField => structField.name != Input.RawDataKey)
-          schemas ++ Map(transformationModel.name -> StructType(fieldsWithoutRaw.toSeq))
-        } else schemas ++ searchSchemasFromParsers(transformationsModel.drop(1),
-            Map(transformationModel.name -> StructType(fields.toSeq))
+        val fields = schemas.values.flatMap(structType => structType.fields) ++ schema.map(_._2)
+
+        if (transformationsModel.size == 1)
+          schemas ++ Map(transformationModel.name -> StructType(fields.toSeq))
+        else schemas ++ searchSchemasFromParsers(transformationsModel.drop(1),
+          Map(transformationModel.name -> StructType(fields.toSeq))
         )
       case None => schemas
     }
   }
+
+  def getSchemaWithoutRaw(schemas: Map[String, StructType]): StructType =
+    StructType(schemas.values.last.filter(_.name != Input.RawDataKey))
 
   def getSchemasFromCubes(cubes: Seq[Cube],
                           cubeModels: Seq[CubeModel],

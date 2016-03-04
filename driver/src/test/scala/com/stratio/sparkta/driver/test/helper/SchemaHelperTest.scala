@@ -217,7 +217,7 @@ with MockitoSugar {
       res should be(expected)
     }
 
-  it should "return a map with the name of the transformation and the schema without raw" in
+  it should "return a map with the name of the transformation and the schema with the raw" in
     new CommonValues {
       val transformationsModel = Seq(transformationModel1, transformationModel2)
 
@@ -229,11 +229,29 @@ with MockitoSugar {
           StructField("field1", LongType),
           StructField("field2", IntegerType))
         ),
-        "parser2" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType),
+        "parser2" -> StructType(Seq(StructField(Input.RawDataKey, StringType),
+          StructField("field1", LongType), StructField("field2", IntegerType),
           StructField("field3", StringType), StructField("field4", StringType)))
       )
 
       res should be(expected)
+    }
+
+  it should "return a schema without the raw" in
+    new CommonValues {
+      val transformationsModel = Seq(transformationModel1, transformationModel2)
+
+      val schemas = SchemaHelper.getSchemasFromParsers(transformationsModel, Input.InitSchema)
+      val schemaWithoutRaw = SchemaHelper.getSchemaWithoutRaw(schemas)
+
+      val expected = StructType(
+        Seq(
+          StructField("field1", LongType), StructField("field2", IntegerType),
+          StructField("field3", StringType), StructField("field4", StringType)
+        )
+      )
+
+      schemaWithoutRaw should be(expected)
     }
 
   class OperatorTest(name: String,
