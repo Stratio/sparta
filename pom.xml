@@ -47,7 +47,7 @@
 
     <name>Stratio SpaRkTA</name>
     <description>Spark Real-Time Analytics</description>
-    <inceptionYear>2014</inceptionYear>
+    <inceptionYear>2015</inceptionYear>
 
     <licenses>
         <license>
@@ -521,6 +521,30 @@
                         <goals>
                             <goal>check</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/README</exclude>
+                        <exclude>**/src/test/resources/**</exclude>
+                        <exclude>**/src/main/resources/**</exclude>
+                        <exclude>**/*.csv</exclude>
+                        <exclude>**/*.json</exclude>
+                        <exclude>**/*.conf</exclude>
+                        <exclude>**/*.txt</exclude>
+                        <exclude>**/*.properties</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>validate</phase>
                     </execution>
                 </executions>
             </plugin>
