@@ -144,7 +144,7 @@
       "type": "ElasticSearch",
       "configuration": {
         "nodes": [{"node":"localhost","tcpPort":"9300","httpPort":"9200"}],
-        "clusterName": "sparkta-elasticsearch",
+        "clusterName": "sparta-elasticsearch",
         "indexMapping": "day"
       }
     }

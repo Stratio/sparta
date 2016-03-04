@@ -220,7 +220,7 @@ Reads events from Twitter API and returns Json status in this |event|
 
   .. |event| raw:: html
 
-   <a href="https://github.com/Stratio/Sparkta/blob/master/doc/src/site/sphinx/Twitter-JSON-Format.json"
+   <a href="https://github.com/Stratio/Sparta/blob/master/doc/src/site/sphinx/Twitter-JSON-Format.json"
    target="_blank">format</a>
 
 * Sample:
@@ -242,7 +242,7 @@ To extract the fields that you need from the JSON you need to do a simple parser
 
   .. |parser| raw:: html
 
-   <a href="https://github.com/Stratio/Sparkta/blob/master/examples/policies/ITwitterJson-OCassandra.json"
+   <a href="https://github.com/Stratio/Sparta/blob/master/examples/policies/ITwitterJson-OCassandra.json"
    target="_blank">here</a>
 
 +-------------------+-----------------------------------------------------------+------------+

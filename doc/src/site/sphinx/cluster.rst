@@ -1,7 +1,7 @@
 Cluster Execution
 ***********
 
-In Sparkta is possible to run policies in a Spark Cluster. Sparkta needs one Cluster Manager to run, and this could be
+In Sparta is possible to run policies in a Spark Cluster. Sparta needs one Cluster Manager to run, and this could be
 Mesos, Yarn or Spark StandAlone.
 With this mode the user can run a lot of policies in the same Spark cluster with more than one Spark context.
 
@@ -15,11 +15,11 @@ All the configuration parameters are inside the application.conf file.
           stopGracefully = true
         }
          local {
-            spark.app.name = SPARKTA
+            spark.app.name = SPARTA
             spark.master = "local[4]"
             spark.cores.max = 4
             spark.executor.memory = 1024m
-            spark.app.name = SPARKTA
+            spark.app.name = SPARTA
             spark.sql.parquet.binaryAsString = true
             spark.streaming.concurrentJobs = 5
          }
@@ -55,7 +55,7 @@ If you change the executionMode parameter you can change the type of execution, 
 For the execution in cluster mode, the machines must have configured the environments variables:
   - HADOOP_HOME
   - SPARK_HOME
-  - SPARKTA_HOME
+  - SPARTA_HOME
 
   Notes :
     If you don't have SPARK_HOME variable you can specify the "sparkHome" in the mesos/yarn/standAlone section.
@@ -96,7 +96,7 @@ this parameters are optionals.
 
     deployMode: It`s possible to run in a mesos with two different modes, client and cluster. Optional: No.
 
-    numExecutors: The number of Sparkta executors to deploy with mesos. Optional: No.
+    numExecutors: The number of Sparta executors to deploy with mesos. Optional: No.
 
     masterDispatchers: IP of the machine that runs the mesos dispatcher script. Optional: No.
 

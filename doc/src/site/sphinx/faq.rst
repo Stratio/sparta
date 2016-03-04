@@ -24,7 +24,7 @@ If it's already installed, to run Zookeeper just::
 
 - This is probably because the Cassandra Table name is too long. Actually the name of the table is generated with the name of the cube's dimensions. The combination of these dimensions names has to be less than 48 characters and if its more, it will split at 48 characters.
 
-**Sparkta seems to be working right but my data it's not being aggregated**
+**Sparta seems to be working right but my data it's not being aggregated**
 
 - The "timeAvailavility" might be wrong. If the size of the window is not big enough, your data might not be fitting in it. So you have to check this parameter value and also the timestamp of the event.
 
@@ -38,7 +38,7 @@ If it's already installed, to run Zookeeper just::
 
 **I'm checking the database that I'm using and only has the last event. The other data seems to be deleted. Why?**
 
-- If the time between your first data aggregation to the last it's quiet big, it's possible that the checkpoint value is not big enough to process the old data, so it will be deleted because Sparkta can't find it. You will only see the new aggregations.
+- If the time between your first data aggregation to the last it's quiet big, it's possible that the checkpoint value is not big enough to process the old data, so it will be deleted because Sparta can't find it. You will only see the new aggregations.
 
 **I'm trying to delete an input/output and I can't. Why?**
 

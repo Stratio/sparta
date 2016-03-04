@@ -1,4 +1,4 @@
-About Stratio Sparkta
+About Stratio Sparta
 ******************
 
 Since Aryabhatta invented zero, Mathematicians such as John von Neuman have been in pursuit
@@ -46,7 +46,7 @@ We can follow in real-time the evolution of a topic, an event or even an inciden
 
  Aggregated data feeds directly to end users, publishers, and advertisers, among others.
 
- In Sparkta we want to start delivering real-time services. Real-time monitoring could be really nice, but your
+ In Sparta we want to start delivering real-time services. Real-time monitoring could be really nice, but your
  company needs to work in the same way as digital companies:
 
  Rethinking existing processes to deliver them faster, better.
@@ -77,9 +77,9 @@ Architecture
 ============
 
 
-Sparkta overview
+Sparta overview
 ------------
-.. figure:: images/sparkta1.png
+.. figure:: images/sparta1.png
    :alt: Spark Architecture Overview
 
 

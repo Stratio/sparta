@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2016 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.stratio.benchmark.generator.utils
 
 import org.apache.http.HttpStatus
@@ -32,7 +31,7 @@ trait HttpUtil   {
   private val logger = Logger.getLogger(this.getClass)
 
   /**
-   * Given a policy it makes an http request to start it on Sparkta.
+   * Given a policy it makes an http request to start it on Sparta.
    * @param  policyContent with the policy in string format.
    * @param  endpoint to perform the post.
    */
@@ -55,7 +54,7 @@ trait HttpUtil   {
     val response = client.execute(post)
 
    if(response.getStatusLine.getStatusCode != HttpStatus.SC_OK)
-     throw new IllegalStateException(s"Sparkta status code is not OK: ${response.getStatusLine.getStatusCode}")
+     throw new IllegalStateException(s"Sparta status code is not OK: ${response.getStatusLine.getStatusCode}")
    else {
      val entity = response.getEntity
      val policyId = (parse(EntityUtils.toString(entity)) \ "policyId").extract[String]
@@ -86,7 +85,7 @@ trait HttpUtil   {
 
     if(response.getStatusLine.getStatusCode != HttpStatus.SC_CREATED) {
       logger.info(Source.fromInputStream(response.getEntity.getContent).mkString(""))
-      logger.info(s"Sparkta status code is not OK: ${response.getStatusLine.getStatusCode}")
+      logger.info(s"Sparta status code is not OK: ${response.getStatusLine.getStatusCode}")
     }
   }
 
@@ -96,6 +95,6 @@ trait HttpUtil   {
     val response = client.execute(delete)
 
     if(response.getStatusLine.getStatusCode != HttpStatus.SC_OK)
-      logger.info(s"Sparkta status code is not OK: ${response.getStatusLine.getStatusCode}")
+      logger.info(s"Sparta status code is not OK: ${response.getStatusLine.getStatusCode}")
   }
 }

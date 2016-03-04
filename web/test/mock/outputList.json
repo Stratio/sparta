@@ -9,7 +9,7 @@
         "compactStorage": true,
         "analyzer": "english",
         "connectionPort": "9042",
-        "keyspace": "Sparkta",
+        "keyspace": "Sparta",
         "keyspaceClass": "simpleStrategy",
         "replication_factor": "1",
         "refreshSeconds": "1"
@@ -43,7 +43,7 @@
     "element": {
       "configuration": {
         "nodes": [{"node":"localhost","defaultPort":"9300"}],
-        "indexMapping": "sparkta",
+        "indexMapping": "sparta",
         "idField": ""
       },
       "type": "ElasticSearch",
@@ -64,7 +64,7 @@
         "retrySleep": "1000",
         "hosts": [{"hostName":"localhost","port":"27017"}],
         "idAsField": true,
-        "dbName": "sparkta"
+        "dbName": "sparta"
       },
       "type": "MongoDb",
       "name": "in-MongoDb"

@@ -3,7 +3,7 @@
 set -e
 
 GROUP='stratio'
-USER='sparkta'
+USER='sparta'
 
 case "$1" in
     configure)
@@ -11,27 +11,27 @@ case "$1" in
        groupadd ${GROUP}
     fi
     if ! getent passwd ${USER} >/dev/null 2>&1; then
-       useradd -M -d /opt/sds/sparkta -g ${GROUP} -s /sbin/nologin ${USER}
+       useradd -M -d /opt/sds/sparta -g ${GROUP} -s /sbin/nologin ${USER}
     fi
 
-    chown root:root /etc/init.d/sparkta
+    chown root:root /etc/init.d/sparta
 
-    chown -R ${USER}:${GROUP} /etc/sds/sparkta
+    chown -R ${USER}:${GROUP} /etc/sds/sparta
 
-    chown ${USER}:${GROUP} /etc/default/sparkta-functions
-    chown ${USER}:${GROUP} /etc/default/sparkta-variables
+    chown ${USER}:${GROUP} /etc/default/sparta-functions
+    chown ${USER}:${GROUP} /etc/default/sparta-variables
 
-    chown -R ${USER}:${GROUP} /var/log/sds/sparkta
-    chown -R ${USER}:${GROUP} /opt/sds/sparkta
+    chown -R ${USER}:${GROUP} /var/log/sds/sparta
+    chown -R ${USER}:${GROUP} /opt/sds/sparta
 
-    chmod 755 /etc/init.d/sparkta
+    chmod 755 /etc/init.d/sparta
 
-    chmod 750 /etc/sds/sparkta
-    chmod 775 /var/log/sds/sparkta
-    chmod 750 /opt/sds/sparkta
-    chmod 750 /opt/sds/sparkta/bin/*
+    chmod 750 /etc/sds/sparta
+    chmod 775 /var/log/sds/sparta
+    chmod 750 /opt/sds/sparta
+    chmod 750 /opt/sds/sparta/bin/*
 
-    update-rc.d sparkta defaults
+    update-rc.d sparta defaults
   ;;
 esac
 

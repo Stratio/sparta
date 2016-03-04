@@ -19,11 +19,11 @@
 
 <configuration>
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/log/sds/sparkta/sparkta.log</file>
+        <file>/var/log/sds/sparta/sparta.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover. Make sure the path matches the one in the file element or else
              the rollover logs are placed in the working directory. -->
-            <fileNamePattern>/var/log/sds/sparkta/sparkta_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>/var/log/sds/sparta/sparta_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
 
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>10MB</maxFileSize>
@@ -53,7 +53,7 @@
     <logger name="org.apache.spark">
         <level value="ERROR" />
     </logger>
-    <logger name="com.stratio.sparkta">
+    <logger name="com.stratio.sparta">
         <level value="INFO" />
     </logger>
 
