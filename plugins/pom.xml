@@ -29,7 +29,7 @@
 
     <properties>
         <morphline.version>0.17.0</morphline.version>
-        <cassandra.spark.version>1.5.0-M2</cassandra.spark.version>
+        <cassandra.spark.version>1.5.0</cassandra.spark.version>
     </properties>
 
     <dependencies>
