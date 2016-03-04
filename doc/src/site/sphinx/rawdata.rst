@@ -2,8 +2,8 @@ Saving the raw data
 *******************
 
 Sometimes it's interesting to save the incoming data for post-analizing purposes or just for backup.
-Sparkta gives the possibility to persist this data in raw format in storage services like S3 or HDFS.
-Sparkta save the data as a Parquet file.You can find some examples |parquet_link|
+Sparta gives the possibility to persist this data in raw format in storage services like S3 or HDFS.
+Sparta save the data as a Parquet file.You can find some examples |parquet_link|
 
 .. |parquet_link| raw:: html
 

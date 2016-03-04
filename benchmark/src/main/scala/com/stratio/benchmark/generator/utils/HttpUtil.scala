@@ -31,7 +31,7 @@ trait HttpUtil   {
   private val logger = Logger.getLogger(this.getClass)
 
   /**
-   * Given a policy it makes an http request to start it on Sparkta.
+   * Given a policy it makes an http request to start it on Sparta.
    * @param  policyContent with the policy in string format.
    * @param  endpoint to perform the post.
    */
@@ -54,7 +54,7 @@ trait HttpUtil   {
     val response = client.execute(post)
 
    if(response.getStatusLine.getStatusCode != HttpStatus.SC_OK)
-     throw new IllegalStateException(s"Sparkta status code is not OK: ${response.getStatusLine.getStatusCode}")
+     throw new IllegalStateException(s"Sparta status code is not OK: ${response.getStatusLine.getStatusCode}")
    else {
      val entity = response.getEntity
      val policyId = (parse(EntityUtils.toString(entity)) \ "policyId").extract[String]
@@ -85,7 +85,7 @@ trait HttpUtil   {
 
     if(response.getStatusLine.getStatusCode != HttpStatus.SC_CREATED) {
       logger.info(Source.fromInputStream(response.getEntity.getContent).mkString(""))
-      logger.info(s"Sparkta status code is not OK: ${response.getStatusLine.getStatusCode}")
+      logger.info(s"Sparta status code is not OK: ${response.getStatusLine.getStatusCode}")
     }
   }
 
@@ -95,6 +95,6 @@ trait HttpUtil   {
     val response = client.execute(delete)
 
     if(response.getStatusLine.getStatusCode != HttpStatus.SC_OK)
-      logger.info(s"Sparkta status code is not OK: ${response.getStatusLine.getStatusCode}")
+      logger.info(s"Sparta status code is not OK: ${response.getStatusLine.getStatusCode}")
   }
 }

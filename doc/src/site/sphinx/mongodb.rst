@@ -14,9 +14,9 @@ Introduction
 ============
 
 This output uses the native driver for MongoDB in Scala language. **Casbah Driver** offers all the functionality that
-Sparkta need to insert,update and add and configure the database for proper system operation.
+Sparta need to insert,update and add and configure the database for proper system operation.
 
-In the implementation of an Output of Sparkta's SDK there are two possibilities: one could be to allow transformations
+In the implementation of an Output of Sparta's SDK there are two possibilities: one could be to allow transformations
  over data to a Spark's DataFrame. Other posibility could be to insert directly a **UpdateMetricOperation**. This
  output does not use any kind of Spark plugin to insert DataFrames.
 
@@ -56,7 +56,7 @@ There are two types of indexes:
               "_id" : 1
             },
             "name" : "_id_",
-            "ns" : "sparkta.precision3_hashtags_retweets_minute"
+            "ns" : "sparta.precision3_hashtags_retweets_minute"
           },
           {
             "v" : 1,
@@ -65,7 +65,7 @@ There are two types of indexes:
               "_ftsx" : 1
             },
             "name" : "userLocation",
-            "ns" : "sparkta.precision3_hashtags_retweets_minute",
+            "ns" : "sparta.precision3_hashtags_retweets_minute",
             "background" : true,
             "default_language" : "english",
             "weights" : {
@@ -82,7 +82,7 @@ There are two types of indexes:
               "minute" : 1
             },
             "name" : "id_minute",
-            "ns" : "sparkta.precision3_hashtags_retweets_minute",
+            "ns" : "sparta.precision3_hashtags_retweets_minute",
             "background" : true
           }
         ]
@@ -121,5 +121,5 @@ Below you can see each of the features implemented:
           "max_wordsN" : 29,
 
 
-  * MongoDB have several **Update Aggregation Commands** that are used by Sparkta for insert the aggregate fields. As
+  * MongoDB have several **Update Aggregation Commands** that are used by Sparta for insert the aggregate fields. As
    can be Sum, Count, Avg, Max, Min ...

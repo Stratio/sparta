@@ -204,7 +204,7 @@
       "name": "out-csv",
       "type": "Csv",
       "configuration": {
-        "path": "/tmp/sparkta/operators/csv/",
+        "path": "/tmp/sparta/operators/csv/",
         "header": "true",
         "delimiter": ","
       }

@@ -1,15 +1,15 @@
 #!/bin/bash
 
 GROUP='stratio'
-USER='sparkta'
+USER='sparta'
 
 if [ "$1" = "2" ]; then
-   service sparkta stop
+   service sparta stop
 fi
  
 if ! getent group $GROUP >/dev/null 2>&1; then
    groupadd $GROUP
 fi
 if ! getent passwd $USER >/dev/null 2>&1; then
-   useradd -M -d /opt/sds/sparkta -g $GROUP -s /bin/nologin $USER
+   useradd -M -d /opt/sds/sparta -g $GROUP -s /bin/nologin $USER
 fi

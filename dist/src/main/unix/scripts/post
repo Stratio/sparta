@@ -1,9 +1,9 @@
 #!/bin/sh
 
 if [ "$1" = "1" ]; then
-    /sbin/chkconfig --add sparkta
+    /sbin/chkconfig --add sparta
 
-	chmod 755 /etc/init.d/sparkta
+	chmod 755 /etc/init.d/sparta
 
-	chmod 750 /opt/sds/sparkta/bin/*
+	chmod 750 /opt/sds/sparta/bin/*
 fi

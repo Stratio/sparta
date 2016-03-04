@@ -1,5 +1,5 @@
 #!/bin/bash
  
 if [ "$1" = "0" ]; then
-   service sparkta stop
+   service sparta stop
 fi

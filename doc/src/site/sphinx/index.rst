@@ -6,7 +6,7 @@ Contents:
 
     about.rst
     configuration.rst
-    usingSparkta.rst
+    usingSparta.rst
     cheatsheet.rst
     troubleshooting.rst
     faq.rst

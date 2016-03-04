@@ -13,7 +13,7 @@
           "port": "27017"
         }
       ],
-      "dbName": "sparkta"
+      "dbName": "sparta"
     }
   }
 }

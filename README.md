@@ -1,4 +1,4 @@
-# About Stratio Sparkta
+# About Stratio Sparta
 
 
 Since Aryabhatta invented zero, Mathematicians such as John von Neuman have been in pursuit
@@ -17,7 +17,7 @@ features:
 - Business Activity Monitoring
 - Visualization
 
- [Strataconf London 2015 slideshare](http://es.slideshare.net/Stratio/strata-sparkta)
+ [Strataconf London 2015 slideshare](http://es.slideshare.net/Stratio/strata-sparta)
 
 Introduction
 ============
@@ -39,7 +39,7 @@ We can follow in real-time the evolution of a topic, an event or even an inciden
 
  Aggregated data feeds directly to end users, publishers, and advertisers, among others.
 
- In Sparkta we want to start delivering real-time services. Real-time monitoring could be really nice, but your
+ In Sparta we want to start delivering real-time services. Real-time monitoring could be really nice, but your
  company needs to work in the same way as digital companies:
 
  Rethinking existing processes to deliver them faster, better.
@@ -69,10 +69,10 @@ Architecture
 ============
 
 
-Sparkta overview
+Sparta overview
 ------------
 
-![Architecture](./doc/src/site/sphinx/images/sparkta1.png)
+![Architecture](./doc/src/site/sphinx/images/sparta1.png)
 
 Key technologies
 ------------
@@ -145,4 +145,4 @@ Sandbox
 Documentation
 -------------
 
-- [Stratio Sparkta](https://stratio.atlassian.net/wiki)
+- [Stratio Sparta](https://stratio.atlassian.net/wiki)

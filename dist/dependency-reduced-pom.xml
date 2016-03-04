@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <artifactId>plugins</artifactId>
-    <groupId>com.stratio.sparkta</groupId>
+    <groupId>com.stratio.sparta</groupId>
     <version>0.0.1-SNAPSHOT</version>
     <relativePath>../plugins/pom.xml</relativePath>
   </parent>
@@ -55,7 +55,7 @@
   </build>
   <dependencies>
     <dependency>
-      <groupId>com.stratio.sparkta</groupId>
+      <groupId>com.stratio.sparta</groupId>
       <artifactId>sdk</artifactId>
       <version>0.0.1-SNAPSHOT</version>
       <scope>provided</scope>
@@ -80,8 +80,8 @@
     </dependency>
   </dependencies>
   <properties>
-    <mainClass>com.stratio.sparkta.driver.Sparkta</mainClass>
-    <binary.name>sparkta-${version}</binary.name>
+    <mainClass>com.stratio.sparta.driver.Sparta</mainClass>
+    <binary.name>sparta-${version}</binary.name>
   </properties>
 </project>
 

@@ -157,8 +157,8 @@ WordsN it's defined in the |Twitterinput_scala| and it's the number of words of 
 
 .. |Twitterinput_scala| raw:: html
 
-   <a href="https://github.com/Stratio/sparkta/blob/master/plugins/
-   input-twitter/src/main/scala/com/stratio/sparkta/plugin/input/twitter/TwitterInput.scala"
+   <a href="https://github.com/Stratio/sparta/blob/master/plugins/
+   input-twitter/src/main/scala/com/stratio/sparta/plugin/input/twitter/TwitterInput.scala"
    target="_blank">TwitterInput.scala</a>
 
 * **Fourth**
@@ -172,7 +172,7 @@ In this example we use MongoDB as database::
       "type": "MongoDb",
       "configuration": {
         "hosts": "localhost:27017",
-        "dbName": "sparkta"
+        "dbName": "sparta"
       }
     }
   ]
@@ -181,15 +181,15 @@ You can have more information about the policies configuration in the |doc_link|
 
 .. |doc_link| raw:: html
 
-   <a href="http://docs.stratio.com/modules/sparkta/development/"
+   <a href="http://docs.stratio.com/modules/sparta/development/"
    target="_blank">documentation</a>
 
 After we had configured our policy, let's get started in the example!
 
 
-Run Sparkta::
+Run Sparta::
 
-    cd /opt/sds/sparkta
+    cd /opt/sds/sparta
 
     sudo sh bin/run
 
@@ -217,16 +217,16 @@ policy will look like this::
       }
      ]
 
-Now let's send the policy to sparkta::
+Now let's send the policy to sparta::
 
       curl -H "Content-Type: application/json" http://localhost:9090/policyContext --data @examples/data-generators/twitter/ITwitter-OMongo.json
 
-When sparkta is running it's ready to work, open your twitter account and write some tweets within a minute, since we are going to aggregate by minute(You can see the full policy |twitter_policy_link|)
+When sparta is running it's ready to work, open your twitter account and write some tweets within a minute, since we are going to aggregate by minute(You can see the full policy |twitter_policy_link|)
 
 
 .. |twitter_policy_link| raw:: html
 
-   <a href="https://github.com/Stratio/sparkta/blob/master/examples/policies/ITwitter-OMongo-Example.json"
+   <a href="https://github.com/Stratio/sparta/blob/master/examples/policies/ITwitter-OMongo-Example.json"
    target="_blank">here</a>
 
 In this case we are using meaningless words to do the search, so we can assure that we are just processing our tweets::
@@ -250,13 +250,13 @@ Find our database::
  > show dbs
 
  local    0.078GB
- sparkta  0.078GB
+ sparta  0.078GB
 
 Enter in the database::
 
- > use sparkta
+ > use sparta
 
- switched to db sparkta
+ switched to db sparta
 
 See the collections::
 

@@ -53,7 +53,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Stratio SpaRkTA'
+project = u'Stratio SpaRTA'
 copyright = u'2015 Stratio'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -121,9 +121,9 @@ html_theme = 'stratio'
 # documentation.
 html_theme_options = {    
     'versions' : ['0.4.0'],
-    'github' : 'https://github.com/Stratio/sparkta',
-    'jira': 'https://github.com/Stratio/sparkta/issues',
-    'module_name' : 'sparkta'
+    'github' : 'https://github.com/Stratio/sparta',
+    'jira': 'https://github.com/Stratio/sparta/issues',
+    'module_name' : 'sparta'
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
@@ -263,7 +263,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'sparkta', u'Sparkta Documentation',
+    ('index', 'sparta', u'Sparta Documentation',
      [u'David Morales'], 1)
 ]
 
@@ -276,7 +276,7 @@ man_pages = [
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
-#texinfo_documents = [('index', 'Sparkta', u'Sparkta Documentation','David Morales, 'StreamingCEP','One line description of project.','Miscellaneous')]
+#texinfo_documents = [('index', 'Sparta', u'Sparta Documentation','David Morales, 'StreamingCEP','One line description of project.','Miscellaneous')]
 
 # Documents to append as an appendix to all manuals.
 #texinfo_appendices = []

@@ -175,11 +175,11 @@
     }
   ],
   "helpLinks": [
-    "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/5.+Create+and+Submit+Policy",
-    "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.1+Inputs",
-    "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.2+Transformations",
-    "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.3+Cubes",
-    "https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.4+Outputs"
+    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/5.+Create+and+Submit+Policy",
+    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/7.1+Inputs",
+    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/7.2+Transformations",
+    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/7.3+Cubes",
+    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/7.4+Outputs"
   ],
   "model": {
     "types": [

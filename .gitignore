@@ -41,7 +41,7 @@ build.log
 /dependency-reduced-pom.xml
 examples/scripts/temp.json
 
-# Sparkta specifics
+# Sparta specifics
 logs
 /default
 checkpoint
