@@ -25,7 +25,7 @@
     'TriggerModelFactory', 'TriggerService', 'triggerConstants'];
 
   function CubeCtrl(CubeModelFactory, CubeService, OutputService, PolicyModelFactory, ModalService,
-                    TriggerModelFactory, TriggerService, triggerConstants ) {
+                    TriggerModelFactory, TriggerService, triggerConstants) {
     var vm = this;
 
     vm.init = init;
@@ -35,6 +35,7 @@
     vm.saveCube = CubeService.saveCube;
     vm.isActiveTriggerCreationPanel = TriggerService.isActiveTriggerCreationPanel;
     vm.activateTriggerCreationPanel = TriggerService.activateTriggerCreationPanel;
+    vm.isTimeDimension = null;
 
     vm.addOutputToDimensions = addOutputToDimensions;
     vm.removeOutputFromDimensions = removeOutputFromDimensions;
@@ -42,7 +43,7 @@
     vm.removeFunctionFromOperators = removeFunctionFromOperators;
     vm.addOutput = addOutput;
     vm.changeOpenedTrigger = changeOpenedTrigger;
-    vm.isTimeDimension = null;
+    vm.showTriggerError = showTriggerError;
 
     vm.init();
 
@@ -94,7 +95,7 @@
         template: function () {
           return vm.template;
         },
-        isTimeDimension: function() {
+        isTimeDimension: function () {
           return vm.isTimeDimension;
         }
       };
@@ -171,12 +172,18 @@
 
     function addCube() {
       vm.form.$submitted = true;
+      if (vm.form['vm.form']) {
+        vm.form['vm.form'].$submitted = true;
+      }
       if (vm.form.$valid && vm.cube.operators.length > 0 && vm.cube.dimensions.length > 0 && vm.cube.writer.outputs.length > 0) {
         vm.form.$submitted = false;
-        CubeService.addCube();
-        CubeService.changeCubeCreationPanelVisibility(false);
-      }
-      else {
+        if (vm.form['vm.form']) {
+          CubeModelFactory.setError("_TRIGGER_WITHOUT_SAVE_");
+        } else {
+          CubeService.addCube();
+          CubeService.changeCubeCreationPanelVisibility(false);
+        }
+      } else {
         CubeModelFactory.setError();
         if (vm.cube.writer.outputs.length === 0) {
           document.querySelector('#cubeOutputs').focus();
@@ -197,6 +204,10 @@
       } else {
         TriggerModelFactory.resetTrigger(vm.cube.triggers.length);
       }
+    }
+
+    function showTriggerError() {
+      return vm.cubeError.text == '_TRIGGER_WITHOUT_SAVE_' && vm.isActiveTriggerCreationPanel();
     }
   }
 })();

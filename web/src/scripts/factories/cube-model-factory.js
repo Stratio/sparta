@@ -120,15 +120,20 @@
       return error;
     }
 
-    function setError() {
-      if (cube.operators.length === 0 && cube.dimensions.length === 0) {
-        error.text = "_POLICY_CUBE_OPERATOR-DIMENSION_ERROR_";
-      }
-      else if (cube.operators.length === 0) {
-        error.text = "_POLICY_CUBE_OPERATOR_ERROR_";
-      }
-      else {
-        error.text = "_POLICY_CUBE_DIMENSION_ERROR_";
+    function setError(errorText) {
+      error.text = "";
+      if (errorText) {
+        error.text = errorText;
+      } else {
+        if (cube.operators.length === 0 && cube.dimensions.length === 0) {
+          error.text = "_POLICY_CUBE_OPERATOR-DIMENSION_ERROR_";
+        }
+        else if (cube.operators.length === 0) {
+          error.text = "_POLICY_CUBE_OPERATOR_ERROR_";
+        }
+        else {
+          error.text = "_POLICY_CUBE_DIMENSION_ERROR_";
+        }
       }
     }
 

@@ -30,6 +30,7 @@
     vm.addTrigger = addTrigger;
     vm.addOutput = addOutput;
     vm.changeSqlHelpVisibility = changeSqlHelpVisibility;
+    vm.cancelTriggerCreation = cancelTriggerCreation;
 
     vm.removeTrigger = TriggerService.removeTrigger;
     vm.isNewTrigger = TriggerService.isNewTrigger;
@@ -62,7 +63,7 @@
       if (vm.form.$valid) {
         vm.form.$submitted = false;
         TriggerService.addTrigger();
-        TriggerService.disableTriggerCreationPanel(false);
+        TriggerService.disableTriggerCreationPanel();
       }
     }
 
@@ -70,6 +71,11 @@
       if (vm.selectedPolicyOutput && vm.trigger.outputs.indexOf(vm.selectedPolicyOutput) == -1) {
         vm.trigger.outputs.push(vm.selectedPolicyOutput);
       }
+    }
+
+    function cancelTriggerCreation(){
+      TriggerService.disableTriggerCreationPanel();
+      TriggerModelFactory.resetTrigger( vm.triggerContext.position);
     }
   }
 })();
