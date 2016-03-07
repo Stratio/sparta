@@ -69,7 +69,7 @@
       var sparkStreamingWindow = policy.sparkStreamingWindow.split(/([0-9]+)/);
       policy.sparkStreamingWindowNumber = Number(sparkStreamingWindow[1]);
       policy.sparkStreamingWindowTime = sparkStreamingWindow[2];
-      delete policy.sparkStreamingWindowTime;
+      delete policy.sparkStreamingWindow;
     }
 
     function setTemplate(newTemplate) {

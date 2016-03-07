@@ -17,7 +17,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
   beforeEach(inject(function (_PolicyModelFactory_, _servedPolicy_, _servedPolicyTemplate_, _servedInput_, _servedOutput_) {
     factory = _PolicyModelFactory_;
     fakePolicy = angular.copy(_servedPolicy_);
-    fakePolicy.rawData={enabled: 'false'};
+    fakePolicy.rawData = {enabled: 'false'};
     fakePolicyTemplate = _servedPolicyTemplate_;
     fakeInput = _servedInput_;
     fakeOutput = _servedOutput_;
@@ -25,7 +25,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
   it("should be able to load a policy from a json", function () {
     fakePolicy.fragments = [fakeInput, fakeOutput];
-    fakePolicy.rawData={enabled: 'false'};
+    fakePolicy.rawData = {enabled: 'false'};
     factory.setPolicy(fakePolicy);
 
     var policy = factory.getCurrentPolicy();
@@ -62,13 +62,14 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
     it("if there is a policy, returns that policy", function () {
       fakePolicy.fragments = [fakeInput, fakeOutput];
-      fakePolicy.rawData={enabled: 'false'};
+      fakePolicy.rawData = {enabled: 'false'};
       cleanFactory.setPolicy(fakePolicy);
       var policy = cleanFactory.getCurrentPolicy();
-
+      var sparkStreamingWindowTime = fakePolicy.sparkStreamingWindow.split(/([0-9]+)/);
       expect(policy.name).toBe(fakePolicy.name);
       expect(policy.description).toBe(fakePolicy.description);
-      expect(policy.sparkStreamingWindow).toBe(fakePolicy.sparkStreamingWindow);
+      expect(policy.sparkStreamingWindowNumber).toBe(Number(sparkStreamingWindowTime[1]));
+      expect(policy.sparkStreamingWindowTime).toBe(sparkStreamingWindowTime[2]);
       expect(policy.storageLevel).toBe(fakePolicy.storageLevel);
       expect(policy.checkpointPath).toBe(fakePolicy.checkpointPath);
       expect(policy.input).toEqual(fakeInput);
@@ -121,9 +122,9 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
   describe("should be able to return an array with all outputs of the policy models", function () {
     it("if policy has model, return all outpus of these models", function () {
-      var fakeModel1 = {"outputFields": [{name:"fake output1 of model 1"}, {name:"fake output2 of model 1"}]};
-      var fakeModel2 = {"outputFields": [{name:"fake output1 of model 2"},{name: "fake output2 of model 2"}]};
-      var fakeModel3 = {"outputFields": [{name:"fake output1 of model 3"}, {name:"fake output2 of model 3"}]};
+      var fakeModel1 = {"outputFields": [{name: "fake output1 of model 1"}, {name: "fake output2 of model 1"}]};
+      var fakeModel2 = {"outputFields": [{name: "fake output1 of model 2"}, {name: "fake output2 of model 2"}]};
+      var fakeModel3 = {"outputFields": [{name: "fake output1 of model 3"}, {name: "fake output2 of model 3"}]};
 
       var policy = angular.copy(fakePolicy);
       policy.transformations = [fakeModel1, fakeModel2, fakeModel3];
@@ -132,7 +133,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       var modelOutputs = factory.getAllModelOutputs();
 
       expect(modelOutputs.length).toBe(fakeModel1.outputFields.length + fakeModel2.outputFields.length + fakeModel3.outputFields.length);
-      expect(modelOutputs).toEqual([fakeModel1.outputFields[0].name,fakeModel1.outputFields[1].name,fakeModel2.outputFields[0].name,fakeModel2.outputFields[1].name, fakeModel3.outputFields[0].name, fakeModel3.outputFields[1].name]);
+      expect(modelOutputs).toEqual([fakeModel1.outputFields[0].name, fakeModel1.outputFields[1].name, fakeModel2.outputFields[0].name, fakeModel2.outputFields[1].name, fakeModel3.outputFields[0].name, fakeModel3.outputFields[1].name]);
     });
   });
 
