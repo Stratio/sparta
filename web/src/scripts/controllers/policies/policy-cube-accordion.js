@@ -40,6 +40,8 @@
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.cubeAccordionStatus = [];
       vm.helpLink = vm.template.helpLinks.cubes;
+
+      CubeService.resetCreatedCubes();
       if (vm.policy.cubes.length > 0) {
         PolicyModelFactory.enableNextStep();
       } else {
