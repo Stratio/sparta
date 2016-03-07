@@ -47,6 +47,7 @@
       if (vm.policy.rawDataEnabled) {
         finalJSON.rawData.path = (vm.policy.rawDataEnabled) ? vm.policy.rawDataPath : null;
       }
+      finalJSON.sparkStreamingWindow = finalJSON.sparkStreamingWindowNumber + finalJSON.sparkStreamingWindowTime;
       finalJSON = convertTriggerAttributes(finalJSON);
       fragments.push(finalJSON.input);
       OutputService.getOutputList().then(function (allOutputs) {
@@ -112,6 +113,8 @@
       delete finalJSON.outputs;
       delete finalJSON['rawDataPath'];
       delete finalJSON['rawDataEnabled'];
+      delete finalJSON['sparkStreamingWindowNumber'];
+      delete finalJSON['sparkStreamingWindowTime'];
 
       if (finalJSON.rawData.enabled == 'false') {
         delete finalJSON.rawData['path'];
