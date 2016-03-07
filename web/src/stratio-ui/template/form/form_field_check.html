@@ -5,7 +5,7 @@
                 {{label}}
                 <span data-ng-if="required === false && !extraMessage" class="c-label__optional">{{'_OPTIONAL_' | translate}}</span>
                 <span data-ng-if="extraMessage" class="c-label__optional">{{extraMessage}}</span>
-                <i data-ng-if="help" id="tooltip-{{name}}" class="c-icon icon-help2 c-icon--is-clickable c-icon--in-label" data-qa="{{helpQa}}" tooltip='{{help}}' tooltip-class="tooltip--bottom" tooltip-trigger="click" tooltip-placement="bottom" data-ng-click="mouseleaveTooltip()"></i>
+                <i data-ng-if="help" id="tooltip-{{name}}" class="c-icon icon-help2 c-icon--is-clickable c-icon--in-label" data-qa="{{helpQa}}" tooltip='{{help}}' tooltip-class="tooltip--bottom" tooltip-trigger="click" tooltip-placement="bottom" data-ng-click="mouseLeaveTooltip()"></i>
             </label>
         </span>
         <div class="c-row">

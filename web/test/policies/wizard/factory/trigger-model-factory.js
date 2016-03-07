@@ -28,7 +28,6 @@ describe('policies.wizard.factory.trigger-model-factory', function () {
     expect(trigger.name).toBe(fakeTrigger.name);
     expect(trigger.sql).toBe(fakeTrigger.sql);
     expect(trigger.outputs).toBe(fakeTrigger.outputs);
-    expect(trigger.configuration).toBe(fakeTrigger.configuration);
     expect(factory.getError()).toEqual({"text": ""});
     expect(factory.getContext().position).toBe(position);
   });

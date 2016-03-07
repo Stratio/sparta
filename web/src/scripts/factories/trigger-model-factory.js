@@ -35,7 +35,6 @@
       trigger.primaryKey = [];
       trigger.overLastNumber = PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowNumber;
       trigger.overLastTime = PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowTime;
-      delete trigger.configuration;
       error.text = "";
     }
 
@@ -57,9 +56,6 @@
       trigger.overLast = _trigger.overLast;
       trigger.overLastNumber =_trigger.overLastNumber;
       trigger.overLastTime =  _trigger.overLastTime;
-      if (_trigger.configuration) {
-        trigger.configuration = _trigger.configuration;
-      }
       setPosition(position);
       formatAttributes();
     }
@@ -70,7 +66,6 @@
       }
       context.position = p;
     }
-
 
     function formatAttributes() {
       if (trigger.overLast) {

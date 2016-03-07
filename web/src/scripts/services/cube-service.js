@@ -27,7 +27,6 @@
     var createdCubes, showCubeCreationPanel = null;
 
     vm.findCubesUsingOutputs = findCubesUsingOutputs;
-    vm.areValidCubes = areValidCubes;
     vm.showConfirmRemoveCube = showConfirmRemoveCube;
     vm.addCube = addCube;
     vm.saveCube = saveCube;
@@ -107,26 +106,6 @@
         }
       }
       return found;
-    }
-
-    function areValidCubes() {
-      var valid = true;
-      var i = 0;
-      var currentCube = null;
-      if (vm.policy.cubes.length > 0) {
-        while (valid && i < vm.policy.cubes.length) {
-          currentCube = vm.policy.cubes[i];
-
-          if (!CubeModelFactory.isValidCube(currentCube, vm.policy.cubes, i)) {
-            valid = false;
-          } else {
-            ++i;
-          }
-        }
-      } else {
-        valid = false;
-      }
-      return valid;
     }
 
     function addCube() {
