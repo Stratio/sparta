@@ -664,7 +664,8 @@
       "Sum",
       "Variance",
       "TotalEntityCount"
-    ]
+    ],
+    "defaultOperatorConfiguration": {}
   },
   "trigger": {
     "defaultName": "trigger",
