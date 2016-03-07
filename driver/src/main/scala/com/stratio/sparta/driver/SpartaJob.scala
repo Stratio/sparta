@@ -74,7 +74,7 @@ class SpartaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
           streamTriggersSchemas,
           overLast,
           sparkStreamingWindow,
-          parserSchemas.values.last,
+          getSchemaWithoutRaw(parserSchemas),
           streamTriggersOutputs
         ).write(parsedData)
       }
