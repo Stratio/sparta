@@ -55,6 +55,8 @@
       trigger.sql = _trigger.sql;
       trigger.outputs = _trigger.outputs;
       trigger.overLast = _trigger.overLast;
+      trigger.overLastNumber =_trigger.overLastNumber;
+      trigger.overLastTime =  _trigger.overLastTime;
       if (_trigger.configuration) {
         trigger.configuration = _trigger.configuration;
       }
