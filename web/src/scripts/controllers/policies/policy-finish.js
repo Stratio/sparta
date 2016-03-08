@@ -72,7 +72,7 @@
         var cubeOutputs = cubes[c].writer.outputs;
 
         for (var t = 0; t < cubes[c].triggers.length; ++t) {
-          cubeOutputs.concat(cubes[c].triggers[t].outputs);
+          cubeOutputs= cubeOutputs.concat(cubes[c].triggers[t].outputs);
         }
       }
 
@@ -87,7 +87,7 @@
       var triggers = vm.policy.streamTriggers;
       var triggerOutputs = [];
       for (var t = 0; t < triggers.length; ++t) {
-        triggerOutputs.push(triggers[t].outputs);
+        triggerOutputs= triggerOutputs.concat(triggers[t].outputs);
       }
       if (allOutputs && triggerOutputs) {
         outputs = UtilsService.getFilteredJSONByArray(allOutputs, triggerOutputs, 'name');
