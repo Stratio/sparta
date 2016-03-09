@@ -21,17 +21,16 @@
     .module('webApp')
     .controller('PolicyCubeAccordionCtrl', PolicyCubeAccordionCtrl);
 
-  PolicyCubeAccordionCtrl.$inject = ['PolicyModelFactory', 'CubeModelFactory', 'CubeService'];
+  PolicyCubeAccordionCtrl.$inject = ['WizardStatusService', 'PolicyModelFactory', 'CubeModelFactory', 'CubeService', '$scope'];
 
-  function PolicyCubeAccordionCtrl(PolicyModelFactory, CubeModelFactory, CubeService) {
+  function PolicyCubeAccordionCtrl(WizardStatusService, PolicyModelFactory, CubeModelFactory, CubeService, $scope) {
     var vm = this;
 
     vm.init = init;
     vm.activateCubeCreationPanel = activateCubeCreationPanel;
     vm.changeOpenedCube = changeOpenedCube;
     vm.isActiveCubeCreationPanel = CubeService.isActiveCubeCreationPanel;
-
-    vm.error = "";
+    vm.cubeCreationStatus = CubeService.getCubeCreationStatus();
 
     vm.init();
 
@@ -42,16 +41,16 @@
       vm.helpLink = vm.template.helpLinks.cubes;
 
       CubeService.resetCreatedCubes();
-      if (vm.policy.cubes.length > 0) {
-        PolicyModelFactory.enableNextStep();
-      } else {
+      if (vm.policy.cubes.length == 0) {
+        activateCubeCreationPanel();
         CubeService.changeCubeCreationPanelVisibility(true);
       }
     }
 
-    function activateCubeCreationPanel(){
-      vm.cubeAccordionStatus[vm.cubeAccordionStatus.length-1] = true;
+    function activateCubeCreationPanel() {
+      vm.cubeAccordionStatus[vm.cubeAccordionStatus.length - 1] = true;
       CubeService.activateCubeCreationPanel();
+      CubeModelFactory.resetCube(vm.template.cube, CubeService.getCreatedCubes(), vm.policy.cubes.length);
     }
 
     function changeOpenedCube(selectedCubePosition) {
@@ -62,5 +61,40 @@
         CubeModelFactory.resetCube(vm.template.cube, CubeService.getCreatedCubes(), vm.policy.cubes.length);
       }
     }
+
+    $scope.$watchCollection(
+      "vm.cubeCreationStatus",
+      function (cubeCreationStatus) {
+        if (!cubeCreationStatus.enabled && vm.policy.cubes.length > 0) {
+          WizardStatusService.enableNextStep();
+        } else {
+          WizardStatusService.disableNextStep();
+        }
+      }
+    );
+
+    $scope.$watchCollection(
+      "vm.policy.cubes",
+      function (cubes) {
+        if (cubes.length > 0) {
+          WizardStatusService.enableNextStep();
+        } else {
+          WizardStatusService.disableNextStep();
+        }
+      }
+    );
+
+    $scope.$on("forceValidateForm", function () {
+      if (vm.policy.cubes.length == 0) {
+        PolicyModelFactory.setError("_CUBE_STEP_MESSAGE_");
+      } else {
+        PolicyModelFactory.setError("_CHANGES_WITHOUT_SAVING_ERROR_");
+      }
+
+      if ( vm.isActiveCubeCreationPanel()){
+        vm.cubeAccordionStatus[vm.cubeAccordionStatus.length - 1] = true;
+      }
+
+    });
   }
 })();

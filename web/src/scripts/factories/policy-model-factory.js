@@ -23,13 +23,11 @@
 
   function PolicyModelFactory(fragmentConstants) {
     var policy = {};
-    var status = {};
     var finalJSON = {};
     var template = {};
+    var error = {};
 
     function initPolicy() {
-      status.currentStep = -1;
-      status.nextStepAvailable = false;
       policy.name = "";
       policy.description = "";
       policy.input = {};
@@ -47,7 +45,6 @@
     }
 
     function setPolicy(inputPolicyJSON) {
-      status.currentStep = 0;
       policy.id = inputPolicyJSON.id;
       policy.name = inputPolicyJSON.name;
       policy.description = inputPolicyJSON.description;
@@ -59,7 +56,6 @@
       policy.transformations = inputPolicyJSON.transformations;
       policy.cubes = inputPolicyJSON.cubes;
       policy.streamTriggers = inputPolicyJSON.streamTriggers;
-      status.nextStepAvailable = true;
       formatAttributes();
       var policyFragments = separateFragments(inputPolicyJSON.fragments);
       policy.input = policyFragments.input;
@@ -107,27 +103,6 @@
       return policy;
     }
 
-    function previousStep() {
-      status.currentStep--;
-    }
-
-    function nextStep() {
-      status.currentStep++;
-      status.nextStepAvailable = false;
-    }
-
-    function enableNextStep() {
-      status.nextStepAvailable = true;
-    }
-
-    function disableNextStep() {
-      status.nextStepAvailable = false;
-    }
-
-    function getProcessStatus() {
-      return status;
-    }
-
     function resetPolicy() {
       initPolicy();
     }
@@ -157,21 +132,25 @@
       return finalJSON = json;
     }
 
+    function getError() {
+      return error;
+    }
+
+    function setError(_error) {
+      error.text = _error;
+    }
 
     return {
       setPolicy: setPolicy,
       setTemplate: setTemplate,
       getTemplate: getTemplate,
       getCurrentPolicy: getCurrentPolicy,
-      previousStep: previousStep,
-      nextStep: nextStep,
-      enableNextStep: enableNextStep,
-      disableNextStep: disableNextStep,
-      getProcessStatus: getProcessStatus,
       resetPolicy: resetPolicy,
       getAllModelOutputs: getAllModelOutputs,
       getFinalJSON: getFinalJSON,
-      setFinalJSON: setFinalJSON
+      setFinalJSON: setFinalJSON,
+      getError:getError,
+      setError: setError
     }
   }
 

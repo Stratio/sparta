@@ -73,4 +73,38 @@ describe('directive.c-step-progress-bar-directive', function () {
     });
   });
 
+  describe ("should be able to know when current step message has to be shown", function(){
+    var isolatedScope = null;
+    var currentStep = 4;
+    var steps = [];
+    beforeEach( inject(function ($compile, $httpBackend){
+      steps =[{name: "step 1"},{name: "step 2"},{name: "step 3"},{name: "step 4"},{name: "step 5"}];
+
+      directive = angular.element('<c-step-progress-bar> </c-step-progress-bar>');
+      directive = $compile(directive)(scope);
+
+      scope.$digest();
+      $httpBackend.flush();
+
+      isolatedScope = directive.isolateScope();
+      isolatedScope.steps = steps;
+    }));
+
+    it("if current step is the last step, current step message is shown", function(){
+      isolatedScope.current = steps.length-1;
+      isolatedScope.nextStepAvailable = true;
+
+      expect(isolatedScope.showCurrentStepMessage()).toBeTruthy();
+    });
+
+    it("if next step si not available and next step is not visited, current step message is shown", function(){
+      isolatedScope.current = 0;
+      isolatedScope.visited[isolatedScope.current+1] = false;
+      isolatedScope.nextStepAvailable = false;
+
+      expect(isolatedScope.showCurrentStepMessage()).toBeTruthy();
+    });
+
+  })
+
 });

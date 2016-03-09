@@ -20,11 +20,12 @@
     .module('webApp')
     .service('CubeService', CubeService);
 
-  CubeService.$inject = ['PolicyModelFactory', 'ModalService', 'CubeModelFactory', 'UtilsService', '$q'];
+  CubeService.$inject = ['WizardStatusService','PolicyModelFactory', 'ModalService', 'CubeModelFactory', 'UtilsService', '$q'];
 
-  function CubeService(PolicyModelFactory, ModalService, CubeModelFactory,  UtilsService, $q) {
+  function CubeService(WizardStatusService,PolicyModelFactory, ModalService, CubeModelFactory,  UtilsService, $q) {
     var vm = this;
-    var createdCubes, showCubeCreationPanel = null;
+    var createdCubes = null;
+    var cubeCreationStatus = {};
 
     vm.findCubesUsingOutputs = findCubesUsingOutputs;
     vm.showConfirmRemoveCube = showConfirmRemoveCube;
@@ -32,22 +33,32 @@
     vm.saveCube = saveCube;
     vm.removeCube = removeCube;
     vm.isNewCube = isNewCube;
+    vm.getCubeCreationStatus = getCubeCreationStatus;
     vm.getCreatedCubes = getCreatedCubes;
     vm.resetCreatedCubes = resetCreatedCubes;
     vm.changeCubeCreationPanelVisibility = changeCubeCreationPanelVisibility;
     vm.isActiveCubeCreationPanel = isActiveCubeCreationPanel;
     vm.activateCubeCreationPanel = activateCubeCreationPanel;
+    vm.disableCubeCreationPanel = disableCubeCreationPanel;
 
     init();
 
     function init() {
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       createdCubes = vm.policy.cubes.length;
-      showCubeCreationPanel = true;
+      cubeCreationStatus.enabled = false;
     }
 
     function activateCubeCreationPanel() {
-      showCubeCreationPanel = true;
+      cubeCreationStatus.enabled  = true;
+    }
+
+    function disableCubeCreationPanel() {
+      cubeCreationStatus.enabled  = false;
+    }
+
+    function getCubeCreationStatus(){
+      return cubeCreationStatus;
     }
 
     function showConfirmRemoveCube() {
@@ -63,7 +74,7 @@
           return message
         }
       };
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, "", "lg");
 
       modalInstance.result.then(function () {
         defer.resolve();
@@ -114,7 +125,7 @@
       if (CubeModelFactory.isValidCube(newCube, vm.policy.cubes, CubeModelFactory.getContext().position)) {
         vm.policy.cubes.push(newCube);
         createdCubes++;
-        PolicyModelFactory.enableNextStep();
+        WizardStatusService.enableNextStep();
       } else {
         CubeModelFactory.setError();
       }
@@ -136,9 +147,7 @@
       var cubePosition = CubeModelFactory.getContext().position;
       showConfirmRemoveCube().then(function () {
         vm.policy.cubes.splice(cubePosition, 1);
-        if (vm.policy.cubes.length == 0) {
-          PolicyModelFactory.disableNextStep();
-        }
+        resetCreatedCubes();
         defer.resolve();
       }, function () {
         defer.reject()
@@ -155,11 +164,11 @@
     }
 
     function changeCubeCreationPanelVisibility(isVisible) {
-      showCubeCreationPanel = isVisible;
+      cubeCreationStatus.enabled  = isVisible;
     }
 
     function isActiveCubeCreationPanel() {
-      return showCubeCreationPanel;
+      return cubeCreationStatus.enabled;
     }
 
     function resetCreatedCubes() {

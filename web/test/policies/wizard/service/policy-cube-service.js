@@ -4,21 +4,24 @@ describe('policies.wizard.service.policy-cube-service', function () {
   beforeEach(module('served/cube.json'));
 
   var service, q, rootScope, httpBackend, translate, ModalServiceMock, PolicyModelFactoryMock, CubeModelFactoryMock,
-    UtilsServiceMock, fakeCube2, fakeCube3, resolvedPromiseFunction, rejectedPromiseFunction,
+    UtilsServiceMock, fakeCube2, fakeCube3, resolvedPromiseFunction, rejectedPromiseFunction,wizardStatusServiceMock,
     fakeCube = null;
   var fakePolicy = {};
 
   beforeEach(module(function ($provide) {
+    wizardStatusServiceMock = jasmine.createSpyObj('WizardStatusService', ['enableNextStep', 'enableNextStep', 'disableNextStep']);
     ModalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
-    PolicyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'enableNextStep', 'disableNextStep']);
+    PolicyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy']);
     CubeModelFactoryMock = jasmine.createSpyObj('CubeFactory', ['getCube', 'isValidCube', 'resetCube', 'getContext', 'setError']);
     UtilsServiceMock = jasmine.createSpyObj('UtilsService', ['removeItemsFromArray', 'convertDottedPropertiesToJson']);
     UtilsServiceMock.convertDottedPropertiesToJson.and.callFake(function (cube) {
       return cube
     });
-    PolicyModelFactoryMock.getCurrentPolicy.and.returnValue(fakePolicy);
 
+    PolicyModelFactoryMock.getCurrentPolicy.and.returnValue(fakePolicy);
     // inject mocks
+
+    $provide.value('WizardStatusService', wizardStatusServiceMock);
     $provide.value('ModalService', ModalServiceMock);
     $provide.value('PolicyModelFactory', PolicyModelFactoryMock);
     $provide.value('CubeModelFactory', CubeModelFactoryMock);
@@ -161,10 +164,6 @@ describe('policies.wizard.service.policy-cube-service', function () {
         expect(service.policy.cubes.length).toBe(1);
         expect(service.policy.cubes[0].name).toEqual(fakeCube.name);
       });
-
-      it("next step is enabled", function () {
-        expect(PolicyModelFactoryMock.enableNextStep).toHaveBeenCalled();
-      });
     });
   });
 
@@ -199,14 +198,6 @@ describe('policies.wizard.service.policy-cube-service', function () {
         expect(service.policy.cubes[1]).toBe(fakeCube2);
         expect(service.policy.cubes[2]).toBe(fakeCube3);
       })
-    });
-
-    it("should disable next step if cube list is empty after removing a cube", function () {
-      service.policy.cubes = [];
-      service.policy.cubes.push(fakeCube);
-      service.removeCube().then(function () {
-        expect(PolicyModelFactoryMock.disableNextStep).toHaveBeenCalled();
-      });
     });
   });
 

@@ -21,19 +21,21 @@
     .module('webApp')
     .controller('PolicyModelCtrl', PolicyModelCtrl);
 
-  PolicyModelCtrl.$inject = ['ModelFactory', 'PolicyModelFactory', 'ModelService'];
+  PolicyModelCtrl.$inject = ['ModelFactory', 'PolicyModelFactory', 'ModelService', 'modelConstants', '$scope'];
 
-  function PolicyModelCtrl(ModelFactory, PolicyModelFactory, ModelService) {
+  function PolicyModelCtrl(ModelFactory, PolicyModelFactory, ModelService, modelConstants, $scope) {
     var vm = this;
 
     vm.init = init;
     vm.addModel = addModel;
     vm.removeModel = removeModel;
     vm.resetOutputFields = resetOutputFields;
-    vm.onChangeType= onChangeType;
+    vm.onChangeType = onChangeType;
+    vm.cancelModelCreation = cancelModelCreation;
+
+    vm.modelInputs = ModelFactory.getModelInputs();
     vm.isLastModel = ModelService.isLastModel;
     vm.isNewModel = ModelService.isNewModel;
-    vm.modelInputs = ModelFactory.getModelInputs();
 
     vm.init();
 
@@ -42,6 +44,7 @@
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.model = ModelFactory.getModel();
       vm.modelError = '';
+
       vm.lastType = vm.template.model.types[0].name;
       if (vm.model) {
         vm.modelError = ModelFactory.getError();
@@ -56,7 +59,7 @@
 
     function onChangeType() {
       switch (vm.model.type) {
-        case "Morphlines":
+        case modelConstants.MORPHLINES:
           vm.model.configuration = vm.template.model.morphlines.defaultConfiguration;
           break;
 
@@ -83,7 +86,7 @@
         if (modelNumber > 0) {
           order = vm.policy.transformations[modelNumber - 1].order + 1
         }
-        vm.model = ModelFactory.resetModel(vm.template.model, order, modelNumber);
+        ModelFactory.resetModel(vm.template.model, order, modelNumber);
         ModelFactory.updateModelInputs(vm.policy.transformations);
       });
     }
@@ -94,6 +97,15 @@
         vm.lastType = vm.model.type;
       }
     }
+
+    function cancelModelCreation() {
+      ModelService.disableModelCreationPanel();
+      ModelFactory.resetModel(vm.template.model, vm.model.order, vm.modelContext.position);
+    }
+
+    $scope.$on("forceValidateForm", function () {
+      vm.form.$submitted = true;
+    });
   }
 })
 ();

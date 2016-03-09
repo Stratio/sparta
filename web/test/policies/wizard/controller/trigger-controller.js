@@ -58,7 +58,8 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
       'PolicyModelFactory': policyModelFactoryMock,
       'TriggerModelFactory': triggerModelFactoryMock,
       'TriggerService': triggerServiceMock,
-      'OutputService': outputServiceMock
+      'OutputService': outputServiceMock,
+      '$scope': scope
     });
 
     resolvedPromise = function () {
@@ -99,7 +100,8 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
       var cleanCtrl = $controller('TriggerCtrl', {
         'PolicyModelFactory': policyModelFactoryMock,
         'TriggerModelFactory': triggerModelFactoryMock,
-        'TriggerService': triggerServiceMock
+        'TriggerService': triggerServiceMock,
+        '$scope': scope
       });
       expect(cleanCtrl.template).toBe(undefined);
       expect(cleanCtrl.triggerContext).toBe(undefined);

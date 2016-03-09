@@ -1,6 +1,6 @@
 describe('policies.wizard.controller.policy-model-accordion-controller', function () {
   var ctrl, scope, translate, fakeTranslation, fakePolicy, fakePolicyTemplate, fakeModel, policyModelFactoryMock,
-     modelFactoryMock, cubeServiceMock, ModelServiceMock, triggerServiceMock = null;
+     modelFactoryMock, cubeServiceMock, ModelServiceMock, triggerServiceMock, wizardStatusServiceMock = null;
 
   beforeEach(module('webApp'));
   beforeEach(module('served/policy.json'));
@@ -21,6 +21,8 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
 
+    wizardStatusServiceMock =  jasmine.createSpyObj('WizardStatusService', ['enableNextStep']);
+
     policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate', 'previousStep', 'nextStep', 'enableNextStep']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
       return fakePolicy;
@@ -35,11 +37,12 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
 
     cubeServiceMock = jasmine.createSpyObj('CubeService', ['findCubesUsingOutputs']);
 
-    ModelServiceMock = jasmine.createSpyObj('ModelService', ['isActiveModelCreationPanel', 'changeModelCreationPanelVisibility']);
-    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['setTriggerContainer', 'changeVisibilityOfHelpForSql']);
+    ModelServiceMock = jasmine.createSpyObj('ModelService', ['isActiveModelCreationPanel', 'changeModelCreationPanelVisibility', 'getModelCreationStatus', 'activateModelCreationPanel', 'resetModel']);
+    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['setTriggerContainer', 'changeVisibilityOfHelpForSql', 'getTriggerCreationStatus', 'disableTriggerCreationPanel']);
 
 
     ctrl = $controller('PolicyModelAccordionCtrl  as vm', {
+      'WizardStatusService': wizardStatusServiceMock,
       'PolicyModelFactory': policyModelFactoryMock,
       'ModelFactory': modelFactoryMock,
       'CubeService': cubeServiceMock,
@@ -65,19 +68,6 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
       expect(triggerServiceMock.setTriggerContainer).toHaveBeenCalledWith(ctrl.policy.streamTriggers, "transformation");
     });
 
-    it ("if policy has a model at least, next step is enabled", inject(function ($controller){
-      fakePolicy.transformations = [fakeModel];
-      ctrl = $controller('PolicyModelAccordionCtrl  as vm', {
-        'PolicyModelFactory': policyModelFactoryMock,
-        'ModelFactory': modelFactoryMock,
-        'CubeService': cubeServiceMock,
-        'ModelService': ModelServiceMock,
-        '$translate': translate,
-        '$scope': scope
-      });
-
-      expect(policyModelFactoryMock.enableNextStep).toHaveBeenCalled();
-    }));
   });
 
   describe("should be able to see changes in the accordion status to update the model of the model factory", function () {
@@ -109,7 +99,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
 
         ctrl.changeOpenedModel(position);
 
-        expect(modelFactoryMock.resetModel).toHaveBeenCalledWith(fakePolicyTemplate.model, fakeModel2.order + 1, ctrl.policy.transformations.length);
+        expect(ModelServiceMock.resetModel).toHaveBeenCalledWith(fakePolicyTemplate);
       })
     })
   });

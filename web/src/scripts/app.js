@@ -111,7 +111,7 @@ angular
       .state('wizard.newPolicy', {
         containerClass: 'c-slider-content__backdrop',
         url: '/wizard/new_policy',
-        controller: 'NewPolicyCtrl',
+        controller: 'PolicyCtrl',
         controllerAs: 'wizard',
         templateUrl: 'views/policy-wizard/wizard-panel.html'
       })
@@ -119,7 +119,7 @@ angular
         containerClass: 'c-slider-content__backdrop',
         url: '/wizard/edit_policy/:id',
         params: {id: null},
-        controller: 'EditPolicyCtrl',
+        controller: 'PolicyCtrl',
         controllerAs: 'wizard',
         templateUrl: 'views/policy-wizard/wizard-panel.html'
       })

@@ -20,9 +20,9 @@
     .module('webApp')
     .controller('PoliciesCtrl', PoliciesCtrl);
 
-  PoliciesCtrl.$inject = ['PolicyFactory', 'PolicyModelFactory', 'ModalService', '$state', '$translate', '$interval', '$filter', '$scope', '$timeout'];
+  PoliciesCtrl.$inject = ['WizardStatusService', 'PolicyFactory', 'PolicyModelFactory', 'ModalService', '$state', '$translate', '$interval', '$filter', '$scope', '$timeout'];
 
-  function PoliciesCtrl(PolicyFactory, PolicyModelFactory, ModalService, $state, $translate, $interval, $filter, $scope, $timeout) {
+  function PoliciesCtrl(WizardStatusService, PolicyFactory, PolicyModelFactory, ModalService, $state, $translate, $interval, $filter, $scope, $timeout) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -62,6 +62,7 @@
 
     function createPolicy() {
       PolicyModelFactory.resetPolicy();
+      WizardStatusService.reset();
       var controller = 'PolicyCreationModalCtrl';
       var templateUrl = "templates/modal/policy-creation-modal.tpl.html";
       var resolve = {
@@ -71,13 +72,14 @@
       };
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve, null, 'lg');
       return modalInstance.result.then(function () {
-        PolicyModelFactory.nextStep();
+        WizardStatusService.nextStep();
         $state.go('wizard.newPolicy');
       });
     }
 
     function editPolicy(route, policyId, policyStatus) {
       vm.errorMessage = "";
+      WizardStatusService.reset();
       if (policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' || policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
         $state.go(route, {"id": policyId});
       }

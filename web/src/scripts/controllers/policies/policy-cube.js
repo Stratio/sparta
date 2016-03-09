@@ -22,10 +22,10 @@
     .controller('CubeCtrl', CubeCtrl);
 
   CubeCtrl.$inject = ['CubeModelFactory', 'CubeService', 'OutputService', 'PolicyModelFactory', 'ModalService',
-    'TriggerService', 'triggerConstants'];
+    'TriggerService', 'triggerConstants', '$scope'];
 
   function CubeCtrl(CubeModelFactory, CubeService, OutputService, PolicyModelFactory, ModalService,
-                    TriggerService, triggerConstants) {
+                    TriggerService, triggerConstants, $scope) {
     var vm = this;
 
     vm.init = init;
@@ -44,6 +44,7 @@
     vm.removeFunctionFromOperators = removeFunctionFromOperators;
     vm.addOutput = addOutput;
     vm.showTriggerError = showTriggerError;
+    vm.cancelCubeCreation = cancelCubeCreation;
 
     vm.init();
 
@@ -58,7 +59,6 @@
         vm.outputList = PolicyModelFactory.getAllModelOutputs();
         vm.cubeError = CubeModelFactory.getError();
         vm.cubeContext = CubeModelFactory.getContext();
-
         initTriggerAccordion();
 
         return OutputService.generateOutputNameList().then(function (outputList) {
@@ -182,13 +182,15 @@
       if (vm.form['vm.form']) {
         vm.form['vm.form'].$setSubmitted(true);
         vm.triggerAccordionStatus[vm.triggerAccordionStatus.length] = true;
-        if (vm.form['vm.form'].$valid) {
+        if (vm.form['vm.form'].$valid && vm.isActiveTriggerCreationPanel()) {
           valid = false;
           vm.triggerError = "_TRIGGER_WITHOUT_SAVE_";
+          vm.form['vm.form'].$setSubmitted(false);
         }
       }
       if (vm.form.$valid && vm.cube.operators.length > 0 && vm.cube.dimensions.length > 0 && vm.cube.writer.outputs.length > 0) {
         vm.form.$submitted = false;
+
       } else {
         valid = false;
         CubeModelFactory.setError();
@@ -211,5 +213,14 @@
     function showTriggerError() {
       return vm.triggerError && vm.isActiveTriggerCreationPanel() && vm.form['vm.form'] && vm.form['vm.form'].$submitted;
     }
+
+    function cancelCubeCreation() {
+      CubeService.disableCubeCreationPanel();
+      CubeModelFactory.resetCube(vm.template, CubeService.getCreatedCubes(), vm.cubeContext.position);
+    }
+
+    $scope.$on("forceValidateForm", function () {
+      vm.form.$submitted = true;
+    });
   }
 })();
