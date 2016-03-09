@@ -1,0 +1,110 @@
+{
+  "name": "twitter stream into mongodb",
+  "description": "Receive data from Twitter and save cubes and stream triggers into MongoDb",
+  "storageLevel": "MEMORY_AND_DISK_SER",
+  "sparkStreamingWindow": "10s",
+  "checkpointPath": "/tmp/checkpoint",
+  "rawData": {
+    "enabled": "false",
+    "path": "default"
+  },
+  "input": {
+    "name": "twitter",
+    "type": "TwitterJson",
+    "configuration": {
+      "consumerKey": "",
+      "termsOfSearch": "",
+      "accessTokenSecret": "",
+      "consumerSecret": "",
+      "accessToken": ""
+    }
+  },
+  "transformations": [{
+    "type": "Morphlines",
+    "order": 0,
+    "inputField": "_attachment_body",
+    "outputFields": [{
+      "name": "user",
+      "type": "string"
+    }, {
+      "name": "followersCount",
+      "type": "double"
+    }],
+    "configuration": {
+      "morphline": {
+        "id": "morphline1",
+        "importCommands": ["org.kitesdk.**"],
+        "commands": [{
+          "readJson": {}
+        }, {
+          "extractJsonPaths": {
+            "paths": {
+              "user": "/user/screenName",
+              "followersCount": "/user/followersCount"
+            }
+          }
+        }]
+      }
+    }
+  }],
+  "streamTriggers": [{
+    "name": "streamtrigger",
+    "sql": "select * from stream where followersCount < 100",
+    "outputs": ["mongodb"],
+    "overLast": "10s",
+    "primaryKey": [],
+    "configuration": {}
+  }, {
+    "name": "triggergroupby",
+    "sql": "select * from (select max(followersCount) maxfollowers, user from stream group by user) tempstream where maxfollowers > 1000",
+    "outputs": ["mongodb"],
+    "overLast": "10s",
+    "primaryKey": [],
+    "configuration": {}
+  }],
+  "cubes": [{
+    "name": "userfollowers",
+    "dimensions": [{
+      "name": "user",
+      "field": "user",
+      "precision": "identity",
+      "type": "Default"
+    }],
+    "operators": [{
+      "type": "Max",
+      "name": "followers",
+      "configuration": {
+        "inputField": "followersCount"
+      }
+    }],
+    "writer": {
+      "outputs": ["mongodb"],
+      "dateType": "timestamp",
+      "isAutoCalculatedId": true
+    },
+    "triggers": [{
+      "name": "mostimportant",
+      "sql": "select * from userfollowers where followers > 1000",
+      "outputs": ["mongodb"],
+      "overLast": "10s",
+      "primaryKey": [],
+      "configuration": {}
+    }]
+  }],
+  "outputs": [{
+    "name": "mongodb",
+    "type": "MongoDb",
+    "configuration": {
+      "connectionsPerHost": "5",
+      "dbName": "sparta",
+      "threadsAllowedToBlock": "10",
+      "language": "",
+      "hosts": [{
+        "host": "localhost",
+        "port": "27017"
+      }],
+      "retrySleep": "1000"
+    }
+  }],
+  "userPluginsJars": []
+}
