@@ -198,14 +198,22 @@ describe('policies.wizard.service.policy-trigger-service', function () {
     });
   });
 
-  it("should be able to activate and disable the panel to create a new trigger", function () {
-    service.activateTriggerCreationPanel();
+  describe("should be able to activate and disable the panel to create a new trigger", function () {
+    it("if new trigger panel is activate, current trigger is reset and should return true", function () {
+      var fakeTriggerContainer = [fakeTrigger, fakeTrigger2];
+      service.setTriggerContainer(fakeTriggerContainer);
+      service.activateTriggerCreationPanel();
 
-    expect(service.isActiveTriggerCreationPanel()).toBe(true);
+      expect(service.isActiveTriggerCreationPanel()).toBe(true);
+      expect(TriggerModelFactoryMock.resetTrigger).toHaveBeenCalledWith(fakeTriggerContainer.length);
+    });
 
-    service.disableTriggerCreationPanel();
+    it("if new trigger panel is disabled, it should return false", function () {
+      service.disableTriggerCreationPanel();
 
-    expect(service.isActiveTriggerCreationPanel()).toBe(false);
+      expect(service.isActiveTriggerCreationPanel()).toBe(false);
+    });
+
   });
 
   describe("should be able to generate a help for sql queries", function () {

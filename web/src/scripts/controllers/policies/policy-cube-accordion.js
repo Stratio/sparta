@@ -27,9 +27,9 @@
     var vm = this;
 
     vm.init = init;
+    vm.activateCubeCreationPanel = activateCubeCreationPanel;
     vm.changeOpenedCube = changeOpenedCube;
     vm.isActiveCubeCreationPanel = CubeService.isActiveCubeCreationPanel;
-    vm.activateCubeCreationPanel = CubeService.activateCubeCreationPanel;
 
     vm.error = "";
 
@@ -47,6 +47,11 @@
       } else {
         CubeService.changeCubeCreationPanelVisibility(true);
       }
+    }
+
+    function activateCubeCreationPanel(){
+      vm.cubeAccordionStatus[vm.cubeAccordionStatus.length-1] = true;
+      CubeService.activateCubeCreationPanel();
     }
 
     function changeOpenedCube(selectedCubePosition) {

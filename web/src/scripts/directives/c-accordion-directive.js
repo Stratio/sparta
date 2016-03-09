@@ -55,14 +55,6 @@
         return index++;
       };
 
-      scope.onClickItem = function () {
-        scope.onChangeOpenedElement();
-      };
-
-      scope.closeAll = function(){
-
-      };
-
       scope.$watchCollection(
         "items",
         function (newItems, oldItems) {
@@ -75,7 +67,6 @@
       scope.$watchCollection(
         "accordionStatus",
         function () {
-
           if (scope.accordionStatus) {
             var selectedItemPosition = scope.accordionStatus.indexOf(true);
             scope.onChangeOpenedElement({selectedItemPosition:selectedItemPosition});

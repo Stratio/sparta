@@ -143,33 +143,6 @@ describe('policies.wizard.service.policy-cube-service', function () {
     })
   });
 
-  describe("should be able to validate all cubes created", function () {
-    beforeEach(function () {
-      service.policy.cubes = [fakeCube, fakeCube2, fakeCube3];
-    });
-    it("return false if some of the cubes is not valid", function () {
-      CubeModelFactoryMock.isValidCube.and.callFake(function (cube) {
-        if (cube.name == "fakeCube2") {
-          return false;
-        } else return true;
-      });
-
-      expect(service.areValidCubes()).toBe(false);
-    });
-
-    it("return true if all cubes are valid", function () {
-      CubeModelFactoryMock.isValidCube.and.returnValue(true);
-      expect(service.areValidCubes()).toBe(true);
-    });
-
-    it("return false if cube list is empty", function () {
-      service.policy.cubes = [];
-      CubeModelFactoryMock.isValidCube.and.returnValue(true);
-      expect(service.areValidCubes()).toBe(false);
-    });
-  });
-
-
   describe("should be able to add a cube to the policy", function () {
 
     it("cube is not added if it is not valid", function () {

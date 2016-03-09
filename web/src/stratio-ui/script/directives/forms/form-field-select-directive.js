@@ -46,7 +46,6 @@
         listCompressed: '=',
         hideMessage: '@',
         qa: '@',
-        disabled: '=',
         submittedForm: '=',
         outputsLength: '='
       }
@@ -102,12 +101,15 @@
         $('#'+scope.name).focus();
       };
 
-      scope.mouseleaveTooltip = function() {
-        var tooltipParent = document.querySelector('#'+scope.name).parentNode;
-        if (tooltipParent.querySelector('.tooltip')) {
-          tooltipParent.querySelector('.tooltip').addEventListener("mouseleave", function() {
-            tooltipParent.removeChild(this);
-          });
+      scope.mouseLeaveTooltip = function() {
+        var tooltipHolder = document.querySelector('#' + scope.name);
+        if (tooltipHolder) {
+          var tooltipParent = tooltipHolder.parentNode;
+          if (tooltipParent.querySelector('.tooltip')) {
+            tooltipParent.querySelector('.tooltip').addEventListener("mouseleave", function () {
+              tooltipParent.removeChild(this);
+            });
+          }
         }
       };
 

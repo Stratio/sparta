@@ -121,6 +121,7 @@
     }
 
     function setError() {
+      error.text = "";
       if (cube.operators.length === 0 && cube.dimensions.length === 0) {
         error.text = "_POLICY_CUBE_OPERATOR-DIMENSION_ERROR_";
       }
