@@ -22,10 +22,10 @@
     .controller('CubeCtrl', CubeCtrl);
 
   CubeCtrl.$inject = ['CubeModelFactory', 'CubeService', 'OutputService', 'PolicyModelFactory', 'ModalService',
-    'TriggerModelFactory', 'TriggerService', 'triggerConstants'];
+    'TriggerService', 'triggerConstants'];
 
   function CubeCtrl(CubeModelFactory, CubeService, OutputService, PolicyModelFactory, ModalService,
-                    TriggerModelFactory, TriggerService, triggerConstants) {
+                    TriggerService, triggerConstants) {
     var vm = this;
 
     vm.init = init;
@@ -34,7 +34,8 @@
     vm.isNewCube = CubeService.isNewCube;
     vm.saveCube = CubeService.saveCube;
     vm.isActiveTriggerCreationPanel = TriggerService.isActiveTriggerCreationPanel;
-    vm.activateTriggerCreationPanel = TriggerService.activateTriggerCreationPanel;
+    vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
+    vm.changeOpenedTrigger = TriggerService.changeOpenedTrigger;
     vm.isTimeDimension = null;
 
     vm.addOutputToDimensions = addOutputToDimensions;
@@ -42,7 +43,6 @@
     vm.addFunctionToOperators = addFunctionToOperators;
     vm.removeFunctionFromOperators = removeFunctionFromOperators;
     vm.addOutput = addOutput;
-    vm.changeOpenedTrigger = changeOpenedTrigger;
     vm.showTriggerError = showTriggerError;
 
     vm.init();
@@ -70,10 +70,15 @@
     function initTriggerAccordion() {
       vm.selectedPolicyOutput = "";
       vm.triggerAccordionStatus = [];
+      vm.triggerContainer = vm.cube.triggers;
       TriggerService.disableTriggerCreationPanel();
       TriggerService.setTriggerContainer(vm.cube.triggers, triggerConstants.CUBE);
       TriggerService.changeVisibilityOfHelpForSql(false);
-      vm.triggerContainer = vm.cube.triggers;
+    }
+
+    function activateTriggerCreationPanel() {
+      TriggerService.activateTriggerCreationPanel();
+      vm.triggerAccordionStatus[vm.triggerAccordionStatus.length - 1] = true;
     }
 
     function addOutputToDimensions(outputName) {
@@ -159,7 +164,6 @@
           vm.isTimeDimension = false;
         }
         vm.cube.dimensions.splice(dimensionIndex, 1);
-
       })
     }
 
@@ -171,23 +175,30 @@
     }
 
     function addCube() {
-      vm.form.$submitted = true;
+      vm.triggerError = null;
+      CubeModelFactory.setError();
+      var valid = true;
+      vm.form.$setSubmitted(true);
       if (vm.form['vm.form']) {
-        vm.form['vm.form'].$submitted = true;
+        vm.form['vm.form'].$setSubmitted(true);
+        vm.triggerAccordionStatus[vm.triggerAccordionStatus.length] = true;
+        if (vm.form['vm.form'].$valid) {
+          valid = false;
+          vm.triggerError = "_TRIGGER_WITHOUT_SAVE_";
+        }
       }
       if (vm.form.$valid && vm.cube.operators.length > 0 && vm.cube.dimensions.length > 0 && vm.cube.writer.outputs.length > 0) {
         vm.form.$submitted = false;
-        if (vm.form['vm.form']) {
-          CubeModelFactory.setError("_TRIGGER_WITHOUT_SAVE_");
-        } else {
-          CubeService.addCube();
-          CubeService.changeCubeCreationPanelVisibility(false);
-        }
       } else {
+        valid = false;
         CubeModelFactory.setError();
         if (vm.cube.writer.outputs.length === 0) {
           document.querySelector('#cubeOutputs').focus();
         }
+      }
+      if (valid) {
+        CubeService.addCube();
+        CubeService.changeCubeCreationPanelVisibility(false);
       }
     }
 
@@ -197,17 +208,8 @@
       }
     }
 
-    function changeOpenedTrigger(selectedTriggerPosition) {
-      if (vm.cube.triggers.length > 0 && selectedTriggerPosition >= 0 && selectedTriggerPosition < vm.cube.triggers.length) {
-        var selectedTrigger = vm.cube.triggers[selectedTriggerPosition];
-        TriggerModelFactory.setTrigger(selectedTrigger, selectedTriggerPosition);
-      } else {
-        TriggerModelFactory.resetTrigger(vm.cube.triggers.length);
-      }
-    }
-
     function showTriggerError() {
-      return vm.cubeError.text == '_TRIGGER_WITHOUT_SAVE_' && vm.isActiveTriggerCreationPanel();
+      return vm.triggerError && vm.isActiveTriggerCreationPanel() && vm.form['vm.form'] && vm.form['vm.form'].$submitted;
     }
   }
 })();

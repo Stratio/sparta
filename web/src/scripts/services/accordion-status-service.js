@@ -29,19 +29,18 @@
     function resetAccordionStatus(accordionStatus, length, truePosition) {
       if (length !== undefined && length != null && length >= 0) {
         for (var i = 0; i <= length; ++i) {
-          if (i == truePosition)
-            accordionStatus[i] = true;
-          else
-            accordionStatus[i] = false;
+          accordionStatus[i] = (i == truePosition);
         }
 
         var currentLength = accordionStatus.length;
-        while(accordionStatus.length > length+1){
+        while (accordionStatus.length > length + 1) {
           accordionStatus.pop();
           currentLength--;
         }
       }
+
       return accordionStatus;
     }
   }
-})();
+})
+();
