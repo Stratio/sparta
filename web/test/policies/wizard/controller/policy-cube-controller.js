@@ -72,7 +72,8 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       'CubeService': cubeServiceMock,
       'ModalService': modalServiceMock,
       'TriggerModelFactory': triggerModelFactoryMock,
-      'TriggerService': triggerServiceMock
+      'TriggerService': triggerServiceMock,
+      '$scope': scope
     });
 
     resolvedPromise = function () {
@@ -125,7 +126,8 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
         'PolicyModelFactory': policyModelFactoryMock,
         'CubeModelFactory': cubeModelFactoryMock,
         'CubeService': cubeServiceMock,
-        'ModalService': modalServiceMock
+        'ModalService': modalServiceMock,
+        '$scope': scope
       });
       expect(cleanCtrl.template).toBe(undefined);
       expect(cleanCtrl.policy).toBe(undefined);

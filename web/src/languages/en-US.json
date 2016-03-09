@@ -322,5 +322,10 @@
   "_STRING_": "String",
   "_TRIGGER_WITHOUT_SAVE_": "Your trigger has not been saved. Save or cancel its creation",
   "_REMOVE_TRIGGER_CONFIRM_TITLE_": "Remove trigger",
+  "_MODEL_NOT_SAVED_": "Your model has not been saved. Save or cancel its creation",
+  "_CUBE_NOT_SAVED_": "Your cube has not been saved. Save or cancel its creation",
+  "_COME_BACK_TO_": "Come back to",
+  "_GO_TO_": "Go to",
+  "_CHANGES_WITHOUT_SAVING_ERROR_": "You have to save all your changes or cancel them before to go to the next step",
   "_UNAVAILABLE_SERVER_ERROR_": "Server is unavailable. Please, check your connection and try it again"
 }

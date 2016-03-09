@@ -3,7 +3,7 @@ describe('policies.wizard.controller.policy-wizard-header-controller', function 
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/policyTemplate.json'));
 
-  var ctrl, scope, fakePolicy, fakeTemplate, policyModelFactoryMock, fakeWizardStatus,  modalServiceMock, fakeTitle, titleMock;
+  var ctrl, scope, fakePolicy, fakeTemplate, policyModelFactoryMock, fakeWizardStatus,  modalServiceMock,  wizardStatusServiceMock;
 
   // init mock modules
 
@@ -24,7 +24,8 @@ describe('policies.wizard.controller.policy-wizard-header-controller', function 
 
     policyModelFactoryMock.getTemplate.and.returnValue(fakeTemplate);
 
-    policyModelFactoryMock.getProcessStatus.and.returnValue(fakeWizardStatus);
+    wizardStatusServiceMock =  jasmine.createSpyObj('WizardStatusService', ['getStatus']);
+    wizardStatusServiceMock.getStatus.and.returnValue(fakeWizardStatus);
 
     modalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
 
@@ -35,6 +36,7 @@ describe('policies.wizard.controller.policy-wizard-header-controller', function 
     });
 
     ctrl = $controller('PolicyWizardHeaderCtrl as header', {
+      'WizardStatusService': wizardStatusServiceMock,
       'PolicyModelFactory': policyModelFactoryMock,
       'ModalService': modalServiceMock,
       '$scope': scope

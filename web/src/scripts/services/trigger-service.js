@@ -24,7 +24,7 @@
 
   function TriggerService(PolicyModelFactory, ModalService, TriggerModelFactory, triggerConstants, $q) {
     var vm = this;
-    var showTriggerCreationPanel = null;
+    var triggerCreationStatus = {};
     var triggerContainer = null;
     var triggerContainerType = "";
     var showHelpForSql = false;
@@ -39,6 +39,7 @@
     vm.isActiveTriggerCreationPanel = isActiveTriggerCreationPanel;
     vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
     vm.disableTriggerCreationPanel = disableTriggerCreationPanel;
+    vm.getTriggerCreationStatus = getTriggerCreationStatus;
     vm.getSqlHelpSourceItems = getSqlHelpSourceItems;
     vm.changeVisibilityOfHelpForSql = changeVisibilityOfHelpForSql;
     vm.isEnabledHelpForSql = isEnabledHelpForSql;
@@ -48,7 +49,7 @@
 
     function init() {
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      showTriggerCreationPanel = false;
+      triggerCreationStatus.enabled = false;
     }
 
     function setTriggerContainer(_triggerContainer, _triggerContainerType) {
@@ -60,15 +61,18 @@
       return triggerContainer;
     }
 
+    function getTriggerCreationStatus(){
+      return triggerCreationStatus;
+    }
+
     function activateTriggerCreationPanel() {
       TriggerModelFactory.resetTrigger(triggerContainer.length);
-      showTriggerCreationPanel = true;
+      triggerCreationStatus.enabled = true;
     }
 
     function disableTriggerCreationPanel() {
-      showTriggerCreationPanel = false;
+      triggerCreationStatus.enabled  = false;
     }
-
 
     function showConfirmRemoveTrigger() {
       var defer = $q.defer();
@@ -129,7 +133,7 @@
     }
 
     function isActiveTriggerCreationPanel() {
-      return showTriggerCreationPanel;
+      return triggerCreationStatus.enabled;
     }
 
     function getSqlHelpSourceItems() {

@@ -1,8 +1,4 @@
 <section data-ng-controller="PolicyCubeAccordionCtrl as vm">
-  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error != '' && vm.policy.cubes.length === 0" data-qa="policy-cube-accordion-error-msg">
-    <i class="c-icon icon-circle-cross"></i>
-    <span>{{vm.error | translate}}</span>
-  </div>
   <form class="c-form c-panel c-panel--framed" novalidate>
     <c-accordion items="vm.policy.cubes"
                  item-template="'views/policy-wizard/cube-panel.html'"
@@ -16,7 +12,7 @@
   </form>
   <footer class="c-row c-row--footer">
     <div class="c-col c-col--12 c-col--to-right">
-      <button class="c-button c-button--call-to-action-1"  ng-if = "!vm.isActiveCubeCreationPanel()"
+      <button class="c-button c-button--call-to-action-7"  ng-if = "!vm.isActiveCubeCreationPanel()"
               data-ng-click="vm.activateCubeCreationPanel()" data-qa="policy-model-add-new-transformation-button">
         <i class="icon icon-circle-plus"></i>
         <span>{{"_POLICY_._ADD_CUBE_" | translate}}</span>
