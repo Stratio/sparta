@@ -121,13 +121,7 @@
           },
           "type": "Count"
         }
-      ],
-      "checkpointConfig": {
-        "timeDimension": "time",
-        "granularity": "minute",
-        "interval": 100000,
-        "timeAvailability": 90000
-      }
+      ]
     }
   ],
   "outputs": [
