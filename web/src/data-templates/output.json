@@ -574,7 +574,7 @@
           "propertyName": "_PORT_",
           "propertyType": "text",
           "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
-          "default": "2181",
+          "default": "9092",
           "required": true,
           "tooltip": "Kafka's port.",
           "hidden": false,
@@ -621,6 +621,37 @@
       "required": true,
       "tooltip": "The number of messages to send in one batch when using async mode",
       "qa": "fragment-details-kafka-batch-num-messages"
+    },
+    {
+      "propertyId": "kafkaProperties",
+      "propertyName": "_KAFKA_PROPERTIES_",
+      "propertyType": "list",
+      "default": "",
+      "required": false,
+      "tooltip": "",
+      "qa": "fragment-details-kafka-properties",
+      "fields": [
+        {
+          "propertyId": "kafkaPropertyKey",
+          "propertyName": "_KAFKA_PROPERTY_KEY_",
+          "propertyType": "text",
+          "regexp": "",
+          "default": "",
+          "hidden": false,
+          "required": false,
+          "qa": "fragment-details-kafka-kafkaPropertyKey"
+        },
+        {
+          "propertyId": "kafkaPropertyValue",
+          "propertyName": "_KAFKA_PROPERTY_VALUE_",
+          "propertyType": "text",
+          "regexp": "",
+          "default": "",
+          "hidden": false,
+          "required": false,
+          "qa": "fragment-details-kafka-kafkaPropertyValue"
+        }
+      ]
     }
   ]
   },
