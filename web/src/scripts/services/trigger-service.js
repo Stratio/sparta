@@ -42,6 +42,8 @@
     vm.getSqlHelpSourceItems = getSqlHelpSourceItems;
     vm.changeVisibilityOfHelpForSql = changeVisibilityOfHelpForSql;
     vm.isEnabledHelpForSql = isEnabledHelpForSql;
+    vm.changeOpenedTrigger = changeOpenedTrigger;
+
     init();
 
     function init() {
@@ -59,6 +61,7 @@
     }
 
     function activateTriggerCreationPanel() {
+      TriggerModelFactory.resetTrigger(triggerContainer.length);
       showTriggerCreationPanel = true;
     }
 
@@ -95,8 +98,6 @@
       var newTrigger = angular.copy(TriggerModelFactory.getTrigger());
       if (TriggerModelFactory.isValidTrigger(newTrigger, triggerContainer, TriggerModelFactory.getContext().position)) {
         triggerContainer.push(newTrigger);
-      } else {
-        TriggerModelFactory.setError();
       }
     }
 
@@ -137,7 +138,7 @@
       if (triggerContainerType == triggerConstants.TRANSFORMATION) {
         sourceContainer = vm.policy.transformations;
         var sourceSqlItem = {};
-        sourceSqlItem.name = "stream";
+        sourceSqlItem.name = triggerConstants.STREAM_TABLE_NAME;
         sourceSqlItem.fields = [];
         for (var i = 0; i < sourceContainer.length; ++i) {
           var currentItem = sourceContainer[i];
@@ -154,6 +155,13 @@
 
     function isEnabledHelpForSql() {
       return showHelpForSql;
+    }
+
+    function changeOpenedTrigger(selectedTriggerPosition) {
+      if (triggerContainer.length > 0 && selectedTriggerPosition >= 0 && selectedTriggerPosition < triggerContainer.length) {
+        var selectedTrigger = triggerContainer[selectedTriggerPosition];
+        TriggerModelFactory.setTrigger(selectedTrigger, selectedTriggerPosition);
+      }
     }
   }
 })();

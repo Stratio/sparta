@@ -21,18 +21,20 @@
     .module('webApp')
     .controller('PolicyModelAccordionCtrl', PolicyModelAccordionCtrl);
 
-  PolicyModelAccordionCtrl.$inject = ['PolicyModelFactory', 'ModelFactory', 'ModelService','TriggerModelFactory', 'TriggerService', 'triggerConstants'];
+  PolicyModelAccordionCtrl.$inject = ['PolicyModelFactory', 'ModelFactory', 'ModelService', 'TriggerService', 'triggerConstants'];
 
-  function PolicyModelAccordionCtrl(PolicyModelFactory, ModelFactory, ModelService,TriggerModelFactory, TriggerService, triggerConstants) {
+  function PolicyModelAccordionCtrl(PolicyModelFactory, ModelFactory, ModelService, TriggerService, triggerConstants) {
     var vm = this;
 
     vm.init = init;
     vm.changeOpenedModel = changeOpenedModel;
-    vm.changeOpenedTrigger = changeOpenedTrigger;
-    vm.isActiveModelCreationPanel = ModelService.isActiveModelCreationPanel;
+    vm.changeOpenedTrigger = TriggerService.changeOpenedTrigger;
     vm.activateModelCreationPanel = activateModelCreationPanel;
-    vm.isActiveTriggerCreationPanel = TriggerService.isActiveTriggerCreationPanel;
     vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
+
+    vm.isActiveModelCreationPanel = ModelService.isActiveModelCreationPanel;
+    vm.isActiveTriggerCreationPanel = TriggerService.isActiveTriggerCreationPanel;
+
     vm.init();
 
     function init() {
@@ -55,11 +57,13 @@
     }
 
     function activateModelCreationPanel(){
+      vm.modelAccordionStatus[vm.modelAccordionStatus.length-1] = true;
       ModelService.activateModelCreationPanel();
       TriggerService.disableTriggerCreationPanel();
     }
 
     function activateTriggerCreationPanel(){
+      vm.triggerAccordionStatus[vm.triggerAccordionStatus.length-1] = true;
       TriggerService.activateTriggerCreationPanel();
       ModelService.disableModelCreationPanel();
     }
@@ -80,13 +84,6 @@
       ModelFactory.updateModelInputs(vm.policy.transformations);
     }
 
-    function changeOpenedTrigger(selectedTriggerPosition) {
-      if (vm.policy.streamTriggers.length > 0 && selectedTriggerPosition >= 0 && selectedTriggerPosition < vm.policy.streamTriggers.length) {
-        var selectedTrigger = vm.policy.streamTriggers[selectedTriggerPosition];
-        TriggerModelFactory.setTrigger(selectedTrigger, selectedTriggerPosition);
-      } else {
-        TriggerModelFactory.resetTrigger(vm.policy.streamTriggers.length);
-      }
-    }
+
   }
 })();

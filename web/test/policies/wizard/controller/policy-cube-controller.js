@@ -252,7 +252,8 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
 
   describe("should be able to add a cube to the policy", function () {
     it("cube is not added if view validations have not been passed and error is updated", function () {
-      ctrl.form = {$valid: false, cubeOutputs:[]}; //view validations have not been passed
+      ctrl.form = {$valid: false, cubeOutputs:[], $setSubmitted:jasmine.createSpy()}; //view validations have not been passed
+
       ctrl.addCube();
 
       expect(cubeServiceMock.addCube).not.toHaveBeenCalled();
@@ -260,7 +261,7 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
     });
 
     it("cube is added if view validations have been passed and there is a dimension, an operator and an output at least", function () {
-      ctrl.form = {$valid: true}; //view validations have been passed
+      ctrl.form = {$valid: true, $setSubmitted:jasmine.createSpy()}; //view validations have been passed
       ctrl.cube.dimensions = [fakeDimension];
       ctrl.cube.operators = [fakeOperator];
       ctrl.cube.writer.outputs = ["fake output"];
