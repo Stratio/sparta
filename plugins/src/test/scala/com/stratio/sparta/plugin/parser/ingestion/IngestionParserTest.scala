@@ -18,7 +18,8 @@ package com.stratio.sparta.plugin.parser.ingestion
 import com.stratio.sparta.plugin.parser.ingestion.IngestionParser
 import com.stratio.sparta.sdk.Input
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.apache.spark.sql.types._
+import java.io.{Serializable => JSerializable}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
@@ -30,14 +31,15 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
   val ParserOrder = 1
   val InputField = Input.RawDataKey
   val OutputsFields = Seq("ColumnA", "ColumnB", "ColumnC", "ColumnD", "ColumnE", "ColumnF")
-  val ParserConfig = Map(
-    "ColumnA" -> "string",
-    "ColumnB" -> "long",
-    "ColumnC" -> "integer",
-    "ColumnD" -> "float",
-    "ColumnE" -> "double",
-    "ColumnF" -> "datetime"
-  )
+  val wrongSchema = StructType(Seq(StructField(Input.RawDataKey, StringType)))
+  val validSchema = StructType(Seq(StructField(Input.RawDataKey, StringType),
+    StructField("ColumnA", StringType),
+    StructField("ColumnB", LongType),
+    StructField("ColumnC", IntegerType),
+    StructField("ColumnD", FloatType),
+    StructField("ColumnE", DoubleType),
+    StructField("ColumnF", DateType)))
+  val ParserConfig = Map.empty[String, JSerializable]
 
   "A IngestionParser" should {
     "parse an event with an input that has the same columns that the schema specified in the config" in {
@@ -70,12 +72,15 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
           | """.stripMargin
 
       val inputEvent = Row(json)
-      val schema = StructType(Seq(StructField(Input.RawDataKey, StringType)))
-
-      val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, schema, ParserConfig)
+      val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, validSchema, ParserConfig)
       val event = ingestionParser.parse(inputEvent, false)
+      val values = Seq("columnAValue", 1L, 1, 1F, 1D)
 
       event should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
+
+      event.size should be (6)
+
+      event should be eq Row.fromSeq(Seq(json) ++ values)
     }
 
     "parse an event with an input that has different number of columns that the schema specified in the config" in {
@@ -96,12 +101,15 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
           | """.stripMargin
 
       val inputEvent = Row(json)
-      val schema = StructType(Seq(StructField(Input.RawDataKey, StringType)))
-
-      val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, schema, ParserConfig)
+      val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, validSchema, ParserConfig)
       val event = ingestionParser.parse(inputEvent, false)
+      val values = Seq("columnAValue", 1L)
 
       event should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
+
+      event.size should be (3)
+
+      event should be eq Row.fromSeq(Seq(json) ++ values)
     }
 
     "parse an event with an input that has different number of columns that the schema specified in the config and " +
@@ -123,12 +131,15 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
           | """.stripMargin
 
       val inputEvent = Row(json)
-      val schema = StructType(Seq(StructField(Input.RawDataKey, StringType)))
-
-      val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, schema, ParserConfig)
+      val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, validSchema, ParserConfig)
       val event = ingestionParser.parse(inputEvent, false)
+      val values = Seq("columnAValue")
 
       event should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
+
+      event.size should be (2)
+
+      event should be eq Row.fromSeq(Seq(json) ++ values)
     }
 
     "parse an event with an input that has different number of columns that the schema specified in the config and " +
@@ -150,18 +161,18 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
           | """.stripMargin
 
       val inputEvent = Row(json)
-      val schema = StructType(Seq(StructField(Input.RawDataKey, StringType)))
-
-      val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, schema, ParserConfig)
+      val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, validSchema, ParserConfig)
       val event = ingestionParser.parse(inputEvent, true)
+      val values = Seq("columnAValue")
 
-      event should be eq Row.fromSeq(event.toSeq)
+      event should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
+
+      event.size should be (1)
+
+      event should be eq Row.fromSeq(values)
     }
 
-    "throws an exception when a element is defined in the schema, but the type do not exists" in {
-      val WrongParserConfig = Map(
-        "ColumnA" -> "intugur")
-
+    "empty row returned when element is not defined in the schema" in {
       val json =
         """
           |{
@@ -175,11 +186,12 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
           | """.stripMargin
 
       val inputEvent = Row(json)
-      val schema = StructType(Seq(StructField(Input.RawDataKey, StringType)))
+      val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, wrongSchema, ParserConfig)
+      val event = ingestionParser.parse(inputEvent, true)
 
-      val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, schema, WrongParserConfig)
+      event should be eq Row.fromSeq(Seq())
 
-      an[NoSuchElementException] should be thrownBy ingestionParser.parse(inputEvent, false)
+      event.size should be (0)
     }
   }
 }
