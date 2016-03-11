@@ -21,11 +21,10 @@
     .module('webApp')
     .controller('PolicyCtrl', PolicyCtrl);
 
-  PolicyCtrl.$inject = ['WizardStatusService', 'TemplateFactory', 'PolicyModelFactory', 'PolicyFactory', 'ModalService', '$state', '$scope', '$timeout', '$stateParams', '$q'];
-  function PolicyCtrl(WizardStatusService, TemplateFactory, PolicyModelFactory, PolicyFactory, ModalService, $state, $scope, $timeout, $stateParams, $q) {
+  PolicyCtrl.$inject = ['WizardStatusService', 'TemplateFactory', 'PolicyModelFactory', 'PolicyFactory', 'ModalService', 'PolicyService', '$state', '$scope', '$timeout', '$stateParams', '$q'];
+  function PolicyCtrl(WizardStatusService, TemplateFactory, PolicyModelFactory, PolicyFactory, ModalService, PolicyService, $state, $scope, $timeout, $stateParams, $q) {
     var vm = this;
 
-    vm.changeStepNavigationVisibility = changeStepNavigationVisibility;
     vm.confirmPolicy = confirmPolicy;
     vm.closeErrorMessage = closeErrorMessage;
     vm.onClickNextStep = onClickNextStep;
@@ -90,14 +89,42 @@
       PolicyModelFactory.setError(null);
     }
 
-    function changeStepNavigationVisibility() {
-      vm.showStepNavigation = !vm.showStepNavigation;
+    function confirmPolicy() {
+      var defer = $q.defer();
+      if (!vm.status.nextStepAvailable) {
+        $scope.$broadcast('forceValidateForm', 1);
+        defer.resolve();
+      } else {
+        defer = sendPolicy();
+      }
+      return defer.promise;
     }
 
-    function confirmPolicy() {
+    function sendPolicy() {
+      var defer = $q.defer();
+      var modalInstance = openConfirmPolicyModal();
+      modalInstance.result.then(function () {
+        savePolicy().then(function () {
+          PolicyModelFactory.resetPolicy();
+          $state.go("dashboard.policies");
+          defer.resolve();
+        }, function (error) {
+          if (error) {
+            if (error.data.message) {
+              PolicyModelFactory.setError(error.data.message);
+            }
+            else
+              PolicyModelFactory.setError(error.data);
+          }
+          defer.reject();
+        });
+      });
+      return defer;
+    }
+
+    function openConfirmPolicyModal() {
       var templateUrl = "templates/modal/confirm-modal.tpl.html";
       var controller = "ConfirmModalCtrl";
-
       var resolve = {
         title: function () {
           if (vm.editionMode) {
@@ -110,33 +137,25 @@
           return "";
         }
       };
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
+      return ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
+    }
 
-      return modalInstance.result.then(function () {
-        savePolicy().then(function () {
-          PolicyModelFactory.resetPolicy();
-          $state.go("dashboard.policies");
-        }, function (error) {
-          if (error) {
-            if (error.data.message) {
-             PolicyModelFactory.setError(error.data.message);
-            }
-            else
-              PolicyModelFactory.setError(error.data);
-          }
-        });
+    function savePolicy() {
+      var defer = $q.defer();
+      PolicyService.generateFinalJSON().then(function (finalJSON) {
+        PolicyModelFactory.setFinalJSON(finalJSON);
+        if (vm.editionMode) {
+          PolicyFactory.savePolicy(finalJSON).then(function () {
+            defer.resolve();
+          });
+        } else {
+          PolicyFactory.createPolicy(finalJSON).then(function () {
+            defer.resolve();
+          });
+        }
       });
+      return defer.promise;
     }
-
-    function savePolicy(){
-      var finalJSON = PolicyModelFactory.getFinalJSON();
-      if (vm.editionMode){
-        return PolicyFactory.savePolicy(finalJSON);
-      }else{
-        return PolicyFactory.createPolicy(finalJSON);
-      }
-    }
-
 
     function showPreviousStepButton() {
       return vm.steps && vm.status.currentStep > 0;

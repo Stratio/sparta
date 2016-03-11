@@ -3,7 +3,7 @@ describe('policies.wizard.controller.policy-controller', function () {
   beforeEach(module('served/policy.json'));
   beforeEach(module('served/policyTemplate.json'));
 
-  var ctrl, scope, fakePolicy, fakeTemplate, fakeError, policyModelFactoryMock, templateFactoryMock, policyFactoryMock,
+  var ctrl, scope, fakePolicy, fakeTemplate, fakeError, policyModelFactoryMock, templateFactoryMock, policyFactoryMock, policyServiceMock,
     stateMock, fakeCreationStatus, modalServiceMock, resolvedPromise, rejectedPromise, fakeFinalPolicyJSON, wizardStatusServiceMock;
 
   // init mock modules
@@ -41,11 +41,13 @@ describe('policies.wizard.controller.policy-controller', function () {
     policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['createPolicy']);
     policyFactoryMock.createPolicy.and.callFake(resolvedPromise);
 
+    policyServiceMock = jasmine.createSpyObj('PolicyService', ['generateFinalJSON']);
+
     stateMock = jasmine.createSpyObj('$state', ['go']);
 
     wizardStatusServiceMock = jasmine.createSpyObj('wizardStatusService', ['getStatus']);
     wizardStatusServiceMock.getStatus.and.returnValue(fakeCreationStatus);
-    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'setError', 'getError', 'getFinalJSON', 'setTemplate', 'getTemplate', 'getProcessStatus', 'resetPolicy']);
+    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'setFinalJSON', 'setError', 'getError', 'getFinalJSON', 'setTemplate', 'getTemplate', 'getProcessStatus', 'resetPolicy']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
       return fakePolicy;
     });
@@ -55,7 +57,12 @@ describe('policies.wizard.controller.policy-controller', function () {
     });
 
     fakeFinalPolicyJSON = {"fake_attribute": "fake value"};
-    policyModelFactoryMock.getFinalJSON.and.returnValue(fakeFinalPolicyJSON);
+
+    policyServiceMock.generateFinalJSON.and.callFake(function () {
+      var defer = $q.defer();
+      defer.resolve(fakeFinalPolicyJSON);
+      return defer.promise;
+    });
 
     modalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
 
@@ -70,6 +77,7 @@ describe('policies.wizard.controller.policy-controller', function () {
       'PolicyModelFactory': policyModelFactoryMock,
       'TemplateFactory': templateFactoryMock,
       'PolicyFactory': policyFactoryMock,
+      'PolicyService': policyServiceMock,
       'ModalService': modalServiceMock,
       '$state': stateMock,
       '$scope': scope
@@ -104,6 +112,7 @@ describe('policies.wizard.controller.policy-controller', function () {
           'PolicyModelFactory': policyModelFactoryMock,
           'TemplateFactory': templateFactoryMock,
           'PolicyFactory': policyFactoryMock,
+          'PolicyService': policyServiceMock,
           'ModalService': modalServiceMock,
           '$state': stateMock,
           '$scope': scope
@@ -123,38 +132,53 @@ describe('policies.wizard.controller.policy-controller', function () {
       ctrl.editionMode = false;
     });
 
-    it("modal is opened with the correct params", function () {
+    it("if next step is not available, modal is not open and an event is broadcasted to all children in order to force validate all forms", function () {
+      spyOn(scope, '$broadcast');
+      ctrl.status.nextStepAvailable = false;
       ctrl.confirmPolicy();
 
-      expect(modalServiceMock.openModal.calls.mostRecent().args[0]).toBe("ConfirmModalCtrl");
-      expect(modalServiceMock.openModal.calls.mostRecent().args[1]).toBe("templates/modal/confirm-modal.tpl.html");
-      var resolve = (modalServiceMock.openModal.calls.mostRecent().args[2]);
-      expect(resolve.title()).toBe("_POLICY_._WINDOW_._CONFIRM_._TITLE_");
-      expect(resolve.message()).toBe("");
+      expect(scope.$broadcast).toHaveBeenCalledWith('forceValidateForm', 1);
     });
 
-    it("when modal is confirmed, the policy is sent using an http request", function () {
-      ctrl.confirmPolicy().then(function () {
-        expect(policyModelFactoryMock.getFinalJSON).toHaveBeenCalled();
-        expect(policyFactoryMock.createPolicy).toHaveBeenCalledWith(fakeFinalPolicyJSON);
+    describe("if next step is available", function () {
+      beforeEach(function () {
+        ctrl.status.nextStepAvailable = true;
       });
-      scope.$digest();
-    });
 
-    it("If the policy is sent successfully, user is redirected to policy list page and policy is reset", function () {
-      ctrl.confirmPolicy().then(function () {
-        expect(policyModelFactoryMock.resetPolicy).toHaveBeenCalled();
-        expect(stateMock.go).toHaveBeenCalledWith("dashboard.policies");
-      });
-      scope.$digest();
-    });
+      it("modal is opened with the correct params if next step is available", function () {
+        ctrl.confirmPolicy();
 
-    it("If the policy sent fails, policy error is updated", function () {
-      policyFactoryMock.createPolicy.and.callFake(rejectedPromise);
-      ctrl.confirmPolicy().then(function () {
-        expect(policyModelFactoryMock.setError).toHaveBeenCalledWith(fakeError.data);
+        expect(modalServiceMock.openModal.calls.mostRecent().args[0]).toBe("ConfirmModalCtrl");
+        expect(modalServiceMock.openModal.calls.mostRecent().args[1]).toBe("templates/modal/confirm-modal.tpl.html");
+        var resolve = (modalServiceMock.openModal.calls.mostRecent().args[2]);
+        expect(resolve.title()).toBe("_POLICY_._WINDOW_._CONFIRM_._TITLE_");
+        expect(resolve.message()).toBe("");
       });
-      scope.$digest();
-    });
+
+      it("when modal is confirmed, the policy is sent using an http request", function () {
+        ctrl.confirmPolicy().then(function () {
+          expect(policyFactoryMock.createPolicy).toHaveBeenCalledWith(fakeFinalPolicyJSON);
+        });
+        scope.$digest();
+      });
+
+      it("If the policy is sent successfully, user is redirected to policy list page and policy is reset", function () {
+        ctrl.confirmPolicy().then(function () {
+          expect(policyModelFactoryMock.resetPolicy).toHaveBeenCalled();
+          expect(stateMock.go).toHaveBeenCalledWith("dashboard.policies");
+        });
+        scope.$digest();
+      });
+
+      it("If the policy sent fails, policy error is updated", function () {
+        policyFactoryMock.createPolicy.and.callFake(rejectedPromise);
+        ctrl.confirmPolicy().then(function () {
+          expect(policyModelFactoryMock.setError).toHaveBeenCalledWith(fakeError.data);
+        });
+        scope.$digest();
+      });
+
+    })
   });
+
 });
