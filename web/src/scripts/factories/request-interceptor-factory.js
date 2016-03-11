@@ -17,7 +17,14 @@
   'use strict';
 
   angular
-    .module('webApp').constant('apiConfigSettings', {
-      timeout: 5000
-    });
+    .module('webApp')
+    .factory('requestInterceptor', function ($q, $rootScope) {
+
+      return {
+        'responseError': function (rejection) {
+          $rootScope.error = "_UNAVAILABLE_SERVER_ERROR_";
+          return $q.reject(rejection);
+        }
+      }
+    })
 })();

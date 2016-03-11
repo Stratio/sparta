@@ -321,5 +321,6 @@
   "_DATE_TIME_":"Date time",
   "_STRING_": "String",
   "_TRIGGER_WITHOUT_SAVE_": "Your trigger has not been saved. Save or cancel its creation",
-  "_REMOVE_TRIGGER_CONFIRM_TITLE_": "Remove trigger"
+  "_REMOVE_TRIGGER_CONFIRM_TITLE_": "Remove trigger",
+  "_UNAVAILABLE_SERVER_ERROR_": "Server is unavailable. Please, check your connection and try it again"
 }
