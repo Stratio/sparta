@@ -668,64 +668,89 @@
     "defaultOperatorConfiguration": {}
   },
   "trigger": {
-    "defaultName": "trigger",
-    "properties": [
-      {
-        "propertyId": "name",
-        "propertyName": "_NAME_",
-        "propertyType": "text",
-        "required": true,
-        "qa": "trigger-name",
-        "width": 12
-      },
-      {
-        "propertyId": "overLastNumber",
-        "propertyName": "_OVER_LAST_",
-        "propertyType": "number",
-        "width": 6,
-        "position": "left",
-        "required": true,
-        "qa": "trigger-overLastNumber"
-      },
-      {
-        "propertyId": "overLastTime",
-        "propertyName": "_WHITE_SPACE_",
-        "propertyType": "select",
-        "width": 6,
-        "position": "right",
-        "qa": "trigger-overLastTime",
-        "required": true,
-        "values": [
-          {
-            "label": "Milliseconds",
-            "value": "ms"
-          },
-          {
-            "label": "Seconds",
-            "value": "s"
-          },
-          {
-            "label": "Minutes",
-            "value": "m"
-          },
-          {
-            "label": "Hours",
-            "value": "h"
-          },
-          {
-            "label": "Days",
-            "value": "d"
-          }
-        ]
-      },
-      {
-        "propertyId": "sql",
-        "propertyName": "_SQL_",
-        "propertyType": "textarea",
-        "required": true,
-        "qa": "trigger-sql",
-        "width": 12
-      }
-    ]
+
+    "transformation":{
+      "defaultName": "trigger",
+      "properties": [
+        {
+          "propertyId": "name",
+          "propertyName": "_NAME_",
+          "propertyType": "text",
+          "required": true,
+          "qa": "trigger-name",
+          "width": 12
+        },
+        {
+          "propertyId": "overLastNumber",
+          "propertyName": "_OVER_LAST_",
+          "propertyType": "number",
+          "width": 6,
+          "position": "left",
+          "required": true,
+          "qa": "trigger-overLastNumber"
+        },
+        {
+          "propertyId": "overLastTime",
+          "propertyName": "_WHITE_SPACE_",
+          "propertyType": "select",
+          "width": 6,
+          "position": "right",
+          "qa": "trigger-overLastTime",
+          "required": true,
+          "values": [
+            {
+              "label": "Milliseconds",
+              "value": "ms"
+            },
+            {
+              "label": "Seconds",
+              "value": "s"
+            },
+            {
+              "label": "Minutes",
+              "value": "m"
+            },
+            {
+              "label": "Hours",
+              "value": "h"
+            },
+            {
+              "label": "Days",
+              "value": "d"
+            }
+          ]
+        },
+        {
+          "propertyId": "sql",
+          "propertyName": "_SQL_",
+          "propertyType": "textarea",
+          "required": true,
+          "qa": "trigger-sql",
+          "width": 12
+        }
+      ]
+    },
+    "cube":{
+      "defaultName": "trigger",
+      "properties": [
+        {
+          "propertyId": "name",
+          "propertyName": "_NAME_",
+          "propertyType": "text",
+          "required": true,
+          "qa": "trigger-name",
+          "width": 12
+        },
+        {
+          "propertyId": "sql",
+          "propertyName": "_SQL_",
+          "propertyType": "textarea",
+          "required": true,
+          "qa": "trigger-sql",
+          "width": 12
+        }
+      ]
+    }
+
   }
 }

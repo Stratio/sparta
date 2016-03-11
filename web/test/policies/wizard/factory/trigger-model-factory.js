@@ -56,18 +56,24 @@ describe('policies.wizard.factory.trigger-model-factory', function () {
     });
 
     it("if there is a trigger, returns that trigger", function () {
-      factory.setTrigger(fakeTrigger, desiredPosition);
+      factory.setTrigger(fakeTrigger, desiredPosition, 'cube');
 
+      var trigger = factory.getTrigger(desiredPosition);
+      expect(trigger.name).toEqual(fakeTrigger.name);
+      expect(trigger.sql).toEqual(fakeTrigger.sql);
+      expect(trigger.outputs).toEqual(fakeTrigger.outputs);
+      expect(trigger.configuration).toEqual(fakeTrigger.configuration);
+
+      factory.setTrigger(fakeTrigger, desiredPosition, 'transformation');
       var trigger = factory.getTrigger(desiredPosition);
 
       expect(trigger.name).toEqual(fakeTrigger.name);
       expect(trigger.sql).toEqual(fakeTrigger.sql);
       expect(trigger.outputs).toEqual(fakeTrigger.outputs);
       expect(trigger.configuration).toEqual(fakeTrigger.configuration);
-
       expect(trigger.primaryKey).toEqual(fakeTrigger.primaryKey);
-      expect(trigger.overLastNumber).toEqual(fakePolicy.sparkStreamingWindowNumber);
-      expect(trigger.overLastTime).toEqual(fakePolicy.sparkStreamingWindowTime);
+      expect(trigger.overLastNumber).toEqual(Number(fakeTrigger.overLastNumber));
+      expect(trigger.overLastTime).toEqual(fakeTrigger.overLastTime);
 
       trigger.name = "";
       trigger.sql = "";

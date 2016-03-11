@@ -36,6 +36,7 @@
     vm.isNewTrigger = isNewTrigger;
     vm.setTriggerContainer = setTriggerContainer;
     vm.getTriggerContainer = getTriggerContainer;
+    vm.getTriggerTemplate = getTriggerTemplate;
     vm.isActiveTriggerCreationPanel = isActiveTriggerCreationPanel;
     vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
     vm.disableTriggerCreationPanel = disableTriggerCreationPanel;
@@ -44,6 +45,7 @@
     vm.changeVisibilityOfHelpForSql = changeVisibilityOfHelpForSql;
     vm.isEnabledHelpForSql = isEnabledHelpForSql;
     vm.changeOpenedTrigger = changeOpenedTrigger;
+    vm.cancelTriggerCreation = cancelTriggerCreation;
 
     init();
 
@@ -65,14 +67,19 @@
       return triggerCreationStatus;
     }
 
+    function getTriggerTemplate() {
+      return PolicyModelFactory.getTemplate().trigger[triggerContainerType];
+    }
+
     function activateTriggerCreationPanel() {
-      TriggerModelFactory.resetTrigger(triggerContainer.length);
       triggerCreationStatus.enabled = true;
+      TriggerModelFactory.resetTrigger(triggerContainer.length, triggerContainerType);
     }
 
     function disableTriggerCreationPanel() {
       triggerCreationStatus.enabled  = false;
     }
+
 
     function showConfirmRemoveTrigger() {
       var defer = $q.defer();
@@ -164,8 +171,13 @@
     function changeOpenedTrigger(selectedTriggerPosition) {
       if (triggerContainer.length > 0 && selectedTriggerPosition >= 0 && selectedTriggerPosition < triggerContainer.length) {
         var selectedTrigger = triggerContainer[selectedTriggerPosition];
-        TriggerModelFactory.setTrigger(selectedTrigger, selectedTriggerPosition);
+        TriggerModelFactory.setTrigger(selectedTrigger, selectedTriggerPosition, triggerContainerType);
       }
+    }
+
+    function cancelTriggerCreation() {
+      disableTriggerCreationPanel();
+      TriggerModelFactory.resetTrigger(TriggerModelFactory.getContext().position, triggerContainerType);
     }
   }
 })();

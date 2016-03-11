@@ -16,16 +16,9 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
     inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedTrigger_) {
       fakePolicy = angular.copy(_servedPolicy_);
       fakePolicyTemplate = _servedPolicyTemplate_;
-      fakeTriggerTemplate = _servedPolicyTemplate_.trigger;
+      fakeTriggerTemplate = _servedPolicyTemplate_.trigger.cube;
       fakeTrigger = angular.copy(_servedTrigger_);
     });
-
-    resolvedPromise = function () {
-      var defer = $q.defer();
-      defer.resolve();
-
-      return defer.promise;
-    };
 
     fakeOutputs = [{label: "output1", value: "output1"}, {label: "output2", value: "output2"}, {
       label: "output3",
@@ -49,8 +42,8 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
       return fakePolicyTemplate;
     });
 
-    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['isLastTrigger', 'isNewTrigger', 'addTrigger', 'removeTrigger', 'disableTriggerCreationPanel',  'getSqlSourceItems', 'isEnabledHelpForSql']);
-
+    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['isLastTrigger', 'isNewTrigger', 'addTrigger', 'removeTrigger', 'getTriggerTemplate','disableTriggerCreationPanel',  'getSqlSourceItems', 'isEnabledHelpForSql']);
+    triggerServiceMock.getTriggerTemplate.and.returnValue(fakeTriggerTemplate);
     triggerModelFactoryMock = jasmine.createSpyObj('TriggerFactory', ['getTrigger', 'getError', 'getTriggerInputs', 'getContext', 'setError', 'resetTrigger', 'updateTriggerInputs', 'setError']);
     triggerModelFactoryMock.getTrigger.and.returnValue(fakeTrigger);
 
@@ -82,7 +75,7 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
   describe("when it is initialized", function () {
     describe("if factory trigger is not null", function () {
 
-      it('it should get a policy template from from policy factory', function () {
+      it('it should get the trigger template from the trigger service', function () {
         expect(ctrl.template).toBe(fakeTriggerTemplate);
       });
 
