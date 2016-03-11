@@ -109,14 +109,16 @@ angular
         }
       })
       .state('wizard.newPolicy', {
-        containerClass: 'c-slider-content__backdrop',
+        headerClass: 'c-header--small',
+        containerClass: 'c-slider-content__backdrop base-content-wrapper--small-header',
         url: '/wizard/new_policy',
         controller: 'PolicyCtrl',
         controllerAs: 'wizard',
         templateUrl: 'views/policy-wizard/wizard-panel.html'
       })
       .state('wizard.editPolicy', {
-        containerClass: 'c-slider-content__backdrop',
+        headerClass: 'c-header--small',
+        containerClass: 'c-slider-content__backdrop base-content-wrapper--small-header',
         url: '/wizard/edit_policy/:id',
         params: {id: null},
         controller: 'PolicyCtrl',
@@ -139,6 +141,7 @@ angular
 
   .run(['$rootScope', function ($rootScope) {
     $rootScope.$on('$stateChangeSuccess', function (event, toState) {
+      $rootScope.headerClass = toState.headerClass;
       $rootScope.containerClass = toState.containerClass;
     });
   }]);

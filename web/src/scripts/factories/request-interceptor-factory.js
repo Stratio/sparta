@@ -22,7 +22,9 @@
 
       return {
         'responseError': function (rejection) {
-          $rootScope.error = "_UNAVAILABLE_SERVER_ERROR_";
+          if (rejection.status == 0) {
+            $rootScope.error = "_UNAVAILABLE_SERVER_ERROR_";
+          }
           return $q.reject(rejection);
         }
       }

@@ -120,7 +120,7 @@
             </form-field-select>
             <div data-ng-if="vm.cube.writer.outputs.length == 0 && vm.form.$submitted" class="c-col c-col--6 angular-forms__error">
               <i class="icon icon-circle-cross"></i>
-              <span data-qa="{{qa}}-error-outputs-length">{{"_POLICY_CUBES_OUTPUT_ERROR_" | translate}}</span>
+              <span data-qa="cube-error-outputs-length">{{"_POLICY_CUBES_OUTPUT_ERROR_" | translate}}</span>
             </div>
             <c-tag-list name="cube-outputs" data-tags="vm.cube.writer.outputs"
               data-form-control-class="'c-form-group--margin'"

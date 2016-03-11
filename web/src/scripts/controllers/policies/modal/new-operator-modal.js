@@ -38,7 +38,6 @@
       vm.operator.configuration = "";
       vm.operator.type = operatorType;
       vm.configHelpLink = template.configurationHelpLink;
-      vm.error = false;
       vm.errorText = "";
       setDefaultConfiguration();
     }
@@ -64,6 +63,7 @@
     }
 
     function ok() {
+      vm.errorText = "";
       if (vm.form.$valid) {
         if (!isRepeated()) {
           $modalInstance.close(vm.operator);

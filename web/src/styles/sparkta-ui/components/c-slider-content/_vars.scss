@@ -1,3 +1,4 @@
+$c-slider-content---margin-top: 8px;
 $c-slider-content__backdrop---background-color: getColor(n2);
 $c-slider-content__button---border-radius: 50%;
 $c-slider-content__button---width: 34px;
@@ -12,6 +13,7 @@ $c-slider-content__button---font-size: 13px;
 $c-slider-content__button---top: -17px;
 $c-slider-content__button---color: getColor(n6);
 $c-slider-content__button---cursor: pointer;
+$c-slider-content__button---z-index: 200;
 $c-slider-content--to-up---text-align: center;
 $c-slider-content--to-up---border-top: 1px solid getColor(n6);
 $c-slider-content--to-up---height: 1px;
