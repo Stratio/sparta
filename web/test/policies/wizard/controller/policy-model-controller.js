@@ -38,7 +38,8 @@ describe('policies.wizard.controller.policy-model-controller', function () {
     ctrl = $controller('PolicyModelCtrl', {
       'PolicyModelFactory': policyModelFactoryMock,
       'ModelFactory': modelFactoryMock,
-      'ModelService': modelServiceMock
+      'ModelService': modelServiceMock,
+      '$scope': scope
     });
 
     resolvedPromise = function () {
@@ -77,7 +78,8 @@ describe('policies.wizard.controller.policy-model-controller', function () {
       var cleanCtrl = $controller('PolicyModelCtrl', {
         'PolicyModelFactory': policyModelFactoryMock,
         'ModelFactory': modelFactoryMock,
-        'ModelService': modelServiceMock
+        'ModelService': modelServiceMock,
+        '$scope': scope
       });
       modelFactoryMock.getModel.and.returnValue(null);
       cleanCtrl.init();

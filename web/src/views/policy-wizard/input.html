@@ -1,8 +1,4 @@
 <section data-ng-controller="PolicyInputCtrl as vm">
-  <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error" data-qa="error-msg">
-    <i class="c-icon icon-circle-cross"></i>
-    <span>{{"_POLICY_._INPUTS_ERROR_" | translate}}</span>
-  </div>
   <form name="vm.form" class="c-form c-panel c-panel--framed" novalidate>
     <div class="c-col c-col--4" data-ng-repeat="input in vm.inputList">
       <div class="c-check-block" data-ng-click="vm.setInput($index)" data-qa="policy-input-item-{{input.id}}">

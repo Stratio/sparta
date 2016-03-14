@@ -21,9 +21,9 @@
     .module('webApp')
     .controller('TriggerCtrl', TriggerCtrl);
 
-  TriggerCtrl.$inject = ['PolicyModelFactory', 'TriggerModelFactory', 'TriggerService', 'OutputService'];
+  TriggerCtrl.$inject = ['PolicyModelFactory', 'TriggerModelFactory', 'TriggerService', 'OutputService', '$scope'];
 
-  function TriggerCtrl(PolicyModelFactory, TriggerModelFactory, TriggerService, OutputService) {
+  function TriggerCtrl(PolicyModelFactory, TriggerModelFactory, TriggerService, OutputService, $scope) {
     var vm = this;
 
     vm.init = init;
@@ -45,6 +45,7 @@
         vm.template = PolicyModelFactory.getTemplate().trigger;
         vm.outputsHelpLinks = PolicyModelFactory.getTemplate().helpLinks[4];
         vm.showSqlHelp = false;
+
         if (TriggerService.isEnabledHelpForSql()) {
           vm.sqlSourceItems = TriggerService.getSqlHelpSourceItems();
         }
@@ -77,5 +78,10 @@
       TriggerService.disableTriggerCreationPanel();
       TriggerModelFactory.resetTrigger( vm.triggerContext.position);
     }
+
+
+    $scope.$on("forceValidateForm", function () {
+      vm.form.$submitted = true;
+    });
   }
 })();

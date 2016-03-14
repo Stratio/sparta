@@ -21,13 +21,13 @@
     .module('webApp')
     .controller('PolicyWizardHeaderCtrl', PolicyWizardHeaderCtrl);
 
-  PolicyWizardHeaderCtrl.$inject = ['PolicyModelFactory', 'ModalService', '$scope', '$state'];
-  function PolicyWizardHeaderCtrl(PolicyModelFactory, ModalService, $scope, $state) {
+  PolicyWizardHeaderCtrl.$inject = ['WizardStatusService', 'PolicyModelFactory', 'ModalService', '$scope', '$state'];
+  function PolicyWizardHeaderCtrl(WizardStatusService, PolicyModelFactory, ModalService, $scope, $state) {
     var header = this;
 
     var policyTemplate = null;
     header.policy = PolicyModelFactory.getCurrentPolicy();
-    header.wizardStatus = PolicyModelFactory.getProcessStatus();
+    header.wizardStatus = WizardStatusService.getStatus();
     header.leaveEditor = leaveEditor;
 
     header.showPolicyData = showPolicyData;
@@ -65,10 +65,13 @@
       "header.wizardStatus",
       function (newStatus) {
         policyTemplate = PolicyModelFactory.getTemplate();
-        if (newStatus && newStatus && newStatus.currentStep >= 0 && newStatus.currentStep  < policyTemplate.helpLinks.length-1 ) {
-          header.helpLink = policyTemplate.helpLinks[newStatus.currentStep + 1];
-        }else{
-          header.helpLink = null;
+        if (Object.keys(policyTemplate).length > 0) {
+          if (newStatus && newStatus.currentStep >= 0 && newStatus.currentStep < policyTemplate.helpLinks.length - 1) {
+
+            header.helpLink = policyTemplate.helpLinks[newStatus.currentStep + 1];
+          } else {
+            header.helpLink = null;
+          }
         }
       }
     );

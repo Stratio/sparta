@@ -21,19 +21,22 @@
     .module('webApp')
     .controller('PolicyModelAccordionCtrl', PolicyModelAccordionCtrl);
 
-  PolicyModelAccordionCtrl.$inject = ['PolicyModelFactory', 'ModelFactory', 'ModelService', 'TriggerService', 'triggerConstants'];
+  PolicyModelAccordionCtrl.$inject = ['WizardStatusService', 'PolicyModelFactory', 'ModelFactory', 'ModelService',
+    'TriggerService', 'triggerConstants', '$scope'];
 
-  function PolicyModelAccordionCtrl(PolicyModelFactory, ModelFactory, ModelService, TriggerService, triggerConstants) {
+  function PolicyModelAccordionCtrl(WizardStatusService, PolicyModelFactory, ModelFactory, ModelService,
+                                    TriggerService, triggerConstants, $scope) {
     var vm = this;
 
     vm.init = init;
-    vm.changeOpenedModel = changeOpenedModel;
     vm.changeOpenedTrigger = TriggerService.changeOpenedTrigger;
-    vm.activateModelCreationPanel = activateModelCreationPanel;
-    vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
-
     vm.isActiveModelCreationPanel = ModelService.isActiveModelCreationPanel;
     vm.isActiveTriggerCreationPanel = TriggerService.isActiveTriggerCreationPanel;
+    vm.modelCreationStatus = ModelService.getModelCreationStatus();
+    vm.triggerCreationStatus = TriggerService.getTriggerCreationStatus();
+    vm.changeOpenedModel = changeOpenedModel;
+    vm.activateModelCreationPanel = activateModelCreationPanel;
+    vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
 
     vm.init();
 
@@ -43,27 +46,24 @@
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       TriggerService.setTriggerContainer(vm.policy.streamTriggers, triggerConstants.TRANSFORMATION);
       vm.triggerContainer = vm.policy.streamTriggers;
-      vm.helpLink = vm.template.helpLinks.models;
-      vm.error = "";
       vm.modelAccordionStatus = [];
       vm.triggerAccordionStatus = [];
       TriggerService.changeVisibilityOfHelpForSql(true);
-
-      if (vm.policy.transformations.length > 0) {
-        PolicyModelFactory.enableNextStep();
-      } else {
+      if (vm.policy.transformations.length == 0) {
         ModelService.changeModelCreationPanelVisibility(true);
+        activateModelCreationPanel();
       }
     }
 
-    function activateModelCreationPanel(){
-      vm.modelAccordionStatus[vm.modelAccordionStatus.length-1] = true;
+    function activateModelCreationPanel() {
+      vm.modelAccordionStatus[vm.modelAccordionStatus.length - 1] = true;
       ModelService.activateModelCreationPanel();
       TriggerService.disableTriggerCreationPanel();
+      ModelService.resetModel(vm.template);
     }
 
-    function activateTriggerCreationPanel(){
-      vm.triggerAccordionStatus[vm.triggerAccordionStatus.length-1] = true;
+    function activateTriggerCreationPanel() {
+      vm.triggerAccordionStatus[vm.triggerAccordionStatus.length - 1] = true;
       TriggerService.activateTriggerCreationPanel();
       ModelService.disableModelCreationPanel();
     }
@@ -73,17 +73,67 @@
         var selectedModel = vm.policy.transformations[selectedModelPosition];
         ModelFactory.setModel(selectedModel, selectedModelPosition);
       } else {
-        var modelNumber = vm.policy.transformations.length;
-        var order = 0;
-
-        if (modelNumber > 0) {
-          order = vm.policy.transformations[modelNumber - 1].order + 1
-        }
-        ModelFactory.resetModel(vm.template.model, order, vm.policy.transformations.length);
+          ModelService.resetModel(vm.template);
       }
       ModelFactory.updateModelInputs(vm.policy.transformations);
     }
 
+    $scope.$on("forceValidateForm", function () {
+      if (vm.policy.transformations.length == 0) {
+        PolicyModelFactory.setError("_TRANSFORMATION_STEP_MESSAGE_");
+      } else {
+        PolicyModelFactory.setError("_CHANGES_WITHOUT_SAVING_ERROR_");
+      }
+      if (vm.isActiveModelCreationPanel()) {
+        vm.modelAccordionStatus[vm.modelAccordionStatus.length - 1] = true;
+      }
 
+      if (vm.isActiveTriggerCreationPanel()) {
+        vm.triggerAccordionStatus[vm.triggerAccordionStatus.length - 1] = true;
+      }
+    });
+
+    $scope.$watchCollection(
+      "vm.modelCreationStatus",
+      function (modelCreationStatus) {
+        if (!modelCreationStatus.enabled && !vm.triggerCreationStatus.enabled && vm.policy.transformations.length > 0) {
+          WizardStatusService.enableNextStep();
+        } else {
+          WizardStatusService.disableNextStep();
+        }
+      }
+    );
+
+    $scope.$watchCollection(
+      "vm.triggerCreationStatus",
+      function (triggerCreationStatus) {
+        if (!triggerCreationStatus.enabled && !vm.modelCreationStatus.enabled && vm.policy.transformations.length > 0) {
+          WizardStatusService.enableNextStep();
+        } else {
+          WizardStatusService.disableNextStep();
+        }
+      }
+    );
+
+    $scope.$watchCollection(
+      "vm.triggerCreationStatus",
+      function (triggerCreationStatus) {
+        if (!triggerCreationStatus.enabled && !vm.modelCreationStatus.enabled && vm.policy.transformations.length > 0) {
+          WizardStatusService.enableNextStep();
+        } else {
+          WizardStatusService.disableNextStep();
+        }
+      });
+
+    $scope.$watchCollection(
+      "vm.policy.transformations",
+      function (transformations) {
+        if (transformations.length > 0) {
+          WizardStatusService.enableNextStep();
+        } else {
+          WizardStatusService.disableNextStep();
+        }
+      }
+    )
   }
 })();

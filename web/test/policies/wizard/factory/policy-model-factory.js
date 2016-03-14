@@ -30,7 +30,6 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
     var policy = factory.getCurrentPolicy();
 
-    expect(factory.getProcessStatus().currentStep).toBe(0);
     expect(policy.id).toBe(fakePolicy.id);
     expect(policy.name).toBe(fakePolicy.name);
     expect(policy.description).toBe(fakePolicy.description);
@@ -49,7 +48,6 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     it("if there is not any policy, it initializes a new one with empty attributes and removing attributes loaded from template", function () {
       var policy = cleanFactory.getCurrentPolicy();
 
-      expect(cleanFactory.getProcessStatus().currentStep).toBe(-1);
       expect(policy.name).toBe("");
       expect(policy.description).toBe("");
       expect(policy.rawDataEnabled).toBe(undefined);
@@ -78,7 +76,6 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     });
   });
 
-
   it("should be able to reset its policy to set all attributes with default values", function () {
     factory.setTemplate(fakePolicyTemplate);
 
@@ -86,7 +83,6 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     factory.resetPolicy();
 
     var policy = factory.getCurrentPolicy();
-    expect(factory.getProcessStatus().currentStep).toBe(-1);
     expect(policy.name).toBe("");
     expect(policy.description).toBe("");
     expect(policy.rawDataEnabled).toBe(undefined);
@@ -95,24 +91,6 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     expect(policy.outputs).toEqual([]);
     expect(policy.transformations).toEqual([]);
     expect(policy.cubes).toEqual([]);
-  });
-
-  describe("should be able to change the current step in the process of modify or create the current policy", function () {
-    beforeEach(function () {
-      factory.setTemplate(fakePolicyTemplate);
-      factory.setPolicy(fakePolicy);
-    });
-    it("should be able to change to the next step", function () {
-      var currentStep = factory.getProcessStatus().currentStep;
-      factory.previousStep();
-      expect(factory.getProcessStatus().currentStep).toBe(currentStep - 1);
-    });
-
-    it("should be able to change to the next step", function () {
-      var currentStep = factory.getProcessStatus().currentStep;
-      factory.nextStep();
-      expect(factory.getProcessStatus().currentStep).toBe(currentStep + 1);
-    });
   });
 
   it("should be able to return the template that is being used to set the default values", function () {

@@ -6,7 +6,7 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
   beforeEach(module('served/output.json'));
 
   var ctrl, scope, q, translate, fakeTranslation, fakePolicy, fakeCubeTemplate, fakeCube, policyModelFactoryMock, fakePolicyTemplate,
-    $controller, cubeModelFactoryMock, cubeServiceMock, modalServiceMock, resolvedPromise, fakeOutput = null;
+    $controller, cubeModelFactoryMock, cubeServiceMock, modalServiceMock, resolvedPromise, fakeOutput, wizardStatusServiceMock = null;
 
   // init mock modules
 
@@ -34,6 +34,7 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
 
       return defer.promise;
     };
+    wizardStatusServiceMock =  jasmine.createSpyObj('WizardStatusService', ['enableNextStep']);
     policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate', 'previousStep', 'nextStep', 'enableNextStep']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
       return fakePolicy;
@@ -47,7 +48,7 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
     cubeModelFactoryMock.getCube.and.returnValue(fakeCube);
 
     cubeServiceMock = jasmine.createSpyObj('CubeService', ['findCubesUsingOutputs', 'resetCreatedCubes', 'areValidCubes',
-      'getCreatedCubes', 'changeCubeCreationPanelVisibility', 'generateOutputList']);
+      'getCreatedCubes', 'changeCubeCreationPanelVisibility', 'generateOutputList', 'getCubeCreationStatus', 'activateCubeCreationPanel']);
 
     cubeServiceMock.generateOutputList.and.callFake(resolvedPromise);
     modalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
@@ -76,18 +77,6 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
 
     it('it should get the policy that is being created or edited from policy factory', function () {
       expect(ctrl.policy).toBe(fakePolicy);
-    });
-
-    it("if policy has a cube at least, next step is enabled", function () {
-      fakePolicy.cubes = [fakeCube];
-      ctrl = $controller('PolicyCubeAccordionCtrl  as vm', {
-        'PolicyModelFactory': policyModelFactoryMock,
-        'CubeModelFactory': cubeModelFactoryMock,
-        'CubeService': cubeServiceMock,
-        '$scope':scope
-      });
-
-      expect(policyModelFactoryMock.enableNextStep).toHaveBeenCalled();
     });
 
     it("if policy has not any cube, panel of cube creation is shown", function () {
