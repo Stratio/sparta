@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.service.http
 
 import java.io.File
@@ -129,8 +130,9 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath / "fragment" / Segment / Segment) { (fragmentType, id) =>
       get {
         complete {
-          val future = supervisor ? new FindByFragment(fragmentType, id)
-          Await.result(future, timeout.duration) match {
+          for {
+            response <- supervisor ? FindByFragment(fragmentType, id)
+          } yield response match {
             case ResponsePolicies(Failure(exception)) => throw exception
             case ResponsePolicies(Success(policies)) =>
               withStatus(policies)

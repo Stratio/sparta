@@ -164,12 +164,12 @@ class SparkStreamingContextUtilsTest extends BaseUtilsTest
 
       SpartaConfig.initMainConfig(Option(mesosConfig), new MockConfigFactory(mesosConfig))
 
-      spyActor.getStreamingContextActor(getPolicyModel(id = "clusterPolicy"),
+      spyActor.getStreamingContextActor(getPolicyModel(name = "clusterPolicy"),
         policyStatusActorRef,
         streamingContextService,
         policyStatusActor.context)
 
-      verify(spyActor, times(1)).getClusterLauncher(getPolicyModel(id = "clusterPolicy"), policyStatusActorRef,
+      verify(spyActor, times(1)).getClusterLauncher(getPolicyModel(name = "clusterPolicy"), policyStatusActorRef,
         policyStatusActor.context, "sparkStreamingContextActor-clusterPolicy")
     }
 
@@ -179,12 +179,12 @@ class SparkStreamingContextUtilsTest extends BaseUtilsTest
         .when(spyActor)
         .killPolicy(policyStatusActorRef, "sparkStreamingContextActor-localPolicy")
 
-      spyActor.getStreamingContextActor(getPolicyModel(id = "localPolicy"),
+      spyActor.getStreamingContextActor(getPolicyModel(name = "localPolicy"),
         policyStatusActorRef,
         streamingContextService,
         policyStatusActor.context)
 
-      verify(spyActor, times(1)).getLocalLauncher(getPolicyModel(id = "localPolicy"), policyStatusActorRef,
+      verify(spyActor, times(1)).getLocalLauncher(getPolicyModel(name = "localPolicy"), policyStatusActorRef,
         streamingContextService, policyStatusActor.context, "sparkStreamingContextActor-localPolicy")
     }
   }
