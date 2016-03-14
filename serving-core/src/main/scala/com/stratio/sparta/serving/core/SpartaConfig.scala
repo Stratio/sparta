@@ -15,8 +15,7 @@
  */
 package com.stratio.sparta.serving.core
 
-import scala.util.Success
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.Config
@@ -27,7 +26,6 @@ import com.stratio.sparta.serving.core.dao.ErrorDAO
 
 /**
  * Helper with common operations used to create a Sparta context used to run the application.
- *
  * @author danielcsant
  */
 object SpartaConfig extends SLF4JLogging {
@@ -35,10 +33,10 @@ object SpartaConfig extends SLF4JLogging {
   var mainConfig: Option[Config] = None
   var apiConfig: Option[Config] = None
   var swaggerConfig: Option[Config] = None
+  var sprayConfig: Option[Config] = None
 
   /**
    * Initializes Sparta's base path.
-   *
    * @return the object described above.
    */
   var spartaHome: String = {
@@ -55,7 +53,6 @@ object SpartaConfig extends SLF4JLogging {
 
   /**
    * Initializes base configuration.
-   *
    * @param currentConfig if it is setted the function tries to load a node from a loaded config.
    * @param node          with the node needed to load the configuration.
    * @return the loaded configuration.
@@ -91,6 +88,12 @@ object SpartaConfig extends SLF4JLogging {
     swaggerConfig
   }
 
+
+  def initSprayConfig(configFactory: ConfigFactory = new SpartaConfigFactory): Option[Config] = {
+    sprayConfig = configFactory.getConfig(AppConstant.ConfigSpray)
+    sprayConfig
+  }
+
   def getClusterConfig: Option[Config] = Try(getDetailConfig.get.getString(AppConstant.ExecutionMode)) match {
     case Success(executionMode) => {
       if (executionMode != AppConstant.ConfigLocal) getOptionConfig(executionMode, mainConfig.get)
@@ -116,7 +119,6 @@ object SpartaConfig extends SLF4JLogging {
 
   /**
    * Initializes base configuration.
-   *
    * @param currentConfig if it is setted the function tries to load a node from a loaded config.
    * @param node          with the node needed to load the configuration.
    * @return the optional loaded configuration.
@@ -151,5 +153,18 @@ object SpartaConfig extends SLF4JLogging {
     val zkConfig = SpartaConfig.getZookeeperConfig.get.atKey("zookeeper")
     ConfigDAO(zkConfig)
     ErrorDAO(zkConfig)
+  }
+
+  def isHttpsEnabled(): Boolean = {
+    SpartaConfig.sprayConfig match {
+      case Some(config) =>
+        Try(config.getValue("ssl-encryption")) match {
+          case Success(value) =>
+            if ("on".equals(value.unwrapped())) true else false
+          case Failure(exception) => false
+
+        }
+      case None => false
+    }
   }
 }
