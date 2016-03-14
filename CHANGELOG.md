@@ -2,16 +2,15 @@
 
 ## 0.9.0 (March 2016)
 
-- New [look & feel](https://stratio.atlassian.net/wiki/display/SPARKTA0x9/5.+Create+and+Submit+Policy) and more user friendly user
-    interface
+- New look & feel and more user friendly user interface
 - New policy component: Triggers
-- New [parser](https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.2+Transformations#id-7.2Transformations-8.2.5Geolocation) for geolocation
+- New parser for geolocation
 - Renamed Sparkta to Sparta
 - Improved performance
 - No-time aggregations
-- [User benchmark](https://stratio.atlassian.net/wiki/display/SPARKTA0x9/12.+Benchmark)
-- [Kafka output](https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.4+Outputs#id-7.4Outputs-8.4.9Kafka)
-- [JDBC output](https://stratio.atlassian.net/wiki/display/SPARKTA0x9/7.4+Outputs#id-7.4Outputs-8.4.10JDBC)
+- User benchmark
+- Kafka output
+- JDBC output
 - Policy refactor
 - Fault tolerance
 - Refactor Cluster deployment
