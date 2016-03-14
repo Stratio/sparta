@@ -16,7 +16,7 @@
 		background: $c-msg--error---background;
 		color: $c-msg--error---color;
 		display: $c-msg--error---display;
-
+    margin-top: $c-msg--error---margin-top;
 		&.ng-enter, &.ng-leave {
 	      -webkit-transition: 750ms ease all;
 	      -moz-transition: 750ms ease all;

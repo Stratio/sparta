@@ -57,7 +57,8 @@ angular
   }])
 
   /*ROUTER*/
-  .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
+  .config(['$stateProvider', '$urlRouterProvider','$httpProvider', function ($stateProvider, $urlRouterProvider, $httpProvider) {
+    $httpProvider.interceptors.push('requestInterceptor');
     // For any unmatched url, redirect to /dashboard/inputs
     $urlRouterProvider.otherwise('/dashboard/inputs');
 
@@ -141,3 +142,7 @@ angular
       $rootScope.containerClass = toState.containerClass;
     });
   }]);
+
+
+
+
