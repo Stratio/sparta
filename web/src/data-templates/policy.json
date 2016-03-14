@@ -194,6 +194,10 @@
       {
         "iconName": "datetime",
         "name": "DateTime"
+      },
+      {
+        "iconName": "globe",
+        "name": "Geo"
       }
     ],
     "outputFieldTypes": [
@@ -400,7 +404,13 @@
         "default": "unixMillis",
         "required": true
       }
-    ]
+    ],
+    "Geo":{
+      "defaultConfiguration": {
+        "latitude": "lat",
+        "longitude": "long"
+      }
+    }
   },
   "cube": {
     "defaultName": "cube",

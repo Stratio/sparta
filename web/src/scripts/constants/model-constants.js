@@ -18,6 +18,7 @@
 
   angular
     .module('webApp').constant('modelConstants', {
-    MORPHLINES: "Morphlines"
+    MORPHLINES: "Morphlines",
+    GEO: "Geo"
     });
 })();

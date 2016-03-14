@@ -34,6 +34,9 @@
       <div data-ng-switch-when="Ingestion">
         <ng-include src="'templates/policies/transformation/ingestion-panel.tpl.html'"></ng-include>
       </div>
+      <div ng-switch-when="Geo">
+        <ng-include src="'templates/policies/transformation/geoparser-panel.tpl.html'"></ng-include>
+      </div>
     </div>
 
     <div class="c-form-group c-form-group--to-right">

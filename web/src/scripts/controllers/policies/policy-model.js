@@ -32,7 +32,6 @@
     vm.resetOutputFields = resetOutputFields;
     vm.onChangeType = onChangeType;
     vm.cancelModelCreation = cancelModelCreation;
-
     vm.modelInputs = ModelFactory.getModelInputs();
     vm.isLastModel = ModelService.isLastModel;
     vm.isNewModel = ModelService.isNewModel;
@@ -62,7 +61,9 @@
         case modelConstants.MORPHLINES:
           vm.model.configuration = vm.template.model.morphlines.defaultConfiguration;
           break;
-
+        case modelConstants.GEO:
+          vm.model.configuration = vm.template.model.Geo.defaultConfiguration;
+          break;
         default:
           vm.model.configuration = {};
       }
