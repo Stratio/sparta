@@ -152,6 +152,7 @@
                                 <dir>/etc</dir>
                                 <dir>/etc/init.d</dir>
                                 <dir>/etc/default</dir>
+                                <dir>/var</dir>
                                 <dir>/var/run</dir>
                                 <dir>/var/log</dir>
                                 <dir>/opt</dir>
