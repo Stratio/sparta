@@ -30,8 +30,7 @@
     vm.addTrigger = addTrigger;
     vm.addOutput = addOutput;
     vm.changeSqlHelpVisibility = changeSqlHelpVisibility;
-    vm.cancelTriggerCreation = cancelTriggerCreation;
-
+    vm.cancelTriggerCreation = TriggerService.cancelTriggerCreation;
     vm.removeTrigger = TriggerService.removeTrigger;
     vm.isNewTrigger = TriggerService.isNewTrigger;
     vm.saveTrigger = TriggerService.saveTrigger;
@@ -42,10 +41,9 @@
       vm.trigger = TriggerModelFactory.getTrigger();
       if (vm.trigger) {
         vm.triggerContext = TriggerModelFactory.getContext();
-        vm.template = PolicyModelFactory.getTemplate().trigger;
+        vm.template = TriggerService.getTriggerTemplate();
         vm.outputsHelpLinks = PolicyModelFactory.getTemplate().helpLinks[4];
         vm.showSqlHelp = false;
-
         if (TriggerService.isEnabledHelpForSql()) {
           vm.sqlSourceItems = TriggerService.getSqlHelpSourceItems();
         }
@@ -73,12 +71,6 @@
         vm.trigger.outputs.push(vm.selectedPolicyOutput);
       }
     }
-
-    function cancelTriggerCreation(){
-      TriggerService.disableTriggerCreationPanel();
-      TriggerModelFactory.resetTrigger( vm.triggerContext.position);
-    }
-
 
     $scope.$on("forceValidateForm", function () {
       vm.form.$submitted = true;

@@ -201,11 +201,12 @@ describe('policies.wizard.service.policy-trigger-service', function () {
   describe("should be able to activate and disable the panel to create a new trigger", function () {
     it("if new trigger panel is activate, current trigger is reset and should return true", function () {
       var fakeTriggerContainer = [fakeTrigger, fakeTrigger2];
-      service.setTriggerContainer(fakeTriggerContainer);
+      var triggerType = 'cube';
+      service.setTriggerContainer(fakeTriggerContainer, triggerType);
       service.activateTriggerCreationPanel();
 
       expect(service.isActiveTriggerCreationPanel()).toBe(true);
-      expect(TriggerModelFactoryMock.resetTrigger).toHaveBeenCalledWith(fakeTriggerContainer.length);
+      expect(TriggerModelFactoryMock.resetTrigger).toHaveBeenCalledWith(fakeTriggerContainer.length, triggerType);
     });
 
     it("if new trigger panel is disabled, it should return false", function () {

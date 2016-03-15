@@ -102,9 +102,11 @@
         triggers = triggers.concat(policyJson.cubes[i].triggers);
       }
       for (var i = 0; i < triggers.length; ++i) {
-        triggers[i].overLast = triggers[i].overLastNumber + triggers[i].overLastTime;
-        delete triggers[i].overLastNumber;
-        delete triggers[i].overLastTime;
+        if (triggers[i].overLastNumber && triggers[i].overLastTime) {
+          triggers[i].overLast = triggers[i].overLastNumber + triggers[i].overLastTime;
+          delete triggers[i].overLastNumber;
+          delete triggers[i].overLastTime;
+        }
       }
       return policyJson;
     }
