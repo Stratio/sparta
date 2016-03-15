@@ -15,8 +15,6 @@
  */
 package com.stratio.sparta.serving.api.actor
 
-import java.util.concurrent.TimeUnit
-
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
@@ -34,9 +32,10 @@ import org.apache.spark.launcher.SparkLauncher
 
 import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.io.Source
+import scala.language.postfixOps
 import scala.util.{Failure, Properties, Success, Try}
 
 class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: ActorRef) extends Actor
@@ -124,12 +123,12 @@ with SpartaSerializer {
 
     log.info("Executing SparkLauncher...")
 
-    Future[(Boolean, Process)] {
-      val sparkProcess = sparkLauncher.launch()
-      (sparkProcess.waitFor(20, TimeUnit.SECONDS), sparkProcess)
-    } onComplete {
-      case Success((exitCode, sparkProcess)) =>
-        sparkLauncherStreams(exitCode, sparkProcess)
+    val sparkProcessStatus: Future[(Boolean, Process)] =
+      for {
+        sparkProcess <- Future(sparkLauncher.launch)
+      } yield (Await.result(Future(sparkProcess.waitFor() == 0), 20 seconds), sparkProcess)
+
+    sparkProcessStatus.onComplete {
       case Success((exitCode, sparkProcess)) =>
         sparkLauncherStreams(exitCode, sparkProcess)
       case Failure(exception) =>
