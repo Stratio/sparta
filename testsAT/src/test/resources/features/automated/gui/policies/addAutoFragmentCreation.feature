@@ -13,6 +13,7 @@ Feature: Test adding a new policy in Sparta GUI
 		| id | DELETE | N/A |
 	Then the service response status must be '200'.
 	And I save element '$.policyId' in environment variable 'previousPolicyID'
+	And I wait '2' seconds
 	# Check that is listed
 	When I send a 'GET' request to '/policy/all'
 	Then the service response status must be '200' and its response length must be '1'

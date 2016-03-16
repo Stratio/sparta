@@ -8,7 +8,7 @@ Feature: Test adding a new Twitter input in Sparta GUI
 	Scenario: Try to add a new input
 		Given I browse to '/#/dashboard/inputs'
 		Then I wait '1' second
-		Then '1' element exists with 'css:button[data-qa="inputs-new-button"]'
+		Then '1' element exists with 'css:div[data-qa="input-first-message"]'
 		When I click on the element on index '0'
 		Then I wait '1' second
 		And '1' element exists with 'css:aside[data-qa="fragment-details-modal"]'
@@ -66,7 +66,7 @@ Feature: Test adding a new Twitter input in Sparta GUI
 		Then '1' element exists with 'css:span[data-qa="input-context-menu-!{previousFragmentID}"]'
 		
 		# Add same input fragment
-		Then '1' element exists with 'css:button[data-qa="inputs-new-button"]'
+		Then '1' element exists with 'css:button[data-qa="input-filter-new-input"]'
 		When I click on the element on index '0'
 		Then I wait '1' second
 		And '1' element exists with 'css:aside[data-qa="fragment-details-modal"]'
