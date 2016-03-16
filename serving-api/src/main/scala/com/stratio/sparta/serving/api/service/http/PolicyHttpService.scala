@@ -348,7 +348,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
         response <- (policyStatusActor ? PolicyStatusActor.FindAll)
           .mapTo[PolicyStatusActor.Response]
       } yield {
-        policies.map(policy => getPolicyWithStatus(policy, response.policyStatus.get))
+        policies.map(policy => getPolicyWithStatus(policy, response.policyStatus.get.policiesStatus))
       }
     } else {
       Seq()

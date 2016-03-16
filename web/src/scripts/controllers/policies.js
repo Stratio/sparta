@@ -20,11 +20,14 @@
     .module('webApp')
     .controller('PoliciesCtrl', PoliciesCtrl);
 
-  PoliciesCtrl.$inject = ['WizardStatusService', 'PolicyFactory', 'PolicyModelFactory', 'ModalService', '$state', '$translate', '$interval', '$filter', '$scope', '$timeout'];
+  PoliciesCtrl.$inject = ['WizardStatusService', 'PolicyFactory', 'PolicyModelFactory', 'ModalService', '$state',
+    '$translate', '$interval', '$filter', '$scope', '$timeout', '$q'];
 
-  function PoliciesCtrl(WizardStatusService, PolicyFactory, PolicyModelFactory, ModalService, $state, $translate, $interval, $filter, $scope, $timeout) {
+  function PoliciesCtrl(WizardStatusService, PolicyFactory, PolicyModelFactory, ModalService, $state, $translate, $interval, $filter, $scope, $timeout, $q) {
     /*jshint validthis: true*/
     var vm = this;
+
+    var checkPoliciesStatus = null;
 
     vm.createPolicy = createPolicy;
     vm.deletePolicy = deletePolicy;
@@ -40,6 +43,8 @@
     vm.success = false;
     vm.errorMessage = '';
     vm.successMessage = '';
+    vm.clusterUI = '';
+
     init();
 
     /////////////////////////////////
@@ -49,8 +54,8 @@
 
       /*Stop $interval when changing the view*/
       $scope.$on("$destroy", function () {
-        if (angular.isDefined(vm.checkPoliciesStatus)) {
-          $interval.cancel(vm.checkPoliciesStatus);
+        if (checkPoliciesStatus) {
+          $interval.cancel(checkPoliciesStatus);
         }
       });
     }
@@ -199,24 +204,35 @@
       });
     }
 
+    function updatePoliciesStatus() {
+      var defer = $q.defer();
+      var policiesStatus = PolicyFactory.getPoliciesStatus();
+      policiesStatus.then(function (result) {
+        vm.clusterUI = result.resourceManagerUrl;
+        var policiesWithStatus = result.policiesStatus;
+        if (policiesWithStatus) {
+          for (var i = 0; i < policiesWithStatus.length; i++) {
+            var policyData = $filter('filter')(vm.policiesData.list, {'policy': {'id': policiesWithStatus[i].id}}, true)[0];
+            if (policyData) {
+              policyData.status = policiesWithStatus[i].status;
+            }
+          }
+        }
+        defer.resolve();
+      });
+      return defer.promise;
+    }
+
     function getPolicies() {
       vm.errorMessage = "";
       var policiesList = PolicyFactory.getAllPolicies();
 
       policiesList.then(function (result) {
         vm.policiesData.list = result;
+        updatePoliciesStatus();
 
-        vm.checkPoliciesStatus = $interval(function () {
-          var policiesStatus = PolicyFactory.getPoliciesStatus();
-
-          policiesStatus.then(function (result) {
-            for (var i = 0; i < result.length; i++) {
-              var policyData = $filter('filter')(vm.policiesData.list, {'policy': {'id': result[i].id}}, true)[0];
-              if (policyData) {
-                policyData.status = result[i].status;
-              }
-            }
-          });
+        checkPoliciesStatus = $interval(function () {
+          updatePoliciesStatus();
         }, 5000);
 
       }, function (error) {

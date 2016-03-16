@@ -124,9 +124,12 @@ trait PolicyContextHttpService extends BaseHttpService {
                     val outputs = PolicyHelper.populateFragmentFromPolicy(policy, FragmentType.output)
                     createFragments(fragmentActor, outputs.toList ::: inputs.toList)
                     PolicyResult(policy.id.getOrElse(""), p.name)
-                  case Failure(ex: Throwable) => throw new ServingCoreException(ErrorModel.toString(
-                    ErrorModel(ErrorModel.CodeErrorCreatingPolicy, "Can't create policy")
-                  ))
+                  case Failure(ex: Throwable) => {
+                    log.error("Can't create policy", ex)
+                    throw new ServingCoreException(ErrorModel.toString(
+                      ErrorModel(ErrorModel.CodeErrorCreatingPolicy, "Can't create policy")
+                    ))
+                  }
                 }
               }
             }
