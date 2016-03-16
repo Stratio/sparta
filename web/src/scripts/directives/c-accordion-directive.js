@@ -33,7 +33,7 @@
         items: "=",
         itemTemplate: "=",
         onChangeOpenedElement: "&",
-        itemQaTag: "=",
+        itemQaTag: "@",
         showNewItemPanel: "=",
         accordionStatus:"=",
         itemAttributeInHeader:"@",
