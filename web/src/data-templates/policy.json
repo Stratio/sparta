@@ -669,7 +669,9 @@
       "Variance",
       "TotalEntityCount"
     ],
-    "defaultOperatorConfiguration": {}
+    "defaultOperatorConfiguration": {
+      "inputField": "field1"
+    }
   },
   "trigger": {
 
