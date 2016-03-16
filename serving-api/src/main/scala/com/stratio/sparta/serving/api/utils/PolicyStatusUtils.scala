@@ -25,7 +25,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 
 import com.stratio.sparta.serving.api.helpers.SpartaHelper._
-import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor._
 import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 
@@ -37,9 +37,9 @@ trait PolicyStatusUtils {
     for {
       response <- findAllPolicies(policyStatusActor)
     } yield response.policyStatus match {
-      case Success(seq) =>
-        seq.exists(_.status == PolicyStatusEnum.Started) ||
-          seq.exists(_.status == PolicyStatusEnum.Starting)
+      case Success(policiesStatus) =>
+        policiesStatus.policiesStatus.exists(_.status == PolicyStatusEnum.Started) ||
+          policiesStatus.policiesStatus.exists(_.status == PolicyStatusEnum.Starting)
       case _ => false
     }
   }
