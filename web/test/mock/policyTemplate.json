@@ -166,12 +166,6 @@
       "icon": "icon-box",
       "currentMessage": "_CUBE_STEP_MESSAGE_",
       "availableMessage": "_CUBE_STEP_AVAILABLE_"
-    },
-    {
-      "name": "_POLICY_._STEPS_._FINISH_",
-      "icon": "icon-paper",
-      "currentMessage": "_FINISH_STEP_MESSAGE_",
-      "availableMessage": "_FINISH_STEP_AVAILABLE_"
     }
   ],
   "helpLinks": [
@@ -194,6 +188,10 @@
       {
         "iconName": "datetime",
         "name": "DateTime"
+      },
+      {
+        "iconName": "globe",
+        "name": "Geo"
       }
     ],
     "outputFieldTypes": [
@@ -400,7 +398,13 @@
         "default": "unixMillis",
         "required": true
       }
-    ]
+    ],
+    "Geo":{
+      "defaultConfiguration": {
+        "latitude": "lat",
+        "longitude": "long"
+      }
+    }
   },
   "cube": {
     "defaultName": "cube",
@@ -665,7 +669,9 @@
       "Variance",
       "TotalEntityCount"
     ],
-    "defaultOperatorConfiguration": {}
+    "defaultOperatorConfiguration": {
+      "inputField": "field1"
+    }
   },
   "trigger": {
 
