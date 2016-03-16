@@ -61,8 +61,7 @@ Feature: Test deleting a policy in Sparta GUI
 		Then '1' element exists with 'css:aside[data-qa="delete-policy-modal"]'
 		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
 		When I click on the element on index '0'
-		Then '1' element exists with 'css:div[data-qa="manage-policies-success-msg"]'
-		And a text 'The policy has been deleted!' exists
+		Then I wait '2' seconds
 		And '0' elements exist with 'css:i[data-qa^="policy-context-menu-"]'
 		# Check that policyContext has disappeared
 		When I send a 'GET' request to '/policyContext'
