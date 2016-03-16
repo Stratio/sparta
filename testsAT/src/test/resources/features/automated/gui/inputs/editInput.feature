@@ -79,7 +79,7 @@ Feature: Test editing an input in Sparta GUI
 		Then '1' elements exist with 'css:span[data-qa="fragment-details-flume-pull-port-0-error-required"]'
 				
 		# Try to add new Host-Port pair
-		Given '1' element exists with 'css:i[data-qa="fragment-details-flume-pull-addresses-plus-0"]'
+		Given '1' element exists with 'css:i[data-qa="fragment-details-flume-pull-addresses-plus-1"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:input[data-qa="fragment-details-flume-pull-host-1"]'
 		And '1' element exists with 'css:input[data-qa="fragment-details-flume-pull-port-1"]'
