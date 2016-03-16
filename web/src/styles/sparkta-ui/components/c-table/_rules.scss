@@ -4,9 +4,9 @@
 	border-bottom: $c-table---border-bottom;
 	border-collapse: collapse;
 	line-height: $c-table---line-height;
-
+    overflow: auto;
 	&--margin-bottom {
-		margin-bottom: 250px;
+		margin-bottom: $c-table--margin-bottom---margin-bottom;
 	}
 
 	@at-root &__thead {
