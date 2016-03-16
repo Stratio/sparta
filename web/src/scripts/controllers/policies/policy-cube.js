@@ -221,6 +221,7 @@
 
     $scope.$on("forceValidateForm", function () {
       vm.form.$submitted = true;
+      CubeModelFactory.setError();
     });
   }
 })();

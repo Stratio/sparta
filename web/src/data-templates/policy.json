@@ -166,12 +166,6 @@
       "icon": "icon-box",
       "currentMessage": "_CUBE_STEP_MESSAGE_",
       "availableMessage": "_CUBE_STEP_AVAILABLE_"
-    },
-    {
-      "name": "_POLICY_._STEPS_._FINISH_",
-      "icon": "icon-paper",
-      "currentMessage": "_FINISH_STEP_MESSAGE_",
-      "availableMessage": "_FINISH_STEP_AVAILABLE_"
     }
   ],
   "helpLinks": [

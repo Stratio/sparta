@@ -36,13 +36,15 @@
         listCompressed: "=",
         required: '=',
         json: '=',
+        qa:"@",
         helpQa: '=',
         placeholder: '=',
         extraInfo: '=',
         disabled: '=',
         largeSize: '='
       }
-    }
+    };
+
     return directive;
 
     function link(scope, element, attrs) {

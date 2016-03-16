@@ -30,7 +30,8 @@
         current: '=currentStep',
         nextStepAvailable: '=',
         editionMode: "=",
-        onClickNextStep: "&"
+        onClickNextStep: "&",
+        parentClass:"="
       },
       replace: 'true',
       templateUrl: 'templates/components/c-step-progress-bar.tpl.html',
