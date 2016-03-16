@@ -179,7 +179,7 @@
             vm.inputsData.push(newInputData);
             UtilsService.addFragmentCount(vm.inputTypes, newInputData.element.type);
           });
-        };
+        }
 
         function editInputModal(editInputData) {
           var modalInstance = $modal.open({
@@ -211,7 +211,7 @@
             for (var prop in editedInputData.originalFragment) delete editedInputData.originalFragment[prop];
             for (var prop in editedInputData.editedFragment) editedInputData.originalFragment[prop] =  editedInputData.editedFragment[prop];
           });
-        };
+        }
 
         function deleteInputConfirm(input) {
           var modalInstance = $modal.open({
