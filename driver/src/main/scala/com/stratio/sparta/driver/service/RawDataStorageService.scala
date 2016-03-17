@@ -27,12 +27,12 @@ object RawDataStorageService {
   val RawSchema =
     StructType(Seq(StructField(TimeStampField, TimestampType, false), StructField(DataField, StringType)))
 
-  def save(sqlContext: SQLContext, raw: DStream[Row], path: String): Unit = {
+  def save(raw: DStream[Row], path: String): Unit = {
     val eventTime = DateOperations.millisToTimeStamp(System.currentTimeMillis())
     raw.map(row => Row.merge(Row(eventTime), row))
       .foreachRDD(rdd => {
         if (rdd.take(1).length > 0) {
-          sqlContext.createDataFrame(rdd, RawSchema)
+          SQLContext.getOrCreate(rdd.sparkContext).createDataFrame(rdd, RawSchema)
             .write
             .format("parquet")
             .partitionBy(TimeStampField)
