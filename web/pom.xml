@@ -73,6 +73,9 @@
                             <goal>karma</goal>
                         </goals>
                         <phase>test</phase>
+			<configuration>
+              		    <skip.karma>${skipUTs}</skip.karma>
+            		</configuration>
                     </execution>
                 </executions>
             </plugin>
