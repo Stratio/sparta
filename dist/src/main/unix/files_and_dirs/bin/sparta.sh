@@ -29,4 +29,4 @@ done
 # Set defatult values
 PIDFILE=${PIDFILE:-"/var/run/sds/sparta.pid"}
 
-bash $DIR/run >> /dev/null 2>&1 & echo $! >$PIDFILE
+bash $DIR/run >> /dev/null 2>/var/log/sds/sparta/sparta.log & echo $! >$PIDFILE
