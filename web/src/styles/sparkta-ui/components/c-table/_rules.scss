@@ -6,7 +6,7 @@
 	line-height: $c-table---line-height;
 
 	&--margin-bottom {
-		margin-bottom: 250px;
+		margin-bottom: $c-table--margin-bottom---margin-bottom;
 	}
 
 	@at-root &__thead {

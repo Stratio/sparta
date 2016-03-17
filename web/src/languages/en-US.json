@@ -327,5 +327,6 @@
   "_COME_BACK_TO_": "Come back to",
   "_GO_TO_": "Go to",
   "_CHANGES_WITHOUT_SAVING_ERROR_": "You have to save all your changes or cancel them before to go to the next step",
-  "_UNAVAILABLE_SERVER_ERROR_": "Server is unavailable. Please, check your connection and try it again"
+  "_UNAVAILABLE_SERVER_ERROR_": "Server is unavailable. Please, check your connection and try it again",
+  "_CLUSTER_UI_": "Cluster UI"
 }
