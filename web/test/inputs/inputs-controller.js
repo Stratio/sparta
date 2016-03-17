@@ -255,7 +255,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
         'elementType': fakeElementType,
         'texts': {
           'title': '_INPUT_WINDOW_DELETE_TITLE_',
-          'mainText': '_ARE_YOU_COMPLETELY_SURE_',
+          'mainText': '_ARE_YOU_SURE_',
           'secondaryText1': '_INPUT_WINDOW_DELETE_MESSAGE_',
           'secondaryText2': '_INPUT_WINDOW_DELETE_MESSAGE2_',
           'policyRunningMain': '_INPUT_CANNOT_BE_DELETED_',
