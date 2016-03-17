@@ -228,6 +228,67 @@ Feature: Test adding a new policy in Sparta GUI
                 And '1' element exists with 'css:button[data-qa="modal-ok-button"]'
                 And I click on the element on index '0'
 
+##########################################################
+		# Create new transformation (Geo)
+                Given '1' element exists with 'css:button[data-qa="policy-model-add-new-transformation-button"]'
+                When I click on the element on index '0'
+                Then '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
+                Given '1' element exists with 'css:label[data-qa="policy-model-type-geo"]'
+                Then I click on the element on index '0'
+                And I send 'PAGE_DOWN'
+                Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
+                When I click on the element on index '0'
+                Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-length"]'
+
+                # Try with empty Configuration
+                Given '1' element exists with 'css:textarea[data-qa="policy-model-configuration-textarea"]'
+                Then I clear the content on text input at index '0'
+                Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
+                When I click on the element on index '0'
+                Then '1' element exists with 'css:div[data-qa="policy-model-configuration-textarea-error"]'
+
+                # Fill Configuration
+                Given '1' element exists with 'css:textarea[id="model-configuration"]'
+                Then I type '{ "latitude": "lat", "longitude": "long" }' on the element on index '0'
+
+                # Add empty output field
+                Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
+                Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
+                Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
+                When I click on the element on index '0'
+                Then '0' elements exist with 'css:i[data-qa="policy-model-output-list-0-remove"]'
+
+                # Add output field
+                Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
+                Then I type 'myOutput' on the element on index '0'
+                Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
+                When I click on the element on index '0'
+                Then '1' element exists with 'css:i[data-qa="policy-model-output-list-0-remove"]'
+
+		# Add same output field
+                Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
+                Then I type 'myOutput' on the element on index '0'
+                Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
+                When I click on the element on index '0'
+                Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-duplicated"]'
+                And '1' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
+
+                # Add model
+                Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
+                Then I click on the element on index '0'
+
+                # Delete model
+                Given '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
+                Then I click on the element on index '0'
+                And I send 'PAGE_DOWN'
+                Given '1' element exists with 'css:button[data-qa="policy-model-delete-button"]'
+                When I click on the element on index '0'
+                Then '1' element exists with 'css:aside[data-qa="confirm-modal"]'
+                And '1' element exists with 'css:button[data-qa="modal-ok-button"]'
+                And I click on the element on index '0'
+
+##########################################################
+
 		# Create new transformation (Date Time)
 		Given '1' element exists with 'css:button[data-qa="policy-model-add-new-transformation-button"]'
                 When I click on the element on index '0'
@@ -284,7 +345,7 @@ Feature: Test adding a new policy in Sparta GUI
 		# Save
 		Given '1' element exists with 'css:button[data-qa="policy-trigger-add-button"]'
                 When I click on the element on index '0'
-                Then '2' elements exist with 'css:i[data-qa="policy-model-arrow-1"]'
+                Then '1' elements exist with 'css:i[data-qa="policy-trigger-arrow-1"]'
 
 		# Go to cubes
                 Given '1' element exists with 'css:button[data-qa="policy-next-step-button"]'
@@ -413,10 +474,10 @@ Feature: Test adding a new policy in Sparta GUI
 		Given I send 'END'
 		And '1' element exists with 'css:button[data-qa="policy-cube-add-button"]'
 		When I click on the element on index '0'
-		Then '1' elements exist with 'css:i[data-qa="policy-model-arrow-1"]'
+		Then '1' elements exist with 'css:i[data-qa="policy-cube-arrow-1"]'
 		
 		## Delete cube
-		Given '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
+		Given '1' element exists with 'css:i[data-qa="policy-cube-arrow-1"]'
 		Then I click on the element on index '0'
 		And I send 'END'
 		Given '1' element exists with 'css:button[data-qa="policy-cube-delete-button"]'
@@ -482,13 +543,13 @@ Feature: Test adding a new policy in Sparta GUI
 		# Save
                 Given '1' element exists with 'css:button[data-qa="policy-trigger-add-button"]'
                 When I click on the element on index '0'
-                Then '2' elements exist with 'css:i[data-qa="policy-model-arrow-1"]'
+                Then '1' elements exist with 'css:i[data-qa="policy-trigger-arrow-1"]'
 		
 		# Add cube
 		Given I send 'END'
 		And '1' element exists with 'css:button[data-qa="policy-cube-add-button"]'
 		Then I click on the element on index '0'
-		Then '1' elements exist with 'css:i[data-qa="policy-model-arrow-1"]'
+		Then '1' elements exist with 'css:i[data-qa="policy-cube-arrow-1"]'
 		
 		# Save policy
 		Given '1' element exists with 'css:button[data-qa="policy-save-button"]'
