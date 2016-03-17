@@ -124,7 +124,7 @@
       return $resource('/policyContext', {},
         {
           'get': {
-            method: 'GET', isArray: true,
+            method: 'GET',
             timeout: apiConfigSettings.timeout
           }
         });

@@ -23,7 +23,7 @@
     </aside>
 
     <div class="br-ba-container">
-      <table class="c-table c-table--margin-bottom c-table--full-width">
+      <table class="c-table  c-table--margin-bottom c-table--full-width">
         <thead class="c-table__thead">
         <tr>
           <th class="c-table__td c-col--3">{{"_NAME_" | translate}}</th>
@@ -76,7 +76,16 @@
         </tr>
         </tbody>
       </table>
+      <div class=" c-col c-col--12 c-row--to-bottom c-msg c-msg c-col--to-right">
+        <c-icon-link data-icon-class="'c-icon--to-right c-icon c-icon--is-clickable c-icon--call-to-action icon-help1'"
+                     data-text-class="'c-msg c-icon-label--right-margin'"
+                     data-ng-if="policies.clusterUI"
+                     text="'_CLUSTER_UI_' | translate"
+                     link-url="policies.clusterUI"
+                     data-qa="cluster-UI-link"></c-icon-link>
+      </div>
     </div>
+
   </div>
   <div class="c-msg--noitems c-msg--giant" data-ng-if="policies.policiesData.list.length === 0"
        data-ng-click = "policies.createPolicy()" data-qa="policy-first-message">
