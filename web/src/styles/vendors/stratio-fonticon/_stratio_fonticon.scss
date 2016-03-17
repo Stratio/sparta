@@ -1,10 +1,10 @@
 @font-face {
 	font-family: 'ico_stratio';
-	src:url('vendors/stratio-fonticon/ico_stratio.eot?yqimu5');
-	src:url('vendors/stratio-fonticon/ico_stratio.eot?yqimu5#iefix') format('embedded-opentype'),
-		url('vendors/stratio-fonticon/ico_stratio.ttf?yqimu5') format('truetype'),
-		url('vendors/stratio-fonticon/ico_stratio.woff?yqimu5') format('woff'),
-		url('vendors/stratio-fonticon/ico_stratio.svg?yqimu5#ico_stratio') format('svg');
+	src:url('vendors/stratio-fonticon/ico_stratio.eot?s87304');
+	src:url('vendors/stratio-fonticon/ico_stratio.eot?s87304#iefix') format('embedded-opentype'),
+		url('vendors/stratio-fonticon/ico_stratio.ttf?s87304') format('truetype'),
+		url('vendors/stratio-fonticon/ico_stratio.woff?s87304') format('woff'),
+		url('vendors/stratio-fonticon/ico_stratio.svg?s87304#ico_stratio') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -123,6 +123,9 @@
     content: "\e91c";
 }
 .icon-morphlines:before {
+    content: "\e91c";
+}
+.icon-solr:before {
     content: "\e91c";
 }
 .icon-type:before {
