@@ -89,7 +89,7 @@ Feature: Test editting a policy in Sparta GUI
 		
 		# 4/6 Delete cube, add new one and continue
 		# Delete
-		Given '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
+		Given '1' element exists with 'css:i[data-qa="policy-cube-arrow-1"]'
                 Then I click on the element on index '0'
                 And I send 'END'
                 Given '1' element exists with 'css:button[data-qa="policy-cube-delete-button"]'
@@ -134,7 +134,7 @@ Feature: Test editting a policy in Sparta GUI
 		Given I send 'END'
                 And '1' element exists with 'css:button[data-qa="policy-cube-add-button"]'
                 Then I click on the element on index '0'
-                Then '1' elements exist with 'css:i[data-qa="policy-model-arrow-1"]'
+                Then '1' elements exist with 'css:i[data-qa="policy-cube-arrow-1"]'
 
 		# Continue
 		Given '1' element exists with 'css:button[data-qa="policy-save-button"]'
