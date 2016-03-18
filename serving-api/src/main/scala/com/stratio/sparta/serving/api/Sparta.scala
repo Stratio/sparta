@@ -28,6 +28,7 @@ object Sparta extends App with SLF4JLogging {
   SpartaConfig.initMainConfig()
   SpartaConfig.initDAOs
   SpartaConfig.initApiConfig()
+  SpartaConfig.initSprayConfig()
   SpartaConfig.initSwaggerConfig()
   SpartaHelper.initAkkaSystem(AppConstant.ConfigAppName)
   SpartaHelper.initPolicyContextStatus
