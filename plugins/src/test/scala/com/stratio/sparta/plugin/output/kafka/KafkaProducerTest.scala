@@ -43,7 +43,7 @@ class KafkaProducerTest extends FlatSpec with Matchers {
   val validProperties: Map[String, Serializable] = Map(
     "metadata.broker.list" -> """[{"host":"localhost","port":"9092"},{"host":"localhost2","port":"90922"}]""",
     "serializer.class" -> "kafka.serializer.StringEncoder",
-    "request.required.acks" -> 1,
+    "request.required.acks" -> "true",
     "producer.type" -> "async",
     "batch.num.messages" -> 200
   )

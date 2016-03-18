@@ -595,11 +595,11 @@
     {
       "propertyId": "request.required.acks",
       "propertyName": "_REQUIRED_ACKS_",
-      "propertyType": "text",
-      "regexp": "0|1",
-      "default": "0",
-      "required": true,
-      "tooltip": "Specify whether producer waits for an acknowledgment from the broker (1), or not (0)",
+      "propertyType": "boolean",
+      "regexp": "true|false",
+      "default": false,
+      "required": false,
+      "tooltip": "Specify whether producer waits for an acknowledgment from the broker, or not",
       "qa": "fragment-details-kafka-request-required-acks"
     },
     {

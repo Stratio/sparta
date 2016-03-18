@@ -54,6 +54,13 @@ object KafkaProducer {
     }
   }
 
+  private val getBoolean: ((Map[String, JSerializable], String, String) => String) = (properties, key, default) => {
+    properties.getString(key).toBoolean match {
+      case true => "1"
+      case _ => "0"
+    }
+  }
+
   private val getList: ((Map[String, JSerializable], String, String) => String) = (properties, key, default) => {
     val values = getAdditionalOptions(key, HostKey, PortKey, properties)
 
@@ -79,7 +86,7 @@ object KafkaProducer {
   private val mandatoryOptions: Map[String, ((Map[String, JSerializable], String, String) => AnyRef, String)] = Map(
     "metadata.broker.list" ->(getList, DefaultHostPort),
     "serializer.class" ->(getString, DefaultKafkaSerializer),
-    "request.required.acks" ->(getString, DefaultRequiredAcks),
+    "request.required.acks" ->(getBoolean, DefaultRequiredAcks),
     "producer.type" ->(getString, DefaultProducerType),
     "batch.num.messages" ->(getString, DefaultBatchNumMessages))
 
