@@ -63,9 +63,6 @@ Feature: Test adding a new Kafka output in Sparta GUI
    # Try with empty Serializer class for messages
     Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-serializer-class"]'
     When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
-   # Try with empty kafka producer wait for acknowledgement
-    Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-request-required-acks"]'
-    When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
    # Try with empty Producer type
     Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-producer-type"]'
     When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
@@ -78,7 +75,6 @@ Feature: Test adding a new Kafka output in Sparta GUI
     Then '1' elements exist with 'css:span[data-qa="fragment-details-kafka-host-0-error-required"]'
     And '1' elements exist with 'css:span[data-qa="fragment-details-kafka-port-0-error-required"]'
     And '1' elements exist with 'css:span[data-qa="fragment-details-kafka-serializer-class-error-required"]'
-    And '1' elements exist with 'css:span[data-qa="fragment-details-kafka-request-required-acks-error-required"]'
     And '1' elements exist with 'css:span[data-qa="fragment-details-kafka-producer-type-error-required"]'
     And '1' elements exist with 'css:span[data-qa="fragment-details-kafka-batch-num-messages-error-required"]'
 
@@ -89,14 +85,6 @@ Feature: Test adding a new Kafka output in Sparta GUI
     When I click on the element on index '0'
    # Error message should appear
     Then '1' elements exist with 'css:span[data-qa="fragment-details-kafka-port-0-error-pattern"]'
-
-   # Try with invalid kafka producer wait for acknowledgement i.e. 2
-    Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-request-required-acks"]'
-    Then I type '2' on the element on index '0'
-    Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
-    When I click on the element on index '0'
-   # Error message should appear
-    Then '1' elements exist with 'css:span[data-qa="fragment-details-kafka-request-required-acks-error-pattern"]'
 
    # Try with invalid Producer type
     Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-producer-type"]'
@@ -128,9 +116,8 @@ Feature: Test adding a new Kafka output in Sparta GUI
     Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-serializer-class"]'
     Then I type 'kafka.serializer.StringEncoder' on the element on index '0'
    # Fill in kafka producer wait for acknowledgement
-    Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-request-required-acks"]'
-    Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
-    And I type '0' on the element on index '0'
+    Given '1' element exists with 'css:label[data-qa="fragment-details-kafka-request-required-acks"]'
+    Then I click on the element on index '0'
    # Fill in Producer type
     Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-producer-type"]'
     Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
