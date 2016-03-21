@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 sed -i "s|executionMode.*|executionMode = \"${EXECUTION_MODE:=local}\"|" /etc/sds/sparta/application.conf
-sed -i "s|connectionString.*|connectionString = \""${ZOOKEEPER_HOST:=localhost:2181}"\"|" /etc/sds/sparta/application.conf
+sed -i "s|connectionString.*|connectionString = \""${ZOOKEEPER_HOST:=localhost}":2181\"|" /etc/sds/sparta/application.conf
 sed -i "s|spark.master.*|spark.master = \""${SPARK_MASTER:=local[4]}"\"|" /etc/sds/sparta/application.conf
 if [[ "${EXECUTION_MODE}" == "mesos" || "${EXECUTION_MODE}" == "yarn" ]]; then
    wget http://tools.stratio.com/spark/spark-1.5.2/spark-1.5.2-bin-hadoop2.6.tgz
