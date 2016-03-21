@@ -231,11 +231,22 @@
         vm.policiesData.list = result;
         updatePoliciesStatus();
 
-        checkPoliciesStatus = $interval(function () {
-          updatePoliciesStatus();
-        }, 5000);
+        if (vm.policiesData.list.length > 0) {
+          vm.checkPoliciesStatus = $interval(function () {
+            var policiesStatus = PolicyFactory.getPoliciesStatus();
 
+            policiesStatus.then(function (result) {
+              for (var i = 0; i < result.length; i++) {
+                var policyData = $filter('filter')(vm.policiesData.list, {'policy': {'id': result[i].id}}, true)[0];
+                if (policyData) {
+                  policyData.status = result[i].status;
+                }
+              }
+            });
+          }, 5000);
+        }
       }, function (error) {
+        $interval.cancel(vm.checkPoliciesStatus);
         $translate('_INPUT_ERROR_' + error.data.i18nCode + '_').then(function (value) {
           vm.successMessage = value;
           $timeout(function () {

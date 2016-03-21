@@ -16,6 +16,7 @@
 package com.stratio.sparta.serving.api.service.http
 
 import akka.actor.ActorRef
+import com.stratio.sparkta.serving.api.service.http.TemplateHttpService
 import com.stratio.sparta.sdk.exception.MockException
 import com.stratio.sparta.serving.api.actor.TemplateActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant

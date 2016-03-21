@@ -15,6 +15,8 @@
  */
 package com.stratio.sparta.serving.api.actor
 
+import com.stratio.sparkta.serving.api.service.http.{PolicyContextHttpService, TemplateHttpService}
+
 import scala.reflect.runtime.universe._
 
 import akka.actor.{ActorContext, ActorRef}

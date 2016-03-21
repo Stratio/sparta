@@ -13,15 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.stratio.sparta.serving.api.service.http
 
 import java.io.File
 import javax.ws.rs.Path
-import scala.concurrent.Await
-import scala.util.{Failure, Success}
 
 import akka.pattern.ask
+import com.stratio.sparta.serving.api.actor.PolicyActor._
+import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor
+import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.api.service.http.BaseHttpService
+import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.helpers.PolicyHelper
+import com.stratio.sparta.serving.core.models._
+import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
 import spray.http.HttpHeaders.`Content-Disposition`
@@ -29,21 +34,16 @@ import spray.http.{HttpResponse, StatusCodes}
 import spray.httpx.marshalling.ToResponseMarshallable
 import spray.routing._
 
-import com.stratio.sparta.serving.api.actor.PolicyActor._
-import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor
-import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.helpers.PolicyHelper
-import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.ResponseDelete
-import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
+import scala.concurrent.Await
+import scala.util.{Failure, Success}
 
 @Api(value = HttpConstant.PolicyPath, description = "Operations over policies.")
 trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
 
   case class Result(message: String, desc: Option[String] = None)
 
-  override def routes: Route = find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download ~ findByName
+  override def routes: Route =
+    find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download ~ findByName
 
   @Path("/find/{id}")
   @ApiOperation(value = "Find a policy from its id.",
@@ -130,9 +130,8 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath / "fragment" / Segment / Segment) { (fragmentType, id) =>
       get {
         complete {
-          for {
-            response <- supervisor ? FindByFragment(fragmentType, id)
-          } yield response match {
+          val future = supervisor ? new FindByFragment(fragmentType, id)
+          Await.result(future, timeout.duration) match {
             case ResponsePolicies(Failure(exception)) => throw exception
             case ResponsePolicies(Success(policies)) =>
               withStatus(policies)
