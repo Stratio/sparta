@@ -1,22 +1,24 @@
 describe('policies.wizard.controller.policy-model-controller', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policy.json'));
-  beforeEach(module('served/policyTemplate.json'));
-  beforeEach(module('served/model.json'));
+  beforeEach(module('api/policy.json'));
+  beforeEach(module('model/policy.json'));
+  beforeEach(module('template/policy.json'));
+  beforeEach(module('model/transformation.json'));
 
   var ctrl, scope, fakePolicy, fakePolicyTemplate, fakeModelTemplate, fakeModel, policyModelFactoryMock,
-    modelFactoryMock, modelServiceMock, resolvedPromise, rejectedPromise;
+    modelFactoryMock, modelServiceMock, resolvedPromise, rejectedPromise, fakeApiPolicy;
 
   // init mock modules
 
   beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope) {
     scope = $rootScope.$new();
 
-    inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedModel_) {
-      fakePolicy = angular.copy(_servedPolicy_);
-      fakePolicyTemplate = _servedPolicyTemplate_;
+    inject(function (_modelPolicy_, _apiPolicy_,_templatePolicy_, _modelTransformation_) {
+      fakePolicy = angular.copy(_modelPolicy_);
+      fakeApiPolicy = _apiPolicy_;
+      fakePolicyTemplate = _templatePolicy_;
       fakeModelTemplate = fakePolicyTemplate.model;
-      fakeModel = _servedModel_;
+      fakeModel = _modelTransformation_;
     });
 
     $httpBackend.when('GET', 'languages/en-US.json')

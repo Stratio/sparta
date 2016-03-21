@@ -1,11 +1,12 @@
 describe('policies.wizard.factory.policy-model-factory', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policy.json'));
-  beforeEach(module('served/input.json'));
-  beforeEach(module('served/output.json'));
-  beforeEach(module('served/policyTemplate.json'));
+  beforeEach(module('api/policy.json'));
+  beforeEach(module('model/policy.json'));
+  beforeEach(module('model/input.json'));
+  beforeEach(module('model/output.json'));
+  beforeEach(module('template/policy.json'));
 
-  var factory, fakePolicy, fakeInput, fakeOutput, fakePolicyTemplate, fragmentConstantsMock = null;
+  var factory, fakePolicy, fakeApiPolicy, fakeInput, fakeOutput, fakePolicyTemplate, fragmentConstantsMock = null;
 
   beforeEach(module(function ($provide) {
     fragmentConstantsMock = jasmine.createSpyObj('fragmentConstants', ['OUTPUT']);
@@ -14,27 +15,28 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     $provide.value('fragmentConstants', fragmentConstantsMock);
   }));
 
-  beforeEach(inject(function (_PolicyModelFactory_, _servedPolicy_, _servedPolicyTemplate_, _servedInput_, _servedOutput_) {
+  beforeEach(inject(function (_PolicyModelFactory_, _apiPolicy_, _modelPolicy_, _templatePolicy_, _modelInput_, _modelOutput_) {
     factory = _PolicyModelFactory_;
-    fakePolicy = angular.copy(_servedPolicy_);
+    fakePolicy = angular.copy(_modelPolicy_);
+    fakeApiPolicy = _apiPolicy_;
     fakePolicy.rawData = {enabled: 'false'};
-    fakePolicyTemplate = _servedPolicyTemplate_;
-    fakeInput = _servedInput_;
-    fakeOutput = _servedOutput_;
+    fakePolicyTemplate = _templatePolicy_;
+    fakeInput = _modelInput_;
+    fakeOutput = _modelOutput_;
   }));
 
   it("should be able to load a policy from a json", function () {
-    fakePolicy.fragments = [fakeInput, fakeOutput];
+    fakeApiPolicy.fragments = [fakeInput];
     fakePolicy.rawData = {enabled: 'false'};
-    factory.setPolicy(fakePolicy);
+    factory.setPolicy(fakeApiPolicy);
 
     var policy = factory.getCurrentPolicy();
 
-    expect(policy.id).toBe(fakePolicy.id);
-    expect(policy.name).toBe(fakePolicy.name);
-    expect(policy.description).toBe(fakePolicy.description);
-    expect(policy.cubes).toEqual(fakePolicy.cubes);
-    expect(policy.input).toBe(fakeInput);
+    expect(policy.id).toBe(fakeApiPolicy.id);
+    expect(policy.name).toBe(fakeApiPolicy.name);
+    expect(policy.description).toBe(fakeApiPolicy.description);
+    expect(policy.cubes).toEqual(fakeApiPolicy.cubes);
+    expect(policy.input).toEqual(fakeInput);
   });
 
 
@@ -59,27 +61,27 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     });
 
     it("if there is a policy, returns that policy", function () {
-      fakePolicy.fragments = [fakeInput, fakeOutput];
+      fakePolicy.fragments = [fakeInput];
       fakePolicy.rawData = {enabled: 'false'};
-      cleanFactory.setPolicy(fakePolicy);
+      cleanFactory.setPolicy(fakeApiPolicy);
       var policy = cleanFactory.getCurrentPolicy();
-      var sparkStreamingWindowTime = fakePolicy.sparkStreamingWindow.split(/([0-9]+)/);
-      expect(policy.name).toBe(fakePolicy.name);
-      expect(policy.description).toBe(fakePolicy.description);
+      var sparkStreamingWindowTime = fakeApiPolicy.sparkStreamingWindow.split(/([0-9]+)/);
+      expect(policy.name).toBe(fakeApiPolicy.name);
+      expect(policy.description).toBe(fakeApiPolicy.description);
       expect(policy.sparkStreamingWindowNumber).toBe(Number(sparkStreamingWindowTime[1]));
       expect(policy.sparkStreamingWindowTime).toBe(sparkStreamingWindowTime[2]);
-      expect(policy.storageLevel).toBe(fakePolicy.storageLevel);
-      expect(policy.checkpointPath).toBe(fakePolicy.checkpointPath);
+      expect(policy.storageLevel).toBe(fakeApiPolicy.storageLevel);
+      expect(policy.checkpointPath).toBe(fakeApiPolicy.checkpointPath);
       expect(policy.input).toEqual(fakeInput);
-      expect(policy.transformations).toEqual(fakePolicy.transformations);
-      expect(policy.cubes).toEqual(fakePolicy.cubes);
+      expect(policy.transformations).toEqual(fakeApiPolicy.transformations);
+      expect(policy.cubes).toEqual(fakeApiPolicy.cubes);
     });
   });
 
   it("should be able to reset its policy to set all attributes with default values", function () {
     factory.setTemplate(fakePolicyTemplate);
 
-    factory.setPolicy(fakePolicy);
+    factory.setPolicy(fakeApiPolicy);
     factory.resetPolicy();
 
     var policy = factory.getCurrentPolicy();
@@ -104,9 +106,8 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       var fakeModel2 = {"outputFields": [{name: "fake output1 of model 2"}, {name: "fake output2 of model 2"}]};
       var fakeModel3 = {"outputFields": [{name: "fake output1 of model 3"}, {name: "fake output2 of model 3"}]};
 
-      var policy = angular.copy(fakePolicy);
-      policy.transformations = [fakeModel1, fakeModel2, fakeModel3];
-      factory.setPolicy(policy);
+      fakeApiPolicy.transformations = [fakeModel1, fakeModel2, fakeModel3];
+      factory.setPolicy(fakeApiPolicy);
 
       var modelOutputs = factory.getAllModelOutputs();
 

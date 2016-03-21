@@ -1,9 +1,10 @@
 describe('policies.wizard.factory.trigger-model-factory', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/trigger.json'));
-  beforeEach(module('served/policy.json'));
+  beforeEach(module('api/trigger.json'));
+  beforeEach(module('model/trigger.json'));
+  beforeEach(module('model/policy.json'));
 
-  var factory, UtilsServiceMock,PolicyModelFactoryMock, fakeTrigger, fakePolicy = null;
+  var factory, UtilsServiceMock,PolicyModelFactoryMock, fakeApiTrigger,fakeTrigger, fakePolicy, triggerConstants = null;
 
   beforeEach(module(function ($provide) {
     UtilsServiceMock = jasmine.createSpyObj('UtilsService', ['removeItemsFromArray', 'findElementInJSONArray']);
@@ -15,20 +16,22 @@ describe('policies.wizard.factory.trigger-model-factory', function () {
 
   }));
 
-  beforeEach(inject(function (TriggerModelFactory, _servedTrigger_, _servedPolicy_) {
+  beforeEach(inject(function (TriggerModelFactory,_apiTrigger_, _modelTrigger_, _modelPolicy_, _triggerConstants_) {
     factory = TriggerModelFactory;
-    fakeTrigger = _servedTrigger_;
-    fakePolicy = _servedPolicy_;
+    fakeApiTrigger = _apiTrigger_;
+    fakeTrigger = _modelTrigger_;
+    fakePolicy =  angular.copy(_modelPolicy_);
+    triggerConstants = _triggerConstants_;
   }));
 
   it("should be able to load a trigger from a json and a position", function () {
     var position = 0;
-    factory.setTrigger(fakeTrigger, position);
+    factory.setTrigger(fakeApiTrigger, position);
     var trigger = factory.getTrigger();
-    expect(trigger.name).toBe(fakeTrigger.name);
-    expect(trigger.sql).toBe(fakeTrigger.sql);
-    expect(trigger.outputs).toBe(fakeTrigger.outputs);
-    expect(factory.getError()).toEqual({"text": ""});
+    expect(trigger.name).toBe(fakeApiTrigger.name);
+    expect(trigger.sql).toBe(fakeApiTrigger.sql);
+    expect(trigger.outputs).toBe(fakeApiTrigger.outputs);
+     expect(factory.getError()).toEqual({"text": ""});
     expect(factory.getContext().position).toBe(position);
   });
 
@@ -45,42 +48,53 @@ describe('policies.wizard.factory.trigger-model-factory', function () {
       cleanFactory = _TriggerModelFactory_; // inject a new factory in each test to can check the initial state of the factory when it is created
     }));
 
-    it("if there is not any trigger, it initializes a new one using the introduced position", function () {
-      var trigger = cleanFactory.getTrigger(desiredPosition);
-      expect(trigger.name).toEqual("");
-      expect(trigger.sql).toEqual("");
-      expect(trigger.outputs).toEqual([]);
-      expect(trigger.configuration).toEqual(undefined);
-      expect(cleanFactory.getError()).toEqual({"text": ""});
-      expect(factory.getContext().position).toBe(desiredPosition);
+    describe("if there is not any trigger, it initializes a new one using the introduced position and type", function () {
+      beforeEach(inject(function (_TriggerModelFactory_) {
+        cleanFactory = _TriggerModelFactory_; // inject a new factory in each test to can check the initial state of the factory when it is created
+      }));
+      it ("if type is cube", function(){
+        var trigger = cleanFactory.getTrigger(desiredPosition, triggerConstants.CUBE);
+        expect(trigger.name).toEqual("");
+        expect(trigger.sql).toEqual("");
+        expect(trigger.outputs).toEqual([]);
+        expect( trigger.overLastNumber).toBe(undefined);
+        expect( trigger.overLastTime).toBe(undefined);
+        expect(cleanFactory.getError()).toEqual({"text": ""});
+        expect(factory.getContext().position).toBe(desiredPosition);
+      });
+
+      it ("if type is transformation", function(){
+        var trigger = cleanFactory.getTrigger(desiredPosition, triggerConstants.TRANSFORMATION);
+        var overLast =  fakeApiTrigger.overLast.split(/([0-9]+)/);
+        expect(trigger.name).toEqual("");
+        expect(trigger.sql).toEqual("");
+        expect(trigger.outputs).toEqual([]);
+        expect( trigger.overLastNumber).toBe(Number(overLast[1]));
+        expect( trigger.overLastTime).toBe(overLast[2]);
+        expect(cleanFactory.getError()).toEqual({"text": ""});
+        expect(factory.getContext().position).toBe(desiredPosition);
+      });
+
     });
 
     it("if there is a trigger, returns that trigger", function () {
-      factory.setTrigger(fakeTrigger, desiredPosition, 'cube');
+      factory.setTrigger(fakeApiTrigger, desiredPosition, 'cube');
 
       var trigger = factory.getTrigger(desiredPosition);
-      expect(trigger.name).toEqual(fakeTrigger.name);
-      expect(trigger.sql).toEqual(fakeTrigger.sql);
-      expect(trigger.outputs).toEqual(fakeTrigger.outputs);
-      expect(trigger.configuration).toEqual(fakeTrigger.configuration);
+      expect(trigger.name).toEqual(fakeApiTrigger.name);
+      expect(trigger.sql).toEqual(fakeApiTrigger.sql);
+      expect(trigger.outputs).toEqual(fakeApiTrigger.outputs);
 
-      factory.setTrigger(fakeTrigger, desiredPosition, 'transformation');
+      factory.setTrigger(fakeApiTrigger, desiredPosition, 'transformation');
+
       var trigger = factory.getTrigger(desiredPosition);
-
-      expect(trigger.name).toEqual(fakeTrigger.name);
-      expect(trigger.sql).toEqual(fakeTrigger.sql);
-      expect(trigger.outputs).toEqual(fakeTrigger.outputs);
-      expect(trigger.configuration).toEqual(fakeTrigger.configuration);
-      expect(trigger.primaryKey).toEqual(fakeTrigger.primaryKey);
-      expect(trigger.overLastNumber).toEqual(Number(fakeTrigger.overLastNumber));
-      expect(trigger.overLastTime).toEqual(fakeTrigger.overLastTime);
-
-      trigger.name = "";
-      trigger.sql = "";
-      trigger.outputs = [];
-      trigger.primaryKey = [];
-      trigger.overLastNumber =fakePolicy.sparkStreamingWindowNumber;
-      trigger.overLastTime = fakePolicy.sparkStreamingWindowTime;
+      var overLast =  fakeApiTrigger.overLast.split(/([0-9]+)/);
+      expect(trigger.name).toEqual(fakeApiTrigger.name);
+      expect(trigger.sql).toEqual(fakeApiTrigger.sql);
+      expect(trigger.outputs).toEqual(fakeApiTrigger.outputs);
+      expect(trigger.primaryKey).toEqual(fakeApiTrigger.primaryKey);
+      expect(trigger.overLastNumber).toEqual(Number(overLast[1]));
+      expect(trigger.overLastTime).toEqual(overLast[2]);
     });
 
     it("if there is not any trigger and no position is introduced, trigger is initialized with position equal to 0", function () {

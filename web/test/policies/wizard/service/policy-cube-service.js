@@ -1,10 +1,11 @@
 describe('policies.wizard.service.policy-cube-service', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policy.json'));
-  beforeEach(module('served/cube.json'));
+  beforeEach(module('model/policy.json'));
+  beforeEach(module('api/cube.json'));
+  beforeEach(module('model/cube.json'));
 
   var service, q, rootScope, httpBackend, translate, ModalServiceMock, PolicyModelFactoryMock, CubeModelFactoryMock,
-    UtilsServiceMock, fakeCube2, fakeCube3, resolvedPromiseFunction, rejectedPromiseFunction,wizardStatusServiceMock,
+    UtilsServiceMock, fakeCube2, fakeCube3, resolvedPromiseFunction, rejectedPromiseFunction,fakeApiCube, wizardStatusServiceMock,
     fakeCube = null;
   var fakePolicy = {};
 
@@ -28,9 +29,10 @@ describe('policies.wizard.service.policy-cube-service', function () {
     $provide.value('UtilsService', UtilsServiceMock);
   }));
 
-  beforeEach(inject(function (_servedCube_, _servedPolicy_, $q, $rootScope, $httpBackend, $translate) {
-    fakeCube = _servedCube_;
-    angular.extend(fakePolicy, fakePolicy, _servedPolicy_);
+  beforeEach(inject(function (_apiCube_, _modelCube_, _modelPolicy_, $q, $rootScope, $httpBackend, $translate) {
+    fakeApiCube = _apiCube_;
+    fakeCube = _modelCube_;
+    angular.extend(fakePolicy, fakePolicy,  angular.copy(_modelPolicy_));
 
     translate = $translate;
     q = $q;
@@ -149,20 +151,23 @@ describe('policies.wizard.service.policy-cube-service', function () {
   describe("should be able to add a cube to the policy", function () {
 
     it("cube is not added if it is not valid", function () {
+      var previousCubeLength = service.policy.cubes.length;
       CubeModelFactoryMock.isValidCube.and.returnValue(false);
       service.addCube();
-      expect(service.policy.cubes.length).toBe(0);
+      expect(service.policy.cubes.length).toBe(previousCubeLength);
     });
 
     describe("if cube is valid", function () {
+     var previousCubeLength = null;
       beforeEach(function () {
+        previousCubeLength = service.policy.cubes.length;
         CubeModelFactoryMock.isValidCube.and.returnValue(true);
         service.addCube();
       });
 
       it("it is added to policy with its order", function () {
-        expect(service.policy.cubes.length).toBe(1);
-        expect(service.policy.cubes[0].name).toEqual(fakeCube.name);
+        expect(service.policy.cubes.length).toBe(previousCubeLength + 1);
+        expect(service.policy.cubes[previousCubeLength].name).toEqual(fakeCube.name);
       });
     });
   });

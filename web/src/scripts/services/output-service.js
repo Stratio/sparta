@@ -24,7 +24,6 @@
 
   function OutputService(FragmentFactory, $q) {
     var vm = this;
-    var outputList = null;
 
     vm.generateOutputNameList = generateOutputNameList;
     vm.getOutputList = getOutputList;
@@ -41,14 +40,8 @@
       return defer.promise;
     }
 
-
     function getOutputList() {
-      var defer = $q.defer();
-      outputList = [];
-      FragmentFactory.getFragments("output").then(function (result) {
-        defer.resolve(result);
-      });
-      return defer.promise;
+      return FragmentFactory.getFragments("output");
     }
   }
 })();

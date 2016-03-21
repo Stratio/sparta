@@ -1,6 +1,6 @@
 describe('policies.wizard.controller.new-operator-modal-controller', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policyTemplate.json'));
+  beforeEach(module('template/policy.json'));
 
   var ctrl, modalInstanceMock, UtilsServiceMock, fakeOperatorName, fakeOperatorType, fakeFieldName, fakeOperators, fakeCubeTemplate = null;
 
@@ -14,8 +14,8 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
     fakeFieldName = "fake field name";
     fakeOperators = [];
 
-    inject(function (_servedPolicyTemplate_) {
-      fakeCubeTemplate = _servedPolicyTemplate_.cube;
+    inject(function (_templatePolicy_) {
+      fakeCubeTemplate = _templatePolicy_.cube;
     });
 
     ctrl = $controller('NewOperatorModalCtrl', {

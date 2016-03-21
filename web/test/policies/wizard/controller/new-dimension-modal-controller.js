@@ -1,6 +1,6 @@
 describe('policies.wizard.controller.new-dimension-modal-controller', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policyTemplate.json'));
+  beforeEach(module('template/policy.json'));
 
   var ctrl, modalInstanceMock, UtilsServiceMock, fakeDimensionName, fakeFieldName, fakeDimensions, fakeCubeTemplate, fakeIsNewDimension = null;
 
@@ -18,8 +18,8 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
       return {"focus": jasmine.createSpy()}
     });
 
-    inject(function (_servedPolicyTemplate_) {
-      fakeCubeTemplate = _servedPolicyTemplate_.cube;
+    inject(function (_templatePolicy_) {
+      fakeCubeTemplate = _templatePolicy_.cube;
     });
 
     ctrl = $controller('NewDimensionModalCtrl', {
