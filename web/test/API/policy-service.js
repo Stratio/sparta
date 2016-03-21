@@ -1,16 +1,16 @@
 describe('API.policy-service', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policy.json'));
-  beforeEach(module('served/policyList.json'));
-  beforeEach(module('served/policiesStatusList.json'));
+  beforeEach(module('api/policy.json'));
+  beforeEach(module('api/policyList.json'));
+  beforeEach(module('api/policiesStatusList.json'));
 
   var srv, rootScope, httpBackend, fakePolicyById, fakePolicyList, fakePoliciesStatusList = null;
 
   beforeEach(
-    inject(function ($httpBackend, $rootScope, _ApiPolicyService_, _servedPolicy_, _servedPolicyList_, _servedPoliciesStatusList_) {
-      fakePolicyById 					= _servedPolicy_;
-      fakePolicyList 					= _servedPolicyList_;
-      fakePoliciesStatusList 	= _servedPoliciesStatusList_;
+    inject(function ($httpBackend, $rootScope, _ApiPolicyService_, _apiPolicy_, _apiPolicyList_, _apiPoliciesStatusList_) {
+      fakePolicyById 					= _apiPolicy_;
+      fakePolicyList 					= _apiPolicyList_;
+      fakePoliciesStatusList 	= _apiPoliciesStatusList_;
       srv 										= _ApiPolicyService_;
       rootScope 							= $rootScope;
       httpBackend 						= $httpBackend;

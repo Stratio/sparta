@@ -1,11 +1,11 @@
 describe('policies.wizard.controller.policy-trigger-controller', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policy.json'));
-  beforeEach(module('served/policyTemplate.json'));
-  beforeEach(module('served/trigger.json'));
+  beforeEach(module('model/policy.json'));
+  beforeEach(module('template/policy.json'));
+  beforeEach(module('model/trigger.json'));
 
   var ctrl, scope, fakePolicy, fakeTriggerTemplate, fakeTrigger, policyModelFactoryMock, fakeOutputs, fakePolicyTemplate,
-    triggerModelFactoryMock, outputServiceMock, triggerServiceMock, resolvedPromise, rejectedPromise;
+    triggerModelFactoryMock, outputServiceMock, triggerServiceMock, rejectedPromise;
 
   // init mock modules
 
@@ -13,11 +13,11 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
     scope = $rootScope.$new();
     $httpBackend.when('GET', 'languages/en-US.json').respond({});
 
-    inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedTrigger_) {
-      fakePolicy = angular.copy(_servedPolicy_);
-      fakePolicyTemplate = _servedPolicyTemplate_;
-      fakeTriggerTemplate = _servedPolicyTemplate_.trigger.cube;
-      fakeTrigger = angular.copy(_servedTrigger_);
+    inject(function (_modelPolicy_, _templatePolicy_, _modelTrigger_) {
+      fakePolicy = angular.copy(_modelPolicy_);
+      fakePolicyTemplate = _templatePolicy_;
+      fakeTriggerTemplate = _templatePolicy_.trigger;
+      fakeTrigger = angular.copy(_modelTrigger_);
     });
 
     fakeOutputs = [{label: "output1", value: "output1"}, {label: "output2", value: "output2"}, {

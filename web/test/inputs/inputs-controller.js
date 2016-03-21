@@ -1,20 +1,21 @@
 describe('com.stratio.sparkta.inputs.inputs.controller', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/input.json'));
-  beforeEach(module('served/inputList.json'));
-  beforeEach(module('served/inputTemplate.json'));
-  beforeEach(module('served/policyList.json'));
+  beforeEach(module('api/input.json'));
+  beforeEach(module('api/inputList.json'));
+  beforeEach(module('template/input.json'));
+  beforeEach(module('api/policyList.json'));
 
   var ctrl, scope, filter, modalMock, utilsServiceMock, templateFactoryMock, fakeNewInputTemplate, fakeInput,
-    fakeInputList, fakePolicyList, fragmentFactoryMock, policyFactoryMock = null;
+    fakeInputList, fakePolicyList, fragmentFactoryMock, policyFactoryMock, resolvedInputListPromise, rejectedInputListPromise, resolvedNewInputTemplate, resolvedNewInput
+    ,resolvedEditInput, resolvedDeleteInput, resolverPolicyList= null;
 
-  beforeEach(inject(function ($controller, $q, $rootScope, $httpBackend, $filter, _servedInputList_, _servedInputTemplate_, _servedInput_, _servedPolicyList_) {
+  beforeEach(inject(function ($controller, $q, $rootScope, $httpBackend, $filter, _apiInputList_, _templateInput_, _apiInput_, _apiPolicyList_) {
     /*scope = $rootScope.$new();*/
     scope = $rootScope;
-    fakeInputList = _servedInputList_;
-    fakeNewInputTemplate = _servedInputTemplate_;
-    fakeInput = _servedInput_;
-    fakePolicyList = _servedPolicyList_;
+    fakeInputList = _apiInputList_;
+    fakeNewInputTemplate = _templateInput_;
+    fakeInput = _apiInput_;
+    fakePolicyList = _apiPolicyList_;
 
     resolvedInputListPromise = function () {
       var defer = $q.defer();
@@ -145,7 +146,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
 
 
   describe('Create a new input', function () {
-    var newFakeInputList, fakeListOfNames = null;
+    var fakeListOfNames = null;
 
     beforeEach(function () {
       modalMock.open.and.callFake(resolvedNewInput);

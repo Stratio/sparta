@@ -39,9 +39,9 @@
       delete policy.checkpointPath;
       delete policy.sparkStreamingWindowNumber;
       delete policy.sparkStreamingWindowTime;
-      delete  policy.storageLevel;
-      delete  policy.rawDataEnabled;
-      delete  policy.rawDataPath;
+      delete policy.storageLevel;
+      delete policy.rawDataEnabled;
+      delete policy.rawDataPath;
     }
 
     function setPolicy(inputPolicyJSON) {
@@ -79,20 +79,16 @@
     function separateFragments(fragments) {
       var result = {};
       var input = null;
-      var outputs = [];
       var fragment = null;
 
       for (var i = 0; i < fragments.length; ++i) {
         fragment = fragments[i];
-        if (fragment.fragmentType == fragmentConstants.OUTPUT) {
-          outputs.push(fragment);
-        } else {
+        if (fragment.fragmentType == fragmentConstants.INPUT) {
           input = fragment;
         }
       }
 
       result.input = input;
-      result.outputs = outputs;
       return result;
     }
 

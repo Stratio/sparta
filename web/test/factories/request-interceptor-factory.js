@@ -1,7 +1,5 @@
 describe('policies.factories.request-interceptor-factory', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/cube.json'));
-  beforeEach(module('served/policyTemplate.json'));
 
   var factory, srv, httpBackend, rootScope, fragmentTypeIdJSON = null;
   var windowObj = {location:{href: ''}};

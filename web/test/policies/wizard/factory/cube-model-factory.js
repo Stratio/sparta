@@ -1,9 +1,10 @@
 describe('policies.wizard.factory.cube-model-factory', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/cube.json'));
-  beforeEach(module('served/policyTemplate.json'));
+  beforeEach(module('api/cube.json'));
+  beforeEach(module('model/cube.json'));
+  beforeEach(module('template/policy.json'));
 
-  var factory, fakeCube, UtilsServiceMock, fakePolicyTemplate, PolicyModelFactoryMock = null;
+  var factory, fakeCube, UtilsServiceMock, fakePolicyTemplate, PolicyModelFactoryMock, fakeApiCube = null;
 
   beforeEach(module(function ($provide) {
     UtilsServiceMock = jasmine.createSpyObj('UtilsService', ['removeItemsFromArray', 'findElementInJSONArray']);
@@ -14,28 +15,28 @@ describe('policies.wizard.factory.cube-model-factory', function () {
 
   }));
 
-  beforeEach(inject(function (_CubeModelFactory_, _servedCube_, _servedPolicyTemplate_) {
+  beforeEach(inject(function (_CubeModelFactory_, _apiCube_, _modelCube_, _templatePolicy_) {
+    fakeCube = _modelCube_;
+    fakeApiCube = _apiCube_;
     factory = _CubeModelFactory_;
-    fakeCube = _servedCube_;
-    fakePolicyTemplate = _servedPolicyTemplate_;
+    fakePolicyTemplate = _templatePolicy_;
   }));
 
   it("should be able to load a cube from a json and a position and remove attributes which are loaded from its template", function () {
     var position = 0;
 
-    factory.setCube(fakeCube, position);
+    factory.setCube(fakeApiCube, position);
     var cube = factory.getCube();
-    expect(cube.name).toBe(fakeCube.name);
-    expect(cube.dimensions).toBe(fakeCube.dimensions);
-    expect(cube.operators).toBe(fakeCube.operators);
-    expect(cube.checkpointConfig).toBe(fakeCube.checkpointConfig);
+    expect(cube.name).toBe(fakeApiCube.name);
+    expect(cube.dimensions).toBe(fakeApiCube.dimensions);
+    expect(cube.operators).toBe(fakeApiCube.operators);
+    expect(cube.checkpointConfig).toBe(fakeApiCube.checkpointConfig);
+    expect(cube.triggers).toEqual(fakeApiCube.triggers);
     expect(factory.getError()).toEqual({"text": ""});
     expect(factory.getContext().position).toBe(position);
-
-    // check if attributes which are loaded from its template have been removed
-    expect(cube.fixedMeasure).toBe(undefined);
-    expect(cube.isAutoCalculatedId).toBe(undefined);
-    expect(cube.dateType).toBe(undefined);
+    cube['writer.fixedMeasure'] = fakeApiCube.writer.fixedMeasure;
+    cube['writer.isAutoCalculatedId'] = fakeApiCube.writer.isAutoCalculatedId;
+    cube['writer.dateType'] = fakeApiCube.writer.dateType;
   });
 
   describe("should be able to update the cube error", function () {

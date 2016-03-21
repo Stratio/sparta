@@ -1,8 +1,8 @@
 describe('policies.wizard.controller.policy-input-controller', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policy.json'));
-  beforeEach(module('served/policyTemplate.json'));
-  beforeEach(module('served/inputList.json'));
+  beforeEach(module('model/policy.json'));
+  beforeEach(module('template/policy.json'));
+  beforeEach(module('api/inputList.json'));
 
   var ctrl, scope, fakePolicy, fakeTemplate, fragmentFactoryMock, fakeInputList, policyModelFactoryMock, wizardStatusServiceMock = null;
 
@@ -10,10 +10,10 @@ describe('policies.wizard.controller.policy-input-controller', function () {
 
   beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope) {
     scope = $rootScope.$new();
-    inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedInputList_) {
-      fakePolicy = angular.copy(_servedPolicy_);
-      fakeTemplate = _servedPolicyTemplate_;
-      fakeInputList = _servedInputList_;
+    inject(function (_modelPolicy_, _templatePolicy_, _apiInputList_) {
+      fakePolicy = angular.copy(_modelPolicy_);
+      fakeTemplate = _templatePolicy_;
+      fakeInputList = _apiInputList_;
     });
 
     $httpBackend.when('GET', 'languages/en-US.json')
@@ -62,16 +62,18 @@ describe('policies.wizard.controller.policy-input-controller', function () {
   describe('should be able to set an input to the policy using the position in the input list', function () {
     it("if position is < 0, input is not changed", function () {
       var invalidPosition = -1;
+      var oldInput = ctrl.policy.input;
       ctrl.setInput(invalidPosition);
 
-      expect(ctrl.policy.input).toEqual({});
+      expect(ctrl.policy.input).toEqual(oldInput);
     });
 
     it("if position is >= inputList length, input is not changed", function () {
       var invalidPosition = fakeInputList.length;
+      var oldInput = ctrl.policy.input;
       ctrl.setInput(invalidPosition);
 
-      expect(ctrl.policy.input).toEqual({});
+      expect(ctrl.policy.input).toEqual(oldInput);
     });
 
     it("if position is valid, input is changed and next step is enabled", function () {
