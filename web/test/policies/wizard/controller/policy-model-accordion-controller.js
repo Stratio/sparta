@@ -3,19 +3,19 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
      modelFactoryMock, cubeServiceMock, ModelServiceMock, triggerServiceMock, wizardStatusServiceMock = null;
 
   beforeEach(module('webApp'));
-  beforeEach(module('served/policy.json'));
-  beforeEach(module('served/policyTemplate.json'));
-  beforeEach(module('served/model.json'));
+  beforeEach(module('model/policy.json'));
+  beforeEach(module('template/policy.json'));
+  beforeEach(module('model/transformation.json'));
 
   beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope) {
     scope = $rootScope.$new();
     fakeTranslation = "fake translation";
     translate = jasmine.createSpy().and.returnValue(fakeTranslation);
 
-    inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedModel_) {
-      fakePolicy = angular.copy(_servedPolicy_);
-      fakePolicyTemplate = _servedPolicyTemplate_;
-      fakeModel = _servedModel_;
+    inject(function (_modelPolicy_, _templatePolicy_, _modelTransformation_) {
+      fakePolicy = angular.copy(_modelPolicy_);
+      fakePolicyTemplate = _templatePolicy_;
+      fakeModel = _modelTransformation_;
     });
 
     $httpBackend.when('GET', 'languages/en-US.json')

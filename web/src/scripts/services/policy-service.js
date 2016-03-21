@@ -27,8 +27,6 @@
     vm.generateFinalJSON = generateFinalJSON;
     vm.getCubeOutputs = getCubeOutputs;
     vm.getTriggerOutputs = getTriggerOutputs;
-    vm.convertTriggerAttributes = convertTriggerAttributes;
-    vm.cleanPolicyJSON = cleanPolicyJSON;
 
     init();
 
@@ -36,34 +34,45 @@
 
     function init() {
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-
     }
 
     function generateFinalJSON() {
-      var defer = $q.defer();
-      var fragments = [];
       var finalJSON = angular.copy(vm.policy);
-      finalJSON.rawData = {};
-      finalJSON.rawData.enabled = vm.policy.rawDataEnabled.toString();
-      if (vm.policy.rawDataEnabled) {
-        finalJSON.rawData.path = (vm.policy.rawDataEnabled) ? vm.policy.rawDataPath : null;
-      }
-      finalJSON.sparkStreamingWindow = finalJSON.sparkStreamingWindowNumber + finalJSON.sparkStreamingWindowTime;
+      finalJSON = convertDescriptionAttributes(finalJSON);
       finalJSON = convertTriggerAttributes(finalJSON);
-      fragments.push(finalJSON.input);
+      var cleanedJSON = cleanUnusedAttributes(finalJSON);
+      finalJSON = UtilsService.convertDottedPropertiesToJson(cleanedJSON);
+
+      return convertFragments(finalJSON);
+    }
+
+    function convertFragments(json) {
+      var defer = $q.defer();
+      var convertedFragmentsPolicy = angular.copy(json);
+      var fragments = [json.input];
+      delete convertedFragmentsPolicy.input;
       OutputService.getOutputList().then(function (allOutputs) {
         var cubeOutputs = getCubeOutputs(allOutputs);
         var triggerOutputs = getTriggerOutputs(allOutputs);
         fragments = fragments.concat(cubeOutputs);
         fragments = fragments.concat(triggerOutputs);
         fragments = UtilsService.removeDuplicatedJSONs(fragments, 'id');
-        finalJSON.fragments = fragments;
-        finalJSON = cleanPolicyJSON(finalJSON);
-        finalJSON = UtilsService.convertDottedPropertiesToJson(finalJSON);
+        convertedFragmentsPolicy.fragments = fragments;
 
-        defer.resolve(finalJSON);
+        defer.resolve(convertedFragmentsPolicy);
       });
       return defer.promise;
+    }
+
+    function convertDescriptionAttributes(json) {
+      var convertedDescriptionJson = angular.copy(json);
+      convertedDescriptionJson.rawData = {};
+      convertedDescriptionJson.rawData.enabled = vm.policy.rawDataEnabled.toString();
+      if (vm.policy.rawDataEnabled) {
+        convertedDescriptionJson.rawData.path = (vm.policy.rawDataEnabled) ? vm.policy.rawDataPath : null;
+      }
+      convertedDescriptionJson.sparkStreamingWindow = json.sparkStreamingWindowNumber + json.sparkStreamingWindowTime;
+      return convertedDescriptionJson;
     }
 
     function getCubeOutputs(allOutputs) {
@@ -99,9 +108,6 @@
 
     function convertTriggerAttributes(policyJson) {
       var triggers = policyJson.streamTriggers;
-      for (var i = 0; i < policyJson.cubes.length; ++i) {
-        triggers = triggers.concat(policyJson.cubes[i].triggers);
-      }
       for (var i = 0; i < triggers.length; ++i) {
         if (triggers[i].overLastNumber && triggers[i].overLastTime) {
           triggers[i].overLast = triggers[i].overLastNumber + triggers[i].overLastTime;
@@ -112,9 +118,7 @@
       return policyJson;
     }
 
-    function cleanPolicyJSON(finalJSON) {
-      delete finalJSON.input;
-      delete finalJSON.outputs;
+    function cleanUnusedAttributes(finalJSON) {
       delete finalJSON['rawDataPath'];
       delete finalJSON['rawDataEnabled'];
       delete finalJSON['sparkStreamingWindowNumber'];

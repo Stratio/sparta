@@ -1,6 +1,6 @@
 describe('policies.wizard.factory.policy-factory', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policyList.json'));
+  beforeEach(module('api/policyList.json'));
 
   var factory, ApiPolicyService, scope, q, promiseMock, fakePolicyList, fakePolicy = null;
 
@@ -12,13 +12,13 @@ describe('policies.wizard.factory.policy-factory', function () {
     $provide.value('ApiPolicyService', ApiPolicyService);
   }));
 
-  beforeEach(inject(function (PolicyFactory, $httpBackend, $q, _servedPolicyList_, $rootScope) {
+  beforeEach(inject(function (PolicyFactory, $httpBackend, $q, _apiPolicyList_, $rootScope) {
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
     factory = PolicyFactory;
     q = $q;
     scope = $rootScope.$new();
-    fakePolicyList = _servedPolicyList_;
+    fakePolicyList = _apiPolicyList_;
     fakePolicy = fakePolicyList[0].policy;
     promiseMock = jasmine.createSpy('promise').and.callFake(function () {
       return {"$promise": q.defer()};

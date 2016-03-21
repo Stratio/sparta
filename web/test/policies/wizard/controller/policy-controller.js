@@ -1,18 +1,18 @@
 describe('policies.wizard.controller.policy-controller', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policy.json'));
-  beforeEach(module('served/policyTemplate.json'));
+  beforeEach(module('model/policy.json'));
+  beforeEach(module('template/policy.json'));
 
   var ctrl, scope, fakePolicy, fakeTemplate, fakeError, policyModelFactoryMock, templateFactoryMock, policyFactoryMock, policyServiceMock,
     stateMock, fakeCreationStatus, modalServiceMock, resolvedPromise, rejectedPromise, fakeFinalPolicyJSON, wizardStatusServiceMock;
 
   // init mock modules
 
-  beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope, _servedPolicy_, _servedPolicyTemplate_) {
+  beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope, _modelPolicy_, _templatePolicy_) {
     scope = $rootScope.$new();
 
-    fakePolicy = angular.copy(_servedPolicy_);
-    fakeTemplate = _servedPolicyTemplate_;
+    fakePolicy = angular.copy(_modelPolicy_);
+    fakeTemplate = _templatePolicy_;
 
     resolvedPromise = function () {
       var defer = $q.defer();

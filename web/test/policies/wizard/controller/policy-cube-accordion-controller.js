@@ -1,12 +1,11 @@
 describe('policies.wizard.controller.policy-cube-accordion-controller', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policy.json'));
-  beforeEach(module('served/policyTemplate.json'));
-  beforeEach(module('served/cube.json'));
-  beforeEach(module('served/output.json'));
+  beforeEach(module('model/policy.json'));
+  beforeEach(module('template/policy.json'));
+  beforeEach(module('model/cube.json'));
 
   var ctrl, scope, q, translate, fakeTranslation, fakePolicy, fakeCubeTemplate, fakeCube, policyModelFactoryMock, fakePolicyTemplate,
-    $controller, cubeModelFactoryMock, cubeServiceMock, modalServiceMock, resolvedPromise, fakeOutput, wizardStatusServiceMock = null;
+    $controller, cubeModelFactoryMock, cubeServiceMock, modalServiceMock, resolvedPromise, wizardStatusServiceMock = null;
 
   // init mock modules
 
@@ -17,12 +16,11 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
     $controller = _$controller_;
     translate = jasmine.createSpy().and.returnValue(fakeTranslation);
 
-    inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedCube_, _servedOutput_) {
-      fakePolicy = angular.copy(_servedPolicy_);
-      fakePolicyTemplate = _servedPolicyTemplate_;
-      fakeCubeTemplate = _servedPolicyTemplate_.cube;
-      fakeCube = _servedCube_;
-      fakeOutput = _servedOutput_;
+    inject(function (_modelPolicy_, _templatePolicy_, _modelCube_) {
+      fakePolicy = angular.copy(_modelPolicy_);
+      fakePolicyTemplate = _templatePolicy_;
+      fakeCubeTemplate = _templatePolicy_.cube;
+      fakeCube = _modelCube_;
     });
 
     $httpBackend.when('GET', 'languages/en-US.json')

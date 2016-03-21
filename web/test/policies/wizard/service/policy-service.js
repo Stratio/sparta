@@ -1,182 +1,122 @@
-//describe('policies.wizard.controller.policy-service', function () {
-//  beforeEach(module('webApp'));
-//
-//
-//  var ctrl, rootScope, fakePolicy, fakeCube, policyModelFactoryMock, outputServiceMock, utilsServiceMock, fakeInput, fakeOutput, fakeTrigger = null;
-//
-//  // init mock modules
-//
-//  beforeEach(inject(function ($controller, $q, $httpBackend, _servedInput_, _servedOutput_, _servedPolicy_, _servedTrigger_, _servedCube_, $rootScope) {
-//    fakePolicy = angular.copy(_servedPolicy_);
-//    fakeInput = _servedInput_;
-//    fakeOutput = _servedOutput_;
-//    fakeTrigger = _servedTrigger_;
-//    rootScope = $rootScope;
-//    fakeCube = _servedCube_;
-//    $httpBackend.when('GET', 'languages/en-US.json')
-//      .respond({});
-//
-//    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate', 'nextStep', 'setFinalJSON', 'previousStep']);
-//    policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
-//      return fakePolicy;
-//    });
-//    policyModelFactoryMock.getTemplate.and.callFake(function () {
-//      return fakeTemplate;
-//    });
-//
-//    outputServiceMock = jasmine.createSpyObj('OutputService', ['getOutputList']);
-//    outputServiceMock.getOutputList.and.callFake(function () {
-//      var defer = $q.defer();
-//      defer.resolve([fakeOutput]);
-//
-//      return defer.promise;
-//    });
-//
-//    utilsServiceMock = jasmine.createSpyObj('UtilsService', ['getFilteredJSONByArray', 'removeDuplicatedJSONs', 'convertDottedPropertiesToJson']);
-//    utilsServiceMock.convertDottedPropertiesToJson.and.callFake(function (json) {
-//      return json;
-//    });
-//
-//    utilsServiceMock.getFilteredJSONByArray.and.callFake(function (json) {
-//      return json;
-//    });
-//
-//    utilsServiceMock.removeDuplicatedJSONs.and.callFake(function (json) {
-//      return json;
-//    });
-//    ctrl = $controller('PolicyFinishCtrl', {
-//      'PolicyModelFactory': policyModelFactoryMock,
-//      'OutputService': outputServiceMock,
-//      'UtilsService': utilsServiceMock
-//    });
-//    rootScope.$digest();
-//  }));
-//
-//  describe("when it is initialized", function () {
-//
-//    it('it should get the policy that is being created or edited from policy factory', function () {
-//      expect(ctrl.policy).toBe(fakePolicy);
-//    });
-//
-//    describe("should update the final json with the current data in the policy to the policy factory", function () {
-//      var fakePath = "fake path";
-//      var fakePartitionFormat = "fake partition format";
-//
-//      beforeEach(function () {
-//        fakePolicy.rawDataPath = fakePath;
-//      });
-//
-//      it("if raw data is not enabled, it should remove the attribute path from rawData", inject(function ($controller) {
-//        fakePolicy.rawDataEnabled = false;
-//
-//        ctrl = $controller('PolicyFinishCtrl', {
-//          'PolicyModelFactory': policyModelFactoryMock,
-//          'OutputService': outputServiceMock,
-//          'UtilsService': utilsServiceMock
-//        });
-//        rootScope.$digest();
-//
-//        var resultJSON = JSON.parse(ctrl.policyJson);
-//        expect(resultJSON.rawData.path).toBe(undefined);
-//      }));
-//
-//
-//      it("if raw data is enabled, it should not remove the attribute path from rawData", inject(function ($controller) {
-//        fakePolicy.rawDataEnabled = true;
-//        fakePolicy.rawDataPath = fakePath;
-//        ctrl = $controller('PolicyFinishCtrl', {
-//          'PolicyModelFactory': policyModelFactoryMock,
-//          'OutputService': outputServiceMock,
-//          'UtilsService': utilsServiceMock
-//        });
-//        rootScope.$digest();
-//        var resultJSON = JSON.parse(ctrl.policyJson);
-//        expect(resultJSON.rawData.path).toBe(fakePath);
-//      }));
-//
-//      it("rawData attribute is converted to the expected format", inject(function ($controller) {
-//        ctrl.policy.rawDataEnabled = false;
-//        ctrl = $controller('PolicyFinishCtrl', {
-//          'PolicyModelFactory': policyModelFactoryMock,
-//          'OutputService': outputServiceMock,
-//          'UtilsService': utilsServiceMock
-//        });
-//        rootScope.$digest();
-//        // raw data path is null if raw data is disabled
-//        var resultJSON = JSON.parse(ctrl.policyJson);
-//        expect(resultJSON.rawData.path).toBe(undefined);
-//
-//        // temporal attributes are removed
-//        expect(ctrl.policyJson.rawDataPath).toBe(undefined);
-//        expect(ctrl.policyJson.rawDataEnabled).toBe(undefined);
-//
-//        ctrl.policy.rawDataEnabled = true;
-//        var fakeRawDataPath = "fake/path";
-//        ctrl.policy.rawDataPath = fakeRawDataPath;
-//        ctrl = $controller('PolicyFinishCtrl', {
-//          'PolicyModelFactory': policyModelFactoryMock,
-//          'OutputService': outputServiceMock,
-//          'UtilsService': utilsServiceMock
-//        });
-//        rootScope.$digest();
-//        var resultJSON = JSON.parse(ctrl.policyJson);
-//        expect(resultJSON.rawData.path).toBe(fakeRawDataPath);
-//      }));
-//
-//      describe("should introduce in a fragment array the input of the policy and outputs used in cubes and triggers", function () {
-//
-//        it("Input is added at first place", inject(function ($controller) {
-//          fakePolicy.rawDataEnabled = true;
-//          fakePolicy.input = fakeInput;
-//          ctrl = $controller('PolicyFinishCtrl', {
-//            'PolicyModelFactory': policyModelFactoryMock,
-//            'OutputService': outputServiceMock,
-//            'UtilsService': utilsServiceMock
-//          });
-//          rootScope.$digest();
-//          var resultJSON = JSON.parse(ctrl.policyJson);
-//          expect(resultJSON.fragments[0]).toEqual(fakeInput);
-//        }));
-//      });
-//
-//      it("outputs of cube triggers and transformations are added after policy input", inject(function ($controller) {
-//        fakePolicy.rawDataEnabled = true;
-//        fakePolicy.input = fakeInput;
-//        fakeCube.triggers = [fakeTrigger];
-//
-//        fakePolicy.cubes[0] = fakeCube;
-//
-//
-//        fakePolicy.streamTriggers[0] = {outputs: ["output1", "output2", "output3"]};
-//        ctrl = $controller('PolicyFinishCtrl', {
-//          'PolicyModelFactory': policyModelFactoryMock,
-//          'OutputService': outputServiceMock,
-//          'UtilsService': utilsServiceMock
-//        });
-//        rootScope.$digest();
-//        var resultJSON = JSON.parse(ctrl.policyJson);
-//
-//        var expectedLength = 1 + fakePolicy.cubes[0].writer.outputs.length + fakeCube.triggers[0].outputs.length + fakePolicy.streamTriggers[0].outputs.length;
-////TODO Fix test
-//        //expect(resultJSON.fragments.length).toEqual(expectedLength);
-//      }));
-//    });
-//
-//    it("should clean input key", inject(function ($controller) {
-//      fakePolicy.rawDataEnabled = true;
-//      fakePolicy.input = fakeInput;
-//
-//      ctrl = $controller('PolicyFinishCtrl', {
-//        'PolicyModelFactory': policyModelFactoryMock,
-//        'OutputService': outputServiceMock,
-//        'UtilsService': utilsServiceMock
-//      });
-//      rootScope.$digest();
-//      var resultJSON = JSON.parse(ctrl.policyJson);
-//      expect(resultJSON.input).toEqual(undefined);
-//    }));
-//  })
-//
-//
-//})
-//;
+describe('service.policy-service', function () {
+  beforeEach(module('webApp'));
+  beforeEach(module('api/outputList.json'));
+  beforeEach(module('model/policy.json'));
+
+  var service, q, UtilsService, rootScope, httpBackend, PolicyModelFactoryMock, OutputServiceMock, fakeOutputList, UtilsServiceMock = null;
+  var fakePolicy = {};
+
+  beforeEach(module(function ($provide) {
+    PolicyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy']);
+    UtilsServiceMock = jasmine.createSpyObj('UtilsService', ['removeDuplicatedJSONs', 'convertDottedPropertiesToJson'
+      , 'getFilteredJSONByArray']);
+    OutputServiceMock = jasmine.createSpyObj('OutputService', ['getOutputList']);
+
+    // inject mocks
+    $provide.value('PolicyModelFactory', PolicyModelFactoryMock);
+    //  $provide.value('UtilsService', UtilsServiceMock);
+    $provide.value('OutputService', OutputServiceMock);
+
+    PolicyModelFactoryMock.getCurrentPolicy.and.returnValue(fakePolicy);
+
+  }));
+
+  beforeEach(inject(function (PolicyService, $q, $rootScope, $httpBackend, _modelPolicy_, _apiOutputList_, _UtilsService_) {
+    q = $q;
+    httpBackend = $httpBackend;
+    rootScope = $rootScope;
+    service = PolicyService;
+    fakeOutputList = _apiOutputList_;
+    UtilsService = _UtilsService_;
+    fakePolicy = angular.merge(fakePolicy, angular.copy(_modelPolicy_));
+    $httpBackend.when('GET', 'languages/en-US.json')
+      .respond({});
+
+    OutputServiceMock.getOutputList.and.callFake(function () {
+      var defer = $q.defer();
+      defer.resolve(fakeOutputList);
+
+      return defer.promise;
+    });
+
+  }));
+
+  describe("when it is initialized", function () {
+
+    it('it should get the policy that is being created or edited from policy factory', function () {
+      expect(service.policy).toBe(fakePolicy);
+    });
+  });
+
+  describe("should be able to generate a policy json with the agreed format expected by API server", function () {
+    it("should convert the description attributes", function () {
+      fakePolicy.rawDataEnabled = true;
+
+      service.generateFinalJSON().then(function (finalJson) {
+        expect(finalJson.rawData.path).toBeTruthy();
+        expect(finalJson.sparkStreamingWindow).toEqual(fakePolicy.sparkStreamingWindowNumber + fakePolicy.sparkStreamingWindowTime);
+        expect(finalJson.rawDataEnabled).toBeUndefined();
+      });
+
+      rootScope.$apply();
+
+      fakePolicy.rawDataEnabled = false;
+      service.generateFinalJSON().then(function (finalJson) {
+        expect(finalJson.rawData.path).toBeUndefined();
+        expect(finalJson.rawDataEnabled).toBeUndefined();
+      });
+      rootScope.$apply();
+    });
+
+    it("should convert the over last attribute of stream triggers", function () {
+      service.generateFinalJSON().then(function (finalJson) {
+        for (var i = 0; i < finalJson.streamTriggers.length; ++i) {
+          expect(finalJson.streamTriggers[i].overLast).toBe(fakePolicy.streamTriggers[i].overLastNumber + fakePolicy.streamTriggers[i].overLastTime);
+          expect(finalJson.streamTriggers[i].overLastNumber).toBeUndefined();
+          expect(finalJson.streamTriggers[i].overLastTime).toBeUndefined();
+        }
+      });
+      rootScope.$apply();
+    });
+
+    it("should add an output list searching for all used outputs in policy", function () {
+      var expectedOutputLength = fakePolicy.streamTriggers[0].outputs.length
+        + fakePolicy.cubes[0].writer.outputs.length
+        + fakePolicy.cubes[0].triggers[0].outputs.length;
+      spyOn(UtilsService, 'removeDuplicatedJSONs').and.callThrough();
+      service.generateFinalJSON().then(function (finalJson) {
+        //fragment length has to be input + outputs list
+        expect(finalJson.fragments.length).toBe(expectedOutputLength + 1);
+
+        //should remove duplicated outputs
+        expect(UtilsService.removeDuplicatedJSONs).toHaveBeenCalled();
+      });
+      rootScope.$apply();
+    });
+
+    it("should remove unused attributes", function () {
+      fakePolicy.rawDataEnabled = false;
+
+      service.generateFinalJSON().then(function (finalJson) {
+        expect(finalJson.rawDataPath).toBeUndefined();
+        expect(finalJson.rawDataEnabled).toBeUndefined();
+        expect(finalJson.sparkStreamingWindowNumber).toBeUndefined();
+        expect(finalJson.sparkStreamingWindowTime).toBeUndefined();
+        expect(finalJson.rawData.path).toBeUndefined();
+      });
+      rootScope.$apply();
+
+      fakePolicy.rawDataEnabled = true;
+
+      service.generateFinalJSON().then(function (finalJson) {
+        expect(finalJson.rawDataPath).toBeUndefined();
+        expect(finalJson.rawDataEnabled).toBeUndefined();
+        expect(finalJson.sparkStreamingWindowNumber).toBeUndefined();
+        expect(finalJson.sparkStreamingWindowTime).toBeUndefined();
+        expect(finalJson.rawData.path).not.toBeUndefined();
+      });
+
+      rootScope.$apply();
+    })
+  });
+});

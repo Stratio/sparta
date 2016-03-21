@@ -43,5 +43,5 @@
                   return ApiFragmentService.getFakeFragments().get({'type': fragmentType}).$promise;
                }
            };
-   };
+   }
 })();

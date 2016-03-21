@@ -73,5 +73,5 @@
         return defer.promise;
       }
     };
-  };
+  }
 })();

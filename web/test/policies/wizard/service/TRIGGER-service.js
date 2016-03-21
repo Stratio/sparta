@@ -1,10 +1,11 @@
 describe('policies.wizard.service.policy-trigger-service', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/trigger.json'));
-  beforeEach(module('served/policy.json'));
+  beforeEach(module('api/trigger.json'));
+  beforeEach(module('model/trigger.json'));
+  beforeEach(module('model/policy.json'));
 
   var service, q, rootScope, httpBackend, translate, ModalServiceMock, PolicyModelFactoryMock, TriggerModelFactoryMock,
-    fakeTrigger2, fakeTrigger3, resolvedPromiseFunction, rejectedPromiseFunction,
+    fakeTrigger2, fakeTrigger3, resolvedPromiseFunction, rejectedPromiseFunction, fakeApiTrigger,
     fakeTrigger = null;
   var fakePolicy = {};
 
@@ -20,9 +21,11 @@ describe('policies.wizard.service.policy-trigger-service', function () {
     $provide.value('TriggerModelFactory', TriggerModelFactoryMock);
   }));
 
-  beforeEach(inject(function (_servedTrigger_, _servedPolicy_, $q, $rootScope, $httpBackend, $translate) {
-    fakeTrigger = _servedTrigger_;
-    angular.extend(fakePolicy, _servedPolicy_);
+  beforeEach(inject(function (_apiTrigger_,_modelTrigger_, _modelPolicy_, $q, $rootScope, $httpBackend, $translate) {
+    fakeApiTrigger = _apiTrigger_;
+    fakeTrigger = _modelTrigger_;
+
+    angular.extend(fakePolicy, _modelPolicy_);
 
     translate = $translate;
     q = $q;
