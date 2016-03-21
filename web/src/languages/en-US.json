@@ -328,7 +328,7 @@
   "_GO_TO_": "Go to",
   "_CHANGES_WITHOUT_SAVING_ERROR_": "You have to save all your changes or cancel them before to go to the next step",
   "_UNAVAILABLE_SERVER_ERROR_": "Server is unavailable. Please, check your connection and try it again",
-3  "_SOLR_CONNECTION_": "Zookeeper url which Solr is connected to",
+  "_SOLR_CONNECTION_": "Zookeeper url which Solr is connected to",
   "_SOLR_CREATE_SCHEMA_": "Create schema?",
   "_SOLR_IS_CLOUD_": "Is cloud?",
   "_SOLR_DATA_DIR_": "Data dir",
