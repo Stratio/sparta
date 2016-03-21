@@ -17,6 +17,23 @@ waitzk:
   links:
       - zookeeper
  
+cassandra-lucene-index:
+  image: qa.stratio.com:5000/stratio/cassandra-lucene-index:2.2.4.0
+  container_name: cassandra
+  ports:
+    - "9042:9042"
+  environment:
+    CLUSTER_NAME: DemoCluster
+    MAX_HEAP: 256M
+    MAX_NEW: 64M
+    SEEDS: 127.0.0.1
+ 
+waitcass:
+  image: aanand/wait
+  container_name: waitcassandra
+  links:
+    - cassandra-lucene-index
+ 
 sparta:
   image: qa.stratio.com:5000/stratio/sparta:0.9.0
   container_name: sparta
@@ -25,6 +42,7 @@ sparta:
     - "9091:9091"
   links:
     - waitzk
+    - waitcass
   environment:
     ZOOKEEPER_HOST: zookeeper.demo.stratio.com
  
