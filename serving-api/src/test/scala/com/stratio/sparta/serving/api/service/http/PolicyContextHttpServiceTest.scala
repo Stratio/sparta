@@ -24,7 +24,7 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models.PolicyStatusModel
+import com.stratio.sparta.serving.core.models.{PoliciesStatusModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.{FindAll, Update}
 import org.junit.runner.RunWith
@@ -57,14 +57,14 @@ with HttpServiceBaseTest {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
             case FindAll =>
-              sender ! PolicyStatusActor.Response(Success(Seq(getPolicyStatusModel())))
+              sender ! PolicyStatusActor.Response(Success(PoliciesStatusModel(Seq(getPolicyStatusModel()))))
               TestActor.NoAutoPilot
           }
       })
       startAutopilot(None, policyStatusActorTestProbe, policyStatusActorAutoPilot)
       Get(s"/${HttpConstant.PolicyContextPath}") ~> routes ~> check {
         policyStatusActorTestProbe.expectMsg(FindAll)
-        responseAs[PolicyStatusModel] should equal(getPolicyStatusModel())
+        responseAs[PoliciesStatusModel] should equal(PoliciesStatusModel(Seq(getPolicyStatusModel())))
       }
     }
     "return a 500 if there was any error" in {

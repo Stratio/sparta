@@ -29,6 +29,7 @@ import org.json4s.jackson.Serialization.{read, write}
 import com.stratio.sparta.serving.core.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.helpers.ResourceManagerLink
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor._
 
@@ -114,10 +115,11 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
       val contextPath = s"${AppConstant.ContextPath}"
       if (CuratorFactoryHolder.existsPath(contextPath)) {
         val children = curatorFramework.getChildren.forPath(contextPath)
-        JavaConversions.asScalaBuffer(children).toList.map(element =>
+        val policiesStatus = JavaConversions.asScalaBuffer(children).toList.map(element =>
           read[PolicyStatusModel](new String(curatorFramework.getData.forPath(
             s"${AppConstant.ContextPath}/$element")))).toSeq
-      } else Seq()
+        PoliciesStatusModel(policiesStatus, ResourceManagerLink.getLink)
+      } else PoliciesStatusModel(Seq(), ResourceManagerLink.getLink)
     }))
   }
 
@@ -173,7 +175,7 @@ object PolicyStatusActor {
 
   case object FindAll
 
-  case class Response(policyStatus: Try[Seq[PolicyStatusModel]])
+  case class Response(policyStatus: Try[PoliciesStatusModel])
 
   case class ResponseDelete(value: Try[Unit])
 

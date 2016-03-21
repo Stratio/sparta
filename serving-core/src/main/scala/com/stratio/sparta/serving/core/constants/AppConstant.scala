@@ -65,7 +65,7 @@ object AppConstant {
   final val SparkHome = "sparkHome"
 
   //Mesos Options
-  final val MesosMasterDispatchers = "masterDispatchers"
+  final val MesosMasterDispatchers = "master"
 
   //StandAlone
   final val StandAloneSupervise = "supervise"
