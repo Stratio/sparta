@@ -9,7 +9,7 @@ Feature: Test policy with Socket input and MongoDB output
     And I wait '5' seconds
 
     # Add the policy
-    When I send a 'POST' request to '/policy' based on 'schemas/policies/iSocketoMongoDB.conf' as 'json' with:
+    When I send a 'POST' request to '/policyContext' based on 'schemas/policies/iSocketoMongoDB.conf' as 'json' with:
       | id | DELETE | N/A |
       | checkpointPath | UPDATE | /tmp/checkpoint |
       | input.configuration.hostname | UPDATE | @{IP.${IFACE}} |
@@ -17,12 +17,8 @@ Feature: Test policy with Socket input and MongoDB output
       | outputs[0].configuration.hosts[0].host | UPDATE | ${MONGO_HOST} |
       | outputs[0].configuration.hosts[0].port | UPDATE | ${MONGO_PORT} |
     Then the service response status must be '200'.
-    And I save element '$.id' in environment variable 'previousPolicyID'
+    And I save element '$.policyId' in environment variable 'previousPolicyID'
     And I wait '10' seconds
-
-    # Start the policy
-    When I send a 'GET' request to '/policy/run/!{previousPolicyID}'
-    Then the service response status must be '200' and its response must contain the text '{"message":"Creating new context'
 
     # Send Data
     Given I send data from file 'src/test/resources/schemas/dataInput/info.csv' to socket
