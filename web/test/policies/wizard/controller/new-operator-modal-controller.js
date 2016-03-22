@@ -27,6 +27,9 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
       'template': fakeCubeTemplate
     });
 
+    spyOn(document, "querySelector").and.callFake(function () {
+      return {"focus": jasmine.createSpy()}
+    });
   }));
 
   it("when it is initialized it creates a operator with the injected params and a default configuration", function () {
@@ -35,7 +38,7 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
     expect(ctrl.operator.type).toBe(fakeOperatorType);
     expect(ctrl.configHelpLink).toBe(fakeCubeTemplate.configurationHelpLink);
     expect(ctrl.error).toBeFalsy();
-    expect(ctrl.errorText).toBe("");
+    expect(ctrl.nameError).toBe("");
   });
 
   describe("should be able to accept the modal", function () {
@@ -50,7 +53,7 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
 
           ctrl.ok();
 
-          expect(ctrl.errorText).toBe("");
+          expect(ctrl.nameError).toBe("");
         });
 
         it("name is invalid if there is another operator with irs name", function () {
@@ -58,7 +61,7 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
 
           ctrl.ok();
 
-          expect(ctrl.errorText).toBe("_POLICY_._CUBE_._OPERATOR_NAME_EXISTS_");
+          expect(ctrl.nameError).toBe("_POLICY_._CUBE_._OPERATOR_NAME_EXISTS_");
         })
 
       });

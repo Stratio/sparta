@@ -46,7 +46,7 @@
       vm.dimension.type = vm.cubeTypes[0].value;
       vm.precisionOptions = template.precisionOptions;
       vm.defaultType =  vm.cubeTypes[0].value;
-      vm.errorText = "";
+      vm.nameError = "";
       vm.dateTimeConfiguration = template.DateTime;
     }
 
@@ -84,7 +84,7 @@
     function validatePrecision() {
       var validPrecision = (vm.dimension.type == vm.defaultType) || (!(vm.dimension.type == vm.defaultType) && vm.dimension.precision);
       if (!validPrecision) {
-        vm.errorText = "_POLICY_._CUBE_._INVALID_DIMENSION_PRECISION_";
+        vm.nameError = "_POLICY_._CUBE_._INVALID_DIMENSION_PRECISION_";
       }
       return validPrecision;
     }
@@ -93,7 +93,7 @@
       var position = UtilsService.findElementInJSONArray(dimensions, vm.dimension, "name");
       var repeated = position != -1;
       if (repeated) {
-        vm.errorText = "_POLICY_._CUBE_._DIMENSION_NAME_EXISTS_";
+        vm.nameError = "_POLICY_._CUBE_._DIMENSION_NAME_EXISTS_";
         document.querySelector('#nameForm').focus();
       }
       return repeated;
@@ -110,7 +110,7 @@
     }
 
     function ok() {
-      vm.errorText = "";
+      vm.nameError = "";
       if (vm.form.$valid) {
         formatAttributes();
         if (validatePrecision() && !isRepeated()) {

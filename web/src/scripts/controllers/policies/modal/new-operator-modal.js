@@ -38,7 +38,7 @@
       vm.operator.configuration = "";
       vm.operator.type = operatorType;
       vm.configHelpLink = template.configurationHelpLink;
-      vm.errorText = "";
+      vm.nameError = "";
       setDefaultConfiguration();
     }
 
@@ -48,7 +48,8 @@
       var position = UtilsService.findElementInJSONArray(operators, vm.operator, "name");
       var repeated = position != -1;
       if (repeated) {
-        vm.errorText = "_POLICY_._CUBE_._OPERATOR_NAME_EXISTS_";
+        vm.nameError = "_POLICY_._CUBE_._OPERATOR_NAME_EXISTS_";
+        document.querySelector('#nameForm').focus();
       }
       return repeated;
     }
@@ -63,17 +64,17 @@
     }
 
     function ok() {
-      vm.errorText = "";
+      vm.nameError = "";
       if (vm.form.$valid) {
         if (!isRepeated()) {
           $modalInstance.close(vm.operator);
         }
       }
-    };
+    }
 
     function cancel() {
       $modalInstance.dismiss('cancel');
-    };
-  };
+    }
+  }
 
 })();
