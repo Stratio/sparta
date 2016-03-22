@@ -32,7 +32,6 @@
       margin-top: 15px;
     }
   }
-
   @at-root .panel-group {
     .panel + .panel {
       margin-top: 0;
@@ -43,10 +42,10 @@
     }
   }
 
-  .panel-open {
-    .c-accordion-header__open-mark {
-      transform: rotate($c-accordion__open-mark---rotation);
-    }
+  .panel-open >  .panel-heading {
+      .c-accordion-header__open-mark {
+        transform: rotate($c-accordion__open-mark---rotation);
+      }
   }
 
   &-item {
@@ -110,7 +109,6 @@
     margin-top: $c-accordion-item--indented__panel---margin-top;
   }
 }
-
 
 .c-accordion {
   @include c-accordion;

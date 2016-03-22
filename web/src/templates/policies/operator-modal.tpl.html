@@ -5,11 +5,6 @@
        data-qa="modal-cancel-icon"></i>
   </div>
   <form class="c-form" name="vm.form" novalidate>
-    <div class="c-col c-col--12 c-msg c-msg--small c-msg--error" data-ng-if=" vm.errorText != ''"
-         data-qa="error-msg">
-      <i class="c-icon icon-circle-cross"></i>
-      <span data-ng-model="vm.errorText">{{vm.errorText |translate}}</span>
-    </div>
     <div class="c-modal-inner">
       <div class="c-form-group">
         <form-field-input data-form="vm.form" data-st-name="type-form" data-model="vm.operator.type"
@@ -18,10 +13,15 @@
         </form-field-input>
       </div>
       <div class="c-form-group">
-        <form-field-input data-form="vm.form" data-st-name="name-form" data-model="vm.operator.name"
-                          data-label="{{'_NAME_' | translate}}" data-help="" data-pattern="" data-required="true"
+        <form-field-input class="c-col c-col--12 c-form-group--inline" data-form="vm.form" data-st-name="name-form"
+                          data-model="vm.operator.name" data-label="{{'_NAME_' | translate}}" data-help=""
+                          data-pattern="" data-required="true"
                           placeholder="Ex. Name 1" required="true" data-qa="operator-modal-name">
         </form-field-input>
+        <div class="c-form c-form-group angular-forms__error" data-ng-if="vm.nameError != ''" data-qa="error-msg">
+          <i class="c-icon icon-circle-cross"></i>
+          <span translate="{{vm.nameError | translate}}"></span>
+        </div>
       </div>
       <form-field-textarea data-json="true"
                            data-label="{{'_CONFIGURATION_' | translate}}"

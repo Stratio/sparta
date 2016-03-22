@@ -19,9 +19,9 @@
           data-pattern="" data-required="true" placeholder="Ex. Name 1" required="true"
           data-qa="dimension-modal-name">
         </form-field-input>
-        <div class="c-form c-form-group angular-forms__error" data-ng-if="vm.errorText != ''" data-qa="error-msg">
+        <div class="c-form c-form-group angular-forms__error" data-ng-if="vm.nameError != ''" data-qa="error-msg">
           <i class="c-icon icon-circle-cross"></i>
-          <span translate="{{vm.errorText | translate}}"></span>
+          <span translate="{{vm.nameError | translate}}"></span>
         </div>
       </div>
       <div class="c-form-group">
