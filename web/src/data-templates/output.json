@@ -675,5 +675,56 @@
         "qa": "fragment-details-jdbc-url"
       }
     ]
+  },
+  {
+    "name": "Solr",
+    "modelType": "Solr",
+    "description": {
+      "short": "Solr is highly reliable, scalable and fault tolerant, providing distributed indexing engine.",
+      "long": "Solr is highly reliable, scalable and fault tolerant, providing distributed indexing, replication and load-balanced querying, automated failover and recovery, centralized configuration and more. Solr powers the search and navigation features of many of the world's largest internet sites.",
+      "learnMore": "http://lucene.apache.org/solr/"
+    },
+    "properties": [
+      {
+        "propertyId": "connection",
+        "propertyName": "_SOLR_CONNECTION_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "localhost:9983",
+        "required": true,
+        "tooltip": "The Zookeeper url Solr is connected to",
+        "qa": "fragment-details-solr-url"
+      },
+      {
+        "propertyId": "createSchema",
+        "propertyName": "_SOLR_CREATE_SCHEMA_",
+        "propertyType": "boolean",
+        "regexp": "true|false",
+        "default": true,
+        "required": false,
+        "tooltip": "Check this is you want to crete the schemas automatically.",
+        "qa": "fragment-details-create-schema"
+      },
+      {
+        "propertyId": "dataDir",
+        "propertyName": "_SOLR_DATA_DIR_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "/tmp/solr-data",
+        "required": true,
+        "tooltip": "Folder where Solr save the schemas and metadata.",
+        "qa": "fragment-details-data-dir"
+      },
+      {
+        "propertyId": "tokenizedFields",
+        "propertyName": "_SOLR_TOKENIZED_FIELDS_",
+        "propertyType": "boolean",
+        "regexp": "true|false",
+        "default": false,
+        "required": false,
+        "tooltip": "This is useful if you want to query by words inside a field.",
+        "qa": "fragment-details-tokenized-fields"
+      }
+    ]
   }
 ]

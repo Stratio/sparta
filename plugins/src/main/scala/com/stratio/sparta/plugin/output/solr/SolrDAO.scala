@@ -151,7 +151,8 @@ trait SolrDAO extends Closeable with Logging {
     if (isCloud)
       new CloudSolrClient(zkHost)
     else
-      new HttpSolrClient("http://" + zkHost + "/solr")
+    // Not supported with current Spark-Solr connector
+      new HttpSolrClient("http://localhost:8983/solr")
   }
 
   def getCoreList(zkHost: String, isCloud: Boolean): Seq[String] = {
