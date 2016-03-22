@@ -19,6 +19,9 @@ import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
+
+import com.stratio.sparta.serving.core.models.AggregationPoliciesModel
+
 import scala.util.Try
 
 import akka.event.slf4j.SLF4JLogging
@@ -31,13 +34,14 @@ import org.apache.hadoop.fs.Path
 
 case class HdfsUtils(dfs: FileSystem, userName: String) {
 
+  def getPolicyCheckpointPath(policy: AggregationPoliciesModel): String =
+    s"${dfs.getHomeDirectory}/${AggregationPoliciesModel.checkpointPath(policy)}"
+
   def getFiles(path: String): Array[FileStatus] = dfs.listStatus(new Path(path))
 
   def getFile(filename: String): InputStream = dfs.open(new Path(filename))
 
-  def delete(path: String): Unit = {
-    dfs.delete(new Path(path), true)
-  }
+  def delete(path: String): Unit = dfs.delete(new Path(path), true)
 
   def write(path: String, destPath: String, overwrite: Boolean = false): Int = {
     val file = new File(path)
@@ -53,20 +57,28 @@ case class HdfsUtils(dfs: FileSystem, userName: String) {
 object HdfsUtils extends SLF4JLogging {
 
   private final val DefaultFSProperty = "fs.defaultFS"
+
   private final val HdfsDefaultPort = 8020
 
-  def apply(user: String, master: String, port: Int = HdfsDefaultPort): HdfsUtils = {
-    val conf = new Configuration()
-    conf.set(DefaultFSProperty, s"hdfs://$master:$port")
+  def hdfsConfiguration(configOpt: Option[Config]): Configuration =
+    configOpt.map { config =>
+      val master = config.getString("hdfsMaster")
+      val port = Try(config.getInt("hdfsPort")).getOrElse(HdfsDefaultPort)
+      val conf = new Configuration()
+      conf.set(DefaultFSProperty, s"hdfs://$master:$port/user/stratio")
+      conf
+    }.getOrElse(
+      throw new Exception("Not found hdfs config")
+    )
+
+  def apply(user: String, conf: Configuration): HdfsUtils = {
     log.debug(s"Configuring HDFS with master: ${conf.get(DefaultFSProperty)} and user: $user")
     val defaultUri = FileSystem.getDefaultUri(conf)
     new HdfsUtils(FileSystem.get(defaultUri, conf, user), user)
   }
 
-  def apply(config: Config): HdfsUtils = {
-    val user = config.getString("hadoopUserName")
-    val master = config.getString("hdfsMaster")
-    val port = Try(config.getInt("hdfsPort")).getOrElse(HdfsDefaultPort)
-    apply(user, master, port)
+  def apply(config: Option[Config]): HdfsUtils = {
+    val user = config.map(_.getString("hadoopUserName")).getOrElse("stratio")
+    apply(user, hdfsConfiguration(config))
   }
 }
