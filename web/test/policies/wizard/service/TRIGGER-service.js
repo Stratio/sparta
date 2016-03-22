@@ -25,7 +25,7 @@ describe('policies.wizard.service.policy-trigger-service', function () {
     fakeApiTrigger = _apiTrigger_;
     fakeTrigger = _modelTrigger_;
 
-    angular.extend(fakePolicy, _modelPolicy_);
+    angular.extend(fakePolicy,  angular.copy(_modelPolicy_));
 
     translate = $translate;
     q = $q;
