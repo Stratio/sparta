@@ -168,7 +168,6 @@
           if (!tempProperty[splittedKey[splittedKey.length - 1]]) {
             tempProperty[splittedKey[splittedKey.length - 1]] = {};
           }
-
           tempProperty[splittedKey[splittedKey.length - 1]] = object[key];
           delete object[key];
         }
@@ -183,8 +182,8 @@
         for (var i = 0; i < array.length; ++i) {
           var filter = {};
           filter[attribute] = array[i];
-          var filteredOutput= $filter('filter')(JsonArray, filter, true)[0];
-          if (filteredOutput){
+          var filteredOutput = $filter('filter')(JsonArray, filter, true)[0];
+          if (filteredOutput) {
             filteredElements.push(filteredOutput);
           }
         }

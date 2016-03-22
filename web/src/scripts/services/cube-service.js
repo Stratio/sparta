@@ -134,6 +134,7 @@
     function saveCube(cubeForm) {
       cubeForm.$submitted = true;
       var cube = angular.copy(CubeModelFactory.getCube());
+      cube = UtilsService.convertDottedPropertiesToJson(cube);
       if (CubeModelFactory.isValidCube(cube, vm.policy.cubes, CubeModelFactory.getContext().position)) {
         cubeForm.$submitted = false;
         vm.policy.cubes[CubeModelFactory.getContext().position] = cube;

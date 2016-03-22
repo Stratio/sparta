@@ -22,7 +22,7 @@ describe('policies.wizard.factory.cube-model-factory', function () {
     fakePolicyTemplate = _templatePolicy_;
   }));
 
-  it("should be able to load a cube from a json and a position and remove attributes which are loaded from its template", function () {
+  it("should be able to load a cube retrieved from the api", function () {
     var position = 0;
 
     factory.setCube(fakeApiCube, position);
@@ -32,11 +32,30 @@ describe('policies.wizard.factory.cube-model-factory', function () {
     expect(cube.operators).toBe(fakeApiCube.operators);
     expect(cube.checkpointConfig).toBe(fakeApiCube.checkpointConfig);
     expect(cube.triggers).toEqual(fakeApiCube.triggers);
+    expect(cube['writer.fixedMeasure']).toEqual(fakeApiCube.writer.fixedMeasure);
+    expect(cube['writer.isAutoCalculatedId']).toEqual(fakeApiCube.writer.isAutoCalculatedId);
+    expect(cube['writer.dateType']).toEqual(fakeApiCube.writer.dateType);
+    expect(cube['writer.outputs']).toEqual(fakeApiCube.writer.outputs);
     expect(factory.getError()).toEqual({"text": ""});
     expect(factory.getContext().position).toBe(position);
-    cube['writer.fixedMeasure'] = fakeApiCube.writer.fixedMeasure;
-    cube['writer.isAutoCalculatedId'] = fakeApiCube.writer.isAutoCalculatedId;
-    cube['writer.dateType'] = fakeApiCube.writer.dateType;
+  });
+
+  it("should be able to load a cube retrieved from the cube array of policy", function(){
+    var position = 0;
+
+    factory.setCube(fakeCube, position);
+    var cube = factory.getCube();
+    expect(cube.name).toBe(fakeCube.name);
+    expect(cube.dimensions).toBe(fakeCube.dimensions);
+    expect(cube.operators).toBe(fakeCube.operators);
+    expect(cube.checkpointConfig).toBe(fakeCube.checkpointConfig);
+    expect(cube.triggers).toEqual(fakeCube.triggers);
+    expect(cube['writer.fixedMeasure']).toEqual(fakeCube['writer.fixedMeasure']);
+    expect(cube['writer.isAutoCalculatedId']).toEqual(fakeCube['writer.isAutoCalculatedId']);
+    expect(cube['writer.dateType']).toEqual(fakeCube['writer.dateType']);
+    expect(cube['writer.outputs']).toEqual(fakeCube['writer.outputs']);
+    expect(factory.getError()).toEqual({"text": ""});
+    expect(factory.getContext().position).toBe(position);
   });
 
   describe("should be able to update the cube error", function () {
