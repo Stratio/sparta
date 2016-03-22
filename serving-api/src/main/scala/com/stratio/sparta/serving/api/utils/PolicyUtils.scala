@@ -120,7 +120,7 @@ trait PolicyUtils {
   }
 
   def deleteFromHDFS(policy: AggregationPoliciesModel): Unit = {
-    HdfsUtils(SpartaConfig.getHdfsConfig.get).delete(AggregationPoliciesModel.checkpointPath(policy))
+    HdfsUtils(SpartaConfig.getHdfsConfig).delete(AggregationPoliciesModel.checkpointPath(policy))
   }
 
   def checkpointGoesToHDFS(policy: AggregationPoliciesModel): Boolean = {

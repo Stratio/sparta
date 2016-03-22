@@ -33,9 +33,10 @@ import com.stratio.sparta.driver.helper.SchemaHelper
 import com.stratio.sparta.driver.helper.SchemaHelper._
 import com.stratio.sparta.driver.service.RawDataStorageService
 import com.stratio.sparta.driver.trigger.{StreamWriter, StreamWriterOptions, Trigger}
-import com.stratio.sparta.driver.util.ReflectionUtils
+import com.stratio.sparta.driver.util.{HdfsUtils, ReflectionUtils}
 import com.stratio.sparta.sdk.TypeOp.TypeOp
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.serving.core.SpartaConfig
 import com.stratio.sparta.serving.core.constants.ErrorCodes
 import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.helpers.OperationsHelper
@@ -45,8 +46,14 @@ class SpartaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
 
   private val ReflectionUtils = SpartaJob.ReflectionUtils
 
+  private def generateCheckpointPath(policy: AggregationPoliciesModel): String =
+    if (AggregationPoliciesModel.goesCheckpointToHDFS(policy))
+      s"${HdfsUtils(SpartaConfig.getHdfsConfig).getPolicyCheckpointPath(policy)}"
+    else
+      AggregationPoliciesModel.checkpointPath(policy)
+
   def run(sc: SparkContext): StreamingContext = {
-    val checkpointPolicyPath = policy.checkpointPath.concat(File.separator).concat(policy.name)
+    val checkpointPolicyPath = generateCheckpointPath(policy)
     val sparkStreamingWindow = OperationsHelper.parseValueToMilliSeconds(policy.sparkStreamingWindow)
     val ssc = sparkStreamingInstance(new Duration(sparkStreamingWindow), checkpointPolicyPath)
     val parserSchemas = SchemaHelper.getSchemasFromParsers(policy.transformations, Input.InitSchema)

@@ -17,6 +17,10 @@ package com.stratio.sparta.driver.service
 
 import java.io.File
 import java.net.URI
+import com.stratio.sparta.driver.util.HdfsUtils
+import com.stratio.sparta.serving.core.SpartaConfig
+import org.apache.hadoop.conf.Configuration
+
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Success
@@ -50,10 +54,24 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
   def standAloneStreamingContext(apConfig: AggregationPoliciesModel, files: Seq[File]): Option[StreamingContext] = {
     runStatusListener(apConfig.id.get, apConfig.name)
 
-    val ssc = StreamingContext.getOrCreate(AggregationPoliciesModel.checkpointPath(apConfig), () => {
-      log.info(s"Nothing in checkpoint path: ${AggregationPoliciesModel.checkpointPath(apConfig)}")
-      SpartaJob(apConfig).run(getStandAloneSparkContext(apConfig, files))
-    })
+    val ssc =
+      if(AggregationPoliciesModel.goesCheckpointToHDFS(apConfig)) {
+        StreamingContext.getOrCreate(
+          s"${HdfsUtils(SpartaConfig.getHdfsConfig).getPolicyCheckpointPath(apConfig)}",
+          () => {
+            log.info(s"Nothing in checkpoint path: ${AggregationPoliciesModel.checkpointPath(apConfig)}")
+            SpartaJob(apConfig).run(getStandAloneSparkContext(apConfig, files))
+          },
+          HdfsUtils.hdfsConfiguration(SpartaConfig.getHdfsConfig)
+        )
+      } else
+        StreamingContext.getOrCreate(
+          AggregationPoliciesModel.checkpointPath(apConfig),
+          () => {
+            log.info(s"Nothing in checkpoint path: ${AggregationPoliciesModel.checkpointPath(apConfig)}")
+            SpartaJob(apConfig).run(getStandAloneSparkContext(apConfig, files))
+          }
+        )
 
     SparkContextFactory.setSparkContext(ssc.sparkContext)
     SparkContextFactory.setSparkStreamingContext(ssc)

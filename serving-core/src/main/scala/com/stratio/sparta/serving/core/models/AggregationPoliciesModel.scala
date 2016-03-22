@@ -15,6 +15,8 @@
  */
 package com.stratio.sparta.serving.core.models
 
+import java.io.File
+
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
 
 case class AggregationPoliciesModel(id: Option[String] = None,
@@ -36,10 +38,14 @@ case class AggregationPoliciesModel(id: Option[String] = None,
 case object AggregationPoliciesModel {
 
   val sparkStreamingWindow = "2s"
+
   val storageDefaultValue = Some("MEMORY_AND_DISK_SER_2")
 
+  def goesCheckpointToHDFS(policy: AggregationPoliciesModel): Boolean =
+    policy.checkpointPath.startsWith("hdfs://")
+
   def checkpointPath(policy: AggregationPoliciesModel): String =
-    s"${policy.checkpointPath}/${policy.name}"
+    s"${policy.checkpointPath.replace("hdfs://", "")}/${policy.name}"
 }
 
 case class PolicyWithStatus(status: PolicyStatusEnum.Value,
