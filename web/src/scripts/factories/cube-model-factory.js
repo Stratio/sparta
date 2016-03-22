@@ -35,12 +35,12 @@
       cube.operators = [];
       cube.checkpointConfig = {};
       cube.triggers = [];
-      cube.writer = {
-        outputs: []
-      };
+      cube.writer = {};
+
       delete cube['writer.fixedMeasure'];
       delete cube['writer.isAutoCalculatedId'];
       delete cube['writer.dateType'];
+      cube['writer.outputs'] = [];
     }
 
     function resetCube(template, nameIndex, position) {
@@ -59,17 +59,18 @@
       cube.dimensions = c.dimensions;
       cube.operators = c.operators;
       cube.checkpointConfig = c.checkpointConfig;
-      cube.writer = c.writer;
       error.text = "";
-      setTriggers(c.triggers);
+
+      formatAttributes(c);
       setPosition(position);
-      formatAttributes();
+      setTriggers(c.triggers);
     }
 
-    function formatAttributes() {
-      cube['writer.fixedMeasure'] = cube.writer.fixedMeasure;
-      cube['writer.isAutoCalculatedId'] = cube.writer.isAutoCalculatedId;
-      cube['writer.dateType'] = cube.writer.dateType;
+    function formatAttributes(c) {
+      cube['writer.fixedMeasure'] = c['writer.fixedMeasure'] || c.writer.fixedMeasure;
+      cube['writer.isAutoCalculatedId'] = c['writer.isAutoCalculatedId'] || c.writer.isAutoCalculatedId;
+      cube['writer.dateType'] = c['writer.dateType'] || c.writer.dateType;
+      cube['writer.outputs'] = c['writer.outputs'] || c.writer.outputs;
     }
 
     function setTriggers(triggers) {

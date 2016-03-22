@@ -188,13 +188,13 @@
           vm.form['vm.form'].$setSubmitted(false);
         }
       }
-      if (vm.form.$valid && vm.cube.operators.length > 0 && vm.cube.dimensions.length > 0 && vm.cube.writer.outputs.length > 0) {
+      if (vm.form.$valid && vm.cube.operators.length > 0 && vm.cube.dimensions.length > 0 && vm.cube['writer.outputs'].length > 0) {
         vm.form.$submitted = false;
 
       } else {
         valid = false;
         CubeModelFactory.setError();
-        if (vm.cube.writer.outputs.length === 0) {
+        if (vm.cube['writer.outputs'].length === 0) {
           document.querySelector('#cubeOutputs').focus();
         }
       }
@@ -205,8 +205,8 @@
     }
 
     function addOutput() {
-      if (vm.selectedPolicyOutput && vm.cube.writer.outputs.indexOf(vm.selectedPolicyOutput) == -1) {
-        vm.cube.writer.outputs.push(vm.selectedPolicyOutput);
+      if (vm.selectedPolicyOutput && vm.cube['writer.outputs'].indexOf(vm.selectedPolicyOutput) == -1) {
+        vm.cube['writer.outputs'].push(vm.selectedPolicyOutput);
       }
     }
 

@@ -266,7 +266,7 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       ctrl.form = {$valid: true, $setSubmitted:jasmine.createSpy()}; //view validations have been passed
       ctrl.cube.dimensions = [fakeDimension];
       ctrl.cube.operators = [fakeOperator];
-      ctrl.cube.writer.outputs = ["fake output"];
+      ctrl.cube['writer.outputs'] = ["fake output"];
 
       ctrl.addCube();
 
