@@ -60,7 +60,7 @@
         function (newItems, oldItems) {
           // reset if item is added to items
           if (newItems.length != oldItems.length) {
-            AccordionStatusService.resetAccordionStatus(scope.accordionStatus, scope.items.length);
+            AccordionStatusService.resetAccordionStatus(scope.accordionStatus, scope.items.length, scope.items.length);
           }
         });
 

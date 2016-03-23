@@ -80,7 +80,7 @@
       var cubeOutputs = [];
       for (var c = 0; c < cubes.length; ++c) {
         var cube = cubes[c];
-        cubeOutputs = cubeOutputs.concat(cube['writer.outputs']);
+        cubeOutputs = cubeOutputs.concat(cube.writer.outputs);
 
         for (var t = 0; t < cube.triggers.length; ++t) {
           cubeOutputs = cubeOutputs.concat(cube.triggers[t].outputs);

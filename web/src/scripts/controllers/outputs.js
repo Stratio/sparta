@@ -41,7 +41,7 @@
 
       function init() {
         getOutputs();
-      };
+      }
 
       function getOutputs() {
         var outputList = FragmentFactory.getFragments('output');
@@ -56,7 +56,7 @@
           vm.errorMessage = "_INPUT_ERROR_" + error.data.i18nCode + "_";;
         });
 
-      };
+      }
 
       function getOutputTypes(outputs) {
         vm.outputTypes = [];
@@ -83,7 +83,7 @@
                 }
             }
         }
-      };
+      }
 
       function createOutput() {
         var outputsList = UtilsService.getNamesJSONArray(vm.outputsData);
@@ -99,7 +99,7 @@
         };
 
         createOutputModal(createOutputData);
-      };
+      }
 
       function editOutput(output) {
         var outputsList = UtilsService.getNamesJSONArray(vm.outputsData);
@@ -120,7 +120,7 @@
         };
 
         editOutputModal(editOutputData);
-      };
+      }
 
       function deleteOutput(fragmentType, fragmentId, elementType) {
                var outputToDelete =
@@ -140,7 +140,7 @@
           }
         };
         deleteOutputConfirm('lg', outputToDelete);
-      };
+      }
 
       function duplicateOutput(outputId) {
         var outputSelected = $filter('filter')(angular.copy(vm.outputsData), {'id':outputId}, true)[0];
@@ -159,7 +159,7 @@
         };
 
         setDuplicatetedOutput('sm', duplicateOutputData);
-      };
+      }
 
       function createOutputModal(newOutputTemplateData) {
         var modalInstance = $modal.open({
@@ -181,7 +181,7 @@
           vm.outputsData.push(newOutputData);
           UtilsService.addFragmentCount(vm.outputTypes, newOutputData.element.type);
         });
-      };
+      }
 
       function editOutputModal(editOutputData) {
         var modalInstance = $modal.open({
@@ -213,7 +213,7 @@
           for (var prop in editedOutputData.originalFragment) delete editedOutputData.originalFragment[prop];
           for (var prop in editedOutputData.editedFragment) editedOutputData.originalFragment[prop] =  editedOutputData.editedFragment[prop];
         });
-      };
+      }
 
       function deleteOutputConfirm(size, output) {
         var modalInstance = $modal.open({
@@ -239,7 +239,7 @@
           }
           UtilsService.subtractFragmentCount(vm.outputTypes, fragmentDeletedData.type, vm.filters);
         });
-      };
+      }
 
       function setDuplicatetedOutput(size, OutputData) {
         var modalInstance = $modal.open({
@@ -258,7 +258,7 @@
           vm.outputsData.push(newOutput);
           UtilsService.addFragmentCount(vm.outputTypes, newOutput.element.type);
         });
-      };
+      }
 
-    };
+    }
 })();

@@ -89,7 +89,7 @@ angular
       })
       .state('dashboard.policies', {
         url: '/policies',
-        controller: 'PoliciesCtrl',
+        controller: 'PolicyListCtrl',
         controllerAs: 'policies',
         templateUrl: 'views/policies.html'
       })
