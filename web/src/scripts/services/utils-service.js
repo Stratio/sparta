@@ -122,7 +122,7 @@
       else {
         newInputCount.count++;
       }
-    };
+    }
 
     function subtractFragmentCount(inputTypeList, inputType, filter) {
       var newInputCount = $filter('filter')(inputTypeList, {'type': inputType}, true)[0];
@@ -174,7 +174,6 @@
       }
       return object;
     }
-
 
     function getFilteredJSONByArray(JsonArray, array, attribute) {
       var filteredElements = [];
