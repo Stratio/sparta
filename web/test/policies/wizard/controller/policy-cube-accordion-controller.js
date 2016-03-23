@@ -32,8 +32,8 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
 
       return defer.promise;
     };
-    wizardStatusServiceMock =  jasmine.createSpyObj('WizardStatusService', ['enableNextStep']);
-    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate', 'previousStep', 'nextStep', 'enableNextStep']);
+    wizardStatusServiceMock = jasmine.createSpyObj('WizardStatusService', ['enableNextStep', 'disableNextStep']);
+    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate', 'previousStep', 'nextStep', 'enableNextStep', 'setError']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
       return fakePolicy;
     });
@@ -45,7 +45,7 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
     cubeModelFactoryMock = jasmine.createSpyObj('CubeFactory', ['resetCube', 'getCube', 'setCube', 'isValidCube', 'updateCubeInputs']);
     cubeModelFactoryMock.getCube.and.returnValue(fakeCube);
 
-    cubeServiceMock = jasmine.createSpyObj('CubeService', ['findCubesUsingOutputs', 'resetCreatedCubes', 'areValidCubes',
+    cubeServiceMock = jasmine.createSpyObj('CubeService', ['findCubesUsingOutputs', 'resetCreatedCubes', 'areValidCubes','isActiveCubeCreationPanel',
       'getCreatedCubes', 'changeCubeCreationPanelVisibility', 'generateOutputList', 'getCubeCreationStatus', 'activateCubeCreationPanel']);
 
     cubeServiceMock.generateOutputList.and.callFake(resolvedPromise);
@@ -59,10 +59,11 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
     spyOn(scope, "$watchCollection").and.callThrough();
 
     ctrl = $controller('PolicyCubeAccordionCtrl  as vm', {
+      'WizardStatusService': wizardStatusServiceMock,
       'PolicyModelFactory': policyModelFactoryMock,
       'CubeModelFactory': cubeModelFactoryMock,
       'CubeService': cubeServiceMock,
-      '$scope':scope
+      '$scope': scope
     });
 
   }));
@@ -80,10 +81,11 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
     it("if policy has not any cube, panel of cube creation is shown", function () {
       fakePolicy.cubes = [];
       ctrl = $controller('PolicyCubeAccordionCtrl  as vm', {
+        'WizardStatusService': wizardStatusServiceMock,
         'PolicyModelFactory': policyModelFactoryMock,
         'CubeModelFactory': cubeModelFactoryMock,
         'CubeService': cubeServiceMock,
-        '$scope':scope
+        '$scope': scope
       });
 
       expect(cubeServiceMock.changeCubeCreationPanelVisibility).toHaveBeenCalled();
@@ -125,5 +127,61 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
       })
     })
   });
+
+  describe("Should be able to see changes in cube creation status and cube array in order to enable or disable next step", function () {
+    it("next step is enabled only if cube creation is not activated and cube array is not empty", function () {
+      ctrl.cubeCreationStatus = {};
+      ctrl.policy.cubes = [];
+
+      ctrl.cubeCreationStatus.enabled = true;
+      scope.$apply();
+
+      expect(wizardStatusServiceMock.disableNextStep).toHaveBeenCalled();
+
+      ctrl.policy.cubes = [fakeCube];
+      ctrl.cubeCreationStatus.enabled = true;
+      scope.$apply();
+
+      expect(wizardStatusServiceMock.disableNextStep).toHaveBeenCalled();
+
+      ctrl.cubeCreationStatus.enabled = false;
+      scope.$apply();
+
+      expect(wizardStatusServiceMock.enableNextStep).toHaveBeenCalled();
+    })
+  });
+
+  describe("Should be able to respond to an event to force the validations of current forms", function () {
+    it("if cube array is empty, policy error is updated to 'at least one cube is needed'", function () {
+      ctrl.policy.cubes = [];
+      scope.$broadcast("forceValidateForm");
+
+      expect(policyModelFactoryMock.setError).toHaveBeenCalledWith('_CUBE_STEP_MESSAGE_');
+    });
+    it("if cube array is not empty, but user is creating a cube, policy error is updated to warn user about saving his changes'", function () {
+      ctrl.policy.cubes = [fakeCube];
+      ctrl.isActiveCubeCreationPanel.and.returnValue(true);
+
+      scope.$broadcast("forceValidateForm");
+
+      expect(policyModelFactoryMock.setError).toHaveBeenCalledWith('_CHANGES_WITHOUT_SAVING_ERROR_');
+
+      ctrl.isActiveCubeCreationPanel.and.returnValue(false);
+
+      scope.$broadcast("forceValidateForm");
+
+      expect(policyModelFactoryMock.setError).toHaveBeenCalledWith('_CHANGES_WITHOUT_SAVING_ERROR_');
+    });
+
+    it("if cube creation are activated, creation panel is opened", function(){
+      ctrl.policy.cubes = [fakeCube];
+      ctrl.isActiveCubeCreationPanel.and.returnValue(true);
+
+      scope.$broadcast("forceValidateForm");
+
+      expect(ctrl.cubeAccordionStatus[ctrl.cubeAccordionStatus.length-1]).toBeTruthy();
+    })
+  });
+
 });
 
