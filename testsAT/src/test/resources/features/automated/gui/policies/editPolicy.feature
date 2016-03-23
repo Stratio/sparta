@@ -81,6 +81,8 @@ Feature: Test editting a policy in Sparta GUI
                 Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
                 When I click on the element on index '0'
                 Then '1' element exists with 'css:i[data-qa="policy-model-output-list-0-remove"]'
+		Given '1' element exists with 'css:select[data-qa="policy-description-raw-data-partition-format"]'
+                Then I select 'Your raw event' on the element on index '0'
 		Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
                 Then I click on the element on index '0'
 		# Continue
