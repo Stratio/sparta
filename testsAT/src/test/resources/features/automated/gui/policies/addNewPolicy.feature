@@ -213,16 +213,21 @@ Feature: Test adding a new policy in Sparta GUI
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-duplicated"]'
 		And '1' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
+
+		Given '1' element exists with 'css:select[data-qa="policy-description-raw-data-partition-format"]'
+		Then I select 'Your raw event' on the element on index '0'
 		
 		# Add model
-		Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
+		Given I send 'PAGE_DOWN'
+		And '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
 		Then I click on the element on index '0'
 		
 		# Delete model
+		Given I send 'PAGE_UP'
                 Given '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
                 Then I click on the element on index '0'
-                And I send 'PAGE_DOWN'
-                Given '1' element exists with 'css:button[data-qa="policy-model-delete-button"]'
+                Given I send 'PAGE_DOWN'
+                And '1' element exists with 'css:button[data-qa="policy-model-delete-button"]'
                 When I click on the element on index '0'
                 Then '1' element exists with 'css:aside[data-qa="confirm-modal"]'
                 And '1' element exists with 'css:button[data-qa="modal-ok-button"]'
@@ -273,6 +278,9 @@ Feature: Test adding a new policy in Sparta GUI
                 Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-duplicated"]'
                 And '1' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
 
+		Given '1' element exists with 'css:select[data-qa="policy-description-raw-data-partition-format"]'
+                Then I select 'Your raw event' on the element on index '0'
+
                 # Add model
                 Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
                 Then I click on the element on index '0'
@@ -320,6 +328,9 @@ Feature: Test adding a new policy in Sparta GUI
                 When I click on the element on index '0'
                 Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-duplicated"]'
                 And '1' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
+
+		Given '1' element exists with 'css:select[data-qa="policy-description-raw-data-partition-format"]'
+                Then I select 'Your raw event' on the element on index '0'
 
                 # Add model
 		Given I send 'PAGE_DOWN'
