@@ -15,6 +15,7 @@
  */
 package com.stratio.sparta.serving.core.models
 
+import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
 
 case class AggregationPoliciesModel(id: Option[String] = None,
@@ -49,72 +50,52 @@ case class PolicyResult(policyId: String, policyName: String)
 
 object AggregationPoliciesValidator extends SpartaSerializer {
 
-  //scalastyle:off
-  def validateDto(aggregationPoliciesDto: AggregationPoliciesModel): (Boolean, String) = {
-    //TODO Validate policy according to the old schema validation rules
-    // https://stratio.atlassian.net/browse/SPARTA-458
-    val validCubeName = aggregationPoliciesDto.cubes.forall(cube => cube.name.nonEmpty)
-    val cubesHaveAtLeastOneDimension = aggregationPoliciesDto.cubes.forall(cube => cube.dimensions.nonEmpty)
-    val policyHaveAtLeastOneOutput = aggregationPoliciesDto.outputs.nonEmpty
-    val policyHaveAtLeastOneAction =
-      aggregationPoliciesDto.cubes.nonEmpty || aggregationPoliciesDto.streamTriggers.nonEmpty
-    val outputsNames = aggregationPoliciesDto.outputs.map(_.name)
-    val cubeOutputsLinks = aggregationPoliciesDto.cubes.forall(cube =>
-      cube.writer.outputs.forall(outputName => outputsNames.contains(outputName)))
-    val cubeTriggersOutputsLinks = aggregationPoliciesDto.cubes.forall(cube =>
-      cube.triggers.forall(trigger =>
-        trigger.outputs.forall(outputName => outputsNames.contains(outputName))))
-    val streamTriggersOutputsLinks = aggregationPoliciesDto.streamTriggers.forall(trigger =>
-      trigger.outputs.forall(outputName => outputsNames.contains(outputName)))
-    val msgCubeName =
-      if (validCubeName)
-        ""
-      else
-        """No usable value for cubes names.
-          |Must be non empty.""".stripMargin
-    val msgOneAction =
-      if (policyHaveAtLeastOneAction)
-        ""
-      else
-        """No usable value for cubes and streamTriggers.
-          |Must have at least 1 elements cubes or streamTriggers arrays.""".stripMargin
-    val msgOneDimension =
-      if (cubesHaveAtLeastOneDimension)
-        ""
-      else
-        """No usable value for Cubes-dimensions.
-          |Array is too short: must have at least 1 elements
-          |but instance has 0 elements.""".stripMargin
-    val msgOneOutput =
-      if (policyHaveAtLeastOneOutput)
-        ""
-      else
-        """No usable value for outputs.
-          |Array is too short: must have at least 1 elements
-          |but instance has 0 elements.""".stripMargin
-    val msgCubeOtputsLinks =
-      if (cubeOutputsLinks)
-        ""
-      else
-        """No usable value for outputs names in cube writers.
-          |Must be included in the output array.""".stripMargin
-    val msgStreamTriggersOtputsLinks =
-      if (streamTriggersOutputsLinks)
-        ""
-      else
-        """No usable value for outputs names in stream triggers.
-          |Must be included in the output array.""".stripMargin
-    val msgCubeTriggersOtputsLinks =
-      if (cubeTriggersOutputsLinks)
-        ""
-      else
-        """No usable value for outputs names in stream triggers.
-          |Must be included in the output array.""".stripMargin
+  def validateDto(aggregationPoliciesDto: AggregationPoliciesModel): Unit = {
 
-    (validCubeName && cubesHaveAtLeastOneDimension && policyHaveAtLeastOneOutput && policyHaveAtLeastOneAction &&
-      cubeOutputsLinks && streamTriggersOutputsLinks && cubeTriggersOutputsLinks,
-      msgCubeName ++ msgOneAction ++ msgOneDimension ++ msgOneOutput ++ msgCubeOtputsLinks ++
-        msgStreamTriggersOtputsLinks ++ msgCubeTriggersOtputsLinks)
+    val outputsNames = aggregationPoliciesDto.outputs.map(_.name)
+
+    val subErrorModels = List(
+      (aggregationPoliciesDto.cubes.forall(cube => cube.name.nonEmpty),
+       new ErrorModel(
+         ErrorModel.ValidationError_There_is_at_least_one_cube_without_name,
+         "There is at least one cube without name")),
+      (aggregationPoliciesDto.cubes.forall(cube => cube.dimensions.nonEmpty),
+       new ErrorModel(
+         ErrorModel.ValidationError_There_is_at_least_one_cube_without_dimensions,
+         "There is at least one cube without dimensions")),
+      (aggregationPoliciesDto.outputs.nonEmpty,
+        new ErrorModel(
+          ErrorModel.ValidationError_The_policy_needs_at_least_one_output,
+       "The policy needs at least one output")),
+      (aggregationPoliciesDto.cubes.nonEmpty || aggregationPoliciesDto.streamTriggers.nonEmpty,
+        new ErrorModel(
+          ErrorModel.ValidationError_The_policy_needs_at_least_one_cube_or_one_trigger,
+        "The policy needs at least one cube or one trigger")),
+      (aggregationPoliciesDto.cubes.forall(cube =>
+        cube.writer.outputs.forall(output =>
+          outputsNames.contains(output))),
+        new ErrorModel(
+          ErrorModel.ValidationError_There_is_at_least_one_cube_with_a_bad_output,
+       "There is at least one cube with a bad output")),
+      (aggregationPoliciesDto.cubes.forall(cube =>
+        cube.triggers.forall(trigger =>
+          trigger.outputs.forall(outputName => outputsNames.contains(outputName)))),
+        new ErrorModel(
+          ErrorModel.ValidationError_There_is_at_least_one_cube_with_triggers_with_a_bad_output,
+        "There is at least one cube with triggers that contains a bad output")),
+      (aggregationPoliciesDto.streamTriggers.forall(trigger =>
+      trigger.outputs.forall(outputName =>
+        outputsNames.contains(outputName))),
+        new ErrorModel(
+          ErrorModel.ValidationError_There_is_at_least_one_stream_trigger_with_a_bad_output,
+        "There is at least one stream trigger that contains a bad output"))
+    ).filter(element => ! element._1)
+
+    if(subErrorModels.nonEmpty) {
+      throw new ServingCoreException(ErrorModel.toString(
+        new ErrorModel(ErrorModel.ValidationError, "Policy validation error",
+          Option(subErrorModels.map(element => element._2).toSeq)
+      )))
+    }
   }
-  //scalastyle:on
 }

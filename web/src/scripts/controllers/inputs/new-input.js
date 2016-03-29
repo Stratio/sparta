@@ -56,14 +56,14 @@
       vm.initFragmentObject(vm.templateFragmentsData);
       vm.createTypeModels(vm.templateFragmentsData);
       vm.selectedIndex = 0;
-    };
+    }
 
     function setTexts(texts) {
       vm.modalTexts = {};
       vm.modalTexts.title = texts.title;
       vm.modalTexts.button = texts.button;
       vm.modalTexts.icon = texts.button_icon;
-    };
+    }
 
     function initFragmentObject(fragmentData) {
       /*Init fragment*/
@@ -78,7 +78,7 @@
       vm.dataSource.element.configuration = {};
 
       vm.setFragmentData(0);
-    };
+    }
 
     function createTypeModels(fragmentData) {
       /*Creating one properties model for each input type*/
@@ -123,27 +123,27 @@
           vm.dataSource.element.configuration = vm.properties[fragmentName];
         }
       }
-    };
+    }
 
     function setFragmentData(index) {
       /*Set fragment*/
       vm.dataSource.description = vm.templateFragmentsData[index].description.long;
       vm.dataSource.shortDescription = vm.templateFragmentsData[index].description.short;
       vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
-    };
+    }
 
     function setProperties(index, fragmentName) {
       vm.selectedIndex = index;
       vm.dataSource.element.configuration = vm.properties[fragmentName]
       vm.setFragmentData(index);
-    };
+    }
 
     function ok() {
       if (vm.form.$valid) {
         deleteNotVisibleProperties();
         checkFragmnetname();
       }
-    };
+    }
 
     function deleteNotVisibleProperties() {
       if (vm.dataSource.element.configuration._visible) {
@@ -160,7 +160,7 @@
         }
       }
       delete vm.dataSource.element.configuration['_visible'];
-    };
+    }
 
     function checkFragmnetname(newInputData) {
       var fragmentNamesExisting = [];
@@ -169,12 +169,12 @@
 
       if (fragmentNamesExisting.length > 0) {
         vm.error = true;
-        vm.errorText = "_INPUT_ERROR_100_";
+        vm.errorText = "_ERROR_._100_";
       }
       else {
         createfragment();
       }
-    };
+    }
 
     function createfragment() {
       var newFragment = FragmentFactory.createFragment(vm.dataSource);
@@ -186,12 +186,12 @@
 
       }, function (error) {
         vm.error = true;
-        vm.errorText = "_INPUT_ERROR_" + error.data.i18nCode + "_";
+        vm.errorText = "_ERROR_._" + error.data.i18nCode + "_";
       });
-    };
+    }
 
     function cancel() {
       $modalInstance.dismiss('cancel');
-    };
-  };
+    }
+  }
 })();

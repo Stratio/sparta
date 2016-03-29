@@ -25,7 +25,7 @@ describe('policies.wizard.controller.policy-controller', function () {
       return defer.promise;
     };
 
-    fakeError = {"data": {"i18nCode": "fake error message"}};
+    fakeError = {"data": {"i18nCode": "306", subErrorModels:[{"i18nCode": "402"}]}};
     rejectedPromise = function () {
       var defer = $q.defer();
       defer.reject(fakeError);
@@ -50,6 +50,7 @@ describe('policies.wizard.controller.policy-controller', function () {
       return defer.promise;
     });
     policyFactoryMock.createPolicy.and.callFake(resolvedPromise);
+    policyFactoryMock.savePolicy.and.callFake(resolvedPromise);
 
     policyServiceMock = jasmine.createSpyObj('PolicyService', ['generateFinalJSON']);
 
@@ -193,7 +194,7 @@ describe('policies.wizard.controller.policy-controller', function () {
     });
   });
 
-  describe("should be able to confirm the sent of the created or saved policy", function () {
+  describe("should be able to confirm the sent of the created or modified policy", function () {
     beforeEach(function () {
       ctrl.editionMode = false;
     });
@@ -219,11 +220,28 @@ describe('policies.wizard.controller.policy-controller', function () {
         var resolve = (modalServiceMock.openModal.calls.mostRecent().args[2]);
         expect(resolve.title()).toBe("_POLICY_._WINDOW_._CONFIRM_._TITLE_");
         expect(resolve.message()).toBe("");
+
+        ctrl.editionMode = true;
+
+        expect(modalServiceMock.openModal.calls.mostRecent().args[0]).toBe("ConfirmModalCtrl");
+        expect(modalServiceMock.openModal.calls.mostRecent().args[1]).toBe("templates/modal/confirm-modal.tpl.html");
+        var resolve = (modalServiceMock.openModal.calls.mostRecent().args[2]);
+        expect(resolve.title()).toBe("_POLICY_._WINDOW_._EDIT_._TITLE_");
+        expect(resolve.message()).toBe("");
+
+
       });
 
       it("when modal is confirmed, the policy is sent using an http request", function () {
         ctrl.confirmPolicy().then(function () {
           expect(policyFactoryMock.createPolicy).toHaveBeenCalledWith(fakeFinalPolicyJSON);
+        });
+        scope.$digest();
+
+        ctrl.editionMode = true;
+
+        ctrl.confirmPolicy().then(function () {
+          expect(policyFactoryMock.savePolicy).toHaveBeenCalledWith(fakeFinalPolicyJSON);
         });
         scope.$digest();
       });
@@ -238,16 +256,15 @@ describe('policies.wizard.controller.policy-controller', function () {
 
       it("If the policy sent fails, policy error is updated", function () {
         policyFactoryMock.createPolicy.and.callFake(rejectedPromise);
-        ctrl.confirmPolicy().then(function () {
-        }, function () {
-          expect(policyModelFactoryMock.setError).toHaveBeenCalledWith(fakeError.data);
+         ctrl.confirmPolicy().then(null, function(){
+          expect(policyModelFactoryMock.setError).toHaveBeenCalledWith("_ERROR_._"+ fakeError.data.i18nCode + "_", "error", fakeError.data.subErrorModels);
         });
         scope.$digest();
+        policyModelFactoryMock.setError.calls.reset();
 
         policyFactoryMock.savePolicy.and.callFake(rejectedPromise);
-        ctrl.confirmPolicy().then(function () {
-        }, function () {
-          expect(policyModelFactoryMock.setError).toHaveBeenCalledWith(fakeError.data);
+        ctrl.confirmPolicy().then(null, function(){
+          expect(policyModelFactoryMock.setError).toHaveBeenCalledWith("_ERROR_._"+ fakeError.data.i18nCode + "_", "error", fakeError.data.subErrorModels);
         });
         scope.$digest();
       });
@@ -257,7 +274,7 @@ describe('policies.wizard.controller.policy-controller', function () {
   it("should close policy errors", function () {
     ctrl.closeErrorMessage();
 
-    expect(policyModelFactoryMock.setError).toHaveBeenCalledWith(null);
+    expect(policyModelFactoryMock.setError).toHaveBeenCalledWith();
   });
 
   describe("should be able to control the visualization of previous and next step buttons", function () {
@@ -301,7 +318,7 @@ describe('policies.wizard.controller.policy-controller', function () {
 
       expect(ctrl.isLastStep()).toBeTruthy();
     });
-  })
+  });
 
   describe("should have a listener to next step button", function () {
     it("if next step is available, next step is requested", function () {
@@ -318,16 +335,6 @@ describe('policies.wizard.controller.policy-controller', function () {
       ctrl.onClickNextStep();
 
       expect(scope.$broadcast).toHaveBeenCalled();
-    })
-  });
-
-  describe("should see any change in policy error", function () {
-    it("if policy error is not null nor empty, it is cleaned after 6 seconds", function () {
-      expect(policyModelFactoryMock.setError).not.toHaveBeenCalled();
-
-      $timeout.flush(6000);
-
-      expect(policyModelFactoryMock.setError).toHaveBeenCalled();
     })
   });
 });

@@ -115,7 +115,6 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
 
       scope.$digest();
 
-      expect(ctrl.error).toBeFalsy();
       expect(ctrl.inputsData).toEqual(newFakeInputList);
     }));
 
@@ -132,8 +131,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
 
       scope.$digest();
 
-      expect(ctrl.error).toBeTruthy();
-      expect(ctrl.errorMessage).toBe("_INPUT_ERROR_111_");
+      expect(ctrl.errorMessage.text).toBe("_ERROR_._111_");
     }));
 
     it('Should call getInputTypes function and create an array of the amount of each input types', function () {
@@ -195,7 +193,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
       fakeOriginalInputType = fakeOriginalInput.element.type;
     });
 
-    it('Shuold call editInput function and show an edit input modal', function () {
+    it('Should call editInput function and show an edit input modal', function () {
       var fakeListOfNames = ['test_input_kafka', 'test_input_socket'];
       utilsServiceMock.getNamesJSONArray.and.returnValue(fakeListOfNames);
 
@@ -210,8 +208,8 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
           'button_icon': 'icon-circle-check',
           'secondaryText2': '_INPUT_WINDOW_EDIT_MESSAGE2_',
           'policyRunningMain': '_INPUT_CANNOT_BE_MODIFIED_',
-          'policyRunningSecondary': '_INTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
-          'policyRunningSecondary2': '_INTPUT_WINDOW_POLICY_RUNNING_MESSAGE2_'
+          'policyRunningSecondary': '_INPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
+          'policyRunningSecondary2': '_INPUT_WINDOW_POLICY_RUNNING_MESSAGE2_'
         }
       };
 
@@ -229,7 +227,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
 
     it('Should return OK when closing the edit modal and upload the inputs type dropdown', function () {
       ctrl.editInput(fakeOriginalInput).then(function(){
-        expect(utilsServiceMock.subtractFragmentCount).toHaveBeenCalledWith(ctrl.inputTypes, fakeOriginalInputType, ctrl.filters);
+        expect(utilsServiceMock.subtractFragmentCount).toHaveBeenCalledWith(ctrl.inputTypes, fakeOriginalInputType);
         expect(utilsServiceMock.addFragmentCount).toHaveBeenCalledWith(ctrl.inputTypes, fakeInput.element.type);
       });
       scope.$digest();
@@ -260,14 +258,14 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
           'secondaryText1': '_INPUT_WINDOW_DELETE_MESSAGE_',
           'secondaryText2': '_INPUT_WINDOW_DELETE_MESSAGE2_',
           'policyRunningMain': '_INPUT_CANNOT_BE_DELETED_',
-          'policyRunningSecondary': '_INTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
-          'policyRunningSecondary2': '_INTPUT_WINDOW_DELETE_POLICY_RUNNING_MESSAGE2_'
+          'policyRunningSecondary': '_INPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
+          'policyRunningSecondary2': '_INPUT_WINDOW_DELETE_POLICY_RUNNING_MESSAGE2_'
         }
       };
 
       ctrl.deleteInput(fakeFragmentType, fakeFragmentId, fakeElementType);
 
-      var params = modalMock.open.calls.mostRecent().args[0]
+      var params = modalMock.open.calls.mostRecent().args[0];
       expect(params.resolve.item()).toEqual(fakeInputToDelete);
 
       params.resolve.policiesAffected();

@@ -141,7 +141,7 @@ describe('policies.wizard.controller.policy-input-controller', function () {
       ctrl.policy.input = {};
       ctrl.validateForm();
 
-      expect(policyModelFactoryMock.setError).toHaveBeenCalledWith("_POLICY_._INPUTS_ERROR_");
+      expect(policyModelFactoryMock.setError).toHaveBeenCalledWith("_ERROR_._POLICY_INPUTS_", 'error');
       expect(wizardStatusServiceMock.nextStep).not.toHaveBeenCalled();
     });
 

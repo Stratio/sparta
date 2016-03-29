@@ -57,7 +57,7 @@
           else {
             var policyName = vm.template.basicSettings[0];
             document.querySelector('#dataSource'+policyName.propertyName+'Form').focus();
-            vm.errorText = "_INPUT_ERROR_200_";
+            vm.errorText = "_ERROR_._200_";
           }
         });
       }

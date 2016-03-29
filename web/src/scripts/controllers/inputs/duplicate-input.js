@@ -39,18 +39,18 @@
         function init () {
             setTexts(item.texts);
             vm.fragmentData = item.fragmentData;
-        };
+        }
 
         function setTexts(texts) {
           vm.modalTexts = {};
           vm.modalTexts.title = texts.title;
-        };
+        }
 
         function ok() {
             if (vm.form.$valid){
                 checkFragmnetname();
             }
-        };
+        }
 
         function checkFragmnetname() {
           var fragmentNamesExisting = [];
@@ -59,12 +59,12 @@
 
           if (fragmentNamesExisting.length > 0) {
             vm.error = true;
-            vm.errorText = "_INPUT_ERROR_100_";
+            vm.errorText = "_ERROR_._100_";
           }
           else {
             createfragment();
           }
-        };
+        }
 
         function createfragment() {
             delete vm.fragmentData['id'];
@@ -75,12 +75,12 @@
 
             },function (error) {
                 vm.error = true;
-                vm.errorText = "_INPUT_ERROR_" + error.data.i18nCode + "_";
+                vm.errorText = "_ERROR_._" + error.data.i18nCode + "_";
             });
-        };
+        }
 
         function cancel() {
             $modalInstance.dismiss('cancel');
-        };
-    };
+        }
+    }
 })();

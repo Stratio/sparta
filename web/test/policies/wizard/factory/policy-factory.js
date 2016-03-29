@@ -23,7 +23,6 @@ describe('policies.wizard.factory.policy-factory', function () {
     promiseMock = jasmine.createSpy('promise').and.callFake(function () {
       return {"$promise": q.defer()};
     });
-
   }));
 
   describe("should have a function for each policy api service", function () {

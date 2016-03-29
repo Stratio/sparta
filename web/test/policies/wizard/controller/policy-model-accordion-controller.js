@@ -148,7 +148,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
       ctrl.policy.transformations = [];
       scope.$broadcast("forceValidateForm");
 
-      expect(policyModelFactoryMock.setError).toHaveBeenCalledWith('_TRANSFORMATION_STEP_MESSAGE_');
+      expect(policyModelFactoryMock.setError).toHaveBeenCalledWith('_ERROR_._TRANSFORMATION_STEP_', 'error');
     });
     it("if transformation array is not empty, but user is creating a transformation or trigger, " +
       "policy error is updated to warn user about saving his changes'", function () {
@@ -158,14 +158,14 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
 
       scope.$broadcast("forceValidateForm");
 
-      expect(policyModelFactoryMock.setError).toHaveBeenCalledWith('_CHANGES_WITHOUT_SAVING_ERROR_');
+      expect(policyModelFactoryMock.setError).toHaveBeenCalledWith('_ERROR_._CHANGES_WITHOUT_SAVING_', 'error');
 
       ctrl.isActiveModelCreationPanel.and.returnValue(false);
       ctrl.isActiveTriggerCreationPanel.and.returnValue(true);
 
       scope.$broadcast("forceValidateForm");
 
-      expect(policyModelFactoryMock.setError).toHaveBeenCalledWith('_CHANGES_WITHOUT_SAVING_ERROR_');
+      expect(policyModelFactoryMock.setError).toHaveBeenCalledWith('_ERROR_._CHANGES_WITHOUT_SAVING_', 'error');
     });
 
     it("if transformation or trigger creation are activated, creation panel is opened", function(){

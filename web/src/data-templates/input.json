@@ -151,10 +151,10 @@
         "propertyId": "enableDecompression",
         "propertyName": "_DECOMPRESSION_",
         "propertyType": "boolean",
-        "regexp": "true|false",
         "required": false,
         "tooltip": "",
         "hidden": false,
+        "default": false,
         "qa": "fragment-details-flume-push-enable-decompression",
         "visible": [
           [
