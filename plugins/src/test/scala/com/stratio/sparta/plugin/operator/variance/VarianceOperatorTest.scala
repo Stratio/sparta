@@ -44,10 +44,6 @@ class VarianceOperatorTest extends WordSpec with Matchers {
       val inputFields4 = new VarianceOperator("variance", schema4, Map("inputField" -> "field1"))
       inputFields3.processMap(Row(1, 2)) should be(Some(1))
 
-      val schema5 = StructType(Seq(StructField("field1", StringType), StructField("field2", IntegerType)))
-      val inputFields5 = new VarianceOperator("variance", schema5, Map("inputField" -> "field1"))
-      inputFields5.processMap(Row("foo", 2)) should be(None)
-
       val schema6 = StructType(Seq(StructField("field1", FloatType), StructField("field2", IntegerType)))
       val inputFields6 = new VarianceOperator("variance", schema6, Map("inputField" -> "field1"))
       inputFields6.processMap(Row(1.5, 2)) should be(Some(1.5))

@@ -20,13 +20,14 @@ import com.stratio.sparta.sdk.{Precision, TypeOp}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
+import java.io.{Serializable => JSerializable}
 
 import scala.util.{Success, Failure, Try}
 
 @RunWith(classOf[JUnitRunner])
 class GeoHashFieldTest extends WordSpecLike with Matchers {
 
-  val geoHashDimension: GeoHashField = new GeoHashField(Map("precision1" -> "int", "typeOp" -> "long"))
+  val geoHashDimension: GeoHashField = new GeoHashField(Map.empty[String, JSerializable])
   val geoHashDimensionDefault: GeoHashField = new GeoHashField()
 
   "A GeoHashDimension" should {
@@ -88,19 +89,19 @@ class GeoHashFieldTest extends WordSpecLike with Matchers {
 
     }
 
-    "Each precision have their output type, precision1 must be integer and the others long" in {
-      geoHashDimension.precision(GeoHashField.Precision1Name).typeOp should be(TypeOp.Int)
-      geoHashDimension.precision(GeoHashField.Precision2Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision3Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision4Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision5Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision6Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision7Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision8Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision9Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision10Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision11Name).typeOp should be(TypeOp.Long)
-      geoHashDimension.precision(GeoHashField.Precision12Name).typeOp should be(TypeOp.Long)
+    "Each precision have their output type must be must be ArrayDouble" in {
+      geoHashDimension.precision(GeoHashField.Precision1Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimension.precision(GeoHashField.Precision2Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimension.precision(GeoHashField.Precision3Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimension.precision(GeoHashField.Precision4Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimension.precision(GeoHashField.Precision5Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimension.precision(GeoHashField.Precision6Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimension.precision(GeoHashField.Precision7Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimension.precision(GeoHashField.Precision8Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimension.precision(GeoHashField.Precision9Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimension.precision(GeoHashField.Precision10Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimension.precision(GeoHashField.Precision11Name).typeOp should be(TypeOp.ArrayDouble)
+      geoHashDimension.precision(GeoHashField.Precision12Name).typeOp should be(TypeOp.ArrayDouble)
     }
 
     "Each precision have their output type, all precisions must be ArrayDouble by default" in {
@@ -118,12 +119,12 @@ class GeoHashFieldTest extends WordSpecLike with Matchers {
       geoHashDimensionDefault.precision(GeoHashField.Precision12Name).typeOp should be(TypeOp.ArrayDouble)
     }
     "latitude and longitude splited  tests " in {
-      val latitude = new GeoHashField(Map("precision1" -> "int", "typeOp" -> "long", "coordinate" -> "latitude"))
-      latitude.precision(GeoHashField.Precision12Name).typeOp should be(TypeOp.Long)
-      val longitude = new GeoHashField(Map("precision1" -> "int", "typeOp" -> "long", "coordinate" -> "longitude"))
-      longitude.precision(GeoHashField.Precision12Name).typeOp should be(TypeOp.Long)
-      val other = new GeoHashField(Map("precision1" -> "int", "typeOp" -> "long", "coordinate" -> "other"))
-      other.precision(GeoHashField.Precision12Name).typeOp should be(TypeOp.Long)
+      val latitude = new GeoHashField(Map("coordinate" -> "latitude"))
+      latitude.precision(GeoHashField.Precision12Name).typeOp should be(TypeOp.Double)
+      val longitude = new GeoHashField(Map("coordinate" -> "longitude"))
+      longitude.precision(GeoHashField.Precision12Name).typeOp should be(TypeOp.Double)
+      val other = new GeoHashField(Map("coordinate" -> "other"))
+      other.precision(GeoHashField.Precision12Name).typeOp should be(TypeOp.ArrayDouble)
 
       val latResult: (Precision, Any) =
         latitude.precisionValue(GeoHashField.Precision12Name, "40.1__30.2".asInstanceOf[Any])

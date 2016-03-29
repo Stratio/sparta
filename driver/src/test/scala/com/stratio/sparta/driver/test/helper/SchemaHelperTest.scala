@@ -91,7 +91,7 @@ with MockitoSugar {
         StructField("dim1", StringType, false),
         StructField("dim2", StringType, false),
         StructField(checkpointGranularity, TimestampType, false),
-        StructField("op1", LongType, true))),
+        StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
       Option("minute"))
 
     val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
@@ -110,7 +110,7 @@ with MockitoSugar {
       StructType(Array(
         StructField("dim1", StringType, false),
         StructField("dim2", StringType, false),
-        StructField("op1", LongType, true))),
+        StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
       None)
 
     val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
@@ -131,7 +131,7 @@ with MockitoSugar {
         StructField("id", StringType, false),
         StructField("dim1", StringType, false),
         StructField("dim2", StringType, false),
-        StructField("op1", LongType, true))),
+        StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
       None,
       TypeOp.Timestamp,
       true)
@@ -153,7 +153,7 @@ with MockitoSugar {
       StructType(Array(
         StructField("id", StringType, false),
         StructField("dim1", StringType, false),
-        StructField("op1", LongType, true))),
+        StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
       None,
       TypeOp.Timestamp,
       true)
@@ -175,7 +175,7 @@ with MockitoSugar {
       StructType(Array(
         StructField("dim1", StringType, false),
         StructField("id", StringType, false),
-        StructField("op1", LongType, true))),
+        StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
       None,
       TypeOp.Timestamp,
       false)
@@ -202,7 +202,7 @@ with MockitoSugar {
           StructField("dim1", StringType, false),
           StructField("dim2", StringType, false),
           StructField(checkpointGranularity, DateType, false),
-          StructField("op1", LongType, true))),
+          StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
         Option("minute"),
         TypeOp.Date,
         true)
@@ -232,8 +232,8 @@ with MockitoSugar {
           StructField("dim1", StringType, false),
           StructField("dim2", StringType, false),
           StructField(checkpointGranularity, DateType, false),
-          StructField("measureName", StringType, true),
-          StructField("op1", LongType, true))),
+          StructField("measureName", StringType, false, SchemaHelper.MeasureMetadata),
+          StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
         Option("minute"),
         TypeOp.Date,
         true)

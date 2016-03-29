@@ -93,7 +93,7 @@ case class CubeWriter(cube: Cube,
     dimensionValues.sorted.map(dimVal => dimVal.value)
 
   private def measuresValuesSorted(measures: Map[String, Option[Any]]): Seq[Any] =
-    measures.toSeq.sortWith(_._1 < _._1).map(measure => measure._2.getOrElse(0))
+    measures.toSeq.sortWith(_._1 < _._1).map(measure => measure._2.getOrElse(null))
 
   private def dimensionValuesWithId(values: Seq[Any]): Seq[Any] =
     if (options.isAutoCalculatedId) Seq(values.mkString(Output.Separator)) ++ values

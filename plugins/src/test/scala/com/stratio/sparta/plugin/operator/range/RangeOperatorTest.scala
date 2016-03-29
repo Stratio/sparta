@@ -50,9 +50,6 @@ class RangeOperatorTest extends WordSpec with Matchers {
       val inputFields4 = new RangeOperator("range", initSchema, Map("inputField" -> "field1"))
       inputFields3.processMap(Row("1", 2)) should be(Some(1))
 
-      val inputFields5 = new RangeOperator("range", initSchema, Map("inputField" -> "field1"))
-      inputFields5.processMap(Row("foo", 2)) should be(None)
-
       val inputFields6 = new RangeOperator("range", initSchema, Map("inputField" -> "field1"))
       inputFields6.processMap(Row(1.5, 2)) should be(Some(1.5))
 

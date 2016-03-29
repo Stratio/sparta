@@ -91,7 +91,7 @@
         },
         {
           "name": "avg",
-          "type": "Avg",
+          "type": "Mean",
           "configuration": {
             "inputField": "price"
           }
