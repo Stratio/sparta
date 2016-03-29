@@ -1,18 +1,22 @@
 describe('policies.wizard.controller.policy-controller', function () {
   beforeEach(module('webApp'));
+  beforeEach(module('api/policy.json'));
   beforeEach(module('model/policy.json'));
   beforeEach(module('template/policy.json'));
 
-  var ctrl, scope, fakePolicy, fakeTemplate, fakeError, policyModelFactoryMock, templateFactoryMock, policyFactoryMock, policyServiceMock,
-    stateMock, fakeCreationStatus, modalServiceMock, resolvedPromise, rejectedPromise, fakeFinalPolicyJSON, wizardStatusServiceMock;
+  var ctrl, scope, q, $timeout, fakeApiPolicy, fakePolicy, fakeTemplate, fakeError, policyModelFactoryMock, templateFactoryMock,
+    policyFactoryMock, policyServiceMock, stateMock, fakeCreationStatus, modalServiceMock, resolvedPromise,
+    rejectedPromise, fakeFinalPolicyJSON, wizardStatusServiceMock, stateParamsMock, fakePolicyError;
 
   // init mock modules
 
-  beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope, _modelPolicy_, _templatePolicy_) {
+  beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope, _apiPolicy_, _modelPolicy_, _templatePolicy_, _$timeout_) {
     scope = $rootScope.$new();
-
+    q = $q;
+    fakeApiPolicy = _apiPolicy_;
     fakePolicy = angular.copy(_modelPolicy_);
     fakeTemplate = _templatePolicy_;
+    $timeout = _$timeout_;
 
     resolvedPromise = function () {
       var defer = $q.defer();
@@ -29,6 +33,7 @@ describe('policies.wizard.controller.policy-controller', function () {
       return defer.promise;
     };
 
+
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
     fakeCreationStatus = {"currentStep": 0};
@@ -38,22 +43,32 @@ describe('policies.wizard.controller.policy-controller', function () {
       defer.resolve(fakeTemplate);
       return defer.promise;
     });
-    policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['createPolicy']);
+    policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['createPolicy', 'savePolicy', 'getPolicyById']);
+    policyFactoryMock.getPolicyById.and.callFake(function () {
+      var defer = $q.defer();
+      defer.resolve(fakeApiPolicy);
+      return defer.promise;
+    });
     policyFactoryMock.createPolicy.and.callFake(resolvedPromise);
 
     policyServiceMock = jasmine.createSpyObj('PolicyService', ['generateFinalJSON']);
 
     stateMock = jasmine.createSpyObj('$state', ['go']);
-
-    wizardStatusServiceMock = jasmine.createSpyObj('wizardStatusService', ['getStatus']);
+    stateParamsMock = {id: null};
+    wizardStatusServiceMock = jasmine.createSpyObj('wizardStatusService', ['getStatus', 'nextStep']);
     wizardStatusServiceMock.getStatus.and.returnValue(fakeCreationStatus);
-    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'setFinalJSON', 'setError', 'getError', 'getFinalJSON', 'setTemplate', 'getTemplate', 'getProcessStatus', 'resetPolicy']);
+    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['setPolicy', 'getCurrentPolicy', 'setFinalJSON', 'setError', 'getError', 'getFinalJSON', 'setTemplate', 'getTemplate', 'getProcessStatus', 'resetPolicy']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
       return fakePolicy;
     });
 
     policyModelFactoryMock.getTemplate.and.callFake(function () {
       return fakeTemplate;
+    });
+    fakePolicyError = {text: "fake policy error"};
+
+    policyModelFactoryMock.getError.and.callFake(function () {
+      return fakePolicyError;
     });
 
     fakeFinalPolicyJSON = {"fake_attribute": "fake value"};
@@ -72,7 +87,7 @@ describe('policies.wizard.controller.policy-controller', function () {
       return {"result": defer.promise};
     });
 
-    ctrl = $controller('PolicyCtrl', {
+    ctrl = $controller('PolicyCtrl as wizard', {
       'WizardStatusService': wizardStatusServiceMock,
       'PolicyModelFactory': policyModelFactoryMock,
       'TemplateFactory': templateFactoryMock,
@@ -80,6 +95,7 @@ describe('policies.wizard.controller.policy-controller', function () {
       'PolicyService': policyServiceMock,
       'ModalService': modalServiceMock,
       '$state': stateMock,
+      '$stateParams': stateParamsMock,
       '$scope': scope
     });
 
@@ -87,6 +103,56 @@ describe('policies.wizard.controller.policy-controller', function () {
   }));
 
   describe("when it is initialized", function () {
+
+    it("if policy template, has not been loaded yet, it is requested to template factory and loaded to policy factory", (inject(function ($controller) {
+      policyModelFactoryMock.getTemplate.and.callFake(function () {
+        return {};
+      });
+      templateFactoryMock.getPolicyTemplate.and.callFake(function () {
+        var defer = q.defer();
+        defer.resolve(fakeTemplate);
+        return defer.promise;
+      });
+      ctrl = $controller('PolicyCtrl as wizard', {
+        'WizardStatusService': wizardStatusServiceMock,
+        'PolicyModelFactory': policyModelFactoryMock,
+        'TemplateFactory': templateFactoryMock,
+        'PolicyFactory': policyFactoryMock,
+        'PolicyService': policyServiceMock,
+        'ModalService': modalServiceMock,
+        '$state': stateMock,
+        '$stateParams': stateParamsMock,
+        '$scope': scope
+      });
+
+      scope.$digest();
+
+      expect(templateFactoryMock.getPolicyTemplate).toHaveBeenCalled();
+
+      expect(policyModelFactoryMock.setTemplate).toHaveBeenCalledWith(fakeTemplate);
+    })));
+
+    it("it user is editing a policy, this policy is retrieved from api", (inject(function ($controller) {
+      stateParamsMock.id = fakeApiPolicy.id;
+
+      ctrl = $controller('PolicyCtrl as wizard', {
+        'WizardStatusService': wizardStatusServiceMock,
+        'PolicyModelFactory': policyModelFactoryMock,
+        'TemplateFactory': templateFactoryMock,
+        'PolicyFactory': policyFactoryMock,
+        'PolicyService': policyServiceMock,
+        'ModalService': modalServiceMock,
+        '$state': stateMock,
+        '$stateParams': stateParamsMock,
+        '$scope': scope
+      });
+
+      scope.$digest();
+
+      expect(policyFactoryMock.getPolicyById).toHaveBeenCalledWith(stateParamsMock.id);
+      expect(policyModelFactoryMock.setPolicy).toHaveBeenCalledWith(fakeApiPolicy);
+      expect(wizardStatusServiceMock.nextStep).toHaveBeenCalled();
+    })));
 
     it('it should get the policy from policy factory that will be created', function () {
       expect(ctrl.policy).toBe(fakePolicy);
@@ -107,7 +173,7 @@ describe('policies.wizard.controller.policy-controller', function () {
           return null;
         });
 
-        ctrl = $controller('PolicyCtrl', {
+        ctrl = $controller('PolicyCtrl as wizard', {
           'WizardStatusService': wizardStatusServiceMock,
           'PolicyModelFactory': policyModelFactoryMock,
           'TemplateFactory': templateFactoryMock,
@@ -127,7 +193,7 @@ describe('policies.wizard.controller.policy-controller', function () {
     });
   });
 
-  describe("should be able to confirm the sent of the created policy", function () {
+  describe("should be able to confirm the sent of the created or saved policy", function () {
     beforeEach(function () {
       ctrl.editionMode = false;
     });
@@ -173,12 +239,95 @@ describe('policies.wizard.controller.policy-controller', function () {
       it("If the policy sent fails, policy error is updated", function () {
         policyFactoryMock.createPolicy.and.callFake(rejectedPromise);
         ctrl.confirmPolicy().then(function () {
+        }, function () {
+          expect(policyModelFactoryMock.setError).toHaveBeenCalledWith(fakeError.data);
+        });
+        scope.$digest();
+
+        policyFactoryMock.savePolicy.and.callFake(rejectedPromise);
+        ctrl.confirmPolicy().then(function () {
+        }, function () {
           expect(policyModelFactoryMock.setError).toHaveBeenCalledWith(fakeError.data);
         });
         scope.$digest();
       });
-
     })
   });
 
+  it("should close policy errors", function () {
+    ctrl.closeErrorMessage();
+
+    expect(policyModelFactoryMock.setError).toHaveBeenCalledWith(null);
+  });
+
+  describe("should be able to control the visualization of previous and next step buttons", function () {
+    it("if there steps are already initialized and current step is major than 0, previous step is shown", function () {
+      ctrl.status.currentStep = 1;
+
+      expect(ctrl.showPreviousStepButton()).toBeTruthy();
+
+      ctrl.status.currentStep = 0;
+
+      expect(ctrl.showPreviousStepButton()).toBeFalsy();
+
+      ctrl.stteps = null;
+
+      expect(ctrl.showPreviousStepButton()).toBeFalsy();
+    });
+
+    it("if there steps are already initialized and current step is minor than the last step, next step is shown", function () {
+      ctrl.status.currentStep = 1;
+
+      expect(ctrl.showNextStepButton()).toBeTruthy();
+
+      ctrl.status.currentStep = ctrl.steps.length - 2;
+      expect(ctrl.showNextStepButton()).toBeTruthy();
+
+      ctrl.status.currentStep = ctrl.steps.length - 1;
+
+      expect(ctrl.showNextStepButton()).toBeFalsy();
+
+      ctrl.stteps = null;
+
+      expect(ctrl.showNextStepButton()).toBeFalsy();
+    });
+
+    it("should return if the current step is the last", function () {
+      ctrl.status.currentStep = 1;
+
+      expect(ctrl.isLastStep()).toBeFalsy();
+
+      ctrl.status.currentStep = ctrl.steps.length - 1;
+
+      expect(ctrl.isLastStep()).toBeTruthy();
+    });
+  })
+
+  describe("should have a listener to next step button", function () {
+    it("if next step is available, next step is requested", function () {
+      ctrl.status.nextStepAvailable = true;
+      ctrl.onClickNextStep();
+
+      expect(wizardStatusServiceMock.nextStep).toHaveBeenCalled();
+    });
+
+    it("if next step is not available, an event is broadcasted to force validations of all the current forms", function () {
+      ctrl.status.nextStepAvailable = false;
+      spyOn(scope, '$broadcast');
+
+      ctrl.onClickNextStep();
+
+      expect(scope.$broadcast).toHaveBeenCalled();
+    })
+  });
+
+  describe("should see any change in policy error", function () {
+    it("if policy error is not null nor empty, it is cleaned after 6 seconds", function () {
+      expect(policyModelFactoryMock.setError).not.toHaveBeenCalled();
+
+      $timeout.flush(6000);
+
+      expect(policyModelFactoryMock.setError).toHaveBeenCalled();
+    })
+  });
 });

@@ -1,4 +1,4 @@
-describe('policies.wizard.service.model-service', function () {
+describe('policies.service.model-service', function () {
   beforeEach(module('webApp'));
 
   var service, ModalMock = null;

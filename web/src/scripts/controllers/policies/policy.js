@@ -113,8 +113,9 @@
             if (error.data.message) {
               PolicyModelFactory.setError(error.data.message);
             }
-            else
+            else {
               PolicyModelFactory.setError(error.data);
+            }
           }
           defer.reject();
         });
@@ -147,10 +148,14 @@
         if (vm.editionMode) {
           PolicyFactory.savePolicy(finalJSON).then(function () {
             defer.resolve();
+          }, function (error) {
+            defer.reject(error)
           });
         } else {
           PolicyFactory.createPolicy(finalJSON).then(function () {
             defer.resolve();
+          }, function (error) {
+            defer.reject(error)
           });
         }
       });

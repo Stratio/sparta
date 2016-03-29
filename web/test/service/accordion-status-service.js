@@ -1,4 +1,4 @@
-describe('policies.wizard.service.accordion-status-service', function () {
+describe('policies.service.accordion-status-service', function () {
   beforeEach(module('webApp'));
 
   var service = null;
@@ -47,11 +47,11 @@ describe('policies.wizard.service.accordion-status-service', function () {
     it("accordion status length is adjusted to the new length if the new length is minor than accordion status one", function () {
       var oldLength = 5;
       var newLength = 3;
-      var resetAccordionStatus = service.resetAccordionStatus(angular.copy(accordionStatus), oldLength);
+      service.resetAccordionStatus(angular.copy(accordionStatus), oldLength);
       var resetAccordionStatus = service.resetAccordionStatus(angular.copy(accordionStatus), newLength);
 
       expect(resetAccordionStatus.length).toBe(newLength + 1);
-    })
+    });
 
     it("if length is minor thant current length, last positions are removing until to have the same length", function () {
       var newLength = 1;
@@ -59,7 +59,7 @@ describe('policies.wizard.service.accordion-status-service', function () {
       var resetAccordionStatus = service.resetAccordionStatus(angular.copy(accordionStatus), newLength);
 
       expect(resetAccordionStatus.length).toBe(newLength + 1);
-    })
+    });
   })
 
 });
