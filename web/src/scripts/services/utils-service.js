@@ -125,15 +125,13 @@
       }
     }
 
-    function subtractFragmentCount(inputTypeList, inputType, filter) {
+    function subtractFragmentCount(inputTypeList, inputType) {
       var newInputCount = $filter('filter')(inputTypeList, {'type': inputType}, true)[0];
       newInputCount.count--;
       if (newInputCount.count === 0) {
         for (var i = 0; i < inputTypeList.length; i++) {
           if (inputTypeList[i].type === inputType) {
             inputTypeList.splice(i, 1);
-            filter.element.type = "";
-            filter.name = "";
           }
         }
       }

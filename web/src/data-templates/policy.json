@@ -153,19 +153,19 @@
     {
       "name": "_POLICY_._STEPS_._INPUT_",
       "icon": "icon-input",
-      "currentMessage": "_INPUT_STEP_MESSAGE_"
+      "currentMessage": "_MESSAGE_._INPUT_STEP_"
     },
     {
       "name": "_POLICY_._STEPS_._TRANSFORMATION_",
       "icon": "icon-content-left",
-      "currentMessage": "_TRANSFORMATION_STEP_MESSAGE_",
-      "availableMessage": "_TRANSFORMATION_STEP_AVAILABLE_"
+      "currentMessage": "_MESSAGE_._TRANSFORMATION_STEP_",
+      "availableMessage": "_MESSAGE_._TRANSFORMATION_STEP_AVAILABLE_"
     },
     {
       "name": "_POLICY_._STEPS_._CUBES_",
       "icon": "icon-box",
-      "currentMessage": "_CUBE_STEP_MESSAGE_",
-      "availableMessage": "_CUBE_STEP_AVAILABLE_"
+      "currentMessage": "_MESSAGE_._CUBE_STEP_",
+      "availableMessage": "_MESSAGE_._CUBE_STEP_AVAILABLE_"
     }
   ],
   "helpLinks": [

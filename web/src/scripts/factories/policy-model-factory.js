@@ -132,8 +132,10 @@
       return error;
     }
 
-    function setError(_error) {
-      error.text = _error;
+    function setError(text, type,subErrors) {
+      error.text = text;
+      error.type = type;
+      error.subErrors = subErrors;
     }
 
     return {

@@ -41,8 +41,8 @@
           vm.status = WizardStatusService.getStatus();
           if (vm.policy && vm.status.currentStep == 0) {
             vm.steps = PolicyModelFactory.getTemplate().steps;
-            vm.successfullySentPolicy = false;
             vm.error = PolicyModelFactory.getError();
+            vm.successfullySentPolicy = false;
             vm.showStepNavigation = true;
           }
           else {
@@ -86,7 +86,7 @@
     }
 
     function closeErrorMessage() {
-      PolicyModelFactory.setError(null);
+      PolicyModelFactory.setError();
     }
 
     function confirmPolicy() {
@@ -110,12 +110,7 @@
           defer.resolve();
         }, function (error) {
           if (error) {
-            if (error.data.message) {
-              PolicyModelFactory.setError(error.data.message);
-            }
-            else {
-              PolicyModelFactory.setError(error.data);
-            }
+            PolicyModelFactory.setError("_ERROR_._"+ error.data.i18nCode + "_", "error", error.data.subErrorModels);
           }
           defer.reject();
         });
@@ -149,13 +144,13 @@
           PolicyFactory.savePolicy(finalJSON).then(function () {
             defer.resolve();
           }, function (error) {
-            defer.reject(error)
+            defer.reject(error);
           });
         } else {
           PolicyFactory.createPolicy(finalJSON).then(function () {
             defer.resolve();
           }, function (error) {
-            defer.reject(error)
+            defer.reject(error);
           });
         }
       });
@@ -175,22 +170,12 @@
     }
 
     function onClickNextStep() {
+      PolicyModelFactory.setError();
       if (vm.status.nextStepAvailable) {
         WizardStatusService.nextStep();
       } else {
         $scope.$broadcast('forceValidateForm', 1);
       }
     }
-
-    $scope.$watchCollection(
-      "wizard.error",
-      function (error) {
-        if (error && error.text != "") {
-          $timeout(function () {
-            PolicyModelFactory.setError();
-          }, 6000);
-        }
-      }
-    )
   }
 })();

@@ -120,12 +120,9 @@ class AggregationPolicyTest extends WordSpec with Matchers with MockitoSugar{
     Seq())
 
   "AggregationPoliciesValidator" should {
-
-    "return a tuple (True, ) if the policy is well formed" in {
-      val res = AggregationPoliciesValidator.validateDto(policy)
-      res should be((true, ""))
+    "non throw an exception if the policy is well formed" in {
+      AggregationPoliciesValidator.validateDto(policy)
     }
-
   }
 }
 

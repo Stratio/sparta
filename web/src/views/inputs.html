@@ -35,10 +35,12 @@
       </button>
     </div>
     </aside>
-    <div class="c-row c-msg c-msg--small c-msg--error c-msg--bottom-margin" data-ng-if="inputs.error" data-qa="manage-policies-error-msg">
-      <i class="c-icon icon-circle-cross"></i>
-      <span translate="{{inputs.errorMessage}}"></span>
-    </div>
+
+    <!-- Error message -->
+    <c-animated-msg data-msg="inputs.errorMessage" data-on-click-close-msg="inputs.deleteErrorMessage()"  data-qa="manage-policies-error-msg"
+                    data-timeout=6000>
+    </c-animated-msg>
+
     <ul br-ba-container="c-grid">
       <li class="c-grid-item" data-ng-repeat="input in  filteredInputsData = (inputs.inputsData
 			| filter:{'element':{'type':inputs.filters.element.type || undefined}}:true | filter:{ 'name': inputs.filters.name})" br-ba-item="{index:$index, total:filteredInputsData.length}">

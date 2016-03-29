@@ -88,7 +88,7 @@
     function isValidTrigger(trigger, triggers, position) {
       var isValid = trigger.name != "" && trigger.sql != "" && !nameExists(trigger, triggers, position);
       if (!isValid) {
-        error.text = "_GENERIC_FORM_ERROR_";
+        error.text = "_ERROR_._GENERIC_FORM_";
       } else {
         error.text = "";
       }
