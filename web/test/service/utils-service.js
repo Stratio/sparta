@@ -1,4 +1,4 @@
-describe('policies.wizard.service.utils-service', function () {
+describe('policies.service.utils-service', function () {
   beforeEach(module('webApp'));
 
   var service = null;
@@ -202,7 +202,7 @@ describe('policies.wizard.service.utils-service', function () {
       expect(result[0]).toBe(inputString[0].toLowerCase());
     });
 
-    it ("should split the string using the separator is introduced as param", function(){
+    it("should split the string using the separator is introduced as param", function () {
       var result = service.getInCamelCase(inputString, ' ', false);
 
       expect(result).toBe(inputString);
@@ -212,7 +212,7 @@ describe('policies.wizard.service.utils-service', function () {
       expect(result).toBe('aFakeString');
     });
 
-    it ("if introduced string or separator are not introduced, string is returned without any change", function(){
+    it("if introduced string or separator are not introduced, string is returned without any change", function () {
       var result = service.getInCamelCase(null, null, false);
 
       expect(result).toBe(null);
@@ -224,7 +224,26 @@ describe('policies.wizard.service.utils-service', function () {
       var result = service.getInCamelCase(null, '_', false);
 
       expect(result).toBe(null);
-
     })
   });
+
+  describe("it should be able  to generate an option list from an array of strings", function () {
+
+    it("if input array is valid, it converts it into an option list", function() {
+      var inputArray = ["option 1", "option 2", "option 3"];
+      var expectedOptionList = [{label: inputArray[0], value: inputArray[0]},
+        {label: inputArray[1], value: inputArray[1]},
+        {label: inputArray[2], value: inputArray[2]}];
+
+      expect(service.generateOptionListFromStringArray(inputArray)).toEqual(expectedOptionList);
+    });
+
+    it ("if input array is invalid, it returns an empty array", function(){
+      expect(service.generateOptionListFromStringArray()).toEqual([]);
+      expect(service.generateOptionListFromStringArray(null)).toEqual([]);
+      expect(service.generateOptionListFromStringArray(undefined)).toEqual([]);
+      expect(service.generateOptionListFromStringArray([])).toEqual([]);
+    });
+
+  })
 });

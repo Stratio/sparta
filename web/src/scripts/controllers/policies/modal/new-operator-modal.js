@@ -21,25 +21,25 @@
     .module('webApp')
     .controller('NewOperatorModalCtrl', NewOperatorModalCtrl);
 
-  NewOperatorModalCtrl.$inject = ['$modalInstance', 'operatorName', 'operatorType', 'operators', 'UtilsService', 'template'];
+  NewOperatorModalCtrl.$inject = ['$modalInstance', 'operatorName', 'operatorType', 'operators', 'UtilsService', 'template', 'inputFieldList'];
 
-  function NewOperatorModalCtrl($modalInstance, operatorName, operatorType, operators, UtilsService, template) {
+  function NewOperatorModalCtrl($modalInstance, operatorName, operatorType, operators, UtilsService, template, inputFieldList) {
     /*jshint validthis: true*/
     var vm = this;
 
     vm.ok = ok;
     vm.cancel = cancel;
-
+    vm.isCount = isCount;
     init();
 
     function init() {
       vm.operator = {};
       vm.operator.name = operatorName;
-      vm.operator.configuration = "";
+      vm.operator.configuration = {};
       vm.operator.type = operatorType;
       vm.configHelpLink = template.configurationHelpLink;
       vm.nameError = "";
-      setDefaultConfiguration();
+      vm.inputFieldList = UtilsService.generateOptionListFromStringArray(inputFieldList);
     }
 
     ///////////////////////////////////////
@@ -54,17 +54,15 @@
       return repeated;
     }
 
-    function setDefaultConfiguration() {
-      var defaultConfiguration = {};
-      var countType = template.functionNames[2];
-      if (vm.operator.type !== countType) {
-        defaultConfiguration = template.defaultOperatorConfiguration;
-      }
-      vm.operator.configuration = defaultConfiguration;
+    function isCount() {
+      return vm.operator.type == template.functionNames[2]
     }
 
     function ok() {
       vm.nameError = "";
+      if(vm.operator.configuration.inputField == ''){
+        delete vm.operator.configuration.inputField
+      }
       if (vm.form.$valid) {
         if (!isRepeated()) {
           $modalInstance.close(vm.operator);

@@ -35,6 +35,7 @@
     vm.convertDottedPropertiesToJson = convertDottedPropertiesToJson;
     vm.getFilteredJSONByArray = getFilteredJSONByArray;
     vm.removeDuplicatedJSONs = removeDuplicatedJSONs;
+    vm.generateOptionListFromStringArray = generateOptionListFromStringArray;
 
     function findElementInJSONArray(array, element, attr) {
       var found = false;
@@ -203,6 +204,16 @@
         }
       }
       return resultArray;
+    }
+
+    function generateOptionListFromStringArray(array) {
+      var optionList = [];
+      if (array) {
+        for (var i = 0; i < array.length; ++i) {
+          optionList.push({"label": array[i], "value": array[i]});
+        }
+      }
+      return optionList;
     }
   }
 })
