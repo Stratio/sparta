@@ -131,6 +131,9 @@
         },
         template: function () {
           return vm.template;
+        },
+        inputFieldList: function(){
+          return  vm.outputList;
         }
       };
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve, extraClass, size);
