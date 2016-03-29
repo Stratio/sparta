@@ -321,7 +321,7 @@
           ],
           "operators": [
             {
-              "type": "Avg",
+              "type": "Mean",
               "name": "avg1",
               "configuration": {
                 "inputField": "field1"
@@ -438,7 +438,7 @@
           ],
           "operators": [
             {
-              "type": "Avg",
+              "type": "Mean",
               "name": "avg1",
               "configuration": {
                 "inputField": "field1"
@@ -462,7 +462,7 @@
           ],
           "operators": [
             {
-              "type": "Avg",
+              "type": "Mean",
               "name": "avg1",
               "configuration": {
                 "inputField": "field1"

@@ -195,11 +195,13 @@ trait CassandraDAO extends Closeable with Logging {
 
   protected def pkConditions(field: StructField, clusteringTime: Option[String]): Boolean =
     !field.nullable &&
+      !field.metadata.contains(Output.MeasureMetadataKey) &&
       field.name != clusteringTime.getOrElse("") &&
       clusteringPrecisions.forall(!_.contains(field.name))
 
   protected def clusteringConditions(field: StructField, clusteringTime: Option[String]): Boolean =
     !field.nullable &&
+      !field.metadata.contains(Output.MeasureMetadataKey) &&
       (field.name == clusteringTime.getOrElse("") ||
         clusteringPrecisions.exists(_.contains(field.name)))
 

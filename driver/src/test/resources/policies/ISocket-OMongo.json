@@ -65,7 +65,7 @@
       }
     }, {
       "name": "avg-operator",
-      "type": "Avg",
+      "type": "Mean",
       "configuration": {
         "inputField": "price"
       }

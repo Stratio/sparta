@@ -38,7 +38,8 @@ with OperatorProcessMapAsNumber {
     val valuesFiltered = getDistinctValues(values.flatten)
     valuesFiltered.size match {
       case (nz) if nz != 0 =>
-        val valuesConverted = valuesFiltered.map(_.asInstanceOf[Number].doubleValue())
+        val valuesConverted = valuesFiltered.map(value =>
+          TypeOp.transformValueByTypeOp(TypeOp.Double, value).asInstanceOf[Double])
         Some(transformValueByTypeOp(returnType, valuesConverted.max - valuesConverted.min))
       case _ => Some(Operator.Zero.toDouble)
     }

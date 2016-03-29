@@ -44,7 +44,8 @@ with OperatorProcessMapAsNumber with Associative {
   def associativity(values: Iterable[(String, Option[Any])]): Option[Double] = {
     val newValues = extractValues(values, None)
 
-    Try(Option(transformValueByTypeOp(returnType, newValues.map(_.asInstanceOf[Number].doubleValue()).min)))
+    Try(Option(transformValueByTypeOp(returnType, newValues.map(value =>
+      TypeOp.transformValueByTypeOp(TypeOp.Double, value).asInstanceOf[Double]).min)))
       .getOrElse(Option(Operator.Zero.toDouble))
   }
 }

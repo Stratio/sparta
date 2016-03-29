@@ -40,7 +40,7 @@ with OperatorProcessMapAsAny with Associative {
     Try(Option(values.flatten.flatMap(value => {
       value match {
         case value if value.isInstanceOf[Seq[Any]] => value.asInstanceOf[Seq[Any]].map(_.toString)
-        case _ => Seq(value.toString)
+        case _ => Seq(TypeOp.transformValueByTypeOp(TypeOp.String, value).asInstanceOf[String])
       }
     }))).getOrElse(None)
 
