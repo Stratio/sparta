@@ -72,7 +72,8 @@ Feature: Test adding a new Parquet output in Sparta GUI
 		# Create
 		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
 		When I click on the element on index '0'
-		Then '1' element exists with 'css:span[translate="_INPUT_ERROR_100_"]'
+		Then '1' element exists with 'css:span[translate="_ERROR_._100_"]'
+                And a text 'There was an error. The name of the fragment already exists!' exists
 		
 		# Cancel operation
 		Given '1' element exists with 'css:button[data-qa="modal-cancel-button"]'

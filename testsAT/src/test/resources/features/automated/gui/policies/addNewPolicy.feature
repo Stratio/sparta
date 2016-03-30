@@ -103,7 +103,7 @@ Feature: Test adding a new policy in Sparta GUI
 		Given '1' elements exist with 'css:div[data-qa^="policy-input-item"]'
 		And '1' element exists with 'css:button[data-qa="policy-next-step-button"]'
 		When I click on the element on index '0'
-		Then '1' element exists with 'css:div[data-qa^="error-msg"]'
+		Then '1' element exists with 'css:div[data-qa="error-msg"]'
 		
 		# Screen 2/6 (1 input available)
 		Given '1' element exists with 'css:div[data-qa="policy-input-item-!{previousFragmentID}"]'
@@ -115,7 +115,7 @@ Feature: Test adding a new policy in Sparta GUI
 		# Try to go to cubes
 		Given '1' element exists with 'css:button[data-qa="policy-next-step-button"]'
 		When I click on the element on index '0'
-		Then '1' element exists with 'css:div[data-qa="error-msg"]'
+		Then '2' element exists with 'css:div[data-qa="error-msg"]'
 		
 		# Try ingestion with empty output fields
 		Given '1' element exists with 'css:aside[item-qa-tag="policy-model"]'

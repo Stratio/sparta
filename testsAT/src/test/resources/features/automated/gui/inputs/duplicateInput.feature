@@ -49,7 +49,8 @@ Feature: Test duplicating an input in Sparta GUI
 		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
 		When I click on the element on index '0'
 		Then '1' elements exist with 'css:div[data-qa="error-msg"]'
-		And '1' elements exist with 'css:span[translate="_INPUT_ERROR_100_"]'
+		And '1' element exists with 'css:span[translate="_ERROR_._100_"]'
+                And a text 'There was an error. The name of the fragment already exists!' exists
 		
 		# Try with valid name
 		Given '1' element exists with 'css:input[data-qa="duplicate-modal-name"]'
