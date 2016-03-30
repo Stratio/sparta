@@ -30,7 +30,7 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		| outputs | DELETE | N/A |	
-		Then the service response status must be '500' and its response must contain the text 'It is mandatory to define at least one output in the policy.'
+		Then the service response status must be '404' and its response must contain the text 'The policy needs at least one output'
 		
 	Scenario: Add a policyContext with non-existing fragment
 		When I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
