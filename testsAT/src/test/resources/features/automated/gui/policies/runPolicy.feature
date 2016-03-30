@@ -73,7 +73,7 @@ Feature: Test running a policy in Sparta GUI
 		When I click on the element on index '0'
 		And I wait '1' second
 		Then a text 'is running!' exists
-	    And I wait '5' seconds
+	    	And I wait '5' seconds
 		
 		Given '1' element exists with 'css:i[data-qa="policy-context-menu-!{previousPolicyID}"]'
 		And I click on the element on index '0'

@@ -66,8 +66,6 @@ Feature: Test deleting a policy in Sparta GUI
 		# Check that policyContext has disappeared
 		When I send a 'GET' request to '/policyContext'
 		Then the service response status must be '200'.
-		And the service response must NOT contain the text '!{previousPolicyID}'
-
 		
 		Scenario: Delete fragments
 		When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
