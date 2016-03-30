@@ -80,10 +80,10 @@
 
     $scope.$on("forceValidateForm", function () {
       if (vm.policy.transformations.length == 0) {
-        PolicyModelFactory.setError("_TRANSFORMATION_STEP_MESSAGE_");
+        PolicyModelFactory.setError("_ERROR_._TRANSFORMATION_STEP_", "error");
       } else {
         if (vm.isActiveModelCreationPanel() || vm.isActiveTriggerCreationPanel()) {
-          PolicyModelFactory.setError("_CHANGES_WITHOUT_SAVING_ERROR_");
+          PolicyModelFactory.setError("_ERROR_._CHANGES_WITHOUT_SAVING_", "error");
         }
       }
       if (vm.isActiveModelCreationPanel()) {

@@ -178,14 +178,12 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath) {
       post {
         entity(as[AggregationPoliciesModel]) { policy =>
-          val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(getPolicyWithFragments(policy))
-          validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-            complete {
-              val future = supervisor ? new Create(policy)
-              Await.result(future, timeout.duration) match {
-                case ResponsePolicy(Failure(exception)) => throw exception
-                case ResponsePolicy(Success(pol)) => pol
-              }
+          AggregationPoliciesValidator.validateDto(getPolicyWithFragments(policy))
+          complete {
+            val future = supervisor ? new Create(policy)
+            Await.result(future, timeout.duration) match {
+              case ResponsePolicy(Failure(exception)) => throw exception
+              case ResponsePolicy(Success(pol)) => pol
             }
           }
         }
@@ -207,14 +205,12 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath) {
       put {
         entity(as[AggregationPoliciesModel]) { policy =>
-          val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(getPolicyWithFragments(policy))
-          validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-            complete {
-              val future = supervisor ? new Update(policy)
-              Await.result(future, timeout.duration) match {
-                case Response(Failure(exception)) => throw exception
-                case Response(Success(_)) => HttpResponse(StatusCodes.OK)
-              }
+          AggregationPoliciesValidator.validateDto(getPolicyWithFragments(policy))
+          complete {
+            val future = supervisor ? new Update(policy)
+            Await.result(future, timeout.duration) match {
+              case Response(Failure(exception)) => throw exception
+              case Response(Success(_)) => HttpResponse(StatusCodes.OK)
             }
           }
         }
@@ -278,15 +274,13 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
           case ResponsePolicy(Failure(exception)) => throw exception
           case ResponsePolicy(Success(policy)) => {
             val parsedP = getPolicyWithFragments(policy)
-            val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
-            validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-              complete {
-                val response = actors.get(AkkaConstant.SparkStreamingContextActor).get ?
-                  SparkStreamingContextActor.Create(parsedP)
-                Await.result(response, timeout.duration) match {
-                  case Failure(ex) => throw ex
-                  case Success(_) => new Result("Creating new context with name " + policy.name)
-                }
+            AggregationPoliciesValidator.validateDto(parsedP)
+            complete {
+              val response = actors.get(AkkaConstant.SparkStreamingContextActor).get ?
+                SparkStreamingContextActor.Create(parsedP)
+              Await.result(response, timeout.duration) match {
+                case Failure(ex) => throw ex
+                case Success(_) => new Result("Creating new context with name " + policy.name)
               }
             }
           }
@@ -319,14 +313,12 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
           case ResponsePolicy(Failure(exception)) => throw exception
           case ResponsePolicy(Success(policy)) => {
             val policyFragments = getPolicyWithFragments(policy)
-            val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(policyFragments)
-            validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-              val tempFile = File.createTempFile(s"${policy.id.get}-${policy.name}-", ".json")
-              tempFile.deleteOnExit()
-              respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> s"${policy.name}.json"))) {
-                scala.tools.nsc.io.File(tempFile).writeAll(write(policy))
-                getFromFile(tempFile)
-              }
+            AggregationPoliciesValidator.validateDto(policyFragments)
+            val tempFile = File.createTempFile(s"${policy.id.get}-${policy.name}-", ".json")
+            tempFile.deleteOnExit()
+            respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> s"${policy.name}.json"))) {
+              scala.tools.nsc.io.File(tempFile).writeAll(write(policy))
+              getFromFile(tempFile)
             }
           }
         }

@@ -113,7 +113,7 @@ describe('policies.wizard.controller.policies-controller', function () {
         expect(policyFactoryMock.getPoliciesStatus).not.toHaveBeenCalled();
       }));
 
-      it("If server connection fails to ask for the policy list, the error is shown during 3 seconds and policy status are not requested", inject(function ($controller) {
+      it("If server connection fails to ask for the policy list, the error is shown and policy status are not requested", inject(function ($controller) {
         policyFactoryMock.getAllPolicies.and.callFake(rejectedPromise);
         ctrl = $controller('PolicyListCtrl', {
           'WizardStatusService': wizardStatusServiceMock,
@@ -126,11 +126,8 @@ describe('policies.wizard.controller.policies-controller', function () {
 
         scope.$digest();
 
-        expect(ctrl.successMessage).toBe('_INPUT_ERROR_' + fakeError.data.i18nCode + '_');
+        expect(ctrl.successMessage.text).toBe('_ERROR_._' + fakeError.data.i18nCode + '_');
         expect(policyFactoryMock.getPoliciesStatus).not.toHaveBeenCalled();
-
-        $timeout.flush(3000);
-        expect(ctrl.successMessage).toBe('');
       }));
 
       describe("each 5 seconds, it should update the status of policies", function () {

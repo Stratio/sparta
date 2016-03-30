@@ -121,35 +121,4 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
     Then("the exception must have the message")
     assert(thrown.getMessage === "Only one input is allowed in the policy.")
   }
-
-  scenario("A policy that no contains outputs must throw an exception.") {
-    Given("a policy with an input and no outputs")
-    val checkpointDir = "checkpoint"
-
-    val ap = new AggregationPoliciesModel(
-      id = None,
-      version = None,
-      storageLevel,
-      "policy-test",
-      "policy description",
-      sparkStreamingWindow = AggregationPoliciesModel.sparkStreamingWindow,
-      checkpointDir,
-      new RawDataModel(),
-      transformations = Seq(),
-      streamTriggers = Seq(),
-      cubes = Seq(),
-      input = Some(PolicyElementModel("input1", "input", Map())),
-      outputs = Seq(),
-      fragments = Seq(),
-      userPluginsJars = Seq.empty[String]
-    )
-
-    When("the helper tries to parse the policy it throws an exception")
-    val thrown = intercept[IllegalStateException] {
-      PolicyHelper.parseFragments(ap)
-    }
-
-    Then("the exception must have the message")
-    assert(thrown.getMessage === "It is mandatory to define at least one output in the policy.")
-  }
 }

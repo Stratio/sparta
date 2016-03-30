@@ -110,7 +110,7 @@ describe('policies.wizard.controller.policy-model-controller', function () {
       ctrl.addModel();
 
       expect(modelServiceMock.addModel).not.toHaveBeenCalled();
-      expect(modelFactoryMock.setError).toHaveBeenCalledWith("_GENERIC_FORM_ERROR_");
+      expect(modelFactoryMock.setError).toHaveBeenCalledWith("_ERROR_._GENERIC_FORM_");
     });
 
     it("model is added if view validations have been passed", function () {

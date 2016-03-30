@@ -152,25 +152,20 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
   });
 
   describe("Should be able to respond to an event to force the validations of current forms", function () {
-    it("if cube array is empty, policy error is updated to 'at least one cube is needed'", function () {
-      ctrl.policy.cubes = [];
-      scope.$broadcast("forceValidateForm");
 
-      expect(policyModelFactoryMock.setError).toHaveBeenCalledWith('_CUBE_STEP_MESSAGE_');
-    });
-    it("if cube array is not empty, but user is creating a cube, policy error is updated to warn user about saving his changes'", function () {
+    it("if user is creating a cube, policy error is updated to warn user about saving his changes'", function () {
       ctrl.policy.cubes = [fakeCube];
       ctrl.isActiveCubeCreationPanel.and.returnValue(true);
 
       scope.$broadcast("forceValidateForm");
 
-      expect(policyModelFactoryMock.setError).toHaveBeenCalledWith('_CHANGES_WITHOUT_SAVING_ERROR_');
+      expect(policyModelFactoryMock.setError).toHaveBeenCalledWith('_ERROR_._CHANGES_WITHOUT_SAVING_', 'error');
 
       ctrl.isActiveCubeCreationPanel.and.returnValue(false);
 
       scope.$broadcast("forceValidateForm");
 
-      expect(policyModelFactoryMock.setError).toHaveBeenCalledWith('_CHANGES_WITHOUT_SAVING_ERROR_');
+      expect(policyModelFactoryMock.setError).toHaveBeenCalledWith('_ERROR_._CHANGES_WITHOUT_SAVING_', 'error');
     });
 
     it("if cube creation are activated, creation panel is opened", function(){

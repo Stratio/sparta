@@ -43,7 +43,7 @@
             vm.outputs.policies = policiesAffected;
 
             setTexts(item.texts);
-        };
+        }
 
         function setPoliciesRunning(policiesList) {
           for (var i=0; i < policiesList.length; i++) {
@@ -52,7 +52,7 @@
               vm.policiesRunning.push(policy);
             }
           }
-        };
+        }
 
         function setTexts(texts) {
           vm.modalTexts = {};
@@ -69,7 +69,7 @@
           else {
             vm.modalTexts.mainText = texts.mainText;
           }
-        };
+        }
 
         function ok() {
             var fragmentToDelete = FragmentFactory.deleteFragment(vm.outputs.type, vm.outputs.id);
@@ -79,13 +79,13 @@
 
             },function (error) {
                 vm.error = true;
-                vm.errorText = "_INPUT_ERROR_" + error.data.i18nCode + "_";
+                vm.errorText = "_ERROR_._" + error.data.i18nCode + "_";
             });
-        };
+        }
 
         function cancel() {
             $modalInstance.dismiss('cancel');
-        };
-    };
+        }
+    }
 
 })();

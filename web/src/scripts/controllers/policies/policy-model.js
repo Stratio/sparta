@@ -76,7 +76,7 @@
         ModelService.addModel();
         ModelService.changeModelCreationPanelVisibility(false);
       } else {
-        ModelFactory.setError("_GENERIC_FORM_ERROR_");
+        ModelFactory.setError("_ERROR_._GENERIC_FORM_");
       }
     }
 

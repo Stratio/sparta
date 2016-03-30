@@ -187,7 +187,7 @@
         vm.triggerAccordionStatus[vm.triggerAccordionStatus.length] = true;
         if (vm.form['vm.form'].$valid && vm.isActiveTriggerCreationPanel()) {
           valid = false;
-          vm.triggerError = "_TRIGGER_WITHOUT_SAVE_";
+          vm.triggerError = "_ERROR_._TRIGGER_WITHOUT_SAVE_";
           vm.form['vm.form'].$setSubmitted(false);
         }
       }

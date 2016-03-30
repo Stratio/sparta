@@ -37,14 +37,14 @@ describe('policies.factories.request-interceptor-factory', function () {
     rootScope.$digest();
     httpBackend.flush();
     expect(factory.responseError).toHaveBeenCalled();
-    expect(rootScope.error).toBe("_UNAVAILABLE_SERVER_ERROR_");
+    expect(rootScope.error).toBe("_ERROR_._UNAVAILABLE_SERVER_");
 
     httpBackend.when('GET', '/fragment/input/' + fragmentTypeIdJSON.id).respond(503);
     srv.getFragmentById().get(fragmentTypeIdJSON);
     rootScope.$digest();
     httpBackend.flush();
     expect(factory.responseError).toHaveBeenCalled();
-    expect(rootScope.error).toBe("_UNAVAILABLE_SERVER_ERROR_");
+    expect(rootScope.error).toBe("_ERROR_._UNAVAILABLE_SERVER_");
   });
 
   it("should be able to redirect to root path when a http request responds with a 401 code", function () {

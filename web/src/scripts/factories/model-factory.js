@@ -75,7 +75,7 @@
     function isValidModel() {
       var isValid = model.inputField != "" && model.outputFields.length > 0 && model.type != "";
       if (!isValid) {
-        error.text = "_GENERIC_FORM_ERROR_";
+        error.text = "_ERROR_._GENERIC_FORM_";
       } else  error.text = "";
       return isValid;
     }

@@ -71,7 +71,7 @@
         WizardStatusService.nextStep();
       }
       else {
-        PolicyModelFactory.setError("_POLICY_._INPUTS_ERROR_");
+        PolicyModelFactory.setError("_ERROR_._POLICY_INPUTS_", "error");
       }
     }
 

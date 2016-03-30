@@ -29,7 +29,7 @@
           case 0:
           case 503:
           {
-            $rootScope.error = "_UNAVAILABLE_SERVER_ERROR_";
+            $rootScope.error = "_ERROR_._UNAVAILABLE_SERVER_";
             break;
           }
           case 401:

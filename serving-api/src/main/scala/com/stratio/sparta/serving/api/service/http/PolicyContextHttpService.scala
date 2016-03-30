@@ -112,27 +112,25 @@ trait PolicyContextHttpService extends BaseHttpService {
       post {
         entity(as[AggregationPoliciesModel]) { p =>
           val parsedP = getPolicyWithFragments(p)
-          val isValidAndMessageTuple = AggregationPoliciesValidator.validateDto(parsedP)
+          AggregationPoliciesValidator.validateDto(parsedP)
           val fragmentActor: ActorRef = actors.getOrElse(AkkaConstant.FragmentActor, throw new ServingCoreException
           (ErrorModel.toString(ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor"))))
-          validate(isValidAndMessageTuple._1, isValidAndMessageTuple._2) {
-            complete {
-              for {
-                policyResponseTry <- (supervisor ? SparkStreamingContextActor.Create(parsedP))
-                  .mapTo[Try[AggregationPoliciesModel]]
-              } yield {
-                policyResponseTry match {
-                  case Success(policy) =>
-                    val inputs = PolicyHelper.populateFragmentFromPolicy(policy, FragmentType.input)
-                    val outputs = PolicyHelper.populateFragmentFromPolicy(policy, FragmentType.output)
-                    createFragments(fragmentActor, outputs.toList ::: inputs.toList)
-                    PolicyResult(policy.id.getOrElse(""), p.name)
-                  case Failure(ex: Throwable) => {
-                    log.error("Can't create policy", ex)
-                    throw new ServingCoreException(ErrorModel.toString(
-                      ErrorModel(ErrorModel.CodeErrorCreatingPolicy, "Can't create policy")
-                    ))
-                  }
+          complete {
+            for {
+              policyResponseTry <- (supervisor ? SparkStreamingContextActor.Create(parsedP))
+                .mapTo[Try[AggregationPoliciesModel]]
+            } yield {
+              policyResponseTry match {
+                case Success(policy) =>
+                  val inputs = PolicyHelper.populateFragmentFromPolicy(policy, FragmentType.input)
+                  val outputs = PolicyHelper.populateFragmentFromPolicy(policy, FragmentType.output)
+                  createFragments(fragmentActor, outputs.toList ::: inputs.toList)
+                  PolicyResult(policy.id.getOrElse(""), p.name)
+                case Failure(ex: Throwable) => {
+                  log.error("Can't create policy", ex)
+                  throw new ServingCoreException(ErrorModel.toString(
+                    ErrorModel(ErrorModel.CodeErrorCreatingPolicy, "Can't create policy")
+                  ))
                 }
               }
             }
