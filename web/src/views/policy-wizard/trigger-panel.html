@@ -67,7 +67,7 @@
             <span class="c-icon-link__text c-icon-link__text--is-link">{{'_INPUT_WINDOW_NEW_HELP_' | translate}}</span>
           </a>
       </div>
-      <form-field-select data-form="vm.form" data-st-name="trigger-outputs" data-model="vm.selectedPolicyOutput" data-options="vm.policyOutputList" data-field="label" data-label="{{'_OUTPUTS_' | translate}}" data-help="" data-required="false" data-qa="trigger-output-select" data-ng-click="vm.addOutput()">
+      <form-field-select data-form="vm.form" data-st-name="trigger-outputs" data-model="vm.selectedPolicyOutput" data-options="vm.policyOutputList" data-field="label" data-label="{{'_OUTPUTS_' | translate}}" data-help="" data-required="vm.trigger.outputs.length == 0" data-qa="trigger-output-select" data-ng-click="vm.addOutput()">
       </form-field-select>
       <c-tag-list name="trigger-outputs" form-control-class="" data-tags="vm.trigger.outputs"
         label-control-class="'c-label c-col'"
