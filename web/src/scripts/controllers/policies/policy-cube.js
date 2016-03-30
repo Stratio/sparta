@@ -22,10 +22,10 @@
     .controller('CubeCtrl', CubeCtrl);
 
   CubeCtrl.$inject = ['CubeModelFactory', 'CubeService', 'OutputService', 'PolicyModelFactory', 'ModalService',
-    'TriggerService', 'triggerConstants', '$scope'];
+    'TriggerService', 'triggerConstants', '$scope', '$window'];
 
   function CubeCtrl(CubeModelFactory, CubeService, OutputService, PolicyModelFactory, ModalService,
-                    TriggerService, triggerConstants, $scope) {
+                    TriggerService, triggerConstants, $scope, $window) {
     var vm = this;
 
     vm.init = init;
@@ -191,19 +191,17 @@
           vm.form['vm.form'].$setSubmitted(false);
         }
       }
-      if (vm.form.$valid && vm.cube.operators.length > 0 && vm.cube.dimensions.length > 0 && vm.cube['writer.outputs'].length > 0) {
+      if (vm.form.$valid && vm.cube.operators.length > 0 && vm.cube.dimensions.length > 0) {
         vm.form.$submitted = false;
-
       } else {
         valid = false;
         CubeModelFactory.setError();
-        if (vm.cube['writer.outputs'].length === 0) {
-          document.querySelector('#cubeOutputs').focus();
-        }
       }
       if (valid) {
         CubeService.addCube();
         CubeService.changeCubeCreationPanelVisibility(false);
+      }else{
+        $window.scrollTo(0,   document.querySelector('.ng-invalid')[0]);
       }
     }
 
