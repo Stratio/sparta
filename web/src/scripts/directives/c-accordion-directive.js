@@ -35,10 +35,10 @@
         onChangeOpenedElement: "&",
         itemQaTag: "@",
         showNewItemPanel: "=",
-        accordionStatus:"=",
-        itemAttributeInHeader:"@",
+        accordionStatus: "=",
+        itemAttributeInHeader: "@",
         newItemHeader: "@",
-        additionalModifierClass:"@",
+        additionalModifierClass: "@",
         width: '@'
       },
       replace: "true",
@@ -59,7 +59,7 @@
         "items",
         function (newItems, oldItems) {
           // reset if item is added to items
-          if (newItems.length != oldItems.length) {
+          if (newItems.length != oldItems.length || newItems != oldItems) {
             AccordionStatusService.resetAccordionStatus(scope.accordionStatus, scope.items.length, scope.items.length);
           }
         });
@@ -69,7 +69,7 @@
         function () {
           if (scope.accordionStatus) {
             var selectedItemPosition = scope.accordionStatus.indexOf(true);
-            scope.onChangeOpenedElement({selectedItemPosition:selectedItemPosition});
+            scope.onChangeOpenedElement({selectedItemPosition: selectedItemPosition});
           }
         });
     }

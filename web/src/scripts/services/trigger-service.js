@@ -115,11 +115,9 @@
     function saveTrigger(triggerForm) {
       triggerForm.$submitted = true;
       var trigger = angular.copy(TriggerModelFactory.getTrigger());
-      if (TriggerModelFactory.isValidTrigger(trigger, triggerContainer, TriggerModelFactory.getContext().position)) {
+      if (triggerForm.$valid && TriggerModelFactory.isValidTrigger(trigger, triggerContainer, TriggerModelFactory.getContext().position)) {
         triggerForm.$submitted = false;
         triggerContainer[TriggerModelFactory.getContext().position] = trigger;
-      } else {
-        TriggerModelFactory.setError();
       }
     }
 

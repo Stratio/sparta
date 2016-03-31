@@ -694,6 +694,7 @@
           "width": 6,
           "position": "left",
           "required": true,
+          "tooltip": "This number has to be multiple of the window batch defined in policy settings",
           "qa": "trigger-overLastNumber"
         },
         {

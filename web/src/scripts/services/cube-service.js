@@ -119,13 +119,15 @@
       return found;
     }
 
-    function addCube() {
+    function addCube(cubeForm) {
       var newCube = angular.copy(CubeModelFactory.getCube());
-      newCube = UtilsService.convertDottedPropertiesToJson(newCube);
       if (CubeModelFactory.isValidCube(newCube, vm.policy.cubes, CubeModelFactory.getContext().position)) {
+        newCube = UtilsService.convertDottedPropertiesToJson(newCube);
         vm.policy.cubes.push(newCube);
         createdCubes++;
         WizardStatusService.enableNextStep();
+        changeCubeCreationPanelVisibility(false);
+        cubeForm.$submitted = false;
       } else {
         CubeModelFactory.setError();
       }
@@ -134,10 +136,12 @@
     function saveCube(cubeForm) {
       cubeForm.$submitted = true;
       var cube = angular.copy(CubeModelFactory.getCube());
-      cube = UtilsService.convertDottedPropertiesToJson(cube);
       if (CubeModelFactory.isValidCube(cube, vm.policy.cubes, CubeModelFactory.getContext().position)) {
+        cube = UtilsService.convertDottedPropertiesToJson(cube);
         cubeForm.$submitted = false;
         vm.policy.cubes[CubeModelFactory.getContext().position] = cube;
+        changeCubeCreationPanelVisibility(false);
+        cubeForm.$submitted = false;
       } else {
         CubeModelFactory.setError();
       }

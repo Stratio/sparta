@@ -182,22 +182,20 @@ describe('policies.wizard.service.policy-trigger-service', function () {
       triggerContainer = [];
       service.setTriggerContainer(triggerContainer);
     });
-    it("is saved if it is valid and error is hidden", function () {
-      var form = {};
+    it("is saved if it and its form are valid", function () {
+      var form = {$valid: true};
       TriggerModelFactoryMock.isValidTrigger.and.returnValue(true);
       service.saveTrigger(form);
 
       expect(triggerContainer.length).toBe(1);
-      expect(TriggerModelFactoryMock.setError).not.toHaveBeenCalled();
     });
 
-    it("is not saved if it is invalid and error is updated to a generic form error", function () {
-      var form = {};
+    it("is not saved if it is invalid", function () {
+      var form = {$valid: true};
       TriggerModelFactoryMock.isValidTrigger.and.returnValue(false);
       service.saveTrigger(form);
 
       expect(triggerContainer.length).toBe(0);
-      expect(TriggerModelFactoryMock.setError).toHaveBeenCalled();
     });
   });
 
