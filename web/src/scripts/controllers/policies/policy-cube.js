@@ -32,7 +32,7 @@
     vm.addCube = addCube;
     vm.removeCube = CubeService.removeCube;
     vm.isNewCube = CubeService.isNewCube;
-    vm.saveCube = CubeService.saveCube;
+    vm.saveCube = saveCube;
     vm.isActiveTriggerCreationPanel = TriggerService.isActiveTriggerCreationPanel;
     vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
     vm.changeOpenedTrigger = TriggerService.changeOpenedTrigger;
@@ -132,8 +132,8 @@
         template: function () {
           return vm.template;
         },
-        inputFieldList: function(){
-          return  vm.outputList;
+        inputFieldList: function () {
+          return vm.outputList;
         }
       };
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve, extraClass, size);
@@ -177,31 +177,42 @@
       });
     }
 
-    function addCube() {
+    function validateCubeForm() {
+      var isValid = true;
       vm.triggerError = null;
       CubeModelFactory.setError();
-      var valid = true;
       vm.form.$setSubmitted(true);
       if (vm.form['vm.form']) {
         vm.form['vm.form'].$setSubmitted(true);
         vm.triggerAccordionStatus[vm.triggerAccordionStatus.length] = true;
         if (vm.form['vm.form'].$valid && vm.isActiveTriggerCreationPanel()) {
-          valid = false;
+          isValid = false;
           vm.triggerError = "_ERROR_._TRIGGER_WITHOUT_SAVE_";
           vm.form['vm.form'].$setSubmitted(false);
         }
       }
-      if (vm.form.$valid && vm.cube.operators.length > 0 && vm.cube.dimensions.length > 0) {
-        vm.form.$submitted = false;
-      } else {
-        valid = false;
+      if (!vm.form.$valid) {
+        isValid = false;
         CubeModelFactory.setError();
       }
+      var errorElements = $('[class*="error"]');
+      if (errorElements) {
+        $window.scrollTo(0, errorElements[0]);
+      }
+      return isValid;
+    }
+
+    function addCube() {
+      var valid = validateCubeForm();
       if (valid) {
-        CubeService.addCube();
-        CubeService.changeCubeCreationPanelVisibility(false);
-      }else{
-        $window.scrollTo(0,   document.querySelector('.ng-invalid')[0]);
+        CubeService.addCube(vm.form);
+      }
+    }
+
+    function saveCube() {
+      var valid = validateCubeForm();
+      if (valid) {
+        CubeService.saveCube(vm.form);
       }
     }
 

@@ -162,7 +162,8 @@ describe('policies.wizard.service.policy-cube-service', function () {
       beforeEach(function () {
         previousCubeLength = service.policy.cubes.length;
         CubeModelFactoryMock.isValidCube.and.returnValue(true);
-        service.addCube();
+        var form = {$valid: true};
+        service.addCube(form);
       });
 
       it("it is added to policy with its order", function () {
@@ -223,10 +224,10 @@ describe('policies.wizard.service.policy-cube-service', function () {
       expect(service.getCreatedCubes()).toBe(service.policy.cubes.length);
     });
     it("it is incremented when a cube is added", function () {
-
       CubeModelFactoryMock.isValidCube.and.returnValue(true);
       var expected = service.getCreatedCubes() + 1;
-      service.addCube();
+      var form = {$valid: true};
+      service.addCube(form);
       expect(service.getCreatedCubes()).toBe(expected);
     })
   });
