@@ -262,11 +262,10 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       expect(cubeModelFactoryMock.setError).toHaveBeenCalled();
     });
 
-    it("cube is added if view validations have been passed and there is a dimension, an operator and an output at least", function () {
+    it("cube is added if view validations have been passed and there is a dimension, and an operator at least", function () {
       ctrl.form = {$valid: true, $setSubmitted:jasmine.createSpy()}; //view validations have been passed
       ctrl.cube.dimensions = [fakeDimension];
       ctrl.cube.operators = [fakeOperator];
-      ctrl.cube['writer.outputs'] = ["fake output"];
 
       ctrl.addCube();
 
