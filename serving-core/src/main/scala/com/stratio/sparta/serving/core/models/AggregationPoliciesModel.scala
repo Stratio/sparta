@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.core.models
 
 import com.stratio.sparta.serving.core.exception.ServingCoreException
@@ -38,9 +39,7 @@ case object AggregationPoliciesModel {
 
   val sparkStreamingWindow = "2s"
   val storageDefaultValue = Some("MEMORY_AND_DISK_SER_2")
-
-  def checkpointPath(policy: AggregationPoliciesModel): String =
-    s"${policy.checkpointPath}/${policy.name}"
+  def checkpointPath(policy: AggregationPoliciesModel): String = s"${policy.checkpointPath}/${policy.name}"
 }
 
 case class PolicyWithStatus(status: PolicyStatusEnum.Value,
@@ -50,52 +49,68 @@ case class PolicyResult(policyId: String, policyName: String)
 
 object AggregationPoliciesValidator extends SpartaSerializer {
 
-  def validateDto(aggregationPoliciesDto: AggregationPoliciesModel): Unit = {
+  def validateDto(policy: AggregationPoliciesModel): Unit = {
+    val subErrorModels = (validateCubes(policy) ::: validateTriggers(policy))
+      .filter(element => ! element._1)
 
-    val outputsNames = aggregationPoliciesDto.outputs.map(_.name)
+    if(subErrorModels.nonEmpty)
+      throw new ServingCoreException(ErrorModel.toString(
+        new ErrorModel(ErrorModel.ValidationError, "Policy validation error",
+          Option(subErrorModels.map(element => element._2).toSeq))))
+  }
 
-    val subErrorModels = List(
-      (aggregationPoliciesDto.cubes.forall(cube => cube.name.nonEmpty),
-       new ErrorModel(
-         ErrorModel.ValidationError_There_is_at_least_one_cube_without_name,
-         "There is at least one cube without name")),
-      (aggregationPoliciesDto.cubes.forall(cube => cube.dimensions.nonEmpty),
-       new ErrorModel(
-         ErrorModel.ValidationError_There_is_at_least_one_cube_without_dimensions,
-         "There is at least one cube without dimensions")),
-      (aggregationPoliciesDto.outputs.nonEmpty,
+  private def validateCubes(policy: AggregationPoliciesModel): List[(Boolean, ErrorModel)] = {
+    val outputsNames = policy.outputs.map(_.name)
+    val errorModels = List(
+      (policy.cubes.forall(cube => cube.name.nonEmpty),
+        new ErrorModel(
+          ErrorModel.ValidationError_There_is_at_least_one_cube_without_name,
+          "There is at least one cube without name")),
+      (policy.cubes.forall(cube => cube.dimensions.nonEmpty),
+        new ErrorModel(
+          ErrorModel.ValidationError_There_is_at_least_one_cube_without_dimensions,
+          "There is at least one cube without dimensions")),
+      (policy.outputs.nonEmpty
+        || (policy.streamTriggers.nonEmpty
+        && policy.streamTriggers.forall(trigger => trigger.outputs.nonEmpty)),
         new ErrorModel(
           ErrorModel.ValidationError_The_policy_needs_at_least_one_output,
-       "The policy needs at least one output")),
-      (aggregationPoliciesDto.cubes.nonEmpty || aggregationPoliciesDto.streamTriggers.nonEmpty,
+          "The policy needs at least one output or one trigger in the cube with output")),
+      (policy.cubes.nonEmpty || policy.streamTriggers.nonEmpty,
         new ErrorModel(
           ErrorModel.ValidationError_The_policy_needs_at_least_one_cube_or_one_trigger,
-        "The policy needs at least one cube or one trigger")),
-      (aggregationPoliciesDto.cubes.forall(cube =>
+          "The policy needs at least one cube or one trigger")),
+      (policy.cubes.forall(cube =>
         cube.writer.outputs.forall(output =>
           outputsNames.contains(output))),
         new ErrorModel(
           ErrorModel.ValidationError_There_is_at_least_one_cube_with_a_bad_output,
-       "There is at least one cube with a bad output")),
-      (aggregationPoliciesDto.cubes.forall(cube =>
+          "There is at least one cube with a bad output")),
+      (policy.cubes.forall(cube =>
         cube.triggers.forall(trigger =>
           trigger.outputs.forall(outputName => outputsNames.contains(outputName)))),
         new ErrorModel(
           ErrorModel.ValidationError_There_is_at_least_one_cube_with_triggers_with_a_bad_output,
-        "There is at least one cube with triggers that contains a bad output")),
-      (aggregationPoliciesDto.streamTriggers.forall(trigger =>
-      trigger.outputs.forall(outputName =>
-        outputsNames.contains(outputName))),
+          "There is at least one cube with triggers that contains a bad output"))
+    )
+    errorModels
+  }
+
+  private def validateTriggers(policy: AggregationPoliciesModel): List[(Boolean, ErrorModel)] = {
+    val outputsNames = policy.outputs.map(_.name)
+    val errorModels = List(
+      (policy.streamTriggers.forall(trigger =>
+        trigger.outputs.forall(outputName =>
+          outputsNames.contains(outputName))),
         new ErrorModel(
           ErrorModel.ValidationError_There_is_at_least_one_stream_trigger_with_a_bad_output,
-        "There is at least one stream trigger that contains a bad output"))
-    ).filter(element => ! element._1)
-
-    if(subErrorModels.nonEmpty) {
-      throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.ValidationError, "Policy validation error",
-          Option(subErrorModels.map(element => element._2).toSeq)
-      )))
-    }
+          "There is at least one stream trigger that contains a bad output")),
+      (policy.streamTriggers.forall(trigger =>
+        trigger.outputs.nonEmpty),
+        new ErrorModel(
+          ErrorModel.ValidationError_There_is_at_least_one_stream_trigger_with_a_bad_output,
+          "There is at least one stream trigger that contains a bad output"))
+    )
+    errorModels
   }
 }
