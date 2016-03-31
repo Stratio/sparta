@@ -39,8 +39,9 @@ with OperatorProcessMapAsNumber {
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     val valuesFiltered = getDistinctValues(values.flatten)
     valuesFiltered.size match {
-      case (nz) if (nz != 0) =>
-        Some(transformValueByTypeOp(returnType, variance(valuesFiltered.map(_.asInstanceOf[Number].doubleValue()))))
+      case (nz) if nz != 0 =>
+        Some(transformValueByTypeOp(returnType, variance(valuesFiltered.map(value =>
+          TypeOp.transformValueByTypeOp(TypeOp.Double, value).asInstanceOf[Double]))))
       case _ => Some(Operator.Zero.toDouble)
     }
   }

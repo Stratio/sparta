@@ -37,14 +37,16 @@ with OperatorProcessMapAsNumber with Associative {
   override val defaultCastingFilterType = TypeOp.Number
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
-    Try(Option(getDistinctValues(values.flatten.map(_.asInstanceOf[Number].doubleValue())).sum))
+    Try(Option(getDistinctValues(values.flatten.map(value =>
+      TypeOp.transformValueByTypeOp(TypeOp.Double, value).asInstanceOf[Double])).sum))
       .getOrElse(Some(Operator.Zero.toDouble))
   }
 
   def associativity(values: Iterable[(String, Option[Any])]): Option[Double] = {
     val newValues = extractValues(values, None)
 
-    Try(Option(transformValueByTypeOp(returnType, newValues.map(_.asInstanceOf[Number].doubleValue()).sum)))
+    Try(Option(transformValueByTypeOp(returnType, newValues.map(value =>
+      TypeOp.transformValueByTypeOp(TypeOp.Double, value).asInstanceOf[Double]).sum)))
       .getOrElse(Some(Operator.Zero.toDouble))
   }
 }

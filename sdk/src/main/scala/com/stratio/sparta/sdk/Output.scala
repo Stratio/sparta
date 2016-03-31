@@ -54,6 +54,7 @@ object Output extends Logging {
   final val TableNameKey = "tableName"
   final val TimeDimensionKey = "timeDimension"
   final val IdAutoCalculatedKey = "idAutoCalculated"
+  final val MeasureMetadataKey = "measure"
 
   def getTimeFromOptions(options: Map[String, String]): Option[String] = options.get(TimeDimensionKey)
 
@@ -78,18 +79,18 @@ object Output extends Logging {
       case _ => defaultStringField(fieldName, nullable)
     }
 
-  def defaultTimeStampField(fieldName: String, nullable: Boolean): StructField =
-    StructField(fieldName, TimestampType, nullable)
+  def defaultTimeStampField(fieldName: String, nullable: Boolean, metadata: Metadata = Metadata.empty): StructField =
+    StructField(fieldName, TimestampType, nullable, metadata)
 
-  def defaultDateField(fieldName: String, nullable: Boolean): StructField =
-    StructField(fieldName, DateType, nullable)
+  def defaultDateField(fieldName: String, nullable: Boolean, metadata: Metadata = Metadata.empty): StructField =
+    StructField(fieldName, DateType, nullable, metadata)
 
-  def defaultStringField(fieldName: String, nullable: Boolean): StructField =
-    StructField(fieldName, StringType, nullable)
+  def defaultStringField(fieldName: String, nullable: Boolean, metadata: Metadata = Metadata.empty): StructField =
+    StructField(fieldName, StringType, nullable, metadata)
 
-  def defaultGeoField(fieldName: String, nullable: Boolean): StructField =
-    StructField(fieldName, ArrayType(DoubleType), nullable)
+  def defaultGeoField(fieldName: String, nullable: Boolean, metadata: Metadata = Metadata.empty): StructField =
+    StructField(fieldName, ArrayType(DoubleType), nullable, metadata)
 
-  def defaultLongField(fieldName: String, nullable: Boolean): StructField =
-    StructField(fieldName, LongType, nullable)
+  def defaultLongField(fieldName: String, nullable: Boolean, metadata: Metadata = Metadata.empty): StructField =
+    StructField(fieldName, LongType, nullable, metadata)
 }

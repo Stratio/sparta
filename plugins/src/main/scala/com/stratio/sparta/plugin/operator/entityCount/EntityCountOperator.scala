@@ -42,7 +42,12 @@ class EntityCountOperator(name: String,
     val oldValues = extractValues(values, Option(Operator.OldValuesKey))
       .flatMap(_.asInstanceOf[Map[String, Long]]).toList
     val newValues = applyCount(extractValues(values, Option(Operator.NewValuesKey))
-      .flatMap(_.asInstanceOf[Seq[String]]).toList).toList
+      .flatMap(value => {
+        value match {
+          case value if value.isInstanceOf[Seq[String]] => value.asInstanceOf[Seq[String]]
+          case _ => List(TypeOp.transformValueByTypeOp(TypeOp.String, value).asInstanceOf[String])
+        }
+      }).toList).toList
     val wordCounts = applyCountMerge(oldValues ++ newValues)
 
     Try(Option(transformValueByTypeOp(returnType, wordCounts)))

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.plugin.operator.avg
+package com.stratio.sparta.plugin.operator.mean
 
 import java.io.{Serializable => JSerializable}
 
@@ -21,7 +21,7 @@ import com.stratio.sparta.sdk.TypeOp._
 import com.stratio.sparta.sdk.{TypeOp, _}
 import org.apache.spark.sql.types.StructType
 
-class AvgOperator(name: String, schema: StructType, properties: Map[String, JSerializable])
+class MeanOperator(name: String, schema: StructType, properties: Map[String, JSerializable])
   extends Operator(name, schema, properties) with OperatorProcessMapAsNumber {
 
   val inputSchema = schema
@@ -35,7 +35,7 @@ class AvgOperator(name: String, schema: StructType, properties: Map[String, JSer
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     val distinctValues = getDistinctValues(values.flatten)
     distinctValues.size match {
-      case (nz) if (nz != 0) => Some(transformValueByTypeOp(returnType,
+      case (nz) if nz != 0 => Some(transformValueByTypeOp(returnType,
         distinctValues.map(_.asInstanceOf[Number].doubleValue()).sum / distinctValues.size))
       case _ => Some(Operator.Zero.toDouble)
     }

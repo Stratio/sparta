@@ -31,6 +31,6 @@ trait OperatorProcessMapAsNumber {
   def processMap(inputFieldsValues: Row): Option[Number] =
     if (inputField.isDefined && inputSchema.fieldNames.contains(inputField.get))
       applyFilters(inputFieldsValues)
-        .flatMap(filteredFields => Operator.getNumberFromSerializable(filteredFields.get(inputField.get).get))
+        .map(filteredFields => Operator.getNumberFromAny(filteredFields.get(inputField.get).get))
     else None
 }

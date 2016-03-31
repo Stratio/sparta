@@ -99,7 +99,9 @@ trait MongoDbDAO extends Logging {
     if (tableSchema.isAutoCalculatedId)
       createIndex(mongoDatabase, tableSchema.tableName, Output.Id, Map(Output.Id -> 1), true, true)
     else {
-      val fields = tableSchema.schema.filter(stField => !stField.nullable).map(stField => stField.name -> 1).toMap
+      val fields = tableSchema.schema.filter(stField =>
+        !stField.nullable && !stField.metadata.contains(Output.MeasureMetadataKey))
+        .map(stField => stField.name -> 1).toMap
       createIndex(mongoDatabase, tableSchema.tableName, fields.keySet.mkString(Output.Separator), fields, true, true)
     }
   }
