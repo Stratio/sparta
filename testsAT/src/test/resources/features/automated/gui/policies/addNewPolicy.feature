@@ -233,7 +233,6 @@ Feature: Test adding a new policy in Sparta GUI
                 And '1' element exists with 'css:button[data-qa="modal-ok-button"]'
                 And I click on the element on index '0'
 
-##########################################################
 		# Create new transformation (Geo)
                 Given '1' element exists with 'css:button[data-qa="policy-model-add-new-transformation-button"]'
                 When I click on the element on index '0'
@@ -295,8 +294,6 @@ Feature: Test adding a new policy in Sparta GUI
                 And '1' element exists with 'css:button[data-qa="modal-ok-button"]'
                 And I click on the element on index '0'
 
-##########################################################
-
 		# Create new transformation (Date Time)
 		Given '1' element exists with 'css:button[data-qa="policy-model-add-new-transformation-button"]'
                 When I click on the element on index '0'
@@ -353,6 +350,8 @@ Feature: Test adding a new policy in Sparta GUI
 		Then I type 'triggerTransformation' on the element on index '0'
 		Given '1' element exists with 'css:textarea[data-qa="trigger-sql"]'
 		Then I type 'select * from stream' on the element on index '0'
+		Given '1' element exists with 'css:select[data-qa="trigger-output-select"]'
+		Then I select 'printoutput' on the element on index '0' 
 		# Save
 		Given '1' element exists with 'css:button[data-qa="policy-trigger-add-button"]'
                 When I click on the element on index '0'
@@ -442,7 +441,7 @@ Feature: Test adding a new policy in Sparta GUI
 		Then '1' element exists with 'css:div[data-qa^="policy-cube-dimensionslist-"]'
 		
 		# Add Functions
-		Given '16' elements exist with 'css:div[data-qa^="policy-cube-functionlist-"]'
+		Given '17' elements exist with 'css:div[data-qa^="policy-cube-functionlist-"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:aside[data-qa="operator-modal"]'	
 		# Try with empty Name
@@ -459,7 +458,7 @@ Feature: Test adding a new policy in Sparta GUI
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:div[data-qa^="policy-cube-operatorlist-"]'
 		# Create a second one with same name
-		Given '16' elements exist with 'css:div[data-qa^="policy-cube-functionlist-"]'
+		Given '17' elements exist with 'css:div[data-qa^="policy-cube-functionlist-"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:aside[data-qa="operator-modal"]'
 		#Given '1' element exists with 'css:input[data-qa="operator-modal-name"]'
@@ -523,7 +522,7 @@ Feature: Test adding a new policy in Sparta GUI
 		Then '1' element exists with 'css:div[data-qa^="policy-cube-dimensionslist-"]'
 
 		# Add Function
-		Given '16' elements exist with 'css:div[data-qa^="policy-cube-functionlist-"]'
+		Given '17' elements exist with 'css:div[data-qa^="policy-cube-functionlist-"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:aside[data-qa="operator-modal"]'	
 		# Try with empty Name
