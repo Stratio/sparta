@@ -122,7 +122,7 @@ Feature: Test editting a policy in Sparta GUI
                 # Check one dimension has been added
                 Then '1' element exists with 'css:div[data-qa^="policy-cube-dimensionslist-"]'
                 # Add Function
-                Given '16' elements exist with 'css:div[data-qa^="policy-cube-functionlist-"]'
+                Given '17' elements exist with 'css:div[data-qa^="policy-cube-functionlist-"]'
                 When I click on the element on index '0'
                 Then '1' element exists with 'css:aside[data-qa="operator-modal"]'
                 Given '1' element exists with 'css:input[data-qa="operator-modal-name"]'
