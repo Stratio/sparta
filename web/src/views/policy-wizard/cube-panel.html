@@ -114,10 +114,14 @@
               data-st-name="dataSource{{properties.propertyName}}Form"
               data-qa="{{properties.qa}}">
             </form-field>
-            <form-field-select data-required = "vm.cube.triggers.length == 0"  class="c-col c-col--6 c-form-group--inline" data-form="vm.form" data-st-name="cubeOutputs" data-model="vm.selectedPolicyOutput"
+            <form-field-select  class="c-col c-col--6 c-form-group--inline" data-form="vm.form" data-st-name="cubeOutputs" data-model="vm.selectedPolicyOutput"
              data-options="vm.policyOutputList" data-field="label" data-label="{{'_OUTPUTS_' | translate}}"
              data-qa="cube-output-select" data-submitted-form="vm.form.$submitted" data-ng-click="vm.addOutput()" data-outputs-length="vm.cube['writer.outputs'].length" >
             </form-field-select>
+            <div data-ng-show="vm.cube['writer.outputs'].length == 0 && vm.form.$submitted" class="c-col c-col--6 angular-forms__error">
+              <i class="icon icon-circle-cross"></i>
+              <span data-qa="cube-error-outputs-length">{{"_POLICY_CUBES_OUTPUT_ERROR_" | translate}}</span>
+            </div>
             <c-tag-list name="cube-outputs" data-tags="vm.cube['writer.outputs']"
               data-form-control-class="'c-form-group--margin'"
               label-control-class="'c-label c-col'"

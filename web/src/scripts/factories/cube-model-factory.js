@@ -97,7 +97,8 @@
 
     function isValidCube(cube, cubes, position) {
       var validName = cube.name !== undefined && cube.name !== "";
-      var isValid = validName && areValidOperatorsAndDimensions(cube) && !nameExists(cube, cubes, position);
+      var validRequiredAttributes = cube.operators.length > 0 && cube.dimensions.length > 0 && (cube.triggers.length > 0 || cube['writer.outputs'].length > 0);
+      var isValid = validName && validRequiredAttributes &&  areValidOperatorsAndDimensions(cube) && !nameExists(cube, cubes, position);
       return isValid;
     }
 
