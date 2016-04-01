@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.9.0 (March 2016)
+## 0.9.0 (April 2016)
 
 - New look & feel and more user friendly user interface
 - New policy component: Triggers
@@ -14,6 +14,11 @@
 - Policy refactor
 - Fault tolerance
 - Refactor Cluster deployment
+- Addition of a new operator: Associative Mean
+- Fixes for Count and Sum operators 
+- Added flexibility to create policies with no cubes 
+- Integration with a SSO 
+- Sparta API supports SSL
 
 ## 0.8.0 (December 2015)
 
