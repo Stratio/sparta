@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.1 (April 2016)
+
+- Bugfix: Fixed documentation links
+
 ## 0.9.0 (April 2016)
 
 - New look & feel and more user friendly user interface
