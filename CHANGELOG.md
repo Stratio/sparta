@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.2 (April 2016)
+
+- Bugfix: Fixed examples
+
 ## 0.9.1 (April 2016)
 
 - Bugfix: Fixed documentation links
