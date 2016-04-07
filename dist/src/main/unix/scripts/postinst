@@ -15,21 +15,21 @@ case "$1" in
     fi
 
     chown root:root /etc/init.d/sparta
+    chown root:root /etc/default/sparta-functions
+    chown root:root /etc/default/sparta-variables
 
     chown -R ${USER}:${GROUP} /etc/sds/sparta
-
-    chown ${USER}:${GROUP} /etc/default/sparta-functions
-    chown ${USER}:${GROUP} /etc/default/sparta-variables
-
     chown -R ${USER}:${GROUP} /var/log/sds/sparta
     chown -R ${USER}:${GROUP} /opt/sds/sparta
 
     chmod 755 /etc/init.d/sparta
-
-    chmod 750 /etc/sds/sparta
-    chmod 775 /var/log/sds/sparta
-    chmod 750 /opt/sds/sparta
+    chmod 755 /etc/sds/sparta
+    chmod 755 /var/log/sds/sparta
+    chmod 755 /opt/sds/sparta
     chmod 750 /opt/sds/sparta/bin/*
+    
+    chmod 644 /etc/default/sparta-functions
+    chmod 644 /etc/default/sparta-variables
 
     update-rc.d sparta defaults
   ;;
