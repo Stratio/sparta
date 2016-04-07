@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.3 (April 2016)
+
+- Bugfix: Solved problem with permissions and owners.
+
 ## 0.9.2 (April 2016)
 
 - Bugfix: Fixed examples

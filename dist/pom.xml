@@ -255,16 +255,18 @@
                                             <path>src/main/unix/files_and_dirs/etc/default/sparta-functions</path>
                                             <toFile>/etc/default/sparta-functions</toFile>
                                             <attributes>
-                                                <user>sparta</user>
-                                                <group>stratio</group>
+                                                <user>root</user>
+                                                <group>root</group>
+                                                <mode>644</mode>
                                             </attributes>
                                         </copyFile>
                                         <copyFile>
                                             <path>src/main/unix/files_and_dirs/etc/default/sparta-variables</path>
                                             <toFile>/etc/default/sparta-variables</toFile>
                                             <attributes>
-                                                <user>sparta</user>
-                                                <group>stratio</group>
+                                                <user>root</user>
+                                                <group>root</group>
+                                                <mode>644</mode>
                                             </attributes>
                                         </copyFile>
                                         <copyFile>
@@ -291,16 +293,18 @@
                                             <path>src/main/unix/files_and_dirs/etc/default/sparta-functions</path>
                                             <toFile>/etc/default/sparta-functions</toFile>
                                             <attributes>
-                                                <user>sparta</user>
-                                                <group>stratio</group>
+                                                <user>root</user>
+                                                <group>root</group>
+                                                <mode>644</mode>
                                             </attributes>
                                         </copyFile>
                                         <copyFile>
                                             <path>src/main/unix/files_and_dirs/etc/default/sparta-variables</path>
                                             <toFile>/etc/default/sparta-variables</toFile>
                                             <attributes>
-                                                <user>sparta</user>
-                                                <group>stratio</group>
+                                                <user>root</user>
+                                                <group>root</group>
+                                                <mode>644</mode>
                                             </attributes>
                                         </copyFile>
                                         <copyFile>
