@@ -57,10 +57,18 @@ object HdfsUtils extends SLF4JLogging {
 
   def apply(user: String, master: String, port: Int = HdfsDefaultPort): HdfsUtils = {
     val conf = new Configuration()
-    conf.set(DefaultFSProperty, s"hdfs://$master:$port")
+    val hadoopConfDir = System.getenv("HADOOP_CONF_DIR")
+    val hdfsCoreSitePath = new Path(s"$hadoopConfDir/core-site.xml")
+    val hdfsHDFSSitePath = new Path(s"$hadoopConfDir/hdfs-site.xml")
+
+    conf.addResource(hdfsCoreSitePath)
+    conf.addResource(hdfsHDFSSitePath)
+
     log.debug(s"Configuring HDFS with master: ${conf.get(DefaultFSProperty)} and user: $user")
     val defaultUri = FileSystem.getDefaultUri(conf)
+
     new HdfsUtils(FileSystem.get(defaultUri, conf, user), user)
+
   }
 
   def apply(config: Config): HdfsUtils = {
