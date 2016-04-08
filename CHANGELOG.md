@@ -1,5 +1,10 @@
 # Changelog
 
+
+## 0.9.4 (April 2016)
+
+- Bugfix: Solved problem with hdfs.
+
 ## 0.9.3 (April 2016)
 
 - Bugfix: Solved problem with permissions and owners.
