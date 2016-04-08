@@ -55,7 +55,7 @@
       policy.rawDataPath = inputPolicyJSON.rawData.path;
       policy.transformations = inputPolicyJSON.transformations;
       policy.cubes = inputPolicyJSON.cubes;
-      policy.streamTriggers = inputPolicyJSON.streamTriggers;
+      policy.streamTriggers = setStreamTriggers(inputPolicyJSON.streamTriggers);
       formatAttributes();
       var policyFragments = separateFragments(inputPolicyJSON.fragments);
       policy.input = policyFragments.input;
@@ -66,6 +66,19 @@
       policy.sparkStreamingWindowNumber = Number(sparkStreamingWindow[1]);
       policy.sparkStreamingWindowTime = sparkStreamingWindow[2];
       delete policy.sparkStreamingWindow;
+    }
+
+    function setStreamTriggers(streamTriggers) {
+      var formattedStreamTriggers = [];
+      for (var i = 0; i < streamTriggers.length; ++i) {
+        var trigger = streamTriggers[i];
+        var overLast = trigger.overLast.split(/([0-9]+)/);
+        trigger.overLastNumber = Number(overLast[1]);
+        trigger.overLastTime = overLast[2];
+        delete trigger.overLast;
+        formattedStreamTriggers.push(trigger);
+      }
+      return formattedStreamTriggers;
     }
 
     function setTemplate(newTemplate) {
@@ -128,11 +141,23 @@
       return finalJSON = json;
     }
 
+    function isValidSparkStreamingWindow() {
+      var valid = true;
+      if (policy.streamTriggers && policy.sparkStreamingWindowNumber > 0) {
+        var i = 0;
+        while (valid && i < policy.streamTriggers.length) {
+          valid = valid && ((policy.streamTriggers[i].overLastNumber % policy.sparkStreamingWindowNumber) == 0);
+          ++i;
+        }
+      }
+      return valid;
+    }
+
     function getError() {
       return error;
     }
 
-    function setError(text, type,subErrors) {
+    function setError(text, type, subErrors) {
       error.text = text;
       error.type = type;
       error.subErrors = subErrors;
@@ -147,7 +172,8 @@
       getAllModelOutputs: getAllModelOutputs,
       getFinalJSON: getFinalJSON,
       setFinalJSON: setFinalJSON,
-      getError:getError,
+      isValidSparkStreamingWindow: isValidSparkStreamingWindow,
+      getError: getError,
       setError: setError
     }
   }

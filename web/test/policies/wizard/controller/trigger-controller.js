@@ -103,19 +103,7 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
   });
 
   describe("should be able to add a trigger to the policy", function () {
-    it("trigger is not added if view validations have not been passed", function () {
-      ctrl.form = {$valid: false}; //view validations have not been passed
-      ctrl.addTrigger();
 
-      expect(triggerServiceMock.addTrigger).not.toHaveBeenCalled();
-    });
-
-    it("trigger is added if view validations have been passed", function () {
-      ctrl.form = {$valid: true}; //view validations have been passed
-      ctrl.addTrigger();
-
-      expect(triggerServiceMock.addTrigger).toHaveBeenCalled();
-    });
   });
 
   it("should be able to remove the factory trigger from the policy calling to the trigger service", function () {

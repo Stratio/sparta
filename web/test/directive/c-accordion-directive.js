@@ -45,6 +45,6 @@ describe('directive.c-accordion-directive', function () {
     scope.items.push(angular.copy(fakeModel));
     scope.$digest();
 
-    expect(accordionStatusServiceMock.resetAccordionStatus).toHaveBeenCalledWith(scope.accordionStatus, scope.items.length, scope.items.length);
+    expect(accordionStatusServiceMock.resetAccordionStatus).toHaveBeenCalledWith(scope.accordionStatus, scope.items.length);
   })
 });
