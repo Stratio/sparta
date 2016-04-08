@@ -330,10 +330,12 @@
     "_4004_": "There is at least one cube with a bad output",
     "_4005_": "There is at least one cube with triggers with a bad output",
     "_4006_": "There is at least one stream trigger with a bad output",
+    "_4007_": "There is at least one stream trigger with a bad overlast",
     "_666_": "Server error. There was an error. Please try again later.",
     "_POLICY_INPUTS_": "At least one input must be selected!",
     "_POLICY_OUTPUTS_": "At least one output must be selected!",
-    "_GENERIC_FORM_": "There are some errors in the introduced data. Please, check them and try it again"
+    "_GENERIC_FORM_": "There are some errors in the introduced data. Please, check them and try it again",
+    "_OVERLAST_NOT_MULTIPLE_ERROR_": "The introduced overlast is not multiple of the policy Spark Streaming Window"
   },
   "_MESSAGE_": {
     "_TRANSFORMATION_STEP_":  "You have to create, at least, one transformation",

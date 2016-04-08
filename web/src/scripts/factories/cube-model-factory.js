@@ -59,11 +59,10 @@
       cube.dimensions = c.dimensions;
       cube.operators = c.operators;
       cube.checkpointConfig = c.checkpointConfig;
+      cube.triggers = c.triggers;
       error.text = "";
-
       formatAttributes(c);
       setPosition(position);
-      setTriggers(c.triggers);
     }
 
     function formatAttributes(c) {
@@ -71,18 +70,6 @@
       cube['writer.isAutoCalculatedId'] = c['writer.isAutoCalculatedId'] || c.writer.isAutoCalculatedId;
       cube['writer.dateType'] = c['writer.dateType'] || c.writer.dateType;
       cube['writer.outputs'] = c['writer.outputs'] || c.writer.outputs;
-    }
-
-    function setTriggers(triggers) {
-      if (!cube.triggers) {
-        cube.triggers = [];
-      }
-      while (cube.triggers.length > 0) {
-        cube.triggers.pop();
-      }
-      for (var i = 0; i < triggers.length; ++i) {
-        cube.triggers.push(triggers[i]);
-      }
     }
 
     function areValidOperatorsAndDimensions(cube) {

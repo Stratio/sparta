@@ -1,5 +1,7 @@
-<section data-ng-controller="TriggerCtrl as vm" data-ng-init="vm.init()" data-ng-model="vm.trigger">
+<section data-ng-controller="TriggerCtrl as vm" data-ng-model="vm.trigger">
   <ng-form name="vm.form" data-ng-submit="vm.addTrigger()" novalidate>
+    <c-animated-msg type="error" data-msg="vm.error" data-on-click-close-msg="wizard.closeErrorMessage()"
+                    data-timeout=6000></c-animated-msg>
     <div class="c-row c-msg c-msg--small c-msg--error c-form c-form-group"
          data-ng-if="vm.form.$submitted && (vm.trigger.operators.length === 0 || vm.trigger.dimensions.length === 0)"
          data-qa="policy-trigger-error-msg">
@@ -87,7 +89,7 @@
         <span>{{"_CANCEL_" | translate}}</span>
       </button>
       <button data-ng-if="vm.isNewTrigger(vm.triggerContext.position)" class="c-button c-button--call-to-action-1"
-              data-ng-click="vm.addTrigger()"
+              data-ng-click="vm.addTrigger(vm.form)"
               type="submit"
               data-qa="policy-trigger-add-button">
         <i class="icon icon-circle-plus"></i>
