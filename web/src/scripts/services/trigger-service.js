@@ -28,6 +28,7 @@
     var triggerContainer = null;
     var triggerContainerType = "";
     var showHelpForSql = false;
+    var policy = null;
 
     vm.showConfirmRemoveTrigger = showConfirmRemoveTrigger;
     vm.addTrigger = addTrigger;
@@ -50,7 +51,7 @@
     init();
 
     function init() {
-      vm.policy = PolicyModelFactory.getCurrentPolicy();
+      policy = PolicyModelFactory.getCurrentPolicy();
       triggerCreationStatus.enabled = false;
     }
 
@@ -63,7 +64,7 @@
       return triggerContainer;
     }
 
-    function getTriggerCreationStatus(){
+    function getTriggerCreationStatus() {
       return triggerCreationStatus;
     }
 
@@ -77,7 +78,7 @@
     }
 
     function disableTriggerCreationPanel() {
-      triggerCreationStatus.enabled  = false;
+      triggerCreationStatus.enabled = false;
     }
 
 
@@ -105,19 +106,20 @@
       return defer.promise;
     }
 
-    function addTrigger() {
-      var newTrigger = angular.copy(TriggerModelFactory.getTrigger());
-      if (TriggerModelFactory.isValidTrigger(newTrigger, triggerContainer, TriggerModelFactory.getContext().position)) {
-        triggerContainer.push(newTrigger);
+    function addTrigger(triggerForm) {
+      triggerForm.$submitted = true;
+      if (triggerForm.$valid && TriggerModelFactory.isValidTrigger(triggerContainer, TriggerModelFactory.getContext().position)) {
+        triggerForm.$submitted = false;
+        triggerContainer.push(angular.copy(TriggerModelFactory.getTrigger()));
+        disableTriggerCreationPanel();
       }
     }
 
     function saveTrigger(triggerForm) {
       triggerForm.$submitted = true;
-      var trigger = angular.copy(TriggerModelFactory.getTrigger());
-      if (triggerForm.$valid && TriggerModelFactory.isValidTrigger(trigger, triggerContainer, TriggerModelFactory.getContext().position)) {
+      if (triggerForm.$valid && TriggerModelFactory.isValidTrigger(triggerContainer, TriggerModelFactory.getContext().position)) {
         triggerForm.$submitted = false;
-        triggerContainer[TriggerModelFactory.getContext().position] = trigger;
+        triggerContainer[TriggerModelFactory.getContext().position] = angular.copy(TriggerModelFactory.getTrigger());
       }
     }
 
@@ -145,7 +147,7 @@
       var sqlSourceItems = [];
       var sourceContainer = [];
       if (triggerContainerType == triggerConstants.TRANSFORMATION) {
-        sourceContainer = vm.policy.transformations;
+        sourceContainer = policy.transformations;
         var sourceSqlItem = {};
         sourceSqlItem.name = triggerConstants.STREAM_TABLE_NAME;
         sourceSqlItem.fields = [];
@@ -167,9 +169,14 @@
     }
 
     function changeOpenedTrigger(selectedTriggerPosition) {
-      if (triggerContainer.length > 0 && selectedTriggerPosition >= 0 && selectedTriggerPosition < triggerContainer.length) {
-        var selectedTrigger = triggerContainer[selectedTriggerPosition];
-        TriggerModelFactory.setTrigger(selectedTrigger, selectedTriggerPosition, triggerContainerType);
+      if (triggerContainer.length > 0 ) {
+        if (selectedTriggerPosition >= 0 && selectedTriggerPosition < triggerContainer.length) {
+          var selectedTrigger = triggerContainer[selectedTriggerPosition];
+          TriggerModelFactory.setTrigger(selectedTrigger, selectedTriggerPosition, triggerContainerType);
+        } else {
+          if (selectedTriggerPosition> -1)
+          TriggerModelFactory.resetTrigger(triggerContainer.length, triggerContainerType);
+        }
       }
     }
 

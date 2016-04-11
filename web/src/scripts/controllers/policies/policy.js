@@ -95,7 +95,12 @@
         $scope.$broadcast('forceValidateForm', 1);
         defer.resolve();
       } else {
-        defer = sendPolicy();
+        if (PolicyModelFactory.isValidSparkStreamingWindow()) {
+          defer = sendPolicy();
+        } else {
+          PolicyModelFactory.setError("_ERROR_._4007_", "error");
+          defer.reject();
+        }
       }
       return defer.promise;
     }
@@ -110,7 +115,7 @@
           defer.resolve();
         }, function (error) {
           if (error) {
-            PolicyModelFactory.setError("_ERROR_._"+ error.data.i18nCode + "_", "error", error.data.subErrorModels);
+            PolicyModelFactory.setError("_ERROR_._" + error.data.i18nCode + "_", "error", error.data.subErrorModels);
           }
           defer.reject();
         });

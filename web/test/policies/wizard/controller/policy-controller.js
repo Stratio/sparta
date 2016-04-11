@@ -25,7 +25,7 @@ describe('policies.wizard.controller.policy-controller', function () {
       return defer.promise;
     };
 
-    fakeError = {"data": {"i18nCode": "306", subErrorModels:[{"i18nCode": "402"}]}};
+    fakeError = {"data": {"i18nCode": "306", subErrorModels: [{"i18nCode": "402"}]}};
     rejectedPromise = function () {
       var defer = $q.defer();
       defer.reject(fakeError);
@@ -58,7 +58,7 @@ describe('policies.wizard.controller.policy-controller', function () {
     stateParamsMock = {id: null};
     wizardStatusServiceMock = jasmine.createSpyObj('wizardStatusService', ['getStatus', 'nextStep']);
     wizardStatusServiceMock.getStatus.and.returnValue(fakeCreationStatus);
-    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['setPolicy', 'getCurrentPolicy', 'setFinalJSON', 'setError', 'getError', 'getFinalJSON', 'setTemplate', 'getTemplate', 'getProcessStatus', 'resetPolicy']);
+    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['setPolicy', 'getCurrentPolicy', 'setFinalJSON', 'setError', 'isValidSparkStreamingWindow', 'getError', 'getFinalJSON', 'setTemplate', 'getTemplate', 'getProcessStatus', 'resetPolicy']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
       return fakePolicy;
     });
@@ -212,7 +212,14 @@ describe('policies.wizard.controller.policy-controller', function () {
         ctrl.status.nextStepAvailable = true;
       });
 
-      it("modal is opened with the correct params if next step is available", function () {
+      it("modal is not opened if next step is available but Spark Streaming Window is not valid", function () {
+        policyModelFactoryMock.isValidSparkStreamingWindow.and.returnValue(false);
+        ctrl.confirmPolicy();
+        expect(modalServiceMock.openModal).not.toHaveBeenCalled();
+      });
+
+      it("modal is opened with the correct params if next step is available and Spark Streaming Window is valid", function () {
+        policyModelFactoryMock.isValidSparkStreamingWindow.and.returnValue(true);
         ctrl.confirmPolicy();
 
         expect(modalServiceMock.openModal.calls.mostRecent().args[0]).toBe("ConfirmModalCtrl");
@@ -229,8 +236,8 @@ describe('policies.wizard.controller.policy-controller', function () {
         expect(resolve.title()).toBe("_POLICY_._WINDOW_._EDIT_._TITLE_");
         expect(resolve.message()).toBe("");
 
-
       });
+
 
       it("when modal is confirmed, the policy is sent using an http request", function () {
         ctrl.confirmPolicy().then(function () {
@@ -255,16 +262,17 @@ describe('policies.wizard.controller.policy-controller', function () {
       });
 
       it("If the policy sent fails, policy error is updated", function () {
+        policyModelFactoryMock.isValidSparkStreamingWindow.and.returnValue(true);
         policyFactoryMock.createPolicy.and.callFake(rejectedPromise);
-         ctrl.confirmPolicy().then(null, function(){
-          expect(policyModelFactoryMock.setError).toHaveBeenCalledWith("_ERROR_._"+ fakeError.data.i18nCode + "_", "error", fakeError.data.subErrorModels);
+        ctrl.confirmPolicy().then(null, function () {
+          expect(policyModelFactoryMock.setError).toHaveBeenCalledWith("_ERROR_._" + fakeError.data.i18nCode + "_", "error", fakeError.data.subErrorModels);
         });
         scope.$digest();
         policyModelFactoryMock.setError.calls.reset();
 
         policyFactoryMock.savePolicy.and.callFake(rejectedPromise);
-        ctrl.confirmPolicy().then(null, function(){
-          expect(policyModelFactoryMock.setError).toHaveBeenCalledWith("_ERROR_._"+ fakeError.data.i18nCode + "_", "error", fakeError.data.subErrorModels);
+        ctrl.confirmPolicy().then(null, function () {
+          expect(policyModelFactoryMock.setError).toHaveBeenCalledWith("_ERROR_._" + fakeError.data.i18nCode + "_", "error", fakeError.data.subErrorModels);
         });
         scope.$digest();
       });

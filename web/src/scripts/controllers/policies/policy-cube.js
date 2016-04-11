@@ -184,7 +184,7 @@
       vm.form.$setSubmitted(true);
       if (vm.form['vm.form']) {
         vm.form['vm.form'].$setSubmitted(true);
-        vm.triggerAccordionStatus[vm.triggerAccordionStatus.length] = true;
+        vm.triggerAccordionStatus[vm.triggerAccordionStatus.length - 1] = true;
         if (vm.form['vm.form'].$valid && vm.isActiveTriggerCreationPanel()) {
           isValid = false;
           vm.triggerError = "_ERROR_._TRIGGER_WITHOUT_SAVE_";
@@ -235,5 +235,13 @@
       vm.form.$submitted = true;
       CubeModelFactory.setError();
     });
+
+    $scope.$watchCollection(
+      "vm.cubeContext",
+      function (newCubeContext, oldCubeContext) {
+        if (newCubeContext && newCubeContext.position != oldCubeContext.position) {
+          init();
+        }
+      });
   }
 })();

@@ -85,14 +85,23 @@
       delete trigger.overLast;
     }
 
-    function isValidTrigger(trigger, triggers, position) {
+    function isValidOverLast() {
+      var sparkStreamingWindow = PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowNumber;
+      return (!sparkStreamingWindow || !trigger.overLastNumber || trigger.overLastNumber % PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowNumber == 0);
+    }
+
+    function isValidTrigger(triggers, position) {
       var isValid = trigger.name != "" && trigger.sql != "" && !nameExists(trigger, triggers, position);
-      if (!isValid) {
-        error.text = "_ERROR_._GENERIC_FORM_";
-      } else {
+      var validOverLast = isValidOverLast();
+      if (!validOverLast) {
+        error.text = "_ERROR_._OVERLAST_NOT_MULTIPLE_ERROR_";
+        error.type = 'error';
+        error.attribute = 'overLastNumber'
+      }
+      if (isValid && validOverLast){
         error.text = "";
       }
-      return isValid;
+      return isValid && validOverLast;
     }
 
     function nameExists(trigger, triggers, triggerPosition) {
@@ -108,6 +117,10 @@
       return error;
     }
 
+    function setError() {
+      error.text = '';
+    }
+
     return {
       resetTrigger: resetTrigger,
       getTrigger: getTrigger,
@@ -115,7 +128,8 @@
       getContext: getContext,
       setPosition: setPosition,
       isValidTrigger: isValidTrigger,
-      getError: getError
+      getError: getError,
+      setError: setError
     }
   }
 })

@@ -14,7 +14,7 @@
       </button>
     </div>
   </div>
-  <c-accordion items="vm.triggerContainer"
+  <c-accordion items="vm.triggerContainer" data-ng-model = "vm.triggerContainer"
     item-template="'views/policy-wizard/trigger-panel.html'"
     on-change-opened-element="vm.changeOpenedTrigger(selectedItemPosition)"
     item-qa-tag="policy-trigger"

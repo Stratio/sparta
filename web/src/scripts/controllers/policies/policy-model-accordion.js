@@ -118,16 +118,6 @@
     );
 
     $scope.$watchCollection(
-      "vm.triggerCreationStatus",
-      function (triggerCreationStatus) {
-        if (!triggerCreationStatus.enabled && !vm.modelCreationStatus.enabled && vm.policy.transformations.length > 0) {
-          WizardStatusService.enableNextStep();
-        } else {
-          WizardStatusService.disableNextStep();
-        }
-      });
-
-    $scope.$watchCollection(
       "vm.policy.transformations",
       function (transformations) {
         if (transformations.length > 0) {

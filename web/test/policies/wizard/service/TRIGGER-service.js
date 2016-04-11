@@ -12,7 +12,7 @@ describe('policies.wizard.service.policy-trigger-service', function () {
   beforeEach(module(function ($provide) {
     ModalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
     PolicyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'enableNextStep', 'disableNextStep']);
-    TriggerModelFactoryMock = jasmine.createSpyObj('TriggerFactory', ['getTrigger', 'isValidTrigger', 'resetTrigger', 'getContext', 'setError']);
+    TriggerModelFactoryMock = jasmine.createSpyObj('TriggerFactory', ['getTrigger', 'addTrigger', 'isValidTrigger', 'resetTrigger', 'getContext', 'setError']);
     PolicyModelFactoryMock.getCurrentPolicy.and.returnValue(fakePolicy);
 
     // inject mocks
@@ -21,11 +21,11 @@ describe('policies.wizard.service.policy-trigger-service', function () {
     $provide.value('TriggerModelFactory', TriggerModelFactoryMock);
   }));
 
-  beforeEach(inject(function (_apiTrigger_,_modelTrigger_, _modelPolicy_, $q, $rootScope, $httpBackend, $translate) {
+  beforeEach(inject(function (_apiTrigger_, _modelTrigger_, _modelPolicy_, $q, $rootScope, $httpBackend, $translate) {
     fakeApiTrigger = _apiTrigger_;
     fakeTrigger = _modelTrigger_;
 
-    angular.extend(fakePolicy,  angular.copy(_modelPolicy_));
+    angular.extend(fakePolicy, angular.copy(_modelPolicy_));
 
     translate = $translate;
     q = $q;
@@ -104,24 +104,46 @@ describe('policies.wizard.service.policy-trigger-service', function () {
 
   describe("should be able to add a trigger to the trigger container", function () {
     var triggerContainer = [];
+    var triggerLength = null;
     beforeEach(function () {
       service.setTriggerContainer(triggerContainer);
+      triggerLength =triggerContainer.length;
+    });
+
+    it("trigger is not added if view validations have not been passed", function () {
+      var form = {$valid: false}; //view validations have not been passed
+      service.addTrigger(form);
+
+      expect(service.getTriggerContainer().length).toBe(triggerLength);
+    });
+
+    it("trigger is added if view validations have been passed and trigger is valid", function () {
+      TriggerModelFactoryMock.isValidTrigger.and.returnValue(true);
+      var form = {$valid: true}; //view validations have been passed
+
+      service.addTrigger(form);
+
+      expect(service.getTriggerContainer().length).toBe(triggerLength+1);
     });
 
     it("trigger is not added if it is not valid", function () {
       TriggerModelFactoryMock.isValidTrigger.and.returnValue(false);
-      service.addTrigger();
-      expect(triggerContainer.length).toBe(0);
+      var form = {$valid: true}; //view validations have been passed
+
+      service.addTrigger(form);
+      expect(triggerContainer.length).toBe(triggerLength);
     });
 
     describe("if trigger is valid", function () {
       beforeEach(function () {
         TriggerModelFactoryMock.isValidTrigger.and.returnValue(true);
-        service.addTrigger();
+        var form = {$valid: true}; //view validations have been passed
+
+        service.addTrigger(form);
       });
 
       it("it is added to policy with its position", function () {
-        expect(triggerContainer.length).toBe(1);
+        expect(triggerContainer.length).toBe(triggerLength + 1);
         expect(triggerContainer[0].name).toEqual(fakeTrigger.name);
       });
     });

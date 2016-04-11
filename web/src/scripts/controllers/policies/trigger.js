@@ -27,11 +27,13 @@
     var vm = this;
 
     vm.init = init;
-    vm.addTrigger = addTrigger;
     vm.addOutput = addOutput;
     vm.changeSqlHelpVisibility = changeSqlHelpVisibility;
+    vm.closeErrorMessage = closeErrorMessage;
+    vm.addTrigger = TriggerService.addTrigger;
     vm.cancelTriggerCreation = TriggerService.cancelTriggerCreation;
     vm.removeTrigger = TriggerService.removeTrigger;
+    vm.error = TriggerModelFactory.getError();
     vm.isNewTrigger = TriggerService.isNewTrigger;
     vm.saveTrigger = TriggerService.saveTrigger;
 
@@ -53,17 +55,16 @@
       }
     }
 
+    function closeErrorMessage() {
+      TriggerModelFactory.setError();
+    }
+
     function changeSqlHelpVisibility() {
       vm.showSqlHelp = !vm.showSqlHelp;
     }
 
-    function addTrigger() {
-      vm.form.$submitted = true;
-      if (vm.form.$valid) {
-        vm.form.$submitted = false;
-        TriggerService.addTrigger();
-        TriggerService.disableTriggerCreationPanel();
-      }
+    function addTrigger(form) {
+      TriggerService.addTrigger(form);
     }
 
     function addOutput() {
