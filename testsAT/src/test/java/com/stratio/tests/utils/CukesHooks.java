@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.testsAT.utils;
+package com.stratio.tests.utils;
 
 import com.stratio.cucumber.testng.ICucumberFormatter;
 import com.stratio.cucumber.testng.ICucumberReporter;

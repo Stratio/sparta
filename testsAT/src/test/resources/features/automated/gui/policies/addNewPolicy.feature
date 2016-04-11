@@ -4,29 +4,30 @@ Feature: Test adding a new policy in Sparta GUI
 	Background: Setup Sparta GUI
 		Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
 		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
-	
+
+	@ignore @tillfixed(SPARTA-589)
 	Scenario: Add a new policy
 		# Create input fragment
-                Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
-                | id | DELETE | N/A |
-                | fragmentType | UPDATE | input |
-                | name | UPDATE | flumeinput |
-                | element.type | UPDATE | Flume |
-                Then the service response status must be '200'.
-                And I save element '$.id' in environment variable 'previousFragmentID'
-                When I send a 'GET' request to '/fragment/input'
-                Then the service response status must be '200' and its response length must be '1'
+        Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
+        | id | DELETE | N/A |
+        | fragmentType | UPDATE | input |
+        | name | UPDATE | flumeinput |
+        | element.type | UPDATE | Flume |
+        Then the service response status must be '200'.
+        And I save element '$.id' in environment variable 'previousFragmentID'
+        When I send a 'GET' request to '/fragment/input'
+        Then the service response status must be '200' and its response length must be '1'
 
 		# Create output fragment
-                Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
-                | id | DELETE | N/A |
-                | fragmentType | UPDATE | output |
-                | name | UPDATE | printoutput |
-                | element.type | UPDATE | Print |
-                Then the service response status must be '200'.
-                And I save element '$.id' in environment variable 'previousFragmentID_2'
-                When I send a 'GET' request to '/fragment/output'
-                Then the service response status must be '200' and its response length must be '1'
+        Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
+        | id | DELETE | N/A |
+        | fragmentType | UPDATE | output |
+        | name | UPDATE | printoutput |
+        | element.type | UPDATE | Print |
+        Then the service response status must be '200'.
+        And I save element '$.id' in environment variable 'previousFragmentID_2'
+        When I send a 'GET' request to '/fragment/output'
+        Then the service response status must be '200' and its response length must be '1'
 		
 		# Browse to policies
 		Given I browse to '/#/dashboard/policies'
@@ -36,7 +37,7 @@ Feature: Test adding a new policy in Sparta GUI
 		Given '1' element exists with 'css:div[data-qa="policy-first-message"]'
 		When I click on the element on index '0'
 		Then I wait '1' second
-                And '1' element exists with 'css:aside[data-qa="policy-creation-modal"]'
+        And '1' element exists with 'css:aside[data-qa="policy-creation-modal"]'
 		
 		# Try with empty Name and Description
 		Given '1' element exists with 'css:button[data-qa="policy-description-next-button"]'
@@ -139,21 +140,21 @@ Feature: Test adding a new policy in Sparta GUI
 		Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-duplicated"]'
 		And '1' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
 
-	    	# Add second output field
+	    # Add second output field
 	  	Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
 		Then I type 'myOutput' on the element on index '0'
 		Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:i[data-qa="policy-model-output-list-1-remove"]'
 	  	And '1' element exists with 'css:select[data-qa="policy-model-output-list-1-type"]'
-	    	And '2' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
+	    And '2' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
 
-	    	# Delete first output field
-	    	Given '1' element exists with 'css:i[data-qa="policy-model-output-list-0-remove"]'
+	    # Delete first output field
+	    Given '1' element exists with 'css:i[data-qa="policy-model-output-list-0-remove"]'
 		When I click on the element on index '0'
-	    	Then '1' element exists with 'css:i[data-qa="policy-model-output-list-0-remove"]'
+	    Then '1' element exists with 'css:i[data-qa="policy-model-output-list-0-remove"]'
 	  	And '1' element exists with 'css:select[data-qa="policy-model-output-list-0-type"]'
-	    	And '1' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
+	    And '1' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
 		
 		# Add transformation
 		Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
@@ -224,115 +225,115 @@ Feature: Test adding a new policy in Sparta GUI
 		
 		# Delete model
 		Given I send 'PAGE_UP'
-                Given '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
-                Then I click on the element on index '0'
-                Given I send 'PAGE_DOWN'
-                And '1' element exists with 'css:button[data-qa="policy-model-delete-button"]'
-                When I click on the element on index '0'
-                Then '1' element exists with 'css:aside[data-qa="confirm-modal"]'
-                And '1' element exists with 'css:button[data-qa="modal-ok-button"]'
-                And I click on the element on index '0'
+        Given '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
+        Then I click on the element on index '0'
+        Given I send 'PAGE_DOWN'
+        And '1' element exists with 'css:button[data-qa="policy-model-delete-button"]'
+        When I click on the element on index '0'
+        Then '1' element exists with 'css:aside[data-qa="confirm-modal"]'
+        And '1' element exists with 'css:button[data-qa="modal-ok-button"]'
+        And I click on the element on index '0'
 
 		# Create new transformation (Geo)
-                Given '1' element exists with 'css:button[data-qa="policy-model-add-new-transformation-button"]'
-                When I click on the element on index '0'
-                Then '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
-                Given '1' element exists with 'css:label[data-qa="policy-model-type-geo"]'
-                Then I click on the element on index '0'
-                And I send 'PAGE_DOWN'
-                Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
-                When I click on the element on index '0'
-                Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-length"]'
+        Given '1' element exists with 'css:button[data-qa="policy-model-add-new-transformation-button"]'
+        When I click on the element on index '0'
+        Then '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
+        Given '1' element exists with 'css:label[data-qa="policy-model-type-geo"]'
+        Then I click on the element on index '0'
+        And I send 'PAGE_DOWN'
+        Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
+        When I click on the element on index '0'
+        Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-length"]'
 
-                # Try with empty Configuration
-                Given '1' element exists with 'css:textarea[data-qa="policy-model-configuration-textarea"]'
-                Then I clear the content on text input at index '0'
-                Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
-                When I click on the element on index '0'
-                Then '1' element exists with 'css:div[data-qa="policy-model-configuration-textarea-error"]'
+        # Try with empty Configuration
+        Given '1' element exists with 'css:textarea[data-qa="policy-model-configuration-textarea"]'
+        Then I clear the content on text input at index '0'
+        Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
+        When I click on the element on index '0'
+        Then '1' element exists with 'css:div[data-qa="policy-model-configuration-textarea-error"]'
 
-                # Fill Configuration
-                Given '1' element exists with 'css:textarea[id="model-configuration"]'
-                Then I type '{ "latitude": "lat", "longitude": "long" }' on the element on index '0'
+        # Fill Configuration
+        Given '1' element exists with 'css:textarea[id="model-configuration"]'
+        Then I type '{ "latitude": "lat", "longitude": "long" }' on the element on index '0'
 
-                # Add empty output field
-                Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
-                Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
-                Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
-                When I click on the element on index '0'
-                Then '0' elements exist with 'css:i[data-qa="policy-model-output-list-0-remove"]'
+        # Add empty output field
+        Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
+        Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
+        Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
+        When I click on the element on index '0'
+        Then '0' elements exist with 'css:i[data-qa="policy-model-output-list-0-remove"]'
 
-                # Add output field
-                Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
-                Then I type 'myOutput' on the element on index '0'
-                Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
-                When I click on the element on index '0'
-                Then '1' element exists with 'css:i[data-qa="policy-model-output-list-0-remove"]'
+        # Add output field
+        Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
+        Then I type 'myOutput' on the element on index '0'
+        Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
+        When I click on the element on index '0'
+        Then '1' element exists with 'css:i[data-qa="policy-model-output-list-0-remove"]'
 
 		# Add same output field
-                Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
-                Then I type 'myOutput' on the element on index '0'
-                Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
-                When I click on the element on index '0'
-                Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-duplicated"]'
-                And '1' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
+        Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
+        Then I type 'myOutput' on the element on index '0'
+        Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
+        When I click on the element on index '0'
+        Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-duplicated"]'
+        And '1' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
 
 		Given '1' element exists with 'css:select[data-qa="policy-description-raw-data-partition-format"]'
-                Then I select 'Your raw event' on the element on index '0'
+        Then I select 'Your raw event' on the element on index '0'
 
-                # Add model
-                Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
-                Then I click on the element on index '0'
+        # Add model
+        Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
+        Then I click on the element on index '0'
 
-                # Delete model
-                Given '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
-                Then I click on the element on index '0'
-                And I send 'PAGE_DOWN'
-                Given '1' element exists with 'css:button[data-qa="policy-model-delete-button"]'
-                When I click on the element on index '0'
-                Then '1' element exists with 'css:aside[data-qa="confirm-modal"]'
-                And '1' element exists with 'css:button[data-qa="modal-ok-button"]'
-                And I click on the element on index '0'
+        # Delete model
+        Given '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
+        Then I click on the element on index '0'
+        And I send 'PAGE_DOWN'
+        Given '1' element exists with 'css:button[data-qa="policy-model-delete-button"]'
+        When I click on the element on index '0'
+        Then '1' element exists with 'css:aside[data-qa="confirm-modal"]'
+        And '1' element exists with 'css:button[data-qa="modal-ok-button"]'
+        And I click on the element on index '0'
 
 		# Create new transformation (Date Time)
 		Given '1' element exists with 'css:button[data-qa="policy-model-add-new-transformation-button"]'
-                When I click on the element on index '0'
-                Then '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
-                Given '1' element exists with 'css:label[data-qa="policy-model-type-datetime"]'
-                Then I click on the element on index '0'
-                Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
-                When I click on the element on index '0'
-                Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-length"]'
+        When I click on the element on index '0'
+        Then '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
+        Given '1' element exists with 'css:label[data-qa="policy-model-type-datetime"]'
+        Then I click on the element on index '0'
+        Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
+        When I click on the element on index '0'
+        Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-length"]'
 
 		# Add empty output field
-                Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
-                Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
-                Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
-                When I click on the element on index '0'
-                Then '0' elements exist with 'css:i[data-qa="policy-model-output-list-0-remove"]'
+        Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
+        Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
+        Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
+        When I click on the element on index '0'
+        Then '0' elements exist with 'css:i[data-qa="policy-model-output-list-0-remove"]'
 
-                # Add output field
-                Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
-                Then I type 'myOutput' on the element on index '0'
-                Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
-                When I click on the element on index '0'
-                Then '1' element exists with 'css:i[data-qa="policy-model-output-list-0-remove"]'
+        # Add output field
+        Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
+        Then I type 'myOutput' on the element on index '0'
+        Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
+        When I click on the element on index '0'
+        Then '1' element exists with 'css:i[data-qa="policy-model-output-list-0-remove"]'
 
-                # Add same output field
-                Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
-                Then I type 'myOutput' on the element on index '0'
-                Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
-                When I click on the element on index '0'
-                Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-duplicated"]'
-                And '1' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
+        # Add same output field
+        Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
+        Then I type 'myOutput' on the element on index '0'
+        Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
+        When I click on the element on index '0'
+        Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-duplicated"]'
+        And '1' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
 
 		Given '1' element exists with 'css:select[data-qa="policy-description-raw-data-partition-format"]'
-                Then I select 'Your raw event' on the element on index '0'
+        Then I select 'Your raw event' on the element on index '0'
 
-                # Add model
+        # Add model
 		Given I send 'PAGE_DOWN'
-                And '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
-                When I click on the element on index '0'
+        And '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
+        When I click on the element on index '0'
 		Then '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
 		
 		# Add trigger
@@ -354,12 +355,12 @@ Feature: Test adding a new policy in Sparta GUI
 		Then I select 'printoutput' on the element on index '0' 
 		# Save
 		Given '1' element exists with 'css:button[data-qa="policy-trigger-add-button"]'
-                When I click on the element on index '0'
-                Then '1' elements exist with 'css:i[data-qa="policy-trigger-arrow-1"]'
+        When I click on the element on index '0'
+        Then '1' elements exist with 'css:i[data-qa="policy-trigger-arrow-1"]'
 
 		# Go to cubes
-                Given '1' element exists with 'css:button[data-qa="policy-next-step-button"]'
-                Then I click on the element on index '0'
+        Given '1' element exists with 'css:button[data-qa="policy-next-step-button"]'
+        Then I click on the element on index '0'
 
 		# Screen 4/6 Cubes
 		# Try NO CUBES
@@ -374,7 +375,7 @@ Feature: Test adding a new policy in Sparta GUI
 		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
 		Given I send 'END'
 		And '1' element exists with 'css:button[data-qa="policy-cube-add-button"]'
-                When I click on the element on index '0'
+        When I click on the element on index '0'
 		Then '1' element exists with 'css:span[data-qa="cube-name-error-required"]'
 		And '1' element exists with 'css:div[data-qa="policy-cube-error-msg"]'
 		And '1' element exists with 'css:span[data-qa="cube-name-error-required"]'
@@ -505,8 +506,8 @@ Feature: Test adding a new policy in Sparta GUI
 		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
 		Then I type 'myCube' on the element on index '0'
 		# Add output
-                Given '1' element exists with 'css:select[data-qa="cube-output-select"]'
-                Then I select 'printoutput' on the element on index '0'
+        Given '1' element exists with 'css:select[data-qa="cube-output-select"]'
+        Then I select 'printoutput' on the element on index '0'
 
 		# Add Field
 		Given '1' element exists with 'css:div[data-qa^="policy-cube-outputlist-"]'
@@ -551,9 +552,9 @@ Feature: Test adding a new policy in Sparta GUI
 		Given '1' element exists with 'css:select[data-qa="trigger-output-select"]'
 		Then I select 'printoutput' on the element on index '0'
 		# Save
-                Given '1' element exists with 'css:button[data-qa="policy-trigger-add-button"]'
-                When I click on the element on index '0'
-                Then '1' elements exist with 'css:i[data-qa="policy-trigger-arrow-1"]'
+        Given '1' element exists with 'css:button[data-qa="policy-trigger-add-button"]'
+        When I click on the element on index '0'
+        Then '1' elements exist with 'css:i[data-qa="policy-trigger-arrow-1"]'
 		
 		# Add cube
 		Given I send 'END'
@@ -565,8 +566,8 @@ Feature: Test adding a new policy in Sparta GUI
 		Given '1' element exists with 'css:button[data-qa="policy-save-button"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:aside[data-qa="confirm-modal"]'
-                Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
-                When I click on the element on index '0'
+        Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
+        When I click on the element on index '0'
 		Then '1' element exists with 'css:i[data-qa^="policy-context-menu-"]'
 		And '1' element exists with 'css:button[data-qa="policies-new-policy-button"]'
 		Given I send a 'GET' request to '/policy/findByName/myPolicy'
@@ -583,17 +584,17 @@ Feature: Test adding a new policy in Sparta GUI
 		Given '1' element exists with 'css:input[data-qa="policy-description"]'
 		Then I type 'my Policy Description' on the element on index '0'
 		Given '1' element exists with 'css:button[data-qa="policy-description-next-button"]'
-                When I click on the element on index '0'
+        When I click on the element on index '0'
 		Then '1' element exists with 'css:div[data-qa="error-msg"]'
 		Given '1' element exists with 'css:i[data-qa="modal-cancel-icon"]'
 		Then I click on the element on index '0'
-		
-		# Delete everything
-		Scenario: cleanup
+
+	@ignore @tillfixed(SPARTA-589)
+	Scenario: Cleanup
 		When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
-                Then the service response status must be '200'.
+        Then the service response status must be '200'.
 		When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
 		Then the service response status must be '200'.
 		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
-                Then the service response status must be '200'.
+        Then the service response status must be '200'.
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.testsAT.utils;
+package com.stratio.tests.utils;
 
 import com.stratio.tests.utils.BaseGTest;
 import com.stratio.tests.utils.ThreadProperty;

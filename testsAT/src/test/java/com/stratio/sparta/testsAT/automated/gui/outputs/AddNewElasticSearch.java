@@ -15,7 +15,7 @@
  */
 package com.stratio.sparta.testsAT.automated.gui.outputs;
 
-import com.stratio.sparta.testsAT.utils.BaseTest;
+import com.stratio.tests.utils.BaseTest;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
