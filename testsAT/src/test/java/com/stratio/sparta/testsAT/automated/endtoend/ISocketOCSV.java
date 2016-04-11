@@ -15,7 +15,7 @@
  */
 package com.stratio.sparta.testsAT.automated.endtoend;
 
-import com.stratio.sparta.testsAT.utils.BaseTest;
+import com.stratio.tests.utils.BaseTest;
 import org.testng.annotations.Test;
 
 import com.stratio.cucumber.testng.CucumberRunner;
