@@ -16,30 +16,26 @@
 
 package com.stratio.sparta.serving.api.actor
 
-import java.io.File
 import java.util.UUID
+import scala.collection.JavaConversions
+import scala.util.Try
 
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.api.constants.ActorsConstant
-import com.stratio.sparta.serving.api.utils.PolicyUtils
-import com.stratio.sparta.serving.core.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.exception.ServingCoreException
-import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
-import org.apache.commons.io.FileUtils
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.jackson.Serialization.write
 
-import scala.collection.JavaConversions
-import scala.util.{Failure, Try}
-
+import com.stratio.sparta.serving.api.constants.ActorsConstant
+import com.stratio.sparta.serving.api.utils.PolicyUtils
+import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.models._
+import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 
 /**
-  * Implementation of supported CRUD operations over ZK needed to manage policies.
-  */
+ * Implementation of supported CRUD operations over ZK needed to manage policies.
+ */
 class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRef)
   extends Actor
     with SpartaSerializer
@@ -84,7 +80,6 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
         new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy with id $id.")
       ))
     })
-
 
   def findByName(name: String): Unit =
     sender ! ResponsePolicy(Try({
@@ -149,16 +144,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
   def delete(id: String): Unit =
     sender ! Response(Try({
       val policyModel = byId(id, curatorFramework)
-      Try {
-        if (SpartaConfig.getDetailConfig.get.getString(AppConstant.ExecutionMode) == "local") {
-          FileUtils.deleteDirectory(new File(policyModel.checkpointPath))
-        } else {
-          deleteCheckpointPath(policyModel)
-        }
-      } match {
-        case Failure(ex) => log.info(s"No checkpoint path for policy ${policyModel.name}")
-        case _ => log.info(s"Deleted checkpoint path ${policyModel.checkpointPath}")
-      }
+      deleteCheckpointPath(policyModel)
       curatorFramework.delete().forPath(s"${AppConstant.PoliciesBasePath}/$id")
     }).recover {
       case e: NoNodeException => throw new ServingCoreException(ErrorModel.toString(
@@ -166,7 +152,6 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
           s"No policy with id $id.")
       ))
     })
-
 }
 
 object PolicyActor extends SLF4JLogging {
