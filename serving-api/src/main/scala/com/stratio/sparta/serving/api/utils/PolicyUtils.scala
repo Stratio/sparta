@@ -18,6 +18,12 @@ package com.stratio.sparta.serving.api.utils
 
 import java.io.File
 import java.util.UUID
+import scala.collection.JavaConversions
+import scala.util._
+
+import org.apache.commons.io.FileUtils
+import org.apache.curator.framework.CuratorFramework
+import org.json4s.jackson.Serialization._
 
 import com.stratio.sparta.driver.util.HdfsUtils
 import com.stratio.sparta.serving.api.constants.ActorsConstant
@@ -25,23 +31,17 @@ import com.stratio.sparta.serving.api.helpers.SpartaHelper._
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.AggregationPoliciesModel
 import com.stratio.sparta.serving.core.{CuratorFactoryHolder, SpartaConfig}
-import org.apache.commons.io.FileUtils
-import org.apache.curator.framework.CuratorFramework
-import org.json4s.jackson.Serialization._
-
-import scala.collection.JavaConversions
-import scala.util._
 
 trait PolicyUtils {
 
   def existsByName(name: String,
-                   id: Option[String] = None,
-                   curatorFramework: CuratorFramework): Boolean = {
+    id: Option[String] = None,
+    curatorFramework: CuratorFramework): Boolean = {
     val nameToCompare = name.toLowerCase
     Try({
       if (existsPath) {
         getPolicies(curatorFramework)
-          .filter(byName(id, nameToCompare)).toSeq.nonEmpty
+          .filter(byName(id, nameToCompare)).nonEmpty
       } else {
         log.warn(s"Zookeeper path for policies doesn't exists. It will be created.")
         false
@@ -65,7 +65,6 @@ trait PolicyUtils {
         policy.name == nameToCompare && policy.id.get != id.get
       else policy.name == nameToCompare
   }
-
 
   def savePolicyInZk(policy: AggregationPoliciesModel, curatorFramework: CuratorFramework): Unit = {
 
@@ -148,7 +147,6 @@ trait PolicyUtils {
     }
   }
 
-
   def setVersion(lastPolicy: AggregationPoliciesModel, newPolicy: AggregationPoliciesModel): Option[Int] = {
     if (lastPolicy.cubes != newPolicy.cubes) {
       lastPolicy.version match {
@@ -157,6 +155,7 @@ trait PolicyUtils {
       }
     } else lastPolicy.version
   }
+
   def getPolicies(curatorFramework: CuratorFramework): List[AggregationPoliciesModel] = {
     val children = curatorFramework.getChildren.forPath(AppConstant.PoliciesBasePath)
     JavaConversions.asScalaBuffer(children).toList.map(element =>
