@@ -18,7 +18,7 @@ describe('policies.wizard.controller.policy-model-controller', function () {
       fakeApiPolicy = _apiPolicy_;
       fakePolicyTemplate = _templatePolicy_;
       fakeModelTemplate = fakePolicyTemplate.model;
-      fakeModel = _modelTransformation_;
+      fakeModel = angular.copy(_modelTransformation_);
     });
 
     $httpBackend.when('GET', 'languages/en-US.json')
@@ -95,11 +95,11 @@ describe('policies.wizard.controller.policy-model-controller', function () {
   });
 
   describe("should be able to change the default configuration when type is changed by user", function () {
-    it("if type is morphlines, it returns the morphlinesDefaultConfiguration", function () {
+    it("if type is Morphlines, it returns the morphlinesDefaultConfiguration", function () {
       ctrl.model.type = "Morphlines";
       ctrl.onChangeType();
 
-      expect(ctrl.model.configuration).toEqual(fakeModelTemplate.morphlines.defaultConfiguration);
+      expect(ctrl.model.configuration).toEqual(fakeModelTemplate.Morphlines.defaultConfiguration);
     });
 
   });
@@ -113,11 +113,19 @@ describe('policies.wizard.controller.policy-model-controller', function () {
       expect(modelFactoryMock.setError).toHaveBeenCalledWith("_ERROR_._GENERIC_FORM_");
     });
 
-    it("model is added if view validations have been passed", function () {
+    it("model is added if view validations have been passed and has an output field at least", function () {
       ctrl.form = {$valid: true}; //view validations have been passed
+
       ctrl.addModel();
 
       expect(modelServiceMock.addModel).toHaveBeenCalled();
+
+      modelServiceMock.addModel.calls.reset();
+      ctrl.model.outputFields = [];
+
+      ctrl.addModel();
+
+      expect(modelServiceMock.addModel).not.toHaveBeenCalled();
     });
   });
 

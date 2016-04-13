@@ -21,9 +21,9 @@
     .module('webApp')
     .controller('NewOperatorModalCtrl', NewOperatorModalCtrl);
 
-  NewOperatorModalCtrl.$inject = ['$modalInstance', 'operatorName', 'operatorType', 'operators', 'UtilsService', 'template', 'inputFieldList'];
+  NewOperatorModalCtrl.$inject = ['$modalInstance', 'operatorName', 'operatorType', 'operators', 'UtilsService', 'template', 'inputFieldList', 'cubeConstants'];
 
-  function NewOperatorModalCtrl($modalInstance, operatorName, operatorType, operators, UtilsService, template, inputFieldList) {
+  function NewOperatorModalCtrl($modalInstance, operatorName, operatorType, operators, UtilsService, template, inputFieldList, cubeConstants) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -55,7 +55,7 @@
     }
 
     function isCount() {
-      return vm.operator.type == template.functionNames[2]
+      return vm.operator.type == cubeConstants.COUNT
     }
 
     function ok() {

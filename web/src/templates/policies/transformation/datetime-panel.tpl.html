@@ -10,7 +10,7 @@
   data-required="true"
   data-qa="policy-description-raw-data-partition-format">
 </form-field-select>
-<form-field data-ng-repeat="item in vm.template.model[vm.model.type]"
+<form-field data-ng-repeat="item in vm.template.model[vm.model.type].properties"
 	class="c-col c-col--3 c-col--vertical-top"
 	data-ng-form-id="{{item.propertyId}}"
 	data-field="item"
@@ -31,7 +31,6 @@
       data-qa="policy-model-outputs"
       data-pattern="vm.outputPattern"
       data-error="vm.modelError.duplicatedOutput"
-      data-placeholder="{{vm.outputInputPlaceholder | translate}}"
       data-submitted-form="vm.form.$submitted"
       data-is-object = "true"
       data-attribute = "name"
@@ -52,7 +51,7 @@
       data-label="'_OUTPUTS_FIELDS_' | translate"
       data-form="vm.form"
       data-output-types="vm.outputFieldTypes"
-      data-disabled-type="true"
+      data-disabled-type="false"
       data-default-type="'datetime'">
     </c-output-field-list>
   </div>
