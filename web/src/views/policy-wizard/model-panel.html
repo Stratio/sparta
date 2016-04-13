@@ -10,7 +10,7 @@
         <span data-ng-repeat="modelTypes in vm.modelTypes">
           <input data-ng-change="vm.onChangeType()" class="c-icon-radio__item"
                  id="type-{{modelTypes.name + $parent.$index| lowercase}}" type="radio"
-                 data-ng-model="vm.model.type" value="{{modelTypes.name}}" data-ng-disabled="!editionMode"  data-ng-click="vm.resetOutputFields()">
+                 data-ng-model="vm.model.type" value="{{modelTypes.name}}" data-ng-disabled="!editionMode">
           <label data-ng-model="vm.model.type" class="c-icon-radio__label"
                  data-qa="policy-model-type-{{modelTypes.name | lowercase}}"
                  for="type-{{modelTypes.name + $parent.$index| lowercase}}">

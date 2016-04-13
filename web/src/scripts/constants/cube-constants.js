@@ -17,9 +17,7 @@
   'use strict';
 
   angular
-    .module('webApp').constant('modelConstants', {
-    MORPHLINES: "Morphlines",
-    GEO: "Geo",
-    DATETIME: "DateTime"
+    .module('webApp').constant('cubeConstants', {
+    COUNT: "Count"
     });
 })();
