@@ -28,6 +28,8 @@
                     TriggerService, triggerConstants, $scope, $window) {
     var vm = this;
 
+    var createdDimensions = 0;
+    var createdOperators = 0;
     vm.init = init;
     vm.addCube = addCube;
     vm.removeCube = CubeService.removeCube;
@@ -59,6 +61,8 @@
         vm.outputList = PolicyModelFactory.getAllModelOutputs();
         vm.cubeError = CubeModelFactory.getError();
         vm.cubeContext = CubeModelFactory.getContext();
+        createdDimensions = vm.cube.dimensions.length + 1;
+        createdOperators = vm.cube.operators.length + 1;
         initTriggerAccordion();
 
         return OutputService.generateOutputNameList().then(function (outputList) {
@@ -92,7 +96,7 @@
           return outputName;
         },
         dimensionName: function () {
-          return outputName;
+          return outputName.toLowerCase() + createdDimensions;
         },
         dimensions: function () {
           return vm.cube.dimensions
@@ -110,6 +114,7 @@
       return modalInstance.result.then(function (dimensionData) {
         vm.cube.dimensions.push(dimensionData.dimension);
         vm.isTimeDimension = dimensionData.isTimeDimesion;
+        createdDimensions++;
       });
     }
 
@@ -123,8 +128,7 @@
           return functionName;
         },
         operatorName: function () {
-          var operatorLength = vm.cube.operators.length + 1;
-          return functionName.toLowerCase() + operatorLength;
+          return functionName.toLowerCase() + createdOperators;
         },
         operators: function () {
           return vm.cube.operators
@@ -140,6 +144,7 @@
 
       return modalInstance.result.then(function (operator) {
         vm.cube.operators.push(operator);
+        createdOperators++;
       });
     }
 
