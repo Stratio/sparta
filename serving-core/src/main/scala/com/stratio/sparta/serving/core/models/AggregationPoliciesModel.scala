@@ -17,6 +17,7 @@
 package com.stratio.sparta.serving.core.models
 
 import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.helpers.OperationsHelper
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
 
 case class AggregationPoliciesModel(id: Option[String] = None,
@@ -91,7 +92,20 @@ object AggregationPoliciesValidator extends SpartaSerializer {
           trigger.outputs.forall(outputName => outputsNames.contains(outputName)))),
         new ErrorModel(
           ErrorModel.ValidationError_There_is_at_least_one_cube_with_triggers_with_a_bad_output,
-          "There is at least one cube with triggers that contains a bad output"))
+          "There is at least one cube with triggers that contains a bad output")),
+      (policy.cubes.forall(cube =>
+        cube.triggers.flatMap(trigger => trigger.overLast)
+          .forall(overlast => OperationsHelper.parseValueToMilliSeconds(overlast) %
+            OperationsHelper.parseValueToMilliSeconds(policy.sparkStreamingWindow) == 0)),
+        new ErrorModel(
+          ErrorModel.ValidationError_There_is_at_least_one_trigger_with_a_bad_overlast,
+          "There is at least one trigger with a bad overlast")),
+      (policy.streamTriggers.flatMap(trigger => trigger.overLast)
+        .forall(overlast => OperationsHelper.parseValueToMilliSeconds(overlast) %
+          OperationsHelper.parseValueToMilliSeconds(policy.sparkStreamingWindow) == 0),
+        new ErrorModel(
+          ErrorModel.ValidationError_There_is_at_least_one_trigger_with_a_bad_overlast,
+          "There is at least one trigger with a bad overlast"))
     )
     errorModels
   }
