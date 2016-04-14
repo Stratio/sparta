@@ -52,6 +52,7 @@ object ErrorModel extends SpartaSerializer {
   val ValidationError_There_is_at_least_one_cube_with_a_bad_output               = "4004"
   val ValidationError_There_is_at_least_one_cube_with_triggers_with_a_bad_output = "4005"
   val ValidationError_There_is_at_least_one_stream_trigger_with_a_bad_output     = "4006"
+  val ValidationError_There_is_at_least_one_trigger_with_a_bad_overlast          = "4007"
 
   def toString(errorModel: ErrorModel): String = write(errorModel)
 
