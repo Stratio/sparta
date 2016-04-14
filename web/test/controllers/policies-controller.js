@@ -32,7 +32,7 @@ describe('policies.wizard.controller.policies-controller', function () {
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
     fakeCreationStatus = {"currentStep": 0};
-    policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['createPolicy', 'getAllPolicies', 'getPoliciesStatus', 'runPolicy', 'stopPolicy']);
+    policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['createPolicy', 'getAllPolicies', 'getPoliciesStatus', 'runPolicy', 'stopPolicy', 'downloadPolicy']);
     policyFactoryMock.getAllPolicies.and.callFake(function () {
       var defer = $q.defer();
       defer.resolve(fakePolicyList);
@@ -154,5 +154,20 @@ describe('policies.wizard.controller.policies-controller', function () {
       });
     })
   });
+
+
+  describe("should be able to download a policy", function(){
+    it("policy factory is called to download the policy passing its id", function(){
+      var fakePolicyId = "fake policy id";
+      policyFactoryMock.downloadPolicy.and.callFake(resolvedPromise);
+      ctrl.downloadPolicy(fakePolicyId);
+
+      expect(policyFactoryMock.downloadPolicy).toHaveBeenCalledWith(fakePolicyId);
+      });
+
+    it ("a hidden element is created in order to force the file downloading", function(){
+
+    })
+  })
 
 });

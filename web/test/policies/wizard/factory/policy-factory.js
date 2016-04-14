@@ -6,7 +6,7 @@ describe('policies.wizard.factory.policy-factory', function () {
 
   beforeEach(module(function ($provide) {
     ApiPolicyService = jasmine.createSpyObj('ApiPolicyService', ['getPolicyByFragmentId', 'getPolicyById',
-      'getAllPolicies', 'createPolicy', 'deletePolicy', 'runPolicy', 'stopPolicy', 'savePolicy', 'getPoliciesStatus', 'getFakePolicy']);
+      'getAllPolicies', 'createPolicy', 'deletePolicy', 'runPolicy', 'stopPolicy', 'savePolicy', 'getPoliciesStatus', 'getFakePolicy', 'downloadPolicy']);
 
     // inject mocks
     $provide.value('ApiPolicyService', ApiPolicyService);
@@ -144,6 +144,18 @@ describe('policies.wizard.factory.policy-factory', function () {
 
       expect(promiseMock).toHaveBeenCalledWith();
     });
+
+    it("download a policy by its id", function () {
+      var fakePolicyId = "fake policy id";
+      ApiPolicyService.downloadPolicy.and.returnValue(
+        {
+          "get": promiseMock
+        });
+
+      factory.downloadPolicy(fakePolicyId);
+
+      expect(promiseMock).toHaveBeenCalledWith({"id": fakePolicyId});
+    });
   });
 
 
@@ -163,7 +175,6 @@ describe('policies.wizard.factory.policy-factory', function () {
           }
         });
     });
-
 
     afterEach(function () {
       scope.$apply();
@@ -187,7 +198,4 @@ describe('policies.wizard.factory.policy-factory', function () {
       });
     });
   })
-
-
-})
-;
+});
