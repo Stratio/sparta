@@ -36,11 +36,11 @@
       createPolicy: function (newPolicyData) {
         return ApiPolicyService.createPolicy().create(newPolicyData).$promise;
       },
-      deletePolicy: function (policyid) {
-        return ApiPolicyService.deletePolicy().delete({'id': policyid}).$promise;
+      deletePolicy: function (policyId) {
+        return ApiPolicyService.deletePolicy().delete({'id': policyId}).$promise;
       },
-      runPolicy: function (policyid) {
-        return ApiPolicyService.runPolicy().get({'id': policyid}).$promise;
+      runPolicy: function (policyId) {
+        return ApiPolicyService.runPolicy().get({'id': policyId}).$promise;
       },
       stopPolicy: function (policy) {
         return ApiPolicyService.stopPolicy().update(policy).$promise;
@@ -50,6 +50,9 @@
       },
       getPoliciesStatus: function () {
         return ApiPolicyService.getPoliciesStatus().get().$promise;
+      },
+      downloadPolicy: function (policyId) {
+        return ApiPolicyService.downloadPolicy().get({'id': policyId}).$promise;
       },
       getFakePolicy: function () {
         return ApiPolicyService.getFakePolicy().get().$promise;

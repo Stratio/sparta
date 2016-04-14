@@ -21,10 +21,10 @@
     .controller('PolicyListCtrl', PolicyListCtrl);
 
   PolicyListCtrl.$inject = ['WizardStatusService', 'PolicyFactory', 'PolicyModelFactory', 'ModalService', '$state',
-    '$translate', '$interval', '$filter', '$scope', '$q'];
+    '$translate', '$interval', '$filter', '$scope', '$q', '$window'];
 
   function PolicyListCtrl(WizardStatusService, PolicyFactory, PolicyModelFactory, ModalService, $state,
-                          $translate, $interval, $filter, $scope, $q) {
+                          $translate, $interval, $filter, $scope, $q, $window) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -37,6 +37,7 @@
     vm.editPolicy = editPolicy;
     vm.deleteErrorMessage = deleteErrorMessage;
     vm.deleteSuccessMessage = deleteSuccessMessage;
+    vm.downloadPolicy = downloadPolicy;
 
     vm.policiesData = {};
     vm.policiesData.list = undefined;
@@ -203,6 +204,16 @@
         $interval.cancel(checkPoliciesStatus);
         vm.successMessage.text = '_ERROR_._' + error.data.i18nCode + '_';
       });
+    }
+
+    function downloadPolicy(policyId) {
+      PolicyFactory.downloadPolicy(policyId).then(function (policyFile) {
+        var blob = new Blob([JSON.stringify(policyFile)], {type: "text/plain;charset=utf-8"});
+        var url = ( $window.URL || $window.webkitURL).createObjectURL(blob);
+        var a = $("<a/>").attr({href: url, download: policyFile.name + ".json"});
+        a[0].click();
+        a.remove();
+      })
     }
 
     /*Stop $interval when changing the view*/

@@ -48,8 +48,8 @@
                                  data-qa="policy-context-menu-{{policyData.policy.id}}-edit">
                   {{"_OUTPUT_ACTIONS_MENU_EDIT_" | translate}}
                 </st-menu-element>
-                <st-menu-element class-icon="icon-download" data-href="/policy/find/{{policyData.policy.id}}"
-                                 data-download-file-name="{{policyData.policy.name}}.json"
+                <st-menu-element class-icon="icon-download"
+                                 data-ng-click="policies.downloadPolicy(policyData.policy.id)"
                                  data-qa="policy-context-menu-{{policyData.policy.id}}-download">
                   {{"_OUTPUT_ACTIONS_MENU_DOWNLOAD_" | translate}}
                 </st-menu-element>

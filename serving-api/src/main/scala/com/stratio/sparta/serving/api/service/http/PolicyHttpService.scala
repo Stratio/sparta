@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.service.http
 
 import java.io.File
 import javax.ws.rs.Path
+import scala.concurrent.Await
+import scala.util.{Failure, Success}
 
 import akka.pattern.ask
-import com.stratio.sparta.serving.api.actor.PolicyActor._
-import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor
-import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.api.service.http.BaseHttpService
-import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.helpers.PolicyHelper
-import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
 import spray.http.HttpHeaders.`Content-Disposition`
@@ -34,8 +29,13 @@ import spray.http.{HttpResponse, StatusCodes}
 import spray.httpx.marshalling.ToResponseMarshallable
 import spray.routing._
 
-import scala.concurrent.Await
-import scala.util.{Failure, Success}
+import com.stratio.sparta.serving.api.actor.PolicyActor._
+import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor
+import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.helpers.PolicyHelper
+import com.stratio.sparta.serving.core.models._
+import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 
 @Api(value = HttpConstant.PolicyPath, description = "Operations over policies.")
 trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
@@ -312,12 +312,13 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
         Await.result(future, timeout.duration) match {
           case ResponsePolicy(Failure(exception)) => throw exception
           case ResponsePolicy(Success(policy)) => {
-            val policyFragments = getPolicyWithFragments(policy)
-            AggregationPoliciesValidator.validateDto(policyFragments)
+            val policyWithFragments = getPolicyWithFragments(policy)
+            val policyWithNoFragments = policyWithFragments.copy(fragments = Seq.empty)
+            AggregationPoliciesValidator.validateDto(policyWithFragments)
             val tempFile = File.createTempFile(s"${policy.id.get}-${policy.name}-", ".json")
             tempFile.deleteOnExit()
             respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> s"${policy.name}.json"))) {
-              scala.tools.nsc.io.File(tempFile).writeAll(write(policy))
+              scala.tools.nsc.io.File(tempFile).writeAll(write(policyWithNoFragments))
               getFromFile(tempFile)
             }
           }
