@@ -92,13 +92,13 @@ public class CukesHooks extends BaseSpec implements ICucumberReporter, ICucumber
 
     @Override
     public void scenario(Scenario scenario) {
-        logger.info("Got to scenario {} ", scenario.getName());
+        // logger.info("Got to scenario {} ", scenario.getName());
         this.scenario = scenario;
     }
 
     @Override
     public void scenarioOutline(ScenarioOutline scenarioOutline) {
-        logger.info("Got to scenarioOutline {} ", scenarioOutline.getName());
+        // logger.info("Got to scenarioOutline {} ", scenarioOutline.getName());
         this.scenarioOutline = scenarioOutline;
     }
 
