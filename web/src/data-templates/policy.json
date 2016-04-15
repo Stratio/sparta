@@ -615,11 +615,29 @@
     ],
     "outputProperties":[
       {
-        "propertyId": "writer.fixedMeasure",
-        "propertyName": "_FIXED_MEASURE_",
+        "propertyId": "writer.fixedMeasureName",
+        "propertyName": "_FIXED_MEASURE_NAME_",
         "propertyType": "text",
-        "qa": "cube-fixed-measure",
-        "width": 12
+        "qa": "cube-fixed-measure-name",
+        "width": 6,
+        "required": "false"
+      },
+      {
+        "propertyId": "writer.fixedMeasureValue",
+        "propertyName": "_FIXED_MEASURE_VALUE_",
+        "propertyType": "text",
+        "qa": "cube-fixed-measure-value",
+        "required": "false",
+        "width": 6,
+        "position": "right",
+        "visible": [
+          [
+            {
+              "propertyId": "writer.fixedMeasureName",
+              "value": true
+            }
+          ]
+        ]
       },
       {
         "propertyId": "writer.dateType",

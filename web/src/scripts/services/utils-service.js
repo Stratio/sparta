@@ -161,6 +161,9 @@
         if (splittedKey.length > 1) {
           var tempProperty = "";
           tempProperty = object;
+          if (!object[splittedKey[0]]) {
+            object[splittedKey[0]] = {};
+          }
           for (var i = 0; i < splittedKey.length - 1; ++i) {
             tempProperty = tempProperty[splittedKey[i]];
           }
