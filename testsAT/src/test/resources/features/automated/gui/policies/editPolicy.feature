@@ -5,7 +5,6 @@ Feature: Test editting a policy in Sparta GUI
 		Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
 		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 
-	@ignore @tillfixed(SPARTA-589)
 	Scenario: Edit a policy
 		# Create input fragment
 		Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
@@ -67,7 +66,8 @@ Feature: Test editting a policy in Sparta GUI
 		# Delete
 		Given '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
 		Then I click on the element on index '0'
-		And I send 'PAGE_DOWN'
+		And I send 'END'
+	    And I wait '1' seconds
         Given '1' element exists with 'css:button[data-qa="policy-model-delete-button"]'
         When I click on the element on index '0'
         Then '1' element exists with 'css:aside[data-qa="confirm-modal"]'
@@ -95,6 +95,7 @@ Feature: Test editting a policy in Sparta GUI
 		Given '1' element exists with 'css:i[data-qa="policy-cube-arrow-1"]'
         Then I click on the element on index '0'
         And I send 'END'
+	    And I wait '1' seconds
         Given '1' element exists with 'css:button[data-qa="policy-cube-delete-button"]'
         Then I click on the element on index '0'
         And '1' element exists with 'css:aside[data-qa="confirm-modal"]'
@@ -135,6 +136,7 @@ Feature: Test editting a policy in Sparta GUI
 
 		# Add
 		Given I send 'END'
+	    And I wait '1' seconds
         And '1' element exists with 'css:button[data-qa="policy-cube-add-button"]'
         Then I click on the element on index '0'
         Then '1' elements exist with 'css:i[data-qa="policy-cube-arrow-1"]'
@@ -151,7 +153,6 @@ Feature: Test editting a policy in Sparta GUI
         Then the service response status must be '200'.
         And I save element '$.id' in environment variable 'previousPolicyID'
 
-	@ignore @tillfixed(SPARTA-589)
 	Scenario: Delete policy and fragments
 		When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
 		Then the service response status must be '200'.
