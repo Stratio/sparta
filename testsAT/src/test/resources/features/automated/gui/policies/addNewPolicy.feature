@@ -5,7 +5,6 @@ Feature: Test adding a new policy in Sparta GUI
 		Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
 		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 
-	@ignore @tillfixed(SPARTA-589)
 	Scenario: Add a new policy
 		# Create input fragment
         Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
@@ -164,7 +163,6 @@ Feature: Test adding a new policy in Sparta GUI
 		# Delete model
 		Given '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
 		Then I click on the element on index '0'
-		And I send 'PAGE_DOWN'
 		Given '1' element exists with 'css:button[data-qa="policy-model-delete-button"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:aside[data-qa="confirm-modal"]'
@@ -177,7 +175,6 @@ Feature: Test adding a new policy in Sparta GUI
 		Then '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
 		Given '1' element exists with 'css:label[data-qa="policy-model-type-morphlines"]'
 		Then I click on the element on index '0'
-		And I send 'PAGE_DOWN'
 		Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-length"]'
@@ -185,6 +182,8 @@ Feature: Test adding a new policy in Sparta GUI
 		# Try with empty Configuration
 		Given '1' element exists with 'css:textarea[data-qa="policy-model-configuration-textarea"]'
 		Then I clear the content on text input at index '0'
+	    Given I send 'PAGE_DOWN'
+	    And I wait '1' seconds
 		Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:div[data-qa="policy-model-configuration-textarea-error"]'
@@ -220,14 +219,17 @@ Feature: Test adding a new policy in Sparta GUI
 		
 		# Add model
 		Given I send 'PAGE_DOWN'
+	    And I wait '1' seconds
 		And '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
 		Then I click on the element on index '0'
 		
 		# Delete model
 		Given I send 'PAGE_UP'
+	    And I wait '1' seconds
         Given '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
         Then I click on the element on index '0'
         Given I send 'PAGE_DOWN'
+	    And I wait '1' seconds
         And '1' element exists with 'css:button[data-qa="policy-model-delete-button"]'
         When I click on the element on index '0'
         Then '1' element exists with 'css:aside[data-qa="confirm-modal"]'
@@ -241,6 +243,7 @@ Feature: Test adding a new policy in Sparta GUI
         Given '1' element exists with 'css:label[data-qa="policy-model-type-geo"]'
         Then I click on the element on index '0'
         And I send 'PAGE_DOWN'
+	    And I wait '1' seconds
         Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
         When I click on the element on index '0'
         Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-length"]'
@@ -248,6 +251,8 @@ Feature: Test adding a new policy in Sparta GUI
         # Try with empty Configuration
         Given '1' element exists with 'css:textarea[data-qa="policy-model-configuration-textarea"]'
         Then I clear the content on text input at index '0'
+	    Given I send 'PAGE_DOWN'
+	    And I wait '1' seconds
         Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
         When I click on the element on index '0'
         Then '1' element exists with 'css:div[data-qa="policy-model-configuration-textarea-error"]'
@@ -289,6 +294,7 @@ Feature: Test adding a new policy in Sparta GUI
         Given '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
         Then I click on the element on index '0'
         And I send 'PAGE_DOWN'
+	    And I wait '1' seconds
         Given '1' element exists with 'css:button[data-qa="policy-model-delete-button"]'
         When I click on the element on index '0'
         Then '1' element exists with 'css:aside[data-qa="confirm-modal"]'
@@ -332,6 +338,7 @@ Feature: Test adding a new policy in Sparta GUI
 
         # Add model
 		Given I send 'PAGE_DOWN'
+	    And I wait '1' seconds
         And '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
         When I click on the element on index '0'
 		Then '1' element exists with 'css:i[data-qa="policy-model-arrow-1"]'
@@ -341,6 +348,7 @@ Feature: Test adding a new policy in Sparta GUI
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:input[data-qa="trigger-name"]'
 		And I send 'END'
+	    And I wait '1' seconds
 		# Empty name and empty sql
 		Given '1' element exists with 'css:button[data-qa="policy-trigger-add-button"]'
 		When I click on the element on index '0'
@@ -365,15 +373,18 @@ Feature: Test adding a new policy in Sparta GUI
 		# Screen 4/6 Cubes
 		# Try NO CUBES
 		Given I send 'END'
+	    And I wait '1' seconds
 		And '1' element exists with 'css:button[data-qa="policy-save-button"]'
 		When I click on the element on index '0'
 		And I send 'HOME'
+	    And I wait '1' seconds
 		Then '1' element exists with 'css:div[data-qa="error-msg"]'
 		
 		# Try empty Name
 		Given '1' element exists with 'css:input[data-qa="cube-name"]'
 		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
 		Given I send 'END'
+	    And I wait '1' seconds
 		And '1' element exists with 'css:button[data-qa="policy-cube-add-button"]'
         When I click on the element on index '0'
 		Then '1' element exists with 'css:span[data-qa="cube-name-error-required"]'
@@ -462,12 +473,6 @@ Feature: Test adding a new policy in Sparta GUI
 		Given '17' elements exist with 'css:div[data-qa^="policy-cube-functionlist-"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:aside[data-qa="operator-modal"]'
-		#Given '1' element exists with 'css:input[data-qa="operator-modal-name"]'
-		#Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
-		#Then I type 'myOperator' on the element on index '0'
-		#Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
-		#When I click on the element on index '0'
-		#Then '1' element exists with 'css:div[data-qa="error-msg"]'
 		Given '1' element exists with 'css:input[data-qa="operator-modal-name"]'
 		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
 		Then I type 'myOperator2' on the element on index '0'
@@ -483,6 +488,7 @@ Feature: Test adding a new policy in Sparta GUI
 		
 		# Add cube
 		Given I send 'END'
+	    And I wait '1' seconds
 		And '1' element exists with 'css:button[data-qa="policy-cube-add-button"]'
 		When I click on the element on index '0'
 		Then '1' elements exist with 'css:i[data-qa="policy-cube-arrow-1"]'
@@ -491,6 +497,7 @@ Feature: Test adding a new policy in Sparta GUI
 		Given '1' element exists with 'css:i[data-qa="policy-cube-arrow-1"]'
 		Then I click on the element on index '0'
 		And I send 'END'
+	    And I wait '1' seconds
 		Given '1' element exists with 'css:button[data-qa="policy-cube-delete-button"]'
 		Then I click on the element on index '0'
 		And '1' element exists with 'css:aside[data-qa="confirm-modal"]'
@@ -539,6 +546,7 @@ Feature: Test adding a new policy in Sparta GUI
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:input[data-qa="trigger-name"]'
 		And I send 'PAGE_DOWN'
+	    And I wait '1' seconds
 		# Empty name and empty sql
 		Given '1' element exists with 'css:button[data-qa="policy-trigger-add-button"]'
 		When I click on the element on index '0'
@@ -558,6 +566,7 @@ Feature: Test adding a new policy in Sparta GUI
 		
 		# Add cube
 		Given I send 'END'
+	    And I wait '1' seconds
 		And '1' element exists with 'css:button[data-qa="policy-cube-add-button"]'
 		Then I click on the element on index '0'
 		Then '1' elements exist with 'css:i[data-qa="policy-cube-arrow-1"]'
@@ -589,7 +598,6 @@ Feature: Test adding a new policy in Sparta GUI
 		Given '1' element exists with 'css:i[data-qa="modal-cancel-icon"]'
 		Then I click on the element on index '0'
 
-	@ignore @tillfixed(SPARTA-589)
 	Scenario: Cleanup
 		When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
         Then the service response status must be '200'.
