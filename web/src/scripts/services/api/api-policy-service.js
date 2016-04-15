@@ -35,6 +35,7 @@
     vm.savePolicy = savePolicy;
     vm.stopPolicy = stopPolicy;
     vm.getPoliciesStatus = getPoliciesStatus;
+    vm.downloadPolicy = downloadPolicy;
 
     /////////////////////////////////
 
@@ -87,16 +88,20 @@
     function runPolicy() {
       return $resource('/policy/run/:id', {id: '@id'},
         {
-            'get': {method:'GET',
-            timeout: apiConfigSettings.timeout}
+          'get': {
+            method: 'GET',
+            timeout: apiConfigSettings.timeout
+          }
         });
     }
 
     function stopPolicy() {
       return $resource('/policyContext', {},
         {
-          'update': {method: 'PUT',
-            timeout: apiConfigSettings.timeout}
+          'update': {
+            method: 'PUT',
+            timeout: apiConfigSettings.timeout
+          }
         });
     }
 
@@ -127,6 +132,15 @@
             method: 'GET',
             timeout: apiConfigSettings.timeout
           }
+        });
+    }
+
+
+    function downloadPolicy() {
+      return $resource('/policy/download/:id', {id: '@id'},
+        {
+          'get': {method: 'GET'},
+          timeout: apiConfigSettings.timeout
         });
     }
   }
