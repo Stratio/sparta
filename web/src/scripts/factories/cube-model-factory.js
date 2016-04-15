@@ -20,9 +20,9 @@
     .module('webApp')
     .factory('CubeModelFactory', CubeModelFactory);
 
-  CubeModelFactory.$inject = ['UtilsService', 'PolicyModelFactory'];
+  CubeModelFactory.$inject = ['UtilsService'];
 
-  function CubeModelFactory(UtilsService, PolicyModelFactory) {
+  function CubeModelFactory(UtilsService) {
     var cube = {};
     var error = {text: ""};
     var context = {"position": null};
@@ -37,7 +37,8 @@
       cube.triggers = [];
       cube.writer = {};
 
-      delete cube['writer.fixedMeasure'];
+      delete cube['writer.fixedMeasureName'];
+      delete cube['writer.fixedMeasureValue'];
       delete cube['writer.isAutoCalculatedId'];
       delete cube['writer.dateType'];
       cube['writer.outputs'] = [];
@@ -60,32 +61,42 @@
       cube.operators = c.operators;
       cube.checkpointConfig = c.checkpointConfig;
       cube.triggers = c.triggers;
-      error.text = "";
-      formatAttributes(c);
+      cube['writer.fixedMeasureName'] = c['writer.fixedMeasureName'];
+      cube['writer.fixedMeasureValue'] = c['writer.fixedMeasureValue'];
+      cube['writer.isAutoCalculatedId'] = c['writer.isAutoCalculatedId'];
+      cube['writer.dateType'] = c['writer.dateType'];
+      cube['writer.outputs'] = c['writer.outputs'];
       setPosition(position);
+
+      error.text = "";
     }
 
-    function formatAttributes(c) {
-      cube['writer.fixedMeasure'] = c['writer.fixedMeasure'] || c.writer.fixedMeasure;
-      cube['writer.isAutoCalculatedId'] = c['writer.isAutoCalculatedId'] || c.writer.isAutoCalculatedId;
-      cube['writer.dateType'] = c['writer.dateType'] || c.writer.dateType;
-      cube['writer.outputs'] = c['writer.outputs'] || c.writer.outputs;
+    function getParsedCube(cube) {
+      var fixedMeasure = cube.writer.fixedMeasure;
+      fixedMeasure = fixedMeasure.split(":");
+      cube['writer.fixedMeasureName'] = fixedMeasure[0];
+      cube['writer.fixedMeasureValue'] = fixedMeasure[1];
+      cube['writer.isAutoCalculatedId'] = cube.writer.isAutoCalculatedId;
+      cube['writer.dateType'] = cube.writer.dateType;
+      cube['writer.outputs'] = cube.writer.outputs;
+
+      return cube;
     }
 
-    function areValidOperatorsAndDimensions(cube) {
+    function areValidOperatorsAndDimensions(cube, modelOutputs) {
       var validOperatorsAndDimensionsLength = cube.operators.length > 0 && cube.dimensions.length > 0;
-      var validFieldList = PolicyModelFactory.getAllModelOutputs();
       for (var i = 0; i < cube.dimensions.length; ++i) {
-        if (validFieldList.indexOf(cube.dimensions[i].field) == -1)
+        if (modelOutputs.indexOf(cube.dimensions[i].field) == -1) {
           return false;
+        }
       }
       return validOperatorsAndDimensionsLength;
     }
 
-    function isValidCube(cube, cubes, position) {
+    function isValidCube(cube, cubes, position, modelOutputs) {
       var validName = cube.name !== undefined && cube.name !== "";
       var validRequiredAttributes = cube.operators.length > 0 && cube.dimensions.length > 0 && (cube.triggers.length > 0 || cube['writer.outputs'].length > 0);
-      var isValid = validName && validRequiredAttributes &&  areValidOperatorsAndDimensions(cube) && !nameExists(cube, cubes, position);
+      var isValid = validName && validRequiredAttributes && areValidOperatorsAndDimensions(cube, modelOutputs) && !nameExists(cube, cubes, position);
       return isValid;
     }
 
@@ -129,6 +140,7 @@
       getContext: getContext,
       setPosition: setPosition,
       isValidCube: isValidCube,
+      getParsedCube: getParsedCube,
       setError: setError,
       getError: getError
     }

@@ -101,7 +101,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
   });
 
   describe("should be able to return an array with all outputs of the policy models", function () {
-    it("if policy has model, return all outpus of these models", function () {
+    it("if policy has model, return all outputs of these models", function () {
       var fakeModel1 = {"outputFields": [{name: "fake output1 of model 1"}, {name: "fake output2 of model 1"}]};
       var fakeModel2 = {"outputFields": [{name: "fake output1 of model 2"}, {name: "fake output2 of model 2"}]};
       var fakeModel3 = {"outputFields": [{name: "fake output1 of model 3"}, {name: "fake output2 of model 3"}]};

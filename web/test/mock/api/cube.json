@@ -34,6 +34,6 @@
     ],
     "dateType": "timestamp",
     "isAutoCalculatedId": true,
-    "fixedMeasure": "s"
+    "fixedMeasure":"localhost:6"
   }
 }

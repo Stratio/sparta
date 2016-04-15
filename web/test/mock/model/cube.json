@@ -23,5 +23,6 @@
   ],
   "writer.dateType": "timestamp",
   "writer.isAutoCalculatedId": true,
-  "writer.fixedMeasure": "s"
+  "writer.fixedMeasureName": "key",
+  "writer.fixedMeasureValue": "value"
 }

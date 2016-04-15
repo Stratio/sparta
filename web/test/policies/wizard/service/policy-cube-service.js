@@ -12,7 +12,7 @@ describe('policies.wizard.service.policy-cube-service', function () {
   beforeEach(module(function ($provide) {
     wizardStatusServiceMock = jasmine.createSpyObj('WizardStatusService', ['enableNextStep', 'enableNextStep', 'disableNextStep']);
     ModalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
-    PolicyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy']);
+    PolicyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getAllModelOutputs']);
     CubeModelFactoryMock = jasmine.createSpyObj('CubeFactory', ['getCube', 'isValidCube', 'resetCube', 'getContext', 'setError']);
     UtilsServiceMock = jasmine.createSpyObj('UtilsService', ['removeItemsFromArray', 'convertDottedPropertiesToJson']);
     UtilsServiceMock.convertDottedPropertiesToJson.and.callFake(function (cube) {

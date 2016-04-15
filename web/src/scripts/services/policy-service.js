@@ -41,6 +41,7 @@
       finalJSON = UtilsService.convertDottedPropertiesToJson(finalJSON);
       finalJSON = convertDescriptionAttributes(finalJSON);
       finalJSON = convertTriggerAttributes(finalJSON);
+      finalJSON = convertCubeAttributes(finalJSON);
       var cleanedJSON = cleanUnusedAttributes(finalJSON);
       return convertFragments(cleanedJSON);
     }
@@ -80,12 +81,13 @@
       var cubeOutputs = [];
       for (var c = 0; c < cubes.length; ++c) {
         var cube = cubes[c];
-        cubeOutputs = cubeOutputs.concat(cube.writer.outputs);
+        cubeOutputs = cubeOutputs.concat(cube['writer.outputs']);
 
         for (var t = 0; t < cube.triggers.length; ++t) {
           cubeOutputs = cubeOutputs.concat(cube.triggers[t].outputs);
         }
       }
+
       if (allOutputs && cubeOutputs) {
         outputs = UtilsService.getFilteredJSONByArray(allOutputs, cubeOutputs, 'name');
       }
@@ -113,6 +115,17 @@
           delete triggers[i].overLastNumber;
           delete triggers[i].overLastTime;
         }
+      }
+      return policyJson;
+    }
+
+    function convertCubeAttributes(policyJson) {
+      var cubes = policyJson.cubes;
+      for (var i = 0; i < cubes.length; ++i) {
+        var cube = UtilsService.convertDottedPropertiesToJson(cubes[i]);
+        cube.writer.fixedMeasure = cube.writer.fixedMeasureName + ":" + cube.writer.fixedMeasureValue;
+        delete cube.writer.fixedMeasureName;
+        delete cube.writer.fixedMeasureValue;
       }
       return policyJson;
     }
