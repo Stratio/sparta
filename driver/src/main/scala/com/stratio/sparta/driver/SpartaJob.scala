@@ -335,8 +335,8 @@ object SpartaJob extends SLF4JLogging with SpartaSerializer {
   def getWriterOptions(cubeName: String, outputsWriter: Seq[Output], cubeModel: CubeModel): CubeWriterOptions = {
     val dateType = SchemaHelper.getTimeTypeFromString(cubeModel.writer.dateType.getOrElse(DefaultTimeStampTypeString))
     val isAutoCalculatedId = cubeModel.writer.isAutoCalculatedId.getOrElse(CubeWriter.DefaultIsAutocalculatedId)
-    val fixedMeasure2 = checkFixedMeasure(cubeModel.writer.fixedMeasure)
-    CubeWriterOptions(cubeModel.writer.outputs, dateType, fixedMeasure2, isAutoCalculatedId)
+    val fixedMeasure = checkFixedMeasure(cubeModel.writer.fixedMeasure)
+    CubeWriterOptions(cubeModel.writer.outputs, dateType, fixedMeasure, isAutoCalculatedId)
   }
 
   def checkFixedMeasure(fixedMeasure: Option[String]): MeasuresValues = fixedMeasure match {
