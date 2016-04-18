@@ -137,7 +137,6 @@
       cubeForm.$submitted = true;
       var cube = angular.copy(CubeModelFactory.getCube());
       if (CubeModelFactory.isValidCube(cube, vm.policy.cubes, CubeModelFactory.getContext().position, PolicyModelFactory.getAllModelOutputs())) {
-        cube = UtilsService.convertDottedPropertiesToJson(cube);
         cubeForm.$submitted = false;
         vm.policy.cubes[CubeModelFactory.getContext().position] = cube;
         changeCubeCreationPanelVisibility(false);

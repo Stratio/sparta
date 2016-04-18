@@ -73,9 +73,11 @@
 
     function getParsedCube(cube) {
       var fixedMeasure = cube.writer.fixedMeasure;
-      fixedMeasure = fixedMeasure.split(":");
-      cube['writer.fixedMeasureName'] = fixedMeasure[0];
-      cube['writer.fixedMeasureValue'] = fixedMeasure[1];
+      if (fixedMeasure) {
+        fixedMeasure = fixedMeasure.split(":");
+        cube['writer.fixedMeasureName'] = fixedMeasure[0];
+        cube['writer.fixedMeasureValue'] = fixedMeasure[1];
+      }
       cube['writer.isAutoCalculatedId'] = cube.writer.isAutoCalculatedId;
       cube['writer.dateType'] = cube.writer.dateType;
       cube['writer.outputs'] = cube.writer.outputs;
@@ -94,10 +96,14 @@
     }
 
     function isValidCube(cube, cubes, position, modelOutputs) {
-      var validName = cube.name !== undefined && cube.name !== "";
+      var validName = cube.name !== undefined && cube.name !== "" && isValidFixedMeasure();
       var validRequiredAttributes = cube.operators.length > 0 && cube.dimensions.length > 0 && (cube.triggers.length > 0 || cube['writer.outputs'].length > 0);
       var isValid = validName && validRequiredAttributes && areValidOperatorsAndDimensions(cube, modelOutputs) && !nameExists(cube, cubes, position);
       return isValid;
+    }
+
+    function isValidFixedMeasure() {
+      return (cube["writer.fixedMeasureName"] && cube["writer.fixedMeasureValue"]) || (!cube["writer.fixedMeasureName"] && !cube["writer.fixedMeasureValue"])
     }
 
     function nameExists(cube, cubes, cubePosition) {

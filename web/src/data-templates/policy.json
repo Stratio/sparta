@@ -620,7 +620,7 @@
         "propertyType": "text",
         "qa": "cube-fixed-measure-name",
         "width": 6,
-        "required": "false"
+        "required": "scope.form['dataSource_FIXED_MEASURE_VALUE_Form']['dataSource_FIXED_MEASURE_VALUE_Form'].$modelValue.length > 0"
       },
       {
         "propertyId": "writer.fixedMeasureValue",
@@ -630,14 +630,7 @@
         "required": "false",
         "width": 6,
         "position": "right",
-        "visible": [
-          [
-            {
-              "propertyId": "writer.fixedMeasureName",
-              "value": true
-            }
-          ]
-        ]
+        "required": "scope.form['dataSource_FIXED_MEASURE_NAME_Form']['dataSource_FIXED_MEASURE_NAME_Form'].$modelValue.length > 0"
       },
       {
         "propertyId": "writer.dateType",

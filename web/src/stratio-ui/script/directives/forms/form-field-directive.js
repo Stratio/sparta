@@ -44,7 +44,7 @@
     return directive;
 
     function link(scope, element, attrs) {
-      $timeout(function(){
+      $timeout(function () {
         if (scope.field.propertyType !== 'list') {
           var defaultValue = scope.field.default;
 
@@ -103,13 +103,26 @@
           }
           return true;
         };
+
+        scope.isRequired = function () {
+          if (scope.field.required != undefined) {
+            try{
+              return eval(scope.field.required);
+            }
+          catch(error){
+            return false;
+          }
+          } else {
+            return false;
+          }
+        }
       });
 
-      function getMimeType (){
-        var splited = scope.field.propertyType == 'file'? scope.field.propertyName.split(' ') : null;
+      function getMimeType() {
+        var splited = scope.field.propertyType == 'file' ? scope.field.propertyName.split(' ') : null;
         var typeFile = splited ? splited[0].toLowerCase() : null;
         var accept;
-        switch (typeFile){
+        switch (typeFile) {
           case 'csv':
             accept = '.csv';
             break;
