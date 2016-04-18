@@ -1,28 +1,35 @@
 @font-face {
 	font-family: 'ico_stratio';
-	src:url('vendors/stratio-fonticon/ico_stratio.eot?zcrx3m');
-	src:url('vendors/stratio-fonticon/ico_stratio.eot?zcrx3m#iefix') format('embedded-opentype'),
-		url('vendors/stratio-fonticon/ico_stratio.ttf?zcrx3m') format('truetype'),
-		url('vendors/stratio-fonticon/ico_stratio.woff?zcrx3m') format('woff'),
-		url('vendors/stratio-fonticon/ico_stratio.svg?zcrx3m#ico_stratio') format('svg');
+	src:url('vendors/stratio-fonticon/ico_stratio.eot?i9afxm');
+	src:url('vendors/stratio-fonticon/ico_stratio.eot?i9afxm#iefix') format('embedded-opentype'),
+		url('vendors/stratio-fonticon/ico_stratio.ttf?i9afxm') format('truetype'),
+		url('vendors/stratio-fonticon/ico_stratio.woff?i9afxm') format('woff'),
+		url('vendors/stratio-fonticon/ico_stratio.svg?i9afxm#ico_stratio') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }
 
 [class^="icon-"], [class*=" icon-"] {
-	font-family: 'ico_stratio';
-	speak: none;
-	font-style: normal;
-	font-weight: normal;
-	font-variant: normal;
-	text-transform: none;
-	line-height: 1;
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'ico_stratio' !important;
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
 
-	/* Better Font Rendering =========== */
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-docker:before {
+    content: "\e92b";
+}
+.icon-github:before {
+    content: "\e92a";
+}
 .icon-mesos:before {
     content: "\e91f";
 }
@@ -552,6 +559,9 @@
     content: "\e077";
 }
 .icon-globe:before {
+    content: "\e078";
+}
+.icon-geo:before {
     content: "\e078";
 }
 .icon-box:before {
