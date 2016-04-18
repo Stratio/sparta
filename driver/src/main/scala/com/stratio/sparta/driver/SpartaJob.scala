@@ -334,13 +334,24 @@ object SpartaJob extends SLF4JLogging with SpartaSerializer {
 
   def getWriterOptions(cubeName: String, outputsWriter: Seq[Output], cubeModel: CubeModel): CubeWriterOptions = {
     val dateType = SchemaHelper.getTimeTypeFromString(cubeModel.writer.dateType.getOrElse(DefaultTimeStampTypeString))
-    val fixedMeasures = cubeModel.writer.fixedMeasure.fold(MeasuresValues(Map.empty)) { fixedMeasure =>
-      val fixedMeasureSplitted = fixedMeasure.split(CubeWriter.FixedMeasureSeparator)
-      MeasuresValues(Map(fixedMeasureSplitted.head -> Some(fixedMeasureSplitted.last)))
-    }
     val isAutoCalculatedId = cubeModel.writer.isAutoCalculatedId.getOrElse(CubeWriter.DefaultIsAutocalculatedId)
+    val fixedMeasure2 = checkFixedMeasure(cubeModel.writer.fixedMeasure)
+    CubeWriterOptions(cubeModel.writer.outputs, dateType, fixedMeasure2, isAutoCalculatedId)
+  }
 
-    CubeWriterOptions(cubeModel.writer.outputs, dateType, fixedMeasures, isAutoCalculatedId)
+  def checkFixedMeasure(fixedMeasure: Option[String]): MeasuresValues = fixedMeasure match {
+    case None => MeasuresValues(Map.empty[String, Option[Any]])
+    case Some(value) =>
+      if (value == "" || value.isEmpty) {
+        MeasuresValues(Map.empty[String, Option[Any]])
+      } else {
+        fixedMeasure.fold(MeasuresValues(Map.empty)) { fixedMeasure =>
+          val fixedMeasureSplitted = fixedMeasure.split(CubeWriter.FixedMeasureSeparator)
+          if(fixedMeasureSplitted.size == 2)
+            MeasuresValues(Map(fixedMeasureSplitted.head -> Some(fixedMeasureSplitted.last)))
+          else MeasuresValues(Map.empty[String, Option[Any]])
+        }
+      }
   }
 
   def getStreamWriter(triggers: Seq[Trigger],
