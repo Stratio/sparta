@@ -123,7 +123,9 @@
       var cubes = policyJson.cubes;
       for (var i = 0; i < cubes.length; ++i) {
         var cube = UtilsService.convertDottedPropertiesToJson(cubes[i]);
-        cube.writer.fixedMeasure = cube.writer.fixedMeasureName + ":" + cube.writer.fixedMeasureValue;
+        if (cube.writer.fixedMeasureName && cube.writer.fixedMeasureValue){
+          cube.writer.fixedMeasure  = cube.writer.fixedMeasureName + ":" + cube.writer.fixedMeasureValue;
+        }
         delete cube.writer.fixedMeasureName;
         delete cube.writer.fixedMeasureValue;
       }
