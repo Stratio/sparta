@@ -2,7 +2,6 @@
 <aspectj>
 	<aspects>
 		<aspect name="com.stratio.cucumber.aspects.IgnoreTagAspect" />
-		<aspect name="com.stratio.cucumber.aspects.AssertAspect" />
 		<aspect name="com.stratio.cucumber.aspects.AssertJAspect" />
 		<aspect name="com.stratio.cucumber.aspects.SeleniumAspect" />
 		<aspect name="com.stratio.cucumber.aspects.BrowsersDataProviderAspect" />
