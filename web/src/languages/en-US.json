@@ -313,6 +313,7 @@
   "_CLUSTER_UI_": "Cluster UI",
   "_FIXED_MEASURE_NAME_":"Fixed measure name",
   "_FIXED_MEASURE_VALUE_":"Fixed measure value",
+  "_POLICY_REMEMBER_FIELD_":"Max query execution time",
   "_ERROR_": {
     "_CHANGES_WITHOUT_SAVING_": "You have to save all your changes or cancel them before going to the next step",
     "_UNAVAILABLE_SERVER_": "Server is unavailable. Please, check your connection and try it again",

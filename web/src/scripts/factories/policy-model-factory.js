@@ -49,6 +49,7 @@
       policy.name = inputPolicyJSON.name;
       policy.description = inputPolicyJSON.description;
       policy.sparkStreamingWindow = inputPolicyJSON.sparkStreamingWindow;
+      policy.remember = inputPolicyJSON.remember;
       policy.storageLevel = inputPolicyJSON.storageLevel;
       policy.checkpointPath = inputPolicyJSON.checkpointPath;
       policy.rawDataEnabled = (inputPolicyJSON.rawData.enabled == "true");
@@ -66,6 +67,12 @@
       policy.sparkStreamingWindowNumber = Number(sparkStreamingWindow[1]);
       policy.sparkStreamingWindowTime = sparkStreamingWindow[2];
       delete policy.sparkStreamingWindow;
+      if (policy.remember) {
+        var rememberField = policy.remember.split(/([0-9]+)/);
+        policy.rememberNumber = Number(rememberField[1]);
+        policy.rememberTime = rememberField[2];
+      }
+      delete policy.remember;
     }
 
     function setStreamTriggers(streamTriggers) {
