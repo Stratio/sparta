@@ -72,6 +72,9 @@
         convertedDescriptionJson.rawData.path = (vm.policy.rawDataEnabled) ? vm.policy.rawDataPath : null;
       }
       convertedDescriptionJson.sparkStreamingWindow = json.sparkStreamingWindowNumber + json.sparkStreamingWindowTime;
+      if (json.rememberNumber && json.rememberTime) {
+        convertedDescriptionJson.remember = json.rememberNumber + json.rememberTime;
+      }
       return convertedDescriptionJson;
     }
 
@@ -123,8 +126,8 @@
       var cubes = policyJson.cubes;
       for (var i = 0; i < cubes.length; ++i) {
         var cube = UtilsService.convertDottedPropertiesToJson(cubes[i]);
-        if (cube.writer.fixedMeasureName && cube.writer.fixedMeasureValue){
-          cube.writer.fixedMeasure  = cube.writer.fixedMeasureName + ":" + cube.writer.fixedMeasureValue;
+        if (cube.writer.fixedMeasureName && cube.writer.fixedMeasureValue) {
+          cube.writer.fixedMeasure = cube.writer.fixedMeasureName + ":" + cube.writer.fixedMeasureValue;
         }
         delete cube.writer.fixedMeasureName;
         delete cube.writer.fixedMeasureValue;
@@ -137,6 +140,8 @@
       delete finalJSON['rawDataEnabled'];
       delete finalJSON['sparkStreamingWindowNumber'];
       delete finalJSON['sparkStreamingWindowTime'];
+      delete finalJSON['rememberNumber'];
+      delete finalJSON['rememberTime'];
 
       if (finalJSON.rawData.enabled == 'false') {
         delete finalJSON.rawData['path'];
