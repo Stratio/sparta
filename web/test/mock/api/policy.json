@@ -58,7 +58,8 @@
     "writer": {
       "outputs": ["outputexample"],
       "dateType": "timestamp",
-      "isAutoCalculatedId": false
+      "isAutoCalculatedId": false,
+      "fixedMeasure":"localhost:6"
     },
     "triggers": [{
       "name": "CUBE TRIGGER",

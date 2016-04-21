@@ -22,20 +22,21 @@ describe('policies.wizard.factory.cube-model-factory', function () {
     fakePolicyTemplate = _templatePolicy_;
   }));
 
-  it("should be able to load a cube retrieved from the api", function () {
+  it("should be able to load a cube retrieved from the policy", function () {
     var position = 0;
 
-    factory.setCube(fakeApiCube, position);
+    factory.setCube(fakeCube, position);
     var cube = factory.getCube();
-    expect(cube.name).toBe(fakeApiCube.name);
-    expect(cube.dimensions).toBe(fakeApiCube.dimensions);
-    expect(cube.operators).toBe(fakeApiCube.operators);
-    expect(cube.checkpointConfig).toBe(fakeApiCube.checkpointConfig);
-    expect(cube.triggers).toEqual(fakeApiCube.triggers);
-    expect(cube['writer.fixedMeasure']).toEqual(fakeApiCube.writer.fixedMeasure);
-    expect(cube['writer.isAutoCalculatedId']).toEqual(fakeApiCube.writer.isAutoCalculatedId);
-    expect(cube['writer.dateType']).toEqual(fakeApiCube.writer.dateType);
-    expect(cube['writer.outputs']).toEqual(fakeApiCube.writer.outputs);
+    expect(cube.name).toBe(fakeCube.name);
+    expect(cube.dimensions).toBe(fakeCube.dimensions);
+    expect(cube.operators).toBe(fakeCube.operators);
+    expect(cube.checkpointConfig).toBe(fakeCube.checkpointConfig);
+    expect(cube.triggers).toEqual(fakeCube.triggers);
+    expect(cube['writer.fixedMeasureName']).toEqual(fakeCube['writer.fixedMeasureName']);
+    expect(cube['writer.fixedMeasureValue']).toEqual(fakeCube['writer.fixedMeasureValue']);
+    expect(cube['writer.isAutoCalculatedId']).toEqual(fakeCube['writer.isAutoCalculatedId']);
+    expect(cube['writer.dateType']).toEqual(fakeCube['writer.dateType']);
+    expect(cube['writer.outputs']).toEqual(fakeCube['writer.outputs']);
     expect(factory.getError()).toEqual({"text": ""});
     expect(factory.getContext().position).toBe(position);
   });
@@ -50,7 +51,8 @@ describe('policies.wizard.factory.cube-model-factory', function () {
     expect(cube.operators).toBe(fakeCube.operators);
     expect(cube.checkpointConfig).toBe(fakeCube.checkpointConfig);
     expect(cube.triggers).toEqual(fakeCube.triggers);
-    expect(cube['writer.fixedMeasure']).toEqual(fakeCube['writer.fixedMeasure']);
+    expect(cube['writer.fixedMeasureName']).toEqual(fakeCube['writer.fixedMeasureName']);
+    expect(cube['writer.fixedMeasureValue']).toEqual(fakeCube['writer.fixedMeasureValue']);
     expect(cube['writer.isAutoCalculatedId']).toEqual(fakeCube['writer.isAutoCalculatedId']);
     expect(cube['writer.dateType']).toEqual(fakeCube['writer.dateType']);
     expect(cube['writer.outputs']).toEqual(fakeCube['writer.outputs']);
@@ -183,8 +185,8 @@ describe('policies.wizard.factory.cube-model-factory', function () {
       it("cube is valid if all its attributes are not empty", function () {
         var desiredOrder = 0;
         factory.setCube(fakeCube, desiredOrder);
-
-        expect(factory.isValidCube(fakeCube, {})).toBeTruthy();
+        var modelOutputs = fakeCube.dimensions[0].field; // all outputs used in all models
+        expect(factory.isValidCube(fakeCube, {},0,modelOutputs)).toBeTruthy();
       });
 
     });
@@ -196,33 +198,35 @@ describe('policies.wizard.factory.cube-model-factory', function () {
         var newName = "new cube name";
         var cube = angular.copy(fakeCube);
         cube.name = newName;
-        expect(factory.isValidCube(cube, cubeList));
+        var modelOutputs = fakeCube.dimensions[0].field; // all outputs used in all models
+        expect(factory.isValidCube(cube, cubeList, 0, modelOutputs));
       });
 
       describe("if cube list is not empty", function () {
-        var cubeList = null;
+        var cubeList, modelOutputs = null;
         beforeEach(function () {
           var fakeCube2 = angular.copy(fakeCube);
           fakeCube2.name = "fake cube 2";
           cubeList = [fakeCube2, fakeCube];
+          modelOutputs = fakeCube.dimensions[0].field; // all outputs used in all models
         });
 
         it("and it has a cube with the same name and its position is not the same that the introduced one, cube is invalid", function () {
           UtilsServiceMock.findElementInJSONArray.and.returnValue(1);
-          expect(factory.isValidCube(fakeCube, cubeList, 2)).toBeFalsy();
+          expect(factory.isValidCube(fakeCube, cubeList, 2, modelOutputs)).toBeFalsy();
         });
 
         it("and it has a cube with the same name and its position is the same that the introduced one, cube is valid", function () {
           //the cube that is being validated and the found cube in the list are the same cube
           UtilsServiceMock.findElementInJSONArray.and.returnValue(1);
-          expect(factory.isValidCube(fakeCube, cubeList, 1)).toBeTruthy();
+          expect(factory.isValidCube(fakeCube, cubeList, 1, modelOutputs)).toBeTruthy();
         });
 
         it("but it has not any cube with the same name, cube is valid", function () {
           UtilsServiceMock.findElementInJSONArray.and.returnValue(-1);
           var validCube = angular.copy(fakeCube);
           validCube.name = "new cube name";
-          expect(factory.isValidCube(validCube, cubeList, 2)).toBeTruthy();
+          expect(factory.isValidCube(validCube, cubeList, 2, modelOutputs)).toBeTruthy();
         });
       });
 

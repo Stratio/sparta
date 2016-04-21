@@ -81,7 +81,7 @@ describe('service.policy-service', function () {
 
     it("should add an output list searching for all used outputs in policy", function () {
       var expectedOutputLength = fakePolicy.streamTriggers[0].outputs.length
-        + fakePolicy.cubes[0].writer.outputs.length
+        + fakePolicy.cubes[0]['writer.outputs'].length
         + fakePolicy.cubes[0].triggers[0].outputs.length;
       spyOn(UtilsService, 'removeDuplicatedJSONs').and.callThrough();
       service.generateFinalJSON().then(function (finalJson) {

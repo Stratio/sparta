@@ -19,9 +19,9 @@
   angular
     .module('webApp')
     .factory('PolicyModelFactory', PolicyModelFactory);
-  PolicyModelFactory.$inject = ['fragmentConstants'];
+  PolicyModelFactory.$inject = ['CubeModelFactory', 'fragmentConstants'];
 
-  function PolicyModelFactory(fragmentConstants) {
+  function PolicyModelFactory(CubeModelFactory, fragmentConstants) {
     var policy = {};
     var finalJSON = {};
     var template = {};
@@ -54,7 +54,7 @@
       policy.rawDataEnabled = (inputPolicyJSON.rawData.enabled == "true");
       policy.rawDataPath = inputPolicyJSON.rawData.path;
       policy.transformations = inputPolicyJSON.transformations;
-      policy.cubes = inputPolicyJSON.cubes;
+      policy.cubes = setCubes(inputPolicyJSON.cubes);
       policy.streamTriggers = setStreamTriggers(inputPolicyJSON.streamTriggers);
       formatAttributes();
       var policyFragments = separateFragments(inputPolicyJSON.fragments);
@@ -79,6 +79,14 @@
         formattedStreamTriggers.push(trigger);
       }
       return formattedStreamTriggers;
+    }
+
+    function setCubes(cubes) {
+      var formattedCubes = [];
+      for (var i = 0; i < cubes.length; ++i) {
+        formattedCubes.push(CubeModelFactory.getParsedCube(cubes[i]));
+      }
+      return formattedCubes;
     }
 
     function setTemplate(newTemplate) {
