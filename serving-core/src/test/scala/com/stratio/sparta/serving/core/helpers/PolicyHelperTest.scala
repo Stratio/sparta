@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.core.helpers
 
 import com.stratio.sparta.serving.core.models._
@@ -60,7 +61,8 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
             description = "description",
             shortDescription = "short description",
             element = PolicyElementModel("outputF", "output", Map()))),
-      userPluginsJars = Seq.empty[String]
+        userPluginsJars = Seq.empty[String],
+        remember = None
       )
 
       When("the helper parse these fragments")
@@ -110,7 +112,8 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
           description = "description",
           shortDescription = "short description",
           element = PolicyElementModel("outputF", "output", Map()))),
-      userPluginsJars = Seq.empty[String]
+      userPluginsJars = Seq.empty[String],
+      remember = None
     )
 
     When("the helper tries to parse the policy it throws an exception")
