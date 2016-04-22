@@ -15,7 +15,7 @@ describe('policies.wizard.controller.policy-model-controller', function () {
 
     inject(function (_modelPolicy_, _apiPolicy_,_templatePolicy_, _modelTransformation_) {
       fakePolicy = angular.copy(_modelPolicy_);
-      fakeApiPolicy = _apiPolicy_;
+      fakeApiPolicy = angular.copy(_apiPolicy_);
       fakePolicyTemplate = _templatePolicy_;
       fakeModelTemplate = fakePolicyTemplate.model;
       fakeModel = angular.copy(_modelTransformation_);
