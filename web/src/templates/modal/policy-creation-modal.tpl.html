@@ -11,7 +11,6 @@
       <span translate="{{vm.errorText}}"></span>
     </div>
     <form class="c-form" name="vm.form" id="configurationForm" novalidate data-ng-class={'c-accordion-tool--items-hide-left':!(vm.compositionStatus.getConfigurationVisibility())}>
-
       <form-field
         data-ng-repeat="properties in vm.template.basicSettings"
         class="c-form-gutter c-col c-col--vertical-top"
@@ -20,11 +19,11 @@
         data-field="properties"
         data-model="vm.policy"
         data-form="vm.form"
-        data-st-name="dataSource{{properties.propertyId}}Form"
+        data-st-name="dataSource{{properties.propertyName}}Form"
         data-list-compressed = "true"
         data-qa="{{properties.qa}}">
       </form-field>
-      <div class="c-form-group c-form-gutter" data-qa="fragment-details-mongoDb-hosts">
+      <ng-form class="c-form-group c-form-gutter" data-qa="fragment-details-mongoDb-hosts">
         <div class="c-form-control c-form-control--full-width">
           <div class="c-label c-icon-label__text c-label--margin-list c-col c-col--12">
                 <span>
@@ -39,13 +38,13 @@
               data-field="properties"
               data-model="vm.policy"
               data-form="vm.form"
-              data-st-name="dataSource{{properties.propertyId}}Form"
+              data-st-name="dataSource{{properties.propertyName}}Form"
               data-list-compressed = "true"
               data-qa="{{properties.qa}}">
             </form-field>
           </div>
         </div>
-      </div>
+      </ng-form>
       <footer class="c-row c-row--footer">
         <div class="c-col c-col--6 c-col--vertical-centered">
           <c-icon-link icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action icon-help1'"
