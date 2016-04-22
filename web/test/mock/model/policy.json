@@ -3,8 +3,6 @@
   "name": "fake policy",
   "sparkStreamingWindowNumber": 1,
   "sparkStreamingWindowTime": "s",
-  "rememberNumber": 2,
-  "rememberTime": "d",
   "rawDataEnabled": true,
   "rawDataPath": "/fake/path",
   "input": {

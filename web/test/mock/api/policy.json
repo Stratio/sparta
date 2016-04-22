@@ -5,7 +5,6 @@
   "name": "policyexample",
   "description": "policy example",
   "sparkStreamingWindow": "6s",
-  "remember": "1d",
   "checkpointPath": "/tmp/checkpoint",
   "rawData": {
     "enabled": "true",

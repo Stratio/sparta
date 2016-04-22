@@ -20,23 +20,21 @@ import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.OperationsHelper
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
 
-case class AggregationPoliciesModel(
-  id: Option[String] = None,
-  version: Option[Int] = None,
-  storageLevel: Option[String] = AggregationPoliciesModel.storageDefaultValue,
-  name: String,
-  description: String = "default description",
-  sparkStreamingWindow: String = AggregationPoliciesModel.sparkStreamingWindow,
-  checkpointPath: String,
-  rawData: RawDataModel,
-  transformations: Seq[TransformationsModel],
-  streamTriggers: Seq[TriggerModel],
-  cubes: Seq[CubeModel],
-  input: Option[PolicyElementModel] = None,
-  outputs: Seq[PolicyElementModel],
-  fragments: Seq[FragmentElementModel],
-  userPluginsJars: Seq[String],
-  remember: Option[String] = None)
+case class AggregationPoliciesModel(id: Option[String] = None,
+                                    version: Option[Int] = None,
+                                    storageLevel: Option[String] = AggregationPoliciesModel.storageDefaultValue,
+                                    name: String,
+                                    description: String = "default description",
+                                    sparkStreamingWindow: String = AggregationPoliciesModel.sparkStreamingWindow,
+                                    checkpointPath: String,
+                                    rawData: RawDataModel,
+                                    transformations: Seq[TransformationsModel],
+                                    streamTriggers: Seq[TriggerModel],
+                                    cubes: Seq[CubeModel],
+                                    input: Option[PolicyElementModel] = None,
+                                    outputs: Seq[PolicyElementModel],
+                                    fragments: Seq[FragmentElementModel],
+                                    userPluginsJars: Seq[String])
 
 case object AggregationPoliciesModel {
 
