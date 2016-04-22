@@ -72,46 +72,6 @@
       ]
     },
     {
-      "propertyId": "rememberNumber",
-      "propertyName": "_POLICY_REMEMBER_FIELD_",
-      "propertyType": "number",
-      "width": 6,
-      "position": "left",
-      "required": "scope.form['dataSourcerememberTimeForm']['dataSourcerememberTimeForm'].$modelValue.length > 0",
-      "qa": "policy-remember-number"
-    },
-    {
-      "propertyId": "rememberTime",
-      "propertyName": "_WHITE_SPACE_",
-      "propertyType": "select",
-      "width": 6,
-      "position": "right",
-      "qa": "policy-remember-time",
-      "required": "scope.form['dataSourcerememberNumberForm']['dataSourcerememberNumberForm'].$modelValue",
-      "values": [
-        {
-          "label": "Milliseconds",
-          "value": "ms"
-        },
-        {
-          "label": "Seconds",
-          "value": "s"
-        },
-        {
-          "label": "Minutes",
-          "value": "m"
-        },
-        {
-          "label": "Hours",
-          "value": "h"
-        },
-        {
-          "label": "Days",
-          "value": "d"
-        }
-      ]
-    },
-    {
       "propertyId": "storageLevel",
       "propertyName": "_STORAGELEVEL_",
       "propertyType": "select",

@@ -8,7 +8,7 @@ describe('API.policy-service', function () {
 
   beforeEach(
     inject(function ($httpBackend, $rootScope, _ApiPolicyService_, _apiPolicy_, _apiPolicyList_, _apiPoliciesStatusList_) {
-      fakePolicyById 					= angular.copy(_apiPolicy_);
+      fakePolicyById 					= _apiPolicy_;
       fakePolicyList 					= _apiPolicyList_;
       fakePoliciesStatusList 	= _apiPoliciesStatusList_;
       srv 										= _ApiPolicyService_;

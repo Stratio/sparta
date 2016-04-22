@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.stratio.sparta.driver.factory
 
 import java.io.File
-import scala.collection.JavaConversions._
-import scala.util.Try
+import java.net.URI
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.serving.core.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.typesafe.config.Config
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
-import com.stratio.sparta.serving.core.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.helpers.OperationsHelper
+import scala.collection.JavaConversions._
+import scala.util.Try
 
 object SparkContextFactory extends SLF4JLogging {
 
@@ -48,12 +47,11 @@ object SparkContextFactory extends SLF4JLogging {
 
   def sparkStreamingInstance: Option[StreamingContext] = ssc
 
-  def sparkStreamingInstance(batchDuration: Duration, checkpointDir: String, remember: Option[String]):
-  Option[StreamingContext] = {
+  def sparkStreamingInstance(batchDuration: Duration, checkpointDir: String): Option[StreamingContext] = {
     synchronized {
       ssc match {
         case Some(_) => ssc
-        case None => ssc = Some(getNewStreamingContext(batchDuration, checkpointDir, remember))
+        case None => ssc = Some(getNewStreamingContext(batchDuration, checkpointDir))
       }
     }
     ssc
@@ -63,17 +61,15 @@ object SparkContextFactory extends SLF4JLogging {
 
   def setSparkStreamingContext(createdContext: StreamingContext): Unit = ssc = Option(createdContext)
 
-  private def getNewStreamingContext(batchDuration: Duration, checkpointDir: String, remember: Option[String]):
-  StreamingContext = {
+  private def getNewStreamingContext(batchDuration: Duration, checkpointDir: String): StreamingContext = {
     val ssc = new StreamingContext(sc.get, batchDuration)
     ssc.checkpoint(checkpointDir)
-    remember.foreach(value => ssc.remember(Duration(OperationsHelper.parseValueToMilliSeconds(value))))
     ssc
   }
 
   def sparkStandAloneContextInstance(generalConfig: Option[Config],
-    specificConfig: Map[String, String],
-    jars: Seq[File]): SparkContext =
+                                     specificConfig: Map[String, String],
+                                     jars: Seq[File]): SparkContext =
     synchronized {
       sc.getOrElse(instantiateStandAloneContext(generalConfig, specificConfig, jars))
     }
@@ -84,15 +80,15 @@ object SparkContextFactory extends SLF4JLogging {
     }
 
   private def instantiateStandAloneContext(generalConfig: Option[Config],
-    specificConfig: Map[String, String],
-    jars: Seq[File]): SparkContext = {
+                                           specificConfig: Map[String, String],
+                                           jars: Seq[File]): SparkContext = {
     sc = Some(SparkContext.getOrCreate(configToSparkConf(generalConfig, specificConfig)))
     jars.foreach(f => sc.get.addJar(f.getAbsolutePath))
     sc.get
   }
 
   private def instantiateClusterContext(specificConfig: Map[String, String],
-    jars: Seq[String]): SparkContext = {
+                                        jars: Seq[String]): SparkContext = {
     sc = Some(SparkContext.getOrCreate(configToSparkConf(None, specificConfig)))
     jars.foreach(f => sc.get.addJar(f))
     sc.get

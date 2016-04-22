@@ -48,7 +48,7 @@ class SpartaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
   def run(sc: SparkContext): StreamingContext = {
     val checkpointPolicyPath = policy.checkpointPath.concat(File.separator).concat(policy.name)
     val sparkStreamingWindow = OperationsHelper.parseValueToMilliSeconds(policy.sparkStreamingWindow)
-    val ssc = sparkStreamingInstance(Duration(sparkStreamingWindow), checkpointPolicyPath, policy.remember)
+    val ssc = sparkStreamingInstance(new Duration(sparkStreamingWindow), checkpointPolicyPath)
     val parserSchemas = SchemaHelper.getSchemasFromParsers(policy.transformations, Input.InitSchema)
     val parsers = SpartaJob.getParsers(policy, ReflectionUtils, parserSchemas).sorted
     val cubes = SpartaJob.getCubes(policy, ReflectionUtils, getSchemaWithoutRaw(parserSchemas))
