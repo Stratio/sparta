@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.5 (April 2016)
+
+- Added remember field in order to run queries that last more than the streaming batch
+- Add Timestamp type to selectable output type in DateTime parser
+- Bugfix: Removed fragments when downloading the policy
+- Bugfix: Geo icon not showing
+- Bugfix: Set default checkpoint path as relative
+- Bugfix: Fixed measures field wrong behaviour
 
 ## 0.9.4 (April 2016)
 
