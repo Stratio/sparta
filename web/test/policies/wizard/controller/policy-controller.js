@@ -13,7 +13,7 @@ describe('policies.wizard.controller.policy-controller', function () {
   beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope, _apiPolicy_, _modelPolicy_, _templatePolicy_, _$timeout_) {
     scope = $rootScope.$new();
     q = $q;
-    fakeApiPolicy = _apiPolicy_;
+    fakeApiPolicy = angular.copy(_apiPolicy_);
     fakePolicy = angular.copy(_modelPolicy_);
     fakeTemplate = _templatePolicy_;
     $timeout = _$timeout_;

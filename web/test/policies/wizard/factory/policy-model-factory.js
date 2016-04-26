@@ -39,7 +39,6 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     expect(policy.input).toEqual(fakeInput);
   });
 
-
   describe("should return its current policy", function () {
     var cleanFactory = null;
     beforeEach(inject(function (_PolicyModelFactory_) {
