@@ -22,7 +22,7 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>com.stratio.sparta</groupId>
-        <version>0.9.5</version>
+        <version>0.9.6-RC1-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
