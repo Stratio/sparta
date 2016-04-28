@@ -65,6 +65,28 @@ Feature: Test adding a new policy in Sparta GUI
 		Given '1' element exists with 'css:button[data-qa="policy-description-next-button"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:span[data-qa="policy-checkpoint-path-error-required"]'
+
+	   # Try with Max Query Execution Time without units
+		Given '1' element exists with 'css:input[data-qa="policy-remember-number"]'
+		Then I type '1' on the element on index '0'
+		Given '1' element exists with 'css:button[data-qa="policy-description-next-button"]'
+		When I click on the element on index '0'
+		Then '1' element exists with 'css:div[data-qa="policy-remember-time-error"]'
+
+	  # Try with empty Max Query Execution Time with units
+		Given '1' element exists with 'css:input[data-qa="policy-remember-number"]'
+		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
+		Given '1' element exists with 'css:select[data-qa="policy-remember-time"]'
+		Then I select 'Milliseconds' on the element on index '0'
+		Then I select 'Minutes' on the element on index '0'
+		Then I select 'Hours' on the element on index '0'
+		Then I select 'Days' on the element on index '0'
+		Then I select 'Seconds' on the element on index '0'
+		Given '1' element exists with 'css:button[data-qa="policy-description-next-button"]'
+		When I click on the element on index '0'
+		Then '1' element exists with 'css:span[data-qa="policy-remember-number-error-required"]'
+		Given '1' element exists with 'css:select[data-qa="policy-remember-time"]'
+		Then I select 'Please select an option' on the element on index '0'
 		
 		# Select Persist raw data and deselect
 		Given '1' element exists with 'css:label[data-qa="policy-raw-data"]'
