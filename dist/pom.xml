@@ -19,12 +19,12 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>parent</artifactId>
+        <artifactId>parent_${scala.binary.version}</artifactId>
         <groupId>com.stratio.sparta</groupId>
         <version>0.9.6-RC1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>stratio-sparta</artifactId>
+    <artifactId>stratio-sparta_${scala.binary.version}</artifactId>
     <properties>
         <classpath.directory>lib</classpath.directory>
         <config.directory>src/main/resources</config.directory>
@@ -34,11 +34,11 @@
     <dependencies>
         <dependency>
             <groupId>com.stratio.sparta</groupId>
-            <artifactId>driver</artifactId>
+            <artifactId>driver_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.stratio.sparta</groupId>
-            <artifactId>serving-api</artifactId>
+            <artifactId>serving-api_${scala.binary.version}</artifactId>
         </dependency>
     </dependencies>
     <build>

@@ -27,6 +27,7 @@ tmp
 temp
 test-output
 build.log
+*.bkp
 
 # other scm
 .svn

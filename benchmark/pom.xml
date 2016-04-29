@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>com.stratio</groupId>
-    <artifactId>benchmark</artifactId>
+    <artifactId>benchmark_${scala.binary.version}</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
