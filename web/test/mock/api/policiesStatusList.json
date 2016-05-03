@@ -1,0 +1,114 @@
+{
+  "policiesStatus": [
+    {
+      "status": "NotStarted",
+      "policy": {
+        "id": "3cec8120-9261-4d40-a0c0-a3c1a5f9ab65",
+        "version": 1,
+        "storageLevel": "MEMORY_AND_DISK_SER",
+        "name": "prueba",
+        "description": "prueba",
+        "sparkStreamingWindow": "6s",
+        "checkpointPath": "/tmp/checkpoint",
+        "rawData": {
+          "enabled": "false",
+          "path": "default"
+        },
+        "transformations": [
+          {
+            "type": "Morphlines",
+            "order": 0,
+            "inputField": "_attachment_body",
+            "outputFields": [
+              {
+                "name": "dfgfdg",
+                "type": "string"
+              }
+            ],
+            "configuration": {
+              "morphline": {
+                "id": "morphline1",
+                "importCommands": [
+                  "org.kitesdk.**"
+                ],
+                "commands": [
+                  {
+                    "readJson": {}
+                  },
+                  {
+                    "extractJsonPaths": {
+                      "paths": {
+                        "field1": "/field-in-json1",
+                        "field2": "/field-in-json2"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "streamTriggers": [],
+        "cubes": [
+          {
+            "name": "cube1",
+            "dimensions": [
+              {
+                "name": "dfgfdg",
+                "field": "dfgfdg",
+                "precision": "identity",
+                "type": "Default"
+              }
+            ],
+            "operators": [
+              {
+                "type": "Count",
+                "name": "count1",
+                "configuration": {}
+              }
+            ],
+            "writer": {
+              "outputs": [
+                "pp"
+              ],
+              "dateType": "timestamp",
+              "isAutoCalculatedId": false
+            },
+            "triggers": []
+          }
+        ],
+        "outputs": [],
+        "fragments": [
+          {
+            "id": "d2ae4a5f-5807-4e56-ac2e-ee56250d1861",
+            "fragmentType": "input",
+            "name": "websocket",
+            "description": "WebSocket is a protocol providing full-duplex communication channels over a single TCP connection.",
+            "shortDescription": "WebSocket is a protocol providing full-duplex communication channels over a single TCP connection.",
+            "element": {
+              "name": "in-WebSocket",
+              "type": "WebSocket",
+              "configuration": {
+                "url": "ws://stream.meetup.com/2/rsvps"
+              }
+            }
+          },
+          {
+            "id": "581b1b51-c929-43a6-9d40-0d22a2395997",
+            "fragmentType": "output",
+            "name": "pp",
+            "description": "Print output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
+            "shortDescription": "Print output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
+            "element": {
+              "name": "in-Print",
+              "type": "Print",
+              "configuration": {}
+            }
+          }
+        ],
+        "userPluginsJars": []
+      }
+    }
+  ],
+  "resourceManagerLink": "http://localhost:4040"
+}

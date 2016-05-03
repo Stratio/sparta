@@ -1,13 +1,15 @@
-<section>
-  <c-step-progress-bar steps="wizard.steps" class="c-slider-content"
-                       data-ng-if="wizard.showStepNavigation"
+<c-slider-section data-hidden-section-id="step-progress-bar">
+  <c-step-progress-bar steps="wizard.steps" class="c-slider-content" id="step-progress-bar"
+                       data-ng-if="showHiddenSection"
                        data-current-step="(wizard.status.currentStep)"
                        data-next-step-available="(wizard.status.nextStepAvailable)"
+                       on-click-next-step="wizard.onClickNextStep()"
                        data-edition-mode="wizard.editionMode">
   </c-step-progress-bar>
   <div class="c-slider-content--to-up c-panel--white" data-ng-switch on="wizard.status.currentStep">
-    <div class="c-slider-content__button c-icon" data-ng-click="wizard.changeStepNavigationVisibility()"
-         data-ng-class="{'icon-arrow2_up':  wizard.showStepNavigation, 'icon-arrow2_down':  !wizard.showStepNavigation}">
+    <div class="c-slider-content__button c-icon" data-ng-click="changeHiddenSectionVisibility()"
+         data-ng-if="showSliderSectionButton"
+         data-ng-class="{'icon-arrow2_up':  showHiddenSection, 'icon-arrow2_down':  !showHiddenSection}">
     </div>
 
     <div class="c-step-content">
@@ -16,6 +18,8 @@
           <i class="c-icon {{wizard.steps[wizard.status.currentStep].icon}}"></i>
           <span class="c-step-content__title-text">{{wizard.steps[wizard.status.currentStep].name | translate}}</span>
         </h1>
+        <c-animated-msg type="error" data-msg="wizard.error" data-on-click-close-msg="wizard.closeErrorMessage()"
+                        data-timeout=6000></c-animated-msg>
       </header>
       <div data-ng-switch-when="0">
         <ng-include src="'views/policy-wizard/input.html'"></ng-include>
@@ -26,29 +30,39 @@
       <div data-ng-switch-when="2">
         <ng-include src="'views/policy-wizard/cube-step-content.html'"></ng-include>
       </div>
-      <div data-ng-switch-when="3">
-        <ng-include src="'views/policy-wizard/finish.html'"></ng-include>
-        <footer class="c-row c-row--separated-bottom c-row--footer">
-          <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
-            <button class="c-button c-button--call-to-action-1" data-ng-click="wizard.confirmPolicy()"
-                    data-qa="policy-save-button">
-              <i class="icon icon-rocket"></i>
-              <span>{{"_SAVE_" | translate}}</span>
-            </button>
-          </div>
-        </footer>
-      </div>
 
-      <div data-ng-if="wizard.error" class="c-col c-col--12 c-msg c-msg--small c-msg--error" data-qa="error-msg">
-        <i class="c-icon c-icon--is-clickable icon-circle-cross" data-ng-click="wizard.closeErrorMessage()"></i>
-        <span>{{wizard.error | translate}}</span>
-      </div>
+      <footer class="c-row c-row--separated-bottom c-row--footer">
+        <div class="c-col c-col--12 c-col--vertical-centered">
+          <button class="c-button c-button--call-to-action-1" data-ng-if="wizard.showPreviousStepButton()"
+                  data-ng-click="wizard.onClickPreviousStep()"
+                  data-qa="policy-previous-step-button">
+            <i class="icon icon-arrow-left"></i>
+            <span>{{"_COME_BACK_TO_" | translate}} {{wizard.steps[wizard.status.currentStep-1].name |translate}}</span>
+          </button>
+          <button
+            data-ng-class="{'c-button--call-to-action-1':wizard.status.nextStepAvailable,'c-button--call-to-action-2':!wizard.status.nextStepAvailable }"
+            class="c-button c-button--to-right" data-ng-if="wizard.showNextStepButton()"
+            data-ng-click="wizard.onClickNextStep()"
+            data-qa="policy-next-step-button">
+            <i class="icon icon-arrow-right"></i>
+            <span>{{"_GO_TO_" | translate}} {{wizard.steps[wizard.status.currentStep+1].name |translate}}</span>
+          </button>
+          <button class="c-button c-button--to-right" data-ng-if="wizard.isLastStep()"
+                  data-ng-click="wizard.confirmPolicy()"
+                  data-ng-class="{'c-button--call-to-action-1':wizard.status.nextStepAvailable,'c-button--call-to-action-2':!wizard.status.nextStepAvailable }"
+                  data-qa="policy-save-button">
+            <i class="icon icon-rocket"></i>
+            <span>{{"_POLICY_._SAVE_" | translate}}</span>
+          </button>
+        </div>
 
-      <div data-ng-show="wizard.successfullySentPolicy" class="c-row c-msg c-msg--small c-msg--success"
-           data-qa="success-msg">
-        <i class="c-icon icon-circle-check"></i>
-        <span>{{"_POLICY_._SUCCESS_SENT_" | translate}}</span>
-      </div>
+        <div data-ng-show="wizard.successfullySentPolicy" class="c-row c-msg c-msg--small c-msg--success"
+             data-qa="success-msg">
+          <i class="c-icon icon-circle-check"></i>
+          <span>{{"_POLICY_._SUCCESS_SENT_" | translate}}</span>
+        </div>
+
+      </footer>
     </div>
   </div>
-</section>
+</c-slider-section>

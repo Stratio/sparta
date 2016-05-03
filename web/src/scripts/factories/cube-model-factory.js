@@ -20,9 +20,9 @@
     .module('webApp')
     .factory('CubeModelFactory', CubeModelFactory);
 
-  CubeModelFactory.$inject = ['UtilsService', 'PolicyModelFactory'];
+  CubeModelFactory.$inject = ['UtilsService'];
 
-  function CubeModelFactory(UtilsService, PolicyModelFactory) {
+  function CubeModelFactory(UtilsService) {
     var cube = {};
     var error = {text: ""};
     var context = {"position": null};
@@ -35,12 +35,13 @@
       cube.operators = [];
       cube.checkpointConfig = {};
       cube.triggers = [];
-      cube.writer = {
-        outputs: []
-      };
-      delete cube['writer.fixedMeasure'];
+      cube.writer = {};
+
+      delete cube['writer.fixedMeasureName'];
+      delete cube['writer.fixedMeasureValue'];
       delete cube['writer.isAutoCalculatedId'];
       delete cube['writer.dateType'];
+      cube['writer.outputs'] = [];
     }
 
     function resetCube(template, nameIndex, position) {
@@ -59,45 +60,50 @@
       cube.dimensions = c.dimensions;
       cube.operators = c.operators;
       cube.checkpointConfig = c.checkpointConfig;
-      cube.writer = c.writer;
-      error.text = "";
-      setTriggers(c.triggers);
+      cube.triggers = c.triggers;
+      cube['writer.fixedMeasureName'] = c['writer.fixedMeasureName'];
+      cube['writer.fixedMeasureValue'] = c['writer.fixedMeasureValue'];
+      cube['writer.isAutoCalculatedId'] = c['writer.isAutoCalculatedId'];
+      cube['writer.dateType'] = c['writer.dateType'];
+      cube['writer.outputs'] = c['writer.outputs'];
       setPosition(position);
-      formatAttributes();
+
+      error.text = "";
     }
 
-    function formatAttributes() {
-      cube['writer.fixedMeasure'] = cube.writer.fixedMeasure;
+    function getParsedCube(cube) {
+      var fixedMeasure = cube.writer.fixedMeasure;
+      if (fixedMeasure) {
+        fixedMeasure = fixedMeasure.split(":");
+        cube['writer.fixedMeasureName'] = fixedMeasure[0];
+        cube['writer.fixedMeasureValue'] = fixedMeasure[1];
+      }
       cube['writer.isAutoCalculatedId'] = cube.writer.isAutoCalculatedId;
       cube['writer.dateType'] = cube.writer.dateType;
+      cube['writer.outputs'] = cube.writer.outputs;
+
+      return cube;
     }
 
-    function setTriggers(triggers) {
-      if (!cube.triggers) {
-        cube.triggers = [];
-      }
-      while (cube.triggers.length > 0) {
-        cube.triggers.pop();
-      }
-      for (var i = 0; i < triggers.length; ++i) {
-        cube.triggers.push(triggers[i]);
-      }
-    }
-
-    function areValidOperatorsAndDimensions(cube) {
+    function areValidOperatorsAndDimensions(cube, modelOutputs) {
       var validOperatorsAndDimensionsLength = cube.operators.length > 0 && cube.dimensions.length > 0;
-      var validFieldList = PolicyModelFactory.getAllModelOutputs();
       for (var i = 0; i < cube.dimensions.length; ++i) {
-        if (validFieldList.indexOf(cube.dimensions[i].field) == -1)
+        if (modelOutputs.indexOf(cube.dimensions[i].field) == -1) {
           return false;
+        }
       }
       return validOperatorsAndDimensionsLength;
     }
 
-    function isValidCube(cube, cubes, position) {
-      var validName = cube.name !== undefined && cube.name !== "";
-      var isValid = validName && areValidOperatorsAndDimensions(cube) && !nameExists(cube, cubes, position);
+    function isValidCube(cube, cubes, position, modelOutputs) {
+      var validName = cube.name !== undefined && cube.name !== "" && isValidFixedMeasure();
+      var validRequiredAttributes = cube.operators.length > 0 && cube.dimensions.length > 0 && (cube.triggers.length > 0 || cube['writer.outputs'].length > 0);
+      var isValid = validName && validRequiredAttributes && areValidOperatorsAndDimensions(cube, modelOutputs) && !nameExists(cube, cubes, position);
       return isValid;
+    }
+
+    function isValidFixedMeasure() {
+      return (cube["writer.fixedMeasureName"] && cube["writer.fixedMeasureValue"]) || (!cube["writer.fixedMeasureName"] && !cube["writer.fixedMeasureValue"])
     }
 
     function nameExists(cube, cubes, cubePosition) {
@@ -121,6 +127,7 @@
     }
 
     function setError() {
+      error.text = "";
       if (cube.operators.length === 0 && cube.dimensions.length === 0) {
         error.text = "_POLICY_CUBE_OPERATOR-DIMENSION_ERROR_";
       }
@@ -139,6 +146,7 @@
       getContext: getContext,
       setPosition: setPosition,
       isValidCube: isValidCube,
+      getParsedCube: getParsedCube,
       setError: setError,
       getError: getError
     }

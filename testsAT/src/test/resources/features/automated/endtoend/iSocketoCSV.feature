@@ -9,23 +9,19 @@ Feature: Test policy with Socket input and CSV output
     And I wait '5' seconds
 
     # Add the policy
-    When I send a 'POST' request to '/policy' based on 'schemas/policies/iSocketoCSV.conf' as 'json' with:
+    When I send a 'POST' request to '/policyContext' based on 'schemas/policies/iSocketoCSV.conf' as 'json' with:
       | id | DELETE | N/A |
       | checkpointPath | UPDATE | /tmp/checkpoint |
       | input.configuration.hostname | UPDATE | @{IP.${IFACE}} |
       | input.configuration.port | UPDATE | 10666 |
       | outputs[0].configuration.path | UPDATE | ${CSV_PATH} |
     Then the service response status must be '200'.
-    And I save element '$.id' in environment variable 'previousPolicyID'
+    And I save element '$.policyId' in environment variable 'previousPolicyID'
     And I wait '10' seconds
-
-    # Start the policy
-    When I send a 'GET' request to '/policy/run/!{previousPolicyID}'
-    Then the service response status must be '200' and its response must contain the text '{"message":"Creating new context'
 
     # Send Data
     Given I send data from file 'src/test/resources/schemas/dataInput/info.csv' to socket
-    And I wait '10' seconds
+    And I wait '20' seconds
 
     # Check Data
     Given I open remote ssh connection to host '${SPARTA_HOST}' with user 'root' and password 'stratio'

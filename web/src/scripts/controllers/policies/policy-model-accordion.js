@@ -21,18 +21,23 @@
     .module('webApp')
     .controller('PolicyModelAccordionCtrl', PolicyModelAccordionCtrl);
 
-  PolicyModelAccordionCtrl.$inject = ['PolicyModelFactory', 'ModelFactory', 'ModelService','TriggerModelFactory', 'TriggerService', 'triggerConstants'];
+  PolicyModelAccordionCtrl.$inject = ['WizardStatusService', 'PolicyModelFactory', 'ModelFactory', 'ModelService',
+    'TriggerService', 'triggerConstants', '$scope'];
 
-  function PolicyModelAccordionCtrl(PolicyModelFactory, ModelFactory, ModelService,TriggerModelFactory, TriggerService, triggerConstants) {
+  function PolicyModelAccordionCtrl(WizardStatusService, PolicyModelFactory, ModelFactory, ModelService,
+                                    TriggerService, triggerConstants, $scope) {
     var vm = this;
 
     vm.init = init;
-    vm.changeOpenedModel = changeOpenedModel;
-    vm.changeOpenedTrigger = changeOpenedTrigger;
+    vm.changeOpenedTrigger = TriggerService.changeOpenedTrigger;
     vm.isActiveModelCreationPanel = ModelService.isActiveModelCreationPanel;
-    vm.activateModelCreationPanel = activateModelCreationPanel;
     vm.isActiveTriggerCreationPanel = TriggerService.isActiveTriggerCreationPanel;
+    vm.modelCreationStatus = ModelService.getModelCreationStatus();
+    vm.triggerCreationStatus = TriggerService.getTriggerCreationStatus();
+    vm.changeOpenedModel = changeOpenedModel;
+    vm.activateModelCreationPanel = activateModelCreationPanel;
     vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
+
     vm.init();
 
     function init() {
@@ -41,25 +46,24 @@
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       TriggerService.setTriggerContainer(vm.policy.streamTriggers, triggerConstants.TRANSFORMATION);
       vm.triggerContainer = vm.policy.streamTriggers;
-      vm.helpLink = vm.template.helpLinks.models;
-      vm.error = "";
       vm.modelAccordionStatus = [];
       vm.triggerAccordionStatus = [];
       TriggerService.changeVisibilityOfHelpForSql(true);
-
-      if (vm.policy.transformations.length > 0) {
-        PolicyModelFactory.enableNextStep();
-      } else {
+      if (vm.policy.transformations.length == 0) {
         ModelService.changeModelCreationPanelVisibility(true);
+        activateModelCreationPanel();
       }
     }
 
-    function activateModelCreationPanel(){
+    function activateModelCreationPanel() {
+      vm.modelAccordionStatus[vm.modelAccordionStatus.length - 1] = true;
       ModelService.activateModelCreationPanel();
       TriggerService.disableTriggerCreationPanel();
+      ModelService.resetModel(vm.template);
     }
 
-    function activateTriggerCreationPanel(){
+    function activateTriggerCreationPanel() {
+      vm.triggerAccordionStatus[vm.triggerAccordionStatus.length - 1] = true;
       TriggerService.activateTriggerCreationPanel();
       ModelService.disableModelCreationPanel();
     }
@@ -69,24 +73,59 @@
         var selectedModel = vm.policy.transformations[selectedModelPosition];
         ModelFactory.setModel(selectedModel, selectedModelPosition);
       } else {
-        var modelNumber = vm.policy.transformations.length;
-        var order = 0;
-
-        if (modelNumber > 0) {
-          order = vm.policy.transformations[modelNumber - 1].order + 1
-        }
-        ModelFactory.resetModel(vm.template.model, order, vm.policy.transformations.length);
+          ModelService.resetModel(vm.template);
       }
       ModelFactory.updateModelInputs(vm.policy.transformations);
     }
 
-    function changeOpenedTrigger(selectedTriggerPosition) {
-      if (vm.policy.streamTriggers.length > 0 && selectedTriggerPosition >= 0 && selectedTriggerPosition < vm.policy.streamTriggers.length) {
-        var selectedTrigger = vm.policy.streamTriggers[selectedTriggerPosition];
-        TriggerModelFactory.setTrigger(selectedTrigger, selectedTriggerPosition);
+    $scope.$on("forceValidateForm", function () {
+      if (vm.policy.transformations.length == 0) {
+        PolicyModelFactory.setError("_ERROR_._TRANSFORMATION_STEP_", "error");
       } else {
-        TriggerModelFactory.resetTrigger(vm.policy.streamTriggers.length);
+        if (vm.isActiveModelCreationPanel() || vm.isActiveTriggerCreationPanel()) {
+          PolicyModelFactory.setError("_ERROR_._CHANGES_WITHOUT_SAVING_", "error");
+        }
       }
-    }
+      if (vm.isActiveModelCreationPanel()) {
+        vm.modelAccordionStatus[vm.modelAccordionStatus.length - 1] = true;
+      }
+
+      if (vm.isActiveTriggerCreationPanel()) {
+        vm.triggerAccordionStatus[vm.triggerAccordionStatus.length - 1] = true;
+      }
+    });
+
+    $scope.$watchCollection(
+      "vm.modelCreationStatus",
+      function (modelCreationStatus) {
+        if (!modelCreationStatus.enabled && !vm.triggerCreationStatus.enabled && vm.policy.transformations.length > 0) {
+          WizardStatusService.enableNextStep();
+        } else {
+          WizardStatusService.disableNextStep();
+        }
+      }
+    );
+
+    $scope.$watchCollection(
+      "vm.triggerCreationStatus",
+      function (triggerCreationStatus) {
+        if (!triggerCreationStatus.enabled && !vm.modelCreationStatus.enabled && vm.policy.transformations.length > 0) {
+          WizardStatusService.enableNextStep();
+        } else {
+          WizardStatusService.disableNextStep();
+        }
+      }
+    );
+
+    $scope.$watchCollection(
+      "vm.policy.transformations",
+      function (transformations) {
+        if (transformations.length > 0) {
+          WizardStatusService.enableNextStep();
+        } else {
+          WizardStatusService.disableNextStep();
+        }
+      }
+    )
   }
 })();

@@ -8,11 +8,10 @@ Feature: Test all expected elements are present in Sparta GUI for outputs
 	Scenario: Check all expected elements are available for outputs
 		Given I browse to '/#/dashboard/outputs'
 		Then I wait '2' seconds
-		And '1' element exists with 'css:a[data-qa="dashboard-menu-inputs"]'
-		And '1' element exists with 'css:a[data-qa="dashboard-menu-outputs"]'
-		And '1' element exists with 'css:a[data-qa="dashboard-menu-policies"]'
+		And '1' element exists with 'css:div[data-qaref="dashboard-menu-inputs"]'
+		And '1' element exists with 'css:div[data-qaref="dashboard-menu-outputs"]'
+		And '1' element exists with 'css:div[data-qaref="dashboard-menu-policies"]'
 		And '1' element exists with 'css:div[data-qa="output-first-message"]'
-		And '1' element exists with 'css:button[data-qa="outputs-new-button"]'
 		
 		# Press message and cancel operation
 		Given '1' element exists with 'css:div[data-qa="output-first-message"]'
@@ -33,9 +32,22 @@ Feature: Test all expected elements are present in Sparta GUI for outputs
 		Then I click on the element on index '0'
 		And I wait '1' second
 		And '0' elements exist with 'css:aside[data-qa="fragment-details-modal"]'
+
+		# Add output through api and reload
+                Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
+                | id | DELETE | N/A |
+                | fragmentType | UPDATE | output |
+                | name | UPDATE | outputfragment1 |
+                Then the service response status must be '200'.
+                # Retrieve input fragment id using api
+                When I send a 'GET' request to '/fragment/output/name/outputfragment1'
+                Then the service response status must be '200'.
+                And I save element '$.id' in environment variable 'previousFragmentID'
+                Given I browse to '/#/dashboard/outputs'
+                Then I wait '2' seconds
 		
 		# Press add button and cancel operation
-		Given '1' elements exists with 'css:button[data-qa="outputs-new-button"]'
+		Given '1' elements exists with 'css:button[data-qa="output-filter-new-output"]'
 		When I click on the element on index '0'
 		Then I wait '2' seconds
 		And '1' element exists with 'css:aside[data-qa="fragment-details-modal"]'
@@ -45,7 +57,7 @@ Feature: Test all expected elements are present in Sparta GUI for outputs
 		And '0' elements exist with 'css:aside[data-qa="fragment-details-modal"]'
 		
 		# Press add button and close modal
-		Given '1' elements exists with 'css:button[data-qa="outputs-new-button"]'
+		Given '1' elements exists with 'css:button[data-qa="output-filter-new-output"]'
 		When I click on the element on index '0'
 		Then I wait '2' seconds
 		And '1' element exists with 'css:aside[data-qa="fragment-details-modal"]'
@@ -54,21 +66,6 @@ Feature: Test all expected elements are present in Sparta GUI for outputs
 		And I wait '1' second
 		And '0' elements exist with 'css:aside[data-qa="fragment-details-modal"]'
 		
-		# Press add button and create one output to check filters appear
-		Given '1' elements exists with 'css:button[data-qa="outputs-new-button"]'
-		When I click on the element on index '0'
-		Then I wait '2' seconds
-		And '1' element exists with 'css:aside[data-qa="fragment-details-modal"]'
-		Given '1' element exists with 'css:input[data-qa="fragment-detail-name"]'
-		Then I type 'validCassandraOutput' on the element on index '0'
-		# Create
-		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
-		Then I click on the element on index '0'
-		# Check that output fragment has been created
-		# Retrieve output fragment id using api
-		When I send a 'GET' request to '/fragment/output/name/validcassandraoutput'
-		Then the service response status must be '200'.
-		And I save element '$.id' in environment variable 'previousFragmentID'
 		# Check that an output element has been created
 		Then '1' element exists with 'css:span[data-qa="output-context-menu-!{previousFragmentID}"]'
 		And '1' element exists with 'css:select[data-qa="output-filter-type"]'

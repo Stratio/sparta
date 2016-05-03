@@ -1,22 +1,24 @@
 describe('policies.wizard.controller.policy-model-controller', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policy.json'));
-  beforeEach(module('served/policyTemplate.json'));
-  beforeEach(module('served/model.json'));
+  beforeEach(module('api/policy.json'));
+  beforeEach(module('model/policy.json'));
+  beforeEach(module('template/policy.json'));
+  beforeEach(module('model/transformation.json'));
 
   var ctrl, scope, fakePolicy, fakePolicyTemplate, fakeModelTemplate, fakeModel, policyModelFactoryMock,
-    modelFactoryMock, modelServiceMock, resolvedPromise, rejectedPromise;
+    modelFactoryMock, modelServiceMock, resolvedPromise, rejectedPromise, fakeApiPolicy;
 
   // init mock modules
 
   beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope) {
     scope = $rootScope.$new();
 
-    inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedModel_) {
-      fakePolicy = angular.copy(_servedPolicy_);
-      fakePolicyTemplate = _servedPolicyTemplate_;
+    inject(function (_modelPolicy_, _apiPolicy_,_templatePolicy_, _modelTransformation_) {
+      fakePolicy = angular.copy(_modelPolicy_);
+      fakeApiPolicy = angular.copy(_apiPolicy_);
+      fakePolicyTemplate = _templatePolicy_;
       fakeModelTemplate = fakePolicyTemplate.model;
-      fakeModel = _servedModel_;
+      fakeModel = angular.copy(_modelTransformation_);
     });
 
     $httpBackend.when('GET', 'languages/en-US.json')
@@ -38,7 +40,8 @@ describe('policies.wizard.controller.policy-model-controller', function () {
     ctrl = $controller('PolicyModelCtrl', {
       'PolicyModelFactory': policyModelFactoryMock,
       'ModelFactory': modelFactoryMock,
-      'ModelService': modelServiceMock
+      'ModelService': modelServiceMock,
+      '$scope': scope
     });
 
     resolvedPromise = function () {
@@ -77,7 +80,8 @@ describe('policies.wizard.controller.policy-model-controller', function () {
       var cleanCtrl = $controller('PolicyModelCtrl', {
         'PolicyModelFactory': policyModelFactoryMock,
         'ModelFactory': modelFactoryMock,
-        'ModelService': modelServiceMock
+        'ModelService': modelServiceMock,
+        '$scope': scope
       });
       modelFactoryMock.getModel.and.returnValue(null);
       cleanCtrl.init();
@@ -91,11 +95,11 @@ describe('policies.wizard.controller.policy-model-controller', function () {
   });
 
   describe("should be able to change the default configuration when type is changed by user", function () {
-    it("if type is morphlines, it returns the morphlinesDefaultConfiguration", function () {
+    it("if type is Morphlines, it returns the morphlinesDefaultConfiguration", function () {
       ctrl.model.type = "Morphlines";
       ctrl.onChangeType();
 
-      expect(ctrl.model.configuration).toEqual(fakeModelTemplate.morphlines.defaultConfiguration);
+      expect(ctrl.model.configuration).toEqual(fakeModelTemplate.Morphlines.defaultConfiguration);
     });
 
   });
@@ -106,14 +110,22 @@ describe('policies.wizard.controller.policy-model-controller', function () {
       ctrl.addModel();
 
       expect(modelServiceMock.addModel).not.toHaveBeenCalled();
-      expect(modelFactoryMock.setError).toHaveBeenCalledWith("_GENERIC_FORM_ERROR_");
+      expect(modelFactoryMock.setError).toHaveBeenCalledWith("_ERROR_._GENERIC_FORM_");
     });
 
-    it("model is added if view validations have been passed", function () {
+    it("model is added if view validations have been passed and has an output field at least", function () {
       ctrl.form = {$valid: true}; //view validations have been passed
+
       ctrl.addModel();
 
       expect(modelServiceMock.addModel).toHaveBeenCalled();
+
+      modelServiceMock.addModel.calls.reset();
+      ctrl.model.outputFields = [];
+
+      ctrl.addModel();
+
+      expect(modelServiceMock.addModel).not.toHaveBeenCalled();
     });
   });
 

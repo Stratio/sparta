@@ -19,17 +19,15 @@
   angular
     .module('webApp')
     .factory('PolicyModelFactory', PolicyModelFactory);
-  PolicyModelFactory.$inject = ['fragmentConstants'];
+  PolicyModelFactory.$inject = ['CubeModelFactory', 'fragmentConstants'];
 
-  function PolicyModelFactory(fragmentConstants) {
+  function PolicyModelFactory(CubeModelFactory, fragmentConstants) {
     var policy = {};
-    var status = {};
     var finalJSON = {};
     var template = {};
+    var error = {};
 
     function initPolicy() {
-      status.currentStep = -1;
-      status.nextStepAvailable = false;
       policy.name = "";
       policy.description = "";
       policy.input = {};
@@ -41,25 +39,24 @@
       delete policy.checkpointPath;
       delete policy.sparkStreamingWindowNumber;
       delete policy.sparkStreamingWindowTime;
-      delete  policy.storageLevel;
-      delete  policy.rawDataEnabled;
-      delete  policy.rawDataPath;
+      delete policy.storageLevel;
+      delete policy.rawDataEnabled;
+      delete policy.rawDataPath;
     }
 
     function setPolicy(inputPolicyJSON) {
-      status.currentStep = 0;
       policy.id = inputPolicyJSON.id;
       policy.name = inputPolicyJSON.name;
       policy.description = inputPolicyJSON.description;
       policy.sparkStreamingWindow = inputPolicyJSON.sparkStreamingWindow;
+      policy.remember = inputPolicyJSON.remember;
       policy.storageLevel = inputPolicyJSON.storageLevel;
       policy.checkpointPath = inputPolicyJSON.checkpointPath;
       policy.rawDataEnabled = (inputPolicyJSON.rawData.enabled == "true");
       policy.rawDataPath = inputPolicyJSON.rawData.path;
       policy.transformations = inputPolicyJSON.transformations;
-      policy.cubes = inputPolicyJSON.cubes;
-      policy.streamTriggers = inputPolicyJSON.streamTriggers;
-      status.nextStepAvailable = true;
+      policy.cubes = setCubes(inputPolicyJSON.cubes);
+      policy.streamTriggers = setStreamTriggers(inputPolicyJSON.streamTriggers);
       formatAttributes();
       var policyFragments = separateFragments(inputPolicyJSON.fragments);
       policy.input = policyFragments.input;
@@ -69,7 +66,34 @@
       var sparkStreamingWindow = policy.sparkStreamingWindow.split(/([0-9]+)/);
       policy.sparkStreamingWindowNumber = Number(sparkStreamingWindow[1]);
       policy.sparkStreamingWindowTime = sparkStreamingWindow[2];
-      delete policy.sparkStreamingWindowTime;
+      delete policy.sparkStreamingWindow;
+      if (policy.remember) {
+        var rememberField = policy.remember.split(/([0-9]+)/);
+        policy.rememberNumber = Number(rememberField[1]);
+        policy.rememberTime = rememberField[2];
+      }
+      delete policy.remember;
+    }
+
+    function setStreamTriggers(streamTriggers) {
+      var formattedStreamTriggers = [];
+      for (var i = 0; i < streamTriggers.length; ++i) {
+        var trigger = streamTriggers[i];
+        var overLast = trigger.overLast.split(/([0-9]+)/);
+        trigger.overLastNumber = Number(overLast[1]);
+        trigger.overLastTime = overLast[2];
+        delete trigger.overLast;
+        formattedStreamTriggers.push(trigger);
+      }
+      return formattedStreamTriggers;
+    }
+
+    function setCubes(cubes) {
+      var formattedCubes = [];
+      for (var i = 0; i < cubes.length; ++i) {
+        formattedCubes.push(CubeModelFactory.getParsedCube(cubes[i]));
+      }
+      return formattedCubes;
     }
 
     function setTemplate(newTemplate) {
@@ -83,20 +107,16 @@
     function separateFragments(fragments) {
       var result = {};
       var input = null;
-      var outputs = [];
       var fragment = null;
 
       for (var i = 0; i < fragments.length; ++i) {
         fragment = fragments[i];
-        if (fragment.fragmentType == fragmentConstants.OUTPUT) {
-          outputs.push(fragment);
-        } else {
+        if (fragment.fragmentType == fragmentConstants.INPUT) {
           input = fragment;
         }
       }
 
       result.input = input;
-      result.outputs = outputs;
       return result;
     }
 
@@ -105,27 +125,6 @@
       if (Object.keys(policy).length == 0)
         initPolicy();
       return policy;
-    }
-
-    function previousStep() {
-      status.currentStep--;
-    }
-
-    function nextStep() {
-      status.currentStep++;
-      status.nextStepAvailable = false;
-    }
-
-    function enableNextStep() {
-      status.nextStepAvailable = true;
-    }
-
-    function disableNextStep() {
-      status.nextStepAvailable = false;
-    }
-
-    function getProcessStatus() {
-      return status;
     }
 
     function resetPolicy() {
@@ -157,21 +156,40 @@
       return finalJSON = json;
     }
 
+    function isValidSparkStreamingWindow() {
+      var valid = true;
+      if (policy.streamTriggers && policy.sparkStreamingWindowNumber > 0) {
+        var i = 0;
+        while (valid && i < policy.streamTriggers.length) {
+          valid = valid && ((policy.streamTriggers[i].overLastNumber % policy.sparkStreamingWindowNumber) == 0);
+          ++i;
+        }
+      }
+      return valid;
+    }
+
+    function getError() {
+      return error;
+    }
+
+    function setError(text, type, subErrors) {
+      error.text = text;
+      error.type = type;
+      error.subErrors = subErrors;
+    }
 
     return {
       setPolicy: setPolicy,
       setTemplate: setTemplate,
       getTemplate: getTemplate,
       getCurrentPolicy: getCurrentPolicy,
-      previousStep: previousStep,
-      nextStep: nextStep,
-      enableNextStep: enableNextStep,
-      disableNextStep: disableNextStep,
-      getProcessStatus: getProcessStatus,
       resetPolicy: resetPolicy,
       getAllModelOutputs: getAllModelOutputs,
       getFinalJSON: getFinalJSON,
-      setFinalJSON: setFinalJSON
+      setFinalJSON: setFinalJSON,
+      isValidSparkStreamingWindow: isValidSparkStreamingWindow,
+      getError: getError,
+      setError: setError
     }
   }
 

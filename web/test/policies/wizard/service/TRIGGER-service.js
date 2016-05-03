@@ -1,17 +1,18 @@
 describe('policies.wizard.service.policy-trigger-service', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/trigger.json'));
-  beforeEach(module('served/policy.json'));
+  beforeEach(module('api/trigger.json'));
+  beforeEach(module('model/trigger.json'));
+  beforeEach(module('model/policy.json'));
 
   var service, q, rootScope, httpBackend, translate, ModalServiceMock, PolicyModelFactoryMock, TriggerModelFactoryMock,
-    fakeTrigger2, fakeTrigger3, resolvedPromiseFunction, rejectedPromiseFunction,
+    fakeTrigger2, fakeTrigger3, resolvedPromiseFunction, rejectedPromiseFunction, fakeApiTrigger,
     fakeTrigger = null;
   var fakePolicy = {};
 
   beforeEach(module(function ($provide) {
     ModalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
     PolicyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'enableNextStep', 'disableNextStep']);
-    TriggerModelFactoryMock = jasmine.createSpyObj('TriggerFactory', ['getTrigger', 'isValidTrigger', 'resetTrigger', 'getContext', 'setError']);
+    TriggerModelFactoryMock = jasmine.createSpyObj('TriggerFactory', ['getTrigger', 'addTrigger', 'isValidTrigger', 'resetTrigger', 'getContext', 'setError']);
     PolicyModelFactoryMock.getCurrentPolicy.and.returnValue(fakePolicy);
 
     // inject mocks
@@ -20,9 +21,11 @@ describe('policies.wizard.service.policy-trigger-service', function () {
     $provide.value('TriggerModelFactory', TriggerModelFactoryMock);
   }));
 
-  beforeEach(inject(function (_servedTrigger_, _servedPolicy_, $q, $rootScope, $httpBackend, $translate) {
-    fakeTrigger = _servedTrigger_;
-    angular.extend(fakePolicy, _servedPolicy_);
+  beforeEach(inject(function (_apiTrigger_, _modelTrigger_, _modelPolicy_, $q, $rootScope, $httpBackend, $translate) {
+    fakeApiTrigger = _apiTrigger_;
+    fakeTrigger = _modelTrigger_;
+
+    angular.extend(fakePolicy, angular.copy(_modelPolicy_));
 
     translate = $translate;
     q = $q;
@@ -101,24 +104,46 @@ describe('policies.wizard.service.policy-trigger-service', function () {
 
   describe("should be able to add a trigger to the trigger container", function () {
     var triggerContainer = [];
+    var triggerLength = null;
     beforeEach(function () {
       service.setTriggerContainer(triggerContainer);
+      triggerLength =triggerContainer.length;
+    });
+
+    it("trigger is not added if view validations have not been passed", function () {
+      var form = {$valid: false}; //view validations have not been passed
+      service.addTrigger(form);
+
+      expect(service.getTriggerContainer().length).toBe(triggerLength);
+    });
+
+    it("trigger is added if view validations have been passed and trigger is valid", function () {
+      TriggerModelFactoryMock.isValidTrigger.and.returnValue(true);
+      var form = {$valid: true}; //view validations have been passed
+
+      service.addTrigger(form);
+
+      expect(service.getTriggerContainer().length).toBe(triggerLength+1);
     });
 
     it("trigger is not added if it is not valid", function () {
       TriggerModelFactoryMock.isValidTrigger.and.returnValue(false);
-      service.addTrigger();
-      expect(triggerContainer.length).toBe(0);
+      var form = {$valid: true}; //view validations have been passed
+
+      service.addTrigger(form);
+      expect(triggerContainer.length).toBe(triggerLength);
     });
 
     describe("if trigger is valid", function () {
       beforeEach(function () {
         TriggerModelFactoryMock.isValidTrigger.and.returnValue(true);
-        service.addTrigger();
+        var form = {$valid: true}; //view validations have been passed
+
+        service.addTrigger(form);
       });
 
       it("it is added to policy with its position", function () {
-        expect(triggerContainer.length).toBe(1);
+        expect(triggerContainer.length).toBe(triggerLength + 1);
         expect(triggerContainer[0].name).toEqual(fakeTrigger.name);
       });
     });
@@ -179,33 +204,40 @@ describe('policies.wizard.service.policy-trigger-service', function () {
       triggerContainer = [];
       service.setTriggerContainer(triggerContainer);
     });
-    it("is saved if it is valid and error is hidden", function () {
-      var form = {};
+    it("is saved if it and its form are valid", function () {
+      var form = {$valid: true};
       TriggerModelFactoryMock.isValidTrigger.and.returnValue(true);
       service.saveTrigger(form);
 
       expect(triggerContainer.length).toBe(1);
-      expect(TriggerModelFactoryMock.setError).not.toHaveBeenCalled();
     });
 
-    it("is not saved if it is invalid and error is updated to a generic form error", function () {
-      var form = {};
+    it("is not saved if it is invalid", function () {
+      var form = {$valid: true};
       TriggerModelFactoryMock.isValidTrigger.and.returnValue(false);
       service.saveTrigger(form);
 
       expect(triggerContainer.length).toBe(0);
-      expect(TriggerModelFactoryMock.setError).toHaveBeenCalled();
     });
   });
 
-  it("should be able to activate and disable the panel to create a new trigger", function () {
-    service.activateTriggerCreationPanel();
+  describe("should be able to activate and disable the panel to create a new trigger", function () {
+    it("if new trigger panel is activate, current trigger is reset and should return true", function () {
+      var fakeTriggerContainer = [fakeTrigger, fakeTrigger2];
+      var triggerType = 'cube';
+      service.setTriggerContainer(fakeTriggerContainer, triggerType);
+      service.activateTriggerCreationPanel();
 
-    expect(service.isActiveTriggerCreationPanel()).toBe(true);
+      expect(service.isActiveTriggerCreationPanel()).toBe(true);
+      expect(TriggerModelFactoryMock.resetTrigger).toHaveBeenCalledWith(fakeTriggerContainer.length, triggerType);
+    });
 
-    service.disableTriggerCreationPanel();
+    it("if new trigger panel is disabled, it should return false", function () {
+      service.disableTriggerCreationPanel();
 
-    expect(service.isActiveTriggerCreationPanel()).toBe(false);
+      expect(service.isActiveTriggerCreationPanel()).toBe(false);
+    });
+
   });
 
   describe("should be able to generate a help for sql queries", function () {

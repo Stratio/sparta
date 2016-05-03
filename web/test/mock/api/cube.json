@@ -1,0 +1,39 @@
+{
+  "name": "cube1",
+  "dimensions": [
+    {
+      "name": "outputfield",
+      "field": "outputfield",
+      "type": "Default"
+    }
+  ],
+  "operators": [
+    {
+      "name": "accumulator1",
+      "configuration": {},
+      "type": "Accumulator"
+    }
+  ],
+  "checkpointConfig": {},
+  "triggers": [
+    {
+      "name": "trigger cube",
+      "sql": "SELECT * FROM DATABASETABLE",
+      "outputs": [
+        "output"
+      ],
+      "primaryKey": [
+        "PRIMARY_kEY"
+      ],
+      "overLast": "6s"
+    }
+  ],
+  "writer": {
+    "outputs": [
+      "output2"
+    ],
+    "dateType": "timestamp",
+    "isAutoCalculatedId": true,
+    "fixedMeasure":"localhost:6"
+  }
+}

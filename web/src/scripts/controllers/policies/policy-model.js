@@ -21,19 +21,19 @@
     .module('webApp')
     .controller('PolicyModelCtrl', PolicyModelCtrl);
 
-  PolicyModelCtrl.$inject = ['ModelFactory', 'PolicyModelFactory', 'ModelService'];
+  PolicyModelCtrl.$inject = ['ModelFactory', 'PolicyModelFactory', 'ModelService', 'modelConstants', '$scope'];
 
-  function PolicyModelCtrl(ModelFactory, PolicyModelFactory, ModelService) {
+  function PolicyModelCtrl(ModelFactory, PolicyModelFactory, ModelService, modelConstants, $scope) {
     var vm = this;
 
     vm.init = init;
     vm.addModel = addModel;
     vm.removeModel = removeModel;
-    vm.resetOutputFields = resetOutputFields;
-    vm.onChangeType= onChangeType;
+    vm.onChangeType = onChangeType;
+    vm.cancelModelCreation = cancelModelCreation;
+    vm.modelInputs = ModelFactory.getModelInputs();
     vm.isLastModel = ModelService.isLastModel;
     vm.isNewModel = ModelService.isNewModel;
-    vm.modelInputs = ModelFactory.getModelInputs();
 
     vm.init();
 
@@ -42,23 +42,30 @@
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.model = ModelFactory.getModel();
       vm.modelError = '';
-      vm.lastType = vm.template.model.types[0].name;
       if (vm.model) {
         vm.modelError = ModelFactory.getError();
         vm.modelContext = ModelFactory.getContext();
         vm.modelTypes = vm.template.model.types;
         vm.configPlaceholder = vm.template.configPlaceholder;
         vm.outputPattern = vm.template.outputPattern;
-        vm.outputInputPlaceholder = vm.template.outputInputPlaceholder;
-        vm.outputFieldTypes = vm.template.model.outputFieldTypes;
+        vm.outputFieldTypes = vm.template.model.defaultOutputFieldTypes;
       }
     }
 
-    function onChangeType(){
+    function onChangeType() {
+      vm.model.outputFields = [];
+      vm.outputFieldTypes = vm.template.model.defaultOutputFieldTypes;
       switch (vm.model.type) {
-        case "Morphlines":{
-          vm.model.configuration = vm.template.model.morphlines.defaultConfiguration;
-        }
+        case modelConstants.MORPHLINES:
+        case modelConstants.GEO:
+          vm.model.configuration = vm.template.model[vm.model.type].defaultConfiguration;
+          break;
+        case modelConstants.DATETIME:
+          vm.outputFieldTypes = vm.template.model[modelConstants.DATETIME].outputFieldTypes;
+          break;
+        default:
+          vm.model.configuration = {};
+
       }
     }
 
@@ -69,7 +76,7 @@
         ModelService.addModel();
         ModelService.changeModelCreationPanelVisibility(false);
       } else {
-        ModelFactory.setError("_GENERIC_FORM_ERROR_");
+        ModelFactory.setError("_ERROR_._GENERIC_FORM_");
       }
     }
 
@@ -80,17 +87,19 @@
         if (modelNumber > 0) {
           order = vm.policy.transformations[modelNumber - 1].order + 1
         }
-        vm.model = ModelFactory.resetModel(vm.template.model, order, modelNumber);
+        ModelFactory.resetModel(vm.template.model, order, modelNumber);
         ModelFactory.updateModelInputs(vm.policy.transformations);
       });
     }
 
-    function resetOutputFields() {
-      if (vm.model.type !== vm.lastType) {
-        vm.model.outputFields = [];
-        vm.lastType = vm.model.type;
-      }
+    function cancelModelCreation() {
+      ModelService.disableModelCreationPanel();
+      ModelFactory.resetModel(vm.template.model, vm.model.order, vm.modelContext.position);
     }
+
+    $scope.$on("forceValidateForm", function () {
+      vm.form.$submitted = true;
+    });
   }
 })
 ();

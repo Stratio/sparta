@@ -56,7 +56,7 @@ Feature: Test deleting an output with a policy referencing it in Sparta GUI
 		Then I wait '1' second
 		And '1' element exists with 'css:aside[data-qa="delete-modal"]'
 		And a text 'This output is being used in the following policies' exists
-		And a text 'If you want to delete this output, please change first the output of the policies' exists
+		And a text 'If you want to delete this output, please first change the output of the policies' exists
 		And '1' element exists with 'css:li[data-qa="delete-modal-policy-!{previousPolicyID}"]'
 		And '0' element exists with 'css:button[data-qa="modal-ok-button"]'
 		

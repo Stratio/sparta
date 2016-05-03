@@ -45,7 +45,7 @@
 
       }, function (error) {
         vm.error = true;
-        vm.errorText = "_INPUT_ERROR_" + error.data.i18nCode + "_";
+        vm.errorText = "_ERROR_._" + error.data.i18nCode + "_";
       });
     }
 

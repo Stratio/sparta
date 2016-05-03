@@ -16,7 +16,6 @@
 package com.stratio.sparta.serving.api.service.http
 
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.wordnik.swagger.annotations._

@@ -29,7 +29,9 @@
         steps: '=steps',
         current: '=currentStep',
         nextStepAvailable: '=',
-        editionMode: "="
+        editionMode: "=",
+        onClickNextStep: "&",
+        parentClass:"="
       },
       replace: 'true',
       templateUrl: 'templates/components/c-step-progress-bar.tpl.html',
@@ -41,12 +43,19 @@
           scope.showHelp = false;
         };
         scope.chooseStep = function (index) {
-          if (scope.editionMode || (index == scope.current + 1 && scope.nextStepAvailable) || (index < scope.current) || scope.visited[index] ) {
+          if ((scope.editionMode && scope.nextStepAvailable) || (index == scope.current + 1 && scope.nextStepAvailable) || (index < scope.current)) {
             scope.visited[scope.current] = true;
             scope.current = index;
-            scope.nextStepAvailable = false;
+          }else{
+            if (index == scope.current + 1){
+              scope.onClickNextStep();
+            }
           }
           scope.showHelp = true;
+        };
+
+        scope.showCurrentStepMessage = function(){
+          return !scope.nextStepAvailable && !scope.visited[scope.current+1] || scope.current == scope.steps.length -1;
         };
 
         scope.$watchCollection(

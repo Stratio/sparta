@@ -82,8 +82,8 @@ class OperatorTest extends WordSpec with Matchers {
     }
 
     "getNumberFromSerializable must be " in {
-      Operator.getNumberFromSerializable(1.asInstanceOf[JSerializable]) should be(Some(1.asInstanceOf[Number]))
-      Operator.getNumberFromSerializable("1".asInstanceOf[JSerializable]) should be(Some(1.asInstanceOf[Number]))
+      Operator.getNumberFromAny(1.asInstanceOf[JSerializable]) should be(1.asInstanceOf[Number])
+      Operator.getNumberFromAny("1".asInstanceOf[JSerializable]) should be(1.asInstanceOf[Number])
     }
 
     "getDistinctValues must be " in {
@@ -380,12 +380,11 @@ class OperatorTest extends WordSpec with Matchers {
     }
 
     "Operation number casting must be " in {
-      Operator.getNumberFromSerializable(2) should be(Some(2))
-      Operator.getNumberFromSerializable(2L) should be(Some(2))
-      Operator.getNumberFromSerializable(2d) should be(Some(2))
-      Operator.getNumberFromSerializable(2.asInstanceOf[Byte]) should be(Some(2))
-      Operator.getNumberFromSerializable(2.asInstanceOf[Short]) should be(Some(2))
-      Operator.getNumberFromSerializable(Option(2)) should be(None)
+      Operator.getNumberFromAny(2) should be(2)
+      Operator.getNumberFromAny(2L) should be(2)
+      Operator.getNumberFromAny(2d) should be(2)
+      Operator.getNumberFromAny(2.asInstanceOf[Byte]) should be(2)
+      Operator.getNumberFromAny(2.asInstanceOf[Short]) should be(2)
     }
 
     "classSuffix must be " in {

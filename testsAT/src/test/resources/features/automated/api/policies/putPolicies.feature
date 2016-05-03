@@ -53,7 +53,7 @@ Feature: Test all PUT operations for policies in Sparta Swagger API
 		| fragments | DELETE | N/A |
 		| id | UPDATE | !{previousPolicyID} |
 		| outputs | DELETE | N/A |
-		Then the service response status must be '500' and its response must contain the text 'It is mandatory to define at least one output in the policy.'
+		Then the service response status must be '404' and its response must contain the text 'The policy needs at least one output'
 	
 	# There is no validation
 	# This test will fail
@@ -96,9 +96,7 @@ Feature: Test all PUT operations for policies in Sparta Swagger API
 		| fragments | DELETE | N/A |
 		| id | UPDATE | !{previousPolicyID} |
 		| cubes[0].dimensions | DELETE | N/A |
-		Then the service response status must be '400' and its response must contain the text 'No usable value for Cubes-dimensions.'
-                And the service response must contain the text 'Array is too short: must have at least 1 elements'
-                And the service response must contain the text 'but instance has 0 elements.'
+		Then the service response status must be '404' and its response must contain the text 'There is at least one cube without dimensions'
 	
 	Scenario: Update a policy with missing operators inside cubes
 		When I send a 'PUT' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:

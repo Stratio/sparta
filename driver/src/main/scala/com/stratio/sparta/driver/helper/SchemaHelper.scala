@@ -30,6 +30,8 @@ object SchemaHelper {
   final val NotNullable = false
   final val DefaultTimeStampTypeString = "timestamp"
   final val DefaultTimeStampType = TypeOp.Timestamp
+  private val MetadataBuilder = new MetadataBuilder
+  final val MeasureMetadata = MetadataBuilder.putBoolean(Output.MeasureMetadataKey, true).build()
 
   val mapTypes = Map(
     TypeOp.Long -> LongType,
@@ -43,7 +45,8 @@ object SchemaHelper {
     TypeOp.ArrayDouble -> ArrayType(DoubleType),
     TypeOp.ArrayString -> ArrayType(StringType),
     TypeOp.String -> StringType,
-    TypeOp.MapStringLong -> MapType(StringType, LongType)
+    TypeOp.MapStringLong -> MapType(StringType, LongType),
+    TypeOp.MapStringDouble -> MapType(StringType, DoubleType, false)
   )
 
   val mapSparkTypes: Map[DataType, TypeOp] = Map(
@@ -57,7 +60,8 @@ object SchemaHelper {
     ArrayType(DoubleType) -> TypeOp.ArrayDouble,
     ArrayType(StringType) -> TypeOp.ArrayString,
     StringType -> TypeOp.String,
-    MapType(StringType, LongType) -> TypeOp.MapStringLong
+    MapType(StringType, LongType) -> TypeOp.MapStringLong,
+    MapType(StringType, DoubleType, false) -> TypeOp.MapStringDouble
   )
 
   val mapStringSparkTypes = Map(
@@ -171,7 +175,8 @@ object SchemaHelper {
     }
 
   private def measuresFields(operators: Seq[Operator]): Seq[StructField] =
-    operators.map(operator => StructField(operator.key, rowTypeFromOption(operator.returnType), Nullable))
+    operators.map(operator =>
+      StructField(operator.key, rowTypeFromOption(operator.returnType), NotNullable, MeasureMetadata))
 
   private def dimensionsFields(fields: Seq[Dimension]): Seq[StructField] =
     fields.map(field => StructField(field.name, rowTypeFromOption(field.precision.typeOp), NotNullable))
@@ -181,7 +186,7 @@ object SchemaHelper {
   private def getFixedMeasure(writerModel: WriterModel): Seq[StructField] =
     writerModel.fixedMeasure.fold(Seq.empty[StructField]) { fixedMeasure =>
       fixedMeasure.split(CubeWriter.FixedMeasureSeparator).headOption.fold(Seq.empty[StructField]) { measureName =>
-        Seq(Output.defaultStringField(measureName, Nullable))
+        Seq(Output.defaultStringField(measureName, NotNullable, MeasureMetadata))
       }
     }
 

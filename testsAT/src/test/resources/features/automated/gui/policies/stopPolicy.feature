@@ -73,7 +73,7 @@ Feature: Test stopping a policy in Sparta GUI
 		
 		# Press stop (when policy is not running)
 		Given I click on the element on index '0'
-		And '1' element exists with 'css:div[data-qa="manage-policies-error-msg"]'
+		And '1' element exists with 'css:div[data-qa="error-msg"]'
 		And a text 'is already stopped! Please run it and try again later.' exists
 		
 		# Press run
@@ -82,7 +82,7 @@ Feature: Test stopping a policy in Sparta GUI
 		Then I wait '1' second
 		Then '1' element exists with 'css:st-menu-element[data-qa="policy-context-menu-!{previousPolicyID}-run"]'
 		When I click on the element on index '0'
-		Then '1' element exists with 'css:div[data-qa="manage-policies-error-msg"]'
+		Then '1' element exists with 'css:div[data-qa="error-msg"]'
 		And I wait '1' seconds
 		And a text 'is running!' exists
 	    And I wait '5' seconds
@@ -93,7 +93,7 @@ Feature: Test stopping a policy in Sparta GUI
 		Then I wait '1' second
 		And '1' element exists with 'css:st-menu-element[data-qa="policy-context-menu-!{previousPolicyID}-stop"]'
 		When I click on the element on index '0'
-		Then '1' element exists with 'css:div[data-qa="manage-policies-error-msg"]'
+		Then '1' element exists with 'css:div[data-qa="success-msg"]'
 		And I wait '1' second
 		And a text 'is stopping!' exists
 				

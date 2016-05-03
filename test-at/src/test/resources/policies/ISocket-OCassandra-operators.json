@@ -86,7 +86,7 @@
       "operators": [
         {
           "name": "avg_price",
-          "type": "Avg",
+          "type": "Mean",
           "configuration": {
             "inputField": "price"
           }
@@ -198,7 +198,7 @@
       "operators": [
         {
           "name": "avg_price",
-          "type": "Avg",
+          "type": "Mean",
           "configuration": {
             "inputField": "price"
           }

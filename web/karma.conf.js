@@ -4,6 +4,7 @@ module.exports = function (config) {
     basePath: '',
 
     files: [
+      'node_modules/jquery/dist/jquery.js',
       'node_modules/angular/angular.js',
       'node_modules/angular-mocks/angular-mocks.js',
       'node_modules/angular-resource/angular-resource.js',
@@ -27,7 +28,7 @@ module.exports = function (config) {
       'src/scripts/filters/truncate-number.js',
 
       // fixtures
-      'test/mock/*.json',
+      'test/mock/**/*.json',
       'test/**/**/*.js'
     ],
 
@@ -51,7 +52,6 @@ module.exports = function (config) {
       'src/scripts/inputs/**/*.js': ['coverage'],
       'src/scripts/app.js': ['coverage']
     },
-
     junitReporter: {
       outputDir: 'target/surefire-reports/',
       outputFile: undefined,
@@ -62,7 +62,7 @@ module.exports = function (config) {
       // strip this from the file path
       stripPrefix: 'test/mock/',
       // prepend this to the
-      prependPrefix: 'served/'
+      prependPrefix: ''
     },
 
     coverageReporter: {

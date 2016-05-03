@@ -5,16 +5,23 @@
 export SPARTA_HOME=/opt/sds/$NAME
 
 # Heap Size (defaults to 256m min, 1g max)
-#export SPARTA_HEAP_SIZE=2g
+export SPARTA_HEAP_SIZE=-Xmx2048m
 
-# Heap new generation
-#export SPARTA_HEAP_NEWSIZE=
+export SPARTA_HEAP_MINIMUM_SIZE=-Xms1024m
+
+export SPARTA_MAX_PERM_SIZE=-XX:MaxPermSize=512m
+
+export SPARTA_JMX_PORT=-Dcom.sun.management.jmxremote.port=7183
+
+export SPARTA_JMX_AUTHENTICATE=-Dcom.sun.management.jmxremote.authenticate=false
+
+export SPARTA_JMX_SSL=-Dcom.sun.management.jmxremote.ssl=false
 
 # max direct memory
 #export SPARTA_DIRECT_SIZE=
 
 # Additional Java OPTS
-#export SPARTA_JAVA_OPTS=
+export SPARTA_OPTS="$SPARTA_HEAP_MINIMUM_SIZE $SPARTA_HEAP_SIZE $SPARTA_JMX_PORT $SPARTA_JMX_AUTHENTICATE $SPARTA_JMX_SSL"
 
 # Maximum number of open files
 export MAX_OPEN_FILES=65535

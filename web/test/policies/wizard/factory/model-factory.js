@@ -1,15 +1,15 @@
 describe('policies.wizard.factory.model-factory', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/model.json'));
-  beforeEach(module('served/policyTemplate.json'));
+  beforeEach(module('model/transformation.json'));
+  beforeEach(module('template/policy.json'));
 
   var factory, fakeModel, fakeModelTemplate = null;
 
 
-  beforeEach(inject(function (ModelFactory, _servedModel_, _servedPolicyTemplate_) {
+  beforeEach(inject(function (ModelFactory, _modelTransformation_, _templatePolicy_) {
     factory = ModelFactory;
-    fakeModel = _servedModel_;
-    fakeModelTemplate = _servedPolicyTemplate_.model;
+    fakeModel = _modelTransformation_;
+    fakeModelTemplate = _templatePolicy_.model;
   }));
 
   it("should be able to load a model from a json and a position", function () {

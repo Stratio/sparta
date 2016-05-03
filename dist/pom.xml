@@ -108,11 +108,7 @@
                                     <includeConfigurationDirectoryInClasspath>true
                                     </includeConfigurationDirectoryInClasspath>
                                     <assembleDirectory>target/appassembler</assembleDirectory>
-                                    <extraJvmArguments>$SPARTA_OPTS -Xms1024m -Xmx2048m -XX:MaxPermSize=512m
-                                        -Dcom.sun.management.jmxremote.port=7183
-                                        -Dcom.sun.management.jmxremote.authenticate=false
-                                        -Dcom.sun.management.jmxremote.ssl=false
-                                    </extraJvmArguments>
+                                    <extraJvmArguments>$SPARTA_OPTS</extraJvmArguments>
                                     <filterConfigurationDirectory>true</filterConfigurationDirectory>
                                     <programs>
                                         <program>
@@ -134,7 +130,7 @@
                     <plugin>
                         <groupId>com.stratio.mojo.unix</groupId>
                         <artifactId>unix-maven-plugin</artifactId>
-                        <version>1.1.6</version>
+                        <version>1.2.0</version>
                         <extensions>true</extensions>
                         <inherited>false</inherited>
                         <configuration>
@@ -156,6 +152,7 @@
                                 <dir>/etc</dir>
                                 <dir>/etc/init.d</dir>
                                 <dir>/etc/default</dir>
+                                <dir>/var</dir>
                                 <dir>/var/run</dir>
                                 <dir>/var/log</dir>
                                 <dir>/opt</dir>
@@ -258,16 +255,18 @@
                                             <path>src/main/unix/files_and_dirs/etc/default/sparta-functions</path>
                                             <toFile>/etc/default/sparta-functions</toFile>
                                             <attributes>
-                                                <user>sparta</user>
-                                                <group>stratio</group>
+                                                <user>root</user>
+                                                <group>root</group>
+                                                <mode>644</mode>
                                             </attributes>
                                         </copyFile>
                                         <copyFile>
                                             <path>src/main/unix/files_and_dirs/etc/default/sparta-variables</path>
                                             <toFile>/etc/default/sparta-variables</toFile>
                                             <attributes>
-                                                <user>sparta</user>
-                                                <group>stratio</group>
+                                                <user>root</user>
+                                                <group>root</group>
+                                                <mode>644</mode>
                                             </attributes>
                                         </copyFile>
                                         <copyFile>
@@ -294,16 +293,18 @@
                                             <path>src/main/unix/files_and_dirs/etc/default/sparta-functions</path>
                                             <toFile>/etc/default/sparta-functions</toFile>
                                             <attributes>
-                                                <user>sparta</user>
-                                                <group>stratio</group>
+                                                <user>root</user>
+                                                <group>root</group>
+                                                <mode>644</mode>
                                             </attributes>
                                         </copyFile>
                                         <copyFile>
                                             <path>src/main/unix/files_and_dirs/etc/default/sparta-variables</path>
                                             <toFile>/etc/default/sparta-variables</toFile>
                                             <attributes>
-                                                <user>sparta</user>
-                                                <group>stratio</group>
+                                                <user>root</user>
+                                                <group>root</group>
+                                                <mode>644</mode>
                                             </attributes>
                                         </copyFile>
                                         <copyFile>

@@ -15,18 +15,18 @@
  */
 describe('policy-creation-modal-controller', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policy.json'));
-  beforeEach(module('served/policyTemplate.json'));
+  beforeEach(module('model/policy.json'));
+  beforeEach(module('template/policy.json'));
 
   var ctrl, $q, titleMock, PolicyFactoryMock, PolicyModelFactoryMock, TemplateFactoryMock, fakePolicy, fakePolicyTemplate, modalInstanceMock, scope, fakeTitle = null;
 
-  beforeEach(inject(function ($controller, _$q_, $httpBackend, $rootScope, _servedPolicy_, _servedPolicyTemplate_) {
+  beforeEach(inject(function ($controller, _$q_, $httpBackend, $rootScope, _modelPolicy_, _templatePolicy_) {
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
     scope = $rootScope.$new();
     $q = _$q_;
-    fakePolicy = _servedPolicy_;
-    fakePolicyTemplate = _servedPolicyTemplate_;
+    fakePolicy =  angular.copy(_modelPolicy_);
+    fakePolicyTemplate = _templatePolicy_;
     PolicyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['existsPolicy']);
     PolicyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['setTemplate', 'resetPolicy', 'getCurrentPolicy', 'nextStep']);
     TemplateFactoryMock = jasmine.createSpyObj('TemplateFactory', ['getPolicyTemplate']);

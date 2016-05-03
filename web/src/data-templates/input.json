@@ -5,7 +5,7 @@
     "description": {
       "short": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data.",
       "long": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data. It has a simple and flexible architecture based on streaming data flows.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x8/7.1+Inputs#id-7.1Inputs-8.1.1Input-flume"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs#Inputs-Flume"
     },
     "properties": [
       {
@@ -151,10 +151,10 @@
         "propertyId": "enableDecompression",
         "propertyName": "_DECOMPRESSION_",
         "propertyType": "boolean",
-        "regexp": "true|false",
         "required": false,
         "tooltip": "",
         "hidden": false,
+        "default": false,
         "qa": "fragment-details-flume-push-enable-decompression",
         "visible": [
           [
@@ -173,7 +173,7 @@
     "description": {
       "short": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log.",
       "long": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log. Based on the received-based approach (https://spark.apache.org/docs/latest/streaming-kafka-integration.html)",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x8/7.1+Inputs#id-7.1Inputs-8.1.2Input-kafka"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs#Inputs-Kafka"
     },
     "properties": [
       {
@@ -263,7 +263,7 @@
     "description": {
       "short": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log.",
       "long": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log. Based on the direct approach (https://spark.apache.org/docs/latest/streaming-kafka-integration.html)",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x8/7.1+Inputs#id-7.1Inputs-8.1.3Input-KafkaDirect"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs#Inputs-KafkaDirect"
     },
     "properties": [
       {
@@ -342,7 +342,7 @@
     "description": {
       "short": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
       "long": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x8/7.1+Inputs#id-7.1Inputs-8.1.4Input-rabbitMQ"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs#Inputs-RabbitMQ"
     },
     "properties": [
       {
@@ -416,7 +416,7 @@
     "description": {
       "short": "A network socket is an endpoint of an inter-process communication across a computer network.",
       "long": "A network socket is an endpoint of an inter-process communication across a computer network.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x8/7.1+Inputs#id-7.1Inputs-8.1.5Input-Socket"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs#Inputs-Socket"
     },
     "properties": [
       {
@@ -447,7 +447,7 @@
     "description": {
       "short": "Reads events from Twitter stream and return the status in a json.",
       "long": "Reads events from Twitter stream and return the status in a json.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x8/7.1+Inputs#id-7.1Inputs-8.1.6Input-Twitter"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs#Inputs-Twitter"
     },
     "properties": [
       {
@@ -508,7 +508,7 @@
     "description": {
       "short": "WebSocket is a protocol providing full-duplex communication channels over a single TCP connection.",
       "long": "WebSocket is a protocol providing full-duplex communication channels over a single TCP connection.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x8/7.1+Inputs#id-7.1Inputs-8.1.7Input-WebSocket"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs#Inputs-WebSocket"
     },
 
     "properties": [

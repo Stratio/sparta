@@ -1,6 +1,7 @@
 @mixin c-slider-content {
   @include c-component;
   overflow: hidden;
+  margin-top: $c-slider-content---margin-top;
 
   &__backdrop{
     background-color: $c-slider-content__backdrop---background-color;
@@ -19,7 +20,8 @@
     top: $c-slider-content__button---top;
     color: $c-slider-content__button---color;
     cursor: $c-slider-content__button---cursor;
-    margin:$c-slider-content__button---margin
+    margin:$c-slider-content__button---margin;
+    z-index:$c-slider-content__button---z-index;
   }
 
   &--to-up {

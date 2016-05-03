@@ -24,7 +24,9 @@
       "propertyType": "text",
       "width": 12,
       "required": true,
-      "default": "/tmp/checkpoint",
+      "default": "tmp/checkpoint",
+
+
       "qa": "policy-checkpoint-path"
     },
     {
@@ -46,6 +48,46 @@
       "qa": "policy-spark-streaming-window-sparkStreamingWindowTime",
       "default": "s",
       "required": true,
+      "values": [
+        {
+          "label": "Milliseconds",
+          "value": "ms"
+        },
+        {
+          "label": "Seconds",
+          "value": "s"
+        },
+        {
+          "label": "Minutes",
+          "value": "m"
+        },
+        {
+          "label": "Hours",
+          "value": "h"
+        },
+        {
+          "label": "Days",
+          "value": "d"
+        }
+      ]
+    },
+    {
+      "propertyId": "rememberNumber",
+      "propertyName": "_POLICY_REMEMBER_FIELD_",
+      "propertyType": "number",
+      "width": 6,
+      "position": "left",
+      "required": "scope.form['dataSourcerememberTimeForm']['dataSourcerememberTimeForm'].$modelValue.length > 0",
+      "qa": "policy-remember-number"
+    },
+    {
+      "propertyId": "rememberTime",
+      "propertyName": "_WHITE_SPACE_",
+      "propertyType": "select",
+      "width": 6,
+      "position": "right",
+      "qa": "policy-remember-time",
+      "required": "scope.form['dataSourcerememberNumberForm']['dataSourcerememberNumberForm'].$modelValue",
       "values": [
         {
           "label": "Milliseconds",
@@ -153,33 +195,27 @@
     {
       "name": "_POLICY_._STEPS_._INPUT_",
       "icon": "icon-input",
-      "currentMessage": "_INPUT_STEP_MESSAGE_"
+      "currentMessage": "_MESSAGE_._INPUT_STEP_"
     },
     {
       "name": "_POLICY_._STEPS_._TRANSFORMATION_",
       "icon": "icon-content-left",
-      "currentMessage": "_TRANSFORMATION_STEP_MESSAGE_",
-      "availableMessage": "_TRANSFORMATION_STEP_AVAILABLE_"
+      "currentMessage": "_MESSAGE_._TRANSFORMATION_STEP_",
+      "availableMessage": "_MESSAGE_._TRANSFORMATION_STEP_AVAILABLE_"
     },
     {
       "name": "_POLICY_._STEPS_._CUBES_",
       "icon": "icon-box",
-      "currentMessage": "_CUBE_STEP_MESSAGE_",
-      "availableMessage": "_CUBE_STEP_AVAILABLE_"
-    },
-    {
-      "name": "_POLICY_._STEPS_._FINISH_",
-      "icon": "icon-paper",
-      "currentMessage": "_FINISH_STEP_MESSAGE_",
-      "availableMessage": "_FINISH_STEP_AVAILABLE_"
+      "currentMessage": "_MESSAGE_._CUBE_STEP_",
+      "availableMessage": "_MESSAGE_._CUBE_STEP_AVAILABLE_"
     }
   ],
   "helpLinks": [
-    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/5.+Create+and+Submit+Policy",
-    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/7.1+Inputs",
-    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/7.2+Transformations",
-    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/7.3+Cubes",
-    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/7.4+Outputs"
+    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Create+and+Submit+Policy",
+    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs",
+    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Transformations",
+    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Cubes",
+    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Outputs"
   ],
   "model": {
     "types": [
@@ -194,51 +230,55 @@
       {
         "iconName": "datetime",
         "name": "DateTime"
+      },
+      {
+        "iconName": "globe",
+        "name": "Geo"
       }
     ],
-    "outputFieldTypes": [
+    "defaultOutputFieldTypes": [
       {
-        "label": "string",
+        "label": "String",
         "value": "string"
       },
       {
-        "label": "long",
+        "label": "Long",
         "value": "long"
       },
       {
-        "label": "double",
+        "label": "Double",
         "value": "double"
       },
       {
-        "label": "integer",
+        "label": "Integer",
         "value": "integer"
       },
       {
-        "label": "boolean",
+        "label": "Boolean",
         "value": "boolean"
       },
       {
-        "label": "date",
+        "label": "Date",
         "value": "date"
       },
       {
-        "label": "datetime",
+        "label": "Datetime",
         "value": "datetime"
       },
       {
-        "label": "timestamp",
+        "label": "Timestamp",
         "value": "timestamp"
       },
       {
-        "label": "arraydouble",
+        "label": "Array Double",
         "value": "arraydouble"
       },
       {
-        "label": "arraystring",
+        "label": "Array String",
         "value": "arraystring"
       },
       {
-        "label": "text",
+        "label": "Text",
         "value": "text"
       }
     ],
@@ -246,7 +286,7 @@
       "label": "_attachment_body",
       "value": "_attachment_body"
     },
-    "morphlines": {
+    "Morphlines": {
       "defaultConfiguration": {
         "morphline": {
           "id": "morphline1",
@@ -269,7 +309,17 @@
         }
       }
     },
-    "DateTime": [
+    "DateTime": {
+      "outputFieldTypes": [
+      {
+        "label": "Datetime",
+        "value": "datetime"
+      },
+      {
+        "label": "Timestamp",
+        "value": "timestamp"
+      }
+    ],"properties":[
       {
         "propertyId": "inputFormat",
         "propertyName": "_INPUT_FORMAT_",
@@ -400,7 +450,13 @@
         "default": "unixMillis",
         "required": true
       }
-    ]
+    ]},
+    "Geo":{
+      "defaultConfiguration": {
+        "latitude": "lat",
+        "longitude": "long"
+      }
+    }
   },
   "cube": {
     "defaultName": "cube",
@@ -599,11 +655,22 @@
     ],
     "outputProperties":[
       {
-        "propertyId": "writer.fixedMeasure",
-        "propertyName": "_FIXED_MEASURE_",
+        "propertyId": "writer.fixedMeasureName",
+        "propertyName": "_FIXED_MEASURE_NAME_",
         "propertyType": "text",
-        "qa": "cube-fixed-measure",
-        "width": 12
+        "qa": "cube-fixed-measure-name",
+        "width": 6,
+        "required": "scope.form['dataSource_FIXED_MEASURE_VALUE_Form']['dataSource_FIXED_MEASURE_VALUE_Form'].$modelValue.length > 0"
+      },
+      {
+        "propertyId": "writer.fixedMeasureValue",
+        "propertyName": "_FIXED_MEASURE_VALUE_",
+        "propertyType": "text",
+        "qa": "cube-fixed-measure-value",
+        "required": "false",
+        "width": 6,
+        "position": "right",
+        "required": "scope.form['dataSource_FIXED_MEASURE_NAME_Form']['dataSource_FIXED_MEASURE_NAME_Form'].$modelValue.length > 0"
       },
       {
         "propertyId": "writer.dateType",
@@ -649,13 +716,14 @@
     ],
     "functionNames": [
       "Accumulator",
-      "Avg",
       "Count",
       "EntityCount",
       "FirstValue",
       "FullText",
       "LastValue",
       "Max",
+      "Mean",
+      "MeanAssociative",
       "Median",
       "Min",
       "Mode",
@@ -664,67 +732,96 @@
       "Sum",
       "Variance",
       "TotalEntityCount"
-    ]
+    ],
+    "defaultOperatorConfiguration": {
+      "inputField": "field1"
+    }
   },
   "trigger": {
-    "defaultName": "trigger",
-    "properties": [
-      {
-        "propertyId": "name",
-        "propertyName": "_NAME_",
-        "propertyType": "text",
-        "required": true,
-        "qa": "trigger-name",
-        "width": 12
-      },
-      {
-        "propertyId": "overLastNumber",
-        "propertyName": "_OVER_LAST_",
-        "propertyType": "number",
-        "width": 6,
-        "position": "left",
-        "required": true,
-        "qa": "trigger-overLastNumber"
-      },
-      {
-        "propertyId": "overLastTime",
-        "propertyName": "_WHITE_SPACE_",
-        "propertyType": "select",
-        "width": 6,
-        "position": "right",
-        "qa": "trigger-overLastTime",
-        "required": true,
-        "values": [
-          {
-            "label": "Milliseconds",
-            "value": "ms"
-          },
-          {
-            "label": "Seconds",
-            "value": "s"
-          },
-          {
-            "label": "Minutes",
-            "value": "m"
-          },
-          {
-            "label": "Hours",
-            "value": "h"
-          },
-          {
-            "label": "Days",
-            "value": "d"
-          }
-        ]
-      },
-      {
-        "propertyId": "sql",
-        "propertyName": "_SQL_",
-        "propertyType": "textarea",
-        "required": true,
-        "qa": "trigger-sql",
-        "width": 12
-      }
-    ]
+
+    "transformation":{
+      "defaultName": "trigger",
+      "properties": [
+        {
+          "propertyId": "name",
+          "propertyName": "_NAME_",
+          "propertyType": "text",
+          "required": true,
+          "qa": "trigger-name",
+          "width": 12
+        },
+        {
+          "propertyId": "overLastNumber",
+          "propertyName": "_OVER_LAST_",
+          "propertyType": "number",
+          "width": 6,
+          "position": "left",
+          "required": true,
+          "tooltip": "This number has to be multiple of the window batch defined in policy settings",
+          "qa": "trigger-overLastNumber"
+        },
+        {
+          "propertyId": "overLastTime",
+          "propertyName": "_WHITE_SPACE_",
+          "propertyType": "select",
+          "width": 6,
+          "position": "right",
+          "qa": "trigger-overLastTime",
+          "required": true,
+          "values": [
+            {
+              "label": "Milliseconds",
+              "value": "ms"
+            },
+            {
+              "label": "Seconds",
+              "value": "s"
+            },
+            {
+              "label": "Minutes",
+              "value": "m"
+            },
+            {
+              "label": "Hours",
+              "value": "h"
+            },
+            {
+              "label": "Days",
+              "value": "d"
+            }
+          ]
+        },
+        {
+          "propertyId": "sql",
+          "propertyName": "_SQL_",
+          "propertyType": "textarea",
+          "required": true,
+          "qa": "trigger-sql",
+          "width": 12
+        }
+      ]
+    },
+    "cube":{
+      "defaultName": "trigger",
+      "properties": [
+        {
+          "propertyId": "name",
+          "propertyName": "_NAME_",
+          "propertyType": "text",
+          "required": true,
+          "qa": "trigger-name",
+          "width": 12
+        },
+        {
+          "propertyId": "sql",
+          "propertyName": "_SQL_",
+          "propertyType": "textarea",
+          "required": true,
+          "qa": "trigger-sql",
+          "width": 12
+        }
+      ]
+    }
+
   }
 }

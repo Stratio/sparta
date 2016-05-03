@@ -21,9 +21,9 @@
     .module('webApp')
     .controller('PolicyInputCtrl', PolicyInputCtrl);
 
-  PolicyInputCtrl.$inject = ['FragmentFactory', 'PolicyModelFactory'];
+  PolicyInputCtrl.$inject = ['WizardStatusService', 'FragmentFactory', 'PolicyModelFactory', '$scope'];
 
-  function PolicyInputCtrl(FragmentFactory, PolicyModelFactory) {
+  function PolicyInputCtrl(WizardStatusService, FragmentFactory, PolicyModelFactory, $scope) {
     var vm = this;
     vm.setInput = setInput;
     vm.isSelectedInput = isSelectedInput;
@@ -34,22 +34,23 @@
 
     function init() {
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      if (Object.keys(vm.policy).length > 0) {
-        vm.template = PolicyModelFactory.getTemplate();
-        if (vm.policy &&  Object.keys(vm.template).length > 0) {
-          vm.helpLink = vm.template.helpLinks.inputs;
-          var inputList = FragmentFactory.getFragments("input");
-          return inputList.then(function (result) {
-            vm.inputList = result;
-          });
-        }
+      vm.template = PolicyModelFactory.getTemplate();
+      if (vm.policy && Object.keys(vm.template).length > 0) {
+        vm.helpLink = vm.template.helpLinks.inputs;
+        var inputList = FragmentFactory.getFragments("input");
+        return inputList.then(function (result) {
+          vm.inputList = result;
+          if ( Object.keys( vm.policy.input).length ) {
+            WizardStatusService.enableNextStep();
+          }
+        });
       }
     }
 
     function setInput(index) {
       if (index >= 0 && index < vm.inputList.length) {
         vm.policy.input = vm.inputList[index];
-        PolicyModelFactory.enableNextStep();
+        WizardStatusService.enableNextStep();
       }
     }
 
@@ -61,17 +62,21 @@
     }
 
     function previousStep() {
-      PolicyModelFactory.previousStep();
+      WizardStatusService.previousStep();
     }
 
     function validateForm() {
       if (vm.policy.input.name) {
         vm.error = false;
-        PolicyModelFactory.nextStep();
+        WizardStatusService.nextStep();
       }
       else {
-        vm.error = true;
+        PolicyModelFactory.setError("_ERROR_._POLICY_INPUTS_", "error");
       }
     }
+
+    $scope.$on("forceValidateForm", function () {
+      validateForm();
+    });
   }
 })();

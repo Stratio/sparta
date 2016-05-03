@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.api.service.http
+
+package com.stratio.sparkta.serving.api.service.http
 
 import akka.pattern.ask
+import com.stratio.sparta.serving.api.actor.TemplateActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.api.service.http.BaseHttpService
 import com.stratio.sparta.serving.core.models.TemplateModel
 import com.wordnik.swagger.annotations._
 import spray.routing._
 
 import scala.concurrent.Await
 import scala.util.{Failure, Success}
-import com.stratio.sparta.serving.api.actor.TemplateActor._
 
 @Api(value = HttpConstant.TemplatePath,
   description = "Operations about templates. One template will have an abstract" +
@@ -83,7 +85,7 @@ trait TemplateHttpService extends BaseHttpService {
       message = HttpConstant.NotFoundMessage)
   ))
   def findByTypeAndName: Route = {
-    path(HttpConstant.TemplatePath / Segment / Segment ) { (templateType, name) =>
+    path(HttpConstant.TemplatePath / Segment / Segment) { (templateType, name) =>
       get {
         complete {
           val future = supervisor ? new FindByTypeAndName(templateType, name)

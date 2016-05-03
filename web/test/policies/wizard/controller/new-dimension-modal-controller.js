@@ -1,6 +1,6 @@
 describe('policies.wizard.controller.new-dimension-modal-controller', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policyTemplate.json'));
+  beforeEach(module('template/policy.json'));
 
   var ctrl, modalInstanceMock, UtilsServiceMock, fakeDimensionName, fakeFieldName, fakeDimensions, fakeCubeTemplate, fakeIsNewDimension = null;
 
@@ -18,8 +18,8 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
       return {"focus": jasmine.createSpy()}
     });
 
-    inject(function (_servedPolicyTemplate_) {
-      fakeCubeTemplate = _servedPolicyTemplate_.cube;
+    inject(function (_templatePolicy_) {
+      fakeCubeTemplate = _templatePolicy_.cube;
     });
 
     ctrl = $controller('NewDimensionModalCtrl', {
@@ -41,7 +41,7 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
     expect(ctrl.dimension.type).toBe(fakeCubeTemplate.types[0].value);
     expect(ctrl.precisionOptions).toBe(fakeCubeTemplate.precisionOptions);
     expect(ctrl.defaultType).toBe(fakeCubeTemplate.types[0].value);
-    expect(ctrl.errorText).toBe("");
+    expect(ctrl.nameError).toBe("");
   });
 
   describe("should be able to return a precision list according to the dimension type", function () {
@@ -75,14 +75,14 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
           ctrl.dimension.type = "not default";
           ctrl.dimension.precision = "";
           ctrl.ok();
-          expect(ctrl.errorText).toBe("_POLICY_._CUBE_._INVALID_DIMENSION_PRECISION_");
+          expect(ctrl.nameError).toBe("_POLICY_._CUBE_._INVALID_DIMENSION_PRECISION_");
         });
 
         it("if type is 'Default', precision can be empty", function () {
           ctrl.dimension.type = "Default";
           ctrl.dimension.precision = "";
           ctrl.ok();
-          expect(ctrl.errorText).toBe("");
+          expect(ctrl.nameError).toBe("");
         });
       });
 
@@ -96,7 +96,7 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
 
           ctrl.ok();
 
-          expect(ctrl.errorText).toBe("");
+          expect(ctrl.nameError).toBe("");
         });
 
         it("name is invalid if there is another dimension with its name", function () {
@@ -104,7 +104,7 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
 
           ctrl.ok();
 
-          expect(ctrl.errorText).toBe("_POLICY_._CUBE_._DIMENSION_NAME_EXISTS_");
+          expect(ctrl.nameError).toBe("_POLICY_._CUBE_._DIMENSION_NAME_EXISTS_");
         })
 
       });

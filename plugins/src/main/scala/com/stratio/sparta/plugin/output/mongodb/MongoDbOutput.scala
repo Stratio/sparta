@@ -85,7 +85,9 @@ class MongoDbOutput(keyName: String,
                                    timeDimension: Option[String],
                                    isAutoCalculatedId: Boolean): Map[String, String] = {
     val updateFields = if (isAutoCalculatedId) Output.Id
-      else schema.fields.filter(stField => !stField.nullable).map(_.name).mkString(",")
+      else schema.fields.filter(stField =>
+      !stField.nullable && !stField.metadata.contains(Output.MeasureMetadataKey))
+      .map(_.name).mkString(",")
 
     Map(MongodbConfig.UpdateFields -> updateFields)
   }

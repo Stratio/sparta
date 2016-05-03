@@ -44,12 +44,6 @@ class TypeOpTest extends WordSpec with Matchers {
       result should be(expected)
     }
 
-    "typeOperation ArrayDouble empty must be " in {
-      val expected = Seq()
-      val result = TypeOp.transformValueByTypeOp(TypeOp.ArrayDouble, Seq("a"))
-      result should be(expected)
-    }
-
     "typeOperation ArrayString must be " in {
       val expected = Seq("String")
       val result = TypeOp.transformValueByTypeOp(TypeOp.ArrayString, Seq("String"))
@@ -84,12 +78,6 @@ class TypeOpTest extends WordSpec with Matchers {
     "typeOperation MapStringLong must be " in {
       val expected = Map("a" -> 1L)
       val result = TypeOp.transformValueByTypeOp(TypeOp.MapStringLong, Map("a" -> "1"))
-      result should be(expected)
-    }
-
-    "typeOperation MapStringLong empty must be " in {
-      val expected = Map()
-      val result = TypeOp.transformValueByTypeOp(TypeOp.MapStringLong, Map("a" -> "b"))
       result should be(expected)
     }
 

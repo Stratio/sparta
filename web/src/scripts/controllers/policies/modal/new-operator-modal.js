@@ -21,26 +21,25 @@
     .module('webApp')
     .controller('NewOperatorModalCtrl', NewOperatorModalCtrl);
 
-  NewOperatorModalCtrl.$inject = ['$modalInstance', 'operatorName', 'operatorType', 'operators', 'UtilsService', 'template'];
+  NewOperatorModalCtrl.$inject = ['$modalInstance', 'operatorName', 'operatorType', 'operators', 'UtilsService', 'template', 'inputFieldList', 'cubeConstants'];
 
-  function NewOperatorModalCtrl($modalInstance, operatorName, operatorType, operators, UtilsService, template) {
+  function NewOperatorModalCtrl($modalInstance, operatorName, operatorType, operators, UtilsService, template, inputFieldList, cubeConstants) {
     /*jshint validthis: true*/
     var vm = this;
 
     vm.ok = ok;
     vm.cancel = cancel;
-
+    vm.isCount = isCount;
     init();
 
     function init() {
       vm.operator = {};
       vm.operator.name = operatorName;
-      vm.operator.configuration = "";
+      vm.operator.configuration = {};
       vm.operator.type = operatorType;
       vm.configHelpLink = template.configurationHelpLink;
-      vm.error = false;
-      vm.errorText = "";
-      setDefaultConfiguration();
+      vm.nameError = "";
+      vm.inputFieldList = UtilsService.generateOptionListFromStringArray(inputFieldList);
     }
 
     ///////////////////////////////////////
@@ -49,31 +48,31 @@
       var position = UtilsService.findElementInJSONArray(operators, vm.operator, "name");
       var repeated = position != -1;
       if (repeated) {
-        vm.errorText = "_POLICY_._CUBE_._OPERATOR_NAME_EXISTS_";
+        vm.nameError = "_POLICY_._CUBE_._OPERATOR_NAME_EXISTS_";
+        document.querySelector('#nameForm').focus();
       }
       return repeated;
     }
 
-    function setDefaultConfiguration() {
-      var defaultConfiguration = {};
-      var countType = template.functionNames[2];
-      if (vm.operator.type !== countType) {
-        defaultConfiguration = template.defaultOperatorConfiguration;
-      }
-      vm.operator.configuration = defaultConfiguration;
+    function isCount() {
+      return vm.operator.type == cubeConstants.COUNT
     }
 
     function ok() {
+      vm.nameError = "";
+      if(vm.operator.configuration.inputField == ''){
+        delete vm.operator.configuration.inputField
+      }
       if (vm.form.$valid) {
         if (!isRepeated()) {
           $modalInstance.close(vm.operator);
         }
       }
-    };
+    }
 
     function cancel() {
       $modalInstance.dismiss('cancel');
-    };
-  };
+    }
+  }
 
 })();

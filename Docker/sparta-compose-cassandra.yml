@@ -1,0 +1,49 @@
+# sudo -i
+# curl -L https://github.com/docker/compose/releases/download/1.5.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+# chmod +x /usr/local/bin/docker-compose
+# weave launch-router --dns-domain="demo.stratio.com." --init-peer-count 1 && weave launch-proxy -H tcp://0.0.0.0:12375
+# weave expose
+# eval $(weave env)
+ 
+zookeeper:
+  image: qa.stratio.com:5000/stratio/zookeeper:3.4.6
+  container_name: zookeeper
+  ports:
+    - "2181:2181"
+ 
+waitzk:
+  image: aanand/wait
+  container_name: waitzk
+  links:
+      - zookeeper
+ 
+cassandra-lucene-index:
+  image: qa.stratio.com:5000/stratio/cassandra-lucene-index:2.2.4.0
+  container_name: cassandra
+  ports:
+    - "9042:9042"
+  environment:
+    CLUSTER_NAME: DemoCluster
+    MAX_HEAP: 256M
+    MAX_NEW: 64M
+    SEEDS: 127.0.0.1
+ 
+waitcass:
+  image: aanand/wait
+  container_name: waitcassandra
+  links:
+    - cassandra-lucene-index
+ 
+sparta:
+  image: qa.stratio.com:5000/stratio/sparta:0.9.0
+  container_name: sparta
+  ports:
+    - "9090:9090"
+    - "9091:9091"
+  links:
+    - waitzk
+    - waitcass
+  environment:
+    ZOOKEEPER_HOST: zookeeper.demo.stratio.com
+ 
+#eval $(weave env --restore)

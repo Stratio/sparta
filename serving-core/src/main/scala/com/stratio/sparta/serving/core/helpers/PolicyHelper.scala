@@ -132,10 +132,6 @@ object PolicyHelper {
   private def getCurrentOutputs(fragmentsOutputs: Seq[FragmentElementModel],
                                 outputs: Seq[PolicyElementModel]): Seq[PolicyElementModel] = {
 
-    if (fragmentsOutputs.isEmpty && outputs.isEmpty) {
-      throw new IllegalStateException("It is mandatory to define at least one output in the policy.")
-    }
-
     val outputsTypesNames = fragmentsOutputs.map(fragment => (fragment.element.`type`, fragment.name))
 
     val outputsNotIncluded = for {

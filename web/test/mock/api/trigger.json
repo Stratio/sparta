@@ -1,0 +1,8 @@
+{
+  "overLast": "1s",
+  "fixedMeasure":"fixed measure",
+  "name": "fake cube",
+  "sql": "SELECT x FROM y",
+  "outputs" : ["output1", "output2"],
+  "configuration":{"fake_key": "fake_value"}
+}

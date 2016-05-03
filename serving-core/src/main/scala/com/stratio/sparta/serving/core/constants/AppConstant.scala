@@ -34,6 +34,7 @@ object AppConstant {
   final val ConfigMesos = "mesos"
   final val ConfigYarn = "yarn"
   final val ConfigAkka = "akka"
+  final val ConfigSpray = "spray.can.server"
   final val ConfigSwagger = "swagger"
   final val ConfigZookeeper = "zookeeper"
   final val BaseZKPath = "stratio/sparta"
@@ -64,7 +65,7 @@ object AppConstant {
   final val SparkHome = "sparkHome"
 
   //Mesos Options
-  final val MesosMasterDispatchers = "masterDispatchers"
+  final val MesosMasterDispatchers = "master"
 
   //StandAlone
   final val StandAloneSupervise = "supervise"

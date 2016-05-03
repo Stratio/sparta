@@ -65,9 +65,9 @@ class SparkContextFactoryTest extends FlatSpec with ShouldMatchers with BeforeAn
     val checkpointDir = "checkpoint/SparkContextFactorySpec"
     val sc = SparkContextFactory.sparkStandAloneContextInstance(config, specificConfig, Seq())
     SparkContextFactory.sparkStreamingInstance should be(None)
-    val ssc = SparkContextFactory.sparkStreamingInstance(batchDuraction, checkpointDir)
+    val ssc = SparkContextFactory.sparkStreamingInstance(batchDuraction, checkpointDir, None)
     ssc shouldNot be equals (None)
-    val otherSsc = SparkContextFactory.sparkStreamingInstance(batchDuraction, checkpointDir)
+    val otherSsc = SparkContextFactory.sparkStreamingInstance(batchDuraction, checkpointDir, None)
     ssc should be equals (otherSsc)
   }
 }

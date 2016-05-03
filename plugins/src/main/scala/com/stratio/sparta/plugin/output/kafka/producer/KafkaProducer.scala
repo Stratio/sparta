@@ -17,13 +17,12 @@ package com.stratio.sparta.plugin.output.kafka.producer
 
 import java.io.{Serializable => JSerializable}
 import java.util.Properties
-import com.stratio.sparta.plugin.output.kafka.KafkaOutputFormat
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
 
+import com.stratio.sparta.sdk.ValidatingPropertyMap._
 import kafka.producer.{KeyedMessage, Producer, ProducerConfig}
 
 import scala.collection.mutable
-import scala.util.{Success, Failure, Try}
+import scala.util.Try
 
 trait KafkaProducer {
 
@@ -31,15 +30,20 @@ trait KafkaProducer {
     val keyedMessage: KeyedMessage[String, String] = new KeyedMessage[String, String](topic, message)
     KafkaProducer.getProducer(topic, properties).send(keyedMessage)
   }
-
 }
 
 object KafkaProducer {
+
   private val DefaultHostPort: String = "localhost:9092"
   private val DefaultKafkaSerializer: String = "kafka.serializer.StringEncoder"
   private val DefaultRequiredAcks: String = "0"
   private val DefaultProducerType = "sync"
   private val DefaultBatchNumMessages = "200"
+  private val DefaultPropertiesKey = "kafkaProperties"
+  private val PropertiesKey = "kafkaPropertyKey"
+  private val PropertiesValue = "kafkaPropertyValue"
+  private val HostKey = "host"
+  private val PortKey = "port"
 
   private val producers: mutable.Map[String, Producer[String, String]] = mutable.Map.empty
 
@@ -50,33 +54,43 @@ object KafkaProducer {
     }
   }
 
-  private val getList: ((Map[String, JSerializable], String, String) => String) = (properties, key, default) => {
-    Try(properties.getMapFromJsoneyString(key)) match {
-      case Success(jsonObject) => {
-        val valueAsSeq = jsonObject.map(c =>
-          (c.get("host") match {
-            case Some(value) => value.toString
-            case None => throw new IllegalStateException(s"The field $key is mandatory")
-          },
-            c.get("port") match {
-              case Some(value) => value.toString.toInt
-              case None => throw new IllegalStateException(s"The field $key is mandatory")
-            }))
-        (for (elem <- valueAsSeq) yield s"${elem._1}:${elem._2}").mkString(",")
-      }
-      case Failure(_) => throw new IllegalStateException(s"The field $key is mandatory")
+  private val getBoolean: ((Map[String, JSerializable], String, String) => String) = (properties, key, default) => {
+    properties.getString(key).toBoolean match {
+      case true => "1"
+      case _ => "0"
     }
   }
+
+  private val getList: ((Map[String, JSerializable], String, String) => String) = (properties, key, default) => {
+    val values = getAdditionalOptions(key, HostKey, PortKey, properties)
+
+    if(values.nonEmpty) (for (elem <- values) yield s"${elem._1}:${elem._2}").mkString(",")
+    else default
+  }
+
+  private[kafka] def getAdditionalOptions(key: String,
+                                   propertyKey: String,
+                                   propertyValue: String,
+                                   properties: Map[String, JSerializable]): Map[String, JSerializable] =
+    Try(properties.getMapFromJsoneyString(key)).getOrElse(Seq.empty[Map[String, String]])
+      .map(c =>
+        (c.get(propertyKey) match {
+          case Some(value) => value.toString
+          case None => throw new IllegalStateException(s"The field $propertyKey is mandatory")
+        },
+          c.get(propertyValue) match {
+            case Some(value) => value.toString
+            case None => throw new IllegalStateException(s"The field $propertyValue is mandatory")
+          })).toMap
 
   private val mandatoryOptions: Map[String, ((Map[String, JSerializable], String, String) => AnyRef, String)] = Map(
     "metadata.broker.list" ->(getList, DefaultHostPort),
     "serializer.class" ->(getString, DefaultKafkaSerializer),
-    "request.required.acks" ->(getString, DefaultRequiredAcks),
+    "request.required.acks" ->(getBoolean, DefaultRequiredAcks),
     "producer.type" ->(getString, DefaultProducerType),
     "batch.num.messages" ->(getString, DefaultBatchNumMessages))
 
-
-  def extractOptions(properties: Map[String, JSerializable],
+  private[kafka] def extractOptions(properties: Map[String, JSerializable],
                      map: Map[String, ((Map[String, JSerializable], String, String) => AnyRef, String)]): Properties = {
     val props = new Properties()
     map.foreach {
@@ -89,11 +103,16 @@ object KafkaProducer {
     props
   }
 
-  def getProducer(topic: String, properties: Map[String, JSerializable]): Producer[String, String] = {
+  private[kafka] def addOptions(options: Map[String, JSerializable], properties: Properties): Properties = {
+    options.foreach { case (key, value) => properties.put(key, value.toString) }
+    properties
+  }
+
+  private[kafka] def getProducer(topic: String, properties: Map[String, JSerializable]): Producer[String, String] = {
     getInstance(getProducerKey(topic, properties), properties)
   }
 
-  def getInstance(key: String, properties: Map[String, JSerializable]): Producer[String, String] = {
+  private[kafka] def getInstance(key: String, properties: Map[String, JSerializable]): Producer[String, String] = {
     producers.getOrElse(key, {
       val producer = createProducer(properties)
       producers.put(key, producer)
@@ -101,13 +120,14 @@ object KafkaProducer {
     })
   }
 
-  def createProducer(properties: Map[String, JSerializable]): Producer[String, String] = {
-    val props: Properties = extractOptions(properties, mandatoryOptions)
+  private[kafka] def createProducer(properties: Map[String, JSerializable]): Producer[String, String] = {
+    val props = extractOptions(properties, mandatoryOptions)
+    addOptions(getAdditionalOptions(DefaultPropertiesKey, PropertiesKey, PropertiesValue, properties), props)
     val producerConfig = new ProducerConfig(props)
     new Producer[String, String](producerConfig)
   }
 
-  def getProducerKey(topic: String, properties: Map[String, JSerializable]): String = {
+  private[kafka] def getProducerKey(topic: String, properties: Map[String, JSerializable]): String = {
     s"${getList(properties, "metadata.broker.list", DefaultHostPort)}"
   }
 }

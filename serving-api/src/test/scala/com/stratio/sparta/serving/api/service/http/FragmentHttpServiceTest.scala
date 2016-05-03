@@ -13,32 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.api.service.http
 
-import scala.util.{Failure, Success}
+package com.stratio.sparta.serving.api.service.http
 
 import akka.actor.ActorRef
 import akka.testkit.{TestActor, TestProbe}
+import com.stratio.sparta.sdk.exception.MockException
+import com.stratio.sparta.serving.api.actor.PolicyActor
+import com.stratio.sparta.serving.api.actor.PolicyActor.{FindByFragment, ResponsePolicies}
+import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.core.actor.FragmentActor
+import com.stratio.sparta.serving.core.actor.FragmentActor._
+import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.models.FragmentElementModel
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
 import spray.http.StatusCodes
 
-import com.stratio.sparta.sdk.exception.MockException
-import com.stratio.sparta.serving.api.actor.PolicyActor.{FindByFragment, ResponsePolicies}
-import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.actor.FragmentActor._
-import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models.FragmentElementModel
+import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
 class FragmentHttpServiceTest extends WordSpec
-with FragmentHttpService
-with HttpServiceBaseTest {
+  with FragmentHttpService
+  with HttpServiceBaseTest {
 
   val policyTestProbe = TestProbe()
+  val fragmentTestProbe = TestProbe()
 
-  override implicit val actors: Map[String, ActorRef] = Map(AkkaConstant.PolicyActor -> policyTestProbe.ref)
+  override implicit val actors: Map[String, ActorRef] = Map(
+    AkkaConstant.PolicyActor -> policyTestProbe.ref,
+    AkkaConstant.FragmentActor -> fragmentTestProbe.ref
+  )
   override val supervisor: ActorRef = testProbe.ref
 
   "FragmentHttpService.findByTypeAndId" should {
@@ -111,16 +117,53 @@ with HttpServiceBaseTest {
 
   "FragmentHttpService.update" should {
     "return an OK because the fragment was updated" in {
-      startAutopilot(Response(Success(getFragmentModel())))
-      Put(s"/${HttpConstant.FragmentPath}", getFragmentModel) ~> routes ~> check {
-        testProbe.expectMsgType[Update]
+      val fragmentAutoPilot = Option(new TestActor.AutoPilot {
+        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
+          msg match {
+            case FragmentActor.Update(input) =>
+              sender ! Response(Success(getFragmentModel()))
+              TestActor.NoAutoPilot
+          }
+      })
+      val policyAutoPilot = Option(new TestActor.AutoPilot {
+        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
+          msg match {
+            case PolicyActor.FindByFragment(input, id) =>
+              sender ! ResponsePolicies(Success(Seq(getPolicyModel())))
+              TestActor.NoAutoPilot
+          }
+      })
+      startAutopilot(None, fragmentTestProbe, fragmentAutoPilot)
+      startAutopilot(None, policyTestProbe, policyAutoPilot)
+      Put(s"/${HttpConstant.FragmentPath}", getFragmentModel(Some("id"))) ~> routes ~> check {
+        fragmentTestProbe.expectMsgType[Update]
+        policyTestProbe.expectMsgType[FindByFragment]
         status should be(StatusCodes.OK)
       }
     }
+
     "return a 500 if there was any error" in {
-      startAutopilot(Response(Failure(new MockException())))
-      Put(s"/${HttpConstant.FragmentPath}", getFragmentModel) ~> routes ~> check {
-        testProbe.expectMsgType[Update]
+      val fragmentAutoPilot = Option(new TestActor.AutoPilot {
+        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
+          msg match {
+            case FragmentActor.Update(input) =>
+              sender ! Response(Failure(new MockException()))
+              TestActor.NoAutoPilot
+          }
+      })
+      val policyAutoPilot = Option(new TestActor.AutoPilot {
+        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
+          msg match {
+            case PolicyActor.FindByFragment(input, id) =>
+              sender ! ResponsePolicies(Success(Seq(getPolicyModel())))
+              TestActor.NoAutoPilot
+          }
+      })
+      startAutopilot(None, fragmentTestProbe, fragmentAutoPilot)
+      startAutopilot(None, policyTestProbe, policyAutoPilot)
+
+      Put(s"/${HttpConstant.FragmentPath}", getFragmentModel(Some("id"))) ~> routes ~> check {
+        fragmentTestProbe.expectMsgType[Update]
         status should be(StatusCodes.InternalServerError)
       }
     }

@@ -22,27 +22,31 @@
     .controller('CubeCtrl', CubeCtrl);
 
   CubeCtrl.$inject = ['CubeModelFactory', 'CubeService', 'OutputService', 'PolicyModelFactory', 'ModalService',
-    'TriggerModelFactory', 'TriggerService', 'triggerConstants'];
+    'TriggerService', 'triggerConstants', '$scope', '$window'];
 
   function CubeCtrl(CubeModelFactory, CubeService, OutputService, PolicyModelFactory, ModalService,
-                    TriggerModelFactory, TriggerService, triggerConstants ) {
+                    TriggerService, triggerConstants, $scope, $window) {
     var vm = this;
 
+    var createdDimensions = 0;
+    var createdOperators = 0;
     vm.init = init;
     vm.addCube = addCube;
     vm.removeCube = CubeService.removeCube;
     vm.isNewCube = CubeService.isNewCube;
-    vm.saveCube = CubeService.saveCube;
+    vm.saveCube = saveCube;
     vm.isActiveTriggerCreationPanel = TriggerService.isActiveTriggerCreationPanel;
-    vm.activateTriggerCreationPanel = TriggerService.activateTriggerCreationPanel;
+    vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
+    vm.changeOpenedTrigger = TriggerService.changeOpenedTrigger;
+    vm.isTimeDimension = null;
 
     vm.addOutputToDimensions = addOutputToDimensions;
     vm.removeOutputFromDimensions = removeOutputFromDimensions;
     vm.addFunctionToOperators = addFunctionToOperators;
     vm.removeFunctionFromOperators = removeFunctionFromOperators;
     vm.addOutput = addOutput;
-    vm.changeOpenedTrigger = changeOpenedTrigger;
-    vm.isTimeDimension = null;
+    vm.showTriggerError = showTriggerError;
+    vm.cancelCubeCreation = cancelCubeCreation;
 
     vm.init();
 
@@ -57,7 +61,8 @@
         vm.outputList = PolicyModelFactory.getAllModelOutputs();
         vm.cubeError = CubeModelFactory.getError();
         vm.cubeContext = CubeModelFactory.getContext();
-
+        createdDimensions = vm.cube.dimensions.length + 1;
+        createdOperators = vm.cube.operators.length + 1;
         initTriggerAccordion();
 
         return OutputService.generateOutputNameList().then(function (outputList) {
@@ -69,10 +74,15 @@
     function initTriggerAccordion() {
       vm.selectedPolicyOutput = "";
       vm.triggerAccordionStatus = [];
+      vm.triggerContainer = vm.cube.triggers;
       TriggerService.disableTriggerCreationPanel();
       TriggerService.setTriggerContainer(vm.cube.triggers, triggerConstants.CUBE);
       TriggerService.changeVisibilityOfHelpForSql(false);
-      vm.triggerContainer = vm.cube.triggers;
+    }
+
+    function activateTriggerCreationPanel() {
+      TriggerService.activateTriggerCreationPanel();
+      vm.triggerAccordionStatus[vm.triggerAccordionStatus.length - 1] = true;
     }
 
     function addOutputToDimensions(outputName) {
@@ -86,7 +96,7 @@
           return outputName;
         },
         dimensionName: function () {
-          return outputName;
+          return outputName.toLowerCase() + createdDimensions;
         },
         dimensions: function () {
           return vm.cube.dimensions
@@ -94,7 +104,7 @@
         template: function () {
           return vm.template;
         },
-        isTimeDimension: function() {
+        isTimeDimension: function () {
           return vm.isTimeDimension;
         }
       };
@@ -104,6 +114,7 @@
       return modalInstance.result.then(function (dimensionData) {
         vm.cube.dimensions.push(dimensionData.dimension);
         vm.isTimeDimension = dimensionData.isTimeDimesion;
+        createdDimensions++;
       });
     }
 
@@ -117,20 +128,23 @@
           return functionName;
         },
         operatorName: function () {
-          var operatorLength = vm.cube.operators.length + 1;
-          return functionName.toLowerCase() + operatorLength;
+          return functionName.toLowerCase() + createdOperators;
         },
         operators: function () {
           return vm.cube.operators
         },
         template: function () {
           return vm.template;
+        },
+        inputFieldList: function () {
+          return vm.outputList;
         }
       };
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve, extraClass, size);
 
       return modalInstance.result.then(function (operator) {
         vm.cube.operators.push(operator);
+        createdOperators++;
       });
     }
 
@@ -158,7 +172,6 @@
           vm.isTimeDimension = false;
         }
         vm.cube.dimensions.splice(dimensionIndex, 1);
-
       })
     }
 
@@ -169,34 +182,71 @@
       });
     }
 
-    function addCube() {
-      vm.form.$submitted = true;
-      if (vm.form.$valid && vm.cube.operators.length > 0 && vm.cube.dimensions.length > 0 && vm.cube.writer.outputs.length > 0) {
-        vm.form.$submitted = false;
-        CubeService.addCube();
-        CubeService.changeCubeCreationPanelVisibility(false);
-      }
-      else {
-        CubeModelFactory.setError();
-        if (vm.cube.writer.outputs.length === 0) {
-          document.querySelector('#cubeOutputs').focus();
+    function validateCubeForm() {
+      var isValid = true;
+      vm.triggerError = null;
+      CubeModelFactory.setError();
+      vm.form.$setSubmitted(true);
+      if (vm.form['vm.form']) {
+        vm.form['vm.form'].$setSubmitted(true);
+        vm.triggerAccordionStatus[vm.triggerAccordionStatus.length - 1] = true;
+        if (vm.form['vm.form'].$valid && vm.isActiveTriggerCreationPanel()) {
+          isValid = false;
+          vm.triggerError = "_ERROR_._TRIGGER_WITHOUT_SAVE_";
+          vm.form['vm.form'].$setSubmitted(false);
         }
+      }
+      if (!vm.form.$valid) {
+        isValid = false;
+        CubeModelFactory.setError();
+      }
+      var errorElements = $('[class*="error"]');
+      if (errorElements) {
+        $window.scrollTo(0, errorElements[0]);
+      }
+      return isValid;
+    }
+
+    function addCube() {
+      var valid = validateCubeForm();
+      if (valid) {
+        CubeService.addCube(vm.form);
+      }
+    }
+
+    function saveCube() {
+      var valid = validateCubeForm();
+      if (valid) {
+        CubeService.saveCube(vm.form);
       }
     }
 
     function addOutput() {
-      if (vm.selectedPolicyOutput && vm.cube.writer.outputs.indexOf(vm.selectedPolicyOutput) == -1) {
-        vm.cube.writer.outputs.push(vm.selectedPolicyOutput);
+      if (vm.selectedPolicyOutput && vm.cube['writer.outputs'].indexOf(vm.selectedPolicyOutput) == -1) {
+        vm.cube['writer.outputs'].push(vm.selectedPolicyOutput);
       }
     }
 
-    function changeOpenedTrigger(selectedTriggerPosition) {
-      if (vm.cube.triggers.length > 0 && selectedTriggerPosition >= 0 && selectedTriggerPosition < vm.cube.triggers.length) {
-        var selectedTrigger = vm.cube.triggers[selectedTriggerPosition];
-        TriggerModelFactory.setTrigger(selectedTrigger, selectedTriggerPosition);
-      } else {
-        TriggerModelFactory.resetTrigger(vm.cube.triggers.length);
-      }
+    function showTriggerError() {
+      return vm.triggerError && vm.isActiveTriggerCreationPanel() && vm.form['vm.form'] && vm.form['vm.form'].$submitted;
     }
+
+    function cancelCubeCreation() {
+      CubeService.disableCubeCreationPanel();
+      CubeModelFactory.resetCube(vm.template, CubeService.getCreatedCubes(), vm.cubeContext.position);
+    }
+
+    $scope.$on("forceValidateForm", function () {
+      vm.form.$submitted = true;
+      CubeModelFactory.setError();
+    });
+
+    $scope.$watchCollection(
+      "vm.cubeContext",
+      function (newCubeContext, oldCubeContext) {
+        if (newCubeContext && newCubeContext.position != oldCubeContext.position) {
+          init();
+        }
+      });
   }
 })();

@@ -1,33 +1,21 @@
 <a
-	ui-sref-active="active"
-	class="element"
-	ng-if="href && !sref"
-	href="{{href}}"
-	data-qa="{{qaref}}"
-	ng-attr-target= "{{target || null}}"
-	ng-attr-download="{{downloadFileName}}">
+  ui-sref-active="active"
+  class="element"
+  ng-if="href || sref"
+  href="{{sref ? '' : href}}"
+  ng-attr-ui-sref="{{sref || null}}"
+  data-qa="{{qaref}}">
 
-	<em ng-if="classIcon" class="ico {{classIcon}}"></em>
-	<span ng-transclude></span>
-</a>
-
-<a
-	ui-sref-active="active"
-	class="element"
-	ng-if="sref"
-	href
-	ui-sref="{{sref}}"
-	data-qa="{{qaref}}"
-	ng-attr-download="{{downloadFileName}}">
-
-	<em ng-if="classIcon" class="ico {{classIcon}}"></em>
-	<span ng-transclude></span>
+  <em ng-if="classIcon" class="ico {{classIcon}}"></em>
+  <span ng-transclude></span>
 </a>
 
 <span
-	class="element"
-	ng-if="!(href || sref)">
+  ui-sref-active="active"
+  class="element"
+  ng-if="!(href || sref)">
 
-	<em ng-if="classIcon" class="ico {{classIcon}}"></em>
-	<span ng-transclude></span>
-</span>
+		<em ng-if="classIcon" class="ico {{classIcon}}"></em>
+		<span ng-transclude></span>
+	</span>
+</div>

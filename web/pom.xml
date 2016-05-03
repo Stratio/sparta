@@ -16,6 +16,9 @@
         <nodeVer>v0.12.2</nodeVer>
         <npmVer>2.7.4</npmVer>
         <nodeURL>http://tools.stratio.com/buildtools</nodeURL>
+        <customnodeDownloadRoot></customnodeDownloadRoot>
+        <customnpmDownloadRoot></customnpmDownloadRoot>
+        <customnpmRegistryURL></customnpmRegistryURL>
     </properties>
 
     <build>
@@ -25,7 +28,7 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>0.0.23</version>
+                <version>0.0.28</version>
                 <executions>
                     <execution>
                         <id>install node and npm</id>
@@ -36,20 +39,9 @@
                         <configuration>
                             <nodeVersion>${nodeVer}</nodeVersion>
                             <npmVersion>${npmVer}</npmVersion>
-                            <nodeDownloadRoot>${nodeURL}/node/</nodeDownloadRoot>
-                            <npmDownloadRoot>${nodeURL}/npm/${npmVer}/</npmDownloadRoot>
+                            <nodeDownloadRoot>${customnodeDownloadRoot}</nodeDownloadRoot>
+                            <npmDownloadRoot>${customnpmDownloadRoot}</npmDownloadRoot>
                             <skip.installnodenpm>${skip.installnodenpm}</skip.installnodenpm>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm configure proxy</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <phase>initialize</phase>
-                        <configuration>
-                            <arguments>config set registry http://sodio.stratio.com/nexus/content/repositories/npmjs/
-                            </arguments>
                         </configuration>
                     </execution>
                     <execution>
@@ -59,6 +51,7 @@
                         </goals>
                         <phase>generate-sources</phase>
                         <configuration>
+                            <npmRegistryURL>${customnpmRegistryURL}</npmRegistryURL>
                             <arguments>install --production --no-optional</arguments>
                             <skip.npm>${skip.npm}</skip.npm>
                         </configuration>
@@ -80,6 +73,9 @@
                             <goal>karma</goal>
                         </goals>
                         <phase>test</phase>
+			<configuration>
+              		    <skip.karma>${skipUTs}</skip.karma>
+            		</configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -97,6 +93,14 @@
         </plugins>
     </build>
     <profiles>
+        <profile>
+          <id>node</id>
+          <properties>
+            <customnodeDownloadRoot>${nodeURL}/node/</customnodeDownloadRoot>
+            <customnpmDownloadRoot>${nodeURL}/npm/${npmVer}/</customnpmDownloadRoot>
+            <customnpmRegistryURL>http://sodio.stratio.com/nexus/content/repositories/npmjs/</customnpmRegistryURL>
+          </properties>
+        </profile>
         <profile>
             <id>dev</id>
             <build>

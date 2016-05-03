@@ -1,23 +1,25 @@
 describe('policies.wizard.controller.policy-input-controller', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policy.json'));
-  beforeEach(module('served/policyTemplate.json'));
-  beforeEach(module('served/inputList.json'));
+  beforeEach(module('model/policy.json'));
+  beforeEach(module('template/policy.json'));
+  beforeEach(module('api/inputList.json'));
 
-  var ctrl, rootScope, fakePolicy, fakeTemplate, fragmentFactoryMock, fakeInputList, policyModelFactoryMock = null;
+  var ctrl, scope, fakePolicy, fakeTemplate, fragmentFactoryMock, fakeInputList, policyModelFactoryMock, wizardStatusServiceMock = null;
 
   // init mock modules
 
   beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope) {
-    rootScope = $rootScope;
-    inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedInputList_) {
-      fakePolicy = angular.copy(_servedPolicy_);
-      fakeTemplate = _servedPolicyTemplate_;
-      fakeInputList = _servedInputList_;
+    scope = $rootScope.$new();
+    inject(function (_modelPolicy_, _templatePolicy_, _apiInputList_) {
+      fakePolicy = angular.copy(_modelPolicy_);
+      fakeTemplate = _templatePolicy_;
+      fakeInputList = _apiInputList_;
     });
 
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
+
+    wizardStatusServiceMock =  jasmine.createSpyObj('WizardStatusService', ['enableNextStep', 'previousStep', 'nextStep']);
 
     fragmentFactoryMock = jasmine.createSpyObj('FragmentFactory', ['getFragments']);
     fragmentFactoryMock.getFragments.and.callFake(function () {
@@ -26,7 +28,7 @@ describe('policies.wizard.controller.policy-input-controller', function () {
       return defer.promise;
     });
 
-    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate','previousStep', 'nextStep', 'enableNextStep']);
+    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate', 'setError']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
       return fakePolicy;
     });
@@ -36,11 +38,13 @@ describe('policies.wizard.controller.policy-input-controller', function () {
     });
 
     ctrl = $controller('PolicyInputCtrl', {
+      'WizardStatusService': wizardStatusServiceMock,
       'FragmentFactory': fragmentFactoryMock,
-      'PolicyModelFactory': policyModelFactoryMock
+      'PolicyModelFactory': policyModelFactoryMock,
+      '$scope': scope
     });
 
-    rootScope.$digest(); // update state of init promise
+    scope.$digest(); // update state of init promise
   }));
 
   it('should get a policy template from policy factory', function () {
@@ -58,16 +62,18 @@ describe('policies.wizard.controller.policy-input-controller', function () {
   describe('should be able to set an input to the policy using the position in the input list', function () {
     it("if position is < 0, input is not changed", function () {
       var invalidPosition = -1;
+      var oldInput = ctrl.policy.input;
       ctrl.setInput(invalidPosition);
 
-      expect(ctrl.policy.input).toEqual({});
+      expect(ctrl.policy.input).toEqual(oldInput);
     });
 
     it("if position is >= inputList length, input is not changed", function () {
       var invalidPosition = fakeInputList.length;
+      var oldInput = ctrl.policy.input;
       ctrl.setInput(invalidPosition);
 
-      expect(ctrl.policy.input).toEqual({});
+      expect(ctrl.policy.input).toEqual(oldInput);
     });
 
     it("if position is valid, input is changed and next step is enabled", function () {
@@ -77,7 +83,7 @@ describe('policies.wizard.controller.policy-input-controller', function () {
 
       expect(ctrl.policy.input).toBe(expectedInput);
 
-      expect(policyModelFactoryMock.enableNextStep).toHaveBeenCalled();
+      expect(wizardStatusServiceMock.enableNextStep).toHaveBeenCalled();
     });
 
   });
@@ -127,7 +133,7 @@ describe('policies.wizard.controller.policy-input-controller', function () {
   it ("should be able to change to previous step calling to policy model factory", function(){
     ctrl.previousStep();
 
-    expect(policyModelFactoryMock.previousStep).toHaveBeenCalled();
+    expect(wizardStatusServiceMock.previousStep).toHaveBeenCalled();
   });
 
   describe ("should be able to validate the form data introduced by user in order to change to the next step", function(){
@@ -135,8 +141,8 @@ describe('policies.wizard.controller.policy-input-controller', function () {
       ctrl.policy.input = {};
       ctrl.validateForm();
 
-      expect(ctrl.error).toBeTruthy();
-      expect(policyModelFactoryMock.nextStep).not.toHaveBeenCalled();
+      expect(policyModelFactoryMock.setError).toHaveBeenCalledWith("_ERROR_._POLICY_INPUTS_", 'error');
+      expect(wizardStatusServiceMock.nextStep).not.toHaveBeenCalled();
     });
 
     it ("if an input is selected, error is not generated and step is changed", function(){
@@ -144,7 +150,7 @@ describe('policies.wizard.controller.policy-input-controller', function () {
       ctrl.validateForm();
 
       expect(ctrl.error).toBeFalsy();
-      expect(policyModelFactoryMock.nextStep).toHaveBeenCalled();
+      expect(wizardStatusServiceMock.nextStep).toHaveBeenCalled();
     });
 
   })

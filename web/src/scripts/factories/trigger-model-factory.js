@@ -20,46 +20,53 @@
     .module('webApp')
     .factory('TriggerModelFactory', TriggerModelFactory);
 
-  TriggerModelFactory.$inject = ['UtilsService', 'PolicyModelFactory'];
+  TriggerModelFactory.$inject = ['UtilsService', 'PolicyModelFactory', 'triggerConstants'];
 
-  function TriggerModelFactory(UtilsService, PolicyModelFactory) {
+  function TriggerModelFactory(UtilsService, PolicyModelFactory, triggerConstants) {
     var trigger = {};
     var error = {text: ""};
     var context = {"position": null};
 
-    function init(position) {
+
+    function init(position, type) {
       setPosition(position);
       trigger.name = "";
       trigger.sql = "";
       trigger.outputs = [];
       trigger.primaryKey = [];
-      trigger.overLastNumber = PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowNumber;
-      trigger.overLastTime = PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowTime;
-      delete trigger.configuration;
       error.text = "";
+      if (type == triggerConstants.TRANSFORMATION) {
+        trigger.overLastNumber = PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowNumber;
+        trigger.overLastTime = PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowTime;
+      } else {
+        delete trigger.overLast;
+        delete trigger.overLastNumber;
+        delete trigger.overLastTime;
+      }
     }
 
-    function resetTrigger(position) {
-      init(position);
+    function resetTrigger(position, type) {
+      init(position, type);
     }
 
-    function getTrigger(position) {
+    function getTrigger(position, type) {
       if (Object.keys(trigger).length == 0) {
-        init(position)
+        init(position, type)
       }
       return trigger;
     }
 
-    function setTrigger(_trigger, position) {
+    function setTrigger(_trigger, position, type) {
       trigger.name = _trigger.name;
       trigger.sql = _trigger.sql;
       trigger.outputs = _trigger.outputs;
-      trigger.overLast = _trigger.overLast;
-      if (_trigger.configuration) {
-        trigger.configuration = _trigger.configuration;
+      if (type == triggerConstants.TRANSFORMATION) {
+        trigger.overLast = _trigger.overLast;
+        trigger.overLastNumber = _trigger.overLastNumber;
+        trigger.overLastTime = _trigger.overLastTime;
       }
+      convertOverLast();
       setPosition(position);
-      formatAttributes();
     }
 
     function setPosition(p) {
@@ -69,24 +76,32 @@
       context.position = p;
     }
 
-
-    function formatAttributes() {
+    function convertOverLast() {
       if (trigger.overLast) {
         var overLast = trigger.overLast.split(/([0-9]+)/);
         trigger.overLastNumber = Number(overLast[1]);
         trigger.overLastTime = overLast[2];
-        delete trigger.overLast;
       }
+      delete trigger.overLast;
     }
 
-    function isValidTrigger(trigger, triggers, position) {
+    function isValidOverLast() {
+      var sparkStreamingWindow = PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowNumber;
+      return (!sparkStreamingWindow || !trigger.overLastNumber || trigger.overLastNumber % PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowNumber == 0);
+    }
+
+    function isValidTrigger(triggers, position) {
       var isValid = trigger.name != "" && trigger.sql != "" && !nameExists(trigger, triggers, position);
-      if (!isValid) {
-        error.text = "_GENERIC_FORM_ERROR_";
-      } else {
+      var validOverLast = isValidOverLast();
+      if (!validOverLast) {
+        error.text = "_ERROR_._OVERLAST_NOT_MULTIPLE_ERROR_";
+        error.type = 'error';
+        error.attribute = 'overLastNumber'
+      }
+      if (isValid && validOverLast){
         error.text = "";
       }
-      return isValid;
+      return isValid && validOverLast;
     }
 
     function nameExists(trigger, triggers, triggerPosition) {
@@ -102,6 +117,10 @@
       return error;
     }
 
+    function setError() {
+      error.text = '';
+    }
+
     return {
       resetTrigger: resetTrigger,
       getTrigger: getTrigger,
@@ -109,7 +128,8 @@
       getContext: getContext,
       setPosition: setPosition,
       isValidTrigger: isValidTrigger,
-      getError: getError
+      getError: getError,
+      setError: setError
     }
   }
 })

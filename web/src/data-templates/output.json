@@ -5,7 +5,7 @@
     "description": {
       "short": "The Cassandra output uses the generic implementation with DataFrames.",
       "long": "The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. Linear scalability and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x8/7.4+Outputs#id-7.4Outputs-8.4.3CassandraConfiguration"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Outputs#Outputs-Cassandra"
     },
     "properties": [
       {
@@ -200,7 +200,7 @@
     "description": {
       "short": "Persist your data in HDFS with CSV format.",
       "long": "Persist your data in HDFS with CSV format.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x8/7.4+Outputs#id-7.4Outputs-8.4.8CsvConfiguration"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Outputs#Outputs-CSV"
     },
     "properties": [
       {
@@ -250,7 +250,7 @@
     "description": {
       "short": "The Elasticsearch output uses the generic implementation with DataFrames.",
       "long": "Elasticsearch is a search server based on Lucene. It provides a distributed, multitenant-capable full-text search engine with a RESTful web interface and schema-free JSON documents.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x8/7.4+Outputs#id-7.4Outputs-8.4.4ElasticsearchConfiguration"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Outputs#Outputs-Elasticsearch"
     },
     "properties": [
       {
@@ -328,7 +328,7 @@
     "description": {
       "short": "MongoDB is an open-source document database, and the leading NoSQL database.",
       "long": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x8/7.4+Outputs#id-7.4Outputs-8.4.2MongoDBConfiguration"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Outputs#Outputs-MongoDB"
     },
     "properties": [
       {
@@ -482,7 +482,7 @@
     "description": {
       "short": "Parquet output uses the generic implementation with DataFrames.",
       "long": "Apache Parquet is a columnar storage format available to any project in the Hadoop ecosystem, regardless of the choice of data processing framework, data model or programming language.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x8/7.4+Outputs#id-7.4Outputs-8.4.7ParquetConfiguration"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Outputs#Outputs-Parquet"
     },
     "properties": [
       {
@@ -503,7 +503,7 @@
     "description": {
       "short": "Print output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
       "long": "Print output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x8/7.4+Outputs#id-7.4Outputs-8.4.6PrintConfiguration"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Outputs#Outputs-Print"
     },
     "properties": [
     ]
@@ -514,7 +514,7 @@
     "description": {
       "short": "The output of Redis use the generic implementation with DataFrames.",
       "long": "The output of Redis use the generic implementation with DataFrames. Redis is an open source (BSD licensed), in-memory data structure store, used as database, cache and message broker.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x8/7.4+Outputs#id-7.4Outputs-8.4.5RedisConfiguration"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Outputs#Outputs-Redis"
     },
     "properties": [
       {
@@ -545,7 +545,7 @@
   "description": {
     "short": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log.",
     "long": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log. Based on the received-based approach (https://spark.apache.org/docs/latest/streaming-kafka-integration.html)",
-    "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/7.4+Outputs#id-7.4Outputs-8.4.9Kafka"
+    "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Outputs#Outputs-Kafka"
   },
   "properties": [
     {
@@ -574,7 +574,7 @@
           "propertyName": "_PORT_",
           "propertyType": "text",
           "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
-          "default": "2181",
+          "default": "9092",
           "required": true,
           "tooltip": "Kafka's port.",
           "hidden": false,
@@ -595,11 +595,11 @@
     {
       "propertyId": "request.required.acks",
       "propertyName": "_REQUIRED_ACKS_",
-      "propertyType": "text",
-      "regexp": "0|1",
-      "default": "0",
-      "required": true,
-      "tooltip": "Specify whether producer waits for an acknowledgment from the broker (1), or not (0)",
+      "propertyType": "boolean",
+      "regexp": "true|false",
+      "default": false,
+      "required": false,
+      "tooltip": "Specify whether producer waits for an acknowledgment from the broker, or not",
       "qa": "fragment-details-kafka-request-required-acks"
     },
     {
@@ -621,6 +621,37 @@
       "required": true,
       "tooltip": "The number of messages to send in one batch when using async mode",
       "qa": "fragment-details-kafka-batch-num-messages"
+    },
+    {
+      "propertyId": "kafkaProperties",
+      "propertyName": "_KAFKA_PROPERTIES_",
+      "propertyType": "list",
+      "default": "",
+      "required": false,
+      "tooltip": "",
+      "qa": "fragment-details-kafka-properties",
+      "fields": [
+        {
+          "propertyId": "kafkaPropertyKey",
+          "propertyName": "_KAFKA_PROPERTY_KEY_",
+          "propertyType": "text",
+          "regexp": "",
+          "default": "",
+          "hidden": false,
+          "required": false,
+          "qa": "fragment-details-kafka-kafkaPropertyKey"
+        },
+        {
+          "propertyId": "kafkaPropertyValue",
+          "propertyName": "_KAFKA_PROPERTY_VALUE_",
+          "propertyType": "text",
+          "regexp": "",
+          "default": "",
+          "hidden": false,
+          "required": false,
+          "qa": "fragment-details-kafka-kafkaPropertyValue"
+        }
+      ]
     }
   ]
   },

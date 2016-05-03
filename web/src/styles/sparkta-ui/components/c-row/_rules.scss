@@ -29,6 +29,11 @@
 	&--flex {
 		display: flex;
 	}
+
+  &--footer{
+    padding: $c-row---gutter--footer---padding;
+    border-top: $c-row---gutter--footer---border-top;
+  }
 }
 
 .c-row {

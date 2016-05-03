@@ -21,7 +21,7 @@ import scala.util.Success
 
 import org.mockito.Mockito._
 
-import com.stratio.sparta.serving.core.models.PolicyStatusModel
+import com.stratio.sparta.serving.core.models.{PoliciesStatusModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.Response
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
 import com.stratio.sparta.serving.core.{MockConfigFactory, SpartaConfig}
@@ -33,7 +33,8 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
     "return true if any policy is Started" in {
       val spyActor = spy(this)
       doReturn(
-        Future(Response(Success(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum.Started))))))
+        Future(Response(Success(PoliciesStatusModel(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum
+          .Started)))))))
         .when(spyActor)
         .findAllPolicies(policyStatusActorRef)
 
@@ -46,7 +47,8 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
     "return true if any policy is Starting" in {
       val spyActor = spy(this)
       doReturn(
-        Future(Response(Success(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum.Starting))))))
+        Future(Response(Success(PoliciesStatusModel(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum
+          .Starting)))))))
         .when(spyActor)
         .findAllPolicies(policyStatusActorRef)
 
@@ -58,11 +60,11 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
     "return false if there is no policy Starting/Started mode" in {
       val spyActor = spy(this)
       doReturn(
-        Future(Response(Success(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum.Failed),
+        Future(Response(Success(PoliciesStatusModel(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum.Failed),
           PolicyStatusModel(id = "id1", status = PolicyStatusEnum.Launched),
           PolicyStatusModel(id = "id1", status = PolicyStatusEnum.NotStarted),
           PolicyStatusModel(id = "id1", status = PolicyStatusEnum.Stopped),
-          PolicyStatusModel(id = "id1", status = PolicyStatusEnum.Stopping))))))
+          PolicyStatusModel(id = "id1", status = PolicyStatusEnum.Stopping)))))))
         .when(spyActor)
         .findAllPolicies(policyStatusActorRef)
 
@@ -77,7 +79,8 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
     "return true when execution mode is yarn" in {
       val spyActor = spy(this)
       doReturn(
-        Future(Response(Success(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum.Starting))))))
+        Future(Response(Success(PoliciesStatusModel(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum
+          .Starting)))))))
         .when(spyActor)
         .findAllPolicies(policyStatusActorRef)
 
@@ -92,7 +95,8 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
     "return true when execution mode is mesos" in {
       val spyActor = spy(this)
       doReturn(
-        Future(Response(Success(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum.Started))))))
+        Future(Response(Success(PoliciesStatusModel(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum
+          .Started)))))))
         .when(spyActor)
         .findAllPolicies(policyStatusActorRef)
 
@@ -108,7 +112,8 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
     "return true when execution mode is local and there is no running policy" in {
       val spyActor = spy(this)
       doReturn(
-        Future(Response(Success(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum.Stopped))))))
+        Future(Response(Success(PoliciesStatusModel(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum
+          .Stopped)))))))
         .when(spyActor)
         .findAllPolicies(policyStatusActorRef)
 
@@ -123,7 +128,8 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
     "return true when execution mode is standalone and there is no running policy" in {
       val spyActor = spy(this)
       doReturn(
-        Future(Response(Success(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum.Failed))))))
+        Future(Response(Success(PoliciesStatusModel(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum
+          .Failed)))))))
         .when(spyActor)
         .findAllPolicies(policyStatusActorRef)
 

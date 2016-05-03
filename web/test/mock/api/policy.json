@@ -1,0 +1,120 @@
+{
+  "id": "72235b82-86ff-4914-8219-28b15bdfe063",
+  "version": 1,
+  "storageLevel": "MEMORY_AND_DISK_SER",
+  "name": "policyexample",
+  "description": "policy example",
+  "sparkStreamingWindow": "6s",
+  "remember": "1d",
+  "checkpointPath": "/tmp/checkpoint",
+  "rawData": {
+    "enabled": "true",
+    "path": "/fake/path"
+  },
+  "transformations": [{
+    "type": "Morphlines",
+    "order": 0,
+    "inputField": "_attachment_body",
+    "outputFields": [{
+      "name": "response",
+      "type": "string"
+    }],
+    "configuration": {
+      "morphline": {
+        "id": "morphline1",
+        "importCommands": ["org.kitesdk.**"],
+        "commands": [{
+          "readJson": {}
+        }, {
+          "extractJsonPaths": {
+            "paths": {
+              "response": "/response"
+            }
+          }
+        }]
+      }
+    }
+  }],
+  "streamTriggers": [{
+    "name": "stream trigger",
+    "sql": "SELECT * FROM STREAM",
+    "outputs": ["outputexample"],
+    "overLast": "6s",
+    "primaryKey": [],
+    "configuration": {}
+  }],
+  "cubes": [{
+    "name": "cube1",
+    "dimensions": [{
+      "name": "response",
+      "field": "response",
+      "precision": "identity",
+      "type": "Default"
+    }],
+    "operators": [{
+      "type": "Count",
+      "name": "count1",
+      "configuration": {}
+    }],
+    "writer": {
+      "outputs": ["outputexample"],
+      "dateType": "timestamp",
+      "isAutoCalculatedId": false,
+      "fixedMeasure":"localhost:6"
+    },
+    "triggers": [{
+      "name": "CUBE TRIGGER",
+      "sql": "SELECT * FROM STREAM",
+      "outputs": ["outputexample"],
+      "primaryKey": [],
+      "configuration": {}
+    }]
+  }],
+  "outputs": [],
+  "fragments": [{
+    "id": "fb1bcd1e-8996-4fdf-a80e-67e63d4eb8ac",
+    "fragmentType": "input",
+    "name": "zx",
+    "description": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data. It has a simple and flexible architecture based on streaming data flows.",
+    "shortDescription": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data.",
+    "element": {
+      "name": "in-Flume",
+      "type": "Flume",
+      "configuration": {
+        "type": "pull",
+        "addresses": [{
+          "host": "localhost",
+          "port": "11999"
+        }],
+        "maxBatchSize": "1000",
+        "parallelism": "5"
+      }
+    }
+  }, {
+    "id": "0d59ccf5-8afe-46ff-9780-0b02d31ba506",
+    "fragmentType": "output",
+    "name": "outputexample",
+    "description": "The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. Linear scalability and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data.",
+    "shortDescription": "The Cassandra output uses the generic implementation with DataFrames.",
+    "element": {
+      "name": "in-Cassandra",
+      "type": "Cassandra",
+      "configuration": {
+        "analyzer": "english",
+        "refreshSeconds": "1",
+        "connectionHost": "localhost",
+        "cluster": "sparta",
+        "replication_factor": "1",
+        "keyspaceClass": "simpleStrategy",
+        "dateFormat": "yyyy-mm-dd HH:mm",
+        "keyspace": "sparta",
+        "compactStorage": false,
+        "connectionPort": "9042",
+        "sparkProperties": [{
+          "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
+          "sparkPropertyValue": "180000"
+        }]
+      }
+    }
+  }]
+}

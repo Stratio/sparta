@@ -1,7 +1,7 @@
-<section data-ng-controller="PolicyModelCtrl as vm" data-ng-model="vm.model">
-  <ng-form name="vm.form" novalidate data-ng-model="vm.model">
+<section data-ng-controller="PolicyModelCtrl as vm">
+  <ng-form name="vm.form" novalidate>
     <div class="c-form-group">
-      <div class="c-form-control c-form-control--full-width c-icon-radio" data-ng-model="model">
+      <div class="c-form-control c-form-control--full-width c-icon-radio">
         <span class="c-icon-label c-col c-col--12">
           <label class="c-icon-label__text c-label">
             {{"_TYPE_" | translate}}
@@ -10,7 +10,7 @@
         <span data-ng-repeat="modelTypes in vm.modelTypes">
           <input data-ng-change="vm.onChangeType()" class="c-icon-radio__item"
                  id="type-{{modelTypes.name + $parent.$index| lowercase}}" type="radio"
-                 data-ng-model="vm.model.type" value="{{modelTypes.name}}" data-ng-disabled="!editionMode"  data-ng-click="vm.resetOutputFields()">
+                 data-ng-model="vm.model.type" value="{{modelTypes.name}}" data-ng-disabled="!editionMode">
           <label data-ng-model="vm.model.type" class="c-icon-radio__label"
                  data-qa="policy-model-type-{{modelTypes.name | lowercase}}"
                  for="type-{{modelTypes.name + $parent.$index| lowercase}}">
@@ -21,22 +21,31 @@
         </span>
       </div>
     </div>
-    <div ng-switch="vm.model.type">
+    <div data-ng-switch="vm.model.type">
       <!-- morphlines -->
-      <div ng-switch-when="Morphlines">
+      <div data-ng-switch-when="Morphlines">
         <ng-include src="'templates/policies/transformation/morphlines-panel.tpl.html'"></ng-include>
       </div>
       <!-- DateTime -->
-      <div ng-switch-when="DateTime">
+      <div data-ng-switch-when="DateTime">
         <ng-include src="'templates/policies/transformation/datetime-panel.tpl.html'"></ng-include>
       </div>
       <!-- ingestion -->
-      <div ng-switch-when="Ingestion">
+      <div data-ng-switch-when="Ingestion">
         <ng-include src="'templates/policies/transformation/ingestion-panel.tpl.html'"></ng-include>
+      </div>
+      <div ng-switch-when="Geo">
+        <ng-include src="'templates/policies/transformation/geoparser-panel.tpl.html'"></ng-include>
       </div>
     </div>
 
     <div class="c-form-group c-form-group--to-right">
+      <button class="c-button c-button--call-to-action-2" data-ng-if="vm.isNewModel(vm.modelContext.position)"
+              type="submit" data-ng-click="vm.cancelModelCreation()"
+              data-qa="policy-model-delete-button">
+        <i class="c-icon icon-cross"></i>
+        <span>{{"_CANCEL_" | translate}}</span>
+      </button>
       <button data-ng-if="vm.isNewModel(vm.modelContext.position)" class="c-button c-button--call-to-action-1"
               data-ng-click="vm.addModel()" data-qa="policy-model-add-button">
         <i class="icon icon-circle-plus"></i>

@@ -13,28 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.service.http
 
 import javax.ws.rs.Path
-import scala.concurrent.Await
-import scala.util.{Failure, Success}
 
 import akka.pattern.ask
+import com.stratio.sparta.serving.api.actor.PolicyActor
+import com.stratio.sparta.serving.api.actor.PolicyActor.{Delete, FindByFragment, ResponsePolicies}
+import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.api.utils.PolicyUtils
+import com.stratio.sparta.serving.core.actor.FragmentActor
+import com.stratio.sparta.serving.core.actor.FragmentActor._
+import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.models.FragmentElementModel
+import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing.Route
 
-import com.stratio.sparta.serving.core.actor.FragmentActor._
-import com.stratio.sparta.serving.api.actor.PolicyActor.{Delete, FindByFragment, ResponsePolicies}
-import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models.FragmentElementModel
+import scala.concurrent.Await
+import scala.util.{Failure, Success}
 
 @Api(value = HttpConstant.FragmentPath, description = "Operations over fragments: inputs and outputs that will be " +
   "included in a policy")
-trait FragmentHttpService extends BaseHttpService {
+trait FragmentHttpService extends BaseHttpService with OauthClient with PolicyUtils {
 
-  override def routes: Route = findByTypeAndId ~ findAllByType ~ create ~ update ~ deleteByTypeAndId ~ findByTypeAndName
+  override def routes: Route =
+    findByTypeAndId ~ findAllByType ~ create ~ update ~ deleteByTypeAndId ~ findByTypeAndName
 
   @ApiOperation(value = "Find a fragment depending of its type and id.",
     notes = "Find a fragment depending of its type and id.",
@@ -173,10 +179,18 @@ trait FragmentHttpService extends BaseHttpService {
       put {
         entity(as[FragmentElementModel]) { fragment =>
           complete {
-            val future = supervisor ? new Update(fragment)
-            Await.result(future, timeout.duration) match {
-              case Response(Success(fragment)) => HttpResponse(StatusCodes.OK)
-              case Response(Failure(exception)) => throw exception
+            val policyActor = actors.get(AkkaConstant.PolicyActor).get
+            val fragmentStatusActor = actors.get(AkkaConstant.FragmentActor).get
+            val fragmentId = fragment.id.getOrElse(throw new RuntimeException("No valid policy id"))
+
+            for {
+              updateResponse <- fragmentStatusActor ? FragmentActor.Update(fragment)
+              relatedPolicies <- policyActor ? PolicyActor.FindByFragment(fragment.fragmentType, fragmentId)
+            } yield (updateResponse, relatedPolicies) match {
+              case (FragmentActor.Response(Success(_)), PolicyActor.ResponsePolicies(Success(policies))) =>
+                deleteRelatedPolicies(policies)
+                HttpResponse(StatusCodes.OK)
+              case (Response(Failure(exception)), _) => throw exception
             }
           }
         }

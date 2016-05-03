@@ -8,7 +8,7 @@ Feature: Test adding a new ElasticSearch output in Sparta GUI
 	Scenario: Try to add a new input
 		Given I browse to '/#/dashboard/outputs'
 		Then I wait '1' second
-		Then '1' element exists with 'css:button[data-qa="outputs-new-button"]'
+		Then '1' element exists with 'css:div[data-qa="output-first-message"]'
 		When I click on the element on index '0'
 		Then I wait '1' second
 		And '1' element exists with 'css:aside[data-qa="fragment-details-modal"]'
@@ -35,12 +35,12 @@ Feature: Test adding a new ElasticSearch output in Sparta GUI
 		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
 		
 		# Try to add new Host-Port pair
-		Given '1' element exists with 'css:i[data-qa="fragment-details-elasticSearch-nodes-plus-0"]'
+		Given '1' element exists with 'css:i[data-qa="fragment-details-elasticSearch-nodes-plus-1"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-node-1"]'
 		And '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-tcpPort-1"]'
 		And '1' element exists with 'css:input[data-qa="fragment-details-elasticSearch-httpPort-1"]'
-		And '2' elements exist with 'css:i[data-qa^="fragment-details-elasticSearch-nodes-plus"]'
+		And '1' elements exist with 'css:i[data-qa^="fragment-details-elasticSearch-nodes-plus"]'
 		And '2' elements exist with 'css:i[data-qa^="fragment-details-elasticSearch-nodes-minus"]'
 		Then I wait '2' seconds
 		When I click on the element on index '1'
@@ -145,7 +145,7 @@ Feature: Test adding a new ElasticSearch output in Sparta GUI
 		Then '1' element exists with 'css:span[data-qa="output-context-menu-!{previousFragmentID}"]'
 		
 		# Add same output fragment
-		Then '1' element exists with 'css:button[data-qa="outputs-new-button"]'
+		Then '1' element exists with 'css:button[data-qa="output-filter-new-output"]'
 		When I click on the element on index '0'
 		Then I wait '1' second
 		And '1' element exists with 'css:aside[data-qa="fragment-details-modal"]'
@@ -173,7 +173,8 @@ Feature: Test adding a new ElasticSearch output in Sparta GUI
 		# Create
 		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
 		When I click on the element on index '0'
-		Then '1' element exists with 'css:span[translate="_INPUT_ERROR_100_"]'
+		Then '1' element exists with 'css:span[translate="_ERROR_._100_"]'
+                And a text 'There was an error. The name of the fragment already exists!' exists
 		
 		# Cancel operation
 		Given '1' element exists with 'css:button[data-qa="modal-cancel-button"]'

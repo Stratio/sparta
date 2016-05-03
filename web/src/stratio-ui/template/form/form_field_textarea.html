@@ -12,10 +12,10 @@
         </span>
         <div ng-if="placeholder" class="st-form-field-placeholder">{{placeholder}}</div>
         <!-- doesn't check json format -->
-        <textarea data-ng-if="!json" ng-attr-id="{{name}}" name="{{name}}" class="c-textarea" data-ng-class="{'c-textarea--large': largeSize}" data-ng-model="$parent.model" ng-required="required" ng-pattern="pattern" ng-blur="isFocused=false" data-qa="{{qa}}" tooltip='{{help}}' tooltip-class="tooltip--bottom" tooltip-trigger="focus" tooltip-placement="bottom" data-ng-focus="mouseleaveTooltip()" placeholder="{{placeholder}}"></textarea>
+        <textarea data-ng-if="!json" ng-attr-id="{{name}}" name="{{name}}" class="c-textarea" data-ng-class="{'c-textarea--large': largeSize}" data-ng-model="$parent.model" ng-required="required" ng-pattern="pattern" ng-blur="isFocused=false" data-qa="{{qa}}" tooltip='{{help}}' tooltip-class="tooltip--bottom" tooltip-trigger="focus" tooltip-placement="bottom" data-ng-focus="mouseLeaveTooltip()" placeholder="{{placeholder}}"></textarea>
         <!-- check json format -->
-        <textarea data-ng-if="json" json-text ng-attr-id="{{name}}" name="{{name}}" class="c-textarea" data-ng-class="{'c-textarea--large': largeSize}" data-ng-model="$parent.model" ng-required="required" ng-pattern="pattern" ng-blur="isFocused=false" data-qa="{{qa}}" tooltip='{{help}}' tooltip-class="tooltip--bottom" tooltip-trigger="focus" tooltip-placement="bottom" data-ng-focus="mouseleaveTooltip()" placeholder="{{placeholder}}" data-ng-disabled="disabled"></textarea>
-        <div ng-if="this[name][name].$invalid && form.$submitted" class="angular-forms__error">
+        <textarea data-ng-if="json" json-text ng-attr-id="{{name}}" name="{{name}}" class="c-textarea" data-ng-class="{'c-textarea--large': largeSize}" data-ng-model="$parent.model" ng-required="required" ng-pattern="pattern" ng-blur="isFocused=false" data-qa="{{qa}}" tooltip='{{help}}' tooltip-class="tooltip--bottom" tooltip-trigger="focus" tooltip-placement="bottom" data-ng-focus="mouseLeaveTooltip()" placeholder="{{placeholder}}" data-ng-disabled="disabled"></textarea>
+        <div ng-if="this[name][name].$invalid && form.$submitted" class="angular-forms__error" data-qa="{{qa}}-error">
             <i class="icon icon-circle-cross"></i>
             <span ng-if="this[name][name].$error.required">This field is required. </span>
             <span ng-if="this[name][name].$error.pattern">Invalid format. </span>

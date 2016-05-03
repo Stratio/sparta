@@ -13,6 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+  * Copyright (C) 2015 Stratio (http://stratio.com)
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
+
 package com.stratio.sparta.serving.api.utils
 
 import akka.actor.{ActorSystem, Props}
@@ -113,7 +129,8 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText"))
     """.stripMargin)
   val interval = 60000
 
-  protected def getPolicyModel(id: String = "testpolicy"): AggregationPoliciesModel = {
+  protected def getPolicyModel(id: Option[String] = Some("id"), name: String = "testPolicy"):
+  AggregationPoliciesModel = {
     val rawData = new RawDataModel
     val outputFieldModel1 = OutputFieldsModel("out1")
     val outputFieldModel2 = OutputFieldsModel("out2")
@@ -124,24 +141,16 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText"))
       Input.RawDataKey,
       Seq(outputFieldModel1, outputFieldModel2),
       Map()))
-    val dimensionModel = Seq(DimensionModel(
-      "dimensionName",
-      "field1",
-      DimensionType.IdentityName,
-      DimensionType.DefaultDimensionClass)
-    )
-    val operators = Seq(OperatorModel("Count", "countoperator", Map()))
-    val cubes = Seq(CubeModel("cube1",
-      dimensionModel,
-      operators, WriterModel(Seq(outputFieldModel1.name, outputFieldModel2.name)) , Seq()
-      ))
+    val dimensionModel = getDimensionModel
+    val operators = getOperators
+    val cubes = Seq(populateCube("cube1", outputFieldModel1, outputFieldModel2, dimensionModel, operators))
     val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
     val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
     val policy = AggregationPoliciesModel(
-      id = Option("id"),
+      id = id,
       version = None,
       storageLevel = AggregationPoliciesModel.storageDefaultValue,
-      name = id,
+      name = name,
       description = "whatever",
       sparkStreamingWindow = AggregationPoliciesModel.sparkStreamingWindow,
       checkpointPath = "test/test",
@@ -152,7 +161,29 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText"))
       input,
       outputs,
       Seq(),
-      userPluginsJars = Seq.empty[String])
+      userPluginsJars = Seq.empty[String],
+      remember = None)
     policy
+  }
+
+
+  def populateCube(name: String,
+                   outputFieldModel1: OutputFieldsModel,
+                   outputFieldModel2: OutputFieldsModel,
+                   dimensionModel: Seq[DimensionModel],
+                   operators: Seq[OperatorModel]): CubeModel =
+    CubeModel(name, dimensionModel, operators, WriterModel(Seq(outputFieldModel1.name, outputFieldModel2.name)), Seq())
+
+  def getOperators: Seq[OperatorModel] = {
+    Seq(OperatorModel("Count", "countoperator", Map()))
+  }
+
+  def getDimensionModel: Seq[DimensionModel] = {
+    Seq(DimensionModel(
+      "dimensionName",
+      "field1",
+      DimensionType.IdentityName,
+      DimensionType.DefaultDimensionClass)
+    )
   }
 }

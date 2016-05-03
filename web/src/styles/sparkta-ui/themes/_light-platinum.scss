@@ -338,7 +338,7 @@ $c-modal-inner__title---text-transform: uppercase;
 $c-modal-inner__title---margin: 15px 0 5px;
 
 $c-modal-inner__c-list---line-height:  get-line-height(double);
-$c-modal-inner__c-list---margin: ($component-margin * 2);
+$c-modal-inner__c-list---margin:  $component-margin $component-margin*2;
 
 
 
@@ -348,7 +348,7 @@ $c-col---cols-number: 12;
 
 
 // c-row
-$c-row--separated---margin: 60px 0 0;
+$c-row--separated---margin: 20px 0 0;
 $c-row---gutter: 5px;
 
 
@@ -501,7 +501,7 @@ $c-check-block__icon---bottom: 20px;
 
 // c-textarea
 $c-textarea--min-height: 100px;
-$c-textarea--big--min-height: 300px;
+$c-textarea--big--min-height: 500px;
 
 
 

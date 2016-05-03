@@ -1,0 +1,28 @@
+{
+  "name": "fake cube",
+  "dimensions": [
+    {
+      "field": "output1"
+    }
+  ],
+  "operators": [
+    {
+      "fake attribute": ""
+    }
+  ],
+  "checkpointConfig": {
+    "timeDimension": "fake timeDimension",
+    "interval": "fake interval",
+    "timeAvailability": "fake timeAvailability",
+    "granularity": "fake granularity"
+  },
+  "triggers": [],
+  "writer.outputs": [
+    "cube output 1",
+    "cube output 2"
+  ],
+  "writer.dateType": "timestamp",
+  "writer.isAutoCalculatedId": true,
+  "writer.fixedMeasureName": "key",
+  "writer.fixedMeasureValue": "value"
+}

@@ -1,14 +1,14 @@
 describe('API.fragment-service', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/input.json'));
-  beforeEach(module('served/inputList.json'));
+  beforeEach(module('api/input.json'));
+  beforeEach(module('api/inputList.json'));
 
   var srv, rootScope, httpBackend, fakeInputById, fakeInputListByType = null;
 
   beforeEach(
-    inject(function ($httpBackend, $rootScope, _ApiFragmentService_, _servedInput_, _servedInputList_) {
-      fakeInputById 			= _servedInput_;
-      fakeInputListByType = _servedInputList_;
+    inject(function ($httpBackend, $rootScope, _ApiFragmentService_, _apiInput_, _apiInputList_) {
+      fakeInputById 			= _apiInput_;
+      fakeInputListByType = _apiInputList_;
       srv 								= _ApiFragmentService_;
       rootScope 					= $rootScope;
       httpBackend 				= $httpBackend;
@@ -17,7 +17,7 @@ describe('API.fragment-service', function () {
     })
   );
 
-  it("Should return a fragment by type and by ID", function () {
+  it("Should return a fragment by type and Id", function () {
     var fragmentTypeIdJSON = {"type":"input","id":"2581f20a-fd83-4315-be45-192bc5sEdFff"};
     httpBackend.when('GET', '/fragment/input/2581f20a-fd83-4315-be45-192bc5sEdFff').respond(fakeInputById);
 

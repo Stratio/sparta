@@ -1,22 +1,28 @@
 describe('policies.wizard.controller.policy-wizard-header-controller', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policy.json'));
-  beforeEach(module('served/policyTemplate.json'));
+  beforeEach(module('model/policy.json'));
+  beforeEach(module('template/policy.json'));
 
-  var ctrl, scope, fakePolicy, fakeTemplate, policyModelFactoryMock, fakeWizardStatus,  modalServiceMock, fakeTitle, titleMock;
+  var ctrl, scope, fakePolicy, fakeTemplate, policyModelFactoryMock, fakeWizardStatus,  modalServiceMock,
+    wizardStatusServiceMock, stateMock;
 
   // init mock modules
 
-  beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope, _servedPolicy_, _servedPolicyTemplate_) {
+  beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope, _modelPolicy_, _templatePolicy_) {
     scope = $rootScope.$new();
 
-    fakePolicy = angular.copy(_servedPolicy_);
-    fakeTemplate = _servedPolicyTemplate_;
+    fakePolicy = angular.copy(_modelPolicy_);
+    fakeTemplate = _templatePolicy_;
     fakeWizardStatus={currentStep: -1};
 
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
 
+    $httpBackend.when('GET', 'views/dashboard/dashboard_header.html')
+      .respond({});
+
+    $httpBackend.when('GET', 'views/dashboard/dashboard_content.html')
+      .respond({});
     policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getFinalJSON', 'setPolicy', 'setTemplate', 'getTemplate', 'getProcessStatus', 'resetPolicy']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
       return fakePolicy;
@@ -24,7 +30,8 @@ describe('policies.wizard.controller.policy-wizard-header-controller', function 
 
     policyModelFactoryMock.getTemplate.and.returnValue(fakeTemplate);
 
-    policyModelFactoryMock.getProcessStatus.and.returnValue(fakeWizardStatus);
+    wizardStatusServiceMock =  jasmine.createSpyObj('WizardStatusService', ['getStatus']);
+    wizardStatusServiceMock.getStatus.and.returnValue(fakeWizardStatus);
 
     modalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
 
@@ -33,10 +40,13 @@ describe('policies.wizard.controller.policy-wizard-header-controller', function 
       defer.resolve();
       return {"result": defer.promise};
     });
+    stateMock = jasmine.createSpyObj("$state", ['go']);
 
     ctrl = $controller('PolicyWizardHeaderCtrl as header', {
+      'WizardStatusService': wizardStatusServiceMock,
       'PolicyModelFactory': policyModelFactoryMock,
       'ModalService': modalServiceMock,
+      '$state':stateMock,
       '$scope': scope
     });
 
@@ -50,7 +60,6 @@ describe('policies.wizard.controller.policy-wizard-header-controller', function 
   it ("should be able to open the policy description modal", function(){
     ctrl.showPolicyData();
 
-
     expect(modalServiceMock.openModal).toHaveBeenCalled();
     var callParams = modalServiceMock.openModal.calls.mostRecent().args;
     expect(callParams[0]).toBe('PolicyCreationModalCtrl');
@@ -58,7 +67,29 @@ describe('policies.wizard.controller.policy-wizard-header-controller', function 
     expect(callParams[2].title()).toBe("_POLICY_._MODAL_SETTINGS_TITLE_");
     expect(callParams[3]).toEqual('');
     expect(callParams[4]).toEqual('lg');
+  });
 
+  describe ("should be able to open a confirmation modal when user wants to leave the wizard", function(){
+  it("confirmation modal is open with correct params", function(){
+    ctrl.leaveEditor();
+
+    expect(modalServiceMock.openModal).toHaveBeenCalled();
+    var callParams = modalServiceMock.openModal.calls.mostRecent().args;
+    expect(callParams[0]).toBe('ConfirmModalCtrl');
+    expect(callParams[1]).toBe("templates/modal/confirm-modal.tpl.html");
+    expect(callParams[2].title()).toBe("_POLICY_._WINDOW_._EXIT_._TITLE_");
+    expect(callParams[2].message()).toEqual("_POLICY_._EXIT_CONFIRMATION_");
+    expect(callParams[3]).toEqual('');
+    expect(callParams[4]).toEqual('lg');
+  });
+
+    it ("If user confirms the modal, he is redirected to policy list page",function(){
+      ctrl.leaveEditor();
+
+      scope.$digest();
+
+      expect(stateMock.go).toHaveBeenCalledWith('dashboard.policies');
+    })
   });
 
   describe ("should be any change in wizard status and update the help link according to the current step", function(){

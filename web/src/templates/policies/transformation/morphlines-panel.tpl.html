@@ -18,7 +18,7 @@
   data-disabled="!editionMode"
   data-extra-info="'_CONFIGURATION_INFO_' | translate"
   data-placeholder="vm.configPlaceholder"
-  data-qa="policy-model-configuration-textarea"
+  data-qa="{{'policy-model-configuration-textarea'}}"
   data-large-size = "true">
 </form-field-textarea>
 <div class="c-form-group" data-ng-class="{'submited': vm.model.outputFields.length == 0 && vm.form.$submitted, 'ng-invalid': vm.model.outputFields.length == 0 && vm.form.$submitted}">
@@ -32,7 +32,6 @@
       data-qa="policy-model-outputs"
       data-pattern="vm.outputPattern"
       data-error="vm.modelError.duplicatedOutput"
-      data-placeholder="{{vm.outputInputPlaceholder | translate}}"
       data-submitted-form="vm.form.$submitted"
       data-is-object = "true"
       data-attribute = "name"
@@ -52,6 +51,8 @@
       data-min-length="1"
       data-label="'_OUTPUTS_FIELDS_' | translate"
       data-form="vm.form"
+      data-default-type="vm.outputFieldTypes[0].value"
+      data-disabled-type="false"
       data-output-types="vm.outputFieldTypes">
     </c-output-field-list>
   </div>

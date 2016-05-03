@@ -1,29 +1,28 @@
 describe('policies.wizard.factory.policy-factory', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policyList.json'));
+  beforeEach(module('api/policyList.json'));
 
   var factory, ApiPolicyService, scope, q, promiseMock, fakePolicyList, fakePolicy = null;
 
   beforeEach(module(function ($provide) {
     ApiPolicyService = jasmine.createSpyObj('ApiPolicyService', ['getPolicyByFragmentId', 'getPolicyById',
-      'getAllPolicies', 'createPolicy', 'deletePolicy', 'runPolicy', 'stopPolicy', 'savePolicy', 'getPoliciesStatus', 'getFakePolicy']);
+      'getAllPolicies', 'createPolicy', 'deletePolicy', 'runPolicy', 'stopPolicy', 'savePolicy', 'getPoliciesStatus', 'getFakePolicy', 'downloadPolicy']);
 
     // inject mocks
     $provide.value('ApiPolicyService', ApiPolicyService);
   }));
 
-  beforeEach(inject(function (PolicyFactory, $httpBackend, $q, _servedPolicyList_, $rootScope) {
+  beforeEach(inject(function (PolicyFactory, $httpBackend, $q, _apiPolicyList_, $rootScope) {
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
     factory = PolicyFactory;
     q = $q;
     scope = $rootScope.$new();
-    fakePolicyList = _servedPolicyList_;
+    fakePolicyList = _apiPolicyList_;
     fakePolicy = fakePolicyList[0].policy;
     promiseMock = jasmine.createSpy('promise').and.callFake(function () {
       return {"$promise": q.defer()};
     });
-
   }));
 
   describe("should have a function for each policy api service", function () {
@@ -145,6 +144,18 @@ describe('policies.wizard.factory.policy-factory', function () {
 
       expect(promiseMock).toHaveBeenCalledWith();
     });
+
+    it("download a policy by its id", function () {
+      var fakePolicyId = "fake policy id";
+      ApiPolicyService.downloadPolicy.and.returnValue(
+        {
+          "get": promiseMock
+        });
+
+      factory.downloadPolicy(fakePolicyId);
+
+      expect(promiseMock).toHaveBeenCalledWith({"id": fakePolicyId});
+    });
   });
 
 
@@ -164,7 +175,6 @@ describe('policies.wizard.factory.policy-factory', function () {
           }
         });
     });
-
 
     afterEach(function () {
       scope.$apply();
@@ -188,7 +198,4 @@ describe('policies.wizard.factory.policy-factory', function () {
       });
     });
   })
-
-
-})
-;
+});

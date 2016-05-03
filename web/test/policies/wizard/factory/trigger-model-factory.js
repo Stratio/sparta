@@ -1,13 +1,14 @@
 describe('policies.wizard.factory.trigger-model-factory', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/trigger.json'));
-  beforeEach(module('served/policy.json'));
+  beforeEach(module('api/trigger.json'));
+  beforeEach(module('model/trigger.json'));
+  beforeEach(module('model/policy.json'));
 
-  var factory, UtilsServiceMock,PolicyModelFactoryMock, fakeTrigger, fakePolicy = null;
+  var factory, UtilsServiceMock, PolicyModelFactoryMock, fakeApiTrigger, fakeTrigger, fakePolicy, triggerConstants = null;
 
   beforeEach(module(function ($provide) {
     UtilsServiceMock = jasmine.createSpyObj('UtilsService', ['removeItemsFromArray', 'findElementInJSONArray']);
-    PolicyModelFactoryMock =  jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy']);
+    PolicyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy']);
     PolicyModelFactoryMock.getCurrentPolicy.and.returnValue(fakePolicy);
     // inject mocks
     $provide.value('UtilsService', UtilsServiceMock);
@@ -15,20 +16,21 @@ describe('policies.wizard.factory.trigger-model-factory', function () {
 
   }));
 
-  beforeEach(inject(function (TriggerModelFactory, _servedTrigger_, _servedPolicy_) {
+  beforeEach(inject(function (TriggerModelFactory, _apiTrigger_, _modelTrigger_, _modelPolicy_, _triggerConstants_) {
     factory = TriggerModelFactory;
-    fakeTrigger = _servedTrigger_;
-    fakePolicy = _servedPolicy_;
+    fakeApiTrigger = _apiTrigger_;
+    fakeTrigger = _modelTrigger_;
+    fakePolicy = angular.copy(_modelPolicy_);
+    triggerConstants = _triggerConstants_;
   }));
 
   it("should be able to load a trigger from a json and a position", function () {
     var position = 0;
-    factory.setTrigger(fakeTrigger, position);
+    factory.setTrigger(fakeApiTrigger, position);
     var trigger = factory.getTrigger();
-    expect(trigger.name).toBe(fakeTrigger.name);
-    expect(trigger.sql).toBe(fakeTrigger.sql);
-    expect(trigger.outputs).toBe(fakeTrigger.outputs);
-    expect(trigger.configuration).toBe(fakeTrigger.configuration);
+    expect(trigger.name).toBe(fakeApiTrigger.name);
+    expect(trigger.sql).toBe(fakeApiTrigger.sql);
+    expect(trigger.outputs).toBe(fakeApiTrigger.outputs);
     expect(factory.getError()).toEqual({"text": ""});
     expect(factory.getContext().position).toBe(position);
   });
@@ -46,36 +48,53 @@ describe('policies.wizard.factory.trigger-model-factory', function () {
       cleanFactory = _TriggerModelFactory_; // inject a new factory in each test to can check the initial state of the factory when it is created
     }));
 
-    it("if there is not any trigger, it initializes a new one using the introduced position", function () {
-      var trigger = cleanFactory.getTrigger(desiredPosition);
-      expect(trigger.name).toEqual("");
-      expect(trigger.sql).toEqual("");
-      expect(trigger.outputs).toEqual([]);
-      expect(trigger.configuration).toEqual(undefined);
-      expect(cleanFactory.getError()).toEqual({"text": ""});
-      expect(factory.getContext().position).toBe(desiredPosition);
+    describe("if there is not any trigger, it initializes a new one using the introduced position and type", function () {
+      beforeEach(inject(function (_TriggerModelFactory_) {
+        cleanFactory = _TriggerModelFactory_; // inject a new factory in each test to can check the initial state of the factory when it is created
+      }));
+      it("if type is cube", function () {
+        var trigger = cleanFactory.getTrigger(desiredPosition, triggerConstants.CUBE);
+        expect(trigger.name).toEqual("");
+        expect(trigger.sql).toEqual("");
+        expect(trigger.outputs).toEqual([]);
+        expect(trigger.overLastNumber).toBe(undefined);
+        expect(trigger.overLastTime).toBe(undefined);
+        expect(cleanFactory.getError()).toEqual({"text": ""});
+        expect(factory.getContext().position).toBe(desiredPosition);
+      });
+
+      it("if type is transformation", function () {
+        var trigger = cleanFactory.getTrigger(desiredPosition, triggerConstants.TRANSFORMATION);
+        var overLast = fakeApiTrigger.overLast.split(/([0-9]+)/);
+        expect(trigger.name).toEqual("");
+        expect(trigger.sql).toEqual("");
+        expect(trigger.outputs).toEqual([]);
+        expect(trigger.overLastNumber).toBe(Number(overLast[1]));
+        expect(trigger.overLastTime).toBe(overLast[2]);
+        expect(cleanFactory.getError()).toEqual({"text": ""});
+        expect(factory.getContext().position).toBe(desiredPosition);
+      });
+
     });
 
     it("if there is a trigger, returns that trigger", function () {
-      factory.setTrigger(fakeTrigger, desiredPosition);
+      factory.setTrigger(fakeApiTrigger, desiredPosition, 'cube');
 
       var trigger = factory.getTrigger(desiredPosition);
+      expect(trigger.name).toEqual(fakeApiTrigger.name);
+      expect(trigger.sql).toEqual(fakeApiTrigger.sql);
+      expect(trigger.outputs).toEqual(fakeApiTrigger.outputs);
 
-      expect(trigger.name).toEqual(fakeTrigger.name);
-      expect(trigger.sql).toEqual(fakeTrigger.sql);
-      expect(trigger.outputs).toEqual(fakeTrigger.outputs);
-      expect(trigger.configuration).toEqual(fakeTrigger.configuration);
+      factory.setTrigger(fakeApiTrigger, desiredPosition, 'transformation');
 
-      expect(trigger.primaryKey).toEqual(fakeTrigger.primaryKey);
-      expect(trigger.overLastNumber).toEqual(fakePolicy.sparkStreamingWindowNumber);
-      expect(trigger.overLastTime).toEqual(fakePolicy.sparkStreamingWindowTime);
-
-      trigger.name = "";
-      trigger.sql = "";
-      trigger.outputs = [];
-      trigger.primaryKey = [];
-      trigger.overLastNumber =fakePolicy.sparkStreamingWindowNumber;
-      trigger.overLastTime = fakePolicy.sparkStreamingWindowTime;
+      var trigger = factory.getTrigger(desiredPosition);
+      var overLast = fakeApiTrigger.overLast.split(/([0-9]+)/);
+      expect(trigger.name).toEqual(fakeApiTrigger.name);
+      expect(trigger.sql).toEqual(fakeApiTrigger.sql);
+      expect(trigger.outputs).toEqual(fakeApiTrigger.outputs);
+      expect(trigger.primaryKey).toEqual(fakeApiTrigger.primaryKey);
+      expect(trigger.overLastNumber).toEqual(Number(overLast[1]));
+      expect(trigger.overLastTime).toEqual(overLast[2]);
     });
 
     it("if there is not any trigger and no position is introduced, trigger is initialized with position equal to 0", function () {
@@ -85,30 +104,36 @@ describe('policies.wizard.factory.trigger-model-factory', function () {
   });
 
   describe("should be able to validate a trigger", function () {
+    beforeEach(function () {
+      UtilsServiceMock.findElementInJSONArray.and.returnValue(-1); //not found in the array
+    });
     describe("all its attributes can not be empty", function () {
-      beforeEach(function () {
-        UtilsServiceMock.findElementInJSONArray.and.returnValue(-1); //not found in the array
-      });
 
       it("if empty name, trigger is invalid", function () {
         var invalidTrigger = angular.copy(fakeTrigger);
         invalidTrigger.name = "";
 
-        expect(factory.isValidTrigger(invalidTrigger, {})).toBeFalsy();
+        factory.setTrigger(invalidTrigger);
+
+        expect(factory.isValidTrigger({})).toBeFalsy();
       });
 
       it("if empty outputs, trigger is valid", function () {
         var invalidTrigger = angular.copy(fakeTrigger);
         invalidTrigger.outputs = [];
 
-        expect(factory.isValidTrigger(invalidTrigger, {})).toBeTruthy();
+        factory.setTrigger(invalidTrigger);
+
+        expect(factory.isValidTrigger({})).toBeTruthy();
       });
 
       it("if empty configuration, trigger is valid", function () {
         var invalidTrigger = angular.copy(fakeTrigger);
         invalidTrigger.configuration = null;
 
-        expect(factory.isValidTrigger(invalidTrigger, {})).toBeTruthy();
+        factory.setTrigger(invalidTrigger);
+
+        expect(factory.isValidTrigger({})).toBeTruthy();
       });
 
     });
@@ -120,7 +145,10 @@ describe('policies.wizard.factory.trigger-model-factory', function () {
         var newName = "new trigger name";
         var trigger = angular.copy(fakeTrigger);
         trigger.name = newName;
-        expect(factory.isValidTrigger(trigger, triggerList));
+
+        factory.setTrigger(trigger);
+
+        expect(factory.isValidTrigger(triggerList)).toBeTruthy();
       });
 
       describe("if trigger list is not empty", function () {
@@ -129,29 +157,83 @@ describe('policies.wizard.factory.trigger-model-factory', function () {
           var fakeTrigger2 = angular.copy(fakeTrigger);
           fakeTrigger2.name = "fake trigger 2";
           triggerList = [fakeTrigger2, fakeTrigger];
+
+          factory.setTrigger(fakeTrigger);
+
         });
 
         it("and it has a trigger with the same name and its position is not the same that the introduced one, trigger is invalid", function () {
           UtilsServiceMock.findElementInJSONArray.and.returnValue(1);
-          expect(factory.isValidTrigger(fakeTrigger, triggerList, 2)).toBeFalsy();
+          expect(factory.isValidTrigger(triggerList, 2)).toBeFalsy();
         });
 
         it("and it has a trigger with the same name and its position is the same that the introduced one, trigger is valid", function () {
           //the trigger that is being validated and the found trigger in the list are the same trigger
           UtilsServiceMock.findElementInJSONArray.and.returnValue(1);
-          expect(factory.isValidTrigger(fakeTrigger, triggerList, 1)).toBeTruthy();
+          expect(factory.isValidTrigger(triggerList, 1)).toBeTruthy();
         });
 
         it("but it has not any trigger with the same name, trigger is valid", function () {
           UtilsServiceMock.findElementInJSONArray.and.returnValue(-1);
           var validTrigger = angular.copy(fakeTrigger);
           validTrigger.name = "new trigger name";
-          expect(factory.isValidTrigger(validTrigger, triggerList, 2)).toBeTruthy();
+
+          factory.setTrigger(validTrigger);
+
+          expect(factory.isValidTrigger(triggerList, 2)).toBeTruthy();
         });
       });
 
     });
+
+    describe("should be able to valid if overLast is multiple of the policy spark streaming window", function () {
+      var validTrigger = null;
+      beforeEach(function () {
+        validTrigger = angular.copy(fakeTrigger);
+        validTrigger.name = "fake trigger name";
+        validTrigger.sql = "Select * from STREAM";
+      });
+
+      it("if policy spark streaming window is higher than 0 and overLast is defined, it has to be multiple", function () {
+        var fakeSparkStreamingWindowNumber = 4;
+        fakePolicy.sparkStreamingWindowNumber = fakeSparkStreamingWindowNumber;
+        PolicyModelFactoryMock.getCurrentPolicy.and.returnValue(fakePolicy);
+        validTrigger.overLastNumber = 2 * fakeSparkStreamingWindowNumber + 1;
+
+        factory.setTrigger(validTrigger, 0, triggerConstants.TRANSFORMATION);
+
+        expect(factory.isValidTrigger([], 0)).toBeFalsy();
+
+        validTrigger.overLastNumber = 2 * fakeSparkStreamingWindowNumber;
+        factory.setTrigger(validTrigger, 0, triggerConstants.TRANSFORMATION);
+
+        expect(factory.isValidTrigger([], 0)).toBeTruthy();
+      });
+
+      it("if policy hasn't got policy spark streaming window, overlast is valid", function () {
+        var fakeSparkStreamingWindowNumber = undefined;
+        validTrigger.overLastNumber = 5;
+
+        expect(factory.isValidTrigger([], 0, fakeSparkStreamingWindowNumber)).toBeTruthy();
+
+        validTrigger.overLastNumber = 13;
+
+        expect(factory.isValidTrigger([], 0, fakeSparkStreamingWindowNumber)).toBeTruthy();
+      });
+
+      it("if overLast is undefined, trigger is valid", function () {
+        var fakeSparkStreamingWindowNumber = undefined;
+        validTrigger.overLastNumber = undefined;
+
+        expect(factory.isValidTrigger([], 0, fakeSparkStreamingWindowNumber)).toBeTruthy();
+
+        validTrigger.overLastNumber = null;
+
+        expect(factory.isValidTrigger([], 0, fakeSparkStreamingWindowNumber)).toBeTruthy();
+      });
+    });
   });
+
   it("should be able to reset its trigger to set all attributes with default values", function () {
     var oldPosition = 2;
     factory.setTrigger(fakeTrigger, oldPosition);

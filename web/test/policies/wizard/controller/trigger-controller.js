@@ -1,11 +1,11 @@
 describe('policies.wizard.controller.policy-trigger-controller', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policy.json'));
-  beforeEach(module('served/policyTemplate.json'));
-  beforeEach(module('served/trigger.json'));
+  beforeEach(module('model/policy.json'));
+  beforeEach(module('template/policy.json'));
+  beforeEach(module('model/trigger.json'));
 
   var ctrl, scope, fakePolicy, fakeTriggerTemplate, fakeTrigger, policyModelFactoryMock, fakeOutputs, fakePolicyTemplate,
-    triggerModelFactoryMock, outputServiceMock, triggerServiceMock, resolvedPromise, rejectedPromise;
+    triggerModelFactoryMock, outputServiceMock, triggerServiceMock, rejectedPromise;
 
   // init mock modules
 
@@ -13,19 +13,12 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
     scope = $rootScope.$new();
     $httpBackend.when('GET', 'languages/en-US.json').respond({});
 
-    inject(function (_servedPolicy_, _servedPolicyTemplate_, _servedTrigger_) {
-      fakePolicy = angular.copy(_servedPolicy_);
-      fakePolicyTemplate = _servedPolicyTemplate_;
-      fakeTriggerTemplate = _servedPolicyTemplate_.trigger;
-      fakeTrigger = angular.copy(_servedTrigger_);
+    inject(function (_modelPolicy_, _templatePolicy_, _modelTrigger_) {
+      fakePolicy = angular.copy(_modelPolicy_);
+      fakePolicyTemplate = _templatePolicy_;
+      fakeTriggerTemplate = _templatePolicy_.trigger;
+      fakeTrigger = angular.copy(_modelTrigger_);
     });
-
-    resolvedPromise = function () {
-      var defer = $q.defer();
-      defer.resolve();
-
-      return defer.promise;
-    };
 
     fakeOutputs = [{label: "output1", value: "output1"}, {label: "output2", value: "output2"}, {
       label: "output3",
@@ -49,8 +42,8 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
       return fakePolicyTemplate;
     });
 
-    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['isLastTrigger', 'isNewTrigger', 'addTrigger', 'removeTrigger', 'disableTriggerCreationPanel',  'getSqlSourceItems', 'isEnabledHelpForSql']);
-
+    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['isLastTrigger', 'isNewTrigger', 'addTrigger', 'removeTrigger', 'getTriggerTemplate','disableTriggerCreationPanel',  'getSqlSourceItems', 'isEnabledHelpForSql']);
+    triggerServiceMock.getTriggerTemplate.and.returnValue(fakeTriggerTemplate);
     triggerModelFactoryMock = jasmine.createSpyObj('TriggerFactory', ['getTrigger', 'getError', 'getTriggerInputs', 'getContext', 'setError', 'resetTrigger', 'updateTriggerInputs', 'setError']);
     triggerModelFactoryMock.getTrigger.and.returnValue(fakeTrigger);
 
@@ -58,7 +51,8 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
       'PolicyModelFactory': policyModelFactoryMock,
       'TriggerModelFactory': triggerModelFactoryMock,
       'TriggerService': triggerServiceMock,
-      'OutputService': outputServiceMock
+      'OutputService': outputServiceMock,
+      '$scope': scope
     });
 
     resolvedPromise = function () {
@@ -81,7 +75,7 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
   describe("when it is initialized", function () {
     describe("if factory trigger is not null", function () {
 
-      it('it should get a policy template from from policy factory', function () {
+      it('it should get the trigger template from the trigger service', function () {
         expect(ctrl.template).toBe(fakeTriggerTemplate);
       });
 
@@ -99,7 +93,8 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
       var cleanCtrl = $controller('TriggerCtrl', {
         'PolicyModelFactory': policyModelFactoryMock,
         'TriggerModelFactory': triggerModelFactoryMock,
-        'TriggerService': triggerServiceMock
+        'TriggerService': triggerServiceMock,
+        '$scope': scope
       });
       expect(cleanCtrl.template).toBe(undefined);
       expect(cleanCtrl.triggerContext).toBe(undefined);
@@ -108,19 +103,7 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
   });
 
   describe("should be able to add a trigger to the policy", function () {
-    it("trigger is not added if view validations have not been passed", function () {
-      ctrl.form = {$valid: false}; //view validations have not been passed
-      ctrl.addTrigger();
 
-      expect(triggerServiceMock.addTrigger).not.toHaveBeenCalled();
-    });
-
-    it("trigger is added if view validations have been passed", function () {
-      ctrl.form = {$valid: true}; //view validations have been passed
-      ctrl.addTrigger();
-
-      expect(triggerServiceMock.addTrigger).toHaveBeenCalled();
-    });
   });
 
   it("should be able to remove the factory trigger from the policy calling to the trigger service", function () {

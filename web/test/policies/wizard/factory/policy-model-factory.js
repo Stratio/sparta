@@ -1,11 +1,12 @@
 describe('policies.wizard.factory.policy-model-factory', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policy.json'));
-  beforeEach(module('served/input.json'));
-  beforeEach(module('served/output.json'));
-  beforeEach(module('served/policyTemplate.json'));
+  beforeEach(module('api/policy.json'));
+  beforeEach(module('model/policy.json'));
+  beforeEach(module('model/input.json'));
+  beforeEach(module('model/output.json'));
+  beforeEach(module('template/policy.json'));
 
-  var factory, fakePolicy, fakeInput, fakeOutput, fakePolicyTemplate, fragmentConstantsMock = null;
+  var factory, fakePolicy, fakeApiPolicy, fakeInput, fakeOutput, fakePolicyTemplate, fragmentConstantsMock = null;
 
   beforeEach(module(function ($provide) {
     fragmentConstantsMock = jasmine.createSpyObj('fragmentConstants', ['OUTPUT']);
@@ -14,30 +15,29 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     $provide.value('fragmentConstants', fragmentConstantsMock);
   }));
 
-  beforeEach(inject(function (_PolicyModelFactory_, _servedPolicy_, _servedPolicyTemplate_, _servedInput_, _servedOutput_) {
+  beforeEach(inject(function (_PolicyModelFactory_, _apiPolicy_, _modelPolicy_, _templatePolicy_, _modelInput_, _modelOutput_) {
     factory = _PolicyModelFactory_;
-    fakePolicy = angular.copy(_servedPolicy_);
-    fakePolicy.rawData={enabled: 'false'};
-    fakePolicyTemplate = _servedPolicyTemplate_;
-    fakeInput = _servedInput_;
-    fakeOutput = _servedOutput_;
+    fakePolicy = angular.copy(_modelPolicy_);
+    fakeApiPolicy = angular.copy(_apiPolicy_);
+    fakePolicy.rawData = {enabled: 'false'};
+    fakePolicyTemplate = _templatePolicy_;
+    fakeInput = angular.copy(_modelInput_);
+    fakeOutput = _modelOutput_;
   }));
 
   it("should be able to load a policy from a json", function () {
-    fakePolicy.fragments = [fakeInput, fakeOutput];
-    fakePolicy.rawData={enabled: 'false'};
-    factory.setPolicy(fakePolicy);
+    fakeApiPolicy.fragments = [fakeInput];
+    fakePolicy.rawData = {enabled: 'false'};
+    factory.setPolicy(fakeApiPolicy);
 
     var policy = factory.getCurrentPolicy();
 
-    expect(factory.getProcessStatus().currentStep).toBe(0);
-    expect(policy.id).toBe(fakePolicy.id);
-    expect(policy.name).toBe(fakePolicy.name);
-    expect(policy.description).toBe(fakePolicy.description);
-    expect(policy.cubes).toEqual(fakePolicy.cubes);
-    expect(policy.input).toBe(fakeInput);
+    expect(policy.id).toBe(fakeApiPolicy.id);
+    expect(policy.name).toBe(fakeApiPolicy.name);
+    expect(policy.description).toBe(fakeApiPolicy.description);
+    expect(policy.cubes).toEqual(fakeApiPolicy.cubes);
+    expect(policy.input).toEqual(fakeInput);
   });
-
 
   describe("should return its current policy", function () {
     var cleanFactory = null;
@@ -49,7 +49,6 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     it("if there is not any policy, it initializes a new one with empty attributes and removing attributes loaded from template", function () {
       var policy = cleanFactory.getCurrentPolicy();
 
-      expect(cleanFactory.getProcessStatus().currentStep).toBe(-1);
       expect(policy.name).toBe("");
       expect(policy.description).toBe("");
       expect(policy.rawDataEnabled).toBe(undefined);
@@ -61,31 +60,30 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     });
 
     it("if there is a policy, returns that policy", function () {
-      fakePolicy.fragments = [fakeInput, fakeOutput];
-      fakePolicy.rawData={enabled: 'false'};
-      cleanFactory.setPolicy(fakePolicy);
+      fakeApiPolicy.fragments = [fakeInput];
+      fakeApiPolicy.rawData = {enabled: 'false'};
+      cleanFactory.setPolicy(fakeApiPolicy);
       var policy = cleanFactory.getCurrentPolicy();
-
-      expect(policy.name).toBe(fakePolicy.name);
-      expect(policy.description).toBe(fakePolicy.description);
-      expect(policy.sparkStreamingWindow).toBe(fakePolicy.sparkStreamingWindow);
-      expect(policy.storageLevel).toBe(fakePolicy.storageLevel);
-      expect(policy.checkpointPath).toBe(fakePolicy.checkpointPath);
+      var sparkStreamingWindowTime = fakeApiPolicy.sparkStreamingWindow.split(/([0-9]+)/);
+      expect(policy.name).toBe(fakeApiPolicy.name);
+      expect(policy.description).toBe(fakeApiPolicy.description);
+      expect(policy.sparkStreamingWindowNumber).toBe(Number(sparkStreamingWindowTime[1]));
+      expect(policy.sparkStreamingWindowTime).toBe(sparkStreamingWindowTime[2]);
+      expect(policy.storageLevel).toBe(fakeApiPolicy.storageLevel);
+      expect(policy.checkpointPath).toBe(fakeApiPolicy.checkpointPath);
       expect(policy.input).toEqual(fakeInput);
-      expect(policy.transformations).toEqual(fakePolicy.transformations);
-      expect(policy.cubes).toEqual(fakePolicy.cubes);
+      expect(policy.transformations).toEqual(fakeApiPolicy.transformations);
+      expect(policy.cubes).toEqual(fakeApiPolicy.cubes);
     });
   });
-
 
   it("should be able to reset its policy to set all attributes with default values", function () {
     factory.setTemplate(fakePolicyTemplate);
 
-    factory.setPolicy(fakePolicy);
+    factory.setPolicy(fakeApiPolicy);
     factory.resetPolicy();
 
     var policy = factory.getCurrentPolicy();
-    expect(factory.getProcessStatus().currentStep).toBe(-1);
     expect(policy.name).toBe("");
     expect(policy.description).toBe("");
     expect(policy.rawDataEnabled).toBe(undefined);
@@ -96,43 +94,24 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     expect(policy.cubes).toEqual([]);
   });
 
-  describe("should be able to change the current step in the process of modify or create the current policy", function () {
-    beforeEach(function () {
-      factory.setTemplate(fakePolicyTemplate);
-      factory.setPolicy(fakePolicy);
-    });
-    it("should be able to change to the next step", function () {
-      var currentStep = factory.getProcessStatus().currentStep;
-      factory.previousStep();
-      expect(factory.getProcessStatus().currentStep).toBe(currentStep - 1);
-    });
-
-    it("should be able to change to the next step", function () {
-      var currentStep = factory.getProcessStatus().currentStep;
-      factory.nextStep();
-      expect(factory.getProcessStatus().currentStep).toBe(currentStep + 1);
-    });
-  });
-
   it("should be able to return the template that is being used to set the default values", function () {
     factory.setTemplate(fakePolicyTemplate);
     expect(factory.getTemplate()).toBe(fakePolicyTemplate);
   });
 
   describe("should be able to return an array with all outputs of the policy models", function () {
-    it("if policy has model, return all outpus of these models", function () {
-      var fakeModel1 = {"outputFields": [{name:"fake output1 of model 1"}, {name:"fake output2 of model 1"}]};
-      var fakeModel2 = {"outputFields": [{name:"fake output1 of model 2"},{name: "fake output2 of model 2"}]};
-      var fakeModel3 = {"outputFields": [{name:"fake output1 of model 3"}, {name:"fake output2 of model 3"}]};
+    it("if policy has model, return all outputs of these models", function () {
+      var fakeModel1 = {"outputFields": [{name: "fake output1 of model 1"}, {name: "fake output2 of model 1"}]};
+      var fakeModel2 = {"outputFields": [{name: "fake output1 of model 2"}, {name: "fake output2 of model 2"}]};
+      var fakeModel3 = {"outputFields": [{name: "fake output1 of model 3"}, {name: "fake output2 of model 3"}]};
 
-      var policy = angular.copy(fakePolicy);
-      policy.transformations = [fakeModel1, fakeModel2, fakeModel3];
-      factory.setPolicy(policy);
+      fakeApiPolicy.transformations = [fakeModel1, fakeModel2, fakeModel3];
+      factory.setPolicy(fakeApiPolicy);
 
       var modelOutputs = factory.getAllModelOutputs();
 
       expect(modelOutputs.length).toBe(fakeModel1.outputFields.length + fakeModel2.outputFields.length + fakeModel3.outputFields.length);
-      expect(modelOutputs).toEqual([fakeModel1.outputFields[0].name,fakeModel1.outputFields[1].name,fakeModel2.outputFields[0].name,fakeModel2.outputFields[1].name, fakeModel3.outputFields[0].name, fakeModel3.outputFields[1].name]);
+      expect(modelOutputs).toEqual([fakeModel1.outputFields[0].name, fakeModel1.outputFields[1].name, fakeModel2.outputFields[0].name, fakeModel2.outputFields[1].name, fakeModel3.outputFields[0].name, fakeModel3.outputFields[1].name]);
     });
   });
 
@@ -143,5 +122,37 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     expect(factory.getFinalJSON()).toEqual(fakeFinalJSON);
   });
 
+
+  describe("should be able to valid the Spark streaming window", function () {
+    it("if policy has stream triggers, all their overLast have to be multiple of the Spark streaming window", function () {
+      var fakeSparkStreamingWindowNumber = 4;
+      fakeApiPolicy.streamTriggers = [{overLast: 2 * fakeSparkStreamingWindowNumber + 1 + 's'}];
+      fakeApiPolicy.sparkStreamingWindow = fakeSparkStreamingWindowNumber + 's';
+
+      factory.setPolicy(fakeApiPolicy);
+
+      expect(factory.isValidSparkStreamingWindow()).toBeFalsy();
+
+      fakeApiPolicy.streamTriggers = [{overLast: 2 * fakeSparkStreamingWindowNumber+ 's'} ];
+      factory.setPolicy(fakeApiPolicy);
+
+      expect(factory.isValidSparkStreamingWindow()).toBeTruthy();
+    });
+
+    it("if policy hasn't got triggers, spark stream window is valid", function () {
+      fakeApiPolicy.streamTriggers = [];
+      fakeApiPolicy.sparkStreamingWindowNumber = 8;
+
+      factory.setPolicy(fakeApiPolicy);
+
+      expect(factory.isValidSparkStreamingWindow()).toBeTruthy();
+
+      fakeApiPolicy.sparkStreamingWindowNumber = 13;
+
+      factory.setPolicy(fakeApiPolicy);
+
+      expect(factory.isValidSparkStreamingWindow()).toBeTruthy();
+    });
+  });
 })
 ;

@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 
 import com.stratio.cucumber.testng.CucumberRunner;
 import com.stratio.data.BrowsersDataProvider;
-import com.stratio.sparta.testsAT.utils.BaseTest;
+import com.stratio.tests.utils.BaseTest;
 
 import cucumber.api.CucumberOptions;
 

@@ -35,6 +35,7 @@
     vm.convertDottedPropertiesToJson = convertDottedPropertiesToJson;
     vm.getFilteredJSONByArray = getFilteredJSONByArray;
     vm.removeDuplicatedJSONs = removeDuplicatedJSONs;
+    vm.generateOptionListFromStringArray = generateOptionListFromStringArray;
 
     function findElementInJSONArray(array, element, attr) {
       var found = false;
@@ -122,17 +123,15 @@
       else {
         newInputCount.count++;
       }
-    };
+    }
 
-    function subtractFragmentCount(inputTypeList, inputType, filter) {
+    function subtractFragmentCount(inputTypeList, inputType) {
       var newInputCount = $filter('filter')(inputTypeList, {'type': inputType}, true)[0];
       newInputCount.count--;
       if (newInputCount.count === 0) {
         for (var i = 0; i < inputTypeList.length; i++) {
           if (inputTypeList[i].type === inputType) {
             inputTypeList.splice(i, 1);
-            filter.element.type = "";
-            filter.name = "";
           }
         }
       }
@@ -162,13 +161,15 @@
         if (splittedKey.length > 1) {
           var tempProperty = "";
           tempProperty = object;
+          if (!object[splittedKey[0]]) {
+            object[splittedKey[0]] = {};
+          }
           for (var i = 0; i < splittedKey.length - 1; ++i) {
             tempProperty = tempProperty[splittedKey[i]];
           }
           if (!tempProperty[splittedKey[splittedKey.length - 1]]) {
             tempProperty[splittedKey[splittedKey.length - 1]] = {};
           }
-
           tempProperty[splittedKey[splittedKey.length - 1]] = object[key];
           delete object[key];
         }
@@ -176,15 +177,14 @@
       return object;
     }
 
-
     function getFilteredJSONByArray(JsonArray, array, attribute) {
       var filteredElements = [];
       if (array) {
         for (var i = 0; i < array.length; ++i) {
           var filter = {};
           filter[attribute] = array[i];
-          var filteredOutput= $filter('filter')(JsonArray, filter, true)[0];
-          if (filteredOutput){
+          var filteredOutput = $filter('filter')(JsonArray, filter, true)[0];
+          if (filteredOutput) {
             filteredElements.push(filteredOutput);
           }
         }
@@ -205,6 +205,16 @@
         }
       }
       return resultArray;
+    }
+
+    function generateOptionListFromStringArray(array) {
+      var optionList = [];
+      if (array) {
+        for (var i = 0; i < array.length; ++i) {
+          optionList.push({"label": array[i], "value": array[i]});
+        }
+      }
+      return optionList;
     }
   }
 })

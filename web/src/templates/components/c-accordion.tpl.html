@@ -1,23 +1,20 @@
 <aside>
-<accordion class="c-accordion{{additionalModifierClass}}" data-ng-model="items">
-  <div class="c-accordion-item c-accordion-item{{additionalModifierClass}}">
-    <accordion-group is-open="accordionStatus[$index]"
-                     data-ng-repeat="item in items track by generateIndex()"
-                     data-ng-model="item">
-      <accordion-heading>
-        <span class="c-accordion-header__step-number">{{$index + 1}}</span>
-        <i data-ng-if="item.type"
-           class="c-accordion-header__type c-icon icon-{{item[itemAttributeInHeader] | lowercase}}"></i><span
-        class="c-accordion-header__title">{{item[itemAttributeInHeader]}}</span>
-        <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right"
-           data-qa="policy-model-arrow-{{$index + 1}}"></i>
-      </accordion-heading>
-
-      <ng-include data-ng-if="accordionStatus[$index]" src="itemTemplate"
-                  data-ng-model="item" data-qa="{{itemQaTag}}-{{$index}}"></ng-include>
-    </accordion-group>
-
-      <accordion-group is-open=showNewItemPanel class="c-accordion-item c-accordion-item--new c-accordion-item--new{{additionalModifierClass}}" ng-if="showNewItemPanel">
+  <accordion class="c-accordion c-accordion{{additionalModifierClass}}">
+    <div class="c-accordion-item c-accordion-item{{additionalModifierClass}}">
+      <accordion-group is-open=accordionStatus[$index]
+                       data-ng-repeat="item in items track by generateIndex()">
+        <accordion-heading>
+          <span class="c-accordion-header__step-number">{{$index + 1}}</span>
+          <i data-ng-if="item.type"
+             class="c-accordion-header__type c-icon icon-{{item[itemAttributeInHeader] | lowercase}}"></i>
+          <span class="c-accordion-header__title">{{item[itemAttributeInHeader]}}</span>
+          <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right"
+             data-qa="{{itemQaTag}}-arrow-{{$index + 1}}"></i>
+        </accordion-heading>
+        <ng-include src="itemTemplate" data-qa="{{itemQaTag}}-{{$index}}"></ng-include>
+      </accordion-group>
+      <accordion-group is-open=accordionStatus[accordionStatus.length-1] data-ng-if="showNewItemPanel"
+                       class="c-accordion-item c-accordion-item--new panel-open c-accordion-item--new{{additionalModifierClass}}">
         <accordion-heading class="c-accordion-header">
           <span class="c-accordion-header__step-number">{{(items.length + 1) }}</span>
           <i class="c-accordion-header__type c-icon"></i>
@@ -25,16 +22,16 @@
             class="c-text--margin-left c-text--bold">[{{"_NOT_SAVED_" | translate}}]</span></p>
 
           <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right"
-             data-qa="policy-model-arrow-{{(items.length + 1) }}"></i>
+             data-qa="{{itemQaTag}}-arrow-{{(items.length + 1) }}"></i>
         </accordion-heading>
 
-        <ng-include data-ng-if="showNewItemPanel"
-                    src="itemTemplate" data-ng-init="editionMode = true"
-                    data-qa="policy-model-new">
+        <ng-include
+          src="itemTemplate" data-ng-init="editionMode = true"
+          data-qa="policy-item-new">
         </ng-include>
 
       </accordion-group>
-  </div>
+    </div>
 
-</accordion>
+  </accordion>
 </aside>

@@ -18,6 +18,6 @@
 
   angular
     .module('webApp').constant('apiConfigSettings', {
-      timeout: 10000
+      timeout: 5000
     });
 })();

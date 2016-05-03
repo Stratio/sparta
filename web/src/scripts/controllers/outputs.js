@@ -30,10 +30,10 @@
       vm.editOutput = editOutput;
       vm.deleteOutput = deleteOutput;
       vm.duplicateOutput = duplicateOutput;
+      vm.deleteErrorMessage = deleteErrorMessage;
       vm.outputsData = undefined;
       vm.outputTypes = [];
-      vm.error = false;
-      vm.errorMessage = '';
+      vm.errorMessage =  {type: 'error',text: '', internalTrace: ''};
 
       init();
 
@@ -41,22 +41,24 @@
 
       function init() {
         getOutputs();
-      };
+      }
+
+      function deleteErrorMessage() {
+        vm.errorMessage.text = '';
+      }
 
       function getOutputs() {
         var outputList = FragmentFactory.getFragments('output');
 
         outputList.then(function (result) {
-          vm.error = false;
           vm.outputsData = result;
           getOutputTypes(result);
 
         },function (error) {
-          vm.error = true
-          vm.errorMessage = "_INPUT_ERROR_" + error.data.i18nCode + "_";;
+          vm.errorMessage.text = "_ERROR_._" + error.data.i18nCode + "_";
         });
 
-      };
+      }
 
       function getOutputTypes(outputs) {
         vm.outputTypes = [];
@@ -83,7 +85,7 @@
                 }
             }
         }
-      };
+      }
 
       function createOutput() {
         var outputsList = UtilsService.getNamesJSONArray(vm.outputsData);
@@ -99,7 +101,7 @@
         };
 
         createOutputModal(createOutputData);
-      };
+      }
 
       function editOutput(output) {
         var outputsList = UtilsService.getNamesJSONArray(vm.outputsData);
@@ -114,13 +116,13 @@
                 'button_icon': 'icon-circle-check',
                 'secondaryText2': '_OUTPUT_WINDOW_EDIT_MESSAGE2_',
                 'policyRunningMain': '_OUTPUT_CANNOT_BE_MODIFIED_',
-                'policyRunningSecondary': '_OUTTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
-                'policyRunningSecondary2': '_OUTTPUT_WINDOW_POLICY_RUNNING_MESSAGE2_'
+                'policyRunningSecondary': '_OUTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
+                'policyRunningSecondary2': '_OUTPUT_WINDOW_POLICY_RUNNING_MESSAGE2_'
             }
         };
 
         editOutputModal(editOutputData);
-      };
+      }
 
       function deleteOutput(fragmentType, fragmentId, elementType) {
                var outputToDelete =
@@ -131,16 +133,16 @@
           'texts': {
             'title': '_OUTPUT_WINDOW_DELETE_TITLE_',
             'mainText': '_OUTPUT_CANNOT_BE_DELETED_',
-            'mainTextOK': '_ARE_YOU_COMPLETELY_SURE_',
+            'mainTextOK': '_ARE_YOU_SURE_',
             'secondaryText1': '_OUTPUT_WINDOW_DELETE_MESSAGE_',
             'secondaryText2': '_OUTPUT_WINDOW_DELETE_MESSAGE2_',
             'policyRunningMain': '_OUTPUT_CANNOT_BE_DELETED_',
-            'policyRunningSecondary': '_OUTTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
-            'policyRunningSecondary2': '_OUTTPUT_WINDOW_DELETE_POLICY_RUNNING_MESSAGE2_'
+            'policyRunningSecondary': '_OUTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
+            'policyRunningSecondary2': '_OUTPUT_WINDOW_DELETE_POLICY_RUNNING_MESSAGE2_'
           }
         };
         deleteOutputConfirm('lg', outputToDelete);
-      };
+      }
 
       function duplicateOutput(outputId) {
         var outputSelected = $filter('filter')(angular.copy(vm.outputsData), {'id':outputId}, true)[0];
@@ -158,8 +160,8 @@
           }
         };
 
-        setDuplicatetedOutput('sm', duplicateOutputData);
-      };
+        setDuplicatedOutput('sm', duplicateOutputData);
+      }
 
       function createOutputModal(newOutputTemplateData) {
         var modalInstance = $modal.open({
@@ -181,7 +183,7 @@
           vm.outputsData.push(newOutputData);
           UtilsService.addFragmentCount(vm.outputTypes, newOutputData.element.type);
         });
-      };
+      }
 
       function editOutputModal(editOutputData) {
         var modalInstance = $modal.open({
@@ -213,7 +215,7 @@
           for (var prop in editedOutputData.originalFragment) delete editedOutputData.originalFragment[prop];
           for (var prop in editedOutputData.editedFragment) editedOutputData.originalFragment[prop] =  editedOutputData.editedFragment[prop];
         });
-      };
+      }
 
       function deleteOutputConfirm(size, output) {
         var modalInstance = $modal.open({
@@ -239,9 +241,9 @@
           }
           UtilsService.subtractFragmentCount(vm.outputTypes, fragmentDeletedData.type, vm.filters);
         });
-      };
+      }
 
-      function setDuplicatetedOutput(size, OutputData) {
+      function setDuplicatedOutput(size, OutputData) {
         var modalInstance = $modal.open({
           animation: true,
           templateUrl: 'templates/components/st-duplicate-modal.tpl.html',
@@ -258,7 +260,7 @@
           vm.outputsData.push(newOutput);
           UtilsService.addFragmentCount(vm.outputTypes, newOutput.element.type);
         });
-      };
+      }
 
-    };
+    }
 })();

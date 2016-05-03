@@ -56,7 +56,7 @@ Feature: Test deleting an input referenced by a policy in Sparta GUI
 		Then I wait '1' second
 		And '1' element exists with 'css:aside[data-qa="delete-modal"]'
 		And a text 'The following policies are going to be deleted' exists
-		And a text 'If you do not want to delete these policies, please change first their inputs' exists
+		And a text 'If you do not want to delete these policies, please change their inputs first' exists
 		And '1' element exists with 'css:li[data-qa="delete-modal-policy-!{previousPolicyID}"]'
 		
 		# Delete

@@ -1,5 +1,28 @@
 @mixin c-msg {
 	@include c-panel;
+  &.ng-enter, &.ng-leave {
+    -webkit-transition: 750ms ease all;
+    -moz-transition: 750ms ease all;
+    -ms-transition: 750ms ease all;
+    -o-transition: 750ms ease all;
+    transition: 750ms ease all;
+  }
+
+  &.ng-enter {
+    opacity: 0;
+  }
+
+  &.ng-enter.ng-enter-active {
+    opacity: 1;
+  }
+
+  &.ng-leave {
+    opacity: 1;
+  }
+
+  &.ng-leave.ng-leave-active{
+    opacity: 0;
+  }
 
 	&--small {
 		font-size: $c-msg--small---font-size;
@@ -16,61 +39,13 @@
 		background: $c-msg--error---background;
 		color: $c-msg--error---color;
 		display: $c-msg--error---display;
+    margin-top: $c-msg--error---margin-top;
 
-		&.ng-enter, &.ng-leave {
-	      -webkit-transition: 750ms ease all;
-	      -moz-transition: 750ms ease all;
-	      -ms-transition: 750ms ease all;
-	      -o-transition: 750ms ease all;
-	      transition: 750ms ease all;
-		}
-
-		&.ng-enter {
-    	  opacity: 0;
-		}
-
-		&.ng-enter.ng-enter-active {
-		  opacity: 1;
-		}
-
-		&.ng-leave {
-    	  opacity: 1;
-		}
-
-		&.ng-leave.ng-leave-active{
-    	  opacity: 0;
-		}
 	}
-
-
 	&--success {
 		background: $c-msg--success---background;
 		color: $c-msg--success---color;
 		display: $c-msg--success---display;
-
-		&.ng-enter, &.ng-leave {
-	      -webkit-transition: 750ms ease all;
-	      -moz-transition: 750ms ease all;
-	      -ms-transition: 750ms ease all;
-	      -o-transition: 750ms ease all;
-	      transition: 750ms ease all;
-		}
-
-		&.ng-enter {
-    	  opacity: 0;
-		}
-
-		&.ng-enter.ng-enter-active {
-		  opacity: 1;
-		}
-
-		&.ng-leave {
-    	  opacity: 1;
-		}
-
-		&.ng-leave.ng-leave-active{
-    	  opacity: 0;
-		}
 	}
 
 	&--noitems {

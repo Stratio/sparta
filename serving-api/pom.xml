@@ -29,6 +29,7 @@
     <artifactId>serving-api</artifactId>
 
     <build>
+        <sourceDirectory>src/main/scala</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -39,6 +40,21 @@
                         <exclude>**/logback.*</exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals><goal>add-source</goal></goals>
+                        <configuration>
+                            <sources>
+                                <source>src/${spark.version.folder}/scala</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -161,6 +177,21 @@
             <version>${spray.test.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.stratio.spray.auth</groupId>
+            <artifactId>spray-oauth2-client_2.10</artifactId>
+            <version>0.2.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.spray</groupId>
+            <artifactId>spray-client_2.10</artifactId>
+            <version>${spray.version}</version>
+        </dependency>
+
+
+
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming_${scala.binary.version}</artifactId>

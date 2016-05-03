@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.core.models
 
-import org.json4s.DefaultFormats
 import org.json4s.native.Serialization._
 
 /**
@@ -26,13 +26,12 @@ import org.json4s.native.Serialization._
  * @param params with values that could be needed by the frontend.
  */
 case class ErrorModel(i18nCode: String,
-                    message: String,
-                    stackTraceElement: Option[Seq[StackTraceElement]] = None,
-                    params: Option[Map[Any,Any]]= None) {
+                      message: String,
+                      subErrorModels: Option[Seq[ErrorModel]] = None,
+                      stackTraceElement: Option[Seq[StackTraceElement]] = None,
+                      params: Option[Map[Any,Any]]= None) {}
 
-}
-
-object ErrorModel extends SpartaSerializer{
+object ErrorModel extends SpartaSerializer {
 
   val CodeExistsFragmentWithName      = "100"
   val CodeNotExistsFragmentWithId     = "101"
@@ -43,13 +42,20 @@ object ErrorModel extends SpartaSerializer{
   val CodeErrorCreatingPolicy         = "203"
   val CodeNotExistsTemplateWithName   = "300"
   val CodePolicyIsWrong               = "305"
+  val ValidationError                 = "400"
   val CodeUnknown                     = "666"
 
-  def toString(errorModel: ErrorModel): String = {
-    write(errorModel)
-  }
+  val ValidationError_There_is_at_least_one_cube_without_name                    = "4000"
+  val ValidationError_There_is_at_least_one_cube_without_dimensions              = "4001"
+  val ValidationError_The_policy_needs_at_least_one_output                       = "4002"
+  val ValidationError_The_policy_needs_at_least_one_cube_or_one_trigger          = "4003"
+  val ValidationError_There_is_at_least_one_cube_with_a_bad_output               = "4004"
+  val ValidationError_There_is_at_least_one_cube_with_triggers_with_a_bad_output = "4005"
+  val ValidationError_There_is_at_least_one_stream_trigger_with_a_bad_output     = "4006"
+  val ValidationError_There_is_at_least_one_trigger_with_a_bad_overlast          = "4007"
 
-  def toErrorModel(json: String): ErrorModel = {
-    read[ErrorModel](json)
-  }
+  def toString(errorModel: ErrorModel): String = write(errorModel)
+
+  def toErrorModel(json: String): ErrorModel = read[ErrorModel](json)
+
 }

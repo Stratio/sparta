@@ -30,7 +30,7 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		| outputs | DELETE | N/A |	
-		Then the service response status must be '500' and its response must contain the text 'It is mandatory to define at least one output in the policy.'
+		Then the service response status must be '404' and its response must contain the text 'The policy needs at least one output'
 		
 	Scenario: Add a policyContext with non-existing fragment
 		When I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
@@ -177,22 +177,12 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 	  	And I save element '$.id' in environment variable 'previousFragmentID'
 	  	When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
 	  	Then the service response status must be '200'.
-	  	When I send a 'GET' request to '/fragment/input/name/elementname'
-	  	Then the service response status must be '200'.
-	  	And I save element '$.id' in environment variable 'previousFragmentID'
-	  	When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
-	  	Then the service response status must be '200'.
 	  	When I send a 'GET' request to '/fragment/output/name/name'
 	  	Then the service response status must be '200'.
 	  	And I save element '$.id' in environment variable 'previousFragmentID_2'
 	  	When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
 	  	Then the service response status must be '200'.
 	  	When I send a 'GET' request to '/fragment/output/name/name2'
-	  	Then the service response status must be '200'.
-	  	And I save element '$.id' in environment variable 'previousFragmentID_2'
-	  	When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
-	  	Then the service response status must be '200'.
-	  	When I send a 'GET' request to '/fragment/output/name/elementname'
 	  	Then the service response status must be '200'.
 	  	And I save element '$.id' in environment variable 'previousFragmentID_2'
 	  	When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'

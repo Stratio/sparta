@@ -1,21 +1,26 @@
 describe('policies.wizard.controller.new-operator-modal-controller', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policyTemplate.json'));
+  beforeEach(module('template/policy.json'));
 
-  var ctrl, modalInstanceMock, UtilsServiceMock, fakeOperatorName, fakeOperatorType, fakeFieldName, fakeOperators, fakeCubeTemplate = null;
+  var ctrl, modalInstanceMock, UtilsServiceMock, fakeOperatorName, fakeOperatorType, fakeFieldName, fakeOperators, fakeCubeTemplate, fakeInputFieldList, fakeOptionList = null;
 
   beforeEach(inject(function ($controller) {
 
     modalInstanceMock = jasmine.createSpyObj('$modalInstance', ['close', 'dismiss']);
-    UtilsServiceMock = jasmine.createSpyObj('UtilsServiceMock', ['findElementInJSONArray']);
-
+    UtilsServiceMock = jasmine.createSpyObj('UtilsServiceMock', ['findElementInJSONArray', 'generateOptionListFromStringArray']);
+    fakeOptionList = [{name: "fake option 1", value: "fake option value"}, {
+      name: "fake option 2",
+      value: "fake option value 2"
+    }];
+    UtilsServiceMock.generateOptionListFromStringArray.and.returnValue(fakeOptionList);
     fakeOperatorName = "fake operator name";
     fakeOperatorType = "fake operator type";
     fakeFieldName = "fake field name";
     fakeOperators = [];
+    fakeInputFieldList = ["input field 1", "input field 2", "input field 3"];
 
-    inject(function (_servedPolicyTemplate_) {
-      fakeCubeTemplate = _servedPolicyTemplate_.cube;
+    inject(function (_templatePolicy_) {
+      fakeCubeTemplate = _templatePolicy_.cube;
     });
 
     ctrl = $controller('NewOperatorModalCtrl', {
@@ -24,18 +29,28 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
       'operatorType': fakeOperatorType,
       'operators': fakeOperators,
       'UtilsService': UtilsServiceMock,
-      'template': fakeCubeTemplate
+      'template': fakeCubeTemplate,
+      'inputFieldList': fakeInputFieldList
     });
 
+    spyOn(document, "querySelector").and.callFake(function () {
+      return {"focus": jasmine.createSpy()}
+    });
   }));
 
-  it("when it is initialized it creates a operator with the injected params and a default configuration", function () {
-    expect(ctrl.operator.name).toBe(fakeOperatorName);
-    expect(ctrl.operator.configuration).toEqual(fakeCubeTemplate.defaultOperatorConfiguration);
-    expect(ctrl.operator.type).toBe(fakeOperatorType);
-    expect(ctrl.configHelpLink).toBe(fakeCubeTemplate.configurationHelpLink);
-    expect(ctrl.error).toBeFalsy();
-    expect(ctrl.errorText).toBe("");
+  describe("when it is initialized", function () {
+    it("it creates a operator with the injected params", function () {
+      expect(ctrl.operator.name).toBe(fakeOperatorName);
+      expect(ctrl.operator.configuration).toEqual({});
+      expect(ctrl.operator.type).toBe(fakeOperatorType);
+      expect(ctrl.configHelpLink).toBe(fakeCubeTemplate.configurationHelpLink);
+      expect(ctrl.error).toBeFalsy();
+      expect(ctrl.nameError).toBe("");
+    });
+
+    it("it generates an option list of input fields", function () {
+      expect(ctrl.inputFieldList).toBe(fakeOptionList);
+    });
   });
 
   describe("should be able to accept the modal", function () {
@@ -50,7 +65,7 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
 
           ctrl.ok();
 
-          expect(ctrl.errorText).toBe("");
+          expect(ctrl.nameError).toBe("");
         });
 
         it("name is invalid if there is another operator with irs name", function () {
@@ -58,10 +73,22 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
 
           ctrl.ok();
 
-          expect(ctrl.errorText).toBe("_POLICY_._CUBE_._OPERATOR_NAME_EXISTS_");
+          expect(ctrl.nameError).toBe("_POLICY_._CUBE_._OPERATOR_NAME_EXISTS_");
         })
 
       });
+
+      it("input field is cleaned if it is empty", function(){
+        ctrl.operator.configuration.inputField = fakeInputFieldList[0].value;
+        ctrl.ok();
+
+        expect(ctrl.operator.configuration.inputField).toEqual(fakeInputFieldList[0].value);
+
+        ctrl.operator.configuration.inputField = "";
+        ctrl.ok();
+
+        expect(ctrl.operator.configuration.inputField).toBeUndefined();
+      })
     });
   });
 
@@ -70,4 +97,12 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
 
     expect(modalInstanceMock.dismiss).toHaveBeenCalledWith('cancel');
   });
+
+  it("should return if a operator is a count", function () {
+   ctrl.operator.type = 'avg';
+    expect(ctrl.isCount()).toBeFalsy();
+
+    ctrl.operator.type = 'Count';
+    expect(ctrl.isCount()).toBeTruthy();
+  })
 });

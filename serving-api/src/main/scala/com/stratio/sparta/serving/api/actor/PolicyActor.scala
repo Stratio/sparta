@@ -13,37 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.actor
 
-import java.io.File
 import java.util.UUID
+import scala.collection.JavaConversions
+import scala.util.Try
 
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.driver.util.HdfsUtils
+import org.apache.curator.framework.CuratorFramework
+import org.apache.zookeeper.KeeperException.NoNodeException
+import org.json4s.jackson.Serialization.write
+
 import com.stratio.sparta.serving.api.constants.ActorsConstant
-import com.stratio.sparta.serving.core.{CuratorFactoryHolder, SpartaConfig}
+import com.stratio.sparta.serving.api.utils.PolicyUtils
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.dao.ConfigDAO
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
-import com.typesafe.config.ConfigFactory
-import org.apache.commons.io.FileUtils
-import org.apache.curator.framework.CuratorFramework
-import org.apache.zookeeper.KeeperException.NoNodeException
-import org.json4s.jackson.Serialization.{read, write}
-
-import scala.collection.JavaConversions
-import scala.util.{Failure, Success, Try}
-
 
 /**
  * Implementation of supported CRUD operations over ZK needed to manage policies.
  */
 class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRef)
   extends Actor
-  with SpartaSerializer {
+    with SpartaSerializer
+    with PolicyUtils {
 
   import PolicyActor._
 
@@ -61,7 +57,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
     sender ! ResponsePolicies(Try({
       val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
       JavaConversions.asScalaBuffer(children).toList.map(element =>
-        byId(element)).toSeq
+        byId(element, curatorFramework)).toSeq
     }).recover {
       case e: NoNodeException => Seq()
     })
@@ -70,7 +66,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
     sender ! ResponsePolicies(Try({
       val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
       JavaConversions.asScalaBuffer(children).toList.map(element =>
-        byId(element)).filter(apm =>
+        byId(element, curatorFramework)).filter(apm =>
         apm.fragments.exists(f => f.id.get == id)).toSeq
     }).recover {
       case e: NoNodeException => Seq()
@@ -78,21 +74,18 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
 
   def find(id: String): Unit =
     sender ! new ResponsePolicy(Try({
-      byId(id)
+      byId(id, curatorFramework)
     }).recover {
       case e: NoNodeException => throw new ServingCoreException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy with id $id.")
       ))
     })
 
-  private def byId(id: String): AggregationPoliciesModel = read[AggregationPoliciesModel](
-    new Predef.String(curatorFramework.getData.forPath(s"${AppConstant.PoliciesBasePath}/$id")))
-
   def findByName(name: String): Unit =
     sender ! ResponsePolicy(Try({
       val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
       JavaConversions.asScalaBuffer(children).toList.map(element =>
-        byId(element)).filter(policy => policy.name == name).head
+        byId(element, curatorFramework)).filter(policy => policy.name == name).head
     }).recover {
       case e: NoNodeException => throw new ServingCoreException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsPolicyWithName, s"No policy with name $name.")
@@ -108,7 +101,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
 
   def create(policy: AggregationPoliciesModel): Unit =
     sender ! ResponsePolicy(Try({
-      val searchPolicy = existsByNameId(policy.name)
+      val searchPolicy = existsByNameId(policy.name, None, curatorFramework)
       if (searchPolicy.isDefined) {
         throw new ServingCoreException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeExistsPolicyWithName,
@@ -128,7 +121,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
 
   def update(policy: AggregationPoliciesModel): Unit = {
     sender ! Response(Try({
-      val searchPolicy = existsByNameId(policy.name, policy.id)
+      val searchPolicy = existsByNameId(policy.name, policy.id, curatorFramework)
       if (searchPolicy.isEmpty) {
         throw new ServingCoreException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeExistsPolicyWithName,
@@ -150,17 +143,8 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
 
   def delete(id: String): Unit =
     sender ! Response(Try({
-      val policyModel = byId(id)
-      Try {
-        if (SpartaConfig.getDetailConfig.get.getString(AppConstant.ExecutionMode) == "local") {
-          FileUtils.deleteDirectory(new File(policyModel.checkpointPath))
-        } else {
-          deleteCheckpointPath(policyModel)
-        }
-      } match {
-        case Failure(ex) => log.info(s"No checkpoint path for policy ${policyModel.name}")
-        case _ => log.info(s"Deleted checkpoint path ${policyModel.checkpointPath}")
-      }
+      val policyModel = byId(id, curatorFramework)
+      deleteCheckpointPath(policyModel)
       curatorFramework.delete().forPath(s"${AppConstant.PoliciesBasePath}/$id")
     }).recover {
       case e: NoNodeException => throw new ServingCoreException(ErrorModel.toString(
@@ -168,34 +152,6 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
           s"No policy with id $id.")
       ))
     })
-
-  def existsByNameId(name: String, id: Option[String] = None): Option[AggregationPoliciesModel] = {
-    val nameToCompare = name.toLowerCase
-    Try({
-      val basePath = s"${AppConstant.PoliciesBasePath}"
-      if (CuratorFactoryHolder.existsPath(basePath)) {
-        val children = curatorFramework.getChildren.forPath(basePath)
-        JavaConversions.asScalaBuffer(children).toList.map(element =>
-          read[AggregationPoliciesModel](new String(curatorFramework.getData.forPath(s"$basePath/$element"))))
-          .find(policy => if (id.isDefined) policy.id.get == id.get else policy.name == nameToCompare)
-      } else None
-    }) match {
-      case Success(result) => result
-      case Failure(exception) => {
-        log.error(exception.getLocalizedMessage, exception)
-        None
-      }
-    }
-  }
-
-  def setVersion(lastPolicy: AggregationPoliciesModel, newPolicy: AggregationPoliciesModel): Option[Int] = {
-    if (lastPolicy.cubes != newPolicy.cubes) {
-      lastPolicy.version match {
-        case Some(version) => Some(version + ActorsConstant.UnitVersion)
-        case None => Some(ActorsConstant.UnitVersion)
-      }
-    } else lastPolicy.version
-  }
 }
 
 object PolicyActor extends SLF4JLogging {
@@ -220,24 +176,4 @@ object PolicyActor extends SLF4JLogging {
 
   case class ResponsePolicy(policy: Try[AggregationPoliciesModel])
 
-  def deleteCheckpointPath(policy: AggregationPoliciesModel): Unit = {
-    Try {
-      if (!isLocalMode || checkpointGoesToHDFS(policy)) {
-        HdfsUtils(SpartaConfig.getHdfsConfig.get).delete(AggregationPoliciesModel.checkpointPath(policy))
-      } else {
-        FileUtils.deleteDirectory(new File(AggregationPoliciesModel.checkpointPath(policy)))
-      }
-    } match {
-      case Success(_) => log.info(s"Checkpoint deleted in folder: ${AggregationPoliciesModel.checkpointPath(policy)}")
-      case Failure(ex) => log.error("Cannot delete checkpoint folder", ex)
-    }
-  }
-
-  def checkpointGoesToHDFS(policy: AggregationPoliciesModel): Boolean = {
-    policy.checkpointPath.startsWith("hdfs://")
-  }
-
-  def isLocalMode: Boolean = {
-    SpartaConfig.getDetailConfig.get.getString(AppConstant.ExecutionMode).equalsIgnoreCase("local")
-  }
 }

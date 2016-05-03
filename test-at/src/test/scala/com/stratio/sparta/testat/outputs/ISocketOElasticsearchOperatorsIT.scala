@@ -72,6 +72,7 @@ class ISocketOElasticsearchOperatorsIT extends SpartaATSuite {
       productA("acc_price") should be(
         Seq("10", "500", "1000", "500", "1000", "500", "1002", "600"))
       productA("avg_price") should be(639.0d)
+      productA("avg_associative_price").asInstanceOf[Map[String, Double]].get("mean").get should be(639.0d)
       productA("sum_price") should be(5112.0d)
       productA("count_price") should be(NumEventsExpected)
       productA("first_price") should be("10")
@@ -90,6 +91,7 @@ class ISocketOElasticsearchOperatorsIT extends SpartaATSuite {
       productB("acc_price") should be(
         Seq("15", "1000", "1000", "1000", "1000", "1000", "1001", "50"))
       productB("avg_price") should be(758.25d)
+      productB("avg_associative_price").asInstanceOf[Map[String, Double]].get("mean").get should be(758.25d)
       productB("sum_price") should be(6066.0d)
       productB("count_price") should be(NumEventsExpected)
       productB("first_price") should be("15")

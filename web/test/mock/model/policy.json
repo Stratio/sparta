@@ -1,0 +1,79 @@
+{
+  "id": "2581f20a-fd83-4315-be45-192bc5sEdFff",
+  "name": "fake policy",
+  "sparkStreamingWindowNumber": 1,
+  "sparkStreamingWindowTime": "s",
+  "rememberNumber": 2,
+  "rememberTime": "d",
+  "rawDataEnabled": true,
+  "rawDataPath": "/fake/path",
+  "input": {
+    "description": "Reads events from RabbitMQ",
+    "element": {
+      "configuration": {
+        "queue": "",
+        "host": "localhost",
+        "port": "5672",
+        "exchangeName": "",
+        "routingKeys": [
+          {
+            "routingKey": ""
+          }
+        ]
+      },
+      "type": "RabbitMQ",
+      "name": "in-RabbitMQ"
+    },
+    "fragmentType": "input",
+    "shortDescription": "Reads events from RabbitMQ",
+    "name": "test_input_rabbitmq",
+    "id": "2581f20a-av83-4315-be45-192bc5sEdFff"
+  },
+  "cubes": [
+    {
+      "name": "cube1",
+      "dimensions": [
+        {
+          "name": "response",
+          "field": "response",
+          "precision": "identity",
+          "type": "Default"
+        }
+      ],
+      "operators": [
+        {
+          "type": "Count",
+          "name": "count1",
+          "configuration": {}
+        }
+      ],
+      "writer.outputs":[ "test_output_cassandra"],
+      "writer.dateType": "timestamp",
+      "writer.isAutoCalculatedId": false,
+      "writer.fixedMeasureName": "key",
+      "writer.fixedMeasureValue": "value",
+      "triggers": [
+        {
+          "name": "CUBE TRIGGER",
+          "sql": "SELECT * FROM STREAM",
+          "outputs": [
+            "test_output_redis"
+          ],
+          "primaryKey": [],
+          "configuration": {}
+        }
+      ]
+    }
+  ],
+  "transformations": [],
+  "streamTriggers": [{
+    "name": "stream trigger",
+    "sql": "SELECT * FROM STREAM",
+    "outputs": ["test_output_elasticsearch"],
+    "overLastNumber": 6,
+    "overLastTime": "s",
+    "primaryKey": [],
+    "configuration": {}
+  }]
+}
+

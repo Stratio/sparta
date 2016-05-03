@@ -17,13 +17,14 @@ package com.stratio.sparta.plugin.parser.ingestion
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.Parser
+import com.stratio.sparta.sdk.{TypeOp, Parser}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 
 import scala.annotation.tailrec
 import scala.util.Try
 import scala.util.parsing.json.JSON
+import com.stratio.sparta.sdk.TypeOp
 
 class IngestionParser(order: Integer,
                       inputField: String,
@@ -34,12 +35,12 @@ class IngestionParser(order: Integer,
 
   override def parse(data: Row, removeRaw: Boolean): Row = {
     val input = data.get(schema.fieldIndex(inputField))
-    JSON.globalNumberParser = { input: String => (input).toLong }
+    JSON.globalNumberParser = { input: String => input.toLong }
     val rawData = Try(input.asInstanceOf[String]).getOrElse(new String(input.asInstanceOf[Array[Byte]]))
-    val ingestionModel = JSON.parseFull(rawData).get.asInstanceOf[Map[String, JSerializable]]
+    val ingestionModel = JSON.parseFull(rawData).get.asInstanceOf[Map[String, Any]]
     val columnList = ingestionModel.get("columns").get.asInstanceOf[List[Map[String, String]]]
     val columnPairs = extractColumnPairs(columnList)
-    val (_, allParsedPairs) = parseWithSchema(columnPairs, List.empty[(String, JSerializable)])
+    val (_, allParsedPairs) = parseWithSchema(columnPairs, List.empty[(String, Any)])
     val filteredParsedPairs = allParsedPairs.filter(element => outputFields.contains(element._1))
     val prevData = if(removeRaw) data.toSeq.drop(1) else data.toSeq
 
@@ -57,8 +58,7 @@ class IngestionParser(order: Integer,
   }
 
   @tailrec
-  private def extractColumnPairElement(columnList: List[Map[String, String]],
-                                       result: List[(String, String)])
+  private def extractColumnPairElement(columnList: List[Map[String, String]], result: List[(String, String)])
   : (List[Map[String, String]], List[(String, String)]) = {
     if (columnList.isEmpty) {
       (columnList, result)
@@ -73,8 +73,8 @@ class IngestionParser(order: Integer,
 
   @tailrec
   private def parseWithSchema(elementList: List[(String, String)],
-                              currentMap: List[(String, JSerializable)])
-  : (List[(String, JSerializable)], List[(String, JSerializable)]) = {
+                              currentMap: List[(String, Any)])
+  : (List[(String, Any)], List[(String, Any)]) = {
     if (elementList.isEmpty) {
       (elementList, currentMap.reverse)
     } else {
@@ -85,30 +85,13 @@ class IngestionParser(order: Integer,
     }
   }
 
-  private def parseElementWithSchema(element: (String, JSerializable)): List[(String, JSerializable)] = {
+  private def parseElementWithSchema(element: (String, JSerializable)): List[(String, Any)] = {
     val key = element._1
     val value = element._2.toString
+    val outputValue = outputFieldsSchema.find(field => field.name == key)
+    val transformedValue = outputValue.map( outValue =>
+      TypeOp.transformValueByTypeOp(outValue.dataType, value.asInstanceOf[Any]))
 
-    val dataType: Option[String] =
-      properties.get(key)
-        .map(_.toString.toLowerCase)
-
-    val list = dataType match {
-      case Some("long") =>
-        List((key, value.toLong))
-      case Some("int") | Some("integer") =>
-        List((key, value.toInt))
-      case Some("string") =>
-        List((key, value))
-      case Some("float") =>
-        List((key, value.toFloat))
-      case Some("double") =>
-        List((key, value.toDouble))
-      case None =>
-        List.empty[(String, JSerializable)]
-      case _ => throw new NoSuchElementException(s"The dataType $dataType does not exists in the schema.")
-    }
-
-    list.map{ case (x, y) => (x, y.asInstanceOf[JSerializable])}
+    transformedValue.fold(List.empty[(String, Any)]) {tValue => List((key, tValue))}
   }
 }

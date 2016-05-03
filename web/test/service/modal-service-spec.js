@@ -14,51 +14,86 @@
  * limitations under the License.
  */
 describe('modal-service', function () {
-    beforeEach(module('webApp'));
-    var service, $modalMock, utilsServiceMock = null;
-    beforeEach(module(function ($provide) {
-        $modalMock = jasmine.createSpyObj('$modal', ['open']);
-        utilsServiceMock = jasmine.createSpyObj('UtilsService', ['getInCamelCase']);
-        // inject mocks
-        $provide.value('$modal', $modalMock);
-        $provide.value('UtilsService', utilsServiceMock);
-    }));
+  beforeEach(module('webApp'));
+  var service, $modalMock, utilsServiceMock, resolvedModal = null;
+  beforeEach(module(function ($provide) {
+    $modalMock = jasmine.createSpyObj('$modal', ['open']);
 
-    beforeEach(inject(function (ModalService) {
-        service = ModalService;
-    }));
 
-    describe("should be able to open a modal by a introduced template", function () {
-        var fakeTemplate = {modalType: "fake modal type", properties:function(){[]}};
+    utilsServiceMock = jasmine.createSpyObj('UtilsService', ['getInCamelCase']);
+    // inject mocks
+    $provide.value('$modal', $modalMock);
+    $provide.value('UtilsService', utilsServiceMock);
+  }));
 
-        beforeEach(function () {
-            spyOn(service, "openModal");
-            $modalMock.open.calls.reset();
-        });
+  beforeEach(inject(function (ModalService, $q) {
+    resolvedModal = function () {
+      var defer = $q.defer();
+      defer.resolve();
 
-        it("if template is null or undefined, it does not open any modal", function () {
-            service.openModalByTemplate();
+      return {"result": defer.promise};
+    };
+    $modalMock.open.and.callFake(resolvedModal);
+    service = ModalService;
+  }));
 
-            expect(service.openModal).not.toHaveBeenCalled();
-        });
+  describe("should be able to open a modal by a introduced template", function () {
+    var fakeTemplate = {
+      modalType: "fake modal type", properties: function () {
+        []
+      }
+    };
 
-        describe("if template is valid", function () {
-            it("modal is open with data of template", function () {
-                utilsServiceMock.getInCamelCase.and.callFake(function (string) {
-                    return string
-                });
-
-                service.openModalByTemplate(fakeTemplate);
-
-                var controller = fakeTemplate.modalType + "ModalCtrl as vm";
-                var templateUrl = "templates/modal/" + fakeTemplate.modalType + "-modal.tpl.html";
-                var openModalArgs = $modalMock.open.calls.mostRecent().args[0];
-
-                expect(openModalArgs.templateUrl).toEqual(templateUrl);
-                expect(openModalArgs.controller).toEqual(controller);
-                expect(openModalArgs.resolve.propertiesTemplate()).toEqual(fakeTemplate.properties);
-            });
-        })
+    beforeEach(function () {
+      spyOn(service, "openModal");
+      $modalMock.open.calls.reset();
     });
+
+    it("if template is null or undefined, it does not open any modal", function () {
+      service.openModalByTemplate();
+
+      expect(service.openModal).not.toHaveBeenCalled();
+    });
+
+    describe("if template is valid", function () {
+      it("modal is open with data of template", function () {
+        utilsServiceMock.getInCamelCase.and.callFake(function (string) {
+          return string
+        });
+        var fakeMode = "edition";
+        var fakeItemConfiguration = {"fakeAttribute": "fake value"};
+        service.openModalByTemplate(fakeTemplate, fakeMode, fakeItemConfiguration);
+
+        var controller = fakeTemplate.modalType + "ModalCtrl as vm";
+        var templateUrl = "templates/modal/" + fakeTemplate.modalType + "-modal.tpl.html";
+        var openModalArgs = $modalMock.open.calls.mostRecent().args[0];
+
+        expect(openModalArgs.templateUrl).toEqual(templateUrl);
+        expect(openModalArgs.controller).toEqual(controller);
+        expect(openModalArgs.resolve.propertiesTemplate()).toEqual(fakeTemplate.properties);
+        expect(openModalArgs.resolve.mode()).toEqual(fakeMode);
+        expect(openModalArgs.resolve.configuration()).toEqual(fakeItemConfiguration);
+      });
+    })
+  });
+
+
+  it("should be able to open a confirmation modal rendering data introduced", function () {
+    var fakeTitle = "fake title";
+    var question = "fake question";
+    var message = "fake message";
+    $modalMock.open.calls.reset();
+    service.showConfirmDialog(fakeTitle, question, message);
+
+    var controller = "ConfirmModalCtrl as vm";
+    var templateUrl = "templates/modal/confirm-modal.tpl.html";
+    var openModalArgs = $modalMock.open.calls.mostRecent().args[0];
+
+    expect(openModalArgs.templateUrl).toEqual(templateUrl);
+    expect(openModalArgs.controller).toEqual(controller);
+    expect(openModalArgs.resolve.title()).toEqual(fakeTitle);
+    expect(openModalArgs.resolve.question()).toEqual(question);
+    expect(openModalArgs.resolve.message()).toEqual(message);
+  });
 
 });

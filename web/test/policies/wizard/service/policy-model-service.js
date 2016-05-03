@@ -1,19 +1,19 @@
 describe('policies.wizard.service.policy-model-service', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/policy.json'));
-  beforeEach(module('served/model.json'));
+  beforeEach(module('model/policy.json'));
+  beforeEach(module('model/transformation.json'));
 
   var service, q, rootScope, httpBackend, translate, ModalServiceMock, PolicyModelFactoryMock, ModelFactoryMock, CubeServiceMock,
-    UtilsServiceMock,
-    fakeModel, fakePolicy = null;
+    UtilsServiceMock,wizardStatusServiceMock, resolvedPromiseFunction,  fakeModel, fakePolicy = null;
 
-  var resolvedPromiseFunction = function () {
+  resolvedPromiseFunction = function () {
     var defer = $q.defer();
     defer.resolve();
     return defer.promise;
-  }
+  };
 
   beforeEach(module(function ($provide) {
+    wizardStatusServiceMock = jasmine.createSpyObj('WizardStatusService', ['enableNextStep', 'disableNextStep']);
     ModalServiceMock = jasmine.createSpyObj('ModalService', ['openModal']);
     PolicyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'enableNextStep', 'disableNextStep']);
     ModelFactoryMock = jasmine.createSpyObj('ModelFactory', ['getModel', 'isValidModel', 'resetModel', 'getContext']);
@@ -23,6 +23,7 @@ describe('policies.wizard.service.policy-model-service', function () {
     PolicyModelFactoryMock.getCurrentPolicy.and.returnValue(fakePolicy);
 
     // inject mocks
+    $provide.value('WizardStatusService', wizardStatusServiceMock);
     $provide.value('ModalService', ModalServiceMock);
     $provide.value('PolicyModelFactory', PolicyModelFactoryMock);
     $provide.value('ModelFactory', ModelFactoryMock);
@@ -30,9 +31,9 @@ describe('policies.wizard.service.policy-model-service', function () {
     $provide.value('UtilsService', UtilsServiceMock);
   }));
 
-  beforeEach(inject(function (_servedModel_, _servedPolicy_, _ModelService_, $q, $rootScope, $httpBackend, $translate) {
-    fakeModel = _servedModel_;
-    fakePolicy = _servedPolicy_;
+  beforeEach(inject(function (_modelTransformation_, _modelPolicy_, _ModelService_, $q, $rootScope, $httpBackend, $translate) {
+    fakeModel = _modelTransformation_;
+    fakePolicy =  angular.copy(_modelPolicy_);
 
     service = _ModelService_;
     translate = $translate;
@@ -117,13 +118,7 @@ describe('policies.wizard.service.policy-model-service', function () {
         expect(service.policy.transformations[0].name).toEqual(fakeModel.name);
         expect(service.policy.transformations[0].order).toEqual(fakeModel.order);
       });
-
-      it("next step is enabled", function () {
-        expect(PolicyModelFactoryMock.enableNextStep).toHaveBeenCalled();
-      });
-
     });
-
   });
 
   describe("should be able to remove the model of the factory", function () {
@@ -159,15 +154,6 @@ describe('policies.wizard.service.policy-model-service', function () {
         expect(UtilsServiceMock.removeItemsFromArray).toHaveBeenCalledWith(cubesBefore, fakeFoundCubes.positions);
       });
     });
-
-    it("should disable next step if model list is empty after removing a model", function () {
-      service.policy.transformations = [];
-      service.policy.transformations.push(fakeModel);
-      service.removeModel().then(function () {
-        expect(PolicyModelFactoryMock.disableNextStep).toHaveBeenCalled();
-      });
-    });
-
   });
   it("should be able to return if a model is the last model in the model array by its position", function () {
     service.policy.transformations = [];
@@ -195,7 +181,7 @@ describe('policies.wizard.service.policy-model-service', function () {
   describe("should be able to activate the panel to create a new model", function () {
     var modelLength = null;
     beforeEach(function () {
-      modelLength =fakePolicy.transformations.length;
+      modelLength = fakePolicy.transformations.length;
       service.activateModelCreationPanel();
     });
 

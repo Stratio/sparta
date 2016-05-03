@@ -94,7 +94,13 @@
         },
         {
           "name": "avg_price",
-          "type": "Avg",
+          "type": "Mean",
+          "configuration": {
+            "inputField": "price"
+          }
+        }, {
+          "name": "avg_associative_price",
+          "type": "MeanAssociative",
           "configuration": {
             "inputField": "price"
           }
@@ -217,10 +223,16 @@
           "configuration": {
             "inputField": "price"
           }
+        }, {
+          "name": "avg_associative_price",
+          "type": "MeanAssociative",
+          "configuration": {
+            "inputField": "price"
+          }
         },
         {
           "name": "avg_price",
-          "type": "Avg",
+          "type": "Mean",
           "configuration": {
             "inputField": "price"
           }

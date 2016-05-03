@@ -8,7 +8,7 @@ Feature: Test adding a new Kafka input in Sparta GUI
 	Scenario: Try to add a new input
 		Given I browse to '/#/dashboard/inputs'
 		Then I wait '1' second
-		Then '1' element exists with 'css:button[data-qa="inputs-new-button"]'
+		Then '1' element exists with 'css:div[data-qa="input-first-message"]' 
 		When I click on the element on index '0'
 		Then I wait '1' second
 		And '1' element exists with 'css:aside[data-qa="fragment-details-modal"]'
@@ -37,11 +37,11 @@ Feature: Test adding a new Kafka input in Sparta GUI
 		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'	
 		
 		# Try to add new Host-Port pair
-		Given '1' element exists with 'css:i[data-qa="fragment-details-kafka-zookeeper-connect-plus-0"]'
+		Given '1' element exists with 'css:i[data-qa="fragment-details-kafka-zookeeper-connect-plus-1"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:input[data-qa="fragment-details-kafka-host-1"]'
 		And '1' element exists with 'css:input[data-qa="fragment-details-kafka-port-1"]'
-		And '2' elements exist with 'css:i[data-qa^="fragment-details-kafka-zookeeper-connect-plus"]'
+		And '1' elements exist with 'css:i[data-qa^="fragment-details-kafka-zookeeper-connect-plus"]'
 		And '2' elements exist with 'css:i[data-qa^="fragment-details-kafka-zookeeper-connect-minus"]'
 		Then I wait '2' seconds
 		When I click on the element on index '1'
@@ -49,11 +49,11 @@ Feature: Test adding a new Kafka input in Sparta GUI
 		And '0' elements exist with 'css:input[data-qa="fragment-details-kafka-port-1"]'
 		
 		# Try to add new Topic-Partitions pair
-		Given '1' element exists with 'css:i[data-qa="fragment-details-kafka-topics-plus-0"]'
+		Given '1' element exists with 'css:i[data-qa="fragment-details-kafka-topics-plus-1"]'
 		When I click on the element on index '0'
 		Then '1' element exists with 'css:input[data-qa="fragment-details-kafka-topic-1"]'
 		And '1' element exists with 'css:input[data-qa="fragment-details-kafka-partition-1"]'
-		And '2' elements exist with 'css:i[data-qa^="fragment-details-kafka-topics-plus"]'
+		And '1' elements exist with 'css:i[data-qa^="fragment-details-kafka-topics-plus"]'
 		And '2' elements exist with 'css:i[data-qa^="fragment-details-kafka-topics-minus"]'
 		Then I wait '2' seconds
 		When I click on the element on index '1'
@@ -124,7 +124,7 @@ Feature: Test adding a new Kafka input in Sparta GUI
 		Then '1' element exists with 'css:span[data-qa="input-context-menu-!{previousFragmentID}"]'
 				
 		# Add same input fragment
-		Then '1' element exists with 'css:button[data-qa="inputs-new-button"]'
+		Then '1' element exists with 'css:button[data-qa="input-filter-new-input"]'
 		When I click on the element on index '0'
 		Then I wait '1' second
 		And '1' element exists with 'css:aside[data-qa="fragment-details-modal"]'
@@ -144,7 +144,8 @@ Feature: Test adding a new Kafka input in Sparta GUI
 		# Create
 		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
 		When I click on the element on index '0'
-		Then '1' element exists with 'css:span[translate="_INPUT_ERROR_100_"]'
+		Then '1' element exists with 'css:span[translate="_ERROR_._100_"]'
+                And a text 'There was an error. The name of the fragment already exists!' exists
 				
 		# Cancel operation
 		Given '1' element exists with 'css:button[data-qa="modal-cancel-button"]'

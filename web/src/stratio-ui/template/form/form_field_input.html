@@ -9,7 +9,7 @@
                 <i data-ng-if="help" class="c-icon icon-help2 c-icon--is-clickable c-icon--in-label" data-ng-click="focusOnInput()" data-qa="{{helpQa}}"></i>
             </label>
         </span>
-        <input ng-attr-id="{{name}}" name="{{name}}" class="c-col c-col--12 c-input" data-ng-class="{'c-input__outputField': outputField}" type="{{type}}" data-ng-model="model" data-ng-required="required" data-ng-disabled="disabled" data-ng-pattern="pattern" data-ng-minlength="minlength" maxlength="{{maxlength}}" min="{{min}}" max="{{max}}" step="{{step}}" data-ng-blur="isFocused=false" data-st-match="match" ng-trim="{{type !== 'password' && stTrim}}" placeholder="{{placeholder}}" data-qa="{{qa}}" tooltip='{{help}}' tooltip-class="tooltip--bottom" tooltip-trigger="focus" tooltip-placement="bottom" data-ng-focus="mouseleaveTooltip()"/>
+        <input ng-attr-id="{{name}}" name="{{name}}" class="c-col c-col--12 c-input" data-ng-class="{'c-input__outputField': outputField}" type="{{type}}" data-ng-model="model" data-ng-required="required" data-ng-disabled="disabled" data-ng-pattern="pattern" data-ng-minlength="minlength" maxlength="{{maxlength}}" min="{{min}}" max="{{max}}" step="{{step}}" data-ng-blur="isFocused=false" data-st-match="match" ng-trim="{{type !== 'password' && stTrim}}" placeholder="{{placeholder}}" data-qa="{{qa}}" tooltip='{{help}}' tooltip-class="tooltip--bottom" tooltip-trigger="focus" tooltip-placement="bottom" data-ng-focus="mouseLeaveTooltip()"/>
         <span class="c-arrow-label c-arrow-label__form" data-ng-if="outputField">
             {{'_FIELD_' | translate}}
         </span>

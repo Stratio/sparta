@@ -20,35 +20,45 @@
     .module('webApp')
     .service('CubeService', CubeService);
 
-  CubeService.$inject = ['PolicyModelFactory', 'ModalService', 'CubeModelFactory', 'UtilsService', '$q'];
+  CubeService.$inject = ['WizardStatusService','PolicyModelFactory', 'ModalService', 'CubeModelFactory', 'UtilsService', '$q'];
 
-  function CubeService(PolicyModelFactory, ModalService, CubeModelFactory,  UtilsService, $q) {
+  function CubeService(WizardStatusService,PolicyModelFactory, ModalService, CubeModelFactory,  UtilsService, $q) {
     var vm = this;
-    var createdCubes, showCubeCreationPanel = null;
+    var createdCubes = null;
+    var cubeCreationStatus = {};
 
     vm.findCubesUsingOutputs = findCubesUsingOutputs;
-    vm.areValidCubes = areValidCubes;
     vm.showConfirmRemoveCube = showConfirmRemoveCube;
     vm.addCube = addCube;
     vm.saveCube = saveCube;
     vm.removeCube = removeCube;
     vm.isNewCube = isNewCube;
+    vm.getCubeCreationStatus = getCubeCreationStatus;
     vm.getCreatedCubes = getCreatedCubes;
     vm.resetCreatedCubes = resetCreatedCubes;
     vm.changeCubeCreationPanelVisibility = changeCubeCreationPanelVisibility;
     vm.isActiveCubeCreationPanel = isActiveCubeCreationPanel;
     vm.activateCubeCreationPanel = activateCubeCreationPanel;
+    vm.disableCubeCreationPanel = disableCubeCreationPanel;
 
     init();
 
     function init() {
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       createdCubes = vm.policy.cubes.length;
-      showCubeCreationPanel = true;
+      cubeCreationStatus.enabled = false;
     }
 
     function activateCubeCreationPanel() {
-      showCubeCreationPanel = true;
+      cubeCreationStatus.enabled  = true;
+    }
+
+    function disableCubeCreationPanel() {
+      cubeCreationStatus.enabled  = false;
+    }
+
+    function getCubeCreationStatus(){
+      return cubeCreationStatus;
     }
 
     function showConfirmRemoveCube() {
@@ -64,7 +74,7 @@
           return message
         }
       };
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve);
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, "", "lg");
 
       modalInstance.result.then(function () {
         defer.resolve();
@@ -109,33 +119,15 @@
       return found;
     }
 
-    function areValidCubes() {
-      var valid = true;
-      var i = 0;
-      var currentCube = null;
-      if (vm.policy.cubes.length > 0) {
-        while (valid && i < vm.policy.cubes.length) {
-          currentCube = vm.policy.cubes[i];
-
-          if (!CubeModelFactory.isValidCube(currentCube, vm.policy.cubes, i)) {
-            valid = false;
-          } else {
-            ++i;
-          }
-        }
-      } else {
-        valid = false;
-      }
-      return valid;
-    }
-
-    function addCube() {
+    function addCube(cubeForm) {
       var newCube = angular.copy(CubeModelFactory.getCube());
-      newCube = UtilsService.convertDottedPropertiesToJson(newCube);
-      if (CubeModelFactory.isValidCube(newCube, vm.policy.cubes, CubeModelFactory.getContext().position)) {
+      if (CubeModelFactory.isValidCube(newCube, vm.policy.cubes, CubeModelFactory.getContext().position, PolicyModelFactory.getAllModelOutputs())) {
+
         vm.policy.cubes.push(newCube);
         createdCubes++;
-        PolicyModelFactory.enableNextStep();
+        WizardStatusService.enableNextStep();
+        changeCubeCreationPanelVisibility(false);
+        cubeForm.$submitted = false;
       } else {
         CubeModelFactory.setError();
       }
@@ -144,9 +136,11 @@
     function saveCube(cubeForm) {
       cubeForm.$submitted = true;
       var cube = angular.copy(CubeModelFactory.getCube());
-      if (CubeModelFactory.isValidCube(cube, vm.policy.cubes, CubeModelFactory.getContext().position)) {
+      if (CubeModelFactory.isValidCube(cube, vm.policy.cubes, CubeModelFactory.getContext().position, PolicyModelFactory.getAllModelOutputs())) {
         cubeForm.$submitted = false;
         vm.policy.cubes[CubeModelFactory.getContext().position] = cube;
+        changeCubeCreationPanelVisibility(false);
+        cubeForm.$submitted = false;
       } else {
         CubeModelFactory.setError();
       }
@@ -157,9 +151,7 @@
       var cubePosition = CubeModelFactory.getContext().position;
       showConfirmRemoveCube().then(function () {
         vm.policy.cubes.splice(cubePosition, 1);
-        if (vm.policy.cubes.length == 0) {
-          PolicyModelFactory.disableNextStep();
-        }
+        resetCreatedCubes();
         defer.resolve();
       }, function () {
         defer.reject()
@@ -176,11 +168,11 @@
     }
 
     function changeCubeCreationPanelVisibility(isVisible) {
-      showCubeCreationPanel = isVisible;
+      cubeCreationStatus.enabled  = isVisible;
     }
 
     function isActiveCubeCreationPanel() {
-      return showCubeCreationPanel;
+      return cubeCreationStatus.enabled;
     }
 
     function resetCreatedCubes() {

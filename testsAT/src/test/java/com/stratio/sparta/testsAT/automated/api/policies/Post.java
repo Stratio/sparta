@@ -18,7 +18,7 @@ package com.stratio.sparta.testsAT.automated.api.policies;
 import org.testng.annotations.Test;
 
 import com.stratio.cucumber.testng.CucumberRunner;
-import com.stratio.sparta.testsAT.utils.BaseTest;
+import com.stratio.tests.utils.BaseTest;
 
 import cucumber.api.CucumberOptions;
 

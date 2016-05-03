@@ -1,16 +1,16 @@
 describe('API.template-service', function () {
   beforeEach(module('webApp'));
-  beforeEach(module('served/inputTemplate.json'));
-  beforeEach(module('served/outputTemplate.json'));
-  beforeEach(module('served/policyTemplate.json'));
+  beforeEach(module('template/input.json'));
+  beforeEach(module('template/output.json'));
+  beforeEach(module('template/policy.json'));
 
   var srv, rootScope, httpBackend, fakeFragmentTemplateByTypeInput, fakeFragmentTemplateByTypeOutput, fakePolicyTemplate = null;
 
   beforeEach(
-    inject(function ($httpBackend, $resource, $rootScope,_servedInputTemplate_, _servedOutputTemplate_, _servedPolicyTemplate_, _ApiTemplateService_) {
-      fakeFragmentTemplateByTypeInput = _servedInputTemplate_;
-      fakeFragmentTemplateByTypeOutput = _servedOutputTemplate_;
-      fakePolicyTemplate = _servedPolicyTemplate_;
+    inject(function ($httpBackend, $resource, $rootScope,_templateInput_, _templateOutput_, _templatePolicy_, _ApiTemplateService_) {
+      fakeFragmentTemplateByTypeInput = _templateInput_;
+      fakeFragmentTemplateByTypeOutput = _templateOutput_;
+      fakePolicyTemplate = _templatePolicy_;
       rootScope = $rootScope;
       srv = _ApiTemplateService_;
       httpBackend = $httpBackend;

@@ -57,25 +57,27 @@ class ISocketOParquetOperatorsIT extends SpartaATSuite {
       val mapValues = df.map(row => Map(
         "product" -> row.getString(0),
         "acc_price" -> row.getSeq[String](1),
-        "avg_price" -> row.getDouble(2),
-        "count_price" -> row.getLong(3),
-        "first_price" -> row.getString(5),
-        "fulltext_price" -> row.getString(6),
-        "last_price" -> row.getString(7),
-        "max_price" -> row.getDouble(8),
-        "median_price" -> row.getDouble(9),
-        "min_price" -> row.getDouble(10),
-        "range_price" -> row.getDouble(12),
-        "stddev_price" -> row.getDouble(13),
-        "sum_price" -> row.getDouble(14),
-        "variance_price" -> row.getDouble(16),
-        "mode_price" -> row.getList(11).toArray(),
-        "entityCount_text" -> row.getMap(4),
-        "totalEntity_text" -> row.getInt(15)))
+        "avg_associative_price" -> row.getMap(2),
+        "avg_price" -> row.getDouble(3),
+        "count_price" -> row.getLong(4),
+        "entityCount_text" -> row.getMap(5),
+        "first_price" -> row.getString(6),
+        "fulltext_price" -> row.getString(7),
+        "last_price" -> row.getString(8),
+        "max_price" -> row.getDouble(9),
+        "median_price" -> row.getDouble(10),
+        "min_price" -> row.getDouble(11),
+        "range_price" -> row.getDouble(13),
+        "stddev_price" -> row.getDouble(14),
+        "sum_price" -> row.getDouble(15),
+        "variance_price" -> row.getDouble(17),
+        "mode_price" -> row.getList(12).toArray(),
+        "totalEntity_text" -> row.getInt(16)))
 
       val productA = mapValues.filter(value => value("product") == "producta").take(1)(0)
       productA("acc_price") should be(Seq("10", "500", "1000", "500", "1000", "500", "1002", "600"))
       productA("avg_price") should be(639.0d)
+      productA("avg_associative_price").asInstanceOf[Map[String, Double]].get("mean").get should be(639.0d)
       productA("sum_price") should be(5112.0d)
       productA("count_price") should be(NumEventsExpected)
       productA("first_price") should be("10")
@@ -93,6 +95,7 @@ class ISocketOParquetOperatorsIT extends SpartaATSuite {
       val productB = mapValues.filter(value => value("product") == "productb").take(1)(0)
       productB("acc_price") should be(Seq("15", "1000", "1000", "1000", "1000", "1000", "1001", "50"))
       productB("avg_price") should be(758.25d)
+      productB("avg_associative_price").asInstanceOf[Map[String, Double]].get("mean").get should be(758.25d)
       productB("sum_price") should be(6066.0d)
       productB("count_price") should be(NumEventsExpected)
       productB("first_price") should be("15")

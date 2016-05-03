@@ -20,6 +20,7 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.sdk.TypeOp._
 import com.stratio.sparta.sdk.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.WriteOp.WriteOp
+import org.apache.spark.Logging
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 import org.json4s.jackson.JsonMethods._
@@ -160,7 +161,7 @@ with Ordered[Operator] with TypeConversions {
     }
 }
 
-object Operator {
+object Operator extends Logging {
 
   final val ClassSuffix = "Operator"
   final val OldValuesKey = "old"
@@ -177,12 +178,10 @@ object Operator {
    * Serializable -> Number
    *
    */
-  def getNumberFromSerializable(value: Any): Option[Number] =
-    Try(value.asInstanceOf[String].toDouble.asInstanceOf[Number]) match {
-      case Success(number) => Some(number)
-      case Failure(ex) => Try(value.asInstanceOf[Number]) match {
-        case Success(number) => Some(number)
-        case Failure(ex) => None
+  def getNumberFromAny(value: Any): Number =
+    Try(TypeOp.transformValueByTypeOp(TypeOp.Double, value).asInstanceOf[Number]) match {
+      case Success(number) => number
+      case Failure(ex) => log.info(s"Impossible to parse as double number inside operator: ${value.toString}")
+        throw new Exception(ex.getMessage)
       }
-    }
 }

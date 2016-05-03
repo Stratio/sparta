@@ -1,0 +1,776 @@
+{
+  "basicSettings": [
+    {
+      "propertyId": "name",
+      "propertyName": "_NAME_",
+      "propertyType": "text",
+      "required": true,
+      "qa": "policy-name",
+      "col": 5
+    },
+    {
+      "propertyId": "description",
+      "propertyName": "_DESCRIPTION_",
+      "propertyType": "text",
+      "required": true,
+      "qa": "policy-description",
+      "col": 7
+    }
+  ],
+  "advancedSettings": [
+    {
+      "propertyId": "checkpointPath",
+      "propertyName": "_CHECKPOINT_PATH_",
+      "propertyType": "text",
+      "width": 12,
+      "required": true,
+      "default": "tmp/checkpoint",
+
+
+      "qa": "policy-checkpoint-path"
+    },
+    {
+      "propertyId": "sparkStreamingWindowNumber",
+      "propertyName": "_SPARK_STREAMING_WINDOW_",
+      "propertyType": "number",
+      "default": 6,
+      "width": 6,
+      "position": "left",
+      "required": true,
+      "qa": "policy-spark-streaming-window-sparkStreamingWindowNumber"
+    },
+    {
+      "propertyId": "sparkStreamingWindowTime",
+      "propertyName": "_WHITE_SPACE_",
+      "propertyType": "select",
+      "width": 6,
+      "position": "right",
+      "qa": "policy-spark-streaming-window-sparkStreamingWindowTime",
+      "default": "s",
+      "required": true,
+      "values": [
+        {
+          "label": "Milliseconds",
+          "value": "ms"
+        },
+        {
+          "label": "Seconds",
+          "value": "s"
+        },
+        {
+          "label": "Minutes",
+          "value": "m"
+        },
+        {
+          "label": "Hours",
+          "value": "h"
+        },
+        {
+          "label": "Days",
+          "value": "d"
+        }
+      ]
+    },
+    {
+      "propertyId": "storageLevel",
+      "propertyName": "_STORAGELEVEL_",
+      "propertyType": "select",
+      "required": true,
+      "default": "MEMORY_AND_DISK_SER",
+      "width": 6,
+      "position": "left",
+      "qa": "policy-storage-level",
+      "values": [
+        {
+          "label": "DISK_ONLY",
+          "value": "DISK_ONLY"
+        },
+        {
+          "label": "DISK_ONLY_2",
+          "value": "DISK_ONLY_2"
+        },
+        {
+          "label": "MEMORY_ONLY",
+          "value": "MEMORY_ONLY"
+        },
+        {
+          "label": "MEMORY_ONLY_2",
+          "value": "MEMORY_ONLY_2"
+        },
+        {
+          "label": "MEMORY_ONLY_SER",
+          "value": "MEMORY_ONLY_SER"
+        },
+        {
+          "label": "MEMORY_ONLY_SER_2",
+          "value": "MEMORY_ONLY_SER_2"
+        },
+        {
+          "label": "MEMORY_AND_DISK",
+          "value": "MEMORY_AND_DISK"
+        },
+        {
+          "label": "MEMORY_AND_DISK_2",
+          "value": "MEMORY_AND_DISK_2"
+        },
+        {
+          "label": "MEMORY_AND_DISK_SER",
+          "value": "MEMORY_AND_DISK_SER"
+        },
+        {
+          "label": "MEMORY_AND_DISK_SER_2",
+          "value": "MEMORY_AND_DISK_SER_2"
+        }
+      ]
+    },
+    {
+      "propertyId": "rawDataEnabled",
+      "propertyName": "_PERSIST_RAW_DATA_",
+      "propertyType": "boolean",
+      "width": 6,
+      "position": "right",
+      "default": false,
+      "qa": "policy-raw-data"
+    },
+    {
+      "propertyId": "rawDataPath",
+      "propertyName": "_PATH_",
+      "width": 6,
+      "position": "left",
+      "propertyType": "text",
+      "required": true,
+      "visible": [
+        [
+          {
+            "propertyId": "rawDataEnabled",
+            "value": true
+          }
+        ]
+      ],
+      "default": "/tmp/checkpoint",
+      "qa": "raw-data-path"
+    }
+  ],
+  "steps": [
+    {
+      "name": "_POLICY_._STEPS_._INPUT_",
+      "icon": "icon-input",
+      "currentMessage": "_MESSAGE_._INPUT_STEP_"
+    },
+    {
+      "name": "_POLICY_._STEPS_._TRANSFORMATION_",
+      "icon": "icon-content-left",
+      "currentMessage": "_MESSAGE_._TRANSFORMATION_STEP_",
+      "availableMessage": "_MESSAGE_._TRANSFORMATION_STEP_AVAILABLE_"
+    },
+    {
+      "name": "_POLICY_._STEPS_._CUBES_",
+      "icon": "icon-box",
+      "currentMessage": "_MESSAGE_._CUBE_STEP_",
+      "availableMessage": "_MESSAGE_._CUBE_STEP_AVAILABLE_"
+    }
+  ],
+  "helpLinks": [
+    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Create+and+Submit+Policy",
+    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs",
+    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Transformations",
+    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Cubes",
+    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Outputs"
+  ],
+  "model": {
+    "types": [
+      {
+        "iconName": "ingestion",
+        "name": "Ingestion"
+      },
+      {
+        "iconName": "kite",
+        "name": "Morphlines"
+      },
+      {
+        "iconName": "datetime",
+        "name": "DateTime"
+      },
+      {
+        "iconName": "globe",
+        "name": "Geo"
+      }
+    ],
+    "defaultOutputFieldTypes": [
+      {
+        "label": "String",
+        "value": "string"
+      },
+      {
+        "label": "Long",
+        "value": "long"
+      },
+      {
+        "label": "Double",
+        "value": "double"
+      },
+      {
+        "label": "Integer",
+        "value": "integer"
+      },
+      {
+        "label": "Boolean",
+        "value": "boolean"
+      },
+      {
+        "label": "Date",
+        "value": "date"
+      },
+      {
+        "label": "Datetime",
+        "value": "datetime"
+      },
+      {
+        "label": "Timestamp",
+        "value": "timestamp"
+      },
+      {
+        "label": "Array Double",
+        "value": "arraydouble"
+      },
+      {
+        "label": "Array String",
+        "value": "arraystring"
+      },
+      {
+        "label": "Text",
+        "value": "text"
+      }
+    ],
+    "defaultInput": {
+      "label": "_attachment_body",
+      "value": "_attachment_body"
+    },
+    "Morphlines": {
+      "defaultConfiguration": {
+        "morphline": {
+          "id": "morphline1",
+          "importCommands": [
+            "org.kitesdk.**"
+          ],
+          "commands": [
+            {
+              "readJson": {}
+            },
+            {
+              "extractJsonPaths": {
+                "paths": {
+                  "field1": "/field-in-json1",
+                  "field2": "/field-in-json2"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DateTime": {
+      "outputFieldTypes": [
+        {
+          "label": "Datetime",
+          "value": "datetime"
+        },
+        {
+          "label": "Timestamp",
+          "value": "timestamp"
+        }
+      ],"properties":[
+        {
+          "propertyId": "inputFormat",
+          "propertyName": "_INPUT_FORMAT_",
+          "propertyType": "select",
+          "qa": "policy-model-dateTime-inputFormat",
+          "values": [
+            {
+              "label": "Unix",
+              "value": "unix"
+            },
+            {
+              "label": "Unix millis",
+              "value": "unixMillis"
+            },
+            {
+              "label": "yyyy-MM-dd HH:mm:ss",
+              "value": "hive"
+            },
+            {
+              "label": "Auto generated",
+              "value": "autoGenerated"
+            },
+            {
+              "label": "yyyyMMdd",
+              "value": "basicDate"
+            },
+            {
+              "label": "yyyyMMdd'T'HHmmss.SSSZ",
+              "value": "basicDateTime"
+            },
+            {
+              "label": "yyyyMMdd'T'HHmmssZ",
+              "value": "basicDateTimeNoMillis"
+            },
+            {
+              "label": "yyyyDDD",
+              "value": "basicOrdinalDate"
+            },
+            {
+              "label": "yyyyDDD'T'HHmmss.SSSZ",
+              "value": "basicOrdinalDateTime"
+            },
+            {
+              "label": "yyyyDDD'T'HHmmssZ",
+              "value": "basicOrdinalDateTimeNoMillis"
+            },
+            {
+              "label": "HHmmss.SSSZ",
+              "value": "basicTime"
+            },
+            {
+              "label": "HHmmssZ",
+              "value": "basicTimeNoMillis"
+            },
+            {
+              "label": "'T'HHmmss.SSSZ",
+              "value": "basicTTime"
+            },
+            {
+              "label": "'T'HHmmssZ",
+              "value": "basicTTimeNoMillis"
+            },
+            {
+              "label": "xxxx'W'wwe",
+              "value": "basicWeekDate"
+            },
+            {
+              "label": "xxxx'W'wwe'T'HHmmss.SSSZ",
+              "value": "basicWeekDateTime"
+            },
+            {
+              "label": "xxxx'W'wwe'T'HHmmssZ",
+              "value": "basicWeekDateTimeNoMillis"
+            },
+            {
+              "label": "yyyy-MM-dd",
+              "value": "date"
+            },
+            {
+              "label": "yyyy-MM-dd'T'HH:mm:ss.SSS",
+              "value": "dateHourMinuteSecondMillis"
+            },
+            {
+              "label": "yyyy-MM-dd'T'HH:mm:ss.SSSZZ",
+              "value": "dateTime"
+            },
+            {
+              "label": "yyyy-MM-dd'T'HH:mm:ssZZ",
+              "value": "dateTimeNoMillis"
+            },
+            {
+              "label": "HH:mm:ss.SSS",
+              "value": "hourMinuteSecondFraction"
+            },
+            {
+              "label": "yyyy-DDD",
+              "value": "ordinalDate"
+            },
+            {
+              "label": "yyyy-DDD'T'HH:mm:ssZZ",
+              "value": "ordinalDateTimeNoMillis"
+            },
+            {
+              "label": "HH:mm:ss.SSSZZ",
+              "value": "time"
+            },
+            {
+              "label": "'T'HH:mm:ss.SSSZZ",
+              "value": "tTime"
+            },
+            {
+              "label": "'T'HH:mm:ssZZ",
+              "value": "tTimeNoMillis"
+            },
+            {
+              "label": "xxxx-'W'ww-e",
+              "value": "weekDate"
+            },
+            {
+              "label": "xxxx-'W'ww-e'T'HH:mm:ss.SSSZZ",
+              "value": "weekDateTime"
+            },
+            {
+              "label": "xxxx-'W'ww-e'T'HH:mm:ssZZ",
+              "value": "weekDateTimeNoMillis"
+            }
+          ],
+          "default": "unixMillis",
+          "required": true
+        }
+      ]},
+    "Geo":{
+      "defaultConfiguration": {
+        "latitude": "lat",
+        "longitude": "long"
+      }
+    }
+  },
+  "cube": {
+    "defaultName": "cube",
+    "types": [
+      {
+        "label": "Default",
+        "value": "Default"
+      },
+      {
+        "label": "DateTime",
+        "value": "DateTime"
+      },
+      {
+        "label": "GeoHash",
+        "value": "GeoHash"
+      }
+    ],
+    "precisionOptions": [
+      {
+        "type": "GeoHash",
+        "precisions": [
+          {
+            "label": "_PRECISION_1_",
+            "value": "precision1"
+          },
+          {
+            "label": "_PRECISION_2_",
+            "value": "precision2"
+          },
+          {
+            "label": "_PRECISION_3_",
+            "value": "precision3"
+          },
+          {
+            "label": "_PRECISION_4_",
+            "value": "precision4"
+          },
+          {
+            "label": "_PRECISION_5_",
+            "value": "precision5"
+          },
+          {
+            "label": "_PRECISION_6_",
+            "value": "precision6"
+          },
+          {
+            "label": "_PRECISION_7_",
+            "value": "precision7"
+          },
+          {
+            "label": "_PRECISION_8_",
+            "value": "precision8"
+          },
+          {
+            "label": "_PRECISION_9_",
+            "value": "precision9"
+          },
+          {
+            "label": "_PRECISION_10_",
+            "value": "precision10"
+          },
+          {
+            "label": "_PRECISION_11_",
+            "value": "precision11"
+          },
+          {
+            "label": "_PRECISION_12_",
+            "value": "precision12"
+          }
+        ]
+      },
+      {
+        "type": "Default",
+        "precisions": []
+      }
+    ],
+    "DateTime": [
+      {
+        "propertyId": "precisionNumber",
+        "propertyName": "_PRECISION_",
+        "propertyType": "number",
+        "default": 1,
+        "width": 6,
+        "position": "left",
+        "required": true,
+        "qa": "policy-cube-dimension-dateTime-precisionNumber"
+      },
+      {
+        "propertyId": "precisionTime",
+        "propertyName": "_WHITE_SPACE_",
+        "propertyType": "select",
+        "width": 6,
+        "position": "right",
+        "qa": "policy-cube-dimension-dateTime-precisionTime",
+        "default": "m",
+        "required": true,
+        "values": [
+          {
+            "label": "Milliseconds",
+            "value": "ms"
+          },
+          {
+            "label": "Seconds",
+            "value": "s"
+          },
+          {
+            "label": "Minutes",
+            "value": "m"
+          },
+          {
+            "label": "Hours",
+            "value": "h"
+          },
+          {
+            "label": "Days",
+            "value": "d"
+          }
+        ]
+      },
+      {
+        "propertyId": "isTimeDimension",
+        "propertyName": "_IS_TIME_DIMENSION_",
+        "propertyType": "boolean",
+        "required": false,
+        "qa": "policy-cube-dimension-dateTime-isTimeDimension"
+      },
+      {
+        "propertyId": "computeLastNumber",
+        "propertyName": "_COMPUTE_LAST_",
+        "propertyType": "number",
+        "width": 6,
+        "position": "left",
+        "default": 10,
+        "required": true,
+        "qa": "policy-cube-dimension-dateTime-computeLastNumber",
+        "visible": [
+          [
+            {
+              "propertyId": "isTimeDimension",
+              "value": true
+            }
+          ]
+        ]
+      },
+      {
+        "propertyId": "computeLastTime",
+        "propertyName": "_WHITE_SPACE_",
+        "propertyType": "select",
+        "width": 6,
+        "position": "right",
+        "qa": "policy-cube-dimension-dateTime-computeLastTime",
+        "default": "m",
+        "required": true,
+        "values": [
+          {
+            "label": "Milliseconds",
+            "value": "ms"
+          },
+          {
+            "label": "Seconds",
+            "value": "s"
+          },
+          {
+            "label": "Minutes",
+            "value": "m"
+          },
+          {
+            "label": "Hours",
+            "value": "h"
+          },
+          {
+            "label": "Days",
+            "value": "d"
+          }
+        ],
+        "visible": [
+          [
+            {
+              "propertyId": "isTimeDimension",
+              "value": true
+            }
+          ]
+        ]
+      }
+    ],
+    "properties": [
+      {
+        "propertyId": "name",
+        "propertyName": "_NAME_",
+        "propertyType": "text",
+        "required": true,
+        "qa": "cube-name",
+        "width": 12,
+        "position": "left"
+      }
+    ],
+    "outputProperties":[
+      {
+        "propertyId": "writer.fixedMeasure",
+        "propertyName": "_FIXED_MEASURE_",
+        "propertyType": "text",
+        "qa": "cube-fixed-measure",
+        "width": 12
+      },
+      {
+        "propertyId": "writer.dateType",
+        "propertyName": "_DATE_TYPE_",
+        "propertyType": "select",
+        "required": true,
+        "default": "timestamp",
+        "qa": "cube-date-type",
+        "values": [
+          {
+            "label": "_TIMESTAMP_",
+            "value": "timestamp"
+          },
+          {
+            "label": "_DATE_",
+            "value": "date"
+          },
+          {
+            "label": "_DATE_TIME_",
+            "value": "datetime"
+          },
+          {
+            "label": "_LONG_",
+            "value": "long"
+          },
+          {
+            "label": "_STRING_",
+            "value": "string"
+          }
+        ],
+        "width": 6,
+        "position": "left"
+      },
+      {
+        "propertyId": "writer.isAutoCalculatedId",
+        "propertyName": "_IS_AUTO_CALCULATED_ID_",
+        "propertyType": "boolean",
+        "default": false,
+        "qa": "cube-is-auto-calculated-id",
+        "width": 6,
+        "position": "right"
+      }
+    ],
+    "functionNames": [
+      "Accumulator",
+      "Count",
+      "EntityCount",
+      "FirstValue",
+      "FullText",
+      "LastValue",
+      "Max",
+      "Mean",
+      "MeanAssociative",
+      "Median",
+      "Min",
+      "Mode",
+      "Range",
+      "Stddev",
+      "Sum",
+      "Variance",
+      "TotalEntityCount"
+    ],
+    "defaultOperatorConfiguration": {
+      "inputField": "field1"
+    }
+  },
+  "trigger": {
+
+    "transformation":{
+      "defaultName": "trigger",
+      "properties": [
+        {
+          "propertyId": "name",
+          "propertyName": "_NAME_",
+          "propertyType": "text",
+          "required": true,
+          "qa": "trigger-name",
+          "width": 12
+        },
+        {
+          "propertyId": "overLastNumber",
+          "propertyName": "_OVER_LAST_",
+          "propertyType": "number",
+          "width": 6,
+          "position": "left",
+          "required": true,
+          "tooltip": "This number has to be multiple of the window batch defined in policy settings",
+          "qa": "trigger-overLastNumber"
+        },
+        {
+          "propertyId": "overLastTime",
+          "propertyName": "_WHITE_SPACE_",
+          "propertyType": "select",
+          "width": 6,
+          "position": "right",
+          "qa": "trigger-overLastTime",
+          "required": true,
+          "values": [
+            {
+              "label": "Milliseconds",
+              "value": "ms"
+            },
+            {
+              "label": "Seconds",
+              "value": "s"
+            },
+            {
+              "label": "Minutes",
+              "value": "m"
+            },
+            {
+              "label": "Hours",
+              "value": "h"
+            },
+            {
+              "label": "Days",
+              "value": "d"
+            }
+          ]
+        },
+        {
+          "propertyId": "sql",
+          "propertyName": "_SQL_",
+          "propertyType": "textarea",
+          "required": true,
+          "qa": "trigger-sql",
+          "width": 12
+        }
+      ]
+    },
+    "cube":{
+      "defaultName": "trigger",
+      "properties": [
+        {
+          "propertyId": "name",
+          "propertyName": "_NAME_",
+          "propertyType": "text",
+          "required": true,
+          "qa": "trigger-name",
+          "width": 12
+        },
+        {
+          "propertyId": "sql",
+          "propertyName": "_SQL_",
+          "propertyType": "textarea",
+          "required": true,
+          "qa": "trigger-sql",
+          "width": 12
+        }
+      ]
+    }
+
+  }
+}

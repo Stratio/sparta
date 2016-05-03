@@ -21,17 +21,19 @@
     .module('webApp')
     .controller('TriggerCtrl', TriggerCtrl);
 
-  TriggerCtrl.$inject = ['PolicyModelFactory', 'TriggerModelFactory', 'TriggerService', 'OutputService'];
+  TriggerCtrl.$inject = ['PolicyModelFactory', 'TriggerModelFactory', 'TriggerService', 'OutputService', '$scope'];
 
-  function TriggerCtrl(PolicyModelFactory, TriggerModelFactory, TriggerService, OutputService) {
+  function TriggerCtrl(PolicyModelFactory, TriggerModelFactory, TriggerService, OutputService, $scope) {
     var vm = this;
 
     vm.init = init;
-    vm.addTrigger = addTrigger;
     vm.addOutput = addOutput;
     vm.changeSqlHelpVisibility = changeSqlHelpVisibility;
-
+    vm.closeErrorMessage = closeErrorMessage;
+    vm.addTrigger = TriggerService.addTrigger;
+    vm.cancelTriggerCreation = TriggerService.cancelTriggerCreation;
     vm.removeTrigger = TriggerService.removeTrigger;
+    vm.error = TriggerModelFactory.getError();
     vm.isNewTrigger = TriggerService.isNewTrigger;
     vm.saveTrigger = TriggerService.saveTrigger;
 
@@ -41,7 +43,7 @@
       vm.trigger = TriggerModelFactory.getTrigger();
       if (vm.trigger) {
         vm.triggerContext = TriggerModelFactory.getContext();
-        vm.template = PolicyModelFactory.getTemplate().trigger;
+        vm.template = TriggerService.getTriggerTemplate();
         vm.outputsHelpLinks = PolicyModelFactory.getTemplate().helpLinks[4];
         vm.showSqlHelp = false;
         if (TriggerService.isEnabledHelpForSql()) {
@@ -53,17 +55,16 @@
       }
     }
 
+    function closeErrorMessage() {
+      TriggerModelFactory.setError();
+    }
+
     function changeSqlHelpVisibility() {
       vm.showSqlHelp = !vm.showSqlHelp;
     }
 
-    function addTrigger() {
-      vm.form.$submitted = true;
-      if (vm.form.$valid) {
-        vm.form.$submitted = false;
-        TriggerService.addTrigger();
-        TriggerService.disableTriggerCreationPanel(false);
-      }
+    function addTrigger(form) {
+      TriggerService.addTrigger(form);
     }
 
     function addOutput() {
@@ -71,5 +72,9 @@
         vm.trigger.outputs.push(vm.selectedPolicyOutput);
       }
     }
+
+    $scope.$on("forceValidateForm", function () {
+      vm.form.$submitted = true;
+    });
   }
 })();

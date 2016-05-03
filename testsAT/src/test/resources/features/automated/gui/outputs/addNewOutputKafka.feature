@@ -8,7 +8,7 @@ Feature: Test adding a new Kafka output in Sparta GUI
   Scenario: Try to add a new output
     Given I browse to '/#/dashboard/outputs'
     Then I wait '1' second
-    Then '1' element exists with 'css:button[data-qa="outputs-new-button"]'
+    Then '1' element exists with 'css:div[data-qa="output-first-message"]'
     When I click on the element on index '0'
     Then I wait '1' second
     And '1' element exists with 'css:aside[data-qa="fragment-details-modal"]'
@@ -35,11 +35,11 @@ Feature: Test adding a new Kafka output in Sparta GUI
     Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
 
    # Try to add new Host-Port pair
-    Given '1' element exists with 'css:i[data-qa="fragment-details-kafka-metadata-broker-list-plus-0"]'
+    Given '1' element exists with 'css:i[data-qa="fragment-details-kafka-metadata-broker-list-plus-1"]'
     When I click on the element on index '0'
     Then '1' element exists with 'css:input[data-qa="fragment-details-kafka-host-1"]'
     And '1' element exists with 'css:input[data-qa="fragment-details-kafka-port-1"]'
-    And '2' elements exist with 'css:i[data-qa^="fragment-details-kafka-metadata-broker-list-plus"]'
+    And '1' elements exist with 'css:i[data-qa^="fragment-details-kafka-metadata-broker-list-plus"]'
     And '2' elements exist with 'css:i[data-qa^="fragment-details-kafka-metadata-broker-list-minus"]'
     Then I wait '2' seconds
     When I click on the element on index '1'
@@ -63,9 +63,6 @@ Feature: Test adding a new Kafka output in Sparta GUI
    # Try with empty Serializer class for messages
     Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-serializer-class"]'
     When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
-   # Try with empty kafka producer wait for acknowledgement
-    Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-request-required-acks"]'
-    When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
    # Try with empty Producer type
     Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-producer-type"]'
     When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
@@ -78,7 +75,6 @@ Feature: Test adding a new Kafka output in Sparta GUI
     Then '1' elements exist with 'css:span[data-qa="fragment-details-kafka-host-0-error-required"]'
     And '1' elements exist with 'css:span[data-qa="fragment-details-kafka-port-0-error-required"]'
     And '1' elements exist with 'css:span[data-qa="fragment-details-kafka-serializer-class-error-required"]'
-    And '1' elements exist with 'css:span[data-qa="fragment-details-kafka-request-required-acks-error-required"]'
     And '1' elements exist with 'css:span[data-qa="fragment-details-kafka-producer-type-error-required"]'
     And '1' elements exist with 'css:span[data-qa="fragment-details-kafka-batch-num-messages-error-required"]'
 
@@ -89,14 +85,6 @@ Feature: Test adding a new Kafka output in Sparta GUI
     When I click on the element on index '0'
    # Error message should appear
     Then '1' elements exist with 'css:span[data-qa="fragment-details-kafka-port-0-error-pattern"]'
-
-   # Try with invalid kafka producer wait for acknowledgement i.e. 2
-    Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-request-required-acks"]'
-    Then I type '2' on the element on index '0'
-    Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
-    When I click on the element on index '0'
-   # Error message should appear
-    Then '1' elements exist with 'css:span[data-qa="fragment-details-kafka-request-required-acks-error-pattern"]'
 
    # Try with invalid Producer type
     Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-producer-type"]'
@@ -128,9 +116,8 @@ Feature: Test adding a new Kafka output in Sparta GUI
     Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-serializer-class"]'
     Then I type 'kafka.serializer.StringEncoder' on the element on index '0'
    # Fill in kafka producer wait for acknowledgement
-    Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-request-required-acks"]'
-    Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
-    And I type '0' on the element on index '0'
+    Given '1' element exists with 'css:label[data-qa="fragment-details-kafka-request-required-acks"]'
+    Then I click on the element on index '0'
    # Fill in Producer type
     Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-producer-type"]'
     Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
@@ -152,7 +139,7 @@ Feature: Test adding a new Kafka output in Sparta GUI
     Then '1' element exists with 'css:span[data-qa="output-context-menu-!{previousFragmentID}"]'
 
    # Add same output fragment
-    Then '1' element exists with 'css:button[data-qa="outputs-new-button"]'
+    Then '1' element exists with 'css:button[data-qa="output-filter-new-output"]'
     When I click on the element on index '0'
     Then I wait '1' second
     And '1' element exists with 'css:aside[data-qa="fragment-details-modal"]'
@@ -166,7 +153,8 @@ Feature: Test adding a new Kafka output in Sparta GUI
    # Create
     Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
     When I click on the element on index '0'
-    Then '1' element exists with 'css:span[translate="_INPUT_ERROR_100_"]'
+    Then '1' element exists with 'css:span[translate="_ERROR_._100_"]'
+    And a text 'There was an error. The name of the fragment already exists!' exists
 
    # Cancel operation
     Given '1' element exists with 'css:button[data-qa="modal-cancel-button"]'

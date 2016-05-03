@@ -59,6 +59,7 @@ class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SpartaATSuite {
       productA.get("acc_price").asInstanceOf[BasicDBList].toArray.toSeq should be(
         Seq("10", "500", "1000", "500", "1000", "500", "1002", "600"))
       productA.get("avg_price") should be(639.0d)
+      productA.get("avg_associative_price").asInstanceOf[BasicDBObject].get("mean") should be(639.0d)
       productA.get("sum_price") should be(5112.0d)
       productA.get("count_price") should be(NumEventsExpected)
       productA.get("first_price") should be("10")
@@ -79,6 +80,7 @@ class ISocketOMongoOperatorsIT extends MongoEmbedDatabase with SpartaATSuite {
       productB.get("acc_price").asInstanceOf[BasicDBList].toArray.toSeq should be(
         Seq("15", "1000", "1000", "1000", "1000", "1000", "1001", "50"))
       productB.get("avg_price") should be(758.25d)
+      productA.get("avg_associative_price").asInstanceOf[BasicDBObject].get("mean") should be(639.0d)
       productB.get("sum_price") should be(6066.0d)
       productB.get("count_price") should be(NumEventsExpected)
       productB.get("first_price") should be("15")

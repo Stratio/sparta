@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.service.http
 
 import akka.actor.{ActorRef, ActorRefFactory}
@@ -29,10 +30,10 @@ import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
  * Common operations for http service specs. All of them must extend from this class.
  */
 trait HttpServiceBaseTest extends WordSpec
-with Matchers
-with BeforeAndAfterEach
-with ScalatestRouteTest
-with SpartaSerializer {
+  with Matchers
+  with BeforeAndAfterEach
+  with ScalatestRouteTest
+  with SpartaSerializer {
 
   val testProbe: TestProbe = TestProbe()
 
@@ -46,9 +47,12 @@ with SpartaSerializer {
   protected def getTemplateModel(): TemplateModel =
     new TemplateModel("template", "input", Map(), Map(), Seq())
 
-  protected def getFragmentModel(): FragmentElementModel =
-    new FragmentElementModel(None, "input", "name", "description", "shortDescription",
+  protected def getFragmentModel(id: Option[String]): FragmentElementModel =
+    new FragmentElementModel(id, "input", "name", "description", "shortDescription",
       new PolicyElementModel("name", "input", Map()))
+
+  protected def getFragmentModel(): FragmentElementModel =
+    getFragmentModel(None)
 
   protected def getPolicyStatusModel(): PolicyStatusModel =
     new PolicyStatusModel("id", PolicyStatusEnum.Launched)
@@ -89,16 +93,18 @@ with SpartaSerializer {
       input,
       outputs,
       Seq(),
-      userPluginsJars = Seq.empty[String])
+      userPluginsJars = Seq.empty[String],
+      remember = None)
     policy
   }
 
   /**
    * Starts and actor used to reply messages though the akka system. By default it can send a message to reply and it
    * will be use a default TestProbe. Also, it is possible to send a custom autopilot with a specific logic.
-   * @param message that will be sent to the actor.
+   *
+   * @param message          that will be sent to the actor.
    * @param currentTestProbe with the [TestProbe] to use.
-   * @param autopilot is an actor that contains the logic that will be used when a message arrives.
+   * @param autopilot        is an actor that contains the logic that will be used when a message arrives.
    */
   protected def startAutopilot(message: Any,
                                currentTestProbe: TestProbe = this.testProbe,

@@ -13,11 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.driver
 
 import java.io._
+import scala.util.{Try, _}
 
 import akka.event.slf4j.SLF4JLogging
+import org.apache.spark.SparkContext
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.StructType
+import org.apache.spark.streaming.dstream.DStream
+import org.apache.spark.streaming.{Duration, StreamingContext}
+import org.json4s.native.Serialization.write
+
 import com.stratio.sparta.driver.cube.{Cube, CubeMaker, CubeWriter, CubeWriterOptions}
 import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.driver.helper.SchemaHelper
@@ -31,14 +40,6 @@ import com.stratio.sparta.serving.core.constants.ErrorCodes
 import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.helpers.OperationsHelper
 import com.stratio.sparta.serving.core.models._
-import org.apache.spark.SparkContext
-import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.StructType
-import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.streaming.{Duration, StreamingContext}
-import org.json4s.native.Serialization.write
-
-import scala.util.{Try, _}
 
 class SpartaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
 
@@ -47,7 +48,7 @@ class SpartaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
   def run(sc: SparkContext): StreamingContext = {
     val checkpointPolicyPath = policy.checkpointPath.concat(File.separator).concat(policy.name)
     val sparkStreamingWindow = OperationsHelper.parseValueToMilliSeconds(policy.sparkStreamingWindow)
-    val ssc = sparkStreamingInstance(new Duration(sparkStreamingWindow), checkpointPolicyPath)
+    val ssc = sparkStreamingInstance(Duration(sparkStreamingWindow), checkpointPolicyPath, policy.remember)
     val parserSchemas = SchemaHelper.getSchemasFromParsers(policy.transformations, Input.InitSchema)
     val parsers = SpartaJob.getParsers(policy, ReflectionUtils, parserSchemas).sorted
     val cubes = SpartaJob.getCubes(policy, ReflectionUtils, getSchemaWithoutRaw(parserSchemas))
@@ -74,7 +75,7 @@ class SpartaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
           streamTriggersSchemas,
           overLast,
           sparkStreamingWindow,
-          parserSchemas.values.last,
+          getSchemaWithoutRaw(parserSchemas),
           streamTriggersOutputs
         ).write(parsedData)
       }
@@ -310,12 +311,7 @@ object SpartaJob extends SLF4JLogging with SpartaSerializer {
   def saveRawData(rawModel: RawDataModel, input: DStream[Row]): Unit =
     if (rawModel.enabled.toBoolean) {
       require(!rawModel.path.equals("default"), "The parquet path must be set")
-      sparkSqlContextInstance match {
-        case Some(sqlContext) =>
-          RawDataStorageService.save(sqlContext, input, rawModel.path)
-        case None =>
-          log.warn("Impossible to save raw data because sqlContext is empty")
-      }
+      RawDataStorageService.save(input, rawModel.path)
     }
 
   def getCubeWriter(cubeName: String,
@@ -338,13 +334,24 @@ object SpartaJob extends SLF4JLogging with SpartaSerializer {
 
   def getWriterOptions(cubeName: String, outputsWriter: Seq[Output], cubeModel: CubeModel): CubeWriterOptions = {
     val dateType = SchemaHelper.getTimeTypeFromString(cubeModel.writer.dateType.getOrElse(DefaultTimeStampTypeString))
-    val fixedMeasures = cubeModel.writer.fixedMeasure.fold(MeasuresValues(Map.empty)) { fixedMeasure =>
-      val fixedMeasureSplitted = fixedMeasure.split(CubeWriter.FixedMeasureSeparator)
-      MeasuresValues(Map(fixedMeasureSplitted.head -> Some(fixedMeasureSplitted.last)))
-    }
     val isAutoCalculatedId = cubeModel.writer.isAutoCalculatedId.getOrElse(CubeWriter.DefaultIsAutocalculatedId)
+    val fixedMeasure = checkFixedMeasure(cubeModel.writer.fixedMeasure)
+    CubeWriterOptions(cubeModel.writer.outputs, dateType, fixedMeasure, isAutoCalculatedId)
+  }
 
-    CubeWriterOptions(cubeModel.writer.outputs, dateType, fixedMeasures, isAutoCalculatedId)
+  def checkFixedMeasure(fixedMeasure: Option[String]): MeasuresValues = fixedMeasure match {
+    case None => MeasuresValues(Map.empty[String, Option[Any]])
+    case Some(value) =>
+      if (value == "" || value.isEmpty) {
+        MeasuresValues(Map.empty[String, Option[Any]])
+      } else {
+        fixedMeasure.fold(MeasuresValues(Map.empty)) { fixedMeasure =>
+          val fixedMeasureSplitted = fixedMeasure.split(CubeWriter.FixedMeasureSeparator)
+          if(fixedMeasureSplitted.size == 2)
+            MeasuresValues(Map(fixedMeasureSplitted.head -> Some(fixedMeasureSplitted.last)))
+          else MeasuresValues(Map.empty[String, Option[Any]])
+        }
+      }
   }
 
   def getStreamWriter(triggers: Seq[Trigger],

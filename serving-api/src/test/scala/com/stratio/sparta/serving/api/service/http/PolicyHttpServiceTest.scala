@@ -24,7 +24,7 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, PolicyWithStatus}
+import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
@@ -100,7 +100,7 @@ with HttpServiceBaseTest {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
             case PolicyStatusActor.FindAll =>
-              sender ! PolicyStatusActor.Response(Success(Seq(getPolicyStatusModel())))
+              sender ! PolicyStatusActor.Response(Success(PoliciesStatusModel(Seq(getPolicyStatusModel()), None)))
               TestActor.NoAutoPilot
           }
       })
@@ -128,7 +128,7 @@ with HttpServiceBaseTest {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
             case PolicyStatusActor.FindAll =>
-              sender ! PolicyStatusActor.Response(Success(Seq(getPolicyStatusModel())))
+              sender ! PolicyStatusActor.Response(Success(PoliciesStatusModel(Seq(getPolicyStatusModel()), None)))
               TestActor.NoAutoPilot
           }
       })

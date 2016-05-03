@@ -36,9 +36,9 @@ with OperatorProcessMapAsAny {
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] = {
     val tupla = values.groupBy(x => x).mapValues(_.size)
-    if (!tupla.isEmpty) {
-      val max = tupla.map(tuple => tuple._2).max
-      Try(Some(transformValueByTypeOp(returnType, tupla.filter(_._2 == max).flatMap(tuple => (tuple._1))))).get
+    if (tupla.nonEmpty) {
+      val max = tupla.values.max
+      Try(Some(transformValueByTypeOp(returnType, tupla.filter(_._2 == max).flatMap(tuple => tuple._1)))).get
     } else Some(List())
   }
 }

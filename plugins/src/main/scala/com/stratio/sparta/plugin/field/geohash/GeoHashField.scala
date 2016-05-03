@@ -125,7 +125,7 @@ case class GeoHashField(props: Map[String, JSerializable], override val defaultT
     }
   }
 
-  val defaultPrecisionTuple = {
+  def defaultPrecisionTuple = {
     val defaultPrecision = getPrecision(Precision3Name, getTypeOperation(Precision3Name))
     (defaultPrecision, getPrecision(0, 0, defaultPrecision))
   }

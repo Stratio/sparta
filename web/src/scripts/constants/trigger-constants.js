@@ -19,6 +19,7 @@
   angular
     .module('webApp').constant('triggerConstants', {
       TRANSFORMATION: "transformation",
-      CUBE: "cube"
+      CUBE: "cube",
+    STREAM_TABLE_NAME:"stream"
     });
 })();

@@ -3,27 +3,21 @@
     <aside class="c-toolbar--filter c-toolbar--fixed">
       <div class="c-col c-col--10">
         <!-- Error message -->
-        <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="policies.errorMessage != ''" data-qa="manage-policies-error-msg">
-          <i class="c-icon icon-circle-cross c-icon--is-clickable" data-ng-click="policies.deleteErrorMessage()"></i>
-          <span data-ng-if="!policies.errorMessageExtended">{{policies.errorMessage}}</span>
-          <span>{{policies.errorMessageExtended}}</span>
-        </div>
-        <!-- Success message -->
-        <div class="c-row c-msg c-msg--small c-msg--success" data-ng-if="policies.successMessage != ''" data-qa="manage-policies-success-msg">
-          <i class="c-icon icon-circle-check"></i>
-          <span>{{policies.successMessage}}</span>
-        </div>
+        <c-animated-msg data-msg="policies.errorMessage" data-on-click-close-msg="policies.deleteErrorMessage()"
+                       data-timeout=6000></c-animated-msg>
+        <c-animated-msg data-msg="policies.successMessage"  data-on-click-close-msg="policies.deleteSuccessMessage()" data-timeout=4000></c-animated-msg>
       </div><!--
-   --><div class="c-col c-col--2 c-form-group--to-right">
-      <button class="c-button c-button--toolbar c-button--call-to-action-1  c-button--left-margin" data-ng-click="policies.createPolicy()" data-qa="policies-new-policy-button">
-        <span class="icon icon-circle-plus"></span>
-        <span>{{'_MENU_DASHBOARD_NEW_POLICY_' | translate}}</span>
-      </button>
-    </div>
+      --><div class="c-col c-col--2 c-form-group--to-right">
+        <button class="c-button c-button--toolbar c-button--call-to-action-1  c-button--left-margin"
+                data-ng-click="policies.createPolicy()" data-qa="policies-new-policy-button">
+          <span class="icon icon-circle-plus"></span>
+          <span>{{'_MENU_DASHBOARD_NEW_POLICY_' | translate}}</span>
+        </button>
+      </div>
     </aside>
 
-    <div class="br-ba-container">
-      <table class="c-table c-table--margin-bottom c-table--full-width">
+    <div class="br-ba-container br-ba-container--full-height">
+      <table class="c-table  c-table--margin-bottom c-table--full-width">
         <thead class="c-table__thead">
         <tr>
           <th class="c-table__td c-col--3">{{"_NAME_" | translate}}</th>
@@ -54,8 +48,8 @@
                                  data-qa="policy-context-menu-{{policyData.policy.id}}-edit">
                   {{"_OUTPUT_ACTIONS_MENU_EDIT_" | translate}}
                 </st-menu-element>
-                <st-menu-element class-icon="icon-download" data-href="/policy/find/{{policyData.policy.id}}"
-                                 data-download-file-name="{{policyData.policy.name}}.json"
+                <st-menu-element class-icon="icon-download"
+                                 data-ng-click="policies.downloadPolicy(policyData.policy.id)"
                                  data-qa="policy-context-menu-{{policyData.policy.id}}-download">
                   {{"_OUTPUT_ACTIONS_MENU_DOWNLOAD_" | translate}}
                 </st-menu-element>
@@ -76,10 +70,19 @@
         </tr>
         </tbody>
       </table>
+      <div class=" c-col c-col--12 c-row--to-bottom c-msg c-msg c-col--to-right">
+        <c-icon-link data-icon-class="'c-icon--to-right c-icon c-icon--is-clickable c-icon--call-to-action icon-help1'"
+                     data-text-class="'c-msg c-icon-label--right-margin'"
+                     data-ng-if="policies.clusterUI"
+                     text="'_CLUSTER_UI_' | translate"
+                     link-url="policies.clusterUI"
+                     data-qa="cluster-UI-link"></c-icon-link>
+      </div>
     </div>
+
   </div>
   <div class="c-msg--noitems c-msg--giant" data-ng-if="policies.policiesData.list.length === 0"
-       data-ng-click = "policies.createPolicy()" data-qa="policy-first-message">
+       data-ng-click="policies.createPolicy()" data-qa="policy-first-message">
     <i class="c-icon icon-marquee-plus"></i>
     <span class="c-msg__text">{{"_POLICY_CREATE_FIRST_ONE_" | translate}}</span>
   </div>

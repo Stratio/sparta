@@ -33,12 +33,12 @@
         items: "=",
         itemTemplate: "=",
         onChangeOpenedElement: "&",
-        itemQaTag: "=",
+        itemQaTag: "@",
         showNewItemPanel: "=",
-        accordionStatus:"=",
-        itemAttributeInHeader:"@",
+        accordionStatus: "=",
+        itemAttributeInHeader: "@",
         newItemHeader: "@",
-        additionalModifierClass:"@",
+        additionalModifierClass: "@",
         width: '@'
       },
       replace: "true",
@@ -55,19 +55,11 @@
         return index++;
       };
 
-      scope.onClickItem = function () {
-        scope.onChangeOpenedElement();
-      };
-
-      scope.closeAll = function(){
-
-      };
-
       scope.$watchCollection(
         "items",
         function (newItems, oldItems) {
           // reset if item is added to items
-          if (newItems.length != oldItems.length) {
+          if (newItems.length != oldItems.length || newItems != oldItems) {
             AccordionStatusService.resetAccordionStatus(scope.accordionStatus, scope.items.length);
           }
         });
@@ -75,10 +67,9 @@
       scope.$watchCollection(
         "accordionStatus",
         function () {
-
           if (scope.accordionStatus) {
             var selectedItemPosition = scope.accordionStatus.indexOf(true);
-            scope.onChangeOpenedElement({selectedItemPosition:selectedItemPosition});
+            scope.onChangeOpenedElement({selectedItemPosition: selectedItemPosition});
           }
         });
     }

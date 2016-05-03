@@ -64,7 +64,9 @@ class RedisOutput(keyName: String,
   def getHashKeyFromRow(valuesList: Seq[(String, String)], schema: StructType, timeDimension: Option[String]): String =
     valuesList.flatMap{ case (key, value) =>
       val fieldSearch = schema.fields.find(structField =>
-        (!structField.nullable && structField.name == key) ||
+        (!structField.nullable &&
+          !structField.metadata.contains(Output.MeasureMetadataKey) &&
+          structField.name == key) ||
           timeDimension.exists(name => structField.name == name))
       fieldSearch.map(structField => s"${structField.name}$IdSeparator$value")
     }.mkString(IdSeparator)
@@ -74,7 +76,8 @@ class RedisOutput(keyName: String,
                          timeDimension: Option[String]): Seq[(StructField, String)] =
     valuesList.flatMap{ case (key, value) =>
       val fieldSearch = schema.fields.find(structField =>
-        structField.nullable &&
+        !structField.nullable &&
+          structField.metadata.contains(Output.MeasureMetadataKey) &&
           structField.name == key &&
           timeDimension.forall(name => structField.name != name))
       fieldSearch.map(field => (field, value))

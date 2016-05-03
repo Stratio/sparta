@@ -16,7 +16,7 @@
 <body data-ng-app="webApp" class="stratio-app stratio-app--sparkta">
 
 <div id="stratio-base">
-    <header class="stratio-base-header" ui-view="header"></header>
+    <header class="stratio-base-header" ui-view="header"  data-ng-class="headerClass"></header>
     <div id="base-content-wrapper" data-ng-class="containerClass" ui-view="content"></div>
 </div>
 
@@ -37,15 +37,14 @@
 <!-- Controllers -------------------------------- -->
 <script src="scripts/controllers/inputs.js"></script>
 <script src="scripts/controllers/outputs.js"></script>
-<script src="scripts/controllers/policies.js"></script>
+<script src="scripts/controllers/policy-list.js"></script>
 <script src="scripts/controllers/settings.js"></script>
 <script src="scripts/controllers/inputs/new-input.js"></script>
 <script src="scripts/controllers/inputs/edit-input.js"></script>
 <script src="scripts/controllers/inputs/duplicate-input.js"></script>
 <script src="scripts/controllers/inputs/delete-input.js"></script>
-<script src="scripts/controllers/policies/new-policy.js"></script>
+<script src="scripts/controllers/policies/policy.js"></script>
 <script src="scripts/controllers/policies/policy-inputs.js"></script>
-<script src="scripts/controllers/policies/policy-finish.js"></script>
 <script src="scripts/controllers/policies/policy-wizard-header.js"></script>
 <script src="scripts/controllers/policies/modal/delete-policy-modal.js"></script>
 <script src="scripts/controllers/policies/modal/new-dimension-modal.js"></script>
@@ -54,7 +53,6 @@
 <script src="scripts/controllers/policies/policy-model.js"></script>
 <script src="scripts/controllers/policies/policy-cube-accordion.js"></script>
 <script src="scripts/controllers/policies/policy-model-accordion.js"></script>
-<script src="scripts/controllers/policies/edit-policy.js"></script>
 <script src="scripts/controllers/modal/confirm-modal.js"></script>
 <script src="scripts/controllers/policies/modal/policy-creation-modal.js"></script>
 <script src="scripts/controllers/policies/trigger.js"></script>
@@ -84,6 +82,8 @@
 <script src="scripts/directives/c-json-text-directive.js"></script>
 <script src="scripts/directives/c-tag-list-directive.js"></script>
 <script src="scripts/directives/c-accordion-directive.js"></script>
+<script src="scripts/directives/c-slider-section-directive.js"></script>
+<script src="scripts/directives/c-animated-msg-directive.js"></script>
 <!-- Factories ----------------------------------- -->
 <script src="scripts/factories/fragment-factory.js"></script>
 <script src="scripts/factories/template-factory.js"></script>
@@ -92,6 +92,7 @@
 <script src="scripts/factories/model-factory.js"></script>
 <script src="scripts/factories/cube-model-factory.js"></script>
 <script src="scripts/factories/trigger-model-factory.js"></script>
+<script src="scripts/factories/request-interceptor-factory.js"></script>
 <!-- Services ----------------------------------- -->
 <script src="scripts/services/api/api-policy-service.js"></script>
 <script src="scripts/services/api/api-template-service.js"></script>
@@ -103,10 +104,14 @@
 <script src="scripts/services/utils-service.js"></script>
 <script src="scripts/services/modal-service.js"></script>
 <script src="scripts/services/output-service.js"></script>
+<script src="scripts/services/wizard-status-service.js"></script>
+<script src="scripts/services/policy-service.js"></script>
 <!-- Constants ----------------------------------- -->
 <script src="scripts/constants/api-config-settings.js"></script>
 <script src="scripts/constants/fragment-constants.js"></script>
 <script src="scripts/constants/trigger-constants.js"></script>
+<script src="scripts/constants/model-constants.js"></script>
+<script src="scripts/constants/cube-constants.js"></script>
 
 <!-- endbuild -->
 

@@ -1,5 +1,5 @@
 <section data-ng-controller="CubeCtrl as vm" data-ng-init="vm.init()" data-ng-model="vm.cube">
-  <ng-form name="vm.form" novalidate>
+  <ng-form name="vm.form" id = "cubeForm" novalidate>
 
     <div class="c-form-group c-col c-col--6">
       <form-field
@@ -114,26 +114,32 @@
               data-st-name="dataSource{{properties.propertyName}}Form"
               data-qa="{{properties.qa}}">
             </form-field>
-            <form-field-select class="c-col c-col--6 c-form-group--inline" data-form="vm.form" data-st-name="cubeOutputs" data-model="vm.selectedPolicyOutput"
+            <form-field-select  class="c-col c-col--6 c-form-group--inline" data-form="vm.form" data-st-name="cubeOutputs" data-model="vm.selectedPolicyOutput"
              data-options="vm.policyOutputList" data-field="label" data-label="{{'_OUTPUTS_' | translate}}"
-             data-qa="cube-output-select" data-submitted-form="vm.form.$submitted" data-ng-click="vm.addOutput()" data-outputs-length="vm.cube.writer.outputs.length" >
+             data-qa="cube-output-select" data-submitted-form="vm.form.$submitted" data-ng-click="vm.addOutput()">
             </form-field-select>
-            <div data-ng-if="vm.cube.writer.outputs.length == 0 && vm.form.$submitted" class="c-col c-col--6 angular-forms__error">
+            <div data-ng-show="vm.cube['writer.outputs'].length == 0 && vm.form.$submitted && vm.cube.triggers.length == 0" class="c-col c-col--6 angular-forms__error">
               <i class="icon icon-circle-cross"></i>
-              <span data-qa="{{qa}}-error-outputs-length">{{"_POLICY_CUBES_OUTPUT_ERROR_" | translate}}</span>
+              <span data-qa="cube-error-outputs-length">{{"_POLICY_CUBES_OUTPUT_ERROR_" | translate}}</span>
             </div>
-            <c-tag-list name="cube-outputs" data-tags="vm.cube.writer.outputs"
+            <c-tag-list name="cube-outputs" data-tags="vm.cube['writer.outputs']"
               data-form-control-class="'c-form-group--margin'"
               label-control-class="'c-label c-col'"
               readonly="'true'"
               data-enable-delete="true" data-qa="policy-cube-output-list"
               show-label = "false"
               data-help="Note: Make sure output fields match with the ones in the configuration"
-              data-required="true" data-min-length="1" data-form="vm.form">
+              data-min-length="1" data-form="vm.form">
             </c-tag-list>
           </div>
         </div>
-        <ng-include data-ng-model = "vm.cube.triggers" src="'views/policy-wizard/trigger-accordion.html'" novalidate></ng-include>
+        <ng-include src="'views/policy-wizard/trigger-accordion.html'" novalidate></ng-include>
+      <div class="c-col c-col--12 c-msg c-msg--small c-msg--error c-form c-form-group"
+           data-ng-if="vm.showTriggerError()"
+           data-qa="policy-cube-error-msg">
+        <i class="c-icon icon-circle-cross"></i>
+        <span>{{vm.triggerError | translate}}</span>
+      </div>
       </div>
     </div>
     <div class="c-col c-col--6 c-msg c-msg--small c-msg--error c-form c-form-group"
@@ -143,6 +149,12 @@
       <span>{{vm.cubeError.text | translate}}</span>
     </div>
     <div class="c-form-group c-form-group--full-width c-form-group--to-right">
+      <button class="c-button c-button--call-to-action-2" data-ng-if="vm.isNewCube(vm.cubeContext.position)"
+              type="submit" data-ng-click="vm.cancelCubeCreation()"
+              data-qa="policy-cube-delete-button">
+        <i class="c-icon icon-cross"></i>
+        <span>{{"_CANCEL_" | translate}}</span>
+      </button>
       <button data-ng-if="vm.isNewCube(vm.cubeContext.position)" class="c-button c-button--call-to-action-1"
               data-ng-click="vm.addCube()"
               data-qa="policy-cube-add-button">

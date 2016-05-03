@@ -59,16 +59,16 @@
         vm.selectedIndex = vm.index;
         vm.policiesAffected = policiesAffected;
       }
-    };
+    }
 
     function setPoliciesRunning(policiesList) {
       for (var i=0; i < policiesList.length; i++) {
         if (policiesList[i].status !== 'NotStarted' && policiesList[i].status !== 'Stopped' && policiesList[i].status !== 'Failed') {
-          var policy = {'name':policiesList[i].policy.name}
+          var policy = {'name':policiesList[i].policy.name};
           vm.policiesRunning.push(policy);
         }
       }
-    };
+    }
 
     function setTexts(texts) {
       vm.modalTexts = {};
@@ -79,7 +79,7 @@
       vm.modalTexts.policyRunningMain = texts.policyRunningMain;
       vm.modalTexts.policyRunningSecondary = texts.policyRunningSecondary;
       vm.modalTexts.policyRunningSecondary2 = texts.policyRunningSecondary2;
-    };
+    }
 
     function createTypeModels(fragmentData) {
       /*Creating one properties model for each input type*/
@@ -128,27 +128,27 @@
           vm.index = i;
         }
       }
-    };
+    }
 
     function setProperties(index, inputName) {
       vm.selectedIndex = index;
       vm.dataSource.element.configuration = (vm.properties[inputName].select) ? vm.properties[inputName][vm.properties[inputName].type] : vm.properties[inputName];
       vm.setFragmentData(index);
-    };
+    }
 
     function setFragmentData(index) {
       /*Set fragment*/
       vm.dataSource.description = vm.templateFragmentsData[index].description.long;
       vm.dataSource.shortDescription = vm.templateFragmentsData[index].description.short;
       vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
-    };
+    }
 
     function ok() {
       if (vm.form.$valid) {
         deleteNotVisibleProperties();
-        checkFragmnetname();
+        checkFragmentName();
       }
-    };
+    }
 
     function deleteNotVisibleProperties() {
       if (vm.dataSource.element.configuration._visible) {
@@ -165,23 +165,23 @@
         }
       }
       delete vm.dataSource.element.configuration['_visible'];
-    };
+    }
 
-    function checkFragmnetname() {
+    function checkFragmentName() {
       var inputNamesExisting = [];
       var newInputName = vm.dataSource.name.toLowerCase();
       inputNamesExisting = $filter('filter')(item.fragmentNamesList, {'name': newInputName}, true);
 
       if (inputNamesExisting.length > 0 && inputNamesExisting[0].name !== vm.originalName) {
         vm.error = true;
-        vm.errorText = "_INPUT_ERROR_100_";
+        vm.errorText = "_ERROR_._100_";
       }
       else {
-        editfragment();
+        editFragment();
       }
-    };
+    }
 
-    function editfragment() {
+    function editFragment() {
       var updateFragment = FragmentFactory.updateFragment(vm.dataSource);
 
       updateFragment.then(function (result) {
@@ -193,12 +193,12 @@
 
       }, function (error) {
         vm.error = true;
-        vm.errorText = "_INPUT_ERROR_" + error.data.i18nCode + "_";
+        vm.errorText = "_ERROR_._" + error.data.i18nCode + "_";
       });
-    };
+    }
 
     function cancel() {
       $modalInstance.dismiss('cancel');
-    };
-  };
+    }
+  }
 })();
