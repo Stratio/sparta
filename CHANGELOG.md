@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.10.0 (2016)
+
 ## 0.9.5 (April 2016)
 
 - Added remember field in order to run queries that last more than the streaming batch
