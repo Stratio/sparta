@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.stratio.sparta</groupId>
-        <artifactId>parent</artifactId>
+        <artifactId>parent_${scala.binary.version}</artifactId>
         <version>0.9.6-RC1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>web</artifactId>
+    <artifactId>web_${scala.binary.version}</artifactId>
 
     <name>Stratio Sparta Front</name>
 
