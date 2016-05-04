@@ -7,11 +7,11 @@
     <parent>
         <groupId>com.stratio</groupId>
         <artifactId>parent</artifactId>
-        <version>0.5.0</version>
+        <version>0.7.2</version>
     </parent>
 
-    <groupId>com.stratio</groupId>
-    <artifactId>benchmark</artifactId>
+    <groupId>com.stratio.sparta</groupId>
+    <artifactId>benchmark_2.10</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 

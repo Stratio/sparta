@@ -28,7 +28,7 @@
     </parent>
 
     <groupId>com.stratio.sparta</groupId>
-    <artifactId>parent</artifactId>
+    <artifactId>parent_2.10</artifactId>
     <version>0.10.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -177,8 +177,6 @@
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <scala.binary.version>2.10</scala.binary.version>
-        <scala.version>2.10.4</scala.version>
         <slf4j.version>1.7.7</slf4j.version>
         <nscala.time.version>2.0.0</nscala.time.version>
         <scalatest.version>2.2.2</scalatest.version>
@@ -197,43 +195,49 @@
         <easy.mock.version>2.5.2</easy.mock.version>
         <stratio.common.utils.version>0.4.0</stratio.common.utils.version>
         <stratio-platform.target>1.7</stratio-platform.target>
+        <scala.binary.version>2.10</scala.binary.version>
+        <scala.version>2.10.4</scala.version>
+        <scala_2.10.version>2.10.4</scala_2.10.version>
+        <scala_2.11.version>2.11.7</scala_2.11.version>
+        <default.scala.binary.version>2.10</default.scala.binary.version>
+        <default.scala.version>${scala_2.10.version}</default.scala.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>com.stratio.sparta</groupId>
-                <artifactId>web</artifactId>
+                <artifactId>web_${scala.binary.version}</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.stratio.sparta</groupId>
-                <artifactId>aggregator</artifactId>
+                <artifactId>aggregator_${scala.binary.version}</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.stratio.sparta</groupId>
-                <artifactId>serving-api</artifactId>
+                <artifactId>serving-api_${scala.binary.version}</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.stratio.sparta</groupId>
-                <artifactId>serving-core</artifactId>
+                <artifactId>serving-core_${scala.binary.version}</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.stratio.sparta</groupId>
-                <artifactId>driver</artifactId>
+                <artifactId>driver_${scala.binary.version}</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.stratio.sparta</groupId>
-                <artifactId>sdk</artifactId>
+                <artifactId>sdk_${scala.binary.version}</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.stratio.sparta</groupId>
-                <artifactId>plugins</artifactId>
+                <artifactId>plugins_${scala.binary.version}</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -448,6 +452,11 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-reflect</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.8.1</version>
@@ -463,6 +472,9 @@
     <build>
         <sourceDirectory>src/main/scala</sourceDirectory>
         <testSourceDirectory>src/test/scala</testSourceDirectory>
+        <directory>${project.basedir}/target/${scala.binary.version}</directory>
+        <outputDirectory>${project.build.directory}/classes</outputDirectory>
+        <testOutputDirectory>${project.build.directory}/test-classes</testOutputDirectory>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -562,6 +574,15 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.stratio.mojo</groupId>
+                <artifactId>scala-cross-build-maven-plugin</artifactId>
+                <version>0.1.0-RC3</version>
+                <configuration>
+                    <defaultScalaBinaryVersion>${default.scala.binary.version}</defaultScalaBinaryVersion>
+                    <defaultScalaVersion>${default.scala.version}</defaultScalaVersion>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -606,6 +627,28 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
+                <spark.version.folder>1.5</spark.version.folder>
+                <spark.version>1.5.2</spark.version>
+                <mongodb.spark.version>0.10.1</mongodb.spark.version>
+                <elastic.spark.version>2.2.0-beta1</elastic.spark.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>scala-2.10</id>
+            <properties>
+                <scala.binary.version>2.10</scala.binary.version>
+                <scala.version>${scala_2.10.version}</scala.version>
+                <spark.version.folder>1.5</spark.version.folder>
+                <spark.version>1.5.2</spark.version>
+                <mongodb.spark.version>0.10.1</mongodb.spark.version>
+                <elastic.spark.version>2.2.0-beta1</elastic.spark.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>scala-2.11</id>
+            <properties>
+                <scala.binary.version>2.11</scala.binary.version>
+                <scala.version>${scala_2.11.version}</scala.version>
                 <spark.version.folder>1.5</spark.version.folder>
                 <spark.version>1.5.2</spark.version>
                 <mongodb.spark.version>0.10.1</mongodb.spark.version>
