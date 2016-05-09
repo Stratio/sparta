@@ -24,7 +24,7 @@
 		</Console>
 	</Appenders>
 	<Loggers>
-		<Root level="INFO">
+		<Root level="${sys:logLevel}">
 			<AppenderRef ref="Console"/>
 		</Root>
 		<logger name="com.stratio.tests.utils" level="INFO" additivity="false">
