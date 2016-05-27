@@ -1,4 +1,4 @@
-describe('policies.wizard.controller.policy-model-controller', function () {
+describe('policies.wizard.controller.policy-model-controller', function() {
   beforeEach(module('webApp'));
   beforeEach(module('api/policy.json'));
   beforeEach(module('model/policy.json'));
@@ -10,10 +10,10 @@ describe('policies.wizard.controller.policy-model-controller', function () {
 
   // init mock modules
 
-  beforeEach(inject(function ($controller, $q, $httpBackend, $rootScope) {
+  beforeEach(inject(function($controller, $q, $httpBackend, $rootScope) {
     scope = $rootScope.$new();
 
-    inject(function (_modelPolicy_, _apiPolicy_,_templatePolicy_, _modelTransformation_) {
+    inject(function(_modelPolicy_, _apiPolicy_, _templatePolicy_, _modelTransformation_) {
       fakePolicy = angular.copy(_modelPolicy_);
       fakeApiPolicy = angular.copy(_apiPolicy_);
       fakePolicyTemplate = _templatePolicy_;
@@ -25,11 +25,11 @@ describe('policies.wizard.controller.policy-model-controller', function () {
       .respond({});
 
     policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate']);
-    policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
+    policyModelFactoryMock.getCurrentPolicy.and.callFake(function() {
       return fakePolicy;
     });
 
-    policyModelFactoryMock.getTemplate.and.callFake(function () {
+    policyModelFactoryMock.getTemplate.and.callFake(function() {
       return fakePolicyTemplate;
     });
 
@@ -44,14 +44,14 @@ describe('policies.wizard.controller.policy-model-controller', function () {
       '$scope': scope
     });
 
-    resolvedPromise = function () {
+    resolvedPromise = function() {
       var defer = $q.defer();
       defer.resolve();
 
       return defer.promise;
     };
 
-    rejectedPromise = function () {
+    rejectedPromise = function() {
       var defer = $q.defer();
       defer.reject();
 
@@ -59,24 +59,24 @@ describe('policies.wizard.controller.policy-model-controller', function () {
     }
   }));
 
-  describe("when it is initialized", function () {
+  describe("when it is initialized", function() {
 
-    it('it should get a policy template from from policy factory', function () {
+    it('it should get a policy template from from policy factory', function() {
       expect(ctrl.template).toBe(fakePolicyTemplate);
     });
 
-    it('it should get the policy that is being created or edited from policy factory', function () {
+    it('it should get the policy that is being created or edited from policy factory', function() {
       expect(ctrl.policy).toBe(fakePolicy);
     });
 
-    describe("if factory model is not null", function () {
+    describe("if factory model is not null", function() {
 
-      it("it should load the model from the model factory", function () {
+      it("it should load the model from the model factory", function() {
         expect(ctrl.model).toBe(fakeModel);
       });
     });
 
-    it("if factory model is null, no changes are executed", inject(function ($controller) {
+    it("if factory model is null, no changes are executed", inject(function($controller) {
       var cleanCtrl = $controller('PolicyModelCtrl', {
         'PolicyModelFactory': policyModelFactoryMock,
         'ModelFactory': modelFactoryMock,
@@ -94,18 +94,46 @@ describe('policies.wizard.controller.policy-model-controller', function () {
     }));
   });
 
-  describe("should be able to change the default configuration when type is changed by user", function () {
-    it("if type is Morphlines, it returns the morphlinesDefaultConfiguration", function () {
+  describe("should be able to change the form settings when type is changed by user", function() {
+    it("configuration and outputs list are reset", function() {
+      ctrl.model.outputFields = [{name: "fake output", type: "String"}];
+      ctrl.configuration = {"name": "fake parser"};
+
+      ctrl.onChangeType();
+
+      expect(ctrl.model.outputFields).toEqual([]);
+      expect(ctrl.model.configuration).toEqual({});
+    });
+
+    it("if type is Morphlines, it puts a default morphline configuration", function() {
       ctrl.model.type = "Morphlines";
       ctrl.onChangeType();
 
       expect(ctrl.model.configuration).toEqual(fakeModelTemplate.Morphlines.defaultConfiguration);
     });
 
+    it("if type is Geo, it puts a default geo configuration and its available output types and input field is removed", function() {
+      ctrl.model.type = "Geo";
+      ctrl.model.inputField = "fake input field";
+
+      ctrl.onChangeType();
+
+      expect(ctrl.model.configuration).toEqual(fakeModelTemplate.Geo.defaultConfiguration);
+      expect(ctrl.outputFieldTypes).toEqual(fakeModelTemplate.Geo.outputFieldTypes);
+      expect(ctrl.model.inputField).toBeUndefined();
+
+    });
+
+    it("if type is DateTime, it puts its available output types", function() {
+      ctrl.model.type = "DateTime";
+      ctrl.onChangeType();
+
+      expect(ctrl.outputFieldTypes).toEqual(fakeModelTemplate.DateTime.outputFieldTypes)
+    });
   });
 
-  describe("should be able to add a model to the policy", function () {
-    it("model is not added if view validations have not been passed and error is updated", function () {
+  describe("should be able to add a model to the policy", function() {
+    it("model is not added if view validations have not been passed and error is updated", function() {
       ctrl.form = {$valid: false}; //view validations have not been passed
       ctrl.addModel();
 
@@ -113,7 +141,7 @@ describe('policies.wizard.controller.policy-model-controller', function () {
       expect(modelFactoryMock.setError).toHaveBeenCalledWith("_ERROR_._GENERIC_FORM_");
     });
 
-    it("model is added if view validations have been passed and has an output field at least", function () {
+    it("model is added if view validations have been passed and has an output field at least", function() {
       ctrl.form = {$valid: true}; //view validations have been passed
 
       ctrl.addModel();
@@ -130,11 +158,11 @@ describe('policies.wizard.controller.policy-model-controller', function () {
   });
 
 
-  describe("should be able to remove the factory model from the policy", function () {
-    afterEach(function () {
+  describe("should be able to remove the factory model from the policy", function() {
+    afterEach(function() {
       scope.$digest();
     });
-    it("if model service removes successfully the model, current model is reset with order equal to the last model more one and position equal to the model list length", function () {
+    it("if model service removes successfully the model, current model is reset with order equal to the last model more one and position equal to the model list length", function() {
       modelServiceMock.removeModel.and.callFake(resolvedPromise);
       var lastModelOrder = 1;
       var fakeModel2 = angular.copy(fakeModel);
@@ -142,16 +170,16 @@ describe('policies.wizard.controller.policy-model-controller', function () {
       var models = [fakeModel, fakeModel2];
       ctrl.policy.transformations = models;
 
-      ctrl.removeModel().then(function () {
+      ctrl.removeModel().then(function() {
         expect(modelFactoryMock.resetModel).toHaveBeenCalledWith(fakeModelTemplate, lastModelOrder + 1, models.length);
         expect(modelFactoryMock.updateModelInputs).toHaveBeenCalledWith(models);
       });
     });
 
-    it("if model service is not able to remove the model, controller do not do anything", function () {
+    it("if model service is not able to remove the model, controller do not do anything", function() {
       modelServiceMock.removeModel.and.callFake(rejectedPromise);
 
-      ctrl.removeModel().then(function () {
+      ctrl.removeModel().then(function() {
         expect(modelFactoryMock.resetModel).not.toHaveBeenCalled();
       });
     });

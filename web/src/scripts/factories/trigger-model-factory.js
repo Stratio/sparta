@@ -60,6 +60,7 @@
       trigger.name = _trigger.name;
       trigger.sql = _trigger.sql;
       trigger.outputs = _trigger.outputs;
+      trigger.primaryKey = _trigger.primaryKey;
       if (type == triggerConstants.TRANSFORMATION) {
         trigger.overLast = _trigger.overLast;
         trigger.overLastNumber = _trigger.overLastNumber;

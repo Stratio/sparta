@@ -55,9 +55,8 @@
           }
           /* Policy name exists */
           else {
-            var policyName = vm.template.basicSettings[0];
-            document.querySelector('#dataSource'+policyName.propertyName+'Form').focus();
             vm.errorText = "_ERROR_._200_";
+            document.querySelector('#dataSourcenameForm').focus();
           }
         });
       }

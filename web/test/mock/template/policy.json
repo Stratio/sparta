@@ -25,8 +25,6 @@
       "width": 12,
       "required": true,
       "default": "tmp/checkpoint",
-
-
       "qa": "policy-checkpoint-path"
     },
     {
@@ -48,6 +46,46 @@
       "qa": "policy-spark-streaming-window-sparkStreamingWindowTime",
       "default": "s",
       "required": true,
+      "values": [
+        {
+          "label": "Milliseconds",
+          "value": "ms"
+        },
+        {
+          "label": "Seconds",
+          "value": "s"
+        },
+        {
+          "label": "Minutes",
+          "value": "m"
+        },
+        {
+          "label": "Hours",
+          "value": "h"
+        },
+        {
+          "label": "Days",
+          "value": "d"
+        }
+      ]
+    },
+    {
+      "propertyId": "rememberNumber",
+      "propertyName": "_POLICY_REMEMBER_FIELD_",
+      "propertyType": "number",
+      "width": 6,
+      "position": "left",
+      "required": "scope.form['dataSourcerememberTimeForm']['dataSourcerememberTimeForm'].$modelValue.length > 0",
+      "qa": "policy-remember-number"
+    },
+    {
+      "propertyId": "rememberTime",
+      "propertyName": "_WHITE_SPACE_",
+      "propertyType": "select",
+      "width": 6,
+      "position": "right",
+      "qa": "policy-remember-time",
+      "required": "scope.form['dataSourcerememberNumberForm']['dataSourcerememberNumberForm'].$modelValue",
       "values": [
         {
           "label": "Milliseconds",
@@ -279,7 +317,8 @@
           "label": "Timestamp",
           "value": "timestamp"
         }
-      ],"properties":[
+      ],
+      "properties": [
         {
           "propertyId": "inputFormat",
           "propertyName": "_INPUT_FORMAT_",
@@ -410,12 +449,19 @@
           "default": "unixMillis",
           "required": true
         }
-      ]},
-    "Geo":{
+      ]
+    },
+    "Geo": {
       "defaultConfiguration": {
         "latitude": "lat",
         "longitude": "long"
-      }
+      },
+      "outputFieldTypes": [
+        {
+          "label": "String",
+          "value": "string"
+        }
+      ]
     }
   },
   "cube": {
@@ -613,13 +659,24 @@
         "position": "left"
       }
     ],
-    "outputProperties":[
+    "outputProperties": [
       {
-        "propertyId": "writer.fixedMeasure",
-        "propertyName": "_FIXED_MEASURE_",
+        "propertyId": "writer.fixedMeasureName",
+        "propertyName": "_FIXED_MEASURE_NAME_",
         "propertyType": "text",
-        "qa": "cube-fixed-measure",
-        "width": 12
+        "qa": "cube-fixed-measure-name",
+        "width": 6,
+        "required": "scope.form['dataSource_FIXED_MEASURE_VALUE_Form']['dataSource_FIXED_MEASURE_VALUE_Form'].$modelValue.length > 0"
+      },
+      {
+        "propertyId": "writer.fixedMeasureValue",
+        "propertyName": "_FIXED_MEASURE_VALUE_",
+        "propertyType": "text",
+        "qa": "cube-fixed-measure-value",
+        "required": "false",
+        "width": 6,
+        "position": "right",
+        "required": "scope.form['dataSource_FIXED_MEASURE_NAME_Form']['dataSource_FIXED_MEASURE_NAME_Form'].$modelValue.length > 0"
       },
       {
         "propertyId": "writer.dateType",
@@ -687,8 +744,7 @@
     }
   },
   "trigger": {
-
-    "transformation":{
+    "transformation": {
       "defaultName": "trigger",
       "properties": [
         {
@@ -750,7 +806,7 @@
         }
       ]
     },
-    "cube":{
+    "cube": {
       "defaultName": "trigger",
       "properties": [
         {
@@ -771,6 +827,5 @@
         }
       ]
     }
-
   }
 }
