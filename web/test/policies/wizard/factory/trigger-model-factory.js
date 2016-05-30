@@ -31,6 +31,7 @@ describe('policies.wizard.factory.trigger-model-factory', function () {
     expect(trigger.name).toBe(fakeApiTrigger.name);
     expect(trigger.sql).toBe(fakeApiTrigger.sql);
     expect(trigger.outputs).toBe(fakeApiTrigger.outputs);
+    expect(trigger.primaryKey).toBe(fakeApiTrigger.primaryKey);
     expect(factory.getError()).toEqual({"text": ""});
     expect(factory.getContext().position).toBe(position);
   });
@@ -84,7 +85,8 @@ describe('policies.wizard.factory.trigger-model-factory', function () {
       expect(trigger.name).toEqual(fakeApiTrigger.name);
       expect(trigger.sql).toEqual(fakeApiTrigger.sql);
       expect(trigger.outputs).toEqual(fakeApiTrigger.outputs);
-
+      expect(trigger.primaryKey).toBe(fakeApiTrigger.primaryKey);
+      
       factory.setTrigger(fakeApiTrigger, desiredPosition, 'transformation');
 
       var trigger = factory.getTrigger(desiredPosition);
