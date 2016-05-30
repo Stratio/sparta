@@ -293,9 +293,21 @@ Feature: Test adding a new policy in Sparta GUI
         # Add output field
         Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
         Then I type 'myOutput' on the element on index '0'
+		And '0' element exists with 'css:i[data-qa="policy-description-raw-data-partition-format"]'
         Given '1' element exists with 'css:i[data-qa="policy-model-outputs-add-button"]'
         When I click on the element on index '0'
         Then '1' element exists with 'css:i[data-qa="policy-model-output-list-0-remove"]'
+		Then '1' element exists with 'css:option[value="string"]'
+		Then '0' element exists with 'css:option[value="long"]'
+		Then '0' element exists with 'css:option[value="double"]'
+		Then '0' element exists with 'css:option[value="integer"]'
+		Then '0' element exists with 'css:option[value="boolean"]'
+		Then '0' element exists with 'css:option[value="date"]'
+		Then '0' element exists with 'css:option[value="datetime"]'
+		Then '0' element exists with 'css:option[value="timestamp"]'
+		Then '0' element exists with 'css:option[value="arraydouble"]'
+		Then '0' element exists with 'css:option[value="arraystring"]'
+		Then '0' element exists with 'css:option[value="text"]'
 
 		# Add same output field
         Given '1' element exists with 'css:input[data-qa="policy-model-outputs"]'
@@ -304,9 +316,6 @@ Feature: Test adding a new policy in Sparta GUI
         When I click on the element on index '0'
         Then '1' element exists with 'css:span[data-qa="policy-model-outputs-error-duplicated"]'
         And '1' element exists with 'css:label[data-qa^="policy-model-output-list-"]'
-
-		Given '1' element exists with 'css:select[data-qa="policy-description-raw-data-partition-format"]'
-        Then I select 'Your raw event' on the element on index '0'
 
         # Add model
         Given '1' element exists with 'css:button[data-qa="policy-model-add-button"]'
