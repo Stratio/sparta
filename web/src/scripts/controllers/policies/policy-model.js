@@ -52,20 +52,31 @@
       }
     }
 
+    function getOutputList() {
+      if (vm.template.model[vm.model.type] && vm.template.model[vm.model.type].outputFieldTypes) {
+        return vm.template.model[vm.model.type].outputFieldTypes;
+      }
+      return vm.template.model.defaultOutputFieldTypes;
+
+    }
+
     function onChangeType() {
       vm.model.outputFields = [];
+      vm.model.inputField = "";
       vm.outputFieldTypes = vm.template.model.defaultOutputFieldTypes;
+      vm.model.configuration = {};
       switch (vm.model.type) {
         case modelConstants.MORPHLINES:
+          vm.model.configuration = vm.template.model[modelConstants.MORPHLINES].defaultConfiguration;
+          break;
         case modelConstants.GEO:
-          vm.model.configuration = vm.template.model[vm.model.type].defaultConfiguration;
+          delete vm.model.inputField;
+          vm.model.configuration = vm.template.model[modelConstants.GEO].defaultConfiguration;
+          vm.outputFieldTypes = vm.template.model[modelConstants.GEO].outputFieldTypes;
           break;
         case modelConstants.DATETIME:
           vm.outputFieldTypes = vm.template.model[modelConstants.DATETIME].outputFieldTypes;
           break;
-        default:
-          vm.model.configuration = {};
-
       }
     }
 
@@ -81,7 +92,7 @@
     }
 
     function removeModel() {
-      return ModelService.removeModel().then(function () {
+      return ModelService.removeModel().then(function() {
         var order = 0;
         var modelNumber = vm.policy.transformations.length;
         if (modelNumber > 0) {
@@ -97,9 +108,17 @@
       ModelFactory.resetModel(vm.template.model, vm.model.order, vm.modelContext.position);
     }
 
-    $scope.$on("forceValidateForm", function () {
+    $scope.$on("forceValidateForm", function() {
       vm.form.$submitted = true;
     });
+
+    $scope.$watch(
+      "vm.model.type",
+      function(previousType, newType) {
+         if (previousType != newType) {
+          vm.outputFieldTypes = getOutputList();
+        }
+      })
   }
 })
 ();
