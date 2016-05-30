@@ -52,6 +52,14 @@
       }
     }
 
+    function getOutputList() {
+      if (vm.template.model[vm.model.type] && vm.template.model[vm.model.type].outputFieldTypes) {
+        return vm.template.model[vm.model.type].outputFieldTypes;
+      }
+      return vm.template.model.defaultOutputFieldTypes;
+
+    }
+
     function onChangeType() {
       vm.model.outputFields = [];
       vm.model.inputField = "";
@@ -103,6 +111,14 @@
     $scope.$on("forceValidateForm", function() {
       vm.form.$submitted = true;
     });
+
+    $scope.$watch(
+      "vm.model.type",
+      function(previousType, newType) {
+         if (previousType != newType) {
+          vm.outputFieldTypes = getOutputList();
+        }
+      })
   }
 })
 ();

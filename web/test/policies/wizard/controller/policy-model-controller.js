@@ -6,13 +6,13 @@ describe('policies.wizard.controller.policy-model-controller', function() {
   beforeEach(module('model/transformation.json'));
 
   var ctrl, scope, fakePolicy, fakePolicyTemplate, fakeModelTemplate, fakeModel, policyModelFactoryMock,
-    modelFactoryMock, modelServiceMock, resolvedPromise, rejectedPromise, fakeApiPolicy;
+    modelFactoryMock, modelServiceMock, resolvedPromise, rejectedPromise, fakeApiPolicy, modelConstants;
 
   // init mock modules
 
-  beforeEach(inject(function($controller, $q, $httpBackend, $rootScope) {
+  beforeEach(inject(function($controller, $q, $httpBackend, $rootScope, _modelConstants_) {
     scope = $rootScope.$new();
-
+    modelConstants = _modelConstants_;
     inject(function(_modelPolicy_, _apiPolicy_, _templatePolicy_, _modelTransformation_) {
       fakePolicy = angular.copy(_modelPolicy_);
       fakeApiPolicy = angular.copy(_apiPolicy_);
@@ -37,7 +37,7 @@ describe('policies.wizard.controller.policy-model-controller', function() {
 
     modelFactoryMock = jasmine.createSpyObj('ModelFactory', ['getModel', 'getError', 'getModelInputs', 'getContext', 'setError', 'resetModel', 'updateModelInputs']);
     modelFactoryMock.getModel.and.returnValue(fakeModel);
-    ctrl = $controller('PolicyModelCtrl', {
+    ctrl = $controller('PolicyModelCtrl as vm', {
       'PolicyModelFactory': policyModelFactoryMock,
       'ModelFactory': modelFactoryMock,
       'ModelService': modelServiceMock,
@@ -132,6 +132,36 @@ describe('policies.wizard.controller.policy-model-controller', function() {
     });
   });
 
+  it("when type is changed once model has been initialized, output list is updated according to the new type", function() {
+    modelFactoryMock.getModel.and.returnValue(fakeModel);
+
+    scope.$apply();
+
+    fakeModel.type = "DateTime";
+
+    scope.$apply();
+
+    expect(ctrl.outputFieldTypes).toEqual(fakeModelTemplate[modelConstants.DATETIME].outputFieldTypes);
+
+    fakeModel.type = "Morphlines";
+
+    scope.$apply();
+
+    expect(ctrl.outputFieldTypes).toEqual(fakeModelTemplate.defaultOutputFieldTypes);
+
+    fakeModel.type = "Geo";
+
+    scope.$apply();
+
+    expect(ctrl.outputFieldTypes).toEqual(fakeModelTemplate[modelConstants.GEO].outputFieldTypes);
+
+    fakeModel.type = "other";
+
+    scope.$apply();
+
+    expect(ctrl.outputFieldTypes).toEqual(fakeModelTemplate.defaultOutputFieldTypes);
+  });
+
   describe("should be able to add a model to the policy", function() {
     it("model is not added if view validations have not been passed and error is updated", function() {
       ctrl.form = {$valid: false}; //view validations have not been passed
@@ -162,6 +192,7 @@ describe('policies.wizard.controller.policy-model-controller', function() {
     afterEach(function() {
       scope.$digest();
     });
+
     it("if model service removes successfully the model, current model is reset with order equal to the last model more one and position equal to the model list length", function() {
       modelServiceMock.removeModel.and.callFake(resolvedPromise);
       var lastModelOrder = 1;
