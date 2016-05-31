@@ -1,8 +1,8 @@
 {
   "fragmentType": "output",
   "name": "Elasticsearch",
-  "description": "Elasticsearch output",
-  "shortDescription": "Elasticsearch ",
+  "description": "Elasticsearch is a search server based on Lucene. It provides a distributed, multitenant-capable full-text search engine with a RESTful web interface and schema-free JSON documents.",
+  "shortDescription": "The Elasticsearch output uses the generic implementation with DataFrames.",
   "element": {
     "name": "out-Elasticsearch",
     "type": "ElasticSearch",

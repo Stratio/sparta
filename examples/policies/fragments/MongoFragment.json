@@ -1,8 +1,8 @@
 {
   "fragmentType": "output",
   "name": "MongoDB",
-  "description": "MongoDB output",
-  "shortDescription": "MongoDB output",
+  "description": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling.",
+  "shortDescription": "MongoDB is an open-source document database, and the leading NoSQL database.",
   "element": {
     "name": "out-Mongo",
     "type": "MongoDb",
