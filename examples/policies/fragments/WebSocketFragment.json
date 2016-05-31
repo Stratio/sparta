@@ -1,8 +1,8 @@
 {
   "fragmentType": "input",
   "name": "WebSocket",
-  "description": "websocket input",
-  "shortDescription": "websocket input",
+  "description": "WebSocket is a protocol providing full-duplex communication channels over a single TCP connection.",
+  "shortDescription": "WebSocket is a protocol providing full-duplex communication channels over a single TCP connection.",
   "element": {
     "name": "in-websocket",
     "type": "WebSocket",
