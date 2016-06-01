@@ -35,10 +35,16 @@ class ResourceManagerLinkIT extends FlatSpec with
     serverSocket.close()
   }
 
+  private def checkIpAndPortAreAvailabe(host: String, port: Int): Unit = {
+    if (!serverSocket.socket.isBound){
+      serverSocket.socket.bind(new InetSocketAddress(host, port))
+    }
+  }
+
   it should "return local Spark UI link" in {
     serverSocket = ServerSocketChannel.open()
     val localhostName = java.net.InetAddress.getLocalHost().getHostName()
-    serverSocket.socket.bind(new InetSocketAddress(localhostName, 4040))
+    checkIpAndPortAreAvailabe(localhostName, 4040)
     val config = ConfigFactory.parseString(
       """
         |sparta{
@@ -54,7 +60,7 @@ class ResourceManagerLinkIT extends FlatSpec with
 
   it should "return Mesos UI link" in {
     serverSocket = ServerSocketChannel.open()
-    serverSocket.socket.bind(new InetSocketAddress("127.0.0.1",5050))
+    checkIpAndPortAreAvailabe("127.0.0.1",5050)
     val config = ConfigFactory.parseString(
       """
         |sparta{
@@ -74,7 +80,7 @@ class ResourceManagerLinkIT extends FlatSpec with
 
   it should "return YARN UI link" in {
     serverSocket = ServerSocketChannel.open()
-    serverSocket.socket.bind(new InetSocketAddress("localhost",8088))
+    checkIpAndPortAreAvailabe("localhost",8088)
     val config = ConfigFactory.parseString(
       """
         |sparta{
@@ -103,7 +109,7 @@ class ResourceManagerLinkIT extends FlatSpec with
 
   it should "return Spark Standalone UI link" in {
     serverSocket = ServerSocketChannel.open()
-    serverSocket.socket.bind(new InetSocketAddress("localhost",8080))
+    checkIpAndPortAreAvailabe("localhost",8080)
     val config = ConfigFactory.parseString(
       """
         |sparta{

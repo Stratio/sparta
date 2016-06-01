@@ -19,12 +19,13 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>parent</artifactId>
+        <artifactId>parent_2.10</artifactId>
         <groupId>com.stratio.sparta</groupId>
         <version>0.10.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>stratio-sparta</artifactId>
+    <artifactId>stratio-sparta_2.10</artifactId>
+    <packaging>pom</packaging>
     <properties>
         <classpath.directory>lib</classpath.directory>
         <config.directory>src/main/resources</config.directory>
@@ -34,11 +35,11 @@
     <dependencies>
         <dependency>
             <groupId>com.stratio.sparta</groupId>
-            <artifactId>driver</artifactId>
+            <artifactId>driver_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.stratio.sparta</groupId>
-            <artifactId>serving-api</artifactId>
+            <artifactId>serving-api_${scala.binary.version}</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -96,6 +97,26 @@
                     </plugin>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>1.10</version>
+                        <executions>
+                            <execution>
+                                <id>parse-scala-version</id>
+                                <goals>
+                                    <goal>regex-property</goal>
+                                </goals>
+                                <configuration>
+                                    <name>scala.binary.package.version</name>
+                                    <value>${scala.binary.version}</value>
+                                    <regex>(.*)[\._](.*)</regex>
+                                    <replacement>$1$2</replacement>
+                                    <failIfNoMatch>true</failIfNoMatch>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
                         <artifactId>appassembler-maven-plugin</artifactId>
                         <version>1.10</version>
                         <executions>
@@ -134,7 +155,7 @@
                         <extensions>true</extensions>
                         <inherited>false</inherited>
                         <configuration>
-                            <outputFileName>stratio-sparta</outputFileName>
+                            <outputFileName>stratio-sparta-scala${scala.binary.package.version}</outputFileName>
                             <contact><![CDATA[Stratio SpaRTA<sparta@stratio.com>]]></contact>
                             <contactEmail>sparta@stratio.com</contactEmail>
                             <deb>
