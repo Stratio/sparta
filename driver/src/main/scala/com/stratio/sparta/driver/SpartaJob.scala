@@ -391,6 +391,8 @@ object SpartaJob extends SLF4JLogging with SpartaSerializer {
     ex.getCause match {
       case cause: ClassNotFoundException =>
         log.error("The component couldn't be found in classpath. Please check the type.")
+      case _ =>
+        log.error("Error instantiating policy component:", ex)
     }
     saveErrorZK(policyId, code)
     new IllegalArgumentException(message, ex)
