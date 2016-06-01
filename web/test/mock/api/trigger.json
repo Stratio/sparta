@@ -3,6 +3,7 @@
   "fixedMeasure":"fixed measure",
   "name": "fake cube",
   "sql": "SELECT x FROM y",
+  "primaryKey":["id", "name"],
   "outputs" : ["output1", "output2"],
   "configuration":{"fake_key": "fake_value"}
 }
