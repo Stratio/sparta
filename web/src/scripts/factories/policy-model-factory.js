@@ -36,7 +36,6 @@
       policy.cubes = [];
       policy.streamTriggers = [];
       ///* Reset policy advanced settings to be loaded from template automatically */
-      delete policy.checkpointPath;
       delete policy.sparkStreamingWindowNumber;
       delete policy.sparkStreamingWindowTime;
       delete policy.storageLevel;
@@ -51,7 +50,6 @@
       policy.sparkStreamingWindow = inputPolicyJSON.sparkStreamingWindow;
       policy.remember = inputPolicyJSON.remember;
       policy.storageLevel = inputPolicyJSON.storageLevel;
-      policy.checkpointPath = inputPolicyJSON.checkpointPath;
       policy.rawDataEnabled = (inputPolicyJSON.rawData.enabled == "true");
       policy.rawDataPath = inputPolicyJSON.rawData.path;
       policy.transformations = inputPolicyJSON.transformations;

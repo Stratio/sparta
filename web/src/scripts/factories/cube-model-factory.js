@@ -33,7 +33,6 @@
       cube.name = template.defaultName + (nameIndex + 1);
       cube.dimensions = [];
       cube.operators = [];
-      cube.checkpointConfig = {};
       cube.triggers = [];
       cube.writer = {};
 
@@ -59,7 +58,6 @@
       cube.name = c.name;
       cube.dimensions = c.dimensions;
       cube.operators = c.operators;
-      cube.checkpointConfig = c.checkpointConfig;
       cube.triggers = c.triggers;
       cube['writer.fixedMeasureName'] = c['writer.fixedMeasureName'];
       cube['writer.fixedMeasureValue'] = c['writer.fixedMeasureValue'];
