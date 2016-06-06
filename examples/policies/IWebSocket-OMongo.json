@@ -2,7 +2,6 @@
   "name": "policy-websocket",
   "description": "Input ws, output mongo",
   "sparkStreamingWindow": 2000,
-  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "path": "myTestParquetPath"

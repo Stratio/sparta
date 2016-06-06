@@ -138,7 +138,7 @@ class PolicyUtilsTest extends BaseUtilsTest
         .when(utils)
         .isLocalMode
 
-      val policy: AggregationPoliciesModel = getPolicyModel().copy(checkpointPath = "hdfs://")
+      val policy: AggregationPoliciesModel = getPolicyModel().copy(checkpointPath = Option("hdfs://"))
       utils.deleteCheckpointPath(policy)
 
       verify(utils, times(1)).deleteFromHDFS(policy)

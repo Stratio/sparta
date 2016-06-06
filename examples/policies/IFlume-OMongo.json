@@ -2,7 +2,6 @@
   "name": "policy-MongoDB-Financtial",
   "description": "policy-MongoDB-Financtial",
   "sparkStreamingWindow": 6000,
-  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "path": "myTestParquetPath"

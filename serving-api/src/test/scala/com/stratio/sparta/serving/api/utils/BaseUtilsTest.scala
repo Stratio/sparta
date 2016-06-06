@@ -153,7 +153,7 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText"))
       name = name,
       description = "whatever",
       sparkStreamingWindow = AggregationPoliciesModel.sparkStreamingWindow,
-      checkpointPath = "test/test",
+      checkpointPath = Option("test/test"),
       rawData,
       transformations,
       Seq(),

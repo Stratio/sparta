@@ -51,7 +51,7 @@ class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: 
   private val HdfsConfig = SpartaConfig.getHdfsConfig.get
   private val DetailConfig = SpartaConfig.getDetailConfig.get
 
-  private val Hdfs = HdfsUtils(HdfsConfig)
+  private val Hdfs = HdfsUtils(Option(HdfsConfig))
   private val Uploader = ClusterSparkFiles(policy, Hdfs)
   private val PolicyId = policy.id.get.trim
   private val Master = ClusterConfig.getString(AppConstant.Master)

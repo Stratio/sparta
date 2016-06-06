@@ -6,7 +6,6 @@
     "enabled": "false",
     "path": "myTestParquetPath"
   },
-  "checkpointPath": "checkpoint",
   "fragments": [
     {
       "id": "_input_id_",

@@ -84,7 +84,7 @@ trait HttpServiceBaseTest extends WordSpec
       name = "testpolicy",
       description = "whatever",
       sparkStreamingWindow = AggregationPoliciesModel.sparkStreamingWindow,
-      checkpointPath = "test/test",
+      checkpointPath = Option("test/test"),
       rawData,
       transformations,
       Seq(),

@@ -16,6 +16,8 @@
 package com.stratio.sparta.driver
 
 import java.io._
+import com.stratio.sparta.serving.core.SpartaConfig
+
 import scala.util.{Try, _}
 
 import akka.event.slf4j.SLF4JLogging
@@ -32,10 +34,10 @@ import com.stratio.sparta.driver.helper.SchemaHelper
 import com.stratio.sparta.driver.helper.SchemaHelper._
 import com.stratio.sparta.driver.service.RawDataStorageService
 import com.stratio.sparta.driver.trigger.{StreamWriter, StreamWriterOptions, Trigger}
-import com.stratio.sparta.driver.util.ReflectionUtils
+import com.stratio.sparta.driver.util.{HdfsUtils, ReflectionUtils}
 import com.stratio.sparta.sdk.TypeOp.TypeOp
 import com.stratio.sparta.sdk._
-import com.stratio.sparta.serving.core.constants.ErrorCodes
+import com.stratio.sparta.serving.core.constants.{AppConstant, ErrorCodes}
 import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.helpers.OperationsHelper
 import com.stratio.sparta.serving.core.models._
@@ -45,7 +47,7 @@ class SpartaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
   private val ReflectionUtils = SpartaJob.ReflectionUtils
 
   def run(sc: SparkContext): StreamingContext = {
-    val checkpointPolicyPath = policy.checkpointPath.concat(File.separator).concat(policy.name)
+    val checkpointPolicyPath = SpartaJob.generateCheckpointPath(policy)
     val sparkStreamingWindow = OperationsHelper.parseValueToMilliSeconds(policy.sparkStreamingWindow)
     val ssc = sparkStreamingInstance(Duration(sparkStreamingWindow), checkpointPolicyPath, policy.remember)
     val parserSchemas = SchemaHelper.getSchemasFromParsers(policy.transformations, Input.InitSchema)
@@ -99,6 +101,9 @@ class SpartaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
 object SpartaJob extends SLF4JLogging with SpartaSerializer {
 
   lazy val ReflectionUtils = new ReflectionUtils
+
+  def generateCheckpointPath(policy: AggregationPoliciesModel): String =
+    AggregationPoliciesModel.checkpointPath(policy)
 
   def apply(policy: AggregationPoliciesModel): SpartaJob = new SpartaJob(policy)
 

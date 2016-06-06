@@ -15,6 +15,7 @@
  */
 package com.stratio.sparta.serving.core.models
 
+import com.stratio.sparta.serving.core.SpartaConfig
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.OperationsHelper._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
@@ -26,7 +27,7 @@ case class AggregationPoliciesModel(
   name: String,
   description: String = "default description",
   sparkStreamingWindow: String = AggregationPoliciesModel.sparkStreamingWindow,
-  checkpointPath: String,
+  checkpointPath: Option[String],
   rawData: RawDataModel,
   transformations: Seq[TransformationsModel],
   streamTriggers: Seq[TriggerModel],
@@ -41,11 +42,21 @@ case object AggregationPoliciesModel {
 
   val sparkStreamingWindow = "2s"
   val storageDefaultValue = Some("MEMORY_AND_DISK_SER_2")
-  def checkpointPath(policy: AggregationPoliciesModel): String = s"${policy.checkpointPath}/${policy.name}"
+
+  private def getCheckpointPathFromProperties(policyName: String): String =
+    SpartaConfig.getDetailConfig.map { config =>
+      s"""${config.getString("checkpointPath")}/$policyName"""
+    } getOrElse {
+      throw new Exception("config.checkpointPath variable not found")
+    }
+
+  def checkpointPath(policy: AggregationPoliciesModel): String =
+    policy.checkpointPath.map { path =>
+      s"${path.replace("hdfs://", "")}/${policy.name}"
+    } getOrElse getCheckpointPathFromProperties(policy.name)
 }
 
-case class PolicyWithStatus(status: PolicyStatusEnum.Value,
-                            policy: AggregationPoliciesModel)
+case class PolicyWithStatus(status: PolicyStatusEnum.Value, policy: AggregationPoliciesModel)
 
 case class PolicyResult(policyId: String, policyName: String)
 

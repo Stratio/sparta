@@ -6,7 +6,6 @@
     "enabled": "false",
     "path": "myTestParquetPath"
   },
-  "checkpointPath": "checkpoint",
   "input":
   {
     "name": "in",

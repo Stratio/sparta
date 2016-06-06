@@ -23,6 +23,7 @@ import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
 import com.stratio.sparta.driver.SpartaJob
+import com.stratio.sparta.driver.SpartaJob._
 import com.stratio.sparta.driver.factory._
 import com.stratio.sparta.sdk._
 import com.stratio.sparta.serving.core.constants.AppConstant
@@ -47,8 +48,8 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
   def standAloneStreamingContext(apConfig: AggregationPoliciesModel, files: Seq[File]): Option[StreamingContext] = {
     runStatusListener(apConfig.id.get, apConfig.name)
 
-    val ssc = StreamingContext.getOrCreate(AggregationPoliciesModel.checkpointPath(apConfig), () => {
-      log.info(s"Nothing in checkpoint path: ${AggregationPoliciesModel.checkpointPath(apConfig)}")
+    val ssc = StreamingContext.getOrCreate(generateCheckpointPath(apConfig), () => {
+      log.info(s"Nothing in checkpoint path: ${generateCheckpointPath(apConfig)}")
       SpartaJob(apConfig).run(getStandAloneSparkContext(apConfig, files))
     })
 
@@ -64,8 +65,8 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
     val exitWhenStop = true
     runStatusListener(apConfig.id.get, apConfig.name, exitWhenStop)
 
-    val ssc = StreamingContext.getOrCreate(AggregationPoliciesModel.checkpointPath(apConfig), () => {
-      log.info(s"Nothing in checkpoint path: ${AggregationPoliciesModel.checkpointPath(apConfig)}")
+    val ssc = StreamingContext.getOrCreate(generateCheckpointPath(apConfig), () => {
+      log.info(s"Nothing in checkpoint path: ${generateCheckpointPath(apConfig)}")
       SpartaJob(apConfig).run(getClusterSparkContext(apConfig, files, detailConfig))
     })
 

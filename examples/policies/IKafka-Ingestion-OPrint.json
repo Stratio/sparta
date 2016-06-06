@@ -2,7 +2,6 @@
   "name": "sales-demo-with-geo-parser",
   "description": "sales-demo-with-geo-parser",
   "sparkStreamingWindow": 2000,
-  "checkpointPath": "checkpoint",
   "input": {
     "name": "in-kafka",
     "type": "Kafka",

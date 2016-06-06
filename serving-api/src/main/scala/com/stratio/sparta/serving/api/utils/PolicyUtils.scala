@@ -113,21 +113,17 @@ trait PolicyUtils {
     }
   }
 
-  def deleteFromLocal(policy: AggregationPoliciesModel): Unit = {
+  def deleteFromLocal(policy: AggregationPoliciesModel): Unit =
     FileUtils.deleteDirectory(new File(AggregationPoliciesModel.checkpointPath(policy)))
-  }
 
-  def deleteFromHDFS(policy: AggregationPoliciesModel): Unit = {
-    HdfsUtils(SpartaConfig.getHdfsConfig.get).delete(AggregationPoliciesModel.checkpointPath(policy))
-  }
+  def deleteFromHDFS(policy: AggregationPoliciesModel): Unit =
+    HdfsUtils(SpartaConfig.getHdfsConfig).delete(AggregationPoliciesModel.checkpointPath(policy))
 
-  def checkpointGoesToHDFS(policy: AggregationPoliciesModel): Boolean = {
-    policy.checkpointPath.startsWith("hdfs://")
-  }
+  def checkpointGoesToHDFS(policy: AggregationPoliciesModel): Boolean =
+    policy.checkpointPath.exists(_.startsWith("hdfs://"))
 
-  def isLocalMode: Boolean = {
+  def isLocalMode: Boolean =
     SpartaConfig.getDetailConfig.get.getString(AppConstant.ExecutionMode).equalsIgnoreCase("local")
-  }
 
   def existsByNameId(name: String, id: Option[String] = None, curatorFramework: CuratorFramework):
   Option[AggregationPoliciesModel] = {
