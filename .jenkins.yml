@@ -2,7 +2,7 @@ CROSSBUILD:
   - '2.10'
   - '2.11'
 
-MAIL: qa
+MAIL: sparta
 
 SLACKTEAM: sparkta
 
