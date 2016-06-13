@@ -1,0 +1,108 @@
+CROSSBUILD:
+  - '2.10'
+  - '2.11'
+
+MAIL: qa
+
+SLACKTEAM: sparkta
+
+ATSERVICES:
+  - ZOOKEEPER:
+      image: stratio/zookeeper:3.4.6
+      sleep: 10
+
+  - MONGODB:
+      image: stratio/mongo:3.0.4
+      sleep: 5
+
+  - CASSANDRA:
+      image: stratio/cassandra-lucene-index:2.2.5.3
+      sleep: 5
+
+  - ELASTICSEARCH:
+      image: stratio/elasticsearch:1.7.1
+      sleep: 5
+      env:
+        - CLUSTER_NAME=%%JUID
+  - HADOOP:
+      image: stratio/hadoop:2.7.2
+      env:
+        - MASTER=true
+        - FUNC_MODE=hdfs
+      sleep: 10
+
+  - HADOOP:
+      image: stratio/hadoop:2.7.2
+      env:
+        - MASTER=false
+        - FUNC_MODE=hdfs
+        - MANAGER=%%HADOOP#0
+      sleep: 10
+
+  - MESOS:
+      image: stratio/mesos-spark-hdfs:0.22.1-1.5.2-2.6
+      env:
+        - MODE=master
+        - MESOS_ZK=zk://%%ZOOKEEPER:2181/mesos
+        - JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+        - HADOOP_HOME=/opt/sds/hadoop
+        - HADOOP_USER_NAME=stratio
+        - HADOOP_CONF_DIR=/opt/sds/hadoop/conf
+      sleep: 40
+      volumes:
+        - %%HADOOP#1
+
+  - MESOS:
+      image: stratio/mesos-spark-hdfs:0.22.1-1.5.2-2.6
+      env:
+        - MODE=slave
+        - MESOS_ZK=zk://%%ZOOKEEPER:2181/mesos
+        - JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+        - HADOOP_HOME=/opt/sds/hadoop
+        - HADOOP_USER_NAME=stratio
+        - HADOOP_CONF_DIR=/opt/sds/hadoop/conf
+      sleep: 10
+      volumes:
+        - %%HADOOP#1
+
+  - SPARTA:
+      image: stratio/sparta:%%VERSION
+      env:
+        - ZOOKEEPER_HOST=%%ZOOKEEPER
+        - SSH=true
+      sleep: 10
+
+  - SPARTA:
+      image: stratio/sparta:%%VERSION
+      env:
+        - ZOOKEEPER_HOST=%%ZOOKEEPER
+        - EXECUTION_MODE=mesos
+        - SPARK_HOME=/spark-1.5.2-bin-hadoop2.6
+        - MESOS_MASTER=%%MESOS#0
+        - HDFS_MASTER=%%HADOOP#0
+      sleep: 10
+      volumes:
+        - %%HADOOP#1
+
+  - CHROME:
+      image: stratio/selenium-chrome
+      env:
+        - SELENIUM_GRID=selenium.cd.stratio.com
+        - ID=%%JUID
+      sleep: 10
+      volumes:
+        - /dev/shm:/dev/shm
+
+ATPARAMETERS: >
+    -DSPARTA_HOST=%%SPARTA#0
+    -DSPARTA_PORT=9090
+    -DSPARTA_API_PORT=9091
+    -DJACOCO_SERVER=%%SPARTA#0
+    -DSELENIUM_GRID=selenium.cd.stratio.com
+    -DFORCE_BROWSER=chrome_48%%JUID
+    -DMONGO_HOST=%%MONGODB
+    -DMONGO_PORT=27017
+    -DCASSANDRA_HOST=%%CASSANDRA
+    -DCASSANDRA_PORT=9042
+    -DES_NODE=%%ELASTICSEARCH
+    -DCSV_PATH=/tmp/sparta/csv
