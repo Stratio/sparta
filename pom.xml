@@ -169,6 +169,10 @@
     </developers>
 
     <properties>
+        <spark.version.folder>1.5</spark.version.folder>
+        <spark.version>1.5.2</spark.version>
+        <mongodb.spark.version>0.10.1</mongodb.spark.version>
+        <elastic.spark.version>2.2.0-beta1</elastic.spark.version>
         <scala.binary.version>2.10</scala.binary.version>
         <scala.version>2.10.4</scala.version>
         <scala_2.10.version>2.10.4</scala_2.10.version>
