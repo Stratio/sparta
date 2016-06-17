@@ -19,7 +19,7 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.Input
 import com.stratio.sparta.sdk.ValidatingPropertyMap._
-import kafka.serializer.StringDecoder
+import kafka.serializer.{DefaultDecoder, StringDecoder}
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
@@ -39,7 +39,7 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
       Map(getZkConnectionConfs(properties, "zookeeper.connect", DefaultHost, DefaultPort, zookeeperPath))
     val kafkaParams = submap.get.map { case (entry, value) => (entry, value.toString) }
 
-    KafkaUtils.createStream[String, String, StringDecoder, StringDecoder](
+    KafkaUtils.createStream[String, Array[Byte], StringDecoder, DefaultDecoder](
       ssc,
       connection ++ kafkaParams,
       extractTopicsMap(),

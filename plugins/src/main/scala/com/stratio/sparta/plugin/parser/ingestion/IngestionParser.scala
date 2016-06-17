@@ -16,82 +16,73 @@
 package com.stratio.sparta.plugin.parser.ingestion
 
 import java.io.{Serializable => JSerializable}
+import scala.collection.JavaConversions._
+import scala.util._
 
-import com.stratio.sparta.sdk.{TypeOp, Parser}
+import akka.event.slf4j.SLF4JLogging
+import org.apache.avro.specific.SpecificDatumReader
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 
-import scala.annotation.tailrec
-import scala.util.Try
-import scala.util.parsing.json.JSON
-import com.stratio.sparta.sdk.TypeOp
+import com.stratio.decision.commons.avro.InsertMessage
+import com.stratio.decision.commons.constants.ColumnType
+import com.stratio.decision.commons.messages.ColumnNameTypeValue
+import com.stratio.sparta.plugin.parser.ingestion.serializer.JavaToAvroSerializer
+import com.stratio.sparta.sdk.Parser
 
 class IngestionParser(order: Integer,
                       inputField: String,
                       outputFields: Seq[String],
                       schema: StructType,
                       properties: Map[String, JSerializable])
-  extends Parser(order, inputField, outputFields, schema, properties) {
+  extends Parser(order, inputField, outputFields, schema, properties) with SLF4JLogging {
 
-  override def parse(data: Row, removeRaw: Boolean): Row = {
-    val input = data.get(schema.fieldIndex(inputField))
-    JSON.globalNumberParser = { input: String => input.toLong }
-    val rawData = Try(input.asInstanceOf[String]).getOrElse(new String(input.asInstanceOf[Array[Byte]]))
-    val ingestionModel = JSON.parseFull(rawData).get.asInstanceOf[Map[String, Any]]
-    val columnList = ingestionModel.get("columns").get.asInstanceOf[List[Map[String, String]]]
-    val columnPairs = extractColumnPairs(columnList)
-    val (_, allParsedPairs) = parseWithSchema(columnPairs, List.empty[(String, Any)])
-    val filteredParsedPairs = allParsedPairs.filter(element => outputFields.contains(element._1))
-    val prevData = if(removeRaw) data.toSeq.drop(1) else data.toSeq
+  val fieldNames = schema.map(field => field.name)
 
-    Row.fromSeq(prevData ++ filteredParsedPairs.map(_._2).toSeq)
+  override def parse(row: Row, removeRaw: Boolean): Row = {
+    val input = row.get(schema.fieldIndex(inputField))
+
+    val parsedValues = IngestionParser.parseRawData(input, fieldNames)
+
+    val previousParserValues = if(removeRaw) row.toSeq.drop(1) else row.toSeq
+    Row.fromSeq(previousParserValues ++ parsedValues)
   }
 
-  // XXX Private methods.
+}
 
-  private def extractColumnPairs(columnList: List[Map[String, String]]): List[(String, String)] = {
-    val columnListKeyValue = for {
-      columnElement <- columnList
-      value <- columnElement
-    } yield Map(value._1 -> value._2)
-    extractColumnPairElement(columnListKeyValue, List())._2
+object IngestionParser extends SLF4JLogging {
+
+  val datumReader =  new SpecificDatumReader[InsertMessage](InsertMessage.getClassSchema())
+  val javaToAvro = new JavaToAvroSerializer(datumReader)
+
+  def parseRawData(rawData: Any, fieldNames: Seq[String]): Seq[Any] = {
+    Try {
+      val stratioStreamingMessage = javaToAvro.deserialize(rawData.asInstanceOf[Array[Byte]])
+
+      stratioStreamingMessage.getColumns.toList
+        // Filter to just parse those columns added to the schema
+        .filter(column => fieldNames.contains(column.getColumn))
+        .map{case column: ColumnNameTypeValue => getValue(column)}
+    } match {
+        case Success(parsedValues) => parsedValues
+        case Failure(e) => {
+          log.warn(s"Error parsing event: ${rawData}", e)
+          Seq()
+        }
+      }
   }
 
-  @tailrec
-  private def extractColumnPairElement(columnList: List[Map[String, String]], result: List[(String, String)])
-  : (List[Map[String, String]], List[(String, String)]) = {
-    if (columnList.isEmpty) {
-      (columnList, result)
-    } else {
-      val currentValue = columnList.last.head._2
-      val columnListWithoutValue = columnList.init
-      val currentKey = columnListWithoutValue.last.head._2
-      val columnListWithoutKeyAndValue = columnListWithoutValue.init
-      extractColumnPairElement(columnListWithoutKeyAndValue, result.:::(List((currentKey, currentValue))))
+
+  private def getValue(column: ColumnNameTypeValue): Any = {
+    val columnType = Try(ColumnType.valueOf(column.getType.toString)).getOrElse(ColumnType.STRING)
+
+    columnType match {
+      case ColumnType.STRING => column.getValue.toString
+      case ColumnType.INTEGER => column.getValue.toString.toInt
+      case ColumnType.LONG => column.getValue.toString.toLong
+      case ColumnType.DOUBLE => column.getValue.toString.toDouble
+      case ColumnType.FLOAT => column.getValue.toString.toFloat
+      case ColumnType.BOOLEAN => column.getValue.toString.toBoolean
     }
-  }
-
-  @tailrec
-  private def parseWithSchema(elementList: List[(String, String)],
-                              currentMap: List[(String, Any)])
-  : (List[(String, Any)], List[(String, Any)]) = {
-    if (elementList.isEmpty) {
-      (elementList, currentMap.reverse)
-    } else {
-      val currentElement = elementList.last
-      val newElementList = elementList.init
-      val newCurrentMap = currentMap ++ parseElementWithSchema(currentElement)
-      parseWithSchema(newElementList, newCurrentMap)
-    }
-  }
-
-  private def parseElementWithSchema(element: (String, JSerializable)): List[(String, Any)] = {
-    val key = element._1
-    val value = element._2.toString
-    val outputValue = outputFieldsSchema.find(field => field.name == key)
-    val transformedValue = outputValue.map( outValue =>
-      TypeOp.transformValueByTypeOp(outValue.dataType, value.asInstanceOf[Any]))
-
-    transformedValue.fold(List.empty[(String, Any)]) {tValue => List((key, tValue))}
   }
 }
