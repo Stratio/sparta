@@ -15,7 +15,8 @@
  */
 package com.stratio.sparta.plugin.input.kafka
 
-import com.stratio.sparta.plugin.input.kafka.KafkaInput
+import java.io.Serializable
+
 import com.stratio.sparta.sdk.JsoneyString
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -29,41 +30,73 @@ class getZkConnectionConfTest extends WordSpec with Matchers {
 
     "return a chain (zookeper:conection , host:port)" in {
       val conn = """[{"host": "localhost", "port": "2181"}]"""
-      val input = new KafkaInput(Map("zookeeper.connect" -> JsoneyString(conn)))
-      input.getZkConnectionConfs("zookeeper.connect", "localhost", "2181") should
+      val props = Map("zookeeper.connect" -> JsoneyString(conn), "zookeeper.path" -> "/")
+      val input = new KafkaInput(props)
+
+      input.getZkConnectionConfs(props, "zookeeper.connect", "localhost", "2181", "") should
         be("zookeeper.connect", "localhost:2181")
+    }
+
+    "return a chain (zookeper:conection , host:port, zookeeper.path:path)" in {
+      val conn = """[{"host": "localhost", "port": "2181"}]"""
+      val props = Map("zookeeper.connect" -> JsoneyString(conn), "zookeeper.path" -> "/test")
+      val input = new KafkaInput(props)
+
+      input.getZkConnectionConfs(props, "zookeeper.connect", "localhost", "2181", "/test") should
+        be("zookeeper.connect", "localhost:2181/test")
     }
 
     "return a chain (zookeper:conection , host:port,host:port,host:port)" in {
       val conn =
         """[{"host": "localhost", "port": "2181"},{"host": "localhost", "port": "2181"},
           |{"host": "localhost", "port": "2181"}]""".stripMargin
-      val input = new KafkaInput(Map("zookeeper.connect" -> JsoneyString(conn)))
-      input.getZkConnectionConfs("zookeeper.connect", "localhost", "2181") should
+      val props = Map("zookeeper.connect" -> JsoneyString(conn))
+      val input = new KafkaInput(props)
+
+      input.getZkConnectionConfs(props, "zookeeper.connect", "localhost", "2181", "") should
         be("zookeeper.connect", "localhost:2181,localhost:2181,localhost:2181")
+    }
+
+    "return a chain (zookeper:conection , host:port,host:port,host:port, zookeeper.path:path)" in {
+      val conn =
+        """[{"host": "localhost", "port": "2181"},{"host": "localhost", "port": "2181"},
+          |{"host": "localhost", "port": "2181"}]""".stripMargin
+      val props = Map("zookeeper.connect" -> JsoneyString(conn), "zookeeper.path" -> "/test")
+      val input = new KafkaInput(props)
+
+      input.getZkConnectionConfs(props, "zookeeper.connect", "localhost", "2181", "/test") should
+        be("zookeeper.connect", "localhost:2181,localhost:2181,localhost:2181/test")
     }
 
     "return a chain with default port (zookeper:conection , host: defaultport)" in {
       val conn =
         """[{"host": "localhost"}]"""
-      val input = new KafkaInput(Map("zookeeper.connect" -> JsoneyString(conn)))
-      input.getZkConnectionConfs("zookeeper.connect", "localhost", "2181") should
+      val props = Map("zookeeper.connect" -> JsoneyString(conn))
+      val input = new KafkaInput(props)
+
+      input.getZkConnectionConfs(props, "zookeeper.connect", "localhost", "2181", "") should
         be("zookeeper.connect", "localhost:2181")
     }
 
-    "return a chain with default host (zookeper:conection , defaultHost: port)" in {
+    "return a chain with default port (zookeper:conection , host: defaultport, zookeeper.path:path)" in {
       val conn =
-        """[{"port": "2181"}]"""
-      val input = new KafkaInput(Map("zookeeper.connect" -> JsoneyString(conn)))
-      input.getZkConnectionConfs("zookeeper.connect", "localhost", "2181") should
-        be("zookeeper.connect", "localhost:2181")
+        """[{"host": "localhost"}]"""
+      val props = Map("zookeeper.connect" -> JsoneyString(conn))
+      val input = new KafkaInput(props)
+
+      input.getZkConnectionConfs(props, "zookeeper.connect", "localhost", "2181", "/test") should
+        be("zookeeper.connect", "localhost:2181/test")
     }
 
-    "return a chain with default host and default porty (zookeeper.connect: , defaultHost: defaultport)" in {
+    "return a chain with default host and default porty (zookeeper.connect: ," +
+      "defaultHost: defaultport," +
+      "zookeeper.path:path)" in {
       val conn =
         """[{}]"""
-      val input = new KafkaInput(Map("zookeeper.connect" -> JsoneyString(conn)))
-      input.getZkConnectionConfs("zookeeper.connect", "localhost", "2181") should
+      val props = Map("zookeeper.connect" -> JsoneyString(conn))
+      val input = new KafkaInput(props)
+
+      input.getZkConnectionConfs(props, "zookeeper.connect", "localhost", "2181", "") should
         be("zookeeper.connect", "localhost:2181")
     }
   }

@@ -273,6 +273,7 @@
   "_REQUIRED_ACKS_": "Required ACKs",
   "_KAFKA_HOST_": "Zookeeper host",
   "_KAFKA_PORT_": "Kafka port",
+  "_ZOOKEEPER_PATH_": "Zookeeper path",
   "_PRODUCER_TYPE_": "Producer type (sync/async)",
   "_BATCH_NUM_MESSAGES_": "Batch num messages",
   "_FILTER_BY_TYPE_": "Filter by type",

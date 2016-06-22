@@ -26,22 +26,29 @@ import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.kafka.KafkaUtils
 
-class KafkaDirectInput(properties: Map[String, JSerializable]) extends Input(properties) with SLF4JLogging {
+class KafkaDirectInput(properties: Map[String, JSerializable])
+  extends Input(properties)
+    with KafkaBase
+    with SLF4JLogging {
 
   final val DefaultHost = "localhost"
-  final val DefaulPort = "2182"
+  final val DefaultPort = "2181"
+  final val DefaultZookeeperPath = ""
 
   def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
 
     val submap = properties.getMap("kafkaParams")
-    val metaDataBrokerList = Map(getMetaDataBrokerList("metadata.broker.list", DefaultHost, DefaulPort))
-    val params = metaDataBrokerList ++ submap
 
     if (submap.isDefined) {
+      val zookeeperPath = properties.getString("zookeeper.path", DefaultZookeeperPath)
+      val zkConnection =
+        Map(getZkConnectionConfs(properties, "zookeeper.connect", DefaultHost, DefaultPort, zookeeperPath))
+      val metaDataBrokerList =
+        Map(getMetaDataBrokerList("metadata.broker.list", DefaultHost, DefaultPort))
       val kafkaParams = submap.get.map(entry => (entry._1, entry._2.toString))
       KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](
         ssc,
-        metaDataBrokerList ++ kafkaParams,
+        metaDataBrokerList ++ kafkaParams ++ zkConnection,
         extractTopicsSet())
         .map(data => Row(data._2))
     } else {
@@ -69,7 +76,8 @@ class KafkaDirectInput(properties: Map[String, JSerializable]) extends Input(pro
     }).mkString(",")
   }
 
-  def getMetaDataBrokerList(key: String, defaultHost: String, defaultPort: String): (String, String) = {
+  def getMetaDataBrokerList(key: String, defaultHost: String, defaultPort: String):
+  (String, String) = {
     val conObj = properties.getMapFromJsoneyString(key)
     val value = conObj.map(c => {
       val host = c.get("broker") match {
@@ -85,4 +93,5 @@ class KafkaDirectInput(properties: Map[String, JSerializable]) extends Input(pro
 
     (key.toString, value)
   }
+
 }
