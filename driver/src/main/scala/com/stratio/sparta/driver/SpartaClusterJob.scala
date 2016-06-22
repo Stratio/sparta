@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.driver
 
 import akka.actor.{ActorSystem, Props}
@@ -59,8 +60,7 @@ object SpartaClusterJob extends SpartaSerializer {
       val policyZk = getPolicyFromZookeeper(policyId, curatorFramework)
       implicit val system = ActorSystem(policyId)
       val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor)
-      val policy = PolicyHelper.parseFragments(
-        PolicyHelper.fillFragments(policyZk, fragmentActor, timeout))
+      val policy = PolicyHelper.getPolicyWithFragments(policyZk, fragmentActor)
       val policyStatusActor = system.actorOf(Props(new PolicyStatusActor(curatorFramework)),
         AkkaConstant.PolicyStatusActor)
 

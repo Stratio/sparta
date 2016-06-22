@@ -19,7 +19,7 @@ import akka.actor.ActorRef
 import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparta.sdk.exception.MockException
 import com.stratio.sparta.serving.api.actor.PolicyActor
-import com.stratio.sparta.serving.api.actor.PolicyActor.{FindByFragment, ResponsePolicies}
+import com.stratio.sparta.serving.api.actor.PolicyActor.{Delete, FindByFragment, ResponsePolicies}
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor._
@@ -114,6 +114,36 @@ class FragmentHttpServiceTest extends WordSpec
     }
   }
 
+  "FragmentHttpService.deleteByTypeAndId" should {
+    "return an OK because the fragment was deleted" in {
+      val policyAutoPilot = Option(new TestActor.AutoPilot {
+        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
+          msg match {
+            case FindByFragment(input, id) =>
+              sender ! ResponsePolicies(Success(Seq(getPolicyModel())))
+              TestActor.NoAutoPilot
+            case Delete =>
+              TestActor.NoAutoPilot
+          }
+      })
+      startAutopilot(None, policyTestProbe, policyAutoPilot)
+      startAutopilot(Response(Success(None)))
+      Delete(s"/${HttpConstant.FragmentPath}/input/id") ~> routes ~> check {
+        testProbe.expectMsgType[DeleteByTypeAndId]
+        policyTestProbe.expectMsgType[FindByFragment]
+        policyTestProbe.expectMsgType[Delete]
+        status should be(StatusCodes.OK)
+      }
+    }
+    "return a 500 if there was any error when a fragment is deleted" in {
+      startAutopilot(Response(Failure(new MockException())))
+      Delete(s"/${HttpConstant.FragmentPath}/input/id") ~> routes ~> check {
+        testProbe.expectMsgType[DeleteByTypeAndId]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
   "FragmentHttpService.update" should {
     "return an OK because the fragment was updated" in {
       val fragmentAutoPilot = Option(new TestActor.AutoPilot {
@@ -130,6 +160,8 @@ class FragmentHttpServiceTest extends WordSpec
             case PolicyActor.FindByFragment(input, id) =>
               sender ! ResponsePolicies(Success(Seq(getPolicyModel())))
               TestActor.NoAutoPilot
+            case PolicyActor.Update(policy) =>
+              TestActor.NoAutoPilot
           }
       })
       startAutopilot(None, fragmentTestProbe, fragmentAutoPilot)
@@ -137,6 +169,7 @@ class FragmentHttpServiceTest extends WordSpec
       Put(s"/${HttpConstant.FragmentPath}", getFragmentModel(Some("id"))) ~> routes ~> check {
         fragmentTestProbe.expectMsgType[Update]
         policyTestProbe.expectMsgType[FindByFragment]
+        policyTestProbe.expectMsgType[PolicyActor.Update]
         status should be(StatusCodes.OK)
       }
     }
@@ -156,6 +189,8 @@ class FragmentHttpServiceTest extends WordSpec
             case PolicyActor.FindByFragment(input, id) =>
               sender ! ResponsePolicies(Success(Seq(getPolicyModel())))
               TestActor.NoAutoPilot
+            case PolicyActor.Update(policy) =>
+              TestActor.NoAutoPilot
           }
       })
       startAutopilot(None, fragmentTestProbe, fragmentAutoPilot)
@@ -163,34 +198,6 @@ class FragmentHttpServiceTest extends WordSpec
 
       Put(s"/${HttpConstant.FragmentPath}", getFragmentModel(Some("id"))) ~> routes ~> check {
         fragmentTestProbe.expectMsgType[Update]
-        status should be(StatusCodes.InternalServerError)
-      }
-    }
-  }
-
-  "FragmentHttpService.deleteByTypeAndId" should {
-    "return an OK because the fragment was deleted" in {
-      val policyAutoPilot = Option(new TestActor.AutoPilot {
-        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
-          msg match {
-            case FindByFragment(input, id) =>
-              sender ! ResponsePolicies(Success(Seq(getPolicyModel())))
-              TestActor.NoAutoPilot
-            case Delete => TestActor.NoAutoPilot
-          }
-      })
-      startAutopilot(None, policyTestProbe, policyAutoPilot)
-      startAutopilot(Response(Success(None)))
-      Delete(s"/${HttpConstant.FragmentPath}/input/id") ~> routes ~> check {
-        testProbe.expectMsgType[DeleteByTypeAndId]
-        policyTestProbe.expectMsgType[FindByFragment]
-        status should be(StatusCodes.OK)
-      }
-    }
-    "return a 500 if there was any error when a fragment is deleted" in {
-      startAutopilot(Response(Failure(new MockException())))
-      Delete(s"/${HttpConstant.FragmentPath}/input/id") ~> routes ~> check {
-        testProbe.expectMsgType[DeleteByTypeAndId]
         status should be(StatusCodes.InternalServerError)
       }
     }

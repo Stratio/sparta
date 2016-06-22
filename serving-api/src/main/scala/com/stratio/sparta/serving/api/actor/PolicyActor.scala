@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.actor
 
 import java.util.UUID
@@ -53,53 +54,54 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
   }
 
   def findAll(): Unit =
-    sender ! ResponsePolicies(Try({
+    sender ! ResponsePolicies(Try {
       val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
-      JavaConversions.asScalaBuffer(children).toList.map(element =>
-        byId(element, curatorFramework)).toSeq
-    }).recover {
-      case e: NoNodeException => Seq()
+      JavaConversions.asScalaBuffer(children).toList.map(element => byId(element, curatorFramework))
+    }.recover {
+      case e: NoNodeException => Seq.empty[AggregationPoliciesModel]
     })
 
   def findByFragment(fragmentType: String, id: String): Unit =
-    sender ! ResponsePolicies(Try({
-      val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
-      JavaConversions.asScalaBuffer(children).toList.map(element =>
-        byId(element, curatorFramework)).filter(apm =>
-        apm.fragments.exists(f => f.id.get == id)).toSeq
-    }).recover {
-      case e: NoNodeException => Seq()
-    })
+    sender ! ResponsePolicies(
+      Try {
+        val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
+        JavaConversions.asScalaBuffer(children).toList.map(element => byId(element, curatorFramework))
+          .filter(apm => apm.fragments.exists(f => f.id.get == id))
+      }.recover {
+        case e: NoNodeException => Seq.empty[AggregationPoliciesModel]
+      })
 
   def find(id: String): Unit =
-    sender ! new ResponsePolicy(Try({
+    sender ! new ResponsePolicy(Try {
       byId(id, curatorFramework)
-    }).recover {
-      case e: NoNodeException => throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy with id $id.")
-      ))
+    }.recover {
+      case e: NoNodeException =>
+        throw new ServingCoreException(ErrorModel.toString(
+          new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy with id $id.")
+        ))
     })
 
   def findByName(name: String): Unit =
-    sender ! ResponsePolicy(Try({
+    sender ! ResponsePolicy(Try {
       val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
       JavaConversions.asScalaBuffer(children).toList.map(element =>
         byId(element, curatorFramework)).filter(policy => policy.name == name).head
-    }).recover {
-      case e: NoNodeException => throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsPolicyWithName, s"No policy with name $name.")
-      ))
-      case e: NoSuchElementException => throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsPolicyWithName, s"No policy with name $name.")
-      ))
+    }.recover {
+      case e: NoNodeException =>
+        throw new ServingCoreException(ErrorModel.toString(
+          new ErrorModel(ErrorModel.CodeNotExistsPolicyWithName, s"No policy with name $name.")
+        ))
+      case e: NoSuchElementException =>
+        throw new ServingCoreException(ErrorModel.toString(
+          new ErrorModel(ErrorModel.CodeNotExistsPolicyWithName, s"No policy with name $name.")
+        ))
     })
 
-  def associateStatus(model: AggregationPoliciesModel): Unit = {
+  def associateStatus(model: AggregationPoliciesModel): Unit =
     policyStatusActor ! PolicyStatusActor.Create(PolicyStatusModel(model.id.get, PolicyStatusEnum.NotStarted))
-  }
 
   def create(policy: AggregationPoliciesModel): Unit =
-    sender ! ResponsePolicy(Try({
+    sender ! ResponsePolicy(Try {
       val searchPolicy = existsByNameId(policy.name, None, curatorFramework)
       if (searchPolicy.isDefined) {
         throw new ServingCoreException(ErrorModel.toString(
@@ -107,19 +109,21 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
             s"Policy with name ${policy.name} exists. The actual policty id is: ${searchPolicy.get.id}")
         ))
       }
-      val policyS = policy.copy(id = Some(s"${UUID.randomUUID.toString}"),
+      val policyS = policy.copy(
+        id = Some(s"${UUID.randomUUID.toString}"),
         name = policy.name.toLowerCase,
-        version = Some(ActorsConstant.UnitVersion))
+        version = Some(ActorsConstant.UnitVersion)
+      )
       curatorFramework.create().creatingParentsIfNeeded().forPath(
         s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
 
       associateStatus(policyS)
 
       policyS
-    }))
+    })
 
   def update(policy: AggregationPoliciesModel): Unit = {
-    sender ! Response(Try({
+    sender ! Response(Try {
       val searchPolicy = existsByNameId(policy.name, policy.id, curatorFramework)
       if (searchPolicy.isEmpty) {
         throw new ServingCoreException(ErrorModel.toString(
@@ -129,27 +133,30 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
       } else {
         val policyS = policy.copy(
           name = policy.name.toLowerCase,
-          version = setVersion(searchPolicy.get, policy))
+          version = setVersion(searchPolicy.get, policy)
+        )
         deleteCheckpointPath(policy)
         curatorFramework.setData.forPath(s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
       }
-    }).recover {
-      case e: NoNodeException => throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy with id ${policy.id.get}.")
-      ))
+    }.recover {
+      case e: NoNodeException =>
+        throw new ServingCoreException(ErrorModel.toString(
+          new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy with id ${policy.id.get}.")
+        ))
     })
   }
 
   def delete(id: String): Unit =
-    sender ! Response(Try({
+    sender ! Response(Try {
       val policyModel = byId(id, curatorFramework)
       deleteCheckpointPath(policyModel)
       curatorFramework.delete().forPath(s"${AppConstant.PoliciesBasePath}/$id")
-    }).recover {
-      case e: NoNodeException => throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId,
-          s"No policy with id $id.")
-      ))
+    }.recover {
+      case e: NoNodeException =>
+        throw new ServingCoreException(ErrorModel.toString(
+          new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId,
+            s"No policy with id $id.")
+        ))
     })
 }
 
