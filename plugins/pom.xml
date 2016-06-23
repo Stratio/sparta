@@ -342,8 +342,8 @@
         </dependency>
         <dependency>
             <groupId>com.stratio.receiver</groupId>
-            <artifactId>rabbitmq</artifactId>
-            <version>0.1.0-RELEASE</version>
+            <artifactId>${rabbitmq.spark.receiver}</artifactId>
+            <version>0.3.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.davidmoten</groupId>

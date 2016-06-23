@@ -346,67 +346,45 @@
     },
     "properties": [
       {
-        "propertyId": "queue",
-        "propertyName": "_QUEUE_",
+        "propertyId": "receiverType",
+        "propertyName": "_RABBITMQ_RECEIVER_TYPE_",
         "propertyType": "text",
+        "default": "distributed",
         "regexp": "",
-        "required": false,
-        "tooltip": "RabbitMQ's name queue.",
-        "qa": "fragment-details-rabbitMQ-queue"
-      },
-      {
-        "propertyId": "host",
-        "propertyName": "_HOST_",
-        "propertyType": "text",
-        "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
-        "default": "localhost",
         "required": true,
-        "tooltip": "RabbitMQ's hostname.",
-        "qa": "fragment-details-rabbitMQ-host"
+        "tooltip": "RabbitMQ receiver type, distributed or single node approach",
+        "qa": "fragment-details-rabbitMQ-receiverType"
       },
       {
-        "propertyId": "port",
-        "propertyName": "_PORT_",
-        "propertyType": "text",
-        "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
-        "default": "5672",
-        "required": true,
-        "tooltip": "RabbitMQ's port.",
-        "qa": "fragment-details-rabbitMQ-port"
-      },
-      {
-        "propertyId": "exchangeName",
-        "propertyName": "_EXCHANGE_NAME_",
-        "propertyType": "text",
-        "regexp": "",
+        "propertyId": "rabbitmqProperties",
+        "propertyName": "_RABBITMQ_PROPERTIES_",
+        "propertyType": "list",
         "default": "",
         "required": false,
-        "tooltip": "Name of the exchange where the data will be consumed",
-        "qa": "fragment-details-rabbitMQ-exchangeName"
-      },
-      {
-      "propertyId": "routingKeys",
-      "propertyName": "_ROUTING_KEYS_",
-      "propertyType": "list",
-      "default": "",
-      "required": false,
-      "hidden": false,
-      "limit": 0,
-      "tooltip": "",
-      "qa": "fragment-details-rabbitMQ-routingKeys",
-      "fields": [
-        {
-          "propertyId": "routingKey",
-          "propertyName": "_ROUTING_KEY_",
-          "propertyType": "text",
-          "regexp": "",
-          "default": "",
-          "required": false,
-          "tooltip": "The exchange will delivery the messages to all the routing keys.",
-          "hidden": false,
-          "qa": "fragment-details-rabbitMQ-routingKey"
-        }
-      ]
+        "tooltip": "",
+        "qa": "fragment-details-rabbitmq-properties",
+        "fields": [
+          {
+            "propertyId": "rabbitmqPropertyKey",
+            "propertyName": "_RABBITMQ_PROPERTY_KEY_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-rabbitmq-rabbitmqPropertyKey"
+          },
+          {
+            "propertyId": "rabbitmqPropertyValue",
+            "propertyName": "_RABBITMQ_PROPERTY_VALUE_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-rabbitmq-rabbitmqPropertyValue"
+          }
+        ]
       }
     ]
   },
