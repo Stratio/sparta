@@ -208,10 +208,12 @@
 
     function downloadPolicy(policyId) {
       PolicyFactory.downloadPolicy(policyId).then(function (policyFile) {
-        var blob = new Blob([JSON.stringify(policyFile)], {type: "text/plain;charset=utf-8"});
-        var url = ( $window.URL || $window.webkitURL).createObjectURL(blob);
-        var a = $("<a/>").attr({href: url, download: policyFile.name + ".json"});
-        a[0].click();
+        var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(policyFile));
+        var a = document.createElement('a');
+        a.href = 'data:' + data;
+        a.download =  policyFile.name + ".json";
+        document.body.appendChild(a);
+        a.click();
         a.remove();
       })
     }
