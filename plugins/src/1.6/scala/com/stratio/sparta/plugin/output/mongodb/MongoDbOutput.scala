@@ -18,8 +18,9 @@ package com.stratio.sparta.plugin.output.mongodb
 import java.io.{Serializable => JSerializable}
 
 import com.mongodb.casbah.commons.conversions.scala._
-import com.stratio.datasource.mongodb.MongodbConfig
 import com.stratio.sparta.plugin.output.mongodb.dao.MongoDbDAO
+import com.stratio.datasource.mongodb.config.MongodbConfig
+import com.stratio.datasource.mongodb.config._
 import com.stratio.sparta.sdk.Output._
 import com.stratio.sparta.sdk.ValidatingPropertyMap._
 import com.stratio.sparta.sdk._
