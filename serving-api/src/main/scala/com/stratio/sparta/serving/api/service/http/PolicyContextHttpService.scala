@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparkta.serving.api.service.http
 
 import akka.actor.ActorRef
@@ -83,8 +84,7 @@ trait PolicyContextHttpService extends BaseHttpService {
                 HttpResponse(StatusCodes.Created)
               else
                 throw new ServingCoreException(ErrorModel.toString(
-                  ErrorModel(ErrorModel.CodeNotExistsPolicyWithId,
-                    s"No policy with id ${policyStatus.id}.")
+                  ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy with id ${policyStatus.id}.")
                 ))
             }
           }
@@ -110,7 +110,7 @@ trait PolicyContextHttpService extends BaseHttpService {
     path(HttpConstant.PolicyContextPath) {
       post {
         entity(as[AggregationPoliciesModel]) { p =>
-          val parsedP = getPolicyWithFragments(p)
+          val parsedP = PolicyHelper.getPolicyWithFragments(p, actors.get(AkkaConstant.FragmentActor).get)
           AggregationPoliciesValidator.validateDto(parsedP)
           val fragmentActor: ActorRef = actors.getOrElse(AkkaConstant.FragmentActor, throw new ServingCoreException
           (ErrorModel.toString(ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor"))))
@@ -125,12 +125,11 @@ trait PolicyContextHttpService extends BaseHttpService {
                   val outputs = PolicyHelper.populateFragmentFromPolicy(policy, FragmentType.output)
                   createFragments(fragmentActor, outputs.toList ::: inputs.toList)
                   PolicyResult(policy.id.getOrElse(""), p.name)
-                case Failure(ex: Throwable) => {
+                case Failure(ex: Throwable) =>
                   log.error("Can't create policy", ex)
                   throw new ServingCoreException(ErrorModel.toString(
                     ErrorModel(ErrorModel.CodeErrorCreatingPolicy, "Can't create policy")
                   ))
-                }
               }
             }
           }
@@ -139,10 +138,9 @@ trait PolicyContextHttpService extends BaseHttpService {
     }
   }
 
-  def createFragments(fragmentActor: ActorRef, fragments: Seq[FragmentElementModel]): Unit = {
+  // XXX Protected methods
+
+  protected def createFragments(fragmentActor: ActorRef, fragments: Seq[FragmentElementModel]): Unit = {
     fragments.foreach(fragment => fragmentActor ! FragmentActor.Create(fragment))
   }
-
-  def getPolicyWithFragments(policy: AggregationPoliciesModel): AggregationPoliciesModel =
-    PolicyHelper.parseFragments(PolicyHelper.fillFragments(policy, actors.get(AkkaConstant.FragmentActor).get, timeout))
 }

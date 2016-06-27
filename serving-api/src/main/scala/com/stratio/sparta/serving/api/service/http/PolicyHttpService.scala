@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.service.http
 
 import java.io.File
@@ -32,7 +33,7 @@ import com.stratio.sparta.serving.api.actor.PolicyActor._
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.helpers.PolicyHelper
+import com.stratio.sparta.serving.core.helpers.PolicyHelper._
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 
@@ -66,8 +67,10 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
         complete {
           val future = supervisor ? new Find(id)
           Await.result(future, timeout.duration) match {
-            case ResponsePolicy(Failure(exception)) => throw exception
-            case ResponsePolicy(Success(policy)) => getPolicyWithFragments(policy)
+            case ResponsePolicy(Failure(exception)) =>
+              throw exception
+            case ResponsePolicy(Success(policy)) =>
+              getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
           }
         }
       }
@@ -96,8 +99,10 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
         complete {
           val future = supervisor ? new FindByName(name)
           Await.result(future, timeout.duration) match {
-            case ResponsePolicy(Failure(exception)) => throw exception
-            case ResponsePolicy(Success(policy)) => getPolicyWithFragments(policy)
+            case ResponsePolicy(Failure(exception)) =>
+              throw exception
+            case ResponsePolicy(Success(policy)) =>
+              getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
           }
         }
       }
@@ -132,8 +137,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
           val future = supervisor ? new FindByFragment(fragmentType, id)
           Await.result(future, timeout.duration) match {
             case ResponsePolicies(Failure(exception)) => throw exception
-            case ResponsePolicies(Success(policies)) =>
-              withStatus(policies)
+            case ResponsePolicies(Success(policies)) => withStatus(policies)
           }
         }
       }
@@ -177,7 +181,9 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath) {
       post {
         entity(as[AggregationPoliciesModel]) { policy =>
-          AggregationPoliciesValidator.validateDto(getPolicyWithFragments(policy))
+          AggregationPoliciesValidator.validateDto(
+            getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
+          )
           complete {
             val future = supervisor ? new Create(policy)
             Await.result(future, timeout.duration) match {
@@ -204,7 +210,9 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath) {
       put {
         entity(as[AggregationPoliciesModel]) { policy =>
-          AggregationPoliciesValidator.validateDto(getPolicyWithFragments(policy))
+          AggregationPoliciesValidator.validateDto(
+            getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
+          )
           complete {
             val future = supervisor ? new Update(policy)
             Await.result(future, timeout.duration) match {
@@ -271,8 +279,8 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
         val future = supervisor ? new Find(id)
         Await.result(future, timeout.duration) match {
           case ResponsePolicy(Failure(exception)) => throw exception
-          case ResponsePolicy(Success(policy)) => {
-            val parsedP = getPolicyWithFragments(policy)
+          case ResponsePolicy(Success(policy)) =>
+            val parsedP = getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
             AggregationPoliciesValidator.validateDto(parsedP)
             complete {
               val response = actors.get(AkkaConstant.SparkStreamingContextActor).get ?
@@ -282,7 +290,6 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
                 case Success(_) => new Result("Creating new context with name " + policy.name)
               }
             }
-          }
         }
       }
     }
@@ -309,9 +316,11 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       get {
         val future = supervisor ? new Find(id)
         Await.result(future, timeout.duration) match {
-          case ResponsePolicy(Failure(exception)) => throw exception
-          case ResponsePolicy(Success(policy)) => {
-            val policyWithFragments = getPolicyWithFragments(policy)
+          case ResponsePolicy(Failure(exception)) =>
+            throw exception
+          case ResponsePolicy(Success(policy)) =>
+            val policyWithFragments =
+              getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
             val policyWithNoFragments = policyWithFragments.copy(fragments = Seq.empty)
             AggregationPoliciesValidator.validateDto(policyWithFragments)
             val tempFile = File.createTempFile(s"${policy.id.get}-${policy.name}-", ".json")
@@ -320,7 +329,6 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
               scala.tools.nsc.io.File(tempFile).writeAll(write(policyWithNoFragments))
               getFromFile(tempFile)
             }
-          }
         }
       }
     }
@@ -328,22 +336,15 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
 
   // XXX Protected methods
 
-  def getPolicyWithFragments(policy: AggregationPoliciesModel): AggregationPoliciesModel =
-    PolicyHelper.parseFragments(PolicyHelper.fillFragments(policy, actors.get(AkkaConstant.FragmentActor).get, timeout))
-
   protected def withStatus(policies: Seq[AggregationPoliciesModel]): ToResponseMarshallable = {
 
-    if (!policies.isEmpty) {
+    if (policies.nonEmpty) {
       val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
       for {
         response <- (policyStatusActor ? PolicyStatusActor.FindAll)
           .mapTo[PolicyStatusActor.Response]
-      } yield {
-        policies.map(policy => getPolicyWithStatus(policy, response.policyStatus.get.policiesStatus))
-      }
-    } else {
-      Seq()
-    }
+      } yield policies.map(policy => getPolicyWithStatus(policy, response.policyStatus.get.policiesStatus))
+    } else Seq()
   }
 
   protected def getPolicyWithStatus(policy: AggregationPoliciesModel, statuses: Seq[PolicyStatusModel])
