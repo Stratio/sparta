@@ -16,7 +16,7 @@
 package com.stratio.sparta.serving.core.models
 
 import com.stratio.sparta.serving.core.exception.ServingCoreException
-import com.stratio.sparta.serving.core.helpers.OperationsHelper
+import com.stratio.sparta.serving.core.helpers.OperationsHelper._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
 
 case class AggregationPoliciesModel(
@@ -61,6 +61,7 @@ object AggregationPoliciesValidator extends SpartaSerializer {
           Option(subErrorModels.map(element => element._2).toSeq))))
   }
 
+  //scalastyle:off
   private def validateCubes(policy: AggregationPoliciesModel): List[(Boolean, ErrorModel)] = {
     val outputsNames = policy.outputs.map(_.name)
     val errorModels = List(
@@ -95,21 +96,29 @@ object AggregationPoliciesValidator extends SpartaSerializer {
           ErrorModel.ValidationError_There_is_at_least_one_cube_with_triggers_with_a_bad_output,
           "There is at least one cube with triggers that contains a bad output")),
       (policy.cubes.forall(cube =>
-        cube.triggers.flatMap(trigger => trigger.overLast)
-          .forall(overlast => OperationsHelper.parseValueToMilliSeconds(overlast) %
-            OperationsHelper.parseValueToMilliSeconds(policy.sparkStreamingWindow) == 0)),
+        cube.triggers.flatMap(trigger => trigger.overLast).forall(overLast =>
+          parseValueToMilliSeconds(overLast) % parseValueToMilliSeconds(policy.sparkStreamingWindow) == 0
+        ) &&
+          cube.triggers.flatMap(trigger => trigger.computeEvery).forall(computeEvery =>
+            parseValueToMilliSeconds(computeEvery) % parseValueToMilliSeconds(policy.sparkStreamingWindow) == 0
+          )
+      ),
         new ErrorModel(
-          ErrorModel.ValidationError_There_is_at_least_one_trigger_with_a_bad_overlast,
+          ErrorModel.ValidationError_There_is_at_least_one_trigger_with_a_bad_window_attribute,
           "There is at least one trigger with a bad overlast")),
-      (policy.streamTriggers.flatMap(trigger => trigger.overLast)
-        .forall(overlast => OperationsHelper.parseValueToMilliSeconds(overlast) %
-          OperationsHelper.parseValueToMilliSeconds(policy.sparkStreamingWindow) == 0),
+      (policy.streamTriggers.flatMap(trigger => trigger.overLast).forall(overLast =>
+        parseValueToMilliSeconds(overLast) % parseValueToMilliSeconds(policy.sparkStreamingWindow) == 0
+      ) &&
+        policy.streamTriggers.flatMap(trigger => trigger.computeEvery).forall(computeEvery =>
+          parseValueToMilliSeconds(computeEvery) % parseValueToMilliSeconds(policy.sparkStreamingWindow) == 0
+        ),
         new ErrorModel(
-          ErrorModel.ValidationError_There_is_at_least_one_trigger_with_a_bad_overlast,
+          ErrorModel.ValidationError_There_is_at_least_one_trigger_with_a_bad_window_attribute,
           "There is at least one trigger with a bad overlast"))
     )
     errorModels
   }
+  //scalastyle:on
 
   private def validateTriggers(policy: AggregationPoliciesModel): List[(Boolean, ErrorModel)] = {
     val outputsNames = policy.outputs.map(_.name)

@@ -118,6 +118,11 @@
           delete triggers[i].overLastNumber;
           delete triggers[i].overLastTime;
         }
+        if (triggers[i].computeEveryNumber && triggers[i].computeEveryTime) {
+          triggers[i].computeEvery = triggers[i].computeEveryNumber + triggers[i].computeEveryTime;
+          delete triggers[i].computeEveryNumber;
+          delete triggers[i].computeEveryTime;
+        }
       }
       return policyJson;
     }

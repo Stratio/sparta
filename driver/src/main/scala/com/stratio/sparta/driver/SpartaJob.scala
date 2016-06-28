@@ -67,12 +67,13 @@ class SpartaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
     val parsedData = SpartaJob.applyParsers(inputDStream, parsers)
 
     SpartaJob.getTriggers(policy.streamTriggers, policy.id.get)
-      .groupBy(trigger => trigger.overLast)
-      .foreach { case (overLast, triggers) =>
+      .groupBy(trigger => (trigger.overLast, trigger.computeEvery))
+      .foreach { case ((overLast, computeEvery), triggers) =>
         SpartaJob.getStreamWriter(
           triggers,
           streamTriggersSchemas,
           overLast,
+          computeEvery,
           sparkStreamingWindow,
           getSchemaWithoutRaw(parserSchemas),
           streamTriggersOutputs
@@ -277,6 +278,7 @@ object SpartaJob extends SLF4JLogging with SpartaSerializer {
         trigger.sql,
         trigger.outputs,
         trigger.overLast,
+        trigger.computeEvery,
         trigger.primaryKey,
         trigger.configuration)
     } match {
@@ -356,10 +358,11 @@ object SpartaJob extends SLF4JLogging with SpartaSerializer {
   def getStreamWriter(triggers: Seq[Trigger],
                       tableSchemas: Seq[TableSchema],
                       overLast: Option[String],
+                      computeEvery: Option[String],
                       sparkStreamingWindow: Long,
                       initSchema: StructType,
                       outputs: Seq[Output]): StreamWriter = {
-    val writerOp = StreamWriterOptions(overLast, sparkStreamingWindow, initSchema)
+    val writerOp = StreamWriterOptions(overLast, computeEvery, sparkStreamingWindow, initSchema)
 
     StreamWriter(triggers, tableSchemas, writerOp, outputs)
   }

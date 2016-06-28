@@ -72,6 +72,8 @@
     "outputs": ["test_output_elasticsearch"],
     "overLastNumber": 6,
     "overLastTime": "s",
+    "computeEveryNumber": 6,
+    "computeEveryTime": "s",
     "primaryKey": [],
     "configuration": {}
   }]

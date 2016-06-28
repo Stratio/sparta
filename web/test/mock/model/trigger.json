@@ -1,6 +1,8 @@
 {
   "overLastNumber": "1",
   "overLastTime": "s",
+  "computeEveryNumber": "1",
+  "computeEveryTime": "s",
   "fixedMeasure":"fixed measure",
   "name": "fake cube",
   "sql": "SELECT x FROM y",

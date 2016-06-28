@@ -79,6 +79,17 @@ describe('service.policy-service', function () {
       rootScope.$apply();
     });
 
+    it("should convert the compute every attribute of stream triggers", function () {
+      service.generateFinalJSON().then(function (finalJson) {
+        for (var i = 0; i < finalJson.streamTriggers.length; ++i) {
+          expect(finalJson.streamTriggers[i].computeEvery).toBe(fakePolicy.streamTriggers[i].computeEveryNumber + fakePolicy.streamTriggers[i].computeEveryTime);
+          expect(finalJson.streamTriggers[i].computeEveryNumber).toBeUndefined();
+          expect(finalJson.streamTriggers[i].computeEveryTime).toBeUndefined();
+        }
+      });
+      rootScope.$apply();
+    });
+
     it("should add an output list searching for all used outputs in policy", function () {
       var expectedOutputLength = fakePolicy.streamTriggers[0].outputs.length
         + fakePolicy.cubes[0]['writer.outputs'].length

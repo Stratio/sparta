@@ -21,5 +21,6 @@ case class Trigger(name: String,
                    sql: String,
                    outputs: Seq[String],
                    overLast: Option[String],
+                   computeEvery: Option[String],
                    primaryKey: Seq[String],
                    configuration: Map[String, Serializable])
