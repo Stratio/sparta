@@ -47,6 +47,7 @@
                         <configuration>
                             <sources>
                                 <source>src/${spark.version.folder}/scala</source>
+                                <source>src/test-${spark.version.folder}/scala</source>
                             </sources>
                         </configuration>
                     </execution>

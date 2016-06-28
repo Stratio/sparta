@@ -594,7 +594,7 @@
         <profile>
             <id>spark-1.6</id>
             <properties>
-                <spark.version>1.6.1</spark.version>
+                <spark.version>1.6.2</spark.version>
                 <spark.version.folder>1.6</spark.version.folder>
                 <mongodb.spark.version>0.11.2</mongodb.spark.version>
                 <elastic.spark.version>2.3.2</elastic.spark.version>
