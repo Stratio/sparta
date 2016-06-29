@@ -47,21 +47,20 @@ class LocalSparkStreamingContextActor(policy: AggregationPoliciesModel,
 
   private def doInitSpartaContext: Unit = {
 
-    implicit val timeout: Timeout = Timeout(3.seconds)
     val jars = PolicyUtils.jarsFromPolicy(policy)
     jars.foreach(file => JarsHelper.addToClasspath(file))
 
-    Try({
-      policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting))
+    Try{
+      policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting))
       Try(ErrorDAO().dao.delete(policy.id.get))
       ssc = streamingContextService.standAloneStreamingContext(policy, jars)
       ssc.get.start()
-    }) match {
+    } match {
       case Success(_) =>
-        policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Started))
+        policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Started))
       case Failure(exception) =>
         log.error(exception.getLocalizedMessage, exception)
-        policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed))
+        policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed))
         SparkContextFactory.destroySparkStreamingContext()
         SparkContextFactory.destroySparkContext()
     }
@@ -71,7 +70,8 @@ class LocalSparkStreamingContextActor(policy: AggregationPoliciesModel,
     ssc match {
       case Some(sc: StreamingContext) =>
         SparkContextFactory.destroySparkStreamingContext()
-      case x => log.warn("Unrecognized Standalone StreamingContext to stop!", x)
+      case x =>
+        log.warn("Unrecognized Standalone StreamingContext to stop!", x)
     }
     super.postStop()
   }

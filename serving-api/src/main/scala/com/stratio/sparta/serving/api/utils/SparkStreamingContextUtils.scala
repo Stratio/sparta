@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.utils
 
 import scala.concurrent.ExecutionContext.Implicits._
-import scala.concurrent.Future
-import scala.util.Try
-
+import scala.concurrent.{Await, Future}
+import scala.util.{Failure, Success, Try}
 import akka.actor._
 import akka.pattern.ask
 import org.apache.curator.framework.CuratorFramework
-
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor.Start
 import com.stratio.sparta.serving.api.actor.{ClusterLauncherActor, LocalSparkStreamingContextActor}
 import com.stratio.sparta.serving.api.helpers.SpartaHelper._
 import com.stratio.sparta.serving.core.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.models.AggregationPoliciesModel
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
 
@@ -43,17 +43,17 @@ trait SparkStreamingContextUtils extends PolicyStatusUtils
     for {
       isAvailable <- isContextAvailable(policyStatusActor)
     } yield Try {
-      updatePolicy(policy, PolicyStatusEnum.Launched, policyStatusActor)
-      getStreamingContextActor(policy, policyStatusActor, streamingContextService, context) match {
-        case Some(streamingContextActor) => startPolicy(streamingContextActor)
-        case None => updatePolicy(policy, PolicyStatusEnum.Failed, policyStatusActor)
+      if (isAvailable) {
+        val streamingLauncherActor =
+          getStreamingContextActor(policy, policyStatusActor, streamingContextService, context)
+        updatePolicy(policy, PolicyStatusEnum.Launched, policyStatusActor)
+        startPolicy(streamingLauncherActor)
       }
       policy
     }
 
-  def startPolicy(streamingContextActor: ActorRef): Future[Any] = {
+  def startPolicy(streamingContextActor: ActorRef): Future[Any] =
     streamingContextActor ? Start
-  }
 
   def createNewPolicy(policy: AggregationPoliciesModel,
                       policyStatusActor: ActorRef,
@@ -64,7 +64,8 @@ trait SparkStreamingContextUtils extends PolicyStatusUtils
       case true =>
         log.error(s"${policy.name} already exists. Try deleting first or choosing another name.")
         throw new RuntimeException(s"${policy.name} already exists")
-      case false => launchNewPolicy(policy, policyStatusActor, curatorFramework, streamingContextService, context)
+      case false =>
+        launchNewPolicy(policy, policyStatusActor, curatorFramework, streamingContextService, context)
     }
 
   def launchNewPolicy(policy: AggregationPoliciesModel,
@@ -85,17 +86,21 @@ trait SparkStreamingContextUtils extends PolicyStatusUtils
   def getStreamingContextActor(policy: AggregationPoliciesModel,
                                policyStatusActor: ActorRef,
                                streamingContextService: StreamingContextService,
-                               context: ActorContext): Option[ActorRef] = {
-    val actorName = s"$SparkStreamingContextActorPrefix-${policy.name.replace(" ", "_")}"
-    SpartaConfig.getClusterConfig match {
-      case Some(clusterConfig) => {
-        log.info(s"launched -> $actorName")
-        getClusterLauncher(policy, policyStatusActor, context, actorName)
-      }
-      case None => {
-        killPolicy(policyStatusActor, actorName)
-        getLocalLauncher(policy, policyStatusActor, streamingContextService, context, actorName)
-      }
+                               context: ActorContext): ActorRef = {
+    val actorName = cleanActorName(s"$SparkStreamingContextActorPrefix-${policy.name}")
+    val policyActor = context.children.find(children => children.path.name == actorName)
+
+    policyActor match {
+      case Some(actor) =>
+        actor
+      case None =>
+        SpartaConfig.getClusterConfig match {
+          case Some(clusterConfig) =>
+            log.info(s"launched -> $actorName")
+            getClusterLauncher(policy, policyStatusActor, context, actorName)
+          case None =>
+            getLocalLauncher(policy, policyStatusActor, streamingContextService, context, actorName)
+        }
     }
   }
 
@@ -103,15 +108,15 @@ trait SparkStreamingContextUtils extends PolicyStatusUtils
                        policyStatusActor: ActorRef,
                        streamingContextService: StreamingContextService,
                        context: ActorContext,
-                       actorName: String): Option[ActorRef] = {
-    Some(context.actorOf(Props(new LocalSparkStreamingContextActor(policy, streamingContextService, policyStatusActor)),
-      actorName))
+                       actorName: String): ActorRef = {
+    context.actorOf(
+      Props(new LocalSparkStreamingContextActor(policy, streamingContextService, policyStatusActor)), actorName)
   }
 
   def getClusterLauncher(policy: AggregationPoliciesModel,
                          policyStatusActor: ActorRef,
                          context: ActorContext,
-                         actorName: String): Option[ActorRef] = {
-    Some(context.actorOf(Props(new ClusterLauncherActor(policy, policyStatusActor)), actorName))
+                         actorName: String): ActorRef = {
+    context.actorOf(Props(new ClusterLauncherActor(policy, policyStatusActor)), actorName)
   }
 }

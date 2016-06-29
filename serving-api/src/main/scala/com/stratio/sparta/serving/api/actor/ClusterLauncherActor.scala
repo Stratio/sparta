@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Actor, ActorRef}
@@ -39,8 +40,8 @@ import scala.language.postfixOps
 import scala.util.{Failure, Properties, Success, Try}
 
 class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: ActorRef) extends Actor
-with SLF4JLogging
-with SpartaSerializer {
+  with SLF4JLogging
+  with SpartaSerializer {
 
   private val SpartaDriver = "com.stratio.sparta.driver.SpartaClusterJob"
   private val StandaloneSupervise = "--supervise"
@@ -103,21 +104,25 @@ with SpartaSerializer {
       Try(ClusterConfig.getBoolean(AppConstant.StandAloneSupervise)).getOrElse(false)
     } else false
 
-  private def launch(main: String, hdfsDriverFile: String, master: String, args: Map[String, String],
+  private def launch(main: String,
+                     hdfsDriverFile: String,
+                     master: String,
+                     args: Map[String, String],
                      driverParams: Seq[String],
                      pluginsFiles: Seq[String]): Unit = {
+
     val sparkLauncher = new SparkLauncher()
       .setSparkHome(sparkHome)
       .setAppResource(hdfsDriverFile)
       .setMainClass(main)
       .setMaster(master)
     pluginsFiles.foreach(file => sparkLauncher.addJar(file))
-    args.map({ case (k: String, v: String) => sparkLauncher.addSparkArg(k, v) })
+    args.map { case (k: String, v: String) => sparkLauncher.addSparkArg(k, v) }
     if (isStandaloneSupervise) sparkLauncher.addSparkArg(StandaloneSupervise)
     //Spark params (everything starting with spark.)
-    sparkConf.map({ case (key: String, value: String) =>
+    sparkConf.map { case (key: String, value: String) =>
       sparkLauncher.setConf(key, if (key == "spark.app.name") s"$value-${policy.name}" else value)
-    })
+    }
     // Driver (Sparta) params
     driverParams.map(sparkLauncher.addAppArgs(_))
 
@@ -139,14 +144,13 @@ with SpartaSerializer {
 
   private def sparkLauncherStreams(exitCode: Boolean, sparkProcess: Process): Unit = {
 
-    def recursiveErrors(it: Iterator[String], count : Int): Unit = {
+    def recursiveErrors(it: Iterator[String], count: Int): Unit = {
       log.info(it.next())
-      if(it.hasNext && count < 50){
+      if (it.hasNext && count < 50)
         recursiveErrors(it, count + 1)
-      }
     }
 
-    if(exitCode) log.info("Spark process exited successfully")
+    if (exitCode) log.info("Spark process exited successfully")
     else log.info("Spark process exited with timeout")
 
     Source.fromInputStream(sparkProcess.getInputStream).close()

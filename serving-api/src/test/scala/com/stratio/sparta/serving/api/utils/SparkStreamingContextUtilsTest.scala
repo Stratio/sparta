@@ -18,12 +18,10 @@ package com.stratio.sparta.serving.api.utils
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.Success
-
-import akka.actor.ActorRef
+import akka.actor.{Actor, ActorRef}
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
-
 import com.stratio.sparta.serving.core.models.PolicyStatusModel
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
 import com.stratio.sparta.serving.core.{MockConfigFactory, SpartaConfig}
@@ -41,27 +39,6 @@ class SparkStreamingContextUtilsTest extends BaseUtilsTest
   }
 
   "SparkStreamingContextActor.launch" should {
-
-    "return failed policyModel when policy fails to start" in {
-      doReturn(Future(true))
-        .when(spyActor)
-        .isContextAvailable(policyStatusActorRef)
-      doNothing()
-        .when(spyActor)
-        .updatePolicy(policyModel, PolicyStatusEnum.Launched, policyStatusActorRef)
-      doReturn(None)
-        .when(spyActor)
-        .getStreamingContextActor(policyModel, policyStatusActorRef, streamingContextService, policyStatusActor.context)
-
-      for {
-        response <- spyActor.launch(policyModel, policyStatusActorRef, streamingContextService, policyStatusActor
-          .context)
-      } yield response should be(policyModel)
-
-      verify(spyActor, times(0)).startPolicy(sparkStreamingContextActorRef)
-      verify(spyActor, times(1)).updatePolicy(policyModel, PolicyStatusEnum.Failed, policyStatusActorRef)
-    }
-
     "return policyModel when policy starts successfully" in {
 
       doReturn(Future(true))
@@ -70,10 +47,9 @@ class SparkStreamingContextUtilsTest extends BaseUtilsTest
       doNothing()
         .when(spyActor)
         .updatePolicy(policyModel, PolicyStatusEnum.Launched, policyStatusActorRef)
-      doReturn(Option(sparkStreamingContextActorRef))
+      doReturn(sparkStreamingContextActorRef)
         .when(spyActor)
         .getStreamingContextActor(policyModel, policyStatusActorRef, streamingContextService, policyStatusActor.context)
-
 
       for {
         response <- spyActor.launch(policyModel, policyStatusActorRef, streamingContextService, policyStatusActor
@@ -89,7 +65,7 @@ class SparkStreamingContextUtilsTest extends BaseUtilsTest
     "return exception when policy already exists" in {
       doReturn(true)
         .when(spyActor)
-        .existsByName(name = "testpolicy", id = None, curatorFramework = curatorFramework)
+        .existsByName(name = policyModel.name, id = None, curatorFramework = curatorFramework)
 
       intercept[RuntimeException] {
         spyActor.createNewPolicy(policy = policyModel,
@@ -177,7 +153,7 @@ class SparkStreamingContextUtilsTest extends BaseUtilsTest
       SpartaConfig.initMainConfig(Option(localConfig), new MockConfigFactory(localConfig))
       doNothing()
         .when(spyActor)
-        .killPolicy(policyStatusActorRef, "sparkStreamingContextActor-localPolicy")
+        .killActorByName(policyStatusActorRef, "sparkStreamingContextActor-localPolicy")
 
       spyActor.getStreamingContextActor(getPolicyModel(name = "localPolicy"),
         policyStatusActorRef,
