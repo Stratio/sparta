@@ -16,9 +16,12 @@
 package com.stratio.sparta.serving.core.models
 
 import com.stratio.sparta.serving.core.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.OperationsHelper._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
+
+import scala.util.Try
 
 case class AggregationPoliciesModel(
   id: Option[String] = None,
@@ -44,10 +47,20 @@ case object AggregationPoliciesModel {
   val storageDefaultValue = Some("MEMORY_AND_DISK_SER_2")
 
   private def getCheckpointPathFromProperties(policyName: String): String =
-    SpartaConfig.getDetailConfig.map { config =>
-      s"""${config.getString("checkpointPath")}/$policyName"""
-    } getOrElse {
-      throw new Exception("config.checkpointPath variable not found")
+    (for {
+      config <- SpartaConfig.getDetailConfig
+      checkpointPath <- Try(config.getString("checkpointPath")).toOption
+    } yield s"$checkpointPath/$policyName")
+      .getOrElse(generateDefaultCheckpointPath)
+
+  private def generateDefaultCheckpointPath: String =
+    SpartaConfig.getDetailConfig.map(_.getString(AppConstant.ExecutionMode)) match {
+      case Some(mode) if mode == AppConstant.ConfigMesos || mode == AppConstant.ConfigYarn =>
+        AppConstant.DefaultCheckpointPathClusterMode
+      case Some(AppConstant.ConfigLocal) =>
+        AppConstant.DefaultCheckpointPathLocalMode
+      case _ =>
+        throw new RuntimeException("Error getting execution mode")
     }
 
   def checkpointPath(policy: AggregationPoliciesModel): String =

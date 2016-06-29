@@ -87,4 +87,8 @@ object AppConstant {
   final val ZookeeperRetryInterval = "retryInterval"
   final val DefaultZookeeperRetryInterval = 10000
 
+  //checkpointPath
+  final val DefaultCheckpointPathLocalMode = "/var/sds/sparta"
+  final val DefaultCheckpointPathClusterMode = "/user/stratio/sparta"
+
 }

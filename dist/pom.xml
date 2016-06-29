@@ -205,6 +205,9 @@
                                     </attributes>
                                 </mkdirs>
                                 <mkdirs>
+                                    <path>/var/sds/sparta</path>
+                                </mkdirs>
+                                <mkdirs>
                                     <path>/var/log/sds/sparta</path>
                                 </mkdirs>
                                 <copyDirectory>
