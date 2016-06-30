@@ -40,6 +40,7 @@
     "sql": "SELECT * FROM STREAM",
     "outputs": ["outputexample"],
     "overLast": "6s",
+    "computeEvery": "6s",
     "primaryKey": [],
     "configuration": {}
   }],

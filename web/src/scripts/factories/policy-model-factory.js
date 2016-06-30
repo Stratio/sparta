@@ -80,9 +80,13 @@
       for (var i = 0; i < streamTriggers.length; ++i) {
         var trigger = streamTriggers[i];
         var overLast = trigger.overLast.split(/([0-9]+)/);
+        var computeEvery = trigger.computeEvery.split(/([0-9]+)/);
         trigger.overLastNumber = Number(overLast[1]);
         trigger.overLastTime = overLast[2];
+        trigger.computeEveryNumber = Number(computeEvery[1]);
+        trigger.computeEveryTime = computeEvery[2];
         delete trigger.overLast;
+        delete trigger.computeEvery;
         formattedStreamTriggers.push(trigger);
       }
       return formattedStreamTriggers;
@@ -161,7 +165,9 @@
       if (policy.streamTriggers && policy.sparkStreamingWindowNumber > 0) {
         var i = 0;
         while (valid && i < policy.streamTriggers.length) {
-          valid = valid && ((policy.streamTriggers[i].overLastNumber % policy.sparkStreamingWindowNumber) == 0);
+          valid = valid &&
+            ((policy.streamTriggers[i].overLastNumber % policy.sparkStreamingWindowNumber) == 0) &&
+            ((policy.streamTriggers[i].computeEveryNumber % policy.sparkStreamingWindowNumber) == 0);
           ++i;
         }
       }

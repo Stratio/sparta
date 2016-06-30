@@ -797,6 +797,47 @@
           ]
         },
         {
+          "propertyId": "computeEveryNumber",
+          "propertyName": "_COMPUTE_EVERY_",
+          "propertyType": "number",
+          "width": 6,
+          "position": "left",
+          "required": true,
+          "tooltip": "This number has to be multiple of the window batch defined in policy settings",
+          "qa": "trigger-computeEveryNumber"
+        },
+        {
+          "propertyId": "computeEveryTime",
+          "propertyName": "_WHITE_SPACE_",
+          "propertyType": "select",
+          "width": 6,
+          "position": "right",
+          "qa": "trigger-computeEveryTime",
+          "required": true,
+          "values": [
+            {
+              "label": "Milliseconds",
+              "value": "ms"
+            },
+            {
+              "label": "Seconds",
+              "value": "s"
+            },
+            {
+              "label": "Minutes",
+              "value": "m"
+            },
+            {
+              "label": "Hours",
+              "value": "h"
+            },
+            {
+              "label": "Days",
+              "value": "d"
+            }
+          ]
+        },
+        {
           "propertyId": "sql",
           "propertyName": "_SQL_",
           "propertyType": "textarea",

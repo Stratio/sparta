@@ -25,7 +25,8 @@
       "primaryKey": [
         "PRIMARY_kEY"
       ],
-      "overLast": "6s"
+      "overLast": "6s",
+      "computeEvery": "6s"
     }
   ],
   "writer": {

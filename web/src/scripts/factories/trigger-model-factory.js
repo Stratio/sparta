@@ -36,12 +36,18 @@
       trigger.primaryKey = [];
       error.text = "";
       if (type == triggerConstants.TRANSFORMATION) {
-        trigger.overLastNumber = PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowNumber;
-        trigger.overLastTime = PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowTime;
+        var currentPolicy = PolicyModelFactory.getCurrentPolicy()
+        trigger.overLastNumber = currentPolicy.sparkStreamingWindowNumber;
+        trigger.overLastTime = currentPolicy.sparkStreamingWindowTime;
+        trigger.computeEveryNumber = currentPolicy.sparkStreamingWindowNumber;
+        trigger.computeEveryTime = currentPolicy.sparkStreamingWindowTime;
       } else {
         delete trigger.overLast;
         delete trigger.overLastNumber;
         delete trigger.overLastTime;
+        delete trigger.computeEvery;
+        delete trigger.computeEveryNumber;
+        delete trigger.computeEveryTime;
       }
     }
 
@@ -65,8 +71,11 @@
         trigger.overLast = _trigger.overLast;
         trigger.overLastNumber = _trigger.overLastNumber;
         trigger.overLastTime = _trigger.overLastTime;
+        trigger.computeEvery = _trigger.computeEvery;
+        trigger.computeEveryNumber = _trigger.computeEveryNumber;
+        trigger.computeEveryTime = _trigger.computeEveryTime;
       }
-      convertOverLast();
+      convertWindowAttributes();
       setPosition(position);
     }
 
@@ -77,32 +86,40 @@
       context.position = p;
     }
 
-    function convertOverLast() {
+    function convertWindowAttributes() {
       if (trigger.overLast) {
         var overLast = trigger.overLast.split(/([0-9]+)/);
         trigger.overLastNumber = Number(overLast[1]);
         trigger.overLastTime = overLast[2];
       }
+      if (trigger.computeEvery) {
+        var computeEvery = trigger.computeEvery.split(/([0-9]+)/);
+        trigger.computeEveryNumber = Number(computeEvery[1]);
+        trigger.computeEveryTime = computeEvery[2];
+      }
+      delete trigger.computeEvery;
       delete trigger.overLast;
     }
 
-    function isValidOverLast() {
+    function isValidWindowAttributes() {
       var sparkStreamingWindow = PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowNumber;
-      return (!sparkStreamingWindow || !trigger.overLastNumber || trigger.overLastNumber % PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowNumber == 0);
+      return (!sparkStreamingWindow ||
+        ((!trigger.overLastNumber || trigger.overLastNumber % sparkStreamingWindow == 0) &&
+        (!trigger.computeEveryNumber || trigger.computeEveryNumber % sparkStreamingWindow == 0)));
     }
 
     function isValidTrigger(triggers, position) {
       var isValid = trigger.name != "" && trigger.sql != "" && !nameExists(trigger, triggers, position);
-      var validOverLast = isValidOverLast();
-      if (!validOverLast) {
-        error.text = "_ERROR_._OVERLAST_NOT_MULTIPLE_ERROR_";
+      var validWindowAttributes = isValidWindowAttributes();
+      if (!validWindowAttributes) {
+        error.text = "_ERROR_._WINDOW_ATTRIBUTE_NOT_MULTIPLE_ERROR_";
         error.type = 'error';
-        error.attribute = 'overLastNumber'
+        error.attribute = 'streamTrigger'
       }
-      if (isValid && validOverLast){
+      if (isValid && validWindowAttributes){
         error.text = "";
       }
-      return isValid && validOverLast;
+      return isValid && validWindowAttributes;
     }
 
     function nameExists(trigger, triggers, triggerPosition) {

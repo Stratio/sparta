@@ -22,4 +22,5 @@ case class TriggerModel(name: String,
                         outputs: Seq[String] = Seq(),
                         overLast: Option[String] = None,
                         primaryKey: Seq[String],
-                        configuration: Map[String, JsoneyString] = Map())
+                        configuration: Map[String, JsoneyString] = Map(),
+                        computeEvery: Option[String] = None)

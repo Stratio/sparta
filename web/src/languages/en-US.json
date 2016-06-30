@@ -294,6 +294,7 @@
   "_TRIGGERS_": "Triggers",
   "_HELP_FOR_SQL_QUERIES_": "Help for your SQL queries",
   "_OVER_LAST_": "Over last",
+  "_COMPUTE_EVERY_": "Compute every",
   "_PRIMARY_KEY_": "Primary key",
   "_IS_AUTO_CALCULATED_ID_": "Is auto calculated id",
   "_DATE_TYPE_": "Date type",
@@ -338,12 +339,12 @@
     "_4004_": "There is at least one cube with an incorrect output",
     "_4005_": "There is at least one cube with triggers with an incorrect output",
     "_4006_": "There is at least one stream trigger with an incorrect output",
-    "_4007_": "There is at least one stream trigger with an incorrect overlast",
+    "_4007_": "There is at least one stream trigger with an incorrect window attribute like over last or compute every",
     "_666_": "Server error. There was an error. Please try again later.",
     "_POLICY_INPUTS_": "At least one input must be selected!",
     "_POLICY_OUTPUTS_": "At least one output must be selected!",
     "_GENERIC_FORM_": "There are some errors in the data introduced. Please, check them and try again",
-    "_OVERLAST_NOT_MULTIPLE_ERROR_": "The introduced overlast is not multiple of the policy Spark Streaming Window"
+    "_WINDOW_ATTRIBUTE_NOT_MULTIPLE_ERROR_": "The introduced window attributes are not multiple of the policy SparkStreaming Window"
   },
   "_MESSAGE_": {
     "_TRANSFORMATION_STEP_":  "You have to create, at least, one transformation",

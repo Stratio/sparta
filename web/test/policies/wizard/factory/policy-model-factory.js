@@ -124,16 +124,33 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
 
   describe("should be able to valid the Spark streaming window", function () {
+
+
     it("if policy has stream triggers, all their overLast have to be multiple of the Spark streaming window", function () {
       var fakeSparkStreamingWindowNumber = 4;
-      fakeApiPolicy.streamTriggers = [{overLast: 2 * fakeSparkStreamingWindowNumber + 1 + 's'}];
+      fakeApiPolicy.streamTriggers = [{overLast: 2 * fakeSparkStreamingWindowNumber + 1 + 's', computeEvery: 2 * fakeSparkStreamingWindowNumber + 's'}];
       fakeApiPolicy.sparkStreamingWindow = fakeSparkStreamingWindowNumber + 's';
 
       factory.setPolicy(fakeApiPolicy);
 
       expect(factory.isValidSparkStreamingWindow()).toBeFalsy();
 
-      fakeApiPolicy.streamTriggers = [{overLast: 2 * fakeSparkStreamingWindowNumber+ 's'} ];
+      fakeApiPolicy.streamTriggers = [{overLast: 2 * fakeSparkStreamingWindowNumber+ 's', computeEvery: 2 * fakeSparkStreamingWindowNumber + 's'} ];
+      factory.setPolicy(fakeApiPolicy);
+
+      expect(factory.isValidSparkStreamingWindow()).toBeTruthy();
+    });
+
+    it("if policy has stream triggers, all their computeEvery have to be multiple of the Spark streaming window", function () {
+      var fakeSparkStreamingWindowNumber = 4;
+      fakeApiPolicy.streamTriggers = [{overLast: 2 * fakeSparkStreamingWindowNumber + 's', computeEvery: 2 * fakeSparkStreamingWindowNumber + 1 + 's'}];
+      fakeApiPolicy.sparkStreamingWindow = fakeSparkStreamingWindowNumber + 's';
+
+      factory.setPolicy(fakeApiPolicy);
+
+      expect(factory.isValidSparkStreamingWindow()).toBeFalsy();
+
+      fakeApiPolicy.streamTriggers = [{overLast: 2 * fakeSparkStreamingWindowNumber + 's', computeEvery: 2 * fakeSparkStreamingWindowNumber+ 's'} ];
       factory.setPolicy(fakeApiPolicy);
 
       expect(factory.isValidSparkStreamingWindow()).toBeTruthy();
