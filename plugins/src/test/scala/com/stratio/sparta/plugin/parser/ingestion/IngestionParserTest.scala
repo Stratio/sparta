@@ -15,14 +15,26 @@
  */
 package com.stratio.sparta.plugin.parser.ingestion
 
-import com.stratio.sparta.plugin.parser.ingestion.IngestionParser
-import com.stratio.sparta.sdk.Input
+import java.io.{ByteArrayOutputStream, Serializable => JSerializable}
+import java.util
+import java.util.Date
+import scala.collection.JavaConverters._
+
+import org.apache.avro.Schema
+import org.apache.avro.io.EncoderFactory
+import org.apache.avro.specific.SpecificDatumWriter
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.apache.spark.{SparkContext, SparkConf}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
-import java.io.{Serializable => JSerializable}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
+
+import com.stratio.decision.commons.avro._
+import com.stratio.sparta.plugin.input.kafka.{KafkaDirectInput, KafkaInput}
+import com.stratio.sparta.plugin.input.websocket.WebSocketInput
+import com.stratio.sparta.sdk.{JsoneyString, Input}
 
 @RunWith(classOf[JUnitRunner])
 class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll {
@@ -41,7 +53,10 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
     StructField("ColumnF", DateType)))
   val ParserConfig = Map.empty[String, JSerializable]
 
+
   "A IngestionParser" should {
+
+
     "parse an event with an input that has the same columns that the schema specified in the config" in {
       val json =
         """
@@ -70,16 +85,28 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
           |   ]
           |}
           | """.stripMargin
-
-      val inputEvent = Row(json)
+      val columns = List(
+        new ColumnType("ColumnA", "columnAValue", "STRING"),
+        new ColumnType("ColumnB", "1", "LONG"),
+        new ColumnType("ColumnC", "1", "INTEGER"),
+        new ColumnType("ColumnD", "1", "FLOAT"),
+        new ColumnType("ColumnE", "1", "DOUBLE")
+      )
+      val insertMessage: InsertMessage = new InsertMessage(
+        "insert",
+        "c_orders",
+        "1454571270574",
+        1454575187944L,
+        columns.asJava,
+        new util.ArrayList[Action]())
+      val inputEvent = Row(serializeInsertMessageToAvro(insertMessage))
       val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, validSchema, ParserConfig)
-      val event = ingestionParser.parse(inputEvent, false)
       val values = Seq("columnAValue", 1L, 1, 1F, 1D)
 
+      val event = ingestionParser.parse(row = inputEvent, removeRaw = false)
+
       event should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
-
       event.size should be (6)
-
       event should be eq Row.fromSeq(Seq(json) ++ values)
     }
 
@@ -99,8 +126,18 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
           |   ]
           |}
           | """.stripMargin
-
-      val inputEvent = Row(json)
+      val columns = List(
+        new ColumnType("ColumnA", "columnAValue", ""),
+        new ColumnType("ColumnB", "1", "LONG")
+      )
+      val insertMessage: InsertMessage = new InsertMessage(
+        "insert",
+        "c_orders",
+        "1454571270574",
+        1454575187944L,
+        columns.asJava,
+        new util.ArrayList[Action]())
+      val inputEvent = Row(serializeInsertMessageToAvro(insertMessage))
       val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, validSchema, ParserConfig)
       val event = ingestionParser.parse(inputEvent, false)
       val values = Seq("columnAValue", 1L)
@@ -130,7 +167,18 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
           |}
           | """.stripMargin
 
-      val inputEvent = Row(json)
+      val columns = List(
+        new ColumnType("ColumnA", "columnAValue", ""),
+        new ColumnType("ColumnNotDefined", "1", "")
+      )
+      val insertMessage: InsertMessage = new InsertMessage(
+        "insert",
+        "c_orders",
+        "1454571270574",
+        1454575187944L,
+        columns.asJava,
+        new util.ArrayList[Action]())
+      val inputEvent = Row(serializeInsertMessageToAvro(insertMessage))
       val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, validSchema, ParserConfig)
       val event = ingestionParser.parse(inputEvent, false)
       val values = Seq("columnAValue")
@@ -160,7 +208,18 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
           |}
           | """.stripMargin
 
-      val inputEvent = Row(json)
+      val columns = List(
+        new ColumnType("ColumnA", "columnAValue", ""),
+        new ColumnType("ColumnNotDefined", "1", "")
+      )
+      val insertMessage: InsertMessage = new InsertMessage(
+        "insert",
+        "c_orders",
+        "1454571270574",
+        1454575187944L,
+        columns.asJava,
+        new util.ArrayList[Action]())
+      val inputEvent = Row(serializeInsertMessageToAvro(insertMessage))
       val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, validSchema, ParserConfig)
       val event = ingestionParser.parse(inputEvent, true)
       val values = Seq("columnAValue")
@@ -185,7 +244,17 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
           |}
           | """.stripMargin
 
-      val inputEvent = Row(json)
+      val columns = List(
+        new ColumnType("ColumnA", "columnAValue", "")
+      )
+      val insertMessage: InsertMessage = new InsertMessage(
+        "insert",
+        "c_orders",
+        "1454571270574",
+        1454575187944L,
+        columns.asJava,
+        new util.ArrayList[Action]())
+      val inputEvent = Row(serializeInsertMessageToAvro(insertMessage))
       val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, wrongSchema, ParserConfig)
       val event = ingestionParser.parse(inputEvent, true)
 
@@ -193,5 +262,30 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
 
       event.size should be (0)
     }
+
+    def serializeInsertMessageToAvro(insertMessage: InsertMessage): Array[Byte] = {
+      val out = new ByteArrayOutputStream()
+      // scalastyle:off
+      val encoder = EncoderFactory.get.binaryEncoder(out, null)
+      // scalastyle:on
+      val Schema : Schema = new org.apache.avro.Schema.Parser()
+        .parse("{\"type\":\"record\",\"name\":\"InsertMessage\",\"namespace\":\"com.stratio.decision.commons.avro\"," +
+          "\"fields\":[{\"name\":\"operation\",\"type\":[\"null\",\"string\"],\"default\":\"null\"}," +
+          "{\"name\":\"streamName\",\"type\":\"string\"},{\"name\":\"sessionId\",\"type\":[\"null\",\"string\"]," +
+          "\"default\":\"null\"},{\"name\":\"timestamp\",\"type\":[\"null\",\"long\"],\"default\":\"null\"}," +
+          "{\"name\":\"data\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ColumnType\"," +
+          "\"fields\":[{\"name\":\"column\",\"type\":\"string\"},{\"name\":\"value\",\"type\":[\"null\",\"string\"]," +
+          "\"default\":\"null\"},{\"name\":\"type\",\"type\":[\"null\",\"string\"],\"default\":\"null\"}]}}}," +
+          "{\"name\":\"actions\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"enum\"," +
+          "\"name\":\"Action\",\"symbols\":[\"LISTEN\",\"SAVE_TO_CASSANDRA\",\"SAVE_TO_MONGO\",\"SAVE_TO_SOLR\"," +
+          "\"SAVE_TO_ELASTICSEARCH\"]}}],\"default\":\"null\"}]}")
+      val writer = new SpecificDatumWriter[InsertMessage](Schema)
+
+      writer.write(insertMessage, encoder)
+      encoder.flush
+      out.close
+      out.toByteArray
+    }
+
   }
 }

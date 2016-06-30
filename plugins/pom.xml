@@ -30,6 +30,8 @@
     <properties>
         <morphline.version>0.17.0</morphline.version>
         <cassandra.spark.version>1.5.0</cassandra.spark.version>
+        <decision.version>1.1.0</decision.version>
+        <avro.version>1.8.0</avro.version>
     </properties>
 
     <dependencies>
@@ -356,6 +358,16 @@
             <version>1.4-SNAPSHOT</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/../lib/spark-solr-1.4-1.4.1-SNAPSHOT.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+            <version>${avro.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.decision</groupId>
+            <artifactId>commons</artifactId>
+            <version>${decision.version}</version>
         </dependency>
     </dependencies>
 </project>

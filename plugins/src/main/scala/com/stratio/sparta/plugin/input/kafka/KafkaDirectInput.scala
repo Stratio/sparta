@@ -20,7 +20,7 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.Input
 import com.stratio.sparta.sdk.ValidatingPropertyMap._
-import kafka.serializer.StringDecoder
+import kafka.serializer.{DefaultDecoder, StringDecoder}
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
@@ -39,7 +39,7 @@ class KafkaDirectInput(properties: Map[String, JSerializable]) extends Input(pro
 
     if (submap.isDefined) {
       val kafkaParams = submap.get.map(entry => (entry._1, entry._2.toString))
-      KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](
+      KafkaUtils.createDirectStream[String, Array[Byte], StringDecoder, DefaultDecoder](
         ssc,
         metaDataBrokerList ++ kafkaParams,
         extractTopicsSet())
