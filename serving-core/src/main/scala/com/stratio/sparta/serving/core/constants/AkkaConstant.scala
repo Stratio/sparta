@@ -20,6 +20,7 @@ package com.stratio.sparta.serving.core.constants
  * @author anistal
  */
 object AkkaConstant {
+
   final val StatusActor = "statusActor"
   final val FragmentActor = "fragmentActor"
   final val TemplateActor = "templateActor"
@@ -30,6 +31,7 @@ object AkkaConstant {
   final val PolicyStatusActor = "supervisorContextActor"
   final val ControllerActorInstances = "controllerActorInstances"
   final val DefaultControllerActorInstances = 5
-  final val DefaultStreamingActorInstances = 3
+
+  def cleanActorName(initialName: String) : String = initialName.replace(" ", "_")
 
 }

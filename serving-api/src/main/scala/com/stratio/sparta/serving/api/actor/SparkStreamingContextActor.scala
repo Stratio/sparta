@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.api.actor
 
-import scala.concurrent.ExecutionContext.Implicits._
-import scala.concurrent.Future
-import scala.util.Try
+package com.stratio.sparta.serving.api.actor
 
 import akka.actor.SupervisorStrategy.Escalate
 import akka.actor._
 import akka.event.slf4j.SLF4JLogging
-import akka.pattern.{ask, pipe}
-import org.apache.curator.framework.CuratorFramework
-
+import akka.pattern.pipe
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparta.serving.api.utils.SparkStreamingContextUtils
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, SpartaSerializer}
+import org.apache.curator.framework.CuratorFramework
+
+import scala.concurrent.ExecutionContext.Implicits._
+import scala.concurrent.Future
+import scala.util.Try
 
 class SparkStreamingContextActor(streamingContextService: StreamingContextService,
                                  policyStatusActor: ActorRef, curatorFramework: CuratorFramework) extends Actor
@@ -57,7 +57,7 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
     if (policy.id.isDefined)
       launch(policy, policyStatusActor, streamingContextService, context)
     else Future {
-      Try(createNewPolicy(policy, policyStatusActor, curatorFramework, streamingContextService,context))
+      Try(createNewPolicy(policy, policyStatusActor, curatorFramework, streamingContextService, context))
     }
 }
 

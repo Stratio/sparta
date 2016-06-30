@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.helpers
 
 import akka.actor.{ActorRef, ActorSystem, Props}
@@ -45,6 +46,7 @@ object SpartaHelper extends SLF4JLogging
 
   /**
    * Initializes Sparta's akka system running an embedded http server with the REST API.
+   *
    * @param appName with the name of the application.
    */
   def initAkkaSystem(appName: String): Unit = {
@@ -57,8 +59,6 @@ object SpartaHelper extends SLF4JLogging
       val akkaConfig = SpartaConfig.mainConfig.get.getConfig(AppConstant.ConfigAkka)
       val controllerInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
       else AkkaConstant.DefaultControllerActorInstances
-      val streamingActorInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
-      else AkkaConstant.DefaultStreamingActorInstances
       val policyStatusActor = system.actorOf(Props(new PolicyStatusActor(curatorFramework)),
         AkkaConstant.PolicyStatusActor)
       val streamingContextService = new StreamingContextService(Some(policyStatusActor), SpartaConfig.mainConfig)
@@ -70,19 +70,18 @@ object SpartaHelper extends SLF4JLogging
           system.actorOf(Props(new TemplateActor()), AkkaConstant.TemplateActor),
         AkkaConstant.PolicyActor ->
           system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActor)), AkkaConstant.PolicyActor),
-        AkkaConstant.SparkStreamingContextActor -> system.actorOf(RoundRobinPool(streamingActorInstances).props(Props(
-          new SparkStreamingContextActor(
-            streamingContextService, policyStatusActor, curatorFramework))),
-          AkkaConstant.SparkStreamingContextActor)
+        AkkaConstant.SparkStreamingContextActor -> system.actorOf(Props(
+          new SparkStreamingContextActor(streamingContextService, policyStatusActor, curatorFramework)),
+          AkkaConstant.SparkStreamingContextActor
+        )
       )
       val swaggerActor = system.actorOf(
         Props(new SwaggerActor(actors, curatorFramework)), AkkaConstant.SwaggerActor)
       val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)
         .props(Props(new ControllerActor(actors, curatorFramework))), AkkaConstant.ControllerActor)
 
-      if(SpartaConfig.isHttpsEnabled()) loadSpartaWithHttps(controllerActor, swaggerActor)
+      if (SpartaConfig.isHttpsEnabled()) loadSpartaWithHttps(controllerActor, swaggerActor)
       else loadSpartaWithHttp(controllerActor, swaggerActor)
-
     } else log.info("Config for Sparta is not defined")
   }
 
@@ -141,7 +140,7 @@ object SpartaHelper extends SLF4JLogging
       try {
         SparkContextFactory.destroySparkStreamingContext()
       } finally {
-        if(destroySparkContext)
+        if (destroySparkContext)
           SparkContextFactory.destroySparkContext()
         CuratorFactoryHolder.resetInstance()
         system.shutdown
@@ -158,5 +157,4 @@ object SpartaHelper extends SLF4JLogging
     val executionMode = getExecutionMode
     executionMode == AppConstant.ConfigMesos || executionMode == AppConstant.ConfigYarn
   }
-
 }

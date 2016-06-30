@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.utils
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
-import scala.concurrent.duration._
-import scala.util.Success
-
 import akka.actor.ActorRef
 import akka.pattern.ask
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.util.Success
+import scala.util.Try
 import akka.util.Timeout
-
 import com.stratio.sparta.serving.api.helpers.SpartaHelper._
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor._
@@ -39,7 +40,9 @@ trait PolicyStatusUtils {
     } yield response.policyStatus match {
       case Success(policiesStatus) =>
         policiesStatus.policiesStatus.exists(_.status == PolicyStatusEnum.Started) ||
-          policiesStatus.policiesStatus.exists(_.status == PolicyStatusEnum.Starting)
+          policiesStatus.policiesStatus.exists(_.status == PolicyStatusEnum.Starting) ||
+          policiesStatus.policiesStatus.exists(_.status == PolicyStatusEnum.Launched) ||
+          policiesStatus.policiesStatus.exists(_.status == PolicyStatusEnum.Stopping)
       case _ => false
     }
   }
@@ -49,9 +52,13 @@ trait PolicyStatusUtils {
       maybeStarted <- isAnyPolicyStarted(policyStatusActor)
       clusterMode = isClusterMode
     } yield (clusterMode, maybeStarted) match {
-      case (true, _) => true
-      case (false, false) => true
-      case (false, true) => throw new RuntimeException(s"One policy is already launched")
+      case (true, _) =>
+        true
+      case (false, false) =>
+        true
+      case (false, true) =>
+        log.warn(s"One policy is already launched")
+        false
     }
 
   def findAllPolicies(policyStatusActor: ActorRef): Future[Response] = {
@@ -71,7 +78,9 @@ trait PolicyStatusUtils {
     ))).mapTo[Option[PolicyStatusModel]]
   }
 
-  def killPolicy(policyStatusActor: ActorRef, actorName: String): Unit = {
-    policyStatusActor ! PolicyStatusActor.Kill(actorName)
+  def killActorByName(policyStatusActor: ActorRef, actorName: String): Unit = {
+    Try(Await.result(policyStatusActor ? PolicyStatusActor.Kill(actorName), timeout.duration) match {
+      case false => log.warn(s"The actor with name: $actorName has been stopped previously")
+    }).getOrElse(log.warn(s"The actor with name: $actorName could not be stopped correctly"))
   }
 }
