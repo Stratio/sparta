@@ -18,6 +18,8 @@ package com.stratio.sparta.plugin.output.kafka
 import java.io.Serializable
 import java.util.Properties
 
+import org.apache.log4j.{Level, Logger}
+
 import com.stratio.sparta.plugin.output.kafka.producer.KafkaProducer
 import kafka.producer
 import org.apache.kafka.clients.producer.Producer
@@ -25,12 +27,14 @@ import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 
-import scala.util.Try
+import scala.util._
 
+import com.stratio.sparta.sdk.JsoneyString
 
 @RunWith(classOf[JUnitRunner])
 class KafkaProducerTest extends FlatSpec with Matchers {
 
+  val log = Logger.getRootLogger
 
   val mandatoryOptions: Map[String, ((Map[String, Serializable], String, String) => AnyRef, String)] = Map(
     "metadata.broker.list" -> ((_, _, _) => "localhost:9092","localhost:9092"),
@@ -84,8 +88,53 @@ class KafkaProducerTest extends FlatSpec with Matchers {
     options.get("batch.num.messages") shouldBe "200"
   }
 
-  "createProducer" should "return a valid KafkaProducer" in {
-    Try(KafkaProducer.createProducer(validProperties)).isSuccess shouldBe true
+  "createProducer" should "return a valid KafkaProducer without zookeeper config" in {
+    val createProducer = Try(KafkaProducer.createProducer(validProperties))
+
+    createProducer match {
+      case Success(some) => log.info("Test OK!")
+      case Failure(e) => log.error("Test KO", e)
+    }
+
+    createProducer.isSuccess shouldBe true
+  }
+
+  "createProducer" should "return a valid KafkaProducer with zookeeper connection and default path" in {
+    val conn =
+      """[{"host": "localhost", "port": "2181"},{"host": "localhost", "port": "2181"},
+        |{"host": "localhost", "port": "2181"}]""".stripMargin
+    val zkProps = Map("zookeeper.connect" -> JsoneyString(conn))
+    val createProducer = Try(KafkaProducer.createProducer(validProperties ++ zkProps))
+
+    createProducer match {
+      case Success(producer) => {
+        producer.config.props.props.getProperty("zookeeper.connect") should
+          be("localhost:2181,localhost:2181,localhost:2181")
+        log.info("Test OK!")
+      }
+      case Failure(e) => log.error("Test KO", e)
+    }
+
+    createProducer.isSuccess shouldBe true
+  }
+
+  "createProducer" should "return a valid KafkaProducer with zookeeper connection and custom path" in {
+    val conn =
+      """[{"host": "localhost", "port": "2181"},{"host": "localhost", "port": "2181"},
+        |{"host": "localhost", "port": "2181"}]""".stripMargin
+    val zkProps = Map("zookeeper.connect" -> JsoneyString(conn), "zookeeper.path" -> "/test")
+    val createProducer = Try(KafkaProducer.createProducer(validProperties ++ zkProps))
+
+    createProducer match {
+      case Success(producer) => {
+        producer.config.props.props.getProperty("zookeeper.connect") should
+          be("localhost:2181,localhost:2181,localhost:2181/test")
+        log.info("Test OK!")
+      }
+      case Failure(e) => log.error("Test KO", e)
+    }
+
+    createProducer.isSuccess shouldBe true
   }
 
   "createProducer" should "return exception with no valid properties" in {
@@ -101,7 +150,7 @@ class KafkaProducerTest extends FlatSpec with Matchers {
     instance should equal(KafkaProducer.getInstance("myTopic", validProperties))
   }
 
-  "getProducer" should "return a KafKAProducer" in {
+  "getProducer" should "return a KafkaProducer" in {
     Try(KafkaProducer.getProducer("myTopic", validProperties)).isSuccess shouldBe true
 
   }

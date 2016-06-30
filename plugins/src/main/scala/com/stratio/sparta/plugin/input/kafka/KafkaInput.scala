@@ -25,15 +25,18 @@ import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.kafka.KafkaUtils
 
-class KafkaInput(properties: Map[String, JSerializable]) extends Input(properties) {
+class KafkaInput(properties: Map[String, JSerializable]) extends Input(properties) with KafkaBase {
 
   final val DefaultPartition = 1
-  final val DefaulPort = "2181"
+  final val DefaultPort = "2181"
   final val DefaultHost = "localhost"
+  final val DefaultZookeeperPath = ""
 
   def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
     val submap = properties.getMap("kafkaParams.")
-    val connection = Map(getZkConnectionConfs("zookeeper.connect", DefaultHost, DefaulPort))
+    val zookeeperPath = properties.getString("zookeeper.path", DefaultZookeeperPath)
+    val connection =
+      Map(getZkConnectionConfs(properties, "zookeeper.connect", DefaultHost, DefaultPort, zookeeperPath))
     val kafkaParams = submap.get.map { case (entry, value) => (entry, value.toString) }
 
     KafkaUtils.createStream[String, String, StringDecoder, StringDecoder](
@@ -67,20 +70,4 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
         }))
   }
 
-  def getZkConnectionConfs(key: String, defaultHost: String, defaultPort: String): (String, String) = {
-    val conObj = properties.getMapFromJsoneyString(key)
-    val value = conObj.map(c => {
-      val host = c.get("host") match {
-        case Some(hostValue) => hostValue.toString
-        case None => defaultHost
-      }
-      val port = c.get("port") match {
-        case Some(portValue) => portValue.toString
-        case None => defaultPort
-      }
-      s"$host:$port"
-    }).mkString(",")
-
-    (key.toString, value)
-  }
 }

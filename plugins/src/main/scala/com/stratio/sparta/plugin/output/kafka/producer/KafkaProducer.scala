@@ -18,6 +18,7 @@ package com.stratio.sparta.plugin.output.kafka.producer
 import java.io.{Serializable => JSerializable}
 import java.util.Properties
 
+import com.stratio.sparta.plugin.input.kafka.KafkaBase
 import com.stratio.sparta.sdk.ValidatingPropertyMap._
 import kafka.producer.{KeyedMessage, Producer, ProducerConfig}
 
@@ -32,7 +33,7 @@ trait KafkaProducer {
   }
 }
 
-object KafkaProducer {
+object KafkaProducer extends KafkaBase {
 
   private val DefaultHostPort: String = "localhost:9092"
   private val DefaultKafkaSerializer: String = "kafka.serializer.StringEncoder"
@@ -40,8 +41,12 @@ object KafkaProducer {
   private val DefaultProducerType = "sync"
   private val DefaultBatchNumMessages = "200"
   private val DefaultPropertiesKey = "kafkaProperties"
+  private val DefaultZookeeperPath = ""
+  private val DefaultHost = "localhost"
+  private val DefaultPort = "2181"
   private val PropertiesKey = "kafkaPropertyKey"
   private val PropertiesValue = "kafkaPropertyValue"
+
   private val HostKey = "host"
   private val PortKey = "port"
 
@@ -123,6 +128,13 @@ object KafkaProducer {
   private[kafka] def createProducer(properties: Map[String, JSerializable]): Producer[String, String] = {
     val props = extractOptions(properties, mandatoryOptions)
     addOptions(getAdditionalOptions(DefaultPropertiesKey, PropertiesKey, PropertiesValue, properties), props)
+    if (properties.contains("zookeeper.connect")) {
+      val zookeeperPath = properties.getString("zookeeper.path", DefaultZookeeperPath)
+      addOptions(
+        Map(getZkConnectionConfs(properties, "zookeeper.connect", DefaultHost, DefaultPort, zookeeperPath)), props
+      )
+    }
+
     val producerConfig = new ProducerConfig(props)
     new Producer[String, String](producerConfig)
   }
