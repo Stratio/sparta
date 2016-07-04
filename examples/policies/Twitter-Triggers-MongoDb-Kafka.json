@@ -3,7 +3,6 @@
   "description": "Receive data from Twitter and save cubes and stream triggers into MongoDb and kafka",
   "storageLevel": "MEMORY_AND_DISK_SER",
   "sparkStreamingWindow": "10s",
-  "checkpointPath": "/tmp/checkpoint",
   "rawData": {
     "enabled": "false",
     "path": "default"

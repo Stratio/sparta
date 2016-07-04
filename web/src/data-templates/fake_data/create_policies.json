@@ -1,7 +1,6 @@
 {
     "name": "",
     "description": "",
-    "checkpointPath": "/tmp/checkpoint",
     "sparkStreamingWindow": "6000",
     "storageLevel": "MEMORY_AND_DISK_SER",
     "rawData": {

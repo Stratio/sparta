@@ -3,7 +3,6 @@
   "name": "policy-websocket-mongodb",
   "description": "Input WebSocket, output MongoDb",
   "sparkStreamingWindow": "2s",
-  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "path": "default"

@@ -2,7 +2,6 @@
   "name": "policy-TwitterJson-Cassandra",
   "description": "policy-TwitterJson-Cassandra",
   "sparkStreamingWindow": 6000,
-  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "path": "myTestParquetPath"

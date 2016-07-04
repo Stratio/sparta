@@ -24,6 +24,7 @@ import com.stratio.sparta.serving.core.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, SpartaSerializer}
+import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import org.json4s.native
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -63,6 +64,7 @@ with SpartaSerializer {
       val spartaConfig = SpartaConfig.initConfig("sparta")
 
       SpartaConfig.spartaHome = getSpartaHome
+      SpartaConfig.initMainConfig(Option(StreamingContextServiceIT.config))
 
       val jars = PolicyUtils.jarsFromPolicy(apConfig)
       val streamingContextService = new StreamingContextService(None, spartaConfig)
@@ -71,4 +73,16 @@ with SpartaSerializer {
       ssc should not be None
     }
   }
+}
+
+object StreamingContextServiceIT {
+
+  val config = ConfigFactory.parseString(
+    s"""
+      "sparta": {
+        "config": {
+          "executionMode": "local"
+        }
+      }
+    """.stripMargin)
 }

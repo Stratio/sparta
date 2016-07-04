@@ -9,7 +9,6 @@
         "name": "prueba",
         "description": "prueba",
         "sparkStreamingWindow": "6s",
-        "checkpointPath": "/tmp/checkpoint",
         "rawData": {
           "enabled": "false",
           "path": "default"

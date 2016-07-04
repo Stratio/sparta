@@ -70,7 +70,6 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       expect(policy.sparkStreamingWindowNumber).toBe(Number(sparkStreamingWindowTime[1]));
       expect(policy.sparkStreamingWindowTime).toBe(sparkStreamingWindowTime[2]);
       expect(policy.storageLevel).toBe(fakeApiPolicy.storageLevel);
-      expect(policy.checkpointPath).toBe(fakeApiPolicy.checkpointPath);
       expect(policy.input).toEqual(fakeInput);
       expect(policy.transformations).toEqual(fakeApiPolicy.transformations);
       expect(policy.cubes).toEqual(fakeApiPolicy.cubes);

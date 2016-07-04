@@ -8,7 +8,6 @@
       "name": "aaaa",
       "description": "dfdf",
       "sparkStreamingWindow": "6s",
-      "checkpointPath": "/tmp/checkpoint",
       "rawData": {
         "enabled": "false",
         "path": "default"

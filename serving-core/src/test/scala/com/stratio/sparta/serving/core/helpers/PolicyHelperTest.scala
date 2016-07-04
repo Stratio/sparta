@@ -30,7 +30,7 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
     scenario("A policy that contains fragments must parse these fragments and join them to input/outputs " +
       "depending of its type") {
       Given("a policy with an input, an output and a fragment with an input")
-      val checkpointDir = "checkpoint"
+      val checkpointDir = Option("checkpoint")
 
       val ap = AggregationPoliciesModel(
         id = None,
@@ -81,7 +81,7 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
   scenario("A policy that contains one input an a fragments with one input too must throw an exception because only " +
     "one input is allowed") {
     Given("a policy with an input, an output and a fragment with an input")
-    val checkpointDir = "checkpoint"
+    val checkpointDir = Option("checkpoint")
 
     val ap = new AggregationPoliciesModel(
       id = None,

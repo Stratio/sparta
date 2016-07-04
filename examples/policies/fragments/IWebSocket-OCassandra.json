@@ -3,7 +3,6 @@
   "name": "Policy-WebSocket-Cassandra",
   "description": "Input WebSocket, output Cassandra",
   "sparkStreamingWindow": "2s",
-  "checkpointPath": "checkpoint",
   "rawData": {
     "enabled": "false",
     "path": "myTestParquetPath"

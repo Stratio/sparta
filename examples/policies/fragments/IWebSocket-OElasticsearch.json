@@ -3,7 +3,6 @@
   "name": "policy-websocket-elasticsearch",
   "description": "Input WebSocket, output ElasticSearch",
   "sparkStreamingWindow": "2s",
-  "checkpointPath": "/tmp/checkpoint",
   "rawData": {
     "enabled": "false",
     "path": "default"

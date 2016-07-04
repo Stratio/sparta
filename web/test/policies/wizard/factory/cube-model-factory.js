@@ -30,7 +30,6 @@ describe('policies.wizard.factory.cube-model-factory', function () {
     expect(cube.name).toBe(fakeCube.name);
     expect(cube.dimensions).toBe(fakeCube.dimensions);
     expect(cube.operators).toBe(fakeCube.operators);
-    expect(cube.checkpointConfig).toBe(fakeCube.checkpointConfig);
     expect(cube.triggers).toEqual(fakeCube.triggers);
     expect(cube['writer.fixedMeasureName']).toEqual(fakeCube['writer.fixedMeasureName']);
     expect(cube['writer.fixedMeasureValue']).toEqual(fakeCube['writer.fixedMeasureValue']);
@@ -49,7 +48,6 @@ describe('policies.wizard.factory.cube-model-factory', function () {
     expect(cube.name).toBe(fakeCube.name);
     expect(cube.dimensions).toBe(fakeCube.dimensions);
     expect(cube.operators).toBe(fakeCube.operators);
-    expect(cube.checkpointConfig).toBe(fakeCube.checkpointConfig);
     expect(cube.triggers).toEqual(fakeCube.triggers);
     expect(cube['writer.fixedMeasureName']).toEqual(fakeCube['writer.fixedMeasureName']);
     expect(cube['writer.fixedMeasureValue']).toEqual(fakeCube['writer.fixedMeasureValue']);
@@ -127,7 +125,6 @@ describe('policies.wizard.factory.cube-model-factory', function () {
       expect(cube.name).toEqual(fakeCube.name);
       expect(cube.dimensions).toEqual(fakeCube.dimensions);
       expect(cube.operators).toEqual(fakeCube.operators);
-      expect(cube.checkpointConfig).toEqual(fakeCube.checkpointConfig);
       expect(cube.writer).toEqual(fakeCube.writer);
       expect(cube.triggers).toEqual(fakeCube.triggers);
 
