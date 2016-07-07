@@ -112,12 +112,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.spark-project.akka</groupId>
+            <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-actor_${scala.binary.version}</artifactId>
             <version>${akka.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.spark-project.akka</groupId>
+            <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-testkit_${scala.binary.version}</artifactId>
             <version>${akka.version}</version>
             <scope>test</scope>
@@ -130,6 +130,12 @@
             <groupId>com.gettyimages</groupId>
             <artifactId>spray-swagger_${scala.binary.version}</artifactId>
             <version>0.5.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.typesafe.akka</groupId>
+                    <artifactId>akka-actor_${scala.binary.version}</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
@@ -177,21 +183,16 @@
             <version>${spray.test.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>com.stratio.spray.auth</groupId>
             <artifactId>spray-oauth2-client_2.10</artifactId>
             <version>0.2.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-client_2.10</artifactId>
             <version>${spray.version}</version>
         </dependency>
-
-
-
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming_${scala.binary.version}</artifactId>
