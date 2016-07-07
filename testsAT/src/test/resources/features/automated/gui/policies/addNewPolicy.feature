@@ -58,13 +58,6 @@ Feature: Test adding a new policy in Sparta GUI
 		Then I select 'Hours' on the element on index '0'
 		Then I select 'Days' on the element on index '0'
 		Then I select 'Seconds' on the element on index '0'
-		
-		# Try with empty Checkpoint path
-		Given '1' element exists with 'css:input[data-qa="policy-checkpoint-path"]'
-		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
-		Given '1' element exists with 'css:button[data-qa="policy-description-next-button"]'
-		When I click on the element on index '0'
-		Then '1' element exists with 'css:span[data-qa="policy-checkpoint-path-error-required"]'
 
 	   # Try with Max Query Execution Time without units
 		Given '1' element exists with 'css:input[data-qa="policy-remember-number"]'
@@ -116,8 +109,6 @@ Feature: Test adding a new policy in Sparta GUI
 		Then I type 'my Policy Description' on the element on index '0'
 		Given '1' element exists with 'css:input[data-qa="policy-spark-streaming-window-sparkStreamingWindowNumber"]'
 		Then I type '6' on the element on index '0'
-		Given '1' element exists with 'css:input[data-qa="policy-checkpoint-path"]'
-		Then I type '/tmp/checkpoint' on the element on index '0'
 		Given '1' element exists with 'css:button[data-qa="policy-description-next-button"]'
 		When I click on the element on index '0'
 		

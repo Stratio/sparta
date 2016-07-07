@@ -47,7 +47,7 @@ Feature: Test adding a new Kafka output in Sparta GUI
     And '0' elements exist with 'css:input[data-qa="fragment-details-kafka-port-1"]'
 
    # Try with port using letters
-    Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-port-0"]'
+    Given '1' element exists with 'css:input[id="dataSource_METADATA_BROKER_LIST_Form-0-port"]'
     Then I type 'port' on the element on index '0'
     Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
     When I click on the element on index '0'
@@ -55,10 +55,10 @@ Feature: Test adding a new Kafka output in Sparta GUI
     Then '1' element exists with 'css:span[data-qa="fragment-details-kafka-port-0-error-pattern"]'
 
    # Try with empty Host
-    Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-host-0"]'
+    Given '1' element exists with 'css:input[id="dataSource_METADATA_BROKER_LIST_Form-0-host"]'
     When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
    # Try with empty Port
-    Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-port-0"]'
+    Given '1' element exists with 'css:input[id="dataSource_METADATA_BROKER_LIST_Form-0-port"]'
     When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
    # Try with empty Serializer class for messages
     Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-serializer-class"]'
@@ -79,7 +79,7 @@ Feature: Test adding a new Kafka output in Sparta GUI
     And '1' elements exist with 'css:span[data-qa="fragment-details-kafka-batch-num-messages-error-required"]'
 
    # Try with invalid port number
-    Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-port-0"]'
+    Given '1' element exists with 'css:input[id="dataSource_METADATA_BROKER_LIST_Form-0-port"]'
     Then I type '66666' on the element on index '0'
     Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
     When I click on the element on index '0'
@@ -106,10 +106,10 @@ Feature: Test adding a new Kafka output in Sparta GUI
     Given '1' element exists with 'css:input[data-qa="fragment-detail-name"]'
     Then I type 'validKafkaOutput' on the element on index '0'
    # Fill in host field
-    Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-host-0"]'
+    Given '1' element exists with 'css:input[id="dataSource_METADATA_BROKER_LIST_Form-0-host"]'
     Then I type 'localhost' on the element on index '0'
    # Fill in port field
-    Given '1' element exists with 'css:input[data-qa="fragment-details-kafka-port-0"]'
+    Given '1' element exists with 'css:input[id="dataSource_METADATA_BROKER_LIST_Form-0-port"]'
     Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
     And I type '2181' on the element on index '0'
    # Fill in Serializer class

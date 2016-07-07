@@ -32,56 +32,11 @@ Feature: Test adding a new Kafka Direct input in Sparta GUI
 		# Error message should appear
 		Then '1' element exists with 'css:span[data-qa="fragment-detail-name-error-pattern"]'
 		Given '1' element exists with 'css:input[data-qa="fragment-detail-name"]'
-		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'	
-		
-		# Try to add new Routing key
-		Given '1' element exists with 'css:i[data-qa="fragment-details-rabbitMQ-routingKeys-plus-1"]'
-		When I click on the element on index '0'
-		Then '1' element exists with 'css:input[data-qa="fragment-details-rabbitMQ-routingKey-1"]'
-		And '1' elements exist with 'css:i[data-qa^="fragment-details-rabbitMQ-routingKeys-plus"]'
-		And '2' elements exist with 'css:i[data-qa^="fragment-details-rabbitMQ-routingKeys-minus"]'
-		Then I wait '2' seconds
-		When I click on the element on index '1'
-		Then '0' elements exist with 'css:input[data-qa="fragment-details-rabbitMQ-routingKey-1"]'
-		
-		# Try with port using letters
-		Given '1' element exists with 'css:input[data-qa="fragment-details-rabbitMQ-port"]'
-		Then I type 'port' on the element on index '0'
-		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
-		When I click on the element on index '0'
-		# Error message should appear
-		Then '1' element exists with 'css:span[data-qa="fragment-details-rabbitMQ-port-error-pattern"]'
-		
-		# Try with empty Host
-		Given '1' element exists with 'css:input[data-qa="fragment-details-rabbitMQ-host"]'
-		When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
-		# Try with empty Port
-		Given '1' element exists with 'css:input[data-qa="fragment-details-rabbitMQ-port"]'
-		When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
-		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
-		When I click on the element on index '0'
-		# Error message should appear
-		Then '1' elements exist with 'css:span[data-qa="fragment-details-rabbitMQ-host-error-required"]'
-		And '1' elements exist with 'css:span[data-qa="fragment-details-rabbitMQ-port-error-required"]'
-		
-		# Try with invalid port number
-		Given '1' element exists with 'css:input[data-qa="fragment-details-rabbitMQ-port"]'
-		Then I type '66666' on the element on index '0'
-		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
-		When I click on the element on index '0'
-		# Error message should appear
-		Then '1' elements exist with 'css:span[data-qa="fragment-details-rabbitMQ-port-error-pattern"]'
+		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
 				
 		# Fill in name field
 		Given '1' element exists with 'css:input[data-qa="fragment-detail-name"]'
 		Then I type 'validRabbitMQInput' on the element on index '0'
-		# Fill in host field
-		Given '1' element exists with 'css:input[data-qa="fragment-details-rabbitMQ-host"]'
-		Then I type 'localhost' on the element on index '0'
-		# Fill in port field
-		Given '1' element exists with 'css:input[data-qa="fragment-details-rabbitMQ-port"]'
-		Then I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
-		And I type '5672' on the element on index '0'
 		
 		# Create
 		Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'

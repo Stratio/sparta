@@ -81,7 +81,7 @@ Feature: Test running a policy in Sparta GUI
 		And '1' element exists with 'css:st-menu-element[data-qa="policy-context-menu-!{previousPolicyID}-run"]'
 		When I click on the element on index '0'
 		Then I wait '1' second
-		And a text 'is already running! Please stop it and try again later.' exists
+		And a text 'Please stop it and try again later.' exists
 
 	  	# Stop policy
   		Given '1' element exists with 'css:i[data-qa="policy-context-menu-!{previousPolicyID}"]'
@@ -91,7 +91,7 @@ Feature: Test running a policy in Sparta GUI
 		When I click on the element on index '0'
 		Then I wait '1' second
 		And a text 'is stopping!' exists
-		
+
 		Scenario: Delete fragments
 		When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
 		Then the service response status must be '200'.

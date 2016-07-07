@@ -96,7 +96,7 @@ Feature: Test stopping a policy in Sparta GUI
 		Then '1' element exists with 'css:div[data-qa="success-msg"]'
 		And I wait '1' second
 		And a text 'is stopping!' exists
-				
+
 		Scenario: Delete fragments
 		When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
 		Then the service response status must be '200'.
