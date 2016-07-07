@@ -26,6 +26,8 @@ ATSERVICES:
         - CLUSTER_NAME=%%JUID
   - HADOOP:
       image: stratio/hadoop:2.7.2
+      env:
+        - NAMENODE_MODE=true
       sleep: 30
 
   - HADOOP:
