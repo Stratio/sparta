@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.10.0 (2016)
+## 0.10.0 (upcoming)
+
+* Added coveralls badge
 
 ## 0.9.5 (April 2016)
 
