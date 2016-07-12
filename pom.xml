@@ -41,7 +41,6 @@
         <module>driver</module>
         <module>web</module>
         <module>serving-api</module>
-        <module>doc</module>
         <module>dist</module>
     </modules>
 
@@ -614,12 +613,4 @@
             </properties>
         </profile>
     </profiles>
-
-    <repositories>
-        <repository>
-            <id>sodio</id>
-            <name>sodio</name>
-            <url>http://sodio.stratio.com/nexus/content/groups/public</url>
-        </repository>
-    </repositories>
 </project>
