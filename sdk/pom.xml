@@ -39,7 +39,7 @@
             <version>1.6</version>
         </dependency>
         <dependency>
-            <groupId>org.spark-project.akka</groupId>
+            <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-slf4j_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
