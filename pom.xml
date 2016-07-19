@@ -28,10 +28,12 @@
     </parent>
 
     <groupId>com.stratio.sparta</groupId>
-    <artifactId>parent</artifactId>
+    <artifactId>parent_2.10</artifactId>
     <version>0.10.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-
+    <name>Stratio SpaRTA</name>
+    <description>Spark Real-Time Analytics</description>
+    <inceptionYear>2015</inceptionYear>
     <url>http://www.stratio.com</url>
 
     <modules>
@@ -43,10 +45,6 @@
         <module>serving-api</module>
         <module>dist</module>
     </modules>
-
-    <name>Stratio SpaRTA</name>
-    <description>Spark Real-Time Analytics</description>
-    <inceptionYear>2015</inceptionYear>
 
     <licenses>
         <license>
@@ -166,16 +164,24 @@
     </developers>
 
     <properties>
+        <spark.version.folder>1.5</spark.version.folder>
+        <spark.version>1.5.2</spark.version>
+        <mongodb.spark.version>0.10.1</mongodb.spark.version>
+        <elastic.spark.version>2.2.0-beta1</elastic.spark.version>
+        <scala.binary.version>2.10</scala.binary.version>
+        <scala.version>2.10.4</scala.version>
+        <scala_2.10.version>2.10.4</scala_2.10.version>
+        <scala_2.11.version>2.11.7</scala_2.11.version>
+        <default.scala.binary.version>2.10</default.scala.binary.version>
+        <default.scala.version>${scala_2.10.version}</default.scala.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <scala.binary.version>2.10</scala.binary.version>
-        <scala.version>2.10.4</scala.version>
         <slf4j.version>1.7.7</slf4j.version>
         <nscala.time.version>2.0.0</nscala.time.version>
-        <scalatest.version>2.2.2</scalatest.version>
+        <scalatest.version>2.2.5</scalatest.version>
         <mockito.version>1.10.5</mockito.version>
         <spray.version>1.3.3</spray.version>
         <spray.test.version>1.3.1</spray.test.version>
@@ -191,6 +197,7 @@
         <easy.mock.version>2.5.2</easy.mock.version>
         <stratio.common.utils.version>0.4.0</stratio.common.utils.version>
         <stratio-platform.target>1.7</stratio-platform.target>
+        <outputFileName>stratio-sparta</outputFileName>
     </properties>
 
     <dependencyManagement>
@@ -457,6 +464,9 @@
     <build>
         <sourceDirectory>src/main/scala</sourceDirectory>
         <testSourceDirectory>src/test/scala</testSourceDirectory>
+        <directory>${project.basedir}/target/${scala.binary.version}</directory>
+        <outputDirectory>${project.build.directory}/classes</outputDirectory>
+        <testOutputDirectory>${project.build.directory}/test-classes</testOutputDirectory>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -556,6 +566,15 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.stratio.mojo</groupId>
+                <artifactId>scala-cross-build-maven-plugin</artifactId>
+                <version>0.1.0-RC3</version>
+                <configuration>
+                    <defaultScalaBinaryVersion>${default.scala.binary.version}</defaultScalaBinaryVersion>
+                    <defaultScalaVersion>${default.scala.version}</defaultScalaVersion>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -610,6 +629,20 @@
                 <csv.spark.version>1.3.0</csv.spark.version>
                 <cassandra.spark.version>1.5.0</cassandra.spark.version>
                 <rabbitmq.spark.receiver>spark-rabbitmq_1.5</rabbitmq.spark.receiver>
+            </properties>
+        </profile>
+        <profile>
+            <id>scala-2.10</id>
+            <properties>
+                <scala.version>${scala_2.10.version}</scala.version>
+                <scala.binary.version>2.10</scala.binary.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>scala-2.11</id>
+            <properties>
+                <scala.version>${scala_2.11.version}</scala.version>
+                <scala.binary.version>2.11</scala.binary.version>
             </properties>
         </profile>
     </profiles>
