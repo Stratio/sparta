@@ -2,7 +2,17 @@
 
 ## 0.10.0 (upcoming)
 
-* Added coveralls badge
+- Added coveralls badge
+- Updated to Spark 1.6.2
+- Updated Cassandra, ElasticSearch and MongoDb to the latest library version
+- Updated Receiver RabbitMQ
+- Zookeeper offset path updated in kafka receivers
+- Ingestion Parser with Avro Serialization
+- Bugfix: Akka dependency
+- Bugfix: Actors creation process with not unique identifier
+- Bugfix: Policy statuses corrected
+- Bugfix: Updated all policies when one fragment is changed
+- Bugfix: Policy download in Firefox
 
 ## 0.9.5 (April 2016)
 
