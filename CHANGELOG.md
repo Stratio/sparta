@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.11.0 (upcoming)
+
+* Pending changelog
+
 ## 0.10.0 (upcoming)
 
 - Added coveralls badge
@@ -141,10 +145,3 @@
 - Full-Text operator
 - Accumulator operator
 - Last Value operator
-
-
-
-
-
-
-
