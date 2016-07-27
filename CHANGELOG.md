@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.10.0 (upcoming)
+## 0.10.0 (July 27, 2016)
 
 - Added coveralls badge
 - Updated to Spark 1.6.2
