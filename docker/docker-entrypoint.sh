@@ -6,7 +6,7 @@
    sed -i "s|spark.master.*|spark.master = \""${SPARK_MASTER:=local[4]}"\"|" /etc/sds/sparta/application.conf
  fi
  if [[ "${EXECUTION_MODE}" == "mesos" || "${EXECUTION_MODE}" == "yarn" || "${EXECUTION_MODE}" == "standalone" ]]; then
-   wget http://tools.stratio.com/spark/spark-1.5.2/spark-1.5.2-bin-hadoop2.6.tgz
+   wget http://tools.stratio.com/spark/spark-1.5.2-bin-hadoop2.6.tgz 
    tar xvf spark-1.5.2-bin-hadoop2.6.tgz
    rm spark-1.5.2-bin-hadoop2.6.tgz
    echo "" >> /etc/default/sparta-variables
