@@ -123,6 +123,7 @@ trait PolicyContextHttpService extends BaseHttpService {
                 case Success(policy) =>
                   val inputs = PolicyHelper.populateFragmentFromPolicy(policy, FragmentType.input)
                   val outputs = PolicyHelper.populateFragmentFromPolicy(policy, FragmentType.output)
+
                   createFragments(fragmentActor, outputs.toList ::: inputs.toList)
                   PolicyResult(policy.id.getOrElse(""), p.name)
                 case Failure(ex: Throwable) =>

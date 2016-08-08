@@ -105,7 +105,7 @@
       "propertyName": "_STORAGELEVEL_",
       "propertyType": "select",
       "required": true,
-      "default": "MEMORY_AND_DISK_SER",
+      "default": "MEMORY_ONLY_SER",
       "width": 6,
       "position": "left",
       "qa": "policy-storage-level",
@@ -534,11 +534,11 @@
       {
         "propertyId": "precisionNumber",
         "propertyName": "_PRECISION_",
-        "propertyType": "number",
-        "default": 1,
+        "propertyType": "text",
+        "default": "",
         "width": 6,
         "position": "left",
-        "required": true,
+        "required": false,
         "qa": "policy-cube-dimension-dateTime-precisionNumber"
       },
       {
@@ -548,7 +548,7 @@
         "width": 6,
         "position": "right",
         "qa": "policy-cube-dimension-dateTime-precisionTime",
-        "default": "m",
+        "default": "minute",
         "required": true,
         "values": [
           {
@@ -570,6 +570,30 @@
           {
             "label": "Days",
             "value": "d"
+          },
+          {
+            "label": "Second",
+            "value": "second"
+          },
+          {
+            "label": "Minute",
+            "value": "minute"
+          },
+          {
+            "label": "Hour",
+            "value": "hour"
+          },
+          {
+            "label": "Day",
+            "value": "day"
+          },
+          {
+            "label": "Month",
+            "value": "month"
+          },
+          {
+            "label": "Year",
+            "value": "year"
           }
         ]
       },

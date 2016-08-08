@@ -167,7 +167,7 @@ with HttpServiceBaseTest {
 
   "PolicyHttpService.update" should {
     "return an OK because the policy was updated" in {
-      startAutopilot(Response(Success(getFragmentModel())))
+      startAutopilot(ResponsePolicy(Success(getPolicyModel())))
       Put(s"/${HttpConstant.PolicyPath}", getPolicyModel) ~> routes ~> check {
         testProbe.expectMsgType[Update]
         status should be(StatusCodes.OK)

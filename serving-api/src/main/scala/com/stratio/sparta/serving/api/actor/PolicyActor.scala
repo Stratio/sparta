@@ -114,6 +114,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
         name = policy.name.toLowerCase,
         version = Some(ActorsConstant.UnitVersion)
       )
+      deleteCheckpointPath(policy)
       curatorFramework.create().creatingParentsIfNeeded().forPath(
         s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
 
@@ -123,7 +124,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
     })
 
   def update(policy: AggregationPoliciesModel): Unit = {
-    sender ! Response(Try {
+    val response = ResponsePolicy(Try {
       val searchPolicy = existsByNameId(policy.name, policy.id, curatorFramework)
       if (searchPolicy.isEmpty) {
         throw new ServingCoreException(ErrorModel.toString(
@@ -137,6 +138,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
         )
         deleteCheckpointPath(policy)
         curatorFramework.setData.forPath(s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
+        policyS
       }
     }.recover {
       case e: NoNodeException =>
@@ -144,6 +146,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
           new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy with id ${policy.id.get}.")
         ))
     })
+    sender ! response
   }
 
   def delete(id: String): Unit =

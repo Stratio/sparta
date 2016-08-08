@@ -1,7 +1,7 @@
 <section data-ng-controller="TriggerCtrl as vm" data-ng-model="vm.trigger">
   <ng-form name="vm.form" data-ng-submit="vm.addTrigger()" novalidate>
     <c-animated-msg type="error" data-msg="vm.error" data-on-click-close-msg="wizard.closeErrorMessage()"
-                    data-timeout=6000></c-animated-msg>
+                    data-timeout=10000></c-animated-msg>
     <div class="c-row c-msg c-msg--small c-msg--error c-form c-form-group"
          data-ng-if="vm.form.$submitted && (vm.trigger.operators.length === 0 || vm.trigger.dimensions.length === 0)"
          data-qa="policy-trigger-error-msg">

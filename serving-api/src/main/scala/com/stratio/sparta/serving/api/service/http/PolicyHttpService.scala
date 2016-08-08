@@ -18,9 +18,11 @@ package com.stratio.sparta.serving.api.service.http
 
 import java.io.File
 import javax.ws.rs.Path
+
+import akka.actor.ActorRef
+
 import scala.concurrent.Await
 import scala.util.{Failure, Success}
-
 import akka.pattern.ask
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
@@ -28,11 +30,13 @@ import spray.http.HttpHeaders.`Content-Disposition`
 import spray.http.{HttpResponse, StatusCodes}
 import spray.httpx.marshalling.ToResponseMarshallable
 import spray.routing._
-
 import com.stratio.sparta.serving.api.actor.PolicyActor._
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.helpers.PolicyHelper
 import com.stratio.sparta.serving.core.helpers.PolicyHelper._
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
@@ -187,8 +191,22 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
           complete {
             val future = supervisor ? new Create(policy)
             Await.result(future, timeout.duration) match {
-              case ResponsePolicy(Failure(exception)) => throw exception
-              case ResponsePolicy(Success(pol)) => pol
+              case ResponsePolicy(Failure(exception)) =>
+                throw exception
+              case ResponsePolicy(Success(policy)) =>
+                val policyWithFragments = getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
+                val inputs = PolicyHelper.populateFragmentFromPolicy(policyWithFragments, FragmentType.input)
+                val outputs = PolicyHelper.populateFragmentFromPolicy(policyWithFragments, FragmentType.output)
+                val fragmentActor: ActorRef = actors.getOrElse(AkkaConstant.FragmentActor,
+                  throw new ServingCoreException(
+                    ErrorModel.toString(
+                      ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor")
+                    )
+                  )
+                )
+
+                createFragments(fragmentActor, outputs.toList ::: inputs.toList)
+                policy
             }
           }
         }
@@ -216,8 +234,21 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
           complete {
             val future = supervisor ? new Update(policy)
             Await.result(future, timeout.duration) match {
-              case Response(Failure(exception)) => throw exception
-              case Response(Success(_)) => HttpResponse(StatusCodes.OK)
+              case ResponsePolicy(Failure(exception)) => throw exception
+              case ResponsePolicy(Success(policy)) =>
+                val policyWithFragments = getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
+                val inputs = PolicyHelper.populateFragmentFromPolicy(policyWithFragments, FragmentType.input)
+                val outputs = PolicyHelper.populateFragmentFromPolicy(policyWithFragments, FragmentType.output)
+                val fragmentActor: ActorRef = actors.getOrElse(AkkaConstant.FragmentActor,
+                  throw new ServingCoreException(
+                    ErrorModel.toString(
+                      ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor")
+                    )
+                  )
+                )
+
+                createFragments(fragmentActor, outputs.toList ::: inputs.toList)
+                HttpResponse(StatusCodes.OK)
             }
           }
         }
@@ -354,5 +385,11 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       case None => PolicyStatusEnum.NotStarted
     }
     PolicyWithStatus(status, policy)
+  }
+
+  // XXX Protected methods
+
+  protected def createFragments(fragmentActor: ActorRef, fragments: Seq[FragmentElementModel]): Unit = {
+    fragments.foreach(fragment => fragmentActor ! FragmentActor.Create(fragment))
   }
 }
