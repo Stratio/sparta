@@ -307,20 +307,20 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
   def run: Route = {
     path(HttpConstant.PolicyPath / "run" / Segment) { (id) =>
       get {
-        val future = supervisor ? new Find(id)
-        Await.result(future, timeout.duration) match {
-          case ResponsePolicy(Failure(exception)) => throw exception
-          case ResponsePolicy(Success(policy)) =>
-            val parsedP = getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
-            AggregationPoliciesValidator.validateDto(parsedP)
-            complete {
+        complete {
+          val future = supervisor ? new Find(id)
+          Await.result(future, timeout.duration) match {
+            case ResponsePolicy(Failure(exception)) => throw exception
+            case ResponsePolicy(Success(policy)) =>
+              val parsedP = getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
+              AggregationPoliciesValidator.validateDto(parsedP)
               val response = actors.get(AkkaConstant.SparkStreamingContextActor).get ?
                 SparkStreamingContextActor.Create(parsedP)
               Await.result(response, timeout.duration) match {
                 case Failure(ex) => throw ex
                 case Success(_) => new Result("Creating new context with name " + policy.name)
               }
-            }
+          }
         }
       }
     }

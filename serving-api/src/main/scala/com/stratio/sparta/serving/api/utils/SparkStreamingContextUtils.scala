@@ -47,41 +47,10 @@ trait SparkStreamingContextUtils extends PolicyStatusUtils
         val streamingLauncherActor =
           getStreamingContextActor(policy, policyStatusActor, streamingContextService, context)
         updatePolicy(policy, PolicyStatusEnum.Launched, policyStatusActor)
-        startPolicy(streamingLauncherActor)
+        streamingLauncherActor ! Start(policy)
       }
       policy
     }
-
-  def startPolicy(streamingContextActor: ActorRef): Future[Any] =
-    streamingContextActor ? Start
-
-  def createNewPolicy(policy: AggregationPoliciesModel,
-                      policyStatusActor: ActorRef,
-                      curatorFramework: CuratorFramework,
-                      streamingContextService: StreamingContextService,
-                      context: ActorContext): AggregationPoliciesModel =
-    existsByName(policy.name, None, curatorFramework) match {
-      case true =>
-        log.error(s"${policy.name} already exists. Try deleting first or choosing another name.")
-        throw new RuntimeException(s"${policy.name} already exists")
-      case false =>
-        launchNewPolicy(policy, policyStatusActor, curatorFramework, streamingContextService, context)
-    }
-
-  def launchNewPolicy(policy: AggregationPoliciesModel,
-                      policyStatusActor: ActorRef,
-                      curatorFramework: CuratorFramework,
-                      streamingContextService: StreamingContextService,
-                      context: ActorContext): AggregationPoliciesModel = {
-    val policyWithIdModel = policyWithId(policy)
-    for {
-      _ <- createPolicy(policyStatusActor, policyWithIdModel)
-    } yield {
-      savePolicyInZk(policyWithIdModel, curatorFramework)
-      launch(policyWithIdModel, policyStatusActor, streamingContextService, context)
-    }
-    policyWithIdModel
-  }
 
   def getStreamingContextActor(policy: AggregationPoliciesModel,
                                policyStatusActor: ActorRef,
@@ -110,13 +79,13 @@ trait SparkStreamingContextUtils extends PolicyStatusUtils
                        context: ActorContext,
                        actorName: String): ActorRef = {
     context.actorOf(
-      Props(new LocalSparkStreamingContextActor(policy, streamingContextService, policyStatusActor)), actorName)
+      Props(new LocalSparkStreamingContextActor(streamingContextService, policyStatusActor)), actorName)
   }
 
   def getClusterLauncher(policy: AggregationPoliciesModel,
                          policyStatusActor: ActorRef,
                          context: ActorContext,
                          actorName: String): ActorRef = {
-    context.actorOf(Props(new ClusterLauncherActor(policy, policyStatusActor)), actorName)
+    context.actorOf(Props(new ClusterLauncherActor(policyStatusActor)), actorName)
   }
 }
