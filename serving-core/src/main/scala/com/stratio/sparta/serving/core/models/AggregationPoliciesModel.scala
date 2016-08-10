@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.core.models
 
+import com.stratio.sparta.sdk.JsoneyString
 import com.stratio.sparta.serving.core.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
@@ -24,22 +26,24 @@ import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
 import scala.util.Try
 
 case class AggregationPoliciesModel(
-  id: Option[String] = None,
-  version: Option[Int] = None,
-  storageLevel: Option[String] = AggregationPoliciesModel.storageDefaultValue,
-  name: String,
-  description: String = "default description",
-  sparkStreamingWindow: String = AggregationPoliciesModel.sparkStreamingWindow,
-  checkpointPath: Option[String],
-  rawData: RawDataModel,
-  transformations: Seq[TransformationsModel],
-  streamTriggers: Seq[TriggerModel],
-  cubes: Seq[CubeModel],
-  input: Option[PolicyElementModel] = None,
-  outputs: Seq[PolicyElementModel],
-  fragments: Seq[FragmentElementModel],
-  userPluginsJars: Seq[String],
-  remember: Option[String] = None)
+                                     id: Option[String] = None,
+                                     version: Option[Int] = None,
+                                     storageLevel: Option[String] = AggregationPoliciesModel.storageDefaultValue,
+                                     name: String,
+                                     description: String = "default description",
+                                     sparkStreamingWindow: String = AggregationPoliciesModel.sparkStreamingWindow,
+                                     checkpointPath: Option[String],
+                                     rawData: RawDataModel,
+                                     transformations: Seq[TransformationsModel],
+                                     streamTriggers: Seq[TriggerModel],
+                                     cubes: Seq[CubeModel],
+                                     input: Option[PolicyElementModel] = None,
+                                     outputs: Seq[PolicyElementModel],
+                                     fragments: Seq[FragmentElementModel],
+                                     userPluginsJars: Seq[String],
+                                     remember: Option[String] = None,
+                                     sparkConf: Seq[SparkProperty] = Seq.empty[SparkProperty]
+                                   )
 
 case object AggregationPoliciesModel {
 
@@ -77,9 +81,9 @@ object AggregationPoliciesValidator extends SpartaSerializer {
 
   def validateDto(policy: AggregationPoliciesModel): Unit = {
     val subErrorModels = (validateCubes(policy) ::: validateTriggers(policy))
-      .filter(element => ! element._1)
+      .filter(element => !element._1)
 
-    if(subErrorModels.nonEmpty)
+    if (subErrorModels.nonEmpty)
       throw new ServingCoreException(ErrorModel.toString(
         new ErrorModel(ErrorModel.ValidationError, "Policy validation error",
           Option(subErrorModels.map(element => element._2).toSeq))))
@@ -142,6 +146,7 @@ object AggregationPoliciesValidator extends SpartaSerializer {
     )
     errorModels
   }
+
   //scalastyle:on
 
   private def validateTriggers(policy: AggregationPoliciesModel): List[(Boolean, ErrorModel)] = {

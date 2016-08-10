@@ -93,7 +93,9 @@ trait HttpServiceBaseTest extends WordSpec
       outputs,
       Seq(),
       userPluginsJars = Seq.empty[String],
-      remember = None)
+      remember = None,
+      sparkConf = Seq()
+    )
     policy
   }
 

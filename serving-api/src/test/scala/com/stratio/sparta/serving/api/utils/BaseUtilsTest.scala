@@ -162,7 +162,9 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText"))
       outputs,
       Seq(),
       userPluginsJars = Seq.empty[String],
-      remember = None)
+      remember = None,
+      sparkConf = Seq()
+    )
     policy
   }
 

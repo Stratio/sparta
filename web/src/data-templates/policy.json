@@ -178,6 +178,37 @@
       ],
       "default": "/tmp/checkpoint",
       "qa": "raw-data-path"
+    },
+    {
+      "propertyId": "sparkConf",
+      "propertyName": "_SPARK_CONF_",
+      "propertyType": "list",
+      "default": "",
+      "required": false,
+      "tooltip": "",
+      "qa": "policy-spark-conf",
+      "fields": [
+        {
+          "propertyId": "sparkConfKey",
+          "propertyName": "_SPARK_CONF_KEY_",
+          "propertyType": "text",
+          "regexp": "",
+          "default": "",
+          "hidden": false,
+          "required": false,
+          "qa": "policy-sparkConfKey"
+        },
+        {
+          "propertyId": "sparkConfValue",
+          "propertyName": "_SPARK_CONF_VALUE_",
+          "propertyType": "text",
+          "regexp": "",
+          "default": "",
+          "hidden": false,
+          "required": false,
+          "qa": "policy-sparkConfValue"
+        }
+      ]
     }
   ],
   "steps": [

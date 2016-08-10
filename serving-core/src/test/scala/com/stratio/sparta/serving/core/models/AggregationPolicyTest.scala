@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.core.models
 
 import com.stratio.sparta.sdk.{JsoneyString, DimensionType, Input}
@@ -102,7 +103,9 @@ class AggregationPolicyTest extends WordSpec with Matchers with MockitoSugar {
     outputs,
     Seq(),
     userPluginsJars = Seq.empty[String],
-    remember = None)
+    remember = None,
+    sparkConf = Seq()
+  )
 
   val wrongComputeLastPolicy = AggregationPoliciesModel(id = None,
     version = None,
@@ -119,7 +122,9 @@ class AggregationPolicyTest extends WordSpec with Matchers with MockitoSugar {
     outputs,
     Seq(),
     Seq(),
-    remember = None)
+    remember = None,
+    sparkConf = Seq()
+  )
 
   "AggregationPoliciesValidator" should {
     "non throw an exception if the policy is well formed" in {

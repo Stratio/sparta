@@ -35,12 +35,14 @@
       policy.transformations = [];
       policy.cubes = [];
       policy.streamTriggers = [];
+      policy.sparkConf = {};
       ///* Reset policy advanced settings to be loaded from template automatically */
       delete policy.sparkStreamingWindowNumber;
       delete policy.sparkStreamingWindowTime;
       delete policy.storageLevel;
       delete policy.rawDataEnabled;
       delete policy.rawDataPath;
+      delete policy.sparkConf;
     }
 
     function setPolicy(inputPolicyJSON) {
@@ -58,6 +60,7 @@
       formatAttributes();
       var policyFragments = separateFragments(inputPolicyJSON.fragments);
       policy.input = policyFragments.input;
+      policy.sparkConf = inputPolicyJSON.sparkConf;
     }
 
     function formatAttributes() {

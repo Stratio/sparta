@@ -389,6 +389,12 @@ object SpartaJob extends SLF4JLogging with SpartaSerializer {
     }).toMap
   }
 
+  def getSparkConfigFromPolicy(policy: AggregationPoliciesModel) : Map[String, String] =
+    policy.sparkConf.flatMap{ sparkProperty =>
+      if(sparkProperty.sparkConfKey.isEmpty || sparkProperty.sparkConfValue.isEmpty)
+          None
+      else Option((sparkProperty.sparkConfKey, sparkProperty.sparkConfValue))}.toMap
+
   def logAndCreateEx(message: String,
                      json: String,
                      ex: Throwable,

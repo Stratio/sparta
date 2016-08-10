@@ -61,7 +61,8 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
             shortDescription = "short description",
             element = PolicyElementModel("outputF", "output", Map()))),
         userPluginsJars = Seq.empty[String],
-        remember = None
+        remember = None,
+        sparkConf = Seq()
       )
 
       When("the helper parse these fragments")
@@ -112,7 +113,8 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
           shortDescription = "short description",
           element = PolicyElementModel("outputF", "output", Map()))),
       userPluginsJars = Seq.empty[String],
-      remember = None
+      remember = None,
+      sparkConf = Seq()
     )
 
     When("the helper tries to parse the policy it throws an exception")

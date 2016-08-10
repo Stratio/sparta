@@ -6,6 +6,9 @@
     "rawData": {
         "enabled": "false"
     },
+    "sparkConf": {
+      "spark.keyname": "value"
+    },
     "fragments": [],
     "transformations": [
         {
