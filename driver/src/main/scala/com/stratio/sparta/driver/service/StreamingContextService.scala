@@ -63,6 +63,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
                               files: Seq[String],
                               detailConfig: Map[String, String]): Option[StreamingContext] = {
     val exitWhenStop = true
+
     runStatusListener(apConfig.id.get, apConfig.name, exitWhenStop)
 
     val ssc = StreamingContext.getOrCreate(generateCheckpointPath(apConfig), () => {
@@ -78,19 +79,22 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
 
   private def getStandAloneSparkContext(apConfig: AggregationPoliciesModel, jars: Seq[File]): SparkContext = {
     val pluginsSparkConfig = SpartaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
+    val policySparkConfig = SpartaJob.getSparkConfigFromPolicy(apConfig)
     val standAloneConfig = Try(generalConfig.get.getConfig(AppConstant.ConfigLocal)) match {
       case Success(config) => Some(config)
       case _ => None
     }
-    SparkContextFactory.sparkStandAloneContextInstance(standAloneConfig, pluginsSparkConfig, jars)
+
+    SparkContextFactory.sparkStandAloneContextInstance(standAloneConfig, policySparkConfig ++ pluginsSparkConfig, jars)
   }
 
   private def getClusterSparkContext(apConfig: AggregationPoliciesModel,
                                      classPath: Seq[String],
                                      detailConfig: Map[String, String]): SparkContext = {
-    val pluginsSparkConfig =
-      SpartaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix) ++ detailConfig
-    SparkContextFactory.sparkClusterContextInstance(pluginsSparkConfig, classPath)
+    val pluginsSparkConfig = SpartaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
+    val policySparkConfig = SpartaJob.getSparkConfigFromPolicy(apConfig)
+
+    SparkContextFactory.sparkClusterContextInstance(policySparkConfig ++ pluginsSparkConfig ++ detailConfig, classPath)
   }
 
   private def runStatusListener(policyId: String, name: String, exit: Boolean = false): Unit = {
