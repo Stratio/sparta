@@ -19,7 +19,7 @@
           <span class="c-step-content__title-text">{{wizard.steps[wizard.status.currentStep].name | translate}}</span>
         </h1>
         <c-animated-msg type="error" data-msg="wizard.error" data-on-click-close-msg="wizard.closeErrorMessage()"
-                        data-timeout=6000></c-animated-msg>
+                        data-timeout=10000></c-animated-msg>
       </header>
       <div data-ng-switch-when="0">
         <ng-include src="'views/policy-wizard/input.html'"></ng-include>

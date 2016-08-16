@@ -24,7 +24,7 @@ import akka.pattern.gracefulStop
 import akka.util.Timeout
 import com.stratio.sparta.serving.core.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.ResourceManagerLink
 import com.stratio.sparta.serving.core.models._

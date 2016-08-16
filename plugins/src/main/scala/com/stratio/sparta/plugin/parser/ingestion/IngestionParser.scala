@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.plugin.parser.ingestion
 
 import java.io.{Serializable => JSerializable}
+
 import scala.collection.JavaConversions._
 import scala.util._
-
 import akka.event.slf4j.SLF4JLogging
 import org.apache.avro.specific.SpecificDatumReader
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.StructType
-
+import org.apache.spark.sql.types.{StructField, StructType}
 import com.stratio.decision.commons.avro.InsertMessage
 import com.stratio.decision.commons.constants.ColumnType
 import com.stratio.decision.commons.messages.ColumnNameTypeValue
 import com.stratio.sparta.plugin.parser.ingestion.serializer.JavaToAvroSerializer
-import com.stratio.sparta.sdk.Parser
+import com.stratio.sparta.sdk.{Parser, TypeOp}
 
 class IngestionParser(order: Integer,
                       inputField: String,
@@ -37,52 +37,44 @@ class IngestionParser(order: Integer,
                       properties: Map[String, JSerializable])
   extends Parser(order, inputField, outputFields, schema, properties) with SLF4JLogging {
 
-  val fieldNames = schema.map(field => field.name)
+  val fieldNames = outputFieldsSchema.map(field => field.name)
 
   override def parse(row: Row, removeRaw: Boolean): Row = {
     val input = row.get(schema.fieldIndex(inputField))
 
-    val parsedValues = IngestionParser.parseRawData(input, fieldNames)
+    val parsedValues = IngestionParser.parseRawData(input, fieldNames, outputFieldsSchema)
 
-    val previousParserValues = if(removeRaw) row.toSeq.drop(1) else row.toSeq
+    val previousParserValues = if (removeRaw) row.toSeq.drop(1) else row.toSeq
     Row.fromSeq(previousParserValues ++ parsedValues)
   }
-
 }
 
 object IngestionParser extends SLF4JLogging {
 
-  val datumReader =  new SpecificDatumReader[InsertMessage](InsertMessage.getClassSchema())
+  val datumReader = new SpecificDatumReader[InsertMessage](InsertMessage.getClassSchema)
   val javaToAvro = new JavaToAvroSerializer(datumReader)
 
-  def parseRawData(rawData: Any, fieldNames: Seq[String]): Seq[Any] = {
+  def parseRawData(rawData: Any, fieldNames: Seq[String], schemas: Array[StructField]): Seq[Any] = {
     Try {
       val stratioStreamingMessage = javaToAvro.deserialize(rawData.asInstanceOf[Array[Byte]])
 
       stratioStreamingMessage.getColumns.toList
         // Filter to just parse those columns added to the schema
         .filter(column => fieldNames.contains(column.getColumn))
-        .map{case column: ColumnNameTypeValue => getValue(column)}
-    } match {
-        case Success(parsedValues) => parsedValues
-        case Failure(e) => {
-          log.warn(s"Error parsing event: ${rawData}", e)
-          Seq()
+        .map { case column: ColumnNameTypeValue =>
+          val schemaFound = schemas.find(schema => schema.name == column.getColumn).getOrElse {
+            val error = s"Error parsing data with column ${column.getColumn}"
+            log.warn(error)
+            throw new RuntimeException(error)
+          }
+          TypeOp.transformValueByTypeOp(schemaFound.dataType, column.getValue)
         }
-      }
-  }
-
-
-  private def getValue(column: ColumnNameTypeValue): Any = {
-    val columnType = Try(ColumnType.valueOf(column.getType.toString)).getOrElse(ColumnType.STRING)
-
-    columnType match {
-      case ColumnType.STRING => column.getValue.toString
-      case ColumnType.INTEGER => column.getValue.toString.toInt
-      case ColumnType.LONG => column.getValue.toString.toLong
-      case ColumnType.DOUBLE => column.getValue.toString.toDouble
-      case ColumnType.FLOAT => column.getValue.toString.toFloat
-      case ColumnType.BOOLEAN => column.getValue.toString.toBoolean
+    } match {
+      case Success(parsedValues) =>
+        parsedValues
+      case Failure(e) =>
+        log.warn(s"Error parsing event: $rawData", e)
+        Seq()
     }
   }
 }

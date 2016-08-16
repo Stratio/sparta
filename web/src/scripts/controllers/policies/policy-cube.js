@@ -96,7 +96,7 @@
           return outputName;
         },
         dimensionName: function () {
-          return outputName.toLowerCase() + createdDimensions;
+          return outputName.toLowerCase();
         },
         dimensions: function () {
           return vm.cube.dimensions
@@ -128,7 +128,7 @@
           return functionName;
         },
         operatorName: function () {
-          return functionName.toLowerCase() + createdOperators;
+          return functionName.toLowerCase();
         },
         operators: function () {
           return vm.cube.operators

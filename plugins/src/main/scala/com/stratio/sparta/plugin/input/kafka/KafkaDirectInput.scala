@@ -41,14 +41,12 @@ class KafkaDirectInput(properties: Map[String, JSerializable])
 
     if (submap.isDefined) {
       val zookeeperPath = properties.getString("zookeeper.path", DefaultZookeeperPath)
-      val zkConnection =
-        Map(getZkConnectionConfs(properties, "zookeeper.connect", DefaultHost, DefaultPort, zookeeperPath))
       val metaDataBrokerList =
         Map(getMetaDataBrokerList("metadata.broker.list", DefaultHost, DefaultPort))
       val kafkaParams = submap.get.map(entry => (entry._1, entry._2.toString))
       KafkaUtils.createDirectStream[String, Array[Byte], StringDecoder, DefaultDecoder](
         ssc,
-        metaDataBrokerList ++ kafkaParams ++ zkConnection,
+        metaDataBrokerList ++ kafkaParams,
         extractTopicsSet())
         .map(data => Row(data._2))
     } else {

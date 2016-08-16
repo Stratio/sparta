@@ -149,7 +149,7 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       expect(modalServiceMock.openModal.calls.mostRecent().args[1]).toBe("templates/policies/dimension-modal.tpl.html");
       var resolve = (modalServiceMock.openModal.calls.mostRecent().args[2]);
       expect(resolve.fieldName()).toBe(fakeOutputName);
-      expect(resolve.dimensionName()).toBe(fakeOutputName  + (ctrl.cube.dimensions.length+1));
+      expect(resolve.dimensionName()).toBe(fakeOutputName);
       expect(resolve.dimensions()).toBe(ctrl.cube.dimensions);
       expect(resolve.template()).toBe(fakeCubeTemplate);
     });
@@ -210,7 +210,7 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       expect(modalServiceMock.openModal.calls.mostRecent().args[1]).toBe("templates/policies/operator-modal.tpl.html");
       var resolve = (modalServiceMock.openModal.calls.mostRecent().args[2]);
       expect(resolve.operatorType()).toBe(fakeFunctionName);
-      expect(resolve.operatorName()).toBe(fakeFunctionName.toLowerCase() + (ctrl.cube.operators.length + 1));
+      expect(resolve.operatorName()).toBe(fakeFunctionName.toLowerCase());
       expect(resolve.operators()).toBe(ctrl.cube.operators);
       expect(resolve.template()).toBe(fakeCubeTemplate);
     });

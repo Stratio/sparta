@@ -23,9 +23,15 @@ import akka.pattern.pipe
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparta.serving.api.utils.SparkStreamingContextUtils
+import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, SpartaSerializer}
 import org.apache.curator.framework.CuratorFramework
+import akka.pattern.ask
+
+import scala.concurrent.Await
+import scala.util.{Failure, Success}
+import com.stratio.sparta.serving.api.actor.PolicyActor.ResponsePolicy
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
@@ -56,8 +62,14 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
   def create(policy: AggregationPoliciesModel): Future[Try[AggregationPoliciesModel]] =
     if (policy.id.isDefined)
       launch(policy, policyStatusActor, streamingContextService, context)
-    else Future {
-      Try(createNewPolicy(policy, policyStatusActor, curatorFramework, streamingContextService, context))
+    else {
+      val result = context.actorSelection(AkkaConstant.PolicyActor) ? PolicyActor.Create(policy)
+      Await.result(result, timeout.duration) match {
+        case ResponsePolicy(Failure(exception)) =>
+          throw exception
+        case ResponsePolicy(Success(policyCreated)) =>
+          launch(policyCreated, policyStatusActor, streamingContextService, context)
+      }
     }
 }
 
@@ -65,6 +77,6 @@ object SparkStreamingContextActor {
 
   case class Create(policy: AggregationPoliciesModel)
 
-  case object Start
+  case class Start(policy: AggregationPoliciesModel)
 
 }

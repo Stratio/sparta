@@ -344,41 +344,6 @@
       ]
       },
       {
-        "propertyId": "zookeeper.connect",
-        "propertyName": "_ZOOKEEPER_CONNECT_",
-        "propertyType": "list",
-        "default": "",
-        "required": false,
-        "hidden": false,
-        "limit": 0,
-        "tooltip": "",
-        "qa": "fragment-details-kafka-zookeeper-connect",
-        "fields": [
-          {
-            "propertyId": "host",
-            "propertyName": "_ZOOKEEPER_HOST_",
-            "propertyType": "text",
-            "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
-            "default": "",
-            "required": false,
-            "tooltip": "Zookeeper's address.",
-            "hidden": false,
-            "qa": "fragment-details-kafka-host"
-          },
-          {
-            "propertyId": "port",
-            "propertyName": "_ZOOKEEPER_PORT_",
-            "propertyType": "text",
-            "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
-            "default": "",
-            "required": false,
-            "tooltip": "Zookeeper's port.",
-            "hidden": false,
-            "qa": "fragment-details-kafka-port"
-          }
-        ]
-      },
-      {
         "propertyId": "zookeeper.path",
         "propertyName": "_ZOOKEEPER_PATH_",
         "propertyType": "text",

@@ -33,19 +33,18 @@ import org.apache.spark.streaming.StreamingContext
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
-class LocalSparkStreamingContextActor(policy: AggregationPoliciesModel,
-                                      streamingContextService: StreamingContextService,
-                                      policyStatusActor: ActorRef) extends Actor
-  with SLF4JLogging
-  with SpartaSerializer {
+class LocalSparkStreamingContextActor(streamingContextService: StreamingContextService, policyStatusActor: ActorRef)
+  extends Actor
+    with SLF4JLogging
+    with SpartaSerializer {
 
   private var ssc: Option[StreamingContext] = None
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Start => doInitSpartaContext
+    case Start(policy: AggregationPoliciesModel) => doInitSpartaContext(policy)
   }
 
-  private def doInitSpartaContext: Unit = {
+  private def doInitSpartaContext(policy: AggregationPoliciesModel): Unit = {
 
     val jars = PolicyUtils.jarsFromPolicy(policy)
     jars.foreach(file => JarsHelper.addToClasspath(file))

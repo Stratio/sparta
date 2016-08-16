@@ -39,7 +39,7 @@ import scala.io.Source
 import scala.language.postfixOps
 import scala.util.{Failure, Properties, Success, Try}
 
-class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: ActorRef) extends Actor
+class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
   with SLF4JLogging
   with SpartaSerializer {
 
@@ -50,22 +50,22 @@ class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: 
   private val ZookeeperConfig = SpartaConfig.getZookeeperConfig.get
   private val HdfsConfig = SpartaConfig.getHdfsConfig.get
   private val DetailConfig = SpartaConfig.getDetailConfig.get
-
   private val Hdfs = HdfsUtils(Option(HdfsConfig))
-  private val Uploader = ClusterSparkFiles(policy, Hdfs)
-  private val PolicyId = policy.id.get.trim
-  private val Master = ClusterConfig.getString(AppConstant.Master)
-  private val BasePath = s"/user/${Hdfs.userName}/${AppConstant.ConfigAppName}/$PolicyId"
-  private val PluginsJarsPath = s"$BasePath/${HdfsConfig.getString(AppConstant.PluginsFolder)}/"
-  private val DriverJarPath = s"$BasePath/${HdfsConfig.getString(AppConstant.ExecutionJarFolder)}/"
 
   implicit val timeout: Timeout = Timeout(3.seconds)
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Start => doInitSpartaContext()
+    case Start(policy: AggregationPoliciesModel) => doInitSpartaContext(policy)
   }
 
-  def doInitSpartaContext(): Unit = {
+  def doInitSpartaContext(policy: AggregationPoliciesModel): Unit = {
+    val Uploader = ClusterSparkFiles(policy, Hdfs)
+    val PolicyId = policy.id.get.trim
+    val Master = ClusterConfig.getString(AppConstant.Master)
+    val BasePath = s"/user/${Hdfs.userName}/${AppConstant.ConfigAppName}/$PolicyId"
+    val PluginsJarsPath = s"$BasePath/${HdfsConfig.getString(AppConstant.PluginsFolder)}/"
+    val DriverJarPath = s"$BasePath/${HdfsConfig.getString(AppConstant.ExecutionJarFolder)}/"
+
     Try {
       log.info("Init new cluster streamingContext with name " + policy.name)
       validateSparkHome()
@@ -73,18 +73,18 @@ class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: 
       val pluginsFiles = Uploader.getPluginsFiles(PluginsJarsPath)
       val driverParams = Seq(PolicyId, zkConfigEncoded, detailConfigEncoded, pluginsEncoded(pluginsFiles))
 
-      launch(SpartaDriver, driverPath, Master, sparkArgs, driverParams, pluginsFiles)
+      launch(policy.name, SpartaDriver, driverPath, Master, sparkArgs, driverParams, pluginsFiles)
     } match {
       case Failure(exception) =>
         log.error(exception.getLocalizedMessage, exception)
-        setErrorStatus()
+        setErrorStatus(policy.id.get)
       case Success(_) =>
       //TODO add more statuses for the policies
     }
   }
 
-  private def setErrorStatus(): Unit =
-    policyStatusActor ? Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed))
+  private def setErrorStatus(policyId: String): Unit =
+    policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Failed))
 
   private def sparkHome: String = Properties.envOrElse("SPARK_HOME", ClusterConfig.getString(AppConstant.SparkHome))
 
@@ -104,7 +104,8 @@ class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: 
       Try(ClusterConfig.getBoolean(AppConstant.StandAloneSupervise)).getOrElse(false)
     } else false
 
-  private def launch(main: String,
+  private def launch(policyName: String,
+                     main: String,
                      hdfsDriverFile: String,
                      master: String,
                      args: Map[String, String],
@@ -121,7 +122,7 @@ class ClusterLauncherActor(policy: AggregationPoliciesModel, policyStatusActor: 
     if (isStandaloneSupervise) sparkLauncher.addSparkArg(StandaloneSupervise)
     //Spark params (everything starting with spark.)
     sparkConf.map { case (key: String, value: String) =>
-      sparkLauncher.setConf(key, if (key == "spark.app.name") s"$value-${policy.name}" else value)
+      sparkLauncher.setConf(key, if (key == "spark.app.name") s"$value-$policyName" else value)
     }
     // Driver (Sparta) params
     driverParams.map(sparkLauncher.addAppArgs(_))
