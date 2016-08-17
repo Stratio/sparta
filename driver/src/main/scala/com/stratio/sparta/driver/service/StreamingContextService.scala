@@ -55,6 +55,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
 
     SparkContextFactory.setSparkContext(ssc.sparkContext)
     SparkContextFactory.setSparkStreamingContext(ssc)
+    SparkContextFactory.setInitialSentences(apConfig.initSqlSentences.map(modelSentence => modelSentence.sentence))
 
     Option(ssc)
   }
@@ -73,6 +74,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
 
     SparkContextFactory.setSparkContext(ssc.sparkContext)
     SparkContextFactory.setSparkStreamingContext(ssc)
+    SparkContextFactory.setInitialSentences(apConfig.initSqlSentences.map(modelSentence => modelSentence.sentence))
 
     Option(ssc)
   }

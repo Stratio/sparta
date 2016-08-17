@@ -18,6 +18,7 @@ package com.stratio.sparta.driver.cube
 import java.sql.{Date, Timestamp}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.trigger.TriggerWriter
 import com.stratio.sparta.sdk._
 import org.apache.spark.sql._
@@ -48,7 +49,8 @@ case class CubeWriter(cube: Cube,
       toRow(dimensionValuesTime, measuresValues)
     }.foreachRDD(rdd => {
       if (rdd.take(1).length > 0) {
-        val sqlContext = SQLContext.getOrCreate(rdd.context)
+        //val sqlContext = SQLContext.getOrCreate(rdd.context)
+        val sqlContext = SparkContextFactory.sparkSqlContextInstance
         val cubeDataFrame = sqlContext.createDataFrame(rdd, tableSchema.schema)
 
         options.outputs.foreach(outputName =>

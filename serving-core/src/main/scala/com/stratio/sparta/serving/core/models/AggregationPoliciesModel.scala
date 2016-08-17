@@ -42,7 +42,8 @@ case class AggregationPoliciesModel(
                                      fragments: Seq[FragmentElementModel],
                                      userPluginsJars: Seq[String],
                                      remember: Option[String] = None,
-                                     sparkConf: Seq[SparkProperty] = Seq.empty[SparkProperty]
+                                     sparkConf: Seq[SparkProperty] = Seq.empty[SparkProperty],
+                                     initSqlSentences: Seq[SqlSentence] = Seq.empty[SqlSentence]
                                    )
 
 case object AggregationPoliciesModel {

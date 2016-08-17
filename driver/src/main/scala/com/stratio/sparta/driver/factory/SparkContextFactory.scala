@@ -34,16 +34,22 @@ object SparkContextFactory extends SLF4JLogging {
   private var sc: Option[SparkContext] = None
   private var sqlContext: Option[SQLContext] = None
   private var ssc: Option[StreamingContext] = None
+  private var sqlInitialSentences: Seq[String] = Seq.empty[String]
 
-  def sparkSqlContextInstance: Option[SQLContext] = {
+  def sparkSqlContextInstance: SQLContext = {
     synchronized {
       sqlContext match {
-        case Some(_) => sqlContext
-        case None => if (sc.isDefined) sqlContext = Some(SQLContext.getOrCreate(sc.get))
+        case Some(context) =>
+          context
+        case None =>
+          if (sc.isDefined) sqlContext = Option(SQLContext.getOrCreate(sc.get))
+          sqlInitialSentences.foreach(sentence => if(sentence.nonEmpty) sqlContext.get.sql(sentence))
+          sqlContext.get
       }
     }
-    sqlContext
   }
+
+  def setInitialSentences(sentences: Seq[String]) : Unit = sqlInitialSentences = sentences
 
   def sparkStreamingInstance: Option[StreamingContext] = ssc
 

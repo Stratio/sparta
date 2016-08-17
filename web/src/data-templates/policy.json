@@ -209,6 +209,27 @@
           "qa": "policy-sparkConfValue"
         }
       ]
+    },
+    {
+      "propertyId": "initSqlSentences",
+      "propertyName": "_SQL_SENTENCES_",
+      "propertyType": "list",
+      "default": "",
+      "required": false,
+      "tooltip": "",
+      "qa": "policy-sql-sentences",
+      "fields": [
+        {
+          "propertyId": "sentence",
+          "propertyName": "_SQL_SENTENCE_",
+          "propertyType": "text",
+          "regexp": "",
+          "default": "",
+          "hidden": false,
+          "required": false,
+          "qa": "policy-sql-sentence"
+        }
+      ]
     }
   ],
   "steps": [

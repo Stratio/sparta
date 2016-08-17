@@ -6,9 +6,17 @@
     "rawData": {
         "enabled": "false"
     },
-    "sparkConf": {
-      "spark.keyname": "value"
-    },
+    "sparkConf": [
+      {
+        "sparkConfKey" : "spark.keyname",
+        "sparkConfValue": "value"
+      }
+    ],
+    "initSqlSentences": [
+      {
+        "sentence": "select * from stream"
+      }
+    ],
     "fragments": [],
     "transformations": [
         {
