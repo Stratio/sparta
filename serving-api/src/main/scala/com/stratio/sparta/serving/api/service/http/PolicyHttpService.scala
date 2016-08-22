@@ -173,12 +173,13 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
 
   @ApiOperation(value = "Creates a policy.",
     notes = "Creates a policy.",
-    httpMethod = "POST")
+    httpMethod = "POST",
+    response = classOf[AggregationPoliciesModel])
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "policy",
       defaultValue = "",
       value = "policy json",
-      dataType = "PolicyElementModel",
+      dataType = "AggregationPoliciesModel",
       required = true,
       paramType = "body")))
   def create: Route = {
@@ -221,7 +222,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     new ApiImplicitParam(name = "policy",
       defaultValue = "",
       value = "policy json",
-      dataType = "PolicyElementModel",
+      dataType = "AggregationPoliciesModel",
       required = true,
       paramType = "body")))
   def update: Route = {
@@ -330,7 +331,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
   @ApiOperation(value = "Downloads a policy from its id.",
     notes = "Downloads a policy from its id.",
     httpMethod = "GET",
-    response = classOf[Result])
+    response = classOf[AggregationPoliciesModel])
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "id",
       value = "id of the policy",

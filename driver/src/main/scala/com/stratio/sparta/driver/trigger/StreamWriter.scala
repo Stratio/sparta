@@ -24,6 +24,7 @@ import org.apache.spark.sql.{Row, SQLContext}
 import org.apache.spark.streaming.Milliseconds
 import org.apache.spark.streaming.dstream.DStream
 import StreamWriter._
+import com.stratio.sparta.driver.factory.SparkContextFactory
 
 case class StreamWriterOptions(overLast: Option[String],
                                computeEvery: Option[String],
@@ -45,7 +46,8 @@ case class StreamWriter(triggers: Seq[Trigger],
     )
 
     dStream.foreachRDD(rdd => {
-      val parsedDataFrame = SQLContext.getOrCreate(rdd.context).createDataFrame(rdd, options.initSchema)
+      //val parsedDataFrame = SQLContext.getOrCreate(rdd.context).createDataFrame(rdd, options.initSchema)
+      val parsedDataFrame = SparkContextFactory.sparkSqlContextInstance.createDataFrame(rdd, options.initSchema)
 
       writeTriggers(parsedDataFrame, triggers, StreamTableName, tableSchemas, outputs)
     })

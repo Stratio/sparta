@@ -104,7 +104,8 @@ class AggregationPolicyTest extends WordSpec with Matchers with MockitoSugar {
     Seq(),
     userPluginsJars = Seq.empty[String],
     remember = None,
-    sparkConf = Seq()
+    sparkConf = Seq(),
+    initSqlSentences = Seq()
   )
 
   val wrongComputeLastPolicy = AggregationPoliciesModel(id = None,
@@ -123,7 +124,8 @@ class AggregationPolicyTest extends WordSpec with Matchers with MockitoSugar {
     Seq(),
     Seq(),
     remember = None,
-    sparkConf = Seq()
+    sparkConf = Seq(),
+    initSqlSentences = Seq()
   )
 
   "AggregationPoliciesValidator" should {

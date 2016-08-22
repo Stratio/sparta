@@ -55,7 +55,7 @@ class SparkContextFactoryTest extends FlatSpec with ShouldMatchers with BeforeAn
   it should "create and reuse same SQLContext" in new WithConfig {
     val sc = SparkContextFactory.sparkStandAloneContextInstance(config, specificConfig, Seq())
     val sqc = SparkContextFactory.sparkSqlContextInstance
-    sqc shouldNot be equals (None)
+    sqc shouldNot be equals (null)
     val otherSqc = SparkContextFactory.sparkSqlContextInstance
     sqc should be equals (otherSqc)
     SparkContextFactory.destroySparkContext()

@@ -191,6 +191,7 @@
         {
           "propertyId": "sparkConfKey",
           "propertyName": "_SPARK_CONF_KEY_",
+          "position": "left",
           "propertyType": "text",
           "regexp": "",
           "default": "",
@@ -201,12 +202,34 @@
         {
           "propertyId": "sparkConfValue",
           "propertyName": "_SPARK_CONF_VALUE_",
+          "position": "right",
           "propertyType": "text",
           "regexp": "",
           "default": "",
           "hidden": false,
           "required": false,
           "qa": "policy-sparkConfValue"
+        }
+      ]
+    },
+    {
+      "propertyId": "initSqlSentences",
+      "propertyName": "_SQL_SENTENCES_",
+      "propertyType": "list",
+      "default": "",
+      "required": false,
+      "tooltip": "",
+      "qa": "policy-sql-sentences",
+      "fields": [
+        {
+          "propertyId": "sentence",
+          "propertyName": "_SQL_SENTENCE_",
+          "propertyType": "text",
+          "regexp": "",
+          "default": "",
+          "hidden": false,
+          "required": false,
+          "qa": "policy-sql-sentence"
         }
       ]
     }

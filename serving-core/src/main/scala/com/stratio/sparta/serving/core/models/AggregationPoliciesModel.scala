@@ -16,7 +16,6 @@
 
 package com.stratio.sparta.serving.core.models
 
-import com.stratio.sparta.sdk.JsoneyString
 import com.stratio.sparta.serving.core.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
@@ -42,8 +41,52 @@ case class AggregationPoliciesModel(
                                      fragments: Seq[FragmentElementModel],
                                      userPluginsJars: Seq[String],
                                      remember: Option[String] = None,
-                                     sparkConf: Seq[SparkProperty] = Seq.empty[SparkProperty]
-                                   )
+                                     sparkConf: Seq[SparkProperty] = Seq.empty[SparkProperty],
+                                     initSqlSentences: Seq[SqlSentence] = Seq.empty[SqlSentence]
+                                   ) {
+
+  //scalastyle:off
+  def this(id: Option[String],
+           version: Option[Int],
+           storageLevel: Option[String],
+           name: String,
+           description: String,
+           sparkStreamingWindow: String,
+           checkpointPath: Option[String],
+           rawData: RawDataModel,
+           transformations: Seq[TransformationsModel],
+           streamTriggers: Seq[TriggerModel],
+           cubes: Seq[CubeModel],
+           input: Option[PolicyElementModel],
+           outputs: Seq[PolicyElementModel],
+           fragments: Seq[FragmentElementModel],
+           userPluginsJars: Seq[String],
+           remember: Option[String]
+          ) = {
+
+    this(id,
+      version,
+      storageLevel,
+      name,
+      description,
+      sparkStreamingWindow,
+      checkpointPath,
+      rawData,
+      transformations,
+      streamTriggers,
+      cubes,
+      input,
+      outputs,
+      fragments,
+      userPluginsJars,
+      remember,
+      sparkConf = Seq.empty[SparkProperty],
+      initSqlSentences = Seq.empty[SqlSentence]
+    )
+  }
+}
+
+//scalastyle:on
 
 case object AggregationPoliciesModel {
 

@@ -15,6 +15,7 @@
  */
 package com.stratio.sparta.driver.service
 
+import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.sdk.DateOperations
 import org.apache.spark.sql._
 import org.apache.spark.sql.types.{StringType, StructField, StructType, TimestampType}
@@ -32,7 +33,8 @@ object RawDataStorageService {
     raw.map(row => Row.merge(Row(eventTime), row))
       .foreachRDD(rdd => {
         if (rdd.take(1).length > 0) {
-          SQLContext.getOrCreate(rdd.sparkContext).createDataFrame(rdd, RawSchema)
+          //SQLContext.getOrCreate(rdd.sparkContext).createDataFrame(rdd, RawSchema)
+          SparkContextFactory.sparkSqlContextInstance.createDataFrame(rdd, RawSchema)
             .write
             .format("parquet")
             .partitionBy(TimeStampField)
