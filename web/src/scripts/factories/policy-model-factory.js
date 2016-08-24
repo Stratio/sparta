@@ -44,6 +44,7 @@
       delete policy.rawDataPath;
       delete policy.sparkConf;
       delete policy.initSqlSentences;
+      delete policy.userPluginsJars;
     }
 
     function setPolicy(inputPolicyJSON) {
@@ -63,6 +64,7 @@
       policy.input = policyFragments.input;
       policy.sparkConf = inputPolicyJSON.sparkConf;
       policy.initSqlSentences = inputPolicyJSON.initSqlSentences;
+      policy.userPluginsJars = inputPolicyJSON.userPluginsJars;
     }
 
     function formatAttributes() {

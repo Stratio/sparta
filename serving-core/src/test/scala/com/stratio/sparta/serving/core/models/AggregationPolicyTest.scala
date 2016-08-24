@@ -102,7 +102,7 @@ class AggregationPolicyTest extends WordSpec with Matchers with MockitoSugar {
     input,
     outputs,
     Seq(),
-    userPluginsJars = Seq.empty[String],
+    userPluginsJars = Seq(),
     remember = None,
     sparkConf = Seq(),
     initSqlSentences = Seq()

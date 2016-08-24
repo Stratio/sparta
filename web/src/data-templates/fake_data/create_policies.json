@@ -17,6 +17,11 @@
         "sentence": "select * from stream"
       }
     ],
+    "userPluginsJars": [
+      {
+        "jarPath": "/tmp/sparta/userjar.jar"
+      }
+    ],
     "fragments": [],
     "transformations": [
         {

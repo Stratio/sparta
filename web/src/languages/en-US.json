@@ -264,6 +264,8 @@
   "_SPARK_PROPERTY_KEY_": "Spark property",
   "_SPARK_CONF_KEY_": "Spark conf key",
   "_SQL_SENTENCE_": "Sql sentence",
+  "_USER_PLUGINS_JARS_": "User Plugins Jars",
+  "_JAR_PATH": "Jar file path",
   "_KAFKA_PROPERTY_KEY_": "Kafka property",
   "_SPARK_PROPERTY_VALUE_": "Value",
   "_SPARK_CONF_VALUE_": "Value",

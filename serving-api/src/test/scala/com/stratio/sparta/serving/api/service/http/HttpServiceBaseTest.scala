@@ -92,7 +92,7 @@ trait HttpServiceBaseTest extends WordSpec
       input,
       outputs,
       Seq(),
-      userPluginsJars = Seq.empty[String],
+      userPluginsJars = Seq(),
       remember = None,
       sparkConf = Seq(),
       initSqlSentences = Seq()

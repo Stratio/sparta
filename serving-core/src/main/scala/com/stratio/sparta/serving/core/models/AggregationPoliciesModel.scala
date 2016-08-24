@@ -39,7 +39,7 @@ case class AggregationPoliciesModel(
                                      input: Option[PolicyElementModel] = None,
                                      outputs: Seq[PolicyElementModel],
                                      fragments: Seq[FragmentElementModel],
-                                     userPluginsJars: Seq[String],
+                                     userPluginsJars: Seq[UserJar] = Seq.empty[UserJar],
                                      remember: Option[String] = None,
                                      sparkConf: Seq[SparkProperty] = Seq.empty[SparkProperty],
                                      initSqlSentences: Seq[SqlSentence] = Seq.empty[SqlSentence]
@@ -60,7 +60,7 @@ case class AggregationPoliciesModel(
            input: Option[PolicyElementModel],
            outputs: Seq[PolicyElementModel],
            fragments: Seq[FragmentElementModel],
-           userPluginsJars: Seq[String],
+           userPluginsJars: Seq[UserJar],
            remember: Option[String]
           ) = {
 
