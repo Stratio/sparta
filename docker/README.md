@@ -16,10 +16,10 @@ SPARK_MASTER: Only needed if EXECUTION_MODE is 'standalone'. Indicates the ip or
 Usage examples
 ===============
 - Local execution:
-docker run -dit --name sp --env ZOOKEEPER_HOST=zk.demo.stratio.com qa.stratio.com/stratio/sparta:0.11.0
+docker run -dit --name sp --env ZOOKEEPER_HOST=zk.demo.stratio.com stratio/sparta:latest
   
 - Mesos execution:
-docker run -dit --name sp --env EXECUTION_MODE=mesos --env MESOS_MASTER=mm.demo.stratio.com --env HDFS_MASTER=hm.demo.stratio.com --env ZOOKEEPER_HOST=zk.demo.stratio.com qa.stratio.com/stratio/sparta:0.11.0
+docker run -dit --name sp --env EXECUTION_MODE=mesos --env MESOS_MASTER=mm.demo.stratio.com --env HDFS_MASTER=hm.demo.stratio.com --env ZOOKEEPER_HOST=zk.demo.stratio.com stratio/sparta:latest
   
 - Yarn execution:
-docker run -dit --name sp --env EXECUTION_MODE=yarn --env HDFS_MASTER=hm.demo.stratio.com --env ZOOKEEPER_HOST=zk.demo.stratio.com qa.stratio.com/stratio/sparta:0.11.0
+docker run -dit --name sp --env EXECUTION_MODE=yarn --env HDFS_MASTER=hm.demo.stratio.com --env ZOOKEEPER_HOST=zk.demo.stratio.com stratio/sparta:latest
