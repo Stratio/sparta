@@ -38,7 +38,7 @@ ATSERVICES:
       sleep: 30
 
   - MESOS:
-      image: stratio/mesos-spark-hdfs:0.22.1-1.5.2-2.6
+      image: stratio/mesos-spark-hdfs:0.22.1-1.6.2-2.6
       env:
         - MODE=master
         - MESOS_ZK=zk://%%ZOOKEEPER:2181/mesos
@@ -51,7 +51,7 @@ ATSERVICES:
         - s'%%HADOOP#1
 
   - MESOS:
-      image: stratio/mesos-spark-hdfs:0.22.1-1.5.2-2.6
+      image: stratio/mesos-spark-hdfs:0.22.1-1.6.2-2.6
       env:
         - MODE=slave
         - MESOS_ZK=zk://%%ZOOKEEPER:2181/mesos
@@ -75,12 +75,9 @@ ATSERVICES:
       env:
         - ZOOKEEPER_HOST=%%ZOOKEEPER
         - EXECUTION_MODE=mesos
-        - SPARK_HOME=/spark-1.5.2-bin-hadoop2.6
-        - MESOS_MASTER=%%MESOS#0
+        - MESOS_MASTER=%%MESOS#0:7077
         - HDFS_MASTER=%%HADOOP#0
       sleep: 30
-      volumes:
-        - s'%%HADOOP#1
 
   - CHROME:
       image: stratio/selenium-chrome:48

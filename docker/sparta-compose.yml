@@ -18,7 +18,7 @@ waitzk:
       - zookeeper
  
 sparta:
-  image: stratio/sparta:0.10.0
+  image: stratio/sparta:0.11.0
   container_name: sparta
   ports:
     - "9090:9090"
