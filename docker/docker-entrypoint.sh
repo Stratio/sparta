@@ -43,26 +43,27 @@
    MAPRED_SITE=mapred-site.xml
    SPARK_HOME="/${SPARK_VERSION}-bin-${HADOOP_SPARK_VERSION}"
    SPARTA_VARIABLES=/etc/default/sparta-variables
-   wget "http://www.apache.org/dyn/closer.lua/spark/${SPARK_VERSION}/${SPARK_HADOOP_VERSION_FILE}"
-   tar xvf ${SPARK_HADOOP_VERSION_FILE}
+   wget "http://apache.rediris.es/spark/${SPARK_VERSION}/${SPARK_HADOOP_VERSION_FILE}"
+   tar -xvzf ${SPARK_HADOOP_VERSION_FILE}
    rm ${SPARK_HADOOP_VERSION_FILE}
    wget "http://www.eu.apache.org/dist/hadoop/common/${HADOOP_VERSION}/${HADOOP_VERSION_FILE}"
-   tar xvf ${HADOOP_VERSION_FILE}
+   tar -xvzf ${HADOOP_VERSION_FILE}
    rm ${HADOOP_VERSION_FILE}
    mkdir "/${HADOOP_VERSION}/conf"
-   wget "http://${HDFS_MASTER}:50070/conf/${CORE_SITE}"
-   wget "http://${HDFS_MASTER}:50070/conf/${HDFS_SITE}"
-   wget "http://${HDFS_MASTER}:50070/conf/${YARN_SITE}"
-   wget "http://${HDFS_MASTER}:50070/conf/${MAPRED_SITE}"
-   mv CORE_SITE "/${HADOOP_VERSION}/conf"
-   mv HDFS_SITE "/${HADOOP_VERSION}/conf"
-   mv YARN_SITE "/${HADOOP_VERSION}/conf"
-   mv MAPRED_SITE "/${HADOOP_VERSION}/conf"
+   wget "http://${HDFS_MASTER}:50070/conf"
+   cp conf "/${HADOOP_VERSION}/conf/${CORE_SITE}"
+   cp conf "/${HADOOP_VERSION}/conf/${HDFS_SITE}"
+   cp conf "/${HADOOP_VERSION}/conf/${YARN_SITE}"
+   cp conf "/${HADOOP_VERSION}/conf/${MAPRED_SITE}"
+   rm conf
    echo "" >> ${SPARTA_VARIABLES}
    echo "export HADOOP_HOME="/${HADOOP_VERSION}"" >> ${SPARTA_VARIABLES}
    echo "export HADOOP_USER_NAME="stratio"" >> ${SPARTA_VARIABLES}
    echo "export HADOOP_CONF_DIR="/${HADOOP_VERSION}/conf"" >> ${SPARTA_VARIABLES}
    echo "export SPARK_HOME="${SPARK_HOME}"" >> ${SPARTA_VARIABLES}
+   source "${SPARTA_VARIABLES}"
+   sed -i "/# checkpointPath/d" ${SPARTA_CONF_FILE}
+   sed -i "s|checkpointPath.*|checkpointPath = \"/user/stratio/sparta/checkpoint\"|" ${SPARTA_CONF_FILE}
  fi
  if [[ "${EXECUTION_MODE}" == "mesos" ]]; then
    sed -i "s|sparkHome.*|sparkHome = \""${SPARK_HOME}"\"|" ${SPARTA_CONF_FILE}
