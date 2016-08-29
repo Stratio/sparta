@@ -60,7 +60,7 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
             description = "description",
             shortDescription = "short description",
             element = PolicyElementModel("outputF", "output", Map()))),
-        userPluginsJars = Seq.empty[String],
+        userPluginsJars = Seq(),
         remember = None,
         sparkConf = Seq(),
         initSqlSentences = Seq()
@@ -113,7 +113,7 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
           description = "description",
           shortDescription = "short description",
           element = PolicyElementModel("outputF", "output", Map()))),
-      userPluginsJars = Seq.empty[String],
+      userPluginsJars = Seq(),
       remember = None,
       sparkConf = Seq(),
       initSqlSentences = Seq()

@@ -232,6 +232,27 @@
           "qa": "policy-sql-sentence"
         }
       ]
+    },
+    {
+      "propertyId": "userPluginsJars",
+      "propertyName": "_USER_PLUGINS_JARS_",
+      "propertyType": "list",
+      "default": "",
+      "required": false,
+      "tooltip": "",
+      "qa": "policy-user-plugins-jars",
+      "fields": [
+        {
+          "propertyId": "jarPath",
+          "propertyName": "_JAR_PATH",
+          "propertyType": "text",
+          "regexp": "",
+          "default": "",
+          "hidden": false,
+          "required": false,
+          "qa": "policy-jar-path"
+        }
+      ]
     }
   ],
   "steps": [
