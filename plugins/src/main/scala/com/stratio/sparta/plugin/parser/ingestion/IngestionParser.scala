@@ -55,26 +55,25 @@ object IngestionParser extends SLF4JLogging {
   val javaToAvro = new JavaToAvroSerializer(datumReader)
 
   def parseRawData(rawData: Any, fieldNames: Seq[String], schemas: Array[StructField]): Seq[Any] = {
-    Try {
-      val stratioStreamingMessage = javaToAvro.deserialize(rawData.asInstanceOf[Array[Byte]])
+    val stratioStreamingMessage = javaToAvro.deserialize(rawData.asInstanceOf[Array[Byte]])
+    val columnsStratioStreamingMessage = stratioStreamingMessage.getColumns.toList
+    val columnsNamesStratioStreamingMessage = columnsStratioStreamingMessage.map(_.getColumn)
 
-      stratioStreamingMessage.getColumns.toList
-        // Filter to just parse those columns added to the schema
-        .filter(column => fieldNames.contains(column.getColumn))
-        .map { case column: ColumnNameTypeValue =>
-          val schemaFound = schemas.find(schema => schema.name == column.getColumn).getOrElse {
-            val error = s"Error parsing data with column ${column.getColumn}"
-            log.warn(error)
-            throw new RuntimeException(error)
-          }
-          TypeOp.transformValueByTypeOp(schemaFound.dataType, column.getValue)
-        }
-    } match {
-      case Success(parsedValues) =>
-        parsedValues
-      case Failure(e) =>
-        log.warn(s"Error parsing event: $rawData", e)
-        Seq()
+    fieldNames.foreach { fieldName =>
+      if (!columnsNamesStratioStreamingMessage.contains(fieldName)) {
+        val error = s"Error parsing data because the output field $fieldName is not included in the input data"
+        log.warn(error)
+        throw new RuntimeException(error)
+      }
     }
+
+    schemas.map(schema => {
+      val columnFound = columnsStratioStreamingMessage.find(column => column.getColumn == schema.name).getOrElse {
+        val error = s"Error parsing data with field ${schema.name}"
+        log.warn(error)
+        throw new RuntimeException(error)
+      }
+      TypeOp.transformValueByTypeOp(schema.dataType, columnFound.getValue.asInstanceOf[Any])
+    })
   }
 }
