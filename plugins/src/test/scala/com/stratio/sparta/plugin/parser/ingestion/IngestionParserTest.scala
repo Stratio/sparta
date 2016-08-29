@@ -43,7 +43,6 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
   val ParserOrder = 1
   val InputField = Input.RawDataKey
   val OutputsFields = Seq("ColumnA", "ColumnB", "ColumnC", "ColumnD", "ColumnE", "ColumnF")
-  val wrongSchema = StructType(Seq(StructField(Input.RawDataKey, StringType)))
   val validSchema = StructType(Seq(StructField(Input.RawDataKey, StringType),
     StructField("ColumnA", StringType),
     StructField("ColumnB", LongType),
@@ -100,6 +99,7 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
         columns.asJava,
         new util.ArrayList[Action]())
       val inputEvent = Row(serializeInsertMessageToAvro(insertMessage))
+      val OutputsFields = Seq("ColumnA", "ColumnB", "ColumnC", "ColumnD", "ColumnE")
       val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, validSchema, ParserConfig)
       val values = Seq("columnAValue", 1L, 1, 1F, 1D)
 
@@ -138,6 +138,7 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
         columns.asJava,
         new util.ArrayList[Action]())
       val inputEvent = Row(serializeInsertMessageToAvro(insertMessage))
+      val OutputsFields = Seq("ColumnA", "ColumnB")
       val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, validSchema, ParserConfig)
       val event = ingestionParser.parse(inputEvent, false)
       val values = Seq("columnAValue", 1L)
@@ -179,6 +180,7 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
         columns.asJava,
         new util.ArrayList[Action]())
       val inputEvent = Row(serializeInsertMessageToAvro(insertMessage))
+      val OutputsFields = Seq("ColumnA")
       val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, validSchema, ParserConfig)
       val event = ingestionParser.parse(inputEvent, false)
       val values = Seq("columnAValue")
@@ -220,6 +222,7 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
         columns.asJava,
         new util.ArrayList[Action]())
       val inputEvent = Row(serializeInsertMessageToAvro(insertMessage))
+      val OutputsFields = Seq("ColumnA")
       val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, validSchema, ParserConfig)
       val event = ingestionParser.parse(inputEvent, true)
       val values = Seq("columnAValue")
@@ -231,7 +234,7 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
       event should be eq Row.fromSeq(values)
     }
 
-    "empty row returned when element is not defined in the schema" in {
+    "one exception was returned when element is not defined in the schema" in {
       val json =
         """
           |{
@@ -255,12 +258,9 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
         columns.asJava,
         new util.ArrayList[Action]())
       val inputEvent = Row(serializeInsertMessageToAvro(insertMessage))
-      val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, wrongSchema, ParserConfig)
-      val event = ingestionParser.parse(inputEvent, true)
+      val ingestionParser = new IngestionParser(ParserOrder, InputField, OutputsFields, validSchema, ParserConfig)
 
-      event should be eq Row.fromSeq(Seq())
-
-      event.size should be (0)
+      an[RuntimeException] should be thrownBy ingestionParser.parse(inputEvent, true)
     }
 
     def serializeInsertMessageToAvro(insertMessage: InsertMessage): Array[Byte] = {
