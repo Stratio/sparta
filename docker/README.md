@@ -1,6 +1,6 @@
 Entrypoint variables
 =====================
-ZOOKEEPER_HOST: Indicate the ip or fqdn of the zookeeper host (i.e. zk.demo.stratio.com)
+ZOOKEEPER_HOST: Indicate the ip or fqdn of the zookeeper host (i.e. zk.demo.stratio.com:2181)
 EXECUTION_MODE: Indicates the execution mode of the module. It can take three values:
     - local: It will execute locally, either using a local spark context or a spark cluster. (Not needed to setup, it is the default value)
     - mesos: It will execute using a mesos cluster.

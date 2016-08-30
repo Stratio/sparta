@@ -14,11 +14,11 @@ Feature: Test all GET operations for fragments in Sparta Swagger API
 	
 	Scenario: Get all available fragments of type input with no fragments
 		When I send a 'GET' request to '/fragment/input'
-		Then the service response status must be '200' and its response must contain the text '[]'
+		Then the service response status must be '200'
 		
 	Scenario: Get all available fragments of type output with no fragments
 		When I send a 'GET' request to '/fragment/output'
-		Then the service response status must be '200' and its response must contain the text '[]'
+		Then the service response status must be '200'
 	
 	Scenario: Get all available fragments with empty type and with name name
 		When I send a 'GET' request to '/fragment//name'
@@ -38,11 +38,11 @@ Feature: Test all GET operations for fragments in Sparta Swagger API
 	
 	Scenario: Get all available fragments of type input with name name
 		When I send a 'GET' request to '/fragment/input/name/name'
-		Then the service response status must be '404' and its response must contain the text 'No fragment of type input with name name'
+		Then the service response status must be '200'
 		
 	Scenario: Get all available fragments of type output with name name
 		When I send a 'GET' request to '/fragment/output/name/name'
-		Then the service response status must be '404' and its response must contain the text 'No fragment of type output with name name'
+		Then the service response status must be '200'
 		
 	Scenario: Get all available fragments of type input
 		Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
@@ -52,7 +52,7 @@ Feature: Test all GET operations for fragments in Sparta Swagger API
 		Then the service response status must be '200'.
 		And I save element '$.id' in environment variable 'previousFragmentID'
 		When I send a 'GET' request to '/fragment/input'
-		Then the service response status must be '200' and its response length must be '1'
+		Then the service response status must be '200' and its response length must be '2'
 	
 	Scenario: Get all available fragments of type output
 		Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
@@ -62,7 +62,7 @@ Feature: Test all GET operations for fragments in Sparta Swagger API
 		Then the service response status must be '200'.
 		And I save element '$.id' in environment variable 'previousFragmentID_2'
 		When I send a 'GET' request to '/fragment/output'
-		Then the service response status must be '200' and its response length must be '1'
+		Then the service response status must be '200' and its response length must be '3'
 		
 	Scenario: Get all available fragments of type input with name inputFragment1
 		When I send a 'GET' request to '/fragment/input/name/inputfragment1'
