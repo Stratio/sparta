@@ -73,21 +73,29 @@
                                 <configuration>
                                     <target name="copy folders">
                                         <copy todir="target/appassembler/repo/driver">
-                                            <fileset dir="../driver/target" includes="*.jar" />
+                                            <fileset dir="../driver/target">
+                                                <include name="*.jar"/>
+                                                <exclude name="**/*-javadoc*"/>
+                                                <exclude name="**/*original*"/>
+                                            </fileset>
                                         </copy>
                                         <copy todir="target/appassembler/repo/serving-api">
-                                            <fileset dir="../serving-api" includes="**/*.jar" />
+                                            <fileset dir="../serving-api" includes="**/*.jar" excludes="**/*-javadoc*"/>
                                             <mapper type="flatten" />
                                         </copy>
                                         <copy todir="target/appassembler/repo/web">
-                                            <fileset dir="../web" includes="**/*.jar" />
+                                            <fileset dir="../web" includes="**/*.jar" excludes="**/*-javadoc*"/>
                                             <mapper type="flatten" />
                                         </copy>
                                         <copy todir="target/appassembler/repo/benchmark">
-                                            <fileset dir="../benchmark" includes="**/*.*" />
+                                            <fileset dir="../benchmark" includes="**/*.*" excludes="**/*-javadoc*"/>
                                         </copy>
                                         <copy todir="target/appassembler/repo/examples">
-                                            <fileset dir="../examples" includes="**/*.*" excludes="**/*.iml" />
+                                            <fileset dir="../examples">
+                                                <include name="**/*.*"/>
+                                                <exclude name="**/*-javadoc*"/>
+                                                <exclude name="**/*.iml"/>
+                                            </fileset>
                                         </copy>
                                     </target>
                                 </configuration>
