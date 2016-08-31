@@ -18,10 +18,13 @@
  if [[ ! -v HDFS_MASTER ]]; then
    HDFS_MASTER=localhost
  fi
-  if [[ ! -v HDFS_PORT ]]; then
+ if [[ ! -v HDFS_PORT ]]; then
    HDFS_PORT=8020
  fi
-   if [[ ! -v SPARK_MASTER ]]; then
+ if [[ ! -v HDFS_USER_NAME ]]; then
+   HDFS_USER_NAME=stratio
+ fi
+ if [[ ! -v SPARK_MASTER ]]; then
    SPARK_MASTER=local[*]:7077
  fi
    if [[ ! -v MESOS_MASTER ]]; then
@@ -31,6 +34,7 @@
  sed -i "s|connectionString.*|connectionString = \""${ZOOKEEPER_HOST}"\"|" ${SPARTA_CONF_FILE}
  sed -i "s|hdfsMaster.*|hdfsMaster = \"${HDFS_MASTER}\"|" ${SPARTA_CONF_FILE}
  sed -i "s|hdfsPort.*|hdfsPort = \"${HDFS_PORT}\"|" ${SPARTA_CONF_FILE}
+ sed -i "s|hadoopUserName.*|hadoopUserName = \"${HDFS_USER_NAME}\"|" ${SPARTA_CONF_FILE}
  if [[ ! -v EXECUTION_MODE || "${EXECUTION_MODE}" == "local" ]]; then
    sed -i "s|spark.master.*|spark.master = \""${SPARK_MASTER:=local[*]}"\"|" ${SPARTA_CONF_FILE}
  fi
@@ -58,7 +62,7 @@
    rm conf
    echo "" >> ${SPARTA_VARIABLES}
    echo "export HADOOP_HOME="/${HADOOP_VERSION}"" >> ${SPARTA_VARIABLES}
-   echo "export HADOOP_USER_NAME="stratio"" >> ${SPARTA_VARIABLES}
+   echo "export HADOOP_USER_NAME="/${HDFS_USER_NAME}"" >> ${SPARTA_VARIABLES}
    echo "export HADOOP_CONF_DIR="/${HADOOP_VERSION}/conf"" >> ${SPARTA_VARIABLES}
    echo "export SPARK_HOME="${SPARK_HOME}"" >> ${SPARTA_VARIABLES}
    source "${SPARTA_VARIABLES}"

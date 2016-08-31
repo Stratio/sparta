@@ -111,6 +111,7 @@
                 <version>2.4.3</version>
                 <configuration>
                     <finalName>${project.name}-plugin</finalName>
+                    <shadedArtifactAttached>false</shadedArtifactAttached>
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>
