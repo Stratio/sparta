@@ -1,10 +1,28 @@
 # Changelog
 
-## 0.11.0 (upcoming)
+## 0.12.0 (upcoming)
 
 * Pending changelog
 
-## 0.10.0 (upcoming)
+## 0.11.0 (August 2016)
+
+- Docker updated with Spark and DC/OS Mesos integration
+- Updated Receiver RabbitMQ for Distributed mode
+- Batch + Streaming Queries
+- Input Sql Sentences
+- Slidding Windows in Triggers
+- User plugins jars added in policy definition
+- Spark configurations added in policy definition
+- Bugfix: Kafka Direct
+- Bugfix: Ingestion parser
+- Bugfix: Date options in dimension time
+- Bugfix: Relaunch policies
+- Bugfix: Auto fragments creation
+- Bugfix: Delete checkpoint when edit one policy
+- Bugfix: Api end points return the correct policy with fragments
+- Bugfix: Swagger data types
+
+## 0.10.0 (July 2016)
 
 - Added coveralls badge
 - Updated to Spark 1.6.2
