@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.service.http
 
 import akka.actor.ActorRef
@@ -49,14 +50,14 @@ class FragmentHttpServiceTest extends WordSpec
   "FragmentHttpService.findByTypeAndId" should {
     "find a fragment" in {
       startAutopilot(ResponseFragment(Success(getFragmentModel())))
-      Get(s"/${HttpConstant.FragmentPath}/input/id") ~> routes ~> check {
+      Get(s"/${HttpConstant.FragmentPath}/input/id/fragmentId") ~> routes ~> check {
         testProbe.expectMsgType[FindByTypeAndId]
         responseAs[FragmentElementModel] should equal(getFragmentModel())
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(ResponseFragment(Failure(new MockException())))
-      Get(s"/${HttpConstant.FragmentPath}/input/id") ~> routes ~> check {
+      Get(s"/${HttpConstant.FragmentPath}/input/id/fragmentId") ~> routes ~> check {
         testProbe.expectMsgType[FindByTypeAndId]
         status should be(StatusCodes.InternalServerError)
       }
@@ -128,7 +129,7 @@ class FragmentHttpServiceTest extends WordSpec
       })
       startAutopilot(None, policyTestProbe, policyAutoPilot)
       startAutopilot(Response(Success(None)))
-      Delete(s"/${HttpConstant.FragmentPath}/input/id") ~> routes ~> check {
+      Delete(s"/${HttpConstant.FragmentPath}/input/id/fragmentId") ~> routes ~> check {
         testProbe.expectMsgType[DeleteByTypeAndId]
         policyTestProbe.expectMsgType[FindByFragment]
         policyTestProbe.expectMsgType[Delete]
@@ -137,7 +138,7 @@ class FragmentHttpServiceTest extends WordSpec
     }
     "return a 500 if there was any error when a fragment is deleted" in {
       startAutopilot(Response(Failure(new MockException())))
-      Delete(s"/${HttpConstant.FragmentPath}/input/id") ~> routes ~> check {
+      Delete(s"/${HttpConstant.FragmentPath}/input/id/fragmentId") ~> routes ~> check {
         testProbe.expectMsgType[DeleteByTypeAndId]
         status should be(StatusCodes.InternalServerError)
       }

@@ -45,6 +45,7 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
     case Create(policyStatus) => sender ! create(policyStatus)
     case Update(policyStatus) => sender ! update(policyStatus)
     case FindAll => findAll()
+    case DeleteAll => deleteAll()
     case PolicyStatusActor.Kill(name) => sender ! kill(name)
     case AddListener(name, callback) => addListener(name, callback)
     case Delete(id) => sender ! delete(id)
@@ -124,6 +125,28 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
     }))
   }
 
+  def deleteAll(): Unit = {
+    sender ! ResponseDelete(Try({
+      val contextPath = s"${AppConstant.ContextPath}"
+
+      if (CuratorFactoryHolder.existsPath(contextPath)) {
+        val children = curatorFramework.getChildren.forPath(contextPath)
+        val policiesStatus = JavaConversions.asScalaBuffer(children).toList.map(element =>
+          read[PolicyStatusModel](new String(curatorFramework.getData.forPath(s"${AppConstant.ContextPath}/$element")))
+        )
+
+        policiesStatus.foreach(policyStatus => {
+          val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
+          if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined) {
+            log.info(s">> Deleting context ${policyStatus.id} >")
+            curatorFramework.delete().forPath(statusPath)
+          } else throw new ServingCoreException(ErrorModel.toString(
+            new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy context with id ${policyStatus.id}.")))
+        })
+      }
+    }))
+  }
+
   def delete(id: String): ResponseDelete =
     ResponseDelete(
       Try {
@@ -170,6 +193,8 @@ object PolicyStatusActor {
   case class AddListener(name: String, callback: (PolicyStatusModel, NodeCache) => Unit)
 
   case class Delete(id: String)
+
+  case object DeleteAll
 
   case object FindAll
 

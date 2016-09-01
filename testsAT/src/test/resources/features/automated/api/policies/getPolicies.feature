@@ -158,3 +158,5 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 		Then the service response status must be '200'.
 		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
 		Then the service response status must be '200'.
+		When I send a 'DELETE' request to '/fragment'
+    Then the service response status must be '200'.

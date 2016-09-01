@@ -60,3 +60,7 @@ Feature: Test all DELETE operations for policies in Sparta Swagger API
 	Scenario: Delete a policy with empty parameter
 		Given I send a 'DELETE' request to '/policy/'
 		Then the service response status must be '405' and its response must contain the text 'HTTP method not allowed, supported methods: GET'
+
+	Scenario: Clean everything up
+		When I send a 'DELETE' request to '/fragment'
+    Then the service response status must be '200'.

@@ -18,8 +18,8 @@ describe('API.fragment-service', function () {
   );
 
   it("Should return a fragment by type and Id", function () {
-    var fragmentTypeIdJSON = {"type":"input","id":"2581f20a-fd83-4315-be45-192bc5sEdFff"};
-    httpBackend.when('GET', '/fragment/input/2581f20a-fd83-4315-be45-192bc5sEdFff').respond(fakeInputById);
+    var fragmentTypeIdJSON = {"type":"input","fragmentId":"2581f20a-fd83-4315-be45-192bc5sEdFff"};
+    httpBackend.when('GET', '/fragment/input/id/2581f20a-fd83-4315-be45-192bc5sEdFff').respond(fakeInputById);
 
     srv.getFragmentById().get(fragmentTypeIdJSON).$promise.then(function(result){
       expect(JSON.stringify(result)).toEqual(JSON.stringify(fakeInputById));
@@ -66,9 +66,9 @@ describe('API.fragment-service', function () {
   });
 
   it("Should delete a fragment by type and by ID", function () {
-  	var fragmentTypeIdJSON = {"type":"output","id":"2581f20a-fd04-4315-be45-192bc5sEdFff"};
+  	var fragmentTypeIdJSON = {"type":"output","fragmentId":"2581f20a-fd04-4315-be45-192bc5sEdFff"};
 		var deletedFragmentJSON = {};
-    httpBackend.when('DELETE', '/fragment/output/2581f20a-fd04-4315-be45-192bc5sEdFff').respond(deletedFragmentJSON);
+    httpBackend.when('DELETE', '/fragment/output/id/2581f20a-fd04-4315-be45-192bc5sEdFff').respond(deletedFragmentJSON);
 
   	srv.deleteFragment().delete(fragmentTypeIdJSON).$promise.then(function(result){
     	expect(JSON.stringify(result)).toEqual(JSON.stringify(deletedFragmentJSON));

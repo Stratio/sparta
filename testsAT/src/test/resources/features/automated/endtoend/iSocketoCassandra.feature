@@ -66,3 +66,5 @@ Feature: Test policy with Socket input and Cassandra output
     Then the service response status must be '200'.
     And I truncate a Cassandra table named 'testcubewithtime_v1' using keyspace 'sparta'
     And I truncate a Cassandra table named 'testcubewithouttime_v1' using keyspace 'sparta'
+    When I send a 'DELETE' request to '/fragment'
+    Then the service response status must be '200'.

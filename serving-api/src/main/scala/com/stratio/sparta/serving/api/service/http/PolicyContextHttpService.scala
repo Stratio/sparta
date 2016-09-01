@@ -26,7 +26,7 @@ import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.PolicyHelper
 import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.{FindAll, _}
+import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.{Delete, FindAll, _}
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
@@ -37,7 +37,7 @@ import scala.util.{Failure, Success, Try}
 @Api(value = HttpConstant.PolicyContextPath, description = "Operations about policy contexts.", position = 0)
 trait PolicyContextHttpService extends BaseHttpService {
 
-  override def routes: Route = findAll ~ update ~ create
+  override def routes: Route = findAll ~ update ~ create ~ deleteAll ~ deleteById
 
   @ApiOperation(value = "Finds all policy contexts",
     notes = "Returns a policies list",
@@ -56,6 +56,55 @@ trait PolicyContextHttpService extends BaseHttpService {
           Await.result(future, timeout.duration) match {
             case Response(Failure(exception)) => throw exception
             case Response(Success(policyStatuses)) => policyStatuses
+          }
+        }
+      }
+    }
+  }
+
+  @ApiOperation(value = "Delete all policy contexts",
+    notes = "Delete all policy contexts",
+    httpMethod = "DELETE")
+  @ApiResponses(
+    Array(new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)))
+  def deleteAll: Route = {
+    path(HttpConstant.PolicyContextPath) {
+      delete {
+        complete {
+          val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
+          val future = policyStatusActor ? DeleteAll
+          Await.result(future, timeout.duration) match {
+            case ResponseDelete(Failure(exception)) => throw exception
+            case ResponseDelete(Success(_)) => StatusCodes.OK
+          }
+        }
+      }
+    }
+  }
+
+  @ApiOperation(value = "Delete a policy contexts by its id",
+    notes = "Delete a policy contexts by its id",
+    httpMethod = "DELETE")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id",
+      value = "id of the policy",
+      dataType = "string",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(
+    Array(new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)))
+  def deleteById: Route = {
+    path(HttpConstant.PolicyContextPath / Segment) { (id) =>
+      delete {
+        complete {
+          val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
+          val future = policyStatusActor ? Delete(id)
+          Await.result(future, timeout.duration) match {
+            case ResponseDelete(Failure(exception)) => throw exception
+            case ResponseDelete(Success(_)) => StatusCodes.OK
           }
         }
       }

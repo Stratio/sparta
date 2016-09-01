@@ -41,6 +41,7 @@ object AppConstant {
   final val ConfigZkPath = s"$BaseZKPath/config"
   final val PoliciesBasePath = s"/$BaseZKPath/policies"
   final val ContextPath = s"/$BaseZKPath/contexts"
+  final val FragmentsPath = s"/$BaseZKPath/fragments"
   final val ErrorsZkPath = s"$BaseZKPath/error"
   final val ConfigRememberPartitioner = "rememberPartitioner"
   final val DefaultRememberPartitioner = true

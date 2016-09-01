@@ -39,22 +39,40 @@ class FragmentActor(curatorFramework: CuratorFramework)
     with SLF4JLogging
     with SpartaSerializer {
 
+  //scalastyle:off
   override def receive: Receive = {
+    case FindAllFragments() => findAll
+    case FindByType(fragmentType) => findByType(fragmentType)
     case FindByTypeAndId(fragmentType, id) => findByTypeAndId(fragmentType, id)
     case FindByTypeAndName(fragmentType, name) => findByTypeAndName(fragmentType, name.toLowerCase())
+    case DeleteAllFragments() => deleteAllFragments()
+    case DeleteByType(fragmentType) => deleteByType(fragmentType)
+    case DeleteByTypeAndId(fragmentType, id) => deleteByTypeAndId(fragmentType, id)
+    case DeleteByTypeAndName(fragmentType, name) => deleteByTypeAndName(fragmentType, name)
     case Create(fragment) => create(fragment)
     case Update(fragment) => update(fragment)
-    case DeleteByTypeAndId(fragmentType, id) => deleteByTypeAndId(fragmentType, id)
-    case FindByType(fragmentType) => findByType(fragmentType)
   }
+
+  //scalastyle:on
+
+  def findAll: Unit =
+    sender ! ResponseFragments(
+      Try {
+        findAllFragments
+      }.recover {
+        case e: NoNodeException =>
+          throw new ServingCoreException(ErrorModel.toString(
+            new ErrorModel(ErrorModel.CodeErrorGettingAllFragments, s"Error while getting all fragments.")
+          ))
+      })
 
   def findByType(fragmentType: String): Unit =
     sender ! ResponseFragments(
       Try {
-        val children = curatorFramework.getChildren.forPath(FragmentActor.fragmentPath(fragmentType))
+        val children = curatorFramework.getChildren.forPath(FragmentActor.fragmentPathType(fragmentType))
         JavaConversions.asScalaBuffer(children).toList.map(element =>
           read[FragmentElementModel](new String(curatorFramework.getData.forPath(
-            s"${FragmentActor.fragmentPath(fragmentType)}/$element")))
+            s"${FragmentActor.fragmentPathType(fragmentType)}/$element")))
         )
       }.recover {
         case e: NoNodeException => Seq.empty[FragmentElementModel]
@@ -63,9 +81,9 @@ class FragmentActor(curatorFramework: CuratorFramework)
   def findByTypeAndId(fragmentType: String, id: String): Unit =
     sender ! new ResponseFragment(
       Try {
-        log.info(s"> Retrieving information for path: ${FragmentActor.fragmentPath(fragmentType)}/$id)")
+        log.info(s"> Retrieving information for path: ${FragmentActor.fragmentPathType(fragmentType)}/$id)")
         read[FragmentElementModel](new String(curatorFramework.getData.forPath(
-          s"${FragmentActor.fragmentPath(fragmentType)}/$id")))
+          s"${FragmentActor.fragmentPathType(fragmentType)}/$id")))
       }.recover {
         case e: NoNodeException =>
           throw new ServingCoreException(ErrorModel.toString(
@@ -76,10 +94,10 @@ class FragmentActor(curatorFramework: CuratorFramework)
   def findByTypeAndName(fragmentType: String, name: String): Unit =
     sender ! ResponseFragment(
       Try {
-        val children = curatorFramework.getChildren.forPath(FragmentActor.fragmentPath(fragmentType))
+        val children = curatorFramework.getChildren.forPath(FragmentActor.fragmentPathType(fragmentType))
         JavaConversions.asScalaBuffer(children).toList.map(element =>
           read[FragmentElementModel](new String(curatorFramework.getData.forPath(
-            s"${FragmentActor.fragmentPath(fragmentType)}/$element"))))
+            s"${FragmentActor.fragmentPathType(fragmentType)}/$element"))))
           .filter(fragment => fragment.name == name).head
       }.recover {
         case e: NoNodeException =>
@@ -100,7 +118,9 @@ class FragmentActor(curatorFramework: CuratorFramework)
       name = fragment.name.toLowerCase
     )
     curatorFramework.create().creatingParentsIfNeeded().forPath(
-      s"${FragmentActor.fragmentPath(newFragment.fragmentType)}/${newFragment.id.get}", write(newFragment).getBytes())
+      s"${FragmentActor.fragmentPathType(newFragment.fragmentType)}/${newFragment.id.get}",
+      write(newFragment).getBytes()
+    )
 
     newFragment
   }
@@ -113,7 +133,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
     })
 
   def getExistingFragment(fragment: FragmentElementModel): Option[FragmentElementModel] =
-    listByPath(fragmentPath(fragment.fragmentType))
+    listByPath(fragmentPathType(fragment.fragmentType))
       .dropWhile(currentFragment => !fragment.equals(currentFragment))
       .headOption
       .orElse(throw new ServingCoreException(ErrorModel.toString(
@@ -130,11 +150,10 @@ class FragmentActor(curatorFramework: CuratorFramework)
               s"Fragment of type ${fragment.fragmentType} with name ${fragment.name} exists.")
           ))
         }
-
         val fragmentS = fragment.copy(name = fragment.name.toLowerCase)
 
         curatorFramework.setData().forPath(
-          s"${FragmentActor.fragmentPath(fragmentS.fragmentType)}/${fragment.id.get}", write(fragmentS).getBytes)
+          s"${FragmentActor.fragmentPathType(fragmentS.fragmentType)}/${fragment.id.get}", write(fragmentS).getBytes)
       }.recover {
         case e: NoNodeException =>
           throw new ServingCoreException(ErrorModel.toString(
@@ -143,10 +162,63 @@ class FragmentActor(curatorFramework: CuratorFramework)
           ))
       })
 
+  def deleteAllFragments(): Unit =
+    sender ! ResponseFragments(
+      Try {
+        val fragmentsFound = findAllFragments
+
+        fragmentsFound.foreach(fragment => {
+          val id = fragment.id.getOrElse {
+            throw new ServingCoreException(ErrorModel.toString(
+              new ErrorModel(ErrorModel.CodeErrorDeletingAllFragments, s"Fragment without id: ${fragment.name}.")
+            ))
+          }
+
+          curatorFramework.delete().forPath(s"${FragmentActor.fragmentPathType(fragment.fragmentType)}/$id")
+        })
+        fragmentsFound
+      }.recover {
+        case e: NoNodeException =>
+          throw new ServingCoreException(ErrorModel.toString(
+            new ErrorModel(
+              ErrorModel.CodeErrorDeletingAllFragments,
+              s"Error while deleting all fragments"
+            )
+          ))
+      })
+
+  def deleteByType(fragmentType: String): Unit =
+    sender ! Response(
+      Try {
+
+        val children = curatorFramework.getChildren.forPath(FragmentActor.fragmentPathType(fragmentType))
+        val fragmentsFound = JavaConversions.asScalaBuffer(children).toList.map(element =>
+          read[FragmentElementModel](new String(curatorFramework.getData.forPath(
+            s"${FragmentActor.fragmentPathType(fragmentType)}/$element")))
+        )
+        fragmentsFound.foreach(fragment => {
+          val id = fragment.id.getOrElse {
+            throw new ServingCoreException(ErrorModel.toString(
+              new ErrorModel(ErrorModel.CodeNotExistsFragmentWithType, s"Fragment without id: ${fragment.name}.")
+            ))
+          }
+
+          curatorFramework.delete().forPath(s"${FragmentActor.fragmentPathType(fragmentType)}/$id")
+        })
+      }.recover {
+        case e: NoNodeException =>
+          throw new ServingCoreException(ErrorModel.toString(
+            new ErrorModel(
+              ErrorModel.CodeNotExistsFragmentWithType,
+              s"No fragment of type $fragmentType."
+            )
+          ))
+      })
+
   def deleteByTypeAndId(fragmentType: String, id: String): Unit =
     sender ! Response(
       Try {
-        curatorFramework.delete().forPath(s"${FragmentActor.fragmentPath(fragmentType)}/$id")
+        curatorFramework.delete().forPath(s"${FragmentActor.fragmentPathType(fragmentType)}/$id")
       }.recover {
         case e: NoNodeException =>
           throw new ServingCoreException(ErrorModel.toString(
@@ -154,9 +226,37 @@ class FragmentActor(curatorFramework: CuratorFramework)
           ))
       })
 
+  def deleteByTypeAndName(fragmentType: String, name: String): Unit =
+    sender ! Response(
+      Try {
+        val children = curatorFramework.getChildren.forPath(FragmentActor.fragmentPathType(fragmentType))
+        val fragmentFound = JavaConversions.asScalaBuffer(children).toList.map(element =>
+          read[FragmentElementModel](new String(curatorFramework.getData.forPath(
+            s"${FragmentActor.fragmentPathType(fragmentType)}/$element"))))
+          .find(fragment => fragment.name == name)
+
+        if (fragmentFound.isDefined && fragmentFound.get.id.isDefined) {
+          curatorFramework.delete()
+            .forPath(s"${FragmentActor.fragmentPathType(fragmentType)}/${fragmentFound.get.id.get}")
+        } else {
+          throw new ServingCoreException(ErrorModel.toString(
+            new ErrorModel(
+              ErrorModel.CodeNotExistsFragmentWithName,
+              s"Fragment without id: $name."
+            )
+          ))
+        }
+      }.recover {
+        case e: NoNodeException =>
+          throw new ServingCoreException(ErrorModel.toString(
+            new ErrorModel(
+              ErrorModel.CodeNotExistsFragmentWithId, s"No fragment of type $fragmentType with name $name.")
+          ))
+      })
+
   private def existsByTypeAndName(fragmentType: String, name: String, id: Option[String] = None): Boolean = {
     Try {
-      val fragmentLocation = fragmentPath(fragmentType)
+      val fragmentLocation = fragmentPathType(fragmentType)
       if (CuratorFactoryHolder.existsPath(fragmentLocation)) {
         val children = curatorFramework.getChildren.forPath(fragmentLocation)
         JavaConversions.asScalaBuffer(children).toList.map(element =>
@@ -184,6 +284,19 @@ class FragmentActor(curatorFramework: CuratorFramework)
       } else List.empty[FragmentElementModel]
     }.getOrElse(List.empty[FragmentElementModel])
   }
+
+  private def findAllFragments: List[FragmentElementModel] = {
+    val children = curatorFramework.getChildren.forPath(s"${AppConstant.FragmentsPath}")
+
+    JavaConversions.asScalaBuffer(children).toList.flatMap(fragmentType => {
+      val fragmentId = curatorFramework.getChildren.forPath(FragmentActor.fragmentPathType(fragmentType))
+
+      JavaConversions.asScalaBuffer(fragmentId).toList.map(element =>
+        read[FragmentElementModel](new String(curatorFramework.getData.forPath(
+          s"${FragmentActor.fragmentPathType(fragmentType)}/$element")))
+      )
+    })
+  }
 }
 
 object FragmentActor {
@@ -192,13 +305,21 @@ object FragmentActor {
 
   case class Update(fragment: FragmentElementModel)
 
+  case class FindAllFragments()
+
   case class FindByType(fragmentType: String)
 
   case class FindByTypeAndId(fragmentType: String, id: String)
 
   case class FindByTypeAndName(fragmentType: String, name: String)
 
+  case class DeleteAllFragments()
+
+  case class DeleteByType(fragmentType: String)
+
   case class DeleteByTypeAndId(fragmentType: String, id: String)
+
+  case class DeleteByTypeAndName(fragmentType: String, name: String)
 
   case class ResponseFragment(fragment: Try[FragmentElementModel])
 
@@ -206,10 +327,10 @@ object FragmentActor {
 
   case class Response(status: Try[_])
 
-  def fragmentPath(fragmentType: String): String = {
+  def fragmentPathType(fragmentType: String): String = {
     fragmentType match {
-      case "input" => s"/${AppConstant.BaseZKPath}/fragments/input"
-      case "output" => s"/${AppConstant.BaseZKPath}/fragments/output"
+      case "input" => s"${AppConstant.FragmentsPath}/input"
+      case "output" => s"${AppConstant.FragmentsPath}/output"
       case _ => throw new IllegalArgumentException("The fragment type must be input|output")
     }
   }

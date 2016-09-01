@@ -189,3 +189,7 @@ Feature: Test all POST operations for policies in Sparta Swagger API
 		| id | DELETE | N/A |
 		| name | DELETE | N/A |
 		Then the service response status must be '400' and its response must contain the text 'No usable value for name'
+
+	Scenario: Clean everything up
+		When I send a 'DELETE' request to '/fragment'
+    Then the service response status must be '200'.
