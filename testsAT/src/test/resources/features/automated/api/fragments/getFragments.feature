@@ -38,11 +38,11 @@ Feature: Test all GET operations for fragments in Sparta Swagger API
 	
 	Scenario: Get all available fragments of type input with name name
 		When I send a 'GET' request to '/fragment/input/name/name'
-		Then the service response status must be '200'
+		Then the service response status must be '202'
 		
 	Scenario: Get all available fragments of type output with name name
 		When I send a 'GET' request to '/fragment/output/name/name'
-		Then the service response status must be '200'
+		Then the service response status must be '202'
 		
 	Scenario: Get all available fragments of type input
 		Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
@@ -52,7 +52,7 @@ Feature: Test all GET operations for fragments in Sparta Swagger API
 		Then the service response status must be '200'.
 		And I save element '$.id' in environment variable 'previousFragmentID'
 		When I send a 'GET' request to '/fragment/input'
-		Then the service response status must be '200' and its response length must be '2'
+		Then the service response status must be '200' and its response length must be '1'
 	
 	Scenario: Get all available fragments of type output
 		Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
@@ -62,7 +62,7 @@ Feature: Test all GET operations for fragments in Sparta Swagger API
 		Then the service response status must be '200'.
 		And I save element '$.id' in environment variable 'previousFragmentID_2'
 		When I send a 'GET' request to '/fragment/output'
-		Then the service response status must be '200' and its response length must be '3'
+		Then the service response status must be '200' and its response length must be '1'
 		
 	Scenario: Get all available fragments of type input with name inputFragment1
 		When I send a 'GET' request to '/fragment/input/name/inputfragment1'
@@ -77,3 +77,5 @@ Feature: Test all GET operations for fragments in Sparta Swagger API
 		Then the service response status must be '200'.
 		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
 		Then the service response status must be '200'.
+    When I send a 'DELETE' request to '/fragment'
+    Then the service response status must be '200'.

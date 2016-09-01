@@ -79,3 +79,5 @@ Feature: Test all PUT operations for fragments in Sparta Swagger API
 	Scenario: Clean everything up
 		When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
 		Then the service response status must be '200'.
+		When I send a 'DELETE' request to '/fragment'
+    Then the service response status must be '200'.

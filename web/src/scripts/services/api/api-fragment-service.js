@@ -35,7 +35,7 @@
     /////////////////////////////////
 
     function getFragmentById() {
-      return $resource('/fragment/:type/:id', {type: '@type', id: '@id'},
+      return $resource('/fragment/:type/id/:fragmentId', {type: '@type', fragmentId: '@fragmentId'},
         {
           'get': {method: 'GET',
             timeout: apiConfigSettings.timeout}
@@ -67,7 +67,7 @@
     }
 
     function deleteFragment() {
-      return $resource('/fragment/:type/:id', {type: '@type', id: '@id'},
+      return $resource('/fragment/:type/id/:fragmentId', {type: '@type', fragmentId: '@fragmentId'},
         {
           'delete': {method: 'DELETE',
             timeout: apiConfigSettings.timeout}

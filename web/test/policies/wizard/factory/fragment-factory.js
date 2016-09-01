@@ -33,7 +33,7 @@ describe('policies.wizard.factory.fragment-factory', function () {
         });
 
       factory.deleteFragment(fakeFragmentType, fakeFragmentId);
-      expect(promiseMock).toHaveBeenCalledWith({'type': fakeFragmentType ,'id': fakeFragmentId});
+      expect(promiseMock).toHaveBeenCalledWith({'type': fakeFragmentType ,'fragmentId': fakeFragmentId});
     });
 
     it("create fragment", function () {
@@ -67,7 +67,7 @@ describe('policies.wizard.factory.fragment-factory', function () {
         });
 
       factory.getFragmentById(fakeFragmentType, fakeFragmentId);
-      expect(promiseMock).toHaveBeenCalledWith({'type': fakeFragmentType ,'id': fakeFragmentId});
+      expect(promiseMock).toHaveBeenCalledWith({'type': fakeFragmentType ,'fragmentId': fakeFragmentId});
     });
 
     it("get all fragment by fragment type", function () {

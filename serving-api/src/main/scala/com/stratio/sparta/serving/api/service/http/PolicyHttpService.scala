@@ -22,7 +22,7 @@ import javax.ws.rs.Path
 import akka.actor.ActorRef
 
 import scala.concurrent.Await
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 import akka.pattern.ask
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
@@ -47,7 +47,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
   case class Result(message: String, desc: Option[String] = None)
 
   override def routes: Route =
-    find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download ~ findByName
+    find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download ~ findByName ~ removeAll
 
   @Path("/find/{id}")
   @ApiOperation(value = "Find a policy from its id.",
@@ -251,6 +251,37 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
                 createFragments(fragmentActor, outputs.toList ::: inputs.toList)
                 HttpResponse(StatusCodes.OK)
             }
+          }
+        }
+      }
+    }
+  }
+
+
+  @ApiOperation(value = "Deletes all policies.",
+    notes = "Deletes all policies.",
+    httpMethod = "DELETE")
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def removeAll: Route = {
+    path(HttpConstant.PolicyPath) {
+      delete {
+        complete {
+          val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
+          for {
+            policies <- (supervisor ? DeleteAll()).mapTo[ResponsePolicies]
+          } yield policies match {
+            case ResponsePolicies(Failure(exception)) =>
+              throw exception
+            case ResponsePolicies(Success(policies: Seq[AggregationPoliciesModel])) =>
+              Try{
+                policyStatusActor ? PolicyStatusActor.DeleteAll
+              } match {
+                case Success(_) => StatusCodes.OK
+                case Failure(exception) => throw exception
+              }
           }
         }
       }

@@ -25,7 +25,7 @@
    function FragmentFactory(ApiFragmentService) {
        return {
                deleteFragment: function(fragmentType, fragmentId) {
-                   return ApiFragmentService.deleteFragment().delete({'type': fragmentType ,'id': fragmentId}).$promise;
+                   return ApiFragmentService.deleteFragment().delete({'type': fragmentType ,'fragmentId': fragmentId}).$promise;
                },
                createFragment: function(newFragmentData) {
                    return ApiFragmentService.createFragment().create(newFragmentData).$promise;
@@ -34,7 +34,7 @@
                    return ApiFragmentService.updateFragment().update(updatedFragmentData).$promise;
                },
                getFragmentById: function(fragmentType, fragmentId) {
-                  return ApiFragmentService.getFragmentById().get({'type': fragmentType ,'id': fragmentId}).$promise;
+                  return ApiFragmentService.getFragmentById().get({'type': fragmentType ,'fragmentId': fragmentId}).$promise;
                },
                getFragments: function(fragmentType) {
                   return ApiFragmentService.getFragments().get({'type': fragmentType}).$promise;

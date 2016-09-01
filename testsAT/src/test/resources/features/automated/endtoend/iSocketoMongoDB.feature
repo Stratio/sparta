@@ -60,3 +60,5 @@ Feature: Test policy with Socket input and MongoDB output
     When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
     Then the service response status must be '200'.
     And I drop a MongoDB database 'csvtest'
+    When I send a 'DELETE' request to '/fragment'
+    Then the service response status must be '200'.

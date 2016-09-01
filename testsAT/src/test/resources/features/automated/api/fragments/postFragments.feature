@@ -74,3 +74,5 @@ Feature: Test all POST operations for fragments in Sparta Swagger API
 		And I save element '$.id' in environment variable 'previousFragmentID'
 		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID}'
 		Then the service response status must be '200'.
+		When I send a 'DELETE' request to '/fragment'
+    Then the service response status must be '200'.

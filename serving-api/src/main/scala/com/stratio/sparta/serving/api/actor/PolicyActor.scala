@@ -43,6 +43,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
 
   import PolicyActor._
 
+  //scalastyle:off
   override def receive: Receive = {
     case Create(policy) => create(policy)
     case Update(policy) => update(policy)
@@ -50,8 +51,12 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
     case Find(id) => find(id)
     case FindByName(name) => findByName(name.toLowerCase)
     case FindAll() => findAll()
-    case FindByFragment(fragmentType, id) => findByFragment(fragmentType, id)
+    case DeleteAll() => deleteAll()
+    case FindByFragmentType(fragmentType) => findByFragmentType(fragmentType)
+    case FindByFragment(fragmentType, id) => findByFragmentId(fragmentType, id)
+    case FindByFragmentName(fragmentType, name) => findByFragmentName(fragmentType, name)
   }
+  //scalastyle:on
 
   def findAll(): Unit =
     sender ! ResponsePolicies(Try {
@@ -61,12 +66,49 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
       case e: NoNodeException => Seq.empty[AggregationPoliciesModel]
     })
 
-  def findByFragment(fragmentType: String, id: String): Unit =
+  def deleteAll(): Unit =
+    sender ! ResponsePolicies(Try {
+      val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
+      val policiesModels =
+        JavaConversions.asScalaBuffer(children).toList.map(element => byId(element, curatorFramework))
+
+      policiesModels.foreach(policyModel => {
+        deleteCheckpointPath(policyModel)
+        curatorFramework.delete().forPath(s"${AppConstant.PoliciesBasePath}/${policyModel.id.get}")
+      })
+      policiesModels
+    }.recover {
+      case e: NoNodeException => throw new ServingCoreException(
+        ErrorModel.toString(new ErrorModel(ErrorModel.CodeErrorDeletingPolicy, s"Error deleting policies"))
+      )
+    })
+
+  def findByFragmentType(fragmentType: String): Unit =
     sender ! ResponsePolicies(
       Try {
         val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
         JavaConversions.asScalaBuffer(children).toList.map(element => byId(element, curatorFramework))
-          .filter(apm => apm.fragments.exists(f => f.id.get == id))
+          .filter(apm => apm.fragments.exists(f => f.fragmentType == fragmentType))
+      }.recover {
+        case e: NoNodeException => Seq.empty[AggregationPoliciesModel]
+      })
+
+  def findByFragmentId(fragmentType: String, id: String): Unit =
+    sender ! ResponsePolicies(
+      Try {
+        val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
+        JavaConversions.asScalaBuffer(children).toList.map(element => byId(element, curatorFramework))
+          .filter(apm => apm.fragments.exists(f => f.id.get == id && f.fragmentType == fragmentType))
+      }.recover {
+        case e: NoNodeException => Seq.empty[AggregationPoliciesModel]
+      })
+
+  def findByFragmentName(fragmentType: String, name: String): Unit =
+    sender ! ResponsePolicies(
+      Try {
+        val children = curatorFramework.getChildren.forPath(s"${AppConstant.PoliciesBasePath}")
+        JavaConversions.asScalaBuffer(children).toList.map(element => byId(element, curatorFramework))
+          .filter(apm => apm.fragments.exists(f => f.name == name && f.fragmentType == fragmentType))
       }.recover {
         case e: NoNodeException => Seq.empty[AggregationPoliciesModel]
       })
@@ -171,13 +213,19 @@ object PolicyActor extends SLF4JLogging {
 
   case class Delete(name: String)
 
+  case class DeleteAll()
+
   case class FindAll()
 
   case class Find(id: String)
 
   case class FindByName(name: String)
 
+  case class FindByFragmentType(fragmentType: String)
+
   case class FindByFragment(fragmentType: String, id: String)
+
+  case class FindByFragmentName(fragmentType: String, name: String)
 
   case class Response(status: Try[_])
 
