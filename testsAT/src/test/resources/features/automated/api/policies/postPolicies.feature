@@ -11,6 +11,7 @@ Feature: Test all POST operations for policies in Sparta Swagger API
 	Scenario: Add a valid policy
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | policy1 |
+		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		Then the service response status must be '200'.
 		And I save element '$.id' in environment variable 'previousPolicyID'
@@ -21,6 +22,7 @@ Feature: Test all POST operations for policies in Sparta Swagger API
 	Scenario: Add the same valid policy
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | policy1 |
+		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		Then the service response status must be '404'.
 		# Delete previously created policy
@@ -135,6 +137,7 @@ Feature: Test all POST operations for policies in Sparta Swagger API
 		
 	Scenario: Add a policy with missing input
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
+		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		| name | UPDATE | policyMissingInput |
 		| input | DELETE | N/A |
@@ -142,6 +145,7 @@ Feature: Test all POST operations for policies in Sparta Swagger API
 	
 	Scenario: Add a policy with missing outputs
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
+		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		| name | UPDATE | policyMissingOutputs |
 		| outputs | DELETE | N/A |
@@ -149,6 +153,7 @@ Feature: Test all POST operations for policies in Sparta Swagger API
 	
 	Scenario: Add a policy with missing name inside cubes
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
+		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		| name | UPDATE | policyMissingCubesName |
 		| cubes[0].name | DELETE | N/A |
@@ -158,6 +163,7 @@ Feature: Test all POST operations for policies in Sparta Swagger API
 	# This test will fail Issue: 924
 	Scenario: Add a policy with missing dimensions inside cubes
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
+		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		| name | UPDATE | policyMissingDimensions |
 		| cubes[0].dimensions | DELETE | N/A |
@@ -167,6 +173,7 @@ Feature: Test all POST operations for policies in Sparta Swagger API
 	# This test will fail Issue: 924
 	Scenario: Add a policy with missing operators inside cubes
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
+		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		| name | UPDATE | policyMissingOperators |
 		| cubes[0].operators | DELETE | N/A |
@@ -178,6 +185,7 @@ Feature: Test all POST operations for policies in Sparta Swagger API
 	
 	Scenario: Add a policy with missing name
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
+		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		| name | DELETE | N/A |
 		Then the service response status must be '400' and its response must contain the text 'No usable value for name'

@@ -7,15 +7,15 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 	Scenario: Get all available policies when none available
 		When I send a 'GET' request to '/policy/all'
 		Then the service response status must be '200' and its response must contain the text '[]'
-	
+
 	Scenario: Get a policy by name when none available
 		When I send a 'GET' request to '/policy/findByName/nonExistingPolicy'
 		Then the service response status must be '404' and its response must contain the text 'No policy with name nonexistingpolicy'
-	
+
 	Scenario: Get a policy by id when none available
 		When I send a 'GET' request to '/policy/find/nonExistingId'
 		Then the service response status must be '404'.
-	
+
 	Scenario: Get all policies with a particular fragment when no policies available
 		When I send a 'GET' request to '/policy/fragment/input/nonExistingId'
 		Then the service response status must be '200' and its response must contain the text '[]'
@@ -33,45 +33,45 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 		And I save element '$.id' in environment variable 'previousPolicyID'
 		When I send a 'GET' request to '/policy/findByName/nonExistingPolicy'
 		Then the service response status must be '404' and its response must contain the text 'No policy with name nonexistingpolicy'
-	
+
 	Scenario: Get a non-existing policy by id
 		When I send a 'GET' request to '/policy/find/nonExistingId'
 		Then the service response status must be '404'.
-	
+
 	Scenario: Get a existing policy by name
 		When I send a 'GET' request to '/policy/findByName/basicpolicy'
 		Then the service response status must be '200' and its response must contain the text '"id":"!{previousPolicyID}"'
 		# Should check that value returned is the expected policy
-		
+
 	Scenario: Get a existing policy by id
 		When I send a 'GET' request to '/policy/find/!{previousPolicyID}'
 		Then the service response status must be '200' and its response must contain the text '"id":"!{previousPolicyID}"'
 		# Should check that value returned is the expected policy
-		
+
 	Scenario: Run a non-existing policy
 		When I send a 'GET' request to '/policy/run/nonExistingId'
 		Then the service response status must be '404'.
-		
+
 	Scenario: Run a existing policy
 		When I send a 'GET' request to '/policy/run/!{previousPolicyID}'
 		Then the service response status must be '200' and its response must contain the text '{"message":"Creating new context'
-		When I send a 'GET' request to '/policyContext'	
+		When I send a 'GET' request to '/policyContext'
 		Then the service response status must be '200' and its response must contain the text '"id":"!{previousPolicyID}"'
-		
+
 #	Scenario: Run the same existing policy
 #		When I send a 'GET' request to 'policy/run/!{previousPolicyID}'
 #		Then the service response status must be '404' and its response must contain the text '{"message":"Creating new context'
-#		
+#
 	Scenario: Delete policy previously created
 		When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
 		Then the service response status must be '200'.
-	
+
 	Scenario: Get all policies with fragment with incorrect fragment type
 		When I send a 'GET' request to '/policy/fragment/invalid/nonExistingId'
 		Then the service response status must be '200' and its response must contain the text '[]'
-		
+
 	Scenario: Get all policies with non-existing fragment
-		When I send a 'GET' request to '/policy/fragment/input/nonExistingId'	
+		When I send a 'GET' request to '/policy/fragment/input/nonExistingId'
 		Then the service response status must be '200' and its response must contain the text '[]'
 		
 	Scenario: Get all policies with existing fragment
@@ -151,6 +151,6 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 		
 	Scenario: Clean everything up
 		When I send a 'DELETE' request to '/fragment'
-		Then the service response status must be '200'.
-		When I send a 'DELETE' request to '/policy'
-		Then the service response status must be '200'.
+    Then the service response status must be '200'.
+    When I send a 'DELETE' request to '/policy'
+    Then the service response status must be '200'.

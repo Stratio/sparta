@@ -11,6 +11,7 @@ Feature: Test all PUT operations for policies in Sparta Swagger API
 	Scenario: Update a policy when no policies available
 		When I send a 'PUT' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | nonexistingpolicy |
+		| fragments | DELETE | N/A |
 		| id | UPDATE | nonExistingID |
 		Then the service response status must be '404'.
 		
@@ -18,6 +19,7 @@ Feature: Test all PUT operations for policies in Sparta Swagger API
 		# Add a policy
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | validpolicy |
+		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		Then the service response status must be '200'.
 		And I save element '$.id' in environment variable 'previousPolicyID'
@@ -27,6 +29,7 @@ Feature: Test all PUT operations for policies in Sparta Swagger API
 		# Update non existing policy
 		When I send a 'PUT' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | nonexistingpolicy |
+		| fragments | DELETE | N/A |
 		| id | UPDATE | nonExistingID |
 		Then the service response status must be '404'.
 
@@ -36,6 +39,7 @@ Feature: Test all PUT operations for policies in Sparta Swagger API
 	Scenario: Update a existing policy with invalid info: no input
 		When I send a 'PUT' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | validpolicy |
+		| fragments | DELETE | N/A |
 		| id | UPDATE | !{previousPolicyID} |
 		| input | DELETE | N/A |
 		Then the service response status must be '500' and its response must contain the text 'It is mandatory to define one input in the policy.'
@@ -46,6 +50,7 @@ Feature: Test all PUT operations for policies in Sparta Swagger API
 	Scenario: Update a existing policy with invalid info: no outputs
 		When I send a 'PUT' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | validpolicy |
+		| fragments | DELETE | N/A |
 		| id | UPDATE | !{previousPolicyID} |
 		| outputs | DELETE | N/A |
 		Then the service response status must be '404' and its response must contain the text 'The policy needs at least one output'
@@ -77,6 +82,7 @@ Feature: Test all PUT operations for policies in Sparta Swagger API
 	Scenario: Update a policy with missing name inside cubes
 		When I send a 'PUT' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | validpolicy |
+		| fragments | DELETE | N/A |
 		| id | UPDATE | !{previousPolicyID} |
 		| cubes[0].name | DELETE | N/A |
 		Then the service response status must be '400' and its response must contain the text 'No usable value for name'
@@ -87,6 +93,7 @@ Feature: Test all PUT operations for policies in Sparta Swagger API
 	Scenario: Update a policy with missing dimensions inside cubes
 		When I send a 'PUT' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | validpolicy |
+		| fragments | DELETE | N/A |
 		| id | UPDATE | !{previousPolicyID} |
 		| cubes[0].dimensions | DELETE | N/A |
 		Then the service response status must be '404' and its response must contain the text 'There is at least one cube without dimensions'
@@ -94,6 +101,7 @@ Feature: Test all PUT operations for policies in Sparta Swagger API
 	Scenario: Update a policy with missing operators inside cubes
 		When I send a 'PUT' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | validpolicy |
+		| fragments | DELETE | N/A |
 		| id | UPDATE | !{previousPolicyID} |
 		| cubes[0].operators | DELETE | N/A |
 		Then the service response status must be '200'.
@@ -101,7 +109,8 @@ Feature: Test all PUT operations for policies in Sparta Swagger API
 	Scenario: Update a existing policy
 		When I send a 'PUT' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | newvalidpolicy |
-		| id | UPDATE | !{previousPolicyID} |	
+		| fragments | DELETE | N/A |
+		| id | UPDATE | !{previousPolicyID} |
 		Then the service response status must be '200'.
 	
 	Scenario: Clean everything up
