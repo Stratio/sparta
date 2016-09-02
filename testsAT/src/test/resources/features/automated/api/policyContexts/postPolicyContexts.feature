@@ -12,12 +12,14 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 	Scenario: Add a policyContext with no name
 		Given I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | DELETE | N/A |
+		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		Then the service response status must be '400' and its response must contain the text 'No usable value for name'
 	
 	Scenario: Add a policyContext with no input
 		Given I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | policyContextNoInput |
+		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		| input | DELETE | N/A |	
 		Then the service response status must be '500' and its response must contain the text 'It is mandatory to define one input in the policy.'
@@ -25,6 +27,7 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 	Scenario: Add a policyContext with no outputs
 		Given I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | policyContextNoOutputs |
+		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		| outputs | DELETE | N/A |	
 		Then the service response status must be '404' and its response must contain the text 'The policy needs at least one output'
@@ -78,6 +81,7 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 	Scenario: Add a policyContext
 		When I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | policyContextValid |
+		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		Then the service response status must be '200'.
 		And I save element '$.policyId' in environment variable 'previousPolicyID'
@@ -91,6 +95,7 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 	Scenario: Add same policyContext
 		When I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | policyContextValid |
+		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		Then the service response status must be '404' and its response must contain the text 'Can't create policy'
 	

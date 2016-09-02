@@ -11,6 +11,7 @@ Feature: Test all Get operations for policyContexts in Sparta Swagger API
 	Scenario: Get all policyContexts when one available
 		Given I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | policyContextAvailable |
+		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousPolicyID'

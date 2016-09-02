@@ -186,7 +186,7 @@
         <dependency>
             <groupId>com.stratio.spray.auth</groupId>
             <artifactId>spray-oauth2-client_2.10</artifactId>
-            <version>0.2.0-SNAPSHOT</version>
+            <version>0.2.0</version>
         </dependency>
         <dependency>
             <groupId>io.spray</groupId>

@@ -24,6 +24,7 @@ Feature: Test all PUT operations for policyContexts in Sparta Swagger API
 		# Add policy context
 		When I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | policycontextvalid |
+		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		# Get policy id
 		Given I wait '10' seconds
