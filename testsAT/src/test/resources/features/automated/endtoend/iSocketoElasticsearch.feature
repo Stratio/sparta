@@ -59,3 +59,5 @@ Feature: Test policy with Socket input and Elasticsearch output
     And I drop an elasticsearch index named 'testcubewithouttime'
     When I send a 'DELETE' request to '/fragment'
     Then the service response status must be '200'.
+    When I send a 'DELETE' request to '/policy'
+    Then the service response status must be '200'.

@@ -150,13 +150,7 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 		Then the service response status must be '404' and its response must contain the text 'The requested resource could not be found.'
 		
 	Scenario: Clean everything up
-		When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
-		Then the service response status must be '200'.
-		When I send a 'DELETE' request to '/policy/!{previousPolicyID_2}'
-		Then the service response status must be '200'.
-		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID}'
-		Then the service response status must be '200'.
-		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
-		Then the service response status must be '200'.
 		When I send a 'DELETE' request to '/fragment'
-    Then the service response status must be '200'.
+		Then the service response status must be '200'.
+		When I send a 'DELETE' request to '/policy'
+		Then the service response status must be '200'.

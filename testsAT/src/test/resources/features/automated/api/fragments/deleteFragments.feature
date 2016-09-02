@@ -104,4 +104,4 @@ Feature: Test all DELETE operations for fragments in Sparta Swagger API
 
 	Scenario: Clean everything up
     	When I send a 'DELETE' request to '/fragment'
-      Then the service response status must be '200'.
+      	Then the service response status must be '200'.

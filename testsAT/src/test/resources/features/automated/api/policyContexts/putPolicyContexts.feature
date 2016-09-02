@@ -24,7 +24,6 @@ Feature: Test all PUT operations for policyContexts in Sparta Swagger API
 		# Add policy context
 		When I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | policycontextvalid |
-		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
 		# Get policy id
 		Given I wait '10' seconds
@@ -41,23 +40,7 @@ Feature: Test all PUT operations for policyContexts in Sparta Swagger API
 		Then the service response status must be '200' and its response must contain the text '"status":"Stopped"'
 
 	Scenario: Clean up
-		When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
+		When I send a 'DELETE' request to '/fragment'
 		Then the service response status must be '200'.
-	   	# Delete fragments
-	  	When I send a 'GET' request to '/fragment/input/name/name'
-	  	Then the service response status must be '200'.
-	  	And I save element '$.id' in environment variable 'previousFragmentID'
-	  	When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
-	  	Then the service response status must be '200'.
-	  	When I send a 'GET' request to '/fragment/output/name/name'
-	  	Then the service response status must be '200'.
-	  	And I save element '$.id' in environment variable 'previousFragmentID_2'
-	  	When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
-	  	Then the service response status must be '200'.
-	  	When I send a 'GET' request to '/fragment/output/name/name2'
-	  	Then the service response status must be '200'.
-	  	And I save element '$.id' in environment variable 'previousFragmentID_2'
-	  	When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
-	  	Then the service response status must be '200'.
-	  	When I send a 'DELETE' request to '/fragment'
-      Then the service response status must be '200'.
+		When I send a 'DELETE' request to '/policy'
+		Then the service response status must be '200'.

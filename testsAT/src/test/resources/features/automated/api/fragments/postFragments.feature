@@ -64,15 +64,7 @@ Feature: Test all POST operations for fragments in Sparta Swagger API
 		Then the service response status must be '200' and its response length must be '1'
 
 	Scenario: Clean everything up
-		When I send a 'GET' request to '/fragment/input/name/inputfragment1'
-		Then the service response status must be '200'.
-		And I save element '$.id' in environment variable 'previousFragmentID'
-		When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
-		Then the service response status must be '200'.
-		When I send a 'GET' request to '/fragment/output/name/outputfragment1'
-		Then the service response status must be '200'.
-		And I save element '$.id' in environment variable 'previousFragmentID'
-		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID}'
-		Then the service response status must be '200'.
 		When I send a 'DELETE' request to '/fragment'
-    Then the service response status must be '200'.
+		Then the service response status must be '200'.
+		When I send a 'DELETE' request to '/policy'
+		Then the service response status must be '200'.

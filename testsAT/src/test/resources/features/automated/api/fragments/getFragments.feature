@@ -34,7 +34,7 @@ Feature: Test all GET operations for fragments in Sparta Swagger API
 	
 	Scenario: Get all available fragments of type invalid with name name
 		When I send a 'GET' request to '/fragment/invalid/name'
-		Then the service response status must be '500' and its response must contain the text 'The fragment type must be input|output'
+		Then the service response status must be '404' and its response must contain the text 'The requested resource could not be found.'
 	
 	Scenario: Get all available fragments of type input with name name
 		When I send a 'GET' request to '/fragment/input/name/name'
@@ -73,9 +73,7 @@ Feature: Test all GET operations for fragments in Sparta Swagger API
 		Then the service response status must be '200'.
 	
 	Scenario: Clean everything up
-		When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
-		Then the service response status must be '200'.
-		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
-		Then the service response status must be '200'.
-    When I send a 'DELETE' request to '/fragment'
-    Then the service response status must be '200'.
+		When I send a 'DELETE' request to '/fragment'
+    	Then the service response status must be '200'.
+    	When I send a 'DELETE' request to '/policy'
+    	Then the service response status must be '200'.
