@@ -40,7 +40,7 @@ Feature: Test policy with Socket input and CSV output
       | status | UPDATE | Stopping |
     Then the service response status must be '201'.
     And I wait '5' seconds
-    When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
-    Then the service response status must be '200'.
     When I send a 'DELETE' request to '/fragment'
+    Then the service response status must be '200'.
+    When I send a 'DELETE' request to '/policy'
     Then the service response status must be '200'.
