@@ -61,6 +61,8 @@ object SpartaHelper extends SLF4JLogging
       else AkkaConstant.DefaultControllerActorInstances
       val policyStatusActor = system.actorOf(Props(new PolicyStatusActor(curatorFramework)),
         AkkaConstant.PolicyStatusActor)
+      val policyActor = system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActor)),
+        AkkaConstant.PolicyActor)
       val streamingContextService = new StreamingContextService(Some(policyStatusActor), SpartaConfig.mainConfig)
       implicit val actors = Map(
         AkkaConstant.PolicyStatusActor -> policyStatusActor,
@@ -68,10 +70,9 @@ object SpartaHelper extends SLF4JLogging
           system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor),
         AkkaConstant.TemplateActor ->
           system.actorOf(Props(new TemplateActor()), AkkaConstant.TemplateActor),
-        AkkaConstant.PolicyActor ->
-          system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActor)), AkkaConstant.PolicyActor),
+        AkkaConstant.PolicyActor -> policyActor,
         AkkaConstant.SparkStreamingContextActor -> system.actorOf(Props(
-          new SparkStreamingContextActor(streamingContextService, policyStatusActor, curatorFramework)),
+          new SparkStreamingContextActor(streamingContextService, policyActor, policyStatusActor, curatorFramework)),
           AkkaConstant.SparkStreamingContextActor
         )
       )

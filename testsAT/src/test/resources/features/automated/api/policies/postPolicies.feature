@@ -65,7 +65,7 @@ Feature: Test all POST operations for policies in Sparta Swagger API
 		| input | DELETE | N/A | 
 		Then the service response status must be '500' and its response must contain the text 'Only one input is allowed in the policy.'
 		# Delete the second fragment that will not be used later on
-		When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID_2}'
+		When I send a 'DELETE' request to '/fragment/input/id/!{previousFragmentID_2}'
 		Then the service response status must be '200'.
 	
 	Scenario: Add a policy with existing input fragment
@@ -95,7 +95,7 @@ Feature: Test all POST operations for policies in Sparta Swagger API
 		| id | DELETE | N/A |
 		Then the service response status must be '500' and its response must contain the text 'Only one input is allowed in the policy.'
 		# Delete fragment
-		When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
+		When I send a 'DELETE' request to '/fragment/input/id/!{previousFragmentID}'
 		Then the service response status must be '200'.
 		
 	Scenario: Add a policy with 2 existing output fragments
@@ -122,7 +122,6 @@ Feature: Test all POST operations for policies in Sparta Swagger API
 		| fragments[1].name | UPDATE | outputfragment2 |
 		| fragments[1].fragmentType | UPDATE | output |
 		| id | DELETE | N/A |
-		| outputs | DELETE | N/A |
 		| name | UPDATE | policyTwoOutputFragment |
 		Then the service response status must be '200'.
 		And I save element '$.id' in environment variable 'previousPolicyID'
@@ -130,9 +129,9 @@ Feature: Test all POST operations for policies in Sparta Swagger API
 		When I send a 'GET' request to '/policy/all'	
 		Then the service response status must be '200' and its response length must be '1'
 		# Delete fragments
-		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID}'
+		When I send a 'DELETE' request to '/fragment/output/id/!{previousFragmentID}'
 		Then the service response status must be '200'.
-		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
+		When I send a 'DELETE' request to '/fragment/output/id/!{previousFragmentID_2}'
 		Then the service response status must be '200'.
 		
 	Scenario: Add a policy with missing input

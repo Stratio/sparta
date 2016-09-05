@@ -54,12 +54,16 @@ Feature: Test all DELETE operations for policies in Sparta Swagger API
 		When I send a 'GET' request to '/policy/all'
 		Then the service response status must be '200' and its response must contain the text '[]'
 		# Delete fragment
-		When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
+		When I send a 'DELETE' request to '/fragment/input/id/!{previousFragmentID}'
 		Then the service response status must be '200'.
-	
+
 	Scenario: Delete a policy with empty parameter
 		Given I send a 'DELETE' request to '/policy/'
 		Then the service response status must be '405' and its response must contain the text 'HTTP method not allowed, supported methods: GET'
+
+	Scenario: Delete all policies
+		Given I send a 'DELETE' request to '/policy'
+		Then the service response status must be '200'
 
 	Scenario: Clean everything up
 		When I send a 'DELETE' request to '/fragment'
