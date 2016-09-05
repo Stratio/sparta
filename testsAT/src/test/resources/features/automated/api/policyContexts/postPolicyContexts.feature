@@ -77,7 +77,7 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		| fragments[1] | DELETE | N/A |
 		| id | DELETE | N/A |
 		Then the service response status must be '500' and its response must contain the text 'Only one input is allowed in the policy.'
-	
+
 	Scenario: Add a policyContext
 		When I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | policyContextValid |
@@ -89,16 +89,16 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		When I send a 'GET' request to '/policyContext'
 		Then the service response status must be '200' and its response must contain the text '"id":"!{previousPolicyID}"'
 		# One policy created
-		When I send a 'GET' request to '/policy/all'	
+		When I send a 'GET' request to '/policy/all'
 		Then the service response status must be '200' and its response length must be '1'
-	
+
 	Scenario: Add same policyContext
 		When I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | policyContextValid |
 		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
-		Then the service response status must be '404' and its response must contain the text 'Can't create policy'
-	
+		Then the service response status must be '500'
+
 	Scenario: Add a policyContext with existing fragment
 		When I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | policyContext1InputFragment |
@@ -109,69 +109,52 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		| id | DELETE | N/A |
 		| input | DELETE | N/A |
 		Then the service response status must be '200' and its response must contain the text '"policyName":"policyContext1InputFragment"'
-		And I save element '$.policyId' in environment variable 'previousPolicyID_2'
-		# One policyContext created
-		When I send a 'GET' request to '/policyContext'
-		Then the service response status must be '200' and its response must contain the text '"id":"!{previousPolicyID_2}"'
 		# One policy created
-		When I send a 'GET' request to '/policy/all'	
+		When I send a 'GET' request to '/policy/all'
 		Then the service response status must be '200' and its response length must be '2'
-		# Delete fragments
-		When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
+	 	# Delete fragments
+		When I send a 'DELETE' request to '/fragment'
 		Then the service response status must be '200'.
-		When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID_2}'
-		Then the service response status must be '200'.
-		# One policy deleted
-		When I send a 'GET' request to '/policy/all'	
-		Then the service response status must be '200' and its response length must be '1'
-	
-	Scenario: Add a policy context with 2 existing output fragments
-		# Create first output fragment
-		Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
-		| id | DELETE | N/A |
-		| name | UPDATE | outputfragment1 |
-		| fragmentType | UPDATE | output |
-		Then the service response status must be '200'.
-		And I save element '$.id' in environment variable 'previousFragmentID'
-		# Create second output fragment
-		Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
-		| id | DELETE | N/A |
-		| name | UPDATE | outputfragment2 |
-		| fragmentType | UPDATE | output |
-		Then the service response status must be '200'.
-		And I save element '$.id' in environment variable 'previousFragmentID_2'
-		# Create policy using these output fragments
-		When I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
-		| fragments[0].id | UPDATE | !{previousFragmentID} |
-		| fragments[0].name | UPDATE | outputfragment1 |
-		| fragments[0].fragmentType | UPDATE | output |
-		| fragments[1].id | UPDATE | !{previousFragmentID_2} |
-		| fragments[1].name | UPDATE | outputfragment2 |
-		| fragments[1].fragmentType | UPDATE | output |
-		| id | DELETE | N/A |
-		| outputs | DELETE | N/A |
-		| name | UPDATE | policyContextTwoOutputFragment |	
-		Then the service response status must be '200' and its response must contain the text '"policyName":"policyContextTwoOutputFragment"'
-		And I save element '$.policyId' in environment variable 'previousPolicyID_2'
-		# One policyContext created
-		When I send a 'GET' request to '/policyContext'
-		Then the service response status must be '200' and its response must contain the text '"id":"!{previousPolicyID_2}"'
-		# One policy created
-		When I send a 'GET' request to '/policy/all'	
-		Then the service response status must be '200' and its response length must be '2'		
-		# Delete fragments
-		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID}'
-		Then the service response status must be '200'.
-		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
-		Then the service response status must be '200'.
-		# One policy deleted
-		When I send a 'GET' request to '/policy/all'	
-		Then the service response status must be '200' and its response length must be '1'
-		# Delete policy created with first policyContext
-		When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
+		When I send a 'DELETE' request to '/policy'
 		Then the service response status must be '200'.
 
-		# Delete fragments
+	Scenario: Add a policy context with 2 existing output fragments
+	  # Create first output fragment
+		Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
+			| id | DELETE | N/A |
+			| name | UPDATE | outputfragment1 |
+			| fragmentType | UPDATE | output |
+		Then the service response status must be '200'.
+		And I save element '$.id' in environment variable 'previousFragmentID'
+	  # Create second output fragment
+		Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
+			| id | DELETE | N/A |
+			| name | UPDATE | outputfragment2 |
+			| fragmentType | UPDATE | output |
+		Then the service response status must be '200'.
+		And I save element '$.id' in environment variable 'previousFragmentID_2'
+	  # Create policy using these output fragments
+		When I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
+			| fragments[0].id | UPDATE | !{previousFragmentID} |
+			| fragments[0].name | UPDATE | outputfragment1 |
+			| fragments[0].fragmentType | UPDATE | output |
+			| fragments[1].id | UPDATE | !{previousFragmentID_2} |
+			| fragments[1].name | UPDATE | outputfragment2 |
+			| fragments[1].fragmentType | UPDATE | output |
+			| id | DELETE | N/A |
+			| outputs | DELETE | N/A |
+			| name | UPDATE | policyContextTwoOutputFragment |
+		Then the service response status must be '200'
+	  # One policy created
+		When I send a 'GET' request to '/policy/all'
+		Then the service response status must be '200' and its response length must be '2'
+		 # Delete fragments
+		When I send a 'DELETE' request to '/fragment'
+		Then the service response status must be '200'.
+		When I send a 'DELETE' request to '/policy'
+		Then the service response status must be '200'.
+
+	Scenario: Clean up
 		When I send a 'DELETE' request to '/fragment'
 		Then the service response status must be '200'.
 		When I send a 'DELETE' request to '/policy'

@@ -18,7 +18,7 @@ Feature: Test all DELETE operations for fragments in Sparta Swagger API
 	
 	Scenario: Delete a fragment with type invalid and name invalid with empty list
 		When I send a 'DELETE' request to '/fragment/invalid/invalid/invalid'
-		Then the service response status must be '500'.
+		Then the service response status must be '405'.
 		
 	Scenario: Delete a fragment with type input and name invalid with empty list
 		When I send a 'DELETE' request to '/fragment/input/id/invalid'

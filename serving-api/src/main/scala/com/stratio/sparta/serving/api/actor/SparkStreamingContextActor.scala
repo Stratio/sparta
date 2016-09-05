@@ -38,7 +38,9 @@ import scala.concurrent.Future
 import scala.util.Try
 
 class SparkStreamingContextActor(streamingContextService: StreamingContextService,
-                                 policyStatusActor: ActorRef, curatorFramework: CuratorFramework) extends Actor
+                                 policyActor: ActorRef,
+                                 policyStatusActor: ActorRef,
+                                 curatorFramework: CuratorFramework) extends Actor
   with SparkStreamingContextUtils
   with SLF4JLogging
   with SpartaSerializer {
@@ -63,7 +65,7 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
     if (policy.id.isDefined)
       launch(policy, policyStatusActor, streamingContextService, context)
     else {
-      val result = context.actorSelection(AkkaConstant.PolicyActor) ? PolicyActor.Create(policy)
+      val result = policyActor ? PolicyActor.Create(policy)
       Await.result(result, timeout.duration) match {
         case ResponsePolicy(Failure(exception)) =>
           throw exception

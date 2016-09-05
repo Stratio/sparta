@@ -93,11 +93,11 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 		Then the service response status must be '200'.
 		And I save element '$.id' in environment variable 'previousPolicyID'
 		# Get policies with fragmentType input and id !{previousFragmentID}
-		When I send a 'GET' request to '/policy/fragment/input/!{previousFragmentID}'
+		When I send a 'GET' request to '/policy/fragment/output/!{previousFragmentID}'
 		Then the service response status must be '200' and its response length must be '1'
 		
 	Scenario: Get all policies with policies available
-		When I send a 'GET' request to '/policy/all'	
+		When I send a 'GET' request to '/policy/all'
 		Then the service response status must be '200' and its response length must be '1'
 
 	Scenario: Run a policy with 2 existing output fragments
@@ -117,14 +117,13 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 		| fragments[1].name | UPDATE | outputfragment2 |
 		| fragments[1].fragmentType | UPDATE | output |
 		| id | DELETE | N/A |
-		| outputs | DELETE | N/A |
 		| name | UPDATE | policyTwoOutputFragment |
 		Then the service response status must be '200'.
 		And I save element '$.id' in environment variable 'previousPolicyID_2'
-		# Run policy	
+		# Run policy
 		When I send a 'GET' request to '/policy/run/!{previousPolicyID_2}'
 		Then the service response status must be '200' and its response must contain the text '{"message":"Creating new context'
-	
+
 	Scenario: Get a policy with empty name
 		When I send a 'GET' request to '/policy/findByName/'
 		Then the service response status must be '404' and its response must contain the text 'The requested resource could not be found.'
@@ -144,13 +143,13 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 	Scenario: Get all policies that contains a fragment with empty type and id
 		When I send a 'GET' request to '/policy/fragment//'
 		Then the service response status must be '404' and its response must contain the text 'The requested resource could not be found.'
-	
+
 	Scenario: Run an empty policy
 		When I send a 'GET' request to '/policy/run/'
 		Then the service response status must be '404' and its response must contain the text 'The requested resource could not be found.'
-		
+
 	Scenario: Clean everything up
 		When I send a 'DELETE' request to '/fragment'
-    Then the service response status must be '200'.
-    When I send a 'DELETE' request to '/policy'
-    Then the service response status must be '200'.
+    	Then the service response status must be '200'.
+    	When I send a 'DELETE' request to '/policy'
+    	Then the service response status must be '200'.
