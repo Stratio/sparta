@@ -13,9 +13,9 @@ Feature: Test all Get operations for policyContexts in Sparta Swagger API
 		| name | UPDATE | policyContextAvailable |
 		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
-		Then the service response status must be '200'
+		Then the service response status must be '200'.
 		When I send a 'GET' request to '/policyContext'
-		Then the service response status must be '200' and and its response length must be '1'
+		Then the service response status must be '200' and its response length must be '1'
 
 	Scenario: Clean up
 		When I send a 'DELETE' request to '/fragment'

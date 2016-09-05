@@ -97,7 +97,7 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		| name | UPDATE | policyContextValid |
 		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
-		Then the service response status must be '500'
+		Then the service response status must be '500'.
 
 	Scenario: Add a policyContext with existing fragment
 		When I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
@@ -144,7 +144,6 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 			| id | DELETE | N/A |
 			| outputs | DELETE | N/A |
 			| name | UPDATE | policyContextTwoOutputFragment |
-		Then the service response status must be '200'
 	  # One policy created
 		When I send a 'GET' request to '/policy/all'
 		Then the service response status must be '200' and its response length must be '2'
