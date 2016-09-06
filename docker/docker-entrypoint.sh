@@ -25,7 +25,7 @@
    HDFS_USER_NAME=stratio
  fi
  if [[ ! -v SPARK_MASTER ]]; then
-   SPARK_MASTER=local[*]:7077
+   SPARK_MASTER="local[*]"
  fi
    if [[ ! -v MESOS_MASTER ]]; then
    MESOS_MASTER=localhost:7077
@@ -36,7 +36,7 @@
  sed -i "s|hdfsPort.*|hdfsPort = \"${HDFS_PORT}\"|" ${SPARTA_CONF_FILE}
  sed -i "s|hadoopUserName.*|hadoopUserName = \"${HDFS_USER_NAME}\"|" ${SPARTA_CONF_FILE}
  if [[ ! -v EXECUTION_MODE || "${EXECUTION_MODE}" == "local" ]]; then
-   sed -i "s|spark.master.*|spark.master = \""${SPARK_MASTER:=local[*]}"\"|" ${SPARTA_CONF_FILE}
+   sed -i "s|spark.master.*|spark.master = \"${SPARK_MASTER}\"|" ${SPARTA_CONF_FILE}
  fi
  if [[ "${EXECUTION_MODE}" == "mesos" || "${EXECUTION_MODE}" == "yarn" || "${EXECUTION_MODE}" == "standalone" ]]; then
    SPARK_HADOOP_VERSION_FILE="${SPARK_VERSION}-bin-${HADOOP_SPARK_VERSION}.tgz"
